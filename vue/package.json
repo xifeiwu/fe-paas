@@ -1,0 +1,16 @@
+{
+  "name": "vue",
+  "version": "1.0.0",
+  "description": "vue project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/**/* test/**/* packages/**/*.{js,vue} build/**/* --quiet",
+    "dist": "cooking build -c build/cooking.conf.js"
+  },
+  "keywords": [
+    "vue"
+  ],
+  "author": "xifei.wu",
+  "license": "ISC"
+}
