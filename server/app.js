@@ -12,13 +12,13 @@ const users = require('./routes/users')
 onerror(app)
 
 // middlewares
-app.use(bodyparser({
-  enableTypes:['json', 'form', 'text']
-}))
+// app.use(bodyparser({
+//   enableTypes:['json', 'form', 'text']
+// }))
 app.use(json())
 app.use(logger())
 app.use(require('koa-static')(__dirname + '/dist'))
-
+console.log(__dirname + '/dist');
 
 // logger
 app.use(async (ctx, next) => {
