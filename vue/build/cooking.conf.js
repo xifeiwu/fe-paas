@@ -8,6 +8,9 @@ var multiPageConfig = {
     {
       "name": "test",
       "entry": path.resolve(vueBaseDir, 'test/index.js'),
+    }, {
+      "name": "galaxy",
+      "entry": path.resolve(vueBaseDir, 'galaxy/index.js'),
     },
     // {
     //   "entry": "home",
@@ -30,6 +33,15 @@ var multiPageConfig = {
       },
       "chunks": ["test"],
       "template": path.resolve(vueBaseDir, 'templates/test.tpl'),
+    }, {
+      "name": "galaxy",
+      "title": "Galaxy",
+      "cdn": {
+        "js": [],
+        "css": []
+      },
+      "chunks": ["galaxy"],
+      "template": path.resolve(vueBaseDir, 'templates/galaxy.tpl'),
     }
 
   ],
