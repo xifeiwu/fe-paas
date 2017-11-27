@@ -22,24 +22,24 @@
 </template>
 
 <script>
-  import card_demo from '../app/card';
-  import alert_demo from '../app/alert';
-  import progress_demo from '../app/progress';
-  import radio_demo from '../app/radio';
-  import popover_demo from '../app/popover.vue';
-  import scrollbar_demo from '../app/scrollbar.vue';
-  import switch_demo from '../app/switch.vue';
-  import checkbox_demo from '../app/checkbox.vue';
-  import tooltip_demo from '../app/tooltip.vue';
-  import tag_demo from '../app/tag.vue';
-  import table_demo from '../app/table.vue';
-  import render_com_demo from '../app/render-com.vue'
-  import input_demo from '../app/input.vue'
-  import input_number_demo from '../app/input-number.vue'
-  import select_demo from '../app/select.vue'
-  import badge_demo from '../app/badge.vue'
-  import button_demo from '../app/button.vue'
-  import loading_demo from '../app/loading.vue'
+  import card_demo from './card';
+  import alert_demo from './alert';
+  import progress_demo from './progress';
+  import radio_demo from './radio';
+  import popover_demo from './popover.vue';
+  import scrollbar_demo from './scrollbar.vue';
+  import switch_demo from './switch.vue';
+  import checkbox_demo from './checkbox.vue';
+  import tooltip_demo from './tooltip.vue';
+  import tag_demo from './tag.vue';
+  import table_demo from './table.vue';
+  import render_com_demo from './render-com.vue'
+  import input_demo from './input.vue'
+  import input_number_demo from './input-number.vue'
+  import select_demo from './select.vue'
+  import badge_demo from './badge.vue'
+  import button_demo from './button.vue'
+  import loading_demo from './loading.vue'
 
   export default {
       name: 'index',

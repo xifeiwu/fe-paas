@@ -67,7 +67,7 @@
         setTimeout(() => {
           this.fullscreenLoading = false;
         }, 2000);
-        this.$ajax.get('http://www.elif.site/blog/')
+        this.$ajax.get('/string')
           .then(function (response) {
             console.log(response);
           })

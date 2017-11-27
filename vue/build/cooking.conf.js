@@ -7,7 +7,7 @@ var multiPageConfig = {
   "bundles": [
     {
       "name": "test",
-      "entry": path.resolve(vueBaseDir, 'app/index.js'),
+      "entry": path.resolve(vueBaseDir, 'test/index.js'),
     },
     // {
     //   "entry": "home",
