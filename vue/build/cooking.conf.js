@@ -6,11 +6,8 @@ var vueBaseDir = path.resolve(__dirname, '../');
 var multiPageConfig = {
   "bundles": [
     {
-      "name": "test",
-      "entry": path.resolve(vueBaseDir, 'test/index.js'),
-    }, {
       "name": "galaxy",
-      "entry": path.resolve(vueBaseDir, 'galaxy/index.js'),
+      "entry": path.resolve(vueBaseDir, 'galaxy/entry.js'),
     },
     // {
     //   "entry": "home",
@@ -25,19 +22,13 @@ var multiPageConfig = {
   ],
   "templates": [
     {
-      "name": "test",
-      "title": "VUE模块测试",
-      "cdn": {
-        "js": [],
-        "css": []
-      },
-      "chunks": ["test"],
-      "template": path.resolve(vueBaseDir, 'templates/test.tpl'),
-    }, {
       "name": "galaxy",
       "title": "Galaxy",
       "cdn": {
-        "js": [],
+        "js": [
+        // '/cdn.jsdelivr.net/npm/vue@2.5.2/dist/vue.runtime.min.js',
+        //   'https://unpkg.com/vue-router/dist/vue-router.js'
+        ],
         "css": []
       },
       "chunks": ["galaxy"],
@@ -54,6 +45,23 @@ var multiPageConfig = {
   },
   "externals": {
   }
+}
+var RUN_TEST = false;
+if (RUN_TEST) {
+  multiPageConfig.bundles.push({
+    "name": "test",
+    "entry": path.resolve(vueBaseDir, 'test/index.js'),
+  });
+  multiPageConfig.templates.push({
+    "name": "test",
+    "title": "VUE模块测试",
+    "cdn": {
+      "js": [],
+      "css": []
+    },
+    "chunks": ["test"],
+    "template": path.resolve(vueBaseDir, 'templates/test.tpl'),
+  });
 }
 
 var entries = function() {
