@@ -64,11 +64,11 @@ import Scrollbar from '../packages/scrollbar/index.js';
 // import Cascader from '../packages/cascader/index.js';
 // import ColorPicker from '../packages/color-picker/index.js';
 // import Transfer from '../packages/transfer/index.js';
-// import Container from '../packages/container/index.js';
-// import Header from '../packages/header/index.js';
-// import Aside from '../packages/aside/index.js';
-// import Main from '../packages/main/index.js';
-// import Footer from '../packages/footer/index.js';
+import Container from '../packages/container/index.js';
+import Header from '../packages/header/index.js';
+import Aside from '../packages/aside/index.js';
+import Main from '../packages/main/index.js';
+import Footer from '../packages/footer/index.js';
 // import locale from 'element-ui/src/locale';
 // import CollapseTransition from 'element-ui/src/transitions/collapse-transition';
 
@@ -134,11 +134,11 @@ const components = [
   // Cascader,
   // ColorPicker,
   // Transfer,
-  // Container,
-  // Header,
-  // Aside,
-  // Main,
-  // Footer,
+  Container,
+  Header,
+  Aside,
+  Main,
+  Footer,
   // CollapseTransition
 ];
 

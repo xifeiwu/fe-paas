@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import App from './pages/login.vue';
+import App from './pages/login_2.vue';
 
 new Vue({
     el: '#app',

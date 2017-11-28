@@ -20,6 +20,7 @@
     <button_demo></button_demo>
     <loading_demo></loading_demo>
     <form_demo></form_demo>
+    <container_demo></container_demo>
   </div>
 </template>
 
@@ -44,6 +45,7 @@
   import button_demo from './button.vue'
   import loading_demo from './loading.vue'
   import form_demo from './form.vue'
+  import container_demo from './container.vue'
 
   export default {
       name: 'index',
@@ -59,7 +61,7 @@
       components: {
           card_demo, layout_demo, alert_demo, progress_demo, radio_demo, popover_demo, scrollbar_demo, switch_demo, checkbox_demo,
           tooltip_demo, tag_demo, table_demo, render_com_demo, input_demo, input_number_demo, select_demo, badge_demo,
-        button_demo, loading_demo, form_demo
+        button_demo, loading_demo, form_demo, container_demo
       }
   }
 </script>
