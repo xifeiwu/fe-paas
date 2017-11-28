@@ -1,7 +1,7 @@
 /**
  * Created by xifei.wu on 2017/11/28.
  */
-import Login2 from './pages/login_2.vue'
+import Login from './pages/login.vue'
 
 const load = function(name) {
   return function(r) {
@@ -37,20 +37,21 @@ const generateMiscRoutes = function() {
   // };
 
   let indexRoute = {
-    path: '/', // 首页
-    name: 'home',
-    component: load('login_2.vue')
+    path: '/',
+    name: 'main',
+    component: Login
   };
 
   return [indexRoute];
 };
 
 let routeConfig = [];
-// routeConfig.push(generateMiscRoutes());
-routeConfig.push({
-  path: '/play',
-  name: 'play',
-  component: Login2
-});
+routeConfig = routeConfig.concat(generateMiscRoutes());
+
+// routeConfig.push({
+//   path: '/play',
+//   name: 'play',
+//   component: Login
+// });
 
 export default routeConfig
