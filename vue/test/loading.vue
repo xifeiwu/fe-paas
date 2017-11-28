@@ -67,7 +67,7 @@
         setTimeout(() => {
           this.fullscreenLoading = false;
         }, 2000);
-        this.$ajax.get('/string')
+        this.$ajax.get('http://172.16.49.141:30333/createRandomImage')
           .then(function (response) {
             console.log(response);
           })
