@@ -44,9 +44,9 @@ import Alert from '../packages/alert/index.js';
 // import Notification from '../packages/notification/index.js';
 // import Slider from '../packages/slider/index.js';
 import Loading from '../packages/loading/index.js';
-// import Icon from '../packages/icon/index.js';
-// import Row from '../packages/row/index.js';
-// import Col from '../packages/col/index.js';
+import Icon from '../packages/icon/index.js';
+import Row from '../packages/row/index.js';
+import Col from '../packages/col/index.js';
 // import Upload from '../packages/upload/index.js';
 // import Progress from '../packages/progress/index.js';
 // import Spinner from '../packages/spinner/index.js';
@@ -115,9 +115,9 @@ const components = [
   Alert,
   Loading,
   // Slider,
-  // Icon,
-  // Row,
-  // Col,
+  Icon,
+  Row,
+  Col,
   // Upload,
   // Progress,
   // Spinner,

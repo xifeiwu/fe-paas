@@ -10,9 +10,6 @@
     </el-card>
 </template>
 <script>
-    import Vue from 'vue';
-    import Card from '../packages/card/index.js';
-    Vue.component(Card.name, Card);
     export default {
         name: 'card_demo'
     }

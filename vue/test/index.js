@@ -1,14 +1,14 @@
 import Vue from 'vue';
 import '../packages/theme-chalk/src/index.scss';
 import APP from './app.js';
-
+APP.install(Vue);
 import entry from './app.vue';
 // import progressEntry from './progress'
 
 // console.log(entry);
 // console.log(Card);
 
-APP.install(Vue);
+
 new Vue({ // eslint-disable-line
   el: '#app',
   render: h => h(entry)

@@ -1,5 +1,6 @@
 <template>
   <div class="element-ui-show" style="position: relative">
+    <layout_demo></layout_demo>
     <card_demo></card_demo>
     <alert_demo></alert_demo>
     <progress_demo></progress_demo>
@@ -22,6 +23,7 @@
 </template>
 
 <script>
+  import layout_demo from './layout.vue'
   import card_demo from './card';
   import alert_demo from './alert';
   import progress_demo from './progress';
@@ -53,7 +55,7 @@
           }
       },
       components: {
-          card_demo, alert_demo, progress_demo, radio_demo, popover_demo, scrollbar_demo, switch_demo, checkbox_demo,
+          card_demo, layout_demo, alert_demo, progress_demo, radio_demo, popover_demo, scrollbar_demo, switch_demo, checkbox_demo,
           tooltip_demo, tag_demo, table_demo, render_com_demo, input_demo, input_number_demo, select_demo, badge_demo,
         button_demo, loading_demo
       }
