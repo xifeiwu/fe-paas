@@ -3,9 +3,9 @@ import axios from 'axios';
 // import Pagination from '../packages/pagination/index.js';
 // import Dialog from '../packages/dialog/index.js';
 // import Autocomplete from '../packages/autocomplete/index.js';
-// import Dropdown from '../packages/dropdown/index.js';
-// import DropdownMenu from '../packages/dropdown-menu/index.js';
-// import DropdownItem from '../packages/dropdown-item/index.js';
+import Dropdown from '../packages/dropdown/index.js';
+import DropdownMenu from '../packages/dropdown-menu/index.js';
+import DropdownItem from '../packages/dropdown-item/index.js';
 import Menu from '../packages/menu/index.js';
 import Submenu from '../packages/submenu/index.js';
 import MenuItem from '../packages/menu-item/index.js';
@@ -36,8 +36,8 @@ import Tooltip from '../packages/tooltip/index.js';
 // import BreadcrumbItem from '../packages/breadcrumb-item/index.js';
 import Form from '../packages/form/index.js';
 import FormItem from '../packages/form-item/index.js';
-// import Tabs from '../packages/tabs/index.js';
-// import TabPane from '../packages/tab-pane/index.js';
+import Tabs from '../packages/tabs/index.js';
+import TabPane from '../packages/tab-pane/index.js';
 import Tag from '../packages/tag/index.js';
 // import Tree from '../packages/tree/index.js';
 import Alert from '../packages/alert/index.js';
@@ -76,9 +76,9 @@ const components = [
   // Pagination,
   // Dialog,
   // Autocomplete,
-  // Dropdown,
-  // DropdownMenu,
-  // DropdownItem,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
   Menu,
   Submenu,
   MenuItem,
@@ -108,8 +108,8 @@ const components = [
   // BreadcrumbItem,
   Form,
   FormItem,
-  // Tabs,
-  // TabPane,
+  Tabs,
+  TabPane,
   Tag,
   // Tree,
   Alert,

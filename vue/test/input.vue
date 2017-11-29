@@ -27,7 +27,8 @@
     data() {
       return {
         textarea2: '',
-        textarea3: ''
+        textarea3: '',
+        input3: ''
       }
     },
     methods: {

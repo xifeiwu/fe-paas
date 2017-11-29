@@ -82,6 +82,7 @@ export default {
             { this.$slots.content || this.content }
           </div>
         </transition>);
+      // console.log(this.popperVM.vnode);
     }
 
     if (!this.$slots.default || !this.$slots.default.length) return this.$slots.default;

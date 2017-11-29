@@ -48,6 +48,8 @@
   import form_demo from './form.vue'
   import container_demo from './container.vue'
   import menu_demo from './menu.vue'
+  import dropdown_demo from './dropdown.vue'
+  import tabs_demo from './tabs.vue'
 
   export default {
       name: 'index',
@@ -63,7 +65,7 @@
       components: {
           card_demo, layout_demo, alert_demo, progress_demo, radio_demo, popover_demo, scrollbar_demo, switch_demo, checkbox_demo,
           tooltip_demo, tag_demo, table_demo, render_com_demo, input_demo, input_number_demo, select_demo, badge_demo,
-        button_demo, loading_demo, form_demo, container_demo, menu_demo
+        button_demo, loading_demo, form_demo, container_demo, menu_demo, dropdown_demo, tabs_demo
       }
   }
 </script>

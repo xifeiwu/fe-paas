@@ -85,7 +85,7 @@ var templates = function() {
         filename: it.name + '.html',
         template: it.template,
         cdn: merge(multiPageConfig.cdn, it.cdn),
-        chunks: ["manifest"].concat(it.chunks)
+        chunks: ["vendor", "manifest"].concat(it.chunks)
       }
     });
 }
