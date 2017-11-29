@@ -91,7 +91,7 @@ var {
   padding: 0;
   border: 0;
   outline: 0;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 ol,
@@ -112,11 +112,11 @@ table td {
 }
 
 img {
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 embed {
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 article,

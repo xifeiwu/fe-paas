@@ -7,7 +7,7 @@ var multiPageConfig = {
   "bundles": [
     {
       "name": "galaxy",
-      "entry": path.resolve(vueBaseDir, 'galaxy/entry.js'),
+      "entry": path.resolve(vueBaseDir, 'app-galaxy/entry.js'),
     },
     // {
     //   "entry": "home",
@@ -50,7 +50,7 @@ var RUN_TEST = true;
 if (RUN_TEST) {
   multiPageConfig.bundles.push({
     "name": "test",
-    "entry": path.resolve(vueBaseDir, 'test/index.js'),
+    "entry": path.resolve(vueBaseDir, 'app-test/index.js'),
   });
   multiPageConfig.templates.push({
     "name": "test",
