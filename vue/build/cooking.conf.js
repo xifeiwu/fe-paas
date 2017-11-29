@@ -32,7 +32,7 @@ var multiPageConfig = {
         "css": []
       },
       "chunks": ["galaxy"],
-      "template": path.resolve(vueBaseDir, 'templates/galaxy.tpl'),
+      "template": path.resolve(vueBaseDir, 'app-galaxy/index.tpl'),
     }
 
   ],
@@ -60,7 +60,7 @@ if (RUN_TEST) {
       "css": []
     },
     "chunks": ["test"],
-    "template": path.resolve(vueBaseDir, 'templates/test.tpl'),
+    "template": path.resolve(vueBaseDir, 'app-test/index.tpl'),
   });
 }
 

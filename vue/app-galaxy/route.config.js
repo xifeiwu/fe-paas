@@ -37,8 +37,8 @@ const generateMiscRoutes = function() {
   // };
 
   let indexRoute = {
-    path: '/',
-    name: 'main',
+    path: '/login',
+    name: 'login',
     component: Login
   };
 

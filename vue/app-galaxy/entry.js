@@ -4,8 +4,10 @@ import APP from './app';
 import routes from './route.config';
 console.log(routes);
 
+import '../assets/css/fix_style.scss';
 import '../packages/theme-chalk/src/index.scss';
 import Components from './components.js';
+
 Components.install(Vue);
 
 Vue.use(VueRouter);
