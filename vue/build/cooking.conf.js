@@ -46,7 +46,7 @@ var multiPageConfig = {
   "externals": {
   }
 }
-var RUN_TEST = false;
+var RUN_TEST = true;
 if (RUN_TEST) {
   multiPageConfig.bundles.push({
     "name": "test",
