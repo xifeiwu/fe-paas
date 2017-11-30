@@ -5,10 +5,10 @@
       <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
         <el-menu-item index="1">凡普云首页</el-menu-item>
         <!--<el-submenu index="2">-->
-          <!--<template slot="title">我的工作台</template>-->
-          <!--<el-menu-item index="2-1">选项1</el-menu-item>-->
-          <!--<el-menu-item index="2-2">选项2</el-menu-item>-->
-          <!--<el-menu-item index="2-3">选项3</el-menu-item>-->
+        <!--<template slot="title">我的工作台</template>-->
+        <!--<el-menu-item index="2-1">选项1</el-menu-item>-->
+        <!--<el-menu-item index="2-2">选项2</el-menu-item>-->
+        <!--<el-menu-item index="2-3">选项3</el-menu-item>-->
         <!--</el-submenu>-->
         <el-menu-item index="2">帮助文档</el-menu-item>
         <el-menu-item index="3">登录</el-menu-item>
@@ -18,14 +18,14 @@
       <div class="form-container">
         <el-form ref="form" :model="form" label-width="80px">
           <el-form-item labelWidth="0px">
-            <div class="login-title" >登录凡普云</div>
+            <div class="login-title">登录凡普云</div>
           </el-form-item>
           <el-form-item labelWidth="0px" v-if="error.status">
             <el-alert
-              :title="error.content"
-              type="error"
-              :closable="false"
-              class="login-error"
+                    :title="error.content"
+                    type="error"
+                    :closable="false"
+                    class="login-error"
             >
             </el-alert>
           </el-form-item>
@@ -36,33 +36,43 @@
             <el-input v-model="form.password" placeholder="请输入密码" type="password"></el-input>
           </el-form-item>
           <el-form-item labelWidth="0px">
-            <el-input v-model="form.identifyCode" placeholder="请输入验证码"></el-input>
+            <el-input v-model="form.verifyCode" placeholder="请输入验证码">
+              <template slot="append"><img alt="..." width="60" height="30" :src="verifyImageData"
+                                           @click="updateVerifyCode"></template>
+            </el-input>
           </el-form-item>
           <el-form-item class="login-interval" labelWidth="0px">
             <el-checkbox v-model="freeLogin15Days"
                          label="without_login"
                          name="without_login"
-                         @change="freeLoginStateChange">15天免登录</el-checkbox>
+                         @change="freeLoginStateChange">15天免登录
+            </el-checkbox>
           </el-form-item>
           <el-form-item class="login-button" labelWidth="0px">
-            <el-button type="primary" @click="onSubmit">登 录</el-button>
+            <el-button type="primary" @click="onSubmit">登&nbsp&nbsp&nbsp&nbsp录</el-button>
           </el-form-item>
         </el-form>
       </div>
     </el-main>
-    <el-footer>Copyright © 2017 凡普金科</el-footer>
+    <el-footer>
+      <div>Copyright © 2017 凡普金科</div>
+    </el-footer>
   </el-container>
 </template>
 <script>
+  import urlList from '../url.config'
   export default {
     data() {
       return {
         activeIndex: '3',
         form: {
-          userName: '',
-          password: '',
-          identifyCode: '',
+          userName: 'admin',
+          password: '123qwe',
+          verifyCode: 'g',
+          verificationCode: '',
         },
+        verifyImageData: '',
+
         freeLogin15Days: false,
         error: {
           status: false,
@@ -70,19 +80,79 @@
         }
       };
     },
+    created: function () {
+//      this.verifyImageData = urlList.getVerifyCode + '?t=' + new Date().getTime();
+      this.updateVerifyCode();
+    },
     methods: {
       handleSelect(key, keyPath) {
         console.log(key, keyPath);
       },
       freeLoginStateChange: function (value, evt) {
-        console.log("checkboxChange");
-        console.log(value);
+//        console.log(value);
+      },
+      updateVerifyCode() {
+        var verifyImageURL = urlList.getVerifyCode + '?t=' + new Date().getTime();
+//        var xhr = new XMLHttpRequest();
+//        xhr.onload = function () {
+//          console.log(this.response);
+//          var objectURL = URL.createObjectURL(this.response);
+//          var img = document.createElement("img");
+//          img.src = objectURL;
+//          img.height = 60;
+//          img.onload = function (e) {
+//            window.URL.revokeObjectURL(this.src);
+//          };
+//          document.body.appendChild(img);
+//        };
+//        xhr.open("POST", verifyImageURL);
+//        xhr.responseType = "blob";
+//        xhr.send(null);
+
+          this.$ajax.get(verifyImageURL,{
+            responseType: 'arraybuffer'
+          }).then(response => {
+//            console.log(response);
+            var base64 = new Buffer(response.data, 'binary').toString('base64');
+            var mimetype = response.headers['content-type'];
+            this.verifyImageData = "data:" + mimetype + ";base64," + base64;
+            this.form.verificationCode = response.headers['verification-code'];
+          }).catch(err => {
+            this.form.verificationCode = '';
+            console.log(err);
+          })
+//        this.$ajax.get(verifyImageURL).then(response => {
+//          console.log(response);
+//          console.log(response.headers);
+//          console.log(response.headers['verification-code']);
+//          this.form.verificationCode = response.headers['verification-code'];
+//          console.log(encodeURI(response.data))
+//          var u8 = new Uint8Array(response.data);
+//          console.log(u8);
+//          var b64encoded = btoa(String.fromCharCode.apply(null, u8));
+//          console.log(b64encoded);
+//          var mimetype = response.headers['content-type'];
+//          console.log("data:" + mimetype + ";base64," + b64encoded);
+//        }).catch(err => {
+//          console.log(err);
+//          this.form.verificationCode = '';
+//        });
       },
       onSubmit() {
-        console.log('submit!');
-        console.log(this);
         if (this.checkData()) {
-          console.log(this.$data);
+          var objToPost = {
+            username: this.form.userName,
+            password: this.form.password,
+            randomCode: this.form.verifyCode,
+            verificationCode: this.form.verificationCode,
+            freeLogin15Days: this.freeLogin15Days,
+          };
+          console.log(objToPost);
+          this.$ajax.post(urlList.login, objToPost).then(function (response) {
+            console.log(response);
+          }).catch(function (err) {
+            console.log(err);
+          });
         }
       },
       checkData() {
@@ -97,7 +167,7 @@
           this.error.content = "请输入密码";
           return isOK;
         }
-        if (this.form.identifyCode.length === 0) {
+        if (this.form.verifyCode.length === 0) {
           this.error.status = true;
           this.error.content = "请输入验证码";
           return isOK;
@@ -134,7 +204,7 @@
         margin-top: 50px;
         margin-right: 30px;
         padding: 20px;
-        box-shadow: 0 0 8px 0 rgba(232,237,250,.6), 0 2px 4px 0 rgba(232,237,250,.5);
+        box-shadow: 0 0 8px 0 rgba(232, 237, 250, .6), 0 2px 4px 0 rgba(232, 237, 250, .5);
         .el-form {
           width: 320px;
           .el-form-item {
@@ -142,7 +212,7 @@
             .login-error {
               line-height: 100%;
               padding: 8px 2px;
-              font-weight:bold;
+              font-weight: bold;
             }
             .login-title {
               text-align: center;
@@ -155,6 +225,9 @@
             }
             &.login-button {
               text-align: center;
+              button {
+                width: 100%;
+              }
             }
             &:last-child {
               margin-bottom: 0px;
@@ -180,8 +253,6 @@
       text-align: center;
     }
   }
-
-
 
   body > .el-container {
     margin-bottom: 40px;

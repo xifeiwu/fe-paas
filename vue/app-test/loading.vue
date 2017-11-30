@@ -70,6 +70,12 @@
         this.$ajax.get('http://172.16.49.141:30333/createRandomImage')
           .then(function (response) {
             console.log(response);
+            var img = document.createElement("img");
+
+            img.src = window.URL.createObjectURL(response.data);
+            console.log(img);
+            document.body.appendChild(img);
+//            $("#imgcontainer").html(img)
           })
           .catch(function (error) {
             console.log(error);
