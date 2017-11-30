@@ -10,27 +10,39 @@
           <!--<el-menu-item index="2-2">选项2</el-menu-item>-->
           <!--<el-menu-item index="2-3">选项3</el-menu-item>-->
         <!--</el-submenu>-->
-        <el-menu-item index="3"><a href="https://www.ele.me" target="_blank">帮助文档</a></el-menu-item>
+        <el-menu-item index="2">帮助文档</el-menu-item>
+        <el-menu-item index="3">登录</el-menu-item>
       </el-menu>
     </el-header>
     <el-main>
       <div class="form-container">
         <el-form ref="form" :model="form" label-width="80px">
-          <el-form-item class="login-title" labelWidth="0px">登录凡普云</el-form-item>
           <el-form-item labelWidth="0px">
-            <el-input v-model="form.name" placeholder="请输入用户名"></el-input>
+            <div class="login-title" >登录凡普云</div>
+          </el-form-item>
+          <el-form-item labelWidth="0px" v-if="error.status">
+            <el-alert
+              :title="error.content"
+              type="error"
+              :closable="false"
+              class="login-error"
+            >
+            </el-alert>
           </el-form-item>
           <el-form-item labelWidth="0px">
-            <el-input v-model="form.password" placeholder="请输入密码"></el-input>
+            <el-input v-model="form.userName" placeholder="请输入用户名"></el-input>
           </el-form-item>
           <el-form-item labelWidth="0px">
-            <el-input v-model="form.password" placeholder="请输入验证码"></el-input>
+            <el-input v-model="form.password" placeholder="请输入密码" type="password"></el-input>
+          </el-form-item>
+          <el-form-item labelWidth="0px">
+            <el-input v-model="form.identifyCode" placeholder="请输入验证码"></el-input>
           </el-form-item>
           <el-form-item class="login-interval" labelWidth="0px">
-            <el-checkbox v-model="checked"
+            <el-checkbox v-model="freeLogin15Days"
                          label="without_login"
                          name="without_login"
-                         @change="checkboxChange">15天免登录</el-checkbox>
+                         @change="freeLoginStateChange">15天免登录</el-checkbox>
           </el-form-item>
           <el-form-item class="login-button" labelWidth="0px">
             <el-button type="primary" @click="onSubmit">登 录</el-button>
@@ -42,35 +54,58 @@
   </el-container>
 </template>
 <script>
-  import ElRow from "../../packages/row/src/row";
   export default {
-    components: {ElRow}, data() {
+    data() {
       return {
-        activeIndex: '1',
-        activeIndex2: '1',
+        activeIndex: '3',
         form: {
-          name: '',
+          userName: '',
           password: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: ''
+          identifyCode: '',
         },
-        checked: false
+        freeLogin15Days: false,
+        error: {
+          status: false,
+          content: ''
+        }
       };
     },
     methods: {
       handleSelect(key, keyPath) {
         console.log(key, keyPath);
       },
+      freeLoginStateChange: function (value, evt) {
+        console.log("checkboxChange");
+        console.log(value);
+      },
       onSubmit() {
         console.log('submit!');
+        console.log(this);
+        if (this.checkData()) {
+          console.log(this.$data);
+        }
       },
-      checkboxChange: function () {
-        console.log("checkboxChange");
-        console.log(arguments);
+      checkData() {
+        let isOK = false;
+        if (this.form.userName.length === 0) {
+          this.error.status = true;
+          this.error.content = "请输入用户名";
+          return isOK;
+        }
+        if (this.form.password.length === 0) {
+          this.error.status = true;
+          this.error.content = "请输入密码";
+          return isOK;
+        }
+        if (this.form.identifyCode.length === 0) {
+          this.error.status = true;
+          this.error.content = "请输入验证码";
+          return isOK;
+        }
+        isOK = true;
+        this.error.status = false;
+        this.error.content = '';
+        return isOK;
       }
     }
   }
@@ -104,15 +139,17 @@
           width: 320px;
           .el-form-item {
             margin-bottom: 16px;
-            &.login-title {
+            .login-error {
+              line-height: 100%;
+              padding: 8px 2px;
+              font-weight:bold;
+            }
+            .login-title {
               text-align: center;
-              font-weight: bold;
-              .el-form-item__content {
-                font-size: 2rem !important;
-              }
+              font-size: 1.2rem;
             }
             &.login-interval {
-              .el-form-item__content {
+              .el-form-item__title {
                 line-height: 24px;
               }
             }
