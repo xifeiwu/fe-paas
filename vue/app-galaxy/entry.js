@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import axios from 'axios';
+import Axios from 'axios';
 import VueRouter from 'vue-router';
 import APP from './app';
 import routes from './route.config';
@@ -9,7 +9,9 @@ import '../assets/css/fix_style.scss';
 import '../packages/theme-chalk/src/index.scss';
 import Components from './components.js';
 
-Vue.prototype.$ajax = axios;
+Vue.prototype.$ajax = Axios;
+Axios.defaults.withCredentials = true;
+
 Components.install(Vue);
 
 Vue.use(VueRouter);

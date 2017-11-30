@@ -15,7 +15,12 @@
       </el-menu>
     </el-header>
     <el-main>
-      <div class="form-container">
+      <div class="form-container"
+           v-loading="showLoading"
+           element-loading-text="登录中"
+           element-loading-spinner="el-icon-loading"
+           element-loading-background="rgba(255, 255, 255, 0.6)"
+      >
         <el-form ref="form" :model="form" label-width="80px">
           <el-form-item labelWidth="0px">
             <div class="login-title">登录凡普云</div>
@@ -66,18 +71,18 @@
       return {
         activeIndex: '3',
         form: {
-          userName: 'admin',
-          password: '123qwe',
-          verifyCode: 'g',
+          userName: '',
+          password: '',
+          verifyCode: '',
           verificationCode: '',
         },
         verifyImageData: '',
-
         freeLogin15Days: false,
         error: {
           status: false,
           content: ''
-        }
+        },
+        showLoading: false,
       };
     },
     created: function () {
@@ -93,50 +98,20 @@
       },
       updateVerifyCode() {
         var verifyImageURL = urlList.getVerifyCode + '?t=' + new Date().getTime();
-//        var xhr = new XMLHttpRequest();
-//        xhr.onload = function () {
-//          console.log(this.response);
-//          var objectURL = URL.createObjectURL(this.response);
-//          var img = document.createElement("img");
-//          img.src = objectURL;
-//          img.height = 60;
-//          img.onload = function (e) {
-//            window.URL.revokeObjectURL(this.src);
-//          };
-//          document.body.appendChild(img);
-//        };
-//        xhr.open("POST", verifyImageURL);
-//        xhr.responseType = "blob";
-//        xhr.send(null);
-
           this.$ajax.get(verifyImageURL,{
             responseType: 'arraybuffer'
           }).then(response => {
-//            console.log(response);
             var base64 = new Buffer(response.data, 'binary').toString('base64');
             var mimetype = response.headers['content-type'];
             this.verifyImageData = "data:" + mimetype + ";base64," + base64;
             this.form.verificationCode = response.headers['verification-code'];
           }).catch(err => {
-            this.form.verificationCode = '';
             console.log(err);
-          })
-//        this.$ajax.get(verifyImageURL).then(response => {
-//          console.log(response);
-//          console.log(response.headers);
-//          console.log(response.headers['verification-code']);
-//          this.form.verificationCode = response.headers['verification-code'];
-//          console.log(encodeURI(response.data))
-//          var u8 = new Uint8Array(response.data);
-//          console.log(u8);
-//          var b64encoded = btoa(String.fromCharCode.apply(null, u8));
-//          console.log(b64encoded);
-//          var mimetype = response.headers['content-type'];
-//          console.log("data:" + mimetype + ";base64," + b64encoded);
-//        }).catch(err => {
-//          console.log(err);
-//          this.form.verificationCode = '';
-//        });
+          });
+      },
+      showError(content) {
+        this.error.status = true;
+        this.error.content = content;
       },
       onSubmit() {
         if (this.checkData()) {
@@ -148,28 +123,35 @@
             freeLogin15Days: this.freeLogin15Days,
           };
           console.log(objToPost);
-          this.$ajax.post(urlList.login, objToPost).then(function (response) {
+          this.showLoading = true;
+          this.$ajax.post(urlList.login, objToPost).then(response => {
             console.log(response);
-          }).catch(function (err) {
+            if (response && 'data' in response && 'code' in response.data) {
+              if (response.data.code !== 0) {
+                this.showError(response.data.msg);
+              } else {
+              }
+            }
+            this.showLoading = false;
+          }).catch(err => {
             console.log(err);
+            this.showError('网络连接错误');
+            this.showLoading = false;
           });
         }
       },
       checkData() {
         let isOK = false;
         if (this.form.userName.length === 0) {
-          this.error.status = true;
-          this.error.content = "请输入用户名";
+          this.showError("请输入用户名");
           return isOK;
         }
         if (this.form.password.length === 0) {
-          this.error.status = true;
-          this.error.content = "请输入密码";
+          this.showError("请输入密码");
           return isOK;
         }
         if (this.form.verifyCode.length === 0) {
-          this.error.status = true;
-          this.error.content = "请输入验证码";
+          this.showError("请输入验证码");
           return isOK;
         }
         isOK = true;
