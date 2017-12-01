@@ -120,7 +120,7 @@
             password: this.form.password,
             randomCode: this.form.verifyCode,
             verificationCode: this.form.verificationCode,
-            freeLogin15Days: this.freeLogin15Days,
+            freeLogin: this.freeLogin15Days,
           };
           console.log(objToPost);
           this.showLoading = true;

@@ -58,10 +58,10 @@ let routeConfig = [];
 routeConfig = routeConfig.concat(generateMiscRoutes());
 
 Vue.use(VueRouter);
-const router = new VueRouter({
+const vueRouter = new VueRouter({
   mode: 'hash',
   base: __dirname,
-  routeConfig
+  routes: routeConfig
 });
 // export function fetch(url, params = {}) {
 //  return new Promise((resolve, reject) => {
@@ -77,10 +77,10 @@ const router = new VueRouter({
 //  })
 // }
 
-// router.beforeEach((to, from, next) => {
-//   console.log('in beforeEach');
-//   console.log(to + ' -> ' + from);
-//   next();
+vueRouter.beforeEach((to, from, next) => {
+  console.log('in beforeEach');
+  console.log(to + ' -> ' + from);
+  next();
 //  if (to.meta.requireAuth) {
 //   fetch('m/is/login').then(res = > {
 //    if (res.errCode == 200) {
@@ -100,7 +100,7 @@ const router = new VueRouter({
 //  } else {
 //   next();
 //  }
-// });
+});
 
 // routeConfig.push({
 //   path: '/play',
@@ -111,5 +111,5 @@ const router = new VueRouter({
 
 
 
-export default router;
+export default vueRouter;
 // export default routeConfig
