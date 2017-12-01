@@ -3,7 +3,7 @@
  */
 import Axios from 'axios';
 Axios.defaults.withCredentials = true;
-Axios.defaults.timeout = 5000;
+// Axios.defaults.timeout = 5000;
 
 //添加请求拦截器
 Axios.interceptors.request.use(function(config){
