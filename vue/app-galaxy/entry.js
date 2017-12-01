@@ -1,25 +1,16 @@
 import Vue from 'vue';
 import Axios from 'axios';
-import VueRouter from 'vue-router';
 import APP from './app';
-import routes from './route.config';
-console.log(routes);
+import router from './route.config';
 
 import '../assets/css/fix_style.scss';
 import '../packages/theme-chalk/src/index.scss';
 import Components from './components.js';
 
-Vue.prototype.$ajax = Axios;
 Axios.defaults.withCredentials = true;
+Vue.prototype.$ajax = Axios;
 
 Components.install(Vue);
-
-Vue.use(VueRouter);
-const router = new VueRouter({
-  mode: 'hash',
-  base: __dirname,
-  routes
-});
 
 new Vue({ // eslint-disable-line
   render: h => h(APP),
