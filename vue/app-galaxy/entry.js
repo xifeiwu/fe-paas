@@ -1,14 +1,13 @@
 import Vue from 'vue';
-import Axios from 'axios';
 import APP from './app';
+import NetWork from './config/network'
 import router from './config/router';
 
 import '../assets/css/fix_style.scss';
 import '../packages/theme-chalk/src/index.scss';
 import Components from './components.js';
 
-Axios.defaults.withCredentials = true;
-Vue.prototype.$ajax = Axios;
+Vue.prototype.$ajax = NetWork;
 
 Components.install(Vue);
 
