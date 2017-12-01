@@ -2,6 +2,7 @@
  * Created by xifei.wu on 2017/11/28.
  */
 import Login from './pages/login.vue'
+import Profile from './pages/profile.vue'
 
 const load = function(name) {
   return function(r) {
@@ -41,8 +42,13 @@ const generateMiscRoutes = function() {
     name: 'login',
     component: Login
   };
+  let profileRoute = {
+    path: '/profile',
+    name: 'profile',
+    component: Profile
+  };
 
-  return [indexRoute];
+  return [indexRoute, profileRoute];
 };
 
 let routeConfig = [];

@@ -125,11 +125,17 @@
           console.log(objToPost);
           this.showLoading = true;
           this.$ajax.post(urlList.login, objToPost).then(response => {
-            console.log(response);
+            console.log(JSON.stringify(response));
             if (response && 'data' in response && 'code' in response.data) {
               if (response.data.code !== 0) {
                 this.showError(response.data.msg);
               } else {
+                this.$router.push('/profile');
+                this.$ajax.get(urlList.app_test).then(response => {
+                  console.log(response);
+                }).catch(err => {
+                  console.log(err);
+                });
               }
             }
             this.showLoading = false;
