@@ -65,7 +65,7 @@
   </el-container>
 </template>
 <script>
-  import urlList from '../url.config'
+  import URL_LIST from '../config/url'
   export default {
     data() {
       return {
@@ -86,7 +86,7 @@
       };
     },
     created: function () {
-//      this.verifyImageData = urlList.getVerifyCode + '?t=' + new Date().getTime();
+//      this.verifyImageData = URL_LIST.getVerifyCode + '?t=' + new Date().getTime();
       this.updateVerifyCode();
     },
     methods: {
@@ -97,7 +97,7 @@
 //        console.log(value);
       },
       updateVerifyCode() {
-        var verifyImageURL = urlList.getVerifyCode + '?t=' + new Date().getTime();
+        var verifyImageURL = URL_LIST.getVerifyCode + '?t=' + new Date().getTime();
           this.$ajax.get(verifyImageURL,{
             responseType: 'arraybuffer'
           }).then(response => {
@@ -124,14 +124,18 @@
           };
           console.log(objToPost);
           this.showLoading = true;
-          this.$ajax.post(urlList.login, objToPost).then(response => {
+          this.$ajax.post(URL_LIST.login, objToPost).then(response => {
             console.log(JSON.stringify(response));
+            console.log(response);
             if (response && 'data' in response && 'code' in response.data) {
               if (response.data.code !== 0) {
                 this.showError(response.data.msg);
               } else {
                 this.$router.push('/profile');
-                this.$ajax.get(urlList.app_test).then(response => {
+                if ('token' in response.headers) {
+                  window.localStorage.setItem('token', response.headers['token']);
+                }
+                this.$ajax.get(URL_LIST.app_test).then(response => {
                   console.log(response);
                 }).catch(err => {
                   console.log(err);

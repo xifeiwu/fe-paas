@@ -3,20 +3,8 @@
  */
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Login from './pages/login.vue'
-import Profile from './pages/profile.vue'
-
-
-const load = function(name) {
- return function(r) {
-  require.ensure(
-   [],
-   function() {
-    r(require(`./pages/${name}.vue`))
-   }
-  )
- }
-}
+import Login from '../pages/login.vue'
+import Profile from '../pages/profile.vue'
 
 const generateMiscRoutes = function() {
  // let guideRoute = {
@@ -101,14 +89,6 @@ vueRouter.beforeEach((to, from, next) => {
 //   next();
 //  }
 });
-
-// routeConfig.push({
-//   path: '/play',
-//   name: 'play',
-//   component: Login
-// });
-
-
 
 
 export default vueRouter;

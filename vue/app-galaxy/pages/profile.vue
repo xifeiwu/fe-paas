@@ -25,7 +25,7 @@
 
 <script>
 
-  import URL_LIST from '../url.config'
+  import URL_LIST from '../config/url'
   export default {
     data() {
       return {

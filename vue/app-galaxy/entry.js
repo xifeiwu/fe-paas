@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Axios from 'axios';
 import APP from './app';
-import router from './route.config';
+import router from './config/router';
 
 import '../assets/css/fix_style.scss';
 import '../packages/theme-chalk/src/index.scss';
