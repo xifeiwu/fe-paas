@@ -227,7 +227,10 @@
 
       headerCellStyle: [Object, Function],
 
-      highlightCurrentRow: Boolean,
+      highlightCurrentRow: {
+        type: Boolean,
+        default: true
+      },
 
       currentRowKey: [String, Number],
 
@@ -235,7 +238,10 @@
 
       expandRowKeys: Array,
 
-      defaultExpandAll: Boolean,
+      defaultExpandAll: {
+        type: Boolean,
+        default: false
+      },
 
       defaultSort: Object,
 

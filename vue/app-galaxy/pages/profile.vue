@@ -30,7 +30,7 @@
             </template>
             <el-menu-item-group>
               <template slot="title">管理中心</template>
-              <el-menu-item index="1-0">应用管理</el-menu-item>
+              <el-menu-item index="1-0"><router-link to="/profile/app_manager">应用管理</router-link></el-menu-item>
               <el-menu-item index="1-1">服务管理</el-menu-item>
               <el-menu-item index="1-2">实例列表</el-menu-item>
               <el-menu-item index="1-3">外网域名</el-menu-item>
@@ -56,7 +56,9 @@
           </el-menu-item>
         </el-menu>
       </el-aside>
-      <el-main>Main</el-main>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -126,6 +128,9 @@
       position: fixed;
       top: 62px;
       bottom: 0px;
+    }
+    .el-main {
+      margin-left: 200px;
     }
   }
 </style>

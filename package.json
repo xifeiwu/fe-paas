@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "DEBUG=* node server/index.js",
-    "dev": "./node_modules/.bin/nodemon bin/index.js",
+    "start-server": "DEBUG=* node server/index.js",
+    "dev": "cooking watch --progress --config vue/build/cooking.conf.js",
     "dist": "cd vue && cooking build -c build/cooking.conf.js",
     "lint": "eslint src/**/* test/**/* vue/packages/**/*.{js,vue} build/**/* --quiet",
     "prd": "pm2 start bin/www",
