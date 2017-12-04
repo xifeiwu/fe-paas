@@ -28,7 +28,6 @@ const actions = {
 
 const mutations = {
   LOGIN(state,res){
-
     state.user.forEach(function(eee) {
       if(eee.username === res.username){
         if(eee.password === res.password){
