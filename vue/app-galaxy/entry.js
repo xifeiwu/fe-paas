@@ -2,6 +2,7 @@ import Vue from 'vue';
 import APP from './app';
 import NetWork from './config/network'
 import router from './config/router';
+import store from './store';
 
 import '../assets/css/fix_style.scss';
 import '../packages/theme-chalk/src/index.scss';
@@ -13,7 +14,8 @@ Components.install(Vue);
 
 new Vue({ // eslint-disable-line
   render: h => h(APP),
-  router
+  router,
+  store
 }).$mount('#app');
 
 // new Vue({

@@ -112,8 +112,13 @@
                   groupId: 2,
                   page: 1,
                   length: 8,
-                  applicationName: ''
+                  serviceName: ''
                 }).then(response => {
+                  console.log(response);
+                }).catch(err => {
+                  console.log(err);
+                });
+                this.$ajax.get(URL_LIST.get_group_id).then(response => {
                   console.log(response);
                 }).catch(err => {
                   console.log(err);
