@@ -3,8 +3,7 @@
  */
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Login from '../pages/login.vue'
-import Profile from '../pages/profile.vue'
+import componentConfig from '../pages/route';
 
 // const load = function(path) {
 //   return function(r) {
@@ -12,36 +11,65 @@ import Profile from '../pages/profile.vue'
 //       [],
 //       function() {
 //         r(require(path))
-//       }
+//       },
+//       'bundle'
 //     )
 //   }
 // }
 
+// let load = path => {
+//   return r => require.ensure([], () =>
+//       r(require(path)),
+//     'en-US');
+
+let load = function(pathInPages) {
+  return require(`../pages/${pathInPages}.vue`).default;
+}
+
+function traverseComponent(component, vueComConfig) {
+  function generateItem(item) {
+    let keysMap = {
+      path: 'path',
+      name: 'name',
+      redirect: 'redirect',
+      componentFile: 'component',
+      meta: 'meta'
+    };
+    let result = {};
+    for (let key in item) {
+      if (item.hasOwnProperty(key) && key in keysMap) {
+        if ('componentFile' === key) {
+          result[keysMap[key]] = load(item[key]);
+        } else {
+          result[keysMap[key]] = item[key];
+        }
+      }
+    }
+    return result;
+  }
+  if ('object' === typeof(component)) {
+    for (let key in component) {
+      if (component.hasOwnProperty(key)) {
+        let item = component[key];
+        vueComConfig[key] = generateItem.call(this, item);
+        if ('children' in item) {
+          vueComConfig[key].children = [];
+          traverseComponent(item.children, vueComConfig[key].children);
+        }
+      }
+    }
+  } else if (Array.isArray(component)){
+    vueComConfig = component.map(generateItem.bind(this));
+  }
+}
+
 const generateMiscRoutes = function() {
-  // let guideRoute = {
-  //   path: `/guide`, // 指南
-  //   redirect: `/guide/design`,
-  //   component: load('guide'),
-  //   children: [{
-  //     path: 'design', // 设计原则
-  //     name: 'guide-design',
-  //     component: load('design')
-  //   }, {
-  //     path: 'nav', // 导航
-  //     name: 'guide-nav',
-  //     component: load('nav')
-  //   }]
-  // };
-  //
-  // let resourceRoute = {
-  //   path: `/resource`, // 资源
-  //   name: 'resource',
-  //   component: load('resource')
-  // };
+  // var kk = '../pages/login.vue';
+  var kk = 'login.vue';
   let indexRoute = {
     path: '/login',
     name: 'login',
-    component: require('../pages/login.vue').default
+    component: require(`../pages/${kk}`).default,
   };
   let profileRoute = {
     path: '/profile',
@@ -53,12 +81,21 @@ const generateMiscRoutes = function() {
       component: require('../pages/profile/app_manager.vue').default
     }]
   };
+  let routeConfig = [indexRoute, profileRoute];
+  console.log(routeConfig);
 
-  return [indexRoute, profileRoute];
+  // console.log(componentConfig);
+  let vueRouteConfig = {};
+  traverseComponent(componentConfig, vueRouteConfig);
+  // console.log(vueRouteConfig);
+  let configList = []
+  for (let key in vueRouteConfig) {
+    configList.push(vueRouteConfig[key]);
+  }
+  return configList;
 };
 
-let routeConfig = [];
-routeConfig = routeConfig.concat(generateMiscRoutes());
+let routeConfig = generateMiscRoutes();
 
 Vue.use(VueRouter);
 const vueRouter = new VueRouter({
@@ -107,4 +144,3 @@ vueRouter.beforeEach((to, from, next) => {
 
 
 export default vueRouter;
-// export default routeConfig
