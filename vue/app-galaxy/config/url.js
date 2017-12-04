@@ -1,11 +1,14 @@
 /**
  * Created by xifei.wu on 2017/11/30.
  */
+var path = 'http://172.16.49.141:30333';
 var urlList = {
-  'getVerifyCode': 'http://172.16.49.141:30333/createRandomImage',
-  'login': 'http://172.16.49.141:30333/login',
-  'logout': 'http://172.16.49.141:30333/logout',
-  'app_test': 'http://172.16.49.141:30333/app',
+  'get_verify_code': path + '/createRandomImage',
+  'login': path + '/login',
+  'logout': path + '/logout',
+  'app_test': path + '/app',
+  'app_list': path + '/application/queryByPage',
+  'user_info': path + '/group/queryByUser',
 }
 
 export default urlList;

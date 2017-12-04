@@ -97,7 +97,7 @@
 //        console.log(value);
       },
       updateVerifyCode() {
-        var verifyImageURL = URL_LIST.getVerifyCode + '?t=' + new Date().getTime();
+        var verifyImageURL = URL_LIST.get_verify_code + '?t=' + new Date().getTime();
           this.$ajax.get(verifyImageURL,{
             responseType: 'arraybuffer'
           }).then(response => {
@@ -135,11 +135,11 @@
                 if ('token' in response.headers) {
                   window.localStorage.setItem('token', response.headers['token']);
                 }
-                this.$ajax.get(URL_LIST.app_test).then(response => {
-                  console.log(response);
-                }).catch(err => {
-                  console.log(err);
-                });
+//                this.$ajax.get(URL_LIST.app_test).then(response => {
+//                  console.log(response);
+//                }).catch(err => {
+//                  console.log(err);
+//                });
               }
             }
             this.showLoading = false;

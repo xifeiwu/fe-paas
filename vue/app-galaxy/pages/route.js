@@ -15,6 +15,7 @@ var Router = function () {
     'profile': {
       path: '/profile',
       name: '详情',
+      redirect: '/profile/app_manager',
       // component: getAbsPath('profile.vue')
       children: [{
         path: 'app_manager',

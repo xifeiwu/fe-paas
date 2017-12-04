@@ -2,7 +2,13 @@
   <el-container>
     <el-header>
       <div class="img">picture</div>
-      <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+      <el-menu
+              :default-active="activeIndex"
+              class="el-menu-demo"
+              mode="horizontal"
+              @select="handleTitleMenuSelect"
+              index="title_menu"
+      >
         <el-menu-item index="login">登录</el-menu-item>
         <!--<el-submenu index="2">-->
         <!--<template slot="title">我的工作台</template>-->
@@ -18,19 +24,21 @@
     <el-container>
       <el-aside width="200px">
         <el-menu
-                default-active="2"
                 class="el-menu-vertical-demo"
                 @open="handleOpen"
                 @close="handleClose"
-                @select="handleSelect">
-          <el-submenu index="1">
+                @select="handleAsideMenuSelect"
+                :defaultOpeneds="['app_menu']"
+                default-active="app_manager"
+                index="aside_menu">
+          <el-submenu index="app_menu">
             <template slot="title">
               <i class="el-icon-location"></i>
               <span>管理中心</span>
             </template>
             <el-menu-item-group>
-              <template slot="title">管理中心</template>
-              <el-menu-item index="1-0"><router-link to="/profile/app_manager">应用管理</router-link></el-menu-item>
+              <!--<template slot="title">管理中心</template>-->
+              <el-menu-item index="app_manager">应用管理</el-menu-item>
               <el-menu-item index="1-1">服务管理</el-menu-item>
               <el-menu-item index="1-2">实例列表</el-menu-item>
               <el-menu-item index="1-3">外网域名</el-menu-item>
@@ -73,8 +81,7 @@
       }
     },
     methods: {
-      handleSelect(key, keyPath) {
-        console.log(key, keyPath);
+      handleTitleMenuSelect(key, keyPath) {
         switch (key) {
           case 'login':
             this.$router.push('/login');
@@ -93,7 +100,27 @@
               console.log(err);
             });
             break;
-
+        }
+      },
+      handleAsideMenuSelect(key, keyPath) {
+        if (keyPath.length > 0) {
+          if ('app_menu' == keyPath[0]) {
+            switch (key) {
+              case 'app_manager':
+                this.$router.push('/profile/app_manager');
+                this.$ajax.post(URL_LIST.app_list, {
+                  groupId: 2,
+                  page: 1,
+                  length: 8,
+                  applicationName: ''
+                }).then(response => {
+                  console.log(response);
+                }).catch(err => {
+                  console.log(err);
+                });
+                break;
+            }
+          }
         }
       },
       handleOpen(key, keyPath) {
