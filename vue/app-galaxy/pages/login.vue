@@ -131,10 +131,8 @@
               if (response.data.code !== 0) {
                 this.showError(response.data.msg);
               } else {
+                this.$store.commit('LOGIN', response.data.content);
                 this.$router.push('/profile');
-//                if ('token' in response.headers) {
-//                  window.localStorage.setItem('token', response.headers['token']);
-//                }
 //                this.$ajax.get(URL_LIST.app_test).then(response => {
 //                  console.log(response);
 //                }).catch(err => {

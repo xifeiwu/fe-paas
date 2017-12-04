@@ -80,6 +80,12 @@
         activeIndex: '3',
       }
     },
+    created() {
+      console.log('profile created');
+    },
+    mounted() {
+      console.log('profile created');
+    },
     methods: {
       handleTitleMenuSelect(key, keyPath) {
         switch (key) {

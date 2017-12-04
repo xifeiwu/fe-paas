@@ -82,7 +82,7 @@ const generateMiscRoutes = function() {
     }]
   };
   let routeConfig = [indexRoute, profileRoute];
-  console.log(routeConfig);
+  // console.log(routeConfig);
 
   // console.log(componentConfig);
   let vueRouteConfig = {};
@@ -118,8 +118,8 @@ const vueRouter = new VueRouter({
 // }
 
 vueRouter.beforeEach((to, from, next) => {
-  console.log('in beforeEach');
-  console.log(to + ' -> ' + from);
+  // console.log('in beforeEach');
+  // console.log(to + ' -> ' + from);
   next();
   //  if (to.meta.requireAuth) {
   //   fetch('m/is/login').then(res = > {

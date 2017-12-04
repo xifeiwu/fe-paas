@@ -208,7 +208,6 @@ export default {
   },
 
   created() {
-    console.log(this.store);
     this.activateTooltip = debounce(50, tooltip => tooltip.handleShowPopper());
   },
 
