@@ -98,14 +98,16 @@
       },
       updateVerifyCode() {
         var verifyImageURL = URL_LIST.get_verify_code + '?t=' + new Date().getTime();
-          this.$ajax.get(verifyImageURL,{
-            responseType: 'arraybuffer'
+          this.$ajax.get(verifyImageURL, {
+            responseType: 'arraybuffer',
+            timeout: 6000
           }).then(response => {
             var base64 = new Buffer(response.data, 'binary').toString('base64');
             var mimetype = response.headers['content-type'];
             this.verifyImageData = "data:" + mimetype + ";base64," + base64;
             this.form.verificationCode = response.headers['verification-code'];
           }).catch(err => {
+            this.showError('获取验证码失败，请检查网络是否正常连接。');
             console.log(err);
           });
       },
@@ -131,7 +133,7 @@
               if (response.data.code !== 0) {
                 this.showError(response.data.msg);
               } else {
-                this.$store.commit('LOGIN', response.data.content);
+                this.$store.commit('user/LOGIN', response.data.content);
                 this.$router.push('/profile');
 //                this.$ajax.get(URL_LIST.app_test).then(response => {
 //                  console.log(response);
@@ -170,6 +172,12 @@
     }
   }
 </script>
+
+<style>
+  .el-alert__content {
+    overflow: scroll;
+  }
+</style>
 <style lang="scss" scoped>
   .el-container {
     .el-header {

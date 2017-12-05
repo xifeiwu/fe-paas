@@ -31,37 +31,14 @@
                 :defaultOpeneds="['app_menu']"
                 default-active="app_manager"
                 index="aside_menu">
-          <el-submenu index="app_menu">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>管理中心</span>
-            </template>
-            <el-menu-item-group>
-              <!--<template slot="title">管理中心</template>-->
-              <el-menu-item index="app_manager">应用管理</el-menu-item>
-              <el-menu-item index="1-1">服务管理</el-menu-item>
-              <el-menu-item index="1-2">实例列表</el-menu-item>
-              <el-menu-item index="1-3">外网域名</el-menu-item>
-              <el-menu-item index="1-4">日志中心</el-menu-item>
-              <el-menu-item index="1-5">应用监控</el-menu-item>
-              <el-menu-item index="1-6">Oauth权限</el-menu-item>
-            </el-menu-item-group>
-            <el-menu-item-group title="分组2">
-              <el-menu-item index="1-3">选项3</el-menu-item>
-            </el-menu-item-group>
-            <el-submenu index="1-4">
-              <template slot="title">选项4</template>
-              <el-menu-item index="1-4-1">选项1</el-menu-item>
-            </el-submenu>
-          </el-submenu>
-          <el-menu-item index="2">
-            <i class="el-icon-menu"></i>
-            <span slot="title">导航二</span>
+            <!--<el-menu-item index="app_manager">-->
+              <!--<i class="el-icon-location"></i>-->
+              <!--<span>应用管理</span>-->
+            <!--</el-menu-item>-->
+          <el-menu-item v-for="menu in menuList" :key="menu.name" :index="menu.router">
+            <i :class="menu.icon"></i><span>{{menu.name}}</span>
           </el-menu-item>
-          <el-menu-item index="3">
-            <i class="el-icon-setting"></i>
-            <span slot="title">导航三</span>
-          </el-menu-item>
+          <li :value="activeIndex"></li>
         </el-menu>
       </el-aside>
       <el-main>
@@ -72,7 +49,7 @@
 </template>
 
 <script>
-
+  import { mapGetters } from 'vuex'
   import URL_LIST from '../config/url'
   export default {
     data() {
@@ -85,6 +62,11 @@
     },
     mounted() {
       console.log('profile created');
+    },
+    computed: {
+      menuList() {
+        return this.$store.getters['user/menuList']
+      },
     },
     methods: {
       handleTitleMenuSelect(key, keyPath) {
@@ -109,28 +91,32 @@
         }
       },
       handleAsideMenuSelect(key, keyPath) {
+        console.log(key);
         if (keyPath.length > 0) {
-          if ('app_menu' == keyPath[0]) {
-            switch (key) {
-              case 'app_manager':
-                this.$router.push('/profile/app_manager');
-                this.$ajax.post(URL_LIST.app_list, {
-                  groupId: 2,
-                  page: 1,
-                  length: 8,
-                  serviceName: ''
-                }).then(response => {
-                  console.log(response);
-                }).catch(err => {
-                  console.log(err);
-                });
-                this.$ajax.get(URL_LIST.get_group_id).then(response => {
-                  console.log(response);
-                }).catch(err => {
-                  console.log(err);
-                });
-                break;
-            }
+          switch (key) {
+            case '/profile/app_manager':
+              this.$router.push(key);
+              this.$ajax.post(URL_LIST.app_list, {
+                groupId: 2,
+                page: 1,
+                length: 8,
+                serviceName: ''
+              }).then(response => {
+                console.log(response);
+              }).catch(err => {
+                console.log(err);
+              });
+              this.$ajax.get(URL_LIST.get_group_id).then(response => {
+                console.log(response);
+              }).catch(err => {
+                console.log(err);
+              });
+              break;
+            default:
+              console.log('push key ' + key);
+              this.$router.push(key);
+              break;
+
           }
         }
       },
@@ -166,6 +152,10 @@
       position: fixed;
       top: 62px;
       bottom: 0px;
+      border-right: solid 1px #e6e6e6;
+      .el-menu {
+        border-width: 0px;
+      }
     }
     .el-main {
       margin-left: 200px;

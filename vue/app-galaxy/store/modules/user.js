@@ -1,44 +1,65 @@
 /**
  * Created by xifei.wu on 2017/12/4.
  */
+const DEBUG = true;
 
 const state = {
-  user:[{
+  user: [{
     username: '11',
     password: '11'
-  },{
+  }, {
     username: '啊a',
     password: '啊啊'
-  },{
+  }, {
     username: '啊b',
     password: '啊啊'
-  },{
+  }, {
     username: '啊c',
     password: '啊啊'
   }],
-  seccLogin: 0,
-  menu_list: []
+  Login: 0,
+  menuList: []
 };
 
+const getters = {
+  'menuList': (state, getters) => {
+    // console.log('menuList in user.getter');
+    // console.log(typeof(state.menuList));
+    // console.log(Array.isArray(state.menuList));
+    let result = null;
+    if (Array.isArray(state.menuList) && state.menuList.length > 0) {
+      result = state.menuList;
+    } else {
+      let local = JSON.parse(localStorage.getItem('user/menuList'));
+      if (local) {
+        result = local;
+      }
+    }
+    return result;
+  }
+};
 
 const actions = {
-  login ({commit},user) {
-    commit('LOGIN',user)
+  login({
+    commit
+  }, user) {
+    commit('LOGIN', user)
   }
 };
 
 const mutations = {
-  LOGIN(state, res){
+  LOGIN(state, res) {
     function updateItem(item) {
       let keyMap = {
         "应用管理": {
-          router: '/profile/app_manager'
-        },
-        "审批管理": {
-          router: '/profile/approve_manager'
+          router: '/profile/app_manager',
+          icon: 'el-icon-location'
         },
         "服务管理": {
           router: '/profile/service_manager'
+        },
+        "审批管理": {
+          router: '/profile/approve_manager'
         },
         "实例列表": {
           router: '/profile/instance_list'
@@ -53,41 +74,75 @@ const mutations = {
           router: '/profile/app_monitor'
         },
         "Oauth权限": {
-          router: '/profile/oauth_privilege'
-        },
-        "应用管理": {
-          router: '/profile/app_manager'
-        },
-        "应用管理": {
-          router: '/profile/app_manager'
+          router: '/profile/oauth_privilege',
+          icon: 'el-icon-setting'
         },
       }
-      let key = it.name;
+      let key = item.name;
       if (keyMap.hasOwnProperty(key)) {
-        it.router = keyMap[key].router;
+        let props = keyMap[key];
+        for (let key in props) {
+          item[key] = props[key];
+        }
       }
       return item;
     }
-    let results = []
+
+    let twoLevelMenu = []
     let permission = res.permission;
+    permission = permission.map(it => {
+      return updateItem(it);
+    })
     permission.forEach(it => {
-      // if (0 === it.parentId) {
-        results.push(updateItem(it));
-      // }
+      if (0 === it.parentId) {
+        twoLevelMenu.push(it);
+      }
     });
-    state.menu_list = results;
-    // state.user.forEach(function(eee) {
-    //   if(eee.username === res.username){
-    //     if(eee.password === res.password){
-    //       state.seccLogin = 1
-    //     }
-    //   }
-    // }, this);
+    permission.forEach(it => {
+      if (0 !== it.parentId) {
+        let findParent = twoLevelMenu.some(pItem => {
+          if (it.parentId === pItem.id) {
+            if (!pItem.hasOwnProperty('children')) {
+              pItem.children = [];
+            }
+            pItem.children.push(it);
+            return true;
+          } else {
+            return false;
+          }
+        });
+        if (!findParent) {
+          twoLevelMenu.push(it);
+        }
+      }
+    });
+
+    let oneLevelMenu = [];
+    twoLevelMenu.forEach(it => {
+      oneLevelMenu.push(it);
+      if (it.hasOwnProperty('children')) {
+        it.children.forEach(it2 => {
+          oneLevelMenu.push(it2);
+        })
+      }
+    });
+
+    let results = oneLevelMenu;
+
+    if (DEBUG) {
+      localStorage.setItem('user/menuList', JSON.stringify(results));
+    }
+    state.menuList = results;
+    // console.log('in user mutation');
+    // console.log(typeof(state.menuList));
+    // console.log(Array.isArray(state.menuList));
   }
 }
 
 export default {
+  namespaced: true,
   state,
+  getters,
   actions,
   mutations
 }
