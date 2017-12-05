@@ -84,7 +84,6 @@
 <script>
   export default {
     created() {
-//      console.log('create app manager');
       this.$store.dispatch('user/getGroupList');
     },
     mounted() {

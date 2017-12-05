@@ -1,6 +1,7 @@
 /**
  * Created by xifei.wu on 2017/12/4.
  */
+import NetData from '../../data';
 const DEBUG = true;
 
 const state = {
@@ -41,12 +42,16 @@ const getters = {
 };
 
 const actions = {
-  getGroupList({commit, state}) {
-    state.groupList = [{
-      name: 'A'
-    }, {
-      name: 'B'
-    }];
+  getGroupList({commit}) {
+    if (0 === state.groupList.length) {
+      NetData.getGroupList().then(content => {
+        console.log('content in getGroupList');
+        console.log(content);
+        if (content.hasOwnProperty('groupList')) {
+          commit('SET_GROUP_LIST', content.groupList);
+        }
+      });
+    }
   }
 };
 
@@ -136,6 +141,13 @@ const mutations = {
       localStorage.setItem('user/menuList', JSON.stringify(results));
     }
     state.menuList = results;
+  },
+
+  SET_GROUP_LIST(state, groupList) {
+    state.groupList = groupList;
+    if (DEBUG) {
+      localStorage.setItem('user/groupList', JSON.stringify(groupList));
+    }
   }
 }
 
