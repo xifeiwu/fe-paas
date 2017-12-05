@@ -106,11 +106,6 @@
               }).catch(err => {
                 console.log(err);
               });
-              this.$ajax.get(URL_LIST.get_group_id).then(response => {
-                console.log(response);
-              }).catch(err => {
-                console.log(err);
-              });
               break;
             default:
               console.log('push key ' + key);

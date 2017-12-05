@@ -20,7 +20,9 @@ var Router = function () {
       children: [{
         path: 'app_manager',
         name: '应用管理',
-        // component: getAbsPath('app_manager.vue')
+      }, {
+        path: 'instance_list',
+        name: '实例列表',
       }]
     }
   }

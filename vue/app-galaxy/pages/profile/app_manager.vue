@@ -1,4 +1,25 @@
 <template>
+  <div>
+    <el-row>
+      <el-col :span="6">
+        <el-button>创建应用</el-button>
+      </el-col>
+      <el-col :span="6">
+      <el-button>刷新</el-button>
+      </el-col>
+
+      <el-col :span="6"></el-col>
+      <el-col :span="6">
+  <el-select v-model="currentGroup" placeholder="请选择">
+    <el-option
+            v-for="item in groupList"
+            :key="item.name"
+            :label="item.name"
+            :value="item.name">
+    </el-option>
+  </el-select>
+      </el-col>
+    </el-row>
   <el-table
           :data="tableData5"
           style="width: 100%">
@@ -42,6 +63,7 @@
             prop="desc">
     </el-table-column>
   </el-table>
+  </div>
 </template>
 
 <style>
@@ -61,8 +83,32 @@
 
 <script>
   export default {
+    created() {
+//      console.log('create app manager');
+      this.$store.dispatch('user/getGroupList');
+    },
+    mounted() {
+      console.log('mount app manager');
+    },
     data() {
       return {
+//        group_list: [{
+//          value: '选项1',
+//          label: '黄金糕'
+//        }, {
+//          value: '选项2',
+//          label: '双皮奶'
+//        }, {
+//          value: '选项3',
+//          label: '蚵仔煎'
+//        }, {
+//          value: '选项4',
+//          label: '龙须面'
+//        }, {
+//          value: '选项5',
+//          label: '北京烤鸭'
+//        }],
+        currentGroup: '',
         tableData5: [{
           id: '12987122',
           name: '好滋好味鸡蛋仔',
@@ -96,6 +142,11 @@
           shop: '王小虎夫妻店',
           shopId: '10333'
         }]
+      }
+    },
+    computed: {
+      groupList() {
+        return this.$store.getters['user/groupList'];
       }
     }
   }

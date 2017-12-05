@@ -18,32 +18,35 @@ const state = {
     password: '啊啊'
   }],
   Login: 0,
-  menuList: []
+  menuList: [],
+  groupList: [],
 };
 
 const getters = {
   'menuList': (state, getters) => {
-    // console.log('menuList in user.getter');
-    // console.log(typeof(state.menuList));
-    // console.log(Array.isArray(state.menuList));
     let result = null;
     if (Array.isArray(state.menuList) && state.menuList.length > 0) {
       result = state.menuList;
-    } else {
+    } else if (DEBUG) {
       let local = JSON.parse(localStorage.getItem('user/menuList'));
       if (local) {
         result = local;
       }
     }
     return result;
+  },
+  'groupList': (state, getters) => {
+    return state.groupList;
   }
 };
 
 const actions = {
-  login({
-    commit
-  }, user) {
-    commit('LOGIN', user)
+  getGroupList({commit, state}) {
+    state.groupList = [{
+      name: 'A'
+    }, {
+      name: 'B'
+    }];
   }
 };
 
@@ -133,9 +136,6 @@ const mutations = {
       localStorage.setItem('user/menuList', JSON.stringify(results));
     }
     state.menuList = results;
-    // console.log('in user mutation');
-    // console.log(typeof(state.menuList));
-    // console.log(Array.isArray(state.menuList));
   }
 }
 
