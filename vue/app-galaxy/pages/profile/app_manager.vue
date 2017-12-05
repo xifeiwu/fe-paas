@@ -2,10 +2,10 @@
   <div>
     <el-row>
       <el-col :span="6">
-        <el-button>创建应用</el-button>
+        <el-button @click="handleButtonClick" action="/profile/add_app">创建应用</el-button>
       </el-col>
       <el-col :span="6">
-        <el-button>刷新</el-button>
+        <el-button @click="handleButtonClick" action="refresh">刷新</el-button>
       </el-col>
       <el-col :span="6"></el-col>
       <el-col :span="6">
@@ -82,39 +82,6 @@
       return {
         currentGroup: '',
         appList: [],
-        tableData5: [{
-          id: '12987122',
-          name: '好滋好味鸡蛋仔',
-          category: '江浙小吃、小吃零食',
-          desc: '荷兰优质淡奶，奶香浓而不腻',
-          address: '上海市普陀区真北路',
-          shop: '王小虎夫妻店',
-          shopId: '10333'
-        }, {
-          id: '12987123',
-          name: '好滋好味鸡蛋仔',
-          category: '江浙小吃、小吃零食',
-          desc: '荷兰优质淡奶，奶香浓而不腻',
-          address: '上海市普陀区真北路',
-          shop: '王小虎夫妻店',
-          shopId: '10333'
-        }, {
-          id: '12987125',
-          name: '好滋好味鸡蛋仔',
-          category: '江浙小吃、小吃零食',
-          desc: '荷兰优质淡奶，奶香浓而不腻',
-          address: '上海市普陀区真北路',
-          shop: '王小虎夫妻店',
-          shopId: '10333'
-        }, {
-          id: '12987126',
-          name: '好滋好味鸡蛋仔',
-          category: '江浙小吃、小吃零食',
-          desc: '荷兰优质淡奶，奶香浓而不腻',
-          address: '上海市普陀区真北路',
-          shop: '王小虎夫妻店',
-          shopId: '10333'
-        }]
       }
     },
     computed: {
@@ -138,6 +105,32 @@
       }
     },
     methods: {
+      handleButtonClick(evt) {
+        console.log(arguments);
+        console.log(evt);
+        console.log(evt.target);
+        let target = evt.target;
+        let bubble = true;
+        let stepCnt = 0;
+        let maxStep = 8;
+        while(bubble) {
+          if ('BUTTON' == target.tagName.toUpperCase()) {
+            bubble = false;
+          } else {
+            target = target.parentElement;
+          }
+          stepCnt += 1;
+          if (stepCnt > maxStep) {
+            bubble = false;
+          }
+        }
+        let action = target.getAttribute('action');
+        if ('refresh' === action) {
+
+        } else {
+          this.$router.push(action);
+        }
+      },
       requestAPPList(groupID, page, length, serviceName) {
         if (!serviceName) {
           serviceName = '';
