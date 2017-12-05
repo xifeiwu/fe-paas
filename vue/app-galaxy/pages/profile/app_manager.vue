@@ -5,82 +5,71 @@
         <el-button>创建应用</el-button>
       </el-col>
       <el-col :span="6">
-      <el-button>刷新</el-button>
+        <el-button>刷新</el-button>
       </el-col>
-
       <el-col :span="6"></el-col>
       <el-col :span="6">
-  <el-select v-model="currentGroup" placeholder="请选择">
-    <el-option
-            v-for="item in groupList"
-            :key="item.name"
-            :label="item.name"
-            :value="item.name">
-    </el-option>
-  </el-select>
+        <el-select v-model="currentGroupWatcher" placeholder="请选择" @input="handleGroupChange">
+          <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
+          </el-option>
+        </el-select>
       </el-col>
     </el-row>
-  <el-table
-          :data="tableData5"
-          style="width: 100%">
-    <el-table-column type="expand">
-      <template slot-scope="props">
-        <el-form label-position="left" inline class="demo-table-expand">
-          <el-form-item label="商品名称">
-            <span>{{ props.row.name }}</span>
-          </el-form-item>
-          <el-form-item label="所属店铺">
-            <span>{{ props.row.shop }}</span>
-          </el-form-item>
-          <el-form-item label="商品 ID">
-            <span>{{ props.row.id }}</span>
-          </el-form-item>
-          <el-form-item label="店铺 ID">
-            <span>{{ props.row.shopId }}</span>
-          </el-form-item>
-          <el-form-item label="商品分类">
-            <span>{{ props.row.category }}</span>
-          </el-form-item>
-          <el-form-item label="店铺地址">
-            <span>{{ props.row.address }}</span>
-          </el-form-item>
-          <el-form-item label="商品描述">
-            <span>{{ props.row.desc }}</span>
-          </el-form-item>
-        </el-form>
-      </template>
-    </el-table-column>
-    <el-table-column
-            label="商品 ID"
-            prop="id">
-    </el-table-column>
-    <el-table-column
-            label="商品名称"
-            prop="name">
-    </el-table-column>
-    <el-table-column
-            label="描述"
-            prop="desc">
-    </el-table-column>
-  </el-table>
+    <el-table :data="appList" style="width: 100%">
+      <el-table-column type="expand">
+        <template slot-scope="props">
+          <el-form label-position="left" inline class="demo-table-expand">
+            <el-form-item label="商品名称">
+              <span>{{ props.row.groupTag }}</span>
+            </el-form-item>
+            <el-form-item label="所属店铺">
+              <span>{{ props.row.groupTag }}</span>
+            </el-form-item>
+            <el-form-item label="商品 ID">
+              <span>{{ props.row.groupTag }}</span>
+            </el-form-item>
+            <el-form-item label="店铺 ID">
+              <span>{{ props.row.groupTag }}</span>
+            </el-form-item>
+            <el-form-item label="商品分类">
+              <span>{{ props.row.groupTag }}</span>
+            </el-form-item>
+            <el-form-item label="店铺地址">
+              <span>{{ props.row.groupTag }}</span>
+            </el-form-item>
+            <el-form-item label="商品描述">
+              <span>{{ props.row.groupTag }}</span>
+            </el-form-item>
+          </el-form>
+        </template>
+      </el-table-column>
+      <el-table-column label="应用名称" prop="groupTag">
+      </el-table-column>
+      <el-table-column label="创建者" prop="creator">
+      </el-table-column>
+      <el-table-column label="创建时间" prop="createTime">
+      </el-table-column>
+      <el-table-column label="运行环境" prop="spaceList">
+      </el-table-column>
+    </el-table>
   </div>
 </template>
-
 <style>
   .demo-table-expand {
     font-size: 0;
   }
+
   .demo-table-expand label {
     width: 90px;
     color: #99a9bf;
   }
+
   .demo-table-expand .el-form-item {
     margin-right: 0;
     margin-bottom: 0;
     width: 50%;
   }
 </style>
-
 <script>
   export default {
     created() {
@@ -91,23 +80,8 @@
     },
     data() {
       return {
-//        group_list: [{
-//          value: '选项1',
-//          label: '黄金糕'
-//        }, {
-//          value: '选项2',
-//          label: '双皮奶'
-//        }, {
-//          value: '选项3',
-//          label: '蚵仔煎'
-//        }, {
-//          value: '选项4',
-//          label: '龙须面'
-//        }, {
-//          value: '选项5',
-//          label: '北京烤鸭'
-//        }],
         currentGroup: '',
+        appList: [],
         tableData5: [{
           id: '12987122',
           name: '好滋好味鸡蛋仔',
@@ -144,9 +118,45 @@
       }
     },
     computed: {
+      currentGroupWatcher: {
+        get() {
+          let value = this.currentGroup;
+          if (0 === value.length) {
+            let groupList = this.groupList;
+            if (Array.isArray(groupList) && groupList.length > 0) {
+              value = groupList[0].name;
+            }
+          }
+          return value;
+        },
+        set(value) {
+          this.currentGroup = value;
+        }
+      },
       groupList() {
         return this.$store.getters['user/groupList'];
       }
+    },
+    methods: {
+      requestAPPList(groupID, page, length, serviceName) {
+        if (!serviceName) {
+          serviceName = '';
+        }
+        this.$net.getAPPList({
+          groupId: groupID,
+          page: page,
+          length: length,
+          serviceName: serviceName
+        }).then(content => {
+          console.log(content);
+          if (content.hasOwnProperty('appList')) {
+            this.appList = content.appList;
+          }
+        });
+      },
+      handleGroupChange: function(groupID) {
+        this.requestAPPList(groupID, 1, 8, '');
+      },
     }
   }
 </script>

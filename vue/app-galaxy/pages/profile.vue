@@ -96,16 +96,6 @@
           switch (key) {
             case '/profile/app_manager':
               this.$router.push(key);
-              this.$ajax.post(URL_LIST.app_list, {
-                groupId: 2,
-                page: 1,
-                length: 8,
-                serviceName: ''
-              }).then(response => {
-                console.log(response);
-              }).catch(err => {
-                console.log(err);
-              });
               break;
             default:
               console.log('push key ' + key);

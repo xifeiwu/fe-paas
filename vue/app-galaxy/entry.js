@@ -2,6 +2,8 @@ import Vue from 'vue';
 import APP from './app';
 import NetWorkConfig from './config/network';
 Vue.prototype.$ajax = NetWorkConfig;
+import NetData from './data';
+Vue.prototype.$net = NetData;
 import router from './config/router';
 import store from './store';
 

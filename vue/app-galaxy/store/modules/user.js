@@ -2,7 +2,7 @@
  * Created by xifei.wu on 2017/12/4.
  */
 import NetData from '../../data';
-const USE_LOCAL_STORAGE = false;
+const USE_LOCAL_STORAGE = true;
 
 const warning = function(prop, where) {
   console.log(`warning: get ${prop} from ${where}`);

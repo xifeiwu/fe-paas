@@ -5,6 +5,16 @@ import axios from 'axios';
 import URL_LIST from '../config/url';
 
 export default {
+  getResponseContent: function (response) {
+    let content = null;
+    if ('data' in response) {
+      let data = response.data;
+      if (0 === data.code) {
+        content = data.content;
+      }
+    }
+    return content;
+  },
   login: function (res) {
     function updateItem(item) {
       let keyMap = {
@@ -104,5 +114,16 @@ export default {
         reject(err);
       });
     })
+  },
+  getAPPList: function (options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.app_list, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content) {
+          resolve(content);
+        }
+      }).catch(err => {
+      });
+    });
   }
 }
