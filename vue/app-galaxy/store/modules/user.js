@@ -2,7 +2,11 @@
  * Created by xifei.wu on 2017/12/4.
  */
 import NetData from '../../data';
-const DEBUG = true;
+const USE_LOCAL_STORAGE = false;
+
+const warning = function(prop, where) {
+  console.log(`warning: get ${prop} from ${where}`);
+};
 
 const state = {
   user: [{
@@ -28,7 +32,8 @@ const getters = {
     let result = null;
     if (Array.isArray(state.menuList) && state.menuList.length > 0) {
       result = state.menuList;
-    } else if (DEBUG) {
+    } else if (USE_LOCAL_STORAGE) {
+      warning('menuList', 'localStorage');
       let local = JSON.parse(localStorage.getItem('user/menuList'));
       if (local) {
         result = local;
@@ -37,16 +42,33 @@ const getters = {
     return result;
   },
   'groupList': (state, getters) => {
-    return state.groupList;
+    let result = null;
+    if (Array.isArray(state.groupList) && state.groupList.length > 0) {
+      result = state.groupList;
+    } else if (USE_LOCAL_STORAGE) {
+      warning('groupList', 'localStorage');
+      let local = JSON.parse(localStorage.getItem('user/groupList'));
+      if (local) {
+        result = local;
+      }
+    }
+    return result;
   }
 };
 
 const actions = {
-  getGroupList({commit}) {
+  login({commit, state}, res) {
+    if (0 === state.menuList.length) {
+      warning('login', 'netwrok');
+      NetData.login(res).then((menuList) => {
+        commit('LOGIN', menuList);
+      })
+    }
+  },
+  getGroupList({commit, state}) {
     if (0 === state.groupList.length) {
+      warning('getGroupList', 'netwrok');
       NetData.getGroupList().then(content => {
-        console.log('content in getGroupList');
-        console.log(content);
         if (content.hasOwnProperty('groupList')) {
           commit('SET_GROUP_LIST', content.groupList);
         }
@@ -56,96 +78,16 @@ const actions = {
 };
 
 const mutations = {
-  LOGIN(state, res) {
-    function updateItem(item) {
-      let keyMap = {
-        "应用管理": {
-          router: '/profile/app_manager',
-          icon: 'el-icon-location'
-        },
-        "服务管理": {
-          router: '/profile/service_manager'
-        },
-        "审批管理": {
-          router: '/profile/approve_manager'
-        },
-        "实例列表": {
-          router: '/profile/instance_list'
-        },
-        "外网域名": {
-          router: '/profile/domain_name'
-        },
-        "日志中心": {
-          router: '/profile/log_center'
-        },
-        "应用监控": {
-          router: '/profile/app_monitor'
-        },
-        "Oauth权限": {
-          router: '/profile/oauth_privilege',
-          icon: 'el-icon-setting'
-        },
-      }
-      let key = item.name;
-      if (keyMap.hasOwnProperty(key)) {
-        let props = keyMap[key];
-        for (let key in props) {
-          item[key] = props[key];
-        }
-      }
-      return item;
+  LOGIN(state, groupList) {
+    state.menuList = groupList;
+    if (USE_LOCAL_STORAGE) {
+      localStorage.setItem('user/menuList', JSON.stringify(groupList));
     }
-
-    let twoLevelMenu = []
-    let permission = res.permission;
-    permission = permission.map(it => {
-      return updateItem(it);
-    })
-    permission.forEach(it => {
-      if (0 === it.parentId) {
-        twoLevelMenu.push(it);
-      }
-    });
-    permission.forEach(it => {
-      if (0 !== it.parentId) {
-        let findParent = twoLevelMenu.some(pItem => {
-          if (it.parentId === pItem.id) {
-            if (!pItem.hasOwnProperty('children')) {
-              pItem.children = [];
-            }
-            pItem.children.push(it);
-            return true;
-          } else {
-            return false;
-          }
-        });
-        if (!findParent) {
-          twoLevelMenu.push(it);
-        }
-      }
-    });
-
-    let oneLevelMenu = [];
-    twoLevelMenu.forEach(it => {
-      oneLevelMenu.push(it);
-      if (it.hasOwnProperty('children')) {
-        it.children.forEach(it2 => {
-          oneLevelMenu.push(it2);
-        })
-      }
-    });
-
-    let results = oneLevelMenu;
-
-    if (DEBUG) {
-      localStorage.setItem('user/menuList', JSON.stringify(results));
-    }
-    state.menuList = results;
   },
 
   SET_GROUP_LIST(state, groupList) {
     state.groupList = groupList;
-    if (DEBUG) {
+    if (USE_LOCAL_STORAGE) {
       localStorage.setItem('user/groupList', JSON.stringify(groupList));
     }
   }

@@ -124,16 +124,16 @@
             verificationCode: this.form.verificationCode,
             freeLogin: this.freeLogin15Days,
           };
-          console.log(objToPost);
+//          console.log(objToPost);
           this.showLoading = true;
           this.$ajax.post(URL_LIST.login, objToPost).then(response => {
-            console.log(JSON.stringify(response));
-            console.log(response);
+//            console.log(JSON.stringify(response));
+//            console.log(response);
             if (response && 'data' in response && 'code' in response.data) {
               if (response.data.code !== 0) {
                 this.showError(response.data.msg);
               } else {
-                this.$store.commit('user/LOGIN', response.data.content);
+                this.$store.dispatch('user/login', response);
                 this.$router.push('/profile');
 //                this.$ajax.get(URL_LIST.app_test).then(response => {
 //                  console.log(response);
