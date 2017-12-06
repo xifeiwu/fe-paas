@@ -1,13 +1,17 @@
 <template>
-<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-  <el-form-item label="活动名称" prop="name">
-    <el-input v-model="ruleForm.name"></el-input>
-  </el-form-item>
-  <el-form-item label="活动区域" prop="region">
+<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
+  <el-form-item label="团队" prop="region">
     <el-select v-model="ruleForm.region" placeholder="请选择活动区域">
       <el-option label="区域一" value="shanghai"></el-option>
       <el-option label="区域二" value="beijing"></el-option>
     </el-select>
+    <el-select v-model="currentGroupWatcher" placeholder="请选择" @input="handleGroupChange">
+      <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
+      </el-option>
+    </el-select>
+  </el-form-item>
+  <el-form-item label="应用名称" prop="name">
+    <el-input v-model="ruleForm.name"></el-input>
   </el-form-item>
   <el-form-item label="活动时间" required>
     <el-col :span="11">
@@ -53,6 +57,7 @@
 export default {
   data() {
     return {
+      currentGroup: '',
       ruleForm: {
         name: '',
         region: '',
@@ -113,7 +118,30 @@ export default {
       currentStep: 0,
     };
   },
+  computed: {
+    currentGroupWatcher: {
+      get() {
+        let value = this.currentGroup;
+        if (0 === value.length) {
+          let groupList = this.groupList;
+          if (Array.isArray(groupList) && groupList.length > 0) {
+            value = groupList[0].name;
+          }
+        }
+        return value;
+      },
+      set(value) {
+        this.currentGroup = value;
+      }
+    },
+    groupList() {
+      return this.$store.getters['user/groupList'];
+    }
+  },
   methods: {
+    handleGroupChange: function(groupID) {
+//      this.requestAPPList(groupID, 1, 8, '');
+    },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {

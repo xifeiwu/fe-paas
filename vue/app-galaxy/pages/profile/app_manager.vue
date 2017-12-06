@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <el-row>
       <el-col :span="6">
         <el-button @click="handleButtonClick" action="/profile/add_app">创建应用</el-button>
@@ -55,6 +55,9 @@
   </div>
 </template>
 <style>
+  .container {
+    margin: 40px;
+  }
   .demo-table-expand {
     font-size: 0;
   }

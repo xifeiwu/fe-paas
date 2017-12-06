@@ -25,6 +25,7 @@ var Router = function () {
       }, {
         path: 'add_app',
         name: '添加应用',
+        redirect: '/profile/add_app/step1',
         children: [{
           path: 'step1',
         },{

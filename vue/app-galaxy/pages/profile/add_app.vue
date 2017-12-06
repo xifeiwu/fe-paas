@@ -100,10 +100,19 @@ export default {
 </script>
 <style lang="scss" scoped>
   .el-container {
-    width: 80%;
-    margin: 15px auto;
+    margin: 30px 15px 15px 15px;
     .el-header {
       border-bottom: 1px solid #c0ccda;
+      padding: 20px 30px 5px 30px;
+      .el-steps {
+        width: 400px;
+        margin: 0px auto;
+      }
+    }
+    .el-main {
+      max-width: 500px;
+      margin: 0px auto;
+      overflow: hidden;
     }
   }
 </style>
