@@ -1,5 +1,5 @@
 <template>
-  <el-container>
+  <el-container class="outer-container">
     <el-header>
       <div class="img">picture</div>
       <el-menu
@@ -21,7 +21,7 @@
         <el-menu-item index="logout">退出</el-menu-item>
       </el-menu>
     </el-header>
-    <el-container>
+    <el-container class="inner-container">
       <el-aside width="200px">
         <el-menu
                 class="el-menu-vertical-demo"
@@ -42,7 +42,9 @@
         </el-menu>
       </el-aside>
       <el-main>
-        <router-view></router-view>
+        <el-scrollbar>
+          <router-view></router-view>
+        </el-scrollbar>
       </el-main>
     </el-container>
   </el-container>
@@ -116,7 +118,8 @@
 </script>
 
 <style lang="scss" scoped>
-  .el-container {
+  .el-container.outer-container {
+    height: 100%;
     .el-header {
       background-color: #e7e7e7;
       color: #333;
@@ -131,19 +134,24 @@
         background-color: transparent;
         float: right;
       }
-
     }
-    .el-aside {
-      position: fixed;
-      top: 62px;
-      bottom: 0px;
-      border-right: solid 1px #e6e6e6;
-      .el-menu {
-        border-width: 0px;
+    .inner-container {
+      .el-aside {
+        position: fixed;
+        top: 62px;
+        bottom: 0px;
+        border-right: solid 1px #e6e6e6;
+        .el-menu {
+          border-width: 0px;
+        }
       }
-    }
-    .el-main {
-      margin-left: 200px;
+      .el-main {
+        padding: 0px;
+        margin-left: 200px;
+        .el-scrollbar {
+          height: 100%;
+        }
+      }
     }
   }
 </style>
