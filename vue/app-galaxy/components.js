@@ -28,9 +28,9 @@ import Button from '../packages/button/index.js';
 import ButtonGroup from '../packages/button-group/index.js';
 import Table from '../packages/table/index.js';
 import TableColumn from '../packages/table-column/index.js';
-// import DatePicker from '../packages/date-picker/index.js';
-// import TimeSelect from '../packages/time-select/index.js';
-// import TimePicker from '../packages/time-picker/index.js';
+import DatePicker from '../packages/date-picker/index.js';
+import TimeSelect from '../packages/time-select/index.js';
+import TimePicker from '../packages/time-picker/index.js';
 import Popover from '../packages/popover/index.js';
 import Tooltip from '../packages/tooltip/index.js';
 // import MessageBox from '../packages/message-box/index.js';
@@ -56,8 +56,8 @@ import Col from '../packages/col/index.js';
 import Badge from '../packages/badge/index.js';
 import Card from '../packages/card/index.js';
 // import Rate from '../packages/rate/index.js';
-// import Steps from '../packages/steps/index.js';
-// import Step from '../packages/step/index.js';
+import Steps from '../packages/steps/index.js';
+import Step from '../packages/step/index.js';
 // import Carousel from '../packages/carousel/index.js';
 import Scrollbar from '../packages/scrollbar/index.js';
 // import CarouselItem from '../packages/carousel-item/index.js';
@@ -101,9 +101,9 @@ const components = [
   ButtonGroup,
   Table,
   TableColumn,
-  // DatePicker,
-  // TimeSelect,
-  // TimePicker,
+  DatePicker,
+  TimeSelect,
+  TimePicker,
   Popover,
   Tooltip,
   // Breadcrumb,
@@ -126,8 +126,8 @@ const components = [
   Badge,
   Card,
   // Rate,
-  // Steps,
-  // Step,
+  Steps,
+  Step,
   // Carousel,
   Scrollbar,
   // CarouselItem,

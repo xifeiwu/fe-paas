@@ -16,13 +16,24 @@ var Router = function () {
       path: '/profile',
       name: '详情',
       redirect: '/profile/app_manager',
-      // component: getAbsPath('profile.vue')
       children: [{
         path: 'app_manager',
         name: '应用管理',
       }, {
         path: 'instance_list',
         name: '实例列表',
+      }, {
+        path: 'add_app',
+        name: '添加应用',
+        children: [{
+          path: 'step1',
+        },{
+          path: 'step2',
+        },{
+          path: 'step3',
+        },{
+          path: 'finish',
+        }]
       }]
     }
   }
