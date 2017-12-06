@@ -67,7 +67,7 @@ export default {
         appName: [{
             required: true,
             message: '请输入应用名称',
-            trigger: 'input'
+            trigger: 'blur'
           },
           {
             min: 3,
@@ -89,7 +89,7 @@ export default {
           type: 'array',
           required: true,
           message: '请选择运行环境',
-          trigger: 'input'
+          trigger: 'blur'
         }],
         language: [{
           required: true,
@@ -133,7 +133,7 @@ export default {
     handleGroupIDChange: function(groupID) {
 //      this.requestAPPList(groupID, 1, 8, '');
     },
-    handleNextStep(formName) {
+    handleNextStep() {
       console.log(this.stepForm1);
       this.$refs['stepForm1'].validate((valid) => {
         if (valid) {
