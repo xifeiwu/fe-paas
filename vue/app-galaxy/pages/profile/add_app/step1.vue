@@ -1,54 +1,46 @@
 <template>
-<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
+<el-form :model="stepForm1" :rules="rules" ref="stepForm1" label-width="100px">
   <el-form-item label="团队" prop="region">
-    <el-select v-model="ruleForm.region" placeholder="请选择活动区域">
-      <el-option label="区域一" value="shanghai"></el-option>
-      <el-option label="区域二" value="beijing"></el-option>
-    </el-select>
-    <el-select v-model="currentGroupWatcher" placeholder="请选择" @input="handleGroupChange">
+    <el-select v-model="groupIDWatcher" placeholder="请选择" @input="handleGroupIDChange">
       <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
       </el-option>
     </el-select>
   </el-form-item>
-  <el-form-item label="应用名称" prop="name">
-    <el-input v-model="ruleForm.name"></el-input>
+  <el-form-item label="应用名称" prop="appName">
+    <el-input v-model="stepForm1.appName" placeholder="中文，英文，数字，30字符内"></el-input>
   </el-form-item>
-  <el-form-item label="活动时间" required>
-    <el-col :span="11">
-      <el-form-item prop="date1">
-        <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.date1" style="width: 100%;"></el-date-picker>
-      </el-form-item>
-    </el-col>
-    <el-col class="line" :span="2">-</el-col>
-    <el-col :span="11">
-      <el-form-item prop="date2">
-        <el-time-picker type="fixed-time" placeholder="选择时间" v-model="ruleForm.date2" style="width: 100%;"></el-time-picker>
-      </el-form-item>
-    </el-col>
+  <el-form-item label="项目名称" prop="projectName">
+    <el-input v-model="stepForm1.projectName" placeholder="gitlab中project的名称"></el-input>
   </el-form-item>
-  <el-form-item label="即时配送" prop="delivery">
-    <el-switch v-model="ruleForm.delivery"></el-switch>
-  </el-form-item>
-  <el-form-item label="活动性质" prop="type">
-    <el-checkbox-group v-model="ruleForm.type">
-      <el-checkbox label="美食/餐厅线上活动" name="type"></el-checkbox>
-      <el-checkbox label="地推活动" name="type"></el-checkbox>
-      <el-checkbox label="线下主题活动" name="type"></el-checkbox>
-      <el-checkbox label="单纯品牌曝光" name="type"></el-checkbox>
+  <el-form-item label="运行环境" prop="environment">
+    <el-checkbox-group v-model="stepForm1.environment">
+      <el-checkbox label="开发" name="type"></el-checkbox>
+      <el-checkbox label="功能测试" name="type"></el-checkbox>
+      <el-checkbox label="性能测试" name="type"></el-checkbox>
+      <el-checkbox label="联调" name="type"></el-checkbox>
+      <el-checkbox label="生产" name="type"></el-checkbox>
     </el-checkbox-group>
   </el-form-item>
-  <el-form-item label="特殊资源" prop="resource">
-    <el-radio-group v-model="ruleForm.resource">
-      <el-radio label="线上品牌商赞助"></el-radio>
-      <el-radio label="线下场地免费"></el-radio>
+  <el-form-item label="开发语言" prop="language">
+    <el-radio-group v-model="stepForm1.language">
+      <el-radio label="Java"></el-radio>
+      <el-radio label="NodeJS"></el-radio>
+      <el-radio label="Python"></el-radio>
     </el-radio-group>
   </el-form-item>
-  <el-form-item label="活动形式" prop="desc">
-    <el-input type="textarea" v-model="ruleForm.desc"></el-input>
+  <el-form-item label="构建类型" prop="buildType">
+    <el-radio-group v-model="stepForm1.buildType">
+      <el-radio label="jar"></el-radio>
+      <el-radio label="war"></el-radio>
+      <el-radio label="zip"></el-radio>
+    </el-radio-group>
+  </el-form-item>
+  <el-form-item label="健康检查" prop="healthCheck">
+    <el-input v-model="stepForm1.appName" placeholder=""></el-input>
   </el-form-item>
   <el-form-item>
-    <el-button type="primary" @click="submitForm('ruleForm')">立即创建</el-button>
-    <el-button @click="resetForm('ruleForm')">重置</el-button>
+    <el-button type="primary" @click="handleNextStep">下一步</el-button>
+    <!--<el-button @click="resetForm('stepForm1')">重置</el-button>-->
   </el-form-item>
 </el-form>
 </template>
@@ -57,61 +49,60 @@
 export default {
   data() {
     return {
-      currentGroup: '',
-      ruleForm: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
+      stepForm1: {
+        groupID: '',
+        appName: '',
+        projectName: '',
+        environment: [],
+        language: '',
+        buildType: '',
+        healthCheck: ''
       },
       rules: {
-        name: [{
+        groupID: [{
+          required: true,
+          message: '请选择所属用户组',
+          trigger: 'change'
+        }],
+        appName: [{
             required: true,
-            message: '请输入活动名称',
+            message: '请输入应用名称',
             trigger: 'blur'
           },
           {
             min: 3,
-            max: 5,
-            message: '长度在 3 到 5 个字符',
+            max: 30,
+            message: '长度在3到30个字符',
+            trigger: 'blur'
+          }, {
+            pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9]+$/,
+            message: '只能包含中文，字母，数字',
             trigger: 'blur'
           }
         ],
-        region: [{
+        projectName: [{
           required: true,
-          message: '请选择活动区域',
+          message: '请输入项目名称',
+          trigger: 'blur'
+        }],
+        environment: [{
+          required: true,
+          message: '请选择运行环境',
           trigger: 'change'
         }],
-        date1: [{
-          type: 'date',
+        language: [{
           required: true,
-          message: '请选择日期',
+          message: '请选择开发语言',
           trigger: 'change'
         }],
-        date2: [{
-          type: 'date',
+        buildType: [{
           required: true,
-          message: '请选择时间',
+          message: '请选择构建类型',
           trigger: 'change'
         }],
-        type: [{
-          type: 'array',
+        healthCheck: [{
           required: true,
-          message: '请至少选择一个活动性质',
-          trigger: 'change'
-        }],
-        resource: [{
-          required: true,
-          message: '请选择活动资源',
-          trigger: 'change'
-        }],
-        desc: [{
-          required: true,
-          message: '请填写活动形式',
+          message: '请填写健康检查类型',
           trigger: 'blur'
         }]
       },
@@ -119,19 +110,19 @@ export default {
     };
   },
   computed: {
-    currentGroupWatcher: {
+    groupIDWatcher: {
       get() {
-        let value = this.currentGroup;
+        let value = this.stepForm1.groupID;
         if (0 === value.length) {
           let groupList = this.groupList;
           if (Array.isArray(groupList) && groupList.length > 0) {
-            value = groupList[0].name;
+            value = groupList[0].id;
           }
         }
         return value;
       },
       set(value) {
-        this.currentGroup = value;
+        this.stepForm1.groupID = value;
       }
     },
     groupList() {
@@ -139,10 +130,11 @@ export default {
     }
   },
   methods: {
-    handleGroupChange: function(groupID) {
+    handleGroupIDChange: function(groupID) {
 //      this.requestAPPList(groupID, 1, 8, '');
     },
     submitForm(formName) {
+      console.log(this.stepForm1);
       this.$refs[formName].validate((valid) => {
         if (valid) {
           alert('submit!');
@@ -155,8 +147,11 @@ export default {
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
+    handleNextStep() {
+//      console.log(arguments);
+      this.$router.push('step2');
+    },
     nextStep() {
-//      console.log(this.currentStep);
       if (this.currentStep++ > 2) this.currentStep = 0;
     }
   }
