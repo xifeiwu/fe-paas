@@ -23,7 +23,7 @@
   }
 
   &[x-placement^="top"] {
-    margin-bottom: #{$--popover-arrow-size + 6};
+    margin-bottom: #{$--popover-arrow-size};
   }
 
   &[x-placement^="top"] .popper__arrow {
@@ -42,7 +42,7 @@
   }
 
   &[x-placement^="bottom"] {
-    margin-top: #{$--popover-arrow-size + 6};
+    margin-top: #{$--popover-arrow-size};
   }
 
   &[x-placement^="bottom"] .popper__arrow {
@@ -61,7 +61,7 @@
   }
 
   &[x-placement^="right"] {
-    margin-left: #{$--popover-arrow-size + 6};
+    margin-left: #{$--popover-arrow-size};
   }
 
   &[x-placement^="right"] .popper__arrow {
@@ -80,7 +80,7 @@
   }
 
   &[x-placement^="left"] {
-    margin-right: #{$--popover-arrow-size + 6};
+    margin-right: #{$--popover-arrow-size};
   }
 
   &[x-placement^="left"] .popper__arrow {
