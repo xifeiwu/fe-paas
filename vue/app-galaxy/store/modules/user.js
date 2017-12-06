@@ -9,19 +9,6 @@ const warning = function(prop, where) {
 };
 
 const state = {
-  user: [{
-    username: '11',
-    password: '11'
-  }, {
-    username: '啊a',
-    password: '啊啊'
-  }, {
-    username: '啊b',
-    password: '啊啊'
-  }, {
-    username: '啊c',
-    password: '啊啊'
-  }],
   Login: 0,
   menuList: [],
   groupList: [],

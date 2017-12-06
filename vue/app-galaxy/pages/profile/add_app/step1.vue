@@ -36,7 +36,7 @@
     </el-radio-group>
   </el-form-item>
   <el-form-item label="健康检查" prop="healthCheck">
-    <el-input v-model="stepForm1.appName" placeholder=""></el-input>
+    <el-input v-model="stepForm1.healthCheck" placeholder=""></el-input>
   </el-form-item>
   <el-form-item>
     <el-button type="primary" @click="handleNextStep">下一步</el-button>
@@ -67,7 +67,7 @@ export default {
         appName: [{
             required: true,
             message: '请输入应用名称',
-            trigger: 'blur'
+            trigger: 'input'
           },
           {
             min: 3,
@@ -86,9 +86,10 @@ export default {
           trigger: 'blur'
         }],
         environment: [{
+          type: 'array',
           required: true,
           message: '请选择运行环境',
-          trigger: 'change'
+          trigger: 'input'
         }],
         language: [{
           required: true,
@@ -103,10 +104,9 @@ export default {
         healthCheck: [{
           required: true,
           message: '请填写健康检查类型',
-          trigger: 'blur'
+          trigger: 'input'
         }]
       },
-      currentStep: 0,
     };
   },
   computed: {
@@ -133,11 +133,13 @@ export default {
     handleGroupIDChange: function(groupID) {
 //      this.requestAPPList(groupID, 1, 8, '');
     },
-    submitForm(formName) {
+    handleNextStep(formName) {
       console.log(this.stepForm1);
-      this.$refs[formName].validate((valid) => {
+      this.$refs['stepForm1'].validate((valid) => {
         if (valid) {
-          alert('submit!');
+          this.$router.push('step2');
+          this.$store.dispatch('app/updateStepOfAddAPP', 1);
+//          this.$store.dispatch('user/login', response);
         } else {
           console.log('error submit!!');
           return false;
@@ -147,13 +149,6 @@ export default {
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
-    handleNextStep() {
-//      console.log(arguments);
-      this.$router.push('step2');
-    },
-    nextStep() {
-      if (this.currentStep++ > 2) this.currentStep = 0;
-    }
   }
 }
 </script>
