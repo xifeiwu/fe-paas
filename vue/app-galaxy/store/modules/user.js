@@ -1,7 +1,8 @@
 /**
  * Created by xifei.wu on 2017/12/4.
  */
-import NetData from '../../data';
+import Vue from 'vue';
+let NetData = Vue.prototype.$net;
 const USE_LOCAL_STORAGE = true;
 
 const warning = function(prop, where) {

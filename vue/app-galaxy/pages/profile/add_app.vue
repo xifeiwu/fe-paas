@@ -24,6 +24,9 @@ export default {
       return this.$store.getters['app/stepOfAddAPP']
     },
   },
+  mounted() {
+
+  },
   methods: {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
