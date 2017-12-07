@@ -99,7 +99,13 @@
     computed: {
       infoForCreateApp() {
         return this.$store.getters['app/infoForCreateApp'];
+      },
+      infoForCreateAppToPost() {
+        return this.$store.getters['app/infoForCreateAppToPost'];
       }
+    },
+    mounted() {
+      this.$store.dispatch('app/updateStepOfAddAPP', 2);
     },
     methods: {
       handleNextStep() {
@@ -113,6 +119,15 @@
               value: this.stepForm3
             });
             console.log(JSON.stringify(this.infoForCreateApp));
+            console.log(JSON.stringify(this.infoForCreateAppToPost))
+            let toPost = this.infoForCreateAppToPost;
+            delete toPost.volumes;
+            this.$ajax.post('http://172.16.49.141:30333' + '/application/create',
+              toPost, res=> {
+              console.log(res);
+            }, err => {
+              console.log(err);
+            })
           } else {
             console.log('error submit!!');
             return false;

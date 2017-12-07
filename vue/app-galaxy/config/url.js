@@ -10,6 +10,7 @@ var urlList = {
   'app_list': path + '/application/queryByPage',
   'user_info': path + '/group/queryByUser',
   'get_group_id': path + '/group/queryByUser',
+  'create_app': path + '/application/create',
 }
 
 export default urlList;

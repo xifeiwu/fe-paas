@@ -12,8 +12,8 @@
   <el-form-item label="项目名称" prop="projectName">
     <el-input v-model="stepForm1.projectName" placeholder="gitlab中project的名称"></el-input>
   </el-form-item>
-  <el-form-item label="运行环境" prop="environment" class="environment">
-    <el-checkbox-group v-model="stepForm1.environment">
+  <el-form-item label="运行环境" prop="profiles" class="profiles">
+    <el-checkbox-group v-model="stepForm1.profiles">
       <el-checkbox label="开发" name="type"></el-checkbox>
       <el-checkbox label="功能测试" name="type"></el-checkbox>
       <el-checkbox label="性能测试" name="type"></el-checkbox>
@@ -23,16 +23,16 @@
   </el-form-item>
   <el-form-item label="开发语言" prop="language">
     <el-radio-group v-model="stepForm1.language">
-      <el-radio label="Java"></el-radio>
-      <el-radio label="NodeJS"></el-radio>
-      <el-radio label="Python"></el-radio>
+      <el-radio label="JAVA"></el-radio>
+      <el-radio label="NODE_JS"></el-radio>
+      <el-radio label="PHP"></el-radio>
     </el-radio-group>
   </el-form-item>
   <el-form-item label="构建类型" prop="buildType">
     <el-radio-group v-model="stepForm1.buildType">
-      <el-radio label="jar"></el-radio>
-      <el-radio label="war"></el-radio>
-      <el-radio label="zip"></el-radio>
+      <el-radio label="JAR"></el-radio>
+      <el-radio label="WAR"></el-radio>
+      <el-radio label="ZIP"></el-radio>
     </el-radio-group>
   </el-form-item>
   <el-form-item label="健康检查" prop="healthCheck">
@@ -50,7 +50,7 @@
 <style lang="scss" scoped>
   .el-form {
     .el-form-item {
-      &.environment {
+      &.profiles {
         .el-checkbox + .el-checkbox {
           margin-left: 20px;
         }
@@ -71,7 +71,7 @@ export default {
         groupID: '',
         appName: '',
         projectName: '',
-        environment: [],
+        profiles: [],
         language: '',
         buildType: '',
         healthCheck: ''
@@ -103,7 +103,7 @@ export default {
           message: '请输入项目名称',
           trigger: 'blur'
         }],
-        environment: [{
+        profiles: [{
           type: 'array',
           required: true,
           message: '请选择运行环境',
@@ -146,6 +146,9 @@ export default {
     groupList() {
       return this.$store.getters['user/groupList'];
     }
+  },
+  mounted() {
+    this.$store.dispatch('app/updateStepOfAddAPP', 0);
   },
   methods: {
     handleGroupIDChange: function(groupID) {

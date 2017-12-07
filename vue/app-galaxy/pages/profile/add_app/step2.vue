@@ -31,13 +31,13 @@
         <el-col :span="4" style="font-weight: bold"></el-col>
       </el-row>
       <el-row
-        v-for="(value, key) in stepForm2.environments"
-        :key="key"
+        v-for="(item, index) in stepForm2.environments"
+        :key="item.key"
       >
-        <el-col :span="9">{{key}}</el-col>
-        <el-col :span="9">{{value}}</el-col>
+        <el-col :span="9">{{item.key}}</el-col>
+        <el-col :span="9">{{item.value}}</el-col>
         <el-col :span="4">
-          <el-button class="delete-environment-btn" @click="handleDeleteEnvironment(key)">删除</el-button>
+          <el-button class="delete-environment-btn" @click="handleDeleteEnvironment(index)">删除</el-button>
         </el-col>
       </el-row>
       <el-row>
@@ -54,8 +54,6 @@
       </el-row>
     </el-form-item>
 
-
-
     <el-form-item label="域名配置" prop="hosts" class="hosts">
       <el-row>
         <el-col :span="10" style="font-weight: bold">IP</el-col>
@@ -63,13 +61,13 @@
         <el-col :span="4" style="font-weight: bold"></el-col>
       </el-row>
       <el-row
-              v-for="(value, key) in stepForm2.hosts"
-              :key="key"
+              v-for="(item, index) in stepForm2.hosts"
+              :key="item.ip"
       >
-        <el-col :span="9">{{key}}</el-col>
-        <el-col :span="9">{{value}}</el-col>
+        <el-col :span="9">{{item.ip}}</el-col>
+        <el-col :span="9">{{item.domain}}</el-col>
         <el-col :span="4">
-          <el-button class="delete-host-btn" @click="handleDeleteHost(key)">删除</el-button>
+          <el-button class="delete-host-btn" @click="handleDeleteHost(index)">删除</el-button>
         </el-col>
       </el-row>
       <el-row>
@@ -142,8 +140,8 @@
           mirrorType: '自动打镜像',
           mirrorLocation: '',
           fileLocation: [],
-          environments: {},
-          hosts: {}
+          environments: [],
+          hosts: []
         },
         rules: {
           mirrorType: [{
@@ -164,6 +162,9 @@
           }]
         }
       };
+    },
+    mounted() {
+      this.$store.dispatch('app/updateStepOfAddAPP', 1);
     },
     methods: {
       handleMirrorTypeChange(value) {
@@ -188,24 +189,32 @@
           this.fileLocationToAdd = '';
         }
       },
-      handleDeleteEnvironment(key) {
-        this.$delete(this.stepForm2.environments, key)
+      handleDeleteEnvironment(index) {
+        this.stepForm2.environments.splice(index, 1);
       },
       handleAddEnvironment(key, value) {
         if (key.length > 0 && value.length > 0) {
-          this.$set(this.stepForm2.environments, key, value);
+          this.stepForm2.environments.push({
+            key: key,
+            value: value,
+          });
           this.environmentKey = '';
           this.environmentValue = '';
         } else {
           this.$message.error('key或value值不能为空');
         }
       },
-      handleDeleteHost(key) {
-        this.$delete(this.stepForm2.hosts, key)
+      handleDeleteHost(index) {
+        this.stepForm2.hosts.splice(index, 1);
+//        this.$delete(this.stepForm2.hosts, key)
       },
       handleAddHost(key, value) {
         if (key.length > 0 && value.length > 0) {
-          this.$set(this.stepForm2.hosts, key, value);
+//          this.$set(this.stepForm2.hosts, key, value);
+          this.stepForm2.hosts.push({
+            ip: key,
+            domain: value
+          });
           this.hostKey = '';
           this.hostValue = '';
         } else {
