@@ -1,5 +1,5 @@
 <template>
-  <el-form :model="stepForm3" ref="stepForm2" :rules="rules" label-width="120px">
+  <el-form :model="stepForm3" ref="stepForm3" :rules="rules" label-width="120px">
     <el-form-item label="CPU" prop="cpu">
       <el-radio-group v-model="stepForm3.cpu" size="small">
         <el-radio-button label="1核"></el-radio-button>
@@ -17,16 +17,16 @@
       </el-radio-group>
     </el-form-item>
     <el-form-item label="实例数量" prop="instanceCount">
-      <el-input-number v-model="stepForm3.instanceCount" @change="handleChange" :min="1" :max="10" label="描述文字"></el-input-number>
+      <el-input-number v-model="stepForm3.instanceCount" :min="1" :max="10" label="描述文字"></el-input-number>
     </el-form-item>
     <el-form-item label="滚动升级">
-      <el-radio-group v-model="stepForm3.rollingUpdate" @change="handleMirrorTypeChange">
+      <el-radio-group v-model="stepForm3.rollingUpdate">
         <el-radio label="需要"></el-radio>
         <el-radio label="不需要"></el-radio>
       </el-radio-group>
     </el-form-item>
     <el-form-item label="负载均衡">
-      <el-radio-group v-model="stepForm3.loadBalance" @change="handleMirrorTypeChange">
+      <el-radio-group v-model="stepForm3.loadBalance">
         <el-radio label="round_robbin"></el-radio>
         <el-radio label="ip_hash"></el-radio>
         <el-radio label="session_sticky">ddd</el-radio>
@@ -95,6 +95,35 @@
           }],
         }
       }
+    },
+    computed: {
+      infoForCreateApp() {
+        return this.$store.getters['app/infoForCreateApp'];
+      }
+    },
+    methods: {
+      handleNextStep() {
+//        console.log(this.stepForm1);
+        this.$refs['stepForm3'].validate((valid) => {
+          if (valid) {
+//            this.$router.push('step3');
+            this.$store.dispatch('app/updateStepOfAddAPP', 3);
+            this.$store.dispatch('app/addCreateAPPInfo', {
+              key: 'page3',
+              value: this.stepForm3
+            });
+            console.log(JSON.stringify(this.infoForCreateApp));
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      handlePreStep() {
+        this.$router.push('step2');
+        this.$store.dispatch('app/updateStepOfAddAPP', 2);
+      },
     }
+
   }
 </script>

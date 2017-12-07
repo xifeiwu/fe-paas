@@ -5,16 +5,16 @@
 
 const state = {
   stepOfAddAPP: 0,
-  infoForCreateApp: [],
+  infoForCreateApp: {},
 };
 
 const actions = {
   updateStepOfAddAPP({commit, state}, step) {
     state.stepOfAddAPP = step;
   },
-  addCreateAPPInfo({commit, state}, step, values) {
-    let key = 'page' + step;
-    state.infoForCreateApp[key] = values;
+  addCreateAPPInfo({commit, state}, params) {
+    console.log(params);
+    state.infoForCreateApp[params.key] = params.value;
   }
 };
 
@@ -25,6 +25,9 @@ const mutations = {
 const getters = {
   'stepOfAddAPP': (state, getters) => {
     return state.stepOfAddAPP;
+  },
+  'infoForCreateApp': (state, getters) => {
+    return state.infoForCreateApp;
   }
 };
 

@@ -157,7 +157,10 @@ export default {
         if (valid) {
           this.$router.push('step2');
           this.$store.dispatch('app/updateStepOfAddAPP', 1);
-          this.$store.dispatch('app/addCreateAPPInfo', 1, this.stepForm1);
+          this.$store.dispatch('app/addCreateAPPInfo', {
+            key: 'page1',
+            value: this.stepForm1
+          });
         } else {
           console.log('error submit!!');
           return false;

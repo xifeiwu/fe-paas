@@ -117,9 +117,12 @@ const vueRouter = new VueRouter({
 //  })
 // }
 
+let fixAddAppStep = function(to, next) {
+
+}
 vueRouter.beforeEach((to, from, next) => {
   // console.log('in beforeEach');
-  // console.log(to + ' -> ' + from);
+  console.log(JSON.stringify(to.path) + ' -> ' + JSON.stringify(from.path));
   next();
   //  if (to.meta.requireAuth) {
   //   fetch('m/is/login').then(res = > {

@@ -217,8 +217,11 @@
         this.$refs['stepForm2'].validate((valid) => {
           if (valid) {
             this.$router.push('step3');
-            this.$store.dispatch('app/updateStepOfAddAPP', 1);
-            this.$store.dispatch('app/addCreateAPPInfo', 2, this.stepForm2);
+            this.$store.dispatch('app/updateStepOfAddAPP', 2);
+            this.$store.dispatch('app/addCreateAPPInfo', {
+              key: 'page2',
+              value: this.stepForm2
+            });
           } else {
             console.log('error submit!!');
             return false;
@@ -227,7 +230,7 @@
       },
       handlePreStep() {
         this.$router.push('step1');
-        this.$store.dispatch('app/updateStepOfAddAPP', 0);
+        this.$store.dispatch('app/updateStepOfAddAPP', 1);
       },
       resetForm(formName) {
         this.$refs[formName].resetFields();
