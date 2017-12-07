@@ -5,11 +5,16 @@
 
 const state = {
   stepOfAddAPP: 0,
+  infoForCreateApp: [],
 };
 
 const actions = {
   updateStepOfAddAPP({commit, state}, step) {
     state.stepOfAddAPP = step;
+  },
+  addCreateAPPInfo({commit, state}, step, values) {
+    let key = 'page' + step;
+    state.infoForCreateApp[key] = values;
   }
 };
 
