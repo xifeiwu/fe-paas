@@ -2,7 +2,8 @@
  * Created by xifei.wu on 2017/12/6.
  */
 import Vue from 'vue';
-let NetData = Vue.prototype.$net;
+// let NetData = Vue.prototype.$net;
+import NetData from '../../data/net';
 import postFormatter from '../post_formatter';
 const USE_LOCAL_STORAGE = true;
 

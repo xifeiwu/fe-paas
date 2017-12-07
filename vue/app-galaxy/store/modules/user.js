@@ -62,9 +62,12 @@ const actions = {
       })
     }
   },
-  groupID({commit, state}, id) {
+  groupID({commit, state, dispatch}, id) {
     state.groupID = id;
     localStorage.setItem('groupID', id);
+    dispatch('app/getProfileOfGroup', {
+      id: id
+    }, {root: true});
   },
   getGroupList({commit, state}) {
     if (0 === state.groupList.length) {
