@@ -1,7 +1,7 @@
 <template>
 <el-form :model="stepForm1" :rules="rules" ref="stepForm1" label-width="100px">
   <el-form-item label="团队" prop="region">
-    <el-select v-model="groupIDWatcher" placeholder="请选择" @input="handleGroupIDChange">
+    <el-select v-model="currentGroupID" placeholder="请选择" @input="handleGroupIDChange">
       <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
       </el-option>
     </el-select>
@@ -128,19 +128,16 @@ export default {
     };
   },
   computed: {
-    groupIDWatcher: {
+    currentGroupID: {
       get() {
-        let value = this.stepForm1.groupID;
-        if (0 === value.length) {
-          let groupList = this.groupList;
-          if (Array.isArray(groupList) && groupList.length > 0) {
-            value = groupList[0].id;
-          }
+        if ('' === this.stepForm1.groupID) {
+          this.stepForm1.groupID = this.$store.getters['user/groupID'];
         }
-        return value;
+        return this.stepForm1.groupID;
       },
       set(value) {
-        this.stepForm1.groupID = value;
+        this.groupID = value;
+        this.$store.dispatch('user/groupID', value);
       }
     },
     groupList() {

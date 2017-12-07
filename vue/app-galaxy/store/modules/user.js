@@ -2,7 +2,8 @@
  * Created by xifei.wu on 2017/12/4.
  */
 import Vue from 'vue';
-let NetData = Vue.prototype.$net;
+// let NetData = Vue.prototype.$net;
+import NetData from '../../data/net';
 const USE_LOCAL_STORAGE = true;
 
 const warning = function(prop, where) {
@@ -12,6 +13,7 @@ const warning = function(prop, where) {
 const state = {
   Login: 0,
   menuList: [],
+  groupID: '',
   groupList: [],
 };
 
@@ -28,6 +30,13 @@ const getters = {
       }
     }
     return result;
+  },
+  'groupID': (state, getters) => {
+    let groupID = localStorage.getItem('groupID');
+    if (!groupID && state.groupList.length > 0) {
+      groupID = state.groupList[0].id
+    }
+    return parseInt(groupID);
   },
   'groupList': (state, getters) => {
     let result = null;
@@ -52,6 +61,10 @@ const actions = {
         commit('LOGIN', menuList);
       })
     }
+  },
+  groupID({commit, state}, id) {
+    state.groupID = id;
+    localStorage.setItem('groupID', id);
   },
   getGroupList({commit, state}) {
     if (0 === state.groupList.length) {

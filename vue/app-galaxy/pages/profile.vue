@@ -60,10 +60,10 @@
       }
     },
     created() {
-      console.log('profile created');
+      this.$store.dispatch('user/getGroupList');
     },
     mounted() {
-      console.log('profile created');
+//      console.log('profile created');
     },
     computed: {
       menuList() {

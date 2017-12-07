@@ -125,5 +125,18 @@ export default {
       }).catch(err => {
       });
     });
+  },
+
+  getProfileOfGroup: function(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.get_profile_of_group, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content) {
+          console.log(content);
+          resolve(content);
+        }
+      }).catch(err => {
+      });
+    });
   }
 }

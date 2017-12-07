@@ -9,7 +9,7 @@
       </el-col>
       <el-col :span="6"></el-col>
       <el-col :span="6">
-        <el-select v-model="groupIDWatcher" placeholder="请选择" @input="handleGroupChange">
+        <el-select v-model="currentGroupID" placeholder="请选择" @input="handleGroupChange">
           <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
           </el-option>
         </el-select>
@@ -88,20 +88,16 @@
       }
     },
     computed: {
-      groupIDWatcher: {
+      currentGroupID: {
         get() {
-          let value = this.groupID;
-          if (0 === value.length) {
-            let groupList = this.groupList;
-            if (Array.isArray(groupList) && groupList.length > 0) {
-              value = groupList[0].name;
-            }
+          if ('' === this.groupID) {
+            this.groupID = this.$store.getters['user/groupID'];
           }
-          return value;
+          return this.groupID;
         },
         set(value) {
-          console.log(value);
           this.groupID = value;
+          this.$store.dispatch('user/groupID', value);
         }
       },
       groupList() {

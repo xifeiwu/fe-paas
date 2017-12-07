@@ -1,8 +1,20 @@
 /**
  * Created by xifei.wu on 2017/12/6.
  */
+import Vue from 'vue';
+let NetData = Vue.prototype.$net;
 import postFormatter from '../post_formatter';
 const USE_LOCAL_STORAGE = true;
+
+const stateHasUpdated = function(prop) {
+  let hasUpdated = false;
+  if ('object' === typeof(prop) && Object.keys(prop).length > 0) {
+    hasUpdated = true;
+  } else if (Array.isArray(prop) && prop.length > 0) {
+    hasUpdated = true;
+  }
+  return hasUpdated;
+}
 
 const warning = function(prop, where) {
   console.log(`warning: get ${prop} from ${where}`);
@@ -12,6 +24,9 @@ const state = {
   stepOfAddAPP: 0,
   infoForCreateApp: {},
   infoForCreateAppToPost: {},
+
+  /* net data */
+  profileOfGroup: [],
 };
 
 const actions = {
@@ -25,7 +40,16 @@ const actions = {
       && state.infoForCreateApp.hasOwnProperty('page3')) {
       commit('SET_INFO_FOR_CREATE_APP', state.infoForCreateApp);
     }
-  }
+  },
+
+  /* net data */
+  getProfileOfGroup({commit, state}, options) {
+    // if (!stateHasUpdated(state.profileOfGroup)) {
+      NetData.getProfileOfGroup(options).then(profileList => {
+
+      })
+    // }
+  },
 };
 
 const mutations = {
@@ -39,6 +63,8 @@ const mutations = {
       localStorage.setItem('app/infoForCreateAppToPost', JSON.stringify(state.infoForCreateAppToPost));
     }
   }
+
+  /* net data */
 };
 
 const getters = {
@@ -61,6 +87,8 @@ const getters = {
     }
     return result;
   }
+
+  /* net data */
 };
 
 export default {
