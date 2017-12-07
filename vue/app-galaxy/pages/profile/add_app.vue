@@ -57,7 +57,7 @@ export default {
       }
     }
     .el-main {
-      max-width: 500px;
+      max-width: 550px;
       margin: 0px auto;
       overflow: hidden;
     }

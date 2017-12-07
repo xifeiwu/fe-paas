@@ -12,7 +12,7 @@
   <el-form-item label="项目名称" prop="projectName">
     <el-input v-model="stepForm1.projectName" placeholder="gitlab中project的名称"></el-input>
   </el-form-item>
-  <el-form-item label="运行环境" prop="environment">
+  <el-form-item label="运行环境" prop="environment" class="environment">
     <el-checkbox-group v-model="stepForm1.environment">
       <el-checkbox label="开发" name="type"></el-checkbox>
       <el-checkbox label="功能测试" name="type"></el-checkbox>
@@ -38,13 +38,31 @@
   <el-form-item label="健康检查" prop="healthCheck">
     <el-input v-model="stepForm1.healthCheck" placeholder=""></el-input>
   </el-form-item>
-  <el-form-item>
-    <el-button type="primary" @click="handleNextStep">下一步</el-button>
-    <!--<el-button @click="resetForm('stepForm1')">重置</el-button>-->
+  <el-form-item class="steps">
+    <el-col :span="6">
+      <el-button type="primary" @click="handleNextStep">下一步</el-button>
+    </el-col>
+    <el-col :span="18">&nbsp</el-col>
   </el-form-item>
 </el-form>
 </template>
 
+<style lang="scss" scoped>
+  .el-form {
+    .el-form-item {
+      &.environment {
+        .el-checkbox + .el-checkbox {
+          margin-left: 20px;
+        }
+      }
+      &.steps {
+        .el-button {
+          width: 100%;
+        }
+      }
+    }
+  }
+</style>
 <script>
 export default {
   data() {
@@ -139,7 +157,7 @@ export default {
         if (valid) {
           this.$router.push('step2');
           this.$store.dispatch('app/updateStepOfAddAPP', 1);
-//          this.$store.dispatch('user/login', response);
+          this.$store.dispatch('app/addCreateAPPInfo', 1, this.stepForm1);
         } else {
           console.log('error submit!!');
           return false;

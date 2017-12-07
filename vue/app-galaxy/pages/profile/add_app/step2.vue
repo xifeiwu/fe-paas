@@ -53,21 +53,49 @@
         </el-col>
       </el-row>
     </el-form-item>
-    <!--<el-form-item-->
-            <!--v-for="(domain, index) in stepForm2.domains"-->
-            <!--:label="'域名' + index"-->
-            <!--:key="domain.key"-->
-            <!--:prop="'domains.' + index + '.value'"-->
-            <!--:rules="{-->
-      <!--required: true, message: '域名不能为空', trigger: 'blur'-->
-    <!--}"-->
-    <!--&gt;-->
-      <!--<el-input v-model="domain.value"></el-input><el-button @click.prevent="removeDomain(domain)">删除</el-button>-->
-    <!--</el-form-item>-->
-    <el-form-item>
-      <el-button type="primary" @click="handleNextStep">下一页</el-button>
-      <el-button type="primary" @click="handlePreStep">上一页</el-button>
-      <el-button @click="addDomain">新增域名</el-button>
+
+
+
+    <el-form-item label="域名配置" prop="hosts" class="hosts">
+      <el-row>
+        <el-col :span="10" style="font-weight: bold">IP</el-col>
+        <el-col :span="10" style="font-weight: bold">域名</el-col>
+        <el-col :span="4" style="font-weight: bold"></el-col>
+      </el-row>
+      <el-row
+              v-for="(value, key) in stepForm2.hosts"
+              :key="key"
+      >
+        <el-col :span="9">{{key}}</el-col>
+        <el-col :span="9">{{value}}</el-col>
+        <el-col :span="4">
+          <el-button class="delete-host-btn" @click="handleDeleteHost(key)">删除</el-button>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="9">
+          <el-input v-model="hostKey" placeholder="IP"></el-input>
+        </el-col>
+        <el-col class="line" :span="2">-</el-col>
+        <el-col :span="9">
+          <el-input v-model="hostValue" placeholder="域名"></el-input>
+        </el-col>
+        <el-col :span="4">
+          <el-button class="add-environment-btn" @click="handleAddHost(hostKey, hostValue)">添加</el-button>
+        </el-col>
+      </el-row>
+    </el-form-item>
+
+    <el-form-item class="steps">
+      <el-row>
+        <el-col :span="6">
+          <el-button type="primary" @click="handleNextStep">下一步</el-button>
+        </el-col>
+        <el-col :span="12">&nbsp</el-col>
+        <el-col :span="6">
+          <el-button type="primary" @click="handlePreStep">上一步</el-button>
+        </el-col>
+      </el-row>
     </el-form-item>
   </el-form>
 </template>
@@ -84,6 +112,15 @@
       &.environments {
         text-align: center;
       }
+      &.hosts {
+        text-align: center;
+      }
+      &.steps {
+        text-align: center;
+        .el-button {
+          width: 100%;
+        }
+      }
     }
   }
 </style>
@@ -99,16 +136,14 @@
         fileLocationToAdd: '',
         environmentKey: '',
         environmentValue: '',
-        environmentToAdd: '',
+        hostKey: '',
+        hostValue: '',
         stepForm2: {
           mirrorType: '自动打镜像',
           mirrorLocation: '',
           fileLocation: [],
           environments: {},
-          domains: [{
-            value: ''
-          }],
-          email: ''
+          hosts: {}
         },
         rules: {
           mirrorType: [{
@@ -159,15 +194,31 @@
       handleAddEnvironment(key, value) {
         if (key.length > 0 && value.length > 0) {
           this.$set(this.stepForm2.environments, key, value);
+          this.environmentKey = '';
+          this.environmentValue = '';
+        } else {
+          this.$message.error('key或value值不能为空');
+        }
+      },
+      handleDeleteHost(key) {
+        this.$delete(this.stepForm2.hosts, key)
+      },
+      handleAddHost(key, value) {
+        if (key.length > 0 && value.length > 0) {
+          this.$set(this.stepForm2.hosts, key, value);
+          this.hostKey = '';
+          this.hostValue = '';
+        } else {
+          this.$message.error('IP或域名不能为空');
         }
       },
       handleNextStep() {
-        console.log(this.stepForm1);
-        this.$refs['stepForm1'].validate((valid) => {
+//        console.log(this.stepForm1);
+        this.$refs['stepForm2'].validate((valid) => {
           if (valid) {
-            this.$router.push('step2');
+            this.$router.push('step3');
             this.$store.dispatch('app/updateStepOfAddAPP', 1);
-//          this.$store.dispatch('user/login', response);
+            this.$store.dispatch('app/addCreateAPPInfo', 2, this.stepForm2);
           } else {
             console.log('error submit!!');
             return false;
@@ -175,33 +226,12 @@
         });
       },
       handlePreStep() {
-
+        this.$router.push('step1');
+        this.$store.dispatch('app/updateStepOfAddAPP', 0);
       },
       resetForm(formName) {
         this.$refs[formName].resetFields();
       },
-      submitForm(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            alert('submit!');
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
-        });
-      },
-      removeDomain(item) {
-        var index = this.stepForm2.domains.indexOf(item)
-        if (index !== -1) {
-          this.stepForm2.domains.splice(index, 1)
-        }
-      },
-      addDomain() {
-        this.stepForm2.domains.push({
-          value: '',
-          key: Date.now()
-        });
-      }
     }
   }
 </script>
