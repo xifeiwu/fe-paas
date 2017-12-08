@@ -2,8 +2,8 @@
   <el-form :model="stepForm2" ref="stepForm2" :rules="rules" label-width="120px">
     <el-form-item label="镜像方式" prop="mirrorType">
       <el-radio-group v-model="stepForm2.mirrorType" @change="handleMirrorTypeChange">
-        <el-radio label="自动打镜像"></el-radio>
-        <el-radio label="自定义镜像"></el-radio>
+        <el-radio label="0">自动打镜像</el-radio>
+        <el-radio label="1">自定义镜像</el-radio>
       </el-radio-group>
     </el-form-item>
     <el-form-item :label="mirrorLocationLabel" prop="mirrorLocation">
@@ -123,9 +123,12 @@
   }
 </style>
 <script>
-  import ElButton from "../../../../packages/button/src/button";
   export default {
-    components: {ElButton}, created() {
+    created() {
+      let infos = this.$store.state.app.infoForCreateApp;
+      if (infos && infos.hasOwnProperty('page2')) {
+        this.stepForm2 = infos.page2;
+      }
       this.rules.mirrorLocation.required = false;
     },
     data() {
@@ -137,7 +140,7 @@
         hostKey: '',
         hostValue: '',
         stepForm2: {
-          mirrorType: '自动打镜像',
+          mirrorType: '0',
           mirrorLocation: '',
           fileLocation: [],
           environments: [],
@@ -169,11 +172,11 @@
     methods: {
       handleMirrorTypeChange(value) {
         switch (value) {
-          case '自动打镜像':
+          case '0':
             this.mirrorLocationLabel = '基础镜像地址';
             this.rules.mirrorLocation[0].required = false;
             break;
-          case '自定义镜像':
+          case '1':
             this.mirrorLocationLabel = '镜像地址';
             this.rules.mirrorLocation[0].required = true;
             break;

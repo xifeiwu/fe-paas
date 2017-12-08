@@ -6,7 +6,6 @@
         <el-step title="镜像信息"></el-step>
         <el-step title="实例规格"></el-step>
       </el-steps>
-      <el-button style="margin-top: 12px;" @click="nextStep">下一步</el-button>
     </el-header>
     <el-main>
       <router-view></router-view>
@@ -43,10 +42,6 @@ export default {
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();
-    },
-    nextStep() {
-//      console.log(this.currentStep);
-      if (this.currentStep++ > 2) this.currentStep = 0;
     }
   }
 }

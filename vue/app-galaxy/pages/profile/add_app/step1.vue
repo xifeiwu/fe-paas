@@ -70,7 +70,13 @@
 <script>
   import ElRadio from "../../../../packages/radio/src/radio";
 export default {
-  components: {ElRadio}, data() {
+  created() {
+    let infos = this.$store.state.app.infoForCreateApp;
+    if (infos && infos.hasOwnProperty('page1')) {
+      this.stepForm1 = infos.page1;
+    }
+  },
+  data() {
     return {
       stepForm1: {
         groupID: '',

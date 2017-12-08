@@ -55,7 +55,10 @@
       // 当radioGroup没有默认选项时，第一个可以选中Tab导航
       let radios = this.$el.querySelectorAll('[type=radio]');
       if (![].some.call(radios, radio => radio.checked)) {
-        this.$el.querySelectorAll('[role=radio]')[0].tabIndex = 0;
+        let allRadio = this.$el.querySelectorAll('[role=radio]');
+        if (allRadio.length > 0) {
+          allRadio[0].tabIndex = 0;
+        }
       }
     },
     methods: {
