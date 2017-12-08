@@ -51,8 +51,8 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
-  import URL_LIST from '../config/url'
+//  import { mapGetters } from 'vuex'
+//  import URL_LIST from '../config/url'
   export default {
     data() {
       return {
@@ -77,14 +77,14 @@
             this.$router.push('/login');
             break;
           case 'logout':
-            this.$ajax.get(URL_LIST.logout).then(res => {
+            this.$ajax.get(this.$url.logout).then(res => {
               console.log(res);
             }).catch(err => {
               console.log(err);
             });
             break;
           case 'user':
-            this.$ajax.get(URL_LIST.app_test).then(res => {
+            this.$ajax.get(this.$url.app_test).then(res => {
               console.log(res);
             }).catch(err => {
               console.log(err);

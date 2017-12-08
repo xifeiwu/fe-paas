@@ -3,7 +3,7 @@
  */
 import Vue from 'vue';
 // let NetData = Vue.prototype.$net;
-import NetData from '../../data/net';
+import NetData from '../../net/net';
 import postFormatter from '../post_formatter';
 const USE_LOCAL_STORAGE = true;
 

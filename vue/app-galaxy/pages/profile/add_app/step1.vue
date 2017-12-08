@@ -104,7 +104,7 @@ export default {
             message: '长度在3到30个字符',
             trigger: 'blur'
           }, {
-            pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9]+$/,
+            pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9_-]+$/,
             message: '只能包含中文，字母，数字',
             trigger: 'blur'
           }
@@ -168,7 +168,7 @@ export default {
     languageInfo() {
       let result = [];
       let value = this.$store.getters['app/messageForCreateAPP'];
-      if (value.hasOwnProperty('LanguageList')) {
+      if (value && value.hasOwnProperty('LanguageList')) {
         result = value.LanguageList;
       }
       if (Array.isArray(result) && result.length > 0) {

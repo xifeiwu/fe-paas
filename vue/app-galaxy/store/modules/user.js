@@ -3,7 +3,7 @@
  */
 import Vue from 'vue';
 // let NetData = Vue.prototype.$net;
-import NetData from '../../data/net';
+import NetData from '../../net/net';
 const USE_LOCAL_STORAGE = true;
 
 const warning = function(prop, where) {

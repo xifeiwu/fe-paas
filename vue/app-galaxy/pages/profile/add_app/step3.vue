@@ -30,9 +30,9 @@
     </el-form-item>
     <el-form-item label="负载均衡">
       <el-radio-group v-model="stepForm3.loadBalance">
-        <el-radio label="round_robbin"></el-radio>
-        <el-radio label="ip_hash"></el-radio>
-        <el-radio label="session_sticky">ddd</el-radio>
+        <el-radio label="Round_robin"></el-radio>
+        <el-radio label="IP_hash"></el-radio>
+        <el-radio label="Session_sticky">ddd</el-radio>
       </el-radio-group>
     </el-form-item>
 
@@ -81,7 +81,7 @@
           memory: '',
           instanceCount: 0,
           rollingUpdate: true,
-          loadBalance: 'round_robbin',
+          loadBalance: 'Round_robin',
         },
         rules: {
           cpu: [{

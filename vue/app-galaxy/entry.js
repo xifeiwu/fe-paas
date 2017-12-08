@@ -1,9 +1,15 @@
 import Vue from 'vue';
 import APP from './app';
+
+import URL from './net/url';
+Vue.prototype.$url = URL;
+
 import NetWorkConfig from './config/network';
 Vue.prototype.$ajax = NetWorkConfig;
-import NetData from './data/net';
+
+import NetData from './net/net';
 Vue.prototype.$net = NetData;
+
 import router from './config/router';
 import store from './store';
 

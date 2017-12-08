@@ -65,7 +65,7 @@
   </el-container>
 </template>
 <script>
-  import URL_LIST from '../config/url'
+//  import this.$url from '../config/url'
   export default {
     data() {
       return {
@@ -86,7 +86,7 @@
       };
     },
     created: function () {
-//      this.verifyImageData = URL_LIST.getVerifyCode + '?t=' + new Date().getTime();
+//      this.verifyImageData = this.$url.getVerifyCode + '?t=' + new Date().getTime();
       this.updateVerifyCode();
     },
     methods: {
@@ -97,7 +97,7 @@
 //        console.log(value);
       },
       updateVerifyCode() {
-        var verifyImageURL = URL_LIST.get_verify_code + '?t=' + new Date().getTime();
+        var verifyImageURL = this.$url.get_verify_code + '?t=' + new Date().getTime();
           this.$ajax.get(verifyImageURL, {
             responseType: 'arraybuffer',
             timeout: 6000
@@ -126,7 +126,7 @@
           };
 //          console.log(objToPost);
           this.showLoading = true;
-          this.$ajax.post(URL_LIST.login, objToPost).then(response => {
+          this.$ajax.post(this.$url.login, objToPost).then(response => {
 //            console.log(JSON.stringify(response));
 //            console.log(response);
             if (response && 'data' in response && 'code' in response.data) {
@@ -135,7 +135,7 @@
               } else {
                 this.$store.dispatch('user/login', response);
                 this.$router.push('/profile');
-//                this.$ajax.get(URL_LIST.app_test).then(response => {
+//                this.$ajax.get(this.$url.app_test).then(response => {
 //                  console.log(response);
 //                }).catch(err => {
 //                  console.log(err);

@@ -2,7 +2,7 @@
  * Created by xifei.wu on 2017/12/5.
  */
 import axios from 'axios';
-import URL_LIST from '../config/url';
+// import URL_LIST from '../config/url';
 
 export default {
   getResponseContent: function (response) {
@@ -105,7 +105,7 @@ export default {
   },
   getGroupList: function () {
     return new Promise((resolve, reject) => {
-      axios.get(URL_LIST.get_group_id).then(res => {
+      axios.get(this.$url.get_group_id).then(res => {
         if ('data' in res) {
           let data = res.data;
           if (0 === data.code) {
@@ -119,7 +119,7 @@ export default {
   },
   getAPPList: function (options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.app_list, options).then(response => {
+      axios.post(this.$url.app_list, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           resolve(content);
@@ -131,7 +131,7 @@ export default {
 
   getProfileListOfGroup: function(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.get_profile_of_group, options).then(response => {
+      axios.post(this.$url.get_profile_of_group, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           resolve(content);
@@ -148,10 +148,10 @@ export default {
    */
   getMessageForCreateAPP: function () {
     function get1() {
-      return axios.get(URL_LIST.get_cpu_and_memory_config);
+      return axios.get(this.$url.get_cpu_and_memory_config);
     }
     function get2() {
-      return axios.get(URL_LIST.get_all_language);
+      return axios.get(this.$url.get_all_language);
     }
     return new Promise((resolve, reject) => {
       axios.all([get1(), get2()]).then(axios.spread((cpu_and_memory, language) => {
