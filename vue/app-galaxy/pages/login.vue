@@ -21,7 +21,7 @@
            element-loading-spinner="el-icon-loading"
            element-loading-background="rgba(255, 255, 255, 0.6)"
       >
-        <el-form ref="form" :model="form" label-width="80px">
+        <el-form ref="form" :model="form" label-width="0px" class="login-form" @keydown.native="handleKeyDown">
           <el-form-item labelWidth="0px">
             <div class="login-title">登录凡普云</div>
           </el-form-item>
@@ -34,27 +34,27 @@
             >
             </el-alert>
           </el-form-item>
-          <el-form-item labelWidth="0px">
-            <el-input v-model="form.userName" placeholder="请输入用户名"></el-input>
+          <el-form-item>
+            <el-input v-model="form.userName" placeholder="请输入用户名" class="focusable"></el-input>
           </el-form-item>
-          <el-form-item labelWidth="0px">
-            <el-input v-model="form.password" placeholder="请输入密码" type="password"></el-input>
+          <el-form-item>
+            <el-input v-model="form.password" placeholder="请输入密码" type="password" class="focusable"></el-input>
           </el-form-item>
-          <el-form-item labelWidth="0px">
-            <el-input v-model="form.verifyCode" placeholder="请输入验证码">
+          <el-form-item class="verify-code">
+            <el-input v-model="form.verifyCode" placeholder="请输入验证码" class="focusable">
               <template slot="append"><img alt="..." width="60" height="30" :src="verifyImageData"
                                            @click="updateVerifyCode"></template>
             </el-input>
           </el-form-item>
-          <el-form-item class="login-interval" labelWidth="0px">
+          <el-form-item class="login-interval-item">
             <el-checkbox v-model="freeLogin15Days"
                          label="without_login"
                          name="without_login"
-                         @change="freeLoginStateChange">15天免登录
+                         @change="freeLoginStateChange" class="focusable">15天免登录
             </el-checkbox>
           </el-form-item>
-          <el-form-item class="login-button" labelWidth="0px">
-            <el-button type="primary" @click="onSubmit">登&nbsp&nbsp&nbsp&nbsp录</el-button>
+          <el-form-item class="login-button-item">
+            <el-button type="primary" class="login-btn focusable" @click="onSubmit">登&nbsp&nbsp&nbsp&nbsp录</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -65,7 +65,13 @@
   </el-container>
 </template>
 <script>
-//  import this.$url from '../config/url'
+  const keyCode = Object.freeze({
+    LEFT: 37,
+    UP: 38,
+    RIGHT: 39,
+    DOWN: 40,
+    ENTER: 13
+  });
   export default {
     data() {
       return {
@@ -83,15 +89,42 @@
           content: ''
         },
         showLoading: false,
+        focusIndex: 0,
+        focusableElesInForm: []
       };
     },
     created: function () {
-//      this.verifyImageData = this.$url.getVerifyCode + '?t=' + new Date().getTime();
       this.updateVerifyCode();
+    },
+    mounted: function () {
+      let loginForm = document.querySelector('.el-form.login-form');
+      let results = [];
+      results = results.concat(Array.prototype.slice.call(loginForm.querySelectorAll('input')));
+      results = results.concat(Array.prototype.slice.call(loginForm.querySelectorAll('button')));
+      this.focusableElesInForm = results;
+      setTimeout(() => {
+        this.focusableElesInForm.length > 0 && this.focusableElesInForm[0].focus();
+      }, 1000);
     },
     methods: {
       handleSelect(key, keyPath) {
         console.log(key, keyPath);
+      },
+      handleKeyDown(evt) {
+//        console.log(this.focusableElesInForm);
+        switch (evt.keyCode) {
+          case keyCode.DOWN:
+            this.focusIndex +=1;
+            break;
+          case keyCode.UP:
+            this.focusIndex -=1;
+            break;
+          case keyCode.ENTER:
+            break;
+        }
+        this.focusIndex = this.focusIndex < 0 ? 0 : this.focusIndex;
+        this.focusIndex = this.focusIndex >= this.focusableElesInForm.length ? this.focusableElesInForm.length-1 : this.focusIndex;
+        this.focusableElesInForm[this.focusIndex].focus();
       },
       freeLoginStateChange: function (value, evt) {
 //        console.log(value);
@@ -203,7 +236,7 @@
         margin-right: 30px;
         padding: 20px;
         box-shadow: 0 0 8px 0 rgba(232, 237, 250, .6), 0 2px 4px 0 rgba(232, 237, 250, .5);
-        .el-form {
+        .el-form.login-form {
           width: 320px;
           .el-form-item {
             margin-bottom: 16px;
@@ -216,22 +249,28 @@
               text-align: center;
               font-size: 1.2rem;
             }
-            &.login-interval {
+            &.login-interval-item {
               .el-form-item__title {
                 line-height: 24px;
               }
             }
-            &.login-button {
+            &.login-button-item {
               text-align: center;
-              button {
+              .el-button {
                 width: 100%;
+              }
+            }
+            &.verify-code {
+              .el-input-group__append {
+                width: 60px;
+                text-align: center;
               }
             }
             &:last-child {
               margin-bottom: 0px;
             }
             .el-form-item__content {
-              margin-left: 0px !important;
+              /*margin-left: 0px !important;*/
               input {
                 border-radius: 0px
               }

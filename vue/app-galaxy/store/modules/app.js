@@ -36,6 +36,7 @@ const warning = function(prop, where) {
 };
 
 const state = {
+  /* state data */
   stepOfAddAPP: 0,
   infoForCreateApp: {},
   infoForCreateAppToPost: {},
@@ -59,8 +60,8 @@ const actions = {
 
   /* net data */
   getMessageForCreateAPP({commit, state}) {
-    console.log('getMessageForCreateAPP');
-    console.log(stateHasUpdated(state.messageForCreateAPP));
+    // console.log('getMessageForCreateAPP');
+    // console.log(stateHasUpdated(state.messageForCreateAPP));
     if (!stateHasUpdated(state.messageForCreateAPP)) {
       NetData.getMessageForCreateAPP().then(content => {
         commit('SET_MESSAGE_FOR_CREATE_APP', content);
@@ -113,9 +114,7 @@ const getters = {
 
   /* net data */
   'messageForCreateAPP': (state, getters) => {
-
-    console.log('dddddkkfisfoidsajoifdjsaiofj');
-    // console.log(stateHasUpdated(state[prop]));
+    // state.messageForCreateAPP = {};
     return getValue({state, getters}, 'messageForCreateAPP');
   }
 };

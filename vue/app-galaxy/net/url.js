@@ -2,6 +2,7 @@
  * Created by xifei.wu on 2017/11/30.
  */
 var path = 'http://172.16.49.141:30333';
+var path = 'http://172.16.107.126:30333';
 var urlList = {
   'get_verify_code': path + '/createRandomImage',
   'login': path + '/login',
