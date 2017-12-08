@@ -9,12 +9,22 @@ const USE_LOCAL_STORAGE = true;
 const warning = function(prop, where) {
   console.log(`warning: get ${prop} from ${where}`);
 };
+const stateHasUpdated = function(prop) {
+  let hasUpdated = false;
+  if ('object' === typeof(prop) && Object.keys(prop).length > 0) {
+    hasUpdated = true;
+  } else if (Array.isArray(prop) && prop.length > 0) {
+    hasUpdated = true;
+  }
+  return hasUpdated;
+}
 
 const state = {
   Login: 0,
   menuList: [],
-  groupID: '',
+  groupID: -1000,
   groupList: [],
+  profileListOfGroup: [],
 };
 
 const getters = {
@@ -32,8 +42,11 @@ const getters = {
     return result;
   },
   'groupID': (state, getters) => {
-    let groupID = localStorage.getItem('groupID');
-    if (!groupID && state.groupList.length > 0) {
+    let groupID = state.groupID;
+    if (-1000 === groupID) {
+      groupID = localStorage.getItem('groupID');
+    }
+    if (-1000 === groupID && state.groupList.length > 0) {
       groupID = state.groupList[0].id
     }
     return parseInt(groupID);
@@ -45,6 +58,19 @@ const getters = {
     } else if (USE_LOCAL_STORAGE) {
       warning('groupList', 'localStorage');
       let local = JSON.parse(localStorage.getItem('user/groupList'));
+      if (local) {
+        result = local;
+      }
+    }
+    return result;
+  },
+  'profileListOfGroup': (state, getters) => {
+    let result = null;
+    if (stateHasUpdated(state.profileListOfGroup)) {
+      result = state.profileListOfGroup;
+    } else if (USE_LOCAL_STORAGE) {
+      warning('groupList', 'localStorage');
+      let local = JSON.parse(localStorage.getItem('user/profileListOfGroup'));
       if (local) {
         result = local;
       }
@@ -65,9 +91,9 @@ const actions = {
   groupID({commit, state, dispatch}, id) {
     state.groupID = id;
     localStorage.setItem('groupID', id);
-    dispatch('app/getProfileOfGroup', {
+    dispatch('getProfileListOfGroup', {
       id: id
-    }, {root: true});
+    });
   },
   getGroupList({commit, state}) {
     if (0 === state.groupList.length) {
@@ -78,7 +104,14 @@ const actions = {
         }
       });
     }
-  }
+  },
+  getProfileListOfGroup({commit, state}, options) {
+    NetData.getProfileListOfGroup(options).then(content => {
+      if (content.hasOwnProperty('spaceList')) {
+        commit('SET_PROFILE_OF_GROUP', content.spaceList);
+      }
+    });
+  },
 };
 
 const mutations = {
@@ -93,6 +126,13 @@ const mutations = {
     state.groupList = groupList;
     if (USE_LOCAL_STORAGE) {
       localStorage.setItem('user/groupList', JSON.stringify(groupList));
+    }
+  },
+
+  SET_PROFILE_OF_GROUP(state, profileList) {
+    state.profileListOfGroup = profileList;
+    if (USE_LOCAL_STORAGE) {
+      localStorage.setItem('user/profileListOfGroup', JSON.stringify(profileList));
     }
   }
 }

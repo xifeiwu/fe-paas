@@ -14,11 +14,9 @@
   </el-form-item>
   <el-form-item label="运行环境" prop="profiles" class="profiles">
     <el-checkbox-group v-model="stepForm1.profiles">
-      <el-checkbox label="开发" name="type"></el-checkbox>
-      <el-checkbox label="功能测试" name="type"></el-checkbox>
-      <el-checkbox label="性能测试" name="type"></el-checkbox>
-      <el-checkbox label="联调" name="type"></el-checkbox>
-      <el-checkbox label="生产" name="type"></el-checkbox>
+      <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
+        {{item.description}}
+      </el-checkbox>
     </el-checkbox-group>
   </el-form-item>
   <el-form-item label="开发语言" prop="language">
@@ -64,8 +62,9 @@
   }
 </style>
 <script>
+  import ElCheckbox from "../../../../packages/checkbox/src/checkbox";
 export default {
-  data() {
+  components: {ElCheckbox}, data() {
     return {
       stepForm1: {
         groupID: '',
@@ -136,13 +135,25 @@ export default {
         return this.stepForm1.groupID;
       },
       set(value) {
-        this.groupID = value;
+        this.stepForm1.groupID = value;
         this.$store.dispatch('user/groupID', value);
       }
     },
     groupList() {
       return this.$store.getters['user/groupList'];
+    },
+    profileListOfGroup() {
+      let val = this.$store.getters['user/profileListOfGroup'];
+      return val;
     }
+  },
+  watch: {
+//    profileListOfGroup(value, oldValue) {
+//      console.log(value);
+//      if (value !== oldValue) {
+//        this.currentGroupID = value;
+//      }
+//    }
   },
   mounted() {
     this.$store.dispatch('app/updateStepOfAddAPP', 0);

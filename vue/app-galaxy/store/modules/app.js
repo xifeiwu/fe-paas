@@ -27,7 +27,6 @@ const state = {
   infoForCreateAppToPost: {},
 
   /* net data */
-  profileOfGroup: [],
 };
 
 const actions = {
@@ -44,13 +43,6 @@ const actions = {
   },
 
   /* net data */
-  getProfileOfGroup({commit, state}, options) {
-    // if (!stateHasUpdated(state.profileOfGroup)) {
-      NetData.getProfileOfGroup(options).then(profileList => {
-
-      })
-    // }
-  },
 };
 
 const mutations = {

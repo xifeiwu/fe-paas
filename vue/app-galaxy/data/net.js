@@ -129,15 +129,11 @@ export default {
     });
   },
 
-  getProfileOfGroup: function(options) {
-    console.log('getProfileOfGroup');
+  getProfileListOfGroup: function(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.get_profile_of_group, options).then(response => {
-        console.log('getProfileOfGroup');
         let content = this.getResponseContent(response);
-        console.log(content);
         if (content) {
-          console.log(content);
           resolve(content);
         }
       }).catch(err => {
