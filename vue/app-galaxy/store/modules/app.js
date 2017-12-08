@@ -17,6 +17,20 @@ const stateHasUpdated = function(prop) {
   return hasUpdated;
 }
 
+const getValue = function({state, getters}, prop) {
+  let result = null;
+  if (stateHasUpdated(state[prop])) {
+    result = state[prop];
+  } else if (USE_LOCAL_STORAGE) {
+    warning(prop, 'localStorage');
+    let local = JSON.parse(localStorage.getItem('user/' + prop));
+    if (local) {
+      result = local;
+    }
+  }
+  return result;
+}
+
 const warning = function(prop, where) {
   console.log(`warning: get ${prop} from ${where}`);
 };
@@ -27,6 +41,7 @@ const state = {
   infoForCreateAppToPost: {},
 
   /* net data */
+  messageForCreateAPP: {},
 };
 
 const actions = {
@@ -34,7 +49,7 @@ const actions = {
     state.stepOfAddAPP = step;
   },
   addCreateAPPInfo({commit, state}, params) {
-    console.log(params);
+    // console.log(params);
     state.infoForCreateApp[params.key] = params.value;
     if (state.infoForCreateApp.hasOwnProperty('page1') && state.infoForCreateApp.hasOwnProperty('page2')
       && state.infoForCreateApp.hasOwnProperty('page3')) {
@@ -43,6 +58,15 @@ const actions = {
   },
 
   /* net data */
+  getMessageForCreateAPP({commit, state}) {
+    console.log('getMessageForCreateAPP');
+    console.log(stateHasUpdated(state.messageForCreateAPP));
+    if (!stateHasUpdated(state.messageForCreateAPP)) {
+      NetData.getMessageForCreateAPP().then(content => {
+        commit('SET_MESSAGE_FOR_CREATE_APP', content);
+      });
+    }
+  }
 };
 
 const mutations = {
@@ -55,9 +79,15 @@ const mutations = {
     if (USE_LOCAL_STORAGE) {
       localStorage.setItem('app/infoForCreateAppToPost', JSON.stringify(state.infoForCreateAppToPost));
     }
-  }
+  },
 
   /* net data */
+  SET_MESSAGE_FOR_CREATE_APP(state, content) {
+    state.messageForCreateAPP = content;
+    if (USE_LOCAL_STORAGE) {
+      localStorage.setItem('app/messageForCreateAPP', JSON.stringify(content));
+    }
+  }
 };
 
 const getters = {
@@ -79,9 +109,15 @@ const getters = {
       }
     }
     return result;
-  }
+  },
 
   /* net data */
+  'messageForCreateAPP': (state, getters) => {
+
+    console.log('dddddkkfisfoidsajoifdjsaiofj');
+    // console.log(stateHasUpdated(state[prop]));
+    return getValue({state, getters}, 'messageForCreateAPP');
+  }
 };
 
 export default {

@@ -12,7 +12,8 @@ var urlList = {
   'get_group_id': path + '/group/queryByUser',
   'create_app': path + '/application/create',
   'get_profile_of_group': path + '/space/querySpaceByGroupId',
-  'get_cpu_and_memory_config': path + '/cpuAndMemory/queryCpuAndMemory'
+  'get_cpu_and_memory_config': path + '/cpuAndMemory/queryCpuAndMemory',
+  'get_all_language': path + '/language/queryAllLanguage',
 }
 
 export default urlList;

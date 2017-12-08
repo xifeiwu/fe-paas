@@ -6,7 +6,7 @@ import URL_LIST from '../config/url';
 
 export default {
   getResponseContent: function (response) {
-    let content = null;
+    let content = {};
     if ('data' in response) {
       let data = response.data;
       if (0 === data.code) {
@@ -139,5 +139,55 @@ export default {
       }).catch(err => {
       });
     });
+  },
+
+  /**
+   * 获取创建APP时的相关信息
+   * 1. 相关语言
+   * 2. cpu memory对应关系
+   */
+  getMessageForCreateAPP: function () {
+    function get1() {
+      return axios.get(URL_LIST.get_cpu_and_memory_config);
+    }
+    function get2() {
+      return axios.get(URL_LIST.get_all_language);
+    }
+    return new Promise((resolve, reject) => {
+      axios.all([get1(), get2()]).then(axios.spread((cpu_and_memory, language) => {
+        let content = Object.assign(this.getResponseContent(cpu_and_memory), this.getResponseContent(language));
+        if (content.hasOwnProperty('LanguageList')) {
+          content.LanguageList.forEach(it => {
+            let language = it.language;
+            it.type = language;
+            switch (language) {
+              case 'JAVA':
+                it.language = 'Java';
+                break;
+              case 'NODE_JS':
+                it.language = 'NodeJS';
+                break;
+              case 'PYTHON':
+                it.language = 'Python';
+                break;
+            }
+            if (it.hasOwnProperty('packageTypeList')) {
+              it.packageTypeList = it.packageTypeList.map(it => {
+                return {
+                  type: it,
+                  packageType: it.replace('_', '.')
+                }
+              });
+            }
+          });
+        }
+        // console.log(content);
+        //两个请求现已完成
+        resolve(content);
+      })).catch(err => {
+        reject(err);
+      });
+
+    })
   }
 }

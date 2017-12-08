@@ -15,6 +15,12 @@
 </template>
 <script>
 export default {
+  created() {
+    this.$store.dispatch('app/getMessageForCreateAPP');
+  },
+  mounted() {
+//    this.$store.dispatch('')
+  },
   data() {
     return {
     };
@@ -23,9 +29,6 @@ export default {
     currentStep() {
       return this.$store.getters['app/stepOfAddAPP']
     },
-  },
-  mounted() {
-//    this.$store.dispatch('')
   },
   methods: {
     submitForm(formName) {

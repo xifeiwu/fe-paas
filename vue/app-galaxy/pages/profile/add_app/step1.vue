@@ -12,7 +12,7 @@
   <el-form-item label="项目名称" prop="projectName">
     <el-input v-model="stepForm1.projectName" placeholder="gitlab中project的名称"></el-input>
   </el-form-item>
-  <el-form-item label="运行环境" prop="profiles" class="profiles">
+  <el-form-item label="运行环境" prop="profiles" class="profiles" @change="handleProfileChange">
     <el-checkbox-group v-model="stepForm1.profiles">
       <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
         {{item.description}}
@@ -20,17 +20,23 @@
     </el-checkbox-group>
   </el-form-item>
   <el-form-item label="开发语言" prop="language">
-    <el-radio-group v-model="stepForm1.language">
-      <el-radio label="JAVA"></el-radio>
-      <el-radio label="NODE_JS"></el-radio>
-      <el-radio label="PHP"></el-radio>
+    <el-radio-group v-model="stepForm1.language" @change="handleLanguageChange">
+      <el-radio v-for="item in languageInfo" :label="item.type" :key="item.id">
+        {{item.language}}
+      </el-radio>
+      <!--<el-radio label="JAVA"></el-radio>-->
+      <!--<el-radio label="NODE_JS"></el-radio>-->
+      <!--<el-radio label="PHP"></el-radio>-->
     </el-radio-group>
   </el-form-item>
-  <el-form-item label="构建类型" prop="buildType">
+  <el-form-item label="构建类型" prop="buildType" v-if="packageStyleList.length > 0">
     <el-radio-group v-model="stepForm1.buildType">
-      <el-radio label="JAR"></el-radio>
-      <el-radio label="WAR"></el-radio>
-      <el-radio label="ZIP"></el-radio>
+      <el-radio v-for="item in packageStyleList" :label="item.type" :key="item.type">
+        {{item.packageType}}
+      </el-radio>
+      <!--<el-radio label="JAR"></el-radio>-->
+      <!--<el-radio label="WAR"></el-radio>-->
+      <!--<el-radio label="ZIP"></el-radio>-->
     </el-radio-group>
   </el-form-item>
   <el-form-item label="健康检查" prop="healthCheck">
@@ -62,9 +68,9 @@
   }
 </style>
 <script>
-  import ElCheckbox from "../../../../packages/checkbox/src/checkbox";
+  import ElRadio from "../../../../packages/radio/src/radio";
 export default {
-  components: {ElCheckbox}, data() {
+  components: {ElRadio}, data() {
     return {
       stepForm1: {
         groupID: '',
@@ -72,7 +78,7 @@ export default {
         projectName: '',
         profiles: [],
         language: '',
-        buildType: '',
+        buildType: 'NO',
         healthCheck: ''
       },
       rules: {
@@ -124,6 +130,8 @@ export default {
           trigger: 'input'
         }]
       },
+      languageList: [],
+      packageStyleList: [],
     };
   },
   computed: {
@@ -143,17 +151,34 @@ export default {
       return this.$store.getters['user/groupList'];
     },
     profileListOfGroup() {
-      let val = this.$store.getters['user/profileListOfGroup'];
-      return val;
+      let value = this.$store.getters['user/profileListOfGroup'];
+      if (Array.isArray(value)) {
+        this.stepForm1.profiles = value.map(it => {
+          return it.name;
+        });
+      }
+      return value;
+    },
+    languageInfo() {
+      let result = [];
+      let value = this.$store.getters['app/messageForCreateAPP'];
+      if (value.hasOwnProperty('LanguageList')) {
+        result = value.LanguageList;
+      }
+      if (Array.isArray(result) && result.length > 0) {
+        this.stepForm1.language = result[0].type;
+      }
+//      console.log(result);
+      return result;
     }
   },
   watch: {
-//    profileListOfGroup(value, oldValue) {
+    languageInfo(value, oldValue) {
 //      console.log(value);
-//      if (value !== oldValue) {
+      if (value !== oldValue) {
 //        this.currentGroupID = value;
-//      }
-//    }
+      }
+    }
   },
   mounted() {
     this.$store.dispatch('app/updateStepOfAddAPP', 0);
@@ -161,6 +186,26 @@ export default {
   methods: {
     handleGroupIDChange: function(groupID) {
 //      this.requestAPPList(groupID, 1, 8, '');
+    },
+    handleProfileChange: function () {
+//      console.log(arguments);
+    },
+    handleLanguageChange: function (value) {
+      if (Array.isArray(this.languageInfo)) {
+        this.languageInfo.some(it => {
+          if (it.hasOwnProperty('type') && it.type === value) {
+            if (Array.isArray(it.packageTypeList)) {
+              if (1 === it.packageTypeList.length && 'NO' === it.packageTypeList[0].type){
+                this.packageStyleList = [];
+                this.stepForm1.buildType = 'NO';
+              } else {
+                this.packageStyleList = it.packageTypeList;
+                this.stepForm1.buildType = it.packageTypeList[0].type;
+              }
+            }
+          }
+        })
+      }
     },
     handleNextStep() {
       console.log(this.stepForm1);
