@@ -168,6 +168,7 @@
         }
       },
       handleNextStep() {
+        var self = this;
         this.$refs['stepForm3'].validate((valid) => {
           if (valid) {
             this.$store.dispatch('app/addCreateAPPInfo', {
@@ -191,8 +192,12 @@
             }).catch((err) => {
               this.$notify({
                 title: '提示',
-                message: '创建应用失败',
-                duration: 0
+                message: err,
+                duration: 0,
+                onClose: function () {
+                  self.showLoading = false;
+                  self.$router.push('step1');
+                }
               });
               console.log(err);
             });
