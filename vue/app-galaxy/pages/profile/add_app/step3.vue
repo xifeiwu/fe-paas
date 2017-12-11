@@ -173,10 +173,16 @@
             console.log(JSON.stringify(this.infoForCreateAppToPost))
             let toPost = this.infoForCreateAppToPost;
             delete toPost.volumes;
-            this.$ajax.post('http://172.16.49.141:30333' + '/application/create',
-              toPost, res=> {
-              console.log(res);
-            }, err => {
+//            this.$ajax.post('http://172.16.105.207:30333' + '/application/create',
+//              toPost, res=> {
+//              console.log(res);
+//            }, err => {
+//              console.log(err);
+//            });
+            console.log(this.$net.createAPP);
+            this.$net.createAPP(toPost).then((content) => {
+              console.log(content);
+            }).catch((err) => {
               console.log(err);
             })
           } else {

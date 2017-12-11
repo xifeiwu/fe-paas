@@ -20,12 +20,87 @@ const stateHasUpdated = function(prop) {
 }
 
 const state = {
-  Login: 0,
+  /* net data */
+  // 侧边栏
   menuList: [],
+  // 当前组
   groupID: -1000,
-  groupList: [],
+  // 当前组的所有开发环境
   profileListOfGroup: [],
+  // 用户所属组列表
+  groupList: [],
 };
+
+const actions = {
+  login({commit, state}, res) {
+    if (0 === state.menuList.length) {
+      warning('login', 'netwrok');
+      NetData.login(res).then((menuList) => {
+        commit('LOGIN', menuList);
+      })
+    }
+  },
+
+  /**
+   * 更改用户组ID
+   */
+  groupID({commit, state, dispatch}, id) {
+    state.groupID = id;
+    localStorage.setItem('groupID', id);
+    dispatch('getProfileListOfGroup', {
+      id: id
+    });
+  },
+
+  /**
+   * 获取当前组所有profile
+   */
+  getProfileListOfGroup({commit, state}, options) {
+    NetData.getProfileListOfGroup(options).then(content => {
+      if (content.hasOwnProperty('spaceList')) {
+        commit('SET_PROFILE_OF_GROUP', content.spaceList);
+      }
+    });
+  },
+
+  /**
+   * 获取用户所属组列表
+   */
+  getGroupList({commit, state}) {
+    if (0 === state.groupList.length) {
+      warning('getGroupList', 'netwrok');
+      NetData.getGroupList().then(content => {
+        if (content.hasOwnProperty('groupList')) {
+          commit('SET_GROUP_LIST', content.groupList);
+        }
+      });
+    }
+  },
+};
+
+const mutations = {
+  /* net state */
+  LOGIN(state, groupList) {
+    state.menuList = groupList;
+    if (USE_LOCAL_STORAGE) {
+      localStorage.setItem('user/menuList', JSON.stringify(groupList));
+    }
+  },
+
+  SET_GROUP_LIST(state, groupList) {
+    state.groupList = groupList;
+    if (USE_LOCAL_STORAGE) {
+      localStorage.setItem('user/groupList', JSON.stringify(groupList));
+    }
+  },
+
+  SET_PROFILE_OF_GROUP(state, profileList) {
+    state.profileListOfGroup = profileList;
+    if (USE_LOCAL_STORAGE) {
+      localStorage.setItem('user/profileListOfGroup', JSON.stringify(profileList));
+    }
+  }
+}
 
 const getters = {
   'menuList': (state, getters) => {
@@ -78,64 +153,6 @@ const getters = {
     return result;
   }
 };
-
-const actions = {
-  login({commit, state}, res) {
-    if (0 === state.menuList.length) {
-      warning('login', 'netwrok');
-      NetData.login(res).then((menuList) => {
-        commit('LOGIN', menuList);
-      })
-    }
-  },
-  groupID({commit, state, dispatch}, id) {
-    state.groupID = id;
-    localStorage.setItem('groupID', id);
-    dispatch('getProfileListOfGroup', {
-      id: id
-    });
-  },
-  getGroupList({commit, state}) {
-    if (0 === state.groupList.length) {
-      warning('getGroupList', 'netwrok');
-      NetData.getGroupList().then(content => {
-        if (content.hasOwnProperty('groupList')) {
-          commit('SET_GROUP_LIST', content.groupList);
-        }
-      });
-    }
-  },
-  getProfileListOfGroup({commit, state}, options) {
-    NetData.getProfileListOfGroup(options).then(content => {
-      if (content.hasOwnProperty('spaceList')) {
-        commit('SET_PROFILE_OF_GROUP', content.spaceList);
-      }
-    });
-  },
-};
-
-const mutations = {
-  LOGIN(state, groupList) {
-    state.menuList = groupList;
-    if (USE_LOCAL_STORAGE) {
-      localStorage.setItem('user/menuList', JSON.stringify(groupList));
-    }
-  },
-
-  SET_GROUP_LIST(state, groupList) {
-    state.groupList = groupList;
-    if (USE_LOCAL_STORAGE) {
-      localStorage.setItem('user/groupList', JSON.stringify(groupList));
-    }
-  },
-
-  SET_PROFILE_OF_GROUP(state, profileList) {
-    state.profileListOfGroup = profileList;
-    if (USE_LOCAL_STORAGE) {
-      localStorage.setItem('user/profileListOfGroup', JSON.stringify(profileList));
-    }
-  }
-}
 
 export default {
   namespaced: true,

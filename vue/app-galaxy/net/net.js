@@ -189,5 +189,15 @@ export default {
       });
 
     })
+  },
+
+  createAPP(options) {
+    // return new Promise((resolve, reject))
+    axios.post(URL_LIST.create_app,
+      options, res=> {
+        console.log(res);
+      }, err => {
+        console.log(err);
+      });
   }
 }

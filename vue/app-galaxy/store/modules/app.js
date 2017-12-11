@@ -46,11 +46,11 @@ const state = {
 };
 
 const actions = {
+  /* state data */
   updateStepOfAddAPP({commit, state}, step) {
     state.stepOfAddAPP = step;
   },
   addCreateAPPInfo({commit, state}, params) {
-    // console.log(params);
     state.infoForCreateApp[params.key] = params.value;
     if (state.infoForCreateApp.hasOwnProperty('page1') && state.infoForCreateApp.hasOwnProperty('page2')
       && state.infoForCreateApp.hasOwnProperty('page3')) {
@@ -59,6 +59,10 @@ const actions = {
   },
 
   /* net data */
+  /**
+   * get message of creating app from server
+   * format: @../mock/app/messageForCreateAPP
+   */
   getMessageForCreateAPP({commit, state}) {
     // console.log('getMessageForCreateAPP');
     // console.log(stateHasUpdated(state.messageForCreateAPP));
@@ -71,6 +75,7 @@ const actions = {
 };
 
 const mutations = {
+  /* state data */
   SET_INFO_FOR_CREATE_APP(state, infoForCreateApp) {
     let result = {};
     for (let key in infoForCreateApp) {
@@ -92,6 +97,7 @@ const mutations = {
 };
 
 const getters = {
+  /* state data */
   'stepOfAddAPP': (state, getters) => {
     return state.stepOfAddAPP;
   },
@@ -114,7 +120,6 @@ const getters = {
 
   /* net data */
   'messageForCreateAPP': (state, getters) => {
-    // state.messageForCreateAPP = {};
     return getValue({state, getters}, 'messageForCreateAPP');
   }
 };
