@@ -14,7 +14,8 @@ export default {
       mirrorType: 'imageType',
       mirrorLocation: 'image',
       fileLocation: 'volumes',
-      groupID: 'groupId'
+      groupID: 'groupId',
+      relativePathOfParentPOM: 'relativePath',
     }
     let updateProp = function(item) {
       if ('object' === typeof(item)) {

@@ -49,7 +49,16 @@
     </el-radio-group>
   </el-form-item>
   <el-form-item label="健康检查" prop="healthCheck">
-    <el-input v-model="stepForm1.healthCheck" placeholder=""></el-input>
+    <el-input v-model="stepForm1.healthCheck" placeholder="输入以/开始的字母，4至18位字符"></el-input>
+  </el-form-item>
+  <el-form-item label="Gitlab地址" prop="gitlabAddress" v-if="stepForm1.language === 'JAVA'">
+    <el-input v-model="stepForm1.gitlabAddress" placeholder="请输入项目的gitlab地址"></el-input>
+  </el-form-item>
+  <el-form-item label="Gitlab分支" prop="gitlabBranch" v-if="stepForm1.language === 'JAVA'">
+    <el-input v-model="stepForm1.gitlabBranch" placeholder="请输入gitlab分支名"></el-input>
+  </el-form-item>
+  <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM" v-if="stepForm1.language === 'JAVA'">
+    <el-input v-model="stepForm1.relativePathOfParentPOM" placeholder=""></el-input>
   </el-form-item>
   <el-form-item class="steps">
     <el-col :span="6">
@@ -97,7 +106,10 @@ export default {
         language: '',
         languageVersion: '',
         buildType: 'NO',
-        healthCheck: ''
+        healthCheck: '',
+        gitlabAddress: '',
+        gitlabBranch: '',
+        relativePathOfParentPOM: '',
       },
       rules: {
         groupID: [{
@@ -137,6 +149,10 @@ export default {
           message: '请选择开发语言',
           trigger: 'change'
         }],
+        languageVersion: [{
+          required: true,
+          message: '请选择开发语言版本',
+        }],
         buildType: [{
           required: true,
           message: '请选择构建类型',
@@ -145,8 +161,18 @@ export default {
         healthCheck: [{
           required: true,
           message: '请填写健康检查类型',
-          trigger: 'input'
-        }]
+        }],
+        gitlabAddress: [{
+          required: true,
+          message: '请填写gitlab地址',
+        }],
+        gitlabBranch: [{
+          required: true,
+          message: '请填写gitlab分支',
+        }],
+        relativePathOfParentPOM: [{
+          required: false,
+        }],
       },
       languageList: [],
       languageVersionList: [],

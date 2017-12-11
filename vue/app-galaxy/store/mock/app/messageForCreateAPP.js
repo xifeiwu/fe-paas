@@ -1,7 +1,3 @@
-/**
- * Created by xifei.wu on 2017/12/11.
- */
-
 {
   "cpuAndMemorylist": [{
   "id": 1,
@@ -87,22 +83,16 @@
   "LanguageList": [{
   "id": 1,
   "language": "Java",
-  "version": 1.8,
+  "versionList": [1.8],
   "packageTypeList": [{
     "type": "JAR",
     "packageType": "JAR"
-  }, {
-    "type": "WAR",
-    "packageType": "WAR"
-  }, {
-    "type": "ZIP",
-    "packageType": "ZIP"
   }],
   "type": "JAVA"
 }, {
   "id": 4,
   "language": "NodeJS",
-  "version": 1,
+  "versionList": [1],
   "packageTypeList": [{
     "type": "TAR_GZ",
     "packageType": "TAR.GZ"
@@ -111,7 +101,7 @@
 }, {
   "id": 5,
   "language": "Python",
-  "version": 1,
+  "versionList": [1],
   "packageTypeList": [{
     "type": "NO",
     "packageType": "NO"
@@ -119,4 +109,3 @@
   "type": "PYTHON"
 }]
 }
-"

@@ -180,7 +180,8 @@
       },
       handleDeleteRow(index, row) {
         this.confirm('您将删除应用，' + row.groupTag + '确定吗？').then(() => {
-          spaceList.splice(spaceList.indexOf(tag), 1);
+//          spaceList.splice(spaceList.indexOf(tag), 1);
+          this.appList.splice(index, 1);
           this.$message({
             type: 'success',
             message: '删除成功!'

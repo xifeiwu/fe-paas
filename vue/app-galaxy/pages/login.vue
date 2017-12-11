@@ -216,9 +216,7 @@
 </script>
 
 <style>
-  .el-alert__content {
-    overflow: scroll;
-  }
+
 </style>
 <style lang="scss" scoped>
   .el-container {
