@@ -4,7 +4,16 @@
 import axios from 'axios';
 import URL_LIST from './url';
 
+
+
 export default {
+  SHOW_LOG: true,
+
+  showLog(func, data) {
+    console.log(func + ' in net.js');
+    console.log(data);
+  },
+
   getResponseContent: function (response) {
     let content = {};
     if ('data' in response) {
@@ -184,8 +193,10 @@ export default {
         }
         // console.log(content);
         //两个请求现已完成
+        this.showLog('getMessageForCreateAPP', content);
         resolve(content);
       })).catch(err => {
+        this.showLog('getMessageForCreateAPP', err);
         reject(err);
       });
 
