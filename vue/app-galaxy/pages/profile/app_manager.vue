@@ -5,7 +5,7 @@
         <el-button @click="handleButtonClick" action="/profile/add_app">创建应用</el-button>
       </el-col>
       <el-col :span="6">
-        <el-button @click="handleButtonClick" action="refresh">刷新</el-button>
+        <el-button @click="handleButtonClick" action="refreshAppList">刷新</el-button>
       </el-col>
       <el-col :span="6"></el-col>
       <el-col :span="6">
@@ -52,6 +52,13 @@
       <el-table-column label="运行环境" prop="spaceList">
       </el-table-column>
     </el-table>
+    <div class="block">
+      <span class="demonstration">页数较少时的效果</span>
+      <el-pagination
+              layout="prev, pager, next"
+              :total="50">
+      </el-pagination>
+    </div>
   </div>
 </template>
 <style>
@@ -125,8 +132,8 @@
           }
         }
         let action = target.getAttribute('action');
-        if ('refresh' === action) {
-
+        if ('refreshAppList' === action) {
+          this.requestAPPList(this.groupID, 1, 8, '');
         } else {
           this.$router.push(action);
         }
