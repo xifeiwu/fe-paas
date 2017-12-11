@@ -29,6 +29,15 @@
       <!--<el-radio label="PHP"></el-radio>-->
     </el-radio-group>
   </el-form-item>
+
+  <el-form-item label="语言版本" prop="languageVersion" v-if="languageVersionList.length > 0">
+    <el-radio-group v-model="stepForm1.languageVersion">
+      <el-radio v-for="item in languageVersionList" :label="item" :key="item">
+        {{item}}
+      </el-radio>
+    </el-radio-group>
+  </el-form-item>
+
   <el-form-item label="构建类型" prop="buildType" v-if="packageStyleList.length > 0">
     <el-radio-group v-model="stepForm1.buildType">
       <el-radio v-for="item in packageStyleList" :label="item.type" :key="item.type">
@@ -68,13 +77,15 @@
   }
 </style>
 <script>
-  import ElRadio from "../../../../packages/radio/src/radio";
 export default {
   created() {
     let infos = this.$store.state.app.infoForCreateApp;
     if (infos && infos.hasOwnProperty('page1')) {
       this.stepForm1 = infos.page1;
     }
+  },
+  mounted() {
+    this.$store.dispatch('app/updateStepOfAddAPP', 0);
   },
   data() {
     return {
@@ -84,6 +95,7 @@ export default {
         projectName: '',
         profiles: [],
         language: '',
+        languageVersion: '',
         buildType: 'NO',
         healthCheck: ''
       },
@@ -137,6 +149,7 @@ export default {
         }]
       },
       languageList: [],
+      languageVersionList: [],
       packageStyleList: [],
     };
   },
@@ -171,23 +184,19 @@ export default {
       if (value && value.hasOwnProperty('LanguageList')) {
         result = value.LanguageList;
       }
-      if (Array.isArray(result) && result.length > 0) {
-        this.stepForm1.language = result[0].type;
-      }
-//      console.log(result);
       return result;
     }
   },
   watch: {
     languageInfo(value, oldValue) {
-//      console.log(value);
       if (value !== oldValue) {
-//        this.currentGroupID = value;
+        if (Array.isArray(value) && value.length > 0) {
+          let defaultLanguage = value[0];
+          this.stepForm1.language = defaultLanguage.type;
+          this.handleLanguageChange(defaultLanguage.type);
+        }
       }
     }
-  },
-  mounted() {
-    this.$store.dispatch('app/updateStepOfAddAPP', 0);
   },
   methods: {
     handleGroupIDChange: function(groupID) {
@@ -196,10 +205,14 @@ export default {
     handleProfileChange: function () {
 //      console.log(arguments);
     },
-    handleLanguageChange: function (value) {
+    handleLanguageChange: function (languageType) {
       if (Array.isArray(this.languageInfo)) {
         this.languageInfo.some(it => {
-          if (it.hasOwnProperty('type') && it.type === value) {
+          if (it.hasOwnProperty('type') && it.type === languageType) {
+            this.languageVersionList = it.versionList;
+            if (Array.isArray(this.languageVersionList) && this.languageVersionList.length > 0) {
+              this.stepForm1.languageVersion = this.languageVersionList[0];
+            }
             if (Array.isArray(it.packageTypeList)) {
               if (1 === it.packageTypeList.length && 'NO' === it.packageTypeList[0].type){
                 this.packageStyleList = [];
