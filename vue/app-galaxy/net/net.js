@@ -16,12 +16,18 @@ class Net {
     console.log(data);
   }
 
+  /**
+   * get content from response
+   * content is not null, when the response is ok.
+   * @param response
+   * @returns {*}
+   */
   getResponseContent (response) {
-    let content = {};
+    let content = null;
     if ('data' in response) {
       let data = response.data;
       if (0 === data.code) {
-        content = data.content;
+        content = data.content ? data.content : {};
       } else {
         console.log('request error:' + JSON.stringify(data));
       }
@@ -226,10 +232,37 @@ class Net {
         let content = this.getResponseContent(response);
         if (content) {
           resolve(content);
+        } else {
+          reject('创建应用失败');
         }
       }).catch(err => {
         console.log(err);
+        reject(err);
       });
+    });
+  }
+
+  deleteAPP(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.delete_app, options).then(response => {
+        console.log('in deleteAPP');
+        let content = null;
+        if ('data' in response) {
+          let data = response.data;
+          if (0 === data.code) {
+            content = data.content ? data.content : {};
+          } else {
+            reject(data.msg);
+          }
+        }
+        // if (content) {
+        //   resolve(content);
+        // } else {
+        //   reject('删除应用失败');
+        // }
+      }).catch(err => {
+        reject(err);
+      })
     });
   }
 }

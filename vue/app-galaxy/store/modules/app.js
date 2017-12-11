@@ -51,6 +51,10 @@ const actions = {
     state.stepOfAddAPP = step;
   },
   addCreateAPPInfo({commit, state}, params) {
+    if (null === params) {
+      state.messageForCreateAPP = {}
+      return
+    }
     state.infoForCreateApp[params.key] = params.value;
     if (state.infoForCreateApp.hasOwnProperty('page1') && state.infoForCreateApp.hasOwnProperty('page2')
       && state.infoForCreateApp.hasOwnProperty('page3')) {

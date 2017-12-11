@@ -1,5 +1,9 @@
 <template>
-  <el-form :model="stepForm3" ref="stepForm3" :rules="rules" label-width="120px">
+  <el-form :model="stepForm3" ref="stepForm3" :rules="rules" label-width="120px"
+           v-loading="showLoading"
+           :element-loading-text="loadingText"
+           element-loading-spinner="el-icon-loading"
+           element-loading-background="rgba(255, 255, 255, 0.6)">
     <el-form-item label="CPU" prop="cpu">
       <el-radio-group v-model="stepForm3.cpu" size="small" @change="handleCPUChange">
         <el-radio-button v-for="item in cpuAndMemorylist" :label="item.cpu" :key="item.id">
@@ -102,7 +106,9 @@
             message: '是否需要滚动升级',
           }],
         },
-        memeorySizeList: []
+        memeorySizeList: [],
+        showLoading: false,
+        loadingText: ''
       }
     },
     computed: {
@@ -134,7 +140,7 @@
 //            })
 //          }
         }
-        console.log(result);
+//        console.log(result);
         return result;
       }
     },
@@ -164,27 +170,32 @@
       handleNextStep() {
         this.$refs['stepForm3'].validate((valid) => {
           if (valid) {
-            this.$store.dispatch('app/updateStepOfAddAPP', 3);
             this.$store.dispatch('app/addCreateAPPInfo', {
               key: 'page3',
               value: this.stepForm3
             });
-            console.log(JSON.stringify(this.infoForCreateApp));
-            console.log(JSON.stringify(this.infoForCreateAppToPost))
+//            console.log(JSON.stringify(this.infoForCreateAppToPost))
             let toPost = this.infoForCreateAppToPost;
             delete toPost.volumes;
-//            this.$ajax.post('http://172.16.105.207:30333' + '/application/create',
-//              toPost, res=> {
-//              console.log(res);
-//            }, err => {
-//              console.log(err);
-//            });
-            console.log(this.$net.createAPP);
+            this.showLoading = true;
+            this.loadingText = '正在为您创建应用' + toPost.serviceName;
             this.$net.createAPP(toPost).then((content) => {
-              console.log(content);
+              this.$store.dispatch('app/updateStepOfAddAPP', 3);
+              this.showLoading = false;
+              this.confirm('创建应用 ' + toPost.serviceName + ' 成功！').then(() => {
+                this.$router.push('/profile/app_manager');
+              }).catch(() => {
+                this.$store.dispatch('app/addCreateAPPInfo', null);
+                this.$router.push('step1');
+              });
             }).catch((err) => {
+              this.$notify({
+                title: '提示',
+                message: '创建应用失败',
+                duration: 0
+              });
               console.log(err);
-            })
+            });
           } else {
             console.log('error submit!!');
             return false;
@@ -194,6 +205,21 @@
       handlePreStep() {
         this.$router.push('step2');
         this.$store.dispatch('app/updateStepOfAddAPP', 2);
+      },
+
+      confirm(content) {
+        return new Promise((resolve, reject) => {
+          this.$confirm(content, '提示', {
+            confirmButtonText: '返回应用列表',
+            cancelButtonText: '继续创建应用',
+            type: 'info'
+          }).then(() => {
+            resolve();
+          }).catch(() => {
+            reject()
+          });
+
+        });
       },
     }
 

@@ -7,9 +7,11 @@ export default {
     let copy = JSON.parse(JSON.stringify(origin));
     let keyMap = {
       instanceCount: 'instanceNum',
-      projectName: 'serviceName',
+      // appName: 'tag',
+      // projectName: 'serviceName',
+      appName: 'serviceName',
+      projectName: 'tag',
       profiles: 'spaceList',
-      appName: 'tag',
       buildType: 'packageType',
       mirrorType: 'imageType',
       mirrorLocation: 'image',
