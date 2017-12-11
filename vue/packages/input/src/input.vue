@@ -55,7 +55,7 @@
         </i>
       </span>
       <!-- 后置元素 -->
-      <div class="el-input-group__append" v-if="$slots.append">
+      <div class="el-input-group__append" v-if="$slots.append" :style="appendStyle">
         <slot name="append"></slot>
       </div>
     </template>
@@ -145,7 +145,8 @@
       },
       suffixIcon: String,
       prefixIcon: String,
-      label: String
+      label: String,
+      appendStyle: ''
     },
 
     computed: {

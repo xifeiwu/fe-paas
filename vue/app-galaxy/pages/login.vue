@@ -21,7 +21,10 @@
            element-loading-spinner="el-icon-loading"
            element-loading-background="rgba(255, 255, 255, 0.6)"
       >
-        <el-form ref="form" :model="form" label-width="0px" class="login-form" @keydown.native="handleKeyDown">
+        <el-form ref="form" :model="form" label-width="0px" class="login-form"
+                 @keydown.native="handleKeyDownOnForm"
+                 @focus.native.capture="handleFocusOnForm"
+        >
           <el-form-item labelWidth="0px">
             <div class="login-title">登录凡普云</div>
           </el-form-item>
@@ -35,14 +38,14 @@
             </el-alert>
           </el-form-item>
           <el-form-item>
-            <el-input v-model="form.userName" placeholder="请输入用户名" class="focusable"></el-input>
+            <el-input v-model="form.userName" placeholder="请输入用户名"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-input v-model="form.password" placeholder="请输入密码" type="password" class="focusable"></el-input>
+            <el-input v-model="form.password" placeholder="请输入密码" type="password"></el-input>
           </el-form-item>
           <el-form-item class="verify-code">
-            <el-input v-model="form.verifyCode" placeholder="请输入验证码" class="focusable">
-              <template slot="append"><img alt="..." width="60" height="30" :src="verifyImageData"
+            <el-input v-model="form.verifyCode" placeholder="请输入验证码" appendStyle="width: 60px; text-align: center">
+              <template slot="append"><img alt="..." :src="verifyImageData" style="width: 60px; height: 30px; font-size: 10px"
                                            @click="updateVerifyCode"></template>
             </el-input>
           </el-form-item>
@@ -50,11 +53,11 @@
             <el-checkbox v-model="freeLogin15Days"
                          label="without_login"
                          name="without_login"
-                         @change="freeLoginStateChange" class="focusable">15天免登录
+                         @change="freeLoginStateChange">15天免登录
             </el-checkbox>
           </el-form-item>
           <el-form-item class="login-button-item">
-            <el-button type="primary" class="login-btn focusable" @click="onSubmit">登&nbsp&nbsp&nbsp&nbsp录</el-button>
+            <el-button type="primary" class="login-btn" @click="onSubmit">登&nbsp&nbsp&nbsp&nbsp录</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -110,8 +113,7 @@
       handleSelect(key, keyPath) {
         console.log(key, keyPath);
       },
-      handleKeyDown(evt) {
-//        console.log(this.focusableElesInForm);
+      handleKeyDownOnForm(evt) {
         switch (evt.keyCode) {
           case keyCode.DOWN:
             this.focusIndex +=1;
@@ -126,8 +128,15 @@
         this.focusIndex = this.focusIndex >= this.focusableElesInForm.length ? this.focusableElesInForm.length-1 : this.focusIndex;
         this.focusableElesInForm[this.focusIndex].focus();
       },
+      handleFocusOnForm(evt) {
+        let target = evt.target;
+        this.focusableElesInForm.some((it, index) => {
+          if (it === target) {
+            this.focusIndex = index;
+          }
+        });
+      },
       freeLoginStateChange: function (value, evt) {
-//        console.log(value);
       },
       updateVerifyCode() {
         var verifyImageURL = this.$url.get_verify_code + '?t=' + new Date().getTime();
