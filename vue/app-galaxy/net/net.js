@@ -127,14 +127,22 @@ export default {
     })
   },
 
+  /**
+   * 获得用户当前组的app列表
+   * @param options
+   * @returns {Promise}
+   */
   getAPPList: function (options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.app_list, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
+          this.showLog('getAPPList', content);
           resolve(content);
         }
       }).catch(err => {
+        this.showLog('getAPPList', err);
+        reject(err);
       });
     });
   },

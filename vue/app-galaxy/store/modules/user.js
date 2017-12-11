@@ -24,7 +24,7 @@ const state = {
   // 侧边栏
   menuList: [],
   // 当前组
-  groupID: -1000,
+  groupID: null,
   // 当前组的所有开发环境
   profileListOfGroup: [],
   // 用户所属组列表
@@ -118,10 +118,10 @@ const getters = {
   },
   'groupID': (state, getters) => {
     let groupID = state.groupID;
-    if (-1000 === groupID) {
+    if (null === groupID) {
       groupID = localStorage.getItem('groupID');
     }
-    if (-1000 === groupID && state.groupList.length > 0) {
+    if (null === groupID && state.groupList.length > 0) {
       groupID = state.groupList[0].id
     }
     return parseInt(groupID);

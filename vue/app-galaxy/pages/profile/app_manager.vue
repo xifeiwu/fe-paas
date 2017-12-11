@@ -84,6 +84,7 @@
   export default {
     created() {
       this.$store.dispatch('user/getGroupList');
+      this.requestAPPList(this.currentGroupID, 1, '');
     },
     mounted() {
       console.log('mount app manager');
@@ -92,6 +93,7 @@
       return {
         groupID: '',
         appList: [],
+        pageSize: 10,
       }
     },
     computed: {
@@ -113,9 +115,9 @@
     },
     methods: {
       handleButtonClick(evt) {
-        console.log(arguments);
-        console.log(evt);
-        console.log(evt.target);
+//        console.log(arguments);
+//        console.log(evt);
+//        console.log(evt.target);
         let target = evt.target;
         let bubble = true;
         let stepCnt = 0;
@@ -133,29 +135,28 @@
         }
         let action = target.getAttribute('action');
         if ('refreshAppList' === action) {
-          this.requestAPPList(this.groupID, 1, 8, '');
+          this.requestAPPList(this.groupID, 1, '');
         } else {
           this.$router.push(action);
         }
       },
-      requestAPPList(groupID, page, length, serviceName) {
+      requestAPPList(groupID, page, serviceName) {
         if (!serviceName) {
           serviceName = '';
         }
         this.$net.getAPPList({
           groupId: groupID,
           page: page,
-          length: length,
+          length: this.pageSize,
           serviceName: serviceName
         }).then(content => {
-          console.log(content);
           if (content.hasOwnProperty('appList')) {
             this.appList = content.appList;
           }
         });
       },
       handleGroupChange: function(groupID) {
-        this.requestAPPList(groupID, 1, 8, '');
+        this.requestAPPList(groupID, 1, '');
       },
     }
   }
