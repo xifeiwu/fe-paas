@@ -145,11 +145,6 @@ class Net {
           if (content.hasOwnProperty('appList') && Array.isArray(content.appList)) {
             content.appList.forEach(it => {
               it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd');
-              if ('spaceList' in it && Array.isArray(it.spaceList)) {
-                it.spaceList = it.spaceList.map(it => {
-                  return '<div>' + it + '</div>';
-                }).join();
-              }
             });
           }
           resolve(content);
