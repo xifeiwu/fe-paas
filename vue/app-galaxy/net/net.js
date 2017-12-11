@@ -117,6 +117,7 @@ export default {
       });
     })
   },
+
   getAPPList: function (options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.app_list, options).then(response => {
@@ -192,12 +193,15 @@ export default {
   },
 
   createAPP(options) {
-    // return new Promise((resolve, reject))
-    axios.post(URL_LIST.create_app,
-      options, res=> {
-        console.log(res);
-      }, err => {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.create_app, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content) {
+          resolve(content);
+        }
+      }).catch(err => {
         console.log(err);
       });
+    });
   }
 }
