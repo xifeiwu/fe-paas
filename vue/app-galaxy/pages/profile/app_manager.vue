@@ -16,32 +16,7 @@
       </el-col>
     </el-row>
     <el-table :data="appList" style="width: 100%">
-      <el-table-column type="expand">
-        <template slot-scope="props">
-          <el-form label-position="left" inline class="demo-table-expand">
-            <el-form-item label="商品名称">
-              <span>{{ props.row.groupTag }}</span>
-            </el-form-item>
-            <el-form-item label="所属店铺">
-              <span>{{ props.row.groupTag }}</span>
-            </el-form-item>
-            <el-form-item label="商品 ID">
-              <span>{{ props.row.groupTag }}</span>
-            </el-form-item>
-            <el-form-item label="店铺 ID">
-              <span>{{ props.row.groupTag }}</span>
-            </el-form-item>
-            <el-form-item label="商品分类">
-              <span>{{ props.row.groupTag }}</span>
-            </el-form-item>
-            <el-form-item label="店铺地址">
-              <span>{{ props.row.groupTag }}</span>
-            </el-form-item>
-            <el-form-item label="商品描述">
-              <span>{{ props.row.groupTag }}</span>
-            </el-form-item>
-          </el-form>
-        </template>
+      <el-table-column label="语言版本" prop="languageVersion">
       </el-table-column>
       <el-table-column label="应用名称" prop="groupTag">
       </el-table-column>
@@ -51,6 +26,36 @@
       </el-table-column>
       <el-table-column label="运行环境" prop="spaceList">
       </el-table-column>
+      <el-table-column label="操作" prop="operation">
+      </el-table-column>
+
+      <!--<el-table-column type="expand">-->
+        <!--<template slot-scope="props">-->
+          <!--<el-form label-position="left" inline class="demo-table-expand">-->
+            <!--<el-form-item label="商品名称">-->
+              <!--<span>{{ props.row.groupTag }}</span>-->
+            <!--</el-form-item>-->
+            <!--<el-form-item label="所属店铺">-->
+              <!--<span>{{ props.row.groupTag }}</span>-->
+            <!--</el-form-item>-->
+            <!--<el-form-item label="商品 ID">-->
+              <!--<span>{{ props.row.groupTag }}</span>-->
+            <!--</el-form-item>-->
+            <!--<el-form-item label="店铺 ID">-->
+              <!--<span>{{ props.row.groupTag }}</span>-->
+            <!--</el-form-item>-->
+            <!--<el-form-item label="商品分类">-->
+              <!--<span>{{ props.row.groupTag }}</span>-->
+            <!--</el-form-item>-->
+            <!--<el-form-item label="店铺地址">-->
+              <!--<span>{{ props.row.groupTag }}</span>-->
+            <!--</el-form-item>-->
+            <!--<el-form-item label="商品描述">-->
+              <!--<span>{{ props.row.groupTag }}</span>-->
+            <!--</el-form-item>-->
+          <!--</el-form>-->
+        <!--</template>-->
+      <!--</el-table-column>-->
     </el-table>
     <div class="block">
       <span class="demonstration">页数较少时的效果</span>

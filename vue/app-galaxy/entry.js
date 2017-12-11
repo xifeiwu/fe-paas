@@ -17,6 +17,8 @@ import '../assets/css/fix_style.scss';
 import '../packages/theme-chalk/src/index.scss';
 import Components from './components.js';
 
+import utils from './utils';
+Vue.prototype.$utils = utils;
 
 Components.install(Vue);
 

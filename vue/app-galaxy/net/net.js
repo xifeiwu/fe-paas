@@ -3,18 +3,20 @@
  */
 import axios from 'axios';
 import URL_LIST from './url';
+import utils from '../utils';
 
-
-
-export default {
-  SHOW_LOG: true,
+class Net {
+  constructor() {
+    this.SHOW_LOG = true;
+    this.utils = utils;
+  }
 
   showLog(func, data) {
     console.log(func + ' in net.js');
     console.log(data);
-  },
+  }
 
-  getResponseContent: function (response) {
+  getResponseContent (response) {
     let content = {};
     if ('data' in response) {
       let data = response.data;
@@ -25,8 +27,9 @@ export default {
       }
     }
     return content;
-  },
-  login: function (res) {
+  }
+
+  login (res) {
     function updateItem(item) {
       let keyMap = {
         "应用管理": {
@@ -111,8 +114,9 @@ export default {
         resolve(results);
       }
     });
-  },
-  getGroupList: function () {
+  }
+
+  getGroupList () {
     return new Promise((resolve, reject) => {
       axios.get(URL_LIST.get_group_id).then(res => {
         if ('data' in res) {
@@ -125,19 +129,29 @@ export default {
         reject(err);
       });
     })
-  },
+  }
 
   /**
    * 获得用户当前组的app列表
    * @param options
    * @returns {Promise}
    */
-  getAPPList: function (options) {
+  getAPPList (options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.app_list, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           this.showLog('getAPPList', content);
+          if (content.hasOwnProperty('appList') && Array.isArray(content.appList)) {
+            content.appList.forEach(it => {
+              it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd');
+              if ('spaceList' in it && Array.isArray(it.spaceList)) {
+                it.spaceList = it.spaceList.map(it => {
+                  return '<div>' + it + '</div>';
+                }).join();
+              }
+            });
+          }
           resolve(content);
         }
       }).catch(err => {
@@ -145,9 +159,9 @@ export default {
         reject(err);
       });
     });
-  },
+  }
 
-  getProfileListOfGroup: function(options) {
+  getProfileListOfGroup(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.get_profile_of_group, options).then(response => {
         let content = this.getResponseContent(response);
@@ -157,14 +171,14 @@ export default {
       }).catch(err => {
       });
     });
-  },
+  }
 
   /**
    * 获取创建APP时的相关信息
    * 1. 相关语言
    * 2. cpu memory对应关系
    */
-  getMessageForCreateAPP: function () {
+  getMessageForCreateAPP () {
     function get1() {
       return axios.get(URL_LIST.get_cpu_and_memory_config);
     }
@@ -209,7 +223,7 @@ export default {
       });
 
     })
-  },
+  }
 
   createAPP(options) {
     return new Promise((resolve, reject) => {
@@ -224,3 +238,5 @@ export default {
     });
   }
 }
+
+export default new Net();
