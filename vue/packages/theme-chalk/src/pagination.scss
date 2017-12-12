@@ -105,6 +105,27 @@
     }
   }
 
+  @include m(large) {
+    .btn-prev,
+    .btn-next,
+    .el-pager li,
+    .el-pager li:last-child {
+      border-color: transparent;
+      font-size: 16px;
+      line-height: 30px;
+      height: 30px;
+      min-width: 30px;
+    }
+    .btn-prev, .btn-next {
+      .el-icon {
+        font-size: 16px;
+      }
+    }
+    .arrow.disabled {
+      visibility: hidden;
+    }
+  }
+
   @include e(sizes) {
     margin: 0 10px 0 0;
     font-weight: normal;

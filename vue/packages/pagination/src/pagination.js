@@ -40,7 +40,9 @@ export default {
 
     prevText: String,
 
-    nextText: String
+    nextText: String,
+
+    size: String,
   },
 
   data() {
@@ -69,6 +71,9 @@ export default {
 
     if (this.small) {
       template.data.class += ' el-pagination--small';
+    }
+    else if (this.size) {
+      template.data.class += ' el-pagination--' + this.size;
     }
 
     components.forEach(compo => {
