@@ -12,8 +12,8 @@
   <el-form-item label="项目名称" prop="projectName">
     <el-input v-model="stepForm1.projectName" placeholder="gitlab中project的名称"></el-input>
   </el-form-item>
-  <el-form-item label="运行环境" prop="profiles" class="profiles" @change="handleProfileChange">
-    <el-checkbox-group v-model="stepForm1.profiles">
+  <el-form-item label="运行环境" prop="profiles" class="profiles">
+    <el-checkbox-group v-model="stepForm1.profiles" @change="handleProfileChange">
       <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
         {{item.description}}
       </el-checkbox>
@@ -234,7 +234,7 @@ export default {
 //      this.requestAPPList(groupID, 1, 8, '');
     },
     handleProfileChange: function () {
-//      console.log(arguments);
+      console.log(this.stepForm1.profiles);
     },
     handleLanguageChange: function (languageType) {
       if (Array.isArray(this.languageInfo)) {

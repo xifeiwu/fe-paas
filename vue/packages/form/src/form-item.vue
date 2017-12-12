@@ -11,7 +11,7 @@
     <label :for="labelFor" class="el-form-item__label" :class="labelClass" v-bind:style="labelStyle" v-if="label || $slots.label">
       <slot name="label">{{label + form.labelSuffix}}</slot>
     </label>
-    <div class="el-form-item__content" v-bind:style="contentStyle">
+    <div class="el-form-item__content" :class="contentClass" v-bind:style="contentStyle">
       <slot></slot>
       <transition name="el-zoom-in-top">
         <div
@@ -53,6 +53,7 @@
       label: String,
       labelWidth: String,
       labelClass: Array,
+      contentClass: Array,
       prop: String,
       required: {
         type: Boolean,

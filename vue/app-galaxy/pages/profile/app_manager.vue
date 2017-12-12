@@ -35,74 +35,106 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" prop="operation">
-        <template slot-scope="scope">
+      <!--<el-table-column label="操作" prop="operation">-->
+        <!--<template slot-scope="scope">-->
           <!--<el-button-->
             <!--size="mini"-->
-            <!--@click="handleEdit(scope.$index, scope.row)">编辑</el-button>-->
-          <el-button
-            size="mini"
-            type="danger"
-            @click="handleDeleteRow(scope.$index, scope.row)">删除</el-button>
-        </template>
-      </el-table-column>
-
-      <!--<el-table-column type="expand">-->
-        <!--<template slot-scope="props">-->
-          <!--<el-form label-position="left" inline class="demo-table-expand">-->
-            <!--<el-form-item label="商品名称">-->
-              <!--<span>{{ props.row.groupTag }}</span>-->
-            <!--</el-form-item>-->
-            <!--<el-form-item label="所属店铺">-->
-              <!--<span>{{ props.row.groupTag }}</span>-->
-            <!--</el-form-item>-->
-            <!--<el-form-item label="商品 ID">-->
-              <!--<span>{{ props.row.groupTag }}</span>-->
-            <!--</el-form-item>-->
-            <!--<el-form-item label="店铺 ID">-->
-              <!--<span>{{ props.row.groupTag }}</span>-->
-            <!--</el-form-item>-->
-            <!--<el-form-item label="商品分类">-->
-              <!--<span>{{ props.row.groupTag }}</span>-->
-            <!--</el-form-item>-->
-            <!--<el-form-item label="店铺地址">-->
-              <!--<span>{{ props.row.groupTag }}</span>-->
-            <!--</el-form-item>-->
-            <!--<el-form-item label="商品描述">-->
-              <!--<span>{{ props.row.groupTag }}</span>-->
-            <!--</el-form-item>-->
-          <!--</el-form>-->
+            <!--type="danger"-->
+            <!--@click="handleDeleteRow(scope.$index, scope.row)">删除</el-button>-->
         <!--</template>-->
       <!--</el-table-column>-->
+
+      <el-table-column label="更多操作" type="expand">
+        <template slot-scope="scope">
+          <el-form label-position="right" class="demo-table-expand" label-width="120px">
+            <el-form-item label="运行环境管理：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+              <el-checkbox-group
+                  v-model="scope.row.selectedSpaceList"
+                  @change="handleChangeSpaceList(scope.row)"
+                  style="display: inline-block"
+              >
+                <el-checkbox v-for="item in scope.row.spaceList" :label="item" :key="item"
+                  @change="handleChangeSpaceList(item)">
+                </el-checkbox>
+              </el-checkbox-group>
+              <el-button
+                size="mini-extral"
+                type="warning"
+                @click="handleDeleteRow(scope.$index, scope.row)">
+                更改运行环境
+              </el-button>
+            </el-form-item>
+            <el-form-item label="应用管理：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+              <el-button
+                size="mini-extral"
+                type="warning"
+                @click="handleDeleteRow(scope.$index, scope.row)">删除应用</el-button>
+              <el-button
+                size="mini-extral"
+                type="warning"
+                @click="handleDeleteRow(scope.$index, scope.row)">应用转让</el-button>
+            </el-form-item>
+          </el-form>
+        </template>
+      </el-table-column>
     </el-table>
     <div class="pagination">
       <el-pagination
-              :current-page="currentPage"
-              size="large"
-              layout="prev, pager, next"
-              :page-size = "pageSize"
-              :total="totalSize"
-              @current-change="handlePaginationPageChange"
+        :current-page="currentPage"
+        size="large"
+        layout="prev, pager, next"
+        :page-size = "pageSize"
+        :total="totalSize"
+        @current-change="handlePaginationPageChange"
       >
       </el-pagination>
     </div>
   </div>
 </template>
+
+<style lang="scss">
+  .fix-form-item-label {
+    line-height: 25px;
+  }
+  .fix-form-item-content {
+    line-height: 100%;
+  }
+</style>
 <style lang="scss" scoped>
   .container {
     margin: 40px;
   }
 
+  .el-table {
+    color: black;
+    .el-table__expanded-cel {
+      color: rgb(90, 94, 120);
+    }
 
-  .demo-table-expand label {
-    width: 90px;
-    color: #99a9bf;
+    .el-checkbox + .el-checkbox {
+      margin-left: 20px;
+    }
+
+    .el-form {
+      .el-form-item {
+        margin-bottom: 6px;
+      }
+    }
+
+    .demo-table-expand {
+      font-size: 12px;
+      .el-form-item__label {
+        vertical-align: middle;
+      }
+    }
   }
 
-  .demo-table-expand .el-form-item {
-    margin-right: 0;
-    margin-bottom: 0;
-    width: 50%;
+  .el-form-item__label {
+    text-align: right;
+  }
+
+  .el-tag {
+    display: block;
   }
   .pagination {
     margin-top: 15px;
@@ -116,7 +148,7 @@
   export default {
     created() {
       this.$store.dispatch('user/getGroupList');
-      this.requestAPPList(this.currentGroupID, '');
+      this.requestAPPList('');
     },
     mounted() {
       console.log('mount app manager');
@@ -166,38 +198,39 @@
         }
         let action = target.getAttribute('action');
         if ('refreshAppList' === action) {
-          this.requestAPPList(this.groupID, this.currentPage, '');
+          this.requestAPPList('');
         } else {
           this.$router.push(action);
         }
       },
-      requestAPPList(groupID, serviceName) {
+      requestAPPList(serviceName) {
         if (!serviceName) {
           serviceName = '';
         }
-        console.log({
-          groupId: groupID,
-          start: this.currentPage,
-          length: this.pageSize,
-          serviceName: serviceName
-        });
         this.$net.getAPPList({
-          groupId: groupID,
+          groupId: this.currentGroupID,
           start: this.currentPage,
           length: this.pageSize,
           serviceName: serviceName
         }).then(content => {
           if (content.hasOwnProperty('appList')) {
-            this.appList = content.appList;
+            let appList = content.appList;
+            if (Array.isArray(appList)) {
+              appList.forEach(it => {
+                it.selectedSpaceList = JSON.parse(JSON.stringify(it.spaceList));
+              })
+            }
+            this.appList = appList;
+            console.log(this.appList);
           }
           if (content.hasOwnProperty('total')) {
             this.totalSize = content.total;
           }
         });
       },
-      handleGroupChange: function(groupID) {
+      handleGroupChange: function() {
         this.currentPage = 1;
-        this.requestAPPList(groupID, '');
+        this.requestAPPList('');
       },
       handleDeleteRow(index, row) {
         this.confirm('您将删除应用，' + row.groupTag + '确定吗？').then(() => {
@@ -232,6 +265,7 @@
                 type: 'success',
                 message: '删除成功!'
               });
+              this.requestAPPList('')
             }).catch(() => {
               this.$message({
                 type: 'info',
@@ -258,8 +292,12 @@
 
       handlePaginationPageChange(page) {
         this.currentPage = page;
-        this.requestAPPList(this.currentGroupID, '');
+        this.requestAPPList('');
       },
+
+      handleChangeSpaceList(row) {
+        console.log(row);
+      }
     }
   }
 </script>
