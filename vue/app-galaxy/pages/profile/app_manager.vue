@@ -75,22 +75,24 @@
         <!--</template>-->
       <!--</el-table-column>-->
     </el-table>
-    <div class="block">
-      <span class="demonstration">页数较少时的效果</span>
+    <div class="pagination">
       <el-pagination
+              :current-page="currentPage"
+              size="large"
               layout="prev, pager, next"
-              :total="50">
+              :page-size = "pageSize"
+              :total="totalSize"
+              @current-change="handlePaginationPageChange"
+      >
       </el-pagination>
     </div>
   </div>
 </template>
-<style>
+<style lang="scss" scoped>
   .container {
     margin: 40px;
   }
-  .demo-table-expand {
-    font-size: 0;
-  }
+
 
   .demo-table-expand label {
     width: 90px;
@@ -102,12 +104,19 @@
     margin-bottom: 0;
     width: 50%;
   }
+  .pagination {
+    margin-top: 15px;
+    text-align: center;
+    .el-pagination {
+      display: inline-block;
+    }
+  }
 </style>
 <script>
   export default {
     created() {
       this.$store.dispatch('user/getGroupList');
-      this.requestAPPList(this.currentGroupID, 1, '');
+      this.requestAPPList(this.currentGroupID, '');
     },
     mounted() {
       console.log('mount app manager');
@@ -116,7 +125,9 @@
       return {
         groupID: '',
         appList: [],
-        pageSize: 10,
+        pageSize: 2,
+        totalSize: 0,
+        currentPage: 1,
       }
     },
     computed: {
@@ -155,28 +166,38 @@
         }
         let action = target.getAttribute('action');
         if ('refreshAppList' === action) {
-          this.requestAPPList(this.groupID, 1, '');
+          this.requestAPPList(this.groupID, this.currentPage, '');
         } else {
           this.$router.push(action);
         }
       },
-      requestAPPList(groupID, page, serviceName) {
+      requestAPPList(groupID, serviceName) {
         if (!serviceName) {
           serviceName = '';
         }
+        console.log({
+          groupId: groupID,
+          start: this.currentPage,
+          length: this.pageSize,
+          serviceName: serviceName
+        });
         this.$net.getAPPList({
           groupId: groupID,
-          page: page,
+          start: this.currentPage,
           length: this.pageSize,
           serviceName: serviceName
         }).then(content => {
           if (content.hasOwnProperty('appList')) {
             this.appList = content.appList;
           }
+          if (content.hasOwnProperty('total')) {
+            this.totalSize = content.total;
+          }
         });
       },
       handleGroupChange: function(groupID) {
-        this.requestAPPList(groupID, 1, '');
+        this.currentPage = 1;
+        this.requestAPPList(groupID, '');
       },
       handleDeleteRow(index, row) {
         this.confirm('您将删除应用，' + row.groupTag + '确定吗？').then(() => {
@@ -233,6 +254,11 @@
           });
 
         });
+      },
+
+      handlePaginationPageChange(page) {
+        this.currentPage = page;
+        this.requestAPPList(this.currentGroupID, '');
       },
     }
   }
