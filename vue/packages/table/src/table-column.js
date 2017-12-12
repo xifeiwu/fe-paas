@@ -17,9 +17,9 @@ const defaults = {
     className: 'el-table-column--selection'
   },
   expand: {
-    width: 48,
-    minWidth: 48,
-    realWidth: 48,
+    width: 80,
+    minWidth: 80,
+    realWidth: 80,
     order: ''
   },
   index: {
@@ -65,8 +65,8 @@ const forced = {
     sortable: false
   },
   expand: {
-    renderHeader: function(h, {}) {
-      return '';
+    renderHeader: function(h, {column}) {
+      return column.label || '';
     },
     renderCell: function(h, { row, store }, proxy) {
       const expanded = store.states.expandRows.indexOf(row) > -1;
