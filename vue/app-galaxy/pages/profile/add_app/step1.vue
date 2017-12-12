@@ -57,7 +57,7 @@
   <el-form-item label="Gitlab分支" prop="gitlabBranch" v-if="stepForm1.language === 'JAVA'">
     <el-input v-model="stepForm1.gitlabBranch" placeholder="请输入gitlab分支名"></el-input>
   </el-form-item>
-  <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM" v-if="stepForm1.language === 'JAVA'">
+  <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM" :labelClass="['onePercentLineHeight']" v-if="stepForm1.language === 'JAVA'">
     <el-input v-model="stepForm1.relativePathOfParentPOM" placeholder=""></el-input>
   </el-form-item>
   <el-form-item class="steps">
@@ -69,6 +69,11 @@
 </el-form>
 </template>
 
+<style>
+  .onePercentLineHeight {
+    line-height: 100%;
+  }
+</style>
 <style lang="scss" scoped>
   .el-form {
     .el-form-item {

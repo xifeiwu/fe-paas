@@ -8,7 +8,7 @@
     },
     sizeClass ? 'el-form-item--' + sizeClass : ''
   ]">
-    <label :for="labelFor" class="el-form-item__label" v-bind:style="labelStyle" v-if="label || $slots.label">
+    <label :for="labelFor" class="el-form-item__label" :class="labelClass" v-bind:style="labelStyle" v-if="label || $slots.label">
       <slot name="label">{{label + form.labelSuffix}}</slot>
     </label>
     <div class="el-form-item__content" v-bind:style="contentStyle">
@@ -52,6 +52,7 @@
     props: {
       label: String,
       labelWidth: String,
+      labelClass: Array,
       prop: String,
       required: {
         type: Boolean,
