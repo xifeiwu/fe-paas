@@ -141,6 +141,9 @@
   @include m(mini) {
     @include button-size($--button-mini-padding-vertical, $--button-mini-padding-horizontal, $--button-mini-font-size, $--button-mini-border-radius);
   }
+  @include m(mini-extral) {
+    @include button-size($--button-mini-extral-padding-vertical, $--button-mini-extral-padding-horizontal, $--button-mini-extral-font-size, $--button-mini-extral-border-radius);
+  }
   @include m(text) {
     border: none;
     color: $--color-primary;
