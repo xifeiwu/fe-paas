@@ -52,6 +52,14 @@
         @current-change="handlePaginationPageChange"
       >
       </el-pagination>
+
+      <el-dialog title="更改运行环境" :visible.sync="changeProfileDialogVisible">
+        <el-checkbox-group>
+          <el-checkbox v-for="item in currentSpaceList" :label="item" :key="item">
+          </el-checkbox>
+        </el-checkbox-group>
+        <el-tag>ADDDFD</el-tag>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -130,6 +138,8 @@
         pageSize: 2,
         totalSize: 0,
         currentPage: 1,
+        changeProfileDialogVisible: false,
+        currentSpaceList: [],
       }
     },
     computed: {
@@ -217,8 +227,11 @@
           });
         });
       },
-      handleChangeProfile() {
-
+      handleChangeProfile(index, row) {
+        console.log(index);
+        console.log(row);
+        this.currentSpaceList = row.spaceList;
+        this.changeProfileDialogVisible = true;
       },
       handleTagClose(index, row, tag) {
         console.log(index);
