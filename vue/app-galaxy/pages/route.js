@@ -1,4 +1,12 @@
 var path = require('path');
+import Login from './login.vue';
+import Profile from './profile.vue';
+import AppManager from './profile/app_manager.vue';
+import InstanceList from './profile/instance_list.vue';
+import AddApp from './profile/add_app';
+import AddAppStep1 from './profile/add_app/step1.vue';
+import AddAppStep2 from './profile/add_app/step2.vue';
+import AddAppStep3 from './profile/add_app/step3.vue';
 
 /**
  * router config:
@@ -10,28 +18,35 @@ var Router = function () {
     'login': {
       path: '/login',
       name: '登录',
-      // component: getAbsPath('loing.vue')
+      component: Login,
     },
     'profile': {
       path: '/profile',
       name: '详情',
+      component: Profile,
       redirect: '/profile/app_manager',
       children: [{
         path: 'app_manager',
         name: '应用管理',
+        component: AppManager,
       }, {
         path: 'instance_list',
         name: '实例列表',
+        component: InstanceList,
       }, {
         path: 'add_app',
         name: '添加应用',
+        component: AddApp,
         redirect: '/profile/add_app/step1',
         children: [{
           path: 'step1',
+          component: AddAppStep1,
         },{
           path: 'step2',
+          component: AddAppStep2,
         },{
           path: 'step3',
+          component: AddAppStep3,
         },{
           path: 'finish',
         }]
@@ -41,6 +56,7 @@ var Router = function () {
 };
 
 Router.prototype = {
+  /* not used*/
   getAbsPath(file) {
     // let gpath = path.resolve(__dirname, file);
     let path = '../pages/' + file;
@@ -96,8 +112,8 @@ Router.prototype = {
   },
 
   update() {
-    router.generateRouterLinkPath(null, router.componentList);
-    router.generateComponentFile(router.componentList);
+    this.generateRouterLinkPath(null, router.componentList);
+    this.generateComponentFile(router.componentList);
 
   }
 }
