@@ -37,8 +37,6 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import componentConfig from '../pages/route';
 
-Vue.use(VueRouter);
-
 class RouterConfig {
   constructor() {
     let routeConfig = this.generateMiscRoutes();
@@ -60,22 +58,22 @@ class RouterConfig {
   };
 
 
-  load(pathInPages) {
-    return require(`../pages/${pathInPages}.vue`).default;
-  }
-
-  /* unused */
-  load2(path) {
-    return function(r) {
-      require.ensure(
-        [],
-        function() {
-          r(require(path))
-        },
-        'bundle'
-      )
-    }
-  }
+  // load(pathInPages) {
+  //   return require(`../pages/${pathInPages}.vue`).default;
+  // }
+  //
+  // /* unused */
+  // load2(path) {
+  //   return function(r) {
+  //     require.ensure(
+  //       [],
+  //       function() {
+  //         r(require(path))
+  //       },
+  //       'bundle'
+  //     )
+  //   }
+  // }
 
   /**
    * generate vueComConfig by component. deep copy
@@ -148,6 +146,7 @@ class RouterConfig {
 
 }
 
+Vue.use(VueRouter);
 let routerConfig = new RouterConfig();
 routerConfig.routerFilter();
 
