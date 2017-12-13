@@ -10,65 +10,35 @@
       <el-col :span="6"></el-col>
     </el-row>
     <el-table :data="appList" style="width: 100%">
-      <el-table-column label="语言版本" prop="languageVersion">
+      <el-table-column label="语言版本" prop="languageVersion" headerAlign="center">
         <template slot-scope="scope">
           <div>{{scope.row.language}} - {{scope.row.languageVersion}}</div>
         </template>
       </el-table-column>
-      <el-table-column label="应用名称" prop="groupTag">
+      <el-table-column label="应用名称" prop="serviceName" headerAlign="center">
       </el-table-column>
-      <el-table-column label="创建者" prop="creator">
+      <el-table-column label="创建者" prop="creator" headerAlign="center">
       </el-table-column>
-      <el-table-column label="创建时间" prop="createTime">
+      <el-table-column label="创建时间" prop="createTime" headerAlign="center">
       </el-table-column>
-      <el-table-column label="运行环境" prop="spaceList">
+      <el-table-column label="运行环境" prop="spaceList" headerAlign="center">
         <template slot-scope="scope">
-          <el-tag v-for="item in scope.row.spaceList" :key="item" size="small" closable
-                  @close="handleTagClose(scope.$index, scope.row, item)">
-            {{ item }}
-          </el-tag>
+          <div v-for="item in scope.row.spaceList" :key="item">
+            <span class="profile-item" @click="jumpToService(scope.$index, scope.row, item)"
+            >{{ item }}</span>
+          </div>
         </template>
       </el-table-column>
-      <!--<el-table-column label="操作" prop="operation">-->
-        <!--<template slot-scope="scope">-->
-          <!--<el-button-->
-            <!--size="mini"-->
-            <!--type="danger"-->
-            <!--@click="handleDeleteRow(scope.$index, scope.row)">删除</el-button>-->
-        <!--</template>-->
-      <!--</el-table-column>-->
-
-      <el-table-column label="更多操作" type="expand">
+      <el-table-column label="操作" prop="operation" minWidth="130" headerAlign="center">
         <template slot-scope="scope">
-          <el-form label-position="right" class="demo-table-expand" label-width="120px">
-            <el-form-item label="运行环境管理：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-              <el-checkbox-group
-                  v-model="scope.row.selectedSpaceList"
-                  @change="handleChangeSpaceList(scope.row)"
-                  style="display: inline-block"
-              >
-                <el-checkbox v-for="item in scope.row.spaceList" :label="item" :key="item"
-                  @change="handleChangeSpaceList(item)">
-                </el-checkbox>
-              </el-checkbox-group>
-              <el-button
-                size="mini-extral"
-                type="warning"
-                @click="handleDeleteRow(scope.$index, scope.row)">
-                更改运行环境
-              </el-button>
-            </el-form-item>
-            <el-form-item label="应用管理：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-              <el-button
-                size="mini-extral"
-                type="warning"
-                @click="handleDeleteRow(scope.$index, scope.row)">删除应用</el-button>
-              <el-button
-                size="mini-extral"
-                type="warning"
-                @click="handleDeleteRow(scope.$index, scope.row)">应用转让</el-button>
-            </el-form-item>
-          </el-form>
+          <el-button
+            size="mini-extral"
+            type="danger"
+            @click="handleDeleteRow(scope.$index, scope.row)">删除</el-button>
+          <el-button
+            size="mini-extral"
+            type="warning"
+            @click="handleChangeProfile(scope.$index, scope.row)">更改运行环境</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -86,14 +56,14 @@
   </div>
 </template>
 
-<style lang="scss">
-  .fix-form-item-label {
-    line-height: 25px;
-  }
-  .fix-form-item-content {
-    line-height: 100%;
-  }
-</style>
+<!--<style lang="scss">-->
+  <!--.fix-form-item-label {-->
+    <!--line-height: 25px;-->
+  <!--}-->
+  <!--.fix-form-item-content {-->
+    <!--line-height: 100%;-->
+  <!--}-->
+<!--</style>-->
 <style lang="scss" scoped>
   .container {
     margin: 40px;
@@ -101,20 +71,28 @@
 
   .el-table {
     color: black;
+    .el-table__row {
+      .profile-item {
+        cursor: pointer;
+        display: inline-block;
+        border-bottom: 1px solid gray;
+        &:hover {
+          color: blue;
+          border-color: blue;
+        }
+      }
+    }
     .el-table__expanded-cel {
       color: rgb(90, 94, 120);
     }
-
-    .el-checkbox + .el-checkbox {
-      margin-left: 20px;
-    }
-
     .el-form {
+      .el-checkbox + .el-checkbox {
+        margin-left: 20px;
+      }
       .el-form-item {
         margin-bottom: 6px;
       }
     }
-
     .demo-table-expand {
       font-size: 12px;
       .el-form-item__label {
@@ -216,6 +194,10 @@
           }
         });
       },
+      jumpToService(index, row, tag) {
+        console.log('in jumpToService');
+        console.log(index, row, tag);
+      },
       handleDeleteRow(index, row) {
         this.confirm('您将删除应用，' + row.groupTag + '确定吗？').then(() => {
           this.$net.deleteAPP({
@@ -234,6 +216,9 @@
             message: '您已取消删除'
           });
         });
+      },
+      handleChangeProfile() {
+
       },
       handleTagClose(index, row, tag) {
         console.log(index);
