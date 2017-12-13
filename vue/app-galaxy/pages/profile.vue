@@ -42,6 +42,15 @@
         </el-menu>
       </el-aside>
       <el-main>
+        <el-row class="main-title">
+          <el-col :span="12" class="current-step">{{currentStep}}</el-col>
+          <el-col :span="12" class="group-list">
+            <el-select v-model="currentGroupID" placeholder="请选择">
+              <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
+              </el-option>
+            </el-select>
+          </el-col>
+        </el-row>
         <el-scrollbar>
           <router-view></router-view>
         </el-scrollbar>
@@ -50,17 +59,70 @@
   </el-container>
 </template>
 
+<style lang="scss" scoped>
+  .el-container.outer-container {
+    height: 100%;
+    .el-header {
+      background-color: #e7e7e7;
+      color: #333;
+      text-align: center;
+      line-height: 60px;
+
+      .img {
+        float: left;
+      }
+
+      .el-menu {
+        background-color: transparent;
+        float: right;
+      }
+    }
+    .inner-container {
+      .el-aside {
+        position: fixed;
+        top: 62px;
+        bottom: 0px;
+        border-right: solid 1px #e6e6e6;
+        .el-menu {
+          border-width: 0px;
+        }
+      }
+      .el-main {
+        padding: 0px;
+        margin-left: 200px;
+        .main-title {
+          border-bottom: 1px solid gray;
+          padding: 5px;
+          .current-step {
+            line-height: 32px;
+          }
+          .group-list {
+            text-align: right;
+          }
+        }
+        .el-scrollbar {
+          height: calc(100% - 43px);
+        }
+      }
+    }
+  }
+</style>
+
 <script>
 //  import { mapGetters } from 'vuex'
-//  import URL_LIST from '../config/url'
+  import routeUtils from './route';
+
   export default {
     data() {
       return {
         activeIndex: '3',
+        currentStep: '',
+        groupID: '',
       }
     },
     created() {
       this.$store.dispatch('user/getGroupList');
+      this.currentStep = routeUtils.getNameByRouterPath(this.$route.path);
     },
     mounted() {
 //      console.log('profile created');
@@ -69,11 +131,34 @@
       menuList() {
         return this.$store.getters['user/menuList']
       },
+      currentGroupID: {
+        get() {
+          if ('' === this.groupID) {
+            this.groupID = this.$store.getters['user/groupID'];
+          }
+          return this.groupID;
+        },
+        set(value) {
+          this.groupID = value;
+          this.$store.dispatch('user/groupID', value);
+        }
+      },
+      groupList() {
+        return this.$store.getters['user/groupList'];
+      }
     },
     watch: {
-      '$router': function (value, oldValue) {
-        console.log(oldValue);
-        console.log(value);
+      '$route': function (value, oldValue) {
+        let pathReg = /^\/profile\/[\w\/]*$/i;
+        let path = value.path;
+        this.currentStep = '';
+        if (pathReg.exec(path)) {
+          this.currentStep = '';
+          let name = routeUtils.getNameByRouterPath(path);
+          if (name) {
+            this.currentStep = name;
+          }
+        }
       }
     },
     methods: {
@@ -133,42 +218,3 @@
     }
   }
 </script>
-
-<style lang="scss" scoped>
-  .el-container.outer-container {
-    height: 100%;
-    .el-header {
-      background-color: #e7e7e7;
-      color: #333;
-      text-align: center;
-      line-height: 60px;
-
-      .img {
-        float: left;
-      }
-
-      .el-menu {
-        background-color: transparent;
-        float: right;
-      }
-    }
-    .inner-container {
-      .el-aside {
-        position: fixed;
-        top: 62px;
-        bottom: 0px;
-        border-right: solid 1px #e6e6e6;
-        .el-menu {
-          border-width: 0px;
-        }
-      }
-      .el-main {
-        padding: 0px;
-        margin-left: 200px;
-        .el-scrollbar {
-          height: 100%;
-        }
-      }
-    }
-  }
-</style>

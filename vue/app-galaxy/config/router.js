@@ -35,10 +35,11 @@
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import componentConfig from '../pages/route';
+import routerUtils from '../pages/route';
 
 class RouterConfig {
   constructor() {
+    this.componentConfig = routerUtils.componentList;
     let routeConfig = this.generateMiscRoutes();
     this.vueRouter = new VueRouter({
       mode: 'hash',
@@ -49,7 +50,7 @@ class RouterConfig {
 
   generateMiscRoutes() {
     let vueRouteConfig = {};
-    this.traverseComponent(componentConfig, vueRouteConfig);
+    this.traverseComponent(this.componentConfig, vueRouteConfig);
     let configList = []
     for (let key in vueRouteConfig) {
       configList.push(vueRouteConfig[key]);

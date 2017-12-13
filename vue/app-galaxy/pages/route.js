@@ -35,24 +35,28 @@ var Router = function () {
         component: InstanceList,
       }, {
         path: 'add_app',
-        name: '添加应用',
+        name: '创建应用',
         component: AddApp,
         redirect: '/profile/add_app/step1',
         children: [{
           path: 'step1',
           component: AddAppStep1,
+          name: '创建应用',
         },{
           path: 'step2',
           component: AddAppStep2,
+          name: '创建应用',
         },{
           path: 'step3',
           component: AddAppStep3,
+          name: '创建应用',
         },{
           path: 'finish',
         }]
       }]
     }
   }
+  this.update();
 };
 
 Router.prototype = {
@@ -112,13 +116,56 @@ Router.prototype = {
   },
 
   update() {
-    this.generateRouterLinkPath(null, router.componentList);
-    this.generateComponentFile(router.componentList);
+    this.generateRouterLinkPath(null, this.componentList);
+    this.generateComponentFile(this.componentList);
+  },
 
+  getNameByRouterPath(routerPath) {
+    function updateItem(item) {
+      if (item.hasOwnProperty('routerPath') && routerPath === item.routerPath) {
+        if (item.hasOwnProperty('name')) {
+          return item.name;
+        } else {
+          return '';
+        }
+      } else {
+        return null;
+      }
+    }
+    function traverseComponent(component) {
+      if ('object' === typeof(component)) {
+        for (let key in component) {
+          if (component.hasOwnProperty(key)) {
+            let item = component[key];
+            let name = updateItem.call(this, item);
+            if (null !== name) {
+              return name;
+            }
+            if ('children' in item) {
+              let name = traverseComponent(item.children);
+              if (null !== name) {
+                return name;
+              }
+            }
+          }
+        }
+        return null;
+      } else if (Array.isArray(component)) {
+        for (let key in component) {
+          let item = component[key];
+          let name = updateItem.call(this, item);
+          if (null !== name) {
+            return name;
+          }
+        }
+        return null;
+      }
+    }
+    let name = traverseComponent(this.componentList);
+    return name;
   }
 }
 
 var router = new Router();
-router.update();
 // console.log(JSON.stringify(router.componentList));
-export default router.componentList;
+export default router;

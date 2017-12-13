@@ -8,12 +8,6 @@
         <el-button @click="handleButtonClick" action="refreshAppList">刷新</el-button>
       </el-col>
       <el-col :span="6"></el-col>
-      <el-col :span="6">
-        <el-select v-model="currentGroupID" placeholder="请选择" @input="handleGroupChange">
-          <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
-          </el-option>
-        </el-select>
-      </el-col>
     </el-row>
     <el-table :data="appList" style="width: 100%">
       <el-table-column label="语言版本" prop="languageVersion">
@@ -147,7 +141,6 @@
 <script>
   export default {
     created() {
-      this.$store.dispatch('user/getGroupList');
       this.requestAPPList('');
     },
     mounted() {
@@ -155,7 +148,6 @@
     },
     data() {
       return {
-        groupID: '',
         appList: [],
         pageSize: 2,
         totalSize: 0,
@@ -163,20 +155,17 @@
       }
     },
     computed: {
-      currentGroupID: {
-        get() {
-          if ('' === this.groupID) {
-            this.groupID = this.$store.getters['user/groupID'];
-          }
-          return this.groupID;
-        },
-        set(value) {
-          this.groupID = value;
-          this.$store.dispatch('user/groupID', value);
-        }
+      currentGroupID() {
+        let groupID = this.$store.getters['user/groupID'];
+        return groupID;
       },
       groupList() {
         return this.$store.getters['user/groupList'];
+      }
+    },
+    watch: {
+      currentGroupID: function (value, oldValue) {
+        this.requestAPPList('');
       }
     },
     methods: {
@@ -226,10 +215,6 @@
             this.totalSize = content.total;
           }
         });
-      },
-      handleGroupChange: function() {
-        this.currentPage = 1;
-        this.requestAPPList('');
       },
       handleDeleteRow(index, row) {
         this.confirm('您将删除应用，' + row.groupTag + '确定吗？').then(() => {
