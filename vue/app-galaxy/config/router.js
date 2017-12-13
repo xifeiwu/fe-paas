@@ -119,9 +119,18 @@ class RouterConfig {
 
   routerFilter() {
     this.vueRouter.beforeEach((to, from, next) => {
-      // console.log('in beforeEach');
+      console.log('in beforeEach');
       console.log(JSON.stringify(to.path) + ' -> ' + JSON.stringify(from.path));
-      next();
+      let token = localStorage.getItem('token');
+      if (token) {//如果有就直接到首页咯
+        next();
+      } else {
+        if (to.path=='/login') {//如果是登录页面路径，就直接next()
+          next();
+        } else {//不然就跳转到登录；
+          next('/login');
+        }
+      }
       //  if (to.meta.requireAuth) {
       //   fetch('m/is/login').then(res = > {
       //    if (res.errCode == 200) {

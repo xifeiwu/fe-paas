@@ -21,12 +21,15 @@ Axios.interceptors.request.use(function(config){
 });
 
 //添加响应拦截器
-Axios.interceptors.response.use(function(response){
+Axios.interceptors.response.use(function(response) {
   if (response && 'data' in response && 'code' in response.data) {
-    if (response.data.code === 0) {
+    let statueCode = response.data.code;
+    if (0 === statueCode) {
       if ('token' in response.headers && window.localStorage.getItem('token') !== response.headers['token']) {
         window.localStorage.setItem('token', response.headers['token']);
       }
+    } else if (555 === statueCode) {
+      localStorage.removeItem('token');
     }
   }
   return response;

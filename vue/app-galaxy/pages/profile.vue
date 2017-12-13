@@ -70,6 +70,12 @@
         return this.$store.getters['user/menuList']
       },
     },
+    watch: {
+      '$router': function (value, oldValue) {
+        console.log(oldValue);
+        console.log(value);
+      }
+    },
     methods: {
       handleTitleMenuSelect(key, keyPath) {
         switch (key) {
@@ -77,10 +83,21 @@
             this.$router.push('/login');
             break;
           case 'logout':
-            this.$ajax.get(this.$url.logout).then(res => {
-              console.log(res);
+            this.$net.logout().then(msg => {
+              localStorage.removeItem('token');
+              this.$message({
+                type: 'success',
+                message: msg,
+                duration: 1000,
+                onClose: () => {
+                  this.$router.push('/login');
+                }
+              });
             }).catch(err => {
-              console.log(err);
+              this.$notify.error({
+                title: '错误',
+                message: err
+              });
             });
             break;
           case 'user':

@@ -221,7 +221,6 @@
               })
             }
             this.appList = appList;
-            console.log(this.appList);
           }
           if (content.hasOwnProperty('total')) {
             this.totalSize = content.total;

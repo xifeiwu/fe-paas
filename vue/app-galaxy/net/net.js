@@ -122,6 +122,25 @@ class Net {
     });
   }
 
+  logout() {
+    return new Promise((resolve, reject) => {
+      axios.get(URL_LIST.logout).then(res => {
+        if ('data' in res) {
+          let data = res.data;
+          if (0 === data.code) {
+            let msg = null;
+            if (data.hasOwnProperty('msg')) {
+              msg = data.msg;
+            }
+            resolve(msg);
+          }
+        }
+      }).catch(err => {
+        reject(err);
+      });
+    })
+  }
+
   getGroupList () {
     return new Promise((resolve, reject) => {
       axios.get(URL_LIST.get_group_id).then(res => {
