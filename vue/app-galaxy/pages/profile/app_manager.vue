@@ -21,11 +21,11 @@
       </el-table-column>
       <el-table-column label="创建时间" prop="createTime" headerAlign="center">
       </el-table-column>
-      <el-table-column label="运行环境" prop="spaceList" headerAlign="center" minWidth="90">
+      <el-table-column label="运行环境" prop="profileList" headerAlign="center" minWidth="90">
         <template slot-scope="scope">
-          <div v-for="item in scope.row.spaceList" :key="item">
-            <span class="profile-item" @click="jumpToService(scope.$index, scope.row, item)"
-            >{{ item }}</span>
+          <div v-for="item in scope.row.profileList" :label="item.name" :key="item.name">
+            <span class="profile-item" @click="jumpToServicePage(scope.$index, scope.row, item)"
+            >{{ item.description }}</span>
           </div>
         </template>
       </el-table-column>
@@ -34,11 +34,11 @@
           <el-button
             size="mini-extral"
             type="danger"
-            @click="handleDeleteRow(scope.$index, scope.row)">删除</el-button>
+            @click="handleRowButtonClick('deleteRow', scope.$index, scope.row)">删除</el-button>
           <el-button
             size="mini-extral"
             type="warning"
-            @click="handleChangeProfile(scope.$index, scope.row)">更改运行环境</el-button>
+            @click="handleRowButtonClick('change-profiles', scope.$index, scope.row)">更改运行环境</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -54,22 +54,31 @@
       </el-pagination>
     </div>
 
-    <!--'profileList' === selectedProp-->
-    <el-dialog title="更改运行环境" visible.sync="true">
-      <el-checkbox-group>
-        <el-checkbox v-for="item in ['dev']" :label="item" :key="item">
-        </el-checkbox>
-      </el-checkbox-group>
-      <el-tag>ADDDFD</el-tag>
+    <el-dialog title="更改运行环境" :visible="propToChange == 'profiles'"
+               @close="propToChange = null"
+               v-if="selectedAPP"
+    >
+      <el-form :model="newProps" :rules="rules" labelWidth="120px" ref="changeProfileListForm">
+        <el-form-item label="当前运行环境：">
+          <el-tag v-for="item in selectedAPP.profileList" size="mini" :key="item.name" style="display: inline-block">{{item.description}}</el-tag>
+        </el-form-item>
+        <el-form-item label="更改为：" prop="profiles">
+          <el-checkbox-group v-model="newProps.profiles">
+            <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
+              {{item.description}}
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+      </el-form>
       <div slot="footer" class="dialog-footer">
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleButtonClick($event, {role:'cmd', action: 'saveChangedProfile'})">保&nbsp存</el-button>
+                       @click="handleDialogButtonClick('profiles')">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button action="profile-dialog/cancel"
-                       @click="">取&nbsp消</el-button>
+                       @click="propToChange = null">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
@@ -138,8 +147,10 @@
   }
 </style>
 <script>
+  import app_rules from './add_app.rules';
+  import ElFormItem from "../../../packages/form/src/form-item";
   export default {
-    created() {
+    components: {ElFormItem}, created() {
       this.requestAPPList('');
     },
     mounted() {
@@ -152,9 +163,12 @@
         currentPage: 1,
         appListOfCurrentPage: [],
         showPagination: false,
-//        currentSpaceList: [],
-        selectedApp: null,
-        selectedProp: null,
+        selectedAPP: null,
+        propToChange: null,
+        newProps: {
+          profiles: [],
+        },
+        rules: app_rules
       }
     },
     computed: {
@@ -165,6 +179,10 @@
       groupList() {
         return this.$store.getters['user/groupList'];
       },
+      profileListOfGroup() {
+        let value = this.$store.getters['user/profileListOfGroup'];
+        return value;
+      },
     },
     watch: {
       currentGroupID: function (value, oldValue) {
@@ -172,10 +190,23 @@
       }
     },
     methods: {
+      getProfileByName(name) {
+        let result = {
+          name: '',
+          description: ''
+        };
+        if (Array.isArray(this.profileListOfGroup)) {
+          for (let key in this.profileListOfGroup) {
+            let item = this.profileListOfGroup[key];
+            if (name == item.name) {
+              result = item;
+              break;
+            }
+          }
+        }
+        return result;
+      },
       handleButtonClick(evt, info) {
-//        console.log(evt);
-//        console.log(info);
-//        return;
         let target = evt.target;
         let bubble = true;
         let stepCnt = 0;
@@ -201,9 +232,50 @@
             case 'refreshAppList':
               this.requestAPPList('');
               break;
-            case 'saveChangedProfile':
-              break;
           }
+        }
+      },
+      handleDialogButtonClick(action) {
+        switch (action) {
+          case 'profiles':
+            this.$refs['changeProfileListForm'].validate((valid) => {
+              console.log(this.selectedAPP);
+              console.log(this.newProps);
+            });
+            break;
+        }
+      },
+      updateProp(row, action) {
+        let prop = action.split('-')[1];
+        console.log(prop);
+        this.selectedAPP = row;
+        this.propToChange = prop;
+        this.newProps[prop] = JSON.parse(JSON.stringify(row[prop + 'ToChange']))
+      },
+      handleRowButtonClick(action, index, row) {
+        switch (action) {
+          case 'deleteRow':
+            this.confirm('您将删除应用，' + row.groupTag + '确定吗？').then(() => {
+              this.$net.deleteAPP({
+                groupId: this.groupID,
+                id: row.appId
+              }).then(res => {
+                this.appListOfCurrentPage.splice(index, 1);
+                this.$message({
+                  type: 'success',
+                  message: '删除成功!'
+                });
+              });
+            }).catch(() => {
+              this.$message({
+                type: 'info',
+                message: '您已取消删除'
+              });
+            });
+            break;
+          case 'change-profiles':
+            this.updateProp(row, action);
+            break;
         }
       },
       requestAPPList(serviceName) {
@@ -218,11 +290,16 @@
         }).then(content => {
           if (content.hasOwnProperty('appList')) {
             let appList = content.appList;
-            if (Array.isArray(appList)) {
-              appList.forEach(it => {
-                it.selectedSpaceList = JSON.parse(JSON.stringify(it.spaceList));
-              })
-            }
+            appList.forEach(it => {
+              if (it.hasOwnProperty('profileList')) {
+                it.profileList = it.profileList.map(it2 => {
+                  return this.getProfileByName(it2);
+                });
+                it.profilesToChange = it.profileList.map(it2 => {
+                  return it2.name;
+                })
+              }
+            });
             this.appListOfCurrentPage = appList;
           }
           if (content.hasOwnProperty('total')) {
@@ -235,42 +312,20 @@
           this.showPagination = false;
         });
       },
-      jumpToService(index, row, tag) {
-        console.log('in jumpToService');
+      jumpToServicePage(index, row, tag) {
+        console.log('in jumpToServicePage');
         console.log(index, row, tag);
-      },
-      handleDeleteRow(index, row) {
-        this.confirm('您将删除应用，' + row.groupTag + '确定吗？').then(() => {
-          this.$net.deleteAPP({
-            groupId: this.groupID,
-            id: row.appId
-          }).then(res => {
-            this.appListOfCurrentPage.splice(index, 1);
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
-            });
-          });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '您已取消删除'
-          });
-        });
-      },
-      handleChangeProfile(index, row) {
-        this.currentSpaceList = row.spaceList;
       },
       handleTagClose(index, row, tag) {
         console.log(index);
         console.log(row);
         console.log(tag);
         let item = row;
-        if (item.hasOwnProperty('spaceList')) {
-          let spaceList = item.spaceList;
-          if ((Array.isArray(spaceList) && spaceList.indexOf(tag) > -1)) {
+        if (item.hasOwnProperty('profileList')) {
+          let profileList = item.profileList;
+          if ((Array.isArray(profileList) && profileList.indexOf(tag) > -1)) {
             this.confirm('您将删除' + row.groupTag + '应用下的' + tag + '环境，确定吗？').then(() => {
-              spaceList.splice(spaceList.indexOf(tag), 1);
+              profileList.splice(profileList.indexOf(tag), 1);
               this.$message({
                 type: 'success',
                 message: '删除成功!'
@@ -305,7 +360,7 @@
         this.requestAPPList('');
       },
 
-      handleChangeSpaceList(row) {
+      handleChangeprofileList(row) {
         console.log(row);
       },
     }

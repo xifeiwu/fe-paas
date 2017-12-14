@@ -1,4 +1,5 @@
 var Utils = function() {
+  // this.fix();
 }
 
 Utils.prototype = {
@@ -51,6 +52,30 @@ Utils.prototype = {
       }
     }
     return fmt;
+  },
+
+  // error will occur when this function is called
+  fix: function () {
+    Object.prototype.renameProperty = function (oldName, newName) {
+      // Do nothing if the names are the same
+      if (oldName == newName) {
+        return this;
+      }
+      // Check for the old property name to avoid a ReferenceError in strict mode.
+      if (this.hasOwnProperty(oldName)) {
+        this[newName] = this[oldName];
+        delete this[oldName];
+      }
+      return this;
+    };
+  },
+
+  renameProperty: function(obj, old_key, new_key) {
+    if (old_key !== new_key) {
+      Object.defineProperty(obj, new_key,
+        Object.getOwnPropertyDescriptor(obj, old_key));
+      delete obj[old_key];
+    }
   },
 }
 

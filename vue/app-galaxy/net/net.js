@@ -166,12 +166,14 @@ class Net {
       axios.post(URL_LIST.app_list, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
-          this.showLog('getAPPList', content);
           if (content.hasOwnProperty('appList') && Array.isArray(content.appList)) {
             content.appList.forEach(it => {
               it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd');
+              // it.renameProperty('spaceList', 'profileList');
+              utils.renameProperty(it, 'spaceList', 'profileList');
             });
           }
+          this.showLog('getAPPList', content);
           resolve(content);
         }
       }).catch(err => {
