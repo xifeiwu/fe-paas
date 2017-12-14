@@ -17,23 +17,23 @@ const stateHasUpdated = function(prop) {
   return hasUpdated;
 }
 
+const warning = function(prop, where) {
+  console.log(`warning: get ${prop} from ${where}`);
+};
+
 const getValue = function({state, getters}, prop) {
   let result = null;
   if (stateHasUpdated(state[prop])) {
     result = state[prop];
   } else if (USE_LOCAL_STORAGE) {
     warning(prop, 'localStorage');
-    let local = JSON.parse(localStorage.getItem('user/' + prop));
+    let local = JSON.parse(localStorage.getItem('app/' + prop));
     if (local) {
       result = local;
     }
   }
   return result;
 }
-
-const warning = function(prop, where) {
-  console.log(`warning: get ${prop} from ${where}`);
-};
 
 const state = {
   /* state data */

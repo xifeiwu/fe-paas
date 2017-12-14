@@ -97,6 +97,8 @@ export default {
     if (infos && infos.hasOwnProperty('page1')) {
       this.stepForm1 = infos.page1;
     }
+    // set java language as default
+    this.setDefaultLanguage(this.languageInfo);
   },
   mounted() {
     this.$store.dispatch('app/updateStepOfAddAPP', 0);
@@ -219,22 +221,20 @@ export default {
     }
   },
   watch: {
-    languageInfo(value, oldValue) {
-      if (value !== oldValue) {
-        if (Array.isArray(value) && value.length > 0) {
-          let defaultLanguage = value[0];
-          this.stepForm1.language = defaultLanguage.type;
-          this.handleLanguageChange(defaultLanguage.type);
-        }
-      }
-    }
   },
   methods: {
     handleGroupIDChange: function(groupID) {
 //      this.requestAPPList(groupID, 1, 8, '');
     },
     handleProfileChange: function () {
-      console.log(this.stepForm1.profiles);
+//      console.log(this.stepForm1.profiles);
+    },
+    setDefaultLanguage: function (languageList) {
+      if (Array.isArray(languageList) && languageList.length > 0) {
+        let defaultLanguage = languageList[0];
+        this.stepForm1.language = defaultLanguage.type;
+        this.handleLanguageChange(defaultLanguage.type);
+      }
     },
     handleLanguageChange: function (languageType) {
       if (Array.isArray(this.languageInfo)) {
