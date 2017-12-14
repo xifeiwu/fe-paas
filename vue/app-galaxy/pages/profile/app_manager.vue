@@ -149,9 +149,8 @@
 </style>
 <script>
   import app_rules from './add_app.rules';
-  import ElFormItem from "../../../packages/form/src/form-item";
   export default {
-    components: {ElFormItem}, created() {
+    created() {
       this.requestAPPList('');
     },
     mounted() {

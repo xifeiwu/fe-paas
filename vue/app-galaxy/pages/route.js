@@ -7,6 +7,7 @@ import AddApp from './profile/add_app';
 import AddAppStep1 from './profile/add_app/step1.vue';
 import AddAppStep2 from './profile/add_app/step2.vue';
 import AddAppStep3 from './profile/add_app/step3.vue';
+import ServiceManager from './profile/service_manager.vue';
 
 /**
  * router config:
@@ -53,6 +54,10 @@ var Router = function () {
         },{
           path: 'finish',
         }]
+      }, {
+        path: 'service_manager',
+        name: '服务管理',
+        component: ServiceManager,
       }]
     }
   }
