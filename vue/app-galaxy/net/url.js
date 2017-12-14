@@ -18,6 +18,7 @@ var urlList = {
   'get_profile_of_group': path + '/space/querySpaceByGroupId',
   'get_cpu_and_memory_config': path + '/cpuAndMemory/queryCpuAndMemory',
   'get_all_language': path + '/language/queryAllLanguage',
+  'change_profile': path + '/application/update',
 }
 
 export default urlList;

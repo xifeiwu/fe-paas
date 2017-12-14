@@ -77,6 +77,10 @@ Utils.prototype = {
       delete obj[old_key];
     }
   },
+
+  theSame: function (value1, value2) {
+    return JSON.stringify(value1) === JSON.stringify(value2);
+  }
 }
 
 export default new Utils();

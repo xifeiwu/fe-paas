@@ -74,7 +74,8 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleDialogButtonClick('profiles')">保&nbsp存</el-button>
+                       @click="handleDialogButtonClick('profiles')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button action="profile-dialog/cancel"
@@ -165,10 +166,11 @@
         showPagination: false,
         selectedAPP: null,
         propToChange: null,
+        rules: app_rules,
         newProps: {
           profiles: [],
         },
-        rules: app_rules
+        waitingResponse: false,
       }
     },
     computed: {
@@ -241,6 +243,38 @@
             this.$refs['changeProfileListForm'].validate((valid) => {
               console.log(this.selectedAPP);
               console.log(this.newProps);
+              if (!this.newProps.hasOwnProperty(action) || !this.selectedAPP.hasOwnProperty(action+'ToChange')) {
+                return;
+              }
+              if (this.$utils.theSame(this.newProps[action], this.selectedAPP[action+'ToChange'])) {
+                this.propToChange = null;
+                this.$message({
+                  groupId: this.currentGroupID,
+                  type: 'warning',
+                  message: '您没有做修改'
+                });
+              } else {
+                this.waitingResponse = true;
+                this.$net.changeProfile({
+                  id: this.selectedAPP['appId'],
+                  spaceList: this.newProps['profiles']
+                }).then(msg => {
+                  this.waitingResponse = false;
+                  this.propToChange = null;
+                  this.$message({
+                    type: 'success',
+                    message: msg
+                  });
+                  this.requestAPPList('');
+                }).catch(err => {
+                  this.waitingResponse = false;
+                  this.propToChange = null;
+                  this.$message({
+                    type: 'error',
+                    message: '修改运行环境失败！'
+                  });
+                })
+              }
             });
             break;
         }

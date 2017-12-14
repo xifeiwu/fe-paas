@@ -297,6 +297,24 @@ class Net {
       })
     });
   }
+
+  changeProfile(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.change_profile, options).then(response => {
+        if ('data' in response) {
+          let data = response.data;
+          if (0 === data.code) {
+            let msg = data.msg ? data.msg : '修改成功';
+            resolve(msg);
+          } else {
+            reject(data.msg);
+          }
+        }
+      }).catch(err => {
+        console.log(err);
+      });
+    });
+  }
 }
 
 export default new Net();
