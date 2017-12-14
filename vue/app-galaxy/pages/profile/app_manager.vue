@@ -2,14 +2,14 @@
   <div class="container">
     <el-row>
       <el-col :span="6">
-        <el-button @click="handleButtonClick" action="/profile/add_app">创建应用</el-button>
+        <el-button @click="handleButtonClick($event, {role:'linker', path: '/profile/add_app'})">创建应用</el-button>
       </el-col>
       <el-col :span="6">
-        <el-button @click="handleButtonClick" action="refreshAppList">刷新</el-button>
+        <el-button @click="handleButtonClick($event, {role:'cmd', action: 'refreshAppList'})">刷新</el-button>
       </el-col>
       <el-col :span="6"></el-col>
     </el-row>
-    <el-table :data="appList" style="width: 100%">
+    <el-table :data="appListOfCurrentPage" style="width: 100%">
       <el-table-column label="语言版本" prop="languageVersion" headerAlign="center">
         <template slot-scope="scope">
           <div>{{scope.row.language}} - {{scope.row.languageVersion}}</div>
@@ -21,7 +21,7 @@
       </el-table-column>
       <el-table-column label="创建时间" prop="createTime" headerAlign="center">
       </el-table-column>
-      <el-table-column label="运行环境" prop="spaceList" headerAlign="center">
+      <el-table-column label="运行环境" prop="spaceList" headerAlign="center" minWidth="90">
         <template slot-scope="scope">
           <div v-for="item in scope.row.spaceList" :key="item">
             <span class="profile-item" @click="jumpToService(scope.$index, scope.row, item)"
@@ -29,7 +29,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="操作" prop="operation" minWidth="130" headerAlign="center">
+      <el-table-column label="操作" prop="operation" minWidth="170" headerAlign="center">
         <template slot-scope="scope">
           <el-button
             size="mini-extral"
@@ -42,7 +42,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <div class="pagination">
+    <div class="pagination" v-if="showPagination">
       <el-pagination
         :current-page="currentPage"
         size="large"
@@ -52,15 +52,28 @@
         @current-change="handlePaginationPageChange"
       >
       </el-pagination>
-
-      <el-dialog title="更改运行环境" :visible.sync="changeProfileDialogVisible">
-        <el-checkbox-group>
-          <el-checkbox v-for="item in currentSpaceList" :label="item" :key="item">
-          </el-checkbox>
-        </el-checkbox-group>
-        <el-tag>ADDDFD</el-tag>
-      </el-dialog>
     </div>
+
+    <!--'profileList' === selectedProp-->
+    <el-dialog title="更改运行环境" visible.sync="true">
+      <el-checkbox-group>
+        <el-checkbox v-for="item in ['dev']" :label="item" :key="item">
+        </el-checkbox>
+      </el-checkbox-group>
+      <el-tag>ADDDFD</el-tag>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleButtonClick($event, {role:'cmd', action: 'saveChangedProfile'})">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -134,12 +147,14 @@
     },
     data() {
       return {
-        appList: [],
-        pageSize: 2,
         totalSize: 0,
+        pageSize: 2,
         currentPage: 1,
-        changeProfileDialogVisible: false,
-        currentSpaceList: [],
+        appListOfCurrentPage: [],
+        showPagination: false,
+//        currentSpaceList: [],
+        selectedApp: null,
+        selectedProp: null,
       }
     },
     computed: {
@@ -149,7 +164,7 @@
       },
       groupList() {
         return this.$store.getters['user/groupList'];
-      }
+      },
     },
     watch: {
       currentGroupID: function (value, oldValue) {
@@ -157,7 +172,10 @@
       }
     },
     methods: {
-      handleButtonClick(evt) {
+      handleButtonClick(evt, info) {
+//        console.log(evt);
+//        console.log(info);
+//        return;
         let target = evt.target;
         let bubble = true;
         let stepCnt = 0;
@@ -173,11 +191,19 @@
             bubble = false;
           }
         }
-        let action = target.getAttribute('action');
-        if ('refreshAppList' === action) {
-          this.requestAPPList('');
+        if (!info.hasOwnProperty('role')) {
+          return;
+        }
+        if ('linker' === info.role) {
+          this.$router.push(info.path);
         } else {
-          this.$router.push(action);
+          switch (info.action) {
+            case 'refreshAppList':
+              this.requestAPPList('');
+              break;
+            case 'saveChangedProfile':
+              break;
+          }
         }
       },
       requestAPPList(serviceName) {
@@ -197,11 +223,16 @@
                 it.selectedSpaceList = JSON.parse(JSON.stringify(it.spaceList));
               })
             }
-            this.appList = appList;
+            this.appListOfCurrentPage = appList;
           }
           if (content.hasOwnProperty('total')) {
             this.totalSize = content.total;
+            if (this.totalSize > 0) {
+              this.showPagination = true;
+            }
           }
+        }).catch(err => {
+          this.showPagination = false;
         });
       },
       jumpToService(index, row, tag) {
@@ -214,7 +245,7 @@
             groupId: this.groupID,
             id: row.appId
           }).then(res => {
-            this.appList.splice(index, 1);
+            this.appListOfCurrentPage.splice(index, 1);
             this.$message({
               type: 'success',
               message: '删除成功!'
@@ -228,10 +259,7 @@
         });
       },
       handleChangeProfile(index, row) {
-        console.log(index);
-        console.log(row);
         this.currentSpaceList = row.spaceList;
-        this.changeProfileDialogVisible = true;
       },
       handleTagClose(index, row, tag) {
         console.log(index);
@@ -279,7 +307,7 @@
 
       handleChangeSpaceList(row) {
         console.log(row);
-      }
+      },
     }
   }
 </script>

@@ -1,8 +1,8 @@
 /**
  * Created by xifei.wu on 2017/11/30.
  */
-var path = 'http://172.16.106.104:30333';
-// var path = 'http://172.16.107.126:30333';
+// var path = 'http://172.31.165.126:30333';
+var path = 'http://172.16.107.163:30333';
 var urlList = {
   'get_verify_code': path + '/createRandomImage',
   'login': path + '/login',

@@ -11,7 +11,9 @@
   border-radius: $--border-radius-small;
   box-shadow: $--dialog-box-shadow;
   box-sizing: border-box;
-  width: 50%;
+  //width: 50%;
+  display: inline-block;
+  min-width: 420px;
 
   @include when(fullscreen) {
     width: 100%;
@@ -65,15 +67,16 @@
   }
 
   @include e(body) {
-    padding: 30px 20px;
+    //padding: 30px 20px;
+    padding: 10px 15px;
     color: $--color-text-regular;
     line-height: $--dialog-line-height;
     font-size: $--dialog-font-size;
   }
 
   @include e(footer) {
-    padding: $--dialog-padding-primary;
-    padding-top: 10px;
+    padding: 10px $--dialog-padding-primary;
+    //padding-top: 10px;
     text-align: right;
     box-sizing: border-box;
   }
