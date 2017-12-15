@@ -92,9 +92,16 @@
 </style>
 
 <script>
-  import ElButton from "../../../packages/button/src/button";
 export default {
-  components: {ElButton}, created() {
+  created() {
+    this.$net.getAPPList({
+      groupId: this.currentGroupID,
+      serviceName: ''
+    }).then(content => {
+      console.log(content);
+    }).catch(err => {
+      console.log(err);
+    })
   },
   mounted() {
 
@@ -121,6 +128,12 @@ export default {
         address: '上海市普陀区金沙江路 1516 弄'
       }]
     }
+  },
+  computed: {
+    currentGroupID() {
+      let groupID = this.$store.getters['user/groupID'];
+      return groupID;
+    },
   }
 }
 </script>

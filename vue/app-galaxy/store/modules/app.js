@@ -75,6 +75,15 @@ const actions = {
         commit('SET_MESSAGE_FOR_CREATE_APP', content);
       });
     }
+  },
+
+  getAppListByGroupID({commit, state}, groupID) {
+    NetData.getAPPList({
+      groupId: groupID,
+      serviceName: ''
+    }).then(content => {
+      console.log(content);
+    });
   }
 };
 

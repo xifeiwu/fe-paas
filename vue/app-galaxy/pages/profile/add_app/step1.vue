@@ -135,7 +135,11 @@ export default {
       },
       set(value) {
         this.stepForm1.groupID = value;
-        this.$store.dispatch('user/groupID', value);
+        this.$store.dispatch('user/groupID', {
+          value,
+          from:'add_app/step1'
+          }
+        );
       }
     },
     groupList() {

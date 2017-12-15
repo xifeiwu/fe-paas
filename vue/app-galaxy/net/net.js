@@ -4,6 +4,7 @@
 import axios from 'axios';
 import URL_LIST from './url';
 import utils from '../utils';
+import STORE from '../store';
 
 class Net {
   constructor() {
@@ -162,6 +163,24 @@ class Net {
    * @returns {Promise}
    */
   getAPPList (options) {
+    let profileListOfGroup = STORE.getters['user/profileListOfGroup'];
+    let getProfileByName = function(name) {
+      let result = {
+        name: '',
+        description: ''
+      };
+      if (Array.isArray(profileListOfGroup)) {
+        for (let key in profileListOfGroup) {
+          let item = profileListOfGroup[key];
+          if (name == item.name) {
+            result = item;
+            break;
+          }
+        }
+      }
+      return result;
+    }
+
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.app_list, options).then(response => {
         let content = this.getResponseContent(response);
@@ -171,6 +190,15 @@ class Net {
               it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd');
               // it.renameProperty('spaceList', 'profileList');
               utils.renameProperty(it, 'spaceList', 'profileList');
+
+              if (it.hasOwnProperty('profileList')) {
+                it.profileList = it.profileList.map(it2 => {
+                  return getProfileByName(it2);
+                });
+                it.change_profiles = it.profileList.map(it2 => {
+                  return it2.name;
+                });
+              }
             });
           }
           this.showLog('getAPPList', content);

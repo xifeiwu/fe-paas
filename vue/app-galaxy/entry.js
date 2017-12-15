@@ -22,7 +22,7 @@ Vue.prototype.$utils = utils;
 
 Components.install(Vue);
 
-new Vue({ // eslint-disable-line
+window.vm = new Vue({ // eslint-disable-line
   render: h => h(APP),
   router,
   store

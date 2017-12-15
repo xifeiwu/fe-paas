@@ -323,16 +323,16 @@
         }).then(content => {
           if (content.hasOwnProperty('appList')) {
             let appList = content.appList;
-            appList.forEach(it => {
-              if (it.hasOwnProperty('profileList')) {
-                it.profileList = it.profileList.map(it2 => {
-                  return this.getProfileByName(it2);
-                });
-                it.change_profiles = it.profileList.map(it2 => {
-                  return it2.name;
-                })
-              }
-            });
+//            appList.forEach(it => {
+//              if (it.hasOwnProperty('profileList')) {
+//                it.profileList = it.profileList.map(it2 => {
+//                  return this.getProfileByName(it2);
+//                });
+//                it.change_profiles = it.profileList.map(it2 => {
+//                  return it2.name;
+//                })
+//              }
+//            });
             this.appListOfCurrentPage = appList;
           }
           if (content.hasOwnProperty('total')) {

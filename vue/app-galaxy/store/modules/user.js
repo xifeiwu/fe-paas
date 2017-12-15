@@ -44,12 +44,15 @@ const actions = {
   /**
    * 更改用户组ID
    */
-  groupID({commit, state, dispatch}, id) {
-    state.groupID = id;
-    localStorage.setItem('groupID', id);
+  groupID({commit, state, dispatch}, {from, value}) {
+    state.groupID = value;
+    localStorage.setItem('groupID', value);
     dispatch('getProfileListOfGroup', {
-      id: id
+      id: value
     });
+    // dispatch('app/getProfileOfGroup', {
+    //   id: id
+    // }, {root: true});
   },
 
   /**

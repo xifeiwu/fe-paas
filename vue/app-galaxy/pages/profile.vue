@@ -140,7 +140,10 @@
         },
         set(value) {
           this.groupID = value;
-          this.$store.dispatch('user/groupID', value);
+          this.$store.dispatch('user/groupID', {
+            value,
+            from: 'profile'
+          });
         }
       },
       groupList() {

@@ -19,6 +19,7 @@ var urlList = {
   'get_cpu_and_memory_config': path + '/cpuAndMemory/queryCpuAndMemory',
   'get_all_language': path + '/language/queryAllLanguage',
   'change_profile': path + '/application/update',
+  'get_service_by_appId_and_profile': path + 'queryByAppIdAndSpaceId',
 }
 
 export default urlList;
