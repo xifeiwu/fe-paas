@@ -181,25 +181,45 @@ class Net {
       return result;
     }
 
+    let getAppModelList = function(appList) {
+      let keyMap = {
+        'profileList': 'profiles'
+      }
+      let appModelList = [];
+      appList.forEach(app => {
+        if (app.hasOwnProperty('profileList')) {
+          let model = {}
+          model['profiles'] = app.profileList.map(it => {
+            return it.name;
+          });
+          appModelList.push(model);
+        }
+      });
+      return appModelList;
+    }
+
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.app_list, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           if (content.hasOwnProperty('appList') && Array.isArray(content.appList)) {
-            content.appList.forEach(it => {
+            let appList = content.appList;
+            appList.forEach(it => {
               it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd');
-              // it.renameProperty('spaceList', 'profileList');
               utils.renameProperty(it, 'spaceList', 'profileList');
-
-              if (it.hasOwnProperty('profileList')) {
-                it.profileList = it.profileList.map(it2 => {
-                  return getProfileByName(it2);
-                });
-                it.change_profiles = it.profileList.map(it2 => {
-                  return it2.name;
-                });
-              }
+              /**
+               * change the format of profileList item from
+               * dev to {
+               *   name: 'dev',
+               *   description: '开发环境'
+               * }
+               * as description should be shown in page app_manager
+               */
+              it['profileList'] = it['profileList'].map(it => {
+                return getProfileByName(it);
+              });
             });
+            content.appModelList = getAppModelList(appList);
           }
           this.showLog('getAPPList', content);
           resolve(content);

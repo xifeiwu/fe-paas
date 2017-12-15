@@ -54,13 +54,15 @@
       </el-pagination>
     </div>
 
-    <el-dialog title="更改运行环境" :visible="change_prop == 'profiles'"
-               @close="change_prop = null"
-               v-if="selectedAPP"
+    <el-dialog title="更改运行环境" :visible="selected.prop == 'profiles'"
+               @close="selected.prop = null"
+               v-if="selected.app && selected.model"
     >
       <el-form :model="newProps" :rules="rules" labelWidth="120px" ref="changeProfileListForm">
         <el-form-item label="当前运行环境：">
-          <el-tag v-for="item in selectedAPP.profileList" size="mini" :key="item.name" style="display: inline-block">{{item.description}}</el-tag>
+          <el-tag v-for="item in selected.app.profileList" size="mini" :key="item.name" style="display: inline-block">
+            {{item.description}}
+          </el-tag>
         </el-form-item>
         <el-form-item label="更改为：" prop="profiles">
           <el-checkbox-group v-model="newProps.profiles">
@@ -79,7 +81,7 @@
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button action="profile-dialog/cancel"
-                       @click="change_prop = null">取&nbsp消</el-button>
+                       @click="selected.prop = null">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
@@ -162,13 +164,20 @@
         pageSize: 2,
         currentPage: 1,
         appListOfCurrentPage: [],
+        appModelList: [],
         showPagination: false,
-        selectedAPP: null,
-        change_prop: null,
         rules: app_rules,
+
+        selected: {
+          index: -1,
+          prop: null,
+          app: null,
+          model: null,
+        },
         newProps: {
           profiles: [],
         },
+
         waitingResponse: false,
       }
     },
@@ -191,22 +200,6 @@
       }
     },
     methods: {
-      getProfileByName(name) {
-        let result = {
-          name: '',
-          description: ''
-        };
-        if (Array.isArray(this.profileListOfGroup)) {
-          for (let key in this.profileListOfGroup) {
-            let item = this.profileListOfGroup[key];
-            if (name == item.name) {
-              result = item;
-              break;
-            }
-          }
-        }
-        return result;
-      },
       handleButtonClick(evt, info) {
         let target = evt.target;
         let bubble = true;
@@ -240,13 +233,11 @@
         switch (action) {
           case 'profiles':
             this.$refs['changeProfileListForm'].validate((valid) => {
-//              console.log(this.selectedAPP);
-//              console.log(this.newProps);
-              if (!this.newProps.hasOwnProperty(action) || !this.selectedAPP.hasOwnProperty('change_' + action)) {
+              if (!this.newProps.hasOwnProperty(action) || !this.selected.model.hasOwnProperty(action)) {
                 return;
               }
-              if (this.$utils.theSame(this.newProps[action], this.selectedAPP['change_'+action])) {
-                this.change_prop = null;
+              if (this.$utils.theSame(this.newProps[action], this.selected.model[action])) {
+                this.selected.prop = null;
                 this.$message({
                   groupId: this.currentGroupID,
                   type: 'warning',
@@ -255,11 +246,11 @@
               } else {
                 this.waitingResponse = true;
                 this.$net.changeProfile({
-                  id: this.selectedAPP['appId'],
+                  id: this.selected.app['appId'],
                   spaceList: this.newProps['profiles']
                 }).then(msg => {
                   this.waitingResponse = false;
-                  this.change_prop = null;
+                  this.selected.prop = null;
                   this.$message({
                     type: 'success',
                     message: msg
@@ -267,10 +258,14 @@
                   this.requestAPPList('');
                 }).catch(err => {
                   this.waitingResponse = false;
-                  this.change_prop = null;
-                  this.$message({
-                    type: 'error',
-                    message: '修改运行环境失败！'
+                  this.selected.prop = null;
+//                  this.$message({
+//                    type: 'error',
+//                    message: '修改运行环境失败！'
+//                  });
+                  this.$notify.error({
+                    title: '修改运行环境失败！',
+                    message: err
                   });
                 })
               }
@@ -278,12 +273,17 @@
             break;
         }
       },
-      updateProp(row, action) {
+      updateProp(action, row, index) {
         let prop = action.split('-')[1];
-        console.log(prop);
-        this.selectedAPP = row;
-        this.change_prop = prop;
-        this.newProps[prop] = JSON.parse(JSON.stringify(row['change_' + prop]))
+//        console.log(prop);
+        this.selected.index = index;
+        this.selected.prop = prop;
+        this.selected.app = row;
+        if (this.appModelList.length > index) {
+          let model = this.appModelList[index]
+          this.selected.model = model;
+          this.newProps[prop] = JSON.parse(JSON.stringify(model[prop]))
+        }
       },
       handleRowButtonClick(action, index, row) {
         switch (action) {
@@ -307,9 +307,25 @@
             });
             break;
           case 'change-profiles':
-            this.updateProp(row, action);
+            this.updateProp(action, row, index);
             break;
         }
+      },
+      getProfileByName(name) {
+        let result = {
+          name: '',
+          description: ''
+        };
+        if (Array.isArray(this.profileListOfGroup)) {
+          for (let key in this.profileListOfGroup) {
+            let item = this.profileListOfGroup[key];
+            if (name == item.name) {
+              result = item;
+              break;
+            }
+          }
+        }
+        return result;
       },
       requestAPPList(serviceName) {
         if (!serviceName) {
@@ -323,17 +339,10 @@
         }).then(content => {
           if (content.hasOwnProperty('appList')) {
             let appList = content.appList;
-//            appList.forEach(it => {
-//              if (it.hasOwnProperty('profileList')) {
-//                it.profileList = it.profileList.map(it2 => {
-//                  return this.getProfileByName(it2);
-//                });
-//                it.change_profiles = it.profileList.map(it2 => {
-//                  return it2.name;
-//                })
-//              }
-//            });
             this.appListOfCurrentPage = appList;
+          }
+          if (content.hasOwnProperty('appModelList')) {
+            this.appModelList = content.appModelList;
           }
           if (content.hasOwnProperty('total')) {
             this.totalSize = content.total;
@@ -349,10 +358,9 @@
         console.log('in jumpToServicePage');
         console.log(index, row, tag);
       },
+
+      /* unused */
       handleTagClose(index, row, tag) {
-        console.log(index);
-        console.log(row);
-        console.log(tag);
         let item = row;
         if (item.hasOwnProperty('profileList')) {
           let profileList = item.profileList;
