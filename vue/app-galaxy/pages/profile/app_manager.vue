@@ -9,7 +9,7 @@
       </el-col>
       <el-col :span="6"></el-col>
     </el-row>
-    <el-table :data="appListOfCurrentPage" style="width: 100%">
+    <el-table :data="appListByPage" style="width: 100%">
       <el-table-column label="语言版本" prop="languageVersion" headerAlign="center">
         <template slot-scope="scope">
           <div>{{scope.row.language}} - {{scope.row.languageVersion}}</div>
@@ -154,7 +154,20 @@
   import app_rules from './add_app.rules';
   export default {
     created() {
+      console.log('create app manager');
       this.requestAPPList('');
+//      let appInfoOfGroup = this.appInfoOfGroup;
+//      if (appInfoOfGroup.hasOwnProperty('appList')) {
+//        this.appList = appInfoOfGroup.appList;
+//      }
+//      this.appListByPage = this.appList;
+//      if (appInfoOfGroup.hasOwnProperty('appModelList')) {
+//        this.appModelList = appInfoOfGroup.appModelList;
+//      }
+//      if (appInfoOfGroup.hasOwnProperty('total')) {
+//        this.totalSize = appInfoOfGroup.total;
+//      }
+//      console.log(this.totalSize);
     },
     mounted() {
       console.log('mount app manager');
@@ -164,7 +177,8 @@
         totalSize: 0,
         pageSize: 2,
         currentPage: 1,
-        appListOfCurrentPage: [],
+        appListByPage: [],
+        appList: [],
         appModelList: [],
         showPagination: false,
         rules: app_rules,
@@ -194,13 +208,23 @@
         let value = this.$store.getters['user/profileListOfGroup'];
         return value;
       },
+      appInfoOfGroup() {
+        return this.$store.getters['user/appInfoOfGroup'];
+      }
     },
     watch: {
       currentGroupID: function (value, oldValue) {
         this.requestAPPList('');
+      },
+      appInfoOfGroup: function (value, oldValue) {
+      },
+      currentPage: function (value) {
       }
     },
     methods: {
+      getAppListByPage() {
+
+      },
       handleButtonClick(evt, info) {
         let target = evt.target;
         let bubble = true;
@@ -281,7 +305,7 @@
         }
       },
       updateAppInfo(prop, index) {
-        let app = this.appListOfCurrentPage[index];
+        let app = this.appListByPage[index];
         let model = this.appModelList[index];
         let newProp = this.newProps[prop];
         switch (prop) {
@@ -313,7 +337,7 @@
                 groupId: this.currentGroupID,
                 id: row.appId
               }).then(res => {
-                this.appListOfCurrentPage.splice(index, 1);
+                this.appListByPage.splice(index, 1);
                 this.$message({
                   type: 'success',
                   message: '删除成功!'
@@ -359,7 +383,7 @@
         }).then(content => {
           if (content.hasOwnProperty('appList')) {
             let appList = content.appList;
-            this.appListOfCurrentPage = appList;
+            this.appListByPage = appList;
           }
           if (content.hasOwnProperty('appModelList')) {
             this.appModelList = content.appModelList;

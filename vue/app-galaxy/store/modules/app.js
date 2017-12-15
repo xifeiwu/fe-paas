@@ -76,15 +76,6 @@ const actions = {
       });
     }
   },
-
-  getAppListByGroupID({commit, state}, groupID) {
-    NetData.getAPPList({
-      groupId: groupID,
-      serviceName: ''
-    }).then(content => {
-      console.log(content);
-    });
-  }
 };
 
 const mutations = {

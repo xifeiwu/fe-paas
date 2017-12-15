@@ -19,16 +19,32 @@ const stateHasUpdated = function(prop) {
   return hasUpdated;
 }
 
+const getValue = function({state, getters}, prop) {
+  let result = null;
+  if (stateHasUpdated(state[prop])) {
+    result = state[prop];
+  } else if (USE_LOCAL_STORAGE) {
+    warning(prop, 'localStorage');
+    let local = JSON.parse(localStorage.getItem('user/' + prop));
+    if (local) {
+      result = local;
+    }
+  }
+  return result;
+}
+
 const state = {
   /* net data */
   // 侧边栏
   menuList: [],
+  // 用户所属组列表
+  groupList: [],
   // 当前组
   groupID: null,
   // 当前组的所有开发环境
   profileListOfGroup: [],
-  // 用户所属组列表
-  groupList: [],
+  // 当前做的所有APP列表
+  appInfoOfGroup: [],
 };
 
 const actions = {
@@ -38,6 +54,20 @@ const actions = {
       NetData.login(res).then((menuList) => {
         commit('LOGIN', menuList);
       })
+    }
+  },
+
+  /**
+   * 获取用户所属组列表
+   */
+  getGroupList({commit, state}) {
+    if (0 === state.groupList.length) {
+      warning('getGroupList', 'netwrok');
+      NetData.getGroupList().then(content => {
+        if (content.hasOwnProperty('groupList')) {
+          commit('SET_GROUP_LIST', content.groupList);
+        }
+      });
     }
   },
 
@@ -66,19 +96,24 @@ const actions = {
     });
   },
 
+
   /**
-   * 获取用户所属组列表
+   * 获取该groupID下的所有app
+   * @param commit
+   * @param state
+   * @param groupID
    */
-  getGroupList({commit, state}) {
-    if (0 === state.groupList.length) {
-      warning('getGroupList', 'netwrok');
-      NetData.getGroupList().then(content => {
-        if (content.hasOwnProperty('groupList')) {
-          commit('SET_GROUP_LIST', content.groupList);
-        }
-      });
-    }
-  },
+  getAppListByGroupID({commit, state}, {groupID, from}) {
+    NetData.getAPPList({
+      groupId: groupID,
+      serviceName: ''
+    }).then(content => {
+      // console.log(content);
+      // if (content.hasOwnProperty('appList')) {
+        commit('SET_APP_INFO_OF_GROUP', content);
+      // }
+    });
+  }
 };
 
 const mutations = {
@@ -101,6 +136,13 @@ const mutations = {
     state.profileListOfGroup = profileList;
     if (USE_LOCAL_STORAGE) {
       localStorage.setItem('user/profileListOfGroup', JSON.stringify(profileList));
+    }
+  },
+
+  SET_APP_INFO_OF_GROUP(state, appList) {
+    state.appList = appList;
+    if (USE_LOCAL_STORAGE) {
+      localStorage.setItem('user/appInfoOfGroup', JSON.stringify(appList));
     }
   }
 }
@@ -154,7 +196,11 @@ const getters = {
       }
     }
     return result;
-  }
+  },
+
+  'appInfoOfGroup': (state, getters) => {
+    return getValue({state, getters}, 'appInfoOfGroup');
+  },
 };
 
 export default {

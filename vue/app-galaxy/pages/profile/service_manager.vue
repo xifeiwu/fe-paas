@@ -94,14 +94,14 @@
 <script>
 export default {
   created() {
-    this.$net.getAPPList({
-      groupId: this.currentGroupID,
-      serviceName: ''
-    }).then(content => {
-      console.log(content);
-    }).catch(err => {
-      console.log(err);
-    })
+//    this.$net.getAPPList({
+//      groupId: this.currentGroupID,
+//      serviceName: ''
+//    }).then(content => {
+//      console.log(content);
+//    }).catch(err => {
+//      console.log(err);
+//    })
   },
   mounted() {
 

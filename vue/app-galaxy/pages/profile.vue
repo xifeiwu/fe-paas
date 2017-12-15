@@ -122,6 +122,10 @@
     },
     created() {
       this.$store.dispatch('user/getGroupList');
+      this.$store.dispatch('user/getAppListByGroupID', {
+        from: 'page/profile',
+        groupID: this.currentGroupID
+      });
       this.currentStep = routeUtils.getNameByRouterPath(this.$route.path);
     },
     mounted() {
