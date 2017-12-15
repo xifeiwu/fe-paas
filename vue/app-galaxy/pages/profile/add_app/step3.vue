@@ -175,9 +175,8 @@
               key: 'page3',
               value: this.stepForm3
             });
-//            console.log(JSON.stringify(this.infoForCreateAppToPost))
             let toPost = this.infoForCreateAppToPost;
-            delete toPost.volumes;
+//            delete toPost.volumes;
             this.showLoading = true;
             this.loadingText = '正在为您创建应用' + toPost.serviceName;
             this.$net.createAPP(toPost).then((content) => {

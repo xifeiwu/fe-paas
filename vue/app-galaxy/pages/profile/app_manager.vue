@@ -57,8 +57,9 @@
     <el-dialog title="更改运行环境" :visible="selected.prop == 'profiles'"
                @close="selected.prop = null"
                v-if="selected.app && selected.model"
+               @open="handleOpenDialog('profiles')"
     >
-      <el-form :model="newProps" :rules="rules" labelWidth="120px" ref="changeProfileListForm">
+      <el-form :model="newProps" :rules="rules" labelWidth="120px" ref="formInChangeProfileDialog">
         <el-form-item label="当前运行环境：">
           <el-tag v-for="item in selected.app.profileList" size="mini" :key="item.name" style="display: inline-block">
             {{item.description}}
@@ -229,10 +230,19 @@
           }
         }
       },
+      handleOpenDialog(prop) {
+        switch (prop) {
+          case 'profiles': this.$refs['formInChangeProfileDialog'].validate();
+          break;
+        }
+      },
       handleDialogButtonClick(action) {
         switch (action) {
           case 'profiles':
-            this.$refs['changeProfileListForm'].validate((valid) => {
+            this.$refs['formInChangeProfileDialog'].validate((valid) => {
+              if (!valid) {
+                return;
+              }
               if (!this.newProps.hasOwnProperty(action) || !this.selected.model.hasOwnProperty(action)) {
                 return;
               }
@@ -255,14 +265,11 @@
                     type: 'success',
                     message: msg
                   });
-                  this.requestAPPList('');
+                  this.updateAppInfo(action, this.selected.index);
+//                  this.requestAPPList('');
                 }).catch(err => {
                   this.waitingResponse = false;
                   this.selected.prop = null;
-//                  this.$message({
-//                    type: 'error',
-//                    message: '修改运行环境失败！'
-//                  });
                   this.$notify.error({
                     title: '修改运行环境失败！',
                     message: err
@@ -273,9 +280,22 @@
             break;
         }
       },
-      updateProp(action, row, index) {
+      updateAppInfo(prop, index) {
+        let app = this.appListOfCurrentPage[index];
+        let model = this.appModelList[index];
+        let newProp = this.newProps[prop];
+        switch (prop) {
+          case 'profiles':
+            app.profileList = this.profileListOfGroup
+              .filter(it => {
+                return newProp.indexOf(it.name) >= 0;
+              });
+            model[prop] = newProp;
+            break;
+        }
+      },
+      updateSelectedInfo(action, row, index) {
         let prop = action.split('-')[1];
-//        console.log(prop);
         this.selected.index = index;
         this.selected.prop = prop;
         this.selected.app = row;
@@ -307,7 +327,7 @@
             });
             break;
           case 'change-profiles':
-            this.updateProp(action, row, index);
+            this.updateSelectedInfo(action, row, index);
             break;
         }
       },
