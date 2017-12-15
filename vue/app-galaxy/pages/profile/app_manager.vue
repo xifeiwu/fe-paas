@@ -54,8 +54,8 @@
       </el-pagination>
     </div>
 
-    <el-dialog title="更改运行环境" :visible="propToChange == 'profiles'"
-               @close="propToChange = null"
+    <el-dialog title="更改运行环境" :visible="change_prop == 'profiles'"
+               @close="change_prop = null"
                v-if="selectedAPP"
     >
       <el-form :model="newProps" :rules="rules" labelWidth="120px" ref="changeProfileListForm">
@@ -79,7 +79,7 @@
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button action="profile-dialog/cancel"
-                       @click="propToChange = null">取&nbsp消</el-button>
+                       @click="change_prop = null">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
@@ -164,7 +164,7 @@
         appListOfCurrentPage: [],
         showPagination: false,
         selectedAPP: null,
-        propToChange: null,
+        change_prop: null,
         rules: app_rules,
         newProps: {
           profiles: [],
@@ -240,13 +240,13 @@
         switch (action) {
           case 'profiles':
             this.$refs['changeProfileListForm'].validate((valid) => {
-              console.log(this.selectedAPP);
-              console.log(this.newProps);
-              if (!this.newProps.hasOwnProperty(action) || !this.selectedAPP.hasOwnProperty(action+'ToChange')) {
+//              console.log(this.selectedAPP);
+//              console.log(this.newProps);
+              if (!this.newProps.hasOwnProperty(action) || !this.selectedAPP.hasOwnProperty('change_' + action)) {
                 return;
               }
-              if (this.$utils.theSame(this.newProps[action], this.selectedAPP[action+'ToChange'])) {
-                this.propToChange = null;
+              if (this.$utils.theSame(this.newProps[action], this.selectedAPP['change_'+action])) {
+                this.change_prop = null;
                 this.$message({
                   groupId: this.currentGroupID,
                   type: 'warning',
@@ -259,7 +259,7 @@
                   spaceList: this.newProps['profiles']
                 }).then(msg => {
                   this.waitingResponse = false;
-                  this.propToChange = null;
+                  this.change_prop = null;
                   this.$message({
                     type: 'success',
                     message: msg
@@ -267,7 +267,7 @@
                   this.requestAPPList('');
                 }).catch(err => {
                   this.waitingResponse = false;
-                  this.propToChange = null;
+                  this.change_prop = null;
                   this.$message({
                     type: 'error',
                     message: '修改运行环境失败！'
@@ -282,15 +282,15 @@
         let prop = action.split('-')[1];
         console.log(prop);
         this.selectedAPP = row;
-        this.propToChange = prop;
-        this.newProps[prop] = JSON.parse(JSON.stringify(row[prop + 'ToChange']))
+        this.change_prop = prop;
+        this.newProps[prop] = JSON.parse(JSON.stringify(row['change_' + prop]))
       },
       handleRowButtonClick(action, index, row) {
         switch (action) {
           case 'deleteRow':
             this.confirm('您将删除应用，' + row.groupTag + '确定吗？').then(() => {
               this.$net.deleteAPP({
-                groupId: this.groupID,
+                groupId: this.currentGroupID,
                 id: row.appId
               }).then(res => {
                 this.appListOfCurrentPage.splice(index, 1);
@@ -328,7 +328,7 @@
                 it.profileList = it.profileList.map(it2 => {
                   return this.getProfileByName(it2);
                 });
-                it.profilesToChange = it.profileList.map(it2 => {
+                it.change_profiles = it.profileList.map(it2 => {
                   return it2.name;
                 })
               }
