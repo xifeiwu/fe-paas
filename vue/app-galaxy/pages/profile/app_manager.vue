@@ -180,6 +180,7 @@
         appListByPage: [],
         appList: [],
         appModelList: [],
+        appModelListByPage: [],
         showPagination: false,
         rules: app_rules,
 
@@ -255,10 +256,10 @@
         }
       },
       handleOpenDialog(prop) {
-        switch (prop) {
-          case 'profiles': this.$refs['formInChangeProfileDialog'].validate();
-          break;
-        }
+//        switch (prop) {
+//          case 'profiles': this.$refs['formInChangeProfileDialog'].validate();
+//          break;
+//        }
       },
       handleDialogButtonClick(action) {
         switch (action) {
@@ -306,7 +307,7 @@
       },
       updateAppInfo(prop, index) {
         let app = this.appListByPage[index];
-        let model = this.appModelList[index];
+        let model = this.appModelListByPage[index];
         let newProp = this.newProps[prop];
         switch (prop) {
           case 'profiles':
@@ -323,8 +324,8 @@
         this.selected.index = index;
         this.selected.prop = prop;
         this.selected.app = row;
-        if (this.appModelList.length > index) {
-          let model = this.appModelList[index]
+        if (this.appModelListByPage.length > index) {
+          let model = this.appModelListByPage[index]
           this.selected.model = model;
           this.newProps[prop] = JSON.parse(JSON.stringify(model[prop]))
         }
@@ -342,6 +343,7 @@
                   type: 'success',
                   message: '删除成功!'
                 });
+                this.requestAPPList('');
               });
             }).catch(() => {
               this.$message({
@@ -352,6 +354,7 @@
             break;
           case 'change-profiles':
             this.updateSelectedInfo(action, row, index);
+            this.$refs['formInChangeProfileDialog'].validate();
             break;
         }
       },
@@ -386,7 +389,7 @@
             this.appListByPage = appList;
           }
           if (content.hasOwnProperty('appModelList')) {
-            this.appModelList = content.appModelList;
+            this.appModelListByPage = content.appModelList;
           }
           if (content.hasOwnProperty('total')) {
             this.totalSize = content.total;
