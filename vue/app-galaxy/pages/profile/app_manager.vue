@@ -57,7 +57,6 @@
     <el-dialog title="更改运行环境" :visible="selected.prop == 'profiles'"
                @close="selected.prop = null"
                v-if="selected.app && selected.model"
-               @open="handleOpenDialog('profiles')"
     >
       <el-form :model="newProps" :rules="rules" labelWidth="120px" ref="formInChangeProfileDialog">
         <el-form-item label="当前运行环境：">
@@ -217,10 +216,8 @@
       currentGroupID: function (value, oldValue) {
         this.requestAPPList('');
       },
-      appInfoOfGroup: function (value, oldValue) {
-      },
-      currentPage: function (value) {
-      }
+//      appInfoOfGroup: function (value, oldValue) {
+//      },
     },
     methods: {
       getAppListByPage() {
@@ -254,12 +251,6 @@
               break;
           }
         }
-      },
-      handleOpenDialog(prop) {
-//        switch (prop) {
-//          case 'profiles': this.$refs['formInChangeProfileDialog'].validate();
-//          break;
-//        }
       },
       handleDialogButtonClick(action) {
         switch (action) {

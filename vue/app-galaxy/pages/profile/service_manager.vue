@@ -2,12 +2,17 @@
   <div class="service-manager">
     <el-form inline labelWidth="80px" class="title">
       <el-form-item label="应用名称">
-        <el-select v-model="currentAPP" placeholder="请选择">
-          <el-option v-for="item in appList" :key="item" :label="item" :value="item">
+        <el-select v-model="currentAppID" placeholder="请选择" @input="handleSelected('app')">
+          <el-option v-for="item in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="运行环境"></el-form-item>
+      <el-form-item label="运行环境">
+        <el-select v-model="currentProfileID" placeholder="请选择" @input="handleSelected('profile')">
+          <el-option v-for="item in currentProfileList" :key="item.id" :label="item.description" :value="item.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item></el-form-item>
     </el-form>
     <el-row class="notice">
@@ -94,22 +99,35 @@
 <script>
 export default {
   created() {
-//    this.$net.getAPPList({
-//      groupId: this.currentGroupID,
-//      serviceName: ''
-//    }).then(content => {
-//      console.log(content);
-//    }).catch(err => {
-//      console.log(err);
-//    })
+    let appInfoOfGroup = this.appInfoOfGroup;
+    if (appInfoOfGroup.hasOwnProperty('appList')) {
+      this.appList = appInfoOfGroup.appList;
+    }
+    if (Array.isArray(this.appList) && this.appList.length > 0) {
+      this.currentAppID = this.appList[0]['appId'];
+      this.currentProfileList = this.appList[0]['profileList'];
+      if (Array.isArray(this.currentProfileList) && this.currentProfileList.length > 0) {
+        this.currentProfileID = this.currentProfileList[0]['id'];
+      }
+    }
+    if (appInfoOfGroup.hasOwnProperty('appModelList')) {
+      this.appModelList = appInfoOfGroup.appModelList;
+    }
+    if (appInfoOfGroup.hasOwnProperty('total')) {
+      this.totalSize = appInfoOfGroup.total;
+    }
   },
   mounted() {
 
   },
   data() {
     return {
-      currentAPP: {},
-      appList: ['A', 'B', 'C'],
+      currentAppID: null,
+      currentProfileID: null,
+      currentProfileList: [],
+      appList: [],
+      appModelList: [],
+      totalSize: 0,
       tableData: [{
         date: '2016-05-02',
         name: '王小虎',
@@ -134,6 +152,15 @@ export default {
       let groupID = this.$store.getters['user/groupID'];
       return groupID;
     },
+    appInfoOfGroup() {
+      return this.$store.getters['user/appInfoOfGroup'];
+    }
+  },
+  methods: {
+    handleSelected() {
+      console.log(arguments);
+      console.log(this.currentAppID);
+    }
   }
 }
 </script>
