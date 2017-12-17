@@ -24,7 +24,10 @@
     <div class="app-list">
       <el-table
         :data="tableData"
-        style="width: 100%">
+        style="width: 100%"
+        :row-key="getRowKeys"
+        :expand-row-keys="expandRows"
+      >
         <el-table-column
           prop="date"
           label="版本"
@@ -48,27 +51,26 @@
         <el-table-column
           label="操作">
           <template slot-scope="scope">
-            <el-button size="mini-extral" type="warning">部署</el-button>
+            <el-button size="mini-extral" type="warning" @click="handleOperationClick('deploy', scope.$index, scope.row)">部署</el-button>
             <el-button size="mini-extral" type="warning">运行日志</el-button>
             <el-button size="mini-extral" type="warning">停止</el-button>
             <el-button size="mini-extral" type="warning">重启</el-button>
             <el-button size="mini-extral" type="warning">实例列表</el-button>
             <el-button size="mini-extral" type="warning">配置外网二级域名</el-button>
             <el-button size="mini-extral" type="warning">删除</el-button>
-            <el-button size="mini-extral" type="warning">服务信息</el-button>
+            <el-button size="mini-extral" type="warning" @click="handleOperationClick('service_info', scope.$index, scope.row)">服务信息</el-button>
           </template>
         </el-table-column>
-        <!--<el-table-column label="操作">-->
-          <!--<template slot-scope="scope">-->
-            <!--<el-button-->
-                    <!--size="mini"-->
-                    <!--@click="handleEdit(scope.$index, scope.row)">编辑</el-button>-->
-            <!--<el-button-->
-                    <!--size="mini"-->
-                    <!--type="danger"-->
-                    <!--@click="handleDelete(scope.$index, scope.row)">删除</el-button>-->
-          <!--</template>-->
-        <!--</el-table-column>-->
+        <el-table-column label="更多操作" type="expand">
+          <template slot-scope="scope">
+            <el-form label-position="right" class="demo-table-expand" label-width="120px">
+              <el-form-item label="运行环境管理：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+              </el-form-item>
+              <el-form-item label="应用管理：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+              </el-form-item>
+            </el-form>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
   </div>
@@ -126,22 +128,30 @@ export default {
       appModelList: [],
       totalSize: 0,
       tableData: [{
+        id: 0,
         date: '2016-05-02',
         name: '王小虎',
         address: '上海市普陀区金沙江路 1518 弄'
       }, {
+        id: 1,
         date: '2016-05-04',
         name: '王小虎',
         address: '上海市普陀区金沙江路 1517 弄'
       }, {
+        id: 2,
         date: '2016-05-01',
         name: '王小虎',
         address: '上海市普陀区金沙江路 1519 弄'
       }, {
+        id: 3,
         date: '2016-05-03',
         name: '王小虎',
         address: '上海市普陀区金沙江路 1516 弄'
-      }]
+      }],
+      getRowKeys: function (row) {
+       return row.id;
+      },
+      expandRows: []
     }
   },
   computed: {
@@ -175,6 +185,13 @@ export default {
   },
 
   methods: {
+    handleOperationClick(action, index, row) {
+      switch (action) {
+        case 'service_info':
+          this.expandRows = [index];
+          break;
+      }
+    },
     requestService() {
       if (null === this.currentAppIndex || null === this.currentProfileID) {
         return;
