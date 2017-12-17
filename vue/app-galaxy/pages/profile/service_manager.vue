@@ -49,24 +49,77 @@
           label="创建时间">
         </el-table-column>
         <el-table-column
-          label="操作">
+          label="操作"
+        >
           <template slot-scope="scope">
-            <el-button size="mini-extral" type="warning" @click="handleOperationClick('deploy', scope.$index, scope.row)">部署</el-button>
-            <el-button size="mini-extral" type="warning">运行日志</el-button>
-            <el-button size="mini-extral" type="warning">停止</el-button>
+            <el-button size="mini-extral" type="warning"
+                       @click="handleOperationClick('deploy', scope.$index, scope.row)">部署</el-button>
+            <el-button size="mini-extral"type="warning"
+                       @click="handleOperationClick('running-log', scope.$index, scope.row)">运行日志</el-button>
+            <el-button size="mini-extral" type="warning"
+                       @click="handleOperationClick('stop', scope.$index, scope.row)">停止</el-button>
             <el-button size="mini-extral" type="warning">重启</el-button>
-            <el-button size="mini-extral" type="warning">实例列表</el-button>
-            <el-button size="mini-extral" type="warning">配置外网二级域名</el-button>
-            <el-button size="mini-extral" type="warning">删除</el-button>
-            <el-button size="mini-extral" type="warning" @click="handleOperationClick('service_info', scope.$index, scope.row)">服务信息</el-button>
+            <el-button size="mini-extral" type="warning"
+                       @click="handleOperationClick('instance-list', scope.$index, scope.row)">实例列表</el-button>
+            <el-button size="mini-extral" type="warning"
+                       @click="handleOperationClick('domain-config', scope.$index, scope.row)">配置外网二级域名</el-button>
+            <el-button size="mini-extral" type="warning"
+                       @click="handleOperationClick('delete', scope.$index, scope.row)">删除</el-button>
+            <el-button size="mini-extral" type="warning"
+                       @click="handleOperationClick('service_info', scope.$index, scope.row)">服务信息</el-button>
           </template>
         </el-table-column>
-        <el-table-column label="更多操作" type="expand">
+        <el-table-column type="expand"
+                         v-if="true"
+                         width="0"
+        >
           <template slot-scope="scope">
             <el-form label-position="right" class="demo-table-expand" label-width="120px">
-              <el-form-item label="运行环境管理：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+              <el-form-item label="项目名称：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentAPP.serviceName}}
               </el-form-item>
-              <el-form-item label="应用管理：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+              <el-form-item label="运行环境：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                <el-tag v-for="item in currentAPP.profileList" :key="item.name">
+                  {{item.description}}
+                </el-tag>
+              </el-form-item>
+              <el-form-item label="开发语言：">
+                {{currentAPP.language + ' - ' + currentAPP.languageVersion}}
+              </el-form-item>
+              <el-form-item label="构建类型：">
+                {{currentAPP.packageType}}
+              </el-form-item>
+              <el-form-item label="健康检查：">
+                {{currentAPP.healthCheck}}
+              </el-form-item>
+              <el-form-item label="oneAPM监控：">
+                {{currentAPP.healthCheck}}
+              </el-form-item>
+              <el-form-item label="gitlab ssh地址：">
+              </el-form-item>
+              <el-form-item label="gitlab分支：">
+              </el-form-item>
+              <el-form-item label="Gitlab父级pom.xml相对路径：">
+              </el-form-item>
+              <el-form-item label="Maven profile id：">
+              </el-form-item>
+              <el-form-item label="镜像方式：">
+              </el-form-item>
+              <el-form-item label="基础镜像地址：">
+              </el-form-item>
+              <el-form-item label="文件存储：">
+              </el-form-item>
+              <el-form-item label="环境变量配置：">
+              </el-form-item>
+              <el-form-item label="Host配置：">
+              </el-form-item>
+              <el-form-item label="CPU/内存：">
+              </el-form-item>
+              <el-form-item label="实例数量：">
+              </el-form-item>
+              <el-form-item label="滚动升级：">
+              </el-form-item>
+              <el-form-item label="负载均衡：">
               </el-form-item>
             </el-form>
           </template>
@@ -99,8 +152,9 @@
 </style>
 
 <script>
+  import ElFormItem from "../../../packages/form/src/form-item";
 export default {
-  created() {
+  components: {ElFormItem}, created() {
     let appInfoOfGroup = this.appInfoOfGroup;
     if (appInfoOfGroup) {
       if (appInfoOfGroup.hasOwnProperty('appList')) {
@@ -170,17 +224,15 @@ export default {
         this.currentAPP = this.appList[index];
         this.currentProfileList = this.currentAPP['profileList'];
 
-        console.log(this.currentAPP);
-        console.log(this.currentProfileList);
-
         if (Array.isArray(this.currentProfileList) && this.currentProfileList.length > 0) {
           this.currentProfileID = this.currentProfileList[0]['id'];
         }
       }
     },
     currentProfileID: function (value, oldValue) {
-      console.log(this.currentAPP);
       console.log(this.currentProfileID);
+      console.log(this.currentAPP);
+      console.log(this.currentProfileList);
     }
   },
 
@@ -188,9 +240,14 @@ export default {
     handleOperationClick(action, index, row) {
       switch (action) {
         case 'service_info':
-          this.expandRows = [index];
+          if (this.expandRows.indexOf(index) > -1) {
+            this.expandRows.splice(this.expandRows.indexOf(index), 1);
+          } else {
+            this.expandRows = [index];
+          }
           break;
       }
+      console.log(this.currentAPP);
     },
     requestService() {
       if (null === this.currentAppIndex || null === this.currentProfileID) {
