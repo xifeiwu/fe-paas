@@ -2,13 +2,13 @@
   <div class="service-manager">
     <el-form inline labelWidth="80px" class="title">
       <el-form-item label="应用名称">
-        <el-select v-model="currentAppID" placeholder="请选择" @input="handleSelected('app')">
-          <el-option v-for="item in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
+        <el-select v-model="currentAppIndex" placeholder="请选择" @change="handleSelectChange('app')">
+          <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="index">
           </el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="运行环境">
-        <el-select v-model="currentProfileID" placeholder="请选择" @input="handleSelected('profile')">
+        <el-select v-model="currentProfileID" placeholder="请选择" @change="handleSelectChange('profile')">
           <el-option v-for="item in currentProfileList" :key="item.id" :label="item.description" :value="item.id">
           </el-option>
         </el-select>
@@ -100,21 +100,17 @@
 export default {
   created() {
     let appInfoOfGroup = this.appInfoOfGroup;
-    if (appInfoOfGroup.hasOwnProperty('appList')) {
-      this.appList = appInfoOfGroup.appList;
-    }
-    if (Array.isArray(this.appList) && this.appList.length > 0) {
-      this.currentAppID = this.appList[0]['appId'];
-      this.currentProfileList = this.appList[0]['profileList'];
-      if (Array.isArray(this.currentProfileList) && this.currentProfileList.length > 0) {
-        this.currentProfileID = this.currentProfileList[0]['id'];
+    if (appInfoOfGroup) {
+      if (appInfoOfGroup.hasOwnProperty('appList')) {
+        this.appList = appInfoOfGroup.appList;
       }
-    }
-    if (appInfoOfGroup.hasOwnProperty('appModelList')) {
-      this.appModelList = appInfoOfGroup.appModelList;
-    }
-    if (appInfoOfGroup.hasOwnProperty('total')) {
-      this.totalSize = appInfoOfGroup.total;
+      if (appInfoOfGroup.hasOwnProperty('appModelList')) {
+        this.appModelList = appInfoOfGroup.appModelList;
+      }
+      if (appInfoOfGroup.hasOwnProperty('total')) {
+        this.totalSize = appInfoOfGroup.total;
+      }
+      this.currentAppIndex = 0;
     }
   },
   mounted() {
@@ -122,7 +118,8 @@ export default {
   },
   data() {
     return {
-      currentAppID: null,
+      currentAppIndex: null,
+      currentAPP: null,
       currentProfileID: null,
       currentProfileList: [],
       appList: [],
@@ -156,10 +153,42 @@ export default {
       return this.$store.getters['user/appInfoOfGroup'];
     }
   },
+  watch: {
+    currentAppIndex: function (value, oldValue) {
+      let index = value;
+      if (this.appList && Array.isArray(this.appList) && this.appList.length > index) {
+        this.currentAPP = this.appList[index];
+        this.currentProfileList = this.currentAPP['profileList'];
+
+        console.log(this.currentAPP);
+        console.log(this.currentProfileList);
+
+        if (Array.isArray(this.currentProfileList) && this.currentProfileList.length > 0) {
+          this.currentProfileID = this.currentProfileList[0]['id'];
+        }
+      }
+    },
+    currentProfileID: function (value, oldValue) {
+      console.log(this.currentAPP);
+      console.log(this.currentProfileID);
+    }
+  },
+
   methods: {
-    handleSelected() {
-      console.log(arguments);
-      console.log(this.currentAppID);
+    requestService() {
+      if (null === this.currentAppIndex || null === this.currentProfileID) {
+        return;
+      }
+      let appID = this.appList[this.currentAppIndex]['appId'];
+      console.log(appID + '; ' + this.currentProfileID);
+    },
+    handleSelectChange(from) {
+      switch (from) {
+        case 'app':
+          break;
+        case 'profile':
+          break;
+      }
     }
   }
 }
