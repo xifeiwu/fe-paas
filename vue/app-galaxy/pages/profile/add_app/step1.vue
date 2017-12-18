@@ -91,7 +91,7 @@
   }
 </style>
 <script>
-  import app_rules from '../add_app.rules';
+  import AppPropUtil from '../utils/app_prop';
 export default {
   created() {
     let infos = this.$store.state.app.infoForCreateApp;
@@ -119,7 +119,7 @@ export default {
         gitlabBranch: '',
         relativePathOfParentPOM: '',
       },
-      rules: app_rules,
+      rules: AppPropUtil.rules,
       languageList: [],
       languageVersionList: [],
       packageStyleList: [],

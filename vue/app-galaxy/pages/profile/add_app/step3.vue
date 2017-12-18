@@ -68,6 +68,7 @@
 </style>
 
 <script>
+  import AppPropUtil from '../utils/app_prop';
   export default {
     created() {
       let infos = this.$store.state.app.infoForCreateApp;
@@ -87,25 +88,7 @@
           rollingUpdate: true,
           loadBalance: 'Round_robin',
         },
-        rules: {
-          cpu: [{
-            required: true,
-            message: '请选择CPU类型',
-          }],
-          memory: [{
-            required: true,
-            message: '请选择内存大小',
-          }],
-          count: [{
-            type: 'string',
-            required: true,
-            message: '请输入实例数量',
-          }],
-          rollingUpdate: [{
-            required: true,
-            message: '是否需要滚动升级',
-          }],
-        },
+        rules: AppPropUtil.rules,
         memeorySizeList: [],
         showLoading: false,
         loadingText: ''

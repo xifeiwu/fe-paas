@@ -150,7 +150,8 @@
   }
 </style>
 <script>
-  import app_rules from './add_app.rules';
+//  import app_rules from './add_app.rules';
+  import AppPropUtils from './utils/app_prop';
   export default {
     created() {
       console.log('create app manager');
@@ -181,7 +182,7 @@
         appModelList: [],
         appModelListByPage: [],
         showPagination: false,
-        rules: app_rules,
+        rules: AppPropUtils.rules,
 
         selected: {
           index: -1,
@@ -192,7 +193,6 @@
         newProps: {
           profiles: [],
         },
-
         waitingResponse: false,
       }
     },

@@ -74,6 +74,7 @@
                          width="0"
         >
           <template slot-scope="scope">
+            <div class="step1">应用信息</div>
             <el-form label-position="right" class="demo-table-expand" label-width="120px" inline style="width: 100%">
               <el-form-item label="项目名称：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.serviceName}}
@@ -112,7 +113,8 @@
                 {{selected.service.mavenProfileId}}<i class="el-icon-edit"></i>
               </el-form-item>
             </el-form>
-            <el-form label-position="right" class="demo-table-expand" label-width="120px" inline style="width: 100%">
+            <div class="step2">镜像信息</div>
+            <el-form label-position="right" class="demo-table-expand" label-width="120px" style="width: 100%">
               <el-form-item label="镜像方式：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.imageType}}
               </el-form-item>
@@ -129,6 +131,7 @@
                 {{selected.service.hosts}}
               </el-form-item>
             </el-form>
+            <div class="step3">实例规格</div>
             <el-form label-position="right" class="demo-table-expand" label-width="120px" inline style="width: 100%">
               <el-form-item label="CPU/内存：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.cpu + '核 / ' + selected.service.memory + 'G'}}
@@ -149,24 +152,29 @@
     </div>
 
 
-    <el-dialog title="更改健康检查" :visible="selected.prop == 'profiles'"
+    <el-dialog title="更改健康检查" :visible="selected.prop == 'healthCheck'"
                @close="selected.prop = null"
-               v-if="selected.app && selected.model"
+               v-if="selected.service && selected.model"
     >
-      <el-form :model="newProps" :rules="rules" labelWidth="120px" ref="formInChangeProfileDialog">
-        <el-form-item label="当前运行环境：">
-          <el-tag v-for="item in selected.app.profileList" size="mini" :key="item.name" style="display: inline-block">
-            {{item.description}}
-          </el-tag>
-        </el-form-item>
-        <el-form-item label="更改为：" prop="profiles">
-          <el-checkbox-group v-model="newProps.profiles">
-            <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
-              {{item.description}}
-            </el-checkbox>
-          </el-checkbox-group>
-        </el-form-item>
-      </el-form>
+
+      <el-tag type="success">
+        <i class="el-icon-warning"></i>
+        <span>更改健康检查后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <!--<el-form :model="newProps" :rules="rules" labelWidth="120px" ref="formInChangeHealthCheckDialog">-->
+        <!--<el-form-item label="当前运行环境：">-->
+          <!--<el-tag v-for="item in selected.app.profileList" size="mini" :key="item.name" style="display: inline-block">-->
+            <!--{{item.description}}-->
+          <!--</el-tag>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="更改为：" prop="profiles">-->
+          <!--<el-checkbox-group v-model="newProps.profiles">-->
+            <!--<el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">-->
+              <!--{{item.description}}-->
+            <!--</el-checkbox>-->
+          <!--</el-checkbox-group>-->
+        <!--</el-form-item>-->
+      <!--</el-form>-->
       <div slot="footer" class="dialog-footer">
         <el-row>
           <el-col :span="12" style="text-align: center">
@@ -193,6 +201,7 @@
   }
 </style>
 <style lang="scss" scoped>
+
   .service-manager {
     .notice {
       .el-tag {
@@ -202,28 +211,66 @@
         }
       }
     }
-    .el-button {
-      margin-bottom: 5px;
-      margin-right: 10px;
-      float: left;
-    }
-    .el-button + .el-button {
-      margin-left: 0px;
-      /*margin-right: 10px;*/
-    }
 
     .el-table {
-      .el-form {
-        font-size: 0;
-        .el-form-item {
-          width: 50%;
-          margin-right: 0;
-          margin-bottom: 10px;
-          .el-icon-edit {
-            margin-left: 8px;
-            font-size: 100%;
-            color: #eb9e05;
+      .el-table__row {
+        .el-button {
+          margin-bottom: 5px;
+          margin-right: 10px;
+          float: left;
+        }
+        .el-button + .el-button {
+          margin-left: 0px;
+          /*margin-right: 10px;*/
+        }
+      }
+
+      .el-table__expanded-cell {
+        .step1 {
+          margin-bottom: 8px;
+          padding-left: 5px;
+          border-left: 6px solid darkslategray;
+          font-weight: bold;
+        }
+        .step2 {
+          margin: 8px 0px;
+          padding-left: 5px;
+          border-left: 6px solid darkslategray;
+          font-weight: bold;
+        }
+        .step3 {
+          margin: 8px 0px;
+          padding-left: 5px;
+          border-left: 6px solid darkslategray;
+          font-weight: bold;
+        }
+        .el-form {
+          font-size: 0;
+          border-bottom: 1px solid lightgray;
+          &:last-child {
+            border-width: 0px;
           }
+          .el-form-item {
+            width: 50%;
+            margin-right: 0;
+            margin-bottom: 10px;
+            .el-icon-edit {
+              margin-left: 8px;
+              font-size: 100%;
+              font-weight: bold;
+              color: #eb9e05;
+            }
+          }
+        }
+      }
+    }
+
+    .el-dialog {
+      .el-tag {
+        display: block;
+        text-align: left;
+        .el-icon-warning {
+          vertical-align: middle;
         }
       }
     }
@@ -231,9 +278,9 @@
 </style>
 
 <script>
-  import ElForm from "../../../packages/form/src/form";
+  import AppPropUtils from './utils/app_prop';
 export default {
-  components: {ElForm}, created() {
+  created() {
     let appInfoOfGroup = this.appInfoOfGroup;
     if (appInfoOfGroup) {
       if (appInfoOfGroup.hasOwnProperty('appList')) {
@@ -262,6 +309,7 @@ export default {
       selectedProfileID: null,
       selectedProfileList: [],
 
+      rules: AppPropUtils.rules,
       currentServiceList: [{
         "draw": 1,
         "start": 0,
@@ -315,11 +363,12 @@ export default {
         index: -1,
         prop: null,
         service: null,
-        model: null,
+        model: {},
       },
       newProps: {
         profiles: [],
       },
+      waitingResponse: false,
 
       getRowKeys: function (row) {
        return row.id;
@@ -404,6 +453,7 @@ export default {
 
     changeProp(prop) {
       console.log(prop);
+      this.selected.prop = prop;
     }
   }
 }

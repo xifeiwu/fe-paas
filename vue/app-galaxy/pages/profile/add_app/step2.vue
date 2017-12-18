@@ -123,7 +123,7 @@
   }
 </style>
 <script>
-  import app_rules from '../add_app.rules';
+  import AppPropUtil from '../utils/app_prop';
   export default {
     created() {
       let infos = this.$store.state.app.infoForCreateApp;
@@ -147,7 +147,7 @@
           environments: [],
           hosts: []
         },
-        rules: app_rules
+        rules: AppPropUtil.rules
       };
     },
     mounted() {
