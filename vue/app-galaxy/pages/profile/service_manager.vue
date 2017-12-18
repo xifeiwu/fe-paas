@@ -76,77 +76,111 @@
           <template slot-scope="scope">
             <el-form label-position="right" class="demo-table-expand" label-width="120px" inline style="width: 100%">
               <el-form-item label="项目名称：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.serviceName}}
+                {{selected.service.serviceName}}
               </el-form-item>
               <el-form-item label="运行环境：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                <el-tag v-for="item in currentService.profileList" :key="item.name">
+                <el-tag v-for="item in selected.service.profileList" :key="item.name">
                   {{item.description}}
                 </el-tag>
               </el-form-item>
               <el-form-item label="开发语言：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.language + ' - ' + currentService.languageVersion}}
+                {{selected.service.language + ' - ' + selected.service.languageVersion}}
               </el-form-item>
               <el-form-item label="构建类型：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.packageType}}
+                {{selected.service.packageType}}
               </el-form-item>
               <el-form-item label="健康检查：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.healthCheck}}<i class="el-icon-edit" @click="changeProp('healthCheck')"></i>
+                {{selected.service.healthCheck}}<i class="el-icon-edit" @click="changeProp('healthCheck')"></i>
               </el-form-item>
               <el-form-item label="oneAPM监控：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.oneapm}}
+                {{selected.service.oneapm}}
               </el-form-item>
               <el-form-item label="gitlab ssh地址：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']"
-                            v-if="currentService.language === 'JAVA'">
-                {{currentService.gitlabAddress}}
+                            v-if="selected.service.language === 'JAVA'">
+                {{selected.service.gitlabAddress}}
               </el-form-item>
               <el-form-item label="gitlab分支：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']"
-                            v-if="currentService.language === 'JAVA'">
-                {{currentService.gitlabBranch}}<i class="el-icon-edit"></i>
+                            v-if="selected.service.language === 'JAVA'">
+                {{selected.service.gitlabBranch}}<i class="el-icon-edit"></i>
               </el-form-item>
               <el-form-item label="Gitlab父级pom.xml相对路径：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']"
-                            v-if="currentService.language === 'JAVA'">
-                {{currentService.relativePath}}
+                            v-if="selected.service.language === 'JAVA'">
+                {{selected.service.relativePath}}
               </el-form-item>
               <el-form-item label="Maven profile id：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']"
-                            v-if="currentService.language === 'JAVA'">
-                {{currentService.mavenProfileId}}<i class="el-icon-edit"></i>
+                            v-if="selected.service.language === 'JAVA'">
+                {{selected.service.mavenProfileId}}<i class="el-icon-edit"></i>
               </el-form-item>
             </el-form>
             <el-form label-position="right" class="demo-table-expand" label-width="120px" inline style="width: 100%">
               <el-form-item label="镜像方式：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.imageType}}
+                {{selected.service.imageType}}
               </el-form-item>
               <el-form-item label="基础镜像地址：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.image}}
+                {{selected.service.image}}
               </el-form-item>
               <el-form-item label="文件存储：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.volumes}}
+                {{selected.service.volumes}}
               </el-form-item>
               <el-form-item label="环境变量配置：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.environments}}
+                {{selected.service.environments}}
               </el-form-item>
               <el-form-item label="Host配置：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.hosts}}
+                {{selected.service.hosts}}
               </el-form-item>
             </el-form>
             <el-form label-position="right" class="demo-table-expand" label-width="120px" inline style="width: 100%">
               <el-form-item label="CPU/内存：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.cpu + '核 / ' + currentService.memory + 'G'}}
+                {{selected.service.cpu + '核 / ' + selected.service.memory + 'G'}}
               </el-form-item>
               <el-form-item label="实例数量：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.instanceNum}}
+                {{selected.service.instanceNum}}
               </el-form-item>
               <el-form-item label="滚动升级：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.rollingUpdate}}
+                {{selected.service.rollingUpdate}}
               </el-form-item>
               <el-form-item label="负载均衡：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentService.loadBalance}}
+                {{selected.service.loadBalance}}
               </el-form-item>
             </el-form>
           </template>
         </el-table-column>
       </el-table>
     </div>
+
+
+    <!--<el-dialog title="更改健康检查" :visible="selected.prop == 'profiles'"-->
+               <!--@close="selected.prop = null"-->
+               <!--v-if="selected.app && selected.model"-->
+    <!--&gt;-->
+      <!--<el-form :model="newProps" :rules="rules" labelWidth="120px" ref="formInChangeProfileDialog">-->
+        <!--<el-form-item label="当前运行环境：">-->
+          <!--<el-tag v-for="item in selected.app.profileList" size="mini" :key="item.name" style="display: inline-block">-->
+            <!--{{item.description}}-->
+          <!--</el-tag>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="更改为：" prop="profiles">-->
+          <!--<el-checkbox-group v-model="newProps.profiles">-->
+            <!--<el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">-->
+              <!--{{item.description}}-->
+            <!--</el-checkbox>-->
+          <!--</el-checkbox-group>-->
+        <!--</el-form-item>-->
+      <!--</el-form>-->
+      <!--<div slot="footer" class="dialog-footer">-->
+        <!--<el-row>-->
+          <!--<el-col :span="12" style="text-align: center">-->
+            <!--<el-button type="primary"-->
+                       <!--@click="handleDialogButtonClick('profiles')"-->
+                       <!--:loading="waitingResponse">保&nbsp存</el-button>-->
+          <!--</el-col>-->
+          <!--<el-col :span="12" style="text-align: center">-->
+            <!--<el-button action="profile-dialog/cancel"-->
+                       <!--@click="selected.prop = null">取&nbsp消</el-button>-->
+          <!--</el-col>-->
+        <!--</el-row>-->
+      <!--</div>-->
+    <!--</el-dialog>-->
   </div>
 </template>
 
@@ -276,7 +310,17 @@ export default {
         "oneapm": null,
         "page": 1
       }],
-      currentService: null,
+
+      selected: {
+        index: -1,
+        prop: null,
+        service: null,
+        model: null,
+      },
+      newProps: {
+        profiles: [],
+      },
+
       getRowKeys: function (row) {
        return row.id;
       },
@@ -319,7 +363,7 @@ export default {
       if (!currentService) {
         return;
       } else {
-        this.currentService = currentService;
+        this.selected.service = currentService;
       }
       switch (action) {
         case 'service_info':
