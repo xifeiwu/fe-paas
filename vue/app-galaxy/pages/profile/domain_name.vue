@@ -1,0 +1,77 @@
+<template>
+  <el-table
+          :data="tableData"
+          border
+          style="width: 100%">
+    <el-table-column
+            prop="date"
+            label="日期"
+            width="180">
+    </el-table-column>
+    <el-table-column
+            prop="name"
+            label="姓名"
+            width="180">
+    </el-table-column>
+    <el-table-column
+            prop="address"
+            label="地址">
+      <template slot-scope="scope">
+        <el-input
+                class="input-new-tag"
+                v-if="true"
+                v-model="inputValue"
+                ref="saveTagInput"
+                size="small"
+                @keyup.enter.native="handleInputConfirm"
+                @blur="handleInputConfirm"
+        >
+        </el-input>
+        <span v-else size="small" @click="showInput">+ New Tag</span>
+      </template>
+    </el-table-column>
+    <el-table-column label="操作" prop="operation" minWidth="170" headerAlign="center">
+      <template slot-scope="scope">
+        <el-button
+                size="mini-extral"
+                type="warning"
+                @click="handleRowButtonClick('modify', scope.$index, scope.row)">修改</el-button>
+        <el-button
+                size="mini-extral"
+                type="danger"
+                @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+</template>
+
+<script>
+  export default {
+    data() {
+      return {
+        tableData: [{
+          date: '2016-05-02',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+          date: '2016-05-04',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1517 弄'
+        }, {
+          date: '2016-05-01',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1519 弄'
+        }, {
+          date: '2016-05-03',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1516 弄'
+        }]
+      }
+    },
+    methods: {
+      handleRowButtonClick(action, index, row) {
+
+      }
+    }
+  }
+</script>
