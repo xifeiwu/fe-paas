@@ -140,6 +140,9 @@
           if ('' === this.groupID) {
             this.groupID = this.$store.getters['user/groupID'];
           }
+          if (!this.groupID && (Array.isArray(this.groupList) && this.groupList.length > 0)) {
+            this.groupID = this.groupList[0]['id'];
+          }
           return this.groupID;
         },
         set(value) {
@@ -212,7 +215,6 @@
               console.log('push key ' + key);
               this.$router.push(key);
               break;
-
           }
         }
       },
