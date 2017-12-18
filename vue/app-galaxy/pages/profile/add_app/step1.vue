@@ -49,7 +49,7 @@
     </el-radio-group>
   </el-form-item>
   <el-form-item label="健康检查" prop="healthCheck">
-    <el-input v-model="stepForm1.healthCheck" placeholder="输入以/开始的字母，4至18位字符"></el-input>
+    <el-input v-model="stepForm1.healthCheck" placeholder="以/开头，可以包含字母数字下划线中划线，2-50位"></el-input>
   </el-form-item>
   <el-form-item label="Gitlab地址" prop="gitlabAddress" v-if="stepForm1.language === 'JAVA'">
     <el-input v-model="stepForm1.gitlabAddress" placeholder="请输入项目的gitlab地址"></el-input>

@@ -1,9 +1,10 @@
 /**
  * Created by xifei.wu on 2017/11/30.
  */
-var path = 'http://galaxy-web-server.galaxy.dev/';
+var path = 'http://galaxy-web-server.galaxy.dev';
 // var path = 'http://172.31.165.126:30333';
-var path = 'http://172.16.107.163:30333';
+// var path = 'http://172.16.107.163:30333';
+// var path = 'http://172.16.49.141:30333';
 var urlList = {
   // 获取验证码
   'get_verify_code': path + '/createRandomImage',

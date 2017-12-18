@@ -149,38 +149,38 @@
     </div>
 
 
-    <!--<el-dialog title="更改健康检查" :visible="selected.prop == 'profiles'"-->
-               <!--@close="selected.prop = null"-->
-               <!--v-if="selected.app && selected.model"-->
-    <!--&gt;-->
-      <!--<el-form :model="newProps" :rules="rules" labelWidth="120px" ref="formInChangeProfileDialog">-->
-        <!--<el-form-item label="当前运行环境：">-->
-          <!--<el-tag v-for="item in selected.app.profileList" size="mini" :key="item.name" style="display: inline-block">-->
-            <!--{{item.description}}-->
-          <!--</el-tag>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="更改为：" prop="profiles">-->
-          <!--<el-checkbox-group v-model="newProps.profiles">-->
-            <!--<el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">-->
-              <!--{{item.description}}-->
-            <!--</el-checkbox>-->
-          <!--</el-checkbox-group>-->
-        <!--</el-form-item>-->
-      <!--</el-form>-->
-      <!--<div slot="footer" class="dialog-footer">-->
-        <!--<el-row>-->
-          <!--<el-col :span="12" style="text-align: center">-->
-            <!--<el-button type="primary"-->
-                       <!--@click="handleDialogButtonClick('profiles')"-->
-                       <!--:loading="waitingResponse">保&nbsp存</el-button>-->
-          <!--</el-col>-->
-          <!--<el-col :span="12" style="text-align: center">-->
-            <!--<el-button action="profile-dialog/cancel"-->
-                       <!--@click="selected.prop = null">取&nbsp消</el-button>-->
-          <!--</el-col>-->
-        <!--</el-row>-->
-      <!--</div>-->
-    <!--</el-dialog>-->
+    <el-dialog title="更改健康检查" :visible="selected.prop == 'profiles'"
+               @close="selected.prop = null"
+               v-if="selected.app && selected.model"
+    >
+      <el-form :model="newProps" :rules="rules" labelWidth="120px" ref="formInChangeProfileDialog">
+        <el-form-item label="当前运行环境：">
+          <el-tag v-for="item in selected.app.profileList" size="mini" :key="item.name" style="display: inline-block">
+            {{item.description}}
+          </el-tag>
+        </el-form-item>
+        <el-form-item label="更改为：" prop="profiles">
+          <el-checkbox-group v-model="newProps.profiles">
+            <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
+              {{item.description}}
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('profiles')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
   </div>
 </template>
 

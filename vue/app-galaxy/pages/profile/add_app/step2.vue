@@ -19,7 +19,7 @@
                 @close="handleRemoveFileLocation(tag)"
         >{{tag}}</el-tag>
       </div>
-      <el-input v-model="fileLocationToAdd" placeholder="输入文件地址，用/开始">
+      <el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母数字下划线中划线，2-18位">
         <template slot="append"><el-button class="add-file-location-btn" @click="handleAddFileLocation(fileLocationToAdd)">添加</el-button></template>
       </el-input>
     </el-form-item>
@@ -123,6 +123,7 @@
   }
 </style>
 <script>
+  import app_rules from '../add_app.rules';
   export default {
     created() {
       let infos = this.$store.state.app.infoForCreateApp;
@@ -146,30 +147,7 @@
           environments: [],
           hosts: []
         },
-        rules: {
-          mirrorType: [{
-            required: true,
-            message: '请选择打镜像方式',
-          }],
-          mirrorLocation: [{
-            required: false,
-            message: '请输入镜像地址',
-
-          }, {
-            pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9_-]+$/,
-            message: '只能包含中文，字母，数字',
-            trigger: 'blur'
-          }],
-          fileLocation: [{
-            type: 'array',
-            required: true,
-            message: '请输入至少一个文件存储地址',
-          }, {
-            pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9_-]+$/,
-            message: '只能包含中文，字母，数字',
-            trigger: 'blur'
-          }]
-        }
+        rules: app_rules
       };
     },
     mounted() {
@@ -193,6 +171,15 @@
         items.splice(items.indexOf(tag), 1);
       },
       handleAddFileLocation(tag) {
+        let tagLength = tag.length;
+        if (tagLength < 2 || tagLength > 18) {
+          this.$message.error('长度在2到18个字符');
+          return;
+        }
+        if (!/^\/[A-Za-z0-9_\-]+$/.exec(tag)) {
+          this.$message.error('以/开头，可以包含字母数字下划线中划线');
+          return;
+        }
         if (tag.length > 0) {
           this.stepForm2.fileLocation.push(tag);
           this.fileLocationToAdd = '';
