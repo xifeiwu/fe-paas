@@ -142,6 +142,10 @@
           }
           if (!this.groupID && (Array.isArray(this.groupList) && this.groupList.length > 0)) {
             this.groupID = this.groupList[0]['id'];
+            this.$store.dispatch('user/groupID', {
+              value: this.groupID,
+              from: 'profile'
+            });
           }
           return this.groupID;
         },

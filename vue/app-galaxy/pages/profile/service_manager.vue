@@ -223,16 +223,18 @@ export default {
       if (this.appList && Array.isArray(this.appList) && this.appList.length > index) {
         this.currentAPP = this.appList[index];
         this.currentProfileList = this.currentAPP['profileList'];
-
         if (Array.isArray(this.currentProfileList) && this.currentProfileList.length > 0) {
           this.currentProfileID = this.currentProfileList[0]['id'];
         }
       }
     },
     currentProfileID: function (value, oldValue) {
-      console.log(this.currentProfileID);
-      console.log(this.currentAPP);
-      console.log(this.currentProfileList);
+      let profileID = this.currentProfileID;
+      let appID = this.currentAPP.appId;
+      this.requestServiceList(appID, profileID);
+//      console.log(this.currentProfileID);
+//      console.log(this.currentAPP.appId);
+//      console.log(this.currentProfileList);
     }
   },
 
@@ -263,6 +265,18 @@ export default {
         case 'profile':
           break;
       }
+    },
+    requestServiceList(appID, spaceID) {
+      if (!appID || !spaceID) {
+        console.log('appID or spaceID can not be empty');
+        return;
+      }
+      this.$net.getServiceListByAppIDAndProfileID({
+        appId: appID,
+        spaceId: spaceID
+      }).then(content => {
+        console.log(content);
+      })
     }
   }
 }

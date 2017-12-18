@@ -324,7 +324,7 @@ class Net {
   deleteAPP(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.delete_app, options).then(response => {
-        console.log('in deleteAPP');
+        // console.log('in deleteAPP');
         let content = null;
         if ('data' in response) {
           let data = response.data;
@@ -365,7 +365,18 @@ class Net {
   }
 
   getServiceListByAppIDAndProfileID(options) {
-
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.get_service_by_appId_and_profile, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content) {
+          resolve(content);
+        } else {
+          reject('获取服务列表信息失败');
+        }
+      }).catch(err => {
+        console.log(err);
+      })
+    })
   }
 }
 
