@@ -91,7 +91,7 @@
                 {{selected.service.packageType}}
               </el-form-item>
               <el-form-item label="健康检查：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{selected.service.healthCheck}}<i class="el-icon-edit" @click="changeProp('healthCheck')"></i>
+                {{selected.service.healthCheck}}<i class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
               </el-form-item>
               <el-form-item label="oneAPM监控：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.oneapm}}
@@ -156,30 +156,23 @@
                @close="selected.prop = null"
                v-if="selected.service && selected.model"
     >
-
-      <el-tag type="success">
+      <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
         <span>更改健康检查后需要重新【部署】才能生效！</span>
       </el-tag>
-      <!--<el-form :model="newProps" :rules="rules" labelWidth="120px" ref="formInChangeHealthCheckDialog">-->
-        <!--<el-form-item label="当前运行环境：">-->
-          <!--<el-tag v-for="item in selected.app.profileList" size="mini" :key="item.name" style="display: inline-block">-->
-            <!--{{item.description}}-->
-          <!--</el-tag>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="更改为：" prop="profiles">-->
-          <!--<el-checkbox-group v-model="newProps.profiles">-->
-            <!--<el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">-->
-              <!--{{item.description}}-->
-            <!--</el-checkbox>-->
-          <!--</el-checkbox-group>-->
-        <!--</el-form-item>-->
-      <!--</el-form>-->
+      <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="formInChangeHealthCheckDialog">
+        <el-form-item label="当前健康检查：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+          {{selected.model.healthCheck}}
+        </el-form-item>
+        <el-form-item label="更改健康检查为：" prop="healthCheck" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+          <el-input v-model="newProps.healthCheck" placeholder="以/开头，可以包含字母数字下划线中划线，2-50位"></el-input>
+        </el-form-item>
+      </el-form>
       <div slot="footer" class="dialog-footer">
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleDialogButtonClick('profiles')"
+                       @click="handleDialogButtonClick('healthCheck')"
                        :loading="waitingResponse">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -273,6 +266,9 @@
           vertical-align: middle;
         }
       }
+      .el-form-item {
+        margin-bottom: 18px;
+      }
     }
   }
 </style>
@@ -358,6 +354,7 @@ export default {
         "oneapm": null,
         "page": 1
       }],
+      currentModelList: [],
 
       selected: {
         index: -1,
@@ -366,7 +363,7 @@ export default {
         model: {},
       },
       newProps: {
-        profiles: [],
+        healthCheck: '',
       },
       waitingResponse: false,
 
@@ -413,6 +410,7 @@ export default {
         return;
       } else {
         this.selected.service = currentService;
+        this.selected.model = this.currentModelList[index];
       }
       switch (action) {
         case 'service_info':
@@ -425,6 +423,65 @@ export default {
           } else {
             this.expandRows = [key];
           }
+          break;
+      }
+    },
+    handleChangeProp(prop) {
+      console.log(prop);
+      this.newProps[prop] = this.selected.model[prop];
+      console.log(this.$refs);
+      this.waitingResponse = false;
+      switch (prop) {
+        case 'healthCheck':
+//          this.$refs['formInChangeHealthCheckDialog'].validate();
+          break;
+      }
+      this.selected.prop = prop;
+    },
+
+    handleDialogButtonClick(action) {
+      switch (action) {
+        case 'healthCheck':
+          this.$refs['formInChangeHealthCheckDialog'].validate((valid) => {
+            if (!valid) {
+              return;
+            }
+            if (!this.newProps.hasOwnProperty(action) || !this.selected.model.hasOwnProperty(action)) {
+              return;
+            }
+            if (this.$utils.theSame(this.newProps[action], this.selected.model[action])) {
+              this.selected.prop = null;
+              this.$message({
+                type: 'warning',
+                message: '您没有做修改'
+              });
+            } else {
+              this.waitingResponse = true;
+              setTimeout(() => {
+                this.waitingResponse = false;
+                this.selected.prop = null;
+              }, 1000);
+//              this.$net.changeProfile({
+//                id: this.selected.app['appId'],
+//                spaceList: this.newProps['profiles']
+//              }).then(msg => {
+//                this.waitingResponse = false;
+//                this.selected.prop = null;
+//                this.$message({
+//                  type: 'success',
+//                  message: msg
+//                });
+//                this.updateAppInfo(action, this.selected.index);
+//              }).catch(err => {
+//                this.waitingResponse = false;
+//                this.selected.prop = null;
+//                this.$notify.error({
+//                  title: '修改运行环境失败！',
+//                  message: err
+//                });
+//              })
+            }
+          });
           break;
       }
     },
@@ -447,14 +504,12 @@ export default {
       }).then(content => {
         if (content.hasOwnProperty('applicationServerList')) {
           this.currentServiceList = content['applicationServerList'];
+          this.currentModelList = content['serviceModelList'];
+          console.log(this.currentServiceList);
+          console.log(this.currentModelList);
         }
       })
     },
-
-    changeProp(prop) {
-      console.log(prop);
-      this.selected.prop = prop;
-    }
   }
 }
 </script>

@@ -365,17 +365,26 @@ class Net {
   }
 
   getServiceListByAppIDAndProfileID(options) {
+    function getServiceModelList(items) {
+      let modelList = [];
+      Array.isArray(items) && items.forEach(it => {
+        modelList.push({
+          healthCheck: it.healthCheck
+        })
+      });
+      return modelList;
+    }
+
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.get_service_by_appId_and_profile, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           if (content.hasOwnProperty('applicationServerList')) {
             let serviceList = content['applicationServerList'];
-            if (Array.isArray(serviceList)) {
-              serviceList.forEach(it => {
-                it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-              })
-            }
+            Array.isArray(serviceList) && serviceList.forEach(it => {
+              it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+            });
+            content.serviceModelList = getServiceModelList(serviceList);
           }
           this.showLog('getServiceListByAppIDAndProfileID', content);
           resolve(content);
