@@ -2,14 +2,14 @@
   <div class="service-manager">
     <el-form inline labelWidth="80px" class="title">
       <el-form-item label="应用名称">
-        <el-select v-model="currentAppIndex" placeholder="请选择" @change="handleSelectChange('app')">
+        <el-select v-model="selectedAppIndex" placeholder="请选择" @change="handleSelectChange('app')">
           <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="index">
           </el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="运行环境">
-        <el-select v-model="currentProfileID" placeholder="请选择" @change="handleSelectChange('profile')">
-          <el-option v-for="item in currentProfileList" :key="item.id" :label="item.description" :value="item.id">
+        <el-select v-model="selectedProfileID" placeholder="请选择" @change="handleSelectChange('profile')">
+          <el-option v-for="item in selectedProfileList" :key="item.id" :label="item.description" :value="item.id">
           </el-option>
         </el-select>
       </el-form-item>
@@ -74,52 +74,73 @@
                          width="0"
         >
           <template slot-scope="scope">
-            <el-form label-position="right" class="demo-table-expand" label-width="120px">
+            <el-form label-position="right" class="demo-table-expand" label-width="120px" inline style="width: 100%">
               <el-form-item label="项目名称：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{currentAPP.serviceName}}
+                {{currentService.serviceName}}
               </el-form-item>
               <el-form-item label="运行环境：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                <el-tag v-for="item in currentAPP.profileList" :key="item.name">
+                <el-tag v-for="item in currentService.profileList" :key="item.name">
                   {{item.description}}
                 </el-tag>
               </el-form-item>
-              <el-form-item label="开发语言：">
-                {{currentAPP.language + ' - ' + currentAPP.languageVersion}}
+              <el-form-item label="开发语言：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentService.language + ' - ' + currentService.languageVersion}}
               </el-form-item>
-              <el-form-item label="构建类型：">
-                {{currentAPP.packageType}}
+              <el-form-item label="构建类型：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentService.packageType}}
               </el-form-item>
-              <el-form-item label="健康检查：">
-                {{currentAPP.healthCheck}}
+              <el-form-item label="健康检查：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentService.healthCheck}}<i class="el-icon-edit" @click="changeProp('healthCheck')"></i>
               </el-form-item>
-              <el-form-item label="oneAPM监控：">
-                {{currentAPP.healthCheck}}
+              <el-form-item label="oneAPM监控：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentService.oneapm}}
               </el-form-item>
-              <el-form-item label="gitlab ssh地址：">
+              <el-form-item label="gitlab ssh地址：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']"
+                            v-if="currentService.language === 'JAVA'">
+                {{currentService.gitlabAddress}}
               </el-form-item>
-              <el-form-item label="gitlab分支：">
+              <el-form-item label="gitlab分支：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']"
+                            v-if="currentService.language === 'JAVA'">
+                {{currentService.gitlabBranch}}<i class="el-icon-edit"></i>
               </el-form-item>
-              <el-form-item label="Gitlab父级pom.xml相对路径：">
+              <el-form-item label="Gitlab父级pom.xml相对路径：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']"
+                            v-if="currentService.language === 'JAVA'">
+                {{currentService.relativePath}}
               </el-form-item>
-              <el-form-item label="Maven profile id：">
+              <el-form-item label="Maven profile id：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']"
+                            v-if="currentService.language === 'JAVA'">
+                {{currentService.mavenProfileId}}<i class="el-icon-edit"></i>
               </el-form-item>
-              <el-form-item label="镜像方式：">
+            </el-form>
+            <el-form label-position="right" class="demo-table-expand" label-width="120px" inline style="width: 100%">
+              <el-form-item label="镜像方式：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentService.imageType}}
               </el-form-item>
-              <el-form-item label="基础镜像地址：">
+              <el-form-item label="基础镜像地址：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentService.image}}
               </el-form-item>
-              <el-form-item label="文件存储：">
+              <el-form-item label="文件存储：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentService.volumes}}
               </el-form-item>
-              <el-form-item label="环境变量配置：">
+              <el-form-item label="环境变量配置：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentService.environments}}
               </el-form-item>
-              <el-form-item label="Host配置：">
+              <el-form-item label="Host配置：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentService.hosts}}
               </el-form-item>
-              <el-form-item label="CPU/内存：">
+            </el-form>
+            <el-form label-position="right" class="demo-table-expand" label-width="120px" inline style="width: 100%">
+              <el-form-item label="CPU/内存：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentService.cpu + '核 / ' + currentService.memory + 'G'}}
               </el-form-item>
-              <el-form-item label="实例数量：">
+              <el-form-item label="实例数量：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentService.instanceNum}}
               </el-form-item>
-              <el-form-item label="滚动升级：">
+              <el-form-item label="滚动升级：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentService.rollingUpdate}}
               </el-form-item>
-              <el-form-item label="负载均衡：">
+              <el-form-item label="负载均衡：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                {{currentService.loadBalance}}
               </el-form-item>
             </el-form>
           </template>
@@ -129,6 +150,14 @@
   </div>
 </template>
 
+<style lang="scss">
+  .fix-form-item-label {
+    line-height: 25px;
+  }
+  .fix-form-item-content {
+    line-height: 25px;
+  }
+</style>
 <style lang="scss" scoped>
   .service-manager {
     .notice {
@@ -148,13 +177,29 @@
       margin-left: 0px;
       /*margin-right: 10px;*/
     }
+
+    .el-table {
+      .el-form {
+        font-size: 0;
+        .el-form-item {
+          width: 50%;
+          margin-right: 0;
+          margin-bottom: 10px;
+          .el-icon-edit {
+            margin-left: 8px;
+            font-size: 100%;
+            color: #eb9e05;
+          }
+        }
+      }
+    }
   }
 </style>
 
 <script>
-  import ElFormItem from "../../../packages/form/src/form-item";
+  import ElForm from "../../../packages/form/src/form";
 export default {
-  components: {ElFormItem}, created() {
+  components: {ElForm}, created() {
     let appInfoOfGroup = this.appInfoOfGroup;
     if (appInfoOfGroup) {
       if (appInfoOfGroup.hasOwnProperty('appList')) {
@@ -166,7 +211,7 @@ export default {
       if (appInfoOfGroup.hasOwnProperty('total')) {
         this.totalSize = appInfoOfGroup.total;
       }
-      this.currentAppIndex = 0;
+      this.selectedAppIndex = 0;
     }
   },
   mounted() {
@@ -174,13 +219,15 @@ export default {
   },
   data() {
     return {
-      currentAppIndex: null,
-      currentAPP: null,
-      currentProfileID: null,
-      currentProfileList: [],
       appList: [],
       appModelList: [],
       totalSize: 0,
+
+      selectedAppIndex: null,
+      selectedAPP: null,
+      selectedProfileID: null,
+      selectedProfileList: [],
+
       currentServiceList: [{
         "draw": 1,
         "start": 0,
@@ -229,6 +276,7 @@ export default {
         "oneapm": null,
         "page": 1
       }],
+      currentService: null,
       getRowKeys: function (row) {
        return row.id;
       },
@@ -245,45 +293,47 @@ export default {
     }
   },
   watch: {
-    currentAppIndex: function (value, oldValue) {
+    selectedAppIndex: function (value, oldValue) {
       let index = value;
       if (this.appList && Array.isArray(this.appList) && this.appList.length > index) {
-        this.currentAPP = this.appList[index];
-        this.currentProfileList = this.currentAPP['profileList'];
-        if (Array.isArray(this.currentProfileList) && this.currentProfileList.length > 0) {
-          this.currentProfileID = this.currentProfileList[0]['id'];
+        this.selectedAPP = this.appList[index];
+        this.selectedProfileList = this.selectedAPP['profileList'];
+        if (Array.isArray(this.selectedProfileList) && this.selectedProfileList.length > 0) {
+          this.selectedProfileID = this.selectedProfileList[0]['id'];
         }
       }
     },
-    currentProfileID: function (value, oldValue) {
-      let profileID = this.currentProfileID;
-      let appID = this.currentAPP.appId;
+    selectedProfileID: function (value, oldValue) {
+      let profileID = this.selectedProfileID;
+      let appID = this.selectedAPP.appId;
       this.requestServiceList(appID, profileID);
-//      console.log(this.currentProfileID);
-//      console.log(this.currentAPP.appId);
-//      console.log(this.currentProfileList);
+//      console.log(this.selectedProfileID);
+//      console.log(this.selectedAPP.appId);
+//      console.log(this.selectedProfileList);
     }
   },
 
   methods: {
     handleOperationClick(action, index, row) {
+      let currentService = this.currentServiceList[index];
+      if (!currentService) {
+        return;
+      } else {
+        this.currentService = currentService;
+      }
       switch (action) {
         case 'service_info':
-          if (this.expandRows.indexOf(index) > -1) {
-            this.expandRows.splice(this.expandRows.indexOf(index), 1);
+          if (!row.hasOwnProperty('id')) {
+            return;
+          }
+          let key = row.id;
+          if (this.expandRows.indexOf(key) > -1) {
+            this.expandRows.splice(this.expandRows.indexOf(key), 1);
           } else {
-            this.expandRows = [index];
+            this.expandRows = [key];
           }
           break;
       }
-      console.log(this.currentAPP);
-    },
-    requestService() {
-      if (null === this.currentAppIndex || null === this.currentProfileID) {
-        return;
-      }
-      let appID = this.appList[this.currentAppIndex]['appId'];
-      console.log(appID + '; ' + this.currentProfileID);
     },
     handleSelectChange(from) {
       switch (from) {
@@ -306,6 +356,10 @@ export default {
           this.currentServiceList = content['applicationServerList'];
         }
       })
+    },
+
+    changeProp(prop) {
+      console.log(prop);
     }
   }
 }
