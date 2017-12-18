@@ -116,19 +116,55 @@
             <div class="step2">镜像信息</div>
             <el-form label-position="right" class="demo-table-expand" label-width="120px" style="width: 100%">
               <el-form-item label="镜像方式：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{selected.service.imageType}}
-              </el-form-item>
-              <el-form-item label="基础镜像地址：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{selected.service.image}}
+                {{selected.service.imageType ? selected.service.imageType : '未知' + '；'}}
+                <span style="padding: 0px 12px"> {{"基础镜像地址：" + selected.service.image}} </span>
+                <i class="el-icon-edit" @click="handleChangeProp('mirror')"></i>
               </el-form-item>
               <el-form-item label="文件存储：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{selected.service.volumes}}
+                <div v-if="selected.service.volumes && selected.service.volumes.length > 0">
+                  <el-tag
+                    v-for="tag in selected.service.volumes"
+                    :key="tag"
+                    type="success"
+                  >{{tag}}</el-tag>
+                  <i class="el-icon-edit" @click="handleChangeProp('fileLocation')"></i>
+                </div>
+                <span v-else>无</span>
               </el-form-item>
               <el-form-item label="环境变量配置：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{selected.service.environments}}
+                <el-row>
+                  <el-col :span="10" style="font-weight: bold;text-align: center">Key</el-col>
+                  <el-col :span="10" style="font-weight: bold;text-align: center">Value</el-col>
+                  <el-col :span="4" style="font-weight: bold;text-align: center">
+                    <i class="el-icon-edit" @click="handleChangeProp('environments')"></i>
+                  </el-col>
+                </el-row>
+                <el-row
+                  v-for="(item, index) in selected.service.environments"
+                  :key="item.key"
+                  >
+                    <el-col :span="9" style="text-align: center">{{item.key}}</el-col>
+                    <el-col :span="9" style="text-align: center">{{item.value}}</el-col>
+                </el-row>
               </el-form-item>
               <el-form-item label="Host配置：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{selected.service.hosts}}
+                <el-row>
+                  <el-col :span="10" style="font-weight: bold; text-align: center">IP</el-col>
+                  <el-col :span="10" style="font-weight: bold; text-align: center">域名</el-col>
+                  <el-col :span="4" style="font-weight: bold;text-align: center">
+                    <i class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
+                  </el-col>
+                </el-row>
+                  <el-row
+                    v-for="(item, index) in selected.service.hosts"
+                    :key="item.ip"
+                  >
+                    <el-col :span="10" style="text-align: center">{{item.ip}}</el-col>
+                    <el-col :span="10" style="text-align: center">{{item.domain}}</el-col>
+                    <el-col :span="4">
+                      <!--<el-button class="delete-host-btn" @click="handleDeleteHost(index)">删除</el-button>-->
+                    </el-col>
+                  </el-row>
               </el-form-item>
             </el-form>
             <div class="step3">实例规格</div>
@@ -150,7 +186,6 @@
         </el-table-column>
       </el-table>
     </div>
-
 
     <el-dialog title="更改健康检查" :visible="selected.prop == 'healthCheck'"
                @close="selected.prop = null"
@@ -182,6 +217,97 @@
         </el-row>
       </div>
     </el-dialog>
+
+    <!--<el-dialog title="更改文件存储" :visible="selected.prop == 'fileLocation'"-->
+               <!--@close="selected.prop = null"-->
+               <!--v-if="selected.service && selected.model"-->
+    <!--&gt;-->
+      <!--<el-tag type="success" disable-transitions>-->
+        <!--<i class="el-icon-warning"></i>-->
+        <!--<span>更改健康检查后需要重新【部署】才能生效！</span>-->
+      <!--</el-tag>-->
+      <!--<el-form-item label="文件存储" prop="fileLocation" class="fileLocation">-->
+        <!--<div>-->
+          <!--<el-tag-->
+                  <!--v-for="tag in newProps.fileLocation"-->
+                  <!--:key="tag"-->
+                  <!--closable-->
+                  <!--type="success"-->
+                  <!--@close="handleRemoveFileLocation(tag)"-->
+          <!--&gt;{{tag}}</el-tag>-->
+        <!--</div>-->
+        <!--<el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母数字下划线中划线，2-18位">-->
+          <!--<template slot="append"><el-button class="add-file-location-btn" @click="handleAddFileLocation(fileLocationToAdd)">添加</el-button></template>-->
+        <!--</el-input>-->
+      <!--</el-form-item>-->
+      <!--<div slot="footer" class="dialog-footer">-->
+        <!--<el-row>-->
+          <!--<el-col :span="12" style="text-align: center">-->
+            <!--<el-button type="primary"-->
+                       <!--@click="handleDialogButtonClick('fileLocation')"-->
+                       <!--:loading="waitingResponse">保&nbsp存</el-button>-->
+          <!--</el-col>-->
+          <!--<el-col :span="12" style="text-align: center">-->
+            <!--<el-button action="profile-dialog/cancel"-->
+                       <!--@click="selected.prop = null">取&nbsp消</el-button>-->
+          <!--</el-col>-->
+        <!--</el-row>-->
+      <!--</div>-->
+    <!--</el-dialog>-->
+
+    <el-dialog title="修改环境变量" :visible="selected.prop == 'environments'"
+               @close="selected.prop = null"
+               class="environments"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改环境变量后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="formInChangeEnvironmentsDialog">
+        <el-row>
+          <el-col :span="10" style="font-weight: bold">Key</el-col>
+          <el-col :span="10" style="font-weight: bold">Value</el-col>
+          <el-col :span="4" style="font-weight: bold"></el-col>
+        </el-row>
+        <el-row
+          v-for="(item, index) in newProps.environments"
+          :key="item.key"
+        >
+          <el-col :span="10">{{item.key}}</el-col>
+          <el-col :span="10">{{item.value}}</el-col>
+          <el-col :span="4" style="text-align: right">
+            <el-button class="delete-environment-btn" @click="handleDeleteEnvironment(index)">删除</el-button>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="9">
+            <el-input v-model="environmentKey" placeholder="Key值"></el-input>
+          </el-col>
+          <el-col class="line" :span="2">-</el-col>
+          <el-col :span="9">
+            <el-input v-model="environmentValue" placeholder="Value值"></el-input>
+          </el-col>
+          <el-col :span="4" style="text-align: right">
+            <el-button @click="handleAddEnvironment(environmentKey, environmentValue)">添加</el-button>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('environments')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -250,8 +376,10 @@
             .el-icon-edit {
               margin-left: 8px;
               font-size: 100%;
+              line-height: 100%;
               font-weight: bold;
               color: #eb9e05;
+              vertical-align: middle;
             }
           }
         }
@@ -268,6 +396,16 @@
       }
       .el-form-item {
         margin-bottom: 18px;
+      }
+
+      .el-row {
+        margin-bottom: 6px;
+      }
+
+      &.environments {
+        .el-col {
+          text-align: center;
+        }
       }
     }
   }
@@ -364,13 +502,18 @@ export default {
       },
       newProps: {
         healthCheck: '',
+        environments: [],
+        hosts: [],
       },
       waitingResponse: false,
 
       getRowKeys: function (row) {
        return row.id;
       },
-      expandRows: []
+      expandRows: [],
+
+      environmentKey: '',
+      environmentValue: '',
     }
   },
   computed: {
@@ -426,14 +569,21 @@ export default {
           break;
       }
     },
+    /**
+     * do some init action before dialog popup
+     * @param prop
+     */
     handleChangeProp(prop) {
-      console.log(prop);
-      this.newProps[prop] = this.selected.model[prop];
-      console.log(this.$refs);
+      this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
       this.waitingResponse = false;
       switch (prop) {
         case 'healthCheck':
-//          this.$refs['formInChangeHealthCheckDialog'].validate();
+          this.$refs.hasOwnProperty('formInChangeHealthCheckDialog') &&
+          this.$refs['formInChangeHealthCheckDialog'].validate();
+          break;
+        case 'environments':
+          this.$refs.hasOwnProperty('formInChangeEnvironmentsDialog') &&
+          this.$refs['formInChangeEnvironmentsDialog'].validate();
           break;
       }
       this.selected.prop = prop;
@@ -483,6 +633,31 @@ export default {
             }
           });
           break;
+        case 'environments':
+          this.$refs['formInChangeEnvironmentsDialog'].validate((valid) => {
+            if (!valid) {
+              return;
+            }
+            if (!this.newProps.hasOwnProperty(action) || !this.selected.model.hasOwnProperty(action)) {
+              return;
+            }
+//            console.log(this.newProps.environments);
+//            console.log(this.selected.model.environments);
+            if (this.$utils.theSame(this.newProps[action], this.selected.model[action])) {
+              this.selected.prop = null;
+              this.$message({
+                type: 'warning',
+                message: '您没有做修改'
+              });
+            } else {
+              this.waitingResponse = true;
+              setTimeout(() => {
+                this.waitingResponse = false;
+                this.selected.prop = null;
+              }, 1000);
+            }
+          });
+          break;
       }
     },
     handleSelectChange(from) {
@@ -509,6 +684,22 @@ export default {
           console.log(this.currentModelList);
         }
       })
+    },
+
+    handleDeleteEnvironment(index) {
+      this.newProps.environments.splice(index, 1);
+    },
+    handleAddEnvironment(key, value) {
+      if (key.length > 0 && value.length > 0) {
+        this.newProps.environments.push({
+          key: key,
+          value: value,
+        });
+        this.environmentKey = '';
+        this.environmentValue = '';
+      } else {
+        this.$message.error('key或value值不能为空');
+      }
     },
   }
 }

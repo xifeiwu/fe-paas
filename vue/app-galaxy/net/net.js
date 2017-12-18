@@ -369,7 +369,9 @@ class Net {
       let modelList = [];
       Array.isArray(items) && items.forEach(it => {
         modelList.push({
-          healthCheck: it.healthCheck
+          healthCheck: it.healthCheck,
+          environments: JSON.parse(JSON.stringify(it.environments)),
+          hosts: JSON.parse(JSON.stringify(it.hosts)),
         })
       });
       return modelList;
