@@ -277,7 +277,7 @@
           <el-col :span="10">{{item.key}}</el-col>
           <el-col :span="10">{{item.value}}</el-col>
           <el-col :span="4" style="text-align: right">
-            <el-button class="delete-environment-btn" @click="handleDeleteEnvironment(index)">删除</el-button>
+            <el-button @click="handleDeleteEnvironment(index)">删除</el-button>
           </el-col>
         </el-row>
         <el-row>
@@ -308,6 +308,59 @@
       </div>
     </el-dialog>
 
+
+    <el-dialog title="修改Host配置" :visible="selected.prop == 'hosts'"
+               @close="selected.prop = null"
+               class="hosts"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改Host配置后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="formInChangeHostsDialog">
+        <el-row>
+          <el-col :span="10" style="font-weight: bold">IP</el-col>
+          <el-col :span="10" style="font-weight: bold">域名</el-col>
+          <el-col :span="4" style="font-weight: bold"></el-col>
+        </el-row>
+        <el-row
+                v-for="(item, index) in newProps.hosts"
+                :key="item.key"
+        >
+          <el-col :span="10">{{item.ip}}</el-col>
+          <el-col :span="10">{{item.domain}}</el-col>
+          <el-col :span="4" style="text-align: right">
+            <el-button @click="handleDeleteHost(index)">删除</el-button>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="9">
+            <el-input v-model="hostKey" placeholder="IP"></el-input>
+          </el-col>
+          <el-col class="line" :span="2">-</el-col>
+          <el-col :span="9">
+            <el-input v-model="hostValue" placeholder="域名"></el-input>
+          </el-col>
+          <el-col :span="4" style="text-align: right">
+            <el-button @click="handleAddHost(hostKey, hostValue)">添加</el-button>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('hosts')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -402,7 +455,7 @@
         margin-bottom: 6px;
       }
 
-      &.environments {
+      &.environments, &.hosts {
         .el-col {
           text-align: center;
         }
@@ -514,6 +567,8 @@ export default {
 
       environmentKey: '',
       environmentValue: '',
+      hostKey: '',
+      hostValue: '',
     }
   },
   computed: {
@@ -658,6 +713,31 @@ export default {
             }
           });
           break;
+        case 'hosts':
+          this.$refs['formInChangeHostsDialog'].validate((valid) => {
+            if (!valid) {
+              return;
+            }
+            if (!this.newProps.hasOwnProperty(action) || !this.selected.model.hasOwnProperty(action)) {
+              return;
+            }
+//            console.log(this.newProps.environments);
+//            console.log(this.selected.model.environments);
+            if (this.$utils.theSame(this.newProps[action], this.selected.model[action])) {
+              this.selected.prop = null;
+              this.$message({
+                type: 'warning',
+                message: '您没有做修改'
+              });
+            } else {
+              this.waitingResponse = true;
+              setTimeout(() => {
+                this.waitingResponse = false;
+                this.selected.prop = null;
+              }, 1000);
+            }
+          });
+          break;
       }
     },
     handleSelectChange(from) {
@@ -699,6 +779,21 @@ export default {
         this.environmentValue = '';
       } else {
         this.$message.error('key或value值不能为空');
+      }
+    },
+    handleDeleteHost(index) {
+      this.newProps.hosts.splice(index, 1);
+    },
+    handleAddHost(key, value) {
+      if (key.length > 0 && value.length > 0) {
+        this.newProps.hosts.push({
+          ip: key,
+          domain: value
+        });
+        this.hostKey = '';
+        this.hostValue = '';
+      } else {
+        this.$message.error('IP或域名不能为空');
       }
     },
   }
