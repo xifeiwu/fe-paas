@@ -23,29 +23,29 @@
     </el-row>
     <div class="app-list">
       <el-table
-        :data="tableData"
+        :data="currentServiceList"
         style="width: 100%"
         :row-key="getRowKeys"
         :expand-row-keys="expandRows"
       >
         <el-table-column
-          prop="date"
+          prop="serverVersion"
           label="版本"
           width="80">
         </el-table-column>
         <el-table-column
-          prop="name"
+          prop="address"
           label="内网域名"
           width="180">
         </el-table-column>
         <el-table-column
-          prop="address"
+          prop="applicationStatus"
           label="状态"
           width="80"
         >
         </el-table-column>
         <el-table-column
-          prop="address"
+          prop="createTime"
           label="创建时间">
         </el-table-column>
         <el-table-column
@@ -181,26 +181,53 @@ export default {
       appList: [],
       appModelList: [],
       totalSize: 0,
-      tableData: [{
-        id: 0,
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        id: 1,
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        id: 2,
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        id: 3,
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
+      currentServiceList: [{
+        "draw": 1,
+        "start": 0,
+        "length": 2147483647,
+        "id": 65,
+        "groupId": 2,
+        "createTime": 1513326115000,
+        "updateTime": 1513326112000,
+        "tag": "awdawdawd",
+        "creatorId": 1,
+        "serviceName": "wadawd",
+        "language": "NODE_JS",
+        "packageType": "TAR_GZ",
+        "rollingUpdate": true,
+        "volume": null,
+        "buildName": null,
+        "deleteStatus": false,
+        "gitlabAddress": "",
+        "gitlabBranch": "",
+        "relativePath": "",
+        "instanceNum": 1,
+        "memory": 2,
+        "cpu": 1.0,
+        "packageScript": null,
+        "deployScript": null,
+        "applicationSpaceId": null,
+        "healthCheck": "wadawd",
+        "image": "awdawdawd",
+        "k8s": null,
+        "mavenProfileId": null,
+        "loadBalance": "Round_robin",
+        "languageVersion": null,
+        "imageType": null,
+        "environments": [],
+        "hosts": [],
+        "volumes": null,
+        "spaceList": null,
+        "serverVersion": "V1",
+        "spaceId": null,
+        "appId": null,
+        "address": "wadawd.galaxy.beta",
+        "orchId": 4,
+        "orchIp": "10.10.13.71",
+        "applicationStatus": "NOT_EXISTS",
+        "outerDomain": null,
+        "oneapm": null,
+        "page": 1
       }],
       getRowKeys: function (row) {
        return row.id;
@@ -275,7 +302,9 @@ export default {
         appId: appID,
         spaceId: spaceID
       }).then(content => {
-        console.log(content);
+        if (content.hasOwnProperty('applicationServerList')) {
+          this.currentServiceList = content['applicationServerList'];
+        }
       })
     }
   }

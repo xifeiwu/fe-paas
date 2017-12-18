@@ -205,7 +205,7 @@ class Net {
           if (content.hasOwnProperty('appList') && Array.isArray(content.appList)) {
             let appList = content.appList;
             appList.forEach(it => {
-              it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd');
+              it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
               utils.renameProperty(it, 'spaceList', 'profileList');
               /**
                * change the format of profileList item from
@@ -369,6 +369,15 @@ class Net {
       axios.post(URL_LIST.get_service_by_appId_and_profile, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
+          if (content.hasOwnProperty('applicationServerList')) {
+            let serviceList = content['applicationServerList'];
+            if (Array.isArray(serviceList)) {
+              serviceList.forEach(it => {
+                it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              })
+            }
+          }
+          this.showLog('getServiceListByAppIDAndProfileID', content);
           resolve(content);
         } else {
           reject('获取服务列表信息失败');

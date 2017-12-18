@@ -99,7 +99,7 @@
 <!--</style>-->
 <style lang="scss" scoped>
   .container {
-    margin: 40px;
+    /*margin: 40px;*/
   }
 
   .el-table {
