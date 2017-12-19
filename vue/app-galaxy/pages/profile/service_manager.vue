@@ -498,6 +498,38 @@
         </el-row>
       </div>
     </el-dialog>
+
+
+    <el-dialog title="更改负载均衡" :visible="selected.prop == 'loadBalance'"
+               @close="selected.prop = null"
+               class="rolling-update"
+               v-if="selected.service && selected.model"
+    >
+      <!--<el-tag type="success" disable-transitions>-->
+        <!--<i class="el-icon-warning"></i>-->
+        <!--<span></span>-->
+      <!--</el-tag>-->
+      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="formInChangeLoadBalanceDialog">
+          <el-form-item label="负载均衡" prop="loadBalance">
+            <el-radio-group v-model="newProps.loadBalance">
+              <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
+            </el-radio-group>
+          </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('loadBalance')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -511,7 +543,6 @@
   }
 </style>
 <style lang="scss" scoped>
-
   .service-manager {
     .notice {
       .el-tag {
@@ -734,6 +765,7 @@ export default {
         mirrorTypeID: 0,
         mirrorLocation: '',
         rollingUpdate: '',
+        loadBalance: '',
       },
       waitingResponse: false,
 
@@ -777,6 +809,9 @@ export default {
     mirrorInfo: function () {
       return appPropUtils.getMirrorInfo();
     },
+    loadBalanceType: function() {
+      return appPropUtils.getAllLoadBalance();
+    }
     /* used for dialog end */
   },
   watch: {
@@ -841,7 +876,8 @@ export default {
      */
     handleChangeProp(prop) {
 //      console.log(prop);
-      if (['healthCheck', 'mirror','environments', 'hosts','cpuAndMemory', 'rollingUpdate'].indexOf(prop) == -1) {
+      if (['healthCheck', 'mirror','environments', 'hosts','cpuAndMemory',
+          'rollingUpdate', 'loadBalance'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
         return;
       }
@@ -879,6 +915,11 @@ export default {
           this.newProps['rollingUpdate'] = this.selected.model['rollingUpdate'];
           this.$refs.hasOwnProperty('formInChangeRollingUpdateDialog') &&
           this.$refs['formInChangeRollingUpdateDialog'].validate();
+          break;
+        case 'loadBalance':
+          this.newProps['loadBalance'] = this.selected.model['loadBalance'];
+          this.$refs.hasOwnProperty('formInChangeLoadBalanceDialog') &&
+          this.$refs['formInChangeLoadBalanceDialog'].validate();
           break;
       }
       this.selected.prop = prop;
@@ -1053,7 +1094,33 @@ export default {
               }, 1000);
             }
           });
-            break;
+          break;
+        case 'loadBalance':
+          this.$refs['formInChangeLoadBalanceDialog'].validate((valid) => {
+            if (!valid) {
+              return;
+            }
+            if (!this.newProps.hasOwnProperty('loadBalance') || !this.selected.model.hasOwnProperty('loadBalance')) {
+              return;
+            }
+//            console.log(this.newProps);
+//            console.log(this.selected.model);
+            if (this.newProps['loadBalance'] == this.selected.model['loadBalance']) {
+              this.selected.prop = null;
+              this.$message({
+                type: 'warning',
+                message: '您没有做修改'
+              });
+            } else {
+              this.waitingResponse = true;
+              setTimeout(() => {
+                this.waitingResponse = false;
+                this.selected.prop = null;
+                this.updateModelInfo('rollingUpdate');
+              }, 1000);
+            }
+          });
+          break;
       }
     },
     /**

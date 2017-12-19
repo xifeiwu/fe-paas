@@ -34,9 +34,10 @@
     </el-form-item>
     <el-form-item label="负载均衡">
       <el-radio-group v-model="stepForm3.loadBalance">
-        <el-radio label="Round_robin"></el-radio>
-        <el-radio label="IP_hash"></el-radio>
-        <el-radio label="Session_sticky">ddd</el-radio>
+        <!--<el-radio label="Round_robin"></el-radio>-->
+        <!--<el-radio label="IP_hash"></el-radio>-->
+        <!--<el-radio label="Session_sticky"></el-radio>-->
+        <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
       </el-radio-group>
     </el-form-item>
 
@@ -68,7 +69,7 @@
 </style>
 
 <script>
-  import AppPropUtil from '../utils/app_prop';
+  import appPropUtils from '../utils/app_prop';
   export default {
     created() {
       let infos = this.$store.state.app.infoForCreateApp;
@@ -88,7 +89,7 @@
           rollingUpdate: true,
           loadBalance: 'Round_robin',
         },
-        rules: AppPropUtil.rules,
+        rules: appPropUtils.rules,
         memeorySizeList: [],
         showLoading: false,
         loadingText: ''
@@ -124,6 +125,9 @@
 //          }
         }
         return result;
+      },
+      loadBalanceType() {
+        return appPropUtils.getAllLoadBalance();
       }
     },
     watch: {

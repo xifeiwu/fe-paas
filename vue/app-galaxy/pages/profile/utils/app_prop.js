@@ -159,7 +159,11 @@ class AppInfoHelper {
       }],
         rollingUpdate: [{
         required: true,
-        message: '是否需要滚动升级',
+        message: '请选择是否回滚',
+      }],
+      loadBalance: [{
+        required: true,
+        message: '请选择负载均衡方式',
       }],
     }
   }
@@ -304,6 +308,9 @@ class AppInfoHelper {
     }
    }
 
+   getAllLoadBalance() {
+    return ['Round_robin', 'IP_hash', 'Session_sticky']
+   }
 }
 
 export default new AppInfoHelper();

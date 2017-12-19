@@ -362,6 +362,7 @@ class Net {
           mirrorTypeID: it.mirror.typeID,
           mirrorLocation: it.mirror.location,
           rollingUpdate: it.rollingUpdate,
+          loadBalance: it.loadBalance,
         })
       });
       return modelList;
