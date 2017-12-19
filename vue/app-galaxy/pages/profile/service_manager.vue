@@ -147,7 +147,7 @@
                 <el-row>
                   <el-col :span="10" style="font-weight: bold;text-align: center">Key</el-col>
                   <el-col :span="10" style="font-weight: bold;text-align: center">Value</el-col>
-                  <el-col :span="4" style="font-weight: bold;text-align: center">
+                  <el-col :span="4" style="font-weight: bold;text-align: left">
                     <i class="el-icon-edit" @click="handleChangeProp('environments')"></i>
                   </el-col>
                 </el-row>
@@ -155,15 +155,15 @@
                   v-for="(item, index) in selected.service.environments"
                   :key="item.key"
                   >
-                    <el-col :span="9" style="text-align: center">{{item.key}}</el-col>
-                    <el-col :span="9" style="text-align: center">{{item.value}}</el-col>
+                    <el-col :span="10" style="text-align: center">{{item.key}}</el-col>
+                    <el-col :span="10" style="text-align: center">{{item.value}}</el-col>
                 </el-row>
               </el-form-item>
               <el-form-item label="Host配置：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 <el-row>
                   <el-col :span="10" style="font-weight: bold; text-align: center">IP</el-col>
                   <el-col :span="10" style="font-weight: bold; text-align: center">域名</el-col>
-                  <el-col :span="4" style="font-weight: bold;text-align: center">
+                  <el-col :span="4" style="font-weight: bold;text-align: left">
                     <i class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
                   </el-col>
                 </el-row>
@@ -173,9 +173,7 @@
                   >
                     <el-col :span="10" style="text-align: center">{{item.ip}}</el-col>
                     <el-col :span="10" style="text-align: center">{{item.domain}}</el-col>
-                    <el-col :span="4">
-                      <!--<el-button class="delete-host-btn" @click="handleDeleteHost(index)">删除</el-button>-->
-                    </el-col>
+                    <el-col :span="4"></el-col>
                   </el-row>
               </el-form-item>
             </el-form>
@@ -809,7 +807,7 @@ export default {
      */
     handleChangeProp(prop) {
 //      console.log(prop);
-      if (['healthCheck', 'mirror','environments', 'cpuAndMemory'].indexOf(prop) == -1) {
+      if (['healthCheck', 'mirror','environments', 'hosts','cpuAndMemory'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
         return;
       }
@@ -821,8 +819,14 @@ export default {
           this.$refs['formInChangeHealthCheckDialog'].validate();
           break;
         case 'environments':
+          this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
           this.$refs.hasOwnProperty('formInChangeEnvironmentsDialog') &&
           this.$refs['formInChangeEnvironmentsDialog'].validate();
+          break;
+        case 'hosts':
+          this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
+          this.$refs.hasOwnProperty('formInChangeHostsDialog') &&
+          this.$refs['formInChangeHostsDialog'].validate();
           break;
         case 'cpuAndMemory':
           this.newProps['cpuID'] = JSON.parse(JSON.stringify(this.selected.model['cpuID']));
@@ -935,6 +939,7 @@ export default {
               setTimeout(() => {
                 this.waitingResponse = false;
                 this.selected.prop = null;
+                this.updateModelInfo('environments');
               }, 1000);
             }
           });
@@ -960,6 +965,7 @@ export default {
               setTimeout(() => {
                 this.waitingResponse = false;
                 this.selected.prop = null;
+                this.updateModelInfo('hosts');
               }, 1000);
             }
           });
@@ -1009,6 +1015,14 @@ export default {
           let cpuAndMemoryInfo = appPropUtils.getCPUAndMemoryInfoByID(cpuID, memoryID);
           this.selected.service['cpu'] = cpuAndMemoryInfo[0];
           this.selected.service['memory'] = cpuAndMemoryInfo[1];
+          break;
+        case 'environments':
+          this.selected.model['environments'] = JSON.parse(JSON.stringify(this.newProps['environments']));
+          this.selected.service['environments'] = JSON.parse(JSON.stringify(this.newProps['environments']));
+          break;
+        case 'hosts':
+          this.selected.model['hosts'] = JSON.parse(JSON.stringify(this.newProps['hosts']));
+          this.selected.service['hosts'] = JSON.parse(JSON.stringify(this.newProps['hosts']));
           break;
         case 'mirror':
           let mirrorTypeID = this.newProps['mirrorTypeID'];
