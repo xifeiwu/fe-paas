@@ -75,7 +75,7 @@
         >
           <template slot-scope="scope">
             <div class="step1">应用信息</div>
-            <el-form label-position="right" class="demo-table-expand" label-width="120px" inline style="width: 100%">
+            <el-form class="form1" label-position="right" label-width="120px" inline style="width: 100%">
               <el-form-item label="项目名称：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.serviceName}}
               </el-form-item>
@@ -114,7 +114,7 @@
               </el-form-item>
             </el-form>
             <div class="step2">镜像信息</div>
-            <el-form label-position="right" class="demo-table-expand" label-width="120px" style="width: 100%">
+            <el-form class="form2" label-position="right" label-width="120px" style="width: 100%">
               <el-form-item label="镜像方式：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.imageType ? selected.service.imageType : '未知' + '；'}}
                 <span style="padding: 0px 12px"> {{"基础镜像地址：" + selected.service.image}} </span>
@@ -168,7 +168,7 @@
               </el-form-item>
             </el-form>
             <div class="step3">实例规格</div>
-            <el-form label-position="right" class="demo-table-expand" label-width="120px" inline style="width: 100%">
+            <el-form class="form3" label-position="right" label-width="120px" inline style="width: 100%">
               <el-form-item label="CPU/内存：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.cpu + '核 / ' + selected.service.memory + 'G'}}
               </el-form-item>
@@ -325,8 +325,8 @@
           <el-col :span="4" style="font-weight: bold"></el-col>
         </el-row>
         <el-row
-                v-for="(item, index) in newProps.hosts"
-                :key="item.key"
+          v-for="(item, index) in newProps.hosts"
+          :key="item.key"
         >
           <el-col :span="10">{{item.ip}}</el-col>
           <el-col :span="10">{{item.domain}}</el-col>
@@ -422,8 +422,17 @@
           &:last-child {
             border-width: 0px;
           }
+          &.form1, &.form3 {
+            .el-form-item {
+              width: 50%;
+            }
+          }
+          &.form2 {
+            .el-form-item {
+              width: 80%;
+            }
+          }
           .el-form-item {
-            width: 50%;
             margin-right: 0;
             margin-bottom: 10px;
             .el-icon-edit {
