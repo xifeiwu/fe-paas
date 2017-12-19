@@ -210,7 +210,7 @@
         <i class="el-icon-warning"></i>
         <span>更改健康检查后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="formInChangeHealthCheckDialog">
+      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="formInChangeHealthCheckDialog">
         <el-form-item label="当前健康检查：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
           {{selected.model.healthCheck}}
         </el-form-item>
@@ -732,6 +732,7 @@ export default {
           break;
       }
     },
+
     /**
      * do some init action before dialog popup
      * @param prop
@@ -766,6 +767,10 @@ export default {
       this.selected.prop = prop;
     },
 
+    /**
+     * do some action of ok button in popup-dialog
+     * @param prop
+     */
     handleDialogButtonClick(action) {
       switch (action) {
         case 'healthCheck':
@@ -787,6 +792,7 @@ export default {
               setTimeout(() => {
                 this.waitingResponse = false;
                 this.selected.prop = null;
+                this.updateModelInfo('healthCheck');
               }, 1000);
 //              this.$net.changeProfile({
 //                id: this.selected.app['appId'],
@@ -888,8 +894,15 @@ export default {
           break;
       }
     },
+    /**
+     * update value of service and model when server feedback is ok
+     */
     updateModelInfo(prop) {
       switch (prop) {
+        case 'healthCheck':
+          this.selected.model[prop] = this.newProps[prop];
+          this.selected.service[prop] = this.newProps[prop];
+          break;
         case 'cpuAndMemory':
           let cpuID = this.newProps['cpuID'];
           let memoryID = this.newProps['memoryID'];
