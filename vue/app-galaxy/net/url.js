@@ -25,6 +25,8 @@ var urlList = {
   'get_service_by_appId_and_profile': path + '/server/queryByAppIdAndSpaceId',
 
   'service_deploy': path + '/server/deploy',
+
+  'service_update_health': path + '/server/updateHealth',
 }
 
 export default urlList;

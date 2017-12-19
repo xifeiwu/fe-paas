@@ -637,9 +637,8 @@
 
 <script>
   import appPropUtils from './utils/app_prop';
-  import ElRadio from "../../../packages/radio/src/radio";
 export default {
-  components: {ElRadio}, created() {
+  created() {
     let appInfoOfGroup = this.appInfoOfGroup;
     if (appInfoOfGroup) {
       if (appInfoOfGroup.hasOwnProperty('appList')) {
@@ -669,54 +668,55 @@ export default {
       selectedProfileList: [],
 
       rules: appPropUtils.rules,
-      currentServiceList: [{
-        "draw": 1,
-        "start": 0,
-        "length": 2147483647,
-        "id": 65,
-        "groupId": 2,
-        "createTime": 1513326115000,
-        "updateTime": 1513326112000,
-        "tag": "awdawdawd",
-        "creatorId": 1,
-        "serviceName": "wadawd",
-        "language": "NODE_JS",
-        "packageType": "TAR_GZ",
-        "rollingUpdate": true,
-        "volume": null,
-        "buildName": null,
-        "deleteStatus": false,
-        "gitlabAddress": "",
-        "gitlabBranch": "",
-        "relativePath": "",
-        "instanceNum": 1,
-        "memory": 2,
-        "cpu": 1.0,
-        "packageScript": null,
-        "deployScript": null,
-        "applicationSpaceId": null,
-        "healthCheck": "wadawd",
-        "image": "awdawdawd",
-        "k8s": null,
-        "mavenProfileId": null,
-        "loadBalance": "Round_robin",
-        "languageVersion": null,
-        "imageType": null,
-        "environments": [],
-        "hosts": [],
-        "volumes": null,
-        "spaceList": null,
-        "serverVersion": "V1",
-        "spaceId": null,
-        "appId": null,
-        "address": "wadawd.galaxy.beta",
-        "orchId": 4,
-        "orchIp": "10.10.13.71",
-        "applicationStatus": "NOT_EXISTS",
-        "outerDomain": null,
-        "oneapm": null,
-        "page": 1
-      }],
+//      currentServiceList: [{
+//        "draw": 1,
+//        "start": 0,
+//        "length": 2147483647,
+//        "id": 65,
+//        "groupId": 2,
+//        "createTime": 1513326115000,
+//        "updateTime": 1513326112000,
+//        "tag": "awdawdawd",
+//        "creatorId": 1,
+//        "serviceName": "wadawd",
+//        "language": "NODE_JS",
+//        "packageType": "TAR_GZ",
+//        "rollingUpdate": true,
+//        "volume": null,
+//        "buildName": null,
+//        "deleteStatus": false,
+//        "gitlabAddress": "",
+//        "gitlabBranch": "",
+//        "relativePath": "",
+//        "instanceNum": 1,
+//        "memory": 2,
+//        "cpu": 1.0,
+//        "packageScript": null,
+//        "deployScript": null,
+//        "applicationSpaceId": null,
+//        "healthCheck": "wadawd",
+//        "image": "awdawdawd",
+//        "k8s": null,
+//        "mavenProfileId": null,
+//        "loadBalance": "Round_robin",
+//        "languageVersion": null,
+//        "imageType": null,
+//        "environments": [],
+//        "hosts": [],
+//        "volumes": null,
+//        "spaceList": null,
+//        "serverVersion": "V1",
+//        "spaceId": null,
+//        "appId": null,
+//        "address": "wadawd.galaxy.beta",
+//        "orchId": 4,
+//        "orchIp": "10.10.13.71",
+//        "applicationStatus": "NOT_EXISTS",
+//        "outerDomain": null,
+//        "oneapm": null,
+//        "page": 1
+//      }],
+      currentServiceList: null,
       currentModelList: [],
 
       selected: {
@@ -809,6 +809,7 @@ export default {
         this.selected.service = currentService;
         this.selected.model = this.currentModelList[index];
       }
+
       switch (action) {
         case 'deploy':
           let serviceID = this.selected.service['id'];
@@ -905,30 +906,25 @@ export default {
               });
             } else {
               this.waitingResponse = true;
-              setTimeout(() => {
+              this.$net.serviceUpdate('healthCheck', {
+                id: this.selected.service['id'],
+                healthCheck: this.newProps[action]
+              }).then(msg => {
                 this.waitingResponse = false;
                 this.selected.prop = null;
+                this.$message({
+                  type: 'success',
+                  message: msg
+                });
                 this.updateModelInfo('healthCheck');
-              }, 1000);
-//              this.$net.changeProfile({
-//                id: this.selected.app['appId'],
-//                spaceList: this.newProps['profiles']
-//              }).then(msg => {
-//                this.waitingResponse = false;
-//                this.selected.prop = null;
-//                this.$message({
-//                  type: 'success',
-//                  message: msg
-//                });
-//                this.updateAppInfo(action, this.selected.index);
-//              }).catch(err => {
-//                this.waitingResponse = false;
-//                this.selected.prop = null;
-//                this.$notify.error({
-//                  title: '修改运行环境失败！',
-//                  message: err
-//                });
-//              })
+              }).catch(err => {
+                this.waitingResponse = false;
+                this.selected.prop = null;
+                this.$notify.error({
+                  title: '修改失败！',
+                  message: err
+                });
+              })
             }
           });
           break;
@@ -1123,8 +1119,6 @@ export default {
         if (content.hasOwnProperty('applicationServerList')) {
           this.currentServiceList = content['applicationServerList'];
           this.currentModelList = content['serviceModelList'];
-//          console.log(this.currentServiceList);
-//          console.log(this.currentModelList);
         }
       })
     },

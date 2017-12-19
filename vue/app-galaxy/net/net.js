@@ -415,6 +415,34 @@ class Net {
       })
     });
   }
+
+  serviceUpdate(prop, options) {
+    let url = null;
+    switch (prop) {
+      case 'healthCheck':
+        url = URL_LIST.service_update_health;
+        break;
+    }
+    if (null == url) {
+      return;
+    }
+    return new Promise((resolve, reject) => {
+      axios.post(url, options).then(response => {
+        if ('data' in response) {
+          let data = response.data;
+          if (0 === data.code) {
+            let msg = data.msg ? data.msg : '修改成功';
+            resolve(msg);
+          } else {
+            reject(data.msg);
+          }
+        }
+      }).catch(err => {
+        console.log(err);
+      })
+    })
+  }
+
 }
 
 export default new Net();
