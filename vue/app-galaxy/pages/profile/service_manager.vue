@@ -91,11 +91,6 @@
               <el-form-item label="项目名称：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.serviceName}}
               </el-form-item>
-              <el-form-item label="运行环境：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                <el-tag v-for="item in selected.service.profileList" :key="item.name">
-                  {{item.description}}
-                </el-tag>
-              </el-form-item>
               <el-form-item label="开发语言：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.language + ' - ' + selected.service.languageVersion}}
               </el-form-item>
@@ -123,6 +118,11 @@
               <el-form-item label="Maven profile id：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']"
                             v-if="selected.service.language === 'JAVA'">
                 {{selected.service.mavenProfileId}}<i class="el-icon-edit"></i>
+              </el-form-item>
+              <el-form-item label="运行环境：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+                <span class="profile-desc" v-for="item in selected.service.profileList" :key="item.name">
+                  {{item.description}}
+                </span>
               </el-form-item>
             </el-form>
             <div class="step2">镜像信息</div>
@@ -233,6 +233,43 @@
       </div>
     </el-dialog>
 
+    <el-dialog title="更改镜像方式" :visible="selected.prop == 'mirror'"
+               @close="selected.prop = null"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改镜像方式后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-row>
+        当前实例规格: {{selected.service.cpu.cpu + '核 / ' + selected.service.memory.memory + 'G'}}
+      </el-row>
+      <el-row>
+        更改实例规格为：
+      </el-row>
+      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="formInChangeHealthCheckDialog">
+        <el-form-item label="当前健康检查：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+          {{selected.model.healthCheck}}
+        </el-form-item>
+        <el-form-item label="更改健康检查为：" prop="healthCheck" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+          <el-input v-model="newProps.healthCheck" placeholder="以/开头，可以包含字母数字下划线中划线，2-50位"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('mirror')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
     <!--<el-dialog title="更改文件存储" :visible="selected.prop == 'fileLocation'"-->
                <!--@close="selected.prop = null"-->
                <!--v-if="selected.service && selected.model"-->
@@ -269,6 +306,7 @@
         <!--</el-row>-->
       <!--</div>-->
     <!--</el-dialog>-->
+
 
     <el-dialog title="修改环境变量" :visible="selected.prop == 'environments'"
                @close="selected.prop = null"
@@ -429,6 +467,7 @@
 <style lang="scss">
   .fix-form-item-label {
     line-height: 25px;
+    padding-right: 4px;
   }
   .fix-form-item-content {
     line-height: 25px;
@@ -484,14 +523,25 @@
           &:last-child {
             border-width: 0px;
           }
-          &.form1, &.form3 {
+          &.form1{
+            .profile-desc + .profile-desc::before {
+              content: ', ';
+            }
             .el-form-item {
               width: 50%;
+            }
+            .el-form-item:last-child {
+              width: 100%;
             }
           }
           &.form2 {
             .el-form-item {
               width: 80%;
+            }
+          }
+          &.form3 {
+            .el-form-item {
+              width: 50%;
             }
           }
           .el-form-item {
@@ -738,7 +788,7 @@ export default {
      * @param prop
      */
     handleChangeProp(prop) {
-      if (['healthCheck', 'environments', 'cpuAndMemory'].indexOf(prop) == -1) {
+      if (['healthCheck', 'mirror','environments', 'cpuAndMemory'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
         return;
       }

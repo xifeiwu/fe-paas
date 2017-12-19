@@ -371,6 +371,11 @@ class Net {
             let serviceList = content['applicationServerList'];
             Array.isArray(serviceList) && serviceList.forEach(it => {
               it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              utils.renameProperty(it, 'spaceList', 'profileList');
+              it['profileList'] = it['profileList'].map(it => {
+                return appInfoHelper.getProfileByName(it);
+              });
+
               let cpuAndMemoryInfo = appInfoHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);
               it.cpu = cpuAndMemoryInfo[0];
               it.memory = cpuAndMemoryInfo[1];
