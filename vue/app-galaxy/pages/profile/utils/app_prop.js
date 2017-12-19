@@ -1,4 +1,5 @@
 import STORE from '../../../store';
+import utils from '../../../utils';
 
 class AppInfoHelper {
   constructor() {
@@ -169,6 +170,33 @@ class AppInfoHelper {
     } else {
       return null;
     }
+  }
+
+  getProfileMessage() {
+    let profileListOfGroup = STORE.getters['user/profileListOfGroup'];
+    if (!profileListOfGroup) {
+      utils.error('profileListOfGroup not found', 'net.js');
+      return null;
+    }
+    return profileListOfGroup;
+  }
+
+  getProfileByName(name) {
+    let profileListOfGroup = this.getProfileMessage();
+    let result = {
+      name: '',
+      description: ''
+    };
+    if (Array.isArray(profileListOfGroup)) {
+      for (let key in profileListOfGroup) {
+        let item = profileListOfGroup[key];
+        if (name == item.name) {
+          result = item;
+          break;
+        }
+      }
+    }
+    return result;
   }
 
   getCPUAndMemoryInfoBySize(cpuSize, memorySize) {

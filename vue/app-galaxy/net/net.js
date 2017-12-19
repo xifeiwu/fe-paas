@@ -4,7 +4,6 @@
 import axios from 'axios';
 import URL_LIST from './url';
 import utils from '../utils';
-import STORE from '../store';
 import appInfoHelper from '../pages/profile/utils/app_prop';
 
 class Net {
@@ -164,27 +163,6 @@ class Net {
    * @returns {Promise}
    */
   getAPPList (options) {
-    let profileListOfGroup = STORE.getters['user/profileListOfGroup'];
-    if (!profileListOfGroup) {
-      utils.error('profileListOfGroup not found', 'net.js');
-    }
-
-    let getProfileByName = function(name) {
-      let result = {
-        name: '',
-        description: ''
-      };
-      if (Array.isArray(profileListOfGroup)) {
-        for (let key in profileListOfGroup) {
-          let item = profileListOfGroup[key];
-          if (name == item.name) {
-            result = item;
-            break;
-          }
-        }
-      }
-      return result;
-    }
 
     let getAppModelList = function(appList) {
       let keyMap = {
@@ -221,7 +199,7 @@ class Net {
                * as description should be shown in page app_manager
                */
               it['profileList'] = it['profileList'].map(it => {
-                return getProfileByName(it);
+                return appInfoHelper.getProfileByName(it);
               });
             });
             content.appModelList = getAppModelList(appList);

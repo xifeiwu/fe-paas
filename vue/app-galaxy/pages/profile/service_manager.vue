@@ -922,8 +922,8 @@ export default {
         if (content.hasOwnProperty('applicationServerList')) {
           this.currentServiceList = content['applicationServerList'];
           this.currentModelList = content['serviceModelList'];
-          console.log(this.currentServiceList);
-          console.log(this.currentModelList);
+//          console.log(this.currentServiceList);
+//          console.log(this.currentModelList);
         }
       })
     },
