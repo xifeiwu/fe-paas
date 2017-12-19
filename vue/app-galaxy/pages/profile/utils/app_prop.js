@@ -253,6 +253,20 @@ class AppInfoHelper {
     }
     return model;
   }
+
+  getMirrorNameById(id) {
+    let name = '位置';
+    id = parseInt(id);
+    switch (id) {
+      case 0:
+        name = '自动打镜像';
+        break;
+      case 1:
+        name = '自定义镜像';
+        break;
+    }
+    return name;
+  }
 }
 
 export default new AppInfoHelper();

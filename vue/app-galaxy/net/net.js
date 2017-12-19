@@ -357,7 +357,8 @@ class Net {
           environments: JSON.parse(JSON.stringify(it.environments)),
           hosts: JSON.parse(JSON.stringify(it.hosts)),
           cpuID: it.cpu.id,
-          memoryID: it.memory.id
+          memoryID: it.memory.id,
+          mirror: JSON.parse(JSON.stringify(it.mirror))
         })
       });
       return modelList;
@@ -375,6 +376,13 @@ class Net {
               it['profileList'] = it['profileList'].map(it => {
                 return appInfoHelper.getProfileByName(it);
               });
+              // utils.renameProperty(it, 'image', 'mirrorLocation');
+              // utils.renameProperty(it, 'imageType', 'mirrorType');
+              it.mirror = {
+                typeID: it.imageType,
+                location: it.image,
+                typeName: appInfoHelper.getMirrorNameById(it.imageType)
+              }
 
               let cpuAndMemoryInfo = appInfoHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);
               it.cpu = cpuAndMemoryInfo[0];

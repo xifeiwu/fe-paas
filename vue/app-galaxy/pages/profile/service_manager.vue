@@ -128,8 +128,8 @@
             <div class="step2">镜像信息</div>
             <el-form class="form2" label-position="right" label-width="120px" style="width: 100%">
               <el-form-item label="镜像方式：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{selected.service.imageType ? selected.service.imageType : '未知' + '；'}}
-                <span style="padding: 0px 12px"> {{"基础镜像地址：" + selected.service.image}} </span>
+                {{selected.service.mirror.typeName}}
+                <span style="padding: 0px 12px"> {{"基础镜像地址：" + selected.service.mirror.location}} </span>
                 <i class="el-icon-edit" @click="handleChangeProp('mirror')"></i>
               </el-form-item>
               <el-form-item label="文件存储：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
