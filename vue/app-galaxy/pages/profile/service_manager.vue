@@ -234,6 +234,7 @@
     </el-dialog>
 
     <el-dialog title="更改镜像方式" :visible="selected.prop == 'mirror'"
+               class="mirror"
                @close="selected.prop = null"
                v-if="selected.service && selected.model"
     >
@@ -242,17 +243,23 @@
         <span>更改镜像方式后需要重新【部署】才能生效！</span>
       </el-tag>
       <el-row>
-        当前实例规格: {{selected.service.cpu.cpu + '核 / ' + selected.service.memory.memory + 'G'}}
+        当前镜像方式： {{selected.service.mirror.typeName}}；镜像地址： {{selected.service.mirror.location}}
       </el-row>
       <el-row>
-        更改实例规格为：
+        更改镜像方式为：
       </el-row>
-      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="formInChangeHealthCheckDialog">
-        <el-form-item label="当前健康检查：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-          {{selected.model.healthCheck}}
+      <el-form :model="newProps" :rules="rules" label-width="120px" ref="formInChangeMirrorDialog">
+        <el-form-item label="镜像方式：" prop="mirrorTypeID">
+          <el-radio-group v-model="newProps.mirrorTypeID" @change="handleMirrorTypeChange">
+            <!--<el-radio label="0">自动打镜像</el-radio>-->
+            <!--<el-radio label="1">自定义镜像</el-radio>-->
+            <el-radio v-for="item in mirrorInfo" :label="item.id" :key="item.id">
+              {{item.name}}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
-        <el-form-item label="更改健康检查为：" prop="healthCheck" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-          <el-input v-model="newProps.healthCheck" placeholder="以/开头，可以包含字母数字下划线中划线，2-50位"></el-input>
+        <el-form-item label="镜像地址：" prop="mirrorLocation">
+          <el-input v-model="newProps.mirrorLocation" placeholder="输入镜像地址，包含版本"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -589,14 +596,20 @@
           text-align: left;
         }
       }
+      &.mirror {
+        .el-row {
+          text-align: left;
+        }
+      }
     }
   }
 </style>
 
 <script>
-  import AppPropUtils from './utils/app_prop';
+  import appPropUtils from './utils/app_prop';
+  import ElRadio from "../../../packages/radio/src/radio";
 export default {
-  created() {
+  components: {ElRadio}, created() {
     let appInfoOfGroup = this.appInfoOfGroup;
     if (appInfoOfGroup) {
       if (appInfoOfGroup.hasOwnProperty('appList')) {
@@ -625,7 +638,7 @@ export default {
       selectedProfileID: null,
       selectedProfileList: [],
 
-      rules: AppPropUtils.rules,
+      rules: appPropUtils.rules,
       currentServiceList: [{
         "draw": 1,
         "start": 0,
@@ -688,6 +701,8 @@ export default {
         hosts: [],
         cpuID: null,
         memoryID: null,
+        mirrorTypeID: 0,
+        mirrorLocation: '',
       },
       waitingResponse: false,
 
@@ -701,6 +716,7 @@ export default {
       environmentValue: '',
       hostKey: '',
       hostValue: '',
+      mirrorLocationLabel: '',
       /* used for dialog end */
     }
   },
@@ -726,7 +742,11 @@ export default {
         this.memeorySizeList = 'memoryList' in firstItem ? firstItem.memoryList : '';
       }
       return result;
-    }
+    },
+    mirrorInfo: function () {
+      return appPropUtils.getMirrorInfo();
+    },
+    /* used for dialog end */
   },
   watch: {
     selectedAppIndex: function (value, oldValue) {
@@ -788,19 +808,15 @@ export default {
      * @param prop
      */
     handleChangeProp(prop) {
+//      console.log(prop);
       if (['healthCheck', 'mirror','environments', 'cpuAndMemory'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
         return;
       }
-      if ('cpuAndMemory' === prop) {
-        this.newProps['cpuID'] = JSON.parse(JSON.stringify(this.selected.model['cpuID']));
-        this.newProps['memoryID'] = JSON.parse(JSON.stringify(this.selected.model['memoryID']));
-      } else {
-        this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
-      }
       this.waitingResponse = false;
       switch (prop) {
         case 'healthCheck':
+          this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
           this.$refs.hasOwnProperty('formInChangeHealthCheckDialog') &&
           this.$refs['formInChangeHealthCheckDialog'].validate();
           break;
@@ -809,9 +825,17 @@ export default {
           this.$refs['formInChangeEnvironmentsDialog'].validate();
           break;
         case 'cpuAndMemory':
+          this.newProps['cpuID'] = JSON.parse(JSON.stringify(this.selected.model['cpuID']));
+          this.newProps['memoryID'] = JSON.parse(JSON.stringify(this.selected.model['memoryID']));
           this.$refs.hasOwnProperty('formInChangeCpuAndMemoryDialog') &&
           this.$refs['formInChangeCpuAndMemoryDialog'].validate();
           let cpuAndMemorylist = this.cpuAndMemorylist;
+          break;
+        case 'mirror':
+          this.newProps['mirrorTypeID'] = this.selected.model['mirrorTypeID'];
+          this.newProps['mirrorLocation'] = this.selected.model['mirrorLocation'];
+          this.$refs.hasOwnProperty('formInChangeMirrorDialog') &&
+          this.$refs['formInChangeMirrorDialog'].validate();
           break;
       }
       this.selected.prop = prop;
@@ -866,6 +890,32 @@ export default {
             }
           });
           break;
+        case 'mirror':
+          this.$refs['formInChangeMirrorDialog'].validate((valid) => {
+            if (!valid) {
+              return;
+            }
+            if (!this.newProps.hasOwnProperty('mirrorTypeID') || !this.selected.model.hasOwnProperty('mirrorTypeID')
+              || !this.newProps.hasOwnProperty('mirrorLocation') || !this.selected.model.hasOwnProperty('mirrorLocation')) {
+              return;
+            }
+            if ((this.newProps['mirrorTypeID'] == this.selected.model['mirrorTypeID'])
+                && (this.newProps['mirrorLocation'] == this.selected.model['mirrorLocation'])) {
+              this.selected.prop = null;
+              this.$message({
+                type: 'warning',
+                message: '您没有做修改'
+              });
+            } else {
+              this.waitingResponse = true;
+              setTimeout(() => {
+                this.waitingResponse = false;
+                this.selected.prop = null;
+                this.updateModelInfo('mirror');
+              }, 1000);
+            }
+          });
+          break;
         case 'environments':
           this.$refs['formInChangeEnvironmentsDialog'].validate((valid) => {
             if (!valid) {
@@ -874,8 +924,6 @@ export default {
             if (!this.newProps.hasOwnProperty(action) || !this.selected.model.hasOwnProperty(action)) {
               return;
             }
-//            console.log(this.newProps.environments);
-//            console.log(this.selected.model.environments);
             if (this.$utils.theSame(this.newProps[action], this.selected.model[action])) {
               this.selected.prop = null;
               this.$message({
@@ -958,9 +1006,18 @@ export default {
           let memoryID = this.newProps['memoryID'];
           this.selected.model['cpuID'] = cpuID;
           this.selected.model['memoryID'] = memoryID;
-          let cpuAndMemoryInfo = AppPropUtils.getCPUAndMemoryInfoByID(cpuID, memoryID);
+          let cpuAndMemoryInfo = appPropUtils.getCPUAndMemoryInfoByID(cpuID, memoryID);
           this.selected.service['cpu'] = cpuAndMemoryInfo[0];
           this.selected.service['memory'] = cpuAndMemoryInfo[1];
+          break;
+        case 'mirror':
+          let mirrorTypeID = this.newProps['mirrorTypeID'];
+          let mirrorLocation = this.newProps['mirrorLocation'];
+          this.selected.model['mirrorTypeID'] = mirrorTypeID;
+          this.selected.model['mirrorLocation'] = mirrorLocation;
+          this.selected.service.mirror.typeID = mirrorTypeID;
+          this.selected.service.mirror.typeName = appPropUtils.getMirrorNameById(mirrorTypeID);
+          this.selected.service.mirror.location = mirrorLocation;
           break;
       }
     },
@@ -1039,6 +1096,18 @@ export default {
           }
         })
       }
+    },
+    handleMirrorTypeChange(value) {
+//      switch (value) {
+//        case '0':
+//          this.mirrorLocationLabel = '基础镜像地址';
+//          this.rules.mirrorLocation[0].required = false;
+//          break;
+//        case '1':
+//          this.mirrorLocationLabel = '镜像地址';
+//          this.rules.mirrorLocation[0].required = true;
+//          break;
+//      }
     },
     /* used for dialog end */
   }
