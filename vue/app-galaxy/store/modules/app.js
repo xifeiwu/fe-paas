@@ -68,8 +68,6 @@ const actions = {
    * format: @../mock/app/messageForCreateAPP
    */
   getMessageForCreateAPP({commit, state}) {
-    // console.log('getMessageForCreateAPP');
-    // console.log(stateHasUpdated(state.messageForCreateAPP));
     if (!stateHasUpdated(state.messageForCreateAPP)) {
       NetData.getMessageForCreateAPP().then(content => {
         commit('SET_MESSAGE_FOR_CREATE_APP', content);

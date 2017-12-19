@@ -52,21 +52,33 @@
           label="操作"
         >
           <template slot-scope="scope">
-            <el-button size="mini-extral" type="warning"
-                       @click="handleOperationClick('deploy', scope.$index, scope.row)">部署</el-button>
-            <el-button size="mini-extral"type="warning"
-                       @click="handleOperationClick('running-log', scope.$index, scope.row)">运行日志</el-button>
-            <el-button size="mini-extral" type="warning"
-                       @click="handleOperationClick('stop', scope.$index, scope.row)">停止</el-button>
-            <el-button size="mini-extral" type="warning">重启</el-button>
-            <el-button size="mini-extral" type="warning"
-                       @click="handleOperationClick('instance-list', scope.$index, scope.row)">实例列表</el-button>
-            <el-button size="mini-extral" type="warning"
-                       @click="handleOperationClick('domain-config', scope.$index, scope.row)">配置外网二级域名</el-button>
-            <el-button size="mini-extral" type="warning"
-                       @click="handleOperationClick('delete', scope.$index, scope.row)">删除</el-button>
-            <el-button size="mini-extral" type="warning"
-                       @click="handleOperationClick('service_info', scope.$index, scope.row)">服务信息</el-button>
+            <el-button
+                    v-if="selectedProfileID != '5'"
+                    size="mini-extral" type="warning"
+                    @click="handleOperationClick('deploy', scope.$index, scope.row)">部署</el-button>
+            <el-button
+                    v-if="selectedProfileID != '5'"
+                    size="mini-extral"type="warning"
+                    @click="handleOperationClick('deploy-log', scope.$index, scope.row)">部署日志</el-button>
+            <el-button
+                    size="mini-extral" type="warning"
+                    @click="handleOperationClick('stop', scope.$index, scope.row)">停止</el-button>
+            <el-button
+                    v-if="selectedProfileID == '5'"
+                    size="mini-extral" type="warning"
+                    @click="handleOperationClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
+            <el-button
+                    size="mini-extral" type="warning"
+                    @click="handleOperationClick('instance-list', scope.$index, scope.row)">实例列表</el-button>
+            <el-button
+                    size="mini-extral" type="warning"
+                    @click="handleOperationClick('domain-config', scope.$index, scope.row)">配置外网二级域名</el-button>
+            <el-button
+                    size="mini-extral" type="warning"
+                    @click="handleOperationClick('delete', scope.$index, scope.row)">删除</el-button>
+            <el-button
+                    size="mini-extral" type="warning"
+                    @click="handleOperationClick('service_info', scope.$index, scope.row)">服务详情</el-button>
           </template>
         </el-table-column>
         <el-table-column type="expand"
@@ -170,16 +182,19 @@
             <div class="step3">实例规格</div>
             <el-form class="form3" label-position="right" label-width="120px" inline style="width: 100%">
               <el-form-item label="CPU/内存：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{selected.service.cpu + '核 / ' + selected.service.memory + 'G'}}
+                {{selected.service.cpu.cpu + '核 / ' + selected.service.memory.memory + 'G'}}
+                <i class="el-icon-edit" @click="handleChangeProp('cpuAndMemory')"></i>
               </el-form-item>
               <el-form-item label="实例数量：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.instanceNum}}
               </el-form-item>
               <el-form-item label="滚动升级：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.rollingUpdate}}
+                <i class="el-icon-edit" @click="handleChangeProp('rollingUpdate')"></i>
               </el-form-item>
               <el-form-item label="负载均衡：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.loadBalance}}
+                <i class="el-icon-edit" @click="handleChangeProp('loadBalance')"></i>
               </el-form-item>
             </el-form>
           </template>
@@ -361,6 +376,53 @@
         </el-row>
       </div>
     </el-dialog>
+
+
+    <el-dialog title="更改实例规格" :visible="selected.prop == 'cpuAndMemory'"
+               @close="selected.prop = null"
+               class="cpu-and-memory"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改实例规格后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-row>
+        当前实例规格: {{selected.service.cpu.cpu + '核 / ' + selected.service.memory.memory + 'G'}}
+      </el-row>
+      <el-row>
+        更改实例规格为：
+      </el-row>
+      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="formInChangeCpuAndMemoryDialog">
+        <el-form-item label="CPU" prop="cpuID">
+          <el-radio-group v-model="newProps.cpuID" size="small" @change="handleCPUChange">
+            <el-radio-button v-for="item in cpuAndMemorylist" :label="item.id" :key="item.id">
+              {{item.cpu}}核
+            </el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="内存" prop="memoryID">
+          <el-radio-group v-model="newProps.memoryID" size="small">
+            <el-radio-button v-for="item in memeorySizeList" :label="item.id" :key="item.id">
+              {{item.memory}}G
+            </el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('cpuAndMemory')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -470,6 +532,14 @@
         }
       }
     }
+
+    .el-dialog__wrapper {
+      &.cpu-and-memory {
+        .el-row {
+          text-align: left;
+        }
+      }
+    }
   }
 </style>
 
@@ -566,6 +636,8 @@ export default {
         healthCheck: '',
         environments: [],
         hosts: [],
+        cpuID: null,
+        memoryID: null,
       },
       waitingResponse: false,
 
@@ -574,10 +646,12 @@ export default {
       },
       expandRows: [],
 
+      /* used for dialog */
       environmentKey: '',
       environmentValue: '',
       hostKey: '',
       hostValue: '',
+      /* used for dialog end */
     }
   },
   computed: {
@@ -587,6 +661,21 @@ export default {
     },
     appInfoOfGroup() {
       return this.$store.getters['user/appInfoOfGroup'];
+    },
+
+    /* used for dialog */
+    cpuAndMemorylist() {
+      let result = [];
+      let value = this.$store.getters['app/messageForCreateAPP'];
+      if (value && value.hasOwnProperty('cpuAndMemorylist')) {
+        result = value.cpuAndMemorylist;
+      }
+      // set default cpu
+      if (Array.isArray(result) && result.length > 0) {
+        let firstItem = result[0];
+        this.memeorySizeList = 'memoryList' in firstItem ? firstItem.memoryList : '';
+      }
+      return result;
     }
   },
   watch: {
@@ -604,13 +693,13 @@ export default {
       let profileID = this.selectedProfileID;
       let appID = this.selectedAPP.appId;
       this.requestServiceList(appID, profileID);
-//      console.log(this.selectedProfileID);
-//      console.log(this.selectedAPP.appId);
-//      console.log(this.selectedProfileList);
     }
   },
 
   methods: {
+    /**
+     * handle click event in the operation-column
+     */
     handleOperationClick(action, index, row) {
       let currentService = this.currentServiceList[index];
       if (!currentService) {
@@ -620,6 +709,16 @@ export default {
         this.selected.model = this.currentModelList[index];
       }
       switch (action) {
+        case 'deploy':
+          let serviceID = this.selected.service['id'];
+          if (!serviceID) {
+            console.log('serviceID not found');
+            return;
+          }
+          this.$net.serviceDeploy({
+            id: serviceID
+          });
+          break;
         case 'service_info':
           if (!row.hasOwnProperty('id')) {
             return;
@@ -638,7 +737,16 @@ export default {
      * @param prop
      */
     handleChangeProp(prop) {
-      this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
+      if (['healthCheck', 'environments', 'cpuAndMemory'].indexOf(prop) == -1) {
+        console.log(`${prop} not found`);
+        return;
+      }
+      if ('cpuAndMemory' === prop) {
+        this.newProps['cpuID'] = JSON.parse(JSON.stringify(this.selected.model['cpuID']));
+        this.newProps['memoryID'] = JSON.parse(JSON.stringify(this.selected.model['memoryID']));
+      } else {
+        this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
+      }
       this.waitingResponse = false;
       switch (prop) {
         case 'healthCheck':
@@ -648,6 +756,11 @@ export default {
         case 'environments':
           this.$refs.hasOwnProperty('formInChangeEnvironmentsDialog') &&
           this.$refs['formInChangeEnvironmentsDialog'].validate();
+          break;
+        case 'cpuAndMemory':
+          this.$refs.hasOwnProperty('formInChangeCpuAndMemoryDialog') &&
+          this.$refs['formInChangeCpuAndMemoryDialog'].validate();
+          let cpuAndMemorylist = this.cpuAndMemorylist;
           break;
       }
       this.selected.prop = prop;
@@ -747,8 +860,48 @@ export default {
             }
           });
           break;
+        case 'cpuAndMemory':
+          this.$refs['formInChangeCpuAndMemoryDialog'].validate((valid) => {
+            if (!valid) {
+              return;
+            }
+            if (!this.newProps.hasOwnProperty('cpuID') || !this.selected.model.hasOwnProperty('cpuID')
+              || !this.newProps.hasOwnProperty('memoryID') || !this.selected.model.hasOwnProperty('memoryID')) {
+              return;
+            }
+            if ((this.newProps['cpuID'] == this.selected.model['cpuID'])
+              && (this.newProps['memoryID'] == this.selected.model['memoryID'])) {
+              this.selected.prop = null;
+              this.$message({
+                type: 'warning',
+                message: '您没有做修改'
+              });
+            } else {
+              this.waitingResponse = true;
+              setTimeout(() => {
+                this.waitingResponse = false;
+                this.selected.prop = null;
+                this.updateModelInfo('cpuAndMemory');
+              }, 1000);
+            }
+          });
+          break;
       }
     },
+    updateModelInfo(prop) {
+      switch (prop) {
+        case 'cpuAndMemory':
+          let cpuID = this.newProps['cpuID'];
+          let memoryID = this.newProps['memoryID'];
+          this.selected.model['cpuID'] = cpuID;
+          this.selected.model['memoryID'] = memoryID;
+          let cpuAndMemoryInfo = AppPropUtils.getCPUAndMemoryInfoByID(cpuID, memoryID);
+          this.selected.service['cpu'] = cpuAndMemoryInfo[0];
+          this.selected.service['memory'] = cpuAndMemoryInfo[1];
+          break;
+      }
+    },
+
     handleSelectChange(from) {
       switch (from) {
         case 'app':
@@ -775,6 +928,7 @@ export default {
       })
     },
 
+    /* used for dialog */
     handleDeleteEnvironment(index) {
       this.newProps.environments.splice(index, 1);
     },
@@ -805,6 +959,30 @@ export default {
         this.$message.error('IP或域名不能为空');
       }
     },
+    handleCPUChange(id) {
+      if (Array.isArray(this.cpuAndMemorylist)) {
+        this.cpuAndMemorylist.some(it => {
+          if (it.hasOwnProperty('cpu') && it.id === id) {
+            this.memeorySizeList = it.memoryList;
+//            console.log(this.memeorySizeList);
+            if (Array.isArray(this.memeorySizeList)) {
+              this.memeorySizeList.some(it => {
+                if (it.hasOwnProperty('defaultSelect') && 1 === it.defaultSelect) {
+//                  this.stepForm3.memory = it.memory;
+                  this.newProps['memoryID'] = it.id;
+                }
+              })
+            }
+          }
+        })
+      }
+    },
+    /* used for dialog end */
   }
+
+  /**
+   * some detail logic of service manager:
+   * 1. deploy button should be hidden when the profile is '生产环境', related profile-id is 5
+   */
 }
 </script>

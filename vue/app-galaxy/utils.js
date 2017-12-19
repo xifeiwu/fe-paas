@@ -80,7 +80,12 @@ Utils.prototype = {
 
   theSame: function (value1, value2) {
     return JSON.stringify(value1) === JSON.stringify(value2);
-  }
+  },
+
+  error: function(msg, where) {
+    console.log(`error in ${where}`);
+    console.log(msg)
+  },
 }
 
 export default new Utils();

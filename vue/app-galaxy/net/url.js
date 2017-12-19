@@ -23,6 +23,8 @@ var urlList = {
   'get_all_language': path + '/language/queryAllLanguage',
   'change_profile': path + '/application/update',
   'get_service_by_appId_and_profile': path + '/server/queryByAppIdAndSpaceId',
+
+  'service_deploy': path + '/server/deploy',
 }
 
 export default urlList;

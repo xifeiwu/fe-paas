@@ -113,7 +113,7 @@
           let firstItem = result[0];
           this.stepForm3.cpu = 'cpu' in firstItem ? firstItem.cpu : '';
           this.stepForm3.memory = '2';
-            this.memeorySizeList = 'memoryList' in firstItem ? firstItem.memoryList : '';
+          this.memeorySizeList = 'memoryList' in firstItem ? firstItem.memoryList : '';
 //          this.handleCPUChange(this.stepForm3.cpu);
 //          if (Array.isArray(this.memeorySizeList)) {
 //            this.memeorySizeList.some(it => {
@@ -123,7 +123,6 @@
 //            })
 //          }
         }
-//        console.log(result);
         return result;
       }
     },

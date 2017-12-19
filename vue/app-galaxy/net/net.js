@@ -5,6 +5,7 @@ import axios from 'axios';
 import URL_LIST from './url';
 import utils from '../utils';
 import STORE from '../store';
+import appInfoHelper from '../pages/profile/utils/app_prop';
 
 class Net {
   constructor() {
@@ -164,6 +165,10 @@ class Net {
    */
   getAPPList (options) {
     let profileListOfGroup = STORE.getters['user/profileListOfGroup'];
+    if (!profileListOfGroup) {
+      utils.error('profileListOfGroup not found', 'net.js');
+    }
+
     let getProfileByName = function(name) {
       let result = {
         name: '',
@@ -365,6 +370,7 @@ class Net {
   }
 
   getServiceListByAppIDAndProfileID(options) {
+
     function getServiceModelList(items) {
       let modelList = [];
       Array.isArray(items) && items.forEach(it => {
@@ -372,6 +378,8 @@ class Net {
           healthCheck: it.healthCheck,
           environments: JSON.parse(JSON.stringify(it.environments)),
           hosts: JSON.parse(JSON.stringify(it.hosts)),
+          cpuID: it.cpu.id,
+          memoryID: it.memory.id
         })
       });
       return modelList;
@@ -385,6 +393,9 @@ class Net {
             let serviceList = content['applicationServerList'];
             Array.isArray(serviceList) && serviceList.forEach(it => {
               it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              let cpuAndMemoryInfo = appInfoHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);
+              it.cpu = cpuAndMemoryInfo[0];
+              it.memory = cpuAndMemoryInfo[1];
             });
             content.serviceModelList = getServiceModelList(serviceList);
           }
@@ -397,6 +408,16 @@ class Net {
         console.log(err);
       })
     })
+  }
+
+  serviceDeploy(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.service_deploy, options).then(response => {
+        console.log(response);
+      }).catch(err => {
+        console.log(err);
+      })
+    });
   }
 }
 

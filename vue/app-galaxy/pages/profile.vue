@@ -122,6 +122,7 @@
     },
     created() {
       this.$store.dispatch('user/getGroupList');
+      this.$store.dispatch('app/getMessageForCreateAPP');
       this.$store.dispatch('user/getAppListByGroupID', {
         from: 'page/profile',
         groupID: this.currentGroupID

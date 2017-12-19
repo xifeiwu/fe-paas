@@ -15,7 +15,6 @@
 <script>
 export default {
   created() {
-    this.$store.dispatch('app/getMessageForCreateAPP');
   },
   mounted() {
 //    this.$store.dispatch('')
