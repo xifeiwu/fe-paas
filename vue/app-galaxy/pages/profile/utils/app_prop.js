@@ -285,6 +285,25 @@ class AppInfoHelper {
       name: '自定义镜像'
     }]
   }
+
+   getRollingInfo() {
+    return [{
+      id: true,
+      name: '需要'
+    }, {
+      id: false,
+      name: '不需要'
+    }]
+   }
+
+   getRollingName(id) {
+    if (id) {
+      return '需要';
+    } else {
+      return '不需要';
+    }
+   }
+
 }
 
 export default new AppInfoHelper();

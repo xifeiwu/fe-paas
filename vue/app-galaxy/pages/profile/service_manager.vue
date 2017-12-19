@@ -187,7 +187,7 @@
                 {{selected.service.instanceNum}}
               </el-form-item>
               <el-form-item label="滚动升级：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{selected.service.rollingUpdate}}
+                {{selected.service.rollingUpdate? '需要' : '不需要'}}
                 <i class="el-icon-edit" @click="handleChangeProp('rollingUpdate')"></i>
               </el-form-item>
               <el-form-item label="负载均衡：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
@@ -420,7 +420,6 @@
       </div>
     </el-dialog>
 
-
     <el-dialog title="更改实例规格" :visible="selected.prop == 'cpuAndMemory'"
                @close="selected.prop = null"
                class="cpu-and-memory"
@@ -457,6 +456,39 @@
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
                        @click="handleDialogButtonClick('cpuAndMemory')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+
+    <el-dialog title="使用滚动升级" :visible="selected.prop == 'rollingUpdate'"
+               @close="selected.prop = null"
+               class="rolling-update"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>滚动升级是为了实现业务的平滑上线而不中断。除了定时器外，建议其他应用都选用滚动升级。更改滚动升级后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="formInChangeRollingUpdateDialog">
+        <el-form-item label="滚动升级">
+          <el-radio-group v-model="newProps.rollingUpdate">
+            <el-radio :label="true">需要</el-radio>
+            <el-radio :label="false">不需要</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('rollingUpdate')"
                        :loading="waitingResponse">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -701,6 +733,7 @@ export default {
         memoryID: null,
         mirrorTypeID: 0,
         mirrorLocation: '',
+        rollingUpdate: '',
       },
       waitingResponse: false,
 
@@ -807,7 +840,7 @@ export default {
      */
     handleChangeProp(prop) {
 //      console.log(prop);
-      if (['healthCheck', 'mirror','environments', 'hosts','cpuAndMemory'].indexOf(prop) == -1) {
+      if (['healthCheck', 'mirror','environments', 'hosts','cpuAndMemory', 'rollingUpdate'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
         return;
       }
@@ -840,6 +873,11 @@ export default {
           this.newProps['mirrorLocation'] = this.selected.model['mirrorLocation'];
           this.$refs.hasOwnProperty('formInChangeMirrorDialog') &&
           this.$refs['formInChangeMirrorDialog'].validate();
+          break;
+        case 'rollingUpdate':
+          this.newProps['rollingUpdate'] = this.selected.model['rollingUpdate'];
+          this.$refs.hasOwnProperty('formInChangeRollingUpdateDialog') &&
+          this.$refs['formInChangeRollingUpdateDialog'].validate();
           break;
       }
       this.selected.prop = prop;
@@ -996,6 +1034,30 @@ export default {
             }
           });
           break;
+        case 'rollingUpdate':
+          this.$refs['formInChangeRollingUpdateDialog'].validate((valid) => {
+            if (!valid) {
+              return;
+            }
+            if (!this.newProps.hasOwnProperty('rollingUpdate') || !this.selected.model.hasOwnProperty('rollingUpdate')) {
+              return;
+            }
+            if (this.newProps['rollingUpdate'] == this.selected.model['rollingUpdate']) {
+              this.selected.prop = null;
+              this.$message({
+                type: 'warning',
+                message: '您没有做修改'
+              });
+            } else {
+              this.waitingResponse = true;
+              setTimeout(() => {
+                this.waitingResponse = false;
+                this.selected.prop = null;
+                this.updateModelInfo('rollingUpdate');
+              }, 1000);
+            }
+          });
+            break;
       }
     },
     /**
@@ -1032,6 +1094,11 @@ export default {
           this.selected.service.mirror.typeID = mirrorTypeID;
           this.selected.service.mirror.typeName = appPropUtils.getMirrorNameById(mirrorTypeID);
           this.selected.service.mirror.location = mirrorLocation;
+          break;
+        case 'rollingUpdate':
+          let rollingUpdate = this.newProps['rollingUpdate'];
+          this.selected.model['rollingUpdate'] = rollingUpdate;
+          this.selected.service['rollingUpdate'] = rollingUpdate;
           break;
       }
     },

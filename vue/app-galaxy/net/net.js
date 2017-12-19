@@ -361,6 +361,7 @@ class Net {
           // mirror: JSON.parse(JSON.stringify(it.mirror))
           mirrorTypeID: it.mirror.typeID,
           mirrorLocation: it.mirror.location,
+          rollingUpdate: it.rollingUpdate,
         })
       });
       return modelList;
