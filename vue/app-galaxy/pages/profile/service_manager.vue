@@ -1,5 +1,5 @@
 <template>
-  <div class="service-manager">
+  <div id="service-manager">
     <el-form inline labelWidth="80px" class="title">
       <el-form-item label="应用名称">
         <el-select v-model="selectedAppIndex" placeholder="请选择" @change="handleSelectChange('app')">
@@ -499,7 +499,6 @@
       </div>
     </el-dialog>
 
-
     <el-dialog title="更改负载均衡" :visible="selected.prop == 'loadBalance'"
                @close="selected.prop = null"
                class="rolling-update"
@@ -510,11 +509,11 @@
         <!--<span></span>-->
       <!--</el-tag>-->
       <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="formInChangeLoadBalanceDialog">
-          <el-form-item label="负载均衡" prop="loadBalance">
-            <el-radio-group v-model="newProps.loadBalance">
-              <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
-            </el-radio-group>
-          </el-form-item>
+        <el-form-item label="负载均衡" prop="loadBalance">
+          <el-radio-group v-model="newProps.loadBalance">
+            <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
+          </el-radio-group>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-row>
@@ -530,6 +529,19 @@
         </el-row>
       </div>
     </el-dialog>
+
+    <el-dialog title="部署日志" :visible="selected.operation == 'deploy'"
+               @close="selected.operation = null"
+               class="deploy"
+               :closeOnClickModal="false"
+               v-if="selected.service && selected.model"
+    >
+      <el-scrollbar>
+        <div v-for="item in deployLogs" :key="item">
+          {{item}}
+        </div>
+      </el-scrollbar>
+    </el-dialog>
   </div>
 </template>
 
@@ -541,9 +553,51 @@
   .fix-form-item-content {
     line-height: 25px;
   }
+  #service-manager {
+    .el-dialog__wrapper {
+      &.deploy {
+        .el-dialog {
+          background-color: black;
+          width: 80%;
+          height: 70%;
+          text-align: left;
+          .el-dialog__header {
+            padding: 6px;
+            border-bottom: 1px solid gray;
+            .el-dialog__title {
+              font-size: 14px;
+              font-weight: bold;
+              color: white;
+            }
+            .el-dialog__headerbtn {
+              top: 10px;
+            }
+          }
+          .el-dialog__body {
+            padding: 0px;
+            color: lightgray;
+            height: calc(100% - 40px);
+            box-sizing: border-box;
+            overflow: scroll;
+            .el-scrollbar {
+              height: 100%;
+              .el-scrollbar__bar {
+                .el-scrollbar__view {
+                  padding: 0px 6px;
+                }
+                .el-scrollbar__thumb {
+                  background-color: white;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 </style>
 <style lang="scss" scoped>
-  .service-manager {
+  #service-manager {
     .notice {
       .el-tag {
         display: block;
@@ -685,7 +739,6 @@ export default {
     }
   },
   mounted() {
-
   },
   data() {
     return {
@@ -755,6 +808,7 @@ export default {
         prop: null,
         service: null,
         model: {},
+        operation: '',
       },
       newProps: {
         healthCheck: '',
@@ -780,6 +834,7 @@ export default {
       hostKey: '',
       hostValue: '',
       mirrorLocationLabel: '',
+      deployLogs: [],
       /* used for dialog end */
     }
   },
@@ -852,9 +907,24 @@ export default {
             console.log('serviceID not found');
             return;
           }
-          this.$net.serviceDeploy({
-            id: serviceID
-          });
+          this.deployLogs = [];
+          this.selected.operation = 'deploy';
+
+          let scrollWrapInDeployDialog = document.querySelector('#service-manager .deploy .el-scrollbar .el-scrollbar__wrap');
+          let count = 0;
+          setInterval(() => {
+            count += 1;
+            this.deployLogs.push('fdafdsafda' + count);
+            if (!scrollWrapInDeployDialog) {
+              scrollWrapInDeployDialog = document.querySelector('#service-manager .deploy .el-scrollbar .el-scrollbar__wrap');
+            } else {
+              scrollWrapInDeployDialog.scrollTop = scrollWrapInDeployDialog.scrollHeight - scrollWrapInDeployDialog.offsetHeight;
+            }
+          }, 1000);
+
+//          this.$net.serviceDeploy({
+//            id: serviceID
+//          });
           break;
         case 'service_info':
           if (!row.hasOwnProperty('id')) {

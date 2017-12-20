@@ -345,6 +345,7 @@
             break;
           case 'change-profiles':
             this.updateSelectedInfo(action, row, index);
+            this.$refs.hasOwnProperty('formInChangeProfileDialog') &&
             this.$refs['formInChangeProfileDialog'].validate();
             break;
         }
