@@ -78,7 +78,11 @@
                     @click="handleOperationClick('delete', scope.$index, scope.row)">删除</el-button>
             <el-button
                     size="mini-extral" type="warning"
-                    @click="handleOperationClick('service_info', scope.$index, scope.row)">服务详情</el-button>
+                    @click="handleOperationClick('service_info', scope.$index, scope.row)">
+                    <span>服务详情</span>
+                    <i class="el-icon-arrow-right"
+                      :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"></i>
+                  </el-button>
           </template>
         </el-table-column>
         <el-table-column type="expand"
@@ -501,7 +505,7 @@
 
     <el-dialog title="更改负载均衡" :visible="selected.prop == 'loadBalance'"
                @close="selected.prop = null"
-               class="rolling-update"
+               class="load-balance"
                v-if="selected.service && selected.model"
     >
       <!--<el-tag type="success" disable-transitions>-->
@@ -613,6 +617,13 @@
           margin-bottom: 5px;
           margin-right: 10px;
           float: left;
+          .el-icon-arrow-right {
+            vertical-align: middle;
+            transition: transform 0.2s ease-in-out;
+            &.expand {
+              transform: rotate(90deg);
+            }
+          }
         }
         .el-button + .el-button {
           margin-left: 0px;
@@ -1186,7 +1197,7 @@ export default {
               setTimeout(() => {
                 this.waitingResponse = false;
                 this.selected.prop = null;
-                this.updateModelInfo('rollingUpdate');
+                this.updateModelInfo('loadBalance');
               }, 1000);
             }
           });
@@ -1232,6 +1243,11 @@ export default {
           let rollingUpdate = this.newProps['rollingUpdate'];
           this.selected.model['rollingUpdate'] = rollingUpdate;
           this.selected.service['rollingUpdate'] = rollingUpdate;
+          break;
+        case 'loadBalance':
+          let loadBalance = this.newProps['loadBalance'];
+          this.selected.model['loadBalance'] = loadBalance;
+          this.selected.service['loadBalance'] = loadBalance;
           break;
       }
     },
