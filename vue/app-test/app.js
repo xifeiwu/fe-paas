@@ -26,9 +26,9 @@ import Button from '../packages/button/index.js';
 import ButtonGroup from '../packages/button-group/index.js';
 import Table from '../packages/table/index.js';
 import TableColumn from '../packages/table-column/index.js';
-// import DatePicker from '../packages/date-picker/index.js';
-// import TimeSelect from '../packages/time-select/index.js';
-// import TimePicker from '../packages/time-picker/index.js';
+import DatePicker from '../packages/date-picker/index.js';
+import TimeSelect from '../packages/time-select/index.js';
+import TimePicker from '../packages/time-picker/index.js';
 import Popover from '../packages/popover/index.js';
 import Tooltip from '../packages/tooltip/index.js';
 import MessageBox from '../packages/message-box/index.js';
@@ -47,7 +47,7 @@ import Loading from '../packages/loading/index.js';
 import Icon from '../packages/icon/index.js';
 import Row from '../packages/row/index.js';
 import Col from '../packages/col/index.js';
-// import Upload from '../packages/upload/index.js';
+import Upload from '../packages/upload/index.js';
 // import Progress from '../packages/progress/index.js';
 // import Spinner from '../packages/spinner/index.js';
 // import Message from '../packages/message/index.js';
@@ -99,9 +99,9 @@ const components = [
   ButtonGroup,
   Table,
   TableColumn,
-  // DatePicker,
-  // TimeSelect,
-  // TimePicker,
+  DatePicker,
+  TimeSelect,
+  TimePicker,
   Popover,
   Tooltip,
   // Breadcrumb,
@@ -118,7 +118,7 @@ const components = [
   Icon,
   Row,
   Col,
-  // Upload,
+  Upload,
   // Progress,
   // Spinner,
   Badge,
