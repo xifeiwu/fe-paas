@@ -208,7 +208,7 @@
         return value;
       },
       appInfoOfGroup() {
-        return this.$store.getters['user/appInfoOfGroup'];
+        return this.$store.getters['user/appInfoListOfGroup'];
       }
     },
     watch: {

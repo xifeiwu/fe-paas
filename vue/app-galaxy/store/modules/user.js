@@ -44,7 +44,7 @@ const state = {
   // 当前组的所有开发环境
   profileListOfGroup: [],
   // 当前做的所有APP列表
-  appInfoOfGroup: [],
+  appInfoListOfGroup: [],
 };
 
 const actions = {
@@ -80,7 +80,10 @@ const actions = {
     dispatch('getProfileListOfGroup', {
       id: value
     });
-    // dispatch('app/getProfileOfGroup', {
+    dispatch('getAppListByGroupID', {
+      groupID: value
+    });
+    // dispatch('app/getAppListByGroupID', {
     //   id: id
     // }, {root: true});
   },
@@ -110,7 +113,7 @@ const actions = {
     }).then(content => {
       // console.log(content);
       // if (content.hasOwnProperty('appList')) {
-        commit('SET_APP_INFO_OF_GROUP', content);
+        commit('SET_APP_INFO_LIST_OF_GROUP', content);
       // }
     });
   }
@@ -139,10 +142,10 @@ const mutations = {
     }
   },
 
-  SET_APP_INFO_OF_GROUP(state, appList) {
-    state.appList = appList;
+  SET_APP_INFO_LIST_OF_GROUP(state, appList) {
+    state.appInfoListOfGroup = appList;
     if (USE_LOCAL_STORAGE) {
-      localStorage.setItem('user/appInfoOfGroup', JSON.stringify(appList));
+      localStorage.setItem('user/appInfoListOfGroup', JSON.stringify(appList));
     }
   }
 }
@@ -198,8 +201,8 @@ const getters = {
     return result;
   },
 
-  'appInfoOfGroup': (state, getters) => {
-    return getValue({state, getters}, 'appInfoOfGroup');
+  'appInfoListOfGroup': (state, getters) => {
+    return getValue({state, getters}, 'appInfoListOfGroup');
   },
 };
 

@@ -735,19 +735,7 @@
   import appPropUtils from './utils/app_prop';
 export default {
   created() {
-    let appInfoOfGroup = this.appInfoOfGroup;
-    if (appInfoOfGroup) {
-      if (appInfoOfGroup.hasOwnProperty('appList')) {
-        this.appList = appInfoOfGroup.appList;
-      }
-      if (appInfoOfGroup.hasOwnProperty('appModelList')) {
-        this.appModelList = appInfoOfGroup.appModelList;
-      }
-      if (appInfoOfGroup.hasOwnProperty('total')) {
-        this.totalSize = appInfoOfGroup.total;
-      }
-      this.selectedAppIndex = 0;
-    }
+    this.updateAppInfoList(this.appInfoListOfGroup);
   },
   mounted() {
   },
@@ -854,8 +842,8 @@ export default {
       let groupID = this.$store.getters['user/groupID'];
       return groupID;
     },
-    appInfoOfGroup() {
-      return this.$store.getters['user/appInfoOfGroup'];
+    appInfoListOfGroup() {
+      return this.$store.getters['user/appInfoListOfGroup'];
     },
 
     /* used for dialog */
@@ -895,6 +883,9 @@ export default {
       let profileID = this.selectedProfileID;
       let appID = this.selectedAPP.appId;
       this.requestServiceList(appID, profileID);
+    },
+    appInfoListOfGroup(value, oldValue) {
+      this.updateAppInfoList(value);
     }
   },
 
@@ -1337,6 +1328,21 @@ export default {
 //          break;
 //      }
     },
+    updateAppInfoList(appInfoListOfGroup) {
+      console.log(appInfoListOfGroup);
+      if (appInfoListOfGroup) {
+        if (appInfoListOfGroup.hasOwnProperty('appList')) {
+          this.appList = appInfoListOfGroup.appList;
+        }
+        if (appInfoListOfGroup.hasOwnProperty('appModelList')) {
+          this.appModelList = appInfoListOfGroup.appModelList;
+        }
+        if (appInfoListOfGroup.hasOwnProperty('total')) {
+          this.totalSize = appInfoListOfGroup.total;
+        }
+        this.selectedAppIndex = 0;
+      }
+    }
     /* used for dialog end */
   }
 
