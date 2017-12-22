@@ -40,6 +40,7 @@ import routerUtils from '../pages/route';
 class RouterConfig {
   constructor() {
     this.componentConfig = routerUtils.componentList;
+    this.allRouterPath = routerUtils.getAllRouterPath();
     let routeConfig = this.generateMiscRoutes();
     this.vueRouter = new VueRouter({
       mode: 'hash',
@@ -119,17 +120,41 @@ class RouterConfig {
   }
 
   routerFilter() {
+    let self = this;
+    function getParentPath(url) {
+      return url.split('/').slice(0,-1).join('/');
+    }
+    function isValidateURL(url) {
+      return self.allRouterPath.indexOf(url) > -1;
+    }
+    function getValidateURL(url) {
+      let result = url;
+      while(!isValidateURL(result) && '' != result) {
+        result = getParentPath(result);
+      }
+      if ('' == result) {
+        result = '/profile';
+      }
+      return result;
+    }
     this.vueRouter.beforeEach((to, from, next) => {
       console.log('in beforeEach');
       console.log(JSON.stringify(to.path) + ' -> ' + JSON.stringify(from.path));
-      let token = localStorage.getItem('token');
-      if (token) {//如果有就直接到首页咯
-        next();
+
+      // check if the url exist in routerPath list, get the nearest url if current url is not valid.
+      if (!isValidateURL(to.path)) {
+        next(getValidateURL(to.path));
       } else {
-        if (to.path=='/login') {//如果是登录页面路径，就直接next()
+        // login check
+        let token = localStorage.getItem('token');
+        if (token) {//如果有就直接到首页咯
           next();
-        } else {//不然就跳转到登录；
-          next('/login');
+        } else {
+          if (to.path == '/login') {//如果是登录页面路径，就直接next()
+            next();
+          } else {//不然就跳转到登录；
+            next('/login');
+          }
         }
       }
       //  if (to.meta.requireAuth) {

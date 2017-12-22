@@ -24,6 +24,9 @@ Utils.prototype = {
    * @fmt the format of result, such as
    */
   formatDate: function(date, fmt) {
+    if (!date) {
+      return '未知';
+    }
     if (!this.isDate(date)) {
       if (this.isString(date)) {
         date = parseInt(date);

@@ -4,9 +4,9 @@ import Profile from './profile.vue';
 import AppMain from './profile/app/main.vue';
 import InstanceList from './profile/instance_list.vue';
 import AppAdd from './profile/app/add.vue';
-import AddAppStep1 from './profile/add_app/step1.vue';
-import AddAppStep2 from './profile/add_app/step2.vue';
-import AddAppStep3 from './profile/add_app/step3.vue';
+// import AddAppStep1 from './profile/add_app/step1.vue';
+// import AddAppStep2 from './profile/add_app/step2.vue';
+// import AddAppStep3 from './profile/add_app/step3.vue';
 import ServiceManager from './profile/service_manager.vue';
 import DomainName from './profile/domain_name.vue';
 
@@ -79,6 +79,12 @@ Router.prototype = {
     return path.substr(1);
   },
 
+  /**
+   * traverse router config tree to add routerPath to all component:
+   * routerPath = parent.path + path
+   * @param path
+   * @param component
+   */
   generateRouterLinkPath(path, component) {
     function updateItem(item) {
       if (null !== path) {
@@ -128,6 +134,42 @@ Router.prototype = {
     this.generateComponentFile(this.componentList);
   },
 
+  /**
+   * get all routerPath in router config tree
+   */
+  getAllRouterPath() {
+    var routerPath = [];
+    function updateItem(item) {
+      if (item.hasOwnProperty('routerPath')) {
+        routerPath.push(item.routerPath);
+      }
+    }
+    function traverseComponent(component) {
+      if ('object' === typeof(component)) {
+        for (let key in component) {
+          if (component.hasOwnProperty(key)) {
+            let item = component[key];
+            updateItem.call(this, item);
+            if ('children' in item) {
+              traverseComponent(item.children);
+            }
+          }
+        }
+        return null;
+      } else if (Array.isArray(component)) {
+        for (let key in component) {
+          let item = component[key];
+          updateItem.call(this, item);
+        }
+        return null;
+      }
+    }
+    traverseComponent(this.componentList);
+    return routerPath;
+  },
+  /**
+   * get component name by routerPath.
+   */
   getNameByRouterPath(routerPath) {
     function updateItem(item) {
       if (item.hasOwnProperty('routerPath') && routerPath === item.routerPath) {

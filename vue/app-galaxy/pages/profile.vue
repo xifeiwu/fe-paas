@@ -164,6 +164,7 @@
     },
     watch: {
       '$route': function (value, oldValue) {
+        console.log(value);
         let pathReg = /^\/profile\/[\w\/]*$/i;
         let path = value.path;
         this.currentStep = '';
