@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div id="app-main">
     <el-row>
       <el-col :span="6">
         <el-button @click="handleButtonClick($event, {role:'linker', path: '/profile/app/add'})">创建应用</el-button>
@@ -150,8 +150,7 @@
   }
 </style>
 <script>
-//  import app_rules from './add_app.rules';
-  import AppPropUtils from './utils/app_prop';
+  import AppPropUtils from '../utils/app_prop';
   export default {
     created() {
       console.log('create app manager');

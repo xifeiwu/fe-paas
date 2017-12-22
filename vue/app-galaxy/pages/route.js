@@ -1,9 +1,9 @@
 var path = require('path');
 import Login from './login.vue';
 import Profile from './profile.vue';
-import AppManager from './profile/app.vue';
+import AppMain from './profile/app/main.vue';
 import InstanceList from './profile/instance_list.vue';
-import AddApp from './profile/add_app';
+import AppAdd from './profile/app/add.vue';
 import AddAppStep1 from './profile/add_app/step1.vue';
 import AddAppStep2 from './profile/add_app/step2.vue';
 import AddAppStep3 from './profile/add_app/step3.vue';
@@ -30,27 +30,25 @@ var Router = function () {
       children: [{
         path: 'app',
         name: '应用管理',
-        component: AppManager,
+        component: AppMain,
       }, {
         path: 'app/add',
         name: '创建应用',
-        component: AddApp,
-        redirect: '/profile/app/add/step1',
-        children: [{
-          path: 'step1',
-          component: AddAppStep1,
-          name: '创建应用',
-        },{
-          path: 'step2',
-          component: AddAppStep2,
-          name: '创建应用',
-        },{
-          path: 'step3',
-          component: AddAppStep3,
-          name: '创建应用',
-        },{
-          path: 'finish',
-        }]
+        component: AppAdd,
+        // redirect: '/profile/app/add/step1',
+        // children: [{
+        //   path: 'step1',
+        //   component: AddAppStep1,
+        //   name: '创建应用',
+        // },{
+        //   path: 'step2',
+        //   component: AddAppStep2,
+        //   name: '创建应用',
+        // },{
+        //   path: 'step3',
+        //   component: AddAppStep3,
+        //   name: '创建应用',
+        // }]
       }, {
         path: 'instance_list',
         name: '实例列表',
