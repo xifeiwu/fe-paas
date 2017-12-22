@@ -32,14 +32,10 @@ var Router = function () {
         name: '应用管理',
         component: AppManager,
       }, {
-        path: 'instance_list',
-        name: '实例列表',
-        component: InstanceList,
-      }, {
-        path: 'app/add_app',
+        path: 'app/add',
         name: '创建应用',
         component: AddApp,
-        redirect: '/profile/app/add_app/step1',
+        redirect: '/profile/app/add/step1',
         children: [{
           path: 'step1',
           component: AddAppStep1,
@@ -55,6 +51,10 @@ var Router = function () {
         },{
           path: 'finish',
         }]
+      }, {
+        path: 'instance_list',
+        name: '实例列表',
+        component: InstanceList,
       }, {
         path: 'service_manager',
         name: '服务管理',

@@ -2,7 +2,7 @@
   <div class="container">
     <el-row>
       <el-col :span="6">
-        <el-button @click="handleButtonClick($event, {role:'linker', path: '/profile/app_manager/add_app'})">创建应用</el-button>
+        <el-button @click="handleButtonClick($event, {role:'linker', path: '/profile/app/add'})">创建应用</el-button>
       </el-col>
       <el-col :span="6">
         <el-button @click="handleButtonClick($event, {role:'cmd', action: 'refreshAppList'})">刷新</el-button>
