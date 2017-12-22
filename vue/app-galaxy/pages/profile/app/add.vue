@@ -1,72 +1,103 @@
 <template>
-<el-form :model="stepForm1" :rules="rules" ref="stepForm1" label-width="100px">
-  <el-form-item label="团队" prop="region">
-    <el-select v-model="currentGroupID" placeholder="请选择" @input="handleGroupIDChange">
-      <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
-      </el-option>
-    </el-select>
-  </el-form-item>
-  <el-form-item label="应用名称" prop="appName">
-    <el-input v-model="stepForm1.appName" placeholder="中文，英文，数字，30字符内"></el-input>
-  </el-form-item>
-  <el-form-item label="项目名称" prop="projectName">
-    <el-input v-model="stepForm1.projectName" placeholder="gitlab中project的名称"></el-input>
-  </el-form-item>
-  <el-form-item label="运行环境" prop="profiles" class="profiles">
-    <el-checkbox-group v-model="stepForm1.profiles" @change="handleProfileChange">
-      <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
-        {{item.description}}
-      </el-checkbox>
-    </el-checkbox-group>
-  </el-form-item>
-  <el-form-item label="开发语言" prop="language">
-    <el-radio-group v-model="stepForm1.language" @change="handleLanguageChange">
-      <el-radio v-for="item in languageInfo" :label="item.type" :key="item.id">
-        {{item.language}}
-      </el-radio>
-      <!--<el-radio label="JAVA"></el-radio>-->
-      <!--<el-radio label="NODE_JS"></el-radio>-->
-      <!--<el-radio label="PHP"></el-radio>-->
-    </el-radio-group>
-  </el-form-item>
+  <div id="app-add">
+    <el-form :model="stepForm1" :rules="rules"
+             ref="stepForm1" label-width="100px"
+             v-loading="showLoading"
+             :element-loading-text="loadingText">
+      <el-form-item label="团队" prop="region">
+        <el-select v-model="currentGroupID" placeholder="请选择" @input="handleGroupIDChange">
+          <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="应用名称" prop="appName">
+        <el-input v-model="stepForm1.appName" placeholder="中文，英文，数字，30字符内"></el-input>
+      </el-form-item>
+      <el-form-item label="项目名称" prop="projectName">
+        <el-input v-model="stepForm1.projectName" placeholder="gitlab中project的名称"></el-input>
+      </el-form-item>
+      <el-form-item label="运行环境" prop="profiles" class="profiles">
+        <el-checkbox-group v-model="stepForm1.profiles" @change="handleProfileChange">
+          <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
+            {{item.description}}
+          </el-checkbox>
+        </el-checkbox-group>
+      </el-form-item>
+      <el-form-item label="开发语言" prop="language">
+        <el-radio-group v-model="stepForm1.language" @change="handleLanguageChange">
+          <el-radio v-for="item in languageInfo" :label="item.type" :key="item.id">
+            {{item.language}}
+          </el-radio>
+          <!--<el-radio label="JAVA"></el-radio>-->
+          <!--<el-radio label="NODE_JS"></el-radio>-->
+          <!--<el-radio label="PHP"></el-radio>-->
+        </el-radio-group>
+      </el-form-item>
 
-  <el-form-item label="语言版本" prop="languageVersion" v-if="languageVersionList.length > 0">
-    <el-radio-group v-model="stepForm1.languageVersion">
-      <el-radio v-for="item in languageVersionList" :label="item" :key="item">
-        {{item}}
-      </el-radio>
-    </el-radio-group>
-  </el-form-item>
+      <el-form-item label="语言版本" prop="languageVersion" v-if="languageVersionList.length > 0">
+        <el-radio-group v-model="stepForm1.languageVersion">
+          <el-radio v-for="item in languageVersionList" :label="item" :key="item">
+            {{item}}
+          </el-radio>
+        </el-radio-group>
+      </el-form-item>
 
-  <el-form-item label="构建类型" prop="buildType" v-if="packageStyleList.length > 0">
-    <el-radio-group v-model="stepForm1.buildType">
-      <el-radio v-for="item in packageStyleList" :label="item.type" :key="item.type">
-        {{item.packageType}}
-      </el-radio>
-      <!--<el-radio label="JAR"></el-radio>-->
-      <!--<el-radio label="WAR"></el-radio>-->
-      <!--<el-radio label="ZIP"></el-radio>-->
-    </el-radio-group>
-  </el-form-item>
-  <el-form-item label="健康检查" prop="healthCheck">
-    <el-input v-model="stepForm1.healthCheck" placeholder="以/开头，可以包含字母数字下划线中划线，2-50位"></el-input>
-  </el-form-item>
-  <el-form-item label="Gitlab地址" prop="gitlabAddress" v-if="stepForm1.language === 'JAVA'">
-    <el-input v-model="stepForm1.gitlabAddress" placeholder="请输入项目的gitlab地址"></el-input>
-  </el-form-item>
-  <el-form-item label="Gitlab分支" prop="gitlabBranch" v-if="stepForm1.language === 'JAVA'">
-    <el-input v-model="stepForm1.gitlabBranch" placeholder="请输入gitlab分支名"></el-input>
-  </el-form-item>
-  <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM" :labelClass="['onePercentLineHeight']" v-if="stepForm1.language === 'JAVA'">
-    <el-input v-model="stepForm1.relativePathOfParentPOM" placeholder=""></el-input>
-  </el-form-item>
-  <el-form-item class="steps">
-    <el-col :span="6">
-      <el-button type="primary" @click="handleNextStep">下一步</el-button>
-    </el-col>
-    <el-col :span="18">&nbsp</el-col>
-  </el-form-item>
-</el-form>
+      <el-form-item label="构建类型" prop="buildType" v-if="packageStyleList.length > 0">
+        <el-radio-group v-model="stepForm1.buildType">
+          <el-radio v-for="item in packageStyleList" :label="item.type" :key="item.type">
+            {{item.packageType}}
+          </el-radio>
+          <!--<el-radio label="JAR"></el-radio>-->
+          <!--<el-radio label="WAR"></el-radio>-->
+          <!--<el-radio label="ZIP"></el-radio>-->
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="健康检查" prop="healthCheck">
+        <el-input v-model="stepForm1.healthCheck" placeholder="以/开头，可以包含字母数字下划线中划线，2-50位"></el-input>
+      </el-form-item>
+      <el-form-item label="文件存储" prop="fileLocation" class="fileLocation">
+        <div>
+          <el-tag
+                  v-for="tag in stepForm1.fileLocation"
+                  :key="tag"
+                  closable
+                  type="success"
+                  @close="handleRemoveFileLocation(tag)"
+          >{{tag}}</el-tag>
+        </div>
+        <el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母数字下划线中划线，2-18位">
+          <template slot="append">
+            <el-button type="primary" class="add-file-location-btn" @click="handleAddFileLocation(fileLocationToAdd)">
+              添加
+            </el-button>
+          </template>
+        </el-input>
+      </el-form-item>
+      <el-form-item label="滚动升级">
+        <el-radio-group v-model="stepForm1.rollingUpdate">
+          <el-radio :label="true">需要</el-radio>
+          <el-radio :label="false">不需要</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="负载均衡">
+        <el-radio-group v-model="stepForm1.loadBalance">
+          <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <!--<el-form-item label="Gitlab地址" prop="gitlabAddress" v-if="stepForm1.language === 'JAVA'">-->
+        <!--<el-input v-model="stepForm1.gitlabAddress" placeholder="请输入项目的gitlab地址"></el-input>-->
+      <!--</el-form-item>-->
+      <!--<el-form-item label="Gitlab分支" prop="gitlabBranch" v-if="stepForm1.language === 'JAVA'">-->
+        <!--<el-input v-model="stepForm1.gitlabBranch" placeholder="请输入gitlab分支名"></el-input>-->
+      <!--</el-form-item>-->
+      <!--<el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM" :labelClass="['onePercentLineHeight']" v-if="stepForm1.language === 'JAVA'">-->
+        <!--<el-input v-model="stepForm1.relativePathOfParentPOM" placeholder=""></el-input>-->
+      <!--</el-form-item>-->
+      <el-form-item class="finish" labelWidth="0">
+          <el-button type="primary" @click="handleFinish">完成</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
 </template>
 
 <style>
@@ -75,23 +106,44 @@
   }
 </style>
 <style lang="scss" scoped>
-  .el-form {
-    .el-form-item {
-      &.profiles {
-        .el-checkbox + .el-checkbox {
-          margin-left: 20px;
+  #app-add {
+    .el-form {
+      margin: 30px auto 0px auto;
+      width: 80%;
+      max-width: 550px;
+      .el-form-item {
+        &.profiles {
+          .el-checkbox + .el-checkbox {
+            margin-left: 20px;
+          }
         }
-      }
-      &.steps {
-        .el-button {
-          width: 100%;
+        &.finish {
+          .el-button {
+            display: block;
+            margin: 0px auto;
+            width: 50%;
+            max-width: 200px;
+            text-align: center;
+          }
+        }
+        &.fileLocation {
+          .add-file-location-btn {
+            margin: 0px;
+            width: 60px;
+            background-color: lavenderblush;
+            border-radius: 0px;
+            &:hover {
+              font-weight: bold;
+              color: #409EFF;
+            }
+          }
         }
       }
     }
   }
 </style>
 <script>
-  import AppPropUtil from '../utils/app_prop';
+  import appPropUtil from '../utils/app_prop';
 export default {
   created() {
     let infos = this.$store.state.app.infoForCreateApp;
@@ -106,6 +158,7 @@ export default {
   },
   data() {
     return {
+      fileLocationToAdd: '',
       stepForm1: {
         groupID: '',
         appName: '',
@@ -115,14 +168,20 @@ export default {
         languageVersion: '',
         buildType: 'NO',
         healthCheck: '',
-        gitlabAddress: '',
-        gitlabBranch: '',
-        relativePathOfParentPOM: '',
+        fileLocation: [],
+        rollingUpdate: true,
+        loadBalance: 'Round_robin',
+//        gitlabAddress: '',
+//        gitlabBranch: '',
+//        relativePathOfParentPOM: '',
       },
-      rules: AppPropUtil.rules,
+      rules: appPropUtil.rules,
       languageList: [],
       languageVersionList: [],
       packageStyleList: [],
+
+      showLoading: false,
+      loadingText: '',
     };
   },
   computed: {
@@ -161,7 +220,10 @@ export default {
         result = value.LanguageList;
       }
       return result;
-    }
+    },
+    loadBalanceType() {
+      return appPropUtil.getAllLoadBalance();
+    },
   },
   watch: {
   },
@@ -200,15 +262,62 @@ export default {
         })
       }
     },
-    handleNextStep() {
+    handleRemoveFileLocation(tag) {
+      let items = this.stepForm1.fileLocation;
+      items.splice(items.indexOf(tag), 1);
+    },
+    handleAddFileLocation(tag) {
+
+      let tagLength = tag.length;
+      if (tagLength < 2 || tagLength > 18) {
+        this.$message.error('长度在2到18个字符');
+        return;
+      }
+      if (!/^\/[A-Za-z0-9_\-]+$/.exec(tag)) {
+        this.$message.error('以/开头，可以包含字母数字下划线中划线');
+        return;
+      }
+      if (tag.length > 0) {
+        this.stepForm1.fileLocation.push(tag);
+        this.fileLocationToAdd = '';
+      }
+    },
+    handleFinish() {
       console.log(this.stepForm1);
       this.$refs['stepForm1'].validate((valid) => {
         if (valid) {
-          this.$router.push('step2');
-          this.$store.dispatch('app/updateStepOfAddAPP', 1);
+//          this.$router.push('step2');
+//          this.$store.dispatch('app/updateStepOfAddAPP', 1);
           this.$store.dispatch('app/addCreateAPPInfo', {
             key: 'page1',
             value: this.stepForm1
+          });
+
+          let toPost = this.$store.getters['app/infoForCreateAppToPost'];
+          console.log('toPost');
+          console.log(toPost);
+          this.showLoading = true;
+          this.loadingText = '正在为您创建应用' + toPost.serviceName;
+          this.$net.createAPP(toPost).then((content) => {
+            this.showLoading = false;
+            this.$router.push('/profile/app');
+//            this.confirm('创建应用 ' + toPost.serviceName + ' 成功！').then(() => {
+//              this.$router.push('/profile/app_manager');
+//            }).catch(() => {
+//              this.$store.dispatch('app/addCreateAPPInfo', null);
+//              this.$router.push('step1');
+//            });
+          }).catch((err) => {
+            this.$notify({
+              title: '提示',
+              message: err,
+              duration: 0,
+              onClose: function () {
+                self.showLoading = false;
+                self.$router.push('/profile/app/add');
+              }
+            });
+            console.log(err);
           });
         } else {
           console.log('error submit!!');

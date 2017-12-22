@@ -47,6 +47,7 @@ const state = {
 
 const actions = {
   /* state data */
+  // TODO: unused
   updateStepOfAddAPP({commit, state}, step) {
     state.stepOfAddAPP = step;
   },
@@ -55,11 +56,11 @@ const actions = {
       state.messageForCreateAPP = {}
       return
     }
-    state.infoForCreateApp[params.key] = params.value;
-    if (state.infoForCreateApp.hasOwnProperty('page1') && state.infoForCreateApp.hasOwnProperty('page2')
-      && state.infoForCreateApp.hasOwnProperty('page3')) {
-      commit('SET_INFO_FOR_CREATE_APP', state.infoForCreateApp);
-    }
+    state.infoForCreateApp = params.value;
+    // if (state.infoForCreateApp.hasOwnProperty('page1') && state.infoForCreateApp.hasOwnProperty('page2')
+    //   && state.infoForCreateApp.hasOwnProperty('page3')) {
+    commit('SET_INFO_FOR_CREATE_APP', state.infoForCreateApp);
+    // }
   },
 
   /* net data */
@@ -79,14 +80,14 @@ const actions = {
 const mutations = {
   /* state data */
   SET_INFO_FOR_CREATE_APP(state, infoForCreateApp) {
-    let result = {};
-    for (let key in infoForCreateApp) {
-      result = Object.assign(result, infoForCreateApp[key]);
-    }
-    state.infoForCreateAppToPost = postFormatter.infoToCreateAPP(result);
-    if (USE_LOCAL_STORAGE) {
-      localStorage.setItem('app/infoForCreateAppToPost', JSON.stringify(state.infoForCreateAppToPost));
-    }
+    // let result = {};
+    // for (let key in infoForCreateApp) {
+    //   result = Object.assign(result, infoForCreateApp[key]);
+    // }
+    state.infoForCreateAppToPost = postFormatter.infoToCreateAPP(infoForCreateApp);
+    // if (USE_LOCAL_STORAGE) {
+    //   localStorage.setItem('app/infoForCreateAppToPost', JSON.stringify(state.infoForCreateAppToPost));
+    // }
   },
 
   /* net data */
@@ -107,17 +108,7 @@ const getters = {
     return state.infoForCreateApp;
   },
   'infoForCreateAppToPost': (state, getters) => {
-    let result = null;
-    if (Object.keys(state.infoForCreateAppToPost).length > 0) {
-      result = state.infoForCreateAppToPost;
-    } else if (USE_LOCAL_STORAGE) {
-      warning('infoForCreateAppToPost', 'localStorage');
-      let local = JSON.parse(localStorage.getItem('app/infoForCreateAppToPost'));
-      if (local) {
-        result = local;
-      }
-    }
-    return result;
+    return getValue({state, getters}, 'infoForCreateAppToPost');
   },
 
   /* net data */
