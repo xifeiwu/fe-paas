@@ -875,7 +875,11 @@ export default {
         this.selectedAPP = this.appList[index];
         this.selectedProfileList = this.selectedAPP['profileList'];
         if (Array.isArray(this.selectedProfileList) && this.selectedProfileList.length > 0) {
-          this.selectedProfileID = this.selectedProfileList[0]['id'];
+          if (this.selectedProfileID == this.selectedProfileList[0]['id']) {
+            this.requestServiceList(this.selectedAPP.appId, this.selectedProfileID);
+          } else {
+            this.selectedProfileID = this.selectedProfileList[0]['id'];
+          }
         }
       }
     },
