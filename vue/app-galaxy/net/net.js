@@ -376,13 +376,6 @@ class Net {
             let serviceList = content['applicationServerList'];
             Array.isArray(serviceList) && serviceList.forEach(it => {
               it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-              utils.renameProperty(it, 'spaceList', 'profileList');
-              if (null == it.profileList) {
-                it.profileList = [];
-              }
-              it['profileList'] = it['profileList'].map(it => {
-                return appInfoHelper.getProfileByName(it);
-              });
 
               it.mirror = {
                 typeID: null == it.imageType ? null : parseInt(it.imageType),

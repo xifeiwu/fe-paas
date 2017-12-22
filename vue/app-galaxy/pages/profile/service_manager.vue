@@ -123,11 +123,11 @@
                             v-if="selected.service.language === 'JAVA'">
                 {{selected.service.mavenProfileId}}<i class="el-icon-edit"></i>
               </el-form-item>
-              <el-form-item label="运行环境：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                <span class="profile-desc" v-for="item in selected.service.profileList" :key="item.name">
-                  {{item.description}}
-                </span>
-              </el-form-item>
+              <!--<el-form-item label="运行环境：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">-->
+                <!--<span class="profile-desc" v-for="item in selected.service.profileList" :key="item.name">-->
+                  <!--{{item.description}}-->
+                <!--</span>-->
+              <!--</el-form-item>-->
             </el-form>
             <div class="step2">镜像信息</div>
             <el-form class="form2" label-position="right" label-width="120px" style="width: 100%">
