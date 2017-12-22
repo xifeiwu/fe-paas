@@ -43,7 +43,14 @@
       </el-aside>
       <el-main>
         <el-row class="main-title">
-          <el-col :span="12" class="current-step">{{currentStep}}</el-col>
+          <el-col :span="12" class="current-step">
+            <el-breadcrumb separator-class="el-icon-arrow-right">
+              <el-breadcrumb-item v-for="item in crumbList" :key="item" :to="{path: item}">
+                {{routerPathToName[item]}}
+              </el-breadcrumb-item>
+            </el-breadcrumb>
+          </el-col>
+
           <el-col :span="12" class="group-list">
             <el-select v-model="currentGroupID" placeholder="请选择">
               <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
@@ -94,6 +101,8 @@
           border-bottom: 1px solid gray;
           padding: 5px;
           .current-step {
+            padding-left: 6px;
+            margin-top: 12px;
             line-height: 32px;
           }
           .group-list {
@@ -109,14 +118,13 @@
 </style>
 
 <script>
-//  import { mapGetters } from 'vuex'
   import routeUtils from './route';
 
   export default {
     data() {
       return {
         activeIndex: '3',
-        currentStep: '',
+        crumbList: [],
         groupID: '',
       }
     },
@@ -127,7 +135,7 @@
         from: 'page/profile',
         groupID: this.currentGroupID
       });
-      this.currentStep = routeUtils.getNameByRouterPath(this.$route.path);
+      this.updateCrumbList(this.$route.path);
     },
     mounted() {
 //      console.log('profile created');
@@ -160,21 +168,16 @@
       },
       groupList() {
         return this.$store.getters['user/groupList'];
+      },
+      routerPathToName() {
+        return routeUtils.getRouterPathToName();
       }
     },
     watch: {
       '$route': function (value, oldValue) {
-        console.log(value);
-        let pathReg = /^\/profile\/[\w\/]*$/i;
-        let path = value.path;
-        this.currentStep = '';
-        if (pathReg.exec(path)) {
-          this.currentStep = '';
-          let name = routeUtils.getNameByRouterPath(path);
-          if (name) {
-            this.currentStep = name;
-          }
-        }
+//        console.log(value);
+//        console.log(this.routerPathToName);
+        this.updateCrumbList(value.path);
       }
     },
     methods: {
@@ -222,6 +225,21 @@
               this.$router.push(key);
               break;
           }
+        }
+      },
+      updateCrumbList(path) {
+        let pathReg = /^\/profile\/([\w\/]*)$/i;
+        let execResult = pathReg.exec(path);
+        if (execResult && execResult.length >= 2) {
+          let curPath = '/profile/';
+          this.crumbList = [];
+          execResult[1].split('/').forEach(it => {
+            let path = curPath + it;
+            if (path in this.routerPathToName) {
+              this.crumbList.push(path);
+            }
+            curPath = curPath + it + '/';
+          });
         }
       },
       handleOpen(key, keyPath) {

@@ -41,6 +41,7 @@ class RouterConfig {
   constructor() {
     this.componentConfig = routerUtils.componentList;
     this.allRouterPath = routerUtils.getAllRouterPath();
+    // console.log(this.componentConfig);
     let routeConfig = this.generateMiscRoutes();
     this.vueRouter = new VueRouter({
       mode: 'hash',

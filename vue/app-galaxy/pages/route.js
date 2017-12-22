@@ -135,7 +135,8 @@ Router.prototype = {
   },
 
   /**
-   * get all routerPath in router config tree
+   * get all routerPath in router config tree, used to:
+   * 1. check whether current url is validate.
    */
   getAllRouterPath() {
     var routerPath = [];
@@ -167,6 +168,53 @@ Router.prototype = {
     traverseComponent(this.componentList);
     return routerPath;
   },
+
+
+  /**
+   * get routerPath to name, in the following format:
+   * {
+   *   '/login': "登录",
+   *   '/profile':"详情",
+   *   '/profile/app':"应用管理",
+   *   '/profile/app/add':"创建应用",
+   *   '/profile/domain_name':"外网域名",
+   *   '/profile/instance_list':"实例列表",
+   *   '/profile/service_manager':"服务管理"
+   *  }
+   */
+  getRouterPathToName() {
+    var routerPath = {};
+    function updateItem(item) {
+      if (item.hasOwnProperty('routerPath') && item.hasOwnProperty('name')) {
+        if (item.name && item.routerPath) {
+          routerPath[item.routerPath] = item.name;
+        }
+      }
+    }
+    function traverseComponent(component) {
+      if ('object' === typeof(component)) {
+        for (let key in component) {
+          if (component.hasOwnProperty(key)) {
+            let item = component[key];
+            updateItem.call(this, item);
+            if ('children' in item) {
+              traverseComponent(item.children);
+            }
+          }
+        }
+        return null;
+      } else if (Array.isArray(component)) {
+        for (let key in component) {
+          let item = component[key];
+          updateItem.call(this, item);
+        }
+        return null;
+      }
+    }
+    traverseComponent(this.componentList);
+    return routerPath;
+  },
+
   /**
    * get component name by routerPath.
    */
@@ -213,7 +261,7 @@ Router.prototype = {
     }
     let name = traverseComponent(this.componentList);
     return name;
-  }
+  },
 }
 
 var router = new Router();

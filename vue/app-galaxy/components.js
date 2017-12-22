@@ -34,8 +34,8 @@ import TimePicker from '../packages/time-picker/index.js';
 import Popover from '../packages/popover/index.js';
 import Tooltip from '../packages/tooltip/index.js';
 import MessageBox from '../packages/message-box/index.js';
-// import Breadcrumb from '../packages/breadcrumb/index.js';
-// import BreadcrumbItem from '../packages/breadcrumb-item/index.js';
+import Breadcrumb from '../packages/breadcrumb/index.js';
+import BreadcrumbItem from '../packages/breadcrumb-item/index.js';
 import Form from '../packages/form/index.js';
 import FormItem from '../packages/form-item/index.js';
 // import Tabs from '../packages/tabs/index.js';
@@ -106,8 +106,8 @@ const components = [
   TimePicker,
   Popover,
   Tooltip,
-  // Breadcrumb,
-  // BreadcrumbItem,
+  Breadcrumb,
+  BreadcrumbItem,
   Form,
   FormItem,
   // Tabs,
