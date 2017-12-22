@@ -1,7 +1,7 @@
 var path = require('path');
 import Login from './login.vue';
 import Profile from './profile.vue';
-import AppManager from './profile/app_manager.vue';
+import AppManager from './profile/app.vue';
 import InstanceList from './profile/instance_list.vue';
 import AddApp from './profile/add_app';
 import AddAppStep1 from './profile/add_app/step1.vue';
@@ -26,9 +26,9 @@ var Router = function () {
       path: '/profile',
       name: '详情',
       component: Profile,
-      redirect: '/profile/app_manager',
+      redirect: '/profile/app',
       children: [{
-        path: 'app_manager',
+        path: 'app',
         name: '应用管理',
         component: AppManager,
       }, {
@@ -36,10 +36,10 @@ var Router = function () {
         name: '实例列表',
         component: InstanceList,
       }, {
-        path: 'add_app',
+        path: 'app/add_app',
         name: '创建应用',
         component: AddApp,
-        redirect: '/profile/add_app/step1',
+        redirect: '/profile/app/add_app/step1',
         children: [{
           path: 'step1',
           component: AddAppStep1,
