@@ -56,7 +56,8 @@
   import message_box_demo from './message-box.vue'
   import upload_demo from './upload.vue'
 
-  import jsx_demo1 from './jsx/demo1'
+  // import jsx_demo1 from './jsx/demo1.vue'
+  import jsx_demo1 from './jsx/demo1.js'
 
   export default {
       name: 'index',

@@ -118,7 +118,8 @@ var cookingConfig = {
     // 'src': path.join(__dirname, 'src'),
     'element-ui': vueBaseDir
   },
-  extends: ['vue2', 'sass', 'autoprefixer'],
+  extends: ['vue2', 'sass'],
+  // extends: ['vue2', 'sass', 'autoprefixer'],
   // plugins: [
   //   new webpack.ProvidePlugin({
   //     "React": "react",
@@ -128,10 +129,18 @@ var cookingConfig = {
 
 cooking.set(cookingConfig);
 
-// cooking.add('loader.js', {
-//   test: /\.js$/,
+// cooking.add('loader.demo1.vue', {
+//   test: /demo1\.vue$/,
 //   loaders: ['babel-loader'],
 //   exclude: /node_modules/
+// });
+// cooking.add('loader.es6', {
+//   test: /\.es6$/,
+//   loaders: ['babel-loader']
 // })
 
-module.exports = cooking.resolve();
+cookingResolve = cooking.resolve()
+// console.log(JSON.stringify(cookingResolve));
+
+
+module.exports = cookingResolve;

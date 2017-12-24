@@ -2,26 +2,26 @@
 export default {
     props: {
         'onClick': null,
-        'isShow': null
+        'isShow': 'show'
     },
  
     data() {
         return {
             test: 123,
-            clickME: 'click me'
+            show: 'hello jsx'
         };
     },
 
-    method: {
-        onClick: function(){console.log('click here')},
+    methods: {
+        // onClick: function(){console.log('click here')},
         clickME: function(){console.log('click me')},
     },
  
     render() {
         return (
-            <div class="test" onClick={ this.clickME }>
+            <div class="test" on-click={ this.clickME }>
                 { this.test }
-                { this.isShow + '' }
+                { this.show + '' }
             </div>
         );
     }
