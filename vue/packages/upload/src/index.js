@@ -271,7 +271,6 @@ export default {
       },
       ref: 'upload-inner'
     };
-    console.log(uploadData);
 
     const trigger = this.$slots.trigger || this.$slots.default;
     const uploadComponent = (typeof FormData !== 'undefined' || this.$isServer)

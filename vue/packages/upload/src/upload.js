@@ -1,9 +1,8 @@
-<script>
 import ajax from './ajax';
 import UploadDragger from './upload-dragger.vue';
 
 export default {
-  inject: ['uploader'],
+  // inject: ['uploader'],
   components: {
     UploadDragger
   },
@@ -51,8 +50,7 @@ export default {
   data() {
     return {
       mouseover: false,
-      reqs: {},
-      objectAssign: 'Object.assign'
+      reqs: {}
     };
   },
 
@@ -186,7 +184,7 @@ export default {
     };
     data.class[`el-upload--${listType}`] = true;
     return (
-      <div class="el-upload" on-click={handleClick} on-keydown={handleKeydown} tabindex="0" >
+      <div {...data} tabindex="0" >
         {
           drag
           ? <upload-dragger disabled={disabled} on-file={uploadFiles}>{this.$slots.default}</upload-dragger>
@@ -197,4 +195,3 @@ export default {
     );
   }
 };
-</script>
