@@ -192,7 +192,11 @@
       let queryParam = this.$route.query;
       if ('appIndex' in queryParam) {
         this.appIndex = parseInt(queryParam['appIndex']);
+        this.serviceForm.spaceId = parseInt(queryParam['profileID']);
       }
+      // get app related info at beginning
+      let appInfoListOfGroup = this.appInfoListOfGroup;
+      appInfoListOfGroup && this.getAppRelatedInfo(appInfoListOfGroup);
 
       this.rules.mirrorLocation.required = false;
       // set default cpu, default memorySizeList will be set in watch
@@ -222,6 +226,8 @@
           environments: [],
           hosts: [],
           instanceCount: 1,
+          appId: null,
+          spaceId: null,
         },
         memorySizeList: [],
         rules: AppPropUtil.rules,
@@ -274,6 +280,21 @@
         }
       },
       appInfoListOfGroup: function (value, oldValue) {
+        this.getAppRelatedInfo(value);
+      }
+    },
+    methods: {
+      /**
+       * two conditions of getting app related info:
+       * 1. refresh url.
+       *   app related info depends on appList which is got form net, which is slow than the logic of code, so watch
+       *   the value of appInfoListOfGroup is needed. Getting network data first, and then update app related info.
+       * 2. come form former page
+       *   as appInfoListOfGroup has contained in the web app, so i can get app related info at the beginning of app,
+       *   so getAppRelatedInfo is called on created method.
+       * @param value
+       */
+      getAppRelatedInfo (value) {
         let appInfoListOfGroup = value;
         let appList = null;
         if (appInfoListOfGroup) {
@@ -283,16 +304,12 @@
         }
         if (null != this.appIndex && appList && Array.isArray(appList) && appList.length > this.appIndex) {
           this.app = appList[this.appIndex];
+          this.serviceForm.appId = this.app.appId;
         }
         this.isJavaLanguage = this.app && this.app.language == 'JAVA';
 //        console.log(this.app);
 //        console.log(this.isJavaLanguage);
-      }
-    },
-    mounted() {
-      this.$store.dispatch('app/updateStepOfAddAPP', 1);
-    },
-    methods: {
+      },
       handleMirrorTypeChange(value) {
         switch (value) {
           case '0':
