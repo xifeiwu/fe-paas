@@ -1015,7 +1015,6 @@ export default {
           break;
       }
     },
-
     /**
      * do some init action before dialog popup
      * @param prop

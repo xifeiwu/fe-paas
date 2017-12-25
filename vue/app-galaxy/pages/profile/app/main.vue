@@ -151,20 +151,22 @@
 </style>
 <script>
   import AppPropUtils from '../utils/app_prop';
+  import StoreHelper from '../utils/store_helper.vue';
   export default {
+    mixins: [StoreHelper],
     created() {
       console.log('create app manager');
       this.requestAPPList('');
-//      let appInfoOfGroup = this.appInfoOfGroup;
-//      if (appInfoOfGroup.hasOwnProperty('appList')) {
-//        this.appList = appInfoOfGroup.appList;
+//      let appInfoListOfGroup = this.appInfoListOfGroup;
+//      if (appInfoListOfGroup.hasOwnProperty('appList')) {
+//        this.appList = appInfoListOfGroup.appList;
 //      }
 //      this.appListByPage = this.appList;
-//      if (appInfoOfGroup.hasOwnProperty('appModelList')) {
-//        this.appModelList = appInfoOfGroup.appModelList;
+//      if (appInfoListOfGroup.hasOwnProperty('appModelList')) {
+//        this.appModelList = appInfoListOfGroup.appModelList;
 //      }
-//      if (appInfoOfGroup.hasOwnProperty('total')) {
-//        this.totalSize = appInfoOfGroup.total;
+//      if (appInfoListOfGroup.hasOwnProperty('total')) {
+//        this.totalSize = appInfoListOfGroup.total;
 //      }
 //      console.log(this.totalSize);
     },
@@ -174,7 +176,7 @@
     data() {
       return {
         totalSize: 0,
-        pageSize: 2,
+        pageSize: 10,
         currentPage: 1,
         appListByPage: [],
         appList: [],
@@ -195,27 +197,27 @@
         waitingResponse: false,
       }
     },
-    computed: {
-      currentGroupID() {
-        let groupID = this.$store.getters['user/groupID'];
-        return groupID;
-      },
-      groupList() {
-        return this.$store.getters['user/groupList'];
-      },
-      profileListOfGroup() {
-        let value = this.$store.getters['user/profileListOfGroup'];
-        return value;
-      },
-      appInfoOfGroup() {
-        return this.$store.getters['user/appInfoListOfGroup'];
-      }
-    },
+//    computed: {
+//      currentGroupID() {
+//        let groupID = this.$store.getters['user/groupID'];
+//        return groupID;
+//      },
+//      groupList() {
+//        return this.$store.getters['user/groupList'];
+//      },
+//      profileListOfGroup() {
+//        let value = this.$store.getters['user/profileListOfGroup'];
+//        return value;
+//      },
+//      appInfoListOfGroup() {
+//        return this.$store.getters['user/appInfoListOfGroup'];
+//      }
+//    },
     watch: {
       currentGroupID: function (value, oldValue) {
         this.requestAPPList('');
       },
-//      appInfoOfGroup: function (value, oldValue) {
+//      appInfoListOfGroup: function (value, oldValue) {
 //      },
     },
     methods: {
@@ -249,6 +251,60 @@
               this.requestAPPList('');
               break;
           }
+        }
+      },
+
+      /**
+       * 属性修改的数据分为三层：allData - model - newProps
+       * model: data of form
+       * allData: 包含展示用的数据和model
+       * newProps: 临时数据model，用于弹出的dialog
+       *
+       * model只包含模型，在dialog弹出是将其值赋值给newProps；
+       * 弹出dialog中的数据模型使用newProps，展示使用service；
+       * 存储的时候，对比newProps和model的数据，如果发生改变用newProps更新model和service的数据，更新service的数据时需要使用app_prop；
+       */
+      /**
+       * handle click event in the operation-column
+       */
+      handleRowButtonClick(action, index, row) {
+        switch (action) {
+          case 'deleteRow':
+            this.$confirm('您将删除应用，' + row.groupTag + '确定吗？').then(() => {
+              this.$net.deleteAPP({
+                groupId: this.currentGroupID,
+                id: row.appId
+              }).then(res => {
+                this.appListByPage.splice(index, 1);
+                this.$message({
+                  type: 'success',
+                  message: '删除成功!'
+                });
+                this.requestAPPList('');
+              });
+            }).catch(() => {
+              this.$message({
+                type: 'info',
+                message: '您已取消删除'
+              });
+            });
+            break;
+          case 'change-profiles':
+            this.updateSelectedInfo(action, row, index);
+            this.$refs.hasOwnProperty('formInChangeProfileDialog') &&
+            this.$refs['formInChangeProfileDialog'].validate();
+            break;
+        }
+      },
+      updateSelectedInfo(action, row, index) {
+        let prop = action.split('-')[1];
+        this.selected.index = index;
+        this.selected.prop = prop;
+        this.selected.app = row;
+        if (this.appModelListByPage.length > index) {
+          let model = this.appModelListByPage[index]
+          this.selected.model = model;
+          this.newProps[prop] = JSON.parse(JSON.stringify(model[prop]))
         }
       },
       handleDialogButtonClick(action) {
@@ -309,46 +365,6 @@
             break;
         }
       },
-      updateSelectedInfo(action, row, index) {
-        let prop = action.split('-')[1];
-        this.selected.index = index;
-        this.selected.prop = prop;
-        this.selected.app = row;
-        if (this.appModelListByPage.length > index) {
-          let model = this.appModelListByPage[index]
-          this.selected.model = model;
-          this.newProps[prop] = JSON.parse(JSON.stringify(model[prop]))
-        }
-      },
-      handleRowButtonClick(action, index, row) {
-        switch (action) {
-          case 'deleteRow':
-            this.confirm('您将删除应用，' + row.groupTag + '确定吗？').then(() => {
-              this.$net.deleteAPP({
-                groupId: this.currentGroupID,
-                id: row.appId
-              }).then(res => {
-                this.appListByPage.splice(index, 1);
-                this.$message({
-                  type: 'success',
-                  message: '删除成功!'
-                });
-                this.requestAPPList('');
-              });
-            }).catch(() => {
-              this.$message({
-                type: 'info',
-                message: '您已取消删除'
-              });
-            });
-            break;
-          case 'change-profiles':
-            this.updateSelectedInfo(action, row, index);
-            this.$refs.hasOwnProperty('formInChangeProfileDialog') &&
-            this.$refs['formInChangeProfileDialog'].validate();
-            break;
-        }
-      },
       getProfileByName(name) {
         let result = {
           name: '',
@@ -369,6 +385,12 @@
         if (!serviceName) {
           serviceName = '';
         }
+        console.log({
+          groupId: this.currentGroupID,
+          start: this.currentPage,
+          length: this.pageSize,
+          serviceName: serviceName
+        });
         this.$net.getAPPList({
           groupId: this.currentGroupID,
           start: this.currentPage,
