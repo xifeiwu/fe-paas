@@ -7,7 +7,7 @@ import AppAdd from './profile/app/add.vue';
 // import AddAppStep1 from './profile/add_app/step1.vue';
 // import AddAppStep2 from './profile/add_app/step2.vue';
 // import AddAppStep3 from './profile/add_app/step3.vue';
-import ServiceManager from './profile/service_manager.vue';
+import ServiceManager from './profile/service.vue';
 import DomainName from './profile/domain_name.vue';
 
 /**
@@ -54,7 +54,7 @@ var Router = function () {
         name: '实例列表',
         component: InstanceList,
       }, {
-        path: 'service_manager',
+        path: 'service',
         name: '服务管理',
         component: ServiceManager,
       }, {
@@ -179,7 +179,7 @@ Router.prototype = {
    *   '/profile/app/add':"创建应用",
    *   '/profile/domain_name':"外网域名",
    *   '/profile/instance_list':"实例列表",
-   *   '/profile/service_manager':"服务管理"
+   *   '/profile/service':"服务管理"
    *  }
    */
   getRouterPathToName() {

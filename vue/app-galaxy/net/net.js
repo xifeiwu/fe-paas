@@ -40,11 +40,11 @@ class Net {
     function updateItem(item) {
       let keyMap = {
         "应用管理": {
-          router: '/profile/app_manager',
+          router: '/profile/app',
           icon: 'el-icon-location'
         },
         "服务管理": {
-          router: '/profile/service_manager'
+          router: '/profile/service'
         },
         "审批管理": {
           router: '/profile/approve_manager'
