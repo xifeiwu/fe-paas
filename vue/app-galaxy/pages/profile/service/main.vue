@@ -41,12 +41,12 @@
         :expand-row-keys="expandRows"
       >
         <el-table-column
-          prop="serverVersion"
+          prop="serviceVersion"
           label="版本"
           width="80">
         </el-table-column>
         <el-table-column
-          prop="address"
+          prop="intranetDomain"
           label="内网域名"
           width="180">
         </el-table-column>
@@ -102,6 +102,7 @@
                          width="0"
         >
           <template slot-scope="scope">
+            <div class="row-expand">
             <div class="step1">应用信息</div>
             <el-form class="form1" label-position="right" label-width="120px" inline style="width: 100%">
               <el-form-item label="项目名称：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
@@ -211,6 +212,7 @@
                 <i class="el-icon-edit" @click="handleChangeProp('loadBalance')"></i>
               </el-form-item>
             </el-form>
+          </div>
           </template>
         </el-table-column>
       </el-table>
@@ -573,6 +575,17 @@
     .header {
       .el-select .el-input__inner {
         height: 24px;
+      }
+    }
+    .app-list {
+      .el-table {
+        .el-table__expanded-cell {
+          .row-expand {
+            width: 80%;
+            margin: 0px auto;
+            max-width: 650px;
+          }
+        }
       }
     }
     .el-dialog__wrapper {
