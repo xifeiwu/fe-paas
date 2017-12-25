@@ -7,7 +7,7 @@ import AppAdd from './profile/app/add.vue';
 // import AddAppStep1 from './profile/add_app/step1.vue';
 // import AddAppStep2 from './profile/add_app/step2.vue';
 // import AddAppStep3 from './profile/add_app/step3.vue';
-import ServiceManager from './profile/service.vue';
+import ServiceMain from './profile/service/main.vue';
 import DomainName from './profile/domain_name.vue';
 
 /**
@@ -56,7 +56,7 @@ var Router = function () {
       }, {
         path: 'service',
         name: '服务管理',
-        component: ServiceManager,
+        component: ServiceMain,
       }, {
         path: 'domain_name',
         name: '外网域名',

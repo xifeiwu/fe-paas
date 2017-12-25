@@ -732,7 +732,7 @@
 </style>
 
 <script>
-  import appPropUtils from './utils/app_prop';
+  import appPropUtils from '../utils/app_prop';
 export default {
   created() {
     this.updateAppInfoList(this.appInfoListOfGroup);
