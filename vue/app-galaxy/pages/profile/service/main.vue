@@ -1,20 +1,32 @@
 <template>
   <div id="service-manager">
-    <el-form inline labelWidth="80px" class="title">
-      <el-form-item label="应用名称">
-        <el-select v-model="selectedAppIndex" placeholder="请选择" @change="handleSelectChange('app')">
-          <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="index">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="运行环境">
-        <el-select v-model="selectedProfileID" placeholder="请选择" @change="handleSelectChange('profile')">
-          <el-option v-for="item in selectedProfileList" :key="item.id" :label="item.description" :value="item.id">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item></el-form-item>
-    </el-form>
+    <div class="header">
+      <el-row>
+        <el-col :span="10">
+          <span>应用名称</span>
+          <el-select v-model="selectedAppIndex" placeholder="请选择" @change="handleSelectChange('app')">
+            <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="index">
+            </el-option>
+          </el-select>
+        </el-col>
+        <el-col :span="10">
+          <span>运行环境</span>
+          <el-select v-model="selectedProfileID" placeholder="请选择" @change="handleSelectChange('profile')">
+            <el-option v-for="item in selectedProfileList" :key="item.id" :label="item.description" :value="item.id">
+            </el-option>
+          </el-select>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="6">
+          <el-button @click="handleButtonClick($event, {role:'linker', path: '/profile/service/add'})">添加服务</el-button>
+        </el-col>
+        <el-col :span="6">
+          <el-button @click="handleButtonClick($event, {role:'cmd', action: 'refreshAppList'})">刷新</el-button>
+        </el-col>
+        <el-col :span="6"></el-col>
+      </el-row>
+    </div>
     <el-row class="notice">
       <el-tag type="success">
         <i class="el-icon-warning"></i>
@@ -558,6 +570,11 @@
     line-height: 25px;
   }
   #service-manager {
+    .header {
+      .el-select .el-input__inner {
+        height: 24px;
+      }
+    }
     .el-dialog__wrapper {
       &.deploy {
         .el-dialog {
@@ -602,6 +619,11 @@
 </style>
 <style lang="scss" scoped>
   #service-manager {
+    .header {
+      margin: 5px;
+      font-size: 14px;
+    }
+
     .notice {
       .el-tag {
         display: block;
@@ -733,8 +755,9 @@
 
 <script>
   import appPropUtils from '../utils/app_prop';
+  import ElButton from "../../../../packages/button/src/button";
 export default {
-  created() {
+  components: {ElButton}, created() {
     this.updateAppInfoList(this.appInfoListOfGroup);
   },
   mounted() {
@@ -875,6 +898,7 @@ export default {
         this.selectedAPP = this.appList[index];
         this.selectedProfileList = this.selectedAPP['profileList'];
         if (Array.isArray(this.selectedProfileList) && this.selectedProfileList.length > 0) {
+          // request service list when app id is changed while profile id is not changed.
           if (this.selectedProfileID == this.selectedProfileList[0]['id']) {
             this.requestServiceList(this.selectedAPP.appId, this.selectedProfileID);
           } else {
@@ -894,6 +918,19 @@ export default {
   },
 
   methods: {
+    handleButtonClick(evt, info) {
+      console.log(evt);
+      if ('linker' == info.role) {
+        this.$router.push({
+          path: info.path,
+          query: {
+            appID: this.selectedAppIndex,
+            profileID: this.selectedProfileID
+          }
+        });
+      } else if ('cmd' == info.role) {
+      }
+    },
     /**
      * handle click event in the operation-column
      */

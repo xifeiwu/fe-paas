@@ -8,6 +8,7 @@ import AppAdd from './profile/app/add.vue';
 // import AddAppStep2 from './profile/add_app/step2.vue';
 // import AddAppStep3 from './profile/add_app/step3.vue';
 import ServiceMain from './profile/service/main.vue';
+import ServiceAdd from './profile/service/add.vue';
 import DomainName from './profile/domain_name.vue';
 
 /**
@@ -50,13 +51,17 @@ var Router = function () {
         //   name: '创建应用',
         // }]
       }, {
-        path: 'instance_list',
-        name: '实例列表',
-        component: InstanceList,
-      }, {
         path: 'service',
         name: '服务管理',
         component: ServiceMain,
+      }, {
+        path: 'service/add',
+        name: '添加服务',
+        component: ServiceAdd,
+      }, {
+        path: 'instance_list',
+        name: '实例列表',
+        component: InstanceList,
       }, {
         path: 'domain_name',
         name: '外网域名',

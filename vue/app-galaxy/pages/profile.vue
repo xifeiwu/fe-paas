@@ -102,7 +102,7 @@
           padding: 5px;
           .current-step {
             padding-left: 6px;
-            margin-top: 12px;
+            margin-top: 8px;
             line-height: 32px;
           }
           .group-list {
