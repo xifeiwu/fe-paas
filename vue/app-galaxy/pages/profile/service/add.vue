@@ -41,14 +41,14 @@
 
       <el-form-item label="CPU" prop="cpuID">
         <el-radio-group v-model="serviceForm.cpuID" size="small">
-          <el-radio-button v-for="item in cpuAndMemoryList" :label="item.cpu" :key="item.id">
+          <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
             {{item.cpu}}核
         </el-radio-button>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="内存" prop="memoryID">
         <el-radio-group v-model="serviceForm.memoryID" size="small">
-          <el-radio-button v-for="item in memorySizeList" :label="item.memory" :key="item.id">
+          <el-radio-button v-for="item in memorySizeList" :label="item.id" :key="item.id">
             {{item.memory}}G
         </el-radio-button>
         </el-radio-group>
@@ -273,7 +273,7 @@
           if (Array.isArray(this.memorySizeList)) {
             this.memorySizeList.some(it => {
               if (it.hasOwnProperty('defaultSelect') && 1 === it.defaultSelect) {
-                this.serviceForm.memoryID = it.memory;
+                this.serviceForm.memoryID = it.id;
               }
             })
           }
@@ -374,10 +374,8 @@
         }
       },
       handleFinish() {
-        console.log(this.serviceForm);
         this.$refs['serviceForm'].validate((valid) => {
           if (valid) {
-//          this.$router.push('step2');
 //          this.$store.dispatch('app/updateStepOfAddAPP', 1);
             this.$store.dispatch('app/addCreateServiceInfo', {
               key: 'page1',
