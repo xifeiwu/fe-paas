@@ -10,19 +10,20 @@
       <el-form-item :label="mirrorLocationLabel" prop="mirrorLocation">
         <el-input v-model="serviceForm.mirrorLocation" placeholder="输入镜像地址，包含版本"></el-input>
       </el-form-item>
-      <el-form-item label="文件存储" prop="fileLocation" class="fileLocation">
-        <div>
-          <el-tag
-                  v-for="tag in serviceForm.fileLocation"
-                  :key="tag"
-                  closable
-                  type="success"
-                  @close="handleRemoveFileLocation(tag)"
-          >{{tag}}</el-tag>
-        </div>
-        <el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母数字下划线中划线，2-18位">
-          <template slot="append"><el-button class="add-file-location-btn" @click="handleAddFileLocation(fileLocationToAdd)">添加</el-button></template>
-        </el-input>
+
+      <el-form-item label="CPU" prop="cpu">
+        <el-radio-group v-model="serviceForm.cpu" size="small">
+          <el-radio-button v-for="item in cpuAndMemoryList" :label="item.cpu" :key="item.id">
+            {{item.cpu}}核
+        </el-radio-button>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="内存" prop="memory">
+        <el-radio-group v-model="serviceForm.memory" size="small">
+          <el-radio-button v-for="item in memeorySizeList" :label="item.memory" :key="item.id">
+            {{item.memory}}G
+        </el-radio-button>
+        </el-radio-group>
       </el-form-item>
 
       <el-form-item label="环境变量设置" prop="environments" class="environments">
@@ -133,11 +134,12 @@
   import AppPropUtil from '../utils/app_prop';
   export default {
     created() {
-      let infos = this.$store.state.app.infoForCreateApp;
-      if (infos && infos.hasOwnProperty('page2')) {
-        this.serviceForm = infos.page2;
-      }
       this.rules.mirrorLocation.required = false;
+      // set default cpu, default memorySizeList will be set in watch
+      if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
+        let firstItem = this.cpuAndMemoryList[0];
+        this.serviceForm.cpu = 'cpu' in firstItem ? firstItem.id : '';
+      }
     },
     data() {
       return {
@@ -150,12 +152,52 @@
         serviceForm: {
           mirrorType: '0',
           mirrorLocation: '',
+          cpu: '',
+          memory: '',
           fileLocation: [],
           environments: [],
           hosts: []
         },
+        memeorySizeList: [],
         rules: AppPropUtil.rules
       };
+    },
+    computed: {
+      cpuAndMemoryList() {
+        let result = [];
+        let value = this.$store.getters['app/messageForCreateAPP'];
+        if (value && value.hasOwnProperty('cpuAndMemorylist')) {
+          result = value.cpuAndMemorylist;
+        }
+        return result;
+      },
+    },
+    watch: {
+      'serviceForm.cpu': function (value, oldValue) {
+        let cpuID = value;
+        let cpuInfo = null;
+        if (Array.isArray(this.cpuAndMemoryList)) {
+          this.cpuAndMemoryList.some(it => {
+            if (it.hasOwnProperty('id') && cpuID === it.id) {
+              cpuInfo = it;
+            }
+          });
+          if (!cpuInfo && this.cpuAndMemoryList.length > 0) {
+            cpuInfo = this.cpuAndMemoryList[0];
+          }
+          if (!cpuInfo) {
+            return;
+          }
+          this.memeorySizeList = cpuInfo.memoryList;
+          if (Array.isArray(this.memeorySizeList)) {
+            this.memeorySizeList.some(it => {
+              if (it.hasOwnProperty('defaultSelect') && 1 === it.defaultSelect) {
+                this.serviceForm.memory = it.memory;
+              }
+            })
+          }
+        }
+      }
     },
     mounted() {
       this.$store.dispatch('app/updateStepOfAddAPP', 1);
