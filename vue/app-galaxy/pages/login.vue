@@ -44,7 +44,9 @@
             <el-input v-model="form.password" placeholder="请输入密码" type="password"></el-input>
           </el-form-item>
           <el-form-item class="verify-code">
-            <el-input v-model="form.verifyCode" placeholder="请输入验证码" appendStyle="width: 60px; text-align: center">
+            <el-input v-model="form.verifyCode" placeholder="请输入验证码"
+                      appendStyle="width: 60px; text-align: center"
+            >
               <template slot="append"><img alt="..." :src="verifyImageData" style="width: 60px; height: 30px; font-size: 10px"
                                            @click="updateVerifyCode"></template>
             </el-input>
@@ -122,6 +124,12 @@
             this.focusIndex -=1;
             break;
           case keyCode.ENTER:
+            // if keydown event of enter is trigger on the last input, the form will be submitted.
+            let lastInputIndex = 2;
+            let submitButtonIndex = 4;
+            if (lastInputIndex === this.focusIndex) {
+              this.focusableElesInForm[submitButtonIndex].click();
+            }
             break;
         }
         this.focusIndex = this.focusIndex < 0 ? 0 : this.focusIndex;
