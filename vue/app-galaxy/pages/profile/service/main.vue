@@ -955,13 +955,13 @@ export default {
         this.selected.model = this.currentModelList[index];
       }
 
+      let serviceID = this.selected.service['id'];
+      if (!serviceID) {
+        console.log('serviceID not found');
+        return;
+      }
       switch (action) {
         case 'deploy':
-          let serviceID = this.selected.service['id'];
-          if (!serviceID) {
-            console.log('serviceID not found');
-            return;
-          }
 //          this.deployLogs = [];
 //          this.selected.operation = 'deploy';
 //          let scrollWrapInDeployDialog = document.querySelector('#service-manager .deploy .el-scrollbar .el-scrollbar__wrap');
@@ -980,6 +980,26 @@ export default {
             id: serviceID,
             appId: this.appList[this.selectedAppIndex]['appId'],
             spaceId: this.selectedProfileID
+          });
+          break;
+        case 'delete':
+          this.$confirm('您将删除服务版本：' + this.selected.service.serviceVersion + '，确定吗？').then(() => {
+            this.$net.serviceDelete({
+              id: serviceID,
+              appId: this.appList[this.selectedAppIndex]['appId'],
+              spaceId: this.selectedProfileID
+            }).then(content => {
+              console.log(content);
+            }).catch(err => {
+              this.$notify({
+                title: '提示',
+                message: err,
+                duration: 0,
+                onClose: function () {
+                }
+              });
+              console.log(err);
+            });
           });
           break;
         case 'service_info':

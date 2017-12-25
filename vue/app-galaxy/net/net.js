@@ -452,6 +452,17 @@ class Net {
     });
   }
 
+  serviceDelete(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.service_delete, options).then(response => {
+        console.log(response);
+        resolve(response);
+      }).catch(err => {
+        console.log(err);
+      })
+    });
+  }
+
   serviceUpdate(prop, options) {
     let url = null;
     switch (prop) {
