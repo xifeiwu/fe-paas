@@ -105,7 +105,7 @@
             <div class="step1">应用信息</div>
             <el-form class="form1" label-position="right" label-width="120px" inline style="width: 100%">
               <el-form-item label="项目名称：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{selected.service.serviceName}}
+                {{selected.service.tag}}
               </el-form-item>
               <el-form-item label="开发语言：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.language + ' - ' + selected.service.languageVersion}}
@@ -950,24 +950,25 @@ export default {
             console.log('serviceID not found');
             return;
           }
-          this.deployLogs = [];
-          this.selected.operation = 'deploy';
+//          this.deployLogs = [];
+//          this.selected.operation = 'deploy';
+//          let scrollWrapInDeployDialog = document.querySelector('#service-manager .deploy .el-scrollbar .el-scrollbar__wrap');
+//          let count = 0;
+//          setInterval(() => {
+//            count += 1;
+//            this.deployLogs.push('fdafdsafda' + count);
+//            if (!scrollWrapInDeployDialog) {
+//              scrollWrapInDeployDialog = document.querySelector('#service-manager .deploy .el-scrollbar .el-scrollbar__wrap');
+//            } else {
+//              scrollWrapInDeployDialog.scrollTop = scrollWrapInDeployDialog.scrollHeight - scrollWrapInDeployDialog.offsetHeight;
+//            }
+//          }, 1000);
 
-          let scrollWrapInDeployDialog = document.querySelector('#service-manager .deploy .el-scrollbar .el-scrollbar__wrap');
-          let count = 0;
-          setInterval(() => {
-            count += 1;
-            this.deployLogs.push('fdafdsafda' + count);
-            if (!scrollWrapInDeployDialog) {
-              scrollWrapInDeployDialog = document.querySelector('#service-manager .deploy .el-scrollbar .el-scrollbar__wrap');
-            } else {
-              scrollWrapInDeployDialog.scrollTop = scrollWrapInDeployDialog.scrollHeight - scrollWrapInDeployDialog.offsetHeight;
-            }
-          }, 1000);
-
-//          this.$net.serviceDeploy({
-//            id: serviceID
-//          });
+          this.$net.serviceDeploy({
+            id: serviceID,
+            appId: this.selectedAppIndex,
+            spaceId: this.selectedProfileID
+          });
           break;
         case 'service_info':
           if (!row.hasOwnProperty('id')) {
