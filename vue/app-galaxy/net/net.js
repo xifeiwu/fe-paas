@@ -304,24 +304,39 @@ class Net {
     });
   }
 
+  getMsgForUserFromData(data) {
+    let result = {
+      success: false,
+      msg: ''
+    }
+    if (0 === data.code) {
+      result.success = true;
+      result.msg = '成功！';
+    } else {
+      result.success = false;
+      result.msg = '失败！';
+    }
+    if (data.hasOwnProperty('content')) {
+      result.msg = JSON.stringify(data.content);
+    } else if (data.hasOwnProperty('msg') && (data.msg.length > 0)) {
+      result.msg = data.msg
+    }
+    console.log(result);
+    return result;
+  }
+
   createService(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.service_create, options).then(response => {
-        // let content = this.getResponseContent(response);
-        // if (content) {
-        //   resolve(content);
-        // } else {
-        //   reject('创建应用失败');
-        // }
         console.log(response);
         let content = null;
         if ('data' in response) {
           let data = response.data;
-          if (0 === data.code) {
-            content = data.content ? data.content : {};
-            resolve(content);
+          let result = this.getMsgForUserFromData(data);
+          if (result.success) {
+            resolve(result.msg);
           } else {
-            reject(data.msg);
+            reject(result.msg);
           }
         }
       }).catch(err => {

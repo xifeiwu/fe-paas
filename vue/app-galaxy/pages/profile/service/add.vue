@@ -374,30 +374,29 @@
         }
       },
       handleFinish() {
+        let self = this;
         this.$refs['serviceForm'].validate((valid) => {
           if (valid) {
-//          this.$store.dispatch('app/updateStepOfAddAPP', 1);
+            this.serviceForm.serviceVersion = 'V' + this.serviceForm.serviceVersion;
             this.$store.dispatch('app/addCreateServiceInfo', {
-              key: 'page1',
+              key: 'service_add',
               value: this.serviceForm
             });
 
             let toPost = this.$store.getters['app/infoForCreateServiceToPost'];
-            console.log('toPost');
-            console.log(toPost);
+//            console.log('toPost');
+//            console.log(toPost);
             this.showLoading = true;
             this.loadingText = '正在为您创建服务';
             this.$net.createService(toPost).then((content) => {
               this.showLoading = false;
-//              this.$router.push('/profile/service');
-
-//            this.confirm('创建应用 ' + toPost.serviceName + ' 成功！').then(() => {
-//              this.$router.push('/profile/app_manager');
-//            }).catch(() => {
-//              this.$store.dispatch('app/addCreateAPPInfo', null);
-//              this.$router.push('step1');
-//            });
+              this.$confirm('创建应用成功！继续创建？').then(() => {
+                this.$router.push('/profile/service/add');
+              }).catch(() => {
+                this.$router.push('/profile/service');
+              });
             }).catch((err) => {
+              this.showLoading = false;
               this.$notify({
                 title: '提示',
                 message: err,
