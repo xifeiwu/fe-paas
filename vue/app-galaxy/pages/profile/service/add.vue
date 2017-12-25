@@ -1,6 +1,11 @@
 <template>
   <div id="service-add">
     <el-form :model="serviceForm" ref="serviceForm" :rules="rules" label-width="120px">
+      <el-form-item label="版本号" prop="serviceVersion" class="serviceVersion">
+        <el-input v-model="serviceForm.serviceVersion" placeholder="版本号只能包含数字和点">
+          <template slot="prepend">V</template>
+        </el-input>
+      </el-form-item>
       <el-form-item label="镜像方式" prop="mirrorType">
         <el-radio-group v-model="serviceForm.mirrorType" @change="handleMirrorTypeChange">
           <el-radio label="0">自动打镜像</el-radio>
@@ -20,7 +25,7 @@
       </el-form-item>
       <el-form-item label="内存" prop="memory">
         <el-radio-group v-model="serviceForm.memory" size="small">
-          <el-radio-button v-for="item in memeorySizeList" :label="item.memory" :key="item.id">
+          <el-radio-button v-for="item in memorySizeList" :label="item.memory" :key="item.id">
             {{item.memory}}G
         </el-radio-button>
         </el-radio-group>
@@ -28,8 +33,9 @@
 
       <el-form-item label="环境变量设置" prop="environments" class="environments">
         <el-row>
-          <el-col :span="10" style="font-weight: bold">Key</el-col>
-          <el-col :span="10" style="font-weight: bold">Value</el-col>
+          <el-col :span="9" style="font-weight: bold">Key</el-col>
+          <el-col :span="2">&nbsp</el-col>
+          <el-col :span="9" style="font-weight: bold">Value</el-col>
           <el-col :span="4" style="font-weight: bold"></el-col>
         </el-row>
         <el-row
@@ -37,6 +43,7 @@
                 :key="item.key"
         >
           <el-col :span="9">{{item.key}}</el-col>
+          <el-col :span="2">&nbsp</el-col>
           <el-col :span="9">{{item.value}}</el-col>
           <el-col :span="4">
             <el-button class="delete-environment-btn" @click="handleDeleteEnvironment(index)">删除</el-button>
@@ -51,15 +58,16 @@
             <el-input v-model="environmentValue" placeholder="Value值"></el-input>
           </el-col>
           <el-col :span="4">
-            <el-button class="add-environment-btn" @click="handleAddEnvironment(environmentKey, environmentValue)">添加</el-button>
+            <el-button @click="handleAddEnvironment(environmentKey, environmentValue)">添加</el-button>
           </el-col>
         </el-row>
       </el-form-item>
 
       <el-form-item label="域名配置" prop="hosts" class="hosts">
         <el-row>
-          <el-col :span="10" style="font-weight: bold">IP</el-col>
-          <el-col :span="10" style="font-weight: bold">域名</el-col>
+          <el-col :span="9" style="font-weight: bold">IP</el-col>
+          <el-col :span="2">&nbsp</el-col>
+          <el-col :span="9" style="font-weight: bold">域名</el-col>
           <el-col :span="4" style="font-weight: bold"></el-col>
         </el-row>
         <el-row
@@ -67,6 +75,7 @@
                 :key="item.ip"
         >
           <el-col :span="9">{{item.ip}}</el-col>
+          <el-col :span="2">&nbsp</el-col>
           <el-col :span="9">{{item.domain}}</el-col>
           <el-col :span="4">
             <el-button class="delete-host-btn" @click="handleDeleteHost(index)">删除</el-button>
@@ -81,26 +90,40 @@
             <el-input v-model="hostValue" placeholder="域名"></el-input>
           </el-col>
           <el-col :span="4">
-            <el-button class="add-environment-btn" @click="handleAddHost(hostKey, hostValue)">添加</el-button>
+            <el-button @click="handleAddHost(hostKey, hostValue)">添加</el-button>
           </el-col>
         </el-row>
       </el-form-item>
-
-      <el-form-item class="steps">
-        <el-row>
-          <el-col :span="6">
-            <el-button type="primary" @click="handleNextStep">下一步</el-button>
-          </el-col>
-          <el-col :span="12">&nbsp</el-col>
-          <el-col :span="6">
-            <el-button type="primary" @click="handlePreStep">上一步</el-button>
-          </el-col>
-        </el-row>
+      <el-form-item label="实例数量" prop="instanceCount">
+        <el-input-number v-model="serviceForm.instanceCount" :min="1" :max="10" label="描述文字"></el-input-number>
+      </el-form-item>
+      <el-form-item class="finish" labelWidth="0">
+        <el-button type="primary" @click="handleFinish">完成</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
+<style lang="scss">
+  #service-add {
+    .el-form {
+      .el-form-item {
+        &.serviceVersion {
+          .el-input {
+            .el-input-group__prepend {
+              width: 24px;
+              text-align: center;
+              color: black;
+            }
+            input {
+              width: 50%;
+            }
+          }
+        }
+      }
+    }
+  }
+</style>
 <style lang="scss" scoped>
   #service-add {
     .el-form {
@@ -120,12 +143,15 @@
         &.hosts {
           text-align: center;
         }
-        &.steps {
-          text-align: center;
-          .el-button {
-            width: 100%;
-          }
-        }
+        &.finish {
+           .el-button {
+             display: block;
+             margin: 0px auto;
+             width: 50%;
+             max-width: 200px;
+             text-align: center;
+           }
+         }
       }
     }
   }
@@ -150,15 +176,17 @@
         hostKey: '',
         hostValue: '',
         serviceForm: {
+          serviceVersion: '',
           mirrorType: '0',
           mirrorLocation: '',
           cpu: '',
           memory: '',
           fileLocation: [],
           environments: [],
-          hosts: []
+          hosts: [],
+          instanceCount: 1,
         },
-        memeorySizeList: [],
+        memorySizeList: [],
         rules: AppPropUtil.rules
       };
     },
@@ -188,9 +216,9 @@
           if (!cpuInfo) {
             return;
           }
-          this.memeorySizeList = cpuInfo.memoryList;
-          if (Array.isArray(this.memeorySizeList)) {
-            this.memeorySizeList.some(it => {
+          this.memorySizeList = cpuInfo.memoryList;
+          if (Array.isArray(this.memorySizeList)) {
+            this.memorySizeList.some(it => {
               if (it.hasOwnProperty('defaultSelect') && 1 === it.defaultSelect) {
                 this.serviceForm.memory = it.memory;
               }
@@ -266,25 +294,48 @@
           this.$message.error('IP或域名不能为空');
         }
       },
-      handleNextStep() {
-//        console.log(this.stepForm1);
+      handleFinish() {
+        console.log(this.serviceForm);
         this.$refs['serviceForm'].validate((valid) => {
           if (valid) {
-            this.$router.push('step3');
-            this.$store.dispatch('app/updateStepOfAddAPP', 2);
+//          this.$router.push('step2');
+//          this.$store.dispatch('app/updateStepOfAddAPP', 1);
             this.$store.dispatch('app/addCreateAPPInfo', {
-              key: 'page2',
+              key: 'page1',
               value: this.serviceForm
+            });
+
+            let toPost = this.$store.getters['app/infoForCreateAppToPost'];
+            console.log('toPost');
+            console.log(toPost);
+            this.showLoading = true;
+            this.loadingText = '正在为您创建应用' + toPost.serviceName;
+            this.$net.createAPP(toPost).then((content) => {
+              this.showLoading = false;
+              this.$router.push('/profile/app');
+//            this.confirm('创建应用 ' + toPost.serviceName + ' 成功！').then(() => {
+//              this.$router.push('/profile/app_manager');
+//            }).catch(() => {
+//              this.$store.dispatch('app/addCreateAPPInfo', null);
+//              this.$router.push('step1');
+//            });
+            }).catch((err) => {
+              this.$notify({
+                title: '提示',
+                message: err,
+                duration: 0,
+                onClose: function () {
+                  self.showLoading = false;
+                  self.$router.push('/profile/app/add');
+                }
+              });
+              console.log(err);
             });
           } else {
             console.log('error submit!!');
             return false;
           }
         });
-      },
-      handlePreStep() {
-        this.$router.push('step1');
-        this.$store.dispatch('app/updateStepOfAddAPP', 1);
       },
       resetForm(formName) {
         this.$refs[formName].resetFields();

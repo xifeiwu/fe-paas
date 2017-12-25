@@ -66,6 +66,12 @@ class AppInfoHelper {
         max: 50,
         message: '长度在2到50个字符',
       }],
+
+      serviceVersion: [{
+        required: true,
+        message: '请填写服务版本',
+      }
+      ],
         // gitlab地址
         gitlabAddress: [{
         required: true,
@@ -82,8 +88,8 @@ class AppInfoHelper {
       }],
 
 
-        // 镜像方式
-        mirrorType: [{
+      // 镜像方式
+      mirrorType: [{
         required: true,
         message: '请选择打镜像方式',
       }],
