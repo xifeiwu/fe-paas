@@ -966,7 +966,7 @@ export default {
 
           this.$net.serviceDeploy({
             id: serviceID,
-            appId: this.selectedAppIndex,
+            appId: this.appList[this.selectedAppIndex]['appId'],
             spaceId: this.selectedProfileID
           });
           break;
