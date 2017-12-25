@@ -40,6 +40,8 @@ const state = {
   stepOfAddAPP: 0,
   infoForCreateApp: {},
   infoForCreateAppToPost: {},
+  infoForCreateService: {},
+  infoForCreateServiceToPost: {},
 
   /* net data */
   messageForCreateAPP: {},
@@ -61,6 +63,14 @@ const actions = {
     //   && state.infoForCreateApp.hasOwnProperty('page3')) {
     commit('SET_INFO_FOR_CREATE_APP', state.infoForCreateApp);
     // }
+  },
+  addCreateServiceInfo({commit, state}, params) {
+    if (null === params) {
+      state.messageForCreateService = {}
+      return
+    }
+    state.infoForCreateService = params.value;
+    commit('SET_INFO_FOR_CREATE_SERVICE', state.infoForCreateService);
   },
 
   /* net data */
@@ -89,6 +99,9 @@ const mutations = {
     //   localStorage.setItem('app/infoForCreateAppToPost', JSON.stringify(state.infoForCreateAppToPost));
     // }
   },
+  SET_INFO_FOR_CREATE_SERVICE(state, infoForCreateService) {
+    state.infoForCreateServiceToPost = postFormatter.infoToCreateAPP(infoForCreateService);
+  },
 
   /* net data */
   SET_MESSAGE_FOR_CREATE_APP(state, content) {
@@ -109,6 +122,9 @@ const getters = {
   },
   'infoForCreateAppToPost': (state, getters) => {
     return getValue({state, getters}, 'infoForCreateAppToPost');
+  },
+  'infoForCreateServiceToPost': (state, getters) => {
+    return getValue({state, getters}, 'infoForCreateServiceToPost');
   },
 
   /* net data */

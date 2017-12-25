@@ -69,7 +69,8 @@ class AppInfoHelper {
 
       serviceVersion: [{
         required: true,
-        message: '请填写服务版本',
+        message: '请填写服务版本，只能包含数字',
+        pattern: /^[0-9]+$/,
       }
       ],
         // gitlab地址

@@ -13,12 +13,16 @@ export default {
       projectName: 'tag',
       profiles: 'spaceList',
       buildType: 'packageType',
-      mirrorType: 'imageType',
+      mirrorType: 'customImage',
       mirrorLocation: 'image',
       fileLocation: 'volumes',
       groupID: 'groupId',
+      cpuID: 'cpuId',
+      memoryID: 'memoryId',
       relativePathOfParentPOM: 'relativePath',
-    }
+      gitlabAddress: 'gitLabAddress',
+      gitlabBranch: 'gitLabBranch',
+    };
     let updateProp = function(item) {
       if ('object' === typeof(item)) {
         for (let key in item) {

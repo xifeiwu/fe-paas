@@ -1,15 +1,18 @@
 <template>
   <div id="service-add">
-    <el-form :model="serviceForm" ref="serviceForm" :rules="rules" label-width="120px">
+    <el-form :model="serviceForm" ref="serviceForm"
+             :rules="rules" label-width="120px"
+             v-loading="showLoading"
+             :element-loading-text="loadingText">
       <el-form-item label="版本号" prop="serviceVersion" class="serviceVersion">
-        <el-input v-model="serviceForm.serviceVersion" placeholder="版本号只能包含数字和点">
+        <el-input v-model="serviceForm.serviceVersion" placeholder="版本号只能包含数字">
           <template slot="prepend">V</template>
         </el-input>
       </el-form-item>
       <el-form-item label="镜像方式" prop="mirrorType">
         <el-radio-group v-model="serviceForm.mirrorType" @change="handleMirrorTypeChange">
-          <el-radio label="0">自动打镜像</el-radio>
-          <el-radio label="1">自定义镜像</el-radio>
+          <el-radio :label="false">自动打镜像</el-radio>
+          <el-radio :label="true">自定义镜像</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item :label="mirrorLocationLabel" prop="mirrorLocation">
@@ -36,15 +39,15 @@
         <el-input v-model="serviceForm.vmOptions" placeholder=""></el-input>
       </el-form-item>
 
-      <el-form-item label="CPU" prop="cpu">
-        <el-radio-group v-model="serviceForm.cpu" size="small">
+      <el-form-item label="CPU" prop="cpuID">
+        <el-radio-group v-model="serviceForm.cpuID" size="small">
           <el-radio-button v-for="item in cpuAndMemoryList" :label="item.cpu" :key="item.id">
             {{item.cpu}}核
         </el-radio-button>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="内存" prop="memory">
-        <el-radio-group v-model="serviceForm.memory" size="small">
+      <el-form-item label="内存" prop="memoryID">
+        <el-radio-group v-model="serviceForm.memoryID" size="small">
           <el-radio-button v-for="item in memorySizeList" :label="item.memory" :key="item.id">
             {{item.memory}}G
         </el-radio-button>
@@ -195,7 +198,7 @@
       // set default cpu, default memorySizeList will be set in watch
       if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
         let firstItem = this.cpuAndMemoryList[0];
-        this.serviceForm.cpu = 'cpu' in firstItem ? firstItem.id : '';
+        this.serviceForm.cpuID = 'cpu' in firstItem ? firstItem.id : '';
       }
     },
     data() {
@@ -208,14 +211,14 @@
         hostValue: '',
         serviceForm: {
           serviceVersion: '',
-          mirrorType: '0',
+          mirrorType: false,
           mirrorLocation: '',
           gitlabAddress: '',
           gitlabBranch: '',
           relativePathOfParentPOM: '',
-          cpu: '',
-          memory: '',
-          fileLocation: [],
+          vmOptions: '',
+          cpuID: '',
+          memoryID: '',
           environments: [],
           hosts: [],
           instanceCount: 1,
@@ -226,6 +229,9 @@
         appIndex: null,
         app: null,
         isJavaLanguage: false,
+
+        showLoading: false,
+        loadingText: '',
       };
     },
     computed: {
@@ -242,7 +248,7 @@
       },
     },
     watch: {
-      'serviceForm.cpu': function (value, oldValue) {
+      'serviceForm.cpuID': function (value, oldValue) {
         let cpuID = value;
         let cpuInfo = null;
         if (Array.isArray(this.cpuAndMemoryList)) {
@@ -261,7 +267,7 @@
           if (Array.isArray(this.memorySizeList)) {
             this.memorySizeList.some(it => {
               if (it.hasOwnProperty('defaultSelect') && 1 === it.defaultSelect) {
-                this.serviceForm.memory = it.memory;
+                this.serviceForm.memoryID = it.memory;
               }
             })
           }
@@ -279,6 +285,8 @@
           this.app = appList[this.appIndex];
         }
         this.isJavaLanguage = this.app && this.app.language == 'JAVA';
+//        console.log(this.app);
+//        console.log(this.isJavaLanguage);
       }
     },
     mounted() {
@@ -354,19 +362,20 @@
           if (valid) {
 //          this.$router.push('step2');
 //          this.$store.dispatch('app/updateStepOfAddAPP', 1);
-            this.$store.dispatch('app/addCreateAPPInfo', {
+            this.$store.dispatch('app/addCreateServiceInfo', {
               key: 'page1',
               value: this.serviceForm
             });
 
-            let toPost = this.$store.getters['app/infoForCreateAppToPost'];
+            let toPost = this.$store.getters['app/infoForCreateServiceToPost'];
             console.log('toPost');
             console.log(toPost);
             this.showLoading = true;
-            this.loadingText = '正在为您创建应用' + toPost.serviceName;
-            this.$net.createAPP(toPost).then((content) => {
+            this.loadingText = '正在为您创建服务';
+            this.$net.createService(toPost).then((content) => {
               this.showLoading = false;
-              this.$router.push('/profile/app');
+//              this.$router.push('/profile/service');
+
 //            this.confirm('创建应用 ' + toPost.serviceName + ' 成功！').then(() => {
 //              this.$router.push('/profile/app_manager');
 //            }).catch(() => {
@@ -380,7 +389,7 @@
                 duration: 0,
                 onClose: function () {
                   self.showLoading = false;
-                  self.$router.push('/profile/app/add');
+                  self.$router.push('/profile/service/add');
                 }
               });
               console.log(err);

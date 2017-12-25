@@ -304,6 +304,33 @@ class Net {
     });
   }
 
+  createService(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.service_create, options).then(response => {
+        // let content = this.getResponseContent(response);
+        // if (content) {
+        //   resolve(content);
+        // } else {
+        //   reject('创建应用失败');
+        // }
+        console.log(response);
+        let content = null;
+        if ('data' in response) {
+          let data = response.data;
+          if (0 === data.code) {
+            content = data.content ? data.content : {};
+            resolve(content);
+          } else {
+            reject(data.msg);
+          }
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      });
+    });
+  }
+
   deleteAPP(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.delete_app, options).then(response => {
