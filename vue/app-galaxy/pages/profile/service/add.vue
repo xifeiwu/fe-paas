@@ -16,6 +16,26 @@
         <el-input v-model="serviceForm.mirrorLocation" placeholder="输入镜像地址，包含版本"></el-input>
       </el-form-item>
 
+      <el-form-item label="Gitlab地址" prop="gitlabAddress">
+        <el-input v-model="serviceForm.gitlabAddress" placeholder="请输入项目的gitlab地址"></el-input>
+      </el-form-item>
+      <el-form-item label="Gitlab分支" prop="gitlabBranch">
+        <el-input v-model="serviceForm.gitlabBranch" placeholder="请输入gitlab分支名"></el-input>
+      </el-form-item>
+
+      <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
+                    v-if="isJavaLanguage"
+                    class="relativePathOfParentPOM"
+      >
+        <el-input v-model="serviceForm.relativePathOfParentPOM" placeholder=""></el-input>
+      </el-form-item>
+
+      <el-form-item label="VM_Options" prop="vmOptions"
+                    v-if="isJavaLanguage"
+      >
+        <el-input v-model="serviceForm.vmOptions" placeholder=""></el-input>
+      </el-form-item>
+
       <el-form-item label="CPU" prop="cpu">
         <el-radio-group v-model="serviceForm.cpu" size="small">
           <el-radio-button v-for="item in cpuAndMemoryList" :label="item.cpu" :key="item.id">
@@ -120,6 +140,11 @@
             }
           }
         }
+        &.relativePathOfParentPOM {
+          .el-form-item__label {
+            line-height: 100%;
+          }
+        }
       }
     }
   }
@@ -160,6 +185,12 @@
   import AppPropUtil from '../utils/app_prop';
   export default {
     created() {
+      // receive queryString parameters from the former page
+      let queryParam = this.$route.query;
+      if ('appIndex' in queryParam) {
+        this.appIndex = parseInt(queryParam['appIndex']);
+      }
+
       this.rules.mirrorLocation.required = false;
       // set default cpu, default memorySizeList will be set in watch
       if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
@@ -179,6 +210,9 @@
           serviceVersion: '',
           mirrorType: '0',
           mirrorLocation: '',
+          gitlabAddress: '',
+          gitlabBranch: '',
+          relativePathOfParentPOM: '',
           cpu: '',
           memory: '',
           fileLocation: [],
@@ -187,7 +221,11 @@
           instanceCount: 1,
         },
         memorySizeList: [],
-        rules: AppPropUtil.rules
+        rules: AppPropUtil.rules,
+
+        appIndex: null,
+        app: null,
+        isJavaLanguage: false,
       };
     },
     computed: {
@@ -198,6 +236,9 @@
           result = value.cpuAndMemorylist;
         }
         return result;
+      },
+      appInfoListOfGroup() {
+        return this.$store.getters['user/appInfoListOfGroup'];
       },
     },
     watch: {
@@ -225,6 +266,19 @@
             })
           }
         }
+      },
+      appInfoListOfGroup: function (value, oldValue) {
+        let appInfoListOfGroup = value;
+        let appList = null;
+        if (appInfoListOfGroup) {
+          if (appInfoListOfGroup.hasOwnProperty('appList')) {
+            appList = appInfoListOfGroup.appList;
+          }
+        }
+        if (null != this.appIndex && appList && Array.isArray(appList) && appList.length > this.appIndex) {
+          this.app = appList[this.appIndex];
+        }
+        this.isJavaLanguage = this.app && this.app.language == 'JAVA';
       }
     },
     mounted() {

@@ -755,9 +755,8 @@
 
 <script>
   import appPropUtils from '../utils/app_prop';
-  import ElButton from "../../../../packages/button/src/button";
 export default {
-  components: {ElButton}, created() {
+  created() {
     this.updateAppInfoList(this.appInfoListOfGroup);
   },
   mounted() {
@@ -919,12 +918,12 @@ export default {
 
   methods: {
     handleButtonClick(evt, info) {
-      console.log(evt);
+//      console.log(evt);
       if ('linker' == info.role) {
         this.$router.push({
           path: info.path,
           query: {
-            appID: this.selectedAppIndex,
+            appIndex: this.selectedAppIndex,
             profileID: this.selectedProfileID
           }
         });
@@ -1371,7 +1370,7 @@ export default {
 //      }
     },
     updateAppInfoList(appInfoListOfGroup) {
-      console.log(appInfoListOfGroup);
+//      console.log(appInfoListOfGroup);
       if (appInfoListOfGroup) {
         if (appInfoListOfGroup.hasOwnProperty('appList')) {
           this.appList = appInfoListOfGroup.appList;

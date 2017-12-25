@@ -86,6 +86,9 @@ class AppInfoHelper {
         relativePathOfParentPOM: [{
         required: false,
       }],
+      vmOptions: [{
+      }
+      ],
 
 
       // 镜像方式
