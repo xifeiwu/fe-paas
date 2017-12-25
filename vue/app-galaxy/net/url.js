@@ -22,11 +22,18 @@ var urlList = {
   'get_cpu_and_memory_config': path + '/cpuAndMemory/queryCpuAndMemory',
   'get_all_language': path + '/language/queryAllLanguage',
   'change_profile': path + '/application/update',
-  'get_service_by_appId_and_profile': path + '/server/queryByAppIdAndSpaceId',
+  'get_service_by_appId_and_profile': path + '/service/queryByAppIdAndSpaceId',
 
-  'service_deploy': path + '/server/deploy',
-
-  'service_update_health': path + '/server/updateHealth',
-}
+  // 部署服务
+  'service_deploy': path + '/service/deployApplicationService',
+  // 创建服务
+  'service_create':  path + '/service/createApplicationService',
+  // 删除服务
+  'service_delete': path + '/service/deleteApplicationService',
+  // 停止服务
+  'service_stop': path + '/service/stopApplicationService',
+  // 更改健康检查
+  'service_update_health': path + '/service/updateHealth',
+};
 
 export default urlList;
