@@ -839,9 +839,11 @@ export default {
 
       selected: {
         index: -1,
+        // which property to change
         prop: null,
         service: null,
         model: {},
+        // which operation button is clicked
         operation: '',
       },
       newProps: {

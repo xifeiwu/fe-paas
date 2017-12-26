@@ -163,20 +163,14 @@ class Net {
    * @returns {Promise}
    */
   getAPPList (options) {
-
     let getAppModelList = function(appList) {
-      let keyMap = {
-        'profileList': 'profiles'
-      }
       let appModelList = [];
       appList.forEach(app => {
-        if (app.hasOwnProperty('profileList')) {
-          let model = {}
-          model['profiles'] = app.profileList.map(it => {
-            return it.name;
-          });
-          appModelList.push(model);
-        }
+        appModelList.push({
+          'profiles': app.profileList.map(it => {
+                        return it.name;
+                      }),
+        })
       });
       return appModelList;
     }
@@ -389,6 +383,11 @@ class Net {
     });
   }
 
+  /**
+   * get service list by appID and profileID
+   * @param options
+   * @returns {Promise}
+   */
   getServiceListByAppIDAndProfileID(options) {
 
     function getServiceModelList(items) {

@@ -34,11 +34,11 @@
           <el-button
             size="mini-extral"
             type="danger"
-            @click="handleRowButtonClick('deleteRow', scope.$index, scope.row)">删除</el-button>
+            @click="handleOperationClick('deleteRow', scope.$index, scope.row)">删除</el-button>
           <el-button
             size="mini-extral"
             type="warning"
-            @click="handleRowButtonClick('change-profiles', scope.$index, scope.row)">更改运行环境</el-button>
+            @click="handleOperationClick('change-profiles', scope.$index, scope.row)">更改运行环境</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -267,7 +267,7 @@
       /**
        * handle click event in the operation-column
        */
-      handleRowButtonClick(action, index, row) {
+      handleOperationClick(action, index, row) {
         switch (action) {
           case 'deleteRow':
             this.$confirm('您将删除应用，' + row.groupTag + '确定吗？').then(() => {
