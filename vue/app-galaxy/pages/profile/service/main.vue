@@ -1,5 +1,5 @@
 <template>
-  <div id="service-manager">
+  <div id="service-main">
     <div class="header">
       <el-row>
         <el-col :span="10">
@@ -555,9 +555,7 @@
                v-if="selected.service && selected.model"
     >
       <el-scrollbar>
-        <div v-for="item in deployLogs" :key="item">
-          {{item}}
-        </div>
+        <pre v-for="item in deployLogs" :key="item">{{item}}</pre>
       </el-scrollbar>
     </el-dialog>
   </div>
@@ -571,7 +569,7 @@
   .fix-form-item-content {
     line-height: 25px;
   }
-  #service-manager {
+  #service-main {
     .header {
       .el-select .el-input__inner {
         height: 24px;
@@ -615,10 +613,16 @@
             overflow: scroll;
             .el-scrollbar {
               height: 100%;
-              .el-scrollbar__bar {
+              .el-scrollbar__wrap {
                 .el-scrollbar__view {
-                  padding: 0px 6px;
+                  padding: 0px 6px 10px 6px;
+                  pre {
+                    font-size: 12px;
+                    line-height: 16px;
+                  }
                 }
+              }
+              .el-scrollbar__bar {
                 .el-scrollbar__thumb {
                   background-color: white;
                 }
@@ -631,7 +635,7 @@
   }
 </style>
 <style lang="scss" scoped>
-  #service-manager {
+  #service-main {
     .header {
       margin: 5px;
       font-size: 14px;
@@ -967,24 +971,51 @@ export default {
       }
       switch (action) {
         case 'deploy':
-          function getDeployLog(options) {
-            console.log(options);
-            this.$net.serviceDeployLog(options);
-          }
+          let self = this;
           function showDeployLog(options) {
             this.deployLogs = [];
             this.selected.operation = 'deploy';
-            let scrollWrapInDeployDialog = document.querySelector('#service-manager .deploy .el-scrollbar .el-scrollbar__wrap');
-            let count = 0;
-            setInterval(() => {
-              count += 1;
-              this.deployLogs.push('fdafdsafda' + count);
+            var scrollWrapInDeployDialog = document.querySelector('#service-main .deploy .el-scrollbar .el-scrollbar__wrap');
+
+            function updateDeployLog(log) {
+              this.deployLogs.push(log);
               if (!scrollWrapInDeployDialog) {
-                scrollWrapInDeployDialog = document.querySelector('#service-manager .deploy .el-scrollbar .el-scrollbar__wrap');
-              } else {
-                scrollWrapInDeployDialog.scrollTop = scrollWrapInDeployDialog.scrollHeight - scrollWrapInDeployDialog.offsetHeight;
+                scrollWrapInDeployDialog = document.querySelector('#service-main .deploy .el-scrollbar .el-scrollbar__wrap');
               }
-            }, 1000);
+              this.$nextTick(() => {
+                scrollWrapInDeployDialog.scrollTop = scrollWrapInDeployDialog.scrollHeight - scrollWrapInDeployDialog.offsetHeight;
+              });
+            }
+
+            function getDeployLog(options) {
+              console.log(options);
+              // stop request deploy log when the window is closed
+              if (this.selected.operation != 'deploy') {
+                return;
+              }
+              this.$net.serviceDeployLog(options).then(content => {
+                if (content.hasOwnProperty('Orchestration')) {
+                  let Orchestration = content.Orchestration;
+                  let log = Orchestration.log;
+                  console.log(log);
+                  updateDeployLog.call(this, log);
+//                  console.log(content);
+//                  console.log(Orchestration.offset);
+                  options.offset = Orchestration.offset;
+                  if (null != log) {
+                    setTimeout(() => {
+                      getDeployLog.call(this, options);
+                    }, 1800);
+                  }
+                }
+              }).catch(err => {
+                console.log(err);
+              });
+            }
+
+            setTimeout(() => {
+              getDeployLog.call(this, options);
+            }, 1500);
           }
 
           this.$net.serviceDeploy({
@@ -992,10 +1023,10 @@ export default {
             appId: this.selectedAppID,
             spaceId: this.selectedProfileID
           }).then(content => {
-            console.log(content);
+//            console.log(content);
             if (content.hasOwnProperty('orchestration')) {
               let orchestration = content['orchestration'];
-              getDeployLog.call(this, {
+              showDeployLog.call(this, {
                 logName: orchestration.logName,
                 logPath: orchestration.logPath,
                 offset: null == orchestration.offset ? 0 : orchestration.offset

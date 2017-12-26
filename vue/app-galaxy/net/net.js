@@ -19,11 +19,11 @@ class Net {
 
   /**
    * get content from response
-   * cares response content only, without consider of request fail or reject
-   * content is not null, when the response is ok.
-   *
+   * 1. if response if error, return null
+   * 2. if response is ok, if content exist return content of response, else return empty object {}
    * @param response
-   * @returns {*}
+   * @returns null, response err
+   *          object, response ok
    */
   getResponseContent (response) {
     let content = null;
@@ -478,16 +478,12 @@ class Net {
   serviceDeployLog(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.service_deploy_log, options).then(response => {
-        console.log(response);
-        // if ('data' in response) {
-        //   let data = response.data;
-        //   if (0 === data.code) {
-        //     let content = data.content ? data.content : {};
-        //     resolve(content);
-        //   } else {
-        //     reject(data.msg);
-        //   }
-        // }
+        let content = this.getResponseContent(response);
+        if (content) {
+          resolve(content);
+        } else {
+          reject();
+        }
       }).catch(err => {
         reject(err);
         console.log(err);
