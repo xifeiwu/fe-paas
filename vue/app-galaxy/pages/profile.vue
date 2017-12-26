@@ -131,6 +131,9 @@
     created() {
       this.$store.dispatch('user/getGroupList');
       this.$store.dispatch('app/getMessageForCreateAPP');
+      this.$store.dispatch('user/getProfileListOfGroup', {
+        id: this.currentGroupID
+      });
       this.$store.dispatch('user/getAppListByGroupID', {
         from: 'page/profile',
         groupID: this.currentGroupID
@@ -167,7 +170,8 @@
         }
       },
       groupList() {
-        return this.$store.getters['user/groupList'];
+        let groupList = this.$store.getters['user/groupList'];
+        return groupList;
       },
       routerPathToName() {
         return routeUtils.getRouterPathToName();

@@ -4,7 +4,7 @@
 import Vue from 'vue';
 // let NetData = Vue.prototype.$net;
 import NetData from '../../net/net';
-const USE_LOCAL_STORAGE = true;
+const USE_LOCAL_STORAGE = false;
 
 const warning = function(prop, where) {
   console.log(`warning: get ${prop} from ${where}`);
@@ -33,13 +33,24 @@ const getValue = function({state, getters}, prop) {
   return result;
 }
 
+/**
+ * the property write to and read from localStorage by default:
+ * 1. config, save user config, such as selected appID in page service
+ * 2. menuList, got from the response of login
+ *
+ * the properties save on vuex
+ * 1. groupList, only refresh at the beginning of page profile.vue
+ * 2. profileListOfGroup, only refresh at the beginning of page profile.vue
+ * 3. appInfoListOfGroup, only refresh at the beginning of page profile.vue
+ */
 const state = {
   /* net data */
+  // 用户配置相关信息
+  config: JSON.parse(localStorage.getItem('user/config')),
   // 侧边栏
-  menuList: [],
+  menuList: JSON.parse(localStorage.getItem('user/menuList')),
   // 用户所属组列表
   groupList: [],
-  config: JSON.parse(localStorage.getItem('config')),
   // 当前组
   groupID: null,
   // 当前组的所有开发环境
@@ -99,7 +110,7 @@ const actions = {
       });
       tmpValue[prop] = value;
     }
-    localStorage.setItem('config', JSON.stringify(state.config));
+    localStorage.setItem('user/config', JSON.stringify(state.config));
   },
   /**
    * 更改用户组ID
@@ -152,9 +163,7 @@ const mutations = {
   /* net state */
   LOGIN(state, groupList) {
     state.menuList = groupList;
-    if (USE_LOCAL_STORAGE) {
-      localStorage.setItem('user/menuList', JSON.stringify(groupList));
-    }
+    localStorage.setItem('user/menuList', JSON.stringify(groupList));
   },
 
   SET_GROUP_LIST(state, groupList) {
@@ -181,17 +190,8 @@ const mutations = {
 
 const getters = {
   'menuList': (state, getters) => {
-    let result = null;
-    if (Array.isArray(state.menuList) && state.menuList.length > 0) {
-      result = state.menuList;
-    } else if (USE_LOCAL_STORAGE) {
-      warning('menuList', 'localStorage');
-      let local = JSON.parse(localStorage.getItem('user/menuList'));
-      if (local) {
-        result = local;
-      }
-    }
-    return result;
+    let menuList = state.menuList;
+    return menuList;
   },
   'config': (state, getters) => {
     let config = state.config;

@@ -176,6 +176,7 @@ class Net {
         if ('data' in res) {
           let data = res.data;
           if (0 === data.code) {
+            this.showLog('getGroupList', data.content)
             resolve(data.content);
           }
         }
