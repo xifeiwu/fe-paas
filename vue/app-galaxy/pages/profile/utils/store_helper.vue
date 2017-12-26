@@ -21,7 +21,6 @@ export default {
       let result = null;
       for (let index in this.appInfoListOfGroup.appList) {
         let item = this.appInfoListOfGroup.appList[index];
-        console.log(item);
         if (item.appId == appID) {
           result = {
             index: index,
@@ -33,9 +32,9 @@ export default {
       }
       return result;
     },
-    serConfig(path, value) {
+    setConfig(keys, value) {
       this.$store.dispatch('user/setConfig', {
-        path, value
+        keys, value
       })
     },
     getConfig(keys) {
@@ -56,12 +55,17 @@ export default {
         }
       } else {
         let tmpValue = config;
-        keyList.slice(0, lastKeyIndex).forEach(it => {
-          if (!tmpValue.hasOwnProperty(it)) {
-            tmpValue = tmpValue[it];
+        let subList = keyList.slice(0, lastKeyIndex);
+        for (var index in subList) {
+          let key = keyList[index];
+          if (tmpValue.hasOwnProperty(key)) {
+            tmpValue = tmpValue[key];
+          } else {
+            tmpValue = null;
+            break;
           }
-        });
-        if (tmpValue.hasOwnProperty(prop)) {
+        }
+        if (tmpValue && tmpValue.hasOwnProperty(prop)) {
           value = tmpValue[prop];
         }
       }

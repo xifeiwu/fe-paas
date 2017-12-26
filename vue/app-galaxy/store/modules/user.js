@@ -72,6 +72,11 @@ const actions = {
     }
   },
 
+  /**
+   * save some config value to localStorage
+   * format:
+   * setConfig('profile/service/appID', 3);
+   */
   setConfig({commit, state}, {keys, value}) {
     if (!keys || 0 === keys.length) {
       return;
@@ -89,8 +94,8 @@ const actions = {
       keyList.slice(0, lastKeyIndex).forEach(it => {
         if (!tmpValue.hasOwnProperty(it)) {
           tmpValue[it] = {};
-          tmpValue = tmpValue[it];
         }
+        tmpValue = tmpValue[it];
       });
       tmpValue[prop] = value;
     }

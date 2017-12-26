@@ -902,30 +902,32 @@ export default {
   watch: {
     selectedAppID: function (value, oldValue) {
       let appID = value;
-      console.log(value);
-//      if (this.appList && Array.isArray(this.appList) && this.appList.length > index) {
-//        this.selectedAPP = this.appList[index];
       let appInfo = this.getAppInfoByID(appID);
       if (!appInfo) {
         return;
       }
       this.selectedAPP = appInfo['app'];
-      console.log(this.selectedAPP);
       this.selectedProfileList = this.selectedAPP['profileList'];
       if (Array.isArray(this.selectedProfileList) && this.selectedProfileList.length > 0) {
         // request service list when app id is changed while profile id is not changed.
         if (this.selectedProfileID == this.selectedProfileList[0]['id']) {
           this.requestServiceList(this.selectedAPP.appId, this.selectedProfileID);
         } else {
-          this.selectedProfileID = this.selectedProfileList[0]['id'];
+//          let selectedProfileID = this.getConfig('profile/service/profileID');
+//          if (selectedProfileID) {
+//            this.selectedProfileID = selectedProfileID;
+//          } else {
+            this.selectedProfileID = this.selectedProfileList[0]['id'];
+//          }
         }
       }
-//      }
+      this.setConfig('profile/service/appID', appID);
     },
     selectedProfileID: function (value, oldValue) {
-      let profileID = this.selectedProfileID;
+      let profileID = value;
       let appID = this.selectedAPP.appId;
       this.requestServiceList(appID, profileID);
+//      this.setConfig('profile/service/profileID', profileID);
     },
     appInfoListOfGroup(value, oldValue) {
       this.updateAppInfoList(value);
@@ -1429,8 +1431,17 @@ export default {
 //          break;
 //      }
     },
+
+    /**
+     * call in two place:
+     * 1. created function
+     * 2. appInfoListOfGroup watcher
+     *
+     * what is done?
+     * 1. refresh this.appList
+     * 2. get default appId
+     */
     updateAppInfoList(appInfoListOfGroup) {
-//      console.log(appInfoListOfGroup);
       if (appInfoListOfGroup) {
         if (appInfoListOfGroup.hasOwnProperty('appList')) {
           this.appList = appInfoListOfGroup.appList;
@@ -1438,12 +1449,18 @@ export default {
 //        if (appInfoListOfGroup.hasOwnProperty('appModelList')) {
 //          this.appModelList = appInfoListOfGroup.appModelList;
 //        }
-        if (appInfoListOfGroup.hasOwnProperty('total')) {
-          this.totalSize = appInfoListOfGroup.total;
+//        if (appInfoListOfGroup.hasOwnProperty('total')) {
+//          this.totalSize = appInfoListOfGroup.total;
+//        }
+        if (0 == this.appList.length) {
+          return;
         }
         let appId = this.getConfig('profile/service/appID');
-
-        this.selectedAppID = this.appList[0]['appId'];
+        if (appId && this.getAppInfoByID(appId)) {
+          this.selectedAppID = appId;
+        } else {
+          this.selectedAppID = this.appList[0]['appId'];
+        }
       }
     }
     /* used for dialog end */
