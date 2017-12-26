@@ -4,8 +4,8 @@
       <el-row>
         <el-col :span="10">
           <span>应用名称</span>
-          <el-select v-model="selectedAppIndex" placeholder="请选择" @change="handleSelectChange('app')">
-            <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="index">
+          <el-select v-model="selectedAppID" placeholder="请选择" @change="handleSelectChange('app')">
+            <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
           </el-select>
         </el-col>
@@ -768,7 +768,9 @@
 
 <script>
   import appPropUtils from '../utils/app_prop';
+  import StoreHelper from '../utils/store_helper.vue';
 export default {
+  mixins: [StoreHelper],
   created() {
     this.updateAppInfoList(this.appInfoListOfGroup);
   },
@@ -777,10 +779,10 @@ export default {
   data() {
     return {
       appList: [],
-      appModelList: [],
+//      appModelList: [],
       totalSize: 0,
 
-      selectedAppIndex: null,
+      selectedAppID: null,
       selectedAPP: null,
       selectedProfileID: null,
       selectedProfileList: [],
@@ -875,14 +877,6 @@ export default {
     }
   },
   computed: {
-    currentGroupID() {
-      let groupID = this.$store.getters['user/groupID'];
-      return groupID;
-    },
-    appInfoListOfGroup() {
-      return this.$store.getters['user/appInfoListOfGroup'];
-    },
-
     /* used for dialog */
     cpuAndMemorylist() {
       let result = [];
@@ -906,20 +900,27 @@ export default {
     /* used for dialog end */
   },
   watch: {
-    selectedAppIndex: function (value, oldValue) {
-      let index = value;
-      if (this.appList && Array.isArray(this.appList) && this.appList.length > index) {
-        this.selectedAPP = this.appList[index];
-        this.selectedProfileList = this.selectedAPP['profileList'];
-        if (Array.isArray(this.selectedProfileList) && this.selectedProfileList.length > 0) {
-          // request service list when app id is changed while profile id is not changed.
-          if (this.selectedProfileID == this.selectedProfileList[0]['id']) {
-            this.requestServiceList(this.selectedAPP.appId, this.selectedProfileID);
-          } else {
-            this.selectedProfileID = this.selectedProfileList[0]['id'];
-          }
+    selectedAppID: function (value, oldValue) {
+      let appID = value;
+      console.log(value);
+//      if (this.appList && Array.isArray(this.appList) && this.appList.length > index) {
+//        this.selectedAPP = this.appList[index];
+      let appInfo = this.getAppInfoByID(appID);
+      if (!appInfo) {
+        return;
+      }
+      this.selectedAPP = appInfo['app'];
+      console.log(this.selectedAPP);
+      this.selectedProfileList = this.selectedAPP['profileList'];
+      if (Array.isArray(this.selectedProfileList) && this.selectedProfileList.length > 0) {
+        // request service list when app id is changed while profile id is not changed.
+        if (this.selectedProfileID == this.selectedProfileList[0]['id']) {
+          this.requestServiceList(this.selectedAPP.appId, this.selectedProfileID);
+        } else {
+          this.selectedProfileID = this.selectedProfileList[0]['id'];
         }
       }
+//      }
     },
     selectedProfileID: function (value, oldValue) {
       let profileID = this.selectedProfileID;
@@ -938,7 +939,7 @@ export default {
         this.$router.push({
           path: info.path,
           query: {
-            appIndex: this.selectedAppIndex,
+            appIndex: this.selectedAppID,
             profileID: this.selectedProfileID
           }
         });
@@ -986,7 +987,7 @@ export default {
 
           this.$net.serviceDeploy({
             id: serviceID,
-            appId: this.appList[this.selectedAppIndex]['appId'],
+            appId: this.selectedAppID,
             spaceId: this.selectedProfileID
           }).then(content => {
             console.log(content);
@@ -1013,7 +1014,7 @@ export default {
           this.$confirm('您将删除服务版本：' + this.selected.service.serviceVersion + '，确定吗？').then(() => {
             this.$net.serviceDelete({
               id: serviceID,
-              appId: this.appList[this.selectedAppIndex]['appId'],
+              appId: this.selectedAppID,
               spaceId: this.selectedProfileID
             }).then(content => {
               console.log(content);
@@ -1434,13 +1435,15 @@ export default {
         if (appInfoListOfGroup.hasOwnProperty('appList')) {
           this.appList = appInfoListOfGroup.appList;
         }
-        if (appInfoListOfGroup.hasOwnProperty('appModelList')) {
-          this.appModelList = appInfoListOfGroup.appModelList;
-        }
+//        if (appInfoListOfGroup.hasOwnProperty('appModelList')) {
+//          this.appModelList = appInfoListOfGroup.appModelList;
+//        }
         if (appInfoListOfGroup.hasOwnProperty('total')) {
           this.totalSize = appInfoListOfGroup.total;
         }
-        this.selectedAppIndex = 0;
+        let appId = this.getConfig('profile/service/appID');
+
+        this.selectedAppID = this.appList[0]['appId'];
       }
     }
     /* used for dialog end */

@@ -39,6 +39,7 @@ const state = {
   menuList: [],
   // 用户所属组列表
   groupList: [],
+  config: JSON.parse(localStorage.getItem('config')),
   // 当前组
   groupID: null,
   // 当前组的所有开发环境
@@ -71,6 +72,30 @@ const actions = {
     }
   },
 
+  setConfig({commit, state}, {keys, value}) {
+    if (!keys || 0 === keys.length) {
+      return;
+    }
+    if (null == state.config) {
+      state.config = {};
+    }
+    let keyList = keys.split('/');
+    let lastKeyIndex = keyList.length - 1;
+    let prop = keyList[lastKeyIndex];
+    if (0 === lastKeyIndex) {
+      state.config[prop] = value;
+    } else {
+      let tmpValue = state.config;
+      keyList.slice(0, lastKeyIndex).forEach(it => {
+        if (!tmpValue.hasOwnProperty(it)) {
+          tmpValue[it] = {};
+          tmpValue = tmpValue[it];
+        }
+      });
+      tmpValue[prop] = value;
+    }
+    localStorage.setItem('config', JSON.stringify(state.config));
+  },
   /**
    * 更改用户组ID
    */
@@ -98,7 +123,6 @@ const actions = {
       }
     });
   },
-
 
   /**
    * 获取该groupID下的所有app
@@ -163,6 +187,10 @@ const getters = {
       }
     }
     return result;
+  },
+  'config': (state, getters) => {
+    let config = state.config;
+    return config;
   },
   'groupID': (state, getters) => {
     let groupID = state.groupID;

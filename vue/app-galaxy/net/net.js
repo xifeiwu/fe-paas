@@ -195,6 +195,7 @@ class Net {
       let appModelList = [];
       appList.forEach(app => {
         appModelList.push({
+          'appId': app.appId,
           'profiles': app.profileList.map(it => {
                         return it.name;
                       }),
