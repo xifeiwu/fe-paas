@@ -964,24 +964,49 @@ export default {
       }
       switch (action) {
         case 'deploy':
-//          this.deployLogs = [];
-//          this.selected.operation = 'deploy';
-//          let scrollWrapInDeployDialog = document.querySelector('#service-manager .deploy .el-scrollbar .el-scrollbar__wrap');
-//          let count = 0;
-//          setInterval(() => {
-//            count += 1;
-//            this.deployLogs.push('fdafdsafda' + count);
-//            if (!scrollWrapInDeployDialog) {
-//              scrollWrapInDeployDialog = document.querySelector('#service-manager .deploy .el-scrollbar .el-scrollbar__wrap');
-//            } else {
-//              scrollWrapInDeployDialog.scrollTop = scrollWrapInDeployDialog.scrollHeight - scrollWrapInDeployDialog.offsetHeight;
-//            }
-//          }, 1000);
+          function getDeployLog(options) {
+            console.log(options);
+            this.$net.serviceDeployLog(options);
+          }
+          function showDeployLog(options) {
+            this.deployLogs = [];
+            this.selected.operation = 'deploy';
+            let scrollWrapInDeployDialog = document.querySelector('#service-manager .deploy .el-scrollbar .el-scrollbar__wrap');
+            let count = 0;
+            setInterval(() => {
+              count += 1;
+              this.deployLogs.push('fdafdsafda' + count);
+              if (!scrollWrapInDeployDialog) {
+                scrollWrapInDeployDialog = document.querySelector('#service-manager .deploy .el-scrollbar .el-scrollbar__wrap');
+              } else {
+                scrollWrapInDeployDialog.scrollTop = scrollWrapInDeployDialog.scrollHeight - scrollWrapInDeployDialog.offsetHeight;
+              }
+            }, 1000);
+          }
 
           this.$net.serviceDeploy({
             id: serviceID,
             appId: this.appList[this.selectedAppIndex]['appId'],
             spaceId: this.selectedProfileID
+          }).then(content => {
+            console.log(content);
+            if (content.hasOwnProperty('rcestration')) {
+              let orchestration = content.orcestration;
+              getDeployLog.call(this, {
+                logName: orchestration.logName,
+                logPath: orchestration.logPath,
+                offset: orchestration.offset
+              });
+            }
+          }).catch(err => {
+            console.log(err);
+            this.$notify({
+              title: '部署失败',
+              message: err,
+              duration: 0,
+              onClose: function () {
+              }
+            });
           });
           break;
         case 'delete':

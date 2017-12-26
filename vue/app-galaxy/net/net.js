@@ -19,7 +19,9 @@ class Net {
 
   /**
    * get content from response
+   * cares response content only, without consider of request fail or reject
    * content is not null, when the response is ok.
+   *
    * @param response
    * @returns {*}
    */
@@ -34,6 +36,32 @@ class Net {
       }
     }
     return content;
+  }
+
+  /**
+   * get the message to user from data
+   * @param data
+   * @returns {{success: boolean, msg: string}}
+   */
+  getMsgForUserFromData(data) {
+    let result = {
+      success: false,
+      msg: ''
+    }
+    if (0 === data.code) {
+      result.success = true;
+      result.msg = '成功！';
+    } else {
+      result.success = false;
+      result.msg = '失败！';
+    }
+    if (data.hasOwnProperty('content')) {
+      result.msg = JSON.stringify(data.content);
+    } else if (data.hasOwnProperty('msg') && (data.msg.length > 0)) {
+      result.msg = data.msg
+    }
+    console.log(result);
+    return result;
   }
 
   login (res) {
@@ -298,27 +326,6 @@ class Net {
     });
   }
 
-  getMsgForUserFromData(data) {
-    let result = {
-      success: false,
-      msg: ''
-    }
-    if (0 === data.code) {
-      result.success = true;
-      result.msg = '成功！';
-    } else {
-      result.success = false;
-      result.msg = '失败！';
-    }
-    if (data.hasOwnProperty('content')) {
-      result.msg = JSON.stringify(data.content);
-    } else if (data.hasOwnProperty('msg') && (data.msg.length > 0)) {
-      result.msg = data.msg
-    }
-    console.log(result);
-    return result;
-  }
-
   createService(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.service_create, options).then(response => {
@@ -444,8 +451,36 @@ class Net {
   serviceDeploy(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.service_deploy, options).then(response => {
-        console.log(response);
+        if ('data' in response) {
+          let data = response.data;
+          if (0 === data.code) {
+            let content = data.content ? data.content : {};
+            resolve(content);
+          } else {
+            reject(data.msg);
+          }
+        }
       }).catch(err => {
+        reject(err);
+        console.log(err);
+      })
+    });
+  }
+  serviceDeployLog(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.service_deploy_log, options).then(response => {
+        console.log(response);
+        // if ('data' in response) {
+        //   let data = response.data;
+        //   if (0 === data.code) {
+        //     let content = data.content ? data.content : {};
+        //     resolve(content);
+        //   } else {
+        //     reject(data.msg);
+        //   }
+        // }
+      }).catch(err => {
+        reject(err);
         console.log(err);
       })
     });

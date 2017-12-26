@@ -26,6 +26,7 @@ var urlList = {
 
   // 部署服务
   'service_deploy': path + '/service/deployApplicationService',
+  'service_deploy_log': path + '/service/deploy/log',
   // 创建服务
   'service_create':  path + '/service/createApplicationService',
   // 删除服务
