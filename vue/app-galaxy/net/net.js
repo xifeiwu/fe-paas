@@ -267,6 +267,8 @@ class Net {
         if (content.hasOwnProperty('LanguageList')) {
           content.LanguageList.forEach(it => {
             let language = it.language;
+            // add property type which will be send to server
+            // change the style of language
             it.type = language;
             switch (language) {
               case 'JAVA':
@@ -279,12 +281,17 @@ class Net {
                 it.language = 'Python';
                 break;
             }
-            if (it.hasOwnProperty('packageTypeList')) {
-              it.packageTypeList = it.packageTypeList.map(it => {
-                return {
-                  type: it,
-                  packageType: it.replace('_', '.')
-                }
+            if (it.hasOwnProperty('languageVersionList')) {
+              let languageVersionList = it['languageVersionList'];
+              // console.log(languageVersionList);
+              Array.isArray(languageVersionList) && languageVersionList.forEach(version => {
+                // console.log(version.packageTypeList);
+                version.packageTypeList = version.packageTypeList.map(packageType => {
+                  return {
+                    type: packageType,
+                    packageType: packageType.replace('_', '.')
+                  }
+                });
               });
             }
           });

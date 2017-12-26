@@ -25,7 +25,7 @@
       </el-form-item>
       <el-form-item label="开发语言" prop="language">
         <el-radio-group v-model="stepForm1.language" @change="handleLanguageChange">
-          <el-radio v-for="item in languageInfo" :label="item.type" :key="item.id">
+          <el-radio v-for="item in language.list" :label="item.type" :key="item.id">
             {{item.language}}
           </el-radio>
           <!--<el-radio label="JAVA"></el-radio>-->
@@ -34,24 +34,23 @@
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item label="语言版本" prop="languageVersion" v-if="languageVersionList.length > 0">
-        <el-radio-group v-model="stepForm1.languageVersion">
-          <el-radio v-for="item in languageVersionList" :label="item" :key="item">
-            {{item}}
+      <el-form-item label="语言版本" prop="languageVersion">
+        <el-radio-group v-model="stepForm1.languageVersion"
+                        @change="handleVersionChange">
+          <el-radio v-for="item in language.versionList" :label="item.version" :key="item.version">
+            {{item.version}}
           </el-radio>
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item label="构建类型" prop="buildType" v-if="packageStyleList.length > 0">
+      <el-form-item label="构建类型" prop="buildType" v-if="language.buildTypeList.length > 0">
         <el-radio-group v-model="stepForm1.buildType">
-          <el-radio v-for="item in packageStyleList" :label="item.type" :key="item.type">
+          <el-radio v-for="item in language.buildTypeList" :label="item.type" :key="item.type">
             {{item.packageType}}
           </el-radio>
-          <!--<el-radio label="JAR"></el-radio>-->
-          <!--<el-radio label="WAR"></el-radio>-->
-          <!--<el-radio label="ZIP"></el-radio>-->
         </el-radio-group>
       </el-form-item>
+
       <el-form-item label="健康检查" prop="healthCheck">
         <el-input v-model="stepForm1.healthCheck" placeholder="以/开头，可以包含字母数字下划线中划线，2-50位"></el-input>
       </el-form-item>
@@ -138,15 +137,10 @@
   import appPropUtil from '../utils/app_prop';
 export default {
   created() {
-    let infos = this.$store.state.app.infoForCreateApp;
-    if (infos && infos.hasOwnProperty('page1')) {
-      this.stepForm1 = infos.page1;
-    }
     // set java language as default
     this.setDefaultLanguage(this.languageInfo);
   },
   mounted() {
-    this.$store.dispatch('app/updateStepOfAddAPP', 0);
   },
   data() {
     return {
@@ -163,14 +157,14 @@ export default {
         fileLocation: [],
         rollingUpdate: true,
         loadBalance: 'Round_robin',
-//        gitlabAddress: '',
-//        gitlabBranch: '',
-//        relativePathOfParentPOM: '',
       },
       rules: appPropUtil.rules,
-      languageList: [],
-      languageVersionList: [],
-      packageStyleList: [],
+      language: {
+        selected: null,
+        list: [],
+        versionList: [],
+        buildTypeList: []
+      },
 
       showLoading: false,
       loadingText: '',
@@ -230,36 +224,48 @@ export default {
       if (Array.isArray(languageList) && languageList.length > 0) {
         let defaultLanguage = languageList[0];
         this.stepForm1.language = defaultLanguage.type;
+        this.language.list = languageList;
         this.handleLanguageChange(defaultLanguage.type);
       }
     },
     handleLanguageChange: function (languageType) {
       if (Array.isArray(this.languageInfo)) {
+        // get language info from languageList by language type
         this.languageInfo.some(it => {
           if (it.hasOwnProperty('type') && it.type === languageType) {
-            this.languageVersionList = it.versionList;
-            if (Array.isArray(this.languageVersionList) && this.languageVersionList.length > 0) {
-              this.stepForm1.languageVersion = this.languageVersionList[0];
-            }
-            if (Array.isArray(it.packageTypeList)) {
-              if (1 === it.packageTypeList.length && 'NO' === it.packageTypeList[0].type){
-                this.packageStyleList = [];
-                this.stepForm1.buildType = 'NO';
-              } else {
-                this.packageStyleList = it.packageTypeList;
-                this.stepForm1.buildType = it.packageTypeList[0].type;
-              }
+            this.language.selected = it;
+//            console.log(it);
+            this.language.versionList = it['languageVersionList'];
+            if (Array.isArray(this.language.versionList) && this.language.versionList.length > 0) {
+              this.stepForm1.languageVersion = this.language.versionList[0].version;
+              this.handleVersionChange(this.stepForm1.languageVersion);
             }
           }
         })
       }
+    },
+    handleVersionChange: function (version) {
+      let versionList = this.language.versionList;
+//      console.log(versionList);
+      Array.isArray(versionList) && versionList.some(it => {
+//        console.log(it);
+        if (version == it.version) {
+          if (1 === it.packageTypeList.length && 'NO' === it.packageTypeList[0].type){
+            this.language.buildTypeList = [];
+            this.stepForm1.buildType = 'NO';
+          } else {
+            this.language.buildTypeList = it.packageTypeList;
+            this.stepForm1.buildType = it.packageTypeList[0].type;
+          }
+          return true;
+        }
+      });
     },
     handleRemoveFileLocation(tag) {
       let items = this.stepForm1.fileLocation;
       items.splice(items.indexOf(tag), 1);
     },
     handleAddFileLocation(tag) {
-
       let tagLength = tag.length;
       if (tagLength < 2 || tagLength > 18) {
         this.$message.error('长度在2到18个字符');

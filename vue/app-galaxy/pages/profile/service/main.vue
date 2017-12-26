@@ -117,16 +117,16 @@
               <el-form-item label="健康检查：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
                 {{selected.service.healthCheck}}<i class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
               </el-form-item>
-              <el-form-item label="oneAPM监控：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-                {{selected.service.oneapm}}
-              </el-form-item>
+              <!--<el-form-item label="oneAPM监控：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">-->
+                <!--{{selected.service.oneapm}}-->
+              <!--</el-form-item>-->
               <el-form-item label="gitlab ssh地址：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']"
                             v-if="selected.service.language === 'JAVA'">
-                {{selected.service.gitlabAddress}}
+                {{selected.service.gitLabAddress}}
               </el-form-item>
               <el-form-item label="gitlab分支：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']"
                             v-if="selected.service.language === 'JAVA'">
-                {{selected.service.gitlabBranch}}<i class="el-icon-edit"></i>
+                {{selected.service.gitLabBranch}}<i class="el-icon-edit"></i>
               </el-form-item>
               <el-form-item label="Gitlab父级pom.xml相对路径：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']"
                             v-if="selected.service.language === 'JAVA'">
