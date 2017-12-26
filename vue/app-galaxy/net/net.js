@@ -173,7 +173,7 @@ class Net {
         })
       });
       return appModelList;
-    }
+    };
 
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.app_list, options).then(response => {

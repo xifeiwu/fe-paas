@@ -268,6 +268,14 @@
        * handle click event in the operation-column
        */
       handleOperationClick(action, index, row) {
+        this.selected.index = index;
+        let currentAPP = this.appModelListByPage[index];
+        if (!currentAPP) {
+          return;
+        } else {
+          this.selected.app = currentAPP;
+          this.selected.model = this.appModelListByPage[index]
+        }
         switch (action) {
           case 'deleteRow':
             this.$confirm('您将删除应用，' + row.groupTag + '确定吗？').then(() => {
@@ -290,23 +298,15 @@
             });
             break;
           case 'change-profiles':
-            this.updateSelectedInfo(action, row, index);
+            let prop = action.split('-')[1];
+            this.selected.prop = prop;
+            this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]))
             this.$refs.hasOwnProperty('formInChangeProfileDialog') &&
             this.$refs['formInChangeProfileDialog'].validate();
             break;
         }
       },
-      updateSelectedInfo(action, row, index) {
-        let prop = action.split('-')[1];
-        this.selected.index = index;
-        this.selected.prop = prop;
-        this.selected.app = row;
-        if (this.appModelListByPage.length > index) {
-          let model = this.appModelListByPage[index]
-          this.selected.model = model;
-          this.newProps[prop] = JSON.parse(JSON.stringify(model[prop]))
-        }
-      },
+
       handleDialogButtonClick(action) {
         switch (action) {
           case 'profiles':
