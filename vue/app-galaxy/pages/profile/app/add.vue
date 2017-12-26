@@ -4,7 +4,7 @@
              ref="stepForm1" label-width="100px"
              v-loading="showLoading"
              :element-loading-text="loadingText">
-      <el-form-item label="团队" prop="region">
+      <el-form-item label="团队" prop="groupID">
         <el-select v-model="currentGroupID" placeholder="请选择" @input="handleGroupIDChange">
           <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
           </el-option>

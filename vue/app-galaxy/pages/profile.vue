@@ -175,8 +175,6 @@
     },
     watch: {
       '$route': function (value, oldValue) {
-//        console.log(value);
-//        console.log(this.routerPathToName);
         this.updateCrumbList(value.path);
       }
     },

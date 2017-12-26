@@ -15,6 +15,8 @@ import DomainName from './profile/domain_name.vue';
  * router config:
  * 1. path should have the same name as .vue file
  * 2. as limited by webpack require context, componentFile is the path under dir ../pages
+ * 3. url path should be correspond with page logic, as it is used for breadcrumb. such as
+ *    if add app is sub page of app, its url should be app/add
  */
 var Router = function () {
   this.componentList = {

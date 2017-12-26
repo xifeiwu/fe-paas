@@ -993,16 +993,15 @@ export default {
             spaceId: this.selectedProfileID
           }).then(content => {
             console.log(content);
-            if (content.hasOwnProperty('rcestration')) {
-              let orchestration = content.orcestration;
+            if (content.hasOwnProperty('orchestration')) {
+              let orchestration = content['orchestration'];
               getDeployLog.call(this, {
                 logName: orchestration.logName,
                 logPath: orchestration.logPath,
-                offset: orchestration.offset
+                offset: null == orchestration.offset ? 0 : orchestration.offset
               });
             }
           }).catch(err => {
-            console.log(err);
             this.$notify({
               title: '部署失败',
               message: err,
