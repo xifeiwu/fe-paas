@@ -24,15 +24,33 @@
           </el-select>
         </el-col>
       </el-row>
-      <el-row>
-        <el-col :span="6">
-          <el-button @click="handleButtonClick($event, {role:'linker', path: '/profile/service/add'})">添加服务</el-button>
-        </el-col>
-        <el-col :span="6">
-          <el-button @click="handleButtonClick($event, {role:'cmd', action: 'refreshAppList'})">刷新</el-button>
-        </el-col>
-        <el-col :span="6"></el-col>
-      </el-row>
+      <div class="instance-list">
+        <!--<el-table-->
+                <!--:data="currentInstanceList"-->
+                <!--style="width: 100%"-->
+        <!--&gt;-->
+          <!--<el-table-column-->
+                  <!--prop="serviceVersion"-->
+                  <!--label="版本"-->
+                  <!--width="80">-->
+          <!--</el-table-column>-->
+          <!--<el-table-column-->
+                  <!--prop="intranetDomain"-->
+                  <!--label="内网域名"-->
+                  <!--width="180">-->
+          <!--</el-table-column>-->
+          <!--<el-table-column-->
+                  <!--prop="applicationStatus"-->
+                  <!--label="状态"-->
+                  <!--width="80"-->
+          <!--&gt;-->
+          <!--</el-table-column>-->
+          <!--<el-table-column-->
+                  <!--prop="createTime"-->
+                  <!--label="创建时间">-->
+          <!--</el-table-column>-->
+        <!--</el-table>-->
+      </div>
     </div>
   </div>
 </template>
@@ -74,6 +92,11 @@
         selectedProfileList: [],
         selectedVersion: null,
         selectedVersionList: [],
+
+        currentInstanceList: [{
+          name: '',
+          status: '',
+        }]
       }
     },
     watch: {
@@ -115,7 +138,11 @@
       },
       selectedVersion: function (value, oldValue) {
         console.log(value);
-      }
+        if (null == value) {
+          return;
+        }
+        this.requestInstanceList(this.selectedAPP.appId, this.selectedProfileID, value);
+      },
     },
     methods: {
       /**
@@ -149,11 +176,12 @@
           console.log('appID or spaceID can not be empty');
           return;
         }
+        this.selectedVersion = null;
         this.$net.getServiceVersion({
           appId: appID,
           spaceId: spaceID
         }).then(content => {
-          console.log(content);
+//          console.log(content);
           if (content.hasOwnProperty('version')) {
             let version = content.version;
             if (version && Array.isArray(version) && version.length > 0) {
@@ -171,6 +199,43 @@
               });
             }
           }
+        }).catch(err => {
+          console.log(err);
+          this.$message({
+            type: 'error',
+            message: '查找服务版本失败！'
+          });
+        });
+      },
+      // 获取实例列表
+      requestInstanceList(appID, spaceID, version) {
+        if (!appID || !spaceID) {
+          console.log('appID or spaceID can not be empty');
+          return;
+        }
+        this.$net.getInstanceList({
+          appId: appID,
+          spaceId: spaceID,
+          serviceVersion: version
+        }).then(content => {
+          console.log(content);
+//          if (content.hasOwnProperty('version')) {
+//            let version = content.version;
+//            if (version && Array.isArray(version) && version.length > 0) {
+//              this.selectedVersionList = version;
+//              this.selectedVersion = version[0];
+//            } else {
+//              let profileName = '该';
+//              let profileInfo = appPropUtils.getProfileInfoByID(this.selectedProfileID);
+//              if (profileInfo && profileInfo.hasOwnProperty('name')) {
+//                profileName = profileInfo.description;
+//              }
+//              this.$message({
+//                type: 'warning',
+//                message: profileName + '下，服务没有版本！'
+//              });
+//            }
+//          }
         }).catch(err => {
           console.log(err);
           this.$message({

@@ -37,6 +37,9 @@ var urlList = {
   'service_update_health': path + '/service/updateHealth',
   // 获取服务版本
   'service_version': path + '/service/queryApplicationServiceVersion',
+
+  // 获取实例列表
+  'instance_list': path + '/service/queryInstance',
 };
 
 export default urlList;

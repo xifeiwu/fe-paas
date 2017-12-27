@@ -559,6 +559,16 @@ class Net {
     })
   }
 
+  // 获取实例列表
+  getInstanceList(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.instance_list, options).then(response => {
+        console.log(response);
+      }).catch(err => {
+        console.log(err);
+      })
+    })
+  }
 }
 
 export default new Net();
