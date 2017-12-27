@@ -1,7 +1,7 @@
 <template>
   <div id="app-add">
-    <el-form :model="stepForm1" :rules="rules"
-             ref="stepForm1" label-width="100px"
+    <el-form :model="createAppForm" :rules="rules"
+             ref="createAppForm" label-width="100px"
              v-loading="showLoading"
              :element-loading-text="loadingText">
       <el-form-item label="团队">
@@ -11,20 +11,20 @@
         </el-select>
       </el-form-item>
       <el-form-item label="应用名称" prop="appName">
-        <el-input v-model="stepForm1.appName" placeholder="中文，英文，数字，30字符内"></el-input>
+        <el-input v-model="createAppForm.appName" placeholder="中文，英文，数字，30字符内"></el-input>
       </el-form-item>
       <el-form-item label="项目名称" prop="projectName">
-        <el-input v-model="stepForm1.projectName" placeholder="gitlab中project的名称"></el-input>
+        <el-input v-model="createAppForm.projectName" placeholder="gitlab中project的名称"></el-input>
       </el-form-item>
       <el-form-item label="运行环境" prop="profiles" class="profiles">
-        <el-checkbox-group v-model="stepForm1.profiles" @change="handleProfileChange">
+        <el-checkbox-group v-model="createAppForm.profiles" @change="handleProfileChange">
           <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
             {{item.description}}
           </el-checkbox>
         </el-checkbox-group>
       </el-form-item>
       <el-form-item label="开发语言" prop="language">
-        <el-radio-group v-model="stepForm1.language" @change="handleLanguageChange">
+        <el-radio-group v-model="createAppForm.language" @change="handleLanguageChange">
           <el-radio v-for="item in language.list" :label="item.type" :key="item.id">
             {{item.language}}
           </el-radio>
@@ -35,7 +35,7 @@
       </el-form-item>
 
       <el-form-item label="语言版本" prop="languageVersion">
-        <el-radio-group v-model="stepForm1.languageVersion"
+        <el-radio-group v-model="createAppForm.languageVersion"
                         @change="handleVersionChange">
           <el-radio v-for="item in language.versionList" :label="item.version" :key="item.version">
             {{item.version}}
@@ -44,7 +44,7 @@
       </el-form-item>
 
       <el-form-item label="构建类型" prop="buildType" v-if="language.buildTypeList.length > 0">
-        <el-radio-group v-model="stepForm1.buildType">
+        <el-radio-group v-model="createAppForm.buildType">
           <el-radio v-for="item in language.buildTypeList" :label="item.type" :key="item.type">
             {{item.packageType}}
           </el-radio>
@@ -52,12 +52,12 @@
       </el-form-item>
 
       <el-form-item label="健康检查" prop="healthCheck">
-        <el-input v-model="stepForm1.healthCheck" placeholder="以/开头，可以包含字母数字下划线中划线，2-50位"></el-input>
+        <el-input v-model="createAppForm.healthCheck" placeholder="以/开头，可以包含字母数字下划线中划线，2-50位"></el-input>
       </el-form-item>
       <el-form-item label="文件存储" prop="fileLocation" class="fileLocation">
         <div>
           <el-tag
-                  v-for="tag in stepForm1.fileLocation"
+                  v-for="tag in createAppForm.fileLocation"
                   :key="tag"
                   closable
                   type="success"
@@ -73,13 +73,13 @@
         </el-input>
       </el-form-item>
       <el-form-item label="滚动升级">
-        <el-radio-group v-model="stepForm1.rollingUpdate">
+        <el-radio-group v-model="createAppForm.rollingUpdate">
           <el-radio :label="true">需要</el-radio>
           <el-radio :label="false">不需要</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="负载均衡">
-        <el-radio-group v-model="stepForm1.loadBalance">
+        <el-radio-group v-model="createAppForm.loadBalance">
           <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
         </el-radio-group>
       </el-form-item>
@@ -145,7 +145,7 @@ export default {
   data() {
     return {
       fileLocationToAdd: '',
-      stepForm1: {
+      createAppForm: {
         groupID: '',
         appName: '',
         projectName: '',
@@ -173,13 +173,13 @@ export default {
   computed: {
     currentGroupID: {
       get() {
-        if ('' === this.stepForm1.groupID) {
-          this.stepForm1.groupID = this.$store.getters['user/groupID'];
+        if ('' === this.createAppForm.groupID) {
+          this.createAppForm.groupID = this.$store.getters['user/groupID'];
         }
-        return this.stepForm1.groupID;
+        return this.createAppForm.groupID;
       },
       set(value) {
-        this.stepForm1.groupID = value;
+        this.createAppForm.groupID = value;
         this.$store.dispatch('user/groupID', {
           value,
           from:'add_app/step1'
@@ -193,7 +193,7 @@ export default {
     profileListOfGroup() {
       let value = this.$store.getters['user/profileListOfGroup'];
       if (Array.isArray(value)) {
-        this.stepForm1.profiles = value.map(it => {
+        this.createAppForm.profiles = value.map(it => {
           return it.name;
         });
       }
@@ -218,12 +218,12 @@ export default {
 //      this.requestAPPList(groupID, 1, 8, '');
     },
     handleProfileChange: function () {
-//      console.log(this.stepForm1.profiles);
+//      console.log(this.createAppForm.profiles);
     },
     setDefaultLanguage: function (languageList) {
       if (Array.isArray(languageList) && languageList.length > 0) {
         let defaultLanguage = languageList[0];
-        this.stepForm1.language = defaultLanguage.type;
+        this.createAppForm.language = defaultLanguage.type;
         this.language.list = languageList;
         this.handleLanguageChange(defaultLanguage.type);
       }
@@ -237,8 +237,8 @@ export default {
 //            console.log(it);
             this.language.versionList = it['languageVersionList'];
             if (Array.isArray(this.language.versionList) && this.language.versionList.length > 0) {
-              this.stepForm1.languageVersion = this.language.versionList[0].version;
-              this.handleVersionChange(this.stepForm1.languageVersion);
+              this.createAppForm.languageVersion = this.language.versionList[0].version;
+              this.handleVersionChange(this.createAppForm.languageVersion);
             }
           }
         })
@@ -252,17 +252,17 @@ export default {
         if (version == it.version) {
           if (1 === it.packageTypeList.length && 'NO' === it.packageTypeList[0].type){
             this.language.buildTypeList = [];
-            this.stepForm1.buildType = 'NO';
+            this.createAppForm.buildType = 'NO';
           } else {
             this.language.buildTypeList = it.packageTypeList;
-            this.stepForm1.buildType = it.packageTypeList[0].type;
+            this.createAppForm.buildType = it.packageTypeList[0].type;
           }
           return true;
         }
       });
     },
     handleRemoveFileLocation(tag) {
-      let items = this.stepForm1.fileLocation;
+      let items = this.createAppForm.fileLocation;
       items.splice(items.indexOf(tag), 1);
     },
     handleAddFileLocation(tag) {
@@ -276,40 +276,36 @@ export default {
         return;
       }
       if (tag.length > 0) {
-        this.stepForm1.fileLocation.push(tag);
+        this.createAppForm.fileLocation.push(tag);
         this.fileLocationToAdd = '';
       }
     },
     handleFinish() {
-      console.log(this.stepForm1);
-      this.$refs['stepForm1'].validate((valid) => {
+      console.log(this.createAppForm);
+      this.$refs['createAppForm'].validate((valid) => {
         if (valid) {
-//          this.$router.push('step2');
-//          this.$store.dispatch('app/updateStepOfAddAPP', 1);
           this.$store.dispatch('app/addCreateAPPInfo', {
-            key: 'page1',
-            value: this.stepForm1
+             key: 'page1',
+             value: this.createAppForm
           });
-
           let toPost = this.$store.getters['app/infoForCreateAppToPost'];
-          console.log('toPost');
-          console.log(toPost);
+//          console.log('toPost');
+//          console.log(toPost);
           this.showLoading = true;
           this.loadingText = '正在为您创建应用' + toPost.serviceName;
           this.$net.createAPP(toPost).then((content) => {
             this.showLoading = false;
-            // update appInfoList
+            // update appInfoList after create app success
             this.$store.dispatch('user/getAppListByGroupID', {
               from: 'page/app/add',
               groupID: this.currentGroupID
             });
+
+            this.$message({
+              type: 'success',
+              message: '应用' + toPost.serviceName + '创建成功！'
+            });
             this.$router.push('/profile/app');
-//            this.confirm('创建应用 ' + toPost.serviceName + ' 成功！').then(() => {
-//              this.$router.push('/profile/app_manager');
-//            }).catch(() => {
-//              this.$store.dispatch('app/addCreateAPPInfo', null);
-//              this.$router.push('step1');
-//            });
           }).catch((err) => {
             this.$notify({
               title: '提示',

@@ -141,7 +141,7 @@ const actions = {
   },
 
   /**
-   * 获取该groupID下的所有app, the case of triggering this action:
+   * 获取该groupID下的所有app, the case of triggering state action:
    * 1. at created of profile.vue
    * 2. at success callback of app/add.vue
    * @param commit
@@ -158,7 +158,28 @@ const actions = {
         commit('SET_APP_INFO_LIST_OF_GROUP', content);
       // }
     });
-  }
+  },
+
+  deleteAppInfoByID({commit, state}, appID) {
+    let result = {
+      exist: false,
+      index: -1,
+    }
+    for (let index in state.appInfoListOfGroup.appList) {
+      let item = state.appInfoListOfGroup.appList[index];
+      if (item.appId == appID) {
+        result.exist = true;
+        result.index = index;
+        break;
+      }
+    }
+    if (result.exist) {
+      state.appInfoListOfGroup.appList.splice(result.index, 1);
+      state.appInfoListOfGroup.appModelList.splice(result.index, 1);
+      state.appInfoListOfGroup.total -= 1;
+    }
+    console.log(state.appInfoListOfGroup);
+  },
 };
 
 const mutations = {

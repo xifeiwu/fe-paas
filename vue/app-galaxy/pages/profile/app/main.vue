@@ -156,7 +156,7 @@
     mixins: [StoreHelper],
     created() {
       console.log('create app manager');
-      this.requestAPPList('');
+      this.requestAPPList({});
 //      let appInfoListOfGroup = this.appInfoListOfGroup;
 //      if (appInfoListOfGroup.hasOwnProperty('appList')) {
 //        this.appList = appInfoListOfGroup.appList;
@@ -185,8 +185,8 @@
         showPagination: false,
         rules: AppPropUtils.rules,
 
+        getFromStore: true,
         selected: {
-          index: -1,
           prop: null,
           app: null,
           model: null,
@@ -199,15 +199,13 @@
     },
     watch: {
       currentGroupID: function (value, oldValue) {
-        this.requestAPPList('');
+        this.requestAPPList({});
       },
-//      appInfoListOfGroup: function (value, oldValue) {
-//      },
+      'appInfoListOfGroup.total': function (value, oldValue) {
+        this.getFromStore && this.requestAPPList({});
+      },
     },
     methods: {
-      getAppListByPage() {
-
-      },
       handleButtonClick(evt, info) {
         let target = evt.target;
         let bubble = true;
@@ -232,7 +230,7 @@
         } else {
           switch (info.action) {
             case 'refreshAppList':
-              this.requestAPPList('');
+              this.requestAPPList({});
               break;
           }
         }
@@ -252,27 +250,27 @@
        * handle click event in the operation-column
        */
       handleOperationClick(action, index, row) {
-        this.selected.index = index;
-        let currentAPP = this.appModelListByPage[index];
-        if (!currentAPP) {
+        let appInfo = this.getAppInfoByID(row.appId);
+        if (!appInfo) {
           return;
         } else {
-          this.selected.app = currentAPP;
-          this.selected.model = this.appModelListByPage[index]
+          this.selected.app = appInfo.app;
+          this.selected.model = appInfo.model;
         }
         switch (action) {
           case 'deleteRow':
-            this.$confirm('您将删除应用，' + row.groupTag + '确定吗？').then(() => {
+            this.warningConfirm('您将删除应用' + row.serviceName + '，确定吗？').then(() => {
               this.$net.deleteAPP({
                 groupId: this.currentGroupID,
                 id: row.appId
               }).then(res => {
-                this.appListByPage.splice(index, 1);
+//                this.appListByPage.splice(index, 1);
+                this.deleteAppInfoByID(row.appId);
                 this.$message({
                   type: 'success',
                   message: '删除成功!'
                 });
-                this.requestAPPList('');
+                this.requestAPPList({});
               });
             }).catch(() => {
               this.$message({
@@ -291,6 +289,10 @@
         }
       },
 
+      /**
+       * do some action of ok button in popup-dialog
+       * @param prop
+       */
       handleDialogButtonClick(action) {
         switch (action) {
           case 'profiles':
@@ -320,7 +322,7 @@
                     type: 'success',
                     message: msg
                   });
-                  this.updateAppInfo(action, this.selected.index);
+                  this.updateModelInfo(action);
 //                  this.requestAPPList('');
                 }).catch(err => {
                   this.waitingResponse = false;
@@ -335,99 +337,100 @@
             break;
         }
       },
-      updateAppInfo(prop, index) {
-        let app = this.appListByPage[index];
-        let model = this.appModelListByPage[index];
+      /**
+       * update value of service and model when server feedback is ok
+       */
+      updateModelInfo(prop) {
         let newProp = this.newProps[prop];
         switch (prop) {
           case 'profiles':
-            app.profileList = this.profileListOfGroup
+            this.selected.model[prop] = newProp;
+            this.selected.app.profileList = this.profileListOfGroup
               .filter(it => {
                 return newProp.indexOf(it.name) >= 0;
               });
-            model[prop] = newProp;
             break;
         }
       },
-      getProfileByName(name) {
-        let result = {
-          name: '',
-          description: ''
-        };
-        if (Array.isArray(this.profileListOfGroup)) {
-          for (let key in this.profileListOfGroup) {
-            let item = this.profileListOfGroup[key];
-            if (name == item.name) {
-              result = item;
-              break;
-            }
-          }
-        }
-        return result;
-      },
-      requestAPPList(serviceName) {
+
+      /**
+       * the place of request appList:
+       * 1. at beginning of this page
+       * 2. at the change of groupID
+       * 3. at the change of appInfoListOfGroup, if this.getFromStore is true
+       * 4. operation of app: delete of change profile
+       * @param serviceName
+       */
+      requestAPPList({serviceName}) {
         if (!serviceName) {
           serviceName = '';
         }
         let page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
-//        console.log({
-//          groupId: this.currentGroupID,
-//          start: page * this.pageSize,
-//          length: this.pageSize,
-//          serviceName: serviceName
-//        });
-        this.$net.getAPPList({
-          groupId: this.currentGroupID,
-          start: page * this.pageSize,
-          length: this.pageSize,
-          serviceName: serviceName
-        }).then(content => {
-          if (content.hasOwnProperty('appList')) {
-            let appList = content.appList;
-            this.appListByPage = appList;
+        let start = page * this.pageSize;
+        let length = this.pageSize;
+        if (this.getFromStore) {
+//          console.log(this.appInfoListOfGroup);
+          this.getAppInfoByPage(this.appInfoListOfGroup, {
+            start: start,
+            end: start + length
+          });
+        } else {
+          this.$net.getAPPList({
+            groupId: this.currentGroupID,
+            start: start,
+            length: length,
+            serviceName: serviceName
+          }).then(content => {
+            this.getAppInfoByPage(content, false);
+          }).catch(err => {
+            this.showPagination = false;
+          });
+        }
+      },
+      /**
+       * assign value of appListByPage, appModelListByPage, totalSize from appInfoList
+       * @param appInfoList
+       * @param slice, whether appList and appModelList should be sliced
+       */
+      getAppInfoByPage(appInfoList, slice) {
+        this.appListByPage = [];
+        this.appModelListByPage = [];
+        this.totalSize = 0;
+        if (!appInfoList) {
+          return;
+        }
+        if (appInfoList.hasOwnProperty('appList')) {
+          let appList = [];
+          if (slice) {
+            appList = appInfoList.appList.slice(slice.start, slice.end);
+          } else {
+            appList = appInfoList.appList;
           }
-          if (content.hasOwnProperty('appModelList')) {
-            this.appModelListByPage = content.appModelList;
+          this.appListByPage = appList;
+        }
+        if (appInfoList.hasOwnProperty('appModelList')) {
+          let appModelListByPage = [];
+          if (slice) {
+            appModelListByPage = appInfoList.appModelList.slice(slice.start, slice.end);
+          } else {
+            appModelListByPage = appInfoList.appModelList;
           }
-          if (content.hasOwnProperty('total')) {
-            this.totalSize = content.total;
-            if (this.totalSize > 0) {
-              this.showPagination = true;
-            }
+          this.appModelListByPage = appModelListByPage;
+        }
+        if (appInfoList.hasOwnProperty('total')) {
+          this.totalSize = appInfoList.total;
+          if (this.totalSize > 0) {
+            this.showPagination = true;
           }
-        }).catch(err => {
-          this.showPagination = false;
-        });
+        }
       },
       jumpToServicePage(index, row, tag) {
         console.log('in jumpToServicePage');
         console.log(index, row, tag);
       },
 
-      /* unused */
-      handleTagClose(index, row, tag) {
-        let item = row;
-        if (item.hasOwnProperty('profileList')) {
-          let profileList = item.profileList;
-          if ((Array.isArray(profileList) && profileList.indexOf(tag) > -1)) {
-            this.confirm('您将删除' + row.groupTag + '应用下的' + tag + '环境，确定吗？').then(() => {
-              profileList.splice(profileList.indexOf(tag), 1);
-              this.$message({
-                type: 'success',
-                message: '删除成功!'
-              });
-              this.requestAPPList('')
-            }).catch(() => {
-              this.$message({
-                type: 'info',
-                message: '您已取消删除'
-              });
-            });
-          }
-        }
-      },
-      confirm(content) {
+      warningConfirm(content) {
         return new Promise((resolve, reject) => {
           this.$confirm(content, '提示', {
             confirmButtonText: '确定',
@@ -438,18 +441,13 @@
           }).catch(() => {
             reject()
           });
-
         });
       },
 
       // the first page of pagination is 1
       handlePaginationPageChange(page) {
         this.currentPage = page;
-        this.requestAPPList('');
-      },
-
-      handleChangeprofileList(row) {
-        console.log(row);
+        this.requestAPPList({});
       },
     }
   }

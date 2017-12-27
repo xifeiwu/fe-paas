@@ -197,9 +197,12 @@ class Net {
       appList.forEach(app => {
         appModelList.push({
           'appId': app.appId,
-          'profiles': app.profileList.map(it => {
-                        return it.name;
-                      }),
+          'profiles':
+            app.profileList.filter(it => {
+              return '' != it.name && '' != it.description
+            }).map(it => {
+              return it.name;
+            }),
         })
       });
       return appModelList;
@@ -222,8 +225,11 @@ class Net {
                * }
                * as description should be shown in page app_manager
                */
-              it['profileList'] = it['profileList'].map(it => {
-                return appInfoHelper.getProfileByName(it);
+              it['profileList'] = it['profileList'].filter(it => {
+                // for the case profile not found in profile list of group
+                return null != appInfoHelper.getProfileInfoByName(it);
+              }).map(it => {
+                return appInfoHelper.getProfileInfoByName(it);
               });
             });
             content.appModelList = getAppModelList(appList);

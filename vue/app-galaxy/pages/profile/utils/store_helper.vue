@@ -32,6 +32,27 @@ export default {
       }
       return result;
     },
+    deleteAppInfoByID(appID) {
+//      this.$store.dispatch('user/deleteAppInfoByID', appID);
+      let result = {
+        exist: false,
+        index: -1,
+      }
+      for (let index in this.appInfoListOfGroup.appList) {
+        let item = this.appInfoListOfGroup.appList[index];
+        if (item.appId == appID) {
+          result.exist = true;
+          result.index = index;
+          break;
+        }
+      }
+      if (result.exist) {
+        this.appInfoListOfGroup.appList.splice(result.index, 1);
+        this.appInfoListOfGroup.appModelList.splice(result.index, 1);
+        this.appInfoListOfGroup.total -= 1;
+      }
+      console.log(this.appInfoListOfGroup);
+    },
     setConfig(keys, value) {
       this.$store.dispatch('user/setConfig', {
         keys, value
