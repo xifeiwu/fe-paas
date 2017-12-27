@@ -377,7 +377,6 @@
         let self = this;
         this.$refs['serviceForm'].validate((valid) => {
           if (valid) {
-            this.serviceForm.serviceVersion = 'V' + this.serviceForm.serviceVersion;
             this.$store.dispatch('app/addCreateServiceInfo', {
               key: 'service_add',
               value: this.serviceForm

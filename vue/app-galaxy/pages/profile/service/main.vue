@@ -783,7 +783,6 @@ export default {
   data() {
     return {
       appList: [],
-//      appModelList: [],
       totalSize: 0,
 
       selectedAppID: null,
@@ -792,54 +791,6 @@ export default {
       selectedProfileList: [],
 
       rules: appPropUtils.rules,
-//      currentServiceList: [{
-//        "draw": 1,
-//        "start": 0,
-//        "length": 2147483647,
-//        "id": 65,
-//        "groupId": 2,
-//        "createTime": 1513326115000,
-//        "updateTime": 1513326112000,
-//        "tag": "awdawdawd",
-//        "creatorId": 1,
-//        "serviceName": "wadawd",
-//        "language": "NODE_JS",
-//        "packageType": "TAR_GZ",
-//        "rollingUpdate": true,
-//        "volume": null,
-//        "buildName": null,
-//        "deleteStatus": false,
-//        "gitlabAddress": "",
-//        "gitlabBranch": "",
-//        "relativePath": "",
-//        "instanceNum": 1,
-//        "memory": 2,
-//        "cpu": 1.0,
-//        "packageScript": null,
-//        "deployScript": null,
-//        "applicationSpaceId": null,
-//        "healthCheck": "wadawd",
-//        "image": "awdawdawd",
-//        "k8s": null,
-//        "mavenProfileId": null,
-//        "loadBalance": "Round_robin",
-//        "languageVersion": null,
-//        "imageType": null,
-//        "environments": [],
-//        "hosts": [],
-//        "volumes": null,
-//        "spaceList": null,
-//        "serverVersion": "V1",
-//        "spaceId": null,
-//        "appId": null,
-//        "address": "wadawd.galaxy.beta",
-//        "orchId": 4,
-//        "orchIp": "10.10.13.71",
-//        "applicationStatus": "NOT_EXISTS",
-//        "outerDomain": null,
-//        "oneapm": null,
-//        "page": 1
-//      }],
       currentServiceList: null,
       currentModelList: [],
 
@@ -913,16 +864,21 @@ export default {
       this.selectedAPP = appInfo['app'];
       this.selectedProfileList = this.selectedAPP['profileList'];
       if (Array.isArray(this.selectedProfileList) && this.selectedProfileList.length > 0) {
-        // request service list when app id is changed while profile id is not changed.
-        if (this.selectedProfileID == this.selectedProfileList[0]['id']) {
-          this.requestServiceList(this.selectedAPP.appId, this.selectedProfileID);
+        // at the beginning of this page(value of selectedProfileID is null), get selectedProfileID from localStorage
+        // else selectedProfileID is the first element in profileList of selectedApp
+        let defaultProfileID = this.selectedProfileList[0]['id'];
+        if (null == this.selectedProfileID) {
+          let selectedProfileID = this.getConfig('profile/service/profileID');
+          if (selectedProfileID) {
+            this.selectedProfileID = selectedProfileID;
+          }
         } else {
-//          let selectedProfileID = this.getConfig('profile/service/profileID');
-//          if (selectedProfileID) {
-//            this.selectedProfileID = selectedProfileID;
-//          } else {
-            this.selectedProfileID = this.selectedProfileList[0]['id'];
-//          }
+          // request service list when app id is changed while profile id is not changed.
+          if (this.selectedProfileID == defaultProfileID) {
+            this.requestServiceList(this.selectedAPP.appId, this.selectedProfileID);
+          } else {
+            this.selectedProfileID = defaultProfileID;
+          }
         }
       }
       this.setConfig('profile/service/appID', appID);

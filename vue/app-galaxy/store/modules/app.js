@@ -101,6 +101,7 @@ const mutations = {
   },
   SET_INFO_FOR_CREATE_SERVICE(state, infoForCreateService) {
     state.infoForCreateServiceToPost = postFormatter.infoToCreateAPP(infoForCreateService);
+    state.infoForCreateServiceToPost.serviceVersion = 'V' + state.infoForCreateServiceToPost.serviceVersion;
   },
 
   /* net data */

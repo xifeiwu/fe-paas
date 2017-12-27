@@ -57,7 +57,7 @@ class Net {
     }
     if (data.hasOwnProperty('content')) {
       result.msg = JSON.stringify(data.content);
-    } else if (data.hasOwnProperty('msg') && (data.msg.length > 0)) {
+    } else if (data.hasOwnProperty('msg') && data.msg &&(data.msg.length > 0)) {
       result.msg = data.msg
     }
     console.log(result);

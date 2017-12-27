@@ -425,9 +425,12 @@
           }
         }
       },
-      jumpToServicePage(index, row, tag) {
-        console.log('in jumpToServicePage');
-        console.log(index, row, tag);
+      jumpToServicePage(index, row, profile) {
+        let appID = row.appId;
+        let profileID = profile.id;
+        this.setConfig('profile/service/appID', appID);
+        this.setConfig('profile/service/profileID', profileID);
+        this.$router.push('service');
       },
 
       warningConfirm(content) {
