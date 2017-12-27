@@ -149,7 +149,11 @@ class RouterConfig {
         // login check
         let token = localStorage.getItem('token');
         if (token) {//如果有就直接到首页咯
-          next();
+          if (to.path == '/login') {
+            next('/profile');
+          } else {
+            next();
+          }
         } else {
           if (to.path == '/login') {//如果是登录页面路径，就直接next()
             next();
