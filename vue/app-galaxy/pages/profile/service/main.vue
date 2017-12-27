@@ -1,30 +1,25 @@
 <template>
   <div id="service-main">
     <div class="header">
-      <el-row>
+      <el-row class="operation">
         <el-col :span="10">
-          <span>应用名称</span>
+          <span>应用名称：</span>
           <el-select v-model="selectedAppID" placeholder="请选择" @change="handleSelectChange('app')">
             <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
           </el-select>
         </el-col>
-        <el-col :span="10">
-          <span>运行环境</span>
+        <el-col :span="9">
+          <span>运行环境：</span>
           <el-select v-model="selectedProfileID" placeholder="请选择" @change="handleSelectChange('profile')">
             <el-option v-for="item in selectedProfileList" :key="item.id" :label="item.description" :value="item.id">
             </el-option>
           </el-select>
         </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="6">
+        <el-col :span="5">
           <el-button @click="handleButtonClick($event, {role:'linker', path: '/profile/service/add'})">添加服务</el-button>
+          <el-button v-if="false" @click="handleButtonClick($event, {role:'cmd', action: 'refreshAppList'})">刷新</el-button>
         </el-col>
-        <el-col :span="6">
-          <el-button @click="handleButtonClick($event, {role:'cmd', action: 'refreshAppList'})">刷新</el-button>
-        </el-col>
-        <el-col :span="6"></el-col>
       </el-row>
     </div>
     <el-row class="notice">
@@ -571,6 +566,20 @@
   }
   #service-main {
     .header {
+      .el-row.operation {
+        .el-col {
+          display: inline-block;
+          text-align: center;
+          vertical-align: middle;
+        }
+        /*&::after {*/
+          /*content: "";*/
+          /*display: inline-block;*/
+          /*height: 100%;*/
+          /*width: 0;*/
+          /*vertical-align: middle;*/
+        /*}*/
+      }
       .el-select .el-input__inner {
         height: 24px;
       }
