@@ -901,7 +901,7 @@ export default {
         this.$router.push({
           path: info.path,
           query: {
-            appIndex: this.selectedAppID,
+            appID: this.selectedAppID,
             profileID: this.selectedProfileID
           }
         });

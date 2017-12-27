@@ -186,13 +186,23 @@
 </style>
 <script>
   import AppPropUtil from '../utils/app_prop';
+  import StoreHelper from '../utils/store_helper.vue';
   export default {
+    mixins: [StoreHelper],
     created() {
-      // receive queryString parameters from the former page
+      // receive queryString parameters from url first,
+      // get from localStorage if queryString not exist.
       let queryParam = this.$route.query;
-      if ('appIndex' in queryParam) {
-        this.appIndex = parseInt(queryParam['appIndex']);
+      if ('appID' in queryParam) {
+        this.serviceForm.appId = parseInt(queryParam['appID']);
         this.serviceForm.spaceId = parseInt(queryParam['profileID']);
+      } else {
+        let appId = this.getConfig('profile/service/appID');
+        let profileId = this.getConfig('profile/service/profileID');
+        if (appId && profileId) {
+          this.serviceForm.appId = appId;
+          this.serviceForm.spaceId = profileId;
+        }
       }
       // get app related info at beginning
       let appInfoListOfGroup = this.appInfoListOfGroup;
@@ -214,6 +224,8 @@
         hostKey: '',
         hostValue: '',
         serviceForm: {
+          appId: null,
+          spaceId: null,
           serviceVersion: '',
           mirrorType: false,
           mirrorLocation: '',
@@ -226,8 +238,6 @@
           environments: [],
           hosts: [],
           instanceCount: 1,
-          appId: null,
-          spaceId: null,
         },
         memorySizeList: [],
         rules: AppPropUtil.rules,
@@ -254,6 +264,9 @@
       },
     },
     watch: {
+      /**
+       * set memoryID at watcher of serviceForm.cpuID
+       */
       'serviceForm.cpuID': function (value, oldValue) {
         let cpuID = value;
         let cpuInfo = null;
@@ -295,20 +308,19 @@
        * @param value
        */
       getAppRelatedInfo (value) {
-        let appInfoListOfGroup = value;
-        let appList = null;
-        if (appInfoListOfGroup) {
-          if (appInfoListOfGroup.hasOwnProperty('appList')) {
-            appList = appInfoListOfGroup.appList;
-          }
-        }
-        if (null != this.appIndex && appList && Array.isArray(appList) && appList.length > this.appIndex) {
-          this.app = appList[this.appIndex];
-          this.serviceForm.appId = this.app.appId;
-        }
+//        let appInfoListOfGroup = value;
+//        let appList = null;
+//        if (appInfoListOfGroup) {
+//          if (appInfoListOfGroup.hasOwnProperty('appList')) {
+//            appList = appInfoListOfGroup.appList;
+//          }
+//        }
+//        if (null != this.appIndex && appList && Array.isArray(appList) && appList.length > this.appIndex) {
+//          this.app = appList[this.appIndex];
+//          this.serviceForm.appId = this.app.appId;
+//        }
+//        this.serviceForm.appId = this.appID;
         this.isJavaLanguage = this.app && this.app.language == 'JAVA';
-//        console.log(this.app);
-//        console.log(this.isJavaLanguage);
       },
       handleMirrorTypeChange(value) {
         switch (value) {
@@ -373,6 +385,23 @@
           this.$message.error('IP或域名不能为空');
         }
       },
+      /**
+       * init the value of this.serviceForm
+       */
+      initServiceForm() {
+        this.serviceForm.serviceVersion = '';
+          this.serviceForm.mirrorType = false;
+          this.serviceForm.mirrorLocation = '';
+          this.serviceForm.gitlabAddress = '';
+          this.serviceForm.gitlabBranch = '';
+          this.serviceForm.relativePathOfParentPOM = '';
+          this.serviceForm.vmOptions = '';
+//          this.serviceForm.cpuID = '';
+//          this.serviceForm.memoryID = '';
+          this.serviceForm.environments = [];
+          this.serviceForm.hosts = [];
+          this.serviceForm.instanceCount = 1;
+      },
       handleFinish() {
         let self = this;
         this.$refs['serviceForm'].validate((valid) => {
@@ -389,10 +418,11 @@
             this.loadingText = '正在为您创建服务';
             this.$net.createService(toPost).then((content) => {
               this.showLoading = false;
-              this.$confirm('创建应用成功！继续创建？').then(() => {
-                this.$router.push('/profile/service/add');
-              }).catch(() => {
+              this.successConfirm('创建应用成功！返回服务列表？').then(() => {
                 this.$router.push('/profile/service');
+              }).catch(() => {
+                this.initServiceForm();
+                this.$router.push('/profile/service/add');
               });
             }).catch((err) => {
               this.showLoading = false;
@@ -411,6 +441,20 @@
             console.log('error submit!!');
             return false;
           }
+        });
+      },
+      successConfirm(content) {
+        return new Promise((resolve, reject) => {
+          this.$confirm(content, '提示', {
+            confirmButtonText: '返回服务列表',
+            cancelButtonText: '继续创建',
+            closeOnClickModal: false,
+            type: 'success'
+          }).then(() => {
+            resolve();
+          }).catch(() => {
+            reject()
+          });
         });
       },
       resetForm(formName) {
