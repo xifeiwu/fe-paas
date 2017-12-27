@@ -7,29 +7,33 @@ import NetData from '../../net/net';
 import postFormatter from '../post_formatter';
 const USE_LOCAL_STORAGE = false;
 
-const stateHasUpdated = function(prop) {
-  let hasUpdated = false;
-  if ('object' === typeof(prop) && Object.keys(prop).length > 0) {
-    hasUpdated = true;
-  } else if (Array.isArray(prop) && prop.length > 0) {
-    hasUpdated = true;
-  }
-  return hasUpdated;
-}
-
 const warning = function(prop, where) {
   console.log(`warning: get ${prop} from ${where}`);
 };
 
+/**
+ * used in getter:
+ * 1. if the prop in state has not null, return state.prop
+ * 2. else get from localStorage, and assign the value to state.prop
+ */
+var localProps = ['messageForCreateAPP'];
 const getValue = function({state, getters}, prop) {
   let result = null;
-  if (stateHasUpdated(state[prop])) {
+  if (null != state[prop]) {
     result = state[prop];
-  } else if (USE_LOCAL_STORAGE) {
+  } else if(USE_LOCAL_STORAGE) {
     warning(prop, 'localStorage');
-    let local = JSON.parse(localStorage.getItem('app/' + prop));
+    let local = JSON.parse(localStorage.getItem('user/' + prop));
     if (local) {
       result = local;
+      state[prop] = local;
+    }
+  } else if (localProps.indexOf(prop) > -1) {
+    warning(prop, 'localStorage');
+    let local = JSON.parse(localStorage.getItem('user/' + prop));
+    if (local) {
+      result = local;
+      state[prop] = local;
     }
   }
   return result;
@@ -78,12 +82,12 @@ const actions = {
    * get message of creating app from server
    * format: @../mock/app/messageForCreateAPP
    */
-  getMessageForCreateAPP({commit, state}) {
-    if (!stateHasUpdated(state.messageForCreateAPP)) {
+  messageForCreateAPP({commit, state}) {
+    // if (!stateHasUpdated(state.messageForCreateAPP)) {
       NetData.getMessageForCreateAPP().then(content => {
         commit('SET_MESSAGE_FOR_CREATE_APP', content);
       });
-    }
+    // }
   },
 };
 

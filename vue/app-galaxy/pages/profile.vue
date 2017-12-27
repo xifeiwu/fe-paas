@@ -130,7 +130,7 @@
     },
     created() {
       this.$store.dispatch('user/groupList');
-      this.$store.dispatch('app/getMessageForCreateAPP');
+      this.$store.dispatch('app/messageForCreateAPP');
       this.$store.dispatch('user/profileListOfGroup', {
         id: this.currentGroupID
       });

@@ -19,44 +19,58 @@ const stateHasUpdated = function(prop) {
   return hasUpdated;
 }
 
+/**
+ * used in getter:
+ * 1. if the prop in state has not null, return state.prop
+ * 2. else get from localStorage, and assign the value to state.prop
+ */
+var localProps = ['config', 'menuList', 'groupList', 'profileListOfGroup'];
 const getValue = function({state, getters}, prop) {
   let result = null;
-  if (stateHasUpdated(state[prop])) {
+  if (null != state[prop]) {
     result = state[prop];
-  } else if (USE_LOCAL_STORAGE) {
+  } else if(USE_LOCAL_STORAGE) {
     warning(prop, 'localStorage');
     let local = JSON.parse(localStorage.getItem('user/' + prop));
     if (local) {
       result = local;
+      state[prop] = local;
+    }
+  } else if (localProps.indexOf(prop) > -1) {
+    warning(prop, 'localStorage');
+    let local = JSON.parse(localStorage.getItem('user/' + prop));
+    if (local) {
+      result = local;
+      state[prop] = local;
     }
   }
   return result;
 }
 
 /**
- * the property write to and read from localStorage by default:
+ * the property write to and read from localStorage by default, and refresh when the network data is arrived.
  * 1. config, save user config, such as selected appID in page service
  * 2. menuList, got from the response of login
+ * 3. groupList, only refresh at the beginning of page profile.vue
+ * 4. profileListOfGroup, only refresh at the beginning of page profile.vue
  *
  * the properties save on vuex
- * 1. groupList, only refresh at the beginning of page profile.vue
- * 2. profileListOfGroup, only refresh at the beginning of page profile.vue
  * 3. appInfoListOfGroup, only refresh at the beginning of page profile.vue
  */
 const state = {
   /* net data */
   // 用户配置相关信息
-  config: JSON.parse(localStorage.getItem('user/config')),
+  config: null,
   // 侧边栏
-  menuList: JSON.parse(localStorage.getItem('user/menuList')),
+  menuList: null,
   // 用户所属组列表
-  groupList: [],
+  groupList: null,
   // 当前组
   groupID: null,
   // 当前组的所有开发环境
-  profileListOfGroup: [],
+  profileListOfGroup: null,
   // 当前做的所有APP列表
-  appInfoListOfGroup: [],
+  appInfoListOfGroup: null,
 };
 
 const actions = {
@@ -71,14 +85,14 @@ const actions = {
    * 获取用户所属组列表
    */
   groupList({commit, state}) {
-    if (0 === state.groupList.length) {
-      warning('getGroupList', 'netwrok');
-      NetData.getGroupList().then(content => {
-        if (content.hasOwnProperty('groupList')) {
-          commit('SET_GROUP_LIST', content.groupList);
-        }
-      });
-    }
+    // if (0 === state.groupList.length) {
+    warning('getGroupList', 'netwrok');
+    NetData.getGroupList().then(content => {
+      if (content.hasOwnProperty('groupList')) {
+        commit('SET_GROUP_LIST', content.groupList);
+      }
+    });
+    // }
   },
 
   /**
@@ -211,12 +225,10 @@ const mutations = {
 
 const getters = {
   'menuList': (state, getters) => {
-    let menuList = state.menuList;
-    return menuList;
+    return getValue({state, getters}, 'menuList');
   },
   'config': (state, getters) => {
-    let config = state.config;
-    return config;
+    return getValue({state, getters}, 'config');
   },
   'groupID': (state, getters) => {
     let groupID = state.groupID;
@@ -243,7 +255,7 @@ const getters = {
   },
   'profileListOfGroup': (state, getters) => {
     let result = null;
-    if (stateHasUpdated(state.profileListOfGroup)) {
+    if (null != state.profileListOfGroup) {
       result = state.profileListOfGroup;
     } else if (USE_LOCAL_STORAGE) {
       warning('groupList', 'localStorage');
