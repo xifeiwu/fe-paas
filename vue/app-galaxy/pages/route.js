@@ -2,13 +2,13 @@ var path = require('path');
 import Login from './login.vue';
 import Profile from './profile.vue';
 import AppMain from './profile/app/main.vue';
-import InstanceList from './profile/instance_list.vue';
 import AppAdd from './profile/app/add.vue';
 // import AddAppStep1 from './profile/add_app/step1.vue';
 // import AddAppStep2 from './profile/add_app/step2.vue';
 // import AddAppStep3 from './profile/add_app/step3.vue';
 import ServiceMain from './profile/service/main.vue';
 import ServiceAdd from './profile/service/add.vue';
+import InstanceMain from './profile/instance/main.vue';
 import DomainName from './profile/domain_name.vue';
 
 /**
@@ -61,9 +61,9 @@ var Router = function () {
         name: '添加服务',
         component: ServiceAdd,
       }, {
-        path: 'instance_list',
+        path: 'instance',
         name: '实例列表',
-        component: InstanceList,
+        component: InstanceMain,
       }, {
         path: 'domain_name',
         name: '外网域名',
@@ -185,7 +185,7 @@ Router.prototype = {
    *   '/profile/app':"应用管理",
    *   '/profile/app/add':"创建应用",
    *   '/profile/domain_name':"外网域名",
-   *   '/profile/instance_list':"实例列表",
+   *   '/profile/instance':"实例列表",
    *   '/profile/service':"服务管理"
    *  }
    */

@@ -74,11 +74,8 @@ class Net {
         "服务管理": {
           router: '/profile/service'
         },
-        "审批管理": {
-          router: '/profile/approve_manager'
-        },
         "实例列表": {
-          router: '/profile/instance_list'
+          router: '/profile/instance'
         },
         "外网域名": {
           router: '/profile/domain_name'
@@ -92,6 +89,9 @@ class Net {
         "Oauth权限": {
           router: '/profile/oauth_privilege',
           icon: 'el-icon-setting'
+        },
+        "审批管理": {
+          router: '/profile/approve_manager'
         },
       }
       let key = item.name;

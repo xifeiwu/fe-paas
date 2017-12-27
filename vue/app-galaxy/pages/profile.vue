@@ -194,7 +194,7 @@
               this.$message({
                 type: 'success',
                 message: msg,
-                duration: 1000,
+                duration: 500,
                 onClose: () => {
                   this.$router.push('/login');
                 }
