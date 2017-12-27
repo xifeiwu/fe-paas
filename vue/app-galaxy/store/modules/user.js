@@ -141,7 +141,9 @@ const actions = {
   },
 
   /**
-   * 获取该groupID下的所有app
+   * 获取该groupID下的所有app, the case of triggering this action:
+   * 1. at created of profile.vue
+   * 2. at success callback of app/add.vue
    * @param commit
    * @param state
    * @param groupID

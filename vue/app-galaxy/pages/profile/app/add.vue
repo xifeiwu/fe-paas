@@ -298,6 +298,11 @@ export default {
           this.loadingText = '正在为您创建应用' + toPost.serviceName;
           this.$net.createAPP(toPost).then((content) => {
             this.showLoading = false;
+            // update appInfoList
+            this.$store.dispatch('user/getAppListByGroupID', {
+              from: 'page/app/add',
+              groupID: this.currentGroupID
+            });
             this.$router.push('/profile/app');
 //            this.confirm('创建应用 ' + toPost.serviceName + ' 成功！').then(() => {
 //              this.$router.push('/profile/app_manager');
