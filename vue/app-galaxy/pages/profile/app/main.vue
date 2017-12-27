@@ -29,7 +29,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="操作" prop="operation" minWidth="170" headerAlign="center">
+      <el-table-column label="操作" prop="operation" minWidth="170" width="200" headerAlign="center">
         <template slot-scope="scope">
           <el-button
             size="mini-extral"
@@ -178,8 +178,8 @@
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
-        appListByPage: [],
         appList: [],
+        appListByPage: [],
         appModelList: [],
         appModelListByPage: [],
         showPagination: false,
@@ -369,15 +369,17 @@
         if (!serviceName) {
           serviceName = '';
         }
-        console.log({
-          groupId: this.currentGroupID,
-          start: this.currentPage,
-          length: this.pageSize,
-          serviceName: serviceName
-        });
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+//        console.log({
+//          groupId: this.currentGroupID,
+//          start: page * this.pageSize,
+//          length: this.pageSize,
+//          serviceName: serviceName
+//        });
         this.$net.getAPPList({
           groupId: this.currentGroupID,
-          start: this.currentPage,
+          start: page * this.pageSize,
           length: this.pageSize,
           serviceName: serviceName
         }).then(content => {
@@ -440,6 +442,7 @@
         });
       },
 
+      // the first page of pagination is 1
       handlePaginationPageChange(page) {
         this.currentPage = page;
         this.requestAPPList('');
