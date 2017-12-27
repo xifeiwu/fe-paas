@@ -4,11 +4,11 @@ import utils from '../../../utils';
 class AppInfoHelper {
   constructor() {
     this.rules = {
-      groupID: [{
-        required: true,
-        message: '请选择所属用户组',
-        trigger: 'change'
-      }],
+      // groupID: [{
+      //   required: true,
+      //   message: '请选择所属用户组',
+      //   trigger: 'change'
+      // }],
         // 应用名称
         appName: [{
         required: true,
@@ -200,12 +200,9 @@ class AppInfoHelper {
     return profileListOfGroup;
   }
 
-  getProfileByName(name) {
+  getProfileInfoByName(name) {
     let profileListOfGroup = this.getProfileMessage();
-    let result = {
-      name: '',
-      description: ''
-    };
+    let result = null;
     if (Array.isArray(profileListOfGroup)) {
       for (let key in profileListOfGroup) {
         let item = profileListOfGroup[key];
