@@ -784,7 +784,7 @@ export default {
   data() {
     return {
       appList: [],
-      totalSize: 0,
+//      totalSize: 0,
 
       selectedAppID: null,
       selectedAPP: null,
@@ -902,7 +902,7 @@ export default {
 //        if (appInfoListOfGroup.hasOwnProperty('total')) {
 //          this.totalSize = appInfoListOfGroup.total;
 //        }
-        if (0 == this.appList.length) {
+        if (!this.appList || (0 == this.appList.length)) {
           return;
         }
         let appId = this.getConfig('profile/service/appID');

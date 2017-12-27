@@ -35,6 +35,8 @@ var urlList = {
   'service_stop': path + '/service/stopApplicationService',
   // 更改健康检查
   'service_update_health': path + '/service/updateHealth',
+  // 获取服务版本
+  'service_version': path + '/service/queryApplicationServiceVersion',
 };
 
 export default urlList;

@@ -535,6 +535,30 @@ class Net {
     })
   }
 
+  /**
+   * 获取服务版本号列表
+   * @param options {appId, profileId}
+   * @returns {Promise}
+   */
+  getServiceVersion(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.service_version, options).then(response => {
+        if ('data' in response) {
+          let data = response.data;
+          if (0 === data.code) {
+            let content = data.content ? data.content : {};
+            resolve(content);
+          } else {
+            reject(data.msg);
+          }
+        }
+        // resolve(response);
+      }).catch(err => {
+        reject(err);
+      })
+    })
+  }
+
 }
 
 export default new Net();

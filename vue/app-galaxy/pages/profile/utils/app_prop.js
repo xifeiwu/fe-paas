@@ -215,6 +215,21 @@ class AppInfoHelper {
     return result;
   }
 
+  getProfileInfoByID(id) {
+    let profileListOfGroup = this.getProfileMessage();
+    let result = null;
+    if (Array.isArray(profileListOfGroup)) {
+      for (let key in profileListOfGroup) {
+        let item = profileListOfGroup[key];
+        if (id == item.id) {
+          result = item;
+          break;
+        }
+      }
+    }
+    return result;
+  }
+
   getCPUAndMemoryInfoBySize(cpuSize, memorySize) {
     let cpuAndMemorylist = this.getMessageForCreateAPP('cpuAndMemorylist');
     // console.log(cpuAndMemorylist);
