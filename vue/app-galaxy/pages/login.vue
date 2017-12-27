@@ -195,7 +195,11 @@
             this.showLoading = false;
           }).catch(err => {
             console.log(err);
-            this.showError('网络连接错误');
+            this.$notify.error({
+              title: '运行失败！',
+              message: JSON.stringify(err)
+            });
+            this.showError('网络连接或内部错误');
             this.showLoading = false;
           });
         }

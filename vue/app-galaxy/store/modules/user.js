@@ -61,18 +61,16 @@ const state = {
 
 const actions = {
   login({commit, state}, res) {
-    if (0 === state.menuList.length) {
-      warning('login', 'netwrok');
-      NetData.login(res).then((menuList) => {
-        commit('LOGIN', menuList);
-      })
-    }
+    warning('login', 'netwrok');
+    NetData.login(res).then((menuList) => {
+      commit('LOGIN', menuList);
+    })
   },
 
   /**
    * 获取用户所属组列表
    */
-  getGroupList({commit, state}) {
+  groupList({commit, state}) {
     if (0 === state.groupList.length) {
       warning('getGroupList', 'netwrok');
       NetData.getGroupList().then(content => {
@@ -118,13 +116,13 @@ const actions = {
   groupID({commit, state, dispatch}, {from, value}) {
     state.groupID = value;
     localStorage.setItem('groupID', value);
-    dispatch('getProfileListOfGroup', {
+    dispatch('profileListOfGroup', {
       id: value
     });
-    dispatch('getAppListByGroupID', {
+    dispatch('appInfoListOfGroup', {
       groupID: value
     });
-    // dispatch('app/getAppListByGroupID', {
+    // dispatch('app/appInfoListOfGroup', {
     //   id: id
     // }, {root: true});
   },
@@ -132,7 +130,7 @@ const actions = {
   /**
    * 获取当前组所有profile
    */
-  getProfileListOfGroup({commit, state}, options) {
+  profileListOfGroup({commit, state}, options) {
     NetData.getProfileListOfGroup(options).then(content => {
       if (content.hasOwnProperty('spaceList')) {
         commit('SET_PROFILE_OF_GROUP', content.spaceList);
@@ -148,7 +146,7 @@ const actions = {
    * @param state
    * @param groupID
    */
-  getAppListByGroupID({commit, state}, {groupID, from}) {
+  appInfoListOfGroup({commit, state}, {groupID, from}) {
     NetData.getAPPList({
       groupId: groupID,
       serviceName: ''

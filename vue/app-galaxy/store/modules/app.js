@@ -5,7 +5,7 @@ import Vue from 'vue';
 // let NetData = Vue.prototype.$net;
 import NetData from '../../net/net';
 import postFormatter from '../post_formatter';
-const USE_LOCAL_STORAGE = true;
+const USE_LOCAL_STORAGE = false;
 
 const stateHasUpdated = function(prop) {
   let hasUpdated = false;

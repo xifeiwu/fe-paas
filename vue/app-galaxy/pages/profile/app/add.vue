@@ -135,10 +135,12 @@
 </style>
 <script>
   import appPropUtil from '../utils/app_prop';
+  import StoreHelper from '../utils/store_helper.vue';
 export default {
+  mixins: [StoreHelper],
   created() {
-    // set java language as default
-    this.setDefaultLanguage(this.languageInfo);
+    this.onLanguageInfo(this.languageInfo, null);
+    this.onProfileListOfGroup(this.profileListOfGroup, null);
   },
   mounted() {
   },
@@ -187,33 +189,26 @@ export default {
         );
       }
     },
-    groupList() {
-      return this.$store.getters['user/groupList'];
-    },
-    profileListOfGroup() {
-      let value = this.$store.getters['user/profileListOfGroup'];
-      if (Array.isArray(value)) {
-        this.createAppForm.profiles = value.map(it => {
-          return it.name;
-        });
-      }
-      return value;
-    },
-    languageInfo() {
-      let result = [];
-      let value = this.$store.getters['app/messageForCreateAPP'];
-      if (value && value.hasOwnProperty('LanguageList')) {
-        result = value.LanguageList;
-      }
-      return result;
-    },
     loadBalanceType() {
       return appPropUtil.getAllLoadBalance();
     },
   },
   watch: {
+    languageInfo: 'onLanguageInfo',
+    profileListOfGroup: 'onProfileListOfGroup',
   },
   methods: {
+    onLanguageInfo: function(value, oldValue) {
+      // set java language as default
+      this.setDefaultLanguage(value);
+    },
+    onProfileListOfGroup: function (value, oldValue) {
+      if (Array.isArray(value)) {
+        this.createAppForm.profiles = value.map(it => {
+          return it.name;
+        });
+      }
+    },
     handleGroupIDChange: function(groupID) {
 //      this.requestAPPList(groupID, 1, 8, '');
     },
@@ -296,7 +291,7 @@ export default {
           this.$net.createAPP(toPost).then((content) => {
             this.showLoading = false;
             // update appInfoList after create app success
-            this.$store.dispatch('user/getAppListByGroupID', {
+            this.$store.dispatch('user/appInfoListOfGroup', {
               from: 'page/app/add',
               groupID: this.currentGroupID
             });

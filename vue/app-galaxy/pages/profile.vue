@@ -129,12 +129,12 @@
       }
     },
     created() {
-      this.$store.dispatch('user/getGroupList');
+      this.$store.dispatch('user/groupList');
       this.$store.dispatch('app/getMessageForCreateAPP');
-      this.$store.dispatch('user/getProfileListOfGroup', {
+      this.$store.dispatch('user/profileListOfGroup', {
         id: this.currentGroupID
       });
-      this.$store.dispatch('user/getAppListByGroupID', {
+      this.$store.dispatch('user/appInfoListOfGroup', {
         from: 'page/profile',
         groupID: this.currentGroupID
       });

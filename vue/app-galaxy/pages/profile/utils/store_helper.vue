@@ -14,7 +14,15 @@ export default {
     },
     appInfoListOfGroup() {
       return this.$store.getters['user/appInfoListOfGroup'];
-    }
+    },
+    languageInfo() {
+      let result = [];
+      let value = this.$store.getters['app/messageForCreateAPP'];
+      if (value && value.hasOwnProperty('LanguageList')) {
+        result = value.LanguageList;
+      }
+      return result;
+    },
   },
   methods: {
     getAppInfoByID(appID) {
