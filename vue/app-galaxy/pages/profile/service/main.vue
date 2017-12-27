@@ -456,7 +456,7 @@
       <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="formInChangeCpuAndMemoryDialog">
         <el-form-item label="CPU" prop="cpuID">
           <el-radio-group v-model="newProps.cpuID" size="small" @change="handleCPUChange">
-            <el-radio-button v-for="item in cpuAndMemorylist" :label="item.id" :key="item.id">
+            <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
               {{item.cpu}}核
             </el-radio-button>
           </el-radio-group>
@@ -776,7 +776,8 @@
 export default {
   mixins: [StoreHelper],
   created() {
-    this.updateAppInfoList(this.appInfoListOfGroup);
+    this.onUpdateAppInfoList(this.appInfoListOfGroup);
+    this.onCpuAndMemoryList(this.cpuAndMemoryList);
   },
   mounted() {
   },
@@ -833,19 +834,6 @@ export default {
   },
   computed: {
     /* used for dialog */
-    cpuAndMemorylist() {
-      let result = [];
-      let value = this.$store.getters['app/messageForCreateAPP'];
-      if (value && value.hasOwnProperty('cpuAndMemorylist')) {
-        result = value.cpuAndMemorylist;
-      }
-      // set default cpu
-      if (Array.isArray(result) && result.length > 0) {
-        let firstItem = result[0];
-        this.memeorySizeList = 'memoryList' in firstItem ? firstItem.memoryList : '';
-      }
-      return result;
-    },
     mirrorInfo: function () {
       return appPropUtils.getMirrorInfo();
     },
@@ -855,6 +843,8 @@ export default {
     /* used for dialog end */
   },
   watch: {
+    appInfoListOfGroup: 'onUpdateAppInfoList',
+    cpuAndMemoryList: 'onCpuAndMemoryList',
     selectedAppID: function (value, oldValue) {
       let appID = value;
       let appInfo = this.getAppInfoByID(appID);
@@ -889,12 +879,48 @@ export default {
       this.requestServiceList(appID, profileID);
 //      this.setConfig('profile/service/profileID', profileID);
     },
-    appInfoListOfGroup(value, oldValue) {
-      this.updateAppInfoList(value);
-    }
   },
 
   methods: {
+    /**
+     * call in two place:
+     * 1. created function
+     * 2. appInfoListOfGroup watcher
+     *
+     * what is done?
+     * 1. refresh this.appList
+     * 2. get default appId
+     */
+    onUpdateAppInfoList(appInfoListOfGroup) {
+      if (appInfoListOfGroup) {
+        if (appInfoListOfGroup.hasOwnProperty('appList')) {
+          this.appList = appInfoListOfGroup.appList;
+        }
+//        if (appInfoListOfGroup.hasOwnProperty('appModelList')) {
+//          this.appModelList = appInfoListOfGroup.appModelList;
+//        }
+//        if (appInfoListOfGroup.hasOwnProperty('total')) {
+//          this.totalSize = appInfoListOfGroup.total;
+//        }
+        if (0 == this.appList.length) {
+          return;
+        }
+        let appId = this.getConfig('profile/service/appID');
+        if (appId && this.getAppInfoByID(appId)) {
+          this.selectedAppID = appId;
+        } else {
+          this.selectedAppID = this.appList[0]['appId'];
+        }
+      }
+    },
+    onCpuAndMemoryList(value, oldValue) {
+      // set default cpu
+      if (Array.isArray(value) && value.length > 0) {
+        let firstItem = value[0];
+        this.memeorySizeList = 'memoryList' in firstItem ? firstItem.memoryList : '';
+      }
+
+    },
     handleButtonClick(evt, info) {
 //      console.log(evt);
       if ('linker' == info.role) {
@@ -1064,7 +1090,7 @@ export default {
           this.newProps['memoryID'] = JSON.parse(JSON.stringify(this.selected.model['memoryID']));
           this.$refs.hasOwnProperty('formInChangeCpuAndMemoryDialog') &&
           this.$refs['formInChangeCpuAndMemoryDialog'].validate();
-          let cpuAndMemorylist = this.cpuAndMemorylist;
+          let cpuAndMemoryList = this.cpuAndMemoryList;
           break;
         case 'mirror':
           this.newProps['mirrorTypeID'] = this.selected.model['mirrorTypeID'];
@@ -1388,8 +1414,8 @@ export default {
       }
     },
     handleCPUChange(id) {
-      if (Array.isArray(this.cpuAndMemorylist)) {
-        this.cpuAndMemorylist.some(it => {
+      if (Array.isArray(this.cpuAndMemoryList)) {
+        this.cpuAndMemoryList.some(it => {
           if (it.hasOwnProperty('cpu') && it.id === id) {
             this.memeorySizeList = it.memoryList;
 //            console.log(this.memeorySizeList);
@@ -1417,38 +1443,6 @@ export default {
 //          break;
 //      }
     },
-
-    /**
-     * call in two place:
-     * 1. created function
-     * 2. appInfoListOfGroup watcher
-     *
-     * what is done?
-     * 1. refresh this.appList
-     * 2. get default appId
-     */
-    updateAppInfoList(appInfoListOfGroup) {
-      if (appInfoListOfGroup) {
-        if (appInfoListOfGroup.hasOwnProperty('appList')) {
-          this.appList = appInfoListOfGroup.appList;
-        }
-//        if (appInfoListOfGroup.hasOwnProperty('appModelList')) {
-//          this.appModelList = appInfoListOfGroup.appModelList;
-//        }
-//        if (appInfoListOfGroup.hasOwnProperty('total')) {
-//          this.totalSize = appInfoListOfGroup.total;
-//        }
-        if (0 == this.appList.length) {
-          return;
-        }
-        let appId = this.getConfig('profile/service/appID');
-        if (appId && this.getAppInfoByID(appId)) {
-          this.selectedAppID = appId;
-        } else {
-          this.selectedAppID = this.appList[0]['appId'];
-        }
-      }
-    }
     /* used for dialog end */
   }
 

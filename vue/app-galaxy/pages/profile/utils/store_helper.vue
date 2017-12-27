@@ -23,6 +23,14 @@ export default {
       }
       return result;
     },
+    cpuAndMemoryList() {
+      let result = [];
+      let value = this.$store.getters['app/messageForCreateAPP'];
+      if (value && value.hasOwnProperty('cpuAndMemorylist')) {
+        result = value.cpuAndMemorylist;
+      }
+      return result;
+    },
   },
   methods: {
     getAppInfoByID(appID) {
