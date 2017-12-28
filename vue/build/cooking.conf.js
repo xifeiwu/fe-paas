@@ -52,6 +52,10 @@ if (RUN_TEST) {
     "name": "element",
     "entry": path.resolve(vueBaseDir, 'app-test/element.js'),
   });
+  multiPageConfig.bundles.push({
+    "name": "custom",
+    "entry": path.resolve(vueBaseDir, 'app-test/custom.js'),
+  });
   multiPageConfig.templates.push({
     "name": "element",
     "title": "element-ui-demo",
@@ -60,6 +64,16 @@ if (RUN_TEST) {
       "css": []
     },
     "chunks": ["element"],
+    "template": path.resolve(vueBaseDir, 'app-test/index.tpl'),
+  });
+  multiPageConfig.templates.push({
+    "name": "custom",
+    "title": "custom-component-demo",
+    "cdn": {
+      "js": [],
+      "css": []
+    },
+    "chunks": ["custom"],
     "template": path.resolve(vueBaseDir, 'app-test/index.tpl'),
   });
 }
@@ -116,7 +130,9 @@ var cookingConfig = {
   extractCSS: '[name].[contenthash:7].css',
   alias: {
     // 'src': path.join(__dirname, 'src'),
-    'element-ui': vueBaseDir
+    'element-ui': vueBaseDir,
+    'utils': vueBaseDir + '/src',
+    'components': vueBaseDir + '/components',
   },
   extends: ['vue2', 'sass'],
   // extends: ['vue2', 'sass', 'autoprefixer'],
