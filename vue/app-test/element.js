@@ -1,8 +1,8 @@
 import Vue from 'vue';
-import '../packages/theme-chalk/src/index.scss';
-import APP from './element/element.js';
+import 'element-ui/packages/theme-chalk/src/index.scss';
+import APP from './element/index.js';
 APP.install(Vue);
-import entry from './element.vue';
+import entry from './element/index.vue';
 // import progressEntry from './progress'
 
 // console.log(entry);

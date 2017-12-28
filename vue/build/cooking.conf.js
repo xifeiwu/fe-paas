@@ -132,6 +132,7 @@ var cookingConfig = {
     // 'src': path.join(__dirname, 'src'),
     'element-ui': vueBaseDir,
     'utils': vueBaseDir + '/src',
+    'element': vueBaseDir + '/packages',
     'components': vueBaseDir + '/components',
   },
   extends: ['vue2', 'sass'],
