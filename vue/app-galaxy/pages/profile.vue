@@ -2,9 +2,7 @@
   <el-container id="profile">
     <el-header height="40px">
       <div class="img">picture</div>
-      <el-menu
-              :default-active="activeIndex"
-              class="header-menu"
+      <el-menu class="header-menu"
               mode="horizontal"
               @select="handleHeaderMenuClick"
               defaultActive="profile"
@@ -38,7 +36,6 @@
           <el-menu-item v-for="menu in menuList" :key="menu.name" :index="menu.router">
             <i :class="menu.icon"></i><span>{{menu.name}}</span>
           </el-menu-item>
-          <li :value="activeIndex"></li>
         </el-menu>
       </el-aside>
       <el-main>
@@ -89,7 +86,6 @@
         float: left;
         line-height: $header-height;
       }
-
       .el-menu.header-menu {
         background-color: transparent;
         float: right;
@@ -112,6 +108,10 @@
         border-right: solid 1px $header-background-color;
         .el-menu {
           border-width: 0px;
+          .el-menu-item.is-active {
+            color: black;
+            font-size: 16px;
+          }
         }
       }
       .el-main {
@@ -143,7 +143,6 @@
   export default {
     data() {
       return {
-        activeIndex: '3',
         crumbList: [],
         groupID: '',
       }

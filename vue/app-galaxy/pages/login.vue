@@ -1,17 +1,20 @@
 <template>
-  <el-container>
-    <el-header>
+  <el-container id="login">
+    <el-header height="40px">
       <div class="img">picture</div>
-      <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
-        <el-menu-item index="1">凡普云首页</el-menu-item>
+      <el-menu class="header-menu"
+               mode="horizontal"
+               @select="handleHeaderMenuClick"
+               defaultActive="login">
+        <el-menu-item index="main">凡普云首页</el-menu-item>
         <!--<el-submenu index="2">-->
         <!--<template slot="title">我的工作台</template>-->
         <!--<el-menu-item index="2-1">选项1</el-menu-item>-->
         <!--<el-menu-item index="2-2">选项2</el-menu-item>-->
         <!--<el-menu-item index="2-3">选项3</el-menu-item>-->
         <!--</el-submenu>-->
-        <el-menu-item index="2">帮助文档</el-menu-item>
-        <el-menu-item index="3">登录</el-menu-item>
+        <el-menu-item index="help">帮助文档</el-menu-item>
+        <el-menu-item index="login">登录</el-menu-item>
       </el-menu>
     </el-header>
     <el-main>
@@ -69,6 +72,107 @@
     </el-footer>
   </el-container>
 </template>
+<style lang="scss" scoped>
+  .el-menu {
+    .el-menu-item {
+      &.is-active {
+        font-weight: bold;
+        cursor: no-drop;
+        font-weight: bold;
+      }
+    }
+  }
+  $header-height: 40px;
+  $header-background-color: #e7e7e7;
+  #login.el-container {
+    .el-header {
+      background-color: $header-background-color;
+      color: #333;
+      text-align: center;
+      .img {
+        float: left;
+        line-height: $header-height;
+      }
+      .el-menu.header-menu {
+        background-color: transparent;
+        float: right;
+        border-width: 0px;
+        .el-menu-item {
+          font-size: 14px;
+          line-height: $header-height;
+          height: $header-height;
+          &.is-active {
+            color: black;
+          }
+        }
+      }
+    }
+    .el-main {
+      position: relative;
+      color: #333;
+      .form-container {
+        float: right;
+        margin-top: 50px;
+        margin-right: 30px;
+        padding: 20px;
+        box-shadow: 0 0 8px 0 rgba(232, 237, 250, .6), 0 2px 4px 0 rgba(232, 237, 250, .5);
+        .el-form.login-form {
+          width: 320px;
+          .el-form-item {
+            margin-bottom: 16px;
+            .login-error {
+              line-height: 100%;
+              padding: 8px 2px;
+              font-weight: bold;
+            }
+            .login-title {
+              text-align: center;
+              font-size: 1.2rem;
+            }
+            &.login-interval-item {
+              .el-form-item__title {
+                line-height: 24px;
+              }
+            }
+            &.login-button-item {
+              text-align: center;
+              .el-button {
+                width: 100%;
+              }
+            }
+            &.verify-code {
+              .el-input-group__append {
+                width: 60px;
+                text-align: center;
+              }
+            }
+            &:last-child {
+              margin-bottom: 0px;
+            }
+            .el-form-item__content {
+              /*margin-left: 0px !important;*/
+              input {
+                border-radius: 0px
+              }
+            }
+          }
+        }
+      }
+    }
+    .el-footer {
+      text-align: center;
+    }
+    .el-aside {
+      background-color: #D3DCE6;
+      color: #333;
+      text-align: center;
+    }
+  }
+  body > .el-container {
+    margin-bottom: 40px;
+  }
+</style>
+
 <script>
   const keyCode = Object.freeze({
     LEFT: 37,
@@ -80,7 +184,6 @@
   export default {
     data() {
       return {
-        activeIndex: '3',
         form: {
           userName: '',
           password: '',
@@ -112,7 +215,7 @@
       }, 1000);
     },
     methods: {
-      handleSelect(key, keyPath) {
+      handleHeaderMenuClick(key, keyPath) {
         console.log(key, keyPath);
       },
       handleKeyDownOnForm(evt) {
@@ -127,9 +230,9 @@
             // if keydown event of enter is trigger on the last input, the form will be submitted.
             let lastInputIndex = 2;
             let submitButtonIndex = 4;
-            if (lastInputIndex === this.focusIndex) {
+//            if (lastInputIndex === this.focusIndex) {
               this.focusableElesInForm[submitButtonIndex].click();
-            }
+//            }
             break;
         }
         this.focusIndex = this.focusIndex < 0 ? 0 : this.focusIndex;
@@ -226,92 +329,3 @@
     }
   }
 </script>
-
-<style>
-
-</style>
-<style lang="scss" scoped>
-  .el-container {
-    .el-header {
-      background-color: #e7e7e7;
-      color: #333;
-      text-align: center;
-      line-height: 60px;
-      .img {
-        float: left;
-      }
-      .el-menu {
-        background-color: transparent;
-        float: right;
-      }
-    }
-
-    .el-main {
-      position: relative;
-      color: #333;
-      .form-container {
-        float: right;
-        margin-top: 50px;
-        margin-right: 30px;
-        padding: 20px;
-        box-shadow: 0 0 8px 0 rgba(232, 237, 250, .6), 0 2px 4px 0 rgba(232, 237, 250, .5);
-        .el-form.login-form {
-          width: 320px;
-          .el-form-item {
-            margin-bottom: 16px;
-            .login-error {
-              line-height: 100%;
-              padding: 8px 2px;
-              font-weight: bold;
-            }
-            .login-title {
-              text-align: center;
-              font-size: 1.2rem;
-            }
-            &.login-interval-item {
-              .el-form-item__title {
-                line-height: 24px;
-              }
-            }
-            &.login-button-item {
-              text-align: center;
-              .el-button {
-                width: 100%;
-              }
-            }
-            &.verify-code {
-              .el-input-group__append {
-                width: 60px;
-                text-align: center;
-              }
-            }
-            &:last-child {
-              margin-bottom: 0px;
-            }
-            .el-form-item__content {
-              /*margin-left: 0px !important;*/
-              input {
-                border-radius: 0px
-              }
-            }
-          }
-        }
-      }
-    }
-
-    .el-footer {
-      text-align: center;
-    }
-
-    .el-aside {
-      background-color: #D3DCE6;
-      color: #333;
-      text-align: center;
-    }
-  }
-
-  body > .el-container {
-    margin-bottom: 40px;
-  }
-
-</style>
