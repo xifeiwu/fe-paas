@@ -49,17 +49,17 @@ var multiPageConfig = {
 var RUN_TEST = true;
 if (RUN_TEST) {
   multiPageConfig.bundles.push({
-    "name": "test",
-    "entry": path.resolve(vueBaseDir, 'app-test/index.js'),
+    "name": "element",
+    "entry": path.resolve(vueBaseDir, 'app-test/element.js'),
   });
   multiPageConfig.templates.push({
-    "name": "test",
-    "title": "VUE模块测试",
+    "name": "element",
+    "title": "element-ui-demo",
     "cdn": {
       "js": [],
       "css": []
     },
-    "chunks": ["test"],
+    "chunks": ["element"],
     "template": path.resolve(vueBaseDir, 'app-test/index.tpl'),
   });
 }

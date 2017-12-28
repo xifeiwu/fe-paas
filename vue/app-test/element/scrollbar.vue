@@ -269,7 +269,7 @@
 </template>
 <script>
     export default {
-        components: {ElScrollbar}, data () {
+        data () {
             return {
                 radio: '1',
                 radio2: 3,
