@@ -78,7 +78,7 @@ class Net {
           router: '/profile/instance'
         },
         "外网域名": {
-          router: '/profile/domain_name'
+          router: '/profile/domain'
         },
         "日志中心": {
           router: '/profile/log_center'

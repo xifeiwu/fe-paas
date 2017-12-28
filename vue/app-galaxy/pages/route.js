@@ -9,7 +9,7 @@ import AppAdd from './profile/app/add.vue';
 import ServiceMain from './profile/service/main.vue';
 import ServiceAdd from './profile/service/add.vue';
 import InstanceMain from './profile/instance/main.vue';
-import DomainName from './profile/domain_name.vue';
+import DomainMain from './profile/domain/main.vue';
 
 /**
  * router config:
@@ -65,9 +65,9 @@ var Router = function () {
         name: '实例列表',
         component: InstanceMain,
       }, {
-        path: 'domain_name',
+        path: 'domain',
         name: '外网域名',
-        component: DomainName,
+        component: DomainMain,
       }]
     }
   }
