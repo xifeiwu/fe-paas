@@ -8,7 +8,7 @@
 
 <script>
     import Vue from 'vue';
-    import RenderCom from '../packages/render-com/index.js';
+    import RenderCom from '../../packages/render-com/index.js';
     RenderCom.install(Vue);
     export default {
         name: 'render_com_demo',

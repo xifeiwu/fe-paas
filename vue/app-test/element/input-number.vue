@@ -5,9 +5,6 @@
 </template>
 
 <script>
-  import Vue from 'vue';
-  import InputNumber from '../packages/input-number/index.js';
-  InputNumber.install(Vue);
   export default {
     data() {
       return {

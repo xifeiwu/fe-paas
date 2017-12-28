@@ -10,9 +10,6 @@
 </template>
 
 <script>
-  import Vue from 'vue';
-  import Badge from '../packages/badge/index.js';
-  Badge.install(Vue);
   export default {
     name: 'badge_demo'
   }

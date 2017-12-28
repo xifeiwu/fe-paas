@@ -15,9 +15,6 @@
 
 <script>
 
-import Vue from 'vue';
-import Alert from '../packages/alert/index.js';
-Vue.component(Alert.name, Alert);
 export default {
     name: 'alert_demo',
     methods: {

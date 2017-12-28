@@ -32,10 +32,6 @@
     </div>
 </template>
 <script>
-    import Vue from 'vue';
-    import Popover from '../packages/popover/index.js';
-    console.log(Vue.prototype.$isServer);
-    Vue.component(Popover.name, Popover);
     export default {
         name: 'popover_demo'
     }

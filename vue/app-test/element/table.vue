@@ -66,10 +66,6 @@
 </template>
 
 <script>
-  import Vue from 'vue';
-  import Table from '../packages/table/index.js';
-  //    Vue.component(Switch.name, Switch);
-  Table.install(Vue);
   export default {
     data() {
       return {

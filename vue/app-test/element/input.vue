@@ -20,9 +20,6 @@
 </template>
 
 <script>
-  import Vue from 'vue';
-  import Input from '../packages/input/index.js';
-  Input.install(Vue);
   export default {
     data() {
       return {

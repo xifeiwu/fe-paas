@@ -27,13 +27,6 @@
 
 </template>
 <script>
-    import Vue from 'vue';
-    import CheckBox from '../packages/checkbox/index.js';
-    import CheckBoxButton from '../packages/checkbox-button/index.js';
-    import CheckBoxGroup from '../packages/checkbox-group/index.js';
-    CheckBox.install(Vue);
-    CheckBoxButton.install(Vue);
-    CheckBoxGroup.install(Vue);
     export default {
         data() {
             return {

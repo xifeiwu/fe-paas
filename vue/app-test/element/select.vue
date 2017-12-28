@@ -10,11 +10,6 @@
 </template>
 
 <script>
-  import Vue from 'vue';
-  import Select from '../packages/select/index.js';
-  import Option from '../packages/option/index.js';
-  Select.install(Vue);
-  Option.install(Vue);
   export default {
     data() {
       return {

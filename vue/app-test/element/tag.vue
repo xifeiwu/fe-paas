@@ -43,9 +43,6 @@
 </style>
 
 <script>
-    import Vue from 'vue';
-    import Tag from '../packages/tag/index.js';
-    Tag.install(Vue);
     export default {
         data() {
             return {

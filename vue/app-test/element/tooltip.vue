@@ -49,9 +49,6 @@
 </template>
 
 <script>
-    import Vue from 'vue';
-    import ToolTip from '../packages/tooltip/index.js';
-    ToolTip.install(Vue);
     export default {
         name: 'tooltip_demo'
     }

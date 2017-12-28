@@ -268,10 +268,6 @@
     </div>
 </template>
 <script>
-    import Vue from 'vue';
-    import ScrollBar from '../packages/scrollbar/index.js';
-    import ElScrollbar from "../packages/scrollbar/src/main";
-    Vue.component(ScrollBar.name, ScrollBar);
     export default {
         components: {ElScrollbar}, data () {
             return {

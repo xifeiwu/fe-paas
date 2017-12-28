@@ -10,9 +10,6 @@
 </template>
 
 <script>
-    import Vue from 'vue';
-    import Progress from '../packages/progress/index.js';
-    Vue.component(Progress.name, Progress);
     export default {
         name: 'progress_demo',
         data() {

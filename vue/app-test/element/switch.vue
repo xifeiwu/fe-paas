@@ -32,10 +32,6 @@
 
 
 <script>
-    import Vue from 'vue';
-    import Switch from '../packages/switch/index.js';
-//    Vue.component(Switch.name, Switch);
-    Switch.install(Vue);
     export default {
         data() {
             return {

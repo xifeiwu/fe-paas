@@ -44,13 +44,6 @@
 </template>
 
 <script>
-    import Vue from 'vue';
-    import Radio from '../packages/radio/index.js';
-    import RadioButton from '../packages/radio-button/index.js';
-    import RadioGroup from '../packages/radio-group/index.js';
-    Vue.component(Radio.name, Radio);
-    Vue.component(RadioButton.name, RadioButton);
-    Vue.component(RadioGroup.name, RadioGroup);
     export default {
         data () {
             return {

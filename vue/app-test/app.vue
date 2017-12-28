@@ -29,32 +29,32 @@
 </template>
 
 <script>
-  import layout_demo from './layout.vue'
-  import card_demo from './card';
-  import alert_demo from './alert';
-  import progress_demo from './progress';
-  import radio_demo from './radio';
-  import popover_demo from './popover.vue';
-  import scrollbar_demo from './scrollbar.vue';
-  import switch_demo from './switch.vue';
-  import checkbox_demo from './checkbox.vue';
-  import tooltip_demo from './tooltip.vue';
-  import tag_demo from './tag.vue';
-  import table_demo from './table.vue';
-  import render_com_demo from './render-com.vue'
-  import input_demo from './input.vue'
-  import input_number_demo from './input-number.vue'
-  import select_demo from './select.vue'
-  import badge_demo from './badge.vue'
-  import button_demo from './button.vue'
-  import loading_demo from './loading.vue'
-  import form_demo from './form.vue'
-  import container_demo from './container.vue'
-  import menu_demo from './menu.vue'
-  import dropdown_demo from './dropdown.vue'
-  import tabs_demo from './tabs.vue'
-  import message_box_demo from './message-box.vue'
-  import upload_demo from './upload.vue'
+  import layout_demo from './element/layout.vue'
+  import card_demo from './element/card';
+  import alert_demo from './element/alert';
+  import progress_demo from './element/progress';
+  import radio_demo from './element/radio';
+  import popover_demo from './element/popover.vue';
+  import scrollbar_demo from './element/scrollbar.vue';
+  import switch_demo from './element/switch.vue';
+  import checkbox_demo from './element/checkbox.vue';
+  import tooltip_demo from './element/tooltip.vue';
+  import tag_demo from './element/tag.vue';
+  import table_demo from './element/table.vue';
+  import render_com_demo from './element/render-com.vue'
+  import input_demo from './element/input.vue'
+  import input_number_demo from './element/input-number.vue'
+  import select_demo from './element/select.vue'
+  import badge_demo from './element/badge.vue'
+  import button_demo from './element/button.vue'
+  import loading_demo from './element/loading.vue'
+  import form_demo from './element/form.vue'
+  import container_demo from './element/container.vue'
+  import menu_demo from './element/menu.vue'
+  import dropdown_demo from './element/dropdown.vue'
+  import tabs_demo from './element/tabs.vue'
+  import message_box_demo from './element/message-box.vue'
+  import upload_demo from './element/upload.vue'
 
   // import jsx_demo1 from './jsx/demo1.vue'
   import jsx_demo1 from './jsx/demo1.js'
