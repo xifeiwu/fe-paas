@@ -1,15 +1,15 @@
 <template>
-  <el-container class="outer-container">
-    <el-header>
+  <el-container id="profile">
+    <el-header height="40px">
       <div class="img">picture</div>
       <el-menu
               :default-active="activeIndex"
-              class="el-menu-demo"
+              class="header-menu"
               mode="horizontal"
-              @select="handleTitleMenuSelect"
-              index="title_menu"
+              @select="handleHeaderMenuClick"
+              defaultActive="profile"
       >
-        <el-menu-item index="login">登录</el-menu-item>
+        <el-menu-item index="profile">控制台</el-menu-item>
         <!--<el-submenu index="2">-->
         <!--<template slot="title">我的工作台</template>-->
         <!--<el-menu-item index="2-1">选项1</el-menu-item>-->
@@ -22,7 +22,7 @@
       </el-menu>
     </el-header>
     <el-container class="inner-container">
-      <el-aside width="200px">
+      <el-aside width="180px">
         <el-menu
                 class="el-menu-vertical-demo"
                 @open="handleOpen"
@@ -30,7 +30,7 @@
                 @select="handleAsideMenuSelect"
                 :defaultOpeneds="['app_menu']"
                 default-active="app_manager"
-                index="aside_menu">
+                defaultActive="/profile/app">
             <!--<el-menu-item index="app_manager">-->
               <!--<i class="el-icon-location"></i>-->
               <!--<span>应用管理</span>-->
@@ -67,38 +67,58 @@
 </template>
 
 <style lang="scss" scoped>
-  .el-container.outer-container {
+  .el-menu {
+    .el-menu-item {
+      &.is-active {
+        font-weight: bold;
+        cursor: no-drop;
+        font-weight: bold;
+      }
+    }
+  }
+  $header-height: 40px;
+  $header-background-color: #e7e7e7;
+  $aside-width: 180px;
+  #profile.el-container {
     height: 100%;
     .el-header {
-      background-color: #e7e7e7;
+      background-color: $header-background-color;
       color: #333;
       text-align: center;
-      line-height: 60px;
-
       .img {
         float: left;
+        line-height: $header-height;
       }
 
-      .el-menu {
+      .el-menu.header-menu {
         background-color: transparent;
         float: right;
+        border-width: 0px;
+        .el-menu-item {
+          font-size: 14px;
+          line-height: $header-height;
+          height: $header-height;
+          &.is-active {
+            color: black;
+          }
+        }
       }
     }
     .inner-container {
       .el-aside {
         position: fixed;
-        top: 62px;
+        top: $header-height;
         bottom: 0px;
-        border-right: solid 1px #e6e6e6;
+        border-right: solid 1px $header-background-color;
         .el-menu {
           border-width: 0px;
         }
       }
       .el-main {
         padding: 0px;
-        margin-left: 200px;
+        margin-left: $aside-width;
         .main-title {
-          border-bottom: 1px solid gray;
+          border-bottom: 1px solid $header-background-color;
           padding: 5px;
           .current-step {
             padding-left: 6px;
@@ -183,7 +203,7 @@
       }
     },
     methods: {
-      handleTitleMenuSelect(key, keyPath) {
+      handleHeaderMenuClick(key, keyPath) {
         switch (key) {
           case 'login':
             this.$router.push('/login');
