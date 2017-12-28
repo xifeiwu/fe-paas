@@ -1,11 +1,28 @@
 <template>
-  <div id="domain-name">
-    <div class="upload-file">
+  <div id="domain-main">
+    <div class="upload-area">
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
         <span>IP地址超过10个建议下载模板，填写完成后导入文本操作</span>
       </el-tag>
       <el-row>外网二级域名：yujian.finupgroup.com</el-row>
+      <el-upload
+              class="upload-file"
+              ref="upload"
+              action="http://localhost:4291/post/upload"
+              :multiple="true"
+              :autoUpload="true"
+              :auto-upload="false"
+              :onChange="beforeUploadFile"
+              :beforeUpload="beforeUploadFile"
+      >
+        <el-tooltip class="item" slot="trigger" effect="dark" content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">
+          <el-button size="mini-extral" type="primary">上传文件</el-button>
+        </el-tooltip>
+        <el-button size="mini-extral" type="success">下载模板</el-button>
+        <!--<el-button style="margin-left: 10px;" size="mini-extral" type="success" @click="handleUploadClick">上传到服务器</el-button>-->
+        <!--<div slot="tip" class="el-upload__tip" style="color: #67c23a">只能上传jpg/png文件，且不超过500kb</div>-->
+      </el-upload>
     </div>
     <el-table
             :data="IPList"
@@ -76,14 +93,31 @@
 </template>
 
 <style lang="scss">
-  #domain-name {
+  #domain-main {
     padding: 3px;
-    .upload-file {
+    .upload-area {
+      font-size: 14px;
       border: 1px solid lavenderblush;
       margin-bottom: 3px;
       .el-tag {
         display: block;
         width: 100%;
+      }
+      .upload-file {
+        margin-top: 6px;
+        .el-upload-list {
+          .el-upload-list__item {
+            margin-top: 0px;
+            &:first-child {
+              margin-top: 3px;
+            }
+            .el-upload-list__item-name {
+              color: #409EFF;
+              font-size: 12px;
+              line-height: 1.5;
+            }
+          }
+        }
       }
     }
     .el-table {
@@ -103,7 +137,7 @@
   }
 </style>
 <style lang="scss" scoped>
-  /*#domain-name {*/
+  /*#domain-main {*/
     /*.el-table {*/
       /*td {*/
         /*padding: 0px;*/
@@ -178,7 +212,30 @@
       },
       handleClickOutsideTable() {
         this.selected.operation = '';
-      }
+      },
+      handleUploadClick() {
+        this.$refs.upload.submit();
+      },
+      beforeUploadFile(file) {
+        console.log(file);
+        return new Promise((resolve, reject) => {
+          let isExcel = false;
+          if (file && file.hasOwnProperty('name')) {
+            if (/\.exl/.exec(file.name) || /\.exls/.exec(file.name)) {
+              isExcel = true;
+            }
+          }
+          if (isExcel) {
+            resolve(file);
+          } else {
+            reject(null);
+            this.$message({
+              type: 'error',
+              message: '只能上传以.xls或.xlsx为后缀的excel文件'
+            });
+          }
+        })
+      },
     }
   }
 </script>

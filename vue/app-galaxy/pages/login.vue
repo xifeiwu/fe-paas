@@ -1,6 +1,6 @@
 <template>
   <el-container id="login">
-    <el-header height="40px">
+    <el-header height="45px">
       <div class="img">picture</div>
       <el-menu class="header-menu"
                mode="horizontal"
@@ -82,7 +82,7 @@
       }
     }
   }
-  $header-height: 40px;
+  $header-height: 45px;
   $header-background-color: #e7e7e7;
   #login.el-container {
     .el-header {

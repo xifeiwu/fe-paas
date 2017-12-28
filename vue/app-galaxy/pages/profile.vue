@@ -1,6 +1,6 @@
 <template>
   <el-container id="profile">
-    <el-header height="40px">
+    <el-header height="45px">
       <div class="img">picture</div>
       <el-menu class="header-menu"
               mode="horizontal"
@@ -73,7 +73,7 @@
       }
     }
   }
-  $header-height: 40px;
+  $header-height: 45px;
   $header-background-color: #e7e7e7;
   $aside-width: 180px;
   #profile.el-container {
@@ -91,11 +91,12 @@
         float: right;
         border-width: 0px;
         .el-menu-item {
-          font-size: 14px;
+          font-size: 15px;
           line-height: $header-height;
           height: $header-height;
           &.is-active {
             color: black;
+            font-size: 16px;
           }
         }
       }
@@ -108,9 +109,12 @@
         border-right: solid 1px $header-background-color;
         .el-menu {
           border-width: 0px;
-          .el-menu-item.is-active {
-            color: black;
-            font-size: 16px;
+          .el-menu-item {
+            font-size: 15px;
+            &.is-active {
+              color: black;
+              font-size: 16px;
+            }
           }
         }
       }

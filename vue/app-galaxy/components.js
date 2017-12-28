@@ -49,7 +49,7 @@ import Loading from '../packages/loading/index.js';
 import Icon from '../packages/icon/index.js';
 import Row from '../packages/row/index.js';
 import Col from '../packages/col/index.js';
-// import Upload from '../packages/upload/index.js';
+import Upload from '../packages/upload/index.js';
 // import Progress from '../packages/progress/index.js';
 // import Spinner from '../packages/spinner/index.js';
 import Message from '../packages/message/index.js';
@@ -120,7 +120,7 @@ const components = [
   Icon,
   Row,
   Col,
-  // Upload,
+  Upload,
   // Progress,
   // Spinner,
   Badge,
