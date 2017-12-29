@@ -1,291 +1,284 @@
 <template>
   <div id="domain-main">
-    <div class="upload-area">
-      <el-tag type="success" disable-transitions>
-        <i class="el-icon-warning"></i>
-        <span>IP地址超过10个建议下载模板，填写完成后导入文本操作</span>
-      </el-tag>
-      <el-row>外网二级域名：yujian.finupgroup.com</el-row>
-      <el-upload
-              class="upload-file"
-              ref="upload"
-              action="http://localhost:4291/post/upload"
-              :multiple="true"
-              :autoUpload="true"
-              :auto-upload="false"
-              :beforeUpload="beforeUploadFile"
-              :onSuccess="afterSuccessLoad"
-      >
-        <el-tooltip class="item" slot="trigger" effect="dark" content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">
-          <el-button size="mini-extral" type="primary">上传文件</el-button>
-        </el-tooltip>
-        <el-button size="mini-extral" type="success">下载模板</el-button>
-        <!--<el-button style="margin-left: 10px;" size="mini-extral" type="success" @click="handleUploadClick">上传到服务器</el-button>-->
-        <!--<div slot="tip" class="el-upload__tip" style="color: #67c23a">只能上传jpg/png文件，且不超过500kb</div>-->
-      </el-upload>
-    </div>
-    <div class="manual-area">
-      <el-row class="add-ip">
-        <el-col :span="3">
-          添加白名单
+    <div class="header">
+      <el-row>
+        <el-col :span="8">
+          <span>应用名称:</span>
+          <el-select v-model="selectedAppID" placeholder="请选择">
+            <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
+            </el-option>
+          </el-select>
         </el-col>
-        <el-col :span="6">
-          <el-input placeholder="IP地址" v-model="ip"></el-input>
+        <el-col :span="8">
+          <span>运行环境:</span>
+          <el-select v-model="selectedProfileID" placeholder="请选择">
+            <el-option v-for="item in selectedProfileList" :key="item.id" :label="item.description" :value="item.id">
+            </el-option>
+          </el-select>
         </el-col>
-        <el-col :span="12">
-          <el-input placeholder="说明" v-model="description"></el-input>
-        </el-col>
-        <el-col :span="3">
-          <el-button
-              size="mini-extral"
-              type="warning"
-              @click="handleRowButtonClick('add')">保存</el-button>
+        <el-col :span="8">
+          <span>版本:</span>
+          <el-select v-model="selectedVersion" placeholder="请选择">
+            <el-option v-for="item in selectedVersionList" :key="item" :label="item" :value="item">
+            </el-option>
+          </el-select>
         </el-col>
       </el-row>
-      <el-table
-              :data="IPList"
-              border
-              style="width: 100%"
-              v-clickoutside="handleClickOutsideTable"
-      >
-        <el-table-column
-                type="index"
-                label="编号"
-                width="80">
-        </el-table-column>
-        <el-table-column
-                prop="ip"
-                label="IP白名单"
-                width="180">
-          <template slot-scope="scope">
-            <el-input
-                    class="input-new-tag"
-                    v-if="selected.index == scope.$index && selected.operation == 'modify'"
-                    v-model="selected.row.ip"
-                    size="small"
-                    @keyup.enter.native="handleInputConfirm(scope.$index, scope.row)"
-                    @blur="handleInputConfirm(scope.$index, scope.row)"
-            >
-            </el-input>
-            <span v-else size="small" class="content" @click="">{{scope.row.ip}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-                prop="description"
-                label="说明">
-          <template slot-scope="scope">
-            <el-input
-              class="input-new-tag"
-              v-if="selected.index == scope.$index && selected.operation == 'modify'"
-              v-model="selected.row.description"
-              size="small"
-              @keyup.enter.native="handleInputConfirm(scope.$index, scope.row)"
-              @blur="handleInputConfirm(scope.$index, scope.row)"
-            >
-            </el-input>
-            <span v-else size="small" class="content" @click="">{{scope.row.description}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" prop="operation" width="160"
-                         headerAlign="center" align="center">
-          <template slot-scope="scope">
-            <el-button
-              v-if="selected.index == scope.$index && selected.operation == 'modify'"
-              size="mini-extral"
-              type="warning"
-              :loading="waitingResponse"
-              @click="handleRowButtonClick('save', scope.$index, scope.row)">保存</el-button>
-            <el-button
-              size="mini-extral"
-              type="warning"
-              v-else
-              @click="handleRowButtonClick('modify', scope.$index, scope.row)">修改</el-button>
-            <el-button
-              size="mini-extral"
-              type="danger"
-              @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <div class="domain-list">
+        <el-table
+                :data="currentDomainList"
+                style="width: 100%"
+        >
+          <el-table-column
+                  prop="domain"
+                  label="外网二级域名"
+                  width="180">
+          </el-table-column>
+          <el-table-column
+                  prop="createTime"
+                  label="创建时间"
+                  width="180">
+          </el-table-column>
+          <el-table-column
+                  prop="creator"
+                  label="创建人"
+                  width="160">
+          </el-table-column>
+          <el-table-column
+                  prop="status"
+                  label="状态"
+                  width="160"
+          >
+          </el-table-column>
+          <el-table-column
+                  prop="operation"
+                  label="操作"
+                  width="360px"
+          >
+            <template slot-scope="scope">
+              <el-button
+                      size="mini-extral"
+                      type="warning"
+                      @click="handleRowButtonClick('to-white-list', scope.$index, scope.row)">
+                绑定IP白名单
+              </el-button>
+              <el-button
+                      size="mini-extral"
+                      type="danger"
+                      @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss">
   #domain-main {
-    padding: 3px;
-    .upload-area {
-      font-size: 14px;
-      border: 1px solid lavenderblush;
-      margin-bottom: 3px;
-      .el-tag {
-        display: block;
-        width: 100%;
-      }
-      .upload-file {
-        margin-top: 6px;
-        .el-upload-list {
-          .el-upload-list__item {
-            margin-top: 0px;
-            &:first-child {
-              margin-top: 3px;
-            }
-            .el-upload-list__item-name {
-              color: #409EFF;
-              font-size: 12px;
-              line-height: 1.5;
-            }
-          }
-        }
-      }
-    }
-    .manual-area {
-      .add-ip.el-row {
-        width: 80%;
-        margin: 3px auto;
-        line-height: 30px;
-        .el-col {
-          padding: 0px 3px;
-          vertical-align: middle;
-          &:first-child {
-            text-align: right;
-          }
-        }
-        font-size: 14px;
-        .el-input {
-          .el-input__inner {
-            height: 28px;
-          }
-        }
-      }
-      .el-table {
-        tr {
-          height: 32px;
-        }
-        td {
-          padding: 0px;
-          .cell {
-            padding: 0px;
-            .content {
-              padding: 0px 10px;
-            }
-          }
-        }
+    .header {
+      .el-select .el-input__inner {
+        height: 24px;
       }
     }
   }
 </style>
 <style lang="scss" scoped>
-  /*#domain-main {*/
-    /*.el-table {*/
-      /*td {*/
-        /*padding: 0px;*/
-        /*.cell {*/
-          /*padding: 0px;*/
-        /*}*/
-      /*}*/
-    /*}*/
-  /*}*/
+  #domain-main {
+    .header {
+      margin: 5px;
+      font-size: 14px;
+    }
+  }
+
 </style>
 
 <script>
-  import Clickoutside from 'element-ui/src/utils/clickoutside';
+  import appPropUtils from '../utils/app_prop';
+  import StoreHelper from '../utils/store_helper.vue';
   export default {
-    directives: { Clickoutside },
+    mixins: [StoreHelper],
+    created() {
+      this.onUpdateAppInfoList(this.appInfoListOfGroup);
+    },
     data() {
       return {
-        ip: '',
-        description: '',
-        IPList: [{
-          ip: '10.12.34.23',
-          description: '上海市普陀区金沙江路 1518 弄',
-        }, {
-          ip: '12.31.233.108',
-          description: '上海市普陀区金沙江路 1517 弄',
-        }, {
-          ip: '12.31.233.109',
-          description: '上海市普陀区金沙江路 1519 弄',
-        }],
-        selected: {
-          index: null,
-          row: null,
-          operation: null,
-        },
-        waitingResponse: false,
+        appList: [],
+
+        selectedAppID: null,
+        selectedAPP: null,
+        selectedProfileID: null,
+        selectedProfileList: [],
+        selectedVersion: null,
+        selectedVersionList: [],
+
+        currentDomainList: [{
+          domain: 'www.finupgroup.com',
+          createTime: '2017-06-06',
+          creator: 'me',
+          status: '生效中',
+        }]
       }
     },
-    methods: {
-      handleRowButtonClick(action, index, row) {
-        switch (action) {
-          case 'modify':
-            this.selected.operation = action;
-            this.selected.index = index;
-            this.selected.row = JSON.parse(JSON.stringify(this.IPList[index]));
-//            row.showInput = true;
-            break;
-          case 'save':
-            this.waitingResponse = true;
-            if (this.$utils.theSame(this.selected.row, this.IPList[this.selected.index])) {
-              this.$message({
-                type: 'warning',
-                message: '您没有做修改'
-              });
-              this.waitingResponse = false;
-              this.selected.operation = null;
+    watch: {
+      appInfoListOfGroup: 'onUpdateAppInfoList',
+      selectedAppID: function (value, oldValue) {
+        let appID = value;
+        let appInfo = this.getAppInfoByID(appID);
+        if (!appInfo) {
+          return;
+        }
+        this.selectedAPP = appInfo['app'];
+        this.selectedProfileList = this.selectedAPP['profileList'];
+        if (Array.isArray(this.selectedProfileList) && this.selectedProfileList.length > 0) {
+          // at the beginning of this page(value of selectedProfileID is null), get selectedProfileID from localStorage
+          // else selectedProfileID is the first element in profileList of selectedApp
+          var defaultProfileID = this.selectedProfileList[0]['id'];
+          if (null == this.selectedProfileID) {
+//            let selectedProfileID = this.getConfig('profile/service/profileID');
+//            if (selectedProfileID) {
+//              this.selectedProfileID = selectedProfileID;
+//            }
+            this.selectedProfileID = defaultProfileID;
+          } else {
+            // request service list when app id is changed while profile id is not changed.
+            if (this.selectedProfileID == defaultProfileID) {
+              this.requestVersionList(this.selectedAPP.appId, this.selectedProfileID);
             } else {
-              setTimeout(() => {
-                this.waitingResponse = false;
-                this.IPList[this.selected.index] = JSON.parse(JSON.stringify(this.selected.row));
-                this.selected.operation = null;
-              }, 1000);
+              this.selectedProfileID = defaultProfileID;
             }
-            break;
-          case 'delete':
-            break;
-          case 'add':
-            this.IPList.unshift({
-              ip: this.ip,
-              description: this.description
-            });
-            this.ip = '';
-            this.description = '';
+          }
+        }
+        this.setConfig('profile/service/appID', appID);
+      },
+      selectedProfileID: function (value, oldValue) {
+        let profileID = value;
+        let appID = this.selectedAPP.appId;
+        this.requestVersionList(appID, profileID);
+//      this.setConfig('profile/service/profileID', profileID);
+      },
+      selectedVersion: function (value, oldValue) {
+        console.log(value);
+        if (null == value) {
+          return;
+        }
+        this.requestInstanceList(this.selectedAPP.appId, this.selectedProfileID, value);
+      },
+    },
+    methods: {
+      /**
+       * call in two place:
+       * 1. created function
+       * 2. appInfoListOfGroup watcher
+       *
+       * what is done?
+       * 1. refresh this.appList
+       * 2. get default appId
+       */
+      onUpdateAppInfoList(appInfoListOfGroup) {
+        if (appInfoListOfGroup) {
+          if (appInfoListOfGroup.hasOwnProperty('appList')) {
+            this.appList = appInfoListOfGroup.appList;
+          }
+          if (!this.appList || (0 == this.appList.length)) {
+            return;
+          }
+          let appId = this.getConfig('profile/service/appID');
+          if (appId && this.getAppInfoByID(appId)) {
+            this.selectedAppID = appId;
+          } else {
+            this.selectedAppID = this.appList[0]['appId'];
+          }
         }
       },
-      handleInputConfirm(index, row) {
-        console.log('blur');
-//        this.selected.operation = '';
-      },
-      handleClickOutsideTable() {
-        this.selected.operation = '';
-      },
-      handleUploadClick() {
-        this.$refs.upload.submit();
-      },
-      beforeUploadFile(file) {
-        return new Promise((resolve, reject) => {
-          let isExcel = false;
-          if (file) {
-            if (/\.xls$/.exec(file.name) || /\.xlsx$/.exec(file.name)) {
-              isExcel = true;
+
+      requestVersionList(appID, spaceID) {
+        if (!appID || !spaceID) {
+          console.log('appID or spaceID can not be empty');
+          return;
+        }
+        this.selectedVersion = null;
+        this.$net.getServiceVersion({
+          appId: appID,
+          spaceId: spaceID
+        }).then(content => {
+//          console.log(content);
+          if (content.hasOwnProperty('version')) {
+            let version = content.version;
+            if (version && Array.isArray(version) && version.length > 0) {
+              this.selectedVersionList = version;
+              this.selectedVersion = version[0];
+            } else {
+              let profileName = '该';
+              let profileInfo = appPropUtils.getProfileInfoByID(this.selectedProfileID);
+              if (profileInfo && profileInfo.hasOwnProperty('name')) {
+                profileName = profileInfo.description;
+              }
+              this.$message({
+                type: 'warning',
+                message: profileName + '下，服务没有版本！'
+              });
             }
           }
-          if (isExcel) {
-            resolve(file);
-          } else {
-            reject(null);
-            this.$message({
-              type: 'error',
-              message: '只能上传以.xls或.xlsx为后缀的excel文件'
-            });
-          }
-        })
-      },
-      afterSuccessLoad(res, file, fileList) {
-        console.log(res);
-        this.$message({
-          type: 'success',
-          message: '文件' + file.name + '上传成功！'
+        }).catch(err => {
+          console.log(err);
+          this.$message({
+            type: 'error',
+            message: '查找服务版本失败！'
+          });
         });
+      },
+      // 获取实例列表
+      requestInstanceList(appID, spaceID, version) {
+        if (!appID || !spaceID) {
+          console.log('appID or spaceID can not be empty');
+          return;
+        }
+        this.$net.getInstanceList({
+          appId: appID,
+          spaceId: spaceID,
+          serviceVersion: version
+        }).then(content => {
+          console.log(content);
+//          if (content.hasOwnProperty('version')) {
+//            let version = content.version;
+//            if (version && Array.isArray(version) && version.length > 0) {
+//              this.selectedVersionList = version;
+//              this.selectedVersion = version[0];
+//            } else {
+//              let profileName = '该';
+//              let profileInfo = appPropUtils.getProfileInfoByID(this.selectedProfileID);
+//              if (profileInfo && profileInfo.hasOwnProperty('name')) {
+//                profileName = profileInfo.description;
+//              }
+//              this.$message({
+//                type: 'warning',
+//                message: profileName + '下，服务没有版本！'
+//              });
+//            }
+//          }
+        }).catch(err => {
+          console.log(err);
+          this.$message({
+            type: 'error',
+            message: '查找服务版本失败！'
+          });
+        });
+      },
+
+      handleRowButtonClick(action, index, row) {
+        switch (action) {
+          case 'to-white-list':
+            let domain = row.domain;
+            this.$router.push({
+              path: '/profile/domain/white-list',
+              query: {
+                domain: domain,
+              }
+            });
+            break;
+        }
       }
     }
   }

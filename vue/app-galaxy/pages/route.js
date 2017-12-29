@@ -10,6 +10,7 @@ import ServiceMain from './profile/service/main.vue';
 import ServiceAdd from './profile/service/add.vue';
 import InstanceMain from './profile/instance/main.vue';
 import DomainMain from './profile/domain/main.vue';
+import DomainWhiteList from './profile/domain/white-list.vue';
 
 /**
  * router config:
@@ -68,6 +69,10 @@ var Router = function () {
         path: 'domain',
         name: '外网域名',
         component: DomainMain,
+      }, {
+        path: 'domain/white-list',
+        name: '绑定IP白名单',
+        component: DomainWhiteList,
       }]
     }
   }
