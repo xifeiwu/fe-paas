@@ -13,8 +13,8 @@
               :multiple="true"
               :autoUpload="true"
               :auto-upload="false"
-              :onChange="beforeUploadFile"
               :beforeUpload="beforeUploadFile"
+              :onSuccess="afterSuccessLoad"
       >
         <el-tooltip class="item" slot="trigger" effect="dark" content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">
           <el-button size="mini-extral" type="primary">上传文件</el-button>
@@ -217,11 +217,10 @@
         this.$refs.upload.submit();
       },
       beforeUploadFile(file) {
-        console.log(file);
         return new Promise((resolve, reject) => {
           let isExcel = false;
-          if (file && file.hasOwnProperty('name')) {
-            if (/\.exl/.exec(file.name) || /\.exls/.exec(file.name)) {
+          if (file) {
+            if (/\.xls$/.exec(file.name) || /\.xlsx$/.exec(file.name)) {
               isExcel = true;
             }
           }
@@ -236,6 +235,13 @@
           }
         })
       },
+      afterSuccessLoad(res, file, fileList) {
+        console.log(res);
+        this.$message({
+          type: 'success',
+          message: '文件' + file.name + '上传成功！'
+        });
+      }
     }
   }
 </script>
