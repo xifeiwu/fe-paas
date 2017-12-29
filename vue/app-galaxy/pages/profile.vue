@@ -125,9 +125,12 @@
           border-bottom: 1px solid $header-background-color;
           padding: 5px;
           .current-step {
+            margin-top: 5px;
             padding-left: 6px;
-            margin-top: 8px;
             line-height: 32px;
+            .el-breadcrumb {
+              font-size: 16px;
+            }
           }
           .group-list {
             text-align: right;
@@ -252,8 +255,16 @@
           }
         }
       },
+      /**
+       * update crumb list by path and routerPathToName which get from router config, such as:
+       * /profile/service/add
+       * /profile/service -> 服务管理
+       * /profile/service/add -> 添加服务
+       * @param path
+       */
       updateCrumbList(path) {
-        let pathReg = /^\/profile\/([\w\/]*)$/i;
+        // url中只能包括：\w(字母或数字、下划线、汉字)或中划线
+        let pathReg = /^\/profile\/([\w-\/]*)$/i;
         let execResult = pathReg.exec(path);
         if (execResult && execResult.length >= 2) {
           let curPath = '/profile/';
