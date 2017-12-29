@@ -2,6 +2,15 @@
   <div id="service-main">
     <div class="header">
       <el-row class="operation">
+        <el-col :span="5">
+          <el-button
+                  size="mini-extral"
+                  type="primary"
+                  @click="handleButtonClick($event, {role:'linker', path: '/profile/service/add'})">
+            添加服务
+          </el-button>
+          <el-button v-if="false" @click="handleButtonClick($event, {role:'cmd', action: 'refreshAppList'})">刷新</el-button>
+        </el-col>
         <el-col :span="10">
           <span>应用名称：</span>
           <el-select v-model="selectedAppID" placeholder="请选择" @change="handleSelectChange('app')">
@@ -15,10 +24,6 @@
             <el-option v-for="item in selectedProfileList" :key="item.id" :label="item.description" :value="item.id">
             </el-option>
           </el-select>
-        </el-col>
-        <el-col :span="5">
-          <el-button @click="handleButtonClick($event, {role:'linker', path: '/profile/service/add'})">添加服务</el-button>
-          <el-button v-if="false" @click="handleButtonClick($event, {role:'cmd', action: 'refreshAppList'})">刷新</el-button>
         </el-col>
       </el-row>
     </div>
