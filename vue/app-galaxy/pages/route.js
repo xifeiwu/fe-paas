@@ -12,6 +12,8 @@ import InstanceMain from './profile/instance/main.vue';
 import DomainMain from './profile/domain/main.vue';
 import DomainWhiteList from './profile/domain/white-list.vue';
 
+import WorkOrderMain from './profile/work-order/main.vue';
+
 /**
  * router config:
  * 1. path should have the same name as .vue file
@@ -73,6 +75,10 @@ var Router = function () {
         path: 'domain/white-list',
         name: '绑定IP白名单',
         component: DomainWhiteList,
+      }, {
+        path: 'work-order',
+        name: '工单管理',
+        component: WorkOrderMain,
       }]
     }
   }

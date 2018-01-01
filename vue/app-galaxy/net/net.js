@@ -91,7 +91,7 @@ class Net {
           icon: 'el-icon-setting'
         },
         "审批管理": {
-          router: '/profile/approve_manager'
+          router: '/profile/work-order'
         },
       }
       let key = item.name;
