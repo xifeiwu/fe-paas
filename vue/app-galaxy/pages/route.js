@@ -82,7 +82,7 @@ var Router = function () {
         path: 'work-order',
         // name: '审批管理',
         component: WorkOrderMain,
-        redirect: '/profile/work-order/todo',
+        redirect: 'work-order/todo',
         children: [{
           path: 'todo',
           name: '待办工单',
@@ -92,6 +92,10 @@ var Router = function () {
           name: '工单列表',
           component: WorkOrderList,
         }]
+      }, {
+        path: 'work-order/todo/add',
+        name: '申请工单',
+        component: WorkOrderAdd,
       }]
     }
   }

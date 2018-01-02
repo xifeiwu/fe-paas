@@ -109,7 +109,7 @@
       margin-bottom: 12px;
     }
   }
-  #work-order {
+  #work-order-add {
     width: 80%;
     /*max-width: 600px;*/
     margin: 5px auto;
