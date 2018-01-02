@@ -560,7 +560,7 @@
                v-if="selected.service && selected.model"
     >
       <el-scrollbar>
-        <div v-for="item in deployLogs" :key="item">{{item}}</div>
+        <div v-for="(item,index) in deployLogs" :key="index" class="deploy-log">{{item}}</div>
       </el-scrollbar>
     </el-dialog>
   </div>
@@ -643,6 +643,12 @@
                 }
                 .el-scrollbar__thumb {
                   background-color: #409EFF;
+                }
+              }
+              .el-scrollbar__view {
+                .deploy-log {
+                  font-size: 12px;
+                  line-height: 16px;
                 }
               }
             }
@@ -983,7 +989,7 @@ export default {
             var scrollWrapInDeployDialog = document.querySelector('#service-main .deploy .el-scrollbar .el-scrollbar__wrap');
 
             function updateDeployLog(log) {
-              this.deployLogs.push(log);
+              this.deployLogs = this.deployLogs.concat(log.split('\n'));
               if (!scrollWrapInDeployDialog) {
                 scrollWrapInDeployDialog = document.querySelector('#service-main .deploy .el-scrollbar .el-scrollbar__wrap');
               }
