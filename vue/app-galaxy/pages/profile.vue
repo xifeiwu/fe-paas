@@ -68,7 +68,7 @@
     .el-menu-item {
       &.is-active {
         font-weight: bold;
-        cursor: no-drop;
+        /*cursor: no-drop;*/
         font-weight: bold;
       }
     }
@@ -112,7 +112,8 @@
           .el-menu-item {
             font-size: 15px;
             &.is-active {
-              color: black;
+              /*color: black;*/
+              color: #409EFF;
               font-size: 16px;
             }
           }

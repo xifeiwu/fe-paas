@@ -4,12 +4,15 @@
       <el-row class="operation">
         <el-col :span="5">
           <el-button
-                  size="mini-extral"
-                  type="primary"
-                  @click="handleButtonClick($event, {role:'linker', path: '/profile/service/add'})">
+              size="mini-extral"
+              type="primary"
+              @click="handleButtonClick('linker', {path: '/profile/service/add'})">
             添加服务
           </el-button>
-          <el-button v-if="false" @click="handleButtonClick($event, {role:'cmd', action: 'refreshAppList'})">刷新</el-button>
+          <el-button v-if="true"
+             size="mini-extral"
+             type="primary"
+             @click="handleButtonClick('refreshAppList')">刷新</el-button>
         </el-col>
         <el-col :span="10">
           <span>应用名称：</span>
@@ -39,6 +42,8 @@
         style="width: 100%"
         :row-key="getRowKeys"
         :expand-row-keys="expandRows"
+        v-loading="showLoading"
+        element-loading-text="加载中"
       >
         <el-table-column
           prop="serviceVersion"
@@ -577,13 +582,6 @@
           text-align: center;
           vertical-align: middle;
         }
-        /*&::after {*/
-          /*content: "";*/
-          /*display: inline-block;*/
-          /*height: 100%;*/
-          /*width: 0;*/
-          /*vertical-align: middle;*/
-        /*}*/
       }
       .el-select .el-input__inner {
         height: 24px;
@@ -794,12 +792,14 @@ export default {
     this.onCpuAndMemoryList(this.cpuAndMemoryList);
   },
   mounted() {
+    console.log('mounted');
   },
   data() {
     return {
       appList: [],
 //      totalSize: 0,
 
+      showLoading: false,
       selectedAppID: null,
       selectedAPP: null,
       selectedProfileID: null,
@@ -935,17 +935,20 @@ export default {
       }
 
     },
-    handleButtonClick(evt, info) {
-//      console.log(evt);
-      if ('linker' == info.role) {
-        this.$router.push({
-          path: info.path,
-          query: {
-            appID: this.selectedAppID,
-            profileID: this.selectedProfileID
-          }
-        });
-      } else if ('cmd' == info.role) {
+    handleButtonClick(action, params) {
+      switch (action) {
+        case 'linker':
+          this.$router.push({
+            path: params.path,
+            query: {
+              appID: this.selectedAppID,
+              profileID: this.selectedProfileID
+            }
+          });
+          break;
+        case 'refreshAppList':
+          this.requestServiceList(this.selectedAppID, this.selectedProfileID);
+          break;
       }
     },
     /**
@@ -1385,6 +1388,7 @@ export default {
         console.log('appID or spaceID can not be empty');
         return;
       }
+      this.showLoading = true;
       this.$net.getServiceListByAppIDAndProfileID({
         appId: appID,
         spaceId: spaceID
@@ -1392,7 +1396,19 @@ export default {
         if (content.hasOwnProperty('applicationServerList')) {
           this.currentServiceList = content['applicationServerList'];
           this.currentModelList = content['serviceModelList'];
+          this.showLoading = false;
         }
+      }).catch(err => {
+        this.$notify({
+          title: '提示',
+          message: err,
+          duration: 0,
+          onClose: function () {
+            self.showLoading = false;
+          }
+        });
+        console.log(err);
+//        this.showLoading = false;
       })
     },
 
