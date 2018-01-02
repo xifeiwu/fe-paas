@@ -1,4 +1,3 @@
-<script>
   import TabBar from './tab-bar';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 
@@ -239,5 +238,4 @@
       if (this.$el && this.update) removeResizeListener(this.$el, this.update);
     }
   };
-</script>
 

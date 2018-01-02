@@ -1,4 +1,3 @@
-<script>
   import TabNav from './tab-nav';
 
   export default {
@@ -150,4 +149,3 @@
       }
     }
   };
-</script>
