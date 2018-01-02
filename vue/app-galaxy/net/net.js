@@ -231,6 +231,8 @@ class Net {
               }).map(it => {
                 return appInfoHelper.getProfileInfoByName(it);
               });
+              // if the language of this app is JAVA
+              it['isJavaLanguage'] = it.hasOwnProperty('language') && 'JAVA' == it.language
             });
             content.appModelList = getAppModelList(appList);
           }
