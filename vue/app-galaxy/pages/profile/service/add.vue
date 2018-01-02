@@ -1,7 +1,7 @@
 <template>
   <div id="service-add">
     <el-form :model="serviceForm" ref="serviceForm"
-             :rules="rules" label-width="120px"
+             :rules="rules" label-width="120px" size="mini"
              v-loading="showLoading"
              :element-loading-text="loadingText">
       <el-form-item label="版本号" prop="serviceVersion" class="serviceVersion">

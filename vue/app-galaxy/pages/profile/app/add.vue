@@ -1,7 +1,7 @@
 <template>
   <div id="app-add">
     <el-form :model="createAppForm" :rules="rules"
-             ref="createAppForm" label-width="100px"
+             ref="createAppForm" label-width="100px" size="mini"
              v-loading="showLoading"
              :element-loading-text="loadingText">
       <el-form-item label="团队">
