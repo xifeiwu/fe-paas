@@ -172,14 +172,14 @@
           text-align: center;
         }
         &.finish {
-           .el-button {
-             display: block;
-             margin: 0px auto;
-             width: 50%;
-             max-width: 200px;
-             text-align: center;
-           }
-         }
+          .el-button {
+            display: block;
+            margin: 0px auto;
+            width: 50%;
+            max-width: 200px;
+            text-align: center;
+          }
+        }
       }
     }
   }

@@ -30,7 +30,30 @@ class WorkOrderUtils {
           message: '请选择组名',
           trigger: 'blur'
         }],
+        appName: [{
+          required: true,
+          message: '请选择应用名称',
+          trigger: 'blur'
+        }],
+        appVersion: [{
+          required: true,
+          message: '请选择应用版本',
+          trigger: 'blur'
+        }],
+        acceptanceUser: [
 
+        ],
+        notifyUser: [
+
+        ],
+        mailGroup: [
+
+        ],
+        comments: [{
+          required: false,
+          message: '请选择应用版本',
+          trigger: 'blur'
+        }],
       },
     }
   }

@@ -42,6 +42,65 @@
         >{{item}}</features>
       </div>
     </div>
+    <div class="application-section">
+      <div class="title">程序列表</div>
+      <el-form :model="workOrderForm" :rules="rules"
+          ref="applicationForm"
+          size="mini"
+          label-width="120px">
+        <el-form-item label="应用名称" prop="appName">
+          <el-select v-model="workOrderForm.appName" placeholder="请选择" style="width: 350px">
+            <el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+          <el-form-item label="生成环境版本" prop="appVersion">
+            <el-select v-model="workOrderForm.appVersion" placeholder="请选择" style="width: 350px">
+              <el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">
+              </el-option>
+            </el-select>
+          </el-form-item>
+      </el-form>
+    </div>
+    <div class="acceptance-section">
+      <div class="title">验收信息</div>
+      <el-form :model="workOrderForm" :rules="rules"
+               ref="acceptanceForm"
+               size="mini"
+               label-width="120px">
+        <el-form-item label="验收人" prop="acceptanceUser">
+          <el-select v-model="workOrderForm.acceptanceUser" multiple placeholder="请选择" style="width: 350px">
+            <el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="知会人" prop="notifyUser">
+          <el-select v-model="workOrderForm.notifyUser" multiple placeholder="请选择" style="width: 350px">
+            <el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="邮件组" prop="mailGroup">
+          <el-select v-model="workOrderForm.mailGroup" multiple placeholder="请选择" style="width: 350px">
+            <el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="工单备注" prop="comments">
+          <el-input v-model="workOrderForm.comments"
+                    type="textarea"
+                    :rows="2"
+                    style="width: 350px"></el-input>
+          <!--<el-select v-model="workOrderForm.comments" multiple placeholder="请选择" style="width: 350px">-->
+            <!--<el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">-->
+            <!--</el-option>-->
+          <!--</el-select>-->
+        </el-form-item>
+      </el-form>
+    </div>
+    <div class="submit-section">
+      <el-button type="primary" @click="handleFinish">完成</el-button>
+    </div>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -57,7 +116,7 @@
     .feature-section {
       .title {
         border-left: 5px solid gray;
-        margin-bottom: 3px;
+        margin: 3px -2px;
       }
       .feature-form-list {
         .work-order-feature {
@@ -68,13 +127,36 @@
         }
       }
     }
+    .application-section {
+      .title {
+        border-left: 5px solid gray;
+        margin: 3px -2px;
+      }
+    }
+    .acceptance-section {
+      .title {
+        border-left: 5px solid gray;
+        margin: 3px -2px;
+      }
+    }
+    .submit-section {
+      margin: 15px auto;
+      .el-button {
+        display: block;
+        margin: 0px auto;
+        width: 50%;
+        max-width: 200px;
+        text-align: center;
+      }
+    }
   }
 </style>
 <script>
   import workOrderUtils from './work-order-props';
   import features from './features.vue';
+  import ElInput from "../../../../packages/input/src/input";
   export default {
-    components: {features},
+    components: {ElInput, features},
     data() {
       return {
         showLoading: false,
@@ -89,6 +171,12 @@
             jiraAddress: null,
             description: null,
           }],
+          appName: null,
+          appVersion: null,
+          acceptanceUser: [],
+          notifyUser: [],
+          mailGroup: [],
+          comments: '',
         },
         rules: workOrderUtils.rules.workOrder,
         pickerOptions2: {

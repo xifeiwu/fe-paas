@@ -9,8 +9,8 @@ class AppInfoHelper {
       //   message: '请选择所属用户组',
       //   trigger: 'change'
       // }],
-        // 应用名称
-        appName: [{
+      // 应用名称
+      appName: [{
         required: true,
         message: '请输入应用名称',
         trigger: 'blur'
@@ -26,38 +26,38 @@ class AppInfoHelper {
           trigger: 'blur'
         }
       ],
-        // 项目名称
-        projectName: [{
+      // 项目名称
+      projectName: [{
         required: true,
         message: '请输入项目名称',
         trigger: 'blur'
       }],
-        // 运行环境
-        profiles: [{
+      // 运行环境
+      profiles: [{
         type: 'array',
         required: true,
         message: '请选择至少一个运行环境',
         trigger: 'blur'
       }],
-        // 开发语言
-        language: [{
+      // 开发语言
+      language: [{
         required: true,
         message: '请选择开发语言',
         trigger: 'change'
       }],
-        // 语言版本
-        languageVersion: [{
+      // 语言版本
+      languageVersion: [{
         required: true,
         message: '请选择开发语言版本',
       }],
-        // 构建类型
-        buildType: [{
+      // 构建类型
+      buildType: [{
         required: true,
         message: '请选择构建类型',
         trigger: 'change'
       }],
-        // 健康检查
-        healthCheck: [{
+      // 健康检查
+      healthCheck: [{
         required: true,
         pattern: /^\/[A-Za-z0-9_\-]+$/,
         message: '以/开头，可以包含字母数字下划线中划线',
@@ -73,22 +73,21 @@ class AppInfoHelper {
         pattern: /^[0-9]+$/,
       }
       ],
-        // gitlab地址
-        gitlabAddress: [{
+      // gitlab地址
+      gitlabAddress: [{
         required: true,
         message: '请填写gitlab地址',
       }],
-        // gitlab分支
-        gitlabBranch: [{
+      // gitlab分支
+      gitlabBranch: [{
         required: true,
         message: '请填写gitlab分支',
       }],
-        // Gitlab父级pom.xml相对路径
-        relativePathOfParentPOM: [{
+      // Gitlab父级pom.xml相对路径
+      relativePathOfParentPOM: [{
         required: false,
       }],
-      vmOptions: [{
-      }
+      vmOptions: [{}
       ],
 
 
@@ -102,8 +101,8 @@ class AppInfoHelper {
         required: true,
         message: '请选择打镜像方式',
       }],
-        // 镜像地址
-        mirrorLocation: [{
+      // 镜像地址
+      mirrorLocation: [{
         required: false,
         message: '请输入镜像地址',
 
@@ -112,24 +111,24 @@ class AppInfoHelper {
         message: '只能包含中文，字母，数字',
         trigger: 'blur'
       }],
-        // fileLocation: [{
-        //   type: 'array',
-        //   required: true,
-        //   message: '请输入至少一个文件存储地址',
-        // }, {
-        //   pattern: /^\/[A-Za-z0-9_\-]+$/,
-        //   message: '以/开头，可包含字母、数字、下划线、中划线，2-18位字符',
-        //   trigger: 'blur'
-        // }],
-        fileLocation: [{
+      // fileLocation: [{
+      //   type: 'array',
+      //   required: true,
+      //   message: '请输入至少一个文件存储地址',
+      // }, {
+      //   pattern: /^\/[A-Za-z0-9_\-]+$/,
+      //   message: '以/开头，可包含字母、数字、下划线、中划线，2-18位字符',
+      //   trigger: 'blur'
+      // }],
+      fileLocation: [{
         type: 'array',
         required: true,
         message: '请输入至少一个文件存储地址',
       }, {
         validator(rule, values, callback) {
-          console.log(rule);
-          console.log(values);
-          console.log(typeof(values));
+          // console.log(rule);
+          // console.log(values);
+          // console.log(typeof(values));
           let passed = true;
           let reg = /^\/[A-Za-z0-9_\-]+$/;
           for (let key in values) {
@@ -146,28 +145,28 @@ class AppInfoHelper {
       }],
 
 
-        cpu: [{
+      cpu: [{
         required: true,
         message: '请选择CPU类型',
       }],
-        memory: [{
+      memory: [{
         required: true,
         message: '请选择内存大小',
       }],
-        cpuID: [{
+      cpuID: [{
         required: true,
         message: '请选择CPU类型',
       }],
-        memoryID: [{
+      memoryID: [{
         required: true,
         message: '请选择内存大小',
       }],
-        count: [{
+      count: [{
         type: 'string',
         required: true,
         message: '请输入实例数量',
       }],
-        rollingUpdate: [{
+      rollingUpdate: [{
         required: true,
         message: '请选择是否回滚',
       }],
@@ -335,7 +334,7 @@ class AppInfoHelper {
     }]
   }
 
-   getRollingInfo() {
+  getRollingInfo() {
     return [{
       id: true,
       name: '需要'
@@ -343,19 +342,19 @@ class AppInfoHelper {
       id: false,
       name: '不需要'
     }]
-   }
+  }
 
-   getRollingName(id) {
+  getRollingName(id) {
     if (id) {
       return '需要';
     } else {
       return '不需要';
     }
-   }
+  }
 
-   getAllLoadBalance() {
+  getAllLoadBalance() {
     return ['Round_robin', 'IP_hash', 'Session_sticky']
-   }
+  }
 }
 
 export default new AppInfoHelper();
