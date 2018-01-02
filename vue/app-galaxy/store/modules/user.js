@@ -203,23 +203,23 @@ const mutations = {
 
   SET_GROUP_LIST(state, groupList) {
     state.groupList = groupList;
-    if (USE_LOCAL_STORAGE) {
+    // if (USE_LOCAL_STORAGE) {
       localStorage.setItem('user/groupList', JSON.stringify(groupList));
-    }
+    // }
   },
 
   SET_PROFILE_OF_GROUP(state, profileList) {
     state.profileListOfGroup = profileList;
-    if (USE_LOCAL_STORAGE) {
+    // if (USE_LOCAL_STORAGE) {
       localStorage.setItem('user/profileListOfGroup', JSON.stringify(profileList));
-    }
+    // }
   },
 
   SET_APP_INFO_LIST_OF_GROUP(state, appList) {
     state.appInfoListOfGroup = appList;
-    if (USE_LOCAL_STORAGE) {
+    // if (USE_LOCAL_STORAGE) {
       localStorage.setItem('user/appInfoListOfGroup', JSON.stringify(appList));
-    }
+    // }
   }
 }
 

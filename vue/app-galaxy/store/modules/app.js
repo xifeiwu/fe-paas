@@ -105,15 +105,15 @@ const mutations = {
   },
   SET_INFO_FOR_CREATE_SERVICE(state, infoForCreateService) {
     state.infoForCreateServiceToPost = postFormatter.infoToCreateAPP(infoForCreateService);
-    state.infoForCreateServiceToPost.serviceVersion = 'V' + state.infoForCreateServiceToPost.serviceVersion;
+    state.infoForCreateServiceToPost.serviceVersion = 'v' + state.infoForCreateServiceToPost.serviceVersion;
   },
 
   /* net data */
   SET_MESSAGE_FOR_CREATE_APP(state, content) {
     state.messageForCreateAPP = content;
-    if (USE_LOCAL_STORAGE) {
+    // if (USE_LOCAL_STORAGE) {
       localStorage.setItem('app/messageForCreateAPP', JSON.stringify(content));
-    }
+    // }
   }
 };
 

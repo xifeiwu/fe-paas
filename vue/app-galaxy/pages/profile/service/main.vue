@@ -16,14 +16,14 @@
         </el-col>
         <el-col :span="10">
           <span>应用名称：</span>
-          <el-select v-model="selectedAppID" placeholder="请选择" @change="handleSelectChange('app')">
+          <el-select v-model="selectedAppID" placeholder="请选择">
             <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
           </el-select>
         </el-col>
         <el-col :span="9">
           <span>运行环境：</span>
-          <el-select v-model="selectedProfileID" placeholder="请选择" @change="handleSelectChange('profile')">
+          <el-select v-model="selectedProfileID" placeholder="请选择">
             <el-option v-for="item in selectedProfileList" :key="item.id" :label="item.description" :value="item.id">
             </el-option>
           </el-select>
@@ -560,7 +560,7 @@
                v-if="selected.service && selected.model"
     >
       <el-scrollbar>
-        <pre v-for="item in deployLogs" :key="item">{{item}}</pre>
+        <div v-for="item in deployLogs" :key="item">{{item}}</div>
       </el-scrollbar>
     </el-dialog>
   </div>
@@ -635,8 +635,14 @@
                 }
               }
               .el-scrollbar__bar {
+                &.is-horizontal {
+                  height: 2px;
+                }
+                &.is-vertical {
+                  width: 2px;
+                }
                 .el-scrollbar__thumb {
-                  background-color: white;
+                  background-color: #409EFF;
                 }
               }
             }
@@ -1375,14 +1381,6 @@ export default {
       }
     },
 
-    handleSelectChange(from) {
-      switch (from) {
-        case 'app':
-          break;
-        case 'profile':
-          break;
-      }
-    },
     requestServiceList(appID, spaceID) {
       if (!appID || !spaceID) {
         console.log('appID or spaceID can not be empty');

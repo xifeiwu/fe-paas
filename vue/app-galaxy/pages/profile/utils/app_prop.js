@@ -230,13 +230,16 @@ class AppInfoHelper {
   }
 
   getCPUAndMemoryInfoBySize(cpuSize, memorySize) {
+    let model = [];
     let cpuAndMemorylist = this.getMessageForCreateAPP('cpuAndMemorylist');
+    if (!cpuAndMemorylist || !Array.isArray(cpuAndMemorylist)) {
+      return model;
+    }
     // console.log(cpuAndMemorylist);
     memorySize = parseInt(memorySize);
     if (memorySize > 1024) {
       memorySize /= 2014;
     }
-    let model = [];
     for (let index in cpuAndMemorylist) {
       let item = cpuAndMemorylist[index];
       if (item.cpu == cpuSize) {
@@ -259,7 +262,7 @@ class AppInfoHelper {
       }
     }
     // deal with the case cpuID or memoryID not found
-    if (model.length != 2) {
+    if (model.length != 2 && cpuAndMemorylist.length > 0) {
       model = [];
       let defaultConfig = cpuAndMemorylist[0];
       model.push({

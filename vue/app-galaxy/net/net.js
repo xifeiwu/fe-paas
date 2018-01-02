@@ -311,7 +311,11 @@ class Net {
         // console.log(content);
         //两个请求现已完成
         this.showLog('getMessageForCreateAPP', content);
-        resolve(content);
+        if (content) {
+          resolve(content);
+        } else {
+          throw new Error('getMessageForCreateAPP fail');
+        }
       })).catch(err => {
         this.showLog('getMessageForCreateAPP', err);
         reject(err);
@@ -439,6 +443,7 @@ class Net {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.get_service_by_appId_and_profile, options).then(response => {
         let content = this.getResponseContent(response);
+        // console.log(content);
         if (content) {
           if (content.hasOwnProperty('applicationServerList')) {
             let serviceList = content['applicationServerList'];
