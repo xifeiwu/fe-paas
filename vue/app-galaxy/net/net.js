@@ -270,8 +270,13 @@ class Net {
     }
     return new Promise((resolve, reject) => {
       axios.all([get1(), get2()]).then(axios.spread((cpu_and_memory, language) => {
-        let content = Object.assign(this.getResponseContent(cpu_and_memory), this.getResponseContent(language));
-        if (content.hasOwnProperty('LanguageList')) {
+        let cpuAndMemoryContent = this.getResponseContent(cpu_and_memory);
+        let languageContent = this.getResponseContent(language);
+        let content = null;
+        if (cpuAndMemoryContent && languageContent) {
+          content = Object.assign(cpuAndMemoryContent, languageContent);
+        }
+        if (content && content.hasOwnProperty('LanguageList')) {
           content.LanguageList.forEach(it => {
             let language = it.language;
             // add property type which will be send to server

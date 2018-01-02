@@ -13,6 +13,9 @@ import DomainMain from './profile/domain/main.vue';
 import DomainWhiteList from './profile/domain/white-list.vue';
 
 import WorkOrderMain from './profile/work-order/main.vue';
+import WorkOrderToDo from './profile/work-order/todo.vue';
+import WorkOrderList from './profile/work-order/list.vue';
+import WorkOrderAdd from './profile/work-order/add.vue';
 
 /**
  * router config:
@@ -77,8 +80,18 @@ var Router = function () {
         component: DomainWhiteList,
       }, {
         path: 'work-order',
-        name: '工单管理',
+        // name: '审批管理',
         component: WorkOrderMain,
+        redirect: '/profile/work-order/todo',
+        children: [{
+          path: 'todo',
+          name: '待办工单',
+          component: WorkOrderToDo,
+        },{
+          path: 'list',
+          name: '工单列表',
+          component: WorkOrderList,
+        }]
       }]
     }
   }
