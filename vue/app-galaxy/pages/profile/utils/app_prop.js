@@ -83,6 +83,15 @@ class AppInfoHelper {
         required: true,
         message: '请填写gitlab分支',
       }],
+      gitLabAddress: [{
+        required: true,
+        message: '请填写gitlab地址',
+      }],
+      // gitlab分支
+      gitLabBranch: [{
+        required: true,
+        message: '请填写gitlab分支',
+      }],
       // Gitlab父级pom.xml相对路径
       relativePathOfParentPOM: [{
         required: false,

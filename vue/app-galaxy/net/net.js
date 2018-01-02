@@ -437,6 +437,9 @@ class Net {
           mirrorLocation: it.mirror.location,
           rollingUpdate: it.rollingUpdate,
           loadBalance: it.loadBalance,
+          gitLabAddress: it.gitLabAddress,
+          gitLabBranch: it.gitLabBranch,
+          mavenProfileId: it.mavenProfileId,
         })
       });
       return modelList;
@@ -461,6 +464,12 @@ class Net {
               let cpuAndMemoryInfo = appInfoHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);
               it.cpu = cpuAndMemoryInfo[0];
               it.memory = cpuAndMemoryInfo[1];
+
+              ['mavenProfileId', 'healthCheck', 'loadBalance', 'relativePath'].forEach(prop => {
+                if (it.hasOwnProperty(prop) && !it[prop]) {
+                  it[prop] = '未设置';
+                }
+              })
             });
             content.serviceModelList = getServiceModelList(serviceList);
           }

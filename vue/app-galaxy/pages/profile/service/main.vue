@@ -110,7 +110,7 @@
             <div class="row-expand">
               <div class="app-info">
                 <div class="title">应用信息</div>
-                <el-form label-position="right" label-width="120px" inline size="mini">
+                <el-form label-position="right" label-width="140px" inline size="mini">
                   <el-form-item label="项目名称：">
                     {{selected.service.tag}}
                   </el-form-item>
@@ -127,29 +127,31 @@
               </div>
               <div class="image-info">
                 <div class="title">镜像信息</div>
-                <el-form label-position="right" label-width="120px" size="mini">
+                <el-form label-position="right" label-width="140px" size="mini">
                   <el-form-item label="镜像方式：">
                     {{selected.service.mirror.typeName}}
                     <span style="padding: 0px 12px"> {{"基础镜像地址：" + selected.service.mirror.location}} </span>
                     <i class="el-icon-edit" @click="handleChangeProp('mirror')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab ssh地址：">
-                    {{selected.service.gitLabAddress}}
+                    <span>{{selected.service.gitLabAddress}}</span>
+                    <i class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab分支：">
-                    {{selected.service.gitLabBranch}}<i class="el-icon-edit"></i>
+                    {{selected.service.gitLabBranch}}<i class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
                   </el-form-item>
                   <el-form-item label="Gitlab父级pom.xml相对路径：" v-if="selectedAPP.isJavaLanguage" class="relativePathOfParentPOM">
                     {{selected.service.relativePath}}
                   </el-form-item>
                   <el-form-item label="Maven profile id：" v-if="selectedAPP.isJavaLanguage">
-                    {{selected.service.mavenProfileId}}<i class="el-icon-edit"></i>
+                    <span>{{selected.service.mavenProfileId}}</span>
+                    <i class="el-icon-edit" @click="handleChangeProp('mavenProfileId')"></i>
                   </el-form-item>
                 </el-form>
               </div>
               <div class="instance-info">
                 <div class="title">实例规格</div>
-                <el-form label-position="right" label-width="120px" inline size="mini">
+                <el-form label-position="right" label-width="140px" inline size="mini">
                   <el-form-item label="CPU/内存：">
                     {{selected.service.cpu.cpu + '核 / ' + selected.service.memory.memory + 'G'}}
                     <i class="el-icon-edit" @click="handleChangeProp('cpuAndMemory')"></i>
@@ -437,6 +439,102 @@
       </div>
     </el-dialog>
 
+    <el-dialog title="更改gitlab地址" :visible="selected.prop == 'gitLabAddress'"
+               @close="selected.prop = null"
+               class="gitlab-address"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+      <i class="el-icon-warning"></i>
+        <span>更改Gitlab_ssh后需要重新【部署】才能生效！</span>
+      </el-tag>
+        <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="formInChangeGitlabAddressDialog" size="mini">
+          <el-form-item label="当前gitlab地址：">
+            {{selected.model.gitLabAddress}}
+          </el-form-item>
+          <el-form-item label="更改gitlab地址为：" prop="gitLabAddress">
+            <el-input v-model="newProps.gitLabAddress" placeholder=""></el-input>
+          </el-form-item>
+        </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('gitLabAddress')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="更改gitlab分支" :visible="selected.prop == 'gitLabBranch'"
+               @close="selected.prop = null"
+               class="gitlab-address"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改Gitlab分支后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="formInChangeGitlabBranchDialog" size="mini">
+        <el-form-item label="当前gitlab分支：">
+          {{selected.model.gitLabBranch}}
+          </el-form-item>
+        <el-form-item label="更改gitlab分支为：" prop="gitLabBranch">
+          <el-input v-model="newProps.gitLabBranch" placeholder=""></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('gitLabBranch')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="更改maven profile id" :visible="selected.prop == 'mavenProfileId'"
+               @close="selected.prop = null"
+               class="gitlab-address"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改maven profile id后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="180px" ref="formInChangeMavenProfileIdDialog" size="mini">
+        <el-form-item label="当前maven profile id：">
+          {{selected.model.mavenProfileId}}
+          </el-form-item>
+        <el-form-item label="更改maven profile id：" prop="mavenProfileId">
+          <el-input v-model="newProps.mavenProfileId" placeholder=""></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('mavenProfileId')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
     <el-dialog title="更改实例规格" :visible="selected.prop == 'cpuAndMemory'"
                @close="selected.prop = null"
                class="cpu-and-memory"
@@ -586,9 +684,9 @@
       .el-table {
         .el-table__expanded-cell {
           .row-expand {
-            width: 80%;
+            width: 85%;
             margin: 0px auto;
-            max-width: 650px;
+            max-width: 750px;
             .el-form {
               .el-form-item {
                 .el-form-item__label {
@@ -630,7 +728,7 @@
                       float: left;
                     }
                     .el-form-item__content {
-                      margin-left: 120px;
+                      margin-left: 140px;
                       display: block;
                       /*width: 100%;*/
                     }
@@ -848,6 +946,9 @@ export default {
         mirrorLocation: '',
         rollingUpdate: '',
         loadBalance: '',
+        gitLabAddress: '',
+        gitLabBranch: '',
+        mavenProfileId: '',
       },
       waitingResponse: false,
 
@@ -1101,7 +1202,8 @@ export default {
     handleChangeProp(prop) {
 //      console.log(prop);
       if (['healthCheck', 'mirror','environments', 'hosts','cpuAndMemory',
-          'rollingUpdate', 'loadBalance'].indexOf(prop) == -1) {
+          'rollingUpdate', 'loadBalance', 'gitLabAddress', 'gitLabBranch',
+          'mavenProfileId'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
         return;
       }
@@ -1144,6 +1246,11 @@ export default {
           this.newProps['loadBalance'] = this.selected.model['loadBalance'];
           this.$refs.hasOwnProperty('formInChangeLoadBalanceDialog') &&
           this.$refs['formInChangeLoadBalanceDialog'].validate();
+          break;
+        case 'gitLabAddress':
+          this.newProps['gitLabAddress'] = this.selected.model['gitLabAddress'];
+          this.$refs.hasOwnProperty('formInChangeGitLabAddressDialog') &&
+          this.$refs['formInChangeGitLabAddressDialog'].validate();
           break;
       }
       this.selected.prop = prop;
@@ -1341,6 +1448,32 @@ export default {
                 this.waitingResponse = false;
                 this.selected.prop = null;
                 this.updateModelInfo('loadBalance');
+              }, 1000);
+            }
+          });
+          break;
+        case 'mavenProfileId':
+          this.$refs['formInChangeMavenProfileIdDialog'].validate((valid) => {
+            if (!valid) {
+              return;
+            }
+            if (!this.newProps.hasOwnProperty(action) || !this.selected.model.hasOwnProperty(action)) {
+              return;
+            }
+//            console.log(this.newProps);
+//            console.log(this.selected.model);
+            if (this.newProps[action] == this.selected.model[action]) {
+              this.selected.prop = null;
+              this.$message({
+                type: 'warning',
+                message: '您没有做修改'
+              });
+            } else {
+              this.waitingResponse = true;
+              setTimeout(() => {
+                this.waitingResponse = false;
+                this.selected.prop = null;
+                this.updateModelInfo(action);
               }, 1000);
             }
           });
