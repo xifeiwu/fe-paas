@@ -235,7 +235,7 @@ const getters = {
     if (null === groupID) {
       groupID = localStorage.getItem('groupID');
     }
-    if (null === groupID && state.groupList.length > 0) {
+    if (null === groupID && Array.isArray(state.groupList) && state.groupList.length > 0) {
       groupID = state.groupList[0].id
     }
     return parseInt(groupID);
