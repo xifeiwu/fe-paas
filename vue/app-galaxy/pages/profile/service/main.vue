@@ -281,8 +281,8 @@
         更改镜像方式为：
       </el-row>
       <el-form :model="newProps" :rules="rules" label-width="120px" ref="formInChangeImageDialog">
-        <el-form-item label="镜像方式：" prop="imageTypeID">
-          <el-radio-group v-model="newProps.imageTypeID" @change="handleImageTypeChange">
+        <el-form-item label="镜像方式：" prop="customImage">
+          <el-radio-group v-model="newProps.customImage" @change="handleImageTypeChange">
             <el-radio v-for="item in imageInfo" :label="item.id" :key="item.id">
               {{item.name}}
             </el-radio>
@@ -993,7 +993,7 @@ export default {
         hosts: [],
         cpuID: null,
         memoryID: null,
-        imageTypeID: 0,
+        customImage: 0,
         imageLocation: '',
         rollingUpdate: '',
         loadBalance: '',
@@ -1299,7 +1299,7 @@ export default {
           let cpuAndMemoryList = this.cpuAndMemoryList;
           break;
         case 'image':
-          this.newProps['imageTypeID'] = this.selected.model['imageTypeID'];
+          this.newProps['customImage'] = this.selected.model['customImage'];
           this.newProps['imageLocation'] = this.selected.model['imageLocation'];
           this.$refs.hasOwnProperty('formInChangeImageDialog') &&
           this.$refs['formInChangeImageDialog'].validate();
@@ -1365,11 +1365,11 @@ export default {
             if (!valid) {
               return;
             }
-            if (!this.newProps.hasOwnProperty('imageTypeID') || !this.selected.model.hasOwnProperty('imageTypeID')
+            if (!this.newProps.hasOwnProperty('customImage') || !this.selected.model.hasOwnProperty('customImage')
               || !this.newProps.hasOwnProperty('imageLocation') || !this.selected.model.hasOwnProperty('imageLocation')) {
               return;
             }
-            if ((this.newProps['imageTypeID'] == this.selected.model['imageTypeID'])
+            if ((this.newProps['customImage'] == this.selected.model['customImage'])
               && (this.newProps['imageLocation'] == this.selected.model['imageLocation'])) {
               this.selected.prop = null;
               this.$message({
@@ -1429,7 +1429,7 @@ export default {
           options[propMap[prop]] = this.newProps[prop];
           break;
         case 'image':
-          options['customImage'] = this.newProps['imageTypeID'];
+          options['customImage'] = this.newProps['customImage'];
           options['image'] = this.newProps['imageLocation'];
           break;
         default:
@@ -1482,12 +1482,12 @@ export default {
           this.selected.service[prop] = JSON.parse(JSON.stringify(this.newProps[prop]));
           break;
         case 'image':
-          let imageTypeID = this.newProps['imageTypeID'];
+          let customImage = this.newProps['customImage'];
           let imageLocation = this.newProps['imageLocation'];
-          this.selected.model['imageTypeID'] = imageTypeID;
+          this.selected.model['customImage'] = customImage;
           this.selected.model['imageLocation'] = imageLocation;
-          this.selected.service.image.typeID = imageTypeID;
-          this.selected.service.image.typeName = appPropUtils.getImageNameById(imageTypeID);
+          this.selected.service.image.customImage = customImage;
+          this.selected.service.image.typeName = appPropUtils.getImageNameById(customImage);
           this.selected.service.image.location = imageLocation;
           break;
         case 'cpuAndMemory':

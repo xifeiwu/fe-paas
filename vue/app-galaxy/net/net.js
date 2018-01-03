@@ -436,7 +436,7 @@ class Net {
           cpuID: it.cpu.id,
           memoryID: it.memory.id,
           // image: JSON.parse(JSON.stringify(it.image))
-          imageTypeID: it.image.typeID,
+          customImage: it.image.customImage,
           imageLocation: it.image.location,
           rollingUpdate: it.rollingUpdate,
           loadBalance: it.loadBalance,
@@ -460,7 +460,7 @@ class Net {
               it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
 
               it.image = {
-                typeID: null == it.customImage ? false : it.customImage,
+                customImage: null == it.customImage ? false : it.customImage,
                 typeName: appInfoHelper.getImageNameById(it.customImage),
                 location: it.image,
               };
