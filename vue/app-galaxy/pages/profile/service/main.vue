@@ -129,9 +129,9 @@
                 <div class="title">镜像信息</div>
                 <el-form label-position="right" label-width="140px" size="mini">
                   <el-form-item label="镜像方式：">
-                    {{valueToShow(selected.service.mirror.typeName)}}
-                    <span style="padding: 0px 12px"> {{"基础镜像地址：" + selected.service.mirror.location}} </span>
-                    <i class="el-icon-edit" @click="handleChangeProp('mirror')"></i>
+                    {{valueToShow(selected.service.image.typeName)}}
+                    <span style="padding: 0px 12px"> {{"基础镜像地址：" + selected.service.image.location}} </span>
+                    <i class="el-icon-edit" @click="handleChangeProp('image')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab ssh地址：">
                     <span>{{valueToShow(selected.service.gitLabAddress)}}</span>
@@ -265,8 +265,8 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="更改镜像方式" :visible="selected.prop == 'mirror'"
-               class="mirror"
+    <el-dialog title="更改镜像方式" :visible="selected.prop == 'image'"
+               class="image"
                @close="selected.prop = null"
                v-if="selected.service && selected.model"
     >
@@ -275,30 +275,30 @@
         <span>更改镜像方式后需要重新【部署】才能生效！</span>
       </el-tag>
       <el-row>
-        当前镜像方式： {{selected.service.mirror.typeName}}；镜像地址： {{selected.service.mirror.location}}
+        当前镜像方式： {{selected.service.image.typeName}}；镜像地址： {{selected.service.image.location}}
       </el-row>
       <el-row>
         更改镜像方式为：
       </el-row>
-      <el-form :model="newProps" :rules="rules" label-width="120px" ref="formInChangeMirrorDialog">
-        <el-form-item label="镜像方式：" prop="mirrorTypeID">
-          <el-radio-group v-model="newProps.mirrorTypeID" @change="handleMirrorTypeChange">
+      <el-form :model="newProps" :rules="rules" label-width="120px" ref="formInChangeImageDialog">
+        <el-form-item label="镜像方式：" prop="imageTypeID">
+          <el-radio-group v-model="newProps.imageTypeID" @change="handleImageTypeChange">
             <!--<el-radio label="0">自动打镜像</el-radio>-->
             <!--<el-radio label="1">自定义镜像</el-radio>-->
-            <el-radio v-for="item in mirrorInfo" :label="item.id" :key="item.id">
+            <el-radio v-for="item in imageInfo" :label="item.id" :key="item.id">
               {{item.name}}
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="镜像地址：" prop="mirrorLocation">
-          <el-input v-model="newProps.mirrorLocation" placeholder="输入镜像地址，包含版本"></el-input>
+        <el-form-item label="镜像地址：" prop="imageLocation">
+          <el-input v-model="newProps.imageLocation" placeholder="输入镜像地址，包含版本"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleDialogButtonClick('mirror')"
+                       @click="handleDialogButtonClick('image')"
                        :loading="waitingResponse">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -802,7 +802,7 @@
           text-align: left;
         }
       }
-      &.mirror {
+      &.image {
         .el-row {
           text-align: left;
         }
@@ -995,8 +995,8 @@ export default {
         hosts: [],
         cpuID: null,
         memoryID: null,
-        mirrorTypeID: 0,
-        mirrorLocation: '',
+        imageTypeID: 0,
+        imageLocation: '',
         rollingUpdate: '',
         loadBalance: '',
         gitLabAddress: '',
@@ -1017,15 +1017,15 @@ export default {
       environmentValue: '',
       hostKey: '',
       hostValue: '',
-      mirrorLocationLabel: '',
+      imageLocationLabel: '',
       deployLogs: [],
       /* used for dialog end */
     }
   },
   computed: {
     /* used for dialog */
-    mirrorInfo: function () {
-      return appPropUtils.getMirrorInfo();
+    imageInfo: function () {
+      return appPropUtils.getImageInfo();
     },
     loadBalanceType: function() {
       return appPropUtils.getAllLoadBalance();
@@ -1269,7 +1269,7 @@ export default {
      */
     handleChangeProp(prop) {
 //      console.log(prop);
-      if (['healthCheck', 'mirror','environments', 'hosts','cpuAndMemory',
+      if (['healthCheck', 'image','environments', 'hosts','cpuAndMemory',
           'rollingUpdate', 'loadBalance', 'gitLabAddress', 'gitLabBranch',
           'mavenProfileId', 'fileLocation'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
@@ -1301,11 +1301,11 @@ export default {
           this.$refs['formInChangeCpuAndMemoryDialog'].validate();
           let cpuAndMemoryList = this.cpuAndMemoryList;
           break;
-        case 'mirror':
-          this.newProps['mirrorTypeID'] = this.selected.model['mirrorTypeID'];
-          this.newProps['mirrorLocation'] = this.selected.model['mirrorLocation'];
-          this.$refs.hasOwnProperty('formInChangeMirrorDialog') &&
-          this.$refs['formInChangeMirrorDialog'].validate();
+        case 'image':
+          this.newProps['imageTypeID'] = this.selected.model['imageTypeID'];
+          this.newProps['imageLocation'] = this.selected.model['imageLocation'];
+          this.$refs.hasOwnProperty('formInChangeImageDialog') &&
+          this.$refs['formInChangeImageDialog'].validate();
           break;
       }
       this.selected.prop = prop;
@@ -1363,17 +1363,17 @@ export default {
             }
           });
           break;
-        case 'mirror':
-          this.$refs['formInChangeMirrorDialog'].validate((valid) => {
+        case 'image':
+          this.$refs['formInChangeImageDialog'].validate((valid) => {
             if (!valid) {
               return;
             }
-            if (!this.newProps.hasOwnProperty('mirrorTypeID') || !this.selected.model.hasOwnProperty('mirrorTypeID')
-              || !this.newProps.hasOwnProperty('mirrorLocation') || !this.selected.model.hasOwnProperty('mirrorLocation')) {
+            if (!this.newProps.hasOwnProperty('imageTypeID') || !this.selected.model.hasOwnProperty('imageTypeID')
+              || !this.newProps.hasOwnProperty('imageLocation') || !this.selected.model.hasOwnProperty('imageLocation')) {
               return;
             }
-            if ((this.newProps['mirrorTypeID'] == this.selected.model['mirrorTypeID'])
-              && (this.newProps['mirrorLocation'] == this.selected.model['mirrorLocation'])) {
+            if ((this.newProps['imageTypeID'] == this.selected.model['imageTypeID'])
+              && (this.newProps['imageLocation'] == this.selected.model['imageLocation'])) {
               this.selected.prop = null;
               this.$message({
                 type: 'warning',
@@ -1384,7 +1384,7 @@ export default {
               setTimeout(() => {
                 this.waitingResponse = false;
                 this.selected.prop = null;
-                this.updateModelInfo('mirror');
+                this.updateModelInfo('image');
               }, 1000);
             }
           });
@@ -1475,14 +1475,14 @@ export default {
           this.selected.model[prop] = JSON.parse(JSON.stringify(this.newProps[prop]));
           this.selected.service[prop] = JSON.parse(JSON.stringify(this.newProps[prop]));
           break;
-        case 'mirror':
-          let mirrorTypeID = this.newProps['mirrorTypeID'];
-          let mirrorLocation = this.newProps['mirrorLocation'];
-          this.selected.model['mirrorTypeID'] = mirrorTypeID;
-          this.selected.model['mirrorLocation'] = mirrorLocation;
-          this.selected.service.mirror.typeID = mirrorTypeID;
-          this.selected.service.mirror.typeName = appPropUtils.getMirrorNameById(mirrorTypeID);
-          this.selected.service.mirror.location = mirrorLocation;
+        case 'image':
+          let imageTypeID = this.newProps['imageTypeID'];
+          let imageLocation = this.newProps['imageLocation'];
+          this.selected.model['imageTypeID'] = imageTypeID;
+          this.selected.model['imageLocation'] = imageLocation;
+          this.selected.service.image.typeID = imageTypeID;
+          this.selected.service.image.typeName = appPropUtils.getimageNameById(imageTypeID);
+          this.selected.service.image.location = imageLocation;
           break;
         case 'cpuAndMemory':
           let cpuID = this.newProps['cpuID'];
@@ -1593,15 +1593,15 @@ export default {
         })
       }
     },
-    handleMirrorTypeChange(value) {
+    handleImageTypeChange(value) {
 //      switch (value) {
 //        case '0':
-//          this.mirrorLocationLabel = '基础镜像地址';
-//          this.rules.mirrorLocation[0].required = false;
+//          this.imageLocationLabel = '基础镜像地址';
+//          this.rules.imageLocation[0].required = false;
 //          break;
 //        case '1':
-//          this.mirrorLocationLabel = '镜像地址';
-//          this.rules.mirrorLocation[0].required = true;
+//          this.imageLocationLabel = '镜像地址';
+//          this.rules.imageLocation[0].required = true;
 //          break;
 //      }
     },

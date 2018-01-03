@@ -101,17 +101,17 @@ class AppInfoHelper {
 
 
       // 镜像方式
-      mirrorType: [{
+      imageType: [{
         required: true,
         message: '请选择打镜像方式',
       }],
       // 镜像方式
-      mirrorTypeID: [{
+      imageTypeID: [{
         required: true,
         message: '请选择打镜像方式',
       }],
       // 镜像地址
-      mirrorLocation: [{
+      imageLocation: [{
         required: false,
         message: '请输入镜像地址',
 
@@ -319,7 +319,7 @@ class AppInfoHelper {
     return model;
   }
 
-  getMirrorNameById(id) {
+  getImageNameById(id) {
     let name = '未知';
     if (null == id) {
       return name;
@@ -336,7 +336,7 @@ class AppInfoHelper {
     return name;
   }
 
-  getMirrorInfo() {
+  getImageInfo() {
     return [{
       id: 0,
       name: '自动打镜像'

@@ -9,14 +9,14 @@
           <template slot="prepend">V</template>
         </el-input>
       </el-form-item>
-      <el-form-item label="镜像方式" prop="mirrorType">
-        <el-radio-group v-model="serviceForm.mirrorType" @change="handleMirrorTypeChange">
+      <el-form-item label="镜像方式" prop="imageType">
+        <el-radio-group v-model="serviceForm.imageType" @change="handleImageTypeChange">
           <el-radio :label="false">自动打镜像</el-radio>
           <el-radio :label="true">自定义镜像</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item :label="mirrorLocationLabel" prop="mirrorLocation">
-        <el-input v-model="serviceForm.mirrorLocation" placeholder="输入镜像地址，包含版本"></el-input>
+      <el-form-item :label="imageLocationLabel" prop="imageLocation">
+        <el-input v-model="serviceForm.imageLocation" placeholder="输入镜像地址，包含版本"></el-input>
       </el-form-item>
 
       <el-form-item label="Gitlab地址" prop="gitlabAddress">
@@ -208,7 +208,7 @@
       let appInfoListOfGroup = this.appInfoListOfGroup;
       appInfoListOfGroup && this.getAppRelatedInfo(appInfoListOfGroup);
 
-      this.rules.mirrorLocation.required = false;
+      this.rules.imageLocation.required = false;
       // set default cpu, default memorySizeList will be set in watch
       if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
         let firstItem = this.cpuAndMemoryList[0];
@@ -217,7 +217,7 @@
     },
     data() {
       return {
-        mirrorLocationLabel: '基础镜像地址',
+        imageLocationLabel: '基础镜像地址',
         fileLocationToAdd: '',
         environmentKey: '',
         environmentValue: '',
@@ -227,8 +227,8 @@
           appId: null,
           spaceId: null,
           serviceVersion: '',
-          mirrorType: false,
-          mirrorLocation: '',
+          imageType: false,
+          imageLocation: '',
           gitlabAddress: '',
           gitlabBranch: '',
           relativePathOfParentPOM: '',
@@ -322,15 +322,15 @@
 //        this.serviceForm.appId = this.appID;
         this.isJavaLanguage = this.app && this.app.language == 'JAVA';
       },
-      handleMirrorTypeChange(value) {
+      handleImageTypeChange(value) {
         switch (value) {
           case '0':
-            this.mirrorLocationLabel = '基础镜像地址';
-            this.rules.mirrorLocation[0].required = false;
+            this.imageLocationLabel = '基础镜像地址';
+            this.rules.imageLocation[0].required = false;
             break;
           case '1':
-            this.mirrorLocationLabel = '镜像地址';
-            this.rules.mirrorLocation[0].required = true;
+            this.imageLocationLabel = '镜像地址';
+            this.rules.imageLocation[0].required = true;
             break;
         }
       },
@@ -390,8 +390,8 @@
        */
       initServiceForm() {
         this.serviceForm.serviceVersion = '';
-          this.serviceForm.mirrorType = false;
-          this.serviceForm.mirrorLocation = '';
+          this.serviceForm.imageType = false;
+          this.serviceForm.imageLocation = '';
           this.serviceForm.gitlabAddress = '';
           this.serviceForm.gitlabBranch = '';
           this.serviceForm.relativePathOfParentPOM = '';

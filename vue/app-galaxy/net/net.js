@@ -435,9 +435,9 @@ class Net {
           hosts: JSON.parse(JSON.stringify(it.hosts)),
           cpuID: it.cpu.id,
           memoryID: it.memory.id,
-          // mirror: JSON.parse(JSON.stringify(it.mirror))
-          mirrorTypeID: it.mirror.typeID,
-          mirrorLocation: it.mirror.location,
+          // image: JSON.parse(JSON.stringify(it.image))
+          imageTypeID: it.image.typeID,
+          imageLocation: it.image.location,
           rollingUpdate: it.rollingUpdate,
           loadBalance: it.loadBalance,
           gitLabAddress: it.gitLabAddress,
@@ -459,10 +459,10 @@ class Net {
             Array.isArray(serviceList) && serviceList.forEach(it => {
               it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
 
-              it.mirror = {
+              it.image = {
                 typeID: null == it.imageType ? null : parseInt(it.imageType),
                 location: it.image,
-                typeName: appInfoHelper.getMirrorNameById(it.imageType)
+                typeName: appInfoHelper.getImageNameById(it.imageType)
               };
 
               let cpuAndMemoryInfo = appInfoHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);
@@ -537,13 +537,21 @@ class Net {
   }
 
   serviceUpdate(prop, options) {
-    let url = null;
-    switch (prop) {
-      case 'healthCheck':
-        url = URL_LIST.service_update_health;
-        break;
-    }
-    if (null == url) {
+    let urlMap = {
+      'healthCheck': URL_LIST.service_update_health,
+      'image': URL_LIST.service_update_image,
+      'gitLabAddress': URL_LIST.service_update_gitLab_address,
+      'gitLabBranch': URL_LIST.service_update_gitLab_branch,
+      'mavenProfileId': URL_LIST.service_update_maven_profile_id,
+      'cpuAndMemory': URL_LIST.service_update_cpu_and_memory,
+      'rollingUpdate': URL_LIST.service_update_rolling_update,
+      'loadBalance': URL_LIST.service_update_load_balance,
+      'fileLocation': URL_LIST.service_update_file_location,
+      'environments': URL_LIST.service_update_environment,
+      'hosts': URL_LIST.service_update_host,
+    };
+    let url = urlMap[prop];
+    if (!url) {
       return;
     }
     return new Promise((resolve, reject) => {

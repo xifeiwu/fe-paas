@@ -1,13 +1,13 @@
 <template>
   <el-form :model="stepForm2" ref="stepForm2" :rules="rules" label-width="120px">
-    <el-form-item label="镜像方式" prop="mirrorType">
-      <el-radio-group v-model="stepForm2.mirrorType" @change="handleMirrorTypeChange">
+    <el-form-item label="镜像方式" prop="imageType">
+      <el-radio-group v-model="stepForm2.imageType" @change="handleImageTypeChange">
         <el-radio label="0">自动打镜像</el-radio>
         <el-radio label="1">自定义镜像</el-radio>
       </el-radio-group>
     </el-form-item>
-    <el-form-item :label="mirrorLocationLabel" prop="mirrorLocation">
-      <el-input v-model="stepForm2.mirrorLocation" placeholder="输入镜像地址，包含版本"></el-input>
+    <el-form-item :label="imageLocationLabel" prop="imageLocation">
+      <el-input v-model="stepForm2.imageLocation" placeholder="输入镜像地址，包含版本"></el-input>
     </el-form-item>
     <el-form-item label="文件存储" prop="fileLocation" class="fileLocation">
       <div>
@@ -130,19 +130,19 @@
       if (infos && infos.hasOwnProperty('page2')) {
         this.stepForm2 = infos.page2;
       }
-      this.rules.mirrorLocation.required = false;
+      this.rules.imageLocation.required = false;
     },
     data() {
       return {
-        mirrorLocationLabel: '基础镜像地址',
+        imageLocationLabel: '基础镜像地址',
         fileLocationToAdd: '',
         environmentKey: '',
         environmentValue: '',
         hostKey: '',
         hostValue: '',
         stepForm2: {
-          mirrorType: '0',
-          mirrorLocation: '',
+          imageType: '0',
+          imageLocation: '',
           fileLocation: [],
           environments: [],
           hosts: []
@@ -154,15 +154,15 @@
       this.$store.dispatch('app/updateStepOfAddAPP', 1);
     },
     methods: {
-      handleMirrorTypeChange(value) {
+      handleImageTypeChange(value) {
         switch (value) {
           case '0':
-            this.mirrorLocationLabel = '基础镜像地址';
-            this.rules.mirrorLocation[0].required = false;
+            this.imageLocationLabel = '基础镜像地址';
+            this.rules.imageLocation[0].required = false;
             break;
           case '1':
-            this.mirrorLocationLabel = '镜像地址';
-            this.rules.mirrorLocation[0].required = true;
+            this.imageLocationLabel = '镜像地址';
+            this.rules.imageLocation[0].required = true;
             break;
         }
       },
