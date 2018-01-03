@@ -1,8 +1,6 @@
 /**
  * Created by xifei.wu on 2017/12/4.
  */
-import Vue from 'vue';
-// let NetData = Vue.prototype.$net;
 import NetData from '../../net/net';
 const USE_LOCAL_STORAGE = false;
 
@@ -254,17 +252,7 @@ const getters = {
     return result;
   },
   'profileListOfGroup': (state, getters) => {
-    let result = null;
-    if (null != state.profileListOfGroup) {
-      result = state.profileListOfGroup;
-    } else if (USE_LOCAL_STORAGE) {
-      warning('groupList', 'localStorage');
-      let local = JSON.parse(localStorage.getItem('user/profileListOfGroup'));
-      if (local) {
-        result = local;
-      }
-    }
-    return result;
+    return getValue({state, getters}, 'profileListOfGroup');
   },
 
   'appInfoListOfGroup': (state, getters) => {
