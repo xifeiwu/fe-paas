@@ -24,33 +24,52 @@
           </el-select>
         </el-col>
       </el-row>
-      <div class="instance-list">
-        <!--<el-table-->
-                <!--:data="currentInstanceList"-->
-                <!--style="width: 100%"-->
-        <!--&gt;-->
-          <!--<el-table-column-->
-                  <!--prop="serviceVersion"-->
-                  <!--label="版本"-->
-                  <!--width="80">-->
-          <!--</el-table-column>-->
-          <!--<el-table-column-->
-                  <!--prop="intranetDomain"-->
-                  <!--label="内网域名"-->
-                  <!--width="180">-->
-          <!--</el-table-column>-->
-          <!--<el-table-column-->
-                  <!--prop="applicationStatus"-->
-                  <!--label="状态"-->
-                  <!--width="80"-->
-          <!--&gt;-->
-          <!--</el-table-column>-->
-          <!--<el-table-column-->
-                  <!--prop="createTime"-->
-                  <!--label="创建时间">-->
-          <!--</el-table-column>-->
-        <!--</el-table>-->
-      </div>
+    </div>
+    <div class="instance-list">
+      <el-table
+              :data="currentInstanceList"
+              style="width: 100%"
+              v-loading="showLoading"
+              element-loading-text="加载中"
+      >
+        <el-table-column
+                prop="instanceName"
+                label="实例名称"
+                width="300">
+        </el-table-column>
+        <el-table-column
+                prop="status"
+                label="状态"
+                width="80"
+        >
+        </el-table-column>
+        <el-table-column
+                prop="intranetDomain"
+                label="内网IP"
+                width="120">
+        </el-table-column>
+        <el-table-column
+                label="创建时间"
+                prop="createTime"
+                width="120">
+        </el-table-column>
+        <el-table-column label="操作" prop="operation" minWidth="170" headerAlign="center">
+          <template slot-scope="scope">
+            <el-button
+                    @click="handleOperationClick('terminal', scope.$index, scope.row)"
+                    size="mini-extral"
+                    type="primary">终端</el-button>
+            <el-button
+                    @click="handleOperationClick('work-log', scope.$index, scope.row)"
+                    size="mini-extral"
+                    type="primary">查看运行日志</el-button>
+            <el-button
+                    @click="handleOperationClick('monitor', scope.$index, scope.row)"
+                    size="mini-extral"
+                    type="primary">监控</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
   </div>
 </template>
@@ -61,6 +80,8 @@
       .el-select .el-input__inner {
         height: 24px;
       }
+    }
+    .instance-list {
     }
   }
 </style>
@@ -93,10 +114,12 @@
         selectedVersion: null,
         selectedVersionList: [],
 
-        currentInstanceList: [{
-          name: '',
-          status: '',
-        }]
+//        instanceName: 'vvvv',
+//        status: '',
+//        intranetDomain: '123.55.33.5',
+//        createTime: '2017-09-11',
+        showLoading: false,
+        currentInstanceList: [],
       }
     },
     watch: {
@@ -171,6 +194,21 @@
         }
       },
 
+      /**
+       * handle click event in operation column
+       */
+      handleOperationClick(action, index, row) {
+        console.log(row);
+        switch (action) {
+          case 'terminal':
+            break;
+          case 'work-log':
+            break;
+          case 'monitor':
+            break;
+        }
+      },
+
       requestVersionList(appID, spaceID) {
         if (!appID || !spaceID) {
           console.log('appID or spaceID can not be empty');
@@ -213,35 +251,24 @@
           console.log('appID or spaceID can not be empty');
           return;
         }
+        this.showLoading = true;
         this.$net.getInstanceList({
           appId: appID,
           spaceId: spaceID,
           serviceVersion: version
         }).then(content => {
           console.log(content);
-//          if (content.hasOwnProperty('version')) {
-//            let version = content.version;
-//            if (version && Array.isArray(version) && version.length > 0) {
-//              this.selectedVersionList = version;
-//              this.selectedVersion = version[0];
-//            } else {
-//              let profileName = '该';
-//              let profileInfo = appPropUtils.getProfileInfoByID(this.selectedProfileID);
-//              if (profileInfo && profileInfo.hasOwnProperty('name')) {
-//                profileName = profileInfo.description;
-//              }
-//              this.$message({
-//                type: 'warning',
-//                message: profileName + '下，服务没有版本！'
-//              });
-//            }
-//          }
+          if (content.hasOwnProperty('instanceList')) {
+            this.currentInstanceList = content['instanceList'];
+          }
+          this.showLoading = false;
         }).catch(err => {
           console.log(err);
           this.$message({
             type: 'error',
             message: '查找服务版本失败！'
           });
+          this.showLoading = false;
         });
       },
     }

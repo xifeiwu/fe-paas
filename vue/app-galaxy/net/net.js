@@ -583,11 +583,24 @@ class Net {
     })
   }
 
-  // 获取实例列表
+  /**
+   * 获取实例列表
+   */
   getInstanceList(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.instance_list, options).then(response => {
-        console.log(response);
+        let content = this.getResponseContent(response);
+        if (content.hasOwnProperty('instanceList')) {
+          let instanceList = content.instanceList;
+          instanceList.forEach(it => {
+            utils.renameProperty(it, 'id', 'instanceName');
+            utils.renameProperty(it, 'state', 'status');
+            utils.renameProperty(it, 'ip', 'intranetIP');
+            utils.renameProperty(it, 'updated', 'createTime');
+          });
+        }
+        this.showLog('getInstanceList', content);
+        resolve(content);
       }).catch(err => {
         console.log(err);
       })
