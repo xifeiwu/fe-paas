@@ -239,17 +239,7 @@ const getters = {
     return parseInt(groupID);
   },
   'groupList': (state, getters) => {
-    let result = null;
-    if (Array.isArray(state.groupList) && state.groupList.length > 0) {
-      result = state.groupList;
-    } else if (USE_LOCAL_STORAGE) {
-      warning('groupList', 'localStorage');
-      let local = JSON.parse(localStorage.getItem('user/groupList'));
-      if (local) {
-        result = local;
-      }
-    }
-    return result;
+    return getValue({state, getters}, 'groupList');
   },
   'profileListOfGroup': (state, getters) => {
     return getValue({state, getters}, 'profileListOfGroup');
