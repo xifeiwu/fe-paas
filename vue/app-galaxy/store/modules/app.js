@@ -1,8 +1,6 @@
 /**
  * Created by xifei.wu on 2017/12/6.
  */
-import Vue from 'vue';
-// let NetData = Vue.prototype.$net;
 import NetData from '../../net/net';
 import postFormatter from '../post_formatter';
 const USE_LOCAL_STORAGE = false;
@@ -23,14 +21,14 @@ const getValue = function({state, getters}, prop) {
     result = state[prop];
   } else if(USE_LOCAL_STORAGE) {
     warning(prop, 'localStorage');
-    let local = JSON.parse(localStorage.getItem('user/' + prop));
+    let local = JSON.parse(localStorage.getItem('app/' + prop));
     if (local) {
       result = local;
       state[prop] = local;
     }
   } else if (localProps.indexOf(prop) > -1) {
     warning(prop, 'localStorage');
-    let local = JSON.parse(localStorage.getItem('user/' + prop));
+    let local = JSON.parse(localStorage.getItem('app/' + prop));
     if (local) {
       result = local;
       state[prop] = local;
@@ -48,7 +46,7 @@ const state = {
   infoForCreateServiceToPost: {},
 
   /* net data */
-  messageForCreateAPP: {},
+  messageForCreateAPP: null,
 };
 
 const actions = {
@@ -94,14 +92,7 @@ const actions = {
 const mutations = {
   /* state data */
   SET_INFO_FOR_CREATE_APP(state, infoForCreateApp) {
-    // let result = {};
-    // for (let key in infoForCreateApp) {
-    //   result = Object.assign(result, infoForCreateApp[key]);
-    // }
     state.infoForCreateAppToPost = postFormatter.infoToCreateAPP(infoForCreateApp);
-    // if (USE_LOCAL_STORAGE) {
-    //   localStorage.setItem('app/infoForCreateAppToPost', JSON.stringify(state.infoForCreateAppToPost));
-    // }
   },
   SET_INFO_FOR_CREATE_SERVICE(state, infoForCreateService) {
     state.infoForCreateServiceToPost = postFormatter.infoToCreateAPP(infoForCreateService);
