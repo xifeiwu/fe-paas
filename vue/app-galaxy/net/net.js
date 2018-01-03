@@ -190,6 +190,7 @@ class Net {
    * 获得用户当前组的app列表
    * @param options
    * @returns {Promise}
+   * resolve only when content data is ok.
    */
   getAPPList (options) {
     let getAppModelList = function(appList) {
@@ -237,7 +238,9 @@ class Net {
             content.appModelList = getAppModelList(appList);
           }
           this.showLog('getAPPList', content);
-          resolve(content);
+          if (content) {
+            resolve(content);
+          }
         }
       }).catch(err => {
         this.showLog('getAPPList', err);
@@ -482,6 +485,7 @@ class Net {
           reject('获取服务列表信息失败');
         }
       }).catch(err => {
+        reject(err);
         console.log(err);
       })
     })

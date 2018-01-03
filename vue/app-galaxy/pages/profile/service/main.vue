@@ -717,7 +717,7 @@
                   font-weight: bold;
                 }
                 &.el-form-item--mini {
-                  margin-bottom: 0px;
+                  margin-bottom: 2px;
                 }
                 &.relativePathOfParentPOM {
                   .el-form-item__label {
@@ -1425,6 +1425,8 @@ export default {
       switch (prop) {
         case 'healthCheck':
           this.$net.serviceUpdate(prop, {
+            appId: this.selectedAppID,
+            spaceId: this.selectedProfileID,
             id: this.selected.service['id'],
             healthCheck: this.newProps[prop]
           }).then(msg => {
@@ -1510,16 +1512,15 @@ export default {
           this.showLoading = false;
         }
       }).catch(err => {
+        this.showLoading = false;
         this.$notify({
           title: '提示',
           message: err,
           duration: 0,
           onClose: function () {
-            self.showLoading = false;
           }
         });
         console.log(err);
-//        this.showLoading = false;
       })
     },
 
