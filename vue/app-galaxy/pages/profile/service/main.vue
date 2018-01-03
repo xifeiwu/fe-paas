@@ -827,7 +827,7 @@
           .add-file-location-btn {
             margin: 0px;
             width: 60px;
-            background-color: lavenderblush;
+            background-color: lightgray;
             border-radius: 0px;
             &:hover {
               font-weight: bold;

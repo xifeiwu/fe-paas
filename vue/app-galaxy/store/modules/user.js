@@ -154,6 +154,7 @@ const actions = {
    * 获取该groupID下的所有app, the case of triggering state action:
    * 1. at created of profile.vue
    * 2. at success callback of app/add.vue
+   * 3. refresh button in page app.vue
    * @param commit
    * @param state
    * @param groupID

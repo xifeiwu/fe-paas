@@ -53,7 +53,7 @@
   }
 </style>
 <script>
-  import workOrderUtils from './work-order-props';
+  import workOrderUtils from '../../utils/work-order-props';
 export default {
   created() {
   },
