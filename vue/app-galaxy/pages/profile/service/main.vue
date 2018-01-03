@@ -306,43 +306,48 @@
       </div>
     </el-dialog>
 
-    <!--<el-dialog title="更改文件存储" :visible="selected.prop == 'fileLocation'"-->
-               <!--@close="selected.prop = null"-->
-               <!--v-if="selected.service && selected.model"-->
-    <!--&gt;-->
-      <!--<el-tag type="success" disable-transitions>-->
-        <!--<i class="el-icon-warning"></i>-->
-        <!--<span>更改健康检查后需要重新【部署】才能生效！</span>-->
-      <!--</el-tag>-->
-      <!--<el-form-item label="文件存储" prop="fileLocation" class="fileLocation">-->
-        <!--<div>-->
-          <!--<el-tag-->
-                  <!--v-for="tag in newProps.fileLocation"-->
-                  <!--:key="tag"-->
-                  <!--closable-->
-                  <!--type="success"-->
-                  <!--@close="handleRemoveFileLocation(tag)"-->
-          <!--&gt;{{tag}}</el-tag>-->
-        <!--</div>-->
-        <!--<el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母数字下划线中划线，2-18位">-->
-          <!--<template slot="append"><el-button class="add-file-location-btn" @click="handleAddFileLocation(fileLocationToAdd)">添加</el-button></template>-->
-        <!--</el-input>-->
-      <!--</el-form-item>-->
-      <!--<div slot="footer" class="dialog-footer">-->
-        <!--<el-row>-->
-          <!--<el-col :span="12" style="text-align: center">-->
-            <!--<el-button type="primary"-->
-                       <!--@click="handleDialogButtonClick('fileLocation')"-->
-                       <!--:loading="waitingResponse">保&nbsp存</el-button>-->
-          <!--</el-col>-->
-          <!--<el-col :span="12" style="text-align: center">-->
-            <!--<el-button action="profile-dialog/cancel"-->
-                       <!--@click="selected.prop = null">取&nbsp消</el-button>-->
-          <!--</el-col>-->
-        <!--</el-row>-->
-      <!--</div>-->
-    <!--</el-dialog>-->
-
+    <el-dialog title="更改文件存储" :visible="selected.prop == 'fileLocation'"
+               class="fileLocation"
+               @close="selected.prop = null"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改健康检查后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" size="mini"
+               label-width="120px" ref="changeFileLocationForm">
+        <el-form-item label="当前文件存储">
+          <div>
+            <el-tag
+                    v-for="tag in newProps.fileLocation"
+                    :key="tag"
+                    closable
+                    type="success"
+                    @close="handleRemoveFileLocation(tag)"
+            >{{tag}}</el-tag>
+          </div>
+        </el-form-item>
+        <el-form-item label="文件存储" prop="fileLocation">
+          <el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母数字下划线中划线，2-18位">
+            <template slot="append"><el-button class="add-file-location-btn" @click="handleAddFileLocation(fileLocationToAdd)">添加</el-button></template>
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('fileLocation')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
 
     <el-dialog title="修改环境变量" :visible="selected.prop == 'environments'"
                @close="selected.prop = null"
@@ -754,7 +759,58 @@
         }
       }
     }
+
+    .el-dialog {
+      .el-tag {
+        display: block;
+        text-align: left;
+        .el-icon-warning {
+          vertical-align: middle;
+        }
+      }
+      .el-form-item {
+        margin-bottom: 18px;
+      }
+
+      .el-row {
+        margin-bottom: 6px;
+      }
+
+      &.environments, &.hosts {
+        .el-col {
+          text-align: center;
+        }
+      }
+    }
+
     .el-dialog__wrapper {
+      &.cpu-and-memory {
+        .el-row {
+          text-align: left;
+        }
+      }
+      &.mirror {
+        .el-row {
+          text-align: left;
+        }
+      }
+      &.fileLocation {
+        .el-dialog__body {
+          .el-tag {
+            display: inline-block;
+          }
+          .add-file-location-btn {
+            margin: 0px;
+            width: 60px;
+            background-color: lavenderblush;
+            border-radius: 0px;
+            &:hover {
+              font-weight: bold;
+              color: #409EFF;
+            }
+          }
+        }
+      }
       &.deploy {
         .el-dialog {
           background-color: black;
@@ -874,42 +930,6 @@
         }
       }
     }
-
-    .el-dialog {
-      .el-tag {
-        display: block;
-        text-align: left;
-        .el-icon-warning {
-          vertical-align: middle;
-        }
-      }
-      .el-form-item {
-        margin-bottom: 18px;
-      }
-
-      .el-row {
-        margin-bottom: 6px;
-      }
-
-      &.environments, &.hosts {
-        .el-col {
-          text-align: center;
-        }
-      }
-    }
-
-    .el-dialog__wrapper {
-      &.cpu-and-memory {
-        .el-row {
-          text-align: left;
-        }
-      }
-      &.mirror {
-        .el-row {
-          text-align: left;
-        }
-      }
-    }
   }
 </style>
 
@@ -962,6 +982,7 @@ export default {
         gitLabAddress: '',
         gitLabBranch: '',
         mavenProfileId: '',
+        fileLocation: [],
       },
       waitingResponse: false,
 
@@ -971,6 +992,7 @@ export default {
       expandRows: [],
 
       /* used for dialog */
+      fileLocationToAdd: '',
       environmentKey: '',
       environmentValue: '',
       hostKey: '',
@@ -1085,6 +1107,10 @@ export default {
           break;
       }
     },
+
+    /**
+     * set the value to show in this page
+     */
     valueToShow(value){
       let result = value;
       if ('' === value || null == value || (Array.isArray(value) && 0 == value.length)
@@ -1093,6 +1119,7 @@ export default {
       }
       return result;
     },
+
     /**
      * handle click event in the operation-column
      */
@@ -1224,7 +1251,7 @@ export default {
 //      console.log(prop);
       if (['healthCheck', 'mirror','environments', 'hosts','cpuAndMemory',
           'rollingUpdate', 'loadBalance', 'gitLabAddress', 'gitLabBranch',
-          'mavenProfileId'].indexOf(prop) == -1) {
+          'mavenProfileId', 'fileLocation'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
         return;
       }
@@ -1243,6 +1270,7 @@ export default {
           break;
         case 'environments':
         case 'hosts':
+        case 'fileLocation':
           this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
           this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate();
           break;
@@ -1296,6 +1324,7 @@ export default {
           break;
         case 'environments':
         case 'hosts':
+        case 'fileLocation':
           this.$refs[formName].validate((valid) => {
             if (!valid) {
               return;
@@ -1420,6 +1449,7 @@ export default {
           break;
         case 'environments':
         case 'hosts':
+        case 'fileLocation':
           this.selected.model[prop] = JSON.parse(JSON.stringify(this.newProps[prop]));
           this.selected.service[prop] = JSON.parse(JSON.stringify(this.newProps[prop]));
           break;
@@ -1474,6 +1504,26 @@ export default {
     },
 
     /* used for dialog */
+    handleRemoveFileLocation(tag) {
+      let items = this.newProps.fileLocation;
+      items.splice(items.indexOf(tag), 1);
+    },
+    handleAddFileLocation(tag) {
+      let tagLength = tag.length;
+      console.log(tag);
+      if (tagLength < 2 || tagLength > 18) {
+        this.$message.error('长度在2到18个字符');
+        return;
+      }
+      if (!/^\/[A-Za-z0-9_\-]+$/.exec(tag)) {
+        this.$message.error('以/开头，可以包含字母数字下划线中划线');
+        return;
+      }
+      if (tag.length > 0) {
+        this.newProps.fileLocation.push(tag);
+        this.fileLocationToAdd = '';
+      }
+    },
     handleDeleteEnvironment(index) {
       this.newProps.environments.splice(index, 1);
     },

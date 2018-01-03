@@ -55,15 +55,13 @@
         <el-input v-model="createAppForm.healthCheck" placeholder="以/开头，可以包含字母数字下划线中划线，2-50位"></el-input>
       </el-form-item>
       <el-form-item label="文件存储" prop="fileLocation" class="fileLocation">
-        <div>
           <el-tag
-                  v-for="tag in createAppForm.fileLocation"
-                  :key="tag"
-                  closable
-                  type="success"
-                  @close="handleRemoveFileLocation(tag)"
+            v-for="tag in createAppForm.fileLocation"
+            :key="tag"
+            closable
+            type="success"
+            @close="handleRemoveFileLocation(tag)"
           >{{tag}}</el-tag>
-        </div>
         <el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母数字下划线中划线，2-18位">
           <template slot="append">
             <el-button type="primary" class="add-file-location-btn" @click="handleAddFileLocation(fileLocationToAdd)">
@@ -98,6 +96,7 @@
 </style>
 <style lang="scss" scoped>
   #app-add {
+
     .el-form {
       margin: 30px auto 0px auto;
       width: 80%;

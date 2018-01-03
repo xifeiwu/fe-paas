@@ -440,7 +440,7 @@ class Net {
           gitLabAddress: it.gitLabAddress,
           gitLabBranch: it.gitLabBranch,
           mavenProfileId: it.mavenProfileId,
-          fileLocation: it.fileLocation,
+          fileLocation: it.fileLocation ? it.fileLocation : []
         })
       });
       return modelList;
