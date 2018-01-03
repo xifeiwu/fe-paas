@@ -1268,7 +1268,6 @@ export default {
      * @param prop
      */
     handleChangeProp(prop) {
-//      console.log(prop);
       if (['healthCheck', 'image','environments', 'hosts','cpuAndMemory',
           'rollingUpdate', 'loadBalance', 'gitLabAddress', 'gitLabBranch',
           'mavenProfileId', 'fileLocation'].indexOf(prop) == -1) {
@@ -1380,12 +1379,7 @@ export default {
                 message: '您没有做修改'
               });
             } else {
-              this.waitingResponse = true;
-              setTimeout(() => {
-                this.waitingResponse = false;
-                this.selected.prop = null;
-                this.updateModelInfo('image');
-              }, 1000);
+              this.requestUpdate(prop);
             }
           });
           break;
@@ -1422,37 +1416,49 @@ export default {
      */
     requestUpdate(prop) {
       this.waitingResponse = true;
+      let options = {
+        appId: this.selectedAppID,
+        spaceId: this.selectedProfileID,
+        id: this.selected.service['id'],
+      };
       switch (prop) {
         case 'healthCheck':
-          this.$net.serviceUpdate(prop, {
-            appId: this.selectedAppID,
-            spaceId: this.selectedProfileID,
-            id: this.selected.service['id'],
-            healthCheck: this.newProps[prop]
-          }).then(msg => {
-            this.waitingResponse = false;
-            this.selected.prop = null;
-            this.$message({
-              type: 'success',
-              message: msg
-            });
-            this.updateModelInfo(prop);
-          }).catch(err => {
-            this.waitingResponse = false;
-            this.selected.prop = null;
-            this.$notify.error({
-              title: '修改失败！',
-              message: err
-            });
-          });
+          let propMap = {
+            'healthCheck': 'healthCheck'
+          };
+          options[propMap[prop]] = this.newProps[prop];
+          break;
+        case 'image':
+          options['customImage'] = this.newProps['imageTypeID'];
+          options['image'] = this.newProps['imageLocation'];
           break;
         default:
-          setTimeout(() => {
-            this.waitingResponse = false;
-            this.selected.prop = null;
-            this.updateModelInfo(prop);
-          }, 1000);
           break;
+      }
+      
+      if (Object.keys(options).length > 3) {
+        this.$net.serviceUpdate(prop, options).then(msg => {
+          this.waitingResponse = false;
+          this.selected.prop = null;
+          this.$message({
+            type: 'success',
+            message: msg
+          });
+          this.updateModelInfo(prop);
+        }).catch(err => {
+          this.waitingResponse = false;
+          this.selected.prop = null;
+          this.$notify.error({
+            title: '修改失败！',
+            message: err
+          });
+        });
+      } else {
+        setTimeout(() => {
+          this.waitingResponse = false;
+          this.selected.prop = null;
+          this.updateModelInfo(prop);
+        }, 1000);
       }
     },
     /**
@@ -1481,7 +1487,7 @@ export default {
           this.selected.model['imageTypeID'] = imageTypeID;
           this.selected.model['imageLocation'] = imageLocation;
           this.selected.service.image.typeID = imageTypeID;
-          this.selected.service.image.typeName = appPropUtils.getimageNameById(imageTypeID);
+          this.selected.service.image.typeName = appPropUtils.getImageNameById(imageTypeID);
           this.selected.service.image.location = imageLocation;
           break;
         case 'cpuAndMemory':
