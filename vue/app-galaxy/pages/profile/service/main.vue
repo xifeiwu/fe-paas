@@ -133,7 +133,7 @@
                     <span style="padding-left: 12px; color: #409EFF">基础镜像地址：</span><span>{{selected.service.image.location}} </span>
                     <i class="el-icon-edit" @click="handleChangeProp('image')"></i>
                   </el-form-item>
-                  <el-form-item label="gitlab ssh地址：">
+                  <el-form-item label="gitlab地址：">
                     <span>{{valueToShow(selected.service.gitLabAddress)}}</span>
                     <i class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
                   </el-form-item>
@@ -1421,7 +1421,9 @@ export default {
       };
       switch (prop) {
         case 'healthCheck':
+        case 'gitLabAddress':
           let propMap = {
+            'healthCheck': 'healthCheck',
             'healthCheck': 'healthCheck'
           };
           options[propMap[prop]] = this.newProps[prop];

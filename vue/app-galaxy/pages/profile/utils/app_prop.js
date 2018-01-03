@@ -73,16 +73,16 @@ class AppInfoHelper {
         pattern: /^[0-9]+$/,
       }
       ],
-      // gitlab地址
-      gitlabAddress: [{
-        required: true,
-        message: '请填写gitlab地址',
-      }],
-      // gitlab分支
-      gitlabBranch: [{
-        required: true,
-        message: '请填写gitlab分支',
-      }],
+      // // gitlab地址
+      // gitlabAddress: [{
+      //   required: true,
+      //   message: '请填写gitlab地址',
+      // }],
+      // // gitlab分支
+      // gitlabBranch: [{
+      //   required: true,
+      //   message: '请填写gitlab分支',
+      // }],
       gitLabAddress: [{
         required: true,
         message: '请填写gitlab地址',
@@ -102,6 +102,11 @@ class AppInfoHelper {
 
       // 镜像方式
       imageType: [{
+        required: true,
+        message: '请选择打镜像方式',
+      }],
+      // 镜像方式
+      customImage: [{
         required: true,
         message: '请选择打镜像方式',
       }],

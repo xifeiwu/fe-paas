@@ -9,8 +9,8 @@
           <template slot="prepend">V</template>
         </el-input>
       </el-form-item>
-      <el-form-item label="镜像方式" prop="imageType">
-        <el-radio-group v-model="serviceForm.imageType" @change="handleImageTypeChange">
+      <el-form-item label="镜像方式" prop="customImage">
+        <el-radio-group v-model="serviceForm.customImage" @change="handleImageTypeChange">
           <el-radio :label="false">自动打镜像</el-radio>
           <el-radio :label="true">自定义镜像</el-radio>
         </el-radio-group>
@@ -19,11 +19,11 @@
         <el-input v-model="serviceForm.imageLocation" placeholder="输入镜像地址，包含版本"></el-input>
       </el-form-item>
 
-      <el-form-item label="Gitlab地址" prop="gitlabAddress">
-        <el-input v-model="serviceForm.gitlabAddress" placeholder="请输入项目的gitlab地址"></el-input>
+      <el-form-item label="Gitlab地址" prop="gitLabAddress">
+        <el-input v-model="serviceForm.gitLabAddress" placeholder="请输入项目的gitLab地址"></el-input>
       </el-form-item>
-      <el-form-item label="Gitlab分支" prop="gitlabBranch">
-        <el-input v-model="serviceForm.gitlabBranch" placeholder="请输入gitlab分支名"></el-input>
+      <el-form-item label="Gitlab分支" prop="gitLabBranch">
+        <el-input v-model="serviceForm.gitLabBranch" placeholder="请输入gitLab分支名"></el-input>
       </el-form-item>
 
       <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
@@ -227,10 +227,10 @@
           appId: null,
           spaceId: null,
           serviceVersion: '',
-          imageType: false,
+          customImage: false,
           imageLocation: '',
-          gitlabAddress: '',
-          gitlabBranch: '',
+          gitLabAddress: '',
+          gitLabBranch: '',
           relativePathOfParentPOM: '',
           vmOptions: '',
           cpuID: '',
@@ -390,10 +390,10 @@
        */
       initServiceForm() {
         this.serviceForm.serviceVersion = '';
-          this.serviceForm.imageType = false;
+          this.serviceForm.customImage = false;
           this.serviceForm.imageLocation = '';
-          this.serviceForm.gitlabAddress = '';
-          this.serviceForm.gitlabBranch = '';
+          this.serviceForm.gitLabAddress = '';
+          this.serviceForm.gitLabBranch = '';
           this.serviceForm.relativePathOfParentPOM = '';
           this.serviceForm.vmOptions = '';
 //          this.serviceForm.cpuID = '';
