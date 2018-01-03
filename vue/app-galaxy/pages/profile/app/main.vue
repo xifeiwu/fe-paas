@@ -1,57 +1,74 @@
 <template>
   <div id="app-main">
-    <el-row>
-      <el-col :span="6">
-        <el-button @click="handleButtonClick($event, {role:'linker', path: '/profile/app/add'})">创建应用</el-button>
-      </el-col>
-      <el-col :span="6">
-        <el-button @click="handleButtonClick($event, {role:'cmd', action: 'refreshAppList'})">刷新</el-button>
-      </el-col>
-      <el-col :span="6"></el-col>
-    </el-row>
-    <el-table :data="appListByPage" style="width: 100%">
-      <el-table-column label="语言版本" prop="languageVersion" headerAlign="center">
-        <template slot-scope="scope">
-          <div>{{scope.row.language}} - {{scope.row.languageVersion}}</div>
-        </template>
-      </el-table-column>
-      <el-table-column label="应用名称" prop="serviceName" headerAlign="center">
-      </el-table-column>
-      <el-table-column label="创建者" prop="creator" headerAlign="center">
-      </el-table-column>
-      <el-table-column label="创建时间" prop="createTime" headerAlign="center">
-      </el-table-column>
-      <el-table-column label="运行环境" prop="profileList" headerAlign="center" minWidth="90">
-        <template slot-scope="scope">
-          <div v-for="item in scope.row.profileList" :label="item.name" :key="item.name">
-            <span class="profile-item" @click="jumpToServicePage(scope.$index, scope.row, item)"
-            >{{ item.description }}</span>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" prop="operation" minWidth="170" width="200" headerAlign="center">
-        <template slot-scope="scope">
+    <div class="header">
+      <el-row class="operation">
+        <el-col :span="5">
           <el-button
-            size="mini-extral"
-            type="danger"
-            @click="handleOperationClick('deleteRow', scope.$index, scope.row)">删除</el-button>
-          <el-button
-            size="mini-extral"
-            type="warning"
-            @click="handleOperationClick('change-profiles', scope.$index, scope.row)">更改运行环境</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <div class="pagination" v-if="showPagination">
-      <el-pagination
-        :current-page="currentPage"
-        size="large"
-        layout="prev, pager, next"
-        :page-size = "pageSize"
-        :total="totalSize"
-        @current-change="handlePaginationPageChange"
-      >
-      </el-pagination>
+                  size="mini-extral"
+                  type="primary"
+                  @click="handleButtonClick('linker', {path: '/profile/app/add'})">
+            创建应用
+          </el-button>
+          <el-button v-if="true"
+                     size="mini-extral"
+                     type="primary"
+                     @click="handleButtonClick('refreshAppList')">刷新</el-button>
+        </el-col>
+        <el-col :span="10">
+          <span>&nbsp</span>
+        </el-col>
+        <el-col :span="9">
+          <span>&nbsp</span>
+        </el-col>
+      </el-row>
+    </div>
+    <div class="app-list">
+      <el-table :data="appListByPage"
+                v-loading="showLoading"
+                element-loading-text="加载中">
+        <el-table-column label="语言版本" prop="languageVersion" headerAlign="center">
+          <template slot-scope="scope">
+            <div>{{scope.row.language}} - {{scope.row.languageVersion}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="应用名称" prop="serviceName" headerAlign="center">
+        </el-table-column>
+        <el-table-column label="创建者" prop="creator" headerAlign="center">
+        </el-table-column>
+        <el-table-column label="创建时间" prop="createTime" headerAlign="center">
+        </el-table-column>
+        <el-table-column label="运行环境" prop="profileList" headerAlign="center" minWidth="90">
+          <template slot-scope="scope">
+            <div v-for="item in scope.row.profileList" :label="item.name" :key="item.name">
+              <span class="profile-item" @click="jumpToServicePage(scope.$index, scope.row, item)"
+              >{{ item.description }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" prop="operation" minWidth="170" width="200" headerAlign="center">
+          <template slot-scope="scope">
+            <el-button
+              size="mini-extral"
+              type="danger"
+              @click="handleOperationClick('deleteRow', scope.$index, scope.row)">删除</el-button>
+            <el-button
+              size="mini-extral"
+              type="warning"
+              @click="handleOperationClick('change-profiles', scope.$index, scope.row)">更改运行环境</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagination" v-if="showPagination">
+        <el-pagination
+          :current-page="currentPage"
+          size="large"
+          layout="prev, pager, next"
+          :page-size = "pageSize"
+          :total="totalSize"
+          @current-change="handlePaginationPageChange"
+        >
+        </el-pagination>
+      </div>
     </div>
 
     <el-dialog title="更改运行环境" :visible="selected.prop == 'profiles'"
@@ -89,47 +106,49 @@
   </div>
 </template>
 
-<!--<style lang="scss">-->
-  <!--.fix-form-item-label {-->
-    <!--line-height: 25px;-->
-  <!--}-->
-  <!--.fix-form-item-content {-->
-    <!--line-height: 100%;-->
-  <!--}-->
-<!--</style>-->
 <style lang="scss" scoped>
-  .container {
-    /*margin: 40px;*/
-  }
-
-  .el-table {
-    color: black;
-    .el-table__row {
-      .profile-item {
-        cursor: pointer;
-        display: inline-block;
-        border-bottom: 1px solid gray;
-        &:hover {
-          color: blue;
-          border-color: blue;
+  #app-main {
+    .header {
+      margin: 5px;
+      font-size: 14px;
+      .el-row.operation {
+        .el-col {
+          padding: 0px 6px;
+          display: inline-block;
+          text-align: center;
+          vertical-align: middle;
         }
       }
     }
-    .el-table__expanded-cel {
-      color: rgb(90, 94, 120);
-    }
-    .el-form {
-      .el-checkbox + .el-checkbox {
-        margin-left: 20px;
+    .el-table {
+      color: black;
+      .el-table__row {
+        .profile-item {
+          cursor: pointer;
+          display: inline-block;
+          border-bottom: 1px solid gray;
+          &:hover {
+            color: blue;
+            border-color: blue;
+          }
+        }
       }
-      .el-form-item {
-        margin-bottom: 6px;
+      .el-table__expanded-cel {
+        color: rgb(90, 94, 120);
       }
-    }
-    .demo-table-expand {
-      font-size: 12px;
-      .el-form-item__label {
-        vertical-align: middle;
+      .el-form {
+        .el-checkbox + .el-checkbox {
+          margin-left: 20px;
+        }
+        .el-form-item {
+          margin-bottom: 6px;
+        }
+      }
+      .demo-table-expand {
+        font-size: 12px;
+        .el-form-item__label {
+          vertical-align: middle;
+        }
       }
     }
   }
@@ -137,7 +156,6 @@
   .el-form-item__label {
     text-align: right;
   }
-
   .el-tag {
     display: block;
   }
@@ -175,6 +193,7 @@
     },
     data() {
       return {
+        showLoading: false,
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
@@ -206,33 +225,24 @@
       },
     },
     methods: {
-      handleButtonClick(evt, info) {
-        let target = evt.target;
-        let bubble = true;
-        let stepCnt = 0;
-        let maxStep = 8;
-        while(bubble) {
-          if ('BUTTON' == target.tagName.toUpperCase()) {
-            bubble = false;
-          } else {
-            target = target.parentElement;
-          }
-          stepCnt += 1;
-          if (stepCnt > maxStep) {
-            bubble = false;
-          }
-        }
-        if (!info.hasOwnProperty('role')) {
-          return;
-        }
-        if ('linker' === info.role) {
-          this.$router.push(info.path);
-        } else {
-          switch (info.action) {
-            case 'refreshAppList':
-              this.requestAPPList({});
-              break;
-          }
+      handleButtonClick(action, params) {
+        switch (action) {
+          case 'linker':
+            this.$router.push(params.path);
+            break;
+          case 'refreshAppList':
+            this.showLoading = true;
+            this.$store.dispatch('user/appInfoListOfGroup', {
+              from: 'page/app/add',
+              groupID: this.currentGroupID
+            });
+//            this.$nextTick(() => {
+//              this.showLoading = false;
+//            });
+            setTimeout(() => {
+              this.showLoading = false;
+            }, 300);
+            break;
         }
       },
 
@@ -370,7 +380,6 @@
         let start = page * this.pageSize;
         let length = this.pageSize;
         if (this.getFromStore) {
-//          console.log(this.appInfoListOfGroup);
           this.getAppInfoByPage(this.appInfoListOfGroup, {
             start: start,
             end: start + length

@@ -685,6 +685,8 @@
   }
   #service-main {
     .header {
+      margin: 5px;
+      font-size: 14px;
       .el-row.operation {
         .el-col {
           padding: 0px 6px;
@@ -872,11 +874,6 @@
 </style>
 <style lang="scss" scoped>
   #service-main {
-    .header {
-      margin: 5px;
-      font-size: 14px;
-    }
-
     .notice {
       .el-tag {
         display: block;
