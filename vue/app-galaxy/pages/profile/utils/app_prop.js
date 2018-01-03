@@ -131,7 +131,7 @@ class AppInfoHelper {
       // }],
       fileLocation: [{
         type: 'array',
-        required: true,
+        required: false,
         message: '请输入至少一个文件存储地址',
       }, {
         validator(rule, values, callback) {

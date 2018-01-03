@@ -1,7 +1,7 @@
 <template>
   <div id="app-add">
     <el-form :model="createAppForm" :rules="rules"
-             ref="createAppForm" label-width="100px" size="mini"
+             ref="createAppForm" label-width="100px" size="small"
              v-loading="showLoading"
              :element-loading-text="loadingText">
       <el-form-item label="团队">
@@ -70,13 +70,13 @@
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item label="滚动升级">
+      <el-form-item label="滚动升级" prop="rollingUpdate">
         <el-radio-group v-model="createAppForm.rollingUpdate">
           <el-radio :label="true">需要</el-radio>
           <el-radio :label="false">不需要</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="负载均衡">
+      <el-form-item label="负载均衡" prop="loadBalance">
         <el-radio-group v-model="createAppForm.loadBalance">
           <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
         </el-radio-group>
