@@ -440,6 +440,7 @@ class Net {
           gitLabAddress: it.gitLabAddress,
           gitLabBranch: it.gitLabBranch,
           mavenProfileId: it.mavenProfileId,
+          fileLocation: it.fileLocation,
         })
       });
       return modelList;
@@ -464,6 +465,8 @@ class Net {
               let cpuAndMemoryInfo = appInfoHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);
               it.cpu = cpuAndMemoryInfo[0];
               it.memory = cpuAndMemoryInfo[1];
+
+              utils.renameProperty(it, 'volumes', 'fileLocation');
 
               // ['mavenProfileId', 'healthCheck', 'loadBalance', 'relativePath'].forEach(prop => {
               //   if (it.hasOwnProperty(prop) && !it[prop]) {

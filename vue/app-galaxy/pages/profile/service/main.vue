@@ -112,16 +112,16 @@
                 <div class="title">应用信息</div>
                 <el-form label-position="right" label-width="140px" inline size="mini">
                   <el-form-item label="项目名称：">
-                    {{selected.service.tag}}
+                    {{valueToShow(selected.service.tag)}}
                   </el-form-item>
                   <el-form-item label="开发语言：">
                     {{selected.service.language + ' - ' + selected.service.languageVersion}}
                   </el-form-item>
                   <el-form-item label="构建类型：">
-                    {{selected.service.packageType}}
+                    {{valueToShow(selected.service.packageType)}}
                   </el-form-item>
                   <el-form-item label="健康检查：">
-                    {{selected.service.healthCheck}}<i class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
+                    {{valueToShow(selected.service.healthCheck)}}<i class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
                 </el-form>
               </div>
@@ -129,22 +129,22 @@
                 <div class="title">镜像信息</div>
                 <el-form label-position="right" label-width="140px" size="mini">
                   <el-form-item label="镜像方式：">
-                    {{selected.service.mirror.typeName}}
+                    {{valueToShow(selected.service.mirror.typeName)}}
                     <span style="padding: 0px 12px"> {{"基础镜像地址：" + selected.service.mirror.location}} </span>
                     <i class="el-icon-edit" @click="handleChangeProp('mirror')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab ssh地址：">
-                    <span>{{selected.service.gitLabAddress}}</span>
+                    <span>{{valueToShow(selected.service.gitLabAddress)}}</span>
                     <i class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab分支：">
-                    {{selected.service.gitLabBranch}}<i class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
+                    {{valueToShow(selected.service.gitLabBranch)}}<i class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
                   </el-form-item>
                   <el-form-item label="Gitlab父级pom.xml相对路径：" v-if="selectedAPP.isJavaLanguage" class="relativePathOfParentPOM">
-                    {{selected.service.relativePath}}
+                    {{valueToShow(selected.service.relativePath)}}
                   </el-form-item>
                   <el-form-item label="Maven profile id：" v-if="selectedAPP.isJavaLanguage">
-                    <span>{{selected.service.mavenProfileId}}</span>
+                    <span>{{valueToShow(selected.service.mavenProfileId)}}</span>
                     <i class="el-icon-edit" @click="handleChangeProp('mavenProfileId')"></i>
                   </el-form-item>
                 </el-form>
@@ -157,14 +157,14 @@
                     <i class="el-icon-edit" @click="handleChangeProp('cpuAndMemory')"></i>
                   </el-form-item>
                   <el-form-item label="实例数量：">
-                    {{selected.service.instanceNum}}
+                    {{valueToShow(selected.service.instanceNum)}}
                   </el-form-item>
                   <el-form-item label="滚动升级：">
                     {{selected.service.rollingUpdate? '需要' : '不需要'}}
                     <i class="el-icon-edit" @click="handleChangeProp('rollingUpdate')"></i>
                   </el-form-item>
                   <el-form-item label="负载均衡：">
-                    {{selected.service.loadBalance}}
+                    {{valueToShow(selected.service.loadBalance)}}
                     <i class="el-icon-edit" @click="handleChangeProp('loadBalance')"></i>
                   </el-form-item>
                   <el-form-item label="文件存储：" class="big">
@@ -174,42 +174,54 @@
                               :key="tag"
                               type="success"
                       >{{tag}}</el-tag>
-                      <i class="el-icon-edit" @click="handleChangeProp('fileLocation')"></i>
                     </div>
-                    <span v-else>无</span>
+                    <span v-else>未设置</span>
+                    <i class="el-icon-edit" @click="handleChangeProp('fileLocation')"></i>
                   </el-form-item>
                   <el-form-item label="环境变量配置：" class="big">
-                    <el-row>
-                      <el-col :span="10" style="font-weight: bold;text-align: center">Key</el-col>
-                      <el-col :span="10" style="font-weight: bold;text-align: center">Value</el-col>
-                      <el-col :span="4" style="font-weight: bold;text-align: left">
-                        <i class="el-icon-edit" @click="handleChangeProp('environments')"></i>
-                      </el-col>
-                    </el-row>
-                    <el-row
-                            v-for="(item, index) in selected.service.environments"
-                            :key="item.key"
-                    >
-                      <el-col :span="10" style="text-align: center">{{item.key}}</el-col>
-                      <el-col :span="10" style="text-align: center">{{item.value}}</el-col>
-                    </el-row>
+                    <div v-if="selected.service.environments && selected.service.environments.length > 0">
+                      <el-row>
+                        <el-col :span="10" style="font-weight: bold;text-align: center">Key</el-col>
+                        <el-col :span="10" style="font-weight: bold;text-align: center">Value</el-col>
+                        <el-col :span="4" style="font-weight: bold;text-align: left">
+                          <i class="el-icon-edit" @click="handleChangeProp('environments')"></i>
+                        </el-col>
+                      </el-row>
+                      <el-row
+                              v-for="(item, index) in selected.service.environments"
+                              :key="item.key"
+                      >
+                        <el-col :span="10" style="text-align: center">{{item.key}}</el-col>
+                        <el-col :span="10" style="text-align: center">{{item.value}}</el-col>
+                      </el-row>
+                    </div>
+                    <div v-else>
+                      <span>未设置</span>
+                      <i class="el-icon-edit" @click="handleChangeProp('environments')"></i>
+                    </div>
                   </el-form-item>
                   <el-form-item label="Host配置：" class="big">
-                    <el-row>
-                      <el-col :span="10" style="font-weight: bold; text-align: center">IP</el-col>
-                      <el-col :span="10" style="font-weight: bold; text-align: center">域名</el-col>
-                      <el-col :span="4" style="font-weight: bold;text-align: left">
-                        <i class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
-                      </el-col>
-                    </el-row>
-                    <el-row
-                            v-for="(item, index) in selected.service.hosts"
-                            :key="item.ip"
-                    >
-                      <el-col :span="10" style="text-align: center">{{item.ip}}</el-col>
-                      <el-col :span="10" style="text-align: center">{{item.domain}}</el-col>
-                      <el-col :span="4"></el-col>
-                    </el-row>
+                    <div v-if="selected.service.hosts && selected.service.hosts.length > 0">
+                      <el-row>
+                        <el-col :span="10" style="font-weight: bold; text-align: center">IP</el-col>
+                        <el-col :span="10" style="font-weight: bold; text-align: center">域名</el-col>
+                        <el-col :span="4" style="font-weight: bold;text-align: left">
+                          <i class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
+                        </el-col>
+                      </el-row>
+                      <el-row
+                              v-for="(item, index) in selected.service.hosts"
+                              :key="item.ip"
+                      >
+                        <el-col :span="10" style="text-align: center">{{item.ip}}</el-col>
+                        <el-col :span="10" style="text-align: center">{{item.domain}}</el-col>
+                        <el-col :span="4"></el-col>
+                      </el-row>
+                    </div>
+                    <div v-else>
+                      <span>未设置</span>
+                      <i class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
+                    </div>
                   </el-form-item>
                 </el-form>
               </div>
@@ -1073,6 +1085,14 @@ export default {
           break;
       }
     },
+    valueToShow(value){
+      let result = value;
+      if ('' === value || null == value || (Array.isArray(value) && 0 == value.length)
+      || ('object' === typeof(value) && Object.keys(value).length > 0)) {
+        result = '未设置';
+      }
+      return result;
+    },
     /**
      * handle click event in the operation-column
      */
@@ -1355,7 +1375,7 @@ export default {
       this.waitingResponse = true;
       switch (prop) {
         case 'healthCheck':
-          this.$net.serviceUpdate('healthCheck', {
+          this.$net.serviceUpdate(prop, {
             id: this.selected.service['id'],
             healthCheck: this.newProps[prop]
           }).then(msg => {
@@ -1365,7 +1385,7 @@ export default {
               type: 'success',
               message: msg
             });
-            this.updateModelInfo('healthCheck');
+            this.updateModelInfo(prop);
           }).catch(err => {
             this.waitingResponse = false;
             this.selected.prop = null;
