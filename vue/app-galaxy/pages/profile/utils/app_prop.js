@@ -324,24 +324,20 @@ class AppInfoHelper {
     if (null == id) {
       return name;
     }
-    id = parseInt(id);
-    switch (id) {
-      case 0:
-        name = '自动打镜像';
-        break;
-      case 1:
-        name = '自定义镜像';
-        break;
+    if (id) {
+      name = '自定义镜像';
+    } else {
+      name = '自动打镜像';
     }
     return name;
   }
 
   getImageInfo() {
     return [{
-      id: 0,
+      id: false,
       name: '自动打镜像'
     }, {
-      id: 1,
+      id: true,
       name: '自定义镜像'
     }]
   }

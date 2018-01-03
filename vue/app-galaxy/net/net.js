@@ -460,9 +460,9 @@ class Net {
               it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
 
               it.image = {
-                typeID: null == it.imageType ? null : parseInt(it.imageType),
+                typeID: null == it.customImage ? false : it.customImage,
+                typeName: appInfoHelper.getImageNameById(it.customImage),
                 location: it.image,
-                typeName: appInfoHelper.getImageNameById(it.imageType)
               };
 
               let cpuAndMemoryInfo = appInfoHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);

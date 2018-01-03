@@ -130,7 +130,7 @@
                 <el-form label-position="right" label-width="140px" size="mini">
                   <el-form-item label="镜像方式：">
                     {{valueToShow(selected.service.image.typeName)}}
-                    <span style="padding: 0px 12px"> {{"基础镜像地址：" + selected.service.image.location}} </span>
+                    <span style="padding-left: 12px; color: #409EFF">基础镜像地址：</span><span>{{selected.service.image.location}} </span>
                     <i class="el-icon-edit" @click="handleChangeProp('image')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab ssh地址：">
@@ -283,8 +283,6 @@
       <el-form :model="newProps" :rules="rules" label-width="120px" ref="formInChangeImageDialog">
         <el-form-item label="镜像方式：" prop="imageTypeID">
           <el-radio-group v-model="newProps.imageTypeID" @change="handleImageTypeChange">
-            <!--<el-radio label="0">自动打镜像</el-radio>-->
-            <!--<el-radio label="1">自定义镜像</el-radio>-->
             <el-radio v-for="item in imageInfo" :label="item.id" :key="item.id">
               {{item.name}}
             </el-radio>
