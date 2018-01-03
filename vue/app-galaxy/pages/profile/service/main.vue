@@ -167,16 +167,19 @@
                     {{valueToShow(selected.service.loadBalance)}}
                     <i class="el-icon-edit" @click="handleChangeProp('loadBalance')"></i>
                   </el-form-item>
-                  <el-form-item label="文件存储：" class="big">
-                    <div v-if="selected.service.volumes && selected.service.volumes.length > 0">
+                  <el-form-item label="文件存储：" class="big file-location">
+                    <div v-if="selected.service.fileLocation && selected.service.fileLocation.length > 0">
                       <el-tag
-                              v-for="tag in selected.service.volumes"
+                              v-for="tag in selected.service.fileLocation"
                               :key="tag"
                               type="success"
                       >{{tag}}</el-tag>
+                      <i class="el-icon-edit" @click="handleChangeProp('fileLocation')"></i>
                     </div>
-                    <span v-else>未设置</span>
-                    <i class="el-icon-edit" @click="handleChangeProp('fileLocation')"></i>
+                    <div v-else>
+                      <span>未设置</span>
+                      <i class="el-icon-edit" @click="handleChangeProp('fileLocation')"></i>
+                    </div>
                   </el-form-item>
                   <el-form-item label="环境变量配置：" class="big">
                     <div v-if="selected.service.environments && selected.service.environments.length > 0">
@@ -317,7 +320,7 @@
       </el-tag>
       <el-form :model="newProps" :rules="rules" size="mini"
                label-width="120px" ref="changeFileLocationForm">
-        <el-form-item label="当前文件存储">
+        <el-form-item label="当前文件存储" class="has-existed">
           <div>
             <el-tag
                     v-for="tag in newProps.fileLocation"
@@ -741,6 +744,7 @@
             .instance-info {
               .el-form {
                 .el-form-item {
+                  width: 50%;
                   &.big {
                     display: block;
                     width: 100%;
@@ -753,7 +757,13 @@
                       /*width: 100%;*/
                     }
                   }
-                  width: 50%;
+                  &.file-location {
+                    .el-tag {
+                      display: inline-block;
+                      line-height: 26px;
+                      height: 26px;
+                    }
+                  }
                 }
               }
             }
@@ -763,6 +773,7 @@
     }
 
     .el-dialog {
+      max-width: 80%;
       .el-tag {
         display: block;
         text-align: left;
@@ -798,8 +809,20 @@
       }
       &.fileLocation {
         .el-dialog__body {
-          .el-tag {
-            display: inline-block;
+          .el-form {
+            .el-form-item {
+              &.has-existed {
+                .el-form-item__content {
+                  text-align: left;
+                }
+              }
+            }
+            .el-tag {
+              display: inline-block;
+              line-height: 26px;
+              height: 26px;
+              border-radius: 4px;
+            }
           }
           .add-file-location-btn {
             margin: 0px;
