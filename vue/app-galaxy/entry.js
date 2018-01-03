@@ -13,8 +13,8 @@ Vue.prototype.$net = NetData;
 import router from './config/router';
 import store from './store';
 
-import '../assets/css/fix_style.scss';
 import '../packages/theme-chalk/src/index.scss';
+import '../assets/css/fix_style.scss';
 import Components from './components.js';
 
 import utils from './utils';

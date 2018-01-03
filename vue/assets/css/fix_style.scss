@@ -245,3 +245,17 @@ h4 {
 .el-alert__content {
   overflow: scroll;
 }
+
+.el-table {
+  thead {
+    tr {
+      background-color: #ecf5ff;
+    }
+  }
+  th, td {
+    padding: 10px 0px;
+    border-bottom: 1px solid #e6ebf5;
+    //border-bottom: 1px solid lightgray;
+    //border-bottom: 1px solid #409EFF;
+  }
+}
