@@ -465,11 +465,11 @@ class Net {
               it.cpu = cpuAndMemoryInfo[0];
               it.memory = cpuAndMemoryInfo[1];
 
-              ['mavenProfileId', 'healthCheck', 'loadBalance', 'relativePath'].forEach(prop => {
-                if (it.hasOwnProperty(prop) && !it[prop]) {
-                  it[prop] = '未设置';
-                }
-              })
+              // ['mavenProfileId', 'healthCheck', 'loadBalance', 'relativePath'].forEach(prop => {
+              //   if (it.hasOwnProperty(prop) && !it[prop]) {
+              //     it[prop] = '未设置';
+              //   }
+              // })
             });
             content.serviceModelList = getServiceModelList(serviceList);
           }

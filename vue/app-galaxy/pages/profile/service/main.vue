@@ -227,7 +227,7 @@
         <i class="el-icon-warning"></i>
         <span>更改健康检查后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="formInChangeHealthCheckDialog">
+      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeHealthCheckForm">
         <el-form-item label="当前健康检查：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
           {{selected.model.healthCheck}}
         </el-form-item>
@@ -341,7 +341,7 @@
         <i class="el-icon-warning"></i>
         <span>更改环境变量后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="formInChangeEnvironmentsDialog">
+      <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="changeEnvironmentsForm">
         <el-row>
           <el-col :span="10" style="font-weight: bold">Key</el-col>
           <el-col :span="10" style="font-weight: bold">Value</el-col>
@@ -395,7 +395,7 @@
         <i class="el-icon-warning"></i>
         <span>更改Host配置后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="formInChangeHostsDialog">
+      <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="changeHostsForm">
         <el-row>
           <el-col :span="10" style="font-weight: bold">IP</el-col>
           <el-col :span="10" style="font-weight: bold">域名</el-col>
@@ -448,7 +448,7 @@
       <i class="el-icon-warning"></i>
         <span>更改Gitlab_ssh后需要重新【部署】才能生效！</span>
       </el-tag>
-        <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="formInChangeGitlabAddressDialog" size="mini">
+        <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeGitLabAddressFrom" size="mini">
           <el-form-item label="当前gitlab地址：">
             {{selected.model.gitLabAddress}}
           </el-form-item>
@@ -480,7 +480,7 @@
         <i class="el-icon-warning"></i>
         <span>更改Gitlab分支后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="formInChangeGitlabBranchDialog" size="mini">
+      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeGitLabBranchForm" size="mini">
         <el-form-item label="当前gitlab分支：">
           {{selected.model.gitLabBranch}}
           </el-form-item>
@@ -512,7 +512,7 @@
         <i class="el-icon-warning"></i>
         <span>更改maven profile id后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="180px" ref="formInChangeMavenProfileIdDialog" size="mini">
+      <el-form :model="newProps" :rules="rules" labelWidth="180px" ref="changeMavenProfileIdForm" size="mini">
         <el-form-item label="当前maven profile id：">
           {{selected.model.mavenProfileId}}
           </el-form-item>
@@ -591,7 +591,7 @@
         <i class="el-icon-warning"></i>
         <span>滚动升级是为了实现业务的平滑上线而不中断。除了定时器外，建议其他应用都选用滚动升级。更改滚动升级后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="formInChangeRollingUpdateDialog">
+      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeRollingUpdateForm">
         <el-form-item label="滚动升级">
           <el-radio-group v-model="newProps.rollingUpdate">
             <el-radio :label="true">需要</el-radio>
@@ -623,7 +623,7 @@
         <!--<i class="el-icon-warning"></i>-->
         <!--<span></span>-->
       <!--</el-tag>-->
-      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="formInChangeLoadBalanceDialog">
+      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeLoadBalanceForm">
         <el-form-item label="负载均衡" prop="loadBalance">
           <el-radio-group v-model="newProps.loadBalance">
             <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
@@ -683,6 +683,7 @@
     .app-list {
       .el-table {
         .el-table__expanded-cell {
+          border-color: #409EFF;
           .row-expand {
             width: 85%;
             margin: 0px auto;
@@ -1208,21 +1209,22 @@ export default {
         return;
       }
       this.waitingResponse = false;
+      let formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
       switch (prop) {
         case 'healthCheck':
-          this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
-          this.$refs.hasOwnProperty('formInChangeHealthCheckDialog') &&
-          this.$refs['formInChangeHealthCheckDialog'].validate();
+        case 'gitLabAddress':
+        case 'gitLabBranch':
+        case 'mavenProfileId':
+        case 'rollingUpdate':
+        case 'loadBalance':
+          this.newProps[prop] = this.selected.model[prop];
+          this.$refs.hasOwnProperty(formName) &&
+          this.$refs[formName].validate();
           break;
         case 'environments':
-          this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
-          this.$refs.hasOwnProperty('formInChangeEnvironmentsDialog') &&
-          this.$refs['formInChangeEnvironmentsDialog'].validate();
-          break;
         case 'hosts':
           this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
-          this.$refs.hasOwnProperty('formInChangeHostsDialog') &&
-          this.$refs['formInChangeHostsDialog'].validate();
+          this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate();
           break;
         case 'cpuAndMemory':
           this.newProps['cpuID'] = JSON.parse(JSON.stringify(this.selected.model['cpuID']));
@@ -1237,21 +1239,6 @@ export default {
           this.$refs.hasOwnProperty('formInChangeMirrorDialog') &&
           this.$refs['formInChangeMirrorDialog'].validate();
           break;
-        case 'rollingUpdate':
-          this.newProps['rollingUpdate'] = this.selected.model['rollingUpdate'];
-          this.$refs.hasOwnProperty('formInChangeRollingUpdateDialog') &&
-          this.$refs['formInChangeRollingUpdateDialog'].validate();
-          break;
-        case 'loadBalance':
-          this.newProps['loadBalance'] = this.selected.model['loadBalance'];
-          this.$refs.hasOwnProperty('formInChangeLoadBalanceDialog') &&
-          this.$refs['formInChangeLoadBalanceDialog'].validate();
-          break;
-        case 'gitLabAddress':
-          this.newProps['gitLabAddress'] = this.selected.model['gitLabAddress'];
-          this.$refs.hasOwnProperty('formInChangeGitLabAddressDialog') &&
-          this.$refs['formInChangeGitLabAddressDialog'].validate();
-          break;
       }
       this.selected.prop = prop;
     },
@@ -1260,43 +1247,50 @@ export default {
      * do some action of ok button in popup-dialog
      * @param prop
      */
-    handleDialogButtonClick(action) {
-      switch (action) {
+    handleDialogButtonClick(prop) {
+      let formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
+      switch (prop) {
         case 'healthCheck':
-          this.$refs['formInChangeHealthCheckDialog'].validate((valid) => {
+        case 'mavenProfileId':
+        case 'gitLabAddress':
+        case 'gitLabBranch':
+        case 'rollingUpdate':
+        case 'loadBalance':
+          this.$refs[formName].validate((valid) => {
             if (!valid) {
               return;
             }
-            if (!this.newProps.hasOwnProperty(action) || !this.selected.model.hasOwnProperty(action)) {
+            if (!this.newProps.hasOwnProperty(prop) || !this.selected.model.hasOwnProperty(prop)) {
               return;
             }
-            if (this.$utils.theSame(this.newProps[action], this.selected.model[action])) {
+            if (this.newProps[prop] == this.selected.model[prop]) {
               this.selected.prop = null;
               this.$message({
                 type: 'warning',
                 message: '您没有做修改'
               });
             } else {
-              this.waitingResponse = true;
-              this.$net.serviceUpdate('healthCheck', {
-                id: this.selected.service['id'],
-                healthCheck: this.newProps[action]
-              }).then(msg => {
-                this.waitingResponse = false;
-                this.selected.prop = null;
-                this.$message({
-                  type: 'success',
-                  message: msg
-                });
-                this.updateModelInfo('healthCheck');
-              }).catch(err => {
-                this.waitingResponse = false;
-                this.selected.prop = null;
-                this.$notify.error({
-                  title: '修改失败！',
-                  message: err
-                });
-              })
+              this.requestUpdate(prop);
+            }
+          });
+          break;
+        case 'environments':
+        case 'hosts':
+          this.$refs[formName].validate((valid) => {
+            if (!valid) {
+              return;
+            }
+            if (!this.newProps.hasOwnProperty(prop) || !this.selected.model.hasOwnProperty(prop)) {
+              return;
+            }
+            if (this.$utils.theSame(this.newProps[prop], this.selected.model[prop])) {
+              this.selected.prop = null;
+              this.$message({
+                type: 'warning',
+                message: '您没有做修改'
+              });
+            } else {
+              this.requestUpdate(prop);
             }
           });
           break;
@@ -1310,7 +1304,7 @@ export default {
               return;
             }
             if ((this.newProps['mirrorTypeID'] == this.selected.model['mirrorTypeID'])
-                && (this.newProps['mirrorLocation'] == this.selected.model['mirrorLocation'])) {
+              && (this.newProps['mirrorLocation'] == this.selected.model['mirrorLocation'])) {
               this.selected.prop = null;
               this.$message({
                 type: 'warning',
@@ -1322,56 +1316,6 @@ export default {
                 this.waitingResponse = false;
                 this.selected.prop = null;
                 this.updateModelInfo('mirror');
-              }, 1000);
-            }
-          });
-          break;
-        case 'environments':
-          this.$refs['formInChangeEnvironmentsDialog'].validate((valid) => {
-            if (!valid) {
-              return;
-            }
-            if (!this.newProps.hasOwnProperty(action) || !this.selected.model.hasOwnProperty(action)) {
-              return;
-            }
-            if (this.$utils.theSame(this.newProps[action], this.selected.model[action])) {
-              this.selected.prop = null;
-              this.$message({
-                type: 'warning',
-                message: '您没有做修改'
-              });
-            } else {
-              this.waitingResponse = true;
-              setTimeout(() => {
-                this.waitingResponse = false;
-                this.selected.prop = null;
-                this.updateModelInfo('environments');
-              }, 1000);
-            }
-          });
-          break;
-        case 'hosts':
-          this.$refs['formInChangeHostsDialog'].validate((valid) => {
-            if (!valid) {
-              return;
-            }
-            if (!this.newProps.hasOwnProperty(action) || !this.selected.model.hasOwnProperty(action)) {
-              return;
-            }
-//            console.log(this.newProps.environments);
-//            console.log(this.selected.model.environments);
-            if (this.$utils.theSame(this.newProps[action], this.selected.model[action])) {
-              this.selected.prop = null;
-              this.$message({
-                type: 'warning',
-                message: '您没有做修改'
-              });
-            } else {
-              this.waitingResponse = true;
-              setTimeout(() => {
-                this.waitingResponse = false;
-                this.selected.prop = null;
-                this.updateModelInfo('hosts');
               }, 1000);
             }
           });
@@ -1402,81 +1346,41 @@ export default {
             }
           });
           break;
-        case 'rollingUpdate':
-          this.$refs['formInChangeRollingUpdateDialog'].validate((valid) => {
-            if (!valid) {
-              return;
-            }
-            if (!this.newProps.hasOwnProperty('rollingUpdate') || !this.selected.model.hasOwnProperty('rollingUpdate')) {
-              return;
-            }
-            if (this.newProps['rollingUpdate'] == this.selected.model['rollingUpdate']) {
-              this.selected.prop = null;
-              this.$message({
-                type: 'warning',
-                message: '您没有做修改'
-              });
-            } else {
-              this.waitingResponse = true;
-              setTimeout(() => {
-                this.waitingResponse = false;
-                this.selected.prop = null;
-                this.updateModelInfo('rollingUpdate');
-              }, 1000);
-            }
+      }
+    },
+    /**
+     * 网络请求，更新数据
+     */
+    requestUpdate(prop) {
+      this.waitingResponse = true;
+      switch (prop) {
+        case 'healthCheck':
+          this.$net.serviceUpdate('healthCheck', {
+            id: this.selected.service['id'],
+            healthCheck: this.newProps[prop]
+          }).then(msg => {
+            this.waitingResponse = false;
+            this.selected.prop = null;
+            this.$message({
+              type: 'success',
+              message: msg
+            });
+            this.updateModelInfo('healthCheck');
+          }).catch(err => {
+            this.waitingResponse = false;
+            this.selected.prop = null;
+            this.$notify.error({
+              title: '修改失败！',
+              message: err
+            });
           });
           break;
-        case 'loadBalance':
-          this.$refs['formInChangeLoadBalanceDialog'].validate((valid) => {
-            if (!valid) {
-              return;
-            }
-            if (!this.newProps.hasOwnProperty('loadBalance') || !this.selected.model.hasOwnProperty('loadBalance')) {
-              return;
-            }
-//            console.log(this.newProps);
-//            console.log(this.selected.model);
-            if (this.newProps['loadBalance'] == this.selected.model['loadBalance']) {
-              this.selected.prop = null;
-              this.$message({
-                type: 'warning',
-                message: '您没有做修改'
-              });
-            } else {
-              this.waitingResponse = true;
-              setTimeout(() => {
-                this.waitingResponse = false;
-                this.selected.prop = null;
-                this.updateModelInfo('loadBalance');
-              }, 1000);
-            }
-          });
-          break;
-        case 'mavenProfileId':
-          this.$refs['formInChangeMavenProfileIdDialog'].validate((valid) => {
-            if (!valid) {
-              return;
-            }
-            if (!this.newProps.hasOwnProperty(action) || !this.selected.model.hasOwnProperty(action)) {
-              return;
-            }
-//            console.log(this.newProps);
-//            console.log(this.selected.model);
-            if (this.newProps[action] == this.selected.model[action]) {
-              this.selected.prop = null;
-              this.$message({
-                type: 'warning',
-                message: '您没有做修改'
-              });
-            } else {
-              this.waitingResponse = true;
-              setTimeout(() => {
-                this.waitingResponse = false;
-                this.selected.prop = null;
-                this.updateModelInfo(action);
-              }, 1000);
-            }
-          });
+        default:
+          setTimeout(() => {
+            this.waitingResponse = false;
+            this.selected.prop = null;
+            this.updateModelInfo(prop);
+          }, 1000);
           break;
       }
     },
@@ -1486,25 +1390,18 @@ export default {
     updateModelInfo(prop) {
       switch (prop) {
         case 'healthCheck':
+        case 'rollingUpdate':
+        case 'loadBalance':
+        case 'gitLabAddress':
+        case 'gitLabBranch':
+        case 'mavenProfileId':
           this.selected.model[prop] = this.newProps[prop];
           this.selected.service[prop] = this.newProps[prop];
           break;
-        case 'cpuAndMemory':
-          let cpuID = this.newProps['cpuID'];
-          let memoryID = this.newProps['memoryID'];
-          this.selected.model['cpuID'] = cpuID;
-          this.selected.model['memoryID'] = memoryID;
-          let cpuAndMemoryInfo = appPropUtils.getCPUAndMemoryInfoByID(cpuID, memoryID);
-          this.selected.service['cpu'] = cpuAndMemoryInfo[0];
-          this.selected.service['memory'] = cpuAndMemoryInfo[1];
-          break;
         case 'environments':
-          this.selected.model['environments'] = JSON.parse(JSON.stringify(this.newProps['environments']));
-          this.selected.service['environments'] = JSON.parse(JSON.stringify(this.newProps['environments']));
-          break;
         case 'hosts':
-          this.selected.model['hosts'] = JSON.parse(JSON.stringify(this.newProps['hosts']));
-          this.selected.service['hosts'] = JSON.parse(JSON.stringify(this.newProps['hosts']));
+          this.selected.model[prop] = JSON.parse(JSON.stringify(this.newProps[prop]));
+          this.selected.service[prop] = JSON.parse(JSON.stringify(this.newProps[prop]));
           break;
         case 'mirror':
           let mirrorTypeID = this.newProps['mirrorTypeID'];
@@ -1515,15 +1412,14 @@ export default {
           this.selected.service.mirror.typeName = appPropUtils.getMirrorNameById(mirrorTypeID);
           this.selected.service.mirror.location = mirrorLocation;
           break;
-        case 'rollingUpdate':
-          let rollingUpdate = this.newProps['rollingUpdate'];
-          this.selected.model['rollingUpdate'] = rollingUpdate;
-          this.selected.service['rollingUpdate'] = rollingUpdate;
-          break;
-        case 'loadBalance':
-          let loadBalance = this.newProps['loadBalance'];
-          this.selected.model['loadBalance'] = loadBalance;
-          this.selected.service['loadBalance'] = loadBalance;
+        case 'cpuAndMemory':
+          let cpuID = this.newProps['cpuID'];
+          let memoryID = this.newProps['memoryID'];
+          this.selected.model['cpuID'] = cpuID;
+          this.selected.model['memoryID'] = memoryID;
+          let cpuAndMemoryInfo = appPropUtils.getCPUAndMemoryInfoByID(cpuID, memoryID);
+          this.selected.service['cpu'] = cpuAndMemoryInfo[0];
+          this.selected.service['memory'] = cpuAndMemoryInfo[1];
           break;
       }
     },
