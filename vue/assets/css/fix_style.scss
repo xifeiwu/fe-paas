@@ -259,3 +259,17 @@ h4 {
     //border-bottom: 1px solid #409EFF;
   }
 }
+
+.el-date-editor.custom {
+  font-size: 12px;
+  width: 230px;
+  .el-input__icon {
+    width: 22px;
+  }
+  .el-range-separator {
+    padding: 0px;
+  }
+  .el-range-input {
+    width: 36%;
+  }
+}
