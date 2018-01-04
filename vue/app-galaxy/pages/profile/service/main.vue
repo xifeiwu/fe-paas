@@ -1257,6 +1257,29 @@ export default {
             });
           });
           break;
+        case 'stop':
+          this.$confirm('您将停止服务版本：' + this.selected.service.serviceVersion + '，确定吗？').then(() => {
+            this.$net.serviceStop({
+              id: serviceID,
+              appId: this.selectedAppID,
+              spaceId: this.selectedProfileID
+            }).then(msg => {
+              this.$message({
+                type: 'success',
+                message: msg
+              });
+            }).catch(err => {
+              this.$notify({
+                title: '提示',
+                message: err,
+                duration: 0,
+                onClose: function () {
+                }
+              });
+              console.log(err);
+            });
+          });
+          break;
         case 'service_info':
           if (!row.hasOwnProperty('id')) {
             return;

@@ -543,6 +543,22 @@ class Net {
     });
   }
 
+  // stop service
+  serviceStop(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.service_stop, options).then(response => {
+        let result = this.getResponseMsg(response);
+        if (result.success) {
+          resolve(result.msg);
+        } else {
+          reject(result.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+      })
+    });
+  }
+
   serviceUpdate(prop, options) {
     let urlMap = {
       'healthCheck': URL_LIST.service_update_health,
