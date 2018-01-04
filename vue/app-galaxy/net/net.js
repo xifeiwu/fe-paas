@@ -433,8 +433,8 @@ class Net {
           healthCheck: it.healthCheck,
           environments: JSON.parse(JSON.stringify(it.environments)),
           hosts: JSON.parse(JSON.stringify(it.hosts)),
-          cpuID: it.cpu.id,
-          memoryID: it.memory.id,
+          cpuID: it.cpuInfo.id,
+          memoryID: it.memoryInfo.id,
           // image: JSON.parse(JSON.stringify(it.image))
           customImage: it.image.customImage,
           imageLocation: it.image.location,
@@ -468,8 +468,8 @@ class Net {
               // cpu and memory from server is value, such as 2.0/4096
               // so get cpu and memory info by cpuAndMemoryInfo.
               let cpuAndMemoryInfo = appInfoHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);
-              it.cpu = cpuAndMemoryInfo[0];
-              it.memory = cpuAndMemoryInfo[1];
+              it.cpuInfo = cpuAndMemoryInfo[0];
+              it.memoryInfo = cpuAndMemoryInfo[1];
 
               utils.renameProperty(it, 'volumes', 'fileLocation');
 

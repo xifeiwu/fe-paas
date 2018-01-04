@@ -253,14 +253,14 @@ class AppInfoHelper {
     // console.log(cpuAndMemorylist);
     memorySize = parseInt(memorySize);
     if (memorySize > 1024) {
-      memorySize /= 2014;
+      memorySize /= 1024;
     }
     for (let index in cpuAndMemorylist) {
       let item = cpuAndMemorylist[index];
       if (item.cpu == cpuSize) {
         model.push({
           id: item.id,
-          cpu: item.cpu
+          size: item.cpu
         });
         let memoryList = item.memoryList;
         for (let index2 in memoryList) {
@@ -268,7 +268,7 @@ class AppInfoHelper {
           if (item.memory == memorySize) {
             model.push({
               id: item.id,
-              memory: item.memory
+              size: item.memory
             });
             break;
           }
@@ -282,7 +282,8 @@ class AppInfoHelper {
       let defaultConfig = cpuAndMemorylist[0];
       model.push({
         id: defaultConfig.id,
-        cpu: defaultConfig.cpu
+        size: cpuSize
+        // size: defaultConfig.cpu
       });
       let memoryList = defaultConfig.memoryList;
       for (let index in memoryList) {
@@ -290,7 +291,8 @@ class AppInfoHelper {
         if (1 == item.defaultSelect) {
           model.push({
             id: item.id,
-            memory: item.memory
+            // size: item.memory
+            size: memorySize
           });
         }
       }

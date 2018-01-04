@@ -153,7 +153,7 @@
                 <div class="title">实例规格</div>
                 <el-form label-position="right" label-width="140px" inline size="mini">
                   <el-form-item label="CPU/内存：">
-                    {{selected.service.cpu.cpu + '核 / ' + selected.service.memory.memory + 'G'}}
+                    {{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}
                     <i class="el-icon-edit" @click="handleChangeProp('cpuAndMemory')"></i>
                   </el-form-item>
                   <el-form-item label="实例数量：">
@@ -563,7 +563,7 @@
         <span>更改实例规格后需要重新【部署】才能生效！</span>
       </el-tag>
       <el-row>
-        当前实例规格: {{selected.service.cpu.cpu + '核 / ' + selected.service.memory.memory + 'G'}}
+        当前实例规格: {{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}
       </el-row>
       <el-row>
         更改实例规格为：
