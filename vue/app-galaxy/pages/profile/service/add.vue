@@ -390,6 +390,7 @@
           this.serviceForm.vmOptions = '';
 //          this.serviceForm.cpuID = '';
 //          this.serviceForm.memoryID = '';
+          this.serviceForm.mavenProfileId = '';
           this.serviceForm.environments = [];
           this.serviceForm.hosts = [];
           this.serviceForm.instanceCount = 1;
@@ -413,7 +414,8 @@
               this.successConfirm('创建应用成功！返回服务列表？').then(() => {
                 this.$router.push('/profile/service');
               }).catch(() => {
-                this.initServiceForm();
+//                this.initServiceForm();
+                this.$refresh();
                 this.$router.push('/profile/service/add');
               });
             }).catch((err) => {

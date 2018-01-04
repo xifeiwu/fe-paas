@@ -1239,8 +1239,12 @@ export default {
               id: serviceID,
               appId: this.selectedAppID,
               spaceId: this.selectedProfileID
-            }).then(content => {
-              console.log(content);
+            }).then(msg => {
+              this.$message({
+                type: 'success',
+                message: msg
+              });
+              this.requestServiceList(this.selectedAppID, this.selectedProfileID);
             }).catch(err => {
               this.$notify({
                 title: '提示',
@@ -1297,12 +1301,9 @@ export default {
           this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate();
           break;
         case 'cpuAndMemory':
-//          this.newProps['cpuID'] = JSON.parse(JSON.stringify(this.selected.model['cpuID']));
-//          this.newProps['memoryID'] = JSON.parse(JSON.stringify(this.selected.model['memoryID']));
           this.newProps['cpuID'] = this.selected.model['cpuID'];
           this.newProps['memoryID'] = this.selected.model['memoryID'];
           this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate();
-//          let cpuAndMemoryList = this.cpuAndMemoryList;
           break;
         case 'image':
           this.newProps['customImage'] = this.selected.model['customImage'];
@@ -1518,20 +1519,28 @@ export default {
       }
     },
 
-    requestServiceList(appID, spaceID) {
-      if (!appID || !spaceID) {
-        console.log('appID or spaceID can not be empty');
+    /**
+     * request service list by appId and profileId, the place this function is called:
+     * 1. appId changed is changed in selector
+     * 2. profileId is changed in selector
+     * 3. refresh button
+     * 4. success callback of delete service
+     */
+    requestServiceList(appID, profileID) {
+      if (!appID || !profileID) {
+        console.log('appID or profileID can not be empty');
         return;
       }
       this.showLoading = true;
       this.$net.getServiceListByAppIDAndProfileID({
         appId: appID,
-        spaceId: spaceID
+        spaceId: profileID
       }).then(content => {
         if (content.hasOwnProperty('applicationServerList')) {
           this.currentServiceList = content['applicationServerList'];
           this.currentModelList = content['serviceModelList'];
           this.showLoading = false;
+          this.expandRows = [];
         }
       }).catch(err => {
         this.showLoading = false;
@@ -1543,7 +1552,7 @@ export default {
           }
         });
         console.log(err);
-      })
+      });
     },
 
     /* used for dialog */

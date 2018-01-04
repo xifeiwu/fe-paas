@@ -43,24 +43,27 @@ class Net {
    * @param data
    * @returns {{success: boolean, msg: string}}
    */
-  getMsgForUserFromData(data) {
+  getResponseMsg(response) {
     let result = {
       success: false,
-      msg: ''
+      msg: '失败'
+    };
+    if ('data' in response) {
+      let data = response.data;
+      if (0 === data.code) {
+        result.success = true;
+        result.msg = '成功！';
+      } else {
+        result.success = false;
+        result.msg = '失败！';
+      }
+      if (data.hasOwnProperty('msg') && data.msg &&(data.msg.length > 0)) {
+        result.msg = data.msg
+      } else if (data.hasOwnProperty('content')) {
+        result.msg = JSON.stringify(data.content);
+      }
     }
-    if (0 === data.code) {
-      result.success = true;
-      result.msg = '成功！';
-    } else {
-      result.success = false;
-      result.msg = '失败！';
-    }
-    if (data.hasOwnProperty('content')) {
-      result.msg = JSON.stringify(data.content);
-    } else if (data.hasOwnProperty('msg') && data.msg &&(data.msg.length > 0)) {
-      result.msg = data.msg
-    }
-    console.log(result);
+    // console.log(result);
     return result;
   }
 
@@ -358,16 +361,12 @@ class Net {
   createService(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.service_create, options).then(response => {
-        console.log(response);
-        let content = null;
-        if ('data' in response) {
-          let data = response.data;
-          let result = this.getMsgForUserFromData(data);
-          if (result.success) {
-            resolve(result.msg);
-          } else {
-            reject(result.msg);
-          }
+        // console.log(response);
+        let result = this.getResponseMsg(response);
+        if (result.success) {
+          resolve(result.msg);
+        } else {
+          reject(result.msg);
         }
       }).catch(err => {
         console.log(err);
@@ -531,10 +530,15 @@ class Net {
   serviceDelete(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.service_delete, options).then(response => {
-        console.log(response);
-        resolve(response);
+        let result = this.getResponseMsg(response);
+        if (result.success) {
+          resolve(result.msg);
+        } else {
+          reject(result.msg);
+        }
       }).catch(err => {
         console.log(err);
+        reject(JSON.stringify(err));
       })
     });
   }

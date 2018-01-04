@@ -1,6 +1,17 @@
 import Vue from 'vue';
 import APP from './app';
 
+Vue.mixin({
+  methods: {
+    $refresh: function () {
+      this.$router.go({
+        path: this.$route.path,
+        force: true
+      })
+    }
+  }
+});
+
 import URL from './net/url';
 Vue.prototype.$url = URL;
 
