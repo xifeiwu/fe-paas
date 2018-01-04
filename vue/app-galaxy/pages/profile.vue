@@ -27,8 +27,7 @@
                 @close="handleClose"
                 @select="handleAsideMenuSelect"
                 :defaultOpeneds="['app_menu']"
-                default-active="app_manager"
-                defaultActive="/profile/app">
+                :defaultActive="activeSideMenuItem">
             <!--<el-menu-item index="app_manager">-->
               <!--<i class="el-icon-location"></i>-->
               <!--<span>应用管理</span>-->
@@ -151,6 +150,7 @@
   export default {
     data() {
       return {
+        activeSideMenuItem: '/profile/app',
         crumbList: [],
         groupID: '',
       }
@@ -243,7 +243,7 @@
         }
       },
       handleAsideMenuSelect(key, keyPath) {
-        console.log(key);
+//        console.log(key);
         if (keyPath.length > 0) {
           switch (key) {
             case '/profile/app_manager':
@@ -270,8 +270,13 @@
         if (execResult && execResult.length >= 2) {
           let curPath = '/profile/';
           this.crumbList = [];
-          execResult[1].split('/').forEach(it => {
+          execResult[1].split('/').forEach((it, index) => {
             let path = curPath + it;
+            // set active aside menu item by the first url after /profile, such as:
+            // /profile/domain -> 外网域名
+            if (index === 0) {
+              this.activeSideMenuItem = path;
+            }
             if (path in this.routerPathToName) {
               this.crumbList.push(path);
             }
