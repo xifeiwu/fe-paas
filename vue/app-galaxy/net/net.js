@@ -465,6 +465,8 @@ class Net {
                 location: it.image,
               };
 
+              // cpu and memory from server is value, such as 2.0/4096
+              // so get cpu and memory info by cpuAndMemoryInfo.
               let cpuAndMemoryInfo = appInfoHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);
               it.cpu = cpuAndMemoryInfo[0];
               it.memory = cpuAndMemoryInfo[1];

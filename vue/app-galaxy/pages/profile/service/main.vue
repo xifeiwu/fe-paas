@@ -466,7 +466,7 @@
       <i class="el-icon-warning"></i>
         <span>更改Gitlab_ssh后需要重新【部署】才能生效！</span>
       </el-tag>
-        <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeGitLabAddressFrom" size="mini">
+        <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeGitLabAddressForm" size="mini">
           <el-form-item label="当前gitlab地址：">
             {{selected.model.gitLabAddress}}
           </el-form-item>
@@ -568,7 +568,7 @@
       <el-row>
         更改实例规格为：
       </el-row>
-      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="formInChangeCpuAndMemoryDialog">
+      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeCpuAndMemoryForm">
         <el-form-item label="CPU" prop="cpuID">
           <el-radio-group v-model="newProps.cpuID" size="small" @change="handleCPUChange">
             <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
@@ -1265,9 +1265,9 @@ export default {
      * @param prop
      */
     handleChangeProp(prop) {
-      if (['healthCheck', 'image','environments', 'hosts','cpuAndMemory',
-          'rollingUpdate', 'loadBalance', 'gitLabAddress', 'gitLabBranch',
-          'mavenProfileId', 'fileLocation'].indexOf(prop) == -1) {
+      if (['healthCheck', 'image','gitLabAddress', 'gitLabBranch', 'mavenProfileId',
+          'cpuAndMemory', 'rollingUpdate', 'loadBalance', 'environments', 'hosts',
+          'fileLocation'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
         return;
       }
@@ -1291,11 +1291,12 @@ export default {
           this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate();
           break;
         case 'cpuAndMemory':
-          this.newProps['cpuID'] = JSON.parse(JSON.stringify(this.selected.model['cpuID']));
-          this.newProps['memoryID'] = JSON.parse(JSON.stringify(this.selected.model['memoryID']));
-          this.$refs.hasOwnProperty('formInChangeCpuAndMemoryDialog') &&
-          this.$refs['formInChangeCpuAndMemoryDialog'].validate();
-          let cpuAndMemoryList = this.cpuAndMemoryList;
+//          this.newProps['cpuID'] = JSON.parse(JSON.stringify(this.selected.model['cpuID']));
+//          this.newProps['memoryID'] = JSON.parse(JSON.stringify(this.selected.model['memoryID']));
+          this.newProps['cpuID'] = this.selected.model['cpuID'];
+          this.newProps['memoryID'] = this.selected.model['memoryID'];
+          this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate();
+//          let cpuAndMemoryList = this.cpuAndMemoryList;
           break;
         case 'image':
           this.newProps['customImage'] = this.selected.model['customImage'];
@@ -1315,9 +1316,9 @@ export default {
       let formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
       switch (prop) {
         case 'healthCheck':
-        case 'mavenProfileId':
         case 'gitLabAddress':
         case 'gitLabBranch':
+        case 'mavenProfileId':
         case 'rollingUpdate':
         case 'loadBalance':
           this.$refs[formName].validate((valid) => {
@@ -1381,7 +1382,7 @@ export default {
           });
           break;
         case 'cpuAndMemory':
-          this.$refs['formInChangeCpuAndMemoryDialog'].validate((valid) => {
+          this.$refs[formName].validate((valid) => {
             if (!valid) {
               return;
             }
@@ -1397,12 +1398,7 @@ export default {
                 message: '您没有做修改'
               });
             } else {
-              this.waitingResponse = true;
-              setTimeout(() => {
-                this.waitingResponse = false;
-                this.selected.prop = null;
-                this.updateModelInfo('cpuAndMemory');
-              }, 1000);
+              this.requestUpdate('cpuAndMemory');
             }
           });
           break;
@@ -1421,15 +1417,25 @@ export default {
       switch (prop) {
         case 'healthCheck':
         case 'gitLabAddress':
+        case 'gitLabBranch':
+        case 'mavenProfileId':
           let propMap = {
-            'healthCheck': 'healthCheck',
-            'healthCheck': 'healthCheck'
+//            'healthCheck': 'healthCheck',
+//            'gitLabAddress': 'gitLabAddress'
           };
-          options[propMap[prop]] = this.newProps[prop];
+          let optionKey = prop;
+          if (prop in propMap) {
+            optionKey = propMap[prop];
+          }
+          options[optionKey] = this.newProps[prop];
           break;
         case 'image':
           options['customImage'] = this.newProps['customImage'];
           options['image'] = this.newProps['imageLocation'];
+          break;
+        case 'cpuAndMemory':
+          options['cpuId'] = this.newProps['cpuID'];
+          options['memoryId'] = this.newProps['memoryID'];
           break;
         default:
           break;
