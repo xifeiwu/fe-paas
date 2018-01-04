@@ -20,8 +20,8 @@ export default {
       cpuID: 'cpuId',
       memoryID: 'memoryId',
       relativePathOfParentPOM: 'relativePath',
-      gitlabAddress: 'gitLabAddress',
-      gitlabBranch: 'gitLabBranch',
+      // gitlabAddress: 'gitLabAddress',
+      // gitlabBranch: 'gitLabBranch',
     };
     let updateProp = function(item) {
       if ('object' === typeof(item)) {

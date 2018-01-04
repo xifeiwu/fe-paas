@@ -98,6 +98,7 @@ class AppInfoHelper {
       }],
       vmOptions: [{}
       ],
+      mavenProfileId: [{}],
 
 
       // 镜像方式

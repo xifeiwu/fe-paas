@@ -27,16 +27,20 @@
       </el-form-item>
 
       <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
-                    v-if="isJavaLanguage"
+                    v-if="currentApp.isJavaLanguage"
                     class="relativePathOfParentPOM"
       >
         <el-input v-model="serviceForm.relativePathOfParentPOM" placeholder=""></el-input>
       </el-form-item>
-
       <el-form-item label="VM_Options" prop="vmOptions"
-                    v-if="isJavaLanguage"
+                    v-if="currentApp.isJavaLanguage"
       >
         <el-input v-model="serviceForm.vmOptions" placeholder=""></el-input>
+      </el-form-item>
+      <el-form-item label="maven profile id" prop="mavenProfileId"
+                    v-if="currentApp.isJavaLanguage"
+      >
+        <el-input v-model="serviceForm.mavenProfileId" placeholder=""></el-input>
       </el-form-item>
 
       <el-form-item label="CPU" prop="cpuID">
@@ -205,8 +209,7 @@
         }
       }
       // get app related info at beginning
-      let appInfoListOfGroup = this.appInfoListOfGroup;
-      appInfoListOfGroup && this.getAppRelatedInfo(appInfoListOfGroup);
+      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
 
       this.rules.imageLocation.required = false;
       // set default cpu, default memorySizeList will be set in watch
@@ -233,6 +236,7 @@
           gitLabBranch: '',
           relativePathOfParentPOM: '',
           vmOptions: '',
+          mavenProfileId: '',
           cpuID: '',
           memoryID: '',
           environments: [],
@@ -243,8 +247,7 @@
         rules: AppPropUtil.rules,
 
         appIndex: null,
-        app: null,
-        isJavaLanguage: false,
+        currentApp: {},
 
         showLoading: false,
         loadingText: '',
@@ -292,9 +295,7 @@
           }
         }
       },
-      appInfoListOfGroup: function (value, oldValue) {
-        this.getAppRelatedInfo(value);
-      }
+      appInfoListOfGroup: 'onAppInfoListOfGroup',
     },
     methods: {
       /**
@@ -304,23 +305,14 @@
        *   the value of appInfoListOfGroup is needed. Getting network data first, and then update app related info.
        * 2. come form former page
        *   as appInfoListOfGroup has contained in the web app, so i can get app related info at the beginning of app,
-       *   so getAppRelatedInfo is called on created method.
+       *   so onAppInfoListOfGroup is called on created method.
        * @param value
        */
-      getAppRelatedInfo (value) {
-//        let appInfoListOfGroup = value;
-//        let appList = null;
-//        if (appInfoListOfGroup) {
-//          if (appInfoListOfGroup.hasOwnProperty('appList')) {
-//            appList = appInfoListOfGroup.appList;
-//          }
-//        }
-//        if (null != this.appIndex && appList && Array.isArray(appList) && appList.length > this.appIndex) {
-//          this.app = appList[this.appIndex];
-//          this.serviceForm.appId = this.app.appId;
-//        }
-//        this.serviceForm.appId = this.appID;
-        this.isJavaLanguage = this.app && this.app.language == 'JAVA';
+      onAppInfoListOfGroup (value) {
+        let appInfo = this.getAppInfoByID(this.serviceForm.appId);
+        if (appInfo && appInfo.hasOwnProperty('app')) {
+          this.currentApp = appInfo.app;
+        }
       },
       handleImageTypeChange(value) {
         switch (value) {
