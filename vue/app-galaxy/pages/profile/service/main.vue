@@ -15,15 +15,15 @@
              @click="handleButtonClick('refreshAppList')">刷新</el-button>
         </el-col>
         <el-col :span="10">
-          <span>应用名称：</span>
-          <el-select v-model="selectedAppID" placeholder="请选择" style="width: 80%; max-width: 300px">
+          <label style="float: left; width: 72px; line-height: 26px">应用名称：</label>
+          <el-select v-model="selectedAppID" placeholder="请选择" style="display:block; max-width: 280px; margin-left: 72px;">
             <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
           </el-select>
         </el-col>
         <el-col :span="9">
-          <span>运行环境：</span>
-          <el-select v-model="selectedProfileID" placeholder="请选择" style="width: 80%; max-width: 200px">
+          <label style="float: left; width: 72px; line-height: 26px">运行环境：</label>
+          <el-select v-model="selectedProfileID" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 72px;">
             <el-option v-for="item in selectedProfileList" :key="item.id" :label="item.description" :value="item.id">
             </el-option>
           </el-select>
@@ -690,9 +690,8 @@
       font-size: 14px;
       .el-row.operation {
         .el-col {
-          padding: 0px 6px;
+          padding: 0px 10px;
           display: inline-block;
-          text-align: center;
           vertical-align: middle;
         }
       }
