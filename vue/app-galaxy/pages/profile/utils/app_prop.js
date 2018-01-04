@@ -369,7 +369,9 @@ class AppInfoHelper {
   }
 
   getAllLoadBalance() {
-    return ['Round_robin', 'IP_hash', 'Session_sticky']
+    return ['Round_robin', 'IP_hash', 'Session_sticky'].map(it => {
+      return it.toUpperCase();
+    })
   }
 }
 

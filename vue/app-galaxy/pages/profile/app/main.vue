@@ -115,7 +115,6 @@
         .el-col {
           padding: 0px 6px;
           display: inline-block;
-          text-align: center;
           vertical-align: middle;
         }
       }

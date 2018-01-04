@@ -1,7 +1,7 @@
 <template>
   <div id="app-add">
     <el-form :model="createAppForm" :rules="rules"
-             ref="createAppForm" label-width="100px" size="small"
+             ref="createAppForm" label-width="100px"
              v-loading="showLoading"
              :element-loading-text="loadingText">
       <el-form-item label="团队">
@@ -118,13 +118,16 @@
         }
         &.fileLocation {
           .add-file-location-btn {
+            color: white;
+            background-color: #409EFF;
             margin: 0px;
             width: 60px;
-            background-color: lightgray;
+            padding: 7px 15px 8px 15px;
+            border-width: 0px;
             border-radius: 0px;
             &:hover {
+              background-color: #79bbff;
               font-weight: bold;
-              color: #409EFF;
             }
           }
         }
@@ -157,7 +160,7 @@ export default {
         healthCheck: '',
         fileLocation: [],
         rollingUpdate: true,
-        loadBalance: 'Round_robin',
+        loadBalance: appPropUtil.getAllLoadBalance()[0],
       },
       rules: appPropUtil.rules,
       language: {

@@ -607,7 +607,11 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>滚动升级是为了实现业务的平滑上线而不中断。除了定时器外，建议其他应用都选用滚动升级。更改滚动升级后需要重新【部署】才能生效！</span>
+        <span>滚动升级是为了实现业务的平滑上线而不中断。除了定时器外，建议其他应用都选用滚动升级。</span>
+      </el-tag>
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改滚动升级后需要重新【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeRollingUpdateForm">
         <el-form-item label="滚动升级">
@@ -822,13 +826,15 @@
             }
           }
           .add-file-location-btn {
+            color: white;
+            background-color: #409EFF;
             margin: 0px;
             width: 60px;
-            background-color: lightgray;
+            border-width: 0px;
             border-radius: 0px;
             &:hover {
+              background-color: #79bbff;
               font-weight: bold;
-              color: #409EFF;
             }
           }
         }
@@ -1339,9 +1345,9 @@ export default {
             }
           });
           break;
+        case 'fileLocation':
         case 'environments':
         case 'hosts':
-        case 'fileLocation':
           this.$refs[formName].validate((valid) => {
             if (!valid) {
               return;
@@ -1419,6 +1425,8 @@ export default {
         case 'gitLabAddress':
         case 'gitLabBranch':
         case 'mavenProfileId':
+        case 'rollingUpdate':
+        case 'loadBalance':
           let propMap = {
 //            'healthCheck': 'healthCheck',
 //            'gitLabAddress': 'gitLabAddress'
@@ -1436,6 +1444,9 @@ export default {
         case 'cpuAndMemory':
           options['cpuId'] = this.newProps['cpuID'];
           options['memoryId'] = this.newProps['memoryID'];
+          break;
+        case 'fileLocation':
+          options['volumes'] = this.newProps[prop];
           break;
         default:
           break;
@@ -1459,6 +1470,7 @@ export default {
           });
         });
       } else {
+        // simulate post
         setTimeout(() => {
           this.waitingResponse = false;
           this.selected.prop = null;
