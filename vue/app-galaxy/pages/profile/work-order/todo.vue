@@ -2,19 +2,11 @@
   <div id="work-order-todo">
     <div class="header">
       <el-row class="operation">
-        <el-col :span="4">&nbsp
-          <el-button
-            size="mini-extral"
-            type="primary"
-            @click="handleButtonClick('linker', {path: '/profile/work-order/todo/add'})">申请工单</el-button>
-        </el-col>
-        <el-col :span="6">
-          <label style="float: left; width: 68px; line-height: 26px; color: #409EFF">申请人：</label>
-          <el-input size="mini" style="display: block; max-width: 160px; margin-left: 68px;"></el-input>
-        </el-col>
-        <el-col :span="8" style="min-width: 310px">
-          <label style="float: left; width: 72px; line-height: 26px">申请时间：</label>
-          <el-date-picker style="display: block; max-width: 280px; margin-left: 72px;"
+        <el-col :span="20">
+          <label style="width: 68px; line-height: 26px; color: #409EFF">申请人：</label>
+          <el-input size="mini" style="display: inline-block; width: 160px;"></el-input>
+          <label style="width: 72px; line-height: 26px; color: #409EFF"">申请时间：</label>
+          <el-date-picker style="display: inline-block; width: 280px;"
               class="custom"
               v-model="dateRange"
               type="daterange"
@@ -26,12 +18,17 @@
               end-placeholder="结束日期"
               :picker-options="datePickerOptions">
           </el-date-picker>
-        </el-col>
-        <el-col :span="6" style="text-align: left">
           <el-button
             size="mini-extral"
             type="primary"
             @click="handleButtonClick('search')">搜索</el-button>
+        </el-col>
+        <el-col :span="4"
+                style="line-height: 26px">
+          <el-button
+                size="mini-extral"
+                type="primary"
+                @click="handleButtonClick('linker', {path: '/profile/work-order/todo/add'})">申请工单</el-button>
         </el-col>
       </el-row>
     </div>

@@ -9,9 +9,18 @@
 <style lang="scss" scoped>
 </style>
 
-<style lang="scss" scoped>
+<style lang="scss">
   #work-order {
-    padding: 6px 0px;
+    padding: 0px;
+    .el-tabs {
+      .el-tabs__header {
+        margin: 0px;
+        .el-tabs__item {
+          line-height: 30px;
+          height: 30px;
+        }
+      }
+    }
   }
 </style>
 <script>
