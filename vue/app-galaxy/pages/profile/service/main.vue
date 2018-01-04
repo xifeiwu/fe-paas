@@ -280,7 +280,7 @@
       <el-row>
         更改镜像方式为：
       </el-row>
-      <el-form :model="newProps" :rules="rules" label-width="120px" ref="formInChangeImageDialog">
+      <el-form :model="newProps" :rules="rules" label-width="120px" ref="changeImageForm">
         <el-form-item label="镜像方式：" prop="customImage">
           <el-radio-group v-model="newProps.customImage" @change="handleImageTypeChange">
             <el-radio v-for="item in imageInfo" :label="item.id" :key="item.id">
@@ -1307,8 +1307,8 @@ export default {
         case 'image':
           this.newProps['customImage'] = this.selected.model['customImage'];
           this.newProps['imageLocation'] = this.selected.model['imageLocation'];
-          this.$refs.hasOwnProperty('formInChangeImageDialog') &&
-          this.$refs['formInChangeImageDialog'].validate();
+          this.$refs.hasOwnProperty(formName) &&
+          this.$refs[formName].validate();
           break;
       }
       this.selected.prop = prop;
@@ -1367,7 +1367,7 @@ export default {
           });
           break;
         case 'image':
-          this.$refs['formInChangeImageDialog'].validate((valid) => {
+          this.$refs[formName].validate((valid) => {
             if (!valid) {
               return;
             }
@@ -1427,9 +1427,11 @@ export default {
         case 'mavenProfileId':
         case 'rollingUpdate':
         case 'loadBalance':
+        case 'fileLocation':
+        case 'environments':
+        case 'hosts':
           let propMap = {
-//            'healthCheck': 'healthCheck',
-//            'gitLabAddress': 'gitLabAddress'
+            'fileLocation': 'volumes',
           };
           let optionKey = prop;
           if (prop in propMap) {
@@ -1444,9 +1446,6 @@ export default {
         case 'cpuAndMemory':
           options['cpuId'] = this.newProps['cpuID'];
           options['memoryId'] = this.newProps['memoryID'];
-          break;
-        case 'fileLocation':
-          options['volumes'] = this.newProps[prop];
           break;
         default:
           break;
@@ -1554,7 +1553,7 @@ export default {
     },
     handleAddFileLocation(tag) {
       let tagLength = tag.length;
-      console.log(tag);
+//      console.log(tag);
       if (tagLength < 2 || tagLength > 18) {
         this.$message.error('长度在2到18个字符');
         return;

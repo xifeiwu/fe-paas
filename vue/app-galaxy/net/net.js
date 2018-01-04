@@ -471,7 +471,8 @@ class Net {
               it.cpuInfo = cpuAndMemoryInfo[0];
               it.memoryInfo = cpuAndMemoryInfo[1];
 
-              utils.renameProperty(it, 'volumes', 'fileLocation');
+              it.volume = it.volume.split(',').filter(it => {return it})
+              utils.renameProperty(it, 'volume', 'fileLocation');
 
               // ['mavenProfileId', 'healthCheck', 'loadBalance', 'relativePath'].forEach(prop => {
               //   if (it.hasOwnProperty(prop) && !it[prop]) {
