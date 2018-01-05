@@ -38,7 +38,7 @@
         </el-menu>
       </el-aside>
       <el-main>
-        <el-row class="main-title">
+        <el-row class="main-header" type="flex" align="middle">
           <el-col :span="12" class="current-step">
             <el-breadcrumb separator-class="el-icon-arrow-right">
               <el-breadcrumb-item v-for="item in crumbList" :key="item" :to="{path: item}">
@@ -46,7 +46,6 @@
               </el-breadcrumb-item>
             </el-breadcrumb>
           </el-col>
-
           <el-col :span="12" class="group-list">
             <el-select v-model="currentGroupID" placeholder="请选择">
               <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
@@ -121,19 +120,20 @@
       .el-main {
         padding: 0px;
         margin-left: $aside-width;
-        .main-title {
+        .el-row.main-header {
           border-bottom: 1px solid $header-background-color;
           padding: 5px;
-          .current-step {
-            margin-top: 5px;
-            padding-left: 6px;
-            line-height: 32px;
-            .el-breadcrumb {
-              font-size: 16px;
+          .el-col {
+            &:nth-child(1) {
+              padding-left: 6px;
+              .el-breadcrumb {
+                font-size: 16px;
+              }
             }
-          }
-          .group-list {
-            text-align: right;
+            &:nth-child(2) {
+              text-align: right;
+
+            }
           }
         }
         .el-scrollbar {
