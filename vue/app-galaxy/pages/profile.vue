@@ -217,7 +217,7 @@
             break;
           case 'logout':
             this.$net.logout().then(msg => {
-              localStorage.removeItem('token');
+              this.$setUserInfo('token', null);
               this.$message({
                 type: 'success',
                 message: msg,

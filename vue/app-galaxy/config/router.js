@@ -38,7 +38,8 @@ import VueRouter from 'vue-router';
 import routerUtils from '../pages/route';
 
 class RouterConfig {
-  constructor() {
+  constructor(Vue) {
+    this.Vue = Vue;
     this.componentConfig = routerUtils.componentList;
     this.allRouterPath = routerUtils.getAllRouterPath();
     // console.log(this.componentConfig);
@@ -48,6 +49,8 @@ class RouterConfig {
       base: __dirname,
       routes: routeConfig
     });
+    Vue.use(VueRouter);
+    this.routerFilter();
   }
 
   generateMiscRoutes() {
@@ -60,30 +63,13 @@ class RouterConfig {
     return configList;
   };
 
-
-  // load(pathInPages) {
-  //   return require(`../pages/${pathInPages}.vue`).default;
-  // }
-  //
-  // /* unused */
-  // load2(path) {
-  //   return function(r) {
-  //     require.ensure(
-  //       [],
-  //       function() {
-  //         r(require(path))
-  //       },
-  //       'bundle'
-  //     )
-  //   }
-  // }
-
   /**
-   * generate vueComConfig by component. deep copy
+   * generate vueComConfig by config from pages/router.js. deep copy
    * @param component, router info from pages/route.js
    * @param vueComConfig, vue router config
    */
   traverseComponent(component, vueComConfig) {
+    // property filter
     function generateItem(item) {
       let keysMap = {
         path: 'path',
@@ -120,14 +106,20 @@ class RouterConfig {
     }
   }
 
+  /**
+   * do some action before route change
+   */
   routerFilter() {
     let self = this;
-    function getParentPath(url) {
-      return url.split('/').slice(0,-1).join('/');
-    }
+    // if the url is valid
     function isValidateURL(url) {
       return self.allRouterPath.indexOf(url) > -1;
     }
+    // get parent path of the url
+    function getParentPath(url) {
+      return url.split('/').slice(0,-1).join('/');
+    }
+    // get nearest path if the url is not valid
     function getValidateURL(url) {
       let result = url;
       while(!isValidateURL(result) && '' != result) {
@@ -138,6 +130,7 @@ class RouterConfig {
       }
       return result;
     }
+
     this.vueRouter.beforeEach((to, from, next) => {
       console.log('in beforeEach');
       console.log(JSON.stringify(to.path) + ' -> ' + JSON.stringify(from.path));
@@ -147,7 +140,8 @@ class RouterConfig {
         next(getValidateURL(to.path));
       } else {
         // login check
-        let token = localStorage.getItem('token');
+        // let token = localStorage.getItem('token');
+        let token = this.Vue.prototype.$getUserInfo('token');
         if (token) {//如果有就直接到首页咯
           if (to.path == '/login') {
             next('/profile');
@@ -186,9 +180,6 @@ class RouterConfig {
 
 }
 
-Vue.use(VueRouter);
-let routerConfig = new RouterConfig();
-routerConfig.routerFilter();
+// let routerConfig = new RouterConfig();
 
-
-export default routerConfig.vueRouter;
+export default RouterConfig;

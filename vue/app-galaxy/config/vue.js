@@ -3,6 +3,9 @@
  */
 class VUEConfig {
   constructor(Vue, Store) {
+    this.setConfig(Vue, Store);
+  }
+  setConfig(Vue, Store) {
     this.addMixin(Vue);
     this.addStoreTools(Vue, Store);
   }
