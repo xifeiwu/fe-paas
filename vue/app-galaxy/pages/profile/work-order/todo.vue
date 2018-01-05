@@ -1,7 +1,7 @@
 <template>
   <div id="work-order-todo">
     <div class="header">
-      <el-row class="operation">
+      <el-row class="operation" type="flex" justify="center" align="middle">
         <el-col :span="20">
           <div class="item">
             <label style="width: 68px; line-height: 26px; color: #409EFF">申请人：</label>
@@ -47,7 +47,6 @@
       .el-row.operation {
         .el-col {
           padding: 0px 0px;
-          height: 100%;
           &:first-child {
             text-align: center;
             .item {
@@ -56,9 +55,6 @@
           }
           &:nth-child(2) {
             text-align: right;
-            .el-button {
-              vertical-align: middle;
-            }
           }
         }
       }
