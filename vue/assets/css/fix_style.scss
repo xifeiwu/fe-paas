@@ -260,16 +260,22 @@ h4 {
   }
 }
 
-.el-date-editor.custom {
-  font-size: 12px;
-  width: 230px;
-  .el-input__icon {
-    width: 22px;
+#app {
+  .el-date-editor.custom {
+    font-size: 12px;
+    width: 230px;
+    .el-input__icon {
+      width: 22px;
+    }
+    .el-range-separator {
+      padding: 0px;
+    }
+    .el-range-input {
+      width: 36%;
+    }
   }
-  .el-range-separator {
-    padding: 0px;
-  }
-  .el-range-input {
-    width: 36%;
+
+  .el-loading-mask {
+    background-color: rgba(255, 255, 255, 0.5);
   }
 }

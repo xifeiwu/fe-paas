@@ -3,28 +3,33 @@
     <div class="header">
       <el-row class="operation">
         <el-col :span="20">
-          <label style="width: 68px; line-height: 26px; color: #409EFF">申请人：</label>
-          <el-input size="mini" style="display: inline-block; width: 160px;"></el-input>
-          <label style="width: 72px; line-height: 26px; color: #409EFF"">申请时间：</label>
-          <el-date-picker style="display: inline-block; width: 280px;"
-              class="custom"
-              v-model="dateRange"
-              type="daterange"
-              size="mini"
-              align="right"
-              unlink-panels
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              :picker-options="datePickerOptions">
-          </el-date-picker>
+          <div class="item">
+            <label style="width: 68px; line-height: 26px; color: #409EFF">申请人：</label>
+            <el-input
+                    v-model="searchForm.userName"
+                    size="mini" style="display: inline-block; width: 160px;"></el-input>
+          </div>
+          <div class="item">
+            <label style="width: 72px; line-height: 26px; color: #409EFF">申请时间：</label>
+            <el-date-picker style="display: inline-block; width: 240px;"
+                class="custom"
+                v-model="searchForm.dateRange"
+                type="daterange"
+                size="mini"
+                align="right"
+                unlink-panels
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                :picker-options="datePickerOptions">
+            </el-date-picker>
+          </div>
           <el-button
             size="mini-extral"
             type="primary"
             @click="handleButtonClick('search')">搜索</el-button>
         </el-col>
-        <el-col :span="4"
-                style="line-height: 26px">
+        <el-col :span="4">
           <el-button
                 size="mini-extral"
                 type="primary"
@@ -41,7 +46,20 @@
       font-size: 14px;
       .el-row.operation {
         .el-col {
-          padding: 0px 10px;
+          padding: 0px 0px;
+          height: 100%;
+          &:first-child {
+            text-align: center;
+            .item {
+              display: inline-block;
+            }
+          }
+          &:nth-child(2) {
+            text-align: right;
+            .el-button {
+              vertical-align: middle;
+            }
+          }
         }
       }
       .el-select .el-input__inner {
@@ -54,7 +72,10 @@
   export default {
     data() {
       return {
-        dateRange: '',
+        searchForm: {
+          userName: '',
+          dateRange: '',
+        },
         datePickerOptions: {
           shortcuts: [{
             text: '最近一周',
@@ -87,6 +108,9 @@
     methods: {
       handleButtonClick(action, params) {
         switch (action) {
+          case 'search':
+            console.log(this.searchForm);
+            break;
           case 'linker':
             this.$router.push(params.path);
             break;
