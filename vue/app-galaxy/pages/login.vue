@@ -287,7 +287,7 @@
                 this.showError(response.data.msg);
               } else {
                 this.$store.dispatch('user/login', response);
-//                console.log(response);
+                console.log(response);
                 this.$router.push('/profile');
 //                this.$ajax.get(this.$url.app_test).then(response => {
 //                  console.log(response);

@@ -67,7 +67,7 @@ class Net {
     return result;
   }
 
-  login (res) {
+  login (response) {
     function updateItem(item) {
       let keyMap = {
         "应用管理": {
@@ -107,8 +107,8 @@ class Net {
       return item;
     }
     return new Promise((resolve, reject) => {
-      if ('data' in res && 'content' in res.data) {
-        let content = res.data.content;
+      if ('data' in response && 'content' in response.data) {
+        let content = response.data.content;
         let twoLevelMenu = [];
         let permission = content.permission;
         permission = permission.map(it => {
@@ -147,9 +147,8 @@ class Net {
             })
           }
         });
-
-        let results = oneLevelMenu;
-        resolve(results);
+        content.permission = oneLevelMenu;
+        resolve(content);
       }
     });
   }

@@ -40,6 +40,7 @@ class NetworkConfig {
           if ('token' in response.headers && currentToken !== response.headers['token']) {
             // window.localStorage.setItem('token', response.headers['token']);
             Vue.prototype.$setUserInfo('token', response.headers['token']);
+            currentToken = response.headers['token'];
           }
         } else if (555 === statueCode) {
           // localStorage.removeItem('token');

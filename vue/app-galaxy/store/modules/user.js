@@ -75,10 +75,26 @@ const state = {
 };
 
 const actions = {
-  login({commit, state}, res) {
+  login({commit, state, dispatch}, res) {
     warning('login', 'netwrok');
-    NetData.login(res).then((menuList) => {
-      commit('LOGIN', menuList);
+    NetData.login(res).then((content) => {
+      // commit('LOGIN', content);
+      let menuList = content.permission;
+      state.menuList = menuList;
+      localStorage.setItem('user/menuList', JSON.stringify(menuList));
+      let userInfo = content.user;
+      if (userInfo && userInfo.hasOwnProperty('username') && userInfo.username) {
+        dispatch('setInfo', {
+          keys: 'userName',
+          value: userInfo.username
+        });
+      }
+      if (userInfo && userInfo.hasOwnProperty('realName') && userInfo.realName) {
+        dispatch('setInfo', {
+          keys: 'realName',
+          value: userInfo.realName
+        });
+      }
     })
   },
 
@@ -222,10 +238,10 @@ const actions = {
 
 const mutations = {
   /* net state */
-  LOGIN(state, groupList) {
-    state.menuList = groupList;
-    localStorage.setItem('user/menuList', JSON.stringify(groupList));
-  },
+  // LOGIN(state, groupList) {
+  //   state.menuList = groupList;
+  //   localStorage.setItem('user/menuList', JSON.stringify(groupList));
+  // },
 
   SET_GROUP_LIST(state, groupList) {
     state.groupList = groupList;
