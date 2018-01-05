@@ -190,7 +190,7 @@
 </style>
 <script>
   import AppPropUtil from '../utils/app_prop';
-  import StoreHelper from '../utils/store_helper.vue';
+  import StoreHelper from '../utils/store-helper.vue';
   export default {
     mixins: [StoreHelper],
     created() {
