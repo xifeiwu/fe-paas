@@ -2,7 +2,7 @@
   <div id="app-main">
     <div class="header">
       <el-row class="operation">
-        <el-col :span="5">
+        <el-col :span="8">
           <el-button
                   size="mini-extral"
                   type="primary"
@@ -13,11 +13,12 @@
                      size="mini-extral"
                      type="primary"
                      @click="handleButtonClick('refreshAppList')">刷新</el-button>
+          <el-checkbox>我的应用</el-checkbox>
         </el-col>
         <el-col :span="10">
           <span>&nbsp</span>
         </el-col>
-        <el-col :span="9">
+        <el-col :span="6">
           <span>&nbsp</span>
         </el-col>
       </el-row>
@@ -168,7 +169,7 @@
 </style>
 <script>
   import AppPropUtils from '../utils/app_prop';
-  import StoreHelper from '../utils/store_helper.vue';
+  import StoreHelper from '../utils/store-helper.vue';
   export default {
     mixins: [StoreHelper],
     created() {
@@ -436,8 +437,8 @@
       jumpToServicePage(index, row, profile) {
         let appID = row.appId;
         let profileID = profile.id;
-        this.setConfig('profile/service/appID', appID);
-        this.setConfig('profile/service/profileID', profileID);
+        this.$setUserConfig('profile/service/appID', appID);
+        this.$setUserConfig('profile/service/profileID', profileID);
         this.$router.push('service');
       },
 

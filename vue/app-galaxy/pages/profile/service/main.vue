@@ -1051,7 +1051,7 @@ export default {
         // else selectedProfileID is the first element in profileList of selectedApp
         let defaultProfileID = this.selectedProfileList[0]['id'];
         if (null == this.selectedProfileID) {
-          let selectedProfileID = this.getConfig('profile/service/profileID');
+          let selectedProfileID = this.$getUserConfig('profile/service/profileID');
           if (selectedProfileID) {
             this.selectedProfileID = selectedProfileID;
           }
@@ -1064,7 +1064,7 @@ export default {
           }
         }
       }
-      this.setConfig('profile/service/appID', appID);
+      this.$setUserConfig('profile/service/appID', appID);
     },
     selectedProfileID: function (value, oldValue) {
       let profileID = value;
@@ -1098,7 +1098,7 @@ export default {
         if (!this.appList || (0 == this.appList.length)) {
           return;
         }
-        let appId = this.getConfig('profile/service/appID');
+        let appId = this.$getUserConfig('profile/service/appID');
         if (appId && this.getAppInfoByID(appId)) {
           this.selectedAppID = appId;
         } else {

@@ -1,42 +1,33 @@
 import Vue from 'vue';
-import APP from './app';
+import Store from './store';
+import utils from './utils';
+Vue.prototype.$utils = utils;
 
-Vue.mixin({
-  methods: {
-    $refresh: function () {
-      this.$router.go({
-        path: this.$route.path,
-        force: true
-      })
-    }
-  }
-});
-
-import URL from './net/url';
-Vue.prototype.$url = URL;
+import VueConfig from './config/vue';
+new VueConfig(Vue, Store);
 
 import NetWorkConfig from './config/network';
 Vue.prototype.$ajax = NetWorkConfig;
+import router from './config/router';
 
+
+import URL from './net/url';
+Vue.prototype.$url = URL;
 import NetData from './net/net';
 Vue.prototype.$net = NetData;
-
-import router from './config/router';
-import store from './store';
 
 import '../packages/theme-chalk/src/index.scss';
 import '../assets/css/fix_style.scss';
 import Components from './components.js';
 
-import utils from './utils';
-Vue.prototype.$utils = utils;
 
 Components.install(Vue);
 
+import APP from './app';
 window.vm = new Vue({ // eslint-disable-line
   render: h => h(APP),
-  router,
-  store
+  router: router,
+  store: Store
 }).$mount('#app');
 
 // new Vue({

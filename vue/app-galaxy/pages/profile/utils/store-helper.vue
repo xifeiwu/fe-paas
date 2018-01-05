@@ -69,45 +69,6 @@ export default {
       }
       console.log(this.appInfoListOfGroup);
     },
-    setConfig(keys, value) {
-      this.$store.dispatch('user/setConfig', {
-        keys, value
-      })
-    },
-    getConfig(keys) {
-      let config = this.$store.getters['user/config'];
-      if (!keys || 0 === keys.length) {
-        return;
-      }
-      if (!config) {
-        return;
-      }
-      let value = null;
-      let keyList = keys.split('/');
-      let lastKeyIndex = keyList.length - 1;
-      let prop = keyList[lastKeyIndex];
-      if (0 === lastKeyIndex) {
-        if (config.hasOwnProperty(prop)) {
-          value = config[prop];
-        }
-      } else {
-        let tmpValue = config;
-        let subList = keyList.slice(0, lastKeyIndex);
-        for (var index in subList) {
-          let key = keyList[index];
-          if (tmpValue.hasOwnProperty(key)) {
-            tmpValue = tmpValue[key];
-          } else {
-            tmpValue = null;
-            break;
-          }
-        }
-        if (tmpValue && tmpValue.hasOwnProperty(prop)) {
-          value = tmpValue[prop];
-        }
-      }
-      return value;
-    }
   }
 }
 </script>

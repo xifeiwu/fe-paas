@@ -59,6 +59,9 @@ const state = {
   /* net data */
   // 用户配置相关信息
   config: null,
+  // 用户相关信息
+  info: null,
+
   // 侧边栏
   menuList: null,
   // 用户所属组列表
@@ -121,6 +124,30 @@ const actions = {
       tmpValue[prop] = value;
     }
     localStorage.setItem('user/config', JSON.stringify(state.config));
+  },
+  setInfo({commit, state}, {keys, value}) {
+    if (!keys || 0 === keys.length) {
+      return;
+    }
+    if (null == state.info) {
+      state.info = {};
+    }
+    let keyList = keys.split('/');
+    let lastKeyIndex = keyList.length - 1;
+    let prop = keyList[lastKeyIndex];
+    if (0 === lastKeyIndex) {
+      state.info[prop] = value;
+    } else {
+      let tmpValue = state.info;
+      keyList.slice(0, lastKeyIndex).forEach(it => {
+        if (!tmpValue.hasOwnProperty(it)) {
+          tmpValue[it] = {};
+        }
+        tmpValue = tmpValue[it];
+      });
+      tmpValue[prop] = value;
+    }
+    localStorage.setItem('user/info', JSON.stringify(state.info));
   },
   /**
    * 更改用户组ID
@@ -223,11 +250,14 @@ const mutations = {
 }
 
 const getters = {
-  'menuList': (state, getters) => {
-    return getValue({state, getters}, 'menuList');
-  },
   'config': (state, getters) => {
     return getValue({state, getters}, 'config');
+  },
+  'info': (state, getters) => {
+    return getValue({state, getters}, 'info');
+  },
+  'menuList': (state, getters) => {
+    return getValue({state, getters}, 'menuList');
   },
   'groupID': (state, getters) => {
     let groupID = state.groupID;

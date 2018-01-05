@@ -201,8 +201,8 @@
         this.serviceForm.appId = parseInt(queryParam['appID']);
         this.serviceForm.spaceId = parseInt(queryParam['profileID']);
       } else {
-        let appId = this.getConfig('profile/service/appID');
-        let profileId = this.getConfig('profile/service/profileID');
+        let appId = this.$getUserConfig('profile/service/appID');
+        let profileId = this.$getUserConfig('profile/service/profileID');
         if (appId && profileId) {
           this.serviceForm.appId = appId;
           this.serviceForm.spaceId = profileId;
