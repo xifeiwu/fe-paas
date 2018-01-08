@@ -100,7 +100,7 @@
   export default {
     mixins: [StoreHelper],
     created() {
-      this.onUpdateAppInfoList(this.appInfoListOfGroup);
+      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
     },
     data() {
       return {
@@ -122,7 +122,7 @@
       }
     },
     watch: {
-      appInfoListOfGroup: 'onUpdateAppInfoList',
+      appInfoListOfGroup: 'onAppInfoListOfGroup',
       selectedAppID: function (value, oldValue) {
         let appID = value;
         let appInfo = this.getAppInfoByID(appID);
@@ -176,7 +176,7 @@
        * 1. refresh this.appList
        * 2. get default appId
        */
-      onUpdateAppInfoList(appInfoListOfGroup) {
+      onAppInfoListOfGroup(appInfoListOfGroup) {
         if (appInfoListOfGroup) {
           if (appInfoListOfGroup.hasOwnProperty('appList')) {
             this.appList = appInfoListOfGroup.appList;
@@ -193,6 +193,9 @@
         }
       },
 
+      /**
+       * request version list when selectedAppId or selectedProfileId is changed
+       */
       requestVersionList(appID, spaceID) {
         if (!appID || !spaceID) {
           console.log('appID or spaceID can not be empty');
@@ -229,7 +232,13 @@
           });
         });
       },
-      // 获取实例列表
+
+      /**
+       *
+       * @param appID
+       * @param spaceID
+       * @param version
+       */
       requestInstanceList(appID, spaceID, version) {
         if (!appID || !spaceID) {
           console.log('appID or spaceID can not be empty');

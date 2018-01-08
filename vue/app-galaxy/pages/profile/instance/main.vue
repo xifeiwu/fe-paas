@@ -101,7 +101,7 @@
   export default {
     mixins: [StoreHelper],
     created() {
-      this.onUpdateAppInfoList(this.appInfoListOfGroup);
+      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
     },
     data() {
       return {
@@ -123,7 +123,7 @@
       }
     },
     watch: {
-      appInfoListOfGroup: 'onUpdateAppInfoList',
+      appInfoListOfGroup: 'onAppInfoListOfGroup',
       selectedAppID: function (value, oldValue) {
         let appID = value;
         let appInfo = this.getAppInfoByID(appID);
@@ -160,7 +160,7 @@
 //      this.setConfig('profile/service/profileID', profileID);
       },
       selectedVersion: function (value, oldValue) {
-        console.log(value);
+//        console.log(value);
         if (null == value) {
           return;
         }
@@ -177,7 +177,7 @@
        * 1. refresh this.appList
        * 2. get default appId
        */
-      onUpdateAppInfoList(appInfoListOfGroup) {
+      onAppInfoListOfGroup(appInfoListOfGroup) {
         if (appInfoListOfGroup) {
           if (appInfoListOfGroup.hasOwnProperty('appList')) {
             this.appList = appInfoListOfGroup.appList;
@@ -209,6 +209,9 @@
         }
       },
 
+      /**
+       * request version list when selectedAppId or selectedProfileId is changed
+       */
       requestVersionList(appID, spaceID) {
         if (!appID || !spaceID) {
           console.log('appID or spaceID can not be empty');
@@ -245,7 +248,10 @@
           });
         });
       },
-      // 获取实例列表
+
+      /**
+       * 获取实例列表
+       */
       requestInstanceList(appID, spaceID, version) {
         if (!appID || !spaceID) {
           console.log('appID or spaceID can not be empty');
@@ -257,7 +263,7 @@
           spaceId: spaceID,
           serviceVersion: version
         }).then(content => {
-          console.log(content);
+//          console.log(content);
           if (content.hasOwnProperty('instanceList')) {
             this.currentInstanceList = content['instanceList'];
           }
