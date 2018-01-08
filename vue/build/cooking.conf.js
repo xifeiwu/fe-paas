@@ -120,9 +120,9 @@ var cookingConfig = {
   sourceMap: true,
   minimize: true,
   chunk: true, // see https://cookingjs.github.io/zh-cn/configuration.html#chunk
-  postcss: [
+  // postcss: [
     // require('...')
-  ],
+  // ],
   publicPath: './',
   // assetsPath: 'static',
   urlLoaderLimit: 10000,
