@@ -1,8 +1,8 @@
 <template>
   <div id="app-main">
     <div class="header">
-      <el-row class="operation">
-        <el-col :span="8">
+      <el-row type="flex" justify="center" align="middle">
+        <el-col :span="10">
           <el-button
                   size="mini-extral"
                   type="primary"
@@ -13,13 +13,19 @@
                      size="mini-extral"
                      type="primary"
                      @click="handleButtonClick('refreshAppList')">刷新</el-button>
-          <el-checkbox>我的应用</el-checkbox>
+        </el-col>
+        <el-col :span="4">
+          <span>&nbsp</span>
         </el-col>
         <el-col :span="10">
-          <span>&nbsp</span>
-        </el-col>
-        <el-col :span="6">
-          <span>&nbsp</span>
+          <el-checkbox v-model="filterMyApp">我的应用</el-checkbox>
+          <el-input
+                  size="mini"
+                  style="max-width: 200px"
+                  placeholder="按名称搜索应用"
+                  suffix-icon="el-icon-search"
+                  v-model="filterKey">
+          </el-input>
         </el-col>
       </el-row>
     </div>
@@ -112,11 +118,15 @@
     .header {
       margin: 5px;
       font-size: 14px;
-      .el-row.operation {
+      .el-row {
+        margin: 0px 5px;
         .el-col {
-          padding: 0px 6px;
-          display: inline-block;
-          vertical-align: middle;
+          &:nth-child(3) {
+            text-align: right;
+            .el-input {
+              margin-left: 5px;
+            }
+          }
         }
       }
     }
@@ -174,7 +184,7 @@
     mixins: [StoreHelper],
     created() {
       console.log('create app manager');
-      this.requestAPPList({});
+      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
 //      let appInfoListOfGroup = this.appInfoListOfGroup;
 //      if (appInfoListOfGroup.hasOwnProperty('appList')) {
 //        this.appList = appInfoListOfGroup.appList;
@@ -214,17 +224,23 @@
           profiles: [],
         },
         waitingResponse: false,
+
+        filterMyApp: false,
+        filterKey: '',
       }
     },
     watch: {
       currentGroupID: function (value, oldValue) {
         this.requestAPPList({});
       },
-      'appInfoListOfGroup.total': function (value, oldValue) {
-        this.getFromStore && this.requestAPPList({});
-      },
+      'appInfoListOfGroup': 'onAppInfoListOfGroup',
+      'filterMyApp': 'filterAppInfoList',
+      'filterKey': 'filterAppInfoList'
     },
     methods: {
+      onAppInfoListOfGroup(value, oldValue) {
+        this.getFromStore && this.requestAPPList({});
+      },
       handleButtonClick(action, params) {
         switch (action) {
           case 'linker':
@@ -244,6 +260,49 @@
             }, 300);
             break;
         }
+      },
+
+      /**
+       * filter appInfoList according to user action
+       */
+      filterAppInfoList(userName) {
+        let filteredAppInfo = {
+          appList: [],
+          appModelList: [],
+          total: 0
+        };
+        let myUserName = this.$getUserInfo('userName');
+        let filterReg = null;
+        if (this.filterKey) {
+          filterReg = new RegExp(this.filterKey);
+        }
+//        console.log(this.filterMyApp);
+//        console.log(this.filterKey);
+        let checkItem = function (item) {
+          let isOK = true;
+          if (!item.hasOwnProperty('userName') || !item.hasOwnProperty('serviceName')) {
+            isOK = false;
+          }
+          if (isOK && this.filterMyApp) {
+            if (item.userName !== myUserName) {
+              isOK = false;
+            }
+          }
+          if (isOK && filterReg) {
+            if (!filterReg.exec(item.serviceName)) {
+              isOK = false;
+            }
+          }
+          return isOK;
+        };
+        this.appInfoListOfGroup.appList.forEach((it, index) => {
+          if (checkItem.call(this, it)) {
+            filteredAppInfo.appList.push(it);
+            filteredAppInfo.appModelList.push(this.appInfoListOfGroup.appModelList[index]);
+          }
+        });
+        filteredAppInfo.total = filteredAppInfo.appList.length;
+        this.updateAppInfoModel(filteredAppInfo);
       },
 
       /**
@@ -366,9 +425,10 @@
       /**
        * the place of request appList:
        * 1. at beginning of this page
-       * 2. at the change of groupID
-       * 3. at the change of appInfoListOfGroup, if this.getFromStore is true
-       * 4. operation of app: delete of change profile
+       * 2. at the change of page in Pagination
+       * 3. at the change of groupID
+       * 4. at the change of appInfoListOfGroup, if this.getFromStore is true
+       * 5. operation of app: delete app. [change profile]
        * @param serviceName
        */
       requestAPPList({serviceName}) {
@@ -380,10 +440,13 @@
         let start = page * this.pageSize;
         let length = this.pageSize;
         if (this.getFromStore) {
-          this.getAppInfoByPage(this.appInfoListOfGroup, {
-            start: start,
-            end: start + length
-          });
+          let end = start + length;
+          let filteredAppInfo = {
+            'appList': this.appInfoListOfGroup.appList.slice(start, end),
+            'appModelListByPage': this.appInfoListOfGroup.appModelList.slice(start, end),
+            'total': this.appInfoListOfGroup.total
+          };
+          this.updateAppInfoModel(filteredAppInfo);
         } else {
           this.$net.getAPPList({
             groupId: this.currentGroupID,
@@ -391,7 +454,7 @@
             length: length,
             serviceName: serviceName
           }).then(content => {
-            this.getAppInfoByPage(content, false);
+            this.updateAppInfoModel(content);
           }).catch(err => {
             this.showPagination = false;
           });
@@ -402,7 +465,7 @@
        * @param appInfoList
        * @param slice, whether appList and appModelList should be sliced
        */
-      getAppInfoByPage(appInfoList, slice) {
+      updateAppInfoModel(appInfoList) {
         this.appListByPage = [];
         this.appModelListByPage = [];
         this.totalSize = 0;
@@ -410,22 +473,10 @@
           return;
         }
         if (appInfoList.hasOwnProperty('appList')) {
-          let appList = [];
-          if (slice) {
-            appList = appInfoList.appList.slice(slice.start, slice.end);
-          } else {
-            appList = appInfoList.appList;
-          }
-          this.appListByPage = appList;
+          this.appListByPage = appInfoList.appList;
         }
         if (appInfoList.hasOwnProperty('appModelList')) {
-          let appModelListByPage = [];
-          if (slice) {
-            appModelListByPage = appInfoList.appModelList.slice(slice.start, slice.end);
-          } else {
-            appModelListByPage = appInfoList.appModelList;
-          }
-          this.appModelListByPage = appModelListByPage;
+          this.appModelListByPage = appInfoList.appModelList;
         }
         if (appInfoList.hasOwnProperty('total')) {
           this.totalSize = appInfoList.total;
