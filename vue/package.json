@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "cooking watch --progress --config build/cooking.conf.js",
-    "dist": "cooking build -c build/cooking.conf.js",
+    "dist": "cd build && cooking build -c cooking.conf.js",
     "lint": "eslint src/**/* test/**/* vue/packages/**/*.{js,vue} build/**/* --quiet",
     "prd": "pm2 start bin/www",
     "test": "echo \"Error: no test specified\" && exit 1"

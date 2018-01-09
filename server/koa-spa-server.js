@@ -1,5 +1,5 @@
 const path = require('path');
-const koaServer = require('koa-spa-server');
+const koaServer = require('./koa-spa-server');
 // const L = require('nirvana-logger')('example');
 const port = process.env.PORT0 || 7002;
 
@@ -21,9 +21,14 @@ const server = new koaServer({
   port,
   proxyTable,
   fallback: true,
+  webRoot: {
+    prefix: '/',
+    root: path.join(__dirname, '../vue/dist'),
+    // root: path.join(__dirname, 'dist'),
+  },
 });
 
 // 静态目录
-server.setStatic('/', path.join(__dirname, '.'));
+// server.setStatic('/', path.join(__dirname, '.'));
 // 启动服务
 server.start();

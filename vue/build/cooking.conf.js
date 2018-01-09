@@ -26,8 +26,8 @@ var multiPageConfig = {
       "title": "Galaxy",
       "cdn": {
         "js": [
-        // '/cdn.jsdelivr.net/npm/vue@2.5.2/dist/vue.runtime.min.js',
-        //   'https://unpkg.com/vue-router/dist/vue-router.js'
+          // '/cdn.jsdelivr.net/npm/vue@2.5.2/dist/vue.runtime.min.js',
+          //   'https://unpkg.com/vue-router/dist/vue-router.js'
         ],
         "css": []
       },
@@ -94,19 +94,19 @@ var merge = function(a, b) {
 }
 var templates = function() {
   return multiPageConfig.templates.map(it => {
-      return {
-        title: it.title,
-        filename: it.name + '.html',
-        template: it.template,
-        cdn: merge(multiPageConfig.cdn, it.cdn),
-        chunks: ["vendor", "manifest"].concat(it.chunks)
-      }
-    });
+    return {
+      title: it.title,
+      filename: it.name + '.html',
+      template: it.template,
+      cdn: merge(multiPageConfig.cdn, it.cdn),
+      chunks: ["vendor", "manifest"].concat(it.chunks)
+    }
+  });
 }
 
 var cookingConfig = {
   entry: entries(),
-  dist: path.resolve(vueBaseDir, '../server/dist'),
+  dist: path.resolve(vueBaseDir, 'dist'),
   template: templates(),
 
   devServer: {
@@ -120,9 +120,9 @@ var cookingConfig = {
   sourceMap: true,
   minimize: true,
   chunk: true, // see https://cookingjs.github.io/zh-cn/configuration.html#chunk
-  // postcss: [
+  postcss: [
     // require('...')
-  // ],
+  ],
   publicPath: './',
   // assetsPath: 'static',
   urlLoaderLimit: 10000,
@@ -151,13 +151,16 @@ cooking.set(cookingConfig);
 //   loaders: ['babel-loader'],
 //   exclude: /node_modules/
 // });
-// cooking.add('loader.es6', {
-//   test: /\.es6$/,
-//   loaders: ['babel-loader']
-// })
+
+cooking.add('loader.scss', {
+  test: /\.scss$/,
+  loaders: ['style-loader', 'css-loader', 'sass-loader']
+});
+cooking.add('loader.js', {
+  test: /\.js/,
+  loaders: ['babel-loader?compact=false']
+});
 
 cookingResolve = cooking.resolve()
-// console.log(JSON.stringify(cookingResolve));
-
 
 module.exports = cookingResolve;
