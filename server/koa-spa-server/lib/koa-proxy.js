@@ -31,12 +31,12 @@ module.exports.setProxyEvent = function(event, handle) {
 module.exports.proxy = (context, options) => (ctx, next) => {
   // create a match function
   const match = route(context);
-  if (!match(ctx.req.url)) return next();
+  const matchResults = match(ctx.req.url);
+  if (!matchResults) return next();
 
   let opts = options;
   if (typeof options === 'function') {
-    const params = match(ctx.req.url);
-    opts = options.call(options, params);
+    opts = options.call(options, matchResults);
   }
 
   const {logs, pathRewrite} = opts;
@@ -45,7 +45,7 @@ module.exports.proxy = (context, options) => (ctx, next) => {
     ctx.req.oldPath = ctx.req.url;
 
     if (typeof pathRewrite === 'function') {
-      ctx.req.url = pathRewrite(ctx.req.url);
+      ctx.req.url = pathRewrite(ctx.req.url, matchResults);
     }
 
     if (logs) {

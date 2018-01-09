@@ -8,6 +8,9 @@ const proxyTable = {
     target: 'http://172.16.49.130:30333',
     changeOrigin: false,
     logs: true,
+    pathRewrite: function (url, match) {
+      return match['0'];
+    }
   },
   '/openapi': {
     target: 'http://localhost:8000',
