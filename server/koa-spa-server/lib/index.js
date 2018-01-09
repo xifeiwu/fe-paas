@@ -7,6 +7,7 @@ const koaproxy = require('./koa-proxy');
 const L = require('nirvana-logger')('spa-server');
 const _ = require('lodash');
 const nirvanaOauth = require('nirvana-oauth');
+var cors = require('koa-cors');
 // const HttpsProxyAgent = require('https-proxy-agent');
 
 const defaultOption = {
@@ -36,6 +37,7 @@ class SpaServer {
     L('配置', this.option);
 
     const app = this.app = new koa();
+    // app.use(cors());
 
     // 压缩
     if (this.option.compress) {
@@ -46,6 +48,16 @@ class SpaServer {
     if (this.option.proxyTable) {
       // 设置代理
       setProxy(app, option.proxyTable);
+      koaproxy.setProxyEvent('proxyReq', (proxyReq, req, res) => {
+        // console.log(proxyReq);
+        // console.log(req.headers);
+        // console.log(res.headers);
+      });
+      koaproxy.setProxyEvent('proxyRes', (proxyRes, req, res) => {
+        // console.log(proxyRes.headers);
+        // console.log(req.headers);
+        // console.log(res.headers);
+      });
     }
 
     if (this.option.oAuth) {

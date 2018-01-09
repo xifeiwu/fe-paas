@@ -4,8 +4,8 @@ const koaServer = require('./koa-spa-server');
 const port = process.env.PORT0 || 7002;
 
 const proxyTable = {
-  '/api': {
-    target: 'http://localhost:8000',
+  '/api/(.*)': {
+    target: 'http://172.16.49.130:30333',
     changeOrigin: false,
     logs: true,
   },
