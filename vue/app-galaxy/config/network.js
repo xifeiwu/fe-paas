@@ -10,7 +10,7 @@ class NetworkConfig {
   }
 
   setConfig(Vue) {
-    Axios.defaults.withCredentials = true;
+    // Axios.defaults.withCredentials = true;
     // Axios.defaults.timeout = 5000;
 
     let currentToken = Vue.prototype.$getUserInfo('token');

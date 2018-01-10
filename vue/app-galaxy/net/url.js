@@ -3,8 +3,9 @@
  */
 var path = 'http://galaxy-web-server.galaxy.test';
 // var path = 'http://172.31.165.126:30333';
-var path = 'http://172.16.106.191:30333';
-var path = 'http://172.16.49.130:30333';
+// var path = 'http://172.16.106.191:30333';
+// var path = 'http://172.16.106.191:30333';
+var path = 'http://172.16.100.125:7002/api';
 var urlList = {
   // 获取验证码
   'get_verify_code': path + '/createRandomImage',

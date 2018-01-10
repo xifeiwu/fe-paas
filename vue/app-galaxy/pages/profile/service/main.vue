@@ -1489,7 +1489,10 @@ export default {
           this.selected.prop = null;
           this.$notify.error({
             title: '修改失败！',
-            message: err
+            message: err,
+            duration: 0,
+            onClose: function () {
+            }
           });
         });
       } else {
