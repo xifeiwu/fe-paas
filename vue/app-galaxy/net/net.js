@@ -641,6 +641,31 @@ class Net {
       })
     })
   }
+
+  /**
+   * 获取待办工单列表
+   */
+  getWorkOrderToDoList(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.work_order_todo_list, options).then(response => {
+        console.log(response);
+      }).catch(err => {
+        console.log(err);
+      })
+    })
+  }
+  /**
+   * 获取工单列表
+   */
+  getWorkOrderList(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.work_order_list, options).then(response => {
+        console.log(response);
+      }).catch(err => {
+        console.log(err);
+      })
+    })
+  }
 }
 
 export default new Net();

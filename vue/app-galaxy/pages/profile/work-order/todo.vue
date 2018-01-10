@@ -105,7 +105,28 @@
       handleButtonClick(action, params) {
         switch (action) {
           case 'search':
-            console.log(this.searchForm);
+            let options = {
+              creatorName: '',
+              startTime: '',
+              endTime: ''
+            };
+            if (this.searchForm.userName) {
+              options.creatorName = this.searchForm.userName;
+            } else {
+              options.creatorName = '';
+            }
+            if (this.searchForm.dateRange) {
+              let dateRange = this.searchForm.dateRange.map(it => {
+                let v = this.$utils.formatDate(it, 'yyyy-MM-dd hh:mm:ss')
+                return v;
+              });
+              options.startTime = dateRange[0];
+              options.endTime = dateRange[1];
+            } else {
+              options.startTime = '';
+              options.endTime = '';
+            }
+            this.$net.getWorkOrderToDoList(options);
             break;
           case 'linker':
             this.$router.push(params.path);
