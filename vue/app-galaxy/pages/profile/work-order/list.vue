@@ -43,7 +43,7 @@
       </el-row>
     </div>
     <div class="work-order-list">
-      <el-table :data="workOrderList"
+      <el-table :data="workOrderListByPage"
                 v-loading="showLoading"
                 element-loading-text="加载中">
         <el-table-column label="审批工单名称" prop="name" headerAlign="center">
@@ -69,6 +69,17 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination" v-if="showPagination">
+        <el-pagination
+                :current-page="currentPage"
+                size="large"
+                layout="prev, pager, next"
+                :page-size = "pageSize"
+                :total="totalSize"
+                @current-change="handlePaginationPageChange"
+        >
+        </el-pagination>
+      </div>
     </div>
   </div>
 </template>
@@ -113,11 +124,20 @@
         height: 26px;
       }
     }
+    .pagination {
+      position: fixed;
+      left: 280px;
+      bottom: 0px;
+    }
   }
 </style>
 
 <script>
   export default {
+    created() {
+//      let pagination = document.querySelector('.pagination');
+//      console.log(pagination);
+    },
     data() {
       return {
         searchForm: {
@@ -129,6 +149,11 @@
 
         showLoading: false,
         workOrderList: [],
+
+        showPagination: true,
+        totalSize: 0,
+        pageSize: 20,
+        currentPage: 1,
 
         statusList: [{
           id: 'WORKORDER_APPLY',
@@ -198,6 +223,17 @@
         },
       }
     },
+    computed: {
+      workOrderListByPage() {
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        let start = page * this.pageSize;
+        let length = this.pageSize;
+        let end = start + length;
+        let result = this.workOrderList.slice(start, end);
+        return result
+      },
+    },
     methods: {
       handleButtonClick(action, params) {
         switch (action) {
@@ -234,12 +270,18 @@
               options.startTime = '';
               options.endTime = '';
             }
+            this.showLoading = true;
             this.$net.getWorkOrderList(options).then(content => {
-//              console.log(content.workOrderDeployList);
+//              console.log(content);
               if (content.hasOwnProperty('workOrderDeployList')) {
                 this.workOrderList = content.workOrderDeployList;
               }
-            })
+              this.totalSize = content.total;
+
+              this.showLoading = false;
+            }).catch(err => {
+              this.showLoading = false;
+            });
             break;
           case 'linker':
             this.$router.push(params.path);
@@ -255,6 +297,9 @@
             console.log('deploy-log');
             break;
         }
+      },
+      handlePaginationPageChange(page) {
+        this.currentPage = page;
       }
     }
   }

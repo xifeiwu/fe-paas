@@ -210,6 +210,7 @@
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
+
         appList: [],
         appListByPage: [],
         appModelList: [],
