@@ -39,6 +39,15 @@ class SpaServer {
     const app = this.app = new koa();
     // app.use(cors());
 
+    // app.use(function (ctx, next) {
+    //   const start = Date.now();
+    //   console.log(start);
+    //   next();
+    //   const ms = Date.now() - start;
+    //   console.log('X-Response-Time', `${ms}ms`);
+    //   ctx.set('X-Response-Time', `${ms}ms`);
+    // });
+
     // 压缩
     if (this.option.compress) {
       app.use(compress(this.option.compress));
@@ -55,11 +64,24 @@ class SpaServer {
       });
       koaproxy.setProxyEvent('proxyRes', (proxyRes, req, res) => {
         // console.log(proxyRes.headers);
+        proxyRes.headers['access-control-allow-origin'] = '*'
+        delete proxyRes.headers['access-control-allow-credentials'];
         // console.log(req.headers);
-        // console.log(res.headers);
+        // console.log(res);
+        proxyRes.on('data', function (chunk) {
+          //
+          // This is the data from the target server, but modifying
+          // it will not affect the outgoing `res`.
+          //
+          // console.log('data', chunk.toString());
+        });
+        proxyRes.on('finish', function (chunk) {
+          // console.log('finish', chunk.toString());
+        });
       });
     }
 
+    this.option.oAuth = false;
     if (this.option.oAuth) {
       nirvanaOauth.getBearerToken(this.option.oAuth).then((bearerToken) => {
         koaproxy.setProxyEvent('proxyReq', (proxyReq) => {
@@ -69,6 +91,7 @@ class SpaServer {
     }
 
     // url重写
+    this.option.fallback = false;
     if (this.option.fallback) {
       this.app.use(rewrite({verbose: false}));
     }
