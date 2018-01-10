@@ -53,9 +53,13 @@
         element-loading-text="加载中"
       >
         <el-table-column
-          prop="serviceVersion"
-          label="版本"
-          width="80">
+          label="服务版本"
+          width="100">
+          <template slot-scope="scope">
+            <el-radio :label="scope.row.serviceVersion"
+                      :value="defaultVersion"
+                      @input="changeDefaultVersion">{{scope.row.serviceVersion}}</el-radio>
+          </template>
         </el-table-column>
         <el-table-column
           prop="intranetDomain"
@@ -984,8 +988,9 @@
   import StoreHelper from '../utils/store-helper.vue';
   import ElRow from "../../../../packages/row/src/row";
   import ElCol from "../../../../packages/col/src/col";
+  import ElRadio from "../../../../packages/radio/src/radio";
 export default {
-  components: {ElCol, ElRow}, mixins: [StoreHelper],
+  components: {ElRadio, ElCol, ElRow}, mixins: [StoreHelper],
   created() {
     this.onUpdateAppInfoList(this.appInfoListOfGroup);
     this.onCpuAndMemoryList(this.cpuAndMemoryList);
@@ -1009,6 +1014,7 @@ export default {
       currentModelList: [],
       intranetDomain: '',
 
+      defaultVersion: '',
       selected: {
         index: -1,
         // which property to change
@@ -1155,6 +1161,10 @@ export default {
           this.requestServiceList(this.selectedAppID, this.selectedProfileID);
           break;
       }
+    },
+    changeDefaultVersion(value) {
+      this.defaultVersion = value;
+      console.log(value);
     },
 
     /**
@@ -1593,6 +1603,23 @@ export default {
           this.currentModelList = content['serviceModelList'];
           this.showLoading = false;
           this.expandRows = [];
+
+          // get default version
+          this.defaultVersion = '';
+          this.currentServiceList.some(it => {
+            if (it.defaultVersion) {
+              this.defaultVersion = it.serviceVersion;
+              return true;
+            } else {
+              return false;
+            }
+          })
+          if (!this.defaultVersion) {
+            this.$message({
+              type: 'warning',
+              message: '未找到默认版本'
+            })
+          }
         }
         this.intranetDomain = content.hasOwnProperty('intranetDomain') ? content.intranetDomain : '未知';
       }).catch(err => {
