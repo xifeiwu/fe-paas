@@ -14,11 +14,14 @@
                      type="primary"
                      @click="handleButtonClick('refreshAppList')">刷新</el-button>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="1">
           <span>&nbsp</span>
         </el-col>
-        <el-col :span="10">
-          <el-checkbox v-model="filterMyApp">我的应用</el-checkbox>
+        <el-col :span="13">
+          <el-checkbox v-model="filterMyApp">
+            <span>我的应用</span>
+            <span v-if="myAppCount">(共{{myAppCount}}个)</span>
+          </el-checkbox>
           <el-input
                   size="mini"
                   style="max-width: 200px"
@@ -227,6 +230,7 @@
 
         filterMyApp: false,
         filterKey: '',
+        myAppCount: 0,
       }
     },
     watch: {
@@ -234,12 +238,28 @@
         this.requestAPPList({});
       },
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
-      'filterMyApp': 'filterAppInfoList',
-      'filterKey': 'filterAppInfoList'
+      'filterMyApp': 'requestAPPList',
+      'filterKey': 'requestAPPList'
+    },
+    computed: {
+      needFilter() {
+        return this.filterMyApp || (this.filterKey > 0);
+      }
     },
     methods: {
       onAppInfoListOfGroup(value, oldValue) {
         this.getFromStore && this.requestAPPList({});
+
+        let count = 0;
+        let myUserName = this.$getUserInfo('userName');
+        if (value && value.hasOwnProperty('appList') && Array.isArray(value.appList)) {
+          value.appList.forEach(it => {
+            if (it.userName == myUserName) {
+              count += 1;
+            }
+          })
+          this.myAppCount = count;
+        }
       },
       handleButtonClick(action, params) {
         switch (action) {
@@ -260,49 +280,6 @@
             }, 300);
             break;
         }
-      },
-
-      /**
-       * filter appInfoList according to user action
-       */
-      filterAppInfoList(userName) {
-        let filteredAppInfo = {
-          appList: [],
-          appModelList: [],
-          total: 0
-        };
-        let myUserName = this.$getUserInfo('userName');
-        let filterReg = null;
-        if (this.filterKey) {
-          filterReg = new RegExp(this.filterKey);
-        }
-//        console.log(this.filterMyApp);
-//        console.log(this.filterKey);
-        let checkItem = function (item) {
-          let isOK = true;
-          if (!item.hasOwnProperty('userName') || !item.hasOwnProperty('serviceName')) {
-            isOK = false;
-          }
-          if (isOK && this.filterMyApp) {
-            if (item.userName !== myUserName) {
-              isOK = false;
-            }
-          }
-          if (isOK && filterReg) {
-            if (!filterReg.exec(item.serviceName)) {
-              isOK = false;
-            }
-          }
-          return isOK;
-        };
-        this.appInfoListOfGroup.appList.forEach((it, index) => {
-          if (checkItem.call(this, it)) {
-            filteredAppInfo.appList.push(it);
-            filteredAppInfo.appModelList.push(this.appInfoListOfGroup.appModelList[index]);
-          }
-        });
-        filteredAppInfo.total = filteredAppInfo.appList.length;
-        this.updateAppInfoModel(filteredAppInfo);
       },
 
       /**
@@ -423,12 +400,55 @@
       },
 
       /**
+       * filter appInfoList by myApp and Keys
+       */
+      filterAppInfoList() {
+        let filteredAppInfo = {
+          appList: [],
+          appModelList: [],
+          total: 0
+        };
+        let myUserName = this.$getUserInfo('userName');
+        let filterReg = null;
+        if (this.filterKey) {
+          filterReg = new RegExp(this.filterKey);
+        }
+//        console.log(this.filterMyApp);
+//        console.log(this.filterKey);
+        let checkItem = function (item) {
+          let isOK = true;
+          if (!item.hasOwnProperty('userName') || !item.hasOwnProperty('serviceName')) {
+            isOK = false;
+          }
+          if (isOK && this.filterMyApp) {
+            if (item.userName !== myUserName) {
+              isOK = false;
+            }
+          }
+          if (isOK && filterReg) {
+            if (!filterReg.exec(item.serviceName)) {
+              isOK = false;
+            }
+          }
+          return isOK;
+        };
+        this.appInfoListOfGroup.appList.forEach((it, index) => {
+          if (checkItem.call(this, it)) {
+            filteredAppInfo.appList.push(it);
+            filteredAppInfo.appModelList.push(this.appInfoListOfGroup.appModelList[index]);
+          }
+        });
+        filteredAppInfo.total = filteredAppInfo.appList.length;
+        return filteredAppInfo;
+      },
+      /**
        * the place of request appList:
        * 1. at beginning of this page
        * 2. at the change of page in Pagination
        * 3. at the change of groupID
        * 4. at the change of appInfoListOfGroup, if this.getFromStore is true
        * 5. operation of app: delete app. [change profile]
+       * 6. at the change of filterMyApp or filterKey
        * @param serviceName
        */
       requestAPPList({serviceName}) {
@@ -441,10 +461,14 @@
         let length = this.pageSize;
         if (this.getFromStore) {
           let end = start + length;
+          let theAppInfoList = this.appInfoListOfGroup;
+          if (this.needFilter) {
+            theAppInfoList = this.filterAppInfoList();
+          }
           let filteredAppInfo = {
-            'appList': this.appInfoListOfGroup.appList.slice(start, end),
-            'appModelListByPage': this.appInfoListOfGroup.appModelList.slice(start, end),
-            'total': this.appInfoListOfGroup.total
+            'appList': theAppInfoList.appList.slice(start, end),
+            'appModelListByPage': theAppInfoList.appModelList.slice(start, end),
+            'total': theAppInfoList.total
           };
           this.updateAppInfoModel(filteredAppInfo);
         } else {

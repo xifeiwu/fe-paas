@@ -158,6 +158,8 @@
             }
             if (this.searchForm.status) {
               options.status = this.searchForm.status;
+            } else {
+              delete options.status;
             }
             if (this.searchForm.dateRange) {
               let dateRange = this.searchForm.dateRange.map(it => {
