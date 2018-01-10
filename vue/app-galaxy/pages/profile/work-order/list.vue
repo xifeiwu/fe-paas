@@ -42,10 +42,59 @@
                 @click="handleButtonClick('search')">搜索</el-button>
       </el-row>
     </div>
+    <div class="work-order-list">
+      <el-table :data="workOrderList"
+                v-loading="showLoading"
+                element-loading-text="加载中">
+        <el-table-column label="审批工单名称" prop="name" headerAlign="center">
+        </el-table-column>
+        <el-table-column label="申请人" prop="creatorName" width="80" headerAlign="center">
+        </el-table-column>
+        <el-table-column label="状态" prop="statusName" width="120" headerAlign="center">
+        </el-table-column>
+        <el-table-column label="申请时间" prop="createTime" width="200" headerAlign="center">
+        </el-table-column>
+        <el-table-column label="团队" prop="groupName"  width="120" headerAlign="center">
+        </el-table-column>
+        <el-table-column label="操作" headerAlign="center">
+          <template slot-scope="scope">
+            <el-button
+                    size="mini-extral"
+                    type="success"
+                    @click="handleOperationClick('detail', scope.$index, scope.row)">详情</el-button>
+            <el-button
+                    size="mini-extral"
+                    type="success"
+                    @click="handleOperationClick('deploy-log', scope.$index, scope.row)">部署日志</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
   </div>
 </template>
 <style lang="scss">
   #work-order-list {
+    .el-table {
+      .el-table__row {
+        .el-button {
+          margin: 2px 4px;
+          float: left;
+          .el-icon-arrow-right {
+            vertical-align: middle;
+            transition: transform 0.2s ease-in-out;
+            &.expand {
+              transform: rotate(90deg);
+            }
+          }
+          &:first-child {
+            margin-left: 0px;
+          }
+        }
+        .el-button + .el-button {
+          margin-left: 0px;
+        }
+      }
+    }
     .header {
       margin: 5px;
       font-size: 14px;
@@ -53,7 +102,7 @@
       .el-row.operation {
         display: inline-block;
         .item {
-          padding: 0px 3px;
+          margin: 3px;
           display: inline-block;
           label {
             color: #409EFF
@@ -66,10 +115,21 @@
     }
   }
 </style>
+
 <script>
   export default {
     data() {
       return {
+        searchForm: {
+          workOrderName: '',
+          userName: '',
+          status: '',
+          dateRange: '',
+        },
+
+        showLoading: false,
+        workOrderList: [],
+
         statusList: [{
           id: 'WORKORDER_APPLY',
           name: '工单申请'
@@ -101,12 +161,6 @@
           id: 'END',
           name: '结束'
         }],
-        searchForm: {
-          workOrderName: '',
-          userName: '',
-          status: '',
-          dateRange: '',
-        },
         datePickerOptions: {
           shortcuts: [{
             text: '最近一周',
@@ -122,6 +176,14 @@
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近两个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 60);
               picker.$emit('pick', [start, end]);
             }
           }, {
@@ -172,10 +234,25 @@
               options.startTime = '';
               options.endTime = '';
             }
-            this.$net.getWorkOrderList(options);
+            this.$net.getWorkOrderList(options).then(content => {
+//              console.log(content.workOrderDeployList);
+              if (content.hasOwnProperty('workOrderDeployList')) {
+                this.workOrderList = content.workOrderDeployList;
+              }
+            })
             break;
           case 'linker':
             this.$router.push(params.path);
+            break;
+        }
+      },
+      handleOperationClick(action, index, row) {
+        switch (action) {
+          case 'detail':
+            console.log('detail');
+            break;
+          case 'deploy-log':
+            console.log('deploy-log');
             break;
         }
       }

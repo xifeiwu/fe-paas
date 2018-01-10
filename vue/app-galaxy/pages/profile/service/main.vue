@@ -43,7 +43,7 @@
         </el-col>
       </el-row>
     </div>
-    <div class="app-list">
+    <div class="service-list">
       <el-table
         :data="currentServiceList"
         style="width: 100%"
@@ -715,7 +715,7 @@
         height: 26px;
       }
     }
-    .app-list {
+    .service-list {
       .el-table {
         .el-table__expanded-cell {
           border-color: #409EFF;
@@ -947,8 +947,7 @@
     .el-table {
       .el-table__row {
         .el-button {
-          margin-bottom: 5px;
-          margin-right: 10px;
+          margin: 2px 4px;
           float: left;
           .el-icon-arrow-right {
             vertical-align: middle;
@@ -957,10 +956,12 @@
               transform: rotate(90deg);
             }
           }
+          &:first-child {
+            margin-left: 0px;
+          }
         }
         .el-button + .el-button {
           margin-left: 0px;
-          /*margin-right: 10px;*/
         }
       }
 

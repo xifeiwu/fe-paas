@@ -643,23 +643,35 @@ class Net {
   }
 
   /**
-   * 获取待办工单列表
+   * 获取工单列表
    */
-  getWorkOrderToDoList(options) {
+  getWorkOrderList(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_todo_list, options).then(response => {
-        console.log(response);
+      axios.post(URL_LIST.work_order_list, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content) {
+          if (content.hasOwnProperty('workOrderDeployList') && Array.isArray(content.workOrderDeployList)) {
+            content.workOrderDeployList.forEach(it => {
+              if (it.hasOwnProperty('createTime')) {
+               it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              }
+            })
+          }
+          resolve(content);
+        } else {
+          reject('error: getWorkOrderToDoList');
+        }
       }).catch(err => {
         console.log(err);
       })
     })
   }
   /**
-   * 获取工单列表
+   * 获取待办工单列表
    */
-  getWorkOrderList(options) {
+  getWorkOrderToDoList(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_list, options).then(response => {
+      axios.post(URL_LIST.work_order_todo_list, options).then(response => {
         console.log(response);
       }).catch(err => {
         console.log(err);
