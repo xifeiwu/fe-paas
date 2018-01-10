@@ -29,13 +29,20 @@
           </el-select>
         </el-col>
       </el-row>
+      <el-row class="notice">
+        <el-tag type="warning">
+          <i class="el-icon-warning"></i>
+          <span>每次创建的服务版本信息为所在应用创建时的配置信息</span>
+        </el-tag>
+      </el-row>
+      <el-row class="domain" type="flex" justify="center" align="middle">
+        <el-col :span="12">内网域名：{{intranetDomain}}</el-col>
+        <el-col :span="12">
+          <span>外网二级域名：{{intranetDomain}}</span>
+          <i class="el-icon-edit" @click="handleChangeProp('internetDomain')"></i>
+        </el-col>
+      </el-row>
     </div>
-    <el-row class="notice">
-      <el-tag type="success">
-        <i class="el-icon-warning"></i>
-        <span>每次创建的服务版本信息为所在应用创建时的配置信息</span>
-      </el-tag>
-    </el-row>
     <div class="app-list">
       <el-table
         :data="currentServiceList"
@@ -689,16 +696,17 @@
     line-height: 25px;
   }
   #service-main {
-    .header {
-      margin: 5px;
-      font-size: 14px;
-      .el-row.operation {
-        .el-col {
-          padding: 0px 10px;
-          display: inline-block;
-          vertical-align: middle;
-        }
+    .el-icon-edit {
+      margin-left: 8px;
+      font-size: 100%;
+      line-height: 100%;
+      color: #eb9e05;
+      vertical-align: middle;
+      &:hover {
+        font-weight: bold;
       }
+    }
+    .header {
       .el-select .el-input__inner {
         height: 26px;
       }
@@ -900,11 +908,34 @@
 </style>
 <style lang="scss" scoped>
   #service-main {
-    .notice {
-      .el-tag {
-        display: block;
-        .el-icon-warning {
-          vertical-align: middle;
+    .header {
+      font-size: 14px;
+      line-height: 20px;
+      i {
+        font-size: 14px;
+      }
+      .el-row {
+        &.operation {
+          margin: 5px 5px 5px 8px;
+          .el-col {
+            &:first-child {
+              padding: 0px;
+            }
+            padding: 0px 10px;
+            display: inline-block;
+            vertical-align: middle;
+          }
+        }
+        &.notice {
+          .el-tag {
+            display: block;
+            .el-icon-warning {
+              vertical-align: middle;
+            }
+          }
+        }
+        &.domain {
+          margin: 5px 5px 5px 8px;
         }
       }
     }
@@ -941,14 +972,6 @@
           .el-form-item {
             margin-right: 0;
             margin-bottom: 10px;
-            .el-icon-edit {
-              margin-left: 8px;
-              font-size: 100%;
-              line-height: 100%;
-              font-weight: bold;
-              color: #eb9e05;
-              vertical-align: middle;
-            }
           }
         }
       }
@@ -959,8 +982,10 @@
 <script>
   import appPropUtils from '../utils/app_prop';
   import StoreHelper from '../utils/store-helper.vue';
+  import ElRow from "../../../../packages/row/src/row";
+  import ElCol from "../../../../packages/col/src/col";
 export default {
-  mixins: [StoreHelper],
+  components: {ElCol, ElRow}, mixins: [StoreHelper],
   created() {
     this.onUpdateAppInfoList(this.appInfoListOfGroup);
     this.onCpuAndMemoryList(this.cpuAndMemoryList);
@@ -982,6 +1007,7 @@ export default {
       rules: appPropUtils.rules,
       currentServiceList: null,
       currentModelList: [],
+      intranetDomain: '',
 
       selected: {
         index: -1,
@@ -1568,6 +1594,7 @@ export default {
           this.showLoading = false;
           this.expandRows = [];
         }
+        this.intranetDomain = content.hasOwnProperty('intranetDomain') ? content.intranetDomain : '未知';
       }).catch(err => {
         this.showLoading = false;
         this.$notify({
