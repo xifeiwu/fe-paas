@@ -68,16 +68,18 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination" v-if="showPagination">
-        <el-pagination
-          :current-page="currentPage"
-          size="large"
-          layout="prev, pager, next"
-          :page-size = "pageSize"
-          :total="totalSize"
-          @current-change="handlePaginationPageChange"
-        >
-        </el-pagination>
+      <div class="pagination-container" v-if="totalSize > pageSize">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "pageSize"
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange"
+          >
+          </el-pagination>
+        </div>
       </div>
     </div>
 
@@ -171,13 +173,6 @@
   }
   .el-tag {
     display: block;
-  }
-  .pagination {
-    margin-top: 15px;
-    text-align: center;
-    .el-pagination {
-      display: inline-block;
-    }
   }
 </style>
 <script>

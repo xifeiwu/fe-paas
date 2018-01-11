@@ -70,7 +70,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="showPagination">
+      <div class="pagination-container" v-if="totalSize > pageSize">
         <div class="pagination">
           <el-pagination
                   :current-page="currentPage"
@@ -177,38 +177,6 @@
         height: 26px;
       }
     }
-    .pagination-container {
-      padding-left: 180px;
-      padding-bottom: 5px;
-
-      position: fixed;
-      bottom: 0px;
-      left: 0px;
-      right: 0px;
-      /*width: 100%;*/
-      .pagination {
-        text-align: center;
-        .el-pagination {
-          display: inline-block;
-          button {
-            &.btn-prev, &.btn-next {
-              background-color: transparent;
-            }
-          }
-          .el-pager {
-            li {
-              background-color: transparent;
-              &.number {
-                background-color: transparent;
-              }
-              &.btn-quicknext, &.btn-quickprev {
-                background-color: transparent;
-              }
-            }
-          }
-        }
-      }
-    }
     .el-dialog {
       width: 80%;
       min-width: 500px;
@@ -240,7 +208,7 @@
       return {
         searchForm: {
 //          workOrderName: '',
-          workOrderName: '测试galaxy-server工单',
+          workOrderName: '',
           creator: '',
           status: '',
           dateRange: '',
