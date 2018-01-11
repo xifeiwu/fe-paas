@@ -45,6 +45,8 @@
     <div class="work-order-list">
       <el-table :data="workOrderListByPage"
                 v-loading="showLoading"
+                :row-key="getRowKeys"
+                :expand-row-keys="expandRows"
                 element-loading-text="加载中">
         <el-table-column label="审批工单名称" prop="name" headerAlign="center">
         </el-table-column>
@@ -62,11 +64,64 @@
                     size="mini-extral"
                     type="success"
                     @click="handleOperationClick('detail', scope.$index, scope.row)"
-                    :loading="waitingResponse">详情</el-button>
+                    :loading="waitingResponse && expandRows.indexOf(scope.row.id) > -1">
+              <span>详情</span>
+              <i class="el-icon-arrow-right"
+                 :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"></i>
+            </el-button>
             <el-button
                     size="mini-extral"
                     type="success"
                     @click="handleOperationClick('deploy-log', scope.$index, scope.row)">部署日志</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column type="expand"
+                         v-if="true"
+                         width="0"
+        >
+          <template slot-scope="scope">
+            <div class="row-expand">
+              <el-form labelWidth="120px" size="mini">
+                <el-form-item label="工单名称">{{detailForm.name}}</el-form-item>
+                <el-form-item label="申请人">{{detailForm.creator}}</el-form-item>
+                <el-form-item label="功能列表">
+                  <el-table :data="detailForm.featureList">
+                    <el-table-column label="功能名称" prop="functionName" headerAlign="center">
+                    </el-table-column>
+                    <el-table-column label="功能类型" prop="functionType" headerAlign="center">
+                    </el-table-column>
+                    <el-table-column label="jira地址" prop="jiraAddress" headerAlign="center">
+                    </el-table-column>
+                    <el-table-column label="功能描述" prop="description" headerAlign="center">
+                    </el-table-column>
+                  </el-table>
+                </el-form-item>
+                <el-form-item label="程序列表">
+                  <span v-for="item in detailForm.appList" :key="item.appName">{{item.appName}}</span>
+                </el-form-item>
+                <el-form-item label="待办人">{{detailForm.userToDo}}</el-form-item>
+                <el-form-item label="验收人">
+                  <el-table :data="detailForm.userAcceptedList">
+                    <el-table-column label="验收人" prop="userName" headerAlign="center">
+                    </el-table-column>
+                    <el-table-column label="状态" prop="status" headerAlign="center">
+                    </el-table-column>
+                  </el-table>
+                </el-form-item>
+                <el-form-item label="操作记录">
+                  <el-table :data="detailForm.operationList">
+                    <el-table-column label="处理时间" prop="createTime" headerAlign="center">
+                    </el-table-column>
+                    <el-table-column label="处理操作" prop="action" headerAlign="center">
+                    </el-table-column>
+                    <el-table-column label="处理人" prop="handleUserName" headerAlign="center">
+                    </el-table-column>
+                    <el-table-column label="备注" prop="remark" headerAlign="center">
+                    </el-table-column>
+                  </el-table>
+                </el-form-item>
+              </el-form>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -85,80 +140,107 @@
       </div>
     </div>
 
-    <el-dialog title="工单详情" :visible="operation.name == 'detail'"
-               @close="operation.name = null"
-    >
-      <el-form labelWidth="120px" size="mini">
-        <el-form-item label="工单名称">{{detailForm.name}}</el-form-item>
-        <el-form-item label="申请人">{{detailForm.creator}}</el-form-item>
-        <el-form-item label="功能列表">
-          <el-table :data="detailForm.featureList">
-            <el-table-column label="功能名称" prop="functionName" headerAlign="center">
-            </el-table-column>
-            <el-table-column label="功能类型" prop="functionType" headerAlign="center">
-            </el-table-column>
-            <el-table-column label="jira地址" prop="jiraAddress" headerAlign="center">
-            </el-table-column>
-            <el-table-column label="功能描述" prop="description" headerAlign="center">
-            </el-table-column>
-          </el-table>
-        </el-form-item>
-        <el-form-item label="程序列表">
-          <span v-for="item in detailForm.appList" :key="item.appName">{{item.appName}}</span>
-        </el-form-item>
-        <el-form-item label="待办人">{{detailForm.userToDo}}
-        </el-form-item>
-        <el-form-item label="验收人">
-          <el-table :data="detailForm.userAcceptedList">
-            <el-table-column label="验收人" prop="userName" headerAlign="center">
-            </el-table-column>
-            <el-table-column label="状态" prop="status" headerAlign="center">
-            </el-table-column>
-          </el-table>
-        </el-form-item>
-        <el-form-item label="操作记录">
-          <el-table :data="detailForm.operationList">
-            <el-table-column label="处理时间" prop="createTime" headerAlign="center">
-            </el-table-column>
-            <el-table-column label="处理操作" prop="action" headerAlign="center">
-            </el-table-column>
-            <el-table-column label="处理人" prop="handleUserName" headerAlign="center">
-            </el-table-column>
-            <el-table-column label="备注" prop="remark" headerAlign="center">
-            </el-table-column>
-          </el-table>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary"
-                   @click="operation.name = null">关&nbsp闭</el-button>
-      </div>
-    </el-dialog>
+    <!--<el-dialog title="工单详情" :visible="operation.name == 'detail'"-->
+               <!--@close="operation.name = null"-->
+    <!--&gt;-->
+      <!--<el-form labelWidth="120px" size="mini">-->
+        <!--<el-form-item label="工单名称">{{detailForm.name}}</el-form-item>-->
+        <!--<el-form-item label="申请人">{{detailForm.creator}}</el-form-item>-->
+        <!--<el-form-item label="功能列表">-->
+          <!--<el-table :data="detailForm.featureList">-->
+            <!--<el-table-column label="功能名称" prop="functionName" headerAlign="center">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column label="功能类型" prop="functionType" headerAlign="center">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column label="jira地址" prop="jiraAddress" headerAlign="center">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column label="功能描述" prop="description" headerAlign="center">-->
+            <!--</el-table-column>-->
+          <!--</el-table>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="程序列表">-->
+          <!--<span v-for="item in detailForm.appList" :key="item.appName">{{item.appName}}</span>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="待办人">{{detailForm.userToDo}}-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="验收人">-->
+          <!--<el-table :data="detailForm.userAcceptedList">-->
+            <!--<el-table-column label="验收人" prop="userName" headerAlign="center">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column label="状态" prop="status" headerAlign="center">-->
+            <!--</el-table-column>-->
+          <!--</el-table>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="操作记录">-->
+          <!--<el-table :data="detailForm.operationList">-->
+            <!--<el-table-column label="处理时间" prop="createTime" headerAlign="center">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column label="处理操作" prop="action" headerAlign="center">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column label="处理人" prop="handleUserName" headerAlign="center">-->
+            <!--</el-table-column>-->
+            <!--<el-table-column label="备注" prop="remark" headerAlign="center">-->
+            <!--</el-table-column>-->
+          <!--</el-table>-->
+        <!--</el-form-item>-->
+      <!--</el-form>-->
+      <!--<div slot="footer" class="dialog-footer">-->
+        <!--<el-button type="primary"-->
+                   <!--@click="operation.name = null">关&nbsp闭</el-button>-->
+      <!--</div>-->
+    <!--</el-dialog>-->
   </div>
 </template>
 <style lang="scss">
   #work-order-list {
-    .el-table {
-      .el-table__row {
-        .el-button {
-          margin: 2px 4px;
-          float: left;
-          .el-icon-arrow-right {
-            vertical-align: middle;
-            transition: transform 0.2s ease-in-out;
-            &.expand {
-              transform: rotate(90deg);
+    .work-order-list {
+      .el-table {
+        margin-bottom: 40px;
+        .el-table__row {
+          .el-button {
+            margin: 2px 4px;
+            float: left;
+            .el-icon-arrow-right {
+              vertical-align: middle;
+              transition: transform 0.2s ease-in-out;
+              &.expand {
+                transform: rotate(90deg);
+              }
+            }
+            &:first-child {
+              margin-left: 0px;
             }
           }
-          &:first-child {
+          .el-button + .el-button {
             margin-left: 0px;
           }
         }
-        .el-button + .el-button {
-          margin-left: 0px;
+        .el-table__expanded-cell {
+          padding: 0px;
+        }
+      }
+
+      .row-expand {
+        border-top: 1px solid #409EFF;
+        border-bottom: 1px solid #409EFF;
+        background-color: #fff;
+        .el-form {
+          width: 85%;
+          margin: 0px auto;
+          max-width: 750px;
+          .el-table {
+            margin-bottom: 6px;
+            th, td {
+              padding: 0px;
+            }
+          }
+          .el-form-item {
+            margin-bottom: 6px;
+          }
         }
       }
     }
+
     .header {
       margin: 5px;
       font-size: 14px;
@@ -217,6 +299,10 @@
         waitingResponse: false,
         showLoading: false,
         workOrderList: [],
+        getRowKeys: function (row) {
+          return row.id;
+        },
+        expandRows: [],
 
         operation: {
           name: null,
@@ -364,6 +450,18 @@
       handleOperationClick(action, index, row) {
         switch (action) {
           case 'detail':
+            // update expandRows
+            if (!row.hasOwnProperty('id')) {
+              return;
+            }
+            let key = row.id;
+            if (this.expandRows.indexOf(key) > -1) {
+              this.expandRows.splice(this.expandRows.indexOf(key), 1);
+            } else {
+              this.expandRows = [key];
+            }
+
+            // update data of model for work-order-detail
             this.waitingResponse = true;
             this.detailForm = {
               name: row.name,

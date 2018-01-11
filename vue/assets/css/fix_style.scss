@@ -284,7 +284,7 @@ h4 {
   }
 
   .pagination-container {
-    padding-bottom: 5px;
+    padding-bottom: 3px;
 
     padding-left: 180px;
     position: fixed;
@@ -295,6 +295,7 @@ h4 {
     /*width: 100%;*/
     .pagination {
       text-align: center;
+      padding: 0px 4px;
       .el-pagination {
         //font-weight: normal;
         display: inline-block;
@@ -302,17 +303,17 @@ h4 {
         border: 1px solid #e6ebf5;
         button {
           &.btn-prev, &.btn-next {
-            height: 36px;
+            height: 32px;
             background-color: transparent;
           }
         }
         .el-pager {
           li {
-            height: 36px;
+            height: 32px;
             background-color: transparent;
             &.number {
               padding: 0px 10px;
-              line-height: 36px;
+              line-height: 32px;
               background-color: transparent;
             }
             &.active {
