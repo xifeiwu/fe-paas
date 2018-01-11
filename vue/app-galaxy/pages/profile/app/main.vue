@@ -466,6 +466,9 @@
           if (this.needFilter) {
             theAppInfoList = this.filterAppInfoList();
           }
+          if (!theAppInfoList) {
+            return;
+          }
           let filteredAppInfo = {
             'appList': theAppInfoList.appList.slice(start, end),
             'appModelListByPage': theAppInfoList.appModelList.slice(start, end),

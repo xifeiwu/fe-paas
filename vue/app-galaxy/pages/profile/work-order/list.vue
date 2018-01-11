@@ -69,16 +69,18 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination" v-if="showPagination">
-        <el-pagination
-                :current-page="currentPage"
-                size="large"
-                layout="prev, pager, next"
-                :page-size = "pageSize"
-                :total="totalSize"
-                @current-change="handlePaginationPageChange"
-        >
-        </el-pagination>
+      <div class="pagination-container" v-if="showPagination">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "pageSize"
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange"
+          >
+          </el-pagination>
+        </div>
       </div>
     </div>
   </div>
@@ -124,10 +126,37 @@
         height: 26px;
       }
     }
-    .pagination {
+    .pagination-container {
+      padding-left: 180px;
+      padding-bottom: 5px;
+
       position: fixed;
-      left: 280px;
       bottom: 0px;
+      left: 0px;
+      right: 0px;
+      /*width: 100%;*/
+      .pagination {
+        text-align: center;
+        .el-pagination {
+          display: inline-block;
+          button {
+            &.btn-prev, &.btn-next {
+              background-color: transparent;
+            }
+          }
+          .el-pager {
+            li {
+              background-color: transparent;
+              &.number {
+                background-color: transparent;
+              }
+              &.btn-quicknext, &.btn-quickprev {
+                background-color: transparent;
+              }
+            }
+          }
+        }
+      }
     }
   }
 </style>
