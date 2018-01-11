@@ -698,11 +698,92 @@ class Net {
     const getOperationList = () => {
       return axios.post(URL_LIST.work_order_operation_list, options);
     }
+    let keyMap = {
+      featureList: {
+        functionType: {
+          DEMAND: '需求',
+          BUG: 'BUG'
+        }
+      },
+      userAcceptedList: {
+        status: {
+          NO_HANDLE: '未处理',
+          PASS: '通过'
+        }
+      },
+      operationList: {
+        functionType: {
+          'WORKORDER_APPLY': '工单申请',
+          'WAIT_TEST': '等待测试',
+          'TESTING': '测试受理中',
+          'WAIT_DBA': '等待DBA处理',
+          'DBAING': 'DBA受理中',
+          'WAIT_DEPLOY': '等待部署',
+          'DEPLOYING': '部署受理中',
+          'WAIT_ACCEPTANCE': '等待验收',
+          'ACCEPTANCEING': '验收受理中',
+          'END': '结束',
+        }
+      }
+    }
+    const transfer = (key1, key2, key3) => {
+      let formatted = key3;
+      if (keyMap.hasOwnProperty(key1) && keyMap[key1].hasOwnProperty(key2) && keyMap[key1][key2].hasOwnProperty(key3)) {
+        formatted = keyMap[key1][key2][key3];
+      }
+      return formatted;
+    }
     return new Promise((resolve, reject) => {
       axios.all([getFeatureList(), getAppList(), getUserToDo(), getUserAccepted(), getOperationList()])
-        .then(axios.spread((featureList, appList, userToDo, userAccepted, operationList) => {
-          console.log(featureList);
-        }))
+        .then(axios.spread((featureList, appList, userToDo, userAcceptedList, operationList) => {
+          featureList = this.getResponseContent(featureList);
+          appList = this.getResponseContent(appList);
+          userToDo = this.getResponseContent(userToDo);
+          userAcceptedList = this.getResponseContent(userAcceptedList);
+          operationList = this.getResponseContent(operationList);
+          if (featureList.hasOwnProperty('WorkOrderDeployFunctionVO')) {
+            featureList = featureList.WorkOrderDeployFunctionVO;
+            Array.isArray(featureList) && featureList.forEach(it => {
+              if (it.hasOwnProperty('functionType')) {
+                it.functionType = transfer('featureList', 'functionType', it.functionType);
+              }
+            });
+          }
+          if (appList.hasOwnProperty('WorkOrderDeployAppVO')) {
+            appList = appList.WorkOrderDeployAppVO;
+          }
+          if (userToDo.hasOwnProperty('todoUser')) {
+            userToDo = userToDo.todoUser;
+          }
+          if (userAcceptedList.hasOwnProperty('acceptanceUserList')) {
+            userAcceptedList = userAcceptedList.acceptanceUserList;
+            Array.isArray(userAcceptedList) && userAcceptedList.forEach(it => {
+              if (it.hasOwnProperty('status')) {
+                it.status = transfer('userAcceptedList', 'status', it.status);
+              }
+            });
+          }
+          if (operationList.hasOwnProperty('WorkOrderDeployLogVO')) {
+            operationList = operationList.WorkOrderDeployLogVO;
+            Array.isArray(operationList) && operationList.forEach(it => {
+              it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              if (it.hasOwnProperty('functionType')) {
+                it.status = transfer('operationList', 'functionType', it.functionType);
+              }
+            });
+          }
+
+          let results = {
+            featureList: featureList,
+            appList: appList,
+            userToDo: userToDo,
+            userAcceptedList: userAcceptedList,
+            operationList: operationList,
+          }
+          resolve(results);
+        })).catch(err => {
+          reject(err);
+      })
     })
   }
 }

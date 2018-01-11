@@ -88,7 +88,7 @@
     <el-dialog title="工单详情" :visible="operation.name == 'detail'"
                @close="operation.name = null"
     >
-      <el-form labelWidth="120px">
+      <el-form labelWidth="120px" size="mini">
         <el-form-item label="工单名称">{{detailForm.name}}</el-form-item>
         <el-form-item label="申请人">{{detailForm.creator}}</el-form-item>
         <el-form-item label="功能列表">
@@ -104,7 +104,7 @@
           </el-table>
         </el-form-item>
         <el-form-item label="程序列表">
-          <span v-for="(item, index) in detailForm.appList" :key="index">{{item}}</span>
+          <span v-for="item in detailForm.appList" :key="item.appName">{{item.appName}}</span>
         </el-form-item>
         <el-form-item label="待办人">{{detailForm.userToDo}}
         </el-form-item>
@@ -213,6 +213,16 @@
       width: 80%;
       min-width: 500px;
       max-width: 900px;
+      .el-table {
+        th, td {
+          padding: 0px;
+        }
+      }
+      .el-form {
+        .el-form-item {
+          margin-bottom: 6px;
+        }
+      }
     }
   }
 </style>
@@ -386,43 +396,68 @@
       handleOperationClick(action, index, row) {
         switch (action) {
           case 'detail':
-            console.log('detail');
-            console.log(row.id);
             this.waitingResponse = true;
+            this.detailForm = {
+              name: row.name,
+              creator: row.creatorName,
+              featureList: [],
+              appList: [],
+              userToDo: '获取失败',
+              userAcceptedList: [],
+              operationList: [],
+            };
             this.$net.getWorkOrderDetail({
               id: row.id
-            });
-            setTimeout(() => {
-              this.detailForm = {
-                name: row.name,
-                creator: row.creatorName,
-                featureList: [{
-                  functionName: '测试galaxy-server工单',
-                  functionType: 'DEMAND',
-                  jiraAddress: 'http://jira.puhuitech.cn/browse/BASE-537',
-                  description: '测试paas上线'
-                }, {
-                  functionName: '测试galaxy-server工单',
-                  functionType: 'DEMAND',
-                  jiraAddress: 'http://jira.puhuitech.cn/browse/BASE-537',
-                  description: '测试paas上线'
-                }],
-                appList: ['datapi-sdk-api'],
-                userToDo: '工单已结束!',
-                userAcceptedList: [{
-                  userName: 'user',
-                  status: 'passed'
-                }],
-                operationList: [{
-                  createTime: '2017-09-30',
-                  action: "TEST_ACCEPT",
-                  handleUserName: 'me',
-                  remark: '测试通过'
-                }]
-              };
+            }).then(result => {
+              console.log(result);
+              if (result.hasOwnProperty('featureList')) {
+                this.detailForm.featureList = result.featureList;
+              }
+              if (result.hasOwnProperty('appList')) {
+                this.detailForm.appList = result.appList;
+              }
+              if (result.hasOwnProperty('userToDo')) {
+                this.detailForm.userToDo = result.userToDo;
+              }
+              if (result.hasOwnProperty('userAcceptedList')) {
+                this.detailForm.userAcceptedList = result.userAcceptedList;
+              }
+              if (result.hasOwnProperty('operationList')) {
+                this.detailForm.operationList = result.operationList;
+              }
               this.operation.name = action;
               this.waitingResponse = false;
-            }, 2000);
+            }).catch(err => {
+              this.operation.name = action;
+              this.waitingResponse = false;
+            });
+//            this.detailForm = {
+//              name: row.name,
+//              creator: row.creatorName,
+//              featureList: [{
+//                functionName: '测试galaxy-server工单',
+//                functionType: 'DEMAND',
+//                jiraAddress: 'http://jira.puhuitech.cn/browse/BASE-537',
+//                description: '测试paas上线'
+//              }, {
+//                functionName: '测试galaxy-server工单',
+//                functionType: 'DEMAND',
+//                jiraAddress: 'http://jira.puhuitech.cn/browse/BASE-537',
+//                description: '测试paas上线'
+//              }],
+//              appList: ['datapi-sdk-api'],
+//              userToDo: '工单已结束!',
+//              userAcceptedList: [{
+//                userName: 'user',
+//                status: 'passed'
+//              }],
+//              operationList: [{
+//                createTime: '2017-09-30',
+//                action: "TEST_ACCEPT",
+//                handleUserName: 'me',
+//                remark: '测试通过'
+//              }]
+//            };
             break;
           case 'deploy-log':
             console.log('deploy-log');

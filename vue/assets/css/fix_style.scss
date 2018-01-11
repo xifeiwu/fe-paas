@@ -260,6 +260,9 @@ h4 {
       //border-bottom: 1px solid lightgray;
       //border-bottom: 1px solid #409EFF;
     }
+    .cell {
+      text-overflow: initial;
+    }
   }
 
   .el-date-editor.custom {
