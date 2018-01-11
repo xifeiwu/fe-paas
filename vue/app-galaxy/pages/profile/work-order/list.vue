@@ -11,7 +11,7 @@
         <div class="item">
           <label>申请人</label>
           <el-input
-                  v-model="searchForm.userName"
+                  v-model="searchForm.creator"
                   size="mini" style="display: inline-block; width: 160px;"></el-input>
         </div>
         <div class="item">
@@ -61,7 +61,8 @@
             <el-button
                     size="mini-extral"
                     type="success"
-                    @click="handleOperationClick('detail', scope.$index, scope.row)">详情</el-button>
+                    @click="handleOperationClick('detail', scope.$index, scope.row)"
+                    :loading="waitingResponse">详情</el-button>
             <el-button
                     size="mini-extral"
                     type="success"
@@ -83,6 +84,56 @@
         </div>
       </div>
     </div>
+
+    <el-dialog title="工单详情" :visible="operation.name == 'detail'"
+               @close="operation.name = null"
+    >
+      <el-form labelWidth="120px">
+        <el-form-item label="工单名称">{{detailForm.name}}</el-form-item>
+        <el-form-item label="申请人">{{detailForm.creator}}</el-form-item>
+        <el-form-item label="功能列表">
+          <el-table :data="detailForm.featureList">
+            <el-table-column label="功能名称" prop="functionName" headerAlign="center">
+            </el-table-column>
+            <el-table-column label="功能类型" prop="functionType" headerAlign="center">
+            </el-table-column>
+            <el-table-column label="jira地址" prop="jiraAddress" headerAlign="center">
+            </el-table-column>
+            <el-table-column label="功能描述" prop="description" headerAlign="center">
+            </el-table-column>
+          </el-table>
+        </el-form-item>
+        <el-form-item label="程序列表">
+          <span v-for="(item, index) in detailForm.appList" :key="index">{{item}}</span>
+        </el-form-item>
+        <el-form-item label="待办人">{{detailForm.userToDo}}
+        </el-form-item>
+        <el-form-item label="验收人">
+          <el-table :data="detailForm.userAcceptedList">
+            <el-table-column label="验收人" prop="userName" headerAlign="center">
+            </el-table-column>
+            <el-table-column label="状态" prop="status" headerAlign="center">
+            </el-table-column>
+          </el-table>
+        </el-form-item>
+        <el-form-item label="操作记录">
+          <el-table :data="detailForm.operationList">
+            <el-table-column label="处理时间" prop="createTime" headerAlign="center">
+            </el-table-column>
+            <el-table-column label="处理操作" prop="action" headerAlign="center">
+            </el-table-column>
+            <el-table-column label="处理人" prop="handleUserName" headerAlign="center">
+            </el-table-column>
+            <el-table-column label="备注" prop="remark" headerAlign="center">
+            </el-table-column>
+          </el-table>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary"
+                   @click="operation.name = null">关&nbsp闭</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <style lang="scss">
@@ -158,26 +209,43 @@
         }
       }
     }
+    .el-dialog {
+      width: 80%;
+      min-width: 500px;
+      max-width: 900px;
+    }
   }
 </style>
 
 <script>
+  import ElDialog from "../../../../packages/dialog/src/component";
+  import ElFormItem from "../../../../packages/form/src/form-item";
+  import ElTable from "../../../../packages/table/src/table";
   export default {
-    created() {
+    components: {ElTable, ElFormItem, ElDialog}, created() {
 //      let pagination = document.querySelector('.pagination');
 //      console.log(pagination);
     },
     data() {
       return {
         searchForm: {
-          workOrderName: '',
-          userName: '',
+//          workOrderName: '',
+          workOrderName: '测试galaxy-server工单',
+          creator: '',
           status: '',
           dateRange: '',
         },
 
+        waitingResponse: false,
         showLoading: false,
         workOrderList: [],
+
+        operation: {
+          name: null,
+        },
+        detailForm: {
+
+        },
 
         showPagination: true,
         totalSize: 0,
@@ -276,12 +344,10 @@
               endTime: ''
             };
             if (this.searchForm.workOrderName) {
-              options.name = this.searchForm.workOrderName;
+              options.name = this.searchForm.workOrderName.trim();
             }
-            if (this.searchForm.userName) {
-              options.creatorName = this.searchForm.userName;
-            } else {
-              options.creatorName = '';
+            if (this.searchForm.creator) {
+              options.creatorName = this.searchForm.creator.trim();
             }
             if (this.searchForm.status) {
               options.status = this.searchForm.status;
@@ -301,7 +367,7 @@
             }
             this.showLoading = true;
             this.$net.getWorkOrderList(options).then(content => {
-//              console.log(content);
+              console.log(content);
               if (content.hasOwnProperty('workOrderDeployList')) {
                 this.workOrderList = content.workOrderDeployList;
               }
@@ -321,6 +387,42 @@
         switch (action) {
           case 'detail':
             console.log('detail');
+            console.log(row.id);
+            this.waitingResponse = true;
+            this.$net.getWorkOrderDetail({
+              id: row.id
+            });
+            setTimeout(() => {
+              this.detailForm = {
+                name: row.name,
+                creator: row.creatorName,
+                featureList: [{
+                  functionName: '测试galaxy-server工单',
+                  functionType: 'DEMAND',
+                  jiraAddress: 'http://jira.puhuitech.cn/browse/BASE-537',
+                  description: '测试paas上线'
+                }, {
+                  functionName: '测试galaxy-server工单',
+                  functionType: 'DEMAND',
+                  jiraAddress: 'http://jira.puhuitech.cn/browse/BASE-537',
+                  description: '测试paas上线'
+                }],
+                appList: ['datapi-sdk-api'],
+                userToDo: '工单已结束!',
+                userAcceptedList: [{
+                  userName: 'user',
+                  status: 'passed'
+                }],
+                operationList: [{
+                  createTime: '2017-09-30',
+                  action: "TEST_ACCEPT",
+                  handleUserName: 'me',
+                  remark: '测试通过'
+                }]
+              };
+              this.operation.name = action;
+              this.waitingResponse = false;
+            }, 2000);
             break;
           case 'deploy-log':
             console.log('deploy-log');

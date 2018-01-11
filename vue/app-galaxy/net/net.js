@@ -678,6 +678,33 @@ class Net {
       })
     })
   }
+
+  /**
+   * 获取工单详情
+   */
+  getWorkOrderDetail(options) {
+    const getFeatureList = () => {
+      return axios.post(URL_LIST.work_order_feature_list, options);
+    }
+    const getAppList = () => {
+      return axios.post(URL_LIST.work_order_app_list, options);
+    }
+    const getUserToDo = () => {
+      return axios.post(URL_LIST.work_order_user_todo, options);
+    }
+    const getUserAccepted = () => {
+      return axios.post(URL_LIST.work_order_user_accepted, options);
+    }
+    const getOperationList = () => {
+      return axios.post(URL_LIST.work_order_operation_list, options);
+    }
+    return new Promise((resolve, reject) => {
+      axios.all([getFeatureList(), getAppList(), getUserToDo(), getUserAccepted(), getOperationList()])
+        .then(axios.spread((featureList, appList, userToDo, userAccepted, operationList) => {
+          console.log(featureList);
+        }))
+    })
+  }
 }
 
 export default new Net();

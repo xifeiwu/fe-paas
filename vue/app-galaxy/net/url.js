@@ -63,8 +63,21 @@ var urlList = {
   // 获取实例列表
   'instance_list': path + '/service/queryInstance',
 
+  // 工单列表
   'work_order_list': path + '/workOrderDeploy/getWorkOrderDeployList',
   'work_order_todo_list': path + '/workOrderDeploy/getTodoWorkOrderListByUser',
+  // 工单详情
+  // 功能列表
+  'work_order_feature_list': path + '/workOrderDeployFunction/getWorkOrderDeployFunctions',
+  // 程序列表
+  'work_order_app_list': path + '/workOrderDeployApp/getWorkOrderDeployApp',
+  // 代办人
+  'work_order_user_todo': path + '/workOrderDeploy/queryWorkOrderDeployToDoUser',
+  // 验收人
+  'work_order_user_accepted': path + '/acceptanceUser/getWorkOrderDeployAcceptUser',
+  // 操作记录
+  'work_order_operation_list': path + '/workOrderDeployLog/getWorkOrderDeployLog',
+
 };
 
 export default urlList;
