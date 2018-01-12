@@ -159,12 +159,21 @@
     created() {
       this.$store.dispatch('user/groupList');
       this.$store.dispatch('app/messageForCreateAPP');
-      this.$store.dispatch('user/profileListOfGroup', {
-        id: this.currentGroupID
-      });
-      this.$store.dispatch('user/appInfoListOfGroup', {
-        from: 'page/profile',
-        groupID: this.currentGroupID
+//      this.$store.dispatch('user/profileListOfGroup', {
+//        id: this.currentGroupID
+//      });
+//      this.$store.dispatch('user/appInfoListOfGroup', {
+//        from: 'page/profile',
+//        groupID: this.currentGroupID
+//      });
+      /**
+       * all the request related with groupID will be refreshed, include:
+       * 1. profileListOfGroup
+       * 2. appInfoListOfGroup
+       * 3. usersInGroup
+       */
+      this.$store.dispatch('user/groupID', {
+        value: this.currentGroupID
       });
       this.updateCrumbList(this.$route.path);
     },

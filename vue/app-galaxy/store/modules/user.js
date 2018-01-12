@@ -72,6 +72,8 @@ const state = {
   profileListOfGroup: null,
   // 当前做的所有APP列表
   appInfoListOfGroup: null,
+  // 当前组所有用户
+  usersInGroup: null,
 };
 
 const actions = {
@@ -177,6 +179,9 @@ const actions = {
     dispatch('appInfoListOfGroup', {
       groupID: value
     });
+    dispatch('usersInGroup', {
+      id: value
+    })
     // dispatch('app/appInfoListOfGroup', {
     //   id: id
     // }, {root: true});
@@ -211,6 +216,14 @@ const actions = {
       // if (content.hasOwnProperty('appList')) {
         commit('SET_APP_INFO_LIST_OF_GROUP', content);
       // }
+    });
+  },
+
+  usersInGroup({commit, state}, options) {
+    NetData.getUsersInGroup(options).then(content => {
+      if (content && content.hasOwnProperty('groupUserList')) {
+        state.usersInGroup = content.groupUserList;
+      }
     });
   },
 
@@ -296,6 +309,9 @@ const getters = {
   'appInfoListOfGroup': (state, getters) => {
     return getValue({state, getters}, 'appInfoListOfGroup');
   },
+  'usersInGroup': (state, getters) => {
+    return state.usersInGroup;
+  }
 };
 
 export default {

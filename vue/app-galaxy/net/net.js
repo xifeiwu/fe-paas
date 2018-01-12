@@ -256,6 +256,7 @@ class Net {
       axios.post(URL_LIST.get_profile_of_group, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
+          this.showLog('getProfileListOfGroup', content);
           resolve(content);
         }
       }).catch(err => {
@@ -328,6 +329,41 @@ class Net {
         reject(err);
       });
 
+    })
+  }
+
+  /**
+   * 获取当前组的所有用户
+   * @param options
+   * @returns {Promise}
+   */
+  getUsersInGroup(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.users_in_group, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content) {
+          this.showLog('getUsersInGroup', content);
+          resolve(content);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
+  /**
+   * 获取当前组的所有用户
+   * @param options
+   * @returns {Promise}
+   */
+  getAllUsers() {
+    return new Promise((resolve, reject) => {
+      axios.get(URL_LIST.users_all).then(response => {
+        console.log(response);
+      }).catch(err => {
+        console.log(err);
+      })
     })
   }
 

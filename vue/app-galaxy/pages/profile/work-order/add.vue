@@ -45,8 +45,6 @@
         </el-form-item>
         <el-form-item label="生成环境版本" prop="appVersion">
           <el-select v-model="workOrderForm.appVersion" placeholder="请选择" style="width: 350px">
-            <!--<el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">-->
-            <!--</el-option>-->
             <el-option v-for="(item, index) in versionList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
         </el-form-item>
@@ -60,7 +58,7 @@
                label-width="120px">
         <el-form-item label="验收人" prop="acceptanceUser">
           <el-select v-model="workOrderForm.acceptanceUser" multiple placeholder="请选择" style="width: 350px">
-            <el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">
+            <el-option v-for="item in usersInGroup" :key="item.userId" :label="item.realName" :value="item.userId">
             </el-option>
           </el-select>
         </el-form-item>
@@ -260,12 +258,14 @@
               this.workOrderForm.appVersion = version[0];
               this.disableSubmit = false;
             } else {
-//              this.$message({
-//                type: 'warning',
-//                message: this.workOrderForm.appName + '的生产环境下，服务没有版本！'
-//              });
-              this.$refs['applicationForm'].validate();
-              this.disableSubmit = true;
+              this.$message({
+                type: 'warning',
+                message: this.workOrderForm.appName + '的生产环境下，服务没有版本！'
+              });
+              this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
+              });
+//              this.disableSubmit = true;
+//              console.log(this.workOrderForm);
             }
           }
         }).catch(err => {

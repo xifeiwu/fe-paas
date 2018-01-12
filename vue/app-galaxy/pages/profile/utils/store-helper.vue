@@ -26,6 +26,9 @@ export default {
     appInfoListOfGroup() {
       return this.$store.getters['user/appInfoListOfGroup'];
     },
+    usersInGroup() {
+      return this.$store.getters['user/usersInGroup'];
+    },
     languageInfo() {
       let result = [];
       let value = this.$store.getters['app/messageForCreateAPP'];
