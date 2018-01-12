@@ -90,9 +90,14 @@
     </div>
     <div class="submit-section">
       <el-button type="primary" @click="handleFinish" :disabled="disableSubmit">完成</el-button>
-      <!--<el-tooltip slot="trigger" effect="dark" content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">-->
-        <!--<i class="el-icon-question"></i>-->
-      <!--</el-tooltip>-->
+      <el-tooltip slot="trigger" effect="dark" placement="top-start">
+        <div slot="content">
+          <div>提交工单注意事项</div>
+          <div>1. 必须选定生产环境版本，确保所选择应用的生产环境下有版本。</div>
+          <div>2. 在所选应用版本的工单处理完成前，不可提交新的工单。</div>
+        </div>
+        <i class="el-icon-question"></i>
+      </el-tooltip>
     </div>
   </div>
 </template>
@@ -109,7 +114,8 @@
     .feature-section {
       .title {
         border-left: 5px solid gray;
-        margin: 3px -2px;
+        border-top: 1px solid gray;
+        margin: 15px 0px 5px -2px;
       }
       .feature-form-list {
         .work-order-feature {
@@ -123,23 +129,30 @@
     .application-section {
       .title {
         border-left: 5px solid gray;
-        margin: 3px -2px;
+        border-top: 1px solid gray;
+        margin: 15px 0px 5px -2px;
       }
     }
     .acceptance-section {
       .title {
         border-left: 5px solid gray;
-        margin: 3px -2px;
+        border-top: 1px solid gray;
+        margin: 15px 0px 5px -2px;
       }
     }
     .submit-section {
       margin: 15px auto;
+      text-align: center;
       .el-button {
-        display: block;
+        display: inline-block;
         margin: 0px auto;
         width: 50%;
         max-width: 200px;
         text-align: center;
+      }
+      i {
+        font-size: 20px;
+        line-height: 28px;
       }
     }
   }
@@ -245,12 +258,14 @@
             if (version && Array.isArray(version) && version.length > 0) {
               this.versionList = version;
               this.workOrderForm.appVersion = version[0];
-            } else {
-              this.$message({
-                type: 'warning',
-                message: this.workOrderForm.appName + '的生产环境下，服务没有版本！'
-              });
               this.disableSubmit = false;
+            } else {
+//              this.$message({
+//                type: 'warning',
+//                message: this.workOrderForm.appName + '的生产环境下，服务没有版本！'
+//              });
+              this.$refs['applicationForm'].validate();
+              this.disableSubmit = true;
             }
           }
         }).catch(err => {

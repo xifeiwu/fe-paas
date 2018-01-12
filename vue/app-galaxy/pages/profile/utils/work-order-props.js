@@ -37,7 +37,7 @@ class WorkOrderUtils {
         }],
         appVersion: [{
           required: true,
-          message: '请选择应用版本',
+          message: '必须选择应用版本',
           trigger: 'blur'
         }],
         acceptanceUser: [
