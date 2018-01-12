@@ -240,6 +240,7 @@ export default {
       items.splice(items.indexOf(tag), 1);
     },
     handleAddFileLocation(tag) {
+      tag = tag.trim();
       let tagLength = tag.length;
       if (tagLength < 2 || tagLength > 18) {
         this.$message.error('长度在2到18个字符');
@@ -250,12 +251,17 @@ export default {
         return;
       }
       if (tag.length > 0) {
-        this.createAppForm.fileLocation.push(tag);
-        this.fileLocationToAdd = '';
+        if (this.createAppForm.fileLocation.indexOf(tag) > -1) {
+          this.$message.error('该文件存储已存在！');
+        } else {
+          this.createAppForm.fileLocation.push(tag);
+          this.fileLocationToAdd = '';
+        }
       }
     },
     handleFinish() {
       console.log(this.createAppForm);
+      var self = this;
       this.$refs['createAppForm'].validate((valid) => {
         if (valid) {
           this.createAppForm.groupID = this.currentGroupID;
