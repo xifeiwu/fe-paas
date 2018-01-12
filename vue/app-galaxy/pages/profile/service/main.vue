@@ -1087,6 +1087,8 @@ export default {
           let selectedProfileID = this.$getUserConfig('profile/service/profileID');
           if (selectedProfileID) {
             this.selectedProfileID = selectedProfileID;
+          } else {
+            this.selectedProfileID = defaultProfileID;
           }
         } else {
           // request service list when app id is changed while profile id is not changed.
@@ -1608,7 +1610,7 @@ export default {
           // get default version
           this.defaultVersion = '';
           this.currentServiceList.some(it => {
-            if (it.defaultVersion) {
+            if (it.defaultSelect) {
               this.defaultVersion = it.serviceVersion;
               return true;
             } else {
