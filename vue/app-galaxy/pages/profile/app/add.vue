@@ -5,7 +5,7 @@
              v-loading="showLoading"
              :element-loading-text="loadingText">
       <el-form-item label="团队">
-        <el-select v-model="currentGroupID" placeholder="请选择" @input="handleGroupIDChange">
+        <el-select v-model="currentGroupID" placeholder="请选择">
           <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
           </el-option>
         </el-select>
@@ -17,7 +17,7 @@
         <el-input v-model="createAppForm.projectName" placeholder="gitlab中project的名称"></el-input>
       </el-form-item>
       <el-form-item label="运行环境" prop="profiles" class="profiles">
-        <el-checkbox-group v-model="createAppForm.profiles" @change="handleProfileChange">
+        <el-checkbox-group v-model="createAppForm.profiles">
           <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
             {{item.description}}
           </el-checkbox>
@@ -96,7 +96,6 @@
 </style>
 <style lang="scss" scoped>
   #app-add {
-
     .el-form {
       margin: 30px auto 0px auto;
       width: 80%;
@@ -175,22 +174,6 @@ export default {
     };
   },
   computed: {
-    currentGroupID: {
-      get() {
-        if ('' === this.createAppForm.groupID) {
-          this.createAppForm.groupID = this.$store.getters['user/groupID'];
-        }
-        return this.createAppForm.groupID;
-      },
-      set(value) {
-        this.createAppForm.groupID = value;
-        this.$store.dispatch('user/groupID', {
-          value,
-          from:'add_app/step1'
-          }
-        );
-      }
-    },
     loadBalanceType() {
       return appPropUtil.getAllLoadBalance();
     },
@@ -210,12 +193,6 @@ export default {
           return it.name;
         });
       }
-    },
-    handleGroupIDChange: function(groupID) {
-//      this.requestAPPList(groupID, 1, 8, '');
-    },
-    handleProfileChange: function () {
-//      console.log(this.createAppForm.profiles);
     },
     setDefaultLanguage: function (languageList) {
       if (Array.isArray(languageList) && languageList.length > 0) {
@@ -281,6 +258,7 @@ export default {
       console.log(this.createAppForm);
       this.$refs['createAppForm'].validate((valid) => {
         if (valid) {
+          this.createAppForm.groupID = this.currentGroupID;
           this.$store.dispatch('app/addCreateAPPInfo', {
              key: 'page1',
              value: this.createAppForm

@@ -146,13 +146,14 @@
 
 <script>
   import routeUtils from './route';
+  import StoreHelper from './profile/utils/store-helper.vue';
 
   export default {
+    mixins: [StoreHelper],
     data() {
       return {
         activeSideMenuItem: '/profile/app',
         crumbList: [],
-        groupID: '',
       }
     },
     created() {
@@ -173,28 +174,6 @@
     computed: {
       menuList() {
         return this.$store.getters['user/menuList']
-      },
-      currentGroupID: {
-        get() {
-          if ('' === this.groupID) {
-            this.groupID = this.$store.getters['user/groupID'];
-          }
-          if (!this.groupID && (Array.isArray(this.groupList) && this.groupList.length > 0)) {
-            this.groupID = this.groupList[0]['id'];
-            this.$store.dispatch('user/groupID', {
-              value: this.groupID,
-              from: 'profile'
-            });
-          }
-          return this.groupID;
-        },
-        set(value) {
-          this.groupID = value;
-          this.$store.dispatch('user/groupID', {
-            value,
-            from: 'profile'
-          });
-        }
       },
       groupList() {
         let groupList = this.$store.getters['user/groupList'];

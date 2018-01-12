@@ -7,15 +7,19 @@
                ref="workOrderForm"
                size="mini"
                label-width="120px">
-        <el-form-item label="审批工单名称：" prop="name">
-          <el-input v-model="workOrderForm.workOrderName" style="width: 350px"></el-input>
+        <el-form-item label="审批工单名称" prop="name">
+          <el-input v-model="workOrderForm.name" style="width: 350px"></el-input>
         </el-form-item>
         <el-form-item label="申请人：">
           {{workOrderForm.userName}}
         </el-form-item>
         <el-form-item label="团队名称" prop="groupName">
-          <el-select v-model="workOrderForm.groupName" placeholder="请选择" style="width: 350px">
-            <el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">
+          <!--<el-select v-model="workOrderForm.groupName" placeholder="请选择" style="width: 350px">-->
+            <!--<el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">-->
+            <!--</el-option>-->
+          <!--</el-select>-->
+          <el-select v-model="workOrderForm.groupId" placeholder="请选择">
+            <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -101,7 +105,7 @@
   #work-order-add {
     width: 80%;
     /*max-width: 600px;*/
-    margin: 5px auto;
+    margin: 25px auto 5px auto;
     .feature-section {
       .title {
         border-left: 5px solid gray;
@@ -143,16 +147,23 @@
 <script>
   import workOrderUtils from '../utils/work-order-props';
   import features from './components/features.vue';
+  import StoreHelper from '../utils/store-helper.vue';
   export default {
     components: {features},
+    mixins: [StoreHelper],
+    created() {
+      this.workOrderForm.groupId = this.currentGroupID;
+      console.log(this.workOrderForm);
+    },
     data() {
       return {
         showLoading: false,
         loadingText: '',
         workOrderForm: {
           name: '',
-          userName: '***',
+          userName: this.$getUserInfo('realName'),
           groupName: '',
+          groupId: this.currentGroupID,
           features: [{
             name: '',
             type: '',
@@ -177,7 +188,7 @@
         console.log(this.workOrderForm.features);
       },
       handleFinish(){
-
+        console.log(this.workOrderForm);
       }
     }
   };

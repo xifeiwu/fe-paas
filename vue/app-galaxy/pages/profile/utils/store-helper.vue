@@ -1,9 +1,20 @@
 <script>
 export default {
+  created() {
+//    console.log('in created of store-helper.vue');
+  },
   computed: {
-    currentGroupID() {
-      let groupID = this.$store.getters['user/groupID'];
-      return groupID;
+    currentGroupID: {
+      get() {
+        let groupID = this.$store.getters['user/groupID'];
+        return groupID;
+      },
+      set(value) {
+        this.$store.dispatch('user/groupID', {
+          value,
+          from: 'store-helper'
+        });
+      }
     },
     groupList() {
       return this.$store.getters['user/groupList'];

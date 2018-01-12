@@ -280,6 +280,7 @@ const getters = {
     if (null === groupID) {
       groupID = localStorage.getItem('groupID');
     }
+    // if the groupID is null, set first element of groupList as default
     if (null === groupID && Array.isArray(state.groupList) && state.groupList.length > 0) {
       groupID = state.groupList[0].id
     }
