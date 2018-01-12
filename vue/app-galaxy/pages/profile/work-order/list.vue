@@ -63,11 +63,11 @@
             <el-button
                     size="mini-extral"
                     type="success"
+                    :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     @click="handleOperationClick('detail', scope.$index, scope.row)"
-                    :loading="waitingResponse && expandRows.indexOf(scope.row.id) > -1">
+                    :loading="waitingResponse && operation.rowID == scope.row.id">
               <span>详情</span>
-              <i class="el-icon-arrow-right"
-                 :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"></i>
+              <i class="el-icon-arrow-right"></i>
             </el-button>
             <el-button
                     size="mini-extral"
@@ -200,12 +200,14 @@
           .el-button {
             margin: 2px 4px;
             float: left;
+            &.expand {
+              .el-icon-arrow-right {
+                transform: rotate(90deg);
+              }
+            }
             .el-icon-arrow-right {
               vertical-align: middle;
               transition: transform 0.2s ease-in-out;
-              &.expand {
-                transform: rotate(90deg);
-              }
             }
             &:first-child {
               margin-left: 0px;
@@ -305,6 +307,7 @@
         expandRows: [],
 
         operation: {
+          rowID: null,
           name: null,
         },
         detailForm: {
@@ -450,15 +453,36 @@
       handleOperationClick(action, index, row) {
         switch (action) {
           case 'detail':
+            // operation.rowID is used to indicate which row is active
+            this.operation.rowID = row.id;
             // update expandRows
-            if (!row.hasOwnProperty('id')) {
+            let checkIfExpanded = () => {
+              let hasExpanded = false;
+              if (!row.hasOwnProperty('id')) {
+                hasExpanded = true;
+                return hasExpanded;
+              }
+              let key = row.id;
+              // close it if has expanded
+              if (this.expandRows.indexOf(key) > -1) {
+                this.expandRows.splice(this.expandRows.indexOf(key), 1);
+                hasExpanded = true;
+              }
+              return hasExpanded;
+            };
+            let updateExpandRows = () => {
+              if (!row.hasOwnProperty('id')) {
+                return;
+              }
+              let key = row.id;
+              if (this.expandRows.indexOf(key) > -1) {
+                this.expandRows.splice(this.expandRows.indexOf(key), 1);
+              } else {
+                this.expandRows.push(key);
+              }
+            };
+            if (checkIfExpanded()) {
               return;
-            }
-            let key = row.id;
-            if (this.expandRows.indexOf(key) > -1) {
-              this.expandRows.splice(this.expandRows.indexOf(key), 1);
-            } else {
-              this.expandRows = [key];
             }
 
             // update data of model for work-order-detail
@@ -493,6 +517,7 @@
               }
               this.operation.name = action;
               this.waitingResponse = false;
+              updateExpandRows();
             }).catch(err => {
               this.operation.name = action;
               this.waitingResponse = false;
