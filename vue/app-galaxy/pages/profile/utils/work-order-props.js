@@ -57,6 +57,14 @@ class WorkOrderUtils {
       },
     }
   }
+
+  getFeatureTypeList () {
+    return [{
+      id: 'DEMAND', name: '需求'
+    }, {
+      id: 'BUG', name: 'BUG'
+    }]
+  }
 }
 
 export default new WorkOrderUtils();

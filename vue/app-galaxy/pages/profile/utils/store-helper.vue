@@ -80,6 +80,14 @@ export default {
       }
       console.log(this.appInfoListOfGroup);
     },
+    getGroupInfoByID(groupID) {
+      let target;
+      this.groupList.some(it => {
+        target = it.id === groupID ? it : null;
+        return target
+      });
+      return target;
+    }
   }
 }
 </script>

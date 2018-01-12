@@ -14,11 +14,7 @@
           {{workOrderForm.userName}}
         </el-form-item>
         <el-form-item label="团队名称" prop="groupName">
-          <!--<el-select v-model="workOrderForm.groupName" placeholder="请选择" style="width: 350px">-->
-            <!--<el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">-->
-            <!--</el-option>-->
-          <!--</el-select>-->
-          <el-select v-model="workOrderForm.groupId" placeholder="请选择">
+          <el-select v-model="currentGroupID" placeholder="请选择">
             <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
@@ -42,15 +38,16 @@
                size="mini"
                label-width="120px">
         <el-form-item label="应用名称" prop="appName">
-          <el-select v-model="workOrderForm.appName" placeholder="请选择" style="width: 350px">
-            <el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">
+          <el-select v-model="workOrderForm.appID" placeholder="请选择" style="display:block; width: 350px;">
+            <el-option v-for="(item, index) in appInfoListOfGroup.appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="生成环境版本" prop="appVersion">
           <el-select v-model="workOrderForm.appVersion" placeholder="请选择" style="width: 350px">
-            <el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">
-            </el-option>
+            <!--<el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">-->
+            <!--</el-option>-->
+            <el-option v-for="(item, index) in versionList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -92,7 +89,10 @@
       </el-form>
     </div>
     <div class="submit-section">
-      <el-button type="primary" @click="handleFinish">完成</el-button>
+      <el-button type="primary" @click="handleFinish" :disabled="disableSubmit">完成</el-button>
+      <!--<el-tooltip slot="trigger" effect="dark" content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">-->
+        <!--<i class="el-icon-question"></i>-->
+      <!--</el-tooltip>-->
     </div>
   </div>
 </template>
@@ -148,28 +148,35 @@
   import workOrderUtils from '../utils/work-order-props';
   import features from './components/features.vue';
   import StoreHelper from '../utils/store-helper.vue';
+  import ElTooltip from "../../../../packages/tooltip/src/main";
+  import ElOption from "../../../../packages/select/src/option";
   export default {
-    components: {features},
+    components: {ElOption, ElTooltip, features},
     mixins: [StoreHelper],
+
     created() {
-      this.workOrderForm.groupId = this.currentGroupID;
-      console.log(this.workOrderForm);
+      this.onCurrentGroupID(this.currentGroupID);
+      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
     },
     data() {
       return {
         showLoading: false,
         loadingText: '',
+
+        rules: workOrderUtils.rules.workOrder,
         workOrderForm: {
           name: '',
           userName: this.$getUserInfo('realName'),
           groupName: '',
           groupId: this.currentGroupID,
+          groupName: '',
           features: [{
             name: '',
-            type: '',
+            type: workOrderUtils.getFeatureTypeList()[0]['id'],
             jiraAddress: null,
             description: null,
           }],
+          appID: null,
           appName: null,
           appVersion: null,
           acceptanceUser: [],
@@ -177,17 +184,87 @@
           mailGroup: [],
           comments: '',
         },
-        rules: workOrderUtils.rules.workOrder,
+        versionList: [],
+        disableSubmit: false,
       };
     },
+    watch: {
+      appInfoListOfGroup: 'onAppInfoListOfGroup',
+      'workOrderForm.appID': function (value) {
+        let appInfo = this.getAppInfoByID(value);
+        if (appInfo && appInfo.hasOwnProperty('app')) {
+          this.workOrderForm.appName = appInfo.app.serviceName;
+        }
+        this.requestProductVersionList(value);
+      },
+      currentGroupID: 'onCurrentGroupID',
+    },
     methods: {
+      onCurrentGroupID(value) {
+        this.workOrderForm.groupId = value;
+        let groupInfo = this.getGroupInfoByID(value);
+        if (groupInfo && groupInfo.hasOwnProperty('name')) {
+          this.workOrderForm.groupName = groupInfo.name;
+        }
+      },
+      onAppInfoListOfGroup(value) {
+        if (value.hasOwnProperty('appList')) {
+          if (Array.isArray(value.appList)) {
+            this.workOrderForm.appID = value.appList[0].appId;
+          }
+        }
+      },
       addFeatureForm() {
         this.workOrderForm.features.push({
-          name: null
+          name: '',
+          type: workOrderUtils.getFeatureTypeList()[0]['id'],
+          jiraAddress: null,
+          description: null,
         });
         console.log(this.workOrderForm.features);
       },
-      handleFinish(){
+
+      /**
+       * request version list when selectedAppId or selectedProfileId is changed
+       */
+      requestProductVersionList(appID) {
+        let spaceID = 1;
+        if (!appID || !spaceID) {
+          console.log('appID or spaceID can not be empty');
+          return;
+        }
+        this.workOrderForm.appVersion = null;
+        this.versionList = [];
+        this.$net.getServiceVersion({
+          appId: appID,
+          spaceId: spaceID
+        }).then(content => {
+          console.log(content);
+          if (content.hasOwnProperty('version')) {
+            let version = content.version;
+            if (version && Array.isArray(version) && version.length > 0) {
+              this.versionList = version;
+              this.workOrderForm.appVersion = version[0];
+            } else {
+              this.$message({
+                type: 'warning',
+                message: this.workOrderForm.appName + '的生产环境下，服务没有版本！'
+              });
+              this.disableSubmit = false;
+            }
+          }
+        }).catch(err => {
+          console.log(err);
+          this.$message({
+            type: 'error',
+            message: '查找服务版本失败！'
+          });
+        });
+      },
+      handleFinish() {
+        this.$refs['applicationForm'].validate((valid) => {
+          console.log(valid);
+        });
         console.log(this.workOrderForm);
       }
     }

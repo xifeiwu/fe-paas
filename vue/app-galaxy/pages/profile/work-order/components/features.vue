@@ -7,9 +7,8 @@
       </el-form-item>
       <el-form-item label="功能类型" prop="type">
         <el-radio-group v-model="featureInfo.type">
-          <el-radio label="gd">需求
-          </el-radio>
-          <el-radio label="gg">bug
+          <el-radio v-for="(item, index) in featureTypeList()" :label="item.id" :key="index">
+            {{item.name}}
           </el-radio>
         </el-radio-group>
       </el-form-item>
@@ -54,8 +53,9 @@
 </style>
 <script>
   import workOrderUtils from '../../utils/work-order-props';
+  import ElRadio from "../../../../../packages/radio/src/radio";
 export default {
-  created() {
+  components: {ElRadio}, created() {
   },
   mounted() {
   },
@@ -72,7 +72,11 @@ export default {
       rules: workOrderUtils.rules.feature,
     }
   },
+
   methods: {
+    featureTypeList() {
+      return workOrderUtils.getFeatureTypeList();
+    },
     onPlugClick() {
       console.log(this.featureInfo);
       this.$refs['featureForm'].validate(valid => {

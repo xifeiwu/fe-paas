@@ -242,7 +242,7 @@
     },
     computed: {
       needFilter() {
-        return this.filterMyApp || (this.filterKey > 0);
+        return this.filterMyApp || (this.filterKey.length > 0);
       }
     },
     methods: {
