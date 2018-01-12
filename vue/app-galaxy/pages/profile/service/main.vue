@@ -993,7 +993,7 @@
 export default {
   components: {ElRadio, ElCol, ElRow}, mixins: [StoreHelper],
   created() {
-    this.onUpdateAppInfoList(this.appInfoListOfGroup);
+    this.onAppInfoListOfGroup(this.appInfoListOfGroup);
     this.onCpuAndMemoryList(this.cpuAndMemoryList);
   },
   mounted() {
@@ -1069,7 +1069,7 @@ export default {
     /* used for dialog end */
   },
   watch: {
-    appInfoListOfGroup: 'onUpdateAppInfoList',
+    appInfoListOfGroup: 'onAppInfoListOfGroup',
     cpuAndMemoryList: 'onCpuAndMemoryList',
     selectedAppID: function (value, oldValue) {
       let appID = value;
@@ -1119,7 +1119,7 @@ export default {
      * 1. refresh this.appList
      * 2. get default appId
      */
-    onUpdateAppInfoList(appInfoListOfGroup) {
+    onAppInfoListOfGroup(appInfoListOfGroup) {
       if (appInfoListOfGroup) {
         if (appInfoListOfGroup.hasOwnProperty('appList')) {
           this.appList = appInfoListOfGroup.appList;
