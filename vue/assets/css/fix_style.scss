@@ -316,12 +316,15 @@ h4 {
               line-height: 32px;
               background-color: transparent;
             }
-            &.active {
+            &:hover {
+              //color: #2d2f33;
+              //font-weight: bold;
+              color: #2d2f33;
               font-size: 20px;
             }
-            &:hover {
-              //font-weight: bold;
-              //color: #2d2f33;
+            &.active {
+              font-size: 20px;
+              color: #409EFF;
             }
             &.btn-quicknext, &.btn-quickprev {
               background-color: transparent;
