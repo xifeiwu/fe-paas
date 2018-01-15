@@ -192,7 +192,6 @@
         workOrderForm: {
           name: '',
           userName: this.$getUserInfo('realName'),
-          groupName: '',
           groupId: this.currentGroupID,
           groupName: '',
           features: [{
@@ -330,13 +329,78 @@
           });
         });
         Promise.all([basicPromise, featurePromise, applicationPromise, acceptancePromise]).then(results => {
-          console.log(results);
-          console.log(Array.isArray(results));
-        });
-//        console.log(this.getUserInfoByID(this.workOrderForm.userAccepted));
-//        console.log(this.getUserInfoByID(this.workOrderForm.userNotify));
+          if (!Array.isArray(results)) {
+            return;
+          }
+          let valid = results.reduce((sum, valid) => {
+            return sum && valid;
+          });
+          if (valid) {
+            console.log(this.workOrderForm);
 
-        console.log(this.workOrderForm);
+            let toPost = {
+              workOrderDeploy: {
+                name: this.workOrderForm.name,
+                groupId: this.workOrderForm.groupId,
+                groupName: this.workOrderForm.groupName,
+              }
+            };
+            toPost.workOrderDeployFunctionList = this.workOrderForm.features.map(it => {
+              return {
+                functionName: it.name,
+                functionType: it.type,
+                jiraAddress: it.jiraAddress,
+                description: it.description
+              }
+            });
+            toPost.workOrderDeployAppList = [{
+              appId: this.workOrderForm.appID,
+              appName: this.workOrderForm.appName
+            }];
+            // 验收人
+            let userAcceptedList = this.getUserInfoByID(this.workOrderForm.userAccepted);
+            if (userAcceptedList) {
+              toPost.acceptanceUserList = userAcceptedList.map(it => {
+                return {
+                  userId: it.id,
+                  userName: it.realName
+                }
+              })
+            } else {
+              toPost.acceptanceUserList = [];
+            }
+            // 知会人
+            let userNotifyList = this.getUserInfoByID(this.workOrderForm.userNotify);
+            if (userNotifyList) {
+              toPost.informUserList = userNotifyList.map(it => {
+                return {
+                  userId: it.id,
+                  userName: it.realName
+                }
+              })
+            } else {
+              toPost.informUserList = [];
+            }
+            // 邮件组
+            toPost.emailGroupList = [{
+              emailGroupName: this.workOrderForm.mailGroup
+            }];
+            console.log(toPost);
+            this.$net.createWorkOrder(toPost);
+          } else {
+            let [basicCheck, featureCheck, appCheck, acceptanceCheck] = results;
+            if (!featureCheck) {
+              this.$message.error('请检查"功能列表"部分是否正确');
+            } else if (!appCheck) {
+              this.$message.error('请检查"程序列表"部分是否正确');
+            } else if (!acceptanceCheck) {
+              this.$message.error('请检查"验收信息"部分是否正确');
+            }
+          }
+
+          console.log(results);
+        });
+//        console.log(this.workOrderForm);
       }
     }
   };

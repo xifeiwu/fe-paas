@@ -77,10 +77,13 @@ var urlList = {
   'work_order_user_accepted': path + '/acceptanceUser/getWorkOrderDeployAcceptUser',
   // 操作记录
   'work_order_operation_list': path + '/workOrderDeployLog/getWorkOrderDeployLog',
+  // 创建工单
+  'work_order_create': path + '/workOrderDeploy/applyWordOrderDeploy',
   // 获取验收人
   'users_in_group': path + '/group/users',
   // 获取验收人
   'users_all': path + '/user/queryUserList',
+
 
 };
 

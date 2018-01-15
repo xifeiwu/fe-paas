@@ -828,6 +828,17 @@ class Net {
       })
     })
   }
+
+  // 创建工单
+  createWorkOrder(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.work_order_create, options).then(response => {
+        console.log(response);
+      }).catch(err => {
+        console.log(err);
+      })
+    })
+  }
 }
 
 export default new Net();

@@ -112,7 +112,7 @@
                   <el-table :data="detailForm.operationList">
                     <el-table-column label="处理时间" prop="createTime" headerAlign="center">
                     </el-table-column>
-                    <el-table-column label="处理操作" prop="action" headerAlign="center">
+                    <el-table-column label="处理操作" prop="actionName" headerAlign="center">
                     </el-table-column>
                     <el-table-column label="处理人" prop="handleUserName" headerAlign="center">
                     </el-table-column>
