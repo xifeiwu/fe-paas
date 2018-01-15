@@ -357,12 +357,18 @@ class Net {
    * @param options
    * @returns {Promise}
    */
-  getAllUsers() {
+  getUsersAll() {
     return new Promise((resolve, reject) => {
       axios.get(URL_LIST.users_all).then(response => {
-        console.log(response);
+        let content = this.getResponseContent(response);
+        if (content && content.hasOwnProperty('userList')) {
+          resolve(content.userList);
+        } else {
+          reject();
+        }
       }).catch(err => {
         console.log(err);
+        reject(err);
       })
     })
   }

@@ -47,7 +47,7 @@ const state = {
 
   /* net data */
   messageForCreateAPP: null,
-  usersAll: [],
+  usersAll: null,
 };
 
 const actions = {
@@ -88,6 +88,14 @@ const actions = {
       });
     // }
   },
+  getUsersAll({commit, state}) {
+    if (!state.usersAll) {
+      NetData.getUsersAll().then(userList => {
+        // console.log(userList);
+        state.usersAll = userList;
+      });
+    }
+  },
 };
 
 const mutations = {
@@ -127,6 +135,9 @@ const getters = {
   /* net data */
   'messageForCreateAPP': (state, getters) => {
     return getValue({state, getters}, 'messageForCreateAPP');
+  },
+  'usersAll': (state, getters) => {
+    return state.usersAll;
   }
 };
 

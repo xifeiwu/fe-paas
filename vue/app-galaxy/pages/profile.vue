@@ -175,6 +175,9 @@
       this.$store.dispatch('user/groupID', {
         value: this.currentGroupID
       });
+      this.$nextTick(() => {
+        this.$store.dispatch('app/getUsersAll');
+      });
       this.updateCrumbList(this.$route.path);
     },
     mounted() {

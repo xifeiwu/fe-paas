@@ -29,6 +29,9 @@ export default {
     usersInGroup() {
       return this.$store.getters['user/usersInGroup'];
     },
+    usersAll() {
+      return this.$store.getters['app/usersAll'];
+    },
     languageInfo() {
       let result = [];
       let value = this.$store.getters['app/messageForCreateAPP'];
@@ -90,6 +93,17 @@ export default {
         return target
       });
       return target;
+    },
+    getUserInfoByID(userIdList) {
+      let results = null;
+      if (Array.isArray(userIdList)) {
+        if (this.usersAll && Array.isArray(this.usersAll)) {
+          results = this.usersAll.filter(it => {
+            return userIdList.indexOf(it.id) > -1;
+          })
+        }
+      }
+      return results;
     }
   }
 }

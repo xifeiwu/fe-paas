@@ -74,15 +74,12 @@
         </el-form-item>
         <el-form-item label="知会人" prop="userNotify">
           <el-select v-model="workOrderForm.userNotify" multiple placeholder="请选择" style="width: 350px">
-            <el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">
+            <el-option v-for="item in allUsers" :key="item.id" :label="item.realName" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="邮件组" prop="mailGroup">
-          <el-select v-model="workOrderForm.mailGroup" multiple placeholder="请选择" style="width: 350px">
-            <el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">
-            </el-option>
-          </el-select>
+          <el-input v-model="workOrderForm.mailGroup"></el-input>
         </el-form-item>
         <el-form-item label="工单备注" prop="comments">
           <el-input v-model="workOrderForm.comments"
@@ -175,13 +172,15 @@
   import StoreHelper from '../utils/store-helper.vue';
   import ElTooltip from "../../../../packages/tooltip/src/main";
   import ElOption from "../../../../packages/select/src/option";
+  import ElInput from "../../../../packages/input/src/input";
   export default {
-    components: {ElOption, ElTooltip, features},
+    components: {ElInput, ElOption, ElTooltip, features},
     mixins: [StoreHelper],
 
     created() {
       this.onCurrentGroupID(this.currentGroupID);
       this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+      this.onUsersAll(this.usersAll);
     },
     data() {
       return {
@@ -206,10 +205,11 @@
           appVersion: '',
           userAccepted: [],
           userNotify: [],
-          mailGroup: [],
+          mailGroup: '',
           comments: '',
         },
         versionList: [],
+        allUsers: [],
         disableSubmit: false,
       };
     },
@@ -227,6 +227,7 @@
         });
       },
       currentGroupID: 'onCurrentGroupID',
+      usersAll: 'onUsersAll'
     },
     methods: {
       onCurrentGroupID(value) {
@@ -235,6 +236,9 @@
         if (groupInfo && groupInfo.hasOwnProperty('name')) {
           this.workOrderForm.groupName = groupInfo.name;
         }
+      },
+      onUsersAll(value) {
+        this.allUsers = value;
       },
       onAppInfoListOfGroup(value) {
         if (value.hasOwnProperty('appList')) {
@@ -283,7 +287,7 @@
               this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
               });
 //              this.disableSubmit = true;
-              console.log(this.workOrderForm);
+//              console.log(this.workOrderForm);
             }
           }
         }).catch(err => {
@@ -299,6 +303,8 @@
         this.$refs['applicationForm'].validate((valid) => {
           console.log(valid);
         });
+//        console.log(this.getUserInfoByID(this.workOrderForm.userAccepted));
+//        console.log(this.getUserInfoByID(this.workOrderForm.userNotify));
 
         console.log(this.workOrderForm);
       }

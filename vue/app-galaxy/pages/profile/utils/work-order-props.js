@@ -58,8 +58,9 @@ class WorkOrderUtils {
           trigger: 'blur'
         }
         ],
-        mailGroup: [
-
+        mailGroup: [{
+          required: false,
+        }
         ],
         comments: [{
           required: false,
