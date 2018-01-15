@@ -47,6 +47,7 @@ const state = {
 
   /* net data */
   messageForCreateAPP: null,
+  usersAll: [],
 };
 
 const actions = {

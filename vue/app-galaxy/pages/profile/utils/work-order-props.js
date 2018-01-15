@@ -39,12 +39,24 @@ class WorkOrderUtils {
           required: true,
           message: '必须选择应用版本',
           trigger: 'blur'
+        }, {
+          required: true,
+          message: '必须选择应用版本',
+          trigger: 'change'
         }],
-        acceptanceUser: [
-
+        userAccepted: [{
+          type: 'array',
+          required: true,
+          message: '请选择验收人',
+          trigger: 'blur'
+        }
         ],
-        notifyUser: [
-
+        userNotify: [{
+          type: 'array',
+          required: true,
+          message: '请选择知会人',
+          trigger: 'blur'
+        }
         ],
         mailGroup: [
 

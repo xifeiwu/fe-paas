@@ -2,6 +2,16 @@
   <div id="work-order-add"
        v-loading="showLoading"
        :element-loading-text="loadingText">
+    <div class="title-section">
+      <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
+        <div slot="content">
+          <div>申请工单注意事项</div>
+          <div>1. 必须选定生产环境版本，确保所选择应用的生产环境下有版本。</div>
+          <div>2. 在所选应用版本的工单处理完成前，不可提交新的工单。</div>
+        </div>
+        <span>申请工单<i class="el-icon-question"></i></span>
+      </el-tooltip>
+    </div>
     <div class="basic-section">
       <el-form :model="workOrderForm" :rules="rules"
                ref="workOrderForm"
@@ -56,14 +66,14 @@
                ref="acceptanceForm"
                size="mini"
                label-width="120px">
-        <el-form-item label="验收人" prop="acceptanceUser">
-          <el-select v-model="workOrderForm.acceptanceUser" multiple placeholder="请选择" style="width: 350px">
+        <el-form-item label="验收人" prop="userAccepted">
+          <el-select v-model="workOrderForm.userAccepted" multiple placeholder="请选择" style="width: 350px">
             <el-option v-for="item in usersInGroup" :key="item.userId" :label="item.realName" :value="item.userId">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="知会人" prop="notifyUser">
-          <el-select v-model="workOrderForm.notifyUser" multiple placeholder="请选择" style="width: 350px">
+        <el-form-item label="知会人" prop="userNotify">
+          <el-select v-model="workOrderForm.userNotify" multiple placeholder="请选择" style="width: 350px">
             <el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">
             </el-option>
           </el-select>
@@ -88,14 +98,6 @@
     </div>
     <div class="submit-section">
       <el-button type="primary" @click="handleFinish" :disabled="disableSubmit">完成</el-button>
-      <el-tooltip slot="trigger" effect="dark" placement="top-start">
-        <div slot="content">
-          <div>提交工单注意事项</div>
-          <div>1. 必须选定生产环境版本，确保所选择应用的生产环境下有版本。</div>
-          <div>2. 在所选应用版本的工单处理完成前，不可提交新的工单。</div>
-        </div>
-        <i class="el-icon-question"></i>
-      </el-tooltip>
     </div>
   </div>
 </template>
@@ -107,13 +109,19 @@
   }
   #work-order-add {
     width: 80%;
-    /*max-width: 600px;*/
+    max-width: 620px;
     margin: 25px auto 5px auto;
+    .title-section {
+      text-align: center;
+      margin: 15px 0px;
+    }
     .feature-section {
+      width: 620px;
       .title {
         border-left: 5px solid gray;
         border-top: 1px solid gray;
-        margin: 15px 0px 5px -2px;
+        padding-left: 5px;
+        margin: 15px 0px 15px -2px;
       }
       .feature-form-list {
         .work-order-feature {
@@ -125,17 +133,23 @@
       }
     }
     .application-section {
+      width: 480px;
+      /*margin: 0px auto;*/
       .title {
         border-left: 5px solid gray;
         border-top: 1px solid gray;
-        margin: 15px 0px 5px -2px;
+        padding-left: 5px;
+        margin: 15px 0px 15px -2px;
       }
     }
     .acceptance-section {
+      width: 480px;
+      /*margin: 0px auto;*/
       .title {
         border-left: 5px solid gray;
         border-top: 1px solid gray;
-        margin: 15px 0px 5px -2px;
+        padding-left: 5px;
+        margin: 15px 0px 15px -2px;
       }
     }
     .submit-section {
@@ -189,9 +203,9 @@
           }],
           appID: null,
           appName: null,
-          appVersion: null,
-          acceptanceUser: [],
-          notifyUser: [],
+          appVersion: '',
+          userAccepted: [],
+          userNotify: [],
           mailGroup: [],
           comments: '',
         },
@@ -207,6 +221,10 @@
           this.workOrderForm.appName = appInfo.app.serviceName;
         }
         this.requestProductVersionList(value);
+      },
+      'workOrderForm.appVersion': function () {
+        this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
+        });
       },
       currentGroupID: 'onCurrentGroupID',
     },
@@ -250,7 +268,7 @@
           appId: appID,
           spaceId: spaceID
         }).then(content => {
-          console.log(content);
+//          console.log(content);
           if (content.hasOwnProperty('version')) {
             let version = content.version;
             if (version && Array.isArray(version) && version.length > 0) {
@@ -265,7 +283,7 @@
               this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
               });
 //              this.disableSubmit = true;
-//              console.log(this.workOrderForm);
+              console.log(this.workOrderForm);
             }
           }
         }).catch(err => {
@@ -276,10 +294,12 @@
           });
         });
       },
+
       handleFinish() {
         this.$refs['applicationForm'].validate((valid) => {
           console.log(valid);
         });
+
         console.log(this.workOrderForm);
       }
     }
