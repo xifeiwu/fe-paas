@@ -261,6 +261,7 @@
         height: 26px;
       }
     }
+    /*not used*/
     .el-dialog {
       width: 80%;
       min-width: 500px;
@@ -291,7 +292,6 @@
     data() {
       return {
         searchForm: {
-//          workOrderName: '',
           workOrderName: '',
           creator: '',
           status: '',
@@ -434,7 +434,7 @@
             }
             this.showLoading = true;
             this.$net.getWorkOrderList(options).then(content => {
-              console.log(content);
+//              console.log(content);
               if (content.hasOwnProperty('workOrderDeployList')) {
                 this.workOrderList = content.workOrderDeployList;
               }

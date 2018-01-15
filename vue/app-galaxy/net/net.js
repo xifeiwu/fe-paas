@@ -705,6 +705,7 @@ class Net {
         }
       }).catch(err => {
         console.log(err);
+        reject(err);
       })
     })
   }
@@ -715,8 +716,22 @@ class Net {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.work_order_todo_list, options).then(response => {
         console.log(response);
+        let content = this.getResponseContent(response);
+        if (content) {
+          if (content.hasOwnProperty('todoWorkOrderList') && Array.isArray(content.todoWorkOrderList)) {
+            content.todoWorkOrderList.forEach(it => {
+              if (it.hasOwnProperty('createTime')) {
+                it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              }
+            })
+          }
+          resolve(content);
+        } else {
+          reject('error: getWorkOrderToDoList');
+        }
       }).catch(err => {
         console.log(err);
+        reject(err);
       })
     })
   }
