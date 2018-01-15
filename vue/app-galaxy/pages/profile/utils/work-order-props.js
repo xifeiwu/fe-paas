@@ -49,6 +49,13 @@ class WorkOrderUtils {
           required: true,
           message: '请选择验收人',
           trigger: 'blur'
+        }, {
+          validator(rule, values, callback) {
+            let passed = values.length > 0;
+            if (passed) {
+              callback();
+            }
+          }
         }
         ],
         userNotify: [{
@@ -56,6 +63,13 @@ class WorkOrderUtils {
           required: true,
           message: '请选择知会人',
           trigger: 'blur'
+        }, {
+          validator(rule, values, callback) {
+            let passed = values.length > 0;
+            if (passed) {
+              callback();
+            }
+          }
         }
         ],
         mailGroup: [{

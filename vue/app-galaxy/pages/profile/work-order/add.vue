@@ -14,7 +14,7 @@
     </div>
     <div class="basic-section">
       <el-form :model="workOrderForm" :rules="rules"
-               ref="workOrderForm"
+               ref="basicForm"
                size="mini"
                label-width="120px">
         <el-form-item label="审批工单名称" prop="name">
@@ -24,7 +24,7 @@
           {{workOrderForm.userName}}
         </el-form-item>
         <el-form-item label="团队名称" prop="groupName">
-          <el-select v-model="currentGroupID" placeholder="请选择">
+          <el-select v-model="currentGroupID" placeholder="请选择" style="width: 350px">
             <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
@@ -35,6 +35,7 @@
       <div class="title">功能列表</div>
       <div class="feature-form-list">
         <features v-for="(item, index) in workOrderForm.features" :key="index"
+                  :id="index"
                   :featureInfo="item"
                   :showPlug="index == workOrderForm.features.length - 1"
                   :onPlug="addFeatureForm"
@@ -54,7 +55,8 @@
           </el-select>
         </el-form-item>
         <el-form-item label="生成环境版本" prop="appVersion">
-          <el-select v-model="workOrderForm.appVersion" placeholder="请选择" style="width: 350px">
+          <el-select v-model="workOrderForm.appVersion"
+                     :placeholder="versionList.length > 0 ? '请选择': '当前应用下无版本'" style="width: 350px">
             <el-option v-for="(item, index) in versionList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
         </el-form-item>
@@ -79,17 +81,13 @@
           </el-select>
         </el-form-item>
         <el-form-item label="邮件组" prop="mailGroup">
-          <el-input v-model="workOrderForm.mailGroup"></el-input>
+          <el-input v-model="workOrderForm.mailGroup" style="width: 350px"></el-input>
         </el-form-item>
         <el-form-item label="工单备注" prop="comments">
           <el-input v-model="workOrderForm.comments"
                     type="textarea"
                     :rows="2"
                     style="width: 350px"></el-input>
-          <!--<el-select v-model="workOrderForm.comments" multiple placeholder="请选择" style="width: 350px">-->
-          <!--<el-option v-for="item in ['A', 'B', 'C']" :key="item" :label="item" :value="item">-->
-          <!--</el-option>-->
-          <!--</el-select>-->
         </el-form-item>
       </el-form>
     </div>
@@ -113,6 +111,7 @@
       margin: 15px 0px;
     }
     .feature-section {
+      margin-top: 22px;
       width: 620px;
       .title {
         border-left: 5px solid gray;
@@ -130,23 +129,25 @@
       }
     }
     .application-section {
+      margin-top: 22px;
       width: 480px;
       /*margin: 0px auto;*/
       .title {
         border-left: 5px solid gray;
         border-top: 1px solid gray;
         padding-left: 5px;
-        margin: 15px 0px 15px -2px;
+        margin-bottom: 5px;
       }
     }
     .acceptance-section {
+      margin-top: 32px;
       width: 480px;
       /*margin: 0px auto;*/
       .title {
         border-left: 5px solid gray;
         border-top: 1px solid gray;
         padding-left: 5px;
-        margin: 15px 0px 15px -2px;
+        margin-bottom: 5px;
       }
     }
     .submit-section {
@@ -199,6 +200,7 @@
             type: workOrderUtils.getFeatureTypeList()[0]['id'],
             jiraAddress: null,
             description: null,
+            valid: false
           }],
           appID: null,
           appName: null,
@@ -253,6 +255,7 @@
           type: workOrderUtils.getFeatureTypeList()[0]['id'],
           jiraAddress: null,
           description: null,
+          valid: false
         });
         console.log(this.workOrderForm.features);
       },
@@ -300,8 +303,35 @@
       },
 
       handleFinish() {
-        this.$refs['applicationForm'].validate((valid) => {
-          console.log(valid);
+        let basicPromise = new Promise((resolve, reject) => {
+          this.$refs['basicForm'].validate((valid) => {
+//            console.log(valid);
+            resolve(valid);
+          });
+        });
+        let featurePromise = new Promise((resolve, reject) => {
+          let valid = this.workOrderForm.features
+            .map(it => {return it.valid})
+            .reduce((sum, valid) => {
+            return sum && valid;
+          });
+          resolve(valid);
+        });
+        let applicationPromise = new Promise((resolve, reject) => {
+          this.$refs['applicationForm'].validate((valid) => {
+//            console.log(valid);
+            resolve(valid);
+          });
+        });
+        let acceptancePromise = new Promise((resolve, reject) => {
+          this.$refs['acceptanceForm'].validate((valid) => {
+//            console.log(valid);
+            resolve(valid);
+          });
+        });
+        Promise.all([basicPromise, featurePromise, applicationPromise, acceptancePromise]).then(results => {
+          console.log(results);
+          console.log(Array.isArray(results));
         });
 //        console.log(this.getUserInfoByID(this.workOrderForm.userAccepted));
 //        console.log(this.getUserInfoByID(this.workOrderForm.userNotify));

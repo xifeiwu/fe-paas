@@ -46,7 +46,7 @@
     }
     .el-form {
       .el-form-item--mini {
-        margin-bottom: 12px;
+        margin-bottom: 16px;
       }
     }
   }
@@ -58,8 +58,10 @@ export default {
   components: {ElRadio}, created() {
   },
   mounted() {
+    this.checkValidate();
   },
   props: {
+    id: null,
     showPlug: {
       type: Boolean,
       default: false
@@ -72,15 +74,24 @@ export default {
       rules: workOrderUtils.rules.feature,
     }
   },
-
+  watch: {
+    'featureInfo.name': 'checkValidate',
+    'featureInfo.type': 'checkValidate',
+    'featureInfo.jiraAddress': 'checkValidate',
+  },
   methods: {
     featureTypeList() {
       return workOrderUtils.getFeatureTypeList();
     },
-    onPlugClick() {
-      console.log(this.featureInfo);
-      this.$refs['featureForm'].validate(valid => {
+    checkValidate() {
+      this.$refs.hasOwnProperty('featureForm') && this.$refs['featureForm'].validate(valid => {
         console.log(valid);
+        this.featureInfo.valid = valid;
+      })
+    },
+    onPlugClick() {
+//      console.log(this.featureInfo);
+      this.$refs['featureForm'].validate(valid => {
         if (valid) {
           this.onPlug();
         }
