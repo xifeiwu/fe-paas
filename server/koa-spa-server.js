@@ -3,10 +3,12 @@ const koaServer = require('./koa-spa-server');
 // const L = require('nirvana-logger')('example');
 const port = process.env.PORT0 || 7002;
 
+var javaServer = 'http://172.16.106.191:30333';
+var javaServer = 'http://galaxy-web-server.galaxy.test';
 const proxyTable = {
   '/api/(.*)': {
-    target: 'http://172.16.106.191:30333',
-    changeOrigin: false,
+    target: javaServer,
+    changeOrigin: true,
     logs: true,
     pathRewrite: function (url, match) {
       return '/' + match['0'];

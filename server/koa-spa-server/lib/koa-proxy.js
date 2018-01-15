@@ -11,8 +11,6 @@ const L = require('nirvana-logger')('proxy');
  */
 
 const proxy = HttpProxy.createProxyServer({
-  changeOrigin: false,
-  hostRewrite: false
 });
 const route = pathMatch({
   // path-to-regexp options

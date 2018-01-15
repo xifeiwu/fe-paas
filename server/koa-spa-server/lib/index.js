@@ -58,12 +58,14 @@ class SpaServer {
       // 设置代理
       setProxy(app, option.proxyTable);
       koaproxy.setProxyEvent('proxyReq', (proxyReq, req, res) => {
-        // console.log(proxyReq);
+        // console.log(proxyReq.headers);
         // console.log(req.headers);
+        // delete req.headers['host'];
         // console.log(res.headers);
       });
       koaproxy.setProxyEvent('proxyRes', (proxyRes, req, res) => {
         // console.log(proxyRes.headers);
+        // console.log(req.headers);
         proxyRes.headers['access-control-allow-origin'] = '*'
         delete proxyRes.headers['access-control-allow-credentials'];
         // console.log(req.headers);
@@ -78,6 +80,9 @@ class SpaServer {
         proxyRes.on('finish', function (chunk) {
           // console.log('finish', chunk.toString());
         });
+        proxyRes.on('error', function (chunk) {
+          console.log('error', chunk)
+        })
       });
     }
 
