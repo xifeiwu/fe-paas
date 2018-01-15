@@ -834,8 +834,15 @@ class Net {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.work_order_create, options).then(response => {
         console.log(response);
+        let result = this.getResponseMsg(response);
+        if (result.success) {
+          resolve(result.msg);
+        } else {
+          reject(result.msg);
+        }
       }).catch(err => {
         console.log(err);
+        reject('创建工单失败！');
       })
     })
   }

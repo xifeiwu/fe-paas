@@ -386,7 +386,25 @@
               emailGroupName: this.workOrderForm.mailGroup
             }];
             console.log(toPost);
-            this.$net.createWorkOrder(toPost);
+            this.showLoading = true;
+            this.loadingText = '正在创建工单"' + this.workOrderForm.name + '"';
+            this.$net.createWorkOrder(toPost).then((msg) => {
+              this.$alert('即将进入工单列表页', '创建工单成功', {
+                confirmButtonText: '确定',
+                callback: () => {
+                  this.$router.push('/profile/work-order/list');
+                }
+              });
+              this.showLoading = false;
+              this.loadingText = '';
+            }).catch(msg => {
+              this.$notify.error({
+                title: '创建工单失败',
+                message: msg
+              });
+              this.showLoading = false;
+              this.loadingText = '';
+            });
           } else {
             let [basicCheck, featureCheck, appCheck, acceptanceCheck] = results;
             if (!featureCheck) {
@@ -397,11 +415,8 @@
               this.$message.error('请检查"验收信息"部分是否正确');
             }
           }
-
-          console.log(results);
         });
-//        console.log(this.workOrderForm);
-      }
+      },
     }
   };
 </script>
