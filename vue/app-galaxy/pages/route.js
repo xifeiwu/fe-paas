@@ -95,6 +95,7 @@ var Router = function () {
           path: 'deploy',
           name: '部署日志',
           component: LogDeploy,
+          meta: {keepAlive: true}
         }]
       }, {
         path: 'work-order',

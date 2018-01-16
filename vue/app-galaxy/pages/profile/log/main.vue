@@ -3,7 +3,9 @@
     <el-tabs v-model="currentPath" type="card" @tab-click="handleClick">
       <el-tab-pane v-for="item in tabs" :label="item.label" :name="item.name" :key="item.name"></el-tab-pane>
     </el-tabs>
-    <router-view></router-view>
+    <keep-alive>
+      <router-view v-if="$route.meta.keepAlive"></router-view>
+    </keep-alive>
   </div>
 </template>
 <style lang="scss" scoped>

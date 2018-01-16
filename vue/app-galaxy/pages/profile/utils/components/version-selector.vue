@@ -102,7 +102,7 @@
         if (null == value) {
           return;
         }
-        this.requestInstanceList(this.selectedAPP.appId, this.selectedProfileID, value);
+        this.requestInstanceList(this.selectedAPP, this.selectedProfileID, value);
       },
     },
     methods: {
@@ -165,8 +165,8 @@
       /**
        * 获取实例列表
        */
-      requestInstanceList(appID, spaceID, version) {
-        this.$emit('version-selected', appID, spaceID, version);
+      requestInstanceList(appInfo, spaceID, version) {
+        this.$emit('version-selected', appInfo, spaceID, version);
       },
     }
   }

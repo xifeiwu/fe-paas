@@ -50,10 +50,10 @@
       }
     },
     methods: {
-      onVersionSelected(appID, profileID, version) {
+      onVersionSelected(appInfo, profileID, version) {
 //        console.log(appId, profileID, version);
         this.$net.getDeployLogList({
-          appId: appID,
+          appId: appInfo.appId,
           spaceId: profileID,
           serviceVersion: version
         }).then(deployLogList => {
