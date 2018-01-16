@@ -25,12 +25,13 @@
             <el-button
                     size="mini-extral"
                     type="success"
+                    :loading="waitingResponse && operation.rowID == scope.row.id"
                     @click="handleOperationClick('show-log', scope.$index, scope.row)">查看日志</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <el-dialog-log :showStatus="dialogStatus"></el-dialog-log>
+    <el-dialog-log :showStatus="dialogStatus" :deployLogs="deployLogs"></el-dialog-log>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -49,11 +50,16 @@
       return {
         showLoading: false,
         deployLogList: [],
+        operation: {
+          appID: 0
+        },
+        waitingResponse: false,
 
         dialogStatus: {
           visible: false,
           full: false,
-        }
+        },
+        deployLogs: []
       }
     },
     methods: {
@@ -73,7 +79,22 @@
       handleOperationClick(action, index, row) {
         switch (action) {
           case 'show-log':
-            this.dialogStatus.visible = true;
+            let logPath = row.logPath;
+            let logName = row.logName;
+            if (!logPath || !logName) {
+              this.$message.error('该次部署失败，没有部署日志');
+              return;
+            }
+            this.operation.rowID = row.id;
+            this.waitingResponse = true;
+            this.$net.getHistoryDeployLog({
+              logPath, logName
+            }).then(deployLog => {
+//              console.log(deployLog);
+              this.waitingResponse = false;
+              this.deployLogs = deployLog.split('\n');
+              this.dialogStatus.visible = true;
+            });
             break;
         }
       }

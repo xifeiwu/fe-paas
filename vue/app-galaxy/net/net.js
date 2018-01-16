@@ -694,8 +694,29 @@ class Net {
             it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
           });
           resolve(content.deployLogList);
+          this.showLog('getDeployLogList', content.deployLogList);
         } else {
           reject('getDeployLogList, not found.')
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
+  /**
+   * 获取历史部署日志
+    */
+  getHistoryDeployLog(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.log_deploy_log, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content && content.hasOwnProperty('deployLog')) {
+          resolve(content.deployLog);
+          // this.showLog('getHistoryDeployLog', content.deployLog);
+        } else {
+          reject('getHistoryDeployLog, not found deployLog');
         }
       }).catch(err => {
         console.log(err);
