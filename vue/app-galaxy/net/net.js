@@ -684,6 +684,25 @@ class Net {
     })
   }
 
+  // 获取部署列表
+  getDeployLogList(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.log_deploy_list, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content && content.hasOwnProperty('deployLogList')) {
+          content.deployLogList.forEach(it => {
+            it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+          });
+          resolve(content.deployLogList);
+        } else {
+          reject('getDeployLogList, not found.')
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
   /**
    * 获取工单列表
    */

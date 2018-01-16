@@ -63,6 +63,9 @@ var urlList = {
   // 获取实例列表
   'instance_list': path + '/service/queryInstance',
 
+  // 获取部署日志
+  'log_deploy_list': path + '/deployLog/getDeployLog',
+
   // 工单列表
   'work_order_list': path + '/workOrderDeploy/getWorkOrderDeployList',
   'work_order_todo_list': path + '/workOrderDeploy/getTodoWorkOrderListByUser',
