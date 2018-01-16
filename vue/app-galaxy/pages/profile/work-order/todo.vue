@@ -67,7 +67,7 @@
             <el-button
                     size="mini-extral"
                     type="success"
-                    @click="handleOperationClick('deploy-log', scope.$index, scope.row)">部署日志</el-button>
+                    @click="handleOperationClick('handle', scope.$index, scope.row)">处理</el-button>
           </template>
         </el-table-column>
         <el-table-column type="expand"
@@ -348,7 +348,6 @@
               options.endTime = '';
             }
             this.$net.getWorkOrderToDoList(options).then(content => {
-              console.log(content);
               if (content.hasOwnProperty('todoWorkOrderList')) {
                 this.workOrderList = content.todoWorkOrderList;
               }
@@ -436,8 +435,8 @@
               this.waitingResponse = false;
             });
             break;
-          case 'deploy-log':
-            console.log('deploy-log');
+          case 'handle':
+            console.log('handle');
             break;
         }
       },
