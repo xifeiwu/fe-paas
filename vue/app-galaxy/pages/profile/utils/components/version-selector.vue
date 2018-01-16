@@ -36,6 +36,7 @@
     font-size: 14px;
     .item {
       display: inline-block;
+      margin-right: 3px;
     }
   }
 </style>
