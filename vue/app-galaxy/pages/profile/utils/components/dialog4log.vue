@@ -82,6 +82,7 @@
         dialog.style.height = '100%';
         dialog.style.margin = '0px';
       }
+      this.dialog = dialog;
     },
     props: {
       showStatus: {
@@ -92,15 +93,36 @@
             full: false
           };
         }
+      },
+      deployLogs: {
+        type: Array,
+        default() {
+          return [];
+        }
       }
     },
     watch: {
+      'showStatus.visible': function (value) {
+        if (value) {
+          this.$nextTick(() => {
+            this.updateScroll();
+          });
+        }
+      }
     },
     data() {
       return {
-        deployLogs: ['a', 'b']
+        dialog: null,
       }
     },
+    methods: {
+      updateScroll() {
+        let scrollBarWrap = this.dialog.querySelector('.el-dialog__body .el-scrollbar .el-scrollbar__wrap');
+        if (scrollBarWrap) {
+          scrollBarWrap.scrollTop = 0;
+        }
+      }
+    }
 
   }
 </script>
