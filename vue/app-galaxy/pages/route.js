@@ -91,6 +91,7 @@ var Router = function () {
           path: 'run',
           name: '运行日志',
           component: LogRun,
+          meta: {keepAlive: true}
         },{
           path: 'deploy',
           name: '部署日志',

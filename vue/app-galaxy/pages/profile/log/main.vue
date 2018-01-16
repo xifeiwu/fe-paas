@@ -33,7 +33,7 @@
       return {
         tabs: [{
           label: '运行日志',
-          name: '/profile/log/todo',
+          name: '/profile/log/run',
         },{
           label: '部署日志',
           name: '/profile/log/deploy',
@@ -46,7 +46,6 @@
           return this.$route.path;
         },
         set(path) {
-//          console.log(path);
           this.$router.push(path);
         }
       }

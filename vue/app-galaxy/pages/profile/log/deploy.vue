@@ -30,6 +30,7 @@
         </el-table-column>
       </el-table>
     </div>
+    <el-dialog-log :showStatus="dialogStatus"></el-dialog-log>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -41,12 +42,18 @@
 </style>
 <script>
   import elVersionSelector from '../utils/components/version-selector';
+  import elDialogLog from '../utils/components/dialog4log.vue';
   export default {
-    components: {elVersionSelector},
+    components: {elVersionSelector, elDialogLog},
     data() {
       return {
         showLoading: false,
-        deployLogList: []
+        deployLogList: [],
+
+        dialogStatus: {
+          visible: false,
+          full: false,
+        }
       }
     },
     methods: {
@@ -66,6 +73,7 @@
       handleOperationClick(action, index, row) {
         switch (action) {
           case 'show-log':
+            this.dialogStatus.visible = true;
             break;
         }
       }
