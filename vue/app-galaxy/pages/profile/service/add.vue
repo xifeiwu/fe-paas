@@ -317,7 +317,13 @@
         }
       },
       onGroupInfo(value) {
-//        console.log(value);
+        if (value && value.hasOwnProperty('tag')) {
+          this.$net.getAutoImageTypeList({
+            groupTag: value.tag
+          }).then(autoImageTypeList => {
+            console.log(autoImageTypeList);
+          })
+        }
       },
       handleImageTypeChange(value) {
         switch (value) {

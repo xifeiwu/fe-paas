@@ -36,6 +36,8 @@ var urlList = {
   'service_stop': path + '/service/stopApplicationService',
   // 获取服务版本
   'service_version': path + '/service/queryApplicationServiceVersion',
+  // 获取自动打镜像类型列表
+  'auto_image_type_list': path + '/image/queryBasicImage',
 
   // 更改健康检查
   'service_update_health': path + '/service/updateHealth',

@@ -661,6 +661,19 @@ class Net {
   }
 
   /**
+   *
+   * @param options
+   * @returns {Promise}
+   */
+  getAutoImageTypeList(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.auto_image_type_list, options).then(response => {
+        resolve(response);
+      })
+    })
+  }
+
+  /**
    * 获取实例列表
    */
   getInstanceList(options) {
