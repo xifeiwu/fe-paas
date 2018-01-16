@@ -3,7 +3,7 @@
  */
 import axios from 'axios';
 import URL_LIST from './url';
-import utils from '../utils';
+import utils from '../../assets/js/utils';
 import appInfoHelper from '../pages/profile/utils/app_prop';
 
 class Net {

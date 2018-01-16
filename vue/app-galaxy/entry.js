@@ -7,7 +7,7 @@
  */
 
 import Vue from 'vue';
-import utils from './utils';
+import utils from '../assets/js/utils';
 Vue.prototype.$utils = utils;
 
 import URL from './net/url';

@@ -1,5 +1,4 @@
 import STORE from '../../../store';
-import utils from '../../../utils';
 
 class AppInfoHelper {
   constructor() {
@@ -196,7 +195,7 @@ class AppInfoHelper {
     if (['cpuAndMemorylist', 'LanguageList'].indexOf(prop) > -1) {
       let messageForCreateAPP = STORE.getters['app/messageForCreateAPP'];
       if (!messageForCreateAPP) {
-        utils.error('messageForCreateAPP not found', 'app_prop.js');
+        // utils.error('messageForCreateAPP not found', 'app_prop.js');
         return null;
       }
       return messageForCreateAPP[prop];
@@ -208,7 +207,7 @@ class AppInfoHelper {
   getProfileMessage() {
     let profileListOfGroup = STORE.getters['user/profileListOfGroup'];
     if (!profileListOfGroup) {
-      utils.error('profileListOfGroup not found', 'app_prop.js');
+      // utils.error('profileListOfGroup not found', 'app_prop.js');
       return null;
     }
     return profileListOfGroup;
