@@ -198,7 +198,7 @@
     watch: {
       '$route': function (value, oldValue) {
         this.updateCrumbList(value.path);
-      }
+      },
     },
     methods: {
       handleHeaderMenuClick(key, keyPath) {

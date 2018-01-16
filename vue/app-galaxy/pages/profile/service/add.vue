@@ -217,6 +217,7 @@
         let firstItem = this.cpuAndMemoryList[0];
         this.serviceForm.cpuID = 'cpu' in firstItem ? firstItem.id : '';
       }
+      this.onGroupInfo(this.groupInfo);
     },
     data() {
       return {
@@ -296,6 +297,7 @@
         }
       },
       appInfoListOfGroup: 'onAppInfoListOfGroup',
+      groupInfo: 'onGroupInfo'
     },
     methods: {
       /**
@@ -313,6 +315,9 @@
         if (appInfo && appInfo.hasOwnProperty('app')) {
           this.currentApp = appInfo.app;
         }
+      },
+      onGroupInfo(value) {
+//        console.log(value);
       },
       handleImageTypeChange(value) {
         switch (value) {

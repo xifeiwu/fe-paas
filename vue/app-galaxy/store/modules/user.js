@@ -22,7 +22,7 @@ const stateHasUpdated = function(prop) {
  * 1. if the prop in state has not null, return state.prop
  * 2. else get from localStorage, and assign the value to state.prop
  */
-var localProps = ['config', 'info', 'menuList', 'groupList', 'profileListOfGroup', 'appInfoListOfGroup'];
+var localProps = ['config', 'info', 'menuList', 'groupList', 'groupInfo', 'profileListOfGroup', 'appInfoListOfGroup'];
 const getValue = function({state, getters}, prop) {
   let result = null;
   if (null != state[prop]) {
@@ -68,6 +68,7 @@ const state = {
   groupList: null,
   // 当前组
   groupID: null,
+  groupInfo: null,
   // 当前组的所有开发环境
   profileListOfGroup: null,
   // 当前做的所有APP列表
@@ -103,12 +104,13 @@ const actions = {
   /**
    * 获取用户所属组列表
    */
-  groupList({commit, state}) {
+  groupList({commit, state, dispatch}) {
     // if (0 === state.groupList.length) {
     warning('getGroupList', 'netwrok');
     NetData.getGroupList().then(content => {
       if (content.hasOwnProperty('groupList')) {
         commit('SET_GROUP_LIST', content.groupList);
+        dispatch('groupInfo');
       }
     });
     // }
@@ -172,7 +174,7 @@ const actions = {
    */
   groupID({commit, state, dispatch}, {from, value}) {
     state.groupID = value;
-    localStorage.setItem('groupID', value);
+    // localStorage.setItem('groupID', value);
     dispatch('profileListOfGroup', {
       id: value
     });
@@ -181,10 +183,36 @@ const actions = {
     });
     dispatch('usersInGroup', {
       id: value
-    })
+    });
+    dispatch('groupInfo');
     // dispatch('app/appInfoListOfGroup', {
     //   id: id
     // }, {root: true});
+  },
+
+  /**
+   * 更新groupInfo(groupList更新后才能更新groupInfo)，需要早groupInfo action中处理的逻辑：
+   * 1. groupID更新
+   * 2. 需要用到group更多信息的(像tag)，如获得自动打镜像类型列表
+   */
+  groupInfo({commit, state}) {
+    if (state.groupID) {
+      if (state.groupList && Array.isArray(state.groupList)) {
+        let target;
+        state.groupList.some(it => {
+          target = it.id === state.groupID ? it : null;
+          return target
+        });
+        if (!state.groupInfo || state.groupInfo.id != target.id) {
+          commit('SET_GROUP_INFO', target);
+        }
+      }
+    } else {
+      if (state.groupList && Array.isArray(state.groupList) && state.groupList.length > 0) {
+        let target = state.groupList[0];
+        commit('SET_GROUP_INFO', target);
+      }
+    }
   },
 
   /**
@@ -263,6 +291,13 @@ const mutations = {
     // }
   },
 
+  SET_GROUP_INFO(state, groupInfo) {
+    state.groupInfo = groupInfo;
+    // if (USE_LOCAL_STORAGE) {
+    localStorage.setItem('user/groupInfo', JSON.stringify(groupInfo));
+    // }
+  },
+
   SET_PROFILE_OF_GROUP(state, profileList) {
     state.profileListOfGroup = profileList;
     // if (USE_LOCAL_STORAGE) {
@@ -298,6 +333,9 @@ const getters = {
       groupID = state.groupList[0].id
     }
     return parseInt(groupID);
+  },
+  'groupInfo': (state, getters) => {
+    return getValue({state, getters}, 'groupInfo');
   },
   'groupList': (state, getters) => {
     return getValue({state, getters}, 'groupList');

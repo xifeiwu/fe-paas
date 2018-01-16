@@ -3,10 +3,18 @@ export default {
   created() {
 //    console.log('in created of store-helper.vue');
   },
+  data() {
+    return {
+    }
+  },
   computed: {
     currentGroupID: {
       get() {
-        let groupID = this.$store.getters['user/groupID'];
+        let groupID = null;
+        let groupInfo = this.$store.getters['user/groupInfo'];
+        if (groupInfo && groupInfo.hasOwnProperty('id')) {
+          groupID = groupInfo.id;
+        }
         return groupID;
       },
       set(value) {
@@ -18,6 +26,9 @@ export default {
     },
     groupList() {
       return this.$store.getters['user/groupList'];
+    },
+    groupInfo() {
+      return this.$store.getters['user/groupInfo'];
     },
     profileListOfGroup() {
       let value = this.$store.getters['user/profileListOfGroup'];
