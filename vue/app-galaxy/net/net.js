@@ -84,7 +84,7 @@ class Net {
           router: '/profile/domain'
         },
         "日志中心": {
-          router: '/profile/log_center'
+          router: '/profile/log'
         },
         "应用监控": {
           router: '/profile/app_monitor'
@@ -726,6 +726,7 @@ class Net {
             })
           }
           resolve(content);
+          this.showLog('getWorkOrderToDoList', content);
         } else {
           reject('error: getWorkOrderToDoList');
         }

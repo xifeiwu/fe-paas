@@ -12,6 +12,10 @@ import InstanceMain from './profile/instance/main.vue';
 import DomainMain from './profile/domain/main.vue';
 import DomainWhiteList from './profile/domain/white-list.vue';
 
+import LogMain from './profile/log/main.vue';
+import LogRun from './profile/log/run.vue';
+import LogDeploy from './profile/log/deploy.vue';
+
 import WorkOrderMain from './profile/work-order/main.vue';
 import WorkOrderToDo from './profile/work-order/todo.vue';
 import WorkOrderList from './profile/work-order/list.vue';
@@ -78,6 +82,20 @@ var Router = function () {
         path: 'domain/white-list',
         name: '绑定IP白名单',
         component: DomainWhiteList,
+      }, {
+        path: 'log',
+        // name: '审批管理',
+        component: LogMain,
+        redirect: 'log/run',
+        children: [{
+          path: 'run',
+          name: '运行日志',
+          component: LogRun,
+        },{
+          path: 'deploy',
+          name: '部署日志',
+          component: LogDeploy,
+        }]
       }, {
         path: 'work-order',
         // name: '审批管理',
