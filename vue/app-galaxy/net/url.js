@@ -23,8 +23,11 @@ var urlList = {
   'get_cpu_and_memory_config': path + '/cpuAndMemory/queryCpuAndMemory',
   'get_all_language': path + '/language/queryAllLanguage',
   'change_profile': path + '/application/update',
+  // 通过appID和profileID获取服务列表
   'get_service_by_appId_and_profile': path + '/service/queryByAppIdAndSpaceId',
 
+  // 获取服务版本
+  'service_version': path + '/service/queryApplicationServiceVersion',
   // 部署服务
   'service_deploy': path + '/service/deployApplicationService',
   'service_deploy_log': path + '/service/deploy/log',
@@ -34,8 +37,6 @@ var urlList = {
   'service_delete': path + '/service/deleteApplicationService',
   // 停止服务
   'service_stop': path + '/service/stopApplicationService',
-  // 获取服务版本
-  'service_version': path + '/service/queryApplicationServiceVersion',
   // 获取自动打镜像类型列表
   'auto_image_type_list': path + '/image/queryBasicImage',
 
@@ -91,7 +92,7 @@ var urlList = {
   // 获取验收人
   'users_all': path + '/user/queryUserList',
 
-
+  'terminal_info': path + 'service/queryTerminalInfo',
 };
 
 export default urlList;

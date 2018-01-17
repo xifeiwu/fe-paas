@@ -693,6 +693,7 @@ class Net {
         resolve(content);
       }).catch(err => {
         console.log(err);
+        reject(err);
       })
     })
   }

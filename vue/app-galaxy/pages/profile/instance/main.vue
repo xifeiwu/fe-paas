@@ -1,29 +1,7 @@
 <template>
   <div id="instance-main">
     <div class="header">
-      <el-row>
-        <el-col :span="8">
-          <span>应用名称:</span>
-          <el-select v-model="selectedAppID" placeholder="请选择">
-            <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
-            </el-option>
-          </el-select>
-        </el-col>
-        <el-col :span="8">
-          <span>运行环境:</span>
-          <el-select v-model="selectedProfileID" placeholder="请选择">
-            <el-option v-for="item in selectedProfileList" :key="item.id" :label="item.description" :value="item.id">
-            </el-option>
-          </el-select>
-        </el-col>
-        <el-col :span="8">
-          <span>版本:</span>
-          <el-select v-model="selectedVersion" placeholder="请选择">
-            <el-option v-for="item in selectedVersionList" :key="item" :label="item" :value="item">
-            </el-option>
-          </el-select>
-        </el-col>
-      </el-row>
+      <el-version-selector @version-selected="onVersionSelected"></el-version-selector>
     </div>
     <div class="instance-list">
       <el-table
@@ -98,157 +76,35 @@
 <script>
   import appPropUtils from '../utils/app_prop';
   import StoreHelper from '../utils/store-helper.vue';
+  import elVersionSelector from '../utils/components/version-selector';
+
   export default {
+    components: {elVersionSelector},
     mixins: [StoreHelper],
     created() {
-      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
     },
     data() {
       return {
-        appList: [],
-
-        selectedAppID: null,
-        selectedAPP: null,
-        selectedProfileID: null,
-        selectedProfileList: [],
-        selectedVersion: null,
-        selectedVersionList: [],
-
-//        instanceName: 'vvvv',
-//        status: '',
-//        intranetDomain: '123.55.33.5',
-//        createTime: '2017-09-11',
         showLoading: false,
+//        currentInstanceList: [{
+//          createTime: "2018-01-11 20:39:09",
+//          health: null,
+//          instanceName: "v3-puhui-notification-3270010048-3xp1s",
+//          intranetIP:null,
+//          message:null,
+//          status:"运行中",
+//          version: "puhui-notification:2018-01-11-20-38-12"
+//        }],
         currentInstanceList: [],
       }
     },
     watch: {
-      appInfoListOfGroup: 'onAppInfoListOfGroup',
-      selectedAppID: function (value, oldValue) {
-        let appID = value;
-        let appInfo = this.getAppInfoByID(appID);
-        if (!appInfo) {
-          return;
-        }
-        this.selectedAPP = appInfo['app'];
-        this.selectedProfileList = this.selectedAPP['profileList'];
-        if (Array.isArray(this.selectedProfileList) && this.selectedProfileList.length > 0) {
-          // at the beginning of this page(value of selectedProfileID is null), get selectedProfileID from localStorage
-          // else selectedProfileID is the first element in profileList of selectedApp
-          var defaultProfileID = this.selectedProfileList[0]['id'];
-          if (null == this.selectedProfileID) {
-//            let selectedProfileID = this.getConfig('profile/service/profileID');
-//            if (selectedProfileID) {
-//              this.selectedProfileID = selectedProfileID;
-//            }
-            this.selectedProfileID = defaultProfileID;
-          } else {
-            // request service list when app id is changed while profile id is not changed.
-            if (this.selectedProfileID == defaultProfileID) {
-              this.requestVersionList(this.selectedAPP.appId, this.selectedProfileID);
-            } else {
-              this.selectedProfileID = defaultProfileID;
-            }
-          }
-        }
-        this.$setUserConfig('profile/service/appID', appID);
-      },
-      selectedProfileID: function (value, oldValue) {
-        let profileID = value;
-        let appID = this.selectedAPP.appId;
-        this.requestVersionList(appID, profileID);
-//      this.setConfig('profile/service/profileID', profileID);
-      },
-      selectedVersion: function (value, oldValue) {
-//        console.log(value);
-        if (null == value) {
-          return;
-        }
-        this.requestInstanceList(this.selectedAPP.appId, this.selectedProfileID, value);
-      },
     },
     methods: {
-      /**
-       * call in two place:
-       * 1. created function
-       * 2. appInfoListOfGroup watcher
-       *
-       * what is done?
-       * 1. refresh this.appList
-       * 2. get default appId
-       */
-      onAppInfoListOfGroup(appInfoListOfGroup) {
-        if (appInfoListOfGroup) {
-          if (appInfoListOfGroup.hasOwnProperty('appList')) {
-            this.appList = appInfoListOfGroup.appList;
-          }
-          if (!this.appList || (0 == this.appList.length)) {
-            return;
-          }
-          let appId = this.$getUserConfig('profile/service/appID');
-          if (appId && this.getAppInfoByID(appId)) {
-            this.selectedAppID = appId;
-          } else {
-            this.selectedAppID = this.appList[0]['appId'];
-          }
-        }
+      onVersionSelected(appInfo, profileID, serviceInfo) {
+//        console.log(appInfo, profileID, serviceInfo);
+        this.requestInstanceList(appInfo.appId, profileID, serviceInfo.serviceVersion);
       },
-
-      /**
-       * handle click event in operation column
-       */
-      handleOperationClick(action, index, row) {
-        console.log(row);
-        switch (action) {
-          case 'terminal':
-            break;
-          case 'work-log':
-            break;
-          case 'monitor':
-            break;
-        }
-      },
-
-      /**
-       * request version list when selectedAppId or selectedProfileId is changed
-       */
-      requestVersionList(appID, spaceID) {
-        if (!appID || !spaceID) {
-          console.log('appID or spaceID can not be empty');
-          return;
-        }
-        this.selectedVersion = null;
-        this.$net.getServiceVersion({
-          appId: appID,
-          spaceId: spaceID
-        }).then(content => {
-//          console.log(content);
-          if (content.hasOwnProperty('version')) {
-            let version = content.version;
-            if (version && Array.isArray(version) && version.length > 0) {
-              this.selectedVersionList = version;
-              this.selectedVersion = version[0];
-            } else {
-              let profileName = '该';
-              let profileInfo = appPropUtils.getProfileInfoByID(this.selectedProfileID);
-              if (profileInfo && profileInfo.hasOwnProperty('name')) {
-                profileName = profileInfo.description;
-              }
-              this.$message({
-                type: 'warning',
-                message: profileName + '下，服务没有版本！'
-              });
-            }
-          }
-        }).catch(err => {
-          console.log(err);
-          this.$message({
-            type: 'error',
-            message: '查找服务版本失败！'
-          });
-        });
-      },
-
       /**
        * 获取实例列表
        */
@@ -276,6 +132,20 @@
           });
           this.showLoading = false;
         });
+      },
+
+      /**
+       * handle click event in operation column
+       */
+      handleOperationClick(action, index, row) {
+        switch (action) {
+          case 'terminal':
+            break;
+          case 'work-log':
+            break;
+          case 'monitor':
+            break;
+        }
       },
     }
   }
