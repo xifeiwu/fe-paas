@@ -85,6 +85,21 @@ Utils.prototype = {
     return JSON.stringify(value1) === JSON.stringify(value2);
   },
 
+  /**
+   * used only in front-end, as window.location.search is used
+   * @param e the key in queryString, such as id in 'http://...?id=12'
+   * @returns {null} the value of key
+   */
+  getQueryString: function(e) {
+    var t = new RegExp('(^|&)' + e + '=([^&]*)(&|$)', 'i'),
+      n = window.location.search.substr(1).match(t);
+    if (null !== n) {
+      var o = n[2];
+      return o = o.replace(/(%22|%3E|%3C|<|>)/g, 'MM'), '' === o ? null : decodeURIComponent(o);
+    }
+    return null;
+  },
+
   error: function(msg, where) {
     console.log(`error in ${where}`);
     console.log(msg)

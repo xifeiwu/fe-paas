@@ -92,7 +92,9 @@ var urlList = {
   // 获取验收人
   'users_all': path + '/user/queryUserList',
 
-  'terminal_info': path + 'service/queryTerminalInfo',
+  'terminal_info': path + '/service/queryTerminalInfo',
+  'terminal_page': 'http://' + window.location.hostname + ':8080/terminal.html'
+
 };
 
 export default urlList;

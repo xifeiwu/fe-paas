@@ -22,7 +22,7 @@
         >
         </el-table-column>
         <el-table-column
-                prop="intranetDomain"
+                prop="intranetIP"
                 label="内网IP"
                 width="120">
         </el-table-column>
@@ -85,6 +85,7 @@
     },
     data() {
       return {
+        serviceInfo: null,
         showLoading: false,
 //        currentInstanceList: [{
 //          createTime: "2018-01-11 20:39:09",
@@ -103,6 +104,7 @@
     methods: {
       onVersionSelected(appInfo, profileID, serviceInfo) {
 //        console.log(appInfo, profileID, serviceInfo);
+        this.serviceInfo = serviceInfo;
         this.requestInstanceList(appInfo.appId, profileID, serviceInfo.serviceVersion);
       },
       /**
@@ -140,6 +142,20 @@
       handleOperationClick(action, index, row) {
         switch (action) {
           case 'terminal':
+            let id = null, ip = null;
+            if (this.serviceInfo && this.serviceInfo.hasOwnProperty('id')) {
+              id = this.serviceInfo.id;
+            }
+            if (row.hasOwnProperty('intranetIP') && row['intranetIP']) {
+              ip = row['intranetIP'];
+            }
+            if (id && ip) {
+              let queryString = '?id=' + id + '&ip=' + ip;
+              let terminalURL = 'http://' + window.location.hostname + ':8080/terminal.html' + queryString;
+              window.open(terminalURL, '_blank');
+            } else {
+              this.$message.error('组ID或内网IP没有找到');
+            }
             break;
           case 'work-log':
             break;
