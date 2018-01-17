@@ -263,6 +263,10 @@ h4 {
     .cell {
       text-overflow: initial;
     }
+    //hide expand column
+    .el-table__expand-column .cell {
+      display: none;
+    }
   }
 
   .el-date-editor.custom {
