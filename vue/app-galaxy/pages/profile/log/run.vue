@@ -154,12 +154,12 @@
       }
     },
     methods: {
-      onVersionSelected(appInfo, profileID, version) {
+      onVersionSelected(appInfo, profileID, serviceInfo) {
 //        console.log(appId, profileID, version);
         this.$net.getDeployLogList({
           appId: appInfo.appId,
           spaceId: profileID,
-          serviceVersion: version
+          serviceVersion: serviceInfo.serviceVersion
         }).then(deployLogList => {
 //          this.deployLogList = deployLogList;
         }).catch(err => {

@@ -63,17 +63,21 @@
       }
     },
     methods: {
-      onVersionSelected(appInfo, profileID, version) {
+      onVersionSelected(appInfo, profileID, serviceInfo) {
 //        console.log(appId, profileID, version);
+        this.showLoading = true;
+        this.deployLogList = [];
         this.$net.getDeployLogList({
           appId: appInfo.appId,
           spaceId: profileID,
-          serviceVersion: version
+          serviceVersion: serviceInfo.serviceVersion
         }).then(deployLogList => {
 //          console.log(deployLogList);
           this.deployLogList = deployLogList;
+          this.showLoading = false;
         }).catch(err => {
           this.$message.error('列表获取失败！');
+          this.showLoading = false;
         });
       },
       handleOperationClick(action, index, row) {
