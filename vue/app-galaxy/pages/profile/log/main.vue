@@ -1,5 +1,5 @@
 <template>
-  <div id="work-order">
+  <div id="log">
     <el-tabs v-model="currentPath" type="card" @tab-click="handleClick">
       <el-tab-pane v-for="item in tabs" :label="item.label" :name="item.name" :key="item.name"></el-tab-pane>
     </el-tabs>
@@ -12,8 +12,9 @@
 </style>
 
 <style lang="scss">
-  #work-order {
+  #log {
     padding: 0px;
+    height: 100%;
     .el-tabs {
       .el-tabs__header {
         margin: 0px;

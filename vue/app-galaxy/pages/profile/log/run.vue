@@ -40,7 +40,10 @@
               type="primary"
               @click="handleButtonClick('search')">查询</el-button>
     </div>
-    <el-log-dialog></el-log-dialog>
+    <div class="log">
+      <div class="title"><i class="el-icon-rank" @click="dialogStatus.visible = true"></i></div>
+    </div>
+    <el-log-dialog :showStatus="dialogStatus" :deployLogs="deployLogs"></el-log-dialog>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -55,6 +58,27 @@
         display: inline-block;
         margin-right: 3px;
         margin-top: 5px;
+      }
+    }
+    .log {
+      margin: 10px;
+      height: 600px;
+      background-color: rgba(0, 0, 0, 0.8);
+      .title {
+        height: 24px;
+        /*border-bottom: 1px solid white;*/
+        position: relative;
+        .el-icon-rank {
+          position: absolute;
+          right: 5px;
+          top: 5px;
+          color: white;
+          font-size: 24px;
+          transform: rotate(45deg);
+          &:hover {
+            color: #409EFF;
+          }
+        }
       }
     }
   }
@@ -121,6 +145,12 @@
             }
           }]
         },
+
+        dialogStatus: {
+          visible: false,
+          full: true,
+        },
+        deployLogs: []
       }
     },
     methods: {
