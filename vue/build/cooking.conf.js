@@ -9,11 +9,10 @@ var multiPageConfig = {
       "name": "galaxy",
       "entry": path.resolve(vueBaseDir, 'app-galaxy/entry.js'),
     },
-    // {
-    //   "entry": "home",
-    //   "title": "首页",
-    //   "cdn": {}
-    // },
+    {
+      "name": "terminal",
+      "entry": path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),
+    },
     // {
     //   "entry": "admin",
     //   "title": "后台",
@@ -33,8 +32,20 @@ var multiPageConfig = {
       },
       "chunks": ["galaxy"],
       "template": path.resolve(vueBaseDir, 'app-galaxy/index.tpl'),
+    },
+    {
+      "name": "terminal",
+      "title": "terminal",
+      "cdn": {
+        "js": [
+          // '/cdn.jsdelivr.net/npm/vue@2.5.2/dist/vue.runtime.min.js',
+          //   'https://unpkg.com/vue-router/dist/vue-router.js'
+        ],
+        "css": []
+      },
+      "chunks": ["terminal"],
+      "template": path.resolve(vueBaseDir, 'app-galaxy/index.tpl'),
     }
-
   ],
   "cdn": {
     "js": [
