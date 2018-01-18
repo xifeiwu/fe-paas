@@ -4,17 +4,17 @@ const koaServer = require('./koa-spa-server');
 const port = process.env.PORT0 || 7002;
 
 var javaServer = 'http://172.16.49.131:30333';
-var javaServer = 'http://172.16.49.130:30333';
-// var javaServer = 'http://galaxy-web-server.galaxy.test';
+// var javaServer = 'http://172.16.49.130:30333';
+var javaServer = 'http://galaxy-web-server.galaxy.test';
 const proxyTable = {
-  '/api/service/queryTerminalInfo': {
-    target: 'http://172.16.49.130:30333',
-    changeOrigin: true,
-    logs: true,
-    pathRewrite: function (url, match) {
-      return '/service/queryTerminalInfo'
-    }
-  },
+  // '/api/service/queryTerminalInfo': {
+  //   target: 'http://172.16.49.130:30333',
+  //   changeOrigin: true,
+  //   logs: true,
+  //   pathRewrite: function (url, match) {
+  //     return '/service/queryTerminalInfo'
+  //   }
+  // },
   '/api/(.*)': {
     target: javaServer,
     changeOrigin: true,
