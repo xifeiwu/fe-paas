@@ -249,6 +249,7 @@
       onAppInfoListOfGroup(value, oldValue) {
         this.getFromStore && this.requestAPPList({});
 
+        // get the count of app of current user
         let count = 0;
         let myUserName = this.$getUserInfo('userName');
         if (value && value.hasOwnProperty('appList') && Array.isArray(value.appList)) {
@@ -256,7 +257,7 @@
             if (it.userName == myUserName) {
               count += 1;
             }
-          })
+          });
           this.myAppCount = count;
         }
       },

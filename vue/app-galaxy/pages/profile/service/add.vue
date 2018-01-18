@@ -263,9 +263,9 @@
         }
         return result;
       },
-      appInfoListOfGroup() {
-        return this.$store.getters['user/appInfoListOfGroup'];
-      },
+//      appInfoListOfGroup() {
+//        return this.$store.getters['user/appInfoListOfGroup'];
+//      },
     },
     watch: {
       /**
@@ -316,13 +316,22 @@
           this.currentApp = appInfo.app;
         }
       },
+      /**
+       * do some action on change of groupInfo
+       * 1. get type list of auto image
+       */
       onGroupInfo(value) {
+//        console.log(this.currentApp);
+//        console.log(value);
         if (value && value.hasOwnProperty('tag')) {
-          this.$net.getAutoImageTypeList({
-            groupTag: value.tag
-          }).then(autoImageTypeList => {
-            console.log(autoImageTypeList);
-          })
+          if (this.currentApp && this.currentApp.hasOwnProperty('language')) {
+            this.$net.getAutoImageTypeList({
+              groupTag: value.tag,
+              language: 'ph' + this.currentApp.language.toLowerCase()
+            }).then(autoImageTypeList => {
+              console.log(autoImageTypeList);
+            })
+          }
         }
       },
       handleImageTypeChange(value) {

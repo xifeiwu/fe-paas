@@ -5,12 +5,12 @@
       <div class="item">
         <label>实例名称</label>
         <el-input
-                v-model="searchForm.userName"
+                v-model="searchForm.instanceName"
                 size="mini" style="display: inline-block; width: 160px;"></el-input>
       </div>
       <div class="item">
         <label>日志级别</label>
-        <el-select v-model="searchForm.logLevel" placeholder="请选择">
+        <el-select v-model="searchForm.logLevel" placeholder="全部">
           <el-option v-for="(item, index) in logLevelList" :key="index" :label="item" :value="item">
           </el-option>
         </el-select>
@@ -32,7 +32,7 @@
       <div class="item">
         <label>关键字</label>
         <el-input
-                v-model="searchForm.keyWords"
+                v-model="searchForm.keyword"
                 size="mini" style="display: inline-block; width: 160px;"></el-input>
       </div>
       <el-button
@@ -108,16 +108,26 @@
   import ElSelect from "../../../../packages/select/src/select";
   export default {
     components: {ElSelect, ElInput, elVersionSelector, elLogDialog},
+    mounted() {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 1000 * 60 * 5);
+      this.searchForm.dateTimeRange = [start, end];
+    },
     data() {
       return {
         searchForm: {
-          userName: '',
+          appId: '',
+          spaceId: '',
+          serviceVersion: '',
+          instanceName: '',
           logLevel: '',
-          dateTimeRange: '',
-          keyWords: '',
+          dateTimeRange: [],
+          keyword: '',
         },
 
-        logLevelList: ['Info', 'Debug', 'Warning', 'Error'],
+        logLevelList: ['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+//        defaultTime: start.getTime() - 3600 * 1000 * 24 * 7,
         pickerOptions2: {
           shortcuts: [{
             text: '最近一周',
@@ -155,17 +165,35 @@
     },
     methods: {
       onVersionSelected(appInfo, profileID, serviceInfo) {
-//        console.log(appId, profileID, version);
-        this.$net.getDeployLogList({
-          appId: appInfo.appId,
-          spaceId: profileID,
-          serviceVersion: serviceInfo.serviceVersion
-        }).then(deployLogList => {
-//          this.deployLogList = deployLogList;
-        }).catch(err => {
-          this.$message.error('列表获取失败！');
-        });
+        this.searchForm.appId = appInfo.id;
+        this.searchForm.spaceId = profileID;
+        this.searchForm.serviceVersion = serviceInfo.id;
       },
+      handleButtonClick(action) {
+        switch (action) {
+          case 'search':
+            console.log(this.searchForm);
+            if (!this.searchForm.serviceVersion) {
+              this.$message.error('服务版本未找到');
+              return;
+            }
+            let dateRange = this.searchForm.dateTimeRange.map(it => {
+              let v = this.$utils.formatDate(it, 'yyyy-MM-dd hh:mm:ss')
+              return v;
+            });
+            this.$net.getHistoryRunLog({
+              appId: this.searchForm.appId,
+              spaceId: this.searchForm.spaceId,
+              serviceVersion: this.searchForm.serviceVersion,
+              logLevel: this.searchForm.logLevel,
+              startTime: dateRange[0],
+              endTime: dateRange[1],
+              keyword: this.searchForm.keyword,
+            });
+            console.log(this.searchForm);
+            break;
+        }
+      }
     }
   }
 </script>

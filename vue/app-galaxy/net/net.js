@@ -720,12 +720,33 @@ class Net {
   }
 
   /**
+   * 获取运行日志
+   */
+  getHistoryRunLog(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.log_run_log, options).then(response => {
+        let content = this.getResponseContent(response);
+        console.log(content);
+        // if (content && content.hasOwnProperty('deployLog')) {
+        //   resolve(content.deployLog);
+        // } else {
+        //   reject('getHistoryDeployLog, not found deployLog');
+        // }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
+  /**
    * 获取历史部署日志
     */
   getHistoryDeployLog(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.log_deploy_log, options).then(response => {
         let content = this.getResponseContent(response);
+        console.log(response);
         if (content && content.hasOwnProperty('deployLog')) {
           resolve(content.deployLog);
           // this.showLog('getHistoryDeployLog', content.deployLog);

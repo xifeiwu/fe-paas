@@ -71,6 +71,8 @@ var urlList = {
 
   // 获取部署列表
   'log_deploy_list': path + '/deployLog/getDeployLog',
+  // 获取运行日志
+  'log_run_log': path + '/searchLog',
   // 获取部署历史日志
   'log_deploy_log': path + '/service/historylog',
 
@@ -95,7 +97,9 @@ var urlList = {
   // 获取验收人
   'users_all': path + '/user/queryUserList',
 
+  // 获取打开实例终端信息
   'terminal_info': path + '/service/queryTerminalInfo',
+
 
 };
 
