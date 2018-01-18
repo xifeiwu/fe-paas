@@ -121,12 +121,12 @@ const actions = {
    * format:
    * setConfig('profile/service/appID', 3);
    */
-  setConfig({commit, state}, {keys, value}) {
+  setConfig({commit, state, getters}, {keys, value}) {
     if (!keys || 0 === keys.length) {
       return;
     }
     if (null == state.config) {
-      state.config = {};
+      state.config = getters['config'];
     }
     let keyList = keys.split('/');
     let lastKeyIndex = keyList.length - 1;
@@ -150,7 +150,8 @@ const actions = {
       return;
     }
     if (null == state.info) {
-      state.info = {};
+      // state.info = {};
+      state.info = getters['info'];
     }
     let keyList = keys.split('/');
     let lastKeyIndex = keyList.length - 1;

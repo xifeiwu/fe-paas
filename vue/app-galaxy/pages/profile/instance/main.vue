@@ -150,7 +150,7 @@
               ip = row['intranetIP'];
             }
             if (id && ip) {
-              let terminalPath = this.$url.page_terminal_path + '?id=' + id + '&ip=' + ip;
+              let terminalPath = this.$url.page_terminal_path + '?id=' + id + '&ip=' + ip + '&name=' + row['instanceName'];
 //              this.$net.getTerminalInfo({
 //                serviceId: id
 //              });

@@ -1,6 +1,6 @@
 <template>
-  <div id="app">
-    termial
+  <div id="gateone_container" style="position: relative; width: 100%; height: 60em;">
+    <div id="gateone"></div>
   </div>
 </template>
 <script>
@@ -15,7 +15,8 @@
           let data = response.data;
           if (data.code === 0) {
             let content = data.content;
-            console.log(content);
+//            console.log(content);
+            this.openTerminal(content);
           } else {
             this.$alert('数据请求失败，请与管理员联系。');
           }
@@ -45,27 +46,39 @@
 
         let id = this.$utils.getQueryString('id');
         let ip = this.$utils.getQueryString('ip');
+        let name = this.$utils.getQueryString('name');
         this.ip = ip;
+        if (id && ip && name) {
+          // save terminal config to localStorage
+          this.$setUserConfig('terminal/id', id);
+          this.$setUserConfig('terminal/ip', ip);
+          this.$setUserConfig('terminal/name', name);
+        } else {
+          // in the page of terminal
+          if (this.$utils.getQueryString('location')) {
+            id = this.$getUserConfig('terminal/id');
+            ip = this.$getUserConfig('terminal/ip');
+            name = this.$getUserConfig('terminal/name');
+          }
+        }
         if (id && ip) {
           return axios.post(URL_LIST.terminal_info, {
+            name: name,
             serviceId: parseInt(id)
           }, {
             headers: {
               'token': token,
             }
           });
+        } else {
+          return Promise.reject('未找到IP')
         }
       },
 
       openTerminal(options) {
-//        var gateOneURL = [[${url}]] + "";
-//        var auth_info = [[${auth_info}]];
-//        var ip = [[${ip}]] + "";
-//        var location = [[${location}]] + "";
-
         let gateOneURL = options.url;
         let authInfo = options['auth_info'];
-        let location = '';
+        let location = options.location;
         var ssh_url = "ssh://root@" + this.ip + ":22";
 
         GateOne.init({
@@ -91,8 +104,9 @@
     }
   }
 </script>
-<style scoped>
-  #app {
-    height: 100%;
+<style lang="scss">
+  body {
+    padding: 0px;
+    margin: 0px;
   }
 </style>
