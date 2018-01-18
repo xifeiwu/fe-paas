@@ -31,7 +31,7 @@ import '../assets/css/fix_style.scss';
 import Components from './components.js';
 Components.install(Vue);
 
-import APP from './app';
+import APP from './pages/app';
 window.vm = new Vue({ // eslint-disable-line
   render: h => h(APP),
   router: routerConfig.vueRouter,

@@ -61,12 +61,13 @@
 //        var gateOneURL = [[${url}]] + "";
 //        var auth_info = [[${auth_info}]];
 //        var ip = [[${ip}]] + "";
-        var location = [[${location}]] + "";
+//        var location = [[${location}]] + "";
 
         let gateOneURL = options.url;
         let authInfo = options['auth_info'];
-
+        let location = '';
         var ssh_url = "ssh://root@" + this.ip + ":22";
+
         GateOne.init({
           auth: authInfo,
           url: gateOneURL,
