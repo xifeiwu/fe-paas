@@ -5,7 +5,7 @@ import NetData from '../../net/net';
 const USE_LOCAL_STORAGE = false;
 
 const warning = function(prop, where) {
-  console.log(`warning: get ${prop} from ${where}`);
+  console.log(`warning: get user/${prop} from ${where}`);
 };
 const stateHasUpdated = function(prop) {
   let hasUpdated = false;
@@ -24,23 +24,30 @@ const stateHasUpdated = function(prop) {
  */
 var localProps = ['config', 'info', 'menuList', 'groupList', 'groupInfo', 'profileListOfGroup', 'appInfoListOfGroup'];
 const getValue = function({state, getters}, prop) {
+  const getLocalValue = function() {
+    let result = null;
+    warning(prop, 'localStorage');
+    let local = localStorage.getItem('user/' + prop);
+    if (local) {
+      try {
+        local = JSON.parse(local);
+      } catch(err) {
+        if (local == 'undefined') {
+          local = null;
+        }
+      }
+      result = local;
+      state[prop] = local;
+    }
+    return result;
+  };
   let result = null;
   if (null != state[prop]) {
     result = state[prop];
   } else if(USE_LOCAL_STORAGE) {
-    warning(prop, 'localStorage');
-    let local = JSON.parse(localStorage.getItem('user/' + prop));
-    if (local) {
-      result = local;
-      state[prop] = local;
-    }
+    result = getLocalValue();
   } else if (localProps.indexOf(prop) > -1) {
-    warning(prop, 'localStorage');
-    let local = JSON.parse(localStorage.getItem('user/' + prop));
-    if (local) {
-      result = local;
-      state[prop] = local;
-    }
+    result = getLocalValue();
   }
   return result;
 }
@@ -126,7 +133,13 @@ const actions = {
       return;
     }
     if (null == state.config) {
-      state.config = getters['config'];
+      let local = getters['config'];
+      // for case 'user/config' is 'undefined'
+      if (local && typeof(state.config) === 'object') {
+        state.config = local;
+      } else {
+        state.config = {};
+      }
     }
     let keyList = keys.split('/');
     let lastKeyIndex = keyList.length - 1;
@@ -143,15 +156,22 @@ const actions = {
       });
       tmpValue[prop] = value;
     }
-    localStorage.setItem('user/config', JSON.stringify(state.config));
+    if (state.config && typeof(state.config) === 'object') {
+      localStorage.setItem('user/config', JSON.stringify(state.config));
+    }
   },
-  setInfo({commit, state}, {keys, value}) {
+  setInfo({commit, state, getters}, {keys, value}) {
     if (!keys || 0 === keys.length) {
       return;
     }
     if (null == state.info) {
-      // state.info = {};
-      state.info = getters['info'];
+      let local = getters['info'];
+      // for case 'user/info' is 'undefined'
+      if (local && typeof(state.info) === 'object') {
+        state.info = local;
+      } else {
+        state.info = {};
+      }
     }
     let keyList = keys.split('/');
     let lastKeyIndex = keyList.length - 1;
@@ -168,7 +188,9 @@ const actions = {
       });
       tmpValue[prop] = value;
     }
-    localStorage.setItem('user/info', JSON.stringify(state.info));
+    if (state.info && typeof(state.info) === 'object') {
+      localStorage.setItem('user/info', JSON.stringify(state.info));
+    }
   },
   /**
    * 更改用户组ID

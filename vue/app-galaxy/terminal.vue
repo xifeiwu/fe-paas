@@ -6,6 +6,9 @@
 <script>
   import axios from 'axios';
   import URL_LIST from './net/url';
+  const NEED_LOGIN = 1;
+  const PARAMS_NOT_FOUND = 2;
+
   export default {
     created() {
     },
@@ -21,11 +24,26 @@
             this.$alert('数据请求失败，请与管理员联系。');
           }
         }).catch(err => {
-          this.$alert(`即将进入：${this.$url.page_login_path}`, err, {
-            confirmButtonText: '确定',
-            callback: action => {
-              window.open(this.$url.page_login_path, '_blank');
+          let title = '错误';
+          let content = '';
+          let callback = () => {};
+          if (err.hasOwnProperty('status')) {
+            switch (err.status) {
+              case NEED_LOGIN:
+                content = `即将进入：${this.$url.page_login_path}`;
+                callback = () => {
+                  window.open(this.$url.page_login_path, '_blank');
+                };
+                break;
             }
+            title = err.msg;
+          } else {
+            // network err
+            title = '获取基本信息失败';
+          }
+          this.$alert(content, title, {
+            confirmButtonText: '确定',
+            callback: callback
           });
         })
       });
@@ -41,7 +59,10 @@
       getTerminalInfo() {
         let token = this.$getUserInfo('token');
         if (!token) {
-          return Promise.reject('当前未登陆，请重新登陆');
+          return Promise.reject({
+            status: NEED_LOGIN,
+            msg: '当前未登陆，请重新登陆'
+          });
         }
 
         let id = this.$utils.getQueryString('id');
@@ -71,7 +92,10 @@
             }
           });
         } else {
-          return Promise.reject('未找到IP')
+          return Promise.reject({
+            status: PARAMS_NOT_FOUND,
+            msg: '未找到IP'
+          });
         }
       },
 

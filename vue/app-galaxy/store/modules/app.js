@@ -6,7 +6,7 @@ import postFormatter from '../post_formatter';
 const USE_LOCAL_STORAGE = false;
 
 const warning = function(prop, where) {
-  console.log(`warning: get ${prop} from ${where}`);
+  console.log(`warning: get app/${prop} from ${where}`);
 };
 
 /**
@@ -16,23 +16,30 @@ const warning = function(prop, where) {
  */
 var localProps = ['messageForCreateAPP'];
 const getValue = function({state, getters}, prop) {
+  const getLocalValue = function() {
+    let result = null;
+    warning(prop, 'localStorage');
+    let local = localStorage.getItem('app/' + prop);
+    if (local) {
+      try {
+        local = JSON.parse(local);
+      } catch(err) {
+        if (local == 'undefined') {
+          local = null;
+        }
+      }
+      result = local;
+      state[prop] = local;
+    }
+    return result;
+  };
   let result = null;
   if (null != state[prop]) {
     result = state[prop];
   } else if(USE_LOCAL_STORAGE) {
-    warning(prop, 'localStorage');
-    let local = JSON.parse(localStorage.getItem('app/' + prop));
-    if (local) {
-      result = local;
-      state[prop] = local;
-    }
+    result = getLocalValue();
   } else if (localProps.indexOf(prop) > -1) {
-    warning(prop, 'localStorage');
-    let local = JSON.parse(localStorage.getItem('app/' + prop));
-    if (local) {
-      result = local;
-      state[prop] = local;
-    }
+    result = getLocalValue();
   }
   return result;
 }
