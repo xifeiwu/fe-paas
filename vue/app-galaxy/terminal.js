@@ -2,9 +2,22 @@ import Vue from 'vue';
 import utils from '../assets/js/utils';
 Vue.prototype.$utils = utils;
 
+import URL from './net/url';
+Vue.prototype.$url = URL;
+
+import Store from './store';
+import VueConfig from './config/vue';
+new VueConfig(Vue, Store);
+
 import GateOne from '../assets/libs/gateone';
+
+import MessageBox from '../packages/message-box/index';
+Vue.prototype.$alert = MessageBox.alert;;
+// scss file should be placed in dir packages/theme-chalk/src as some relative path is used in .scss file
+import '../packages/theme-chalk/src/app-terminal.scss';
 
 import APP from './terminal.vue';
 window.vm = new Vue({
   render: h => h(APP),
+  store: Store
 }).$mount('#app');

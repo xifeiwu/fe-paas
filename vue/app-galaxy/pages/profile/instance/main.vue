@@ -150,9 +150,11 @@
               ip = row['intranetIP'];
             }
             if (id && ip) {
-              let queryString = '?id=' + id + '&ip=' + ip;
-              let terminalURL = 'http://' + window.location.hostname + ':8080/terminal.html' + queryString;
-              window.open(terminalURL, '_blank');
+              let terminalPath = this.$url.page_terminal_path + '?id=' + id + '&ip=' + ip;
+//              this.$net.getTerminalInfo({
+//                serviceId: id
+//              });
+              window.open(terminalPath, '_blank');
             } else {
               this.$message.error('组ID或内网IP没有找到');
             }

@@ -7,6 +7,9 @@ var path = 'http://galaxy-web-server.galaxy.test';
 // var path = 'http://172.16.106.191:30333';
 var path = 'http://' + window.location.hostname + ':7002/api';
 var urlList = {
+  'page_terminal_path': 'http://' + window.location.host + '/terminal.html',
+  'page_login_path': 'http://' + window.location.host + '/galaxy.html',
+
   // 获取验证码
   'get_verify_code': path + '/createRandomImage',
   'login': path + '/login',
@@ -93,7 +96,6 @@ var urlList = {
   'users_all': path + '/user/queryUserList',
 
   'terminal_info': path + '/service/queryTerminalInfo',
-  'terminal_page': 'http://' + window.location.hostname + ':8080/terminal.html'
 
 };
 
