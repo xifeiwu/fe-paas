@@ -4,6 +4,10 @@
              class="dialog4log"
              :closeOnClickModal="false"
              ref="dialog4log"
+             v-loading="showStatus.showLoading"
+             element-loading-text="加载中"
+             element-loading-spinner="el-icon-loading"
+             element-loading-background="rgba(0, 0, 0, 0.1)"
   >
     <el-scrollbar>
       <slot name="log-list"></slot>
@@ -14,7 +18,8 @@
   .el-dialog__wrapper {
     &.dialog4log {
       .el-dialog {
-        background-color: rgba(0, 0, 0, 0.8);
+        /*background-color: rgba(0, 0, 0, 0.8);*/
+        background-color: #303133;
         width: 80%;
         height: 70%;
         text-align: left;
@@ -101,20 +106,7 @@
       this.dialog = dialog;
       // waiting until all dom is mounted
       this.$nextTick(() => {
-        this.scrollWrap = this.dialog.querySelector('.el-dialog__body .el-scrollbar .el-scrollbar__wrap');
-        this.scrollWrap && this.scrollWrap.addEventListener('scroll', (evt) => {
-          let target = evt.target;
-          if (target) {
-//            console.log(target.scrollTop);
-            if (target.scrollTop === 0) {
-              this.$emit('scrollTop');
-              console.log('scrollTop');
-            } else if (target.scrollTop + target.clientHeight === target.scrollHeight) {
-              this.$emit('scrollBottom');
-              console.log('scrollBottom');
-            }
-          }
-        })
+        this.getScrollWrap();
       });
     },
     props: {
@@ -137,8 +129,11 @@
         if (value) {
           this.$nextTick(() => {
             this.scrollTop();
+            this.getScrollWrap();
           });
         }
+      },
+      'showStatus.showLoading': function (value) {
       }
     },
     data() {
@@ -148,6 +143,25 @@
       }
     },
     methods: {
+      getScrollWrap() {
+        if (this.scrollWrap) {
+          return;
+        }
+        this.scrollWrap = this.dialog.querySelector('.el-dialog__body .el-scrollbar .el-scrollbar__wrap');
+        this.scrollWrap && this.scrollWrap.addEventListener('scroll', (evt) => {
+          let target = evt.target;
+          if (target) {
+//            console.log(target.scrollTop);
+            if (target.scrollTop === 0) {
+              this.$emit('scrollTop');
+//              console.log('scrollTop');
+            } else if (target.scrollTop + target.clientHeight === target.scrollHeight) {
+              this.$emit('scrollBottom');
+//              console.log('scrollBottom');
+            }
+          }
+        });
+      },
       scrollTop() {
         if (this.scrollWrap) {
           this.scrollWrap.scrollTop = 0;

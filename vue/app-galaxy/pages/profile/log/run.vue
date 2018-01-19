@@ -40,7 +40,11 @@
               type="primary"
               @click="handleButtonClick('search')">查询</el-button>
     </div>
-    <div class="section-log">
+    <div class="section-log"
+         v-loading="showLoading"
+         element-loading-text="加载中"
+         element-loading-spinner="el-icon-loading"
+         element-loading-background="rgba(0, 0, 0, 0.1)">
       <el-scrollbar>
         <div v-for="(item,index) in runLogs" :key="index" class="log-item">
           <span class="time">{{item.timestamp}}</span>
@@ -52,13 +56,13 @@
       </el-scrollbar>
       <i class="el-icon-rank" @click="dialogStatus.visible = true"></i>
     </div>
-    <el-dialog-for-log class="log-run-log" title="运行日志" :showStatus="dialogStatus">
+    <el-dialog-for-log class="log-run-log" title="运行日志" :showStatus="dialogStatus" @scrollBottom="onScrollBottom">
       <div slot="log-list" v-for="(item,index) in runLogs" :key="index" class="log-item">
         <span class="time">{{item.timestamp}}</span>
         <span class="thread">{{item.thread}}</span>
         <span class="level">{{item.level}}</span>
         <span class="content">{{item.content}}</span>
-        <span class="exception" v-if="item.exception">{{item.exception}}</span>
+        <div class="exception" v-if="item.exception">{{item.exception}}</div>
       </div>
     </el-dialog-for-log>
   </div>
@@ -80,7 +84,7 @@
     .section-log {
       position: relative;
       margin: 10px;
-      height: 600px;
+      height: 560px;
       background-color: rgba(0, 0, 0, 0.8);
       /*.title {*/
         /*height: 24px;*/
@@ -174,6 +178,23 @@
       const start = new Date();
       start.setTime(start.getTime() - 1000 * 60 * 5);
       this.searchForm.dateTimeRange = [start, end];
+
+      this.$nextTick(() => {
+        this.scrollWrap = document.querySelector('#log-run .section-log .el-scrollbar .el-scrollbar__wrap');
+        this.scrollWrap && this.scrollWrap.addEventListener('scroll', (evt) => {
+          let target = evt.target;
+          if (target) {
+            if (target.scrollTop === 0) {
+//              this.$emit('scrollTop');
+              console.log('scrollTop');
+            } else if (target.scrollTop + target.clientHeight === target.scrollHeight) {
+//              this.$emit('scrollBottom');
+              console.log('scrollBottom');
+              this.requestLog();
+            }
+          }
+        })
+      });
     },
     data() {
       return {
@@ -220,8 +241,12 @@
         dialogStatus: {
           visible: false,
           full: true,
+          showLoading: false
         },
-        runLogs: []
+        runLogs: [],
+        requestPage: 1,
+        requestSize: 50,
+        showLoading: false
       }
     },
     methods: {
@@ -233,30 +258,73 @@
       handleButtonClick(action) {
         switch (action) {
           case 'search':
+            // some initialization before request
+            this.requestPage = 1;
+            this.runLogs = [];
             console.log(this.searchForm);
-            if (!this.searchForm.serviceVersion) {
-            this.$message.error('服务版本未找到');
+            this.requestLog();
+          break;
+        }
+      },
+      onScrollBottom() {
+        this.requestLog();
+      },
+
+      /**
+       * requestLog called at
+       * 1. search button
+       * 2. scroll bottom of current scrollbar
+       * 3. scroll bottom of popup dialog
+       */
+      requestLog() {
+        if (!this.searchForm.serviceVersion) {
+          this.$message.error('服务版本未找到');
+          return;
+        }
+        let dateRange = this.searchForm.dateTimeRange.map(it => {
+          let v = this.$utils.formatDate(it, 'yyyy-MM-dd hh:mm:ss')
+          return v;
+        });
+        // some action to avoid request for more than one
+        if (this.dialogStatus.visible) {
+          if (this.dialogStatus.showLoading) {
             return;
           }
-            let dateRange = this.searchForm.dateTimeRange.map(it => {
-              let v = this.$utils.formatDate(it, 'yyyy-MM-dd hh:mm:ss')
-              return v;
-            });
-            this.$net.getHistoryRunLog({
-              appId: this.searchForm.appId,
-              spaceId: this.searchForm.spaceId,
-              serviceVersion: this.searchForm.serviceVersion,
-              logLevel: this.searchForm.logLevel,
-              startTime: dateRange[0],
-              endTime: dateRange[1],
-              keyword: this.searchForm.keyword,
-            }).then(logs => {
-              this.runLogs = logs;
-            }).catch(err => {
-              this.$showError(err);
-            });
-            break;
+        } else {
+          if (this.showLoading) {
+            return;
+          }
         }
+        if (this.dialogStatus.visible) {
+          this.dialogStatus.showLoading = true;
+          this.showLoading = false;
+        } else {
+          this.dialogStatus.showLoading = false;
+          this.showLoading = true;
+        }
+        this.$net.getHistoryRunLog({
+          appId: this.searchForm.appId,
+          spaceId: this.searchForm.spaceId,
+          serviceVersion: this.searchForm.serviceVersion,
+          logLevel: this.searchForm.logLevel,
+          startTime: dateRange[0],
+          endTime: dateRange[1],
+          keyword: this.searchForm.keyword,
+          page: this.requestPage,
+          size: this.requestSize
+        }).then(logs => {
+          this.runLogs = this.runLogs.concat(logs);
+          this.requestPage += 1;
+          this.showLoading = false;
+          this.dialogStatus.showLoading = false;
+          if (Array.isArray(logs) && logs.length === 0) {
+            this.$message.warning('没有最新日志');
+          }
+        }).catch(err => {
+          this.$showError(err);
+          this.showLoading = false;
+          this.dialogStatus.showLoading = false;
+        });
       }
     }
   }
