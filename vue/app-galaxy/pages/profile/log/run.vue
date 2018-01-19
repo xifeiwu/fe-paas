@@ -40,7 +40,7 @@
               type="primary"
               @click="handleButtonClick('search')">查询</el-button>
     </div>
-    <div class="log">
+    <div class="section-log">
       <el-scrollbar>
         <div v-for="(item,index) in runLogs" :key="index" class="log-item">
           <span class="time">{{item.timestamp}}</span>
@@ -52,7 +52,15 @@
       </el-scrollbar>
       <i class="el-icon-rank" @click="dialogStatus.visible = true"></i>
     </div>
-    <el-log-dialog title="运行日志" :showStatus="dialogStatus" :logsToShow="runLogs"></el-log-dialog>
+    <el-dialog-for-log class="log-run-log" title="运行日志" :showStatus="dialogStatus">
+      <div slot="log-list" v-for="(item,index) in runLogs" :key="index" class="log-item">
+        <span class="time">{{item.timestamp}}</span>
+        <span class="thread">{{item.thread}}</span>
+        <span class="level">{{item.level}}</span>
+        <span class="content">{{item.content}}</span>
+        <span class="exception" v-if="item.exception">{{item.exception}}</span>
+      </div>
+    </el-dialog-for-log>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -69,7 +77,7 @@
         margin-top: 5px;
       }
     }
-    .log {
+    .section-log {
       position: relative;
       margin: 10px;
       height: 600px;
@@ -90,6 +98,26 @@
           }
         }
       /*}*/
+    }
+  }
+</style>
+<style lang="scss">
+  #log-run {
+    .header {
+      .el-select .el-input__inner {
+        height: 24px;
+      }
+      .el-input .el-input__inner {
+        height: 24px;
+      }
+      .el-range-editor--mini.el-input__inner {
+        height: 26px;
+      }
+      .el-range-editor.el-input__inner {
+        padding: 2px 10px;
+      }
+    }
+    .section-log {
       .el-scrollbar {
         height: 100%;
         .el-scrollbar__wrap {
@@ -117,7 +145,7 @@
             font-size: 12px;
             line-height: 16px;
             .time {
-              color:#FFFF00;
+              color: #FFFF00;
             }
             .thread {
               color: #00FFCC;
@@ -125,7 +153,7 @@
             .level {
               color: #FF0000;
             }
-            .content, .exception{
+            .content, .exception {
               color: white;
             }
           }
@@ -134,31 +162,13 @@
     }
   }
 </style>
-<style lang="scss">
-  #log-run {
-    .header {
-      .el-select .el-input__inner {
-        height: 24px;
-      }
-      .el-input .el-input__inner {
-        height: 24px;
-      }
-      .el-range-editor--mini.el-input__inner {
-        height: 26px;
-      }
-      .el-range-editor.el-input__inner {
-        padding: 2px 10px;
-      }
-    }
-  }
-</style>
 <script>
   import elVersionSelector from '../utils/components/version-selector';
-  import elLogDialog from '../utils/components/dialog4log.vue';
+  import elDialogForLog from '../utils/components/dialog4log.vue';
   import ElInput from "../../../../packages/input/src/input";
   import ElSelect from "../../../../packages/select/src/select";
   export default {
-    components: {ElSelect, ElInput, elVersionSelector, elLogDialog},
+    components: {ElSelect, ElInput, elVersionSelector, elDialogForLog},
     mounted() {
       const end = new Date();
       const start = new Date();

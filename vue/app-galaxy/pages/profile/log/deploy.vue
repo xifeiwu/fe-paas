@@ -31,7 +31,9 @@
         </el-table-column>
       </el-table>
     </div>
-    <el-dialog-log :showStatus="dialogStatus" :logsToShow="deployLogs"></el-dialog-log>
+    <el-dialog-for-log :showStatus="dialogStatus">
+      <div slot="log-list" v-for="(item,index) in deployLogs" :key="index" class="log-item">{{item}}</div>
+    </el-dialog-for-log>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -43,9 +45,9 @@
 </style>
 <script>
   import elVersionSelector from '../utils/components/version-selector';
-  import elDialogLog from '../utils/components/dialog4log.vue';
+  import elDialogForLog from '../utils/components/dialog4log.vue';
   export default {
-    components: {elVersionSelector, elDialogLog},
+    components: {elVersionSelector, elDialogForLog},
     data() {
       return {
         showLoading: false,

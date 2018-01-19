@@ -6,7 +6,7 @@
              ref="dialog4log"
   >
     <el-scrollbar>
-      <div v-for="(item,index) in logsToShow" :key="index" class="log-item">{{item}}</div>
+      <slot name="log-list"></slot>
     </el-scrollbar>
   </el-dialog>
 </template>
@@ -41,10 +41,6 @@
             .el-scrollbar__wrap {
               .el-scrollbar__view {
                 padding: 0px 6px 10px 6px;
-                pre {
-                  font-size: 12px;
-                  line-height: 16px;
-                }
               }
             }
             .el-scrollbar__bar {
@@ -65,6 +61,26 @@
               }
             }
           }
+        }
+      }
+    }
+
+    /*style for dialog log-run-log*/
+    &.log-run-log {
+      .log-item {
+        font-size: 12px;
+        line-height: 16px;
+        .time {
+          color:#FFFF00;
+        }
+        .thread {
+          color: #00FFCC;
+        }
+        .level {
+          color: #FF0000;
+        }
+        .content, .exception{
+          color: white;
         }
       }
     }
@@ -98,12 +114,12 @@
         type: String,
         default: '日志'
       },
-      logsToShow: {
-        type: Array,
-        default() {
-          return [];
-        }
-      }
+//      logsToShow: {
+//        type: Array,
+//        default() {
+//          return [];
+//        }
+//      }
     },
     watch: {
       'showStatus.visible': function (value) {
