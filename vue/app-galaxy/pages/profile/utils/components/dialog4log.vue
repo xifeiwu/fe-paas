@@ -99,6 +99,23 @@
         dialog.style.margin = '0px';
       }
       this.dialog = dialog;
+      // waiting until all dom is mounted
+      this.$nextTick(() => {
+        this.scrollWrap = this.dialog.querySelector('.el-dialog__body .el-scrollbar .el-scrollbar__wrap');
+        this.scrollWrap && this.scrollWrap.addEventListener('scroll', (evt) => {
+          let target = evt.target;
+          if (target) {
+//            console.log(target.scrollTop);
+            if (target.scrollTop === 0) {
+              this.$emit('scrollTop');
+              console.log('scrollTop');
+            } else if (target.scrollTop + target.clientHeight === target.scrollHeight) {
+              this.$emit('scrollBottom');
+              console.log('scrollBottom');
+            }
+          }
+        })
+      });
     },
     props: {
       showStatus: {
@@ -114,12 +131,6 @@
         type: String,
         default: '日志'
       },
-//      logsToShow: {
-//        type: Array,
-//        default() {
-//          return [];
-//        }
-//      }
     },
     watch: {
       'showStatus.visible': function (value) {
@@ -133,13 +144,13 @@
     data() {
       return {
         dialog: null,
+        scrollWrap: null,
       }
     },
     methods: {
       scrollTop() {
-        let scrollBarWrap = this.dialog.querySelector('.el-dialog__body .el-scrollbar .el-scrollbar__wrap');
-        if (scrollBarWrap) {
-          scrollBarWrap.scrollTop = 0;
+        if (this.scrollWrap) {
+          this.scrollWrap.scrollTop = 0;
         }
       }
     }
