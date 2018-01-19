@@ -100,6 +100,15 @@ class VUEConfig {
       }
       return value;
     };
+    Vue.prototype.$showError = function(err) {
+      if (typeof(err) === 'string') {
+        Vue.prototype.$notify({
+          title: '错误',
+          message: err,
+          duration: 0,
+        })
+      }
+    };
   }
 }
 

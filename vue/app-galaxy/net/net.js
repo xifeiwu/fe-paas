@@ -726,15 +726,15 @@ class Net {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.log_run_log, options).then(response => {
         let content = this.getResponseContent(response);
-        console.log(content);
-        // if (content && content.hasOwnProperty('deployLog')) {
-        //   resolve(content.deployLog);
-        // } else {
-        //   reject('getHistoryDeployLog, not found deployLog');
-        // }
+        if (content && content.hasOwnProperty('rows')) {
+         resolve(content.rows);
+         this.showLog('getHistoryRunLog', content.rows);
+        } else {
+          reject('获取日志内容失败');
+        }
       }).catch(err => {
         console.log(err);
-        reject(err);
+        reject('获取日志网络请求失败');
       })
     })
   }

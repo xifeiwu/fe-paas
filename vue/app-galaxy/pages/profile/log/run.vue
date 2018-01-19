@@ -41,9 +41,12 @@
               @click="handleButtonClick('search')">查询</el-button>
     </div>
     <div class="log">
-      <div class="title"><i class="el-icon-rank" @click="dialogStatus.visible = true"></i></div>
+      <i class="el-icon-rank" @click="dialogStatus.visible = true"></i>
+      <el-scrollbar>
+        <div v-for="(item,index) in runLogs" :key="index" class="deploy-log">{{item.content}}</div>
+      </el-scrollbar>
     </div>
-    <el-log-dialog :showStatus="dialogStatus" :deployLogs="deployLogs"></el-log-dialog>
+    <el-log-dialog :showStatus="dialogStatus" :deployLogs="runLogs"></el-log-dialog>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -61,22 +64,52 @@
       }
     }
     .log {
+      position: relative;
       margin: 10px;
       height: 600px;
       background-color: rgba(0, 0, 0, 0.8);
-      .title {
-        height: 24px;
+      /*.title {*/
+        /*height: 24px;*/
         /*border-bottom: 1px solid white;*/
-        position: relative;
+        /*position: relative;*/
         .el-icon-rank {
           position: absolute;
           right: 5px;
           top: 5px;
           color: white;
-          font-size: 24px;
+          font-size: 22px;
           transform: rotate(45deg);
           &:hover {
             color: #409EFF;
+          }
+        }
+      /*}*/
+      .el-scrollbar {
+        height: 100%;
+        .el-scrollbar__wrap {
+          .el-scrollbar__view {
+            padding: 0px 6px 10px 6px;
+            pre {
+              font-size: 12px;
+              line-height: 16px;
+            }
+          }
+        }
+        .el-scrollbar__bar {
+          &.is-horizontal {
+            height: 2px;
+          }
+          &.is-vertical {
+            width: 2px;
+          }
+          .el-scrollbar__thumb {
+            background-color: #409EFF;
+          }
+        }
+        .el-scrollbar__view {
+          .deploy-log {
+            font-size: 12px;
+            line-height: 16px;
           }
         }
       }
@@ -160,7 +193,7 @@
           visible: false,
           full: true,
         },
-        deployLogs: []
+        runLogs: []
       }
     },
     methods: {
@@ -174,9 +207,9 @@
           case 'search':
             console.log(this.searchForm);
             if (!this.searchForm.serviceVersion) {
-              this.$message.error('服务版本未找到');
-              return;
-            }
+            this.$message.error('服务版本未找到');
+            return;
+          }
             let dateRange = this.searchForm.dateTimeRange.map(it => {
               let v = this.$utils.formatDate(it, 'yyyy-MM-dd hh:mm:ss')
               return v;
@@ -189,8 +222,11 @@
               startTime: dateRange[0],
               endTime: dateRange[1],
               keyword: this.searchForm.keyword,
+            }).then(logs => {
+              this.runLogs = logs;
+            }).catch(err => {
+              this.$showError(err);
             });
-            console.log(this.searchForm);
             break;
         }
       }
