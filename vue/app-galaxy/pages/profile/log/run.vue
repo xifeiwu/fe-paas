@@ -46,7 +46,7 @@
         <div v-for="(item,index) in runLogs" :key="index" class="deploy-log">{{item.content}}</div>
       </el-scrollbar>
     </div>
-    <el-log-dialog :showStatus="dialogStatus" :deployLogs="runLogs"></el-log-dialog>
+    <el-log-dialog :showStatus="dialogStatus" :logsToShow="runLogs"></el-log-dialog>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -88,7 +88,7 @@
         height: 100%;
         .el-scrollbar__wrap {
           .el-scrollbar__view {
-            padding: 0px 6px 10px 6px;
+            padding: 6px 6px 10px 6px;
             pre {
               font-size: 12px;
               line-height: 16px;

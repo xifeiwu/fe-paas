@@ -6,7 +6,7 @@
              ref="dialog4log"
   >
     <el-scrollbar>
-      <div v-for="(item,index) in deployLogs" :key="index" class="deploy-log">{{item}}</div>
+      <div v-for="(item,index) in logsToShow" :key="index" class="deploy-log">{{item}}</div>
     </el-scrollbar>
   </el-dialog>
 </template>
@@ -94,7 +94,7 @@
           };
         }
       },
-      deployLogs: {
+      logsToShow: {
         type: Array,
         default() {
           return [];
@@ -105,7 +105,7 @@
       'showStatus.visible': function (value) {
         if (value) {
           this.$nextTick(() => {
-            this.updateScroll();
+            this.scrollTop();
           });
         }
       }
@@ -116,7 +116,7 @@
       }
     },
     methods: {
-      updateScroll() {
+      scrollTop() {
         let scrollBarWrap = this.dialog.querySelector('.el-dialog__body .el-scrollbar .el-scrollbar__wrap');
         if (scrollBarWrap) {
           scrollBarWrap.scrollTop = 0;

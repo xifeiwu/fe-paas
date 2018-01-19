@@ -31,7 +31,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <el-dialog-log :showStatus="dialogStatus" :deployLogs="deployLogs"></el-dialog-log>
+    <el-dialog-log :showStatus="dialogStatus" :logsToShow="deployLogs"></el-dialog-log>
   </div>
 </template>
 <style lang="scss" scoped>
