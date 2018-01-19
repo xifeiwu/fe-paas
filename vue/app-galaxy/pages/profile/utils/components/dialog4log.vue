@@ -1,12 +1,12 @@
 <template>
-  <el-dialog title="部署日志" :visible="showStatus.visible"
+  <el-dialog :title="title" :visible="showStatus.visible"
              @close="showStatus.visible = false"
              class="dialog4log"
              :closeOnClickModal="false"
              ref="dialog4log"
   >
     <el-scrollbar>
-      <div v-for="(item,index) in logsToShow" :key="index" class="deploy-log">{{item}}</div>
+      <div v-for="(item,index) in logsToShow" :key="index" class="log-item">{{item}}</div>
     </el-scrollbar>
   </el-dialog>
 </template>
@@ -59,7 +59,7 @@
               }
             }
             .el-scrollbar__view {
-              .deploy-log {
+              .log-item {
                 font-size: 12px;
                 line-height: 16px;
               }
@@ -93,6 +93,10 @@
             full: false
           };
         }
+      },
+      title: {
+        type: String,
+        default: '日志'
       },
       logsToShow: {
         type: Array,

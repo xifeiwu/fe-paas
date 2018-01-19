@@ -41,12 +41,18 @@
               @click="handleButtonClick('search')">查询</el-button>
     </div>
     <div class="log">
-      <i class="el-icon-rank" @click="dialogStatus.visible = true"></i>
       <el-scrollbar>
-        <div v-for="(item,index) in runLogs" :key="index" class="deploy-log">{{item.content}}</div>
+        <div v-for="(item,index) in runLogs" :key="index" class="log-item">
+          <span class="time">{{item.timestamp}}</span>
+          <span class="thread">{{item.thread}}</span>
+          <span class="level">{{item.level}}</span>
+          <span class="content">{{item.content}}</span>
+          <span class="exception" v-if="item.exception">{{item.exception}}</span>
+        </div>
       </el-scrollbar>
+      <i class="el-icon-rank" @click="dialogStatus.visible = true"></i>
     </div>
-    <el-log-dialog :showStatus="dialogStatus" :logsToShow="runLogs"></el-log-dialog>
+    <el-log-dialog title="运行日志" :showStatus="dialogStatus" :logsToShow="runLogs"></el-log-dialog>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -107,9 +113,21 @@
           }
         }
         .el-scrollbar__view {
-          .deploy-log {
+          .log-item {
             font-size: 12px;
             line-height: 16px;
+            .time {
+              color:#FFFF00;
+            }
+            .thread {
+              color: #00FFCC;
+            }
+            .level {
+              color: #FF0000;
+            }
+            .content, .exception{
+              color: white;
+            }
           }
         }
       }
