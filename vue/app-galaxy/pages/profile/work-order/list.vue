@@ -289,6 +289,12 @@
 //      let pagination = document.querySelector('.pagination');
 //      console.log(pagination);
     },
+    mounted() {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 1000 * 3600 * 24 * 7);
+      this.searchForm.dateRange = [start, end];
+    },
     data() {
       return {
         searchForm: {
@@ -387,6 +393,11 @@
         },
       }
     },
+    watch: {
+      'searchForm.dateRange': function (value) {
+        this.requestWorkOrderList();
+      }
+    },
     computed: {
       workOrderListByPage() {
         let page = this.currentPage - 1;
@@ -402,48 +413,8 @@
       handleButtonClick(action, params) {
         switch (action) {
           case 'search':
-            console.log(this.searchForm);
-            let options = {
-              name: '',
-              creatorName: '',
-              status: '',
-              startTime: '',
-              endTime: ''
-            };
-            if (this.searchForm.workOrderName) {
-              options.name = this.searchForm.workOrderName.trim();
-            }
-            if (this.searchForm.creator) {
-              options.creatorName = this.searchForm.creator.trim();
-            }
-            if (this.searchForm.status) {
-              options.status = this.searchForm.status;
-            } else {
-              delete options.status;
-            }
-            if (this.searchForm.dateRange) {
-              let dateRange = this.searchForm.dateRange.map(it => {
-                let v = this.$utils.formatDate(it, 'yyyy-MM-dd hh:mm:ss')
-                return v;
-              });
-              options.startTime = dateRange[0];
-              options.endTime = dateRange[1];
-            } else {
-              options.startTime = '';
-              options.endTime = '';
-            }
-            this.showLoading = true;
-            this.$net.getWorkOrderList(options).then(content => {
-//              console.log(content);
-              if (content.hasOwnProperty('workOrderDeployList')) {
-                this.workOrderList = content.workOrderDeployList;
-              }
-              this.totalSize = content.total;
-
-              this.showLoading = false;
-            }).catch(err => {
-              this.showLoading = false;
-            });
+//            console.log(this.searchForm);
+            this.requestWorkOrderList();
             break;
           case 'linker':
             this.$router.push(params.path);
@@ -557,6 +528,55 @@
       },
       handlePaginationPageChange(page) {
         this.currentPage = page;
+      },
+
+      /**
+       * called at
+       * 1. at the change of searchForm.dateRange
+       * 2. at press of search button
+       */
+      requestWorkOrderList() {
+        let options = {
+          name: '',
+          creatorName: '',
+          status: '',
+          startTime: '',
+          endTime: ''
+        };
+        if (this.searchForm.workOrderName) {
+          options.name = this.searchForm.workOrderName.trim();
+        }
+        if (this.searchForm.creator) {
+          options.creatorName = this.searchForm.creator.trim();
+        }
+        if (this.searchForm.status) {
+          options.status = this.searchForm.status;
+        } else {
+          delete options.status;
+        }
+        if (this.searchForm.dateRange) {
+          let dateRange = this.searchForm.dateRange.map(it => {
+            let v = this.$utils.formatDate(it, 'yyyy-MM-dd hh:mm:ss')
+            return v;
+          });
+          options.startTime = dateRange[0];
+          options.endTime = dateRange[1];
+        } else {
+          options.startTime = '';
+          options.endTime = '';
+        }
+        this.showLoading = true;
+        this.$net.getWorkOrderList(options).then(content => {
+//              console.log(content);
+          if (content.hasOwnProperty('workOrderDeployList')) {
+            this.workOrderList = content.workOrderDeployList;
+          }
+          this.totalSize = content.total;
+
+          this.showLoading = false;
+        }).catch(err => {
+          this.showLoading = false;
+        });
       }
     }
   }

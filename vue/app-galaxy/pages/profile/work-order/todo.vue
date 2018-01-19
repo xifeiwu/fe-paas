@@ -214,6 +214,12 @@
 </style>
 <script>
   export default {
+    mounted() {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 1000 * 3600 * 24 * 30);
+      this.searchForm.dateRange = [start, end];
+    },
     data() {
       return {
         searchForm: {
@@ -311,6 +317,11 @@
       },
       }
     },
+    watch: {
+      'searchForm.dateRange': function (value) {
+        this.requestWorkOrderList();
+      }
+    },
     computed: {
       workOrderListByPage() {
         let page = this.currentPage - 1;
@@ -326,36 +337,7 @@
       handleButtonClick(action, params) {
         switch (action) {
           case 'search':
-            let options = {
-              creatorName: '',
-              startTime: '',
-              endTime: ''
-            };
-            if (this.searchForm.userName) {
-              options.creatorName = this.searchForm.userName;
-            } else {
-              options.creatorName = '';
-            }
-            if (this.searchForm.dateRange) {
-              let dateRange = this.searchForm.dateRange.map(it => {
-                let v = this.$utils.formatDate(it, 'yyyy-MM-dd hh:mm:ss')
-                return v;
-              });
-              options.startTime = dateRange[0];
-              options.endTime = dateRange[1];
-            } else {
-              options.startTime = '';
-              options.endTime = '';
-            }
-            this.$net.getWorkOrderToDoList(options).then(content => {
-              if (content.hasOwnProperty('todoWorkOrderList')) {
-                this.workOrderList = content.todoWorkOrderList;
-              }
-              this.totalSize = content.total;
-              this.showLoading = false;
-            }).catch(err => {
-              this.showLoading = false;
-            });
+            this.requestWorkOrderList();
             break;
           case 'linker':
             this.$router.push(params.path);
@@ -442,6 +424,45 @@
       },
       handlePaginationPageChange(page) {
         this.currentPage = page;
+      },
+
+      /**
+       * called at
+       * 1. at the change of searchForm.dateRange
+       * 2. at press of search button
+       */
+      requestWorkOrderList() {
+        let options = {
+          creatorName: '',
+          startTime: '',
+          endTime: ''
+        };
+        if (this.searchForm.userName) {
+          options.creatorName = this.searchForm.userName;
+        } else {
+          options.creatorName = '';
+        }
+        if (this.searchForm.dateRange) {
+          let dateRange = this.searchForm.dateRange.map(it => {
+            let v = this.$utils.formatDate(it, 'yyyy-MM-dd hh:mm:ss')
+            return v;
+          });
+          options.startTime = dateRange[0];
+          options.endTime = dateRange[1];
+        } else {
+          options.startTime = '';
+          options.endTime = '';
+        }
+        this.showLoading = true;
+        this.$net.getWorkOrderToDoList(options).then(content => {
+          if (content.hasOwnProperty('todoWorkOrderList')) {
+            this.workOrderList = content.todoWorkOrderList;
+          }
+          this.totalSize = content.total;
+          this.showLoading = false;
+        }).catch(err => {
+          this.showLoading = false;
+        });
       }
     }
   }
