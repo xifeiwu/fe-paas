@@ -129,7 +129,8 @@
     }
     .el-dialog__wrapper {
       &.new-domain {
-        max-width: 900px;
+        /*max-width: 900px;*/
+        width: 80%;
         margin: 15px auto;
       }
     }
@@ -215,7 +216,8 @@
                 passed = false;
                 callback('请填写域名！');
               }
-            }
+            },
+            trigger: 'blur'
           }]
         },
         waitingResponse: false,
