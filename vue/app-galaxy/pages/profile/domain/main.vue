@@ -1,77 +1,122 @@
 <template>
   <div id="domain-main">
     <div class="header">
-      <el-row>
-        <el-col :span="8">
-          <span>应用名称:</span>
-          <el-select v-model="selectedAppID" placeholder="请选择">
-            <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
-            </el-option>
-          </el-select>
-        </el-col>
-        <el-col :span="8">
-          <span>运行环境:</span>
-          <el-select v-model="selectedProfileID" placeholder="请选择">
-            <el-option v-for="item in selectedProfileList" :key="item.id" :label="item.description" :value="item.id">
-            </el-option>
-          </el-select>
-        </el-col>
-        <el-col :span="8">
-          <span>版本:</span>
-          <el-select v-model="selectedVersion" placeholder="请选择">
-            <el-option v-for="item in selectedVersionList" :key="item" :label="item" :value="item">
-            </el-option>
-          </el-select>
-        </el-col>
-      </el-row>
-      <div class="domain-list">
-        <el-table
-                :data="currentDomainList"
-                style="width: 100%"
-        >
-          <el-table-column
-                  prop="domain"
-                  label="外网二级域名"
-                  width="180">
-          </el-table-column>
-          <el-table-column
-                  prop="createTime"
-                  label="创建时间"
-                  width="180">
-          </el-table-column>
-          <el-table-column
-                  prop="creator"
-                  label="创建人"
-                  width="160">
-          </el-table-column>
-          <el-table-column
-                  prop="status"
-                  label="状态"
-                  width="160"
-          >
-          </el-table-column>
-          <el-table-column
-                  prop="operation"
-                  label="操作"
-                  width="360px"
-          >
-            <template slot-scope="scope">
-              <el-button
-                      size="mini-extral"
-                      type="warning"
-                      @click="handleRowButtonClick('to-white-list', scope.$index, scope.row)">
-                绑定IP白名单
-              </el-button>
-              <el-button
-                      size="mini-extral"
-                      type="danger"
-                      @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+      <div class="row"><el-version-selector></el-version-selector></div>
+      <div class="row">
+        <el-button
+                size="mini-extral"
+                type="primary"
+                @click="handleButtonClick('new-domain')">
+          创建外网二级域名
+        </el-button>
+        <el-button
+                size="mini-extral"
+                type="warning"
+                @click="handleButtonClick('bind-service')">绑定服务
+        </el-button>
+        <el-button
+                size="mini-extral"
+                type="warning"
+                @click="handleButtonClick('unbind-service')">解绑服务
+        </el-button>
       </div>
     </div>
+    <div class="domain-list">
+      <el-table
+              :data="currentDomainList"
+              style="width: 100%"
+      >
+        <el-table-column
+                prop="domain"
+                label="外网二级域名"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="createTime"
+                label="创建时间"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="creator"
+                label="创建人"
+                width="160">
+        </el-table-column>
+        <el-table-column
+                prop="status"
+                label="状态"
+                width="160"
+        >
+        </el-table-column>
+        <el-table-column
+                prop="operation"
+                label="操作"
+                width="360px"
+        >
+          <template slot-scope="scope">
+            <el-button
+                    size="mini-extral"
+                    type="warning"
+                    @click="handleRowButtonClick('to-white-list', scope.$index, scope.row)">
+              绑定IP白名单
+            </el-button>
+            <el-button
+                    size="mini-extral"
+                    type="danger"
+                    @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
+    <el-dialog title="创建外网二级域名" :visible="selected.operation == 'new-domain'"
+               class="new-domain"
+               @close="selected.operation = null"
+    >
+      <!--<el-tag type="success" disable-transitions>-->
+        <!--<i class="el-icon-warning"></i>-->
+        <!--<span>更改健康检查后需要重新【部署】才能生效！</span>-->
+      <!--</el-tag>-->
+      <el-form :model="newProps" :rules="rules" size="mini"
+               label-width="120px" ref="newDomainForm">
+        <el-form-item label="当前文件存储" class="has-existed">
+          <div>
+            <el-tag
+                    v-for="domain in newProps.domainList"
+                    :key="domain"
+                    closable
+                    type="success"
+                    @close="handleNewDomainDialog('remove', domain)"
+            >{{domain}}</el-tag>
+          </div>
+        </el-form-item>
+        <el-form-item label="外网二级域名" prop="level2">
+          <!--<el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母数字下划线中划线，2-18位">-->
+            <!--<template slot="append"><el-button class="add-file-location-btn" @click="handleAddFileLocation(fileLocationToAdd)">添加</el-button></template>-->
+          <!--</el-input>-->
+          <el-input v-model="newProps.level2"></el-input>
+          <el-select v-model="newProps.level1">
+            <el-option value=".finupgroup.com" label=".finupgroup.com"></el-option>
+            <el-option value="iqianzhan.com" label=".iqianzhan.com"></el-option>
+            <el-option value=".iqianjin.com" label=".iqianjin.com"></el-option>
+          </el-select>
+          <el-button class="add-domain-btn" size="mini" @click="handleNewDomainDialog('add')">添加</el-button>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('new-domain')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.operation = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -82,6 +127,12 @@
         height: 24px;
       }
     }
+    .el-dialog__wrapper {
+      &.new-domain {
+        max-width: 900px;
+        margin: 15px auto;
+      }
+    }
   }
 </style>
 <style lang="scss" scoped>
@@ -89,193 +140,98 @@
     .header {
       margin: 5px;
       font-size: 14px;
+      .row {
+        margin-bottom: 5px;
+      }
     }
   }
 
 </style>
 
 <script>
-  import appPropUtils from '../utils/app_prop';
+  import elVersionSelector from '../utils/components/version-selector.vue';
   import StoreHelper from '../utils/store-helper.vue';
+  import ElInput from "../../../../packages/input/src/input";
+  import ElSelect from "../../../../packages/select/src/select";
+  import ElOption from "../../../../packages/select/src/option";
   export default {
+    components: {ElOption, ElSelect, ElInput, elVersionSelector},
     mixins: [StoreHelper],
     created() {
-      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
     },
     data() {
       return {
         appList: [],
-
-        selectedAppID: null,
-        selectedAPP: null,
-        selectedProfileID: null,
-        selectedProfileList: [],
-        selectedVersion: null,
-        selectedVersionList: [],
 
         currentDomainList: [{
           domain: 'www.finupgroup.com',
           createTime: '2017-06-06',
           creator: 'me',
           status: '生效中',
-        }]
+        }],
+
+        selected: {
+          operation: null,
+          row: null,
+        },
+        newProps: {
+          domainList: [],
+          level1: '.finupgroup.com',
+          level2: '',
+        },
+        rules: {
+          domainList: [{
+            type: 'array',
+            required: true,
+            message: '请输入至少一个域名',
+          }, {
+            validator(rule, values, callback) {
+              // console.log(rule);
+              // console.log(values);
+              // console.log(typeof(values));
+
+//              let passed = true;
+//              let reg = /^\/[A-Za-z0-9_\-]+$/;
+//              for (let key in values) {
+//                let item = values[key];
+//                if (!reg.exec(item)) {
+//                  passed = false;
+//                  callback(`${item}不符合条件。请以/开头，可包含字母、数字、下划线、中划线，2-18位字符。`)
+//                }
+//              }
+//              if (passed) {
+//                callback();
+//              }
+              callback();
+            }
+          }],
+          level2: [{
+            validator(rule, values, callback) {
+              let passed = false;
+              if (typeof(values) == 'string' && values.length > 0) {
+                passed = true;
+                callback();
+              } else {
+                passed = false;
+                callback('请填写域名！');
+              }
+            }
+          }]
+        },
+        waitingResponse: false,
       }
     },
     watch: {
-      appInfoListOfGroup: 'onAppInfoListOfGroup',
-      selectedAppID: function (value, oldValue) {
-        let appID = value;
-        let appInfo = this.getAppInfoByID(appID);
-        if (!appInfo) {
-          return;
-        }
-        this.selectedAPP = appInfo['app'];
-        this.selectedProfileList = this.selectedAPP['profileList'];
-        if (Array.isArray(this.selectedProfileList) && this.selectedProfileList.length > 0) {
-          // at the beginning of this page(value of selectedProfileID is null), get selectedProfileID from localStorage
-          // else selectedProfileID is the first element in profileList of selectedApp
-          var defaultProfileID = this.selectedProfileList[0]['id'];
-          if (null == this.selectedProfileID) {
-//            let selectedProfileID = this.getConfig('profile/service/profileID');
-//            if (selectedProfileID) {
-//              this.selectedProfileID = selectedProfileID;
-//            }
-            this.selectedProfileID = defaultProfileID;
-          } else {
-            // request service list when app id is changed while profile id is not changed.
-            if (this.selectedProfileID == defaultProfileID) {
-              this.requestVersionList(this.selectedAPP.appId, this.selectedProfileID);
-            } else {
-              this.selectedProfileID = defaultProfileID;
-            }
-          }
-        }
-        this.$setUserConfig('profile/service/appID', appID);
-      },
-      selectedProfileID: function (value, oldValue) {
-        let profileID = value;
-        let appID = this.selectedAPP.appId;
-        this.requestVersionList(appID, profileID);
-//      this.setConfig('profile/service/profileID', profileID);
-      },
-      selectedVersion: function (value, oldValue) {
-        console.log(value);
-        if (null == value) {
-          return;
-        }
-        this.requestInstanceList(this.selectedAPP.appId, this.selectedProfileID, value);
-      },
     },
     methods: {
-      /**
-       * call in two place:
-       * 1. created function
-       * 2. appInfoListOfGroup watcher
-       *
-       * what is done?
-       * 1. refresh this.appList
-       * 2. get default appId
-       */
-      onAppInfoListOfGroup(appInfoListOfGroup) {
-        if (appInfoListOfGroup) {
-          if (appInfoListOfGroup.hasOwnProperty('appList')) {
-            this.appList = appInfoListOfGroup.appList;
-          }
-          if (!this.appList || (0 == this.appList.length)) {
-            return;
-          }
-          let appId = this.$getUserConfig('profile/service/appID');
-          if (appId && this.getAppInfoByID(appId)) {
-            this.selectedAppID = appId;
-          } else {
-            this.selectedAppID = this.appList[0]['appId'];
-          }
+      handleButtonClick(action) {
+        switch (action) {
+          case 'new-domain':
+            this.selected.operation = 'new-domain';
+            console.log(this.selected);
+            break;
         }
       },
-
-      /**
-       * request version list when selectedAppId or selectedProfileId is changed
-       */
-      requestVersionList(appID, spaceID) {
-        if (!appID || !spaceID) {
-          console.log('appID or spaceID can not be empty');
-          return;
-        }
-        this.selectedVersion = null;
-        this.$net.getServiceVersion({
-          appId: appID,
-          spaceId: spaceID
-        }).then(content => {
-//          console.log(content);
-          if (content.hasOwnProperty('version')) {
-            let version = content.version;
-            if (version && Array.isArray(version) && version.length > 0) {
-              this.selectedVersionList = version;
-              this.selectedVersion = version[0];
-            } else {
-              let profileName = '该';
-              let profileInfo = appPropUtils.getProfileInfoByID(this.selectedProfileID);
-              if (profileInfo && profileInfo.hasOwnProperty('name')) {
-                profileName = profileInfo.description;
-              }
-              this.$message({
-                type: 'warning',
-                message: profileName + '下，服务没有版本！'
-              });
-            }
-          }
-        }).catch(err => {
-          console.log(err);
-          this.$message({
-            type: 'error',
-            message: '查找服务版本失败！'
-          });
-        });
-      },
-
-      /**
-       *
-       * @param appID
-       * @param spaceID
-       * @param version
-       */
-      requestInstanceList(appID, spaceID, version) {
-        if (!appID || !spaceID) {
-          console.log('appID or spaceID can not be empty');
-          return;
-        }
-        this.$net.getInstanceList({
-          appId: appID,
-          spaceId: spaceID,
-          serviceVersion: version
-        }).then(content => {
-          console.log(content);
-//          if (content.hasOwnProperty('version')) {
-//            let version = content.version;
-//            if (version && Array.isArray(version) && version.length > 0) {
-//              this.selectedVersionList = version;
-//              this.selectedVersion = version[0];
-//            } else {
-//              let profileName = '该';
-//              let profileInfo = appPropUtils.getProfileInfoByID(this.selectedProfileID);
-//              if (profileInfo && profileInfo.hasOwnProperty('name')) {
-//                profileName = profileInfo.description;
-//              }
-//              this.$message({
-//                type: 'warning',
-//                message: profileName + '下，服务没有版本！'
-//              });
-//            }
-//          }
-        }).catch(err => {
-          console.log(err);
-          this.$message({
-            type: 'error',
-            message: '查找服务版本失败！'
-          });
-        });
-      },
-
       handleRowButtonClick(action, index, row) {
         switch (action) {
           case 'to-white-list':
@@ -284,6 +240,41 @@
               path: '/profile/domain/white-list',
               query: {
                 domain: domain,
+              }
+            });
+            break;
+        }
+      },
+      handleDialogButtonClick(action) {
+        switch (action) {
+          case 'new-domain':
+            this.newProps.newDomain = [];
+            this.waitingResponse = true;
+            console.log(this.newProps);
+            setTimeout(() => {
+              this.waitingResponse = false;
+            }, 2000);
+            break;
+        }
+      },
+
+      handleNewDomainDialog(action, domain) {
+        switch (action) {
+          case 'remove':
+            let items = this.newProps.domainList;
+            items.splice(items.indexOf(domain), 1);
+            break;
+          case 'add':
+            this.$refs.hasOwnProperty('newDomainForm') &&
+            this.$refs['newDomainForm'].validate(valid => {
+              if (valid) {
+                let items = this.newProps.domainList;
+                let domain = this.newProps.level2 + this.newProps.level1;
+                if (items.indexOf(domain) > -1) {
+                  items.splice(items.indexOf(domain), 1);
+                }
+                items.push(domain);
+                this.newProps.level2 = '';
               }
             });
             break;
