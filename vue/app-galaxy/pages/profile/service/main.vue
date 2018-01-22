@@ -987,9 +987,9 @@
 <script>
   import appPropUtils from '../utils/app_prop';
   import StoreHelper from '../utils/store-helper.vue';
-  import ElRow from "../../../../packages/row/src/row";
-  import ElCol from "../../../../packages/col/src/col";
-  import ElRadio from "../../../../packages/radio/src/radio";
+  import ElRow from "element-ui/packages/row/src/row";
+  import ElCol from "element-ui/packages/col/src/col";
+  import ElRadio from "element-ui/packages/radio/src/radio";
 export default {
   components: {ElRadio, ElCol, ElRow}, mixins: [StoreHelper],
   created() {

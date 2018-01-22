@@ -169,8 +169,8 @@
 <script>
   import elVersionSelector from '../utils/components/version-selector';
   import elDialogForLog from '../utils/components/dialog4log.vue';
-  import ElInput from "../../../../packages/input/src/input";
-  import ElSelect from "../../../../packages/select/src/select";
+  import ElInput from "element-ui/packages/input/src/input";
+  import ElSelect from "element-ui/packages/select/src/select";
   export default {
     components: {ElSelect, ElInput, elVersionSelector, elDialogForLog},
     mounted() {

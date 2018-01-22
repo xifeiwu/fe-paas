@@ -38,8 +38,8 @@ var baseConfig = {
   resolve: {
     extensions: ['.js', '.vue', '.json', '.scss', '.sass'],
     alias: {
-      'element-ui': utils.contextPath(),
-      'utils': utils.contextPath() + '/src',
+      'element-ui': utils.contextPath() + '/element-ui',
+      // 'utils': utils.contextPath() + 'element-ui/src',
     }
   },
   module: {

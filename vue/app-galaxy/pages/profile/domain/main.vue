@@ -217,10 +217,10 @@
 <script>
   import elVersionSelector from '../utils/components/version-selector.vue';
   import StoreHelper from '../utils/store-helper.vue';
-  import ElInput from "../../../../packages/input/src/input";
-  import ElSelect from "../../../../packages/select/src/select";
-  import ElOption from "../../../../packages/select/src/option";
-  import ElTooltip from "../../../../packages/tooltip/src/main";
+  import ElInput from "element-ui/packages/input/src/input";
+  import ElSelect from "element-ui/packages/select/src/select";
+  import ElOption from "element-ui/packages/select/src/option";
+  import ElTooltip from "element-ui/packages/tooltip/src/main";
   export default {
     components: {ElTooltip, ElOption, ElSelect, ElInput, elVersionSelector},
     mixins: [StoreHelper],

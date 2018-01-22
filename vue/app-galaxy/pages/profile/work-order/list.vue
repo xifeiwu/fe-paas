@@ -281,9 +281,9 @@
 </style>
 
 <script>
-  import ElDialog from "../../../../packages/dialog/src/component";
-  import ElFormItem from "../../../../packages/form/src/form-item";
-  import ElTable from "../../../../packages/table/src/table";
+  import ElDialog from "element-ui/packages/dialog/src/component";
+  import ElFormItem from "element-ui/packages/form/src/form-item";
+  import ElTable from "element-ui/packages/table/src/table";
   export default {
     components: {ElTable, ElFormItem, ElDialog}, created() {
 //      let pagination = document.querySelector('.pagination');

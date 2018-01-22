@@ -26,7 +26,7 @@ new NetWorkConfig(Vue);
 import RouterConfig from './config/router';
 let routerConfig = new RouterConfig(Vue);
 
-import '../packages/theme-chalk/src/index.scss';
+import 'element-ui/packages/theme-chalk/src/index.scss';
 import '../assets/css/fix_style.scss';
 import Components from './components.js';
 Components.install(Vue);
