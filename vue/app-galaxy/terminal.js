@@ -9,7 +9,7 @@ import Store from './store';
 import VueConfig from './config/vue';
 new VueConfig(Vue, Store);
 
-import GateOne from '../assets/libs/gateone';
+// import GateOne from '../assets/libs/gateone';
 
 import MessageBox from 'element-ui/packages/message-box/index';
 Vue.prototype.$alert = MessageBox.alert;

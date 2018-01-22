@@ -40,6 +40,7 @@
           } else {
             // network err
             title = '获取基本信息失败';
+            content = err;
           }
           this.$alert(content, title, {
             confirmButtonText: '确定',
@@ -105,6 +106,10 @@
         let location = options.location;
         var ssh_url = "ssh://root@" + this.ip + ":22";
 
+        if (!window.GateOne) {
+          this.$alert('未找到GateOne！');
+          return;
+        }
         GateOne.init({
           auth: authInfo,
           url: gateOneURL,

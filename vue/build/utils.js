@@ -130,7 +130,7 @@ exports.chunksAndTemplates = () => {
       "filename": "terminal.html",
       "title": "terminal",
       "cdn": {
-        "js": [],
+        "js": ['./assets/libs/gateone.js'],
         "css": []
       },
       "chunks": ["terminal"],
