@@ -3,7 +3,8 @@ import Loading from './loading.vue';
 import { addClass, removeClass, getStyle } from 'element-ui/src/utils/dom';
 const Mask = Vue.extend(Loading);
 
-exports.install = Vue => {
+let loadingDirective = {};
+loadingDirective.install = Vue => {
   if (Vue.prototype.$isServer) return;
   const toggleLoading = (el, binding) => {
     if (binding.value) {
@@ -109,3 +110,5 @@ exports.install = Vue => {
     }
   });
 };
+
+export default loadingDirective;

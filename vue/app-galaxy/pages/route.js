@@ -13,11 +13,11 @@ import InstanceMain from './profile/instance/main.vue';
 import DomainMain from './profile/domain/main.vue';
 import DomainWhiteList from './profile/domain/white-list.vue';
 
-// import LogMain from './profile/log/main.vue';
-const LogMain = () => import(
-  /* webpackChunkName: "log" */
-  /* webpackMode: "lazy" */
-  './profile/log/main.vue');
+import LogMain from './profile/log/main.vue';
+// const LogMain = () => import(
+//   /* webpackChunkName: "log" */
+//   /* webpackMode: "lazy" */
+//   './profile/log/main.vue');
 import LogRun from './profile/log/run.vue';
 import LogDeploy from './profile/log/deploy.vue';
 
