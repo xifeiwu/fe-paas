@@ -9,6 +9,7 @@
                 @click="handleButtonClick('new-domain')">
           创建外网二级域名
         </el-button>
+
         <el-button
                 size="mini-extral"
                 type="warning"
@@ -19,13 +20,25 @@
                 type="warning"
                 @click="handleButtonClick('unbind-service')">解绑服务
         </el-button>
+
+        <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
+          <div slot="content">
+            <div>已绑定的域名需要先进行解绑，才可绑定新的服务</div>
+          </div>
+          <i class="el-icon-question"></i>
+      </el-tooltip>
       </div>
     </div>
     <div class="domain-list">
       <el-table
               :data="currentDomainList"
               style="width: 100%"
+              @selection-change="handleSelectionChangeInTable"
       >
+        <el-table-column
+                type="selection"
+                width="55">
+        </el-table-column>
         <el-table-column
                 prop="domain"
                 label="外网二级域名"
@@ -62,7 +75,7 @@
             <el-button
                     size="mini-extral"
                     type="danger"
-                    @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除
+                    @click="handleRowButtonClick('remove', scope.$index, scope.row)">删除
             </el-button>
           </template>
         </el-table-column>
@@ -91,9 +104,6 @@
           </div>
         </el-form-item>
         <el-form-item label="外网二级域名" prop="level2">
-          <!--<el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母数字下划线中划线，2-18位">-->
-            <!--<template slot="append"><el-button class="add-file-location-btn" @click="handleAddFileLocation(fileLocationToAdd)">添加</el-button></template>-->
-          <!--</el-input>-->
           <el-input v-model="newProps.level2"></el-input>
           <el-select v-model="newProps.level1">
             <el-option value=".finupgroup.com" label=".finupgroup.com"></el-option>
@@ -111,8 +121,58 @@
                        :loading="waitingResponse">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
-            <el-button action="profile-dialog/cancel"
-                       @click="selected.operation = null">取&nbsp消</el-button>
+            <el-button @click="selected.operation = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="绑定服务" :visible="selected.operation == 'bind-service'"
+               class="bind-service"
+               @close="selected.operation = null"
+    >
+      <el-form size="mini"
+               label-width="120px" ref="bindServiceForm">
+        <el-form-item label="当前文件存储" class="has-existed">
+          <div>
+            <span
+                    v-for="(item, index) in rowsSelected"
+                    :key="index"
+            >{{item.domain}}</span>
+          </div>
+        </el-form-item>
+        <el-form-item label="绑定服务">
+          <el-version-selector></el-version-selector>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('bind-service')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button @click="selected.operation = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="解绑服务" :visible="selected.operation == 'unbind-service'"
+               class="unbind-service"
+               @close="selected.operation = null"
+    >
+      <div>解绑会造成外网二级域名不可用，你确定需要这么做吗？</div>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('unbind-service')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button @click="selected.operation = null">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
@@ -128,7 +188,7 @@
       }
     }
     .el-dialog__wrapper {
-      &.new-domain {
+      &.new-domain, &.bind-service {
         /*max-width: 900px;*/
         width: 80%;
         margin: 15px auto;
@@ -144,6 +204,11 @@
       .row {
         margin-bottom: 5px;
       }
+      .el-icon-question {
+        font-size: 16px;
+        line-height: 24px;
+        margin-left: 10px;
+      }
     }
   }
 
@@ -155,21 +220,21 @@
   import ElInput from "../../../../packages/input/src/input";
   import ElSelect from "../../../../packages/select/src/select";
   import ElOption from "../../../../packages/select/src/option";
+  import ElTooltip from "../../../../packages/tooltip/src/main";
   export default {
-    components: {ElOption, ElSelect, ElInput, elVersionSelector},
+    components: {ElTooltip, ElOption, ElSelect, ElInput, elVersionSelector},
     mixins: [StoreHelper],
     created() {
     },
     data() {
       return {
-        appList: [],
-
         currentDomainList: [{
           domain: 'www.finupgroup.com',
           createTime: '2017-06-06',
           creator: 'me',
           status: '生效中',
         }],
+        rowsSelected: [],
 
         selected: {
           operation: null,
@@ -226,13 +291,8 @@
     watch: {
     },
     methods: {
-      handleButtonClick(action) {
-        switch (action) {
-          case 'new-domain':
-            this.selected.operation = 'new-domain';
-            console.log(this.selected);
-            break;
-        }
+      handleSelectionChangeInTable(val) {
+        this.rowsSelected = val;
       },
       handleRowButtonClick(action, index, row) {
         switch (action) {
@@ -245,8 +305,59 @@
               }
             });
             break;
+          case 'remove':
+            this.warningConfirm('删除外网二级域名将同时删除该域名关联的IP白名单，确定吗？').then(() => {
+//              this.$net.deleteAPP({
+//                groupId: this.currentGroupID,
+//                id: row.appId
+//              }).then(res => {
+//                this.deleteAppInfoByID(row.appId);
+//                this.$message({
+//                  type: 'success',
+//                  message: '删除成功!'
+//                });
+//                this.requestAPPList({});
+//              });
+            }).catch(() => {
+              this.$message({
+                type: 'info',
+                message: '您已取消删除'
+              });
+            });
+
+            break;
         }
       },
+
+      /**
+       * do some init action before dialog popup
+       */
+      handleButtonClick(action) {
+        switch (action) {
+          case 'new-domain':
+            this.selected.operation = 'new-domain';
+            console.log(this.selected);
+            break;
+          case 'bind-service':
+            if (this.rowsSelected.length == 0) {
+              this.$message.warning('请先选择要操作的域名');
+              return;
+            }
+            this.selected.operation = 'bind-service';
+            break;
+          case 'unbind-service':
+            if (this.rowsSelected.length == 0) {
+              this.$message.warning('请先选择要操作的域名');
+              return;
+            }
+            this.selected.operation = 'unbind-service';
+            break;
+        }
+      },
+      /**
+       * action in popup dialog on the press of button-ok
+       * @param action
+       */
       handleDialogButtonClick(action) {
         switch (action) {
           case 'new-domain':
@@ -257,9 +368,26 @@
               this.waitingResponse = false;
             }, 2000);
             break;
+          case 'bind-service':
+            this.waitingResponse = true;
+            setTimeout(() => {
+              this.waitingResponse = false;
+            }, 2000);
+            break;
+          case 'unbind-service':
+            this.waitingResponse = true;
+            setTimeout(() => {
+              this.waitingResponse = false;
+            }, 2000);
+            break;
         }
       },
 
+      /**
+       * action for add or remove domain
+       * @param action
+       * @param domain
+       */
       handleNewDomainDialog(action, domain) {
         switch (action) {
           case 'remove':
@@ -281,7 +409,21 @@
             });
             break;
         }
-      }
+      },
+
+      warningConfirm(content) {
+        return new Promise((resolve, reject) => {
+          this.$confirm(content, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            resolve();
+          }).catch(() => {
+            reject()
+          });
+        });
+      },
     }
   }
 </script>
