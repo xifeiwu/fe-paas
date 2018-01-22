@@ -1,6 +1,6 @@
 {
-  "presets": [["es2015", { "loose": true }]],
-  "plugins": ["transform-vue-jsx"],
+  "presets": [["es2015", { "loose": true, "comment": true }]],
+  "plugins": ["transform-vue-jsx", "syntax-dynamic-import"],
   "env": {
     "utils": {
       "plugins": [

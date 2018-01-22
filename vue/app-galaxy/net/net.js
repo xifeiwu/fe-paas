@@ -113,7 +113,7 @@ class Net {
         let permission = content.permission;
         permission = permission.map(it => {
           return updateItem(it);
-        })
+        });
         permission.forEach(it => {
           if (0 === it.parentId) {
             twoLevelMenu.push(it);
