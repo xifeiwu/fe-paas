@@ -193,7 +193,7 @@
               this.requestLog();
             }
           }
-        })
+        });
       });
     },
     data() {
@@ -228,6 +228,14 @@
               picker.$emit('pick', [start, end]);
             }
           }, {
+            text: '最近两个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 60);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
             text: '最近三个月',
             onClick(picker) {
               const end = new Date();
@@ -254,15 +262,12 @@
         this.searchForm.appId = appInfo.id;
         this.searchForm.spaceId = profileID;
         this.searchForm.serviceVersion = serviceInfo.id;
+        this.requestLogAtStart();
       },
       handleButtonClick(action) {
         switch (action) {
           case 'search':
-            // some initialization before request
-            this.requestPage = 1;
-            this.runLogs = [];
-            console.log(this.searchForm);
-            this.requestLog();
+            this.requestLogAtStart();
           break;
         }
       },
@@ -270,11 +275,19 @@
         this.requestLog();
       },
 
+      requestLogAtStart() {
+        this.requestPage = 1;
+        this.runLogs = [];
+//            console.log(this.searchForm);
+        this.requestLog();
+      },
       /**
        * requestLog called at
        * 1. search button
        * 2. scroll bottom of current scrollbar
        * 3. scroll bottom of popup dialog
+       * 4. start of this page
+       * 5. onVersionSelected, as may be serviceVersion is not ready at start.
        */
       requestLog() {
         if (!this.searchForm.serviceVersion) {
@@ -301,6 +314,10 @@
         } else {
           this.dialogStatus.showLoading = false;
           this.showLoading = true;
+        }
+        if ('' == this.searchForm.appId || '' == this.searchForm.spaceId || '' == this.searchForm.serviceVersion) {
+          console.log('seviceVersion not ready');
+          return;
         }
         this.$net.getHistoryRunLog({
           appId: this.searchForm.appId,
