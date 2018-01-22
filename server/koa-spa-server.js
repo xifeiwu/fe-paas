@@ -3,7 +3,7 @@ const koaServer = require('./koa-spa-server');
 // const L = require('nirvana-logger')('example');
 const port = process.env.PORT0 || 7002;
 
-var javaServer = 'http://172.16.49.131:30333';
+var javaServer = 'http://172.16.106.191:30333';
 // var javaServer = 'http://172.16.49.130:30333';
 var javaServer = 'http://galaxy-web-server.galaxy.test';
 const proxyTable = {

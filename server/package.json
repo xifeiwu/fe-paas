@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "nodemon index.js || node index.js"
+    "start": "nodemon koa-spa-server.js || node koa-spa-server.js"
   },
   "devDependencies": {
     "nodemon": "^1.14.8"
