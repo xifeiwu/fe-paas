@@ -665,11 +665,25 @@ class Net {
    * @param options
    * @returns {Promise}
    */
-  getAutoImageTypeList(options) {
+  getImageRelatedInfo(options4Auto, options4Env) {
+    console.log('fdsjiafjdiosajfoidsjafiodas');
+    const getAutoImageList = () => {
+      return axios.post(URL_LIST.auto_image_list, options4Auto);
+    };
+    const getCustomEnvImageList = () => {
+      return axios.post(URL_LIST.custom_image_env_list, options4Env);
+    }
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.auto_image_type_list, options).then(response => {
-        resolve(response);
-      })
+      axios.all([getAutoImageList(), getCustomEnvImageList()])
+        .then(axios.spread((autoImageList, customEnvImageList) => {
+          autoImageList = this.getResponseContent(autoImageList);
+          customEnvImageList = this.getResponseContent(customEnvImageList);
+          console.log(autoImageList);
+          console.log(customEnvImageList);
+      }));
+      // axios.post(URL_LIST.auto_image_type_list, options).then(response => {
+      //   resolve(response);
+      // })
     })
   }
 

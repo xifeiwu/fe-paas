@@ -323,16 +323,41 @@
       onGroupInfo(value) {
 //        console.log(this.currentApp);
 //        console.log(value);
-        if (value && value.hasOwnProperty('tag')) {
-          if (this.currentApp && this.currentApp.hasOwnProperty('language')) {
-            this.$net.getAutoImageTypeList({
-              groupTag: value.tag,
-              language: 'ph' + this.currentApp.language.toLowerCase()
-            }).then(autoImageTypeList => {
-              console.log(autoImageTypeList);
-            })
-          }
+        // check group tag
+        if (!value || !value.hasOwnProperty('tag')) {
+          console.log('groupTag not found');
+          return;
         }
+        // check language
+        if (!this.currentApp || !this.currentApp.hasOwnProperty('language')) {
+          console.log('language not found');
+          return;
+        }
+        // check spaceId
+        if (!this.serviceForm.hasOwnProperty('spaceId') || !this.serviceForm.hasOwnProperty('appId')) {
+          console.log('spaceId or appId not found')
+          return;
+        }
+        // check profile name
+        let profileInfo = AppPropUtil.getProfileInfoByID(this.serviceForm.spaceId);
+        if (!profileInfo || !profileInfo.hasOwnProperty('name')) {
+          console.log('profileName not found');
+          return;
+        }
+
+        let groupTag = value.tag;
+        let language = this.currentApp.language.toLowerCase();
+        let profileName = profileInfo.name;
+        this.$net.getImageRelatedInfo({
+          groupTag: groupTag,
+          language: 'ph' + language
+        }, {
+          env: profileName,
+          applicationId: this.serviceForm.appId,
+          groupTag: groupTag
+        }).then(autoImageTypeList => {
+//          console.log(autoImageTypeList);
+        })
       },
       handleImageTypeChange(value) {
         switch (value) {
