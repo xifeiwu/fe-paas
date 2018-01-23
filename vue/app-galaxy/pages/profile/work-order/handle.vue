@@ -67,6 +67,17 @@
         </el-select>
       </el-form-item>
       <el-form-item label="测试报告">
+        <el-upload
+              class="upload-demo"
+              ref="upload"
+              :action="$url.work_order_handle_upload_test_report"
+              :auto-upload="false"
+              :beforeUpload="beforeFileUpload"
+              :onSuccess="afterLoadSuccess"
+              :onError="afterLoadError">
+          <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>
+          <el-button style="margin-left: 10px;" type="success" size="mini-extral" @click="handleSubmitUpload">上传到服务器</el-button>
+        </el-upload>
       </el-form-item>
       <el-form-item label="审批意见">
         <el-input v-model="handleInfo.comment"
@@ -109,7 +120,7 @@
 <script>
   import ElSelect from "element-ui/packages/select/src/select";
   import ElOption from "element-ui/packages/select/src/option";
-  import ElFormItem from "../../../../element-ui/packages/form/src/form-item";
+  import ElFormItem from "element-ui/packages/form/src/form-item";
   export default {
     components: {ElFormItem, ElOption, ElSelect}, created() {
 
@@ -133,6 +144,7 @@
           label: '跳过测试',
           value: 'SKIP_TEST'
         }],
+//        fileList2Upload: [],
         handleInfo: {
           testType: '',
           uploadFile: '',
@@ -144,6 +156,7 @@
       getWorkOrderDetail(workOrder) {
         if (!workOrder || !workOrder.hasOwnProperty('id')) {
           this.$router.push('/profile/work-order/todo');
+          return;
         }
         this.$net.getWorkOrderDetail({
           id: workOrder.id
@@ -171,8 +184,52 @@
         }).catch(err => {
         });
       },
-      handleButtonClick(action) {
 
+      handleSubmitUpload() {
+        this.$refs.upload.submit();
+      },
+      beforeFileUpload(file) {
+        console.log('beforeFileUpload');
+        return new Promise((resolve, reject) => {
+          let isExcel = false;
+          if (file) {
+            if (/\.xls$/.exec(file.name) || /\.xlsx$/.exec(file.name)) {
+              isExcel = true;
+            }
+          }
+          isExcel = true;
+          if (isExcel) {
+            resolve(file);
+          } else {
+            reject(null);
+            this.$message({
+              type: 'error',
+              message: '只能上传以.xls或.xlsx为后缀的excel文件'
+            });
+          }
+        })
+      },
+      /**
+       * callback of upload success
+       * @param res, not used
+       * @param file, the file upload just now
+       * @param uploadFiles, all files in uploadlist, including the files has been upload
+       */
+      afterLoadSuccess(res, file, uploadFiles) {
+        this.$message.success(`${file.name}上传成功`);
+      },
+      afterLoadError(err, rawFile) {
+        if (err) {
+          this.$message.error(`${rawFile.name}上传失败`);
+        }
+      },
+
+      handleButtonClick(action) {
+        switch (action) {
+          case 'close':
+            this.$router.go(-1);
+            break;
+        }
       }
     }
   }

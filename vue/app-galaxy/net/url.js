@@ -98,6 +98,11 @@ var urlList = {
   'work_order_detail_operation_list': path + '/workOrderDeployLog/getWorkOrderDeployLog',
   // 邮件组
   'work_order_detail_email_group': path + '/emailGroup/getWorkOrderDeployEmailGroup',
+
+  /** 处理工单 */
+  // 上传测试报告
+  'work_order_handle_upload_test_report': 'http://localhost:4291/post/upload',
+
   // 创建工单
   'work_order_create': path + '/workOrderDeploy/applyWordOrderDeploy',
   // 获取验收人
