@@ -137,8 +137,7 @@ exports.chunksAndTemplates = () => {
     }
   ];
 
-  let RUN_TEST = false;
-  if (RUN_TEST) {
+  if (process.env.NODE_ENV !== 'production') {
     entries['element'] = path.resolve(vueBaseDir, 'app-test/element.js');
     entries['custom'] = path.resolve(vueBaseDir, 'app-test/custom.js');
     htmlConfigs.push({
