@@ -966,7 +966,7 @@ class Net {
             userToDo: userToDo,
             userAcceptedList: userAcceptedList,
             operationList: operationList,
-          }
+          };
           resolve(results);
         })).catch(err => {
           reject(err);

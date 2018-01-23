@@ -84,6 +84,7 @@
               <el-form labelWidth="120px" size="mini">
                 <el-form-item label="工单名称">{{detailForm.name}}</el-form-item>
                 <el-form-item label="申请人">{{detailForm.creator}}</el-form-item>
+                <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
                 <el-form-item label="功能列表">
                   <el-table :data="detailForm.featureList">
                     <el-table-column label="功能名称" prop="functionName" headerAlign="center">
@@ -120,6 +121,7 @@
                     </el-table-column>
                   </el-table>
                 </el-form-item>
+                <el-form-item label="备注">{{detailForm.comment}}</el-form-item>
               </el-form>
             </div>
           </template>
@@ -461,11 +463,13 @@
             this.detailForm = {
               name: row.name,
               creator: row.creatorName,
+              groupName: row.groupName,
               featureList: [],
               appList: [],
               userToDo: '获取失败',
               userAcceptedList: [],
               operationList: [],
+              comment: row.remark
             };
             this.$net.getWorkOrderDetail({
               id: row.id
@@ -567,7 +571,7 @@
         }
         this.showLoading = true;
         this.$net.getWorkOrderList(options).then(content => {
-//              console.log(content);
+//          console.log(content);
           if (content.hasOwnProperty('workOrderDeployList')) {
             this.workOrderList = content.workOrderDeployList;
           }

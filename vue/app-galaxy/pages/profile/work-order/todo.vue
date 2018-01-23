@@ -95,6 +95,7 @@
                   <span v-for="item in detailForm.appList" :key="item.appName">{{item.appName}}</span>
                 </el-form-item>
                 <el-form-item label="待办人">{{detailForm.userToDo}}</el-form-item>
+                <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
                 <el-form-item label="验收人">
                   <el-table :data="detailForm.userAcceptedList">
                     <el-table-column label="验收人" prop="userName" headerAlign="center">
@@ -115,6 +116,7 @@
                     </el-table-column>
                   </el-table>
                 </el-form-item>
+                <el-form-item label="备注">{{detailForm.comment}}</el-form-item>
               </el-form>
             </div>
           </template>
@@ -384,11 +386,13 @@
             this.detailForm = {
               name: row.name,
               creator: row.creatorName,
+              group: row.groupName,
               featureList: [],
               appList: [],
               userToDo: '获取失败',
               userAcceptedList: [],
               operationList: [],
+              comment: row.remark
             };
             this.$net.getWorkOrderDetail({
               id: row.id

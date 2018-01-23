@@ -83,8 +83,8 @@
         <el-form-item label="邮件组" prop="mailGroup">
           <el-input v-model="workOrderForm.mailGroup" style="width: 350px"></el-input>
         </el-form-item>
-        <el-form-item label="工单备注" prop="comments">
-          <el-input v-model="workOrderForm.comments"
+        <el-form-item label="工单备注" prop="comment">
+          <el-input v-model="workOrderForm.comment"
                     type="textarea"
                     :rows="2"
                     style="width: 350px"></el-input>
@@ -207,7 +207,7 @@
           userAccepted: [],
           userNotify: [],
           mailGroup: '',
-          comments: '',
+          comment: '',
         },
         versionList: [],
         allUsers: [],
@@ -343,6 +343,7 @@
                 name: this.workOrderForm.name,
                 groupId: this.workOrderForm.groupId,
                 groupName: this.workOrderForm.groupName,
+                remark: this.workOrderForm.comment
               }
             };
             toPost.workOrderDeployFunctionList = this.workOrderForm.features.map(it => {
