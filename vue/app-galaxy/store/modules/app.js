@@ -55,6 +55,7 @@ const state = {
   /* net data */
   messageForCreateAPP: null,
   usersAll: null,
+  currentWorkOrderDetail: null,
 };
 
 const actions = {
@@ -103,6 +104,10 @@ const actions = {
       });
     }
   },
+
+  setWorkOrderDetail({commit, state}, detail) {
+    state.currentWorkOrderDetail = detail;
+  }
 };
 
 const mutations = {
@@ -145,6 +150,10 @@ const getters = {
   },
   'usersAll': (state, getters) => {
     return state.usersAll;
+  },
+
+  'currentWorkOrderDetail': (state, getters) => {
+    return state.currentWorkOrderDetail;
   }
 };
 

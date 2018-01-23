@@ -391,6 +391,7 @@
             // update data of model for work-order-detail
             this.waitingResponse = true;
             this.detailForm = {
+              id: row.id,
               name: row.name,
               creator: row.creatorName,
               groupName: row.groupName,
@@ -434,6 +435,8 @@
             break;
           case 'handle':
             console.log('handle');
+            this.$store.dispatch('app/setWorkOrderDetail', this.detailForm);
+            this.$router.push('/profile/work-order/todo/handle');
             break;
         }
       },
