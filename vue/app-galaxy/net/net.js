@@ -871,20 +871,23 @@ class Net {
    */
   getWorkOrderDetail(options) {
     const getFeatureList = () => {
-      return axios.post(URL_LIST.work_order_feature_list, options);
-    }
+      return axios.post(URL_LIST.work_order_detail_feature_list, options);
+    };
     const getAppList = () => {
-      return axios.post(URL_LIST.work_order_app_list, options);
-    }
+      return axios.post(URL_LIST.work_order_detail_app_list, options);
+    };
     const getUserToDo = () => {
-      return axios.post(URL_LIST.work_order_user_todo, options);
-    }
+      return axios.post(URL_LIST.work_order_detail_user_todo, options);
+    };
     const getUserAccepted = () => {
-      return axios.post(URL_LIST.work_order_user_accepted, options);
-    }
+      return axios.post(URL_LIST.work_order_detail_user_accepted, options);
+    };
     const getOperationList = () => {
-      return axios.post(URL_LIST.work_order_operation_list, options);
-    }
+      return axios.post(URL_LIST.work_order_detail_operation_list, options);
+    };
+    const getEmailGroup = () => {
+      return axios.post(URL_LIST.work_order_detail_email_group, options)
+    };
     let keyMap = {
       featureList: {
         functionType: {
@@ -921,13 +924,14 @@ class Net {
       return formatted;
     }
     return new Promise((resolve, reject) => {
-      axios.all([getFeatureList(), getAppList(), getUserToDo(), getUserAccepted(), getOperationList()])
-        .then(axios.spread((featureList, appList, userToDo, userAcceptedList, operationList) => {
+      axios.all([getFeatureList(), getAppList(), getUserToDo(), getUserAccepted(), getOperationList(), getEmailGroup()])
+        .then(axios.spread((featureList, appList, userToDo, userAcceptedList, operationList, emailGroup) => {
           featureList = this.getResponseContent(featureList);
           appList = this.getResponseContent(appList);
           userToDo = this.getResponseContent(userToDo);
           userAcceptedList = this.getResponseContent(userAcceptedList);
           operationList = this.getResponseContent(operationList);
+          emailGroup = this.getResponseContent(emailGroup);
           if (featureList.hasOwnProperty('WorkOrderDeployFunctionVO')) {
             featureList = featureList.WorkOrderDeployFunctionVO;
             Array.isArray(featureList) && featureList.forEach(it => {
@@ -959,6 +963,9 @@ class Net {
               }
             });
           }
+          if (emailGroup.hasOwnProperty('emailGroup')) {
+            emailGroup = emailGroup['emailGroup'];
+          }
 
           let results = {
             featureList: featureList,
@@ -966,6 +973,7 @@ class Net {
             userToDo: userToDo,
             userAcceptedList: userAcceptedList,
             operationList: operationList,
+            emailGroup: emailGroup
           };
           resolve(results);
         })).catch(err => {

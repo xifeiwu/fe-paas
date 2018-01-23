@@ -79,6 +79,13 @@
               <el-form labelWidth="120px" size="mini">
                 <el-form-item label="工单名称">{{detailForm.name}}</el-form-item>
                 <el-form-item label="申请人">{{detailForm.creator}}</el-form-item>
+                <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
+                <el-form-item label="邮件组">
+                  <span v-for="(item, index) in detailForm.emailGroupList" :key="index" v-if="detailForm.emailGroupList.length > 0">
+                    {{item.emailGroupName}}
+                  </span>
+                  <span v-else>未设置</span>
+                </el-form-item>
                 <el-form-item label="功能列表">
                   <el-table :data="detailForm.featureList">
                     <el-table-column label="功能名称" prop="functionName" headerAlign="center">
@@ -386,7 +393,8 @@
             this.detailForm = {
               name: row.name,
               creator: row.creatorName,
-              group: row.groupName,
+              groupName: row.groupName,
+              emailGroupList: [],
               featureList: [],
               appList: [],
               userToDo: '获取失败',
@@ -412,6 +420,9 @@
               }
               if (result.hasOwnProperty('operationList')) {
                 this.detailForm.operationList = result.operationList;
+              }
+              if (result.hasOwnProperty('emailGroup')) {
+                this.detailForm.emailGroupList = result.emailGroup;
               }
               this.operation.name = action;
               this.waitingResponse = false;
@@ -459,6 +470,7 @@
         }
         this.showLoading = true;
         this.$net.getWorkOrderToDoList(options).then(content => {
+//          console.log(content);
           if (content.hasOwnProperty('todoWorkOrderList')) {
             this.workOrderList = content.todoWorkOrderList;
           }
