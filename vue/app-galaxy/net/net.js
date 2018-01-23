@@ -665,25 +665,42 @@ class Net {
    * @param options
    * @returns {Promise}
    */
-  getImageRelatedInfo(options4Auto, options4Env) {
-    console.log('fdsjiafjdiosajfoidsjafiodas');
+  getImageRelatedInfo(options4Auto, options4Env, options4PrivateApp) {
     const getAutoImageList = () => {
       return axios.post(URL_LIST.auto_image_list, options4Auto);
     };
     const getCustomEnvImageList = () => {
       return axios.post(URL_LIST.custom_image_env_list, options4Env);
-    }
+    };
+    const getCustomPrivateImageAppList = () => {
+      return axios.post(URL_LIST.custom_image_private_app_list, options4PrivateApp);
+    };
     return new Promise((resolve, reject) => {
-      axios.all([getAutoImageList(), getCustomEnvImageList()])
-        .then(axios.spread((autoImageList, customEnvImageList) => {
+      axios.all([getAutoImageList(), getCustomEnvImageList(), getCustomPrivateImageAppList()])
+        .then(axios.spread((autoImageList, customEnvImageList, privateAppList) => {
           autoImageList = this.getResponseContent(autoImageList);
           customEnvImageList = this.getResponseContent(customEnvImageList);
-          console.log(autoImageList);
-          console.log(customEnvImageList);
-      }));
-      // axios.post(URL_LIST.auto_image_type_list, options).then(response => {
-      //   resolve(response);
-      // })
+          privateAppList = this.getResponseContent(privateAppList);
+          if (autoImageList && autoImageList.hasOwnProperty('basicImage')) {
+            autoImageList = autoImageList['basicImage'];
+          } else {
+            reject('autoImageList not found');
+          }
+          if (customEnvImageList && customEnvImageList.hasOwnProperty('envImage')) {
+            customEnvImageList = customEnvImageList['envImage'];
+          } else {
+            reject('customEnvImageList not found');
+          }
+          if (privateAppList && privateAppList.hasOwnProperty('projectName')) {
+            privateAppList = privateAppList['projectName'];
+          } else {
+            reject('privateAppList not found');
+          }
+          resolve({autoImageList, customEnvImageList, privateAppList});
+      })).catch(err => {
+        console.log(err);
+        reject(err);
+      });
     })
   }
 

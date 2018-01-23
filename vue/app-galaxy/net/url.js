@@ -44,6 +44,8 @@ var urlList = {
   'auto_image_list': path + '/image/queryBasicImage',
   // 自定义镜像-环境镜像
   'custom_image_env_list': path + '/image/queryEnvImageByEnvAndGroupTagAndApplicationId',
+  // 自定义镜像-私有镜像-项目列表
+  'custom_image_private_app_list': path + '/image/queryProjectNameByGroupTag',
 
   // 更改健康检查
   'service_update_health': path + '/service/updateHealth',

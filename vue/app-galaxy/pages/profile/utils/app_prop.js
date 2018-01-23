@@ -117,14 +117,16 @@ class AppInfoHelper {
       }],
       // 镜像地址
       imageLocation: [{
-        required: false,
+        required: true,
         message: '请输入镜像地址',
 
-      }, {
-        pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9_-]+$/,
-        message: '只能包含中文，字母，数字',
-        trigger: 'blur'
-      }],
+      }
+      // , {
+      //   pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9_-]+$/,
+      //   message: '只能包含中文，字母，数字',
+      //   trigger: 'blur'
+      // }
+      ],
       // fileLocation: [{
       //   type: 'array',
       //   required: true,

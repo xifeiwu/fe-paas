@@ -10,13 +10,22 @@
         </el-input>
       </el-form-item>
       <el-form-item label="镜像方式" prop="customImage">
-        <el-radio-group v-model="serviceForm.customImage" @change="handleImageTypeChange">
+        <el-radio-group v-model="serviceForm.customImage">
           <el-radio :label="false">自动打镜像</el-radio>
           <el-radio :label="true">自定义镜像</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item :label="imageLocationLabel" prop="imageLocation">
+
+      <el-form-item label="镜像地址" class="custom-image" prop="imageLocation" v-if="serviceForm.customImage">
         <el-input v-model="serviceForm.imageLocation" placeholder="输入镜像地址，包含版本"></el-input>
+      </el-form-item>
+      <el-form-item label="基础镜像" class="auto-image" prop="imageLocation" v-else>
+        <el-select v-model="serviceForm.imageLocation"
+                   :placeholder="this.imageRelatedInfo.autoImageList.length > 0 ? '请选择' : '加载中'">
+          <el-option v-for="(item, index) in imageRelatedInfo.autoImageList"
+                     :key="index" :label="item" :value="item">
+          </el-option>
+        </el-select>
       </el-form-item>
 
       <el-form-item label="Gitlab地址" prop="gitLabAddress">
@@ -147,6 +156,11 @@
             }
           }
         }
+        &.auto-image {
+          .el-select {
+            width: 100%;
+          }
+        }
         &.relativePathOfParentPOM {
           .el-form-item__label {
             line-height: 100%;
@@ -163,12 +177,6 @@
       width: 80%;
       max-width: 550px;
       .el-form-item {
-        &.fileLocation {
-          .add-file-location-btn {
-            margin: 0px;
-            width: 60px;
-          }
-        }
         &.environments {
           text-align: center;
         }
@@ -191,8 +199,9 @@
 <script>
   import AppPropUtil from '../utils/app_prop';
   import StoreHelper from '../utils/store-helper.vue';
+  import ElSelect from "../../../../element-ui/packages/select/src/select";
   export default {
-    mixins: [StoreHelper],
+    components: {ElSelect}, mixins: [StoreHelper],
     created() {
       // receive queryString parameters from url first,
       // get from localStorage if queryString not exist.
@@ -219,10 +228,10 @@
       }
       this.onGroupInfo(this.groupInfo);
     },
+    mounted() {
+    },
     data() {
       return {
-        imageLocationLabel: '基础镜像地址',
-        fileLocationToAdd: '',
         environmentKey: '',
         environmentValue: '',
         hostKey: '',
@@ -252,6 +261,12 @@
 
         showLoading: false,
         loadingText: '',
+
+        imageRelatedInfo: {
+          autoImageList: [],
+          customEnvImageList: [],
+          privateAppList: []
+        }
       };
     },
     computed: {
@@ -297,7 +312,16 @@
         }
       },
       appInfoListOfGroup: 'onAppInfoListOfGroup',
-      groupInfo: 'onGroupInfo'
+      groupInfo: 'onGroupInfo',
+      'serviceForm.customImage': {
+        immediate: true,
+        handler (value) {
+          if (value) {
+            this.serviceForm.imageLocation = '';
+          }
+          console.log('serviceForm.customImage: ' + value);
+        }
+      }
     },
     methods: {
       /**
@@ -355,40 +379,14 @@
           env: profileName,
           applicationId: this.serviceForm.appId,
           groupTag: groupTag
-        }).then(autoImageTypeList => {
-//          console.log(autoImageTypeList);
+        }, {
+          groupTag: groupTag
+        }).then(imageRelatedInfo => {
+          this.imageRelatedInfo = imageRelatedInfo;
+//          console.log(imageRelatedInfo);
+        }).catch(err => {
+          console.log(err);
         })
-      },
-      handleImageTypeChange(value) {
-        switch (value) {
-          case '0':
-            this.imageLocationLabel = '基础镜像地址';
-            this.rules.imageLocation[0].required = false;
-            break;
-          case '1':
-            this.imageLocationLabel = '镜像地址';
-            this.rules.imageLocation[0].required = true;
-            break;
-        }
-      },
-      handleRemoveFileLocation(tag) {
-        let items = this.serviceForm.fileLocation;
-        items.splice(items.indexOf(tag), 1);
-      },
-      handleAddFileLocation(tag) {
-        let tagLength = tag.length;
-        if (tagLength < 2 || tagLength > 18) {
-          this.$message.error('长度在2到18个字符');
-          return;
-        }
-        if (!/^\/[A-Za-z0-9_\-]+$/.exec(tag)) {
-          this.$message.error('以/开头，可以包含字母数字下划线中划线');
-          return;
-        }
-        if (tag.length > 0) {
-          this.serviceForm.fileLocation.push(tag);
-          this.fileLocationToAdd = '';
-        }
       },
       handleDeleteEnvironment(index) {
         this.serviceForm.environments.splice(index, 1);
