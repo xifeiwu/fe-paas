@@ -168,8 +168,8 @@
   }
 </style>
 <script>
-  import workOrderUtils from '../utils/work-order-props';
-  import features from './components/features.vue';
+  import workOrderUtils from './utils/work-order-props';
+  import features from './utils/components/features.vue';
   import StoreHelper from '../utils/store-helper.vue';
   import ElTooltip from "element-ui/packages/tooltip/src/main";
   import ElOption from "element-ui/packages/select/src/option";
