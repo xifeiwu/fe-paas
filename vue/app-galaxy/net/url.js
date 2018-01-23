@@ -46,6 +46,8 @@ var urlList = {
   'custom_image_env_list': path + '/image/queryEnvImageByEnvAndGroupTagAndApplicationId',
   // 自定义镜像-私有镜像-项目列表
   'custom_image_private_app_list': path + '/image/queryProjectNameByGroupTag',
+  // 自定义镜像-私有镜像-项目-版本列表
+  'custom_image_private_version_list_of_app': path + '/image/queryCustomImage',
 
   // 更改健康检查
   'service_update_health': path + '/service/updateHealth',

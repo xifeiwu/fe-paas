@@ -661,7 +661,10 @@ class Net {
   }
 
   /**
-   *
+   * 获取镜像列表相关信息
+   * 1. autoImageList， 自动打镜像列表
+   * 2. customEnvImageList, 自定义镜像-环境镜像列表
+   * 3. privateAppList， 自定义镜像-项目列表
    * @param options
    * @returns {Promise}
    */
@@ -702,6 +705,26 @@ class Net {
         reject(err);
       });
     })
+  }
+
+  /**
+   * 自定义镜像， 通过项目获取版本列表
+   * @param options
+   * @returns {Promise}
+   */
+  getVersionListOfAppInCustomImage(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.custom_image_private_version_list_of_app, options).then(response => {
+        let versionList = this.getResponseContent(response);
+        if (versionList.hasOwnProperty('customImage')) {
+          resolve(versionList.customImage);
+        } else {
+          reject('not found versionList.customImage');
+        }
+      }).catch(err => {
+        reject(err);
+      })
+    });
   }
 
   /**

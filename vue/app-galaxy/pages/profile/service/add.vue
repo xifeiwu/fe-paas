@@ -17,27 +17,31 @@
       </el-form-item>
 
       <el-form-item label="镜像地址" prop="customImageValue" v-if="serviceForm.customImage"
-                    class="custom-image" :class="serviceForm.customImageType.toLowerCase()+'-image'"
+                    class="custom-image" :class="customImageType.toLowerCase()+'-image'"
       >
-        <el-select v-model="serviceForm.customImageType">
+        <el-select v-model="customImageType">
           <el-option v-for="(item, index) in customImageTypeList"
                      :key="index" :label="item.label" :value="item.value"></el-option>
         </el-select>
-        <el-select v-model="serviceForm.customImageValue" v-if="serviceForm.customImageType=='ENV'"
+        <el-select v-model="serviceForm.customImageValue" v-if="customImageType=='ENV'"
                    :placeholder="this.imageRelatedInfo.customEnvImageList.length > 0 ? '请选择' : '加载中'">
           <el-option v-for="(item, index) in imageRelatedInfo.customEnvImageList"
                      :key="index" :label="item.imageName" :value="item.imageName">
           </el-option>
         </el-select>
-        <el-select v-model="serviceForm.currentPrivateApp" v-if="serviceForm.customImageType=='PRIVATE'"
+        <el-select v-model="currentPrivateApp" v-if="customImageType=='PRIVATE'"
                    :placeholder="this.imageRelatedInfo.privateAppList.length > 0 ? '请选择' : '加载中'">
           <el-option v-for="(item, index) in imageRelatedInfo.privateAppList"
                      :key="index" :label="item" :value="item">
           </el-option>
         </el-select>
-        <!--<el-select v-model="serviceForm.imageLocation">-->
-          <!--<el-option v-for=""></el-option>-->
-        <!--</el-select>-->
+        <el-select v-model="serviceForm.customImageValue" v-if="customImageType=='PRIVATE'"
+                   :placeholder="currentPrivateAppVersionList.length > 0 ? '请选择' : '加载中'">
+          <el-option v-for="(item, index) in currentPrivateAppVersionList"
+                     :key="index" :label="item" :value="item">
+          </el-option>
+        </el-select>
+
       </el-form-item>
       <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-else>
         <el-select v-model="serviceForm.autoImageValue"
@@ -191,6 +195,9 @@
             .el-select {
               box-sizing: border-box;
               width: calc(50% - 2px);
+              &:nth-child(3) {
+                width: 100%;
+              }
             }
           }
         }
@@ -289,10 +296,6 @@
           environments: [],
           hosts: [],
           instanceCount: 1,
-          // temp prop
-          customImageType: 'ENV',
-          currentPrivateApp: ''
-
         },
         customImageTypeList: [{
           label: '环境镜像',
@@ -301,6 +304,15 @@
           label: '私有镜像',
           value: 'PRIVATE'
         }],
+        customImageType: 'ENV',
+        imageRelatedInfo: {
+          autoImageList: [],
+          customEnvImageList: [],
+          privateAppList: [],
+        },
+        currentPrivateApp: '',
+        currentPrivateAppVersionList: [],
+
         memorySizeList: [],
         rules: AppPropUtil.rules,
 
@@ -309,12 +321,6 @@
 
         showLoading: false,
         loadingText: '',
-
-        imageRelatedInfo: {
-          autoImageList: [],
-          customEnvImageList: [],
-          privateAppList: []
-        }
       };
     },
     computed: {
@@ -373,14 +379,14 @@
         handler (value) {
         }
       },
-      'serviceForm.customImageType': {
+      'customImageType': {
         immediate: true,
         handler (value) {
           this.serviceForm.customImageValue = '';
           this.setDefaultImage(this.imageRelatedInfo);
         }
       },
-      'serviceForm.currentPrivateApp': 'requestAppVersionList'
+      'currentPrivateApp': 'requestAppVersionList'
     },
     methods: {
       /**
@@ -453,7 +459,7 @@
 //              this.serviceForm.autoImageValue = relatedInfo.autoImageValue[0];
 //            }
 //          }
-        switch (this.serviceForm.customImageType) {
+        switch (this.customImageType) {
           case 'ENV':
             if (relatedInfo.hasOwnProperty('customEnvImageList') && relatedInfo.customEnvImageList.length > 0) {
               this.serviceForm.customImageValue = this.imageRelatedInfo.customEnvImageList[0].imageName;
@@ -461,13 +467,21 @@
             break;
           case 'PRIVATE':
             if (relatedInfo.hasOwnProperty('privateAppList') && relatedInfo.privateAppList.length > 0) {
-              this.serviceForm.currentPrivateApp = this.imageRelatedInfo.privateAppList[0];
+              this.currentPrivateApp = this.imageRelatedInfo.privateAppList[0];
             }
             break;
         }
       },
       requestAppVersionList(value) {
-
+        this.currentPrivateAppVersionList = [];
+        this.$net.getVersionListOfAppInCustomImage({
+          projectName: value
+        }).then(versionList => {
+          this.currentPrivateAppVersionList = versionList;
+          if (this.currentPrivateAppVersionList.length > 0) {
+            this.serviceForm.customImageValue = this.currentPrivateAppVersionList[0];
+          }
+        });
       },
       handleDeleteEnvironment(index) {
         this.serviceForm.environments.splice(index, 1);
