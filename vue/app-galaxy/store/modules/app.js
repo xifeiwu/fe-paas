@@ -55,7 +55,7 @@ const state = {
   /* net data */
   messageForCreateAPP: null,
   usersAll: null,
-  currentWorkOrderDetail: null,
+  currentWorkOrder: null,
 };
 
 const actions = {
@@ -105,8 +105,8 @@ const actions = {
     }
   },
 
-  setWorkOrderDetail({commit, state}, detail) {
-    state.currentWorkOrderDetail = detail;
+  setWorkOrder({commit, state}, detail) {
+    state.currentWorkOrder = detail;
   }
 };
 
@@ -152,8 +152,8 @@ const getters = {
     return state.usersAll;
   },
 
-  'currentWorkOrderDetail': (state, getters) => {
-    return state.currentWorkOrderDetail;
+  'currentWorkOrder': (state, getters) => {
+    return state.currentWorkOrder;
   }
 };
 

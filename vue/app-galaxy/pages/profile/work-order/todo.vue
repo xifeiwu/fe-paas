@@ -223,11 +223,15 @@
 </style>
 <script>
   export default {
+    created() {
+      console.log('created');
+    },
     mounted() {
       const end = new Date();
       const start = new Date();
       start.setTime(start.getTime() - 1000 * 3600 * 24 * 30);
       this.searchForm.dateRange = [start, end];
+      console.log('mounted');
     },
     data() {
       return {
@@ -434,8 +438,19 @@
             });
             break;
           case 'handle':
-            console.log('handle');
-            this.$store.dispatch('app/setWorkOrderDetail', this.detailForm);
+            this.$store.dispatch('app/setWorkOrder', {
+              id: row.id,
+              name: row.name,
+              creator: row.creatorName,
+              groupName: row.groupName,
+              emailGroupList: [],
+              featureList: [],
+              appList: [],
+              userToDo: '获取失败',
+              userAcceptedList: [],
+              operationList: [],
+              comment: row.remark
+            });
             this.$router.push('/profile/work-order/todo/handle');
             break;
         }
