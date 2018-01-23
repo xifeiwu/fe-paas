@@ -115,11 +115,18 @@ class AppInfoHelper {
         required: true,
         message: '请选择打镜像方式',
       }],
+      autoImageValue: [{
+        required: false,
+        message: '请输入镜像地址',
+      }],
+      customImageValue: [{
+        required: true,
+        message: '请输入镜像地址',
+      }],
       // 镜像地址
       imageLocation: [{
         required: true,
         message: '请输入镜像地址',
-
       }
       // , {
       //   pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9_-]+$/,

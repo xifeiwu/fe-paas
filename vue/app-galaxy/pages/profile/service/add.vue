@@ -16,11 +16,31 @@
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item label="镜像地址" class="custom-image" prop="imageLocation" v-if="serviceForm.customImage">
-        <el-input v-model="serviceForm.imageLocation" placeholder="输入镜像地址，包含版本"></el-input>
+      <el-form-item label="镜像地址" prop="customImageValue" v-if="serviceForm.customImage"
+                    class="custom-image" :class="serviceForm.customImageType.toLowerCase()+'-image'"
+      >
+        <el-select v-model="serviceForm.customImageType">
+          <el-option v-for="(item, index) in customImageTypeList"
+                     :key="index" :label="item.label" :value="item.value"></el-option>
+        </el-select>
+        <el-select v-model="serviceForm.customImageValue" v-if="serviceForm.customImageType=='ENV'"
+                   :placeholder="this.imageRelatedInfo.customEnvImageList.length > 0 ? '请选择' : '加载中'">
+          <el-option v-for="(item, index) in imageRelatedInfo.customEnvImageList"
+                     :key="index" :label="item.imageName" :value="item.imageName">
+          </el-option>
+        </el-select>
+        <el-select v-model="serviceForm.currentPrivateApp" v-if="serviceForm.customImageType=='PRIVATE'"
+                   :placeholder="this.imageRelatedInfo.privateAppList.length > 0 ? '请选择' : '加载中'">
+          <el-option v-for="(item, index) in imageRelatedInfo.privateAppList"
+                     :key="index" :label="item" :value="item">
+          </el-option>
+        </el-select>
+        <!--<el-select v-model="serviceForm.imageLocation">-->
+          <!--<el-option v-for=""></el-option>-->
+        <!--</el-select>-->
       </el-form-item>
-      <el-form-item label="基础镜像" class="auto-image" prop="imageLocation" v-else>
-        <el-select v-model="serviceForm.imageLocation"
+      <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-else>
+        <el-select v-model="serviceForm.autoImageValue"
                    :placeholder="this.imageRelatedInfo.autoImageList.length > 0 ? '请选择' : '加载中'">
           <el-option v-for="(item, index) in imageRelatedInfo.autoImageList"
                      :key="index" :label="item" :value="item">
@@ -161,6 +181,19 @@
             width: 100%;
           }
         }
+        &.custom-image {
+          &.env-image {
+            .el-select {
+              width: calc(50% - 2px);
+            }
+          }
+          &.private-image {
+            .el-select {
+              box-sizing: border-box;
+              width: calc(50% - 2px);
+            }
+          }
+        }
         &.relativePathOfParentPOM {
           .el-form-item__label {
             line-height: 100%;
@@ -199,9 +232,11 @@
 <script>
   import AppPropUtil from '../utils/app_prop';
   import StoreHelper from '../utils/store-helper.vue';
-  import ElSelect from "../../../../element-ui/packages/select/src/select";
+  import ElSelect from "element-ui/packages/select/src/select";
+  import ElTooltip from "element-ui/packages/tooltip/src/main";
+  import ElOption from "element-ui/packages/select/src/option";
   export default {
-    components: {ElSelect}, mixins: [StoreHelper],
+    components: {ElOption, ElTooltip, ElSelect}, mixins: [StoreHelper],
     created() {
       // receive queryString parameters from url first,
       // get from localStorage if queryString not exist.
@@ -241,6 +276,8 @@
           spaceId: null,
           serviceVersion: '',
           customImage: false,
+          autoImageValue: '',
+          customImageValue: '',
           imageLocation: '',
           gitLabAddress: '',
           gitLabBranch: '',
@@ -252,7 +289,18 @@
           environments: [],
           hosts: [],
           instanceCount: 1,
+          // temp prop
+          customImageType: 'ENV',
+          currentPrivateApp: ''
+
         },
+        customImageTypeList: [{
+          label: '环境镜像',
+          value: 'ENV'
+        }, {
+          label: '私有镜像',
+          value: 'PRIVATE'
+        }],
         memorySizeList: [],
         rules: AppPropUtil.rules,
 
@@ -313,15 +361,26 @@
       },
       appInfoListOfGroup: 'onAppInfoListOfGroup',
       groupInfo: 'onGroupInfo',
+
+      'imageRelatedInfo': {
+        immediate: true,
+        handler (info) {
+          this.setDefaultImage(info);
+        }
+      },
       'serviceForm.customImage': {
         immediate: true,
         handler (value) {
-          if (value) {
-            this.serviceForm.imageLocation = '';
-          }
-          console.log('serviceForm.customImage: ' + value);
         }
-      }
+      },
+      'serviceForm.customImageType': {
+        immediate: true,
+        handler (value) {
+          this.serviceForm.customImageValue = '';
+          this.setDefaultImage(this.imageRelatedInfo);
+        }
+      },
+      'serviceForm.currentPrivateApp': 'requestAppVersionList'
     },
     methods: {
       /**
@@ -383,10 +442,32 @@
           groupTag: groupTag
         }).then(imageRelatedInfo => {
           this.imageRelatedInfo = imageRelatedInfo;
-//          console.log(imageRelatedInfo);
+          console.log(this.imageRelatedInfo);
         }).catch(err => {
           console.log(err);
         })
+      },
+      setDefaultImage(relatedInfo) {
+//          if (relatedInfo.hasOwnProperty('autoImageValue') && relatedInfo.autoImageValue.length > 0) {
+//            if (!this.serviceForm.autoImageValue) {
+//              this.serviceForm.autoImageValue = relatedInfo.autoImageValue[0];
+//            }
+//          }
+        switch (this.serviceForm.customImageType) {
+          case 'ENV':
+            if (relatedInfo.hasOwnProperty('customEnvImageList') && relatedInfo.customEnvImageList.length > 0) {
+              this.serviceForm.customImageValue = this.imageRelatedInfo.customEnvImageList[0].imageName;
+            }
+            break;
+          case 'PRIVATE':
+            if (relatedInfo.hasOwnProperty('privateAppList') && relatedInfo.privateAppList.length > 0) {
+              this.serviceForm.currentPrivateApp = this.imageRelatedInfo.privateAppList[0];
+            }
+            break;
+        }
+      },
+      requestAppVersionList(value) {
+
       },
       handleDeleteEnvironment(index) {
         this.serviceForm.environments.splice(index, 1);
@@ -442,6 +523,11 @@
         let self = this;
         this.$refs['serviceForm'].validate((valid) => {
           if (valid) {
+            if (this.serviceForm.customImage) {
+              this.serviceForm.imageLocation = this.serviceForm.customImageValue;
+            } else {
+              this.serviceForm.imageLocation = this.serviceForm.autoImageValue;
+            }
             this.$store.dispatch('app/addCreateServiceInfo', {
               key: 'service_add',
               value: this.serviceForm
