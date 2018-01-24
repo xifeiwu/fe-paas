@@ -8,6 +8,7 @@ class VUEConfig {
   setConfig(Vue, Store) {
     this.addMixin(Vue);
     this.addStoreTools(Vue, Store);
+    Vue.prototype.$global = {};
   }
   addMixin(Vue){
     Vue.mixin({

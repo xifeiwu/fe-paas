@@ -38,6 +38,7 @@ window.vm = new Vue({ // eslint-disable-line
   store: Store
 }).$mount('#app');
 
+window.Vue = Vue;
 // new Vue({
 //     el: '#app',
 //     render: h => h(APP),

@@ -182,14 +182,13 @@
     },
     mounted() {
 //      console.log('profile created');
+      this.$nextTick(() => {
+        this.registerProfileInVue();
+      });
     },
     computed: {
       menuList() {
         return this.$store.getters['user/menuList']
-      },
-      groupList() {
-        let groupList = this.$store.getters['user/groupList'];
-        return groupList;
       },
       routerPathToName() {
         return routeUtils.getRouterPathToName();
@@ -201,6 +200,28 @@
       },
     },
     methods: {
+      /**
+       * register some global variable at start of page profile
+       */
+      registerProfileInVue() {
+        if (window.Vue) {
+          ['currentGroupID',
+            'groupList',
+            'groupInfo',
+            'profileListOfGroup',
+            'appInfoListOfGroup',
+            'usersInGroup',
+            'usersAll',
+            'languageInfo',
+            'cpuAndMemoryList',
+            'getAppInfoByID',
+            'deleteAppInfoByID',
+            'getGroupInfoByID',
+            'getUserInfoByID'].forEach(key => {
+            Vue.prototype.$global[key] = this[key];
+          });
+        }
+      },
       handleHeaderMenuClick(key, keyPath) {
         switch (key) {
           case 'login':
