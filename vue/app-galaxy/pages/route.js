@@ -21,6 +21,8 @@ import LogMain from './profile/log/main.vue';
 import LogRun from './profile/log/run.vue';
 import LogDeploy from './profile/log/deploy.vue';
 
+import MonitorMain from './profile/monitor/main.vue';
+
 import WorkOrderMain from './profile/work-order/main.vue';
 import WorkOrderToDo from './profile/work-order/todo.vue';
 import WorkOrderList from './profile/work-order/list.vue';
@@ -105,6 +107,10 @@ var Router = function () {
           meta: {keepAlive: true}
         }]
       }, {
+        path: 'monitor',
+        name: '应用监控',
+        component: MonitorMain,
+      },{
         path: 'work-order',
         // name: '审批管理',
         component: WorkOrderMain,
