@@ -90,7 +90,7 @@ var urlList = {
   'work_order_detail_feature_list': path + '/workOrderDeployFunction/getWorkOrderDeployFunctions',
   // 程序列表
   'work_order_detail_app_list': path + '/workOrderDeployApp/getWorkOrderDeployApp',
-  // 代办人
+  // 待办人
   'work_order_detail_user_todo': path + '/workOrderDeploy/queryWorkOrderDeployToDoUser',
   // 验收人
   'work_order_detail_user_accepted': path + '/acceptanceUser/getWorkOrderDeployAcceptUser',
@@ -110,14 +110,13 @@ var urlList = {
 
   // 创建工单
   'work_order_create': path + '/workOrderDeploy/applyWordOrderDeploy',
-  // 获取验收人
+  // 获取验收人列表
   'users_in_group': path + '/group/users',
-  // 获取验收人
+  // 获取所有用户列表
   'users_all': path + '/user/queryUserList',
 
   // 获取打开实例终端信息
   'terminal_info': path + '/service/queryTerminalInfo',
-
 
 };
 

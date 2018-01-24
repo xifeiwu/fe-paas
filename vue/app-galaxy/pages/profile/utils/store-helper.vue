@@ -105,6 +105,14 @@ export default {
       });
       return target;
     },
+    getGroupInfoByName(groupName) {
+      let target;
+      this.groupList.some(it => {
+        target = it.name === groupName ? it : null;
+        return target
+      });
+      return target;
+    },
     getUserInfoByID(userIdList) {
       let results = null;
       if (Array.isArray(userIdList)) {
