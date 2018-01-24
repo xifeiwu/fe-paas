@@ -449,7 +449,9 @@
               userToDo: '获取失败',
               userAcceptedList: [],
               operationList: [],
-              comment: row.remark
+              comment: row.remark,
+              status: row.status,
+              statusName: row.statusName
             });
             this.$router.push('/profile/work-order/todo/handle');
             break;

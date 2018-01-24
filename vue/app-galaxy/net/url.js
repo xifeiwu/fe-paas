@@ -101,7 +101,10 @@ var urlList = {
 
   /** 处理工单 */
   // 上传测试报告
-  'work_order_handle_upload_test_report': 'http://localhost:4291/post/upload',
+  // 'work_order_handle_upload_test_report': 'http://localhost:4291/post/upload',
+  'work_order_handle_upload_test_report': path + '/workOrderDeploy/uploadFile',
+  // 处理完成
+  'work_order_submit_handle': path + '/workOrderDeploy/handleWorkOrderDeploy',
 
   // 创建工单
   'work_order_create': path + '/workOrderDeploy/applyWordOrderDeploy',

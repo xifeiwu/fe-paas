@@ -4,13 +4,14 @@
       <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
         <div slot="content">
           <div>申请工单注意事项</div>
-          <div>1. 测试类型为跳过测试的情况下，不需要上传测试报告，其它情况均需要上传测试报告。</div>
-          <div>2. 如果选择拒绝处理，必须给出审批意见。</div>
+          <div>1. 测试类型为跳过测试的情况下，不需要上传测试报告，其它情况均需要上传测试报告</div>
+          <div>2. 如果选择拒绝处理，必须给出审批意见</div>
+          <div>3. 测试报告只能上传一个文件</div>
         </div>
         <span>处理工单<i class="el-icon-question"></i></span>
       </el-tooltip>
     </div>
-    <el-form labelWidth="120px" size="mini">
+    <el-form labelWidth="120px" size="mini" :model="handleInfo" :rules="rules" ref="handle-form">
       <el-form-item label="工单名称">{{detailForm.name}}</el-form-item>
       <el-form-item label="申请人">{{detailForm.creator}}</el-form-item>
       <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
@@ -61,22 +62,29 @@
         <span v-if="detailForm.comment">{{detailForm.comment}}</span>
         <span v-else>无备注</span>
       </el-form-item>
-      <el-form-item label="测试类型">
+      <el-form-item label="工单状态">
+        <span>{{detailForm.statusName}}</span>
+      </el-form-item>
+      <el-form-item label="测试类型" prop="testType">
         <el-select  v-model="handleInfo.testType">
           <el-option v-for="item in testTypeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="测试报告">
+      <el-form-item label="测试报告" prop="fileList2Upload">
         <el-upload
               class="upload-demo"
               ref="upload"
+              :limit="1"
+              :headers="{token: this.$getUserInfo('token')}"
               :action="$url.work_order_handle_upload_test_report"
               :auto-upload="false"
               :beforeUpload="beforeFileUpload"
               :onSuccess="afterLoadSuccess"
-              :onError="afterLoadError">
+              :onError="afterLoadError"
+              @onUploadFiles="onUploadFiles"
+        >
           <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>
-          <el-button style="margin-left: 10px;" type="success" size="mini-extral" @click="handleSubmitUpload">上传到服务器</el-button>
+          <!--<el-button style="margin-left: 10px;" type="success" size="mini-extral" @click="handleSubmitUpload">上传到服务器</el-button>-->
         </el-upload>
       </el-form-item>
       <el-form-item label="审批意见">
@@ -98,7 +106,7 @@
       <el-button
               size="mini"
               type="primary"
-              @click="handleButtonClick('not-to-handle')">拒绝处理</el-button>
+              @click="handleButtonClick('reject-handle')">拒绝处理</el-button>
     </div>
   </div>
 </template>
@@ -144,12 +152,27 @@
           label: '跳过测试',
           value: 'SKIP_TEST'
         }],
-//        fileList2Upload: [],
         handleInfo: {
           testType: '',
-          uploadFile: '',
+          fileList2Upload: [],
           comment: '',
         },
+        rules: {
+          testType: [{
+            required: true,
+            message: '请选择测试类型',
+            trigger: 'blur'
+          }],
+          fileList2Upload: [{
+            type: 'array',
+            required: true,
+            message: '请上传测试文件',
+            trigger: 'blur'
+          }]
+        },
+
+        showLoading: false,
+        loadingText: ''
       }
     },
     methods: {
@@ -216,18 +239,60 @@
        * @param uploadFiles, all files in uploadlist, including the files has been upload
        */
       afterLoadSuccess(res, file, uploadFiles) {
-        this.$message.success(`${file.name}上传成功`);
+//        this.$message.success(`${file.name}上传成功`);
       },
       afterLoadError(err, rawFile) {
         if (err) {
-          this.$message.error(`${rawFile.name}上传失败`);
+//          this.$message.error(`${rawFile.name}上传失败`);
         }
+      },
+      onUploadFiles(value) {
+        this.handleInfo.fileList2Upload = value;
       },
 
       handleButtonClick(action) {
         switch (action) {
           case 'close':
             this.$router.go(-1);
+            break;
+          case 'finish-handle':
+            this.$refs.hasOwnProperty('handle-form')  && this.$refs['handle-form'].validate(valid => {
+              if (valid) {
+                this.showLoading = true;
+                this.loadingText = '正在处理工单"' + this.detailForm.name + '"';
+                let options = {
+                  id: this.detailForm.id,
+                  handleResult: true,
+                  status: this.detailForm.status,
+                  testType: this.handleInfo.testType,
+                  remark: this.handleInfo.comment
+                };
+                this.handleSubmitUpload();
+                this.$net.handleWorkOrder(options).then(msg => {
+                  console.log(msg);
+                  this.$alert('即将进入待办工单列表页', msg, {
+                    confirmButtonText: '确定',
+                    callback: () => {
+                      this.$router.push('/profile/work-order/todo');
+                    }
+                  });
+                  this.showLoading = false;
+                  this.loadingText = '';
+                }).catch(msg => {
+                  console.log(msg);
+                  this.$alert('即将进入待办工单列表页', msg, {
+                    confirmButtonText: '确定',
+                    callback: () => {
+                      this.$router.push('/profile/work-order/todo');
+                    }
+                  });
+                  this.showLoading = false;
+                  this.loadingText = ''
+                });
+              }
+            });
+            break;
+          case 'reject-handle':
             break;
         }
       }

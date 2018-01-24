@@ -118,6 +118,9 @@ export default {
           return item;
         });
       }
+    },
+    uploadFiles: function (value) {
+      this.$emit('onUploadFiles', value);
     }
   },
 

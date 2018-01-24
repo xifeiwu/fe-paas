@@ -1000,6 +1000,23 @@ class Net {
     })
   }
 
+  //处理工单
+  handleWorkOrder(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.work_order_submit_handle, options).then(response => {
+        let result = this.getResponseMsg(response);
+        if (result.success) {
+          resolve(result.msg);
+        } else {
+          reject(result.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject('处理工单失败！');
+      })
+    })
+  }
+
   getTerminalInfo(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.terminal_info, options).then(response => {
