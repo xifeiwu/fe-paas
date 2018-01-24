@@ -28,6 +28,7 @@ import WorkOrderMain from './profile/work-order/main.vue';
 import WorkOrderToDo from './profile/work-order/todo.vue';
 import WorkOrderList from './profile/work-order/list.vue';
 import WorkOrderAdd from './profile/work-order/todo/add.vue';
+import WorkOrderModify from './profile/work-order/todo/modify.vue';
 import WorkOrderHandle from './profile/work-order/todo/handle.vue'
 
 /**
@@ -133,6 +134,10 @@ var Router = function () {
         path: 'work-order/todo/add',
         name: '申请工单',
         component: WorkOrderAdd,
+      }, {
+        path: 'work-order/todo/modify',
+        name: '修改工单',
+        component: WorkOrderModify,
       }, {
         path: 'work-order/todo/handle',
         name: '处理工单',

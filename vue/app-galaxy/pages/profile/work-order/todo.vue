@@ -476,6 +476,9 @@
               });
             });
             break;
+          case 'modify':
+            this.$router.push('/profile/work-order/todo/modify');
+            break;
         }
       },
       handlePaginationPageChange(page) {
