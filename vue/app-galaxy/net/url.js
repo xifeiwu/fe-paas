@@ -94,6 +94,8 @@ var urlList = {
   'work_order_detail_user_todo': path + '/workOrderDeploy/queryWorkOrderDeployToDoUser',
   // 验收人
   'work_order_detail_user_accepted': path + '/acceptanceUser/getWorkOrderDeployAcceptUser',
+  // 知会人
+  'work_order_detail_notify_user': path + '/informUser/getWorkOrderDeployInformUser',
   // 操作记录
   'work_order_detail_operation_list': path + '/workOrderDeployLog/getWorkOrderDeployLog',
   // 邮件组

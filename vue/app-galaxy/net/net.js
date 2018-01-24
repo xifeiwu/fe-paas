@@ -882,6 +882,9 @@ class Net {
     const getUserAccepted = () => {
       return axios.post(URL_LIST.work_order_detail_user_accepted, options);
     };
+    const getUserNotify = () => {
+      return axios.post(URL_LIST.work_order_detail_notify_user, options);
+    }
     const getOperationList = () => {
       return axios.post(URL_LIST.work_order_detail_operation_list, options);
     };
@@ -924,12 +927,14 @@ class Net {
       return formatted;
     }
     return new Promise((resolve, reject) => {
-      axios.all([getFeatureList(), getAppList(), getUserToDo(), getUserAccepted(), getOperationList(), getEmailGroup()])
-        .then(axios.spread((featureList, appList, userToDo, userAcceptedList, operationList, emailGroup) => {
+      axios.all([getFeatureList(), getAppList(), getUserToDo(), getUserAccepted(),
+        getUserNotify(), getOperationList(), getEmailGroup()])
+        .then(axios.spread((featureList, appList, userToDo, userAcceptedList, userNotifyList, operationList, emailGroup) => {
           featureList = this.getResponseContent(featureList);
           appList = this.getResponseContent(appList);
           userToDo = this.getResponseContent(userToDo);
           userAcceptedList = this.getResponseContent(userAcceptedList);
+          userNotifyList = this.getResponseContent(userNotifyList);
           operationList = this.getResponseContent(operationList);
           emailGroup = this.getResponseContent(emailGroup);
           if (featureList.hasOwnProperty('WorkOrderDeployFunctionVO')) {
@@ -954,6 +959,9 @@ class Net {
               }
             });
           }
+          if (userNotifyList.hasOwnProperty('informUserList')) {
+            userNotifyList = userNotifyList['informUserList'];
+          }
           if (operationList.hasOwnProperty('WorkOrderDeployLogVO')) {
             operationList = operationList.WorkOrderDeployLogVO;
             Array.isArray(operationList) && operationList.forEach(it => {
@@ -972,6 +980,7 @@ class Net {
             appList: appList,
             userToDo: userToDo,
             userAcceptedList: userAcceptedList,
+            userNotifyList: userNotifyList,
             operationList: operationList,
             emailGroup: emailGroup
           };
