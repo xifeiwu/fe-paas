@@ -168,7 +168,12 @@
             required: true,
             message: '请上传测试文件',
             trigger: 'blur'
-          }]
+          }],
+          comment: [{
+            required: false,
+            message: '拒绝处理必须填写审批意见',
+            trigger: 'blur'
+          }],
         },
 
         showLoading: false,
@@ -256,45 +261,50 @@
             this.$router.go(-1);
             break;
           case 'finish-handle':
-            this.$refs.hasOwnProperty('handle-form')  && this.$refs['handle-form'].validate(valid => {
-              if (valid) {
-                this.showLoading = true;
-                this.loadingText = '正在处理工单"' + this.detailForm.name + '"';
-                let options = {
-                  id: this.detailForm.id,
-                  handleResult: true,
-                  status: this.detailForm.status,
-                  testType: this.handleInfo.testType,
-                  remark: this.handleInfo.comment
-                };
-                this.handleSubmitUpload();
-                this.$net.handleWorkOrder(options).then(msg => {
-                  console.log(msg);
-                  this.$alert('即将进入待办工单列表页', msg, {
-                    confirmButtonText: '确定',
-                    callback: () => {
-                      this.$router.push('/profile/work-order/todo');
-                    }
-                  });
-                  this.showLoading = false;
-                  this.loadingText = '';
-                }).catch(msg => {
-                  console.log(msg);
-                  this.$alert('即将进入待办工单列表页', msg, {
-                    confirmButtonText: '确定',
-                    callback: () => {
-                      this.$router.push('/profile/work-order/todo');
-                    }
-                  });
-                  this.showLoading = false;
-                  this.loadingText = ''
-                });
-              }
-            });
+            this.handleSubmit(false);
             break;
           case 'reject-handle':
+            this.handleSubmit(true);
             break;
         }
+      },
+      handleSubmit(reject) {
+        this.rules.comment.required = reject;
+        this.$refs.hasOwnProperty('handle-form')  && this.$refs['handle-form'].validate(valid => {
+          if (valid) {
+            this.showLoading = true;
+            this.loadingText = '正在处理工单"' + this.detailForm.name + '"';
+            let options = {
+              id: this.detailForm.id,
+              handleResult: !reject,
+              status: this.detailForm.status,
+              testType: this.handleInfo.testType,
+              remark: this.handleInfo.comment
+            };
+            this.handleSubmitUpload();
+            this.$net.handleWorkOrder(options).then(msg => {
+              console.log(msg);
+              this.$alert('即将进入待办工单列表页', msg, {
+                confirmButtonText: '确定',
+                callback: () => {
+                  this.$router.push('/profile/work-order/todo');
+                }
+              });
+              this.showLoading = false;
+              this.loadingText = '';
+            }).catch(msg => {
+              console.log(msg);
+              this.$alert('请与管理员联系，即将进入待办工单列表页', msg, {
+                confirmButtonText: '确定',
+                callback: () => {
+                  this.$router.push('/profile/work-order/todo');
+                }
+              });
+              this.showLoading = false;
+              this.loadingText = ''
+            });
+          }
+        });
       }
     }
   }

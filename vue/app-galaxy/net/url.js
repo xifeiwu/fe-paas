@@ -100,6 +100,8 @@ var urlList = {
   'work_order_detail_email_group': path + '/emailGroup/getWorkOrderDeployEmailGroup',
 
   /** 处理工单 */
+  // 点击处理前的判断逻辑
+  'check_before_handle_work_order': path + '/workOrderDeploy/validWorkOrderDeployHandleUser',
   // 上传测试报告
   // 'work_order_handle_upload_test_report': 'http://localhost:4291/post/upload',
   'work_order_handle_upload_test_report': path + '/workOrderDeploy/uploadFile',

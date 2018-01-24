@@ -222,6 +222,7 @@
   }
 </style>
 <script>
+  import WorkerOrderPropUtils from './utils/work-order-props';
   export default {
     created() {
       console.log('created');
@@ -438,22 +439,38 @@
             });
             break;
           case 'handle':
-            this.$store.dispatch('app/setWorkOrder', {
+            this.$net.checkBeforeHandleWorkOrder({
               id: row.id,
-              name: row.name,
-              creator: row.creatorName,
-              groupName: row.groupName,
-              emailGroupList: [],
-              featureList: [],
-              appList: [],
-              userToDo: '获取失败',
-              userAcceptedList: [],
-              operationList: [],
-              comment: row.remark,
-              status: row.status,
-              statusName: row.statusName
+              handleStatus: row.handleStatus,
+              status: row.status
+            }).then(workOrderInfo => {
+              let newStatus = workOrderInfo['status'];
+              this.$store.dispatch('app/setWorkOrder', {
+                id: row.id,
+                name: row.name,
+                creator: row.creatorName,
+                groupName: row.groupName,
+                emailGroupList: [],
+                featureList: [],
+                appList: [],
+                userToDo: '获取失败',
+                userAcceptedList: [],
+                operationList: [],
+                comment: row.remark,
+                status: newStatus,
+                statusName: WorkerOrderPropUtils.getNameByStatus(newStatus)
+              });
+              this.$router.push('/profile/work-order/todo/handle');
+            }).catch(errMsg => {
+              console.log(errMsg);
+              this.$notify.error({
+                title: '无法处理！',
+                message: errMsg,
+                duration: 0,
+                onClose: function () {
+                }
+              });
             });
-            this.$router.push('/profile/work-order/todo/handle');
             break;
         }
       },

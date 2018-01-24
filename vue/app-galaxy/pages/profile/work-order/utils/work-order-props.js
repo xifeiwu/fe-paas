@@ -92,6 +92,26 @@ class WorkOrderUtils {
       id: 'BUG', name: 'BUG'
     }]
   }
+
+  getNameByStatus(status) {
+    const statusMap = {
+      'WORKORDER_APPLY': '工单申请',
+      'WAIT_TEST': '等待测试',
+      'TESTING': '测试受理中',
+      'WAIT_DBA': '等待DBA处理',
+      'DBAING': 'DBA受理中',
+      'WAIT_DEPLOY': '等待部署',
+      'DEPLOYING': '部署受理中',
+      'WAIT_ACCEPTANCE': '等待验收',
+      'ACCEPTANCEING': '验收受理中',
+      'END': '结束',
+    };
+    if (status && statusMap.hasOwnProperty(status)) {
+      return statusMap[status];
+    } else {
+      return null;
+    }
+  }
 }
 
 export default new WorkOrderUtils();

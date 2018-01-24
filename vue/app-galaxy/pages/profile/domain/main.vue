@@ -41,8 +41,7 @@
         </el-table-column>
         <el-table-column
                 prop="domain"
-                label="外网二级域名"
-                width="180">
+                label="外网二级域名">
         </el-table-column>
         <el-table-column
                 prop="createTime"

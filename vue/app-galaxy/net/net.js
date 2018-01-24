@@ -1000,6 +1000,26 @@ class Net {
     })
   }
 
+  checkBeforeHandleWorkOrder(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.check_before_handle_work_order, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content) {
+          if (content.hasOwnProperty('workOrderDeploy')) {
+            resolve(content.workOrderDeploy);
+          } else {
+            reject('workOrderDeploy not found in content')
+          }
+        } else {
+          let msg = this.getResponseMsg(response);
+          if (!msg.success) {
+            reject(msg.msg)
+          }
+        }
+      });
+    })
+  }
+
   //处理工单
   handleWorkOrder(options) {
     return new Promise((resolve, reject) => {
