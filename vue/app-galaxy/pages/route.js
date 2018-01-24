@@ -22,6 +22,7 @@ import LogRun from './profile/log/run.vue';
 import LogDeploy from './profile/log/deploy.vue';
 
 import MonitorMain from './profile/monitor/main.vue';
+import OAuthMain from './profile/oauth/main.vue';
 
 import WorkOrderMain from './profile/work-order/main.vue';
 import WorkOrderToDo from './profile/work-order/todo.vue';
@@ -110,7 +111,11 @@ var Router = function () {
         path: 'monitor',
         name: '应用监控',
         component: MonitorMain,
-      },{
+      }, {
+        path: 'oauth',
+        name: '权限管理',
+        component: OAuthMain,
+      }, {
         path: 'work-order',
         // name: '审批管理',
         component: WorkOrderMain,

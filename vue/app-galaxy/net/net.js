@@ -87,10 +87,10 @@ class Net {
           router: '/profile/log'
         },
         "应用监控": {
-          router: '/profile/app_monitor'
+          router: '/profile/monitor'
         },
         "Oauth权限": {
-          router: '/profile/oauth_privilege',
+          router: '/profile/oauth',
           icon: 'el-icon-setting'
         },
         "审批管理": {
