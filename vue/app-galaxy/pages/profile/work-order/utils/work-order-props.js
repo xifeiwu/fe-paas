@@ -44,7 +44,7 @@ class WorkOrderUtils {
           message: '必须选择应用版本',
           trigger: 'change'
         }],
-        userAccepted: [{
+        acceptedUserIdList: [{
           type: 'array',
           required: true,
           message: '请选择验收人',
@@ -58,7 +58,7 @@ class WorkOrderUtils {
           }
         }
         ],
-        userNotify: [{
+        notifyUserIdList: [{
           type: 'array',
           required: true,
           message: '请选择知会人',
@@ -111,6 +111,81 @@ class WorkOrderUtils {
     } else {
       return null;
     }
+  }
+
+  getWorkOrderDetail(vueComponent, workOrder) {
+    return new Promise((resolve, reject) => {
+      let workOrderDetail = null;
+      if (!workOrder.hasOwnProperty('id')) {
+        reject(workOrderDetail);
+      }
+      vueComponent.$net.getWorkOrderDetail({
+        id: workOrder.id
+      }).then(result => {
+        workOrderDetail = {
+          name: workOrder.name,
+          creatorName: workOrder.creatorName,
+          groupId: null,
+          groupName: workOrder.groupName,
+          // featureList: [{
+          //   name: '',
+          //   type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
+          //   jiraAddress: null,
+          //   description: null,
+          //   valid: false
+          // }],
+          appID: null,
+          appName: null,
+          appVersion: '',
+          acceptedUserIdList: [],
+          notifyUserIdList: [],
+          mailGroup: '',
+          comment: '',
+        };
+        let groupInfo = vueComponent.$global.getGroupInfoByName(workOrder.groupName);
+        if (groupInfo) {
+          workOrderDetail.groupId = groupInfo['id'];
+        }
+
+        console.log(workOrder);
+        if (result.hasOwnProperty('featureList') && Array.isArray(result.featureList)) {
+          workOrderDetail.featureList = result.featureList.map(it => {
+            return {
+              name: it.functionName,
+              type: it.functionType,
+              jiraAddress: it.jiraAddress,
+              description: it.description,
+              valid: false,
+            }
+          })
+        }
+        if (result.hasOwnProperty('appList') && Array.isArray(result.appList)) {
+          let app = result.appList[0];
+          workOrderDetail.appID = app.appId;
+          workOrderDetail.appName = app.appName;
+          workOrderDetail.appVersion = app.appVersion;
+        }
+        if (result.hasOwnProperty('userToDo')) {
+          workOrderDetail.userToDo = result.userToDo;
+        }
+        if (result.hasOwnProperty('userAcceptedList')) {
+          workOrderDetail.acceptedUserIdList = result.userAcceptedList.map(it => {
+            return it.id;
+          })
+        }
+        if (result.hasOwnProperty('operationList')) {
+          workOrderDetail.operationList = result.operationList;
+        }
+        if (result.hasOwnProperty('emailGroup')) {
+          workOrderDetail.emailGroupList = result.emailGroup;
+        }
+        console.log(workOrderDetail);
+        resolve(workOrderDetail);
+      }).catch(err => {
+        console.log(err);
+        reject(workOrderDetail);
+      });
+    })
   }
 }
 

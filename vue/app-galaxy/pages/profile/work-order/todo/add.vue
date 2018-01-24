@@ -21,7 +21,7 @@
           <el-input v-model="workOrderForm.name" style="width: 350px"></el-input>
         </el-form-item>
         <el-form-item label="申请人：">
-          {{workOrderForm.userName}}
+          {{workOrderForm.creatorName}}
         </el-form-item>
         <el-form-item label="团队名称" prop="groupName">
           <el-select v-model="currentGroupID" placeholder="请选择" style="width: 350px">
@@ -68,14 +68,14 @@
                ref="acceptanceForm"
                size="mini"
                label-width="120px">
-        <el-form-item label="验收人" prop="userAccepted">
-          <el-select v-model="workOrderForm.userAccepted" multiple placeholder="请选择" style="width: 350px">
+        <el-form-item label="验收人" prop="acceptedUserIdList">
+          <el-select v-model="workOrderForm.acceptedUserIdList" multiple placeholder="请选择" style="width: 350px">
             <el-option v-for="item in usersInGroup" :key="item.userId" :label="item.realName" :value="item.userId">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="知会人" prop="userNotify">
-          <el-select v-model="workOrderForm.userNotify" multiple placeholder="请选择" style="width: 350px">
+        <el-form-item label="知会人" prop="notifyUserIdList">
+          <el-select v-model="workOrderForm.notifyUserIdList" multiple placeholder="请选择" style="width: 350px">
             <el-option v-for="item in allUsers" :key="item.id" :label="item.realName" :value="item.id">
             </el-option>
           </el-select>
@@ -191,7 +191,7 @@
         rules: workOrderUtils.rules.workOrder,
         workOrderForm: {
           name: '',
-          userName: this.$getUserInfo('realName'),
+          creatorName: this.$getUserInfo('realName'),
           groupId: this.currentGroupID,
           groupName: '',
           features: [{
@@ -204,8 +204,8 @@
           appID: null,
           appName: null,
           appVersion: '',
-          userAccepted: [],
-          userNotify: [],
+          acceptedUserIdList: [],
+          notifyUserIdList: [],
           mailGroup: '',
           comment: '',
         },
@@ -360,7 +360,7 @@
               serviceVersion: this.workOrderForm.appVersion,
             }];
             // 验收人
-            let userAcceptedList = this.getUserInfoByID(this.workOrderForm.userAccepted);
+            let userAcceptedList = this.getUserInfoByID(this.workOrderForm.acceptedUserIdList);
             if (userAcceptedList) {
               toPost.acceptanceUserList = userAcceptedList.map(it => {
                 return {
@@ -372,7 +372,7 @@
               toPost.acceptanceUserList = [];
             }
             // 知会人
-            let userNotifyList = this.getUserInfoByID(this.workOrderForm.userNotify);
+            let userNotifyList = this.getUserInfoByID(this.workOrderForm.notifyUserIdList);
             if (userNotifyList) {
               toPost.informUserList = userNotifyList.map(it => {
                 return {

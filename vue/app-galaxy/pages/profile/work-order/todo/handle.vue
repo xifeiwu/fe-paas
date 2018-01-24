@@ -136,6 +136,10 @@
     },
     mounted() {
       let workOrder = this.$store.getters['app/currentWorkOrder'];
+      if (!workOrder || !workOrder.hasOwnProperty('id')) {
+        this.$router.push('/profile/work-order/todo');
+        return;
+      }
       this.$nextTick(() => {
         this.getWorkOrderDetail(workOrder);
       });
@@ -183,10 +187,6 @@
     },
     methods: {
       getWorkOrderDetail(workOrder) {
-        if (!workOrder || !workOrder.hasOwnProperty('id')) {
-          this.$router.push('/profile/work-order/todo');
-          return;
-        }
         this.$net.getWorkOrderDetail({
           id: workOrder.id
         }).then(result => {

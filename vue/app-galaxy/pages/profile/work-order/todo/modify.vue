@@ -21,7 +21,7 @@
           <el-input v-model="workOrderForm.name" style="width: 350px"></el-input>
         </el-form-item>
         <el-form-item label="申请人：">
-          {{workOrderForm.userName}}
+          {{workOrderForm.creatorName}}
         </el-form-item>
         <el-form-item label="团队名称" prop="groupName">
           <el-select v-model="currentGroupID" placeholder="请选择" style="width: 350px">
@@ -34,12 +34,12 @@
     <div class="feature-section">
       <div class="title">功能列表</div>
       <div class="feature-form-list">
-        <features v-for="(item, index) in workOrderForm.features" :key="index"
+        <my-feature v-for="(item, index) in workOrderForm.featureList" :key="index"
                   :id="index"
                   :featureInfo="item"
-                  :showPlug="index == workOrderForm.features.length - 1"
+                  :showPlug="index == workOrderForm.featureList.length - 1"
                   :onPlug="addFeatureForm"
-        >{{item}}</features>
+        >{{item}}</my-feature>
       </div>
     </div>
     <div class="application-section">
@@ -68,14 +68,14 @@
                ref="acceptanceForm"
                size="mini"
                label-width="120px">
-        <el-form-item label="验收人" prop="userAccepted">
-          <el-select v-model="workOrderForm.userAccepted" multiple placeholder="请选择" style="width: 350px">
+        <el-form-item label="验收人" prop="acceptedUserIdList">
+          <el-select v-model="workOrderForm.acceptedUserIdList" multiple placeholder="请选择" style="width: 350px">
             <el-option v-for="item in usersInGroup" :key="item.userId" :label="item.realName" :value="item.userId">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="知会人" prop="userNotify">
-          <el-select v-model="workOrderForm.userNotify" multiple placeholder="请选择" style="width: 350px">
+        <el-form-item label="知会人" prop="notifyUserIdList">
+          <el-select v-model="workOrderForm.notifyUserIdList" multiple placeholder="请选择" style="width: 350px">
             <el-option v-for="item in allUsers" :key="item.id" :label="item.realName" :value="item.id">
             </el-option>
           </el-select>
@@ -168,14 +168,14 @@
   }
 </style>
 <script>
-  import workOrderUtils from '../utils/work-order-props';
-  import features from '../utils/components/features.vue';
+  import WorkOrderPropUtils from '../utils/work-order-props';
+  import MyFeature from '../utils/components/features.vue';
   import StoreHelper from '../../utils/store-helper.vue';
   import ElTooltip from "element-ui/packages/tooltip/src/main";
   import ElOption from "element-ui/packages/select/src/option";
   import ElInput from "element-ui/packages/input/src/input";
   export default {
-    components: {ElInput, ElOption, ElTooltip, features},
+    components: {ElInput, ElOption, ElTooltip, MyFeature},
     mixins: [StoreHelper],
 
     created() {
@@ -183,20 +183,31 @@
       this.onAppInfoListOfGroup(this.appInfoListOfGroup);
       this.onUsersAll(this.usersAll);
     },
+    mounted() {
+      let workOrder = this.$store.getters['app/currentWorkOrder'];
+      if (!workOrder || !workOrder.hasOwnProperty('id')) {
+        this.$router.push('/profile/work-order/todo');
+        return;
+      }
+      this.$nextTick(() => {
+        WorkOrderPropUtils.getWorkOrderDetail(this, workOrder).then(detail => {
+        })
+      });
+    },
     data() {
       return {
         showLoading: false,
         loadingText: '',
 
-        rules: workOrderUtils.rules.workOrder,
+        rules: WorkOrderPropUtils.rules.workOrder,
         workOrderForm: {
           name: '',
-          userName: this.$getUserInfo('realName'),
+          creatorName: this.$getUserInfo('realName'),
           groupId: this.currentGroupID,
           groupName: '',
-          features: [{
+          featureList: [{
             name: '',
-            type: workOrderUtils.getFeatureTypeList()[0]['id'],
+            type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
             jiraAddress: null,
             description: null,
             valid: false
@@ -204,8 +215,8 @@
           appID: null,
           appName: null,
           appVersion: '',
-          userAccepted: [],
-          userNotify: [],
+          acceptedUserIdList: [],
+          notifyUserIdList: [],
           mailGroup: '',
           comment: '',
         },
@@ -249,14 +260,14 @@
         }
       },
       addFeatureForm() {
-        this.workOrderForm.features.push({
+        this.workOrderForm.featureList.push({
           name: '',
-          type: workOrderUtils.getFeatureTypeList()[0]['id'],
+          type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
           jiraAddress: null,
           description: null,
           valid: false
         });
-        console.log(this.workOrderForm.features);
+        console.log(this.workOrderForm.featureList);
       },
 
       /**
@@ -309,7 +320,7 @@
           });
         });
         let featurePromise = new Promise((resolve, reject) => {
-          let valid = this.workOrderForm.features
+          let valid = this.workOrderForm.featureList
             .map(it => {return it.valid})
             .reduce((sum, valid) => {
               return sum && valid;
@@ -346,7 +357,7 @@
                 remark: this.workOrderForm.comment
               }
             };
-            toPost.workOrderDeployFunctionList = this.workOrderForm.features.map(it => {
+            toPost.workOrderDeployFunctionList = this.workOrderForm.featureList.map(it => {
               return {
                 functionName: it.name,
                 functionType: it.type,
@@ -360,7 +371,7 @@
               serviceVersion: this.workOrderForm.appVersion,
             }];
             // 验收人
-            let userAcceptedList = this.getUserInfoByID(this.workOrderForm.userAccepted);
+            let userAcceptedList = this.getUserInfoByID(this.workOrderForm.acceptedUserIdList);
             if (userAcceptedList) {
               toPost.acceptanceUserList = userAcceptedList.map(it => {
                 return {
@@ -372,7 +383,7 @@
               toPost.acceptanceUserList = [];
             }
             // 知会人
-            let userNotifyList = this.getUserInfoByID(this.workOrderForm.userNotify);
+            let userNotifyList = this.getUserInfoByID(this.workOrderForm.notifyUserIdList);
             if (userNotifyList) {
               toPost.informUserList = userNotifyList.map(it => {
                 return {
