@@ -87,10 +87,11 @@
           <!--<el-button style="margin-left: 10px;" type="success" size="mini-extral" @click="handleSubmitUpload">上传到服务器</el-button>-->
         </el-upload>
       </el-form-item>
-      <el-form-item label="审批意见">
+      <el-form-item label="审批意见" prop="comment">
         <el-input v-model="handleInfo.comment"
                   type="textarea"
                   :rows="2"
+                  placeholder="无"
         ></el-input>
       </el-form-item>
     </el-form>
@@ -269,7 +270,10 @@
         }
       },
       handleSubmit(reject) {
-        this.rules.comment.required = reject;
+        // change rules according to user select
+        this.rules.comment[0].required = reject;
+        this.rules.fileList2Upload[0].required = this.handleInfo.testType != 'SKIP_TEST';
+
         this.$refs.hasOwnProperty('handle-form')  && this.$refs['handle-form'].validate(valid => {
           if (valid) {
             this.showLoading = true;
@@ -281,6 +285,7 @@
               testType: this.handleInfo.testType,
               remark: this.handleInfo.comment
             };
+//            console.log(options);
             this.handleSubmitUpload();
             this.$net.handleWorkOrder(options).then(msg => {
               console.log(msg);

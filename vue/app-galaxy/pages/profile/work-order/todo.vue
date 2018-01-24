@@ -64,10 +64,14 @@
               <span>详情</span>
               <i class="el-icon-arrow-right"></i>
             </el-button>
-            <el-button
+            <el-button v-if="scope.row.status!=='WORKORDER_APPLY'"
                     size="mini-extral"
                     type="success"
                     @click="handleOperationClick('handle', scope.$index, scope.row)">处理</el-button>
+            <el-button v-if="scope.row.status==='WORKORDER_APPLY'"
+                    size="mini-extral"
+                    type="success"
+                    @click="handleOperationClick('modify', scope.$index, scope.row)">修改</el-button>
           </template>
         </el-table-column>
         <el-table-column type="expand"
