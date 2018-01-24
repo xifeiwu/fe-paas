@@ -54,7 +54,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="生成环境版本" prop="appVersion">
+        <el-form-item label="生产环境版本" prop="appVersion">
           <el-select v-model="workOrderForm.appVersion"
                      :placeholder="versionList.length > 0 ? '请选择': '当前应用下无版本'" style="width: 350px">
             <el-option v-for="(item, index) in versionList" :key="index" :label="item" :value="item"></el-option>
@@ -356,7 +356,8 @@
             });
             toPost.workOrderDeployAppList = [{
               appId: this.workOrderForm.appID,
-              appName: this.workOrderForm.appName
+              appName: this.workOrderForm.appName,
+              serviceVersion: this.workOrderForm.appVersion,
             }];
             // 验收人
             let userAcceptedList = this.getUserInfoByID(this.workOrderForm.userAccepted);
