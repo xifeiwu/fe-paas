@@ -27,8 +27,8 @@ import OAuthMain from './profile/oauth/main.vue';
 import WorkOrderMain from './profile/work-order/main.vue';
 import WorkOrderToDo from './profile/work-order/todo.vue';
 import WorkOrderList from './profile/work-order/list.vue';
-import WorkOrderAdd from './profile/work-order/add.vue';
-import WorkOrderHandle from './profile/work-order/handle.vue'
+import WorkOrderAdd from './profile/work-order/todo/add.vue';
+import WorkOrderHandle from './profile/work-order/todo/handle.vue'
 
 /**
  * router config:
