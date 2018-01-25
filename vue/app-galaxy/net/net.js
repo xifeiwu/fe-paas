@@ -1029,9 +1029,17 @@ class Net {
 
   removeWorkOrder(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_modify, options).then(response => {
-        console.log(response);
-      });
+      axios.post(URL_LIST.work_order_remove, options).then(response => {
+        // console.log(response);
+        let responseMsg = this.getResponseMsg(response);
+        if (responseMsg.success) {
+          resolve(responseMsg.msg);
+        } else {
+          reject(responseMsg.msg);
+        }
+      }).catch(err => {
+        reject('删除工单失败！')
+      })
     })
   }
 

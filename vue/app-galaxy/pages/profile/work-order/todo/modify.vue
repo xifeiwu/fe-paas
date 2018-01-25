@@ -399,13 +399,28 @@
           case 'close':
             this.$router.go(-1);
             break;
-          case 'delete':
+          case 'remove':
             if (!this.workOrderDetail.hasOwnProperty('id')) {
               this.$router.go(-1);
               return;
             }
             this.$net.removeWorkOrder({
-              id: this.workOrderDetail.id
+              workOrderDeployId: this.workOrderDetail.id
+            }).then(msg => {
+              this.$alert('工单' + this.workOrderDetail.name +'删除成功，即将返回上一页', '删除工单成功', {
+                confirmButtonText: '确定',
+                callback: () => {
+                  this.$router.go(-1);
+                }
+              });
+            }).catch(msg => {
+              this.$notify.err({
+                title: '删除工单失败',
+                message: msg,
+                duration: 0,
+                onClose: function () {
+                }
+              });
             });
             break;
           case 'modify':
