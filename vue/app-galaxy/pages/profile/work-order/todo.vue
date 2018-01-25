@@ -74,18 +74,14 @@
               <span>详情</span>
               <i class="el-icon-arrow-right"></i>
             </el-button>
-            <el-button v-if="scope.row.status!=='WORKORDER_APPLY' && scope.row.status!=='WAIT_DEPLOY' && scope.row.status!=='DEPLOYING'"
+            <el-button v-if="scope.row.status!=='WORKORDER_APPLY'"
                     size="mini-extral"
                     type="success"
-                    @click="handleOperationClick('handle', scope.$index, scope.row)">处理</el-button>
+                    @click="handleOperationClick(scope.row.status, scope.$index, scope.row)">处理</el-button>
             <el-button v-if="scope.row.status==='WORKORDER_APPLY'"
                     size="mini-extral"
                     type="success"
                     @click="handleOperationClick('modify', scope.$index, scope.row)">修改</el-button>
-            <el-button v-if="scope.row.status==='WAIT_DEPLOY' || scope.row.status==='DEPLOYING'"
-                       size="mini-extral"
-                       type="success"
-                       @click="handleOperationClick('deploy', scope.$index, scope.row)">部署</el-button>
           </template>
         </el-table-column>
         <el-table-column type="expand"
@@ -424,7 +420,26 @@
               this.waitingResponse = false;
             });
             break;
-          case 'handle':
+          case 'modify':
+            this.$store.dispatch('app/setWorkOrder', {
+              id: row.id,
+              name: row.name,
+              creatorName: row.creatorName,
+              groupName: row.groupName,
+              emailGroupList: [],
+              featureList: [],
+              appList: [],
+              userToDo: '获取失败',
+              acceptedUserList: [],
+              operationList: [],
+              comment: row.remark,
+              status: row.status,
+              statusName: WorkerOrderPropUtils.getNameByStatus(row.status)
+            });
+            this.$router.push('/profile/work-order/todo/modify');
+            break;
+          case 'WAIT_TEST':
+          case 'TESTING':
             this.$net.checkBeforeHandleWorkOrder({
               id: row.id,
               handleStatus: row.handleStatus,
@@ -446,7 +461,7 @@
                 status: newStatus,
                 statusName: WorkerOrderPropUtils.getNameByStatus(newStatus)
               });
-              this.$router.push('/profile/work-order/todo/handle');
+              this.$router.push('/profile/work-order/todo/test');
             }).catch(errMsg => {
               console.log(errMsg);
               this.$notify.error({
@@ -458,25 +473,8 @@
               });
             });
             break;
-          case 'modify':
-            this.$store.dispatch('app/setWorkOrder', {
-              id: row.id,
-              name: row.name,
-              creatorName: row.creatorName,
-              groupName: row.groupName,
-              emailGroupList: [],
-              featureList: [],
-              appList: [],
-              userToDo: '获取失败',
-              acceptedUserList: [],
-              operationList: [],
-              comment: row.remark,
-              status: row.status,
-              statusName: WorkerOrderPropUtils.getNameByStatus(row.status)
-            });
-            this.$router.push('/profile/work-order/todo/modify');
-            break;
-          case 'deploy':
+          case 'WAIT_DEPLOY':
+          case 'DEPLOYING':
             this.$store.dispatch('app/setWorkOrder', {
               id: row.id,
               name: row.name,
