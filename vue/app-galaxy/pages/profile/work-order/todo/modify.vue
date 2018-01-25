@@ -222,6 +222,7 @@
       }
       this.$nextTick(() => {
         WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
+//          console.log(detail);
           this.workOrderForm = detail;
           // should have at least one feature item
           if (this.workOrderForm.featureList.length == 0) {

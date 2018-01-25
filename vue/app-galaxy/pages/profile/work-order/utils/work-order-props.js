@@ -155,6 +155,7 @@ class WorkOrderUtils {
       }).then(result => {
         // console.log(result);
         workOrderDetail = {
+          id: workOrder.id,
           name: workOrder.name,
           creatorName: workOrder.creatorName,
           groupId: null,
@@ -168,7 +169,7 @@ class WorkOrderUtils {
           notifyUserIdList: [],
           notifyUserList: [],
           mailGroupList: [],
-          comment: '',
+          comment: workOrder.remark,
         };
         let groupInfo = vueComponent.$global.getGroupInfoByName(workOrder.groupName);
         if (groupInfo) {
@@ -203,7 +204,8 @@ class WorkOrderUtils {
           workOrderDetail.acceptedUserList = result.userAcceptedList.map(it => {
             return {
               id: it.userId,
-              name: it.userName
+              userName: it.userName,
+              status: it.status
             }
           });
           workOrderDetail.acceptedUserIdList = result.userAcceptedList.map(it => {

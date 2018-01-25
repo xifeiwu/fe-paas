@@ -82,19 +82,19 @@
             <div class="row-expand">
               <el-form labelWidth="120px" size="mini">
                 <el-form-item label="工单名称">{{detailForm.name}}</el-form-item>
-                <el-form-item label="申请人">{{detailForm.creator}}</el-form-item>
+                <el-form-item label="申请人">{{detailForm.creatorName}}</el-form-item>
                 <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
-                <el-form-item label="邮件组">
-                  <span v-for="(item, index) in detailForm.emailGroupList" :key="index" v-if="detailForm.emailGroupList.length > 0">
-                    {{item.emailGroupName}}
+                <el-form-item label="邮件组" class="mail-group-list">
+                  <span v-for="(item, index) in detailForm.mailGroupList" :key="index" v-if="detailForm.mailGroupList.length > 0">
+                    {{item}}
                   </span>
                   <span v-else>未设置</span>
                 </el-form-item>
                 <el-form-item label="功能列表">
                   <el-table :data="detailForm.featureList">
-                    <el-table-column label="功能名称" prop="functionName" headerAlign="center">
+                    <el-table-column label="功能名称" prop="name" headerAlign="center">
                     </el-table-column>
-                    <el-table-column label="功能类型" prop="functionType" headerAlign="center">
+                    <el-table-column label="功能类型" prop="typeName" headerAlign="center">
                     </el-table-column>
                     <el-table-column label="jira地址" prop="jiraAddress" headerAlign="center">
                     </el-table-column>
@@ -103,17 +103,21 @@
                   </el-table>
                 </el-form-item>
                 <el-form-item label="程序列表">
-                  <span v-for="item in detailForm.appList" :key="item.appName">{{item.appName}}</span>
+                  <!--<span v-for="item in detailForm.appList" :key="item.appName">{{item.appName}}</span>-->
+                  <span>{{detailForm.appName}}</span>
                 </el-form-item>
                 <el-form-item label="待办人">{{detailForm.userToDo}}</el-form-item>
                 <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
                 <el-form-item label="验收人">
-                  <el-table :data="detailForm.userAcceptedList">
+                  <el-table :data="detailForm.acceptedUserList">
                     <el-table-column label="验收人" prop="userName" headerAlign="center">
                     </el-table-column>
                     <el-table-column label="状态" prop="status" headerAlign="center">
                     </el-table-column>
                   </el-table>
+                </el-form-item>
+                <el-form-item label="知会人" class="notify-user-list">
+                  <span v-for="item in detailForm.notifyUserList" :key="item.userId">{{item.userName}}</span>
                 </el-form-item>
                 <el-form-item label="操作记录">
                   <el-table :data="detailForm.operationList">
@@ -219,6 +223,16 @@
           }
           .el-form-item {
             margin-bottom: 6px;
+            &.notify-user-list, &.mail-group-list{
+              .el-form-item__content {
+                span::after {
+                  content: ', ';
+                }
+                span:last-child::after {
+                  content: '';
+                }
+              }
+            }
           }
         }
       }
@@ -227,8 +241,9 @@
 </style>
 <script>
   import WorkerOrderPropUtils from './utils/work-order-props';
+  import ElFormItem from "element-ui/packages/form/src/form-item";
   export default {
-    created() {
+    components: {ElFormItem}, created() {
       console.log('created');
     },
     mounted() {
@@ -236,7 +251,7 @@
       const start = new Date();
       start.setTime(start.getTime() - 1000 * 3600 * 24 * 30);
       this.searchForm.dateRange = [start, end];
-      console.log('mounted');
+//      console.log('mounted');
     },
     data() {
       return {
@@ -258,7 +273,17 @@
           name: null,
         },
         detailForm: {
-
+          id: '',
+          name: '',
+          creatorName: '',
+          groupName: '',
+          mailGroupList: [],
+          featureList: [],
+          appName: '',
+          userToDo: '获取失败',
+          acceptedUserList: [],
+          operationList: [],
+          comment: ''
         },
 
         showPagination: true,
@@ -399,41 +424,9 @@
 
             // update data of model for work-order-detail
             this.waitingResponse = true;
-            this.detailForm = {
-              id: row.id,
-              name: row.name,
-              creator: row.creatorName,
-              groupName: row.groupName,
-              emailGroupList: [],
-              featureList: [],
-              appList: [],
-              userToDo: '获取失败',
-              userAcceptedList: [],
-              operationList: [],
-              comment: row.remark
-            };
-            this.$net.getWorkOrderDetail({
-              id: row.id
-            }).then(result => {
-              console.log(result);
-              if (result.hasOwnProperty('featureList')) {
-                this.detailForm.featureList = result.featureList;
-              }
-              if (result.hasOwnProperty('appList')) {
-                this.detailForm.appList = result.appList;
-              }
-              if (result.hasOwnProperty('userToDo')) {
-                this.detailForm.userToDo = result.userToDo;
-              }
-              if (result.hasOwnProperty('userAcceptedList')) {
-                this.detailForm.userAcceptedList = result.userAcceptedList;
-              }
-              if (result.hasOwnProperty('operationList')) {
-                this.detailForm.operationList = result.operationList;
-              }
-              if (result.hasOwnProperty('emailGroup')) {
-                this.detailForm.emailGroupList = result.emailGroup;
-              }
+            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
+              console.log(detail);
+              this.detailForm = detail;
               this.operation.name = action;
               this.waitingResponse = false;
               updateExpandRows();
@@ -458,7 +451,7 @@
                 featureList: [],
                 appList: [],
                 userToDo: '获取失败',
-                userAcceptedList: [],
+                acceptedUserList: [],
                 operationList: [],
                 comment: row.remark,
                 status: newStatus,
@@ -486,7 +479,7 @@
               featureList: [],
               appList: [],
               userToDo: '获取失败',
-              userAcceptedList: [],
+              acceptedUserList: [],
               operationList: [],
               comment: row.remark,
               status: row.status,
