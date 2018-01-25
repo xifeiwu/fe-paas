@@ -84,12 +84,6 @@
                 <el-form-item label="工单名称">{{detailForm.name}}</el-form-item>
                 <el-form-item label="申请人">{{detailForm.creatorName}}</el-form-item>
                 <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
-                <el-form-item label="邮件组" class="mail-group-list">
-                  <span v-for="(item, index) in detailForm.mailGroupList" :key="index" v-if="detailForm.mailGroupList.length > 0">
-                    {{item}}
-                  </span>
-                  <span v-else>未设置</span>
-                </el-form-item>
                 <el-form-item label="功能列表">
                   <el-table :data="detailForm.featureList">
                     <el-table-column label="功能名称" prop="name" headerAlign="center">
@@ -118,6 +112,12 @@
                 </el-form-item>
                 <el-form-item label="知会人" class="notify-user-list">
                   <span v-for="item in detailForm.notifyUserList" :key="item.userId">{{item.userName}}</span>
+                </el-form-item>
+                <el-form-item label="邮件组" class="mail-group-list">
+                  <span v-for="(item, index) in detailForm.mailGroupList" :key="index" v-if="detailForm.mailGroupList.length > 0">
+                    {{item}}
+                  </span>
+                  <span v-else>未设置</span>
                 </el-form-item>
                 <el-form-item label="操作记录">
                   <el-table :data="detailForm.operationList">
@@ -226,7 +226,7 @@
             &.notify-user-list, &.mail-group-list{
               .el-form-item__content {
                 span::after {
-                  content: ', ';
+                  content: '，';
                 }
                 span:last-child::after {
                   content: '';
@@ -445,9 +445,9 @@
               this.$store.dispatch('app/setWorkOrder', {
                 id: row.id,
                 name: row.name,
-                creator: row.creatorName,
+                creatorName: row.creatorName,
                 groupName: row.groupName,
-                emailGroupList: [],
+                mailGroupList: [],
                 featureList: [],
                 appList: [],
                 userToDo: '获取失败',

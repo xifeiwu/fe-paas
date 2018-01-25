@@ -170,6 +170,8 @@ class WorkOrderUtils {
           notifyUserList: [],
           mailGroupList: [],
           comment: workOrder.remark,
+          status: workOrder.status,
+          statusName: workOrder.statusName
         };
         let groupInfo = vueComponent.$global.getGroupInfoByName(workOrder.groupName);
         if (groupInfo) {

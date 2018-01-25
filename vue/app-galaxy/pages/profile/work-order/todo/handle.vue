@@ -13,19 +13,13 @@
     </div>
     <el-form labelWidth="120px" size="mini" :model="handleInfo" :rules="rules" ref="handle-form">
       <el-form-item label="工单名称">{{detailForm.name}}</el-form-item>
-      <el-form-item label="申请人">{{detailForm.creator}}</el-form-item>
+      <el-form-item label="申请人">{{detailForm.creatorName}}</el-form-item>
       <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
-      <el-form-item label="邮件组">
-                <span v-for="(item, index) in detailForm.emailGroupList" :key="index" v-if="detailForm.emailGroupList.length > 0">
-                  {{item.emailGroupName}}
-                </span>
-        <span v-else>未设置</span>
-      </el-form-item>
       <el-form-item label="功能列表">
         <el-table :data="detailForm.featureList">
-          <el-table-column label="功能名称" prop="functionName" headerAlign="center">
+          <el-table-column label="功能名称" prop="name" headerAlign="center">
           </el-table-column>
-          <el-table-column label="功能类型" prop="functionType" headerAlign="center">
+          <el-table-column label="功能类型" prop="typeName" headerAlign="center">
           </el-table-column>
           <el-table-column label="jira地址" prop="jiraAddress" headerAlign="center">
           </el-table-column>
@@ -34,17 +28,27 @@
         </el-table>
       </el-form-item>
       <el-form-item label="程序列表">
-        <span v-for="item in detailForm.appList" :key="item.appName">{{item.appName}}</span>
+        <!--<span v-for="item in detailForm.appList" :key="item.appName">{{item.appName}}</span>-->
+        <span>{{detailForm.appName}}</span>
       </el-form-item>
       <el-form-item label="待办人">{{detailForm.userToDo}}</el-form-item>
       <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
       <el-form-item label="验收人">
-        <el-table :data="detailForm.userAcceptedList">
+        <el-table :data="detailForm.acceptedUserList">
           <el-table-column label="验收人" prop="userName" headerAlign="center">
           </el-table-column>
           <el-table-column label="状态" prop="status" headerAlign="center">
           </el-table-column>
         </el-table>
+      </el-form-item>
+      <el-form-item label="知会人" class="notify-user-list">
+        <span v-for="item in detailForm.notifyUserList" :key="item.userId">{{item.userName}}</span>
+      </el-form-item>
+      <el-form-item label="邮件组" class="mail-group-list">
+        <span v-for="(item, index) in detailForm.mailGroupList" :key="index" v-if="detailForm.mailGroupList.length > 0">
+          {{item}}
+        </span>
+        <span v-else>未设置</span>
       </el-form-item>
       <el-form-item label="操作记录">
         <el-table :data="detailForm.operationList">
@@ -65,12 +69,12 @@
       <el-form-item label="工单状态">
         <span>{{detailForm.statusName}}</span>
       </el-form-item>
-      <el-form-item label="测试类型" prop="testType">
+      <el-form-item label="测试类型" prop="testType" class="test-type">
         <el-select  v-model="handleInfo.testType">
           <el-option v-for="item in testTypeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="测试报告" prop="fileList2Upload">
+      <el-form-item label="测试报告" prop="fileList2Upload" class="test-report">
         <el-upload
               class="upload-demo"
               ref="upload"
@@ -87,7 +91,7 @@
           <!--<el-button style="margin-left: 10px;" type="success" size="mini-extral" @click="handleSubmitUpload">上传到服务器</el-button>-->
         </el-upload>
       </el-form-item>
-      <el-form-item label="审批意见" prop="comment">
+      <el-form-item label="审批意见" prop="comment" class="comment">
         <el-input v-model="handleInfo.comment"
                   type="textarea"
                   :rows="2"
@@ -123,10 +127,29 @@
     .section-footer {
       text-align: center;
     }
+    .el-form {
+      .el-form-item {
+        margin-bottom: 6px;
+        &.test-type, &.test-report, &.comment {
+          margin-bottom: 14px;
+        }
+        &.notify-user-list, &.mail-group-list{
+          .el-form-item__content {
+            span::after {
+              content: '，';
+            }
+            span:last-child::after {
+              content: '';
+            }
+          }
+        }
+      }
+    }
   }
 </style>
 
 <script>
+  import WorkOrderPropUtils from '../utils/work-order-props';
   import ElSelect from "element-ui/packages/select/src/select";
   import ElOption from "element-ui/packages/select/src/option";
   import ElFormItem from "element-ui/packages/form/src/form-item";
@@ -141,7 +164,12 @@
         return;
       }
       this.$nextTick(() => {
-        this.getWorkOrderDetail(workOrder);
+//        this.getWorkOrderDetail(workOrder)
+        WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
+          console.log(detail);
+          this.detailForm = detail;
+        }).catch(err => {
+        })
       });
     },
     data() {
@@ -186,34 +214,6 @@
       }
     },
     methods: {
-      getWorkOrderDetail(workOrder) {
-        this.$net.getWorkOrderDetail({
-          id: workOrder.id
-        }).then(result => {
-          console.log(result);
-          if (result.hasOwnProperty('featureList')) {
-            workOrder.featureList = result.featureList;
-          }
-          if (result.hasOwnProperty('appList')) {
-            workOrder.appList = result.appList;
-          }
-          if (result.hasOwnProperty('userToDo')) {
-            workOrder.userToDo = result.userToDo;
-          }
-          if (result.hasOwnProperty('userAcceptedList')) {
-            workOrder.userAcceptedList = result.userAcceptedList;
-          }
-          if (result.hasOwnProperty('operationList')) {
-            workOrder.operationList = result.operationList;
-          }
-          if (result.hasOwnProperty('emailGroup')) {
-            workOrder.emailGroupList = result.emailGroup;
-          }
-          this.detailForm = workOrder;
-        }).catch(err => {
-        });
-      },
-
       handleSubmitUpload() {
         this.$refs.upload.submit();
       },
