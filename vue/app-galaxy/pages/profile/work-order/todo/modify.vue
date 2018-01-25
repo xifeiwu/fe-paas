@@ -80,8 +80,22 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="邮件组" prop="mailGroup">
-          <el-input v-model="workOrderForm.mailGroup" style="width: 350px"></el-input>
+        <el-form-item label="邮件组" prop="mailGroupList" class="mail-group">
+          <el-tag
+                v-for="tag in workOrderForm.mailGroupList"
+                size="small"
+                :key="tag"
+                closable
+                type="success"
+                @close="handleMailGroup('remove', tag)"
+          >{{tag}}</el-tag>
+          <el-input v-model="mailGroup" placeholder="请填写">
+            <template slot="append">
+              <el-button type="primary" class="add-mail-group-btn" @click="handleMailGroup('add', mailGroup)">
+                添加
+              </el-button>
+            </template>
+          </el-input>
         </el-form-item>
         <el-form-item label="工单备注" prop="comment">
           <el-input v-model="workOrderForm.comment"
@@ -100,6 +114,23 @@
   .el-form {
     .el-form-item--mini {
       margin-bottom: 12px;
+    }
+    .el-form-item {
+      &.mail-group {
+        .add-mail-group-btn {
+          color: white;
+          background-color: #409EFF;
+          margin: 0px;
+          width: 60px;
+          padding: 7px 15px 8px 15px;
+          border-width: 0px;
+          border-radius: 0px;
+          &:hover {
+            background-color: #79bbff;
+            font-weight: bold;
+          }
+        }
+      }
     }
   }
   #work-order-add {
@@ -190,7 +221,18 @@
         return;
       }
       this.$nextTick(() => {
-        WorkOrderPropUtils.getWorkOrderDetail(this, workOrder).then(detail => {
+        WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
+          this.workOrderForm = detail;
+          // should have at least one feature item
+          if (this.workOrderForm.featureList.length == 0) {
+            this.workOrderForm.featureList.push({
+              name: '',
+              type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
+              jiraAddress: null,
+              description: null,
+              valid: false
+            })
+          }
         })
       });
     },
@@ -200,24 +242,19 @@
         loadingText: '',
 
         rules: WorkOrderPropUtils.rules.workOrder,
+        mailGroup: '',
         workOrderForm: {
           name: '',
           creatorName: this.$getUserInfo('realName'),
           groupId: this.currentGroupID,
           groupName: '',
-          featureList: [{
-            name: '',
-            type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
-            jiraAddress: null,
-            description: null,
-            valid: false
-          }],
+          featureList: [],
           appID: null,
           appName: null,
           appVersion: '',
           acceptedUserIdList: [],
           notifyUserIdList: [],
-          mailGroup: '',
+          mailGroupList: [],
           comment: '',
         },
         versionList: [],
@@ -312,7 +349,30 @@
         });
       },
 
+
+      /**
+       * action for add or remove mailGroup
+       * @param action
+       * @param domain
+       */
+      handleMailGroup(action, mailGroup) {
+        let mailGroupList = this.workOrderForm.mailGroupList;
+        switch (action) {
+          case 'remove':
+            mailGroupList.splice(mailGroupList.indexOf(mailGroup), 1);
+            break;
+          case 'add':
+            if (mailGroupList.indexOf(mailGroup) > -1) {
+              mailGroupList.splice(mailGroupList.indexOf(mailGroup), 1);
+            }
+            mailGroupList.push(mailGroup);
+            this.mailGroup = '';
+            break;
+        }
+      },
+
       handleFinish() {
+//        console.log(this.workOrderForm);
         let basicPromise = new Promise((resolve, reject) => {
           this.$refs['basicForm'].validate((valid) => {
 //            console.log(valid);
@@ -347,8 +407,6 @@
             return sum && valid;
           });
           if (valid) {
-            console.log(this.workOrderForm);
-
             let toPost = {
               workOrderDeploy: {
                 name: this.workOrderForm.name,
@@ -395,9 +453,11 @@
               toPost.informUserList = [];
             }
             // 邮件组
-            toPost.emailGroupList = [{
-              emailGroupName: this.workOrderForm.mailGroup
-            }];
+            toPost.emailGroupList = this.workOrderForm.mailGroupList.map(it => {
+              return {
+                emailGroupName: it
+              }
+            });
             console.log(toPost);
             this.showLoading = true;
             this.loadingText = '正在创建工单"' + this.workOrderForm.name + '"';

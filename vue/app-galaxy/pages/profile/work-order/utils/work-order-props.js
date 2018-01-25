@@ -70,12 +70,20 @@ class WorkOrderUtils {
               callback();
             }
           }
-        }
-        ],
-        mailGroup: [{
-          required: false,
-        }
-        ],
+        }],
+        mailGroupList: [{
+          type: 'array',
+          required: true,
+          message: '请填写邮件组',
+          trigger: 'blur'
+        }, {
+          validator(rule, values, callback) {
+            let passed = values.length > 0;
+            if (passed) {
+              callback();
+            }
+          }
+        }],
         comments: [{
           required: false,
           message: '请选择应用版本',
@@ -91,6 +99,23 @@ class WorkOrderUtils {
     }, {
       id: 'BUG', name: 'BUG'
     }]
+  }
+
+  getFeatureInfoByName (name) {
+    let featureMap = {
+      '需求': {
+        id: 'DEMAND', name: '需求'
+      },
+      'BUG': {
+        id: 'BUG', name: 'BUG'
+      }
+    };
+    // set default featureInfo
+    let featureInfo = featureMap['需求'];
+    if (featureMap.hasOwnProperty(name)) {
+      featureInfo = featureMap[name];
+    }
+    return featureInfo;
   }
 
   getNameByStatus(status) {
@@ -113,7 +138,13 @@ class WorkOrderUtils {
     }
   }
 
-  getWorkOrderDetail(vueComponent, workOrder) {
+  /**
+   * 通过工单基本信息获得工单详情
+   * @param vueComponent
+   * @param workOrder
+   * @returns {Promise}
+   */
+  getWorkOrderDetailByBasic(vueComponent, workOrder) {
     return new Promise((resolve, reject) => {
       let workOrderDetail = null;
       if (!workOrder.hasOwnProperty('id')) {
@@ -122,24 +153,21 @@ class WorkOrderUtils {
       vueComponent.$net.getWorkOrderDetail({
         id: workOrder.id
       }).then(result => {
+        // console.log(result);
         workOrderDetail = {
           name: workOrder.name,
           creatorName: workOrder.creatorName,
           groupId: null,
           groupName: workOrder.groupName,
-          // featureList: [{
-          //   name: '',
-          //   type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
-          //   jiraAddress: null,
-          //   description: null,
-          //   valid: false
-          // }],
+          featureList: [],
           appID: null,
           appName: null,
           appVersion: '',
           acceptedUserIdList: [],
+          acceptedUserList: [],
           notifyUserIdList: [],
-          mailGroup: '',
+          notifyUserList: [],
+          mailGroupList: [],
           comment: '',
         };
         let groupInfo = vueComponent.$global.getGroupInfoByName(workOrder.groupName);
@@ -147,18 +175,21 @@ class WorkOrderUtils {
           workOrderDetail.groupId = groupInfo['id'];
         }
 
-        console.log(workOrder);
+        // get feature list
         if (result.hasOwnProperty('featureList') && Array.isArray(result.featureList)) {
           workOrderDetail.featureList = result.featureList.map(it => {
             return {
               name: it.functionName,
-              type: it.functionType,
+              type: this.getFeatureInfoByName(it.functionType).id,
+              typeName: it.functionType,
               jiraAddress: it.jiraAddress,
               description: it.description,
-              valid: false,
+              valid: true,
             }
           })
         }
+
+        // get app. appList will be changed form object array to object
         if (result.hasOwnProperty('appList') && Array.isArray(result.appList)) {
           let app = result.appList[0];
           workOrderDetail.appID = app.appId;
@@ -169,17 +200,31 @@ class WorkOrderUtils {
           workOrderDetail.userToDo = result.userToDo;
         }
         if (result.hasOwnProperty('userAcceptedList')) {
+          workOrderDetail.acceptedUserList = result.userAcceptedList.map(it => {
+            return {
+              id: it.userId,
+              name: it.userName
+            }
+          });
           workOrderDetail.acceptedUserIdList = result.userAcceptedList.map(it => {
-            return it.id;
+            return it.userId;
+          });
+        }
+        if (result.hasOwnProperty('notifyUserList')) {
+          workOrderDetail.notifyUserList = result.notifyUserList;
+          workOrderDetail.notifyUserIdList = result.notifyUserList.map(it => {
+            return it.userId;
           })
         }
         if (result.hasOwnProperty('operationList')) {
           workOrderDetail.operationList = result.operationList;
         }
-        if (result.hasOwnProperty('emailGroup')) {
-          workOrderDetail.emailGroupList = result.emailGroup;
+        if (result.hasOwnProperty('emailGroup') && Array.isArray(result.emailGroup)) {
+          workOrderDetail.mailGroupList = result.emailGroup.map(it => {
+            return it.emailGroupName;
+          })
         }
-        console.log(workOrderDetail);
+        // console.log(workOrderDetail);
         resolve(workOrderDetail);
       }).catch(err => {
         console.log(err);

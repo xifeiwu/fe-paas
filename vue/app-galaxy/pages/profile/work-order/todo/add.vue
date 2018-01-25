@@ -168,7 +168,7 @@
   }
 </style>
 <script>
-  import workOrderUtils from '../utils/work-order-props';
+  import WorkOrderPropUtils from '../utils/work-order-props';
   import features from '../utils/components/features.vue';
   import StoreHelper from '../../utils/store-helper.vue';
   import ElTooltip from "element-ui/packages/tooltip/src/main";
@@ -188,7 +188,7 @@
         showLoading: false,
         loadingText: '',
 
-        rules: workOrderUtils.rules.workOrder,
+        rules: WorkOrderPropUtils.rules.workOrder,
         workOrderForm: {
           name: '',
           creatorName: this.$getUserInfo('realName'),
@@ -196,7 +196,7 @@
           groupName: '',
           features: [{
             name: '',
-            type: workOrderUtils.getFeatureTypeList()[0]['id'],
+            type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
             jiraAddress: null,
             description: null,
             valid: false
@@ -206,7 +206,7 @@
           appVersion: '',
           acceptedUserIdList: [],
           notifyUserIdList: [],
-          mailGroup: '',
+          mailGroupList: '',
           comment: '',
         },
         versionList: [],
@@ -251,7 +251,7 @@
       addFeatureForm() {
         this.workOrderForm.features.push({
           name: '',
-          type: workOrderUtils.getFeatureTypeList()[0]['id'],
+          type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
           jiraAddress: null,
           description: null,
           valid: false
@@ -384,9 +384,14 @@
               toPost.informUserList = [];
             }
             // 邮件组
-            toPost.emailGroupList = [{
-              emailGroupName: this.workOrderForm.mailGroup
-            }];
+//            toPost.emailGroupList = [{
+//              emailGroupName: this.workOrderForm.mailGroup
+//            }];
+            toPost.emailGroupList = this.workOrderForm.mailGroupList.map(it => {
+              return {
+                emailGroupName: it
+              }
+            });
             console.log(toPost);
             this.showLoading = true;
             this.loadingText = '正在创建工单"' + this.workOrderForm.name + '"';

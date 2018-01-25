@@ -58,7 +58,9 @@ export default {
   components: {ElRadio}, created() {
   },
   mounted() {
-    this.checkValidate();
+    this.$nextTick(() => {
+      this.checkValidate();
+    });
   },
   props: {
     id: null,
@@ -75,9 +77,24 @@ export default {
     }
   },
   watch: {
-    'featureInfo.name': 'checkValidate',
-    'featureInfo.type': 'checkValidate',
-    'featureInfo.jiraAddress': 'checkValidate',
+    'featureInfo.name': {
+      immediate: true,
+      handler (value) {
+        this.checkValidate();
+      }
+    },
+    'featureInfo.type': {
+      immediate: true,
+      handler (value) {
+        this.checkValidate();
+      }
+    },
+    'featureInfo.jiraAddress': {
+      immediate: true,
+      handler (value) {
+        this.checkValidate();
+      }
+    },
   },
   methods: {
     featureTypeList() {
