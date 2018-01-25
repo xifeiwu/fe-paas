@@ -12,11 +12,11 @@
       </el-tooltip>
     </div>
     <el-form labelWidth="120px" size="mini" :model="handleInfo" :rules="rules" ref="handle-form">
-      <el-form-item label="工单名称">{{detailForm.name}}</el-form-item>
-      <el-form-item label="申请人">{{detailForm.creatorName}}</el-form-item>
-      <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
+      <el-form-item label="工单名称">{{workOrderDetail.name}}</el-form-item>
+      <el-form-item label="申请人">{{workOrderDetail.creatorName}}</el-form-item>
+      <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
       <el-form-item label="功能列表">
-        <el-table :data="detailForm.featureList">
+        <el-table :data="workOrderDetail.featureList">
           <el-table-column label="功能名称" prop="name" headerAlign="center">
           </el-table-column>
           <el-table-column label="功能类型" prop="typeName" headerAlign="center">
@@ -28,14 +28,14 @@
         </el-table>
       </el-form-item>
       <el-form-item label="程序/版本">
-        <span>{{detailForm.appName}}</span>
+        <span>{{workOrderDetail.appName}}</span>
         <span>/</span>
-        <span v-if="detailForm.serviceVersion">{{detailForm.serviceVersion}}</span><span v-else>版本未知</span>
+        <span v-if="workOrderDetail.serviceVersion">{{workOrderDetail.serviceVersion}}</span><span v-else>版本未知</span>
       </el-form-item>
-      <el-form-item label="待办人">{{detailForm.userToDo}}</el-form-item>
-      <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
+      <el-form-item label="待办人">{{workOrderDetail.userToDo}}</el-form-item>
+      <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
       <el-form-item label="验收人">
-        <el-table :data="detailForm.acceptedUserList">
+        <el-table :data="workOrderDetail.acceptedUserList">
           <el-table-column label="验收人" prop="userName" headerAlign="center">
           </el-table-column>
           <el-table-column label="状态" prop="status" headerAlign="center">
@@ -43,16 +43,16 @@
         </el-table>
       </el-form-item>
       <el-form-item label="知会人" class="notify-user-list">
-        <span v-for="item in detailForm.notifyUserList" :key="item.userId">{{item.userName}}</span>
+        <span v-for="item in workOrderDetail.notifyUserList" :key="item.userId">{{item.userName}}</span>
       </el-form-item>
       <el-form-item label="邮件组" class="mail-group-list">
-        <span v-for="(item, index) in detailForm.mailGroupList" :key="index" v-if="detailForm.mailGroupList.length > 0">
+        <span v-for="(item, index) in workOrderDetail.mailGroupList" :key="index" v-if="workOrderDetail.mailGroupList.length > 0">
           {{item}}
         </span>
         <span v-else>未设置</span>
       </el-form-item>
       <el-form-item label="操作记录">
-        <el-table :data="detailForm.operationList">
+        <el-table :data="workOrderDetail.operationList">
           <el-table-column label="处理时间" prop="createTime" headerAlign="center">
           </el-table-column>
           <el-table-column label="处理操作" prop="actionName" headerAlign="center">
@@ -64,11 +64,11 @@
         </el-table>
       </el-form-item>
       <el-form-item label="备注">
-        <span v-if="detailForm.comment">{{detailForm.comment}}</span>
+        <span v-if="workOrderDetail.comment">{{workOrderDetail.comment}}</span>
         <span v-else>无备注</span>
       </el-form-item>
       <el-form-item label="工单状态">
-        <span>{{detailForm.statusName}}</span>
+        <span>{{workOrderDetail.statusName}}</span>
       </el-form-item>
       <el-form-item label="审批意见" prop="comment" class="comment">
         <el-input v-model="handleInfo.comment"
@@ -156,14 +156,14 @@
 //        this.getWorkOrderDetail(workOrder)
         WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
           console.log(detail);
-          this.detailForm = detail;
+          this.workOrderDetail = detail;
         }).catch(err => {
         })
       });
     },
     data() {
       return {
-        detailForm: {},
+        workOrderDetail: {},
         testTypeList: [{
           label: '系统测试',
           value: 'SYSTEM_TEST'
@@ -298,11 +298,11 @@
         this.$refs.hasOwnProperty('handle-form')  && this.$refs['handle-form'].validate(valid => {
           if (valid) {
             this.showLoading = true;
-            this.loadingText = '正在处理工单"' + this.detailForm.name + '"';
+            this.loadingText = '正在处理工单"' + this.workOrderDetail.name + '"';
             let options = {
-              id: this.detailForm.id,
+              id: this.workOrderDetail.id,
               handleResult: !reject,
-              status: this.detailForm.status,
+              status: this.workOrderDetail.status,
               testType: this.handleInfo.testType,
               remark: this.handleInfo.comment
             };

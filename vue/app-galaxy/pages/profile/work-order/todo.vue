@@ -95,11 +95,11 @@
           <template slot-scope="scope">
             <div class="row-expand">
               <el-form labelWidth="120px" size="mini">
-                <el-form-item label="工单名称">{{detailForm.name}}</el-form-item>
-                <el-form-item label="申请人">{{detailForm.creatorName}}</el-form-item>
-                <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
+                <el-form-item label="工单名称">{{workOrderDetail.name}}</el-form-item>
+                <el-form-item label="申请人">{{workOrderDetail.creatorName}}</el-form-item>
+                <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
                 <el-form-item label="功能列表">
-                  <el-table :data="detailForm.featureList">
+                  <el-table :data="workOrderDetail.featureList">
                     <el-table-column label="功能名称" prop="name" headerAlign="center">
                     </el-table-column>
                     <el-table-column label="功能类型" prop="typeName" headerAlign="center">
@@ -111,14 +111,14 @@
                   </el-table>
                 </el-form-item>
                 <el-form-item label="程序/版本">
-                  <span>{{detailForm.appName}}</span>
+                  <span>{{workOrderDetail.appName}}</span>
                   <span>/</span>
-                  <span v-if="detailForm.serviceVersion">{{detailForm.serviceVersion}}</span><span v-else>版本未知</span>
+                  <span v-if="workOrderDetail.serviceVersion">{{workOrderDetail.serviceVersion}}</span><span v-else>版本未知</span>
                 </el-form-item>
-                <el-form-item label="待办人">{{detailForm.userToDo}}</el-form-item>
-                <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
+                <el-form-item label="待办人">{{workOrderDetail.userToDo}}</el-form-item>
+                <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
                 <el-form-item label="验收人">
-                  <el-table :data="detailForm.acceptedUserList">
+                  <el-table :data="workOrderDetail.acceptedUserList">
                     <el-table-column label="验收人" prop="userName" headerAlign="center">
                     </el-table-column>
                     <el-table-column label="状态" prop="status" headerAlign="center">
@@ -126,16 +126,16 @@
                   </el-table>
                 </el-form-item>
                 <el-form-item label="知会人" class="notify-user-list">
-                  <span v-for="item in detailForm.notifyUserList" :key="item.userId">{{item.userName}}</span>
+                  <span v-for="item in workOrderDetail.notifyUserList" :key="item.userId">{{item.userName}}</span>
                 </el-form-item>
                 <el-form-item label="邮件组" class="mail-group-list">
-                  <span v-for="(item, index) in detailForm.mailGroupList" :key="index" v-if="detailForm.mailGroupList.length > 0">
+                  <span v-for="(item, index) in workOrderDetail.mailGroupList" :key="index" v-if="workOrderDetail.mailGroupList.length > 0">
                     {{item}}
                   </span>
                   <span v-else>未设置</span>
                 </el-form-item>
                 <el-form-item label="操作记录">
-                  <el-table :data="detailForm.operationList">
+                  <el-table :data="workOrderDetail.operationList">
                     <el-table-column label="处理时间" prop="createTime" headerAlign="center">
                     </el-table-column>
                     <el-table-column label="处理操作" prop="actionName" headerAlign="center">
@@ -146,7 +146,7 @@
                     </el-table-column>
                   </el-table>
                 </el-form-item>
-                <el-form-item label="备注">{{detailForm.comment}}</el-form-item>
+                <el-form-item label="备注">{{workOrderDetail.comment}}</el-form-item>
               </el-form>
             </div>
           </template>
@@ -293,7 +293,7 @@
           rowID: null,
           name: null,
         },
-        detailForm: {
+        workOrderDetail: {
           id: '',
           name: '',
           creatorName: '',
@@ -415,7 +415,7 @@
             this.waitingResponse = true;
             WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
               console.log(detail);
-              this.detailForm = detail;
+              this.workOrderDetail = detail;
               this.operation.name = action;
               this.waitingResponse = false;
               updateExpandRows();
