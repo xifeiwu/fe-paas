@@ -27,9 +27,10 @@
           </el-table-column>
         </el-table>
       </el-form-item>
-      <el-form-item label="程序列表">
-        <!--<span v-for="item in detailForm.appList" :key="item.appName">{{item.appName}}</span>-->
+      <el-form-item label="程序/版本">
         <span>{{detailForm.appName}}</span>
+        <span>/</span>
+        <span v-if="detailForm.serviceVersion">{{detailForm.serviceVersion}}</span><span v-else>版本未知</span>
       </el-form-item>
       <el-form-item label="待办人">{{detailForm.userToDo}}</el-form-item>
       <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>

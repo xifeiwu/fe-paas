@@ -35,7 +35,7 @@ class WorkOrderUtils {
           message: '请选择应用名称',
           trigger: 'blur'
         }],
-        appVersion: [{
+        serviceVersion: [{
           required: true,
           message: '必须选择应用版本',
           trigger: 'blur'
@@ -194,10 +194,11 @@ class WorkOrderUtils {
 
         // get app. appList will be changed form object array to object
         if (result.hasOwnProperty('appList') && Array.isArray(result.appList)) {
+          workOrderDetail.appList = result.appList;
           let app = result.appList[0];
           workOrderDetail.appID = app.appId;
           workOrderDetail.appName = app.appName;
-          workOrderDetail.appVersion = app.appVersion;
+          workOrderDetail.serviceVersion = app.serviceVersion;
         }
         if (result.hasOwnProperty('userToDo')) {
           workOrderDetail.userToDo = result.userToDo;

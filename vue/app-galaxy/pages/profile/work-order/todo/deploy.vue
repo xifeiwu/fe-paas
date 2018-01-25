@@ -27,9 +27,10 @@
           </el-table-column>
         </el-table>
       </el-form-item>
-      <el-form-item label="程序列表">
-        <!--<span v-for="item in detailForm.appList" :key="item.appName">{{item.appName}}</span>-->
+      <el-form-item label="程序/版本">
         <span>{{detailForm.appName}}</span>
+        <span>/</span>
+        <span v-if="detailForm.serviceVersion">{{detailForm.serviceVersion}}</span><span v-else>版本未知</span>
       </el-form-item>
       <el-form-item label="待办人">{{detailForm.userToDo}}</el-form-item>
       <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
@@ -95,6 +96,11 @@
               type="primary"
               @click="handleButtonClick('close')">关闭</el-button>
     </div>
+    <my-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
+      <div slot="log-list">
+        <div v-for="(item,index) in deployLogs" :key="index" class="log-item">{{item}}</div>
+      </div>
+    </my-dialog-for-log>
   </div>
 </template>
 
@@ -132,12 +138,13 @@
 
 <script>
   import WorkOrderPropUtils from '../utils/work-order-props';
+  import MyDialogForLog from '../../utils/components/dialog4log.vue';
   import ElSelect from "element-ui/packages/select/src/select";
   import ElOption from "element-ui/packages/select/src/option";
   import ElFormItem from "element-ui/packages/form/src/form-item";
   export default {
-    components: {ElFormItem, ElOption, ElSelect}, created() {
-
+    components: {MyDialogForLog, ElFormItem, ElOption, ElSelect},
+    created() {
     },
     mounted() {
       let workOrder = this.$store.getters['app/currentWorkOrder'];
@@ -192,13 +199,85 @@
         },
 
         showLoading: false,
-        loadingText: ''
+        loadingText: '',
+
+        dialogForLogStatus: {
+          visible: false,
+          full: false,
+          showLoading: false
+        },
+        deployLogs: []
       }
     },
     methods: {
       handleButtonClick(action) {
         switch (action) {
           case 'deploy':
+            // request and show log
+          function showDeployLog(options) {
+            this.deployLogs = [];
+            this.dialogForLogStatus.visible = true;
+            // recursive function to fetch log from server with options {logName, logPath, offset}
+            function getDeployLog(options) {
+              // stop request deploy log when the window is closed
+              if (!this.dialogForLogStatus.visible) {
+                return;
+              }
+              this.$net.serviceDeployLog(options).then(content => {
+                if (content.hasOwnProperty('Orchestration')) {
+                  let Orchestration = content.Orchestration;
+                  let log = Orchestration.log;
+//                  console.log(log);
+//                  console.log(content);
+//                  console.log(Orchestration.offset);
+                  if (log) {
+                    // scroll after render finish
+                    this.deployLogs = this.deployLogs.concat(log.split('\n'));
+                    this.$nextTick(() => {
+                      this.$refs.hasOwnProperty('dialogForDeployLog') &&
+                      this.$refs['dialogForDeployLog'].scrollToBottom();
+                    });
+                  }
+                  options.offset = Orchestration.offset;
+                  if (null != log) {
+                    setTimeout(() => {
+                      getDeployLog.call(this, options);
+                    }, 1800);
+                  }
+                }
+              }).catch(err => {
+                console.log(err);
+              });
+            }
+
+            setTimeout(() => {
+              getDeployLog.call(this, options);
+            }, 1500);
+          }
+
+            this.$net.serviceDeploy({
+              id: serviceID,
+              appId: this.selectedAppID,
+              spaceId: this.selectedProfileID
+            }).then(content => {
+//            console.log(content);
+              if (content.hasOwnProperty('orchestration')) {
+                let orchestration = content['orchestration'];
+                showDeployLog.call(this, {
+                  logName: orchestration.logName,
+                  logPath: orchestration.logPath,
+                  offset: null == orchestration.offset ? 0 : orchestration.offset
+                });
+              }
+            }).catch(err => {
+              this.$notify({
+                title: '部署失败',
+                message: err,
+                duration: 0,
+                onClose: function () {
+                }
+              });
+            });
             break;
           case 'close':
             this.$router.go(-1);

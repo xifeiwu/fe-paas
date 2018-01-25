@@ -54,8 +54,8 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="生产环境版本" prop="appVersion">
-          <el-select v-model="workOrderDetail.appVersion"
+        <el-form-item label="生产环境版本" prop="serviceVersion">
+          <el-select v-model="workOrderDetail.serviceVersion"
                      :placeholder="versionList.length > 0 ? '请选择': '当前应用下无版本'" style="width: 350px">
             <el-option v-for="(item, index) in versionList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
@@ -274,7 +274,7 @@
           featureList: [],
           appID: null,
           appName: null,
-          appVersion: '',
+          serviceVersion: '',
           acceptedUserIdList: [],
           notifyUserIdList: [],
           mailGroupList: [],
@@ -294,7 +294,7 @@
         }
         this.requestProductVersionList(value);
       },
-      'workOrderDetail.appVersion': function () {
+      'workOrderDetail.serviceVersion': function () {
         this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
         });
       },
@@ -339,7 +339,7 @@
           console.log('appID or spaceID can not be empty');
           return;
         }
-        this.workOrderDetail.appVersion = null;
+        this.workOrderDetail.serviceVersion = null;
         this.versionList = [];
         this.$net.getServiceVersion({
           appId: appID,
@@ -350,7 +350,7 @@
             let version = content.version;
             if (version && Array.isArray(version) && version.length > 0) {
               this.versionList = version;
-              this.workOrderDetail.appVersion = version[0];
+              this.workOrderDetail.serviceVersion = version[0];
               this.disableSubmit = false;
             } else {
               this.$message({
@@ -480,7 +480,7 @@
                 toPost.workOrderDeployAppList = [{
                   appId: this.workOrderDetail.appID,
                   appName: this.workOrderDetail.appName,
-                  serviceVersion: this.workOrderDetail.appVersion,
+                  serviceVersion: this.workOrderDetail.serviceVersion,
                 }];
                 // 验收人
                 let userAcceptedList = this.getUserInfoByID(this.workOrderDetail.acceptedUserIdList);
