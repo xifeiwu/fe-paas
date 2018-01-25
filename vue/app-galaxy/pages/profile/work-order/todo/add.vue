@@ -460,9 +460,9 @@
             });
             console.log(toPost);
             this.showLoading = true;
-            this.loadingText = '正在创建工单"' + this.workOrderForm.name + '"';
+            this.loadingText = '正在提交工单"' + this.workOrderForm.name + '"';
             this.$net.createWorkOrder(toPost).then((msg) => {
-              this.$alert('即将进入工单列表页', '创建工单成功', {
+              this.$alert('工单' + this.workOrderForm.name  +'创建成功，即将进入工单列表页', '创建工单成功', {
                 confirmButtonText: '确定',
                 callback: () => {
                   this.$router.push('/profile/work-order/list');

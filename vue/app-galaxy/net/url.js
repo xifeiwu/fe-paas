@@ -109,9 +109,13 @@ var urlList = {
   'work_order_handle_upload_test_report': path + '/workOrderDeploy/uploadFile',
   // 处理完成
   'work_order_submit_handle': path + '/workOrderDeploy/handleWorkOrderDeploy',
-
   // 创建工单
   'work_order_create': path + '/workOrderDeploy/applyWordOrderDeploy',
+  // 删除工单
+  'work_order_remove': path + '/workOrderDeploy/revoked',
+  // 需改工单
+  'work_order_modify': path + '/workOrderDeploy/againSendWorkOrderDeploy',
+
   // 获取验收人列表
   'users_in_group': path + '/group/users',
   // 获取所有用户列表
