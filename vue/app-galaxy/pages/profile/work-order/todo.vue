@@ -2,13 +2,23 @@
   <div id="work-order-todo">
     <div class="header">
       <el-row class="operation" type="flex" justify="center" align="middle">
-        <el-col :span="4">
+        <el-col :span="3">
           <el-button
                   size="mini-extral"
                   type="primary"
                   @click="handleButtonClick('linker', {path: '/profile/work-order/todo/add'})">申请工单</el-button>
         </el-col>
-        <el-col :span="20">
+        <div class="el-col el-col-3">
+          <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
+            <div slot="content">
+              <div>工单处理逻辑</div>
+              <div>1. 如果一个应用下有正在处理的工单，则不可以提交新的工单</div>
+              <div>2. 如果工单超过三个小时没有更新状态，则会被系统更改为结束</div>
+            </div>
+            <span>工单处理逻辑<i class="el-icon-question"></i></span>
+          </el-tooltip>
+        </div>
+        <el-col :span="18">
           <div class="item">
             <label style="width: 68px; line-height: 26px; color: #409EFF">申请人：</label>
             <el-input
@@ -64,7 +74,7 @@
               <span>详情</span>
               <i class="el-icon-arrow-right"></i>
             </el-button>
-            <el-button v-if="scope.row.status!=='WORKORDER_APPLY'"
+            <el-button v-if="scope.row.status!=='WORKORDER_APPLY' && scope.row.status!=='WAIT_DEPLOY' && scope.row.status!=='DEPLOYING'"
                     size="mini-extral"
                     type="success"
                     @click="handleOperationClick('handle', scope.$index, scope.row)">处理</el-button>
@@ -72,6 +82,10 @@
                     size="mini-extral"
                     type="success"
                     @click="handleOperationClick('modify', scope.$index, scope.row)">修改</el-button>
+            <el-button v-if="scope.row.status==='WAIT_DEPLOY' || scope.row.status==='DEPLOYING'"
+                       size="mini-extral"
+                       type="success"
+                       @click="handleOperationClick('deploy', scope.$index, scope.row)">部署</el-button>
           </template>
         </el-table-column>
         <el-table-column type="expand"
@@ -166,6 +180,11 @@
             border-right: 1px solid darkgray;
           }
           &:nth-child(2) {
+            color: #1a0dab;
+            text-align: center;
+            border-right: 1px solid darkgray;
+          }
+          &:nth-child(3) {
             text-align: center;
             .item {
               display: inline-block;
@@ -242,8 +261,9 @@
 <script>
   import WorkerOrderPropUtils from './utils/work-order-props';
   import ElFormItem from "element-ui/packages/form/src/form-item";
+  import ElCol from "element-ui/packages/col/src/col";
   export default {
-    components: {ElFormItem}, created() {
+    components: {ElCol, ElFormItem}, created() {
       console.log('created');
     },
     mounted() {
@@ -290,38 +310,6 @@
         totalSize: 0,
         pageSize: 20,
         currentPage: 1,
-
-        statusList: [{
-          id: 'WORKORDER_APPLY',
-          name: '工单申请'
-        }, {
-          id: 'WAIT_TEST',
-          name: '等待测试',
-        }, {
-          id: 'TESTING',
-          name: '测试受理中'
-        }, {
-          id: 'WAIT_DBA',
-          name: '等待DBA处理'
-        }, {
-          id: 'DBAING',
-          name: 'DBA受理中'
-        }, {
-          id: 'WAIT_DEPLOY',
-          name: '等待部署'
-        }, {
-          id: 'DEPLOYING',
-          name: '部署受理中'
-        }, {
-          id: 'WAIT_ACCEPTANCE',
-          name: '等待验收'
-        }, {
-          id: 'ACCEPTANCEING',
-          name: '验收受理中'
-        }, {
-          id: 'END',
-          name: '结束'
-        }],
 
         datePickerOptions: {
           shortcuts: [{
