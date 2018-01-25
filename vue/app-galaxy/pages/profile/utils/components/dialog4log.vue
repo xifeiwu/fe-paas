@@ -128,9 +128,12 @@
       'showStatus.visible': function (value) {
         if (value) {
           this.$nextTick(() => {
-            this.scrollTop();
+            this.scrollToTop();
             this.getScrollWrap();
+            this.scrollListener = this.addListenerForScrollWrap();
           });
+        } else {
+          this.removeListenerForScrollWrap();
         }
       },
       'showStatus.showLoading': function (value) {
@@ -140,6 +143,7 @@
       return {
         dialog: null,
         scrollWrap: null,
+        scrollListener: null
       }
     },
     methods: {
@@ -148,24 +152,45 @@
           return;
         }
         this.scrollWrap = this.dialog.querySelector('.el-dialog__body .el-scrollbar .el-scrollbar__wrap');
-        this.scrollWrap && this.scrollWrap.addEventListener('scroll', (evt) => {
-          let target = evt.target;
-          if (target) {
-//            console.log(target.scrollTop);
-            if (target.scrollTop === 0) {
-              this.$emit('scrollTop');
-//              console.log('scrollTop');
-            } else if (target.scrollTop + target.clientHeight === target.scrollHeight) {
-              this.$emit('scrollBottom');
-//              console.log('scrollBottom');
-            }
-          }
-        });
+        return this.scrollWrap;
       },
-      scrollTop() {
+      addListenerForScrollWrap() {
+        let scrollListener = null;
+        if (this.scrollWrap) {
+          scrollListener = (evt) => {
+            let target = evt.target;
+            if (target) {
+//            console.log(target.scrollTop);
+              if (target.scrollTop === 0) {
+                this.$emit('scrollTop');
+//              console.log('scrollTop');
+              } else if (target.scrollTop + target.clientHeight === target.scrollHeight) {
+                this.$emit('scrollBottom');
+//              console.log('scrollBottom');
+              }
+            }
+          };
+          this.scrollWrap.addEventListener('scroll', scrollListener);
+        }
+        return scrollListener;
+      },
+      removeListenerForScrollWrap() {
+        if (this.scrollWrap && this.scrollListener) {
+          this.scrollWrap.removeEventListener('scroll', this.scrollListener);
+        }
+      },
+
+      scrollToTop() {
         if (this.scrollWrap) {
           this.scrollWrap.scrollTop = 0;
         }
+      },
+      scrollToBottom() {
+        if (!this.scrollWrap) {
+          this.getScrollWrap();
+          return;
+        }
+        this.scrollWrap.scrollTop = this.scrollWrap.scrollHeight - this.scrollWrap.clientHeight;
       }
     }
 

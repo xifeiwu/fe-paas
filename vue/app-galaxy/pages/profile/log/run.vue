@@ -56,7 +56,7 @@
       </el-scrollbar>
       <i class="el-icon-rank" @click="dialogStatus.visible = true"></i>
     </div>
-    <el-dialog-for-log class="log-run-log" title="运行日志" :showStatus="dialogStatus" @scrollBottom="onScrollBottom">
+    <my-dialog-for-log class="log-run-log" title="运行日志" :showStatus="dialogStatus" @scrollBottom="requestLog">
       <div slot="log-list" v-for="(item,index) in runLogs" :key="index" class="log-item">
         <span class="time">{{item.timestamp}}</span>
         <span class="thread">{{item.thread}}</span>
@@ -64,7 +64,7 @@
         <span class="content">{{item.content}}</span>
         <div class="exception" v-if="item.exception">{{item.exception}}</div>
       </div>
-    </el-dialog-for-log>
+    </my-dialog-for-log>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -168,11 +168,11 @@
 </style>
 <script>
   import elVersionSelector from '../utils/components/version-selector';
-  import elDialogForLog from '../utils/components/dialog4log.vue';
+  import MyDialogForLog from '../utils/components/dialog4log.vue';
   import ElInput from "element-ui/packages/input/src/input";
   import ElSelect from "element-ui/packages/select/src/select";
   export default {
-    components: {ElSelect, ElInput, elVersionSelector, elDialogForLog},
+    components: {ElSelect, ElInput, elVersionSelector, MyDialogForLog},
     mounted() {
       const end = new Date();
       const start = new Date();
@@ -271,9 +271,9 @@
           break;
         }
       },
-      onScrollBottom() {
-        this.requestLog();
-      },
+//      onScrollBottom() {
+//        this.requestLog();
+//      },
 
       requestLogAtStart() {
         this.requestPage = 1;

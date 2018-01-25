@@ -678,16 +678,11 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="部署日志" :visible="selected.operation == 'deploy'"
-               @close="selected.operation = null"
-               class="deploy"
-               :closeOnClickModal="false"
-               v-if="selected.service && selected.model"
-    >
-      <el-scrollbar>
-        <div v-for="(item,index) in deployLogs" :key="index" class="deploy-log">{{item}}</div>
-      </el-scrollbar>
-    </el-dialog>
+    <my-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
+      <div slot="log-list">
+        <div v-for="(item,index) in deployLogs" :key="index" class="log-item">{{item}}</div>
+      </div>
+    </my-dialog-for-log>
   </div>
 </template>
 
@@ -851,62 +846,6 @@
           }
         }
       }
-      &.deploy {
-        .el-dialog {
-          background-color: black;
-          width: 80%;
-          height: 70%;
-          text-align: left;
-          .el-dialog__header {
-            padding: 6px;
-            border-bottom: 1px solid gray;
-            .el-dialog__title {
-              font-size: 14px;
-              font-weight: bold;
-              color: white;
-            }
-            .el-dialog__headerbtn {
-              top: 10px;
-            }
-          }
-          .el-dialog__body {
-            padding: 0px;
-            color: lightgray;
-            height: calc(100% - 40px);
-            box-sizing: border-box;
-            overflow: scroll;
-            .el-scrollbar {
-              height: 100%;
-              .el-scrollbar__wrap {
-                .el-scrollbar__view {
-                  padding: 0px 6px 10px 6px;
-                  pre {
-                    font-size: 12px;
-                    line-height: 16px;
-                  }
-                }
-              }
-              .el-scrollbar__bar {
-                &.is-horizontal {
-                  height: 2px;
-                }
-                &.is-vertical {
-                  width: 2px;
-                }
-                .el-scrollbar__thumb {
-                  background-color: #409EFF;
-                }
-              }
-              .el-scrollbar__view {
-                .deploy-log {
-                  font-size: 12px;
-                  line-height: 16px;
-                }
-              }
-            }
-          }
-        }
-      }
     }
   }
 </style>
@@ -987,11 +926,12 @@
 <script>
   import appPropUtils from '../utils/app_prop';
   import StoreHelper from '../utils/store-helper.vue';
+  import MyDialogForLog from '../utils/components/dialog4log.vue'
   import ElRow from "element-ui/packages/row/src/row";
   import ElCol from "element-ui/packages/col/src/col";
   import ElRadio from "element-ui/packages/radio/src/radio";
 export default {
-  components: {ElRadio, ElCol, ElRow}, mixins: [StoreHelper],
+  components: {ElRadio, ElCol, ElRow, MyDialogForLog}, mixins: [StoreHelper],
   created() {
     this.onAppInfoListOfGroup(this.appInfoListOfGroup);
     this.onCpuAndMemoryList(this.cpuAndMemoryList);
@@ -1056,6 +996,11 @@ export default {
       imageLocationLabel: '',
       deployLogs: [],
       /* used for dialog end */
+      dialogForLogStatus: {
+        visible: false,
+        full: false,
+        showLoading: false
+      },
     }
   },
   computed: {
@@ -1201,29 +1146,14 @@ export default {
       }
       switch (action) {
         case 'deploy':
-          let self = this;
+          // request and show log
           function showDeployLog(options) {
             this.deployLogs = [];
-            this.selected.operation = 'deploy';
-            var scrollWrapInDeployDialog = document.querySelector('#service-main .deploy .el-scrollbar .el-scrollbar__wrap');
-
-            function updateDeployLog(log) {
-              if (!log) {
-                return;
-              }
-              this.deployLogs = this.deployLogs.concat(log.split('\n'));
-              if (!scrollWrapInDeployDialog) {
-                scrollWrapInDeployDialog = document.querySelector('#service-main .deploy .el-scrollbar .el-scrollbar__wrap');
-              }
-              this.$nextTick(() => {
-                scrollWrapInDeployDialog.scrollTop = scrollWrapInDeployDialog.scrollHeight - scrollWrapInDeployDialog.offsetHeight;
-              });
-            }
-
+            this.dialogForLogStatus.visible = true;
+            // recursive function to fetch log from server with options {logName, logPath, offset}
             function getDeployLog(options) {
-//              console.log(options);
               // stop request deploy log when the window is closed
-              if (this.selected.operation != 'deploy') {
+              if (!this.dialogForLogStatus.visible) {
                 return;
               }
               this.$net.serviceDeployLog(options).then(content => {
@@ -1233,7 +1163,14 @@ export default {
 //                  console.log(log);
 //                  console.log(content);
 //                  console.log(Orchestration.offset);
-                  updateDeployLog.call(this, log);
+                  if (log) {
+                    // scroll after render finish
+                    this.deployLogs = this.deployLogs.concat(log.split('\n'));
+                    this.$nextTick(() => {
+                      this.$refs.hasOwnProperty('dialogForDeployLog') &&
+                      this.$refs['dialogForDeployLog'].scrollToBottom();
+                    });
+                  }
                   options.offset = Orchestration.offset;
                   if (null != log) {
                     setTimeout(() => {
