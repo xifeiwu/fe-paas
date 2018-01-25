@@ -115,6 +115,8 @@ var urlList = {
   'work_order_remove': path + '/workOrderDeploy/revoked',
   // 需改工单
   'work_order_modify': path + '/workOrderDeploy/againSendWorkOrderDeploy',
+  // 部署应用
+  'work_order_app_deploy': path + '/workOrderDeploy/deploy',
 
   // 获取验收人列表
   'users_in_group': path + '/group/users',

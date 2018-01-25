@@ -18,8 +18,8 @@
   .el-dialog__wrapper {
     &.dialog4log {
       .el-dialog {
-        /*background-color: rgba(0, 0, 0, 0.8);*/
-        background-color: #303133;
+        background-color: rgba(0, 0, 0, 0.8);
+        /*background-color: #303133;*/
         width: 80%;
         height: 70%;
         text-align: left;

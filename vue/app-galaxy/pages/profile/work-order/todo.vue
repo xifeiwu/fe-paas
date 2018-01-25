@@ -475,6 +475,24 @@
             });
             this.$router.push('/profile/work-order/todo/modify');
             break;
+          case 'deploy':
+            this.$store.dispatch('app/setWorkOrder', {
+              id: row.id,
+              name: row.name,
+              creatorName: row.creatorName,
+              groupName: row.groupName,
+              emailGroupList: [],
+              featureList: [],
+              appList: [],
+              userToDo: '获取失败',
+              acceptedUserList: [],
+              operationList: [],
+              comment: row.remark,
+              status: row.status,
+              statusName: WorkerOrderPropUtils.getNameByStatus(row.status)
+            });
+            this.$router.push('/profile/work-order/todo/deploy');
+            break;
         }
       },
       handlePaginationPageChange(page) {
