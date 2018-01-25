@@ -1208,6 +1208,9 @@ export default {
             var scrollWrapInDeployDialog = document.querySelector('#service-main .deploy .el-scrollbar .el-scrollbar__wrap');
 
             function updateDeployLog(log) {
+              if (!log) {
+                return;
+              }
               this.deployLogs = this.deployLogs.concat(log.split('\n'));
               if (!scrollWrapInDeployDialog) {
                 scrollWrapInDeployDialog = document.querySelector('#service-main .deploy .el-scrollbar .el-scrollbar__wrap');
