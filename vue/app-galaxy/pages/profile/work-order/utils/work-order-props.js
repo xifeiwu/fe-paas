@@ -93,6 +93,18 @@ class WorkOrderUtils {
     }
   }
 
+  // 检测审批意见格式
+  checkComment(comment) {
+    let ok = true;
+    if (comment) {
+      let commentReg = /[\w\u4e00-\u9fa5]+/;
+      if (!commentReg.exec(comment)) {
+        ok = false;
+      }
+    }
+    return ok;
+  }
+
   getFeatureTypeList () {
     return [{
       id: 'DEMAND', name: '需求'

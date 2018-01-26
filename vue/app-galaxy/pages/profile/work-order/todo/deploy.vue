@@ -237,6 +237,10 @@
               this.$message.error('未找到profileID');
               return;
             }
+            if (!this.workOrderDetail.serviceVersion || !this.workOrderDetail.appID) {
+              this.$message.error('信息不完整：请检查应用名和版本是否完整！');
+              return;
+            }
 
             this.$net.workOrderDeployApp({
               applicationId: this.workOrderDetail.appID,
@@ -267,9 +271,17 @@
             this.$router.go(-1);
             break;
           case 'finish-handle':
+            if (!WorkOrderPropUtils.checkComment(this.handleInfo.comment)) {
+              this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
+              return;
+            }
             this.handleSubmit(false);
             break;
           case 'reject-handle':
+            if (!WorkOrderPropUtils.checkComment(this.handleInfo.comment)) {
+              this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
+              return;
+            }
             this.handleSubmit(true);
             break;
         }

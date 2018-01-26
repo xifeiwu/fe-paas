@@ -376,6 +376,10 @@
       },
 
       handleFinish() {
+        if (!WorkOrderPropUtils.checkComment(this.handleInfo.comment)) {
+          this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
+          return;
+        }
 //        console.log(this.workOrderDetail);
         let basicPromise = new Promise((resolve, reject) => {
           this.$refs['basicForm'].validate((valid) => {

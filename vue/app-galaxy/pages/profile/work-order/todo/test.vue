@@ -274,6 +274,10 @@
         // change rules according to user select
         this.rules.comment[0].required = reject;
         this.rules.fileList2Upload[0].required = this.handleInfo.testType != 'SKIP_TEST';
+        if (!WorkOrderPropUtils.checkComment(this.handleInfo.comment)) {
+          this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
+          return;
+        }
 
         this.$refs.hasOwnProperty('handle-form')  && this.$refs['handle-form'].validate(valid => {
           if (valid) {
