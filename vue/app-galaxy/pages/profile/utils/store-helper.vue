@@ -97,6 +97,14 @@ export default {
       }
       console.log(this.appInfoListOfGroup);
     },
+    getProfileInfoByType(type) {
+      let target;
+      this.profileListOfGroup.some(it => {
+        target = it.spaceType === type ? it : null;
+        return target
+      });
+      return target;
+    },
     getGroupInfoByID(groupID) {
       let target;
       this.groupList.some(it => {

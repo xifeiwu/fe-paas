@@ -216,7 +216,8 @@
             'cpuAndMemoryList',
             'getAppInfoByID',
             'deleteAppInfoByID',
-            'getGroupInfoByID',,
+            'getGroupInfoByID',
+            'getProfileInfoByType',
             'getGroupInfoByName',
             'getUserInfoByID'].forEach(key => {
             Vue.prototype.$global[key] = this[key];

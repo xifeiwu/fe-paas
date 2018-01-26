@@ -163,7 +163,7 @@ class WorkOrderUtils {
           featureList: [],
           appID: null,
           appName: null,
-          appVersion: '',
+          serviceVersion: '',
           acceptedUserIdList: [],
           acceptedUserList: [],
           notifyUserIdList: [],

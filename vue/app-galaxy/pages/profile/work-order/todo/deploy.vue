@@ -27,7 +27,7 @@
           </el-table-column>
         </el-table>
       </el-form-item>
-      <el-form-item label="程序/版本">
+      <el-form-item label="应用名/版本">
         <span>{{workOrderDetail.appName}}</span>
         <span>/</span>
         <span v-if="workOrderDetail.serviceVersion">{{workOrderDetail.serviceVersion}}</span><span v-else>版本未知</span>
@@ -164,33 +164,10 @@
     data() {
       return {
         workOrderDetail: {},
-        testTypeList: [{
-          label: '系统测试',
-          value: 'SYSTEM_TEST'
-        }, {
-          label: '简版测试',
-          value: 'SIMPLE_TEST'
-        }, {
-          label: '跳过测试',
-          value: 'SKIP_TEST'
-        }],
         handleInfo: {
-          testType: '',
-          fileList2Upload: [],
           comment: '',
         },
         rules: {
-          testType: [{
-            required: true,
-            message: '请选择测试类型',
-            trigger: 'blur'
-          }],
-          fileList2Upload: [{
-            type: 'array',
-            required: true,
-            message: '请上传测试文件',
-            trigger: 'blur'
-          }],
           comment: [{
             required: false,
             message: '拒绝处理必须填写审批意见',
@@ -214,53 +191,60 @@
         switch (action) {
           case 'deploy':
             // request and show log
-          function showDeployLog(options) {
-            this.deployLogs = [];
-            this.dialogForLogStatus.visible = true;
-            // recursive function to fetch log from server with options {logName, logPath, offset}
-            function getDeployLog(options) {
-              // stop request deploy log when the window is closed
-              if (!this.dialogForLogStatus.visible) {
-                return;
-              }
-              this.$net.serviceDeployLog(options).then(content => {
-                if (content.hasOwnProperty('Orchestration')) {
-                  let Orchestration = content.Orchestration;
-                  let log = Orchestration.log;
-//                  console.log(log);
-//                  console.log(content);
-//                  console.log(Orchestration.offset);
-                  if (log) {
-                    // scroll after render finish
-                    this.deployLogs = this.deployLogs.concat(log.split('\n'));
-                    this.$nextTick(() => {
-                      this.$refs.hasOwnProperty('dialogForDeployLog') &&
-                      this.$refs['dialogForDeployLog'].scrollToBottom();
-                    });
-                  }
-                  options.offset = Orchestration.offset;
-                  if (null != log) {
-                    setTimeout(() => {
-                      getDeployLog.call(this, options);
-                    }, 1800);
-                  }
+            function showDeployLog(options) {
+              this.deployLogs = [];
+              this.dialogForLogStatus.visible = true;
+              // recursive function to fetch log from server with options {logName, logPath, offset}
+              function getDeployLog(options) {
+                // stop request deploy log when the window is closed
+                if (!this.dialogForLogStatus.visible) {
+                  return;
                 }
-              }).catch(err => {
-                console.log(err);
-              });
+                this.$net.serviceDeployLog(options).then(content => {
+                  if (content.hasOwnProperty('Orchestration')) {
+                    let Orchestration = content.Orchestration;
+                    let log = Orchestration.log;
+  //                  console.log(log);
+  //                  console.log(content);
+  //                  console.log(Orchestration.offset);
+                    if (log) {
+                      // scroll after render finish
+                      this.deployLogs = this.deployLogs.concat(log.split('\n'));
+                      this.$nextTick(() => {
+                        this.$refs.hasOwnProperty('dialogForDeployLog') &&
+                        this.$refs['dialogForDeployLog'].scrollToBottom();
+                      });
+                    }
+                    options.offset = Orchestration.offset;
+                    if (null != log) {
+                      setTimeout(() => {
+                        getDeployLog.call(this, options);
+                      }, 1800);
+                    }
+                  }
+                }).catch(err => {
+                  console.log(err);
+                });
+              }
+
+              setTimeout(() => {
+                getDeployLog.call(this, options);
+              }, 1500);
             }
 
-            setTimeout(() => {
-              getDeployLog.call(this, options);
-            }, 1500);
-          }
+            let profileInfo = this.$global.getProfileInfoByType('PRODUCTION');
+            if (!profileInfo || !profileInfo.hasOwnProperty('id')) {
+              this.$message.error('未找到profileID');
+              return;
+            }
 
-            this.$net.serviceDeploy({
-              id: serviceID,
-              appId: this.selectedAppID,
-              spaceId: this.selectedProfileID
+            this.$net.workOrderDeployApp({
+              applicationId: this.workOrderDetail.appID,
+              spaceId: profileInfo.id,
+              serviceVersion: this.workOrderDetail.serviceVersion,
+              groupId: this.$global.currentGroupID
             }).then(content => {
-//            console.log(content);
+//              console.log(content);
               if (content.hasOwnProperty('orchestration')) {
                 let orchestration = content['orchestration'];
                 showDeployLog.call(this, {
@@ -293,7 +277,6 @@
       handleSubmit(reject) {
         // change rules according to user select
         this.rules.comment[0].required = reject;
-        this.rules.fileList2Upload[0].required = this.handleInfo.testType != 'SKIP_TEST';
 
         this.$refs.hasOwnProperty('handle-form')  && this.$refs['handle-form'].validate(valid => {
           if (valid) {
@@ -303,13 +286,11 @@
               id: this.workOrderDetail.id,
               handleResult: !reject,
               status: this.workOrderDetail.status,
-              testType: this.handleInfo.testType,
               remark: this.handleInfo.comment
             };
 //            console.log(options);
-            this.handleSubmitUpload();
             this.$net.handleWorkOrder(options).then(msg => {
-              console.log(msg);
+//              console.log(msg);
               this.$alert('即将进入待办工单列表页', msg, {
                 confirmButtonText: '确定',
                 callback: () => {
@@ -320,7 +301,7 @@
               this.loadingText = '';
             }).catch(msg => {
               console.log(msg);
-              this.$alert('请与管理员联系，即将进入待办工单列表页', msg, {
+              this.$alert('请与管理员联系。点击确定，进入待办工单列表页', msg, {
                 confirmButtonText: '确定',
                 callback: () => {
                   this.$router.push('/profile/work-order/todo');

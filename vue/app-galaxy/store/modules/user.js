@@ -22,7 +22,8 @@ const stateHasUpdated = function(prop) {
  * 1. if the prop in state has not null, return state.prop
  * 2. else get from localStorage, and assign the value to state.prop
  */
-var localProps = ['config', 'info', 'menuList', 'groupList', 'groupInfo', 'profileListOfGroup', 'appInfoListOfGroup'];
+//
+var LOCAL_PROP = ['profileListOfGroup', 'config', 'info', 'menuList', 'groupList', 'groupInfo', 'appInfoListOfGroup'];
 const getValue = function({state, getters}, prop) {
   const getLocalValue = function() {
     let result = null;
@@ -46,7 +47,7 @@ const getValue = function({state, getters}, prop) {
     result = state[prop];
   } else if(USE_LOCAL_STORAGE) {
     result = getLocalValue();
-  } else if (localProps.indexOf(prop) > -1) {
+  } else if (LOCAL_PROP.indexOf(prop) > -1) {
     result = getLocalValue();
   }
   return result;
@@ -323,9 +324,9 @@ const mutations = {
 
   SET_PROFILE_OF_GROUP(state, profileList) {
     state.profileListOfGroup = profileList;
-    // if (USE_LOCAL_STORAGE) {
+    if (LOCAL_PROP.indexOf('profileListOfGroup') > -1) {
       localStorage.setItem('user/profileListOfGroup', JSON.stringify(profileList));
-    // }
+    }
   },
 
   SET_APP_INFO_LIST_OF_GROUP(state, appList) {

@@ -311,7 +311,11 @@
        * request version list when selectedAppId or selectedProfileId is changed
        */
       requestProductVersionList(appID) {
-        let spaceID = 1;
+        let spaceID = null;
+        let profileInfo = this.$global.getProfileInfoByType('PRODUCTION');
+        if (profileInfo && profileInfo.hasOwnProperty('id')) {
+          spaceID = profileInfo.id;
+        }
         if (!appID || !spaceID) {
           console.log('appID or spaceID can not be empty');
           return;

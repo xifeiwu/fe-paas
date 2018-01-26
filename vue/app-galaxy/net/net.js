@@ -1027,6 +1027,7 @@ class Net {
     })
   }
 
+  // 删除工单
   removeWorkOrder(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.work_order_remove, options).then(response => {
@@ -1041,6 +1042,26 @@ class Net {
         reject('删除工单失败！')
       })
     })
+  }
+
+  // 工单-部署引用
+  workOrderDeployApp(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.work_order_app_deploy, options).then(response => {
+        if ('data' in response) {
+          let data = response.data;
+          if (0 === data.code) {
+            let content = data.content ? data.content : {};
+            resolve(content);
+          } else {
+            reject(data.msg);
+          }
+        }
+      }).catch(err => {
+        reject(err);
+        console.log(err);
+      })
+    });
   }
 
   checkBeforeHandleWorkOrder(options) {
