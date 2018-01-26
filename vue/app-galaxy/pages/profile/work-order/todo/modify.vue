@@ -5,7 +5,7 @@
     <div class="title-section">
       <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
         <div slot="content">
-          <div>申请工单注意事项</div>
+          <div>修改工单注意事项</div>
           <div>1. 必须选定生产环境版本，确保所选择应用的生产环境下有版本。</div>
           <div>2. 在所选应用版本的工单处理完成前，不可提交新的工单。</div>
         </div>
@@ -18,16 +18,18 @@
                size="mini"
                label-width="120px">
         <el-form-item label="审批工单名称" prop="name">
-          <el-input v-model="workOrderDetail.name" style="width: 350px"></el-input>
+          <!--<el-input v-model="workOrderDetail.name" style="width: 350px"></el-input>-->
+          <span>{{workOrderDetail.name}}</span>
         </el-form-item>
         <el-form-item label="申请人：">
           {{workOrderDetail.creatorName}}
         </el-form-item>
         <el-form-item label="团队名称" prop="groupName">
-          <el-select v-model="currentGroupID" placeholder="请选择" style="width: 350px">
-            <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
-            </el-option>
-          </el-select>
+          <span>{{workOrderDetail.groupName}}</span>
+          <!--<el-select v-model="currentGroupID" placeholder="请选择" style="width: 350px">-->
+            <!--<el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">-->
+            <!--</el-option>-->
+          <!--</el-select>-->
         </el-form-item>
       </el-form>
     </div>
@@ -48,7 +50,7 @@
                ref="applicationForm"
                size="mini"
                label-width="120px">
-        <el-form-item label="应用名称" prop="appName">
+        <el-form-item label="应用名称" prop="appName" v-if="workOrderDetail.appID">
           <el-select v-model="workOrderDetail.appID" placeholder="请选择" style="display:block; width: 350px;">
             <el-option v-for="(item, index) in appInfoListOfGroup.appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
@@ -69,10 +71,13 @@
                size="mini"
                label-width="120px">
         <el-form-item label="验收人" prop="acceptedUserIdList">
-          <el-select v-model="workOrderDetail.acceptedUserIdList" multiple placeholder="请选择" style="width: 350px">
-            <el-option v-for="item in usersInGroup" :key="item.userId" :label="item.realName" :value="item.userId">
-            </el-option>
-          </el-select>
+          <span v-for="(item,index) in workOrderDetail.acceptedUserList" :key="index">
+            {{item.userName}}
+          </span>
+          <!--<el-select v-model="workOrderDetail.acceptedUserIdList" multiple placeholder="请选择" style="width: 350px">-->
+            <!--<el-option v-for="item in usersInGroup" :key="item.userId" :label="item.realName" :value="item.userId">-->
+            <!--</el-option>-->
+          <!--</el-select>-->
         </el-form-item>
         <el-form-item label="知会人" prop="notifyUserIdList">
           <el-select v-model="workOrderDetail.notifyUserIdList" multiple placeholder="请选择" style="width: 350px">
@@ -121,7 +126,7 @@
     <div class="submit-section">
       <el-button type="primary" @click="handleButtonClick('back')" :disabled="disableSubmit">取消</el-button>
       <el-button type="primary" @click="handleButtonClick('remove')" :disabled="disableSubmit">删除工单</el-button>
-      <el-button type="primary" @click="handleButtonClick('modify')" :disabled="disableSubmit">修改工单</el-button>
+      <el-button type="primary" @click="handleButtonClick('modify')" :disabled="disableSubmit">提交工单</el-button>
     </div>
   </div>
 </template>
@@ -232,8 +237,8 @@
     mixins: [StoreHelper],
 
     created() {
-      this.onCurrentGroupID(this.currentGroupID);
-      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+//      this.onCurrentGroupID(this.currentGroupID);
+//      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
       this.onUsersAll(this.usersAll);
     },
     mounted() {
@@ -244,7 +249,7 @@
       }
       this.$nextTick(() => {
         WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
-//          console.log(detail);
+          console.log(detail);
           this.workOrderDetail = detail;
           // should have at least one feature item
           if (this.workOrderDetail.featureList.length == 0) {
@@ -334,7 +339,13 @@
        * request version list when selectedAppId or selectedProfileId is changed
        */
       requestProductVersionList(appID) {
-        let spaceID = 1;
+        let spaceID = null;
+//            let profileType = 'DEV';
+        let profileType = 'PRODUCTION';
+        let profileInfo = this.$global.getProfileInfoByType(profileType);
+        if (profileInfo && profileInfo.hasOwnProperty('id')) {
+          spaceID = profileInfo.id;
+        }
         if (!appID || !spaceID) {
           console.log('appID or spaceID can not be empty');
           return;
@@ -424,7 +435,7 @@
             });
             break;
           case 'modify':
-            if (!WorkOrderPropUtils.checkComment(this.handleInfo.comment)) {
+            if (!WorkOrderPropUtils.checkComment(this.workOrderDetail.comment)) {
               this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
               return;
             }
