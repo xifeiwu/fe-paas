@@ -299,6 +299,7 @@
           }
         }
       },
+      // 添加功能描述
       addFeatureComponent() {
         let maxID = 0;
         this.workOrderDetail.featureList.forEach(it => {
@@ -315,6 +316,7 @@
           valid: false
         });
       },
+      // 删除功能描述
       removeFeatureComponent(params) {
         let target = null;
         let index = null;

@@ -33,14 +33,27 @@
         </el-form-item>
       </el-form>
     </div>
+    <!--<div class="feature-section">-->
+      <!--<div class="title">功能列表</div>-->
+      <!--<div class="feature-form-list">-->
+        <!--<my-feature v-for="(item, index) in workOrderDetail.featureList" :key="index"-->
+                  <!--:id="index"-->
+                  <!--:featureInfo="item"-->
+                  <!--:showPlug="index == workOrderDetail.featureList.length - 1"-->
+                  <!--:onPlug="addFeatureForm"-->
+        <!--&gt;{{item}}</my-feature>-->
+      <!--</div>-->
+    <!--</div>-->
     <div class="feature-section">
       <div class="title">功能列表</div>
       <div class="feature-form-list">
         <my-feature v-for="(item, index) in workOrderDetail.featureList" :key="index"
-                  :id="index"
-                  :featureInfo="item"
-                  :showPlug="index == workOrderDetail.featureList.length - 1"
-                  :onPlug="addFeatureForm"
+                    :id="index"
+                    :featureInfo="item"
+                    :showAdd="index == workOrderDetail.featureList.length - 1"
+                    :showRemove="workOrderDetail.featureList.length > 1"
+                    @add="addFeatureComponent"
+                    @remove="removeFeatureComponent"
         >{{item}}</my-feature>
       </div>
     </div>
@@ -333,6 +346,41 @@
           valid: false
         });
         console.log(this.workOrderDetail.featureList);
+      },
+      // 添加功能描述
+      addFeatureComponent() {
+        let maxID = 0;
+        this.workOrderDetail.featureList.forEach(it => {
+          if (it.id > maxID) {
+            maxID = it.id;
+          }
+        });
+        this.workOrderDetail.featureList.push({
+          id: maxID + 1,
+          name: '',
+          type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
+          jiraAddress: null,
+          description: null,
+          valid: false
+        });
+      },
+      // 删除功能描述
+      removeFeatureComponent(params) {
+        let target = null;
+        let index = null;
+        let featureList = this.workOrderDetail.featureList;
+        featureList.some((it, loc) => {
+          target = it.id === params.id ? it : null;
+          if (target) {
+            index = loc;
+            return true;
+          } else {
+            return false;
+          }
+        });
+        if (null != target && null != index) {
+          featureList.splice(index, 1);
+        }
       },
 
       /**
