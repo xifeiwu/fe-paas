@@ -312,7 +312,9 @@
        */
       requestProductVersionList(appID) {
         let spaceID = null;
-        let profileInfo = this.$global.getProfileInfoByType('PRODUCTION');
+//            let profileType = 'DEV';
+        let profileType = 'PRODUCTION';
+        let profileInfo = this.$global.getProfileInfoByType(profileType);
         if (profileInfo && profileInfo.hasOwnProperty('id')) {
           spaceID = profileInfo.id;
         }
@@ -376,7 +378,7 @@
       },
 
       handleFinish() {
-        if (!WorkOrderPropUtils.checkComment(this.handleInfo.comment)) {
+        if (!WorkOrderPropUtils.checkComment(this.workOrderDetail.comment)) {
           this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
           return;
         }

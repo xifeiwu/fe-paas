@@ -27,11 +27,11 @@
       <el-button
               size="mini"
               type="primary"
-              @click="handleButtonClick('deploy')">部署应用</el-button>
+              @click="handleButtonClick('back')">返回</el-button>
       <el-button
               size="mini"
               type="primary"
-              @click="handleButtonClick('finish-handle')">处理完成</el-button>
+              @click="handleButtonClick('deploy')">部署应用</el-button>
       <el-button
               size="mini"
               type="primary"
@@ -39,7 +39,7 @@
       <el-button
               size="mini"
               type="primary"
-              @click="handleButtonClick('close')">关闭</el-button>
+              @click="handleButtonClick('finish-handle')">处理完成</el-button>
     </div>
     <my-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="log-list">
@@ -122,18 +122,19 @@
             function showDeployLog(options) {
               this.deployLogs = [];
               this.dialogForLogStatus.visible = true;
+
               // recursive function to fetch log from server with options {logName, logPath, offset}
               function getDeployLog(options) {
                 // stop request deploy log when the window is closed
                 if (!this.dialogForLogStatus.visible) {
                   return;
                 }
-                this.$net.serviceDeployLog(options).then(content => {
-                  if (content.hasOwnProperty('Orchestration')) {
-                    let Orchestration = content.Orchestration;
+                this.$net.workOrderFetchDeployLog(options).then(content => {
+                  if (content.hasOwnProperty('orchestrationVO')) {
+                    let Orchestration = content['orchestrationVO'];
                     let log = Orchestration.log;
-  //                  console.log(log);
-  //                  console.log(content);
+//                    console.log(Orchestration);
+//                    console.log(content);
   //                  console.log(Orchestration.offset);
                     if (log) {
                       // scroll after render finish
@@ -159,8 +160,9 @@
                 getDeployLog.call(this, options);
               }, 1500);
             }
-
-            let profileInfo = this.$global.getProfileInfoByType('PRODUCTION');
+//            let profileType = 'DEV';
+            let profileType = 'PRODUCTION';
+            let profileInfo = this.$global.getProfileInfoByType(profileType);
             if (!profileInfo || !profileInfo.hasOwnProperty('id')) {
               this.$message.error('未找到profileID');
               return;
@@ -195,7 +197,7 @@
               });
             });
             break;
-          case 'close':
+          case 'back':
             this.$router.go(-1);
             break;
           case 'finish-handle':

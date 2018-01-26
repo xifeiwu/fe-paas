@@ -117,6 +117,8 @@ var urlList = {
   'work_order_modify': path + '/workOrderDeploy/againSendWorkOrderDeploy',
   // 部署应用
   'work_order_app_deploy': path + '/workOrderDeploy/deploy',
+  // 部署应用-获取日志
+  'work_order_fetch_deploy_log': path + '/workOrderDeploy/searchDeployLog',
 
   // 获取验收人列表
   'users_in_group': path + '/group/users',

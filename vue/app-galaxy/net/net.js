@@ -1064,6 +1064,23 @@ class Net {
     });
   }
 
+  // 工单-部署应用-拉取日志
+  workOrderFetchDeployLog(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.work_order_fetch_deploy_log, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content) {
+          resolve(content);
+        } else {
+          reject();
+        }
+      }).catch(err => {
+        reject(err);
+        console.log(err);
+      })
+    });
+  }
+
   checkBeforeHandleWorkOrder(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.check_before_handle_work_order, options).then(response => {
