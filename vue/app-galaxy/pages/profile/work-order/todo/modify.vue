@@ -390,7 +390,7 @@
         let spaceID = null;
 //            let profileType = 'DEV';
         let profileType = 'PRODUCTION';
-        let profileInfo = this.$global.getProfileInfoByType(profileType);
+        let profileInfo = this.$storeHelper.getProfileInfoByType(profileType);
         if (profileInfo && profileInfo.hasOwnProperty('id')) {
           spaceID = profileInfo.id;
         }

@@ -162,7 +162,7 @@
             }
 //            let profileType = 'DEV';
             let profileType = 'PRODUCTION';
-            let profileInfo = this.$global.getProfileInfoByType(profileType);
+            let profileInfo = this.$storeHelper.getProfileInfoByType(profileType);
             if (!profileInfo || !profileInfo.hasOwnProperty('id')) {
               this.$message.error('未找到profileID');
               return;
@@ -176,7 +176,7 @@
               applicationId: this.workOrderDetail.appID,
               spaceId: profileInfo.id,
               serviceVersion: this.workOrderDetail.serviceVersion,
-              groupId: this.$global.currentGroupID
+              groupId: this.$storeHelper.currentGroupID
             }).then(content => {
 //              console.log(content);
               if (content.hasOwnProperty('orchestration')) {

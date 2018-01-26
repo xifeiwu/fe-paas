@@ -185,7 +185,7 @@ class WorkOrderUtils {
           status: workOrder.status,
           statusName: workOrder.statusName
         };
-        let groupInfo = vueComponent.$global.getGroupInfoByName(workOrder.groupName);
+        let groupInfo = vueComponent.$storeHelper.getGroupInfoByName(workOrder.groupName);
         if (groupInfo) {
           workOrderDetail.groupId = groupInfo['id'];
         }
