@@ -90,22 +90,18 @@
             this.$router.go(-1);
             break;
           case 'finish-handle':
-            if (!WorkOrderPropUtils.checkComment(this.handleInfo.comment)) {
-              this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
-              return;
-            }
             this.submitWorkOrder(false);
             break;
           case 'reject-handle':
-            if (!WorkOrderPropUtils.checkComment(this.handleInfo.comment)) {
-              this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
-              return;
-            }
             this.submitWorkOrder(true);
             break;
         }
       },
       submitWorkOrder(reject) {
+        if (!WorkOrderPropUtils.checkComment(this.handleInfo.comment)) {
+          this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
+          return;
+        }
         // change rules according to user select
         this.rules.comment[0].required = reject;
         this.$refs.hasOwnProperty('handle-form')  && this.$refs['handle-form'].validate(valid => {
