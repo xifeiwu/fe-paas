@@ -37,8 +37,10 @@
         <my-feature v-for="(item, index) in workOrderDetail.featureList" :key="index"
                     :id="index"
                     :featureInfo="item"
-                    :showPlug="index == workOrderDetail.featureList.length - 1"
-                    :onPlug="addFeatureForm"
+                    :showAdd="index == workOrderDetail.featureList.length - 1"
+                    :showRemove="workOrderDetail.featureList.length > 1"
+                    @add="addFeatureComponent"
+                    @remove="removeFeatureComponent"
         >{{item}}</my-feature>
       </div>
     </div>
@@ -226,6 +228,7 @@
           // should have at least one feature item
           if (this.workOrderDetail.featureList.length == 0) {
             this.workOrderDetail.featureList.push({
+              id: 1,
               name: '',
               type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
               jiraAddress: null,
@@ -296,15 +299,38 @@
           }
         }
       },
-      addFeatureForm() {
+      addFeatureComponent() {
+        let maxID = 0;
+        this.workOrderDetail.featureList.forEach(it => {
+          if (it.id > maxID) {
+            maxID = it.id;
+          }
+        });
         this.workOrderDetail.featureList.push({
+          id: maxID + 1,
           name: '',
           type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
           jiraAddress: null,
           description: null,
           valid: false
         });
-        console.log(this.workOrderDetail.featureList);
+      },
+      removeFeatureComponent(params) {
+        let target = null;
+        let index = null;
+        let featureList = this.workOrderDetail.featureList;
+        featureList.some((it, loc) => {
+          target = it.id === params.id ? it : null;
+          if (target) {
+            index = loc;
+            return true;
+          } else {
+            return false;
+          }
+        });
+        if (null != target && null != index) {
+          featureList.splice(index, 1);
+        }
       },
 
       /**
@@ -336,14 +362,12 @@
               this.workOrderDetail.serviceVersion = version[0];
               this.disableSubmit = false;
             } else {
-              this.$message({
-                type: 'warning',
-                message: this.workOrderDetail.appName + '的生产环境下，服务没有版本！'
-              });
+//              this.$message({
+//                type: 'warning',
+//                message: this.workOrderDetail.appName + '的生产环境下，服务没有版本！'
+//              });
               this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
               });
-//              this.disableSubmit = true;
-//              console.log(this.workOrderDetail);
             }
           }
         }).catch(err => {

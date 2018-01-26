@@ -22,7 +22,10 @@
         ></el-input>
       </el-form-item>
     </el-form>
-    <i class="el-icon-circle-plus-outline" v-if="showPlug" @click="onPlugClick"></i>
+    <div class="icon-section">
+      <i class="el-icon-remove-outline" v-if="showRemove" @click="onIconClick('remove')"></i>
+      <i class="el-icon-circle-plus-outline" v-if="showAdd" @click="onIconClick('add')"></i>
+    </div>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -31,17 +34,18 @@
     max-width: 350px;
     padding: 20px 28px 1px 8px;
     box-shadow: 0 0 8px 0 rgba(232, 237, 250, .6), 0 2px 4px 0 rgba(232, 237, 250, .5);
-    .el-icon-circle-plus-outline {
+    .icon-section {
       position: absolute;
-      top: 2px;
+      top: 3px;
       right: 3px;
       font-size: 24px;
-      color: #5a5e66;
-      &:hover {
-        color: black;
-        top: 1px;
-        right: 1px;
-        font-size: 26px;
+      .el-icon-circle-plus-outline, .el-icon-remove-outline {
+        display: block;
+        color: #5a5e66;
+        font-size: 20px;
+        &:hover {
+          color: black;
+        }
       }
     }
     .el-form {
@@ -64,9 +68,13 @@ export default {
   },
   props: {
     id: null,
-    showPlug: {
+    showAdd: {
       type: Boolean,
-      default: false
+      default: true
+    },
+    showRemove: {
+      type: Boolean,
+      default: true
     },
     onPlug: Function,
     featureInfo: Object
@@ -106,20 +114,21 @@ export default {
         this.featureInfo.valid = valid;
       })
     },
-    onPlugClick() {
-//      console.log(this.featureInfo);
-      this.$refs['featureForm'].validate(valid => {
-        if (valid) {
-          this.onPlug();
-        }
-      })
+    onIconClick(action) {
+      switch (action) {
+        case 'add':
+          this.$refs['featureForm'].validate(valid => {
+            if (valid) {
+              this.$emit('add');
+            }
+          });
+          break;
+        case 'remove':
+          this.$emit('remove', this.featureInfo);
+          break;
+      }
     }
   }
 
-//  data() {
-//    return {
-//
-//    }
-//  }
 }
 </script>
