@@ -202,7 +202,7 @@
 </style>
 <script>
   import WorkOrderPropUtils from '../utils/work-order-props';
-  import MyFeature from '../utils/components/features.vue';
+  import MyFeature from '../utils/components/feature.vue';
   import StoreHelper from '../../utils/store-helper.vue';
   import ElTooltip from "element-ui/packages/tooltip/src/main";
   import ElOption from "element-ui/packages/select/src/option";
