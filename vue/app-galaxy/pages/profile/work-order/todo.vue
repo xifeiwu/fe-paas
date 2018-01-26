@@ -508,6 +508,41 @@
               });
             });
             break;
+            case 'WAIT_ACCEPTANCE':
+            case 'ACCEPTANCEING':
+              this.$net.checkBeforeHandleWorkOrder({
+                id: row.id,
+                handleStatus: row.handleStatus,
+                status: row.status
+              }).then(workOrderInfo => {
+                let newStatus = workOrderInfo['status'];
+                this.$store.dispatch('app/setWorkOrder', {
+                  id: row.id,
+                  name: row.name,
+                  creatorName: row.creatorName,
+                  groupName: row.groupName,
+                  mailGroupList: [],
+                  featureList: [],
+                  appList: [],
+                  userToDo: '获取失败',
+                  acceptedUserList: [],
+                  operationList: [],
+                  comment: row.remark,
+                  status: newStatus,
+                  statusName: WorkerOrderPropUtils.getNameByStatus(newStatus)
+                });
+                this.$router.push('/profile/work-order/todo/accept');
+              }).catch(errMsg => {
+                console.log(errMsg);
+                this.$notify.error({
+                  title: '无法处理！',
+                  message: errMsg,
+                  duration: 0,
+                  onClose: function () {
+                  }
+                });
+              });
+              break;
         }
       },
       handlePaginationPageChange(page) {

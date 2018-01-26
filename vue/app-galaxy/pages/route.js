@@ -30,6 +30,7 @@ import WorkOrderList from './profile/work-order/list.vue';
 import WorkOrderAdd from './profile/work-order/todo/add.vue';
 import WorkOrderModify from './profile/work-order/todo/modify.vue';
 import WorkOrderDeploy from './profile/work-order/todo/deploy.vue';
+import WorkOrderAccept from './profile/work-order/todo/accept.vue';
 import WorkOrderTest from './profile/work-order/todo/test.vue'
 
 /**
@@ -147,6 +148,10 @@ var Router = function () {
         path: 'work-order/todo/test',
         name: '工单测试',
         component: WorkOrderTest,
+      }, {
+        path: 'work-order/todo/accept',
+        name: '验收工单',
+        component: WorkOrderAccept,
       }]
     }
   }
