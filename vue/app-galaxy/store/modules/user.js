@@ -218,6 +218,16 @@ const actions = {
    * 1. appInfoListOfGroup
    */
   groupInfo({commit, state, dispatch}) {
+    const SET_GROUP_INFO = function({state, dispatch}, groupInfo) {
+      state.groupInfo = groupInfo;
+      // if (USE_LOCAL_STORAGE) {
+      localStorage.setItem('user/groupInfo', JSON.stringify(groupInfo));
+      dispatch('appInfoListOfGroup', {
+        groupID: groupInfo.id
+      });
+      // }
+    };
+
     if (state.groupID) {
       if (state.groupList && Array.isArray(state.groupList)) {
         let target;
@@ -226,15 +236,16 @@ const actions = {
           return target
         });
         if (!state.groupInfo || state.groupInfo.id != target.id) {
-          commit('SET_GROUP_INFO', target);
+          SET_GROUP_INFO({state, dispatch}, target);
         }
       }
     } else {
       if (state.groupList && Array.isArray(state.groupList) && state.groupList.length > 0) {
         let target = state.groupList[0];
-        commit('SET_GROUP_INFO', target);
+        SET_GROUP_INFO({state, dispatch}, target);
       }
     }
+
   },
 
   /**
@@ -310,16 +321,6 @@ const mutations = {
     state.groupList = groupList;
     // if (USE_LOCAL_STORAGE) {
       localStorage.setItem('user/groupList', JSON.stringify(groupList));
-    // }
-  },
-
-  SET_GROUP_INFO({state, dispatch}, groupInfo) {
-    state.groupInfo = groupInfo;
-    // if (USE_LOCAL_STORAGE) {
-    localStorage.setItem('user/groupInfo', JSON.stringify(groupInfo));
-    dispatch('appInfoListOfGroup', {
-      groupID: value
-    });
     // }
   },
 
