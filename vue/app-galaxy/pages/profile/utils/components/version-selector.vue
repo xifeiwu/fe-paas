@@ -46,10 +46,13 @@
 </style>
 
 <script>
-  import appPropUtils from '../app_prop';
-//  import StoreHelper from '../store-helper.vue';
+  /**
+   * used to select service, the place used:
+   * page domain：header selector，dialog for binding service
+   * page instance：header selector
+   * page log: log-deploy, log-run
+   */
   export default {
-//    mixins: [StoreHelper],
     created() {
       this.onAppInfoListOfGroup(this.$storeHelper.appInfoListOfGroup);
     },

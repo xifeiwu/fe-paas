@@ -1,7 +1,7 @@
 <template>
   <div id="log-run">
     <div class="header">
-      <el-version-selector @version-selected="onVersionSelected"></el-version-selector>
+      <my-version-selector @version-selected="onVersionSelected"></my-version-selector>
       <div class="item">
         <label>实例名称</label>
         <el-input
@@ -167,12 +167,12 @@
   }
 </style>
 <script>
-  import elVersionSelector from '../utils/components/version-selector';
+  import MyVersionSelector from '../utils/components/version-selector';
   import MyDialogForLog from '../utils/components/dialog4log.vue';
   import ElInput from "element-ui/packages/input/src/input";
   import ElSelect from "element-ui/packages/select/src/select";
   export default {
-    components: {ElSelect, ElInput, elVersionSelector, MyDialogForLog},
+    components: {ElSelect, ElInput, MyVersionSelector, MyDialogForLog},
     mounted() {
       const end = new Date();
       const start = new Date();
@@ -258,7 +258,8 @@
       }
     },
     methods: {
-      onVersionSelected(appInfo, profileID, serviceInfo) {
+      onVersionSelected(appInfo, profileInfo, serviceInfo) {
+        let profileID = profileInfo.id;
         this.searchForm.appId = appInfo.id;
         this.searchForm.spaceId = profileID;
         this.searchForm.serviceVersion = serviceInfo.id;

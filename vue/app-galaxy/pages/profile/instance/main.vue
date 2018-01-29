@@ -1,7 +1,7 @@
 <template>
   <div id="instance-main">
     <div class="header">
-      <el-version-selector @version-selected="onVersionSelected"></el-version-selector>
+      <my-version-selector @version-selected="onVersionSelected"></my-version-selector>
     </div>
     <div class="instance-list">
       <el-table
@@ -76,10 +76,10 @@
 <script>
   import appPropUtils from '../utils/app_prop';
   import StoreHelper from '../utils/store-helper.vue';
-  import elVersionSelector from '../utils/components/version-selector';
+  import MyVersionSelector from '../utils/components/version-selector';
 
   export default {
-    components: {elVersionSelector},
+    components: {MyVersionSelector},
     mixins: [StoreHelper],
     created() {
     },
@@ -102,10 +102,10 @@
     watch: {
     },
     methods: {
-      onVersionSelected(appInfo, profileID, serviceInfo) {
+      onVersionSelected(appInfo, profileInfo, serviceInfo) {
 //        console.log(appInfo, profileID, serviceInfo);
         this.serviceInfo = serviceInfo;
-        this.requestInstanceList(appInfo.appId, profileID, serviceInfo.serviceVersion);
+        this.requestInstanceList(appInfo.appId, profileInfo.id, serviceInfo.serviceVersion);
       },
       /**
        * 获取实例列表

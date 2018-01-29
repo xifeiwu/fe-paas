@@ -1,7 +1,7 @@
 <template>
   <div id="log-deploy">
     <div class="header">
-      <el-version-selector @version-selected="onVersionSelected"></el-version-selector>
+      <my-version-selector @version-selected="onVersionSelected"></my-version-selector>
     </div>
     <div class="list">
       <el-table
@@ -44,10 +44,10 @@
   }
 </style>
 <script>
-  import elVersionSelector from '../utils/components/version-selector';
+  import MyVersionSelector from '../utils/components/version-selector';
   import elDialogForLog from '../utils/components/dialog4log.vue';
   export default {
-    components: {elVersionSelector, elDialogForLog},
+    components: {MyVersionSelector, elDialogForLog},
     data() {
       return {
         showLoading: false,
@@ -65,8 +65,9 @@
       }
     },
     methods: {
-      onVersionSelected(appInfo, profileID, serviceInfo) {
+      onVersionSelected(appInfo, profileInfo, serviceInfo) {
 //        console.log(appId, profileID, version);
+        let profileID = profileInfo.id;
         this.showLoading = true;
         this.deployLogList = [];
         this.$net.getDeployLogList({
