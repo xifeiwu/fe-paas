@@ -47,11 +47,11 @@
 
 <script>
   import appPropUtils from '../app_prop';
-  import StoreHelper from '../store-helper.vue';
+//  import StoreHelper from '../store-helper.vue';
   export default {
-    mixins: [StoreHelper],
+//    mixins: [StoreHelper],
     created() {
-      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+      this.onAppInfoListOfGroup(this.$storeHelper.appInfoListOfGroup);
     },
     data() {
       return {
@@ -67,8 +67,6 @@
         // 版本（既服务）列表
         // the value of serviceVersion in currentService
         selectedVersion: null,
-        // one element in currentServiceList
-        currentService: {},
         currentServiceList: [],
         getVersionList: this.requestServiceList,
 
@@ -78,10 +76,10 @@
       }
     },
     watch: {
-      appInfoListOfGroup: 'onAppInfoListOfGroup',
+      '$storeHelper.appInfoListOfGroup': 'onAppInfoListOfGroup',
       selectedAppID: function (value, oldValue) {
         let appID = value;
-        let appInfo = this.getAppInfoByID(appID);
+        let appInfo = this.$storeHelper.getAppInfoByID(appID);
         if (!appInfo) {
           return;
         }
@@ -117,23 +115,23 @@
       },
 
       // update currentService when selectedVersion is changed
-      selectedVersion: function (value, oldValue) {
-        if (null == value) {
-          this.currentService = null;
+      selectedVersion: function (serviceVersion, oldValue) {
+        let currentService = null;
+        if (null == serviceVersion) {
           return;
         }
         let target = null;
         this.currentServiceList.some(it => {
-          if (it.serviceVersion == value) {
+          if (it.serviceVersion == serviceVersion) {
             target = it;
           }
           return target;
         });
-        this.currentService = target;
         if (!target) {
           return;
         }
-        this.requestInstanceList(this.selectedAPP, this.selectedProfileID, target);
+        currentService = target;
+        this.changeVersion(this.selectedAPP, this.selectedProfileID, currentService);
       },
     },
     methods: {
@@ -156,7 +154,7 @@
             return;
           }
           let appId = this.$getUserConfig('profile/service/appID');
-          if (appId && this.getAppInfoByID(appId)) {
+          if (appId && this.$storeHelper.getAppInfoByID(appId)) {
             this.selectedAppID = appId;
           } else {
             this.selectedAppID = this.appList[0]['appId'];
@@ -196,6 +194,14 @@
       },
 
       /**
+       * emit event for value changed
+       */
+      changeVersion(appInfo, profileId, serviceInfo) {
+        let profileInfo = this.$storeHelper.getProfileInfoByID(profileId);
+        this.$emit('version-selected', appInfo, profileInfo, serviceInfo);
+      },
+
+      /**
        * request version list when selectedAppId or selectedProfileId is changed
        * TODO: not used
        */
@@ -224,13 +230,6 @@
             message: '查找服务版本失败！'
           });
         });
-      },
-
-      /**
-       * 获取实例列表
-       */
-      requestInstanceList(appInfo, spaceID, serviceInfo) {
-        this.$emit('version-selected', appInfo, spaceID, serviceInfo);
       },
     }
   }
