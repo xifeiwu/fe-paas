@@ -59,16 +59,22 @@
 
         selectedAppID: null,
         selectedAPP: null,
+
+        // profile related
         selectedProfileID: null,
         currentProfileList: [],
+
+        // 版本（既服务）列表
+        // the value of serviceVersion in currentService
         selectedVersion: null,
-
-        currentVersionList: [],
+        // one element in currentServiceList
+        currentService: {},
         currentServiceList: [],
-        currentService: [],
-
-//        getVersionList: this.requestVersionList,
         getVersionList: this.requestServiceList,
+
+        // TODO: not used
+        currentVersionList: [],
+//        getVersionList: this.requestVersionList,
       }
     },
     watch: {
@@ -191,6 +197,7 @@
 
       /**
        * request version list when selectedAppId or selectedProfileId is changed
+       * TODO: not used
        */
       requestVersionList(appID, spaceID) {
         if (!appID || !spaceID) {

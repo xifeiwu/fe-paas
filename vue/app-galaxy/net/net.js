@@ -648,6 +648,7 @@ class Net {
           let data = response.data;
           if (0 === data.code) {
             let content = data.content ? data.content : {};
+            this.showLog('getServiceVersion', content);
             resolve(content);
           } else {
             reject(data.msg);

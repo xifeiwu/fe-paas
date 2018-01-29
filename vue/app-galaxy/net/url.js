@@ -75,6 +75,9 @@ var urlList = {
   // 获取实例列表
   'instance_list': path + '/service/queryInstance',
 
+  // 外网域名列表
+  'domain_list': path + '/domain/queryByPage',
+
   // 获取部署列表
   'log_deploy_list': path + '/deployLog/getDeployLog',
   // 获取运行日志
