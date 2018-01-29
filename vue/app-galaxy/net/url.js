@@ -72,9 +72,11 @@ var urlList = {
   // 更改Host配置
   'service_update_host': path + '/service/updateHostIp',
 
+  /** 实例相关*/
   // 获取实例列表
   'instance_list': path + '/service/queryInstance',
 
+  /** 域名相关 */
   // 外网域名列表
   'domain_list': path + '/domain/queryByPage',
 

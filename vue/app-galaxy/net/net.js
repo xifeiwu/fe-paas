@@ -753,6 +753,26 @@ class Net {
     })
   }
 
+  getDomainList(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.domain_list, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content && content.hasOwnProperty('internetDomainList')) {
+          let domainList = content['internetDomainList'];
+          domainList.forEach(it => {
+            it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+          });
+          resolve(domainList);
+          this.showLog('getDomainList', domainList);
+        } else {
+          reject('获取外网域名列表失败');
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
   // 获取部署列表
   getDeployLogList(options) {
     return new Promise((resolve, reject) => {

@@ -1,7 +1,9 @@
 <template>
   <div id="domain-main">
     <div class="header">
-      <div class="row"><el-version-selector></el-version-selector></div>
+      <div class="row">
+        <my-version-selector @version-selected="onVersionSelected"></my-version-selector>
+      </div>
       <div class="row">
         <el-button
                 size="mini-extral"
@@ -33,6 +35,8 @@
       <el-table
               :data="currentDomainList"
               style="width: 100%"
+              v-loading="showLoading"
+              element-loading-text="加载中"
               @selection-change="handleSelectionChangeInTable"
       >
         <el-table-column
@@ -40,7 +44,7 @@
                 width="55">
         </el-table-column>
         <el-table-column
-                prop="domain"
+                prop="internetDomain"
                 label="外网二级域名">
         </el-table-column>
         <el-table-column
@@ -49,20 +53,19 @@
                 width="180">
         </el-table-column>
         <el-table-column
-                prop="creator"
+                prop="creatorName"
                 label="创建人"
-                width="160">
+                width="120">
         </el-table-column>
         <el-table-column
                 prop="status"
                 label="状态"
-                width="160"
+                width="100"
         >
         </el-table-column>
         <el-table-column
                 prop="operation"
                 label="操作"
-                width="360px"
         >
           <template slot-scope="scope">
             <el-button
@@ -141,7 +144,7 @@
           </div>
         </el-form-item>
         <el-form-item label="绑定服务">
-          <el-version-selector></el-version-selector>
+          <my-version-selector></my-version-selector>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -214,26 +217,28 @@
 </style>
 
 <script>
-  import elVersionSelector from '../utils/components/version-selector.vue';
+  import MyVersionSelector from '../utils/components/version-selector.vue';
   import StoreHelper from '../utils/store-helper.vue';
   import ElInput from "element-ui/packages/input/src/input";
   import ElSelect from "element-ui/packages/select/src/select";
   import ElOption from "element-ui/packages/select/src/option";
   import ElTooltip from "element-ui/packages/tooltip/src/main";
   export default {
-    components: {ElTooltip, ElOption, ElSelect, ElInput, elVersionSelector},
+    components: {ElTooltip, ElOption, ElSelect, ElInput, MyVersionSelector},
     mixins: [StoreHelper],
     created() {
     },
     data() {
       return {
-        currentDomainList: [{
-          domain: 'www.finupgroup.com',
-          createTime: '2017-06-06',
-          creator: 'me',
-          status: '生效中',
-        }],
+//        currentDomainList: [{
+//          internetDomain: 'www.finupgroup.com',
+//          createTime: '2017-06-06',
+//          creatorName: 'me',
+//          status: '生效中',
+//        }],
+        currentDomainList: [],
         rowsSelected: [],
+        showLoading: false,
 
         selected: {
           operation: null,
@@ -254,7 +259,6 @@
               // console.log(rule);
               // console.log(values);
               // console.log(typeof(values));
-
 //              let passed = true;
 //              let reg = /^\/[A-Za-z0-9_\-]+$/;
 //              for (let key in values) {
@@ -290,6 +294,24 @@
     watch: {
     },
     methods: {
+      onVersionSelected(appInfo, profileInfo, serviceInfo) {
+//        console.log(appInfo, profileInfo, serviceInfo);
+        this.showLoading = true;
+        this.$net.getDomainList({
+//          applicationId: appInfo.appId,
+//          spaceId: profileInfo.id,
+//          groupId: this.$storeHelper.currentGroupID,
+//          serviceId: serviceInfo.id,
+//          version: serviceInfo.serviceVersion,
+          page: 1,
+          length: 30
+        }).then(domainList => {
+          this.currentDomainList = domainList;
+          this.showLoading = false;
+        }).catch(err => {
+          this.showLoading = false;
+        })
+      },
       handleSelectionChangeInTable(val) {
         this.rowsSelected = val;
       },
