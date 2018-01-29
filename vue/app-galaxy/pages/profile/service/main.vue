@@ -16,7 +16,7 @@
         </el-col>
         <el-col :span="10">
           <label style="float: left; width: 72px; line-height: 26px">应用名称：</label>
-          <el-select v-model="selectedAppID" placeholder="请选择" style="display:block; max-width: 280px; margin-left: 72px;">
+          <el-select filterable v-model="selectedAppID" placeholder="请选择" style="display:block; max-width: 280px; margin-left: 72px;">
             <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
           </el-select>
