@@ -2,7 +2,7 @@
   <div class="el-version-selector">
     <div class="item">
       <label>应用名称:</label>
-      <el-select v-model="selectedAppID" placeholder="请选择">
+      <el-select filterable v-model="selectedAppID" placeholder="请选择">
         <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
         </el-option>
       </el-select>
@@ -20,7 +20,7 @@
         <!--<el-option v-for="item in currentVersionList" :key="item" :label="item" :value="item">-->
         <!--</el-option>-->
       <!--</el-select>-->
-      <el-select v-model="selectedVersion" :placeholder="currentServiceList.length > 0 ? '加载中' : '当前运行环境下没有版本！'">
+      <el-select filterable v-model="selectedVersion" :placeholder="currentServiceList.length > 0 ? '加载中' : '当前运行环境下没有版本！'">
       <el-option v-for="item in currentServiceList" :key="item.id" :label="item.serviceVersion" :value="item.serviceVersion">
       </el-option>
     </el-select>
@@ -141,6 +141,7 @@
        * 2. get default appId
        */
       onAppInfoListOfGroup(appInfoListOfGroup) {
+//        console.log(appInfoListOfGroup);
         if (appInfoListOfGroup) {
           if (appInfoListOfGroup.hasOwnProperty('appList')) {
             this.appList = appInfoListOfGroup.appList;

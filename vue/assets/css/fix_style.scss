@@ -283,6 +283,15 @@ h4 {
     }
   }
 
+  /*fix the style of el-select when filterable property is used*/
+  .el-select.el-select--mini {
+    .el-select__tags {
+      .el-select__input.is-mini {
+        margin-left: 10px;
+      }
+    }
+  }
+
   .el-loading-mask {
     background-color: rgba(255, 255, 255, 0.5);
   }

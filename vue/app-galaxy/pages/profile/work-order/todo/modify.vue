@@ -64,7 +64,7 @@
                size="mini"
                label-width="120px">
         <el-form-item label="应用名称" prop="appName" v-if="workOrderDetail.appID">
-          <el-select v-model="workOrderDetail.appID" placeholder="请选择" style="display:block; width: 350px;">
+          <el-select filterable v-model="workOrderDetail.appID" placeholder="请选择" style="display:block; width: 350px;">
             <el-option v-for="(item, index) in appInfoListOfGroup.appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
           </el-select>
@@ -93,7 +93,7 @@
           <!--</el-select>-->
         </el-form-item>
         <el-form-item label="知会人" prop="notifyUserIdList">
-          <el-select v-model="workOrderDetail.notifyUserIdList" multiple placeholder="请选择" style="width: 350px">
+          <el-select filterable v-model="workOrderDetail.notifyUserIdList" multiple placeholder="请选择" style="width: 350px">
             <el-option v-for="item in allUsers" :key="item.id" :label="item.realName" :value="item.id">
             </el-option>
           </el-select>
