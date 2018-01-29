@@ -80,6 +80,23 @@ class StoreHelper {
     });
     return target;
   }
+  getProfileInfoByName(name) {
+    let target = null;
+    this.profileListOfGroup.some(it => {
+      target = it.name === name ? it : null;
+      return target
+    });
+    return target;
+  }
+
+  getProfileInfoByID(id) {
+    let target = null;
+    this.profileListOfGroup.some(it => {
+      target = it.id === id ? it : null;
+      return target
+    });
+    return target;
+  }
 
   getGroupInfoByID(groupID) {
     let target;
@@ -117,6 +134,20 @@ class StoreHelper {
       result = value.cpuAndMemorylist;
     }
     return result;
+  }
+
+  // 创建应用时用到的信息：cpu和内存信息；语言列表
+  getMessageForCreateAPP(prop) {
+    if (['cpuAndMemorylist', 'LanguageList'].indexOf(prop) > -1) {
+      // let messageForCreateAPP = STORE.getters['app/messageForCreateAPP'];
+      if (!this.messageForCreateAPP) {
+        // utils.error('messageForCreateAPP not found', 'app_prop.js');
+        return null;
+      }
+      return this.messageForCreateAPP[prop];
+    } else {
+      return null;
+    }
   }
 
   setUserConfig(keys, value) {
