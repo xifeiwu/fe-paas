@@ -15,6 +15,7 @@
     <input_demo></input_demo>
     <input_number_demo></input_number_demo>
     <select_demo></select_demo>
+    <multi_select_demo></multi_select_demo>
     <badge_demo></badge_demo>
     <button_demo></button_demo>
     <loading_demo></loading_demo>
@@ -43,6 +44,7 @@
   import input_demo from './demo/input.vue'
   import input_number_demo from './demo/input-number.vue'
   import select_demo from './demo/select.vue'
+  import multi_select_demo from './demo/multi-select.vue'
   import badge_demo from './demo/badge.vue'
   import button_demo from './demo/button.vue'
   import loading_demo from './demo/loading.vue'
@@ -70,7 +72,7 @@
       },
       components: {
           card_demo, layout_demo, alert_demo, progress_demo, radio_demo, popover_demo, scrollbar_demo, switch_demo, checkbox_demo,
-          tooltip_demo, tag_demo, table_demo, input_demo, input_number_demo, select_demo, badge_demo,
+          tooltip_demo, tag_demo, table_demo, input_demo, input_number_demo, select_demo, multi_select_demo, badge_demo,
         button_demo, loading_demo, form_demo, container_demo, menu_demo, dropdown_demo, tabs_demo, message_box_demo, upload_demo
       }
   }
