@@ -202,9 +202,6 @@ const actions = {
     dispatch('profileListOfGroup', {
       id: value
     });
-    dispatch('appInfoListOfGroup', {
-      groupID: value
-    });
     dispatch('usersInGroup', {
       id: value
     });
@@ -215,11 +212,12 @@ const actions = {
   },
 
   /**
-   * 更新groupInfo(groupList更新后才能更新groupInfo)，需要早groupInfo action中处理的逻辑：
-   * 1. groupID更新
-   * 2. 需要用到group更多信息的(像tag)，如获得自动打镜像类型列表
+   * groupInfo在groupID或groupList发生变化时会被调用。且groupID和groupList都初始化后，才会出发mutation。
+   * 当初次进入页面时，groupID是空，只有groupList请求成功后才能初始化groupID
+   * 有些逻辑必须在groupID和groupList都具备的情况下才能处理：
+   * 1. appInfoListOfGroup
    */
-  groupInfo({commit, state}) {
+  groupInfo({commit, state, dispatch}) {
     if (state.groupID) {
       if (state.groupList && Array.isArray(state.groupList)) {
         let target;
@@ -315,10 +313,13 @@ const mutations = {
     // }
   },
 
-  SET_GROUP_INFO(state, groupInfo) {
+  SET_GROUP_INFO({state, dispatch}, groupInfo) {
     state.groupInfo = groupInfo;
     // if (USE_LOCAL_STORAGE) {
     localStorage.setItem('user/groupInfo', JSON.stringify(groupInfo));
+    dispatch('appInfoListOfGroup', {
+      groupID: value
+    });
     // }
   },
 
