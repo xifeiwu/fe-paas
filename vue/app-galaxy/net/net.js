@@ -753,6 +753,44 @@ class Net {
     })
   }
 
+  // 获取一级域名列表
+  getDomainLevel1List(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.domain_level_1_list, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content && content.hasOwnProperty('domainList')) {
+          resolve(content['domainList']);
+          this.showLog('getDomainLevel1List', content['domainList']);
+        } else {
+          reject('获取一级域名列表失败！');
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+  // 创建域名
+  createDomain(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.create_domain, options).then(response => {
+        console.log(response);
+        resolve(response);
+        return;
+        let content = this.getResponseContent(response);
+        if (content && content.hasOwnProperty('domainList')) {
+          resolve(content['domainList']);
+          this.showLog('getDomainLevel1List', content['domainList']);
+        } else {
+          reject('获取一级域名列表失败！');
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+  // 获取域名列表
   getDomainList(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.domain_list, options).then(response => {

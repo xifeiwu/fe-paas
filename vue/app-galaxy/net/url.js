@@ -77,6 +77,10 @@ var urlList = {
   'instance_list': path + '/service/queryInstance',
 
   /** 域名相关 */
+  // 获取一级域名
+  'domain_level_1_list': path + '/domain/queryBySpaceId',
+  // 添加域名
+  'create_domain': path + '/domain/record/create',
   // 外网域名列表
   'domain_list': path + '/domain/queryByPage',
 

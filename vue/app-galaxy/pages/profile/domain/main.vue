@@ -1,6 +1,6 @@
 <template>
   <div id="domain-main">
-    <div class="header">
+    <div class="section-header">
       <div class="row">
         <my-version-selector @version-selected="onVersionSelected"></my-version-selector>
       </div>
@@ -8,19 +8,19 @@
         <el-button
                 size="mini-extral"
                 type="primary"
-                @click="handleButtonClick('new-domain')">
+                :loading="waitingResponseStatus('open-create-domain-dialog')"
+                @click="handleButtonClick('open-create-domain-dialog')">
           创建外网二级域名
         </el-button>
-
         <el-button
                 size="mini-extral"
                 type="warning"
-                @click="handleButtonClick('bind-service')">绑定服务
+                @click="handleButtonClick('open-bind-service-dialog')">绑定服务
         </el-button>
         <el-button
                 size="mini-extral"
                 type="warning"
-                @click="handleButtonClick('unbind-service')">解绑服务
+                @click="handleButtonClick('open-unbind-service-dialog')">解绑服务
         </el-button>
 
         <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
@@ -31,7 +31,7 @@
       </el-tooltip>
       </div>
     </div>
-    <div class="domain-list">
+    <div class="section-content">
       <el-table
               :data="currentDomainList"
               style="width: 100%"
@@ -84,8 +84,8 @@
       </el-table>
     </div>
 
-    <el-dialog title="创建外网二级域名" :visible="selected.operation == 'new-domain'"
-               class="new-domain"
+    <el-dialog title="创建外网二级域名" :visible="selected.operation == 'add-domain'"
+               class="add-domain"
                @close="selected.operation = null"
     >
       <!--<el-tag type="success" disable-transitions>-->
@@ -101,6 +101,7 @@
                     :key="domain"
                     closable
                     type="success"
+                    size="small"
                     @close="handleNewDomainDialog('remove', domain)"
             >{{domain}}</el-tag>
           </div>
@@ -108,9 +109,8 @@
         <el-form-item label="外网二级域名" prop="level2">
           <el-input v-model="newProps.level2"></el-input>
           <el-select v-model="newProps.level1">
-            <el-option value=".finupgroup.com" label=".finupgroup.com"></el-option>
-            <el-option value="iqianzhan.com" label=".iqianzhan.com"></el-option>
-            <el-option value=".iqianjin.com" label=".iqianjin.com"></el-option>
+            <el-option v-for="item in domainLevel1List" :value="item.domainName" :label="item.domainName"
+                       :key="item.id"></el-option>
           </el-select>
           <el-button class="add-domain-btn" size="mini" @click="handleNewDomainDialog('add')">添加</el-button>
         </el-form-item>
@@ -119,8 +119,8 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleDialogButtonClick('new-domain')"
-                       :loading="waitingResponse">保&nbsp存</el-button>
+                       @click="handleDialogButtonClick('add-domain')"
+                       :loading="waitingResponseStatus('add-domain')">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button @click="selected.operation = null">取&nbsp消</el-button>
@@ -152,7 +152,7 @@
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
                        @click="handleDialogButtonClick('bind-service')"
-                       :loading="waitingResponse">保&nbsp存</el-button>
+                       :loading="waitingResponseStatus('bind-service')">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button @click="selected.operation = null">取&nbsp消</el-button>
@@ -171,7 +171,7 @@
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
                        @click="handleDialogButtonClick('unbind-service')"
-                       :loading="waitingResponse">保&nbsp存</el-button>
+                       :loading="waitingResponseStatus('unbind-service')">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button @click="selected.operation = null">取&nbsp消</el-button>
@@ -184,13 +184,33 @@
 
 <style lang="scss">
   #domain-main {
-    .header {
+    .section-header {
+      margin: 5px;
       .el-select .el-input__inner {
         height: 24px;
       }
+      .row {
+        margin: 3px;
+      }
+    }
+    .section-content {
+      .el-table {
+        margin-bottom: 40px;
+        .el-table__row {
+          .el-button {
+            /*margin: 2px 4px;*/
+            margin: 2px 4px;
+            margin-left: 0px;
+            float: left;
+          }
+        }
+        .el-table__expanded-cell {
+          padding: 0px;
+        }
+      }
     }
     .el-dialog__wrapper {
-      &.new-domain, &.bind-service {
+      &.add-domain, &.bind-service {
         /*max-width: 900px;*/
         width: 80%;
         margin: 15px auto;
@@ -212,6 +232,33 @@
         margin-left: 10px;
       }
     }
+    .el-table {
+      margin-bottom: 40px;
+      .el-table__row {
+        .el-button {
+          margin: 2px 4px;
+          float: left;
+          &.expand {
+            .el-icon-arrow-right {
+              transform: rotate(90deg);
+            }
+          }
+          .el-icon-arrow-right {
+            vertical-align: middle;
+            transition: transform 0.2s ease-in-out;
+          }
+          &:first-child {
+            margin-left: 0px;
+          }
+        }
+        .el-button + .el-button {
+          margin-left: 0px;
+        }
+      }
+      .el-table__expanded-cell {
+        padding: 0px;
+      }
+    }
   }
 
 </style>
@@ -228,17 +275,22 @@
     mixins: [StoreHelper],
     created() {
     },
+    mounted() {
+
+    },
     data() {
       return {
-//        currentDomainList: [{
-//          internetDomain: 'www.finupgroup.com',
-//          createTime: '2017-06-06',
-//          creatorName: 'me',
-//          status: '生效中',
-//        }],
         currentDomainList: [],
         rowsSelected: [],
         showLoading: false,
+        responseStatus: {
+          waiting: false,
+          for: null,
+        },
+        domainLevel1List: [],
+
+        appInfo: null,
+        profileInfo: null,
 
         selected: {
           operation: null,
@@ -288,7 +340,6 @@
             trigger: 'blur'
           }]
         },
-        waitingResponse: false,
       }
     },
     watch: {
@@ -297,6 +348,8 @@
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
 //        console.log(appInfo, profileInfo, serviceInfo);
         this.showLoading = true;
+        this.appInfo = appInfo;
+        this.profileInfo = profileInfo;
         this.$net.getDomainList({
 //          applicationId: appInfo.appId,
 //          spaceId: profileInfo.id,
@@ -312,9 +365,8 @@
           this.showLoading = false;
         })
       },
-      handleSelectionChangeInTable(val) {
-        this.rowsSelected = val;
-      },
+
+      // handle the button in operation column of table
       handleRowButtonClick(action, index, row) {
         switch (action) {
           case 'to-white-list':
@@ -350,23 +402,62 @@
         }
       },
 
+      showWaitingResponse(action) {
+        this.responseStatus.waiting = false;
+        this.responseStatus.for = action;
+      },
+      hiddenWaitingResponse() {
+        this.responseStatus.waiting = false;
+        this.responseStatus.for = null;
+      },
+      waitingResponseStatus(action) {
+        return this.responseStatus.waiting && (this.responseStatus.for === action);
+      },
+
+      // handle the checkbox in table for domain-list
+      handleSelectionChangeInTable(val) {
+        this.rowsSelected = val;
+      },
       /**
        * do some init action before dialog popup
        */
       handleButtonClick(action) {
         switch (action) {
-          case 'new-domain':
-            this.selected.operation = 'new-domain';
-            console.log(this.selected);
+          case 'open-create-domain-dialog':
+            if (!this.profileInfo) {
+              this.$message.error('获取运行环境信息失败！');
+              return;
+            }
+            this.showWaitingResponse(action);
+            // some init
+            this.domainLevel1List = [];
+            this.newProps.domainList = [];
+
+            this.$net.getDomainLevel1List({
+              spaceId: this.profileInfo.id
+            }).then(domain1List => {
+              this.domainLevel1List = domain1List;
+              // init dialog value before open
+              if (Array.isArray(domain1List) && domain1List.length > 0) {
+                this.newProps.level1 = domain1List[0].domainName;
+              }
+              this.newProps.level2 = '';
+              this.selected.operation = 'add-domain';
+              this.hiddenWaitingResponse();
+//              console.log(this.domainLevel1List);
+            }).catch(err => {
+              this.$message.error('获取运行环境信息失败！');
+              this.hiddenWaitingResponse();
+            });
             break;
-          case 'bind-service':
+          case 'open-bind-service-dialog':
             if (this.rowsSelected.length == 0) {
               this.$message.warning('请先选择要操作的域名');
               return;
             }
             this.selected.operation = 'bind-service';
             break;
-          case 'unbind-service':
+          case 'open-unbind-service-dialog':
             if (this.rowsSelected.length == 0) {
               this.$message.warning('请先选择要操作的域名');
               return;
@@ -381,24 +472,34 @@
        */
       handleDialogButtonClick(action) {
         switch (action) {
-          case 'new-domain':
+          case 'add-domain':
             this.newProps.newDomain = [];
-            this.waitingResponse = true;
-            console.log(this.newProps);
-            setTimeout(() => {
-              this.waitingResponse = false;
-            }, 2000);
+            this.showWaitingResponse(action);
+
+//            console.log(this.newProps);
+            console.log(this.newProps.domainList);
+            this.$net.createDomain({
+              "spaceId": this.profileInfo.id,
+              "groupId": this.$storeHelper.currentGroupID,
+              applicationId: this.appInfo.appId,
+              "internetDomainList": this.newProps.domainList
+            }).then(result => {
+              this.selected.operation = null;
+              this.hiddenWaitingResponse();
+            });
             break;
           case 'bind-service':
-            this.waitingResponse = true;
+            this.showWaitingResponse(action);
             setTimeout(() => {
-              this.waitingResponse = false;
+              this.hiddenWaitingResponse();
+              this.selected.operation = null;
             }, 2000);
             break;
           case 'unbind-service':
-            this.waitingResponse = true;
+            this.showWaitingResponse(action);
             setTimeout(() => {
-              this.waitingResponse = false;
+              this.hiddenWaitingResponse();
+              this.selected.operation = null;
             }, 2000);
             break;
         }
@@ -420,7 +521,7 @@
             this.$refs['newDomainForm'].validate(valid => {
               if (valid) {
                 let items = this.newProps.domainList;
-                let domain = this.newProps.level2 + this.newProps.level1;
+                let domain = this.newProps.level2 + '.' + this.newProps.level1;
                 if (items.indexOf(domain) > -1) {
                   items.splice(items.indexOf(domain), 1);
                 }
