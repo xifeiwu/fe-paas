@@ -85,6 +85,8 @@ var urlList = {
   'remove_domain': path + '/domain/record/delete',
   // 外网域名列表
   'domain_list': path + '/domain/queryByPage',
+  // 绑定服务
+  'domain_bind_service': path + '/domain/bind',
 
   // 获取部署列表
   'log_deploy_list': path + '/deployLog/getDeployLog',

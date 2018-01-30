@@ -25,7 +25,8 @@
 
         <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
           <div slot="content">
-            <div>已绑定的域名需要先进行解绑，才可绑定新的服务</div>
+            <div>1. 已绑定的域名需要先进行解绑，才可绑定新的服务</div>
+            <div>2. 点击"绑定服务"和"解绑服务"按钮前，需要选择要操作的外网域名</div>
           </div>
           <i class="el-icon-question"></i>
       </el-tooltip>
@@ -60,7 +61,6 @@
         <el-table-column
                 prop="status"
                 label="状态"
-                width="100"
         >
         </el-table-column>
         <el-table-column
@@ -160,20 +160,18 @@
                class="bind-service"
                @close="selected.operation = null"
     >
-      <el-form size="mini"
-               label-width="120px" ref="bindServiceForm">
-        <el-form-item label="当前文件存储" class="has-existed">
-          <div>
-            <span
-                    v-for="(item, index) in rowsSelected"
-                    :key="index"
-            >{{item.domain}}</span>
-          </div>
-        </el-form-item>
-        <el-form-item label="绑定服务">
-          <my-version-selector></my-version-selector>
-        </el-form-item>
-      </el-form>
+      <my-version-selector></my-version-selector>
+      <div>
+        <div>所选外网域名</div>
+        <div>
+          <el-tag
+          v-for="(item, index) in rowsSelected"
+          :key="index"
+          type="success"
+          size="small"
+          >{{item['internetDomain']}}</el-tag>
+        </div>
+      </div>
       <div slot="footer" class="dialog-footer">
         <el-row>
           <el-col :span="12" style="text-align: center">
@@ -198,7 +196,7 @@
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
                        @click="handleDialogButtonClick('unbind-service')"
-                       :loading="waitingResponseStatus('unbind-service')">保&nbsp存</el-button>
+                       :loading="waitingResponseStatus('unbind-service')">确&nbsp定</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button @click="selected.operation = null">取&nbsp消</el-button>
@@ -237,6 +235,16 @@
       }
     }
     .el-dialog__wrapper {
+      &.add-domain-dialog, &.bind-service {
+        /*max-width: 900px;*/
+        width: 80%;
+        margin: 15px auto;
+        .el-form {
+          .el-form-item__content {
+            text-align: left;
+          }
+        }
+      }
       &.add-domain-dialog {
         &.show-response {
           .el-dialog__body {
@@ -263,13 +271,15 @@
           }
         }
       }
-      &.add-domain-dialog, &.bind-service {
-        /*max-width: 900px;*/
-        width: 80%;
-        margin: 15px auto;
+      &.bind-service {
         .el-form {
-          .el-form-item__content {
-            text-align: left;
+          .el-form-item {
+            &.has-exist {
+              /*.domain + .domain {*/
+                /*color: red;*/
+                /*content: ', ';*/
+              /*}*/
+            }
           }
         }
       }
@@ -363,6 +373,7 @@
 
         appInfo: null,
         profileInfo: null,
+        serviceInfo: null,
 
         selected: {
           operation: null,
@@ -416,6 +427,7 @@
 //        console.log(appInfo, profileInfo, serviceInfo);
         this.appInfo = appInfo;
         this.profileInfo = profileInfo;
+        this.serviceInfo = serviceInfo;
         this.requestDomainList();
       },
       // the first page of pagination is 1
@@ -494,6 +506,10 @@
             break;
         }
       },
+      // handle the checkbox in table for domain-list
+      handleSelectionChangeInTable(val) {
+        this.rowsSelected = val;
+      },
 
       // some init action for domain props
       initDomainProps() {
@@ -512,11 +528,6 @@
       },
       waitingResponseStatus(action) {
         return this.responseStatus.waiting && (this.responseStatus.for === action);
-      },
-
-      // handle the checkbox in table for domain-list
-      handleSelectionChangeInTable(val) {
-        this.rowsSelected = val;
       },
 
       /**
@@ -601,11 +612,27 @@
             }
             break;
           case 'bind-service':
-            this.showWaitingResponse(action);
-            setTimeout(() => {
-              this.hiddenWaitingResponse();
-              this.selected.operation = null;
-            }, 2000);
+//            console.log(this.rowsSelected);
+            let domainIdList = this.rowsSelected.map(it => {
+              return it.id;
+            });
+            if (!this.serviceInfo || !this.serviceInfo.hasOwnProperty('id')) {
+              this.$message.error('未找到服务信息！');
+              return;
+            }
+            if (domainIdList.length === 0) {
+              this.$message.error('请选择要操作的域名！');
+              return;
+            }
+            this.$net.domainBindService({
+              serviceId: this.serviceInfo.id,
+              internetDomainIdList: domainIdList
+            });
+//            this.showWaitingResponse(action);
+//            setTimeout(() => {
+//              this.hiddenWaitingResponse();
+//              this.selected.operation = null;
+//            }, 2000);
             break;
           case 'unbind-service':
             this.showWaitingResponse(action);

@@ -809,11 +809,12 @@ class Net {
       axios.post(URL_LIST.domain_list, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
-          // let domainList = content['internetDomainList'];
-          // domainList.forEach(it => {
-          //   it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-          // });
-          // resolve(domainList);
+          if (content.hasOwnProperty('internetDomainList')) {
+            let domainList = content['internetDomainList'];
+            domainList.forEach(it => {
+              it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+            });
+          }
           resolve(content);
           this.showLog('getDomainList', content);
         } else {
@@ -825,6 +826,16 @@ class Net {
       })
     })
   }
+  // 为域名绑定服务
+  domainBindService(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.domain_bind_service, options).then(response => {
+        console.log(response);
+      }).catch(err => {
+      })
+    });
+  }
+
   // 获取部署列表
   getDeployLogList(options) {
     return new Promise((resolve, reject) => {
