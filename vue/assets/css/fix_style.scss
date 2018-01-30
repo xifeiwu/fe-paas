@@ -300,6 +300,15 @@ h4 {
     padding: 5px;
   }
 
+  .el-notification {
+    .el-notification__group {
+      width: 100%;
+      .el-notification__content {
+        overflow: scroll;
+      }
+    }
+  }
+
   .pagination-container {
     padding-bottom: 3px;
 

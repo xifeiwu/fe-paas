@@ -774,15 +774,12 @@ class Net {
   createDomain(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.create_domain, options).then(response => {
-        console.log(response);
-        resolve(response);
-        return;
         let content = this.getResponseContent(response);
-        if (content && content.hasOwnProperty('domainList')) {
-          resolve(content['domainList']);
-          this.showLog('getDomainLevel1List', content['domainList']);
+        if (content) {
+          resolve(content);
+          this.showLog('createDomain', content);
         } else {
-          reject('获取一级域名列表失败！');
+          reject('添加域名失败！');
         }
       }).catch(err => {
         console.log(err);

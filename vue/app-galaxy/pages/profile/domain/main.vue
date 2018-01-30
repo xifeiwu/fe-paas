@@ -84,46 +84,60 @@
       </el-table>
     </div>
 
-    <el-dialog title="创建外网二级域名" :visible="selected.operation == 'add-domain'"
-               class="add-domain"
-               @close="selected.operation = null"
+    <el-dialog :title="domainProps.showResponse?'创建外网域名结果':'创建外网二级域名'" :visible="selected.operation == 'add-domain-dialog'"
+               :class="{'add-domain-dialog': true, 'show-response': domainProps.showResponse}"
+               @close="handleDialogButtonClick('close-domain-dialog')"
     >
       <!--<el-tag type="success" disable-transitions>-->
         <!--<i class="el-icon-warning"></i>-->
         <!--<span>更改健康检查后需要重新【部署】才能生效！</span>-->
       <!--</el-tag>-->
-      <el-form :model="newProps" :rules="rules" size="mini"
+      <div v-if="domainProps.showResponse">
+        <div class="key title">外网域名</div>
+        <div class="value title">添加状态</div>
+        <div v-for="(value, key) in domainProps.serverResponse">
+          <div class="key">{{key}}</div>
+          <div class="value">{{value}}</div>
+        </div>
+      </div>
+      <div slot="footer" class="dialog-footer" style="text-align: center" v-if="domainProps.showResponse">
+        <el-button type="primary"
+                   @click="handleDialogButtonClick('close-domain-dialog')">确&nbsp定</el-button>
+      </div>
+
+      <el-form :model="domainProps" :rules="rules" size="mini" v-if="!domainProps.showResponse"
                label-width="120px" ref="newDomainForm">
-        <el-form-item label="当前文件存储" class="has-existed">
-          <div>
+        <el-form-item label="将要添加的域名" class="has-existed">
+          <div v-if="domainProps.domainToAdd.length > 0">
             <el-tag
-                    v-for="domain in newProps.domainList"
+                    v-for="domain in domainProps.domainToAdd"
                     :key="domain"
                     closable
                     type="success"
                     size="small"
-                    @close="handleNewDomainDialog('remove', domain)"
+                    @close="handleAddDomainInDialog('remove', domain)"
             >{{domain}}</el-tag>
           </div>
+          <div v-else>无</div>
         </el-form-item>
         <el-form-item label="外网二级域名" prop="level2">
-          <el-input v-model="newProps.level2"></el-input>
-          <el-select v-model="newProps.level1">
-            <el-option v-for="item in domainLevel1List" :value="item.domainName" :label="item.domainName"
+          <el-input v-model="domainProps.level2"></el-input>
+          <el-select v-model="domainProps.level1">
+            <el-option v-for="item in domainProps.level1List" :value="item.domainName" :label="item.domainName"
                        :key="item.id"></el-option>
           </el-select>
-          <el-button class="add-domain-btn" size="mini" @click="handleNewDomainDialog('add')">添加</el-button>
+          <el-button class="add-domain-btn" size="mini" @click="handleAddDomainInDialog('add')">添加</el-button>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <div slot="footer" class="dialog-footer" v-if="!domainProps.showResponse">
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleDialogButtonClick('add-domain')"
-                       :loading="waitingResponseStatus('add-domain')">保&nbsp存</el-button>
+                       @click="handleDialogButtonClick('add-domain-dialog')"
+                       :loading="waitingResponseStatus('add-domain-dialog')">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
-            <el-button @click="selected.operation = null">取&nbsp消</el-button>
+            <el-button @click="handleDialogButtonClick('close-domain-dialog')">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
@@ -210,10 +224,41 @@
       }
     }
     .el-dialog__wrapper {
-      &.add-domain, &.bind-service {
+      &.add-domain-dialog {
+        &.show-response {
+          .el-dialog__body {
+            .key {
+              &.title {
+                font-weight: bold;
+                text-align: center;
+              }
+              width: 160px;
+              text-align: right;
+              float: left;
+              text-overflow: ellipsis;
+              word-wrap: break-word;
+              word-break: break-all;
+            }
+            .value {
+              &.title {
+                font-weight: bold;
+                text-align: center;
+              }
+              margin-left: 160px;
+              text-align: left;
+            }
+          }
+        }
+      }
+      &.add-domain-dialog, &.bind-service {
         /*max-width: 900px;*/
         width: 80%;
         margin: 15px auto;
+        .el-form {
+          .el-form-item__content {
+            text-align: left;
+          }
+        }
       }
     }
   }
@@ -287,7 +332,17 @@
           waiting: false,
           for: null,
         },
-        domainLevel1List: [],
+
+        // props for add domain
+        domainProps: {
+          dialogTitle: '创建外网二级域名',
+          level1List: [],
+          domainToAdd: [],
+          showResponse: false,
+          serverResponse: [],
+          level1: '',
+          level2: '',
+        },
 
         appInfo: null,
         profileInfo: null,
@@ -295,11 +350,6 @@
         selected: {
           operation: null,
           row: null,
-        },
-        newProps: {
-          domainList: [],
-          level1: '.finupgroup.com',
-          level2: '',
         },
         rules: {
           domainList: [{
@@ -402,8 +452,15 @@
         }
       },
 
+      // some init action for domain props
+      initDomainProps() {
+        this.domainProps.level1List = [];
+        this.domainProps.domainToAdd = [];
+        this.domainProps.level2 = '';
+        this.domainProps.showResponse = false;
+      },
       showWaitingResponse(action) {
-        this.responseStatus.waiting = false;
+        this.responseStatus.waiting = true;
         this.responseStatus.for = action;
       },
       hiddenWaitingResponse() {
@@ -418,6 +475,7 @@
       handleSelectionChangeInTable(val) {
         this.rowsSelected = val;
       },
+
       /**
        * do some init action before dialog popup
        */
@@ -429,22 +487,19 @@
               return;
             }
             this.showWaitingResponse(action);
-            // some init
-            this.domainLevel1List = [];
-            this.newProps.domainList = [];
 
+            this.initDomainProps();
             this.$net.getDomainLevel1List({
               spaceId: this.profileInfo.id
             }).then(domain1List => {
-              this.domainLevel1List = domain1List;
+              this.domainProps.level1List = domain1List;
               // init dialog value before open
               if (Array.isArray(domain1List) && domain1List.length > 0) {
-                this.newProps.level1 = domain1List[0].domainName;
+                this.domainProps.level1 = domain1List[0]['domainName'];
               }
-              this.newProps.level2 = '';
-              this.selected.operation = 'add-domain';
+              this.selected.operation = 'add-domain-dialog';
               this.hiddenWaitingResponse();
-//              console.log(this.domainLevel1List);
+//              console.log(this.domainProps.level1List);
             }).catch(err => {
               this.$message.error('获取运行环境信息失败！');
               this.hiddenWaitingResponse();
@@ -472,21 +527,35 @@
        */
       handleDialogButtonClick(action) {
         switch (action) {
-          case 'add-domain':
-            this.newProps.newDomain = [];
+          case 'add-domain-dialog':
+            this.domainProps.newDomain = [];
             this.showWaitingResponse(action);
-
-//            console.log(this.newProps);
-            console.log(this.newProps.domainList);
+//            console.log(this.domainProps);
+//            console.log(this.domainProps.domainToAdd);
             this.$net.createDomain({
               "spaceId": this.profileInfo.id,
               "groupId": this.$storeHelper.currentGroupID,
               applicationId: this.appInfo.appId,
-              "internetDomainList": this.newProps.domainList
-            }).then(result => {
-              this.selected.operation = null;
+              "internetDomainList": this.domainProps.domainToAdd
+            }).then(content => {
+              this.domainProps.serverResponse = content;
+              this.domainProps.showResponse = true;
               this.hiddenWaitingResponse();
+            }).catch(err => {
+              this.$notify({
+                title: '添加域名失败',
+                message: err,
+                duration: 0,
+                onClose: function () {
+                }
+              });
             });
+            break;
+          case 'close-domain-dialog':
+            this.selected.operation = null;
+            if (this.domainProps.showResponse) {
+              console.log('refresh');
+            }
             break;
           case 'bind-service':
             this.showWaitingResponse(action);
@@ -510,23 +579,23 @@
        * @param action
        * @param domain
        */
-      handleNewDomainDialog(action, domain) {
+      handleAddDomainInDialog(action, domain) {
         switch (action) {
           case 'remove':
-            let items = this.newProps.domainList;
+            let items = this.domainProps.domainToAdd;
             items.splice(items.indexOf(domain), 1);
             break;
           case 'add':
             this.$refs.hasOwnProperty('newDomainForm') &&
             this.$refs['newDomainForm'].validate(valid => {
               if (valid) {
-                let items = this.newProps.domainList;
-                let domain = this.newProps.level2 + '.' + this.newProps.level1;
+                let items = this.domainProps.domainToAdd;
+                let domain = this.domainProps.level2 + '.' + this.domainProps.level1;
                 if (items.indexOf(domain) > -1) {
                   items.splice(items.indexOf(domain), 1);
                 }
                 items.push(domain);
-                this.newProps.level2 = '';
+                this.domainProps.level2 = '';
               }
             });
             break;
