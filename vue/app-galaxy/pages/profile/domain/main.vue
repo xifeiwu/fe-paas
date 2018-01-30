@@ -82,7 +82,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="totalSize > pageSize">
+      <div class="pagination-container" v-if="totalSize > pageSize" :class="{'disable': showLoading}">
         <div class="pagination">
           <el-pagination
                   :current-page="currentPage"
