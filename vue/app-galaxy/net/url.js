@@ -81,6 +81,8 @@ var urlList = {
   'domain_level_1_list': path + '/domain/queryBySpaceId',
   // 添加域名
   'create_domain': path + '/domain/record/create',
+  // 删除域名
+  'remove_domain': path + '/domain/record/delete',
   // 外网域名列表
   'domain_list': path + '/domain/queryByPage',
 

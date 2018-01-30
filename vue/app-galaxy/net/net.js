@@ -787,18 +787,35 @@ class Net {
       })
     })
   }
+  // 删除域名
+  removeDomain(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.remove_domain, options).then(response => {
+        let responseMsg = this.getResponseMsg(response);
+        if (responseMsg.success) {
+          resolve(responseMsg.msg);
+        } else {
+          reject(responseMsg.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject('删除域名失败！');
+      })
+    })
+  }
   // 获取域名列表
   getDomainList(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.domain_list, options).then(response => {
         let content = this.getResponseContent(response);
-        if (content && content.hasOwnProperty('internetDomainList')) {
-          let domainList = content['internetDomainList'];
-          domainList.forEach(it => {
-            it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-          });
-          resolve(domainList);
-          this.showLog('getDomainList', domainList);
+        if (content) {
+          // let domainList = content['internetDomainList'];
+          // domainList.forEach(it => {
+          //   it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+          // });
+          // resolve(domainList);
+          resolve(content);
+          this.showLog('getDomainList', content);
         } else {
           reject('获取外网域名列表失败');
         }

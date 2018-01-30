@@ -82,6 +82,19 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-container" v-if="totalSize > pageSize">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "pageSize"
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange"
+          >
+          </el-pagination>
+        </div>
+      </div>
     </div>
 
     <el-dialog :title="domainProps.showResponse?'创建外网域名结果':'创建外网二级域名'" :visible="selected.operation == 'add-domain-dialog'"
@@ -325,6 +338,10 @@
     },
     data() {
       return {
+        totalSize: 0,
+        pageSize: 10,
+        currentPage: 1,
+
         currentDomainList: [],
         rowsSelected: [],
         showLoading: false,
@@ -397,19 +414,43 @@
     methods: {
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
 //        console.log(appInfo, profileInfo, serviceInfo);
-        this.showLoading = true;
         this.appInfo = appInfo;
         this.profileInfo = profileInfo;
+        this.requestDomainList();
+      },
+      // the first page of pagination is 1
+      handlePaginationPageChange(page) {
+        this.currentPage = page;
+        this.requestDomainList();
+      },
+
+      /**
+       * the place of calling requestDomainList;
+       * 1. onVersionSelected
+       * 2. callback of successful delete domain
+       * 3. callback of successful add domain
+       */
+      requestDomainList() {
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        let start = page * this.pageSize;
+        let length = this.pageSize;
+        this.showLoading = true;
         this.$net.getDomainList({
 //          applicationId: appInfo.appId,
 //          spaceId: profileInfo.id,
 //          groupId: this.$storeHelper.currentGroupID,
 //          serviceId: serviceInfo.id,
 //          version: serviceInfo.serviceVersion,
-          page: 1,
-          length: 30
-        }).then(domainList => {
-          this.currentDomainList = domainList;
+          start: start,
+          length: length
+        }).then(content => {
+          if (content.hasOwnProperty('total')) {
+            this.totalSize = content['total'];
+          }
+          if (content.hasOwnProperty('internetDomainList')) {
+            this.currentDomainList = content['internetDomainList'];
+          }
           this.showLoading = false;
         }).catch(err => {
           this.showLoading = false;
@@ -430,24 +471,26 @@
             break;
           case 'remove':
             this.warningConfirm('删除外网二级域名将同时删除该域名关联的IP白名单，确定吗？').then(() => {
-//              this.$net.deleteAPP({
-//                groupId: this.currentGroupID,
-//                id: row.appId
-//              }).then(res => {
-//                this.deleteAppInfoByID(row.appId);
-//                this.$message({
-//                  type: 'success',
-//                  message: '删除成功!'
-//                });
-//                this.requestAPPList({});
-//              });
+              this.$net.removeDomain({
+                id: row.id
+              }).then(msg => {
+                this.$message.success(`成功删除域名${row['internetDomain']}`);
+                this.requestDomainList();
+              }).catch(msg => {
+                this.$notify({
+                  title: '删除域名失败',
+                  message: msg,
+                  duration: 0,
+                  onClose: function () {
+                  }
+                });
+              });
             }).catch(() => {
               this.$message({
                 type: 'info',
                 message: '您已取消删除'
               });
             });
-
             break;
         }
       },
@@ -554,7 +597,7 @@
           case 'close-domain-dialog':
             this.selected.operation = null;
             if (this.domainProps.showResponse) {
-              console.log('refresh');
+              this.requestDomainList();
             }
             break;
           case 'bind-service':
