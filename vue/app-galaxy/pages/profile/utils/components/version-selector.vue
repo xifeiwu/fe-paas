@@ -65,11 +65,13 @@
 
         // profile related
         selectedProfileID: null,
+        selectedProfile: null,
         currentProfileList: [],
 
         // 版本（既服务）列表
         // the value of serviceVersion in currentService
         selectedVersion: null,
+        selectedService: null,
         currentServiceList: [],
         getVersionList: this.requestServiceList,
 
@@ -119,7 +121,6 @@
 
       // update currentService when selectedVersion is changed
       selectedVersion: function (serviceVersion, oldValue) {
-        let currentService = null;
         if (null == serviceVersion) {
           return;
         }
@@ -133,8 +134,10 @@
         if (!target) {
           return;
         }
-        currentService = target;
-        this.changeVersion(this.selectedAPP, this.selectedProfileID, currentService);
+        let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
+        this.selectedProfile = profileInfo;
+        this.selectedService = target;
+        this.changeVersion(this.selectedAPP, profileInfo, target);
       },
     },
     methods: {
@@ -199,9 +202,19 @@
       /**
        * emit event for value changed
        */
-      changeVersion(appInfo, profileId, serviceInfo) {
-        let profileInfo = this.$storeHelper.getProfileInfoByID(profileId);
-        this.$emit('version-selected', appInfo, profileInfo, serviceInfo);
+      changeVersion(selectedAPP, selectedProfile, selectedService) {
+        this.$emit('version-selected', selectedAPP, selectedProfile, selectedService);
+      },
+
+      /**
+       * another way to get selected value
+       */
+      getSelectedValue() {
+        return {
+          selectedAPP: this.selectedAPP,
+          selectedProfile: this.selectedProfile,
+          selectedService: this.selectedService
+        }
       },
 
       /**

@@ -160,8 +160,8 @@
                class="bind-service"
                @close="selected.operation = null"
     >
-      <my-version-selector></my-version-selector>
-      <div>
+      <my-version-selector ref="version-selector-in-bind-service-dialog"></my-version-selector>
+      <div class="selected-domain">
         <div>所选外网域名</div>
         <div>
           <el-tag
@@ -265,21 +265,29 @@
                 font-weight: bold;
                 text-align: center;
               }
-              margin-left: 160px;
+              margin-left: 180px;
               text-align: left;
             }
           }
         }
       }
       &.bind-service {
-        .el-form {
-          .el-form-item {
-            &.has-exist {
-              /*.domain + .domain {*/
-                /*color: red;*/
-                /*content: ', ';*/
-              /*}*/
-            }
+        .el-version-selector {
+          text-align: left;
+        }
+        .selected-domain {
+          margin-top: 3px;
+          div:nth-child(1) {
+            width: 100px;
+            text-align: left;
+            float: left;
+            text-overflow: ellipsis;
+            word-wrap: break-word;
+            word-break: break-all;
+          }
+          div:nth-child(2) {
+            margin-left: 100px;
+            text-align: left;
           }
         }
       }
@@ -449,11 +457,11 @@
         let length = this.pageSize;
         this.showLoading = true;
         this.$net.getDomainList({
-//          applicationId: appInfo.appId,
-//          spaceId: profileInfo.id,
-//          groupId: this.$storeHelper.currentGroupID,
-//          serviceId: serviceInfo.id,
-//          version: serviceInfo.serviceVersion,
+          applicationId: this.appInfo.appId,
+          spaceId: this.profileInfo.id,
+          groupId: this.$storeHelper.currentGroupID,
+          serviceId: this.serviceInfo.id,
+          version: this.serviceInfo.serviceVersion,
           start: start,
           length: length
         }).then(content => {
@@ -616,30 +624,31 @@
             let domainIdList = this.rowsSelected.map(it => {
               return it.id;
             });
-            if (!this.serviceInfo || !this.serviceInfo.hasOwnProperty('id')) {
-              this.$message.error('未找到服务信息！');
-              return;
-            }
             if (domainIdList.length === 0) {
               this.$message.error('请选择要操作的域名！');
               return;
             }
+            let refKey = 'version-selector-in-bind-service-dialog';
+            if (!this.$refs.hasOwnProperty(refKey)) {
+              this.$message.error('未找到服务信息！');
+              return;
+            }
+            let selectedValue = this.$refs[refKey].getSelectedValue();
+            if (!selectedValue || !selectedValue.hasOwnProperty('selectedService')) {
+              this.$message.error('未找到服务信息！');
+              return;
+            }
             this.$net.domainBindService({
-              serviceId: this.serviceInfo.id,
+              serviceId: selectedValue['selectedService'].id,
               internetDomainIdList: domainIdList
             });
+            break;
+          case 'unbind-service':
 //            this.showWaitingResponse(action);
 //            setTimeout(() => {
 //              this.hiddenWaitingResponse();
 //              this.selected.operation = null;
 //            }, 2000);
-            break;
-          case 'unbind-service':
-            this.showWaitingResponse(action);
-            setTimeout(() => {
-              this.hiddenWaitingResponse();
-              this.selected.operation = null;
-            }, 2000);
             break;
         }
       },
