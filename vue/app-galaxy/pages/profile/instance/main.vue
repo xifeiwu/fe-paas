@@ -3,7 +3,7 @@
     <div class="header">
       <my-version-selector @version-selected="onVersionSelected"></my-version-selector>
     </div>
-    <div class="instance-list">
+    <div class="section-content">
       <el-table
               :data="currentInstanceList"
               style="width: 100%"
@@ -59,7 +59,16 @@
         height: 24px;
       }
     }
-    .instance-list {
+    .section-content {
+      .el-table {
+        margin-bottom: 40px;
+        .el-table__row {
+          .el-button {
+            margin: 2px 4px 2px 0px;
+            float: left;
+          }
+        }
+      }
     }
   }
 </style>

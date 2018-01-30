@@ -262,7 +262,7 @@
         let profileID = profileInfo.id;
         this.searchForm.appId = appInfo.id;
         this.searchForm.spaceId = profileID;
-        this.searchForm.serviceVersion = serviceInfo.id;
+        this.searchForm.serviceVersion = serviceInfo.serviceVersion;
         this.requestLogAtStart();
       },
       handleButtonClick(action) {

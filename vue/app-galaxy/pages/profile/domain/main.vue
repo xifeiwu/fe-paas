@@ -223,9 +223,7 @@
         margin-bottom: 40px;
         .el-table__row {
           .el-button {
-            /*margin: 2px 4px;*/
-            margin: 2px 4px;
-            margin-left: 0px;
+            margin: 2px 4px 2px 0px;
             float: left;
           }
         }
@@ -597,7 +595,7 @@
             this.$net.createDomain({
               "spaceId": this.profileInfo.id,
               "groupId": this.$storeHelper.currentGroupID,
-              applicationId: this.appInfo.appId,
+//              applicationId: this.appInfo.appId,
               "internetDomainList": this.domainProps.domainToAdd
             }).then(content => {
               this.domainProps.serverResponse = content;
