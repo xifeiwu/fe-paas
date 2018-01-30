@@ -8,15 +8,12 @@
               defaultActive="profile"
       >
         <el-menu-item index="profile">控制台</el-menu-item>
-        <!--<el-submenu index="2">-->
-        <!--<template slot="title">我的工作台</template>-->
-        <!--<el-menu-item index="2-1">选项1</el-menu-item>-->
-        <!--<el-menu-item index="2-2">选项2</el-menu-item>-->
-        <!--<el-menu-item index="2-3">选项3</el-menu-item>-->
-        <!--</el-submenu>-->
         <el-menu-item index="message">消息中心</el-menu-item>
-        <el-menu-item index="user">用户A</el-menu-item>
-        <el-menu-item index="logout">退出</el-menu-item>
+        <el-submenu index="user">
+          <template slot="title">{{userName}}</template>
+          <el-menu-item index="info">用户信息</el-menu-item>
+          <el-menu-item index="logout">退出</el-menu-item>
+        </el-submenu>
       </el-menu>
     </el-header>
     <el-container class="inner-container">
@@ -47,8 +44,8 @@
             </el-breadcrumb>
           </el-col>
           <el-col :span="12" class="group-list">
-            <el-select v-model="currentGroupID" filterable placeholder="请选择">
-              <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
+            <el-select v-model="$storeHelper.currentGroupID" filterable placeholder="请选择">
+              <el-option v-for="item in $storeHelper.groupList" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
           </el-col>
@@ -61,7 +58,7 @@
   </el-container>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .el-menu {
     .el-menu-item {
       &.is-active {
@@ -95,6 +92,19 @@
           &.is-active {
             color: black;
             font-size: 16px;
+          }
+        }
+        .el-submenu {
+          .el-submenu__title {
+            font-size: 15px;
+            line-height: $header-height;
+            height: $header-height;
+          }
+          .el-menu {
+            top: $header-height;
+            .el-menu-item {
+              text-align: left;
+            }
           }
         }
       }
@@ -146,10 +156,8 @@
 
 <script>
   import routeUtils from './route';
-  import StoreHelper from './profile/utils/store-helper.vue';
 
   export default {
-    mixins: [StoreHelper],
     data() {
       return {
         activeSideMenuItem: '/profile/app',
@@ -173,7 +181,7 @@
        * 3. usersInGroup
        */
       this.$store.dispatch('user/groupID', {
-        value: this.currentGroupID
+        value: this.$storeHelper.currentGroupID
       });
       this.$nextTick(() => {
         this.$store.dispatch('app/getUsersAll');
@@ -190,6 +198,13 @@
       },
       routerPathToName() {
         return routeUtils.getRouterPathToName();
+      },
+      userName() {
+        let userName = this.$storeHelper.getUserInfo('realName');
+        if (!userName) {
+          userName = '未知';
+        }
+        return userName;
       }
     },
     watch: {
@@ -202,11 +217,13 @@
        * register some global variable at start of page profile
        */
       handleHeaderMenuClick(key, keyPath) {
-        switch (key) {
-          case 'login':
-            this.$router.push('/login');
+        keyPath = keyPath.join('/');
+//        console.log(key, keyPath);
+        switch (keyPath) {
+          case 'user/info':
+            console.log(`go to ${keyPath}`);
             break;
-          case 'logout':
+          case 'user/logout':
             this.$net.logout().then(msg => {
               this.$setUserInfo('token', null);
               this.$message({
@@ -224,13 +241,13 @@
               });
             });
             break;
-          case 'user':
-            this.$ajax.get(this.$url.app_test).then(res => {
-              console.log(res);
-            }).catch(err => {
-              console.log(err);
-            });
+          case 'message':
+            console.log(`go to ${keyPath}`);
             break;
+          case 'profile':
+            console.log(`go to ${keyPath}`);
+            break;
+
         }
       },
       handleAsideMenuSelect(key, keyPath) {
