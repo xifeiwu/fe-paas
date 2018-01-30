@@ -54,7 +54,7 @@
    */
   export default {
     created() {
-      this.onAppInfoListOfGroup(this.$storeHelper.appInfoListOfGroup);
+      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
     },
     data() {
       return {
@@ -80,8 +80,13 @@
 //        getVersionList: this.requestVersionList,
       }
     },
+    computed: {
+      appInfoListOfGroup() {
+        return this.$storeHelper.appInfoListOfGroup();
+      }
+    },
     watch: {
-      '$storeHelper.appInfoListOfGroup': 'onAppInfoListOfGroup',
+      'appInfoListOfGroup': 'onAppInfoListOfGroup',
       selectedAppID: function (value, oldValue) {
         let appID = value;
         let appInfo = this.$storeHelper.getAppInfoByID(appID);
@@ -151,7 +156,6 @@
        * 2. get default appId
        */
       onAppInfoListOfGroup(appInfoListOfGroup) {
-//        console.log(appInfoListOfGroup);
         if (appInfoListOfGroup) {
           if (appInfoListOfGroup.hasOwnProperty('appList')) {
             this.appList = appInfoListOfGroup.appList;

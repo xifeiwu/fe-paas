@@ -8,7 +8,7 @@ class StoreHelper {
     this.groupList = this.$store.getters['user/groupList'];
     this.groupInfo = this.$store.getters['user/groupInfo'];
     this.profileListOfGroup = this.$store.getters['user/profileListOfGroup'];
-    this.appInfoListOfGroup = this.$store.getters['user/appInfoListOfGroup'];
+    // this.appInfoListOfGroup = this.$store.getters['user/appInfoListOfGroup'];
     this.usersInGroup = this.$store.getters['user/usersInGroup'];
     this.usersAll = this.$store.getters['app/usersAll'];
     let messageForCreateAPP = this.$store.getters['app/messageForCreateAPP'];
@@ -18,10 +18,14 @@ class StoreHelper {
     this.messageForCreateAPP = messageForCreateAPP;
   }
 
+  appInfoListOfGroup() {
+    return this.$store.getters['user/appInfoListOfGroup'];
+  }
+
   get currentGroupID() {
-      let groupID = null;
-      let groupInfo = this.$store.getters['user/groupInfo'];
-      if (groupInfo && groupInfo.hasOwnProperty('id')) {
+    let groupID = null;
+    let groupInfo = this.$store.getters['user/groupInfo'];
+    if (groupInfo && groupInfo.hasOwnProperty('id')) {
       groupID = groupInfo.id;
     }
     return groupID;
@@ -36,13 +40,14 @@ class StoreHelper {
 
   getAppInfoByID(appID) {
     let result = null;
-    for (let index in this.appInfoListOfGroup.appList) {
-      let item = this.appInfoListOfGroup.appList[index];
+    let appInfoListOfGroup = this.appInfoListOfGroup();
+    for (let index in appInfoListOfGroup.appList) {
+      let item = appInfoListOfGroup.appList[index];
       if (item.appId == appID) {
         result = {
           index: index,
           app: item,
-          model: this.appInfoListOfGroup.appModelList[index]
+          model: appInfoListOfGroup.appModelList[index]
         };
         break;
       }
@@ -56,8 +61,9 @@ class StoreHelper {
       exist: false,
       index: -1,
     }
-    for (let index in this.appInfoListOfGroup.appList) {
-      let item = this.appInfoListOfGroup.appList[index];
+    let appInfoListOfGroup = this.appInfoListOfGroup();
+    for (let index in appInfoListOfGroup.appList) {
+      let item = appInfoListOfGroup.appList[index];
       if (item.appId == appID) {
         result.exist = true;
         result.index = index;
@@ -65,9 +71,9 @@ class StoreHelper {
       }
     }
     if (result.exist) {
-      this.appInfoListOfGroup.appList.splice(result.index, 1);
-      this.appInfoListOfGroup.appModelList.splice(result.index, 1);
-      this.appInfoListOfGroup.total -= 1;
+      appInfoListOfGroup.appList.splice(result.index, 1);
+      appInfoListOfGroup.appModelList.splice(result.index, 1);
+      appInfoListOfGroup.total -= 1;
     }
     // console.log(this.appInfoListOfGroup);
   }
