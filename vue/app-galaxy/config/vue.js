@@ -7,7 +7,7 @@ class StoreHelper {
     this.$store = Store;
     this.groupList = this.$store.getters['user/groupList'];
     this.groupInfo = this.$store.getters['user/groupInfo'];
-    this.profileListOfGroup = this.$store.getters['user/profileListOfGroup'];
+    // this.profileListOfGroup = this.$store.getters['user/profileListOfGroup'];
     // this.appInfoListOfGroup = this.$store.getters['user/appInfoListOfGroup'];
     this.usersInGroup = this.$store.getters['user/usersInGroup'];
     this.usersAll = this.$store.getters['app/usersAll'];
@@ -16,10 +16,17 @@ class StoreHelper {
       this.languageInfo = messageForCreateAPP.LanguageList;
     }
     this.messageForCreateAPP = messageForCreateAPP;
+
+    this.PROFILE_ID_FOR_ALL = -1;
+    this.APP_ID_FOR_ALL = -1;
+    this.SERVICE_ID_FOR_ALL = -1;
   }
 
   appInfoListOfGroup() {
     return this.$store.getters['user/appInfoListOfGroup'];
+  }
+  profileListOfGroup() {
+    return this.$store.getters['user/profileListOfGroup'];
   }
 
   get currentGroupID() {
@@ -55,6 +62,48 @@ class StoreHelper {
     return result;
   }
 
+  getAppByID(appID) {
+    let result = null;
+    if (this.APP_ID_FOR_ALL === appID) {
+      result = {
+        id: this.APP_ID_FOR_ALL
+      };
+    } else {
+      let appInfo = this.getAppInfoByID(appID);
+      if (appInfo) {
+        result = appInfo['app'];
+      }
+    }
+    return result;
+  }
+
+  /** get app list by profileID
+   * @param profileInfoID, if null return all, else filter by id
+   * @returns {*}
+   */
+  getAppListByProfileID(profileInfoID) {
+    let appInfoListOfGroup = this.appInfoListOfGroup();
+    if (!appInfoListOfGroup || !appInfoListOfGroup.hasOwnProperty('appList')) {
+      return null;
+    }
+    let appList = appInfoListOfGroup.appList;
+    if (this.PROFILE_ID_FOR_ALL === profileInfoID) {
+      return appList;
+    } else {
+      return appList.filter(it => {
+        let ok = false;
+        if (it.hasOwnProperty('profileList')) {
+          let profileList = it['profileList'];
+          profileList.some(profile => {
+            ok = profile.id === profileInfoID;
+            return ok;
+          })
+        }
+        return ok;
+      })
+    }
+  }
+
   deleteAppInfoByID(appID) {
 //      this.$store.dispatch('user/deleteAppInfoByID', appID);
     let result = {
@@ -80,7 +129,7 @@ class StoreHelper {
 
   getProfileInfoByType(type) {
     let target = null;
-    this.profileListOfGroup.some(it => {
+    this.profileListOfGroup().some(it => {
       target = it.spaceType === type ? it : null;
       return target
     });
@@ -88,7 +137,7 @@ class StoreHelper {
   }
   getProfileInfoByName(name) {
     let target = null;
-    this.profileListOfGroup.some(it => {
+    this.profileListOfGroup().some(it => {
       target = it.name === name ? it : null;
       return target
     });
@@ -97,7 +146,7 @@ class StoreHelper {
 
   getProfileInfoByID(id) {
     let target = null;
-    this.profileListOfGroup.some(it => {
+    this.profileListOfGroup().some(it => {
       target = it.id === id ? it : null;
       return target
     });

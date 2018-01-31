@@ -2,7 +2,7 @@
   <div id="domain-main">
     <div class="section-header">
       <div class="row">
-        <my-version-selector @version-selected="onVersionSelected"></my-version-selector>
+        <my-version-condition-filter @service-condition-changed="onServiceConditionChanged"></my-version-condition-filter>
       </div>
       <div class="row">
         <el-button
@@ -339,13 +339,14 @@
 
 <script>
   import MyVersionSelector from '../utils/components/version-selector.vue';
+  import MyVersionConditionFilter from '../utils/components/version-condition-filter.vue';
   import StoreHelper from '../utils/store-helper.vue';
   import ElInput from "element-ui/packages/input/src/input";
   import ElSelect from "element-ui/packages/select/src/select";
   import ElOption from "element-ui/packages/select/src/option";
   import ElTooltip from "element-ui/packages/tooltip/src/main";
   export default {
-    components: {ElTooltip, ElOption, ElSelect, ElInput, MyVersionSelector},
+    components: {ElTooltip, ElOption, ElSelect, ElInput, MyVersionSelector, MyVersionConditionFilter},
     mixins: [StoreHelper],
     created() {
     },
@@ -429,10 +430,10 @@
     watch: {
     },
     methods: {
-      onVersionSelected(appInfo, profileInfo, serviceInfo) {
+      onServiceConditionChanged(profileInfo, appInfo, serviceInfo) {
 //        console.log(appInfo, profileInfo, serviceInfo);
-        this.appInfo = appInfo;
         this.profileInfo = profileInfo;
+        this.appInfo = appInfo;
         this.serviceInfo = serviceInfo;
         this.requestDomainList();
       },
@@ -444,7 +445,7 @@
 
       /**
        * the place of calling requestDomainList;
-       * 1. onVersionSelected
+       * 1. onServiceConditionChanged
        * 2. callback of successful delete domain
        * 3. callback of successful add domain
        */
