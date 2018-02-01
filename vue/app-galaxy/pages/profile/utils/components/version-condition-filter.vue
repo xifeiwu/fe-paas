@@ -103,6 +103,7 @@
       selectedProfileID: function (value) {
         this.changeAppRelatedInfo('profileID');
         this.requestServiceList();
+        this.changeServiceCondition();
       },
       selectedAppID: function (appID) {
         this.$storeHelper.setUserConfig('profile/service/appID', appID);
@@ -241,7 +242,7 @@
           this.selectedStatus.serviceID = this.selectedServiceID;
           let target = null;
           this.serviceListWithAll.some(it => {
-            if (it.serviceVersion == serviceVersion) {
+            if (it.id === this.selectedServiceID) {
               target = it;
             }
             return target;
@@ -256,12 +257,12 @@
        * emit event for value changed
        */
       changeServiceCondition() {
-        let emitChange = function () {
+        const debouncedEmit = this.$utils.debounce(() => {
           let selectedStatus = this.selectedStatus;
           this.$emit('service-condition-changed', selectedStatus.profile, selectedStatus.app, selectedStatus.service);
-        };
+        }, 100, false);
         if (this.needEmit()) {
-          this.$utils.debounce(emitChange, 100, false);
+          debouncedEmit();
         }
       },
 

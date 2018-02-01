@@ -455,15 +455,30 @@
         let start = page * this.pageSize;
         let length = this.pageSize;
         this.showLoading = true;
-        this.$net.getDomainList({
-          applicationId: this.appInfo.appId,
-          spaceId: this.profileInfo.id,
+
+        let profileID = '';
+        if (this.profileInfo && this.profileInfo.hasOwnProperty('id')
+          && this.profileInfo.id != this.$storeHelper.PROFILE_ID_FOR_ALL) {
+          profileID = this.profileInfo.id;
+        }
+        let appID = '';
+        if (this.appInfo && this.appInfo.hasOwnProperty('id') && this.appInfo.id != this.$storeHelper.APP_ID_FOR_ALL) {
+          appID = this.appInfo.id;
+        }
+        let serviceID = '';
+        if (this.serviceInfo && this.serviceInfo.hasOwnProperty('id')
+          && this.serviceInfo.id != this.$storeHelper.SERVICE_ID_FOR_ALL) {
+          serviceID = this.serviceInfo.id;
+        }
+        let requestOptions = {
           groupId: this.$storeHelper.currentGroupID,
-          serviceId: this.serviceInfo.id,
-          version: this.serviceInfo.serviceVersion,
+          spaceId: profileID,
+          applicationId: appID,
+          serviceId: serviceID,
           start: start,
-          length: length
-        }).then(content => {
+          length: length,
+        };
+        this.$net.getDomainList(requestOptions).then(content => {
           if (content.hasOwnProperty('total')) {
             this.totalSize = content['total'];
           }
