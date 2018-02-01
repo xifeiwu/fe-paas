@@ -40,6 +40,7 @@ var baseConfig = {
     alias: {
       'element-ui': utils.contextPath() + '/element-ui',
       'components': utils.contextPath() + '/components',
+      'assets': utils.contextPath() + '/assets',
       // 'utils': utils.contextPath() + 'element-ui/src',
     }
   },

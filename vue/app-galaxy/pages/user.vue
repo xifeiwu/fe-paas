@@ -1,11 +1,11 @@
 <template>
-  <el-container id="profile">
+  <el-container id="user">
     <el-header height="45px">
       <div class="img">picture</div>
       <el-menu class="header-menu"
-              mode="horizontal"
-              @select="handleHeaderMenuClick"
-              defaultActive="profile"
+               mode="horizontal"
+               @select="handleHeaderMenuClick"
+               defaultActive="user"
       >
         <el-menu-item index="profile">控制台</el-menu-item>
         <el-menu-item index="message">消息中心</el-menu-item>
@@ -17,7 +17,7 @@
       </el-menu>
     </el-header>
     <el-container class="inner-container">
-      <el-aside width="180px">
+      <el-aside>
         <el-menu
                 class="el-menu-vertical-demo"
                 @open="handleOpen"
@@ -25,31 +25,27 @@
                 @select="handleAsideMenuSelect"
                 :defaultOpeneds="['app_menu']"
                 :defaultActive="activeSideMenuItem">
-            <!--<el-menu-item index="app_manager">-->
-              <!--<i class="el-icon-location"></i>-->
-              <!--<span>应用管理</span>-->
-            <!--</el-menu-item>-->
           <el-menu-item v-for="menu in menuList" :key="menu.name" :index="menu.router">
             <i :class="menu.icon"></i><span>{{menu.name}}</span>
           </el-menu-item>
         </el-menu>
       </el-aside>
       <el-main>
-        <el-row class="main-header" type="flex" align="middle">
-          <el-col :span="12" class="current-step">
-            <el-breadcrumb separator-class="el-icon-arrow-right">
-              <el-breadcrumb-item v-for="item in crumbList" :key="item" :to="{path: item}">
-                {{routerPathToName[item]}}
-              </el-breadcrumb-item>
-            </el-breadcrumb>
-          </el-col>
-          <el-col :span="12" class="group-list">
-            <el-select v-model="$storeHelper.currentGroupID" filterable placeholder="请选择">
-              <el-option v-for="item in $storeHelper.groupList" :key="item.id" :label="item.name" :value="item.id">
-              </el-option>
-            </el-select>
-          </el-col>
-        </el-row>
+        <!--<el-row class="main-header" type="flex" align="middle">-->
+          <!--<el-col :span="12" class="current-step">-->
+            <!--<el-breadcrumb separator-class="el-icon-arrow-right">-->
+              <!--<el-breadcrumb-item v-for="item in crumbList" :key="item" :to="{path: item}">-->
+                <!--{{routerPathToName[item]}}-->
+              <!--</el-breadcrumb-item>-->
+            <!--</el-breadcrumb>-->
+          <!--</el-col>-->
+          <!--<el-col :span="12" class="group-list">-->
+            <!--<el-select v-model="$storeHelper.currentGroupID" filterable placeholder="请选择">-->
+              <!--<el-option v-for="item in $storeHelper.groupList" :key="item.id" :label="item.name" :value="item.id">-->
+              <!--</el-option>-->
+            <!--</el-select>-->
+          <!--</el-col>-->
+        <!--</el-row>-->
         <el-scrollbar>
           <router-view></router-view>
         </el-scrollbar>
@@ -70,8 +66,8 @@
   }
   $header-height: 45px;
   $header-background-color: #e7e7e7;
-  $aside-width: 180px;
-  #profile.el-container {
+  $aside-width: 0px;
+  #user.el-container {
     height: 100%;
     .el-header {
       background-color: $header-background-color;
@@ -111,8 +107,10 @@
     }
     .inner-container {
       .el-aside {
+        display: none;
         position: fixed;
         top: $header-height;
+        width: $aside-width;
         bottom: 0px;
         border-right: solid 1px $header-background-color;
         .el-menu {
@@ -208,9 +206,9 @@
       }
     },
     watch: {
-      '$route': function (value, oldValue) {
-        this.updateCrumbList(value.path);
-      },
+//      '$route': function (value, oldValue) {
+//        this.updateCrumbList(value.path);
+//      },
     },
     methods: {
       /**

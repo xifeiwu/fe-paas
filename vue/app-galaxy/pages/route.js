@@ -31,7 +31,10 @@ import WorkOrderAdd from './profile/work-order/todo/add.vue';
 import WorkOrderModify from './profile/work-order/todo/modify.vue';
 import WorkOrderDeploy from './profile/work-order/todo/deploy.vue';
 import WorkOrderAccept from './profile/work-order/todo/accept.vue';
-import WorkOrderTest from './profile/work-order/todo/test.vue'
+import WorkOrderTest from './profile/work-order/todo/test.vue';
+
+import User from './user.vue';
+import UserInfo from './user/info.vue';
 
 /**
  * router config:
@@ -152,6 +155,17 @@ var Router = function () {
         path: 'work-order/todo/accept',
         name: '验收工单',
         component: WorkOrderAccept,
+      }]
+    },
+    'user': {
+      path: '/user',
+      name: '详情',
+      component: User,
+      redirect: '/user/info',
+      children: [{
+        path: 'info',
+        name: '用户信息',
+        component: UserInfo,
       }]
     }
   }
