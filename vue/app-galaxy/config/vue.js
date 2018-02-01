@@ -143,6 +143,9 @@ class StoreHelper {
     });
     return target;
   }
+  getProfileInfoOfProduct() {
+    return this.getProfileInfoByName('product');
+  }
 
   getProfileInfoByID(id) {
     let target = null;

@@ -2,7 +2,8 @@
   <div class="el-version-selector">
     <div class="item">
       <label>运行环境:</label>
-      <el-select v-model="selectedProfileID" placeholder="请选择">
+      <span v-if="setProfileProduct">开发环境</span>
+      <el-select v-model="selectedProfileID" placeholder="请选择" v-else>
         <el-option v-for="item in profileListWithAll" :key="item.id" :label="item.description" :value="item.id">
         </el-option>
       </el-select>
@@ -16,7 +17,7 @@
     </div>
     <div class="item">
       <label>版本:</label>
-      <el-select filterable v-model="selectedServiceID">
+      <el-select filterable v-model="selectedServiceID" :placeholder="serviceListWithAll.length === 0 ?'当前环境下无版本':''">
         <el-option v-for="item in serviceListWithAll" :key="item.id" :label="item.serviceVersion" :value="item.id">
         </el-option>
       </el-select>
@@ -85,6 +86,14 @@
       setDefault: {
         type: Boolean,
         default: true
+      },
+      addItemAll: {
+        type: Boolean,
+        default: true
+      },
+      setProfileProduct: {
+        type: Boolean,
+        default: false
       }
     },
     computed: {
@@ -118,15 +127,24 @@
     methods: {
       // the start of watch chain
       onProfileListOfGroup(profileList) {
+        // set product profile as constant
+        if (this.setProfileProduct) {
+          let profileInfoOfProduct = this.$storeHelper.getProfileInfoOfProduct();
+          this.selectedProfileID = profileInfoOfProduct['id'];
+          return;
+        }
         if (profileList && Array.isArray(profileList)) {
-          let profileAll = {
-            description: "全部",
-            id: this.$storeHelper.PROFILE_ID_FOR_ALL,
-            isDefault: true,
-            name : "all",
-            spaceType: "ALL"
-          };
-          this.profileListWithAll = [profileAll].concat(profileList);
+          let profileAll = [];
+          if (this.addItemAll) {
+            profileAll = [{
+              description: "全部",
+              id: this.$storeHelper.PROFILE_ID_FOR_ALL,
+              isDefault: true,
+              name: "all",
+              spaceType: "ALL"
+            }];
+          }
+          this.profileListWithAll = profileAll.concat(profileList);
           // get from localStorage first
           let profileID = this.$storeHelper.getUserConfig('profile/service/profileID');
           if (!profileID && this.profileListWithAll.length > 0) {
@@ -143,20 +161,29 @@
        * 2. callback of requesting appListOfGroup successful
        */
       changeAppRelatedInfo(from) {
+        // avoid duplicate request
         if ('profileID' === from && !this.appInfoListOfGroup) {
           return;
         }
         let profileID = this.selectedProfileID;
+        if (!profileID) {
+          profileID = this.$storeHelper.PROFILE_ID_FOR_ALL;
+        }
         let appList = this.$storeHelper.getAppListByProfileID(profileID);
-        let appAll = {
-          appId: this.$storeHelper.APP_ID_FOR_ALL,
-          serviceName: '全部'
-        };
-        this.appListWithAll = [appAll];
+        let appAll = [];
+        if (this.addItemAll) {
+          appAll = [{
+            appId: this.$storeHelper.APP_ID_FOR_ALL,
+            serviceName: '全部'
+          }];
+        }
         if (appList) {
-          this.appListWithAll = this.appListWithAll.concat(appList);
+          this.appListWithAll = appAll.concat(appList);
+        } else {
+          this.appListWithAll = appAll;
         }
 
+        // check whether the selectedAppID in app list of this profile
         let needSetAppID = false;
         if (!this.selectedAppID) {
           needSetAppID = true;
@@ -182,18 +209,25 @@
       requestServiceList() {
 //        console.log(this.selectedProfileID);
 //        console.log(this.selectedAppID);
-        let versionAll = {
-          id: this.$storeHelper.SERVICE_ID_FOR_ALL,
-          serviceVersion: '全部'
-        };
-        this.serviceListWithAll = [versionAll];
-        if (this.setDefault) {
-          this.selectedServiceID = this.$storeHelper.SERVICE_ID_FOR_ALL;
+        let versionAll = [];
+        if (this.addItemAll) {
+          versionAll = [{
+            id: this.$storeHelper.SERVICE_ID_FOR_ALL,
+            serviceVersion: '全部'
+          }];
         }
         if (!this.selectedProfileID || !this.selectedAppID ||
           (this.$storeHelper.APP_ID_FOR_ALL === this.selectedAppID) ||
           (this.$storeHelper.PROFILE_ID_FOR_ALL === this.selectedProfileID)
         ) {
+          this.serviceListWithAll = versionAll;
+          if (this.setDefault) {
+            if (this.serviceListWithAll.length > 0) {
+              this.selectedServiceID = this.serviceListWithAll[0]['id'];
+            } else {
+              this.selectedServiceID = '';
+            }
+          }
           console.log('appID or spaceID can not be empty');
           return;
         }
@@ -202,16 +236,26 @@
         this.$net.getServiceListByAppIDAndProfileID({
           appId, spaceId
         }).then(content => {
+//          console.log(content);
+          this.serviceListWithAll = versionAll;
           if (content.hasOwnProperty('applicationServerList')) {
             let serviceList = content['applicationServerList'];
-//            console.log(serviceList);
-            // get default version
             if (serviceList && Array.isArray(serviceList) && serviceList.length > 0) {
               this.serviceListWithAll = this.serviceListWithAll.concat(serviceList);
             }
           }
+          // set default selectedServiceID
+          if (this.setDefault) {
+            if (this.serviceListWithAll.length > 0) {
+              this.selectedServiceID = this.serviceListWithAll[0]['id'];
+            } else {
+              this.selectedServiceID = '';
+            }
+          }
+//          console.log(this.serviceListWithAll);
         }).catch(err => {
-//          console.log(err);
+          this.serviceListWithAll = versionAll;
+          console.log(err);
 //          this.$message({
 //            type: 'error',
 //            message: '查找服务版本失败！'

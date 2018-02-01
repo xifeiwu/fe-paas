@@ -166,7 +166,9 @@
                class="bind-service"
                @close="selected.operation = null"
     >
-      <my-version-selector ref="version-selector-in-bind-service-dialog"></my-version-selector>
+      <my-version-condition-filter ref="version-selector-in-bind-service-dialog"
+                                   :addItemAll="false" :setProfileProduct="true">
+      </my-version-condition-filter>
       <div class="selected-domain">
         <div>所选外网域名</div>
         <div>
@@ -360,7 +362,6 @@
 </style>
 
 <script>
-  import MyVersionSelector from '../utils/components/version-selector.vue';
   import MyVersionConditionFilter from '../utils/components/version-condition-filter.vue';
   import StoreHelper from '../utils/store-helper.vue';
   import ElInput from "element-ui/packages/input/src/input";
@@ -369,7 +370,7 @@
   import ElTooltip from "element-ui/packages/tooltip/src/main";
   import ElFormItem from "element-ui/packages/form/src/form-item";
   export default {
-    components: {ElFormItem, ElTooltip, ElOption, ElSelect, ElInput, MyVersionSelector, MyVersionConditionFilter},
+    components: {ElFormItem, ElTooltip, ElOption, ElSelect, ElInput, MyVersionConditionFilter},
     mixins: [StoreHelper],
     created() {
     },
