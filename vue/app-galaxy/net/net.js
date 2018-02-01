@@ -855,7 +855,7 @@ class Net {
     });
   }
   // 为域名解绑服务
-  domainBindService(options) {
+  domainUnBindService(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.domain_unbind_service, options).then(response => {
         console.log(response);

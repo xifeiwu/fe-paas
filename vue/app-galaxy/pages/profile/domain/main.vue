@@ -167,7 +167,7 @@
                @close="selected.operation = null"
     >
       <my-version-condition-filter ref="version-selector-in-bind-service-dialog"
-                                   :addItemAll="false" :setProfileProduct="true">
+                                   :addItemAll="false" :fixedProfileInfo="fixedProfileInfo">
       </my-version-condition-filter>
       <div class="selected-domain">
         <div>所选外网域名</div>
@@ -407,6 +407,10 @@
         appInfo: null,
         profileInfo: null,
         serviceInfo: null,
+        fixedProfileInfo: {
+          fixed: true,
+          profileID: 1,
+        },
 
         selected: {
           operation: null,
@@ -637,6 +641,7 @@
        * @param action
        */
       handleDialogButtonClick(action) {
+        let domainIdList = null;
         switch (action) {
           case 'add-domain-dialog':
 //            console.log(this.domainProps);
@@ -676,7 +681,7 @@
             break;
           case 'bind-service':
 //            console.log(this.rowsSelected);
-            let domainIdList = this.rowsSelected.map(it => {
+            domainIdList = this.rowsSelected.map(it => {
               return it.id;
             });
             if (domainIdList.length === 0) {
@@ -699,6 +704,16 @@
             });
             break;
           case 'unbind-service':
+            domainIdList = this.rowsSelected.map(it => {
+              return it.id;
+            });
+            if (domainIdList.length === 0) {
+              this.$message.error('请选择要操作的域名！');
+              return;
+            }
+            this.$net.domainUnBindService({
+              internetDomainIdList: domainIdList
+            });
 //            this.showWaitingResponse(action);
 //            setTimeout(() => {
 //              this.hiddenWaitingResponse();

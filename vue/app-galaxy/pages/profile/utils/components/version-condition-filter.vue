@@ -2,7 +2,7 @@
   <div class="el-version-selector">
     <div class="item">
       <label>运行环境:</label>
-      <span v-if="setProfileProduct">开发环境</span>
+      <span v-if="fixProfile">开发环境</span>
       <el-select v-model="selectedProfileID" placeholder="请选择" v-else>
         <el-option v-for="item in profileListWithAll" :key="item.id" :label="item.description" :value="item.id">
         </el-option>
@@ -91,10 +91,7 @@
         type: Boolean,
         default: true
       },
-      setProfileProduct: {
-        type: Boolean,
-        default: false
-      }
+      fixedProfileInfo: Object
     },
     computed: {
       profileListOfGroup() {
@@ -102,6 +99,9 @@
       },
       appInfoListOfGroup() {
         return this.$storeHelper.appInfoListOfGroup();
+      },
+      fixProfile() {
+        return this.fixedProfileInfo && this.fixedProfileInfo.hasOwnProperty('fixed');
       }
     },
     watch: {
@@ -128,9 +128,10 @@
       // the start of watch chain
       onProfileListOfGroup(profileList) {
         // set product profile as constant
-        if (this.setProfileProduct) {
-          let profileInfoOfProduct = this.$storeHelper.getProfileInfoOfProduct();
-          this.selectedProfileID = profileInfoOfProduct['id'];
+        if (this.fixProfile) {
+          if (this.fixedProfileInfo.profileID) {
+            this.selectedProfileID = this.fixedProfileInfo.profileID;
+          }
           return;
         }
         if (profileList && Array.isArray(profileList)) {
