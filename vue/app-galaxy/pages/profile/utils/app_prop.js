@@ -381,6 +381,43 @@ class AppInfoHelper {
       return it.toUpperCase();
     })
   }
+
+  // map key from local to server
+  changePropNameForServer(origin) {
+    let copy = JSON.parse(JSON.stringify(origin));
+    let keyMap = {
+      instanceCount: 'instanceNum',
+      // appName: 'tag',
+      // projectName: 'serviceName',
+      appName: 'serviceName',
+      projectName: 'tag',
+      profiles: 'spaceList',
+      buildType: 'packageType',
+      imageType: 'customImage',
+      imageLocation: 'image',
+      fileLocation: 'volumes',
+      groupID: 'groupId',
+      cpuID: 'cpuId',
+      memoryID: 'memoryId',
+      relativePathOfParentPOM: 'relativePath',
+      // gitlabAddress: 'gitLabAddress',
+      // gitlabBranch: 'gitLabBranch',
+    };
+    let updateProp = function(item) {
+      if ('object' === typeof(item)) {
+        for (let key in item) {
+          if (keyMap.hasOwnProperty(key)) {
+            item[keyMap[key]] = item[key];
+            delete item[key];
+          }
+        }
+      } else if (Array.isArray(item)) {
+        item.forEach(updateProp);
+      }
+    };
+    updateProp(copy);
+    return copy;
+  }
 }
 
 export default new AppInfoHelper();

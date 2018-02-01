@@ -45,13 +45,6 @@ const getValue = function({state, getters}, prop) {
 }
 
 const state = {
-  /* state data */
-  stepOfAddAPP: 0,
-  infoForCreateApp: {},
-  infoForCreateAppToPost: {},
-  infoForCreateService: {},
-  infoForCreateServiceToPost: {},
-
   /* net data */
   messageForCreateAPP: null,
   usersAll: null,
@@ -59,31 +52,6 @@ const state = {
 };
 
 const actions = {
-  /* state data */
-  // TODO: unused
-  updateStepOfAddAPP({commit, state}, step) {
-    state.stepOfAddAPP = step;
-  },
-  addCreateAPPInfo({commit, state}, params) {
-    if (null === params) {
-      state.messageForCreateAPP = {}
-      return
-    }
-    state.infoForCreateApp = params.value;
-    // if (state.infoForCreateApp.hasOwnProperty('page1') && state.infoForCreateApp.hasOwnProperty('page2')
-    //   && state.infoForCreateApp.hasOwnProperty('page3')) {
-    commit('SET_INFO_FOR_CREATE_APP', state.infoForCreateApp);
-    // }
-  },
-  addCreateServiceInfo({commit, state}, params) {
-    if (null === params) {
-      state.messageForCreateService = {}
-      return
-    }
-    state.infoForCreateService = params.value;
-    commit('SET_INFO_FOR_CREATE_SERVICE', state.infoForCreateService);
-  },
-
   /* net data */
   /**
    * get message of creating app from server
@@ -111,15 +79,6 @@ const actions = {
 };
 
 const mutations = {
-  /* state data */
-  SET_INFO_FOR_CREATE_APP(state, infoForCreateApp) {
-    state.infoForCreateAppToPost = postFormatter.infoToCreateAPP(infoForCreateApp);
-  },
-  SET_INFO_FOR_CREATE_SERVICE(state, infoForCreateService) {
-    state.infoForCreateServiceToPost = postFormatter.infoToCreateAPP(infoForCreateService);
-    state.infoForCreateServiceToPost.serviceVersion = 'v' + state.infoForCreateServiceToPost.serviceVersion;
-  },
-
   /* net data */
   SET_MESSAGE_FOR_CREATE_APP(state, content) {
     state.messageForCreateAPP = content;
@@ -130,20 +89,6 @@ const mutations = {
 };
 
 const getters = {
-  /* state data */
-  'stepOfAddAPP': (state, getters) => {
-    return state.stepOfAddAPP;
-  },
-  'infoForCreateApp': (state, getters) => {
-    return state.infoForCreateApp;
-  },
-  'infoForCreateAppToPost': (state, getters) => {
-    return getValue({state, getters}, 'infoForCreateAppToPost');
-  },
-  'infoForCreateServiceToPost': (state, getters) => {
-    return getValue({state, getters}, 'infoForCreateServiceToPost');
-  },
-
   /* net data */
   'messageForCreateAPP': (state, getters) => {
     return getValue({state, getters}, 'messageForCreateAPP');

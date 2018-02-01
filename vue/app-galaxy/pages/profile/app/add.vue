@@ -265,11 +265,7 @@ export default {
       this.$refs['createAppForm'].validate((valid) => {
         if (valid) {
           this.createAppForm.groupID = this.currentGroupID;
-          this.$store.dispatch('app/addCreateAPPInfo', {
-             key: 'page1',
-             value: this.createAppForm
-          });
-          let toPost = this.$store.getters['app/infoForCreateAppToPost'];
+          let toPost = appPropUtil.changePropNameForServer(this.createAppForm);
 //          console.log('toPost');
 //          console.log(toPost);
           this.showLoading = true;

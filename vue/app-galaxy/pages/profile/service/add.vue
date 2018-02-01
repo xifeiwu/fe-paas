@@ -237,7 +237,7 @@
   }
 </style>
 <script>
-  import AppPropUtil from '../utils/app_prop';
+  import appPropUtil from '../utils/app_prop';
   import StoreHelper from '../utils/store-helper.vue';
   import ElSelect from "element-ui/packages/select/src/select";
   import ElTooltip from "element-ui/packages/tooltip/src/main";
@@ -314,7 +314,7 @@
         currentPrivateAppVersionList: [],
 
         memorySizeList: [],
-        rules: AppPropUtil.rules,
+        rules: appPropUtil.rules,
 
         appIndex: null,
         currentApp: {},
@@ -428,7 +428,7 @@
           return;
         }
         // check profile name
-        let profileInfo = AppPropUtil.getProfileInfoByID(this.serviceForm.spaceId);
+        let profileInfo = appPropUtil.getProfileInfoByID(this.serviceForm.spaceId);
         if (!profileInfo || !profileInfo.hasOwnProperty('name')) {
           console.log('profileName not found');
           return;
@@ -542,13 +542,7 @@
             } else {
               this.serviceForm.imageLocation = this.serviceForm.autoImageValue;
             }
-            this.$store.dispatch('app/addCreateServiceInfo', {
-              key: 'service_add',
-              value: this.serviceForm
-            });
-
-            let toPost = this.$store.getters['app/infoForCreateServiceToPost'];
-//            console.log('toPost');
+            let toPost = appPropUtil.changePropNameForServer(this.serviceForm);
 //            console.log(toPost);
             this.showLoading = true;
             this.loadingText = '正在为您创建服务';
