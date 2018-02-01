@@ -835,6 +835,15 @@ class Net {
       })
     });
   }
+  // 为域名解绑服务
+  domainBindService(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.domain_unbind_service, options).then(response => {
+        console.log(response);
+      }).catch(err => {
+      })
+    });
+  }
 
   // 获取部署列表
   getDeployLogList(options) {

@@ -87,6 +87,8 @@ var urlList = {
   'domain_list': path + '/domain/queryByPage',
   // 绑定服务
   'domain_bind_service': path + '/domain/bind',
+  // 解绑服务
+  'domain_unbind_service': path + '/domain/unbind',
 
   // 获取部署列表
   'log_deploy_list': path + '/deployLog/getDeployLog',

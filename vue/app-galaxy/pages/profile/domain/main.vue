@@ -190,7 +190,16 @@
                class="unbind-service"
                @close="selected.operation = null"
     >
-      <div>解绑会造成外网二级域名不可用，你确定需要这么做吗？</div>
+      <div class="selected-domain">
+        <span>将要解绑外网域名</span>
+          <el-tag
+                  v-for="(item, index) in rowsSelected"
+                  :key="index"
+                  type="success"
+                  size="small"
+          >{{item['internetDomain']}}</el-tag>
+        <span>，解绑后会造成外网二级域名不可用，你确定需要这么做吗？</span>
+      </div>
       <div slot="footer" class="dialog-footer">
         <el-row>
           <el-col :span="12" style="text-align: center">
@@ -287,6 +296,13 @@
             margin-left: 100px;
             text-align: left;
           }
+        }
+      }
+      &.unbind-service {
+        .selected-domain {
+          max-width: 500px;
+          margin-top: 3px;
+          text-align: left;
         }
       }
     }
