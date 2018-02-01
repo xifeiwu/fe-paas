@@ -79,6 +79,8 @@ var urlList = {
   /** 域名相关 */
   // 获取一级域名
   'domain_level_1_list': path + '/domain/queryBySpaceId',
+  // 获取当前组的所有一级域名
+  'domain_level_1_list_all': path + '/domain/queryDomainList',
   // 添加域名
   'create_domain': path + '/domain/record/create',
   // 删除域名

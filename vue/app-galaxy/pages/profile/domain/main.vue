@@ -120,6 +120,12 @@
 
       <el-form :model="domainProps" :rules="rules" size="mini" v-if="!domainProps.showResponse"
                label-width="120px" ref="newDomainForm">
+        <el-form-item label="运行环境">
+          <el-select v-model="domainProps.profileName" placeholder="请选择">
+            <el-option v-for="item in $storeHelper.profileListOfGroup()" :key="item.name" :label="item.description" :value="item.name">
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="将要添加的域名" class="has-existed">
           <div v-if="domainProps.domainToAdd.length > 0">
             <el-tag
@@ -134,10 +140,10 @@
           <div v-else>无</div>
         </el-form-item>
         <el-form-item label="外网二级域名" prop="level2">
-          <el-input v-model="domainProps.level2"></el-input>
-          <el-select v-model="domainProps.level1">
-            <el-option v-for="item in domainProps.level1List" :value="item.domainName" :label="item.domainName"
-                       :key="item.id"></el-option>
+          <el-input v-model="domainProps.level2Name"></el-input>
+          <el-select v-model="domainProps.level1Name">
+            <el-option v-for="(item, index) in domainProps.level1InfoList" :value="item.domainName" :label="item.domainName"
+                       :key="index"></el-option>
           </el-select>
           <el-button class="add-domain-btn" size="mini" @click="handleAddDomainInDialog('add')">添加</el-button>
         </el-form-item>
@@ -361,8 +367,9 @@
   import ElSelect from "element-ui/packages/select/src/select";
   import ElOption from "element-ui/packages/select/src/option";
   import ElTooltip from "element-ui/packages/tooltip/src/main";
+  import ElFormItem from "element-ui/packages/form/src/form-item";
   export default {
-    components: {ElTooltip, ElOption, ElSelect, ElInput, MyVersionSelector, MyVersionConditionFilter},
+    components: {ElFormItem, ElTooltip, ElOption, ElSelect, ElInput, MyVersionSelector, MyVersionConditionFilter},
     mixins: [StoreHelper],
     created() {
     },
@@ -386,12 +393,14 @@
         // props for add domain
         domainProps: {
           dialogTitle: '创建外网二级域名',
-          level1List: [],
+          level1InfoListByProfile: {},
+          profileName: this.$storeHelper.profileListOfGroup()[0]['name'],
+          level1InfoList: [],
           domainToAdd: [],
           showResponse: false,
           serverResponse: [],
-          level1: '',
-          level2: '',
+          level1Name: '',
+          level2Name: '',
         },
 
         appInfo: null,
@@ -427,7 +436,7 @@
               callback();
             }
           }],
-          level2: [{
+          level2Name: [{
             validator(rule, values, callback) {
               let passed = false;
               if (typeof(values) == 'string' && values.length > 0) {
@@ -444,8 +453,20 @@
       }
     },
     watch: {
+      'domainProps.profileName': 'onProfileChangeInCreateDomainDialog'
     },
     methods: {
+      onProfileChangeInCreateDomainDialog(value) {
+        let profileName = value;
+        this.domainProps.level1InfoList = [];
+        if (this.domainProps.level1InfoListByProfile.hasOwnProperty(profileName)) {
+          let level1InfoList = this.domainProps.level1InfoListByProfile[profileName];
+          if (Array.isArray(level1InfoList) && level1InfoList.length > 0) {
+            this.domainProps.level1Name = level1InfoList[0]['domainName'];
+          }
+          this.domainProps.level1InfoList = level1InfoList;
+        }
+      },
       onServiceConditionChanged(profileInfo, appInfo, serviceInfo) {
 //        console.log(appInfo, profileInfo, serviceInfo);
         this.profileInfo = profileInfo;
@@ -551,9 +572,10 @@
 
       // some init action for domain props
       initDomainProps() {
-        this.domainProps.level1List = [];
+        this.domainProps.level1InfoList = [];
         this.domainProps.domainToAdd = [];
-        this.domainProps.level2 = '';
+        this.domainProps.level2Name = '';
+        this.domainProps.level1Name = '';
         this.domainProps.showResponse = false;
       },
       showWaitingResponse(action) {
@@ -581,17 +603,13 @@
             this.showWaitingResponse(action);
 
             this.initDomainProps();
-            this.$net.getDomainLevel1List({
-              spaceId: this.profileInfo.id
-            }).then(domain1List => {
-              this.domainProps.level1List = domain1List;
-              // init dialog value before open
-              if (Array.isArray(domain1List) && domain1List.length > 0) {
-                this.domainProps.level1 = domain1List[0]['domainName'];
-              }
+            this.$net.getDomainLevel1Map({
+              groupId: this.$storeHelper.currentGroupID
+            }).then(domainMap => {
+              this.domainProps.level1InfoListByProfile = domainMap;
               this.selected.operation = 'add-domain-dialog';
+              this.onProfileChangeInCreateDomainDialog(this.domainProps.profileName);
               this.hiddenWaitingResponse();
-//              console.log(this.domainProps.level1List);
             }).catch(err => {
               this.$message.error('获取运行环境信息失败！');
               this.hiddenWaitingResponse();
@@ -620,14 +638,20 @@
       handleDialogButtonClick(action) {
         switch (action) {
           case 'add-domain-dialog':
-            this.domainProps.newDomain = [];
-            this.showWaitingResponse(action);
 //            console.log(this.domainProps);
 //            console.log(this.domainProps.domainToAdd);
+            if (this.domainProps.domainToAdd.length === 0) {
+              this.$message.error('至少填写一个域名');
+              return;
+            }
+            if (this.domainProps.domainToAdd.length > 5) {
+              this.$message.error('一次创建域名不能超过5个');
+              return;
+            }
+            this.showWaitingResponse(action);
             this.$net.createDomain({
-              "spaceId": this.profileInfo.id,
+              "spaceId": this.$storeHelper.getProfileInfoByName(this.domainProps.profileName)['id'],
               "groupId": this.$storeHelper.currentGroupID,
-//              applicationId: this.appInfo.appId,
               "internetDomainList": this.domainProps.domainToAdd
             }).then(content => {
               this.domainProps.serverResponse = content;
@@ -699,12 +723,12 @@
             this.$refs['newDomainForm'].validate(valid => {
               if (valid) {
                 let items = this.domainProps.domainToAdd;
-                let domain = this.domainProps.level2 + '.' + this.domainProps.level1;
+                let domain = this.domainProps.level2Name + '.' + this.domainProps.level1Name;
                 if (items.indexOf(domain) > -1) {
                   items.splice(items.indexOf(domain), 1);
                 }
                 items.push(domain);
-                this.domainProps.level2 = '';
+                this.domainProps.level2Name = '';
               }
             });
             break;

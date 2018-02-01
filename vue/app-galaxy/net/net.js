@@ -754,13 +754,14 @@ class Net {
   }
 
   // 获取一级域名列表
-  getDomainLevel1List(options) {
+  // TODO: not used
+  getDomainLevel1ListByProfile(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.domain_level_1_list, options).then(response => {
         let content = this.getResponseContent(response);
         if (content && content.hasOwnProperty('domainList')) {
           resolve(content['domainList']);
-          this.showLog('getDomainLevel1List', content['domainList']);
+          this.showLog('getDomainLevel1ListByProfile', content['domainList']);
         } else {
           reject('获取一级域名列表失败！');
         }
@@ -770,6 +771,24 @@ class Net {
       })
     })
   }
+  // 获取当前组的所有一级域名
+  getDomainLevel1Map(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.domain_level_1_list_all, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content) {
+          resolve(content);
+          this.showLog('getDomainLevel1Map', content);
+        } else {
+          reject('获取一级域名列表失败！');
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
   // 创建域名
   createDomain(options) {
     return new Promise((resolve, reject) => {
