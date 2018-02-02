@@ -1,5 +1,5 @@
 <template>
-  <div id="domain-main">
+  <div id="domain-white-list">
     <div class="upload-area">
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
@@ -9,20 +9,24 @@
       <el-upload
               class="upload-file"
               ref="upload"
-              action="http://localhost:4291/post/upload"
-              :multiple="true"
-              :autoUpload="true"
+              :limit="1"
+              :onExceed="onFileExceed"
+              :headers="{token: this.$storeHelper.getUserInfo('token')}"
+              action="$url.work_order_handle_upload_test_report"
               :auto-upload="false"
-              :beforeUpload="beforeUploadFile"
-              :onSuccess="afterSuccessLoad"
+              :beforeUpload="beforeFileUpload"
+              :onSuccess="afterLoadSuccess"
+              :onError="afterLoadError"
+              @onUploadFiles="onUploadFiles"
       >
-        <el-tooltip class="item" slot="trigger" effect="dark" content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">
-          <el-button size="mini-extral" type="primary">上传文件</el-button>
+        <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>
+        <el-tooltip class="item" effect="dark"
+                    content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">
+          <el-button style="margin-left: 5px;" type="success" size="mini-extral"
+                     @click="handleSubmitUpload">上传到服务器</el-button>
         </el-tooltip>
-        <el-button size="mini-extral" type="success">下载模板</el-button>
-        <!--<el-button style="margin-left: 10px;" size="mini-extral" type="success" @click="handleUploadClick">上传到服务器</el-button>-->
-        <!--<div slot="tip" class="el-upload__tip" style="color: #67c23a">只能上传jpg/png文件，且不超过500kb</div>-->
       </el-upload>
+
     </div>
     <div class="manual-area">
       <el-row class="add-ip">
@@ -112,7 +116,7 @@
 </template>
 
 <style lang="scss">
-  #domain-main {
+  #domain-white-list {
     padding: 3px;
     .upload-area {
       font-size: 14px;
@@ -262,7 +266,6 @@
             break;
           case 'add':
             this.itemToAdd.internetDomainId = this.paramsInQueryString.id;
-            console.log(this.itemToAdd);
             this.$net.addItemToWhiteList(this.itemToAdd);
 //            this.IPList.unshift(this.itemToAdd);
 //            this.itemToAdd.ip = '';
@@ -272,15 +275,20 @@
       },
       handleInputConfirm(index, row) {
         console.log('blur');
-//        this.selected.operation = '';
       },
       handleClickOutsideTable() {
         this.selected.operation = '';
       },
-      handleUploadClick() {
+
+      /* functions used for upload file */
+      handleSubmitUpload() {
         this.$refs.upload.submit();
       },
-      beforeUploadFile(file) {
+      onFileExceed(file, fileList) {
+//        console.log('onFileExceed');
+//        console.log(file, fileList);
+      },
+      beforeFileUpload(file) {
         return new Promise((resolve, reject) => {
           let isExcel = false;
           if (file) {
@@ -299,13 +307,24 @@
           }
         })
       },
-      afterSuccessLoad(res, file, fileList) {
-        console.log(res);
+      afterLoadSuccess(res, file, fileList) {
         this.$message({
           type: 'success',
           message: '文件' + file.name + '上传成功！'
         });
-      }
+        this.$refs.upload.clearFiles();
+      },
+      afterLoadError(err, file, fileList) {
+        this.$message({
+          type: 'success',
+          message: '文件' + file.name + '上传失败！'
+        });
+      },
+      onUploadFiles(value) {
+//        console.log('onUploadFiles');
+//        console.log(value);
+      },
+      /* end of functions used for upload file */
     }
   }
 </script>

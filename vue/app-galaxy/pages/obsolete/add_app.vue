@@ -9,6 +9,21 @@
     </el-header>
     <el-main>
       <router-view></router-view>
+      <!--<el-upload-->
+      <!--class="upload-file"-->
+      <!--ref="upload"-->
+      <!--:action="http://localhost:4291/post/upload"-->
+      <!--:multiple="true"-->
+      <!--:autoUpload="true"-->
+      <!--:auto-upload="false"-->
+      <!--:beforeUpload="beforeFileUpload"-->
+      <!--:onSuccess="afterLoadSuccess"-->
+      <!--&gt;-->
+      <!--<el-tooltip class="item" slot="trigger" effect="dark" content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">-->
+      <!--<el-button size="mini-extral" type="primary">上传文件</el-button>-->
+      <!--</el-tooltip>-->
+      <!--<el-button size="mini-extral" type="success">下载模板</el-button>-->
+      <!--</el-upload>-->
     </el-main>
   </el-container>
 </template>
