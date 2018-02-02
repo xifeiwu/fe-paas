@@ -5,7 +5,7 @@
         <i class="el-icon-warning"></i>
         <span>IP地址超过10个建议下载模板，填写完成后导入文本操作</span>
       </el-tag>
-      <el-row>外网二级域名：yujian.finupgroup.com</el-row>
+      <el-row><span>外网二级域名：</span><span>{{paramsInQueryString.domainName}}</span></el-row>
       <el-upload
               class="upload-file"
               ref="upload"
@@ -30,10 +30,10 @@
           添加白名单
         </el-col>
         <el-col :span="6">
-          <el-input placeholder="IP地址" v-model="ip"></el-input>
+          <el-input placeholder="IP地址" v-model="itemToAdd.ip"></el-input>
         </el-col>
         <el-col :span="12">
-          <el-input placeholder="说明" v-model="description"></el-input>
+          <el-input placeholder="说明" v-model="itemToAdd.description"></el-input>
         </el-col>
         <el-col :span="3">
           <el-button
@@ -192,10 +192,28 @@
   import Clickoutside from 'element-ui/src/utils/clickoutside';
   export default {
     directives: { Clickoutside },
+    created() {
+    },
+    mounted() {
+      let queryParam = this.$route.query;
+      if ('id' in queryParam && 'domainName' in queryParam) {
+        this.paramsInQueryString.id = parseInt(queryParam['id']);
+        this.paramsInQueryString.domainName = queryParam['domainName'];
+      } else {
+        this.$router.go(-1);
+      }
+    },
     data() {
       return {
-        ip: '',
-        description: '',
+        paramsInQueryString: {
+          id: null,
+          domainName: null,
+        },
+        itemToAdd: {
+          internetDomainId: '',
+          ip: '',
+          description: '',
+        },
         IPList: [{
           ip: '10.12.34.23',
           description: '上海市普陀区金沙江路 1518 弄',
@@ -243,12 +261,13 @@
           case 'delete':
             break;
           case 'add':
-            this.IPList.unshift({
-              ip: this.ip,
-              description: this.description
-            });
-            this.ip = '';
-            this.description = '';
+            this.itemToAdd.internetDomainId = this.paramsInQueryString.id;
+            console.log(this.itemToAdd);
+            this.$net.addItemToWhiteList(this.itemToAdd);
+//            this.IPList.unshift(this.itemToAdd);
+//            this.itemToAdd.ip = '';
+//            this.itemToAdd.description = '';
+            break;
         }
       },
       handleInputConfirm(index, row) {

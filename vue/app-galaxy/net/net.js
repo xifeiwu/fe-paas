@@ -864,6 +864,16 @@ class Net {
     });
   }
 
+  // 白名单中添加IP
+  addItemToWhiteList(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.add_item_to_white_list, options).then(response => {
+        console.log(response);
+      }).catch(err => {
+      })
+    });
+  }
+
   // 获取部署列表
   getDeployLogList(options) {
     return new Promise((resolve, reject) => {

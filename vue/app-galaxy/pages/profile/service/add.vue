@@ -248,16 +248,17 @@
       // receive queryString parameters from url first,
       // get from localStorage if queryString not exist.
       let queryParam = this.$route.query;
-      if ('appID' in queryParam) {
+      if ('appID' in queryParam && 'profileID' in queryParam) {
         this.serviceForm.appId = parseInt(queryParam['appID']);
         this.serviceForm.spaceId = parseInt(queryParam['profileID']);
       } else {
-        let appId = this.$getUserConfig('profile/service/appID');
-        let profileId = this.$getUserConfig('profile/service/profileID');
-        if (appId && profileId) {
-          this.serviceForm.appId = appId;
-          this.serviceForm.spaceId = profileId;
-        }
+        this.$router.go(-1);
+//        let appId = this.$getUserConfig('profile/service/appID');
+//        let profileId = this.$getUserConfig('profile/service/profileID');
+//        if (appId && profileId) {
+//          this.serviceForm.appId = appId;
+//          this.serviceForm.spaceId = profileId;
+//        }
       }
       // get app related info at beginning
       this.onAppInfoListOfGroup(this.appInfoListOfGroup);

@@ -95,7 +95,7 @@ var Router = function () {
         component: DomainMain,
       }, {
         path: 'domain/white-list',
-        name: '绑定IP白名单',
+        name: '关联IP白名单',
         component: DomainWhiteList,
       }, {
         path: 'log',

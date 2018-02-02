@@ -115,7 +115,7 @@
         this.changeServiceCondition();
       },
       selectedAppID: function (appID) {
-        this.$storeHelper.setUserConfig('profile/service/appID', appID);
+//        this.$storeHelper.setUserConfig('profile/service/appID', appID);
         this.requestServiceList();
         this.changeServiceCondition();
       },
@@ -147,7 +147,8 @@
           }
           this.profileListWithAll = profileAll.concat(profileList);
           // get from localStorage first
-          let profileID = this.$storeHelper.getUserConfig('profile/service/profileID');
+//          let profileID = this.$storeHelper.getUserConfig('profile/service/profileID');
+          let profileID = null;
           if (!profileID && this.profileListWithAll.length > 0) {
             profileID = this.profileListWithAll[0].id;
           }

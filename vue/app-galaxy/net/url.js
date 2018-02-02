@@ -91,6 +91,8 @@ var urlList = {
   'domain_bind_service': path + '/domain/bind',
   // 解绑服务
   'domain_unbind_service': path + '/domain/unbind',
+  // 添加
+  'add_item_to_white_list': path + '/domain/whiteList/add',
 
   // 获取部署列表
   'log_deploy_list': path + '/deployLog/getDeployLog',

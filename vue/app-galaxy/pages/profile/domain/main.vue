@@ -72,7 +72,7 @@
                     size="mini-extral"
                     type="warning"
                     @click="handleRowButtonClick('to-white-list', scope.$index, scope.row)">
-              绑定IP白名单
+              关联IP白名单
             </el-button>
             <el-button
                     size="mini-extral"
@@ -541,7 +541,8 @@
             this.$router.push({
               path: '/profile/domain/white-list',
               query: {
-                domain: domain,
+                id: row.id,
+                domainName: row['internetDomain']
               }
             });
             break;
