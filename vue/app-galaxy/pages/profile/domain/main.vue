@@ -461,6 +461,17 @@
       'domainProps.profileName': 'onProfileChangeInCreateDomainDialog'
     },
     methods: {
+      showWaitingResponse(action) {
+        this.responseStatus.waiting = true;
+        this.responseStatus.for = action;
+      },
+      hiddenWaitingResponse() {
+        this.responseStatus.waiting = false;
+        this.responseStatus.for = null;
+      },
+      waitingResponseStatus(action) {
+        return this.responseStatus.waiting && (this.responseStatus.for === action);
+      },
       onProfileChangeInCreateDomainDialog(value) {
         let profileName = value;
         this.domainProps.level1InfoList = [];
@@ -583,17 +594,6 @@
         this.domainProps.level2Name = '';
         this.domainProps.level1Name = '';
         this.domainProps.showResponse = false;
-      },
-      showWaitingResponse(action) {
-        this.responseStatus.waiting = true;
-        this.responseStatus.for = action;
-      },
-      hiddenWaitingResponse() {
-        this.responseStatus.waiting = false;
-        this.responseStatus.for = null;
-      },
-      waitingResponseStatus(action) {
-        return this.responseStatus.waiting && (this.responseStatus.for === action);
       },
 
       /**

@@ -868,8 +868,15 @@ class Net {
   addItemToWhiteList(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.add_item_to_white_list, options).then(response => {
-        console.log(response);
+        let responseMsg = this.getResponseMsg(response);
+        if (responseMsg.success) {
+          resolve(responseMsg.msg);
+        } else {
+          reject(responseMsg.msg);
+        }
       }).catch(err => {
+        console.log(err);
+        reject('白名单中添加IP失败');
       })
     });
   }

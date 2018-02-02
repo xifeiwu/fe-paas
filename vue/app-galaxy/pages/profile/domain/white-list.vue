@@ -43,6 +43,7 @@
           <el-button
                   size="mini-extral"
                   type="warning"
+                  :loading = "statusOfWaitingResponse('add')"
                   @click="handleRowButtonClick('add')">保存</el-button>
         </el-col>
       </el-row>
@@ -203,6 +204,7 @@
       if ('id' in queryParam && 'domainName' in queryParam) {
         this.paramsInQueryString.id = parseInt(queryParam['id']);
         this.paramsInQueryString.domainName = queryParam['domainName'];
+        this.itemToAdd.internetDomainId = this.paramsInQueryString.id;
       } else {
         this.$router.go(-1);
       }
@@ -218,6 +220,7 @@
           ip: '',
           description: '',
         },
+        queueForWaitingResponse: [],
         IPList: [{
           ip: '10.12.34.23',
           description: '上海市普陀区金沙江路 1518 弄',
@@ -237,6 +240,21 @@
       }
     },
     methods: {
+      addToWaitingResponseQueue(action) {
+        if (this.queueForWaitingResponse.indexOf(action) === -1) {
+          this.queueForWaitingResponse.push(action);
+        }
+      },
+      statusOfWaitingResponse(action) {
+        return this.queueForWaitingResponse.indexOf(action) > -1;
+      },
+      hideWaitingResponse(action) {
+        let index = this.queueForWaitingResponse.indexOf(action);
+        if (index > -1) {
+          this.queueForWaitingResponse.splice(index, 1);
+        }
+      },
+
       handleRowButtonClick(action, index, row) {
         switch (action) {
           case 'modify':
@@ -265,11 +283,30 @@
           case 'delete':
             break;
           case 'add':
-            this.itemToAdd.internetDomainId = this.paramsInQueryString.id;
-            this.$net.addItemToWhiteList(this.itemToAdd);
-//            this.IPList.unshift(this.itemToAdd);
-//            this.itemToAdd.ip = '';
-//            this.itemToAdd.description = '';
+            this.addToWaitingResponseQueue('add');
+            let ipReg = new RegExp('^([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})$');
+            if (!ipReg.exec(this.itemToAdd.ip)) {
+              this.$message.error('ip格式不正确');
+            }
+            this.$net.addItemToWhiteList(this.itemToAdd).then(msg => {
+              this.hideWaitingResponse('add');
+              this.$message.success(msg);
+              this.IPList.unshift({
+                ip: this.itemToAdd.ip,
+                description: this.itemToAdd.description
+              });
+              this.itemToAdd.ip = '';
+              this.itemToAdd.description = '';
+            }).catch(msg => {
+              this.hideWaitingResponse('add');
+              this.$notify.error({
+                title: '添加白名单失败！',
+                message: msg,
+                duration: 0,
+                onClose: function () {
+                }
+              });
+            });
             break;
         }
       },
