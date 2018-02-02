@@ -849,8 +849,16 @@ class Net {
   domainBindService(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.domain_bind_service, options).then(response => {
-        console.log(response);
+        let content = this.getResponseContent(response);
+        if (content) {
+          resolve(content);
+          this.showLog('domainBindService', content);
+        } else {
+          reject(null);
+        }
       }).catch(err => {
+        console.log(err);
+        reject('为域名绑定服务失败！');
       })
     });
   }
@@ -858,7 +866,13 @@ class Net {
   domainUnBindService(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.domain_unbind_service, options).then(response => {
-        console.log(response);
+        let content = this.getResponseContent(response);
+        if (content) {
+          resolve(content);
+          this.showLog('domainUnBindService', content);
+        } else {
+          reject(null);
+        }
       }).catch(err => {
       })
     });

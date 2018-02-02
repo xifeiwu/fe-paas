@@ -97,9 +97,9 @@
       </div>
     </div>
 
-    <el-dialog :title="domainProps.showResponse?'创建外网域名结果':'创建外网二级域名'" :visible="selected.operation == 'add-domain-dialog'"
-               :class="{'add-domain-dialog': true, 'show-response': domainProps.showResponse}"
-               @close="handleDialogButtonClick('close-domain-dialog')"
+    <el-dialog :title="domainProps.showResponse?'创建外网域名结果':'创建外网二级域名'" :visible="currentOpenedDialog == 'add-domain'"
+               :class="{'add-domain': true, 'show-response': domainProps.showResponse}"
+               @close="handleButtonClickInDialog('close-domain-in-dialog')"
     >
       <!--<el-tag type="success" disable-transitions>-->
         <!--<i class="el-icon-warning"></i>-->
@@ -115,7 +115,7 @@
       </div>
       <div slot="footer" class="dialog-footer" style="text-align: center" v-if="domainProps.showResponse">
         <el-button type="primary"
-                   @click="handleDialogButtonClick('close-domain-dialog')">确&nbsp定</el-button>
+                   @click="handleButtonClickInDialog('close-domain-in-dialog')">确&nbsp定</el-button>
       </div>
 
       <el-form :model="domainProps" :rules="rules" size="mini" v-if="!domainProps.showResponse"
@@ -152,53 +152,80 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleDialogButtonClick('add-domain-dialog')"
-                       :loading="waitingResponseStatus('add-domain-dialog')">保&nbsp存</el-button>
+                       @click="handleButtonClickInDialog('add-domain-in-dialog')"
+                       :loading="waitingResponseStatus('add-domain-in-dialog')">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
-            <el-button @click="handleDialogButtonClick('close-domain-dialog')">取&nbsp消</el-button>
+            <el-button @click="handleButtonClickInDialog('close-domain-in-dialog')">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
     </el-dialog>
 
-    <el-dialog title="绑定服务" :visible="selected.operation == 'bind-service'"
-               class="bind-service"
-               @close="selected.operation = null"
+    <el-dialog title="绑定服务" :visible="currentOpenedDialog == 'bind-service'"
+               :class="{'bind-service': true, 'show-response': bindServiceProps.showResponse}"
+               @close="currentOpenedDialog = null"
     >
-      <my-version-condition-filter ref="version-selector-in-bind-service-dialog"
-                                   :addItemAll="false" :fixedProfileInfo="fixedProfileInfo">
-      </my-version-condition-filter>
-      <div class="selected-domain">
-        <div>所选外网域名</div>
-        <div>
-          <el-tag
-          v-for="(item, index) in rowsSelected"
-          :key="index"
-          type="success"
-          size="small"
-          >{{item['internetDomain']}}</el-tag>
+      <div v-if="bindServiceProps.showResponse">
+        <div class="key title">外网域名</div>
+        <div class="value title">绑定状态</div>
+        <div v-for="(value, key) in bindServiceProps.serverResponse">
+          <div class="key">{{key}}</div>
+          <div class="value">{{value}}</div>
         </div>
       </div>
-      <div slot="footer" class="dialog-footer">
+      <div slot="footer" class="dialog-footer" style="text-align: center" v-if="bindServiceProps.showResponse">
+        <el-button type="primary"
+                   @click="handleButtonClickInDialog('close-bind-service-in-dialog')">确&nbsp定</el-button>
+      </div>
+      <div v-if="!bindServiceProps.showResponse">
+        <my-version-condition-filter ref="version-selector-in-bind-service-dialog"
+                                     :addItemAll="false" :fixedProfileInfo="fixedProfileInfo">
+        </my-version-condition-filter>
+        <div class="selected-domain">
+          <div>所选外网域名</div>
+          <div>
+            <el-tag
+            v-for="(item, index) in rowsSelected"
+            :key="index"
+            type="success"
+            size="small"
+            >{{item['internetDomain']}}</el-tag>
+          </div>
+        </div>
+      </div>
+      <div slot="footer" class="dialog-footer" v-if="!bindServiceProps.showResponse">
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleDialogButtonClick('bind-service')"
-                       :loading="waitingResponseStatus('bind-service')">保&nbsp存</el-button>
+                       @click="handleButtonClickInDialog('bind-service-in-dialog')"
+                       :loading="waitingResponseStatus('bind-service-in-dialog')">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
-            <el-button @click="selected.operation = null">取&nbsp消</el-button>
+            <el-button @click="currentOpenedDialog = null">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
     </el-dialog>
 
-    <el-dialog title="解绑服务" :visible="selected.operation == 'unbind-service'"
-               class="unbind-service"
-               @close="selected.operation = null"
+    <el-dialog title="解绑服务" :visible="currentOpenedDialog == 'unbind-service'"
+               :class="{'unbind-service': true, 'show-response': unBindServiceProps.showResponse}"
+               @close="currentOpenedDialog = null"
     >
-      <div class="selected-domain">
+      <div v-if="unBindServiceProps.showResponse">
+        <div class="key title">外网域名</div>
+        <div class="value title">绑定状态</div>
+        <div v-for="(value, key) in unBindServiceProps.serverResponse">
+          <div class="key">{{key}}</div>
+          <div class="value">{{value}}</div>
+        </div>
+      </div>
+      <div slot="footer" class="dialog-footer" style="text-align: center" v-if="unBindServiceProps.showResponse">
+        <el-button type="primary"
+                   @click="handleButtonClickInDialog('close-unbind-service-in-dialog')">确&nbsp定</el-button>
+      </div>
+
+      <div class="selected-domain" v-if="!unBindServiceProps.showResponse">
         <span>将要解绑外网域名</span>
           <el-tag
                   v-for="(item, index) in rowsSelected"
@@ -208,15 +235,15 @@
           >{{item['internetDomain']}}</el-tag>
         <span>，解绑后会造成外网二级域名不可用，你确定需要这么做吗？</span>
       </div>
-      <div slot="footer" class="dialog-footer">
+      <div slot="footer" class="dialog-footer" v-if="!unBindServiceProps.showResponse">
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleDialogButtonClick('unbind-service')"
-                       :loading="waitingResponseStatus('unbind-service')">确&nbsp定</el-button>
+                       @click="handleButtonClickInDialog('unbind-service-in-dialog')"
+                       :loading="waitingResponseStatus('unbind-service-in-dialog')">确&nbsp定</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
-            <el-button @click="selected.operation = null">取&nbsp消</el-button>
+            <el-button @click="currentOpenedDialog = null">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
@@ -250,7 +277,7 @@
       }
     }
     .el-dialog__wrapper {
-      &.add-domain-dialog, &.bind-service {
+      &.add-domain, &.bind-service {
         /*max-width: 900px;*/
         width: 80%;
         margin: 15px auto;
@@ -260,7 +287,7 @@
           }
         }
       }
-      &.add-domain-dialog {
+      &.add-domain {
         &.show-response {
           .el-dialog__body {
             .key {
@@ -305,12 +332,60 @@
             text-align: left;
           }
         }
+        &.show-response {
+          .el-dialog__body {
+            .key {
+              &.title {
+                font-weight: bold;
+                text-align: center;
+              }
+              width: 160px;
+              text-align: right;
+              float: left;
+              text-overflow: ellipsis;
+              word-wrap: break-word;
+              word-break: break-all;
+            }
+            .value {
+              &.title {
+                font-weight: bold;
+                text-align: center;
+              }
+              margin-left: 180px;
+              text-align: left;
+            }
+          }
+        }
       }
       &.unbind-service {
         .selected-domain {
           max-width: 500px;
           margin-top: 3px;
           text-align: left;
+        }
+        &.show-response {
+          .el-dialog__body {
+            .key {
+              &.title {
+                font-weight: bold;
+                text-align: center;
+              }
+              width: 160px;
+              text-align: right;
+              float: left;
+              text-overflow: ellipsis;
+              word-wrap: break-word;
+              word-break: break-all;
+            }
+            .value {
+              &.title {
+                font-weight: bold;
+                text-align: center;
+              }
+              margin-left: 180px;
+              text-align: left;
+            }
+          }
         }
       }
     }
@@ -399,9 +474,17 @@
           level1InfoList: [],
           domainToAdd: [],
           showResponse: false,
-          serverResponse: [],
+          serverResponse: {},
           level1Name: '',
           level2Name: '',
+        },
+        bindServiceProps: {
+          showResponse: false,
+          serverResponse: {}
+        },
+        unBindServiceProps: {
+          showResponse: false,
+          serverResponse: {}
         },
 
         appInfo: null,
@@ -412,10 +495,8 @@
           profileID: 1,
         },
 
-        selected: {
-          operation: null,
-          row: null,
-        },
+        currentOpenedDialog: null,
+
         rules: {
           domainList: [{
             type: 'array',
@@ -613,7 +694,7 @@
               groupId: this.$storeHelper.currentGroupID
             }).then(domainMap => {
               this.domainProps.level1InfoListByProfile = domainMap;
-              this.selected.operation = 'add-domain-dialog';
+              this.currentOpenedDialog = 'add-domain';
               this.onProfileChangeInCreateDomainDialog(this.domainProps.profileName);
               this.hiddenWaitingResponse();
             }).catch(err => {
@@ -622,18 +703,19 @@
             });
             break;
           case 'open-bind-service-dialog':
+            this.bindServiceProps.showResponse = false;
             if (this.rowsSelected.length == 0) {
               this.$message.warning('请先选择要操作的域名');
               return;
             }
-            this.selected.operation = 'bind-service';
+            this.currentOpenedDialog = 'bind-service';
             break;
           case 'open-unbind-service-dialog':
             if (this.rowsSelected.length == 0) {
               this.$message.warning('请先选择要操作的域名');
               return;
             }
-            this.selected.operation = 'unbind-service';
+            this.currentOpenedDialog = 'unbind-service';
             break;
         }
       },
@@ -641,10 +723,10 @@
        * action in popup dialog on the press of button-ok
        * @param action
        */
-      handleDialogButtonClick(action) {
+      handleButtonClickInDialog(action) {
         let domainIdList = null;
         switch (action) {
-          case 'add-domain-dialog':
+          case 'add-domain-in-dialog':
 //            console.log(this.domainProps);
 //            console.log(this.domainProps.domainToAdd);
             if (this.domainProps.domainToAdd.length === 0) {
@@ -674,13 +756,13 @@
               });
             });
             break;
-          case 'close-domain-dialog':
-            this.selected.operation = null;
+          case 'close-domain-in-dialog':
+            this.currentOpenedDialog = null;
             if (this.domainProps.showResponse) {
               this.requestDomainList();
             }
             break;
-          case 'bind-service':
+          case 'bind-service-in-dialog':
 //            console.log(this.rowsSelected);
             domainIdList = this.rowsSelected.map(it => {
               return it.id;
@@ -699,12 +781,48 @@
               this.$message.error('未找到服务信息！');
               return;
             }
+            this.showWaitingResponse(action);
             this.$net.domainBindService({
               serviceId: selectedValue['selectedService'].id,
               internetDomainIdList: domainIdList
+            }).then(content => {
+              let domainIDList = Object.keys(content);
+              for (let key in content) {
+                let target = null;
+                this.currentDomainList.some(it => {
+                  if (it.id == key) {
+                    target = it;
+                  }
+                  return target;
+                });
+                if (target) {
+                  content[target['internetDomain']] = content[key];
+                }
+              }
+              domainIDList.forEach(key => {
+                delete content[key];
+              });
+              this.bindServiceProps.serverResponse = content;
+              this.bindServiceProps.showResponse = true;
+              this.hiddenWaitingResponse();
+            }).catch(msg => {
+              this.$notify({
+                title: '绑定域名失败',
+                message: msg,
+                duration: 0,
+                onClose: function () {
+                }
+              });
             });
             break;
-          case 'unbind-service':
+          case 'close-bind-service-in-dialog':
+            this.currentOpenedDialog = null;
+            if (this.bindServiceProps.showResponse) {
+              this.requestDomainList();
+              this.bindServiceProps.showResponse = false;
+            }
+            break;
+          case 'unbind-service-in-dialog':
             domainIdList = this.rowsSelected.map(it => {
               return it.id;
             });
@@ -712,14 +830,45 @@
               this.$message.error('请选择要操作的域名！');
               return;
             }
+            this.showWaitingResponse(action);
             this.$net.domainUnBindService({
               internetDomainIdList: domainIdList
+            }).then(content => {
+              let domainIDList = Object.keys(content);
+              for (let key in content) {
+                let target = null;
+                this.currentDomainList.some(it => {
+                  if (it.id == key) {
+                    target = it;
+                  }
+                  return target;
+                });
+                if (target) {
+                  content[target['internetDomain']] = content[key];
+                }
+              }
+              domainIDList.forEach(key => {
+                delete content[key];
+              });
+              this.unBindServiceProps.serverResponse = content;
+              this.unBindServiceProps.showResponse = true;
+              this.hiddenWaitingResponse();
+            }).catch(msg => {
+              this.$notify({
+                title: '绑定域名失败',
+                message: msg,
+                duration: 0,
+                onClose: function () {
+                }
+              });
             });
-//            this.showWaitingResponse(action);
-//            setTimeout(() => {
-//              this.hiddenWaitingResponse();
-//              this.selected.operation = null;
-//            }, 2000);
+            break;
+          case 'close-unbind-service-in-dialog':
+            this.currentOpenedDialog = null;
+            if (this.unBindServiceProps.showResponse) {
+              this.requestDomainList();
+              this.unBindServiceProps.showResponse = false;
+            }
             break;
         }
       },
