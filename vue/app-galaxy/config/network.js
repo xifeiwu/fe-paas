@@ -9,6 +9,39 @@ class NetworkConfig {
     this.setConfig(Vue);
   }
 
+  // TODO: not used
+  downloadUrl(url) {
+    let iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = url;
+    iframe.onload = function () {
+      document.body.removeChild(iframe)
+    };
+    document.body.appendChild(iframe);
+  }
+  // TODO: not used
+  downloadFile(response) {
+    const blob = new Blob([response])
+    const fileName = '测试表格123.xls'
+    if ('download' in document.createElement('a')) { // 非IE下载
+      const elink = document.createElement('a')
+      elink.download = fileName
+      elink.style.display = 'none'
+      elink.href = URL.createObjectURL(blob)
+      document.body.appendChild(elink)
+      elink.click()
+      URL.revokeObjectURL(elink.href) // 释放URL 对象
+      document.body.removeChild(elink)
+    } else { // IE10+下载
+      navigator.msSaveBlob(blob, fileName)
+    }
+  }
+
+  getContentTypeList(response) {
+    return response.headers['content-type'].split(';');
+  }
+
+
   setConfig(Vue) {
     // Axios.defaults.withCredentials = true;
     // Axios.defaults.timeout = 5000;
@@ -33,21 +66,26 @@ class NetworkConfig {
     });
 
     //添加响应拦截器
-    Axios.interceptors.response.use(function(response) {
-      if (response && 'data' in response && 'code' in response.data) {
-        let statueCode = response.data.code;
-        if (0 === statueCode) {
-          if ('token' in response.headers && currentToken !== response.headers['token']) {
-            // window.localStorage.setItem('token', response.headers['token']);
-            Vue.prototype.$setUserInfo('token', response.headers['token']);
-            currentToken = response.headers['token'];
+    Axios.interceptors.response.use((response) => {
+      // console.log(response);
+      if (this.getContentTypeList(response).indexOf('application/octet-stream') > -1) {
+        return response;
+      } else {
+        if (response && 'data' in response && 'code' in response.data) {
+          let statueCode = response.data.code;
+          if (0 === statueCode) {
+            if ('token' in response.headers && currentToken !== response.headers['token']) {
+              // window.localStorage.setItem('token', response.headers['token']);
+              Vue.prototype.$setUserInfo('token', response.headers['token']);
+              currentToken = response.headers['token'];
+            }
+          } else if (555 === statueCode) {
+            // localStorage.removeItem('token');
+            Vue.prototype.$setUserInfo('token', null);
           }
-        } else if (555 === statueCode) {
-          // localStorage.removeItem('token');
-          Vue.prototype.$setUserInfo('token', null);
         }
+        return response;
       }
-      return response;
     }, function(error) {
       //请求错误时做些事
       return Promise.reject(error);

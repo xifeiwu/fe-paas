@@ -945,7 +945,17 @@ class Net {
       })
     });
   }
-
+  //下载白名单模板
+  downloadTemplateForWhiteIP() {
+    return new Promise((resolve, reject) => {
+      axios.get(URL_LIST.domain_download_white_ip_list_template).then(response => {
+        resolve(response);
+      }).catch(err => {
+        console.log(err);
+        reject('下载白名单模板失败！')
+      })
+    })
+  }
 
   // 获取部署列表
   getDeployLogList(options) {

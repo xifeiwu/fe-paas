@@ -1,33 +1,38 @@
 <template>
   <div id="domain-white-list">
-    <div class="upload-area">
-      <el-tag type="success" disable-transitions>
-        <i class="el-icon-warning"></i>
-        <span>IP地址超过10个建议下载模板，填写完成后导入文本操作</span>
-      </el-tag>
-      <el-row><span>外网二级域名：</span><span>{{paramsInQueryString.domainName}}</span></el-row>
-      <el-upload
-              class="upload-file"
-              ref="upload"
-              :limit="1"
-              :onExceed="onFileExceed"
-              :headers="{token: this.$storeHelper.getUserInfo('token')}"
-              action="$url.work_order_handle_upload_test_report"
-              :auto-upload="false"
-              :beforeUpload="beforeFileUpload"
-              :onSuccess="afterLoadSuccess"
-              :onError="afterLoadError"
-              @onUploadFiles="onUploadFiles"
-      >
-        <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>
-        <el-tooltip class="item" effect="dark"
-                    content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">
-          <el-button style="margin-left: 5px;" type="success" size="mini-extral"
-                     @click="handleSubmitUpload">上传到服务器</el-button>
-        </el-tooltip>
-      </el-upload>
+    <el-row><span>外网二级域名：</span><span>{{paramsInQueryString.domainName}}</span></el-row>
+    <el-row class="upload-area" type="flex">
+      <el-col :span="8">
+        <el-upload
+                class="upload-file"
+                ref="upload"
+                :limit="1"
+                :onExceed="onFileExceed"
+                :headers="{token: this.$storeHelper.getUserInfo('token')}"
+                action="$url.work_order_handle_upload_test_report"
+                :auto-upload="false"
+                :beforeUpload="beforeFileUpload"
+                :onSuccess="afterLoadSuccess"
+                :onError="afterLoadError"
+                @onUploadFiles="onUploadFiles"
+        >
+          <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>
+          <el-tooltip class="item" effect="dark"
+                      content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">
+            <el-button style="margin-left: 5px;" type="success" size="mini-extral"
+                       @click="handleSubmitUpload">上传到服务器</el-button>
+          </el-tooltip>
+        </el-upload>
+      </el-col>
+      <el-col :span="16">
+        <el-tag type="success" disable-transitions>
+          <i class="el-icon-warning"></i>
+          <span>IP地址超过10个建议下载模板，填写完成后导入文本操作</span>
+        </el-tag>
+        <el-button type="primary" size="mini-extral" @click="downloadTemplate">下载模板</el-button>
+      </el-col>
 
-    </div>
+    </el-row>
     <div class="manual-area">
       <el-row class="add-ip">
         <el-col :span="3">
@@ -124,22 +129,36 @@
       font-size: 14px;
       border: 1px solid lavenderblush;
       margin-bottom: 3px;
-      .el-tag {
-        display: block;
-        width: 100%;
-      }
-      .upload-file {
-        margin-top: 6px;
-        .el-upload-list {
-          .el-upload-list__item {
-            margin-top: 0px;
-            &:first-child {
-              margin-top: 3px;
-            }
-            .el-upload-list__item-name {
-              color: #409EFF;
-              font-size: 12px;
-              line-height: 1.5;
+      padding: 6px;
+      .el-col {
+        &:nth-child(2) {
+          text-align: center;
+          .el-tag {
+            display: block;
+            width: 70%;
+            margin: 0px auto;
+          }
+          .el-button {
+            margin: 0px auto;
+          }
+        }
+        &:nth-child(1) {
+          text-align: center;
+          border-right: 1px solid gainsboro;
+          .upload-file {
+            display: inline-block;
+            .el-upload-list {
+              .el-upload-list__item {
+                margin-top: 0px;
+                &:first-child {
+                  margin-top: 3px;
+                }
+                .el-upload-list__item-name {
+                  color: #409EFF;
+                  font-size: 12px;
+                  line-height: 1.5;
+                }
+              }
             }
           }
         }
@@ -196,8 +215,9 @@
 
 <script>
   import Clickoutside from 'element-ui/src/utils/clickoutside';
+  import ElCol from "element-ui/packages/col/src/col";
   export default {
-    directives: { Clickoutside },
+    components: {ElCol}, directives: { Clickoutside },
     created() {
     },
     mounted() {
@@ -293,7 +313,8 @@
             this.$net.deleteWhiteIP(row.id).then(msg => {
               this.hideWaitingResponse('delete');
               this.$message.success(msg);
-              this.IPList.splice(this.selected.index, 1);
+//              this.IPList.splice(this.selected.index, 1);
+              this.requestWhiteIPList();
               this.selected.operation = null;
             }).catch(msg => {
               this.hideWaitingResponse('delete');
@@ -302,11 +323,11 @@
             });
             break;
           case 'add':
-            this.addToWaitingResponseQueue('add');
             if (!this.checkIPFormat(this.itemToAdd.ip)) {
               this.$message.error('ip格式不正确');
               return;
             }
+            this.addToWaitingResponseQueue('add');
             this.$net.addWhiteIP(this.itemToAdd).then(msg => {
               this.hideWaitingResponse('add');
               this.$message.success(msg);
@@ -335,6 +356,32 @@
       handleClickOutsideTable() {
         this.selected.operation = '';
       },
+      downloadTemplate() {
+//        this.$net.downloadTemplateForWhiteIP().then(response => {
+//          const content = response;
+//          const blob = new Blob([content]);
+//          const fileName = '测试表格123.xls';
+//          if ('download' in document.createElement('a')) { // 非IE下载
+//            const elink = document.createElement('a');
+//            elink.download = fileName;
+//            elink.style.display = 'none';
+//            elink.href = URL.createObjectURL(blob);
+//            document.body.appendChild(elink);
+//            elink.click();
+//            URL.revokeObjectURL(elink.href); // 释放URL 对象
+////            document.body.removeChild(elink);
+//          } else { // IE10+下载
+//            navigator.msSaveBlob(blob, fileName);
+//          }
+//        }).catch(err => {
+//        });
+        window.open(this.$url.domain_download_white_ip_list_template, '_blank');
+      },
+      /**
+       * get white ip list, called at:
+       * 1. at start of page in function mounted
+       * 2. delete white ip
+       */
       requestWhiteIPList() {
         this.$net.getWhiteIPList({
           internetDomainId: this.paramsInQueryString.id

@@ -99,7 +99,8 @@ var urlList = {
   'domain_delete_white_ip': path + '/domain/whiteList/',
   // 获取白名单列表
   'domain_white_ip_list': path + '/domain/whiteList/query',
-
+  // 下载白名单模板
+  'domain_download_white_ip_list_template': path + '/domain/whiteList/download/template',
 
   // 获取部署列表
   'log_deploy_list': path + '/deployLog/getDeployLog',
