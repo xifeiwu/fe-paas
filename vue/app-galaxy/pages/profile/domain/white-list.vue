@@ -9,7 +9,8 @@
                 :limit="1"
                 :onExceed="onFileExceed"
                 :headers="{token: this.$storeHelper.getUserInfo('token')}"
-                action="$url.work_order_handle_upload_test_report"
+                :data="{'internetDomainId': this.itemToAdd.internetDomainId}"
+                :action="$url.domain_upload_white_ip_list_template"
                 :auto-upload="false"
                 :beforeUpload="beforeFileUpload"
                 :onSuccess="afterLoadSuccess"
@@ -29,7 +30,9 @@
           <i class="el-icon-warning"></i>
           <span>IP地址超过10个建议下载模板，填写完成后导入文本操作</span>
         </el-tag>
-        <el-button type="primary" size="mini-extral" @click="downloadTemplate">下载模板</el-button>
+        <el-button type="primary" size="mini-extral">
+          <a :href="$url.domain_download_white_ip_list_template">下载模板</a>
+        </el-button>
       </el-col>
 
     </el-row>
