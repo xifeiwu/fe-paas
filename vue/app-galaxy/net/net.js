@@ -865,9 +865,9 @@ class Net {
   }
 
   // 白名单中添加IP
-  addItemToWhiteList(options) {
+  addWhiteIP(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.add_item_to_white_list, options).then(response => {
+      axios.post(URL_LIST.domain_add_white_ip, options).then(response => {
         let responseMsg = this.getResponseMsg(response);
         if (responseMsg.success) {
           resolve(responseMsg.msg);
@@ -880,6 +880,58 @@ class Net {
       })
     });
   }
+  // 修改IP
+  updateWhiteIP(options, whiteIPID) {
+    let url = URL_LIST.domain_update_white_ip + whiteIPID + '/update';
+    return new Promise((resolve, reject) => {
+      axios.put(url, options).then(response => {
+        let responseMsg = this.getResponseMsg(response);
+        if (responseMsg.success) {
+          resolve(responseMsg.msg);
+        } else {
+          reject(responseMsg.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject('修改IP失败！');
+      })
+    });
+  }
+  // 删除IP
+  deleteWhiteIP(whiteIPID) {
+    let url = URL_LIST.domain_update_white_ip + whiteIPID + '/delete';
+    return new Promise((resolve, reject) => {
+      axios.delete(url).then(response => {
+        let responseMsg = this.getResponseMsg(response);
+        if (responseMsg.success) {
+          resolve(responseMsg.msg);
+        } else {
+          reject(responseMsg.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject('删除IP失败！');
+      })
+    });
+  }
+  // 获取白名单列表
+  getWhiteIPList(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.domain_white_ip_list, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content) {
+          resolve(content);
+          this.showLog('getWhiteIPList', content);
+        } else {
+          reject(null);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject('获取白名单列表');
+      })
+    });
+  }
+
 
   // 获取部署列表
   getDeployLogList(options) {

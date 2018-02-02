@@ -98,8 +98,8 @@
                     v-if="selected.index == scope.$index && selected.operation == 'modify'"
                     size="mini-extral"
                     type="warning"
-                    :loading="waitingResponse"
-                    @click="handleRowButtonClick('save', scope.$index, scope.row)">保存</el-button>
+                    :loading = "statusOfWaitingResponse('update')"
+                    @click="handleRowButtonClick('update', scope.$index, scope.row)">更新</el-button>
             <el-button
                     size="mini-extral"
                     type="warning"
@@ -108,6 +108,7 @@
             <el-button
                     size="mini-extral"
                     type="danger"
+                    :loading = "statusOfWaitingResponse('delete')"
                     @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -205,6 +206,7 @@
         this.paramsInQueryString.id = parseInt(queryParam['id']);
         this.paramsInQueryString.domainName = queryParam['domainName'];
         this.itemToAdd.internetDomainId = this.paramsInQueryString.id;
+        this.requestWhiteIPList();
       } else {
         this.$router.go(-1);
       }
@@ -221,22 +223,12 @@
           description: '',
         },
         queueForWaitingResponse: [],
-        IPList: [{
-          ip: '10.12.34.23',
-          description: '上海市普陀区金沙江路 1518 弄',
-        }, {
-          ip: '12.31.233.108',
-          description: '上海市普陀区金沙江路 1517 弄',
-        }, {
-          ip: '12.31.233.109',
-          description: '上海市普陀区金沙江路 1519 弄',
-        }],
+        IPList: [],
         selected: {
           index: null,
           row: null,
           operation: null,
         },
-        waitingResponse: false,
       }
     },
     methods: {
@@ -255,6 +247,11 @@
         }
       },
 
+      checkIPFormat(ip) {
+        let ipRegExp = new RegExp('^([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})$');
+        return ipRegExp.exec(ip);
+      },
+
       handleRowButtonClick(action, index, row) {
         switch (action) {
           case 'modify':
@@ -263,32 +260,54 @@
             this.selected.row = JSON.parse(JSON.stringify(this.IPList[index]));
 //            row.showInput = true;
             break;
-          case 'save':
-            this.waitingResponse = true;
+          case 'update':
             if (this.$utils.theSame(this.selected.row, this.IPList[this.selected.index])) {
               this.$message({
                 type: 'warning',
                 message: '您没有做修改'
               });
-              this.waitingResponse = false;
               this.selected.operation = null;
             } else {
-              setTimeout(() => {
-                this.waitingResponse = false;
+              this.addToWaitingResponseQueue('update');
+              if (!this.checkIPFormat(this.selected.row.ip)) {
+                this.$message.error('ip格式不正确');
+                return;
+              }
+              this.$net.updateWhiteIP({
+                internetDomainId: this.paramsInQueryString.id,
+                description: this.selected.row.description,
+                ip: this.selected.row.ip
+              }, this.selected.row.id).then(msg => {
+                this.hideWaitingResponse('update');
+                this.$message.success(msg);
                 this.IPList[this.selected.index] = JSON.parse(JSON.stringify(this.selected.row));
                 this.selected.operation = null;
-              }, 1000);
+              }).catch(msg => {
+                this.hideWaitingResponse('update');
+                this.$message.error(msg);
+                this.selected.operation = null;
+              });
             }
             break;
           case 'delete':
+            this.$net.deleteWhiteIP(row.id).then(msg => {
+              this.hideWaitingResponse('delete');
+              this.$message.success(msg);
+              this.IPList.splice(this.selected.index, 1);
+              this.selected.operation = null;
+            }).catch(msg => {
+              this.hideWaitingResponse('delete');
+              this.$message.error(msg);
+              this.selected.operation = null;
+            });
             break;
           case 'add':
             this.addToWaitingResponseQueue('add');
-            let ipReg = new RegExp('^([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})$');
-            if (!ipReg.exec(this.itemToAdd.ip)) {
+            if (!this.checkIPFormat(this.itemToAdd.ip)) {
               this.$message.error('ip格式不正确');
+              return;
             }
-            this.$net.addItemToWhiteList(this.itemToAdd).then(msg => {
+            this.$net.addWhiteIP(this.itemToAdd).then(msg => {
               this.hideWaitingResponse('add');
               this.$message.success(msg);
               this.IPList.unshift({
@@ -316,6 +335,18 @@
       handleClickOutsideTable() {
         this.selected.operation = '';
       },
+      requestWhiteIPList() {
+        this.$net.getWhiteIPList({
+          internetDomainId: this.paramsInQueryString.id
+        }).then(content => {
+          if (content && content.hasOwnProperty('whiteList')) {
+            this.IPList = content['whiteList'];
+          }
+        }).catch(err => {
+          this.IPList = [];
+        })
+      },
+
 
       /* functions used for upload file */
       handleSubmitUpload() {

@@ -92,7 +92,14 @@ var urlList = {
   // 解绑服务
   'domain_unbind_service': path + '/domain/unbind',
   // 添加
-  'add_item_to_white_list': path + '/domain/whiteList/add',
+  'domain_add_white_ip': path + '/domain/whiteList/add',
+  // 修改
+  'domain_update_white_ip': path + '/domain/whiteList/',
+  // 删除
+  'domain_delete_white_ip': path + '/domain/whiteList/',
+  // 获取白名单列表
+  'domain_white_ip_list': path + '/domain/whiteList/query',
+
 
   // 获取部署列表
   'log_deploy_list': path + '/deployLog/getDeployLog',
