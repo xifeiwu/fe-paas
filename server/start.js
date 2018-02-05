@@ -4,7 +4,8 @@ const koaServer = require('./koa-spa-server');
 const port = process.env.PORT0 || 7002;
 
 var javaServer = 'http://172.16.106.191:30333';
-// var javaServer = 'http://172.16.49.130:30333';
+var javaServer = 'http://172.16.105.31:30333';
+var javaServer = 'http://172.16.49.130:30333';
 var javaServer = 'http://galaxy-web-server.galaxy.test';
 const proxyTable = {
   // '/api/service/queryTerminalInfo': {
