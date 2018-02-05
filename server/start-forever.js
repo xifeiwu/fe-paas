@@ -10,9 +10,9 @@ var child = new(forever.Monitor)(theFile, {
   'watchIgnoreDotFiles': null, // Whether to ignore file starting with a '.'
   'watchIgnorePatterns': null, // Ignore patterns to use when watching files.
   'watchDirectory': path.join(__dirname, '../vue/dist'),
-  'logFile': './log/log.log', // Path to log output from forever process (when daemonized)
-  'outFile': './log/out.log', // Path to log output from child stdout
-  'errFile': './log/error.log', // Path to log output from child stderr
+  'logFile': './logs/log.log', // Path to log output from forever process (when daemonized)
+  'outFile': './logs/out.log', // Path to log output from child stdout
+  'errFile': './logs/error.log', // Path to log output from child stderr
 
 });
 

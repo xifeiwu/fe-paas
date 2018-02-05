@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start-on-local": "nodemon start.js || node start.js",
-    "start-on-server": "node start-forever.js"
+    "start-on-server": "node start-forever.js &"
   },
   "devDependencies": {
     "nodemon": "^1.14.8"
