@@ -59,6 +59,31 @@
 </template>
 
 <style lang="scss">
+  $header-height: 45px;
+  $header-background-color: #e7e7e7;
+  $aside-width: 180px;
+  #profile.el-container {
+    .el-header {
+      .el-menu.header-menu {
+        .el-submenu {
+          .el-submenu__title {
+            font-size: 15px;
+            line-height: $header-height;
+            height: $header-height;
+          }
+          .el-menu {
+            top: $header-height;
+            .el-menu-item {
+              text-align: left;
+            }
+          }
+        }
+      }
+    }
+  }
+</style>
+
+<style lang="scss" scoped>
   .el-menu {
     .el-menu-item {
       &.is-active {
@@ -92,19 +117,6 @@
           &.is-active {
             color: black;
             font-size: 16px;
-          }
-        }
-        .el-submenu {
-          .el-submenu__title {
-            font-size: 15px;
-            line-height: $header-height;
-            height: $header-height;
-          }
-          .el-menu {
-            top: $header-height;
-            .el-menu-item {
-              text-align: left;
-            }
           }
         }
       }
