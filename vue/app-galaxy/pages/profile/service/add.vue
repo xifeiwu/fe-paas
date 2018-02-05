@@ -248,7 +248,7 @@
       // receive queryString parameters from url first,
       // get from localStorage if queryString not exist.
       let queryParam = this.$route.query;
-      if ('appID' in queryParam && 'profileID' in queryParam) {
+      if ('appID' in queryParam && 'profileID' in queryParam && queryParam['appID'] != null && queryParam['profileID'] != null ) {
         this.serviceForm.appId = parseInt(queryParam['appID']);
         this.serviceForm.spaceId = parseInt(queryParam['profileID']);
       } else {
@@ -401,7 +401,7 @@
        * @param value
        */
       onAppInfoListOfGroup (value) {
-        let appInfo = this.getAppInfoByID(this.serviceForm.appId);
+        let appInfo = this.$storeHelper.getAppInfoByID(this.serviceForm.appId);
         if (appInfo && appInfo.hasOwnProperty('app')) {
           this.currentApp = appInfo.app;
         }
@@ -544,7 +544,6 @@
               this.serviceForm.imageLocation = this.serviceForm.autoImageValue;
             }
             let toPost = appPropUtil.changePropNameForServer(this.serviceForm);
-//            console.log(toPost);
             this.showLoading = true;
             this.loadingText = '正在为您创建服务';
             this.$net.createService(toPost).then((content) => {

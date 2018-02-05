@@ -51,6 +51,9 @@ class StoreHelper {
   getAppInfoByID(appID) {
     let result = null;
     let appInfoListOfGroup = this.appInfoListOfGroup();
+    if (!appInfoListOfGroup || !appInfoListOfGroup.hasOwnProperty('appList')) {
+      return result;
+    }
     for (let index in appInfoListOfGroup.appList) {
       let item = appInfoListOfGroup.appList[index];
       if (item.appId == appID) {

@@ -1548,16 +1548,16 @@ export default {
           this.expandRows = [];
 
           // get default version
-          this.defaultVersion = '';
+          let findDefault = false;
+          this.defaultVersion = null;
           this.currentServiceList.some(it => {
             if (it.defaultSelect) {
               this.defaultVersion = it.serviceVersion;
-              return true;
-            } else {
-              return false;
+              findDefault = true;
             }
-          })
-          if (!this.defaultVersion) {
+            return it.defaultSelect;
+          });
+          if (!findDefault) {
             this.$message({
               type: 'warning',
               message: '未找到默认版本'

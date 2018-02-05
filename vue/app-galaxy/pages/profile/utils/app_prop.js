@@ -382,9 +382,16 @@ class AppInfoHelper {
     })
   }
 
-  // map key from local to server
+  /** map key from local to server, used for add app and add service
+   * @param origin
+   */
   changePropNameForServer(origin) {
-    let copy = JSON.parse(JSON.stringify(origin));
+    let preTreat = function(item) {
+      if (item.hasOwnProperty('serviceVersion')) {
+        item['serviceVersion'] = 'v' + item['serviceVersion'];
+      }
+      return item;
+    };
     let keyMap = {
       instanceCount: 'instanceNum',
       // appName: 'tag',
@@ -415,6 +422,9 @@ class AppInfoHelper {
         item.forEach(updateProp);
       }
     };
+
+    let copy = JSON.parse(JSON.stringify(origin));
+    copy = preTreat(copy);
     updateProp(copy);
     return copy;
   }
