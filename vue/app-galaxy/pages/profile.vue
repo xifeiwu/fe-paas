@@ -45,7 +45,7 @@
           </el-col>
           <el-col :span="12" class="group-list">
             <el-select v-model="$storeHelper.currentGroupID" filterable placeholder="请选择">
-              <el-option v-for="item in $storeHelper.groupList" :key="item.id" :label="item.name" :value="item.id">
+              <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
           </el-col>
@@ -205,6 +205,9 @@
           userName = '未知';
         }
         return userName;
+      },
+      groupList() {
+        return this.$storeHelper.groupList();
       }
     },
     watch: {
@@ -226,7 +229,7 @@
             break;
           case 'user/logout':
             this.$net.logout().then(msg => {
-              this.$setUserInfo('token', null);
+              this.$store.dispatch('user/logout');
               this.$message({
                 type: 'success',
                 message: msg,

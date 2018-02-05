@@ -470,7 +470,7 @@
         domainProps: {
           dialogTitle: '创建外网二级域名',
           level1InfoListByProfile: {},
-          profileName: this.$storeHelper.profileListOfGroup()[0]['name'],
+          profileName: null,
           level1InfoList: [],
           domainToAdd: [],
           showResponse: false,
@@ -553,6 +553,7 @@
       waitingResponseStatus(action) {
         return this.responseStatus.waiting && (this.responseStatus.for === action);
       },
+      // used to listen domain change in dialog of create-domain
       onProfileChangeInCreateDomainDialog(value) {
         let profileName = value;
         this.domainProps.level1InfoList = [];
@@ -695,6 +696,7 @@
             }).then(domainMap => {
               this.domainProps.level1InfoListByProfile = domainMap;
               this.currentOpenedDialog = 'add-domain';
+              this.domainProps.profileName = this.$storeHelper.profileListOfGroup()[0]['name'];
               this.onProfileChangeInCreateDomainDialog(this.domainProps.profileName);
               this.hiddenWaitingResponse();
             }).catch(err => {

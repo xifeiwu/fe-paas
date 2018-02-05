@@ -108,6 +108,12 @@ const actions = {
       }
     })
   },
+  logout({commit, state, dispatch}) {
+    state.info = null;
+    state.config = null;
+    localStorage.removeItem('user/info');
+    localStorage.removeItem('user/config');
+  },
 
   /**
    * 获取用户所属组列表

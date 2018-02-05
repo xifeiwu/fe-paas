@@ -141,7 +141,7 @@ class RouterConfig {
       } else {
         // login check
         // let token = localStorage.getItem('token');
-        let token = this.Vue.prototype.$getUserInfo('token');
+        let token = this.Vue.prototype.$storeHelper.getUserInfo('token');
         if (token) {//如果有就直接到首页咯
           if (to.path == '/login') {
             next('/profile');
