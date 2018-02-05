@@ -11,11 +11,6 @@ class StoreHelper {
     // this.appInfoListOfGroup = this.$store.getters['user/appInfoListOfGroup'];
     this.usersInGroup = this.$store.getters['user/usersInGroup'];
     this.usersAll = this.$store.getters['app/usersAll'];
-    let messageForCreateAPP = this.$store.getters['app/messageForCreateAPP'];
-    if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('LanguageList')) {
-      this.languageInfo = messageForCreateAPP.LanguageList;
-    }
-    this.messageForCreateAPP = messageForCreateAPP;
 
     this.PROFILE_ID_FOR_ALL = -1;
     this.APP_ID_FOR_ALL = -1;
@@ -46,6 +41,31 @@ class StoreHelper {
 
   groupList() {
     return this.$store.getters['user/groupList'];
+  }
+
+  /**
+   * message for create app: cpuAndMemoryList, languageInfo
+   */
+  messageForCreateAPP() {
+    return this.$store.getters['app/messageForCreateAPP'];
+  }
+
+  cpuAndMemoryList() {
+    let result = [];
+    let messageForCreateAPP = this.messageForCreateAPP();
+    if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('cpuAndMemorylist')) {
+      result = messageForCreateAPP.cpuAndMemorylist;
+    }
+    return result;
+  }
+
+  languageInfo() {
+    let result = [];
+    let messageForCreateAPP = this.messageForCreateAPP();
+    if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('LanguageList')) {
+      result = messageForCreateAPP.LanguageList;
+    }
+    return result;
   }
 
   getAppInfoByID(appID) {
@@ -203,9 +223,7 @@ class StoreHelper {
   // 创建应用时用到的信息：cpu和内存信息；语言列表
   getMessageForCreateAPP(prop) {
     if (['cpuAndMemorylist', 'LanguageList'].indexOf(prop) > -1) {
-      // let messageForCreateAPP = STORE.getters['app/messageForCreateAPP'];
       if (!this.messageForCreateAPP) {
-        // utils.error('messageForCreateAPP not found', 'app_prop.js');
         return null;
       }
       return this.messageForCreateAPP[prop];

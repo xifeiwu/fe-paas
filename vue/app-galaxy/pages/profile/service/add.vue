@@ -212,10 +212,12 @@
 </style>
 <style lang="scss" scoped>
   #service-add {
+    box-shadow: 0 0 8px 0 rgba(232,237,250,.6), 0 2px 4px 0 rgba(232,237,250,.5);
+    margin: 20px auto;
+    padding: 30px 20px 20px 20px;
+    width: 80%;
+    max-width: 560px;
     .el-form {
-      margin: 30px auto 0px auto;
-      width: 80%;
-      max-width: 550px;
       .el-form-item {
         &.environments {
           text-align: center;
@@ -238,12 +240,11 @@
 </style>
 <script>
   import appPropUtil from '../utils/app_prop';
-  import StoreHelper from '../utils/store-helper.vue';
   import ElSelect from "element-ui/packages/select/src/select";
   import ElTooltip from "element-ui/packages/tooltip/src/main";
   import ElOption from "element-ui/packages/select/src/option";
   export default {
-    components: {ElOption, ElTooltip, ElSelect}, mixins: [StoreHelper],
+    components: {ElOption, ElTooltip, ElSelect},
     created() {
       // receive queryString parameters from url first,
       // get from localStorage if queryString not exist.
@@ -326,12 +327,7 @@
     },
     computed: {
       cpuAndMemoryList() {
-        let result = [];
-        let value = this.$store.getters['app/messageForCreateAPP'];
-        if (value && value.hasOwnProperty('cpuAndMemorylist')) {
-          result = value.cpuAndMemorylist;
-        }
-        return result;
+        return this.$storeHelper.cpuAndMemoryList();
       },
 //      appInfoListOfGroup() {
 //        return this.$store.getters['user/appInfoListOfGroup'];

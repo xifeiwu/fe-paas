@@ -933,11 +933,21 @@
 export default {
   components: {ElRadio, ElCol, ElRow, MyDialogForLog}, mixins: [StoreHelper],
   created() {
-    this.onAppInfoListOfGroup(this.appInfoListOfGroup);
-    this.onCpuAndMemoryList(this.cpuAndMemoryList);
   },
   mounted() {
-    console.log('mounted');
+    if (!this.appInfoListOfGroup) {
+      this.$store.dispatch('user/appInfoListOfGroup', {
+        from: 'page/app/add',
+        groupID: this.$storeHelper.currentGroupID
+      });
+    } else {
+      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+    }
+    if (!this.cpuAndMemoryList) {
+      this.$store.dispatch('app/messageForCreateAPP');
+    } else {
+      this.onCpuAndMemoryList(this.cpuAndMemoryList);
+    }
   },
   data() {
     return {
@@ -1044,13 +1054,13 @@ export default {
           }
         }
       }
-      this.$setUserConfig('profile/service/appID', appID);
+      this.$storeHelper.setUserConfig('profile/service/appID', appID);
     },
     selectedProfileID: function (value, oldValue) {
       let profileID = value;
       let appID = this.selectedAPP.appId;
       this.requestServiceList(appID, profileID);
-//      this.setConfig('profile/service/profileID', profileID);
+      this.$storeHelper.setUserConfig('profile/service/profileID', profileID);
     },
   },
 
