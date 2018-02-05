@@ -4,8 +4,8 @@
              ref="createAppForm" label-width="100px"
              v-loading="showLoading"
              :element-loading-text="loadingText">
-      <el-form-item label="团队">
-        <el-select v-model="currentGroupID" placeholder="请选择">
+      <el-form-item label="团队" prop="groupID">
+        <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择">
           <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
           </el-option>
         </el-select>
@@ -96,10 +96,12 @@
 </style>
 <style lang="scss" scoped>
   #app-add {
+    margin: 20px auto;
+    padding: 30px 20px 20px 20px;
+    width: 80%;
+    max-width: 560px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     .el-form {
-      margin: 30px auto 0px auto;
-      width: 80%;
-      max-width: 550px;
       .el-form-item {
         &.profiles {
           .el-checkbox + .el-checkbox {
@@ -264,7 +266,7 @@ export default {
       var self = this;
       this.$refs['createAppForm'].validate((valid) => {
         if (valid) {
-          this.createAppForm.groupID = this.currentGroupID;
+          this.createAppForm.groupID = this.$storeHelper.currentGroupID;
           let toPost = appPropUtil.changePropNameForServer(this.createAppForm);
 //          console.log('toPost');
 //          console.log(toPost);
@@ -275,7 +277,7 @@ export default {
             // update appInfoList after create app success
             this.$store.dispatch('user/appInfoListOfGroup', {
               from: 'page/app/add',
-              groupID: this.currentGroupID
+              groupID: this.$storeHelper.currentGroupID
             });
 
             this.$message({

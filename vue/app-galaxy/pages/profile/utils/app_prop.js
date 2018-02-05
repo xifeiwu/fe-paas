@@ -25,6 +25,10 @@ class AppInfoHelper {
           trigger: 'blur'
         }
       ],
+      groupID:[{
+        required: true,
+        message: '请选择团队',
+      }],
       // 项目名称
       projectName: [{
         required: true,
