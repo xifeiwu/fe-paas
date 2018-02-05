@@ -184,8 +184,6 @@
   export default {
     mixins: [StoreHelper],
     created() {
-      console.log('create app manager');
-      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
 //      let appInfoListOfGroup = this.appInfoListOfGroup;
 //      if (appInfoListOfGroup.hasOwnProperty('appList')) {
 //        this.appList = appInfoListOfGroup.appList;
@@ -200,7 +198,14 @@
 //      console.log(this.totalSize);
     },
     mounted() {
-      console.log('mount app manager');
+      if (!this.appInfoListOfGroup) {
+        this.$store.dispatch('user/appInfoListOfGroup', {
+          from: 'page/app/add',
+          groupID: this.$storeHelper.currentGroupID
+        });
+      } else {
+        this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+      }
     },
     data() {
       return {
@@ -233,7 +238,7 @@
       }
     },
     watch: {
-      currentGroupID: function (value, oldValue) {
+      '$storeHelper.currentGroupID': function (value, oldValue) {
         this.requestAPPList({});
       },
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
@@ -243,6 +248,9 @@
     computed: {
       needFilter() {
         return this.filterMyApp || (this.filterKey.length > 0);
+      },
+      appInfoListOfGroup() {
+        return this.$storeHelper.appInfoListOfGroup();
       }
     },
     methods: {
@@ -251,7 +259,7 @@
 
         // get the count of app of current user
         let count = 0;
-        let myUserName = this.$getUserInfo('userName');
+        let myUserName = this.$storeHelper.getUserInfo('userName');
         if (value && value.hasOwnProperty('appList') && Array.isArray(value.appList)) {
           value.appList.forEach(it => {
             if (it.userName == myUserName) {
@@ -270,7 +278,7 @@
             this.showLoading = true;
             this.$store.dispatch('user/appInfoListOfGroup', {
               from: 'page/app/add',
-              groupID: this.currentGroupID
+              groupID: this.$storeHelper.currentGroupID
             });
 //            this.$nextTick(() => {
 //              this.showLoading = false;
@@ -307,7 +315,7 @@
           case 'deleteRow':
             this.warningConfirm('您将删除应用' + row.serviceName + '，确定吗？').then(() => {
               this.$net.deleteAPP({
-                groupId: this.currentGroupID,
+                groupId: this.$storeHelper.currentGroupID,
                 id: row.appId
               }).then(res => {
 //                this.appListByPage.splice(index, 1);
@@ -352,7 +360,6 @@
               if (this.$utils.theSame(this.newProps[action], this.selected.model[action])) {
                 this.selected.prop = null;
                 this.$message({
-                  groupId: this.currentGroupID,
                   type: 'warning',
                   message: '您没有做修改'
                 });
@@ -476,7 +483,7 @@
           this.updateAppInfoModel(filteredAppInfo);
         } else {
           this.$net.getAPPList({
-            groupId: this.currentGroupID,
+            groupId: this.$storeHelper.currentGroupID,
             start: start,
             length: length,
             serviceName: serviceName

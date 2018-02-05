@@ -95,6 +95,7 @@
         }
         this.selectedAPP = appInfo['app'];
         this.currentProfileList = this.selectedAPP['profileList'];
+
         if (Array.isArray(this.currentProfileList) && this.currentProfileList.length > 0) {
           // if value of selectedProfileID is null(at the beginning of this page),
           // get selectedProfileID from localStorage
