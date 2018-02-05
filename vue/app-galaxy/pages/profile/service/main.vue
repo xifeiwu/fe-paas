@@ -1280,6 +1280,34 @@ export default {
             this.expandRows = [key];
           }
           break;
+        case 'instance-list':
+          let statusOK = true;
+          if (row.hasOwnProperty('id')) {
+            this.$storeHelper.setUserConfig('profile/service/serviceID', row.id);
+          } else {
+            statusOK = false;
+          }
+          if (this.selectedAppID != null) {
+            this.$storeHelper.setUserConfig('profile/service/appID', this.selectedAppID);
+          } else {
+            statusOK = false;
+          }
+          if (this.selectedProfileID != null) {
+            this.$storeHelper.setUserConfig('profile/service/profileID', this.selectedProfileID);
+          } else {
+            statusOK = false;
+          }
+          if (!statusOK) {
+            this.$message.error('所需信息不完整！');
+          } else {
+            this.$router.push({
+              path: '/profile/instance',
+              query: {
+                from: '/profile/service'
+              }
+            });
+          }
+          break;
       }
     },
     /**

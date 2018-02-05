@@ -92,8 +92,17 @@
     mixins: [StoreHelper],
     created() {
     },
+    mounted() {
+      let queryParam = this.$route.query;
+      if (queryParam && queryParam.hasOwnProperty('from')) {
+        if (queryParam['from'] === '/profile/service') {
+          this.localConfig = this.$storeHelper.getUserConfig('profile/service');
+        }
+      }
+    },
     data() {
       return {
+        localConfig: null,
         serviceInfo: null,
         showLoading: false,
 //        currentInstanceList: [{
