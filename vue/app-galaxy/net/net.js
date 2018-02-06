@@ -111,9 +111,13 @@ class Net {
         let content = response.data.content;
         let twoLevelMenu = [];
         let permission = content.permission;
+
+        // append some property to each item
         permission = permission.map(it => {
           return updateItem(it);
         });
+
+        // generate two level menu tree by parentId
         permission.forEach(it => {
           if (0 === it.parentId) {
             twoLevelMenu.push(it);
@@ -138,6 +142,7 @@ class Net {
           }
         });
 
+        // generate one level menu from two level menu
         let oneLevelMenu = [];
         twoLevelMenu.forEach(it => {
           oneLevelMenu.push(it);
@@ -147,6 +152,12 @@ class Net {
             })
           }
         });
+
+        let menuToIgnore = ["应用监控", "Oauth权限"];
+        oneLevelMenu = oneLevelMenu.filter(it => {
+          return menuToIgnore.indexOf(it.name) === -1;
+        });
+
         content.permission = oneLevelMenu;
         resolve(content);
       }
