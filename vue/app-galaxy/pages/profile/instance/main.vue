@@ -1,7 +1,8 @@
 <template>
   <div id="instance-main">
     <div class="header">
-      <my-version-selector @version-selected="onVersionSelected"></my-version-selector>
+      <my-version-selector :customConfig="localConfig"
+              @version-selected="onVersionSelected"></my-version-selector>
     </div>
     <div class="section-content">
       <el-table
@@ -84,21 +85,26 @@
 
 <script>
   import appPropUtils from '../utils/app_prop';
-  import StoreHelper from '../utils/store-helper.vue';
   import MyVersionSelector from '../utils/components/version-selector';
 
   export default {
     components: {MyVersionSelector},
-    mixins: [StoreHelper],
+
+    /**
+     * the sequence of create and mount in parent and child element is:
+     * create parent -> create children -> mount children -> mount parent
+     *
+     * as this.localConfig is used in child component, as it must be set in created method
+     */
     created() {
-    },
-    mounted() {
       let queryParam = this.$route.query;
       if (queryParam && queryParam.hasOwnProperty('from')) {
         if (queryParam['from'] === '/profile/service') {
           this.localConfig = this.$storeHelper.getUserConfig('profile/service');
         }
       }
+    },
+    mounted() {
     },
     data() {
       return {

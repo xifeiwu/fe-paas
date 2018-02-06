@@ -54,7 +54,19 @@
    */
   export default {
     created() {
-      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+    },
+    mounted() {
+      if (!this.appInfoListOfGroup) {
+        this.$store.dispatch('user/appInfoListOfGroup', {
+          from: 'page/app/add',
+          groupID: this.$storeHelper.currentGroupID
+        });
+      } else {
+        this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+      }
+    },
+    props: {
+      customConfig: Object
     },
     data() {
       return {
@@ -96,23 +108,29 @@
         this.selectedAPP = appInfo['app'];
         this.currentProfileList = this.selectedAPP['profileList'];
 
+        // set default profileID
         if (Array.isArray(this.currentProfileList) && this.currentProfileList.length > 0) {
           // if value of selectedProfileID is null(at the beginning of this page),
-          // get selectedProfileID from localStorage
-          // else selectedProfileID is the first element in profileList of selectedApp
-          var defaultProfileID = this.currentProfileList[0]['id'];
+          // set default profileID as follows:
+          // 1. customConfig.profileID if customConfig is not null
+          // 2. first element of profileList in selectedApp
+          let firstProfileID = this.currentProfileList[0]['id'];
           if (null == this.selectedProfileID) {
 //            let selectedProfileID = this.getConfig('profile/service/profileID');
 //            if (selectedProfileID) {
 //              this.selectedProfileID = selectedProfileID;
 //            }
-            this.selectedProfileID = defaultProfileID;
+            if (this.customConfig && this.customConfig.hasOwnProperty('profileID')) {
+              this.selectedProfileID = this.customConfig['profileID'];
+            } else {
+              this.selectedProfileID = firstProfileID;
+            }
           } else {
             // request service list when app id is changed while profile id is not changed.
-            if (this.selectedProfileID == defaultProfileID) {
+            if (this.selectedProfileID == firstProfileID) {
               this.getVersionList(this.selectedAPP.appId, this.selectedProfileID);
             } else {
-              this.selectedProfileID = defaultProfileID;
+              this.selectedProfileID = firstProfileID;
             }
           }
         }
@@ -152,6 +170,8 @@
        * 1. created function
        * 2. appInfoListOfGroup watcher
        *
+       * the start of watcher chain: appID -> profileID -> serviceID
+       *
        * what is done?
        * 1. refresh this.appList
        * 2. get default appId
@@ -164,9 +184,19 @@
           if (!this.appList || (0 == this.appList.length)) {
             return;
           }
-          let appId = this.$getUserConfig('profile/service/appID');
-          if (appId && this.$storeHelper.getAppInfoByID(appId)) {
-            this.selectedAppID = appId;
+          // the sequence of getting default appID:
+          // 1. customConfig.appId if customConfig exist
+          // 2. localStorage
+          // 3. first element of appList
+          let defaultAppID = null;
+          if (this.customConfig && this.customConfig.hasOwnProperty('appID')) {
+            defaultAppID = this.customConfig['appID'];
+          }
+          if (!defaultAppID) {
+            defaultAppID = this.$getUserConfig('profile/service/appID');
+          }
+          if (defaultAppID && this.$storeHelper.getAppInfoByID(defaultAppID)) {
+            this.selectedAppID = defaultAppID;
           } else {
             this.selectedAppID = this.appList[0]['appId'];
           }
@@ -192,7 +222,12 @@
             // get default version
             if (currentServiceList && Array.isArray(currentServiceList) && currentServiceList.length > 0) {
               this.currentServiceList = currentServiceList;
-              this.selectedServiceID = currentServiceList[0].id;
+              // set default serviceID
+              if (this.customConfig && this.customConfig.hasOwnProperty('serviceID')) {
+                this.selectedServiceID = this.customConfig['serviceID'];
+              } else {
+                this.selectedServiceID = currentServiceList[0].id;
+              }
             }
           }
         }).catch(err => {
