@@ -296,7 +296,7 @@
       <el-row>
         更改镜像方式为：
       </el-row>
-      <my-image-selector :imageInfo="newProps" ref="changeImageForm"></my-image-selector>
+      <my-image-selector :serviceInfo="serviceInfo" :imageInfo="newProps" ref="changeImageForm"></my-image-selector>
       <div slot="footer" class="dialog-footer">
         <el-row>
           <el-col :span="12" style="text-align: center">
@@ -954,6 +954,11 @@ export default {
       selectedAPP: null,
       selectedProfileID: null,
       selectedProfileList: [],
+      // used for component MyImageSelector
+      serviceInfo: {
+        appID: null,
+        profileID: null
+      },
 
       rules: appPropUtils.rules,
       currentServiceList: null,
@@ -1027,6 +1032,7 @@ export default {
       if (!appInfo) {
         return;
       }
+      this.serviceInfo.appID = value;
       this.selectedAPP = appInfo['app'];
       this.selectedProfileList = this.selectedAPP['profileList'];
       if (Array.isArray(this.selectedProfileList) && this.selectedProfileList.length > 0) {
@@ -1052,6 +1058,7 @@ export default {
       this.$storeHelper.setUserConfig('profile/service/appID', appID);
     },
     selectedProfileID: function (value, oldValue) {
+      this.serviceInfo.profileID = value;
       let profileID = value;
       let appID = this.selectedAPP.appId;
       this.requestServiceList(appID, profileID);

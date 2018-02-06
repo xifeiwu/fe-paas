@@ -74,6 +74,7 @@
 <script>
   export default {
     created() {
+//      console.log('create image-selector');
       if (!this.appInfoListOfGroup) {
         this.$store.dispatch('user/appInfoListOfGroup', {
           from: 'page/app/add',
@@ -87,6 +88,7 @@
       this.onGroupInfo(this.groupInfo);
     },
     mounted() {
+//      console.log('mounted image-selector');
       if (this.imageInfo) {
         if (this.imageInfo.hasOwnProperty('customImage')) {
           this.formData.customImage = this.imageInfo.customImage
@@ -147,8 +149,8 @@
         type: Object,
         default() {
           return {
-            appID: 82,
-            profileID: 1
+            appID: null,
+            profileID: null
           };
         }
       },
@@ -176,15 +178,33 @@
       },
       'formData.customImageValue': 'onImageLocation',
       'formData.autoImageValue': 'onImageLocation',
+      'serviceInfo.appID': 'onServiceInfo',
+      'serviceInfo.profileID': 'onServiceInfo'
     },
     methods: {
+      // listen to the change of prop serviceInfo
+      onServiceInfo() {
+//        console.log(this.serviceInfo);
+        if (!this.appInfoListOfGroup) {
+          this.$store.dispatch('user/appInfoListOfGroup', {
+            from: 'page/app/add',
+            groupID: this.$storeHelper.currentGroupID
+          });
+        } else {
+          this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+        }
+      },
+
       onAppInfoListOfGroup(appList) {
-        console.log(appList);
         if (this.serviceInfo.appID) {
           this.currentApp = this.$storeHelper.getAppByID(this.serviceInfo.appID);
+        } else {
+          console.log('serviceInfo.appID not found');
         }
         if (this.serviceInfo.profileID) {
           this.currentProfile = this.$storeHelper.getProfileInfoByID(this.serviceInfo.profileID);
+        } else {
+          console.log('serviceInfo.profileID not found');
         }
         this.requestImageRelatedInfo();
       },
@@ -195,7 +215,6 @@
       },
 
       requestImageRelatedInfo() {
-        console.log(this.currentApp);
         if (!this.currentApp || !this.currentProfile || !this.groupInfo || !this.serviceInfo) {
           console.log('data is not complete');
           return;
