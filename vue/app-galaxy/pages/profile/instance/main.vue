@@ -1,7 +1,7 @@
 <template>
   <div id="instance-main">
     <div class="header">
-      <my-version-selector :customConfig="localConfig"
+      <my-version-selector :customConfig="localConfig" ref="version-selector"
               @version-selected="onVersionSelected"></my-version-selector>
     </div>
     <div class="section-content">
@@ -109,7 +109,6 @@
     data() {
       return {
         localConfig: null,
-        serviceInfo: null,
         showLoading: false,
 //        currentInstanceList: [{
 //          createTime: "2018-01-11 20:39:09",
@@ -128,7 +127,6 @@
     methods: {
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
 //        console.log(appInfo, profileID, serviceInfo);
-        this.serviceInfo = serviceInfo;
         this.requestInstanceList(appInfo.appId, profileInfo.id, serviceInfo.serviceVersion);
       },
       /**
@@ -166,9 +164,10 @@
       handleOperationClick(action, index, row) {
         switch (action) {
           case 'terminal':
+            let serviceInfo = this.$refs['version-selector'].getSelectedValue()['selectedService'];
             let id = null, ip = null;
-            if (this.serviceInfo && this.serviceInfo.hasOwnProperty('id')) {
-              id = this.serviceInfo.id;
+            if (serviceInfo && serviceInfo.hasOwnProperty('id')) {
+              id = serviceInfo.id;
             }
             if (row.hasOwnProperty('intranetIP') && row['intranetIP']) {
               ip = row['intranetIP'];
@@ -184,6 +183,18 @@
             }
             break;
           case 'work-log':
+            let selectedValue = this.$refs['version-selector'].getSelectedValue();
+            this.$storeHelper.setUserConfig('profile/instance', {
+              appID: selectedValue['selectedAPP'].appId,
+              profileID: selectedValue['selectedProfile'].id,
+              serviceID: selectedValue['selectedService'].id,
+            });
+            this.$router.push({
+              path: '/profile/log/run',
+              query: {
+                from: '/profile/instance'
+              }
+            });
             break;
           case 'monitor':
             break;

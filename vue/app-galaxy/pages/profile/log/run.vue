@@ -1,7 +1,8 @@
 <template>
   <div id="log-run">
     <div class="header">
-      <my-version-selector @version-selected="onVersionSelected"></my-version-selector>
+      <my-version-selector :customConfig="localConfig"
+                           @version-selected="onVersionSelected"></my-version-selector>
       <div class="item">
         <label>实例名称</label>
         <el-input
@@ -173,7 +174,23 @@
   import ElSelect from "element-ui/packages/select/src/select";
   export default {
     components: {ElSelect, ElInput, MyVersionSelector, MyDialogForLog},
+    /**
+     * the sequence of create and mount in parent and child element is:
+     * create parent -> create children -> mount children -> mount parent
+     *
+     * as this.localConfig is used in child component, as it must be set in created method
+     */
+    created() {
+      // set default service
+      let queryParam = this.$route.query;
+      if (queryParam && queryParam.hasOwnProperty('from')) {
+        if (queryParam['from'] === '/profile/instance') {
+          this.localConfig = this.$storeHelper.getUserConfig('profile/instance');
+        }
+      }
+    },
     mounted() {
+      // set default date duration
       const end = new Date();
       const start = new Date();
       start.setTime(start.getTime() - 1000 * 60 * 5);
@@ -198,6 +215,7 @@
     },
     data() {
       return {
+        localConfig: null,
         searchForm: {
           appId: '',
           spaceId: '',
