@@ -36,18 +36,18 @@
       <el-table :data="appListByPage"
                 v-loading="showLoading"
                 element-loading-text="加载中">
-        <el-table-column label="语言版本" prop="languageVersion" headerAlign="center">
+        <el-table-column label="语言版本" prop="languageVersion" headerAlign="center" align="center">
           <template slot-scope="scope">
             <div>{{scope.row.language}} - {{scope.row.languageVersion}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="应用名称" prop="serviceName" headerAlign="center">
+        <el-table-column label="应用名称" prop="serviceName" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="创建者" prop="creator" headerAlign="center">
+        <el-table-column label="创建者" prop="creator" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="创建时间" prop="createTime" headerAlign="center">
+        <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="运行环境" prop="profileList" headerAlign="center" minWidth="90">
+        <el-table-column label="运行环境" prop="profileList" minWidth="90" headerAlign="center" align="center">
           <template slot-scope="scope">
             <div v-for="item in scope.row.profileList" :label="item.name" :key="item.name">
               <span class="profile-item" @click="jumpToServicePage(scope.$index, scope.row, item)"
@@ -55,7 +55,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" prop="operation" minWidth="170" width="200" headerAlign="center">
+        <el-table-column label="操作" prop="operation" minWidth="170" width="200" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
               size="mini-extral"

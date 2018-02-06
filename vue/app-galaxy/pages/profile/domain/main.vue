@@ -49,16 +49,19 @@
         </el-table-column>
         <el-table-column
                 prop="internetDomain"
+                headerAlign="center" align="center"
                 label="外网二级域名">
         </el-table-column>
         <el-table-column
                 prop="createTime"
                 label="创建时间"
+                headerAlign="center" align="center"
                 width="180">
         </el-table-column>
         <el-table-column
                 prop="creatorName"
                 label="创建人"
+                headerAlign="center" align="center"
                 width="120">
         </el-table-column>
         <el-table-column
@@ -69,6 +72,7 @@
         <el-table-column
                 prop="operation"
                 label="操作"
+                headerAlign="center" align="center"
         >
           <template slot-scope="scope">
             <el-button

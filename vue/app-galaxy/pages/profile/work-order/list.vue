@@ -50,13 +50,13 @@
                 element-loading-text="加载中">
         <el-table-column label="审批工单名称" prop="name" headerAlign="center">
         </el-table-column>
-        <el-table-column label="申请人" prop="creatorName" width="80" headerAlign="center">
+        <el-table-column label="申请人" prop="creatorName" width="100" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="状态" prop="statusName" width="120" headerAlign="center">
+        <el-table-column label="状态" prop="statusName" width="120" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="申请时间" prop="createTime" width="200" headerAlign="center">
+        <el-table-column label="申请时间" prop="createTime" width="200" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="团队" prop="groupName"  width="120" headerAlign="center">
+        <el-table-column label="团队" prop="groupName"  width="120" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="操作" headerAlign="center">
           <template slot-scope="scope">

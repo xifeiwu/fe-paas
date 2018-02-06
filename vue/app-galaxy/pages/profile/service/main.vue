@@ -54,7 +54,7 @@
       >
         <el-table-column
           label="服务版本"
-          width="100">
+          width="150">
           <template slot-scope="scope">
             <el-radio :label="scope.row.id"
                       :value="defaultServiceID"
@@ -64,17 +64,22 @@
         <el-table-column
           prop="intranetDomain"
           label="内网域名"
-          width="180">
+          headerAlign="left" align="left"
+        >
         </el-table-column>
         <el-table-column
           prop="applicationStatus"
           label="状态"
           width="80"
+          headerAlign="center" align="center"
         >
         </el-table-column>
         <el-table-column
           prop="createTime"
-          label="创建时间">
+          label="创建时间"
+          width="200"
+          headerAlign="center" align="center"
+        >
         </el-table-column>
         <el-table-column
           label="操作"
