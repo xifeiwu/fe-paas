@@ -534,22 +534,19 @@ class Net {
     })
   }
 
-  changeDefaultService() {
+  // 切换默认服务版本
+  changeDefaultService(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.change_default_service, options).then(response => {
-        console.log(response);
-        // if ('data' in response) {
-        //   let data = response.data;
-        //   if (0 === data.code) {
-        //     let content = data.content ? data.content : {};
-        //     resolve(content);
-        //   } else {
-        //     reject(data.msg);
-        //   }
-        // }
+        let responseMsg = this.getResponseMsg(response);
+        if (responseMsg.success) {
+          resolve(responseMsg.msg);
+        } else {
+          reject(responseMsg.msg);
+        }
       }).catch(err => {
-        reject(err);
         console.log(err);
+        reject('切换默认服务版本失败');
       })
     });
   }
