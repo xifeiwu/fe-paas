@@ -20,10 +20,10 @@
         <!--<el-option v-for="item in currentVersionList" :key="item" :label="item" :value="item">-->
         <!--</el-option>-->
       <!--</el-select>-->
-      <el-select filterable v-model="selectedVersion" :placeholder="currentServiceList.length > 0 ? '加载中' : '当前运行环境下没有版本！'">
-      <el-option v-for="item in currentServiceList" :key="item.id" :label="item.serviceVersion" :value="item.serviceVersion">
-      </el-option>
-    </el-select>
+      <el-select filterable v-model="selectedServiceID" :placeholder="currentServiceList.length > 0 ? '请选择' : '当前运行环境下没有版本！'">
+        <el-option v-for="item in currentServiceList" :key="item.id" :label="item.serviceVersion" :value="item.id">
+        </el-option>
+      </el-select>
     </div>
   </div>
 </template>
@@ -70,7 +70,7 @@
 
         // 版本（既服务）列表
         // the value of serviceVersion in currentService
-        selectedVersion: null,
+        selectedServiceID: null,
         selectedService: null,
         currentServiceList: [],
         getVersionList: this.requestServiceList,
@@ -125,14 +125,14 @@
 //      this.setConfig('profile/service/profileID', profileID);
       },
 
-      // update currentService when selectedVersion is changed
-      selectedVersion: function (serviceVersion, oldValue) {
-        if (null == serviceVersion) {
+      // update currentService when selectedServiceID is changed
+      selectedServiceID: function (serviceID, oldValue) {
+        if (null == serviceID) {
           return;
         }
         let target = null;
         this.currentServiceList.some(it => {
-          if (it.serviceVersion == serviceVersion) {
+          if (it.id == serviceID) {
             target = it;
           }
           return target;
@@ -181,7 +181,7 @@
           console.log('appID or spaceID can not be empty');
           return;
         }
-        this.selectedVersion = null;
+        this.selectedServiceID = null;
         this.currentServiceList = [];
         this.$net.getServiceListByAppIDAndProfileID({
           appId: appID,
@@ -192,7 +192,7 @@
             // get default version
             if (currentServiceList && Array.isArray(currentServiceList) && currentServiceList.length > 0) {
               this.currentServiceList = currentServiceList;
-              this.selectedVersion = currentServiceList[0].serviceVersion;
+              this.selectedServiceID = currentServiceList[0].id;
             }
           }
         }).catch(err => {

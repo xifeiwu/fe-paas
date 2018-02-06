@@ -17,7 +17,7 @@
     </div>
     <div class="item">
       <label>版本:</label>
-      <el-select filterable v-model="selectedServiceID" :placeholder="serviceListWithAll.length === 0 ?'当前环境下无版本':''">
+      <el-select filterable v-model="selectedServiceID" :placeholder="serviceListWithAll.length === 0 ?'当前环境下无版本':'请选择'">
         <el-option v-for="item in serviceListWithAll" :key="item.id" :label="item.serviceVersion" :value="item.id">
         </el-option>
       </el-select>
