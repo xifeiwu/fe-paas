@@ -269,6 +269,14 @@ h4 {
     }
   }
 
+  .el-form {
+    .el-form-item {
+      .el-form-item__content {
+        text-align: left;
+      }
+    }
+  }
+
   .el-date-editor.custom {
     font-size: 12px;
     width: 230px;
