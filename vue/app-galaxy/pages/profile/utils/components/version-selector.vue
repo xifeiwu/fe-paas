@@ -113,15 +113,19 @@
           // if value of selectedProfileID is null(at the beginning of this page),
           // set default profileID as follows:
           // 1. customConfig.profileID if customConfig is not null
-          // 2. first element of profileList in selectedApp
+          // 2. localStorage
+          // 3. first element of profileList in selectedApp
           let firstProfileID = this.currentProfileList[0]['id'];
           if (null == this.selectedProfileID) {
-//            let selectedProfileID = this.getConfig('profile/service/profileID');
-//            if (selectedProfileID) {
-//              this.selectedProfileID = selectedProfileID;
-//            }
+            let defaultProfileID = null;
             if (this.customConfig && this.customConfig.hasOwnProperty('profileID')) {
-              this.selectedProfileID = this.customConfig['profileID'];
+              defaultProfileID = this.customConfig['profileID'];
+            }
+            if (!defaultProfileID) {
+              defaultProfileID = this.$storeHelper.getUserConfig('profile/service/profileID');
+            }
+            if (defaultProfileID && this.currentProfileList.map(it => {return it.id}).indexOf(defaultProfileID) > -1) {
+              this.selectedProfileID = defaultProfileID;
             } else {
               this.selectedProfileID = firstProfileID;
             }
@@ -140,7 +144,7 @@
         let profileID = value;
         let appID = this.selectedAPP.appId;
         this.getVersionList(appID, profileID);
-//      this.setConfig('profile/service/profileID', profileID);
+        this.$storeHelper.setUserConfig('profile/service/profileID', profileID);
       },
 
       // update currentService when selectedServiceID is changed
