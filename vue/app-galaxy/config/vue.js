@@ -6,7 +6,7 @@ class StoreHelper {
   constructor(Store) {
     this.$store = Store;
     // this.groupList = this.$store.getters['user/groupList'];
-    this.groupInfo = this.$store.getters['user/groupInfo'];
+    // this.groupInfo = this.$store.getters['user/groupInfo'];
     // this.profileListOfGroup = this.$store.getters['user/profileListOfGroup'];
     // this.appInfoListOfGroup = this.$store.getters['user/appInfoListOfGroup'];
     this.usersInGroup = this.$store.getters['user/usersInGroup'];
@@ -15,6 +15,10 @@ class StoreHelper {
     this.PROFILE_ID_FOR_ALL = -1;
     this.APP_ID_FOR_ALL = -1;
     this.SERVICE_ID_FOR_ALL = -1;
+  }
+
+  groupInfo() {
+    return this.$store.getters['user/groupInfo'];
   }
 
   appInfoListOfGroup() {

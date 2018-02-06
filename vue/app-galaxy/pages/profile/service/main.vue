@@ -296,18 +296,7 @@
       <el-row>
         更改镜像方式为：
       </el-row>
-      <el-form :model="newProps" :rules="rules" label-width="120px" ref="changeImageForm">
-        <el-form-item label="镜像方式：" prop="customImage">
-          <el-radio-group v-model="newProps.customImage" @change="handleImageTypeChange">
-            <el-radio v-for="item in imageInfo" :label="item.id" :key="item.id">
-              {{item.name}}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="镜像地址：" prop="imageLocation">
-          <el-input v-model="newProps.imageLocation" placeholder="输入镜像地址，包含版本"></el-input>
-        </el-form-item>
-      </el-form>
+      <my-image-selector :imageInfo="newProps" ref="changeImageForm"></my-image-selector>
       <div slot="footer" class="dialog-footer">
         <el-row>
           <el-col :span="12" style="text-align: center">
@@ -932,11 +921,12 @@
   import appPropUtils from '../utils/app_prop';
   import StoreHelper from '../utils/store-helper.vue';
   import MyDialogForLog from '../utils/components/dialog4log.vue'
+  import MyImageSelector from '../utils/components/image-selector.vue'
   import ElRow from "element-ui/packages/row/src/row";
   import ElCol from "element-ui/packages/col/src/col";
   import ElRadio from "element-ui/packages/radio/src/radio";
 export default {
-  components: {ElRadio, ElCol, ElRow, MyDialogForLog}, mixins: [StoreHelper],
+  components: {ElRadio, ElCol, ElRow, MyDialogForLog, MyImageSelector}, mixins: [StoreHelper],
   created() {
   },
   mounted() {

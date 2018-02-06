@@ -643,7 +643,7 @@ class Net {
       'hosts': URL_LIST.service_update_host,
     };
     let url = urlMap[prop];
-    console.log(url);
+    // console.log(url);
     if (!url) {
       return;
     }
