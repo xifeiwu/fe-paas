@@ -26,13 +26,17 @@ var urlList = {
   'get_cpu_and_memory_config': path + '/cpuAndMemory/queryCpuAndMemory',
   'get_all_language': path + '/language/queryAllLanguage',
   'change_profile': path + '/application/update',
+
+  /** 服务相关 */
   // 通过appID和profileID获取服务列表
   'get_service_by_appId_and_profile': path + '/service/queryByAppIdAndSpaceId',
-
+  // 修改默认服务
+  'change_default_service': path + '/service/switchService',
   // 获取服务版本
   'service_version': path + '/service/queryApplicationServiceVersion',
-  // 部署服务
+  // 部署服务-开始部署
   'service_deploy': path + '/service/deployApplicationService',
+  // 部署服务-部署日志
   'service_deploy_log': path + '/service/deploy/log',
   // 创建服务
   'service_create':  path + '/service/createApplicationService',

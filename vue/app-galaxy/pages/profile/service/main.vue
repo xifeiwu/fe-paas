@@ -56,8 +56,8 @@
           label="服务版本"
           width="100">
           <template slot-scope="scope">
-            <el-radio :label="scope.row.serviceVersion"
-                      :value="defaultVersion"
+            <el-radio :label="scope.row.id"
+                      :value="defaultServiceID"
                       @input="changeDefaultVersion">{{scope.row.serviceVersion}}</el-radio>
           </template>
         </el-table-column>
@@ -965,7 +965,7 @@ export default {
       currentModelList: [],
       intranetDomain: '',
 
-      defaultVersion: '',
+      defaultServiceID: '',
       selected: {
         index: -1,
         // which property to change
@@ -1120,9 +1120,11 @@ export default {
           break;
       }
     },
+    // change the default service
     changeDefaultVersion(value) {
-      this.defaultVersion = value;
+      console.log(this.defaultServiceID);
       console.log(value);
+      this.defaultServiceID = value;
     },
 
     /**
@@ -1587,10 +1589,10 @@ export default {
 
           // get default version
           let findDefault = false;
-          this.defaultVersion = null;
+          this.defaultServiceID = null;
           this.currentServiceList.some(it => {
             if (it.defaultSelect) {
-              this.defaultVersion = it.serviceVersion;
+              this.defaultServiceID = it.id;
               findDefault = true;
             }
             return it.defaultSelect;

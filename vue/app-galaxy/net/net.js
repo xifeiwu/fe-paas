@@ -534,6 +534,26 @@ class Net {
     })
   }
 
+  changeDefaultService() {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.change_default_service, options).then(response => {
+        console.log(response);
+        // if ('data' in response) {
+        //   let data = response.data;
+        //   if (0 === data.code) {
+        //     let content = data.content ? data.content : {};
+        //     resolve(content);
+        //   } else {
+        //     reject(data.msg);
+        //   }
+        // }
+      }).catch(err => {
+        reject(err);
+        console.log(err);
+      })
+    });
+  }
+
   serviceDeploy(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.service_deploy, options).then(response => {
