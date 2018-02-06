@@ -48,6 +48,11 @@
    * page domain：header selector，dialog for binding service
    * page instance：header selector
    * page log: log-deploy, log-run
+   *
+   * custom type:
+   * 1. profile area can be fixed
+   * 2. add item '全部' or not
+   * 3. customConfig for profileID, appID, serviceID
    */
   export default {
     created() {
@@ -89,9 +94,16 @@
       },
       addItemAll: {
         type: Boolean,
-        default: true
+        default: false
       },
-      fixedProfileInfo: Object
+      fixedProfileInfo: {
+        type: Object,
+//        default: {
+//          fixed: false,
+//          profileID: 1,
+//        }
+      },
+      customConfig: Object
     },
     computed: {
       profileListOfGroup() {
@@ -101,7 +113,7 @@
         return this.$storeHelper.appInfoListOfGroup();
       },
       fixProfile() {
-        return this.fixedProfileInfo && this.fixedProfileInfo.hasOwnProperty('fixed');
+        return this.fixedProfileInfo && this.fixedProfileInfo.hasOwnProperty('fixed') && this.fixedProfileInfo['fixed'];
       }
     },
     watch: {
@@ -146,14 +158,28 @@
             }];
           }
           this.profileListWithAll = profileAll.concat(profileList);
-          // get from localStorage first
-//          let profileID = this.$storeHelper.getUserConfig('profile/service/profileID');
-          let profileID = null;
-          if (!profileID && this.profileListWithAll.length > 0) {
-            profileID = this.profileListWithAll[0].id;
+          this.setDefaultService(this.profileListWithAll);
+        }
+      },
+
+      setDefaultService(profileListWithAll) {
+        // get from localStorage first
+        if (this.selectedProfileID == null) {
+          let defaultProfileID = null;
+          if (this.customConfig && this.customConfig.hasOwnProperty('profileID')) {
+            defaultProfileID = this.customConfig['profileID'];
+          }
+          if (!defaultProfileID && profileListWithAll.length > 0) {
+            defaultProfileID = profileListWithAll[0].id;
           }
           // profileID must be set here
-          this.selectedProfileID = profileID;
+          this.selectedProfileID = defaultProfileID;
+        }
+        if (this.customConfig && this.customConfig.hasOwnProperty('appID')) {
+          this.selectedAppID = this.customConfig['appID'];
+        }
+        if (this.customConfig && this.customConfig.hasOwnProperty('serviceID')) {
+          this.selectedServiceID = this.customConfig['serviceID'];
         }
       },
 
@@ -197,7 +223,7 @@
           });
           needSetAppID = !hasExist;
         }
-
+        // set default appId if necessary
         if (this.setDefault && needSetAppID) {
           if (Array.isArray(this.appListWithAll) && this.appListWithAll.length > 0) {
             this.selectedAppID = this.appListWithAll[0].appId;
@@ -246,12 +272,12 @@
               this.serviceListWithAll = this.serviceListWithAll.concat(serviceList);
             }
           }
-          // set default selectedServiceID
-          if (this.setDefault) {
-            if (this.serviceListWithAll.length > 0) {
-              this.selectedServiceID = this.serviceListWithAll[0]['id'];
+          // check selectedServiceID
+          if (this.setDefault && this.selectedServiceID != null) {
+            if (this.serviceListWithAll.length > 0
+              && this.serviceListWithAll.map(it => {return it.id}).indexOf(this.selectedServiceID) > -1) {
             } else {
-              this.selectedServiceID = '';
+              this.selectedServiceID = this.serviceListWithAll[0]['id'];
             }
           }
 //          console.log(this.serviceListWithAll);

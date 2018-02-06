@@ -100,7 +100,7 @@
                     @click="handleOperationClick('instance-list', scope.$index, scope.row)">实例列表</el-button>
             <el-button
                     size="mini-extral" type="warning"
-                    @click="handleOperationClick('domain-config', scope.$index, scope.row)">配置外网二级域名</el-button>
+                    @click="handleOperationClick('go-to-domain', scope.$index, scope.row)">配置外网二级域名</el-button>
             <el-button
                     size="mini-extral" type="warning"
                     @click="handleOperationClick('delete', scope.$index, scope.row)">删除</el-button>
@@ -1156,6 +1156,7 @@ export default {
         console.log('serviceID not found');
         return;
       }
+      let statusOK = false;
       switch (action) {
         case 'deploy':
           // request and show log
@@ -1283,27 +1284,36 @@ export default {
           }
           break;
         case 'instance-list':
-          let statusOK = true;
-          if (row.hasOwnProperty('id')) {
-            this.$storeHelper.setUserConfig('profile/service/serviceID', row.id);
-          } else {
-            statusOK = false;
-          }
-          if (this.selectedAppID != null) {
-            this.$storeHelper.setUserConfig('profile/service/appID', this.selectedAppID);
-          } else {
-            statusOK = false;
-          }
-          if (this.selectedProfileID != null) {
-            this.$storeHelper.setUserConfig('profile/service/profileID', this.selectedProfileID);
-          } else {
-            statusOK = false;
+          statusOK = false;
+          if (row.hasOwnProperty('id') && this.selectedAppID != null && this.selectedProfileID != null) {
+            statusOK = true;
           }
           if (!statusOK) {
             this.$message.error('所需信息不完整！');
           } else {
             this.$router.push({
               path: '/profile/instance',
+              query: {
+                from: '/profile/service'
+              }
+            });
+          }
+          break;
+        case 'go-to-domain':
+          statusOK = false;
+          if (row.hasOwnProperty('id') && this.selectedAppID != null && this.selectedProfileID != null) {
+            statusOK = true;
+          }
+          if (!statusOK) {
+            this.$message.error('所需信息不完整！');
+          } else {
+            this.$storeHelper.setUserConfig('profile/service', {
+              appID: this.selectedAppID,
+              profileID: this.selectedProfileID,
+              serviceID: row.id
+            });
+            this.$router.push({
+              path: '/profile/domain',
               query: {
                 from: '/profile/service'
               }

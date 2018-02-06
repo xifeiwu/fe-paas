@@ -2,7 +2,10 @@
   <div id="domain-main">
     <div class="section-header">
       <div class="row">
-        <my-version-condition-filter @service-condition-changed="onServiceConditionChanged"></my-version-condition-filter>
+        <my-version-condition-filter
+                :addItemAll="true"
+                :customConfig="localServiceConfig"
+                @service-condition-changed="onServiceConditionChanged"></my-version-condition-filter>
       </div>
       <div class="row">
         <el-button
@@ -180,7 +183,7 @@
       </div>
       <div v-if="!bindServiceProps.showResponse">
         <my-version-condition-filter ref="version-selector-in-bind-service-dialog"
-                                     :addItemAll="false" :fixedProfileInfo="fixedProfileInfo">
+                                     :fixedProfileInfo="fixedProfileInfo">
         </my-version-condition-filter>
         <div class="selected-domain">
           <div>所选外网域名</div>
@@ -448,6 +451,12 @@
     components: {ElFormItem, ElTooltip, ElOption, ElSelect, ElInput, MyVersionConditionFilter},
     mixins: [StoreHelper],
     created() {
+      let queryParam = this.$route.query;
+      if (queryParam && queryParam.hasOwnProperty('from')) {
+        if (queryParam['from'] === '/profile/service') {
+          this.localServiceConfig = this.$storeHelper.getUserConfig('profile/service');
+        }
+      }
     },
     mounted() {
 
@@ -457,6 +466,8 @@
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
+
+        localServiceConfig: null,
 
         currentDomainList: [],
         rowsSelected: [],
