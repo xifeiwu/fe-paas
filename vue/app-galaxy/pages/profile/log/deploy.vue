@@ -1,7 +1,8 @@
 <template>
   <div id="log-deploy">
     <div class="header">
-      <my-version-selector @version-selected="onVersionSelected"></my-version-selector>
+      <my-version-selector :customConfig="localServiceConfig"
+                           @version-selected="onVersionSelected"></my-version-selector>
     </div>
     <div class="list">
       <el-table
@@ -48,8 +49,20 @@
   import elDialogForLog from '../utils/components/dialog4log.vue';
   export default {
     components: {MyVersionSelector, elDialogForLog},
+    created() {
+      // set default service
+      let queryParam = this.$route.query;
+      if (queryParam && queryParam.hasOwnProperty('from')) {
+        if (queryParam['from'] === '/profile/service') {
+          this.localServiceConfig = this.$storeHelper.getUserConfig('profile/service');
+        }
+      }
+    },
     data() {
       return {
+        // service config in localStorage
+        localServiceConfig: null,
+
         showLoading: false,
         deployLogList: [],
         operation: {

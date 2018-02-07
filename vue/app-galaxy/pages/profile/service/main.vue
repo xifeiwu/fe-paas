@@ -92,26 +92,26 @@
             <el-button
                     v-if="selectedProfileID != '5'"
                     size="mini-extral"type="warning"
-                    @click="handleOperationClick('deploy-log', scope.$index, scope.row)">部署日志</el-button>
+                    @click="handleRowButtonClick('go-to-log-deploy', scope.$index, scope.row)">部署日志</el-button>
             <el-button
                     size="mini-extral" type="warning"
-                    @click="handleOperationClick('stop', scope.$index, scope.row)">停止</el-button>
+                    @click="handleRowButtonClick('stop', scope.$index, scope.row)">停止</el-button>
             <el-button
                     v-if="selectedProfileID == '5'"
                     size="mini-extral" type="warning"
-                    @click="handleOperationClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
+                    @click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
             <el-button
                     size="mini-extral" type="warning"
-                    @click="handleOperationClick('instance-list', scope.$index, scope.row)">实例列表</el-button>
+                    @click="handleRowButtonClick('instance-list', scope.$index, scope.row)">实例列表</el-button>
             <el-button
                     size="mini-extral" type="warning"
-                    @click="handleOperationClick('go-to-domain', scope.$index, scope.row)">配置外网二级域名</el-button>
+                    @click="handleRowButtonClick('go-to-domain', scope.$index, scope.row)">配置外网二级域名</el-button>
             <el-button
                     size="mini-extral" type="warning"
-                    @click="handleOperationClick('delete', scope.$index, scope.row)">删除</el-button>
+                    @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
             <el-button
                     size="mini-extral" type="warning"
-                    @click="handleOperationClick('service_info', scope.$index, scope.row)">
+                    @click="handleRowButtonClick('service_info', scope.$index, scope.row)">
                     <span>服务详情</span>
                     <i class="el-icon-arrow-right"
                       :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"></i>
@@ -1158,7 +1158,7 @@ export default {
     /**
      * handle click event in the operation-column
      */
-    handleOperationClick(action, index, row) {
+    handleRowButtonClick(action, index, row) {
       let currentService = this.currentServiceList[index];
       if (!currentService) {
         return;
@@ -1330,6 +1330,27 @@ export default {
             });
             this.$router.push({
               path: '/profile/domain',
+              query: {
+                from: '/profile/service'
+              }
+            });
+          }
+          break;
+        case 'go-to-log-deploy':
+          statusOK = false;
+          if (row.hasOwnProperty('id') && this.selectedAppID != null && this.selectedProfileID != null) {
+            statusOK = true;
+          }
+          if (!statusOK) {
+            this.$message.error('所需信息不完整！');
+          } else {
+            this.$storeHelper.setUserConfig('profile/service', {
+              appID: this.selectedAppID,
+              profileID: this.selectedProfileID,
+              serviceID: row.id
+            });
+            this.$router.push({
+              path: '/profile/log/deploy',
               query: {
                 from: '/profile/service'
               }

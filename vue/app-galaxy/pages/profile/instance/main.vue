@@ -35,15 +35,15 @@
         <el-table-column label="操作" prop="operation" minWidth="170" headerAlign="center">
           <template slot-scope="scope">
             <el-button
-                    @click="handleOperationClick('terminal', scope.$index, scope.row)"
+                    @click="handleRowButtonClick('terminal', scope.$index, scope.row)"
                     size="mini-extral"
                     type="primary">终端</el-button>
             <el-button
-                    @click="handleOperationClick('work-log', scope.$index, scope.row)"
+                    @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"
                     size="mini-extral"
                     type="primary">查看运行日志</el-button>
             <el-button
-                    @click="handleOperationClick('monitor', scope.$index, scope.row)"
+                    @click="handleRowButtonClick('monitor', scope.$index, scope.row)"
                     size="mini-extral"
                     type="primary">监控</el-button>
           </template>
@@ -161,7 +161,7 @@
       /**
        * handle click event in operation column
        */
-      handleOperationClick(action, index, row) {
+      handleRowButtonClick(action, index, row) {
         switch (action) {
           case 'terminal':
             let serviceInfo = this.$refs['version-selector'].getSelectedValue()['selectedService'];
@@ -182,7 +182,7 @@
               this.$message.error('组ID或内网IP没有找到');
             }
             break;
-          case 'work-log':
+          case 'go-to-log-run':
             let selectedValue = this.$refs['version-selector'].getSelectedValue();
             this.$storeHelper.setUserConfig('profile/instance', {
               appID: selectedValue['selectedAPP'].appId,
