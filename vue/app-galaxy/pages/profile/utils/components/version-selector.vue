@@ -138,13 +138,13 @@
             }
           }
         }
-        this.$setUserConfig('profile/service/appID', appID);
+//        this.$setUserConfig('profile/service/appID', appID);
       },
       selectedProfileID: function (value, oldValue) {
         let profileID = value;
         let appID = this.selectedAPP.appId;
         this.getVersionList(appID, profileID);
-        this.$storeHelper.setUserConfig('profile/service/profileID', profileID);
+//        this.$storeHelper.setUserConfig('profile/service/profileID', profileID);
       },
 
       // update currentService when selectedServiceID is changed
