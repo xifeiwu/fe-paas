@@ -328,15 +328,17 @@
             <el-tag
                     v-for="tag in newProps.fileLocation"
                     :key="tag"
+                    size="small"
                     closable
                     type="success"
-                    @close="handleRemoveFileLocation(tag)"
+                    @close="handleFileLocation('remove', tag)"
             >{{tag}}</el-tag>
           </div>
         </el-form-item>
         <el-form-item label="文件存储" prop="fileLocation">
           <el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母数字下划线中划线，2-18位">
-            <template slot="append"><el-button class="add-file-location-btn" @click="handleAddFileLocation(fileLocationToAdd)">添加</el-button></template>
+            <template slot="append"><el-button class="add-file-location-btn"
+                                               @click="handleFileLocation('add', fileLocationToAdd)">添加</el-button></template>
           </el-input>
         </el-form-item>
       </el-form>
@@ -1643,24 +1645,29 @@ export default {
     },
 
     /* used for dialog */
-    handleRemoveFileLocation(tag) {
-      let items = this.newProps.fileLocation;
-      items.splice(items.indexOf(tag), 1);
-    },
-    handleAddFileLocation(tag) {
-      let tagLength = tag.length;
-//      console.log(tag);
-      if (tagLength < 2 || tagLength > 18) {
-        this.$message.error('长度在2到18个字符');
-        return;
-      }
-      if (!/^\/[A-Za-z0-9_\-]+$/.exec(tag)) {
-        this.$message.error('以/开头，可以包含字母数字下划线中划线');
-        return;
-      }
-      if (tag.length > 0) {
-        this.newProps.fileLocation.push(tag);
-        this.fileLocationToAdd = '';
+    // 增删文件存储
+    handleFileLocation(action, tag) {
+      let fileLocationList = this.newProps.fileLocation;
+      switch (action) {
+        case 'add':
+          tag = tag.trim();
+          let reg = /^\/[A-Za-z0-9_\\-\\.@]{2,18}$/;
+          if (!reg.exec(tag)) {
+            this.$message.warning('以/开头，可包含字母、数字、下划线、中划线。2-18位字符。');
+            return;
+          }
+          if (tag.length > 0) {
+            if (fileLocationList.indexOf(tag) > -1) {
+              this.$message.warning('该文件存储已存在！');
+            } else {
+              fileLocationList.push(tag);
+              this.fileLocationToAdd = '';
+            }
+          }
+          break;
+        case 'remove':
+          fileLocationList.splice(fileLocationList.indexOf(tag), 1);
+          break;
       }
     },
     handleDeleteEnvironment(index) {

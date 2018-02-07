@@ -1,7 +1,50 @@
 import STORE from '../../../store';
 
 class AppInfoHelper {
+  generateReg(chinese, min, max) {
+    let chineseState = {
+      reg: '',
+      desc: '',
+    };
+    if (chinese) {
+      chineseState = {
+        reg: '\u4e00-\u9fa5',
+        desc: '中文'
+      }
+    }
+    if (!min) {
+      min = 1;
+    }
+    if (!max) {
+      max = '';
+    }
+    let regStr = `^[${chineseState['reg']}A-Za-z0-9_\\-\\.@]{${min},${max}}$`;
+    let reg = new RegExp(regStr);
+    let desc = `字符中只能包含字母、数字、下划线、中划线`;
+    if (chineseState.reg) {
+      desc = `${desc}，${chineseState['desc']}。`;
+    }
+    if (min > 1 && max != '') {
+      desc = `${desc}长度${min}-${max}个字符`
+    }
+    return {reg, desc}
+  }
+  generateValidator(chinese, min, max) {
+    let regStates = this.generateReg(chinese, min, max);
+    return function(rule, values, callback) {
+      let passed = true;
+      let reg = regStates.reg;
+      if (!reg.exec(values)) {
+        passed = false;
+        callback(regStates.desc);
+      }
+      if (passed) {
+        callback();
+      }
+    };
+  }
   constructor() {
+    let basicValidator = this.generateValidator(true);
     this.rules = {
       // 应用名称
       appName: [{
@@ -9,25 +52,59 @@ class AppInfoHelper {
           message: '请输入应用名称',
           trigger: 'blur'
         }, {
-          min: 3,
-          max: 30,
-          message: '长度在3到30个字符',
-          trigger: 'blur'
-        }, {
-          pattern: /^[\u4e00-\u9fa5A-Za-z0-9_-]+$/,
-          message: '只能包含字母、数字、下划线、中划线',
-          trigger: 'blur'
+          validator: this.generateValidator(true, 3, 30)
         }
       ],
-      groupID: [{
-        required: true,
-        message: '请选择团队',
-      }],
       // 项目名称
       projectName: [{
         required: true,
         message: '请输入项目名称',
         trigger: 'blur'
+      }, {
+        validator: basicValidator
+      }],
+      // 健康检查
+      healthCheck: [{
+        required: true,
+        message: '请填写健康检查',
+      }, {
+        validator(rule, values, callback) {
+          let passed = true;
+          let reg = /^\/[A-Za-z0-9_\\-\\.@]{2,50}$/;
+          if (!reg.exec(values)) {
+            passed = false;
+            callback('以/开头，可以包含字母、数字、下划线、中划线。2-50个字符');
+          }
+          if (passed) {
+            callback();
+          }
+        }
+      }],
+      // 文件存储
+      fileLocation: [{
+        type: 'array',
+        required: false,
+      }, {
+        validator(rule, values, callback) {
+          let passed = true;
+          let reg = /^\/[A-Za-z0-9_\\-\\.@]{2,18}$/;
+          for (let key in values) {
+            let item = values[key];
+            if (!reg.exec(item)) {
+              passed = false;
+              callback(`${item}不符合条件。请以/开头，可包含字母、数字、下划线、中划线，2-18位字符。`)
+            }
+          }
+          if (passed) {
+            callback();
+          }
+        }
+      }],
+
+      // 团队ID
+      groupID: [{
+        required: true,
+        message: '请选择团队',
       }],
       // 运行环境
       profiles: [{
@@ -53,16 +130,6 @@ class AppInfoHelper {
         message: '请选择构建类型',
         trigger: 'change'
       }],
-      // 健康检查
-      healthCheck: [{
-        required: true,
-        pattern: /^\/[A-Za-z0-9_\-]+$/,
-        message: '以/开头，可以包含字母数字下划线中划线',
-      }, {
-        min: 2,
-        max: 50,
-        message: '长度在2到50个字符',
-      }],
 
       serviceVersion: [{
         required: true,
@@ -73,30 +140,21 @@ class AppInfoHelper {
         required: true,
         message: '请填写gitlab地址',
       }, {
-        validator(rule, values, callback) {
-          let passed = true;
-          let reg = /^[A-Za-z0-9_\-\.@]+$/;
-          if (!reg.exec(values)) {
-            passed = false;
-            callback(`请检查格式是否正确`);
-          }
-          if (passed) {
-            callback();
-          }
-        }
+        validator: basicValidator
       }],
       // gitlab分支
       gitLabBranch: [{
         required: true,
         message: '请填写gitlab分支',
-        pattern: /^[\w]+$/,
-      }],
+      }, {validator: basicValidator}],
       // Gitlab父级pom.xml相对路径
       relativePathOfParentPOM: [{
         required: false,
-      }],
-      vmOptions: [{}],
-      mavenProfileId: [{}],
+      }, {validator: basicValidator}],
+      vmOptions: [{required: false,
+      }, {validator: basicValidator}],
+      mavenProfileId: [{required: false,
+      }, {validator: basicValidator}],
 
       // 镜像方式
       // imageType: [{
@@ -126,45 +184,7 @@ class AppInfoHelper {
           required: true,
           message: '请输入镜像地址',
         }
-        // , {
-        //   pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9_-]+$/,
-        //   message: '只能包含中文，字母，数字',
-        //   trigger: 'blur'
-        // }
       ],
-      // fileLocation: [{
-      //   type: 'array',
-      //   required: true,
-      //   message: '请输入至少一个文件存储地址',
-      // }, {
-      //   pattern: /^\/[A-Za-z0-9_\-]+$/,
-      //   message: '以/开头，可包含字母、数字、下划线、中划线，2-18位字符',
-      //   trigger: 'blur'
-      // }],
-      fileLocation: [{
-        type: 'array',
-        required: false,
-        message: '请输入至少一个文件存储地址',
-      }, {
-        validator(rule, values, callback) {
-          // console.log(rule);
-          // console.log(values);
-          // console.log(typeof(values));
-          let passed = true;
-          let reg = /^\/[A-Za-z0-9_\-]+$/;
-          for (let key in values) {
-            let item = values[key];
-            if (!reg.exec(item)) {
-              passed = false;
-              callback(`${item}不符合条件。请以/开头，可包含字母、数字、下划线、中划线，2-18位字符。`)
-            }
-          }
-          if (passed) {
-            callback();
-          }
-        }
-      }],
-
 
       cpu: [{
         required: true,

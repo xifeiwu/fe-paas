@@ -11,7 +11,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="应用名称" prop="appName">
-        <el-input v-model="createAppForm.appName" placeholder="中文，英文，数字，30字符内"></el-input>
+        <el-input v-model="createAppForm.appName" placeholder="中文，英文，数字，下划线，中划线等。3-30个字符"></el-input>
       </el-form-item>
       <el-form-item label="项目名称" prop="projectName">
         <el-input v-model="createAppForm.projectName" placeholder="gitlab中project的名称"></el-input>
@@ -52,19 +52,20 @@
       </el-form-item>
 
       <el-form-item label="健康检查" prop="healthCheck">
-        <el-input v-model="createAppForm.healthCheck" placeholder="以/开头，可以包含字母数字下划线中划线，2-50位"></el-input>
+        <el-input v-model="createAppForm.healthCheck" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-50个字符"></el-input>
       </el-form-item>
       <el-form-item label="文件存储" prop="fileLocation" class="fileLocation">
           <el-tag
             v-for="tag in createAppForm.fileLocation"
             :key="tag"
+            size="small"
             closable
             type="success"
-            @close="handleRemoveFileLocation(tag)"
+            @close="handleFileLocation('remove', tag)"
           >{{tag}}</el-tag>
-        <el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母数字下划线中划线，2-18位">
+        <el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-18个字符">
           <template slot="append">
-            <el-button type="primary" class="add-file-location-btn" @click="handleAddFileLocation(fileLocationToAdd)">
+            <el-button type="primary" class="add-file-location-btn" @click="handleFileLocation('add', fileLocationToAdd)">
               添加
             </el-button>
           </template>
@@ -237,28 +238,30 @@ export default {
         }
       });
     },
-    handleRemoveFileLocation(tag) {
-      let items = this.createAppForm.fileLocation;
-      items.splice(items.indexOf(tag), 1);
-    },
-    handleAddFileLocation(tag) {
-      tag = tag.trim();
-      let tagLength = tag.length;
-      if (tagLength < 2 || tagLength > 18) {
-        this.$message.error('长度在2到18个字符');
-        return;
-      }
-      if (!/^\/[A-Za-z0-9_\-]+$/.exec(tag)) {
-        this.$message.error('以/开头，可以包含字母数字下划线中划线');
-        return;
-      }
-      if (tag.length > 0) {
-        if (this.createAppForm.fileLocation.indexOf(tag) > -1) {
-          this.$message.error('该文件存储已存在！');
-        } else {
-          this.createAppForm.fileLocation.push(tag);
-          this.fileLocationToAdd = '';
-        }
+
+    // 增删文件存储
+    handleFileLocation(action, tag) {
+      let fileLocationList = this.createAppForm.fileLocation;
+      switch (action) {
+        case 'add':
+          tag = tag.trim();
+          let reg = /^\/[A-Za-z0-9_\\-\\.@]{2,18}$/;
+          if (!reg.exec(tag)) {
+            this.$message.warning('以/开头，可包含字母、数字、下划线、中划线。2-18位字符。');
+            return;
+          }
+          if (tag.length > 0) {
+            if (fileLocationList.indexOf(tag) > -1) {
+              this.$message.warning('该文件存储已存在！');
+            } else {
+              fileLocationList.push(tag);
+              this.fileLocationToAdd = '';
+            }
+          }
+          break;
+        case 'remove':
+          fileLocationList.splice(fileLocationList.indexOf(tag), 1);
+          break;
       }
     },
     handleFinish() {
