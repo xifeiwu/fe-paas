@@ -481,6 +481,7 @@ class Net {
       let modelList = [];
       Array.isArray(items) && items.forEach(it => {
         modelList.push({
+          oneApm: it.oneapm,
           healthCheck: it.healthCheck,
           environments: JSON.parse(JSON.stringify(it.environments)),
           hosts: JSON.parse(JSON.stringify(it.hosts)),
@@ -641,6 +642,7 @@ class Net {
       'fileLocation': URL_LIST.service_update_file_location,
       'environments': URL_LIST.service_update_environment,
       'hosts': URL_LIST.service_update_host,
+      'oneApm': URL_LIST.service_update_one_apm,
     };
     let url = urlMap[prop];
     // console.log(url);

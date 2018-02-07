@@ -88,7 +88,7 @@
             <el-button
                     v-if="!isProductionProfile"
                     size="mini-extral" type="warning"
-                    @click="handleOperationClick('deploy', scope.$index, scope.row)">部署</el-button>
+                    @click="handleRowButtonClick('deploy', scope.$index, scope.row)">部署</el-button>
             <el-button
                     size="mini-extral"type="warning"
                     @click="handleRowButtonClick('go-to-log-deploy', scope.$index, scope.row)">部署日志</el-button>
@@ -648,8 +648,8 @@
                v-if="selected.service && selected.model"
     >
       <!--<el-tag type="success" disable-transitions>-->
-        <!--<i class="el-icon-warning"></i>-->
-        <!--<span></span>-->
+      <!--<i class="el-icon-warning"></i>-->
+      <!--<span></span>-->
       <!--</el-tag>-->
       <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeLoadBalanceForm">
         <el-form-item label="负载均衡" prop="loadBalance">
@@ -663,6 +663,38 @@
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
                        @click="handleDialogButtonClick('loadBalance')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="更改OneApm" :visible="selected.prop == 'oneApm'"
+               @close="selected.prop = null"
+               class="one-apm"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+      <i class="el-icon-warning"></i>
+        <span>更改监控后需要重启才能生效</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="120px" ref="changeOneApmForm">
+        <el-form-item label="OneApm监控" prop="oneApm">
+          <el-radio-group v-model="newProps.oneApm">
+            <el-radio :label="true">需要</el-radio>
+            <el-radio :label="false">不需要</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('oneApm')"
                        :loading="waitingResponse">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -992,6 +1024,7 @@ export default {
         gitLabBranch: '',
         mavenProfileId: '',
         fileLocation: [],
+        oneApm: '',
       },
       waitingResponse: false,
 
@@ -1358,6 +1391,9 @@ export default {
             });
           }
           break;
+        case 'one-apm':
+          this.handleChangeProp('oneApm')
+          break;
       }
     },
     /**
@@ -1367,7 +1403,7 @@ export default {
     handleChangeProp(prop) {
       if (['healthCheck', 'image','gitLabAddress', 'gitLabBranch', 'mavenProfileId',
           'cpuAndMemory', 'rollingUpdate', 'loadBalance', 'environments', 'hosts',
-          'fileLocation'].indexOf(prop) == -1) {
+          'fileLocation', 'oneApm'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
         return;
       }
@@ -1380,6 +1416,7 @@ export default {
         case 'mavenProfileId':
         case 'rollingUpdate':
         case 'loadBalance':
+        case 'oneApm':
           this.newProps[prop] = this.selected.model[prop];
           this.$refs.hasOwnProperty(formName) &&
           this.$refs[formName].validate();
@@ -1418,6 +1455,7 @@ export default {
         case 'mavenProfileId':
         case 'rollingUpdate':
         case 'loadBalance':
+        case 'oneApm':
           this.$refs[formName].validate((valid) => {
             if (!valid) {
               return;
@@ -1521,8 +1559,10 @@ export default {
         case 'fileLocation':
         case 'environments':
         case 'hosts':
+        case 'oneApm':
           let propMap = {
             'fileLocation': 'volumes',
+            'oneApm': 'oneapm'
           };
           let optionKey = prop;
           if (prop in propMap) {
@@ -1582,6 +1622,7 @@ export default {
         case 'gitLabAddress':
         case 'gitLabBranch':
         case 'mavenProfileId':
+        case 'oneApm':
           this.selected.model[prop] = this.newProps[prop];
           this.selected.service[prop] = this.newProps[prop];
           break;

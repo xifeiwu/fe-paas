@@ -75,6 +75,8 @@ var urlList = {
   'service_update_environment': path + '/service/updateEnv',
   // 更改Host配置
   'service_update_host': path + '/service/updateHostIp',
+  // 更改OneAPM
+  'service_update_one_apm': path + '/service/updateOneApm',
 
   /** 实例相关*/
   // 获取实例列表

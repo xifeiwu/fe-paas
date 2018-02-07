@@ -29,14 +29,22 @@ class AppInfoHelper {
     }
     return {reg, desc}
   }
-  generateValidator(chinese, min, max) {
+  generateValidator(required, chinese, min, max) {
     let regStates = this.generateReg(chinese, min, max);
     return function(rule, values, callback) {
+      values = values.trim();
       let passed = true;
       let reg = regStates.reg;
-      if (!reg.exec(values)) {
-        passed = false;
-        callback(regStates.desc);
+      if (values.length > 0) {
+        if (!reg.exec(values)) {
+          passed = false;
+          callback(regStates.desc);
+        }
+      } else {
+        if (required) {
+          passed = false;
+          callback('内容不能为空');
+        }
       }
       if (passed) {
         callback();
@@ -44,7 +52,8 @@ class AppInfoHelper {
     };
   }
   constructor() {
-    let basicValidator = this.generateValidator(true);
+    let basicValidator = this.generateValidator(true, true);
+    let notRequriedBasicValidator = this.generateValidator(false, true);
     this.rules = {
       // 应用名称
       appName: [{
@@ -52,7 +61,7 @@ class AppInfoHelper {
           message: '请输入应用名称',
           trigger: 'blur'
         }, {
-          validator: this.generateValidator(true, 3, 30)
+          validator: this.generateValidator(true, true, 3, 30)
         }
       ],
       // 项目名称
@@ -150,11 +159,19 @@ class AppInfoHelper {
       // Gitlab父级pom.xml相对路径
       relativePathOfParentPOM: [{
         required: false,
-      }, {validator: basicValidator}],
-      vmOptions: [{required: false,
-      }, {validator: basicValidator}],
-      mavenProfileId: [{required: false,
-      }, {validator: basicValidator}],
+      }, {
+        validator: notRequriedBasicValidator
+      }],
+      vmOptions: [{
+        required: false,
+      }, {
+        validator: notRequriedBasicValidator
+      }],
+      mavenProfileId: [{
+        required: false,
+      }, {
+        validator: notRequriedBasicValidator
+      }],
 
       // 镜像方式
       // imageType: [{
@@ -214,6 +231,10 @@ class AppInfoHelper {
       loadBalance: [{
         required: true,
         message: '请选择负载均衡方式',
+      }],
+      oneApm: [{
+        required: true,
+        message: '请选择是否使用oneApm',
       }],
     }
   }
