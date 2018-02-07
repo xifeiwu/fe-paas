@@ -84,7 +84,7 @@
 </style>
 
 <script>
-  import appPropUtils from '../utils/app_prop';
+  import appPropUtils from '../utils/app-props';
   import MyVersionSelector from '../utils/components/version-selector';
 
   export default {

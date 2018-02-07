@@ -237,7 +237,7 @@
   }
 </style>
 <script>
-  import appPropUtil from '../utils/app_prop';
+  import appPropUtil from '../utils/app-props';
   import ElSelect from "element-ui/packages/select/src/select";
   import ElTooltip from "element-ui/packages/tooltip/src/main";
   import ElOption from "element-ui/packages/select/src/option";

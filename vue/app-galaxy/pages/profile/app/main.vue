@@ -179,7 +179,7 @@
   }
 </style>
 <script>
-  import AppPropUtils from '../utils/app_prop';
+  import AppPropUtils from '../utils/app-props';
   import StoreHelper from '../utils/store-helper.vue';
   export default {
     mixins: [StoreHelper],
@@ -298,7 +298,7 @@
        *
        * model只包含模型，在dialog弹出是将其值赋值给newProps；
        * 弹出dialog中的数据模型使用newProps，展示使用service；
-       * 存储的时候，对比newProps和model的数据，如果发生改变用newProps更新model和service的数据，更新service的数据时需要使用app_prop；
+       * 存储的时候，对比newProps和model的数据，如果发生改变用newProps更新model和service的数据，更新service的数据时需要使用app-props；
        */
       /**
        * handle click event in the operation-column

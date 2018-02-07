@@ -918,7 +918,7 @@
 </style>
 
 <script>
-  import appPropUtils from '../utils/app_prop';
+  import appPropUtils from '../utils/app-props';
   import StoreHelper from '../utils/store-helper.vue';
   import MyDialogForLog from '../utils/components/dialog4log.vue'
   import MyImageSelector from '../utils/components/image-selector.vue'
