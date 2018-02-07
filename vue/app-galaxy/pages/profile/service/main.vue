@@ -86,26 +86,25 @@
         >
           <template slot-scope="scope">
             <el-button
-                    v-if="selectedProfileID != '5'"
+                    v-if="!isProductionProfile"
                     size="mini-extral" type="warning"
                     @click="handleOperationClick('deploy', scope.$index, scope.row)">部署</el-button>
             <el-button
-                    v-if="selectedProfileID != '5'"
                     size="mini-extral"type="warning"
                     @click="handleRowButtonClick('go-to-log-deploy', scope.$index, scope.row)">部署日志</el-button>
             <el-button
                     size="mini-extral" type="warning"
                     @click="handleRowButtonClick('stop', scope.$index, scope.row)">停止</el-button>
             <el-button
-                    v-if="selectedProfileID == '5'"
-                    size="mini-extral" type="warning"
-                    @click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
-            <el-button
                     size="mini-extral" type="warning"
                     @click="handleRowButtonClick('instance-list', scope.$index, scope.row)">实例列表</el-button>
             <el-button
                     size="mini-extral" type="warning"
                     @click="handleRowButtonClick('go-to-domain', scope.$index, scope.row)">配置外网二级域名</el-button>
+            <el-button
+                    v-if="isProductionProfile"
+                    size="mini-extral" type="warning"
+                    @click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
             <el-button
                     size="mini-extral" type="warning"
                     @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
@@ -955,6 +954,8 @@ export default {
       selectedAppID: null,
       selectedAPP: null,
       selectedProfileID: null,
+      // whether current profile is production
+      isProductionProfile: null,
       selectedProfileList: [],
       // used for component MyImageSelector
       serviceInfo: {
@@ -1059,9 +1060,9 @@ export default {
       }
       this.$storeHelper.setUserConfig('profile/service/appID', appID);
     },
-    selectedProfileID: function (value, oldValue) {
-      this.serviceInfo.profileID = value;
-      let profileID = value;
+    selectedProfileID: function (profileID, oldValue) {
+      this.serviceInfo.profileID = profileID;
+      this.isProductionProfile = this.$storeHelper.isProductionProfile(profileID);
       let appID = this.selectedAPP.appId;
       this.requestServiceList(appID, profileID);
       this.$storeHelper.setUserConfig('profile/service/profileID', profileID);

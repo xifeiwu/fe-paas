@@ -157,6 +157,14 @@ class StoreHelper {
     // console.log(this.appInfoListOfGroup);
   }
 
+  getProfileInfoByID(id) {
+    let target = null;
+    this.profileListOfGroup().some(it => {
+      target = it.id === id ? it : null;
+      return target
+    });
+    return target;
+  }
   getProfileInfoByType(type) {
     let target = null;
     this.profileListOfGroup().some(it => {
@@ -176,14 +184,9 @@ class StoreHelper {
   // getProfileInfoOfProduct() {
   //   return this.getProfileInfoByName('production');
   // }
-
-  getProfileInfoByID(id) {
-    let target = null;
-    this.profileListOfGroup().some(it => {
-      target = it.id === id ? it : null;
-      return target
-    });
-    return target;
+  isProductionProfile(id) {
+    let profileInfo = this.getProfileInfoByID(id);
+    return profileInfo && profileInfo.hasOwnProperty('spaceType') && profileInfo.spaceType === 'PRODUCTION';
   }
 
   getGroupInfoByID(groupID) {
