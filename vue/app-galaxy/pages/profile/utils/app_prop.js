@@ -3,18 +3,12 @@ import STORE from '../../../store';
 class AppInfoHelper {
   constructor() {
     this.rules = {
-      // groupID: [{
-      //   required: true,
-      //   message: '请选择所属用户组',
-      //   trigger: 'change'
-      // }],
       // 应用名称
       appName: [{
-        required: true,
-        message: '请输入应用名称',
-        trigger: 'blur'
-      },
-        {
+          required: true,
+          message: '请输入应用名称',
+          trigger: 'blur'
+        }, {
           min: 3,
           max: 30,
           message: '长度在3到30个字符',
@@ -25,7 +19,7 @@ class AppInfoHelper {
           trigger: 'blur'
         }
       ],
-      groupID:[{
+      groupID: [{
         required: true,
         message: '请选择团队',
       }],
@@ -74,41 +68,41 @@ class AppInfoHelper {
         required: true,
         message: '请填写服务版本，只能包含数字',
         pattern: /^[0-9]+$/,
-      }
-      ],
-      // // gitlab地址
-      // gitlabAddress: [{
-      //   required: true,
-      //   message: '请填写gitlab地址',
-      // }],
-      // // gitlab分支
-      // gitlabBranch: [{
-      //   required: true,
-      //   message: '请填写gitlab分支',
-      // }],
+      }],
       gitLabAddress: [{
         required: true,
         message: '请填写gitlab地址',
+      }, {
+        validator(rule, values, callback) {
+          let passed = true;
+          let reg = /^[A-Za-z0-9_\-\.@]+$/;
+          if (!reg.exec(values)) {
+            passed = false;
+            callback(`请检查格式是否正确`);
+          }
+          if (passed) {
+            callback();
+          }
+        }
       }],
       // gitlab分支
       gitLabBranch: [{
         required: true,
         message: '请填写gitlab分支',
+        pattern: /^[\w]+$/,
       }],
       // Gitlab父级pom.xml相对路径
       relativePathOfParentPOM: [{
         required: false,
       }],
-      vmOptions: [{}
-      ],
+      vmOptions: [{}],
       mavenProfileId: [{}],
 
-
       // 镜像方式
-      imageType: [{
-        required: true,
-        message: '请选择打镜像方式',
-      }],
+      // imageType: [{
+      //   required: true,
+      //   message: '请选择打镜像方式',
+      // }],
       // 镜像方式
       customImage: [{
         required: true,
@@ -129,14 +123,14 @@ class AppInfoHelper {
       }],
       // 镜像地址
       imageLocation: [{
-        required: true,
-        message: '请输入镜像地址',
-      }
-      // , {
-      //   pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9_-]+$/,
-      //   message: '只能包含中文，字母，数字',
-      //   trigger: 'blur'
-      // }
+          required: true,
+          message: '请输入镜像地址',
+        }
+        // , {
+        //   pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9_-]+$/,
+        //   message: '只能包含中文，字母，数字',
+        //   trigger: 'blur'
+        // }
       ],
       // fileLocation: [{
       //   type: 'array',
