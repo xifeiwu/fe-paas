@@ -51,8 +51,12 @@
                size="mini"
                label-width="120px">
         <el-form-item label="应用名称" prop="appName">
-          <el-select filterable v-model="workOrderDetail.appID" placeholder="请选择" style="display:block; width: 350px;">
-            <el-option v-for="(item, index) in appInfoListOfGroup.appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
+          <el-select filterable v-model="workOrderDetail.appID"
+                     v-if="appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')"
+                     placeholder="请选择" style="display:block; width: 350px;">
+            <el-option v-for="(item, index) in appInfoListOfGroup.appList"
+                       :key="item.appId" :label="item.serviceName" :value="item.appId"
+            >
             </el-option>
           </el-select>
         </el-form-item>
@@ -78,7 +82,7 @@
         </el-form-item>
         <el-form-item label="知会人" prop="notifyUserIdList">
           <el-select filterable v-model="workOrderDetail.notifyUserIdList" multiple placeholder="请选择" style="width: 350px">
-            <el-option v-for="item in allUsers" :key="item.id" :label="item.realName" :value="item.id">
+            <el-option v-for="item in usersAll" :key="item.id" :label="item.realName" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -212,9 +216,29 @@
     mixins: [StoreHelper],
 
     created() {
-      this.onCurrentGroupID(this.currentGroupID);
-      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
-      this.onUsersAll(this.usersAll);
+      this.onCurrentGroupID(this.$storeHelper.currentGroupID);
+      if (!this.appInfoListOfGroup) {
+        this.$store.dispatch('user/appInfoListOfGroup', {
+          from: 'page/app/add',
+          groupID: this.$storeHelper.currentGroupID
+        });
+      } else {
+        this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+      }
+      if (!this.usersAll) {
+        this.$store.dispatch('app/usersAll');
+      }
+      if (!this.usersInGroup) {
+        this.$store.dispatch('user/usersInGroup');
+      }
+
+      let queryParam = this.$route.query;
+      if (queryParam && queryParam.hasOwnProperty('from')) {
+        if (queryParam['from'] === '/profile/service') {
+          let localServiceConfig = this.$storeHelper.getUserConfig('profile/service');
+          this.workOrderDetail.appID = localServiceConfig.appID;
+        }
+      }
     },
     mounted() {
 //      let workOrder = this.$store.getters['app/currentWorkOrder'];
@@ -249,7 +273,7 @@
         workOrderDetail: {
           name: '',
           creatorName: this.$getUserInfo('realName'),
-          groupId: this.currentGroupID,
+          groupId: this.$storeHelper.currentGroupID,
           groupName: '',
           featureList: [],
           appID: null,
@@ -261,9 +285,19 @@
           comment: '',
         },
         versionList: [],
-        allUsers: [],
         disableSubmit: false,
       };
+    },
+    computed: {
+      appInfoListOfGroup() {
+        return this.$storeHelper.appInfoListOfGroup();
+      },
+      usersAll() {
+        return this.$storeHelper.usersAll();
+      },
+      usersInGroup() {
+        return this.$storeHelper.usersInGroup();
+      }
     },
     watch: {
       appInfoListOfGroup: 'onAppInfoListOfGroup',
@@ -279,7 +313,6 @@
         });
       },
       currentGroupID: 'onCurrentGroupID',
-      usersAll: 'onUsersAll'
     },
     methods: {
       onCurrentGroupID(value) {
@@ -289,13 +322,12 @@
           this.workOrderDetail.groupName = groupInfo.name;
         }
       },
-      onUsersAll(value) {
-        this.allUsers = value;
-      },
       onAppInfoListOfGroup(value) {
         if (value.hasOwnProperty('appList')) {
           if (Array.isArray(value.appList)) {
-            this.workOrderDetail.appID = value.appList[0].appId;
+            if (!this.workOrderDetail.appID) {
+              this.workOrderDetail.appID = value.appList[0].appId;
+            }
           }
         }
       },

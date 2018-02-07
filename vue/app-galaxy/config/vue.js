@@ -9,8 +9,8 @@ class StoreHelper {
     // this.groupInfo = this.$store.getters['user/groupInfo'];
     // this.profileListOfGroup = this.$store.getters['user/profileListOfGroup'];
     // this.appInfoListOfGroup = this.$store.getters['user/appInfoListOfGroup'];
-    this.usersInGroup = this.$store.getters['user/usersInGroup'];
-    this.usersAll = this.$store.getters['app/usersAll'];
+    // this.usersInGroup = this.$store.getters['user/usersInGroup'];
+    // this.usersAll = this.$store.getters['app/usersAll'];
 
     this.PROFILE_ID_FOR_ALL = -1;
     this.APP_ID_FOR_ALL = -1;
@@ -26,6 +26,14 @@ class StoreHelper {
   }
   profileListOfGroup() {
     return this.$store.getters['user/profileListOfGroup'];
+  }
+
+  usersAll() {
+    return this.$store.getters['app/usersAll'];
+  }
+
+  usersInGroup() {
+    return this.$store.getters['user/usersInGroup'];
   }
 
   get currentGroupID() {
@@ -209,8 +217,9 @@ class StoreHelper {
   getUserInfoByID(userIdList) {
     let results = null;
     if (Array.isArray(userIdList)) {
-      if (this.usersAll && Array.isArray(this.usersAll)) {
-        results = this.usersAll.filter(it => {
+      let usersAll = this.usersAll();
+      if (usersAll && Array.isArray(usersAll)) {
+        results = usersAll.filter(it => {
           return userIdList.indexOf(it.id) > -1;
         })
       }

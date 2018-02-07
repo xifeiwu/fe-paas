@@ -2,7 +2,7 @@
   <div id="service-main">
     <div class="header">
       <el-row class="operation">
-        <el-col :span="5">
+        <el-col :span="6">
           <el-button
               size="mini-extral"
               type="primary"
@@ -13,20 +13,26 @@
              size="mini-extral"
              type="primary"
              @click="handleButtonClick('refreshAppList')">刷新</el-button>
+          <el-button v-if="isProductionProfile"
+                     size="mini-extral"
+                     type="primary"
+                     @click="handleButtonClick('go-to-work-order-todo-add')">申请工单</el-button>
         </el-col>
-        <el-col :span="10">
-          <label style="float: left; width: 72px; line-height: 26px">应用名称：</label>
-          <el-select filterable v-model="selectedAppID" placeholder="请选择" style="display:block; max-width: 280px; margin-left: 72px;">
-            <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
-            </el-option>
-          </el-select>
-        </el-col>
-        <el-col :span="9">
-          <label style="float: left; width: 72px; line-height: 26px">运行环境：</label>
-          <el-select v-model="selectedProfileID" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 72px;">
-            <el-option v-for="item in selectedProfileList" :key="item.id" :label="item.description" :value="item.id">
-            </el-option>
-          </el-select>
+        <el-col :span="18" class="app-selector">
+          <div class="item">
+            <label style="float: left; width: 72px; line-height: 26px">应用名称：</label>
+            <el-select filterable v-model="selectedAppID" placeholder="请选择" style="display:block; max-width: 280px; margin-left: 72px;">
+              <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
+              </el-option>
+            </el-select>
+          </div>
+          <div class="item">
+            <label style="float: left; width: 72px; line-height: 26px">运行环境：</label>
+            <el-select v-model="selectedProfileID" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 72px;">
+              <el-option v-for="item in selectedProfileList" :key="item.id" :label="item.description" :value="item.id">
+              </el-option>
+            </el-select>
+          </div>
         </el-col>
       </el-row>
       <el-row class="notice">
@@ -888,12 +894,18 @@
         &.operation {
           margin: 5px 5px 5px 8px;
           .el-col {
-            &:first-child {
-              padding: 0px;
-            }
             padding: 0px 10px;
             display: inline-block;
             vertical-align: middle;
+            &:first-child {
+              padding: 0px;
+              border-right: 1px solid darkgray;
+            }
+            &:nth-child(2) {
+              .item {
+                display: inline-block;
+              }
+            }
           }
         }
         &.notice {
@@ -1155,6 +1167,24 @@ export default {
           break;
         case 'refreshAppList':
           this.requestServiceList(this.selectedAppID, this.selectedProfileID);
+          break;
+        case 'go-to-work-order-todo-add':
+          let statusOK = false;
+          if (this.selectedAppID != null && this.selectedProfileID != null) {
+            statusOK = true;
+          }
+          if (!statusOK) {
+            this.$message.error('所需信息不完整！');
+          } else {
+            this.$storeHelper.setUserConfig('profile/service/appID', this.selectedAppID);
+            this.$storeHelper.setUserConfig('profile/service/profileID', this.selectedProfileID);
+            this.$router.push({
+              path: '/profile/work-order/todo/add',
+              query: {
+                from: '/profile/service'
+              }
+            });
+          }
           break;
       }
     },

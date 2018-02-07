@@ -64,7 +64,7 @@ const actions = {
       });
     // }
   },
-  getUsersAll({commit, state}) {
+  usersAll({commit, state}) {
     if (!state.usersAll) {
       NetData.getUsersAll().then(userList => {
         // console.log(userList);

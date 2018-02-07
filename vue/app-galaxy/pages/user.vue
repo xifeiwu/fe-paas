@@ -182,7 +182,7 @@
         value: this.$storeHelper.currentGroupID
       });
       this.$nextTick(() => {
-        this.$store.dispatch('app/getUsersAll');
+        this.$store.dispatch('app/usersAll');
       });
       this.updateCrumbList(this.$route.path);
     },
