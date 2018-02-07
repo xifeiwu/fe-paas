@@ -1,7 +1,7 @@
 <template>
   <div id="service-add">
     <el-form :model="serviceForm" ref="serviceForm"
-             :rules="rules" label-width="120px" size="mini"
+             :rules="rules" label-width="150px" size="mini"
              v-loading="showLoading"
              :element-loading-text="loadingText">
       <el-form-item label="版本号" prop="serviceVersion" class="serviceVersion">
@@ -15,7 +15,6 @@
           <el-radio :label="true">自定义镜像</el-radio>
         </el-radio-group>
       </el-form-item>
-
       <el-form-item label="镜像地址" prop="customImageValue" v-if="serviceForm.customImage"
                     class="custom-image" :class="customImageType.toLowerCase()+'-image'"
       >
@@ -41,7 +40,6 @@
                      :key="index" :label="item" :value="item">
           </el-option>
         </el-select>
-
       </el-form-item>
       <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-else>
         <el-select v-model="serviceForm.autoImageValue"
@@ -212,11 +210,11 @@
 </style>
 <style lang="scss" scoped>
   #service-add {
-    box-shadow: 0 0 8px 0 rgba(232,237,250,.6), 0 2px 4px 0 rgba(232,237,250,.5);
-    margin: 20px auto;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    margin: 20px 20px 20px 30px;
     padding: 30px 20px 20px 20px;
     width: 80%;
-    max-width: 560px;
+    max-width: 600px;
     .el-form {
       .el-form-item {
         &.environments {
@@ -246,20 +244,18 @@
   export default {
     components: {ElOption, ElTooltip, ElSelect},
     created() {
-      // receive queryString parameters from url first,
-      // get from localStorage if queryString not exist.
+      // receive queryString parameters from url, or go back
       let queryParam = this.$route.query;
       if ('appID' in queryParam && 'profileID' in queryParam && queryParam['appID'] != null && queryParam['profileID'] != null ) {
         this.serviceForm.appId = parseInt(queryParam['appID']);
         this.serviceForm.spaceId = parseInt(queryParam['profileID']);
       } else {
         this.$router.go(-1);
-//        let appId = this.$getUserConfig('profile/service/appID');
-//        let profileId = this.$getUserConfig('profile/service/profileID');
-//        if (appId && profileId) {
-//          this.serviceForm.appId = appId;
-//          this.serviceForm.spaceId = profileId;
-//        }
+        return;
+      }
+      if (!this.appInfoListOfGroup || !this.groupInfo) {
+        this.$router.go(-1);
+        return;
       }
       // get app related info at beginning
       this.onAppInfoListOfGroup(this.appInfoListOfGroup);
@@ -318,8 +314,8 @@
         memorySizeList: [],
         rules: appPropUtil.rules,
 
-        appIndex: null,
-        currentApp: {},
+        currentApp: null,
+        currentProfile: null,
 
         showLoading: false,
         loadingText: '',
@@ -329,9 +325,12 @@
       cpuAndMemoryList() {
         return this.$storeHelper.cpuAndMemoryList();
       },
-//      appInfoListOfGroup() {
-//        return this.$store.getters['user/appInfoListOfGroup'];
-//      },
+      groupInfo() {
+        return this.$storeHelper.groupInfo();
+      },
+      appInfoListOfGroup() {
+        return this.$storeHelper.appInfoListOfGroup();
+      },
     },
     watch: {
       /**
@@ -383,7 +382,7 @@
           this.setDefaultImage(this.imageRelatedInfo);
         }
       },
-      'currentPrivateApp': 'requestAppVersionList'
+      'currentPrivateApp': 'requestPrivateImageLocation'
     },
     methods: {
       /**
@@ -396,44 +395,54 @@
        *   so onAppInfoListOfGroup is called on created method.
        * @param value
        */
-      onAppInfoListOfGroup (value) {
-        let appInfo = this.$storeHelper.getAppInfoByID(this.serviceForm.appId);
-        if (appInfo && appInfo.hasOwnProperty('app')) {
-          this.currentApp = appInfo.app;
+      onAppInfoListOfGroup(appList) {
+        if (this.serviceForm.appId) {
+          this.currentApp = this.$storeHelper.getAppByID(this.serviceForm.appId);
+        } else {
+          console.log('serviceForm.appID not found');
+        }
+        if (this.serviceForm.spaceId) {
+          this.currentProfile = this.$storeHelper.getProfileInfoByID(this.serviceForm.spaceId);
+        } else {
+          console.log('serviceForm.spaceId not found');
+        }
+        this.requestImageRelatedInfo();
+      },
+      onGroupInfo(groupInfo) {
+        if (groupInfo) {
+          this.requestImageRelatedInfo();
         }
       },
-      /**
-       * do some action on change of groupInfo
-       * 1. get type list of auto image
-       */
-      onGroupInfo(value) {
-//        console.log(this.currentApp);
-//        console.log(value);
+
+      requestImageRelatedInfo() {
+        if (!this.currentApp || !this.currentProfile || !this.groupInfo || !this.serviceForm) {
+          console.log('data is not complete');
+          return;
+        }
         // check group tag
-        if (!value || !value.hasOwnProperty('tag')) {
+        if (!this.groupInfo.hasOwnProperty('tag')) {
           console.log('groupTag not found');
           return;
         }
         // check language
-        if (!this.currentApp || !this.currentApp.hasOwnProperty('language')) {
+        if (!this.currentApp.hasOwnProperty('language')) {
           console.log('language not found');
           return;
         }
         // check spaceId
-        if (!this.serviceForm.hasOwnProperty('spaceId') || !this.serviceForm.hasOwnProperty('appId')) {
-          console.log('spaceId or appId not found')
+        if (!this.serviceForm.appId || !this.serviceForm.spaceId) {
+          console.log('appID or spaceId not found')
           return;
         }
         // check profile name
-        let profileInfo = appPropUtil.getProfileInfoByID(this.serviceForm.spaceId);
-        if (!profileInfo || !profileInfo.hasOwnProperty('name')) {
+        if (!this.currentProfile.hasOwnProperty('name')) {
           console.log('profileName not found');
           return;
         }
 
-        let groupTag = value.tag;
+        let groupTag = this.groupInfo.tag;
         let language = this.currentApp.language.toLowerCase();
-        let profileName = profileInfo.name;
+        let profileName = this.currentProfile.name;
         this.$net.getImageRelatedInfo({
           groupTag: groupTag,
           language: 'ph' + language
@@ -445,17 +454,17 @@
           groupTag: groupTag
         }).then(imageRelatedInfo => {
           this.imageRelatedInfo = imageRelatedInfo;
-          console.log(this.imageRelatedInfo);
+          if (imageRelatedInfo && imageRelatedInfo.hasOwnProperty('privateAppList')
+            && Array.isArray(imageRelatedInfo.privateAppList) && imageRelatedInfo.privateAppList.length > 0) {
+            this.currentPrivateApp = imageRelatedInfo.privateAppList[0];
+          }
+//          console.log(this.imageRelatedInfo);
         }).catch(err => {
           console.log(err);
         })
       },
+
       setDefaultImage(relatedInfo) {
-//          if (relatedInfo.hasOwnProperty('autoImageValue') && relatedInfo.autoImageValue.length > 0) {
-//            if (!this.serviceForm.autoImageValue) {
-//              this.serviceForm.autoImageValue = relatedInfo.autoImageValue[0];
-//            }
-//          }
         switch (this.customImageType) {
           case 'ENV':
             if (relatedInfo.hasOwnProperty('customEnvImageList') && relatedInfo.customEnvImageList.length > 0) {
@@ -469,7 +478,8 @@
             break;
         }
       },
-      requestAppVersionList(value) {
+      // request private image list
+      requestPrivateImageLocation(value) {
         this.currentPrivateAppVersionList = [];
         this.$net.getVersionListOfAppInCustomImage({
           projectName: value
@@ -480,6 +490,7 @@
           }
         });
       },
+
       handleDeleteEnvironment(index) {
         this.serviceForm.environments.splice(index, 1);
       },

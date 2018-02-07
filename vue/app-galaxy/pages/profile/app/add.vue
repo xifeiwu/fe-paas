@@ -1,6 +1,6 @@
 <template>
   <div id="app-add">
-    <el-form :model="createAppForm" :rules="rules"
+    <el-form :model="createAppForm" :rules="rules" size="mini"
              ref="createAppForm" label-width="100px"
              v-loading="showLoading"
              :element-loading-text="loadingText">
@@ -96,10 +96,10 @@
 </style>
 <style lang="scss" scoped>
   #app-add {
-    margin: 20px auto;
+    margin: 20px 20px 20px 30px;
     padding: 30px 20px 20px 20px;
     width: 80%;
-    max-width: 560px;
+    max-width: 600px;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     .el-form {
       .el-form-item {
