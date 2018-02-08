@@ -152,7 +152,7 @@ export default {
     return {
       fileLocationToAdd: '',
       createAppForm: {
-        groupID: '',
+        groupID: this.$storeHelper.currentGroupID,
         appName: '',
         projectName: '',
         profiles: [],
@@ -184,6 +184,9 @@ export default {
   watch: {
     languageInfo: 'onLanguageInfo',
     profileListOfGroup: 'onProfileListOfGroup',
+    '$storeHelper.currentGroupID': function (groupID) {
+      this.createAppForm.groupID = groupID;
+    }
   },
   methods: {
     onLanguageInfo: function(value, oldValue) {
@@ -245,7 +248,7 @@ export default {
       switch (action) {
         case 'add':
           tag = tag.trim();
-          let reg = /^\/[A-Za-z0-9_\\-\\.@]{2,18}$/;
+          let reg = /^\/[A-Za-z0-9_\-\.@]{2,18}$/;
           if (!reg.exec(tag)) {
             this.$message.warning('以/开头，可包含字母、数字、下划线、中划线。2-18位字符。');
             return;
@@ -282,19 +285,18 @@ export default {
               from: 'page/app/add',
               groupID: this.$storeHelper.currentGroupID
             });
-
             this.$message({
               type: 'success',
               message: '应用' + toPost.serviceName + '创建成功！'
             });
             this.$router.push('/profile/app');
           }).catch((err) => {
+            self.showLoading = false;
             this.$notify({
               title: '提示',
               message: err,
               duration: 0,
               onClose: function () {
-                self.showLoading = false;
                 self.$router.push('/profile/app/add');
               }
             });

@@ -58,18 +58,18 @@
       </el-form-item>
 
       <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
-                    v-if="currentApp.isJavaLanguage"
+                    v-if="currentApp && currentApp.isJavaLanguage"
                     class="relativePathOfParentPOM"
       >
         <el-input v-model="serviceForm.relativePathOfParentPOM" placeholder=""></el-input>
       </el-form-item>
       <el-form-item label="VM_Options" prop="vmOptions"
-                    v-if="currentApp.isJavaLanguage"
+                    v-if="currentApp && currentApp.isJavaLanguage"
       >
         <el-input v-model="serviceForm.vmOptions" placeholder=""></el-input>
       </el-form-item>
       <el-form-item label="maven profile id" prop="mavenProfileId"
-                    v-if="currentApp.isJavaLanguage"
+                    v-if="currentApp && currentApp.isJavaLanguage"
       >
         <el-input v-model="serviceForm.mavenProfileId" placeholder=""></el-input>
       </el-form-item>
@@ -253,12 +253,22 @@
         this.$router.go(-1);
         return;
       }
-      if (!this.appInfoListOfGroup || !this.groupInfo) {
+      // appInfoListOfGroup must be existed: used for get info of currentApp which is ued to get isJavaLanguage
+      // and image-related info.
+      if (!this.appInfoListOfGroup) {
+        this.$store.dispatch('user/appInfoListOfGroup', {
+          from: 'page/service/add',
+          groupID: this.$storeHelper.currentGroupID
+        });
+      } else {
+        this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+      }
+      // the logic of groupInfo is different from appInfoListOfGroup as it is stored in localStorage
+      if (!this.groupInfo) {
         this.$router.go(-1);
         return;
       }
       // get app related info at beginning
-      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
 
       this.rules.imageLocation.required = false;
       // set default cpu, default memorySizeList will be set in watch
@@ -525,6 +535,7 @@
       },
       /**
        * init the value of this.serviceForm
+       * TODO: not used
        */
       initServiceForm() {
         this.serviceForm.serviceVersion = '';
@@ -534,8 +545,6 @@
           this.serviceForm.gitLabBranch = '';
           this.serviceForm.relativePathOfParentPOM = '';
           this.serviceForm.vmOptions = '';
-//          this.serviceForm.cpuID = '';
-//          this.serviceForm.memoryID = '';
           this.serviceForm.mavenProfileId = '';
           this.serviceForm.environments = [];
           this.serviceForm.hosts = [];
@@ -555,25 +564,22 @@
             this.loadingText = '正在为您创建服务';
             this.$net.createService(toPost).then((content) => {
               this.showLoading = false;
-              this.successConfirm('创建应用成功！返回服务列表？').then(() => {
-                this.$router.push('/profile/service');
-              }).catch(() => {
-//                this.initServiceForm();
-                this.$refresh();
-                this.$router.push('/profile/service/add');
+              this.$message({
+                type: 'success',
+                message: '服务' + toPost.serviceVersion + '创建成功！'
               });
+              this.$router.push('/profile/service');
             }).catch((err) => {
+              console.log(err);
               this.showLoading = false;
               this.$notify({
                 title: '提示',
                 message: err,
                 duration: 0,
                 onClose: function () {
-                  self.showLoading = false;
                   self.$router.push('/profile/service/add');
                 }
               });
-              console.log(err);
             });
           } else {
             console.log('error submit!!');
@@ -581,6 +587,11 @@
           }
         });
       },
+      /**
+       * used for two-way choose after success action, howto:
+       * successConfirm(contentToShow).then().catch()
+       * TODO: not used
+       */
       successConfirm(content) {
         return new Promise((resolve, reject) => {
           this.$confirm(content, '提示', {

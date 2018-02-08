@@ -79,7 +79,7 @@ class AppInfoHelper {
       }, {
         validator(rule, values, callback) {
           let passed = true;
-          let reg = /^\/[A-Za-z0-9_\\-\\.@]{2,50}$/;
+          let reg = /^\/[A-Za-z0-9_\-\.@]{2,50}$/;
           if (!reg.exec(values)) {
             passed = false;
             callback('以/开头，可以包含字母、数字、下划线、中划线。2-50个字符');
@@ -96,7 +96,7 @@ class AppInfoHelper {
       }, {
         validator(rule, values, callback) {
           let passed = true;
-          let reg = /^\/[A-Za-z0-9_\\-\\.@]{2,18}$/;
+          let reg = /^\/[A-Za-z0-9_\-\.@]{2,18}$/;
           for (let key in values) {
             let item = values[key];
             if (!reg.exec(item)) {

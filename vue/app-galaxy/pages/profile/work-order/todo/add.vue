@@ -219,7 +219,7 @@
       this.onCurrentGroupID(this.$storeHelper.currentGroupID);
       if (!this.appInfoListOfGroup) {
         this.$store.dispatch('user/appInfoListOfGroup', {
-          from: 'page/app/add',
+          from: 'page/work-order/todo/add',
           groupID: this.$storeHelper.currentGroupID
         });
       } else {
