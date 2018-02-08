@@ -1,9 +1,16 @@
 <template>
   <div id="instance-main">
-    <div class="header">
-      <my-version-selector :customConfig="localConfig" ref="version-selector"
-              @version-selected="onVersionSelected"></my-version-selector>
-    </div>
+    <el-row class="header">
+      <el-col :span="4">
+        <el-button v-if="true"
+                   size="mini-extral"
+                   type="primary"
+                   @click="handleButtonClick('refresh')">刷新</el-button></el-col>
+      <el-col :span="20">
+        <my-version-selector :customConfig="localConfig" ref="version-selector"
+                             @version-selected="onVersionSelected"></my-version-selector>
+      </el-col>
+    </el-row>
     <div class="section-content">
       <el-table
               :data="currentInstanceList"
@@ -86,9 +93,10 @@
 <script>
   import appPropUtils from '../utils/app-props';
   import MyVersionSelector from '../utils/components/version-selector';
+  import ElCol from "element-ui/packages/col/src/col";
 
   export default {
-    components: {MyVersionSelector},
+    components: {ElCol, MyVersionSelector},
 
     /**
      * the sequence of create and mount in parent and child element is:
@@ -156,6 +164,20 @@
           });
           this.showLoading = false;
         });
+      },
+
+      handleButtonClick(action) {
+        switch (action) {
+          case 'refresh':
+            let serviceInfo = this.$refs['version-selector'].getSelectedValue();
+            let params = [
+              serviceInfo.selectedAPP.appId,
+              serviceInfo.selectedProfile.id,
+              serviceInfo.selectedService.serviceVersion
+            ];
+            this.requestInstanceList.apply(this, params);
+            break;
+        }
       },
 
       /**
