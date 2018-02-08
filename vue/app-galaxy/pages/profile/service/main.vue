@@ -103,7 +103,7 @@
                     @click="handleRowButtonClick('stop', scope.$index, scope.row)">停止</el-button>
             <el-button
                     size="mini-extral" type="warning"
-                    @click="handleRowButtonClick('instance-list', scope.$index, scope.row)">实例列表</el-button>
+                    @click="handleRowButtonClick('go-to-instance-list', scope.$index, scope.row)">实例列表</el-button>
             <el-button
                     size="mini-extral" type="warning"
                     @click="handleRowButtonClick('go-to-domain', scope.$index, scope.row)">配置外网二级域名</el-button>
@@ -1363,7 +1363,7 @@ export default {
             this.expandRows = [key];
           }
           break;
-        case 'instance-list':
+        case 'go-to-instance-list':
           statusOK = false;
           if (row.hasOwnProperty('id') && this.selectedAppID != null && this.selectedProfileID != null) {
             statusOK = true;
@@ -1371,6 +1371,11 @@ export default {
           if (!statusOK) {
             this.$message.error('所需信息不完整！');
           } else {
+            this.$storeHelper.setUserConfig('profile/service', {
+              appID: this.selectedAppID,
+              profileID: this.selectedProfileID,
+              serviceID: row.id
+            });
             this.$router.push({
               path: '/profile/instance',
               query: {
