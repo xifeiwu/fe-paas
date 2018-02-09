@@ -5,16 +5,15 @@
 class StoreHelper {
   constructor(Store) {
     this.$store = Store;
-    // this.groupList = this.$store.getters['user/groupList'];
-    // this.groupInfo = this.$store.getters['user/groupInfo'];
-    // this.profileListOfGroup = this.$store.getters['user/profileListOfGroup'];
-    // this.appInfoListOfGroup = this.$store.getters['user/appInfoListOfGroup'];
-    // this.usersInGroup = this.$store.getters['user/usersInGroup'];
-    // this.usersAll = this.$store.getters['app/usersAll'];
 
+    // used for item '全部' in app list, profile list, service list
     this.PROFILE_ID_FOR_ALL = -1;
     this.APP_ID_FOR_ALL = -1;
     this.SERVICE_ID_FOR_ALL = -1;
+  }
+
+  menuList() {
+    return this.$store.getters['user/menuList']
   }
 
   groupInfo() {
@@ -22,7 +21,14 @@ class StoreHelper {
   }
 
   appInfoListOfGroup() {
-    return this.$store.getters['user/appInfoListOfGroup'];
+    let appInfoListOfGroup = this.$store.getters['user/appInfoListOfGroup'];
+    if (!appInfoListOfGroup) {
+      this.$store.dispatch('user/appInfoListOfGroup', {
+        from: 'page/app/add',
+        groupID: this.currentGroupID
+      });
+    }
+    return appInfoListOfGroup;
   }
   profileListOfGroup() {
     return this.$store.getters['user/profileListOfGroup'];

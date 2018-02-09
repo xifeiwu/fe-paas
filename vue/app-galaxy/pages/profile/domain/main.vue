@@ -18,7 +18,9 @@
         <el-button
                 size="mini-extral"
                 type="warning"
-                @click="handleButtonClick('open-bind-service-dialog')">绑定服务
+                @click="handleButtonClick('open-bind-service-dialog')"
+                :disabled="!isProfileSelected"
+        >绑定服务
         </el-button>
         <el-button
                 size="mini-extral"
@@ -30,6 +32,7 @@
           <div slot="content">
             <div>1. 已绑定的域名需要先进行解绑，才可绑定新的服务</div>
             <div>2. 点击"绑定服务"和"解绑服务"按钮前，需要选择要操作的外网域名</div>
+            <div>3. 绑定服务时，开发环境不能选择"全部"</div>
           </div>
           <i class="el-icon-question"></i>
       </el-tooltip>
@@ -187,7 +190,7 @@
       </div>
       <div v-if="!bindServiceProps.showResponse">
         <my-version-condition-filter ref="version-selector-in-bind-service-dialog"
-                                     :fixedProfileInfo="fixedProfileInfo">
+                                     :fixedInfo="fixedInfoForVersionCondition">
         </my-version-condition-filter>
         <div class="selected-domain">
           <div>所选外网域名</div>
@@ -505,10 +508,13 @@
         appInfo: null,
         profileInfo: null,
         serviceInfo: null,
-        fixedProfileInfo: {
-          fixed: true,
-          profileID: 1,
+        // passed to my-version-condition-filter
+        fixedInfoForVersionCondition: {
+          type: 'profile',
+          id: null,
         },
+        // whether bind button is enabled
+        isProfileSelected: false,
 
         currentOpenedDialog: null,
 
@@ -553,8 +559,14 @@
         },
       }
     },
+    computed: {
+    },
     watch: {
-      'domainProps.profileName': 'onProfileChangeInCreateDomainDialog'
+      'domainProps.profileName': 'onProfileChangeInCreateDomainDialog',
+      'profileInfo.id': function (id) {
+        this.isProfileSelected = id !== this.$storeHelper.PROFILE_ID_FOR_ALL;
+        this.fixedInfoForVersionCondition.id = id;
+      }
     },
     methods: {
       showWaitingResponse(action) {
@@ -697,6 +709,7 @@
        * do some init action before dialog popup
        */
       handleButtonClick(action) {
+        this.hiddenWaitingResponse();
         switch (action) {
           case 'open-create-domain-dialog':
             if (!this.profileInfo) {
@@ -794,15 +807,23 @@
               return;
             }
             let selectedValue = this.$refs[refKey].getSelectedValue();
-            if (!selectedValue || !selectedValue.hasOwnProperty('selectedService')) {
+            if (!selectedValue || !selectedValue['selectedProfile'] || !selectedValue['selectedAPP']) {
               this.$message.error('未找到服务信息！');
               return;
             }
             this.showWaitingResponse(action);
-            this.$net.domainBindService({
-              serviceId: selectedValue['selectedService'].id,
-              internetDomainIdList: domainIdList
-            }).then(content => {
+
+            let options = {
+              internetDomainIdList: domainIdList,
+              spaceId: selectedValue['selectedProfile'].id,
+              applicationId: selectedValue['selectedAPP']['appId'],
+              serviceId: ''
+            };
+            if (selectedValue['selectedService']) {
+              options['serviceId'] = selectedValue['selectedService'].id;
+            }
+            console.log(options);
+            this.$net.domainBindService(options).then(content => {
               let domainIDList = Object.keys(content);
               for (let key in content) {
                 let target = null;

@@ -206,7 +206,7 @@
     },
     computed: {
       menuList() {
-        return this.$store.getters['user/menuList']
+        return this.$storeHelper.menuList();
       },
       routerPathToName() {
         return routeUtils.getRouterPathToName();

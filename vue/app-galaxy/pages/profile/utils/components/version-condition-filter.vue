@@ -2,8 +2,7 @@
   <div class="el-version-selector">
     <div class="item">
       <label>运行环境:</label>
-      <span v-if="fixProfile">开发环境</span>
-      <el-select v-model="selectedProfileID" placeholder="请选择" v-else>
+      <el-select v-model="selectedProfileID" placeholder="请选择" :disabled="fixedInfo.type=='profile'">
         <el-option v-for="item in profileListWithAll" :key="item.id" :label="item.description" :value="item.id">
         </el-option>
       </el-select>
@@ -96,12 +95,14 @@
         type: Boolean,
         default: false
       },
-      fixedProfileInfo: {
+      fixedInfo: {
         type: Object,
-//        default: {
-//          fixed: false,
-//          profileID: 1,
-//        }
+        default() {
+          return {
+            type: null,
+            id: null,
+          }
+        }
       },
       customConfig: Object
     },
@@ -112,9 +113,6 @@
       appInfoListOfGroup() {
         return this.$storeHelper.appInfoListOfGroup();
       },
-      fixProfile() {
-        return this.fixedProfileInfo && this.fixedProfileInfo.hasOwnProperty('fixed') && this.fixedProfileInfo['fixed'];
-      }
     },
     watch: {
       'profileListOfGroup': 'onProfileListOfGroup',
@@ -135,17 +133,24 @@
       selectedServiceID: function (serviceVersion) {
         this.changeServiceCondition();
       },
+      'fixedInfo.id': function (id) {
+        switch (this.fixedInfo.type) {
+          case 'profile':
+            this.selectedProfileID = id;
+            break;
+        }
+      }
     },
     methods: {
       // the start of watch chain
       onProfileListOfGroup(profileList) {
         // set product profile as constant
-        if (this.fixProfile) {
-          if (this.fixedProfileInfo.profileID) {
-            this.selectedProfileID = this.fixedProfileInfo.profileID;
-          }
-          return;
-        }
+//        if (this.fixProfile) {
+//          if (this.fixedProfileInfo.profileID) {
+//            this.selectedProfileID = this.fixedProfileInfo.profileID;
+//          }
+//          return;
+//        }
         if (profileList && Array.isArray(profileList)) {
           let profileAll = [];
           if (this.addItemAll) {
@@ -166,9 +171,15 @@
         // get from localStorage first
         if (this.selectedProfileID == null) {
           let defaultProfileID = null;
-          if (this.customConfig && this.customConfig.hasOwnProperty('profileID')) {
+          // 1. fixed id
+          if (this.fixedInfo && this.fixedInfo.type === 'profile') {
+            defaultProfileID = this.fixedInfo.id;
+          }
+          // 2. customConfig
+          if (!defaultProfileID && this.customConfig && this.customConfig.hasOwnProperty('profileID')) {
             defaultProfileID = this.customConfig['profileID'];
           }
+          // 3. first element in list
           if (!defaultProfileID && profileListWithAll.length > 0) {
             defaultProfileID = profileListWithAll[0].id;
           }
