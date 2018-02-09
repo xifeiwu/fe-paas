@@ -1,12 +1,20 @@
+const process = require('process');
 const path = require('path');
 const koaServer = require('./koa-spa-server');
 // const L = require('nirvana-logger')('example');
 const port = process.env.PORT0 || 7002;
 
-var javaServer = 'http://172.16.106.191:30333';
-var javaServer = 'http://172.16.105.31:30333';
-var javaServer = 'http://172.16.49.130:30333';
-var javaServer = 'http://galaxy-web-server.galaxy.test';
+var javaServer = null;
+switch (process.env.NODE_ENV) {
+  case 'test':
+    javaServer = 'http://10.10.202.143:30333';
+    break;
+  case 'dev':
+  default:
+    javaServer = 'http://172.16.49.130:30333';
+    javaServer = 'http://galaxy-web-server.galaxy.test';
+    break;
+}
 const proxyTable = {
   // '/api/service/queryTerminalInfo': {
   //   target: 'http://172.16.49.130:30333',
