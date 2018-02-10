@@ -92,8 +92,14 @@
         default: true
       },
       addItemAll: {
-        type: Boolean,
-        default: false
+        type: Object,
+        default() {
+          return {
+            app: false,
+            profile: false,
+            service: false
+          }
+        }
       },
       fixedInfo: {
         type: Object,
@@ -153,7 +159,7 @@
 //        }
         if (profileList && Array.isArray(profileList)) {
           let profileAll = [];
-          if (this.addItemAll) {
+          if (this.addItemAll && this.addItemAll.profile) {
             profileAll = [{
               description: "全部",
               id: this.$storeHelper.PROFILE_ID_FOR_ALL,
@@ -210,7 +216,7 @@
         }
         let appList = this.$storeHelper.getAppListByProfileID(profileID);
         let appAll = [];
-        if (this.addItemAll) {
+        if (this.addItemAll && this.addItemAll.app) {
           appAll = [{
             appId: this.$storeHelper.APP_ID_FOR_ALL,
             serviceName: '全部'
@@ -249,7 +255,7 @@
 //        console.log(this.selectedProfileID);
 //        console.log(this.selectedAppID);
         let versionAll = [];
-        if (this.addItemAll) {
+        if (this.addItemAll && this.addItemAll.service) {
           versionAll = [{
             id: this.$storeHelper.SERVICE_ID_FOR_ALL,
             serviceVersion: '全部'

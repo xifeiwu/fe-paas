@@ -3,7 +3,7 @@
     <div class="section-header">
       <div class="row">
         <my-version-condition-filter
-                :addItemAll="true"
+                :addItemAll="{app:true, profile:true, service: true}"
                 :customConfig="localServiceConfig"
                 @service-condition-changed="onServiceConditionChanged"></my-version-condition-filter>
       </div>
@@ -190,7 +190,9 @@
       </div>
       <div v-if="!bindServiceProps.showResponse">
         <my-version-condition-filter ref="version-selector-in-bind-service-dialog"
-                                     :fixedInfo="fixedInfoForVersionCondition">
+                                     :fixedInfo="fixedInfoForVersionCondition"
+                                     :addItemAll="{service: true}"
+        >
         </my-version-condition-filter>
         <div class="selected-domain">
           <div>所选外网域名</div>
@@ -819,10 +821,11 @@
               applicationId: selectedValue['selectedAPP']['appId'],
               serviceId: ''
             };
-            if (selectedValue['selectedService']) {
+            if (selectedValue['selectedService']
+              && selectedValue['selectedService'].id !== this.$storeHelper.SERVICE_ID_FOR_ALL) {
               options['serviceId'] = selectedValue['selectedService'].id;
             }
-            console.log(options);
+//            console.log(options);
             this.$net.domainBindService(options).then(content => {
               let domainIDList = Object.keys(content);
               for (let key in content) {
