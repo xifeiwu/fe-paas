@@ -40,6 +40,10 @@
               size="mini-extral"
               type="primary"
               @click="handleButtonClick('search')">查询</el-button>
+      <el-button
+              size="mini-extral"
+              type="primary"
+              @click="handleButtonClick('refresh')">刷新</el-button>
     </div>
     <div class="section-log"
          v-loading="showLoading"
@@ -288,6 +292,13 @@
           case 'search':
             this.requestLogAtStart();
           break;
+          case 'refresh':
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 1000 * 60 * 5);
+            this.searchForm.dateTimeRange = [start, end];
+            this.requestLogAtStart();
+            break;
         }
       },
 //      onScrollBottom() {

@@ -246,6 +246,7 @@ h4 {
   overflow: scroll;
 }
 
+::-webkit-scrollbar { width: 2px; height: 2px;}
 
 #app {
   .el-table {

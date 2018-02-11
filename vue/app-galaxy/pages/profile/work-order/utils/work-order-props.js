@@ -60,15 +60,12 @@ class WorkOrderUtils {
         ],
         notifyUserIdList: [{
           type: 'array',
-          required: true,
+          required: false,
           message: '请选择知会人',
           trigger: 'blur'
         }, {
           validator(rule, values, callback) {
-            let passed = values.length > 0;
-            if (passed) {
-              callback();
-            }
+            callback();
           }
         }],
         mailGroupList: [{

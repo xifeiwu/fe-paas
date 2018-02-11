@@ -59,7 +59,7 @@
         element-loading-text="加载中"
       >
         <el-table-column
-          label="服务版本"
+          label="服务默认版本"
           width="150">
           <template slot-scope="scope">
             <el-radio :label="scope.row.id"
