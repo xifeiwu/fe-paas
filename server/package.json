@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start-on-local": "NODE_ENV=dev nodemon start.js || NODE_ENV=dev nodemon start.js",
-    "start-on-server": "NODE_ENV=test node start-forever.js &"
+    "nohup-start-test": "NODE_ENV=test node nohup-start.js &",
+    "nohup-stop": "test -f ./nohup-stop.sh && ./nohup-stop.sh"
   },
   "devDependencies": {
     "nodemon": "^1.14.8"
