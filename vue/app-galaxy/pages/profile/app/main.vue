@@ -20,7 +20,7 @@
         <el-col :span="13">
           <el-checkbox v-model="filterMyApp">
             <span>我的应用</span>
-            <span v-if="myAppCount">(共{{myAppCount}}个)</span>
+            <span>(共{{myAppCount}}个)</span>
           </el-checkbox>
           <el-input
                   size="mini"
@@ -49,8 +49,9 @@
         </el-table-column>
         <el-table-column label="运行环境" prop="profileList" minWidth="90" headerAlign="center" align="center">
           <template slot-scope="scope">
-            <div v-for="item in scope.row.profileList" :label="item.name" :key="item.name">
-              <span class="profile-item" @click="jumpToServicePage(scope.$index, scope.row, item)"
+            <div v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
+              <span :class="{'profile-item': true, 'active': scope.row.spaceList.indexOf(item.name) > -1}"
+                    @click="jumpToServicePage(scope.$index, scope.row, item, scope.row.spaceList.indexOf(item.name) > -1)"
               >{{ item.description }}</span>
             </div>
           </template>
@@ -141,12 +142,17 @@
         color: black;
         .el-table__row {
           .profile-item {
-            cursor: pointer;
             display: inline-block;
-            border-bottom: 1px solid gray;
-            &:hover {
+            color: #333;
+            line-height: 18px;
+            &.active {
+              cursor: pointer;
               color: blue;
-              border-color: blue;
+              border-bottom: 1px solid gray;
+              &:hover {
+                color: blue;
+                border-color: blue;
+              }
             }
           }
         }
@@ -403,6 +409,9 @@
               .filter(it => {
                 return newProp.indexOf(it.name) >= 0;
               });
+            this.selected.app.spaceList = this.selected.app.profileList.map(it => {
+              return it.name;
+            });
             break;
         }
       },
@@ -520,7 +529,10 @@
           }
         }
       },
-      jumpToServicePage(index, row, profile) {
+      jumpToServicePage(index, row, profile, active) {
+        if (!active) {
+          return;
+        }
         let appID = row.appId;
         let profileID = profile.id;
         this.$setUserConfig('profile/service/appID', appID);

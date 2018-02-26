@@ -11,7 +11,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="应用名称" prop="appName">
-        <el-input v-model="createAppForm.appName" placeholder="中文，英文，数字，下划线，中划线等。3-30个字符"></el-input>
+        <el-input v-model="createAppForm.appName" placeholder="中文，英文，数字，下划线，中划线。3-30个字符"></el-input>
       </el-form-item>
       <el-form-item label="项目名称" prop="projectName">
         <el-input v-model="createAppForm.projectName" placeholder="gitlab中project的名称"></el-input>
@@ -63,7 +63,7 @@
             type="success"
             @close="handleFileLocation('remove', tag)"
           >{{tag}}</el-tag>
-        <el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-18个字符">
+        <el-input v-model="fileLocationToAdd" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-18个字符。最多可以添加五个">
           <template slot="append">
             <el-button type="primary" class="add-file-location-btn" @click="handleFileLocation('add', fileLocationToAdd)">
               添加
@@ -248,9 +248,13 @@ export default {
       switch (action) {
         case 'add':
           tag = tag.trim();
-          let reg = /^\/[A-Za-z0-9_\-\.@]{2,18}$/;
+          let reg = /^\/[A-Za-z0-9_\-\.@]{1,49}$/;
           if (!reg.exec(tag)) {
-            this.$message.warning('以/开头，可包含字母、数字、下划线、中划线。2-18位字符。');
+            this.$message.warning('以/开头，可包含字母、数字、下划线、中划线。2-50位字符。');
+            return;
+          }
+          if (fileLocationList.length >= 5) {
+            this.$message.warning('最多只能添加五个路径');
             return;
           }
           if (tag.length > 0) {
