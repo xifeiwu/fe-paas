@@ -13,7 +13,7 @@ switch (process.env.NODE_ENV) {
   default:
     javaServer = 'http://172.16.49.130:30333';
     javaServer = 'http://galaxy-web-server.galaxy.test';
-    javaServer = 'http://10.10.202.143:30333';
+    // javaServer = 'http://10.10.202.143:30333';
     break;
 }
 const proxyTable = {
