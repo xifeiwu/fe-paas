@@ -1,12 +1,5 @@
 <script>
 export default {
-  created() {
-//    console.log('in created of store-helper.vue');
-  },
-  data() {
-    return {
-    }
-  },
   computed: {
     currentGroupID: {
       get() {

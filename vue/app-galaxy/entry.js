@@ -7,13 +7,6 @@
  */
 
 import Vue from 'vue';
-import utils from '../assets/js/utils';
-Vue.prototype.$utils = utils;
-
-import URL from './net/url';
-Vue.prototype.$url = URL;
-import NetData from './net/net';
-Vue.prototype.$net = NetData;
 
 import Store from './store';
 

@@ -171,6 +171,16 @@ class StoreHelper {
     // console.log(this.appInfoListOfGroup);
   }
 
+  /**
+   * the format of profile
+   * {
+   *   description: "开发环境",
+   *   id: 1,
+   *   isDefault: true,
+   *   name: "dev",
+   *   spaceType: "DEV"
+   * }
+   */
   getProfileInfoByID(id) {
     let target = null;
     this.profileListOfGroup().some(it => {
@@ -195,6 +205,27 @@ class StoreHelper {
     });
     return target;
   }
+  /**
+   * change the format of profileList item from
+   * dev to {
+   *   name: 'dev',
+   *   description: '开发环境'
+   * }
+   * as description should be shown in page app_manager
+  */
+  getProfileInfoListByNameList(nameList) {
+    let result = [];
+    if (Array.isArray(nameList)) {
+      result = nameList.filter(it => {
+        // for the case profile not found in profile list of group
+        return null != this.getProfileInfoByName(it);
+      }).map(it => {
+        return this.getProfileInfoByName(it);
+      });
+    }
+    return result;
+  }
+
   // getProfileInfoOfProduct() {
   //   return this.getProfileInfoByName('production');
   // }
@@ -338,6 +369,10 @@ class StoreHelper {
 }
 
 
+import utils from '../../assets/js/utils';
+import URL from '../net/url';
+import NetHelper from '../net/net';
+
 class VUEConfig {
   constructor(Vue, Store) {
     this.setConfig(Vue, Store);
@@ -361,8 +396,14 @@ class VUEConfig {
   }
   addGlobalFunction(Vue, Store) {
     Vue.prototype.$storeHelper = new StoreHelper(Store);
+    Vue.prototype.$utils = utils;
+    Vue.prototype.$url = URL;
+    // $storeHelper and $utils in Vue.prototype will be used in NetData
+    NetHelper.setVue(Vue);
+    Vue.prototype.$net = NetHelper;
   }
 
+  // TODO: store realted function will be moved to Vue.prototype.$storeHelper
   addStoreTools(Vue, Store) {
     Vue.prototype.$setUserConfig = function(keys, value) {
       Store.dispatch('user/setConfig', {

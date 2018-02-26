@@ -3,13 +3,18 @@
  */
 import axios from 'axios';
 import URL_LIST from './url';
-import utils from '../../assets/js/utils';
 import appInfoHelper from '../pages/profile/utils/app-props';
 
 class Net {
   constructor() {
     this.SHOW_LOG = true;
-    this.utils = utils;
+    this.$utils = null;
+    this.$storeHelper = null;
+  }
+
+  setVue(Vue) {
+    this.$storeHelper = Vue.prototype.$storeHelper;
+    this.$utils = Vue.prototype.$utils;
   }
 
   showLog(func, data) {
@@ -229,23 +234,9 @@ class Net {
           if (content.hasOwnProperty('appList') && Array.isArray(content.appList)) {
             let appList = content.appList;
             appList.forEach(it => {
-              it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
               // utils.renameProperty(it, 'spaceList', 'profileList');
-              it.profileList = _.clone(it.spaceList);
-              /**
-               * change the format of profileList item from
-               * dev to {
-               *   name: 'dev',
-               *   description: '开发环境'
-               * }
-               * as description should be shown in page app_manager
-               */
-              it['profileList'] = it['profileList'].filter(it => {
-                // for the case profile not found in profile list of group
-                return null != appInfoHelper.getProfileInfoByName(it);
-              }).map(it => {
-                return appInfoHelper.getProfileInfoByName(it);
-              });
+              it.profileList = this.$storeHelper.getProfileInfoListByNameList(it.spaceList);
               // if the language of this app is JAVA
               it['isJavaLanguage'] = it.hasOwnProperty('language') && 'JAVA' == it.language
             });
@@ -510,7 +501,7 @@ class Net {
           if (content.hasOwnProperty('applicationServerList')) {
             let serviceList = content['applicationServerList'];
             Array.isArray(serviceList) && serviceList.forEach(it => {
-              it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
 
               it.image = {
                 customImage: null == it.customImage ? false : it.customImage,
@@ -862,7 +853,7 @@ class Net {
           if (content.hasOwnProperty('internetDomainList')) {
             let domainList = content['internetDomainList'];
             domainList.forEach(it => {
-              it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
             });
           }
           resolve(content);
@@ -995,7 +986,7 @@ class Net {
         let content = this.getResponseContent(response);
         if (content && content.hasOwnProperty('deployLogList')) {
           content.deployLogList.forEach(it => {
-            it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+            it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
           });
           resolve(content.deployLogList);
           this.showLog('getDeployLogList', content.deployLogList);
@@ -1060,7 +1051,7 @@ class Net {
           if (content.hasOwnProperty('workOrderDeployList') && Array.isArray(content.workOrderDeployList)) {
             content.workOrderDeployList.forEach(it => {
               if (it.hasOwnProperty('createTime')) {
-               it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+               it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
               }
             })
           }
@@ -1086,7 +1077,7 @@ class Net {
           if (content.hasOwnProperty('todoWorkOrderList') && Array.isArray(content.todoWorkOrderList)) {
             content.todoWorkOrderList.forEach(it => {
               if (it.hasOwnProperty('createTime')) {
-                it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+                it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
               }
             })
           }
@@ -1201,7 +1192,7 @@ class Net {
           if (operationList.hasOwnProperty('WorkOrderDeployLogVO')) {
             operationList = operationList.WorkOrderDeployLogVO;
             Array.isArray(operationList) && operationList.forEach(it => {
-              it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
               if (it.hasOwnProperty('functionType')) {
                 it.status = transfer('operationList', 'functionType', it.functionType);
               }
