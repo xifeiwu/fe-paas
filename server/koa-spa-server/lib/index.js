@@ -1,6 +1,7 @@
 const path = require('path');
 const koa = require('koa');
-const statics = require('./koa-static');
+// const statics = require('./koa-static');
+const staticCache = require('./koa-static-cache');
 const compress = require('koa-compress');
 const rewrite = require('./koa-rewrite');
 const koaproxy = require('./koa-proxy');
@@ -12,10 +13,10 @@ var cors = require('koa-cors');
 
 const defaultOption = {
   // 静态目录
-  webRoot: {
-    prefix: '/',
-    root: path.join(__dirname, '../example'),
-  },
+  // staticConfig: {
+  //   prefix: '/',
+  //   root: path.join(__dirname, '../example'),
+  // },
   // 单页应用
   fallback: true,
   // 服务端口
@@ -101,8 +102,10 @@ class SpaServer {
       this.app.use(rewrite({verbose: false}));
     }
 
-    if (this.option.webRoot) {
-      this.setStatic(this.option.webRoot);
+    if (this.option.staticConfig) {
+      const {dir, options} = this.option.staticConfig;
+      this.app.use(staticCache(dir, options));
+      // this.setStatic(this.option.staticConfig);
     }
   }
 
@@ -112,8 +115,8 @@ class SpaServer {
   }
 
   // 指定静态目录
-  setStatic(webRoot) {
-    const {prefix, root} = webRoot;
+  setStatic(staticConfig) {
+    const {prefix, root} = staticConfig;
     this.app.use(statics(root, {prefix}));
   }
 
