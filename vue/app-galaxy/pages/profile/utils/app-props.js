@@ -61,7 +61,7 @@ class AppInfoHelper {
           message: '请输入应用名称',
           trigger: 'blur'
         }, {
-          validator: this.generateValidator(true, true, 3, 30)
+          validator: this.generateValidator(true, true, 2, 30)
         }
       ],
       // 项目名称

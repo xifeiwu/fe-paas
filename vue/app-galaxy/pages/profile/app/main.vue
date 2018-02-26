@@ -320,24 +320,37 @@
         }
         switch (action) {
           case 'deleteRow':
-            this.warningConfirm('您将删除应用' + row.serviceName + '，确定吗？').then(() => {
-              this.$net.deleteAPP({
-                groupId: this.$storeHelper.currentGroupID,
-                id: row.appId
-              }).then(res => {
+            this.warningConfirm(`删除应用${row.serviceName}将会销毁所有环境的代码和配置信息，
+            解绑所有公网域名、IP白名单，删除后应用数据不可回复！`).then(() => {
+              this.warningConfirm(`您确认要删除应用${row.serviceName}，并清除该应用的一切数据？`).then(() => {
+                this.$net.deleteAPP({
+                  groupId: this.$storeHelper.currentGroupID,
+                  id: row.appId
+                }).then(res => {
 //                this.appListByPage.splice(index, 1);
-                this.$storeHelper.deleteAppInfoByID(row.appId);
-                this.$message({
-                  type: 'success',
-                  message: '删除成功!'
+                  this.$storeHelper.deleteAppInfoByID(row.appId);
+                  this.$message({
+                    type: 'success',
+                    message: '删除成功!'
+                  });
+                  this.requestAPPList({});
+                }).catch((err) => {
+                  this.$notify.error({
+                    title: '删除应用失败！',
+                    message: err,
+                    duration: 0,
+                    onClose: function () {
+                    }
+                  });
                 });
-                this.requestAPPList({});
+              }).catch(() => {
+//              this.$message({
+//                type: 'info',
+//                message: '您已取消删除'
+//              });
               });
-            }).catch(() => {
-              this.$message({
-                type: 'info',
-                message: '您已取消删除'
-              });
+            }).catch(()=> {
+
             });
             break;
           case 'change-profiles':

@@ -440,7 +440,7 @@ class Net {
         //   reject('删除应用失败');
         // }
       }).catch(err => {
-        reject(err);
+        reject(JSON.stringify(err));
       })
     });
   }

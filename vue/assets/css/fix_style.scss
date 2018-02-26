@@ -248,6 +248,12 @@ h4 {
 
 ::-webkit-scrollbar { width: 2px; height: 2px;}
 
+
+.el-message-box {
+  width: 80%;
+  max-width: 600px;
+}
+
 #app {
   .el-table {
     thead {
