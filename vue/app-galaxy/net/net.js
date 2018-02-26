@@ -217,11 +217,11 @@ class Net {
         appModelList.push({
           'appId': app.appId,
           'profiles':
-            app.profileList.filter(it => {
+            app.profileList ? app.profileList.filter(it => {
               return '' != it.name && '' != it.description
             }).map(it => {
               return it.name;
-            }),
+            }) : []
         })
       });
       return appModelList;
@@ -236,7 +236,7 @@ class Net {
             appList.forEach(it => {
               it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
               // utils.renameProperty(it, 'spaceList', 'profileList');
-              it.profileList = this.$storeHelper.getProfileInfoListByNameList(it.spaceList);
+              it['profileList'] = this.$storeHelper.getProfileInfoListByNameList(it.spaceList);
               // if the language of this app is JAVA
               it['isJavaLanguage'] = it.hasOwnProperty('language') && 'JAVA' == it.language
             });
@@ -254,6 +254,7 @@ class Net {
     });
   }
 
+  // only call when group id is changed
   getProfileListOfGroup(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.get_profile_of_group, options).then(response => {

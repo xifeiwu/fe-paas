@@ -257,10 +257,28 @@ const actions = {
   /**
    * 获取当前组所有profile
    */
-  profileListOfGroup({commit, state}, options) {
+  profileListOfGroup({commit, state, dispatch}, options) {
     NetData.getProfileListOfGroup(options).then(content => {
       if (content.hasOwnProperty('spaceList')) {
         commit('SET_PROFILE_OF_GROUP', content.spaceList);
+
+        // reload appInfoListOfGroup when the format of item is not correct
+        if (Array.isArray(state.appInfoListOfGroup)) {
+          let existProfileList = true;
+          state.appInfoListOfGroup.every(it => {
+            existProfileList = it.hasOwnProperty('profileList');
+            return existProfileList;
+          });
+          if (!existProfileList) {
+            dispatch('appInfoListOfGroup', {
+              groupID: options.id
+            });
+          }
+        } else {
+          // dispatch('appInfoListOfGroup', {
+          //   groupID: options.id
+          // });
+        }
       }
     });
   },
@@ -294,26 +312,25 @@ const actions = {
     });
   },
 
-  deleteAppInfoByID({commit, state}, appID) {
-    let result = {
-      exist: false,
-      index: -1,
-    }
-    for (let index in state.appInfoListOfGroup.appList) {
-      let item = state.appInfoListOfGroup.appList[index];
-      if (item.appId == appID) {
-        result.exist = true;
-        result.index = index;
-        break;
-      }
-    }
-    if (result.exist) {
-      state.appInfoListOfGroup.appList.splice(result.index, 1);
-      state.appInfoListOfGroup.appModelList.splice(result.index, 1);
-      state.appInfoListOfGroup.total -= 1;
-    }
-    console.log(state.appInfoListOfGroup);
-  },
+  // deleteAppInfoByID({commit, state}, appID) {
+  //   let result = {
+  //     exist: false,
+  //     index: -1,
+  //   }
+  //   for (let index in state.appInfoListOfGroup.appList) {
+  //     let item = state.appInfoListOfGroup.appList[index];
+  //     if (item.appId == appID) {
+  //       result.exist = true;
+  //       result.index = index;
+  //       break;
+  //     }
+  //   }
+  //   if (result.exist) {
+  //     state.appInfoListOfGroup.appList.splice(result.index, 1);
+  //     state.appInfoListOfGroup.appModelList.splice(result.index, 1);
+  //     state.appInfoListOfGroup.total -= 1;
+  //   }
+  // },
 };
 
 const mutations = {

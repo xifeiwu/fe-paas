@@ -180,9 +180,7 @@
 </style>
 <script>
   import AppPropUtils from '../utils/app-props';
-  import StoreHelper from '../utils/store-helper.vue';
   export default {
-    mixins: [StoreHelper],
     created() {
 //      let appInfoListOfGroup = this.appInfoListOfGroup;
 //      if (appInfoListOfGroup.hasOwnProperty('appList')) {
@@ -237,6 +235,17 @@
         myAppCount: 0,
       }
     },
+    computed: {
+      needFilter() {
+        return this.filterMyApp || (this.filterKey.length > 0);
+      },
+      appInfoListOfGroup() {
+        return this.$storeHelper.appInfoListOfGroup();
+      },
+      profileListOfGroup() {
+        return this.$storeHelper.profileListOfGroup();
+      }
+    },
     watch: {
       '$storeHelper.currentGroupID': function (value, oldValue) {
         this.requestAPPList({});
@@ -244,14 +253,6 @@
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
       'filterMyApp': 'requestAPPList',
       'filterKey': 'requestAPPList'
-    },
-    computed: {
-      needFilter() {
-        return this.filterMyApp || (this.filterKey.length > 0);
-      },
-      appInfoListOfGroup() {
-        return this.$storeHelper.appInfoListOfGroup();
-      }
     },
     methods: {
       onAppInfoListOfGroup(value, oldValue) {
@@ -304,7 +305,7 @@
        * handle click event in the operation-column
        */
       handleOperationClick(action, index, row) {
-        let appInfo = this.getAppInfoByID(row.appId);
+        let appInfo = this.$storeHelper.getAppInfoByID(row.appId);
         if (!appInfo) {
           return;
         } else {
@@ -319,7 +320,7 @@
                 id: row.appId
               }).then(res => {
 //                this.appListByPage.splice(index, 1);
-                this.deleteAppInfoByID(row.appId);
+                this.$storeHelper.deleteAppInfoByID(row.appId);
                 this.$message({
                   type: 'success',
                   message: '删除成功!'
