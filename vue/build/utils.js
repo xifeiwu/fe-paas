@@ -121,7 +121,7 @@ exports.chunksAndTemplates = () => {
       "filename": "galaxy.html",
       "title": "Galaxy",
       "cdn": {
-        "js": [],
+        "js": ['/assets/libs/lodash/lodash.min.js'],
         "css": []
       },
       "chunks": ["galaxy"],
@@ -130,7 +130,7 @@ exports.chunksAndTemplates = () => {
       "filename": "terminal.html",
       "title": "terminal",
       "cdn": {
-        "js": ['./assets/libs/gateone.js'],
+        "js": ['/assets/libs/gateone.js'],
         "css": []
       },
       "chunks": ["terminal"],

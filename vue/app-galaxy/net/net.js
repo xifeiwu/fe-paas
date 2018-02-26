@@ -230,7 +230,8 @@ class Net {
             let appList = content.appList;
             appList.forEach(it => {
               it.createTime = this.utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-              utils.renameProperty(it, 'spaceList', 'profileList');
+              // utils.renameProperty(it, 'spaceList', 'profileList');
+              it.profileList = _.clone(it.spaceList);
               /**
                * change the format of profileList item from
                * dev to {

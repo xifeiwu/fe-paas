@@ -15,10 +15,11 @@ class Utils {
   isDate(n) {
     return n instanceof Date;
   }
+
   /**
    * transfer to formated date string
    * @date timestamp of date
-   * @fmt the format of result, such as
+   * @fmt the format of result, such as yyyy-MM-dd hh:mm:ss
    */
   formatDate(date, fmt) {
     if (!date) {
