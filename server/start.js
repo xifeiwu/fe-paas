@@ -48,7 +48,8 @@ const server = new koaServer({
   staticConfig: {
     dir: path.join(__dirname, '../vue/dist'),
     options: {
-      maxAge: 3600 * 24,
+      maxAge: 0,
+      // maxAge: 3600 * 24,
       gzip: true,
       // prefix: 'assets',
       // preload: false,

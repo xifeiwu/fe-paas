@@ -6,6 +6,7 @@ var mime = require('mime-types')
 var compressible = require('compressible')
 var readDir = require('fs-readdir-recursive')
 var debug = require('debug')('koa-static-cache')
+const L = require('nirvana-logger')('koa-static-cache');
 
 module.exports = function staticCache(dir, options, files) {
   if (typeof dir === 'object') {
@@ -47,6 +48,10 @@ module.exports = function staticCache(dir, options, files) {
   }
 
   return async (ctx, next) => {
+    let logs = true;    
+    if (logs) {
+      L(ctx.req.method, ctx.path);
+    }
     // only accept HEAD and GET
     if (ctx.method !== 'HEAD' && ctx.method !== 'GET') return await next()
     // check prefix first to avoid calculate
