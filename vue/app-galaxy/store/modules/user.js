@@ -111,8 +111,14 @@ const actions = {
   logout({commit, state, dispatch}) {
     state.info = null;
     state.config = null;
+    state.menuList = null;
+    state.groupInfo = null;
+    state.profileListOfGroup = null;
     localStorage.removeItem('user/info');
     localStorage.removeItem('user/config');
+    localStorage.removeItem('user/menuList');
+    localStorage.removeItem('user/groupInfo');
+    localStorage.removeItem('user/profileListOfGroup');
   },
 
   /**
@@ -129,6 +135,120 @@ const actions = {
     });
     // }
   },
+  /**
+   * 更改用户组ID
+   */
+  groupID({commit, state, dispatch}, {from, value}) {
+    state.groupID = value;
+    // localStorage.setItem('groupID', value);
+    dispatch('groupInfo');
+    // dispatch('app/appInfoListOfGroup', {
+    //   id: id
+    // }, {root: true});
+  },
+
+  /**
+   * groupInfo在groupID或groupList发生变化时会被调用。且groupID和groupList都初始化后，才会出发mutation。
+   * 当初次进入页面时，groupID是空，只有groupList请求成功后才能初始化groupID
+   * 有些逻辑必须在groupID和groupList都具备的情况下才能处理：
+   * 1. appInfoListOfGroup
+   */
+  groupInfo({commit, state, dispatch}) {
+    // action at the change of groupInfo
+    const SET_GROUP_INFO = function({state, dispatch}, groupInfo) {
+      state.groupInfo = groupInfo;
+      // if (USE_LOCAL_STORAGE) {
+      dispatch('profileListOfGroup', {
+        id: groupInfo.id
+      });
+      dispatch('usersInGroup', {
+        id: groupInfo.id
+      });
+      dispatch('appInfoListOfGroup', {
+        groupID: groupInfo.id
+      });
+      localStorage.setItem('user/groupInfo', JSON.stringify(groupInfo));
+      // }
+    };
+
+    if (state.groupID) {
+      if (state.groupList && Array.isArray(state.groupList)) {
+        let target = null;
+        state.groupList.some(it => {
+          target = it.id === state.groupID ? it : null;
+          return target
+        });
+        if (!state.groupInfo || (target != null && state.groupInfo.id != target.id)) {
+          SET_GROUP_INFO({state, dispatch}, target);
+        }
+      }
+    } else {
+      if (state.groupList && Array.isArray(state.groupList) && state.groupList.length > 0) {
+        let target = state.groupList[0];
+        SET_GROUP_INFO({state, dispatch}, target);
+      }
+    }
+
+  },
+
+  /**
+   * 获取当前组所有profile
+   */
+  profileListOfGroup({commit, state, dispatch}, options) {
+    NetData.getProfileListOfGroup(options).then(content => {
+      if (content.hasOwnProperty('spaceList')) {
+        commit('SET_PROFILE_OF_GROUP', content.spaceList);
+
+        // reload appInfoListOfGroup when the format of item is not correct
+        if (Array.isArray(state.appInfoListOfGroup)) {
+          let existProfileList = true;
+          state.appInfoListOfGroup.every(it => {
+            existProfileList = it.hasOwnProperty('profileList');
+            return existProfileList;
+          });
+          if (!existProfileList) {
+            dispatch('appInfoListOfGroup', {
+              groupID: options.id
+            });
+          }
+        } else {
+          // dispatch('appInfoListOfGroup', {
+          //   groupID: options.id
+          // });
+        }
+      }
+    });
+  },
+
+  /**
+   * 获取该groupID下的所有app, the case of triggering state action:
+   * 1. at created of profile.vue
+   * 2. at success callback of app/add.vue
+   * 3. refresh button in page app.vue
+   * @param commit
+   * @param state
+   * @param groupID
+   */
+  appInfoListOfGroup({commit, state}, {groupID, from}) {
+    NetData.getAPPList({
+      groupId: groupID,
+      serviceName: ''
+    }).then(content => {
+      // console.log(content);
+      // if (content.hasOwnProperty('appList')) {
+        commit('SET_APP_INFO_LIST_OF_GROUP', content);
+      // }
+    }).catch(() => {});
+  },
+
+  usersInGroup({commit, state}, options) {
+    NetData.getUsersInGroup(options).then(content => {
+      if (content && content.hasOwnProperty('groupUserList')) {
+        state.usersInGroup = content.groupUserList;
+      }
+    });
+  },
+
 
   /**
    * save some config value to localStorage
@@ -199,119 +319,6 @@ const actions = {
       localStorage.setItem('user/info', JSON.stringify(state.info));
     }
   },
-  /**
-   * 更改用户组ID
-   */
-  groupID({commit, state, dispatch}, {from, value}) {
-    state.groupID = value;
-    // localStorage.setItem('groupID', value);
-    dispatch('profileListOfGroup', {
-      id: value
-    });
-    dispatch('usersInGroup', {
-      id: value
-    });
-    dispatch('groupInfo');
-    // dispatch('app/appInfoListOfGroup', {
-    //   id: id
-    // }, {root: true});
-  },
-
-  /**
-   * groupInfo在groupID或groupList发生变化时会被调用。且groupID和groupList都初始化后，才会出发mutation。
-   * 当初次进入页面时，groupID是空，只有groupList请求成功后才能初始化groupID
-   * 有些逻辑必须在groupID和groupList都具备的情况下才能处理：
-   * 1. appInfoListOfGroup
-   */
-  groupInfo({commit, state, dispatch}) {
-    const SET_GROUP_INFO = function({state, dispatch}, groupInfo) {
-      state.groupInfo = groupInfo;
-      // if (USE_LOCAL_STORAGE) {
-      localStorage.setItem('user/groupInfo', JSON.stringify(groupInfo));
-      dispatch('appInfoListOfGroup', {
-        groupID: groupInfo.id
-      });
-      // }
-    };
-
-    if (state.groupID) {
-      if (state.groupList && Array.isArray(state.groupList)) {
-        let target;
-        state.groupList.some(it => {
-          target = it.id === state.groupID ? it : null;
-          return target
-        });
-        if (!state.groupInfo || state.groupInfo.id != target.id) {
-          SET_GROUP_INFO({state, dispatch}, target);
-        }
-      }
-    } else {
-      if (state.groupList && Array.isArray(state.groupList) && state.groupList.length > 0) {
-        let target = state.groupList[0];
-        SET_GROUP_INFO({state, dispatch}, target);
-      }
-    }
-
-  },
-
-  /**
-   * 获取当前组所有profile
-   */
-  profileListOfGroup({commit, state, dispatch}, options) {
-    NetData.getProfileListOfGroup(options).then(content => {
-      if (content.hasOwnProperty('spaceList')) {
-        commit('SET_PROFILE_OF_GROUP', content.spaceList);
-
-        // reload appInfoListOfGroup when the format of item is not correct
-        if (Array.isArray(state.appInfoListOfGroup)) {
-          let existProfileList = true;
-          state.appInfoListOfGroup.every(it => {
-            existProfileList = it.hasOwnProperty('profileList');
-            return existProfileList;
-          });
-          if (!existProfileList) {
-            dispatch('appInfoListOfGroup', {
-              groupID: options.id
-            });
-          }
-        } else {
-          // dispatch('appInfoListOfGroup', {
-          //   groupID: options.id
-          // });
-        }
-      }
-    });
-  },
-
-  /**
-   * 获取该groupID下的所有app, the case of triggering state action:
-   * 1. at created of profile.vue
-   * 2. at success callback of app/add.vue
-   * 3. refresh button in page app.vue
-   * @param commit
-   * @param state
-   * @param groupID
-   */
-  appInfoListOfGroup({commit, state}, {groupID, from}) {
-    NetData.getAPPList({
-      groupId: groupID,
-      serviceName: ''
-    }).then(content => {
-      // console.log(content);
-      // if (content.hasOwnProperty('appList')) {
-        commit('SET_APP_INFO_LIST_OF_GROUP', content);
-      // }
-    });
-  },
-
-  usersInGroup({commit, state}, options) {
-    NetData.getUsersInGroup(options).then(content => {
-      if (content && content.hasOwnProperty('groupUserList')) {
-        state.usersInGroup = content.groupUserList;
-      }
-    });
-  },
-
   // deleteAppInfoByID({commit, state}, appID) {
   //   let result = {
   //     exist: false,

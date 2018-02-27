@@ -10,6 +10,9 @@ class Net {
     this.SHOW_LOG = true;
     this.$utils = null;
     this.$storeHelper = null;
+    this.requestingState = {
+      getAPPList: false,
+    }
   }
 
   setVue(Vue) {
@@ -211,6 +214,12 @@ class Net {
    * resolve only when content data is ok.
    */
   getAPPList (options) {
+    if (this.requestingState.getAPPList) {
+      this.showLog('getAPPList', 'in the state of requesting');
+      return new Promise((resolve, reject) => {
+        reject('getAPPList is in requesting');
+      })
+    }
     let getAppModelList = function(appList) {
       let appModelList = [];
       appList.forEach(app => {
@@ -227,8 +236,10 @@ class Net {
       return appModelList;
     };
 
+    this.requestingState.getAPPList = true;
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.app_list, options).then(response => {
+        this.requestingState.getAPPList = false;
         let content = this.getResponseContent(response);
         if (content) {
           if (content.hasOwnProperty('appList') && Array.isArray(content.appList)) {
@@ -248,6 +259,7 @@ class Net {
           }
         }
       }).catch(err => {
+        this.requestingState.getAPPList = false;
         this.showLog('getAPPList', err);
         reject(err);
       });
@@ -517,7 +529,7 @@ class Net {
               it.memoryInfo = cpuAndMemoryInfo[1];
 
               it.volume = it.volume.split(',').filter(it => {return it})
-              utils.renameProperty(it, 'volume', 'fileLocation');
+              this.$utils.renameProperty(it, 'volume', 'fileLocation');
 
               // ['mavenProfileId', 'healthCheck', 'loadBalance', 'relativePath'].forEach(prop => {
               //   if (it.hasOwnProperty(prop) && !it[prop]) {
@@ -761,10 +773,10 @@ class Net {
         if (content.hasOwnProperty('instanceList')) {
           let instanceList = content.instanceList;
           instanceList.forEach(it => {
-            utils.renameProperty(it, 'id', 'instanceName');
-            utils.renameProperty(it, 'state', 'status');
-            utils.renameProperty(it, 'ip', 'intranetIP');
-            utils.renameProperty(it, 'updated', 'createTime');
+            this.$utils.renameProperty(it, 'id', 'instanceName');
+            this.$utils.renameProperty(it, 'state', 'status');
+            this.$utils.renameProperty(it, 'ip', 'intranetIP');
+            this.$utils.renameProperty(it, 'updated', 'createTime');
           });
         }
         this.showLog('getInstanceList', content);

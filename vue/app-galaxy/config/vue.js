@@ -199,10 +199,13 @@ class StoreHelper {
   }
   getProfileInfoByName(name) {
     let target = null;
-    this.profileListOfGroup().some(it => {
-      target = it.name === name ? it : null;
-      return target
-    });
+    let profileListOfGroup = this.profileListOfGroup();
+    if (Array.isArray(profileListOfGroup)) {
+      profileListOfGroup.some(it => {
+        target = it.name === name ? it : null;
+        return target
+      });
+    }
     return target;
   }
   /**
