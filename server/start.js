@@ -54,7 +54,8 @@ const server = new koaServer({
       // prefix: 'assets',
       // preload: false,
       alias: {
-        '/galaxy': '/galaxy.html'
+        '/galaxy': '/galaxy.html',
+        '/': '/galaxy.html'
       }
     }
   },
