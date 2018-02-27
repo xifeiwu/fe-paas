@@ -220,7 +220,6 @@ class AppInfoHelper {
         message: '请选择内存大小',
       }],
       instanceCount: [{
-        type: 'string',
         required: true,
         message: '请输入实例数量',
       }],

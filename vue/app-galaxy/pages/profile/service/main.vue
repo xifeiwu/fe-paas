@@ -94,7 +94,10 @@
             <el-button
                     v-if="!isProductionProfile"
                     size="mini-extral" type="warning"
-                    @click="handleRowButtonClick('deploy', scope.$index, scope.row)">部署</el-button>
+                    :loading="statusOfWaitingResponse('deploy')"
+                    @click="handleRowButtonClick('deploy', scope.$index, scope.row)">
+              {{statusOfWaitingResponse('deploy')? '部署中': '部署'}}
+            </el-button>
             <el-button
                     size="mini-extral"type="warning"
                     @click="handleRowButtonClick('go-to-log-deploy', scope.$index, scope.row)">部署日志</el-button>
@@ -1059,6 +1062,8 @@ export default {
         full: false,
         showLoading: false
       },
+
+      queueForWaitingResponse: []
     }
   },
   computed: {
@@ -1115,6 +1120,21 @@ export default {
   },
 
   methods: {
+    // helper for loading action of el-button
+    addToWaitingResponseQueue(action) {
+      if (this.queueForWaitingResponse.indexOf(action) === -1) {
+        this.queueForWaitingResponse.push(action);
+      }
+    },
+    statusOfWaitingResponse(action) {
+      return this.queueForWaitingResponse.indexOf(action) > -1;
+    },
+    hideWaitingResponse(action) {
+      let index = this.queueForWaitingResponse.indexOf(action);
+      if (index > -1) {
+        this.queueForWaitingResponse.splice(index, 1);
+      }
+    },
     /**
      * call in two place:
      * 1. created function
@@ -1239,6 +1259,10 @@ export default {
       let statusOK = false;
       switch (action) {
         case 'deploy':
+          this.addToWaitingResponseQueue('deploy');
+          setTimeout(() => {
+            this.hideWaitingResponse('deploy');
+          }, 30000);
           // request and show log
           function showDeployLog(options) {
             this.deployLogs = [];
