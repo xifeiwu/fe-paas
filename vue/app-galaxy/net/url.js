@@ -1,11 +1,23 @@
 /**
  * Created by xifei.wu on 2017/11/30.
  */
-var path = 'http://galaxy-web-server.galaxy.test';
-// var path = 'http://172.31.165.126:30333';
-// var path = 'http://172.16.106.191:30333';
-// var path = 'http://172.16.106.191:30333';
-var path = 'http://' + window.location.hostname + ':7002/api';
+
+let port = null;
+switch (process.env.NODE_ENV) {
+  case 'test':
+    port = 80;
+    break;
+  case 'production':
+    port = 80;
+    break;
+  case 'dev':
+  default:
+    port = 7002;
+    break;
+}
+
+var path = 'http://' + window.location.hostname + ':' + port + '/api';
+
 var urlList = {
   'page_terminal_path': 'http://' + window.location.host + '/terminal.html',
   'page_login_path': 'http://' + window.location.host + '/galaxy.html',

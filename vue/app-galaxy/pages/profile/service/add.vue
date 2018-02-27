@@ -91,9 +91,9 @@
 
       <el-form-item label="环境变量设置" prop="environments" class="environments">
         <el-row>
-          <el-col :span="9" style="font-weight: bold">Key</el-col>
+          <el-col :span="9" style="font-weight: bold;text-align: center">Key</el-col>
           <el-col :span="2">&nbsp</el-col>
-          <el-col :span="9" style="font-weight: bold">Value</el-col>
+          <el-col :span="9" style="font-weight: bold;text-align: center">Value</el-col>
           <el-col :span="4" style="font-weight: bold"></el-col>
         </el-row>
         <el-row

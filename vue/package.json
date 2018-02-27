@@ -8,7 +8,8 @@
     "start": "npm run dev",
     "test": "npm run unit",
     "lint": "eslint --ext .js,.vue src test/unit",
-    "build": "node build/build.js"
+    "build-dev": "NODE_ENV=dev node build/build.js",
+    "build-test": "NODE_ENV=test node build/build.js"
   },
   "dependencies": {
     "async-validator": "^1.8.1",
