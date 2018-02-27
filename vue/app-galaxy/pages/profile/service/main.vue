@@ -1215,21 +1215,23 @@ export default {
     },
     // change the default service
     changeDefaultVersion(serviceID) {
-      this.$net.changeDefaultService({
-        beforeSwitchId: this.defaultServiceID,
-        afterSwitchId: serviceID
-      }).then(msg => {
-        this.$message.success(msg);
-        this.defaultServiceID = serviceID;
-      }).catch(msg => {
-        this.$notify({
-          title: '切换默认版本失败',
-          message: msg,
-          duration: 0,
-          onClose: function () {
-          }
-        });
-      })
+      this.warningConfirm(`更改默认版本后，内、外网访问应用将指向默认版本的内、外网域名，10分钟之内会在全国范围生效，你确定需要更改吗？`).then(() => {
+        this.$net.changeDefaultService({
+          beforeSwitchId: this.defaultServiceID,
+          afterSwitchId: serviceID
+        }).then(msg => {
+          this.$message.success(msg);
+          this.defaultServiceID = serviceID;
+        }).catch(msg => {
+          this.$notify({
+            title: '切换默认版本失败',
+            message: msg,
+            duration: 0,
+            onClose: function () {
+            }
+          });
+        })
+      }).catch(() => {});
     },
 
     /**
