@@ -94,21 +94,23 @@
           <el-col :span="9" style="font-weight: bold;text-align: center">Key</el-col>
           <el-col :span="2">&nbsp</el-col>
           <el-col :span="9" style="font-weight: bold;text-align: center">Value</el-col>
-          <el-col :span="4" style="font-weight: bold"></el-col>
+          <el-col :span="4" style="font-weight: bold;text-align: center"></el-col>
         </el-row>
         <el-row
                 v-for="(item, index) in serviceForm.environments"
                 :key="item.key"
+                type="flex" justify="center" align="middle"
                 class="show"
         >
           <el-col :span="9" class="key">{{item.key}}</el-col>
           <el-col :span="2">&nbsp</el-col>
           <el-col :span="9" class="value">{{item.value}}</el-col>
           <el-col :span="4" class="button">
-            <el-button class="delete-environment-btn" @click="handleEnvironment('delete', index)">删除</el-button>
+            <el-button class="delete-environment-btn" size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
           </el-col>
         </el-row>
-        <el-row class="input">
+        <el-row class="input"
+                type="flex" justify="center" align="middle">
           <el-col :span="9">
             <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、中划线、下划线"></el-input>
           </el-col>
@@ -117,39 +119,42 @@
             <el-input v-model="environmentValue" placeholder="512位以内的数字、字母、中划线、下划线"></el-input>
           </el-col>
           <el-col :span="4">
-            <el-button @click="handleEnvironment('add', environmentKey, environmentValue)">添加</el-button>
+            <el-button size="mini-extral" @click="handleEnvironment('add', environmentKey, environmentValue)">添加</el-button>
           </el-col>
         </el-row>
       </el-form-item>
 
       <el-form-item label="域名配置" prop="hosts" class="hosts">
         <el-row>
-          <el-col :span="9" style="font-weight: bold">IP</el-col>
+          <el-col :span="9" style="font-weight: bold;text-align: center">IP</el-col>
           <el-col :span="2">&nbsp</el-col>
-          <el-col :span="9" style="font-weight: bold">域名</el-col>
-          <el-col :span="4" style="font-weight: bold"></el-col>
+          <el-col :span="9" style="font-weight: bold;text-align: center">域名</el-col>
+          <el-col :span="4" style="font-weight: bold;"></el-col>
         </el-row>
         <el-row
                 v-for="(item, index) in serviceForm.hosts"
                 :key="item.ip"
+                type="flex" justify="center" align="middle"
+                class="show"
         >
-          <el-col :span="9">{{item.ip}}</el-col>
+          <el-col :span="9" class="key">{{item.ip}}</el-col>
           <el-col :span="2">&nbsp</el-col>
-          <el-col :span="9">{{item.domain}}</el-col>
+          <el-col :span="9" class="value">{{item.domain}}</el-col>
           <el-col :span="4">
-            <el-button class="delete-host-btn" @click="handleDeleteHost(index)">删除</el-button>
+            <el-button class="delete-host-btn" size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
           </el-col>
         </el-row>
-        <el-row>
+        <el-row class="input"
+                type="flex" justify="center" align="middle">
           <el-col :span="9">
-            <el-input v-model="hostKey" placeholder="IP"></el-input>
+            <el-input v-model="hostKey" placeholder="ip地址"></el-input>
           </el-col>
           <el-col class="line" :span="2">-</el-col>
           <el-col :span="9">
             <el-input v-model="hostValue" placeholder="域名"></el-input>
           </el-col>
           <el-col :span="4">
-            <el-button @click="handleAddHost(hostKey, hostValue)">添加</el-button>
+            <el-button size="mini-extral" @click="handleHost('add', hostKey, hostValue)">添加</el-button>
           </el-col>
         </el-row>
       </el-form-item>
@@ -205,8 +210,9 @@
             line-height: 100%;
           }
         }
-        &.environments {
+        &.environments, &.hosts {
           .el-form-item__content {
+            text-align: center;
             .show {
               .key, .value {
                 /*white-space: nowrap;*/
@@ -227,13 +233,6 @@
             }
           }
         }
-        &.hosts {
-          .el-form-item__content {
-            .el-col {
-              text-align: center;
-            }
-          }
-        }
       }
     }
   }
@@ -247,12 +246,6 @@
     max-width: 600px;
     .el-form {
       .el-form-item {
-        &.environments {
-          text-align: center;
-        }
-        &.hosts {
-          text-align: center;
-        }
         &.finish {
           .el-button {
             display: block;
@@ -575,21 +568,46 @@
             break;
         }
       },
-      handleDeleteHost(index) {
-        this.serviceForm.hosts.splice(index, 1);
-//        this.$delete(this.serviceForm.hosts, key)
-      },
-      handleAddHost(key, value) {
-        if (key.length > 0 && value.length > 0) {
-//          this.$set(this.serviceForm.hosts, key, value);
-          this.serviceForm.hosts.push({
-            ip: key,
-            domain: value
-          });
-          this.hostKey = '';
-          this.hostValue = '';
-        } else {
-          this.$message.error('IP或域名不能为空');
+      // add and delete host
+      handleHost(action, key, value) {
+        switch (action) {
+          case 'add':
+            let ip = key;
+            let domain = value;
+            let ipReg = new RegExp('^([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})$');
+            if (!ipReg.exec(ip)) {
+              this.$message.error('ip格式不正确');
+              return;
+            }
+            let domainReg = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/;
+            if (!domainReg.exec(domain)) {
+              this.$message.error('域名格式不正确');
+              return;
+            }
+            if (this.serviceForm.hosts.length >= 10) {
+              this.$message.error('最多输入10个');
+              return;
+            }
+            let keyHasExist = false;
+            this.serviceForm.hosts.forEach(it => {
+              if (it.ip === ip) {
+                it.domain = domain;
+                keyHasExist = true;
+              }
+            });
+            if (!keyHasExist) {
+              this.serviceForm.hosts.push({
+                ip: ip,
+                domain: domain,
+              });
+            }
+            this.hostKey = '';
+            this.hostValue = '';
+            break;
+          case 'delete':
+            let index = key;
+            this.serviceForm.hosts.splice(index, 1);
+            break;
         }
       },
       /**
