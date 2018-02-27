@@ -11,7 +11,7 @@
       </el-form-item>
       <el-form-item label="镜像方式" prop="customImage">
         <el-radio-group v-model="serviceForm.customImage">
-          <el-radio :label="false">自动打镜像</el-radio>
+          <el-radio :label="false" v-if="currentApp && currentApp.language != 'PYTHON'">自动打镜像</el-radio>
           <el-radio :label="true">自定义镜像</el-radio>
         </el-radio-group>
       </el-form-item>
@@ -438,6 +438,11 @@
       onAppInfoListOfGroup(appList) {
         if (this.serviceForm.appId) {
           this.currentApp = this.$storeHelper.getAppByID(this.serviceForm.appId);
+          // only customImage can be used when current language is python
+          let isPythonLanguage = this.currentApp && this.currentApp.language == 'PYTHON';
+          if (isPythonLanguage) {
+            this.serviceForm.customImage = true;
+          }
         } else {
           console.log('serviceForm.appID not found');
         }
