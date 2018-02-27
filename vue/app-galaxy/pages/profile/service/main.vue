@@ -1270,10 +1270,10 @@ export default {
       let statusOK = false;
       switch (action) {
         case 'deploy':
-          this.addToWaitingResponseQueue('deploy');
-          setTimeout(() => {
-            this.hideWaitingResponse('deploy');
-          }, 30000);
+//          this.addToWaitingResponseQueue('deploy');
+//          setTimeout(() => {
+//            this.hideWaitingResponse('deploy');
+//          }, 30000);
           // request and show log
           function showDeployLog(options) {
             this.deployLogs = [];
@@ -1316,29 +1316,32 @@ export default {
             }, 1500);
           }
 
-          this.$net.serviceDeploy({
-            id: serviceID,
-            appId: this.selectedAppID,
-            spaceId: this.selectedProfileID
-          }).then(content => {
+          var desc = this.getVersionDescription(row);
+          this.warningConfirm(`您确认要部署${desc}吗?`).then(() => {
+            this.$net.serviceDeploy({
+              id: serviceID,
+              appId: this.selectedAppID,
+              spaceId: this.selectedProfileID
+            }).then(content => {
 //            console.log(content);
-            if (content.hasOwnProperty('orchestration')) {
-              let orchestration = content['orchestration'];
-              showDeployLog.call(this, {
-                logName: orchestration.logName,
-                logPath: orchestration.logPath,
-                offset: null == orchestration.offset ? 0 : orchestration.offset
-              });
-            }
-          }).catch(err => {
-            this.$notify({
-              title: '部署失败',
-              message: err,
-              duration: 0,
-              onClose: function () {
+              if (content.hasOwnProperty('orchestration')) {
+                let orchestration = content['orchestration'];
+                showDeployLog.call(this, {
+                  logName: orchestration.logName,
+                  logPath: orchestration.logPath,
+                  offset: null == orchestration.offset ? 0 : orchestration.offset
+                });
               }
+            }).catch(err => {
+              this.$notify({
+                title: '部署失败',
+                message: err,
+                duration: 0,
+                onClose: function () {
+                }
+              });
             });
-          });
+          }).catch(() => {});
           break;
         case 'delete':
           var desc = this.getVersionDescription(row);
