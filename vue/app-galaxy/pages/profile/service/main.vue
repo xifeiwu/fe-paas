@@ -967,7 +967,6 @@
 
 <script>
   import appPropUtils from '../utils/app-props';
-  import StoreHelper from '../utils/store-helper.vue';
   import MyDialogForLog from '../utils/components/dialog4log.vue'
   import MyImageSelector from '../utils/components/image-selector.vue'
   import ElRow from "element-ui/packages/row/src/row";
@@ -975,7 +974,6 @@
   import ElRadio from "element-ui/packages/radio/src/radio";
 export default {
   components: {ElRadio, ElCol, ElRow, MyDialogForLog, MyImageSelector},
-  mixins: [StoreHelper],
   created() {
   },
   mounted() {
@@ -992,6 +990,22 @@ export default {
     } else {
       this.onCpuAndMemoryList(this.cpuAndMemoryList);
     }
+  },
+  computed: {
+    appInfoListOfGroup() {
+      return this.$storeHelper.appInfoListOfGroup();
+    },
+    cpuAndMemoryList() {
+      return this.$storeHelper.cpuAndMemoryList();
+    },
+    /* used for dialog */
+    imageInfo() {
+      return appPropUtils.getImageInfo();
+    },
+    loadBalanceType() {
+      return appPropUtils.getAllLoadBalance();
+    }
+    /* used for dialog end */
   },
   data() {
     return {
@@ -1067,22 +1081,12 @@ export default {
       queueForWaitingResponse: []
     }
   },
-  computed: {
-    /* used for dialog */
-    imageInfo: function () {
-      return appPropUtils.getImageInfo();
-    },
-    loadBalanceType: function() {
-      return appPropUtils.getAllLoadBalance();
-    }
-    /* used for dialog end */
-  },
   watch: {
     appInfoListOfGroup: 'onAppInfoListOfGroup',
     cpuAndMemoryList: 'onCpuAndMemoryList',
     selectedAppID: function (value, oldValue) {
       let appID = value;
-      let appInfo = this.getAppInfoByID(appID);
+      let appInfo = this.$storeHelper.getAppInfoByID(appID);
       if (!appInfo) {
         return;
       }
@@ -1160,7 +1164,7 @@ export default {
           return;
         }
         let appId = this.$getUserConfig('profile/service/appID');
-        if (appId && this.getAppInfoByID(appId)) {
+        if (appId && this.$storeHelper.getAppInfoByID(appId)) {
           this.selectedAppID = appId;
         } else {
           this.selectedAppID = this.appList[0]['appId'];
