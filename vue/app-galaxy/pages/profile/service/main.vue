@@ -94,9 +94,9 @@
             <el-button
                     v-if="!isProductionProfile"
                     size="mini-extral" type="warning"
-                    :loading="statusOfWaitingResponse('deploy')"
+                    :loading="statusOfWaitingResponse('deploy') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('deploy', scope.$index, scope.row)">
-              {{statusOfWaitingResponse('deploy')? '部署中': '部署'}}
+              {{statusOfWaitingResponse('deploy') && selected.service.id == scope.row.id ? '部署中': '部署'}}
             </el-button>
             <el-button
                     size="mini-extral"type="warning"
@@ -1244,6 +1244,12 @@ export default {
       return result;
     },
 
+    getVersionDescription(row) {
+      let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
+      let description = profileInfo && profileInfo.hasOwnProperty('description') ? profileInfo.description : '';
+      let desc = `应用${this.selectedAPP.serviceName}-${description}-${row.serviceVersion}版本的服务`;
+      return desc;
+    },
     /**
      * handle click event in the operation-column
      */
@@ -1335,12 +1341,9 @@ export default {
           });
           break;
         case 'delete':
-          let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
-          let description = profileInfo && profileInfo.hasOwnProperty('description') ? profileInfo.description : '';
-          let message1 = `删除服务将会销毁应用${this.selectedAPP.serviceName}-${description}-${row.serviceVersion}版本服务的代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。`;
-          let message2 = `你确认要删除应用${this.selectedAPP.serviceName}-${description}-${row.serviceVersion}版本服务，并清除该服务的一切数据？`
-          this.warningConfirm(message1).then(() => {
-            this.warningConfirm(message2).then(() => {
+          var desc = this.getVersionDescription(row);
+          this.warningConfirm(`删除服务将会销毁${desc}的代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。`).then(() => {
+            this.warningConfirm(`你确认要删除${desc}，并清除该服务的一切数据？`).then(() => {
               this.$net.serviceDelete({
                 id: serviceID,
                 appId: this.selectedAppID,
@@ -1366,7 +1369,8 @@ export default {
           });
           break;
         case 'stop':
-          this.$confirm('您将停止服务版本：' + this.selected.service.serviceVersion + '，确定吗？').then(() => {
+          var desc = this.getVersionDescription(row);
+          this.$confirm(`停止将会导致${desc}不可用，但不会删除代码及配置信息，你确定需要这么做吗?`).then(() => {
             this.$net.serviceStop({
               id: serviceID,
               appId: this.selectedAppID,
@@ -1386,7 +1390,7 @@ export default {
               });
               console.log(err);
             });
-          });
+          }).catch(() => {});
           break;
         case 'service_info':
           if (!row.hasOwnProperty('id')) {
