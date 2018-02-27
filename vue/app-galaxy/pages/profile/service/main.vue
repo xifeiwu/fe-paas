@@ -974,7 +974,8 @@
   import ElCol from "element-ui/packages/col/src/col";
   import ElRadio from "element-ui/packages/radio/src/radio";
 export default {
-  components: {ElRadio, ElCol, ElRow, MyDialogForLog, MyImageSelector}, mixins: [StoreHelper],
+  components: {ElRadio, ElCol, ElRow, MyDialogForLog, MyImageSelector},
+  mixins: [StoreHelper],
   created() {
   },
   mounted() {
@@ -1330,27 +1331,34 @@ export default {
           });
           break;
         case 'delete':
-          this.$confirm('您将删除服务版本：' + this.selected.service.serviceVersion + '，确定吗？').then(() => {
-            this.$net.serviceDelete({
-              id: serviceID,
-              appId: this.selectedAppID,
-              spaceId: this.selectedProfileID
-            }).then(msg => {
-              this.$message({
-                type: 'success',
-                message: msg
+          let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
+          let description = profileInfo && profileInfo.hasOwnProperty('description') ? profileInfo.description : '';
+          let message1 = `删除服务将会销毁应用${this.selectedAPP.serviceName}-${description}-${row.serviceVersion}版本服务的代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。`;
+          let message2 = `你确认要删除应用${this.selectedAPP.serviceName}-${description}-${row.serviceVersion}版本服务，并清除该服务的一切数据？`
+          this.warningConfirm(message1).then(() => {
+            this.warningConfirm(message2).then(() => {
+              this.$net.serviceDelete({
+                id: serviceID,
+                appId: this.selectedAppID,
+                spaceId: this.selectedProfileID
+              }).then(msg => {
+                this.$message({
+                  type: 'success',
+                  message: msg
+                });
+                this.requestServiceList(this.selectedAppID, this.selectedProfileID);
+              }).catch(err => {
+                this.$notify.error({
+                  title: '提示',
+                  message: err,
+                  duration: 0,
+                  onClose: function () {
+                  }
+                });
               });
-              this.requestServiceList(this.selectedAppID, this.selectedProfileID);
-            }).catch(err => {
-              this.$notify({
-                title: '提示',
-                message: err,
-                duration: 0,
-                onClose: function () {
-                }
-              });
-              console.log(err);
+            }).catch(() => {
             });
+          }).catch(()=> {
           });
           break;
         case 'stop':
@@ -1763,6 +1771,19 @@ export default {
           }
         });
         console.log(err);
+      });
+    },
+    warningConfirm(content) {
+      return new Promise((resolve, reject) => {
+        this.$confirm(content, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          resolve();
+        }).catch(() => {
+          reject()
+        });
       });
     },
 

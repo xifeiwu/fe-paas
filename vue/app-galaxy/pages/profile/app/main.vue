@@ -350,7 +350,6 @@
 //              });
               });
             }).catch(()=> {
-
             });
             break;
           case 'change-profiles':
