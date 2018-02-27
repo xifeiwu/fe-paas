@@ -50,7 +50,7 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Gitlab地址" prop="gitLabAddress">
+      <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress">
         <el-input v-model="serviceForm.gitLabAddress" placeholder="请输入项目的gitLab地址"></el-input>
       </el-form-item>
       <el-form-item label="Gitlab分支" prop="gitLabBranch">
@@ -99,24 +99,25 @@
         <el-row
                 v-for="(item, index) in serviceForm.environments"
                 :key="item.key"
+                class="show"
         >
-          <el-col :span="9">{{item.key}}</el-col>
+          <el-col :span="9" class="key">{{item.key}}</el-col>
           <el-col :span="2">&nbsp</el-col>
-          <el-col :span="9">{{item.value}}</el-col>
-          <el-col :span="4">
-            <el-button class="delete-environment-btn" @click="handleDeleteEnvironment(index)">删除</el-button>
+          <el-col :span="9" class="value">{{item.value}}</el-col>
+          <el-col :span="4" class="button">
+            <el-button class="delete-environment-btn" @click="handleEnvironment('delete', index)">删除</el-button>
           </el-col>
         </el-row>
-        <el-row>
+        <el-row class="input">
           <el-col :span="9">
-            <el-input v-model="environmentKey" placeholder="Key值"></el-input>
+            <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、中划线、下划线"></el-input>
           </el-col>
           <el-col class="line" :span="2">-</el-col>
           <el-col :span="9">
-            <el-input v-model="environmentValue" placeholder="Value值"></el-input>
+            <el-input v-model="environmentValue" placeholder="512位以内的数字、字母、中划线、下划线"></el-input>
           </el-col>
           <el-col :span="4">
-            <el-button @click="handleAddEnvironment(environmentKey, environmentValue)">添加</el-button>
+            <el-button @click="handleEnvironment('add', environmentKey, environmentValue)">添加</el-button>
           </el-col>
         </el-row>
       </el-form-item>
@@ -202,6 +203,35 @@
         &.relativePathOfParentPOM {
           .el-form-item__label {
             line-height: 100%;
+          }
+        }
+        &.environments {
+          .el-form-item__content {
+            .show {
+              .key, .value {
+                /*white-space: nowrap;*/
+                /*overflow: hidden;*/
+                /*text-overflow: ellipsis;*/
+                word-wrap: break-word;
+                word-break: break-all;
+                line-height: 1.2;
+              }
+              .button {
+                text-align: center;
+              }
+            }
+            .input {
+              .el-col {
+                text-align: center;
+              }
+            }
+          }
+        }
+        &.hosts {
+          .el-form-item__content {
+            .el-col {
+              text-align: center;
+            }
           }
         }
       }
@@ -501,19 +531,43 @@
         });
       },
 
-      handleDeleteEnvironment(index) {
-        this.serviceForm.environments.splice(index, 1);
-      },
-      handleAddEnvironment(key, value) {
-        if (key.length > 0 && value.length > 0) {
-          this.serviceForm.environments.push({
-            key: key,
-            value: value,
-          });
-          this.environmentKey = '';
-          this.environmentValue = '';
-        } else {
-          this.$message.error('key或value值不能为空');
+      handleEnvironment(action, key, value) {
+        switch (action) {
+          case 'add':
+            let keyReg = /^[A-Za-z0-9_\-\.@]{1,64}$/;
+            let valueReg = /^[A-Za-z0-9_\-\.@]{1,512}$/;
+            if (!keyReg.exec(key)) {
+              this.$message.error('请输入64位以内的数字、字母、中划线、下划线');
+              return;
+            }
+            if (!valueReg.exec(value)) {
+              this.$message.error('请输入512位以内的数字、字母、中划线、下划线');
+              return;
+            }
+            if (this.serviceForm.environments.length >= 10) {
+              this.$message.error('最多输入10个');
+              return;
+            }
+            let keyHasExist = false;
+            this.serviceForm.environments.forEach(it => {
+              if (it.key === key) {
+                it.value = value;
+                keyHasExist = true;
+              }
+            });
+            if (!keyHasExist) {
+              this.serviceForm.environments.push({
+                key: key,
+                value: value,
+              });
+            }
+            this.environmentKey = '';
+            this.environmentValue = '';
+            break;
+          case 'delete':
+            let index = key;
+            this.serviceForm.environments.splice(index, 1);
+            break;
         }
       },
       handleDeleteHost(index) {
