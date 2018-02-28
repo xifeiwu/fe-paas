@@ -340,6 +340,10 @@
               this.$message.error('ip格式不正确');
               return;
             }
+            if (this.itemToAdd.description.length === 0) {
+              this.$message.error('请填写说明');
+              return;
+            }
             this.addToWaitingResponseQueue('add');
             this.$net.addWhiteIP(this.itemToAdd).then(msg => {
               this.hideWaitingResponse('add');

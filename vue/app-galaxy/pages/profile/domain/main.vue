@@ -137,7 +137,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="将要添加的域名" class="has-existed">
+        <el-form-item label="将要添加的域名" class="has-existed" :error="domainProps.stateForDomainToAdd">
           <div v-if="domainProps.domainToAdd.length > 0">
             <el-tag
                     v-for="domain in domainProps.domainToAdd"
@@ -145,18 +145,18 @@
                     closable
                     type="success"
                     size="small"
-                    @close="handleAddDomainInDialog('remove', domain)"
+                    @close="handleDomainInDialog('remove', domain)"
             >{{domain}}</el-tag>
           </div>
           <div v-else>无</div>
         </el-form-item>
-        <el-form-item label="外网二级域名" prop="level2">
+        <el-form-item label="外网二级域名" :error="domainProps.stateForLevel2Name">
           <el-input v-model="domainProps.level2Name"></el-input>
           <el-select v-model="domainProps.level1Name">
             <el-option v-for="(item, index) in domainProps.level1InfoList" :value="item.domainName" :label="item.domainName"
                        :key="index"></el-option>
           </el-select>
-          <el-button class="add-domain-btn" size="mini" @click="handleAddDomainInDialog('add')">添加</el-button>
+          <el-button class="add-domain-btn" size="mini" @click="handleDomainInDialog('add')">添加</el-button>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer" v-if="!domainProps.showResponse">
@@ -293,6 +293,7 @@
       &.add-domain, &.bind-service {
         /*max-width: 900px;*/
         width: 80%;
+        max-width: 750px;
         margin: 15px auto;
         .el-form {
           .el-form-item__content {
@@ -501,6 +502,8 @@
           serverResponse: {},
           level1Name: '',
           level2Name: '',
+          stateForLevel2Name: '',
+          stateForDomainToAdd: '',
         },
         bindServiceProps: {
           showResponse: false,
@@ -934,25 +937,32 @@
        * @param action
        * @param domain
        */
-      handleAddDomainInDialog(action, domain) {
+      handleDomainInDialog(action, domain) {
+        let domainToAdd = this.domainProps.domainToAdd;
+
         switch (action) {
           case 'remove':
-            let items = this.domainProps.domainToAdd;
-            items.splice(items.indexOf(domain), 1);
+            if (domainToAdd.indexOf(domain) > -1) {
+              domainToAdd.splice(domainToAdd.indexOf(domain), 1);
+            }
             break;
           case 'add':
-            this.$refs.hasOwnProperty('newDomainForm') &&
-            this.$refs['newDomainForm'].validate(valid => {
-              if (valid) {
-                let items = this.domainProps.domainToAdd;
-                let domain = this.domainProps.level2Name + '.' + this.domainProps.level1Name;
-                if (items.indexOf(domain) > -1) {
-                  items.splice(items.indexOf(domain), 1);
-                }
-                items.push(domain);
-                this.domainProps.level2Name = '';
-              }
-            });
+            this.domainProps.stateForLevel2Name = '';
+            this.domainProps.stateForDomainToAdd = '';
+            if (this.domainProps.level2Name.length === 0) {
+              this.domainProps.stateForLevel2Name = '域名输入不能为空';
+              return;
+            }
+            if (domainToAdd.length >= 5) {
+              this.domainProps.stateForDomainToAdd = '每次最多添加五个';
+              return;
+            }
+            let itemToAdd = this.domainProps.level2Name + '.' + this.domainProps.level1Name;
+            if (domainToAdd.indexOf(itemToAdd) > -1) {
+              domainToAdd.splice(domainToAdd.indexOf(itemToAdd), 1);
+            }
+            domainToAdd.push(itemToAdd);
+            this.domainProps.level2Name = '';
             break;
         }
       },
