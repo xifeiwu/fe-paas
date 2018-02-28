@@ -110,7 +110,7 @@ class StoreHelper {
     let result = null;
     if (this.APP_ID_FOR_ALL === appID) {
       result = {
-        id: this.APP_ID_FOR_ALL
+        appId: this.APP_ID_FOR_ALL
       };
     } else {
       let appInfo = this.getAppInfoByID(appID);

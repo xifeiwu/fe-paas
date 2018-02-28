@@ -629,8 +629,8 @@
           profileID = this.profileInfo.id;
         }
         let appID = '';
-        if (this.appInfo && this.appInfo.hasOwnProperty('id') && this.appInfo.id != this.$storeHelper.APP_ID_FOR_ALL) {
-          appID = this.appInfo.id;
+        if (this.appInfo && this.appInfo.hasOwnProperty('appId') && this.appInfo.appId != this.$storeHelper.APP_ID_FOR_ALL) {
+          appID = this.appInfo.appId;
         }
         let serviceID = '';
         if (this.serviceInfo && this.serviceInfo.hasOwnProperty('id')
