@@ -11,7 +11,7 @@
       </div>
       <div class="item">
         <label>日志级别</label>
-        <el-select v-model="searchForm.logLevel" placeholder="全部">
+        <el-select v-model="searchForm.logLevel">
           <el-option v-for="(item, index) in logLevelList" :key="index" :label="item" :value="item">
           </el-option>
         </el-select>
@@ -225,12 +225,12 @@
           spaceId: '',
           serviceVersion: '',
           instanceName: '',
-          logLevel: '',
+          logLevel: '全部',
           dateTimeRange: [],
           keyword: '',
         },
 
-        logLevelList: ['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+        logLevelList: ['全部','DEBUG', 'INFO', 'WARNING', 'ERROR'],
 //        defaultTime: start.getTime() - 3600 * 1000 * 24 * 7,
         pickerOptions2: {
           shortcuts: [{
@@ -353,7 +353,7 @@
           appId: this.searchForm.appId,
           spaceId: this.searchForm.spaceId,
           serviceVersion: this.searchForm.serviceVersion,
-          logLevel: this.searchForm.logLevel,
+          logLevel: this.searchForm.logLevel==='全部' ? '':this.searchForm.logLevel,
           startTime: dateRange[0],
           endTime: dateRange[1],
           keyword: this.searchForm.keyword,

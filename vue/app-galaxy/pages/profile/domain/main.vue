@@ -239,14 +239,14 @@
       </div>
 
       <div class="selected-domain" v-if="!unBindServiceProps.showResponse">
-        <span>将要解绑外网域名</span>
+        <span>解绑域名</span>
         <el-tag
                 v-for="(item, index) in rowsSelected"
                 :key="index"
                 type="success"
                 size="small"
         >{{item['internetDomain']}}</el-tag>
-        <span>，解绑后会造成外网二级域名不可用，你确定需要这么做吗？</span>
+        <span>，将导致外网二级域名与服务分离，你确定需要这么做吗？</span>
       </div>
       <div slot="footer" class="dialog-footer" v-if="!unBindServiceProps.showResponse">
         <el-row>
@@ -569,12 +569,18 @@
       }
     },
     computed: {
+      currentGroupID() {
+        return this.$storeHelper.currentGroupID;
+      }
     },
     watch: {
       'domainProps.profileName': 'onProfileChangeInCreateDomainDialog',
       'profileInfo.id': function (id) {
         this.isProfileSelected = id !== this.$storeHelper.PROFILE_ID_FOR_ALL;
         this.fixedInfoForVersionCondition.id = id;
+      },
+      'currentGroupID': function () {
+        this.requestDomainList();
       }
     },
     methods: {
