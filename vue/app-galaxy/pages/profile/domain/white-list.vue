@@ -116,7 +116,7 @@
             <el-button
                     size="mini-extral"
                     type="danger"
-                    :loading = "statusOfWaitingResponse('delete')"
+                    :loading = "statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
                     @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -280,11 +280,10 @@
           case 'modify':
             this.selected.operation = action;
             this.selected.index = index;
-            this.selected.row = JSON.parse(JSON.stringify(this.IPList[index]));
-//            row.showInput = true;
+            this.selected.row = JSON.parse(JSON.stringify(row));
             break;
           case 'update':
-            if (this.$utils.theSame(this.selected.row, this.IPList[this.selected.index])) {
+            if (this.$utils.theSame(this.selected.row, row)) {
               this.$message({
                 type: 'warning',
                 message: '您没有做修改'
@@ -303,7 +302,15 @@
               }, this.selected.row.id).then(msg => {
                 this.hideWaitingResponse('update');
                 this.$message.success(msg);
-                this.IPList[this.selected.index] = JSON.parse(JSON.stringify(this.selected.row));
+//                this.IPList[this.selected.index] = JSON.parse(JSON.stringify(this.selected.row));
+                this.IPList.some(it => {
+                  if (it.id === this.selected.row.id) {
+                    it.ip = this.selected.row.ip;
+                    it.description = this.selected.row.description;
+                    return true;
+                  }
+                  return false;
+                })
                 this.selected.operation = null;
               }).catch(msg => {
                 this.hideWaitingResponse('update');
@@ -313,12 +320,15 @@
             }
             break;
           case 'delete':
+            this.selected.row = JSON.parse(JSON.stringify(row));
+            this.addToWaitingResponseQueue('delete');
             this.$net.deleteWhiteIP(row.id).then(msg => {
               this.hideWaitingResponse('delete');
               this.$message.success(msg);
 //              this.IPList.splice(this.selected.index, 1);
               this.requestWhiteIPList();
               this.selected.operation = null;
+              this.hideWaitingResponse('delete');
             }).catch(msg => {
               this.hideWaitingResponse('delete');
               this.$message.error(msg);
@@ -334,10 +344,8 @@
             this.$net.addWhiteIP(this.itemToAdd).then(msg => {
               this.hideWaitingResponse('add');
               this.$message.success(msg);
-              this.IPList.unshift({
-                ip: this.itemToAdd.ip,
-                description: this.itemToAdd.description
-              });
+              // request and refresh is a better way than un-shift operation on IPList
+              this.requestWhiteIPList();
               this.itemToAdd.ip = '';
               this.itemToAdd.description = '';
             }).catch(msg => {
