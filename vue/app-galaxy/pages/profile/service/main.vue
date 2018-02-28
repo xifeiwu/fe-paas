@@ -42,10 +42,10 @@
         </el-tag>
       </el-row>
       <el-row class="domain" type="flex" justify="center" align="middle">
-        <el-col :span="12">内网域名：{{intranetDomain}}</el-col>
+        <el-col :span="12"><div class="text">内网域名：{{intranetDomain}}</div></el-col>
         <el-col :span="12">
-          <span>外网二级域名：{{intranetDomain}}</span>
-          <i class="el-icon-edit" @click="handleChangeProp('internetDomain')"></i>
+          <div class="text"><span>外网二级域名：{{internetDomain}}</span></div>
+          <i class="el-icon-edit" @click="handleButtonClick('go-to-domain-app')"></i>
         </el-col>
       </el-row>
     </div>
@@ -109,7 +109,7 @@
                     @click="handleRowButtonClick('go-to-instance-list', scope.$index, scope.row)">实例列表</el-button>
             <el-button
                     size="mini-extral" type="warning"
-                    @click="handleRowButtonClick('go-to-domain', scope.$index, scope.row)">配置外网二级域名</el-button>
+                    @click="handleRowButtonClick('go-to-domain-service', scope.$index, scope.row)">配置外网二级域名</el-button>
             <el-button
                     v-if="isProductionProfile"
                     size="mini-extral" type="warning"
@@ -731,16 +731,6 @@
     line-height: 25px;
   }
   #service-main {
-    .el-icon-edit {
-      margin-left: 8px;
-      font-size: 100%;
-      line-height: 100%;
-      color: #eb9e05;
-      vertical-align: middle;
-      &:hover {
-        font-weight: bold;
-      }
-    }
     .header {
       .el-select .el-input__inner {
         height: 26px;
@@ -887,6 +877,16 @@
 </style>
 <style lang="scss" scoped>
   #service-main {
+    .el-icon-edit {
+      margin-left: 8px;
+      font-size: 100%;
+      line-height: 100%;
+      color: #eb9e05;
+      vertical-align: middle;
+      &:hover {
+        font-weight: bold;
+      }
+    }
     .header {
       font-size: 14px;
       line-height: 20px;
@@ -921,6 +921,21 @@
         }
         &.domain {
           margin: 5px 5px 5px 8px;
+          .el-col {
+            .text {
+              display: inline-block;
+              max-width: 300px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              word-wrap: break-word;
+              word-break: break-all;
+            }
+            .el-icon-edit {
+              font-size: 16px;
+              margin-left: 0px;
+            }
+          }
         }
       }
     }
@@ -1029,6 +1044,7 @@ export default {
       currentServiceList: null,
       currentModelList: [],
       intranetDomain: '',
+      internetDomain: '',
 
       defaultServiceID: '',
       selected: {
@@ -1177,7 +1193,6 @@ export default {
         let firstItem = value[0];
         this.memeorySizeList = 'memoryList' in firstItem ? firstItem.memoryList : '';
       }
-
     },
     handleButtonClick(action, params) {
       switch (action) {
@@ -1207,6 +1222,27 @@ export default {
               path: '/profile/work-order/todo/add',
               query: {
                 from: '/profile/service'
+              }
+            });
+          }
+          break;
+        case 'go-to-domain-app':
+          var statusOK = false;
+          if (this.selectedAppID != null && this.selectedProfileID != null) {
+            statusOK = true;
+          }
+          if (!statusOK) {
+            this.$message.error('所需信息不完整！');
+          } else {
+            this.$storeHelper.setUserConfig('profile/service', {
+              appID: this.selectedAppID,
+              profileID: this.selectedProfileID,
+            });
+            this.$router.push({
+              path: '/profile/domain',
+              query: {
+                from: '/profile/service',
+                action: 'go-to-domain-app'
               }
             });
           }
@@ -1429,7 +1465,7 @@ export default {
             });
           }
           break;
-        case 'go-to-domain':
+        case 'go-to-domain-service':
           statusOK = false;
           if (row.hasOwnProperty('id') && this.selectedAppID != null && this.selectedProfileID != null) {
             statusOK = true;
@@ -1445,7 +1481,8 @@ export default {
             this.$router.push({
               path: '/profile/domain',
               query: {
-                from: '/profile/service'
+                from: '/profile/service',
+                action: 'go-to-domain-service'
               }
             });
           }
@@ -1774,6 +1811,12 @@ export default {
           }
         }
         this.intranetDomain = content.hasOwnProperty('intranetDomain') ? content.intranetDomain : '未知';
+        let internetDomainList = content.hasOwnProperty('internetDomain') ? content.internetDomain : [];
+        if (internetDomainList.length > 0) {
+          this.internetDomain = internetDomainList.join(';');
+        } else {
+          this.internetDomain = '未绑定';
+        }
       }).catch(err => {
         this.showLoading = false;
         this.$notify({

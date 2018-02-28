@@ -18,7 +18,7 @@ class AppInfoHelper {
     if (!max) {
       max = '';
     }
-    let regStr = `^[${chineseState['reg']}A-Za-z0-9_\\-\\.@]{${min},${max}}$`;
+    let regStr = `^[${chineseState['reg']}A-Za-z0-9_\\-\\.@/:]{${min},${max}}$`;
     let reg = new RegExp(regStr);
     let desc = `字符中只能包含字母、数字、下划线、中划线`;
     if (chineseState.reg) {

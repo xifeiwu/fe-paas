@@ -463,7 +463,10 @@
       let queryParam = this.$route.query;
       if (queryParam && queryParam.hasOwnProperty('from')) {
         if (queryParam['from'] === '/profile/service') {
-          this.localServiceConfig = this.$storeHelper.getUserConfig('profile/service');
+          this.localServiceConfig = this.$utils.cloneDeep(this.$storeHelper.getUserConfig('profile/service'));
+          if (queryParam['action'] === 'go-to-domain-app') {
+            this.localServiceConfig.serviceID = this.$storeHelper.SERVICE_ID_FOR_ALL;
+          }
         }
       }
     },

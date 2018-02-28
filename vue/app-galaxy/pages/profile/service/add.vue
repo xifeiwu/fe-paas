@@ -124,7 +124,7 @@
         </el-row>
       </el-form-item>
 
-      <el-form-item label="域名配置" prop="hosts" class="hosts">
+      <el-form-item label="Host配置" prop="hosts" class="hosts">
         <el-row>
           <el-col :span="9" style="font-weight: bold;text-align: center">IP</el-col>
           <el-col :span="2">&nbsp</el-col>
@@ -159,7 +159,7 @@
         </el-row>
       </el-form-item>
       <el-form-item label="实例数量" prop="instanceCount">
-        <el-input-number v-model="serviceForm.instanceCount" :min="1" :max="10" label="描述文字"></el-input-number>
+        <el-input-number v-model="serviceForm.instanceCount" :min="1" :max="20" label="描述文字"></el-input-number>
       </el-form-item>
       <el-form-item class="finish" labelWidth="0">
         <el-button type="primary" @click="handleFinish">完成</el-button>

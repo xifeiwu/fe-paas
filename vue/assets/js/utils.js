@@ -16,6 +16,11 @@ class Utils {
     return n instanceof Date;
   }
 
+  isObject(value) {
+    var type = typeof value;
+    return value != null && (type == 'object' || type == 'function');
+  }
+
   /**
    * transfer to formated date string
    * @date timestamp of date
@@ -149,6 +154,17 @@ class Utils {
    */
   debounce(fn, delay, immediate) {
     return this.throttle(fn, delay, immediate, true);
+  }
+
+  cloneDeep(origin) {
+    if (window._) {
+      return _.cloneDeep.apply(_, arguments);
+    }
+    if (this.isObject(origin)) {
+      return JSON.parse(JSON.stringify(origin));
+    } else {
+      return origin;
+    }
   }
 
   error(msg, where) {
