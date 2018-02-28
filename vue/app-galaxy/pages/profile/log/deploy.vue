@@ -6,7 +6,7 @@
     </div>
     <div class="list">
       <el-table
-              :data="deployLogList"
+              :data="deployLogListByPage"
               style="width: 100%"
               v-loading="showLoading"
               element-loading-text="加载中"
@@ -31,6 +31,19 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-container" v-if="totalSize > pageSize">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "pageSize"
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange"
+          >
+          </el-pagination>
+        </div>
+      </div>
     </div>
     <el-dialog-for-log :showStatus="dialogStatus">
       <div slot="log-list" v-for="(item,index) in deployLogs" :key="index" class="log-item">{{item}}</div>
@@ -42,7 +55,15 @@
     .header {
       margin: 5px;
     }
+    .list {
+      .el-table {
+        margin-bottom: 40px;
+      }
+    }
   }
+</style>
+<style lang="scss">
+
 </style>
 <script>
   import MyVersionSelector from '../utils/components/version-selector';
@@ -74,7 +95,13 @@
           visible: false,
           full: false,
         },
-        deployLogs: []
+        deployLogs: [],
+        deployLogsByPage: [],
+
+        // data for pagination
+        totalSize: 0,
+        pageSize: 15,
+        currentPage: 1,
       }
     },
     methods: {
@@ -90,7 +117,9 @@
         }).then(deployLogList => {
 //          console.log(deployLogList);
           this.deployLogList = deployLogList;
+          this.totalSize = this.deployLogList.length;
           this.showLoading = false;
+          this.getDeployLogListByPage();
         }).catch(err => {
           this.$message.error('列表获取失败！');
           this.showLoading = false;
@@ -117,7 +146,23 @@
             });
             break;
         }
-      }
+      },
+
+      getDeployLogListByPage() {
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        let start = page * this.pageSize;
+        let length = this.pageSize;
+        let end = start + length;
+        this.deployLogListByPage = this.deployLogList.slice(start, end);
+      },
+
+      // the first page of pagination is 1
+      // called at: 1. at the data of response; 2. change of pagination
+      handlePaginationPageChange(value) {
+        this.currentPage = value;
+        this.getDeployLogListByPage();
+      },
     }
   }
 </script>
