@@ -11,7 +11,7 @@
         <el-button
                 size="mini-extral"
                 type="primary"
-                :loading="waitingResponseStatus('open-create-domain-dialog')"
+                :loading="statusOfWaitingResponse('open-create-domain-dialog')"
                 @click="handleButtonClick('open-create-domain-dialog')">
           创建外网二级域名
         </el-button>
@@ -35,7 +35,7 @@
             <div>3. 绑定服务时，开发环境不能选择"全部"</div>
           </div>
           <i class="el-icon-question"></i>
-      </el-tooltip>
+        </el-tooltip>
       </div>
     </div>
     <div class="section-content">
@@ -87,6 +87,7 @@
             <el-button
                     size="mini-extral"
                     type="danger"
+                    :loading="statusOfWaitingResponse('remove') && selected.row.id === scope.row.id"
                     @click="handleRowButtonClick('remove', scope.$index, scope.row)">删除
             </el-button>
           </template>
@@ -112,8 +113,8 @@
                @close="handleButtonClickInDialog('close-domain-in-dialog')"
     >
       <!--<el-tag type="success" disable-transitions>-->
-        <!--<i class="el-icon-warning"></i>-->
-        <!--<span>更改健康检查后需要重新【部署】才能生效！</span>-->
+      <!--<i class="el-icon-warning"></i>-->
+      <!--<span>更改健康检查后需要重新【部署】才能生效！</span>-->
       <!--</el-tag>-->
       <div v-if="domainProps.showResponse">
         <div class="key title">外网域名</div>
@@ -163,7 +164,7 @@
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
                        @click="handleButtonClickInDialog('add-domain-in-dialog')"
-                       :loading="waitingResponseStatus('add-domain-in-dialog')">保&nbsp存</el-button>
+                       :loading="statusOfWaitingResponse('add-domain-in-dialog')">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button @click="handleButtonClickInDialog('close-domain-in-dialog')">取&nbsp消</el-button>
@@ -198,10 +199,10 @@
           <div>所选外网域名</div>
           <div>
             <el-tag
-            v-for="(item, index) in rowsSelected"
-            :key="index"
-            type="success"
-            size="small"
+                    v-for="(item, index) in rowsSelected"
+                    :key="index"
+                    type="success"
+                    size="small"
             >{{item['internetDomain']}}</el-tag>
           </div>
         </div>
@@ -211,7 +212,7 @@
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
                        @click="handleButtonClickInDialog('bind-service-in-dialog')"
-                       :loading="waitingResponseStatus('bind-service-in-dialog')">保&nbsp存</el-button>
+                       :loading="statusOfWaitingResponse('bind-service-in-dialog')">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button @click="currentOpenedDialog = null">取&nbsp消</el-button>
@@ -239,12 +240,12 @@
 
       <div class="selected-domain" v-if="!unBindServiceProps.showResponse">
         <span>将要解绑外网域名</span>
-          <el-tag
-                  v-for="(item, index) in rowsSelected"
-                  :key="index"
-                  type="success"
-                  size="small"
-          >{{item['internetDomain']}}</el-tag>
+        <el-tag
+                v-for="(item, index) in rowsSelected"
+                :key="index"
+                type="success"
+                size="small"
+        >{{item['internetDomain']}}</el-tag>
         <span>，解绑后会造成外网二级域名不可用，你确定需要这么做吗？</span>
       </div>
       <div slot="footer" class="dialog-footer" v-if="!unBindServiceProps.showResponse">
@@ -252,7 +253,7 @@
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
                        @click="handleButtonClickInDialog('unbind-service-in-dialog')"
-                       :loading="waitingResponseStatus('unbind-service-in-dialog')">确&nbsp定</el-button>
+                       :loading="statusOfWaitingResponse('unbind-service-in-dialog')">确&nbsp定</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button @click="currentOpenedDialog = null">取&nbsp消</el-button>
@@ -484,9 +485,9 @@
         currentDomainList: [],
         rowsSelected: [],
         showLoading: false,
-        responseStatus: {
-          waiting: false,
-          for: null,
+        queueForWaitingResponse: [],
+        selected: {
+          row: null
         },
 
         // props for add domain
@@ -574,17 +575,22 @@
       }
     },
     methods: {
-      showWaitingResponse(action) {
-        this.responseStatus.waiting = true;
-        this.responseStatus.for = action;
+      // helper for loading action of el-button
+      addToWaitingResponseQueue(action) {
+        if (this.queueForWaitingResponse.indexOf(action) === -1) {
+          this.queueForWaitingResponse.push(action);
+        }
       },
-      hiddenWaitingResponse() {
-        this.responseStatus.waiting = false;
-        this.responseStatus.for = null;
+      hideWaitingResponse(action) {
+        let index = this.queueForWaitingResponse.indexOf(action);
+        if (index > -1) {
+          this.queueForWaitingResponse.splice(index, 1);
+        }
       },
-      waitingResponseStatus(action) {
-        return this.responseStatus.waiting && (this.responseStatus.for === action);
+      statusOfWaitingResponse(action) {
+        return this.queueForWaitingResponse.indexOf(action) > -1;
       },
+
       // used to listen domain change in dialog of create-domain
       onProfileChangeInCreateDomainDialog(value) {
         let profileName = value;
@@ -660,6 +666,7 @@
 
       // handle the button in operation column of table
       handleRowButtonClick(action, index, row) {
+        this.selected.row = row;
         switch (action) {
           case 'to-white-list':
             let domain = row.domain;
@@ -672,13 +679,16 @@
             });
             break;
           case 'remove':
-            this.warningConfirm('删除外网二级域名将同时删除该域名关联的IP白名单，确定吗？').then(() => {
+            this.addToWaitingResponseQueue(action);
+            this.warningConfirm(`删除外网二级域名${row.internetDomain}，将会同时删除该域名关联的IP白名单，确定吗？`).then(() => {
               this.$net.removeDomain({
                 id: row.id
               }).then(msg => {
+                this.hideWaitingResponse(action);
                 this.$message.success(`成功删除域名${row['internetDomain']}`);
                 this.requestDomainList();
               }).catch(msg => {
+                this.hideWaitingResponse(action);
                 this.$notify({
                   title: '删除域名失败',
                   message: msg,
@@ -688,10 +698,11 @@
                 });
               });
             }).catch(() => {
-              this.$message({
-                type: 'info',
-                message: '您已取消删除'
-              });
+              this.hideWaitingResponse(action);
+//              this.$message({
+//                type: 'info',
+//                message: '您已取消删除'
+//              });
             });
             break;
         }
@@ -714,14 +725,13 @@
        * do some init action before dialog popup
        */
       handleButtonClick(action) {
-        this.hiddenWaitingResponse();
         switch (action) {
           case 'open-create-domain-dialog':
             if (!this.profileInfo) {
               this.$message.error('获取运行环境信息失败！');
               return;
             }
-            this.showWaitingResponse(action);
+            this.addToWaitingResponseQueue(action);
 
             this.initDomainProps();
             this.$net.getDomainLevel1Map({
@@ -731,10 +741,10 @@
               this.currentOpenedDialog = 'add-domain';
               this.domainProps.profileName = this.$storeHelper.profileListOfGroup()[0]['name'];
               this.onProfileChangeInCreateDomainDialog(this.domainProps.profileName);
-              this.hiddenWaitingResponse();
+              this.hideWaitingResponse(action);
             }).catch(err => {
               this.$message.error('获取运行环境信息失败！');
-              this.hiddenWaitingResponse();
+              this.hideWaitingResponse(action);
             });
             break;
           case 'open-bind-service-dialog':
@@ -772,7 +782,7 @@
               this.$message.error('一次创建域名不能超过5个');
               return;
             }
-            this.showWaitingResponse(action);
+            this.addToWaitingResponseQueue(action);
             this.$net.createDomain({
               "spaceId": this.$storeHelper.getProfileInfoByName(this.domainProps.profileName)['id'],
               "groupId": this.$storeHelper.currentGroupID,
@@ -780,7 +790,7 @@
             }).then(content => {
               this.domainProps.serverResponse = content;
               this.domainProps.showResponse = true;
-              this.hiddenWaitingResponse();
+              this.hideWaitingResponse(action);
             }).catch(err => {
               this.$notify({
                 title: '添加域名失败',
@@ -816,7 +826,7 @@
               this.$message.error('未找到服务信息！');
               return;
             }
-            this.showWaitingResponse(action);
+            this.addToWaitingResponseQueue(action);
 
             let options = {
               internetDomainIdList: domainIdList,
@@ -848,7 +858,7 @@
               });
               this.bindServiceProps.serverResponse = content;
               this.bindServiceProps.showResponse = true;
-              this.hiddenWaitingResponse();
+              this.hideWaitingResponse(action);
             }).catch(msg => {
               this.$notify({
                 title: '绑定域名失败',
@@ -857,6 +867,7 @@
                 onClose: function () {
                 }
               });
+              this.hideWaitingResponse(action);
             });
             break;
           case 'close-bind-service-in-dialog':
@@ -874,7 +885,7 @@
               this.$message.error('请选择要操作的域名！');
               return;
             }
-            this.showWaitingResponse(action);
+            this.addToWaitingResponseQueue(action);
             this.$net.domainUnBindService({
               internetDomainIdList: domainIdList
             }).then(content => {
@@ -896,7 +907,7 @@
               });
               this.unBindServiceProps.serverResponse = content;
               this.unBindServiceProps.showResponse = true;
-              this.hiddenWaitingResponse();
+              this.hideWaitingResponse(action);
             }).catch(msg => {
               this.$notify({
                 title: '绑定域名失败',
@@ -905,6 +916,7 @@
                 onClose: function () {
                 }
               });
+              this.hideWaitingResponse(action);
             });
             break;
           case 'close-unbind-service-in-dialog':
