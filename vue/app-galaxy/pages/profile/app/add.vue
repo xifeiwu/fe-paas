@@ -54,7 +54,7 @@
       <el-form-item label="健康检查" prop="healthCheck">
         <el-input v-model="createAppForm.healthCheck" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-50个字符"></el-input>
       </el-form-item>
-      <el-form-item label="文件存储" prop="fileLocation" class="fileLocation">
+      <el-form-item label="文件存储" prop="fileLocation" class="fileLocation" v-if="false">
           <el-tag
             v-for="tag in createAppForm.fileLocation"
             :key="tag"

@@ -15,6 +15,7 @@
                 :beforeUpload="beforeFileUpload"
                 :onSuccess="afterLoadSuccess"
                 :onError="afterLoadError"
+                accept=".xls, .xlsx"
                 @onUploadFiles="onUploadFiles"
         >
           <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>
@@ -219,7 +220,7 @@
 <script>
   import Clickoutside from 'element-ui/src/utils/clickoutside';
   import ElCol from "element-ui/packages/col/src/col";
-  export default {
+  module.exports = {
     components: {ElCol}, directives: { Clickoutside },
     created() {
     },
@@ -395,7 +396,8 @@
       /**
        * get white ip list, called at:
        * 1. at start of page in function mounted
-       * 2. delete white ip
+       * 2. delete white ip, add white ip
+       * 3. after upload excel file success or error
        */
       requestWhiteIPList() {
         this.$net.getWhiteIPList({
@@ -443,12 +445,14 @@
           message: '文件' + file.name + '上传成功！'
         });
         this.$refs.upload.clearFiles();
+        this.requestWhiteIPList();
       },
       afterLoadError(err, file, fileList) {
-        this.$message({
+        this.$message.error({
           type: 'success',
           message: '文件' + file.name + '上传失败！'
         });
+        this.requestWhiteIPList();
       },
       onUploadFiles(value) {
 //        console.log('onUploadFiles');

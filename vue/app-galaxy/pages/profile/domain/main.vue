@@ -947,10 +947,12 @@
             }
             break;
           case 'add':
+            this.domainProps.level2Name = this.domainProps.level2Name.trim();
+
             this.domainProps.stateForLevel2Name = '';
             this.domainProps.stateForDomainToAdd = '';
-            if (this.domainProps.level2Name.length === 0) {
-              this.domainProps.stateForLevel2Name = '域名输入不能为空';
+            if (!/^[a-z0-9\-]+$/.exec(this.domainProps.level2Name)) {
+              this.domainProps.stateForLevel2Name = '二级域名只能填写小写英文字母，数字，或-，且不能为空';
               return;
             }
             if (domainToAdd.length >= 5) {
