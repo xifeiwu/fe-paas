@@ -62,9 +62,9 @@ export default {
   components: {ElRadio}, created() {
   },
   mounted() {
-    this.$nextTick(() => {
-      this.checkValidate();
-    });
+//    this.$nextTick(() => {
+//      this.checkValidate();
+//    });
   },
   props: {
     id: null,

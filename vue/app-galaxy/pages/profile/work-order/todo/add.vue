@@ -234,6 +234,11 @@
           let localServiceConfig = this.$storeHelper.getUserConfig('profile/service');
           this.workOrderDetail.appID = localServiceConfig.appID;
         }
+      } else {
+        let appIdInLocal = this.$storeHelper.getUserConfig('profile/work-order/appID');
+        if (appIdInLocal) {
+          this.workOrderDetail.appID = appIdInLocal;
+        }
       }
     },
     mounted() {
@@ -309,6 +314,7 @@
           this.workOrderDetail.appName = appInfo.app.serviceName;
         }
         this.requestProductVersionList(value);
+        this.$storeHelper.setUserConfig('profile/work-order/appID', value);
       },
       'workOrderDetail.serviceVersion': function () {
         this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
