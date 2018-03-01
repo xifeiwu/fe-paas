@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "start-dev": "NODE_ENV=dev nodemon start.js || NODE_ENV=dev node start.js",
+    "nohup-start-dev": "NODE_ENV=test node nohup-start.js &",
+    "nohup-stop-dev": "test -f ./nohup-stop.sh && ./nohup-stop.sh 7002",
     "nohup-start-test": "NODE_ENV=test node nohup-start.js &",
-    "nohup-stop": "test -f ./nohup-stop.sh && ./nohup-stop.sh"
+    "nohup-stop-test": "test -f ./nohup-stop.sh && ./nohup-stop.sh 80"
   },
   "devDependencies": {
     "nodemon": "^1.14.8"

@@ -1,18 +1,17 @@
 #!/bin/bash
 
 function kill_no_hup() {
-os_name=$(uname -s)
-case ${os_name} in
-  "Linux")
-    thread=(`ps -aux | grep -x '.*node[ \w]nohup-start\.js'`)
-    test ${#thread} -ge 2 && pid=${thread[1]}
-  ;;
-  "Darwin")
-    thread=(`ps -A | grep -x '.*node[ \w]nohup-start\.js'`)
-    test ${#thread} -ge 2 && pid=${thread[0]}
-  ;;
-esac
-echo $pid
+  os_name=$(uname -s)
+  case ${os_name} in
+    "Linux")
+      thread=(`ps -aux | grep -x '.*node[ \w]nohup-start\.js'`)
+      test ${#thread} -ge 2 && pid=${thread[1]}
+    ;;
+    "Darwin")
+      thread=(`ps -A | grep -x '.*node[ \w]nohup-start\.js'`)
+      test ${#thread} -ge 2 && pid=${thread[0]}
+    ;;
+  esac
   if [ -n "${pid}" ]; then
     echo kill nohup pid: $pid
     kill $pid
@@ -41,4 +40,4 @@ function kill_pid_by_port() {
 }
 
 kill_no_hup
-kill_pid_by_port 7002
+kill_pid_by_port $1
