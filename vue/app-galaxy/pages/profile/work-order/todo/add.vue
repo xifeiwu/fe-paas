@@ -111,8 +111,9 @@
         </el-form-item>
       </el-form>
     </div>
-    <div class="submit-section">
-      <el-button type="primary" @click="handleFinish" :disabled="disableSubmit">完成</el-button>
+    <div class="section-footer">
+      <el-button size="mini" type="primary" @click="handleButtonClick('add')" :disabled="disableSubmit">完成</el-button>
+      <el-button size="mini" type="primary" @click="handleButtonClick('back')">取消</el-button>
     </div>
   </div>
 </template>
@@ -193,19 +194,10 @@
         margin-bottom: 5px;
       }
     }
-    .submit-section {
-      margin: 15px auto;
+    .section-footer {
       text-align: center;
       .el-button {
-        display: inline-block;
-        margin: 0px auto;
-        width: 50%;
-        max-width: 200px;
-        text-align: center;
-      }
-      i {
-        font-size: 20px;
-        line-height: 28px;
+        padding: 6px 20px;
       }
     }
   }
@@ -213,20 +205,18 @@
 <script>
   import WorkOrderPropUtils from '../utils/work-order-props';
   import MyFeature from '../utils/components/feature.vue';
-  import StoreHelper from '../../utils/store-helper.vue';
   import ElTooltip from "element-ui/packages/tooltip/src/main";
   import ElOption from "element-ui/packages/select/src/option";
   import ElInput from "element-ui/packages/input/src/input";
   export default {
     components: {ElInput, ElOption, ElTooltip, MyFeature},
-    mixins: [StoreHelper],
 
     created() {
-      this.onCurrentGroupID(this.$storeHelper.currentGroupID);
+      this.onCurrentGroupID(this.currentGroupID);
       if (!this.appInfoListOfGroup) {
         this.$store.dispatch('user/appInfoListOfGroup', {
           from: 'page/work-order/todo/add',
-          groupID: this.$storeHelper.currentGroupID
+          groupID: this.currentGroupID
         });
       } else {
         this.onAppInfoListOfGroup(this.appInfoListOfGroup);
@@ -235,7 +225,7 @@
         this.$store.dispatch('app/usersAll');
       }
       if (!this.usersInGroup) {
-        this.$store.dispatch('user/usersInGroup');
+        this.$store.dispatch('user/usersInGroup', {id: this.currentGroupID});
       }
 
       let queryParam = this.$route.query;
@@ -279,7 +269,7 @@
         workOrderDetail: {
           name: '',
           creatorName: this.$getUserInfo('realName'),
-          groupId: this.$storeHelper.currentGroupID,
+          groupId: this.currentGroupID,
           groupName: '',
           featureList: [],
           appID: null,
@@ -295,6 +285,12 @@
       };
     },
     computed: {
+      currentGroupID() {
+        return this.$storeHelper.currentGroupID;
+      },
+      groupList() {
+        return this.$storeHelper.groupList();
+      },
       appInfoListOfGroup() {
         return this.$storeHelper.appInfoListOfGroup();
       },
@@ -308,7 +304,7 @@
     watch: {
       appInfoListOfGroup: 'onAppInfoListOfGroup',
       'workOrderDetail.appID': function (value) {
-        let appInfo = this.getAppInfoByID(value);
+        let appInfo = this.$storeHelper.getAppInfoByID(value);
         if (appInfo && appInfo.hasOwnProperty('app')) {
           this.workOrderDetail.appName = appInfo.app.serviceName;
         }
@@ -323,7 +319,7 @@
     methods: {
       onCurrentGroupID(value) {
         this.workOrderDetail.groupId = value;
-        let groupInfo = this.getGroupInfoByID(value);
+        let groupInfo = this.$storeHelper.getGroupInfoByID(value);
         if (groupInfo && groupInfo.hasOwnProperty('name')) {
           this.workOrderDetail.groupName = groupInfo.name;
         }
@@ -419,7 +415,6 @@
         });
       },
 
-
       /**
        * action for add or remove mailGroup
        * @param action
@@ -446,128 +441,135 @@
         }
       },
 
-      handleFinish() {
-        if (!WorkOrderPropUtils.checkComment(this.workOrderDetail.comment)) {
-          this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
-          return;
-        }
+      handleButtonClick(action) {
+        switch (action) {
+          case 'add':
+            if (!WorkOrderPropUtils.checkComment(this.workOrderDetail.comment)) {
+              this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
+              return;
+            }
 //        console.log(this.workOrderDetail);
-        let basicPromise = new Promise((resolve, reject) => {
-          this.$refs['basicForm'].validate((valid) => {
+            let basicPromise = new Promise((resolve, reject) => {
+              this.$refs['basicForm'].validate((valid) => {
 //            console.log(valid);
-            resolve(valid);
-          });
-        });
-        let featurePromise = new Promise((resolve, reject) => {
-          let valid = this.workOrderDetail.featureList
-            .map(it => {return it.valid})
-            .reduce((sum, valid) => {
-              return sum && valid;
-            });
-          resolve(valid);
-        });
-        let applicationPromise = new Promise((resolve, reject) => {
-          this.$refs['applicationForm'].validate((valid) => {
-//            console.log(valid);
-            resolve(valid);
-          });
-        });
-        let acceptancePromise = new Promise((resolve, reject) => {
-          this.$refs['acceptanceForm'].validate((valid) => {
-//            console.log(valid);
-            resolve(valid);
-          });
-        });
-        Promise.all([basicPromise, featurePromise, applicationPromise, acceptancePromise]).then(results => {
-          if (!Array.isArray(results)) {
-            return;
-          }
-          let valid = results.reduce((sum, valid) => {
-            return sum && valid;
-          });
-          if (valid) {
-            let toPost = {
-              workOrderDeploy: {
-                name: this.workOrderDetail.name,
-                groupId: this.workOrderDetail.groupId,
-                groupName: this.workOrderDetail.groupName,
-                remark: this.workOrderDetail.comment
-              }
-            };
-            toPost.workOrderDeployFunctionList = this.workOrderDetail.featureList.map(it => {
-              return {
-                functionName: it.name,
-                functionType: it.type,
-                jiraAddress: it.jiraAddress,
-                description: it.description
-              }
-            });
-            toPost.workOrderDeployAppList = [{
-              appId: this.workOrderDetail.appID,
-              appName: this.workOrderDetail.appName,
-              serviceVersion: this.workOrderDetail.serviceVersion,
-            }];
-            // 验收人
-            let userAcceptedList = this.getUserInfoByID(this.workOrderDetail.acceptedUserIdList);
-            if (userAcceptedList) {
-              toPost.acceptanceUserList = userAcceptedList.map(it => {
-                return {
-                  userId: it.id,
-                  userName: it.realName
-                }
-              })
-            } else {
-              toPost.acceptanceUserList = [];
-            }
-            // 知会人
-            let userNotifyList = this.getUserInfoByID(this.workOrderDetail.notifyUserIdList);
-            if (userNotifyList) {
-              toPost.informUserList = userNotifyList.map(it => {
-                return {
-                  userId: it.id,
-                  userName: it.realName
-                }
-              })
-            } else {
-              toPost.informUserList = [];
-            }
-            // 邮件组
-            toPost.emailGroupList = this.workOrderDetail.mailGroupList.map(it => {
-              return {
-                emailGroupName: it
-              }
-            });
-            console.log(toPost);
-            this.showLoading = true;
-            this.loadingText = '正在提交工单"' + this.workOrderDetail.name + '"';
-            this.$net.createWorkOrder(toPost).then((msg) => {
-              this.$alert('工单' + this.workOrderDetail.name  +'创建成功，即将进入工单列表页', '创建工单成功', {
-                confirmButtonText: '确定',
-                callback: () => {
-                  this.$router.push('/profile/work-order/list');
-                }
+                resolve(valid);
               });
-              this.showLoading = false;
-              this.loadingText = '';
-            }).catch(msg => {
-              this.$notify.error({
-                title: '创建工单失败',
-                message: msg
-              });
-              this.showLoading = false;
-              this.loadingText = '';
             });
-          } else {
-            let [basicCheck, featureCheck, appCheck, acceptanceCheck] = results;
-            if (!featureCheck) {
-              this.$message.error('请检查"功能列表"部分是否正确');
-            } else if (!appCheck) {
-              this.$message.error('请检查"程序列表"部分是否正确');
-            } else if (!acceptanceCheck) {
-              this.$message.error('请检查"验收信息"部分是否正确');
-            }
-          }
-        });
+            let featurePromise = new Promise((resolve, reject) => {
+              let valid = this.workOrderDetail.featureList
+                .map(it => {return it.valid})
+                .reduce((sum, valid) => {
+                  return sum && valid;
+                });
+              resolve(valid);
+            });
+            let applicationPromise = new Promise((resolve, reject) => {
+              this.$refs['applicationForm'].validate((valid) => {
+//            console.log(valid);
+                resolve(valid);
+              });
+            });
+            let acceptancePromise = new Promise((resolve, reject) => {
+              this.$refs['acceptanceForm'].validate((valid) => {
+//            console.log(valid);
+                resolve(valid);
+              });
+            });
+            Promise.all([basicPromise, featurePromise, applicationPromise, acceptancePromise]).then(results => {
+              if (!Array.isArray(results)) {
+                return;
+              }
+              let valid = results.reduce((sum, valid) => {
+                return sum && valid;
+              });
+              if (valid) {
+                let toPost = {
+                  workOrderDeploy: {
+                    name: this.workOrderDetail.name,
+                    groupId: this.workOrderDetail.groupId,
+                    groupName: this.workOrderDetail.groupName,
+                    remark: this.workOrderDetail.comment
+                  }
+                };
+                toPost.workOrderDeployFunctionList = this.workOrderDetail.featureList.map(it => {
+                  return {
+                    functionName: it.name,
+                    functionType: it.type,
+                    jiraAddress: it.jiraAddress,
+                    description: it.description
+                  }
+                });
+                toPost.workOrderDeployAppList = [{
+                  appId: this.workOrderDetail.appID,
+                  appName: this.workOrderDetail.appName,
+                  serviceVersion: this.workOrderDetail.serviceVersion,
+                }];
+                // 验收人
+                let userAcceptedList = this.$storeHelper.getUserInfoByID(this.workOrderDetail.acceptedUserIdList);
+                if (userAcceptedList) {
+                  toPost.acceptanceUserList = userAcceptedList.map(it => {
+                    return {
+                      userId: it.id,
+                      userName: it.realName
+                    }
+                  })
+                } else {
+                  toPost.acceptanceUserList = [];
+                }
+                // 知会人
+                let userNotifyList = this.$storeHelper.getUserInfoByID(this.workOrderDetail.notifyUserIdList);
+                if (userNotifyList) {
+                  toPost.informUserList = userNotifyList.map(it => {
+                    return {
+                      userId: it.id,
+                      userName: it.realName
+                    }
+                  })
+                } else {
+                  toPost.informUserList = [];
+                }
+                // 邮件组
+                toPost.emailGroupList = this.workOrderDetail.mailGroupList.map(it => {
+                  return {
+                    emailGroupName: it
+                  }
+                });
+                console.log(toPost);
+                this.showLoading = true;
+                this.loadingText = '正在提交工单"' + this.workOrderDetail.name + '"';
+                this.$net.createWorkOrder(toPost).then((msg) => {
+                  this.$alert('工单"' + this.workOrderDetail.name  +'"创建成功，即将进入工单列表页', '创建工单成功', {
+                    confirmButtonText: '确定',
+                    callback: () => {
+                      this.$router.push('/profile/work-order/list');
+                    }
+                  });
+                  this.showLoading = false;
+                  this.loadingText = '';
+                }).catch(msg => {
+                  this.$notify.error({
+                    title: '创建工单失败',
+                    message: msg
+                  });
+                  this.showLoading = false;
+                  this.loadingText = '';
+                });
+              } else {
+                let [basicCheck, featureCheck, appCheck, acceptanceCheck] = results;
+                if (!featureCheck) {
+                  this.$message.error('请检查"功能列表"部分是否正确');
+                } else if (!appCheck) {
+                  this.$message.error('请检查"程序列表"部分是否正确');
+                } else if (!acceptanceCheck) {
+                  this.$message.error('请检查"验收信息"部分是否正确');
+                }
+              }
+            });
+            break;
+          case 'back':
+            this.$router.go(-1);
+            break;
+        }
       },
     }
   };

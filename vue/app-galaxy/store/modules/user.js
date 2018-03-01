@@ -22,7 +22,7 @@ const stateHasUpdated = function(prop) {
  * 1. if the prop in state has not null, return state.prop
  * 2. else get from localStorage, and assign the value to state.prop
  */
-//, 'appInfoListOfGroup'
+//, 'appInfoListOfGroup', 'usersInGroup'
 var LOCAL_PROP = ['profileListOfGroup', 'config', 'info', 'menuList', 'groupList', 'groupInfo'];
 const getValue = function({state, getters}, prop) {
   const getLocalValue = function() {
