@@ -71,11 +71,23 @@ class WorkOrderUtils {
         mailGroupList: [{
           type: 'array',
           required: true,
-          message: '请填写邮件组',
-          trigger: 'blur'
-        }, {
+          message: '请至少填写一个邮件组',
+        },
+          {
           validator(rule, values, callback) {
-            let passed = values.length > 0;
+            let passed = true;
+            let mailReg = /^([\w-_]+(?:\.[\w-_]+)*)@((?:[a-z0-9]+(?:-[a-zA-Z0-9]+)*)+\.[a-z]{2,6})$/;
+            if (Array.isArray(values)) {
+              values.every(it => {
+                passed = mailReg.exec(it);
+                if (!passed) {
+                  callback(`${it}格式不正确`);
+                }
+                return passed;
+              })
+            } else {
+              callback('不是数组');
+            }
             if (passed) {
               callback();
             }

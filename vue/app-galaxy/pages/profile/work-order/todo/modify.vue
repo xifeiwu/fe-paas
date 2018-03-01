@@ -152,15 +152,21 @@
       &.mail-group {
         .add-mail-group-btn {
           color: white;
-          background-color: #409EFF;
+          /*background-color: #409EFF;*/
+          background-color: #6c757d;
+          border-color: #6c757d;
           margin: 0px;
           width: 60px;
-          padding: 7px 15px 8px 15px;
+          padding: 0px;
+          font-size: 12px;
+          line-height: 25px;
           border-width: 0px;
           border-radius: 0px;
           &:hover {
-            background-color: #79bbff;
+            /*background-color: #79bbff;*/
             font-weight: bold;
+            background-color: #5a6268;
+            border-color: #545b62;
           }
         }
       }
@@ -439,11 +445,16 @@
        */
       handleMailGroup(action, mailGroup) {
         let mailGroupList = this.workOrderDetail.mailGroupList;
+        let mailReg = /^([\w-_]+(?:\.[\w-_]+)*)@((?:[a-z0-9]+(?:-[a-zA-Z0-9]+)*)+\.[a-z]{2,6})$/;
         switch (action) {
           case 'remove':
             mailGroupList.splice(mailGroupList.indexOf(mailGroup), 1);
             break;
           case 'add':
+            if (!mailReg.exec(mailGroup)) {
+             this.$message.error('邮箱格式不正确');
+             return;
+            }
             if (mailGroupList.indexOf(mailGroup) > -1) {
               mailGroupList.splice(mailGroupList.indexOf(mailGroup), 1);
             }

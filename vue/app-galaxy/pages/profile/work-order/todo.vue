@@ -6,7 +6,7 @@
           <el-button
                   size="mini-extral"
                   type="primary"
-                  @click="handleButtonClick('linker', {path: '/profile/work-order/todo/add'})">申请工单</el-button>
+                  @click="handleButtonClick('linker', {path: '/profile/work-order/todo/add'})">申请审批工单</el-button>
         </el-col>
         <div class="el-col el-col-3">
           <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
