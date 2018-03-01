@@ -257,15 +257,17 @@
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 60);
               picker.$emit('pick', [start, end]);
             }
-          }, {
-            text: '最近三个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
-            }
-          }]
+          }
+//          , {
+//            text: '最近三个月',
+//            onClick(picker) {
+//              const end = new Date();
+//              const start = new Date();
+//              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+//              picker.$emit('pick', [start, end]);
+//            }
+//          }
+          ]
         },
 
         dialogStatus: {
@@ -279,13 +281,23 @@
         showLoading: false
       }
     },
+    computed: {
+      currentGroupID() {
+        return this.$storeHelper.currentGroupID;
+      }
+    },
+    watch: {
+      'currentGroupID': function () {
+        this.resetSearchCondition();
+      }
+    },
     methods: {
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
         let profileID = profileInfo.id;
         this.searchForm.appId = appInfo.appId;
         this.searchForm.spaceId = profileID;
         this.searchForm.serviceVersion = serviceInfo.serviceVersion;
-        this.requestLogAtStart();
+//        this.requestLogAtStart();
       },
       handleButtonClick(action) {
         switch (action) {
@@ -293,13 +305,25 @@
             this.requestLogAtStart();
           break;
           case 'refresh':
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 1000 * 60 * 5);
-            this.searchForm.dateTimeRange = [start, end];
-            this.requestLogAtStart();
+            this.resetSearchCondition();
             break;
         }
+      },
+
+      resetSearchCondition() {
+        // reset time duration
+        const end = new Date();
+        const start = new Date();
+        start.setTime(start.getTime() - 1000 * 60 * 5);
+        this.searchForm.dateTimeRange = [start, end];
+        // reset instance name
+        this.searchForm.instanceName = '';
+        // reset log level
+        this.searchForm.logLevel = '全部';
+        // reset key work
+        this.searchForm.keyword = '';
+        // request log after reset
+        this.requestLogAtStart();
       },
 //      onScrollBottom() {
 //        this.requestLog();
