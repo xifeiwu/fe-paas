@@ -44,6 +44,10 @@
             size="mini-extral"
             type="primary"
             @click="handleButtonClick('search')">搜索</el-button>
+          <el-button
+                  size="mini-extral"
+                  type="primary"
+                  @click="handleButtonClick('refresh')">刷新</el-button>
         </el-col>
       </el-row>
     </div>
@@ -261,15 +265,11 @@
   import ElFormItem from "element-ui/packages/form/src/form-item";
   import ElCol from "element-ui/packages/col/src/col";
   export default {
-    components: {ElCol, ElFormItem}, created() {
-      console.log('created');
+    components: {ElCol, ElFormItem},
+    created() {
     },
     mounted() {
-      const end = new Date();
-      const start = new Date();
-      start.setTime(start.getTime() - 1000 * 3600 * 24 * 30);
-      this.searchForm.dateRange = [start, end];
-//      console.log('mounted');
+      this.setDateRange();
     },
     data() {
       return {
@@ -363,9 +363,19 @@
       },
     },
     methods: {
+      setDateRange() {
+        const end = new Date();
+        const start = new Date();
+        start.setTime(start.getTime() - 1000 * 3600 * 24 * 30);
+        this.searchForm.dateRange = [start, end];
+      },
       handleButtonClick(action, params) {
         switch (action) {
           case 'search':
+            this.requestWorkOrderList();
+            break;
+          case 'refresh':
+            this.setDateRange();
             this.requestWorkOrderList();
             break;
           case 'linker':

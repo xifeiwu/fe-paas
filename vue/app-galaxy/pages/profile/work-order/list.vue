@@ -40,6 +40,10 @@
                 size="mini-extral"
                 type="primary"
                 @click="handleButtonClick('search')">搜索</el-button>
+        <el-button
+                size="mini-extral"
+                type="primary"
+                @click="handleButtonClick('refresh')">刷新</el-button>
       </el-row>
     </div>
     <div class="work-order-list">
@@ -298,10 +302,7 @@
 //      console.log(pagination);
     },
     mounted() {
-      const end = new Date();
-      const start = new Date();
-      start.setTime(start.getTime() - 1000 * 3600 * 24 * 7);
-      this.searchForm.dateRange = [start, end];
+      this.setDateRange();
     },
     data() {
       return {
@@ -418,10 +419,20 @@
       },
     },
     methods: {
+      setDateRange() {
+        const end = new Date();
+        const start = new Date();
+        start.setTime(start.getTime() - 1000 * 3600 * 24 * 30);
+        this.searchForm.dateRange = [start, end];
+      },
       handleButtonClick(action, params) {
         switch (action) {
           case 'search':
 //            console.log(this.searchForm);
+            this.requestWorkOrderList();
+            break;
+          case 'refresh':
+            this.setDateRange();
             this.requestWorkOrderList();
             break;
           case 'linker':
