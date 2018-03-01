@@ -73,7 +73,7 @@
                     size="mini-extral"
                     type="success"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
-                    @click="handleOperationClick('detail', scope.$index, scope.row)"
+                    @click="handleTRButton('detail', scope.$index, scope.row)"
                     :loading="waitingResponse && operation.rowID == scope.row.id">
               <span>详情</span>
               <i class="el-icon-arrow-right"></i>
@@ -81,11 +81,11 @@
             <el-button v-if="scope.row.status!=='WORKORDER_APPLY'"
                     size="mini-extral"
                     type="success"
-                    @click="handleOperationClick(scope.row.status, scope.$index, scope.row)">处理</el-button>
+                    @click="handleTRButton(scope.row.status, scope.$index, scope.row)">处理</el-button>
             <el-button v-if="scope.row.status==='WORKORDER_APPLY'"
                     size="mini-extral"
                     type="success"
-                    @click="handleOperationClick('modify', scope.$index, scope.row)">修改</el-button>
+                    @click="handleTRButton('modify', scope.$index, scope.row)">修改</el-button>
           </template>
         </el-table-column>
         <el-table-column type="expand"
@@ -383,7 +383,7 @@
             break;
         }
       },
-      handleOperationClick(action, index, row) {
+      handleTRButton(action, index, row) {
         switch (action) {
           case 'detail':
             // operation.rowID is used to indicate which row is active
@@ -421,7 +421,7 @@
             // update data of model for work-order-detail
             this.waitingResponse = true;
             WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
-              console.log(detail);
+//              console.log(detail);
               this.workOrderDetail = detail;
               this.operation.name = action;
               this.waitingResponse = false;

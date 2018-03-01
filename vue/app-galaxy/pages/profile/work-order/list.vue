@@ -86,52 +86,58 @@
           <template slot-scope="scope">
             <div class="row-expand">
               <el-form labelWidth="120px" size="mini">
-                <el-form-item label="工单名称">{{detailForm.name}}</el-form-item>
-                <el-form-item label="申请人">{{detailForm.creator}}</el-form-item>
-                <el-form-item label="团队名称">{{detailForm.groupName}}</el-form-item>
-                <el-form-item label="邮件组">
-                  <span v-for="(item, index) in detailForm.emailGroupList" :key="index" v-if="detailForm.emailGroupList.length > 0">
-                    {{item.emailGroupName}}
+                <el-form-item label="工单名称">{{workOrderDetail.name}}</el-form-item>
+                <el-form-item label="申请人">{{workOrderDetail.creatorName}}</el-form-item>
+                <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
+                <el-form-item label="功能列表">
+                  <el-table :data="workOrderDetail.featureList">
+                    <el-table-column label="功能名称" prop="name" headerAlign="center" align="center">
+                    </el-table-column>
+                    <el-table-column label="功能类型" prop="typeName" headerAlign="center" align="center">
+                    </el-table-column>
+                    <el-table-column label="jira地址" prop="jiraAddress" headerAlign="center" align="center">
+                    </el-table-column>
+                    <el-table-column label="功能描述" prop="description" headerAlign="center" align="center">
+                    </el-table-column>
+                  </el-table>
+                </el-form-item>
+                <el-form-item label="程序/版本">
+                  <span>{{workOrderDetail.appName}}</span>
+                  <span>/</span>
+                  <span v-if="workOrderDetail.serviceVersion">{{workOrderDetail.serviceVersion}}</span><span v-else>版本未知</span>
+                </el-form-item>
+                <el-form-item label="待办人">{{workOrderDetail.userToDo}}</el-form-item>
+                <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
+                <el-form-item label="验收人">
+                  <el-table :data="workOrderDetail.acceptedUserList">
+                    <el-table-column label="验收人" prop="userName" headerAlign="center" align="center">
+                    </el-table-column>
+                    <el-table-column label="状态" prop="status" headerAlign="center" align="center">
+                    </el-table-column>
+                  </el-table>
+                </el-form-item>
+                <el-form-item label="知会人" class="notify-user-list">
+                  <span v-for="item in workOrderDetail.notifyUserList" :key="item.userId">{{item.userName}}</span>
+                </el-form-item>
+                <el-form-item label="邮件组" class="mail-group-list">
+                  <span v-for="(item, index) in workOrderDetail.mailGroupList" :key="index" v-if="workOrderDetail.mailGroupList.length > 0">
+                    {{item}}
                   </span>
                   <span v-else>未设置</span>
                 </el-form-item>
-                <el-form-item label="功能列表">
-                  <el-table :data="detailForm.featureList">
-                    <el-table-column label="功能名称" prop="functionName"  headerAlign="center" align="center">
-                    </el-table-column>
-                    <el-table-column label="功能类型" prop="functionType"  headerAlign="center" align="center">
-                    </el-table-column>
-                    <el-table-column label="jira地址" prop="jiraAddress"  headerAlign="center" align="center">
-                    </el-table-column>
-                    <el-table-column label="功能描述" prop="description"  headerAlign="center" align="center">
-                    </el-table-column>
-                  </el-table>
-                </el-form-item>
-                <el-form-item label="程序列表">
-                  <span v-for="item in detailForm.appList" :key="item.appName">{{item.appName}}</span>
-                </el-form-item>
-                <el-form-item label="待办人">{{detailForm.userToDo}}</el-form-item>
-                <el-form-item label="验收人">
-                  <el-table :data="detailForm.userAcceptedList">
-                    <el-table-column label="验收人" prop="userName"  headerAlign="center" align="center">
-                    </el-table-column>
-                    <el-table-column label="状态" prop="status"  headerAlign="center" align="center">
-                    </el-table-column>
-                  </el-table>
-                </el-form-item>
                 <el-form-item label="操作记录">
-                  <el-table :data="detailForm.operationList">
-                    <el-table-column label="处理时间" prop="createTime"  headerAlign="center" align="center">
+                  <el-table :data="workOrderDetail.operationList">
+                    <el-table-column label="处理时间" prop="createTime" headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="处理操作" prop="actionName"  headerAlign="center" align="center">
+                    <el-table-column label="处理操作" prop="actionName" headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="处理人" prop="handleUserName"  headerAlign="center" align="center">
+                    <el-table-column label="处理人" prop="handleUserName" headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="备注" prop="remark"  headerAlign="center" align="center">
+                    <el-table-column label="备注" prop="remark" headerAlign="center" align="center">
                     </el-table-column>
                   </el-table>
                 </el-form-item>
-                <el-form-item label="备注">{{detailForm.comment}}</el-form-item>
+                <el-form-item label="备注">{{workOrderDetail.comment}}</el-form-item>
               </el-form>
             </div>
           </template>
@@ -244,13 +250,12 @@
 </style>
 
 <script>
+  import WorkerOrderPropUtils from './utils/work-order-props';
   import ElDialog from "element-ui/packages/dialog/src/component";
   import ElFormItem from "element-ui/packages/form/src/form-item";
   import ElTable from "element-ui/packages/table/src/table";
   export default {
     components: {ElTable, ElFormItem, ElDialog}, created() {
-//      let pagination = document.querySelector('.pagination');
-//      console.log(pagination);
     },
     mounted() {
       this.setDateRange();
@@ -274,10 +279,21 @@
 
         operation: {
           rowID: null,
+          // not used now
           name: null,
         },
-        detailForm: {
-
+        workOrderDetail: {
+          id: '',
+          name: '',
+          creatorName: '',
+          groupName: '',
+          mailGroupList: [],
+          featureList: [],
+          appName: '',
+          userToDo: '获取失败',
+          acceptedUserList: [],
+          operationList: [],
+          comment: ''
         },
 
         showPagination: true,
@@ -428,40 +444,9 @@
 
             // update data of model for work-order-detail
             this.waitingResponse = true;
-            this.detailForm = {
-              name: row.name,
-              creator: row.creatorName,
-              groupName: row.groupName,
-              emailGroupList: [],
-              featureList: [],
-              appList: [],
-              userToDo: '获取失败',
-              userAcceptedList: [],
-              operationList: [],
-              comment: row.remark
-            };
-            this.$net.getWorkOrderDetail({
-              id: row.id
-            }).then(result => {
-              console.log(result);
-              if (result.hasOwnProperty('featureList')) {
-                this.detailForm.featureList = result.featureList;
-              }
-              if (result.hasOwnProperty('appList')) {
-                this.detailForm.appList = result.appList;
-              }
-              if (result.hasOwnProperty('userToDo')) {
-                this.detailForm.userToDo = result.userToDo;
-              }
-              if (result.hasOwnProperty('userAcceptedList')) {
-                this.detailForm.userAcceptedList = result.userAcceptedList;
-              }
-              if (result.hasOwnProperty('operationList')) {
-                this.detailForm.operationList = result.operationList;
-              }
-              if (result.hasOwnProperty('emailGroup')) {
-                this.detailForm.emailGroupList = result.emailGroup;
-              }
+            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
+//              console.log(detail);
+              this.workOrderDetail = detail;
               this.operation.name = action;
               this.waitingResponse = false;
               updateExpandRows();
@@ -469,33 +454,6 @@
               this.operation.name = action;
               this.waitingResponse = false;
             });
-//            this.detailForm = {
-//              name: row.name,
-//              creator: row.creatorName,
-//              featureList: [{
-//                functionName: '测试galaxy-server工单',
-//                functionType: 'DEMAND',
-//                jiraAddress: 'http://jira.puhuitech.cn/browse/BASE-537',
-//                description: '测试paas上线'
-//              }, {
-//                functionName: '测试galaxy-server工单',
-//                functionType: 'DEMAND',
-//                jiraAddress: 'http://jira.puhuitech.cn/browse/BASE-537',
-//                description: '测试paas上线'
-//              }],
-//              appList: ['datapi-sdk-api'],
-//              userToDo: '工单已结束!',
-//              userAcceptedList: [{
-//                userName: 'user',
-//                status: 'passed'
-//              }],
-//              operationList: [{
-//                createTime: '2017-09-30',
-//                action: "TEST_ACCEPT",
-//                handleUserName: 'me',
-//                remark: '测试通过'
-//              }]
-//            };
             break;
           case 'deploy-log':
             console.log('deploy-log');
