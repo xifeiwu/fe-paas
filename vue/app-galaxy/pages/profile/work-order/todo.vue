@@ -53,7 +53,7 @@
                 :row-key="getRowKeys"
                 :expand-row-keys="expandRows"
                 element-loading-text="加载中">
-        <el-table-column label="审批工单名称" prop="name" headerAlign="center">
+        <el-table-column label="审批工单名称" prop="name" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="申请人" prop="creatorName" width="80" headerAlign="center" align="center">
         </el-table-column>
@@ -63,7 +63,7 @@
         </el-table-column>
         <el-table-column label="团队" prop="groupName"  width="120" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="操作" headerAlign="center">
+        <el-table-column label="操作" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
                     size="mini-extral"
@@ -96,13 +96,13 @@
                 <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
                 <el-form-item label="功能列表">
                   <el-table :data="workOrderDetail.featureList">
-                    <el-table-column label="功能名称" prop="name" headerAlign="center">
+                    <el-table-column label="功能名称" prop="name" headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="功能类型" prop="typeName" headerAlign="center">
+                    <el-table-column label="功能类型" prop="typeName" headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="jira地址" prop="jiraAddress" headerAlign="center">
+                    <el-table-column label="jira地址" prop="jiraAddress" headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="功能描述" prop="description" headerAlign="center">
+                    <el-table-column label="功能描述" prop="description" headerAlign="center" align="center">
                     </el-table-column>
                   </el-table>
                 </el-form-item>
@@ -115,9 +115,9 @@
                 <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
                 <el-form-item label="验收人">
                   <el-table :data="workOrderDetail.acceptedUserList">
-                    <el-table-column label="验收人" prop="userName" headerAlign="center">
+                    <el-table-column label="验收人" prop="userName" headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="状态" prop="status" headerAlign="center">
+                    <el-table-column label="状态" prop="status" headerAlign="center" align="center">
                     </el-table-column>
                   </el-table>
                 </el-form-item>
@@ -132,13 +132,13 @@
                 </el-form-item>
                 <el-form-item label="操作记录">
                   <el-table :data="workOrderDetail.operationList">
-                    <el-table-column label="处理时间" prop="createTime" headerAlign="center">
+                    <el-table-column label="处理时间" prop="createTime" headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="处理操作" prop="actionName" headerAlign="center">
+                    <el-table-column label="处理操作" prop="actionName" headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="处理人" prop="handleUserName" headerAlign="center">
+                    <el-table-column label="处理人" prop="handleUserName" headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="备注" prop="remark" headerAlign="center">
+                    <el-table-column label="备注" prop="remark" headerAlign="center" align="center">
                     </el-table-column>
                   </el-table>
                 </el-form-item>
@@ -199,8 +199,9 @@
         margin-bottom: 40px;
         .el-table__row {
           .el-button {
+            /*display: inline-block;*/
             margin: 2px 4px;
-            float: left;
+            /*float: left;*/
             &.expand {
               .el-icon-arrow-right {
                 transform: rotate(90deg);
