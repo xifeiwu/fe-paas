@@ -52,7 +52,7 @@
                 :row-key="getRowKeys"
                 :expand-row-keys="expandRows"
                 element-loading-text="加载中">
-        <el-table-column label="审批工单名称" prop="name" headerAlign="center">
+        <el-table-column label="审批工单名称" prop="name" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="申请人" prop="creatorName" width="100" headerAlign="center" align="center">
         </el-table-column>
@@ -62,7 +62,7 @@
         </el-table-column>
         <el-table-column label="团队" prop="groupName"  width="120" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="操作" headerAlign="center">
+        <el-table-column label="操作" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
                     size="mini-extral"
@@ -97,13 +97,13 @@
                 </el-form-item>
                 <el-form-item label="功能列表">
                   <el-table :data="detailForm.featureList">
-                    <el-table-column label="功能名称" prop="functionName" headerAlign="center">
+                    <el-table-column label="功能名称" prop="functionName"  headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="功能类型" prop="functionType" headerAlign="center">
+                    <el-table-column label="功能类型" prop="functionType"  headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="jira地址" prop="jiraAddress" headerAlign="center">
+                    <el-table-column label="jira地址" prop="jiraAddress"  headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="功能描述" prop="description" headerAlign="center">
+                    <el-table-column label="功能描述" prop="description"  headerAlign="center" align="center">
                     </el-table-column>
                   </el-table>
                 </el-form-item>
@@ -113,21 +113,21 @@
                 <el-form-item label="待办人">{{detailForm.userToDo}}</el-form-item>
                 <el-form-item label="验收人">
                   <el-table :data="detailForm.userAcceptedList">
-                    <el-table-column label="验收人" prop="userName" headerAlign="center">
+                    <el-table-column label="验收人" prop="userName"  headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="状态" prop="status" headerAlign="center">
+                    <el-table-column label="状态" prop="status"  headerAlign="center" align="center">
                     </el-table-column>
                   </el-table>
                 </el-form-item>
                 <el-form-item label="操作记录">
                   <el-table :data="detailForm.operationList">
-                    <el-table-column label="处理时间" prop="createTime" headerAlign="center">
+                    <el-table-column label="处理时间" prop="createTime"  headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="处理操作" prop="actionName" headerAlign="center">
+                    <el-table-column label="处理操作" prop="actionName"  headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="处理人" prop="handleUserName" headerAlign="center">
+                    <el-table-column label="处理人" prop="handleUserName"  headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="备注" prop="remark" headerAlign="center">
+                    <el-table-column label="备注" prop="remark"  headerAlign="center" align="center">
                     </el-table-column>
                   </el-table>
                 </el-form-item>
@@ -151,56 +151,6 @@
         </div>
       </div>
     </div>
-
-    <!--<el-dialog title="工单详情" :visible="operation.name == 'detail'"-->
-               <!--@close="operation.name = null"-->
-    <!--&gt;-->
-      <!--<el-form labelWidth="120px" size="mini">-->
-        <!--<el-form-item label="工单名称">{{detailForm.name}}</el-form-item>-->
-        <!--<el-form-item label="申请人">{{detailForm.creator}}</el-form-item>-->
-        <!--<el-form-item label="功能列表">-->
-          <!--<el-table :data="detailForm.featureList">-->
-            <!--<el-table-column label="功能名称" prop="functionName" headerAlign="center">-->
-            <!--</el-table-column>-->
-            <!--<el-table-column label="功能类型" prop="functionType" headerAlign="center">-->
-            <!--</el-table-column>-->
-            <!--<el-table-column label="jira地址" prop="jiraAddress" headerAlign="center">-->
-            <!--</el-table-column>-->
-            <!--<el-table-column label="功能描述" prop="description" headerAlign="center">-->
-            <!--</el-table-column>-->
-          <!--</el-table>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="程序列表">-->
-          <!--<span v-for="item in detailForm.appList" :key="item.appName">{{item.appName}}</span>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="待办人">{{detailForm.userToDo}}-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="验收人">-->
-          <!--<el-table :data="detailForm.userAcceptedList">-->
-            <!--<el-table-column label="验收人" prop="userName" headerAlign="center">-->
-            <!--</el-table-column>-->
-            <!--<el-table-column label="状态" prop="status" headerAlign="center">-->
-            <!--</el-table-column>-->
-          <!--</el-table>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="操作记录">-->
-          <!--<el-table :data="detailForm.operationList">-->
-            <!--<el-table-column label="处理时间" prop="createTime" headerAlign="center">-->
-            <!--</el-table-column>-->
-            <!--<el-table-column label="处理操作" prop="action" headerAlign="center">-->
-            <!--</el-table-column>-->
-            <!--<el-table-column label="处理人" prop="handleUserName" headerAlign="center">-->
-            <!--</el-table-column>-->
-            <!--<el-table-column label="备注" prop="remark" headerAlign="center">-->
-            <!--</el-table-column>-->
-          <!--</el-table>-->
-        <!--</el-form-item>-->
-      <!--</el-form>-->
-      <!--<div slot="footer" class="dialog-footer">-->
-        <!--<el-button type="primary"-->
-                   <!--@click="operation.name = null">关&nbsp闭</el-button>-->
-      <!--</div>-->
-    <!--</el-dialog>-->
   </div>
 </template>
 <style lang="scss">
@@ -211,7 +161,7 @@
         .el-table__row {
           .el-button {
             margin: 2px 4px;
-            float: left;
+            /*float: left;*/
             &.expand {
               .el-icon-arrow-right {
                 transform: rotate(90deg);
@@ -265,7 +215,8 @@
           margin: 3px;
           display: inline-block;
           label {
-            color: #409EFF
+            /*color: #409EFF*/
+            color: black;
           }
         }
       }

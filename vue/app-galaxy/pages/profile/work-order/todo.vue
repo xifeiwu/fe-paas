@@ -20,13 +20,13 @@
         </div>
         <el-col :span="18">
           <div class="item">
-            <label style="width: 68px; line-height: 26px; color: #409EFF">申请人：</label>
+            <label style="width: 68px; line-height: 26px; color: black">申请人：</label>
             <el-input
                     v-model="searchForm.userName"
                     size="mini" style="display: inline-block; width: 160px;"></el-input>
           </div>
           <div class="item">
-            <label style="width: 72px; line-height: 26px; color: #409EFF">申请时间：</label>
+            <label style="width: 72px; line-height: 26px; color: black">申请时间：</label>
             <el-date-picker style="display: inline-block; width: 240px;"
                 class="custom"
                 v-model="searchForm.dateRange"
