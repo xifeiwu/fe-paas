@@ -94,7 +94,7 @@
         </el-form-item>
         <el-form-item label="知会人" prop="notifyUserIdList">
           <el-select filterable v-model="workOrderDetail.notifyUserIdList" multiple placeholder="请选择" style="width: 350px">
-            <el-option v-for="item in allUsers" :key="item.id" :label="item.realName" :value="item.id">
+            <el-option v-for="item in usersAll" :key="item.id" :label="item.realName" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -137,9 +137,9 @@
       </el-table>
     </div>
     <div class="submit-section">
-      <el-button type="primary" @click="handleButtonClick('back')" :disabled="disableSubmit">取消</el-button>
-      <el-button type="primary" @click="handleButtonClick('remove')" :disabled="disableSubmit">删除工单</el-button>
-      <el-button type="primary" @click="handleButtonClick('modify')" :disabled="disableSubmit">提交工单</el-button>
+      <el-button type="primary" @click="handleButtonClick('back')">取消</el-button>
+      <el-button type="primary" @click="handleButtonClick('remove')">删除工单</el-button>
+      <el-button type="primary" @click="handleButtonClick('modify')">提交工单</el-button>
     </div>
   </div>
 </template>
@@ -247,18 +247,26 @@
 <script>
   import WorkOrderPropUtils from '../utils/work-order-props';
   import MyFeature from '../utils/components/feature.vue';
-  import StoreHelper from '../../utils/store-helper.vue';
   import ElTooltip from "element-ui/packages/tooltip/src/main";
   import ElOption from "element-ui/packages/select/src/option";
   import ElInput from "element-ui/packages/input/src/input";
   export default {
     components: {ElInput, ElOption, ElTooltip, MyFeature},
-    mixins: [StoreHelper],
 
     created() {
 //      this.onCurrentGroupID(this.currentGroupID);
-//      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
-      this.onUsersAll(this.usersAll);
+      if (!this.appInfoListOfGroup) {
+        this.$store.dispatch('user/appInfoListOfGroup', {
+          from: 'page/work-order/todo/add',
+          groupID: this.currentGroupID
+        });
+      } else {
+        this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+      }
+      if (!this.usersAll) {
+        this.$store.dispatch('app/usersAll');
+      }
+//      this.onUsersAll(this.usersAll);
     },
     mounted() {
       let workOrder = this.$store.getters['app/currentWorkOrder'];
@@ -305,43 +313,50 @@
           comment: '',
         },
         versionList: [],
-        allUsers: [],
         disableSubmit: false,
       };
+    },
+    computed: {
+      currentGroupID() {
+       return this.$storeHelper.currentGroupID;
+      },
+      appInfoListOfGroup() {
+        return this.$storeHelper.appInfoListOfGroup();
+      },
+      usersAll() {
+        return this.$storeHelper.usersAll();
+      }
     },
     watch: {
       appInfoListOfGroup: 'onAppInfoListOfGroup',
       'workOrderDetail.appID': function (value) {
-        let appInfo = this.getAppInfoByID(value);
+        let appInfo = this.$storeHelper.getAppInfoByID(value);
         if (appInfo && appInfo.hasOwnProperty('app')) {
           this.workOrderDetail.appName = appInfo.app.serviceName;
         }
         this.requestProductVersionList(value);
       },
-      'workOrderDetail.serviceVersion': function () {
-        this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
-        });
-      },
+//      'workOrderDetail.serviceVersion': function () {
+//        this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
+//        });
+//      },
       currentGroupID: 'onCurrentGroupID',
-      usersAll: 'onUsersAll'
     },
     methods: {
       onCurrentGroupID(value) {
         this.workOrderDetail.groupId = value;
-        let groupInfo = this.getGroupInfoByID(value);
+        let groupInfo = this.$storeHelper.getGroupInfoByID(value);
         if (groupInfo && groupInfo.hasOwnProperty('name')) {
           this.workOrderDetail.groupName = groupInfo.name;
         }
       },
-      onUsersAll(value) {
-        this.allUsers = value;
-      },
+      // used to set default appID, but useless when modify work-order
       onAppInfoListOfGroup(value) {
-        if (value.hasOwnProperty('appList')) {
-          if (Array.isArray(value.appList)) {
-            this.workOrderDetail.appID = value.appList[0].appId;
-          }
-        }
+//        if (value.hasOwnProperty('appList')) {
+//          if (Array.isArray(value.appList)) {
+//            this.workOrderDetail.appID = value.appList[0].appId;
+//          }
+//        }
       },
       addFeatureForm() {
         this.workOrderDetail.featureList.push({
@@ -404,25 +419,22 @@
           console.log('appID or spaceID can not be empty');
           return;
         }
-        this.workOrderDetail.serviceVersion = null;
         this.versionList = [];
         this.$net.getServiceVersion({
           appId: appID,
           spaceId: spaceID
         }).then(content => {
-//          console.log(content);
           if (content.hasOwnProperty('version')) {
             let version = content.version;
             if (version && Array.isArray(version) && version.length > 0) {
               this.versionList = version;
-              this.workOrderDetail.serviceVersion = version[0];
+              // workOrderDetail.serviceVersion is used as default serviceVersion
+//              this.workOrderDetail.serviceVersion = version[0];
               this.disableSubmit = false;
             } else {
               this.$message({
                 type: 'warning',
                 message: this.workOrderDetail.appName + '的生产环境下，服务没有版本！'
-              });
-              this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
               });
 //              this.disableSubmit = true;
 //              console.log(this.workOrderDetail);
@@ -498,10 +510,8 @@
               this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
               return;
             }
-//        console.log(this.workOrderDetail);
             let basicPromise = new Promise((resolve, reject) => {
               this.$refs['basicForm'].validate((valid) => {
-//            console.log(valid);
                 resolve(valid);
               });
             });
@@ -515,7 +525,6 @@
             });
             let applicationPromise = new Promise((resolve, reject) => {
               this.$refs['applicationForm'].validate((valid) => {
-//            console.log(valid);
                 resolve(valid);
               });
             });
@@ -557,7 +566,7 @@
                   serviceVersion: this.workOrderDetail.serviceVersion,
                 }];
                 // 验收人
-                let userAcceptedList = this.getUserInfoByID(this.workOrderDetail.acceptedUserIdList);
+                let userAcceptedList = this.$storeHelper.getUserInfoByID(this.workOrderDetail.acceptedUserIdList);
                 if (userAcceptedList) {
                   toPost.acceptanceUserList = userAcceptedList.map(it => {
                     return {
@@ -569,7 +578,7 @@
                   toPost.acceptanceUserList = [];
                 }
                 // 知会人
-                let userNotifyList = this.getUserInfoByID(this.workOrderDetail.notifyUserIdList);
+                let userNotifyList = this.$storeHelper.getUserInfoByID(this.workOrderDetail.notifyUserIdList);
                 if (userNotifyList) {
                   toPost.informUserList = userNotifyList.map(it => {
                     return {
@@ -590,7 +599,7 @@
                 this.showLoading = true;
                 this.loadingText = '正在提交工单"' + this.workOrderDetail.name + '"';
                 this.$net.modifyWorkOrder(toPost).then((msg) => {
-                  this.$alert('工单' + this.workOrderDetail.name +'提交成功，即将进入工单列表页', '修改工单成功', {
+                  this.$alert('工单"' + this.workOrderDetail.name +'"提交成功，即将进入工单列表页', '修改工单成功', {
                     confirmButtonText: '确定',
                     callback: () => {
                       this.$router.push('/profile/work-order/list');

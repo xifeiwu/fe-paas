@@ -100,7 +100,7 @@
 
         // data for pagination
         totalSize: 0,
-        pageSize: 15,
+        pageSize: 10,
         currentPage: 1,
       }
     },

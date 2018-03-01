@@ -282,7 +282,7 @@
 
         showPagination: true,
         totalSize: 0,
-        pageSize: 20,
+        pageSize: 10,
         currentPage: 1,
 
         statusList: [{
@@ -546,9 +546,8 @@
 //          console.log(content);
           if (content.hasOwnProperty('workOrderDeployList')) {
             this.workOrderList = content.workOrderDeployList;
+            this.totalSize = content.workOrderDeployList.length;
           }
-          this.totalSize = content.total;
-
           this.showLoading = false;
         }).catch(err => {
           this.showLoading = false;

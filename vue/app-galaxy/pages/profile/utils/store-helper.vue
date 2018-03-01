@@ -88,7 +88,6 @@ export default {
         this.appInfoListOfGroup.appModelList.splice(result.index, 1);
         this.appInfoListOfGroup.total -= 1;
       }
-      console.log(this.appInfoListOfGroup);
     },
     getProfileInfoByType(type) {
       let target;

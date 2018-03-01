@@ -306,7 +306,7 @@
 
         showPagination: true,
         totalSize: 0,
-        pageSize: 20,
+        pageSize: 10,
         currentPage: 1,
 
         datePickerOptions: {
@@ -592,8 +592,8 @@
 //          console.log(content);
           if (content.hasOwnProperty('todoWorkOrderList')) {
             this.workOrderList = content.todoWorkOrderList;
+            this.totalSize = content.todoWorkOrderList.length;
           }
-          this.totalSize = content.total;
           this.showLoading = false;
         }).catch(err => {
           this.showLoading = false;
