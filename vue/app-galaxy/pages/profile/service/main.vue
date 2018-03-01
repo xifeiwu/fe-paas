@@ -103,6 +103,7 @@
                     @click="handleRowButtonClick('go-to-log-deploy', scope.$index, scope.row)">部署日志</el-button>
             <el-button
                     size="mini-extral" type="warning"
+                    :loading="statusOfWaitingResponse('stop') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('stop', scope.$index, scope.row)">停止</el-button>
             <el-button
                     size="mini-extral" type="warning"
@@ -116,6 +117,7 @@
                     @click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
             <el-button
                     size="mini-extral" type="warning"
+                    :loading="statusOfWaitingResponse('delete') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
             <el-button
                     size="mini-extral" type="warning"
@@ -1308,7 +1310,7 @@ export default {
       let statusOK = false;
       switch (action) {
         case 'deploy':
-//          this.addToWaitingResponseQueue('deploy');
+          this.addToWaitingResponseQueue('deploy');
 //          setTimeout(() => {
 //            this.hideWaitingResponse('deploy');
 //          }, 30000);
@@ -1361,6 +1363,7 @@ export default {
               appId: this.selectedAppID,
               spaceId: this.selectedProfileID
             }).then(content => {
+              this.hideWaitingResponse('deploy');
 //            console.log(content);
               if (content.hasOwnProperty('orchestration')) {
                 let orchestration = content['orchestration'];
@@ -1371,6 +1374,7 @@ export default {
                 });
               }
             }).catch(err => {
+              this.hideWaitingResponse('deploy');
               this.$notify({
                 title: '部署失败',
                 message: err,
@@ -1379,9 +1383,12 @@ export default {
                 }
               });
             });
-          }).catch(() => {});
+          }).catch(() => {
+            this.hideWaitingResponse('deploy');
+          });
           break;
         case 'delete':
+          this.addToWaitingResponseQueue('delete');
           var desc = this.getVersionDescription(row);
           this.warningConfirm(`删除服务将会销毁${desc}的代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。`).then(() => {
             this.warningConfirm(`你确认要删除${desc}，并清除该服务的一切数据？`).then(() => {
@@ -1390,12 +1397,14 @@ export default {
                 appId: this.selectedAppID,
                 spaceId: this.selectedProfileID
               }).then(msg => {
+                this.hideWaitingResponse('delete');
                 this.$message({
                   type: 'success',
                   message: msg
                 });
                 this.requestServiceList(this.selectedAppID, this.selectedProfileID);
               }).catch(err => {
+                this.hideWaitingResponse('delete');
                 this.$notify.error({
                   title: '提示',
                   message: err,
@@ -1405,11 +1414,14 @@ export default {
                 });
               });
             }).catch(() => {
+              this.hideWaitingResponse('delete');
             });
           }).catch(()=> {
+            this.hideWaitingResponse('delete');
           });
           break;
         case 'stop':
+          this.addToWaitingResponseQueue('stop');
           var desc = this.getVersionDescription(row);
           this.$confirm(`停止将会导致${desc}不可用，但不会删除代码及配置信息，你确定需要这么做吗?`).then(() => {
             this.$net.serviceStop({
@@ -1417,11 +1429,13 @@ export default {
               appId: this.selectedAppID,
               spaceId: this.selectedProfileID
             }).then(msg => {
+              this.hideWaitingResponse('stop');
               this.$message({
                 type: 'success',
                 message: msg
               });
             }).catch(err => {
+              this.hideWaitingResponse('stop');
               this.$notify({
                 title: '提示',
                 message: err,
@@ -1431,7 +1445,9 @@ export default {
               });
               console.log(err);
             });
-          }).catch(() => {});
+          }).catch(() => {
+            this.hideWaitingResponse('stop');
+          });
           break;
         case 'service_info':
           if (!row.hasOwnProperty('id')) {

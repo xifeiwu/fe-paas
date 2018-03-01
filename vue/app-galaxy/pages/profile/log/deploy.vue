@@ -96,7 +96,7 @@
           full: false,
         },
         deployLogs: [],
-        deployLogsByPage: [],
+        deployLogListByPage: [],
 
         // data for pagination
         totalSize: 0,
