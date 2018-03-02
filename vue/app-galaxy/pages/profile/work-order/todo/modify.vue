@@ -256,6 +256,7 @@
     created() {
 //      this.onCurrentGroupID(this.currentGroupID);
       if (!this.appInfoListOfGroup) {
+        console.log('warning: appInfoListOfGroup not found');
         this.$store.dispatch('user/appInfoListOfGroup', {
           from: 'page/work-order/todo/add',
           groupID: this.currentGroupID
@@ -269,7 +270,7 @@
 //      this.onUsersAll(this.usersAll);
     },
     mounted() {
-      let workOrder = this.$store.getters['app/currentWorkOrder'];
+      let workOrder = this.$storeHelper.getTmpProp('workOrderBasic');
       if (!workOrder || !workOrder.hasOwnProperty('id')) {
         this.$router.push('/profile/work-order/todo');
         return;

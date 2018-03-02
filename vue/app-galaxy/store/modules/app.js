@@ -48,7 +48,6 @@ const state = {
   /* net data */
   messageForCreateAPP: null,
   usersAll: null,
-  currentWorkOrder: null,
 };
 
 const actions = {
@@ -72,10 +71,6 @@ const actions = {
       });
     }
   },
-
-  setWorkOrder({commit, state}, detail) {
-    state.currentWorkOrder = detail;
-  }
 };
 
 const mutations = {
@@ -96,10 +91,6 @@ const getters = {
   'usersAll': (state, getters) => {
     return state.usersAll;
   },
-
-  'currentWorkOrder': (state, getters) => {
-    return state.currentWorkOrder;
-  }
 };
 
 export default {

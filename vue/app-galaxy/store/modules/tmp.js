@@ -1,12 +1,12 @@
 
 const state = {
   versionInfo: null,
-  currentWorkOrder: null,
+  workOrderBasic: null,
 };
 
 const actions = {
-  setWorkOrder({commit, state}, detail) {
-    state.currentWorkOrder = detail;
+  workOrderBasic({commit, state}, detail) {
+    state.workOrderBasic = detail;
   },
   versionInfo({commit, state}, info) {
     state.versionInfo = info;
@@ -19,8 +19,8 @@ const mutations = {
 };
 
 const getters = {
-  'currentWorkOrder': (state, getters) => {
-    return state.currentWorkOrder;
+  'workOrderBasic': (state, getters) => {
+    return state.workOrderBasic;
   },
   'versionInfo': (state, getters) => {
     return state.versionInfo;

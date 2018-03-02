@@ -451,7 +451,7 @@
             });
             break;
           case 'modify':
-            this.$store.dispatch('app/setWorkOrder', {
+            this.$storeHelper.setTmpProp('workOrderBasic', {
               id: row.id,
               name: row.name,
               creatorName: row.creatorName,
@@ -478,7 +478,7 @@
             }).then(workOrderInfo => {
               this.hideWaitingResponse(action);
               let newStatus = workOrderInfo['status'];
-              this.$store.dispatch('app/setWorkOrder', {
+              this.$storeHelper.setTmpProp('workOrderBasic', {
                 id: row.id,
                 name: row.name,
                 creatorName: row.creatorName,
@@ -516,7 +516,7 @@
             }).then(workOrderInfo => {
               this.hideWaitingResponse(action);
               let newStatus = workOrderInfo['status'];
-              this.$store.dispatch('app/setWorkOrder', {
+              this.$storeHelper.setTmpProp('workOrderBasic', {
                 id: row.id,
                 name: row.name,
                 creatorName: row.creatorName,
@@ -554,7 +554,7 @@
               }).then(workOrderInfo => {
                 this.hideWaitingResponse(action);
                 let newStatus = workOrderInfo['status'];
-                this.$store.dispatch('app/setWorkOrder', {
+                this.$storeHelper.setTmpProp('workOrderBasic', {
                   id: row.id,
                   name: row.name,
                   creatorName: row.creatorName,

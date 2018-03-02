@@ -70,14 +70,14 @@
       }
     },
     mounted() {
-      let workOrder = this.$store.getters['app/currentWorkOrder'];
+      let workOrder = this.$storeHelper.getTmpProp('workOrderBasic');
       if (!workOrder || !workOrder.hasOwnProperty('id')) {
         this.$router.push('/profile/work-order/todo');
         return;
       }
       this.$nextTick(() => {
         WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
-          console.log(detail);
+//          console.log(detail);
           this.workOrderDetail = detail;
         }).catch(err => {
         })
