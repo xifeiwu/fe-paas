@@ -197,6 +197,9 @@ class StoreHelper {
     });
     return target;
   }
+  getProductionProfile() {
+    return this.getProfileInfoByType('PRODUCTION');
+  }
   getProfileInfoByName(name) {
     let target = null;
     let profileListOfGroup = this.profileListOfGroup();
@@ -368,6 +371,13 @@ class StoreHelper {
       }
     }
     return value;
+  }
+
+  setTmpProp(key, value) {
+    this.$store.dispatch(`tmp/${key}`, value);
+  }
+  getTmpProp(key) {
+    return this.$store.getters[`tmp/${key}`];
   }
 }
 

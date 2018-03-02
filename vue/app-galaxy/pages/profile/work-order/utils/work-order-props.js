@@ -250,7 +250,8 @@ class WorkOrderUtils {
             return it.emailGroupName;
           })
         }
-        // console.log(workOrderDetail);
+        // console.log(JSON.stringify(workOrder));
+        // console.log(JSON.stringify(workOrderDetail));
         resolve(workOrderDetail);
       }).catch(err => {
         console.log(err);

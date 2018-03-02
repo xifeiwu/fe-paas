@@ -282,18 +282,28 @@
           // not used now
           name: null,
         },
+
         workOrderDetail: {
-          id: '',
-          name: '',
-          creatorName: '',
-          groupName: '',
-          mailGroupList: [],
-          featureList: [],
-          appName: '',
-          userToDo: '获取失败',
-          acceptedUserList: [],
-          operationList: [],
-          comment: ''
+          "id": null,
+          "name": "",
+          "creatorName": "",
+          "groupId": null,
+          "groupName": "",
+          "featureList": [],
+          "appID": null,
+          "appName": "",
+          "serviceVersion": "",
+          "acceptedUserIdList": [],
+          "acceptedUserList": [],
+          "notifyUserIdList": [],
+          "notifyUserList": [],
+          "mailGroupList": [],
+          "comment": null,
+          "status": null,
+          "statusName": "",
+          "appList": [],
+          "userToDo": "",
+          "operationList": []
         },
 
         showPagination: true,
@@ -456,7 +466,21 @@
             });
             break;
           case 'deploy-log':
-            console.log('deploy-log');
+            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
+              let productionProfile = this.$storeHelper.getProductionProfile();
+              this.$storeHelper.setTmpProp('versionInfo', {
+                appID: detail.appID,
+                profileID: productionProfile ? productionProfile.id:null,
+                serviceVersion: detail.serviceVersion
+              });
+              this.$router.push({
+                path: '/profile/log/deploy',
+                query: {
+                  from: '/profile/work-order/list'
+                }
+              });
+            }).catch(err => {
+            });
             break;
         }
       },

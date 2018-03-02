@@ -66,6 +66,14 @@
       }
     },
     props: {
+      /**
+       * format of customConfig: {
+       *   appID: null,
+       *   profileID: null,
+       *   serviceID: null,
+       *   serviceVersion: null
+       * }
+       */
       customConfig: Object
     },
     data() {
@@ -81,15 +89,14 @@
         currentProfileList: [],
 
         // 版本（既服务）列表
-        // the value of serviceVersion in currentService
         selectedServiceID: null,
         selectedService: null,
         currentServiceList: [],
-        getVersionList: this.requestServiceList,
+//        getVersionList: this.requestServiceList,
+//        getVersionList: this.requestVersionList,
 
         // TODO: not used
         currentVersionList: [],
-//        getVersionList: this.requestVersionList,
       }
     },
     computed: {
@@ -132,7 +139,7 @@
           } else {
             // request service list when app id is changed while profile id is not changed.
             if (this.selectedProfileID == firstProfileID) {
-              this.getVersionList(this.selectedAPP.appId, this.selectedProfileID);
+              this.requestServiceList(this.selectedAPP.appId, this.selectedProfileID);
             } else {
               this.selectedProfileID = firstProfileID;
             }
@@ -143,7 +150,7 @@
       selectedProfileID: function (value, oldValue) {
         let profileID = value;
         let appID = this.selectedAPP.appId;
-        this.getVersionList(appID, profileID);
+        this.requestServiceList(appID, profileID);
 //        this.$storeHelper.setUserConfig('profile/service/profileID', profileID);
       },
 
@@ -170,11 +177,12 @@
     },
     methods: {
       /**
+       * this function is the start point of watcher chain
+       * the start of watcher chain: appID -> profileID -> serviceID
+       *
        * call in two place:
        * 1. created function
        * 2. appInfoListOfGroup watcher
-       *
-       * the start of watcher chain: appID -> profileID -> serviceID
        *
        * what is done?
        * 1. refresh this.appList
@@ -226,11 +234,32 @@
             // get default version
             if (currentServiceList && Array.isArray(currentServiceList) && currentServiceList.length > 0) {
               this.currentServiceList = currentServiceList;
-              // set default serviceID
-              if (this.customConfig && this.customConfig.hasOwnProperty('serviceID')) {
-                this.selectedServiceID = this.customConfig['serviceID'];
+              let firstServiceID = currentServiceList[0].id;
+              // set default serviceID as follows:
+              // 1. customConfig.serviceID if exist
+              // 2. customConfig.serviceName if exist
+              // 3. first element of profileList in selectedApp
+              if (this.customConfig) {
+                if (this.customConfig.hasOwnProperty('serviceID')) {
+                  this.selectedServiceID = this.customConfig['serviceID'];
+                } else if (this.customConfig.hasOwnProperty('serviceName')) {
+                  let theProfile = null;
+                  currentServiceList.some(it => {
+                    if (it.serviceName === this.customConfig['serviceName']) {
+                      theProfile = it;
+                    }
+                    return theProfile;
+                  });
+                  if (theProfile) {
+                    this.selectedServiceID = theProfile.id;
+                  } else {
+                    this.selectedServiceID = firstServiceID;
+                  }
+                } else {
+                  this.selectedServiceID = firstServiceID;
+                }
               } else {
-                this.selectedServiceID = currentServiceList[0].id;
+                this.selectedServiceID = firstServiceID;
               }
             }
           }

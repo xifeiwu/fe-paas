@@ -74,10 +74,18 @@
       // set default service
       let queryParam = this.$route.query;
       if (queryParam && queryParam.hasOwnProperty('from')) {
-        if (queryParam['from'] === '/profile/service') {
-          this.localServiceConfig = this.$storeHelper.getUserConfig('profile/service');
+        let formerPage = queryParam['from'];
+        switch (formerPage) {
+          case '/profile/service':
+            this.localServiceConfig = this.$storeHelper.getUserConfig('profile/service');
+            break;
+          case '/profile/work-order/list':
+            this.localServiceConfig = this.$storeHelper.getTmpProp('versionInfo');
+            break;
         }
       }
+//      console.log('this.localServiceConfig');
+//      console.log(this.localServiceConfig);
     },
     data() {
       return {

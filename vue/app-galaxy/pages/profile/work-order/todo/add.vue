@@ -380,9 +380,7 @@
        */
       requestProductVersionList(appID) {
         let spaceID = null;
-//            let profileType = 'DEV';
-        let profileType = 'PRODUCTION';
-        let profileInfo = this.$storeHelper.getProfileInfoByType(profileType);
+        let profileInfo = this.$storeHelper.getProductionProfile();
         if (profileInfo && profileInfo.hasOwnProperty('id')) {
           spaceID = profileInfo.id;
         }
