@@ -11,95 +11,41 @@
         <span>工单测试<i class="el-icon-question"></i></span>
       </el-tooltip>
     </div>
-    <el-form labelWidth="120px" size="mini" :model="handleInfo" :rules="rules" ref="handle-form">
-      <el-form-item label="工单名称">{{workOrderDetail.name}}</el-form-item>
-      <el-form-item label="申请人">{{workOrderDetail.creatorName}}</el-form-item>
-      <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
-      <el-form-item label="功能列表">
-        <el-table :data="workOrderDetail.featureList">
-          <el-table-column label="功能名称" prop="name" headerAlign="center">
-          </el-table-column>
-          <el-table-column label="功能类型" prop="typeName" headerAlign="center">
-          </el-table-column>
-          <el-table-column label="jira地址" prop="jiraAddress" headerAlign="center">
-          </el-table-column>
-          <el-table-column label="功能描述" prop="description" headerAlign="center">
-          </el-table-column>
-        </el-table>
-      </el-form-item>
-      <el-form-item label="程序/版本">
-        <span>{{workOrderDetail.appName}}</span>
-        <span>/</span>
-        <span v-if="workOrderDetail.serviceVersion">{{workOrderDetail.serviceVersion}}</span><span v-else>版本未知</span>
-      </el-form-item>
-      <el-form-item label="待办人">{{workOrderDetail.userToDo}}</el-form-item>
-      <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
-      <el-form-item label="验收人">
-        <el-table :data="workOrderDetail.acceptedUserList">
-          <el-table-column label="验收人" prop="userName" headerAlign="center">
-          </el-table-column>
-          <el-table-column label="状态" prop="status" headerAlign="center">
-          </el-table-column>
-        </el-table>
-      </el-form-item>
-      <el-form-item label="知会人" class="notify-user-list">
-        <span v-for="item in workOrderDetail.notifyUserList" :key="item.userId">{{item.userName}}</span>
-      </el-form-item>
-      <el-form-item label="邮件组" class="mail-group-list">
-        <span v-for="(item, index) in workOrderDetail.mailGroupList" :key="index" v-if="workOrderDetail.mailGroupList.length > 0">
-          {{item}}
-        </span>
-        <span v-else>未设置</span>
-      </el-form-item>
-      <el-form-item label="操作记录">
-        <el-table :data="workOrderDetail.operationList">
-          <el-table-column label="处理时间" prop="createTime" headerAlign="center">
-          </el-table-column>
-          <el-table-column label="处理操作" prop="actionName" headerAlign="center">
-          </el-table-column>
-          <el-table-column label="处理人" prop="handleUserName" headerAlign="center">
-          </el-table-column>
-          <el-table-column label="备注" prop="remark" headerAlign="center">
-          </el-table-column>
-        </el-table>
-      </el-form-item>
-      <el-form-item label="备注">
-        <span v-if="workOrderDetail.comment">{{workOrderDetail.comment}}</span>
-        <span v-else>无备注</span>
-      </el-form-item>
-      <el-form-item label="工单状态">
-        <span>{{workOrderDetail.statusName}}</span>
-      </el-form-item>
-      <el-form-item label="测试类型" prop="testType" class="test-type">
-        <el-select  v-model="handleInfo.testType">
-          <el-option v-for="item in testTypeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="测试报告" prop="fileList2Upload" class="test-report">
-        <el-upload
-              class="upload-demo"
-              ref="upload"
-              :limit="1"
-              :headers="{token: this.$getUserInfo('token')}"
-              :action="$url.work_order_handle_upload_test_report"
-              :auto-upload="false"
-              :beforeUpload="beforeFileUpload"
-              :onSuccess="afterLoadSuccess"
-              :onError="afterLoadError"
-              @onUploadFiles="onUploadFiles"
-        >
-          <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>
-          <!--<el-button style="margin-left: 10px;" type="success" size="mini-extral" @click="handleSubmitUpload">上传到服务器</el-button>-->
-        </el-upload>
-      </el-form-item>
-      <el-form-item label="审批意见" prop="comment" class="comment">
-        <el-input v-model="handleInfo.comment"
-                  type="textarea"
-                  :rows="2"
-                  placeholder="无"
-        ></el-input>
-      </el-form-item>
-    </el-form>
+
+    <div class="section-body">
+      <my-show-detail :workOrderDetail="workOrderDetail"></my-show-detail>
+      <el-form labelWidth="120px" size="mini" :model="handleInfo" :rules="rules" ref="handle-form">
+        <el-form-item label="测试类型" prop="testType" class="test-type">
+          <el-select  v-model="handleInfo.testType">
+            <el-option v-for="item in testTypeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="测试报告" prop="fileList2Upload" class="test-report">
+          <el-upload
+                class="upload-demo"
+                ref="upload"
+                :limit="1"
+                :headers="{token: this.$getUserInfo('token')}"
+                :action="$url.work_order_handle_upload_test_report"
+                :auto-upload="false"
+                :beforeUpload="beforeFileUpload"
+                :onSuccess="afterLoadSuccess"
+                :onError="afterLoadError"
+                @onUploadFiles="onUploadFiles"
+          >
+            <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>
+            <!--<el-button style="margin-left: 10px;" type="success" size="mini-extral" @click="handleSubmitUpload">上传到服务器</el-button>-->
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="审批意见" prop="comment" class="comment">
+          <el-input v-model="handleInfo.comment"
+                    type="textarea"
+                    :rows="2"
+                    placeholder="无"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+    </div>
     <div class="section-footer">
       <el-button
               size="mini"
@@ -151,11 +97,12 @@
 
 <script>
   import WorkOrderPropUtils from '../utils/work-order-props';
+  import MyShowDetail from '../utils/components/show-detail.vue';
   import ElSelect from "element-ui/packages/select/src/select";
   import ElOption from "element-ui/packages/select/src/option";
   import ElFormItem from "element-ui/packages/form/src/form-item";
   export default {
-    components: {ElFormItem, ElOption, ElSelect}, created() {
+    components: {MyShowDetail, ElFormItem, ElOption, ElSelect}, created() {
 
     },
     mounted() {
