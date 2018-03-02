@@ -1149,14 +1149,14 @@ export default {
         this.queueForWaitingResponse.push(action);
       }
     },
-    statusOfWaitingResponse(action) {
-      return this.queueForWaitingResponse.indexOf(action) > -1;
-    },
     hideWaitingResponse(action) {
       let index = this.queueForWaitingResponse.indexOf(action);
       if (index > -1) {
         this.queueForWaitingResponse.splice(index, 1);
       }
+    },
+    statusOfWaitingResponse(action) {
+      return this.queueForWaitingResponse.indexOf(action) > -1;
     },
     /**
      * call in two place:

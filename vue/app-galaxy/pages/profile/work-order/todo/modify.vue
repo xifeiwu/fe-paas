@@ -478,7 +478,7 @@
 
       handleButtonClick(action) {
         switch (action) {
-          case 'close':
+          case 'back':
             this.$router.go(-1);
             break;
           case 'remove':

@@ -74,17 +74,19 @@
                     type="success"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     @click="handleTRButton('detail', scope.$index, scope.row)"
-                    :loading="waitingResponse && operation.rowID == scope.row.id">
+                    :loading="statusOfWaitingResponse('detail') && operation.rowID == scope.row.id">
               <span>详情</span>
               <i class="el-icon-arrow-right"></i>
             </el-button>
             <el-button v-if="scope.row.status!=='WORKORDER_APPLY'"
                     size="mini-extral"
                     type="success"
+                    :loading="statusOfWaitingResponse(scope.row.status) && operation.rowID == scope.row.id"
                     @click="handleTRButton(scope.row.status, scope.$index, scope.row)">处理</el-button>
             <el-button v-if="scope.row.status==='WORKORDER_APPLY'"
                     size="mini-extral"
                     type="success"
+                    :loading="statusOfWaitingResponse('modify') && operation.rowID == scope.row.id"
                     @click="handleTRButton('modify', scope.$index, scope.row)">修改</el-button>
           </template>
         </el-table-column>
@@ -277,8 +279,8 @@
           userName: '',
           dateRange: '',
         },
+        queueForWaitingResponse: [],
 
-        waitingResponse: false,
         showLoading: false,
         workOrderList: [],
         getRowKeys: function (row) {
@@ -363,6 +365,22 @@
       },
     },
     methods: {
+      // helper for loading action of el-button
+      addToWaitingResponseQueue(action) {
+        if (this.queueForWaitingResponse.indexOf(action) === -1) {
+          this.queueForWaitingResponse.push(action);
+        }
+      },
+      statusOfWaitingResponse(action) {
+        return this.queueForWaitingResponse.indexOf(action) > -1;
+      },
+      hideWaitingResponse(action) {
+        let index = this.queueForWaitingResponse.indexOf(action);
+        if (index > -1) {
+          this.queueForWaitingResponse.splice(index, 1);
+        }
+      },
+
       setDateRange() {
         const end = new Date();
         const start = new Date();
@@ -384,10 +402,10 @@
         }
       },
       handleTRButton(action, index, row) {
+        // operation.rowID is used to indicate which row is active
+        this.operation.rowID = row.id;
         switch (action) {
           case 'detail':
-            // operation.rowID is used to indicate which row is active
-            this.operation.rowID = row.id;
             // update expandRows
             let checkIfExpanded = () => {
               let hasExpanded = false;
@@ -411,7 +429,8 @@
               if (this.expandRows.indexOf(key) > -1) {
                 this.expandRows.splice(this.expandRows.indexOf(key), 1);
               } else {
-                this.expandRows.push(key);
+//                this.expandRows.push(key);
+                this.expandRows = [key];
               }
             };
             if (checkIfExpanded()) {
@@ -419,16 +438,16 @@
             }
 
             // update data of model for work-order-detail
-            this.waitingResponse = true;
+            this.addToWaitingResponseQueue('detail');
             WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
+              this.hideWaitingResponse('detail');
 //              console.log(detail);
               this.workOrderDetail = detail;
               this.operation.name = action;
-              this.waitingResponse = false;
               updateExpandRows();
             }).catch(err => {
+              this.hideWaitingResponse('detail');
               this.operation.name = action;
-              this.waitingResponse = false;
             });
             break;
           case 'modify':
@@ -451,11 +470,13 @@
             break;
           case 'WAIT_TEST':
           case 'TESTING':
+            this.addToWaitingResponseQueue(action);
             this.$net.checkBeforeHandleWorkOrder({
               id: row.id,
               handleStatus: row.handleStatus,
               status: row.status
             }).then(workOrderInfo => {
+              this.hideWaitingResponse(action);
               let newStatus = workOrderInfo['status'];
               this.$store.dispatch('app/setWorkOrder', {
                 id: row.id,
@@ -474,6 +495,7 @@
               });
               this.$router.push('/profile/work-order/todo/test');
             }).catch(errMsg => {
+              this.hideWaitingResponse(action);
               console.log(errMsg);
               this.$notify.error({
                 title: '无法处理！',
@@ -486,11 +508,13 @@
             break;
           case 'WAIT_DEPLOY':
           case 'DEPLOYING':
+            this.addToWaitingResponseQueue(action);
             this.$net.checkBeforeHandleWorkOrder({
               id: row.id,
               handleStatus: row.handleStatus,
               status: row.status
             }).then(workOrderInfo => {
+              this.hideWaitingResponse(action);
               let newStatus = workOrderInfo['status'];
               this.$store.dispatch('app/setWorkOrder', {
                 id: row.id,
@@ -509,6 +533,7 @@
               });
               this.$router.push('/profile/work-order/todo/deploy');
             }).catch(errMsg => {
+              this.hideWaitingResponse(action);
               console.log(errMsg);
               this.$notify.error({
                 title: '无法处理！',
@@ -521,11 +546,13 @@
             break;
             case 'WAIT_ACCEPTANCE':
             case 'ACCEPTANCEING':
+              this.addToWaitingResponseQueue(action);
               this.$net.checkBeforeHandleWorkOrder({
                 id: row.id,
                 handleStatus: row.handleStatus,
                 status: row.status
               }).then(workOrderInfo => {
+                this.hideWaitingResponse(action);
                 let newStatus = workOrderInfo['status'];
                 this.$store.dispatch('app/setWorkOrder', {
                   id: row.id,
@@ -544,6 +571,7 @@
                 });
                 this.$router.push('/profile/work-order/todo/accept');
               }).catch(errMsg => {
+                this.hideWaitingResponse(action);
                 console.log(errMsg);
                 this.$notify.error({
                   title: '无法处理！',

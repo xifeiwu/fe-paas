@@ -214,6 +214,23 @@
         loadingText: ''
       }
     },
+    watch: {
+      'handleInfo.testType': function (value) {
+        if ('SKIP_TEST' === value) {
+          this.rules.fileList2Upload = [{
+            type: 'array',
+            required: false,
+          }];
+        } else {
+          this.rules.fileList2Upload =[{
+            type: 'array',
+            required: true,
+            message: '请上传测试文件',
+            trigger: 'blur'
+          }];
+        }
+      }
+    },
     methods: {
       handleSubmitUpload() {
         this.$refs.upload.submit();

@@ -69,13 +69,14 @@
                     type="success"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     @click="handleOperationClick('detail', scope.$index, scope.row)"
-                    :loading="waitingResponse && operation.rowID == scope.row.id">
+                    :loading="statusOfWaitingResponse('detail') && operation.rowID == scope.row.id">
               <span>详情</span>
               <i class="el-icon-arrow-right"></i>
             </el-button>
             <el-button
                     size="mini-extral"
                     type="success"
+                    :loading="statusOfWaitingResponse('deploy-log') && operation.rowID == scope.row.id"
                     @click="handleOperationClick('deploy-log', scope.$index, scope.row)">部署日志</el-button>
           </template>
         </el-table-column>
@@ -268,8 +269,8 @@
           status: 'STATUS_ALL',
           dateRange: '',
         },
+        queueForWaitingResponse: [],
 
-        waitingResponse: false,
         showLoading: false,
         workOrderList: [],
         getRowKeys: function (row) {
@@ -399,6 +400,22 @@
       },
     },
     methods: {
+      // helper for loading action of el-button
+      addToWaitingResponseQueue(action) {
+        if (this.queueForWaitingResponse.indexOf(action) === -1) {
+          this.queueForWaitingResponse.push(action);
+        }
+      },
+      statusOfWaitingResponse(action) {
+        return this.queueForWaitingResponse.indexOf(action) > -1;
+      },
+      hideWaitingResponse(action) {
+        let index = this.queueForWaitingResponse.indexOf(action);
+        if (index > -1) {
+          this.queueForWaitingResponse.splice(index, 1);
+        }
+      },
+
       setDateRange() {
         const end = new Date();
         const start = new Date();
@@ -421,10 +438,10 @@
         }
       },
       handleOperationClick(action, index, row) {
+        // operation.rowID is used to indicate which row is active
+        this.operation.rowID = row.id;
         switch (action) {
           case 'detail':
-            // operation.rowID is used to indicate which row is active
-            this.operation.rowID = row.id;
             // update expandRows
             let checkIfExpanded = () => {
               let hasExpanded = false;
@@ -448,7 +465,8 @@
               if (this.expandRows.indexOf(key) > -1) {
                 this.expandRows.splice(this.expandRows.indexOf(key), 1);
               } else {
-                this.expandRows.push(key);
+//                this.expandRows.push(key);
+                this.expandRows = [key];
               }
             };
             if (checkIfExpanded()) {
@@ -456,20 +474,22 @@
             }
 
             // update data of model for work-order-detail
-            this.waitingResponse = true;
+            this.addToWaitingResponseQueue('detail');
             WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
+              this.hideWaitingResponse('detail');
 //              console.log(detail);
               this.workOrderDetail = detail;
               this.operation.name = action;
-              this.waitingResponse = false;
               updateExpandRows();
             }).catch(err => {
+              this.hideWaitingResponse('detail');
               this.operation.name = action;
-              this.waitingResponse = false;
             });
             break;
           case 'deploy-log':
+            this.addToWaitingResponseQueue('deploy-log');
             WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
+              this.hideWaitingResponse('deploy-log');
               let productionProfile = this.$storeHelper.getProductionProfile();
               this.$storeHelper.setTmpProp('versionInfo', {
                 appID: detail.appID,
@@ -483,6 +503,7 @@
                 }
               });
             }).catch(err => {
+              this.hideWaitingResponse('deploy-log');
             });
             break;
         }
