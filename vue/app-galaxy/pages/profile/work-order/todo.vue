@@ -451,22 +451,14 @@
             });
             break;
           case 'modify':
-            this.$storeHelper.setTmpProp('workOrderBasic', {
-              id: row.id,
-              name: row.name,
-              creatorName: row.creatorName,
-              groupName: row.groupName,
-              emailGroupList: [],
-              featureList: [],
-              appList: [],
-              userToDo: '获取失败',
-              acceptedUserList: [],
-              operationList: [],
-              comment: row.remark,
-              status: row.status,
-              statusName: WorkerOrderPropUtils.getNameByStatus(row.status)
+            this.addToWaitingResponseQueue('modify');
+            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
+              this.hideWaitingResponse('modify');
+              this.$storeHelper.setTmpProp('workOrderDetail', detail);
+              this.$router.push('/profile/work-order/todo/modify');
+            }).catch(() => {
+              this.hideWaitingResponse('modify');
             });
-            this.$router.push('/profile/work-order/todo/modify');
             break;
           case 'WAIT_TEST':
           case 'TESTING':

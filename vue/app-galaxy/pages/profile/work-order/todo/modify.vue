@@ -53,7 +53,8 @@
                label-width="120px">
         <el-form-item label="应用名称" prop="appName" v-if="workOrderDetail.appID">
           <el-select filterable v-model="workOrderDetail.appID" placeholder="请选择">
-            <el-option v-for="(item, index) in appInfoListOfGroup.appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
+            <el-option v-if="appInfoListOfGroup" v-for="(item, index) in appInfoListOfGroup.appList"
+                       :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
           </el-select>
         </el-form-item>
@@ -261,27 +262,24 @@
 //      this.onUsersAll(this.usersAll);
     },
     mounted() {
-      let workOrder = this.$storeHelper.getTmpProp('workOrderBasic');
-      if (!workOrder || !workOrder.hasOwnProperty('id')) {
-        this.$router.push('/profile/work-order/todo');
+      let workOrderDetail = this.$storeHelper.getTmpProp('workOrderDetail');
+      if (!workOrderDetail || !workOrderDetail.hasOwnProperty('appID')) {
+//        this.$router.push('/profile/work-order/todo');
+        this.$router.go(-1);
         return;
       }
-      this.$nextTick(() => {
-        WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
-          this.workOrderDetail = detail;
-          this.requestProductVersionList(this.workOrderDetail.appID);
-          // should have at least one feature item
-          if (this.workOrderDetail.featureList.length == 0) {
-            this.workOrderDetail.featureList.push({
-              name: '',
-              type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
-              jiraAddress: null,
-              description: null,
-              valid: false
-            })
-          }
+      this.workOrderDetail = workOrderDetail;
+      this.requestProductVersionList(this.workOrderDetail.appID);
+      // should have at least one feature item
+      if (this.workOrderDetail.featureList.length == 0) {
+        this.workOrderDetail.featureList.push({
+          name: '',
+          type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
+          jiraAddress: null,
+          description: null,
+          valid: false
         })
-      });
+      }
     },
     data() {
       return {

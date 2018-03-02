@@ -2,11 +2,15 @@
 const state = {
   versionInfo: null,
   workOrderBasic: null,
+  workOrderDetail: null,
 };
 
 const actions = {
   workOrderBasic({commit, state}, detail) {
     state.workOrderBasic = detail;
+  },
+  workOrderDetail({commit, state}, detail) {
+    state.workOrderDetail = detail;
   },
   versionInfo({commit, state}, info) {
     state.versionInfo = info;
@@ -21,6 +25,9 @@ const mutations = {
 const getters = {
   'workOrderBasic': (state, getters) => {
     return state.workOrderBasic;
+  },
+  'workOrderDetail': (state, getters) => {
+    return state.workOrderDetail;
   },
   'versionInfo': (state, getters) => {
     return state.versionInfo;
