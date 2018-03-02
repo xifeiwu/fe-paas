@@ -87,7 +87,7 @@
           <template slot-scope="scope">
             <div class="row-expand">
               <el-form labelWidth="120px" size="mini">
-                <el-form-item label="工单名称">{{workOrderDetail.name}}</el-form-item>
+                <el-form-item label="审批工单名称">{{workOrderDetail.name}}</el-form-item>
                 <el-form-item label="申请人">{{workOrderDetail.creatorName}}</el-form-item>
                 <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
                 <el-form-item label="功能列表">
@@ -327,13 +327,15 @@
         }, {
           id: 'HANDLEING',
           name: '处理中'
-        }, {
-          id: 'WAIT_DBA',
-          name: '等待DBA处理'
-        }, {
-          id: 'DBAING',
-          name: 'DBA受理中'
-        }, {
+        },
+//          {
+//          id: 'WAIT_DBA',
+//          name: '等待DBA处理'
+//        }, {
+//          id: 'DBAING',
+//          name: 'DBA受理中'
+//        },
+          {
           id: 'WAIT_DEPLOY',
           name: '等待部署'
         }, {
@@ -433,7 +435,8 @@
             break;
           case 'refresh':
             this.setDateRange();
-            this.requestWorkOrderList();
+            // avoid duplicate request
+//            this.requestWorkOrderList();
             break;
           case 'linker':
             this.$router.push(params.path);

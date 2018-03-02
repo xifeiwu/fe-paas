@@ -74,7 +74,7 @@
         >
         </el-table-column>
         <el-table-column
-          prop="applicationStatus"
+          prop="applicationServiceStatus"
           label="状态"
           width="80"
           headerAlign="center" align="center"

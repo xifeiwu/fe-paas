@@ -1,6 +1,6 @@
 <template>
   <el-form labelWidth="120px" size="mini">
-    <el-form-item label="工单名称">{{workOrderDetail.name}}</el-form-item>
+    <el-form-item label="审批工单名称">{{workOrderDetail.name}}</el-form-item>
     <el-form-item label="申请人">{{workOrderDetail.creatorName}}</el-form-item>
     <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
     <el-form-item label="功能列表">
