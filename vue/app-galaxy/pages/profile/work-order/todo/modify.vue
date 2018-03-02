@@ -9,7 +9,7 @@
           <div>1. 必须选定生产环境版本，确保所选择应用的生产环境下有版本。</div>
           <div>2. 在所选应用版本的工单处理完成前，不可提交新的工单。</div>
         </div>
-        <span>申请工单<i class="el-icon-question"></i></span>
+        <span>修改工单<i class="el-icon-question"></i></span>
       </el-tooltip>
     </div>
     <div class="basic-section">
@@ -18,7 +18,6 @@
                size="mini"
                label-width="120px">
         <el-form-item label="审批工单名称" prop="name">
-          <!--<el-input v-model="workOrderDetail.name" style="width: 350px"></el-input>-->
           <span>{{workOrderDetail.name}}</span>
         </el-form-item>
         <el-form-item label="申请人：">
@@ -26,24 +25,13 @@
         </el-form-item>
         <el-form-item label="团队名称" prop="groupName">
           <span>{{workOrderDetail.groupName}}</span>
-          <!--<el-select v-model="currentGroupID" placeholder="请选择" style="width: 350px">-->
+          <!--<el-select v-model="currentGroupID" placeholder="请选择">-->
             <!--<el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">-->
             <!--</el-option>-->
           <!--</el-select>-->
         </el-form-item>
       </el-form>
     </div>
-    <!--<div class="feature-section">-->
-      <!--<div class="title">功能列表</div>-->
-      <!--<div class="feature-form-list">-->
-        <!--<my-feature v-for="(item, index) in workOrderDetail.featureList" :key="index"-->
-                  <!--:id="index"-->
-                  <!--:featureInfo="item"-->
-                  <!--:showPlug="index == workOrderDetail.featureList.length - 1"-->
-                  <!--:onPlug="addFeatureForm"-->
-        <!--&gt;{{item}}</my-feature>-->
-      <!--</div>-->
-    <!--</div>-->
     <div class="feature-section">
       <div class="title">功能列表</div>
       <div class="feature-form-list">
@@ -64,14 +52,14 @@
                size="mini"
                label-width="120px">
         <el-form-item label="应用名称" prop="appName" v-if="workOrderDetail.appID">
-          <el-select filterable v-model="workOrderDetail.appID" placeholder="请选择" style="display:block; width: 350px;">
+          <el-select filterable v-model="workOrderDetail.appID" placeholder="请选择">
             <el-option v-for="(item, index) in appInfoListOfGroup.appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="生产环境版本" prop="serviceVersion">
           <el-select v-model="workOrderDetail.serviceVersion"
-                     :placeholder="versionList.length > 0 ? '请选择': '当前应用下无版本'" style="width: 350px">
+                     :placeholder="versionList.length > 0 ? '请选择': '当前应用的生产环境下没有版本'">
             <el-option v-for="(item, index) in versionList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
         </el-form-item>
@@ -87,13 +75,13 @@
           <span v-for="(item,index) in workOrderDetail.acceptedUserList" :key="index">
             {{item.userName}}
           </span>
-          <!--<el-select v-model="workOrderDetail.acceptedUserIdList" multiple placeholder="请选择" style="width: 350px">-->
+          <!--<el-select v-model="workOrderDetail.acceptedUserIdList" multiple placeholder="请选择">-->
             <!--<el-option v-for="item in usersInGroup" :key="item.userId" :label="item.realName" :value="item.userId">-->
             <!--</el-option>-->
           <!--</el-select>-->
         </el-form-item>
         <el-form-item label="知会人" prop="notifyUserIdList">
-          <el-select filterable v-model="workOrderDetail.notifyUserIdList" multiple placeholder="请选择" style="width: 350px">
+          <el-select filterable v-model="workOrderDetail.notifyUserIdList" multiple placeholder="请选择">
             <el-option v-for="item in usersAll" :key="item.id" :label="item.realName" :value="item.id">
             </el-option>
           </el-select>
@@ -118,33 +106,35 @@
         <el-form-item label="工单备注" prop="comment">
           <el-input v-model="workOrderDetail.comment"
                     type="textarea"
-                    :rows="2"
-                    style="width: 350px"></el-input>
+                    :rows="2"></el-input>
         </el-form-item>
       </el-form>
     </div>
     <div class="operation-history-section">
       <div class="title">操作记录</div>
       <el-table :data="workOrderDetail.operationList">
-        <el-table-column label="处理时间" prop="createTime" headerAlign="center">
+        <el-table-column label="处理时间" prop="createTime" headerAlign="center" align="center" width="200px">
         </el-table-column>
-        <el-table-column label="处理操作" prop="actionName" headerAlign="center">
+        <el-table-column label="处理操作" prop="actionName" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="处理人" prop="handleUserName" headerAlign="center">
+        <el-table-column label="处理人" prop="handleUserName" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="备注" prop="remark" headerAlign="center">
+        <el-table-column label="备注" prop="remark" headerAlign="center" align="center">
         </el-table-column>
       </el-table>
     </div>
     <div class="submit-section">
-      <el-button type="primary" @click="handleButtonClick('back')">取消</el-button>
-      <el-button type="primary" @click="handleButtonClick('remove')">删除工单</el-button>
-      <el-button type="primary" @click="handleButtonClick('modify')">提交工单</el-button>
+      <el-button type="primary" size="mini" @click="handleButtonClick('back')">取消</el-button>
+      <el-button type="primary" size="mini" @click="handleButtonClick('remove')">删除工单</el-button>
+      <el-button type="primary" size="mini" @click="handleButtonClick('modify')">提交工单</el-button>
     </div>
   </div>
 </template>
 <style lang="scss" scoped>
   .el-form {
+    .el-input, .el-select, .el-textarea {
+      width: 400px;
+    }
     .el-form-item--mini {
       margin-bottom: 12px;
     }
@@ -174,7 +164,7 @@
   }
   #work-order-add {
     width: 80%;
-    max-width: 620px;
+    max-width: 720px;
     margin: 25px auto 5px auto;
     .title-section {
       text-align: center;
@@ -192,15 +182,15 @@
       .feature-form-list {
         .work-order-feature {
           display: inline-block;
-          & + .work-order-feature {
-            margin-left: 10px;
-          }
+          /*& + .work-order-feature {*/
+            /*margin-left: 10px;*/
+          /*}*/
         }
       }
     }
     .application-section {
       margin-top: 22px;
-      width: 480px;
+      width: 600px;
       /*margin: 0px auto;*/
       .title {
         border-left: 5px solid gray;
@@ -211,7 +201,7 @@
     }
     .acceptance-section {
       margin-top: 32px;
-      width: 480px;
+      width: 600px;
       /*margin: 0px auto;*/
       .title {
         border-left: 5px solid gray;
@@ -219,10 +209,13 @@
         padding-left: 5px;
         margin-bottom: 5px;
       }
+      textarea {
+        margin-top: 3px;
+      }
     }
     .operation-history-section {
       margin-top: 32px;
-      width: 480px;
+      width: 600px;
       /*margin: 0px auto;*/
       .title {
         border-left: 5px solid gray;
@@ -231,7 +224,7 @@
         margin-bottom: 5px;
       }
       .el-table {
-        margin-left: 50px;
+        margin-left: 20px;
       }
     }
     .submit-section {
@@ -261,8 +254,6 @@
           from: 'page/work-order/todo/add',
           groupID: this.currentGroupID
         });
-      } else {
-        this.onAppInfoListOfGroup(this.appInfoListOfGroup);
       }
       if (!this.usersAll) {
         this.$store.dispatch('app/usersAll');
@@ -277,8 +268,8 @@
       }
       this.$nextTick(() => {
         WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
-          console.log(detail);
           this.workOrderDetail = detail;
+          this.requestProductVersionList(this.workOrderDetail.appID);
           // should have at least one feature item
           if (this.workOrderDetail.featureList.length == 0) {
             this.workOrderDetail.featureList.push({
@@ -337,10 +328,6 @@
         }
         this.requestProductVersionList(value);
       },
-//      'workOrderDetail.serviceVersion': function () {
-//        this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
-//        });
-//      },
       currentGroupID: 'onCurrentGroupID',
     },
     methods: {
@@ -351,13 +338,7 @@
           this.workOrderDetail.groupName = groupInfo.name;
         }
       },
-      // used to set default appID, but useless when modify work-order
       onAppInfoListOfGroup(value) {
-//        if (value.hasOwnProperty('appList')) {
-//          if (Array.isArray(value.appList)) {
-//            this.workOrderDetail.appID = value.appList[0].appId;
-//          }
-//        }
       },
       addFeatureForm() {
         this.workOrderDetail.featureList.push({
@@ -367,7 +348,7 @@
           description: null,
           valid: false
         });
-        console.log(this.workOrderDetail.featureList);
+//        console.log(this.workOrderDetail.featureList);
       },
       // 添加功能描述
       addFeatureComponent() {
@@ -410,9 +391,9 @@
        */
       requestProductVersionList(appID) {
         let spaceID = null;
-//            let profileType = 'DEV';
-        let profileType = 'PRODUCTION';
-        let profileInfo = this.$storeHelper.getProfileInfoByType(profileType);
+//        let profileType = 'PRODUCTION';
+//        let profileInfo = this.$storeHelper.getProfileInfoByType(profileType);
+        let profileInfo = this.$storeHelper.getProductionProfile();
         if (profileInfo && profileInfo.hasOwnProperty('id')) {
           spaceID = profileInfo.id;
         }
@@ -442,11 +423,12 @@
             }
           }
         }).catch(err => {
+          this.workOrderDetail.serviceVersion = null;
           console.log(err);
-          this.$message({
-            type: 'error',
-            message: '查找服务版本失败！'
-          });
+//          this.$message({
+//            type: 'error',
+//            message: '查找服务版本失败！'
+//          });
         });
       },
 

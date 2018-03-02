@@ -144,6 +144,7 @@ class WorkOrderUtils {
       'WORKORDER_APPLY': '工单申请',
       'WAIT_TEST': '等待测试',
       'TESTING': '测试受理中',
+      'HANDLEING': '处理中',
       'WAIT_DBA': '等待DBA处理',
       'DBAING': 'DBA受理中',
       'WAIT_DEPLOY': '等待部署',

@@ -18,13 +18,13 @@
                size="mini"
                label-width="120px">
         <el-form-item label="审批工单名称" prop="name">
-          <el-input v-model="workOrderDetail.name" style="width: 350px"></el-input>
+          <el-input v-model="workOrderDetail.name"></el-input>
         </el-form-item>
         <el-form-item label="申请人：">
           {{workOrderDetail.creatorName}}
         </el-form-item>
         <el-form-item label="团队名称" prop="groupName">
-          <el-select v-model="currentGroupID" placeholder="请选择" style="width: 350px">
+          <el-select v-model="currentGroupID" placeholder="请选择">
             <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
@@ -53,7 +53,7 @@
         <el-form-item label="应用名称" prop="appName">
           <el-select filterable v-model="workOrderDetail.appID"
                      v-if="appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')"
-                     placeholder="请选择" style="display:block; width: 350px;">
+                     placeholder="请选择"">
             <el-option v-for="(item, index) in appInfoListOfGroup.appList"
                        :key="item.appId" :label="item.serviceName" :value="item.appId"
             >
@@ -62,7 +62,7 @@
         </el-form-item>
         <el-form-item label="生产环境版本" prop="serviceVersion">
           <el-select v-model="workOrderDetail.serviceVersion"
-                     :placeholder="versionList.length > 0 ? '请选择': '当前应用下无版本'" style="width: 350px">
+                     :placeholder="versionList.length > 0 ? '请选择': '当前应用的生产环境下没有版本'">
             <el-option v-for="(item, index) in versionList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
         </el-form-item>
@@ -75,13 +75,13 @@
                size="mini"
                label-width="120px">
         <el-form-item label="验收人" prop="acceptedUserIdList">
-          <el-select filterable v-model="workOrderDetail.acceptedUserIdList" multiple placeholder="请选择" style="width: 350px">
+          <el-select filterable v-model="workOrderDetail.acceptedUserIdList" multiple placeholder="请选择">
             <el-option v-for="item in usersInGroup" :key="item.userId" :label="item.realName" :value="item.userId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="知会人" prop="notifyUserIdList">
-          <el-select filterable v-model="workOrderDetail.notifyUserIdList" multiple placeholder="请选择" style="width: 350px">
+          <el-select filterable v-model="workOrderDetail.notifyUserIdList" multiple placeholder="请选择">
             <el-option v-for="item in usersAll" :key="item.id" :label="item.realName" :value="item.id">
             </el-option>
           </el-select>
@@ -107,7 +107,7 @@
           <el-input v-model="workOrderDetail.comment"
                     type="textarea"
                     :rows="2"
-                    style="width: 350px"></el-input>
+                    ></el-input>
         </el-form-item>
       </el-form>
     </div>
@@ -119,6 +119,9 @@
 </template>
 <style lang="scss" scoped>
   .el-form {
+    .el-input, .el-select, .el-textarea {
+      width: 400px;
+    }
     .el-form-item--mini {
       margin-bottom: 12px;
     }
@@ -148,7 +151,7 @@
   }
   #work-order-add {
     width: 80%;
-    max-width: 620px;
+    max-width: 720px;
     margin: 25px auto 5px auto;
     .title-section {
       text-align: center;
@@ -166,16 +169,15 @@
       .feature-form-list {
         .work-order-feature {
           display: inline-block;
-          & + .work-order-feature {
-            margin-left: 10px;
-          }
+          /*& + .work-order-feature {*/
+            /*margin-left: 10px;*/
+          /*}*/
         }
       }
     }
     .application-section {
       margin-top: 22px;
-      width: 480px;
-      /*margin: 0px auto;*/
+      width: 600px;
       .title {
         border-left: 5px solid gray;
         border-top: 1px solid gray;
@@ -185,13 +187,16 @@
     }
     .acceptance-section {
       margin-top: 32px;
-      width: 480px;
+      width: 600px;
       /*margin: 0px auto;*/
       .title {
         border-left: 5px solid gray;
         border-top: 1px solid gray;
         padding-left: 5px;
         margin-bottom: 5px;
+      }
+      textarea {
+        margin-top: 3px;
       }
     }
     .section-footer {

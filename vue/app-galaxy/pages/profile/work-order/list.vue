@@ -325,6 +325,9 @@
           id: 'TESTING',
           name: '测试受理中'
         }, {
+          id: 'HANDLEING',
+          name: '处理中'
+        }, {
           id: 'WAIT_DBA',
           name: '等待DBA处理'
         }, {
