@@ -265,7 +265,7 @@
         searchForm: {
           workOrderName: '',
           creator: '',
-          status: '',
+          status: 'STATUS_ALL',
           dateRange: '',
         },
 
@@ -312,6 +312,9 @@
         currentPage: 1,
 
         statusList: [{
+          id: 'STATUS_ALL',
+          name: '全部'
+        }, {
           id: 'WORKORDER_APPLY',
           name: '工单申请'
         }, {
@@ -508,7 +511,11 @@
           options.creatorName = this.searchForm.creator.trim();
         }
         if (this.searchForm.status) {
-          options.status = this.searchForm.status;
+          if (this.searchForm.status == 'STATUS_ALL') {
+            delete options.status;
+          } else {
+            options.status = this.searchForm.status;
+          }
         } else {
           delete options.status;
         }
