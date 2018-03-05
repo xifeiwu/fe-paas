@@ -24,6 +24,7 @@
 
   @include e(group) {
     margin-left: $--notification-group-margin;
+    width: 100%;
   }
 
   @include e(title) {
@@ -39,6 +40,8 @@
     margin: 6px 0 0 0;
     color: $--notification-color;
     text-align: justify;
+    width: 100%;
+    overflow: scroll;
 
     p {
       margin: 0;

@@ -16,7 +16,7 @@
         <h2 class="el-notification__title" v-text="title"></h2>
         <div class="el-notification__content">
           <slot>
-            <p v-if="!dangerouslyUseHTMLString">{{ message }}</p>
+            <p v-if="!dangerouslyUseHTMLString" style="width: 100%;word-wrap: break-word;word-break: break-all;">{{ message }}</p>
             <p v-else v-html="message"></p>
           </slot>
         </div>
