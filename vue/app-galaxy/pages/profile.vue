@@ -3,9 +3,10 @@
     <el-header height="45px">
       <div class="img">picture</div>
       <el-menu class="header-menu"
-              mode="horizontal"
-              @select="handleHeaderMenuClick"
-              defaultActive="profile"
+               mode="horizontal"
+               menuTrigger="click"
+               @select="handleHeaderMenuClick"
+               defaultActive="profile"
       >
         <el-menu-item index="profile">控制台</el-menu-item>
         <el-menu-item index="message">消息中心</el-menu-item>
@@ -239,7 +240,7 @@
           if (relativePath.length > 0) {
           // whether show groupList
           let pageNotShowGroupList = ['app/add', 'service/add'];
-          let pageNotShowGroupListReg = /^work-order\/todo.*$/;
+          let pageNotShowGroupListReg = /^work-order\/(todo|list).*$/;
           if (pageNotShowGroupList.indexOf(relativePath) > -1 || pageNotShowGroupListReg.exec(relativePath)) {
             this.showGroupList = false;
           } else {
