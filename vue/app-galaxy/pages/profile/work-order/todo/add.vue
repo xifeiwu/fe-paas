@@ -53,7 +53,7 @@
         <el-form-item label="应用名称" prop="appName">
           <el-select filterable v-model="workOrderDetail.appID"
                      v-if="appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')"
-                     placeholder="请选择"">
+                     placeholder="请选择">
             <el-option v-for="(item, index) in appInfoListOfGroup.appList"
                        :key="item.appId" :label="item.serviceName" :value="item.appId"
             >

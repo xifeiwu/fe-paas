@@ -252,8 +252,11 @@
               });
             }).catch(err => {
               this.$notify.error({
-                title: '错误',
-                message: err
+                title: err.title,
+                message: err.msg,
+                duration: 0,
+                onClose: function () {
+                }
               });
             });
             break;
