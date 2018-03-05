@@ -272,7 +272,7 @@ export default {
       }
     },
     handleFinish() {
-      console.log(this.createAppForm);
+//      console.log(this.createAppForm);
       var self = this;
       this.$refs['createAppForm'].validate((valid) => {
         if (valid) {
@@ -296,9 +296,9 @@ export default {
             this.$router.push('/profile/app');
           }).catch((err) => {
             self.showLoading = false;
-            this.$notify({
-              title: '提示',
-              message: err,
+            this.$notify.error({
+              title: err.title,
+              message: err.msg,
               duration: 0,
               onClose: function () {
                 self.$router.push('/profile/app/add');

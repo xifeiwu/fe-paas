@@ -50,7 +50,7 @@ class Net {
    * get the message shown to user from error
    * @param error
    */
-  getErrorMessage(error) {
+  getMsgFromErrorResponse(error) {
     let content = {
       title: '网络错误',
       msg: '请与管理员联系'
@@ -211,7 +211,7 @@ class Net {
           }
         }
       }).catch(err => {
-        reject(this.getErrorMessage(err));
+        reject(this.getMsgFromErrorResponse(err));
       });
     })
   }
@@ -430,12 +430,12 @@ class Net {
             content = data.content ? data.content : {};
             resolve(content);
           } else {
-            reject(data.msg);
+            reject({title: '创建应用失败', msg: data.msg});
           }
         }
       }).catch(err => {
         console.log(err);
-        reject(err);
+        reject(this.getMsgFromErrorResponse(err));
       });
     });
   }
