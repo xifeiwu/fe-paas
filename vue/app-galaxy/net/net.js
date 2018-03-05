@@ -274,7 +274,9 @@ class Net {
               // utils.renameProperty(it, 'spaceList', 'profileList');
               it['profileList'] = this.$storeHelper.getProfileInfoListByNameList(it.spaceList);
               // if the language of this app is JAVA
-              it['isJavaLanguage'] = it.hasOwnProperty('language') && 'JAVA' == it.language
+              it['isJavaLanguage'] = it.hasOwnProperty('language') && 'JAVA' == it.language;
+              it.appName = it.tag;
+              it.serviceName = it.tag;
             });
             content.appModelList = getAppModelList(appList);
           }
