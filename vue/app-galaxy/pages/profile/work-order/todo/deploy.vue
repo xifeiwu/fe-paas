@@ -231,9 +231,10 @@
               this.$alert('点击确定，将进入工单列表页', msg, {
                 confirmButtonText: '确定',
                 callback: (action) => {
-                  if ('confirm' === action) {
+                  // value of action: confirm, cancel
+//                  if ('confirm' === action) {
                     this.$router.push('/profile/work-order/list');
-                  }
+//                  }
                 }
               });
               this.showLoading = false;
@@ -243,9 +244,7 @@
               this.$alert('请与管理员联系。点击确定，进入待办工单列表页', msg, {
                 confirmButtonText: '确定',
                 callback: (action) => {
-                  if ('confirm' === action) {
-                    this.$router.push('/profile/work-order/todo');
-                  }
+                  this.$router.push('/profile/work-order/todo');
                 }
               });
               this.showLoading = false;
