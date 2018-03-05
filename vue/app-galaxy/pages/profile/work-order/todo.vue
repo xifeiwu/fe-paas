@@ -599,11 +599,11 @@
         }
         if (this.searchForm.dateRange) {
           let dateRange = this.searchForm.dateRange.map(it => {
-            let v = this.$utils.formatDate(it, 'yyyy-MM-dd hh:mm:ss')
+            let v = this.$utils.formatDate(it, 'yyyy-MM-dd')
             return v;
           });
-          options.startTime = dateRange[0];
-          options.endTime = dateRange[1];
+          options.startTime = dateRange[0] + ' 00:00:00';
+          options.endTime = dateRange[1] + ' 23:59:59';
         } else {
           options.startTime = '';
           options.endTime = '';

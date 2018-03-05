@@ -1171,6 +1171,7 @@ class Net {
       userAcceptedList: {
         status: {
           NO_HANDLE: '未处理',
+          HANDLEING: '处理中',
           PASS: '通过'
         }
       },
