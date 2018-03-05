@@ -262,6 +262,8 @@
     },
     methods: {
       onAppInfoListOfGroup(value, oldValue) {
+        // go to first page
+        this.currentPage = 1;
         this.getFromStore && this.requestAPPList({});
 
         // get the count of app of current user
@@ -321,7 +323,7 @@
         switch (action) {
           case 'deleteRow':
             this.warningConfirm(`删除应用${row.serviceName}将会销毁所有环境的代码和配置信息，
-            解绑所有公网域名、IP白名单，删除后应用数据不可回复！`).then(() => {
+            解绑所有公网域名、IP白名单，删除后应用数据不可恢复！`).then(() => {
               this.warningConfirm(`您确认要删除应用${row.serviceName}，并清除该应用的一切数据？`).then(() => {
                 this.$net.deleteAPP({
                   groupId: this.$storeHelper.currentGroupID,

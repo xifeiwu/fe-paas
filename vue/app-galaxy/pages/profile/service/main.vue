@@ -70,13 +70,13 @@
         <el-table-column
           prop="intranetDomain"
           label="内网域名"
-          headerAlign="left" align="left"
+          headerAlign="center" align="center"
         >
         </el-table-column>
         <el-table-column
           prop="applicationServiceStatus"
-          label="状态"
-          width="80"
+          label="运行实例数/总实例数"
+          width="160"
           headerAlign="center" align="center"
         >
         </el-table-column>

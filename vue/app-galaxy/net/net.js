@@ -1098,6 +1098,7 @@ class Net {
             })
           }
           resolve(content);
+          this.showLog('getWorkOrderList', content);
         } else {
           reject('error: getWorkOrderToDoList');
         }

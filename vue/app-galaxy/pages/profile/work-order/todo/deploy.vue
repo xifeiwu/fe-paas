@@ -188,7 +188,7 @@
                 });
               }
             }).catch(err => {
-              this.$notify({
+              this.$notify.error({
                 title: '部署失败',
                 message: err,
                 duration: 0,
