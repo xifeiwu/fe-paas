@@ -90,6 +90,8 @@ var urlList = {
   'service_update_host': apiPath + '/service/updateHostIp',
   // 更改OneAPM
   'service_update_one_apm': apiPath + '/service/updateOneApm',
+  // 更改VM_Options
+  'service_update_vm_options': apiPath + '/service/updateVMOptions',
 
   /** 实例相关*/
   // 获取实例列表

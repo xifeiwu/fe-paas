@@ -525,7 +525,8 @@ class Net {
           gitLabAddress: it.gitLabAddress,
           gitLabBranch: it.gitLabBranch,
           mavenProfileId: it.mavenProfileId,
-          fileLocation: it.fileLocation ? it.fileLocation : []
+          fileLocation: it.fileLocation ? it.fileLocation : [],
+          vmOptions: it.vmOptions
         })
       });
       return modelList;
@@ -673,6 +674,7 @@ class Net {
       'environments': URL_LIST.service_update_environment,
       'hosts': URL_LIST.service_update_host,
       'oneApm': URL_LIST.service_update_one_apm,
+      'vmOptions': URL_LIST.service_update_vm_options
     };
     let url = urlMap[prop];
     // console.log(url);

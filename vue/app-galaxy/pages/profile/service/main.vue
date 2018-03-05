@@ -159,7 +159,7 @@
                     <span style="padding-left: 12px; color: #409EFF">基础镜像地址：</span><span>{{selected.service.image.location}} </span>
                     <i class="el-icon-edit" @click="handleChangeProp('image')"></i>
                   </el-form-item>
-                  <el-form-item label="gitlab地址：">
+                  <el-form-item label="gitlab_ssh地址：">
                     <span>{{valueToShow(selected.service.gitLabAddress)}}</span>
                     <i class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
                   </el-form-item>
@@ -176,7 +176,7 @@
                 </el-form>
               </div>
               <div class="instance-info">
-                <div class="title">实例规格</div>
+                <div class="title">实例信息</div>
                 <el-form label-position="right" label-width="140px" inline size="mini">
                   <el-form-item label="CPU/内存：">
                     {{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}
@@ -206,6 +206,10 @@
                       <span>未设置</span>
                       <i class="el-icon-edit" @click="handleChangeProp('fileLocation')"></i>
                     </div>
+                  </el-form-item>
+                  <el-form-item label="VM_Options：" v-if="selectedAPP.isJavaLanguage">
+                    {{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}
+                    <i class="el-icon-edit" @click="handleChangeProp('vmOptions')"></i>
                   </el-form-item>
                   <el-form-item label="环境变量配置：" class="big">
                     <div v-if="selected.service.environments && selected.service.environments.length > 0">
@@ -367,6 +371,39 @@
       </div>
     </el-dialog>
 
+
+    <el-dialog title="更改VM_Options" :visible="selected.prop == 'vmOptions'"
+               @close="selected.prop = null"
+               class="gitlab-address"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改VM_Options后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeVmOptionsForm" size="mini">
+        <el-form-item label="当前VM_Options：">
+          {{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}
+        </el-form-item>
+        <el-form-item label="更改VM_Options为：" prop="vmOptions">
+          <el-input v-model="newProps.vmOptions" placeholder=""></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('vmOptions')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
     <el-dialog title="修改环境变量" :visible="selected.prop == 'environments'"
                @close="selected.prop = null"
                class="environments"
@@ -474,7 +511,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="更改gitlab地址" :visible="selected.prop == 'gitLabAddress'"
+    <el-dialog title="更改gitlab_ssh地址" :visible="selected.prop == 'gitLabAddress'"
                @close="selected.prop = null"
                class="gitlab-address"
                v-if="selected.service && selected.model"
@@ -484,10 +521,10 @@
         <span>更改Gitlab_ssh后需要重新【部署】才能生效！</span>
       </el-tag>
         <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeGitLabAddressForm" size="mini">
-          <el-form-item label="当前gitlab地址：">
+          <el-form-item label="当前gitlab_ssh地址：">
             {{selected.model.gitLabAddress}}
           </el-form-item>
-          <el-form-item label="更改gitlab地址为：" prop="gitLabAddress">
+          <el-form-item label="更改gitlab_ssh地址为：" prop="gitLabAddress">
             <el-input v-model="newProps.gitLabAddress" placeholder=""></el-input>
           </el-form-item>
         </el-form>
@@ -1072,6 +1109,7 @@ export default {
         gitLabBranch: '',
         mavenProfileId: '',
         fileLocation: [],
+        vmOptions: '',
         oneApm: '',
       },
       waitingResponse: false,
@@ -1536,7 +1574,7 @@ export default {
     handleChangeProp(prop) {
       if (['healthCheck', 'image','gitLabAddress', 'gitLabBranch', 'mavenProfileId',
           'cpuAndMemory', 'rollingUpdate', 'loadBalance', 'environments', 'hosts',
-          'fileLocation', 'oneApm'].indexOf(prop) == -1) {
+          'fileLocation', 'vmOptions', 'oneApm'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
         return;
       }
@@ -1550,6 +1588,7 @@ export default {
         case 'rollingUpdate':
         case 'loadBalance':
         case 'oneApm':
+        case 'vmOptions':
           this.newProps[prop] = this.selected.model[prop];
           this.$refs.hasOwnProperty(formName) &&
           this.$refs[formName].validate();
@@ -1589,6 +1628,7 @@ export default {
         case 'rollingUpdate':
         case 'loadBalance':
         case 'oneApm':
+        case 'vmOptions':
           this.$refs[formName].validate((valid) => {
             if (!valid) {
               return;
@@ -1693,6 +1733,7 @@ export default {
         case 'environments':
         case 'hosts':
         case 'oneApm':
+        case 'vmOptions':
           let propMap = {
             'fileLocation': 'volumes',
             'oneApm': 'oneapm'
@@ -1714,7 +1755,6 @@ export default {
         default:
           break;
       }
-      
       if (Object.keys(options).length > 3) {
         this.$net.serviceUpdate(prop, options).then(msg => {
           this.waitingResponse = false;
@@ -1756,6 +1796,7 @@ export default {
         case 'gitLabBranch':
         case 'mavenProfileId':
         case 'oneApm':
+        case 'vmOptions':
           this.selected.model[prop] = this.newProps[prop];
           this.selected.service[prop] = this.newProps[prop];
           break;
