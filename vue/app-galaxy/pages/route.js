@@ -1,5 +1,6 @@
 var path = require('path');
 import Login from './login.vue';
+import Index from './index.vue';
 import Profile from './profile.vue';
 import AppMain from './profile/app/main.vue';
 import AppAdd from './profile/app/add.vue';
@@ -45,6 +46,11 @@ import UserInfo from './user/info.vue';
  */
 var Router = function () {
   this.componentList = {
+    'index': {
+      path: '/index',
+      name: '凡普云首页',
+      component: Index,
+    },
     'login': {
       path: '/login',
       name: '登录',
