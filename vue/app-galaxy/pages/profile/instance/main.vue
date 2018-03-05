@@ -25,7 +25,7 @@
         </el-table-column>
         <el-table-column
                 prop="status"
-                label="状态"
+                label="健康状态"
                 width="80"
         >
         </el-table-column>

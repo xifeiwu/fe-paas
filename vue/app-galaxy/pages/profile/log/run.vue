@@ -225,12 +225,13 @@
           spaceId: '',
           serviceVersion: '',
           instanceName: '',
-          logLevel: '全部',
+          logLevel: 'INFO',
           dateTimeRange: [],
           keyword: '',
         },
 
-        logLevelList: ['全部','DEBUG', 'INFO', 'WARNING', 'ERROR'],
+        DEFAULT_LEVEL: 'INFO',
+        logLevelList: ['DEBUG', 'INFO', 'WARNING', 'ERROR'],
 //        defaultTime: start.getTime() - 3600 * 1000 * 24 * 7,
         pickerOptions2: {
           shortcuts: [{
@@ -319,7 +320,7 @@
         // reset instance name
         this.searchForm.instanceName = '';
         // reset log level
-        this.searchForm.logLevel = '全部';
+        this.searchForm.logLevel = this.DEFAULT_LEVEL;
         // reset key work
         this.searchForm.keyword = '';
         // request log after reset
@@ -377,7 +378,7 @@
           appId: this.searchForm.appId,
           spaceId: this.searchForm.spaceId,
           serviceVersion: this.searchForm.serviceVersion,
-          logLevel: this.searchForm.logLevel==='全部' ? '':this.searchForm.logLevel,
+          logLevel: this.searchForm.logLevel,
           startTime: dateRange[0],
           endTime: dateRange[1],
           keyword: this.searchForm.keyword,
