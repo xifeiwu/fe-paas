@@ -44,7 +44,7 @@
             </el-breadcrumb>
           </el-col>
           <el-col :span="12" class="group-list">
-            <el-select v-model="$storeHelper.currentGroupID" filterable placeholder="请选择">
+            <el-select v-model="$storeHelper.currentGroupID" filterable placeholder="请选择" v-if="showGroupList">
               <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
@@ -144,7 +144,8 @@
         margin-left: $aside-width;
         .el-row.main-header {
           border-bottom: 1px solid $header-background-color;
-          padding: 5px;
+          padding: 3px;
+          min-height:39px;
           .el-col {
             &:nth-child(1) {
               padding-left: 6px;
@@ -174,6 +175,8 @@
       return {
         activeSideMenuItem: '/profile/app',
         crumbList: [],
+
+        showGroupList: true,
       }
     },
     created() {
@@ -198,7 +201,7 @@
       this.$nextTick(() => {
         this.$store.dispatch('app/usersAll');
       });
-      this.updateCrumbList(this.$route.path);
+      this.onRoutePath(this.$route);
     },
     mounted() {
       this.$nextTick(() => {
@@ -223,11 +226,30 @@
       }
     },
     watch: {
-      '$route': function (value, oldValue) {
-        this.updateCrumbList(value.path);
-      },
+      '$route': 'onRoutePath',
     },
     methods: {
+      onRoutePath (value, oldValue) {
+        let path = value.path;
+        let pathReg = /^\/profile\/([\w-\/]*)$/i;
+        let execResult = pathReg.exec(path);
+        console.log(execResult);
+        if (execResult && execResult.length >= 2) {
+          let relativePath = execResult[1];
+          if (relativePath.length > 0) {
+          // whether show groupList
+          let pageNotShowGroupList = ['app/add', 'service/add'];
+          let pageNotShowGroupListReg = /^work-order\/todo.*$/;
+          if (pageNotShowGroupList.indexOf(relativePath) > -1 || pageNotShowGroupListReg.exec(relativePath)) {
+            this.showGroupList = false;
+          } else {
+            this.showGroupList = true;
+          }
+          // update content of crumb list
+          this.updateCrumbList(relativePath);
+          }
+        }
+      },
       /**
        * register some global variable at start of page profile
        */
@@ -286,28 +308,24 @@
        * /profile/service/add
        * /profile/service -> 服务管理
        * /profile/service/add -> 添加服务
-       * @param path
+       * @param relativePath: url path without /profile
        */
-      updateCrumbList(path) {
+      updateCrumbList(relativePath) {
         // url中只能包括：\w(字母或数字、下划线、汉字)或中划线
-        let pathReg = /^\/profile\/([\w-\/]*)$/i;
-        let execResult = pathReg.exec(path);
-        if (execResult && execResult.length >= 2) {
-          let curPath = '/profile/';
-          this.crumbList = [];
-          execResult[1].split('/').forEach((it, index) => {
-            let path = curPath + it;
-            // set active aside menu item by the first url after /profile, such as:
-            // /profile/domain -> 外网域名
-            if (index === 0) {
-              this.activeSideMenuItem = path;
-            }
-            if (path in this.routerPathToName) {
-              this.crumbList.push(path);
-            }
-            curPath = curPath + it + '/';
-          });
-        }
+        let curPath = '/profile/';
+        this.crumbList = [];
+        relativePath.split('/').forEach((it, index) => {
+          let path = curPath + it;
+          // set active aside menu item by the first url after /profile, such as:
+          // /profile/domain -> 外网域名
+          if (index === 0) {
+            this.activeSideMenuItem = path;
+          }
+          if (path in this.routerPathToName) {
+            this.crumbList.push(path);
+          }
+          curPath = curPath + it + '/';
+        });
       },
       handleOpen(key, keyPath) {
         console.log(key, keyPath);
