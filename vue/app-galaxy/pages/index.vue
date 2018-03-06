@@ -1,5 +1,5 @@
 <template>
-  <el-container id="index">
+  <el-container id="index" direction="vertical">
     <el-row class="el-header" height="45px" type="flex" justify="center" align="middle">
       <el-col :span=12 class="first-col">
         <div class="img">picture</div>
@@ -9,7 +9,7 @@
                  mode="horizontal"
                  menuTrigger="click"
                  @select="handleHeaderMenuClick"
-                 defaultActive="profile"
+                 defaultActive="index"
         >
           <el-menu-item index="index">首页</el-menu-item>
           <el-submenu index="user">
@@ -20,30 +20,32 @@
           <el-menu-item index="help">帮助文档</el-menu-item>
           <el-menu-item index="profile">控制台</el-menu-item>
         </el-menu>
-        <div class="login">登录</div>
+        <div class="login" @click="handleHeaderMenuClick(null, ['login'])">登录</div>
       </el-col>
     </el-row>
     <el-main>
       <section class="poster">
         <img src="/assets/imgs/galaxy/index/poster.png">
       </section>
-      <section class="intro">
+      <section class="introduce">
         <div class="title">产品介绍</div>
         <el-row class="docker" type="flex" justify="space-between" align="middle">
           <img src="/assets/imgs/galaxy/index/docker.png">
           <div class="intro">
             <div class="summary">{{dockerIntro.title}}</div>
             <ul>
-              <li v-for="(item, key) in dockerIntro.list">{{item}}</li>
+              <li v-for="(item, key) in dockerIntro.detail">{{item}}</li>
             </ul>
+            <el-button type="primary" round size="mini">立即使用</el-button>
           </div>
         </el-row>
         <el-row class="storage" type="flex" justify="space-between" align="middle">
           <div class="intro">
             <div class="summary">{{storageIntro.title}}</div>
             <ul>
-              <li v-for="(item, key) in storageIntro.list">{{item}}</li>
+              <li v-for="(item, key) in storageIntro.detail">{{item}}</li>
             </ul>
+            <el-button round disabled size="mini">敬请期待</el-button>
           </div>
           <img src="/assets/imgs/galaxy/index/storage.png">
         </el-row>
@@ -52,20 +54,102 @@
           <div class="intro">
             <div class="summary">{{communicationIntro.title}}</div>
             <ul>
-              <li v-for="(item, key) in communicationIntro.list">{{item}}</li>
+              <li v-for="(item, key) in communicationIntro.detail">{{item}}</li>
             </ul>
+            <el-button round disabled size="mini">敬请期待</el-button>
           </div>
         </el-row>
       </section>
-      <section>
+      <section class="feature">
         <div class="title">产品特色</div>
+        <el-row>
+          <el-col :span="6">
+            <div class="card card1">
+              <div class="icon"></div>
+              <div class="title">{{features[0].title}}</div>
+              <div class="detail">{{features[0].detail}}</div>
+            </div>
+          </el-col>
+          <el-col :span="6">
+            <div class="card card2">
+              <div class="icon custom"></div>
+              <div class="title">{{features[1].title}}</div>
+              <div class="detail">{{features[1].detail}}</div>
+            </div>
+          </el-col>
+          <el-col :span="6">
+            <div class="card card3">
+              <div class="icon"></div>
+              <div class="title">{{features[2].title}}</div>
+              <div class="detail">{{features[2].detail}}</div>
+            </div>
+          </el-col>
+          <el-col :span="6">
+            <div class="card card4">
+              <div class="icon"></div>
+              <div class="title">{{features[3].title}}</div>
+              <div class="detail">{{features[3].detail}}</div>
+            </div>
+          </el-col>
+        </el-row>
+      </section>
+      <section class="footer">
+        <div class="row">
+          <div class="col">
+            <div class="title">{{footer[0].title}}</div>
+            <ul>
+              <li class="linker" @click="handleClick('go-to-profile')">应用引擎</li>
+              <li>对象存储</li>
+              <li>应用引擎</li>
+            </ul>
+          </div>
+          <div class="col">
+            <div class="title">{{footer[1].title}}</div>
+            <ul>
+              <li v-for="(item, key) in footer[1].list">
+                {{item}}
+              </li>
+            </ul>
+          </div>
+          <div class="col">
+            <div class="title">{{footer[2].title}}</div>
+            <ul>
+              <li v-for="(item, key) in footer[2].list">
+                {{item}}
+              </li>
+            </ul>
+          </div>
+        </div>
       </section>
     </el-main>
-    <el-footer>Footer</el-footer>
+    <el-footer height="0px"></el-footer>
   </el-container>
 </template>
-
 <style lang="scss">
+  $header-height: 60px;
+  $header-background-color: #e7e7e7;
+  $aside-width: 180px;
+  $menu-font-size: 16px;
+  $menu-height: 45px;
+  #index.el-container {
+    .el-row.el-header {
+      .el-col {
+        &.second-col {
+          .el-menu.header-menu {
+            .el-submenu {
+              .el-submenu__title {
+                height: 100%;
+                font-size: $menu-font-size;
+                line-height: $menu-height;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+</style>
+<style lang="scss" scoped>
 $header-height: 60px;
 $header-background-color: #e7e7e7;
 $aside-width: 180px;
@@ -97,9 +181,9 @@ $menu-height: 45px;
           .el-submenu {
             height: $menu-height;
             .el-submenu__title {
+              height: 100%;
               font-size: $menu-font-size;
               line-height: $menu-height;
-              /*height: 100%;*/
             }
             .el-menu {
               top: $menu-height + 5;
@@ -124,31 +208,27 @@ $menu-height: 45px;
       img {
         width: 100%;
       }
-      /*background-image: url(/assets/imgs/galaxy/index/poster.png);*/
-      /*background-position: center;*/
-      /*background-repeat: no-repeat;*/
-      /*background-size: cover;*/
     }
-    section.intro {
+    section.introduce {
       width: 80%;
-      max-width: 850px;
-      margin: 5px auto;
+      max-width: 700px;
+      margin: 20px auto;
       .title {
         display: inline-block;
         margin-bottom: 10px;
-        font-size: 16px;
+        font-size: 20px;
         color: #4A4A4A;
         border-bottom: 1px solid #4E8CEE;
       }
       .el-row {
-        margin: 10px 0px;
+        margin: 20px 0px;
         img {
-          width: 360px;
+          width: 240px;
         }
         .intro {
-          max-width: 450px;
+          max-width: 400px;
           .summary {
-            font-size: 18px;
+            font-size: 16px;
             color: #4A4A4A;
             margin-bottom: 8px;
             font-weight: bold;
@@ -156,21 +236,123 @@ $menu-height: 45px;
           ul {
             list-style: disc;
             margin-left: 20px;
+            font-size: 14px;
+          }
+          .el-button {
+            margin-left: 10px;
+            margin-top: 10px;
+          }
+        }
+      }
+    }
+    section.feature {
+      width: 80%;
+      max-width: 840px;
+      margin: 20px auto;
+      .title {
+        display: inline-block;
+        margin-bottom: 20px;
+        font-size: 20px;
+        color: #4A4A4A;
+        border-bottom: 1px solid #4E8CEE;
+      }
+      .el-row {
+        .el-col {
+          padding: 0px 10px;
+          .card {
+            border:1px solid #eaeefb;
+            padding: 20px 10px;
+            border-radius:5px;
+            box-sizing: border-box;
+            text-align: center;
+            position: relative;
+            bottom: 0;
+            transition: all .3s ease-in-out;
+            &:hover {
+              bottom: 6px;
+              box-shadow: 0 6px 18px 0 rgba(232,237,250,0.50);
+            }
+            .title {
+              display: block;
+              margin: 10px 0px;
+              font-size: 16px;
+              text-decoration: none;
+              border-width: 0px;
+              text-align: center;
+            }
+            .detail {
+              color: #9B9B9B;
+              font-size: 12px;
+              text-align: center;
+            }
+            .icon {
+              width: 80px;
+              height: 80px;
+              margin: 0px auto;
+              background-image: url(/assets/imgs/galaxy/index/feature-icons.png);
+              background-repeat: no-repeat;
+              background-size: cover;
+            }
+            &.card1 {
+              .icon {
+                background-position: 0px 0px;
+              }
+            }
+            &.card2 {
+              .icon {
+                background-position: -80px 0px;
+              }
+
+            }
+            &.card3 {
+              .icon {
+                width: 83px;
+                background-position: -159px 0px;
+              }
+            }
+            &.card4 {
+              .icon {
+                background-position: -242px 0px;
+              }
+            }
+          }
+        }
+      }
+    }
+    section.footer {
+      background-color: #3E3E3E;
+      height: 200px;
+      padding-top: 40px;
+      .row {
+        width: 400px;
+        display: flex;
+        margin: 0px auto;
+        justify-content: space-between;
+        align-items: flex-start;
+        .col {
+          display: inline-block;
+          text-align: center;
+          .title {
+            font-size: 14px;
+            line-height: 36px;
+            color: white;
+          }
+          ul li {
+            &.linker {
+              cursor: pointer;
+              &:hover {
+                color: white;
+              }
+            }
+            font-size: 12px;
+            line-height: 20px;
+            color: #818181;
           }
         }
       }
     }
   }
 }
-  /*.el-header {*/
-    /*padding: 0px;*/
-    /*.img {*/
-      /*float: left*/
-    /*}*/
-    /*.el-menu {*/
-      /*float: right;*/
-    /*}*/
-  /*}*/
 </style>
 
 <script>
@@ -179,7 +361,7 @@ $menu-height: 45px;
       return {
         dockerIntro: {
           title: '基于容器技术快速构建云原生应用开发及运行平台',
-          list: [
+          detail: [
             '支持Java，PHP、Node.JS语言，提供应用开发所需全部服务的高效开发和运营托管平台；',
             '支持CI、CD，加速应用迭代；',
             '弹性扩展，负载均衡智能应对大数据处理请求；',
@@ -190,7 +372,7 @@ $menu-height: 45px;
         },
         storageIntro: {
           title: '为应用提供海量、安全、稳定的存储服务',
-          list: [
+          detail: [
             '支持各种结构的的数据存储；',
             '支持标准的Restful API接口；',
             '访问速度快、易扩展；',
@@ -201,7 +383,7 @@ $menu-height: 45px;
         },
         communicationIntro: {
           title: '为应用提供优质的通信服务能力',
-          list: [
+          detail: [
             '支持短信验证码、短信通知等场景；',
             '支持大容量、高并发通知；',
             '三网合一的专属的短信通道；',
@@ -209,12 +391,57 @@ $menu-height: 45px;
             '实时监控发送状态和数据；',
             '服务便捷、高效、稳定',
           ]
-        }
+        },
+        features: [{
+          title: '简单易用',
+          detail: '一键创建应用，自动部署， 持续集成、交付的 一站式应用运营和管理'
+        }, {
+          title: '安全可靠',
+          detail: '成熟可靠的技术架构，多重防护机制，多地互备，7*24小时全方位监控'
+        }, {
+          title: '丰富兼容',
+          detail: '镜像类型丰富，支持应用无缝迁移，持续为应用提供完整的计算、存储服务'
+        }, {
+          title: '按需所用',
+          detail: '按应用所需效率灵活自动扩展资源，保障业务的高可靠性、可用性'
+        }],
+        footer: [{
+          title: '产品',
+          list: ['应用引擎', '对象存储', '通信服务']
+        }, {
+          title: '帮助文档',
+          list: ['快速上手', '常见问题', '版本更新']
+        }, {
+          title: '关于凡普云',
+          list: ['平台架构', '用户协议']
+        }]
       }
     },
     methods: {
       handleHeaderMenuClick(key, keyPath) {
         keyPath = keyPath.join('/');
+        switch (keyPath) {
+          case 'profile':
+          case 'user/app':
+          case 'login':
+            this.$router.push({
+              path: '/profile/app',
+              query: {
+              }
+            });
+            break;
+        }
+      },
+      handleClick(action) {
+        switch (action) {
+          case 'go-to-profile':
+            this.$router.push({
+              path: '/profile/app',
+              query: {
+              }
+            });
+            break;
+        }
       }
     }
   }
