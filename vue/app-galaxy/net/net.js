@@ -277,6 +277,9 @@ class Net {
               it['isJavaLanguage'] = it.hasOwnProperty('language') && 'JAVA' == it.language;
               it.appName = it.tag;
               it.serviceName = it.tag;
+              if (it.hasOwnProperty('appName')) {
+                it.serviceName = it.appName;
+              }
             });
             content.appModelList = getAppModelList(appList);
           }

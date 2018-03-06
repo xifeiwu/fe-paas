@@ -22,7 +22,7 @@ var multiPageConfig = {
   "templates": [
     {
       "name": "galaxy",
-      "title": "Galaxy",
+      "title": "凡普云平台",
       "cdn": {
         "js": [
           // '/cdn.jsdelivr.net/npm/vue@2.5.2/dist/vue.runtime.min.js',
@@ -35,7 +35,7 @@ var multiPageConfig = {
     },
     {
       "name": "terminal",
-      "title": "terminal",
+      "title": "实例终端",
       "cdn": {
         "js": [
           // '/cdn.jsdelivr.net/npm/vue@2.5.2/dist/vue.runtime.min.js',

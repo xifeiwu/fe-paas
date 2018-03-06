@@ -119,16 +119,16 @@ exports.chunksAndTemplates = () => {
   let htmlConfigs = [
     {
       "filename": "galaxy.html",
-      "title": "Galaxy",
+      "title": "凡普云平台",
       "cdn": {
-        "js": ['/assets/libs/lodash/lodash.min.js'],
+        "js": [],
         "css": []
       },
       "chunks": ["galaxy"],
     },
     {
       "filename": "terminal.html",
-      "title": "terminal",
+      "title": "实例终端",
       "cdn": {
         "js": ['/assets/libs/gateone.js'],
         "css": []

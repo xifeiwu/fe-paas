@@ -36,7 +36,7 @@
             <ul>
               <li v-for="(item, key) in dockerIntro.detail">{{item}}</li>
             </ul>
-            <el-button type="primary" round size="mini">立即使用</el-button>
+            <el-button type="primary" round size="mini" @click="handleClick('go-to-profile')">立即使用</el-button>
           </div>
         </el-row>
         <el-row class="storage" type="flex" justify="space-between" align="middle">

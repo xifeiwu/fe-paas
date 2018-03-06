@@ -430,10 +430,10 @@ class AppInfoHelper {
     };
     let keyMap = {
       instanceCount: 'instanceNum',
-      appName: 'tag',
-      projectName: 'serviceName',
+      // appName: 'tag',
+      // projectName: 'serviceName',
       // appName: 'serviceName',
-      // projectName: 'tag',
+      projectName: 'tag',
 
       profiles: 'spaceList',
       buildType: 'packageType',
