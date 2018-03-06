@@ -1,7 +1,9 @@
 <template>
   <el-container id="profile">
     <el-header height="45px">
-      <div class="img">picture</div>
+      <div class="img" @click="handleHeaderMenuClick(null, ['index'])">
+        <img src="/assets/imgs/finup-cloud.png" width="180px">
+      </div>
       <el-menu class="header-menu"
                mode="horizontal"
                menuTrigger="click"
@@ -61,7 +63,9 @@
 
 <style lang="scss">
   $header-height: 45px;
+  $header-background-color: #3976EF;
   $header-background-color: #e7e7e7;
+  $split-line-color: #e7e7e7;
   $aside-width: 180px;
   #profile.el-container {
     .el-header {
@@ -95,17 +99,21 @@
     }
   }
   $header-height: 45px;
+  $header-background-color: #3976EF;
   $header-background-color: #e7e7e7;
+  $split-line-color: #e7e7e7;
   $aside-width: 180px;
   #profile.el-container {
     height: 100%;
     .el-header {
       background-color: $header-background-color;
+      padding-left: 0px;
       color: #333;
       text-align: center;
       .img {
         float: left;
         line-height: $header-height;
+        /*background-color: white;*/
       }
       .el-menu.header-menu {
         background-color: transparent;
@@ -127,7 +135,7 @@
         position: fixed;
         top: $header-height;
         bottom: 0px;
-        border-right: solid 1px $header-background-color;
+        border-right: solid 1px $split-line-color;
         .el-menu {
           border-width: 0px;
           .el-menu-item {
@@ -144,7 +152,7 @@
         padding: 0px;
         margin-left: $aside-width;
         .el-row.main-header {
-          border-bottom: 1px solid $header-background-color;
+          border-bottom: 1px solid $split-line-color;
           padding: 3px;
           min-height:39px;
           .el-col {
@@ -287,6 +295,9 @@
             break;
           case 'profile':
             this.$router.push('/profile');
+            break;
+          case 'index':
+            this.$router.push('/index');
             break;
         }
       },

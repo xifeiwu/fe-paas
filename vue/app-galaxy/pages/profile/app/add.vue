@@ -281,7 +281,7 @@ export default {
 //          console.log('toPost');
 //          console.log(toPost);
           this.showLoading = true;
-          this.loadingText = '正在为您创建应用' + toPost.serviceName;
+          this.loadingText = '正在为您创建应用' + toPost.appName;
           this.$net.createAPP(toPost).then((content) => {
             this.showLoading = false;
             // update appInfoList after create app success
@@ -291,7 +291,7 @@ export default {
             });
             this.$message({
               type: 'success',
-              message: '应用' + toPost.serviceName + '创建成功！'
+              message: '应用' + toPost.appName + '创建成功！'
             });
             this.$router.push('/profile/app');
           }).catch((err) => {

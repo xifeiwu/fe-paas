@@ -1,8 +1,10 @@
 <template>
   <el-container id="index" direction="vertical">
-    <el-row class="el-header" height="45px" type="flex" justify="center" align="middle">
+    <el-row class="el-header" width="180px" type="flex" justify="center" align="middle">
       <el-col :span=12 class="first-col">
-        <div class="img">picture</div>
+        <div class="img" @click="handleHeaderMenuClick(null, ['index'])">
+          <img src="/assets/imgs/finup-cloud.png" height="45px">
+        </div>
       </el-col>
       <el-col :span="12" class="second-col">
         <el-menu class="header-menu"
@@ -142,6 +144,12 @@
                 font-size: $menu-font-size;
                 line-height: $menu-height;
               }
+              .el-menu {
+                top: 50px;
+                .el-menu-item {
+                  text-align: left;
+                }
+              }
             }
           }
         }
@@ -180,17 +188,11 @@ $menu-height: 45px;
           }
           .el-submenu {
             height: $menu-height;
-            .el-submenu__title {
-              height: 100%;
-              font-size: $menu-font-size;
-              line-height: $menu-height;
-            }
-            .el-menu {
-              top: $menu-height + 5;
-              .el-menu-item {
-                text-align: left;
-              }
-            }
+            /*<!--.el-submenu__title {-->*/
+              /*<!--height: 100%;-->*/
+              /*<!--font-size: $menu-font-size;-->*/
+              /*<!--line-height: $menu-height;-->*/
+            /*<!--}-->*/
           }
         }
         .login {
