@@ -38,6 +38,7 @@ var urlList = {
   'get_profile_of_group': apiPath + '/space/querySpaceByGroupId',
   'get_cpu_and_memory_config': apiPath + '/cpuAndMemory/queryCpuAndMemory',
   'get_all_language': apiPath + '/language/queryAllLanguage',
+  'change_app_name': apiPath + '/application/updateAppName',
   'change_profile': apiPath + '/application/update',
 
   /** 服务相关 */

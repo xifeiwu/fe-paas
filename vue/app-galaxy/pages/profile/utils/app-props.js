@@ -115,8 +115,15 @@ class AppInfoHelper {
         required: true,
         message: '请选择团队',
       }],
-      // 运行环境
+      // 运行环境, will be replaced
       profiles: [{
+        type: 'array',
+        required: true,
+        message: '请选择至少一个运行环境',
+        trigger: 'blur'
+      }],
+      // 运行环境
+      profileNames: [{
         type: 'array',
         required: true,
         message: '请选择至少一个运行环境',

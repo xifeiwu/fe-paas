@@ -12,7 +12,7 @@
       >
         <el-menu-item index="profile">控制台</el-menu-item>
         <el-menu-item index="message">消息中心</el-menu-item>
-        <el-submenu index="user" withDrawOnMouseLeave="true">
+        <el-submenu index="user" :withDrawOnMouseLeave="true">
           <template slot="title">{{userName}}</template>
           <el-menu-item index="info">用户信息</el-menu-item>
           <el-menu-item index="logout">退出</el-menu-item>

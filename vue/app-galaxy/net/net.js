@@ -250,7 +250,8 @@ class Net {
       appList.forEach(app => {
         appModelList.push({
           'appId': app.appId,
-          'profiles':
+          'appName': app.appName,
+          'profileNames':
             app.profileList ? app.profileList.filter(it => {
               return '' != it.name && '' != it.description
             }).map(it => {
@@ -272,13 +273,16 @@ class Net {
             appList.forEach(it => {
               it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
               // utils.renameProperty(it, 'spaceList', 'profileList');
+              it['profileNames'] = this.$utils.cloneDeep(it.spaceList);
               it['profileList'] = this.$storeHelper.getProfileInfoListByNameList(it.spaceList);
               // if the language of this app is JAVA
               it['isJavaLanguage'] = it.hasOwnProperty('language') && 'JAVA' == it.language;
-              it.appName = it.tag;
-              it.serviceName = it.tag;
+              // it.appName = it.tag;
+              // it.serviceName = it.tag;
               if (it.hasOwnProperty('appName')) {
                 it.serviceName = it.appName;
+              } else {
+                it.appName = it.serviceName;
               }
             });
             content.appModelList = getAppModelList(appList);
@@ -487,9 +491,38 @@ class Net {
     });
   }
 
+  // TODO: not used
   changeProfile(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.change_profile, options).then(response => {
+        if ('data' in response) {
+          let data = response.data;
+          if (0 === data.code) {
+            let msg = data.msg ? data.msg : '修改成功';
+            resolve(msg);
+          } else {
+            reject(data.msg);
+          }
+        }
+      }).catch(err => {
+        console.log(err);
+      });
+    });
+  }
+
+  appUpdate(prop, options) {
+    let urlList = {
+      appName: URL_LIST.change_app_name,
+      profileNames: URL_LIST.change_profile,
+    };
+    let url = urlList[prop];
+    if (!url) {
+      return new Promise((resolve, reject) => {
+        reject('url not found');
+      })
+    }
+    return new Promise((resolve, reject) => {
+      axios.post(url, options).then(response => {
         if ('data' in response) {
           let data = response.data;
           if (0 === data.code) {
@@ -684,7 +717,9 @@ class Net {
     let url = urlMap[prop];
     // console.log(url);
     if (!url) {
-      return;
+      return new Promise((resolve, reject) => {
+        reject('url not found');
+      });
     }
     return new Promise((resolve, reject) => {
       axios.post(url, options).then(response => {

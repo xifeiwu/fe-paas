@@ -42,6 +42,10 @@
           </template>
         </el-table-column>
         <el-table-column label="应用名称" prop="serviceName" headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <span>{{scope.row.appName}}</span>
+            <i class="el-icon-edit" @click="handleTRButton('change-appName', scope.$index, scope.row)"></i>
+          </template>
         </el-table-column>
         <el-table-column label="创建者" prop="creator" headerAlign="center" align="center">
         </el-table-column>
@@ -50,8 +54,8 @@
         <el-table-column label="运行环境" prop="profileList" minWidth="90" headerAlign="center" align="center">
           <template slot-scope="scope">
             <div v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
-              <span :class="{'profile-item': true, 'active': scope.row.spaceList.indexOf(item.name) > -1}"
-                    @click="jumpToServicePage(scope.$index, scope.row, item, scope.row.spaceList.indexOf(item.name) > -1)"
+              <span :class="{'profile-item': true, 'active': scope.row.profileNames.indexOf(item.name) > -1}"
+                    @click="jumpToServicePage(scope.$index, scope.row, item, scope.row.profileNames.indexOf(item.name) > -1)"
               >{{ item.description }}</span>
             </div>
           </template>
@@ -61,11 +65,11 @@
             <el-button
               size="mini-extral"
               type="danger"
-              @click="handleOperationClick('deleteRow', scope.$index, scope.row)">删除</el-button>
+              @click="handleTRButton('deleteRow', scope.$index, scope.row)">删除</el-button>
             <el-button
               size="mini-extral"
               type="warning"
-              @click="handleOperationClick('change-profiles', scope.$index, scope.row)">更改运行环境</el-button>
+              @click="handleTRButton('change-profileNames', scope.$index, scope.row)">更改运行环境</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -84,18 +88,44 @@
       </div>
     </div>
 
-    <el-dialog title="更改运行环境" :visible="selected.prop == 'profiles'"
-               @close="selected.prop = null"
+    <el-dialog title="更改应用名称" :visible="selected.prop == 'appName'"
+               @close="selected.prop = null; waitingResponse=false"
                v-if="selected.app && selected.model"
     >
-      <el-form :model="newProps" :rules="rules" labelWidth="120px" ref="formInChangeProfileDialog">
+      <el-form :model="newProps" :rules="rules" labelWidth="120px" size="mini" ref="changeAppNameForm">
+        <el-form-item label="当前应用名称：">
+          {{selected.app.appName}}
+        </el-form-item>
+        <el-form-item label="更改为：" prop="appName">
+          <el-input v-model="newProps.appName" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButton('appName')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="更改运行环境" :visible="selected.prop == 'profileNames'"
+               @close="selected.prop = null; waitingResponse=false"
+               v-if="selected.app && selected.model"
+    >
+      <el-form :model="newProps" :rules="rules" labelWidth="120px" size="mini" ref="changeProfileNamesForm">
         <el-form-item label="当前运行环境：">
           <el-tag v-for="item in selected.app.profileList" size="mini" :key="item.name" style="display: inline-block">
             {{item.description}}
           </el-tag>
         </el-form-item>
-        <el-form-item label="更改为：" prop="profiles">
-          <el-checkbox-group v-model="newProps.profiles">
+        <el-form-item label="更改为：" prop="profileNames">
+          <el-checkbox-group v-model="newProps.profileNames">
             <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
               {{item.description}}
             </el-checkbox>
@@ -106,7 +136,7 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleDialogButtonClick('profiles')"
+                       @click="handleDialogButton('profileNames')"
                        :loading="waitingResponse">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -153,6 +183,12 @@
                 color: blue;
                 border-color: blue;
               }
+            }
+          }
+          .el-icon-edit {
+            color: #eb9e05;
+            &:hover {
+              font-weight: bold;
             }
           }
         }
@@ -232,7 +268,8 @@
           model: null,
         },
         newProps: {
-          profiles: [],
+          appName: '',
+          profileNames: [],
         },
         waitingResponse: false,
 
@@ -312,7 +349,7 @@
       /**
        * handle click event in the operation-column
        */
-      handleOperationClick(action, index, row) {
+      handleTRButton(action, index, row) {
         let appInfo = this.$storeHelper.getAppInfoByID(row.appId);
         if (!appInfo) {
           return;
@@ -354,12 +391,13 @@
             }).catch(()=> {
             });
             break;
-          case 'change-profiles':
+          case 'change-profileNames':
+          case 'change-appName':
             let prop = action.split('-')[1];
             this.selected.prop = prop;
-            this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]))
-            this.$refs.hasOwnProperty('formInChangeProfileDialog') &&
-            this.$refs['formInChangeProfileDialog'].validate();
+            this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
+            let formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
+            this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate();
             break;
         }
       },
@@ -368,47 +406,72 @@
        * do some action of ok button in popup-dialog
        * @param prop
        */
-      handleDialogButtonClick(action) {
-        switch (action) {
-          case 'profiles':
-            this.$refs['formInChangeProfileDialog'].validate((valid) => {
+      handleDialogButton(prop) {
+        let formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
+        switch (prop) {
+          case 'appName':
+          case 'profileNames':
+            this.$refs[formName].validate((valid) => {
               if (!valid) {
                 return;
               }
-              if (!this.newProps.hasOwnProperty(action) || !this.selected.model.hasOwnProperty(action)) {
+              if (!this.newProps.hasOwnProperty(prop) || !this.selected.model.hasOwnProperty(prop)) {
                 return;
               }
-              if (this.$utils.theSame(this.newProps[action], this.selected.model[action])) {
+              if (this.$utils.theSame(this.newProps[prop], this.selected.model[prop])) {
                 this.selected.prop = null;
                 this.$message({
                   type: 'warning',
                   message: '您没有做修改'
                 });
               } else {
-                this.waitingResponse = true;
-                this.$net.changeProfile({
-                  id: this.selected.app['appId'],
-                  spaceList: this.newProps['profiles']
-                }).then(msg => {
-                  this.waitingResponse = false;
-                  this.selected.prop = null;
-                  this.$message({
-                    type: 'success',
-                    message: msg
-                  });
-                  this.updateModelInfo(action);
-//                  this.requestAPPList('');
-                }).catch(err => {
-                  this.waitingResponse = false;
-                  this.selected.prop = null;
-                  this.$notify.error({
-                    title: '修改运行环境失败！',
-                    message: err
-                  });
-                })
+                this.requestUpdate(prop);
               }
             });
             break;
+        }
+      },
+      requestUpdate(prop) {
+        this.waitingResponse = true;
+        let options = {
+          id: this.selected.app['appId']
+        };
+        switch (prop) {
+          case 'appName':
+            options['appName'] = this.newProps['appName'];
+            break;
+          case 'profileNames':
+            options['spaceList'] = this.newProps['profileNames'];
+            break;
+        }
+
+        // simulate post
+//        setTimeout(() => {
+//          this.waitingResponse = false;
+//          this.selected.prop = null;
+//          this.updateModelInfo(prop);
+//        }, 1000);
+//        return;
+        if (Object.keys(options).length > 1) {
+          this.$net.appUpdate(prop, options).then(msg => {
+            this.waitingResponse = false;
+            this.selected.prop = null;
+            this.$message({
+              type: 'success',
+              message: msg
+            });
+            this.updateModelInfo(prop);
+          }).catch(err => {
+            this.waitingResponse = false;
+            this.selected.prop = null;
+            this.$notify.error({
+              title: '修改运行环境失败！',
+              message: err,
+              duration: 0,
+              onClose: function () {
+              }
+            });
+          })
         }
       },
       /**
@@ -417,15 +480,19 @@
       updateModelInfo(prop) {
         let newProp = this.newProps[prop];
         switch (prop) {
-          case 'profiles':
+          case 'profileNames':
             this.selected.model[prop] = newProp;
             this.selected.app.profileList = this.profileListOfGroup
               .filter(it => {
                 return newProp.indexOf(it.name) >= 0;
               });
-            this.selected.app.spaceList = this.selected.app.profileList.map(it => {
+            this.selected.app.profileNames = this.selected.app.profileList.map(it => {
               return it.name;
             });
+            break;
+          case 'appName':
+            this.selected.model[prop] = newProp;
+            this.selected.app[prop] = newProp;
             break;
         }
       },
