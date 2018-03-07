@@ -492,6 +492,10 @@
           case 'deploy-log':
             this.addToWaitingResponseQueue('deploy-log');
             WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
+              // NOTICE: set groupID when
+              if (this.$storeHelper.currentGroupID != detail.groupId) {
+                this.$storeHelper.currentGroupID = detail.groupId;
+              }
               this.hideWaitingResponse('deploy-log');
               let productionProfile = this.$storeHelper.getProductionProfile();
               this.$storeHelper.setTmpProp('versionInfo', {
