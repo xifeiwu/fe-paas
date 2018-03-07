@@ -318,11 +318,11 @@
         start.setTime(start.getTime() - 1000 * 60 * 5);
         this.searchForm.dateTimeRange = [start, end];
         // reset instance name
-        this.searchForm.instanceName = '';
+//        this.searchForm.instanceName = '';
         // reset log level
-        this.searchForm.logLevel = this.DEFAULT_LEVEL;
+//        this.searchForm.logLevel = this.DEFAULT_LEVEL;
         // reset key work
-        this.searchForm.keyword = '';
+//        this.searchForm.keyword = '';
         // request log after reset
         this.requestLogAtStart();
       },

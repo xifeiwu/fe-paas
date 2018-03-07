@@ -113,12 +113,14 @@ const actions = {
     state.config = null;
     state.menuList = null;
     state.groupInfo = null;
+    state.groupList = null;
     state.profileListOfGroup = null;
     localStorage.removeItem('user/info');
     localStorage.removeItem('user/config');
     // remove menuList will have affect on UI
     // localStorage.removeItem('user/menuList');
     localStorage.removeItem('user/groupInfo');
+    localStorage.removeItem('user/groupList');
     localStorage.removeItem('user/profileListOfGroup');
   },
 
