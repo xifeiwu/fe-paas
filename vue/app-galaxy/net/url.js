@@ -137,6 +137,8 @@ var urlList = {
   // 工单列表
   'work_order_list': apiPath + '/workOrderDeploy/getWorkOrderDeployList',
   'work_order_todo_list': apiPath + '/workOrderDeploy/getTodoWorkOrderListByUser',
+  // 是否有未处理工单
+  'work_order_in_handling': apiPath + '/workOrderDeploy/validNoEndWorkOrderDeployByAppId',
   // 工单详情
   // 功能列表
   'work_order_detail_feature_list': apiPath + '/workOrderDeployFunction/getWorkOrderDeployFunctions',

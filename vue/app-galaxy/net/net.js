@@ -1175,6 +1175,27 @@ class Net {
   }
 
   /**
+   * 检查是否有正在处理的工单
+   * @param options: {appId:, serviceVersion:}
+   * @returns {Promise}
+   */
+  checkWorkOrderHandling(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.work_order_in_handling, options).then(response => {
+        let responseMsg = this.getResponseMsg(response);
+        if (responseMsg.success) {
+          resolve(responseMsg.msg);
+        } else {
+          reject(responseMsg.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
+  /**
    * 获取工单详情
    */
   getWorkOrderDetail(options) {

@@ -292,6 +292,7 @@
         },
         versionList: [],
         errorForServiceVersion: '',
+        msgForWorkOrderInHandling: '该服务有正在处理的工单'
       };
     },
     computed: {
@@ -322,6 +323,16 @@
         this.$storeHelper.setUserConfig('profile/work-order/appID', value);
       },
       'workOrderDetail.serviceVersion': function () {
+        if (this.workOrderDetail.appID && this.workOrderDetail.serviceVersion) {
+          this.$net.checkWorkOrderHandling({
+            appId: this.workOrderDetail.appID,
+            serviceVersion: this.workOrderDetail.serviceVersion
+          }).then((msg) => {
+            this.errorForServiceVersion = '';
+          }).catch((msg) => {
+            this.errorForServiceVersion = this.msgForWorkOrderInHandling;
+          });
+        }
         this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
         });
       },
@@ -508,6 +519,12 @@
                 return sum && valid;
               });
               if (valid) {
+                // check if a work-order in handling first
+                if (this.errorForServiceVersion === this.msgForWorkOrderInHandling) {
+                  this.$message.error(this.msgForWorkOrderInHandling);
+                  return;
+                }
+                // check the format of el-form-item
                 let toPost = {
                   workOrderDeploy: {
                     name: this.workOrderDetail.name,
@@ -559,7 +576,7 @@
                     emailGroupName: it
                   }
                 });
-                console.log(toPost);
+//                console.log(toPost);
                 this.showLoading = true;
                 this.loadingText = '正在提交工单"' + this.workOrderDetail.name + '"';
                 this.$net.createWorkOrder(toPost).then((msg) => {
