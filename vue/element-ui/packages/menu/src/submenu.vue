@@ -55,6 +55,10 @@
       index: {
         type: String,
         required: true
+      },
+      withDrawOnMouseLeave: {
+        type: Boolean,
+        default: false
       }
     },
 
@@ -160,11 +164,13 @@
       },
       handleMouseleave() {
         const {rootMenu} = this;
-        if (
-          (rootMenu.menuTrigger === 'click' && rootMenu.mode === 'horizontal') ||
-          (!rootMenu.collapse && rootMenu.mode === 'vertical')
-        ) {
-          return;
+        if (!this.withDrawOnMouseLeave) {
+          if (
+            (rootMenu.menuTrigger === 'click' && rootMenu.mode === 'horizontal') ||
+            (!rootMenu.collapse && rootMenu.mode === 'vertical')
+          ) {
+            return;
+          }
         }
         clearTimeout(this.timeout);
         this.timeout = setTimeout(() => {
