@@ -114,10 +114,13 @@
     },
     methods: {
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
-//        console.log(appId, profileID, version);
+        this.deployLogList = [];
+        this.deployLogListByPage = [];
+        if (!appInfo || !profileInfo || !serviceInfo) {
+          return;
+        }
         let profileID = profileInfo.id;
         this.showLoading = true;
-        this.deployLogList = [];
         this.$net.getDeployLogList({
           appId: appInfo.appId,
           spaceId: profileID,

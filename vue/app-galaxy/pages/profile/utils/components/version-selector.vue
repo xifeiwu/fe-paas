@@ -144,6 +144,9 @@
               this.selectedProfileID = firstProfileID;
             }
           }
+        } else {
+          // changeVersion even the length of profileList is zero
+          this.changeVersion(this.selectedAPP, null, null);
         }
 //        this.$setUserConfig('profile/service/appID', appID);
       },
@@ -169,10 +172,8 @@
         if (!target) {
           return;
         }
-        let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
-        this.selectedProfile = profileInfo;
         this.selectedService = target;
-        this.changeVersion(this.selectedAPP, profileInfo, target);
+        this.changeVersion(this.selectedAPP, this.selectedProfileID, target);
       },
     },
     methods: {
@@ -261,6 +262,9 @@
               } else {
                 this.selectedServiceID = firstServiceID;
               }
+            } else {
+              // changeVersion even the length of profileList is zero
+              this.changeVersion(this.selectedAPP, this.selectedProfileID, null);
             }
           }
         }).catch(err => {
@@ -274,9 +278,14 @@
 
       /**
        * emit event for value changed
+       * 1. at change of selectedServiceID
+       * 2. the length of profileList is zero
+       * 3. the length of serviceList is zero
        */
-      changeVersion(selectedAPP, selectedProfile, selectedService) {
-        this.$emit('version-selected', selectedAPP, selectedProfile, selectedService);
+      changeVersion(selectedAPP, selectedProfileID, selectedService) {
+        let profileInfo = this.$storeHelper.getProfileInfoByID(selectedProfileID);
+        this.selectedProfile = profileInfo;
+        this.$emit('version-selected', selectedAPP, profileInfo, selectedService);
       },
 
       /**

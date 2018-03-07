@@ -294,10 +294,9 @@
     },
     methods: {
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
-        let profileID = profileInfo.id;
         this.searchForm.appId = appInfo.appId;
-        this.searchForm.spaceId = profileID;
-        this.searchForm.serviceVersion = serviceInfo.serviceVersion;
+        this.searchForm.spaceId = profileInfo ? profileInfo.id: '';
+        this.searchForm.serviceVersion = serviceInfo ? serviceInfo.serviceVersion : '';
 //        this.requestLogAtStart();
       },
       handleButtonClick(action) {
