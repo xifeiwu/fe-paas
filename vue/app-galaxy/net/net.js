@@ -592,6 +592,9 @@ class Net {
               it.cpuInfo = cpuAndMemoryInfo[0];
               it.memoryInfo = cpuAndMemoryInfo[1];
 
+              if (!it.volume) {
+                it.volume = '';
+              }
               it.volume = it.volume.split(',').filter(it => {return it})
               this.$utils.renameProperty(it, 'volume', 'fileLocation');
 

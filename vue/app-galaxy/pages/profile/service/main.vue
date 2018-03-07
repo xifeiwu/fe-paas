@@ -1197,6 +1197,7 @@ export default {
       return this.queueForWaitingResponse.indexOf(action) > -1;
     },
     /**
+     * the start point of change selectedAppID -> selectedProfileID -> serviceList
      * call in two place:
      * 1. created function
      * 2. appInfoListOfGroup watcher
