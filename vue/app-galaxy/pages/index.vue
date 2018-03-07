@@ -28,6 +28,13 @@
     <el-main>
       <section class="poster">
         <img src="/assets/imgs/galaxy/index/poster.png">
+        <div class="description">
+          <div class="content">
+            <div class="line1">为凡普业务研发及合作伙伴</div>
+            <div class="line2">提供领先的技术平台服务</div>
+            <div class="line3">敬请期待</div>
+          </div>
+        </div>
       </section>
       <section class="introduce">
         <div class="title">产品介绍</div>
@@ -207,8 +214,41 @@ $menu-height: 45px;
   .el-main {
     padding: 0px;
     section.poster {
+      position: relative;
       img {
         width: 100%;
+      }
+      .description {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        .content {
+          text-align: center;
+          .line1 {
+            margin: 0px auto;
+            color: white;
+            font-size: 16px;
+          }
+          .line2 {
+            margin: 10px auto 20px auto;
+            color: white;
+            font-size: 28px;
+            line-height: 40px;
+          }
+          .line3 {
+            display: inline-block;
+            margin: 0px auto;
+            color: white;
+            font-size: 12px;
+            padding: 3px 6px;
+            border: 1px solid white;
+          }
+        }
       }
     }
     section.introduce {
