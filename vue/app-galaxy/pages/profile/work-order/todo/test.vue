@@ -24,13 +24,13 @@
           <el-upload
                 class="upload-demo"
                 ref="upload"
-                :limit="1"
                 :headers="{token: this.$getUserInfo('token')}"
                 :action="$url.work_order_handle_upload_test_report"
                 :auto-upload="false"
                 :beforeUpload="beforeFileUpload"
                 :onSuccess="afterLoadSuccess"
                 :onError="afterLoadError"
+                :multiple="true"
                 @onUploadFiles="onUploadFiles"
           >
             <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>

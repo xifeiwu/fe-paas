@@ -51,14 +51,14 @@
                ref="applicationForm"
                size="mini"
                label-width="120px">
-        <el-form-item label="应用名称" prop="appName" v-if="workOrderDetail.appID">
+        <el-form-item label="应用名称" prop="appID" v-if="workOrderDetail.appID">
           <el-select filterable v-model="workOrderDetail.appID" placeholder="请选择">
             <el-option v-if="appInfoListOfGroup" v-for="(item, index) in appInfoListOfGroup.appList"
                        :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="生产环境版本" prop="serviceVersion">
+        <el-form-item label="生产环境版本" prop="serviceVersion" :error="errorForServiceVersion">
           <el-select v-model="workOrderDetail.serviceVersion"
                      :placeholder="versionList.length > 0 ? '请选择': '当前应用的生产环境下没有版本'">
             <el-option v-for="(item, index) in versionList" :key="index" :label="item" :value="item"></el-option>
@@ -303,7 +303,7 @@
           comment: '',
         },
         versionList: [],
-        disableSubmit: false,
+        errorForServiceVersion: '',
       };
     },
     computed: {
@@ -410,18 +410,18 @@
               this.versionList = version;
               // workOrderDetail.serviceVersion is used as default serviceVersion
 //              this.workOrderDetail.serviceVersion = version[0];
-              this.disableSubmit = false;
+              this.errorForServiceVersion = '';
             } else {
-              this.$message({
-                type: 'warning',
-                message: this.workOrderDetail.appName + '的生产环境下，服务没有版本！'
-              });
-//              this.disableSubmit = true;
-//              console.log(this.workOrderDetail);
+//              this.$message({
+//                type: 'warning',
+//                message: this.workOrderDetail.appName + '的生产环境下，服务没有版本！'
+//              });
+              this.errorForServiceVersion = '该应用无生产环境版本';
             }
           }
         }).catch(err => {
           this.workOrderDetail.serviceVersion = null;
+          this.errorForServiceVersion = '该应用无生产环境版本';
           console.log(err);
 //          this.$message({
 //            type: 'error',

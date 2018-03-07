@@ -50,7 +50,7 @@
                ref="applicationForm"
                size="mini"
                label-width="120px">
-        <el-form-item label="应用名称" prop="appName">
+        <el-form-item label="应用名称" prop="appID">
           <el-select filterable v-model="workOrderDetail.appID"
                      v-if="appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')"
                      placeholder="请选择">
@@ -60,7 +60,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="生产环境版本" prop="serviceVersion">
+        <el-form-item label="生产环境版本" prop="serviceVersion" :error="errorForServiceVersion">
           <el-select v-model="workOrderDetail.serviceVersion"
                      :placeholder="versionList.length > 0 ? '请选择': '当前应用的生产环境下没有版本'">
             <el-option v-for="(item, index) in versionList" :key="index" :label="item" :value="item"></el-option>
@@ -112,7 +112,7 @@
       </el-form>
     </div>
     <div class="section-footer">
-      <el-button size="mini" type="primary" @click="handleButtonClick('add')" :disabled="disableSubmit">完成</el-button>
+      <el-button size="mini" type="primary" @click="handleButtonClick('add')">完成</el-button>
       <el-button size="mini" type="primary" @click="handleButtonClick('back')">取消</el-button>
     </div>
   </div>
@@ -217,6 +217,19 @@
     components: {ElInput, ElOption, ElTooltip, MyFeature},
 
     created() {
+      let queryParam = this.$route.query;
+      if (queryParam && queryParam.hasOwnProperty('from')) {
+        if (queryParam['from'] === '/profile/service') {
+          let localServiceConfig = this.$storeHelper.getUserConfig('profile/service');
+          this.workOrderDetail.appID = localServiceConfig.appID;
+        }
+      } else {
+        let appIdInLocal = this.$storeHelper.getUserConfig('profile/work-order/appID');
+        if (appIdInLocal) {
+          this.workOrderDetail.appID = appIdInLocal;
+        }
+      }
+
       this.onCurrentGroupID(this.currentGroupID);
       if (!this.appInfoListOfGroup) {
         this.$store.dispatch('user/appInfoListOfGroup', {
@@ -231,19 +244,6 @@
       }
       if (!this.usersInGroup) {
         this.$store.dispatch('user/usersInGroup', {id: this.currentGroupID});
-      }
-
-      let queryParam = this.$route.query;
-      if (queryParam && queryParam.hasOwnProperty('from')) {
-        if (queryParam['from'] === '/profile/service') {
-          let localServiceConfig = this.$storeHelper.getUserConfig('profile/service');
-          this.workOrderDetail.appID = localServiceConfig.appID;
-        }
-      } else {
-        let appIdInLocal = this.$storeHelper.getUserConfig('profile/work-order/appID');
-        if (appIdInLocal) {
-          this.workOrderDetail.appID = appIdInLocal;
-        }
       }
     },
     mounted() {
@@ -291,7 +291,7 @@
           comment: '',
         },
         versionList: [],
-        disableSubmit: false,
+        errorForServiceVersion: '',
       };
     },
     computed: {
@@ -335,11 +335,25 @@
           this.workOrderDetail.groupName = groupInfo.name;
         }
       },
+      // set defaultAppID(first element in array) for this.workOrderDetail.appID
       onAppInfoListOfGroup(value) {
         if (value.hasOwnProperty('appList')) {
           if (Array.isArray(value.appList)) {
+            let defaultAppID = value.appList[0].appId;
             if (!this.workOrderDetail.appID) {
-              this.workOrderDetail.appID = value.appList[0].appId;
+              this.workOrderDetail.appID = defaultAppID;
+            } else {
+              // check whether this.workOrderDetail.appID exist in appList
+              let targetApp = null;
+              value.appList.some(it => {
+                if (this.workOrderDetail.appID === it.appId) {
+                  targetApp = it;
+                }
+                return targetApp;
+              });
+              if (!targetApp) {
+                this.workOrderDetail.appID = defaultAppID;
+              }
             }
           }
         }
@@ -405,7 +419,7 @@
             if (version && Array.isArray(version) && version.length > 0) {
               this.versionList = version;
               this.workOrderDetail.serviceVersion = version[0];
-              this.disableSubmit = false;
+              this.errorForServiceVersion = '';
             } else {
 //              this.$message({
 //                type: 'warning',
@@ -413,14 +427,16 @@
 //              });
               this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
               });
+              this.errorForServiceVersion = '该应用无生产环境版本';
             }
           }
         }).catch(err => {
           console.log(err);
-          this.$message({
-            type: 'error',
-            message: '查找服务版本失败！'
-          });
+          this.errorForServiceVersion = '该应用无生产环境版本';
+//          this.$message({
+//            type: 'error',
+//            message: '查找服务版本失败！'
+//          });
         });
       },
 
