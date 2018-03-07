@@ -81,9 +81,9 @@
         return;
       }
       this.$nextTick(() => {
-//        this.getWorkOrderDetail(workOrder)
         WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
-          console.log(detail);
+//          console.log(workOrder);
+//          console.log(detail);
           this.workOrderDetail = detail;
         }).catch(err => {
         })

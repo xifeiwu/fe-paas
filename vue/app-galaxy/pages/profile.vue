@@ -2,7 +2,7 @@
   <el-container id="profile">
     <el-header height="45px">
       <div class="img" @click="handleHeaderMenuClick(null, ['index'])">
-        <img src="/assets/imgs/finup-cloud.png" width="180px">
+        <img src="/assets/imgs/finup-cloud.png" width="120px">
       </div>
       <el-menu class="header-menu"
                mode="horizontal"

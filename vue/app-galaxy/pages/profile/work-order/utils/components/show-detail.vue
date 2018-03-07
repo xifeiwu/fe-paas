@@ -61,7 +61,7 @@
   </el-form>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
   .el-form {
     .el-form-item {
       margin-bottom: 6px;

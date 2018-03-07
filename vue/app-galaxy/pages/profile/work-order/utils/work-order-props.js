@@ -191,7 +191,7 @@ class WorkOrderUtils {
           notifyUserIdList: [],
           notifyUserList: [],
           mailGroupList: [],
-          comment: workOrder.remark,
+          comment: workOrder.comment,
           status: workOrder.status,
           statusName: workOrder.statusName
         };
