@@ -151,7 +151,7 @@
           <div v-else>无</div>
         </el-form-item>
         <el-form-item label="外网二级域名" :error="domainProps.stateForLevel2Name">
-          <el-input v-model="domainProps.level2Name"></el-input>
+          <el-input v-model="domainProps.level2Name" placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"></el-input>
           <el-select v-model="domainProps.level1Name">
             <el-option v-for="(item, index) in domainProps.level1InfoList" :value="item.domainName" :label="item.domainName"
                        :key="index"></el-option>
@@ -957,8 +957,8 @@
 
             this.domainProps.stateForLevel2Name = '';
             this.domainProps.stateForDomainToAdd = '';
-            if (!/^[a-z0-9\-]+$/.exec(this.domainProps.level2Name)) {
-              this.domainProps.stateForLevel2Name = '二级域名只能填写小写英文字母，数字，或-，且不能为空';
+            if (!/^[a-z0-9][a-z0-9\-]{0,62}$/.exec(this.domainProps.level2Name)) {
+              this.domainProps.stateForLevel2Name = '可以包含小写字符、数字、中划线，以字符数字开头，长度不超过63位';
               return;
             }
             if (domainToAdd.length >= 5) {
