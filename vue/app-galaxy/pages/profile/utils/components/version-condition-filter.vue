@@ -43,13 +43,13 @@
 
 <script>
   /**
+   * select service by profile and app
+   *
    * used to select service, the place used:
    * page domain：header selector，dialog for binding service
-   * page instance：header selector
-   * page log: log-deploy, log-run
    *
    * custom type:
-   * 1. profile area can be fixed
+   * 1. profile can be fixed
    * 2. add item '全部' or not
    * 3. customConfig for profileID, appID, serviceID
    */
@@ -87,10 +87,12 @@
       }
     },
     props: {
-      setDefault: {
-        type: Boolean,
-        default: true
-      },
+      // set default value or not, may be modify later
+//      setDefault: {
+//        type: Boolean,
+//        default: true
+//      },
+      // whether add 全部 to option list of select for profile or service
       addItemAll: {
         type: Object,
         default() {
@@ -127,13 +129,10 @@
       },
       selectedProfileID: function (value) {
         this.changeAppRelatedInfo('profileID');
-        this.requestServiceList();
-        this.changeServiceCondition();
       },
       selectedAppID: function (appID) {
 //        this.$storeHelper.setUserConfig('profile/service/appID', appID);
         this.requestServiceList();
-        this.changeServiceCondition();
       },
       // update currentService when selectedServiceID is changed
       selectedServiceID: function (serviceVersion) {
@@ -148,7 +147,11 @@
       }
     },
     methods: {
-      // the start of watch chain
+      /**
+       * the start of watch chain
+       * onProfileListOfGroup -> selectedProfileID[appInfoListOfGroup] -> changeAppRelatedInfo
+       *  -> selectedAppID[requestServiceList] ->
+       */
       onProfileListOfGroup(profileList) {
         // set product profile as constant
 //        if (this.fixProfile) {
@@ -192,28 +195,29 @@
           // profileID must be set here
           this.selectedProfileID = defaultProfileID;
         }
-        if (this.customConfig && this.customConfig.hasOwnProperty('appID')) {
-          this.selectedAppID = this.customConfig['appID'];
-        }
-        if (this.customConfig && this.customConfig.hasOwnProperty('serviceID')) {
-          this.selectedServiceID = this.customConfig['serviceID'];
-        }
       },
 
       /**
+       * update appListWithAll on change of profileID or appInfoListOfGroup,
+       * and init selectedAppID or update selectedAppID if necessary(when current selectedAppID is not in appListWithAll)
+       *
        * change app related info, used in:
        * 1. on change of profileID
        * 2. callback of requesting appListOfGroup successful
        */
       changeAppRelatedInfo(from) {
         // avoid duplicate request
-        if ('profileID' === from && !this.appInfoListOfGroup) {
+//        if ('profileID' === from && !this.appInfoListOfGroup) {
+//          return;
+//        }
+        if (!this.selectedProfileID || !this.appInfoListOfGroup) {
           return;
         }
+        // set and update appListWithAll
         let profileID = this.selectedProfileID;
-        if (!profileID) {
-          profileID = this.$storeHelper.PROFILE_ID_FOR_ALL;
-        }
+//        if (!profileID) {
+//          profileID = this.$storeHelper.PROFILE_ID_FOR_ALL;
+//        }
         let appList = this.$storeHelper.getAppListByProfileID(profileID);
         let appAll = [];
         if (this.addItemAll && this.addItemAll.app) {
@@ -228,23 +232,40 @@
           this.appListWithAll = appAll;
         }
 
-        // check whether the selectedAppID in app list of this profile
-        let needSetAppID = false;
+        // set or check selectedAppID
+        let firstAppID = null;
+        if (Array.isArray(this.appListWithAll) && this.appListWithAll.length > 0) {
+          firstAppID = this.appListWithAll[0].appId;
+        }
+        let updateAppID = true;
         if (!this.selectedAppID) {
-          needSetAppID = true;
+          // init value of this.selectedAppID
+          if (this.customConfig && this.customConfig.hasOwnProperty('appID')) {
+           this.selectedAppID = this.customConfig['appID'];
+          }
+          if (!this.selectedAppID && firstAppID) {
+            this.selectedAppID = firstAppID;
+          }
+          if (!this.selectedAppID) {
+            updateAppID = false;
+          }
         } else {
+          // check whether the selectedAppID in app list of this profile
           let hasExist = false;
           this.appListWithAll.some(it => {
             hasExist = this.selectedAppID == it.appId;
             return hasExist;
           });
-          needSetAppID = !hasExist;
+          if (!hasExist && firstAppID) {
+            this.selectedAppID = firstAppID;
+          } else {
+            updateAppID = false;
+          }
         }
         // set default appId if necessary
-        if (this.setDefault && needSetAppID) {
-          if (Array.isArray(this.appListWithAll) && this.appListWithAll.length > 0) {
-            this.selectedAppID = this.appListWithAll[0].appId;
-          }
+        // this.setDefault &&
+        if (!updateAppID) {
+          this.requestServiceList();
         }
       },
 
@@ -266,13 +287,14 @@
           (this.$storeHelper.PROFILE_ID_FOR_ALL === this.selectedProfileID)
         ) {
           this.serviceListWithAll = versionAll;
-          if (this.setDefault) {
+//          if (this.setDefault) {
             if (this.serviceListWithAll.length > 0) {
               this.selectedServiceID = this.serviceListWithAll[0]['id'];
             } else {
               this.selectedServiceID = '';
             }
-          }
+//          }
+          this.changeServiceCondition();
           console.log('appID or spaceID can not be empty');
           return;
         }
@@ -289,17 +311,39 @@
               this.serviceListWithAll = this.serviceListWithAll.concat(serviceList);
             }
           }
-          // check selectedServiceID
-          if (this.setDefault && this.selectedServiceID != null) {
-            if (this.serviceListWithAll.length > 0
-              && this.serviceListWithAll.map(it => {return it.id}).indexOf(this.selectedServiceID) > -1) {
-            } else {
-              this.selectedServiceID = this.serviceListWithAll[0]['id'];
+
+          let firstServiceID = null;
+          if (this.serviceListWithAll && this.serviceListWithAll.length > 0) {
+            firstServiceID = this.serviceListWithAll[0]['id'];
+          }
+          let updateServiceID = true;
+          if (!this.selectedServiceID) {
+            if (this.customConfig && this.customConfig.hasOwnProperty('serviceID')) {
+              this.selectedServiceID = this.customConfig['serviceID'];
             }
+            if (!this.selectedServiceID && firstServiceID) {
+              this.selectedServiceID = firstServiceID;
+            }
+            if (!this.selectedServiceID) {
+              updateServiceID = false;
+            }
+          } else {
+          // whether current selectedServiceID is valid
+          // this.setDefault &&
+//            if (this.serviceListWithAll.length > 0
+//              && this.serviceListWithAll.map(it => {return it.id}).indexOf(this.selectedServiceID) > -1) {
+//              updateServiceID = false;
+//            } else {
+            this.selectedServiceID = firstServiceID;
+//            }
+          }
+          if (!updateServiceID) {
+            this.changeServiceCondition();
           }
 //          console.log(this.serviceListWithAll);
         }).catch(err => {
           this.serviceListWithAll = versionAll;
+          this.changeServiceCondition();
           console.log(err);
 //          this.$message({
 //            type: 'error',
@@ -308,8 +352,10 @@
         })
       },
 
+      // compare to the former state, whether selected value(profile, app, service) is changed or not
       needEmit() {
         let isChange = false;
+        // profileID changed or not
         if (this.selectedStatus.profileID !== this.selectedProfileID) {
           this.selectedStatus.profileID = this.selectedProfileID;
           let target = null;
@@ -322,11 +368,13 @@
           this.selectedStatus.profile = target;
           isChange = true;
         }
+        // appID changed or not
         if (this.selectedStatus.appID !== this.selectedAppID) {
           this.selectedStatus.appID = this.selectedAppID;
           this.selectedStatus.app = this.$storeHelper.getAppByID(this.selectedAppID);
           isChange = true;
         }
+        // serviceID changed or not
         if (this.selectedStatus.serviceID !== this.selectedServiceID) {
           this.selectedStatus.serviceID = this.selectedServiceID;
           let target = null;
@@ -351,6 +399,7 @@
           this.$emit('service-condition-changed', selectedStatus.profile, selectedStatus.app, selectedStatus.service);
         }, 100, false);
         if (this.needEmit()) {
+//          console.log(this.selectedStatus);
           debouncedEmit();
         }
       },

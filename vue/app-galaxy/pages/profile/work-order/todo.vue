@@ -112,7 +112,7 @@
                     </el-table-column>
                   </el-table>
                 </el-form-item>
-                <el-form-item label="程序/版本">
+                <el-form-item label="应用名/版本">
                   <span>{{workOrderDetail.appName}}</span>
                   <span>/</span>
                   <span v-if="workOrderDetail.serviceVersion">{{workOrderDetail.serviceVersion}}</span><span v-else>版本未知</span>
