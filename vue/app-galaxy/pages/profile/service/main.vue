@@ -193,7 +193,7 @@
                     {{valueToShow(selected.service.loadBalance)}}
                     <i class="el-icon-edit" @click="handleChangeProp('loadBalance')"></i>
                   </el-form-item>
-                  <el-form-item label="文件存储：" class="big file-location">
+                  <el-form-item label="文件存储：" class="big file-location" v-if="false">
                     <div v-if="selected.service.fileLocation && selected.service.fileLocation.length > 0">
                       <el-tag
                               v-for="tag in selected.service.fileLocation"
