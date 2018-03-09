@@ -70,7 +70,7 @@ class AppInfoHelper {
         message: '请输入项目名称',
         trigger: 'blur'
       }, {
-        validator: basicValidator
+        validator: this.generateValidator(true, false, 2, 50)
       }],
       // 健康检查
       healthCheck: [{

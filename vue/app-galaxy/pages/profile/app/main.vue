@@ -144,13 +144,13 @@
           <div v-if="profileChangeStatus.toDelete.length > 0">
             <span>将删除运行环境</span>
             <el-tag size="mini" type="danger" disable-transitions
-                    v-for="item in profileChangeStatus.toDelete"
+                    v-for="item in profileChangeStatus.toDelete" :key="item.id"
                     style="display: inline-block;">{{item.description}}</el-tag>
           </div>
           <div v-if="profileChangeStatus.toAdd.length > 0">
             <span>将增加运行环境</span>
             <el-tag size="mini" type="warning" disable-transitions
-                    v-for="item in profileChangeStatus.toAdd"
+                    v-for="item in profileChangeStatus.toAdd" :key="item.id"
                     style="display: inline-block;">{{item.description}}</el-tag>
           </div>
         </el-form-item>
