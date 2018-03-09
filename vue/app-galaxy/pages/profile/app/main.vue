@@ -38,7 +38,13 @@
                 element-loading-text="加载中">
         <el-table-column label="语言版本" prop="languageVersion" headerAlign="center" align="center">
           <template slot-scope="scope">
-            <div>{{scope.row.language}} - {{scope.row.languageVersion}}</div>
+
+            <svg :class="['my-icon-svg', 'my-icon-' + scope.row.languageLogo]" aria-hidden="true" v-if="scope.row.languageLogo">
+              <use :xlink:href="'#my-icon-' + scope.row.languageLogo"></use>
+            </svg>
+            <div class="language" v-else>应用名未知</div>
+            <div class="version" v-if="scope.row.languageVersion">{{scope.row.languageVersion}}</div>
+            <div v-else>版本未知</div>
           </template>
         </el-table-column>
         <el-table-column label="应用名称" prop="serviceName" headerAlign="center" align="center">
@@ -171,6 +177,17 @@
         margin-bottom: 40px;
         color: black;
         .el-table__row {
+          .my-icon-svg {
+            width: 26px;
+            height: 26px;
+            &.my-icon-java {
+              width: 30px;
+              height: 30px;
+            }
+          }
+          .version {
+            line-height: 16px;
+          }
           .profile-item {
             display: inline-block;
             color: #333;

@@ -14,8 +14,8 @@
         <el-menu-item index="message">消息中心</el-menu-item>
         <el-submenu index="user" :withDrawOnMouseLeave="true">
           <template slot="title">{{userName}}</template>
-          <el-menu-item index="info">用户信息</el-menu-item>
-          <el-menu-item index="logout">退出</el-menu-item>
+          <el-menu-item index="info"><i class="my-icon-user"></i><span>用户信息</span></el-menu-item>
+          <el-menu-item index="logout"><i class="my-icon-logout"></i><span>退出</span></el-menu-item>
         </el-submenu>
       </el-menu>
     </el-header>
@@ -116,6 +116,12 @@
         /*background-color: white;*/
       }
       .el-menu.header-menu {
+        [class^="my-icon-"] {
+          display: inline-block;
+          font-size: 14px;
+          margin-top: 1px;
+          margin-right: 3px;
+        }
         background-color: transparent;
         float: right;
         border-width: 0px;
@@ -136,6 +142,12 @@
         top: $header-height;
         bottom: 0px;
         border-right: solid 1px $split-line-color;
+        [class^="my-icon-"] {
+          display: inline-block;
+          font-size: 14px;
+          margin-top: 1px;
+          margin-right: 3px;
+        }
         .el-menu {
           border-width: 0px;
           .el-menu-item {
@@ -144,6 +156,9 @@
               /*color: black;*/
               color: #409EFF;
               font-size: 16px;
+              [class^="my-icon-"] {
+                font-size: 15px;
+              }
             }
           }
         }

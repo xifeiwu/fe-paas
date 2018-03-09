@@ -21,6 +21,9 @@ let routerConfig = new RouterConfig(Vue);
 
 import 'element-ui/packages/theme-chalk/src/index.scss';
 import '../assets/css/fix_style.scss';
+// my-icons for icon and svg
+import '../assets/css/fonts/my-icons.css';
+import '../assets/css/fonts/my-icons.js';
 import Components from './components.js';
 Components.install(Vue);
 

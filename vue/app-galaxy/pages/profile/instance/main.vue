@@ -135,6 +135,10 @@
     methods: {
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
 //        console.log(appInfo, profileID, serviceInfo);
+        this.currentInstanceList = [];
+        if (!appInfo || !profileInfo || !serviceInfo) {
+          return;
+        }
         this.requestInstanceList(appInfo.appId, profileInfo.id, serviceInfo.serviceVersion);
       },
       /**
