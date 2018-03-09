@@ -123,6 +123,10 @@
                @close="selected.prop = null; waitingResponse=false"
                v-if="selected.app && selected.model"
     >
+      <el-tag type="danger" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>删除运行环境将会销毁该环境的代码和配置信息，解绑所有公网域名、IP白名单，且不可恢复。</span>
+      </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="120px" size="mini" ref="changeProfileNamesForm">
         <el-form-item label="当前运行环境：">
           <el-tag v-for="item in selected.app.profileList" size="mini" :key="item.name" style="display: inline-block">
@@ -130,11 +134,25 @@
           </el-tag>
         </el-form-item>
         <el-form-item label="更改为：" prop="profileNames">
-          <el-checkbox-group v-model="newProps.profileNames">
+          <el-checkbox-group v-model="newProps.profileNames" @change="handleCheckboxChangeForProfileNames">
             <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
               {{item.description}}
             </el-checkbox>
           </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="操作：">
+          <div v-if="profileChangeStatus.toDelete.length > 0">
+            <span>将删除运行环境</span>
+            <el-tag size="mini" type="danger" disable-transitions
+                    v-for="item in profileChangeStatus.toDelete"
+                    style="display: inline-block;">{{item.description}}</el-tag>
+          </div>
+          <div v-if="profileChangeStatus.toAdd.length > 0">
+            <span>将增加运行环境</span>
+            <el-tag size="mini" type="warning" disable-transitions
+                    v-for="item in profileChangeStatus.toAdd"
+                    style="display: inline-block;">{{item.description}}</el-tag>
+          </div>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -288,6 +306,11 @@
           profileNames: [],
         },
         waitingResponse: false,
+        // used for dialog
+        profileChangeStatus: {
+          toAdd: [],
+          toDelete: []
+        },
 
         filterMyApp: false,
         filterKey: '',
@@ -408,6 +431,8 @@
             });
             break;
           case 'change-profileNames':
+            this.profileChangeStatus.toAdd = [];
+            this.profileChangeStatus.toDelete = [];
           case 'change-appName':
             let prop = action.split('-')[1];
             this.selected.prop = prop;
@@ -418,6 +443,15 @@
         }
       },
 
+      // handle checkbox change in dialog
+      handleCheckboxChangeForProfileNames(values) {
+        let origin = this.selected.model.profileNames;
+        let current = values;
+        let toDelete = origin.filter(it => current.indexOf(it) === -1);
+        let toAdd = current.filter(it => origin.indexOf(it) === -1);
+        this.profileChangeStatus.toAdd = this.$storeHelper.getProfileInfoListByNameList(toAdd);
+        this.profileChangeStatus.toDelete = this.$storeHelper.getProfileInfoListByNameList(toDelete);
+      },
       /**
        * do some action of ok button in popup-dialog
        * @param prop
@@ -426,7 +460,6 @@
         let formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
         switch (prop) {
           case 'appName':
-          case 'profileNames':
             this.$refs[formName].validate((valid) => {
               if (!valid) {
                 return;
@@ -442,6 +475,33 @@
                 });
               } else {
                 this.requestUpdate(prop);
+              }
+            });
+            break;
+          case 'profileNames':
+            this.$refs[formName].validate((valid) => {
+              if (!valid) {
+                return;
+              }
+              if (!this.newProps.hasOwnProperty(prop) || !this.selected.model.hasOwnProperty(prop)) {
+                return;
+              }
+              if (this.$utils.theSame(this.newProps[prop], this.selected.model[prop])) {
+                this.selected.prop = null;
+                this.$message({
+                  type: 'warning',
+                  message: '您没有做修改'
+                });
+              } else {
+                if (this.profileChangeStatus.toDelete.length > 0) {
+                  let msg = '将要删除运行环境：' + this.profileChangeStatus.toDelete.map(it => {return it.description}).join(',');
+                  msg += '。将销毁该环境的代码和配置信息，解绑所有公网域名、IP白名单，且不可恢复。确定继续吗？'
+                  this.warningConfirm(msg).then(() => {
+                    this.requestUpdate(prop);
+                  })
+                } else {
+                  this.requestUpdate(prop);
+                }
               }
             });
             break;
