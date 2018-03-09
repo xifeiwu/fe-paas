@@ -5,7 +5,7 @@
              v-loading="showLoading"
              :element-loading-text="loadingText">
       <el-form-item label="版本号" prop="serviceVersion" class="serviceVersion">
-        <el-input v-model="serviceForm.serviceVersion" placeholder="版本号只能包含数字">
+        <el-input v-model="serviceForm.serviceVersion" placeholder="版本号只能包含数字，不能超过五位">
           <template slot="prepend">V</template>
         </el-input>
       </el-form-item>
@@ -180,7 +180,7 @@
               color: black;
             }
             input {
-              width: 50%;
+              width: 300px;
             }
           }
         }
