@@ -120,7 +120,7 @@
           display: inline-block;
           font-size: 14px;
           margin-top: 1px;
-          margin-right: 3px;
+          margin-right: 5px;
         }
         background-color: transparent;
         float: right;
@@ -146,7 +146,7 @@
           display: inline-block;
           font-size: 14px;
           margin-top: 1px;
-          margin-right: 3px;
+          margin-right: 5px;
         }
         .el-menu {
           border-width: 0px;

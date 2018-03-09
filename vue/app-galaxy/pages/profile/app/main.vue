@@ -38,7 +38,6 @@
                 element-loading-text="加载中">
         <el-table-column label="语言版本" prop="languageVersion" headerAlign="center" align="center">
           <template slot-scope="scope">
-
             <svg :class="['my-icon-svg', 'my-icon-' + scope.row.languageLogo]" aria-hidden="true" v-if="scope.row.languageLogo">
               <use :xlink:href="'#my-icon-' + scope.row.languageLogo"></use>
             </svg>

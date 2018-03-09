@@ -21,25 +21,29 @@
         <el-table-column
                 prop="instanceName"
                 label="实例名称"
-                width="300">
+                width="300"
+                headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
                 prop="status"
                 label="健康状态"
                 width="80"
+                headerAlign="center" align="center"
         >
         </el-table-column>
         <el-table-column
                 prop="intranetIP"
                 label="内网IP"
-                width="120">
+                width="120"
+                headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
                 label="创建时间"
                 prop="createTime"
-                width="120">
+                width="200"
+                headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="操作" prop="operation" minWidth="170" headerAlign="center">
+        <el-table-column label="操作" prop="operation" minWidth="300" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
                     @click="handleRowButtonClick('terminal', scope.$index, scope.row)"
@@ -60,21 +64,13 @@
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
   #instance-main {
-    .header {
-      .el-select .el-input__inner {
-        height: 24px;
-      }
-    }
     .section-content {
       .el-table {
         margin-bottom: 40px;
-        .el-table__row {
-          .el-button {
-            margin: 2px 4px 2px 0px;
-            float: left;
-          }
+        .el-button {
+          display: inline-block;
         }
       }
     }
@@ -139,6 +135,11 @@
         if (!appInfo || !profileInfo || !serviceInfo) {
           return;
         }
+//        this.$storeHelper.setUserConfig('profile/instance', {
+//          appID: appInfo.appId,
+//          profileID: profileInfo.id,
+//          serviceID: serviceInfo.id
+//        });
         this.requestInstanceList(appInfo.appId, profileInfo.id, serviceInfo.serviceVersion);
       },
       /**
