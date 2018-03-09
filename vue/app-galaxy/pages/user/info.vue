@@ -5,7 +5,7 @@
         <img src="assets/imgs/default-icon.png">
         <div class="user">
           <div class="name"><span>{{userName}}</span></div>
-          <div class="role"><span>用户角色：</span></div>
+          <div class="role"><span>用户角色：</span><span>{{userRole}}</span></div>
         </div>
       </el-row>
       <el-row class="section">
@@ -75,9 +75,19 @@
   }
 </style>
 <script>
-  import ElCol from "../../../element-ui/packages/col/src/col";
   export default {
-    components: {ElCol}, computed: {
+    created() {
+
+    },
+    mounted() {
+      this.userRole = this.$storeHelper.getUserInfo('role');
+    },
+    data() {
+      return {
+        userRole: '未知'
+      }
+    },
+    computed: {
       userName() {
         let userName = this.$storeHelper.getUserInfo('realName');
         if (!userName) {

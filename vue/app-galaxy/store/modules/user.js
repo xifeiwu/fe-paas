@@ -94,17 +94,25 @@ const actions = {
       state.menuList = menuList;
       localStorage.setItem('user/menuList', JSON.stringify(menuList));
       let userInfo = content.user;
-      if (userInfo && userInfo.hasOwnProperty('username') && userInfo.username) {
-        dispatch('setInfo', {
-          keys: 'userName',
-          value: userInfo.username
-        });
-      }
-      if (userInfo && userInfo.hasOwnProperty('realName') && userInfo.realName) {
-        dispatch('setInfo', {
-          keys: 'realName',
-          value: userInfo.realName
-        });
+      if (userInfo) {
+        if (userInfo.hasOwnProperty('username')) {
+          dispatch('setInfo', {
+            keys: 'userName',
+            value: userInfo.username
+          });
+        }
+        if (userInfo.hasOwnProperty('realName')) {
+          dispatch('setInfo', {
+            keys: 'realName',
+            value: userInfo.realName
+          });
+        }
+        if (userInfo.hasOwnProperty('role')) {
+          dispatch('setInfo', {
+            keys: 'role',
+            value: userInfo.role
+          });
+        }
       }
     })
   },
