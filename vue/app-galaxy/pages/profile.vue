@@ -2,7 +2,7 @@
   <el-container id="profile">
     <el-header height="45px">
       <div class="img" @click="handleHeaderMenuClick(null, ['index'])">
-        <img src="/assets/imgs/finup-cloud.png" width="120px">
+        <img src="/assets/imgs/finup-cloud.png">
       </div>
       <el-menu class="header-menu"
                mode="horizontal"
@@ -63,10 +63,6 @@
 
 <style lang="scss">
   $header-height: 45px;
-  $header-background-color: #3976EF;
-  $header-background-color: #e7e7e7;
-  $split-line-color: #e7e7e7;
-  $aside-width: 180px;
   #profile.el-container {
     .el-header {
       .el-menu.header-menu {
@@ -113,7 +109,10 @@
       .img {
         float: left;
         line-height: $header-height;
-        /*background-color: white;*/
+        img {
+          width: 120px;
+          margin-left: 8px;
+        }
       }
       .el-menu.header-menu {
         [class^="my-icon-"] {

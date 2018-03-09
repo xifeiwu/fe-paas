@@ -13,18 +13,19 @@
         <el-row class="list">
           <el-col :span="6">
             <span>应用引擎</span>
+            <img src="/assets/imgs/galaxy/index/docker.png">
           </el-col>
         </el-row>
       </el-row>
     </div>
   </div>
 </template>
-<style lang="scss">
+<style lang="scss" scoped>
   #user-info {
     .container {
-      width: 80%;
-      max-width: 720px;
-      margin: 20px auto 0px auto;
+      width: 800px;
+      margin-left: 20px;
+      margin-top: 20px;
       .el-row.section {
         box-shadow: 0 0 8px 0 rgba(232, 237, 250, 0.6), 0 2px 4px 0 rgba(232, 237, 250, 0.5);
         padding: 8px;
@@ -53,10 +54,18 @@
             &.list {
               text-align: center;
               .el-col {
+                position: relative;
                 padding: 5px;
-                height: 180px;
+                height: 200px;
                 box-sizing: border-box;
                 border: 1px solid #909399;
+                img {
+                  position: absolute;
+                  bottom: 3px;
+                  left: 3px;
+                  right: 3px;
+                  width: 190px;
+                }
               }
             }
           }

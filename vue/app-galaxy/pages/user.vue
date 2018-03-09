@@ -1,7 +1,9 @@
 <template>
   <el-container id="user">
     <el-header height="45px">
-      <div class="img">picture</div>
+      <div class="img" @click="handleHeaderMenuClick(null, ['index'])">
+        <img src="/assets/imgs/finup-cloud.png" width="120px">
+      </div>
       <el-menu class="header-menu"
                mode="horizontal"
                @select="handleHeaderMenuClick"
@@ -11,13 +13,13 @@
         <el-menu-item index="message">消息中心</el-menu-item>
         <el-submenu index="user">
           <template slot="title">{{userName}}</template>
-          <el-menu-item index="info">用户信息</el-menu-item>
-          <el-menu-item index="logout">退出</el-menu-item>
+          <el-menu-item index="info"><i class="my-icon-user"></i><span>用户信息</span></el-menu-item>
+          <el-menu-item index="logout"><i class="my-icon-logout"></i><span>退出</span></el-menu-item>
         </el-submenu>
       </el-menu>
     </el-header>
     <el-container class="inner-container">
-      <el-aside>
+      <el-aside width="0px">
         <el-menu
                 class="el-menu-vertical-demo"
                 @open="handleOpen"
@@ -55,41 +57,10 @@
 </template>
 
 <style lang="scss">
-  .el-menu {
-    .el-menu-item {
-      &.is-active {
-        font-weight: bold;
-        /*cursor: no-drop;*/
-        font-weight: bold;
-      }
-    }
-  }
   $header-height: 45px;
-  $header-background-color: #e7e7e7;
-  $aside-width: 0px;
   #user.el-container {
-    height: 100%;
     .el-header {
-      background-color: $header-background-color;
-      color: #333;
-      text-align: center;
-      .img {
-        float: left;
-        line-height: $header-height;
-      }
       .el-menu.header-menu {
-        background-color: transparent;
-        float: right;
-        border-width: 0px;
-        .el-menu-item {
-          font-size: 15px;
-          line-height: $header-height;
-          height: $header-height;
-          &.is-active {
-            color: black;
-            font-size: 16px;
-          }
-        }
         .el-submenu {
           .el-submenu__title {
             font-size: 15px;
@@ -105,14 +76,71 @@
         }
       }
     }
+  }
+</style>
+<style lang="scss" scoped>
+  .el-menu {
+    .el-menu-item {
+      &.is-active {
+        font-weight: bold;
+        /*cursor: no-drop;*/
+        font-weight: bold;
+      }
+    }
+  }
+  $header-height: 45px;
+  $header-background-color: #3976EF;
+  $header-background-color: #e7e7e7;
+  $split-line-color: #e7e7e7;
+  $aside-width: 180px;
+  #user.el-container {
+    height: 100%;
+    .el-header {
+      background-color: $header-background-color;
+      padding-left: 0px;
+      color: #333;
+      text-align: center;
+      .img {
+        float: left;
+        line-height: $header-height;
+        img {
+          width: 120px;
+          margin-left: 8px;
+        }
+      }
+      .el-menu.header-menu {
+        [class^="my-icon-"] {
+          display: inline-block;
+          font-size: 14px;
+          margin-top: 1px;
+          margin-right: 5px;
+        }
+        background-color: transparent;
+        float: right;
+        border-width: 0px;
+        .el-menu-item {
+          font-size: 15px;
+          line-height: $header-height;
+          height: $header-height;
+          &.is-active {
+            color: black;
+            font-size: 16px;
+          }
+        }
+      }
+    }
     .inner-container {
       .el-aside {
-        display: none;
         position: fixed;
         top: $header-height;
-        width: $aside-width;
         bottom: 0px;
-        border-right: solid 1px $header-background-color;
+        border-right: solid 1px $split-line-color;
+        [class^="my-icon-"] {
+          display: inline-block;
+          font-size: 14px;
+          margin-top: 1px;
+          margin-right: 5px;
+        }
         .el-menu {
           border-width: 0px;
           .el-menu-item {
@@ -121,6 +149,9 @@
               /*color: black;*/
               color: #409EFF;
               font-size: 16px;
+              [class^="my-icon-"] {
+                font-size: 15px;
+              }
             }
           }
         }
@@ -129,8 +160,9 @@
         padding: 0px;
         margin-left: $aside-width;
         .el-row.main-header {
-          border-bottom: 1px solid $header-background-color;
-          padding: 5px;
+          border-bottom: 1px solid $split-line-color;
+          padding: 3px;
+          min-height:39px;
           .el-col {
             &:nth-child(1) {
               padding-left: 6px;
@@ -244,6 +276,9 @@
             break;
           case 'profile':
             this.$router.push('/profile');
+            break;
+          case 'index':
+            this.$router.push('/index');
             break;
         }
       },
