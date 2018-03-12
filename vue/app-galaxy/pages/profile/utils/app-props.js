@@ -198,10 +198,12 @@ class AppInfoHelper {
       autoImageValue: [{
         required: false,
         message: '请输入镜像地址',
+        trigger: 'change'
       }],
       customImageValue: [{
         required: true,
-        message: '请输入镜像地址',
+        message: '请选择镜像地址',
+        trigger: 'change'
       }],
       // 镜像地址
       imageLocation: [{

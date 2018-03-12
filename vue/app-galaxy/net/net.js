@@ -790,17 +790,20 @@ class Net {
    * 获取镜像列表相关信息
    * 1. autoImageList， 自动打镜像列表
    * 2. customEnvImageList, 自定义镜像-环境镜像列表
-   * 3. privateAppList， 自定义镜像-项目列表
+   * 3. privateAppList， 自定义镜像-私有镜像(项目列表)
    * @param options
    * @returns {Promise}
    */
   getImageRelatedInfo(options4Auto, options4Env, options4PrivateApp) {
+    // 自动打镜像列表
     const getAutoImageList = () => {
       return axios.post(URL_LIST.auto_image_list, options4Auto);
     };
+    // 自定义镜像-环境镜像
     const getCustomEnvImageList = () => {
       return axios.post(URL_LIST.custom_image_env_list, options4Env);
     };
+    // 自定义镜像-私有镜像(项目列表)
     const getCustomPrivateImageAppList = () => {
       return axios.post(URL_LIST.custom_image_private_app_list, options4PrivateApp);
     };
@@ -834,7 +837,7 @@ class Net {
   }
 
   /**
-   * 自定义镜像， 通过项目获取版本列表
+   * 自定义镜像-私有镜像(项目的版本列表)
    * @param options
    * @returns {Promise}
    */
