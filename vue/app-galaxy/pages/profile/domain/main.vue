@@ -310,7 +310,7 @@
                 text-align: center;
               }
               width: 160px;
-              text-align: right;
+              text-align: center;
               float: left;
               text-overflow: ellipsis;
               word-wrap: break-word;
@@ -322,7 +322,7 @@
                 text-align: center;
               }
               margin-left: 180px;
-              text-align: left;
+              text-align: center;
             }
           }
         }
@@ -385,7 +385,7 @@
                 text-align: center;
               }
               width: 160px;
-              text-align: right;
+              text-align: center;
               float: left;
               text-overflow: ellipsis;
               word-wrap: break-word;
@@ -397,7 +397,7 @@
                 text-align: center;
               }
               margin-left: 180px;
-              text-align: left;
+              text-align: center;
             }
           }
         }

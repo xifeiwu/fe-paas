@@ -148,6 +148,7 @@
           margin-right: 5px;
         }
         .el-menu {
+          margin-top: 10px;
           border-width: 0px;
           .el-menu-item {
             font-size: 15px;
