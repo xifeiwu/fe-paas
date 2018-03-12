@@ -15,19 +15,19 @@
                    :key="index" :label="item.label" :value="item.value"></el-option>
       </el-select>
       <el-select v-model="formData.customImageValue" v-if="customImageType=='ENV'"
-                 :placeholder="this.imageRelatedInfo.customEnvImageList.length > 0 ? '请选择' : '加载中'">
+                 :placeholder="this.imageRelatedInfo.customEnvImageList.length > 0 ? '请选择' : '无数据'">
         <el-option v-for="(item, index) in imageRelatedInfo.customEnvImageList"
                    :key="index" :label="item.imageName" :value="item.imageName">
         </el-option>
       </el-select>
       <el-select v-model="currentPrivateApp" v-if="customImageType=='PRIVATE'"
-                 :placeholder="this.imageRelatedInfo.privateAppList.length > 0 ? '请选择' : '加载中'">
+                 :placeholder="this.imageRelatedInfo.privateAppList.length > 0 ? '请选择' : '无数据'">
         <el-option v-for="(item, index) in imageRelatedInfo.privateAppList"
                    :key="index" :label="item" :value="item">
         </el-option>
       </el-select>
       <el-select v-model="formData.customImageValue" v-if="customImageType=='PRIVATE'"
-                 :placeholder="currentPrivateAppVersionList.length > 0 ? '请选择' : '加载中'">
+                 :placeholder="currentPrivateAppVersionList.length > 0 ? '请选择' : '无数据'">
         <el-option v-for="(item, index) in currentPrivateAppVersionList"
                    :key="index" :label="item" :value="item">
         </el-option>
@@ -35,7 +35,7 @@
     </el-form-item>
     <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-else>
       <el-select v-model="formData.autoImageValue"
-                 :placeholder="this.imageRelatedInfo.autoImageList.length > 0 ? '请选择' : '加载中'">
+                 :placeholder="this.imageRelatedInfo.autoImageList.length > 0 ? '请选择' : '无数据'">
         <el-option v-for="(item, index) in imageRelatedInfo.autoImageList"
                    :key="index" :label="item" :value="item">
         </el-option>

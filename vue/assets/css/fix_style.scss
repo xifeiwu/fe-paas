@@ -255,6 +255,12 @@ h4 {
 }
 
 #app {
+  .el-dialog {
+    .el-dialog__header {
+      //background-color: #d9ecff;
+    }
+  }
+
   .el-table {
     thead {
       tr {
@@ -273,6 +279,13 @@ h4 {
     //hide expand column
     .el-table__expand-column .cell {
       display: none;
+    }
+    .el-table__body {
+      .el-table__row {
+        &.current-row > td {
+          background-color: white;
+        }
+      }
     }
   }
 
