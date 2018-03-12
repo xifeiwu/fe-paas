@@ -342,7 +342,7 @@
         // image related info requested from network, with the format:
         imageInfoFromNet: {
           autoImageList: [],
-            customEnvImageList: [],
+          customEnvImageList: [],
           privateAppList: [],
         },
         imageSelectState: {

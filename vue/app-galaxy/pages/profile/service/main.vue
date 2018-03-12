@@ -310,7 +310,7 @@
       <el-row>
         更改镜像方式为：
       </el-row>
-      <my-image-selector :serviceInfo="serviceInfo" :imageInfo="newProps" ref="changeImageForm"></my-image-selector>
+      <my-image-selector ref="changeImageForm"></my-image-selector>
       <div slot="footer" class="dialog-footer">
         <el-row>
           <el-col :span="12" style="text-align: center">
@@ -1598,21 +1598,25 @@ export default {
         case 'hosts':
         case 'fileLocation':
           this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
-          this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate();
           break;
         case 'cpuAndMemory':
           this.newProps['cpuID'] = this.selected.model['cpuID'];
           this.newProps['memoryID'] = this.selected.model['memoryID'];
-          this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate();
           break;
         case 'image':
           this.newProps['customImage'] = this.selected.model['customImage'];
           this.newProps['imageLocation'] = this.selected.model['imageLocation'];
-          this.$refs.hasOwnProperty(formName) &&
-          this.$refs[formName].validate();
           break;
       }
       this.selected.prop = prop;
+      // some action must be done after ui-show
+      this.$nextTick(() => {
+        this.$refs.hasOwnProperty(formName) &&
+        this.$refs[formName].validate();
+        if (prop === 'image') {
+          this.$refs[formName].init(this.serviceInfo, this.newProps);
+        }
+      })
     },
 
     /**
@@ -1674,6 +1678,7 @@ export default {
             if (!valid) {
               return;
             }
+            this.newProps = this.$refs[formName].getImageInfo();
             if (!this.newProps.hasOwnProperty('customImage') || !this.selected.model.hasOwnProperty('customImage')
               || !this.newProps.hasOwnProperty('imageLocation') || !this.selected.model.hasOwnProperty('imageLocation')) {
               return;

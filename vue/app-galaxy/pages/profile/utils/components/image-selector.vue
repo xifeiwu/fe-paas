@@ -1,32 +1,32 @@
 <template>
-  <el-form :model="formData"
+  <el-form :model="imageSelectState"
            :rules="formRules" label-width="120px" size="mini" ref="the-form">
     <el-form-item label="镜像方式" prop="customImage">
-      <el-radio-group v-model="formData.customImage">
+      <el-radio-group v-model="imageSelectState.customImage">
         <el-radio :label="false">自动打镜像</el-radio>
         <el-radio :label="true">自定义镜像</el-radio>
       </el-radio-group>
     </el-form-item>
-    <el-form-item label="镜像地址" prop="customImageValue" v-if="formData.customImage"
-                  class="custom-image" :class="customImageType.toLowerCase()+'-image'"
+    <el-form-item label="镜像地址" prop="customImageValue" v-if="imageSelectState.customImage"
+                  class="custom-image" :class="imageSelectState.customImageType.toLowerCase()+'-image'"
     >
-      <el-select v-model="customImageType">
+      <el-select v-model="imageSelectState.customImageType">
         <el-option v-for="(item, index) in customImageTypeList"
                    :key="index" :label="item.label" :value="item.value"></el-option>
       </el-select>
-      <el-select v-model="formData.customImageValue" v-if="customImageType=='ENV'"
-                 :placeholder="this.imageRelatedInfo.customEnvImageList.length > 0 ? '请选择' : '无数据'">
-        <el-option v-for="(item, index) in imageRelatedInfo.customEnvImageList"
+      <el-select v-model="imageSelectState.customImageValue" v-if="imageSelectState.customImageType=='ENV'"
+                 :placeholder="this.imageInfoFromNet.customEnvImageList.length > 0 ? '请选择' : '无数据'">
+        <el-option v-for="(item, index) in imageInfoFromNet.customEnvImageList"
                    :key="index" :label="item.imageName" :value="item.imageName">
         </el-option>
       </el-select>
-      <el-select v-model="currentPrivateApp" v-if="customImageType=='PRIVATE'"
-                 :placeholder="this.imageRelatedInfo.privateAppList.length > 0 ? '请选择' : '无数据'">
-        <el-option v-for="(item, index) in imageRelatedInfo.privateAppList"
+      <el-select v-model="imageSelectState.currentPrivateApp" v-if="imageSelectState.customImageType=='PRIVATE'"
+                 :placeholder="this.imageInfoFromNet.privateAppList.length > 0 ? '请选择' : '无数据'">
+        <el-option v-for="(item, index) in imageInfoFromNet.privateAppList"
                    :key="index" :label="item" :value="item">
         </el-option>
       </el-select>
-      <el-select v-model="formData.customImageValue" v-if="customImageType=='PRIVATE'"
+      <el-select v-model="imageSelectState.customImageValue" v-if="imageSelectState.customImageType=='PRIVATE'"
                  :placeholder="currentPrivateAppVersionList.length > 0 ? '请选择' : '无数据'">
         <el-option v-for="(item, index) in currentPrivateAppVersionList"
                    :key="index" :label="item" :value="item">
@@ -34,9 +34,9 @@
       </el-select>
     </el-form-item>
     <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-else>
-      <el-select v-model="formData.autoImageValue"
-                 :placeholder="this.imageRelatedInfo.autoImageList.length > 0 ? '请选择' : '无数据'">
-        <el-option v-for="(item, index) in imageRelatedInfo.autoImageList"
+      <el-select v-model="imageSelectState.autoImageValue"
+                 :placeholder="this.imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
+        <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
                    :key="index" :label="item" :value="item">
         </el-option>
       </el-select>
@@ -74,36 +74,21 @@
 <script>
   export default {
     created() {
-//      console.log('create image-selector');
-      if (!this.appInfoListOfGroup) {
-        this.$store.dispatch('user/appInfoListOfGroup', {
-          from: 'page/app/add',
-          groupID: this.$storeHelper.currentGroupID
-        });
-      } else {
-        this.onAppInfoListOfGroup(this.appInfoListOfGroup);
-      }
-      // as groupInfo is store in localStorage,
-      // so some performance is different from appInfoListOfGroup
-      this.onGroupInfo(this.groupInfo);
     },
     mounted() {
-//      console.log('mounted image-selector');
-      if (this.imageInfo) {
-        if (this.imageInfo.hasOwnProperty('customImage')) {
-          this.formData.customImage = this.imageInfo.customImage
-        }
-      }
     },
     data() {
       return {
+        serviceInfo: {
+          appID: null,
+          profileID: null
+        },
         currentApp: null,
         currentProfile: null,
 
         formData: {
-          customImage: false,
-          customImageValue: '',
-          autoImageValue: '',
+          customImage: null,
+          imageLocation: null,
         },
         formRules: {
           // 镜像方式
@@ -126,7 +111,6 @@
           }],
         },
 
-        customImageType: 'ENV',
         customImageTypeList: [{
           label: '环境镜像',
           value: 'ENV'
@@ -135,28 +119,24 @@
           value: 'PRIVATE'
         }],
 
-        imageRelatedInfo: {
+        imageInfoFromNet: {
           autoImageList: [],
           customEnvImageList: [],
           privateAppList: [],
         },
-        currentPrivateApp: '',
+        imageSelectState: {
+          customImage: false,
+          customImageValue: '',
+          autoImageValue: '',
+          // type of customImage
+          customImageType: 'ENV',
+          // selected private app in custom-image private-image
+          currentPrivateApp: '',
+        },
         currentPrivateAppVersionList: [],
       }
     },
     props: {
-      serviceInfo: {
-        type: Object,
-        default() {
-          return {
-            appID: null,
-            profileID: null
-          };
-        }
-      },
-      imageInfo: {
-        type: Object
-      }
     },
     computed: {
       groupInfo() {
@@ -168,31 +148,65 @@
     },
     watch: {
       appInfoListOfGroup: 'onAppInfoListOfGroup',
-      groupInfo: 'onGroupInfo',
-      'currentPrivateApp': 'requestPrivateImageLocation',
-      customImageType: {
+      groupInfo: 'onAppInfoListOfGroup',
+
+      // sync data from imageSelectState to formData
+      'imageSelectState.customImageValue': {
         immediate: true,
-        handler() {
-          this.formData.customImageValue = '';
+        handler(value) {
+          if (this.formData.customImage) {
+            this.formData.imageLocation = value;
+          }
         }
       },
-      'formData.customImageValue': 'onImageLocation',
-      'formData.autoImageValue': 'onImageLocation',
-      'serviceInfo.appID': 'onServiceInfo',
-      'serviceInfo.profileID': 'onServiceInfo'
+      'imageSelectState.autoImageValue': {
+        immediate: true,
+        handler(value) {
+          if (!this.formData.customImage) {
+            this.formData.imageLocation = value;
+          }
+        }
+      },
+
+      'imageInfoFromNet': {
+        immediate: true,
+        handler (info) {
+          this.updateImageSelection();
+        }
+      },
+      'imageSelectState.customImage': {
+        immediate: true,
+        handler (value) {
+          this.formData.customImage = value;
+          this.updateImageSelection();
+        }
+      },
+      'imageSelectState.customImageType': {
+        immediate: true,
+        handler (value) {
+          this.updateImageSelection();
+        }
+      },
+      'imageSelectState.currentPrivateApp': 'requestPrivateImageLocation',
     },
     methods: {
-      // listen to the change of prop serviceInfo
-      onServiceInfo() {
-//        console.log(this.serviceInfo);
-        if (!this.appInfoListOfGroup) {
-          this.$store.dispatch('user/appInfoListOfGroup', {
-            from: 'page/app/add',
-            groupID: this.$storeHelper.currentGroupID
-          });
-        } else {
-          this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+      init(serviceInfo, imageInfo) {
+        if (!this.$utils.theSame(serviceInfo, this.serviceInfo)) {
+          this.serviceInfo.appID = serviceInfo.appID;
+          this.serviceInfo.profileID = serviceInfo.profileID;
+          if (!this.appInfoListOfGroup) {
+            this.$store.dispatch('user/appInfoListOfGroup', {
+              from: 'page/app/add',
+              groupID: this.$storeHelper.currentGroupID
+            });
+          } else {
+            this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+          }
         }
+
+        this.imageSelectState.customImage = imageInfo.customImage;
+        this.imageSelectState.customImageValue = null;
+        this.imageSelectState.autoImageValue = null;
       },
 
       onAppInfoListOfGroup(appList) {
@@ -207,11 +221,6 @@
           console.log('serviceInfo.profileID not found');
         }
         this.requestImageRelatedInfo();
-      },
-      onGroupInfo(groupInfo) {
-        if (groupInfo) {
-          this.requestImageRelatedInfo();
-        }
       },
 
       requestImageRelatedInfo() {
@@ -252,16 +261,38 @@
           groupTag: groupTag
         }, {
           groupTag: groupTag
-        }).then(imageRelatedInfo => {
-          this.imageRelatedInfo = imageRelatedInfo;
-          if (imageRelatedInfo && imageRelatedInfo.hasOwnProperty('privateAppList')
-            && Array.isArray(imageRelatedInfo.privateAppList) && imageRelatedInfo.privateAppList.length > 0) {
-            this.currentPrivateApp = imageRelatedInfo.privateAppList[0];
+        }).then(imageInfoFromNet => {
+          this.imageInfoFromNet = imageInfoFromNet;
+          if (imageInfoFromNet && imageInfoFromNet.hasOwnProperty('privateAppList')
+            && Array.isArray(imageInfoFromNet.privateAppList) && imageInfoFromNet.privateAppList.length > 0) {
+            this.imageSelectState.currentPrivateApp = imageInfoFromNet.privateAppList[0];
           }
-//          console.log(this.imageRelatedInfo);
+//          console.log(this.imageInfoFromNet);
         }).catch(err => {
           console.log(err);
         })
+      },
+
+      // set default image at the change of custom-image's type
+      updateImageSelection() {
+        if (!this.imageSelectState.customImage) {
+          this.imageSelectState.autoImageValue = '';
+        } else {
+          let imageInfoFromNet = this.imageInfoFromNet;
+          this.imageSelectState.customImageValue = '';
+          switch (this.imageSelectState.customImageType) {
+            case 'ENV':
+              if (imageInfoFromNet.hasOwnProperty('customEnvImageList') && imageInfoFromNet.customEnvImageList.length > 0) {
+                this.imageSelectState.customImageValue = this.imageInfoFromNet.customEnvImageList[0].imageName;
+              }
+              break;
+            case 'PRIVATE':
+              if (imageInfoFromNet.hasOwnProperty('privateAppList') && imageInfoFromNet.privateAppList.length > 0) {
+                this.imageSelectState.currentPrivateApp = this.imageInfoFromNet.privateAppList[0];
+              }
+              break;
+          }
+        }
       },
 
       requestPrivateImageLocation(value) {
@@ -271,17 +302,11 @@
         }).then(versionList => {
           this.currentPrivateAppVersionList = versionList;
           if (this.currentPrivateAppVersionList.length > 0) {
-            this.formData.customImageValue = this.currentPrivateAppVersionList[0];
+//            this.formData.customImageValue = this.currentPrivateAppVersionList[0];
           }
         });
       },
 
-      onImageLocation(value) {
-        this.imageInfo.customImage = this.formData.customImage;
-        let imageLocation = this.formData.customImage ? this.formData.customImageValue : this.formData.autoImageValue;
-        this.imageInfo.imageLocation = imageLocation;
-        this.$emit('image-changed', this.formData);
-      },
       getImageInfo() {
         return this.formData;
       },
