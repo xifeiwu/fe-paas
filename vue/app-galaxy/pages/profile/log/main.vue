@@ -16,11 +16,18 @@
     padding: 0px;
     height: 100%;
     .el-tabs {
+      /*margin-left: 5px;*/
+      .el-tabs__nav {
+        border-radius: 0px;
+      }
       .el-tabs__header {
         margin: 0px;
         .el-tabs__item {
           line-height: 30px;
           height: 30px;
+          /*&:nth-child(2) {*/
+            /*padding-left: 20px;*/
+          /*}*/
         }
       }
     }

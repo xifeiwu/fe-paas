@@ -196,6 +196,11 @@ class Net {
         let menuToIgnore = ["应用监控", "Oauth权限"];
         oneLevelMenu = oneLevelMenu.filter(it => {
           return menuToIgnore.indexOf(it.name) === -1;
+        }).map(it => {
+          if (it.name === 'Oauth权限') {
+            it.name = 'Access Key管理';
+          }
+          return it;
         });
 
         content.permission = oneLevelMenu;
