@@ -23,7 +23,10 @@ import LogRun from './profile/log/run.vue';
 import LogDeploy from './profile/log/deploy.vue';
 
 import MonitorMain from './profile/monitor/main.vue';
+
 import OAuthMain from './profile/oauth/main.vue';
+import OAuthKey from './profile/oauth/key.vue';
+import OAuthURL from './profile/oauth/url.vue';
 
 import WorkOrderMain from './profile/work-order/main.vue';
 import WorkOrderToDo from './profile/work-order/todo.vue';
@@ -125,8 +128,20 @@ var Router = function () {
         component: MonitorMain,
       }, {
         path: 'oauth',
-        name: '权限管理',
+        // name: '权限管理',
         component: OAuthMain,
+        redirect: 'oauth/key',
+        children: [{
+          path: 'key',
+          name: 'Access Key',
+          component: OAuthKey,
+          meta: {keepAlive: true}
+        },{
+          path: 'url',
+          name: '授权URL',
+          component: OAuthURL,
+          meta: {keepAlive: true}
+        }]
       }, {
         path: 'work-order',
         // name: '审批管理',
