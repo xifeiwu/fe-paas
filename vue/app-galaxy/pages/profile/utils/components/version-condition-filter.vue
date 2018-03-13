@@ -316,6 +316,8 @@
           if (this.serviceListWithAll && this.serviceListWithAll.length > 0) {
             firstServiceID = this.serviceListWithAll[0]['id'];
           }
+          // whether serviceID is updated, if not trigger changeServiceCondition manually
+          // else trigger changeServiceCondition by watcher function of serviceID
           let updateServiceID = true;
           if (!this.selectedServiceID) {
             if (this.customConfig && this.customConfig.hasOwnProperty('serviceID')) {
@@ -334,8 +336,11 @@
 //              && this.serviceListWithAll.map(it => {return it.id}).indexOf(this.selectedServiceID) > -1) {
 //              updateServiceID = false;
 //            } else {
+            if (this.selectedServiceID === firstServiceID) {
+              updateServiceID = false;
+            } else {
             this.selectedServiceID = firstServiceID;
-//            }
+            }
           }
           if (!updateServiceID) {
             this.changeServiceCondition();
@@ -354,6 +359,7 @@
 
       // compare to the former state, whether selected value(profile, app, service) is changed or not
       needEmit() {
+//        console.log('needEmit');
         let isChange = false;
         // profileID changed or not
         if (this.selectedStatus.profileID !== this.selectedProfileID) {

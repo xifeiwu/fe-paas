@@ -206,18 +206,18 @@
             >{{item['internetDomain']}}</el-tag>
           </div>
         </div>
-      </div>
-      <div slot="footer" class="dialog-footer" v-if="!bindServiceProps.showResponse">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleButtonClickInDialog('bind-service-in-dialog')"
-                       :loading="statusOfWaitingResponse('bind-service-in-dialog')">保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button @click="currentOpenedDialog = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+        <div slot="footer" class="dialog-footer">
+          <el-row>
+            <el-col :span="12" style="text-align: center">
+              <el-button type="primary"
+                         @click="handleButtonClickInDialog('bind-service-in-dialog')"
+                         :loading="statusOfWaitingResponse('bind-service-in-dialog')">保&nbsp存</el-button>
+            </el-col>
+            <el-col :span="12" style="text-align: center">
+              <el-button @click="currentOpenedDialog = null">取&nbsp消</el-button>
+            </el-col>
+          </el-row>
+        </div>
       </div>
     </el-dialog>
 
