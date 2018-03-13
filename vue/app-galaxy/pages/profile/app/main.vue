@@ -36,7 +36,7 @@
       <el-table :data="appListByPage"
                 v-loading="showLoading"
                 element-loading-text="加载中">
-        <el-table-column label="语言版本" prop="languageVersion" headerAlign="center" align="center">
+        <el-table-column label="语言版本" prop="languageVersion" headerAlign="center" align="center" width="120">
           <template slot-scope="scope">
             <svg :class="['my-icon-svg', 'my-icon-' + scope.row.languageLogo]" aria-hidden="true" v-if="scope.row.languageLogo">
               <use :xlink:href="'#my-icon-' + scope.row.languageLogo"></use>
@@ -52,17 +52,16 @@
             <i class="el-icon-edit" @click="handleTRButton('change-appName', scope.$index, scope.row)"></i>
           </template>
         </el-table-column>
-        <el-table-column label="创建者" prop="creator" headerAlign="center" align="center">
+        <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="140">
         </el-table-column>
-        <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center">
+        <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="180">
         </el-table-column>
         <el-table-column label="运行环境" prop="profileList" minWidth="90" headerAlign="center" align="center">
           <template slot-scope="scope">
-            <div v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
-              <span :class="{'profile-item': true, 'active': scope.row.profileNames.indexOf(item.name) > -1}"
+              <span v-for="item in profileListOfGroup" :label="item.name" :key="item.name"
+                    :class="{'profile-item': true, 'active': scope.row.profileNames.indexOf(item.name) > -1}"
                     @click="jumpToServicePage(scope.$index, scope.row, item, scope.row.profileNames.indexOf(item.name) > -1)"
               >{{ item.description }}</span>
-            </div>
           </template>
         </el-table-column>
         <el-table-column label="操作" prop="operation" minWidth="170" width="200" headerAlign="center" align="center">
@@ -207,12 +206,13 @@
           }
           .profile-item {
             display: inline-block;
-            color: #333;
+            margin: 0px 5px;
+            color: #909399;
             line-height: 18px;
             &.active {
               cursor: pointer;
               color: blue;
-              border-bottom: 1px solid gray;
+              /*border-bottom: 1px solid gray;*/
               &:hover {
                 color: blue;
                 border-color: blue;
