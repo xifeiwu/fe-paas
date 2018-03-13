@@ -8,7 +8,7 @@
           <div>2. 如果选择拒绝处理，必须给出审批意见</div>
           <div>3. 测试报告只能上传一个文件</div>
         </div>
-        <span>工单测试<i class="el-icon-question"></i></span>
+        <span>测试工单<i class="el-icon-question"></i></span>
       </el-tooltip>
     </div>
 

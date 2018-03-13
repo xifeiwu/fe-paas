@@ -82,12 +82,12 @@
                     size="mini-extral"
                     type="success"
                     :loading="statusOfWaitingResponse(scope.row.status) && operation.rowID == scope.row.id"
-                    @click="handleTRButton(scope.row.status, scope.$index, scope.row)">处理</el-button>
+                    @click="handleTRButton(scope.row.status, scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
             <el-button v-if="scope.row.status==='WORKORDER_APPLY'"
                     size="mini-extral"
                     type="success"
                     :loading="statusOfWaitingResponse('modify') && operation.rowID == scope.row.id"
-                    @click="handleTRButton('modify', scope.$index, scope.row)">修改</el-button>
+                    @click="handleTRButton('modify', scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
           </template>
         </el-table-column>
         <el-table-column type="expand"
@@ -401,6 +401,27 @@
             this.$router.push(params.path);
             break;
         }
+      },
+      getStatusName(status) {
+        let name = '处理工单';
+        switch (status) {
+          case 'WORKORDER_APPLY':
+            name = '修改工单';
+            break;
+          case 'WAIT_TEST':
+          case 'TESTING':
+            name = '测试工单';
+            break;
+          case 'WAIT_DEPLOY':
+          case 'DEPLOYING':
+            name = '部署工单';
+            break;
+          case 'WAIT_ACCEPTANCE':
+          case 'ACCEPTANCEING':
+            name = '验收工单';
+            break;
+        }
+        return name;
       },
       handleTRButton(action, index, row) {
         // operation.rowID is used to indicate which row is active

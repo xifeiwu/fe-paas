@@ -13,6 +13,11 @@
   #work-order {
     padding: 0px;
     .el-tabs {
+      .el-tabs__nav {
+        border-radius: 0px;
+        border-top: 0px;
+        border-left: 0px;
+      }
       .el-tabs__header {
         margin: 0px;
         .el-tabs__item {

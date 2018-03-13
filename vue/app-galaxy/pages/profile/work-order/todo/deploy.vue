@@ -3,12 +3,12 @@
     <div class="section-title">
       <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
         <div slot="content">
-          <div>部署应用注意事项</div>
-          <div>1. 点击最下面的部署应用按钮，将会弹出对话框展示部署状态</div>
+          <div>部署工单注意事项</div>
+          <div>1. 点击最下面的部署工单按钮，将会弹出对话框展示部署状态</div>
           <div>2. 部署（成功或失败）完成，仍需点击"处理完成"或"拒绝处理"，以便更新工单状态</div>
           <div>3. 拒绝处理，需要填写审批意见</div>
         </div>
-        <span>部署应用<i class="el-icon-question"></i></span>
+        <span>部署工单<i class="el-icon-question"></i></span>
       </el-tooltip>
     </div>
     <div class="section-body">
@@ -31,7 +31,7 @@
       <el-button
               size="mini"
               type="primary"
-              @click="handleButtonClick('deploy')">部署应用</el-button>
+              @click="handleButtonClick('deploy')">部署工单</el-button>
       <el-button
               size="mini"
               type="primary"

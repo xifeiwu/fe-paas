@@ -166,11 +166,11 @@ var Router = function () {
         component: WorkOrderModify,
       }, {
         path: 'work-order/todo/deploy',
-        name: '部署应用',
+        name: '部署工单',
         component: WorkOrderDeploy,
       }, {
         path: 'work-order/todo/test',
-        name: '工单测试',
+        name: '测试工单',
         component: WorkOrderTest,
       }, {
         path: 'work-order/todo/accept',
