@@ -1,5 +1,5 @@
 <template>
-  <div class="el-version-selector">
+  <div class="my-version-selector">
     <div class="item">
       <label>应用名称:</label>
       <el-select filterable v-model="selectedAppID" placeholder="请选择">

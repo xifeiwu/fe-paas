@@ -470,7 +470,7 @@
             this.$net.removeWorkOrder({
               workOrderDeployId: this.workOrderDetail.id
             }).then(msg => {
-              this.$alert('工单' + this.workOrderDetail.name +'删除成功，即将返回上一页', '删除工单成功', {
+              this.$alert('工单"' + this.workOrderDetail.name +'"删除成功，即将返回上一页', '删除工单成功', {
                 confirmButtonText: '确定',
                 callback: () => {
                   this.$router.go(-1);

@@ -1335,7 +1335,7 @@ export default {
     getVersionDescription(row) {
       let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
       let description = profileInfo && profileInfo.hasOwnProperty('description') ? profileInfo.description : '';
-      let desc = `应用${this.selectedAPP.serviceName}-${description}-${row.serviceVersion}版本的服务`;
+      let desc = `${this.selectedAPP.serviceName}-${description}-${row.serviceVersion}版本`;
       return desc;
     },
     /**
@@ -1438,8 +1438,8 @@ export default {
         case 'delete':
           this.addToWaitingResponseQueue('delete');
           var desc = this.getVersionDescription(row);
-          this.warningConfirm(`删除服务将会销毁${desc}的代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。`).then(() => {
-            this.warningConfirm(`你确认要删除${desc}，并清除该服务的一切数据？`).then(() => {
+          this.warningConfirm(`删除服务将会销毁"${desc}"的代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。`).then(() => {
+            this.warningConfirm(`你确认要删除"${desc}"，并清除该服务的一切数据？`).then(() => {
               this.$net.serviceDelete({
                 id: serviceID,
                 appId: this.selectedAppID,
@@ -1471,7 +1471,7 @@ export default {
         case 'stop':
           this.addToWaitingResponseQueue('stop');
           var desc = this.getVersionDescription(row);
-          this.$confirm(`停止将会导致${desc}不可用，但不会删除代码及配置信息，你确定需要这么做吗?`).then(() => {
+          this.$confirm(`停止将会导致"${desc}"不可用，但不会删除代码及配置信息，你确定需要这么做吗?`).then(() => {
             this.$net.serviceStop({
               id: serviceID,
               appId: this.selectedAppID,

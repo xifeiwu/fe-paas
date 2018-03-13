@@ -668,12 +668,12 @@
             break;
           case 'remove':
             this.addToWaitingResponseQueue(action);
-            this.warningConfirm(`删除外网二级域名${row.internetDomain}，将会同时删除该域名关联的IP白名单，确定吗？`).then(() => {
+            this.warningConfirm(`删除外网二级域名"${row.internetDomain}"，将会同时删除该域名关联的IP白名单，确定吗？`).then(() => {
               this.$net.removeDomain({
                 id: row.id
               }).then(msg => {
                 this.hideWaitingResponse(action);
-                this.$message.success(`成功删除域名${row['internetDomain']}`);
+                this.$message.success(`成功删除域名"${row['internetDomain']}"`);
                 this.requestDomainList();
               }).catch(msg => {
                 this.hideWaitingResponse(action);
