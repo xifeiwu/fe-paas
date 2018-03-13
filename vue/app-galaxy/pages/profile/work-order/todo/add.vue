@@ -122,6 +122,9 @@
     .el-input, .el-select, .el-textarea {
       width: 400px;
     }
+    .el-textarea {
+      margin-top: 3px;
+    }
     .el-form-item--mini {
       margin-bottom: 12px;
     }

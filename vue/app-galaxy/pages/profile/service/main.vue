@@ -1155,6 +1155,12 @@ export default {
         let defaultProfileID = this.selectedProfileList[0]['id'];
         if (null == this.selectedProfileID) {
           let selectedProfileID = this.$getUserConfig('profile/service/profileID');
+          // check whether selectedProfileID exist in selectedProfileList
+          selectedProfileID = this.selectedProfileList.map(it => {
+            if (it && it.id) {
+              return it.id
+            }
+          }).indexOf(selectedProfileID) > -1 ? selectedProfileID: defaultProfileID;
           if (selectedProfileID) {
             this.selectedProfileID = selectedProfileID;
           } else {
@@ -1162,7 +1168,7 @@ export default {
           }
         } else {
           // request service list when app id is changed while profile id is not changed.
-          if (this.selectedProfileID == defaultProfileID) {
+          if (this.selectedProfileID === defaultProfileID) {
             this.requestServiceList(this.selectedAPP.appId, this.selectedProfileID);
           } else {
             this.selectedProfileID = defaultProfileID;
@@ -1220,12 +1226,14 @@ export default {
         if (!this.appList || (0 == this.appList.length)) {
           return;
         }
-        let appId = this.$getUserConfig('profile/service/appID');
-        if (appId && this.$storeHelper.getAppInfoByID(appId)) {
-          this.selectedAppID = appId;
+        let localID = this.$getUserConfig('profile/service/appID');
+        let appID = null;
+        if (localID && this.$storeHelper.getAppInfoByID(localID)) {
+          appID = localID;
         } else {
-          this.selectedAppID = this.appList[0]['appId'];
+          appID = this.appList[0]['appId'];
         }
+        this.selectedAppID = appID;
       }
     },
     onCpuAndMemoryList(value, oldValue) {
