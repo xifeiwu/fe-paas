@@ -1,12 +1,6 @@
 <template>
   <div id="domain-main">
-    <div class="section-header">
-      <div class="row">
-        <my-version-condition-filter
-                :addItemAll="{app:true, profile:true, service: true}"
-                :customConfig="localServiceConfig"
-                @service-condition-changed="onServiceConditionChanged"></my-version-condition-filter>
-      </div>
+    <div class="header">
       <div class="row">
         <el-button
                 size="mini-extral"
@@ -37,8 +31,14 @@
           <i class="el-icon-question"></i>
         </el-tooltip>
       </div>
+      <div class="row">
+        <my-version-condition-filter
+                :addItemAll="{app:true, profile:true, service: true}"
+                :customConfig="localServiceConfig"
+                @service-condition-changed="onServiceConditionChanged"></my-version-condition-filter>
+      </div>
     </div>
-    <div class="section-content">
+    <div class="domain-list">
       <el-table
               :data="currentDomainList"
               style="width: 100%"
@@ -48,7 +48,7 @@
       >
         <el-table-column
                 type="selection"
-                width="55">
+                width="36">
         </el-table-column>
         <el-table-column
                 prop="internetDomain"
@@ -266,29 +266,6 @@
 
 <style lang="scss">
   #domain-main {
-    .section-header {
-      margin: 5px;
-      .el-select .el-input__inner {
-        height: 24px;
-      }
-      .row {
-        margin: 3px;
-      }
-    }
-    .section-content {
-      .el-table {
-        margin-bottom: 40px;
-        .el-table__row {
-          .el-button {
-            margin: 2px 4px 2px 0px;
-            float: left;
-          }
-        }
-        .el-table__expanded-cell {
-          padding: 0px;
-        }
-      }
-    }
     .el-dialog__wrapper {
       &.add-domain, &.bind-service {
         /*max-width: 900px;*/
@@ -408,10 +385,26 @@
 <style lang="scss" scoped>
   #domain-main {
     .header {
-      margin: 5px;
+      margin: 5px 5px 8px 5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       font-size: 14px;
       .row {
-        margin-bottom: 5px;
+        padding: 0px 3px;
+        box-sizing: border-box;
+        &:nth-child(1) {
+          width: 30%;
+          border-right: 1px solid #e7e7e7;
+          text-align: center;
+        }
+        &:nth-child(2) {
+          width: 70%;
+          text-align: center;
+          .my-version-selector {
+            display: inline-block;
+          }
+        }
       }
       .el-icon-question {
         font-size: 16px;
@@ -419,35 +412,21 @@
         margin-left: 10px;
       }
     }
-    .el-table {
-      margin-bottom: 40px;
-      .el-table__row {
-        .el-button {
-          margin: 2px 4px;
-          float: left;
-          &.expand {
-            .el-icon-arrow-right {
-              transform: rotate(90deg);
-            }
-          }
-          .el-icon-arrow-right {
-            vertical-align: middle;
-            transition: transform 0.2s ease-in-out;
-          }
-          &:first-child {
-            margin-left: 0px;
+    .domain-list {
+      .el-table {
+        margin-bottom: 40px;
+        .el-table__row {
+          .el-button {
+            margin: 2px 4px 2px 0px;
+            display: inline-block;
           }
         }
-        .el-button + .el-button {
-          margin-left: 0px;
+        .el-table__expanded-cell {
+          padding: 0px;
         }
-      }
-      .el-table__expanded-cell {
-        padding: 0px;
       }
     }
   }
-
 </style>
 
 <script>
