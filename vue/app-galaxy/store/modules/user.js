@@ -123,10 +123,10 @@ const actions = {
     state.groupInfo = null;
     state.groupList = null;
     state.profileListOfGroup = null;
-    localStorage.removeItem('user/info');
-    localStorage.removeItem('user/config');
     // remove menuList will have affect on UI
     // localStorage.removeItem('user/menuList');
+    localStorage.removeItem('user/info');
+    localStorage.removeItem('user/config');
     localStorage.removeItem('user/groupInfo');
     localStorage.removeItem('user/groupList');
     localStorage.removeItem('user/profileListOfGroup');
@@ -143,6 +143,9 @@ const actions = {
         commit('SET_GROUP_LIST', content.groupList);
         dispatch('groupInfo');
       }
+    }).catch(err => {
+      commit('SET_GROUP_LIST', content.groupList);
+      dispatch('groupInfo');
     });
     // }
   },
@@ -168,35 +171,46 @@ const actions = {
     // action at the change of groupInfo
     const SET_GROUP_INFO = function({state, dispatch}, groupInfo) {
       state.groupInfo = groupInfo;
-      // if (USE_LOCAL_STORAGE) {
-      dispatch('profileListOfGroup', {
-        id: groupInfo.id
-      });
-      dispatch('usersInGroup', {
-        id: groupInfo.id
-      });
-      dispatch('appInfoListOfGroup', {
-        groupID: groupInfo.id
-      });
+      if (groupInfo && groupInfo.hasOwnProperty('id')) {
+        dispatch('profileListOfGroup', {
+          id: groupInfo.id
+        });
+        dispatch('usersInGroup', {
+          id: groupInfo.id
+        });
+        dispatch('appInfoListOfGroup', {
+          groupID: groupInfo.id
+        });
+      }
       localStorage.setItem('user/groupInfo', JSON.stringify(groupInfo));
-      // }
     };
 
     if (state.groupID) {
       if (state.groupList && Array.isArray(state.groupList)) {
+        // id, list
         let target = null;
         state.groupList.some(it => {
           target = it.id === state.groupID ? it : null;
           return target
         });
-        if (!state.groupInfo || (target != null && state.groupInfo.id != target.id)) {
+        if (!target && state.groupList.length > 0) {
+          state.groupID = state.groupList[0];
+        }
+        if (!state.groupInfo || state.groupInfo.id != state.groupID) {
           SET_GROUP_INFO({state, dispatch}, target);
         }
+      } else {
+        // id, not list
+        SET_GROUP_INFO({state, dispatch}, {});
       }
     } else {
       if (state.groupList && Array.isArray(state.groupList) && state.groupList.length > 0) {
+        // not id, list
         let target = state.groupList[0];
         SET_GROUP_INFO({state, dispatch}, target);
+      } else {
+        // not id, not list
+        SET_GROUP_INFO({state, dispatch}, {});
       }
     }
 
