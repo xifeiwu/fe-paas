@@ -1,6 +1,6 @@
 <template>
   <div id="instance-main">
-    <el-row class="header">
+    <el-row class="header" type="flex" justify="center" align="middle">
       <el-col :span="4">
         <el-button v-if="true"
                    size="mini-extral"
@@ -78,9 +78,10 @@
 </style>
 <style lang="scss" scoped>
   #instance-main {
-    .header {
+    .el-row.header {
       margin: 5px;
       font-size: 14px;
+      min-height: 28px;
     }
   }
 

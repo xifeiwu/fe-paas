@@ -29,14 +29,14 @@
 </template>
 
 <style lang="scss">
-  .el-version-selector {
+  .my-version-selector {
     .el-select .el-input__inner {
       height: 24px;
     }
   }
 </style>
 <style lang="scss" scoped>
-  .el-version-selector {
+  .my-version-selector {
     font-size: 14px;
     .item {
       display: inline-block;

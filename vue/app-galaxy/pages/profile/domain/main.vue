@@ -391,16 +391,15 @@
       justify-content: space-between;
       font-size: 14px;
       .row {
-        padding: 0px 3px;
         box-sizing: border-box;
         &:nth-child(1) {
           width: 30%;
-          border-right: 1px solid #e7e7e7;
-          text-align: center;
+          /*border-right: 1px solid #e7e7e7;*/
+          text-align: left;
         }
         &:nth-child(2) {
           width: 70%;
-          text-align: center;
+          text-align: left;
           .my-version-selector {
             display: inline-block;
           }

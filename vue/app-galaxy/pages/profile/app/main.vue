@@ -177,7 +177,6 @@
       margin: 5px;
       font-size: 14px;
       .el-row {
-        margin: 0px 5px;
         .el-col {
           &:nth-child(3) {
             text-align: right;

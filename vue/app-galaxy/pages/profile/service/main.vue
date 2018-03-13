@@ -1,7 +1,7 @@
 <template>
   <div id="service-main">
     <div class="header">
-      <el-row class="operation">
+      <el-row class="operation" type="flex" justify="center" align="middle">
         <el-col :span="6">
           <el-button
               size="mini-extral"
@@ -933,16 +933,17 @@
         font-size: 14px;
       }
       .el-row {
+        min-height: 28px;
         &.operation {
-          margin: 5px 5px 5px 8px;
+          margin: 5px 5px 5px 5px;
           .el-col {
             padding: 0px 10px;
             display: inline-block;
             vertical-align: middle;
-            text-align: center;
+            text-align: left;
             &:first-child {
               padding: 0px;
-              border-right: 1px solid darkgray;
+              /*border-right: 1px solid darkgray;*/
             }
             &:nth-child(2) {
               .item {

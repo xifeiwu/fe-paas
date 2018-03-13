@@ -179,7 +179,7 @@
         .el-col {
           padding: 0px 0px;
           &:first-child {
-            text-align: center;
+            text-align: left;
             border-right: 1px solid darkgray;
           }
           &:nth-child(2) {
