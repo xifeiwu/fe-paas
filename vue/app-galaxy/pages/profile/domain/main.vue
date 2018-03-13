@@ -184,10 +184,10 @@
           <div class="key">{{key}}</div>
           <div class="value">{{value}}</div>
         </div>
-      </div>
-      <div slot="footer" class="dialog-footer" style="text-align: center" v-if="bindServiceProps.showResponse">
-        <el-button type="primary"
-                   @click="handleButtonClickInDialog('close-bind-service-in-dialog')">确&nbsp定</el-button>
+        <div slot="footer" class="dialog-footer" style="text-align: center">
+          <el-button type="primary"
+                     @click="handleButtonClickInDialog('close-bind-service-in-dialog')">确&nbsp定</el-button>
+        </div>
       </div>
       <div v-if="!bindServiceProps.showResponse">
         <my-version-condition-filter ref="version-selector-in-bind-service-dialog"
@@ -331,7 +331,7 @@
                 text-align: center;
               }
               width: 160px;
-              text-align: right;
+              text-align: center;
               float: left;
               text-overflow: ellipsis;
               word-wrap: break-word;
@@ -343,7 +343,7 @@
                 text-align: center;
               }
               margin-left: 180px;
-              text-align: left;
+              text-align: center;
             }
           }
         }

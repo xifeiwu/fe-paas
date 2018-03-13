@@ -939,6 +939,7 @@
             padding: 0px 10px;
             display: inline-block;
             vertical-align: middle;
+            text-align: center;
             &:first-child {
               padding: 0px;
               border-right: 1px solid darkgray;

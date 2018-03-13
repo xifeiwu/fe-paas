@@ -219,26 +219,14 @@ h4 {
   line-height: 25px;
 }
 
-.clear {
-  content: "\0020";
-  display: block;
-  height: 0;
+.clear:before, .clear:after {
+  display: table;
+  content: '';
+}
+.clear:after {
   clear: both;
-  visibility: hidden;
 }
 
-.clearfix {
-}
-
-.clearfix:after,
-.clearfix:before {
-  clear: both;
-  content: '\0020';
-  display: block;
-  visibility: hidden;
-  width: 0;
-  height: 0;
-}
 
 .el-tag {
 }
