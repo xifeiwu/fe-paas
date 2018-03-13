@@ -31,7 +31,7 @@
       <el-button
               size="mini"
               type="primary"
-              @click="handleButtonClick('deploy')">部署工单</el-button>
+              @click="handleButtonClick('deploy')">部署应用</el-button>
       <el-button
               size="mini"
               type="primary"
