@@ -411,7 +411,6 @@
         })
       },
 
-
       /* functions used for upload file */
       handleSubmitUpload() {
         this.$refs.upload.submit();
@@ -440,10 +439,21 @@
         })
       },
       afterLoadSuccess(res, file, fileList) {
-        this.$message({
-          type: 'success',
-          message: '文件' + file.name + '上传成功！'
-        });
+        if (res.hasOwnProperty('msg')) {
+          this.$notify.success({
+            title: `文件"${file.name}"上传成功！`,
+            message: res.msg,
+            duration: 10000,
+            onClose: function () {
+            }
+          });
+        } else {
+          this.$message({
+            type: 'success',
+            message: '文件' + file.name + '上传成功！'
+          });
+        }
+
         this.$refs.upload.clearFiles();
         this.requestWhiteIPList();
       },

@@ -119,7 +119,7 @@
       <div v-if="domainProps.showResponse">
         <div class="key title">外网域名</div>
         <div class="value title">添加状态</div>
-        <div v-for="(value, key) in domainProps.serverResponse">
+        <div class="clear list-item" v-for="(value, key) in domainProps.serverResponse">
           <div class="key">{{key}}</div>
           <div class="value">{{value}}</div>
         </div>
@@ -180,15 +180,16 @@
       <div v-if="bindServiceProps.showResponse">
         <div class="key title">外网域名</div>
         <div class="value title">绑定状态</div>
-        <div v-for="(value, key) in bindServiceProps.serverResponse">
+        <div class="clear list-item" v-for="(value, key) in bindServiceProps.serverResponse">
           <div class="key">{{key}}</div>
           <div class="value">{{value}}</div>
         </div>
-        <div slot="footer" class="dialog-footer" style="text-align: center">
-          <el-button type="primary"
-                     @click="handleButtonClickInDialog('close-bind-service-in-dialog')">确&nbsp定</el-button>
-        </div>
       </div>
+      <div slot="footer" class="dialog-footer" style="text-align: center" v-if="bindServiceProps.showResponse">
+        <el-button type="primary"
+                   @click="handleButtonClickInDialog('close-bind-service-in-dialog')">确&nbsp定</el-button>
+      </div>
+
       <div v-if="!bindServiceProps.showResponse">
         <my-version-condition-filter ref="version-selector-in-bind-service-dialog"
                                      :fixedInfo="fixedInfoForVersionCondition"
@@ -206,18 +207,18 @@
             >{{item['internetDomain']}}</el-tag>
           </div>
         </div>
-        <div slot="footer" class="dialog-footer">
-          <el-row>
-            <el-col :span="12" style="text-align: center">
-              <el-button type="primary"
-                         @click="handleButtonClickInDialog('bind-service-in-dialog')"
-                         :loading="statusOfWaitingResponse('bind-service-in-dialog')">保&nbsp存</el-button>
-            </el-col>
-            <el-col :span="12" style="text-align: center">
-              <el-button @click="currentOpenedDialog = null">取&nbsp消</el-button>
-            </el-col>
-          </el-row>
-        </div>
+      </div>
+      <div slot="footer" class="dialog-footer" v-if="!bindServiceProps.showResponse">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleButtonClickInDialog('bind-service-in-dialog')"
+                       :loading="statusOfWaitingResponse('bind-service-in-dialog')">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button @click="currentOpenedDialog = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
       </div>
     </el-dialog>
 
@@ -228,7 +229,7 @@
       <div v-if="unBindServiceProps.showResponse">
         <div class="key title">外网域名</div>
         <div class="value title">绑定状态</div>
-        <div v-for="(value, key) in unBindServiceProps.serverResponse">
+        <div class="clear list-item" v-for="(value, key) in unBindServiceProps.serverResponse">
           <div class="key">{{key}}</div>
           <div class="value">{{value}}</div>
         </div>
@@ -240,13 +241,13 @@
 
       <div class="selected-domain" v-if="!unBindServiceProps.showResponse">
         <span>解绑域名</span>
-        <el-tag
+        <span
                 v-for="(item, index) in rowsSelected"
                 :key="index"
                 type="success"
                 size="small"
-        >{{item['internetDomain']}}</el-tag>
-        <span>，将导致外网二级域名与服务分离，你确定需要这么做吗？</span>
+        >{{'"' + item['internetDomain'] + '"，'}}</span>
+        <span>将导致外网二级域名与服务分离，你确定需要这么做吗？</span>
       </div>
       <div slot="footer" class="dialog-footer" v-if="!unBindServiceProps.showResponse">
         <el-row>
@@ -267,10 +268,13 @@
 <style lang="scss">
   #domain-main {
     .el-dialog__wrapper {
-      &.add-domain, &.bind-service {
+      &.add-domain, &.bind-service, &.unbind-service {
         /*max-width: 900px;*/
+        .el-dialog {
+          width: 100%;
+        }
         width: 80%;
-        max-width: 750px;
+        max-width: 700px;
         margin: 15px auto;
         .el-form {
           .el-form-item__content {
@@ -281,6 +285,10 @@
       &.add-domain {
         &.show-response {
           .el-dialog__body {
+            .list-item {
+              border-bottom: 1px solid #909399;
+              margin-bottom: 3px;
+            }
             .key {
               &.title {
                 font-weight: bold;
@@ -325,6 +333,10 @@
         }
         &.show-response {
           .el-dialog__body {
+            .list-item {
+              border-bottom: 1px solid #909399;
+              margin-bottom: 3px;
+            }
             .key {
               &.title {
                 font-weight: bold;
@@ -350,12 +362,17 @@
       }
       &.unbind-service {
         .selected-domain {
-          max-width: 500px;
           margin-top: 3px;
           text-align: left;
+          word-break: break-all;
+          word-wrap: break-word;
         }
         &.show-response {
           .el-dialog__body {
+            .list-item {
+              border-bottom: 1px solid #909399;
+              margin-bottom: 3px;
+            }
             .key {
               &.title {
                 font-weight: bold;

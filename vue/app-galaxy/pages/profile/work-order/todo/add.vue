@@ -24,7 +24,7 @@
           {{workOrderDetail.creatorName}}
         </el-form-item>
         <el-form-item label="团队名称" prop="groupName">
-          <el-select v-model="currentGroupID" placeholder="请选择">
+          <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择">
             <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
@@ -299,8 +299,13 @@
       };
     },
     computed: {
-      currentGroupID() {
-        return this.$storeHelper.currentGroupID;
+      currentGroupID: {
+        get() {
+          return this.$storeHelper.currentGroupID;
+        },
+//        set(value) {
+//          this.$storeHelper.currentGroupID = value;
+//        }
       },
       groupList() {
         return this.$storeHelper.groupList();
@@ -339,7 +344,7 @@
         this.$refs.hasOwnProperty('applicationForm') && this.$refs['applicationForm'].validate(valid => {
         });
       },
-      currentGroupID: 'onCurrentGroupID',
+      '$storeHelper.currentGroupID': 'onCurrentGroupID',
     },
     methods: {
       onCurrentGroupID(value) {
