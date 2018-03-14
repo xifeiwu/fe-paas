@@ -1,10 +1,150 @@
 <template>
   <div id="oauth-key">
-    oauth-key
+    <el-row class="header">
+      <el-col :span="6">
+        <el-button
+                size="mini-extral"
+                type="primary"
+                @click="handleButtonClick('create-access-key')">
+          创建Access Key
+        </el-button>
+      </el-col>
+      <el-col :span="18" class="key-selector">
+        <div class="item">
+          <label style="float: left; width: 100px; line-height: 26px">访问对方团队：</label>
+          <el-select filterable v-model="searchCondition.groupID" placeholder="请选择"
+                     style="display:block; max-width: 280px; margin-left: 100px;">
+            <el-option v-for="(item, index) in [{id: 0, name: '所有'},{id: 1, name: 'A'},{id: 2, name: 'B'}]"
+                       :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select>
+        </div>
+        <div class="item">
+          <label style="float: left; width: 72px; line-height: 26px">访问环境：</label>
+          <el-select v-model="searchCondition.production" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 72px;">
+            <el-option :value="true" label="生产环境"></el-option>
+            <el-option :value="false" label="非生产环境"></el-option>
+          </el-select>
+        </div>
+        <el-button size="mini-extral"
+                   type="primary"
+                   @click="handleButtonClick('search')">搜索</el-button>
+      </el-col>
+    </el-row>
+    <div class="access-key-list">
+      <el-table
+              :data="accessKeyListByPage"
+              style="width: 100%"
+              v-loading="showLoading"
+              element-loading-text="加载中"
+      >
+        <el-table-column
+          prop="accessKey"
+          label="Access Key"
+          width="120"
+          headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column
+          prop="secret"
+          label="Access Secret"
+          width="120"
+          headerAlign="center" align="center"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="myApp"
+          label="我的应用"
+          width="80"
+          headerAlign="center" align="center"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="appAccessStatus"
+          label="访问应用信息-状态"
+          width="120"
+          headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column
+          prop="profileName"
+          label="访问环境"
+          width="90"
+          headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column
+          prop="creatorName"
+          label="创建人"
+          width="90"
+          headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column
+                label="创建时间"
+                prop="createTime"
+                width="120"
+                headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column
+                prop="operation"
+                label="操作"
+                headerAlign="center" align="center"
+        >
+          <template slot-scope="scope">
+            <el-button
+                    size="mini-extral"
+                    type="warning"
+                    @click="handleTRClick('config-access', scope.$index, scope.row)">
+              访问配置
+            </el-button>
+            <el-button
+                    size="mini-extral"
+                    type="warning"
+                    :loading="statusOfWaitingResponse('modify-secret') && selected.row.id === scope.row.id"
+                    @click="handleTRClick('modify-secret', scope.$index, scope.row)">修改秘钥
+            </el-button>
+            <el-button
+                    size="mini-extral"
+                    type="danger"
+                    :loading="statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
+                    @click="handleTRClick('delete', scope.$index, scope.row)">删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+  #oauth-key {
+    .el-row.header {
+      .el-select .el-input__inner {
+        height: 26px;
+      }
+    }
+  }
+</style>
+<style lang="scss" scoped>
+#oauth-key {
+  .el-row.header {
+    margin: 5px;
+    font-size: 14px;
+    line-height: 20px;
+    i {
+      font-size: 14px;
+    }
+    .el-col {
+      vertical-align: middle;
+      .item {
+        display: inline-block;
+      }
+    }
+  }
+  .el-table {
+    .el-button {
+      margin: 2px 4px;
+    }
+  }
+}
+</style>
 
 <script>
 module.exports = {
@@ -13,6 +153,96 @@ module.exports = {
   },
   mounted() {
 
+  },
+
+  data() {
+    return {
+      queueForWaitingResponse: [],
+
+      showLoading: false,
+      searchCondition: {
+        groupID: null,
+        production: true,
+        accessKey: ''
+      },
+      accessKeyListByPage: [{
+        accessKey: 'fdaf',
+        secret: '123456',
+        myApp: '',
+        appAccessStatus: '',
+        requestApplicationNames: [],
+        profileName: '测试环境',
+        creatorName: 'A',
+        status: 'fdsa',
+        createTime: '2017-09-21'
+      }],
+
+      selected: {
+        row: {id: null},
+        operation: null
+      }
+    }
+  },
+
+  methods: {
+    // helper for loading action of el-button
+    addToWaitingResponseQueue(action) {
+      if (this.queueForWaitingResponse.indexOf(action) === -1) {
+        this.queueForWaitingResponse.push(action);
+      }
+    },
+    hideWaitingResponse(action) {
+      let index = this.queueForWaitingResponse.indexOf(action);
+      if (index > -1) {
+        this.queueForWaitingResponse.splice(index, 1);
+      }
+    },
+    statusOfWaitingResponse(action) {
+      return this.queueForWaitingResponse.indexOf(action) > -1;
+    },
+
+    getEmptyItem() {
+      return {
+        accessKey: '',
+        secret: '',
+        myApp: '',
+        appAccessStatus: '',
+        requestApplicationNames: [],
+        profileName: '测试环境',
+        creatorName: '',
+        status: '',
+        createTime: ''
+      }
+    },
+    handleButtonClick(action) {
+      switch (action) {
+        case 'create-access-key':
+          this.$net.oAuthCreateAccessKey({
+            groupId: this.$storeHelper.currentGroupID
+          }).then(content => {
+            let item = this.getEmptyItem();
+            item.createTime = content.createTime;
+            item.creatorName = content.creatorName;
+            item.secret = content.secret;
+            item.accessKey = content.client_id;
+            this.accessKeyListByPage.unshift(item);
+          });
+          break;
+        case 'search':
+          break;
+      }
+    },
+    handleTRClick(action, index, row) {
+      this.selected.row = row;
+      switch (action) {
+        case 'config-access':
+          break;
+        case 'modify-secret':
+          break;
+        case 'delete':
+          break;
+      }
+    }
   }
 }
 </script>

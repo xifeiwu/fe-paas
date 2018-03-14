@@ -135,6 +135,7 @@ var urlList = {
   'log_deploy_log': apiPath + '/service/historylog',
 
   // oauth相关
+  'oauth_create_access_key': apiPath + '/application/authorization/create',
 
   // 工单列表
   'work_order_list': apiPath + '/workOrderDeploy/getWorkOrderDeployList',

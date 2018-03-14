@@ -1152,6 +1152,26 @@ class Net {
       })
     })
   }
+
+  /**
+   * oauth相关
+   */
+  oAuthCreateAccessKey(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.oauth_create_access_key, options).then(response => {
+        let content = this.getResponseContent(response);
+        if (content) {
+          resolve(content);
+        } else {
+          reject('oAuthCreateAccessKey, not found content');
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
   /**
    * 获取工单列表
    */
