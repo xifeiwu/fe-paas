@@ -110,11 +110,48 @@
         </el-table-column>
       </el-table>
     </div>
+
+    <el-dialog title="更改秘钥" :visible="selected.operation == 'modify-secret'"
+               class="modify-secret"
+               @close="selected.prop = null"
+               v-if="selected.row"
+    >
+      <el-form :model="newProps" :rules="rules" labelWidth="160px" size="mini" ref="modifySecretForm">
+        <el-form-item label="Access Key：">
+          {{selected.row.accessKey}}
+        </el-form-item>
+        <el-form-item label="Access Secret：" prop="secret">
+          <el-input v-model="newProps.secret" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButton('modify-secret')"
+                       :loading="statusOfWaitingResponse('modify-secret-in-dialog')">确&nbsp定</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button @click="selected.operation = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <style lang="scss">
   #oauth-key {
+    .el-dialog__wrapper {
+      &.modify-secret {
+        width: 80%;
+        max-width: 600px;
+        margin: 15px auto;
+        .el-dialog {
+          width: 100%;
+        }
+      }
+    }
     .el-row.header {
       .el-select .el-input__inner {
         height: 26px;
@@ -179,7 +216,17 @@ module.exports = {
 
       selected: {
         row: {id: null},
-        operation: null
+        operation: null,
+        prop: null,
+      },
+      newProps: {
+        secret: ''
+      },
+      rules: {
+        secret: [{
+          required: true,
+          message: '内容不能为空',
+        }],
       }
     }
   },
@@ -234,15 +281,71 @@ module.exports = {
     },
     handleTRClick(action, index, row) {
       this.selected.row = row;
+      this.selected.operation = action;
       switch (action) {
         case 'config-access':
           break;
         case 'modify-secret':
+          this.newProps.secret = row.secret;
           break;
         case 'delete':
+          this.warningConfirm('删除Oauth授权',
+            '你确定要删除xx团队的xx应用Oauth授权？它将会造成授权的URL不可访问。').then(() => {
+          }).catch(err => {
+          });
           break;
       }
-    }
+    },
+
+    handleDialogButton(action) {
+      switch (action) {
+        case 'modify-secret':
+          let prop = 'secret';
+          let formName = 'modify' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
+          this.$refs[formName].validate((valid) => {
+            if (!valid) {
+              return;
+            }
+            if (!this.newProps.hasOwnProperty(prop) || !this.selected.row.hasOwnProperty(prop)) {
+              return;
+            }
+            if (this.newProps[prop] == this.selected.row[prop]) {
+              this.selected.operation = null;
+              this.$message({
+                type: 'warning',
+                message: '您没有做修改'
+              });
+            } else {
+              this.requestUpdate(action, prop);
+            }
+          });
+          break;
+      }
+    },
+
+    requestUpdate(action, prop) {
+      // simulate post
+      this.addToWaitingResponseQueue(action + '-in-dialog');
+      setTimeout(() => {
+        this.hideWaitingResponse(action + '-in-dialog');
+        this.selected.operation = null;
+//        this.updateModelInfo(prop);
+      }, 3000);
+    },
+
+    warningConfirm(title, content) {
+      return new Promise((resolve, reject) => {
+        this.$confirm(content, title, {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          resolve();
+        }).catch(() => {
+          reject()
+        });
+      });
+    },
   }
 }
 </script>
