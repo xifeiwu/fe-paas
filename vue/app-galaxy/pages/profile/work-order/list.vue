@@ -476,9 +476,24 @@
               return;
             }
 
+            let workOrderBasic = {
+              id: row.id,
+              name: row.name,
+              creatorName: row.creatorName,
+              groupName: row.groupName,
+              mailGroupList: [],
+              featureList: [],
+              appList: [],
+              userToDo: '获取失败',
+              acceptedUserList: [],
+              operationList: [],
+              comment: row.remark,
+              status: null,
+              statusName: null
+            };
             // update data of model for work-order-detail
             this.addToWaitingResponseQueue('detail');
-            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
+            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
               this.hideWaitingResponse('detail');
 //              console.log(detail);
               this.workOrderDetail = detail;

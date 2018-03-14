@@ -52,8 +52,7 @@
       </el-table>
     </el-form-item>
     <el-form-item label="备注">
-      <span v-if="workOrderDetail.comment">{{workOrderDetail.comment}}</span>
-      <span v-else>无备注</span>
+      <span>{{workOrderDetail.comment}}</span>
     </el-form-item>
     <el-form-item label="工单状态">
       <span>{{workOrderDetail.statusName}}</span>

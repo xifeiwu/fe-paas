@@ -426,6 +426,21 @@
       handleTRButton(action, index, row) {
         // operation.rowID is used to indicate which row is active
         this.operation.rowID = row.id;
+        let workOrderBasic = {
+          id: row.id,
+          name: row.name,
+          creatorName: row.creatorName,
+          groupName: row.groupName,
+          mailGroupList: [],
+          featureList: [],
+          appList: [],
+          userToDo: '获取失败',
+          acceptedUserList: [],
+          operationList: [],
+          comment: row.remark,
+          status: null,
+          statusName: null
+        };
         switch (action) {
           case 'detail':
             // update expandRows
@@ -461,8 +476,9 @@
 
             // update data of model for work-order-detail
             this.addToWaitingResponseQueue('detail');
-            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
+            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
               this.hideWaitingResponse('detail');
+//              console.log(row);
 //              console.log(detail);
               this.workOrderDetail = detail;
               this.operation.name = action;
@@ -474,7 +490,7 @@
             break;
           case 'modify':
             this.addToWaitingResponseQueue('modify');
-            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
+            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
               this.hideWaitingResponse('modify');
               this.$storeHelper.setTmpProp('workOrderDetail', detail);
               this.$router.push('/profile/work-order/todo/modify');
@@ -492,21 +508,9 @@
             }).then(workOrderInfo => {
               this.hideWaitingResponse(action);
               let newStatus = workOrderInfo['status'];
-              this.$storeHelper.setTmpProp('workOrderBasic', {
-                id: row.id,
-                name: row.name,
-                creatorName: row.creatorName,
-                groupName: row.groupName,
-                mailGroupList: [],
-                featureList: [],
-                appList: [],
-                userToDo: '获取失败',
-                acceptedUserList: [],
-                operationList: [],
-                comment: row.remark,
-                status: newStatus,
-                statusName: WorkerOrderPropUtils.getNameByStatus(newStatus)
-              });
+              workOrderBasic.status = newStatus;
+              workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
+              this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
               this.$router.push('/profile/work-order/todo/test');
             }).catch(errMsg => {
               this.hideWaitingResponse(action);
@@ -530,21 +534,9 @@
             }).then(workOrderInfo => {
               this.hideWaitingResponse(action);
               let newStatus = workOrderInfo['status'];
-              this.$storeHelper.setTmpProp('workOrderBasic', {
-                id: row.id,
-                name: row.name,
-                creatorName: row.creatorName,
-                groupName: row.groupName,
-                mailGroupList: [],
-                featureList: [],
-                appList: [],
-                userToDo: '获取失败',
-                acceptedUserList: [],
-                operationList: [],
-                comment: row.remark,
-                status: newStatus,
-                statusName: WorkerOrderPropUtils.getNameByStatus(newStatus)
-              });
+              workOrderBasic.status = newStatus;
+              workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
+              this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
               this.$router.push('/profile/work-order/todo/deploy');
             }).catch(errMsg => {
               this.hideWaitingResponse(action);
@@ -568,21 +560,9 @@
               }).then(workOrderInfo => {
                 this.hideWaitingResponse(action);
                 let newStatus = workOrderInfo['status'];
-                this.$storeHelper.setTmpProp('workOrderBasic', {
-                  id: row.id,
-                  name: row.name,
-                  creatorName: row.creatorName,
-                  groupName: row.groupName,
-                  mailGroupList: [],
-                  featureList: [],
-                  appList: [],
-                  userToDo: '获取失败',
-                  acceptedUserList: [],
-                  operationList: [],
-                  comment: row.remark,
-                  status: newStatus,
-                  statusName: WorkerOrderPropUtils.getNameByStatus(newStatus)
-                });
+                workOrderBasic.status = newStatus;
+                workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
+                this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
                 this.$router.push('/profile/work-order/todo/accept');
               }).catch(errMsg => {
                 this.hideWaitingResponse(action);

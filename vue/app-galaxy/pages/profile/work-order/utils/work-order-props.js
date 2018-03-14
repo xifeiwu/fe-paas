@@ -191,7 +191,7 @@ class WorkOrderUtils {
           notifyUserIdList: [],
           notifyUserList: [],
           mailGroupList: [],
-          comment: workOrder.comment,
+          comment: workOrder.comment ? workOrder.comment : '无备注',
           status: workOrder.status,
           statusName: workOrder.statusName
         };
