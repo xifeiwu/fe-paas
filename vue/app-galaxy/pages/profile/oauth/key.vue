@@ -1,15 +1,16 @@
 <template>
   <div id="oauth-key">
     <el-row class="header">
-      <el-col :span="6">
+      <el-col :span="4">
         <el-button
                 size="mini-extral"
                 type="primary"
+                :load="statusOfWaitingResponse('create-access-key')"
                 @click="handleButtonClick('create-access-key')">
           创建Access Key
         </el-button>
       </el-col>
-      <el-col :span="18" class="key-selector">
+      <el-col :span="20" class="key-selector">
         <div class="item">
           <label style="float: left; width: 100px; line-height: 26px">访问对方团队：</label>
           <el-select filterable v-model="searchCondition.groupID" placeholder="请选择"
@@ -25,6 +26,11 @@
             <el-option :value="true" label="生产环境"></el-option>
             <el-option :value="false" label="非生产环境"></el-option>
           </el-select>
+        </div>
+        <div class="item">
+          <label style="float: left; width: 90px; line-height: 26px">Access Key：</label>
+          <el-input v-model="searchCondition.accessKey"
+                    style="display:block; width: 200px; margin-left: 90px;"></el-input>
         </div>
         <el-button size="mini-extral"
                    type="primary"
@@ -159,6 +165,11 @@
       }
     }
     .el-row.header {
+      .el-input {
+        input {
+          height: 26px;
+        }
+      }
       .el-select .el-input__inner {
         height: 26px;
       }
@@ -177,6 +188,7 @@
     .el-col {
       vertical-align: middle;
       .item {
+        margin: 1px;
         display: inline-block;
       }
     }
@@ -217,6 +229,7 @@ module.exports = {
       queueForWaitingResponse: [],
 
       showLoading: false,
+      createAccessKeyTag: null,
       searchCondition: {
         groupID: null,
         production: true,
@@ -284,6 +297,15 @@ module.exports = {
     handleButtonClick(action) {
       switch (action) {
         case 'create-access-key':
+          this.addToWaitingResponseQueue('create-access-key');
+          if (this.createAccessKeyTag) {
+            let duration = new Date().getTime() - this.createAccessKeyTag;
+            if (duration > 5 * 1000) {
+              this.$message.warning(`请${duration/100}秒后再尝试创建！`);
+              return;
+            }
+          }
+          this.createAccessKeyTag = new Date().getTime();
           this.$net.oAuthCreateAccessKey({
             groupId: this.$storeHelper.currentGroupID
           }).then(content => {
@@ -293,6 +315,16 @@ module.exports = {
             item.secret = content.secret;
             item.accessKey = content.client_id;
             this.accessKeyListByPage.unshift(item);
+            this.hideWaitingResponse('create-access-key');
+          }).catch(msg => {
+            this.hideWaitingResponse('create-access-key');
+            this.$notify.error({
+              title: '创建Access Key失败！',
+              message: msg,
+              duration: 0,
+              onClose: function () {
+              }
+            });
           });
           break;
         case 'search':
