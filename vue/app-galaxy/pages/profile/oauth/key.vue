@@ -52,7 +52,8 @@
           <template slot-scope="scope">
             <div  class="access-key">
               <span>{{scope.row.accessKey}}</span>
-              <i class="my-icon-copy" v-clipboard:copy="scope.row.accessKey"></i>
+              <i class="my-icon-copy" v-clipboard:copy="scope.row.accessKey"
+                 v-clipboard:success="copySuccess"></i>
             </div>
           </template>
         </el-table-column>
@@ -103,7 +104,7 @@
             <el-button
                     size="mini-extral"
                     type="warning"
-                    @click="handleTRClick('config-access', scope.$index, scope.row)">
+                    @click="handleTRClick('modify-access-config', scope.$index, scope.row)">
               访问配置
             </el-button>
             <el-button
@@ -123,12 +124,89 @@
       </el-table>
     </div>
 
-    <el-dialog title="更改秘钥" :visible="selected.operation == 'modify-secret'"
-               class="modify-secret"
-               @close="selected.prop = null"
+
+    <el-dialog title="修改访问配置" :visible="selected.operation == 'modify-access-config'"
+               class="modify-access-config"
+               :close-on-click-modal="false"
+               @close="selected.operation = null"
                v-if="selected.row"
     >
-      <el-form :model="newProps" :rules="rules" labelWidth="160px" size="mini" ref="modifySecretForm">
+      <el-tag type="warning" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>如需更换团队，请在页面右上角选择我的团队</span>
+      </el-tag>
+      <el-form :model="accessConfig" :rules="rulesForAccessConfig" labelWidth="160px" size="mini" ref="modifyAccessConfigForm">
+        <el-form-item label="我的团队：" v-if="groupInfo">
+          {{groupInfo.name}}
+        </el-form-item>
+        <el-form-item label="我的应用：" prop="appID">
+          <el-select filterable v-model="accessConfig.appID" placeholder="请选择" style="display:block; max-width: 280px;">
+            <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="访问环境" prop="production">
+          <el-select v-model="accessConfig.production" placeholder="请选择" style="display:block; max-width: 280px;">
+            <el-option :value="true" label="生产环境"></el-option>
+            <el-option :value="false" label="非生产环境"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="访问对方团队" prop="accessAppID">
+          <el-select v-model="accessConfig.accessAppID" placeholder="请选择" style="display:block; max-width: 280px;">
+            <el-option :value="true" label="生产环境"></el-option>
+            <el-option :value="false" label="非生产环境"></el-option>
+          </el-select>
+        </el-form-item>
+        <!--<el-row>-->
+          <!--<el-col :span="10" style="font-weight: bold">Key</el-col>-->
+          <!--<el-col :span="10" style="font-weight: bold">Value</el-col>-->
+          <!--<el-col :span="4" style="font-weight: bold"></el-col>-->
+        <!--</el-row>-->
+        <!--<el-row-->
+                <!--v-for="(item, index) in newProps.environments"-->
+                <!--:key="item.key"-->
+        <!--&gt;-->
+          <!--<el-col :span="10">{{item.key}}</el-col>-->
+          <!--<el-col :span="10">{{item.value}}</el-col>-->
+          <!--<el-col :span="4" style="text-align: right">-->
+            <!--<el-button @click="handleDeleteEnvironment(index)">删除</el-button>-->
+          <!--</el-col>-->
+        <!--</el-row>-->
+        <!--<el-row>-->
+          <!--<el-col :span="9">-->
+            <!--<el-input v-model="environmentKey" placeholder="Key值"></el-input>-->
+          <!--</el-col>-->
+          <!--<el-col class="line" :span="2">-</el-col>-->
+          <!--<el-col :span="9">-->
+            <!--<el-input v-model="environmentValue" placeholder="Value值"></el-input>-->
+          <!--</el-col>-->
+          <!--<el-col :span="4" style="text-align: right">-->
+            <!--<el-button @click="handleAddEnvironment(environmentKey, environmentValue)">添加</el-button>-->
+          <!--</el-col>-->
+        <!--</el-row>-->
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButton('modify-access-config')"
+                       >保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.operation = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="更改秘钥" :visible="selected.operation == 'modify-secret'"
+               class="modify-secret"
+               :close-on-click-modal="false"
+               @close="selected.operation = null"
+               v-if="selected.row"
+    >
+      <el-form :model="newProps" :rules="rulesForNewProps" labelWidth="160px" size="mini" ref="modifySecretForm">
         <el-form-item label="Access Key：">
           {{selected.row.accessKey}}
         </el-form-item>
@@ -161,6 +239,22 @@
         margin: 15px auto;
         .el-dialog {
           width: 100%;
+        }
+      }
+      &.modify-access-config {
+        .el-dialog {
+          width: 80%;
+          max-width: 600px;
+          margin: 15px auto;
+        }
+        .el-tag {
+          display: block;
+          line-height: 26px;
+          height: 26px;
+          text-align: left;
+          .el-icon-warning {
+            vertical-align: middle;
+          }
         }
       }
     }
@@ -218,7 +312,7 @@
 <script>
 module.exports = {
   created() {
-
+    console.log(this.appInfoListOfGroup);
   },
   mounted() {
 
@@ -252,16 +346,63 @@ module.exports = {
         operation: null,
         prop: null,
       },
+
+      // prop used for dialog modify-access-config
+      accessConfig: {
+        appID: null,
+        production: null,
+        accessAppList: [
+        ],
+//        accessAppToAdd: {
+//          groupID: null,
+//          appID: null
+//        },
+        accessGroupID: null,
+        accessAppID: null,
+      },
+      rulesForAccessConfig: {
+        appID: [{
+          required: true,
+          message: '应用不能为空',
+        }],
+        production: [{
+          required: true,
+          message: '必须选择生产环境',
+        }],
+        accessAppID: [{
+          required: true,
+          message: '必须选择生产环境',
+        }],
+      },
+      dataForAccessConfig: {
+        groupList: [],
+        appList: []
+      },
+
       newProps: {
         secret: ''
       },
-      rules: {
+      rulesForNewProps: {
         secret: [{
           required: true,
           message: '内容不能为空',
         }],
       }
     }
+  },
+
+  computed: {
+    groupInfo() {
+      return this.$storeHelper.groupInfo();
+    },
+    appList() {
+      let appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup();
+      if (appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')) {
+        return appInfoListOfGroup.appList;
+      } else {
+        return [];
+      }
+    },
   },
 
   methods: {
@@ -335,7 +476,13 @@ module.exports = {
       this.selected.row = row;
       this.selected.operation = action;
       switch (action) {
-        case 'config-access':
+        case 'modify-access-config':
+          this.$nextTick(() => {
+            let formName = 'modifyAccessConfigForm'
+            this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate((valid) => {
+              console.log(`valid: ${valid}`)
+            })
+          });
           break;
         case 'modify-secret':
           this.newProps.secret = row.secret;
@@ -351,6 +498,9 @@ module.exports = {
 
     handleDialogButton(action) {
       switch (action) {
+        case 'modify-access-config':
+          this.selected.operation = null;
+          break;
         case 'modify-secret':
           let prop = 'secret';
           let formName = 'modify' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
@@ -383,6 +533,10 @@ module.exports = {
         this.selected.operation = null;
 //        this.updateModelInfo(prop);
       }, 3000);
+    },
+
+    copySuccess() {
+      this.$message.success('复制成功');
     },
 
     warningConfirm(title, content) {
