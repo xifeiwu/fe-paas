@@ -34,6 +34,7 @@
         </div>
         <el-button size="mini-extral"
                    type="primary"
+                   :loading="statusOfWaitingResponse('search')"
                    @click="handleButtonClick('search')">搜索</el-button>
       </el-col>
     </el-row>
@@ -72,7 +73,7 @@
         >
         </el-table-column>
         <el-table-column
-          prop="appAccessStatus"
+          prop="accessStatus"
           label="访问应用信息-状态"
           width="120"
           headerAlign="center" align="center">
@@ -356,21 +357,11 @@ module.exports = {
       showLoading: false,
       createAccessKeyTag: null,
       searchCondition: {
-        groupID: null,
+        groupID: '',
         production: true,
         accessKey: ''
       },
-      accessKeyListByPage: [{
-        accessKey: 'fdaf',
-        secret: '123456',
-        myApp: '',
-        appAccessStatus: '',
-        requestApplicationNames: [],
-        profileName: '测试环境',
-        creatorName: 'A',
-        status: 'fdsa',
-        createTime: '2017-09-21'
-      }],
+      accessKeyListByPage: [],
 
       selected: {
         row: {id: null},
@@ -518,6 +509,12 @@ module.exports = {
           });
           break;
         case 'search':
+          this.addToWaitingResponseQueue(action);
+          this.showLoading = true;
+          this.requestAccessKeyList(() => {
+            this.hideWaitingResponse(action);
+            this.showLoading = false;
+          });
           break;
       }
     },
@@ -627,6 +624,25 @@ module.exports = {
       }, 3000);
     },
 
+    requestAccessKeyList(cb) {
+      if (!cb) {
+        cb = function() {};
+      }
+      let options = {
+        productEnv: this.searchCondition.production,
+        groupId: this.$storeHelper.currentGroupID,
+        targetGroupId: this.searchCondition.groupID,
+        accessKey: this.searchCondition.accessKey
+      };
+      this.$net.getAccessKeyList(options).then(content => {
+        if (content.hasOwnProperty('uaaList')) {
+          this.accessKeyListByPage = content['uaaList'];
+        }
+        cb(true)
+      }).catch(err => {
+        cb(false)
+      });
+    },
     copySuccess() {
       this.$message.success('复制成功');
     },

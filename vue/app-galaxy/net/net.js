@@ -1211,6 +1211,58 @@ class Net {
     })
   }
 
+  getAccessKeyList(options) {
+    let transfer = function(it) {
+      it.accessKey = it.clientId;
+      it.myApp = it.requestApplicationName;
+      // 访问应用状态信息
+      it.appAccessStatus = '';
+      if (null == it.produceEnv) {
+        it.profileName = '未知';
+      } else {
+        if (true == it.produceEnv) {
+          it.profileName = '生产环境';
+        } else if (false == it.produceEnv) {
+          it.profileName = '非生产环境';
+        }
+      }
+      it.production = it.produceEnv;
+      it.accessInfo = it.requestApplicationInfoVOList;
+      it.accessStatus = '未知'
+      it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+      let descriptor = {
+        accessKey: 'Access Secret',
+        myApp: '我的应用',
+        accessStatus: '访问应用信息-状态',
+        accessInfo: [],
+        profileName: '访问环境',
+        production: true,
+        creatorName: '创建人',
+        createTime: '创建时间'
+      }
+    };
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.oauth_get_access_key_list, options).then(response => {
+        console.log(response);
+        let content = this.getResponseContent(response);
+        if (content) {
+          if (content.hasOwnProperty('uaaList')) {
+            let uaaList = content['uaaList'];
+            if (Array.isArray(uaaList)) {
+              uaaList.forEach(transfer.bind(this));
+            }
+          }
+          resolve(content);
+        } else {
+          reject('获取Access Key列表失败！');
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
   /**
    * 获取工单列表
    */

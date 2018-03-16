@@ -142,8 +142,9 @@ var urlList = {
   // 获取部署历史日志
   'log_deploy_log': apiPath + '/service/historylog',
 
-  // oauth相关
+  /** oauth相关 */
   'oauth_create_access_key': apiPath + '/application/authorization/create',
+  'oauth_get_access_key_list': apiPath + '/application/authorization/query',
 
   // 工单列表
   'work_order_list': apiPath + '/workOrderDeploy/getWorkOrderDeployList',
