@@ -130,7 +130,7 @@ class Net {
         },
         "Oauth权限": {
           router: '/profile/oauth',
-          icon: 'my-icon-oauth'
+          icon: 'my-icon-key'
         },
         "审批管理": {
           router: '/profile/work-order',
@@ -229,15 +229,34 @@ class Net {
     })
   }
 
-  getGroupList () {
+  getUserGroupList () {
     return new Promise((resolve, reject) => {
-      axios.get(URL_LIST.get_group_id).then(res => {
+      axios.get(URL_LIST.get_user_group_list).then(res => {
         if ('data' in res) {
           let data = res.data;
           if (0 === data.code) {
-            this.showLog('getGroupList', data.content)
+            this.showLog('getUserGroupList', data.content)
             resolve(data.content);
           }
+        }
+      }).catch(err => {
+        reject(err);
+      });
+    })
+  }
+
+  /**
+   * 获取所有组列表
+   * @returns {Promise}
+   */
+  getAllGroupList() {
+    return new Promise((resolve, reject) => {
+      axios.get(URL_LIST.get_all_group_list).then(res => {
+        let resContent = this.getResponseContent(res);
+        if (resContent) {
+          resolve(resContent);
+        } else {
+          reject('获取组列表信息失败！');
         }
       }).catch(err => {
         reject(err);
@@ -323,6 +342,26 @@ class Net {
         this.showLog('getAPPList', err);
         reject(err);
       });
+    });
+  }
+
+  /**
+   * 通过groupId获取该group的所有App列表
+   * @param options
+   * @returns {Promise}
+   */
+  getAppListByGroupID(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.app_list, options).then(response => {
+        let resContent = this.getResponseContent(response);
+        if (resContent) {
+          resolve(resContent);
+        } else {
+          reject('获取组列表失败！');
+        }
+      }).catch(err => {
+        reject(err);
+      })
     });
   }
 

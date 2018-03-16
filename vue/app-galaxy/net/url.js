@@ -32,7 +32,15 @@ var urlList = {
   'app_list': apiPath + '/application/queryByPage',
   'user_info': apiPath + '/group/queryByUser',
   // 获取用户组ID
-  'get_group_id': apiPath + '/group/queryByUser',
+  'get_user_group_list': apiPath + '/group/queryByUser',
+
+  /** 全局相关 */
+  // 获取所有用户列表
+  'users_all': apiPath + '/user/queryUserList',
+  // 获取所有组列表
+  'get_all_group_list': apiPath + '/group/queryAllGroup',
+
+  /** 应用相关 */
   'create_app': apiPath + '/application/create',
   'delete_app': apiPath + '/application/delete',
   'get_profile_of_group': apiPath + '/space/querySpaceByGroupId',
@@ -179,8 +187,6 @@ var urlList = {
 
   // 获取验收人列表
   'users_in_group': apiPath + '/group/users',
-  // 获取所有用户列表
-  'users_all': apiPath + '/user/queryUserList',
 
   // 获取打开实例终端信息
   'terminal_info': apiPath + '/service/queryTerminalInfo',

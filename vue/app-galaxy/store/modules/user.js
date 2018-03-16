@@ -138,7 +138,7 @@ const actions = {
   groupList({commit, state, dispatch}) {
     // if (0 === state.groupList.length) {
     warning('getGroupList', 'netwrok');
-    NetData.getGroupList().then(content => {
+    NetData.getUserGroupList().then(content => {
       if (content.hasOwnProperty('groupList')) {
         commit('SET_GROUP_LIST', content.groupList);
         dispatch('groupInfo');

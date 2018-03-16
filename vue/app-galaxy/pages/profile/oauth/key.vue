@@ -104,6 +104,7 @@
             <el-button
                     size="mini-extral"
                     type="warning"
+                    :loading="statusOfWaitingResponse('modify-access-config') && selected.row.id === scope.row.id"
                     @click="handleTRClick('modify-access-config', scope.$index, scope.row)">
               访问配置
             </el-button>
@@ -124,7 +125,6 @@
       </el-table>
     </div>
 
-
     <el-dialog title="修改访问配置" :visible="selected.operation == 'modify-access-config'"
                class="modify-access-config"
                :close-on-click-modal="false"
@@ -135,11 +135,11 @@
         <i class="el-icon-warning"></i>
         <span>如需更换团队，请在页面右上角选择我的团队</span>
       </el-tag>
-      <el-form :model="accessConfig" :rules="rulesForAccessConfig" labelWidth="160px" size="mini" ref="modifyAccessConfigForm">
-        <el-form-item label="我的团队：" v-if="groupInfo">
+      <el-form :model="accessConfig" :rules="rulesForAccessConfig" labelWidth="120px" size="mini" ref="modifyAccessConfigForm">
+        <el-form-item label="我的团队" v-if="groupInfo">
           {{groupInfo.name}}
         </el-form-item>
-        <el-form-item label="我的应用：" prop="appID">
+        <el-form-item label="我的应用" prop="appID">
           <el-select filterable v-model="accessConfig.appID" placeholder="请选择" style="display:block; max-width: 280px;">
             <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
@@ -151,11 +151,29 @@
             <el-option :value="false" label="非生产环境"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="访问对方团队" prop="accessAppID">
-          <el-select v-model="accessConfig.accessAppID" placeholder="请选择" style="display:block; max-width: 280px;">
-            <el-option :value="true" label="生产环境"></el-option>
-            <el-option :value="false" label="非生产环境"></el-option>
-          </el-select>
+        <el-form-item label="访问对方团队" prop="accessGroupID">
+          <el-row type="flex" align="center" justify="center" class="add-access-config">
+            <el-col :span="10">
+              <el-select filterable v-model="accessConfig.accessGroupID" placeholder="请选择" style="display:block; max-width: 280px;">
+                <el-option v-for="(item, index) in dataForAccessConfig.groupListAll" :key="item.id" :label="item.name" :value="item.id">
+                </el-option>
+              </el-select>
+            </el-col>
+            <el-col :span="10">
+            <el-select filterable v-model="accessConfig.accessAppID" placeholder="请选择" style="display:block; max-width: 280px;">
+              <el-option v-for="(item, index) in dataForAccessConfig.appList" :key="item.appId" :label="item.appName" :value="item.appId">
+              </el-option>
+            </el-select>
+            </el-col>
+            <el-col :span="4">
+              <el-button
+                      size="mini-extral"
+                      type="warning"
+                      :loading="statusOfWaitingResponse('add-access-config-in-dialog') && selected.row.id === scope.row.id"
+                      @click="handleDialogButton('add-access-config', scope.$index, scope.row)">添加
+              </el-button>
+            </el-col>
+          </el-row>
         </el-form-item>
         <!--<el-row>-->
           <!--<el-col :span="10" style="font-weight: bold">Key</el-col>-->
@@ -244,8 +262,18 @@
       &.modify-access-config {
         .el-dialog {
           width: 80%;
-          max-width: 600px;
+          max-width: 700px;
           margin: 15px auto;
+          .add-access-config {
+            .el-col {
+              padding: 0px 2px;
+            }
+          }
+          .el-form {
+            .el-form-item--mini {
+              margin-bottom: 5px;
+            }
+          }
         }
         .el-tag {
           display: block;
@@ -256,6 +284,9 @@
             vertical-align: middle;
           }
         }
+      }
+      .el-col .el-button {
+        vertical-align: middle;
       }
     }
     .el-row.header {
@@ -353,10 +384,6 @@ module.exports = {
         production: null,
         accessAppList: [
         ],
-//        accessAppToAdd: {
-//          groupID: null,
-//          appID: null
-//        },
         accessGroupID: null,
         accessAppID: null,
       },
@@ -369,13 +396,17 @@ module.exports = {
           required: true,
           message: '必须选择生产环境',
         }],
+        accessGroupID: [{
+          required: true,
+          message: '必须选择生产环境',
+        }],
         accessAppID: [{
           required: true,
           message: '必须选择生产环境',
         }],
       },
       dataForAccessConfig: {
-        groupList: [],
+        groupListAll: null,
         appList: []
       },
 
@@ -403,6 +434,24 @@ module.exports = {
         return [];
       }
     },
+  },
+  
+  watch: {
+    'accessConfig.accessGroupID': function (value) {
+      console.log(value);
+      this.$net.getAppListByGroupID({
+        groupId: value
+      }).then(content => {
+        if (content && content.hasOwnProperty('appList')) {
+          if (Array.isArray(content.appList)) {
+            this.dataForAccessConfig.appList = content.appList;
+            if (content.appList.length > 0) {
+              this.accessConfig.accessAppID = content.appList[0].appId;
+            }
+          }
+        }
+      });
+    }
   },
 
   methods: {
@@ -472,20 +521,63 @@ module.exports = {
           break;
       }
     },
+    /**
+     * click handler for button in table row
+     * @param action
+     * @param index
+     * @param row
+     */
     handleTRClick(action, index, row) {
       this.selected.row = row;
-      this.selected.operation = action;
       switch (action) {
         case 'modify-access-config':
-          this.$nextTick(() => {
-            let formName = 'modifyAccessConfigForm'
-            this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate((valid) => {
-              console.log(`valid: ${valid}`)
+          this.addToWaitingResponseQueue(action);
+          // check dialog-related-data before open dialog
+          if (!this.groupInfo || !this.appList) {
+            this.$message.error('信息不完整');
+            return;
+          }
+          if (!this.accessConfig.appID) {
+            this.accessConfig.appID = this.appList[0].appId;
+          }
+          if (null == this.accessConfig.production) {
+            this.accessConfig.production = false;
+          }
+          if (!this.dataForAccessConfig.groupListAll) {
+            this.$net.getAllGroupList().then(content => {
+              if (content.hasOwnProperty('groupList')) {
+                let groupList = content.groupList;
+                if (Array.isArray(groupList)) {
+                  this.dataForAccessConfig.groupListAll = groupList;
+                  if (groupList.length > 0) {
+                    this.accessConfig.accessGroupID = groupList[0].id;
+                  }
+                }
+              }
+              this.hideWaitingResponse(action);
+              this.selected.operation = action;
+            }).catch(err => {
+              this.hideWaitingResponse(action);
+//              this.selected.operation = action;
             })
-          });
+          } else {
+            this.hideWaitingResponse(action);
+            this.selected.operation = action;
+          }
+//          console.log(this.dataForAccessConfig);
+
+          if (this.selected.operation) {
+            this.$nextTick(() => {
+              let formName = 'modifyAccessConfigForm';
+              this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate((valid) => {
+                console.log(`valid: ${valid}`)
+              })
+            });
+          }
           break;
         case 'modify-secret':
           this.newProps.secret = row.secret;
+          this.selected.operation = action;
           break;
         case 'delete':
           this.warningConfirm('删除Oauth授权',
