@@ -259,6 +259,7 @@ class Net {
           reject('获取组列表信息失败！');
         }
       }).catch(err => {
+        console.log(err);
         reject(err);
       });
     })
@@ -1271,18 +1272,30 @@ class Net {
       axios.patch(url, {
         newSecret: options.secret
       }).then(response => {
-        console.log(response);
-        let content = this.getResponseContent(response);
-        if (content) {
-          if (content.hasOwnProperty('uaaList')) {
-            let uaaList = content['uaaList'];
-            if (Array.isArray(uaaList)) {
-              uaaList.forEach(transfer.bind(this));
-            }
-          }
-          resolve(content);
+        // console.log(response);
+        let resMsg = this.getResponseMsg(response);
+        if (resMsg.success) {
+          resolve(resMsg.msg);
         } else {
-          reject('获取Access Key列表失败！');
+          reject(resMsg.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
+  //删除access key
+  oauthDeleteAccessKey(id) {
+    return new Promise((resolve, reject) => {
+      let url = `${URL_LIST.oauth_update_secret}/${id}`;
+      axios.delete(url).then(response => {
+        let resMsg = this.getResponseMsg(response);
+        if (resMsg.success) {
+          resolve(resMsg.msg);
+        } else {
+          reject(resMsg.msg);
         }
       }).catch(err => {
         console.log(err);

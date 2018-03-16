@@ -146,6 +146,7 @@ var urlList = {
   'oauth_create_access_key': apiPath + '/application/authorization/create',
   'oauth_get_access_key_list': apiPath + '/application/authorization/query',
   'oauth_update_secret': apiPath + '/application/authorization',
+  'oauth_delete_access_key': apiPath + '/application/authorization',
 
   // 工单列表
   'work_order_list': apiPath + '/workOrderDeploy/getWorkOrderDeployList',

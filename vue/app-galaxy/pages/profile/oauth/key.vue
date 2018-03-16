@@ -601,8 +601,24 @@ module.exports = {
           this.selected.operation = action;
           break;
         case 'delete':
+          let appToDelete = '';
+          if (this.selected.row.myAPP) {
+            appToDelete = this.seelcted.row.myAPP;
+          }
           this.warningConfirm('删除Oauth授权',
-            '你确定要删除xx团队的xx应用Oauth授权？它将会造成授权的URL不可访问。').then(() => {
+            `你确定要删除${appToDelete}Oauth授权？它将会造成授权的URL不可访问。`).then(() => {
+            this.$net.oauthDeleteAccessKey(this.selected.row.id).then(msg => {
+              this.$message.success(msg);
+              this.requestAccessKeyList();
+            }).catch(() => {
+              this.$notify.error({
+                title: '删除Oauth授权失败！',
+                message: msg,
+                duration: 0,
+                onClose: function () {
+                }
+              });
+            });
           }).catch(err => {
           });
           break;
@@ -650,9 +666,17 @@ module.exports = {
             this.hideWaitingResponse(action + '-in-dialog');
             this.selected.operation = null;
             this.updateModelInfo(prop);
+            this.$message.success(msg);
           }).catch(msg => {
             this.hideWaitingResponse(action + '-in-dialog');
             this.selected.operation = null;
+            this.$notify.error({
+              title: '修改失败！',
+              message: msg,
+              duration: 0,
+              onClose: function () {
+              }
+            });
           });
           break;
       }
@@ -666,6 +690,14 @@ module.exports = {
       this.selected.row[prop] = this.newProps[prop];
     },
 
+    /**
+     * update access-key list, called at:
+     * 1. mounted function at start of page
+     * 2. chagne of pagination
+     * 3. search button
+     * 4. success callback of delete access-key
+     * @param cb
+     */
     requestAccessKeyList(cb) {
       if (!cb) {
         cb = function() {};
