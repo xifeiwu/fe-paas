@@ -124,6 +124,19 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-container" v-if="totalSize > pageSize" :class="{'disable': showLoading}">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "pageSize"
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange"
+          >
+          </el-pagination>
+        </div>
+      </div>
     </div>
 
     <el-dialog title="修改访问配置" :visible="selected.operation == 'modify-access-config'"
@@ -417,7 +430,11 @@ module.exports = {
           required: true,
           message: '内容不能为空',
         }],
-      }
+      },
+
+      totalSize: 0,
+      pageSize: 10,
+      currentPage: 1,
     }
   },
 
@@ -517,6 +534,7 @@ module.exports = {
           });
           break;
         case 'search':
+          this.currentPage = 1;
           this.addToWaitingResponseQueue(action);
           this.requestAccessKeyList(() => {
             this.hideWaitingResponse(action);
@@ -652,16 +670,23 @@ module.exports = {
       if (!cb) {
         cb = function() {};
       }
+      let page = this.currentPage - 1;
+      page = page >= 0 ? page : 0;
+      let start = page * this.pageSize;
+      let length = this.pageSize;
       let options = {
         productEnv: this.searchCondition.production,
         groupId: this.$storeHelper.currentGroupID,
         targetGroupId: this.searchCondition.groupID,
-        accessKey: this.searchCondition.accessKey
+        accessKey: this.searchCondition.accessKey,
+        start: start,
+        length: length,
       };
       this.showLoading = true;
       this.$net.getAccessKeyList(options).then(content => {
         if (content.hasOwnProperty('uaaList')) {
           this.accessKeyListByPage = content['uaaList'];
+          this.totalSize = content.total;
         }
         this.showLoading = false;
         cb(true)
@@ -672,6 +697,12 @@ module.exports = {
     },
     copySuccess() {
       this.$message.success('复制成功');
+    },
+
+    // the first page of pagination is 1
+    handlePaginationPageChange(page) {
+      this.currentPage = page;
+      this.requestAccessKeyList();
     },
 
     warningConfirm(title, content) {
