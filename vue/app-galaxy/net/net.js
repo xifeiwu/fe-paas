@@ -1211,6 +1211,7 @@ class Net {
     })
   }
 
+  // 获取Access Key列表
   getAccessKeyList(options) {
     let transfer = function(it) {
       it.accessKey = it.clientId;
@@ -1243,6 +1244,33 @@ class Net {
     };
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.oauth_get_access_key_list, options).then(response => {
+        console.log(response);
+        let content = this.getResponseContent(response);
+        if (content) {
+          if (content.hasOwnProperty('uaaList')) {
+            let uaaList = content['uaaList'];
+            if (Array.isArray(uaaList)) {
+              uaaList.forEach(transfer.bind(this));
+            }
+          }
+          resolve(content);
+        } else {
+          reject('获取Access Key列表失败！');
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
+  // 修改secret
+  oauthUpdateSecret(options) {
+    return new Promise((resolve, reject) => {
+      let url = `${URL_LIST.oauth_update_secret}/${options.id}`;
+      axios.patch(url, {
+        newSecret: options.secret
+      }).then(response => {
         console.log(response);
         let content = this.getResponseContent(response);
         if (content) {

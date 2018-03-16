@@ -347,7 +347,15 @@ module.exports = {
     console.log(this.appInfoListOfGroup);
   },
   mounted() {
-
+    let updateAccessList = false;
+    if (!Array.isArray(this.accessKeyListByPage)) {
+      updateAccessList = true;
+    } else if(this.accessKeyListByPage.length == 0) {
+      updateAccessList = true;
+    }
+    if (updateAccessList) {
+      this.requestAccessKeyList();
+    }
   },
 
   data() {
@@ -510,10 +518,8 @@ module.exports = {
           break;
         case 'search':
           this.addToWaitingResponseQueue(action);
-          this.showLoading = true;
           this.requestAccessKeyList(() => {
             this.hideWaitingResponse(action);
-            this.showLoading = false;
           });
           break;
       }
@@ -617,11 +623,29 @@ module.exports = {
     requestUpdate(action, prop) {
       // simulate post
       this.addToWaitingResponseQueue(action + '-in-dialog');
-      setTimeout(() => {
-        this.hideWaitingResponse(action + '-in-dialog');
-        this.selected.operation = null;
-//        this.updateModelInfo(prop);
-      }, 3000);
+      switch (prop) {
+        case 'secret':
+          this.$net.oauthUpdateSecret({
+            id: this.selected.row.id,
+            secret: this.newProps[prop]
+          }).then(msg => {
+            this.hideWaitingResponse(action + '-in-dialog');
+            this.selected.operation = null;
+            this.updateModelInfo(prop);
+          }).catch(msg => {
+            this.hideWaitingResponse(action + '-in-dialog');
+            this.selected.operation = null;
+          });
+          break;
+      }
+//      setTimeout(() => {
+//        this.hideWaitingResponse(action + '-in-dialog');
+//        this.selected.operation = null;
+//        this.selected.row[prop] = this.newProps[prop]
+//      }, 1000);
+    },
+    updateModelInfo(prop) {
+      this.selected.row[prop] = this.newProps[prop];
     },
 
     requestAccessKeyList(cb) {
@@ -634,12 +658,15 @@ module.exports = {
         targetGroupId: this.searchCondition.groupID,
         accessKey: this.searchCondition.accessKey
       };
+      this.showLoading = true;
       this.$net.getAccessKeyList(options).then(content => {
         if (content.hasOwnProperty('uaaList')) {
           this.accessKeyListByPage = content['uaaList'];
         }
+        this.showLoading = false;
         cb(true)
       }).catch(err => {
+        this.showLoading = false;
         cb(false)
       });
     },
