@@ -73,6 +73,7 @@ import Main from 'element-ui/packages/main/index.js';
 import Footer from 'element-ui/packages/footer/index.js';
 // import locale from 'element-ui/src/locale';
 // import CollapseTransition from 'element-ui/src/transitions/collapse-transition';
+const ClipBoard = require('components/clipboard');
 
 const components = [
   Pagination,
@@ -141,7 +142,8 @@ const components = [
   Aside,
   Main,
   Footer,
-  // CollapseTransition
+  // CollapseTransition,
+  ClipBoard
 ];
 
 const install = function(Vue, opts = {}) {

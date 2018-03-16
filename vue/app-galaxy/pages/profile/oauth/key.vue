@@ -43,6 +43,12 @@
           label="Access Key"
           width="120"
           headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <div  class="access-key">
+              <span>{{scope.row.accessKey}}</span>
+              <i class="my-icon-copy" v-clipboard:copy="scope.row.accessKey"></i>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
           prop="secret"
@@ -176,6 +182,20 @@
     }
   }
   .el-table {
+    .access-key {
+      line-height: 26px;
+      text-align: center;
+      .my-icon-copy {
+        font-size: 16px;
+        margin-left: 5px;
+        &:hover {
+        }
+        &:active {
+          color: #409EFF;
+          font-weight: bold;
+        }
+      }
+    }
     .el-button {
       margin: 2px 4px;
     }
