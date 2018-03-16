@@ -1,5 +1,8 @@
 <template>
-  <div class="demo"><the_slot></the_slot></div>
+  <div class="demo">
+    <the_slot></the_slot>
+    <the_clip_board></the_clip_board>
+  </div>
 </template>
 <style>
   .demo {
@@ -9,8 +12,9 @@
   }
 </style>
 <script>
-import the_slot from './slot.vue';
+import the_slot from './demo/slot.vue';
+import the_clip_board from './demo/clipboard.vue';
 export default {
-  components: {the_slot}
+  components: {the_slot, the_clip_board}
 }
 </script>
