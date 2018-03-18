@@ -1214,6 +1214,17 @@ class Net {
 
   // 获取Access Key列表
   getAccessKeyList(options) {
+    // all the props of AccessKey used in fe
+    // let descriptor = {
+    //   accessKey: 'Access Secret',
+    //   myApp: '我的应用',
+    //   accessStatus: '访问应用信息-状态',
+    //   accessInfo: [],
+    //   profileName: '访问环境',
+    //   production: true,
+    //   creatorName: '创建人',
+    //   createTime: '创建时间'
+    // }
     let transfer = function(it) {
       it.accessKey = it.clientId;
       it.myApp = it.requestApplicationName;
@@ -1232,16 +1243,6 @@ class Net {
       it.accessInfo = it.requestApplicationInfoVOList;
       it.accessStatus = '未知'
       it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-      let descriptor = {
-        accessKey: 'Access Secret',
-        myApp: '我的应用',
-        accessStatus: '访问应用信息-状态',
-        accessInfo: [],
-        profileName: '访问环境',
-        production: true,
-        creatorName: '创建人',
-        createTime: '创建时间'
-      }
     };
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.oauth_get_access_key_list, options).then(response => {
@@ -1289,8 +1290,27 @@ class Net {
   //删除access key
   oauthDeleteAccessKey(id) {
     return new Promise((resolve, reject) => {
-      let url = `${URL_LIST.oauth_update_secret}/${id}`;
+      let url = `${URL_LIST.oauth_delete_access_key}/${id}`;
       axios.delete(url).then(response => {
+        let resMsg = this.getResponseMsg(response);
+        if (resMsg.success) {
+          resolve(resMsg.msg);
+        } else {
+          reject(resMsg.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
+  // 添加访问配置
+  oauthAddAccessConfig(id, options) {
+    return new Promise((resolve, reject) => {
+      let url = `${URL_LIST.oauth_add_access_config}/${id}`;
+      axios.put(url, options).then(response => {
+        console.log(response);
         let resMsg = this.getResponseMsg(response);
         if (resMsg.success) {
           resolve(resMsg.msg);

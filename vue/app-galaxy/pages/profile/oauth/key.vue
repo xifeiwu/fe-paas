@@ -184,7 +184,7 @@
                       size="mini-extral"
                       type="warning"
                       :loading="statusOfWaitingResponse('add-access-config-in-dialog') && selected.row.id === scope.row.id"
-                      @click="handleDialogButton('add-access-config', scope.$index, scope.row)">添加
+                      @click="handleDialogButton('add-access-config')">添加
               </el-button>
             </el-col>
           </el-row>
@@ -584,6 +584,10 @@ module.exports = {
           } else {
             this.hideWaitingResponse(action);
             this.selected.operation = action;
+            // set default accessID if necesary
+            if (Array.isArray(this.dataForAccessConfig.appList) && this.dataForAccessConfig.appList.length > 0) {
+              this.accessConfig.accessAppID = this.dataForAccessConfig.appList[0].appId;
+            }
           }
 //          console.log(this.dataForAccessConfig);
 
@@ -627,6 +631,28 @@ module.exports = {
 
     handleDialogButton(action) {
       switch (action) {
+        case 'add-access-config':
+//          console.log(this.accessConfig);
+          this.$net.oauthAddAccessConfig(this.selected.row.id, {
+            groupId: this.$storeHelper.currentGroupID,
+            applicationId: this.accessConfig.appID,
+            produceEnv: this.accessConfig.production,
+            applyList:[{
+              groupId: this.accessConfig.accessGroupID,
+              applicationId: this.accessConfig.accessAppID
+            }]
+          }).then(msg => {
+
+          }).catch(msg => {
+            this.$notify.error({
+              title: '添加失败！',
+              message: msg,
+              duration: 0,
+              onClose: function () {
+              }
+            });
+          });
+          break;
         case 'modify-access-config':
           this.selected.operation = null;
           break;
