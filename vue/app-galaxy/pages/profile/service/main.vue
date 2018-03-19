@@ -685,33 +685,35 @@
         <i class="el-icon-warning"></i>
         <span>更改Host配置后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="changeHostsForm">
-        <el-row class="title">
-          <el-col :span="11" class="key">IP</el-col>
-          <el-col :span="11" class="value">域名</el-col>
-          <el-col :span="2"></el-col>
-        </el-row>
-        <el-row class="content"
-          v-for="(item, index) in newProps.hosts"
-          :key="item.key"
-        >
-          <el-col :span="11" class="key">{{item.ip}}</el-col>
-          <el-col :span="11" class="value">{{item.domain}}</el-col>
-          <el-col :span="2" style="text-align: center">
-            <el-button  type="warning" size="mini-extral" @click="handleDeleteHost(index)">删除</el-button>
-          </el-col>
-        </el-row>
-        <el-row class="add-key-value">
-          <el-col :span="11" class="key">
-            <el-input v-model="hostKey" placeholder="IP" size="mini"></el-input>
-          </el-col>
-          <el-col :span="11" class="value">
-            <el-input v-model="hostValue" placeholder="域名" size="mini"></el-input>
-          </el-col>
-          <el-col :span="2" style="text-align: center">
-            <el-button  type="primary" size="mini-extral" @click="handleAddHost(hostKey, hostValue)">添加</el-button>
-          </el-col>
-        </el-row>
+      <el-form :model="newProps" size="mini" :rules="rules" labelWidth="160px" ref="changeHostsForm">
+        <el-form-item labelWidth="0px" :error="formItemMsgForHosts">
+          <el-row class="title">
+            <el-col :span="11" class="key">IP</el-col>
+            <el-col :span="11" class="value">域名</el-col>
+            <el-col :span="2"></el-col>
+          </el-row>
+          <el-row class="content"
+            v-for="(item, index) in newProps.hosts"
+            :key="item.key"
+          >
+            <el-col :span="11" class="key">{{item.ip}}</el-col>
+            <el-col :span="11" class="value">{{item.domain}}</el-col>
+            <el-col :span="2" style="text-align: center">
+              <el-button  type="warning" size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
+            </el-col>
+          </el-row>
+          <el-row class="add-key-value">
+            <el-col :span="11" class="key">
+              <el-input v-model="hostKey" placeholder="IP" size="mini"></el-input>
+            </el-col>
+            <el-col :span="11" class="value">
+              <el-input v-model="hostValue" placeholder="域名" size="mini"></el-input>
+            </el-col>
+            <el-col :span="2" style="text-align: center">
+              <el-button  type="primary" size="mini-extral" @click="handleHost('add', hostKey, hostValue)">添加</el-button>
+            </el-col>
+          </el-row>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-row>
@@ -1123,6 +1125,7 @@ export default {
       },
       waitingResponse: false,
       formItemMsgForEnvironments: '',
+      formItemMsgForHosts: '',
 
       getRowKeys: function (row) {
        return row.id;
@@ -1995,21 +1998,52 @@ export default {
           break;
       }
     },
-    handleDeleteHost(index) {
-      this.newProps.hosts.splice(index, 1);
-    },
-    handleAddHost(key, value) {
-      if (key.length > 0 && value.length > 0) {
-        this.newProps.hosts.push({
-          ip: key,
-          domain: value
-        });
-        this.hostKey = '';
-        this.hostValue = '';
-      } else {
-        this.$message.error('IP或域名不能为空');
+    // operation for add or delete host
+    handleHost(action, key, value) {
+      switch (action) {
+        case 'add':
+          // remove error notification first
+          this.formItemMsgForHosts = '';
+          let ip = key;
+          let domain = value;
+          let ipReg = new RegExp('^([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})$');
+          if (!ip.match(ipReg)) {
+            this.$message.error('ip格式不正确');
+            return;
+          }
+          let domainReg = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/;
+          if (!domain.match(domainReg)) {
+            this.$message.error('域名格式不正确');
+            return;
+          }
+          if (this.newProps.hosts.length >= 10) {
+            this.$message.error('最多输入10个');
+            return;
+          }
+          let itemWithIpAndDomain = null;
+          this.newProps.hosts.some(it => {
+            if (it.ip === ip && it.domain === domain) {
+              itemWithIpAndDomain = it;
+            }
+          });
+          if (!itemWithIpAndDomain) {
+            this.newProps.hosts.push({
+              ip: ip,
+              domain: domain,
+            });
+            this.hostKey = '';
+            this.hostValue = '';
+          } else {
+            this.formItemMsgForHosts = `"${itemWithIpAndDomain.ip}-${itemWithIpAndDomain.domain}" 已经存在`;
+          }
+          break;
+        case 'delete':
+          let index = key;
+          this.newProps.hosts.splice(index, 1);
+          break;
       }
     },
+
     handleCPUChange(id) {
       if (Array.isArray(this.cpuAndMemoryList)) {
         this.cpuAndMemoryList.some(it => {

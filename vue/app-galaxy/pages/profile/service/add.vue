@@ -107,7 +107,8 @@
           <el-col :span="2">&nbsp</el-col>
           <el-col :span="9" class="value">{{item.value}}</el-col>
           <el-col :span="4" class="button">
-            <el-button class="delete-environment-btn" size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
+            <el-button class="delete-environment-btn" size="mini-extral" type="warning"
+                       @click="handleEnvironment('delete', index)">删除</el-button>
           </el-col>
         </el-row>
         <el-row class="input"
@@ -120,12 +121,13 @@
             <el-input v-model="environmentValue" placeholder="512位以内的数字、字母、中划线、下划线"></el-input>
           </el-col>
           <el-col :span="4">
-            <el-button size="mini-extral" @click="handleEnvironment('add', environmentKey, environmentValue)">添加</el-button>
+            <el-button size="mini-extral"  type="primary"
+                       @click="handleEnvironment('add', environmentKey, environmentValue)">添加</el-button>
           </el-col>
         </el-row>
       </el-form-item>
 
-      <el-form-item label="Host配置" prop="hosts" class="hosts">
+      <el-form-item label="Host配置" prop="hosts" class="hosts" :error="formItemMsgForHosts">
         <el-row>
           <el-col :span="9" style="font-weight: bold;text-align: center">IP</el-col>
           <el-col :span="2">&nbsp</el-col>
@@ -142,7 +144,8 @@
           <el-col :span="2">&nbsp</el-col>
           <el-col :span="9" class="value">{{item.domain}}</el-col>
           <el-col :span="4">
-            <el-button class="delete-host-btn" size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
+            <el-button class="delete-host-btn" size="mini-extral" type="warning"
+                       @click="handleHost('delete', index)">删除</el-button>
           </el-col>
         </el-row>
         <el-row class="input"
@@ -155,7 +158,8 @@
             <el-input v-model="hostValue" placeholder="域名"></el-input>
           </el-col>
           <el-col :span="4">
-            <el-button size="mini-extral" @click="handleHost('add', hostKey, hostValue)">添加</el-button>
+            <el-button size="mini-extral" type="primary"
+                       @click="handleHost('add', hostKey, hostValue)">添加</el-button>
           </el-col>
         </el-row>
       </el-form-item>
@@ -333,6 +337,7 @@
         },
         // error message for form-item environments
         formItemMsgForEnvironments: '',
+        formItemMsgForHosts: '',
 
         customImageTypeList: [{
           label: '环境镜像',
@@ -599,19 +604,22 @@
             break;
         }
       },
-      // add and delete host
+
+      // operation for add or delete host
       handleHost(action, key, value) {
         switch (action) {
           case 'add':
+            // remove error notification first
+            this.formItemMsgForHosts = '';
             let ip = key;
             let domain = value;
             let ipReg = new RegExp('^([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})$');
-            if (!ipReg.exec(ip)) {
+            if (!ip.match(ipReg)) {
               this.$message.error('ip格式不正确');
               return;
             }
             let domainReg = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/;
-            if (!domainReg.exec(domain)) {
+            if (!domain.match(domainReg)) {
               this.$message.error('域名格式不正确');
               return;
             }
@@ -619,21 +627,22 @@
               this.$message.error('最多输入10个');
               return;
             }
-            let keyHasExist = false;
-            this.serviceForm.hosts.forEach(it => {
-              if (it.ip === ip) {
-                it.domain = domain;
-                keyHasExist = true;
+            let itemWithIpAndDomain = null;
+            this.serviceForm.hosts.some(it => {
+              if (it.ip === ip && it.domain === domain) {
+                itemWithIpAndDomain = it;
               }
             });
-            if (!keyHasExist) {
+            if (!itemWithIpAndDomain) {
               this.serviceForm.hosts.push({
                 ip: ip,
                 domain: domain,
               });
+              this.hostKey = '';
+              this.hostValue = '';
+            } else {
+              this.formItemMsgForHosts = `"${itemWithIpAndDomain.ip}-${itemWithIpAndDomain.domain}" 已经存在`;
             }
-            this.hostKey = '';
-            this.hostValue = '';
             break;
           case 'delete':
             let index = key;
