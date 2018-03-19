@@ -630,31 +630,30 @@
         <span>更改环境变量后需要重新【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" size="mini" :rules="rules" labelWidth="160px" ref="changeEnvironmentsForm">
-        <el-row>
-          <el-col :span="10" style="font-weight: bold">Key</el-col>
-          <el-col :span="10" style="font-weight: bold">Value</el-col>
-          <el-col :span="4" style="font-weight: bold"></el-col>
+        <el-row class="title">
+          <el-col :span="11" class="key">Key</el-col>
+          <el-col :span="11" class="value">Value</el-col>
+          <el-col :span="2"></el-col>
         </el-row>
-        <el-row
+        <el-row class="content"
           v-for="(item, index) in newProps.environments"
           :key="item.key"
         >
-          <el-col :span="10">{{item.key}}</el-col>
-          <el-col :span="10">{{item.value}}</el-col>
-          <el-col :span="4" style="text-align: right">
-            <el-button @click="handleDeleteEnvironment(index)">删除</el-button>
+          <el-col :span="11" class="key">{{item.key}}</el-col>
+          <el-col :span="11" class="value">{{item.value}}</el-col>
+          <el-col :span="2" style="text-align: center">
+            <el-button type="warning" size="mini-extral" @click="handleDeleteEnvironment(index)">删除</el-button>
           </el-col>
         </el-row>
-        <el-row>
-          <el-col :span="9">
-            <el-input v-model="environmentKey" placeholder="Key值"></el-input>
+        <el-row class="add-key-value">
+          <el-col :span="11" class="key">
+            <el-input v-model="environmentKey" placeholder="Key值" size="mini"></el-input>
           </el-col>
-          <el-col class="line" :span="2">-</el-col>
-          <el-col :span="9">
-            <el-input v-model="environmentValue" placeholder="Value值"></el-input>
+          <el-col :span="11" class="value">
+            <el-input v-model="environmentValue" placeholder="Value值" size="mini"></el-input>
           </el-col>
-          <el-col :span="4" style="text-align: right">
-            <el-button @click="handleAddEnvironment(environmentKey, environmentValue)">添加</el-button>
+          <el-col :span="2" style="text-align: center">
+            <el-button type="primary" size="mini-extral" @click="handleAddEnvironment(environmentKey, environmentValue)">添加</el-button>
           </el-col>
         </el-row>
       </el-form>
@@ -684,31 +683,30 @@
         <span>更改Host配置后需要重新【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="changeHostsForm">
-        <el-row>
-          <el-col :span="10" style="font-weight: bold">IP</el-col>
-          <el-col :span="10" style="font-weight: bold">域名</el-col>
-          <el-col :span="4" style="font-weight: bold"></el-col>
+        <el-row class="title">
+          <el-col :span="11" class="key">IP</el-col>
+          <el-col :span="11" class="value">域名</el-col>
+          <el-col :span="2"></el-col>
         </el-row>
-        <el-row
+        <el-row class="content"
           v-for="(item, index) in newProps.hosts"
           :key="item.key"
         >
-          <el-col :span="10">{{item.ip}}</el-col>
-          <el-col :span="10">{{item.domain}}</el-col>
-          <el-col :span="4" style="text-align: right">
-            <el-button @click="handleDeleteHost(index)">删除</el-button>
+          <el-col :span="11" class="key">{{item.ip}}</el-col>
+          <el-col :span="11" class="value">{{item.domain}}</el-col>
+          <el-col :span="2" style="text-align: center">
+            <el-button  type="warning" size="mini-extral" @click="handleDeleteHost(index)">删除</el-button>
           </el-col>
         </el-row>
-        <el-row>
-          <el-col :span="9">
-            <el-input v-model="hostKey" placeholder="IP"></el-input>
+        <el-row class="add-key-value">
+          <el-col :span="11" class="key">
+            <el-input v-model="hostKey" placeholder="IP" size="mini"></el-input>
           </el-col>
-          <el-col class="line" :span="2">-</el-col>
-          <el-col :span="9">
-            <el-input v-model="hostValue" placeholder="域名"></el-input>
+          <el-col :span="11" class="value">
+            <el-input v-model="hostValue" placeholder="域名" size="mini"></el-input>
           </el-col>
-          <el-col :span="4" style="text-align: right">
-            <el-button @click="handleAddHost(hostKey, hostValue)">添加</el-button>
+          <el-col :span="2" style="text-align: center">
+            <el-button  type="primary" size="mini-extral" @click="handleAddHost(hostKey, hostValue)">添加</el-button>
           </el-col>
         </el-row>
       </el-form>
@@ -853,25 +851,11 @@
     }
 
     .el-dialog {
-      max-width: 80%;
       .el-tag {
         display: block;
         text-align: left;
         .el-icon-warning {
           vertical-align: middle;
-        }
-      }
-      .el-form-item {
-        margin-bottom: 18px;
-      }
-
-      .el-row {
-        margin-bottom: 6px;
-      }
-
-      &.environments, &.hosts {
-        .el-col {
-          text-align: center;
         }
       }
     }
@@ -915,6 +899,19 @@
               background-color: #79bbff;
               font-weight: bold;
             }
+          }
+        }
+      }
+      &.environments, &.hosts {
+        .el-row.title {
+          font-weight: bold;
+        }
+        .key, .value {
+          text-align: center;
+        }
+        .el-row.add-key-value {
+          .el-col.key, .el-col.value {
+            padding: 0px 3px;
           }
         }
       }
