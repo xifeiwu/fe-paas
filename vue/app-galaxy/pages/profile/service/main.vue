@@ -601,7 +601,7 @@
           {{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}
         </el-form-item>
         <el-form-item label="更改VM_Options为：" prop="vmOptions">
-          <el-input v-model="newProps.vmOptions" placeholder=""></el-input>
+          <el-input v-model="newProps.vmOptions" placeholder="不能包含中文，不能超过1024个字符"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

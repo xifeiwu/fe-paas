@@ -302,7 +302,6 @@ export default {
               message: err.msg,
               duration: 0,
               onClose: function () {
-                self.$router.push('/profile/app/add');
               }
             });
             console.log(err);

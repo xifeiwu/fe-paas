@@ -67,7 +67,7 @@
       <el-form-item label="VM_Options" prop="vmOptions" class="vm-options"
                     v-if="currentApp && currentApp.isJavaLanguage"
       >
-        <el-input v-model="serviceForm.vmOptions" placeholder=""></el-input>
+        <el-input v-model="serviceForm.vmOptions" placeholder="不能包含中文，不能超过1024个字符"></el-input>
       </el-form-item>
       <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
                     v-if="currentApp && currentApp.isJavaLanguage"

@@ -172,7 +172,17 @@ class AppInfoHelper {
       vmOptions: [{
         required: false,
       }, {
-        validator: notRequriedBasicValidator
+        validator(rule, values, callback) {
+          let passed = true;
+          let reg = /^[^\u4e00-\u9fa5]{0,1024}$/;
+          if (!values.match(reg)) {
+            passed = false;
+            callback(`不能包含中文，不能超过1024个字符`)
+          }
+          if (passed) {
+            callback();
+          }
+        }
       }],
       mavenProfileId: [{
         required: false,
