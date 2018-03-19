@@ -555,6 +555,7 @@
         });
       },
 
+      // operation for add or delete environment
       handleEnvironment(action, key, value) {
         switch (action) {
           case 'add':

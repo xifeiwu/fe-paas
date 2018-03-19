@@ -622,7 +622,7 @@
     <el-dialog title="修改环境变量" :visible="selected.prop == 'environments'"
                :close-on-click-modal="false"
                @close="selected.prop = null"
-               class="environments size-600"
+               class="environments size-700"
                v-if="selected.service && selected.model"
     >
       <el-tag type="success" disable-transitions>
@@ -630,32 +630,35 @@
         <span>更改环境变量后需要重新【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" size="mini" :rules="rules" labelWidth="160px" ref="changeEnvironmentsForm">
-        <el-row class="title">
-          <el-col :span="11" class="key">Key</el-col>
-          <el-col :span="11" class="value">Value</el-col>
-          <el-col :span="2"></el-col>
-        </el-row>
-        <el-row class="content"
-          v-for="(item, index) in newProps.environments"
-          :key="item.key"
-        >
-          <el-col :span="11" class="key">{{item.key}}</el-col>
-          <el-col :span="11" class="value">{{item.value}}</el-col>
-          <el-col :span="2" style="text-align: center">
-            <el-button type="warning" size="mini-extral" @click="handleDeleteEnvironment(index)">删除</el-button>
-          </el-col>
-        </el-row>
-        <el-row class="add-key-value">
-          <el-col :span="11" class="key">
-            <el-input v-model="environmentKey" placeholder="Key值" size="mini"></el-input>
-          </el-col>
-          <el-col :span="11" class="value">
-            <el-input v-model="environmentValue" placeholder="Value值" size="mini"></el-input>
-          </el-col>
-          <el-col :span="2" style="text-align: center">
-            <el-button type="primary" size="mini-extral" @click="handleAddEnvironment(environmentKey, environmentValue)">添加</el-button>
-          </el-col>
-        </el-row>
+        <el-form-item labelWidth="0px" :error="formItemMsgForEnvironments">
+          <el-row class="title">
+            <el-col :span="11" class="key">Key</el-col>
+            <el-col :span="11" class="value">Value</el-col>
+            <el-col :span="2"></el-col>
+          </el-row>
+          <el-row class="content"
+            v-for="(item, index) in newProps.environments"
+            :key="item.key"
+          >
+            <el-col :span="11" class="key">{{item.key}}</el-col>
+            <el-col :span="11" class="value">{{item.value}}</el-col>
+            <el-col :span="2" style="text-align: center">
+              <el-button type="warning" size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
+            </el-col>
+          </el-row>
+          <el-row class="add-key-value">
+            <el-col :span="11" class="key">
+              <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、中划线、下划线" size="mini"></el-input>
+            </el-col>
+            <el-col :span="11" class="value">
+              <el-input v-model="environmentValue" placeholder="512位以内的数字、字母、中划线、下划线" size="mini"></el-input>
+            </el-col>
+            <el-col :span="2" style="text-align: center">
+              <el-button type="primary" size="mini-extral"
+                         @click="handleEnvironment('add', environmentKey, environmentValue)">添加</el-button>
+            </el-col>
+          </el-row>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-row>
@@ -674,7 +677,7 @@
 
     <el-dialog title="修改Host配置" :visible="selected.prop == 'hosts'"
                :close-on-click-modal="false"
-               class="hosts size-600"
+               class="hosts size-700"
                @close="selected.prop = null"
                v-if="selected.service && selected.model"
     >
@@ -1119,6 +1122,7 @@ export default {
         oneApm: '',
       },
       waitingResponse: false,
+      formItemMsgForEnvironments: '',
 
       getRowKeys: function (row) {
        return row.id;
@@ -1946,19 +1950,49 @@ export default {
           break;
       }
     },
-    handleDeleteEnvironment(index) {
-      this.newProps.environments.splice(index, 1);
-    },
-    handleAddEnvironment(key, value) {
-      if (key.length > 0 && value.length > 0) {
-        this.newProps.environments.push({
-          key: key,
-          value: value,
-        });
-        this.environmentKey = '';
-        this.environmentValue = '';
-      } else {
-        this.$message.error('key或value值不能为空');
+
+    // operation for add or delete environment
+    handleEnvironment(action, key, value) {
+      switch (action) {
+        case 'add':
+          // remove error notification first
+          this.formItemMsgForEnvironments = '';
+          let keyReg = /^[A-Za-z0-9_\-\.@]{1,64}$/;
+          let valueReg = /^[A-Za-z0-9_\-\.@]{1,512}$/;
+          if (!keyReg.exec(key)) {
+            this.$message.error('请输入64位以内的数字、字母、中划线、下划线');
+            return;
+          }
+          if (!valueReg.exec(value)) {
+            this.$message.error('请输入512位以内的数字、字母、中划线、下划线');
+            return;
+          }
+          if (this.newProps.environments.length >= 10) {
+            this.$message.error('最多输入10个');
+            return;
+          }
+          let itemWithKey = null;
+          this.newProps.environments.some(it => {
+            if (it.key === key) {
+              itemWithKey = it;
+            }
+            return itemWithKey;
+          });
+          if (!itemWithKey) {
+            this.newProps.environments.push({
+              key: key,
+              value: value,
+            });
+            this.environmentKey = '';
+            this.environmentValue = '';
+          } else {
+            this.formItemMsgForEnvironments = `Key "${itemWithKey.key}" 已经存在，如需更改，请删除后重新添加`;
+          }
+          break;
+        case 'delete':
+          let index = key;
+          this.newProps.environments.splice(index, 1);
+          break;
       }
     },
     handleDeleteHost(index) {
