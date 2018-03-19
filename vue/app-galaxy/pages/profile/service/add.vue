@@ -4,13 +4,13 @@
              :rules="rules" label-width="150px" size="mini"
              v-loading="showLoading"
              :element-loading-text="loadingText">
-      <el-form-item label="版本号" prop="serviceVersion" class="serviceVersion">
+      <el-form-item label="版本号" prop="serviceVersion" class="service-version">
         <el-input v-model="serviceForm.serviceVersion" placeholder="版本号只能包含数字，不能超过五位">
           <template slot="prepend">V</template>
         </el-input>
       </el-form-item>
-      <el-form-item label="镜像方式" prop="customImage">
-        <el-radio-group v-model="imageSelectState.customImage">
+      <el-form-item label="镜像方式" prop="customImage" class="custom-image">
+        <el-radio-group v-model="imageSelectState.customImage" size="mini">
           <el-radio :label="false" v-if="currentApp && currentApp.language != 'PYTHON'">自动打镜像</el-radio>
           <el-radio :label="true">自定义镜像</el-radio>
         </el-radio-group>
@@ -25,7 +25,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="镜像地址" prop="customImageValue" v-else
-                    class="custom-image" :class="imageSelectState.customImageType.toLowerCase()+'-image'"
+                    :class="['custom-image', imageSelectState.customImageType.toLowerCase()+'-image']"
       >
         <el-select v-model="imageSelectState.customImageType">
           <el-option v-for="(item, index) in customImageTypeList"
@@ -51,119 +51,107 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress">
+      <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress" class="gitlab-address">
         <el-input v-model="serviceForm.gitLabAddress" placeholder="请输入项目的gitLab地址"></el-input>
       </el-form-item>
-      <el-form-item label="Gitlab分支" prop="gitLabBranch">
+      <el-form-item label="Gitlab分支" prop="gitLabBranch" class="gitlab-branch">
         <el-input v-model="serviceForm.gitLabBranch" placeholder="请输入gitLab分支名"></el-input>
       </el-form-item>
 
       <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
                     v-if="currentApp && currentApp.isJavaLanguage"
-                    class="relativePathOfParentPOM"
+                    class="relative-path-of-parent-pom"
       >
         <el-input v-model="serviceForm.relativePathOfParentPOM" placeholder=""></el-input>
       </el-form-item>
-      <el-form-item label="VM_Options" prop="vmOptions"
+      <el-form-item label="VM_Options" prop="vmOptions" class="vm-options"
                     v-if="currentApp && currentApp.isJavaLanguage"
       >
         <el-input v-model="serviceForm.vmOptions" placeholder=""></el-input>
       </el-form-item>
-      <el-form-item label="maven profile id" prop="mavenProfileId"
+      <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
                     v-if="currentApp && currentApp.isJavaLanguage"
       >
         <el-input v-model="serviceForm.mavenProfileId" placeholder=""></el-input>
       </el-form-item>
 
-      <el-form-item label="CPU" prop="cpuID">
-        <el-radio-group v-model="serviceForm.cpuID" size="small">
+      <el-form-item label="CPU" prop="cpuID" class="cpu">
+        <el-radio-group v-model="serviceForm.cpuID" size="mini">
           <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
             {{item.cpu}}核
         </el-radio-button>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="内存" prop="memoryID">
-        <el-radio-group v-model="serviceForm.memoryID" size="small">
+      <el-form-item label="内存" prop="memoryID" class="memory">
+        <el-radio-group v-model="serviceForm.memoryID" size="mini">
           <el-radio-button v-for="item in memorySizeList" :label="item.id" :key="item.id">
             {{item.memory}}G
         </el-radio-button>
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item label="环境变量设置" prop="environments" class="environments" :error="formItemMsgForEnvironments">
-        <el-row>
-          <el-col :span="9" style="font-weight: bold;text-align: center">Key</el-col>
-          <el-col :span="2">&nbsp</el-col>
-          <el-col :span="9" style="font-weight: bold;text-align: center">Value</el-col>
-          <el-col :span="4" style="font-weight: bold;text-align: center"></el-col>
+      <el-form-item label="环境变量设置" prop="environments" class="environments"
+                    :error="formItemMsgForEnvironments">
+
+        <el-row class="title">
+          <el-col :span="11" class="key">Key</el-col>
+          <el-col :span="11" class="value">Value</el-col>
+          <el-col :span="2"></el-col>
         </el-row>
-        <el-row
+        <el-row class="content"
                 v-for="(item, index) in serviceForm.environments"
                 :key="item.key"
-                type="flex" justify="center" align="middle"
-                class="show"
         >
-          <el-col :span="9" class="key">{{item.key}}</el-col>
-          <el-col :span="2">&nbsp</el-col>
-          <el-col :span="9" class="value">{{item.value}}</el-col>
-          <el-col :span="4" class="button">
-            <el-button class="delete-environment-btn" size="mini-extral" type="warning"
-                       @click="handleEnvironment('delete', index)">删除</el-button>
+          <el-col :span="11" class="key">{{item.key}}</el-col>
+          <el-col :span="11" class="value">{{item.value}}</el-col>
+          <el-col :span="2" style="text-align: center">
+            <el-button type="warning" size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
           </el-col>
         </el-row>
-        <el-row class="input"
-                type="flex" justify="center" align="middle">
-          <el-col :span="9">
-            <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、中划线、下划线"></el-input>
+        <el-row class="add-key-value">
+          <el-col :span="11" class="key">
+            <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、中划线、下划线" size="mini"></el-input>
           </el-col>
-          <el-col class="line" :span="2">-</el-col>
-          <el-col :span="9">
-            <el-input v-model="environmentValue" placeholder="512位以内的数字、字母、中划线、下划线"></el-input>
+          <el-col :span="11" class="value">
+            <el-input v-model="environmentValue" placeholder="512位以内的数字、字母、中划线、下划线" size="mini"></el-input>
           </el-col>
-          <el-col :span="4">
-            <el-button size="mini-extral"  type="primary"
+          <el-col :span="2" style="text-align: center">
+            <el-button type="primary" size="mini-extral"
                        @click="handleEnvironment('add', environmentKey, environmentValue)">添加</el-button>
           </el-col>
         </el-row>
       </el-form-item>
 
-      <el-form-item label="Host配置" prop="hosts" class="hosts" :error="formItemMsgForHosts">
-        <el-row>
-          <el-col :span="9" style="font-weight: bold;text-align: center">IP</el-col>
-          <el-col :span="2">&nbsp</el-col>
-          <el-col :span="9" style="font-weight: bold;text-align: center">域名</el-col>
-          <el-col :span="4" style="font-weight: bold;"></el-col>
+      <el-form-item label="Host配置" prop="hosts" class="hosts"
+                    :error="formItemMsgForHosts">
+        <el-row class="title">
+          <el-col :span="11" class="key">IP</el-col>
+          <el-col :span="11" class="value">域名</el-col>
+          <el-col :span="2"></el-col>
         </el-row>
-        <el-row
+        <el-row class="content"
                 v-for="(item, index) in serviceForm.hosts"
-                :key="item.ip"
-                type="flex" justify="center" align="middle"
-                class="show"
+                :key="item.key"
         >
-          <el-col :span="9" class="key">{{item.ip}}</el-col>
-          <el-col :span="2">&nbsp</el-col>
-          <el-col :span="9" class="value">{{item.domain}}</el-col>
-          <el-col :span="4">
-            <el-button class="delete-host-btn" size="mini-extral" type="warning"
-                       @click="handleHost('delete', index)">删除</el-button>
+          <el-col :span="11" class="key">{{item.ip}}</el-col>
+          <el-col :span="11" class="value">{{item.domain}}</el-col>
+          <el-col :span="2" style="text-align: center">
+            <el-button  type="warning" size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
           </el-col>
         </el-row>
-        <el-row class="input"
-                type="flex" justify="center" align="middle">
-          <el-col :span="9">
-            <el-input v-model="hostKey" placeholder="ip地址"></el-input>
+        <el-row class="add-key-value">
+          <el-col :span="11" class="key">
+            <el-input v-model="hostKey" placeholder="IP" size="mini"></el-input>
           </el-col>
-          <el-col class="line" :span="2">-</el-col>
-          <el-col :span="9">
-            <el-input v-model="hostValue" placeholder="域名"></el-input>
+          <el-col :span="11" class="value">
+            <el-input v-model="hostValue" placeholder="域名" size="mini"></el-input>
           </el-col>
-          <el-col :span="4">
-            <el-button size="mini-extral" type="primary"
-                       @click="handleHost('add', hostKey, hostValue)">添加</el-button>
+          <el-col :span="2" style="text-align: center">
+            <el-button  type="primary" size="mini-extral" @click="handleHost('add', hostKey, hostValue)">添加</el-button>
           </el-col>
         </el-row>
       </el-form-item>
-      <el-form-item label="实例数量" prop="instanceCount">
+      <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
         <el-input-number v-model="serviceForm.instanceCount" :min="1" :max="20" label="描述文字"></el-input-number>
       </el-form-item>
       <el-form-item class="finish" labelWidth="0">
@@ -177,24 +165,24 @@
   #service-add {
     .el-form {
       .el-form-item {
-        &.serviceVersion {
+        &.service-version {
+          max-width: 500px;
           .el-input {
             .el-input-group__prepend {
               width: 24px;
               text-align: center;
               color: black;
             }
-            input {
-              width: 300px;
-            }
           }
         }
         &.auto-image {
+          max-width: 600px;
           .el-select {
             width: 100%;
           }
         }
         &.custom-image {
+          max-width: 600px;
           &.env-image {
             .el-select {
               width: calc(50% - 2px);
@@ -210,31 +198,42 @@
             }
           }
         }
-        &.relativePathOfParentPOM {
+        &.gitlab-address {
+          max-width: 600px;
+        }
+        &.gitlab-branch {
+          max-width: 600px;
+        }
+        &.relative-path-of-parent-pom {
+          max-width: 600px;
           .el-form-item__label {
             line-height: 100%;
           }
         }
+        &.vm-options {
+          max-width: 600px;
+        }
+        &.maven-profile-id {
+          max-width: 600px;
+        }
+
         &.environments, &.hosts {
-          .el-form-item__content {
+          .key, .value {
             text-align: center;
-            .show {
-              .key, .value {
-                /*white-space: nowrap;*/
-                /*overflow: hidden;*/
-                /*text-overflow: ellipsis;*/
-                word-wrap: break-word;
-                word-break: break-all;
-                line-height: 1.2;
-              }
-              .button {
-                text-align: center;
-              }
+          }
+          .el-row.title {
+            font-weight: bold;
+          }
+          .content {
+            .key, .value {
+              word-wrap: break-word;
+              word-break: break-all;
+              line-height: 1.2;
             }
-            .input {
-              .el-col {
-                text-align: center;
-              }
+          }
+          .el-row.add-key-value {
+            .el-col.key, .el-col.value {
+              padding: 0px 3px;
             }
           }
         }
@@ -248,7 +247,7 @@
     margin: 20px 20px 20px 30px;
     padding: 30px 20px 20px 20px;
     width: 80%;
-    max-width: 600px;
+    max-width: 800px;
     .el-form {
       .el-form-item {
         &.finish {

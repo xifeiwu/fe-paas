@@ -908,11 +908,18 @@
         }
       }
       &.environments, &.hosts {
+        .key, .value {
+          text-align: center;
+        }
         .el-row.title {
           font-weight: bold;
         }
-        .key, .value {
-          text-align: center;
+        .content {
+          .key, .value {
+            word-wrap: break-word;
+            word-break: break-all;
+            line-height: 1.2;
+          }
         }
         .el-row.add-key-value {
           .el-col.key, .el-col.value {
