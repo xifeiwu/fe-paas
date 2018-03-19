@@ -1855,8 +1855,8 @@ export default {
           this.selected.model['cpuID'] = cpuID;
           this.selected.model['memoryID'] = memoryID;
           let cpuAndMemoryInfo = appPropUtils.getCPUAndMemoryInfoByID(cpuID, memoryID);
-          this.selected.service['cpu'] = cpuAndMemoryInfo[0];
-          this.selected.service['memory'] = cpuAndMemoryInfo[1];
+          this.selected.service['cpuInfo'] = cpuAndMemoryInfo[0];
+          this.selected.service['memoryInfo'] = cpuAndMemoryInfo[1];
           break;
       }
     },

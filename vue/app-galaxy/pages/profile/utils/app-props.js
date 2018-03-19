@@ -307,6 +307,12 @@ class AppInfoHelper {
     return result;
   }
 
+  /**
+   *
+   * @param cpuSize, 1, 2, 4 ...
+   * @param memorySize, in the format of G or M. such as 1024, 6048. if memorySize >= 1024, treat as M, or treat as G.
+   * @returns {Array}
+   */
   getCPUAndMemoryInfoBySize(cpuSize, memorySize) {
     let model = [];
     let cpuAndMemorylist = this.getMessageForCreateAPP('cpuAndMemorylist');
@@ -315,7 +321,7 @@ class AppInfoHelper {
     }
     // console.log(cpuAndMemorylist);
     memorySize = parseInt(memorySize);
-    if (memorySize > 1024) {
+    if (memorySize >= 1024) {
       memorySize /= 1024;
     }
     for (let index in cpuAndMemorylist) {
@@ -363,6 +369,12 @@ class AppInfoHelper {
     return model;
   }
 
+  /**
+   * get cpu and memory info by id
+   * @param cpuID
+   * @param memoryID
+   * @returns {Array}
+   */
   getCPUAndMemoryInfoByID(cpuID, memoryID) {
     let cpuAndMemorylist = this.getMessageForCreateAPP('cpuAndMemorylist');
     let model = [];
@@ -371,7 +383,7 @@ class AppInfoHelper {
       if (item.id == cpuID) {
         model.push({
           id: item.id,
-          cpu: item.cpu
+          size: item.cpu
         });
         let memoryList = item.memoryList;
         for (let index2 in memoryList) {
@@ -379,7 +391,7 @@ class AppInfoHelper {
           if (item.id == memoryID) {
             model.push({
               id: item.id,
-              memory: item.memory
+              size: item.memory
             });
             break;
           }
