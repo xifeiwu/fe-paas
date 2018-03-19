@@ -265,6 +265,8 @@
     </div>
 
     <el-dialog title="更改健康检查" :visible="selected.prop == 'healthCheck'"
+               :close-on-click-modal="false"
+               class="health-check size-500"
                @close="selected.prop = null"
                v-if="selected.service && selected.model"
     >
@@ -272,7 +274,7 @@
         <i class="el-icon-warning"></i>
         <span>更改健康检查后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeHealthCheckForm">
+      <el-form :model="newProps" :rules="rules" size="mini" labelWidth="150px" ref="changeHealthCheckForm">
         <el-form-item label="当前健康检查：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
           {{selected.model.healthCheck}}
         </el-form-item>
@@ -296,6 +298,7 @@
     </el-dialog>
 
     <el-dialog title="更改镜像方式" :visible="selected.prop == 'image'"
+               :close-on-click-modal="false"
                class="image"
                @close="selected.prop = null"
                v-if="selected.service && selected.model"
@@ -327,13 +330,14 @@
     </el-dialog>
 
     <el-dialog title="更改文件存储" :visible="selected.prop == 'fileLocation'"
-               class="fileLocation"
+               :close-on-click-modal="false"
+               class="fileL-location"
                @close="selected.prop = null"
                v-if="selected.service && selected.model"
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改健康检查后需要重新【部署】才能生效！</span>
+        <span>更改文件存储后需要重新【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" size="mini"
                label-width="120px" ref="changeFileLocationForm">
@@ -371,10 +375,221 @@
       </div>
     </el-dialog>
 
+    <el-dialog title="更改gitlab_ssh地址" :visible="selected.prop == 'gitLabAddress'"
+               :close-on-click-modal="false"
+               @close="selected.prop = null"
+               class="gitlab-address size-600"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改Gitlab_ssh后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeGitLabAddressForm" size="mini">
+        <el-form-item label="当前gitlab_ssh地址：">
+          {{selected.model.gitLabAddress}}
+          </el-form-item>
+        <el-form-item label="更改gitlab_ssh地址为：" prop="gitLabAddress">
+          <el-input v-model="newProps.gitLabAddress" placeholder=""></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('gitLabAddress')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="更改gitlab分支" :visible="selected.prop == 'gitLabBranch'"
+               :close-on-click-modal="false"
+               @close="selected.prop = null"
+               class="gitlab-address size-500"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改Gitlab分支后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeGitLabBranchForm" size="mini">
+        <el-form-item label="当前gitlab分支：">
+          {{selected.model.gitLabBranch}}
+          </el-form-item>
+        <el-form-item label="更改gitlab分支为：" prop="gitLabBranch">
+          <el-input v-model="newProps.gitLabBranch" placeholder=""></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('gitLabBranch')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="更改maven profile id" :visible="selected.prop == 'mavenProfileId'"
+               :close-on-click-modal="false"
+               @close="selected.prop = null"
+               class="gitlab-address size-500"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改maven profile id后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="changeMavenProfileIdForm" size="mini">
+        <el-form-item label="当前maven profile id：">
+          {{selected.model.mavenProfileId}}
+          </el-form-item>
+        <el-form-item label="更改maven profile id：" prop="mavenProfileId">
+          <el-input v-model="newProps.mavenProfileId" placeholder=""></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('mavenProfileId')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="更改实例规格" :visible="selected.prop == 'cpuAndMemory'"
+               :close-on-click-modal="false"
+               @close="selected.prop = null"
+               class="cpu-and-memory size-500"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改实例规格后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-row>
+        当前实例规格: {{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}
+      </el-row>
+      <el-row>
+        更改实例规格为：
+      </el-row>
+      <el-form :model="newProps" :rules="rules"  size="mini" labelWidth="80px" ref="changeCpuAndMemoryForm">
+        <el-form-item label="CPU" prop="cpuID">
+          <el-radio-group v-model="newProps.cpuID" size="small" @change="handleCPUChange">
+            <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
+              {{item.cpu}}核
+            </el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="内存" prop="memoryID">
+          <el-radio-group v-model="newProps.memoryID" size="small">
+            <el-radio-button v-for="item in memeorySizeList" :label="item.id" :key="item.id">
+              {{item.memory}}G
+            </el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('cpuAndMemory')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="使用滚动升级" :visible="selected.prop == 'rollingUpdate'"
+               :close-on-click-modal="false"
+               @close="selected.prop = null"
+               class="rolling-update size-600"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>滚动升级是为了实现业务的平滑上线而不中断。除了定时器外，建议其他应用都选用滚动升级。</span>
+      </el-tag>
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改滚动升级后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeRollingUpdateForm">
+        <el-form-item label="滚动升级">
+          <el-radio-group v-model="newProps.rollingUpdate">
+            <el-radio :label="true">需要</el-radio>
+            <el-radio :label="false">不需要</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('rollingUpdate')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="更改负载均衡" :visible="selected.prop == 'loadBalance'"
+               :close-on-click-modal="false"
+               @close="selected.prop = null"
+               class="load-balance size-500"
+               v-if="selected.service && selected.model"
+    >
+      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeLoadBalanceForm">
+        <el-form-item label="负载均衡" prop="loadBalance">
+          <el-radio-group v-model="newProps.loadBalance">
+            <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('loadBalance')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
 
     <el-dialog title="更改VM_Options" :visible="selected.prop == 'vmOptions'"
+               :close-on-click-modal="false"
                @close="selected.prop = null"
-               class="gitlab-address"
+               class="vm-options size-500"
                v-if="selected.service && selected.model"
     >
       <el-tag type="success" disable-transitions>
@@ -405,15 +620,16 @@
     </el-dialog>
 
     <el-dialog title="修改环境变量" :visible="selected.prop == 'environments'"
+               :close-on-click-modal="false"
                @close="selected.prop = null"
-               class="environments"
+               class="environments size-600"
                v-if="selected.service && selected.model"
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
         <span>更改环境变量后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="changeEnvironmentsForm">
+      <el-form :model="newProps" size="mini" :rules="rules" labelWidth="160px" ref="changeEnvironmentsForm">
         <el-row>
           <el-col :span="10" style="font-weight: bold">Key</el-col>
           <el-col :span="10" style="font-weight: bold">Value</el-col>
@@ -457,10 +673,10 @@
       </div>
     </el-dialog>
 
-
     <el-dialog title="修改Host配置" :visible="selected.prop == 'hosts'"
+               :close-on-click-modal="false"
+               class="hosts size-600"
                @close="selected.prop = null"
-               class="hosts"
                v-if="selected.service && selected.model"
     >
       <el-tag type="success" disable-transitions>
@@ -511,217 +727,8 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="更改gitlab_ssh地址" :visible="selected.prop == 'gitLabAddress'"
-               @close="selected.prop = null"
-               class="gitlab-address"
-               v-if="selected.service && selected.model"
-    >
-      <el-tag type="success" disable-transitions>
-      <i class="el-icon-warning"></i>
-        <span>更改Gitlab_ssh后需要重新【部署】才能生效！</span>
-      </el-tag>
-        <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeGitLabAddressForm" size="mini">
-          <el-form-item label="当前gitlab_ssh地址：">
-            {{selected.model.gitLabAddress}}
-          </el-form-item>
-          <el-form-item label="更改gitlab_ssh地址为：" prop="gitLabAddress">
-            <el-input v-model="newProps.gitLabAddress" placeholder=""></el-input>
-          </el-form-item>
-        </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleDialogButtonClick('gitLabAddress')"
-                       :loading="waitingResponse">保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button action="profile-dialog/cancel"
-                       @click="selected.prop = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="更改gitlab分支" :visible="selected.prop == 'gitLabBranch'"
-               @close="selected.prop = null"
-               class="gitlab-address"
-               v-if="selected.service && selected.model"
-    >
-      <el-tag type="success" disable-transitions>
-        <i class="el-icon-warning"></i>
-        <span>更改Gitlab分支后需要重新【部署】才能生效！</span>
-      </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeGitLabBranchForm" size="mini">
-        <el-form-item label="当前gitlab分支：">
-          {{selected.model.gitLabBranch}}
-          </el-form-item>
-        <el-form-item label="更改gitlab分支为：" prop="gitLabBranch">
-          <el-input v-model="newProps.gitLabBranch" placeholder=""></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleDialogButtonClick('gitLabBranch')"
-                       :loading="waitingResponse">保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button action="profile-dialog/cancel"
-                       @click="selected.prop = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="更改maven profile id" :visible="selected.prop == 'mavenProfileId'"
-               @close="selected.prop = null"
-               class="gitlab-address"
-               v-if="selected.service && selected.model"
-    >
-      <el-tag type="success" disable-transitions>
-        <i class="el-icon-warning"></i>
-        <span>更改maven profile id后需要重新【部署】才能生效！</span>
-      </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="180px" ref="changeMavenProfileIdForm" size="mini">
-        <el-form-item label="当前maven profile id：">
-          {{selected.model.mavenProfileId}}
-          </el-form-item>
-        <el-form-item label="更改maven profile id：" prop="mavenProfileId">
-          <el-input v-model="newProps.mavenProfileId" placeholder=""></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleDialogButtonClick('mavenProfileId')"
-                       :loading="waitingResponse">保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button action="profile-dialog/cancel"
-                       @click="selected.prop = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="更改实例规格" :visible="selected.prop == 'cpuAndMemory'"
-               @close="selected.prop = null"
-               class="cpu-and-memory"
-               v-if="selected.service && selected.model"
-    >
-      <el-tag type="success" disable-transitions>
-        <i class="el-icon-warning"></i>
-        <span>更改实例规格后需要重新【部署】才能生效！</span>
-      </el-tag>
-      <el-row>
-        当前实例规格: {{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}
-      </el-row>
-      <el-row>
-        更改实例规格为：
-      </el-row>
-      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeCpuAndMemoryForm">
-        <el-form-item label="CPU" prop="cpuID">
-          <el-radio-group v-model="newProps.cpuID" size="small" @change="handleCPUChange">
-            <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
-              {{item.cpu}}核
-            </el-radio-button>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="内存" prop="memoryID">
-          <el-radio-group v-model="newProps.memoryID" size="small">
-            <el-radio-button v-for="item in memeorySizeList" :label="item.id" :key="item.id">
-              {{item.memory}}G
-            </el-radio-button>
-          </el-radio-group>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleDialogButtonClick('cpuAndMemory')"
-                       :loading="waitingResponse">保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button action="profile-dialog/cancel"
-                       @click="selected.prop = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
-      </div>
-    </el-dialog>
-
-
-    <el-dialog title="使用滚动升级" :visible="selected.prop == 'rollingUpdate'"
-               @close="selected.prop = null"
-               class="rolling-update"
-               v-if="selected.service && selected.model"
-    >
-      <el-tag type="success" disable-transitions>
-        <i class="el-icon-warning"></i>
-        <span>滚动升级是为了实现业务的平滑上线而不中断。除了定时器外，建议其他应用都选用滚动升级。</span>
-      </el-tag>
-      <el-tag type="success" disable-transitions>
-        <i class="el-icon-warning"></i>
-        <span>更改滚动升级后需要重新【部署】才能生效！</span>
-      </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeRollingUpdateForm">
-        <el-form-item label="滚动升级">
-          <el-radio-group v-model="newProps.rollingUpdate">
-            <el-radio :label="true">需要</el-radio>
-            <el-radio :label="false">不需要</el-radio>
-          </el-radio-group>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleDialogButtonClick('rollingUpdate')"
-                       :loading="waitingResponse">保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button action="profile-dialog/cancel"
-                       @click="selected.prop = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="更改负载均衡" :visible="selected.prop == 'loadBalance'"
-               @close="selected.prop = null"
-               class="load-balance"
-               v-if="selected.service && selected.model"
-    >
-      <!--<el-tag type="success" disable-transitions>-->
-      <!--<i class="el-icon-warning"></i>-->
-      <!--<span></span>-->
-      <!--</el-tag>-->
-      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeLoadBalanceForm">
-        <el-form-item label="负载均衡" prop="loadBalance">
-          <el-radio-group v-model="newProps.loadBalance">
-            <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
-          </el-radio-group>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleDialogButtonClick('loadBalance')"
-                       :loading="waitingResponse">保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button action="profile-dialog/cancel"
-                       @click="selected.prop = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
-      </div>
-    </el-dialog>
-
     <el-dialog title="更改OneApm" :visible="selected.prop == 'oneApm'"
+               :close-on-click-modal="false"
                @close="selected.prop = null"
                class="one-apm"
                v-if="selected.service && selected.model"
@@ -880,7 +887,7 @@
           text-align: left;
         }
       }
-      &.fileLocation {
+      &.file-location {
         .el-dialog__body {
           .el-form {
             .el-form-item {
@@ -1424,7 +1431,7 @@ export default {
               }
             }).catch(err => {
               this.hideWaitingResponse('deploy');
-              this.$notify({
+              this.$notify.error({
                 title: '部署失败',
                 message: err,
                 duration: 0,

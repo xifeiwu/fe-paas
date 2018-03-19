@@ -243,12 +243,31 @@ h4 {
 }
 
 #app {
-  .el-dialog {
-    .el-dialog__header {
-      //background-color: #d9ecff;
+  .el-dialog__wrapper {
+    &.size-500 {
+      .el-dialog {
+        width: 80%;
+        max-width: 500px;
+      }
     }
-    .el-dialog__body {
-      padding: 0px 15px;
+    &.size-600 {
+      .el-dialog {
+        width: 80%;
+        max-width: 600px;
+      }
+    }
+    .el-dialog {
+      .el-dialog__header {
+        //background-color: #d9ecff;
+      }
+      .el-dialog__body {
+        padding: 0px 15px;
+      }
+      .el-dialog__footer {
+        border-top: 1px solid #e7e7e7;
+        margin-top: 8px;
+        padding: 6px 8px;
+      }
     }
   }
 
@@ -282,6 +301,9 @@ h4 {
 
   .el-form {
     .el-form-item {
+      &.el-form-item--mini {
+        margin-bottom: 14px;
+      }
       .el-form-item__content {
         text-align: left;
       }
