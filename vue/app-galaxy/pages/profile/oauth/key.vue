@@ -53,8 +53,16 @@
           <template slot-scope="scope">
             <div  class="access-key">
               <span>{{scope.row.accessKey}}</span>
-              <i class="my-icon-copy" v-clipboard:copy="scope.row.accessKey"
-                 v-clipboard:success="copySuccess"></i>
+              <el-popover
+                      placement="bottom"
+                      trigger="click"
+                      :disabled="disablePopper"
+                      popperClass="el-popover--small is-dark"
+                      content="复制成功">
+                <i class="my-icon-copy" slot="reference"
+                   v-clipboard:copy="scope.row.accessKey"
+                   v-clipboard:success="handleTRClick.bind(this, 'copy-access-key', scope.$index, scope.row)"></i>
+              </el-popover>
             </div>
           </template>
         </el-table-column>
@@ -383,6 +391,7 @@ module.exports = {
         accessKey: ''
       },
       accessKeyListByPage: [],
+      disablePopper: false,
 
       selected: {
         row: {id: null},
@@ -551,6 +560,13 @@ module.exports = {
     handleTRClick(action, index, row) {
       this.selected.row = row;
       switch (action) {
+        case 'copy-access-key':
+          this.disablePopper = false;
+          setTimeout(() => {
+            this.disablePopper = true;
+          }, 500);
+//          this.$message.success('复制成功');
+          break;
         case 'modify-access-config':
           this.addToWaitingResponseQueue(action);
           // check dialog-related-data before open dialog
@@ -752,9 +768,6 @@ module.exports = {
         this.showLoading = false;
         cb(false)
       });
-    },
-    copySuccess() {
-      this.$message.success('复制成功');
     },
 
     // the first page of pagination is 1

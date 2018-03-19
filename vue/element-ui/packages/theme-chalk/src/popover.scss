@@ -24,6 +24,7 @@
   @include m(small) {
     min-width: 40px;
     padding: $--popover-padding-small;
+    font-size: $--font-size-small;
   }
 
   @include e(title) {
