@@ -18,7 +18,12 @@
   box-shadow: $--box-shadow-light;
 
   @include m(plain) {
-    padding: $--popover-padding-large;
+    padding: $--popover-padding;
+  }
+
+  @include m(small) {
+    min-width: 40px;
+    padding: $--popover-padding-small;
   }
 
   @include e(title) {
