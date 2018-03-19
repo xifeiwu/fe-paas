@@ -90,7 +90,7 @@
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item label="环境变量设置" prop="environments" class="environments">
+      <el-form-item label="环境变量设置" prop="environments" class="environments" :error="formItemMsgForEnvironments">
         <el-row>
           <el-col :span="9" style="font-weight: bold;text-align: center">Key</el-col>
           <el-col :span="2">&nbsp</el-col>
@@ -331,6 +331,8 @@
           // value of customImage
           customImageValue: '',
         },
+        // error message for form-item environments
+        formItemMsgForEnvironments: '',
 
         customImageTypeList: [{
           label: '环境镜像',
@@ -411,15 +413,6 @@
       },
       appInfoListOfGroup: 'onAppInfoListOfGroup',
       groupInfo: 'onGroupInfo',
-
-      // sync value from imageSelectState to serviceForm for form-validation
-//      'imageSelectState.autoImageValue': function (value) {
-//        this.serviceForm.autoImageValue = value;
-//      },
-//      'imageSelectState.customImageValue': function (value) {
-//        this.serviceForm.customImageValue = value;
-//        console.log(this.serviceForm);
-//      },
 
       'imageInfoFromNet': {
         immediate: true,
@@ -565,6 +558,8 @@
       handleEnvironment(action, key, value) {
         switch (action) {
           case 'add':
+            // remove error notification first
+            this.formItemMsgForEnvironments = '';
             let keyReg = /^[A-Za-z0-9_\-\.@]{1,64}$/;
             let valueReg = /^[A-Za-z0-9_\-\.@]{1,512}$/;
             if (!keyReg.exec(key)) {
@@ -579,21 +574,23 @@
               this.$message.error('最多输入10个');
               return;
             }
-            let keyHasExist = false;
-            this.serviceForm.environments.forEach(it => {
+            let itemWithKey = null;
+            this.serviceForm.environments.some(it => {
               if (it.key === key) {
-                it.value = value;
-                keyHasExist = true;
+                itemWithKey = it;
               }
+              return itemWithKey;
             });
-            if (!keyHasExist) {
+            if (!itemWithKey) {
               this.serviceForm.environments.push({
                 key: key,
                 value: value,
               });
+              this.environmentKey = '';
+              this.environmentValue = '';
+            } else {
+              this.formItemMsgForEnvironments = `Key "${itemWithKey.key}" 已经存在，如需更改，请删除后重新添加`;
             }
-            this.environmentKey = '';
-            this.environmentValue = '';
             break;
           case 'delete':
             let index = key;
