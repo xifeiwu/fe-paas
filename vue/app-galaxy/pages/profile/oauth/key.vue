@@ -188,12 +188,28 @@
             </el-select>
             </el-col>
             <el-col :span="4">
+              <el-popover
+                    width="160"
+                    v-model="popoverVisibleInModifyAccessKeyDialog"
+                    placement="left"
+                    trigger="click"
+                    popperClass="el-popover--small"
+                    content="复制成功">
+              <p style="color: #fa5555">这是一段内容这是一段内容确定删除吗？</p>
+              <div style="text-align: right; margin: 0">
+                <el-button size="mini" type="text" @click="popoverVisibleInModifyAccessKeyDialog = false">取消</el-button>
+                <el-button type="danger" size="mini" @click="popoverVisibleInModifyAccessKeyDialog = false">确定</el-button>
+              </div>
+              <!--<el-button slot="reference" @click="handleButtonClick('delete')">删除</el-button>-->
               <el-button
+                      slot="reference"
                       size="mini-extral"
-                      type="warning"
-                      :loading="statusOfWaitingResponse('add-access-config-in-dialog') && selected.row.id === scope.row.id"
-                      @click="handleDialogButton('add-access-config')">添加
+                type="warning"
+                :loading="statusOfWaitingResponse('add-access-config-in-dialog') && selected.row.id === scope.row.id"
+                @click="handleDialogButton('add-access-config')">添加
               </el-button>
+            </el-popover>
+
             </el-col>
           </el-row>
         </el-form-item>
@@ -392,6 +408,7 @@ module.exports = {
       },
       accessKeyListByPage: [],
       disablePopper: false,
+      popoverVisibleInModifyAccessKeyDialog: false,
 
       selected: {
         row: {id: null},
@@ -630,7 +647,7 @@ module.exports = {
             this.$net.oauthDeleteAccessKey(this.selected.row.id).then(msg => {
               this.$message.success(msg);
               this.requestAccessKeyList();
-            }).catch(() => {
+            }).catch((msg) => {
               this.$notify.error({
                 title: '删除Oauth授权失败！',
                 message: msg,
