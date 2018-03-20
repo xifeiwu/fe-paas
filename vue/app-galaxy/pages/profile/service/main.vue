@@ -207,8 +207,10 @@
                       <i class="el-icon-edit" @click="handleChangeProp('fileLocation')"></i>
                     </div>
                   </el-form-item>
-                  <el-form-item label="VM_Options：" v-if="selectedAPP.isJavaLanguage">
-                    {{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}
+                  <el-form-item label="VM_Options：" class="big" v-if="selectedAPP.isJavaLanguage">
+                    <div class="expand-to-next-line" style="display: inline-block; width: calc(100% - 24px)">
+                      {{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}
+                    </div>
                     <i class="el-icon-edit" @click="handleChangeProp('vmOptions')"></i>
                   </el-form-item>
                   <el-form-item label="环境变量配置：" class="big">
@@ -589,7 +591,7 @@
     <el-dialog title="更改VM_Options" :visible="selected.prop == 'vmOptions'"
                :close-on-click-modal="false"
                @close="selected.prop = null"
-               class="vm-options size-500"
+               class="vm-options size-700"
                v-if="selected.service && selected.model"
     >
       <el-tag type="success" disable-transitions>
@@ -598,7 +600,7 @@
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeVmOptionsForm" size="mini">
         <el-form-item label="当前VM_Options：">
-          {{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}
+          <div class="expand-to-next-line">{{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}</div>
         </el-form-item>
         <el-form-item label="更改VM_Options为：" prop="vmOptions">
           <el-input v-model="newProps.vmOptions" placeholder="不能包含中文，不能超过1024个字符"></el-input>
@@ -933,7 +935,7 @@
 <style lang="scss" scoped>
   #service-main {
     .el-icon-edit {
-      margin-left: 8px;
+      margin-left: 2px;
       font-size: 100%;
       line-height: 100%;
       color: #eb9e05;
