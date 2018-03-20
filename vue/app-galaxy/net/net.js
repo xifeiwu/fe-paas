@@ -40,6 +40,7 @@ class Net {
       if (0 === data.code) {
         content = data.content ? data.content : {};
       } else {
+        // console.log(this.getResponseContent.caller);
         console.log('request error:' + JSON.stringify(data));
       }
     }
@@ -272,7 +273,8 @@ class Net {
    * resolve only when content data is ok.
    */
   getAPPList (options) {
-    if (this.requestingState.getAPPList) {
+    // console.log(`options: ${JSON.stringify(options)}`);
+    if (this.requestingState.getAPPList || !options.groupId) {
       this.showLog('getAPPList', 'in the state of requesting');
       return new Promise((resolve, reject) => {
         reject('getAPPList is in requesting');

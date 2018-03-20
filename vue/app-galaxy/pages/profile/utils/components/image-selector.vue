@@ -196,7 +196,7 @@
           this.serviceInfo.profileID = serviceInfo.profileID;
           if (!this.appInfoListOfGroup) {
             this.$store.dispatch('user/appInfoListOfGroup', {
-              from: 'page/app/add',
+              from: 'image-selector',
               groupID: this.$storeHelper.currentGroupID
             });
           } else {
@@ -210,6 +210,7 @@
       },
 
       onAppInfoListOfGroup(appList) {
+//        console.log('onAppInfoListOfGroup in image-selector');
         if (this.serviceInfo.appID) {
           this.currentApp = this.$storeHelper.getAppByID(this.serviceInfo.appID);
         } else {

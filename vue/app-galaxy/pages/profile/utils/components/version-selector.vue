@@ -58,7 +58,7 @@
     mounted() {
       if (!this.appInfoListOfGroup) {
         this.$store.dispatch('user/appInfoListOfGroup', {
-          from: 'page/app/add',
+          from: 'component version-selector',
           groupID: this.$storeHelper.currentGroupID
         });
       } else {

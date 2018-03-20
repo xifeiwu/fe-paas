@@ -273,7 +273,7 @@
     mounted() {
       if (!this.appInfoListOfGroup) {
         this.$store.dispatch('user/appInfoListOfGroup', {
-          from: 'page/app/add',
+          from: 'page/app',
           groupID: this.$storeHelper.currentGroupID
         });
       } else {
@@ -361,7 +361,7 @@
           case 'refreshAppList':
             this.showLoading = true;
             this.$store.dispatch('user/appInfoListOfGroup', {
-              from: 'page/app/add',
+              from: 'page/app',
               groupID: this.$storeHelper.currentGroupID
             });
 //            this.$nextTick(() => {

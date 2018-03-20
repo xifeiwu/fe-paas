@@ -223,24 +223,23 @@ const actions = {
     NetData.getProfileListOfGroup(options).then(content => {
       if (content.hasOwnProperty('spaceList')) {
         commit('SET_PROFILE_OF_GROUP', content.spaceList);
-
         // reload appInfoListOfGroup when the format of item is not correct
-        if (Array.isArray(state.appInfoListOfGroup)) {
-          let existProfileList = true;
-          state.appInfoListOfGroup.every(it => {
-            existProfileList = it.hasOwnProperty('profileList');
-            return existProfileList;
-          });
-          if (!existProfileList) {
-            dispatch('appInfoListOfGroup', {
-              groupID: options.id
-            });
-          }
-        } else {
-          // dispatch('appInfoListOfGroup', {
-          //   groupID: options.id
-          // });
-        }
+        // if (Array.isArray(state.appInfoListOfGroup)) {
+        //   let existProfileList = true;
+        //   state.appInfoListOfGroup.every(it => {
+        //     existProfileList = it.hasOwnProperty('profileList');
+        //     return existProfileList;
+        //   });
+        //   if (!existProfileList) {
+        //     dispatch('appInfoListOfGroup', {
+        //       groupID: options.id
+        //     });
+        //   }
+        // } else {
+        //   // dispatch('appInfoListOfGroup', {
+        //   //   groupID: options.id
+        //   // });
+        // }
       }
     });
   },

@@ -24,7 +24,7 @@ class StoreHelper {
     let appInfoListOfGroup = this.$store.getters['user/appInfoListOfGroup'];
     if (!appInfoListOfGroup) {
       this.$store.dispatch('user/appInfoListOfGroup', {
-        from: 'page/app/add',
+        from: 'vue.$storeHelper',
         groupID: this.currentGroupID
       });
     }
