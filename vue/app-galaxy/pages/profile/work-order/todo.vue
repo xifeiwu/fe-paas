@@ -149,6 +149,13 @@
                   </el-table>
                 </el-form-item>
                 <el-form-item label="备注">{{workOrderDetail.comment}}</el-form-item>
+                <el-form-item label="测试报告" class="test-log-list">
+                  <div class="test-log"
+                        v-for="(item, index) in workOrderDetail.testLogList" :key="index" v-if="workOrderDetail.testLogList.length>0">
+                    <a :href="item.url">{{item.name}}</a>
+                  </div>
+                  <span v-else>无</span>
+                </el-form-item>
               </el-form>
             </div>
           </template>
@@ -253,6 +260,14 @@
                 }
                 span:last-child::after {
                   content: '';
+                }
+              }
+            }
+            &.test-log-list {
+              .test-log {
+                margin: 0px 5px;
+                a {
+                  color: blue;
                 }
               }
             }

@@ -251,6 +251,14 @@ class WorkOrderUtils {
             return it.emailGroupName;
           })
         }
+        if (result.hasOwnProperty('testLogList') && Array.isArray(result.testLogList)) {
+          workOrderDetail.testLogList = result.testLogList.map(it => {
+            return {
+              name: it.testReportFileName,
+              url: it.url
+            }
+          })
+        }
         // console.log(JSON.stringify(workOrder));
         // console.log(JSON.stringify(workOrderDetail));
         resolve(workOrderDetail);

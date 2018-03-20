@@ -1426,6 +1426,9 @@ class Net {
     const getEmailGroup = () => {
       return axios.post(URL_LIST.work_order_detail_email_group, options)
     };
+    const getTestLog = () => {
+      return axios.post(URL_LIST.work_order_detail_test_log_list, options);
+    }
     let keyMap = {
       featureList: {
         functionType: {
@@ -1465,8 +1468,8 @@ class Net {
     }
     return new Promise((resolve, reject) => {
       axios.all([getFeatureList(), getAppList(), getUserToDo(), getUserAccepted(),
-        getUserNotify(), getOperationList(), getEmailGroup()])
-        .then(axios.spread((featureList, appList, userToDo, userAcceptedList, notifyUserList, operationList, emailGroup) => {
+        getUserNotify(), getOperationList(), getEmailGroup(), getTestLog()])
+        .then(axios.spread((featureList, appList, userToDo, userAcceptedList, notifyUserList, operationList, emailGroup, testLogList) => {
           featureList = this.getResponseContent(featureList);
           appList = this.getResponseContent(appList);
           userToDo = this.getResponseContent(userToDo);
@@ -1474,6 +1477,8 @@ class Net {
           notifyUserList = this.getResponseContent(notifyUserList);
           operationList = this.getResponseContent(operationList);
           emailGroup = this.getResponseContent(emailGroup);
+          testLogList = this.getResponseContent(testLogList);
+
           if (featureList.hasOwnProperty('WorkOrderDeployFunctionVO')) {
             featureList = featureList.WorkOrderDeployFunctionVO;
             Array.isArray(featureList) && featureList.forEach(it => {
@@ -1511,6 +1516,12 @@ class Net {
           if (emailGroup.hasOwnProperty('emailGroup')) {
             emailGroup = emailGroup['emailGroup'];
           }
+          if (testLogList.hasOwnProperty('workOrderDeployTestReport')) {
+            testLogList = testLogList.workOrderDeployTestReport;
+            testLogList.forEach(it => {
+              it.url = URL_LIST.api_path + it.testReportFilePath + '/' + it.testReportFileName;
+            });
+          }
 
           let results = {
             featureList: featureList,
@@ -1519,7 +1530,8 @@ class Net {
             userAcceptedList: userAcceptedList,
             notifyUserList: notifyUserList,
             operationList: operationList,
-            emailGroup: emailGroup
+            emailGroup: emailGroup,
+            testLogList: testLogList
           };
           resolve(results);
         })).catch(err => {

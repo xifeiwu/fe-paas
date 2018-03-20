@@ -20,6 +20,7 @@ var path = 'http://' + window.location.hostname + ':' + port;
 var apiPath = path + '/api';
 
 var urlList = {
+  'api_path': apiPath,
   'page_terminal_path': 'http://' + window.location.host + '/terminal.html',
   'page_login_path': 'http://' + window.location.host + '/galaxy.html',
 
@@ -169,6 +170,8 @@ var urlList = {
   'work_order_detail_operation_list': apiPath + '/workOrderDeployLog/getWorkOrderDeployLog',
   // 邮件组
   'work_order_detail_email_group': apiPath + '/emailGroup/getWorkOrderDeployEmailGroup',
+  // 测试日志
+  'work_order_detail_test_log_list': apiPath + '/workOrderDeploy/queryWorkOrderDeployTestReport',
 
   /** 处理工单 */
   // 点击处理前的判断逻辑
