@@ -1428,7 +1428,7 @@ class Net {
     };
     const getTestLog = () => {
       return axios.post(URL_LIST.work_order_detail_test_log_list, options);
-    }
+    };
     let keyMap = {
       featureList: {
         functionType: {
@@ -1469,7 +1469,8 @@ class Net {
     return new Promise((resolve, reject) => {
       axios.all([getFeatureList(), getAppList(), getUserToDo(), getUserAccepted(),
         getUserNotify(), getOperationList(), getEmailGroup(), getTestLog()])
-        .then(axios.spread((featureList, appList, userToDo, userAcceptedList, notifyUserList, operationList, emailGroup, testLogList) => {
+        .then(axios.spread((featureList, appList, userToDo, userAcceptedList,
+                            notifyUserList, operationList, emailGroup, testLogList) => {
           featureList = this.getResponseContent(featureList);
           appList = this.getResponseContent(appList);
           userToDo = this.getResponseContent(userToDo);

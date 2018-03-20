@@ -189,10 +189,8 @@ body, html {
 }
 
 a {
-  color: #4C4C4C;
   text-decoration: none;
 }
-
 a:hover {
   opacity: 0.9;
   text-decoration: none;
@@ -227,6 +225,13 @@ h4 {
   clear: both;
 }
 
+.expand-to-next-line {
+  display: inline-block;
+  max-width: 100%;
+  word-wrap: break-word;
+  word-break: break-all;
+  line-height: 1.2;
+}
 
 .el-tag {
 }

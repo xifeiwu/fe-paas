@@ -208,7 +208,7 @@
                     </div>
                   </el-form-item>
                   <el-form-item label="VM_Options：" class="big" v-if="selectedAPP.isJavaLanguage">
-                    <div class="expand-to-next-line" style="display: inline-block; width: calc(100% - 24px)">
+                    <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}
                     </div>
                     <i class="el-icon-edit" @click="handleChangeProp('vmOptions')"></i>

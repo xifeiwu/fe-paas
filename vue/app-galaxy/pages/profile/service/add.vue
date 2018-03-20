@@ -1,7 +1,7 @@
 <template>
   <div id="service-add">
     <el-form :model="serviceForm" ref="serviceForm"
-             :rules="rules" label-width="150px" size="mini"
+             :rules="rules" label-width="200px" size="mini"
              v-loading="showLoading"
              :element-loading-text="loadingText">
       <el-form-item label="版本号" prop="serviceVersion" class="service-version">
@@ -206,9 +206,9 @@
         }
         &.relative-path-of-parent-pom {
           max-width: 600px;
-          .el-form-item__label {
-            line-height: 100%;
-          }
+          /*.el-form-item__label {*/
+            /*line-height: 100%;*/
+          /*}*/
         }
         &.vm-options {
           max-width: 600px;
@@ -247,7 +247,7 @@
     margin: 20px 20px 20px 30px;
     padding: 30px 20px 20px 20px;
     width: 80%;
-    max-width: 800px;
+    max-width: 860px;
     .el-form {
       .el-form-item {
         &.finish {

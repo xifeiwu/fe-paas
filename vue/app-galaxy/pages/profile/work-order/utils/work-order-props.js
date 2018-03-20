@@ -258,6 +258,8 @@ class WorkOrderUtils {
               url: it.url
             }
           })
+        } else {
+          workOrderDetail.testLogList = [];
         }
         // console.log(JSON.stringify(workOrder));
         // console.log(JSON.stringify(workOrderDetail));
