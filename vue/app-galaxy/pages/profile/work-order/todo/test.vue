@@ -25,9 +25,11 @@
                 class="upload-demo"
                 ref="upload"
                 :headers="{token: this.$getUserInfo('token')}"
+                :data="{'id': this.workOrderDetail.id}"
                 :action="$url.work_order_handle_upload_test_report"
                 :auto-upload="false"
                 :beforeUpload="beforeFileUpload"
+                :onChange="onFileChange"
                 :onSuccess="afterLoadSuccess"
                 :onError="afterLoadError"
                 :multiple="true"
@@ -106,19 +108,18 @@
 
     },
     mounted() {
-      let workOrder = this.$storeHelper.getTmpProp('workOrderBasic');
-      if (!workOrder || !workOrder.hasOwnProperty('id')) {
+      let workOrderDetail = this.$storeHelper.getTmpProp('workOrderDetail');
+      if (!workOrderDetail || !workOrderDetail.hasOwnProperty('id')) {
         this.$router.push('/profile/work-order/todo');
         return;
       }
-      this.$nextTick(() => {
-//        this.getWorkOrderDetail(workOrder)
-        WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
-          console.log(detail);
-          this.workOrderDetail = detail;
-        }).catch(err => {
-        })
-      });
+      this.workOrderDetail = workOrderDetail;
+//      this.$nextTick(() => {
+//        WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
+//          this.workOrderDetail = detail;
+//        }).catch(err => {
+//        })
+//      });
     },
     data() {
       return {
@@ -158,7 +159,9 @@
         },
 
         showLoading: false,
-        loadingText: ''
+        loadingText: '',
+        uploadFileSuccessCount: 0,
+        rejectHandle: null
       }
     },
     watch: {
@@ -179,11 +182,13 @@
       }
     },
     methods: {
-      handleSubmitUpload() {
-        this.$refs.upload.submit();
+      onFileChange(file, fileList) {
+      },
+      onUploadFiles(fileList) {
+        this.handleInfo.fileList2Upload = fileList;
       },
       beforeFileUpload(file) {
-        console.log('beforeFileUpload');
+//        console.log('beforeFileUpload');
         return new Promise((resolve, reject) => {
           let isExcel = false;
           if (file) {
@@ -191,6 +196,7 @@
               isExcel = true;
             }
           }
+          // un-check file type
           isExcel = true;
           if (isExcel) {
             resolve(file);
@@ -210,15 +216,23 @@
        * @param uploadFiles, all files in uploadlist, including the files has been upload
        */
       afterLoadSuccess(res, file, uploadFiles) {
-//        this.$message.success(`${file.name}上传成功`);
-      },
-      afterLoadError(err, rawFile) {
-        if (err) {
-//          this.$message.error(`${rawFile.name}上传失败`);
+        this.uploadFileSuccessCount += 1;
+        if (this.uploadFileSuccessCount == this.handleInfo.fileList2Upload.length) {
+//          console.log('this.uploadWorkOrder()');
+          this.uploadWorkOrder();
         }
       },
-      onUploadFiles(value) {
-        this.handleInfo.fileList2Upload = value;
+      afterLoadError(err, file, uploadFiles) {
+//        console.log(err, file, uploadFiles)
+        if (err) {
+          this.$notify.error({
+            title: '提示',
+            message: `${file.name}上传失败`,
+            duration: 0,
+            onClose: function () {
+            }
+          });
+        }
       },
 
       handleButtonClick(action) {
@@ -227,16 +241,19 @@
             this.$router.go(-1);
             break;
           case 'finish-handle':
-            this.handleSubmit(false);
+            this.rejectHandle = false;
+            this.handleSubmit();
             break;
           case 'reject-handle':
-            this.handleSubmit(true);
+            this.rejectHandle = true;
+            this.handleSubmit();
             break;
         }
       },
+
       handleSubmit(reject) {
         // change rules according to user select
-        this.rules.comment[0].required = reject;
+        this.rules.comment[0].required = this.rejectHandle;
         this.rules.fileList2Upload[0].required = this.handleInfo.testType != 'SKIP_TEST';
         if (!WorkOrderPropUtils.checkComment(this.handleInfo.comment)) {
           this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
@@ -247,37 +264,43 @@
           if (valid) {
             this.showLoading = true;
             this.loadingText = '正在处理工单"' + this.workOrderDetail.name + '"';
-            let options = {
-              id: this.workOrderDetail.id,
-              handleResult: !reject,
-              status: this.workOrderDetail.status,
-              testType: this.handleInfo.testType,
-              remark: this.handleInfo.comment
-            };
 //            console.log(options);
-            this.handleSubmitUpload();
-            this.$net.handleWorkOrder(options).then(msg => {
-              console.log(msg);
-              this.$alert('即将进入待办工单列表页', msg, {
-                confirmButtonText: '确定',
-                callback: () => {
-                  this.$router.push('/profile/work-order/todo');
-                }
-              });
-              this.showLoading = false;
-              this.loadingText = '';
-            }).catch(msg => {
-              console.log(msg);
-              this.$alert('请与管理员联系，即将进入待办工单列表页', msg, {
-                confirmButtonText: '确定',
-                callback: () => {
-                  this.$router.push('/profile/work-order/todo');
-                }
-              });
-              this.showLoading = false;
-              this.loadingText = ''
-            });
+//            this.handleSubmitUpload();
+            this.uploadFileSuccessCount = 0;
+            this.$refs.upload.submit();
           }
+        });
+      },
+
+      uploadWorkOrder() {
+        let options = {
+          id: this.workOrderDetail.id,
+          // 处理完成 or 拒绝处理
+          handleResult: !this.rejectHandle,
+          status: this.workOrderDetail.status,
+          testType: this.handleInfo.testType,
+          remark: this.handleInfo.comment
+        };
+        this.$net.handleWorkOrder(options).then(msg => {
+          console.log(msg);
+          this.$alert('即将进入待办工单列表页', msg, {
+            confirmButtonText: '确定',
+            callback: () => {
+              this.$router.push('/profile/work-order/todo');
+            }
+          });
+          this.showLoading = false;
+          this.loadingText = '';
+        }).catch(msg => {
+          console.log(msg);
+          this.$alert('请与管理员联系，即将进入待办工单列表页', msg, {
+            confirmButtonText: '确定',
+            callback: () => {
+              this.$router.push('/profile/work-order/todo');
+            }
+          });
+          this.showLoading = false;
+          this.loadingText = ''
         });
       }
     }

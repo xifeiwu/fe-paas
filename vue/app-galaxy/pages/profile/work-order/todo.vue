@@ -506,12 +506,19 @@
               handleStatus: row.handleStatus,
               status: row.status
             }).then(workOrderInfo => {
-              this.hideWaitingResponse(action);
+//              this.hideWaitingResponse(action);
               let newStatus = workOrderInfo['status'];
               workOrderBasic.status = newStatus;
               workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
-              this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
-              this.$router.push('/profile/work-order/todo/test');
+//              this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
+//              this.$router.push('/profile/work-order/todo/test');
+              WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
+                this.hideWaitingResponse(action);
+                this.$storeHelper.setTmpProp('workOrderDetail', detail);
+                this.$router.push('/profile/work-order/todo/test');
+              }).catch(() => {
+                this.hideWaitingResponse(action);
+              });
             }).catch(errMsg => {
               this.hideWaitingResponse(action);
               console.log(errMsg);
