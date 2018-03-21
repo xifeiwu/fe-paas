@@ -68,9 +68,9 @@
       padding: 20px 50px;
     }
 
-    &:hover {
-      background-color: $--table-row-hover-background !important;
-    }
+    //&:hover {
+    //  background-color: $--table-row-hover-background !important;
+    //}
   }
 
   @include m(fit) {
@@ -515,9 +515,9 @@
   }
 
   @include m(enable-row-hover) {
-    .el-table__body tr:hover > td {
-      background-color: $--table-row-hover-background;
-    }
+    //.el-table__body tr:hover > td {
+    //  background-color: $--table-row-hover-background;
+    //}
   }
 
   @include m(fluid-height) {
