@@ -47,7 +47,7 @@
             </el-breadcrumb>
           </el-col>
           <el-col :span="12" class="group-list">
-            <el-select v-model="$storeHelper.currentGroupID" filterable placeholder="请选择" v-if="showGroupList">
+            <el-select v-model="$storeHelper.currentGroupID" size="mini" filterable placeholder="请选择" v-if="showGroupList">
               <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
@@ -88,9 +88,8 @@
   .el-menu {
     .el-menu-item {
       &.is-active {
-        font-weight: bold;
+        /*font-weight: bold;*/
         /*cursor: no-drop;*/
-        font-weight: bold;
       }
     }
   }
@@ -172,16 +171,16 @@
         margin-left: $aside-width;
         .el-row.main-header {
           border-bottom: 1px solid $split-line-color;
-          padding: 3px;
-          min-height:39px;
+          padding: 0px;
+          height:30px;
           .el-col {
-            &:nth-child(1) {
+            &.current-step {
               padding-left: 6px;
               .el-breadcrumb {
-                font-size: 16px;
+                font-size: 14px;
               }
             }
-            &:nth-child(2) {
+            &.group-list {
               text-align: right;
 
             }
