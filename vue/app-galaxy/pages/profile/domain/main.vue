@@ -334,8 +334,11 @@
         &.show-response {
           .el-dialog__body {
             .list-item {
-              border-bottom: 1px solid #909399;
+              border-bottom: 1px solid #e7e7e7;
               margin-bottom: 3px;
+              &:last-child {
+                border-width: 0px;
+              }
             }
             .key {
               &.title {
@@ -370,8 +373,11 @@
         &.show-response {
           .el-dialog__body {
             .list-item {
-              border-bottom: 1px solid #909399;
+              border-bottom: 1px solid #e7e7e7;
               margin-bottom: 3px;
+              &:last-child {
+                border-width: 0px;
+              }
             }
             .key {
               &.title {

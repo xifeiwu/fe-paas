@@ -156,14 +156,12 @@
             margin: 8px 0px;
             line-height: 40px;
             &.is-active {
-              /*color: black;*/
-              /*color: #409EFF;*/
-              font-size: 16px;
+              /*font-size: 16px;*/
               background-color: #409EFF;
               color: white;
               border-radius: 0px;
               [class^="my-icon-"] {
-                font-size: 15px;
+                /*font-size: 15px;*/
               }
             }
           }
