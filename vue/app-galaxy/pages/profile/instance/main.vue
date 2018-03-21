@@ -67,7 +67,7 @@
 <style lang="scss" scoped>
   #instance-main {
     .el-row.header {
-      margin: 1px 5px;
+      margin: 3px 5px;
       font-size: 14px;
       min-height: 28px;
     }

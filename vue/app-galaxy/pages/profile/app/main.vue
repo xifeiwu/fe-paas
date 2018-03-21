@@ -189,7 +189,7 @@
 <style lang="scss" scoped>
   #app-main {
     .header {
-      margin: 1px 5px;
+      margin: 3px 5px;
       font-size: 14px;
       .el-row {
         .el-col {
