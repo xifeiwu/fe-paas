@@ -1897,10 +1897,10 @@ export default {
             return it.defaultSelect;
           });
           if (!findDefault) {
-            this.$message({
-              type: 'warning',
-              message: '未找到默认版本'
-            })
+//            this.$message({
+//              type: 'warning',
+//              message: '未找到默认版本'
+//            })
           }
         }
         this.intranetDomain = content.hasOwnProperty('intranetDomain') ? content.intranetDomain : '未知';

@@ -172,6 +172,20 @@
   </div>
 </template>
 
+<style lang="scss">
+  #app-main {
+    .app-list {
+      .el-table {
+        th {
+          padding: 2px 0px;
+        }
+        td {
+          padding: 3px 0px;
+        }
+      }
+    }
+  }
+</style>
 <style lang="scss" scoped>
   #app-main {
     .header {

@@ -66,6 +66,11 @@
 
 <style lang="scss" scoped>
   #instance-main {
+    .el-row.header {
+      margin: 1px 5px;
+      font-size: 14px;
+      min-height: 28px;
+    }
     .section-content {
       .el-table {
         margin-bottom: 40px;
@@ -75,16 +80,6 @@
       }
     }
   }
-</style>
-<style lang="scss" scoped>
-  #instance-main {
-    .el-row.header {
-      margin: 1px 5px;
-      font-size: 14px;
-      min-height: 28px;
-    }
-  }
-
 </style>
 
 <script>
