@@ -110,7 +110,7 @@
         </el-row>
         <el-row class="add-key-value">
           <el-col :span="11" class="key">
-            <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、中划线、下划线" size="mini"></el-input>
+            <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
           </el-col>
           <el-col :span="11" class="value">
             <el-input v-model="environmentValue" placeholder="512位以内的数字、字母、中划线、下划线" size="mini"></el-input>
@@ -247,7 +247,7 @@
     margin: 20px 20px 20px 30px;
     padding: 30px 20px 20px 20px;
     width: 80%;
-    max-width: 860px;
+    max-width: 900px;
     .el-form {
       .el-form-item {
         &.finish {
@@ -565,10 +565,11 @@
           case 'add':
             // remove error notification first
             this.formItemMsgForEnvironments = '';
-            let keyReg = /^[A-Za-z0-9_\-\.@]{1,64}$/;
+//            let keyReg = /^[A-Za-z0-9_\-\.@]{1,64}$/;
+            let keyReg = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
             let valueReg = /^[A-Za-z0-9_\-\.@]{1,512}$/;
             if (!keyReg.exec(key)) {
-              this.$message.error('请输入64位以内的数字、字母、中划线、下划线');
+              this.$message.error('64位以内的数字、字母、下划线，以字母或下划线开头');
               return;
             }
             if (!valueReg.exec(value)) {

@@ -267,6 +267,12 @@ h4 {
         max-width: 700px;
       }
     }
+    &.size-750 {
+      .el-dialog {
+        width: 80%;
+        max-width: 750px;
+      }
+    }
     .el-dialog {
       .el-dialog__header {
         //background-color: #d9ecff;
