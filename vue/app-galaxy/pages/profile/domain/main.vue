@@ -408,7 +408,7 @@
 <style lang="scss" scoped>
   #domain-main {
     .header {
-      margin: 5px 5px 8px 5px;
+      margin: 1px 5px;
       display: flex;
       align-items: center;
       justify-content: space-between;

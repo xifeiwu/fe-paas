@@ -228,7 +228,7 @@
     }
 
     .header {
-      margin: 5px;
+      margin: 1px 5px;
       font-size: 14px;
       text-align: center;
       .el-row.operation {

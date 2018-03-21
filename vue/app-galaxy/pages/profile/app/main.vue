@@ -35,6 +35,7 @@
     <div class="app-list">
       <el-table :data="appListByPage"
                 v-loading="showLoading"
+                stripe
                 element-loading-text="加载中">
         <el-table-column label="语言版本" prop="languageVersion" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
@@ -174,7 +175,7 @@
 <style lang="scss" scoped>
   #app-main {
     .header {
-      margin: 5px;
+      margin: 1px 5px;
       font-size: 14px;
       .el-row {
         .el-col {
@@ -188,8 +189,9 @@
       }
     }
     .app-list {
+      padding: 0px 0px;
       .el-table {
-        margin-bottom: 40px;
+        margin-bottom: 0px;
         color: black;
         .el-table__row {
           .my-icon-svg {
@@ -317,6 +319,9 @@
       }
     },
     computed: {
+      tableHeight() {
+        return document.body.clientHeight - 45 - 30 * 3 - 6;
+      },
       needFilter() {
         return this.filterMyApp || (this.filterKey.length > 0);
       },

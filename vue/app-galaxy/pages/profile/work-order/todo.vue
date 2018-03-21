@@ -180,7 +180,7 @@
 <style lang="scss">
   #work-order-todo {
     .header {
-      margin: 5px;
+      margin: 1px 5px;
       font-size: 14px;
       .el-row.operation {
         .el-col {

@@ -292,10 +292,15 @@ h4 {
       }
     }
     th, td {
-      padding: 10px 0px;
       border-bottom: 1px solid #e6ebf5;
       //border-bottom: 1px solid lightgray;
       //border-bottom: 1px solid #409EFF;
+    }
+    th {
+      padding: 2px 0px;
+    }
+    td {
+      padding: 3px 0px;
     }
     .cell {
       text-overflow: initial;
@@ -365,7 +370,7 @@ h4 {
   }
 
   .pagination-container {
-    padding-bottom: 3px;
+    padding-bottom: 0px;
 
     padding-left: 180px;
     position: fixed;
@@ -386,8 +391,8 @@ h4 {
       .el-pagination {
         //font-weight: normal;
         display: inline-block;
-        background-color: rgba(255, 255, 255, 0.8);
-        border: 1px solid #e6ebf5;
+        background-color: rgba(255, 255, 255, 0.3);
+        border: 0px solid #e6ebf5;
         button {
           &.btn-prev, &.btn-next {
             height: 28px;

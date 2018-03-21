@@ -953,7 +953,7 @@
       .el-row {
         min-height: 28px;
         &.operation {
-          margin: 5px 5px 5px 5px;
+          margin: 1px 5px;
           .el-col {
             padding: 0px 10px;
             display: inline-block;
