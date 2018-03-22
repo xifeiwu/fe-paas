@@ -166,9 +166,7 @@
 </style>
 <script>
   import appPropUtil from '../utils/app-props';
-  import StoreHelper from '../utils/store-helper.vue';
 export default {
-  mixins: [StoreHelper],
   created() {
     this.onLanguageInfo(this.languageInfo, null);
     this.onProfileListOfGroup(this.profileListOfGroup, null);
@@ -207,6 +205,15 @@ export default {
     loadBalanceType() {
       return appPropUtil.getAllLoadBalance();
     },
+    languageInfo() {
+      return this.$storeHelper.languageInfo();
+    },
+    groupList() {
+      return this.$storeHelper.groupList();
+    },
+    profileListOfGroup() {
+      return this.$storeHelper.profileListOfGroup();
+    }
   },
   watch: {
     languageInfo: 'onLanguageInfo',

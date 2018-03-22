@@ -453,7 +453,6 @@
 
 <script>
   import MyVersionConditionFilter from '../utils/components/version-condition-filter.vue';
-  import StoreHelper from '../utils/store-helper.vue';
   import ElInput from "element-ui/packages/input/src/input";
   import ElSelect from "element-ui/packages/select/src/select";
   import ElOption from "element-ui/packages/select/src/option";
@@ -461,7 +460,6 @@
   import ElFormItem from "element-ui/packages/form/src/form-item";
   export default {
     components: {ElFormItem, ElTooltip, ElOption, ElSelect, ElInput, MyVersionConditionFilter},
-    mixins: [StoreHelper],
     created() {
       let queryParam = this.$route.query;
       if (queryParam && queryParam.hasOwnProperty('from')) {
