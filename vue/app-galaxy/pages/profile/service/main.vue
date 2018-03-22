@@ -41,13 +41,26 @@
           <span>每次创建的服务版本信息为所在应用创建时的配置信息</span>
         </el-tag>
       </el-row>
-      <el-row class="domain" type="flex" justify="center" align="middle">
-        <el-col :span="12"><div class="text">内网域名：{{intranetDomain}}</div></el-col>
-        <el-col :span="12">
-          <div class="text"><span>外网二级域名：{{internetDomain}}</span></div>
-          <i class="el-icon-edit" @click="handleButtonClick('go-to-domain-app')"></i>
-        </el-col>
-      </el-row>
+      <div  class="domain el-row is-justify-center is-align-middle el-row--flex">
+        <div class="el-col el-col-12">
+          <span class="text">内网域名：{{intranetDomain}}</span>
+        </div>
+        <div class="el-col el-col-12">
+          <el-tooltip effect="dark" placement="bottom-start" v-if="internetDomainList.length > 1">
+            <div slot="content">
+              <div v-for="(item, index) in internetDomainList" :key="index">{{item}}</div>
+            </div>
+            <div>
+              <div class="text"><span>外网二级域名：{{internetDomain}}</span></div>
+              <i class="el-icon-edit" @click="handleButtonClick('go-to-domain-app')"></i>
+            </div>
+          </el-tooltip>
+          <div v-else>
+            <div class="text"><span>外网二级域名：{{internetDomain}}</span></div>
+            <i class="el-icon-edit" @click="handleButtonClick('go-to-domain-app')"></i>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="service-list">
       <el-table
@@ -983,7 +996,7 @@
           .el-col {
             .text {
               display: inline-block;
-              max-width: 300px;
+              max-width: calc(100% - 30px);
               white-space: nowrap;
               overflow: hidden;
               text-overflow: ellipsis;
@@ -1104,6 +1117,7 @@ export default {
       currentModelList: [],
       intranetDomain: '',
       internetDomain: '',
+      internetDomainList: [],
 
       defaultServiceID: '',
       selected: {
@@ -1904,9 +1918,9 @@ export default {
           }
         }
         this.intranetDomain = content.hasOwnProperty('intranetDomain') ? content.intranetDomain : '未知';
-        let internetDomainList = content.hasOwnProperty('internetDomain') ? content.internetDomain : [];
-        if (internetDomainList.length > 0) {
-          this.internetDomain = internetDomainList.join(';');
+        this.internetDomainList = content.hasOwnProperty('internetDomain') ? content.internetDomain : [];
+        if (this.internetDomainList.length > 0) {
+          this.internetDomain = this.internetDomainList.join(';');
         } else {
           this.internetDomain = '未绑定';
         }
