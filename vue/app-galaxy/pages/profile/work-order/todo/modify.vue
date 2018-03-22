@@ -256,10 +256,6 @@
           groupID: this.currentGroupID
         });
       }
-      if (!this.usersAll) {
-        this.$store.dispatch('app/usersAll');
-      }
-//      this.onUsersAll(this.usersAll);
     },
     mounted() {
       let workOrderDetail = this.$storeHelper.getTmpProp('workOrderDetail');

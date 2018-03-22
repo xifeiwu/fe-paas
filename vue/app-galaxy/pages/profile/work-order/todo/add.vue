@@ -242,9 +242,6 @@
       } else {
         this.onAppInfoListOfGroup(this.appInfoListOfGroup);
       }
-      if (!this.usersAll) {
-        this.$store.dispatch('app/usersAll');
-      }
       if (!this.usersInGroup) {
         this.$store.dispatch('user/usersInGroup', {id: this.currentGroupID});
       }

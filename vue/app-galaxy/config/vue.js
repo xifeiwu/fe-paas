@@ -34,8 +34,13 @@ class StoreHelper {
     return this.$store.getters['user/profileListOfGroup'];
   }
 
+  // get all users, request again if not exist
   usersAll() {
-    return this.$store.getters['app/usersAll'];
+    let usersAll = this.$store.getters['app/usersAll'];
+    if (!usersAll) {
+      this.$store.dispatch('app/usersAll');
+    }
+    return usersAll;
   }
 
   usersInGroup() {
