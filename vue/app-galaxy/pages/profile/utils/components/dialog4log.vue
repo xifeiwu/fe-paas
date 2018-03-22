@@ -63,6 +63,8 @@
               }
               .el-scrollbar__view {
                 .log-item {
+                  word-wrap: break-word;
+                  word-break: break-all;
                   font-size: 12px;
                   line-height: 16px;
                 }
@@ -75,6 +77,8 @@
       /*style for dialog log-run-log*/
       &.log-run-log {
         .log-item {
+          word-wrap: break-word;
+          word-break: break-all;
           font-size: 12px;
           line-height: 16px;
           .time {

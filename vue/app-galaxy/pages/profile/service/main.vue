@@ -1423,7 +1423,8 @@ export default {
                     });
                   }
                   options.offset = Orchestration.offset;
-                  if (null != log) {
+//                  if (null != log) {
+                  if (Orchestration.moreData) {
                     setTimeout(() => {
                       getDeployLog.call(this, options);
                     }, 1800);
