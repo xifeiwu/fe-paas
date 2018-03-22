@@ -204,7 +204,7 @@
                   </el-form-item>
                   <el-form-item label="负载均衡：">
                     {{valueToShow(selected.service.loadBalance)}}
-                    <i class="el-icon-edit" @click="handleChangeProp('loadBalance')"></i>
+                    <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="false"></i>
                   </el-form-item>
                   <el-form-item label="文件存储：" class="big file-location" v-if="false">
                     <div v-if="selected.service.fileLocation && selected.service.fileLocation.length > 0">

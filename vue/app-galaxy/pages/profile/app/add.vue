@@ -1,5 +1,6 @@
 <template>
   <div id="app-add">
+    <div class="section-title">创建应用</div>
     <el-form :model="createAppForm" :rules="rules" size="mini"
              ref="createAppForm" label-width="100px"
              v-loading="showLoading"
@@ -83,11 +84,19 @@
           <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
         </el-radio-group>
       </el-form-item>
-
-      <el-form-item class="finish" labelWidth="0">
-          <el-button type="primary" @click="handleFinish">完成</el-button>
-      </el-form-item>
     </el-form>
+    <div class="section-footer">
+      <el-row>
+        <el-col :span="12" style="text-align: center">
+          <el-button type="primary" size="mini"
+                     @click="$router.go(-1)">关闭</el-button>
+        </el-col>
+        <el-col :span="12" style="text-align: center">
+          <el-button type="primary" size="mini"
+                     @click="handleFinish">完成</el-button>
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
@@ -98,11 +107,28 @@
 </style>
 <style lang="scss" scoped>
   #app-add {
-    margin: 20px 20px 20px 30px;
-    padding: 30px 20px 20px 20px;
+    margin: 20px;
+    padding: 10px 20px;
     width: 80%;
     max-width: 600px;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    .section-title {
+      font-size: 18px;
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    .section-footer {
+      margin: 0px -10px;
+      padding-top: 10px;
+      border-top: 1px solid #e7e7e7;
+      .el-button {
+        display: block;
+        margin: 0px auto;
+        width: 150px;
+        text-align: center;
+      }
+    }
     .el-form {
       .el-form-item {
         &.profiles {

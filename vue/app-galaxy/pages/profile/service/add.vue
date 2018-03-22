@@ -1,5 +1,6 @@
 <template>
   <div id="service-add">
+    <div class="section-title">添加服务</div>
     <el-form :model="serviceForm" ref="serviceForm"
              :rules="rules" label-width="200px" size="mini"
              v-loading="showLoading"
@@ -154,10 +155,19 @@
       <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
         <el-input-number v-model="serviceForm.instanceCount" :min="1" :max="20" label="描述文字"></el-input-number>
       </el-form-item>
-      <el-form-item class="finish" labelWidth="0">
-        <el-button type="primary" @click="handleFinish">完成</el-button>
-      </el-form-item>
     </el-form>
+    <div class="section-footer">
+      <el-row>
+        <el-col :span="12" style="text-align: center">
+          <el-button type="primary" size="mini"
+                     @click="$router.go(-1)">关闭</el-button>
+        </el-col>
+        <el-col :span="12" style="text-align: center">
+          <el-button type="primary" size="mini"
+                     @click="handleFinish">完成</el-button>
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
@@ -175,6 +185,36 @@
             }
           }
         }
+      }
+    }
+  }
+</style>
+<style lang="scss" scoped>
+  #service-add {
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    margin: 20px;
+    padding: 10px 20px;
+    width: 80%;
+    max-width: 900px;
+    .section-title {
+      font-size: 18px;
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    .section-footer {
+      margin: 0px -10px;
+      padding-top: 10px;
+      border-top: 1px solid #e7e7e7;
+      .el-button {
+        display: block;
+        margin: 0px auto;
+        width: 150px;
+        text-align: center;
+      }
+    }
+    .el-form {
+      .el-form-item {
         &.auto-image {
           max-width: 600px;
           .el-select {
@@ -206,9 +246,6 @@
         }
         &.relative-path-of-parent-pom {
           max-width: 600px;
-          /*.el-form-item__label {*/
-            /*line-height: 100%;*/
-          /*}*/
         }
         &.vm-options {
           max-width: 600px;
@@ -235,28 +272,6 @@
             .el-col.key, .el-col.value {
               padding: 0px 3px;
             }
-          }
-        }
-      }
-    }
-  }
-</style>
-<style lang="scss" scoped>
-  #service-add {
-    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-    margin: 20px 20px 20px 30px;
-    padding: 30px 20px 20px 20px;
-    width: 80%;
-    max-width: 900px;
-    .el-form {
-      .el-form-item {
-        &.finish {
-          .el-button {
-            display: block;
-            margin: 0px auto;
-            width: 50%;
-            max-width: 200px;
-            text-align: center;
           }
         }
       }
