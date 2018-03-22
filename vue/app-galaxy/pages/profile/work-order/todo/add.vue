@@ -17,11 +17,11 @@
                ref="basicForm"
                size="mini"
                label-width="120px">
-        <el-form-item label="审批工单名称" prop="name">
-          <el-input v-model="workOrderDetail.name"></el-input>
-        </el-form-item>
         <el-form-item label="申请人：">
           {{workOrderDetail.creatorName}}
+        </el-form-item>
+        <el-form-item label="审批工单名称" prop="name">
+          <el-input v-model="workOrderDetail.name" placeholder="200字符内"></el-input>
         </el-form-item>
         <el-form-item label="团队名称" prop="groupName">
           <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择">
@@ -106,6 +106,7 @@
         <el-form-item label="工单备注" prop="comment">
           <el-input v-model="workOrderDetail.comment"
                     type="textarea"
+                    placeholder="200字符内"
                     :rows="2"
                     ></el-input>
         </el-form-item>
@@ -153,12 +154,22 @@
     }
   }
   #work-order-add {
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     width: 80%;
-    max-width: 720px;
-    margin: 25px auto 5px auto;
+    max-width: 660px;
+    margin: 20px;
+    margin-left: 30px;
+    padding: 18px;
     .title-section {
       text-align: center;
       margin: 15px 0px;
+    }
+    .basic-section {
+      width: 620px;
+      .el-form {
+        .el-form-item {
+        }
+      }
     }
     .feature-section {
       margin-top: 22px;

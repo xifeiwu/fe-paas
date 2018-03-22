@@ -3,7 +3,7 @@
     <el-form :model="featureInfo" :rules="rules" size="mini"
              ref="featureForm" label-width="80px">
       <el-form-item label="功能名称" prop="name">
-        <el-input v-model="featureInfo.name"></el-input>
+        <el-input v-model="featureInfo.name" placeholder="200字符内"></el-input>
       </el-form-item>
       <el-form-item label="功能类型" prop="type">
         <el-radio-group v-model="featureInfo.type">
@@ -13,11 +13,11 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="JIRA地址" prop="jiraAddress">
-        <el-input v-model="featureInfo.jiraAddress"></el-input>
+        <el-input v-model="featureInfo.jiraAddress" placeholder="200字符内"></el-input>
       </el-form-item>
       <el-form-item label="功能描述" prop="description">
         <el-input v-model="featureInfo.description"
-                  type="textarea"
+                  type="textarea" placeholder="200字符内"
                   :rows="2"
         ></el-input>
       </el-form-item>
@@ -28,6 +28,18 @@
     </div>
   </div>
 </template>
+
+<style lang="scss">
+  .work-order-feature {
+    .el-form {
+      .el-textarea {
+        textarea {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+</style>
 <style lang="scss" scoped>
   .work-order-feature {
     position: relative;

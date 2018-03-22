@@ -1,11 +1,94 @@
 class WorkOrderUtils {
+  generateReg(chinese, min, max) {
+    let chineseState = {
+      reg: '',
+      desc: '',
+    };
+    if (chinese) {
+      chineseState = {
+        reg: '\u4e00-\u9fa5',
+        desc: '中文'
+      }
+    }
+    if (!min) {
+      min = 1;
+    }
+    if (!max) {
+      max = '';
+    }
+    let regStr = `^[${chineseState['reg']}A-Za-z0-9_\\-\\.@/:]{${min},${max}}$`;
+    let reg = new RegExp(regStr);
+    let desc = `字符中只能包含字母、数字、下划线、中划线`;
+    if (chineseState.reg) {
+      desc = `${desc}，${chineseState['desc']}。`;
+    }
+    if (min > 1 && max != '') {
+      desc = `${desc}长度${min}-${max}个字符`
+    }
+    return {reg, desc}
+  }
+  generateValidator(required, chinese, min, max) {
+    let regStates = this.generateReg(chinese, min, max);
+    return function(rule, values, callback) {
+      values = values.trim();
+      let passed = true;
+      let reg = regStates.reg;
+      if (values.length > 0) {
+        if (!reg.exec(values)) {
+          passed = false;
+          callback(regStates.desc);
+        }
+      } else {
+        if (required) {
+          passed = false;
+          callback('内容不能为空');
+        }
+      }
+      if (passed) {
+        callback();
+      }
+    };
+  }
+  generateCountReg(min, max) {
+    let regStr = `^.{${min},${max}}$`;
+    let reg = new RegExp(regStr);
+    let desc = `不能超过${max}个字符`;
+    return {reg, desc}
+  }
+  generateCountValidator(required, min, max) {
+    let regStates = this.generateCountReg(min, max);
+    return function(rule, values, callback) {
+      values = values.trim();
+      let passed = true;
+      let reg = regStates.reg;
+      if (values.length > 0) {
+        if (!reg.exec(values)) {
+          passed = false;
+          callback(regStates.desc);
+        }
+      } else {
+        if (required) {
+          passed = false;
+          callback('内容不能为空');
+        }
+      }
+      if (passed) {
+        callback();
+      }
+    };
+  }
+
   constructor() {
+    let limit200 = this.generateCountValidator(false, 0, 200);
+    let limit200Required = this.generateCountValidator(true, 0, 200);
     this.rules = {
       feature: {
         name: [{
           required: true,
           message: '请输入功能名称',
           trigger: 'blur'
+        }, {
+          validator: limit200Required
         }],
         type: [{
           required: true,
@@ -16,14 +99,23 @@ class WorkOrderUtils {
           required: true,
           message: '请输入jira地址',
           trigger: 'blur'
-        }
-        ]
+        }, {
+          validator: limit200Required
+        }],
+        description: [{
+          required: false,
+          trigger: 'blur'
+        }, {
+          validator: limit200
+        }]
       },
       workOrder: {
         name: [{
           required: true,
           message: '请输入工单名称',
           trigger: 'blur'
+        }, {
+          validator: limit200Required
         }],
         groupName: [{
           required: true,
@@ -93,10 +185,11 @@ class WorkOrderUtils {
             }
           }
         }],
-        comments: [{
+        comment: [{
           required: false,
-          message: '请选择应用版本',
           trigger: 'blur'
+        }, {
+          validator: limit200
         }],
       },
     }

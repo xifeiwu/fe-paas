@@ -107,6 +107,7 @@
         <el-form-item label="工单备注" prop="comment">
           <el-input v-model="workOrderDetail.comment"
                     type="textarea"
+                    placeholder="200字符内"
                     :rows="2"></el-input>
         </el-form-item>
       </el-form>
