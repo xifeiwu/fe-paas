@@ -71,7 +71,7 @@
           <template slot-scope="scope">
             <el-button
                     size="mini-extral"
-                    type="success"
+                    type="primary"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     @click="handleTRButton('detail', scope.$index, scope.row)"
                     :loading="statusOfWaitingResponse('detail') && operation.rowID == scope.row.id">
@@ -80,12 +80,12 @@
             </el-button>
             <el-button v-if="scope.row.status!=='WORKORDER_APPLY'"
                     size="mini-extral"
-                    type="success"
+                    type="warning"
                     :loading="statusOfWaitingResponse(scope.row.status) && operation.rowID == scope.row.id"
                     @click="handleTRButton(scope.row.status, scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
             <el-button v-if="scope.row.status==='WORKORDER_APPLY'"
                     size="mini-extral"
-                    type="success"
+                    type="warning"
                     :loading="statusOfWaitingResponse('modify') && operation.rowID == scope.row.id"
                     @click="handleTRButton('modify', scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
           </template>

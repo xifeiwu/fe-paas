@@ -66,7 +66,7 @@
           <template slot-scope="scope">
             <el-button
                     size="mini-extral"
-                    type="success"
+                    type="primary"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     @click="handleOperationClick('detail', scope.$index, scope.row)"
                     :loading="statusOfWaitingResponse('detail') && operation.rowID == scope.row.id">
@@ -75,7 +75,7 @@
             </el-button>
             <el-button
                     size="mini-extral"
-                    type="success"
+                    type="primary"
                     :loading="statusOfWaitingResponse('deploy-log') && operation.rowID == scope.row.id"
                     @click="handleOperationClick('deploy-log', scope.$index, scope.row)">部署日志</el-button>
           </template>
