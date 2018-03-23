@@ -64,8 +64,11 @@
 </style>
 <style lang="scss" scoped>
   #work-order-handle {
-    margin: 25px auto;
-    width: 80%;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    width: 800px;
+    margin: 20px;
+    margin-left: 30px;
+    padding: 18px;
     .section-title {
       text-align: center;
       margin: 15px 0px;

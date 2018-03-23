@@ -1,5 +1,5 @@
 <template>
-  <el-form labelWidth="120px" size="mini">
+  <el-form labelWidth="110px" size="mini" class="work-order-detail">
     <el-form-item label="审批工单名称">{{workOrderDetail.name}}</el-form-item>
     <el-form-item label="申请人">{{workOrderDetail.creatorName}}</el-form-item>
     <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
@@ -67,8 +67,13 @@
   </el-form>
 </template>
 
-<style lang="scss" scoped>
-  .el-form {
+<style lang="scss">
+  #app .el-form.work-order-detail {
+    .el-table {
+      th, td {
+        padding: 2px 0px;
+      }
+    }
     .el-form-item {
       margin-bottom: 6px;
       &.test-type, &.test-report, &.comment {
