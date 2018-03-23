@@ -32,18 +32,17 @@ class AppInfoHelper {
   generateValidator(required, chinese, min, max) {
     let regStates = this.generateReg(chinese, min, max);
     return function(rule, values, callback) {
-      values = values.trim();
       let passed = true;
       let reg = regStates.reg;
-      if (values.length > 0) {
-        if (!reg.exec(values)) {
-          passed = false;
-          callback(regStates.desc);
-        }
-      } else {
+      if (!values) {
         if (required) {
           passed = false;
           callback('内容不能为空');
+        }
+      } else if  (values.length > 0) {
+        if (!reg.exec(values)) {
+          passed = false;
+          callback(regStates.desc);
         }
       }
       if (passed) {
