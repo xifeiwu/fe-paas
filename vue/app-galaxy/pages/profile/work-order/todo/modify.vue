@@ -58,7 +58,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="生产环境版本" prop="serviceVersion" :error="errorForServiceVersion">
+        <el-form-item label="生产环境版本" prop="serviceVersion" :error="serviceVersionError.description">
           <el-select v-model="workOrderDetail.serviceVersion"
                      :placeholder="versionList.length > 0 ? '请选择': '当前应用的生产环境下没有版本'">
             <el-option v-for="(item, index) in versionList" :key="index" :label="item" :value="item"></el-option>
@@ -165,9 +165,11 @@
     }
   }
   #work-order-add {
-    width: 80%;
-    max-width: 720px;
-    margin: 25px auto 5px auto;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    width: 660px;
+    margin: 20px;
+    margin-left: 30px;
+    padding: 18px;
     .title-section {
       text-align: center;
       margin: 15px 0px;
@@ -300,7 +302,17 @@
           comment: '',
         },
         versionList: [],
-        errorForServiceVersion: '',
+
+        serviceVersionError: {
+          isOK: true,
+          reason: 'NO',
+          description: ''
+        },
+        serviceVersionState: {
+          'WORK_ORDER_HAS_EXIST': '该服务有正在处理的工单',
+          'NO_PRODUCTION_VERSION': '该应用无生产环境版本',
+          'GET_VERSION_LIST_FAIL': '获取版本列表失败'
+        },
       };
     },
     computed: {
@@ -323,7 +335,30 @@
         }
         this.requestProductVersionList(value);
       },
-      currentGroupID: 'onCurrentGroupID',
+      'workOrderDetail.serviceVersion': function (value) {
+        if (!value) {
+          return;
+        }
+        if (this.workOrderDetail.appID && this.workOrderDetail.serviceVersion) {
+          this.$net.checkWorkOrderHandling({
+            appId: this.workOrderDetail.appID,
+            serviceVersion: this.workOrderDetail.serviceVersion
+          }).then((msg) => {
+            this.serviceVersionError.isOK = true;
+            this.serviceVersionError.description = '';
+          }).catch((msg) => {
+            this.serviceVersionError.isOK = false;
+            this.serviceVersionError.reason = 'WORK_ORDER_HAS_EXIST';
+            msg = msg.trim();
+            if (this.serviceVersionError.description == msg) {
+              this.serviceVersionError.description = msg + ' ';
+            } else {
+              this.serviceVersionError.description = msg;
+            }
+          });
+        }
+      },
+      '$storeHelper.currentGroupID': 'onCurrentGroupID',
     },
     methods: {
       onCurrentGroupID(value) {
@@ -396,34 +431,33 @@
           console.log('appID or spaceID can not be empty');
           return;
         }
+        // make sure this.workOrderDetail.serviceVersion is changed
+        this.workOrderDetail.serviceVersion = null;
+        this.versionList = [];
         this.versionList = [];
         this.$net.getServiceVersion({
           appId: appID,
           spaceId: spaceID
         }).then(content => {
+//          console.log(content);
           if (content.hasOwnProperty('version')) {
             let version = content.version;
             if (version && Array.isArray(version) && version.length > 0) {
               this.versionList = version;
-              // workOrderDetail.serviceVersion is used as default serviceVersion
-//              this.workOrderDetail.serviceVersion = version[0];
-              this.errorForServiceVersion = '';
+              this.workOrderDetail.serviceVersion = version[0];
             } else {
-//              this.$message({
-//                type: 'warning',
-//                message: this.workOrderDetail.appName + '的生产环境下，服务没有版本！'
-//              });
-              this.errorForServiceVersion = '该应用无生产环境版本';
+              this.serviceVersionError.isOK = false;
+              this.serviceVersionError.reason = 'NO_PRODUCTION_VERSION';
+              this.serviceVersionError.description = '';
+              this.serviceVersionError.description = this.serviceVersionState['NO_PRODUCTION_VERSION'];
             }
           }
         }).catch(err => {
-          this.workOrderDetail.serviceVersion = null;
-          this.errorForServiceVersion = '该应用无生产环境版本';
           console.log(err);
-//          this.$message({
-//            type: 'error',
-//            message: '查找服务版本失败！'
-//          });
+          this.serviceVersionError.isOK = false;
+          this.serviceVersionError.reason = 'GET_VERSION_LIST_FAIL';
+          this.serviceVersionError.description = '';
+          this.serviceVersionError.description = this.serviceVersionState['GET_VERSION_LIST_FAIL'];
         });
       },
 
@@ -502,9 +536,13 @@
               resolve(valid);
             });
             let applicationPromise = new Promise((resolve, reject) => {
-              this.$refs['applicationForm'].validate((valid) => {
-                resolve(valid);
-              });
+              if (!this.serviceVersionError.isOK) {
+                resolve(false);
+              } else {
+                this.$refs['applicationForm'].validate((valid) => {
+                  resolve(valid);
+                });
+              }
             });
             let acceptancePromise = new Promise((resolve, reject) => {
               this.$refs['acceptanceForm'].validate((valid) => {
@@ -520,6 +558,12 @@
                 return sum && valid;
               });
               if (valid) {
+                // check if a work-order in handling first
+                if (!this.serviceVersionError.isOK ) {
+                  let reason = this.serviceVersionError.reason;
+                  this.$message.error(this.serviceVersionState[reason]);
+                  return;
+                }
                 let toPost = {
                   workOrderDeploy: {
                     // id should be add when modify work-order
