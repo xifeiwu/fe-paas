@@ -351,8 +351,14 @@
         this.requestAPPList({});
       },
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
-      'filterMyApp': 'requestAPPList',
-      'filterKey': 'requestAPPList'
+      'filterMyApp': function () {
+        this.currentPage = 1;
+        this.requestAPPList({});
+      },
+      'filterKey': function () {
+        this.currentPage = 1;
+        this.requestAPPList({});
+      }
     },
     methods: {
       onAppInfoListOfGroup(value, oldValue) {

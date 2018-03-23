@@ -119,6 +119,10 @@
                     :loading="statusOfWaitingResponse('stop') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('stop', scope.$index, scope.row)">停止</el-button>
             <el-button
+                    v-if="isProductionProfile"
+                    size="mini-extral" type="warning"
+                    @click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
+            <el-button
                     size="mini-extral" type="danger"
                     :loading="statusOfWaitingResponse('delete') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
@@ -128,10 +132,6 @@
             <el-button
                     size="mini-extral" type="primary"
                     @click="handleRowButtonClick('go-to-domain-service', scope.$index, scope.row)">配置外网二级域名</el-button>
-            <el-button
-                    v-if="isProductionProfile"
-                    size="mini-extral" type="warning"
-                    @click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
             <el-button
                     size="mini-extral" type="primary"
                     @click="handleRowButtonClick('service_info', scope.$index, scope.row)">

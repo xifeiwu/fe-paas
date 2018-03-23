@@ -122,7 +122,7 @@ export default {
     },
     checkValidate() {
       this.$refs.hasOwnProperty('featureForm') && this.$refs['featureForm'].validate(valid => {
-        console.log(valid);
+//        console.log(valid);
         this.featureInfo.valid = valid;
       })
     },
