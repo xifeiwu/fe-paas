@@ -50,9 +50,42 @@ class AppInfoHelper {
       }
     };
   }
+
+  generateCountReg(min, max) {
+    let regStr = `^.{${min},${max}}$`;
+    let reg = new RegExp(regStr);
+    let desc = `不能超过${max}个字符`;
+    return {reg, desc}
+  }
+  generateCountValidator(required, min, max) {
+    let regStates = this.generateCountReg(min, max);
+    return function(rule, values, callback) {
+      let passed = true;
+      let reg = regStates.reg;
+      if (!values) {
+        if (required) {
+          passed = false;
+          callback('内容不能为空');
+        }
+      } else if  (values.length > 0) {
+        if (!reg.exec(values)) {
+          passed = false;
+          callback(regStates.desc);
+        }
+      }
+      if (passed) {
+        callback();
+      }
+    };
+  }
   constructor() {
     let basicValidator = this.generateValidator(true, true);
     let notRequriedBasicValidator = this.generateValidator(false, true);
+    let limit100 = this.generateCountValidator(false, 0, 100);
+    let limit100Required = this.generateCountValidator(true, 0, 100);
+    let limit200Required = this.generateCountValidator(true, 0, 200);
+    let limit256 = this.generateCountValidator(false, 0, 256);
+    let limit256Required = this.generateCountValidator(true, 0, 256);
     this.rules = {
       // 应用名称
       appName: [{
@@ -156,27 +189,35 @@ class AppInfoHelper {
         message: '请填写gitlab地址',
       }, {
         validator: basicValidator
+      }, {
+        validator: limit256Required
       }],
       // gitlab分支
       gitLabBranch: [{
         required: true,
         message: '请填写gitlab分支',
-      }, {validator: basicValidator}],
+      }, {
+        validator: basicValidator
+      }, {
+        validator: limit100Required
+      }],
       // Gitlab父级pom.xml相对路径
       relativePathOfParentPOM: [{
         required: false,
       }, {
         validator: notRequriedBasicValidator
+      }, {
+        validator: limit256
       }],
       vmOptions: [{
         required: false,
       }, {
         validator(rule, values, callback) {
           let passed = true;
-          let reg = /^[^\u4e00-\u9fa5]{0,1024}$/;
+          let reg = /^[^\u4e00-\u9fa5]{0,512}$/;
           if (!values.match(reg)) {
             passed = false;
-            callback(`不能包含中文，不能超过1024个字符`)
+            callback(`不能包含中文，不能超过512个字符`)
           }
           if (passed) {
             callback();
@@ -187,6 +228,8 @@ class AppInfoHelper {
         required: false,
       }, {
         validator: notRequriedBasicValidator
+      }, {
+        validator: limit100
       }],
 
       // 镜像方式

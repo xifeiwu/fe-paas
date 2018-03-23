@@ -53,27 +53,28 @@
       </el-form-item>
 
       <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress" class="gitlab-address">
-        <el-input v-model="serviceForm.gitLabAddress" placeholder="请输入项目的gitLab地址"></el-input>
+        <el-input v-model="serviceForm.gitLabAddress" placeholder="请输入项目的gitLab地址，不能超过256个字符"></el-input>
       </el-form-item>
       <el-form-item label="Gitlab分支" prop="gitLabBranch" class="gitlab-branch">
-        <el-input v-model="serviceForm.gitLabBranch" placeholder="请输入gitLab分支名"></el-input>
+        <el-input v-model="serviceForm.gitLabBranch" placeholder="请输入gitLab分支名，不能超过100个字符"></el-input>
       </el-form-item>
 
       <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
                     v-if="currentApp && currentApp.isJavaLanguage"
                     class="relative-path-of-parent-pom"
       >
-        <el-input v-model="serviceForm.relativePathOfParentPOM" placeholder=""></el-input>
+        <el-input v-model="serviceForm.relativePathOfParentPOM"
+                  placeholder="不能超过256个字符"></el-input>
       </el-form-item>
       <el-form-item label="VM_Options" prop="vmOptions" class="vm-options"
                     v-if="currentApp && currentApp.isJavaLanguage"
       >
-        <el-input v-model="serviceForm.vmOptions" placeholder="不能包含中文，不能超过1024个字符"></el-input>
+        <el-input v-model="serviceForm.vmOptions" placeholder="不能包含中文，不能超过512个字符"></el-input>
       </el-form-item>
       <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
                     v-if="currentApp && currentApp.isJavaLanguage"
       >
-        <el-input v-model="serviceForm.mavenProfileId" placeholder=""></el-input>
+        <el-input v-model="serviceForm.mavenProfileId" placeholder="不能超过100个字符"></el-input>
       </el-form-item>
 
       <el-form-item label="CPU" prop="cpuID" class="cpu">
