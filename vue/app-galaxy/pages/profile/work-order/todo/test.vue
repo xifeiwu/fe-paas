@@ -264,10 +264,12 @@
           if (valid) {
             this.showLoading = true;
             this.loadingText = '正在处理工单"' + this.workOrderDetail.name + '"';
-//            console.log(options);
-//            this.handleSubmitUpload();
-            this.uploadFileSuccessCount = 0;
-            this.$refs.upload.submit();
+            if (this.handleInfo.testType === 'SKIP_TEST') {
+              this.uploadWorkOrder();
+            } else {
+              this.uploadFileSuccessCount = 0;
+              this.$refs.upload.submit();
+            }
           }
         });
       },
