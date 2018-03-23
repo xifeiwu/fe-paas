@@ -405,7 +405,7 @@
           {{selected.model.gitLabAddress}}
           </el-form-item>
         <el-form-item label="更改gitlab_ssh地址为：" prop="gitLabAddress">
-          <el-input v-model="newProps.gitLabAddress" placeholder=""></el-input>
+          <el-input v-model="newProps.gitLabAddress" placeholder="请输入项目的gitLab地址，不能超过256个字符"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -438,7 +438,7 @@
           {{selected.model.gitLabBranch}}
           </el-form-item>
         <el-form-item label="更改gitlab分支为：" prop="gitLabBranch">
-          <el-input v-model="newProps.gitLabBranch" placeholder=""></el-input>
+          <el-input v-model="newProps.gitLabBranch" placeholder="请输入gitLab分支名，不能超过100个字符"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -471,7 +471,7 @@
           {{selected.model.mavenProfileId}}
           </el-form-item>
         <el-form-item label="更改maven profile id：" prop="mavenProfileId">
-          <el-input v-model="newProps.mavenProfileId" placeholder=""></el-input>
+          <el-input v-model="newProps.mavenProfileId" placeholder="不能超过100个字符"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -616,7 +616,7 @@
           <div class="expand-to-next-line">{{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}</div>
         </el-form-item>
         <el-form-item label="更改VM_Options为：" prop="vmOptions">
-          <el-input v-model="newProps.vmOptions" placeholder="不能包含中文，不能超过1024个字符"></el-input>
+          <el-input v-model="newProps.vmOptions" placeholder="不能包含中文，不能超过512个字符"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

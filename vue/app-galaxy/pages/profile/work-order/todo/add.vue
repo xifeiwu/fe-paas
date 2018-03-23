@@ -106,7 +106,7 @@
         <el-form-item label="工单备注" prop="comment">
           <el-input v-model="workOrderDetail.comment"
                     type="textarea"
-                    placeholder="200字符内"
+                    placeholder="不超过200个字符"
                     :rows="2"
                     ></el-input>
         </el-form-item>
@@ -118,6 +118,20 @@
     </div>
   </div>
 </template>
+
+<style lang="scss">
+  #work-order-add {
+    .el-form {
+      .el-form-item {
+        .el-textarea {
+          textarea {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+</style>
 <style lang="scss" scoped>
   .el-form {
     .el-input, .el-select, .el-textarea {

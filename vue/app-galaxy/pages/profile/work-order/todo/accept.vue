@@ -10,7 +10,7 @@
           <el-input v-model="handleInfo.comment"
                     type="textarea"
                     :rows="2"
-                    placeholder="无"
+                    placeholder="不超过200个字符"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -33,6 +33,19 @@
 </template>
 
 <style lang="scss">
+  #work-order-accept {
+    .el-form {
+      .el-form-item {
+        .el-textarea {
+          textarea {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+</style>
+<style lang="scss" scoped>
   #work-order-accept {
     margin: 25px auto;
     width: 80%;

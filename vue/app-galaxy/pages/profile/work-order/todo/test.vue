@@ -1,5 +1,5 @@
 <template>
-  <div id="work-order-handle">
+  <div id="work-order-test">
     <div class="section-title">
       <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
         <div slot="content">
@@ -43,7 +43,7 @@
           <el-input v-model="handleInfo.comment"
                     type="textarea"
                     :rows="2"
-                    placeholder="无"
+                    placeholder="不超过200个字符"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -66,7 +66,16 @@
 </template>
 
 <style lang="scss">
-  #work-order-handle {
+  #work-order-test {
+    .el-form {
+      .el-form-item {
+        .el-textarea {
+          textarea {
+            font-size: 12px;
+          }
+        }
+      }
+    }
     margin: 25px auto;
     width: 80%;
     .section-title {
