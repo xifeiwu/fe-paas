@@ -220,7 +220,7 @@
                       trigger="click"
                       popperClass="el-popover--small"
                       content="复制成功">
-                <p style="color: #fa5555">这是一段内容这是一段内容确定删除吗？</p>
+                <p style="color: #fa5555">确定要删除"{{item.targetGroupName}}"下的应用"{{item.targetApplicationName}}"吗？</p>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
                   <el-button type="danger" size="mini" @click="handlePopoverButton('delete-access-config', index, item)">确定</el-button>
@@ -238,13 +238,13 @@
                       :error="errorMsgForAddAccessConfig">
           <el-row>
             <el-col :span="11">
-              <el-select filterable v-model="modifyAccessConfig.accessGroupID" placeholder="请选择" style="display:block; max-width: 280px;">
+              <el-select filterable v-model="modifyAccessConfig.targetGroupID" placeholder="请选择" style="display:block; max-width: 280px;">
                 <el-option v-for="(item, index) in dataForAccessConfig.groupListAll" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
               </el-select>
             </el-col>
             <el-col :span="11">
-              <el-select filterable v-model="modifyAccessConfig.accessAppID" placeholder="请选择" style="display:block; max-width: 280px;">
+              <el-select filterable v-model="modifyAccessConfig.targetAppID" placeholder="请选择" style="display:block; max-width: 280px;">
                 <el-option v-for="(item, index) in dataForAccessConfig.appList" :key="item.appId" :label="item.appName" :value="item.appId">
                 </el-option>
               </el-select>
@@ -474,8 +474,10 @@ module.exports = {
         appID: null,
         production: null,
         hasExisted: [],
-        accessGroupID: null,
-        accessAppID: null,
+        targetGroupID: null,
+        targetGroupName: '',
+        targetAppID: null,
+        targetAppName: ''
       },
       rulesForAccessConfig: {
         appID: [{
@@ -484,15 +486,15 @@ module.exports = {
         }],
         production: [{
           required: true,
-          message: '必须选择生产环境',
+          message: '请选择访问环境',
         }],
-        accessGroupID: [{
+        targetGroupID: [{
           required: true,
-          message: '必须选择生产环境',
+          message: '用户组不能为空',
         }],
-        accessAppID: [{
+        targetAppID: [{
           required: true,
-          message: '必须选择生产环境',
+          message: '应用名不能为空',
         }],
       },
       dataForAccessConfig: {
@@ -532,20 +534,53 @@ module.exports = {
   
   watch: {
     '$storeHelper.currentGroupID': 'getTargetGroupList',
-    'modifyAccessConfig.accessGroupID': function (value) {
+    'modifyAccessConfig.targetGroupID': function (groupID) {
 //      console.log(value);
       this.$net.getAppListByGroupID({
-        groupId: value
+        groupId: groupID
       }).then(content => {
         if (content && content.hasOwnProperty('appList')) {
           if (Array.isArray(content.appList)) {
             this.dataForAccessConfig.appList = content.appList;
             if (content.appList.length > 0) {
-              this.modifyAccessConfig.accessAppID = content.appList[0].appId;
+              this.modifyAccessConfig.targetAppID = content.appList[0].appId;
             }
           }
         }
+
+        let target = null;
+        let groupList = this.dataForAccessConfig.groupListAll;
+        if (groupList && Array.isArray(groupList)) {
+          groupList.some(it => {
+            target = (it.id == groupID) ? it : null;
+            return target;
+          });
+          if (target && target.hasOwnProperty('id')) {
+            this.modifyAccessConfig.targetGroupName = target.name;
+          } else {
+            this.modifyAccessConfig.targetGroupName = '';
+          }
+        } else {
+          this.modifyAccessConfig.targetGroupName = '';
+        }
       });
+    },
+    'modifyAccessConfig.targetAppID': function (appId) {
+      let appList = this.dataForAccessConfig.appList;
+      if (appList && Array.isArray(appList)) {
+        let target = null;
+        appList.some(it => {
+          target = (it.appId == appId) ? it : null;
+          return target;
+        })
+        if (target && target.appId) {
+          this.modifyAccessConfig.targetAppName = target.appName;
+        } else {
+          this.modifyAccessConfig.targetAppName = '';
+        }
+      } else {
+        this.modifyAccessConfig.targetAppName = '';
+      }
     }
   },
 
@@ -670,7 +705,7 @@ module.exports = {
                   status: it.status,
                   targetApplicationId: it.targetApplicationId,
                   targetApplicationName: it.targetApplicationName,
-                  targetGroupId: it.targetGroupId == this.$storeHelper.GROUP_ID_FOR_ALL ? '' : it.targetGroupId,
+                  targetGroupId: it.targetGroupId,
                   targetGroupName: it.targetGroupName,
                   openPopover: false
                 }
@@ -689,7 +724,7 @@ module.exports = {
             this.$message.error('信息不完整');
             return;
           }
-          if (!this.modifyAccessConfig.appID) {
+          if (!this.modifyAccessConfig.appID && this.appListOfCurrentGroup.length > 0) {
             this.modifyAccessConfig.appID = this.appListOfCurrentGroup[0].appId;
           }
           if (null == this.modifyAccessConfig.production) {
@@ -702,7 +737,7 @@ module.exports = {
                 if (Array.isArray(groupList)) {
                   this.dataForAccessConfig.groupListAll = groupList;
                   if (groupList.length > 0) {
-                    this.modifyAccessConfig.accessGroupID = groupList[0].id;
+                    this.modifyAccessConfig.targetGroupID = groupList[0].id;
                   }
                 }
               }
@@ -717,7 +752,7 @@ module.exports = {
             this.hideWaitingResponse(action);
             // set default accessID if necessary
             if (Array.isArray(this.dataForAccessConfig.appList) && this.dataForAccessConfig.appList.length > 0) {
-              this.modifyAccessConfig.accessAppID = this.dataForAccessConfig.appList[0].appId;
+              this.modifyAccessConfig.targetAppID = this.dataForAccessConfig.appList[0].appId;
             }
             openDialog();
           }
@@ -768,8 +803,8 @@ module.exports = {
             let exist = false;
             let hasExisted = this.modifyAccessConfig.hasExisted;
             hasExisted.some(it => {
-              exist = it['targetGroupId'] == this.modifyAccessConfig.accessGroupID &&
-                it['targetApplicationId'] == this.modifyAccessConfig.accessAppID;
+              exist = it['targetGroupId'] == this.modifyAccessConfig.targetGroupID &&
+                it['targetApplicationId'] == this.modifyAccessConfig.targetAppID;
               return exist;
             });
             return exist;
@@ -778,17 +813,41 @@ module.exports = {
             this.errorMsgForAddAccessConfig = '已绑定该应用，不能重复绑定';
             return;
           } else {
+            this.modifyAccessConfig.hasExisted.push({
+              status: '新加',
+              targetApplicationId: this.modifyAccessConfig.targetAppID,
+              targetApplicationName: this.modifyAccessConfig.targetAppName,
+              targetGroupId: this.modifyAccessConfig.targetGroupID,
+              targetGroupName: this.modifyAccessConfig.targetGroupName,
+              openPopover: false
+            });
             this.errorMsgForAddAccessConfig = '';
           }
+          break;
+        case 'delete-access-config':
+          if (item && item.hasOwnProperty('openPopover')) {
+            item.openPopover = true;
+          }
+          break;
+        case 'modify-access-config':
+          this.addToWaitingResponseQueue(action);
+          console.log(this.modifyAccessConfig.hasExisted);
+          setTimeout(() => {
+            this.hideWaitingResponse(action);
+            this.selected.operation = null;
+          }, 3000);
+          return;
           this.$net.oauthAddAccessConfig(this.selected.row.id, {
             groupId: this.$storeHelper.currentGroupID,
             applicationId: this.modifyAccessConfig.appID,
             produceEnv: this.modifyAccessConfig.production,
             applyList:[{
-              groupId: this.modifyAccessConfig.accessGroupID,
-              applicationId: this.modifyAccessConfig.accessAppID
+              groupId: this.modifyAccessConfig.targetGroupID,
+              applicationId: this.modifyAccessConfig.targetAppID
             }]
           }).then(msg => {
+            this.hideWaitingResponse(action);
+            this.selected.operation = null;
           }).catch(msg => {
             this.$notify.error({
               title: '添加失败！',
@@ -797,15 +856,9 @@ module.exports = {
               onClose: function () {
               }
             });
+            this.hideWaitingResponse(action);
+            this.selected.operation = null;
           });
-          break;
-        case 'delete-access-config':
-          if (item && item.hasOwnProperty('openPopover')) {
-            item.openPopover = true;
-          }
-          break;
-        case 'modify-access-config':
-          this.selected.operation = null;
           break;
         case 'modify-secret':
           let prop = 'secret';
@@ -871,6 +924,8 @@ module.exports = {
 //      console.log(arguments);
       switch (action) {
         case 'delete-access-config':
+          this.modifyAccessConfig.hasExisted.splice(index, 1);
+          item['openPopover'] = false;
           break;
         case 'cancel':
           item['openPopover'] = false;
@@ -894,10 +949,11 @@ module.exports = {
       page = page >= 0 ? page : 0;
       let start = page * this.pageSize;
       let length = this.pageSize;
+      let searchGroupID = this.searchCondition.groupID;
       let options = {
         productEnv: this.searchCondition.production,
         groupId: this.$storeHelper.currentGroupID,
-        targetGroupId: this.searchCondition.groupID,
+        targetGroupId: searchGroupID == this.$storeHelper.GROUP_ID_FOR_ALL ? '' : searchGroupID,
         accessKey: this.searchCondition.accessKey,
         start: start,
         length: length,
