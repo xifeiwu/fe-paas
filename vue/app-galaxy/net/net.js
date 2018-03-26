@@ -1198,6 +1198,24 @@ class Net {
   /**
    * oauth相关
    */
+  oAuthGetTargetGroupList(options) {
+    let url = `${URL_LIST.oauth_get_target_group_list}?requestGroupId=${options.requestGroupId}`;
+    return new Promise((resolve, reject) => {
+      axios.get(url).then(response => {
+        let content = this.getResponseContent(response);
+        console.log(content);
+        if (content) {
+          resolve(content);
+        } else {
+          reject('oAuthGetTargetGroupList, not found content');
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
   oAuthCreateAccessKey(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.oauth_create_access_key, options).then(response => {

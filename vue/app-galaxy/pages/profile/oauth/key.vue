@@ -399,6 +399,7 @@ module.exports = {
     console.log(this.appInfoListOfGroup);
   },
   mounted() {
+    // whether need to request access key list or not
     let updateAccessList = false;
     if (!Array.isArray(this.accessKeyListByPage)) {
       updateAccessList = true;
@@ -414,6 +415,7 @@ module.exports = {
     return {
       queueForWaitingResponse: [],
 
+      targetGroupList: [],
       showLoading: false,
       createAccessKeyTag: null,
       searchCondition: {
@@ -493,6 +495,16 @@ module.exports = {
   },
   
   watch: {
+    '$storeHelper.currentGroupID': function (groupID) {
+//      console.log(`currentGroupID: ${value}`);
+      this.$net.oAuthGetTargetGroupList({
+        requestGroupId: groupID
+      }).then(groupList => {
+        this.targetGroupList = groupList;
+      }).catch(err => {
+        console.log(err);
+      });
+    },
     'accessConfig.accessGroupID': function (value) {
 //      console.log(value);
       this.$net.getAppListByGroupID({

@@ -144,6 +144,7 @@ var urlList = {
   'log_deploy_log': apiPath + '/service/historylog',
 
   /** oauth相关 */
+  'oauth_get_target_group_list': apiPath + '/application/authorization/targetGroups',
   'oauth_create_access_key': apiPath + '/application/authorization/create',
   'oauth_get_access_key_list': apiPath + '/application/authorization/query',
   'oauth_update_secret': apiPath + '/application/authorization',
