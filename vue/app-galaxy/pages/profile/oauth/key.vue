@@ -51,7 +51,7 @@
           width="120"
           headerAlign="center" align="center">
           <template slot-scope="scope">
-            <div  class="access-key">
+            <div class="access-key">
               <span>{{scope.row.accessKey}}</span>
               <el-popover
                       placement="bottom"
@@ -84,6 +84,26 @@
           prop="accessConfigDesc"
           label="访问应用信息-状态"
           headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <div v-if="scope.row.accessConfigDesc.length==0">无</div>
+            <div v-if="scope.row.accessConfigDesc.length<=2">
+              <div v-for="(item, index) in scope.row.accessConfigDesc">
+                {{item}}
+              </div>
+            </div>
+            <div v-else>
+              <div>{{scope.row.accessConfigDesc[0]}}</div>
+              <div>{{scope.row.accessConfigDesc[1]}}</div>
+              <el-tooltip slot="trigger" effect="dark" placement="bottom">
+                <div slot="content">
+                  <div v-for="(item, index) in scope.row.accessConfigDesc">
+                    {{item}}
+                  </div>
+                </div>
+                <div class="more-access-config">更多...</div>
+              </el-tooltip>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
           prop="profileName"
@@ -102,6 +122,11 @@
                 prop="createTime"
                 width="120"
                 headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <div v-for="(item, index) in scope.row.createTime" :key="index">
+              {{item}}
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
                 prop="operation"
@@ -384,6 +409,11 @@
           color: #409EFF;
           font-weight: bold;
         }
+      }
+    }
+    .more-access-config {
+      &:hover {
+        cursor: pointer;
       }
     }
     .el-button {

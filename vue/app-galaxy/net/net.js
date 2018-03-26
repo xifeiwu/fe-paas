@@ -1198,6 +1198,7 @@ class Net {
   /**
    * oauth相关
    */
+  // 获取绑定
   oAuthGetTargetGroupList(options) {
     let url = `${URL_LIST.oauth_get_target_group_list}?requestGroupId=${options.requestGroupId}`;
     return new Promise((resolve, reject) => {
@@ -1216,6 +1217,7 @@ class Net {
     })
   }
 
+  // 创建Access Key
   oAuthCreateAccessKey(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.oauth_create_access_key, options).then(response => {
@@ -1274,11 +1276,14 @@ class Net {
       if (it.accessConfigList.length > 0) {
         it.accessConfigDesc = it.accessConfigList.map(it => {
           return [it.targetGroupName, it.targetApplicationName, it.status].join(',');
-        }).join(';');
+        });
       } else {
-        it.accessConfigDesc = '未知';
+        it.accessConfigDesc = [];
       }
-      it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+      it.createTime =  this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+      if (it.createTime) {
+        it.createTime = it.createTime.split(' ');
+      }
     };
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.oauth_get_access_key_list, options).then(response => {
