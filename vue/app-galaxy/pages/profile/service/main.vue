@@ -65,7 +65,7 @@
     <div class="service-list">
       <el-table
         :data="currentServiceList"
-        style="width: 100%"
+        stripe
         :row-key="getRowKeys"
         :expand-row-keys="expandRows"
         v-loading="showLoading"

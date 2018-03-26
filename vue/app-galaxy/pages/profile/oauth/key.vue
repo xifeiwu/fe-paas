@@ -41,7 +41,7 @@
     <div class="access-key-list">
       <el-table
               :data="accessKeyListByPage"
-              style="width: 100%"
+              stripe
               v-loading="showLoading"
               element-loading-text="加载中"
       >
@@ -81,9 +81,8 @@
         >
         </el-table-column>
         <el-table-column
-          prop="accessStatus"
+          prop="accessConfigDesc"
           label="访问应用信息-状态"
-          width="120"
           headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
@@ -107,6 +106,7 @@
         <el-table-column
                 prop="operation"
                 label="操作"
+                width="260"
                 headerAlign="center" align="center"
         >
           <template slot-scope="scope">
@@ -148,7 +148,7 @@
     </div>
 
     <el-dialog title="修改访问配置" :visible="selected.operation == 'modify-access-config'"
-               class="modify-access-config"
+               class="modify-access-config size-700"
                :close-on-click-modal="false"
                @close="selected.operation = null"
                v-if="selected.row"
@@ -157,13 +157,13 @@
         <i class="el-icon-warning"></i>
         <span>如需更换团队，请在页面右上角选择我的团队</span>
       </el-tag>
-      <el-form :model="accessConfig" :rules="rulesForAccessConfig" labelWidth="120px" size="mini" ref="modifyAccessConfigForm">
+      <el-form :model="accessConfig" :rules="rulesForAccessConfig" labelWidth="110px" size="mini" ref="modifyAccessConfigForm">
         <el-form-item label="我的团队" v-if="groupInfo">
           {{groupInfo.name}}
         </el-form-item>
         <el-form-item label="我的应用" prop="appID">
           <el-select filterable v-model="accessConfig.appID" placeholder="请选择" style="display:block; max-width: 280px;">
-            <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
+            <el-option v-for="(item, index) in appListOfCurrentGroup" :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
           </el-select>
         </el-form-item>
@@ -173,73 +173,66 @@
             <el-option :value="false" label="非生产环境"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="访问对方团队" prop="accessGroupID">
-          <el-row type="flex" align="center" justify="center" class="add-access-config">
-            <el-col :span="10">
+        <el-form-item label="已绑应用" class="access-config-list">
+          <el-row class="title">
+            <el-col :span="7" class="group">团队</el-col>
+            <el-col :span="7" class="app">应用</el-col>
+            <el-col :span="7" class="app">状态</el-col>
+            <el-col :span="3"></el-col>
+          </el-row>
+          <el-row class="has-exist"
+                  v-for="(item, index) in accessConfig.accessConfigList"
+                  :key="index"
+          >
+            <el-col :span="7" class="group">{{item.targetGroupName}}</el-col>
+            <el-col :span="7" class="app">{{item.targetApplicationName}}</el-col>
+            <el-col :span="7" class="app">{{item.status}}</el-col>
+            <el-col :span="3" style="text-align: right">
+              <el-popover
+                      width="160"
+                      v-model="item.openPopover"
+                      placement="left"
+                      trigger="click"
+                      popperClass="el-popover--small"
+                      content="复制成功">
+                <p style="color: #fa5555">这是一段内容这是一段内容确定删除吗？</p>
+                <div style="text-align: right; margin: 0">
+                  <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
+                  <el-button type="danger" size="mini" @click="handlePopoverButton('delete-access-config', index, item)">确定</el-button>
+                </div>
+                <el-button type="warning" size="mini-extral"
+                           slot="reference"
+                           :loading="statusOfWaitingResponse('delete-access-config-in-dialog') && selected.row.id === scope.row.id"
+                           @click="handleDialogButton('delete-access-config', index, item)">删除</el-button>
+              </el-popover>
+            </el-col>
+          </el-row>
+        </el-form-item>
+        <el-form-item label="访问对方团队" prop="accessGroupID" class="add-access-config">
+          <el-row>
+            <el-col :span="11">
               <el-select filterable v-model="accessConfig.accessGroupID" placeholder="请选择" style="display:block; max-width: 280px;">
                 <el-option v-for="(item, index) in dataForAccessConfig.groupListAll" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="10">
-            <el-select filterable v-model="accessConfig.accessAppID" placeholder="请选择" style="display:block; max-width: 280px;">
-              <el-option v-for="(item, index) in dataForAccessConfig.appList" :key="item.appId" :label="item.appName" :value="item.appId">
-              </el-option>
-            </el-select>
+            <el-col :span="11">
+              <el-select filterable v-model="accessConfig.accessAppID" placeholder="请选择" style="display:block; max-width: 280px;">
+                <el-option v-for="(item, index) in dataForAccessConfig.appList" :key="item.appId" :label="item.appName" :value="item.appId">
+                </el-option>
+              </el-select>
             </el-col>
-            <el-col :span="4">
-              <el-popover
-                    width="160"
-                    v-model="popoverVisibleInModifyAccessKeyDialog"
-                    placement="left"
-                    trigger="click"
-                    popperClass="el-popover--small"
-                    content="复制成功">
-              <p style="color: #fa5555">这是一段内容这是一段内容确定删除吗？</p>
-              <div style="text-align: right; margin: 0">
-                <el-button size="mini" type="text" @click="popoverVisibleInModifyAccessKeyDialog = false">取消</el-button>
-                <el-button type="danger" size="mini" @click="popoverVisibleInModifyAccessKeyDialog = false">确定</el-button>
-              </div>
-              <!--<el-button slot="reference" @click="handleButtonClick('delete')">删除</el-button>-->
+            <el-col :span="2" style="text-align: right">
               <el-button
-                      slot="reference"
-                      size="mini-extral"
+                size="mini-extral"
                 type="warning"
+                style="margin-bottom: 3px"
                 :loading="statusOfWaitingResponse('add-access-config-in-dialog') && selected.row.id === scope.row.id"
                 @click="handleDialogButton('add-access-config')">添加
               </el-button>
-            </el-popover>
-
             </el-col>
           </el-row>
         </el-form-item>
-        <!--<el-row>-->
-          <!--<el-col :span="10" style="font-weight: bold">Key</el-col>-->
-          <!--<el-col :span="10" style="font-weight: bold">Value</el-col>-->
-          <!--<el-col :span="4" style="font-weight: bold"></el-col>-->
-        <!--</el-row>-->
-        <!--<el-row-->
-                <!--v-for="(item, index) in newProps.environments"-->
-                <!--:key="item.key"-->
-        <!--&gt;-->
-          <!--<el-col :span="10">{{item.key}}</el-col>-->
-          <!--<el-col :span="10">{{item.value}}</el-col>-->
-          <!--<el-col :span="4" style="text-align: right">-->
-            <!--<el-button @click="handleDeleteEnvironment(index)">删除</el-button>-->
-          <!--</el-col>-->
-        <!--</el-row>-->
-        <!--<el-row>-->
-          <!--<el-col :span="9">-->
-            <!--<el-input v-model="environmentKey" placeholder="Key值"></el-input>-->
-          <!--</el-col>-->
-          <!--<el-col class="line" :span="2">-</el-col>-->
-          <!--<el-col :span="9">-->
-            <!--<el-input v-model="environmentValue" placeholder="Value值"></el-input>-->
-          <!--</el-col>-->
-          <!--<el-col :span="4" style="text-align: right">-->
-            <!--<el-button @click="handleAddEnvironment(environmentKey, environmentValue)">添加</el-button>-->
-          <!--</el-col>-->
-        <!--</el-row>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-row>
@@ -320,6 +313,28 @@
           text-align: left;
           .el-icon-warning {
             vertical-align: middle;
+          }
+        }
+        .el-form {
+          .el-form-item {
+            .group, .app {
+              text-align: center;
+            }
+            .el-row.title {
+              font-weight: bold;
+            }
+            .has-exit {
+              .group, .app {
+                word-wrap: break-word;
+                word-break: break-all;
+                line-height: 1.2;
+              }
+            }
+            .el-row.add-key-value {
+              .el-col.group, .el-col.app {
+                padding: 0px 3px;
+              }
+            }
           }
         }
       }
@@ -408,7 +423,7 @@ module.exports = {
       },
       accessKeyListByPage: [],
       disablePopper: false,
-      popoverVisibleInModifyAccessKeyDialog: false,
+      popoverForDeleteAccessConfig: true,
 
       selected: {
         row: {id: null},
@@ -420,8 +435,7 @@ module.exports = {
       accessConfig: {
         appID: null,
         production: null,
-        accessAppList: [
-        ],
+        accessConfigList: [],
         accessGroupID: null,
         accessAppID: null,
       },
@@ -468,7 +482,7 @@ module.exports = {
     groupInfo() {
       return this.$storeHelper.groupInfo();
     },
-    appList() {
+    appListOfCurrentGroup() {
       let appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup();
       if (appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')) {
         return appInfoListOfGroup.appList;
@@ -480,7 +494,7 @@ module.exports = {
   
   watch: {
     'accessConfig.accessGroupID': function (value) {
-      console.log(value);
+//      console.log(value);
       this.$net.getAppListByGroupID({
         groupId: value
       }).then(content => {
@@ -585,14 +599,32 @@ module.exports = {
 //          this.$message.success('复制成功');
           break;
         case 'modify-access-config':
+          let openDialog = ()=>  {
+            if (Array.isArray(this.selected.row.accessConfigList)) {
+              this.accessConfig.accessConfigList = this.selected.row.accessConfigList.map(it => {
+                return {
+                  status: it.status,
+                  targetApplicationId: it.targetApplicationId,
+                  targetApplicationName: it.targetApplicationName,
+                  targetGroupId: it.targetGroupId,
+                  targetGroupName: it.targetGroupName,
+                  openPopover: false
+                }
+              });
+            } else {
+              this.accessConfig.accessConfigList = [];
+            }
+            this.selected.operation = action;
+          };
           this.addToWaitingResponseQueue(action);
           // check dialog-related-data before open dialog
-          if (!this.groupInfo || !this.appList) {
+          // as margin-bottom of el-form-item is not set for error show in el-form of dialog modify-access-config
+          if (!this.groupInfo || !this.appListOfCurrentGroup) {
             this.$message.error('信息不完整');
             return;
           }
           if (!this.accessConfig.appID) {
-            this.accessConfig.appID = this.appList[0].appId;
+            this.accessConfig.appID = this.appListOfCurrentGroup[0].appId;
           }
           if (null == this.accessConfig.production) {
             this.accessConfig.production = false;
@@ -609,20 +641,20 @@ module.exports = {
                 }
               }
               this.hideWaitingResponse(action);
-              this.selected.operation = action;
+              // open dialog for modify-access-config
+              openDialog();
             }).catch(err => {
               this.hideWaitingResponse(action);
 //              this.selected.operation = action;
             })
           } else {
             this.hideWaitingResponse(action);
-            this.selected.operation = action;
-            // set default accessID if necesary
+            // set default accessID if necessary
             if (Array.isArray(this.dataForAccessConfig.appList) && this.dataForAccessConfig.appList.length > 0) {
               this.accessConfig.accessAppID = this.dataForAccessConfig.appList[0].appId;
             }
+            openDialog();
           }
-//          console.log(this.dataForAccessConfig);
 
           if (this.selected.operation) {
             this.$nextTick(() => {
@@ -662,7 +694,7 @@ module.exports = {
       }
     },
 
-    handleDialogButton(action) {
+    handleDialogButton(action, index, item) {
       switch (action) {
         case 'add-access-config':
 //          console.log(this.accessConfig);
@@ -685,6 +717,11 @@ module.exports = {
               }
             });
           });
+          break;
+        case 'delete-access-config':
+          if (item && item.hasOwnProperty('openPopover')) {
+            item.openPopover = true;
+          }
           break;
         case 'modify-access-config':
           this.selected.operation = null;
@@ -747,6 +784,17 @@ module.exports = {
     },
     updateModelInfo(prop) {
       this.selected.row[prop] = this.newProps[prop];
+    },
+
+    handlePopoverButton(action, index, item) {
+//      console.log(arguments);
+      switch (action) {
+        case 'delete-access-config':
+          break;
+        case 'cancel':
+          item['openPopover'] = false;
+          break;
+      }
     },
 
     /**

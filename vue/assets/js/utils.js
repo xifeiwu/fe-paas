@@ -8,8 +8,8 @@ class Utils {
     return Number.isInteger(n);
   }
 
-  isString(n) {
-    return n instanceof String;
+  isString(s) {
+    return  typeof(s) === 'string' || s instanceof String;
   }
 
   isDate(n) {

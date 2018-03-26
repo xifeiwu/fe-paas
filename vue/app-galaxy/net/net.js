@@ -1221,12 +1221,22 @@ class Net {
     //   accessKey: 'Access Secret',
     //   myApp: '我的应用',
     //   accessStatus: '访问应用信息-状态',
-    //   accessInfo: [],
+    //   accessConfigList: [],
     //   profileName: '访问环境',
     //   production: true,
     //   creatorName: '创建人',
     //   createTime: '创建时间'
     // }
+
+    // item of accessConfigList:
+    // let item = {
+    //   status: "未授权",
+    //   targetApplicationId: 1698,
+    //   targetApplicationName: "jingang-0211",
+    //   targetGroupId: 2,
+    //   targetGroupName: "银河战队"
+    // }
+
     let transfer = function(it) {
       it.accessKey = it.clientId;
       it.myApp = it.requestApplicationName;
@@ -1242,8 +1252,14 @@ class Net {
         }
       }
       it.production = it.produceEnv;
-      it.accessInfo = it.requestApplicationInfoVOList;
-      it.accessStatus = '未知'
+      it.accessConfigList = it['requestApplicationInfoVOList'];
+      if (it.accessConfigList.length > 0) {
+        it.accessConfigDesc = it.accessConfigList.map(it => {
+          return [it.targetGroupName, it.targetApplicationName, it.status].join(',');
+        }).join(';');
+      } else {
+        it.accessConfigDesc = '未知';
+      }
       it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
     };
     return new Promise((resolve, reject) => {
