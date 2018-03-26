@@ -15,8 +15,8 @@
           <label style="float: left; width: 100px; line-height: 26px">访问对方团队：</label>
           <el-select filterable v-model="searchCondition.groupID" placeholder="请选择"
                      style="display:block; max-width: 280px; margin-left: 100px;">
-            <el-option v-for="(item, index) in [{id: 0, name: '所有'},{id: 1, name: 'A'},{id: 2, name: 'B'}]"
-                       :key="item.id" :label="item.name" :value="item.id">
+            <el-option v-for="(item, index) in targetGroupList"
+                       :key="item.targetGroupId" :label="item.targetGroupName" :value="item.targetGroupId">
             </el-option>
           </el-select>
         </div>
@@ -439,6 +439,9 @@ module.exports = {
     if (updateAccessList) {
       this.requestAccessKeyList();
     }
+    if (!this.targetGroupList || this.targetGroupList.length === 0) {
+      this.getTargetGroupList(this.$storeHelper.currentGroupID)
+    }
   },
 
   data() {
@@ -525,16 +528,7 @@ module.exports = {
   },
   
   watch: {
-    '$storeHelper.currentGroupID': function (groupID) {
-//      console.log(`currentGroupID: ${value}`);
-      this.$net.oAuthGetTargetGroupList({
-        requestGroupId: groupID
-      }).then(groupList => {
-        this.targetGroupList = groupList;
-      }).catch(err => {
-        console.log(err);
-      });
-    },
+    '$storeHelper.currentGroupID': 'getTargetGroupList',
     'accessConfig.accessGroupID': function (value) {
 //      console.log(value);
       this.$net.getAppListByGroupID({
@@ -553,6 +547,28 @@ module.exports = {
   },
 
   methods: {
+    // called at: 1. start of page, 2. change of gorupID
+    getTargetGroupList (groupID) {
+//      console.log(`currentGroupID: ${value}`);
+      this.$net.oAuthGetTargetGroupList({
+        requestGroupId: groupID
+      }).then(groupList => {
+        this.targetGroupList = groupList;
+        this.targetGroupList.unshift({
+          targetGroupId: this.$storeHelper.GROUP_ID_FOR_ALL,
+          targetGroupName: '全部'
+        });
+        this.searchCondition.groupID = this.$storeHelper.GROUP_ID_FOR_ALL;
+      }).catch(err => {
+        console.log(err);
+        this.targetGroupList = [{
+          targetGroupId: this.$storeHelper.GROUP_ID_FOR_ALL,
+          targetGroupName: '全部'
+        }];
+        this.searchCondition.groupID = this.$storeHelper.GROUP_ID_FOR_ALL;
+      });
+    },
+
     // helper for loading action of el-button
     addToWaitingResponseQueue(action) {
       if (this.queueForWaitingResponse.indexOf(action) === -1) {
@@ -648,7 +664,7 @@ module.exports = {
                   status: it.status,
                   targetApplicationId: it.targetApplicationId,
                   targetApplicationName: it.targetApplicationName,
-                  targetGroupId: it.targetGroupId,
+                  targetGroupId: it.targetGroupId == this.$storeHelper.GROUP_ID_FOR_ALL ? '' : it.targetGroupId,
                   targetGroupName: it.targetGroupName,
                   openPopover: false
                 }

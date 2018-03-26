@@ -7,6 +7,7 @@ class StoreHelper {
     this.$store = Store;
 
     // used for item '全部' in app list, profile list, service list
+    this.GROUP_ID_FOR_ALL = -1;
     this.PROFILE_ID_FOR_ALL = -1;
     this.APP_ID_FOR_ALL = -1;
     this.SERVICE_ID_FOR_ALL = -1;

@@ -1204,9 +1204,8 @@ class Net {
     return new Promise((resolve, reject) => {
       axios.get(url).then(response => {
         let content = this.getResponseContent(response);
-        console.log(content);
-        if (content) {
-          resolve(content);
+        if (content && content.hasOwnProperty('targetGroupList')) {
+          resolve(content['targetGroupList']);
         } else {
           reject('oAuthGetTargetGroupList, not found content');
         }
