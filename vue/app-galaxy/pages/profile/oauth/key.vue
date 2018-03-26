@@ -182,18 +182,18 @@
         <i class="el-icon-warning"></i>
         <span>如需更换团队，请在页面右上角选择我的团队</span>
       </el-tag>
-      <el-form :model="accessConfig" :rules="rulesForAccessConfig" labelWidth="110px" size="mini" ref="modifyAccessConfigForm">
+      <el-form :model="modifyAccessConfig" :rules="rulesForAccessConfig" labelWidth="110px" size="mini" ref="modifyAccessConfigForm">
         <el-form-item label="我的团队" v-if="groupInfo">
           {{groupInfo.name}}
         </el-form-item>
         <el-form-item label="我的应用" prop="appID">
-          <el-select filterable v-model="accessConfig.appID" placeholder="请选择" style="display:block; max-width: 280px;">
+          <el-select filterable v-model="modifyAccessConfig.appID" placeholder="请选择" style="display:block; max-width: 280px;">
             <el-option v-for="(item, index) in appListOfCurrentGroup" :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="访问环境" prop="production">
-          <el-select v-model="accessConfig.production" placeholder="请选择" style="display:block; max-width: 280px;">
+          <el-select v-model="modifyAccessConfig.production" placeholder="请选择" style="display:block; max-width: 280px;">
             <el-option :value="true" label="生产环境"></el-option>
             <el-option :value="false" label="非生产环境"></el-option>
           </el-select>
@@ -206,7 +206,7 @@
             <el-col :span="3"></el-col>
           </el-row>
           <el-row class="has-exist"
-                  v-for="(item, index) in accessConfig.accessConfigList"
+                  v-for="(item, index) in modifyAccessConfig.hasExisted"
                   :key="index"
           >
             <el-col :span="7" class="group">{{item.targetGroupName}}</el-col>
@@ -233,16 +233,18 @@
             </el-col>
           </el-row>
         </el-form-item>
-        <el-form-item label="访问对方团队" prop="accessGroupID" class="add-access-config">
+        <el-form-item label="访问对方团队" prop="accessGroupID" class="add-access-config"
+                      style="margin-bottom: 20px"
+                      :error="errorMsgForAddAccessConfig">
           <el-row>
             <el-col :span="11">
-              <el-select filterable v-model="accessConfig.accessGroupID" placeholder="请选择" style="display:block; max-width: 280px;">
+              <el-select filterable v-model="modifyAccessConfig.accessGroupID" placeholder="请选择" style="display:block; max-width: 280px;">
                 <el-option v-for="(item, index) in dataForAccessConfig.groupListAll" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
               </el-select>
             </el-col>
             <el-col :span="11">
-              <el-select filterable v-model="accessConfig.accessAppID" placeholder="请选择" style="display:block; max-width: 280px;">
+              <el-select filterable v-model="modifyAccessConfig.accessAppID" placeholder="请选择" style="display:block; max-width: 280px;">
                 <el-option v-for="(item, index) in dataForAccessConfig.appList" :key="item.appId" :label="item.appName" :value="item.appId">
                 </el-option>
               </el-select>
@@ -426,7 +428,7 @@
 <script>
 module.exports = {
   created() {
-    console.log(this.appInfoListOfGroup);
+//    console.log(this.appInfoListOfGroup);
   },
   mounted() {
     // whether need to request access key list or not
@@ -467,10 +469,11 @@ module.exports = {
       },
 
       // prop used for dialog modify-access-config
-      accessConfig: {
+      errorMsgForAddAccessConfig: '',
+      modifyAccessConfig: {
         appID: null,
         production: null,
-        accessConfigList: [],
+        hasExisted: [],
         accessGroupID: null,
         accessAppID: null,
       },
@@ -529,7 +532,7 @@ module.exports = {
   
   watch: {
     '$storeHelper.currentGroupID': 'getTargetGroupList',
-    'accessConfig.accessGroupID': function (value) {
+    'modifyAccessConfig.accessGroupID': function (value) {
 //      console.log(value);
       this.$net.getAppListByGroupID({
         groupId: value
@@ -538,7 +541,7 @@ module.exports = {
           if (Array.isArray(content.appList)) {
             this.dataForAccessConfig.appList = content.appList;
             if (content.appList.length > 0) {
-              this.accessConfig.accessAppID = content.appList[0].appId;
+              this.modifyAccessConfig.accessAppID = content.appList[0].appId;
             }
           }
         }
@@ -550,6 +553,9 @@ module.exports = {
     // called at: 1. start of page, 2. change of gorupID
     getTargetGroupList (groupID) {
 //      console.log(`currentGroupID: ${value}`);
+      if (!groupID) {
+        return;
+      }
       this.$net.oAuthGetTargetGroupList({
         requestGroupId: groupID
       }).then(groupList => {
@@ -659,7 +665,7 @@ module.exports = {
         case 'modify-access-config':
           let openDialog = ()=>  {
             if (Array.isArray(this.selected.row.accessConfigList)) {
-              this.accessConfig.accessConfigList = this.selected.row.accessConfigList.map(it => {
+              this.modifyAccessConfig.hasExisted = this.selected.row.accessConfigList.map(it => {
                 return {
                   status: it.status,
                   targetApplicationId: it.targetApplicationId,
@@ -670,9 +676,11 @@ module.exports = {
                 }
               });
             } else {
-              this.accessConfig.accessConfigList = [];
+              this.modifyAccessConfig.hasExisted = [];
             }
             this.selected.operation = action;
+            // remove error tip for button add-access-config
+            this.errorMsgForAddAccessConfig = '';
           };
           this.addToWaitingResponseQueue(action);
           // check dialog-related-data before open dialog
@@ -681,11 +689,11 @@ module.exports = {
             this.$message.error('信息不完整');
             return;
           }
-          if (!this.accessConfig.appID) {
-            this.accessConfig.appID = this.appListOfCurrentGroup[0].appId;
+          if (!this.modifyAccessConfig.appID) {
+            this.modifyAccessConfig.appID = this.appListOfCurrentGroup[0].appId;
           }
-          if (null == this.accessConfig.production) {
-            this.accessConfig.production = false;
+          if (null == this.modifyAccessConfig.production) {
+            this.modifyAccessConfig.production = false;
           }
           if (!this.dataForAccessConfig.groupListAll) {
             this.$net.getAllGroupList().then(content => {
@@ -694,7 +702,7 @@ module.exports = {
                 if (Array.isArray(groupList)) {
                   this.dataForAccessConfig.groupListAll = groupList;
                   if (groupList.length > 0) {
-                    this.accessConfig.accessGroupID = groupList[0].id;
+                    this.modifyAccessConfig.accessGroupID = groupList[0].id;
                   }
                 }
               }
@@ -709,7 +717,7 @@ module.exports = {
             this.hideWaitingResponse(action);
             // set default accessID if necessary
             if (Array.isArray(this.dataForAccessConfig.appList) && this.dataForAccessConfig.appList.length > 0) {
-              this.accessConfig.accessAppID = this.dataForAccessConfig.appList[0].appId;
+              this.modifyAccessConfig.accessAppID = this.dataForAccessConfig.appList[0].appId;
             }
             openDialog();
           }
@@ -755,17 +763,32 @@ module.exports = {
     handleDialogButton(action, index, item) {
       switch (action) {
         case 'add-access-config':
-//          console.log(this.accessConfig);
+          console.log(this.modifyAccessConfig);
+          let checkIfHasExist = () => {
+            let exist = false;
+            let hasExisted = this.modifyAccessConfig.hasExisted;
+            hasExisted.some(it => {
+              exist = it['targetGroupId'] == this.modifyAccessConfig.accessGroupID &&
+                it['targetApplicationId'] == this.modifyAccessConfig.accessAppID;
+              return exist;
+            });
+            return exist;
+          };
+          if (checkIfHasExist()) {
+            this.errorMsgForAddAccessConfig = '已绑定该应用，不能重复绑定';
+            return;
+          } else {
+            this.errorMsgForAddAccessConfig = '';
+          }
           this.$net.oauthAddAccessConfig(this.selected.row.id, {
             groupId: this.$storeHelper.currentGroupID,
-            applicationId: this.accessConfig.appID,
-            produceEnv: this.accessConfig.production,
+            applicationId: this.modifyAccessConfig.appID,
+            produceEnv: this.modifyAccessConfig.production,
             applyList:[{
-              groupId: this.accessConfig.accessGroupID,
-              applicationId: this.accessConfig.accessAppID
+              groupId: this.modifyAccessConfig.accessGroupID,
+              applicationId: this.modifyAccessConfig.accessAppID
             }]
           }).then(msg => {
-
           }).catch(msg => {
             this.$notify.error({
               title: '添加失败！',
