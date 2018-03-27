@@ -152,7 +152,8 @@ var urlList = {
   'oauth_delete_access_key': apiPath + '/application/authorization',
   'oauth_add_access_config': apiPath + '/application/authorization',
   // 授权url
-  'oauth_authorize_url_get_list': apiPath + '/application/authorization/record/query',
+  'oauth_get_authorize_url_list': apiPath + '/application/authorization/record/query',
+  'oauth_get_target_app_list': apiPath + '/application/authorization/targetGroup/{id}/targetApplication',
 
   // 工单列表
   'work_order_list': apiPath + '/workOrderDeploy/getWorkOrderDeployList',

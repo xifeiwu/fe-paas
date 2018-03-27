@@ -7,8 +7,8 @@
           <label style="float: left; width: 100px; line-height: 26px">被访问的应用：</label>
           <el-select filterable v-model="searchCondition.appID" placeholder="请选择"
                      style="display:block; max-width: 280px; margin-left: 100px;">
-            <el-option v-for="(item, index) in targetGroupList"
-                       :key="item.targetGroupId" :label="item.targetGroupName" :value="item.targetGroupId">
+            <el-option v-for="(item, index) in targetAppList"
+                       :key="item.targetApplicationId" :label="item.targetApplicationName" :value="item.targetApplicationId">
             </el-option>
           </el-select>
         </div>
@@ -165,19 +165,19 @@
       if (updateAccessList) {
         this.requestAuthorizeUrlList();
       }
-      this.targetGroupList = [{
+      this.targetAppList = [{
         targetGroupId: this.$storeHelper.APP_ID_FOR_ALL,
         targetGroupName: '全部',
       }];
-//    if (!this.targetGroupList || this.targetGroupList.length === 0) {
-//      this.getTargetGroupList(this.$storeHelper.currentGroupID)
-//    }
+    if (!this.targetAppList || this.targetAppList.length === 0) {
+      this.getTargetAppList(this.$storeHelper.currentGroupID)
+    }
     },
     data() {
       return {
         queueForWaitingResponse: [],
 
-        targetGroupList: [],
+        targetAppList: [],
         showLoading: false,
         searchCondition: {
           appID: '',
@@ -191,7 +191,33 @@
         currentPage: 1,
       }
     },
+    watch: {
+      '$storeHelper.currentGroupID': 'getTargetAppList',
+    },
+
     methods: {
+      // called at: 1. start of page, 2. change of gorupID
+      getTargetAppList (groupID) {
+//      console.log(`currentGroupID: ${value}`);
+        if (!groupID) {
+          return;
+        }
+        this.$net.oauthGetTargetAppList(groupID).then(appList => {
+          this.targetAppList = appList;
+          this.targetAppList.unshift({
+            targetApplicationId: this.$storeHelper.GROUP_ID_FOR_ALL,
+            targetApplicationName: '全部'
+          });
+          this.searchCondition.appID = this.$storeHelper.GROUP_ID_FOR_ALL;
+        }).catch(err => {
+          console.log(err);
+          this.targetAppList = [{
+            targetApplicationId: this.$storeHelper.GROUP_ID_FOR_ALL,
+            targetApplicationName: '全部'
+          }];
+          this.searchCondition.appID = this.$storeHelper.GROUP_ID_FOR_ALL;
+        });
+      },
 
       // helper for loading action of el-button
       addToWaitingResponseQueue(action) {

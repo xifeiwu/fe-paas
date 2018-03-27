@@ -103,6 +103,22 @@ class Utils {
     return null;
   }
 
+  /**
+   * format url-model with options
+   * @param format, '/application/authorization/targetGroup/{groupID}/targetApplication'
+   * @param options, {groupID: 5}
+   * @returns {*}, /application/authorization/targetGroup/5/targetApplication
+   */
+  formatUrl(format, options) {
+    for (let key in options) {
+      let regStr = '\\{' + key + '\\}';
+      let reg = new RegExp(regStr);
+      let value = options[key];
+      format = format.replace(reg, value);
+    }
+    return format
+  }
+
   /*
    * 频率控制 返回函数连续调用时，fn 执行频率限定为每多少时间执行一次
    * @param fn {function}  需要调用的函数

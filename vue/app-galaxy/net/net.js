@@ -1350,7 +1350,7 @@ class Net {
       }
     };
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.oauth_authorize_url_get_list, options).then(response => {
+      axios.post(URL_LIST.oauth_get_authorize_url_list, options).then(response => {
         console.log(response);
         let content = this.getResponseContent(response);
         if (content) {
@@ -1363,6 +1363,28 @@ class Net {
           resolve(content);
         } else {
           reject('获取Access Key列表失败！');
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
+  oauthGetTargetAppList(groupID) {
+    let url = this.$utils.formatUrl(URL_LIST.oauth_get_target_app_list, {id: groupID});
+    return new Promise((resolve, reject) => {
+      axios.get(url).then(response => {
+        console.log(response);
+        let content = this.getResponseContent(response);
+        if (content) {
+          if (content.hasOwnProperty('targetApplicationList')) {
+            resolve(content['targetApplicationList']);
+          } else {
+            reject('获取被访问的应用列表失败！');
+          }
+        } else {
+          reject('获取被访问的应用列表失败！');
         }
       }).catch(err => {
         console.log(err);
