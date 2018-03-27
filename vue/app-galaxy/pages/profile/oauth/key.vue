@@ -202,7 +202,7 @@
             <el-option :value="false" label="非生产环境"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="已绑应用" class="access-config-list" v-if="modifyAccessConfig.hasExisted.length>0">
+        <el-form-item label="已绑应用" class="access-config-list" v-if="newProps.accessConfigList.length>0">
           <el-row class="title">
             <el-col :span="7" class="group">团队</el-col>
             <el-col :span="7" class="app">应用</el-col>
@@ -210,7 +210,7 @@
             <el-col :span="3"></el-col>
           </el-row>
           <el-row class="has-exist"
-                  v-for="(item, index) in modifyAccessConfig.hasExisted"
+                  v-for="(item, index) in newProps.accessConfigList"
                   :key="index"
           >
             <el-col :span="7" class="group">{{item.targetGroupName}}</el-col>
@@ -269,7 +269,7 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       :loading="statusOfWaitingResponse('submit-access-config')"
+                       :loading="statusOfWaitingResponse('submit-access-config-in-dialog')"
                        @click="handleDialogButton('submit-access-config')"
                        >保&nbsp存</el-button>
           </el-col>
@@ -508,8 +508,11 @@ module.exports = {
         appList: []
       },
 
+      // used for modify props
       newProps: {
-        secret: ''
+        secret: '',
+        accessConfigList: [],
+        accessConfigDesc: []
       },
       rulesForNewProps: {
         secret: [{
@@ -714,7 +717,7 @@ module.exports = {
         case 'open-dialog-for-modify-access-config':
           let openDialog = ()=>  {
             if (Array.isArray(this.selected.row.accessConfigList)) {
-              this.modifyAccessConfig.hasExisted = this.selected.row.accessConfigList.map(it => {
+              this.newProps.accessConfigList = this.selected.row.accessConfigList.map(it => {
                 return {
                   status: it.status,
                   targetApplicationId: it.targetApplicationId,
@@ -725,7 +728,7 @@ module.exports = {
                 }
               });
             } else {
-              this.modifyAccessConfig.hasExisted = [];
+              this.newProps.accessConfigList = [];
             }
             this.selected.operation = action;
             // remove error tip for button add-access-config
@@ -812,7 +815,7 @@ module.exports = {
     // used for modify-access-config dialog
     checkIfBindTheApp() {
       let exist = false;
-      let hasExisted = this.modifyAccessConfig.hasExisted;
+      let hasExisted = this.newProps.accessConfigList;
       hasExisted.some(it => {
         exist = it['targetGroupId'] == this.modifyAccessConfig.targetGroupID &&
           it['targetApplicationId'] == this.modifyAccessConfig.targetAppID;
@@ -848,7 +851,7 @@ module.exports = {
           if (this.checkIfBindTheApp()) {
             return;
           } else {
-            this.modifyAccessConfig.hasExisted.push({
+            this.newProps.accessConfigList.push({
               status: '新加',
               targetApplicationId: this.modifyAccessConfig.targetAppID,
               targetApplicationName: this.modifyAccessConfig.targetAppName,
@@ -864,37 +867,12 @@ module.exports = {
           }
           break;
         case 'submit-access-config':
-          if (!this.checkIfAppListChanged(this.selected.row.accessConfigList, this.modifyAccessConfig.hasExisted)) {
+          if (!this.checkIfAppListChanged(this.selected.row.accessConfigList, this.newProps.accessConfigList)) {
             this.$message.warning('您没有做修改');
             this.selected.operation = null;
             return;
           }
-          this.addToWaitingResponseQueue(action);
-          let appListToPost = this.modifyAccessConfig.hasExisted.map((it) => {
-            return {
-              groupId: it.targetGroupId,
-              applicationId: it.targetApplicationId
-            }
-          });
-          this.$net.oauthAddAccessConfig(this.selected.row.id, {
-            groupId: this.$storeHelper.currentGroupID,
-            applicationId: this.modifyAccessConfig.appID,
-            produceEnv: this.modifyAccessConfig.production,
-            applyList: appListToPost
-          }).then(msg => {
-            this.hideWaitingResponse(action);
-            this.selected.operation = null;
-          }).catch(msg => {
-            this.$notify.error({
-              title: '添加失败！',
-              message: msg,
-              duration: 0,
-              onClose: function () {
-              }
-            });
-            this.hideWaitingResponse(action);
-            this.selected.operation = null;
-          });
+          this.requestUpdate(action, 'accessConfigList');
           break;
         case 'modify-secret':
           let prop = 'secret';
@@ -945,6 +923,35 @@ module.exports = {
             });
           });
           break;
+        case 'accessConfigList':
+          let appListToPost = this.newProps.accessConfigList.map((it) => {
+            return {
+              groupId: it.targetGroupId,
+              applicationId: it.targetApplicationId
+            }
+          });
+          this.$net.oauthAddAccessConfig(this.selected.row.id, {
+            groupId: this.$storeHelper.currentGroupID,
+            applicationId: this.modifyAccessConfig.appID,
+            produceEnv: this.modifyAccessConfig.production,
+            applyList: appListToPost
+          }).then(msg => {
+            this.hideWaitingResponse(action + '-in-dialog');
+            this.selected.operation = null;
+            this.$message.success(msg);
+            this.updateModelInfo(prop);
+          }).catch(msg => {
+            this.hideWaitingResponse(action + '-in-dialog');
+            this.selected.operation = null;
+            this.$notify.error({
+              title: '添加失败！',
+              message: msg,
+              duration: 0,
+              onClose: function () {
+              }
+            });
+          });
+          break;
       }
 //      setTimeout(() => {
 //        this.hideWaitingResponse(action + '-in-dialog');
@@ -953,13 +960,30 @@ module.exports = {
 //      }, 1000);
     },
     updateModelInfo(prop) {
-      this.selected.row[prop] = this.newProps[prop];
+      switch (prop) {
+        case 'secret':
+          this.selected.row[prop] = this.newProps[prop];
+          break;
+        case 'accessConfigList':
+          let accessConfigList = this.newProps['accessConfigList'];
+          let accessConfigDesc = [];
+          if (accessConfigList.length > 0) {
+            accessConfigDesc = accessConfigList.map(it => {
+              return [it.targetGroupName, it.targetApplicationName, it.status].join(',');
+            });
+          }
+          this.newProps['accessConfigDesc'] = accessConfigDesc;
+          this.selected.row['accessConfigList'] = JSON.parse(JSON.stringify(this.newProps['accessConfigList']));
+          this.selected.row['accessConfigDesc'] = JSON.parse(JSON.stringify(this.newProps['accessConfigDesc']));
+          break;
+      }
+
     },
 
     handlePopoverButton(action, index, item) {
       switch (action) {
         case 'delete-access-config':
-          this.modifyAccessConfig.hasExisted.splice(index, 1);
+          this.newProps.accessConfigList.splice(index, 1);
           item['openPopover'] = false;
           break;
         case 'cancel':
