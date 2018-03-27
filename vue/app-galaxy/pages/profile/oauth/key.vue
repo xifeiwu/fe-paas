@@ -138,8 +138,8 @@
             <el-button
                     size="mini-extral"
                     type="warning"
-                    :loading="statusOfWaitingResponse('modify-access-config') && selected.row.id === scope.row.id"
-                    @click="handleTRClick('modify-access-config', scope.$index, scope.row)">
+                    :loading="statusOfWaitingResponse('open-dialog-for-modify-access-config') && selected.row.id === scope.row.id"
+                    @click="handleTRClick('open-dialog-for-modify-access-config', scope.$index, scope.row)">
               访问配置
             </el-button>
             <el-button
@@ -172,7 +172,7 @@
       </div>
     </div>
 
-    <el-dialog title="修改访问配置" :visible="selected.operation == 'modify-access-config'"
+    <el-dialog title="修改访问配置" :visible="selected.operation == 'open-dialog-for-modify-access-config'"
                class="modify-access-config size-700"
                :close-on-click-modal="false"
                @close="selected.operation = null"
@@ -198,7 +198,7 @@
             <el-option :value="false" label="非生产环境"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="已绑应用" class="access-config-list">
+        <el-form-item label="已绑应用" class="access-config-list" v-if="modifyAccessConfig.hasExisted.length>0">
           <el-row class="title">
             <el-col :span="7" class="group">团队</el-col>
             <el-col :span="7" class="app">应用</el-col>
@@ -220,10 +220,10 @@
                       trigger="click"
                       popperClass="el-popover--small"
                       content="复制成功">
-                <p style="color: #fa5555">确定要删除"{{item.targetGroupName}}"下的应用"{{item.targetApplicationName}}"吗？</p>
+                <p style="color: #fa5555">确定要解绑"{{item.targetGroupName}}"下的应用"{{item.targetApplicationName}}"吗？</p>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
-                  <el-button type="danger" size="mini" @click="handlePopoverButton('delete-access-config', index, item)">确定</el-button>
+                  <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-access-config', index, item)">确定</el-button>
                 </div>
                 <el-button type="warning" size="mini-extral"
                            slot="reference"
@@ -265,7 +265,8 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleDialogButton('modify-access-config')"
+                       :loading="statusOfWaitingResponse('submit-access-config')"
+                       @click="handleDialogButton('submit-access-config')"
                        >保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -581,6 +582,7 @@ module.exports = {
       } else {
         this.modifyAccessConfig.targetAppName = '';
       }
+      this.checkIfBindTheApp();
     }
   },
 
@@ -697,7 +699,7 @@ module.exports = {
           }, 500);
 //          this.$message.success('复制成功');
           break;
-        case 'modify-access-config':
+        case 'open-dialog-for-modify-access-config':
           let openDialog = ()=>  {
             if (Array.isArray(this.selected.row.accessConfigList)) {
               this.modifyAccessConfig.hasExisted = this.selected.row.accessConfigList.map(it => {
@@ -742,7 +744,7 @@ module.exports = {
                 }
               }
               this.hideWaitingResponse(action);
-              // open dialog for modify-access-config
+              // open dialog for submit-access-config
               openDialog();
             }).catch(err => {
               this.hideWaitingResponse(action);
@@ -795,22 +797,43 @@ module.exports = {
       }
     },
 
+    // used for modify-access-config dialog
+    checkIfBindTheApp() {
+      let exist = false;
+      let hasExisted = this.modifyAccessConfig.hasExisted;
+      hasExisted.some(it => {
+        exist = it['targetGroupId'] == this.modifyAccessConfig.targetGroupID &&
+          it['targetApplicationId'] == this.modifyAccessConfig.targetAppID;
+        return exist;
+      });
+      if (exist) {
+        this.errorMsgForAddAccessConfig = '已绑定该应用，不能重复绑定';
+      } else {
+        this.errorMsgForAddAccessConfig = '';
+      }
+      return exist;
+    },
+    checkIfAppListChanged(origin, current) {
+      let theSame = true;
+      if (origin.length === current.length) {
+        let index = 0;
+        origin.every((it) => {
+          let it2 = current[index];
+          index += 1;
+          theSame = it.targetGroupId == it2.targetGroupId && it.targetApplicationId == it2.targetApplicationId;
+          return theSame;
+        });
+      } else {
+        theSame = false;
+      }
+      return !theSame;
+    },
+
     handleDialogButton(action, index, item) {
       switch (action) {
         case 'add-access-config':
-          console.log(this.modifyAccessConfig);
-          let checkIfHasExist = () => {
-            let exist = false;
-            let hasExisted = this.modifyAccessConfig.hasExisted;
-            hasExisted.some(it => {
-              exist = it['targetGroupId'] == this.modifyAccessConfig.targetGroupID &&
-                it['targetApplicationId'] == this.modifyAccessConfig.targetAppID;
-              return exist;
-            });
-            return exist;
-          };
-          if (checkIfHasExist()) {
-            this.errorMsgForAddAccessConfig = '已绑定该应用，不能重复绑定';
+//          console.log(this.modifyAccessConfig);
+          if (this.checkIfBindTheApp()) {
             return;
           } else {
             this.modifyAccessConfig.hasExisted.push({
@@ -821,7 +844,6 @@ module.exports = {
               targetGroupName: this.modifyAccessConfig.targetGroupName,
               openPopover: false
             });
-            this.errorMsgForAddAccessConfig = '';
           }
           break;
         case 'delete-access-config':
@@ -829,22 +851,24 @@ module.exports = {
             item.openPopover = true;
           }
           break;
-        case 'modify-access-config':
-          this.addToWaitingResponseQueue(action);
-          console.log(this.modifyAccessConfig.hasExisted);
-          setTimeout(() => {
-            this.hideWaitingResponse(action);
+        case 'submit-access-config':
+          if (!this.checkIfAppListChanged(this.selected.row.accessConfigList, this.modifyAccessConfig.hasExisted)) {
+            this.$message.warning('您没有做修改');
             this.selected.operation = null;
-          }, 3000);
-          return;
+            return;
+          }
+          this.addToWaitingResponseQueue(action);
+          let appListToPost = this.modifyAccessConfig.hasExisted.map((it) => {
+            return {
+              groupId: it.targetGroupId,
+              applicationId: it.targetApplicationId
+            }
+          });
           this.$net.oauthAddAccessConfig(this.selected.row.id, {
             groupId: this.$storeHelper.currentGroupID,
             applicationId: this.modifyAccessConfig.appID,
             produceEnv: this.modifyAccessConfig.production,
-            applyList:[{
-              groupId: this.modifyAccessConfig.targetGroupID,
-              applicationId: this.modifyAccessConfig.targetAppID
-            }]
+            applyList: appListToPost
           }).then(msg => {
             this.hideWaitingResponse(action);
             this.selected.operation = null;
@@ -921,7 +945,6 @@ module.exports = {
     },
 
     handlePopoverButton(action, index, item) {
-//      console.log(arguments);
       switch (action) {
         case 'delete-access-config':
           this.modifyAccessConfig.hasExisted.splice(index, 1);
