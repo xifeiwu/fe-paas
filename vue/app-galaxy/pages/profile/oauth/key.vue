@@ -187,13 +187,17 @@
           {{groupInfo.name}}
         </el-form-item>
         <el-form-item label="我的应用" prop="appID">
-          <el-select filterable v-model="modifyAccessConfig.appID" placeholder="请选择" style="display:block; max-width: 280px;">
+          <el-select filterable v-model="modifyAccessConfig.appID" placeholder="请选择"
+                     :disabled="disableMyAppSelectInDialogModifyAccessConfig"
+                     style="display:block; max-width: 280px;">
             <el-option v-for="(item, index) in appListOfCurrentGroup" :key="item.appId" :label="item.serviceName" :value="item.appId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="访问环境" prop="production">
-          <el-select v-model="modifyAccessConfig.production" placeholder="请选择" style="display:block; max-width: 280px;">
+          <el-select v-model="modifyAccessConfig.production" placeholder="请选择"
+                     :disabled="disableMyAppSelectInDialogModifyAccessConfig"
+                     style="display:block; max-width: 280px;">
             <el-option :value="true" label="生产环境"></el-option>
             <el-option :value="false" label="非生产环境"></el-option>
           </el-select>
@@ -471,6 +475,7 @@ module.exports = {
 
       // prop used for dialog modify-access-config
       errorMsgForAddAccessConfig: '',
+      disableMyAppSelectInDialogModifyAccessConfig: false,
       modifyAccessConfig: {
         appID: null,
         production: null,
@@ -573,7 +578,7 @@ module.exports = {
         appList.some(it => {
           target = (it.appId == appId) ? it : null;
           return target;
-        })
+        });
         if (target && target.appId) {
           this.modifyAccessConfig.targetAppName = target.appName;
         } else {
@@ -583,6 +588,13 @@ module.exports = {
         this.modifyAccessConfig.targetAppName = '';
       }
       this.checkIfBindTheApp();
+    },
+    'selected.row': function (row) {
+      if (row && row.hasOwnProperty('accessConfigList') && row['accessConfigList'].length > 0) {
+        this.disableMyAppSelectInDialogModifyAccessConfig = true;
+      } else {
+        this.disableMyAppSelectInDialogModifyAccessConfig = false;
+      }
     }
   },
 
