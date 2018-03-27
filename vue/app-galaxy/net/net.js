@@ -1235,27 +1235,6 @@ class Net {
 
   // 获取Access Key列表
   getAccessKeyList(options) {
-    // all the props of AccessKey used in fe
-    // let descriptor = {
-    //   accessKey: 'Access Secret',
-    //   myApp: '我的应用',
-    //   accessStatus: '访问应用信息-状态',
-    //   accessConfigList: [],
-    //   profileName: '访问环境',
-    //   production: true,
-    //   creatorName: '创建人',
-    //   createTime: '创建时间'
-    // }
-
-    // item of accessConfigList:
-    // let item = {
-    //   status: "未授权",
-    //   targetApplicationId: 1698,
-    //   targetApplicationName: "jingang-0211",
-    //   targetGroupId: 2,
-    //   targetGroupName: "银河战队"
-    // }
-
     let transfer = function(it) {
       it.accessKey = it.clientId;
       it.myApp = it.requestApplicationName;
@@ -1307,12 +1286,10 @@ class Net {
   }
 
   // 修改secret
-  oauthUpdateSecret(options) {
+  oauthUpdateSecret(id, options) {
     return new Promise((resolve, reject) => {
-      let url = `${URL_LIST.oauth_update_secret}/${options.id}`;
-      axios.patch(url, {
-        newSecret: options.secret
-      }).then(response => {
+      let url = `${URL_LIST.oauth_update_secret}/${id}`;
+      axios.patch(url, options).then(response => {
         // console.log(response);
         let resMsg = this.getResponseMsg(response);
         if (resMsg.success) {

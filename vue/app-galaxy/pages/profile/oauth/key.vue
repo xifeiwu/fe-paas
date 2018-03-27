@@ -123,9 +123,12 @@
                 width="120"
                 headerAlign="center" align="center">
           <template slot-scope="scope">
-            <div v-for="(item, index) in scope.row.createTime" :key="index">
-              {{item}}
+            <div v-if="Array.isArray(scope.row.createTime)">
+              <div v-for="(item, index) in scope.row.createTime" :key="index">
+                {{item}}
+              </div>
             </div>
+            <div v-else>{{scope.row.createTime}}</div>
           </template>
         </el-table-column>
         <el-table-column
@@ -645,15 +648,15 @@ module.exports = {
 
     getEmptyItem() {
       return {
-        accessKey: '',
-        secret: '',
-        myApp: '',
-        appAccessStatus: '',
-        requestApplicationNames: [],
-        profileName: '测试环境',
-        creatorName: '',
-        status: '',
-        createTime: ''
+        "createTime": '',
+        "accessKey": '',
+        "secret": '',
+        "profileName": '',
+        "myApp": '未设置',
+        "createTime": '',
+        "creatorName": "",
+        "accessConfigList": [],
+        "accessConfigDesc": []
       }
     },
     handleButtonClick(action) {
@@ -662,8 +665,8 @@ module.exports = {
           this.addToWaitingResponseQueue('create-access-key');
           if (this.createAccessKeyTag) {
             let duration = new Date().getTime() - this.createAccessKeyTag;
-            if (duration > 5 * 1000) {
-              this.$message.warning(`请${duration/100}秒后再尝试创建！`);
+            if (duration < 5 * 1000) {
+              this.$message.warning(`请${duration/1000}秒后再尝试创建！`);
               return;
             }
           }
@@ -672,7 +675,7 @@ module.exports = {
             groupId: this.$storeHelper.currentGroupID
           }).then(content => {
             let item = this.getEmptyItem();
-            item.createTime = content.createTime;
+            item.createTime = content.createTime.split(' ');
             item.creatorName = content.creatorName;
             item.secret = content.secret;
             item.accessKey = content.client_id;
@@ -900,11 +903,14 @@ module.exports = {
 
     requestUpdate(action, prop) {
       // simulate post
+      if (!this.selected.row.id) {
+        this.$message.error('未找到ID');
+        return;
+      }
       this.addToWaitingResponseQueue(action + '-in-dialog');
       switch (prop) {
         case 'secret':
-          this.$net.oauthUpdateSecret({
-            id: this.selected.row.id,
+          this.$net.oauthUpdateSecret(this.selected.row.id, {
             secret: this.newProps[prop]
           }).then(msg => {
             this.hideWaitingResponse(action + '-in-dialog');

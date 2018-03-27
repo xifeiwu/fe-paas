@@ -2,7 +2,6 @@
  * Created by xifei.wu on 2017/12/6.
  */
 import NetData from '../../net/net';
-import postFormatter from '../post_formatter';
 const USE_LOCAL_STORAGE = false;
 
 const warning = function(prop, where) {
