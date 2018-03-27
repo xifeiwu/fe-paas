@@ -144,12 +144,15 @@ var urlList = {
   'log_deploy_log': apiPath + '/service/historylog',
 
   /** oauth相关 */
+  // access key
   'oauth_get_target_group_list': apiPath + '/application/authorization/targetGroups',
   'oauth_create_access_key': apiPath + '/application/authorization/create',
   'oauth_get_access_key_list': apiPath + '/application/authorization/query',
   'oauth_update_secret': apiPath + '/application/authorization',
   'oauth_delete_access_key': apiPath + '/application/authorization',
   'oauth_add_access_config': apiPath + '/application/authorization',
+  // 授权url
+  'oauth_authorize_url_get_list': apiPath + '/application/authorization/record/query',
 
   // 工单列表
   'work_order_list': apiPath + '/workOrderDeploy/getWorkOrderDeployList',

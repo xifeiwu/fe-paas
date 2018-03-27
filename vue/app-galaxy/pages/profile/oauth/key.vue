@@ -1001,7 +1001,7 @@ module.exports = {
     /**
      * update access-key list, called at:
      * 1. mounted function at start of page
-     * 2. chagne of pagination
+     * 2. change of pagination
      * 3. search button
      * 4. success callback of delete access-key
      * @param cb

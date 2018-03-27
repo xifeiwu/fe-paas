@@ -1265,7 +1265,7 @@ class Net {
     };
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.oauth_get_access_key_list, options).then(response => {
-        console.log(response);
+        // console.log(response);
         let content = this.getResponseContent(response);
         if (content) {
           if (content.hasOwnProperty('uaaList')) {
@@ -1333,6 +1333,36 @@ class Net {
           resolve(resMsg.msg);
         } else {
           reject(resMsg.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
+  // 获取授权URL列表
+  oauthGetAuthorizeUrlList(options) {
+    let transfer = (it) => {
+      it.createTime =  this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+      if (it.createTime) {
+        it.createTime = it.createTime.split(' ');
+      }
+    };
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.oauth_authorize_url_get_list, options).then(response => {
+        console.log(response);
+        let content = this.getResponseContent(response);
+        if (content) {
+          if (content.hasOwnProperty('authRecordList')) {
+            let authRecordList = content['authRecordList'];
+            if (Array.isArray(authRecordList)) {
+              authRecordList.forEach(transfer.bind(this));
+            }
+          }
+          resolve(content);
+        } else {
+          reject('获取Access Key列表失败！');
         }
       }).catch(err => {
         console.log(err);
