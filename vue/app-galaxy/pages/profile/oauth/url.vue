@@ -155,7 +155,6 @@
                 </div>
                 <el-button type="warning" size="mini-extral"
                            slot="reference"
-                           :loading="statusOfWaitingResponse('delete-authorize-url-in-dialog') && selected.row.id === scope.row.id"
                            @click="handleDialogButton('delete-authorize-url', index, item)">删除</el-button>
               </el-popover>
             </el-col>
@@ -284,13 +283,13 @@
       if (updateAccessList) {
         this.requestAuthorizeUrlList();
       }
-      this.targetAppList = [{
-        targetGroupId: this.$storeHelper.APP_ID_FOR_ALL,
-        targetGroupName: '全部',
-      }];
-    if (!this.targetAppList || this.targetAppList.length === 0) {
-      this.getTargetAppList(this.$storeHelper.currentGroupID)
-    }
+      if (!this.targetAppList || this.targetAppList.length === 0) {
+        this.getTargetAppList(this.$storeHelper.currentGroupID)
+      }
+      // init value of searchCondition.production at start
+      if (null == this.searchCondition.production) {
+        this.searchCondition.production = false;
+      }
     },
     data() {
       return {
@@ -299,8 +298,8 @@
         targetAppList: [],
         showLoading: false,
         searchCondition: {
-          appID: '',
-          production: true,
+          appID: null,
+          production: null,
         },
         authorizeUrlListByPage: [],
 
@@ -340,6 +339,14 @@
     },
     watch: {
       '$storeHelper.currentGroupID': 'getTargetAppList',
+      'searchCondition.appID': function() {this.requestAuthorizeUrlList()},
+      'searchCondition.production': function() {this.requestAuthorizeUrlList()},
+      'modifyAuthorizeUrl.newItem.oauth': function(value) {
+        this.checkAuthorizeUrlValidate(null, 'watch');
+      },
+      'modifyAuthorizeUrl.newItem.resource': function(value) {
+        this.checkAuthorizeUrlValidate(null, 'watch');
+      },
     },
 
     methods: {
@@ -395,30 +402,165 @@
         this.selected.row = row;
         switch (action) {
           case 'open-dialog-for-modify-authorize-url':
+            if (row.hasOwnProperty('supportClientId')) {
+              this.modifyAuthorizeUrl.accessKey = row.supportClientId;
+            }
+            if (Array.isArray(row.detailList)) {
+              this.newProps.authorizeUrlList = row.detailList.map(it => {
+//                it.openPopover = false;
+//                return it;
+                return {
+                  oauth: it.oauth,
+                  resource: it.resource,
+                  openPopover: false
+                }
+              });
+//              this.newProps.authorizeUrlList = JSON.parse(JSON.stringify(row.detailList));
+//              this.newProps.authorizeUrlList.forEach(it => {
+//                it.openPopover = false;
+//              });
+            } else {
+              this.newProps.authorizeUrlList = [];
+            }
             this.selected.operation = action;
-            console.log(this.selected);
             break;
         }
       },
-      handleDialogButton(action) {
+
+      // used for modify-access-config dialog
+      checkAuthorizeUrlValidate(newItem, from) {
+        if (!newItem) {
+          newItem = this.modifyAuthorizeUrl.newItem;
+        }
+
+        let isValid = false;
+        let checkEmpty = () => {
+          let isValid = false;
+          let oAuthReg = /^[A-Za-z0-9_]{1,50}$/;
+          if (oAuthReg.test(newItem.oauth) && oAuthReg.test(newItem.resource)) {
+            isValid = true;
+          } else {
+            this.errorMsgForAddAuthorizeUrl = '"所属权限"和"资源URL"不能为空'
+          }
+          return isValid;
+        };
+        if (from === 'button') {
+          isValid = checkEmpty();
+          if (!isValid) {
+            return isValid;
+          }
+        }
+
+        let exist = false;
+        let authorizeUrlList = this.newProps.authorizeUrlList;
+        authorizeUrlList.some(it => {
+          exist = it['oauth'] == newItem.oauth &&
+            it['resource'] == newItem.resource;
+
+          return exist;
+        });
+        if (exist) {
+          this.errorMsgForAddAuthorizeUrl = '该授权URL已经存在';
+          isValid = false;
+        } else {
+          isValid = true;
+        }
+        if (isValid) {
+          this.errorMsgForAddAuthorizeUrl = '';
+        }
+        return isValid;
+      },
+      checkIfAuthorizeUrlListChanged(origin, current) {
+        let theSame = true;
+        if (origin.length === current.length) {
+          let index = 0;
+          origin.every((it) => {
+            let it2 = current[index];
+            index += 1;
+            theSame = it.targetGroupId == it2.targetGroupId && it.targetApplicationId == it2.targetApplicationId;
+            return theSame;
+          });
+        } else {
+          theSame = false;
+        }
+        return !theSame;
+      },
+      handleDialogButton(action, index, item) {
         switch (action) {
           case 'add-authorize-url':
-            let oAuthReg = /^[A-Za-z0-9_]{1,50}$/;
             let newItem = this.modifyAuthorizeUrl.newItem;
-            if (oAuthReg.test(newItem.oauth) && oAuthReg.test(newItem.resource)) {
+            if (this.checkAuthorizeUrlValidate(newItem, 'button')) {
               this.newProps.authorizeUrlList.push({
                 oauth: newItem.oauth,
-                resource: newItem.resource
+                resource: newItem.resource,
+                openPopover: false
               });
               newItem.oauth = '';
               newItem.resource = '';
-              this.errorMsgForAddAuthorizeUrl = '';
-            } else {
-              this.errorMsgForAddAuthorizeUrl = '"所属权限"和"资源URL"不能为空'
             }
+            break;
+          case 'delete-authorize-url':
+            if (item && item.hasOwnProperty('openPopover')) {
+              item.openPopover = true;
+            }
+            break;
+          case 'submit-authorize-url':
+            this.$refs['modifyAuthorizeUrlForm'].validate((valid) => {
+              if (!valid) {
+                return;
+              }
+              let detailList = this.newProps.authorizeUrlList.map(it => {
+                return {
+                  oauth: it.oauth,
+                  resource: it.resource
+                }
+              });
+              this.addToWaitingResponseQueue(action + '-in-dialog');
+              this.$net.oauthModifyAuthorizeList(this.selected.row.id, {
+                supportClientId: this.modifyAuthorizeUrl.accessKey,
+                detailList: detailList
+              }).then(msg => {
+                this.hideWaitingResponse(action + '-in-dialog');
+                this.selected.operation = null;
+                this.updateModelInfo('authorizeUrlList');
+                this.$message.success(msg);
+              }).catch(msg => {
+                this.hideWaitingResponse(action + '-in-dialog');
+                this.selected.operation = null;
+                this.$notify.error({
+                  title: '修改失败！',
+                  message: msg,
+                  duration: 0,
+                  onClose: function () {
+                  }
+                });
+              });
+            });
             break;
         }
       },
+      updateModelInfo(prop) {
+        switch (prop) {
+          case 'authorizeUrlList':
+            this.selected.row.detailList = this.newProps.authorizeUrlList.map(it => {
+              return it.openPopover;
+            });
+            break;
+        }
+      },
+      handlePopoverButton(action, index, item) {
+        switch (action) {
+          case 'delete-access-config':
+            this.newProps.authorizeUrlList.splice(index, 1);
+            item['openPopover'] = false;
+            break;
+          case 'cancel':
+            item['openPopover'] = false;
+            break;
+        }
+        console.log(arguments);
+      },
+
 
       /**
        * update access-key list, called at:
@@ -432,6 +574,9 @@
         if (!cb) {
           cb = function () {
           };
+        }
+        if (null == this.searchCondition.appID || null == this.searchCondition.production) {
+          return;
         }
         let page = this.currentPage - 1;
         page = page >= 0 ? page : 0;

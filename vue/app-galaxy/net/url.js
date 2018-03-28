@@ -154,6 +154,7 @@ var urlList = {
   // 授权url
   'oauth_get_authorize_url_list': apiPath + '/application/authorization/record/query',
   'oauth_get_target_app_list': apiPath + '/application/authorization/targetGroup/{id}/targetApplication',
+  'oauth_modify_authorize_url_list': apiPath + '/application/authorization/record/{id}/auth',
 
   // 工单列表
   'work_order_list': apiPath + '/workOrderDeploy/getWorkOrderDeployList',

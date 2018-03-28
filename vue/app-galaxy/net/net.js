@@ -1327,7 +1327,7 @@ class Net {
     return new Promise((resolve, reject) => {
       let url = `${URL_LIST.oauth_add_access_config}/${id}`;
       axios.put(url, options).then(response => {
-        console.log(response);
+        // console.log(response);
         let resMsg = this.getResponseMsg(response);
         if (resMsg.success) {
           resolve(resMsg.msg);
@@ -1391,6 +1391,25 @@ class Net {
         reject(err);
       })
     })
+  }
+
+  // 修改授权URL
+  oauthModifyAuthorizeList(id, options) {
+    let url = this.$utils.formatUrl(URL_LIST.oauth_modify_authorize_url_list, {id: id});
+    return new Promise((resolve, reject) => {
+      axios.put(url, options).then(response => {
+        let resMsg = this.getResponseMsg(response);
+        if (resMsg.success) {
+          resolve(resMsg.msg);
+        } else {
+          reject(resMsg.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+
   }
 
   /**
