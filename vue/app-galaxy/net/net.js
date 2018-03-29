@@ -1348,10 +1348,9 @@ class Net {
       if (it.createTime) {
         it.createTime = it.createTime.split(' ');
       }
-
       // set property enabled
       // ['REQUESTED', 'AUTHORIZED', 'INVALIDATED']
-      if (it.detailList.length === 0) {
+      if (it.detailList.length === 0 || it.status === 'REQUESTED') {
         it.enabled = null;
       } else {
         if (it.status === 'AUTHORIZED') {
@@ -1421,7 +1420,24 @@ class Net {
         reject(err);
       })
     })
+  }
 
+  // 开启/禁用授权URL
+  oauthToggleAuthorizeUrlEnable(id, options) {
+    let url = this.$utils.formatUrl(URL_LIST.oauth_authorize_url_toggle_enable, {id: id});
+    return new Promise((resolve, reject) => {
+      axios.patch(url, options).then(response => {
+        let resMsg = this.getResponseMsg(response);
+        if (resMsg.success) {
+          resolve(resMsg.msg);
+        } else {
+          reject(resMsg.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
   }
 
   /**

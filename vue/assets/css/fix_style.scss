@@ -279,6 +279,10 @@ h4 {
         background-color: #e7e7e7;
         padding: 8px 10px;
         margin-bottom: 5px;
+        .el-dialog__headerbtn {
+          top: 12px;
+          right: 10px;
+        }
       }
       .el-dialog__body {
         padding: 0px 15px;

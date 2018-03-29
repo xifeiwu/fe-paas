@@ -155,6 +155,7 @@ var urlList = {
   'oauth_get_authorize_url_list': apiPath + '/application/authorization/record/query',
   'oauth_get_target_app_list': apiPath + '/application/authorization/targetGroup/{id}/targetApplication',
   'oauth_modify_authorize_url_list': apiPath + '/application/authorization/record/{id}/auth',
+  'oauth_authorize_url_toggle_enable': apiPath + '/application/authorization/record/{id}/enableOrDisable',
 
   // 工单列表
   'work_order_list': apiPath + '/workOrderDeploy/getWorkOrderDeployList',

@@ -119,7 +119,7 @@
             <el-button
                     v-if="scope.row.enabled !== null"
                     size="mini-extral"
-                    type="danger"
+                    type="primary"
                     :loading="statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
                     @click="handleTRClick('toggle-enable', scope.$index, scope.row)">
               {{scope.row.enabled?'禁用':'开启'}}
@@ -193,7 +193,7 @@
             <el-col :span="2" class="operation" style="text-align: center">
               <el-button
                       size="mini-extral"
-                      type="warning"
+                      type="primary"
                       style="margin-bottom: 3px"
                       @click="handleDialogButton('add-authorize-url')">添加
               </el-button>
@@ -425,7 +425,6 @@
         this.selected.row = row;
         switch (action) {
           case 'open-dialog-for-modify-authorize-url':
-            console.log(row);
             this.newProps.accessKey = '';
             this.modifyAuthorizeUrl.newItem.oauth = '';
             this.modifyAuthorizeUrl.newItem.resource = '';
@@ -450,6 +449,27 @@
               this.newProps.authorizeUrlList = [];
             }
             this.selected.operation = action;
+            break;
+          case 'toggle-enable':
+//            console.log(row);
+            if (row.hasOwnProperty('enabled')) {
+              if (row.enabled === true || row.enabled === false) {
+                this.$net.oauthToggleAuthorizeUrlEnable(row.id, {
+                  enableOrDisable: !row.enabled
+                }).then(msg => {
+                  this.$message.success(msg);
+                  row.enabled = !row.enabled;
+                }).catch(msg => {
+                  this.$notify.error({
+                    title: '修改失败！',
+                    message: msg,
+                    duration: 0,
+                    onClose: function () {
+                    }
+                  });
+                });
+              }
+            }
             break;
         }
       },
