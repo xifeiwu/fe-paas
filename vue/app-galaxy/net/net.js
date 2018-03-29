@@ -1348,6 +1348,18 @@ class Net {
       if (it.createTime) {
         it.createTime = it.createTime.split(' ');
       }
+
+      // set property enabled
+      // ['REQUESTED', 'AUTHORIZED', 'INVALIDATED']
+      if (it.detailList.length === 0) {
+        it.enabled = null;
+      } else {
+        if (it.status === 'AUTHORIZED') {
+          it.enabled = true;
+        } else if (it.status === 'INVALIDATED') {
+          it.enabled = false;
+        }
+      }
     };
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.oauth_get_authorize_url_list, options).then(response => {

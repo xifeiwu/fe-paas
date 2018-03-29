@@ -100,7 +100,7 @@
                     {{item}}
                   </div>
                 </div>
-                <div class="more-access-config">更多...</div>
+                <div class="more">更多...</div>
               </el-tooltip>
             </div>
           </template>
@@ -421,10 +421,10 @@
         }
       }
     }
-    .more-access-config {
+    .more {
       &:hover {
-        cursor: pointer;
       }
+      font-size: 12px;
     }
     .el-button {
       margin: 2px 4px;

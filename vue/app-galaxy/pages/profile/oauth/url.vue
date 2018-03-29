@@ -64,7 +64,6 @@
             <div v-if="Array.isArray(scope.row.createTime)">
               <div v-for="(item, index) in scope.row.createTime" :key="index">
                 {{item}}
-
               </div>
             </div>
             <div v-else>{{scope.row.createTime}}</div>
@@ -98,7 +97,7 @@
                     {{item.oauth }} / {{ item.resource}}
                   </div>
                 </div>
-                <div class="more-access-config">更多...</div>
+                <div class="more">详情...</div>
               </el-tooltip>
             </div>
           </template>
@@ -118,11 +117,12 @@
               授权URL
             </el-button>
             <el-button
+                    v-if="scope.row.enabled !== null"
                     size="mini-extral"
                     type="danger"
                     :loading="statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
-                    @click="handleTRClick('disable', scope.$index, scope.row)">禁用
-
+                    @click="handleTRClick('toggle-enable', scope.$index, scope.row)">
+              {{scope.row.enabled?'禁用':'开启'}}
             </el-button>
           </template>
         </el-table-column>
@@ -135,7 +135,7 @@
                @close="selected.operation = null"
                v-if="selected.row"
     >
-      <el-form :model="modifyAuthorizeUrl" :rules="rulesForAuthorizeUrl" labelWidth="140px" size="mini" ref="modifyAuthorizeUrlForm">
+      <el-form :model="newProps" :rules="rulesForAuthorizeUrl" labelWidth="140px" size="mini" ref="modifyAuthorizeUrlForm">
         <el-form-item label="被访问的环境" class="profile">
           {{selected.row.envName}}
         </el-form-item>
@@ -146,7 +146,7 @@
           {{selected.row.targetApplicationName}}
         </el-form-item>
         <el-form-item label="Access Key" prop="accessKey" class="access-key">
-          <el-input v-model="modifyAuthorizeUrl.accessKey"></el-input>
+          <el-input v-model="newProps.accessKey"></el-input>
         </el-form-item>
         <el-form-item label="已有授权" class="authorize-url-list" v-if="newProps.authorizeUrlList.length>0">
           <el-row class="title">
@@ -284,6 +284,9 @@
       .el-button {
         margin: 2px 4px;
       }
+      .more {
+        font-size: 12px;
+      }
     }
   }
 </style>
@@ -329,7 +332,6 @@
           prop: null,
         },
         modifyAuthorizeUrl: {
-          accessKey: '',
           newItem: {
             oauth: '',
             resource: ''
@@ -343,6 +345,7 @@
           }],
         },
         newProps: {
+          accessKey: '',
           authorizeUrlList: []
         },
 
@@ -422,8 +425,12 @@
         this.selected.row = row;
         switch (action) {
           case 'open-dialog-for-modify-authorize-url':
+            console.log(row);
+            this.newProps.accessKey = '';
+            this.modifyAuthorizeUrl.newItem.oauth = '';
+            this.modifyAuthorizeUrl.newItem.resource = '';
             if (row.hasOwnProperty('supportClientId')) {
-              this.modifyAuthorizeUrl.accessKey = row.supportClientId;
+              this.newProps.accessKey = row.supportClientId;
             }
             if (Array.isArray(row.detailList)) {
               this.newProps.authorizeUrlList = row.detailList.map(it => {
@@ -476,7 +483,6 @@
         authorizeUrlList.some(it => {
           exist = it['oauth'] == newItem.oauth &&
             it['resource'] == newItem.resource;
-
           return exist;
         });
         if (exist) {
@@ -490,18 +496,25 @@
         }
         return isValid;
       },
-      checkIfAuthorizeUrlListChanged(origin, current) {
+      checkIfAuthorizeUrlChanged(origin, current) {
         let theSame = true;
-        if (origin.length === current.length) {
-          let index = 0;
-          origin.every((it) => {
-            let it2 = current[index];
-            index += 1;
-            theSame = it.targetGroupId == it2.targetGroupId && it.targetApplicationId == it2.targetApplicationId;
-            return theSame;
-          });
-        } else {
+        if (origin.supportClientId != current.accessKey) {
           theSame = false;
+        }
+        if (theSame) {
+          let detailList = origin.detailList;
+          let authorizeUrlList = current.authorizeUrlList;
+          if (detailList.length === authorizeUrlList.length) {
+            let index = 0;
+            detailList.every((it) => {
+              let it2 = authorizeUrlList[index];
+              index += 1;
+              theSame = it.oauth == it2.oauth && it.resource == it2.resource;
+              return theSame;
+            });
+          } else {
+            theSame = false;
+          }
         }
         return !theSame;
       },
@@ -529,6 +542,11 @@
               if (!valid) {
                 return;
               }
+              if (!this.checkIfAuthorizeUrlChanged(this.selected.row, this.newProps)) {
+                this.$message.warning('您没有修改授权URL');
+                this.selected.operation = null;
+                return;
+              }
               let detailList = this.newProps.authorizeUrlList.map(it => {
                 return {
                   oauth: it.oauth,
@@ -537,7 +555,7 @@
               });
               this.addToWaitingResponseQueue(action + '-in-dialog');
               this.$net.oauthModifyAuthorizeList(this.selected.row.id, {
-                supportClientId: this.modifyAuthorizeUrl.accessKey,
+                supportClientId: this.newProps.accessKey,
                 detailList: detailList
               }).then(msg => {
                 this.hideWaitingResponse(action + '-in-dialog');
@@ -562,6 +580,7 @@
       updateModelInfo(prop) {
         switch (prop) {
           case 'authorizeUrlList':
+            this.selected.row.supportClientId = this.newProps.accessKey;
             this.selected.row.detailList = this.newProps.authorizeUrlList.map(it => {
               return {
                 oauth: it.oauth,
@@ -584,7 +603,6 @@
         }
         console.log(arguments);
       },
-
 
       /**
        * update access-key list, called at:
