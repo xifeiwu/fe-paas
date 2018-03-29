@@ -79,9 +79,29 @@
         </el-table-column>
         <el-table-column
                 prop="requestGroupName"
-                label="授权URL"
+                label="所属权限/资源URL"
                 headerAlign="center" align="center"
         >
+          <template slot-scope="scope">
+            <div v-if="scope.row.detailList.length==0">无</div>
+            <div v-if="scope.row.detailList.length<=2">
+              <div v-for="(item, index) in scope.row.detailList">
+                {{item.oauth}} / {{item.resource}}
+              </div>
+            </div>
+            <div v-else>
+              <div>{{scope.row.detailList[0].oauth}}/{{scope.row.detailList[0].resource}}</div>
+              <div>{{scope.row.detailList[1].oauth}}/{{scope.row.detailList[1].resource}}</div>
+              <el-tooltip slot="trigger" effect="dark" placement="bottom">
+                <div slot="content">
+                  <div v-for="(item, index) in scope.row.detailList">
+                    {{item.oauth }} / {{ item.resource}}
+                  </div>
+                </div>
+                <div class="more-access-config">更多...</div>
+              </el-tooltip>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
                 prop="operation"
@@ -543,7 +563,11 @@
         switch (prop) {
           case 'authorizeUrlList':
             this.selected.row.detailList = this.newProps.authorizeUrlList.map(it => {
-              return it.openPopover;
+              return {
+                oauth: it.oauth,
+                resource: it.resource,
+                openPopover: false
+              }
             });
             break;
         }
