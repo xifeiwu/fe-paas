@@ -442,12 +442,12 @@
         switch (action) {
           case 'search':
 //            console.log(this.searchForm);
+            this.currentPage = 1;
             this.requestWorkOrderList();
             break;
           case 'refresh':
+            this.currentPage = 1;
             this.setDateRange();
-            // avoid duplicate request
-//            this.requestWorkOrderList();
             break;
           case 'linker':
             this.$router.push(params.path);

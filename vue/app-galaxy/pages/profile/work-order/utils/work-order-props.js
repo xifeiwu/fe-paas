@@ -316,6 +316,7 @@ class WorkOrderUtils {
         if (result.hasOwnProperty('userToDo')) {
           workOrderDetail.userToDo = result.userToDo;
         }
+        // 验收人
         if (result.hasOwnProperty('userAcceptedList')) {
           workOrderDetail.acceptedUserList = result.userAcceptedList.map(it => {
             return {

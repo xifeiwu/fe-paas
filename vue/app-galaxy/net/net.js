@@ -4,6 +4,7 @@
 import axios from 'axios';
 import URL_LIST from './url';
 import appInfoHelper from '../pages/profile/utils/app-props';
+const debug = browserDebug('pass:net');
 
 class Net {
   constructor() {
@@ -1456,6 +1457,7 @@ class Net {
               }
             })
           }
+          debug('%s, %o', 'getWorkOrderList', content);
           resolve(content);
           this.showLog('getWorkOrderList', content);
         } else {
@@ -1473,7 +1475,6 @@ class Net {
   getWorkOrderToDoList(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.work_order_todo_list, options).then(response => {
-        console.log(response);
         let content = this.getResponseContent(response);
         if (content) {
           if (content.hasOwnProperty('todoWorkOrderList') && Array.isArray(content.todoWorkOrderList)) {
@@ -1483,6 +1484,7 @@ class Net {
               }
             })
           }
+
           resolve(content);
           this.showLog('getWorkOrderToDoList', content);
         } else {
@@ -1554,6 +1556,7 @@ class Net {
       userAcceptedList: {
         status: {
           NO_HANDLE: '未处理',
+          REJECT: '拒绝处理',
           HANDLEING: '处理中',
           PASS: '通过'
         }
@@ -1660,7 +1663,6 @@ class Net {
   createWorkOrder(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.work_order_create, options).then(response => {
-        // console.log(response);
         let result = this.getResponseMsg(response);
         if (result.success) {
           resolve(result.msg);
@@ -1678,6 +1680,7 @@ class Net {
   modifyWorkOrder(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.work_order_modify, options).then(response => {
+        debug('%s, %o', 'modifyWorkOrder', response);
         console.log(response);
         let result = this.getResponseMsg(response);
         if (result.success) {
