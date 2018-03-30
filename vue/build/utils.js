@@ -121,7 +121,7 @@ exports.chunksAndTemplates = () => {
       "filename": "galaxy.html",
       "title": "凡普云平台",
       "cdn": {
-        "js": [],
+        "js": ['/assets/libs/debug/browser.js'],
         "css": []
       },
       "chunks": ["galaxy"],

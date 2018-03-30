@@ -10,7 +10,7 @@
 [class^="my-icon-"] {
   font-size: 24px; }
 
-.my-icon-app:before, .my-icon-domain:before, .my-icon-instance:before, .my-icon-log:before, .my-icon-logout:before, .my-icon-monitor:before, .my-icon-oauth:before, .my-icon-service:before, .my-icon-user:before, .my-icon-work-order-2:before, .my-icon-work-order:before {
+.my-icon-app:before, .my-icon-copy:before, .my-icon-domain:before, .my-icon-instance:before, .my-icon-key:before, .my-icon-log:before, .my-icon-logout:before, .my-icon-monitor:before, .my-icon-oauth:before, .my-icon-service:before, .my-icon-user:before, .my-icon-work-order:before {
   font-family: "my-icons";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -23,32 +23,35 @@
 .my-icon-app:before {
   content: ""; }
 
-.my-icon-domain:before {
+.my-icon-copy:before {
   content: ""; }
 
-.my-icon-instance:before {
+.my-icon-domain:before {
   content: ""; }
 
-.my-icon-log:before {
+.my-icon-instance:before {
   content: ""; }
 
-.my-icon-logout:before {
+.my-icon-key:before {
   content: ""; }
 
-.my-icon-monitor:before {
+.my-icon-log:before {
   content: ""; }
 
-.my-icon-oauth:before {
+.my-icon-logout:before {
   content: ""; }
 
-.my-icon-service:before {
+.my-icon-monitor:before {
   content: ""; }
 
-.my-icon-user:before {
+.my-icon-oauth:before {
   content: ""; }
 
-.my-icon-work-order-2:before {
+.my-icon-service:before {
   content: ""; }
 
-.my-icon-work-order:before {
+.my-icon-user:before {
   content: ""; }
+
+.my-icon-work-order:before {
+  content: ""; }
