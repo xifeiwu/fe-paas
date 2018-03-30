@@ -16,7 +16,7 @@
       <el-form :model="workOrderDetail" :rules="rules"
                ref="basicForm"
                size="mini"
-               label-width="120px">
+               label-width="110px">
         <el-form-item label="审批工单名称" prop="name">
           <span>{{workOrderDetail.name}}</span>
         </el-form-item>

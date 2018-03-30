@@ -13,7 +13,7 @@
     </div>
     <div class="section-body">
       <my-show-detail :workOrderDetail="workOrderDetail"></my-show-detail>
-      <el-form labelWidth="120px" size="mini" :model="handleInfo" :rules="rules" ref="handle-form">
+      <el-form labelWidth="110px" size="mini" :model="handleInfo" :rules="rules" ref="handle-form">
         <el-form-item label="审批意见" prop="comment" class="comment">
           <el-input v-model="handleInfo.comment"
                     type="textarea"

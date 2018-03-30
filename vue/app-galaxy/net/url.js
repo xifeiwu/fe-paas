@@ -182,6 +182,8 @@ var urlList = {
   // 下载测试日志
   'work_order_detail_download_test_log_post': apiPath + '/workOrderDeploy/downloadTestReport',
   'work_order_detail_download_test_log_get': apiPath + '/workOrderDeploy/downloadTestReport/{id}',
+  // 删除测试日志
+  'work_order_delete_test_log': apiPath + '/workOrderDeploy/deleteTestReport/{id}',
 
   /** 处理工单 */
   // 点击处理前的判断逻辑

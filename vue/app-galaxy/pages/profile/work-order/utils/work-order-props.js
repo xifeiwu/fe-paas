@@ -348,7 +348,8 @@ class WorkOrderUtils {
             return {
               path: it.testReportFilePath,
               name: it.testReportFileName,
-              url: it.url
+              url: it.url,
+              id: it.id
             }
           })
         } else {

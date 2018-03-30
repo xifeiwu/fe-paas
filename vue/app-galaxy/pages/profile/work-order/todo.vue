@@ -270,13 +270,11 @@
             }
             &.test-log-list {
               .test-log {
-                margin: 0px 5px;
-                font-size: 12px;
-                line-height: 1.5;
-                color: blue;
-                &:hover {
-                  cursor: pointer;
+                &:first-child {
+                  margin-top: 3px;
                 }
+                margin: 0px 5px;
+                line-height: 1.4;
                 a {
                   color: blue;
                 }
@@ -539,6 +537,12 @@
 //              this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
 //              this.$router.push('/profile/work-order/todo/test');
               WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
+                if (detail.hasOwnProperty('testLogList')) {
+                  // openPopover will be used for el-popover in work-order/todo/modify
+                  detail.testLogList.forEach(it => {
+                    it.openPopover = false;
+                  })
+                }
                 this.hideWaitingResponse(action);
                 this.$storeHelper.setTmpProp('workOrderDetail', detail);
                 this.$router.push('/profile/work-order/todo/test');

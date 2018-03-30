@@ -16,7 +16,7 @@
       <el-form :model="workOrderDetail" :rules="rules"
                ref="basicForm"
                size="mini"
-               label-width="120px">
+               label-width="110px">
         <el-form-item label="申请人：">
           {{workOrderDetail.creatorName}}
         </el-form-item>

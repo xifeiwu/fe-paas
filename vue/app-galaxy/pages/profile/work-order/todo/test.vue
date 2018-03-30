@@ -13,8 +13,8 @@
     </div>
 
     <div class="section-body">
-      <my-show-detail :workOrderDetail="workOrderDetail"></my-show-detail>
-      <el-form labelWidth="120px" size="mini" :model="handleInfo" :rules="rules" ref="handle-form">
+      <my-show-detail :workOrderDetail="workOrderDetail" :showDeleteTestLogButton="true"></my-show-detail>
+      <el-form labelWidth="110px" size="mini" :model="handleInfo" :rules="rules" ref="handle-form">
         <el-form-item label="测试类型" prop="testType" class="test-type">
           <el-select  v-model="handleInfo.testType">
             <el-option v-for="item in testTypeList" :key="item.value" :label="item.label" :value="item.value"></el-option>

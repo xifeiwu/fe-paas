@@ -57,6 +57,19 @@
       <div class="test-log"
            v-for="(item, index) in workOrderDetail.testLogList" :key="index" v-if="workOrderDetail.testLogList.length>0">
         <a :href="item.url">{{item.name}}</a>
+        <el-popover v-if="showDeleteTestLogButton"
+                width="200"
+                v-model="item.openPopover"
+                placement="right"
+                trigger="click"
+                popperClass="el-popover--small">
+          <p style="color: #fa5555">确定要删除测试报告《{{item.name}}》吗？</p>
+          <div style="text-align: right; margin: 0">
+            <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
+            <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-test-log', index, item)">确定</el-button>
+          </div>
+          <i slot="reference" class="el-icon-close" @click="handleButtonClick('delete-test-log', index, item)"></i>
+        </el-popover>
       </div>
       <span v-else>无</span>
     </el-form-item>
@@ -90,9 +103,19 @@
       }
       &.test-log-list {
         .test-log {
+          &:first-child {
+            margin-top: 3px;
+          }
           margin: 0px 5px;
+          line-height: 1.4;
           a {
             color: blue;
+          }
+          .el-icon-close {
+            margin-left: 5px;
+            &:hover{
+              font-weight: bold;
+            }
           }
         }
       }
@@ -107,13 +130,48 @@
     mounted() {
     },
     props: {
-      workOrderDetail: Object
+      workOrderDetail: Object,
+      showDeleteTestLogButton: {
+        type: Boolean,
+        default: false
+      },
     },
     data() {
       return {
       }
     },
     methods: {
+      handleButtonClick(action, index, item) {
+        switch (action) {
+          case 'delete-test-log':
+            item.openPopover = true;
+            break;
+        }
+      },
+      handlePopoverButton(action, index, item) {
+        switch (action) {
+          case 'delete-test-log':
+            item.openPopover = false;
+            if (item.hasOwnProperty('id')) {
+              this.$net.workOrderRemoveTestReport(item.id).then(msg => {
+                this.workOrderDetail.testLogList.splice(index, 1);
+                this.$message.success(msg);
+              }).catch(msg => {
+                this.$notify.error({
+                  title: '删除失败',
+                  message: msg,
+                  duration: 0,
+                  onClose: function () {
+                  }
+                });
+              })
+            }
+            break;
+          case 'cancel':
+            item.openPopover = false;
+            break;
+        }
+      },
     }
   }
 </script>

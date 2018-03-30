@@ -1677,6 +1677,29 @@ class Net {
     });
   }
 
+  /**
+   * 删除测试报告
+   * @param id, 测试报告ID
+   */
+  workOrderRemoveTestReport(id) {
+    const url = this.$utils.formatUrl(URL_LIST.work_order_delete_test_log, {id: id});
+    return new Promise((resolve, reject) => {
+      axios.get(url).then(response => {
+        debug('%s, %o', 'workOrderRemoveTestReport', response);
+        let responseMsg = this.getResponseMsg(response);
+        if (responseMsg.success) {
+          resolve(responseMsg.msg);
+        } else {
+          reject(responseMsg.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+
+  }
+
   // 创建工单
   createWorkOrder(options) {
     return new Promise((resolve, reject) => {
