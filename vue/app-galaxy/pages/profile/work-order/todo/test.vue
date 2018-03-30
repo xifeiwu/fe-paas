@@ -13,27 +13,45 @@
     </div>
 
     <div class="section-body">
-      <my-show-detail :workOrderDetail="workOrderDetail" :showDeleteTestLogButton="true"></my-show-detail>
+      <my-show-detail :workOrderDetail="workOrderDetail" :showTestLog="false"></my-show-detail>
       <el-form labelWidth="110px" size="mini" :model="handleInfo" :rules="rules" ref="handle-form">
         <el-form-item label="测试类型" prop="testType" class="test-type">
           <el-select  v-model="handleInfo.testType">
             <el-option v-for="item in testTypeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="测试报告" prop="fileList2Upload" class="test-report">
+        <el-form-item label="测试报告" class="test-log-list" prop="testLogListAll" >
+          <div class="test-log"
+               v-for="(item, index) in workOrderDetail.testLogList" :key="index" v-if="workOrderDetail.testLogList.length>0">
+            <a :href="item.url">{{item.name}}</a>
+            <el-popover width="200"
+                        v-model="item.openPopover"
+                        placement="right"
+                        trigger="click"
+                        popperClass="el-popover--small">
+              <p style="color: #fa5555">确定要删除测试报告《{{item.name}}》吗？</p>
+              <div style="text-align: right; margin: 0">
+                <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
+                <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-test-log', index, item)">确定</el-button>
+              </div>
+              <i slot="reference" class="el-icon-close" @click="handleButtonClick('delete-test-log', index, item)"></i>
+            </el-popover>
+          </div>
+          <span v-else>无</span>
           <el-upload
-                class="upload-demo"
-                ref="upload"
-                :headers="{token: this.$getUserInfo('token')}"
-                :data="{'id': this.workOrderDetail.id}"
-                :action="$url.work_order_handle_upload_test_report"
-                :auto-upload="false"
-                :beforeUpload="beforeFileUpload"
-                :onChange="onFileChange"
-                :onSuccess="afterLoadSuccess"
-                :onError="afterLoadError"
-                :multiple="true"
-                @onUploadFiles="onUploadFiles"
+                  class="upload-demo"
+                  ref="upload"
+                  :headers="{token: this.$getUserInfo('token')}"
+                  :data="{'id': this.workOrderDetail.id}"
+                  :action="$url.work_order_handle_upload_test_report"
+                  :auto-upload="false"
+                  :beforeUpload="beforeFileUpload"
+                  :onChange="onFileChange"
+                  :onRemove="onFileRemove"
+                  :onSuccess="afterLoadSuccess"
+                  :onError="afterLoadError"
+                  :multiple="true"
+                  @onUploadFiles="onUploadFiles"
           >
             <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>
             <!--<el-button style="margin-left: 10px;" type="success" size="mini-extral" @click="handleSubmitUpload">上传到服务器</el-button>-->
@@ -91,8 +109,32 @@
     .el-form {
       .el-form-item {
         margin-bottom: 6px;
-        &.test-type, &.test-report, &.comment {
+        &.test-type, &.comment {
           margin-bottom: 14px;
+        }
+        &.test-log-list {
+          margin-bottom: 14px;
+          .test-log {
+            &:first-child {
+              margin-top: 3px;
+            }
+            margin: 0px 5px;
+            line-height: 1.4;
+            a {
+              color: blue;
+            }
+            .el-icon-close {
+              margin-left: 5px;
+              &:hover{
+                font-weight: bold;
+              }
+            }
+          }
+          .el-upload-list {
+            li {
+              margin: 0px;
+            }
+          }
         }
         &.notify-user-list, &.mail-group-list{
           .el-form-item__content {
@@ -126,12 +168,11 @@
         return;
       }
       this.workOrderDetail = workOrderDetail;
-//      this.$nextTick(() => {
-//        WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
-//          this.workOrderDetail = detail;
-//        }).catch(err => {
-//        })
-//      });
+      if (workOrderDetail.hasOwnProperty('testLogList')) {
+        this.handleInfo.testLogListAll = workOrderDetail.testLogList;
+      } else {
+        this.handleInfo.testLogListAll = [];
+      }
     },
     data() {
       return {
@@ -148,7 +189,7 @@
         }],
         handleInfo: {
           testType: '',
-          fileList2Upload: [],
+          testLogListAll: [],
           comment: '',
         },
         rules: {
@@ -157,7 +198,7 @@
             message: '请选择测试类型',
             trigger: 'blur'
           }],
-          fileList2Upload: [{
+          testLogListAll: [{
             type: 'array',
             required: true,
             message: '请上传测试文件',
@@ -169,6 +210,7 @@
             trigger: 'blur'
           }],
         },
+        fileListToUpload: [],
 
         showLoading: false,
         loadingText: '',
@@ -179,12 +221,12 @@
     watch: {
       'handleInfo.testType': function (value) {
         if ('SKIP_TEST' === value) {
-          this.rules.fileList2Upload = [{
+          this.rules.testLogListAll = [{
             type: 'array',
             required: false,
           }];
         } else {
-          this.rules.fileList2Upload =[{
+          this.rules.testLogListAll =[{
             type: 'array',
             required: true,
             message: '请上传测试文件',
@@ -195,9 +237,13 @@
     },
     methods: {
       onFileChange(file, fileList) {
+        this.fileListToUpload = fileList;
+      },
+      onFileRemove(file, fileList) {
+        this.fileListToUpload = fileList;
       },
       onUploadFiles(fileList) {
-        this.handleInfo.fileList2Upload = fileList;
+        this.handleInfo.testLogListAll = this.handleInfo.testLogListAll.concat(fileList);
       },
       beforeFileUpload(file) {
 //        console.log('beforeFileUpload');
@@ -223,14 +269,14 @@
       },
       /**
        * callback of upload success
+       * uploadWorkOrder is called after all file upload success
        * @param res, not used
        * @param file, the file upload just now
        * @param uploadFiles, all files in uploadlist, including the files has been upload
        */
       afterLoadSuccess(res, file, uploadFiles) {
         this.uploadFileSuccessCount += 1;
-        if (this.uploadFileSuccessCount == this.handleInfo.fileList2Upload.length) {
-//          console.log('this.uploadWorkOrder()');
+        if (this.uploadFileSuccessCount == this.handleInfo.testLogListAll.length - this.workOrderDetail.testLogList.length) {
           this.uploadWorkOrder();
         }
       },
@@ -247,7 +293,7 @@
         }
       },
 
-      handleButtonClick(action) {
+      handleButtonClick(action, index, item) {
         switch (action) {
           case 'close':
             this.$router.go(-1);
@@ -260,13 +306,40 @@
             this.rejectHandle = true;
             this.handleSubmit();
             break;
+          case 'delete-test-log':
+            item.openPopover = true;
+            break;
+        }
+      },
+      handlePopoverButton(action, index, item) {
+        switch (action) {
+          case 'delete-test-log':
+            item.openPopover = false;
+            if (item.hasOwnProperty('id')) {
+              this.$net.workOrderRemoveTestReport(item.id).then(msg => {
+                this.workOrderDetail.testLogList.splice(index, 1);
+                this.$message.success(msg);
+              }).catch(msg => {
+                this.$notify.error({
+                  title: '删除失败',
+                  message: msg,
+                  duration: 0,
+                  onClose: function () {
+                  }
+                });
+              })
+            }
+            break;
+          case 'cancel':
+            item.openPopover = false;
+            break;
         }
       },
 
       handleSubmit(reject) {
         // change rules according to user select
         this.rules.comment[0].required = this.rejectHandle;
-        this.rules.fileList2Upload[0].required = this.handleInfo.testType != 'SKIP_TEST';
+        this.rules.testLogListAll[0].required = this.handleInfo.testType != 'SKIP_TEST';
         if (!WorkOrderPropUtils.checkComment(this.handleInfo.comment)) {
           this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
           return;
@@ -276,8 +349,10 @@
           if (valid) {
             this.showLoading = true;
             this.loadingText = '正在处理工单"' + this.workOrderDetail.name + '"';
-            if (this.handleInfo.testType === 'SKIP_TEST') {
-              this.uploadWorkOrder();
+            // submitWorkOrder directly when testType === 'SKIP_TEST' or length of fileListToUpload is zero
+            // or submitWorkOrder will be trigger after all file is upload success
+            if (this.handleInfo.testType === 'SKIP_TEST' || this.fileListToUpload.length === 0) {
+              this.submitWorkOrder();
             } else {
               this.uploadFileSuccessCount = 0;
               this.$refs.upload.submit();
@@ -286,7 +361,7 @@
         });
       },
 
-      uploadWorkOrder() {
+      submitWorkOrder() {
         let options = {
           id: this.workOrderDetail.id,
           // 处理完成 or 拒绝处理

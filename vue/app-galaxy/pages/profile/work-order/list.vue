@@ -143,7 +143,6 @@
                        v-for="(item, index) in workOrderDetail.testLogList" :key="index" v-if="workOrderDetail.testLogList.length>0">
                     <a :href="item.url">{{item.name}}</a>
                   </div>
-                  <span v-else>无</span>
                 </el-form-item>
               </el-form>
             </div>
