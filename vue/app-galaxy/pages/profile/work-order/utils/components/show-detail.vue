@@ -21,7 +21,6 @@
       <span v-if="workOrderDetail.serviceVersion">{{workOrderDetail.serviceVersion}}</span><span v-else>版本未知</span>
     </el-form-item>
     <el-form-item label="待办人">{{workOrderDetail.userToDo}}</el-form-item>
-    <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
     <el-form-item label="验收人">
       <el-table :data="workOrderDetail.acceptedUserList">
         <el-table-column label="验收人" prop="userName" headerAlign="center" align="center">

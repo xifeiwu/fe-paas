@@ -1362,7 +1362,8 @@ class Net {
     };
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.oauth_get_authorize_url_list, options).then(response => {
-        console.log(response);
+        // debug('o', response);
+        // console.log(response);
         let content = this.getResponseContent(response);
         if (content) {
           if (content.hasOwnProperty('authRecordList')) {

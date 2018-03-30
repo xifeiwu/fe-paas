@@ -22,6 +22,7 @@
         </div>
         <el-button size="mini-extral"
                    type="primary"
+                   v-if="true"
                    :loading="statusOfWaitingResponse('search')"
                    @click="handleButtonClick('search')">搜索
         </el-button>
@@ -669,8 +670,15 @@
           }
           this.showLoading = false;
           cb(true)
-        }).catch(err => {
+        }).catch(msg => {
           this.showLoading = false;
+          this.$notify.error({
+            title: '修改失败！',
+            message: msg,
+            duration: 0,
+            onClose: function () {
+            }
+          });
           cb(false)
         });
       },

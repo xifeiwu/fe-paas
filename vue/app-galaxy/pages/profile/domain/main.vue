@@ -603,6 +603,7 @@
       onProfileChangeInCreateDomainDialog(value) {
         let profileName = value;
         this.domainProps.level1InfoList = [];
+        this.domainProps.level1Name = '';
         if (this.domainProps.level1InfoListByProfile.hasOwnProperty(profileName)) {
           let level1InfoList = this.domainProps.level1InfoListByProfile[profileName];
           if (Array.isArray(level1InfoList) && level1InfoList.length > 0) {

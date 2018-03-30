@@ -103,6 +103,7 @@
           }
         }
       },
+      // give a fixed value for a type(profile, app, version)
       fixedInfo: {
         type: Object,
         default() {
@@ -177,6 +178,15 @@
       },
 
       setDefaultService(profileListWithAll) {
+        // check whether this.selectedProfileID in profileListWithAll
+        let isSelectedProfileExist = false;
+        profileListWithAll.some(it => {
+          isSelectedProfileExist = it.id == this.selectedProfileID;
+          return isSelectedProfileExist;
+        });
+        if (!isSelectedProfileExist) {
+          this.selectedProfileID = null;
+        }
         // get from localStorage first
         if (this.selectedProfileID == null) {
           let defaultProfileID = null;
