@@ -261,6 +261,8 @@
   import ElTooltip from "element-ui/packages/tooltip/src/main";
   import ElOption from "element-ui/packages/select/src/option";
   import ElInput from "element-ui/packages/input/src/input";
+  const debug = browserDebug('pass:work-roder/todo/modify');
+
   export default {
     components: {ElInput, ElOption, ElTooltip, MyFeature},
 
@@ -355,6 +357,7 @@
         }
         if (this.workOrderDetail.appID && this.workOrderDetail.serviceVersion) {
           this.$net.checkWorkOrderHandling({
+            workOrderId: this.workOrderDetail.id,
             appId: this.workOrderDetail.appID,
             serviceVersion: this.workOrderDetail.serviceVersion
           }).then((msg) => {
@@ -435,8 +438,6 @@
        */
       requestProductVersionList(appID) {
         let spaceID = null;
-//        let profileType = 'PRODUCTION';
-//        let profileInfo = this.$storeHelper.getProfileInfoByType(profileType);
         let profileInfo = this.$storeHelper.getProductionProfile();
         if (profileInfo && profileInfo.hasOwnProperty('id')) {
           spaceID = profileInfo.id;
@@ -635,10 +636,10 @@
                 this.showLoading = true;
                 this.loadingText = '正在提交工单"' + this.workOrderDetail.name + '"';
                 this.$net.modifyWorkOrder(toPost).then((msg) => {
-                  this.$alert('工单"' + this.workOrderDetail.name +'"提交成功，即将进入工单列表页', '修改工单成功', {
+                  this.$alert('工单"' + this.workOrderDetail.name +'"提交成功，即将进入待办工单页', '修改工单成功', {
                     confirmButtonText: '确定',
                     callback: () => {
-                      this.$router.push('/profile/work-order/list');
+                      this.$router.push('/profile/work-order/todo');
                     }
                   });
                   this.showLoading = false;

@@ -153,6 +153,12 @@
                         v-for="(item, index) in workOrderDetail.testLogList" :key="index" v-if="workOrderDetail.testLogList.length>0">
                     <a :href="item.url">{{item.name}}</a>
                   </div>
+                  <!--<div class="test-log" v-if="workOrderDetail.testLogList.length>0"-->
+                       <!--v-for="(item, index) in workOrderDetail.testLogList" :key="index"-->
+                       <!--@click="handleDownload(item.path, item.name)"-->
+                  <!--&gt;-->
+                      <!--{{item.name}}-->
+                  <!--</div>-->
                   <span v-else>无</span>
                 </el-form-item>
               </el-form>
@@ -265,6 +271,12 @@
             &.test-log-list {
               .test-log {
                 margin: 0px 5px;
+                font-size: 12px;
+                line-height: 1.5;
+                color: blue;
+                &:hover {
+                  cursor: pointer;
+                }
                 a {
                   color: blue;
                 }
@@ -603,6 +615,13 @@
         this.currentPage = page;
       },
 
+      // used to download file in http post protocol
+      // TODO: not used
+      handleDownload(path, name) {
+        this.$net.workOrderPostDownloadTestReport({
+          path, name
+        });
+      },
       /**
        * called at
        * 1. at the change of searchForm.dateRange

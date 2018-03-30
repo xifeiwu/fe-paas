@@ -179,6 +179,9 @@ var urlList = {
   'work_order_detail_email_group': apiPath + '/emailGroup/getWorkOrderDeployEmailGroup',
   // 测试日志
   'work_order_detail_test_log_list': apiPath + '/workOrderDeploy/queryWorkOrderDeployTestReport',
+  // 下载测试日志
+  'work_order_detail_download_test_log_post': apiPath + '/workOrderDeploy/downloadTestReport',
+  'work_order_detail_download_test_log_get': apiPath + '/workOrderDeploy/downloadTestReport/{id}',
 
   /** 处理工单 */
   // 点击处理前的判断逻辑

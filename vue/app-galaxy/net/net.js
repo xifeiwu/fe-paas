@@ -1638,8 +1638,11 @@ class Net {
           if (testLogList.hasOwnProperty('workOrderDeployTestReport')) {
             testLogList = testLogList.workOrderDeployTestReport;
             testLogList.forEach(it => {
-              it.url = URL_LIST.api_path + it.testReportFilePath + '/' + it.testReportFileName;
+              it.url = encodeURI(this.$utils.formatUrl(URL_LIST.work_order_detail_download_test_log_get, {
+                id: it.id
+              }));
             });
+            debug('%s, %o', 'getWorkOrderDetail', testLogList);
           }
 
           let results = {
@@ -1657,6 +1660,21 @@ class Net {
           reject(err);
       })
     })
+  }
+
+  /**
+   * TODO: not used
+   * 下载工单测试报告-通过POST方法
+   */
+  workOrderPostDownloadTestReport(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.work_order_detail_download_test_log_post, options).then(response => {
+        debug('%s, %o', 'workOrderDownloadTestReport', response);
+      }).catch(err => {
+        console.log(err);
+        reject('创建工单失败！');
+      })
+    });
   }
 
   // 创建工单

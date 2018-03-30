@@ -346,6 +346,7 @@ class WorkOrderUtils {
         if (result.hasOwnProperty('testLogList') && Array.isArray(result.testLogList)) {
           workOrderDetail.testLogList = result.testLogList.map(it => {
             return {
+              path: it.testReportFilePath,
               name: it.testReportFileName,
               url: it.url
             }

@@ -232,7 +232,7 @@
         }
         // change rules according to user select
         this.rules.comment[0].required = reject;
-        this.$refs.hasOwnProperty('handle-form')  && this.$refs['handle-form'].validate(valid => {
+        this.$refs.hasOwnProperty('handle-form') && this.$refs['handle-form'].validate(valid => {
           if (valid) {
             this.showLoading = true;
             this.loadingText = '正在处理工单"' + this.workOrderDetail.name + '"';
@@ -245,12 +245,12 @@
 //            console.log(options);
             this.$net.handleWorkOrder(options).then(msg => {
 //              console.log(msg);
-              this.$alert('点击确定，将进入工单列表页', msg, {
+              this.$alert('处理完成。点击确定，进入待办工单页', msg, {
                 confirmButtonText: '确定',
                 callback: (action) => {
                   // value of action: confirm, cancel
 //                  if ('confirm' === action) {
-                    this.$router.push('/profile/work-order/list');
+                    this.$router.push('/profile/work-order/todo');
 //                  }
                 }
               });
