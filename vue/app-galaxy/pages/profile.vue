@@ -155,7 +155,6 @@
             margin: 8px 0px;
             line-height: 40px;
             &.is-active {
-              /*font-size: 16px;*/
               background-color: #409EFF;
               color: white;
               border-radius: 0px;

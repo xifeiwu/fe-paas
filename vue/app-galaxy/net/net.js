@@ -195,13 +195,16 @@ class Net {
           }
         });
 
-        let menuToIgnore = ["应用监控", "Oauth权限"];
-        // let menuToIgnore = ["应用监控"];
+        // let menuToIgnore = ["应用监控", "Oauth权限"];
+        let menuToIgnore = ["应用监控"];
         oneLevelMenu = oneLevelMenu.filter(it => {
           return menuToIgnore.indexOf(it.name) === -1;
         }).map(it => {
           if (it.name === 'Oauth权限') {
             it.name = 'Access Key管理';
+          }
+          if (it.hasOwnProperty('children')) {
+            delete it.children;
           }
           return it;
         });

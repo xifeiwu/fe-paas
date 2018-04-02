@@ -39,6 +39,7 @@ import WorkOrderTest from './profile/work-order/todo/test.vue';
 
 import User from './user.vue';
 import UserInfo from './user/info.vue';
+import UserOperaion from './user/operation.vue';
 
 /**
  * router config:
@@ -187,6 +188,10 @@ var Router = function () {
         path: 'info',
         name: '用户信息',
         component: UserInfo,
+      }, {
+        path: 'operation',
+        name: '操作记录',
+        component: UserOperaion
       }]
     }
   }

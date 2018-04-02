@@ -19,7 +19,7 @@
       </el-menu>
     </el-header>
     <el-container class="inner-container">
-      <el-aside width="0px">
+      <el-aside width="180px">
         <el-menu
                 class="el-menu-vertical-demo"
                 @open="handleOpen"
@@ -82,9 +82,7 @@
   .el-menu {
     .el-menu-item {
       &.is-active {
-        font-weight: bold;
-        /*cursor: no-drop;*/
-        font-weight: bold;
+        /*font-weight: bold;*/
       }
     }
   }
@@ -142,15 +140,19 @@
           margin-right: 5px;
         }
         .el-menu {
+          margin-top: 10px;
           border-width: 0px;
           .el-menu-item {
             font-size: 15px;
+            height: 40px;
+            margin: 8px 0px;
+            line-height: 40px;
             &.is-active {
-              /*color: black;*/
-              color: #409EFF;
-              font-size: 16px;
+              background-color: #409EFF;
+              color: white;
+              border-radius: 0px;
               [class^="my-icon-"] {
-                font-size: 15px;
+                /*font-size: 15px;*/
               }
             }
           }
@@ -221,7 +223,17 @@
     },
     computed: {
       menuList() {
-        return this.$store.getters['user/menuList']
+        return [{
+          "id": 1,
+          "name": "用户信息",
+          "router": "/user/info",
+          "icon": "my-icon-user"
+        }, {
+          "id": 2,
+          "name": "操作记录",
+          "router": "/user/operation",
+          "icon": "my-icon-log"
+        }]
       },
       routerPathToName() {
         return routeUtils.getRouterPathToName();
@@ -245,8 +257,6 @@
        */
       handleHeaderMenuClick(key, keyPath) {
         keyPath = keyPath.join('/');
-//        console.log(key, keyPath);
-//        console.log(`go to ${keyPath}`);
         switch (keyPath) {
           case 'user/info':
             this.$router.push('/user/info');
@@ -269,13 +279,11 @@
               });
             });
             break;
-          case 'message':
+          case 'user/operation':
+            this.$router.push('/user/operation');
             break;
           case 'profile':
             this.$router.push('/profile');
-            break;
-          case 'index':
-            this.$router.push('/index');
             break;
         }
       },
@@ -302,10 +310,10 @@
        */
       updateCrumbList(path) {
         // url中只能包括：\w(字母或数字、下划线、汉字)或中划线
-        let pathReg = /^\/profile\/([\w-\/]*)$/i;
+        let pathReg = /^\/user\/([\w-\/]*)$/i;
         let execResult = pathReg.exec(path);
         if (execResult && execResult.length >= 2) {
-          let curPath = '/profile/';
+          let curPath = '/user/';
           this.crumbList = [];
           execResult[1].split('/').forEach((it, index) => {
             let path = curPath + it;
