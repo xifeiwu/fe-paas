@@ -291,11 +291,16 @@
               });
               this.selected.operation = null;
             } else {
-              this.addToWaitingResponseQueue('update');
+              let description = this.selected.row.description;
               if (!this.checkIPFormat(this.selected.row.ip)) {
                 this.$message.error('ip格式不正确');
                 return;
               }
+              if (!description || description.length === 0) {
+                this.$message.error('请填写说明');
+                return;
+              }
+              this.addToWaitingResponseQueue('update');
               this.$net.updateWhiteIP({
                 internetDomainId: this.paramsInQueryString.id,
                 description: this.selected.row.description,
@@ -311,7 +316,7 @@
                     return true;
                   }
                   return false;
-                })
+                });
                 this.selected.operation = null;
               }).catch(msg => {
                 this.hideWaitingResponse('update');

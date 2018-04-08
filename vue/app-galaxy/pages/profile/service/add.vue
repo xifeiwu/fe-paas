@@ -333,7 +333,6 @@
           appId: null,
           spaceId: null,
           serviceVersion: '',
-          imageLocation: '',
           gitLabAddress: '',
           gitLabBranch: '',
           relativePathOfParentPOM: '',
@@ -345,6 +344,7 @@
           hosts: [],
           instanceCount: 1,
           customImage: false,
+          imageLocation: '',
           // value of autoImage
           autoImageValue: '',
           // value of customImage
