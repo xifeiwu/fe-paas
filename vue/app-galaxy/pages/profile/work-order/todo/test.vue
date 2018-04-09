@@ -243,7 +243,7 @@
         this.fileListToUpload = fileList;
       },
       onUploadFiles(fileList) {
-        this.handleInfo.testLogListAll = this.handleInfo.testLogListAll.concat(fileList);
+        this.handleInfo.testLogListAll = this.workOrderDetail.testLogList.concat(fileList);
       },
       beforeFileUpload(file) {
 //        console.log('beforeFileUpload');
@@ -276,8 +276,11 @@
        */
       afterLoadSuccess(res, file, uploadFiles) {
         this.uploadFileSuccessCount += 1;
+//        console.log(this.handleInfo.testLogListAll);
+//        console.log(this.workOrderDetail.testLogList);
+//        console.log(this.uploadFileSuccessCount);
         if (this.uploadFileSuccessCount == this.handleInfo.testLogListAll.length - this.workOrderDetail.testLogList.length) {
-          this.uploadWorkOrder();
+          this.submitWorkOrder();
         }
       },
       afterLoadError(err, file, uploadFiles) {
@@ -349,7 +352,7 @@
           if (valid) {
             this.showLoading = true;
             this.loadingText = '正在处理工单"' + this.workOrderDetail.name + '"';
-            // submitWorkOrder directly when testType === 'SKIP_TEST' or length of fileListToUpload is zero
+            // submitWorkOrder directly when testType === 'SKIP_TEST' or length of fileListToUpload is zero,
             // or submitWorkOrder will be trigger after all file is upload success
             if (this.handleInfo.testType === 'SKIP_TEST' || this.fileListToUpload.length === 0) {
               this.submitWorkOrder();
@@ -371,7 +374,7 @@
           remark: this.handleInfo.comment
         };
         this.$net.handleWorkOrder(options).then(msg => {
-          console.log(msg);
+//          console.log(msg);
           this.$alert('即将进入待办工单列表页', msg, {
             confirmButtonText: '确定',
             callback: () => {
@@ -381,8 +384,8 @@
           this.showLoading = false;
           this.loadingText = '';
         }).catch(msg => {
-          console.log(msg);
-          this.$alert('请与管理员联系，即将进入待办工单列表页', msg, {
+//          console.log(msg);
+          this.$alert('提交失败，请与管理员联系。点击"确定"按钮进入待办工单列表页', msg, {
             confirmButtonText: '确定',
             callback: () => {
               this.$router.push('/profile/work-order/todo');
