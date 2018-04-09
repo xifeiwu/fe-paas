@@ -3,6 +3,7 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
+const curWorkDir = process.cwd();
 
 module.exports = {
   dev: {
@@ -48,7 +49,7 @@ module.exports = {
     // index: path.resolve(__dirname, '../dist/index.html'),
 
     // Paths
-    assetsRoot: path.resolve(__dirname, '../../dist'),
+    assetsRoot: path.resolve(curWorkDir, 'dist'),
     assetsSubDirectory: 'assets',
     assetsPublicPath: './',
 

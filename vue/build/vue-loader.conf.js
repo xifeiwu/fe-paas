@@ -9,13 +9,8 @@ const sourceMapEnabled = isProduction
   ? config.build.productionSourceMap
   : config.dev.cssSourceMap
 
-// const extractSass = new ExtractTextPlugin({
-//   filename: "css/[name].[contenthash].css",
-//   disable: process.env.NODE_ENV !== "production"
-// });
-
 module.exports = {
-  vueLoaderConfig: {
+  cssLoaderConfig: {
     loaders: utils.cssLoaders({
       sourceMap: sourceMapEnabled,
       extract: isProduction

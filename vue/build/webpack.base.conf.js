@@ -3,7 +3,7 @@ const path = require('path')
 const utils = require('./utils')
 const config = require('./config')
 const customLoader = require('./vue-loader.conf')
-// const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 // const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
@@ -23,10 +23,72 @@ const createLintingRule = () => ({
 })
 
 // chunksAndTemplates is used to config bundle-js and html
-let chunksAndTemplates = utils.chunksAndTemplates();
+const chunksAndTemplates = (() => {
+  let vueBaseDir = utils.contextPath();
+
+  let entries = {
+    'galaxy': path.resolve(vueBaseDir, 'app-galaxy/entry.js'),
+    'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),
+  };
+  let htmlConfigs = [
+    {
+      "filename": "galaxy.html",
+      "title": "凡普云平台",
+      "cdn": {
+        "js": ['/assets/libs/debug/browser.js'],
+        "css": []
+      },
+      "chunks": ["galaxy"],
+    },
+    {
+      "filename": "terminal.html",
+      "title": "实例终端",
+      "cdn": {
+        "js": ['/assets/libs/gateone.js'],
+        "css": []
+      },
+      "chunks": ["terminal"],
+    }
+  ];
+
+  if (process.env.NODE_ENV !== 'production') {
+    entries['element'] = path.resolve(vueBaseDir, 'app-test/element.js');
+    entries['custom'] = path.resolve(vueBaseDir, 'app-test/custom.js');
+    htmlConfigs.push({
+      "filename": "element.html",
+      "title": "element-ui-demo",
+      "cdn": {
+        "js": [],
+        "css": []
+      },
+      "chunks": ["element"],
+    });
+    htmlConfigs.push({
+      "filename": "custom.html",
+      "title": "custom-component-demo",
+      "cdn": {
+        "js": [],
+        "css": []
+      },
+      "chunks": ["custom"],
+    })
+  }
+
+  let templates = htmlConfigs.map(it => {
+    it.chunks = ["vendor", "manifest"].concat(it.chunks);
+    if (!it.hasOwnProperty('template')) {
+      it.template = path.join(__dirname, 'config/index.tpl');
+    }
+    it.inject = true;
+    it.chunksSortMode = 'dependency';
+    return new HtmlWebpackPlugin(it);
+  });
+
+  return {entries, templates}
+})();
 
 var baseConfig = {
-  context: path.resolve(__dirname, '../'),
+  context: utils.contextPath(),
   entry: chunksAndTemplates.entries,
   output: {
     path: config.build.assetsRoot,
@@ -41,7 +103,6 @@ var baseConfig = {
       'element-ui': utils.contextPath() + '/element-ui',
       'components': utils.contextPath() + '/components',
       'assets': utils.contextPath() + '/assets',
-      // 'utils': utils.contextPath() + 'element-ui/src',
     }
   },
   module: {
@@ -50,16 +111,13 @@ var baseConfig = {
       {
         test: /\.vue$/,
         loader: 'vue-loader',
-        options: customLoader.vueLoaderConfig
+        options: customLoader.cssLoaderConfig
       },
       {
         test: /\.js$/,
-        // loader: 'babel-loader',
-        // exclude: /node_modules|bower_components/,
-        include: process.cwd(),
+        include: utils.contextPath(),
         exclude: /node_modules|bower_components/,
         loaders: ['babel-loader']
-        // exclude: /node_modules/
         // include: [resolve('app-galaxy'), resolve('app-text'), resolve("packages"), resolve('src'),
         //   resolve('node_modules/webpack-dev-server/client')]
       },

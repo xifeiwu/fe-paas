@@ -3,7 +3,6 @@ const path = require('path')
 const config = require('./config')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const packageConfig = require('../package.json')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 exports.assetsPath = function (_path) {
   const assetsSubDirectory = process.env.NODE_ENV === 'production'
@@ -15,10 +14,6 @@ exports.assetsPath = function (_path) {
 
 exports.contextPath = function() {
   return path.resolve(__dirname, '../');
-};
-
-exports.htmlTemplatePath = function () {
-  return path.join(__dirname, 'config/index.tpl');
 };
 
 exports.cssLoaders = function (options) {
@@ -109,92 +104,5 @@ exports.createNotifierCallback = () => {
   }
 }
 
-exports.chunksAndTemplates = () => {
-  let vueBaseDir = exports.contextPath();
-
-  let entries = {
-    'galaxy': path.resolve(vueBaseDir, 'app-galaxy/entry.js'),
-    'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),
-  };
-  let htmlConfigs = [
-    {
-      "filename": "galaxy.html",
-      "title": "凡普云平台",
-      "cdn": {
-        "js": ['/assets/libs/debug/browser.js'],
-        "css": []
-      },
-      "chunks": ["galaxy"],
-    },
-    {
-      "filename": "terminal.html",
-      "title": "实例终端",
-      "cdn": {
-        "js": ['/assets/libs/gateone.js'],
-        "css": []
-      },
-      "chunks": ["terminal"],
-    }
-  ];
-
-  if (process.env.NODE_ENV !== 'production') {
-    entries['element'] = path.resolve(vueBaseDir, 'app-test/element.js');
-    entries['custom'] = path.resolve(vueBaseDir, 'app-test/custom.js');
-    htmlConfigs.push({
-      "filename": "element.html",
-      "title": "element-ui-demo",
-      "cdn": {
-        "js": [],
-        "css": []
-      },
-      "chunks": ["element"],
-    });
-    htmlConfigs.push({
-      "filename": "custom.html",
-      "title": "custom-component-demo",
-      "cdn": {
-        "js": [],
-        "css": []
-      },
-      "chunks": ["custom"],
-    })
-  }
-
-  let templates = htmlConfigs.map(it => {
-    it.chunks = ["vendor", "manifest"].concat(it.chunks);
-    if (!it.hasOwnProperty('template')) {
-      it.template = exports.htmlTemplatePath();
-    }
-    it.inject = true;
-    it.chunksSortMode = 'dependency';
-    return new HtmlWebpackPlugin(it);
-    /**
-      // generate dist index.html with correct asset hash for caching.
-      // you can customize output by editing /index.html
-      // see https://github.com/ampedandwired/html-webpack-plugin
-      new HtmlWebpackPlugin({
-        filename: 'index.html',
-        template: utils.htmlTemplatePath(),
-        inject: true,
-        // minify: {
-        //   removeComments: true,
-        //   collapseWhitespace: true,
-        //   removeAttributeQuotes: true
-        //   // more options:
-        //   // https://github.com/kangax/html-minifier#options-quick-reference
-        // },
-        // necessary to consistently work with multiple chunks via CommonsChunkPlugin
-        chunksSortMode: 'dependency',
-        chunks: ['manifest', 'vendor', 'app'],
-        cdn: {
-          css: [],
-          js: ['./assets/libs/gateone.js']
-        }
-      })
-     */
-  });
-
-  return {entries, templates}
-};
 
 
