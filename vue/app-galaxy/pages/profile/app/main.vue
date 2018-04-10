@@ -53,6 +53,7 @@
             <i class="el-icon-edit" @click="handleTRButton('change-appName', scope.$index, scope.row)"></i>
           </template>
         </el-table-column>
+        <el-table-column label="项目名称" prop="tag" headerAlign="center" align="center"></el-table-column>
         <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="140">
         </el-table-column>
         <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="180">
@@ -135,7 +136,8 @@
         </el-form-item>
         <el-form-item label="更改为：" prop="profileNames">
           <el-checkbox-group v-model="newProps.profileNames" @change="handleCheckboxChangeForProfileNames">
-            <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
+            <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name"
+                         :disabled="item.description == '生产环境'">
               {{item.description}}
             </el-checkbox>
           </el-checkbox-group>

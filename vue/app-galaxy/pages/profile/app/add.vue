@@ -20,7 +20,8 @@
       </el-form-item>
       <el-form-item label="运行环境" prop="profiles" class="profiles">
         <el-checkbox-group v-model="createAppForm.profiles">
-          <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name">
+          <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name"
+                       :disabled="item.description == '生产环境'">
             {{item.description}}
           </el-checkbox>
         </el-checkbox-group>
