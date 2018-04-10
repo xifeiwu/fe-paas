@@ -935,6 +935,23 @@ class Net {
       })
     })
   }
+  // 更改实例数量
+  instanceChangeCount(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.instance_change_count, options).then(response => {
+        // let content = this.getResponseContent(response);
+        let responseMsg = this.getResponseMsg(response);
+        if (responseMsg.success) {
+          resolve(responseMsg.msg);
+        } else {
+          reject(responseMsg.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+        reject('网络请求失败！');
+      })
+    })
+  }
 
   // 获取一级域名列表
   // TODO: not used

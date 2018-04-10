@@ -5,7 +5,12 @@
         <el-button v-if="true"
                    size="mini-extral"
                    type="primary"
-                   @click="handleButtonClick('refresh')">刷新</el-button></el-col>
+                   @click="handleButtonClick('refresh')">刷新</el-button>
+        <el-button v-if="true"
+                   size="mini-extral"
+                   type="primary"
+                   @click="handleButtonClick('manual-scale')">手动伸缩</el-button>
+      </el-col>
       <el-col :span="20">
         <my-version-selector :customConfig="localConfig" ref="version-selector"
                              @version-selected="onVersionSelected"></my-version-selector>
@@ -13,7 +18,7 @@
     </el-row>
     <div class="section-content">
       <el-table
-              :data="currentInstanceList"
+              :data="instanceStatus.instanceList"
               style="width: 100%"
               v-loading="showLoading"
               element-loading-text="加载中"
@@ -61,9 +66,47 @@
         </el-table-column>
       </el-table>
     </div>
+
+    <el-dialog title="手动伸缩" :visible="operation == 'manual-scale'"
+               :close-on-click-modal="false"
+               @close="operation = null"
+               class="manual-scale size-500"
+    >
+      <el-form labelWidth="120px" size="mini">
+        <el-form-item label="当前实例数：">
+          <div>{{instanceStatus.instanceCount}}个</div>
+        </el-form-item>
+        <el-form-item label="调整实例数为：" :error="manualScale.error">
+          <el-input-number v-model="manualScale.newCount" :min="1" size="mini"></el-input-number>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('manualScale')"
+                       :loading="statusOfWaitingResponse('ok-button-in-dialog-manual-scale')">确&nbsp定</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button @click="operation = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
+<style lang="scss">
+  .el-dialog__wrapper {
+    &.manual-scale {
+      .el-form-item {
+        &:first-child {
+          margin-bottom: 5px;
+        }
+      }
+    }
+  }
+</style>
 <style lang="scss" scoped>
   #instance-main {
     .el-row.header {
@@ -85,10 +128,9 @@
 <script>
   import appPropUtils from '../utils/app-props';
   import MyVersionSelector from '../utils/components/version-selector';
-  import ElCol from "element-ui/packages/col/src/col";
 
   export default {
-    components: {ElCol, MyVersionSelector},
+    components: {MyVersionSelector},
 
     /**
      * the sequence of create and mount in parent and child element is:
@@ -110,7 +152,8 @@
       return {
         localConfig: null,
         showLoading: false,
-//        currentInstanceList: [{
+        queueForWaitingResponse: [],
+//        instanceStatus.instanceList: [{
 //          createTime: "2018-01-11 20:39:09",
 //          health: null,
 //          instanceName: "v3-puhui-notification-3270010048-3xp1s",
@@ -119,15 +162,39 @@
 //          status:"运行中",
 //          version: "puhui-notification:2018-01-11-20-38-12"
 //        }],
-        currentInstanceList: [],
+        instanceStatus: {
+          instanceCount: null,
+          instanceList: []
+        },
+        operation: null,
+        manualScale: {
+          newCount: null,
+          error: ''
+        }
       }
     },
     watch: {
     },
     methods: {
+      // helper for loading action of el-button
+      addToWaitingResponseQueue(action) {
+        if (this.queueForWaitingResponse.indexOf(action) === -1) {
+          this.queueForWaitingResponse.push(action);
+        }
+      },
+      statusOfWaitingResponse(action) {
+        return this.queueForWaitingResponse.indexOf(action) > -1;
+      },
+      hideWaitingResponse(action) {
+        let index = this.queueForWaitingResponse.indexOf(action);
+        if (index > -1) {
+          this.queueForWaitingResponse.splice(index, 1);
+        }
+      },
+
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
 //        console.log(appInfo, profileID, serviceInfo);
-        this.currentInstanceList = [];
+        this.instanceStatus.instanceList = [];
         if (!appInfo || !profileInfo || !serviceInfo) {
           return;
         }
@@ -154,7 +221,14 @@
         }).then(content => {
 //          console.log(content);
           if (content.hasOwnProperty('instanceList')) {
-            this.currentInstanceList = content['instanceList'];
+            if (Array.isArray(content['instanceList'])) {
+              this.instanceStatus.instanceList = content['instanceList'];
+            } else {
+              this.instanceStatus.instanceList = [];
+            }
+          }
+          if (content.hasOwnProperty('instanceNum')) {
+            this.instanceStatus.instanceCount = content['instanceNum'];
           }
           this.showLoading = false;
         }).catch(err => {
@@ -167,16 +241,71 @@
         });
       },
 
+      checkVersionSelector() {
+        let serviceInfo = this.$refs['version-selector'].getSelectedValue();
+        if (!serviceInfo.selectedService || !serviceInfo.selectedService.hasOwnProperty('serviceVersion')) {
+          this.$message.error('请选择服务版本！');
+          return null;
+        }
+        return serviceInfo;
+      },
+
       handleButtonClick(action) {
+        let serviceInfo = this.checkVersionSelector();
+        if (!serviceInfo) {
+          return;
+        }
         switch (action) {
           case 'refresh':
-            let serviceInfo = this.$refs['version-selector'].getSelectedValue();
             let params = [
               serviceInfo.selectedAPP.appId,
               serviceInfo.selectedProfile.id,
               serviceInfo.selectedService.serviceVersion
             ];
             this.requestInstanceList.apply(this, params);
+            break;
+          case 'manual-scale':
+            this.manualScale.newCount = this.instanceStatus.instanceCount;
+            this.operation = 'manual-scale';
+            break;
+        }
+      },
+      // 处理dialog中的事件
+      handleDialogButtonClick(action) {
+        let serviceInfo = this.checkVersionSelector();
+        if (!serviceInfo) {
+          return;
+        }
+        switch (action) {
+          case 'manualScale':
+            if (this.manualScale.newCount === this.instanceStatus.instanceCount) {
+              this.$message.warning('您没有做修改');
+              setTimeout(() => {
+                this.operation = null;
+              }, 800);
+              return;
+            }
+            this.addToWaitingResponseQueue('ok-button-in-dialog-manual-scale');
+            let options = {
+              spaceId: serviceInfo.selectedProfile.id,
+              appId: serviceInfo.selectedAPP.appId,
+              id: serviceInfo.selectedService.id,
+              instanceNum: this.manualScale.newCount
+            };
+            this.$net.instanceChangeCount(options).then(msg => {
+              this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
+              this.operation = null;
+            }).catch(msg => {
+              this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
+              this.operation = null;
+              this.$notify.error({
+                title: '修改失败！',
+                message: msg,
+                duration: 0,
+                onClose: function () {
+                }
+              });
+            });
             break;
         }
       },

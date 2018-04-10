@@ -1927,7 +1927,7 @@ export default {
         }
       }).catch(err => {
         this.showLoading = false;
-        this.$notify({
+        this.$notify.error({
           title: '提示',
           message: err,
           duration: 0,

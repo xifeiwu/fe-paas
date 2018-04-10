@@ -106,6 +106,8 @@ var urlList = {
   /** 实例相关*/
   // 获取实例列表
   'instance_list': apiPath + '/service/queryInstance',
+  // 更改实例数量
+  'instance_change_count': apiPath + '/service/instances/update',
 
   /** 域名相关 */
   // 获取一级域名
