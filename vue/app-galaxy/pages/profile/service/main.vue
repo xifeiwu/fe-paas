@@ -173,17 +173,26 @@
                     <i class="el-icon-edit" @click="handleChangeProp('image')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab_ssh地址：">
-                    <span>{{valueToShow(selected.service.gitLabAddress)}}</span>
+                    <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
+                      {{valueToShow(selected.service.gitLabAddress)}}
+                    </div>
                     <i class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab分支：">
-                    {{valueToShow(selected.service.gitLabBranch)}}<i class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
+                    <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
+                      {{valueToShow(selected.service.gitLabBranch)}}
+                    </div>
+                    <i class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
                   </el-form-item>
                   <el-form-item label="Gitlab父级pom.xml相对路径：" v-if="selectedAPP.isJavaLanguage" class="relativePathOfParentPOM">
-                    {{valueToShow(selected.service.relativePath)}}
+                    <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
+                      {{valueToShow(selected.service.relativePath)}}
+                     </div>
                   </el-form-item>
                   <el-form-item label="Maven profile id：" v-if="selectedAPP.isJavaLanguage">
-                    <span>{{valueToShow(selected.service.mavenProfileId)}}</span>
+                    <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
+                      {{valueToShow(selected.service.mavenProfileId)}}
+                    </div>
                     <i class="el-icon-edit" @click="handleChangeProp('mavenProfileId')"></i>
                   </el-form-item>
                 </el-form>
@@ -239,8 +248,12 @@
                               v-for="(item, index) in selected.service.environments"
                               :key="item.key"
                       >
-                        <el-col :span="10" style="text-align: center">{{item.key}}</el-col>
-                        <el-col :span="10" style="text-align: center">{{item.value}}</el-col>
+                        <el-col :span="10" style="text-align: center">
+                          <div class="expand-to-next-line">{{item.key}}</div>
+                        </el-col>
+                        <el-col :span="10" style="text-align: center">
+                          <div class="expand-to-next-line">{{item.value}}</div>
+                        </el-col>
                       </el-row>
                     </div>
                     <div v-else>
@@ -291,7 +304,7 @@
       </el-tag>
       <el-form :model="newProps" :rules="rules" size="mini" labelWidth="150px" ref="changeHealthCheckForm">
         <el-form-item label="当前健康检查：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-          {{selected.model.healthCheck}}
+          <div class="expand-to-next-line">{{selected.model.healthCheck}}</div>
         </el-form-item>
         <el-form-item label="更改健康检查为：" prop="healthCheck" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
           <el-input v-model="newProps.healthCheck" placeholder="以/开头，可以包含字母数字下划线中划线，2-50位"></el-input>
@@ -402,8 +415,8 @@
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeGitLabAddressForm" size="mini">
         <el-form-item label="当前gitlab_ssh地址：">
-          {{selected.model.gitLabAddress}}
-          </el-form-item>
+          <div class="expand-to-next-line">{{selected.model.gitLabAddress}}</div>
+        </el-form-item>
         <el-form-item label="更改gitlab_ssh地址为：" prop="gitLabAddress">
           <el-input v-model="newProps.gitLabAddress" placeholder="请输入项目的gitLab地址，不能超过256个字符"></el-input>
         </el-form-item>
@@ -435,8 +448,8 @@
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeGitLabBranchForm" size="mini">
         <el-form-item label="当前gitlab分支：">
-          {{selected.model.gitLabBranch}}
-          </el-form-item>
+          <div class="expand-to-next-line">{{selected.model.gitLabBranch}}</div>
+         </el-form-item>
         <el-form-item label="更改gitlab分支为：" prop="gitLabBranch">
           <el-input v-model="newProps.gitLabBranch" placeholder="请输入gitLab分支名，不能超过100个字符"></el-input>
         </el-form-item>
@@ -468,8 +481,8 @@
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="changeMavenProfileIdForm" size="mini">
         <el-form-item label="当前maven profile id：">
-          {{selected.model.mavenProfileId}}
-          </el-form-item>
+          <div class="expand-to-next-line">{{selected.model.mavenProfileId}}</div>
+        </el-form-item>
         <el-form-item label="更改maven profile id：" prop="mavenProfileId">
           <el-input v-model="newProps.mavenProfileId" placeholder="不能超过100个字符"></el-input>
         </el-form-item>
@@ -830,7 +843,7 @@
               .el-form {
                 .el-form-item {
                   width: 50%;
-                  &:first-child {
+                  &:nth-child(1), &:nth-child(4){
                     width: 100%;
                   }
                 }
