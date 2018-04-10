@@ -21,7 +21,7 @@
           {{workOrderDetail.creatorName}}
         </el-form-item>
         <el-form-item label="审批工单名称" prop="name">
-          <el-input v-model="workOrderDetail.name" placeholder="200字符内"></el-input>
+          <el-input v-model="workOrderDetail.name" placeholder="100字符内"></el-input>
         </el-form-item>
         <el-form-item label="团队名称" prop="groupName">
           <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择">

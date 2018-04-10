@@ -79,6 +79,7 @@ class WorkOrderUtils {
   constructor() {
     let limit200 = this.generateCountValidator(false, 0, 200);
     let limit200Required = this.generateCountValidator(true, 0, 200);
+    let limit100Required = this.generateCountValidator(true, 0, 100);
     this.rules = {
       feature: {
         name: [{
@@ -113,7 +114,7 @@ class WorkOrderUtils {
           message: '请输入工单名称',
           trigger: 'blur'
         }, {
-          validator: limit200Required
+          validator: limit100Required
         }],
         groupName: [{
           required: true,
