@@ -1559,7 +1559,7 @@ class Net {
     };
     const getUserNotify = () => {
       return axios.post(URL_LIST.work_order_detail_notify_user, options);
-    }
+    };
     const getOperationList = () => {
       return axios.post(URL_LIST.work_order_detail_operation_list, options);
     };
@@ -1611,7 +1611,7 @@ class Net {
       axios.all([getFeatureList(), getAppList(), getUserToDo(), getUserAccepted(),
         getUserNotify(), getOperationList(), getEmailGroup(), getTestLog()])
         .then(axios.spread((featureList, appList, userToDo, userAcceptedList,
-                            notifyUserList, operationList, emailGroup, testLogList) => {
+                            notifyUserList, operationList, emailGroup, testLogStatus) => {
           featureList = this.getResponseContent(featureList);
           appList = this.getResponseContent(appList);
           userToDo = this.getResponseContent(userToDo);
@@ -1619,7 +1619,7 @@ class Net {
           notifyUserList = this.getResponseContent(notifyUserList);
           operationList = this.getResponseContent(operationList);
           emailGroup = this.getResponseContent(emailGroup);
-          testLogList = this.getResponseContent(testLogList);
+          testLogStatus = this.getResponseContent(testLogStatus);
 
           if (featureList.hasOwnProperty('WorkOrderDeployFunctionVO')) {
             featureList = featureList.WorkOrderDeployFunctionVO;
@@ -1658,8 +1658,14 @@ class Net {
           if (emailGroup.hasOwnProperty('emailGroup')) {
             emailGroup = emailGroup['emailGroup'];
           }
-          if (testLogList.hasOwnProperty('workOrderDeployTestReport')) {
-            testLogList = testLogList.workOrderDeployTestReport;
+
+          let testType = null;
+          let testLogList = [];
+          if (testLogStatus.hasOwnProperty('testType')) {
+            testType = testLogStatus['testType'];
+          }
+          if (testLogStatus.hasOwnProperty('workOrderDeployTestReport')) {
+            testLogList = testLogStatus.workOrderDeployTestReport;
             testLogList.forEach(it => {
               it.url = encodeURI(this.$utils.formatUrl(URL_LIST.work_order_detail_download_test_log_get, {
                 id: it.id
@@ -1676,6 +1682,7 @@ class Net {
             notifyUserList: notifyUserList,
             operationList: operationList,
             emailGroup: emailGroup,
+            testType: testType,
             testLogList: testLogList
           };
           resolve(results);

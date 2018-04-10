@@ -53,6 +53,9 @@
     <el-form-item label="备注">
       <span>{{workOrderDetail.comment}}</span>
     </el-form-item>
+    <el-form-item label="测试类型" class="test-type">
+      {{workOrderDetail.testType}}
+    </el-form-item>
     <el-form-item label="测试报告" class="test-log-list" v-if="showTestLog">
       <div class="test-log"
            v-if="workOrderDetail.testLogList.length>0"
@@ -75,7 +78,7 @@
     }
     .el-form-item {
       margin-bottom: 6px;
-      &.test-type, &.test-report, &.comment {
+      &.test-report, &.comment {
         margin-bottom: 14px;
       }
       &.notify-user-list, &.mail-group-list{

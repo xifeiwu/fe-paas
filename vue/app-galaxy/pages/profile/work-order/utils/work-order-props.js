@@ -252,6 +252,33 @@ class WorkOrderUtils {
     }
   }
 
+  getAllTestType() {
+    return [{
+      label: '系统测试',
+      value: 'SYSTEM_TEST'
+    }, {
+      label: '简版测试',
+      value: 'SIMPLE_TEST'
+    }, {
+      label: '跳过测试',
+      value: 'SKIP_TEST'
+    }];
+  }
+
+  getTestTypeByValue(value) {
+    let allTestList = this.getAllTestType();
+    let target = null;
+    allTestList.some(it => {
+      target = it.value === value ? it : null;
+      return target;
+    });
+    if (target) {
+      return target.label;
+    } else {
+      return '未知';
+    }
+  }
+
   /**
    * 通过工单基本信息获得工单详情
    * @param vueComponent
@@ -343,6 +370,10 @@ class WorkOrderUtils {
           workOrderDetail.mailGroupList = result.emailGroup.map(it => {
             return it.emailGroupName;
           })
+        }
+
+        if (result.hasOwnProperty('testType')) {
+          workOrderDetail.testType = this.getTestTypeByValue(result['testType']);
         }
         if (result.hasOwnProperty('testLogList') && Array.isArray(result.testLogList)) {
           workOrderDetail.testLogList = result.testLogList.map(it => {

@@ -177,16 +177,7 @@
     data() {
       return {
         workOrderDetail: {},
-        testTypeList: [{
-          label: '系统测试',
-          value: 'SYSTEM_TEST'
-        }, {
-          label: '简版测试',
-          value: 'SIMPLE_TEST'
-        }, {
-          label: '跳过测试',
-          value: 'SKIP_TEST'
-        }],
+        testTypeList: WorkOrderPropUtils.getAllTestType(),
         handleInfo: {
           testType: '',
           testLogListAll: [],

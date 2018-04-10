@@ -148,6 +148,9 @@
                   </el-table>
                 </el-form-item>
                 <el-form-item label="备注">{{workOrderDetail.comment}}</el-form-item>
+                <el-form-item label="测试类型" class="test-type">
+                  {{workOrderDetail.testType}}
+                </el-form-item>
                 <el-form-item label="测试报告" class="test-log-list">
                   <div class="test-log"
                         v-for="(item, index) in workOrderDetail.testLogList" :key="index" v-if="workOrderDetail.testLogList.length>0">
