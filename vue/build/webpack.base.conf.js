@@ -2,6 +2,7 @@
 const path = require('path')
 const utils = require('./utils')
 const config = require('./config')
+const webpack = require('webpack');
 const customLoader = require('./vue-loader.conf')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
@@ -35,7 +36,7 @@ const chunksAndTemplates = (() => {
       "filename": "galaxy.html",
       "title": "凡普云平台",
       "cdn": {
-        "js": ['/assets/libs/debug/browser.js'],
+        "js": [],
         "css": []
       },
       "chunks": ["galaxy"],
@@ -151,11 +152,15 @@ var baseConfig = {
     // copy custom static assets
     new CopyWebpackPlugin([
       {
-        from: path.resolve(__dirname, '../assets'),
+        from: path.resolve(utils.contextPath(), 'assets'),
         to: config.dev.assetsSubDirectory,
         ignore: ['.*']
       }
-    ])
+    ]),
+    new webpack.ProvidePlugin({
+      'window.browserDebug': [path.resolve(utils.contextPath(), 'node_modules/debug/src/browser.js')],
+      'browserDebug': [path.resolve(utils.contextPath(), 'node_modules/debug/src/browser.js')],
+    })
   ]),
   node: {
     // prevent webpack from injecting useless setImmediate polyfill because Vue
