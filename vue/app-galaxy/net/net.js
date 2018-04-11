@@ -1668,7 +1668,6 @@ class Net {
                 id: it.id
               }));
             });
-            debug('%s, %o', 'getWorkOrderDetail', testLogList);
           }
 
           let results = {

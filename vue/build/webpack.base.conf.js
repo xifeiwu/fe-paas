@@ -158,8 +158,8 @@ var baseConfig = {
       }
     ]),
     new webpack.ProvidePlugin({
-      'window.browserDebug': [path.resolve(utils.contextPath(), 'node_modules/debug/src/browser.js')],
-      'browserDebug': [path.resolve(utils.contextPath(), 'node_modules/debug/src/browser.js')],
+      'window.browserDebug': [path.resolve(utils.contextPath(), 'assets/libs/debug/browser.js')],
+      'browserDebug': [path.resolve(utils.contextPath(), 'assets/libs/debug/browser.js')],
     })
   ]),
   node: {

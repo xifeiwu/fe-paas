@@ -14,3 +14,10 @@ dev vs test for vue project:
 ### build
 
 - should build project by command 'npm run build-dev' in work dir, as process.cwd() is used in the process of build
+
+- browserDebug is provide by webpack.ProvidePlugin
+
+
+### assets directory
+
+- libs/debug is a copy of debug module of node, with a modify of function formatArgs in browser.js
