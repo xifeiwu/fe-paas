@@ -4,10 +4,7 @@
 import axios from 'axios';
 import URL_LIST from './url';
 import appInfoHelper from '../pages/profile/utils/app-props';
-var debug = () => {};
-if (window.browserDebug) {
-  debug = browserDebug('pass:net');
-}
+var debug = browserDebug('pass-fe:net');
 
 class Net {
   constructor() {

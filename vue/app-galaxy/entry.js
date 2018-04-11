@@ -35,9 +35,6 @@ window.vm = new Vue({ // eslint-disable-line
 }).$mount('#app');
 
 window.Vue = Vue;
-if (!window.browserDebug) {
-  window.browserDebug = () => {};
-}
 // new Vue({
 //     el: '#app',
 //     render: h => h(APP),

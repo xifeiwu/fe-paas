@@ -261,7 +261,7 @@
   import ElTooltip from "element-ui/packages/tooltip/src/main";
   import ElOption from "element-ui/packages/select/src/option";
   import ElInput from "element-ui/packages/input/src/input";
-  const debug = browserDebug('pass:work-roder/todo/modify');
+  const debug = browserDebug('pass-fe:work-order/todo/modify');
 
   export default {
     components: {ElInput, ElOption, ElTooltip, MyFeature},
