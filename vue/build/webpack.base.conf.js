@@ -52,7 +52,9 @@ const chunksAndTemplates = (() => {
     }
   ];
 
-  if (process.env.NODE_ENV !== 'production') {
+  // var more = process.env.NODE_ENV !== 'production';
+  var more = false;
+  if (more) {
     entries['element'] = path.resolve(vueBaseDir, 'app-test/element.js');
     entries['custom'] = path.resolve(vueBaseDir, 'app-test/custom.js');
     htmlConfigs.push({
@@ -93,7 +95,7 @@ var baseConfig = {
   entry: chunksAndTemplates.entries,
   output: {
     path: config.build.assetsRoot,
-    filename: '[name].[hash:10].js',
+    filename: "[name].[hash].js",
     publicPath: process.env.NODE_ENV === 'production'
       ? config.build.assetsPublicPath
       : config.dev.assetsPublicPath

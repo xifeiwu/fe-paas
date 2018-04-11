@@ -1,0 +1,207 @@
+.el-tag {
+}
+.el-alert__content {
+  overflow: scroll;
+}
+
+.el-message-box {
+  width: 80%;
+  max-width: 600px;
+}
+
+#app {
+  .el-dialog__wrapper {
+    &.size-500 {
+      .el-dialog {
+        width: 80%;
+        max-width: 500px;
+      }
+    }
+    &.size-600 {
+      .el-dialog {
+        width: 80%;
+        max-width: 600px;
+      }
+    }
+    &.size-700 {
+      .el-dialog {
+        width: 80%;
+        max-width: 700px;
+      }
+    }
+    &.size-750 {
+      .el-dialog {
+        width: 80%;
+        max-width: 750px;
+      }
+    }
+    .el-dialog {
+      .el-dialog__header {
+        //background-color: #d9ecff;
+        background-color: #e7e7e7;
+        padding: 8px 10px;
+        margin-bottom: 5px;
+        .el-dialog__headerbtn {
+          top: 12px;
+          right: 10px;
+        }
+      }
+      .el-dialog__body {
+        padding: 0px 15px;
+      }
+      .el-dialog__footer {
+        border-top: 1px solid #e7e7e7;
+        margin-top: 10px;
+        padding: 6px 8px;
+      }
+    }
+  }
+
+  .el-table {
+    thead {
+      tr {
+        background-color: #d9ecff;
+      }
+    }
+    th, td {
+      border-bottom: 1px solid #e6ebf5;
+      //border-bottom: 1px solid lightgray;
+      //border-bottom: 1px solid #409EFF;
+    }
+    th {
+      padding: 2px 0px;
+    }
+    td {
+      padding: 10px 0px;
+    }
+    .cell {
+      text-overflow: initial;
+    }
+    //hide expand column
+    .el-table__expand-column .cell {
+      display: none;
+    }
+    .el-table__body {
+      .el-table__row {
+        &.current-row > td {
+          background-color: white;
+        }
+      }
+    }
+  }
+
+  .el-form {
+    .el-form-item {
+      &.el-form-item--mini {
+        margin-bottom: 14px;
+      }
+      .el-form-item__content {
+        text-align: left;
+      }
+    }
+  }
+
+  .el-date-editor.custom {
+    font-size: 12px;
+    width: 230px;
+    .el-input__icon {
+      width: 22px;
+    }
+    .el-range-separator {
+      padding: 0px;
+    }
+    .el-range-input {
+      width: 36%;
+    }
+  }
+
+  /*fix the style of el-select when filterable property is used*/
+  .el-select.el-select--mini {
+    .el-select__tags {
+      .el-select__input.is-mini {
+        margin-left: 10px;
+      }
+    }
+  }
+
+  .el-loading-mask {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .el-textarea__inner {
+    padding: 5px;
+  }
+
+  .el-notification {
+    .el-notification__group {
+      width: 100%;
+      .el-notification__content {
+        overflow: scroll;
+      }
+    }
+  }
+
+  .pagination-container {
+    padding-bottom: 0px;
+
+    padding-left: 180px;
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    z-index: 80;
+
+    &.disable {
+      pointer-events: none;
+      cursor: wait;
+    }
+
+    /*width: 100%;*/
+    .pagination {
+      text-align: center;
+      padding: 0px 4px;
+      .el-pagination {
+        //font-weight: normal;
+        display: inline-block;
+        background-color: rgba(255, 255, 255, 0.3);
+        border: 0px solid #e6ebf5;
+        button {
+          &.btn-prev, &.btn-next {
+            height: 28px;
+            background-color: transparent;
+            padding: 0px 6px;
+          }
+        }
+        .el-pager {
+          li {
+            min-width: 28px;
+            height: 28px;
+            background-color: transparent;
+            &.number {
+              padding: 0px 0px;
+              font-size: 14px;
+              line-height: 28px;
+              background-color: transparent;
+              &.active {
+                font-size: 14px;
+                color: #409EFF;
+                text-decoration: none;
+                cursor: text;
+              }
+            }
+            &:hover {
+              //color: #2d2f33;
+              //font-weight: bold;
+              color: #2d2f33;
+              text-decoration: underline;
+              //font-size: 16px;
+            }
+            &.btn-quicknext, &.btn-quickprev {
+              background-color: transparent;
+            }
+          }
+        }
+      }
+    }
+  }
+}
