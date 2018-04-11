@@ -13,7 +13,8 @@ exports.assetsPath = function (_path) {
 };
 
 exports.contextPath = function() {
-  return path.resolve(__dirname, '../');
+  // return path.resolve(__dirname, '../');
+  return config.curWorkDir;
 };
 
 exports.cssLoaders = function (options) {

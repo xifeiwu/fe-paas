@@ -6,6 +6,7 @@ const path = require('path');
 const curWorkDir = process.cwd();
 
 module.exports = {
+  curWorkDir: curWorkDir,
   dev: {
 
     // Paths

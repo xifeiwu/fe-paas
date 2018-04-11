@@ -152,7 +152,7 @@ var baseConfig = {
     // copy custom static assets
     new CopyWebpackPlugin([
       {
-        from: path.resolve(utils.contextPath(), 'assets'),
+        from: path.resolve(utils.contextPath(), 'assets/static'),
         to: config.dev.assetsSubDirectory,
         ignore: ['.*']
       }
