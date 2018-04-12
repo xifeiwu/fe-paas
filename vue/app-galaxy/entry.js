@@ -19,7 +19,7 @@ new NetWorkConfig(Vue);
 import RouterConfig from './config/router';
 let routerConfig = new RouterConfig(Vue);
 
-import 'assets/css/fix_style.scss';
+import 'assets/css/fix-style.scss';
 // my-icons for icon and svg
 import 'assets/css/fonts/my-icons.css';
 import 'assets/css/fonts/my-icons.js';
