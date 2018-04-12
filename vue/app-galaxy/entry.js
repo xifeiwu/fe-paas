@@ -24,21 +24,17 @@ import '../assets/css/fix_style.scss';
 // my-icons for icon and svg
 import '../assets/css/fonts/my-icons.css';
 import '../assets/css/fonts/my-icons.js';
-// import Components from './components.js';
-// Components.install(Vue);
+
+import Components from './components.js';
+Components.install(Vue);
 
 import APP from './pages/app';
 
-import(/* webpackChunkName: "components" */ './components.js').then(components => {
-  // console.log(`load components success!`);
-  // console.log(components);
-  components.default.install(Vue);
-  window.vm = new Vue({ // eslint-disable-line
-    render: h => h(APP),
-    router: routerConfig.vueRouter,
-    store: Store
-  }).$mount('#app');
-});
+window.vm = new Vue({ // eslint-disable-line
+  render: h => h(APP),
+  router: routerConfig.vueRouter,
+  store: Store
+}).$mount('#app');
 
 window.Vue = Vue;
 // new Vue({

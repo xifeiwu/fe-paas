@@ -4,8 +4,9 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 const utils = require('./utils')
 const config = require('./config')
-const isProduction = process.env.NODE_ENV === 'production'
-const sourceMapEnabled = isProduction
+const isBuild = process.env.NODE_ENV !== 'dev-server'
+// const isBuild = true;
+const sourceMapEnabled = isBuild
   ? config.build.productionSourceMap
   : config.dev.cssSourceMap
 
@@ -13,7 +14,7 @@ module.exports = {
   cssLoaderConfig: {
     loaders: utils.cssLoaders({
       sourceMap: sourceMapEnabled,
-      extract: isProduction
+      extract: isBuild
     }),
     cssSourceMap: sourceMapEnabled,
     cacheBusting: config.dev.cacheBusting,

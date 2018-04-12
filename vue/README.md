@@ -1,3 +1,13 @@
+### profile
+
+- dev
+- test
+- production
+
+dev vs test for vue project:
+
+- different port: 7002 for dev, 80 for test and production
+- prot is set in net/url.js of vue project
 
 ### package.json
 
@@ -5,11 +15,6 @@ build vue project by ENV
 
 - build for dev environment: npm run build-dev
 - build for test environment: npm run build-test
-
-dev vs test for vue project:
-
-- different port: 7002 for dev, 80 for test and production
-- prot is set in net/url.js of vue project
 
 ### build
 

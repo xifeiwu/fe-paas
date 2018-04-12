@@ -30,6 +30,7 @@ const chunksAndTemplates = (() => {
   let entries = {
     'galaxy': path.resolve(vueBaseDir, 'app-galaxy/entry.js'),
     'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),
+    'components': path.resolve(vueBaseDir, 'app-galaxy/components.js'),
   };
   let htmlConfigs = [
     {
@@ -39,7 +40,7 @@ const chunksAndTemplates = (() => {
         "js": [],
         "css": []
       },
-      "chunks": ["galaxy"],
+      "chunks": ["components", "galaxy"],
     },
     {
       "filename": "terminal.html",
@@ -78,7 +79,7 @@ const chunksAndTemplates = (() => {
   }
 
   let templates = htmlConfigs.map(it => {
-    it.chunks = ["vendor", "manifest"].concat(it.chunks);
+    it.chunks = ["manifest"].concat(it.chunks);
     if (!it.hasOwnProperty('template')) {
       it.template = path.join(__dirname, 'config/index.tpl');
     }
@@ -162,7 +163,7 @@ var baseConfig = {
     new webpack.ProvidePlugin({
       'window.browserDebug': [path.resolve(utils.contextPath(), 'assets/libs/debug/browser.js')],
       'browserDebug': [path.resolve(utils.contextPath(), 'assets/libs/debug/browser.js')],
-    })
+    }),
   ]),
   node: {
     // prevent webpack from injecting useless setImmediate polyfill because Vue
