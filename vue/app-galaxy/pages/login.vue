@@ -216,7 +216,7 @@
     },
     methods: {
       handleHeaderMenuClick(key, keyPath) {
-        console.log(key, keyPath);
+//        console.log(key, keyPath);
       },
       handleKeyDownOnForm(evt) {
         switch (evt.keyCode) {
@@ -250,27 +250,35 @@
       freeLoginStateChange: function (value, evt) {
       },
       updateVerifyCode() {
-        var verifyImageURL = this.$url.get_verify_code + '?t=' + new Date().getTime();
+        let verifyImageURL = this.$url.get_verify_code + '?t=' + new Date().getTime();
           this.$ajax.get(verifyImageURL, {
             responseType: 'arraybuffer',
             timeout: 6000
           }).then(response => {
-            var base64 = new Buffer(response.data, 'binary').toString('base64');
-            var mimetype = response.headers['content-type'];
-            this.verifyImageData = "data:" + mimetype + ";base64," + base64;
+            let base64 = new Buffer(response.data, 'binary').toString('base64');
+            let mimeType = response.headers['content-type'];
+            this.verifyImageData = "data:" + mimeType + ";base64," + base64;
             this.form.verificationCode = response.headers['verification-code'];
           }).catch(err => {
             this.showError('获取验证码失败，请检查网络是否正常连接。');
             console.log(err);
           });
       },
-      showError(content) {
+      /**
+       * show error message of submit login
+       * @param content, error message to show
+       * @param updateVerifyCode, whether update verify code or not
+       */
+      showError(content, updateVerifyCode) {
         this.error.status = true;
         this.error.content = content;
+        if (updateVerifyCode) {
+          this.updateVerifyCode();
+        }
       },
       onSubmit() {
         if (this.checkData()) {
-          var objToPost = {
+          let objToPost = {
             username: this.form.userName,
             password: this.form.password,
             randomCode: this.form.verifyCode,
@@ -280,20 +288,13 @@
 //          console.log(objToPost);
           this.showLoading = true;
           this.$ajax.post(this.$url.login, objToPost).then(response => {
-//            console.log(JSON.stringify(response));
 //            console.log(response);
             if (response && 'data' in response && 'code' in response.data) {
               if (response.data.code !== 0) {
-                this.showError(response.data.msg);
+                this.showError(response.data.msg, true);
               } else {
                 this.$store.dispatch('user/login', response);
-                console.log(response);
                 this.$router.push('/profile');
-//                this.$ajax.get(this.$url.app_test).then(response => {
-//                  console.log(response);
-//                }).catch(err => {
-//                  console.log(err);
-//                });
               }
             }
             this.showLoading = false;

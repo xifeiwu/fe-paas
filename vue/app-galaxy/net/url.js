@@ -29,7 +29,6 @@ var urlList = {
   'login': apiPath + '/login',
   // 用户退出
   'logout': apiPath + '/userLogout',
-  'app_test': apiPath + '/app',
   'app_list': apiPath + '/application/queryByPage',
   'user_info': apiPath + '/group/queryByUser',
   // 获取用户组ID
