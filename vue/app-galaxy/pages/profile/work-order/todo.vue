@@ -149,7 +149,7 @@
                 </el-form-item>
                 <el-form-item label="备注">{{workOrderDetail.comment}}</el-form-item>
                 <el-form-item label="测试类型" class="test-type">
-                  {{workOrderDetail.testType}}
+                  {{workOrderDetail.testTypeLabel}}
                 </el-form-item>
                 <el-form-item label="测试报告" class="test-log-list">
                   <div class="test-log"

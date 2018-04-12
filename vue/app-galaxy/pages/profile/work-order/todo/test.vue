@@ -159,7 +159,6 @@
   import ElFormItem from "element-ui/packages/form/src/form-item";
   export default {
     components: {MyShowDetail, ElFormItem, ElOption, ElSelect}, created() {
-
     },
     mounted() {
       let workOrderDetail = this.$storeHelper.getTmpProp('workOrderDetail');
@@ -168,6 +167,11 @@
         return;
       }
       this.workOrderDetail = workOrderDetail;
+      if (workOrderDetail.hasOwnProperty('testType')) {
+        this.handleInfo.testType = workOrderDetail.testType;
+      } else {
+        this.handleInfo.testType = WorkOrderPropUtils.getDefaultTestType();
+      }
       if (workOrderDetail.hasOwnProperty('testLogList')) {
         this.handleInfo.testLogListAll = workOrderDetail.testLogList;
       } else {

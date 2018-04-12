@@ -252,6 +252,10 @@ class WorkOrderUtils {
     }
   }
 
+  getDefaultTestType() {
+    return 'SKIP_TEST';
+  }
+
   getAllTestType() {
     return [{
       label: '系统测试',
@@ -373,7 +377,8 @@ class WorkOrderUtils {
         }
 
         if (result.hasOwnProperty('testType')) {
-          workOrderDetail.testType = this.getTestTypeByValue(result['testType']);
+          workOrderDetail.testType = result['testType'];
+          workOrderDetail.testTypeLabel = this.getTestTypeByValue(result['testType']);
         }
         if (result.hasOwnProperty('testLogList') && Array.isArray(result.testLogList)) {
           workOrderDetail.testLogList = result.testLogList.map(it => {
