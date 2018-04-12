@@ -245,7 +245,7 @@
 //            console.log(options);
             this.$net.handleWorkOrder(options).then(msg => {
 //              console.log(msg);
-              this.$alert('处理完成。点击确定，进入待办工单页', msg, {
+              this.$alert('处理成功！即将进入待办工单页。', msg, {
                 confirmButtonText: '确定',
                 callback: (action) => {
                   // value of action: confirm, cancel
@@ -258,7 +258,7 @@
               this.loadingText = '';
             }).catch(msg => {
               console.log(msg);
-              this.$alert('请与管理员联系。点击确定，进入待办工单列表页', msg, {
+              this.$alert('处理失败！请与管理员联系。点击确定，进入待办工单列表页', msg, {
                 confirmButtonText: '确定',
                 callback: (action) => {
                   this.$router.push('/profile/work-order/todo');

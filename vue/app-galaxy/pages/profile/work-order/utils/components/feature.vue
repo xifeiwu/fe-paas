@@ -3,7 +3,7 @@
     <el-form :model="featureInfo" :rules="rules" size="mini"
              ref="featureForm" label-width="80px">
       <el-form-item label="功能名称" prop="name">
-        <el-input v-model="featureInfo.name" placeholder="200字符内"></el-input>
+        <el-input v-model="featureInfo.name" placeholder="100字符内"></el-input>
       </el-form-item>
       <el-form-item label="功能类型" prop="type">
         <el-radio-group v-model="featureInfo.type">

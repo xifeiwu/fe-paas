@@ -87,7 +87,7 @@ class WorkOrderUtils {
           message: '请输入功能名称',
           trigger: 'blur'
         }, {
-          validator: limit200Required
+          validator: limit100Required
         }],
         type: [{
           required: true,

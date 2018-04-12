@@ -295,6 +295,9 @@
             this.$net.instanceChangeCount(options).then(msg => {
               this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
               this.operation = null;
+              // update model, show success message
+              this.instanceStatus.instanceCount = this.manualScale.newCount;
+              this.$message.success(msg);
             }).catch(msg => {
               this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
               this.operation = null;
