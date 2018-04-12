@@ -169,31 +169,33 @@
   }
   #work-order-add {
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-    width: 660px;
+    width: 700px;
     margin: 20px;
     margin-left: 30px;
-    padding: 18px;
+    padding: 16px 30px;
     .title-section {
       text-align: center;
       margin: 15px 0px;
     }
     .basic-section {
       width: 620px;
+      margin-bottom: 22px;
       .el-form {
         .el-form-item {
         }
       }
     }
     .feature-section {
-      margin-top: 22px;
-      width: 620px;
+      width: 660px;
+      margin-bottom: 12px;
       .title {
-        border-left: 5px solid gray;
-        border-top: 1px solid gray;
+        border-left: 5px solid #409EFF;
+        border-top: 1px solid #409EFF;
         padding-left: 5px;
-        margin: 15px 0px 15px -2px;
+        margin: 0px 0px 12px -2px;
       }
       .feature-form-list {
+        text-align: center;
         .work-order-feature {
           display: inline-block;
           /*& + .work-order-feature {*/
@@ -203,22 +205,21 @@
       }
     }
     .application-section {
-      margin-top: 22px;
+      margin-bottom: 22px;
       width: 600px;
       .title {
-        border-left: 5px solid gray;
-        border-top: 1px solid gray;
+        border-left: 5px solid #409EFF;
+        border-top: 1px solid #409EFF;
         padding-left: 5px;
         margin-bottom: 5px;
       }
     }
     .acceptance-section {
-      margin-top: 32px;
+      margin-bottom: 22px;
       width: 600px;
-      /*margin: 0px auto;*/
       .title {
-        border-left: 5px solid gray;
-        border-top: 1px solid gray;
+        border-left: 5px solid #409EFF;
+        border-top: 1px solid #409EFF;
         padding-left: 5px;
         margin-bottom: 5px;
       }

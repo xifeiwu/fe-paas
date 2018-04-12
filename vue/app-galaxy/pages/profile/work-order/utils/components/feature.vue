@@ -43,9 +43,10 @@
 <style lang="scss" scoped>
   .work-order-feature {
     position: relative;
-    max-width: 350px;
+    width: 560px;
     padding: 20px 28px 1px 8px;
     box-shadow: 0 0 8px 0 rgba(232, 237, 250, .6), 0 2px 4px 0 rgba(232, 237, 250, .5);
+    margin-bottom: 8px;
     .icon-section {
       position: absolute;
       top: 3px;
