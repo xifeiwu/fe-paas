@@ -1069,11 +1069,8 @@
   import appPropUtils from '../utils/app-props';
   import MyDialogForLog from '../utils/components/dialog4log.vue'
   import MyImageSelector from '../utils/components/image-selector.vue'
-  import ElRow from "element-ui/packages/row/src/row";
-  import ElCol from "element-ui/packages/col/src/col";
-  import ElRadio from "element-ui/packages/radio/src/radio";
 export default {
-  components: {ElRadio, ElCol, ElRow, MyDialogForLog, MyImageSelector},
+  components: {MyDialogForLog, MyImageSelector},
   created() {
   },
   mounted() {

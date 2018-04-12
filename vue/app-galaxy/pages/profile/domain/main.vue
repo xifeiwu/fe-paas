@@ -453,13 +453,8 @@
 
 <script>
   import MyVersionConditionFilter from '../utils/components/version-condition-filter.vue';
-  import ElInput from "element-ui/packages/input/src/input";
-  import ElSelect from "element-ui/packages/select/src/select";
-  import ElOption from "element-ui/packages/select/src/option";
-  import ElTooltip from "element-ui/packages/tooltip/src/main";
-  import ElFormItem from "element-ui/packages/form/src/form-item";
   export default {
-    components: {ElFormItem, ElTooltip, ElOption, ElSelect, ElInput, MyVersionConditionFilter},
+    components: {MyVersionConditionFilter},
     created() {
       let queryParam = this.$route.query;
       if (queryParam && queryParam.hasOwnProperty('from')) {

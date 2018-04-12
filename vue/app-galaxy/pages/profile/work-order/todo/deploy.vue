@@ -83,11 +83,8 @@
   import WorkOrderPropUtils from '../utils/work-order-props';
   import MyShowDetail from '../utils/components/show-detail.vue';
   import MyDialogForLog from '../../utils/components/dialog4log.vue';
-  import ElSelect from "element-ui/packages/select/src/select";
-  import ElOption from "element-ui/packages/select/src/option";
-  import ElFormItem from "element-ui/packages/form/src/form-item";
   export default {
-    components: {MyDialogForLog, MyShowDetail, ElFormItem, ElOption, ElSelect},
+    components: {MyDialogForLog, MyShowDetail},
     created() {
     },
     mounted() {

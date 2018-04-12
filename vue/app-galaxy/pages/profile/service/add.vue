@@ -281,11 +281,7 @@
 </style>
 <script>
   import appPropUtil from '../utils/app-props';
-  import ElSelect from "element-ui/packages/select/src/select";
-  import ElTooltip from "element-ui/packages/tooltip/src/main";
-  import ElOption from "element-ui/packages/select/src/option";
   export default {
-    components: {ElOption, ElTooltip, ElSelect},
     created() {
       // receive queryString parameters from url, or go back
       let queryParam = this.$route.query;

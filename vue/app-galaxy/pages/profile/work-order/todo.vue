@@ -291,10 +291,7 @@
 </style>
 <script>
   import WorkerOrderPropUtils from './utils/work-order-props';
-  import ElFormItem from "element-ui/packages/form/src/form-item";
-  import ElCol from "element-ui/packages/col/src/col";
   export default {
-    components: {ElCol, ElFormItem},
     created() {
     },
     mounted() {

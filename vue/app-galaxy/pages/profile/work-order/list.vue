@@ -268,11 +268,8 @@
 
 <script>
   import WorkerOrderPropUtils from './utils/work-order-props';
-  import ElDialog from "element-ui/packages/dialog/src/component";
-  import ElFormItem from "element-ui/packages/form/src/form-item";
-  import ElTable from "element-ui/packages/table/src/table";
   export default {
-    components: {ElTable, ElFormItem, ElDialog}, created() {
+    created() {
     },
     mounted() {
       this.setDateRange();

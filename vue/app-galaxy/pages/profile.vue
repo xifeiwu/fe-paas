@@ -169,7 +169,7 @@
         padding: 0px;
         margin-left: $aside-width;
         .el-row.main-header {
-          border-bottom: 1px solid $split-line-color;
+          border-bottom: 1px solid #e7e7e7;
           padding: 0px;
           height:30px;
           .el-col {

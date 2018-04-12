@@ -70,9 +70,8 @@
 </style>
 <script>
   import workOrderUtils from '../work-order-props';
-  import ElRadio from "element-ui/packages/radio/src/radio";
 export default {
-  components: {ElRadio}, created() {
+  created() {
   },
   mounted() {
 //    this.$nextTick(() => {

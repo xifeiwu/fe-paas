@@ -174,10 +174,8 @@
 <script>
   import MyVersionSelector from '../utils/components/version-selector';
   import MyDialogForLog from '../utils/components/dialog4log.vue';
-  import ElInput from "element-ui/packages/input/src/input";
-  import ElSelect from "element-ui/packages/select/src/select";
   export default {
-    components: {ElSelect, ElInput, MyVersionSelector, MyDialogForLog},
+    components: {MyVersionSelector, MyDialogForLog},
     /**
      * the sequence of create and mount in parent and child element is:
      * create parent -> create children -> mount children -> mount parent

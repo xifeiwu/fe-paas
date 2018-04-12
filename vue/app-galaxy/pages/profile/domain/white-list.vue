@@ -219,9 +219,8 @@
 
 <script>
   import Clickoutside from 'element-ui/src/utils/clickoutside';
-  import ElCol from "element-ui/packages/col/src/col";
   module.exports = {
-    components: {ElCol}, directives: { Clickoutside },
+    directives: { Clickoutside },
     created() {
     },
     mounted() {

@@ -238,11 +238,8 @@
 <script>
   import WorkOrderPropUtils from '../utils/work-order-props';
   import MyFeature from '../utils/components/feature.vue';
-  import ElTooltip from "element-ui/packages/tooltip/src/main";
-  import ElOption from "element-ui/packages/select/src/option";
-  import ElInput from "element-ui/packages/input/src/input";
   export default {
-    components: {ElInput, ElOption, ElTooltip, MyFeature},
+    components: {MyFeature},
 
     created() {
       let queryParam = this.$route.query;
