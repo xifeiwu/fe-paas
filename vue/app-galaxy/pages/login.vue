@@ -1,19 +1,14 @@
 <template>
   <el-container id="login">
     <el-header height="45px">
-      <div class="img">picture</div>
+      <div class="img" @click="handleHeaderMenuClick(null, ['index'])">
+        <img src="/assets/imgs/finup-cloud.png">
+      </div>
       <el-menu class="header-menu"
                mode="horizontal"
                @select="handleHeaderMenuClick"
                defaultActive="login">
-        <el-menu-item index="main">凡普云首页</el-menu-item>
-        <!--<el-submenu index="2">-->
-        <!--<template slot="title">我的工作台</template>-->
-        <!--<el-menu-item index="2-1">选项1</el-menu-item>-->
-        <!--<el-menu-item index="2-2">选项2</el-menu-item>-->
-        <!--<el-menu-item index="2-3">选项3</el-menu-item>-->
-        <!--</el-submenu>-->
-        <el-menu-item index="help">帮助文档</el-menu-item>
+        <el-menu-item index="index">凡普云首页</el-menu-item>
         <el-menu-item index="login">登录</el-menu-item>
       </el-menu>
     </el-header>
@@ -92,6 +87,10 @@
       .img {
         float: left;
         line-height: $header-height;
+        img {
+          width: 120px;
+          margin-left: 8px;
+        }
       }
       .el-menu.header-menu {
         background-color: transparent;
@@ -112,8 +111,8 @@
       color: #333;
       .form-container {
         float: right;
-        margin-top: 50px;
-        margin-right: 30px;
+        margin-top: 60px;
+        margin-right: 120px;
         padding: 20px;
         box-shadow: 0 0 8px 0 rgba(232, 237, 250, .6), 0 2px 4px 0 rgba(232, 237, 250, .5);
         .el-form.login-form {
@@ -216,7 +215,15 @@
     },
     methods: {
       handleHeaderMenuClick(key, keyPath) {
-//        console.log(key, keyPath);
+        keyPath = keyPath.join('/');
+        switch (keyPath) {
+          case 'profile':
+            this.$router.push('/profile');
+            break;
+          case 'index':
+            this.$router.push('/index');
+            break;
+        }
       },
       handleKeyDownOnForm(evt) {
         switch (evt.keyCode) {

@@ -142,18 +142,20 @@ class RouterConfig {
         // login check
         // let token = localStorage.getItem('token');
         let token = this.Vue.prototype.$storeHelper.getUserInfo('token');
-        if (token) {//如果有就直接到首页咯
+        if (token) {//如果有就直接到首页
           if (to.path == '/login') {
             next('/profile');
           } else {
             next();
           }
-        } else {
+        } else if (/^\/profile/.test(to.path)){
           if (to.path == '/login') {//如果是登录页面路径，就直接next()
             next();
           } else {//不然就跳转到登录；
             next('/login');
           }
+        } else {
+          next();
         }
       }
       //  if (to.meta.requireAuth) {
