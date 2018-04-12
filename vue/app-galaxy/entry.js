@@ -19,22 +19,21 @@ new NetWorkConfig(Vue);
 import RouterConfig from './config/router';
 let routerConfig = new RouterConfig(Vue);
 
-// import 'element-ui/packages/theme-chalk/src/index.scss';
-import '../assets/css/fix_style.scss';
+import 'assets/css/fix_style.scss';
 // my-icons for icon and svg
-import '../assets/css/fonts/my-icons.css';
-import '../assets/css/fonts/my-icons.js';
-
-import Components from './components.js';
-Components.install(Vue);
+import 'assets/css/fonts/my-icons.css';
+import 'assets/css/fonts/my-icons.js';
 
 import APP from './pages/app';
 
-window.vm = new Vue({ // eslint-disable-line
-  render: h => h(APP),
-  router: routerConfig.vueRouter,
-  store: Store
-}).$mount('#app');
+import(/* webpackChunkName: "components-basic" */ 'assets/libs/components/basic.js').then(components => {
+  components.default.install(Vue);
+  window.vm = new Vue({ // eslint-disable-line
+    render: h => h(APP),
+    router: routerConfig.vueRouter,
+    store: Store
+  }).$mount('#app');
+});
 
 window.Vue = Vue;
 // new Vue({

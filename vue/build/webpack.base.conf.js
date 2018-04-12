@@ -30,7 +30,6 @@ const chunksAndTemplates = (() => {
   let entries = {
     'galaxy': path.resolve(vueBaseDir, 'app-galaxy/entry.js'),
     'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),
-    'components': path.resolve(vueBaseDir, 'app-galaxy/components.js'),
   };
   let htmlConfigs = [
     {
@@ -40,7 +39,7 @@ const chunksAndTemplates = (() => {
         "js": [],
         "css": []
       },
-      "chunks": ["components", "galaxy"],
+      "chunks": ["galaxy"],
     },
     {
       "filename": "terminal.html",
