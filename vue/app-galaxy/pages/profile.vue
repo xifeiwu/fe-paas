@@ -47,7 +47,8 @@
             </el-breadcrumb>
           </el-col>
           <el-col :span="12" class="group-list">
-            <el-select v-model="$storeHelper.currentGroupID" size="mini" filterable placeholder="请选择" v-if="showGroupList">
+            <el-select v-model="$storeHelper.currentGroupID" size="mini" filterable
+                       :placeholder="groupList.length > 0 ? '请选择':'无数据'" v-if="showGroupList">
               <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
