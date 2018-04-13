@@ -3,6 +3,7 @@ const state = {
   versionInfo: null,
   workOrderBasic: null,
   workOrderDetail: null,
+  infoForAddService: null,
 };
 
 const actions = {
@@ -14,6 +15,9 @@ const actions = {
   },
   versionInfo({commit, state}, info) {
     state.versionInfo = info;
+  },
+  infoForAddService({commit, state}, info) {
+    state.infoForAddService = info;
   }
 };
 
@@ -31,6 +35,9 @@ const getters = {
   },
   'versionInfo': (state, getters) => {
     return state.versionInfo;
+  },
+  'infoForAddService': (state, getters) => {
+    return state.infoForAddService;
   }
 };
 

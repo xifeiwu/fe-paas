@@ -6,7 +6,7 @@
           <el-button
               size="mini-extral"
               type="primary"
-              @click="handleButtonClick('linker', {path: '/profile/service/add'})">
+              @click="handleButtonClick('add-service')">
             添加服务
           </el-button>
           <el-button v-if="true"
@@ -184,12 +184,12 @@
                     </div>
                     <i class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
                   </el-form-item>
-                  <el-form-item label="Gitlab父级pom.xml相对路径：" v-if="selectedAPP.isJavaLanguage" class="relativePathOfParentPOM">
+                  <el-form-item label="Gitlab父级pom.xml相对路径：" v-if="selectedApp.isJavaLanguage" class="relativePathOfParentPOM">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.relativePath)}}
                      </div>
                   </el-form-item>
-                  <el-form-item label="Maven profile id：" v-if="selectedAPP.isJavaLanguage">
+                  <el-form-item label="Maven profile id：" v-if="selectedApp.isJavaLanguage">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.mavenProfileId)}}
                     </div>
@@ -229,7 +229,7 @@
                       <i class="el-icon-edit" @click="handleChangeProp('fileLocation')"></i>
                     </div>
                   </el-form-item>
-                  <el-form-item label="VM_Options：" class="big" v-if="selectedAPP.isJavaLanguage">
+                  <el-form-item label="VM_Options：" class="big" v-if="selectedApp.isJavaLanguage">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}
                     </div>
@@ -1111,7 +1111,7 @@ export default {
 
       showLoading: false,
       selectedAppID: null,
-      selectedAPP: null,
+      selectedApp: null,
       selectedProfileID: null,
       // whether current profile is production
       isProductionProfile: null,
@@ -1193,8 +1193,8 @@ export default {
         return;
       }
       this.serviceInfo.appID = value;
-      this.selectedAPP = appInfo['app'];
-      this.selectedProfileList = this.selectedAPP['profileList'];
+      this.selectedApp = appInfo['app'];
+      this.selectedProfileList = this.selectedApp['profileList'];
       if (Array.isArray(this.selectedProfileList) && this.selectedProfileList.length > 0) {
         // at the beginning of this page(value of selectedProfileID is null), get selectedProfileID from localStorage
         // else selectedProfileID is the first element in profileList of selectedApp
@@ -1215,7 +1215,7 @@ export default {
         } else {
           // request service list when app id is changed while profile id is not changed.
           if (this.selectedProfileID === defaultProfileID) {
-            this.requestServiceList(this.selectedAPP.appId, this.selectedProfileID);
+            this.requestServiceList(this.selectedApp.appId, this.selectedProfileID);
           } else {
             this.selectedProfileID = defaultProfileID;
           }
@@ -1226,7 +1226,7 @@ export default {
     selectedProfileID: function (profileID, oldValue) {
       this.serviceInfo.profileID = profileID;
       this.isProductionProfile = this.$storeHelper.isProductionProfile(profileID);
-      let appID = this.selectedAPP.appId;
+      let appID = this.selectedApp.appId;
       this.requestServiceList(appID, profileID);
       this.$storeHelper.setUserConfig('profile/service/profileID', profileID);
     },
@@ -1289,16 +1289,43 @@ export default {
         this.memeorySizeList = 'memoryList' in firstItem ? firstItem.memoryList : '';
       }
     },
-    handleButtonClick(action, params) {
+    getInfoForAddService() {
+      let result = null;
+      let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
+      let profileName = null;
+      if (profileInfo && profileInfo.hasOwnProperty('name')) {
+        profileName = profileInfo.name;
+      }
+      let groupInfo = this.$storeHelper.groupInfo();
+      let groupTag = null;
+      if (groupInfo && groupInfo.hasOwnProperty('tag')) {
+        groupTag = groupInfo.tag;
+      }
+
+      let language = null;
+      if (this.selectedApp && this.selectedApp.hasOwnProperty('language')) {
+        language = this.selectedApp.language;
+      }
+      if (null !== this.selectedAppID || null !== language || null !== profileName || null !== groupTag) {
+        result = {
+          groupTag: groupTag,
+          appId: this.selectedAppID,
+          profileName: profileName,
+          language: language
+        }
+      }
+      return result;
+    },
+    handleButtonClick(action) {
       switch (action) {
-        case 'linker':
-          this.$router.push({
-            path: params.path,
-            query: {
-              appID: this.selectedAppID,
-              profileID: this.selectedProfileID
-            }
-          });
+        case 'add-service':
+          let infoForAddService = this.getInfoForAddService();
+          if (null == infoForAddService) {
+            this.$message.error('数据不完整！尝试刷新页面重试');
+            return;
+          }
+          this.$storeHelper.setTmpProp('infoForAddService', infoForAddService);
+          this.$router.push('/profile/service/add');
           break;
         case 'refreshAppList':
           this.requestServiceList(this.selectedAppID, this.selectedProfileID);
@@ -1380,7 +1407,7 @@ export default {
     getVersionDescription(row) {
       let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
       let description = profileInfo && profileInfo.hasOwnProperty('description') ? profileInfo.description : '';
-      let desc = `${this.selectedAPP.serviceName}-${description}-${row.serviceVersion}版本`;
+      let desc = `${this.selectedApp.serviceName}-${description}-${row.serviceVersion}版本`;
       return desc;
     },
     /**

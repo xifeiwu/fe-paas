@@ -12,7 +12,7 @@
       </el-form-item>
       <el-form-item label="镜像方式" prop="customImage" class="custom-image">
         <el-radio-group v-model="imageSelectState.customImage" size="mini">
-          <el-radio :label="false" v-if="currentApp && currentApp.language != 'PYTHON'">自动打镜像</el-radio>
+          <el-radio :label="false" v-if="appLanguage != 'PYTHON'">自动打镜像</el-radio>
           <el-radio :label="true">自定义镜像</el-radio>
         </el-radio-group>
       </el-form-item>
@@ -60,19 +60,19 @@
       </el-form-item>
 
       <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
-                    v-if="currentApp && currentApp.isJavaLanguage"
+                    v-if="appLanguage == 'JAVA'"
                     class="relative-path-of-parent-pom"
       >
         <el-input v-model="serviceForm.relativePathOfParentPOM"
                   placeholder="不能超过256个字符"></el-input>
       </el-form-item>
       <el-form-item label="VM_Options" prop="vmOptions" class="vm-options"
-                    v-if="currentApp && currentApp.isJavaLanguage"
+                    v-if="appLanguage == 'JAVA'"
       >
         <el-input v-model="serviceForm.vmOptions" placeholder="不能包含中文，不能超过512个字符"></el-input>
       </el-form-item>
       <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
-                    v-if="currentApp && currentApp.isJavaLanguage"
+                    v-if="appLanguage == 'JAVA'"
       >
         <el-input v-model="serviceForm.mavenProfileId" placeholder="不能超过100个字符"></el-input>
       </el-form-item>
@@ -281,33 +281,15 @@
 </style>
 <script>
   import appPropUtil from '../utils/app-props';
+  const debug = browserDebug('pass-fe:profile/service/add');
   export default {
     created() {
-      // receive queryString parameters from url, or go back
-      let queryParam = this.$route.query;
-      if ('appID' in queryParam && 'profileID' in queryParam && queryParam['appID'] != null && queryParam['profileID'] != null ) {
-        this.serviceForm.appId = parseInt(queryParam['appID']);
-        this.serviceForm.spaceId = parseInt(queryParam['profileID']);
-      } else {
+      let infoForAddService = this.$storeHelper.getTmpProp('infoForAddService');
+      if (!infoForAddService) {
         this.$router.go(-1);
         return;
       }
-      // appInfoListOfGroup must be existed: used for get info of currentApp which is ued to get isJavaLanguage
-      // and image-related info.
-      if (!this.appInfoListOfGroup) {
-        this.$store.dispatch('user/appInfoListOfGroup', {
-          from: 'page/service/add',
-          groupID: this.$storeHelper.currentGroupID
-        });
-      } else {
-        this.onAppInfoListOfGroup(this.appInfoListOfGroup);
-      }
-      // the logic of groupInfo is different from appInfoListOfGroup as it is stored in localStorage
-      if (!this.groupInfo) {
-        this.$router.go(-1);
-        return;
-      }
-      // get app related info at beginning
+      this.infoForAddService = infoForAddService;
 
       this.rules.imageLocation.required = false;
       // set default cpu, default memorySizeList will be set in watch
@@ -315,7 +297,8 @@
         let firstItem = this.cpuAndMemoryList[0];
         this.serviceForm.cpuID = 'cpu' in firstItem ? firstItem.id : '';
       }
-      this.onGroupInfo(this.groupInfo);
+
+      this.requestImageRelatedInfo();
     },
     mounted() {
     },
@@ -326,7 +309,6 @@
         hostKey: '',
         hostValue: '',
         serviceForm: {
-          appId: null,
           spaceId: null,
           serviceVersion: '',
           gitLabAddress: '',
@@ -380,9 +362,7 @@
         memorySizeList: [],
         rules: appPropUtil.rules,
 
-        currentApp: null,
-        currentProfile: null,
-
+        infoForAddService: null,
         showLoading: false,
         loadingText: '',
       };
@@ -397,6 +377,13 @@
       appInfoListOfGroup() {
         return this.$storeHelper.appInfoListOfGroup();
       },
+      appLanguage() {
+        let result = null;
+        if (this.infoForAddService) {
+          result = this.infoForAddService.language;
+        }
+        return result;
+      }
     },
     watch: {
       /**
@@ -427,8 +414,6 @@
           }
         }
       },
-      appInfoListOfGroup: 'onAppInfoListOfGroup',
-      groupInfo: 'onGroupInfo',
 
       'imageInfoFromNet': {
         immediate: true,
@@ -451,76 +436,16 @@
       'imageSelectState.currentPrivateApp': 'requestPrivateImageLocation'
     },
     methods: {
-      /**
-       * two conditions of getting app related info:
-       * 1. refresh url.
-       *   app related info depends on appList which is got form net, which is slow than the logic of code, so watch
-       *   the value of appInfoListOfGroup is needed. Getting network data first, and then update app related info.
-       * 2. come form former page
-       *   as appInfoListOfGroup has contained in the web app, so i can get app related info at the beginning of app,
-       *   so onAppInfoListOfGroup is called on created method.
-       * @param value
-       */
-      onAppInfoListOfGroup(appList) {
-        if (this.serviceForm.appId) {
-          this.currentApp = this.$storeHelper.getAppByID(this.serviceForm.appId);
-          // only customImage can be used when current language is python
-          let isPythonLanguage = this.currentApp && this.currentApp.language == 'PYTHON';
-          if (isPythonLanguage) {
-            this.imageSelectState.customImage = true;
-          }
-        } else {
-          console.log('serviceForm.appID not found');
-        }
-        if (this.serviceForm.spaceId) {
-          this.currentProfile = this.$storeHelper.getProfileInfoByID(this.serviceForm.spaceId);
-        } else {
-          console.log('serviceForm.spaceId not found');
-        }
-        this.requestImageRelatedInfo();
-      },
-      onGroupInfo(groupInfo) {
-        if (groupInfo) {
-          this.requestImageRelatedInfo();
-        }
-      },
-
       // get image realted info from network
       requestImageRelatedInfo() {
-        if (!this.currentApp || !this.currentProfile || !this.groupInfo || !this.serviceForm) {
-          console.log('data is not complete');
-          return;
-        }
         // check group tag
-        if (!this.groupInfo.hasOwnProperty('tag')) {
-          console.log('groupTag not found');
-          return;
-        }
-        // check language
-        if (!this.currentApp.hasOwnProperty('language')) {
-          console.log('language not found');
-          return;
-        }
-        // check spaceId
-        if (!this.serviceForm.appId || !this.serviceForm.spaceId) {
-          console.log('appID or spaceId not found')
-          return;
-        }
-        // check profile name
-        if (!this.currentProfile.hasOwnProperty('name')) {
-          console.log('profileName not found');
-          return;
-        }
-
-        let groupTag = this.groupInfo.tag;
-        let language = this.currentApp.language.toLowerCase();
-        let profileName = this.currentProfile.name;
+        let {groupTag, appId, profileName} = this.infoForAddService;
         this.$net.getImageRelatedInfo({
-          groupTag: groupTag,
-          language: 'ph' + language
+          groupTag,
+          appId
         }, {
           env: profileName,
-          applicationId: this.serviceForm.appId,
+          applicationId: appId,
           groupTag: groupTag
         }, {
           groupTag: groupTag
