@@ -44,7 +44,7 @@ import FormItem from 'element-ui/packages/form-item/index.js';
 import Tabs from 'element-ui/packages/tabs/index.js';
 import TabPane from 'element-ui/packages/tab-pane/index.js';
 import Tag from 'element-ui/packages/tag/index.js';
-// import Tree from 'element-ui/packages/tree/index.js';
+import Tree from 'element-ui/packages/tree/index.js';
 import Alert from 'element-ui/packages/alert/index.js';
 import Notification from 'element-ui/packages/notification/index.js';
 // import Slider from 'element-ui/packages/slider/index.js';
@@ -117,7 +117,7 @@ const components = [
   Tabs,
   TabPane,
   Tag,
-  // Tree,
+  Tree,
   Alert,
   Loading,
   // Slider,

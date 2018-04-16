@@ -380,6 +380,11 @@ $menu-height: 45px;
               }
             });
             break;
+          case 'docs':
+            this.$router.push({
+              path: '/docs'
+            });
+            break;
         }
       },
       handleClick(action) {

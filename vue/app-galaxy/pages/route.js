@@ -1,6 +1,7 @@
 var path = require('path');
 import Login from './login.vue';
 import Index from './index.vue';
+import Docs from './docs.vue';
 import Profile from './profile.vue';
 import AppMain from './profile/app/main.vue';
 import AppAdd from './profile/app/add.vue';
@@ -56,6 +57,11 @@ var Router = function () {
       path: '/login',
       name: '登录',
       component: Login,
+    },
+    'docs': {
+      path: '/docs',
+      name: '帮助文档',
+      component: Docs,
     },
     'profile': {
       path: '/profile',
