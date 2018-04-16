@@ -1,56 +1,93 @@
 <template>
-  <el-container id="index" direction="vertical">
+  <el-container id="docs" direction="vertical">
     <paas-header @click="handleClickOnPassHeader"></paas-header>
-    <el-main>
-      <el-tree
-              :data="data"
-              :props="defaultProps"
-              accordion
-              @node-click="handleNodeClick">
-      </el-tree>
-    </el-main>
+    <el-container class="inner-container">
+      <el-aside width="180px">
+        <el-tree refs="menu-list"
+            :data="data"
+            :props="defaultProps"
+                 default-expand-all
+            @node-click="handleNodeClick">
+        </el-tree>
+      </el-aside>
+      <el-main>
+      </el-main>
+    </el-container>
   </el-container>
 </template>
 
+<style lang="scss">
+  #docs {
+    .el-tree {
+      .el-tree-node__label {
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      .el-tree-node {
+        .el-tree-node__children {
+          .el-icon-caret-right {
+            box-sizing: border-box;
+            width: 0px;
+          }
+          .el-tree-node {
+            &.is-current {
+              .el-tree-node__content {
+                border-radius: 4px;
+                background-color: #409EFF;
+                color: white;
+              }
+            }
+            .el-tree-node__content {
+              &:hover {
+                /*color: #f5f7fa;*/
+                /*color: white;*/
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+</style>
+<style lang="scss">
+  #docs {
+    .el-container.inner-container {
+      margin: 20px 40px;
+    }
+  }
+</style>
 <script>
   import paasHeader from './components/header';
   export default {
     components: {paasHeader},
+    created() {
+
+    },
+    mounted() {
+
+    },
     data() {
       return {
         data: [{
           label: '一级 1',
           children: [{
             label: '二级 1-1',
-            children: [{
-              label: '三级 1-1-1'
-            }]
+          }, {
+            label: '二级 1-2'
           }]
         }, {
           label: '一级 2',
           children: [{
             label: '二级 2-1',
-            children: [{
-              label: '三级 2-1-1'
-            }]
           }, {
             label: '二级 2-2',
-            children: [{
-              label: '三级 2-2-1'
-            }]
           }]
         }, {
           label: '一级 3',
           children: [{
             label: '二级 3-1',
-            children: [{
-              label: '三级 3-1-1'
-            }]
           }, {
             label: '二级 3-2',
-            children: [{
-              label: '三级 3-2-1'
-            }]
           }]
         }],
         defaultProps: {
