@@ -33,7 +33,6 @@
  *
  */
 
-import Vue from 'vue';
 import VueRouter from 'vue-router';
 import routerUtils from '../pages/route';
 
@@ -158,25 +157,6 @@ class RouterConfig {
           next();
         }
       }
-      //  if (to.meta.requireAuth) {
-      //   fetch('m/is/login').then(res = > {
-      //    if (res.errCode == 200) {
-      //     next();
-      //    } else {
-      //     if (getCookie('session')) {
-      //      delCookie('session');
-      //     }
-      //     if (getCookie('u_uuid')) {
-      //      delCookie('u_uuid');
-      //     }
-      //     next({
-      //      path: '/'
-      //     });
-      //    }
-      //   });
-      //  } else {
-      //   next();
-      //  }
     });
   }
 

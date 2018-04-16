@@ -4,9 +4,6 @@ import Index from './index.vue';
 import Profile from './profile.vue';
 import AppMain from './profile/app/main.vue';
 import AppAdd from './profile/app/add.vue';
-// import AddAppStep1 from './profile/add_app/step1.vue';
-// import AddAppStep2 from './profile/add_app/step2.vue';
-// import AddAppStep3 from './profile/add_app/step3.vue';
 import ServiceMain from './profile/service/main.vue';
 import ServiceAdd from './profile/service/add.vue';
 import InstanceMain from './profile/instance/main.vue';
@@ -73,20 +70,6 @@ var Router = function () {
         path: 'app/add',
         name: '创建应用',
         component: AppAdd,
-        // redirect: '/profile/app/add/step1',
-        // children: [{
-        //   path: 'step1',
-        //   component: AddAppStep1,
-        //   name: '创建应用',
-        // },{
-        //   path: 'step2',
-        //   component: AddAppStep2,
-        //   name: '创建应用',
-        // },{
-        //   path: 'step3',
-        //   component: AddAppStep3,
-        //   name: '创建应用',
-        // }]
       }, {
         path: 'service',
         name: '服务管理',
@@ -194,25 +177,18 @@ var Router = function () {
         component: UserOperaion
       }]
     }
-  }
+  };
   this.update();
 };
 
 Router.prototype = {
-  /* not used*/
-  getAbsPath(file) {
-    // let gpath = path.resolve(__dirname, file);
-    let path = '../pages/' + file;
-    return path;
-  },
-
   removeVirgule(path) {
     return path.substr(1);
   },
 
   /**
    * traverse router config tree to add routerPath to all component:
-   * routerPath = parent.path + path
+   * routerPath = parent.path + path, it is the full path of hash in url
    * @param path
    * @param component
    */
@@ -239,9 +215,9 @@ Router.prototype = {
     }
   },
 
+  // TODO: not used
   generateComponentFile(component) {
     function updateItem(item) {
-      // item.componentFile = this.getAbsPath(this.removeVirgule(item.routerPath)) + '.vue';
       // componentFile is the path under dir ../pages
       item.componentFile = this.removeVirgule(item.routerPath);
     }
@@ -255,7 +231,7 @@ Router.prototype = {
           }
         }
       }
-    } else if (Array.isArray(component)){
+    } else if (Array.isArray(component)) {
       component.forEach(updateItem.bind(this));
     }
   },
@@ -266,7 +242,7 @@ Router.prototype = {
   },
 
   /**
-   * get all routerPath in router config tree, used to:
+   * get all routerPath in router config tree. it can be used:
    * 1. check whether current url is validate.
    */
   getAllRouterPath() {
@@ -347,7 +323,7 @@ Router.prototype = {
   },
 
   /**
-   * get component name by routerPath.
+   * get name property of each component by routerPath.
    */
   getNameByRouterPath(routerPath) {
     function updateItem(item) {
@@ -393,7 +369,7 @@ Router.prototype = {
     let name = traverseComponent(this.componentList);
     return name;
   },
-}
+};
 
 var router = new Router();
 // console.log(JSON.stringify(router.componentList));
