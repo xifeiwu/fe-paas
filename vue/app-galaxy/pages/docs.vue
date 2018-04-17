@@ -1,6 +1,6 @@
 <template>
   <el-container id="docs" direction="vertical">
-    <paas-header @click="handleClickOnPassHeader"></paas-header>
+    <paas-header @menu-click="handleClickOnPassHeader" defaultActive="docs"></paas-header>
     <el-container class="inner-container">
       <el-aside width="180px">
         <el-tree refs="menu-list"
@@ -11,6 +11,8 @@
         </el-tree>
       </el-aside>
       <el-main>
+        <div v-html="content">
+        </div>
       </el-main>
     </el-container>
   </el-container>
@@ -81,6 +83,7 @@
             label: '二级 2-1',
           }, {
             label: '二级 2-2',
+            href: 'dfs'
           }]
         }, {
           label: '一级 3',
@@ -90,6 +93,7 @@
             label: '二级 3-2',
           }]
         }],
+        content: {},
         defaultProps: {
           children: 'children',
           label: 'label'
@@ -114,6 +118,11 @@
           case 'docs':
             this.$router.push({
               path: '/docs'
+            });
+            break;
+          case 'index':
+            this.$router.push({
+              path: '/index'
             });
             break;
         }

@@ -1,6 +1,6 @@
 <template>
   <el-container id="index" direction="vertical">
-    <paas-header @click="handleClickOnPassHeader"></paas-header>
+    <paas-header @menu-click="handleClickOnPassHeader"></paas-header>
     <el-main>
       <section class="poster">
         <img src="/assets/imgs/galaxy/index/poster.png">
@@ -383,6 +383,11 @@ $menu-height: 45px;
           case 'docs':
             this.$router.push({
               path: '/docs'
+            });
+            break;
+          case 'index':
+            this.$router.push({
+              path: '/index'
             });
             break;
         }

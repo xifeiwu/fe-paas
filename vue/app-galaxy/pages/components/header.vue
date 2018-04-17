@@ -10,7 +10,7 @@
                mode="horizontal"
                menuTrigger="click"
                @select="handleHeaderMenuClick"
-               defaultActive="index"
+               :defaultActive="defaultActive"
       >
         <el-menu-item index="index">首页</el-menu-item>
         <el-submenu index="user">
@@ -97,10 +97,16 @@ $menu-height: 45px;
 
 <script>
   export default {
+    props: {
+      defaultActive: {
+        type: String,
+        default: 'index'
+      },
+    },
     methods: {
       handleHeaderMenuClick(key, keyPath) {
         keyPath = keyPath.join('/');
-        this.$emit('click', keyPath);
+        this.$emit('menu-click', keyPath);
       },
     }
   }

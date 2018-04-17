@@ -22,8 +22,7 @@ class Net {
   }
 
   showLog(func, data) {
-    console.log(func + ' in net.js');
-    console.log(data);
+    debug('%s, %o', func, data);
   }
 
   /**
