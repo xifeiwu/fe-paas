@@ -62,6 +62,10 @@
       nodeKey: String,
       checkStrictly: Boolean,
       defaultExpandAll: Boolean,
+      setCurrentNodeOnClick: {
+        type: Boolean,
+        default: true
+      },
       expandOnClickNode: {
         type: Boolean,
         default: true

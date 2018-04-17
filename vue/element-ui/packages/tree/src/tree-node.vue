@@ -155,9 +155,11 @@
 
       handleClick() {
         const store = this.tree.store;
-        store.setCurrentNode(this.node);
-        this.tree.$emit('current-change', store.currentNode ? store.currentNode.data : null, store.currentNode);
-        this.tree.currentNode = this;
+        if (this.tree.setCurrentNodeOnClick) {
+          store.setCurrentNode(this.node);
+          this.tree.$emit('current-change', store.currentNode ? store.currentNode.data : null, store.currentNode);
+          this.tree.currentNode = this;
+        }
         if (this.tree.expandOnClickNode) {
           this.handleExpandIconClick();
         }
