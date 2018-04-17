@@ -16,10 +16,11 @@ switch (process.env.NODE_ENV) {
     break;
 }
 
-var path = 'http://' + window.location.hostname + ':' + port;
-var apiPath = path + '/api';
+// var path = 'http://' + window.location.hostname + ':' + port;
+const ORIGIN = window.location.origin;
+var apiPath = ORIGIN + '/api';
 
-var urlList = {
+var URL_LIST = {
   'api_path': apiPath,
   'page_terminal_path': 'http://' + window.location.host + '/terminal.html',
   'page_login_path': 'http://' + window.location.host + '/galaxy.html',
@@ -133,7 +134,7 @@ var urlList = {
   'domain_white_ip_list': apiPath + '/domain/whiteList/query',
   // 下载白名单模板
   // 'domain_download_white_ip_list_template': apiPath + '/domain/whiteList/download/template',
-  'domain_download_white_ip_list_template': path + '/assets/files/ip白名单模板.xlsx',
+  'domain_download_white_ip_list_template': ORIGIN + '/assets/files/ip白名单模板.xlsx',
   // 上传白名单模板
   'domain_upload_white_ip_list_template': apiPath + '/domain/whiteList/upload/template',
 
@@ -213,4 +214,6 @@ var urlList = {
 
 };
 
-export default urlList;
+export {
+  URL_LIST, ORIGIN
+};

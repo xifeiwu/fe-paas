@@ -2,8 +2,8 @@ import Vue from 'vue';
 import utils from '../assets/js/utils';
 Vue.prototype.$utils = utils;
 
-import URL from './net/url';
-Vue.prototype.$url = URL;
+import {URL_LIST} from './net/url';
+Vue.prototype.$url = URL_LIST;
 
 import Store from './store';
 import VueConfig from './config/vue';

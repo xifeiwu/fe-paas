@@ -5,7 +5,7 @@
 </template>
 <script>
   import axios from 'axios';
-  import URL_LIST from './net/url';
+  import {URL_LIST} from './net/url';
   const NEED_LOGIN = 1;
   const PARAMS_NOT_FOUND = 2;
 

@@ -3,10 +3,13 @@
     <paas-header @menu-click="handleClickOnPassHeader" defaultActive="docs"></paas-header>
     <el-container class="inner-container">
       <el-aside width="180px">
-        <el-tree refs="menu-list"
+        <el-tree ref="menu-list"
             :data="data"
             :props="defaultProps"
-                 default-expand-all
+             nodeKey='href'
+             :setCurrentNodeOnClick="false"
+             :expandOnClickNode="false"
+             default-expand-all
             @node-click="handleNodeClick">
         </el-tree>
       </el-aside>
@@ -60,25 +63,36 @@
 </style>
 <script>
   import paasHeader from './components/header';
+  import {ORIGIN} from '../net/url';
+  import axios from 'axios';
+
   export default {
     components: {paasHeader},
     created() {
 
     },
     mounted() {
-
+      this.$nextTick(() => {
+        this.$refs['menu-list'].setCurrentKey('222')
+      });
     },
     data() {
       return {
+        url: {
+          menu: '/docs/guide/menu.json'
+        },
         data: [{
           label: '一级 1',
+          isLeaf: true,
           children: [{
             label: '二级 1-1',
+            href: '222'
           }, {
             label: '二级 1-2'
           }]
         }, {
           label: '一级 2',
+          isLeaf: true,
           children: [{
             label: '二级 2-1',
           }, {
@@ -87,6 +101,7 @@
           }]
         }, {
           label: '一级 3',
+          isLeaf: true,
           children: [{
             label: '二级 3-1',
           }, {
@@ -96,7 +111,8 @@
         content: {},
         defaultProps: {
           children: 'children',
-          label: 'label'
+          label: 'label',
+          isLeaf: 'isLeaf',
         }
       };
     },

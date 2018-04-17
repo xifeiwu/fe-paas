@@ -389,7 +389,7 @@ class StoreHelper {
 
 
 import utils from '../../assets/js/utils';
-import URL from '../net/url';
+import {URL_LIST} from '../net/url';
 import NetHelper from '../net/net';
 
 class VUEConfig {
@@ -416,7 +416,7 @@ class VUEConfig {
   addGlobalFunction(Vue, Store) {
     Vue.prototype.$storeHelper = new StoreHelper(Store);
     Vue.prototype.$utils = utils;
-    Vue.prototype.$url = URL;
+    Vue.prototype.$url = URL_LIST;
     // $storeHelper and $utils in Vue.prototype will be used in NetData
     NetHelper.setVue(Vue);
     Vue.prototype.$net = NetHelper;
