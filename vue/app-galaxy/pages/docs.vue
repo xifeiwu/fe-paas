@@ -4,7 +4,7 @@
     <el-container class="inner-container">
       <el-aside width="180px">
         <el-tree ref="menu-list"
-            :data="data"
+            :data="menuList"
             :props="defaultProps"
              nodeKey='href'
              :setCurrentNodeOnClick="false"
@@ -14,7 +14,7 @@
         </el-tree>
       </el-aside>
       <el-main>
-        <div v-html="content">
+        <div v-html="docContent.body">
         </div>
       </el-main>
     </el-container>
@@ -69,19 +69,21 @@
   export default {
     components: {paasHeader},
     created() {
+      this.$ajax.get(ORIGIN + this.url.menu).then(response => {
+        let responseContent = this.$net.getResponseContent(response);
+        this.menuList = responseContent;
+      }).catch(err => {
 
+      });
     },
     mounted() {
-      this.$nextTick(() => {
-        this.$refs['menu-list'].setCurrentKey('222')
-      });
     },
     data() {
       return {
         url: {
           menu: '/docs/guide/menu.json'
         },
-        data: [{
+        menuList: [{
           label: '一级 1',
           isLeaf: true,
           children: [{
@@ -108,7 +110,7 @@
             label: '二级 3-2',
           }]
         }],
-        content: {},
+        docContent: '',
         defaultProps: {
           children: 'children',
           label: 'label',
@@ -118,7 +120,17 @@
     },
     methods: {
       handleNodeClick(data) {
-        console.log(data);
+        if (data.hasOwnProperty('href')) {
+          let href = data['href']
+          this.$ajax.get(`${ORIGIN}/docs/${href}`).then(response => {
+            let responseContent = this.$net.getResponseContent(response);
+//            console.log(responseContent);
+            this.docContent = responseContent;
+            this.$refs['menu-list'].setCurrentKey(href);
+          }).catch(err => {
+
+          });
+        }
       },
       handleClickOnPassHeader(keyPath) {
         switch (keyPath) {

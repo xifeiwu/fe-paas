@@ -16,8 +16,9 @@ switch (process.env.NODE_ENV) {
     break;
 }
 
-// var path = 'http://' + window.location.hostname + ':' + port;
-const ORIGIN = window.location.origin;
+var ORIGIN = window.location.protocol + '//' + window.location.hostname + ':' + port;
+// console.log(ORIGIN);
+// const ORIGIN = window.location.origin;
 var apiPath = ORIGIN + '/api';
 
 var URL_LIST = {

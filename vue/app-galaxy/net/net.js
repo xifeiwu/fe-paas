@@ -2,7 +2,7 @@
  * Created by xifei.wu on 2017/12/5.
  */
 import axios from 'axios';
-import URL_LIST from './url';
+import {URL_LIST} from './url';
 import appInfoHelper from '../pages/profile/utils/app-props';
 var debug = browserDebug('pass-fe:net');
 
