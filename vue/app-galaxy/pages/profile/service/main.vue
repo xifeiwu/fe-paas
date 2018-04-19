@@ -29,7 +29,7 @@
           <div class="item">
             <label style="float: left; width: 72px; line-height: 26px">运行环境：</label>
             <el-select v-model="selectedProfileID" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 72px;">
-              <el-option v-for="item in selectedProfileList" :key="item.id" :label="item.description" :value="item.id">
+              <el-option v-for="item in currentProfileList" :key="item.id" :label="item.description" :value="item.id">
               </el-option>
             </el-select>
           </div>
@@ -1115,7 +1115,7 @@ export default {
       selectedProfileID: null,
       // whether current profile is production
       isProductionProfile: null,
-      selectedProfileList: [],
+      currentProfileList: [],
       // used for component MyImageSelector
       serviceInfo: {
         appID: null,
@@ -1194,15 +1194,15 @@ export default {
       }
       this.serviceInfo.appID = value;
       this.selectedApp = appInfo['app'];
-      this.selectedProfileList = this.selectedApp['profileList'];
-      if (Array.isArray(this.selectedProfileList) && this.selectedProfileList.length > 0) {
+      this.currentProfileList = this.selectedApp['profileList'];
+      if (Array.isArray(this.currentProfileList) && this.currentProfileList.length > 0) {
         // at the beginning of this page(value of selectedProfileID is null), get selectedProfileID from localStorage
         // else selectedProfileID is the first element in profileList of selectedApp
-        let defaultProfileID = this.selectedProfileList[0]['id'];
+        let defaultProfileID = this.currentProfileList[0]['id'];
         if (null == this.selectedProfileID) {
           let selectedProfileID = this.$getUserConfig('profile/service/profileID');
-          // check whether selectedProfileID exist in selectedProfileList
-          selectedProfileID = this.selectedProfileList.map(it => {
+          // check whether selectedProfileID exist in currentProfileList
+          selectedProfileID = this.currentProfileList.map(it => {
             if (it && it.id) {
               return it.id
             }
@@ -1224,6 +1224,9 @@ export default {
       this.$storeHelper.setUserConfig('profile/service/appID', appID);
     },
     selectedProfileID: function (profileID, oldValue) {
+      if (null === profileID) {
+        return;
+      }
       this.serviceInfo.profileID = profileID;
       this.isProductionProfile = this.$storeHelper.isProductionProfile(profileID);
       let appID = this.selectedApp.appId;
@@ -1248,6 +1251,15 @@ export default {
     statusOfWaitingResponse(action) {
       return this.queueForWaitingResponse.indexOf(action) > -1;
     },
+
+    initDataStatus() {
+      this.appList = [];
+      this.selectedAppID = null;
+      this.currentProfileList = [];
+      this.selectedProfileID = null;
+      this.currentServiceList = [];
+      this.currentModelList = [];
+    },
     /**
      * the start point of change selectedAppID -> selectedProfileID -> serviceList
      * call in two place:
@@ -1259,6 +1271,7 @@ export default {
      * 2. get default appId
      */
     onAppInfoListOfGroup(appInfoListOfGroup) {
+      this.initDataStatus();
       if (appInfoListOfGroup) {
         if (appInfoListOfGroup.hasOwnProperty('appList')) {
           this.appList = appInfoListOfGroup.appList;
@@ -1270,6 +1283,13 @@ export default {
 //          this.totalSize = appInfoListOfGroup.total;
 //        }
         if (!this.appList || (0 == this.appList.length)) {
+          this.$notify.warning({
+            title: '该团队应用列表为空',
+            message: '某些操作可能无法正常进行！',
+            duration: 10 * 1000,
+            onClose: function () {
+            }
+          });
           return;
         }
         let localID = this.$getUserConfig('profile/service/appID');

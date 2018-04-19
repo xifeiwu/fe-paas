@@ -177,6 +177,13 @@
       },
     },
     methods: {
+      initDataStatus() {
+        this.appList = [];
+        this.selectedAppID = null;
+        this.currentProfileList = [];
+        this.selectedProfileID = null;
+        this.currentServiceList = [];
+      },
       /**
        * this function is the start point of watcher chain
        * the start of watcher chain: appID -> profileID -> serviceID
@@ -195,6 +202,13 @@
             this.appList = appInfoListOfGroup.appList;
           }
           if (!this.appList || (0 == this.appList.length)) {
+            this.$notify.warning({
+              title: '该团队应用列表为空',
+              message: '某些操作可能无法正常进行！',
+              duration: 10 * 1000,
+              onClose: function () {
+              }
+            });
             return;
           }
           // the sequence of getting default appID:
