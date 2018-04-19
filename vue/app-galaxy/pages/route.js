@@ -123,7 +123,7 @@ var Router = function () {
         redirect: 'oauth/key',
         children: [{
           path: 'key',
-          name: 'Access Key',
+          name: 'Access Key管理',
           component: OAuthKey,
           meta: {keepAlive: true}
         },{

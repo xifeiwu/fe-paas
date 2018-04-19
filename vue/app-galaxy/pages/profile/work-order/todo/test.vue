@@ -333,8 +333,13 @@
 
       handleSubmit(reject) {
         // change rules according to user select
-        this.rules.comment[0].required = this.rejectHandle;
-        this.rules.testLogListAll[0].required = this.handleInfo.testType != 'SKIP_TEST';
+        if (this.rejectHandle) {
+          this.rules.comment[0].required = true;
+          this.rules.testLogListAll[0].required = false;
+        } else {
+          this.rules.comment[0].required = false;
+          this.rules.testLogListAll[0].required = this.handleInfo.testType != 'SKIP_TEST';
+        }
         if (!WorkOrderPropUtils.checkComment(this.handleInfo.comment)) {
           this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
           return;
