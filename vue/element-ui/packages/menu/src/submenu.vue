@@ -151,11 +151,13 @@
       },
       handleMouseenter() {
         const {rootMenu} = this;
-        if (
-          (rootMenu.menuTrigger === 'click' && rootMenu.mode === 'horizontal') ||
-          (!rootMenu.collapse && rootMenu.mode === 'vertical')
-        ) {
-          return;
+        if (!this.withDrawOnMouseLeave) {
+          if (
+            (rootMenu.menuTrigger === 'click' && rootMenu.mode === 'horizontal') ||
+            (!rootMenu.collapse && rootMenu.mode === 'vertical')
+          ) {
+            return;
+          }
         }
         clearTimeout(this.timeout);
         this.timeout = setTimeout(() => {
@@ -175,7 +177,7 @@
         clearTimeout(this.timeout);
         this.timeout = setTimeout(() => {
           this.rootMenu.closeMenu(this.index);
-        }, 300);
+        }, 1000);
       },
       handleTitleMouseenter() {
         if (this.mode === 'horizontal' && !this.rootMenu.backgroundColor) return;
