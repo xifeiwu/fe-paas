@@ -152,7 +152,7 @@
       },
       selectedProfileID: function (value, oldValue) {
         let profileID = value;
-        let appID = this.selectedAPP.appId;
+        let appID = this.selectedAPP ? this.selectedAPP.appId: null;
         this.requestServiceList(appID, profileID);
 //        this.$storeHelper.setUserConfig('profile/service/profileID', profileID);
       },
@@ -181,8 +181,9 @@
         this.appList = [];
         this.selectedAppID = null;
         this.currentProfileList = [];
-        // this.selectedProfileID = null;
+         this.selectedProfileID = this.$storeHelper.SERVICE_ID_FOR_NULL;
         this.currentServiceList = [];
+        this.selectedServiceID = this.$storeHelper.SERVICE_ID_FOR_NULL;
       },
       /**
        * this function is the start point of watcher chain
@@ -197,6 +198,7 @@
        * 2. get default appId
        */
       onAppInfoListOfGroup(appInfoListOfGroup) {
+        this.initDataStatus();
         if (appInfoListOfGroup) {
           if (appInfoListOfGroup.hasOwnProperty('appList')) {
             this.appList = appInfoListOfGroup.appList;

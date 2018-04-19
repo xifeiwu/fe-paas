@@ -1224,7 +1224,7 @@ export default {
       this.$storeHelper.setUserConfig('profile/service/appID', appID);
     },
     selectedProfileID: function (profileID, oldValue) {
-      if (null === profileID) {
+      if (this.$storeHelper.SERVICE_ID_FOR_NULL === profileID) {
         return;
       }
       this.serviceInfo.profileID = profileID;
@@ -1256,7 +1256,7 @@ export default {
       this.appList = [];
       this.selectedAppID = null;
       this.currentProfileList = [];
-//      this.selectedProfileID = null;
+      this.selectedProfileID = this.$storeHelper.SERVICE_ID_FOR_NULL;
       this.currentServiceList = [];
       this.currentModelList = [];
     },
