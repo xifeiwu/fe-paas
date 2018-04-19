@@ -1319,7 +1319,8 @@ export default {
         })
       }
 
-      if (null !== this.selectedAppID || null !== language || null !== profileName || null !== groupTag) {
+      if (null !== groupTag && null !== this.selectedAppID && null !== this.selectedProfileID &&
+        null !== profileName && null !== language && null != languageVersion) {
         result = {
           groupTag: groupTag,
           appId: this.selectedAppID,
@@ -1329,6 +1330,8 @@ export default {
           languageVersion: languageVersion,
           versionList: versionList
         }
+      } else {
+        console.log('error: infoForAddService');
       }
       return result;
     },
@@ -1712,7 +1715,14 @@ export default {
         this.$refs.hasOwnProperty(formName) &&
         this.$refs[formName].validate();
         if (prop === 'image') {
-          this.$refs[formName].init(this.serviceInfo, this.newProps);
+          // pass parameter to component image-selector.vue
+          let infoForAddService = this.getInfoForAddService();
+          if (infoForAddService) {
+            this.$refs[formName].init(this.getInfoForAddService(), this.newProps);
+          } else {
+            this.selected.prop = null;
+            this.$message.error('获取信息失败！');
+          }
         }
       })
     },

@@ -453,7 +453,7 @@
         }
         return this.errorMsgForVersion === '';
       },
-      // get image realted info from network
+      // get image related info from network
       requestImageRelatedInfo() {
         // check group tag
         let {groupTag, appId, profileName} = this.infoForAddService;
