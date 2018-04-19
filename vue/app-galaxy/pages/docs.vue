@@ -64,7 +64,6 @@
 <script>
   import paasHeader from './components/header';
   import {ORIGIN} from '../net/url';
-  import axios from 'axios';
 
   export default {
     components: {paasHeader},

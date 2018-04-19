@@ -1,24 +1,7 @@
 <template>
-  <el-container id="profile">
-    <el-header height="45px">
-      <div class="img" @click="handleHeaderMenuClick(null, ['index'])">
-        <img src="/assets/imgs/finup-cloud.png">
-      </div>
-      <el-menu class="header-menu"
-               mode="horizontal"
-               menuTrigger="click"
-               @select="handleHeaderMenuClick"
-               defaultActive="profile"
-      >
-        <el-menu-item index="profile">控制台</el-menu-item>
-        <el-menu-item index="message">消息中心</el-menu-item>
-        <el-submenu index="user" :withDrawOnMouseLeave="true">
-          <template slot="title">{{userName}}</template>
-          <el-menu-item index="info"><i class="my-icon-user"></i><span>用户信息</span></el-menu-item>
-          <el-menu-item index="logout"><i class="my-icon-logout"></i><span>退出</span></el-menu-item>
-        </el-submenu>
-      </el-menu>
-    </el-header>
+  <el-container id="profile" direction="vertical">
+    <paas-header-profile :userName="userName" defaultActive="profile"
+                         @menu-click="handleHeaderMenuClick"></paas-header-profile>
     <el-container class="inner-container">
       <el-aside width="180px">
         <el-menu
@@ -62,38 +45,7 @@
   </el-container>
 </template>
 
-<style lang="scss">
-  $header-height: 45px;
-  #profile.el-container {
-    .el-header {
-      .el-menu.header-menu {
-        .el-submenu {
-          .el-submenu__title {
-            font-size: 15px;
-            line-height: $header-height;
-            height: $header-height;
-          }
-          .el-menu {
-            top: $header-height;
-            .el-menu-item {
-              text-align: left;
-            }
-          }
-        }
-      }
-    }
-  }
-</style>
-
 <style lang="scss" scoped>
-  .el-menu {
-    .el-menu-item {
-      &.is-active {
-        /*font-weight: bold;*/
-        /*cursor: no-drop;*/
-      }
-    }
-  }
   $header-height: 45px;
   $header-background-color: #3976EF;
   $header-background-color: #e7e7e7;
@@ -101,40 +53,6 @@
   $aside-width: 180px;
   #profile.el-container {
     height: 100%;
-    .el-header {
-      background-color: $header-background-color;
-      padding-left: 0px;
-      color: #333;
-      text-align: center;
-      .img {
-        float: left;
-        line-height: $header-height;
-        img {
-          width: 120px;
-          margin-left: 8px;
-        }
-      }
-      .el-menu.header-menu {
-        [class^="my-icon-"] {
-          display: inline-block;
-          font-size: 14px;
-          margin-top: 1px;
-          margin-right: 5px;
-        }
-        background-color: transparent;
-        float: right;
-        border-width: 0px;
-        .el-menu-item {
-          font-size: 15px;
-          line-height: $header-height;
-          height: $header-height;
-          &.is-active {
-            color: black;
-            font-size: 16px;
-          }
-        }
-      }
-    }
     .inner-container {
       .el-aside {
         position: fixed;
@@ -196,8 +114,10 @@
 
 <script>
   import routeUtils from './route';
+  import paasHeaderProfile from './components/header-profile';
 
   export default {
+    components: {paasHeaderProfile},
     data() {
       return {
         activeSideMenuItem: '/profile/app',
@@ -277,10 +197,7 @@
       /**
        * register some global variable at start of page profile
        */
-      handleHeaderMenuClick(key, keyPath) {
-        keyPath = keyPath.join('/');
-//        console.log(key, keyPath);
-//        console.log(`go to ${keyPath}`);
+      handleHeaderMenuClick(keyPath) {
         switch (keyPath) {
           case 'user/info':
             this.$router.push('/user/info');

@@ -33,7 +33,7 @@ var URL_LIST = {
   'logout': apiPath + '/userLogout',
   'app_list': apiPath + '/application/queryByPage',
   'user_info': apiPath + '/group/queryByUser',
-  // 获取用户组ID
+  // 获取用户所在组列表
   'get_user_group_list': apiPath + '/group/queryByUser',
 
   /** 全局相关 */
