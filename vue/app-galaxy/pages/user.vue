@@ -207,6 +207,9 @@
           case 'profile':
             this.$router.push('/profile');
             break;
+          case 'index':
+            this.$router.push('/index');
+            break;
         }
       },
       handleAsideMenuSelect(key, keyPath) {

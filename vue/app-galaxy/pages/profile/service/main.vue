@@ -1256,7 +1256,7 @@ export default {
       this.appList = [];
       this.selectedAppID = null;
       this.currentProfileList = [];
-      this.selectedProfileID = null;
+//      this.selectedProfileID = null;
       this.currentServiceList = [];
       this.currentModelList = [];
     },
