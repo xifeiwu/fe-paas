@@ -859,26 +859,26 @@ class Net {
       return axios.post(URL_LIST.custom_image_private_app_list, options4PrivateApp);
     };
     return new Promise((resolve, reject) => {
-      axios.all([getAutoImageList(), getCustomEnvImageList(), getCustomPrivateImageAppList()])
+      axios.all([getAutoImageList()])
         .then(axios.spread((autoImageList, customEnvImageList, privateAppList) => {
           autoImageList = this.getResponseContent(autoImageList);
-          customEnvImageList = this.getResponseContent(customEnvImageList);
-          privateAppList = this.getResponseContent(privateAppList);
           if (autoImageList && autoImageList.hasOwnProperty('basicImage')) {
             autoImageList = autoImageList['basicImage'];
           } else {
             reject('autoImageList not found');
           }
-          if (customEnvImageList && customEnvImageList.hasOwnProperty('envImage')) {
-            customEnvImageList = customEnvImageList['envImage'];
-          } else {
-            reject('customEnvImageList not found');
-          }
-          if (privateAppList && privateAppList.hasOwnProperty('projectName')) {
-            privateAppList = privateAppList['projectName'];
-          } else {
-            reject('privateAppList not found');
-          }
+          // customEnvImageList = this.getResponseContent(customEnvImageList);
+          // if (customEnvImageList && customEnvImageList.hasOwnProperty('envImage')) {
+          //   customEnvImageList = customEnvImageList['envImage'];
+          // } else {
+          //   reject('customEnvImageList not found');
+          // }
+          // privateAppList = this.getResponseContent(privateAppList);
+          // if (privateAppList && privateAppList.hasOwnProperty('projectName')) {
+          //   privateAppList = privateAppList['projectName'];
+          // } else {
+          //   reject('privateAppList not found');
+          // }
           resolve({autoImageList, customEnvImageList, privateAppList});
       })).catch(err => {
         console.log(err);

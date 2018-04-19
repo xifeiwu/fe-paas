@@ -5,7 +5,8 @@
              :rules="rules" label-width="200px" size="mini"
              v-loading="showLoading"
              :element-loading-text="loadingText">
-      <el-form-item label="版本号" prop="serviceVersion" class="service-version">
+      <el-form-item label="版本号" class="service-version"
+                    :error="errorMsgForVersion">
         <el-input v-model="serviceForm.serviceVersion" placeholder="版本号只能包含数字，不能超过五位">
           <template slot="prepend">V</template>
         </el-input>
@@ -28,28 +29,29 @@
       <el-form-item label="镜像地址" prop="customImageValue" v-else
                     :class="['custom-image', imageSelectState.customImageType.toLowerCase()+'-image']"
       >
-        <el-select v-model="imageSelectState.customImageType">
-          <el-option v-for="(item, index) in customImageTypeList"
-                     :key="index" :label="item.label" :value="item.value"></el-option>
-        </el-select>
-        <el-select v-model="serviceForm.customImageValue" v-if="imageSelectState.customImageType=='ENV'"
-                   :placeholder="imageInfoFromNet.customEnvImageList.length > 0 ? '请选择' : '无数据'">
-          <el-option v-for="(item, index) in imageInfoFromNet.customEnvImageList"
-                     :key="index" :label="item.imageName" :value="item.imageName">
-          </el-option>
-        </el-select>
-        <el-select v-model="imageSelectState.currentPrivateApp" v-if="imageSelectState.customImageType=='PRIVATE'"
-                   :placeholder="imageInfoFromNet.privateAppList.length > 0 ? '请选择' : '无数据'">
-          <el-option v-for="(item, index) in imageInfoFromNet.privateAppList"
-                     :key="index" :label="item" :value="item">
-          </el-option>
-        </el-select>
-        <el-select v-model="serviceForm.customImageValue" v-if="imageSelectState.customImageType=='PRIVATE'"
-                   :placeholder="currentPrivateAppVersionList.length > 0 ? '请选择' : '无数据'">
-          <el-option v-for="(item, index) in currentPrivateAppVersionList"
-                     :key="index" :label="item" :value="item">
-          </el-option>
-        </el-select>
+        <el-input v-model="serviceForm.customImageValue" placeholder="输入镜像地址，包含版本"></el-input>
+        <!--<el-select v-model="imageSelectState.customImageType">-->
+          <!--<el-option v-for="(item, index) in customImageTypeList"-->
+                     <!--:key="index" :label="item.label" :value="item.value"></el-option>-->
+        <!--</el-select>-->
+        <!--<el-select v-model="serviceForm.customImageValue" v-if="imageSelectState.customImageType=='ENV'"-->
+                   <!--:placeholder="imageInfoFromNet.customEnvImageList.length > 0 ? '请选择' : '无数据'">-->
+          <!--<el-option v-for="(item, index) in imageInfoFromNet.customEnvImageList"-->
+                     <!--:key="index" :label="item.imageName" :value="item.imageName">-->
+          <!--</el-option>-->
+        <!--</el-select>-->
+        <!--<el-select v-model="imageSelectState.currentPrivateApp" v-if="imageSelectState.customImageType=='PRIVATE'"-->
+                   <!--:placeholder="imageInfoFromNet.privateAppList.length > 0 ? '请选择' : '无数据'">-->
+          <!--<el-option v-for="(item, index) in imageInfoFromNet.privateAppList"-->
+                     <!--:key="index" :label="item" :value="item">-->
+          <!--</el-option>-->
+        <!--</el-select>-->
+        <!--<el-select v-model="serviceForm.customImageValue" v-if="imageSelectState.customImageType=='PRIVATE'"-->
+                   <!--:placeholder="currentPrivateAppVersionList.length > 0 ? '请选择' : '无数据'">-->
+          <!--<el-option v-for="(item, index) in currentPrivateAppVersionList"-->
+                     <!--:key="index" :label="item" :value="item">-->
+          <!--</el-option>-->
+        <!--</el-select>-->
       </el-form-item>
 
       <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress" class="gitlab-address">
@@ -289,6 +291,8 @@
         this.$router.go(-1);
         return;
       }
+      this.serviceForm.appId = infoForAddService.appId;
+      this.serviceForm.spaceId = infoForAddService.profileId;
       this.infoForAddService = infoForAddService;
 
       this.rules.imageLocation.required = false;
@@ -308,7 +312,9 @@
         environmentValue: '',
         hostKey: '',
         hostValue: '',
+        errorMsgForVersion: '',
         serviceForm: {
+          appId: null,
           spaceId: null,
           serviceVersion: '',
           gitLabAddress: '',
@@ -415,27 +421,38 @@
         }
       },
 
-      'imageInfoFromNet': {
-        immediate: true,
-        handler (info) {
-          this.updateImageSelection();
-        }
-      },
-      'imageSelectState.customImage': {
-        immediate: true,
-        handler (value) {
-          this.updateImageSelection();
-        }
-      },
-      'imageSelectState.customImageType': {
-        immediate: true,
-        handler (value) {
-          this.updateImageSelection();
-        }
-      },
-      'imageSelectState.currentPrivateApp': 'requestPrivateImageLocation'
+      'serviceForm.serviceVersion': 'checkVersion'
+//      'imageInfoFromNet': {
+//        immediate: true,
+//        handler (info) {
+//          this.updateImageSelection();
+//        }
+//      },
+//      'imageSelectState.customImage': {
+//        immediate: true,
+//        handler (value) {
+//          this.updateImageSelection();
+//        }
+//      },
+//      'imageSelectState.customImageType': {
+//        immediate: true,
+//        handler (value) {
+//          this.updateImageSelection();
+//        }
+//      },
+//      'imageSelectState.currentPrivateApp': 'requestPrivateImageLocation'
     },
     methods: {
+      checkVersion(value) {
+        if (!/^[0-9]{1,5}$/.test(value)) {
+          this.errorMsgForVersion = '版本号只能包含数字，不能超过五位';
+        } else if (this.infoForAddService.versionList.indexOf(value) > -1) {
+          this.errorMsgForVersion = `版本v${value}已经存在`;
+        } else {
+          this.errorMsgForVersion = ''
+        }
+        return this.errorMsgForVersion === '';
+      },
       // get image realted info from network
       requestImageRelatedInfo() {
         // check group tag
@@ -461,6 +478,7 @@
         })
       },
       // set default image at the change of custom-image's type
+      // TODO: not used
       updateImageSelection() {
         if (!this.imageSelectState.customImage) {
           this.serviceForm.autoImageValue = '';
@@ -482,6 +500,7 @@
         }
       },
       // request private image version list by image-name
+      // TODO: not used
       requestPrivateImageLocation(value) {
         this.currentPrivateAppVersionList = [];
         this.$net.getVersionListOfAppInCustomImage({
@@ -590,6 +609,9 @@
 
       handleFinish() {
         let self = this;
+        if (!this.checkVersion(this.serviceForm.serviceVersion)) {
+          return;
+        }
         this.$refs['serviceForm'].validate((valid) => {
           if (valid) {
             this.serviceForm.customImage = this.imageSelectState.customImage;
@@ -598,7 +620,10 @@
             } else {
               this.serviceForm.imageLocation = this.serviceForm.autoImageValue;
             }
-            let toPost = appPropUtil.changePropNameForServer(this.serviceForm);
+            let serviceForm = this.$utils.cloneDeep(this.serviceForm);
+            delete serviceForm.customImageValue;
+            delete serviceForm.autoImageValue;
+            let toPost = appPropUtil.changePropNameForServer(serviceForm);
             this.showLoading = true;
             this.loadingText = '正在为您创建服务';
             this.$net.createService(toPost).then((content) => {

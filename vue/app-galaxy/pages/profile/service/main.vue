@@ -1289,6 +1289,7 @@ export default {
         this.memeorySizeList = 'memoryList' in firstItem ? firstItem.memoryList : '';
       }
     },
+    // collect all related info for add-service before jump to page service/add
     getInfoForAddService() {
       let result = null;
       let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
@@ -1301,17 +1302,32 @@ export default {
       if (groupInfo && groupInfo.hasOwnProperty('tag')) {
         groupTag = groupInfo.tag;
       }
-
+      // language info
       let language = null;
+      let languageVersion = null;
       if (this.selectedApp && this.selectedApp.hasOwnProperty('language')) {
         language = this.selectedApp.language;
+        languageVersion = this.selectedApp.languageVersion;
       }
+      // has-existed version
+      let versionList = [];
+      if (this.currentServiceList && Array.isArray(this.currentServiceList)) {
+        versionList = this.currentServiceList.filter(it => {
+          return it.hasOwnProperty('serviceVersion') && it['serviceVersion'][0] === 'v';
+        }).map(it => {
+          return it['serviceVersion'].substring(1);
+        })
+      }
+
       if (null !== this.selectedAppID || null !== language || null !== profileName || null !== groupTag) {
         result = {
           groupTag: groupTag,
           appId: this.selectedAppID,
+          profileId: this.selectedProfileID,
           profileName: profileName,
-          language: language
+          language: language,
+          languageVersion: languageVersion,
+          versionList: versionList
         }
       }
       return result;
