@@ -56,10 +56,6 @@
         type: String,
         required: true
       },
-      withDrawOnMouseLeave: {
-        type: Boolean,
-        default: false
-      }
     },
 
     data() {
@@ -151,13 +147,11 @@
       },
       handleMouseenter() {
         const {rootMenu} = this;
-        if (!this.withDrawOnMouseLeave) {
-          if (
-            (rootMenu.menuTrigger === 'click' && rootMenu.mode === 'horizontal') ||
-            (!rootMenu.collapse && rootMenu.mode === 'vertical')
-          ) {
-            return;
-          }
+        if (
+          (rootMenu.menuTrigger === 'click' && rootMenu.mode === 'horizontal') ||
+          (!rootMenu.collapse && rootMenu.mode === 'vertical')
+        ) {
+          return;
         }
         clearTimeout(this.timeout);
         this.timeout = setTimeout(() => {
@@ -166,13 +160,11 @@
       },
       handleMouseleave() {
         const {rootMenu} = this;
-        if (!this.withDrawOnMouseLeave) {
-          if (
-            (rootMenu.menuTrigger === 'click' && rootMenu.mode === 'horizontal') ||
-            (!rootMenu.collapse && rootMenu.mode === 'vertical')
-          ) {
-            return;
-          }
+        if (
+          (rootMenu.menuTrigger === 'click' && rootMenu.mode === 'horizontal') ||
+          (!rootMenu.collapse && rootMenu.mode === 'vertical')
+        ) {
+          return;
         }
         clearTimeout(this.timeout);
         this.timeout = setTimeout(() => {
