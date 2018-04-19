@@ -1,3 +1,19 @@
+### how to run
+
+nvm install v8.9.4
+npm install -g yarn
+
+pushd ./vue
+yarn install
+npm run dev
+
+popd
+yarn install
+cd ./server
+npm run start-dev
+
+open http://127.0.0.1:8080 in browser
+
 ### profile
 
 - dev
