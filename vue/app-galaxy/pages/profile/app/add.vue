@@ -5,9 +5,9 @@
              ref="createAppForm" label-width="100px"
              v-loading="showLoading"
              :element-loading-text="loadingText">
-      <el-form-item label="团队" prop="groupID">
+      <el-form-item label="团队" prop="groupID" class="group-list">
         <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择">
-          <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
+          <el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">
           </el-option>
         </el-select>
       </el-form-item>
@@ -101,11 +101,6 @@
   </div>
 </template>
 
-<style>
-  .onePercentLineHeight {
-    line-height: 100%;
-  }
-</style>
 <style lang="scss" scoped>
   #app-add {
     margin: 20px;
@@ -132,6 +127,11 @@
     }
     .el-form {
       .el-form-item {
+        &.group-list {
+          .el-select {
+            width: 240px;
+          }
+        }
         &.profiles {
           .el-checkbox + .el-checkbox {
             margin-left: 20px;

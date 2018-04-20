@@ -233,15 +233,28 @@ class Net {
     })
   }
 
+  /**
+   * 获取用户所在的组列表
+   * @returns {Promise}
+   */
   getUserGroupList () {
     return new Promise((resolve, reject) => {
-      axios.get(URL_LIST.get_user_group_list).then(res => {
-        if ('data' in res) {
-          let data = res.data;
-          if (0 === data.code) {
-            this.showLog('getUserGroupList', data.content)
-            resolve(data.content);
+      axios.get(URL_LIST.get_user_group_list).then(response => {
+        let responseContent = this.getResponseContent(response);
+        if (responseContent) {
+          if (responseContent.hasOwnProperty('groupList') && Array.isArray(responseContent['groupList'])) {
+            responseContent.groupList = responseContent.groupList.map(it => {
+              let lobName = '';
+              if (it.hasOwnProperty('lobName') && it.lobName.length > 0) {
+                lobName = '（' + it['lobName'] + '）';
+              }
+              it.asLabel = it.name + lobName;
+              return it;
+            })
           }
+          resolve(responseContent);
+        } else {
+          console.log('用户组列表获取失败！');
         }
       }).catch(err => {
         reject(err);

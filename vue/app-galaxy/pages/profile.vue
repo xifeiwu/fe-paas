@@ -32,7 +32,7 @@
           <el-col :span="12" class="group-list">
             <el-select v-model="$storeHelper.currentGroupID" size="mini" filterable
                        :placeholder="groupList.length > 0 ? '请选择':'无数据'" v-if="showGroupList">
-              <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
+              <el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">
               </el-option>
             </el-select>
           </el-col>
@@ -89,7 +89,7 @@
         margin-left: $aside-width;
         .el-row.main-header {
           border-bottom: 1px solid #e7e7e7;
-          padding: 0px;
+          padding: 0px 6px;
           height:30px;
           .el-col {
             &.current-step {
@@ -100,7 +100,9 @@
             }
             &.group-list {
               text-align: right;
-
+              .el-select {
+                width: 240px;
+              }
             }
           }
         }
