@@ -1,8 +1,10 @@
 const process = require('process');
 const path = require('path');
+const cors = require('koa-cors');
 const koaServer = require('./koa-spa-server');
 // const L = require('nirvana-logger')('example');
 var port = process.env.PORT || 80;
+
 
 var javaServer = null;
 /**
@@ -19,9 +21,11 @@ switch (process.env.NODE_ENV) {
     break;
   case 'dev':
   default:
-    javaServer = 'http://172.16.49.130:30333';
-    javaServer = 'http://galaxy-web-server.galaxy.test';
-    // javaServer = 'http://10.10.202.143:30333';
+    javaServer = 'http://172.16.105.184:30333';
+    javaServer = 'http://172.16.108.111:30333';
+    javaServer ='http://10.10.202.143:30339';
+    // javaServer = 'http://galaxy-web-server.galaxy.test';
+    javaServer = 'http://10.10.202.143:30333';
     port = 7002;
     break;
 }
@@ -49,6 +53,11 @@ const proxyTable = {
   },
 };
 
+const KoaMDParser = require('@paas/koa-md-parser');
+let mdParser = new KoaMDParser(null, {
+  urlPrefix: '/docs'
+});
+
 // 创建服务
 const server = new koaServer({
   port,
@@ -68,6 +77,9 @@ const server = new koaServer({
       }
     }
   },
+  middlewares: [
+    cors(), mdParser.getMiddleware()
+  ]
 });
 
 // 静态目录

@@ -49,6 +49,11 @@ class SpaServer {
     //   ctx.set('X-Response-Time', `${ms}ms`);
     // });
 
+    if (option.middlewares && Array.isArray(option.middlewares)) {
+      option.middlewares.forEach(it => {
+        app.use(it);
+      })
+    }
     // 压缩
     if (this.option.compress) {
       app.use(compress(this.option.compress));
