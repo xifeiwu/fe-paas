@@ -106,6 +106,7 @@ var baseConfig = {
       'element-ui': utils.contextPath() + '/element-ui',
       'components': utils.contextPath() + '/components',
       'assets': utils.contextPath() + '/assets',
+      '$assets': utils.contextPath() + '/app-galaxy/assets',
     }
   },
   module: {

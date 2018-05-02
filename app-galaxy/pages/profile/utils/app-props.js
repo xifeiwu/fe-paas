@@ -1,91 +1,15 @@
 import STORE from '../../../store';
+import utils from '$assets/libs/element-ui/utils';
 
 class AppInfoHelper {
-  generateReg(chinese, min, max) {
-    let chineseState = {
-      reg: '',
-      desc: '',
-    };
-    if (chinese) {
-      chineseState = {
-        reg: '\u4e00-\u9fa5',
-        desc: '中文'
-      }
-    }
-    if (!min) {
-      min = 1;
-    }
-    if (!max) {
-      max = '';
-    }
-    let regStr = `^[${chineseState['reg']}A-Za-z0-9_\\-\\.@/:]{${min},${max}}$`;
-    let reg = new RegExp(regStr);
-    let desc = `字符中只能包含字母、数字、下划线、中划线`;
-    if (chineseState.reg) {
-      desc = `${desc}，${chineseState['desc']}。`;
-    }
-    if (min > 1 && max != '') {
-      desc = `${desc}长度${min}-${max}个字符`
-    }
-    return {reg, desc}
-  }
-  generateValidator(required, chinese, min, max) {
-    let regStates = this.generateReg(chinese, min, max);
-    return function(rule, values, callback) {
-      let passed = true;
-      let reg = regStates.reg;
-      if (!values) {
-        if (required) {
-          passed = false;
-          callback('内容不能为空');
-        }
-      } else if (values.length > 0) {
-        if (!reg.exec(values)) {
-          passed = false;
-          callback(regStates.desc);
-        }
-      }
-      if (passed) {
-        callback();
-      }
-    };
-  }
-
-  generateCountReg(min, max) {
-    let regStr = `^.{${min},${max}}$`;
-    let reg = new RegExp(regStr);
-    let desc = `不能超过${max}个字符`;
-    return {reg, desc}
-  }
-  generateCountValidator(required, min, max) {
-    let regStates = this.generateCountReg(min, max);
-    return function(rule, values, callback) {
-      let passed = true;
-      let reg = regStates.reg;
-      if (!values) {
-        if (required) {
-          passed = false;
-          callback('内容不能为空');
-        }
-      } else if (values.length > 0) {
-        if (!reg.exec(values)) {
-          passed = false;
-          callback(regStates.desc);
-        }
-      }
-      if (passed) {
-        callback();
-      }
-    };
-  }
   constructor() {
-    let basicValidator = this.generateValidator(true, true);
-    let notRequriedBasicValidator = this.generateValidator(false, true);
-    let limit100 = this.generateCountValidator(false, 0, 100);
-    let limit100Required = this.generateCountValidator(true, 0, 100);
-    let limit200Required = this.generateCountValidator(true, 0, 200);
-    let limit256 = this.generateCountValidator(false, 0, 256);
-    let limit256Required = this.generateCountValidator(true, 0, 256);
+    let basicValidator = utils.generateValidator(true, true);
+    let notRequriedBasicValidator = utils.generateValidator(false, true);
+    let limit100 = utils.generateCountValidator(false, 0, 100);
+    let limit100Required = utils.generateCountValidator(true, 0, 100);
+    let limit200Required = utils.generateCountValidator(true, 0, 200);
+    let limit256 = utils.generateCountValidator(false, 0, 256);
+    let limit256Required = utils.generateCountValidator(true, 0, 256);
     this.rules = {
       // 应用名称
       appName: [{
@@ -93,7 +17,7 @@ class AppInfoHelper {
           message: '请输入应用名称',
           trigger: 'blur'
         }, {
-          validator: this.generateValidator(true, true, 2, 30)
+          validator: utils.generateValidator(true, true, 2, 30, true)
         }
       ],
       // 项目名称
@@ -102,7 +26,7 @@ class AppInfoHelper {
         message: '请输入项目名称',
         trigger: 'blur'
       }, {
-        validator: this.generateValidator(true, false, 2, 50)
+        validator: utils.generateValidator(true, false, 2, 50)
       }],
       // 健康检查
       healthCheck: [{
