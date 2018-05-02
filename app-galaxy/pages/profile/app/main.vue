@@ -547,13 +547,6 @@
             break;
         }
 
-        // simulate post
-//        setTimeout(() => {
-//          this.waitingResponse = false;
-//          this.selected.prop = null;
-//          this.updateModelInfo(prop);
-//        }, 1000);
-//        return;
         if (Object.keys(options).length > 1) {
           this.$net.appUpdate(prop, options).then(msg => {
             this.waitingResponse = false;

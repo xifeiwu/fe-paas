@@ -1199,7 +1199,7 @@ export default {
         // at the beginning of this page(value of selectedProfileID is null), get selectedProfileID from localStorage
         // else selectedProfileID is the first element in profileList of selectedApp
         let defaultProfileID = this.currentProfileList[0]['id'];
-        if (null == this.selectedProfileID) {
+        if (null == this.selectedProfileID || this.$storeHelper.SERVICE_ID_FOR_NULL == this.selectedProfileID) {
           let selectedProfileID = this.$getUserConfig('profile/service/profileID');
           // check whether selectedProfileID exist in currentProfileList
           selectedProfileID = this.currentProfileList.map(it => {
@@ -1207,6 +1207,7 @@ export default {
               return it.id
             }
           }).indexOf(selectedProfileID) > -1 ? selectedProfileID: defaultProfileID;
+
           if (selectedProfileID) {
             this.selectedProfileID = selectedProfileID;
           } else {
@@ -1276,12 +1277,6 @@ export default {
         if (appInfoListOfGroup.hasOwnProperty('appList')) {
           this.appList = appInfoListOfGroup.appList;
         }
-//        if (appInfoListOfGroup.hasOwnProperty('appModelList')) {
-//          this.appModelList = appInfoListOfGroup.appModelList;
-//        }
-//        if (appInfoListOfGroup.hasOwnProperty('total')) {
-//          this.totalSize = appInfoListOfGroup.total;
-//        }
         if (!this.appList || (0 == this.appList.length)) {
           this.$notify.warning({
             title: '该团队应用列表为空',
