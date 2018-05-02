@@ -31,7 +31,7 @@
           </el-col>
           <el-col :span="12" class="group-list">
             <el-select v-model="$storeHelper.currentGroupID" size="mini" filterable
-                       :placeholder="groupList.length > 0 ? '请选择':'无数据'" v-if="showGroupList">
+                       :placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'" v-if="showGroupList">
               <el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">
               </el-option>
             </el-select>
@@ -179,20 +179,20 @@
         let path = value.path;
         let pathReg = /^\/profile\/([\w-\/]*)$/i;
         let execResult = pathReg.exec(path);
-        console.log(execResult);
+//        console.log(execResult);
         if (execResult && execResult.length >= 2) {
           let relativePath = execResult[1];
-          if (relativePath.length > 0) {
-          // whether show groupList
-          let pageNotShowGroupList = ['app/add', 'service/add'];
-          let pageNotShowGroupListReg = /^work-order\/(todo|list).*$/;
-          if (pageNotShowGroupList.indexOf(relativePath) > -1 || pageNotShowGroupListReg.exec(relativePath)) {
-            this.showGroupList = false;
-          } else {
-            this.showGroupList = true;
-          }
-          // update content of crumb list
-          this.updateCrumbList(relativePath);
+          if (relativePath && relativePath.length > 0) {
+            // whether show groupList
+            let pageNotShowGroupList = ['app/add', 'service/add'];
+            let pageNotShowGroupListReg = /^work-order\/(todo|list).*$/;
+            if (pageNotShowGroupList.indexOf(relativePath) > -1 || pageNotShowGroupListReg.exec(relativePath)) {
+              this.showGroupList = false;
+            } else {
+              this.showGroupList = true;
+            }
+            // update content of crumb list
+            this.updateCrumbList(relativePath);
           }
         }
       },

@@ -3,9 +3,10 @@
  */
 import NetData from '../../net/net';
 const USE_LOCAL_STORAGE = false;
+const debug = browserDebug('pass-fe:net');
 
 const warning = function(prop, where) {
-  console.log(`warning: get user/${prop} from ${where}`);
+  debug(`warning: get user/${prop} from ${where}`);
 };
 const stateHasUpdated = function(prop) {
   let hasUpdated = false;
