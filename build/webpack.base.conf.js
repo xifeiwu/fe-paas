@@ -28,18 +28,18 @@ const chunksAndTemplates = (() => {
   let vueBaseDir = utils.contextPath();
 
   let entries = {
-    'galaxy': path.resolve(vueBaseDir, 'app-galaxy/entry.js'),
+    'profile': path.resolve(vueBaseDir, 'app-galaxy/profile.js'),
     'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),
   };
   let htmlConfigs = [
     {
-      "filename": "galaxy.html",
-      "title": "凡普云平台",
+      "filename": "profile.html",
+      "title": "凡普云-控制台",
       "cdn": {
         "js": [],
         "css": []
       },
-      "chunks": ["galaxy"],
+      "chunks": ["profile"],
     },
     {
       "filename": "terminal.html",
