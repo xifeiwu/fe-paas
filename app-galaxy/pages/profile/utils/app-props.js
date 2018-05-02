@@ -39,7 +39,7 @@ class AppInfoHelper {
           passed = false;
           callback('内容不能为空');
         }
-      } else if  (values.length > 0) {
+      } else if (values.length > 0) {
         if (!reg.exec(values)) {
           passed = false;
           callback(regStates.desc);
@@ -67,7 +67,7 @@ class AppInfoHelper {
           passed = false;
           callback('内容不能为空');
         }
-      } else if  (values.length > 0) {
+      } else if (values.length > 0) {
         if (!reg.exec(values)) {
           passed = false;
           callback(regStates.desc);

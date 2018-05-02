@@ -648,11 +648,12 @@ module.exports = {
 
     getEmptyItem() {
       return {
+        "id": null,
         "createTime": '',
         "accessKey": '',
         "secret": '',
         "profileName": '',
-        "myApp": '未设置',
+        "myApp": '',
         "createTime": '',
         "creatorName": "",
         "accessConfigList": [],
@@ -675,6 +676,7 @@ module.exports = {
             groupId: this.$storeHelper.currentGroupID
           }).then(content => {
             let item = this.getEmptyItem();
+            item.id = content.id;
             item.createTime = content.createTime.split(' ');
             item.creatorName = content.creatorName;
             item.secret = content.secret;
@@ -939,7 +941,7 @@ module.exports = {
           this.$net.oauthAddAccessConfig(this.selected.row.id, {
             groupId: this.$storeHelper.currentGroupID,
             applicationId: this.modifyAccessConfig.appID,
-            produceEnv: this.modifyAccessConfig.production,
+            productEnv: this.modifyAccessConfig.production,
             applyList: appListToPost
           }).then(msg => {
             this.hideWaitingResponse(action + '-in-dialog');
