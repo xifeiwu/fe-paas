@@ -144,7 +144,7 @@ const actions = {
         dispatch('groupInfo');
       }
     }).catch(err => {
-      commit('SET_GROUP_LIST', content.groupList);
+      console.log(err);
       dispatch('groupInfo');
     });
     // }

@@ -245,7 +245,7 @@ class Net {
           if (responseContent.hasOwnProperty('groupList') && Array.isArray(responseContent['groupList'])) {
             responseContent.groupList = responseContent.groupList.map(it => {
               let lobName = '';
-              if (it.hasOwnProperty('lobName') && it.lobName.length > 0) {
+              if (it.hasOwnProperty('lobName') && it.lobName && it.lobName.length > 0) {
                 lobName = '（' + it['lobName'] + '）';
               }
               it.asLabel = it.name + lobName;

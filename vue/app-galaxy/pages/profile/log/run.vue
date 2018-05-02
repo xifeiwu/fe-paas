@@ -229,7 +229,7 @@
         },
 
         DEFAULT_LEVEL: 'INFO',
-        logLevelList: ['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+        logLevelList: ['DEBUG', 'INFO', 'WARN', 'ERROR'],
 //        defaultTime: start.getTime() - 3600 * 1000 * 24 * 7,
         pickerOptions2: {
           shortcuts: [{
