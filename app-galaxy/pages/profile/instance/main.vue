@@ -142,7 +142,7 @@
       let queryParam = this.$route.query;
       if (queryParam && queryParam.hasOwnProperty('from')) {
         if (queryParam['from'] === '/profile/service') {
-          this.localConfig = this.$storeHelper.getUserConfig('profile/service');
+          this.localConfig = this.$storeHelper.getUserConfig('profile/instance');
         }
       }
     },

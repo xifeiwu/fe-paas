@@ -1623,7 +1623,7 @@ export default {
           if (!statusOK) {
             this.$message.error('所需信息不完整！');
           } else {
-            this.$storeHelper.setUserConfig('profile/service', {
+            this.$storeHelper.setUserConfig('profile/instance', {
               appID: this.selectedAppID,
               profileID: this.selectedProfileID,
               serviceID: row.id

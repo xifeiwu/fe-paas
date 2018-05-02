@@ -123,7 +123,7 @@
           // 2. localStorage
           // 3. first element of profileList in selectedApp
           let firstProfileID = this.currentProfileList[0]['id'];
-          if (null == this.selectedProfileID) {
+          if (null == this.selectedProfileID || this.$storeHelper.SERVICE_ID_FOR_NULL == this.selectedProfileID) {
             let defaultProfileID = null;
             if (this.customConfig && this.customConfig.hasOwnProperty('profileID')) {
               defaultProfileID = this.customConfig['profileID'];
@@ -181,7 +181,7 @@
         this.appList = [];
         this.selectedAppID = null;
         this.currentProfileList = [];
-         this.selectedProfileID = this.$storeHelper.SERVICE_ID_FOR_NULL;
+        this.selectedProfileID = this.$storeHelper.SERVICE_ID_FOR_NULL;
         this.currentServiceList = [];
         this.selectedServiceID = this.$storeHelper.SERVICE_ID_FOR_NULL;
       },
@@ -215,15 +215,14 @@
           }
           // the sequence of getting default appID:
           // 1. customConfig.appId if customConfig exist
-          // 2. localStorage
-          // 3. first element of appList
+          // 2. first element of appList
           let defaultAppID = null;
           if (this.customConfig && this.customConfig.hasOwnProperty('appID')) {
             defaultAppID = this.customConfig['appID'];
           }
-          if (!defaultAppID) {
-            defaultAppID = this.$getUserConfig('profile/service/appID');
-          }
+//          if (!defaultAppID) {
+//            defaultAppID = this.$getUserConfig('profile/service/appID');
+//          }
           if (defaultAppID && this.$storeHelper.getAppInfoByID(defaultAppID)) {
             this.selectedAppID = defaultAppID;
           } else {
