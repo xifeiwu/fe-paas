@@ -26,7 +26,22 @@ class AppInfoHelper {
         message: '请输入项目名称',
         trigger: 'blur'
       }, {
-        validator: utils.generateValidator(true, false, 2, 50)
+        validator(rule, values, callback){
+          let passed = true;
+          let reg = /^[A-Za-z0-9][A-Za-z0-9\-]{1,49}[A-Za-z0-9]$/;
+          if (!values) {
+            passed = false;
+            callback('内容不能为空');
+          } else if (values.length > 0) {
+            if (!reg.exec(values)) {
+              passed = false;
+              callback('只能包含字母、数字、中划线，且不能以中划线为开头和结尾，2-50个字符');
+            }
+          }
+          if (passed) {
+            callback();
+          }
+        }
       }],
       // 健康检查
       healthCheck: [{

@@ -16,7 +16,7 @@
       </el-form-item>
       <el-form-item label="项目名称" prop="projectName">
         <el-input v-model="createAppForm.projectName"
-                  placeholder="输入GitLab里的project名称。字母、数字、下划线和中划线，2-50个字符"></el-input>
+                  placeholder="输入GitLab里的project名称。只能包含字母、数字、中划线，2-50个字符"></el-input>
       </el-form-item>
       <el-form-item label="运行环境" prop="profiles" class="profiles">
         <el-checkbox-group v-model="createAppForm.profiles">
