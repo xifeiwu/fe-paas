@@ -1,6 +1,6 @@
 <template>
   <div id="app-main">
-    <div class="header" v-if="appListByPage && appListByPage.length > 0">
+    <div class="header" v-if="showAppList">
       <el-row type="flex" justify="center" align="middle">
         <el-col :span="10">
           <el-button
@@ -32,7 +32,7 @@
         </el-col>
       </el-row>
     </div>
-    <div class="app-list" v-if="appListByPage && appListByPage.length > 0">
+    <div class="app-list" v-if="showAppList">
       <el-table :data="appListByPage"
                 v-loading="showLoading"
                 stripe
@@ -79,7 +79,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="totalSize > pageSize">
+      <div class="pagination-container" v-if="showAppList">
         <div class="pagination">
           <el-pagination
                   :current-page="currentPage"
@@ -93,7 +93,7 @@
         </div>
       </div>
     </div>
-    <div class="create-an-app" v-if="appListByPage && appListByPage.length == 0">
+    <div class="create-an-app" v-if="!showAppList">
       <img src="/assets/imgs/profile/create-an-app.png">
       <div class="desc">应用引擎为您快速构建应用，一键部署，持续集成、交付，加快应用迭代效率，实现DevOps运维理解的微服务应用框架，快来试试吧!</div>
       <el-button
@@ -325,6 +325,7 @@
     },
     data() {
       return {
+        showAppList: true,
         showLoading: false,
         totalSize: 0,
         pageSize: 10,
@@ -719,6 +720,11 @@
         }
         if (appInfoList.hasOwnProperty('appList')) {
           this.appListByPage = appInfoList.appList;
+        }
+        if (this.appListByPage && this.appListByPage.length === 0) {
+          this.showAppList = false;
+        } else {
+          this.showAppList = true;
         }
         if (appInfoList.hasOwnProperty('appModelList')) {
           this.appModelListByPage = appInfoList.appModelList;
