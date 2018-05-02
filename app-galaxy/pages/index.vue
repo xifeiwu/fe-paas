@@ -3,7 +3,7 @@
     <paas-header @menu-click="handleClickOnPassHeader"></paas-header>
     <el-main>
       <section class="poster">
-        <img src="/assets/imgs/galaxy/index/poster.png">
+        <img src="/assets/imgs/index/poster.png">
         <div class="description">
           <div class="content">
             <div class="line1">为凡普业务研发及合作伙伴</div>
@@ -15,7 +15,7 @@
       <section class="introduce">
         <div class="title">产品介绍</div>
         <el-row class="docker" type="flex" justify="space-between" align="middle">
-          <img src="/assets/imgs/galaxy/index/docker.png">
+          <img src="/assets/imgs/index/docker.png">
           <div class="intro">
             <div class="summary">{{dockerIntro.title}}</div>
             <ul>
@@ -32,10 +32,10 @@
             </ul>
             <el-button round disabled size="mini">敬请期待</el-button>
           </div>
-          <img src="/assets/imgs/galaxy/index/storage.png">
+          <img src="/assets/imgs/index/storage.png">
         </el-row>
         <el-row class="communication" type="flex" justify="space-between" align="middle">
-          <img src="/assets/imgs/galaxy/index/communication.png">
+          <img src="/assets/imgs/index/communication.png">
           <div class="intro">
             <div class="summary">{{communicationIntro.title}}</div>
             <ul>
@@ -238,7 +238,7 @@ $menu-height: 45px;
               width: 80px;
               height: 80px;
               margin: 0px auto;
-              background-image: url(/assets/imgs/galaxy/index/feature-icons.png);
+              background-image: url(/assets/imgs/index/feature-icons.png);
               background-repeat: no-repeat;
               background-size: cover;
             }

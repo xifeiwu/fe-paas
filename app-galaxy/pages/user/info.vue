@@ -13,7 +13,7 @@
         <el-row class="list">
           <el-col :span="6">
             <span>应用引擎</span>
-            <img src="/assets/imgs/galaxy/index/docker.png">
+            <img src="/assets/imgs/index/docker.png">
           </el-col>
         </el-row>
       </el-row>

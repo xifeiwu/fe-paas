@@ -1,6 +1,6 @@
 <template>
   <div id="app-main">
-    <div class="header">
+    <div class="header" v-if="appListByPage && appListByPage.length > 0">
       <el-row type="flex" justify="center" align="middle">
         <el-col :span="10">
           <el-button
@@ -32,7 +32,7 @@
         </el-col>
       </el-row>
     </div>
-    <div class="app-list">
+    <div class="app-list" v-if="appListByPage && appListByPage.length > 0">
       <el-table :data="appListByPage"
                 v-loading="showLoading"
                 stripe
@@ -92,6 +92,15 @@
           </el-pagination>
         </div>
       </div>
+    </div>
+    <div class="create-an-app" v-if="appListByPage && appListByPage.length == 0">
+      <img src="/assets/imgs/profile/create-an-app.png">
+      <div class="desc">应用引擎为您快速构建应用，一键部署，持续集成、交付，加快应用迭代效率，实现DevOps运维理解的微服务应用框架，快来试试吧!</div>
+      <el-button
+              type="primary"
+              @click="handleButtonClick('linker', {path: '/profile/app/add'})">
+        创建应用
+      </el-button>
     </div>
 
     <el-dialog title="更改应用名称" :visible="selected.prop == 'appName'"
@@ -261,6 +270,22 @@
           }
         }
       }
+    }
+  }
+  .create-an-app {
+    max-width: 80%;
+    margin: 20px auto;
+    img {
+      display: block;
+      margin: 0px auto;
+    }
+    .desc {
+      margin: 10px auto;
+      text-align: center;
+    }
+    .el-button {
+      display: block;
+      margin: 0px auto;
     }
   }
 
