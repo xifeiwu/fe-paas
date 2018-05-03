@@ -372,23 +372,25 @@ $menu-height: 45px;
       handleClickOnPassHeader(keyPath) {
         switch (keyPath) {
           case 'profile':
-          case 'user/app':
+          case 'product/app':
           case 'login':
-            this.$router.push({
-              path: '/profile/app',
-              query: {
-              }
-            });
+            this.$utils.goToPath('/profile.html');
+//            this.$router.push({
+//              path: '/profile/app',
+//              query: {
+//              }
+//            });
             break;
           case 'docs':
-            this.$router.push({
-              path: '/docs'
-            });
-            break;
+//            this.$router.push({
+//              path: '/docs'
+//            });
+//            break;
           case 'index':
-            this.$router.push({
-              path: '/index'
-            });
+            this.$utils.goToPath('/index.html');
+//            this.$router.push({
+//              path: '/index'
+//            });
             break;
         }
       },

@@ -187,6 +187,13 @@ class Utils {
     console.log(`error in ${where}`);
     console.log(msg)
   }
+
+  goToPath(pathname) {
+    if (!window || !window.location) {
+      console.err('window.location not found');
+    }
+    window.location.href = window.location.origin + pathname;
+  }
 }
 
 export default new Utils();

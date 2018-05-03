@@ -13,7 +13,7 @@
                :defaultActive="defaultActive"
       >
         <el-menu-item index="index">首页</el-menu-item>
-        <el-submenu index="user">
+        <el-submenu index="product">
           <template slot="title">产品</template>
           <el-menu-item index="app">应用引擎</el-menu-item>
           <el-menu-item index="object-storage">对象存储</el-menu-item>

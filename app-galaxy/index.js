@@ -3,6 +3,9 @@ import APP from './index/index.vue';
 import components from './index/components';
 components.install(Vue);
 
+import utils from 'assets/js/utils';
+Vue.prototype.$utils = utils;
+
 import 'assets/css/fix-style.scss';
 
 window.vm = new Vue({

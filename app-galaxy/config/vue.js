@@ -389,7 +389,7 @@ class StoreHelper {
 }
 
 
-import utils from '../../assets/js/utils';
+import utils from 'assets/js/utils';
 import {URL_LIST} from '../net/url';
 import NetHelper from '../net/net';
 
