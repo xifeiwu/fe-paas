@@ -131,6 +131,7 @@
           });
         }
       },
+
       handleClickOnPassHeader(keyPath) {
         switch (keyPath) {
           case 'profile':
@@ -144,16 +145,10 @@
 //            });
             break;
           case 'docs':
-            this.$utils.goToPath('/profile.html');
-//            this.$router.push({
-//              path: '/docs'
-//            });
-//            break;
+            this.$utils.goToPath('/docs.html');
+            break;
           case 'index':
             this.$utils.goToPath('/index.html');
-//            this.$router.push({
-//              path: '/index'
-//            });
             break;
         }
       },

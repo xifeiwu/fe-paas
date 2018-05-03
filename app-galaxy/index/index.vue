@@ -382,15 +382,10 @@ $menu-height: 45px;
 //            });
             break;
           case 'docs':
-//            this.$router.push({
-//              path: '/docs'
-//            });
-//            break;
+            this.$utils.goToPath('/docs.html');
+            break;
           case 'index':
             this.$utils.goToPath('/index.html');
-//            this.$router.push({
-//              path: '/index'
-//            });
             break;
         }
       },
