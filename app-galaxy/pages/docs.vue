@@ -62,7 +62,7 @@
   }
 </style>
 <script>
-  import paasHeader from './components/header';
+  import paasHeader from '../components/header';
   import {ORIGIN} from '../net/url';
 
   export default {

@@ -305,7 +305,7 @@ $menu-height: 45px;
 </style>
 
 <script>
-  import paasHeader from './components/header';
+  import paasHeader from '../components/header';
   module.exports = {
     components: {paasHeader},
     data() {
