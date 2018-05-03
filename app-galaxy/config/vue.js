@@ -390,17 +390,15 @@ class StoreHelper {
 
 
 import utils from 'assets/js/utils';
-import {URL_LIST} from '../net/url';
-import NetHelper from '../net/net';
 
 class VUEConfig {
-  constructor(Vue, Store) {
-    this.setConfig(Vue, Store);
+  constructor(Vue, Store, URL_LIST, NetHelper) {
+    this.setConfig(Vue, Store, URL_LIST, NetHelper);
   }
-  setConfig(Vue, Store) {
+  setConfig(Vue, Store, URL_LIST, NetHelper) {
     this.addMixin(Vue);
     this.addStoreTools(Vue, Store);
-    this.addGlobalFunction(Vue, Store);
+    this.addGlobalFunction(Vue, Store, URL_LIST, NetHelper);
   }
   addMixin(Vue){
     Vue.mixin({
@@ -414,7 +412,7 @@ class VUEConfig {
       }
     });
   }
-  addGlobalFunction(Vue, Store) {
+  addGlobalFunction(Vue, Store, URL_LIST, NetHelper) {
     Vue.prototype.$storeHelper = new StoreHelper(Store);
     Vue.prototype.$utils = utils;
     Vue.prototype.$url = URL_LIST;

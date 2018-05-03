@@ -29,6 +29,7 @@ const chunksAndTemplates = (() => {
 
   let entries = {
     'index': path.resolve(vueBaseDir, 'app-galaxy/index.js'),
+    'docs': path.resolve(vueBaseDir, 'app-galaxy/docs.js'),
     'profile': path.resolve(vueBaseDir, 'app-galaxy/profile.js'),
     'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),
   };
@@ -38,16 +39,25 @@ const chunksAndTemplates = (() => {
       "title": "凡普云-首页",
       "cdn": {
         "js": [],
-        "css": ['/assets/libs/element-ui/index.css']
+        "css": ['/assets/libs/element-ui/element-ui.css']
       },
       "chunks": ["index"],
+    },
+    {
+      "filename": "docs.html",
+      "title": "凡普云-帮助",
+      "cdn": {
+        "js": [],
+        "css": ['/assets/libs/element-ui/element-ui.css']
+      },
+      "chunks": ["docs"],
     },
     {
       "filename": "profile.html",
       "title": "凡普云-控制台",
       "cdn": {
         "js": [],
-        "css": ['/assets/libs/element-ui/index.css']
+        "css": ['/assets/libs/element-ui/element-ui.css']
       },
       "chunks": ["profile"],
     },
