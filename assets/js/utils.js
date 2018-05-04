@@ -192,6 +192,9 @@ class Utils {
     if (!window || !window.location) {
       console.err('window.location not found');
     }
+    if (process.env.NODE_ENV === 'dev') {
+      pathname = pathname + '.html';
+    }
     window.location.href = window.location.origin + pathname;
   }
 }

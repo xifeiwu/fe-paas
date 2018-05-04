@@ -134,7 +134,7 @@
           case 'profile':
           case 'product/app':
           case 'login':
-            this.$utils.goToPath('/profile.html');
+            this.$utils.goToPath('/profile');
 //            this.$router.push({
 //              path: '/profile/app',
 //              query: {
@@ -142,10 +142,10 @@
 //            });
             break;
           case 'docs':
-            this.$utils.goToPath('/docs.html');
+            this.$utils.goToPath('/docs');
             break;
           case 'index':
-            this.$utils.goToPath('/index.html');
+            this.$utils.goToPath('/index');
             break;
         }
       },
