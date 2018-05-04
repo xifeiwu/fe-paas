@@ -76,12 +76,14 @@
         <el-table-column
           prop="myApp"
           label="我的应用"
+          min-width="200"
           headerAlign="center" align="center"
         >
         </el-table-column>
         <el-table-column
           prop="accessConfigDesc"
           label="访问应用信息-状态"
+          min-width="300"
           headerAlign="center" align="center">
           <template slot-scope="scope">
             <div v-if="scope.row.accessConfigDesc.length==0">无</div>
@@ -107,7 +109,7 @@
         <el-table-column
           prop="profileName"
           label="访问环境"
-          width="160"
+          width="120"
           headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
@@ -133,7 +135,7 @@
         <el-table-column
                 prop="operation"
                 label="操作"
-                width="320"
+                width="280"
                 headerAlign="center" align="center"
         >
           <template slot-scope="scope">
