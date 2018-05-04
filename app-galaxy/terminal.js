@@ -7,7 +7,7 @@ Vue.prototype.$url = URL_LIST;
 
 import Store from './store';
 import VueConfig from './config/vue';
-new VueConfig(Vue, Store);
+new VueConfig();
 
 // import GateOne from '../assets/libs/gateone';
 

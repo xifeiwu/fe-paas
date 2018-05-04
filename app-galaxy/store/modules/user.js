@@ -57,11 +57,6 @@ const getValue = function({state, getters}, prop) {
  */
 const state = {
   /* net data */
-  // 用户配置相关信息
-  config: null,
-  // 用户相关信息
-  info: null,
-
   // 侧边栏
   menuList: null,
   // 用户所属组列表
@@ -87,40 +82,37 @@ const actions = {
       let userInfo = content.user;
       if (userInfo) {
         if (userInfo.hasOwnProperty('username')) {
-          dispatch('setInfo', {
+          dispatch('global/setInfo', {
             keys: 'userName',
             value: userInfo.username
-          });
+          }, {root: true});
         }
         if (userInfo.hasOwnProperty('realName')) {
-          dispatch('setInfo', {
+          dispatch('global/setInfo', {
             keys: 'realName',
             value: userInfo.realName
-          });
+          }, {root: true});
         }
         if (userInfo.hasOwnProperty('role')) {
-          dispatch('setInfo', {
+          dispatch('global/setInfo', {
             keys: 'role',
             value: userInfo.role
-          });
+          }, {root: true});
         }
       }
     })
   },
   logout({commit, state, dispatch}) {
-    state.info = null;
-    state.config = null;
     state.menuList = null;
     state.groupInfo = null;
     state.groupList = null;
     state.profileListOfGroup = null;
     // remove menuList will have affect on UI
     // localStorage.removeItem('user/menuList');
-    localStorage.removeItem('user/info');
-    localStorage.removeItem('user/config');
     localStorage.removeItem('user/groupInfo');
     localStorage.removeItem('user/groupList');
     localStorage.removeItem('user/profileListOfGroup');
+    dispatch('global/clearOnLogout', {}, {root: true});
   },
 
   /**
@@ -253,77 +245,6 @@ const actions = {
       }
     });
   },
-
-
-  /**
-   * save some config value to localStorage
-   * format:
-   * setConfig('profile/service/appID', 3);
-   */
-  setConfig({commit, state, getters}, {keys, value}) {
-    if (!keys || 0 === keys.length) {
-      return;
-    }
-    if (null == state.config) {
-      let local = getters['config'];
-      // for case 'user/config' is 'undefined'
-      if (local && typeof(state.config) === 'object') {
-        state.config = local;
-      } else {
-        state.config = {};
-      }
-    }
-    let keyList = keys.split('/');
-    let lastKeyIndex = keyList.length - 1;
-    let prop = keyList[lastKeyIndex];
-    if (0 === lastKeyIndex) {
-      state.config[prop] = value;
-    } else {
-      let tmpValue = state.config;
-      keyList.slice(0, lastKeyIndex).forEach(it => {
-        if (!tmpValue.hasOwnProperty(it)) {
-          tmpValue[it] = {};
-        }
-        tmpValue = tmpValue[it];
-      });
-      tmpValue[prop] = value;
-    }
-    if (state.config && typeof(state.config) === 'object') {
-      localStorage.setItem('user/config', JSON.stringify(state.config));
-    }
-  },
-  setInfo({commit, state, getters}, {keys, value}) {
-    if (!keys || 0 === keys.length) {
-      return;
-    }
-    if (null == state.info) {
-      let local = getters['info'];
-      // for case 'user/info' is 'undefined'
-      if (local && typeof(state.info) === 'object') {
-        state.info = local;
-      } else {
-        state.info = {};
-      }
-    }
-    let keyList = keys.split('/');
-    let lastKeyIndex = keyList.length - 1;
-    let prop = keyList[lastKeyIndex];
-    if (0 === lastKeyIndex) {
-      state.info[prop] = value;
-    } else {
-      let tmpValue = state.info;
-      keyList.slice(0, lastKeyIndex).forEach(it => {
-        if (!tmpValue.hasOwnProperty(it)) {
-          tmpValue[it] = {};
-        }
-        tmpValue = tmpValue[it];
-      });
-      tmpValue[prop] = value;
-    }
-    if (state.info && typeof(state.info) === 'object') {
-      localStorage.setItem('user/info', JSON.stringify(state.info));
-    }
-  },
 };
 
 const mutations = {
@@ -342,12 +263,6 @@ const mutations = {
 }
 
 const getters = {
-  'config': (state, getters) => {
-    return getValue({state, getters}, 'config');
-  },
-  'info': (state, getters) => {
-    return getValue({state, getters}, 'info');
-  },
   'menuList': (state, getters) => {
     return getValue({state, getters}, 'menuList');
   },
