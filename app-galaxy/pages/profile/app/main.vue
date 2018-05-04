@@ -627,7 +627,7 @@
           appModelList: [],
           total: 0
         };
-        let myUserName = this.$getUserInfo('userName');
+        let myUserName = this.$storeHelper.getUserInfo('userName');
         let filterReg = null;
         if (this.filterKey) {
           filterReg = new RegExp(this.filterKey);

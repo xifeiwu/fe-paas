@@ -398,7 +398,6 @@ class VUEConfig {
   }
   setConfig(Vue, Store, URL_LIST, NetHelper) {
     this.addMixin(Vue);
-    this.addStoreTools(Vue, Store);
     this.addPrototype(Vue, Store, URL_LIST, NetHelper);
   }
   addMixin(Vue){
@@ -425,88 +424,6 @@ class VUEConfig {
       NetHelper.setVue(Vue);
       Vue.prototype.$net = NetHelper;
     }
-  }
-
-  // TODO: store realted function will be moved to Vue.prototype.$storeHelper
-  addStoreTools(Vue, Store) {
-    // Vue.prototype.$setUserConfig = function(keys, value) {
-    //   Store.dispatch('user/setConfig', {
-    //     keys, value
-    //   })
-    // };
-    Vue.prototype.$getUserConfig = function(keys) {
-      let config = Store.getters['user/config'];
-      if (!keys || 0 === keys.length) {
-        return;
-      }
-      if (!config) {
-        return;
-      }
-      let value = null;
-      let keyList = keys.split('/');
-      let lastKeyIndex = keyList.length - 1;
-      let prop = keyList[lastKeyIndex];
-      if (0 === lastKeyIndex) {
-        if (config.hasOwnProperty(prop)) {
-          value = config[prop];
-        }
-      } else {
-        let tmpValue = config;
-        let subList = keyList.slice(0, lastKeyIndex);
-        for (var index in subList) {
-          let key = keyList[index];
-          if (tmpValue.hasOwnProperty(key)) {
-            tmpValue = tmpValue[key];
-          } else {
-            tmpValue = null;
-            break;
-          }
-        }
-        if (tmpValue && tmpValue.hasOwnProperty(prop)) {
-          value = tmpValue[prop];
-        }
-      }
-      return value;
-    };
-    Vue.prototype.$setUserInfo = function(keys, value) {
-      Store.dispatch('user/setInfo', {
-        keys, value
-      })
-    };
-    Vue.prototype.$getUserInfo = function(keys) {
-      let config = Store.getters['user/info'];
-      if (!keys || 0 === keys.length) {
-        return;
-      }
-      if (!config) {
-        return;
-      }
-      let value = null;
-      let keyList = keys.split('/');
-      let lastKeyIndex = keyList.length - 1;
-      let prop = keyList[lastKeyIndex];
-      if (0 === lastKeyIndex) {
-        if (config.hasOwnProperty(prop)) {
-          value = config[prop];
-        }
-      } else {
-        let tmpValue = config;
-        let subList = keyList.slice(0, lastKeyIndex);
-        for (var index in subList) {
-          let key = keyList[index];
-          if (tmpValue.hasOwnProperty(key)) {
-            tmpValue = tmpValue[key];
-          } else {
-            tmpValue = null;
-            break;
-          }
-        }
-        if (tmpValue && tmpValue.hasOwnProperty(prop)) {
-          value = tmpValue[prop];
-        }
-      }
-      return value;
-    };
   }
 }
 

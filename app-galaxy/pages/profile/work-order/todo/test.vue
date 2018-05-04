@@ -41,7 +41,7 @@
           <el-upload
                   class="upload-demo"
                   ref="upload"
-                  :headers="{token: this.$getUserInfo('token')}"
+                  :headers="{token: this.$storeHelper.getUserInfo('token')}"
                   :data="{'id': this.workOrderDetail.id}"
                   :action="$url.work_order_handle_upload_test_report"
                   :auto-upload="false"

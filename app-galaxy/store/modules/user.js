@@ -131,6 +131,7 @@ const actions = {
     NetData.getUserGroupList().then(content => {
       if (content.hasOwnProperty('groupList')) {
         // commit('SET_GROUP_LIST', content.groupList);
+        let groupList = content.groupList;
         state.groupList = groupList;
         // if (USE_LOCAL_STORAGE) {
         localStorage.setItem('user/groupList', JSON.stringify(groupList));

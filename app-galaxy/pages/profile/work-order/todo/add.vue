@@ -300,7 +300,7 @@
         mailGroup: '',
         workOrderDetail: {
           name: '',
-          creatorName: this.$getUserInfo('realName'),
+          creatorName: this.$storeHelper.getUserInfo('realName'),
           groupId: this.currentGroupID,
           groupName: '',
           featureList: [],

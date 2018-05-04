@@ -220,9 +220,6 @@
           if (this.customConfig && this.customConfig.hasOwnProperty('appID')) {
             defaultAppID = this.customConfig['appID'];
           }
-//          if (!defaultAppID) {
-//            defaultAppID = this.$getUserConfig('profile/service/appID');
-//          }
           if (defaultAppID && this.$storeHelper.getAppInfoByID(defaultAppID)) {
             this.selectedAppID = defaultAppID;
           } else {

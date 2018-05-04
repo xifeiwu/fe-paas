@@ -45,7 +45,7 @@ class NetworkConfig {
     // Axios.defaults.withCredentials = true;
     // Axios.defaults.timeout = 5000;
 
-    let currentToken = Vue.prototype.$getUserInfo('token');
+    let currentToken = Vue.prototype.$storeHelper.getUserInfo('token');
     //添加请求拦截器
     Axios.interceptors.request.use(function(config) {
       //在发送请求之前做某事
@@ -53,7 +53,7 @@ class NetworkConfig {
       // console.log(config);
       // let token = window.localStorage.getItem('token');
       if (!currentToken) {
-        currentToken = Vue.prototype.$getUserInfo('token');
+        currentToken = Vue.prototype.$storeHelper.getUserInfo('token');
       }
       if (currentToken) {
         config.headers['token'] = currentToken;
@@ -75,12 +75,12 @@ class NetworkConfig {
           if (0 === statueCode) {
             if ('token' in response.headers && currentToken !== response.headers['token']) {
               // window.localStorage.setItem('token', response.headers['token']);
-              Vue.prototype.$setUserInfo('token', response.headers['token']);
+              Vue.prototype.$storeHelper.setUserInfo('token', response.headers['token']);
               currentToken = response.headers['token'];
             }
           } else if (555 === statueCode) {
             // localStorage.removeItem('token');
-            Vue.prototype.$setUserInfo('token', null);
+            Vue.prototype.$storeHelper.setUserInfo('token', null);
           }
         }
         return response;

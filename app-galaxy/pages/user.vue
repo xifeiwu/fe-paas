@@ -185,7 +185,7 @@
             break;
           case 'user/logout':
             this.$net.logout().then(msg => {
-              this.$setUserInfo('token', null);
+              this.$storeHelper.setUserInfo('token', null);
               this.$message({
                 type: 'success',
                 message: msg,

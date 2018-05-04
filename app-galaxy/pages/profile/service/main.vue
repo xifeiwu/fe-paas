@@ -1200,7 +1200,7 @@ export default {
         // else selectedProfileID is the first element in profileList of selectedApp
         let defaultProfileID = this.currentProfileList[0]['id'];
         if (null == this.selectedProfileID || this.$storeHelper.SERVICE_ID_FOR_NULL == this.selectedProfileID) {
-          let selectedProfileID = this.$getUserConfig('profile/service/profileID');
+          let selectedProfileID = this.$storeHelper.getUserConfig('profile/service/profileID');
           // check whether selectedProfileID exist in currentProfileList
           selectedProfileID = this.currentProfileList.map(it => {
             if (it && it.id) {
@@ -1287,7 +1287,7 @@ export default {
           });
           return;
         }
-        let localID = this.$getUserConfig('profile/service/appID');
+        let localID = this.$storeHelper.getUserConfig('profile/service/appID');
         let appID = null;
         if (localID && this.$storeHelper.getAppInfoByID(localID)) {
           appID = localID;

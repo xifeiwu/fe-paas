@@ -58,7 +58,7 @@
     },
     methods: {
       getTerminalInfo() {
-        let token = this.$getUserInfo('token');
+        let token = this.$storeHelper.getUserInfo('token');
         if (!token) {
           return Promise.reject({
             status: NEED_LOGIN,
@@ -78,9 +78,9 @@
         } else {
           // in the page of terminal
           if (this.$utils.getQueryString('location')) {
-            id = this.$getUserConfig('terminal/id');
-            ip = this.$getUserConfig('terminal/ip');
-            name = this.$getUserConfig('terminal/name');
+            id = this.$storeHelper.getUserConfig('terminal/id');
+            ip = this.$storeHelper.getUserConfig('terminal/ip');
+            name = this.$storeHelper.getUserConfig('terminal/name');
           }
         }
         if (id && ip) {
