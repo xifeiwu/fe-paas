@@ -28,8 +28,8 @@ let routerConfig = new RouterConfig(Vue);
 
 import 'assets/css/fix-style.scss';
 // my-icons for icon and svg
-import 'assets/css/fonts/my-icons.css';
-import 'assets/css/fonts/my-icons.js';
+import '$assets/css/fonts/my-icons.css';
+import '$assets/css/fonts/my-icons.js';
 
 import APP from './profile/pages/app';
 

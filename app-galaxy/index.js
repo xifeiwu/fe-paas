@@ -1,13 +1,13 @@
 import Vue from 'vue';
-import APP from './index/index.vue';
-import components from './index/components';
-components.install(Vue);
 
-import utils from 'assets/js/utils';
-Vue.prototype.$utils = utils;
-
+import VueConfig from './config/vue';
+new VueConfig({
+});
 import 'assets/css/fix-style.scss';
 
+import components from './index/components';
+components.install(Vue);
+import APP from './index/index.vue';
 window.vm = new Vue({
   render: h => h(APP),
 }).$mount('#app');
