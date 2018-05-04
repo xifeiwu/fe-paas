@@ -8,15 +8,6 @@ const debug = browserDebug('pass-fe:net');
 const warning = function(prop, where) {
   debug(`warning: get user/${prop} from ${where}`);
 };
-const stateHasUpdated = function(prop) {
-  let hasUpdated = false;
-  if ('object' === typeof(prop) && Object.keys(prop).length > 0) {
-    hasUpdated = true;
-  } else if (Array.isArray(prop) && prop.length > 0) {
-    hasUpdated = true;
-  }
-  return hasUpdated;
-}
 
 /**
  * used in getter:
@@ -56,13 +47,13 @@ const getValue = function({state, getters}, prop) {
 
 /**
  * the property write to and read from localStorage by default, and refresh when the network data is arrived.
- * 1. config, save user config, such as selected appID in page service
- * 2. menuList, got from the response of login
- * 3. groupList, only refresh at the beginning of page profile.vue
- * 4. profileListOfGroup, only refresh at the beginning of page profile.vue
+ * 1. config. save user config, such as selected appID in page service
+ * 2. menuList. got from the response of login
+ * 3. groupList. only refresh at the beginning of page profile.vue
+ * 4. profileListOfGroup. only refresh at the beginning of page profile.vue
  *
  * the properties save on vuex
- * 3. appInfoListOfGroup, only refresh at the beginning of page profile.vue
+ * 3. appInfoListOfGroup. only refresh at the beginning of page profile.vue
  */
 const state = {
   /* net data */
@@ -90,7 +81,6 @@ const actions = {
   login({commit, state, dispatch}, res) {
     warning('login', 'netwrok');
     NetData.login(res).then((content) => {
-      // commit('LOGIN', content);
       let menuList = content.permission;
       state.menuList = menuList;
       localStorage.setItem('user/menuList', JSON.stringify(menuList));
@@ -137,18 +127,20 @@ const actions = {
    * 获取用户所属组列表
    */
   groupList({commit, state, dispatch}) {
-    // if (0 === state.groupList.length) {
     warning('getGroupList', 'netwrok');
     NetData.getUserGroupList().then(content => {
       if (content.hasOwnProperty('groupList')) {
-        commit('SET_GROUP_LIST', content.groupList);
+        // commit('SET_GROUP_LIST', content.groupList);
+        state.groupList = groupList;
+        // if (USE_LOCAL_STORAGE) {
+        localStorage.setItem('user/groupList', JSON.stringify(groupList));
+        // }
         dispatch('groupInfo');
       }
     }).catch(err => {
       console.log(err);
       dispatch('groupInfo');
     });
-    // }
   },
   /**
    * 更改用户组ID
@@ -163,7 +155,7 @@ const actions = {
   },
 
   /**
-   * groupInfo在groupID或groupList发生变化时会被调用。且groupID和groupList都初始化后，才会出发mutation。
+   * groupInfo在groupID或groupList发生变化时会被调用。且groupID和groupList都初始化后，才会触发mutation。
    * 当初次进入页面时，groupID是空，只有groupList请求成功后才能初始化groupID
    * 有些逻辑必须在groupID和groupList都具备的情况下才能处理：
    * 1. appInfoListOfGroup
@@ -223,24 +215,12 @@ const actions = {
   profileListOfGroup({commit, state, dispatch}, options) {
     NetData.getProfileListOfGroup(options).then(content => {
       if (content.hasOwnProperty('spaceList')) {
-        commit('SET_PROFILE_OF_GROUP', content.spaceList);
-        // reload appInfoListOfGroup when the format of item is not correct
-        // if (Array.isArray(state.appInfoListOfGroup)) {
-        //   let existProfileList = true;
-        //   state.appInfoListOfGroup.every(it => {
-        //     existProfileList = it.hasOwnProperty('profileList');
-        //     return existProfileList;
-        //   });
-        //   if (!existProfileList) {
-        //     dispatch('appInfoListOfGroup', {
-        //       groupID: options.id
-        //     });
-        //   }
-        // } else {
-        //   // dispatch('appInfoListOfGroup', {
-        //   //   groupID: options.id
-        //   // });
-        // }
+        // commit('SET_PROFILE_OF_GROUP', content.spaceList);
+        let profileList = content.spaceList;
+        state.profileListOfGroup = profileList;
+        if (LOCAL_PROP.indexOf('profileListOfGroup') > -1) {
+          localStorage.setItem('user/profileListOfGroup', JSON.stringify(profileList));
+        }
       }
     });
   },
@@ -259,10 +239,9 @@ const actions = {
       groupId: groupID,
       serviceName: ''
     }).then(content => {
-      // console.log(content);
-      // if (content.hasOwnProperty('appList')) {
-        commit('SET_APP_INFO_LIST_OF_GROUP', content);
-      // }
+      // commit('SET_APP_INFO_LIST_OF_GROUP', content);
+      let appList = content;
+      state.appInfoListOfGroup = appList;
     }).catch(() => {});
   },
 
@@ -344,50 +323,17 @@ const actions = {
       localStorage.setItem('user/info', JSON.stringify(state.info));
     }
   },
-  // deleteAppInfoByID({commit, state}, appID) {
-  //   let result = {
-  //     exist: false,
-  //     index: -1,
-  //   }
-  //   for (let index in state.appInfoListOfGroup.appList) {
-  //     let item = state.appInfoListOfGroup.appList[index];
-  //     if (item.appId == appID) {
-  //       result.exist = true;
-  //       result.index = index;
-  //       break;
-  //     }
-  //   }
-  //   if (result.exist) {
-  //     state.appInfoListOfGroup.appList.splice(result.index, 1);
-  //     state.appInfoListOfGroup.appModelList.splice(result.index, 1);
-  //     state.appInfoListOfGroup.total -= 1;
-  //   }
-  // },
 };
 
 const mutations = {
   /* net state */
-  // LOGIN(state, groupList) {
-  //   state.menuList = groupList;
-  //   localStorage.setItem('user/menuList', JSON.stringify(groupList));
-  // },
-
   SET_GROUP_LIST(state, groupList) {
-    state.groupList = groupList;
-    // if (USE_LOCAL_STORAGE) {
-      localStorage.setItem('user/groupList', JSON.stringify(groupList));
-    // }
   },
 
   SET_PROFILE_OF_GROUP(state, profileList) {
-    state.profileListOfGroup = profileList;
-    if (LOCAL_PROP.indexOf('profileListOfGroup') > -1) {
-      localStorage.setItem('user/profileListOfGroup', JSON.stringify(profileList));
-    }
   },
 
   SET_APP_INFO_LIST_OF_GROUP(state, appList) {
-    state.appInfoListOfGroup = appList;
     // if (USE_LOCAL_STORAGE) {
     //   localStorage.setItem('user/appInfoListOfGroup', JSON.stringify(appList));
     // }
