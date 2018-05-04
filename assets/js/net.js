@@ -1,5 +1,7 @@
 
 class Net {
+  setVue(Vue) {
+  }
   /**
    * get content from response
    * 1. if response if error, return null

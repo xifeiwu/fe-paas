@@ -68,12 +68,12 @@
   export default {
     components: {paasHeader},
     created() {
-      this.$ajax.get(ORIGIN + this.url.menu).then(response => {
-        let responseContent = this.$net.getResponseContent(response);
-        this.menuList = responseContent;
+      console.log(this.$net);
+      this.$net.getMenuList().then(content => {
+        this.menuList = content;
       }).catch(err => {
-
-      });
+        this.menuList = [];
+      })
     },
     mounted() {
     },
@@ -120,14 +120,11 @@
     methods: {
       handleNodeClick(data) {
         if (data.hasOwnProperty('href')) {
-          let href = data['href']
-          this.$ajax.get(`${ORIGIN}/docs/${href}`).then(response => {
-            let responseContent = this.$net.getResponseContent(response);
-//            console.log(responseContent);
-            this.docContent = responseContent;
+          let href = data['href'];
+          this.$net.getContent(href).then(content => {
+            this.docContent = content;
             this.$refs['menu-list'].setCurrentKey(href);
           }).catch(err => {
-
           });
         }
       },

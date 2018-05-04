@@ -415,10 +415,14 @@ class VUEConfig {
   addGlobalFunction(Vue, Store, URL_LIST, NetHelper) {
     Vue.prototype.$storeHelper = new StoreHelper(Store);
     Vue.prototype.$utils = utils;
-    Vue.prototype.$url = URL_LIST;
-    // $storeHelper and $utils in Vue.prototype will be used in NetData
-    NetHelper.setVue(Vue);
-    Vue.prototype.$net = NetHelper;
+    if (URL_LIST) {
+      Vue.prototype.$url = URL_LIST;
+    }
+    if (NetHelper) {
+      // $storeHelper and $utils in Vue.prototype will be used in NetData
+      NetHelper.setVue(Vue);
+      Vue.prototype.$net = NetHelper;
+    }
   }
 
   // TODO: store realted function will be moved to Vue.prototype.$storeHelper
