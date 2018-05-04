@@ -34,7 +34,7 @@
  */
 
 import VueRouter from 'vue-router';
-import routerUtils from '../pages/route';
+import routerUtils from './pages/route';
 
 class RouterConfig {
   constructor(Vue) {

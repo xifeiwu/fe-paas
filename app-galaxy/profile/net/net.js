@@ -1865,13 +1865,6 @@ class Net {
     })
   }
 
-  getTerminalInfo(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.terminal_info, options).then(response => {
-        console.log(response);
-      });
-    })
-  }
 }
 
 export default new Net();

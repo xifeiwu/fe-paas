@@ -14,6 +14,7 @@ class URL {
         break;
     }
     this.ORIGIN = window.location.protocol + '//' + window.location.hostname + ':' + port;
+    this.API_PATH = this.ORIGIN + '/api';
   }
 }
 

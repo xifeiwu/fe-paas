@@ -24,7 +24,6 @@ var apiPath = ORIGIN + '/api';
 var URL_LIST = {
   'api_path': apiPath,
   'page_terminal_path': 'http://' + window.location.host + '/terminal.html',
-  'page_login_path': 'http://' + window.location.host + '/galaxy.html',
 
   // 获取验证码
   'get_verify_code': apiPath + '/createRandomImage',
@@ -209,9 +208,6 @@ var URL_LIST = {
 
   // 获取验收人列表
   'users_in_group': apiPath + '/group/users',
-
-  // 获取打开实例终端信息
-  'terminal_info': apiPath + '/service/queryTerminalInfo',
 
 };
 

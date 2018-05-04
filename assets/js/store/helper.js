@@ -1,4 +1,7 @@
 export default class StoreHelper {
+  constructor(Store) {
+    this.$store = Store;
+  }
 
   setUserConfig(keys, value) {
     this.$store.dispatch('global/setConfig', {

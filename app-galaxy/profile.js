@@ -8,11 +8,11 @@
 
 import Vue from 'vue';
 
-import Store from './store';
-import StoreHelper from './store/store-helper';
+import Store from './profile/store';
+import StoreHelper from './profile/store/store-helper';
 
-import {URL_LIST} from './net/url';
-import netHelper from './net/net';
+import {URL_LIST} from './profile/net/url';
+import netHelper from './profile/net/net';
 import VueConfig from './config/vue';
 new VueConfig({
   URL_LIST,
@@ -23,7 +23,7 @@ new VueConfig({
 import NetWorkConfig from './config/network';
 new NetWorkConfig(Vue);
 
-import RouterConfig from './config/router';
+import RouterConfig from './profile/router';
 let routerConfig = new RouterConfig(Vue);
 
 import 'assets/css/fix-style.scss';
@@ -31,7 +31,7 @@ import 'assets/css/fix-style.scss';
 import 'assets/css/fonts/my-icons.css';
 import 'assets/css/fonts/my-icons.js';
 
-import APP from './pages/app';
+import APP from './profile/pages/app';
 
 import(/* webpackChunkName: "components-basic" */ 'assets/libs/components/basic.js').then(components => {
   components.default.install(Vue);

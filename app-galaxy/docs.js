@@ -1,6 +1,5 @@
 import Vue from 'vue';
 
-import Store from './store';
 import {URL_LIST} from './docs/net/url';
 import netHelper from './docs/net/net';
 import VueConfig from './config/vue';
