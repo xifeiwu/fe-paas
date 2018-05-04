@@ -72,9 +72,9 @@
         this.ip = ip;
         if (id && ip && name) {
           // save terminal config to localStorage
-          this.$setUserConfig('terminal/id', id);
-          this.$setUserConfig('terminal/ip', ip);
-          this.$setUserConfig('terminal/name', name);
+          this.$storeHelper.setUserConfig('terminal/id', id);
+          this.$storeHelper.setUserConfig('terminal/ip', ip);
+          this.$storeHelper.setUserConfig('terminal/name', name);
         } else {
           // in the page of terminal
           if (this.$utils.getQueryString('location')) {

@@ -5,7 +5,6 @@ import Axios from 'axios';
 
 class NetworkConfig {
   constructor(Vue) {
-    Vue.prototype.$ajax = Axios;
     this.setConfig(Vue);
   }
 

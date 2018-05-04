@@ -390,7 +390,7 @@
             this.$message.warning('没有最新日志');
           }
         }).catch(err => {
-          this.$showError(err);
+          console.log(err);
           this.showLoading = false;
           this.dialogStatus.showLoading = false;
         });

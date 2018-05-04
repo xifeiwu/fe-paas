@@ -390,6 +390,7 @@ class StoreHelper {
 
 
 import utils from 'assets/js/utils';
+import axios from 'axios';
 
 class VUEConfig {
   constructor(Vue, Store, URL_LIST, NetHelper) {
@@ -398,7 +399,7 @@ class VUEConfig {
   setConfig(Vue, Store, URL_LIST, NetHelper) {
     this.addMixin(Vue);
     this.addStoreTools(Vue, Store);
-    this.addGlobalFunction(Vue, Store, URL_LIST, NetHelper);
+    this.addPrototype(Vue, Store, URL_LIST, NetHelper);
   }
   addMixin(Vue){
     Vue.mixin({
@@ -412,7 +413,8 @@ class VUEConfig {
       }
     });
   }
-  addGlobalFunction(Vue, Store, URL_LIST, NetHelper) {
+  addPrototype(Vue, Store, URL_LIST, NetHelper) {
+    Vue.prototype.$ajax = axios;
     Vue.prototype.$storeHelper = new StoreHelper(Store);
     Vue.prototype.$utils = utils;
     if (URL_LIST) {
@@ -427,11 +429,11 @@ class VUEConfig {
 
   // TODO: store realted function will be moved to Vue.prototype.$storeHelper
   addStoreTools(Vue, Store) {
-    Vue.prototype.$setUserConfig = function(keys, value) {
-      Store.dispatch('user/setConfig', {
-        keys, value
-      })
-    };
+    // Vue.prototype.$setUserConfig = function(keys, value) {
+    //   Store.dispatch('user/setConfig', {
+    //     keys, value
+    //   })
+    // };
     Vue.prototype.$getUserConfig = function(keys) {
       let config = Store.getters['user/config'];
       if (!keys || 0 === keys.length) {
@@ -504,15 +506,6 @@ class VUEConfig {
         }
       }
       return value;
-    };
-    Vue.prototype.$showError = function(err) {
-      if (typeof(err) === 'string') {
-        Vue.prototype.$notify({
-          title: '错误',
-          message: err,
-          duration: 0,
-        })
-      }
     };
   }
 }

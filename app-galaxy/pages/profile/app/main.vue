@@ -742,8 +742,8 @@
         }
         let appID = row.appId;
         let profileID = profile.id;
-        this.$setUserConfig('profile/service/appID', appID);
-        this.$setUserConfig('profile/service/profileID', profileID);
+        this.$storeHelper.setUserConfig('profile/service/appID', appID);
+        this.$storeHelper.setUserConfig('profile/service/profileID', profileID);
         this.$router.push('service');
       },
 
