@@ -48,7 +48,7 @@
         <el-table-column
           prop="accessKey"
           label="Access Key"
-          width="120"
+          width="160"
           headerAlign="center" align="center">
           <template slot-scope="scope">
             <div class="access-key">
@@ -69,14 +69,13 @@
         <el-table-column
           prop="secret"
           label="Access Secret"
-          width="120"
+          width="160"
           headerAlign="center" align="center"
         >
         </el-table-column>
         <el-table-column
           prop="myApp"
           label="我的应用"
-          width="80"
           headerAlign="center" align="center"
         >
         </el-table-column>
@@ -108,13 +107,13 @@
         <el-table-column
           prop="profileName"
           label="访问环境"
-          width="90"
+          width="160"
           headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
           prop="creatorName"
           label="创建人"
-          width="90"
+          width="120"
           headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
@@ -134,7 +133,7 @@
         <el-table-column
                 prop="operation"
                 label="操作"
-                width="260"
+                width="320"
                 headerAlign="center" align="center"
         >
           <template slot-scope="scope">
