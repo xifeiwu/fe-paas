@@ -5,7 +5,8 @@ import Axios from 'axios';
 
 class NetworkConfig {
   constructor(Vue) {
-    this.setConfig(Vue);
+    this.Vue = Vue;
+    this.setConfig();
   }
 
   // TODO: not used
@@ -40,21 +41,36 @@ class NetworkConfig {
     return response.headers['content-type'].split(';');
   }
 
+  getToken() {
+    let token = null;
+    try {
+      token = this.Vue.prototype.$storeHelper.getUserInfo('token');
+    } catch (err) {
+    }
+    return token;
+  }
+
+  setToken(token) {
+    let Vue = this.Vue;
+    if (Vue && Vue.prototype && Vue.prototype.$storeHelper && Vue.prototype.$storeHelper.setUserInfo) {
+      Vue.prototype.$storeHelper.setUserInfo('token', token);
+    }
+  }
 
   setConfig(Vue) {
     // Axios.defaults.withCredentials = true;
     // Axios.defaults.timeout = 5000;
 
-    let currentToken = Vue.prototype.$storeHelper.getUserInfo('token');
+    let currentToken = this.getToken();
     //添加请求拦截器
     Axios.interceptors.request.use(function(config) {
       //在发送请求之前做某事
       // console.log('config');
       // console.log(config);
       // let token = window.localStorage.getItem('token');
-      if (!currentToken) {
-        currentToken = Vue.prototype.$storeHelper.getUserInfo('token');
-      }
+      // if (!currentToken) {
+      //   currentToken = Vue.prototype.$storeHelper.getUserInfo('token');
+      // }
       if (currentToken) {
         config.headers['token'] = currentToken;
       }
@@ -75,12 +91,12 @@ class NetworkConfig {
           if (0 === statueCode) {
             if ('token' in response.headers && currentToken !== response.headers['token']) {
               // window.localStorage.setItem('token', response.headers['token']);
-              Vue.prototype.$storeHelper.setUserInfo('token', response.headers['token']);
+              this.setToken(response.headers['token']);
               currentToken = response.headers['token'];
             }
           } else if (555 === statueCode) {
             // localStorage.removeItem('token');
-            Vue.prototype.$storeHelper.setUserInfo('token', null);
+            this.setToken(null);
           }
         }
         return response;

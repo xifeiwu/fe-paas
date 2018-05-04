@@ -2,9 +2,12 @@ import Vue from 'vue';
 
 import Store from './store';
 import {URL_LIST} from './docs/net/url';
-import NetHelper from './docs/net/net';
+import netHelper from './docs/net/net';
 import VueConfig from './config/vue';
-new VueConfig(Vue, Store, URL_LIST, NetHelper);
+new VueConfig({
+  URL_LIST,
+  netHelper
+});
 
 import NetWorkConfig from './config/network';
 new NetWorkConfig(Vue);

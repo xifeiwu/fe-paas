@@ -9,10 +9,16 @@
 import Vue from 'vue';
 
 import Store from './store';
+import StoreHelper from './store/store-helper';
+
 import {URL_LIST} from './net/url';
-import NetHelper from './net/net';
+import netHelper from './net/net';
 import VueConfig from './config/vue';
-new VueConfig(Vue, Store, URL_LIST, NetHelper);
+new VueConfig({
+  URL_LIST,
+  netHelper,
+  storeHelper: new StoreHelper(Store)
+});
 
 import NetWorkConfig from './config/network';
 new NetWorkConfig(Vue);
