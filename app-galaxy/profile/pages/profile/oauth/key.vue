@@ -79,6 +79,9 @@
           min-width="200"
           headerAlign="center" align="center"
         >
+          <template slot-scope="scope">
+            <div>{{scope.row.myApp ? scope.row.myApp: '未配置'}}</div>
+          </template>
         </el-table-column>
         <el-table-column
           prop="accessConfigDesc"
@@ -111,6 +114,9 @@
           label="访问环境"
           width="120"
           headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <div>{{scope.row.profileName ? scope.row.profileName: '未配置'}}</div>
+          </template>
         </el-table-column>
         <el-table-column
           prop="creatorName"

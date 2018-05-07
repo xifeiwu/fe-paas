@@ -1194,13 +1194,20 @@ class Net extends NetBase {
 
   // 获取Access Key列表
   getAccessKeyList(options) {
+    /**
+     * transfer name of props
+     * 我的应哟：requestApplicationName -> myApp
+     * Access Key: clientId -> accessKey
+     * produceEnv -> profileName
+     * @param it
+     */
     let transfer = function(it) {
       it.accessKey = it.clientId;
       it.myApp = it.requestApplicationName;
       // 访问应用状态信息
       it.appAccessStatus = '';
       if (null == it.produceEnv) {
-        it.profileName = '未知';
+        it.profileName = null;
       } else {
         if (true == it.produceEnv) {
           it.profileName = '生产环境';
@@ -1306,6 +1313,15 @@ class Net extends NetBase {
       it.createTime =  this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
       if (it.createTime) {
         it.createTime = it.createTime.split(' ');
+      }
+      if (null == it.produceEnv) {
+        it.profileName = null;
+      } else {
+        if (true == it.produceEnv) {
+          it.profileName = '生产环境';
+        } else if (false == it.produceEnv) {
+          it.profileName = '非生产环境';
+        }
       }
       // set property enabled
       // ['REQUESTED', 'AUTHORIZED', 'INVALIDATED']

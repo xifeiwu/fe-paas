@@ -43,11 +43,14 @@
         >
         </el-table-column>
         <el-table-column
-                prop="envName"
+                prop="profileName"
                 label="访问环境"
                 width="120"
                 headerAlign="center" align="center"
         >
+          <template slot-scope="scope">
+            <div>{{scope.row.profileName ? scope.row.profileName: '未配置'}}</div>
+          </template>
         </el-table-column>
         <el-table-column
                 prop="operatorName"
