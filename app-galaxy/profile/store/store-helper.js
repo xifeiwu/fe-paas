@@ -91,6 +91,16 @@ class StoreHelper extends BaseHelper{
     return result;
   }
 
+  /**
+   *
+   * @param appID
+   * @returns {*}
+   * app: {
+   *   appId: 2966,
+   *   appName: '产品服务',
+   *   profileNames: ['test', 'production', 'dev', 'performance']
+   * }
+   */
   getAppInfoByID(appID) {
     let result = null;
     let appInfoListOfGroup = this.appInfoListOfGroup();

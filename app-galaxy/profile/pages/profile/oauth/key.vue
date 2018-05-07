@@ -480,6 +480,7 @@ module.exports = {
       // prop used for dialog modify-access-config
       errorMsgForAddAccessConfig: '',
       disableMyAppSelectInDialogModifyAccessConfig: false,
+      //
       modifyAccessConfig: {
         appID: null,
         production: null,
@@ -984,6 +985,13 @@ module.exports = {
           this.newProps['accessConfigDesc'] = accessConfigDesc;
           this.selected.row['accessConfigList'] = JSON.parse(JSON.stringify(this.newProps['accessConfigList']));
           this.selected.row['accessConfigDesc'] = JSON.parse(JSON.stringify(this.newProps['accessConfigDesc']));
+          if (!this.selected.row.myApp) {
+            let app = this.$storeHelper.getAppByID(this.modifyAccessConfig.appID);
+            if (app) {
+              this.selected.row.myApp = app.appName;
+            }
+            this.selected.row.profileName = this.modifyAccessConfig.production ? '生产环境':'非生产环境';
+          }
           break;
       }
 
