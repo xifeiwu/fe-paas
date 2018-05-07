@@ -17,6 +17,8 @@ components.install(Vue);
 // import Axios from 'axios';
 // Vue.prototype.$ajax = Axios;
 
+import 'assets/css/markdown.scss';
+import 'assets/css/highlight.scss';
 import APP from './docs/docs.vue';
 
 import 'assets/css/fix-style.scss';

@@ -221,7 +221,8 @@
             this.$router.push('/profile');
             break;
           case 'index':
-            this.$router.push('/index');
+//            this.$router.push('/index');
+            this.$utils.goToPath('/index');
             break;
         }
       },

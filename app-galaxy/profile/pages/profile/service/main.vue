@@ -1328,7 +1328,7 @@ export default {
       let versionList = [];
       if (this.currentServiceList && Array.isArray(this.currentServiceList)) {
         versionList = this.currentServiceList.filter(it => {
-          return it.hasOwnProperty('serviceVersion') && it['serviceVersion'][0] === 'v';
+          return it.hasOwnProperty('serviceVersion') && it['serviceVersion'] && it['serviceVersion'][0] === 'v';
         }).map(it => {
           return it['serviceVersion'].substring(1);
         })

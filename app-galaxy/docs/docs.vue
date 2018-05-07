@@ -14,7 +14,7 @@
         </el-tree>
       </el-aside>
       <el-main>
-        <div v-html="docContent.body">
+        <div v-html="docContent.body" class="markdown">
         </div>
       </el-main>
     </el-container>

@@ -7,7 +7,7 @@ import Vuex from 'vuex';
 import user from './modules/user';
 import app from './modules/app';
 import tmp from './modules/tmp';
-import global from 'assets/js/store/modules/global';
+import global from '$assets/js/store/modules/global';
 
 Vue.use(Vuex);
 
