@@ -405,6 +405,12 @@
           });
           this.myAppCount = count;
         }
+        // whether show page appList or createApp
+        if (this.appInfoListOfGroup.appList && this.appInfoListOfGroup.appList.length === 0) {
+          this.showAppList = false;
+        } else {
+          this.showAppList = true;
+        }
       },
       handleButtonClick(action, params) {
         switch (action) {
@@ -720,11 +726,6 @@
         }
         if (appInfoList.hasOwnProperty('appList')) {
           this.appListByPage = appInfoList.appList;
-        }
-        if (this.appListByPage && this.appListByPage.length === 0) {
-          this.showAppList = false;
-        } else {
-          this.showAppList = true;
         }
         if (appInfoList.hasOwnProperty('appModelList')) {
           this.appModelListByPage = appInfoList.appModelList;

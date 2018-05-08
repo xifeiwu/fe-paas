@@ -1,0 +1,11 @@
+{
+  "name": "@paas/fe-paas",
+  "version": "1.0.1",
+  "description": "front-endt of paas platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "xifei.wu",
+  "license": "ISC"
+}
