@@ -194,7 +194,7 @@
       },
 
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
-//        console.log(appInfo, profileID, serviceInfo);
+//        console.log(appInfo, profileInfo, serviceInfo);
         this.instanceStatus.instanceList = [];
         if (!appInfo || !profileInfo || !serviceInfo) {
           return;

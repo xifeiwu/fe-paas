@@ -110,6 +110,8 @@
         let appID = value;
         let appInfo = this.$storeHelper.getAppInfoByID(appID);
         if (!appInfo) {
+          // emit 'version-selected' even selectedApp is null
+          this.changeVersion(null, null, null);
           return;
         }
         this.selectedAPP = appInfo['app'];
