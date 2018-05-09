@@ -61,7 +61,8 @@
             <el-button
                     @click="handleRowButtonClick('monitor', scope.$index, scope.row)"
                     size="mini-extral"
-                    type="primary">监控</el-button>
+                    :disabled="true"
+                    type="info">监控</el-button>
           </template>
         </el-table-column>
       </el-table>
