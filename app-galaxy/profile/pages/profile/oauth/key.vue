@@ -5,9 +5,9 @@
         <el-button
                 size="mini-extral"
                 type="primary"
-                :load="statusOfWaitingResponse('create-access-key')"
+                :disabled="statusOfWaitingResponse('disable-create-access-key')"
                 @click="handleButtonClick('create-access-key')">
-          创建Access Key
+          {{contentOfCreateAccessKeyButton}}
         </el-button>
       </el-col>
       <el-col :span="20" class="key-selector">
@@ -474,6 +474,7 @@ module.exports = {
       targetGroupList: [],
       showLoading: false,
       createAccessKeyTag: null,
+      contentOfCreateAccessKeyButton: '创建Access Key',
       searchCondition: {
         groupID: '',
         production: null,
@@ -560,6 +561,9 @@ module.exports = {
   
   watch: {
     '$storeHelper.currentGroupID': 'getTargetGroupList',
+    '$storeHelper.currentGroupID': 'requestAccessKeyList',
+    'searchCondition.groupID': 'requestAccessKeyList',
+    'searchCondition.production': 'requestAccessKeyList',
     'modifyAccessConfig.targetGroupID': function (groupID) {
 //      console.log(value);
       this.$net.getAppListByGroupID({
@@ -616,14 +620,11 @@ module.exports = {
         this.disableMyAppSelectInDialogModifyAccessConfig = false;
       }
     },
-    'searchCondition.groupID': 'requestAccessKeyList',
-    'searchCondition.production': 'requestAccessKeyList',
   },
 
   methods: {
-    // called at: 1. start of page, 2. change of gorupID
+    // called at: 1. start of page, 2. change of groupID
     getTargetGroupList (groupID) {
-//      console.log(`currentGroupID: ${value}`);
       if (!groupID) {
         return;
       }
@@ -676,18 +677,33 @@ module.exports = {
         "accessConfigDesc": []
       }
     },
+
+    throttledRequestAccessKey() {
+      let throttleRequest = null;
+      if (!throttleRequest) {
+        throttleRequest = this.$utils.throttle(() => {
+        }, 8 * 1000, false);
+      }
+      return throttleRequest;
+    },
+
     handleButtonClick(action) {
       switch (action) {
         case 'create-access-key':
-          this.addToWaitingResponseQueue('create-access-key');
-          if (this.createAccessKeyTag) {
-            let duration = new Date().getTime() - this.createAccessKeyTag;
-            if (duration < 5 * 1000) {
-              this.$message.warning(`请${duration/1000}秒后再尝试创建！`);
-              return;
-            }
-          }
           this.createAccessKeyTag = new Date().getTime();
+          this.addToWaitingResponseQueue('disable-create-access-key');
+          let intervalCount = 0;
+          let intervalTag = setInterval(() => {
+            intervalCount = intervalCount + 1;
+            if (intervalCount >= 9) {
+              clearInterval(intervalTag);
+              this.hideWaitingResponse('disable-create-access-key');
+              this.contentOfCreateAccessKeyButton = '创建Access Key';
+            } else {
+              this.contentOfCreateAccessKeyButton = `创建Access Key(请等待${9-intervalCount}s)`;
+            }
+          }, 1000);
+
           this.$net.oAuthCreateAccessKey({
             groupId: this.$storeHelper.currentGroupID
           }).then(content => {
@@ -698,9 +714,10 @@ module.exports = {
             item.secret = content.secret;
             item.accessKey = content.client_id;
             this.accessKeyListByPage.unshift(item);
-            this.hideWaitingResponse('create-access-key');
+            this.$message.success(`Access key ${content.secret} 创建成功！`);
+//            this.hideWaitingResponse('create-access-key');
           }).catch(msg => {
-            this.hideWaitingResponse('create-access-key');
+//            this.hideWaitingResponse('create-access-key');
             this.$notify.error({
               title: '创建Access Key失败！',
               message: msg,
