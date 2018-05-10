@@ -38,7 +38,7 @@
         <el-table-column
                 prop="targetApplicationName"
                 label="被访问的应用"
-                width="120"
+                width="180"
                 headerAlign="center" align="center"
         >
         </el-table-column>

@@ -49,7 +49,7 @@
         <el-table-column
           prop="accessKey"
           label="Access Key"
-          width="160"
+          width="140"
           headerAlign="center" align="center">
           <template slot-scope="scope">
             <div class="access-key">
@@ -70,14 +70,14 @@
         <el-table-column
           prop="secret"
           label="Access Secret"
-          width="160"
+          min-width="120"
           headerAlign="center" align="center"
         >
         </el-table-column>
         <el-table-column
           prop="myApp"
           label="我的应用"
-          min-width="200"
+          min-width="160"
           headerAlign="center" align="center"
         >
           <template slot-scope="scope">
@@ -87,7 +87,7 @@
         <el-table-column
           prop="accessConfigDesc"
           label="访问应用信息-状态"
-          min-width="300"
+          min-width="180"
           headerAlign="center" align="center">
           <template slot-scope="scope">
             <div v-if="scope.row.accessConfigDesc.length==0">无</div>
@@ -122,13 +122,13 @@
         <el-table-column
           prop="creatorName"
           label="创建人"
-          width="120"
+          width="100"
           headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
                 label="创建时间"
                 prop="createTime"
-                width="120"
+                width="100"
                 headerAlign="center" align="center">
           <template slot-scope="scope">
             <div v-if="Array.isArray(scope.row.createTime)">
@@ -142,29 +142,31 @@
         <el-table-column
                 prop="operation"
                 label="操作"
-                width="280"
+                min-width="180"
                 headerAlign="center" align="center"
         >
           <template slot-scope="scope">
-            <el-button
-                    size="mini-extral"
-                    type="warning"
-                    :loading="statusOfWaitingResponse('open-dialog-for-modify-access-config') && selected.row.id === scope.row.id"
-                    @click="handleTRClick('open-dialog-for-modify-access-config', scope.$index, scope.row)">
-              访问配置
-            </el-button>
-            <el-button
-                    size="mini-extral"
-                    type="warning"
-                    :loading="statusOfWaitingResponse('modify-secret') && selected.row.id === scope.row.id"
-                    @click="handleTRClick('modify-secret', scope.$index, scope.row)">修改秘钥
-            </el-button>
-            <el-button
-                    size="mini-extral"
-                    type="danger"
-                    :loading="statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
-                    @click="handleTRClick('delete', scope.$index, scope.row)">删除
-            </el-button>
+            <div class="button-list">
+              <el-button
+                      size="mini-extral"
+                      type="warning"
+                      :loading="statusOfWaitingResponse('open-dialog-for-modify-access-config') && selected.row.id === scope.row.id"
+                      @click="handleTRClick('open-dialog-for-modify-access-config', scope.$index, scope.row)">
+                访问配置
+              </el-button>
+              <el-button
+                      size="mini-extral"
+                      type="warning"
+                      :loading="statusOfWaitingResponse('modify-secret') && selected.row.id === scope.row.id"
+                      @click="handleTRClick('modify-secret', scope.$index, scope.row)">修改秘钥
+              </el-button>
+              <el-button
+                      size="mini-extral"
+                      type="danger"
+                      :loading="statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
+                      @click="handleTRClick('delete', scope.$index, scope.row)">删除
+              </el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -428,6 +430,9 @@
           font-weight: bold;
         }
       }
+    }
+    .button-list {
+      text-align: left;
     }
     .more {
       &:hover {
@@ -1027,7 +1032,7 @@ module.exports = {
      * @param cb
      */
     requestAccessKeyList(cb) {
-      if (!cb) {
+      if (typeof(cb) != 'function') {
         cb = function() {};
       }
       let page = this.currentPage - 1;
