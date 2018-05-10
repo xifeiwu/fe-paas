@@ -23,6 +23,7 @@
         <div class="item">
           <label style="float: left; width: 72px; line-height: 26px">访问环境：</label>
           <el-select v-model="searchCondition.production" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 72px;">
+            <el-option :value="null" label="全部"></el-option>
             <el-option :value="true" label="生产环境"></el-option>
             <el-option :value="false" label="非生产环境"></el-option>
           </el-select>
@@ -470,7 +471,7 @@ module.exports = {
       createAccessKeyTag: null,
       searchCondition: {
         groupID: '',
-        production: true,
+        production: null,
         accessKey: ''
       },
       accessKeyListByPage: [],
@@ -609,7 +610,9 @@ module.exports = {
       } else {
         this.disableMyAppSelectInDialogModifyAccessConfig = false;
       }
-    }
+    },
+    'searchCondition.groupID': 'requestAccessKeyList',
+    'searchCondition.production': 'requestAccessKeyList',
   },
 
   methods: {
@@ -1033,13 +1036,16 @@ module.exports = {
       let length = this.pageSize;
       let searchGroupID = this.searchCondition.groupID;
       let options = {
-        productEnv: this.searchCondition.production,
         groupId: this.$storeHelper.currentGroupID,
         targetGroupId: searchGroupID == this.$storeHelper.GROUP_ID_FOR_ALL ? '' : searchGroupID,
         accessKey: this.searchCondition.accessKey,
         start: start,
         length: length,
       };
+      // options will not have property productEnv if searchCondition.production is null
+      if (null !== this.searchCondition.production) {
+        options.productEnv = this.searchCondition.production;
+      }
       this.showLoading = true;
       this.$net.getAccessKeyList(options).then(content => {
         if (content.hasOwnProperty('uaaList')) {

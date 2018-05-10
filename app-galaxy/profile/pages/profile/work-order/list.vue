@@ -48,6 +48,7 @@
     </div>
     <div class="work-order-list">
       <el-table :data="workOrderListByPage"
+                stripe
                 v-loading="showLoading"
                 :row-key="getRowKeys"
                 :expand-row-keys="expandRows"
