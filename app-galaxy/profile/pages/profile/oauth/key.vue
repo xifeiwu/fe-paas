@@ -261,7 +261,8 @@
               </el-select>
             </el-col>
             <el-col :span="11">
-              <el-select filterable v-model="modifyAccessConfig.targetAppID" placeholder="请选择" style="display:block; max-width: 280px;">
+              <el-select filterable v-model="modifyAccessConfig.targetAppID"
+                         :placeholder="dataForAccessConfig.appList.length==0?'应用列表为空':'请选择'" style="display:block; max-width: 280px;">
                 <el-option v-for="(item, index) in dataForAccessConfig.appList" :key="item.appId" :label="item.appName" :value="item.appId">
                 </el-option>
               </el-select>
@@ -570,6 +571,7 @@ module.exports = {
         groupId: groupID
       }).then(content => {
         if (content && content.hasOwnProperty('appList')) {
+          this.modifyAccessConfig.targetAppID = this.$storeHelper.APP_ID_FOR_NULL;
           if (Array.isArray(content.appList)) {
             this.dataForAccessConfig.appList = content.appList;
             if (content.appList.length > 0) {
@@ -611,7 +613,7 @@ module.exports = {
       } else {
         this.modifyAccessConfig.targetAppName = '';
       }
-      this.checkIfBindTheApp();
+      this.isTargetAppOK();
     },
     'selected.row': function (row) {
       if (row && row.hasOwnProperty('accessConfigList') && row['accessConfigList'].length > 0) {
@@ -676,15 +678,6 @@ module.exports = {
         "accessConfigList": [],
         "accessConfigDesc": []
       }
-    },
-
-    throttledRequestAccessKey() {
-      let throttleRequest = null;
-      if (!throttleRequest) {
-        throttleRequest = this.$utils.throttle(() => {
-        }, 8 * 1000, false);
-      }
-      return throttleRequest;
     },
 
     handleButtonClick(action) {
@@ -789,16 +782,18 @@ module.exports = {
             this.$net.getAllGroupList().then(content => {
               if (content.hasOwnProperty('groupList')) {
                 let groupList = content.groupList;
-                if (Array.isArray(groupList)) {
+                if (Array.isArray(groupList) && groupList.length > 0) {
                   this.dataForAccessConfig.groupListAll = groupList;
                   if (groupList.length > 0) {
                     this.modifyAccessConfig.targetGroupID = groupList[0].id;
                   }
+                  this.hideWaitingResponse(action);
+                  // open dialog for submit-access-config
+                  openDialog();
+                } else {
+                  this.$message.error('获取组列表信息失败！');
                 }
               }
-              this.hideWaitingResponse(action);
-              // open dialog for submit-access-config
-              openDialog();
             }).catch(err => {
               this.hideWaitingResponse(action);
 //              this.selected.operation = action;
@@ -850,21 +845,35 @@ module.exports = {
       }
     },
 
-    // used for modify-access-config dialog
-    checkIfBindTheApp() {
-      let exist = false;
-      let hasExisted = this.newProps.accessConfigList;
-      hasExisted.some(it => {
-        exist = it['targetGroupId'] == this.modifyAccessConfig.targetGroupID &&
-          it['targetApplicationId'] == this.modifyAccessConfig.targetAppID;
-        return exist;
-      });
-      if (exist) {
+    /**
+     * if the app to add is ok? used in dialog modify-access-config
+     * if the app to add is ok?
+     * 1. appId exist(some group does not have app)
+     * 2. the appId not in the has-add-app-id-list
+     */
+    isTargetAppOK() {
+      let appIdIsOK = true;
+      let hasExist = false;
+
+      if (this.modifyAccessConfig.targetAppID === this.$storeHelper.APP_ID_FOR_NULL) {
+        appIdIsOK = false;
+      }
+      if (appIdIsOK) {
+        let hasExisted = this.newProps.accessConfigList;
+        hasExisted.some(it => {
+          hasExist = it['targetGroupId'] == this.modifyAccessConfig.targetGroupID &&
+            it['targetApplicationId'] == this.modifyAccessConfig.targetAppID;
+          return hasExist;
+        });
+      }
+      if (!appIdIsOK) {
+        this.errorMsgForAddAccessConfig = '未选择应用';
+      } else if (hasExist) {
         this.errorMsgForAddAccessConfig = '已绑定该应用，不能重复绑定';
       } else {
         this.errorMsgForAddAccessConfig = '';
       }
-      return exist;
+      return appIdIsOK && !hasExist;
     },
     checkIfAppListChanged(origin, current) {
       let theSame = true;
@@ -886,9 +895,7 @@ module.exports = {
       switch (action) {
         case 'add-access-config':
 //          console.log(this.modifyAccessConfig);
-          if (this.checkIfBindTheApp()) {
-            return;
-          } else {
+          if (this.isTargetAppOK()) {
             this.newProps.accessConfigList.push({
               status: '新加',
               targetApplicationId: this.modifyAccessConfig.targetAppID,
