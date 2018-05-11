@@ -368,6 +368,7 @@
         this.error.status = true;
         this.error.content = content;
         if (updateVerifyCode) {
+          this.form.verifyCode = '';
           this.updateVerifyCode();
         }
       },

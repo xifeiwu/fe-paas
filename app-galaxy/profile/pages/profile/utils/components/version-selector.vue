@@ -129,6 +129,8 @@
             let defaultProfileID = null;
             if (this.customConfig && this.customConfig.hasOwnProperty('profileID')) {
               defaultProfileID = this.customConfig['profileID'];
+              // customConfig can only use once
+              delete this.customConfig['profileID'];
             }
             if (!defaultProfileID) {
               defaultProfileID = this.$storeHelper.getUserConfig('profile/service/profileID');
@@ -221,6 +223,8 @@
           let defaultAppID = null;
           if (this.customConfig && this.customConfig.hasOwnProperty('appID')) {
             defaultAppID = this.customConfig['appID'];
+            // customConfig can only use once
+            delete this.customConfig['appID'];
           }
           if (defaultAppID && this.$storeHelper.getAppInfoByID(defaultAppID)) {
             this.selectedAppID = defaultAppID;
@@ -257,6 +261,8 @@
               if (this.customConfig) {
                 if (this.customConfig.hasOwnProperty('serviceID')) {
                   this.selectedServiceID = this.customConfig['serviceID'];
+                  // customConfig can only use once
+                  delete this.customConfig['serviceID'];
                 } else if (this.customConfig.hasOwnProperty('serviceName')) {
                   let theProfile = null;
                   currentServiceList.some(it => {
