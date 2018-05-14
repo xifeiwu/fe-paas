@@ -1056,6 +1056,9 @@ module.exports = {
      * @param cb
      */
     requestAccessKeyList(cb) {
+      if (null === this.$storeHelper.currentGroupID) {
+        return;
+      }
       if (typeof(cb) != 'function') {
         cb = function() {};
       }
