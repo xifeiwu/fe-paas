@@ -12,7 +12,7 @@
              v-clickoutside="handleClickOutsideMenu"
     >
       <el-menu-item index="profile">控制台</el-menu-item>
-      <el-menu-item index="message">消息中心</el-menu-item>
+      <el-menu-item index="message" v-show="false">消息中心</el-menu-item>
       <el-submenu index="user" :withDrawOnMouseLeave="false">
         <template slot="title">{{userName}}</template>
         <el-menu-item index="info"><i class="my-icon-user"></i><span>用户信息</span></el-menu-item>

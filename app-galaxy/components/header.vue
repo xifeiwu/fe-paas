@@ -18,7 +18,7 @@
           <el-menu-item index="app">应用引擎</el-menu-item>
           <el-menu-item index="object-storage">对象存储</el-menu-item>
         </el-submenu>
-        <el-menu-item index="docs">帮助文档</el-menu-item>
+        <el-menu-item index="docs" v-show="false">帮助文档</el-menu-item>
         <el-menu-item index="profile">控制台</el-menu-item>
       </el-menu>
       <!--<div class="login" @click="handleHeaderMenuClick(null, ['login'])">登录</div>-->
