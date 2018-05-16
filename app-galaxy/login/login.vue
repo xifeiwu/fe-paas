@@ -82,7 +82,7 @@
       padding: 20px;
       @include box-shadow(0 0 2px 0 rgba(64,158,255, .6));
       &:hover {
-        @include box-shadow(0 0 8px 0 rgba(64,158,255, .6));
+        @include box-shadow(0 0 6px 0 rgba(64,158,255, .6));
       }
       .el-form.login-form {
         width: 320px;
