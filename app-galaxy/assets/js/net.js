@@ -9,6 +9,25 @@ class Net {
    * @param response
    * @returns null, response err
    *          object, response ok
+   *
+   * format of success response.data:
+   * {
+   *    "code": 0,
+   *    "t": 1526456817162,
+   *    "content": {
+   *      "permission": [{
+   *        "id": 300,
+   *        "name": "应用管理",
+   *        "permissionType": "MENU",
+   *        "path": "/app",
+   *        "parentId": 0,
+   *      }],
+   *      "user": {
+   *        "username": "admin",
+   *        "password": null,
+   *      }
+   *    }
+   *  }
    */
   getResponseContent (response) {
     let content = null;
@@ -50,6 +69,13 @@ class Net {
    * get the message to user from data
    * @param data
    * @returns {{success: boolean, msg: string}}
+   *
+   * format of error response.data
+   * {
+   *   "msg":"用户名或密码错误",
+   *   "code":500,
+   *   "t":1526456545447
+   * }
    */
   getResponseMsg(response) {
     let result = {

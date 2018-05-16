@@ -373,124 +373,10 @@
         }
       },
 
-      parseResponse (response) {
-        function updateItem(item) {
-          let keyMap = {
-            "应用管理": {
-              router: '/profile/app',
-              icon: 'my-icon-app'
-              // icon: 'el-icon-location'
-            },
-            "服务管理": {
-              router: '/profile/service',
-              icon: 'my-icon-service'
-            },
-            "实例列表": {
-              router: '/profile/instance',
-              icon: 'my-icon-instance'
-            },
-            "外网域名": {
-              router: '/profile/domain',
-              icon: 'my-icon-domain',
-            },
-            "日志中心": {
-              router: '/profile/log',
-              icon: 'my-icon-log'
-            },
-            "应用监控": {
-              router: '/profile/monitor',
-              icon: 'my-icon-monitor'
-            },
-            "Oauth权限": {
-              router: '/profile/oauth',
-              icon: 'my-icon-key'
-            },
-            "审批管理": {
-              router: '/profile/work-order',
-              icon: 'my-icon-work-order'
-            },
-          };
-          let key = item.name;
-          if (keyMap.hasOwnProperty(key)) {
-            let props = keyMap[key];
-            for (let key in props) {
-              item[key] = props[key];
-            }
-          }
-          return item;
-        }
-        return new Promise((resolve, reject) => {
-          if ('data' in response && 'content' in response.data) {
-            let content = response.data.content;
-            let twoLevelMenu = [];
-            let permission = content.permission;
-
-            // append some property to each item
-            permission = permission.map(it => {
-              return updateItem(it);
-            });
-
-            // generate two level menu tree by parentId
-            permission.forEach(it => {
-              if (0 === it.parentId) {
-                twoLevelMenu.push(it);
-              }
-            });
-            permission.forEach(it => {
-              if (0 !== it.parentId) {
-                let findParent = twoLevelMenu.some(pItem => {
-                  if (it.parentId === pItem.id) {
-                    if (!pItem.hasOwnProperty('children')) {
-                      pItem.children = [];
-                    }
-                    pItem.children.push(it);
-                    return true;
-                  } else {
-                    return false;
-                  }
-                });
-                if (!findParent) {
-                  twoLevelMenu.push(it);
-                }
-              }
-            });
-
-            // generate one level menu from two level menu
-            let oneLevelMenu = [];
-            twoLevelMenu.forEach(it => {
-              oneLevelMenu.push(it);
-              if (it.hasOwnProperty('children')) {
-                it.children.forEach(it2 => {
-                  oneLevelMenu.push(it2);
-                })
-              }
-            });
-
-            // let menuToIgnore = ["应用监控", "Oauth权限"];
-            let menuToIgnore = ["应用监控"];
-            oneLevelMenu = oneLevelMenu.filter(it => {
-              return menuToIgnore.indexOf(it.name) === -1;
-            }).map(it => {
-              if (it.name === 'Oauth权限') {
-                it.name = 'Access Key管理';
-              }
-              if (it.hasOwnProperty('children')) {
-                delete it.children;
-              }
-              return it;
-            });
-//            content.menuList = oneLevelMenu;
-            resolve({
-              userInfo: content.user,
-              menuList: oneLevelMenu
-            });
-          }
-        });
-      },
       // on click of login button
       onSubmit() {
         if (this.checkData()) {
-          let objToPost = {
+          let data = {
             username: this.form.userName,
             password: this.form.password,
             randomCode: this.form.verifyCode,
@@ -499,45 +385,40 @@
           };
 //          console.log(objToPost);
           this.showLoading = true;
-          this.$ajax.post(this.$url.login, objToPost).then(response => {
-//            console.log(response);
-            if (response && 'data' in response && 'code' in response.data) {
-              if (response.data.code !== 0) {
-                this.showError(response.data.msg, true);
-              } else {
-                this.parseResponse(response).then(({userInfo, menuList}) => {
-                  if (menuList) {
-                    this.$storeHelper.setUserInfo('menuList', menuList);
-                  }
-                  if (userInfo) {
-                    if (userInfo.hasOwnProperty('username')) {
-                      this.$storeHelper.setUserInfo('userName', userInfo.username);
-                    }
-                    if (userInfo.hasOwnProperty('realName')) {
-                      this.$storeHelper.setUserInfo('realName', userInfo.realName);
-                    }
-                    if (userInfo.hasOwnProperty('role')) {
-                      this.$storeHelper.setUserInfo('role', userInfo.role);
-                    }
-                  }
-                });
-                let queryString = window.location.search.replace(/^\?/, '');
-                let queryObj = this.$utils.parseQueryString(queryString);
-                let toPath = '/profile';
-                if (queryObj.hasOwnProperty('to')) {
-                  toPath = queryObj['to'];
-                }
-                this.$utils.goToPath(toPath);
+          this.$net.login(data).then(({userInfo, menuList}) => {
+            this.showLoading = false;
+
+            if (menuList) {
+              this.$storeHelper.setUserInfo('menuList', menuList);
+            }
+            if (userInfo) {
+              if (userInfo.hasOwnProperty('username')) {
+                this.$storeHelper.setUserInfo('userName', userInfo.username);
+              }
+              if (userInfo.hasOwnProperty('realName')) {
+                this.$storeHelper.setUserInfo('realName', userInfo.realName);
+              }
+              if (userInfo.hasOwnProperty('role')) {
+                this.$storeHelper.setUserInfo('role', userInfo.role);
               }
             }
-            this.showLoading = false;
+
+            let queryString = window.location.search.replace(/^\?/, '');
+            let queryObj = this.$utils.parseQueryString(queryString);
+            let toPath = '/profile';
+            if (queryObj.hasOwnProperty('to')) {
+              toPath = queryObj['to'];
+            }
+            this.$utils.goToPath(toPath);
           }).catch(err => {
             console.log(err);
-            this.$notify.error({
-              title: '运行失败！',
-              message: JSON.stringify(err)
-            });
-            this.showError('网络连接或内部错误');
+//            this.$notify.error({
+//              title: '运行失败！',
+//              message: JSON.stringify(err)
+//            });
+            if (err.hasOwnProperty('msg')) {
+              this.showError(err.msg);
+            }
             this.showLoading = false;
           });
         }
