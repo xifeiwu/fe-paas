@@ -30,6 +30,7 @@ const chunksAndTemplates = (() => {
   let entries = {
     'index': path.resolve(vueBaseDir, 'app-galaxy/index.js'),
     'docs': path.resolve(vueBaseDir, 'app-galaxy/docs.js'),
+    'login': path.resolve(vueBaseDir, 'app-galaxy/login.js'),
     'profile': path.resolve(vueBaseDir, 'app-galaxy/profile.js'),
     'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),
   };
@@ -51,6 +52,15 @@ const chunksAndTemplates = (() => {
         "css": ['/assets/libs/element-ui/element-ui.css']
       },
       "chunks": ["docs"],
+    },
+    {
+      "filename": "login.html",
+      "title": "凡普云-登录",
+      "cdn": {
+        "js": [],
+        "css": ['/assets/libs/element-ui/element-ui.css']
+      },
+      "chunks": ["login"],
     },
     {
       "filename": "profile.html",

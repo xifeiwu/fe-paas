@@ -32,7 +32,7 @@ import '$assets/css/fonts/my-icons.js';
 
 import APP from './profile/pages/app';
 
-import(/* webpackChunkName: "components-basic" */ 'assets/libs/components/basic.js').then(components => {
+import(/* webpackChunkName: "components-profile" */ '$assets/libs/components/profile.js').then(components => {
   components.default.install(Vue);
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),

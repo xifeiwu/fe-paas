@@ -21,7 +21,9 @@ import 'assets/css/markdown.scss';
 import 'assets/css/highlight.scss';
 import APP from './docs/docs.vue';
 
-
-window.vm = new Vue({
-  render: h => h(APP),
-}).$mount('#app');
+import(/* webpackChunkName: "components-docs" */ '$assets/libs/components/docs.js').then(components => {
+  components.default.install(Vue);
+  window.vm = new Vue({ // eslint-disable-line
+    render: h => h(APP),
+  }).$mount('#app');
+});
