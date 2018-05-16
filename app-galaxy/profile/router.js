@@ -134,29 +134,40 @@ class RouterConfig {
       console.log('in beforeEach');
       console.log(JSON.stringify(to.path) + ' -> ' + JSON.stringify(from.path));
 
-      // check if the url exist in routerPath list, get the nearest url if current url is not valid.
-      if (!isValidateURL(to.path)) {
-        next(getValidateURL(to.path));
-      } else {
-        // login check
-        // let token = localStorage.getItem('token');
-        let token = this.Vue.prototype.$storeHelper.getUserInfo('token');
-        if (token) {//如果有就直接到首页
-          if (to.path == '/login') {
-            next('/profile');
-          } else {
-            next();
-          }
-        } else if (/^\/profile/.test(to.path)){
-          if (to.path == '/login') {//如果是登录页面路径，就直接next()
-            next();
-          } else {//不然就跳转到登录；
-            next('/login');
-          }
+      let token = this.Vue.prototype.$storeHelper.getUserInfo('token');
+      if (token) {
+        if (!isValidateURL(to.path)) {
+          next(getValidateURL(to.path));
         } else {
           next();
         }
+      } else {
+        this.Vue.prototype.$utils.goToPath('/login?to=/profile');
       }
+
+      // check if the url exist in routerPath list, get the nearest url if current url is not valid.
+      // if (!isValidateURL(to.path)) {
+      //   next(getValidateURL(to.path));
+      // } else {
+      //   // login check
+      //   // let token = localStorage.getItem('token');
+      //   let token = this.Vue.prototype.$storeHelper.getUserInfo('token');
+      //   if (token) {//如果有就直接到首页
+      //     if (to.path == '/login') {
+      //       next('/profile');
+      //     } else {
+      //       next();
+      //     }
+      //   } else if (/^\/profile/.test(to.path)){
+      //     if (to.path == '/login') {//如果是登录页面路径，就直接next()
+      //       next();
+      //     } else {//不然就跳转到登录；
+      //       next('/login');
+      //     }
+      //   } else {
+      //     next();
+      //   }
+      // }
     });
   }
 

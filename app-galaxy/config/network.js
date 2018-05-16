@@ -50,6 +50,10 @@ class NetworkConfig {
     return token;
   }
 
+  goToLoginPage() {
+    this.Vue.prototype.$utils.goToPath('/login');
+  }
+
   setToken(token) {
     let Vue = this.Vue;
     if (Vue && Vue.prototype && Vue.prototype.$storeHelper && Vue.prototype.$storeHelper.setUserInfo) {
@@ -97,6 +101,7 @@ class NetworkConfig {
           } else if (555 === statueCode) {
             // localStorage.removeItem('token');
             this.setToken(null);
+            this.goToLoginPage();
           }
         }
         return response;

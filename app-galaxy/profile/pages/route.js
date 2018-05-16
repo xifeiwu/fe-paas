@@ -1,5 +1,5 @@
 var path = require('path');
-import Login from './login.vue';
+// import Login from './login.vue';
 import Profile from './profile.vue';
 import AppMain from './profile/app/main.vue';
 import AppAdd from './profile/app/add.vue';
@@ -46,11 +46,11 @@ import UserOperaion from './user/operation.vue';
  */
 var Router = function () {
   this.componentList = {
-    'login': {
-      path: '/login',
-      name: '登录',
-      component: Login,
-    },
+    // 'login': {
+    //   path: '/login',
+    //   name: '登录',
+    //   component: Login,
+    // },
     'profile': {
       path: '/profile',
       name: '详情',

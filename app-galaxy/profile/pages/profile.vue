@@ -212,7 +212,8 @@
                 message: msg,
                 duration: 500,
                 onClose: () => {
-                  this.$router.push('/login');
+//                  this.$router.push('/login');
+                  this.$utils.goToPath('/login?to=/profile');
                 }
               });
             }).catch(err => {
