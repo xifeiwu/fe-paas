@@ -60,6 +60,7 @@
       img {
         width: 120px;
         margin-left: 8px;
+        vertical-align: middle;
       }
     }
     .el-menu.header-menu {

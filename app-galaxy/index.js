@@ -3,7 +3,6 @@ import Vue from 'vue';
 import VueConfig from './config/vue';
 new VueConfig({
 });
-import 'assets/css/fix-style.scss';
 
 import components from './index/components';
 components.install(Vue);

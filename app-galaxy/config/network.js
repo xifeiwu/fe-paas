@@ -108,6 +108,4 @@ class NetworkConfig {
   }
 }
 
-NetworkConfig.Axios = Axios;
-
 export default NetworkConfig;

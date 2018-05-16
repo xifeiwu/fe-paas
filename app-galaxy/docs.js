@@ -2,14 +2,14 @@ import Vue from 'vue';
 
 import {URL_LIST} from './docs/net/url';
 import netHelper from './docs/net/net';
+import NetConfig from './config/network';
+
 import VueConfig from './config/vue';
 new VueConfig({
   URL_LIST,
-  netHelper
+  netHelper,
+  NetConfig
 });
-
-import NetWorkConfig from './config/network';
-new NetWorkConfig(Vue);
 
 import components from './docs/components';
 components.install(Vue);
@@ -21,7 +21,6 @@ import 'assets/css/markdown.scss';
 import 'assets/css/highlight.scss';
 import APP from './docs/docs.vue';
 
-import 'assets/css/fix-style.scss';
 
 window.vm = new Vue({
   render: h => h(APP),

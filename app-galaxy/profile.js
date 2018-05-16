@@ -13,20 +13,19 @@ import StoreHelper from './profile/store/store-helper';
 
 import {URL_LIST} from './profile/net/url';
 import netHelper from './profile/net/net';
+import NetConfig from './config/network';
+
 import VueConfig from './config/vue';
 new VueConfig({
   URL_LIST,
   netHelper,
-  storeHelper: new StoreHelper(Store)
+  storeHelper: new StoreHelper(Store),
+  NetConfig
 });
-
-import NetWorkConfig from './config/network';
-new NetWorkConfig(Vue);
 
 import RouterConfig from './profile/router';
 let routerConfig = new RouterConfig(Vue);
 
-import 'assets/css/fix-style.scss';
 // my-icons for icon and svg
 import '$assets/css/fonts/my-icons.css';
 import '$assets/css/fonts/my-icons.js';

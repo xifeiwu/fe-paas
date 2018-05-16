@@ -6,9 +6,25 @@ import Vue from 'vue';
 import Utils from '$assets/js/utils';
 import axios from 'axios';
 
+import 'assets/css/fix-style.scss';
+
+/**
+ * add global css used for all components
+ * 1. fix-style.scss: override some default style of browser
+ * 2. mixin.scss: TODO
+ * add global function
+ * 1. Vue.prototype.$utils = new Utils()
+ * 2. Vue.prototype.$ajax = axios
+ * 3. Vue.prototype.$url = URL_LIST
+ * 4. Vue.prototype.$storeHelper = storeHelper, vuex related api
+ * 5. Vue.prototype.$net = netHelper, network related api
+ * set global config
+ * 1. NetConfig for axios
+ */
 class VUEConfig {
-  constructor({URL_LIST, netHelper, storeHelper}) {
+  constructor({URL_LIST, netHelper, storeHelper, NetConfig}) {
     this.addPrototype({URL_LIST, storeHelper, netHelper});
+    this.setConfig({NetConfig});
   }
 
   addMixin(Vue){
@@ -37,6 +53,12 @@ class VUEConfig {
       // $storeHelper and $utils in Vue.prototype will be used in NetData
       netHelper.setVue(Vue);
       Vue.prototype.$net = netHelper;
+    }
+  }
+
+  setConfig({NetConfig}) {
+    if (NetConfig) {
+      new NetConfig(Vue);
     }
   }
 }
