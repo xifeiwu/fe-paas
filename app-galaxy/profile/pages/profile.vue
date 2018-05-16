@@ -155,7 +155,7 @@
     },
     computed: {
       menuList() {
-        return this.$storeHelper.menuList();
+        return this.$storeHelper.menuList;
       },
       routerPathToName() {
         return routeUtils.getRouterPathToName();
@@ -206,12 +206,12 @@
             break;
           case 'user/logout':
             this.$net.logout().then(msg => {
-              this.$store.dispatch('user/logout');
               this.$message({
                 type: 'success',
                 message: msg,
                 duration: 500,
                 onClose: () => {
+                  this.$store.dispatch('user/logout');
 //                  this.$router.push('/login');
                   this.$utils.goToPath('/login?to=/profile');
                 }

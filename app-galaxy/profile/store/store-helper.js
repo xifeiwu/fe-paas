@@ -13,10 +13,6 @@ class StoreHelper extends BaseHelper{
     this.SERVICE_ID_FOR_NULL = '';
   }
 
-  menuList() {
-    return this.$store.getters['user/menuList']
-  }
-
   groupInfo() {
     return this.$store.getters['user/groupInfo'];
   }

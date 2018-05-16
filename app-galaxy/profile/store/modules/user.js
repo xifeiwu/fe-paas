@@ -14,8 +14,8 @@ const warning = function(prop, where) {
  * 1. if the prop in state has not null, return state.prop
  * 2. else get from localStorage, and assign the value to state.prop
  */
-//, 'appInfoListOfGroup', 'usersInGroup'
-var LOCAL_PROP = ['profileListOfGroup', 'config', 'info', 'menuList', 'groupList', 'groupInfo'];
+//, 'appInfoListOfGroup', 'usersInGroup'，'menuList',
+var LOCAL_PROP = ['profileListOfGroup', 'config', 'info', 'groupList', 'groupInfo'];
 const getValue = function({state, getters}, prop) {
   const getLocalValue = function() {
     let result = null;
@@ -57,8 +57,6 @@ const getValue = function({state, getters}, prop) {
  */
 const state = {
   /* net data */
-  // 侧边栏
-  menuList: null,
   // 用户所属组列表
   groupList: null,
   // 当前组
@@ -73,37 +71,8 @@ const state = {
 };
 
 const actions = {
-  login({commit, state, dispatch}, res) {
-    warning('login', 'netwrok');
-    NetData.login(res).then((content) => {
-      let menuList = content.permission;
-      state.menuList = menuList;
-      localStorage.setItem('user/menuList', JSON.stringify(menuList));
-      let userInfo = content.user;
-      if (userInfo) {
-        if (userInfo.hasOwnProperty('username')) {
-          dispatch('global/setInfo', {
-            keys: 'userName',
-            value: userInfo.username
-          }, {root: true});
-        }
-        if (userInfo.hasOwnProperty('realName')) {
-          dispatch('global/setInfo', {
-            keys: 'realName',
-            value: userInfo.realName
-          }, {root: true});
-        }
-        if (userInfo.hasOwnProperty('role')) {
-          dispatch('global/setInfo', {
-            keys: 'role',
-            value: userInfo.role
-          }, {root: true});
-        }
-      }
-    })
-  },
   logout({commit, state, dispatch}) {
-    state.menuList = null;
+    // state.menuList = null;
     state.groupInfo = null;
     state.groupList = null;
     state.profileListOfGroup = null;
@@ -263,9 +232,6 @@ const mutations = {
 }
 
 const getters = {
-  'menuList': (state, getters) => {
-    return getValue({state, getters}, 'menuList');
-  },
   'groupID': (state, getters) => {
     let groupID = state.groupID;
     if (null === groupID) {

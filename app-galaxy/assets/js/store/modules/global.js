@@ -4,7 +4,7 @@ const warning = function(prop, where) {
   debug(`warning: get user/${prop} from ${where}`);
 };
 
-var LOCAL_PROP = ['config', 'info'];
+var LOCAL_PROP = ['config', 'info', 'menuList'];
 const getValue = function({state, getters}, prop) {
   const getLocalValue = function() {
     let result = null;
@@ -38,6 +38,8 @@ const state = {
   config: null,
   // 用户相关信息
   info: null,
+  // 侧边栏
+  menuList: null,
 };
 
 const actions = {
@@ -119,6 +121,13 @@ const actions = {
   },
 };
 
+const mutations = {
+  menuList(state, menuList) {
+    state.menuList = menuList;
+    localStorage.setItem('user/menuList', JSON.stringify(menuList));
+  }
+};
+
 const getters = {
   'config': (state, getters) => {
     return getValue({state, getters}, 'config');
@@ -126,11 +135,15 @@ const getters = {
   'info': (state, getters) => {
     return getValue({state, getters}, 'info');
   },
+  'menuList': (state, getters) => {
+    return getValue({state, getters}, 'menuList');
+  },
 };
 
 export default {
   namespaced: true,
   state,
   getters,
-  actions
+  actions,
+  mutations
 }

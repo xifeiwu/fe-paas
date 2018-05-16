@@ -85,4 +85,12 @@ export default class StoreHelper {
     return value;
   }
 
+  set menuList(value) {
+    this.$store.commit('global/menuList', value);
+
+  }
+  get menuList() {
+    // return this.getUserInfo('menuList');
+    return this.$store.getters['global/menuList'];
+  }
 }

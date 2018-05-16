@@ -11,12 +11,6 @@ new VueConfig({
   NetConfig
 });
 
-import components from './docs/components';
-components.install(Vue);
-
-// import Axios from 'axios';
-// Vue.prototype.$ajax = Axios;
-
 import 'assets/css/markdown.scss';
 import 'assets/css/highlight.scss';
 import APP from './docs/docs.vue';

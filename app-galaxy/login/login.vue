@@ -380,7 +380,8 @@
             this.showLoading = false;
 
             if (menuList) {
-              this.$storeHelper.setUserInfo('menuList', menuList);
+//              this.$storeHelper.setUserInfo('menuList', menuList);
+              this.$storeHelper.menuList = menuList;
             }
             if (userInfo) {
               if (userInfo.hasOwnProperty('username')) {
