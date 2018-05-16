@@ -30,6 +30,8 @@ import MessageBox from 'element-ui/packages/message-box/index.js';
 import Tag from 'element-ui/packages/tag/index.js';
 import Alert from 'element-ui/packages/alert/index.js';
 import Notification from 'element-ui/packages/notification/index.js';
+import Loading from 'element-ui/packages/loading/index.js';
+import Icon from 'element-ui/packages/icon/index.js';
 import Row from 'element-ui/packages/row/index.js';
 import Col from 'element-ui/packages/col/index.js';
 import Message from 'element-ui/packages/message/index.js';
@@ -72,6 +74,8 @@ const components = [
   Tooltip,
   Tag,
   Alert,
+  Loading,
+  Icon,
   Row,
   Col,
   Badge,
