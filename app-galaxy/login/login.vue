@@ -57,6 +57,7 @@
   </div>
 </template>
 <style lang="scss" scoped>
+  @import 'assets/css/mixin.scss';
   $header-height: 45px;
   $header-background-color: #e7e7e7;
   #login {
@@ -68,9 +69,9 @@
     img.finup-cloud {
       z-index: 10;
       position: absolute;
-      width: 120px;
-      top: 8px;
-      left: 8px;
+      width: 160px;
+      top: 12px;
+      left: 12px;
     }
     .login-form-container {
       z-index: 10;
@@ -79,7 +80,10 @@
       left: 50%;
       transform: translate(-50%, -60%);
       padding: 20px;
-      box-shadow: 0 0 8px 0 rgba(232, 237, 250, .6), 0 2px 4px 0 rgba(232, 237, 250, .5);
+      @include box-shadow(0 0 2px 0 rgba(64,158,255, .6));
+      &:hover {
+        @include box-shadow(0 0 8px 0 rgba(64,158,255, .6));
+      }
       .el-form.login-form {
         width: 320px;
         .el-form-item {
@@ -359,19 +363,6 @@
             console.log(err);
           });
       },
-      /**
-       * show error message of submit login
-       * @param content, error message to show
-       * @param updateVerifyCode, whether update verify code or not
-       */
-      showError(content, updateVerifyCode) {
-        this.error.status = true;
-        this.error.content = content;
-        if (updateVerifyCode) {
-          this.form.verifyCode = '';
-          this.updateVerifyCode();
-        }
-      },
 
       // on click of login button
       onSubmit() {
@@ -423,6 +414,22 @@
           });
         }
       },
+
+      /**
+       * show error message of submit login
+       * @param content, error message to show
+       * @param updateVerifyCode, whether update verify code or not
+       */
+      showError(content, updateVerifyCode) {
+        this.error.status = true;
+        this.error.content = content;
+        if (updateVerifyCode) {
+          this.form.verifyCode = '';
+          this.updateVerifyCode();
+        }
+      },
+
+      // check data before submit
       checkData() {
         let isOK = false;
         if (this.form.userName.length === 0) {
