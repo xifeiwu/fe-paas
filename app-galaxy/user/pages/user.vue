@@ -17,21 +17,6 @@
         </el-menu>
       </el-aside>
       <el-main>
-        <!--<el-row class="main-header" type="flex" align="middle">-->
-          <!--<el-col :span="12" class="current-step">-->
-            <!--<el-breadcrumb separator-class="el-icon-arrow-right">-->
-              <!--<el-breadcrumb-item v-for="item in crumbList" :key="item" :to="{path: item}">-->
-                <!--{{routerPathToName[item]}}-->
-              <!--</el-breadcrumb-item>-->
-            <!--</el-breadcrumb>-->
-          <!--</el-col>-->
-          <!--<el-col :span="12" class="group-list">-->
-            <!--<el-select v-model="$storeHelper.currentGroupID" filterable placeholder="请选择">-->
-              <!--<el-option v-for="item in $storeHelper.groupList" :key="item.id" :label="item.name" :value="item.id">-->
-              <!--</el-option>-->
-            <!--</el-select>-->
-          <!--</el-col>-->
-        <!--</el-row>-->
         <el-scrollbar>
           <router-view></router-view>
         </el-scrollbar>
@@ -108,37 +93,18 @@
 </style>
 
 <script>
-  import routeUtils from './route';
-  import paasHeaderProfile from './components/header-profile';
+//  import routeUtils from './route';
+  import paasHeaderProfile from '$components/header-profile';
 
   export default {
     components: {paasHeaderProfile},
     data() {
       return {
-        activeSideMenuItem: '/profile/app',
+        activeSideMenuItem: '/info',
         crumbList: [],
       }
     },
     created() {
-      this.$store.dispatch('user/groupList');
-      this.$store.dispatch('app/messageForCreateAPP');
-//      this.$store.dispatch('user/profileListOfGroup', {
-//        id: this.currentGroupID
-//      });
-//      this.$store.dispatch('user/appInfoListOfGroup', {
-//        from: 'page/profile',
-//        groupID: this.currentGroupID
-//      });
-      /**
-       * all the request related with groupID will be refreshed, include:
-       * 1. profileListOfGroup
-       * 2. appInfoListOfGroup
-       * 3. usersInGroup
-       */
-      this.$store.dispatch('user/groupID', {
-        value: this.$storeHelper.currentGroupID
-      });
-      this.updateCrumbList(this.$route.path);
     },
     mounted() {
       this.$nextTick(() => {
@@ -149,17 +115,14 @@
         return [{
           "id": 1,
           "name": "用户信息",
-          "router": "/user/info",
+          "router": "/info",
           "icon": "my-icon-user"
         }, {
           "id": 2,
           "name": "操作记录",
-          "router": "/user/operation",
+          "router": "/operation",
           "icon": "my-icon-log"
         }]
-      },
-      routerPathToName() {
-        return routeUtils.getRouterPathToName();
       },
       userName() {
         let userName = this.$storeHelper.getUserInfo('realName');
@@ -181,32 +144,32 @@
       handleHeaderMenuClick(keyPath) {
         switch (keyPath) {
           case 'user/info':
-            this.$router.push('/user/info');
+//            this.$router.push('/user/info');
             break;
           case 'user/logout':
             this.$net.logout().then(msg => {
-              this.$storeHelper.setUserInfo('token', null);
               this.$message({
                 type: 'success',
                 message: msg,
                 duration: 500,
                 onClose: () => {
-//                  this.$router.push('/login');
-                  this.$utils.goToPath('/login?to=/profile');
+                  this.$storeHelper.logout();
+//                  this.$store.dispatch('user/logout');
+                  this.$utils.goToPath('/login?to=/user');
                 }
               });
             }).catch(err => {
               this.$notify.error({
-                title: '错误',
-                message: err
+                title: err.title,
+                message: err.msg,
+                duration: 0,
+                onClose: function () {
+                }
               });
             });
             break;
-          case 'user/operation':
-            this.$router.push('/user/operation');
-            break;
           case 'profile':
-            this.$router.push('/profile');
+            this.$utils.goToPath('/profile');
             break;
           case 'index':
             this.$utils.goToPath('/index');
@@ -225,34 +188,6 @@
               this.$router.push(key);
               break;
           }
-        }
-      },
-      /**
-       * update crumb list by path and routerPathToName which get from router config, such as:
-       * /profile/service/add
-       * /profile/service -> 服务管理
-       * /profile/service/add -> 添加服务
-       * @param path
-       */
-      updateCrumbList(path) {
-        // url中只能包括：\w(字母或数字、下划线、汉字)或中划线
-        let pathReg = /^\/user\/([\w-\/]*)$/i;
-        let execResult = pathReg.exec(path);
-        if (execResult && execResult.length >= 2) {
-          let curPath = '/user/';
-          this.crumbList = [];
-          execResult[1].split('/').forEach((it, index) => {
-            let path = curPath + it;
-            // set active aside menu item by the first url after /profile, such as:
-            // /profile/domain -> 外网域名
-            if (index === 0) {
-              this.activeSideMenuItem = path;
-            }
-            if (path in this.routerPathToName) {
-              this.crumbList.push(path);
-            }
-            curPath = curPath + it + '/';
-          });
         }
       },
       handleOpen(key, keyPath) {

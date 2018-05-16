@@ -33,9 +33,9 @@ import WorkOrderDeploy from './profile/work-order/todo/deploy.vue';
 import WorkOrderAccept from './profile/work-order/todo/accept.vue';
 import WorkOrderTest from './profile/work-order/todo/test.vue';
 
-import User from './user.vue';
-import UserInfo from './user/info.vue';
-import UserOperaion from './user/operation.vue';
+// import User from './user.vue';
+// import UserInfo from './user/info.vue';
+// import UserOperaion from './user/operation.vue';
 
 /**
  * router config:
@@ -156,21 +156,21 @@ var Router = function () {
         component: WorkOrderAccept,
       }]
     },
-    'user': {
-      path: '/user',
-      name: '详情',
-      component: User,
-      redirect: '/user/info',
-      children: [{
-        path: 'info',
-        name: '用户信息',
-        component: UserInfo,
-      }, {
-        path: 'operation',
-        name: '操作记录',
-        component: UserOperaion
-      }]
-    }
+    // 'user': {
+    //   path: '/user',
+    //   name: '详情',
+    //   component: User,
+    //   redirect: '/user/info',
+    //   children: [{
+    //     path: 'info',
+    //     name: '用户信息',
+    //     component: UserInfo,
+    //   }, {
+    //     path: 'operation',
+    //     name: '操作记录',
+    //     component: UserOperaion
+    //   }]
+    // }
   };
   this.update();
 };

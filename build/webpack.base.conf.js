@@ -32,6 +32,7 @@ const chunksAndTemplates = (() => {
     'docs': path.resolve(vueBaseDir, 'app-galaxy/docs.js'),
     'login': path.resolve(vueBaseDir, 'app-galaxy/login.js'),
     'profile': path.resolve(vueBaseDir, 'app-galaxy/profile.js'),
+    'user': path.resolve(vueBaseDir, 'app-galaxy/user.js'),
     'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),
   };
   let htmlConfigs = [
@@ -70,6 +71,15 @@ const chunksAndTemplates = (() => {
         "css": ['/assets/libs/element-ui/element-ui.css']
       },
       "chunks": ["profile"],
+    },
+    {
+      "filename": "user.html",
+      "title": "凡普云-用户中心",
+      "cdn": {
+        "js": [],
+        "css": ['/assets/libs/element-ui/element-ui.css']
+      },
+      "chunks": ["user"],
     },
     {
       "filename": "terminal.html",
@@ -137,6 +147,7 @@ var baseConfig = {
       'components': utils.contextPath() + '/components',
       'assets': utils.contextPath() + '/assets',
       '$assets': utils.contextPath() + '/app-galaxy/assets',
+      '$components': utils.contextPath() + '/app-galaxy/components',
     }
   },
   module: {

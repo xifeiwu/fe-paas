@@ -93,4 +93,8 @@ export default class StoreHelper {
     // return this.getUserInfo('menuList');
     return this.$store.getters['global/menuList'];
   }
+
+  logout() {
+    this.$store.dispatch('global/clearOnLogout');
+  }
 }

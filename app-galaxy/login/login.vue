@@ -422,6 +422,7 @@
        * @param updateVerifyCode, whether update verify code or not
        */
       showError(content, updateVerifyCode) {
+        updateVerifyCode = true;
         this.error.status = true;
         this.error.content = content;
         if (updateVerifyCode) {

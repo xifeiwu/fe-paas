@@ -116,7 +116,7 @@
 
 <script>
   import routeUtils from './route';
-  import paasHeaderProfile from './components/header-profile';
+  import paasHeaderProfile from '$components/header-profile';
 
   export default {
     components: {paasHeaderProfile},
@@ -202,7 +202,8 @@
       handleHeaderMenuClick(keyPath) {
         switch (keyPath) {
           case 'user/info':
-            this.$router.push('/user/info');
+//            this.$router.push('/user/info');
+            this.$utils.goToPath('/user');
             break;
           case 'user/logout':
             this.$net.logout().then(msg => {
@@ -229,7 +230,7 @@
           case 'message':
             break;
           case 'profile':
-            this.$router.push('/profile');
+//            this.$utils.goToPath('/profile');
             break;
           case 'index':
             this.$utils.goToPath('/index');

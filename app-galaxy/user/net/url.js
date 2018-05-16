@@ -12,15 +12,8 @@ class URL extends BaseURL {
   setUrlList() {
     let API_PATH = this.API_PATH;
     this.URL_LIST = {
-      // 获取验证码
-      'get_verify_code': API_PATH + '/createRandomImage',
-      'login': API_PATH + '/login',
       // 用户退出
       'logout': API_PATH + '/userLogout',
-      'app_list': API_PATH + '/application/queryByPage',
-      'user_info': API_PATH + '/group/queryByUser',
-      // 获取用户所在组列表
-      'get_user_group_list': API_PATH + '/group/queryByUser',
     };
   }
 
