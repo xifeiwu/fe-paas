@@ -458,7 +458,7 @@
     created() {
       let queryParam = this.$route.query;
       if (queryParam && queryParam.hasOwnProperty('from')) {
-        if (queryParam['from'] === '/profile/service') {
+        if (queryParam['from'] === '/service') {
           this.localServiceConfig = this.$utils.cloneDeep(this.$storeHelper.getUserConfig('profile/service'));
           if (queryParam['action'] === 'go-to-domain-app') {
             this.localServiceConfig.serviceID = this.$storeHelper.SERVICE_ID_FOR_ALL;
@@ -675,7 +675,7 @@
           case 'to-white-list':
             let domain = row.domain;
             this.$router.push({
-              path: '/profile/domain/white-list',
+              path: '/domain/white-list',
               query: {
                 id: row.id,
                 domainName: row['internetDomain']

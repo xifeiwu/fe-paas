@@ -30,7 +30,7 @@ let routerConfig = new RouterConfig(Vue);
 import '$assets/css/fonts/my-icons.css';
 import '$assets/css/fonts/my-icons.js';
 
-import APP from './profile/pages/app';
+import APP from './profile/pages/profile';
 
 import(/* webpackChunkName: "components-profile" */ '$assets/libs/components/profile.js').then(components => {
   components.default.install(Vue);

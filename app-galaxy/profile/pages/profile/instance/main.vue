@@ -142,7 +142,7 @@
     created() {
       let queryParam = this.$route.query;
       if (queryParam && queryParam.hasOwnProperty('from')) {
-        if (queryParam['from'] === '/profile/service') {
+        if (queryParam['from'] === '/service') {
           this.localConfig = this.$storeHelper.getUserConfig('profile/instance');
         }
       }
@@ -346,9 +346,9 @@
               serviceID: selectedValue['selectedService'].id,
             });
             this.$router.push({
-              path: '/profile/log/run',
+              path: '/log/run',
               query: {
-                from: '/profile/instance'
+                from: '/instance'
               }
             });
             break;

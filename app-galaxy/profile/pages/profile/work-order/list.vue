@@ -535,9 +535,9 @@
                 serviceVersion: detail.serviceVersion
               });
               this.$router.push({
-                path: '/profile/log/deploy',
+                path: '/log/deploy',
                 query: {
-                  from: '/profile/work-order/list'
+                  from: '/work-order/list'
                 }
               });
             }).catch(err => {

@@ -76,10 +76,10 @@
       if (queryParam && queryParam.hasOwnProperty('from')) {
         let formerPage = queryParam['from'];
         switch (formerPage) {
-          case '/profile/service':
+          case '/service':
             this.localServiceConfig = this.$storeHelper.getUserConfig('profile/service');
             break;
-          case '/profile/work-order/list':
+          case '/work-order/list':
             this.localServiceConfig = this.$storeHelper.getTmpProp('versionInfo');
             break;
         }

@@ -632,7 +632,7 @@
                 type: 'success',
                 message: '服务' + toPost.serviceVersion + '创建成功！'
               });
-              this.$router.push('/profile/service');
+              this.$router.push('/service');
             }).catch((err) => {
               console.log(err);
               this.showLoading = false;
@@ -641,7 +641,7 @@
                 message: err,
                 duration: 0,
                 onClose: function () {
-                  self.$router.push('/profile/service/add');
+                  self.$router.push('/service/add');
                 }
               });
             });

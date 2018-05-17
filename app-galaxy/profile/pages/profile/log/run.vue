@@ -186,7 +186,7 @@
       // set default service
       let queryParam = this.$route.query;
       if (queryParam && queryParam.hasOwnProperty('from')) {
-        if (queryParam['from'] === '/profile/instance') {
+        if (queryParam['from'] === '/instance') {
           this.localConfig = this.$storeHelper.getUserConfig('profile/instance');
         }
       }

@@ -1359,7 +1359,7 @@ export default {
             return;
           }
           this.$storeHelper.setTmpProp('infoForAddService', infoForAddService);
-          this.$router.push('/profile/service/add');
+          this.$router.push('/service/add');
           break;
         case 'refreshAppList':
           this.requestServiceList(this.selectedAppID, this.selectedProfileID);
@@ -1375,9 +1375,9 @@ export default {
             this.$storeHelper.setUserConfig('profile/service/appID', this.selectedAppID);
             this.$storeHelper.setUserConfig('profile/service/profileID', this.selectedProfileID);
             this.$router.push({
-              path: '/profile/work-order/todo/add',
+              path: '/work-order/todo/add',
               query: {
-                from: '/profile/service'
+                from: '/service'
               }
             });
           }
@@ -1395,9 +1395,9 @@ export default {
               profileID: this.selectedProfileID,
             });
             this.$router.push({
-              path: '/profile/domain',
+              path: '/domain',
               query: {
-                from: '/profile/service',
+                from: '/service',
                 action: 'go-to-domain-app'
               }
             });
@@ -1629,9 +1629,9 @@ export default {
               serviceID: row.id
             });
             this.$router.push({
-              path: '/profile/instance',
+              path: '/instance',
               query: {
-                from: '/profile/service'
+                from: '/service'
               }
             });
           }
@@ -1650,9 +1650,9 @@ export default {
               serviceID: row.id
             });
             this.$router.push({
-              path: '/profile/domain',
+              path: '/domain',
               query: {
-                from: '/profile/service',
+                from: '/service',
                 action: 'go-to-domain-service'
               }
             });
@@ -1672,9 +1672,9 @@ export default {
               serviceID: row.id
             });
             this.$router.push({
-              path: '/profile/log/deploy',
+              path: '/log/deploy',
               query: {
-                from: '/profile/service'
+                from: '/service'
               }
             });
           }

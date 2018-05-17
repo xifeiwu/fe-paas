@@ -19,36 +19,36 @@ class Net extends NetBase {
     function updateItem(item) {
       let keyMap = {
         "应用管理": {
-          router: '/profile/app',
+          router: '/app',
           icon: 'my-icon-app'
           // icon: 'el-icon-location'
         },
         "服务管理": {
-          router: '/profile/service',
+          router: '/service',
           icon: 'my-icon-service'
         },
         "实例列表": {
-          router: '/profile/instance',
+          router: '/instance',
           icon: 'my-icon-instance'
         },
         "外网域名": {
-          router: '/profile/domain',
+          router: '/domain',
           icon: 'my-icon-domain',
         },
         "日志中心": {
-          router: '/profile/log',
+          router: '/log',
           icon: 'my-icon-log'
         },
         "应用监控": {
-          router: '/profile/monitor',
+          router: '/monitor',
           icon: 'my-icon-monitor'
         },
         "Oauth权限": {
-          router: '/profile/oauth',
+          router: '/oauth',
           icon: 'my-icon-key'
         },
         "审批管理": {
-          router: '/profile/work-order',
+          router: '/work-order',
           icon: 'my-icon-work-order'
         },
       };

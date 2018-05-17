@@ -244,7 +244,7 @@
     created() {
       let queryParam = this.$route.query;
       if (queryParam && queryParam.hasOwnProperty('from')) {
-        if (queryParam['from'] === '/profile/service') {
+        if (queryParam['from'] === '/service') {
           let localServiceConfig = this.$storeHelper.getUserConfig('profile/service');
           this.workOrderDetail.appID = localServiceConfig.appID;
         }
@@ -633,7 +633,7 @@
                   this.$alert('工单"' + this.workOrderDetail.name  +'"创建成功，即将进入工单列表页', '创建工单成功', {
                     confirmButtonText: '确定',
                     callback: () => {
-                      this.$router.push('/profile/work-order/list');
+                      this.$router.push('/work-order/list');
                     }
                   });
                   this.showLoading = false;

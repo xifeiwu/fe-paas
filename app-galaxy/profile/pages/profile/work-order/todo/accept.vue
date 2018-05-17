@@ -88,7 +88,7 @@
     mounted() {
       let workOrder = this.$storeHelper.getTmpProp('workOrderBasic');
       if (!workOrder || !workOrder.hasOwnProperty('id')) {
-        this.$router.push('/profile/work-order/todo');
+        this.$router.push('/work-order/todo');
         return;
       }
       this.$nextTick(() => {
@@ -136,7 +136,7 @@
               this.$alert('处理成功！即将进入待办工单页。', msg, {
                 confirmButtonText: '确定',
                 callback: (action) => {
-                  this.$router.push('/profile/work-order/todo');
+                  this.$router.push('/work-order/todo');
                 }
               });
               this.showLoading = false;
@@ -146,7 +146,7 @@
               this.$alert('处理失败！请与管理员联系。点击确定，进入待办工单列表页', msg, {
                 confirmButtonText: '确定',
                 callback: (action) => {
-                  this.$router.push('/profile/work-order/todo');
+                  this.$router.push('/work-order/todo');
                 }
               });
               this.showLoading = false;

@@ -328,7 +328,7 @@ export default {
               type: 'success',
               message: '应用' + toPost.appName + '创建成功！'
             });
-            this.$router.push('/profile/app');
+            this.$router.push('/app');
           }).catch((err) => {
             self.showLoading = false;
             this.$notify.error({

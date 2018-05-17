@@ -43,10 +43,10 @@
       return {
         tabs: [{
           label: '运行日志',
-          name: '/profile/log/run',
+          name: '/log/run',
         },{
           label: '部署日志',
-          name: '/profile/log/deploy',
+          name: '/log/deploy',
         }]
       };
     },

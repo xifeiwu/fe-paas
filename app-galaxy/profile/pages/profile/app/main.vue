@@ -6,7 +6,7 @@
           <el-button
                   size="mini-extral"
                   type="primary"
-                  @click="handleButtonClick('linker', {path: '/profile/app/add'})">
+                  @click="handleButtonClick('linker', {path: '/app/add'})">
             创建应用
           </el-button>
           <el-button v-if="true"
@@ -98,7 +98,7 @@
       <div class="desc">应用引擎为您快速构建应用，一键部署，持续集成、交付，加快应用迭代效率，实现DevOps运维理解的微服务应用框架，快来试试吧!</div>
       <el-button
               type="primary"
-              @click="handleButtonClick('linker', {path: '/profile/app/add'})">
+              @click="handleButtonClick('linker', {path: '/app/add'})">
         创建应用
       </el-button>
     </div>

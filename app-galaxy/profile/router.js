@@ -42,6 +42,7 @@ class RouterConfig {
     this.componentConfig = routerUtils.componentList;
     this.allRouterPath = routerUtils.getAllRouterPath();
     // console.log(this.componentConfig);
+    // console.log(this.allRouterPath);
     let routeConfig = this.generateMiscRoutes();
     this.vueRouter = new VueRouter({
       mode: 'hash',
@@ -125,14 +126,14 @@ class RouterConfig {
         result = getParentPath(result);
       }
       if ('' == result) {
-        result = '/profile';
+        result = '/';
       }
       return result;
     }
 
     this.vueRouter.beforeEach((to, from, next) => {
-      console.log('in beforeEach');
-      console.log(JSON.stringify(to.path) + ' -> ' + JSON.stringify(from.path));
+      // console.log('in beforeEach');
+      // console.log(JSON.stringify(to.path) + ' -> ' + JSON.stringify(from.path));
 
       let token = this.Vue.prototype.$storeHelper.getUserInfo('token');
       if (token) {

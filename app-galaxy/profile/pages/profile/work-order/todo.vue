@@ -6,7 +6,7 @@
           <el-button
                   size="mini-extral"
                   type="primary"
-                  @click="handleButtonClick('linker', {path: '/profile/work-order/todo/add'})">申请审批工单</el-button>
+                  @click="handleButtonClick('linker', {path: '/work-order/todo/add'})">申请审批工单</el-button>
         </el-col>
         <div class="el-col el-col-3">
           <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
@@ -520,7 +520,7 @@
             WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
               this.hideWaitingResponse('modify');
               this.$storeHelper.setTmpProp('workOrderDetail', detail);
-              this.$router.push('/profile/work-order/todo/modify');
+              this.$router.push('/work-order/todo/modify');
             }).catch(() => {
               this.hideWaitingResponse('modify');
             });
@@ -548,7 +548,7 @@
                 }
                 this.hideWaitingResponse(action);
                 this.$storeHelper.setTmpProp('workOrderDetail', detail);
-                this.$router.push('/profile/work-order/todo/test');
+                this.$router.push('/work-order/todo/test');
               }).catch(() => {
                 this.hideWaitingResponse(action);
               });
@@ -577,7 +577,7 @@
               workOrderBasic.status = newStatus;
               workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
               this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
-              this.$router.push('/profile/work-order/todo/deploy');
+              this.$router.push('/work-order/todo/deploy');
             }).catch(errMsg => {
               this.hideWaitingResponse(action);
               console.log(errMsg);
@@ -603,7 +603,7 @@
                 workOrderBasic.status = newStatus;
                 workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
                 this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
-                this.$router.push('/profile/work-order/todo/accept');
+                this.$router.push('/work-order/todo/accept');
               }).catch(errMsg => {
                 this.hideWaitingResponse(action);
                 console.log(errMsg);

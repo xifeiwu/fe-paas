@@ -43,10 +43,10 @@
       return {
         tabs: [{
           label: 'Access Key',
-          name: '/profile/oauth/key',
+          name: '/oauth/key',
         },{
           label: '授权URL',
-          name: '/profile/oauth/url',
+          name: '/oauth/url',
         }]
       };
     },

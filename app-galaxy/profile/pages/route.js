@@ -1,6 +1,5 @@
 var path = require('path');
-// import Login from './login.vue';
-import Profile from './profile.vue';
+// import Profile from './profile.vue';
 import AppMain from './profile/app/main.vue';
 import AppAdd from './profile/app/add.vue';
 import ServiceMain from './profile/service/main.vue';
@@ -33,10 +32,6 @@ import WorkOrderDeploy from './profile/work-order/todo/deploy.vue';
 import WorkOrderAccept from './profile/work-order/todo/accept.vue';
 import WorkOrderTest from './profile/work-order/todo/test.vue';
 
-// import User from './user.vue';
-// import UserInfo from './user/info.vue';
-// import UserOperaion from './user/operation.vue';
-
 /**
  * router config:
  * 1. path should have the same name as .vue file
@@ -44,134 +39,117 @@ import WorkOrderTest from './profile/work-order/todo/test.vue';
  * 3. url path should be correspond with page logic, as it is used for breadcrumb. such as
  *    if add app is sub page of app, its url should be app/add
  */
-var Router = function () {
-  this.componentList = {
-    // 'login': {
-    //   path: '/login',
-    //   name: '登录',
-    //   component: Login,
-    // },
-    'profile': {
-      path: '/profile',
-      name: '详情',
-      component: Profile,
-      redirect: '/profile/app',
-      children: [{
-        path: 'app',
-        name: '应用管理',
-        component: AppMain,
-      }, {
-        path: 'app/add',
-        name: '创建应用',
-        component: AppAdd,
-      }, {
-        path: 'service',
-        name: '服务管理',
-        component: ServiceMain,
-      }, {
-        path: 'service/add',
-        name: '添加服务',
-        component: ServiceAdd,
-      }, {
-        path: 'instance',
-        name: '实例列表',
-        component: InstanceMain,
-      }, {
-        path: 'domain',
-        name: '外网域名',
-        component: DomainMain,
-      }, {
-        path: 'domain/white-list',
-        name: '关联IP白名单',
-        component: DomainWhiteList,
-      }, {
-        path: 'log',
-        // name: '审批管理',
-        component: LogMain,
-        redirect: 'log/run',
-        children: [{
-          path: 'run',
-          name: '运行日志',
-          component: LogRun,
-          meta: {keepAlive: true}
-        },{
-          path: 'deploy',
-          name: '部署日志',
-          component: LogDeploy,
-          meta: {keepAlive: true}
-        }]
-      }, {
-        path: 'monitor',
-        name: '应用监控',
-        component: MonitorMain,
-      }, {
-        path: 'oauth',
-        // name: '权限管理',
-        component: OAuthMain,
-        redirect: 'oauth/key',
-        children: [{
-          path: 'key',
-          name: 'Access Key管理',
-          component: OAuthKey,
-          meta: {keepAlive: true}
-        },{
-          path: 'url',
-          name: '授权URL',
-          component: OAuthURL,
-          meta: {keepAlive: true}
-        }]
-      }, {
-        path: 'work-order',
-        // name: '审批管理',
-        component: WorkOrderMain,
-        redirect: 'work-order/todo',
-        children: [{
-          path: 'todo',
-          name: '待办工单',
-          component: WorkOrderToDo,
-        },{
-          path: 'list',
-          name: '工单列表',
-          component: WorkOrderList,
-        }]
-      }, {
-        path: 'work-order/todo/add',
-        name: '申请工单',
-        component: WorkOrderAdd,
-      }, {
-        path: 'work-order/todo/modify',
-        name: '修改工单',
-        component: WorkOrderModify,
-      }, {
-        path: 'work-order/todo/deploy',
-        name: '部署工单',
-        component: WorkOrderDeploy,
-      }, {
-        path: 'work-order/todo/test',
-        name: '测试工单',
-        component: WorkOrderTest,
-      }, {
-        path: 'work-order/todo/accept',
-        name: '验收工单',
-        component: WorkOrderAccept,
-      }]
-    },
-    // 'user': {
-    //   path: '/user',
-    //   name: '详情',
-    //   component: User,
-    //   redirect: '/user/info',
-    //   children: [{
-    //     path: 'info',
-    //     name: '用户信息',
-    //     component: UserInfo,
-    //   }, {
-    //     path: 'operation',
-    //     name: '操作记录',
-    //     component: UserOperaion
-    //   }]
-    // }
-  };
+var Router = function() {
+  this.componentList = [{
+    path: '/',
+    redirect: '/app',
+  }, {
+    path: '/app',
+    name: '应用管理',
+    component: AppMain,
+  }, {
+    path: '/app/add',
+    name: '创建应用',
+    component: AppAdd,
+  }, {
+    path: '/service',
+    name: '服务管理',
+    component: ServiceMain,
+  }, {
+    path: '/service/add',
+    name: '添加服务',
+    component: ServiceAdd,
+  }, {
+    path: '/instance',
+    name: '实例列表',
+    component: InstanceMain,
+  }, {
+    path: '/domain',
+    name: '外网域名',
+    component: DomainMain,
+  }, {
+    path: '/domain/white-list',
+    name: '关联IP白名单',
+    component: DomainWhiteList,
+  }, {
+    path: '/log',
+    // name: '审批管理',
+    component: LogMain,
+    redirect: '/log/run',
+    children: [{
+      path: 'run',
+      name: '运行日志',
+      component: LogRun,
+      meta: {
+        keepAlive: true
+      }
+    }, {
+      path: 'deploy',
+      name: '部署日志',
+      component: LogDeploy,
+      meta: {
+        keepAlive: true
+      }
+    }]
+  }, {
+    path: '/monitor',
+    name: '应用监控',
+    component: MonitorMain,
+  }, {
+    path: '/oauth',
+    // name: '权限管理',
+    component: OAuthMain,
+    redirect: 'oauth/key',
+    children: [{
+      path: 'key',
+      name: 'Access Key管理',
+      component: OAuthKey,
+      meta: {
+        keepAlive: true
+      }
+    }, {
+      path: 'url',
+      name: '授权URL',
+      component: OAuthURL,
+      meta: {
+        keepAlive: true
+      }
+    }]
+  }, {
+    path: '/work-order',
+    // name: '审批管理',
+    component: WorkOrderMain,
+    redirect: '/work-order/todo',
+    children: [{
+      path: 'todo',
+      name: '待办工单',
+      component: WorkOrderToDo,
+    }, {
+      path: 'list',
+      name: '工单列表',
+      component: WorkOrderList,
+    }]
+  }, {
+    path: '/work-order/todo/add',
+    name: '申请工单',
+    component: WorkOrderAdd,
+  }, {
+    path: '/work-order/todo/modify',
+    name: '修改工单',
+    component: WorkOrderModify,
+  }, {
+    path: '/work-order/todo/deploy',
+    name: '部署工单',
+    component: WorkOrderDeploy,
+  }, {
+    path: '/work-order/todo/test',
+    name: '测试工单',
+    component: WorkOrderTest,
+  }, {
+    path: '/work-order/todo/accept',
+    name: '验收工单',
+    component: WorkOrderAccept,
+  }];
   this.update();
 };
 
@@ -204,7 +182,7 @@ Router.prototype = {
           }
         }
       }
-    } else if (Array.isArray(component)){
+    } else if (Array.isArray(component)) {
       component.forEach(updateItem.bind(this));
     }
   },
@@ -232,7 +210,7 @@ Router.prototype = {
 
   update() {
     this.generateRouterLinkPath(null, this.componentList);
-    this.generateComponentFile(this.componentList);
+    // this.generateComponentFile(this.componentList);
   },
 
   /**
@@ -241,11 +219,13 @@ Router.prototype = {
    */
   getAllRouterPath() {
     var routerPath = [];
+
     function updateItem(item) {
       if (item.hasOwnProperty('routerPath')) {
         routerPath.push(item.routerPath);
       }
     }
+
     function traverseComponent(component) {
       if ('object' === typeof(component)) {
         for (let key in component) {
@@ -285,6 +265,7 @@ Router.prototype = {
    */
   getRouterPathToName() {
     var routerPath = {};
+
     function updateItem(item) {
       if (item.hasOwnProperty('routerPath') && item.hasOwnProperty('name')) {
         if (item.name && item.routerPath) {
@@ -292,6 +273,7 @@ Router.prototype = {
         }
       }
     }
+
     function traverseComponent(component) {
       if ('object' === typeof(component)) {
         for (let key in component) {
@@ -331,6 +313,7 @@ Router.prototype = {
         return null;
       }
     }
+
     function traverseComponent(component) {
       if ('object' === typeof(component)) {
         for (let key in component) {

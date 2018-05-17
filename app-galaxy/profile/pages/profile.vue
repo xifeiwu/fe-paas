@@ -122,7 +122,7 @@
     components: {paasHeaderProfile},
     data() {
       return {
-        activeSideMenuItem: '/profile/app',
+        activeSideMenuItem: '/app',
         crumbList: [],
 
         showGroupList: true,
@@ -176,25 +176,45 @@
     },
     methods: {
       onRoutePath (value, oldValue) {
-        let path = value.path;
-        let pathReg = /^\/profile\/([\w-\/]*)$/i;
-        let execResult = pathReg.exec(path);
-//        console.log(execResult);
-        if (execResult && execResult.length >= 2) {
-          let relativePath = execResult[1];
-          if (relativePath && relativePath.length > 0) {
-            // whether show groupList
-            let pageNotShowGroupList = ['app/add', 'service/add'];
-            let pageNotShowGroupListReg = /^work-order\/(todo|list).*$/;
-            if (pageNotShowGroupList.indexOf(relativePath) > -1 || pageNotShowGroupListReg.exec(relativePath)) {
-              this.showGroupList = false;
-            } else {
-              this.showGroupList = true;
-            }
-            // update content of crumb list
-            this.updateCrumbList(relativePath);
+        let relativePath = value.path;
+        if (relativePath && relativePath.length > 0) {
+          // whether show groupList
+          let pageNotShowGroupList = ['/app/add', '/service/add'];
+          let pageNotShowGroupListReg = /^\/work-order\/(todo|list).*$/;
+          if (pageNotShowGroupList.indexOf(relativePath) > -1 || pageNotShowGroupListReg.exec(relativePath)) {
+            this.showGroupList = false;
+          } else {
+            this.showGroupList = true;
           }
+          // update content of crumb list
+          this.updateCrumbList(relativePath);
         }
+      },
+      /**
+       * update crumb list by path and routerPathToName which get from router config, such as:
+       * /service/add
+       * /service -> 服务管理
+       * /service/add -> 添加服务
+       * @param path: url path
+       */
+      updateCrumbList(path) {
+        // url中只能包括：\w(字母或数字、下划线、汉字)或中划线
+        let pathConcat = '';
+        this.crumbList = [];
+        path.split('/').filter(it => {
+          return it.length > 0
+        }).map(it => {
+          return '/' + it
+        }).forEach((it, index) => {
+          if (0 === index) {
+            this.activeSideMenuItem = it;
+          }
+          pathConcat += it;
+          if (pathConcat in this.routerPathToName) {
+            this.crumbList.push(pathConcat);
+          }
+        });
+        console.log(this.crumbList);
       },
       /**
        * register some global variable at start of page profile
@@ -250,30 +270,6 @@
               break;
           }
         }
-      },
-      /**
-       * update crumb list by path and routerPathToName which get from router config, such as:
-       * /profile/service/add
-       * /profile/service -> 服务管理
-       * /profile/service/add -> 添加服务
-       * @param relativePath: url path without /profile
-       */
-      updateCrumbList(relativePath) {
-        // url中只能包括：\w(字母或数字、下划线、汉字)或中划线
-        let curPath = '/profile/';
-        this.crumbList = [];
-        relativePath.split('/').forEach((it, index) => {
-          let path = curPath + it;
-          // set active aside menu item by the first url after /profile, such as:
-          // /profile/domain -> 外网域名
-          if (index === 0) {
-            this.activeSideMenuItem = path;
-          }
-          if (path in this.routerPathToName) {
-            this.crumbList.push(path);
-          }
-          curPath = curPath + it + '/';
-        });
       },
       handleOpen(key, keyPath) {
         console.log(key, keyPath);

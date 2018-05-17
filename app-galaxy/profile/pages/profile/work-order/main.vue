@@ -36,10 +36,10 @@
       return {
         tabs: [{
           label: '待办工单',
-          name: '/profile/work-order/todo',
+          name: '/work-order/todo',
         },{
           label: '工单列表',
-          name: '/profile/work-order/list',
+          name: '/work-order/list',
         }]
       };
     },
