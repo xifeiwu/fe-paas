@@ -70,7 +70,7 @@
 </template>
 
 <style lang="scss">
-  #app .el-form.work-order-detail {
+  .el-form.work-order-detail {
     .el-table {
       th, td {
         padding: 2px 0px;
