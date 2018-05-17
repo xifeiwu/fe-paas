@@ -66,8 +66,8 @@
 
 </style>
 <script>
-  import MyVersionSelector from '../utils/components/version-selector';
-  import elDialogForLog from '../utils/components/dialog4log.vue';
+  import MyVersionSelector from '../components/version-selector';
+  import elDialogForLog from '../components/dialog4log.vue';
   export default {
     components: {MyVersionSelector, elDialogForLog},
     created() {

@@ -452,7 +452,7 @@
 </style>
 
 <script>
-  import MyVersionConditionFilter from '../utils/components/version-condition-filter.vue';
+  import MyVersionConditionFilter from '../components/version-condition-filter.vue';
   export default {
     components: {MyVersionConditionFilter},
     created() {

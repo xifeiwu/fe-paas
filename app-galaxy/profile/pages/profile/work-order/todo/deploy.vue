@@ -82,7 +82,7 @@
 <script>
   import WorkOrderPropUtils from '../utils/work-order-props';
   import MyShowDetail from '../utils/components/show-detail.vue';
-  import MyDialogForLog from '../../utils/components/dialog4log.vue';
+  import MyDialogForLog from '../../components/dialog4log.vue';
   export default {
     components: {MyDialogForLog, MyShowDetail},
     created() {

@@ -1067,8 +1067,8 @@
 
 <script>
   import appPropUtils from '../utils/app-props';
-  import MyDialogForLog from '../utils/components/dialog4log.vue'
-  import MyImageSelector from '../utils/components/image-selector.vue'
+  import MyDialogForLog from '../components/dialog4log.vue'
+  import MyImageSelector from '../components/image-selector.vue'
 export default {
   components: {MyDialogForLog, MyImageSelector},
   created() {

@@ -172,8 +172,8 @@
   }
 </style>
 <script>
-  import MyVersionSelector from '../utils/components/version-selector';
-  import MyDialogForLog from '../utils/components/dialog4log.vue';
+  import MyVersionSelector from '../components/version-selector';
+  import MyDialogForLog from '../components/dialog4log.vue';
   export default {
     components: {MyVersionSelector, MyDialogForLog},
     /**

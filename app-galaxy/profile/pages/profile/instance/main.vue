@@ -128,7 +128,7 @@
 
 <script>
   import appPropUtils from '../utils/app-props';
-  import MyVersionSelector from '../utils/components/version-selector';
+  import MyVersionSelector from '../components/version-selector';
 
   export default {
     components: {MyVersionSelector},
