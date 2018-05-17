@@ -10,12 +10,12 @@
       </el-row>
       <el-row class="section">
         <div class="title">凡普云产品</div>
-        <el-row class="list">
-          <el-col :span="6">
-            <span>应用引擎</span>
-            <img src="/assets/imgs/index/docker.png">
-          </el-col>
-        </el-row>
+        <div class="list el-row">
+          <div class="el-col el-col-6" v-for="(item, index) in productList" :key="index" @click="handleProductClick(item)">
+            <span>{{item.title}}</span>
+            <img :src="item.img">
+          </div>
+        </div>
       </el-row>
     </div>
   </div>
@@ -59,6 +59,10 @@
                 height: 200px;
                 box-sizing: border-box;
                 border: 1px solid #909399;
+                &:hover {
+                  border: 1px solid #409EFF;
+                  cursor: pointer;
+                }
                 img {
                   position: absolute;
                   bottom: 3px;
@@ -84,7 +88,12 @@
     },
     data() {
       return {
-        userRole: '未知'
+        userRole: '未知',
+        productList: [{
+          title: '应用引擎',
+          img: '/assets/imgs/index/docker.png',
+          to: '/profile',
+        }]
       }
     },
     computed: {
@@ -94,6 +103,13 @@
           userName = '未知';
         }
         return userName;
+      }
+    },
+    methods: {
+      handleProductClick(item) {
+        if (item.hasOwnProperty('to')) {
+          this.$utils.goToPath(item.to);
+        }
       }
     }
   }

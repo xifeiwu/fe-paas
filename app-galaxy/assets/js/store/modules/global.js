@@ -48,6 +48,9 @@ const actions = {
     state.config = null;
     localStorage.removeItem('user/info');
     localStorage.removeItem('user/config');
+
+    state.menuList = null;
+    localStorage.removeItem('user/menuList');
   },
 
   /**
