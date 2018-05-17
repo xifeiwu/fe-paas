@@ -88,19 +88,12 @@
     created() {
     },
     mounted() {
-      let workOrder = this.$storeHelper.getTmpProp('workOrderBasic');
-      if (!workOrder || !workOrder.hasOwnProperty('id')) {
+      let workOrderDetail = this.$storeHelper.getTmpProp('workOrderDetail');
+      if (!workOrderDetail || !workOrderDetail.hasOwnProperty('id')) {
         this.$router.push('/work-order/todo');
         return;
       }
-      this.$nextTick(() => {
-        WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
-//          console.log(workOrder);
-//          console.log(detail);
-          this.workOrderDetail = detail;
-        }).catch(err => {
-        })
-      });
+      this.workOrderDetail = workOrderDetail;
     },
     data() {
       return {

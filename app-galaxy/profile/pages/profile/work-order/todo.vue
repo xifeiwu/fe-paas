@@ -533,7 +533,6 @@
               handleStatus: row.handleStatus,
               status: row.status
             }).then(workOrderInfo => {
-//              this.hideWaitingResponse(action);
               let newStatus = workOrderInfo['status'];
               workOrderBasic.status = newStatus;
               workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
@@ -541,7 +540,7 @@
 //              this.$router.push('/profile/work-order/todo/test');
               WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
                 if (detail.hasOwnProperty('testLogList')) {
-                  // openPopover will be used for el-popover in work-order/todo/modify
+                  // openPopover will be used for el-popover in work-order/todo/modify(test)
                   detail.testLogList.forEach(it => {
                     it.openPopover = false;
                   })
@@ -572,12 +571,16 @@
               handleStatus: row.handleStatus,
               status: row.status
             }).then(workOrderInfo => {
-              this.hideWaitingResponse(action);
               let newStatus = workOrderInfo['status'];
               workOrderBasic.status = newStatus;
               workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
-              this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
-              this.$router.push('/work-order/todo/deploy');
+              WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
+                this.hideWaitingResponse(action);
+                this.$storeHelper.setTmpProp('workOrderDetail', detail);
+                this.$router.push('/work-order/todo/deploy');
+              }).catch(() => {
+                this.hideWaitingResponse(action);
+              });
             }).catch(errMsg => {
               this.hideWaitingResponse(action);
               console.log(errMsg);

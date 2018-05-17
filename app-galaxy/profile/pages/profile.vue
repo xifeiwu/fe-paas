@@ -214,7 +214,7 @@
             this.crumbList.push(pathConcat);
           }
         });
-        console.log(this.crumbList);
+//        console.log(this.crumbList);
       },
       /**
        * register some global variable at start of page profile
