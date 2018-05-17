@@ -562,9 +562,18 @@ module.exports = {
   
   watch: {
     '$storeHelper.currentGroupID': 'getTargetGroupList',
-    '$storeHelper.currentGroupID': 'requestAccessKeyList',
-    'searchCondition.groupID': 'requestAccessKeyList',
-    'searchCondition.production': 'requestAccessKeyList',
+    '$storeHelper.currentGroupID': function () {
+      this.currentPage = 1;
+      this.requestAccessKeyList();
+    },
+    'searchCondition.groupID': function () {
+      this.currentPage = 1;
+      this.requestAccessKeyList();
+    },
+    'searchCondition.production': function () {
+      this.currentPage = 1;
+      this.requestAccessKeyList();
+    },
     'modifyAccessConfig.targetGroupID': function (groupID) {
 //      console.log(value);
       this.$net.getAppListByGroupID({
@@ -673,7 +682,6 @@ module.exports = {
         "secret": '',
         "profileName": '',
         "myApp": '',
-        "createTime": '',
         "creatorName": "",
         "accessConfigList": [],
         "accessConfigDesc": []

@@ -16,6 +16,7 @@
           <label style="float: left; width: 72px; line-height: 26px">访问环境：</label>
           <el-select v-model="searchCondition.production" placeholder="请选择"
                      style="display:block; max-width: 200px; margin-left: 72px;">
+            <el-option :value="null" label="全部"></el-option>
             <el-option :value="true" label="生产环境"></el-option>
             <el-option :value="false" label="非生产环境"></el-option>
           </el-select>
@@ -131,6 +132,19 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-container" v-if="totalSize > pageSize" :class="{'disable': showLoading}">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "pageSize"
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange"
+          >
+          </el-pagination>
+        </div>
+      </div>
     </div>
 
     <el-dialog title="修改授权URL" :visible="selected.operation == 'open-dialog-for-modify-authorize-url'"
@@ -313,10 +327,6 @@
       if (!this.targetAppList || this.targetAppList.length === 0) {
         this.getTargetAppList(this.$storeHelper.currentGroupID)
       }
-      // init value of searchCondition.production at start
-      if (null == this.searchCondition.production) {
-        this.searchCondition.production = false;
-      }
     },
     data() {
       return {
@@ -366,8 +376,14 @@
     },
     watch: {
       '$storeHelper.currentGroupID': 'getTargetAppList',
-      'searchCondition.appID': function() {this.requestAuthorizeUrlList()},
-      'searchCondition.production': function() {this.requestAuthorizeUrlList()},
+      'searchCondition.appID': function() {
+        this.currentPage = 1;
+        this.requestAuthorizeUrlList()
+      },
+      'searchCondition.production': function() {
+        this.currentPage = 1;
+        this.requestAuthorizeUrlList()
+      },
       'modifyAuthorizeUrl.newItem.oauth': function(value) {
         this.checkAuthorizeUrlValidate(null, 'watch');
       },
@@ -377,9 +393,11 @@
     },
 
     methods: {
+      /**
+       * get has oauthed app list in current Group, which is used for search filter
+       */
       // called at: 1. start of page, 2. change of gorupID
       getTargetAppList (groupID) {
-//      console.log(`currentGroupID: ${value}`);
         if (!groupID) {
           return;
         }
@@ -390,6 +408,8 @@
             targetApplicationName: '全部'
           });
           this.searchCondition.appID = this.$storeHelper.GROUP_ID_FOR_ALL;
+          this.currentPage = 1;
+          this.requestAuthorizeUrlList();
         }).catch(err => {
           console.log(err);
           this.targetAppList = [{
@@ -628,6 +648,12 @@
         console.log(arguments);
       },
 
+      // the first page of pagination is 1
+      handlePaginationPageChange(page) {
+        this.currentPage = page;
+        this.requestAuthorizeUrlList();
+      },
+
       /**
        * update access-key list, called at:
        * 1. mounted function at start of page
@@ -641,7 +667,7 @@
           cb = function () {
           };
         }
-        if (null == this.searchCondition.appID || null == this.searchCondition.production) {
+        if (null == this.searchCondition.appID) {
           return;
         }
         let page = this.currentPage - 1;
@@ -650,12 +676,15 @@
         let length = this.pageSize;
         let targetAppID = this.searchCondition.appID;
         let options = {
-          productEnv: this.searchCondition.production,
           targetGroupId: this.$storeHelper.currentGroupID,
           targetApplicationId: targetAppID == this.$storeHelper.APP_ID_FOR_ALL ? '' : targetAppID,
           start: start,
           length: length,
         };
+        // productEnv will not add to options if production=null(访问环境=全部)
+        if (null !== this.searchCondition.production) {
+          options.productEnv = this.searchCondition.production;
+        }
         this.showLoading = true;
 //      {
 //        "targetApplicationName": "被访问的应用",
