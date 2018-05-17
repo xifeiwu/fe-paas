@@ -15,7 +15,7 @@
   </el-dialog>
 </template>
 <style lang="scss">
-  .el-dialog__wrapper {
+  .spa .el-dialog__wrapper {
     &.dialog4log {
       .el-dialog {
         background-color: rgba(0, 0, 0, 0.8);

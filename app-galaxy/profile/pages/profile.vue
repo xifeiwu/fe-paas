@@ -1,5 +1,5 @@
 <template>
-  <el-container id="profile" class="page" direction="vertical">
+  <el-container id="profile" class="spa" direction="vertical">
     <paas-header-profile :userName="userName" defaultActive="profile"
                          @menu-click="handleHeaderMenuClick"></paas-header-profile>
     <el-container class="inner-container">
