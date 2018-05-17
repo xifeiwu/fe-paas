@@ -1,24 +1,8 @@
 <template>
   <div id="service-main">
     <div class="header">
-      <el-row class="operation" type="flex" justify="center" align="middle">
-        <el-col :span="6">
-          <el-button
-              size="mini-extral"
-              type="primary"
-              @click="handleButtonClick('add-service')">
-            添加服务
-          </el-button>
-          <el-button v-if="true"
-             size="mini-extral"
-             type="primary"
-             @click="handleButtonClick('refreshAppList')">刷新</el-button>
-          <el-button v-if="isProductionProfile"
-                     size="mini-extral"
-                     type="primary"
-                     @click="handleButtonClick('go-to-work-order-todo-add')">申请工单</el-button>
-        </el-col>
-        <el-col :span="18" class="app-selector">
+      <el-row class="operation">
+        <el-col :span="24" class="selector">
           <div class="item">
             <label style="float: left; width: 72px; line-height: 26px">应用名称：</label>
             <el-select filterable v-model="selectedAppID" placeholder="请选择" style="display:block; max-width: 280px; margin-left: 72px;">
@@ -33,6 +17,22 @@
               </el-option>
             </el-select>
           </div>
+        </el-col>
+        <el-col :span="24" class="btn-list">
+          <el-button
+              size="mini-extral"
+              type="primary"
+              @click="handleButtonClick('add-service')">
+            添加服务
+          </el-button>
+          <el-button v-if="true"
+             size="mini-extral"
+             type="primary"
+             @click="handleButtonClick('refreshAppList')">刷新</el-button>
+          <el-button v-if="isProductionProfile"
+                     size="mini-extral"
+                     type="primary"
+                     @click="handleButtonClick('go-to-work-order-todo-add')">申请工单</el-button>
         </el-col>
       </el-row>
       <el-row class="notice">
@@ -807,7 +807,6 @@
     line-height: 25px;
   }
   #service-main {
-    max-width: 1200px;
     .header {
       .el-select .el-input__inner {
         height: 26px;
@@ -963,6 +962,11 @@
 </style>
 <style lang="scss" scoped>
   #service-main {
+    max-width: 1200px;
+    /*margin: 0px auto;*/
+    margin-left: 10px;
+    padding: 0px 8px 8px 8px;
+    /*box-shadow: 0 2px 8px rgba(0,0,0,0.1);*/
     .el-icon-edit {
       margin-left: 2px;
       font-size: 100%;
@@ -982,21 +986,23 @@
       .el-row {
         min-height: 28px;
         &.operation {
-          margin: 3px 5px;
+          /*margin: 3px 5px;*/
           .el-col {
             display: block !important;
-            padding: 0px 10px;
+            float: none !important;
+            margin: 3px 0px;
+
             display: inline-block;
             vertical-align: middle;
             text-align: left;
-            &:first-child {
-              padding: 0px;
-              /*border-right: 1px solid darkgray;*/
-            }
-            &:nth-child(2) {
+
+            &.selector {
               .item {
                 display: inline-block;
               }
+            }
+            &.btn-list {
+              padding: 0px;
             }
           }
         }
@@ -1009,7 +1015,7 @@
           }
         }
         &.domain {
-          margin: 5px 5px 5px 8px;
+          /*margin: 5px 5px 5px 8px;*/
           .el-col {
             .text {
               display: inline-block;
