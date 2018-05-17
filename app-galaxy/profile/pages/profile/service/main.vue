@@ -81,12 +81,6 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="intranetDomain"
-          label="内网域名"
-          headerAlign="center" align="center"
-        >
-        </el-table-column>
-        <el-table-column
           prop="applicationServiceStatus"
           label="运行实例数/总实例数"
           width="160"
@@ -167,9 +161,14 @@
               <div class="image-info">
                 <div class="title">镜像信息</div>
                 <el-form label-position="right" label-width="140px" size="mini">
+                  <el-form-item label="内网域名：">
+                    <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
+                      {{valueToShow(selected.service.intranetDomain)}}
+                    </div>
+                  </el-form-item>
                   <el-form-item label="镜像方式：">
                     {{valueToShow(selected.service.image.typeName)}}
-                    <span style="padding-left: 12px; color: #409EFF">基础镜像地址：</span><span>{{selected.service.image.location}} </span>
+                    <span style="padding-left: 12px; font-weight: bold">基础镜像地址：</span><span>{{selected.service.image.location}} </span>
                     <i class="el-icon-edit" @click="handleChangeProp('image')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab_ssh地址：">
@@ -198,7 +197,7 @@
                 </el-form>
               </div>
               <div class="instance-info">
-                <div class="title">实例信息</div>
+                <div class="title">服务信息</div>
                 <el-form label-position="right" label-width="140px" inline size="mini">
                   <el-form-item label="CPU/内存：">
                     {{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}
@@ -808,6 +807,7 @@
     line-height: 25px;
   }
   #service-main {
+    max-width: 1200px;
     .header {
       .el-select .el-input__inner {
         height: 26px;
@@ -816,15 +816,18 @@
     .service-list {
       .el-table {
         .el-table__expanded-cell {
-          border-color: #409EFF;
           .row-expand {
+            box-sizing: border-box;
+            padding: 8px 12px;
             width: 85%;
             margin: 0px auto;
             max-width: 750px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 0 2px 0 rgba(64,158,255, .6);
             .el-form {
               .el-form-item {
                 .el-form-item__label {
-                  color: #409EFF;
+                  /*color: #409EFF;*/
                   font-weight: bold;
                 }
                 &.el-form-item--mini {
@@ -832,7 +835,7 @@
                 }
                 &.relativePathOfParentPOM {
                   .el-form-item__label {
-                    line-height: 100%;
+                    line-height: 120%;
                   }
                 }
               }
@@ -981,6 +984,7 @@
         &.operation {
           margin: 3px 5px;
           .el-col {
+            display: block !important;
             padding: 0px 10px;
             display: inline-block;
             vertical-align: middle;
@@ -1407,7 +1411,7 @@ export default {
     },
     // change the default service
     changeDefaultVersion(serviceID) {
-      this.warningConfirm(`更改默认版本后，内、外网访问应用将指向默认版本的内、外网域名，10分钟之内会在全国范围生效，你确定需要更改吗？`).then(() => {
+      this.warningConfirm(`更改默认版本后，内、外网访问应用将指向默认版本的内、外网域名，你确定需要更改吗？`).then(() => {
         this.$net.changeDefaultService({
           beforeSwitchId: this.defaultServiceID,
           afterSwitchId: serviceID
