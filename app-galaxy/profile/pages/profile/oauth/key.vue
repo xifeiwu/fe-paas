@@ -1,15 +1,6 @@
 <template>
   <div id="oauth-key">
-    <el-row class="header">
-      <el-col :span="4">
-        <el-button
-                size="mini-extral"
-                type="primary"
-                :disabled="statusOfWaitingResponse('disable-create-access-key')"
-                @click="handleButtonClick('create-access-key')">
-          {{contentOfCreateAccessKeyButton}}
-        </el-button>
-      </el-col>
+    <el-row class="header" type="flex" justify="center" align="middle">
       <el-col :span="20" class="key-selector">
         <div class="item">
           <label style="float: left; width: 100px; line-height: 26px">访问对方团队：</label>
@@ -37,6 +28,15 @@
                    type="primary"
                    :loading="statusOfWaitingResponse('search')"
                    @click="handleButtonClick('search')">搜索</el-button>
+      </el-col>
+      <el-col :span="4">
+        <el-button
+                size="mini-extral"
+                type="primary"
+                :disabled="statusOfWaitingResponse('disable-create-access-key')"
+                @click="handleButtonClick('create-access-key')">
+          {{contentOfCreateAccessKeyButton}}
+        </el-button>
       </el-col>
     </el-row>
     <div class="access-key-list">
@@ -402,8 +402,9 @@
 </style>
 <style lang="scss" scoped>
 #oauth-key {
+  height: 100%;
   .el-row.header {
-    margin: 5px;
+    margin: 3px 5px;
     font-size: 14px;
     line-height: 20px;
     i {
@@ -417,31 +418,35 @@
       }
     }
   }
-  .el-table {
-    .access-key {
-      line-height: 26px;
-      text-align: center;
-      .my-icon-copy {
-        font-size: 16px;
-        margin-left: 5px;
+  .access-key-list {
+    height: calc(100% - 40px);
+    overflow: scroll;
+    .el-table {
+      .access-key {
+        line-height: 26px;
+        text-align: center;
+        .my-icon-copy {
+          font-size: 16px;
+          margin-left: 5px;
+          &:hover {
+          }
+          &:active {
+            color: #409EFF;
+            font-weight: bold;
+          }
+        }
+      }
+      .button-list {
+        text-align: left;
+      }
+      .more {
         &:hover {
         }
-        &:active {
-          color: #409EFF;
-          font-weight: bold;
-        }
+        font-size: 12px;
       }
-    }
-    .button-list {
-      text-align: left;
-    }
-    .more {
-      &:hover {
+      .el-button {
+        margin: 2px 4px;
       }
-      font-size: 12px;
-    }
-    .el-button {
-      margin: 2px 4px;
     }
   }
 }
