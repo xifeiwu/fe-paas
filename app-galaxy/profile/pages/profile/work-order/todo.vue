@@ -55,6 +55,7 @@
       <el-table :data="workOrderListByPage"
                 v-loading="showLoading"
                 stripe
+                :height="heightOfWorkOrderList"
                 :row-key="getRowKeys"
                 :expand-row-keys="expandRows"
                 element-loading-text="加载中">
@@ -190,6 +191,7 @@
 </template>
 <style lang="scss">
   #work-order-todo {
+    height: calc(100% - 30px);
     .header {
       margin: 3px 5px;
       font-size: 14px;
@@ -294,14 +296,35 @@
 </style>
 <script>
   import WorkerOrderPropUtils from './utils/work-order-props';
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   export default {
     created() {
     },
     mounted() {
       this.setDateRange();
+      // adjust element height after resize
+      try {
+        let header = this.$el.querySelector('.header:first-child');
+        let workOrderList = this.$el.querySelector('.work-order-list');
+        this.resizeListener = (evt) => {
+          let height = this.$el.clientHeight;
+          let heightOfHeader = header.clientHeight;
+          let heightOfContent = height - heightOfHeader;
+          workOrderList.style.height = heightOfContent + 'px';
+          this.heightOfWorkOrderList = height - heightOfHeader - 20;
+        };
+        addResizeListener(this.$el, this.resizeListener)
+      } catch(err) {
+      }
+    },
+    beforeDestroy() {
+      removeResizeListener(this.$el, this.resizeListener);
     },
     data() {
       return {
+        resizeListener: () => {},
+        heightOfWorkOrderList: '',
+
         searchForm: {
           userName: '',
           dateRange: '',
