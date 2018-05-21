@@ -1,6 +1,10 @@
 <template>
   <div id="instance-main">
     <el-row class="header" type="flex" justify="center" align="middle">
+      <el-col :span="20">
+        <my-version-selector :customConfig="localConfig" ref="version-selector"
+                             @version-selected="onVersionSelected"></my-version-selector>
+      </el-col>
       <el-col :span="4">
         <el-button v-if="true"
                    size="mini-extral"
@@ -11,22 +15,19 @@
                    type="primary"
                    @click="handleButtonClick('manual-scale')">手动伸缩</el-button>
       </el-col>
-      <el-col :span="20">
-        <my-version-selector :customConfig="localConfig" ref="version-selector"
-                             @version-selected="onVersionSelected"></my-version-selector>
-      </el-col>
     </el-row>
-    <div class="section-content">
+    <div class="instance-list">
       <el-table
               :data="instanceStatus.instanceList"
               style="width: 100%"
+              :height="heightOfInstanceList"
               v-loading="showLoading"
               element-loading-text="加载中"
       >
         <el-table-column
                 prop="instanceName"
                 label="实例名称"
-                width="300"
+                min-width="200"
                 headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
@@ -110,12 +111,14 @@
 </style>
 <style lang="scss" scoped>
   #instance-main {
+    height: 100%;
+    /*overflow: scroll;*/
     .el-row.header {
       margin: 3px 5px;
       font-size: 14px;
       min-height: 28px;
     }
-    .section-content {
+    .instance-list {
       .el-table {
         margin-bottom: 40px;
         .el-button {
@@ -129,6 +132,7 @@
 <script>
   import appPropUtils from '../utils/app-props';
   import MyVersionSelector from '../components/version-selector';
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 
   export default {
     components: {MyVersionSelector},
@@ -148,9 +152,29 @@
       }
     },
     mounted() {
+      // adjust element height after resize
+      try {
+        let header = this.$el.querySelector('.header:first-child');
+        let instanceList = this.$el.querySelector('.instance-list');
+        this.resizeListener = (evt) => {
+          let height = this.$el.clientHeight;
+          let heightOfHeader = header.clientHeight;
+          let heightOfContent = height - heightOfHeader;
+          instanceList.style.height = heightOfContent + 'px';
+          this.heightOfInstanceList = height - heightOfHeader - 20;
+        };
+        addResizeListener(this.$el, this.resizeListener)
+      } catch(err) {
+      }
+    },
+    beforeDestroy() {
+      removeResizeListener(this.$el, this.resizeListener);
     },
     data() {
       return {
+        resizeListener: () => {},
+        heightOfInstanceList: '',
+
         localConfig: null,
         showLoading: false,
         queueForWaitingResponse: [],
