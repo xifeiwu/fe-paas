@@ -1116,6 +1116,9 @@ export default {
     } catch(err) {
     }
   },
+  beforeDestroy() {
+    removeResizeListener(this.serviceListNode, this.resizeListenerForServiceList);
+  },
   computed: {
     appInfoListOfGroup() {
       return this.$storeHelper.appInfoListOfGroup();

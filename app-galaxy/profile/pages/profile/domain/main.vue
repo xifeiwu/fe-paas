@@ -431,6 +431,7 @@
       }
     }
     .domain-list {
+      box-sizing: border-box;
       height: calc(100% - 57px);
       .el-table {
         margin-bottom: 40px;
@@ -465,22 +466,27 @@
       }
     },
     mounted() {
-      // adjust the height of el-table in the area service-list
+      // adjust element height after resize
       try {
-        this.domainListNode = this.$el.querySelector('.domain-list');
-        this.heightOfDomainList = this.domainListNode.clientHeight - 20;
-        this.resizeListenerForDomainList = (evt) => {
-          let target = evt.target;
-          this.heightOfDomainList = target.clientHeight - 20;
+        let header = this.$el.querySelector('.header:first-child');
+        let domainList = this.$el.querySelector('.domain-list');
+        this.resizeListener = (evt) => {
+          let height = this.$el.clientHeight;
+          let heightOfHeader = header.clientHeight;
+          let heightOfContent = height - heightOfHeader;
+          domainList.style.height = heightOfContent + 'px';
+          this.heightOfDomainList = height - heightOfHeader - 20;
         };
-        addResizeListener(this.domainListNode, this.resizeListenerForDomainList)
+        addResizeListener(this.$el, this.resizeListener)
       } catch(err) {
       }
     },
+    beforeDestroy() {
+      removeResizeListener(this.$el, this.resizeListener);
+    },
     data() {
       return {
-        domainListNode: null,
-        resizeListenerForDomainList: () => {},
+        resizeListener: () => {},
         heightOfDomainList: '',
 
         totalSize: 0,
