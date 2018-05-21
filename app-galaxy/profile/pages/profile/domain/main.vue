@@ -1,7 +1,13 @@
 <template>
   <div id="domain-main">
     <div class="header">
-      <div class="row">
+      <div class="row selector">
+        <my-version-condition-filter
+                :addItemAll="{app:true, profile:true, service: true}"
+                :customConfig="localServiceConfig"
+                @service-condition-changed="onServiceConditionChanged"></my-version-condition-filter>
+      </div>
+      <div class="row operation">
         <el-button
                 size="mini-extral"
                 type="primary"
@@ -31,17 +37,12 @@
           <i class="el-icon-question"></i>
         </el-tooltip>
       </div>
-      <div class="row">
-        <my-version-condition-filter
-                :addItemAll="{app:true, profile:true, service: true}"
-                :customConfig="localServiceConfig"
-                @service-condition-changed="onServiceConditionChanged"></my-version-condition-filter>
-      </div>
     </div>
     <div class="domain-list">
       <el-table
               :data="currentDomainList"
               style="width: 100%"
+              :height="heightOfDomainList"
               v-loading="showLoading"
               element-loading-text="加载中"
               @selection-change="handleSelectionChangeInTable"
@@ -407,21 +408,16 @@
 </style>
 <style lang="scss" scoped>
   #domain-main {
+    height: 100%;
     .header {
       margin: 3px 5px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       font-size: 14px;
       .row {
         box-sizing: border-box;
-        &:nth-child(1) {
-          width: 30%;
-          /*border-right: 1px solid #e7e7e7;*/
+        &.operation {
           text-align: left;
         }
-        &:nth-child(2) {
-          width: 70%;
+        &.selector {
           text-align: left;
           .my-version-selector {
             display: inline-block;
@@ -435,6 +431,7 @@
       }
     }
     .domain-list {
+      height: calc(100% - 57px);
       .el-table {
         margin-bottom: 40px;
         .el-table__row {
@@ -453,6 +450,7 @@
 
 <script>
   import MyVersionConditionFilter from '../components/version-condition-filter.vue';
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   export default {
     components: {MyVersionConditionFilter},
     created() {
@@ -467,10 +465,24 @@
       }
     },
     mounted() {
-
+      // adjust the height of el-table in the area service-list
+      try {
+        this.domainListNode = this.$el.querySelector('.domain-list');
+        this.heightOfDomainList = this.domainListNode.clientHeight - 20;
+        this.resizeListenerForDomainList = (evt) => {
+          let target = evt.target;
+          this.heightOfDomainList = target.clientHeight - 20;
+        };
+        addResizeListener(this.domainListNode, this.resizeListenerForDomainList)
+      } catch(err) {
+      }
     },
     data() {
       return {
+        domainListNode: null,
+        resizeListenerForDomainList: () => {},
+        heightOfDomainList: '',
+
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
