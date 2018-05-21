@@ -11,6 +11,7 @@
 
 <style lang="scss">
   #work-order {
+    height: 100%;
     padding: 0px;
     .el-tabs {
       .el-tabs__nav {
