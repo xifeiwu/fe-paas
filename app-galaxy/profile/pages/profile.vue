@@ -21,7 +21,7 @@
         </el-menu>
       </el-aside>
       <el-main>
-        <el-row class="main-header" type="flex" align="middle">
+        <el-row class="header" type="flex" align="middle">
           <el-col :span="12" class="current-step">
             <el-breadcrumb separator-class="el-icon-arrow-right">
               <el-breadcrumb-item v-for="item in crumbList" :key="item" :to="{path: item}">
@@ -37,9 +37,9 @@
             </el-select>
           </el-col>
         </el-row>
-        <el-scrollbar>
+        <div class="child">
           <router-view></router-view>
-        </el-scrollbar>
+        </div>
       </el-main>
     </el-container>
   </el-container>
@@ -87,7 +87,7 @@
       .el-main {
         padding: 0px;
         margin-left: $aside-width;
-        .el-row.main-header {
+        .el-row.header {
           border-bottom: 1px solid #e7e7e7;
           padding: 0px 6px;
           height:30px;
@@ -106,8 +106,9 @@
             }
           }
         }
-        .el-scrollbar {
-          height: calc(100% - 43px);
+        .child {
+          height: calc(100% - 32px);
+          overflow: hidden;
         }
       }
     }

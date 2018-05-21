@@ -36,6 +36,7 @@
       <el-table :data="appListByPage"
                 v-loading="showLoading"
                 stripe
+                :height="heightOfAppList"
                 element-loading-text="加载中">
         <el-table-column label="语言版本" prop="languageVersion" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
@@ -187,18 +188,13 @@
   #app-main {
     .app-list {
       .el-table {
-        th {
-          padding: 2px 0px;
-        }
-        td {
-          padding: 3px 0px;
-        }
       }
     }
   }
 </style>
 <style lang="scss" scoped>
   #app-main {
+    height: 100%;
     .header {
       margin: 3px 5px;
       font-size: 14px;
@@ -215,7 +211,17 @@
     }
     .app-list {
       padding: 0px 0px;
+      height: calc(100% - 36px);
+      margin: 0px 5px;
+      /*overflow: scroll;*/
       .el-table {
+        width: auto;
+        th {
+          padding: 2px 0px;
+        }
+        td {
+          padding: 3px 0px;
+        }
         margin-bottom: 0px;
         color: black;
         .el-table__row {
@@ -298,6 +304,7 @@
 </style>
 <script>
   import AppPropUtils from '../utils/app-props';
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   export default {
     created() {
 //      let appInfoListOfGroup = this.appInfoListOfGroup;
@@ -314,6 +321,17 @@
 //      console.log(this.totalSize);
     },
     mounted() {
+      try {
+        this.appListNode = this.$el.querySelector('.app-list');
+        this.heightOfAppList = this.appListNode.clientHeight - 20;
+        this.resizeListenerForAppList = (evt) => {
+          let target = evt.target;
+          this.heightOfAppList = target.clientHeight - 20;
+        };
+        addResizeListener(this.appListNode, this.resizeListenerForAppList)
+      } catch(err) {
+
+      }
       if (!this.appInfoListOfGroup) {
         this.$store.dispatch('user/appInfoListOfGroup', {
           from: 'page/app',
@@ -323,8 +341,15 @@
         this.onAppInfoListOfGroup(this.appInfoListOfGroup);
       }
     },
+    beforeDestroy() {
+      removeResizeListener(this.appListNode, this.resizeListenerForAppList);
+    },
     data() {
       return {
+        appListNode: null,
+        resizeListenerForAppList: () => {},
+        heightOfAppList: '',
+
         showAppList: true,
         showLoading: false,
         totalSize: 0,
