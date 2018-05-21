@@ -74,6 +74,7 @@
 </template>
 <style lang="scss" scoped>
   #log-run {
+    height: calc(100% - 30px);
     .header {
       font-size: 14px;
       margin: 5px;
@@ -88,8 +89,8 @@
     }
     .section-log {
       position: relative;
-      margin: 10px;
-      height: 560px;
+      margin: 5px;
+      /*height: 560px;*/
       background-color: rgba(0, 0, 0, 0.8);
       /*.title {*/
         /*height: 24px;*/
@@ -174,6 +175,7 @@
 <script>
   import MyVersionSelector from '../components/version-selector';
   import MyDialogForLog from '../components/dialog4log.vue';
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   export default {
     components: {MyVersionSelector, MyDialogForLog},
     /**
@@ -214,9 +216,24 @@
           }
         });
       });
+
+      // adjust element height after resize
+      try {
+        let header = this.$el.querySelector('.header:first-child');
+        let logSection = this.$el.querySelector('.section-log');
+        this.resizeListener = (evt) => {
+          let height = this.$el.clientHeight;
+          let heightOfHeader = header.clientHeight;
+          let heightOfContent = height - heightOfHeader;
+          logSection.style.height = (heightOfContent - 15) + 'px';
+        };
+        addResizeListener(this.$el, this.resizeListener)
+      } catch(err) {
+      }
     },
     data() {
       return {
+        resizeListener: () => {},
         localConfig: null,
         searchForm: {
           appId: '',
