@@ -66,6 +66,7 @@
       <el-table
         :data="currentServiceList"
         stripe
+        :height="heightOfServiceList"
         :row-key="getRowKeys"
         :expand-row-keys="expandRows"
         v-loading="showLoading"
@@ -962,6 +963,7 @@
 </style>
 <style lang="scss" scoped>
   #service-main {
+    height: 100%;
     max-width: 1200px;
     /*margin: 0px auto;*/
     margin-left: 10px;
@@ -1035,39 +1037,42 @@
       }
     }
 
-    .el-table {
-      .el-table__row {
-        .el-button {
-          margin: 2px 4px;
-          float: left;
-          .el-icon-arrow-right {
-            vertical-align: middle;
-            transition: transform 0.2s ease-in-out;
-            &.expand {
-              transform: rotate(90deg);
+    .service-list {
+      height: calc(100% - 120px);
+      .el-table {
+        .el-table__row {
+          .el-button {
+            margin: 2px 4px;
+            float: left;
+            .el-icon-arrow-right {
+              vertical-align: middle;
+              transition: transform 0.2s ease-in-out;
+              &.expand {
+                transform: rotate(90deg);
+              }
+            }
+            &:first-child {
+              margin-left: 0px;
             }
           }
-          &:first-child {
+          .el-button + .el-button {
             margin-left: 0px;
           }
         }
-        .el-button + .el-button {
-          margin-left: 0px;
-        }
-      }
 
-      .el-table__expanded-cell {
-        .title {
-          margin: 8px 0px;
-          padding-left: 5px;
-          border-left: 6px solid darkslategray;
-          font-weight: bold;
-        }
-        .el-form {
-          font-size: 0;
-          .el-form-item {
-            margin-right: 0;
-            margin-bottom: 10px;
+        .el-table__expanded-cell {
+          .title {
+            margin: 8px 0px;
+            padding-left: 5px;
+            border-left: 6px solid darkslategray;
+            font-weight: bold;
+          }
+          .el-form {
+            font-size: 0;
+            .el-form-item {
+              margin-right: 0;
+              margin-bottom: 10px;
+            }
           }
         }
       }
@@ -1079,6 +1084,7 @@
   import appPropUtils from '../utils/app-props';
   import MyDialogForLog from '../components/dialog4log.vue'
   import MyImageSelector from '../components/image-selector.vue'
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 export default {
   components: {MyDialogForLog, MyImageSelector},
   created() {
@@ -1096,6 +1102,18 @@ export default {
       this.$store.dispatch('app/messageForCreateAPP');
     } else {
       this.onCpuAndMemoryList(this.cpuAndMemoryList);
+    }
+
+    // adjust the height of el-table in the area service-list
+    try {
+      this.serviceListNode = this.$el.querySelector('.service-list');
+      this.heightOfServiceList = this.serviceListNode.clientHeight - 20;
+      this.resizeListenerForServiceList = (evt) => {
+        let target = evt.target;
+        this.heightOfServiceList = target.clientHeight - 20;
+      };
+      addResizeListener(this.serviceListNode, this.resizeListenerForServiceList)
+    } catch(err) {
     }
   },
   computed: {
@@ -1116,6 +1134,10 @@ export default {
   },
   data() {
     return {
+      serviceListNode: null,
+      resizeListenerForServiceList: () => {},
+      heightOfServiceList: '',
+
       appList: [],
 //      totalSize: 0,
 

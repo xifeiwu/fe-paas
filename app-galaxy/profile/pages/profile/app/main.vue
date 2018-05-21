@@ -330,7 +330,6 @@
         };
         addResizeListener(this.appListNode, this.resizeListenerForAppList)
       } catch(err) {
-
       }
       if (!this.appInfoListOfGroup) {
         this.$store.dispatch('user/appInfoListOfGroup', {
