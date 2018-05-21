@@ -43,6 +43,7 @@
       <el-table
               :data="accessKeyListByPage"
               stripe
+              :height="heightOfAccessKeyList"
               v-loading="showLoading"
               element-loading-text="加载中"
       >
@@ -402,7 +403,7 @@
 </style>
 <style lang="scss" scoped>
 #oauth-key {
-  height: 100%;
+  height: calc(100% - 30px);
   .el-row.header {
     margin: 3px 5px;
     font-size: 14px;
@@ -419,8 +420,8 @@
     }
   }
   .access-key-list {
-    height: calc(100% - 40px);
-    overflow: scroll;
+    /*height: calc(100% - 40px);*/
+    /*overflow: scroll;*/
     .el-table {
       .access-key {
         line-height: 26px;
@@ -453,6 +454,7 @@
 </style>
 
 <script>
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 module.exports = {
   created() {
 //    console.log(this.appInfoListOfGroup);
@@ -471,10 +473,31 @@ module.exports = {
     if (!this.targetGroupList || this.targetGroupList.length === 0) {
       this.getTargetGroupList(this.$storeHelper.currentGroupID)
     }
+
+    // adjust element height after resize
+    try {
+      let header = this.$el.querySelector('.header:first-child');
+      let accessKeyList = this.$el.querySelector('.access-key-list');
+      this.resizeListener = (evt) => {
+        let height = this.$el.clientHeight;
+        let heightOfHeader = header.clientHeight;
+        let heightOfContent = height - heightOfHeader;
+        accessKeyList.style.height = heightOfContent + 'px';
+        this.heightOfAccessKeyList = height - heightOfHeader - 20;
+      };
+      addResizeListener(this.$el, this.resizeListener)
+    } catch(err) {
+    }
+  },
+  beforeDestroy() {
+    removeResizeListener(this.$el, this.resizeListener);
   },
 
   data() {
     return {
+      resizeListener: () => {},
+      heightOfAccessKeyList: '',
+
       queueForWaitingResponse: [],
 
       targetGroupList: [],
