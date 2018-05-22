@@ -47,6 +47,7 @@
 </style>
 <style lang="scss" scoped>
   #work-order-accept {
+    background: white;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     width: 800px;
     margin: 20px;

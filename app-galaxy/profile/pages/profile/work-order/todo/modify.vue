@@ -179,6 +179,7 @@
     }
   }
   #work-order-modify {
+    background: white;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     width: 660px;
     margin: 20px;

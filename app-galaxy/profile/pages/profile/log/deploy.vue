@@ -53,7 +53,7 @@
 <style lang="scss" scoped>
   #log-deploy {
     .header {
-      padding: 5px;
+      padding: 5px 0px;
     }
     .list {
       .el-table {

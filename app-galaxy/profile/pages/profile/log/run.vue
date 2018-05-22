@@ -77,7 +77,7 @@
     height: calc(100% - 30px);
     .header {
       font-size: 14px;
-      padding: 5px;
+      padding: 5px 0px;
       .el-version-selector {
         display: inline-block;
       }
@@ -89,7 +89,7 @@
     }
     .section-log {
       position: relative;
-      margin: 5px;
+      margin: 5px 0px;
       /*height: 560px;*/
       background-color: rgba(0, 0, 0, 0.8);
       /*.title {*/

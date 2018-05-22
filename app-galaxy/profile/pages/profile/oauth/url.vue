@@ -40,7 +40,7 @@
         <el-table-column
                 prop="targetApplicationName"
                 label="被访问的应用"
-                width="180"
+                max-width="200"
                 headerAlign="center" align="center"
         >
         </el-table-column>
@@ -91,7 +91,7 @@
             <div v-if="scope.row.detailList.length==0">无</div>
             <div v-if="scope.row.detailList.length<=2">
               <div v-for="(item, index) in scope.row.detailList">
-                {{item.oauth}} / {{item.resource}}
+                {{item.oauth}} <span style="color: #409EFF; font-weight: bold">/</span> {{item.resource}}
               </div>
             </div>
             <div v-else>
@@ -100,7 +100,7 @@
               <el-tooltip slot="trigger" effect="dark" placement="bottom">
                 <div slot="content">
                   <div v-for="(item, index) in scope.row.detailList">
-                    {{item.oauth }} / {{ item.resource}}
+                    {{item.oauth }} <span style="color: #409EFF; font-weight: bold">/</span> {{ item.resource}}
                   </div>
                 </div>
                 <div class="more">详情...</div>
@@ -286,7 +286,7 @@
   #oauth-url {
     height: calc(100% - 30px);
     .el-row.header {
-      padding: 5px;
+      padding: 5px 0px;
       font-size: 14px;
       line-height: 20px;
       i {
@@ -531,11 +531,11 @@
         let isValid = false;
         let checkEmpty = () => {
           let isValid = false;
-          let oAuthReg = /^[A-Za-z0-9_]{1,50}$/;
+          let oAuthReg = /^[\u4e00-\u9fa5A-Za-z0-9_\/@:]{1,50}$/;
           if (oAuthReg.test(newItem.oauth) && oAuthReg.test(newItem.resource)) {
             isValid = true;
           } else {
-            this.errorMsgForAddAuthorizeUrl = '"所属权限"和"资源URL"不能为空'
+            this.errorMsgForAddAuthorizeUrl = '"所属权限"或"资源URL"格式不正确'
           }
           return isValid;
         };
@@ -564,7 +564,7 @@
         }
         return isValid;
       },
-      checkIfAuthorizeUrlChanged(origin, current) {
+      ifAuthorizeUrlChanged(origin, current) {
         let theSame = true;
         if (origin.supportClientId != current.accessKey) {
           theSame = false;
@@ -610,7 +610,7 @@
               if (!valid) {
                 return;
               }
-              if (!this.checkIfAuthorizeUrlChanged(this.selected.row, this.newProps)) {
+              if (!this.ifAuthorizeUrlChanged(this.selected.row, this.newProps)) {
                 this.$message.warning('您没有修改授权URL');
                 this.selected.operation = null;
                 return;

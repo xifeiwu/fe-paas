@@ -415,7 +415,7 @@
     max-width: 1200px;
     height: 100%;
     .header {
-      padding: 3px 5px;
+      padding: 3px 0px;
       font-size: 14px;
       .row {
         box-sizing: border-box;

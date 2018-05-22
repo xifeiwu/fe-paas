@@ -405,7 +405,7 @@
 #oauth-key {
   height: calc(100% - 30px);
   .el-row.header {
-    padding: 3px 5px;
+    padding: 5px 0px;
     font-size: 14px;
     line-height: 20px;
     i {
