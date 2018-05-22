@@ -178,7 +178,6 @@
     margin: 0px 5px;
     .work-order-list {
       .el-table {
-        margin-bottom: 40px;
         .el-table__row {
           .el-button {
             margin: 2px 4px;
@@ -201,37 +200,41 @@
           }
         }
         .el-table__expanded-cell {
-          padding: 0px;
-        }
-      }
-
-      .row-expand {
-        border-top: 1px solid #409EFF;
-        border-bottom: 1px solid #409EFF;
-        background-color: #fff;
-        .el-form {
-          width: 85%;
-          margin: 0px auto;
-          max-width: 750px;
-          .el-table {
-            margin-bottom: 6px;
-            th, td {
-              padding: 0px;
-            }
-          }
-          .el-form-item {
-            margin-bottom: 6px;
-            &.test-log-list {
-              .test-log {
-                margin: 0px 5px;
-                a {
-                  color: blue;
+          .row-expand {
+            background-color: #fff;
+            box-sizing: border-box;
+            padding: 12px 8px;
+            width: 85%;
+            margin: 0px auto;
+            max-width: 750px;
+            box-shadow: 0 0 2px 0 rgba(64,158,255, .6);
+            .el-form {
+              margin: 0px auto;
+              .el-table {
+                margin-bottom: 6px;
+                th, td {
+                  padding: 0px;
+                }
+              }
+              .el-form-item__label {
+                font-weight: bold;
+              }
+              .el-form-item {
+                margin-bottom: 6px;
+                &.test-log-list {
+                  .test-log {
+                    margin: 0px 5px;
+                    a {
+                      color: blue;
+                    }
+                  }
                 }
               }
             }
           }
         }
       }
+
     }
 
     .header {
