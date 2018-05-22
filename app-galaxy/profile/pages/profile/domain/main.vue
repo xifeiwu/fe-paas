@@ -410,7 +410,7 @@
   #domain-main {
     height: 100%;
     .header {
-      margin: 3px 5px;
+      padding: 3px 5px;
       font-size: 14px;
       .row {
         box-sizing: border-box;
@@ -434,7 +434,6 @@
       box-sizing: border-box;
       height: calc(100% - 57px);
       .el-table {
-        margin-bottom: 40px;
         .el-table__row {
           .el-button {
             margin: 2px 4px 2px 0px;
@@ -472,7 +471,7 @@
         let domainList = this.$el.querySelector('.domain-list');
         this.resizeListener = (evt) => {
           let height = this.$el.clientHeight;
-          let heightOfHeader = header.clientHeight;
+          let heightOfHeader = header.offsetHeight;
           let heightOfContent = height - heightOfHeader;
           domainList.style.height = heightOfContent + 'px';
           this.heightOfDomainList = height - heightOfHeader - 20;

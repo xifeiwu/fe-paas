@@ -196,7 +196,7 @@
   #app-main {
     height: 100%;
     .header {
-      margin: 3px 5px;
+      padding: 3px 5px;
       font-size: 14px;
       .el-row {
         .el-col {

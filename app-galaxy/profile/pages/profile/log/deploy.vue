@@ -53,11 +53,10 @@
 <style lang="scss" scoped>
   #log-deploy {
     .header {
-      margin: 5px;
+      padding: 5px;
     }
     .list {
       .el-table {
-        margin-bottom: 40px;
       }
     }
   }

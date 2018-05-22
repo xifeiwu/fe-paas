@@ -134,7 +134,7 @@
         }
         .child {
           height: calc(100% - 32px);
-          overflow: hidden;
+          overflow: scroll;
         }
       }
     }

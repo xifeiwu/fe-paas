@@ -77,7 +77,7 @@
     height: calc(100% - 30px);
     .header {
       font-size: 14px;
-      margin: 5px;
+      padding: 5px;
       .el-version-selector {
         display: inline-block;
       }
@@ -223,7 +223,7 @@
         let logSection = this.$el.querySelector('.section-log');
         this.resizeListener = (evt) => {
           let height = this.$el.clientHeight;
-          let heightOfHeader = header.clientHeight;
+          let heightOfHeader = header.offsetHeight;
           let heightOfContent = height - heightOfHeader;
           logSection.style.height = (heightOfContent - 15) + 'px';
         };

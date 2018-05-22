@@ -114,13 +114,12 @@
     height: 100%;
     /*overflow: scroll;*/
     .el-row.header {
-      margin: 3px 5px;
+      padding: 3px 5px;
       font-size: 14px;
       min-height: 28px;
     }
     .instance-list {
       .el-table {
-        margin-bottom: 40px;
         .el-button {
           display: inline-block;
         }
@@ -158,7 +157,7 @@
         let instanceList = this.$el.querySelector('.instance-list');
         this.resizeListener = (evt) => {
           let height = this.$el.clientHeight;
-          let heightOfHeader = header.clientHeight;
+          let heightOfHeader = header.offsetHeight;
           let heightOfContent = height - heightOfHeader;
           instanceList.style.height = heightOfContent + 'px';
           this.heightOfInstanceList = height - heightOfHeader - 20;

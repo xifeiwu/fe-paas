@@ -405,7 +405,7 @@
 #oauth-key {
   height: calc(100% - 30px);
   .el-row.header {
-    margin: 3px 5px;
+    padding: 3px 5px;
     font-size: 14px;
     line-height: 20px;
     i {
@@ -480,7 +480,7 @@ module.exports = {
       let accessKeyList = this.$el.querySelector('.access-key-list');
       this.resizeListener = (evt) => {
         let height = this.$el.clientHeight;
-        let heightOfHeader = header.clientHeight;
+        let heightOfHeader = header.offsetHeight;
         let heightOfContent = height - heightOfHeader;
         accessKeyList.style.height = heightOfContent + 'px';
         this.heightOfAccessKeyList = height - heightOfHeader - 20;

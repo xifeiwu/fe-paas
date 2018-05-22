@@ -238,7 +238,7 @@
     }
 
     .header {
-      margin: 3px 5px;
+      padding: 3px 5px;
       font-size: 14px;
       text-align: center;
       .el-row.operation {
@@ -289,7 +289,7 @@
         let workOrderList = this.$el.querySelector('.work-order-list');
         this.resizeListener = (evt) => {
           let height = this.$el.clientHeight;
-          let heightOfHeader = header.clientHeight;
+          let heightOfHeader = header.offsetHeight;
           let heightOfContent = height - heightOfHeader;
           workOrderList.style.height = heightOfContent + 'px';
           this.heightOfWorkOrderList = height - heightOfHeader - 20;
