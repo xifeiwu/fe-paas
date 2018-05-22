@@ -1,6 +1,6 @@
 <template>
   <div class="paas-header-profile">
-    <div class="img" @click="handleMenuClick(null, ['index'])">
+    <div class="img" @click="handleMenuClick(null, ['index'])" v-show="showImg">
       <img src="/assets/imgs/finup-cloud.png">
     </div>
     <el-menu class="header-menu"
@@ -98,6 +98,10 @@
         type: String,
         default: 'index'
       },
+      showImg: {
+        type: Boolean,
+        default: true
+      }
     },
     methods: {
       handleMenuClick(key, keyPath) {

@@ -1,26 +1,29 @@
 <template>
-  <el-container id="profile" class="spa" direction="vertical">
-    <paas-header-profile :userName="userName" defaultActive="profile"
-                         @menu-click="handleHeaderMenuClick"></paas-header-profile>
-    <el-container class="inner-container">
-      <el-aside width="180px">
-        <el-menu
-                class="el-menu-vertical-demo"
-                @open="handleOpen"
-                @close="handleClose"
-                @select="handleAsideMenuSelect"
-                :defaultOpeneds="['app_menu']"
-                :defaultActive="activeSideMenuItem">
-            <!--<el-menu-item index="app_manager">-->
-              <!--<i class="el-icon-location"></i>-->
-              <!--<span>应用管理</span>-->
-            <!--</el-menu-item>-->
-          <el-menu-item v-for="menu in menuList" :key="menu.name" :index="menu.router">
-            <i :class="menu.icon"></i><span>{{menu.name}}</span>
-          </el-menu-item>
-        </el-menu>
-      </el-aside>
-      <el-main>
+  <div id="profile" class="spa">
+    <aside>
+      <div class="img" @click="handleAsideMenuSelect('index', ['index'])">
+        <img src="/assets/imgs/finup-cloud.png">
+      </div>
+      <el-menu
+              class="el-menu-vertical-demo"
+              @open="handleOpen"
+              @close="handleClose"
+              @select="handleAsideMenuSelect"
+              :defaultOpeneds="['app_menu']"
+              :defaultActive="activeSideMenuItem">
+        <!--<el-menu-item index="app_manager">-->
+        <!--<i class="el-icon-location"></i>-->
+        <!--<span>应用管理</span>-->
+        <!--</el-menu-item>-->
+        <el-menu-item v-for="menu in menuList" :key="menu.name" :index="menu.router">
+          <i :class="menu.icon"></i><span>{{menu.name}}</span>
+        </el-menu-item>
+      </el-menu>
+    </aside>
+    <main>
+      <paas-header-profile :userName="userName" defaultActive="profile" :showImg="false"
+                           @menu-click="handleHeaderMenuClick"></paas-header-profile>
+      <div class="content">
         <el-row class="header" type="flex" align="middle">
           <el-col :span="12" class="current-step">
             <el-breadcrumb separator-class="el-icon-arrow-right">
@@ -40,9 +43,9 @@
         <div class="child">
           <router-view></router-view>
         </div>
-      </el-main>
-    </el-container>
-  </el-container>
+      </div>
+    </main>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -51,15 +54,7 @@
   $header-background-color: #e7e7e7;
   $split-line-color: #e7e7e7;
   $aside-width: 180px;
-  /*
-  $menu-background: rgb(0, 21, 41);
-  $menu-background-hover: rgb(0, 21, 41);
-  $menu-background-active: #1890ff;
-  $menu-background-active: white;
-  $menu-font-color: rgba(255, 255, 255, 0.7);
-  $menu-font-color-hover: white;
-  $menu-font-color-active: black;
-  */
+
 
   $menu-background: white;
   $menu-background-hover: #ecf5ff;
@@ -68,51 +63,83 @@
   $menu-font-color-hover: #2d2f33;
   $menu-font-color-active: white;
 
+  $menu-background: rgb(0, 21, 41);
+  $menu-background-hover: rgb(0, 21, 41);
+  $menu-background-active: #1890ff;
+  $menu-background-active: white;
+  $menu-font-color: rgba(255, 255, 255, 0.7);
+  $menu-font-color-hover: white;
+  $menu-font-color-active: black;
 
-  #profile.el-container {
+
+  #profile {
     /*background: #F2F6FC;*/
     height: 100%;
-    .inner-container {
-      .el-aside {
-        position: fixed;
-        top: $header-height;
-        background: $menu-background;
-        bottom: 0px;
-        border-right: solid 1px $split-line-color;
-        [class^="my-icon-"] {
-          display: inline-block;
-          font-size: 14px;
-          margin-top: 1px;
-          margin-right: 5px;
+    /*display: flex;*/
+    /*flex-direction: row;*/
+    aside {
+      /*position: fixed;*/
+      /*top: 45px;*/
+      /*bottom: 0px;*/
+      box-sizing: border-box;
+      width: 180px;
+      height: 100%;
+      float: left;
+      /*flex: 0 0;*/
+      background: $menu-background;
+      border-right: solid 1px $split-line-color;
+
+      .img {
+        line-height: $header-height;
+        cursor: pointer;
+        img {
+          width: 120px;
+          margin-left: 8px;
+          vertical-align: middle;
         }
-        .el-menu {
-          background-color: $menu-background;
-          margin-top: 10px;
-          border-width: 0px;
-          .el-menu-item {
-            color: $menu-font-color;
-            font-size: 15px;
-            height: 40px;
-            margin: 8px 0px;
-            line-height: 40px;
-            &:hover {
-              background-color: $menu-background-hover;
-              color: $menu-font-color-hover;
-            }
-            &.is-active {
-              color: $menu-font-color-active;
-              background-color: $menu-background-active;
-              border-radius: 0px;
-              [class^="my-icon-"] {
-                /*font-size: 15px;*/
-              }
+      }
+
+      [class^="my-icon-"] {
+        display: inline-block;
+        font-size: 14px;
+        margin-top: 1px;
+        margin-right: 5px;
+      }
+      .el-menu {
+        background-color: $menu-background;
+        margin-top: 10px;
+        border-width: 0px;
+        .el-menu-item {
+          color: $menu-font-color;
+          font-size: 15px;
+          height: 40px;
+          margin: 8px 0px;
+          line-height: 40px;
+          &:hover {
+            background-color: $menu-background-hover;
+            color: $menu-font-color-hover;
+          }
+          &.is-active {
+            color: $menu-font-color-active;
+            background-color: $menu-background-active;
+            border-radius: 0px;
+            [class^="my-icon-"] {
+              /*font-size: 15px;*/
             }
           }
         }
       }
-      .el-main {
+    }
+    main {
+      /*flex: 1 0;*/
+      width: calc(100% - 180px);
+      height: 100%;
+      float: left;
+      .paas-header-profile {
+      }
+      .content {
         padding: 0px;
-        margin-left: $aside-width;
+        height: calc(100% - 45px);
         .el-row.header {
           border-bottom: 1px solid #e7e7e7;
           padding: 0px 6px;
@@ -284,15 +311,20 @@
             break;
         }
       },
+      /**
+       * menu click handler for el-menu
+       * @param key, string, such as '/log'
+       * @param keyPath, array, such as ["/log"]
+       */
       handleAsideMenuSelect(key, keyPath) {
-//        console.log(key);
         if (keyPath.length > 0) {
           switch (key) {
             case '/profile/app_manager':
               this.$router.push(key);
               break;
+            case 'index':
+              this.$utils.goToPath('/index');
             default:
-              console.log('push key ' + key);
               this.$router.push(key);
               break;
           }
