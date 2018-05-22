@@ -175,6 +175,7 @@
 <style lang="scss">
   #work-order-list {
     height: calc(100% - 30px);
+    margin: 0px 5px;
     .work-order-list {
       .el-table {
         margin-bottom: 40px;

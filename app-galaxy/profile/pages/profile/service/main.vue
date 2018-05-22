@@ -963,11 +963,25 @@
 </style>
 <style lang="scss" scoped>
   #service-main {
-    height: 100%;
-    max-width: 1200px;
+    /*height: 100%;*/
+    /*max-width: 1200px;*/
     /*margin: 0px auto;*/
-    margin-left: 10px;
-    padding: 0px 8px 8px 8px;
+    /*padding: 0px 8px 8px 8px;*/
+    /*border-left: 1px solid #909399;*/
+    /*border-right: 1px solid #909399;*/
+
+    /*height: calc(100% - 20px);*/
+    /*box-shadow: 0 2px 15px rgba(0,0,0,0.1);*/
+    /*border: 1px solid rgba(0,0,0,0.1);*/
+    /*margin: 10px;*/
+    /*margin-left: 20px;*/
+    /*margin-bottom: 10px;*/
+    /*padding: 10px;*/
+    height: 100%;
+    padding-left: 10px;
+    /*max-width: 1200px;*/
+
+
     /*box-shadow: 0 2px 8px rgba(0,0,0,0.1);*/
     .el-icon-edit {
       margin-left: 2px;

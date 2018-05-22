@@ -45,7 +45,7 @@
 </style>
 <style lang="scss" scoped>
   $header-height: 45px;
-  $header-background-color: #3976EF;
+  $header-background-color: rgb(0, 21, 41);
   $header-background-color: #e7e7e7;
   $split-line-color: #e7e7e7;
   .paas-header-profile {

@@ -51,12 +51,32 @@
   $header-background-color: #e7e7e7;
   $split-line-color: #e7e7e7;
   $aside-width: 180px;
+  /*
+  $menu-background: rgb(0, 21, 41);
+  $menu-background-hover: rgb(0, 21, 41);
+  $menu-background-active: #1890ff;
+  $menu-background-active: white;
+  $menu-font-color: rgba(255, 255, 255, 0.7);
+  $menu-font-color-hover: white;
+  $menu-font-color-active: black;
+  */
+
+  $menu-background: white;
+  $menu-background-hover: #ecf5ff;
+  $menu-background-active: #409EFF;
+  $menu-font-color: #2d2f33;
+  $menu-font-color-hover: #2d2f33;
+  $menu-font-color-active: white;
+
+
   #profile.el-container {
+    /*background: #F2F6FC;*/
     height: 100%;
     .inner-container {
       .el-aside {
         position: fixed;
         top: $header-height;
+        background: $menu-background;
         bottom: 0px;
         border-right: solid 1px $split-line-color;
         [class^="my-icon-"] {
@@ -66,16 +86,22 @@
           margin-right: 5px;
         }
         .el-menu {
+          background-color: $menu-background;
           margin-top: 10px;
           border-width: 0px;
           .el-menu-item {
+            color: $menu-font-color;
             font-size: 15px;
             height: 40px;
             margin: 8px 0px;
             line-height: 40px;
+            &:hover {
+              background-color: $menu-background-hover;
+              color: $menu-font-color-hover;
+            }
             &.is-active {
-              background-color: #409EFF;
-              color: white;
+              color: $menu-font-color-active;
+              background-color: $menu-background-active;
               border-radius: 0px;
               [class^="my-icon-"] {
                 /*font-size: 15px;*/
