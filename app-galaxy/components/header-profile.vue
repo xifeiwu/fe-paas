@@ -23,7 +23,7 @@
 </template>
 
 <style lang="scss">
-  $header-height: 45px;
+  $header-height: 32px;
   .paas-header-profile {
     height: $header-height;
     .el-menu.header-menu {
@@ -44,12 +44,26 @@
   }
 </style>
 <style lang="scss" scoped>
-  $header-height: 45px;
+  $header-height: 32px;
   $header-background-color: rgb(0, 21, 41);
   $header-background-color: #e7e7e7;
+  $header-background-color: linear-gradient(120deg, #155799, #159957);
+  $header-background-color: linear-gradient(120deg, rgb(0, 21, 41), #159957, rgb(0, 21, 41));
+  $header-background-color: linear-gradient(120deg, #002766, rgb(0, 21, 41), #002766);
+  $header-background-color: white;
+
   $split-line-color: #e7e7e7;
+
+
+  $menu-background: white;
+  $menu-background-hover: white;
+  $menu-background-active: white;
+  $menu-font-color: black;
+  $menu-font-color-hover: black;
+  $menu-font-color-active: black;
+
   .paas-header-profile {
-    background-color: $header-background-color;
+    background: $header-background-color;
     padding: 0px 20px 0px 0px;
     color: #333;
     text-align: center;
@@ -70,15 +84,23 @@
         margin-top: 1px;
         margin-right: 5px;
       }
-      background-color: transparent;
+      /*background-color: transparent;*/
+      background-color: $menu-background;
       float: right;
       border-width: 0px;
       .el-menu-item {
         font-size: 15px;
         line-height: $header-height;
         height: $header-height;
+        color: $menu-font-color;
+        &:hover {
+          background-color: $menu-background-hover;
+          color: $menu-font-color-hover;
+        }
         &.is-active {
-          color: black;
+          color: $menu-font-color-active;
+          border-bottom-color: #159957;
+          border-radius: 0px;
         }
       }
     }

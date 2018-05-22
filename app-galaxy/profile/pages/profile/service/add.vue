@@ -194,6 +194,7 @@
 </style>
 <style lang="scss" scoped>
   #service-add {
+    background-color: white;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     margin: 20px;
     padding: 10px 20px;

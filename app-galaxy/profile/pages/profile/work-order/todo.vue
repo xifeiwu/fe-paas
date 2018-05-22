@@ -193,7 +193,7 @@
   #work-order-todo {
     height: calc(100% - 30px);
     .header {
-      padding: 3px 5px;
+      padding: 3px 0px;
       font-size: 14px;
       .el-row.operation {
         .el-col {

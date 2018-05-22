@@ -2,7 +2,7 @@
   <div id="profile" class="spa">
     <aside>
       <div class="img" @click="handleAsideMenuSelect('index', ['index'])">
-        <img src="/assets/imgs/finup-cloud.png">
+        <img src="/assets/imgs/finup-cloud-2.png">
       </div>
       <el-menu
               class="el-menu-vertical-demo"
@@ -55,7 +55,7 @@
   $split-line-color: #e7e7e7;
   $aside-width: 180px;
 
-
+  $main-background: #F2F6FC;
   $menu-background: white;
   $menu-background-hover: #ecf5ff;
   $menu-background-active: #409EFF;
@@ -65,15 +65,13 @@
 
   $menu-background: rgb(0, 21, 41);
   $menu-background-hover: rgb(0, 21, 41);
-  $menu-background-active: #1890ff;
-  $menu-background-active: white;
+  $menu-background-active: $main-background;
   $menu-font-color: rgba(255, 255, 255, 0.7);
   $menu-font-color-hover: white;
   $menu-font-color-active: black;
 
 
   #profile {
-    /*background: #F2F6FC;*/
     height: 100%;
     /*display: flex;*/
     /*flex-direction: row;*/
@@ -87,14 +85,14 @@
       float: left;
       /*flex: 0 0;*/
       background: $menu-background;
-      border-right: solid 1px $split-line-color;
+      /*border-right: solid 1px $split-line-color;*/
 
       .img {
         line-height: $header-height;
         cursor: pointer;
         img {
           width: 120px;
-          margin-left: 8px;
+          margin-left: 12px;
           vertical-align: middle;
         }
       }
@@ -121,7 +119,7 @@
           }
           &.is-active {
             color: $menu-font-color-active;
-            background-color: $menu-background-active;
+            background: $menu-background-active;
             border-radius: 0px;
             [class^="my-icon-"] {
               /*font-size: 15px;*/
@@ -132,17 +130,19 @@
     }
     main {
       /*flex: 1 0;*/
+      background: $main-background;
       width: calc(100% - 180px);
       height: 100%;
       float: left;
       .paas-header-profile {
       }
       .content {
+        margin-top: 2px;
         padding: 0px;
-        height: calc(100% - 45px);
+        height: calc(100% - 32px);
         .el-row.header {
+          background: white;
           border-bottom: 1px solid #e7e7e7;
-          padding: 0px 6px;
           height:30px;
           .el-col {
             &.current-step {

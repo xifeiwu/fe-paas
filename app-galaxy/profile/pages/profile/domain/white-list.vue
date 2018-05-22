@@ -128,7 +128,12 @@
 
 <style lang="scss">
   #domain-white-list {
-    padding: 3px;
+    background: white;
+    height: 100%;
+    margin-left: 6px;
+    padding: 0px 5px;
+    max-width: 1200px;
+    height: 100%;
     .upload-area {
       font-size: 14px;
       border: 1px solid lavenderblush;

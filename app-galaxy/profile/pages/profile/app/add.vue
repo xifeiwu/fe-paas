@@ -103,6 +103,7 @@
 
 <style lang="scss" scoped>
   #app-add {
+    background: white;
     margin: 20px;
     padding: 10px 20px;
     width: 80%;

@@ -11,8 +11,12 @@
 
 <style lang="scss">
   #work-order {
+    background: white;
     height: 100%;
-    padding: 0px;
+    margin-left: 6px;
+    padding: 0px 5px;
+    max-width: 1500px;
+    height: 100%;
     .el-tabs {
       .el-tabs__nav {
         border-radius: 0px;

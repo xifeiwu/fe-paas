@@ -13,7 +13,11 @@
 
 <style lang="scss">
   #log {
-    padding: 0px;
+    background: white;
+    height: 100%;
+    margin-left: 6px;
+    padding: 0px 5px;
+    max-width: 1200px;
     height: 100%;
     .el-tabs {
       /*margin-left: 5px;*/

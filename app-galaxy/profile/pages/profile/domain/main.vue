@@ -408,6 +408,11 @@
 </style>
 <style lang="scss" scoped>
   #domain-main {
+    background: white;
+    height: 100%;
+    margin-left: 6px;
+    padding: 0px 5px;
+    max-width: 1200px;
     height: 100%;
     .header {
       padding: 3px 5px;

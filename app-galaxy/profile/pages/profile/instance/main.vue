@@ -111,8 +111,12 @@
 </style>
 <style lang="scss" scoped>
   #instance-main {
+    background: white;
     height: 100%;
-    /*overflow: scroll;*/
+    margin-left: 6px;
+    padding: 0px 5px;
+    max-width: 1200px;
+    height: 100%;
     .el-row.header {
       padding: 3px 5px;
       font-size: 14px;

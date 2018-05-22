@@ -195,8 +195,13 @@
 <style lang="scss" scoped>
   #app-main {
     height: 100%;
+    margin: 0px;
+    margin-left: 6px;
+    padding: 0px 5px;
+    max-width: 1500px;
+    background: white;
     .header {
-      padding: 3px 5px;
+      padding: 3px 0px;
       font-size: 14px;
       .el-row {
         .el-col {
@@ -212,7 +217,6 @@
     .app-list {
       padding: 0px 0px;
       height: calc(100% - 36px);
-      margin: 0px 5px;
       /*overflow: scroll;*/
       .el-table {
         width: auto;

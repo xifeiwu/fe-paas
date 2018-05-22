@@ -175,7 +175,6 @@
 <style lang="scss">
   #work-order-list {
     height: calc(100% - 30px);
-    margin: 0px 5px;
     .work-order-list {
       .el-table {
         .el-table__row {
@@ -238,7 +237,7 @@
     }
 
     .header {
-      padding: 3px 5px;
+      padding: 3px 0px;
       font-size: 14px;
       text-align: center;
       .el-row.operation {
