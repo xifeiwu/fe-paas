@@ -1197,9 +1197,13 @@ class Net extends NetBase {
   // 获取授权URL列表
   oauthGetAuthorizeUrlList(options) {
     let transfer = (it) => {
-      it.createTime =  this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-      if (it.createTime) {
-        it.createTime = it.createTime.split(' ');
+      if (it.authTime) {
+        it.authTime = this.$utils.formatDate(it.authTime, 'yyyy-MM-dd hh:mm:ss');
+      } else {
+        it.authTime = '';
+      }
+      if (it.authTime) {
+        it.authTime = it.authTime.split(' ');
       }
       if (null == it.produceEnv) {
         it.profileName = null;

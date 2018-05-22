@@ -189,7 +189,7 @@
     <el-dialog title="修改访问配置" :visible="selected.operation == 'open-dialog-for-modify-access-config'"
                class="modify-access-config size-700"
                :close-on-click-modal="false"
-               @close="selected.operation = null"
+               @close="handleDialogClose('add-access-config-in-dialog')"
                v-if="selected.row"
     >
       <el-tag type="warning" disable-transitions>
@@ -290,7 +290,7 @@
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button action="profile-dialog/cancel"
-                       @click="selected.operation = null">取&nbsp消</el-button>
+                       @click="handleDialogClose('add-access-config-in-dialog')">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
@@ -653,11 +653,17 @@ module.exports = {
       this.isTargetAppOK();
     },
     'selected.row': function (row) {
+      let disable = false;
       if (row && row.hasOwnProperty('accessConfigList') && row['accessConfigList'].length > 0) {
-        this.disableMyAppSelectInDialogModifyAccessConfig = true;
-      } else {
-        this.disableMyAppSelectInDialogModifyAccessConfig = false;
+        disable = true;
       }
+      if (row && row.hasOwnProperty('production') && row.production !== null) {
+        disable = true;
+      }
+      if (row && row.hasOwnProperty('profileName') && row.profileName) {
+        disable = true;
+      }
+      this.disableMyAppSelectInDialogModifyAccessConfig = disable;
     },
   },
 
@@ -700,6 +706,10 @@ module.exports = {
     },
     statusOfWaitingResponse(action) {
       return this.queueForWaitingResponse.indexOf(action) > -1;
+    },
+    handleDialogClose(action) {
+      this.selected.operation = null;
+      this.hideWaitingResponse(action);
     },
 
     getEmptyItem() {
@@ -911,7 +921,7 @@ module.exports = {
       }
       return appIdIsOK && !hasExist;
     },
-    checkIfAppListChanged(origin, current) {
+    ifAppListChanged(origin, current) {
       let theSame = true;
       if (origin.length === current.length) {
         let index = 0;
@@ -948,9 +958,12 @@ module.exports = {
           }
           break;
         case 'submit-access-config':
-          if (!this.checkIfAppListChanged(this.selected.row.accessConfigList, this.newProps.accessConfigList)) {
+          // if this.selected.row.accessConfigList.length == 0, go on.
+          if (this.selected.row.accessConfigList.length > 0 &&
+            !this.ifAppListChanged(this.selected.row.accessConfigList, this.newProps.accessConfigList)) {
             this.$message.warning('您没有做修改');
             this.selected.operation = null;
+            this.selected.row = {id: null};
             return;
           }
           this.requestUpdate(action, 'accessConfigList');
@@ -1066,6 +1079,8 @@ module.exports = {
             }
             this.selected.row.profileName = this.modifyAccessConfig.production ? '生产环境':'非生产环境';
           }
+          // set this.selected.row = null at the end of operation
+          this.selected.row = null;
           break;
       }
 

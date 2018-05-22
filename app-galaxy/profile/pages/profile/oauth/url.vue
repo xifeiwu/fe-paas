@@ -63,16 +63,16 @@
         </el-table-column>
         <el-table-column
                 label="授权时间"
-                prop="createTime"
+                prop="authTime"
                 width="120"
                 headerAlign="center" align="center">
           <template slot-scope="scope">
-            <div v-if="Array.isArray(scope.row.createTime)">
-              <div v-for="(item, index) in scope.row.createTime" :key="index">
+            <div v-if="Array.isArray(scope.row.authTime)">
+              <div v-for="(item, index) in scope.row.authTime" :key="index">
                 {{item}}
               </div>
             </div>
-            <div v-else>{{scope.row.createTime}}</div>
+            <div v-else>{{scope.row.authTime}}</div>
           </template>
         </el-table-column>
         <el-table-column

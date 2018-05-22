@@ -17,7 +17,7 @@
     height: 100%;
     margin-left: 6px;
     padding: 0px 5px;
-    max-width: 1200px;
+    max-width: 1500px;
     height: 100%;
     .el-tabs {
       /*margin-left: 5px;*/
