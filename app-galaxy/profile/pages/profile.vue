@@ -73,19 +73,12 @@
 
   #profile {
     height: 100%;
-    /*display: flex;*/
-    /*flex-direction: row;*/
     aside {
-      /*position: fixed;*/
-      /*top: 45px;*/
-      /*bottom: 0px;*/
       box-sizing: border-box;
       width: 180px;
       height: 100%;
       float: left;
-      /*flex: 0 0;*/
       background: $menu-background;
-      /*border-right: solid 1px $split-line-color;*/
 
       .img {
         line-height: $header-height;
@@ -129,7 +122,6 @@
       }
     }
     main {
-      /*flex: 1 0;*/
       background: $main-background;
       width: calc(100% - 180px);
       height: 100%;
@@ -137,9 +129,9 @@
       .paas-header-profile {
       }
       .content {
-        margin-top: 2px;
+        margin-top: 5px;
         padding: 0px;
-        height: calc(100% - 32px);
+        height: calc(100% - 35px);
         .el-row.header {
           background: white;
           border-bottom: 1px solid #e7e7e7;

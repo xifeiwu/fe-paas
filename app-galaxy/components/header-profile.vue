@@ -52,9 +52,6 @@
   $header-background-color: linear-gradient(120deg, #002766, rgb(0, 21, 41), #002766);
   $header-background-color: white;
 
-  $split-line-color: #e7e7e7;
-
-
   $menu-background: white;
   $menu-background-hover: white;
   $menu-background-active: white;
@@ -64,6 +61,8 @@
 
   .paas-header-profile {
     background: $header-background-color;
+    border-bottom: 1px solid #409EFF;
+
     padding: 0px 20px 0px 0px;
     color: #333;
     text-align: center;
@@ -93,13 +92,13 @@
         line-height: $header-height;
         height: $header-height;
         color: $menu-font-color;
+        box-sizing: border-box;
         &:hover {
           background-color: $menu-background-hover;
           color: $menu-font-color-hover;
         }
         &.is-active {
           color: $menu-font-color-active;
-          border-bottom-color: #159957;
           border-radius: 0px;
         }
       }
