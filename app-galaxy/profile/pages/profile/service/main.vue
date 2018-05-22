@@ -1349,11 +1349,21 @@ export default {
     // collect all related info for add-service before jump to page service/add
     getInfoForAddService() {
       let result = null;
+      let appInfo = this.$storeHelper.getAppByID(this.selectedAppID);
+      let appName = null;
+      if (appInfo && appInfo.hasOwnProperty('appName')) {
+        appName = appInfo.appName;
+      }
+
+      // profile info
       let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
       let profileName = null;
-      if (profileInfo && profileInfo.hasOwnProperty('name')) {
+      let profileDescription = null;
+      if (profileInfo && profileInfo.hasOwnProperty('name') && profileInfo.hasOwnProperty('description')) {
         profileName = profileInfo.name;
+        profileDescription = profileInfo.description;
       }
+      // group info
       let groupInfo = this.$storeHelper.groupInfo();
       let groupTag = null;
       if (groupInfo && groupInfo.hasOwnProperty('tag')) {
@@ -1377,12 +1387,12 @@ export default {
       }
 
       if (null !== groupTag && null !== this.selectedAppID && null !== this.selectedProfileID &&
-        null !== profileName && null !== language && null != languageVersion) {
+        appName, profileName && profileDescription && language && languageVersion) {
         result = {
           groupTag: groupTag,
           appId: this.selectedAppID,
           profileId: this.selectedProfileID,
-          profileName: profileName,
+          appName, profileName, profileDescription,
           language: language,
           languageVersion: languageVersion,
           versionList: versionList
@@ -1400,7 +1410,7 @@ export default {
             this.$message.error('数据不完整！尝试刷新页面重试');
             return;
           }
-          this.$storeHelper.setTmpProp('infoForAddService', infoForAddService);
+          this.$storeHelper.spaDataTransfer = infoForAddService;
           this.$router.push('/service/add');
           break;
         case 'refreshAppList':

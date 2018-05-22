@@ -94,6 +94,14 @@ export default class StoreHelper {
     return this.$store.getters['global/menuList'];
   }
 
+  set spaDataTransfer(data) {
+    this.$store.commit('global/spaDataTransfer', data);
+  }
+
+  get spaDataTransfer() {
+    return this.$store.getters['global/spaDataTransfer'];
+  }
+
   logout() {
     this.$store.dispatch('global/clearOnLogout');
   }

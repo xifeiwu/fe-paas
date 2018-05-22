@@ -5,6 +5,12 @@
              :rules="rules" label-width="200px" size="mini"
              v-loading="showLoading"
              :element-loading-text="loadingText">
+      <el-form-item label="应用名称" class="app-name">
+        {{infoForAddService.appName}}
+      </el-form-item>
+      <el-form-item label="运行环境" class="profile-description">
+        {{infoForAddService.profileDescription}}
+      </el-form-item>
       <el-form-item label="版本号" class="service-version"
                     :error="errorMsgForVersion">
         <el-input v-model="serviceForm.serviceVersion" placeholder="版本号只能包含数字，不能超过五位">
@@ -178,6 +184,9 @@
   #service-add {
     .el-form {
       .el-form-item {
+        .el-form-item__label {
+          font-weight: bold;
+        }
         &.service-version {
           max-width: 500px;
           .el-input {
@@ -219,6 +228,12 @@
     }
     .el-form {
       .el-form-item {
+        &.app-name {
+          margin-bottom: 8px;
+        }
+        &.profile-description {
+          margin-bottom: 10px;
+        }
         &.auto-image {
           max-width: 600px;
           .el-select {
@@ -287,7 +302,7 @@
   const debug = browserDebug('pass-fe:profile/service/add');
   export default {
     created() {
-      let infoForAddService = this.$storeHelper.getTmpProp('infoForAddService');
+      let infoForAddService = this.$storeHelper.spaDataTransfer;
       if (!infoForAddService) {
         this.$router.go(-1);
         return;

@@ -40,6 +40,8 @@ const state = {
   info: null,
   // 侧边栏
   menuList: null,
+  // 在spa页面传递数据
+  spaDataTransfer: null,
 };
 
 const actions = {
@@ -128,6 +130,9 @@ const mutations = {
   menuList(state, menuList) {
     state.menuList = menuList;
     localStorage.setItem('user/menuList', JSON.stringify(menuList));
+  },
+  spaDataTransfer(state, data) {
+    state.spaDataTransfer = data;
   }
 };
 
@@ -140,6 +145,9 @@ const getters = {
   },
   'menuList': (state, getters) => {
     return getValue({state, getters}, 'menuList');
+  },
+  'spaDataTransfer': (state, getters) => {
+    return getValue({state, getters}, 'spaDataTransfer');
   },
 };
 
