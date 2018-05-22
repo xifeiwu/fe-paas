@@ -27,22 +27,24 @@
       ref="bodyWrapper"
       :class="[`is-scroll-${scrollPosition}`]"
       :style="[bodyHeight]">
-      <table-body
-        :context="context"
-        :store="store"
-        :stripe="stripe"
-        :layout="layout"
-        :row-class-name="rowClassName"
-        :row-style="rowStyle"
-        :highlight="highlightCurrentRow"
-        :style="{ width: bodyWidth }">
-      </table-body>
-      <div :style="{ width: bodyWidth }" class="el-table__empty-block" v-if="!data || data.length === 0">
-        <span class="el-table__empty-text"><slot name="empty">{{ emptyText || t('el.table.emptyText') }}</slot></span>
-      </div>
-      <div class="el-table__append-wrapper" ref="appendWrapper" v-if="$slots.append">
-        <slot name="append"></slot>
-      </div>
+      <el-scrollbar style="height: 100%;" ref="scrollBar">
+        <table-body
+          :context="context"
+          :store="store"
+          :stripe="stripe"
+          :layout="layout"
+          :row-class-name="rowClassName"
+          :row-style="rowStyle"
+          :highlight="highlightCurrentRow"
+          :style="{ width: bodyWidth }">
+        </table-body>
+        <div :style="{ width: bodyWidth }" class="el-table__empty-block" v-if="!data || data.length === 0">
+          <span class="el-table__empty-text"><slot name="empty">{{ emptyText || t('el.table.emptyText') }}</slot></span>
+        </div>
+        <div class="el-table__append-wrapper" ref="appendWrapper" v-if="$slots.append">
+          <slot name="append"></slot>
+        </div>
+      </el-scrollbar>
     </div>
     <div class="el-table__footer-wrapper" ref="footerWrapper" v-if="showSummary" v-show="data && data.length > 0">
       <table-footer
@@ -152,6 +154,7 @@
 
 <script type="text/babel">
   import ElCheckbox from 'element-ui/packages/checkbox';
+  import ElScrollbar from 'element-ui/packages/scrollbar';
   import throttle from 'throttle-debounce/throttle';
   import debounce from 'throttle-debounce/debounce';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
@@ -254,7 +257,8 @@
       TableHeader,
       TableFooter,
       TableBody,
-      ElCheckbox
+      ElCheckbox,
+      ElScrollbar
     },
 
     methods: {
@@ -365,6 +369,7 @@
               setTimeout(() => this.debouncedLayout());
             }
           }
+          this.$refs.hasOwnProperty('scrollBar') && this.$refs['scrollBar'].reset();
         });
       }
     },

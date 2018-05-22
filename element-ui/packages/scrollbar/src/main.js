@@ -104,6 +104,12 @@ export default {
       this.moveX = ((wrap.scrollLeft * 100) / wrap.clientWidth);
     },
 
+    reset() {
+      const wrap = this.wrap;
+      wrap.scrollTop = 0;
+      wrap.scrollLeft = 0;
+    },
+
     update() {
       let heightPercentage, widthPercentage;
       const wrap = this.wrap;
