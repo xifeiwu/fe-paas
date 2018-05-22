@@ -34,7 +34,7 @@
             <div>2. 点击"绑定服务"和"解绑服务"按钮前，需要选择要操作的外网域名</div>
             <div>3. 绑定服务时，开发环境不能选择"全部"</div>
           </div>
-          <i class="el-icon-question"></i>
+          <span class="tool-tip-text" style="margin-top: 1px">域名处理逻辑<i class="el-icon-question"></i></span>
         </el-tooltip>
       </div>
     </div>
@@ -410,7 +410,7 @@
   #domain-main {
     background: white;
     height: 100%;
-    margin-left: 6px;
+    margin:0px 6px;
     padding: 0px 5px;
     max-width: 1200px;
     height: 100%;
@@ -419,6 +419,7 @@
       font-size: 14px;
       .row {
         box-sizing: border-box;
+        margin: 3px 0px;
         &.operation {
           text-align: left;
         }
@@ -428,11 +429,6 @@
             display: inline-block;
           }
         }
-      }
-      .el-icon-question {
-        font-size: 16px;
-        line-height: 24px;
-        margin-left: 10px;
       }
     }
     .domain-list {

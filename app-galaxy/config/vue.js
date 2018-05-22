@@ -7,6 +7,7 @@ import Utils from '$assets/js/utils';
 import axios from 'axios';
 
 import 'assets/css/fix-style.scss';
+import '$assets/css/common.scss';
 
 /**
  * add global css used for all components

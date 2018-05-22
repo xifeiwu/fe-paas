@@ -18,7 +18,7 @@
             </el-select>
           </div>
         </el-col>
-        <el-col :span="24" class="btn-list">
+        <div class="el-col el-col-24 btn-list">
           <el-button
               size="mini-extral"
               type="primary"
@@ -33,15 +33,21 @@
                      size="mini-extral"
                      type="primary"
                      @click="handleButtonClick('go-to-work-order-todo-add')">申请工单</el-button>
-        </el-col>
+          <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
+            <div slot="content">
+              <div>每次创建的服务版本信息为所在应用创建时的配置信息</div>
+            </div>
+            <span class="tool-tip-text" style="font-size: 12px">相关提示<i class="el-icon-question" ></i></span>
+          </el-tooltip>
+        </div>
       </el-row>
-      <el-row class="notice">
+      <el-row class="notice" v-show="false">
         <el-tag type="warning">
           <i class="el-icon-warning"></i>
           <span>每次创建的服务版本信息为所在应用创建时的配置信息</span>
         </el-tag>
       </el-row>
-      <div  class="domain el-row is-justify-center is-align-middle el-row--flex">
+      <div  class="domain el-row is-justify-center is-align-middle">
         <div class="el-col el-col-12">
           <span class="text">内网域名：{{intranetDomain}}</span>
         </div>
@@ -965,7 +971,7 @@
   #service-main {
     background: white;
     height: 100%;
-    margin-left: 6px;
+    margin:0px 6px;
     padding: 0px 5px;
     max-width: 1200px;
 

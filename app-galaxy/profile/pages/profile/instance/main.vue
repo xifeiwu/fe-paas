@@ -113,7 +113,7 @@
   #instance-main {
     background: white;
     height: 100%;
-    margin-left: 6px;
+    margin:0px 6px;
     padding: 0px 5px;
     max-width: 1200px;
     height: 100%;

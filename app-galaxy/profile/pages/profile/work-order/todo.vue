@@ -2,23 +2,20 @@
   <div id="work-order-todo">
     <div class="header">
       <el-row class="operation" type="flex" justify="center" align="middle">
-        <el-col :span="3">
+        <div class="el-col el-col-6 operation">
           <el-button
                   size="mini-extral"
                   type="primary"
                   @click="handleButtonClick('linker', {path: '/work-order/todo/add'})">申请审批工单</el-button>
-        </el-col>
-        <div class="el-col el-col-3">
           <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
             <div slot="content">
-              <div>工单处理逻辑</div>
               <div>1. 如果一个应用下有正在处理的工单，则不可以提交新的工单</div>
               <div>2. 如果工单超过三个小时没有更新状态，则会被系统更改为结束</div>
             </div>
-            <span>工单处理逻辑<i class="el-icon-question"></i></span>
+            <span class="tool-tip-text">工单处理逻辑<i class="el-icon-question"></i></span>
           </el-tooltip>
         </div>
-        <el-col :span="18">
+        <el-col :span="18" class="selector">
           <div class="item">
             <label style="width: 68px; line-height: 26px; color: black">申请人：</label>
             <el-input
@@ -198,16 +195,11 @@
       .el-row.operation {
         .el-col {
           padding: 0px 0px;
-          &:first-child {
+          &.operation {
             text-align: left;
             border-right: 1px solid darkgray;
           }
-          &:nth-child(2) {
-            color: #1a0dab;
-            text-align: center;
-            border-right: 1px solid darkgray;
-          }
-          &:nth-child(3) {
+          &.selector {
             text-align: center;
             .item {
               display: inline-block;

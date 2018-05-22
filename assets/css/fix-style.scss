@@ -216,20 +216,4 @@ h4 {
   line-height: 25px;
 }
 
-.clear:before, .clear:after {
-  display: table;
-  content: '';
-}
-.clear:after {
-  clear: both;
-}
-
-.expand-to-next-line {
-  display: inline-block;
-  max-width: 100%;
-  word-wrap: break-word;
-  word-break: break-all;
-  line-height: 1.2;
-}
-
 ::-webkit-scrollbar { width: 2px; height: 2px;}

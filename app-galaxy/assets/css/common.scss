@@ -1,0 +1,31 @@
+
+.clear:before, .clear:after {
+  display: table;
+  content: '';
+}
+.clear:after {
+  clear: both;
+}
+
+.expand-to-next-line {
+  display: inline-block;
+  max-width: 100%;
+  word-wrap: break-word;
+  word-break: break-all;
+  line-height: 1.2;
+}
+
+.tool-tip-text {
+  color: #E6A23C;
+  font-size: 12px;
+  line-height: 14px;
+  padding: 2px 4px;
+  display: inline-block;
+  margin-left: 10px;
+  border: 1px solid #E6A23C;
+  border-radius: 4px;
+  font-weight: bold;
+  &:hover {
+    border: 1px solid #F56C6C;
+  }
+}
