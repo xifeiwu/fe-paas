@@ -264,7 +264,7 @@
               }
             }
             &.add-authorize-url {
-              .el-col {
+              .el-col:nth-child(2) {
                 padding: 0px 2px;
               }
             }
@@ -476,6 +476,8 @@
             this.newProps.accessKey = '';
             this.modifyAuthorizeUrl.newItem.oauth = '';
             this.modifyAuthorizeUrl.newItem.resource = '';
+            // reset error tip
+            this.errorMsgForAddAuthorizeUrl = '';
             if (row.hasOwnProperty('supportClientId')) {
               this.newProps.accessKey = row.supportClientId;
             }
@@ -610,6 +612,10 @@
               if (!valid) {
                 return;
               }
+              if (this.newProps.authorizeUrlList.length === 0) {
+                this.errorMsgForAddAuthorizeUrl = '至少要有一条授权URL记录';
+                return;
+              }
               if (!this.ifAuthorizeUrlChanged(this.selected.row, this.newProps)) {
                 this.$message.warning('您没有修改授权URL');
                 this.selected.operation = null;
@@ -722,7 +728,6 @@
           if (content.hasOwnProperty('authRecordList')) {
             this.authorizeUrlListByPage = content['authRecordList'];
             this.totalSize = content.total;
-            console.log(this.authorizeUrlListByPage);
           }
           this.showLoading = false;
           cb(true)
