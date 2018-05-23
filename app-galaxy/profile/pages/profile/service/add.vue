@@ -397,7 +397,7 @@
         return this.$storeHelper.groupInfo();
       },
       appInfoListOfGroup() {
-        return this.$storeHelper.appInfoListOfGroup();
+        return this.$storeHelper.appInfoListOfGroup;
       },
       appLanguage() {
         let result = null;

@@ -17,7 +17,7 @@ class StoreHelper extends BaseHelper{
     return this.$store.getters['user/groupInfo'];
   }
 
-  appInfoListOfGroup() {
+  get appInfoListOfGroup() {
     let appInfoListOfGroup = this.$store.getters['user/appInfoListOfGroup'];
     if (!appInfoListOfGroup) {
       this.$store.dispatch('user/appInfoListOfGroup', {
@@ -26,6 +26,10 @@ class StoreHelper extends BaseHelper{
       });
     }
     return appInfoListOfGroup;
+  }
+
+  set appInfoListOfGroup(value) {
+    this.$store.commit('user/appInfoListOfGroup', value);
   }
 
   profileListOfGroup() {
@@ -101,7 +105,7 @@ class StoreHelper extends BaseHelper{
    */
   getAppInfoByID(appID) {
     let result = null;
-    let appInfoListOfGroup = this.appInfoListOfGroup();
+    let appInfoListOfGroup = this.appInfoListOfGroup;
     if (!appInfoListOfGroup || !appInfoListOfGroup.hasOwnProperty('appList')) {
       return result;
     }
@@ -139,7 +143,7 @@ class StoreHelper extends BaseHelper{
    * @returns {*}
    */
   getAppListByProfileID(profileInfoID) {
-    let appInfoListOfGroup = this.appInfoListOfGroup();
+    let appInfoListOfGroup = this.appInfoListOfGroup;
     if (!appInfoListOfGroup || !appInfoListOfGroup.hasOwnProperty('appList')) {
       return null;
     }
@@ -167,7 +171,7 @@ class StoreHelper extends BaseHelper{
       exist: false,
       index: -1,
     }
-    let appInfoListOfGroup = this.appInfoListOfGroup();
+    let appInfoListOfGroup = this.appInfoListOfGroup;
     for (let index in appInfoListOfGroup.appList) {
       let item = appInfoListOfGroup.appList[index];
       if (item.appId == appID) {

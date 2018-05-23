@@ -228,6 +228,9 @@ const mutations = {
     // if (USE_LOCAL_STORAGE) {
     //   localStorage.setItem('user/appInfoListOfGroup', JSON.stringify(appList));
     // }
+  },
+  appInfoListOfGroup(state, value) {
+    state.appInfoListOfGroup = value;
   }
 }
 

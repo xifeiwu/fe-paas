@@ -579,7 +579,7 @@ module.exports = {
       return this.$storeHelper.groupInfo();
     },
     appListOfCurrentGroup() {
-      let appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup();
+      let appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup;
       if (appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')) {
         return appInfoListOfGroup.appList;
       } else {

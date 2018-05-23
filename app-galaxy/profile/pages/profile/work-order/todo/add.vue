@@ -340,7 +340,7 @@
         return this.$storeHelper.groupList();
       },
       appInfoListOfGroup() {
-        return this.$storeHelper.appInfoListOfGroup();
+        return this.$storeHelper.appInfoListOfGroup;
       },
       usersAll() {
         return this.$storeHelper.usersAll();

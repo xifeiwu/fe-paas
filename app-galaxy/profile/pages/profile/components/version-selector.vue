@@ -101,7 +101,7 @@
     },
     computed: {
       appInfoListOfGroup() {
-        return this.$storeHelper.appInfoListOfGroup();
+        return this.$storeHelper.appInfoListOfGroup;
       }
     },
     watch: {

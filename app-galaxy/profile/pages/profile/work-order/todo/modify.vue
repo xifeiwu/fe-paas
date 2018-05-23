@@ -334,7 +334,7 @@
        return this.$storeHelper.currentGroupID;
       },
       appInfoListOfGroup() {
-        return this.$storeHelper.appInfoListOfGroup();
+        return this.$storeHelper.appInfoListOfGroup;
       },
       usersAll() {
         return this.$storeHelper.usersAll();

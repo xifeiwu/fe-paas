@@ -1128,7 +1128,7 @@ export default {
   },
   computed: {
     appInfoListOfGroup() {
-      return this.$storeHelper.appInfoListOfGroup();
+      return this.$storeHelper.appInfoListOfGroup;
     },
     cpuAndMemoryList() {
       return this.$storeHelper.cpuAndMemoryList();

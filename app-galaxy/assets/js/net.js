@@ -81,18 +81,16 @@ class Net {
     let result = {
       success: false,
       title: '',
-      msg: '失败'
+      msg: ' '
     };
     if ('data' in response) {
       let data = response.data;
       if (0 === data.code) {
         result.success = true;
-        result.title = '';
-        result.msg = '成功！';
+        result.title = '成功！';
       } else {
         result.success = false;
-        result.title = '';
-        result.msg = '失败！';
+        result.title = `错误! ${data.code}`;
       }
       if (data.hasOwnProperty('msg') && data.msg && (data.msg.length > 0)) {
         result.msg = data.msg

@@ -388,14 +388,11 @@
       }
     },
     computed: {
-      tableHeight() {
-        return document.body.clientHeight - 45 - 30 * 3 - 6;
-      },
       needFilter() {
         return this.filterMyApp || (this.filterKey.length > 0);
       },
       appInfoListOfGroup() {
-        return this.$storeHelper.appInfoListOfGroup();
+        return this.$storeHelper.appInfoListOfGroup;
       },
       profileListOfGroup() {
         return this.$storeHelper.profileListOfGroup();
@@ -446,16 +443,22 @@
             break;
           case 'refreshAppList':
             this.showLoading = true;
-            this.$store.dispatch('user/appInfoListOfGroup', {
-              from: 'page/app',
-              groupID: this.$storeHelper.currentGroupID
-            });
-//            this.$nextTick(() => {
-//              this.showLoading = false;
-//            });
-            setTimeout(() => {
+            this.$net.getAPPList({
+              groupId: this.$storeHelper.currentGroupID,
+              serviceName: ''
+            }).then(content => {
+              this.$storeHelper.appInfoListOfGroup = content;
               this.showLoading = false;
-            }, 300);
+            }).catch(err => {
+              this.showLoading = false;
+              this.$notify.error({
+                title: err.title,
+                message: err.msg,
+                duration: 0,
+                onClose: function () {
+                }
+              });
+            });
             break;
         }
       },
@@ -537,8 +540,12 @@
         this.profileChangeStatus.toAdd = this.$storeHelper.getProfileInfoListByNameList(toAdd);
         this.profileChangeStatus.toDelete = this.$storeHelper.getProfileInfoListByNameList(toDelete);
       },
+
       /**
-       * do some action of ok button in popup-dialog
+       * three steps for changing props request
+       * 1. check if data is change in function handleDialogButton.
+       * 2. request server for update in function requestServerForUpdate
+       * 3. update local data if server response is success, in function updateModelInfo
        * @param prop
        */
       handleDialogButton(prop) {
@@ -559,7 +566,7 @@
                   message: '您没有做修改'
                 });
               } else {
-                this.requestUpdate(prop);
+                this.requestServerForUpdate(prop);
               }
             });
             break;
@@ -582,17 +589,20 @@
                   let msg = '将要删除运行环境：' + this.profileChangeStatus.toDelete.map(it => {return it.description}).join(',');
                   msg += '。将销毁该环境的代码和配置信息，解绑所有公网域名、IP白名单，且不可恢复。确定继续吗？'
                   this.warningConfirm(msg).then(() => {
-                    this.requestUpdate(prop);
+                    this.requestServerForUpdate(prop);
                   })
                 } else {
-                  this.requestUpdate(prop);
+                  this.requestServerForUpdate(prop);
                 }
               }
             });
             break;
         }
       },
-      requestUpdate(prop) {
+      /**
+       * request server for update
+       */
+      requestServerForUpdate(prop) {
         this.waitingResponse = true;
         let options = {
           id: this.selected.app['appId']
@@ -629,7 +639,7 @@
         }
       },
       /**
-       * update value of service and model when server feedback is ok
+       * update local data after server update success
        */
       updateModelInfo(prop) {
         let newProp = this.newProps[prop];
@@ -693,6 +703,7 @@
         filteredAppInfo.total = filteredAppInfo.appList.length;
         return filteredAppInfo;
       },
+
       /**
        * the place of request appList:
        * 1. at beginning of this page

@@ -32,7 +32,7 @@
           <div slot="content">
             <div>1. 已绑定的域名需要先进行解绑，才可绑定新的服务</div>
             <div>2. 点击"绑定服务"和"解绑服务"按钮前，需要选择要操作的外网域名</div>
-            <div>3. 绑定服务时，开发环境不能选择"全部"</div>
+            <div>3. 绑定服务时，运行环境不能选择"全部"</div>
           </div>
           <span class="tool-tip-text" style="margin-top: 1px">域名处理逻辑<i class="el-icon-question"></i></span>
         </el-tooltip>

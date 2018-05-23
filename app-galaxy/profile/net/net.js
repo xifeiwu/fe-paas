@@ -137,6 +137,7 @@ class Net extends NetBase {
             appList.forEach(it => {
               it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
               // utils.renameProperty(it, 'spaceList', 'profileList');
+              // rename spaceList to profileNames
               it['profileNames'] = this.$utils.cloneDeep(it.spaceList);
               it['profileList'] = this.$storeHelper.getProfileInfoListByNameList(it.spaceList);
               if (it.hasOwnProperty('language')) {
@@ -168,11 +169,13 @@ class Net extends NetBase {
           if (content) {
             resolve(content);
           }
+        } else {
+          reject(this.getResponseMsg(response));
         }
       }).catch(err => {
         this.requestingState.getAPPList = false;
         this.showLog('getAPPList', err);
-        reject(err);
+        reject(this.getMsgFromErrorResponse(err));
       });
     });
   }
