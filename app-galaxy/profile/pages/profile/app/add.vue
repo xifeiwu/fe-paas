@@ -102,13 +102,6 @@
 </template>
 
 <style lang="scss">
-  .el-form {
-    .el-form-item {
-      .el-form-item__label {
-        font-weight: bold;
-      }
-    }
-  }
 </style>
 <style lang="scss" scoped>
   #app-add {

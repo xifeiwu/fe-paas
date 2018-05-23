@@ -662,6 +662,7 @@
                 openPopover: false
               }
             });
+            this.selected.row.enabled = true;
             break;
         }
       },
