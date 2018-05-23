@@ -1,5 +1,5 @@
 <template>
-  <div class="el-version-selector">
+  <div class="profile-version-condition-filter">
     <div class="item">
       <label>运行环境:</label>
       <el-select v-model="selectedProfileID" placeholder="请选择" :disabled="fixedInfo.type=='profile'">
@@ -25,14 +25,14 @@
 </template>
 
 <style lang="scss">
-  .el-version-selector {
+  .profile-version-condition-filter {
     .el-select .el-input__inner {
       height: 24px;
     }
   }
 </style>
 <style lang="scss" scoped>
-  .el-version-selector {
+  .profile-version-condition-filter {
     font-size: 14px;
     .item {
       display: inline-block;

@@ -3,9 +3,17 @@
     <div class="header">
       <div class="row selector">
         <my-version-condition-filter
+                ref="version-condition-filter"
                 :addItemAll="{app:true, profile:true, service: true}"
                 :customConfig="localServiceConfig"
                 @service-condition-changed="onServiceConditionChanged"></my-version-condition-filter>
+        <el-input
+                size="mini"
+                style="max-width: 200px"
+                placeholder="按关键字搜索外网二级域名"
+                suffix-icon="el-icon-search"
+                v-model="keyword">
+        </el-input>
       </div>
       <div class="row operation">
         <el-button
@@ -268,6 +276,15 @@
 
 <style lang="scss">
   #domain-main {
+    .header {
+      .row {
+        &.selector {
+          .el-input .el-input__inner {
+            height: 24px;
+          }
+        }
+      }
+    }
     .el-dialog__wrapper {
       &.add-domain, &.bind-service, &.unbind-service {
         /*max-width: 900px;*/
@@ -314,7 +331,7 @@
         }
       }
       &.bind-service {
-        .el-version-selector {
+        .profile-version-condition-filter {
           text-align: left;
         }
         .selected-domain {
@@ -425,7 +442,7 @@
         }
         &.selector {
           text-align: left;
-          .my-version-selector {
+          .profile-version-condition-filter {
             display: inline-block;
           }
         }
@@ -466,6 +483,8 @@
       }
     },
     mounted() {
+      this.setDebounce();
+      this.keyword = '';
       // adjust element height after resize
       try {
         let header = this.$el.querySelector('.header:first-child');
@@ -529,6 +548,7 @@
         appInfo: null,
         profileInfo: null,
         serviceInfo: null,
+        keyword: '',
         // passed to my-version-condition-filter
         fixedInfoForVersionCondition: {
           type: 'profile',
@@ -546,21 +566,6 @@
             message: '请输入至少一个域名',
           }, {
             validator(rule, values, callback) {
-              // console.log(rule);
-              // console.log(values);
-              // console.log(typeof(values));
-//              let passed = true;
-//              let reg = /^\/[A-Za-z0-9_\-]+$/;
-//              for (let key in values) {
-//                let item = values[key];
-//                if (!reg.exec(item)) {
-//                  passed = false;
-//                  callback(`${item}不符合条件。请以/开头，可包含字母、数字、下划线、中划线，2-18位字符。`)
-//                }
-//              }
-//              if (passed) {
-//                callback();
-//              }
               callback();
             }
           }],
@@ -578,6 +583,7 @@
             trigger: 'blur'
           }]
         },
+        debounceRequestDomainList: () => {}
       }
     },
     computed: {
@@ -593,6 +599,18 @@
       },
       'currentGroupID': function () {
         this.requestDomainList();
+      },
+      'keyword': function (value) {
+        let versionConditionFilter = this.$refs.hasOwnProperty('version-condition-filter')?
+          this.$refs['version-condition-filter'].getSelectedValue() : null;
+        if (!versionConditionFilter) {
+          return;
+        }
+        this.appInfo = versionConditionFilter.selectedAPP;
+        this.profileInfo = versionConditionFilter.selectedProfile;
+        this.serviceInfo = versionConditionFilter.selectedService;
+        this.currentPage = 1;
+        this.debounceRequestDomainList();
       }
     },
     methods: {
@@ -630,6 +648,7 @@
         this.profileInfo = profileInfo;
         this.appInfo = appInfo;
         this.serviceInfo = serviceInfo;
+        this.keyword = '';
         this.requestDomainList();
       },
       // the first page of pagination is 1
@@ -638,6 +657,9 @@
         this.requestDomainList();
       },
 
+      setDebounce() {
+        this.debounceRequestDomainList = this.$utils.debounce(this.requestDomainList.bind(this), 1000, false);
+      },
       /**
        * the place of calling requestDomainList;
        * 1. onServiceConditionChanged
@@ -672,6 +694,7 @@
           serviceId: serviceID,
           start: start,
           length: length,
+          keyword: this.keyword
         };
         this.$net.getDomainList(requestOptions).then(content => {
           if (content.hasOwnProperty('total')) {
