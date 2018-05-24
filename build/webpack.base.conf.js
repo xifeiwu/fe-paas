@@ -201,6 +201,13 @@ var baseConfig = {
         ignore: ['.*']
       }
     ]),
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(utils.contextPath(), 'app-galaxy/assets/static'),
+        to: config.dev.assetsSubDirectory,
+        ignore: ['.*']
+      }
+    ]),
     new webpack.ProvidePlugin({
       'window.browserDebug': [path.resolve(utils.contextPath(), 'assets/libs/debug/browser.js')],
       'browserDebug': [path.resolve(utils.contextPath(), 'assets/libs/debug/browser.js')],
