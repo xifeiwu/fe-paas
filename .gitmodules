@@ -1,0 +1,3 @@
+[submodule "element-ui"]
+	path = element-ui
+	url = git@gitlab.puhuitech.cn:paas-fe/element-ui.git
