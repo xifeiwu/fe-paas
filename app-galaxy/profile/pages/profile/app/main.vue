@@ -451,13 +451,15 @@
               this.showLoading = false;
             }).catch(err => {
               this.showLoading = false;
-              this.$notify.error({
-                title: err.title,
-                message: err.msg,
-                duration: 0,
-                onClose: function () {
-                }
-              });
+              if (err.title && err.msg) {
+                this.$notify.error({
+                  title: err.title,
+                  message: err.msg,
+                  duration: 0,
+                  onClose: function () {
+                  }
+                });
+              }
             });
             break;
         }
