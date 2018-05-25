@@ -65,7 +65,7 @@
 
 <script>
   import WorkOrderPropUtils from '../utils/work-order-props';
-  import MyShowDetail from '../utils/components/show-detail.vue';
+  import MyShowDetail from '../components/show-detail.vue';
   export default {
     components: {MyShowDetail},
     data() {

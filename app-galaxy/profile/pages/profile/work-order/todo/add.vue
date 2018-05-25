@@ -238,7 +238,7 @@
 </style>
 <script>
   import WorkOrderPropUtils from '../utils/work-order-props';
-  import MyFeature from '../utils/components/feature.vue';
+  import MyFeature from '../components/feature.vue';
   export default {
     components: {MyFeature},
 

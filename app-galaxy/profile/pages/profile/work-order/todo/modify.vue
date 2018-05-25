@@ -258,7 +258,7 @@
 </style>
 <script>
   import WorkOrderPropUtils from '../utils/work-order-props';
-  import MyFeature from '../utils/components/feature.vue';
+  import MyFeature from '../components/feature.vue';
   const debug = browserDebug('pass-fe:work-order/todo/modify');
 
   export default {
