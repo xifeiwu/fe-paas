@@ -12,9 +12,9 @@
 
 生成静态文件：npm run build:dev（针对dev环境）, npm run build:test（针对测试环境）
 
-注：项目运行依赖项目<git@gitlab.puhuitech.cn:paas-fe/spa-server-paas.git>
+注：项目运行依赖项目 [git@gitlab.puhuitech.cn:paas-fe/spa-server-paas.git](git@gitlab.puhuitech.cn:paas-fe/spa-server-paas.git)
 
-### 项目结构
+### 项目结构（tag v2.0.0）
 
 ```
 .
@@ -51,7 +51,7 @@
 │   │           │   ├── feature-icons.png
 │   │           │   ├── poster.png
 │   │           │   └── storage.png
-│   │           └── profile（控制台用到的图片）
+│   │           └── profile（控制台页面用到的图片）
 │   │               └── create-an-app.png
 │   ├── components（多个页面公用的组件）
 │   │   ├── header-profile.vue
@@ -59,6 +59,67 @@
 │   ├── config（配置文件）
 │   │   ├── network.js（axios网络配置）
 │   │   └── vue.js（vue配置，将常用工具挂载到Vue.prototype上，以便在每个vue页面都可以调用）
+│   ├── profile（控制台页面）
+│   │   ├── net（网络请求相关）
+│   │   │   ├── net.js（当前页面用到的ajax请求，继承assets/js/net.js，挂载到Vue.prototype.$net）
+│   │   │   └── url.js（当前页面用到的url，继承assets/js/url.js，挂载到Vue.prototype.$url）
+│   │   ├── router.js（路由逻辑）
+│   │   ├── store（vuex store相关）
+│   │   │   ├── index.js
+│   │   │   ├── modules
+│   │   │   │   ├── app.js
+│   │   │   │   ├── tmp.js
+│   │   │   │   └── user.js
+│   │   │   └── store-helper.js（vuex store常用操作接口，挂载到Vue.prototype.$storeHelper）
+│   │   └── pages（页面布局相关）
+│   │       ├── profile.vue（控制台主页）
+│   │       ├── route.js（路由配置）
+│   │       └── profile
+│   │           ├── components（profile页面用到的组件）
+│   │           │   ├── dialog4log.vue
+│   │           │   ├── image-selector.vue
+│   │           │   ├── version-condition-filter.vue
+│   │           │   └── version-selector.vue
+│   │           ├── app（应用管理）
+│   │           │   ├── add.vue
+│   │           │   └── main.vue
+│   │           ├── domain（外网域名）
+│   │           │   ├── main.vue
+│   │           │   └── white-list.vue
+│   │           ├── instance（实例列表）
+│   │           │   └── main.vue
+│   │           ├── log（日志中心）
+│   │           │   ├── deploy.vue
+│   │           │   ├── main.vue
+│   │           │   └── run.vue
+│   │           ├── monitor（应用监控）
+│   │           │   └── main.vue
+│   │           ├── oauth（Access Key管理）
+│   │           │   ├── key.vue
+│   │           │   ├── main.vue
+│   │           │   └── url.vue
+│   │           ├── service（服务管理）
+│   │           │   ├── add.vue
+│   │           │   └── main.vue
+│   │           ├── utils（profile页面用到的逻辑）
+│   │           │   └── app-props.js
+│   │           └── work-order（审批管理）
+│   │               ├── components（审批管理页面用到的组件）
+│   │               │   ├── feature.vue
+│   │               │   └── show-detail.vue
+│   │               ├── list.vue（工单列表）
+│   │               ├── main.vue（审批管理主页面）
+│   │               ├── todo（待办工单子页）
+│   │               │   ├── accept.vue（验收工单）
+│   │               │   ├── add.vue（添加工单）
+│   │               │   ├── deploy.vue（部署工单）
+│   │               │   ├── modify.vue（修改工单）
+│   │               │   └── test.vue（测试工单）
+│   │               ├── todo.vue（待办工单页）
+│   │               └── utils（工具逻辑）
+│   │                   ├── data-format.js
+│   │                   └── work-order-props.js
+│   ├── profile.js（登录页面Vue配置入口）
 │   ├── docs（帮助文档页面）
 │   │   ├── docs.vue
 │   │   └── net（网络请求相关）
@@ -74,67 +135,6 @@
 │   │       ├── net.js
 │   │       └── url.js
 │   ├── login.js（登录页面配置入口）
-│   ├── profile（控制台页面）
-│   │   ├── net（网络请求相关）
-│   │   │   ├── net.js（当前页面用到的ajax请求，继承assets/js/net.js，挂载到Vue.prototype.$net）
-│   │   │   └── url.js（当前页面用到的url，继承assets/js/url.js，挂载到Vue.prototype.$url
-│   │   ├── pages（页面布局相关）
-│   │   │   ├── profile
-│   │   │   │   ├── components（profile页面用到的组件）
-│   │   │   │   │   ├── dialog4log.vue
-│   │   │   │   │   ├── image-selector.vue
-│   │   │   │   │   ├── version-condition-filter.vue
-│   │   │   │   │   └── version-selector.vue
-│   │   │   │   ├── app（应用管理）
-│   │   │   │   │   ├── add.vue
-│   │   │   │   │   └── main.vue
-│   │   │   │   ├── domain（外网域名）
-│   │   │   │   │   ├── main.vue
-│   │   │   │   │   └── white-list.vue
-│   │   │   │   ├── instance（实例列表）
-│   │   │   │   │   └── main.vue
-│   │   │   │   ├── log（日志中心）
-│   │   │   │   │   ├── deploy.vue
-│   │   │   │   │   ├── main.vue
-│   │   │   │   │   └── run.vue
-│   │   │   │   ├── monitor（应用监控）
-│   │   │   │   │   └── main.vue
-│   │   │   │   ├── oauth（Access Key管理）
-│   │   │   │   │   ├── key.vue
-│   │   │   │   │   ├── main.vue
-│   │   │   │   │   └── url.vue
-│   │   │   │   ├── service（服务管理）
-│   │   │   │   │   ├── add.vue
-│   │   │   │   │   └── main.vue
-│   │   │   │   ├── utils（profile页面用到的逻辑）
-│   │   │   │   │   └── app-props.js
-│   │   │   │   └── work-order（审批管理）
-│   │   │   │       ├── components（审批管理页面用到的组件）
-│   │   │   │       │   ├── feature.vue
-│   │   │   │       │   └── show-detail.vue
-│   │   │   │       ├── list.vue（工单列表）
-│   │   │   │       ├── main.vue（审批管理主页面）
-│   │   │   │       ├── todo（待办工单子页）
-│   │   │   │       │   ├── accept.vue（验收工单）
-│   │   │   │       │   ├── add.vue（添加工单）
-│   │   │   │       │   ├── deploy.vue（部署工单）
-│   │   │   │       │   ├── modify.vue（修改工单）
-│   │   │   │       │   └── test.vue（测试工单）
-│   │   │   │       ├── todo.vue（待办工单页）
-│   │   │   │       └── utils（工具逻辑）
-│   │   │   │           ├── data-format.js
-│   │   │   │           └── work-order-props.js
-│   │   │   ├── profile.vue（控制台主页）
-│   │   │   └── route.js（路由配置）
-│   │   ├── router.js（路由逻辑）
-│   │   └── store（vuex store）
-│   │       ├── index.js
-│   │       ├── modules
-│   │       │   ├── app.js
-│   │       │   ├── tmp.js
-│   │       │   └── user.js
-│   │       └── store-helper.js（）
-│   ├── profile.js（登录页面Vue配置入口）
 │   ├── terminal（实例终端页面）
 │   │   ├── net
 │   │   │   ├── net.js

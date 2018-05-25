@@ -17,7 +17,7 @@
                ref="basicForm"
                size="mini"
                label-width="110px">
-        <el-form-item label="申请人：">
+        <el-form-item label="申请人">
           {{workOrderDetail.creatorName}}
         </el-form-item>
         <el-form-item label="审批工单名称" prop="name">

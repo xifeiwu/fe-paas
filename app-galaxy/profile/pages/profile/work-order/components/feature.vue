@@ -1,7 +1,7 @@
 <template>
   <div class="work-order-feature">
     <el-form :model="featureInfo" :rules="rules" size="mini"
-             ref="featureForm" label-width="80px">
+             ref="featureForm" label-width="90px">
       <el-form-item label="功能名称" prop="name">
         <el-input v-model="featureInfo.name" placeholder="100字符内"></el-input>
       </el-form-item>
