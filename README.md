@@ -1,6 +1,6 @@
 ### 简介
 
-前端项目，通过webpack预处理vue, scss, js等模块，输出静态h5文件（html, css, js)
+前端项目。通过webpack预处理vue, scss, js等模块，输出静态h5文件（html, css, js)
 
 ### 如何运行
 
@@ -12,12 +12,11 @@
 
 生成静态文件：npm run build:dev（针对dev环境）, npm run build:test（针对测试环境）
 
-注：项目运行依赖项目 [git@gitlab.puhuitech.cn:paas-fe/spa-server-paas.git](git@gitlab.puhuitech.cn:paas-fe/spa-server-paas.git)
+注：该项需要[http://gitlab.puhuitech.cn/paas-fe/spa-server-paas](http://gitlab.puhuitech.cn/paas-fe/spa-server-paas)配合运行。后者提供api接口和静态服务器功能。
 
-### 项目结构（tag v2.0.0）
+### 项目结构（针对 版本v2.0.0）
 
 ```
-.
 ├── app-galaxy，spa项目
 │   ├── assets（工具文件夹，只在app-galaxy中使用）
 │   │   ├── css
@@ -192,6 +191,10 @@
 │   ├── webpack.base.conf.js
 │   ├── webpack.dev.conf.js
 │   └── webpack.prod.conf.js
+├── element-ui（独立的git项目，地址：http://gitlab.puhuitech.cn/paas-fe/element-ui，作为该git项目的submodule）
+├── dist（预处理输出目录，改文件夹下的内容会打到@paas/fe-paas包）
+│   └── package.json（发包配置文件，发包指令：npm publish）
 ├── package.json
 └── yarn.lock
 ```
+
