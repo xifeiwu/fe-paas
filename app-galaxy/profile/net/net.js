@@ -1256,7 +1256,6 @@ class Net extends NetBase {
     let url = this.$utils.formatUrl(URL_LIST.oauth_get_target_app_list, {id: groupID});
     return new Promise((resolve, reject) => {
       axios.get(url).then(response => {
-        console.log(response);
         let content = this.getResponseContent(response);
         if (content) {
           if (content.hasOwnProperty('targetApplicationList')) {

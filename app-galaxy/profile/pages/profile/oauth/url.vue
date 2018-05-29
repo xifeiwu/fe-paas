@@ -219,6 +219,11 @@
             </el-col>
           </el-row>
         </el-form-item>
+        <el-form-item label="添加授权URL规则" class="rule-4-add-authorize-url">
+          <div>1. 必须填写已创建的Access Key</div>
+          <div>2. 50个字符以内。所属权限分为两部分：Access Key部分，自定义部分。两者之间以.分割。Access Key部分必须为当前所写Access Key；自定义部分只能包括小写字母。如，galaxy-WrJhXCOo.abcdef。</div>
+          <div>3. 50个字符以内。资源URL，必须以/开头，路径可以包含字母、数字、*、/。多个路径之间以,分割。如，/a/1/C,/**/d</div>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-row>
@@ -266,6 +271,13 @@
             &.add-authorize-url {
               .el-col:nth-child(2) {
                 padding: 0px 2px;
+              }
+            }
+            &.rule-4-add-authorize-url {
+              .el-form-item__content {
+                color: black;
+                font-size: 12px;
+                line-height: 14px;
               }
             }
             &.authorize-url-list {
@@ -408,12 +420,12 @@
         this.currentPage = 1;
         this.requestAuthorizeUrlList()
       },
-      'modifyAuthorizeUrl.newItem.oauth': function(value) {
-        this.checkAuthorizeUrlValidate(null, 'watch');
-      },
-      'modifyAuthorizeUrl.newItem.resource': function(value) {
-        this.checkAuthorizeUrlValidate(null, 'watch');
-      },
+//      'modifyAuthorizeUrl.newItem.oauth': function(value) {
+//        this.checkAuthorizeUrlValidate(null, 'watch');
+//      },
+//      'modifyAuthorizeUrl.newItem.resource': function(value) {
+//        this.checkAuthorizeUrlValidate(null, 'watch');
+//      },
     },
 
     methods: {
@@ -524,38 +536,66 @@
         }
       },
 
-      // used for modify-access-config dialog
-      checkAuthorizeUrlValidate(newItem, from) {
+      /**
+       *  used to check new added authorized-url in dialog modify-access-config
+       *  1. if the new item match regexp
+       *  2. if the new item has exist in item array
+       */
+      checkAuthorizeUrlValidate(newItem) {
         if (!newItem) {
           newItem = this.modifyAuthorizeUrl.newItem;
         }
 
-        let isValid = false;
-        let checkEmpty = () => {
+        let checkValidation = () => {
           let isValid = false;
-          let oAuthReg = /^[\u4e00-\u9fa5A-Za-z0-9_\/@:]{1,50}$/;
-          if (oAuthReg.test(newItem.oauth) && oAuthReg.test(newItem.resource)) {
-            isValid = true;
-          } else {
-            this.errorMsgForAddAuthorizeUrl = '"所属权限"或"资源URL"格式不正确'
-          }
-          return isValid;
-        };
-        if (from === 'button') {
-          isValid = checkEmpty();
-          if (!isValid) {
+          if (!this.newProps.accessKey) {
+            this.errorMsgForAddAuthorizeUrl = '请先填写Access Key';
             return isValid;
           }
+          if (!newItem.oauth) {
+            this.errorMsgForAddAuthorizeUrl = '请填写授权URL的所属权限';
+            return isValid;
+          }
+          if (newItem.oauth.length > 50) {
+            this.errorMsgForAddAuthorizeUrl = '所属权限不能超过50个字符';
+            return isValid;
+          }
+          if (!newItem.oauth.startsWith(this.newProps.accessKey + '.')) {
+            this.errorMsgForAddAuthorizeUrl = `所属权限必须以${this.newProps.accessKey}.开头`;
+            return isValid;
+          }
+          if (!/[a-z]+/.test(newItem.oauth.replace(this.newProps.accessKey + '.', ''))) {
+            this.errorMsgForAddAuthorizeUrl = '所属权限格式不正确';
+            return isValid;
+          }
+          if (newItem.resource.length > 50) {
+            this.errorMsgForAddAuthorizeUrl = '所属权限不能超过50个字符';
+            return isValid;
+          }
+          let resourceReg = /^(\/[a-zA-Z0-9\\*\/]+)(, +\/[a-zA-Z0-9\\*\/]+)*$/;
+          if (resourceReg.test(newItem.resource)) {
+            this.errorMsgForAddAuthorizeUrl = '资源URL格式不正确';
+            return isValid;
+          }
+          return true;
+        };
+        let isValid = checkValidation();
+        if (!isValid) {
+          return isValid;
         }
 
-        let exist = false;
-        let authorizeUrlList = this.newProps.authorizeUrlList;
-        authorizeUrlList.some(it => {
-          exist = it['oauth'] == newItem.oauth &&
-            it['resource'] == newItem.resource;
+        let checkIfExist = () => {
+          let exist = false;
+          let authorizeUrlList = this.newProps.authorizeUrlList;
+          authorizeUrlList.some(it => {
+            exist = it['oauth'] == newItem.oauth &&
+              it['resource'] == newItem.resource;
+            return exist;
+          });
           return exist;
-        });
-        if (exist) {
+        };
+
+        if (checkIfExist()) {
           this.errorMsgForAddAuthorizeUrl = '该授权URL已经存在';
           isValid = false;
         } else {
