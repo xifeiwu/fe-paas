@@ -1,3 +1,6 @@
 [submodule "element-ui"]
 	path = element-ui
 	url = git@gitlab.puhuitech.cn:paas-fe/element-ui.git
+[submodule "assets"]
+	path = assets
+	url = git@gitlab.puhuitech.cn:paas-fe/assets.git
