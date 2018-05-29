@@ -2,7 +2,7 @@
   <div id="app-add">
     <div class="section-title">创建应用</div>
     <el-form :model="createAppForm" :rules="rules" size="mini"
-             ref="createAppForm" label-width="100px"
+             ref="createAppForm" label-width="110px"
              v-loading="showLoading"
              :element-loading-text="loadingText">
       <el-form-item label="团队" prop="groupID" class="group-list">
@@ -80,6 +80,29 @@
           <el-radio :label="false">不需要</el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item label="滚动升级脚本" prop="script4RollingUpdate"
+                    :class="{'script-4-rolling-update': true, 'show': createAppForm.rollingUpdate, 'hide': !createAppForm.rollingUpdate}">
+        <el-input v-model="createAppForm.script4RollingUpdate"
+                  type="textarea"
+                  :rows="16"
+                  placeholder="滚动升级脚本"
+                  v-if="editScript"
+        ></el-input>
+        <div class="formatted-script-4-rolling-update" v-else>
+          <el-scrollbar>
+            <pre><code class="bash hljs" v-html="formattedScript4RollingUpdate"></code></pre>
+          </el-scrollbar>
+        </div>
+        <div class="toggle-edit-script" @click="toggleEditScript">
+          <span v-if="editScript">预览</span>
+          <span v-else>编辑</span>
+        </div>
+      </el-form-item>
+      <el-form-item label="超时时间" prop="maxAge4Script"
+                    :class="{'max-age-4-script': true, 'show': createAppForm.rollingUpdate, 'hide': !createAppForm.rollingUpdate}">
+        <el-input-number v-model="createAppForm.maxAge4Script" :min="1" :max="120" label="描述文字"></el-input-number>
+        <span>秒（1-120秒之间）</span>
+      </el-form-item>
       <el-form-item label="负载均衡" prop="loadBalance">
         <el-radio-group v-model="createAppForm.loadBalance">
           <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
@@ -102,14 +125,77 @@
 </template>
 
 <style lang="scss">
+.el-form {
+  .el-form-item {
+    .el-textarea {
+      textarea {
+        font-size: 12px;
+      }
+    }
+    &.script-4-rolling-update {
+      .el-form-item__content {
+        overflow: scroll;
+        .toggle-edit-script {
+          font-size: 12px;
+          line-height: 20px;
+          background: #E6A23C;
+          padding: 0px 3px;
+          border-radius: 4px;
+          display: inline-block;
+          position: absolute;
+          top: 0px;
+          right: 0px;
+          &:hover {
+            font-weight: bold;
+          }
+        }
+        .formatted-script-4-rolling-update {
+          margin: 0px;
+          padding: 0px;
+          width: 100%;
+          box-sizing: content-box;
+          height: 300px;
+          border: 1px solid gray;
+          border-radius: 5px;
+          .el-scrollbar {
+            height: 300px;
+          }
+          overflow: scroll;
+          font-size: 12px;
+          line-height: 14px;
+        }
+      }
+    }
+  }
+}
 </style>
 <style lang="scss" scoped>
+  @keyframes to-show {
+    0% {
+      opacity: 0.5;
+      max-height: 0px;
+    }
+    100% {
+      opacity: 1;
+      max-height: 600px;
+    }
+  }
+  @keyframes to-hide {
+    0% {
+      opacity: 1;
+      max-height: 600px;
+    }
+    100% {
+      opacity: 0;
+      max-height: 0px;
+    }
+  }
   #app-add {
     background: white;
     margin: 20px;
-    padding: 10px 20px;
+    padding: 10px 30px;
     width: 80%;
-    max-width: 600px;
+    max-width: 660px;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     .section-title {
       font-size: 18px;
@@ -167,6 +253,28 @@
             }
           }
         }
+        &.script-4-rolling-update {
+          overflow: hidden;
+          &.hide {
+            /*animation: to-hide 1.5s ease-in-out;*/
+            margin-bottom: 0px;
+            max-height: 0px;
+          }
+          &.show {
+            animation: to-show 1.5s ease-in-out;
+          }
+        }
+        &.max-age-4-script {
+          overflow: hidden;
+          &.hide {
+            /*animation: to-hide 1.5s ease-in-out;*/
+            margin-bottom: 0px;
+            max-height: 0px;
+          }
+          &.show {
+            animation: to-show 1.5s ease-in-out;
+          }
+        }
       }
     }
   }
@@ -193,9 +301,13 @@ export default {
         buildType: 'NO',
         healthCheck: '',
         fileLocation: [],
-        rollingUpdate: true,
+        rollingUpdate: false,
+        script4RollingUpdate: '',
+        maxAge4Script: '30',
         loadBalance: appPropUtil.getAllLoadBalance()[0],
       },
+      editScript: true,
+      formattedScript4RollingUpdate: '',
       rules: appPropUtil.rules,
       language: {
         selected: null,
@@ -281,6 +393,29 @@ export default {
           return true;
         }
       });
+    },
+
+    toggleEditScript() {
+      if (this.editScript) {
+        Promise.all([this.$utils.lazyLoad('js', this.$url['highlight.js']),
+          this.$utils.lazyLoad('css', this.$url['highlight.css'])]).then(content => {
+            console.log(content);
+          // lib highlight.js will expose hljs to window
+          if (hljs) {
+            let result = hljs.highlightAuto(this.createAppForm.script4RollingUpdate, ['bash']);
+            if (result && result.value) {
+              this.formattedScript4RollingUpdate = result.value;
+            } else {
+              this.formattedScript4RollingUpdate = '';
+            }
+            this.editScript = false;
+          }
+        }).catch(err => {
+          console.log(err);
+        });
+      } else {
+        this.editScript = true;
+      }
     },
 
     // 增删文件存储

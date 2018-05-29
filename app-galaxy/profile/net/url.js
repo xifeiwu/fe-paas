@@ -16,6 +16,10 @@ class URL extends BaseURL {
       'api_path': API_PATH,
       'page_terminal_path': 'http://' + window.location.host + '/terminal.html',
 
+      'highlight.js': '/assets/libs/highlight/highlight.pack.js',
+      'highlight.css': '/assets/libs/highlight/styles/vs2015.css',
+      // 'highlight.css': '/assets/css/highlight.scss',
+
       // 获取验证码
       'get_verify_code': API_PATH + '/createRandomImage',
       'login': API_PATH + '/login',

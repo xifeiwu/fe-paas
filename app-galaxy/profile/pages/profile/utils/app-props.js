@@ -235,6 +235,14 @@ class AppInfoHelper {
         required: true,
         message: '请选择是否使用oneApm',
       }],
+      script4RollingUpdate: [{
+        required: true,
+        message: '请输入滚动升级脚本',
+      }],
+      maxAge4Script: [{
+        required: true,
+        message: '请输入超时时间',
+      }]
     }
   }
 
