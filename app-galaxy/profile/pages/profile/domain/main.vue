@@ -306,6 +306,9 @@
             .list-item {
               border-bottom: 1px solid #909399;
               margin-bottom: 3px;
+              &:last-child {
+                border-width: 0px;
+              }
             }
             .key {
               &.title {
@@ -784,7 +787,15 @@
             }).then(domainMap => {
               this.domainProps.level1InfoListByProfile = domainMap;
               this.currentOpenedDialog = 'add-domain';
+              // set default profileName for add-domain-dialog
               this.domainProps.profileName = this.$storeHelper.profileListOfGroup()[0]['name'];
+              if (this.$refs.hasOwnProperty('version-condition-filter')) {
+                let selectedProfile = this.$refs['version-condition-filter'].getSelectedValue().selectedProfile;
+                if (selectedProfile && selectedProfile.hasOwnProperty('id')
+                  && selectedProfile.id !== this.$storeHelper.PROFILE_ID_FOR_ALL) {
+                  this.domainProps.profileName = selectedProfile['name'];
+                }
+              }
               this.onProfileChangeInCreateDomainDialog(this.domainProps.profileName);
               this.hideWaitingResponse(action);
             }).catch(err => {
