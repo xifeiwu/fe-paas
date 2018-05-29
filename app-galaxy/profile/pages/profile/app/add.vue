@@ -80,29 +80,38 @@
           <el-radio :label="false">不需要</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="滚动升级脚本" prop="script4RollingUpdate"
-                    :class="{'script-4-rolling-update': true, 'show': createAppForm.rollingUpdate, 'hide': !createAppForm.rollingUpdate}">
-        <el-input v-model="createAppForm.script4RollingUpdate"
-                  type="textarea"
-                  :rows="16"
-                  placeholder="滚动升级脚本"
-                  v-if="editScript"
-        ></el-input>
-        <div class="formatted-script-4-rolling-update" v-else>
-          <el-scrollbar>
-            <pre><code class="bash hljs" v-html="formattedScript4RollingUpdate"></code></pre>
-          </el-scrollbar>
-        </div>
-        <div class="toggle-edit-script" @click="toggleEditScript">
-          <span v-if="editScript">预览</span>
-          <span v-else>编辑</span>
-        </div>
-      </el-form-item>
-      <el-form-item label="超时时间" prop="maxAge4Script"
-                    :class="{'max-age-4-script': true, 'show': createAppForm.rollingUpdate, 'hide': !createAppForm.rollingUpdate}">
-        <el-input-number v-model="createAppForm.maxAge4Script" :min="1" :max="120" label="描述文字"></el-input-number>
-        <span>秒（1-120秒之间）</span>
-      </el-form-item>
+      <transition name="script-4-rolling-update">
+        <el-form-item label="滚动升级脚本" prop="script4RollingUpdate"
+                      class="script-4-rolling-update"
+                      v-if="false"
+        >
+          <el-input v-model="createAppForm.script4RollingUpdate"
+                    type="textarea"
+                    :rows="16"
+                    placeholder="滚动升级脚本"
+                    v-if="editScript"
+          ></el-input>
+          <div class="formatted-script-4-rolling-update" v-else>
+            <el-scrollbar>
+              <pre><code class="bash hljs" v-if="formattedScript4RollingUpdate.length > 0"
+                         v-html="formattedScript4RollingUpdate"></code></pre>
+            </el-scrollbar>
+          </div>
+          <div class="toggle-edit-script" @click="toggleEditScript">
+            <span v-if="editScript">预览</span>
+            <span v-else>编辑</span>
+          </div>
+        </el-form-item>
+      </transition>
+      <transition name="max-age-4-script">
+        <el-form-item label="超时时间" prop="maxAge4Script"
+                      class="max-age-4-script"
+                      v-if="false"
+        >
+          <el-input-number v-model="createAppForm.maxAge4Script" :min="1" :max="120" label="描述文字"></el-input-number>
+          <span>秒（1-120秒之间）</span>
+        </el-form-item>
+      </transition>
       <el-form-item label="负载均衡" prop="loadBalance">
         <el-radio-group v-model="createAppForm.loadBalance">
           <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
@@ -134,7 +143,7 @@
     }
     &.script-4-rolling-update {
       .el-form-item__content {
-        overflow: scroll;
+        /*overflow: scroll;*/
         .toggle-edit-script {
           font-size: 12px;
           line-height: 20px;
@@ -153,11 +162,12 @@
           margin: 0px;
           padding: 0px;
           width: 100%;
-          box-sizing: content-box;
+          box-sizing: border-box;
           height: 300px;
           border: 1px solid gray;
           border-radius: 5px;
           .el-scrollbar {
+            width: 100%;
             height: 300px;
           }
           overflow: scroll;
@@ -172,24 +182,32 @@
 <style lang="scss" scoped>
   @keyframes to-show {
     0% {
-      opacity: 0.5;
-      max-height: 0px;
+      opacity: 0;
+      /*max-height: 0px;*/
+    }
+    25% {
+      opacity: .75;
     }
     100% {
       opacity: 1;
-      max-height: 600px;
+      /*max-height: 600px;*/
     }
   }
   @keyframes to-hide {
     0% {
       opacity: 1;
-      max-height: 600px;
     }
     100% {
       opacity: 0;
-      max-height: 0px;
     }
   }
+  .script-4-rolling-update-enter-active, .max-age-4-script-enter-active  {
+    animation: to-show 1.5s ease-in-out;
+  }
+  .script-4-rolling-update-leave-active, .max-age-4-script-leave-active {
+    animation: to-hide 1s ease-in-out;
+  }
+
   #app-add {
     background: white;
     margin: 20px;
@@ -254,26 +272,8 @@
           }
         }
         &.script-4-rolling-update {
-          overflow: hidden;
-          &.hide {
-            /*animation: to-hide 1.5s ease-in-out;*/
-            margin-bottom: 0px;
-            max-height: 0px;
-          }
-          &.show {
-            animation: to-show 1.5s ease-in-out;
-          }
         }
         &.max-age-4-script {
-          overflow: hidden;
-          &.hide {
-            /*animation: to-hide 1.5s ease-in-out;*/
-            margin-bottom: 0px;
-            max-height: 0px;
-          }
-          &.show {
-            animation: to-show 1.5s ease-in-out;
-          }
         }
       }
     }
