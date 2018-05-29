@@ -41,6 +41,9 @@ export default class StoreHelper {
         value = tmpValue[prop];
       }
     }
+    if (value) {
+      value = JSON.parse(JSON.stringify(value));
+    }
     return value;
   }
 

@@ -1424,8 +1424,10 @@ export default {
           if (!statusOK) {
             this.$message.error('所需信息不完整！');
           } else {
-            this.$storeHelper.setUserConfig('profile/service/appID', this.selectedAppID);
-            this.$storeHelper.setUserConfig('profile/service/profileID', this.selectedProfileID);
+            this.$storeHelper.setUserConfig('profile/service', {
+              appID: this.selectedAppID,
+              profileID: this.selectedProfileID
+            });
             this.$router.push({
               path: '/work-order/todo/add',
               query: {
