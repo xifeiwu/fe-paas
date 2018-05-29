@@ -151,51 +151,51 @@
               <div class="app-info">
                 <div class="title">应用信息</div>
                 <el-form label-position="right" label-width="140px" inline size="mini">
-                  <el-form-item label="项目名称：">
+                  <el-form-item label="项目名称">
                     {{valueToShow(selected.service.tag)}}
                   </el-form-item>
-                  <el-form-item label="开发语言：">
+                  <el-form-item label="开发语言">
                     {{selected.service.language + ' - ' + selected.service.languageVersion}}
                   </el-form-item>
-                  <el-form-item label="构建类型：">
+                  <el-form-item label="构建类型">
                     {{valueToShow(selected.service.packageType)}}
                   </el-form-item>
-                  <el-form-item label="健康检查：">
+                  <el-form-item label="健康检查">
                     {{valueToShow(selected.service.healthCheck)}}<i class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
                 </el-form>
               </div>
               <div class="image-info">
                 <div class="title">镜像信息</div>
-                <el-form label-position="right" label-width="140px" size="mini">
-                  <el-form-item label="内网域名：">
+                <el-form label-position="right" label-width="200px" size="mini">
+                  <el-form-item label="当前服务的内网域名">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.intranetDomain)}}
                     </div>
                   </el-form-item>
-                  <el-form-item label="镜像方式：">
+                  <el-form-item label="镜像方式">
                     {{valueToShow(selected.service.image.typeName)}}
-                    <span style="padding-left: 12px; font-weight: bold">基础镜像地址：</span><span>{{selected.service.image.location}} </span>
+                    <span style="padding-left: 12px; font-weight: bold">基础镜像地址</span><span>{{selected.service.image.location}} </span>
                     <i class="el-icon-edit" @click="handleChangeProp('image')"></i>
                   </el-form-item>
-                  <el-form-item label="gitlab_ssh地址：">
+                  <el-form-item label="gitlab_ssh地址">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.gitLabAddress)}}
                     </div>
                     <i class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
                   </el-form-item>
-                  <el-form-item label="gitlab分支：">
+                  <el-form-item label="gitlab分支">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.gitLabBranch)}}
                     </div>
                     <i class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
                   </el-form-item>
-                  <el-form-item label="Gitlab父级pom.xml相对路径：" v-if="selectedApp.isJavaLanguage" class="relativePathOfParentPOM">
+                  <el-form-item label="Gitlab父级pom.xml相对路径" v-if="selectedApp.isJavaLanguage" class="relativePathOfParentPOM">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.relativePath)}}
                      </div>
                   </el-form-item>
-                  <el-form-item label="Maven profile id：" v-if="selectedApp.isJavaLanguage">
+                  <el-form-item label="Maven profile id" v-if="selectedApp.isJavaLanguage">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.mavenProfileId)}}
                     </div>
@@ -206,22 +206,22 @@
               <div class="instance-info">
                 <div class="title">服务信息</div>
                 <el-form label-position="right" label-width="140px" inline size="mini">
-                  <el-form-item label="CPU/内存：">
+                  <el-form-item label="CPU/内存">
                     {{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}
                     <i class="el-icon-edit" @click="handleChangeProp('cpuAndMemory')"></i>
                   </el-form-item>
-                  <el-form-item label="实例数量：">
+                  <el-form-item label="实例数量">
                     {{valueToShow(selected.service.instanceNum)}}
                   </el-form-item>
-                  <el-form-item label="滚动升级：">
+                  <el-form-item label="滚动升级">
                     {{selected.service.rollingUpdate? '需要' : '不需要'}}
                     <i class="el-icon-edit" @click="handleChangeProp('rollingUpdate')"></i>
                   </el-form-item>
-                  <el-form-item label="负载均衡：">
+                  <el-form-item label="负载均衡">
                     {{valueToShow(selected.service.loadBalance)}}
                     <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="false"></i>
                   </el-form-item>
-                  <el-form-item label="文件存储：" class="big file-location" v-if="false">
+                  <el-form-item label="文件存储" class="big file-location" v-if="false">
                     <div v-if="selected.service.fileLocation && selected.service.fileLocation.length > 0">
                       <el-tag
                               v-for="tag in selected.service.fileLocation"
@@ -235,13 +235,13 @@
                       <i class="el-icon-edit" @click="handleChangeProp('fileLocation')"></i>
                     </div>
                   </el-form-item>
-                  <el-form-item label="VM_Options：" class="big" v-if="selectedApp.isJavaLanguage">
+                  <el-form-item label="VM_Options" class="big" v-if="selectedApp.isJavaLanguage">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}
                     </div>
                     <i class="el-icon-edit" @click="handleChangeProp('vmOptions')"></i>
                   </el-form-item>
-                  <el-form-item label="环境变量配置：" class="big">
+                  <el-form-item label="环境变量配置" class="big">
                     <div v-if="selected.service.environments && selected.service.environments.length > 0">
                       <el-row>
                         <el-col :span="10" style="font-weight: bold;text-align: center">Key</el-col>
@@ -267,7 +267,7 @@
                       <i class="el-icon-edit" @click="handleChangeProp('environments')"></i>
                     </div>
                   </el-form-item>
-                  <el-form-item label="Host配置：" class="big">
+                  <el-form-item label="Host配置" class="big">
                     <div v-if="selected.service.hosts && selected.service.hosts.length > 0">
                       <el-row>
                         <el-col :span="10" style="font-weight: bold; text-align: center">IP</el-col>
@@ -827,7 +827,7 @@
             padding: 8px 12px;
             width: 85%;
             margin: 0px auto;
-            max-width: 750px;
+            max-width: 800px;
             box-shadow: 0 2px 15px rgba(0,0,0,0.1);
             box-shadow: 0 0 2px 0 rgba(64,158,255, .6);
             .el-form {
@@ -841,7 +841,7 @@
                 }
                 &.relativePathOfParentPOM {
                   .el-form-item__label {
-                    line-height: 120%;
+                    /*line-height: 120%;*/
                   }
                 }
               }
