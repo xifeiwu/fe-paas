@@ -151,7 +151,7 @@
               <div class="app-info">
                 <div class="title">应用信息</div>
                 <el-form label-position="right" label-width="140px" inline size="mini">
-                  <el-form-item label="项目名称">
+                  <el-form-item label="项目名称" class="big">
                     {{valueToShow(selected.service.tag)}}
                   </el-form-item>
                   <el-form-item label="开发语言">
@@ -159,6 +159,14 @@
                   </el-form-item>
                   <el-form-item label="构建类型">
                     {{valueToShow(selected.service.packageType)}}
+                  </el-form-item>
+                  <el-form-item label="滚动升级">
+                    {{selected.service.rollingUpdate? '需要' : '不需要'}}
+                    <i class="el-icon-edit" @click="handleChangeProp('rollingUpdate')"></i>
+                  </el-form-item>
+                  <el-form-item label="负载均衡">
+                    {{valueToShow(selected.service.loadBalance)}}
+                    <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="false"></i>
                   </el-form-item>
                   <el-form-item label="健康检查">
                     {{valueToShow(selected.service.healthCheck)}}<i class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
@@ -168,11 +176,6 @@
               <div class="image-info">
                 <div class="title">镜像信息</div>
                 <el-form label-position="right" label-width="200px" size="mini">
-                  <el-form-item label="当前服务的内网域名">
-                    <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
-                      {{valueToShow(selected.service.intranetDomain)}}
-                    </div>
-                  </el-form-item>
                   <el-form-item label="镜像方式">
                     {{valueToShow(selected.service.image.typeName)}}
                     <span style="padding-left: 12px; font-weight: bold">基础镜像地址</span><span>{{selected.service.image.location}} </span>
@@ -213,13 +216,8 @@
                   <el-form-item label="实例数量">
                     {{valueToShow(selected.service.instanceNum)}}
                   </el-form-item>
-                  <el-form-item label="滚动升级">
-                    {{selected.service.rollingUpdate? '需要' : '不需要'}}
-                    <i class="el-icon-edit" @click="handleChangeProp('rollingUpdate')"></i>
-                  </el-form-item>
-                  <el-form-item label="负载均衡">
-                    {{valueToShow(selected.service.loadBalance)}}
-                    <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="false"></i>
+                  <el-form-item label="当前服务的内网域名" class="big">
+                      {{valueToShow(selected.service.intranetDomain)}}
                   </el-form-item>
                   <el-form-item label="文件存储" class="big file-location" v-if="false">
                     <div v-if="selected.service.fileLocation && selected.service.fileLocation.length > 0">
@@ -806,6 +804,16 @@
 </template>
 
 <style lang="scss">
+  @mixin expand-inline-form-item() {
+    display: block;
+    width: 100%;
+    .el-form-item__label {
+      float: left;
+    }
+    .el-form-item__content {
+      display: block;
+    }
+  }
   .fix-form-item-label {
     line-height: 25px;
     padding-right: 4px;
@@ -852,8 +860,11 @@
               .el-form {
                 .el-form-item {
                   width: 50%;
-                  &:nth-child(1), &:nth-child(4){
-                    width: 100%;
+                  &.big {
+                    @include expand-inline-form-item;
+                    .el-form-item__content {
+                      margin-left: 140px;
+                    }
                   }
                 }
               }
@@ -866,15 +877,9 @@
                 .el-form-item {
                   width: 50%;
                   &.big {
-                    display: block;
-                    width: 100%;
-                    .el-form-item__label {
-                      float: left;
-                    }
+                    @include expand-inline-form-item;
                     .el-form-item__content {
                       margin-left: 140px;
-                      display: block;
-                      /*width: 100%;*/
                     }
                   }
                   &.file-location {
@@ -887,6 +892,7 @@
                 }
               }
             }
+
           }
         }
       }
