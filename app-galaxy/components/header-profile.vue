@@ -63,7 +63,7 @@
     background: $header-background-color;
     border-bottom: 1px solid #409EFF;
 
-    padding: 0px 20px 0px 0px;
+    padding: 0px 30px 0px 0px;
     color: #333;
     text-align: center;
     .img {
@@ -104,7 +104,7 @@
         }
       }
       .el-submenu .el-menu-item {
-        min-width: 140px;
+        min-width: 120px;
       }
     }
   }
