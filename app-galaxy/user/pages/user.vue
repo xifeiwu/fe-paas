@@ -9,14 +9,17 @@
             <div class="bg" style="background-image: url(/assets/imgs/iceland-small.png);"></div>
             <div class="info">
               <img src="assets/imgs/finup-logo.png">
-              <p style="font-size: 18px;font-weight: bold;">{{userName}}</p>
-              <p>用户角色：{{userRole}}</p>
+              <p class="user-name">{{userName}}</p>
+              <p class="user-role">用户角色：{{userRole}}</p>
             </div>
           </div>
           <div class="commands">
             <ul>
               <li v-for="(item, index) in commandList" :class="{'is-active': item.isActive}"
-                  :key="index" @click="handleCommands(item)">{{item.name}}</li>
+                  :key="index" @click="handleCommands(item)">
+                <i class="el-icon-arrow-right" v-if="item.isActive"></i>
+                <span class="text">{{item.name}}</span>
+              </li>
             </ul>
           </div>
         </div>
@@ -46,12 +49,16 @@
         margin: 0px auto;
         margin-top: 18px;
         height: calc(100% - 18px);
+        @media (min-width: 992px) {
+          max-width: 990px;
+        }
         @media (min-width: 1200px) {
           max-width: 1230px;
         }
         .left {
           flex: 0 0 25%;
           padding: 0px 15px;
+          box-sizing: border-box;
           .user-info {
             background-color: white;
             margin-bottom: 15px;
@@ -73,6 +80,16 @@
                 box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
               }
               text-align: center;
+              p {
+                margin-bottom: 3px;
+              }
+              .user-name {
+                font-size: 18px;
+                font-weight: bold;
+              }
+              .user-role {
+                font-size: 14px;
+              }
             }
           }
           .commands {
@@ -80,9 +97,28 @@
             background-color: white;
             margin-bottom: 15px;
             border: 1px solid rgba(0, 0, 0, 0.125);
-            ul li {
-              &.is-active {
-                color: green;
+            ul {
+              margin-left: 20px;
+              li {
+                position: relative;
+                font-size: 16px;
+                line-height: 30px;
+                height: 30px;
+                &.is-active {
+                  color: green;
+                }
+                i {
+                  position: absolute;
+                  left: -18px;
+                  top: 9px;
+                }
+                .text {
+                  cursor: pointer;
+                  &:hover {
+                    /*color: black;*/
+                    font-weight: bold;
+                  }
+                }
               }
             }
           }
@@ -90,6 +126,7 @@
         .right {
           flex: 0 0 75%;
           padding: 0px 15px;
+          box-sizing: border-box;
           .detail {
             min-height: 600px;
             max-height: calc(100% - 5px);
@@ -116,6 +153,7 @@
       }
     },
     created() {
+      this.updateActiveCommand();
     },
     mounted() {
       this.$nextTick(() => {
@@ -125,12 +163,12 @@
       commandList() {
         return [{
           name: "产品介绍",
-          router: "/info",
+          route: "/info",
           icon: "my-icon-user",
-          isActive: true,
+          isActive: false,
         }, {
           name: "操作记录",
-          router: "/operation",
+          route: "/operation",
           icon: "my-icon-log",
           isActive: false,
         }]
@@ -186,10 +224,19 @@
             break;
         }
       },
+      updateActiveCommand() {
+        let path = this.$route.path;
+        this.commandList.forEach(it => {
+          if (it.route === path) {
+            it.isActive = true;
+          } else {
+            it.isActive = false;
+          }
+        })
+      },
       handleCommands(item) {
-        this.$router.push(item.router);
-        this.commandList.forEach(it => it.isActive = false);
-        item.isActive = true;
+        this.$router.push(item.route);
+        this.updateActiveCommand();
       },
       handleOpen(key, keyPath) {
         console.log(key, keyPath);
