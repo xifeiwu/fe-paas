@@ -1,6 +1,6 @@
 <template>
   <el-container id="user" direction="vertical">
-    <paas-header-profile :userName="userName"  defaultActive="user"
+    <paas-header-profile :userName="userName"  defaultActive="info"
                          @menu-click="handleHeaderMenuClick"></paas-header-profile>
     <el-container class="inner-container">
       <el-aside width="180px">
@@ -32,6 +32,7 @@
   $split-line-color: #e7e7e7;
   $aside-width: 180px;
   #user.el-container {
+    background: #f5f8fa;
     height: 100%;
     .inner-container {
       .el-aside {

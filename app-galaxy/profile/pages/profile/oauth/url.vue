@@ -572,7 +572,7 @@
             this.errorMsgForAddAuthorizeUrl = '所属权限不能超过50个字符';
             return isValid;
           }
-          let resourceReg = /^(\/[a-zA-Z0-9\\*\/]+)(, +\/[a-zA-Z0-9\\*\/]+)*$/;
+          let resourceReg = /^(\/[a-zA-Z0-9\\*\/]+)(, *\/[a-zA-Z0-9\\*\/]+)*$/;
           if (resourceReg.test(newItem.resource)) {
             this.errorMsgForAddAuthorizeUrl = '资源URL格式不正确';
             return isValid;
