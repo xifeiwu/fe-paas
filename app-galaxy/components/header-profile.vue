@@ -71,8 +71,9 @@
       line-height: $header-height;
       cursor: pointer;
       img {
-        width: 120px;
+        height: 24px;
         margin-left: 8px;
+        margin-top: -2px;
         vertical-align: middle;
       }
     }

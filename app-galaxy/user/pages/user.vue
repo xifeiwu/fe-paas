@@ -1,28 +1,31 @@
 <template>
-  <el-container id="user" direction="vertical">
+  <div id="user" class="main" direction="vertical">
     <paas-header-profile :userName="userName"  defaultActive="info"
                          @menu-click="handleHeaderMenuClick"></paas-header-profile>
-    <el-container class="inner-container">
-      <el-aside width="180px">
-        <el-menu
-                class="el-menu-vertical-demo"
-                @open="handleOpen"
-                @close="handleClose"
-                @select="handleAsideMenuSelect"
-                :defaultOpeneds="['app_menu']"
-                :defaultActive="activeSideMenuItem">
-          <el-menu-item v-for="menu in menuList" :key="menu.name" :index="menu.router">
-            <i :class="menu.icon"></i><span>{{menu.name}}</span>
-          </el-menu-item>
-        </el-menu>
-      </el-aside>
-      <el-main>
-        <el-scrollbar>
-          <router-view></router-view>
-        </el-scrollbar>
-      </el-main>
-    </el-container>
-  </el-container>
+    <div class="content">
+      <div class="container">
+        <div class="left">
+          <div class="user-info">
+            <div class="bg" style="background-image: url(/assets/imgs/iceland-small.png);"></div>
+            <div class="info">
+              <img src="assets/imgs/finup-logo.png">
+              <p style="font-size: 18px;font-weight: bold;">{{userName}}</p>
+              <p>用户角色：{{userRole}}</p>
+            </div>
+          </div>
+          <div class="commands">
+            <ul>
+              <li v-for="(item, index) in commandList" :class="{'is-active': item.isActive}"
+                  :key="index" @click="handleCommands(item)">{{item.name}}</li>
+            </ul>
+          </div>
+        </div>
+        <div class="right">
+          <div class="detail"><router-view></router-view></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -31,62 +34,70 @@
   $header-background-color: #e7e7e7;
   $split-line-color: #e7e7e7;
   $aside-width: 180px;
-  #user.el-container {
+  #user.main {
+    display: flex;
+    flex-direction: column;
     background: #f5f8fa;
     height: 100%;
-    .inner-container {
-      .el-aside {
-        position: fixed;
-        top: $header-height;
-        bottom: 0px;
-        border-right: solid 1px $split-line-color;
-        [class^="my-icon-"] {
-          display: inline-block;
-          font-size: 14px;
-          margin-top: 1px;
-          margin-right: 5px;
+    .content {
+      flex: 1;
+      .container {
+        display: flex;
+        margin: 0px auto;
+        margin-top: 18px;
+        height: calc(100% - 18px);
+        @media (min-width: 1200px) {
+          max-width: 1230px;
         }
-        .el-menu {
-          margin-top: 10px;
-          border-width: 0px;
-          .el-menu-item {
-            font-size: 15px;
-            height: 40px;
-            margin: 8px 0px;
-            line-height: 40px;
-            &.is-active {
-              background-color: #409EFF;
-              color: white;
-              border-radius: 0px;
-              [class^="my-icon-"] {
-                /*font-size: 15px;*/
+        .left {
+          flex: 0 0 25%;
+          padding: 0px 15px;
+          .user-info {
+            background-color: white;
+            margin-bottom: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.125);
+            background-clip: border-box;
+            .bg {
+              height: 150px;
+              padding: 15px;
+              background-size: cover;
+            }
+            .info {
+              padding: 16px;
+              img {
+                max-width: 100px;
+                margin-top: -70px;
+                margin-bottom: 5px;
+                border: 3px solid #fff;
+                border-radius: 100%;
+                box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+              }
+              text-align: center;
+            }
+          }
+          .commands {
+            padding: 16px;
+            background-color: white;
+            margin-bottom: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.125);
+            ul li {
+              &.is-active {
+                color: green;
               }
             }
           }
         }
-      }
-      .el-main {
-        padding: 0px;
-        margin-left: $aside-width;
-        .el-row.main-header {
-          border-bottom: 1px solid $split-line-color;
-          padding: 3px;
-          min-height:39px;
-          .el-col {
-            &:nth-child(1) {
-              padding-left: 6px;
-              .el-breadcrumb {
-                font-size: 16px;
-              }
-            }
-            &:nth-child(2) {
-              text-align: right;
-
-            }
+        .right {
+          flex: 0 0 75%;
+          padding: 0px 15px;
+          .detail {
+            min-height: 600px;
+            max-height: calc(100% - 5px);
+            box-sizing: border-box;
+            background-color: white;
+            margin-bottom: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.125);
           }
-        }
-        .el-scrollbar {
-          height: calc(100% - 43px);
         }
       }
     }
@@ -94,7 +105,6 @@
 </style>
 
 <script>
-//  import routeUtils from './route';
   import paasHeaderProfile from '$components/header-profile';
 
   export default {
@@ -112,17 +122,17 @@
       });
     },
     computed: {
-      menuList() {
+      commandList() {
         return [{
-          "id": 1,
-          "name": "用户信息",
-          "router": "/info",
-          "icon": "my-icon-user"
+          name: "产品介绍",
+          router: "/info",
+          icon: "my-icon-user",
+          isActive: true,
         }, {
-          "id": 2,
-          "name": "操作记录",
-          "router": "/operation",
-          "icon": "my-icon-log"
+          name: "操作记录",
+          router: "/operation",
+          icon: "my-icon-log",
+          isActive: false,
         }]
       },
       userName() {
@@ -131,12 +141,12 @@
           userName = '未知';
         }
         return userName;
+      },
+      userRole() {
+        return this.$storeHelper.getUserInfo('role');
       }
     },
     watch: {
-//      '$route': function (value, oldValue) {
-//        this.updateCrumbList(value.path);
-//      },
     },
     methods: {
       /**
@@ -145,7 +155,6 @@
       handleHeaderMenuClick(keyPath) {
         switch (keyPath) {
           case 'user/info':
-//            this.$router.push('/user/info');
             break;
           case 'user/logout':
             this.$net.logout().then(msg => {
@@ -177,19 +186,10 @@
             break;
         }
       },
-      handleAsideMenuSelect(key, keyPath) {
-//        console.log(key);
-        if (keyPath.length > 0) {
-          switch (key) {
-            case '/profile/app_manager':
-              this.$router.push(key);
-              break;
-            default:
-              console.log('push key ' + key);
-              this.$router.push(key);
-              break;
-          }
-        }
+      handleCommands(item) {
+        this.$router.push(item.router);
+        this.commandList.forEach(it => it.isActive = false);
+        item.isActive = true;
       },
       handleOpen(key, keyPath) {
         console.log(key, keyPath);
