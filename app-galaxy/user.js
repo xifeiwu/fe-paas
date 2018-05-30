@@ -15,15 +15,17 @@ new VueConfig({
   NetConfig,
 });
 
+import '$assets/css/fonts/my-icons.css';
+import '$assets/css/fonts/my-icons.js';
 
 import APP from './user/pages/user.vue';
-import router from './user/pages/router';
+import RouterConfig from './user/pages/router';
 
 import(/* webpackChunkName: "components-docs" */ '$assets/libs/components/docs.js').then(components => {
   components.default.install(Vue);
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),
-    router,
+    router: new RouterConfig(Vue).getVueRouter(),
     store: Store
   }).$mount('#app');
 });

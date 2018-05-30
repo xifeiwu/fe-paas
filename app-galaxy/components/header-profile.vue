@@ -103,6 +103,9 @@
           border-radius: 0px;
         }
       }
+      .el-submenu .el-menu-item {
+        min-width: 140px;
+      }
     }
   }
 </style>
