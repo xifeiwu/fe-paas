@@ -7,6 +7,21 @@ import appInfoHelper from '../pages/profile/utils/app-props';
 import NetBase from '$assets/js/net';
 var debug = browserDebug('pass-fe:net');
 
+function permission(target, name, descriptor) {
+  console.log(target);
+  console.log(name);
+  console.log(descriptor);
+  let value = descriptor.value;
+  Object.assign(descriptor, {
+    value: function (...args) {
+      console.log('fdsafd');
+      console.log(this.__proto__ === target);
+      value.apply(this, args);
+      // console.log(descriptor.value);
+    }
+  })
+}
+
 class Net extends NetBase {
   constructor() {
     super();
@@ -25,6 +40,12 @@ class Net extends NetBase {
 
   showLog(func, data) {
     debug('%s, %o', func, data);
+  }
+
+  @permission
+  getPermissionURLMap() {
+    console.log('getPermissionURLMap');
+    console.log(this.requestingState);
   }
 
   logout() {

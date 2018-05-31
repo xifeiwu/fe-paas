@@ -20,6 +20,7 @@ class URL extends BaseURL {
       'highlight.css': '/assets/libs/highlight/styles/vs2015.css',
       // 'highlight.css': '/assets/css/highlight.scss',
 
+      'permission_url_map': API_PATH + '/permissionUrlMappings',
       // 获取验证码
       'get_verify_code': API_PATH + '/createRandomImage',
       'login': API_PATH + '/login',

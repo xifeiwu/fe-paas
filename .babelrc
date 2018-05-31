@@ -1,6 +1,6 @@
 {
   "presets": [["es2015", { "loose": true, "comment": true }], "stage-0"],
-  "plugins": ["transform-vue-jsx", "syntax-dynamic-import"],
+  "plugins": ["transform-vue-jsx", "syntax-dynamic-import", "transform-decorators-legacy"],
   "env": {
     "utils": {
       "plugins": [
