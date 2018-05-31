@@ -24,7 +24,7 @@ class URL extends BaseURL {
         path: '/permissionUrlMappings'
       },
       // 当前用户禁用的权限
-      'user_permissions': {
+      'user_not_permitted': {
         url: API_PATH + '/user/roles/permissions?exclude=true',
         path: '/user/roles/permissions?exclude=true'
       },
@@ -340,16 +340,19 @@ class URL extends BaseURL {
         path: '/application/authorization/query'
       },
       'oauth_update_secret': {
-        url: API_PATH + '/application/authorization',
-        path: '/application/authorization'
+        url: API_PATH + '/application/authorization/{id}',
+        path: '/application/authorization/{id}',
+        method: 'patch'
       },
       'oauth_delete_access_key': {
-        url: API_PATH + '/application/authorization',
-        path: '/application/authorization'
+        url: API_PATH + '/application/authorization/{id}',
+        path: '/application/authorization/{id}',
+        method: 'delete'
       },
       'oauth_add_access_config': {
-        url: API_PATH + '/application/authorization',
-        path: '/application/authorization'
+        url: API_PATH + '/application/authorization/{id}',
+        path: '/application/authorization/{id}',
+        method: 'put'
       },
       // 授权url
       'oauth_get_authorize_url_list': {

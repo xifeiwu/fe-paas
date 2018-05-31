@@ -43,7 +43,7 @@ class Net extends NetBase {
       axios.post(URL_LIST.permission_url_map.url, {}).then(res => {
         console.log(res);
       });
-      axios.get(URL_LIST.user_permissions.url).then(res => {
+      axios.get(URL_LIST.user_not_permitted.url).then(res => {
         console.log(res);
       })
     });
@@ -1166,8 +1166,8 @@ class Net extends NetBase {
   // 修改secret
   oauthUpdateSecret(id, options) {
     return new Promise((resolve, reject) => {
-      let url = `${URL_LIST.oauth_update_secret.url}/${id}`;
-      axios.patch(url, options).then(response => {
+      let url = this.$utils.formatUrl(URL_LIST.oauth_update_secret.url, {id});
+      axios[URL_LIST.oauth_update_secret.method](url, options).then(response => {
         // console.log(response);
         let resMsg = this.getResponseMsg(response);
         if (resMsg.success) {
@@ -1185,8 +1185,8 @@ class Net extends NetBase {
   //删除access key
   oauthDeleteAccessKey(id) {
     return new Promise((resolve, reject) => {
-      let url = `${URL_LIST.oauth_delete_access_key.url}/${id}`;
-      axios.delete(url).then(response => {
+      let url = this.$utils.formatUrl(URL_LIST.oauth_delete_access_key.url, {id});
+      axios[URL_LIST.oauth_delete_access_key.method](url).then(response => {
         let resMsg = this.getResponseMsg(response);
         if (resMsg.success) {
           resolve(resMsg.msg);
@@ -1203,8 +1203,8 @@ class Net extends NetBase {
   // 添加访问配置
   oauthAddAccessConfig(id, options) {
     return new Promise((resolve, reject) => {
-      let url = `${URL_LIST.oauth_add_access_config.url}/${id}`;
-      axios.put(url, options).then(response => {
+      let url = this.$utils.formatUrl(URL_LIST.oauth_add_access_config.url, {id});
+      axios[URL_LIST.oauth_add_access_config.method](url, options).then(response => {
         // console.log(response);
         let resMsg = this.getResponseMsg(response);
         if (resMsg.success) {
