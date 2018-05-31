@@ -166,6 +166,9 @@ class Net extends NetBase {
             let appList = content.appList;
             appList.forEach(it => {
               it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              if (it.createTime) {
+                it.createTime = it.createTime.split(' ');
+              }
               // utils.renameProperty(it, 'spaceList', 'profileList');
               // rename spaceList to profileNames
               it['profileNames'] = this.$utils.cloneDeep(it.spaceList);

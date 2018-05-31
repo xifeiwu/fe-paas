@@ -55,9 +55,17 @@
           </template>
         </el-table-column>
         <el-table-column label="项目名称" prop="tag" headerAlign="center" align="center"></el-table-column>
-        <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="140">
+        <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="120">
         </el-table-column>
-        <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="180">
+        <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="100">
+          <template slot-scope="scope">
+            <div v-if="Array.isArray(scope.row.createTime)">
+              <div v-for="(item, index) in scope.row.createTime" :key="index">
+                {{item}}
+              </div>
+            </div>
+            <div v-else>{{scope.row.createTime}}</div>
+          </template>
         </el-table-column>
         <el-table-column label="运行环境" prop="profileList" minWidth="90" headerAlign="center" align="center">
           <template slot-scope="scope">
