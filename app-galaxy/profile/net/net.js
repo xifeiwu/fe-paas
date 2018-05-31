@@ -8,16 +8,11 @@ import NetBase from '$assets/js/net';
 var debug = browserDebug('pass-fe:net');
 
 function permission(target, name, descriptor) {
-  console.log(target);
-  console.log(name);
-  console.log(descriptor);
   let value = descriptor.value;
   Object.assign(descriptor, {
     value: function (...args) {
-      console.log('fdsafd');
       console.log(this.__proto__ === target);
       value.apply(this, args);
-      // console.log(descriptor.value);
     }
   })
 }
@@ -44,13 +39,19 @@ class Net extends NetBase {
 
   @permission
   getPermissionURLMap() {
-    console.log('getPermissionURLMap');
-    console.log(this.requestingState);
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.url.permission_url_map, {}).then(res => {
+        console.log(res);
+      });
+      axios.get(URL_LIST.user_permissions.url).then(res => {
+        console.log(res);
+      })
+    });
   }
 
   logout() {
     return new Promise((resolve, reject) => {
-      axios.get(URL_LIST.logout).then(res => {
+      axios.get(URL_LIST.logout.url).then(res => {
         if ('data' in res) {
           let data = res.data;
           if (0 === data.code) {
@@ -73,7 +74,7 @@ class Net extends NetBase {
    */
   getUserGroupList () {
     return new Promise((resolve, reject) => {
-      axios.get(URL_LIST.get_user_group_list).then(response => {
+      axios.get(URL_LIST.get_user_group_list.url).then(response => {
         let responseContent = this.getResponseContent(response);
         if (responseContent) {
           if (responseContent.hasOwnProperty('groupList') && Array.isArray(responseContent['groupList'])) {
@@ -102,7 +103,7 @@ class Net extends NetBase {
    */
   getAllGroupList() {
     return new Promise((resolve, reject) => {
-      axios.get(URL_LIST.get_all_group_list).then(res => {
+      axios.get(URL_LIST.get_all_group_list.url).then(res => {
         let resContent = this.getResponseContent(res);
         if (resContent) {
           resolve(resContent);
@@ -149,7 +150,7 @@ class Net extends NetBase {
 
     this.requestingState.getAPPList = true;
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.app_list, options).then(response => {
+      axios.post(URL_LIST.app_list.url, options).then(response => {
         this.requestingState.getAPPList = false;
         let content = this.getResponseContent(response);
         if (content) {
@@ -208,7 +209,7 @@ class Net extends NetBase {
    */
   getAppListByGroupID(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.app_list, options).then(response => {
+      axios.post(URL_LIST.app_list.url, options).then(response => {
         let resContent = this.getResponseContent(response);
         if (resContent) {
           resolve(resContent);
@@ -224,7 +225,7 @@ class Net extends NetBase {
   // only call when group id is changed
   getProfileListOfGroup(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.get_profile_of_group, options).then(response => {
+      axios.post(URL_LIST.get_profile_of_group.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           this.showLog('getProfileListOfGroup', content);
@@ -242,10 +243,10 @@ class Net extends NetBase {
    */
   getMessageForCreateAPP () {
     function get1() {
-      return axios.get(URL_LIST.get_cpu_and_memory_config);
+      return axios.get(URL_LIST.get_cpu_and_memory_config.url);
     }
     function get2() {
-      return axios.get(URL_LIST.get_all_language);
+      return axios.get(URL_LIST.get_all_language.url);
     }
     return new Promise((resolve, reject) => {
       axios.all([get1(), get2()]).then(axios.spread((cpu_and_memory, language) => {
@@ -310,7 +311,7 @@ class Net extends NetBase {
    */
   getUsersInGroup(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.users_in_group, options).then(response => {
+      axios.post(URL_LIST.users_in_group.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           this.showLog('getUsersInGroup', content);
@@ -330,7 +331,7 @@ class Net extends NetBase {
    */
   getUsersAll() {
     return new Promise((resolve, reject) => {
-      axios.get(URL_LIST.users_all).then(response => {
+      axios.get(URL_LIST.users_all.url).then(response => {
         let content = this.getResponseContent(response);
         if (content && content.hasOwnProperty('userList')) {
           resolve(content.userList);
@@ -346,7 +347,7 @@ class Net extends NetBase {
 
   createAPP(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.create_app, options).then(response => {
+      axios.post(URL_LIST.create_app.url, options).then(response => {
         // let content = this.getResponseContent(response);
         // if (content) {
         //   resolve(content);
@@ -372,7 +373,7 @@ class Net extends NetBase {
 
   createService(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.service_create, options).then(response => {
+      axios.post(URL_LIST.service_create.url, options).then(response => {
         // console.log(response);
         let result = this.getResponseMsg(response);
         if (result.success) {
@@ -389,7 +390,7 @@ class Net extends NetBase {
 
   deleteAPP(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.delete_app, options).then(response => {
+      axios.post(URL_LIST.delete_app.url, options).then(response => {
         // console.log('in deleteAPP');
         let content = null;
         if ('data' in response) {
@@ -415,7 +416,7 @@ class Net extends NetBase {
   // TODO: not used
   changeProfile(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.change_profile, options).then(response => {
+      axios.post(URL_LIST.change_profile.url, options).then(response => {
         if ('data' in response) {
           let data = response.data;
           if (0 === data.code) {
@@ -433,8 +434,8 @@ class Net extends NetBase {
 
   appUpdate(prop, options) {
     let urlList = {
-      appName: URL_LIST.change_app_name,
-      profileNames: URL_LIST.change_profile,
+      appName: URL_LIST.change_app_name.url,
+      profileNames: URL_LIST.change_profile.url,
     };
     let url = urlList[prop];
     if (!url) {
@@ -492,7 +493,7 @@ class Net extends NetBase {
     }
 
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.get_service_by_appId_and_profile, options).then(response => {
+      axios.post(URL_LIST.get_service_by_appId_and_profile.url, options).then(response => {
         let content = this.getResponseContent(response);
         // console.log(content);
         if (content) {
@@ -542,7 +543,7 @@ class Net extends NetBase {
   // 切换默认服务版本
   changeDefaultService(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.change_default_service, options).then(response => {
+      axios.post(URL_LIST.change_default_service.url, options).then(response => {
         let responseMsg = this.getResponseMsg(response);
         if (responseMsg.success) {
           resolve(responseMsg.msg);
@@ -558,7 +559,7 @@ class Net extends NetBase {
 
   serviceDeploy(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.service_deploy, options).then(response => {
+      axios.post(URL_LIST.service_deploy.url, options).then(response => {
         if ('data' in response) {
           let data = response.data;
           if (0 === data.code) {
@@ -576,7 +577,7 @@ class Net extends NetBase {
   }
   serviceDeployLog(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.service_deploy_log, options).then(response => {
+      axios.post(URL_LIST.service_deploy_log.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           resolve(content);
@@ -592,7 +593,7 @@ class Net extends NetBase {
 
   serviceDelete(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.service_delete, options).then(response => {
+      axios.post(URL_LIST.service_delete.url, options).then(response => {
         let result = this.getResponseMsg(response);
         if (result.success) {
           resolve(result.msg);
@@ -609,7 +610,7 @@ class Net extends NetBase {
   // stop service
   serviceStop(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.service_stop, options).then(response => {
+      axios.post(URL_LIST.service_stop.url, options).then(response => {
         let result = this.getResponseMsg(response);
         if (result.success) {
           resolve(result.msg);
@@ -624,19 +625,19 @@ class Net extends NetBase {
 
   serviceUpdate(prop, options) {
     let urlMap = {
-      'healthCheck': URL_LIST.service_update_health,
-      'image': URL_LIST.service_update_image,
-      'gitLabAddress': URL_LIST.service_update_gitLab_address,
-      'gitLabBranch': URL_LIST.service_update_gitLab_branch,
-      'mavenProfileId': URL_LIST.service_update_maven_profile_id,
-      'cpuAndMemory': URL_LIST.service_update_cpu_and_memory,
-      'rollingUpdate': URL_LIST.service_update_rolling_update,
-      'loadBalance': URL_LIST.service_update_load_balance,
-      'fileLocation': URL_LIST.service_update_file_location,
-      'environments': URL_LIST.service_update_environment,
-      'hosts': URL_LIST.service_update_host,
-      'oneApm': URL_LIST.service_update_one_apm,
-      'vmOptions': URL_LIST.service_update_vm_options
+      'healthCheck': URL_LIST.service_update_health.url,
+      'image': URL_LIST.service_update_image.url,
+      'gitLabAddress': URL_LIST.service_update_gitLab_address.url,
+      'gitLabBranch': URL_LIST.service_update_gitLab_branch.url,
+      'mavenProfileId': URL_LIST.service_update_maven_profile_id.url,
+      'cpuAndMemory': URL_LIST.service_update_cpu_and_memory.url,
+      'rollingUpdate': URL_LIST.service_update_rolling_update.url,
+      'loadBalance': URL_LIST.service_update_load_balance.url,
+      'fileLocation': URL_LIST.service_update_file_location.url,
+      'environments': URL_LIST.service_update_environment.url,
+      'hosts': URL_LIST.service_update_host.url,
+      'oneApm': URL_LIST.service_update_one_apm.url,
+      'vmOptions': URL_LIST.service_update_vm_options.url
     };
     let url = urlMap[prop];
     // console.log(url);
@@ -669,7 +670,7 @@ class Net extends NetBase {
    */
   getServiceVersion(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.service_version, options).then(response => {
+      axios.post(URL_LIST.service_version.url, options).then(response => {
         if ('data' in response) {
           let data = response.data;
           if (0 === data.code) {
@@ -698,15 +699,15 @@ class Net extends NetBase {
   getImageRelatedInfo(options4Auto, options4Env, options4PrivateApp) {
     // 自动打镜像列表
     const getAutoImageList = () => {
-      return axios.post(URL_LIST.auto_image_list, options4Auto);
+      return axios.post(URL_LIST.auto_image_list.url, options4Auto);
     };
     // 自定义镜像-环境镜像
     const getCustomEnvImageList = () => {
-      return axios.post(URL_LIST.custom_image_env_list, options4Env);
+      return axios.post(URL_LIST.custom_image_env_list.url, options4Env);
     };
     // 自定义镜像-私有镜像(项目列表)
     const getCustomPrivateImageAppList = () => {
-      return axios.post(URL_LIST.custom_image_private_app_list, options4PrivateApp);
+      return axios.post(URL_LIST.custom_image_private_app_list.url, options4PrivateApp);
     };
     return new Promise((resolve, reject) => {
       axios.all([getAutoImageList()])
@@ -744,7 +745,7 @@ class Net extends NetBase {
    */
   getVersionListOfAppInCustomImage(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.custom_image_private_version_list_of_app, options).then(response => {
+      axios.post(URL_LIST.custom_image_private_version_list_of_app.url, options).then(response => {
         let versionList = this.getResponseContent(response);
         if (versionList.hasOwnProperty('customImage')) {
           resolve(versionList.customImage);
@@ -762,7 +763,7 @@ class Net extends NetBase {
    */
   getInstanceList(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.instance_list, options).then(response => {
+      axios.post(URL_LIST.instance_list.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content.hasOwnProperty('instanceList')) {
           let instanceList = content.instanceList;
@@ -784,7 +785,7 @@ class Net extends NetBase {
   // 更改实例数量
   instanceChangeCount(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.instance_change_count, options).then(response => {
+      axios.post(URL_LIST.instance_change_count.url, options).then(response => {
         // let content = this.getResponseContent(response);
         let responseMsg = this.getResponseMsg(response);
         if (responseMsg.success) {
@@ -803,7 +804,7 @@ class Net extends NetBase {
   // TODO: not used
   getDomainLevel1ListByProfile(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.domain_level_1_list, options).then(response => {
+      axios.post(URL_LIST.domain_level_1_list.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content && content.hasOwnProperty('domainList')) {
           resolve(content['domainList']);
@@ -820,7 +821,7 @@ class Net extends NetBase {
   // 获取当前组的所有一级域名
   getDomainLevel1Map(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.domain_level_1_list_all, options).then(response => {
+      axios.post(URL_LIST.domain_level_1_list_all.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           resolve(content);
@@ -838,7 +839,7 @@ class Net extends NetBase {
   // 创建域名
   createDomain(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.create_domain, options).then(response => {
+      axios.post(URL_LIST.create_domain.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           resolve(content);
@@ -855,7 +856,7 @@ class Net extends NetBase {
   // 删除域名
   removeDomain(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.remove_domain, options).then(response => {
+      axios.post(URL_LIST.remove_domain.url, options).then(response => {
         let responseMsg = this.getResponseMsg(response);
         if (responseMsg.success) {
           resolve(responseMsg.msg);
@@ -871,7 +872,7 @@ class Net extends NetBase {
   // 获取域名列表
   getDomainList(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.domain_list, options).then(response => {
+      axios.post(URL_LIST.domain_list.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           if (content.hasOwnProperty('internetDomainList')) {
@@ -894,7 +895,7 @@ class Net extends NetBase {
   // 为域名绑定服务
   domainBindService(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.domain_bind_service, options).then(response => {
+      axios.post(URL_LIST.domain_bind_service.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           resolve(content);
@@ -911,7 +912,7 @@ class Net extends NetBase {
   // 为域名解绑服务
   domainUnBindService(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.domain_unbind_service, options).then(response => {
+      axios.post(URL_LIST.domain_unbind_service.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           resolve(content);
@@ -927,7 +928,7 @@ class Net extends NetBase {
   // 白名单中添加IP
   addWhiteIP(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.domain_add_white_ip, options).then(response => {
+      axios.post(URL_LIST.domain_add_white_ip.url, options).then(response => {
         let responseMsg = this.getResponseMsg(response);
         if (responseMsg.success) {
           resolve(responseMsg.msg);
@@ -942,7 +943,7 @@ class Net extends NetBase {
   }
   // 修改IP
   updateWhiteIP(options, whiteIPID) {
-    let url = URL_LIST.domain_update_white_ip + whiteIPID + '/update';
+    let url = URL_LIST.domain_update_white_ip.url + whiteIPID + '/update';
     return new Promise((resolve, reject) => {
       axios.put(url, options).then(response => {
         let responseMsg = this.getResponseMsg(response);
@@ -959,7 +960,7 @@ class Net extends NetBase {
   }
   // 删除IP
   deleteWhiteIP(whiteIPID) {
-    let url = URL_LIST.domain_update_white_ip + whiteIPID + '/delete';
+    let url = URL_LIST.domain_update_white_ip.url + whiteIPID + '/delete';
     return new Promise((resolve, reject) => {
       axios.delete(url).then(response => {
         let responseMsg = this.getResponseMsg(response);
@@ -977,7 +978,7 @@ class Net extends NetBase {
   // 获取白名单列表
   getWhiteIPList(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.domain_white_ip_list, options).then(response => {
+      axios.post(URL_LIST.domain_white_ip_list.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           resolve(content);
@@ -994,7 +995,7 @@ class Net extends NetBase {
   //下载白名单模板
   downloadTemplateForWhiteIP() {
     return new Promise((resolve, reject) => {
-      axios.get(URL_LIST.domain_download_white_ip_list_template).then(response => {
+      axios.get(URL_LIST.domain_download_white_ip_list_template.url).then(response => {
         resolve(response);
       }).catch(err => {
         console.log(err);
@@ -1006,7 +1007,7 @@ class Net extends NetBase {
   // 获取部署列表
   getDeployLogList(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.log_deploy_list, options).then(response => {
+      axios.post(URL_LIST.log_deploy_list.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content && content.hasOwnProperty('deployLogList')) {
           content.deployLogList.forEach(it => {
@@ -1029,7 +1030,7 @@ class Net extends NetBase {
    */
   getHistoryRunLog(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.log_run_log, options).then(response => {
+      axios.post(URL_LIST.log_run_log.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content && content.hasOwnProperty('rows')) {
          resolve(content.rows);
@@ -1049,7 +1050,7 @@ class Net extends NetBase {
     */
   getHistoryDeployLog(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.log_deploy_log, options).then(response => {
+      axios.post(URL_LIST.log_deploy_log.url, options).then(response => {
         let content = this.getResponseContent(response);
         console.log(response);
         if (content && content.hasOwnProperty('deployLog')) {
@@ -1070,7 +1071,7 @@ class Net extends NetBase {
    */
   // 获取绑定
   oAuthGetTargetGroupList(options) {
-    let url = `${URL_LIST.oauth_get_target_group_list}?requestGroupId=${options.requestGroupId}`;
+    let url = `${URL_LIST.oauth_get_target_group_list.url}?requestGroupId=${options.requestGroupId}`;
     return new Promise((resolve, reject) => {
       axios.get(url).then(response => {
         let content = this.getResponseContent(response);
@@ -1089,7 +1090,7 @@ class Net extends NetBase {
   // 创建Access Key
   oAuthCreateAccessKey(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.oauth_create_access_key, options).then(response => {
+      axios.post(URL_LIST.oauth_create_access_key.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           resolve(content);
@@ -1141,7 +1142,7 @@ class Net extends NetBase {
       }
     };
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.oauth_get_access_key_list, options).then(response => {
+      axios.post(URL_LIST.oauth_get_access_key_list.url, options).then(response => {
         // console.log(response);
         let content = this.getResponseContent(response);
         if (content) {
@@ -1165,7 +1166,7 @@ class Net extends NetBase {
   // 修改secret
   oauthUpdateSecret(id, options) {
     return new Promise((resolve, reject) => {
-      let url = `${URL_LIST.oauth_update_secret}/${id}`;
+      let url = `${URL_LIST.oauth_update_secret.url}/${id}`;
       axios.patch(url, options).then(response => {
         // console.log(response);
         let resMsg = this.getResponseMsg(response);
@@ -1184,7 +1185,7 @@ class Net extends NetBase {
   //删除access key
   oauthDeleteAccessKey(id) {
     return new Promise((resolve, reject) => {
-      let url = `${URL_LIST.oauth_delete_access_key}/${id}`;
+      let url = `${URL_LIST.oauth_delete_access_key.url}/${id}`;
       axios.delete(url).then(response => {
         let resMsg = this.getResponseMsg(response);
         if (resMsg.success) {
@@ -1202,7 +1203,7 @@ class Net extends NetBase {
   // 添加访问配置
   oauthAddAccessConfig(id, options) {
     return new Promise((resolve, reject) => {
-      let url = `${URL_LIST.oauth_add_access_config}/${id}`;
+      let url = `${URL_LIST.oauth_add_access_config.url}/${id}`;
       axios.put(url, options).then(response => {
         // console.log(response);
         let resMsg = this.getResponseMsg(response);
@@ -1251,7 +1252,7 @@ class Net extends NetBase {
       }
     };
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.oauth_get_authorize_url_list, options).then(response => {
+      axios.post(URL_LIST.oauth_get_authorize_url_list.url, options).then(response => {
         // debug('o', response);
         // console.log(response);
         let content = this.getResponseContent(response);
@@ -1274,7 +1275,7 @@ class Net extends NetBase {
   }
 
   oauthGetTargetAppList(groupID) {
-    let url = this.$utils.formatUrl(URL_LIST.oauth_get_target_app_list, {id: groupID});
+    let url = this.$utils.formatUrl(URL_LIST.oauth_get_target_app_list.url, {id: groupID});
     return new Promise((resolve, reject) => {
       axios.get(url).then(response => {
         let content = this.getResponseContent(response);
@@ -1296,7 +1297,7 @@ class Net extends NetBase {
 
   // 修改授权URL
   oauthModifyAuthorizeList(id, options) {
-    let url = this.$utils.formatUrl(URL_LIST.oauth_modify_authorize_url_list, {id: id});
+    let url = this.$utils.formatUrl(URL_LIST.oauth_modify_authorize_url_list.url, {id: id});
     return new Promise((resolve, reject) => {
       axios.put(url, options).then(response => {
         let resMsg = this.getResponseMsg(response);
@@ -1314,7 +1315,7 @@ class Net extends NetBase {
 
   // 开启/禁用授权URL
   oauthToggleAuthorizeUrlEnable(id, options) {
-    let url = this.$utils.formatUrl(URL_LIST.oauth_authorize_url_toggle_enable, {id: id});
+    let url = this.$utils.formatUrl(URL_LIST.oauth_authorize_url_toggle_enable.url, {id: id});
     return new Promise((resolve, reject) => {
       axios.patch(url, options).then(response => {
         let resMsg = this.getResponseMsg(response);
@@ -1335,7 +1336,7 @@ class Net extends NetBase {
    */
   getWorkOrderList(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_list, options).then(response => {
+      axios.post(URL_LIST.work_order_list.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           if (content.hasOwnProperty('workOrderDeployList') && Array.isArray(content.workOrderDeployList)) {
@@ -1362,7 +1363,7 @@ class Net extends NetBase {
    */
   getWorkOrderToDoList(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_todo_list, options).then(response => {
+      axios.post(URL_LIST.work_order_todo_list.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           if (content.hasOwnProperty('todoWorkOrderList') && Array.isArray(content.todoWorkOrderList)) {
@@ -1392,7 +1393,7 @@ class Net extends NetBase {
    */
   checkWorkOrderHandling(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_in_handling, options).then(response => {
+      axios.post(URL_LIST.work_order_in_handling.url, options).then(response => {
         let responseMsg = this.getResponseMsg(response);
         if (responseMsg.success) {
           resolve(responseMsg.msg);
@@ -1411,28 +1412,28 @@ class Net extends NetBase {
    */
   getWorkOrderDetail(options) {
     const getFeatureList = () => {
-      return axios.post(URL_LIST.work_order_detail_feature_list, options);
+      return axios.post(URL_LIST.work_order_detail_feature_list.url, options);
     };
     const getAppList = () => {
-      return axios.post(URL_LIST.work_order_detail_app_list, options);
+      return axios.post(URL_LIST.work_order_detail_app_list.url, options);
     };
     const getUserToDo = () => {
-      return axios.post(URL_LIST.work_order_detail_user_todo, options);
+      return axios.post(URL_LIST.work_order_detail_user_todo.url, options);
     };
     const getUserAccepted = () => {
-      return axios.post(URL_LIST.work_order_detail_user_accepted, options);
+      return axios.post(URL_LIST.work_order_detail_user_accepted.url, options);
     };
     const getUserNotify = () => {
-      return axios.post(URL_LIST.work_order_detail_notify_user, options);
+      return axios.post(URL_LIST.work_order_detail_notify_user.url, options);
     };
     const getOperationList = () => {
-      return axios.post(URL_LIST.work_order_detail_operation_list, options);
+      return axios.post(URL_LIST.work_order_detail_operation_list.url, options);
     };
     const getEmailGroup = () => {
-      return axios.post(URL_LIST.work_order_detail_email_group, options)
+      return axios.post(URL_LIST.work_order_detail_email_group.url, options)
     };
     const getTestLog = () => {
-      return axios.post(URL_LIST.work_order_detail_test_log_list, options);
+      return axios.post(URL_LIST.work_order_detail_test_log_list.url, options);
     };
     let keyMap = {
       featureList: {
@@ -1532,7 +1533,7 @@ class Net extends NetBase {
           if (testLogStatus.hasOwnProperty('workOrderDeployTestReport')) {
             testLogList = testLogStatus.workOrderDeployTestReport;
             testLogList.forEach(it => {
-              it.url = encodeURI(this.$utils.formatUrl(URL_LIST.work_order_detail_download_test_log_get, {
+              it.url = encodeURI(this.$utils.formatUrl(URL_LIST.work_order_detail_download_test_log_get.url, {
                 id: it.id
               }));
             });
@@ -1562,7 +1563,7 @@ class Net extends NetBase {
    */
   workOrderPostDownloadTestReport(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_detail_download_test_log_post, options).then(response => {
+      axios.post(URL_LIST.work_order_detail_download_test_log_post.url, options).then(response => {
         debug('%s, %o', 'workOrderDownloadTestReport', response);
       }).catch(err => {
         console.log(err);
@@ -1576,7 +1577,7 @@ class Net extends NetBase {
    * @param id, 测试报告ID
    */
   workOrderRemoveTestReport(id) {
-    const url = this.$utils.formatUrl(URL_LIST.work_order_delete_test_log, {id: id});
+    const url = this.$utils.formatUrl(URL_LIST.work_order_delete_test_log.url, {id: id});
     return new Promise((resolve, reject) => {
       axios.get(url).then(response => {
         debug('%s, %o', 'workOrderRemoveTestReport', response);
@@ -1597,7 +1598,7 @@ class Net extends NetBase {
   // 创建工单
   createWorkOrder(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_create, options).then(response => {
+      axios.post(URL_LIST.work_order_create.url, options).then(response => {
         let result = this.getResponseMsg(response);
         if (result.success) {
           resolve(result.msg);
@@ -1614,7 +1615,7 @@ class Net extends NetBase {
   // 修改工单
   modifyWorkOrder(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_modify, options).then(response => {
+      axios.post(URL_LIST.work_order_modify.url, options).then(response => {
         debug('%s, %o', 'modifyWorkOrder', response);
         console.log(response);
         let result = this.getResponseMsg(response);
@@ -1633,7 +1634,7 @@ class Net extends NetBase {
   // 删除工单
   removeWorkOrder(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_remove, options).then(response => {
+      axios.post(URL_LIST.work_order_remove.url, options).then(response => {
         // console.log(response);
         let responseMsg = this.getResponseMsg(response);
         if (responseMsg.success) {
@@ -1650,7 +1651,7 @@ class Net extends NetBase {
   // 工单-部署引用
   workOrderDeployApp(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_app_deploy, options).then(response => {
+      axios.post(URL_LIST.work_order_app_deploy.url, options).then(response => {
         if ('data' in response) {
           let data = response.data;
           if (0 === data.code) {
@@ -1670,7 +1671,7 @@ class Net extends NetBase {
   // 工单-部署应用-拉取日志
   workOrderFetchDeployLog(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_fetch_deploy_log, options).then(response => {
+      axios.post(URL_LIST.work_order_fetch_deploy_log.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           resolve(content);
@@ -1686,7 +1687,7 @@ class Net extends NetBase {
 
   checkBeforeHandleWorkOrder(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.check_before_handle_work_order, options).then(response => {
+      axios.post(URL_LIST.check_before_handle_work_order.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           if (content.hasOwnProperty('workOrderDeploy')) {
@@ -1707,7 +1708,7 @@ class Net extends NetBase {
   //处理工单
   handleWorkOrder(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_submit_handle, options).then(response => {
+      axios.post(URL_LIST.work_order_submit_handle.url, options).then(response => {
         let result = this.getResponseMsg(response);
         if (result.success) {
           resolve(result.msg);

@@ -400,7 +400,7 @@
 //          }
 //        }).catch(err => {
 //        });
-        window.open(this.$url.domain_download_white_ip_list_template, '_blank');
+        window.open(this.$url.domain_download_white_ip_list_template.url, '_blank');
       },
       /**
        * get white ip list, called at:
