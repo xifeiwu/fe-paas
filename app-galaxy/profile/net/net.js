@@ -39,12 +39,20 @@ class Net extends NetBase {
 
   @permission
   getPermissionURLMap() {
+    function getPermissionMap() {
+      return axios.post(URL_LIST.permission_url_map.url, {});
+    }
+    function getNotPermitted() {
+      return axios.get(URL_LIST.user_not_permitted.url);
+    }
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.permission_url_map.url, {}).then(res => {
-        console.log(res);
-      });
-      axios.get(URL_LIST.user_not_permitted.url).then(res => {
-        console.log(res);
+      axios.all([getPermissionMap(), getNotPermitted()]).then(axios.spread((permissionMap, notPermitted) => {
+        permissionMap = this.getResponseContent(permissionMap);
+        notPermitted = this.getResponseContent(notPermitted);
+        console.log(permissionMap);
+        console.log(notPermitted);
+      })).catch(err => {
+        console.log(err);
       })
     });
   }
