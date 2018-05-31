@@ -75,7 +75,7 @@
               >{{ item.description }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" prop="operation" minWidth="170" width="200" headerAlign="center" align="center">
+        <el-table-column label="操作" prop="operation" minWidth="170" width="180" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
               size="mini-extral"

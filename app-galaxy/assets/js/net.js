@@ -43,6 +43,19 @@ class Net {
     return content;
   }
 
+  getResponseContent2 (response) {
+    let content = null;
+    if ('data' in response) {
+      let data = response.data;
+      if (true === data.success) {
+        content = data.content ? data.content : {};
+      } else {
+        console.log('request error:' + JSON.stringify(data));
+      }
+    }
+    return content;
+  }
+
   /**
    * get the message shown to user from error
    * @param error

@@ -47,8 +47,8 @@ class Net extends NetBase {
     }
     return new Promise((resolve, reject) => {
       axios.all([getPermissionMap(), getNotPermitted()]).then(axios.spread((permissionMap, notPermitted) => {
-        permissionMap = this.getResponseContent(permissionMap);
-        notPermitted = this.getResponseContent(notPermitted);
+        permissionMap = this.getResponseContent2(permissionMap);
+        notPermitted = this.getResponseContent2(notPermitted);
         console.log(permissionMap);
         console.log(notPermitted);
       })).catch(err => {
