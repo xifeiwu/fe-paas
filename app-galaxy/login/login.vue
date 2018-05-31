@@ -376,12 +376,15 @@
           };
 //          console.log(objToPost);
           this.showLoading = true;
-          this.$net.login(data).then(({userInfo, menuList}) => {
+          this.$net.login(data).then(({userInfo, menuList, notPermitted}) => {
             this.showLoading = false;
 
             if (menuList) {
 //              this.$storeHelper.setUserInfo('menuList', menuList);
               this.$storeHelper.menuList = menuList;
+            }
+            if (notPermitted) {
+              this.$storeHelper.setPermission({'profile': notPermitted});
             }
             if (userInfo) {
               if (userInfo.hasOwnProperty('username')) {

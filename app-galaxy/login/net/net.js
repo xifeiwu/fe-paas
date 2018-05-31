@@ -43,7 +43,7 @@ class Net extends NetBase {
           router: '/monitor',
           icon: 'my-icon-monitor'
         },
-        "Oauth权限": {
+        "Access Key管理": {
           router: '/oauth',
           icon: 'my-icon-key'
         },
@@ -62,66 +62,73 @@ class Net extends NetBase {
       return item;
     }
 
-    let twoLevelMenu = [];
-    let permission = content.permission;
-
-    // append some property to each item
-    permission = permission.map(it => {
-      return updateItem(it);
-    });
+    let menuList = [];
+    if (content.hasOwnProperty('menuList') && Array.isArray(content.menuList)) {
+      // let menuToIgnore = ["应用监控", "Oauth权限"];
+      let menuToIgnore = ["应用监控"];
+      menuList = content.menuList.map(it => {
+        // append some property to each item
+        return updateItem(it);
+      }).filter(it => {
+        return menuToIgnore.indexOf(it.name) === -1;
+      }).map(it => {
+        if (it.hasOwnProperty('children')) {
+          delete it.children;
+        }
+        return it;
+      });
+    }
+    let notPermitted = [];
+    if (content.hasOwnProperty('excludeList') && Array.isArray(content['excludeList'])) {
+      notPermitted = content['excludeList'].map(it => {
+        it.hasOwnProperty('id') && delete it.id;
+        it.hasOwnProperty('createTime') && delete it.createTime;
+        it.hasOwnProperty('updateTime') && delete it.updateTime;
+        it.hasOwnProperty('parentId') && delete it.parentId;
+        it.hasOwnProperty('permissionType') && delete it.permissionType;
+        return it;
+      })
+    }
 
     // generate two level menu tree by parentId
-    permission.forEach(it => {
-      if (0 === it.parentId) {
-        twoLevelMenu.push(it);
-      }
-    });
-    permission.forEach(it => {
-      if (0 !== it.parentId) {
-        let findParent = twoLevelMenu.some(pItem => {
-          if (it.parentId === pItem.id) {
-            if (!pItem.hasOwnProperty('children')) {
-              pItem.children = [];
-            }
-            pItem.children.push(it);
-            return true;
-          } else {
-            return false;
-          }
-        });
-        if (!findParent) {
-          twoLevelMenu.push(it);
-        }
-      }
-    });
-
+    // let twoLevelMenu = [];
+    // permission.forEach(it => {
+    //   if (0 === it.parentId) {
+    //     twoLevelMenu.push(it);
+    //   }
+    // });
+    // permission.forEach(it => {
+    //   if (0 !== it.parentId) {
+    //     let findParent = twoLevelMenu.some(pItem => {
+    //       if (it.parentId === pItem.id) {
+    //         if (!pItem.hasOwnProperty('children')) {
+    //           pItem.children = [];
+    //         }
+    //         pItem.children.push(it);
+    //         return true;
+    //       } else {
+    //         return false;
+    //       }
+    //     });
+    //     if (!findParent) {
+    //       twoLevelMenu.push(it);
+    //     }
+    //   }
+    // });
     // generate one level menu from two level menu
-    let oneLevelMenu = [];
-    twoLevelMenu.forEach(it => {
-      oneLevelMenu.push(it);
-      if (it.hasOwnProperty('children')) {
-        it.children.forEach(it2 => {
-          oneLevelMenu.push(it2);
-        })
-      }
-    });
+    // let oneLevelMenu = [];
+    // twoLevelMenu.forEach(it => {
+    //   oneLevelMenu.push(it);
+    //   if (it.hasOwnProperty('children')) {
+    //     it.children.forEach(it2 => {
+    //       oneLevelMenu.push(it2);
+    //     })
+    //   }
+    // });
 
-    // let menuToIgnore = ["应用监控", "Oauth权限"];
-    let menuToIgnore = ["应用监控"];
-    oneLevelMenu = oneLevelMenu.filter(it => {
-      return menuToIgnore.indexOf(it.name) === -1;
-    }).map(it => {
-      if (it.name === 'Oauth权限') {
-        it.name = 'Access Key管理';
-      }
-      if (it.hasOwnProperty('children')) {
-        delete it.children;
-      }
-      return it;
-    });
     return {
       userInfo: content.user,
-      menuList: oneLevelMenu
+      menuList, notPermitted
     };
   }
 

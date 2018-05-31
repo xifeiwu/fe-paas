@@ -93,7 +93,6 @@ export default class StoreHelper {
 
   }
   get menuList() {
-    // return this.getUserInfo('menuList');
     return this.$store.getters['global/menuList'];
   }
 
@@ -103,6 +102,23 @@ export default class StoreHelper {
 
   get spaDataTransfer() {
     return this.$store.getters['global/spaDataTransfer'];
+  }
+
+  /**
+   * set user permission to localStorage
+   * @param permission, format: {page: permissionList}
+   */
+  setPermission(permission) {
+    this.$store.commit('global/permission', permission);
+  }
+
+  getPermission(page) {
+    let result = null;
+    let permission= this.$store.getters['global/permission'];
+    if (permission[page]) {
+      result = permission[page];
+    }
+    return result;
   }
 
   logout() {
