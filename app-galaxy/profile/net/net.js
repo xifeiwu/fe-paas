@@ -25,9 +25,11 @@ class Net extends NetBase {
     this.$storeHelper = null;
     this.requestingState = {
       getAPPList: false,
-    }
+    };
+    this.notPermittedMap = {};
   }
 
+  // called at config/vue
   setVue(Vue) {
     this.$storeHelper = Vue.prototype.$storeHelper;
     this.$utils = Vue.prototype.$utils;
@@ -46,11 +48,71 @@ class Net extends NetBase {
       return axios.get(URL_LIST.user_not_permitted.url);
     }
     return new Promise((resolve, reject) => {
-      axios.all([getPermissionMap(), getNotPermitted()]).then(axios.spread((permissionMap, notPermitted) => {
-        permissionMap = this.getResponseContent2(permissionMap);
-        notPermitted = this.getResponseContent2(notPermitted);
-        console.log(permissionMap);
-        console.log(notPermitted);
+      axios.all([getPermissionMap(), getNotPermitted()]).then(axios.spread((permissionMapRes, notPermittedRes) => {
+        let permissionMapListOrigin = this.getResponseContent2(permissionMapRes);
+        let notPermittedListOrigin = this.getResponseContent2(notPermittedRes);
+        let notPermittedList = [];
+
+        // some permissionPath do not related to any url are list bellow
+        let pathToKey = {
+          '/2.x/internet/ipWhiteList': 'domain_bind_white_list'
+        };
+        // format of item in notPermittedList
+        // {
+        //   id: 110,
+        //   name: "创建外网域名",
+        //   parentId: 84,
+        //   path: "/2.x/internet/create",
+        //   permissionType: "BUTTON",
+        //   url: "/domain/record/create",
+        //   method: "POST",
+        //   key: "domain_bind_white_list"
+        // }
+
+        // add url and method by notPermittedListOrigin
+        notPermittedListOrigin.forEach(it => {
+          let find = false;
+          permissionMapListOrigin.forEach(it2 => {
+            if (it.path === it2['permissionPath']) {
+              notPermittedList.push(Object.assign(it, {url: it2.url, method: it2.method}));
+              find = true;
+            }
+          });
+          if (!find) {
+            if (pathToKey.hasOwnProperty(it.path)) {
+              it.key = pathToKey[it.path];
+            }
+            notPermittedList.push(it);
+          }
+        });
+        // add key by URL_LIST
+        for (let key in URL_LIST) {
+          let item = URL_LIST[key];
+          if (!this.$utils.isObject(item)) {
+            continue;
+          }
+          if (!item.hasOwnProperty('path')) {
+            continue;
+          }
+          notPermittedList.forEach(it => {
+            if (it.url === item['path']) {
+              it.key = key;
+            }
+          })
+        }
+
+        let notPermittedMap = {};
+        notPermittedList.forEach(it => {
+          if (it.hasOwnProperty('key')) {
+            notPermittedMap[it.key] = it;
+          }
+        });
+
+        // console.log(permissionMapListOrigin);
+        // console.log(notPermittedListOrigin);
+        // console.log(notPermittedList);
+        console.log(notPermittedMap);
+        this.notPermittedMap = notPermittedMap;
       })).catch(err => {
         console.log(err);
       })
