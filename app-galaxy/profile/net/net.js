@@ -53,7 +53,13 @@ class Net extends NetBase {
 
         // some permissionPath do not related to any url are list bellow
         let pathToKey = {
-          '/2.x/internet/ipWhiteList': 'domain_bind_white_list'
+          '/2.x/internet/ipWhiteList': 'domain_bind_white_list',
+          // 应用监控
+          '/2.x/apm': 'app_monitor',
+          // 应用转让
+          '/2.x/app/transfer': 'app_transfer',
+          // 查看实例监控
+          '/2.x/instances/apm': 'instance_monitor',
         };
         // format of item in notPermittedList
         // {
