@@ -31,6 +31,7 @@
       </el-col>
       <el-col :span="4">
         <el-button
+                v-if="!$storeHelper.notPermitted['oauth_create_access_key']"
                 size="mini-extral"
                 type="primary"
                 :disabled="statusOfWaitingResponse('disable-create-access-key')"
@@ -149,6 +150,7 @@
           <template slot-scope="scope">
             <div class="button-list">
               <el-button
+                      v-if="!$storeHelper.notPermitted['oauth_add_access_config']"
                       size="mini-extral"
                       type="warning"
                       :loading="statusOfWaitingResponse('open-dialog-for-modify-access-config') && selected.row.id === scope.row.id"
@@ -156,12 +158,14 @@
                 访问配置
               </el-button>
               <el-button
+                      v-if="!$storeHelper.notPermitted['oauth_update_secret']"
                       size="mini-extral"
                       type="warning"
                       :loading="statusOfWaitingResponse('modify-secret') && selected.row.id === scope.row.id"
                       @click="handleTRClick('modify-secret', scope.$index, scope.row)">修改秘钥
               </el-button>
               <el-button
+                      v-if="!$storeHelper.notPermitted['oauth_delete_access_key']"
                       size="mini-extral"
                       type="danger"
                       :loading="statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"

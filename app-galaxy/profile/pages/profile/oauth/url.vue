@@ -116,6 +116,7 @@
         >
           <template slot-scope="scope">
             <el-button
+                    v-if="!$storeHelper.notPermitted['oauth_modify_authorize_url_list']"
                     size="mini-extral"
                     type="warning"
                     :loading="statusOfWaitingResponse('open-dialog-for-authorize-url') && selected.row.id === scope.row.id"
@@ -123,7 +124,7 @@
               授权URL
             </el-button>
             <el-button
-                    v-if="scope.row.enabled !== null"
+                    v-if="scope.row.enabled !== null && !$storeHelper.notPermitted['oauth_authorize_url_toggle_enable']"
                     size="mini-extral"
                     type="primary"
                     :loading="statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"

@@ -4,6 +4,7 @@
       <el-row type="flex" justify="center" align="middle">
         <el-col :span="10">
           <el-button
+                  v-if="!$storeHelper.notPermitted['app_create']"
                   size="mini-extral"
                   type="primary"
                   @click="handleButtonClick('linker', {path: '/app/add'})">
@@ -78,10 +79,12 @@
         <el-table-column label="操作" prop="operation" minWidth="170" width="180" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
+                    v-if="!$storeHelper.notPermitted['app_delete']"
               size="mini-extral"
               type="danger"
               @click="handleTRButton('deleteRow', scope.$index, scope.row)">删除</el-button>
             <el-button
+                    v-if="!$storeHelper.notPermitted['app_change_profile']"
               size="mini-extral"
               type="warning"
               @click="handleTRButton('change-profileNames', scope.$index, scope.row)">更改运行环境</el-button>

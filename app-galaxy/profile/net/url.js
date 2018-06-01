@@ -69,11 +69,13 @@ class URL extends BaseURL {
       },
 
       /** 应用相关 */
-      'create_app': {
+      // 创建应用
+      'app_create': {
         url: API_PATH + '/application/create',
         path: '/application/create'
       },
-      'delete_app': {
+      // 删除应用
+      'app_delete': {
         url: API_PATH + '/application/delete',
         path: '/application/delete'
       },
@@ -93,7 +95,8 @@ class URL extends BaseURL {
         url: API_PATH + '/application/updateAppName',
         path: '/application/updateAppName'
       },
-      'change_profile': {
+      // 修改运行环境
+      'app_change_profile': {
         url: API_PATH + '/application/update',
         path: '/application/update'
       },
@@ -331,6 +334,7 @@ class URL extends BaseURL {
         url: API_PATH + '/application/authorization/targetGroups',
         path: '/application/authorization/targetGroups'
       },
+      // 创建Access Key
       'oauth_create_access_key': {
         url: API_PATH + '/application/authorization/create',
         path: '/application/authorization/create'
@@ -339,16 +343,19 @@ class URL extends BaseURL {
         url: API_PATH + '/application/authorization/query',
         path: '/application/authorization/query'
       },
+      // 修改秘钥
       'oauth_update_secret': {
         url: API_PATH + '/application/authorization/{id}',
         path: '/application/authorization/{id}',
         method: 'patch'
       },
+      // 删除Access Key
       'oauth_delete_access_key': {
         url: API_PATH + '/application/authorization/{id}',
         path: '/application/authorization/{id}',
         method: 'delete'
       },
+      // 添加访问配置
       'oauth_add_access_config': {
         url: API_PATH + '/application/authorization/{id}',
         path: '/application/authorization/{id}',
@@ -363,13 +370,17 @@ class URL extends BaseURL {
         url: API_PATH + '/application/authorization/targetGroup/{id}/targetApplication',
         path: '/application/authorization/targetGroup/{id}/targetApplication'
       },
+      // 修改授权URL
       'oauth_modify_authorize_url_list': {
         url: API_PATH + '/application/authorization/record/{id}/auth',
-        path: '/application/authorization/record/{id}/auth'
+        path: '/application/authorization/record/{id}/auth',
+        method: 'put',
       },
+      // 禁用/开启授权URL配置
       'oauth_authorize_url_toggle_enable': {
         url: API_PATH + '/application/authorization/record/{id}/enableOrDisable',
-        path: '/application/authorization/record/{id}/enableOrDisable'
+        path: '/application/authorization/record/{id}/enableOrDisable',
+        method: 'patch'
       },
 
       // 工单列表

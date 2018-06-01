@@ -431,7 +431,7 @@ class Net extends NetBase {
 
   createAPP(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.create_app.url, options).then(response => {
+      axios.post(URL_LIST.app_create.url, options).then(response => {
         // let content = this.getResponseContent(response);
         // if (content) {
         //   resolve(content);
@@ -474,7 +474,7 @@ class Net extends NetBase {
 
   deleteAPP(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.delete_app.url, options).then(response => {
+      axios.post(URL_LIST.app_delete.url, options).then(response => {
         // console.log('in deleteAPP');
         let content = null;
         if ('data' in response) {
@@ -500,7 +500,7 @@ class Net extends NetBase {
   // TODO: not used
   changeProfile(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.change_profile.url, options).then(response => {
+      axios.post(URL_LIST.app_change_profile.url, options).then(response => {
         if ('data' in response) {
           let data = response.data;
           if (0 === data.code) {
@@ -519,7 +519,7 @@ class Net extends NetBase {
   appUpdate(prop, options) {
     let urlList = {
       appName: URL_LIST.change_app_name.url,
-      profileNames: URL_LIST.change_profile.url,
+      profileNames: URL_LIST.app_change_profile.url,
     };
     let url = urlList[prop];
     if (!url) {
@@ -1383,7 +1383,7 @@ class Net extends NetBase {
   oauthModifyAuthorizeList(id, options) {
     let url = this.$utils.formatUrl(URL_LIST.oauth_modify_authorize_url_list.url, {id: id});
     return new Promise((resolve, reject) => {
-      axios.put(url, options).then(response => {
+      axios[URL_LIST.oauth_modify_authorize_url_list.method](url, options).then(response => {
         let resMsg = this.getResponseMsg(response);
         if (resMsg.success) {
           resolve(resMsg.msg);
