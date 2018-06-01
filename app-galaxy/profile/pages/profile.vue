@@ -177,6 +177,12 @@
     created() {
       this.$store.dispatch('user/groupList');
       this.$store.dispatch('app/messageForCreateAPP');
+      // for permission list
+      this.$net.getNotPermittedCommands().then(list => {
+        this.$storeHelper.notPermitted = list;
+      }).catch(err => {
+      });
+
 //      this.$store.dispatch('user/profileListOfGroup', {
 //        id: this.currentGroupID
 //      });

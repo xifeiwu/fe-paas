@@ -11,7 +11,7 @@ function permission(target, name, descriptor) {
   let value = descriptor.value;
   Object.assign(descriptor, {
     value: function (...args) {
-      console.log(this.__proto__ === target);
+      // console.log(this.__proto__ === target);
       value.apply(this, args);
     }
   })
@@ -26,7 +26,6 @@ class Net extends NetBase {
     this.requestingState = {
       getAPPList: false,
     };
-    this.notPermittedMap = {};
   }
 
   // called at config/vue
@@ -39,8 +38,7 @@ class Net extends NetBase {
     debug('%s, %o', func, data);
   }
 
-  @permission
-  getPermissionURLMap() {
+  getNotPermittedCommands() {
     function getPermissionMap() {
       return axios.post(URL_LIST.permission_url_map.url, {});
     }
@@ -96,24 +94,31 @@ class Net extends NetBase {
           }
           notPermittedList.forEach(it => {
             if (it.url === item['path']) {
-              it.key = key;
+              // if item has property 'method', it must be the same as item in notPermittedList before add
+              if (item.hasOwnProperty('method') && it.hasOwnProperty('method')) {
+                if (item.method.toLowerCase() == it.method.toLowerCase()) {
+                  it['key'] = key;
+                }
+              } else {
+                it['key'] = key;
+              }
             }
           })
         }
 
-        let notPermittedMap = {};
-        notPermittedList.forEach(it => {
+        let result = notPermittedList.map(it => {
           if (it.hasOwnProperty('key')) {
-            notPermittedMap[it.key] = it;
+            return it['key'];
           }
         });
 
         // console.log(permissionMapListOrigin);
         // console.log(notPermittedListOrigin);
         // console.log(notPermittedList);
-        console.log(notPermittedMap);
-        this.notPermittedMap = notPermittedMap;
+        // console.log(notPermittedMap);
+        resolve(result);
       })).catch(err => {
+        reject([]);
         console.log(err);
       })
     });
@@ -912,7 +917,7 @@ class Net extends NetBase {
   // 创建域名
   createDomain(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.create_domain.url, options).then(response => {
+      axios.post(URL_LIST.domain_add.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           resolve(content);
@@ -929,7 +934,7 @@ class Net extends NetBase {
   // 删除域名
   removeDomain(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.remove_domain.url, options).then(response => {
+      axios.post(URL_LIST.domain_remove.url, options).then(response => {
         let responseMsg = this.getResponseMsg(response);
         if (responseMsg.success) {
           resolve(responseMsg.msg);

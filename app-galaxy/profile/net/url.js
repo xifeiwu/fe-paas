@@ -250,12 +250,12 @@ class URL extends BaseURL {
         path: '/domain/queryDomainList'
       },
       // 添加域名
-      'create_domain': {
+      'domain_add': {
         url: API_PATH + '/domain/record/create',
         path: '/domain/record/create'
       },
       // 删除域名
-      'remove_domain': {
+      'domain_remove': {
         url: API_PATH + '/domain/record/delete',
         path: '/domain/record/delete'
       },

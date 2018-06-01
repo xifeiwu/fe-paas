@@ -450,7 +450,6 @@
             this.$router.push(params.path);
             break;
           case 'refreshAppList':
-            this.$net.getPermissionURLMap();
             this.showLoading = true;
             this.$net.getAPPList({
               groupId: this.$storeHelper.currentGroupID,

@@ -383,9 +383,9 @@
 //              this.$storeHelper.setUserInfo('menuList', menuList);
               this.$storeHelper.menuList = menuList;
             }
-            if (notPermitted) {
-              this.$storeHelper.setPermission({'profile': notPermitted});
-            }
+//            if (notPermitted) {
+//              this.$storeHelper.setPermission({'profile': notPermitted});
+//            }
             if (userInfo) {
               if (userInfo.hasOwnProperty('username')) {
                 this.$storeHelper.setUserInfo('userName', userInfo.username);

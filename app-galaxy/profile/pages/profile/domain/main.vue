@@ -17,6 +17,7 @@
       </div>
       <div class="row operation">
         <el-button
+                v-if="!$storeHelper.notPermitted['domain_add']"
                 size="mini-extral"
                 type="primary"
                 :loading="statusOfWaitingResponse('open-create-domain-dialog')"
@@ -31,6 +32,7 @@
         >绑定服务
         </el-button>
         <el-button
+                v-if="!$storeHelper.notPermitted['domain_unbind_service']"
                 size="mini-extral"
                 type="warning"
                 @click="handleButtonClick('open-unbind-service-dialog')">解绑服务
@@ -88,6 +90,7 @@
         >
           <template slot-scope="scope">
             <el-button
+                    v-if="!$storeHelper.notPermitted['domain_bind_white_list']"
                     size="mini-extral"
                     type="warning"
                     @click="handleRowButtonClick('to-white-list', scope.$index, scope.row)">
