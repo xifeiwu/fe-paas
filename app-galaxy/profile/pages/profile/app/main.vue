@@ -52,7 +52,8 @@
         <el-table-column label="应用名称" prop="serviceName" headerAlign="center" align="center">
           <template slot-scope="scope">
             <span>{{scope.row.appName}}</span>
-            <i class="el-icon-edit" @click="handleTRButton('change-appName', scope.$index, scope.row)"></i>
+            <i v-if="!$storeHelper.notPermitted['app_change_name']"
+                    class="el-icon-edit" @click="handleTRButton('change-appName', scope.$index, scope.row)"></i>
           </template>
         </el-table-column>
         <el-table-column label="项目名称" prop="tag" headerAlign="center" align="center"></el-table-column>

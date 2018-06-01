@@ -497,28 +497,15 @@ class Net extends NetBase {
     });
   }
 
-  // TODO: not used
-  changeProfile(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.app_change_profile.url, options).then(response => {
-        if ('data' in response) {
-          let data = response.data;
-          if (0 === data.code) {
-            let msg = data.msg ? data.msg : '修改成功';
-            resolve(msg);
-          } else {
-            reject(data.msg);
-          }
-        }
-      }).catch(err => {
-        console.log(err);
-      });
-    });
-  }
-
+  /**
+   * 修改应用名称/运行环境
+   * @param prop
+   * @param options
+   * @returns {Promise}
+   */
   appUpdate(prop, options) {
     let urlList = {
-      appName: URL_LIST.change_app_name.url,
+      appName: URL_LIST.app_change_name.url,
       profileNames: URL_LIST.app_change_profile.url,
     };
     let url = urlList[prop];

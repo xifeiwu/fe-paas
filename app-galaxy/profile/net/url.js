@@ -91,7 +91,7 @@ class URL extends BaseURL {
         url: API_PATH + '/language/queryAllLanguage',
         path: '/language/queryAllLanguage'
       },
-      'change_app_name': {
+      'app_change_name': {
         url: API_PATH + '/application/updateAppName',
         path: '/application/updateAppName'
       },
