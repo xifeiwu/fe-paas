@@ -20,6 +20,7 @@
         </el-col>
         <div class="el-col el-col-24 btn-list">
           <el-button
+                  v-if="!$storeHelper.notPermitted['service_create']"
               size="mini-extral"
               type="primary"
               @click="handleButtonClick('add-service')">
@@ -124,6 +125,7 @@
                     size="mini-extral" type="warning"
                     @click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
             <el-button
+                    v-if="!$storeHelper.notPermitted['service_delete']"
                     size="mini-extral" type="danger"
                     :loading="statusOfWaitingResponse('delete') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
@@ -161,15 +163,18 @@
                     {{valueToShow(selected.service.packageType)}}
                   </el-form-item>
                   <el-form-item label="滚动升级">
-                    {{selected.service.rollingUpdate? '需要' : '不需要'}}
-                    <i class="el-icon-edit" @click="handleChangeProp('rollingUpdate')"></i>
+                    <span>{{selected.service.rollingUpdate? '需要' : '不需要'}}</span>
+                    <i v-if="!$storeHelper.notPermitted['service_update_rolling_update']"
+                       class="el-icon-edit" @click="handleChangeProp('rollingUpdate')"></i>
                   </el-form-item>
                   <el-form-item label="负载均衡">
                     {{valueToShow(selected.service.loadBalance)}}
                     <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="false"></i>
                   </el-form-item>
                   <el-form-item label="健康检查">
-                    {{valueToShow(selected.service.healthCheck)}}<i class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
+                    <span>{{valueToShow(selected.service.healthCheck)}}</span>
+                    <i v-if="!$storeHelper.notPermitted['service_update_health']"
+                       class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
                 </el-form>
               </div>
@@ -177,21 +182,25 @@
                 <div class="title">镜像信息</div>
                 <el-form label-position="right" label-width="200px" size="mini">
                   <el-form-item label="镜像方式">
-                    {{valueToShow(selected.service.image.typeName)}}
-                    <span style="padding-left: 12px; font-weight: bold">基础镜像地址</span><span>{{selected.service.image.location}} </span>
-                    <i class="el-icon-edit" @click="handleChangeProp('image')"></i>
+                    <span>{{valueToShow(selected.service.image.typeName)}}</span>
+                    <span style="padding-left: 12px; font-weight: bold">基础镜像地址</span>
+                    <span>{{selected.service.image.location}} </span>
+                    <i v-if="!$storeHelper.notPermitted['service_update_image']"
+                       class="el-icon-edit" @click="handleChangeProp('image')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab_ssh地址">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.gitLabAddress)}}
                     </div>
-                    <i class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
+                    <i v-if="!$storeHelper.notPermitted['service_update_gitLab_address']"
+                       class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab分支">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.gitLabBranch)}}
                     </div>
-                    <i class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
+                    <i v-if="!$storeHelper.notPermitted['service_update_gitLab_branch']"
+                       class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
                   </el-form-item>
                   <el-form-item label="Gitlab父级pom.xml相对路径" v-if="selectedApp.isJavaLanguage" class="relativePathOfParentPOM">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
@@ -202,7 +211,8 @@
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.mavenProfileId)}}
                     </div>
-                    <i class="el-icon-edit" @click="handleChangeProp('mavenProfileId')"></i>
+                    <i v-if="!$storeHelper.notPermitted['service_update_maven_profile_id']"
+                       class="el-icon-edit" @click="handleChangeProp('mavenProfileId')"></i>
                   </el-form-item>
                 </el-form>
               </div>
@@ -210,8 +220,9 @@
                 <div class="title">服务信息</div>
                 <el-form label-position="right" label-width="140px" inline size="mini">
                   <el-form-item label="CPU/内存">
-                    {{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}
-                    <i class="el-icon-edit" @click="handleChangeProp('cpuAndMemory')"></i>
+                    <span>{{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}</span>
+                    <i v-if="!$storeHelper.notPermitted['service_update_cpu_and_memory']"
+                       class="el-icon-edit" @click="handleChangeProp('cpuAndMemory')"></i>
                   </el-form-item>
                   <el-form-item label="实例数量">
                     {{valueToShow(selected.service.instanceNum)}}
@@ -237,7 +248,8 @@
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}
                     </div>
-                    <i class="el-icon-edit" @click="handleChangeProp('vmOptions')"></i>
+                    <i v-if="!$storeHelper.notPermitted['service_update_vm_options']"
+                       class="el-icon-edit" @click="handleChangeProp('vmOptions')"></i>
                   </el-form-item>
                   <el-form-item label="环境变量配置" class="big">
                     <div v-if="selected.service.environments && selected.service.environments.length > 0">
@@ -245,7 +257,8 @@
                         <el-col :span="10" style="font-weight: bold;text-align: center">Key</el-col>
                         <el-col :span="10" style="font-weight: bold;text-align: center">Value</el-col>
                         <el-col :span="4" style="font-weight: bold;text-align: left">
-                          <i class="el-icon-edit" @click="handleChangeProp('environments')"></i>
+                          <i v-if="!$storeHelper.notPermitted['service_update_environment']"
+                             class="el-icon-edit" @click="handleChangeProp('environments')"></i>
                         </el-col>
                       </el-row>
                       <el-row
@@ -262,7 +275,8 @@
                     </div>
                     <div v-else>
                       <span>未设置</span>
-                      <i class="el-icon-edit" @click="handleChangeProp('environments')"></i>
+                      <i v-if="!$storeHelper.notPermitted['service_update_environment']"
+                         class="el-icon-edit" @click="handleChangeProp('environments')"></i>
                     </div>
                   </el-form-item>
                   <el-form-item label="Host配置" class="big">
@@ -271,7 +285,8 @@
                         <el-col :span="10" style="font-weight: bold; text-align: center">IP</el-col>
                         <el-col :span="10" style="font-weight: bold; text-align: center">域名</el-col>
                         <el-col :span="4" style="font-weight: bold;text-align: left">
-                          <i class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
+                          <i v-if="!$storeHelper.notPermitted['service_update_host']"
+                             class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
                         </el-col>
                       </el-row>
                       <el-row
@@ -285,7 +300,8 @@
                     </div>
                     <div v-else>
                       <span>未设置</span>
-                      <i class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
+                      <i v-if="!$storeHelper.notPermitted['service_update_host']"
+                         class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
                     </div>
                   </el-form-item>
                 </el-form>
