@@ -77,10 +77,17 @@
         </el-table-column>
         <el-table-column
                 prop="requestGroupName"
-                label="授权访问团队"
+                label="授权团队 / 应用"
                 width="120"
                 headerAlign="center" align="center"
         >
+          <template slot-scope="scope">
+            <div>
+              <span>{{scope.row.requestGroupName}}</span>
+              <span style="color: #409EFF; font-weight: bold">/</span>
+              <span>{{scope.row.requestApplicationName}}</span>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
                 prop="requestGroupName"
@@ -95,8 +102,8 @@
               </div>
             </div>
             <div v-else>
-              <div>{{scope.row.detailList[0].oauth}}/{{scope.row.detailList[0].resource}}</div>
-              <div>{{scope.row.detailList[1].oauth}}/{{scope.row.detailList[1].resource}}</div>
+              <div>{{scope.row.detailList[0].oauth}} <span style="color: #409EFF; font-weight: bold">/</span> {{scope.row.detailList[0].resource}}</div>
+              <div>{{scope.row.detailList[1].oauth}} <span style="color: #409EFF; font-weight: bold">/</span> {{scope.row.detailList[1].resource}}</div>
               <el-tooltip slot="trigger" effect="dark" placement="bottom">
                 <div slot="content">
                   <div v-for="(item, index) in scope.row.detailList">
