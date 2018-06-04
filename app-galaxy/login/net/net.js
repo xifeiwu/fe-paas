@@ -43,7 +43,7 @@ class Net extends NetBase {
           router: '/monitor',
           icon: 'my-icon-monitor'
         },
-        "Access Key管理": {
+        "Oauth权限": {
           router: '/oauth',
           icon: 'my-icon-key'
         },
@@ -72,9 +72,15 @@ class Net extends NetBase {
       }).filter(it => {
         return menuToIgnore.indexOf(it.name) === -1;
       }).map(it => {
-        if (it.hasOwnProperty('children')) {
-          delete it.children;
+        if (it.name === 'Oauth权限') {
+          it.name = 'Access Key管理';
         }
+        it.hasOwnProperty('children') && delete it.children;
+        it.hasOwnProperty('createTime') && delete it.createTime;
+        it.hasOwnProperty('permissionType') && delete it.permissionType;
+        it.hasOwnProperty('updateTime') && delete it.updateTime;
+        it.hasOwnProperty('updateTime') && delete it.updateTime;
+        it.hasOwnProperty('parentId') && delete it.parentId;
         return it;
       });
     }

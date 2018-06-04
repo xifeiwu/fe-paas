@@ -1,6 +1,6 @@
 {
   "name": "@paas/fe-paas",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "front-endt of paas platform",
   "main": "index.js",
   "scripts": {
