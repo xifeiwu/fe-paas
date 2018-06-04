@@ -12,7 +12,7 @@
               <div>1. 如果一个应用下有正在处理的工单，则不可以提交新的工单</div>
               <div>2. 如果工单超过三个小时没有更新状态，则会被系统更改为结束</div>
             </div>
-            <span class="tool-tip-text">工单处理逻辑<i class="el-icon-question"></i></span>
+            <span class="helper-text-tool-tip">工单处理逻辑<i class="el-icon-question"></i></span>
           </el-tooltip>
         </div>
         <el-col :span="18" class="selector">

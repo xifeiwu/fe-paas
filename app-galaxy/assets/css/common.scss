@@ -15,7 +15,7 @@
   line-height: 1.2;
 }
 
-.tool-tip-text {
+.helper-text-tool-tip {
   color: #E6A23C;
   font-size: 12px;
   line-height: 14px;
@@ -27,6 +27,23 @@
   font-weight: bold;
   &:hover {
     border: 1px solid #F56C6C;
+  }
+}
+
+.helper-text-expanded {
+  font-size: 12px;
+  line-height: 14px;
+  color: #E6A23C;
+  padding: 3px 5px;
+  border: 1px solid #F56C6C;
+  border-radius: 6px;
+  text-align: left;
+  .title {
+    font-weight: bold;
+  }
+  .item {
+    margin-left: 12px;
+    text-indent: -12px;
   }
 }
 

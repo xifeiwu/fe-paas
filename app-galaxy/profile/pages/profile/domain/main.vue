@@ -28,7 +28,6 @@
                 size="mini-extral"
                 type="warning"
                 @click="handleButtonClick('open-bind-service-dialog')"
-                :disabled="!isProfileSelected"
         >绑定服务
         </el-button>
         <el-button
@@ -44,7 +43,7 @@
             <div>2. 点击"绑定服务"和"解绑服务"按钮前，需要选择要操作的外网域名</div>
             <div>3. 绑定服务时，运行环境不能选择"全部"</div>
           </div>
-          <span class="tool-tip-text" style="margin-top: 1px">域名处理逻辑<i class="el-icon-question"></i></span>
+          <span class="helper-text-tool-tip" style="margin-top: 1px">域名处理逻辑<i class="el-icon-question"></i></span>
         </el-tooltip>
       </div>
     </div>
@@ -121,7 +120,7 @@
     </div>
 
     <el-dialog :title="domainProps.showResponse?'创建外网域名结果':'创建外网二级域名'" :visible="currentOpenedDialog == 'add-domain'"
-               :class="{'add-domain': true, 'show-response': domainProps.showResponse}"
+               :class="{'add-domain': true, 'size-700': true, 'show-response': domainProps.showResponse}"
                @close="handleButtonClickInDialog('close-domain-in-dialog')"
     >
       <!--<el-tag type="success" disable-transitions>-->
@@ -186,7 +185,7 @@
     </el-dialog>
 
     <el-dialog title="绑定服务" :visible="currentOpenedDialog == 'bind-service'"
-               :class="{'bind-service': true, 'show-response': bindServiceProps.showResponse}"
+               :class="{'bind-service': true, 'size-800': true, 'show-response': bindServiceProps.showResponse}"
                @close="currentOpenedDialog = null"
     >
       <div v-if="bindServiceProps.showResponse">
@@ -206,18 +205,26 @@
         <my-version-condition-filter ref="version-selector-in-bind-service-dialog"
                                      :fixedInfo="fixedInfoForVersionCondition"
                                      :addItemAll="{service: true}"
+                                     @service-condition-changed="handleConditionChangeInDialog"
         >
         </my-version-condition-filter>
-        <div class="selected-domain">
-          <div>所选外网域名</div>
-          <div>
+        <el-form labelWidth="90px" class="selected-domain">
+          <el-form-item label="所选外网域名">
             <el-tag
                     v-for="(item, index) in rowsSelected"
                     :key="index"
                     type="success"
                     size="small"
             >{{item['internetDomain']}}</el-tag>
-          </div>
+          </el-form-item>
+          <el-form-item label="提示">
+            {{bindServiceProps.bindTipForApp}}
+          </el-form-item>
+        </el-form>
+        <div class="helper-text-expanded" style="margin-top: 3px;">
+          <div class="title">域名绑定服务规则<i class="el-icon-question"></i></div>
+          <div class="item">1. 所选版本为全部时，所选域名会作为该应用的全局域名，指向应用的默认服务版本。</div>
+          <div class="item">2. 所选版本为特定版本时，所选域名只会绑定到所选服务版本上。</div>
         </div>
       </div>
       <div slot="footer" class="dialog-footer" v-if="!bindServiceProps.showResponse">
@@ -235,7 +242,7 @@
     </el-dialog>
 
     <el-dialog title="解绑服务" :visible="currentOpenedDialog == 'unbind-service'"
-               :class="{'unbind-service': true, 'show-response': unBindServiceProps.showResponse}"
+               :class="{'unbind-service': true, 'size-750': true, 'show-response': unBindServiceProps.showResponse}"
                @close="currentOpenedDialog = null"
     >
       <div v-if="unBindServiceProps.showResponse">
@@ -294,8 +301,6 @@
         .el-dialog {
           width: 100%;
         }
-        width: 80%;
-        max-width: 700px;
         margin: 15px auto;
         .el-form {
           .el-form-item__content {
@@ -340,19 +345,21 @@
         .profile-version-condition-filter {
           text-align: left;
         }
-        .selected-domain {
-          margin-top: 3px;
-          div:nth-child(1) {
-            width: 100px;
-            text-align: left;
-            float: left;
-            text-overflow: ellipsis;
-            word-wrap: break-word;
-            word-break: break-all;
-          }
-          div:nth-child(2) {
-            margin-left: 100px;
-            text-align: left;
+        .el-form.selected-domain {
+          margin-top: 5px;
+          .el-form-item {
+            margin-bottom: 5px;
+            .el-form-item__label {
+              padding-right: 5px;
+              line-height: 25px;
+            }
+            .el-form-item__content {
+              line-height: 25px;
+              .el-tag {
+                margin: 2px 3px;
+                padding: 0px 2px;
+              }
+            }
           }
         }
         &.show-response {
@@ -369,7 +376,7 @@
                 font-weight: bold;
                 text-align: center;
               }
-              width: 160px;
+              width: 220px;
               text-align: center;
               float: left;
               text-overflow: ellipsis;
@@ -381,7 +388,7 @@
                 font-weight: bold;
                 text-align: center;
               }
-              margin-left: 180px;
+              margin-left: 228px;
               text-align: center;
             }
           }
@@ -544,7 +551,8 @@
         },
         bindServiceProps: {
           showResponse: false,
-          serverResponse: {}
+          serverResponse: {},
+          bindTipForApp: '',
         },
         unBindServiceProps: {
           showResponse: false,
@@ -561,7 +569,7 @@
           id: null,
         },
         // whether bind button is enabled
-        isProfileSelected: false,
+//        isProfileSelected: false,
 
         currentOpenedDialog: null,
 
@@ -600,7 +608,7 @@
     watch: {
       'domainProps.profileName': 'onProfileChangeInCreateDomainDialog',
       'profileInfo.id': function (id) {
-        this.isProfileSelected = id !== this.$storeHelper.PROFILE_ID_FOR_ALL;
+//        this.isProfileSelected = id !== this.$storeHelper.PROFILE_ID_FOR_ALL;
         this.fixedInfoForVersionCondition.id = id;
       },
       'currentGroupID': function () {
@@ -807,6 +815,10 @@
             });
             break;
           case 'open-bind-service-dialog':
+            if (this.profileInfo.id === this.$storeHelper.PROFILE_ID_FOR_ALL) {
+              this.$message.warning('运行环境为"全部"的情况下，不能进行绑定服务操作。请先将运行环境切换为其它运行环境！');
+              return;
+            }
             this.bindServiceProps.showResponse = false;
             if (this.rowsSelected.length == 0) {
               this.$message.warning('请先选择要操作的域名');
@@ -1022,6 +1034,14 @@
             domainToAdd.push(itemToAdd);
             this.domainProps.level2Name = '';
             break;
+        }
+      },
+
+      handleConditionChangeInDialog(profile, app, service) {
+        if (service.id === this.$storeHelper.SERVICE_ID_FOR_ALL) {
+          this.bindServiceProps.bindTipForApp = `所选外网域名会作为全局域名，绑定到应用"${app.appName}"的"${profile.description}"的默认服务下。`;
+        } else {
+          this.bindServiceProps.bindTipForApp = `所选外网域名会绑定到应用"${app.appName}"的"${profile.description}"的版本为"${service.serviceVersion}"的服务下。`;
         }
       },
 

@@ -38,7 +38,7 @@
             <div slot="content">
               <div>每次创建的服务版本信息为所在应用创建时的配置信息</div>
             </div>
-            <span class="tool-tip-text" style="font-size: 12px">相关提示<i class="el-icon-question" ></i></span>
+            <span class="helper-text-tool-tip" style="font-size: 12px">相关提示<i class="el-icon-question" ></i></span>
           </el-tooltip>
         </div>
       </el-row>

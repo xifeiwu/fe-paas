@@ -228,11 +228,11 @@
           </el-row>
         </el-form-item>
       </el-form>
-      <div class="rule-4-add-authorize-url">
+      <div class="helper-text-expanded">
         <div class="title">添加授权URL规则<i class="el-icon-question"></i></div>
         <div class="item">1. 必须填写已创建的Access Key</div>
-        <div class="item">2. 50个字符以内。所属权限分为两部分：Access Key部分，自定义部分。两者之间以.分割。Access Key部分必须为当前所写Access Key；自定义部分只能包括小写字母。如，galaxy-WrJhXCOo.abcdef。</div>
-        <div class="item">3. 50个字符以内。资源URL，必须以/开头，路径可以包含字母、数字、*、/。多个路径之间以,分割。如，/a/1/C,/**/d</div>
+        <div class="item">2. 所属权限分为两部分：Access Key部分，自定义部分，两者之间以.分割。Access Key部分必须为当前所写Access Key；自定义部分只能包括小写字母；50个字符以内。如，galaxy-WrJhXCOo.abcdef。</div>
+        <div class="item">3. 资源URL，必须以/开头，路径可以包含字母、数字、*、/。多个路径之间以,分割。50个字符以内。如，/a/1/C,/**/d</div>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-row>
@@ -291,22 +291,6 @@
               }
             }
           }
-        }
-      }
-      .rule-4-add-authorize-url {
-        font-size: 12px;
-        line-height: 14px;
-        color: #E6A23C;
-        padding: 3px 5px;
-        border: 1px solid #F56C6C;
-        border-radius: 6px;
-        text-align: left;
-        .title {
-          font-weight: bold;
-        }
-        .item {
-          margin-left: 12px;
-          text-indent: -12px;
         }
       }
     }
