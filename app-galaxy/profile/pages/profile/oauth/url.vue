@@ -78,7 +78,6 @@
         <el-table-column
                 prop="requestGroupName"
                 label="授权团队 / 应用"
-                width="120"
                 headerAlign="center" align="center"
         >
           <template slot-scope="scope">
