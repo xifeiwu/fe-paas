@@ -41,7 +41,7 @@ const state = {
   // 侧边栏
   menuList: null,
   // 权限相关
-  permission: JSON.parse(localStorage.getItem('user/permission')),
+  permission: JSON.parse(localStorage.getItem('user/permission')) ? JSON.parse(localStorage.getItem('user/permission')) : {},
   // 在spa页面传递数据
   spaDataTransfer: null,
 };

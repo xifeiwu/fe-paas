@@ -49,6 +49,16 @@ class Net extends NetBase {
       axios.all([getPermissionMap(), getNotPermitted()]).then(axios.spread((permissionMapRes, notPermittedRes) => {
         let permissionMapListOrigin = this.getResponseContent2(permissionMapRes);
         let notPermittedListOrigin = this.getResponseContent2(notPermittedRes);
+        notPermittedListOrigin = notPermittedListOrigin.map(it => {
+          it.hasOwnProperty('id') && delete it.id;
+          it.hasOwnProperty('parentId') && delete it.parentId;
+          it.hasOwnProperty('createTime') && delete it.createTime;
+          it.hasOwnProperty('updateTime') && delete it.updateTime;
+          it.hasOwnProperty('permissionType') && delete it.permissionType;
+          return it;
+        });
+        // console.log(permissionMapListOrigin);
+        // console.log(notPermittedListOrigin);
         let notPermittedList = [];
 
         // some permissionPath do not related to any url are list bellow
@@ -78,7 +88,7 @@ class Net extends NetBase {
           let find = false;
           permissionMapListOrigin.forEach(it2 => {
             if (it.path === it2['permissionPath']) {
-              notPermittedList.push(Object.assign(it, {url: it2.url, method: it2.method}));
+              notPermittedList.push(Object.assign({}, it, {url: it2.url, method: it2.method}));
               find = true;
             }
           });
@@ -89,6 +99,8 @@ class Net extends NetBase {
             notPermittedList.push(it);
           }
         });
+        // console.log(notPermittedList);
+
         // add key by URL_LIST
         for (let key in URL_LIST) {
           let item = URL_LIST[key];
@@ -112,16 +124,15 @@ class Net extends NetBase {
           })
         }
 
-        let result = notPermittedList.map(it => {
-          if (it.hasOwnProperty('key')) {
-            return it['key'];
-          }
+        let result = notPermittedList.filter(it => {
+          return it.hasOwnProperty('key') && it.key;
+        }).map(it => {
+          return it['key'];
         });
 
-        // console.log(permissionMapListOrigin);
-        // console.log(notPermittedListOrigin);
         // console.log(notPermittedList);
         // console.log(notPermittedMap);
+        // console.log(result);
         resolve(result);
       })).catch(err => {
         reject([]);
