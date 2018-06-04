@@ -69,7 +69,7 @@
             <div v-else>{{scope.row.createTime}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="运行环境" prop="profileList" minWidth="90" headerAlign="center" align="center">
+        <el-table-column label="运行环境" prop="profileList" minWidth="120" headerAlign="center" align="center">
           <template slot-scope="scope">
               <span v-for="item in profileListOfGroup" :label="item.name" :key="item.name"
                     :class="{'profile-item': true, 'active': scope.row.profileNames.indexOf(item.name) > -1}"
