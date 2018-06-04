@@ -66,6 +66,11 @@
                 label="外网二级域名">
         </el-table-column>
         <el-table-column
+                prop="profileDesc"
+                headerAlign="center" align="center"
+                label="运行环境">
+        </el-table-column>
+        <el-table-column
                 prop="createTime"
                 label="创建时间"
                 headerAlign="center" align="center"
@@ -715,8 +720,17 @@
             this.totalSize = content['total'];
           }
           if (content.hasOwnProperty('internetDomainList')) {
-            this.currentDomainList = content['internetDomainList'];
+            this.currentDomainList = content['internetDomainList'].map(it => {
+              if (it.hasOwnProperty('spaceId')) {
+                let profileInfo = this.$storeHelper.getProfileInfoByID(it.spaceId);
+                if (profileInfo.hasOwnProperty('description')) {
+                  it.profileDesc = profileInfo.description;
+                }
+              }
+              return it;
+            })
           }
+
           this.showLoading = false;
         }).catch(err => {
           this.showLoading = false;
