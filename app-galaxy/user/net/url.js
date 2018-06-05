@@ -17,6 +17,10 @@ class URL extends BaseURL {
       'group_list': {
         url: API_PATH + '/group/queryAllGroup',
         path: '/group/queryAllGroup'
+      },
+      'group_numbers': {
+        url: API_PATH + '/group/users',
+        path: '/group/users'
       }
     };
   }

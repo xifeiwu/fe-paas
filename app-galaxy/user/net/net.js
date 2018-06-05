@@ -34,6 +34,7 @@ class Net extends NetBase {
     })
   }
 
+  // 获取组列表
   getGroupList() {
     return new Promise((resolve, reject) => {
       axios.get(URL_LIST.group_list.url).then(response => {
@@ -47,6 +48,22 @@ class Net extends NetBase {
       }).catch(err => {
         reject(err);
         console.log(err);
+      })
+    })
+  }
+
+  // 获取组成员
+  getGroupNumbers(data) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.group_numbers.url, data).then(response => {
+        let content = this.getResponseContent(response);
+        if (content && content.hasOwnProperty('groupUserList')) {
+          resolve(content['groupUserList']);
+        } else {
+          reject([]);
+        }
+      }).catch(err => {
+        reject(err);
       })
     })
   }
