@@ -144,6 +144,7 @@
 
     <el-dialog title="更改运行环境" :visible="selected.prop == 'profileNames'"
                @close="selected.prop = null; waitingResponse=false"
+               class="change-profile"
                v-if="selected.app && selected.model"
     >
       <el-tag type="danger" disable-transitions>
@@ -182,13 +183,27 @@
       <div slot="footer" class="dialog-footer">
         <el-row>
           <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleDialogButton('profileNames')"
-                       :loading="waitingResponse">保&nbsp存</el-button>
+            <el-popover
+                    width="200"
+                    v-model="profileChangeStatus.openPopover"
+                    placement="right"
+                    trigger="manual"
+                    popperClass="el-popover--small">
+              <p style="color: #fa5555">{{profileChangeStatus.popperContent}}</p>
+              <div style="text-align: right; margin: 0">
+                <el-button size="mini" type="text" @click="handlePopoverButton('cancel-update-profile-name')">取消</el-button>
+                <el-button type="danger" size="mini-extral"
+                           @click="handlePopoverButton('update-profile-name')">确定</el-button>
+              </div>
+              <el-button type="primary"
+                         slot="reference"
+                         @click="handleDialogButton('profileNames')"
+                         :loading="waitingResponse">保&nbsp存</el-button>
+            </el-popover>
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button action="profile-dialog/cancel"
-                       @click="selected.prop = null">取&nbsp消</el-button>
+                       @click="selected.prop = null; profileChangeStatus.openPopover = false">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
@@ -198,6 +213,27 @@
 
 <style lang="scss">
   #app-main {
+    .el-dialog__wrapper {
+      &.change-profile {
+        .el-tag {
+          text-align: left;
+          height: 20px;
+          line-height: 20px;
+          box-sizing: content-box;
+          display: block;
+          padding: 0px 3px;
+        }
+        .el-form {
+          margin-top: 10px;
+          .el-tag {
+            margin-right: 3px;
+          }
+          .el-form-item {
+            margin-bottom: 10px;
+          }
+        }
+      }
+    }
     .app-list {
       .el-table {
       }
@@ -309,13 +345,6 @@
       margin: 0px auto;
     }
   }
-
-  .el-form-item__label {
-    text-align: right;
-  }
-  .el-tag {
-    display: block;
-  }
 </style>
 <script>
   import AppPropUtils from '../utils/app-props';
@@ -391,7 +420,9 @@
         // used for dialog
         profileChangeStatus: {
           toAdd: [],
-          toDelete: []
+          toDelete: [],
+          openPopper: false,
+          popperContent: ''
         },
 
         filterMyApp: false,
@@ -601,10 +632,9 @@
               } else {
                 if (this.profileChangeStatus.toDelete.length > 0) {
                   let msg = '将要删除运行环境：' + this.profileChangeStatus.toDelete.map(it => {return it.description}).join(',');
-                  msg += '。将销毁该环境的代码和配置信息，解绑所有公网域名、IP白名单，且不可恢复。确定继续吗？'
-                  this.warningConfirm(msg).then(() => {
-                    this.requestServerForUpdate(prop);
-                  })
+                  msg += '。将销毁该环境的代码和配置信息，解绑所有公网域名、IP白名单，且不可恢复。确定继续吗？';
+                  this.profileChangeStatus.popperContent = msg;
+                  this.profileChangeStatus.openPopover = true;
                 } else {
                   this.requestServerForUpdate(prop);
                 }
@@ -817,6 +847,18 @@
       handlePaginationPageChange(page) {
         this.currentPage = page;
         this.requestAPPList({});
+      },
+
+      handlePopoverButton(action, tag) {
+        switch (action) {
+          case 'update-profile-name':
+            this.requestServerForUpdate('profileNames');
+            this.profileChangeStatus.openPopover = false;
+            break;
+          case 'cancel-update-profile-name':
+            this.profileChangeStatus.openPopover = false;
+            break;
+        }
       },
     }
   }
