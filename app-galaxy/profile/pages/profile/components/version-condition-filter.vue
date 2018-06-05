@@ -37,6 +37,9 @@
     .item {
       display: inline-block;
       margin-right: 3px;
+      .el-select {
+        max-width: 190px;
+      }
     }
   }
 </style>

@@ -46,10 +46,6 @@ class URL extends BaseURL {
         url: API_PATH + '/application/queryByPage',
         path: '/application/queryByPage'
       },
-      'user_info': {
-        url: API_PATH + '/group/queryByUser',
-        path: '/group/queryByUser'
-      },
       // 获取用户所在组列表
       'get_user_group_list': {
         url: API_PATH + '/group/queryByUser',

@@ -822,9 +822,10 @@ module.exports = {
             this.$message.error('信息不完整');
             return;
           }
-          if (!this.modifyAccessConfig.appID && this.appListOfCurrentGroup.length > 0) {
-            this.modifyAccessConfig.appID = this.appListOfCurrentGroup[0].appId;
-          }
+//          if (!this.modifyAccessConfig.appID && this.appListOfCurrentGroup.length > 0) {
+//            this.modifyAccessConfig.appID = this.appListOfCurrentGroup[0].appId;
+//          }
+          this.modifyAccessConfig.appID = this.appListOfCurrentGroup[0].appId;
           if (null == this.modifyAccessConfig.production) {
             this.modifyAccessConfig.production = false;
           }

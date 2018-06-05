@@ -222,11 +222,13 @@
                     size="small"
             >{{item['internetDomain']}}</el-tag>
           </el-form-item>
-          <el-form-item label="提示">
-            {{bindServiceProps.bindTipForApp}}
-          </el-form-item>
         </el-form>
         <div class="helper-text-expanded" style="margin-top: 3px;">
+          <div>
+            <div style="font-weight: bold">提示 <i class="el-icon-warning"></i></div>
+            <div>{{bindServiceProps.bindTipForApp}}</div>
+          </div>
+          <br>
           <div class="title">域名绑定服务规则<i class="el-icon-question"></i></div>
           <div class="item">1. 所选版本为全部时，所选域名会作为该应用的全局域名，指向应用的默认服务版本。</div>
           <div class="item">2. 所选版本为特定版本时，所选域名只会绑定到所选服务版本上。</div>
