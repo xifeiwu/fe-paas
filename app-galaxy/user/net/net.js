@@ -34,6 +34,23 @@ class Net extends NetBase {
     })
   }
 
+  getGroupList() {
+    return new Promise((resolve, reject) => {
+      axios.get(URL_LIST.group_list.url).then(response => {
+        let content = this.getResponseContent(response);
+        if (content) {
+          resolve(content);
+        } else {
+          let responseMsg = this.getResponseMsg(response);
+          reject(responseMsg);
+        }
+      }).catch(err => {
+        reject(err);
+        console.log(err);
+      })
+    })
+  }
+
 }
 
 export default new Net();

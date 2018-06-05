@@ -1,6 +1,6 @@
 <template>
   <div>
-    暂无操作记录
+    团队操作
   </div>
 </template>
 

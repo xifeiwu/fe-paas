@@ -5,6 +5,7 @@ Vue.use(VueRouter);
 
 import UserInfo from './user/info.vue';
 import UserOperaion from './user/operation.vue';
+import ManageGroup from './user/group.vue';
 
 export default class RouterConfig {
   constructor(Vue) {
@@ -21,6 +22,10 @@ export default class RouterConfig {
         path: '/operation',
         name: '操作记录',
         component: UserOperaion
+      }, {
+        path: '/group',
+        name: '团队管理',
+        component: ManageGroup
       }
     ];
     this._vueRouter = new VueRouter({

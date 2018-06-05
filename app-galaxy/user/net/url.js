@@ -14,6 +14,10 @@ class URL extends BaseURL {
     this.URL_LIST = {
       // 用户退出
       'logout': API_PATH + '/userLogout',
+      'group_list': {
+        url: API_PATH + '/group/queryAllGroup',
+        path: '/group/queryAllGroup'
+      }
     };
   }
 

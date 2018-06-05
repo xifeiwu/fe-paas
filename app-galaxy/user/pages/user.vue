@@ -44,11 +44,12 @@
     height: 100%;
     .content {
       flex: 1;
+      height: calc(100% - 55px);
       .container {
         display: flex;
         margin: 0px auto;
-        margin-top: 18px;
-        height: calc(100% - 18px);
+        margin-top: 10px;
+        height: calc(100% - 10px);
         @media (min-width: 992px) {
           max-width: 990px;
         }
@@ -57,11 +58,11 @@
         }
         .left {
           flex: 0 0 25%;
-          padding: 0px 15px;
+          padding: 0px 8px;
           box-sizing: border-box;
           .user-info {
             background-color: white;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             border: 1px solid rgba(0, 0, 0, 0.125);
             background-clip: border-box;
             .bg {
@@ -95,7 +96,7 @@
           .commands {
             padding: 16px;
             background-color: white;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             border: 1px solid rgba(0, 0, 0, 0.125);
             ul {
               margin-left: 20px;
@@ -125,14 +126,12 @@
         }
         .right {
           flex: 0 0 75%;
-          padding: 0px 15px;
+          padding: 0px 8px;
           box-sizing: border-box;
           .detail {
-            min-height: 600px;
-            max-height: calc(100% - 5px);
+            height: calc(100% - 5px);
             box-sizing: border-box;
             background-color: white;
-            margin-bottom: 15px;
             border: 1px solid rgba(0, 0, 0, 0.125);
           }
         }
@@ -169,6 +168,11 @@
         }, {
           name: "操作记录",
           route: "/operation",
+          icon: "my-icon-log",
+          isActive: false,
+        }, {
+          name: "团队管理",
+          route: "/group",
           icon: "my-icon-log",
           isActive: false,
         }]
