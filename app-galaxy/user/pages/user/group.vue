@@ -61,9 +61,9 @@
                             size="mini-extral"
                             type="info"
                             round
-                            @click="handleTRButton('change-jobs', scope.$index, scope.row)"
+                            @click="handleTRButton('change-roles', scope.$index, scope.row)"
                             :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
-                            :loading="statusOfWaitingResponse('change-jobs') && operation.row.id == scope.row.id">
+                            :loading="statusOfWaitingResponse('change-roles') && operation.row.id == scope.row.id">
                       <span>修改岗位</span>
                     </el-button>
                     <el-button
@@ -93,9 +93,9 @@
       </div>
     </div>
 
-    <el-dialog title="更改岗位" :visible="operation.name == 'change-jobs'"
+    <el-dialog title="更改岗位" :visible="operation.name == 'change-roles'"
                @close="operation.name = null;"
-               class="size-750 change-jobs"
+               class="size-750 change-roles"
     >
       <el-form :model="operation.newProps" :rules="rules" labelWidth="96px" size="mini" ref="changeJobsForm">
         <el-form-item label="当前岗位为">
@@ -115,7 +115,7 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleDialogButton('change-jobs')"
+                       @click="handleDialogButton('change-roles')"
                        >保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -171,7 +171,7 @@
     }
 
     .el-dialog__wrapper {
-      &.change-jobs {
+      &.change-roles {
         .el-tag {
           margin-right: 3px;
         }
@@ -332,15 +332,16 @@
             });
 
             break;
-          case 'change-jobs':
+          case 'change-roles':
+//            console.log(row);
             if (!row.hasOwnProperty('jobNames') || !row.hasOwnProperty('jobDescriptions')) {
               this.$message.warning('信息不完整');
               return;
             }
             this.operation.newProps.jobNames = JSON.parse(JSON.stringify(row.jobNames));
             this.operation.newProps.jobDescriptions = JSON.parse(JSON.stringify(row.jobDescriptions));
-            this.operation.name = action;
             this.operation.row = row;
+            this.operation.name = action;
             break;
           case 'remove-group-number':
             break;
@@ -348,10 +349,43 @@
       },
       handleDialogButton(action) {
         switch (action) {
-          case 'change-jobs':
+          case 'change-roles':
+            this.$refs['changeJobsForm'].validate((valid) => {
+              if (!valid) {
+                return;
+              }
+              if (this.$utils.theSame(this.operation.newProps['jobNames'], this.operation.row['jobNames'])) {
+                this.operation.name = null;
+                this.$message({
+                  type: 'warning',
+                  message: '您没有做修改'
+                });
+              } else {
+                this.requestServerForUpdate(action);
+              }
+//              console.log(this.operation.newProps.jobNames);
+//              console.log(valid);
+            });
             break;
         }
       },
+
+      requestServerForUpdate(action) {
+        switch (action) {
+          case 'change-roles':
+            this.$net.changeGroupNumberRoles({
+              userId: this.operation.row.userId,
+              groupId: this.operation.row.groupId,
+              jobs: this.operation.newProps['jobNames'].join(',')
+            }).then(res => {
+              this.operation.name = null;
+
+            });
+            break;
+        }
+
+      },
+
       handlePaginationPageChange() {
       }
     }

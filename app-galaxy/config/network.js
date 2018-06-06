@@ -90,7 +90,7 @@ class NetworkConfig {
       if (this.getContentTypeList(response).indexOf('application/octet-stream') > -1) {
         return response;
       } else {
-        if (response && 'data' in response && 'code' in response.data) {
+        if (response && response.hasOwnProperty('data') && response.data.hasOwnProperty('code')) {
           let statueCode = response.data.code;
           if (0 === statueCode) {
             if ('token' in response.headers && currentToken !== response.headers['token']) {

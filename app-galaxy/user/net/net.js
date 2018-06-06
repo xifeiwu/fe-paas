@@ -92,6 +92,15 @@ class Net extends NetBase {
     })
   }
 
+  changeGroupNumberRoles(data) {
+    return new Promise((resolve, reject) => {
+      axios.put(URL_LIST.group_number_change_roles.url, data).then(response => {
+        console.log(response);
+        resolve(response);
+      })
+    })
+  }
+
 }
 
 export default new Net();

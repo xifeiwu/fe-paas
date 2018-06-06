@@ -21,6 +21,10 @@ class URL extends BaseURL {
       'group_numbers': {
         url: API_PATH + '/group/users',
         path: '/group/users'
+      },
+      'group_number_change_roles': {
+        url: API_PATH + '/group/user/updateJob',
+        path: '/group/user/updateJob'
       }
     };
   }
