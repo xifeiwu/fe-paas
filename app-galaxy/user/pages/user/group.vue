@@ -377,13 +377,39 @@
               userId: this.operation.row.userId,
               groupId: this.operation.row.groupId,
               jobs: this.operation.newProps['jobNames'].join(',')
-            }).then(res => {
-              this.operation.name = null;
-
+            }).then(msg => {
+              this.$message.success('修改成功！');
+              this.updateModelInfo(action);
+            }).catch(errMsg => {
+              this.$message.error('修改失败！');
             });
             break;
         }
 
+      },
+
+      updateModelInfo(action) {
+        switch (action) {
+          case 'change-roles':
+            let row = this.operation.row;
+            let newProps = this.operation.newProps;
+
+            let allJobsMap = {};
+            this.allJobs.forEach(it => {
+              allJobsMap[it.name] = it.description;
+            });
+            newProps['jobDescriptions'] = newProps['jobNames'].map(it => {
+              let desc = allJobsMap.hasOwnProperty(it) ? allJobsMap[it] : '';
+              return desc;
+            });
+
+            row['jobNames'] = this.$utils.cloneDeep(newProps['jobNames']);
+            row['jobDescriptions'] = this.$utils.cloneDeep(newProps['jobDescriptions']);
+            row['jobDescription'] = row['jobDescriptions'].join(',');
+
+            this.operation.name = null;
+            break;
+        }
       },
 
       handlePaginationPageChange() {

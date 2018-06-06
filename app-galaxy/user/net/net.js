@@ -102,11 +102,18 @@ class Net extends NetBase {
     })
   }
 
+  // 修改用户角色
   changeGroupNumberRoles(data) {
     return new Promise((resolve, reject) => {
       axios.put(URL_LIST.group_number_change_roles.url, data).then(response => {
-        console.log(response);
-        resolve(response);
+        // let content = this.getResponseContent(response);
+        let resMsg = this.getResponseMsg(response);
+        // console.log(resMsg);
+        if (resMsg.success) {
+          resolve(resMsg);
+        } else {
+          reject(resMsg);
+        }
       })
     })
   }
