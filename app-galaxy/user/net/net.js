@@ -118,6 +118,21 @@ class Net extends NetBase {
     })
   }
 
+  // 团队添加新成员
+  inviteGroupNumber(data) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.group_invite_new.url, data).then(response => {
+        let resMsg = this.getResponseMsg(response);
+        // console.log(resMsg);
+        if (resMsg.success) {
+          resolve(resMsg);
+        } else {
+          reject(resMsg);
+        }
+      })
+    })
+  }
+
 }
 
 export default new Net();

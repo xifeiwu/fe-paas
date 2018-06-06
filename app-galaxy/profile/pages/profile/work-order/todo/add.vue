@@ -505,7 +505,7 @@
        */
       handleMailGroup(action, mailGroup) {
         let mailGroupList = this.workOrderDetail.mailGroupList;
-        let mailReg = /^([\w-_]+(?:\.[\w-_]+)*)@((?:[a-z0-9]+(?:-[a-zA-Z0-9]+)*)+\.[a-z]{2,6})$/;
+        let mailReg = this.$utils.getReg('mail');
         switch (action) {
           case 'remove':
             mailGroupList.splice(mailGroupList.indexOf(mailGroup), 1);

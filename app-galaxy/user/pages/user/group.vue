@@ -38,8 +38,8 @@
             <el-button
                     v-if="!$storeHelper.notPermitted['invite_numbers']"
                     size="mini-extral"
-                    type="warning"
-                    @click="handleTRButton('change-profile-names', scope.$index, scope.row)">邀请成员</el-button>
+                    type="primary"
+                    @click="handleTRButton('invite-group-number', scope.$index, scope.row)">邀请成员</el-button>
           </template>
         </el-table-column>
         <el-table-column type="expand"
@@ -124,6 +124,35 @@
         </el-row>
       </div>
     </el-dialog>
+
+    <el-dialog title="邀请新成员" :visible="operation.name == 'invite-group-number'"
+               @close="operation.name = null;"
+               class="size-650 invite-group-number"
+    >
+      <el-form :model="inviteGroupNumberInfo" :rules="rules" labelWidth="120px" size="mini" ref="inviteGroupNumberForm">
+        <el-form-item label="请输入邮箱" prop="email">
+          <el-input v-model="inviteGroupNumberInfo.email"></el-input>
+        </el-form-item>
+        <el-form-item label="请输入成员岗位" prop="jobName">
+          <el-select v-model="inviteGroupNumberInfo.jobName" placeholder="请选择">
+            <el-option v-for="item in allJobs" :value="item.name" :label="item.description" :key="item.name" ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleDialogButton('invite-group-number')"
+            >保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button @click="operation.name = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -236,6 +265,11 @@
         expandRows: [],
         userList: [],
 
+        inviteGroupNumberInfo: {
+          email: '',
+          jobName: 'DEVELOP_ENGINEER'
+        },
+
         queueForWaitingResponse: [],
 
         allJobs: [{
@@ -255,10 +289,26 @@
           name: "PRODUCT_OWNER"
         }],
         jobNames: [],
+        emailReg: this.$utils.getReg('mail'),
         rules: {
           jobNames: [{
             required: true,
             message: '用户角色不能为空',
+          }],
+          email: [{
+            required: true,
+            message: '邮箱不能为空',
+          }, {
+            validator: (rule, values, callback) => {
+              let passed = true;
+              if (!this.emailReg.exec(values)) {
+                passed = false;
+                callback('邮箱格式不正确');
+              }
+              if (passed) {
+                callback();
+              }
+            }
           }]
         }
       }
@@ -333,13 +383,16 @@
 
             break;
           case 'change-roles':
-//            console.log(row);
             if (!row.hasOwnProperty('jobNames') || !row.hasOwnProperty('jobDescriptions')) {
               this.$message.warning('信息不完整');
               return;
             }
             this.operation.newProps.jobNames = JSON.parse(JSON.stringify(row.jobNames));
             this.operation.newProps.jobDescriptions = JSON.parse(JSON.stringify(row.jobDescriptions));
+            this.operation.row = row;
+            this.operation.name = action;
+            break;
+          case 'invite-group-number':
             this.operation.row = row;
             this.operation.name = action;
             break;
@@ -367,6 +420,13 @@
 //              console.log(valid);
             });
             break;
+          case 'invite-group-number':
+            this.$refs['inviteGroupNumberForm'].validate((valid) => {
+              if (!valid) {
+                return;
+              }
+            });
+            break;
         }
       },
 
@@ -382,6 +442,19 @@
               this.updateModelInfo(action);
             }).catch(errMsg => {
               this.$message.error('修改失败！');
+            });
+            break;
+          case 'invite-group-number':
+            this.$net.inviteGroupNumber({
+              groupId: this.operation.row.id,
+              emailString: this.inviteGroupNumberInfo.email,
+              job: this.inviteGroupNumberInfo.jobName
+            }).then(msg => {
+              this.$message.success('修改成功！');
+              this.operation.name = null;
+            }).catch(errMsg => {
+              this.$message.error('修改失败！');
+              this.operation.name = null;
             });
             break;
         }
