@@ -211,13 +211,17 @@
                 }
               });
             }).catch(err => {
-              this.$notify.error({
-                title: err.title,
-                message: err.msg,
-                duration: 0,
-                onClose: function () {
-                }
-              });
+              if (err.msg) {
+                this.$message({
+                  type: 'error',
+                  message: err.msg,
+                  duration: 500,
+                  onClose: () => {
+                    this.$storeHelper.logout();
+                    this.$utils.goToPath('/login?to=/user');
+                  }
+                });
+              }
             });
             break;
           case 'profile':

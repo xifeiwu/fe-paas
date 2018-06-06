@@ -152,7 +152,17 @@ class Net extends NetBase {
               msg = data.msg;
             }
             resolve(msg);
+          } else {
+            reject({
+              title: '退出失败',
+              msg: '服务器错误！'
+            });
           }
+        } else {
+          reject({
+            title: '退出失败',
+            msg: '服务器错误！'
+          });
         }
       }).catch(err => {
         reject(this.getMsgFromErrorResponse(err));

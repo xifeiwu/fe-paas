@@ -278,6 +278,7 @@
             this.$utils.goToPath('/user');
             break;
           case 'user/logout':
+
             this.$net.logout().then(msg => {
               this.$message({
                 type: 'success',
@@ -285,18 +286,21 @@
                 duration: 500,
                 onClose: () => {
                   this.$store.dispatch('user/logout');
-//                  this.$router.push('/login');
                   this.$utils.goToPath('/login?to=/profile');
                 }
               });
             }).catch(err => {
-              this.$notify.error({
-                title: err.title,
-                message: err.msg,
-                duration: 0,
-                onClose: function () {
-                }
-              });
+              if (err.msg) {
+                this.$message({
+                  type: 'error',
+                  message: err.msg,
+                  duration: 500,
+                  onClose: () => {
+                    this.$store.dispatch('user/logout');
+                    this.$utils.goToPath('/login?to=/user');
+                  }
+                });
+              }
             });
             break;
           case 'message':
