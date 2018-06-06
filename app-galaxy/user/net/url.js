@@ -29,6 +29,10 @@ class URL extends BaseURL {
       'group_invite_new': {
         url: API_PATH + '/group/addUser',
         path: '/group/addUser'
+      },
+      'group_remove_number': {
+        url: API_PATH + '/group/user/delete',
+        path: '/group/user/delete'
       }
     };
   }

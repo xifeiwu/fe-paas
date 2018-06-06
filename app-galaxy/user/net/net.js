@@ -133,6 +133,21 @@ class Net extends NetBase {
     })
   }
 
+  // 删除团队成员
+  removeGroupNumber(data) {
+    return new Promise((resolve, reject) => {
+      axios.delete(URL_LIST.group_remove_number.url, data).then(response => {
+        let resMsg = this.getResponseMsg(response);
+        // console.log(resMsg);
+        if (resMsg.success) {
+          resolve(resMsg);
+        } else {
+          reject(resMsg);
+        }
+      })
+    })
+  }
+
 }
 
 export default new Net();

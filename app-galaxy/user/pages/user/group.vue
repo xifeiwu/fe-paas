@@ -31,7 +31,7 @@
                     type="primary"
                     @click="handleTRButton('show-group-numbers', scope.$index, scope.row)"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
-                    :loading="statusOfWaitingResponse('show-group-numbers') && operation.rowID == scope.row.id">
+                    :loading="statusOfWaitingResponse('show-group-numbers') && operation.group.id == scope.row.id">
               <span>查看成员</span>
               <i class="el-icon-arrow-right"></i>
             </el-button>
@@ -337,16 +337,17 @@
             if (!row.hasOwnProperty('id')) {
               return;
             }
-            this.operation.row = row;
+            let group = row;
+            this.operation.group = row;
 
             // update expandRows
             let checkIfExpanded = () => {
               let hasExpanded = false;
-              if (!row.hasOwnProperty('id')) {
+              if (!group.hasOwnProperty('id')) {
                 hasExpanded = true;
                 return hasExpanded;
               }
-              let key = row.id;
+              let key = group.id;
               // close it if has expanded
               if (this.expandRows.indexOf(key) > -1) {
                 this.expandRows.splice(this.expandRows.indexOf(key), 1);
@@ -355,10 +356,10 @@
               return hasExpanded;
             };
             let updateExpandRows = () => {
-              if (!row.hasOwnProperty('id')) {
+              if (!group.hasOwnProperty('id')) {
                 return;
               }
-              let key = row.id;
+              let key = group.id;
               if (this.expandRows.indexOf(key) > -1) {
                 this.expandRows.splice(this.expandRows.indexOf(key), 1);
               } else {
@@ -373,14 +374,19 @@
 
             this.addToWaitingResponseQueue(action);
             this.userList = [];
-            this.$net.getGroupNumbers({id: row.id}).then(userList => {
+            this.$net.getGroupNumbers({id: group.id}).then(userList => {
               this.hideWaitingResponse(action);
               this.userList = userList;
               updateExpandRows();
             }).catch(err => {
               this.hideWaitingResponse(action);
             });
-
+            break;
+          case 'invite-group-number':
+            this.inviteGroupNumberInfo.email = '';
+            this.inviteGroupNumberInfo.jobName = 'DEVELOP_ENGINEER';
+            this.operation.group = row;
+            this.operation.name = action;
             break;
           case 'change-roles':
             if (!row.hasOwnProperty('jobNames') || !row.hasOwnProperty('jobDescriptions')) {
@@ -392,11 +398,21 @@
             this.operation.row = row;
             this.operation.name = action;
             break;
-          case 'invite-group-number':
+          case 'remove-group-number':
             this.operation.row = row;
             this.operation.name = action;
-            break;
-          case 'remove-group-number':
+            console.log(this.operation.group);
+            console.log(this.operation.row);
+            this.$net.removeGroupNumber({
+              groupId: this.operation.row.groupId,
+              userId: this.operation.row.userId
+            }).then(msg => {
+              this.$message.success('修改成功！');
+              this.operation.name = null;
+            }).catch(errMsg => {
+              this.$message.error('修改失败！');
+              this.operation.name = null;
+            });
             break;
         }
       },
@@ -423,9 +439,13 @@
           case 'invite-group-number':
             this.$refs['inviteGroupNumberForm'].validate((valid) => {
               if (!valid) {
+                console.log('格式不正确！');
                 return;
               }
+              this.requestServerForUpdate(action);
             });
+            break;
+          case 'remove-group-number':
             break;
         }
       },
@@ -446,7 +466,7 @@
             break;
           case 'invite-group-number':
             this.$net.inviteGroupNumber({
-              groupId: this.operation.row.id,
+              groupId: this.operation.group.id,
               emailString: this.inviteGroupNumberInfo.email,
               job: this.inviteGroupNumberInfo.jobName
             }).then(msg => {
