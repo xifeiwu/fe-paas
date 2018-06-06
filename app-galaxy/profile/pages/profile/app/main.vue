@@ -578,6 +578,8 @@
 
       // handle checkbox change in dialog
       handleCheckboxChangeForProfileNames(values) {
+        console.log(this.newProps.profileNames);
+        console.log(this.profileListOfGroup);
         let origin = this.selected.model.profileNames;
         let current = values;
         let toDelete = origin.filter(it => current.indexOf(it) === -1);

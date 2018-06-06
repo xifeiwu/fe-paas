@@ -58,11 +58,35 @@ class Net extends NetBase {
       axios.post(URL_LIST.group_numbers.url, data).then(response => {
         let content = this.getResponseContent(response);
         if (content && content.hasOwnProperty('groupUserList')) {
-          resolve(content['groupUserList']);
+          let userList = content['groupUserList'];
+          // add prop jobs to each user
+          userList.forEach(user => {
+            if (user.hasOwnProperty('jobName') && user.hasOwnProperty('jobDescription')) {
+              let names = user['jobName'].split(',');
+              let descriptions = user['jobDescription'].split(',');
+              user.jobNames = names;
+              user.jobDescriptions = descriptions;
+              if (names.length === descriptions.length) {
+                user.jobs = [];
+                names.forEach((it, index) => {
+                  user.jobs.push({
+                    name: it,
+                    desc: descriptions[index]
+                  })
+                });
+              } else {
+                console.log('length of name and description is different');
+              }
+            } else {
+              console.log('jobName or jobDescription is not found!');
+            }
+          });
+          resolve(userList);
         } else {
           reject([]);
         }
       }).catch(err => {
+        console.log(err);
         reject(err);
       })
     })
