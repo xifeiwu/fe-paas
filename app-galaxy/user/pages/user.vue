@@ -1,5 +1,5 @@
 <template>
-  <div id="user" class="main" direction="vertical">
+  <div id="user" class="main spa" direction="vertical">
     <paas-header-profile :userName="userName"  defaultActive="info"
                          @menu-click="handleHeaderMenuClick"></paas-header-profile>
     <div class="content">

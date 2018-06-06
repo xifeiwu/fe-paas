@@ -4,6 +4,8 @@
               v-loading="showLoading"
               stripe
               :height="heightOfGroupList"
+              :row-key="(row) => {return row.id}"
+              :expand-row-keys="expandRows"
               element-loading-text="加载中">
       <el-table-column label="团队名称" prop="name" headerAlign="center" align="center" width="100">
       </el-table-column>
@@ -27,6 +29,7 @@
                   size="mini-extral"
                   type="primary"
                   @click="handleTRButton('show-group-numbers', scope.$index, scope.row)"
+                  :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                   :loading="statusOfWaitingResponse('show-group-numbers') && operation.rowID == scope.row.id">
             <span>查看成员</span>
             <i class="el-icon-arrow-right"></i>
@@ -36,6 +39,41 @@
                   size="mini-extral"
                   type="warning"
                   @click="handleTRButton('change-profile-names', scope.$index, scope.row)">邀请成员</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column type="expand"
+                       v-if="true"
+                       width="0"
+      >
+        <template slot-scope="scope">
+          <div class="row-expand">
+            <el-table :data="userList">
+              <el-table-column label="用户名" prop="username" headerAlign="center" align="center" width="100">
+              </el-table-column>
+              <el-table-column label="真实项目" prop="realName" headerAlign="center" align="center" width="100">
+              </el-table-column>
+              <el-table-column label="岗位" prop="jobDescription" headerAlign="center" align="center">
+              </el-table-column>
+              <el-table-column label="操作" prop="operation" headerAlign="center" align="center" width="180">
+                <template slot-scope="scope">
+                  <el-button
+                          size="mini-extral"
+                          type="info"
+                          round
+                          @click="handleTRButton('change-job', scope.$index, scope.row)"
+                          :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
+                          :loading="statusOfWaitingResponse('show-group-numbers') && operation.rowID == scope.row.id">
+                    <span>修改岗位</span>
+                  </el-button>
+                  <el-button
+                          size="mini-extral"
+                          type="info"
+                          round
+                          @click="handleTRButton('remove-number', scope.$index, scope.row)">移除成员</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -59,6 +97,20 @@
   .group-list {
     height: 100%;
     .el-table {
+      tr .row-expand {
+        background-color: #fff;
+        box-sizing: border-box;
+        /*padding: 12px 8px;*/
+        width: 85%;
+        margin: 0px auto;
+        max-width: 750px;
+        box-shadow: 0 0 2px 0 rgba(64,158,255, .6);
+        .el-table {
+          td {
+            padding: 0px 0px;
+          }
+        }
+      }
       .el-table__row {
         .el-button {
           margin: 2px 4px;
@@ -133,6 +185,8 @@
           rowID: null,
           name: null,
         },
+        expandRows: [],
+        userList: [],
 
         queueForWaitingResponse: [],
       }
@@ -162,10 +216,46 @@
               return;
             }
             this.operation.rowID = row.id;
+
+            // update expandRows
+            let checkIfExpanded = () => {
+              let hasExpanded = false;
+              if (!row.hasOwnProperty('id')) {
+                hasExpanded = true;
+                return hasExpanded;
+              }
+              let key = row.id;
+              // close it if has expanded
+              if (this.expandRows.indexOf(key) > -1) {
+                this.expandRows.splice(this.expandRows.indexOf(key), 1);
+                hasExpanded = true;
+              }
+              return hasExpanded;
+            };
+            let updateExpandRows = () => {
+              if (!row.hasOwnProperty('id')) {
+                return;
+              }
+              let key = row.id;
+              if (this.expandRows.indexOf(key) > -1) {
+                this.expandRows.splice(this.expandRows.indexOf(key), 1);
+              } else {
+//                this.expandRows.push(key);
+                this.expandRows = [key];
+              }
+            };
+
+            if (checkIfExpanded()) {
+              return;
+            }
+
             this.addToWaitingResponseQueue(action);
+            this.userList = [];
             this.$net.getGroupNumbers({id: row.id}).then(userList => {
-              console.log(userList);
               this.hideWaitingResponse(action);
+              this.operation.name = action;
+              this.userList = userList;
+              updateExpandRows();
             }).catch(err => {
               this.hideWaitingResponse(action);
             });
