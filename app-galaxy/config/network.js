@@ -63,7 +63,7 @@ class NetworkConfig {
 
   setConfig(Vue) {
     // Axios.defaults.withCredentials = true;
-    // Axios.defaults.timeout = 5000;
+    Axios.defaults.timeout = 10000;
 
     let currentToken = this.getToken();
     //添加请求拦截器

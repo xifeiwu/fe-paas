@@ -63,7 +63,7 @@
                             round
                             @click="handleTRButton('change-roles', scope.$index, scope.row)"
                             :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
-                            :loading="statusOfWaitingResponse('change-roles') && operation.row.id == scope.row.id">
+                            :loading="statusOfWaitingResponse('change-roles') && operation.menber.id == scope.row.id">
                       <span>修改岗位</span>
                     </el-button>
                     <el-button
@@ -225,6 +225,17 @@
         }
       }).catch(err => {
         this.showLoading = false;
+        if (err.title && err.msg) {
+          this.$notify.error({
+            title: err.title,
+            message: err.msg,
+            duration: 0,
+            onClose: function () {
+            }
+          });
+        }
+//        console.log(err instanceof Error);
+//        console.log(err.toString());
       });
 
       try {
@@ -256,7 +267,8 @@
         showAppList: false,
 
         operation: {
-          row: null,
+          group: null,
+          member: null,
           name: null,
           newProps: {
             jobNames: [],
@@ -382,12 +394,6 @@
               this.hideWaitingResponse(action);
             });
             break;
-          case 'invite-group-number':
-            this.inviteGroupNumberInfo.email = '';
-            this.inviteGroupNumberInfo.jobName = 'DEVELOP_ENGINEER';
-            this.operation.group = row;
-            this.operation.name = action;
-            break;
           case 'change-roles':
             if (!row.hasOwnProperty('jobNames') || !row.hasOwnProperty('jobDescriptions')) {
               this.$message.warning('信息不完整');
@@ -395,23 +401,32 @@
             }
             this.operation.newProps.jobNames = JSON.parse(JSON.stringify(row.jobNames));
             this.operation.newProps.jobDescriptions = JSON.parse(JSON.stringify(row.jobDescriptions));
-            this.operation.row = row;
+            this.operation.menber = row;
+            this.operation.name = action;
+            break;
+          case 'invite-group-number':
+            this.inviteGroupNumberInfo.email = '';
+            this.inviteGroupNumberInfo.jobName = 'DEVELOP_ENGINEER';
+            this.operation.group = row;
             this.operation.name = action;
             break;
           case 'remove-group-number':
-            this.operation.row = row;
+            this.operation.menber = row;
             this.operation.name = action;
-            console.log(this.operation.group);
-            console.log(this.operation.row);
-            this.$net.removeGroupNumber({
-              groupId: this.operation.row.groupId,
-              userId: this.operation.row.userId
-            }).then(msg => {
-              this.$message.success('修改成功！');
-              this.operation.name = null;
-            }).catch(errMsg => {
-              this.$message.error('修改失败！');
-              this.operation.name = null;
+//            console.log(this.operation.group);
+//            console.log(this.operation.menber);
+            this.warningConfirm(`将要删除"${this.operation.group.name}"的成员"${this.operation.menber.realName}"，确定吗？`).then(() => {
+              this.$net.removeGroupNumber({
+                groupId: this.operation.menber.groupId,
+                userId: this.operation.menber.userId
+              }).then(msg => {
+                this.requestGroupNumbers(this.operation.group);
+                this.$message.success('移除成员成功！');
+                this.operation.name = null;
+              }).catch(errMsg => {
+                this.$message.error('移除成员失败！');
+                this.operation.name = null;
+              });
             });
             break;
         }
@@ -423,7 +438,7 @@
               if (!valid) {
                 return;
               }
-              if (this.$utils.theSame(this.operation.newProps['jobNames'], this.operation.row['jobNames'])) {
+              if (this.$utils.theSame(this.operation.newProps['jobNames'], this.operation.menber['jobNames'])) {
                 this.operation.name = null;
                 this.$message({
                   type: 'warning',
@@ -432,8 +447,6 @@
               } else {
                 this.requestServerForUpdate(action);
               }
-//              console.log(this.operation.newProps.jobNames);
-//              console.log(valid);
             });
             break;
           case 'invite-group-number':
@@ -445,17 +458,27 @@
               this.requestServerForUpdate(action);
             });
             break;
-          case 'remove-group-number':
-            break;
         }
+      },
+
+      // 请求组内成员
+      requestGroupNumbers(group) {
+        this.userList = [];
+        this.$net.getGroupNumbers({id: group.id}).then(userList => {
+          this.userList = userList;
+          if (group.hasOwnProperty('id')) {
+            this.expandRows = [group.id];
+          }
+        }).catch(err => {
+        });
       },
 
       requestServerForUpdate(action) {
         switch (action) {
           case 'change-roles':
             this.$net.changeGroupNumberRoles({
-              userId: this.operation.row.userId,
-              groupId: this.operation.row.groupId,
+              userId: this.operation.menber.userId,
+              groupId: this.operation.menber.groupId,
               jobs: this.operation.newProps['jobNames'].join(',')
             }).then(msg => {
               this.$message.success('修改成功！');
@@ -470,21 +493,22 @@
               emailString: this.inviteGroupNumberInfo.email,
               job: this.inviteGroupNumberInfo.jobName
             }).then(msg => {
-              this.$message.success('修改成功！');
+              // refresh userList after invite new number
+              this.requestGroupNumbers(this.operation.group);
+              this.$message.success('邀请成员成功！');
               this.operation.name = null;
             }).catch(errMsg => {
-              this.$message.error('修改失败！');
+              this.$message.error(`邀请成员失败！${errMsg.msg ? errMsg.msg : ''}`);
               this.operation.name = null;
             });
             break;
         }
-
       },
 
       updateModelInfo(action) {
         switch (action) {
           case 'change-roles':
-            let row = this.operation.row;
+            let row = this.operation.menber;
             let newProps = this.operation.newProps;
 
             let allJobsMap = {};
@@ -503,6 +527,20 @@
             this.operation.name = null;
             break;
         }
+      },
+
+      warningConfirm(content) {
+        return new Promise((resolve, reject) => {
+          this.$confirm(content, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            resolve();
+          }).catch(() => {
+            reject()
+          });
+        });
       },
 
       handlePaginationPageChange() {
