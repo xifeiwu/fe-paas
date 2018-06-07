@@ -231,7 +231,7 @@
         <div class="title">添加授权URL规则<i class="el-icon-question"></i></div>
         <div class="item">1. 写Access Key必须填为已创建的</div>
         <div class="item">2. 所属权限分为两部分：Access Key部分，自定义部分，两者之间以.分割。Access Key部分必须为当前所写Access Key；自定义部分只能包括小写字母；50个字符以内。如，galaxy-WrJhXCOo.abcdef</div>
-        <div class="item">3. 资源URL，必须以/开头，路径可以包含字母、数字、*、/。多个路径之间以,分割。50个字符以内。如，/a/1/C,/**/d</div>
+        <div class="item">3. 资源URL，必须以/开头，路径可以包含字母、数字、*、/、中划线、下划线。多个路径之间以,分割。50个字符以内。如，/a/1-2_3/C,/**/d</div>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-row>
@@ -573,7 +573,7 @@
             this.errorMsgForAddAuthorizeUrl = '所属权限不能超过50个字符';
             return isValid;
           }
-          let resourceReg = /^(\/[a-zA-Z0-9\\*\/\-]+)(, *\/[a-zA-Z0-9\\*\/\-]+)*$/;
+          let resourceReg = /^(\/[a-zA-Z0-9\\*\/\-_]+)(, *\/[a-zA-Z0-9\\*\/\-_]+)*$/;
           if (!resourceReg.test(newItem.resource)) {
             this.errorMsgForAddAuthorizeUrl = '资源URL格式不正确';
             return isValid;
