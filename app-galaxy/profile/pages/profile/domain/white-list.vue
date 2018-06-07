@@ -2,7 +2,7 @@
   <div id="domain-white-list">
     <el-row><span>外网二级域名：</span><span>{{paramsInQueryString.domainName}}</span></el-row>
     <el-row class="upload-area" type="flex">
-      <el-col :span="8">
+      <el-col :span="8" class="upload">
         <el-upload
                 class="upload-file"
                 ref="upload"
@@ -10,7 +10,7 @@
                 :onExceed="onFileExceed"
                 :headers="{token: this.$storeHelper.getUserInfo('token')}"
                 :data="{'internetDomainId': this.itemToAdd.internetDomainId}"
-                :action="$url.domain_upload_white_ip_list_template"
+                :action="$url.domain_upload_white_ip_list_template.url"
                 :auto-upload="false"
                 :beforeUpload="beforeFileUpload"
                 :onSuccess="afterLoadSuccess"
@@ -22,21 +22,21 @@
           <el-tooltip class="item" effect="dark"
                       content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">
             <el-button style="margin-left: 5px;" type="success" size="mini-extral"
-                       @click="handleSubmitUpload">上传到服务器</el-button>
+                       @click="handleSubmitUpload"><span>上传到服务器</span></el-button>
           </el-tooltip>
         </el-upload>
       </el-col>
-      <el-col :span="16">
+      <el-col :span="16" class="download">
         <el-tag type="success" disable-transitions>
           <i class="el-icon-warning"></i>
           <span>IP地址超过10个建议下载模板，填写完成后导入文本操作</span>
         </el-tag>
-        <el-button type="primary" size="mini-extral">
-          <a :href="$url.domain_download_white_ip_list_template">下载模板</a>
+        <el-button type="info" size="mini-extral" round>
+          <a :href="$url.domain_download_white_ip_list_template.url"><i class="el-icon-download"></i><span>下载模板</span></a>
         </el-button>
       </el-col>
-
     </el-row>
+
     <div class="manual-area">
       <el-row class="add-ip">
         <el-col :span="3">
@@ -140,18 +140,28 @@
       margin-bottom: 3px;
       padding: 6px;
       .el-col {
-        &:nth-child(2) {
+        &.download {
           text-align: center;
           .el-tag {
-            display: block;
-            width: 70%;
-            margin: 0px auto;
+            line-height: 26px;
+            height: 28px;
           }
           .el-button {
-            margin: 0px auto;
+            vertical-align: middle;
+            padding: 2px 8px;
+            margin-left: 10px;
+            a {
+              font-size: 12px;
+              line-height: 16px;
+              color: white;
+              span, i {
+                vertical-align: middle;
+                margin: 0px;
+              }
+            }
           }
         }
-        &:nth-child(1) {
+        &.upload {
           text-align: center;
           border-right: 1px solid gainsboro;
           .upload-file {
@@ -334,6 +344,10 @@
             this.addToWaitingResponseQueue('delete');
             this.$net.deleteWhiteIP(row.id).then(msg => {
               this.hideWaitingResponse('delete');
+              msg = msg.trim();
+              if (!msg) {
+                msg = '删除成功！';
+              }
               this.$message.success(msg);
 //              this.IPList.splice(this.selected.index, 1);
               this.requestWhiteIPList();
