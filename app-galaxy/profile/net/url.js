@@ -104,7 +104,7 @@ class URL extends BaseURL {
         path: '/service/queryByAppIdAndSpaceId'
       },
       // 修改默认服务
-      'change_default_service': {
+      'service_change_default': {
         url: API_PATH + '/service/switchService',
         path: '/service/switchService'
       },
@@ -119,7 +119,7 @@ class URL extends BaseURL {
         path: '/service/deployApplicationService'
       },
       // 部署服务-部署日志
-      'service_deploy_log': {
+      'service_get_deploy_log': {
         url: API_PATH + '/service/deploy/log',
         path: '/service/deploy/log'
       },

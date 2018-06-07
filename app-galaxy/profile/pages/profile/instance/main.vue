@@ -10,9 +10,9 @@
                    size="mini-extral"
                    type="primary"
                    @click="handleButtonClick('refresh')">刷新</el-button>
-        <el-button v-if="true"
-                   size="mini-extral"
+        <el-button size="mini-extral"
                    type="primary"
+                   v-if="!$storeHelper.notPermitted['instance_change_count']"
                    @click="handleButtonClick('manual-scale')">手动伸缩</el-button>
       </el-col>
     </el-row>
@@ -54,6 +54,7 @@
             <el-button
                     @click="handleRowButtonClick('terminal', scope.$index, scope.row)"
                     size="mini-extral"
+                    v-if="!$storeHelper.notPermitted['open_terminal_from_instance']"
                     type="primary">终端</el-button>
             <el-button
                     @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"

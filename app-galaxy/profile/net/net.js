@@ -68,8 +68,28 @@ class Net extends NetBase {
           '/2.x/apm': 'app_monitor',
           // 应用转让
           '/2.x/app/transfer': 'app_transfer',
+          // 更改服务信息
+          '/2.x/service/update': 'service_update',
           // 查看实例监控
           '/2.x/instances/apm': 'instance_monitor',
+          // 查看部署日志
+          // '/2.x/service/search/deployLog': '',
+          // 从实例列表打开终端
+          '/2.x/instances/openTerminal': 'open_terminal_from_instance',
+          // 从实例列表打开监控
+          '	/2.x/instances/apm': '',
+          // 服务管理页面
+          '/2.x/service': 'page_service',
+          // 实例列表页面
+          '/2.x/instances': 'page_instance',
+          // 外网域名页面
+          '/2.x/internet': 'page_domain',
+          // 日志中心页面
+          '/2.x/logs': 'page_log',
+          // Oauth权限页面
+          '/2.x/keys': 'page_oauth',
+          // 审批管理页面
+          '/2.x/orders': 'page_work_order'
         };
         // format of item in notPermittedList
         // {
@@ -85,18 +105,16 @@ class Net extends NetBase {
 
         // add url and method by notPermittedListOrigin
         notPermittedListOrigin.forEach(it => {
-          let find = false;
-          permissionMapListOrigin.forEach(it2 => {
-            if (it.path === it2['permissionPath']) {
-              notPermittedList.push(Object.assign({}, it, {url: it2.url, method: it2.method}));
-              find = true;
-            }
-          });
-          if (!find) {
-            if (pathToKey.hasOwnProperty(it.path)) {
-              it.key = pathToKey[it.path];
-            }
+          // check if permission in pathToKey first
+          if (pathToKey.hasOwnProperty(it.path)) {
+            it.key = pathToKey[it.path];
             notPermittedList.push(it);
+          } else {
+            permissionMapListOrigin.forEach(it2 => {
+              if (it.path === it2['permissionPath']) {
+                notPermittedList.push(Object.assign({}, it, {url: it2.url, method: it2.method}));
+              }
+            });
           }
         });
         // console.log(notPermittedList);
@@ -131,7 +149,6 @@ class Net extends NetBase {
         });
 
         // console.log(notPermittedList);
-        // console.log(notPermittedMap);
         // console.log(result);
         resolve(result);
       })).catch(err => {
@@ -638,7 +655,7 @@ class Net extends NetBase {
   // 切换默认服务版本
   changeDefaultService(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.change_default_service.url, options).then(response => {
+      axios.post(URL_LIST._service_change_default.url, options).then(response => {
         let responseMsg = this.getResponseMsg(response);
         if (responseMsg.success) {
           resolve(responseMsg.msg);
@@ -670,9 +687,10 @@ class Net extends NetBase {
       })
     });
   }
-  serviceDeployLog(options) {
+  // 获取部署日志（轮询）
+  serviceGetDeployLog(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.service_deploy_log.url, options).then(response => {
+      axios.post(URL_LIST.service_get_deploy_log.url, options).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
           resolve(content);

@@ -64,7 +64,9 @@
           </el-tooltip>
           <div v-else>
             <div class="text"><span>外网二级域名：{{internetDomain}}</span></div>
-            <i class="el-icon-edit" @click="handleButtonClick('go-to-domain-app')"></i>
+            <i class="el-icon-edit"
+               v-if="!$storeHelper.notPermitted['page_domain']"
+               @click="handleButtonClick('go-to-domain-app')"></i>
           </div>
         </div>
       </div>
@@ -85,6 +87,7 @@
           <template slot-scope="scope">
             <el-radio :label="scope.row.id"
                       :value="defaultServiceID"
+                      :disabled="$storeHelper.notPermitted['service_change_default']"
                       @input="changeDefaultVersion">{{scope.row.serviceVersion}}</el-radio>
           </template>
         </el-table-column>
@@ -107,18 +110,21 @@
         >
           <template slot-scope="scope">
             <el-button
-                    v-if="!isProductionProfile"
+                    v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"
                     size="mini-extral" type="warning"
                     :loading="statusOfWaitingResponse('deploy') && selected.service.id == scope.row.id"
-                    @click="handleRowButtonClick('deploy', scope.$index, scope.row)">
+                    @click="handleRowButtonClick('deploy', scope.$index, scope.row)"
+            >
               {{statusOfWaitingResponse('deploy') && selected.service.id == scope.row.id ? '部署中': '部署'}}
             </el-button>
             <el-button
                     size="mini-extral"type="warning"
+                    v-if="!$storeHelper.notPermitted['service_get_deploy_log']"
                     @click="handleRowButtonClick('go-to-log-deploy', scope.$index, scope.row)">部署日志</el-button>
             <el-button
                     size="mini-extral" type="warning"
                     :loading="statusOfWaitingResponse('stop') && selected.service.id == scope.row.id"
+                    v-if="!$storeHelper.notPermitted['service_stop']"
                     @click="handleRowButtonClick('stop', scope.$index, scope.row)">停止</el-button>
             <el-button
                     v-if="isProductionProfile"
@@ -131,9 +137,11 @@
                     @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
             <el-button
                     size="mini-extral" type="primary"
+                    v-if="!$storeHelper.notPermitted['page_instance']"
                     @click="handleRowButtonClick('go-to-instance-list', scope.$index, scope.row)">实例列表</el-button>
             <el-button
                     size="mini-extral" type="primary"
+                    v-if="!$storeHelper.notPermitted['page_domain']"
                     @click="handleRowButtonClick('go-to-domain-service', scope.$index, scope.row)">配置外网二级域名</el-button>
             <el-button
                     size="mini-extral" type="primary"
@@ -164,7 +172,7 @@
                   </el-form-item>
                   <el-form-item label="滚动升级">
                     <span>{{selected.service.rollingUpdate? '需要' : '不需要'}}</span>
-                    <i v-if="!$storeHelper.notPermitted['service_update_rolling_update']"
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('rollingUpdate')"></i>
                   </el-form-item>
                   <el-form-item label="负载均衡">
@@ -173,7 +181,7 @@
                   </el-form-item>
                   <el-form-item label="健康检查">
                     <span>{{valueToShow(selected.service.healthCheck)}}</span>
-                    <i v-if="!$storeHelper.notPermitted['service_update_health']"
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
                 </el-form>
@@ -185,21 +193,21 @@
                     <span>{{valueToShow(selected.service.image.typeName)}}</span>
                     <span style="padding-left: 12px; font-weight: bold">基础镜像地址</span>
                     <span>{{selected.service.image.location}} </span>
-                    <i v-if="!$storeHelper.notPermitted['service_update_image']"
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('image')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab_ssh地址">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.gitLabAddress)}}
                     </div>
-                    <i v-if="!$storeHelper.notPermitted['service_update_gitLab_address']"
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab分支">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.gitLabBranch)}}
                     </div>
-                    <i v-if="!$storeHelper.notPermitted['service_update_gitLab_branch']"
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
                   </el-form-item>
                   <el-form-item label="Gitlab父级pom.xml相对路径" v-if="selectedApp.isJavaLanguage" class="relativePathOfParentPOM">
@@ -211,7 +219,7 @@
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.mavenProfileId)}}
                     </div>
-                    <i v-if="!$storeHelper.notPermitted['service_update_maven_profile_id']"
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('mavenProfileId')"></i>
                   </el-form-item>
                 </el-form>
@@ -221,7 +229,7 @@
                 <el-form label-position="right" label-width="140px" inline size="mini">
                   <el-form-item label="CPU/内存">
                     <span>{{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}</span>
-                    <i v-if="!$storeHelper.notPermitted['service_update_cpu_and_memory']"
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('cpuAndMemory')"></i>
                   </el-form-item>
                   <el-form-item label="实例数量">
@@ -248,7 +256,7 @@
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}
                     </div>
-                    <i v-if="!$storeHelper.notPermitted['service_update_vm_options']"
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('vmOptions')"></i>
                   </el-form-item>
                   <el-form-item label="环境变量配置" class="big">
@@ -257,7 +265,7 @@
                         <el-col :span="10" style="font-weight: bold;text-align: center">Key</el-col>
                         <el-col :span="10" style="font-weight: bold;text-align: center">Value</el-col>
                         <el-col :span="4" style="font-weight: bold;text-align: left">
-                          <i v-if="!$storeHelper.notPermitted['service_update_environment']"
+                          <i v-if="!$storeHelper.notPermitted['service_update']"
                              class="el-icon-edit" @click="handleChangeProp('environments')"></i>
                         </el-col>
                       </el-row>
@@ -275,7 +283,7 @@
                     </div>
                     <div v-else>
                       <span>未设置</span>
-                      <i v-if="!$storeHelper.notPermitted['service_update_environment']"
+                      <i v-if="!$storeHelper.notPermitted['service_update']"
                          class="el-icon-edit" @click="handleChangeProp('environments')"></i>
                     </div>
                   </el-form-item>
@@ -285,7 +293,7 @@
                         <el-col :span="10" style="font-weight: bold; text-align: center">IP</el-col>
                         <el-col :span="10" style="font-weight: bold; text-align: center">域名</el-col>
                         <el-col :span="4" style="font-weight: bold;text-align: left">
-                          <i v-if="!$storeHelper.notPermitted['service_update_host']"
+                          <i v-if="!$storeHelper.notPermitted['service_update']"
                              class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
                         </el-col>
                       </el-row>
@@ -300,7 +308,7 @@
                     </div>
                     <div v-else>
                       <span>未设置</span>
-                      <i v-if="!$storeHelper.notPermitted['service_update_host']"
+                      <i v-if="!$storeHelper.notPermitted['service_update']"
                          class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
                     </div>
                   </el-form-item>
@@ -1554,7 +1562,7 @@ export default {
               if (!this.dialogForLogStatus.visible) {
                 return;
               }
-              this.$net.serviceDeployLog(options).then(content => {
+              this.$net.serviceGetDeployLog(options).then(content => {
                 if (content.hasOwnProperty('Orchestration')) {
                   let Orchestration = content.Orchestration;
                   let log = Orchestration.log;
