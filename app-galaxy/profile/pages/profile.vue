@@ -175,7 +175,32 @@
       }
     },
     created() {
-      this.$store.dispatch('user/groupList');
+//      this.$store.dispatch('user/groupList');
+      this.$net.getUserGroupList().then(content => {
+        if (content.hasOwnProperty('groupList')) {
+          let groupList = content.groupList;
+          this.$store.dispatch('user/groupList', groupList);
+        } else {
+          this.$notify.error({
+            title: '数据错误',
+            message: '数据格式不正确',
+            duration: 0,
+            onClose: function () {
+            }
+          });
+        }
+      }).catch(err => {
+        if (err.title && err.msg) {
+          this.$notify.error({
+            title: err.title,
+            message: err.msg,
+            duration: 0,
+            onClose: function () {
+            }
+          });
+        }
+      });
+
       this.$store.dispatch('app/messageForCreateAPP');
       // for permission list
       this.$net.getNotPermittedCommands().then(list => {

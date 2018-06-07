@@ -194,7 +194,10 @@ class Net extends NetBase {
           console.log('用户组列表获取失败！');
         }
       }).catch(err => {
-        reject(err);
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.get_user_group_list.path}；${err.toString()}`
+        });
       });
     })
   }

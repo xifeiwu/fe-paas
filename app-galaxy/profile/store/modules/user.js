@@ -87,22 +87,14 @@ const actions = {
   /**
    * 获取用户所属组列表
    */
-  groupList({commit, state, dispatch}) {
+  groupList({commit, state, dispatch}, groupList) {
     warning('getGroupList', 'netwrok');
-    NetData.getUserGroupList().then(content => {
-      if (content.hasOwnProperty('groupList')) {
-        // commit('SET_GROUP_LIST', content.groupList);
-        let groupList = content.groupList;
-        state.groupList = groupList;
-        // if (USE_LOCAL_STORAGE) {
-        localStorage.setItem('user/groupList', JSON.stringify(groupList));
-        // }
-        dispatch('groupInfo');
-      }
-    }).catch(err => {
-      console.log(err);
-      dispatch('groupInfo');
-    });
+    // commit('SET_GROUP_LIST', content.groupList);
+    state.groupList = groupList;
+    // if (USE_LOCAL_STORAGE) {
+    localStorage.setItem('user/groupList', JSON.stringify(groupList));
+    // }
+    dispatch('groupInfo');
   },
   /**
    * 更改用户组ID

@@ -58,7 +58,8 @@ const actions = {
   messageForCreateAPP({commit, state}) {
     // if (!stateHasUpdated(state.messageForCreateAPP)) {
       NetData.getMessageForCreateAPP().then(content => {
-        commit('SET_MESSAGE_FOR_CREATE_APP', content);
+        state.messageForCreateAPP = content;
+        localStorage.setItem('app/messageForCreateAPP', JSON.stringify(content));
       });
     // }
   },
@@ -73,13 +74,6 @@ const actions = {
 };
 
 const mutations = {
-  /* net data */
-  SET_MESSAGE_FOR_CREATE_APP(state, content) {
-    state.messageForCreateAPP = content;
-    // if (USE_LOCAL_STORAGE) {
-      localStorage.setItem('app/messageForCreateAPP', JSON.stringify(content));
-    // }
-  }
 };
 
 const getters = {
