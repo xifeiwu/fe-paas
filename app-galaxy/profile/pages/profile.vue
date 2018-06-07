@@ -252,8 +252,32 @@
       '$route': 'onRoutePath',
     },
     methods: {
+      checkPagePermission(path) {
+        let isOK = true;
+        let pathMap = {
+          '/service': 'page_service',
+          '/instance': 'page_instance',
+          '/domain': 'page_domain',
+          '/log': 'page_log',
+          '/oauth': 'page_oauth',
+          '/work-order': 'page_work_order',
+        };
+        let permissionKey = null;
+        for (let key in pathMap) {
+          if (path.startsWith(key)) {
+            permissionKey = pathMap[key];
+          }
+        }
+        if (permissionKey && this.$storeHelper.notPermitted[permissionKey]) {
+          isOK = false;
+        }
+        return isOK;
+      },
       onRoutePath (value, oldValue) {
         let relativePath = value.path;
+        if (!this.checkPagePermission(relativePath)) {
+          this.$router.go(-1)
+        }
         if (relativePath && relativePath.length > 0) {
           // whether show groupList
           let pageNotShowGroupList = ['/app/add', '/service/add'];

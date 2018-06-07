@@ -825,6 +825,10 @@
         if (!active) {
           return;
         }
+        if (this.$storeHelper.notPermitted['page_service']) {
+          this.$message.warning('您没有权限进入服务管理页面');
+          return;
+        }
         let appID = row.appId;
         let profileID = profile.id;
         this.$storeHelper.setUserConfig('profile/service', {appID, profileID});
