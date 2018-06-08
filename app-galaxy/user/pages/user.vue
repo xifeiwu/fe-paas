@@ -160,15 +160,16 @@
     },
     computed: {
       commandList() {
+//        {
+//          name: "操作记录",
+//            route: "/operation",
+//          icon: "my-icon-log",
+//          isActive: false,
+//        },
         return [{
-          name: "产品介绍",
+          name: "云产品",
           route: "/info",
           icon: "my-icon-user",
-          isActive: false,
-        }, {
-          name: "操作记录",
-          route: "/operation",
-          icon: "my-icon-log",
           isActive: false,
         }, {
           name: "团队管理",

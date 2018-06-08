@@ -49,8 +49,15 @@ class Net extends NetBase {
     return new Promise((resolve, reject) => {
       axios.get(URL_LIST.group_list.url).then(response => {
         let content = this.getResponseContent(response);
-        if (content) {
-          resolve(content);
+        if (content && content.hasOwnProperty('groupList') && Array.isArray(content.groupList)) {
+          let groupList = content.groupList;
+          groupList.forEach(it => {
+            it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+            if (it.createTime) {
+              it.createTime = it.createTime.split(' ');
+            }
+          })
+          resolve(groupList);
         } else {
           let responseMsg = this.getResponseMsg(response);
           reject(responseMsg);

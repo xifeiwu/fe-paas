@@ -12,7 +12,12 @@
         </el-table-column>
         <el-table-column label="团队标签" prop="tag" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="所属业务线LOB" prop="lobName" headerAlign="center" align="center"></el-table-column>
+        <el-table-column label="所属业务线LOB" prop="lobName" headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <div v-if="scope.row.lobName">{{scope.row.lobName}}</div>
+            <div v-else>无</div>
+          </template>
+        </el-table-column>
         <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
             <div v-if="Array.isArray(scope.row.createTime)">
@@ -156,6 +161,11 @@
   </div>
 </template>
 
+<style type="scss">
+  #group-manage .row-expand .el-table thead tr {
+    background-color: #ddd;
+  }
+</style>
 <style lang="scss" scoped>
   #group-manage {
     height: 100%;
@@ -174,6 +184,9 @@
             td {
               padding: 0px 0px;
             }
+            thead tr {
+               background-color: red;
+             }
           }
         }
         .el-table__row {
@@ -218,11 +231,9 @@
 
     mounted() {
       this.showLoading = true;
-      this.$net.getGroupList().then(content => {
-        if (content.hasOwnProperty('groupList')) {
-          this.groupList = content.groupList;
-          this.showLoading = false;
-        }
+      this.$net.getGroupList().then((groupList) => {
+        this.groupList = groupList;
+        this.showLoading = false;
       }).catch(err => {
         this.showLoading = false;
         if (err.title && err.msg) {
