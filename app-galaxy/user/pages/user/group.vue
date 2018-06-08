@@ -44,7 +44,9 @@
                     v-if="!$storeHelper.notPermitted['invite_numbers']"
                     size="mini-extral"
                     type="primary"
-                    @click="handleTRButton('invite-group-number', scope.$index, scope.row)">邀请成员</el-button>
+                    @click="handleTRButton('invite-group-number', scope.$index, scope.row)">
+              <span>邀请成员</span>
+            </el-button>
           </template>
         </el-table-column>
         <el-table-column type="expand"
@@ -53,7 +55,7 @@
         >
           <template slot-scope="scope">
             <div class="row-expand">
-              <el-table :data="userList">
+              <el-table :data="memberListByPage" class="member-list">
                 <el-table-column label="用户名" prop="username" headerAlign="center" align="center" width="100">
                 </el-table-column>
                 <el-table-column label="真实项目" prop="realName" headerAlign="center" align="center" width="100">
@@ -79,6 +81,20 @@
                   </template>
                 </el-table-column>
               </el-table>
+              <div class="pagination-container" v-if="memberPagination.totalSize > memberPagination.pageSize">
+                <div class="pagination">
+                  <el-pagination
+                          :current-page="memberPagination.currentPage"
+                          size="small"
+                          background
+                          layout="pager"
+                          :page-size = "memberPagination.pageSize"
+                          :total="memberPagination.totalSize"
+                          @current-change="handlePaginationPageChangeForMemberList"
+                  >
+                  </el-pagination>
+                </div>
+              </div>
             </div>
           </template>
         </el-table-column>
@@ -174,6 +190,8 @@
       position: relative;
       .el-table {
         tr .row-expand {
+          position: relative;
+          padding-bottom: 20px;
           background-color: #fff;
           box-sizing: border-box;
           /*padding: 12px 8px;*/
@@ -188,6 +206,12 @@
             thead tr {
                background-color: red;
              }
+          }
+          .pagination-container .pagination .el-pagination .el-pager li {
+            line-height: 18px;
+            &.number {
+              height: 18px;
+            }
           }
         }
         .el-table__row {
@@ -286,6 +310,14 @@
         currentPage: 1,
         showGroupList: true,
 
+        showMemberList: true,
+        memberPagination: {
+          totalSize: 0,
+          pageSize: 8,
+          currentPage: 1,
+        },
+
+
         operation: {
           group: null,
           member: null,
@@ -295,7 +327,7 @@
           }
         },
         expandRows: [],
-        userList: [],
+        memberList: [],
 
         inviteGroupNumberInfo: {
           email: '',
@@ -405,10 +437,13 @@
             }
 
             this.addToWaitingResponseQueue(action);
-            this.userList = [];
-            this.$net.getGroupMembers({id: group.id}).then(userList => {
+            this.memberList = [];
+            this.$net.getGroupMembers({id: group.id}).then(memberList => {
               this.hideWaitingResponse(action);
-              this.userList = userList;
+              this.memberList = memberList;
+              this.memberPagination.totalSize = this.memberList.length;
+              this.memberPagination.currentPage = 1;
+              this.updateMemberListByPage();
               updateExpandRows();
             }).catch(err => {
               this.hideWaitingResponse(action);
@@ -483,9 +518,9 @@
 
       // 请求组内成员
       requestGroupNumbers(group) {
-        this.userList = [];
-        this.$net.getGroupMembers({id: group.id}).then(userList => {
-          this.userList = userList;
+        this.memberList = [];
+        this.$net.getGroupMembers({id: group.id}).then(memberList => {
+          this.memberList = memberList;
           if (group.hasOwnProperty('id')) {
             this.expandRows = [group.id];
           }
@@ -513,7 +548,7 @@
               emailString: this.inviteGroupNumberInfo.email,
               job: this.inviteGroupNumberInfo.jobName
             }).then(msg => {
-              // refresh userList after invite new number
+              // refresh memberList after invite new number
               this.requestGroupNumbers(this.operation.group);
               this.$message.success('邀请成员成功！');
               this.operation.name = null;
@@ -575,8 +610,21 @@
         let length = this.pageSize;
         let end = start + length;
         this.groupListByPage =  this.groupList.slice(start, end);
+      },
 
-      }
+      handlePaginationPageChangeForMemberList(page) {
+        this.memberPagination.currentPage = page;
+        this.updateMemberListByPage();
+      },
+
+      updateMemberListByPage() {
+        let page = this.memberPagination.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        let start = page * this.memberPagination.pageSize;
+        let length = this.memberPagination.pageSize;
+        let end = start + length;
+        this.memberListByPage =  this.memberList.slice(start, end);
+      },
     }
   }
 </script>
