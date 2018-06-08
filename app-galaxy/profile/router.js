@@ -41,9 +41,9 @@ class RouterConfig {
     this.Vue = Vue;
     this.componentConfig = routerUtils.componentList;
     this.allRouterPath = routerUtils.getAllRouterPath();
-    // console.log(this.componentConfig);
+    let routeConfig = this.getVueRouterConfig();
     // console.log(this.allRouterPath);
-    let routeConfig = this.generateMiscRoutes();
+    // console.log(routeConfig);
     this.vueRouter = new VueRouter({
       mode: 'hash',
       base: __dirname,
@@ -53,24 +53,8 @@ class RouterConfig {
     this.routerFilter();
   }
 
-  generateMiscRoutes() {
-    let vueRouteConfig = {};
-    this.traverseComponent(this.componentConfig, vueRouteConfig);
-    let configList = []
-    for (let key in vueRouteConfig) {
-      configList.push(vueRouteConfig[key]);
-    }
-    return configList;
-  };
-
-  /**
-   * generate vueComConfig by config from pages/router.js. deep copy
-   * @param component, router info from pages/route.js
-   * @param vueComConfig, vue router config
-   */
-  traverseComponent(component, vueComConfig) {
-    // property filter
-    function generateItem(item) {
+  getVueRouterConfig() {
+    function updateItem(item) {
       let keysMap = {
         path: 'path',
         name: 'name',
@@ -80,7 +64,7 @@ class RouterConfig {
       };
       let result = {};
       for (let key in item) {
-        if (item.hasOwnProperty(key) && key in keysMap) {
+        if (item.hasOwnProperty(key) && keysMap.hasOwnProperty(key)) {
           if ('componentFile' === key) {
             // result[keysMap[key]] = this.load(item[key]);
           } else {
@@ -90,20 +74,21 @@ class RouterConfig {
       }
       return result;
     }
-    if ('object' === typeof(component)) {
-      for (let key in component) {
-        if (component.hasOwnProperty(key)) {
-          let item = component[key];
-          vueComConfig[key] = generateItem.call(this, item);
-          if ('children' in item) {
-            vueComConfig[key].children = [];
-            this.traverseComponent(item.children, vueComConfig[key].children);
-          }
+
+    function traverseComponent(component) {
+      if (Array.isArray(component)) {
+        return component.map(traverseComponent.bind(this));
+      } else if ('object' === typeof(component)) {
+        let config = updateItem.call(this, component);
+        if (component.hasOwnProperty('children')) {
+          config['children'] = traverseComponent(component['children']);
         }
+        return config;
       }
-    } else if (Array.isArray(component)){
-      vueComConfig = component.map(generateItem.bind(this));
     }
+
+    let vueRouterConfig = traverseComponent(this.componentConfig);
+    return vueRouterConfig;
   }
 
   /**
