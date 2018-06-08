@@ -1,5 +1,3 @@
-var path = require('path');
-// import Profile from './profile.vue';
 import AppMain from './profile/app/main.vue';
 import AppAdd from './profile/app/add.vue';
 import ServiceMain from './profile/service/main.vue';
@@ -32,6 +30,9 @@ import WorkOrderDeploy from './profile/work-order/todo/deploy.vue';
 import WorkOrderAccept from './profile/work-order/todo/accept.vue';
 import WorkOrderTest from './profile/work-order/todo/test.vue';
 
+
+import Vue from 'vue';
+import VueRouter from 'vue-router';
 /**
  * router config:
  * 1. path should have the same name as .vue file
@@ -40,13 +41,16 @@ import WorkOrderTest from './profile/work-order/todo/test.vue';
  *    if add app is sub page of app, its url should be app/add
  */
 var Router = function() {
-  this.componentList = [{
+  this.richRouterConfig = [{
     path: '/',
     redirect: '/app',
   }, {
     path: '/app',
     name: '应用管理',
     component: AppMain,
+    meta: {
+      isPermitted: true,
+    }
   }, {
     path: '/app/add',
     name: '创建应用',
@@ -151,9 +155,60 @@ var Router = function() {
     component: WorkOrderAccept,
   }];
   this.update();
+
+
+  this.vueRouter = new VueRouter({
+    mode: 'hash',
+    base: __dirname,
+    // routes: routeConfig,
+    routes: this.getVueRouterConfig()
+  });
+  Vue.use(VueRouter);
+
+  this.routePathList = this.getAllRouterPath();
+  this.startRouteFilter()
 };
 
 Router.prototype = {
+  // filter out useless config in richRouterConfig
+  getVueRouterConfig() {
+    function updateItem(item) {
+      let keysMap = {
+        path: 'path',
+        name: 'name',
+        redirect: 'redirect',
+        component: 'component',
+        meta: 'meta'
+      };
+      let result = {};
+      for (let key in item) {
+        if (item.hasOwnProperty(key) && keysMap.hasOwnProperty(key)) {
+          if ('componentFile' === key) {
+            // result[keysMap[key]] = this.load(item[key]);
+          } else {
+            result[keysMap[key]] = item[key];
+          }
+        }
+      }
+      return result;
+    }
+
+    function traverseComponent(component) {
+      if (Array.isArray(component)) {
+        return component.map(traverseComponent.bind(this));
+      } else if ('object' === typeof(component)) {
+        let config = updateItem.call(this, component);
+        if (component.hasOwnProperty('children')) {
+          config['children'] = traverseComponent(component['children']);
+        }
+        return config;
+      }
+    }
+
+    let vueRouterConfig = traverseComponent(this.richRouterConfig);
+    return vueRouterConfig;
+  },
+
   /**
    * traverse router config tree to add routerPath to all component:
    * routerPath = parent.path + path, it is the full path of hash in url
@@ -180,11 +235,11 @@ Router.prototype = {
       }
     }
 
-    traverseComponent(null, this.componentList);
+    traverseComponent(null, this.richRouterConfig);
   },
 
   update() {
-    this.generateRouterLinkPath(null, this.componentList);
+    this.generateRouterLinkPath(null, this.richRouterConfig);
   },
 
   traverseComponent(func, component) {
@@ -211,7 +266,7 @@ Router.prototype = {
       }
     }
 
-    this.traverseComponent(updateItem, this.componentList);
+    this.traverseComponent(updateItem, this.richRouterConfig);
     return routerPath;
   },
 
@@ -238,9 +293,52 @@ Router.prototype = {
       }
     }
 
-    this.traverseComponent(updateItem, this.componentList);
+    this.traverseComponent(updateItem, this.richRouterConfig);
     return routerPath;
   },
+
+
+  /**
+   * do some action before route change
+   */
+  startRouteFilter() {
+    let self = this;
+    // if the url is valid
+    function isValidateURL(url) {
+      return self.routePathList.indexOf(url) > -1;
+    }
+    // get parent path of the url
+    function getParentPath(url) {
+      return url.split('/').slice(0,-1).join('/');
+    }
+    // get nearest path if the url is not valid
+    function getValidateURL(url) {
+      let result = url;
+      while(!isValidateURL(result) && '' != result) {
+        result = getParentPath(result);
+      }
+      if ('' == result) {
+        result = '/';
+      }
+      return result;
+    }
+
+    this.vueRouter.beforeEach((to, from, next) => {
+      // console.log('in beforeEach');
+      // console.log(JSON.stringify(to.path) + ' -> ' + JSON.stringify(from.path));
+
+      let token = Vue.prototype.$storeHelper.getUserInfo('token');
+      if (token) {
+        if (!isValidateURL(to.path)) {
+          next(getValidateURL(to.path));
+        } else {
+          next();
+        }
+      } else {
+        Vue.prototype.$utils.goToPath('/login?to=/profile');
+      }
+    });
+  }
 };
 
 var router = new Router();
