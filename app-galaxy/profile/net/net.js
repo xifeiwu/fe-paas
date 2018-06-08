@@ -79,17 +79,25 @@ class Net extends NetBase {
           // 从实例列表打开监控
           '	/2.x/instances/apm': '',
           // 服务管理页面
-          '/2.x/service': 'page_service',
+          '/2.x/service': '/service',
           // 实例列表页面
-          '/2.x/instances': 'page_instance',
+          '/2.x/instances': '/instance',
           // 外网域名页面
-          '/2.x/internet': 'page_domain',
-          // 日志中心页面
-          '/2.x/logs': 'page_log',
-          // Oauth权限页面
-          '/2.x/keys': 'page_oauth',
-          // 审批管理页面
-          '/2.x/orders': 'page_work_order'
+          '/2.x/internet': '/domain',
+          // 页面-日志中心
+          '/2.x/logs': '/log',
+          // 页面-查看运行日志
+          '/2.x/logs/searchLog': '/log/run',
+          // 页面-查看部署日志
+          '/2.x/logs/searchDeployLog': '/log/deploy',
+          // 页面-Oauth权限
+          '/2.x/keys': '/oauth',
+          // 页面-Oauth/Access Key
+          '/2.x/keys/AccessKey': '/oauth/key',
+          // 页面-Oauth/url
+          '/2.x/keys/authUrl': '/oauth/url',
+          // 页面-审批管理页面
+          '/2.x/orders': '/work-order'
         };
         // format of item in notPermittedList
         // {

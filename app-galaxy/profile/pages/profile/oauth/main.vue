@@ -42,15 +42,21 @@
 <script>
   export default {
     created() {
+      this.tabs = this.allTabs.filter(it => {
+        return !this.$storeHelper.notPermitted[it.permission];
+      })
     },
     data() {
       return {
-        tabs: [{
+        tabs: [],
+        allTabs: [{
           label: 'Access Key',
           name: '/oauth/key',
+          permission: 'page_oauth_key'
         },{
           label: '授权URL',
           name: '/oauth/url',
+          permission: 'page_oauth_url'
         }]
       };
     },

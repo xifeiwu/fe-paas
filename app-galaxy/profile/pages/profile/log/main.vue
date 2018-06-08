@@ -1,7 +1,8 @@
 <template>
   <div id="log">
     <el-tabs v-model="currentPath" type="card" @tab-click="handleClick">
-      <el-tab-pane v-for="item in tabs" :label="item.label" :name="item.name" :key="item.name"></el-tab-pane>
+      <el-tab-pane v-for="item in tabs" :label="item.name" :name="item.routePath" :key="item.routePath"
+                   ></el-tab-pane>
     </el-tabs>
     <keep-alive>
       <router-view v-if="$route.meta.keepAlive"></router-view>
@@ -45,13 +46,7 @@
     },
     data() {
       return {
-        tabs: [{
-          label: '运行日志',
-          name: '/log/run',
-        },{
-          label: '部署日志',
-          name: '/log/deploy',
-        }]
+        tabs: this.$routeHelper.getPermittedSubRouteList('/log')
       };
     },
     computed: {
