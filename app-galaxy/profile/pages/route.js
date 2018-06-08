@@ -103,7 +103,7 @@ var Router = function() {
     path: '/oauth',
     // name: '权限管理',
     component: OAuthMain,
-    redirect: 'oauth/key',
+    // redirect: 'oauth/key',
     children: [{
       path: 'key',
       name: 'Access Key管理',
@@ -123,7 +123,7 @@ var Router = function() {
     path: '/work-order',
     // name: '审批管理',
     component: WorkOrderMain,
-    redirect: '/work-order/todo',
+    // redirect: '/work-order/todo',
     children: [{
       path: 'todo',
       name: '待办工单',
@@ -373,11 +373,15 @@ Router.prototype = {
       if (self.routePathToConfig.hasOwnProperty(path)) {
         config = self.routePathToConfig[path];
       }
-      if (config && config.hasOwnProperty('meta') && config.meta.hasOwnProperty('isPermitted')) {
-        isOk = config.meta.isPermitted;
-      }
-      if (config && config.hasOwnProperty('children')) {
+      if (!config) {
         isOk = false;
+      } else {
+        if (config.hasOwnProperty('meta') && config.meta.hasOwnProperty('isPermitted')) {
+          isOk = config.meta.isPermitted;
+        }
+        if (config.hasOwnProperty('children')) {
+          isOk = false;
+        }
       }
       // console.log(config);
       // console.log(`${path}, ${isOk}`);

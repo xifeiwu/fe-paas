@@ -1,7 +1,7 @@
 <template>
   <div id="work-order">
     <el-tabs v-model="currentPath" type="card" @tab-click="handleClick">
-      <el-tab-pane v-for="item in tabs" :label="item.label" :name="item.name" :key="item.name"></el-tab-pane>
+      <el-tab-pane v-for="item in tabs" :label="item.name" :name="item.routePath" :key="item.routePath"></el-tab-pane>
     </el-tabs>
     <router-view></router-view>
   </div>
@@ -39,13 +39,7 @@
     },
     data() {
       return {
-        tabs: [{
-          label: '待办工单',
-          name: '/work-order/todo',
-        },{
-          label: '工单列表',
-          name: '/work-order/list',
-        }]
+        tabs: this.$routeHelper.getPermittedSubRouteList('/work-order')
       };
     },
     computed: {

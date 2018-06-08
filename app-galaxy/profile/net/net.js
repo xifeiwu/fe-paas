@@ -97,7 +97,11 @@ class Net extends NetBase {
           // 页面-Oauth/url
           '/2.x/keys/authUrl': '/oauth/url',
           // 页面-审批管理页面
-          '/2.x/orders': '/work-order'
+          '/2.x/orders': '/work-order',
+          // 页面-审批管理/待办工单
+          '/2.x/order/todoList': '/work-order/todo',
+          // 页面-审批管理/工单列表
+          '/2.x/order/list': '/work-order/list',
         };
         // format of item in notPermittedList
         // {
