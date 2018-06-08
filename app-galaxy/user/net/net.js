@@ -44,7 +44,7 @@ class Net extends NetBase {
     })
   }
 
-  // 获取组列表
+  // 获取团队
   getGroupList() {
     return new Promise((resolve, reject) => {
       axios.get(URL_LIST.group_list.url).then(response => {
@@ -70,11 +70,47 @@ class Net extends NetBase {
       })
     })
   }
+  // 分页获取团队列表
+  // not used
+  getGroupListByPage(data) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.group_list_by_page.url, data).then(response => {
+        let content = this.getResponseContent(response);
+        if (content && content.hasOwnProperty('groupList') && Array.isArray(content.groupList)) {
+          let groupList = content.groupList;
+          groupList.forEach(it => {
+            it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+            if (it.createTime) {
+              it.createTime = it.createTime.split(' ');
+            }
+          })
+          resolve(groupList);
+        } else {
+          let responseMsg = this.getResponseMsg(response);
+          reject(responseMsg);
+        }
+      }).catch(err => {
+        reject({
+          title: '请求错误',
+          msg: err.toString()
+        });
+      })
+    })
+  }
+
+  // 获取Lob（line of business）信息
+  getLobList() {
+    return new Promise((resolve, reject) => {
+      axios.get(URL_LIST.group_get_lob_list.url).then(response => {
+        console.log(response);
+      })
+    })
+  }
 
   // 获取组成员
-  getGroupNumbers(data) {
+  getGroupMembers(data) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.group_numbers.url, data).then(response => {
+      axios.post(URL_LIST.group_members.url, data).then(response => {
         let content = this.getResponseContent(response);
         if (content && content.hasOwnProperty('groupUserList')) {
           let userList = content['groupUserList'];
@@ -114,7 +150,7 @@ class Net extends NetBase {
   // 修改用户角色
   changeGroupNumberRoles(data) {
     return new Promise((resolve, reject) => {
-      axios.put(URL_LIST.group_number_change_roles.url, data).then(response => {
+      axios.put(URL_LIST.group_member_change_roles.url, data).then(response => {
         // let content = this.getResponseContent(response);
         let resMsg = this.getResponseMsg(response);
         // console.log(resMsg);
@@ -145,7 +181,7 @@ class Net extends NetBase {
   // 删除团队成员
   removeGroupNumber(data) {
     return new Promise((resolve, reject) => {
-      axios.delete(URL_LIST.group_remove_number.url, {data}).then(response => {
+      axios.delete(URL_LIST.group_remove_member.url, {data}).then(response => {
         let resMsg = this.getResponseMsg(response);
         // console.log(resMsg);
         if (resMsg.success) {

@@ -1,7 +1,7 @@
 <template>
   <div id="group-manage">
     <div class="group-list">
-      <el-table :data="groupList"
+      <el-table :data="groupListByPage"
                 v-loading="showLoading"
                 stripe
                 :height="heightOfGroupList"
@@ -83,7 +83,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="showAppList">
+      <div class="pagination-container" v-if="showGroupList">
         <div class="pagination">
           <el-pagination
                   :current-page="currentPage"
@@ -171,6 +171,7 @@
     height: 100%;
     .group-list {
       height: 100%;
+      position: relative;
       .el-table {
         tr .row-expand {
           background-color: #fff;
@@ -234,6 +235,11 @@
       this.$net.getGroupList().then((groupList) => {
         this.groupList = groupList;
         this.showLoading = false;
+
+        this.totalSize = this.groupList.length;
+
+        this.currentPage = 1;
+        this.updateGroupListByPage();
       }).catch(err => {
         this.showLoading = false;
         if (err.title && err.msg) {
@@ -245,16 +251,18 @@
             }
           });
         }
-//        console.log(err instanceof Error);
-//        console.log(err.toString());
       });
+//      this.$net.getLobList();
+//      this.$net.getGroupListByPage({draw: 1, start: 0, length: 10}).then((groupList) => {
+//      }).catch(err => {
+//      });
 
       try {
         this.groupListNode = this.$el.querySelector('.group-list');
-        this.heightOfGroupList = this.groupListNode.offsetHeight;
+        this.heightOfGroupList = this.groupListNode.offsetHeight - 20;
         this.resizeListenerForAppList = (evt) => {
           let target = evt.target;
-          this.heightOfGroupList = target.clientHeight;
+          this.heightOfGroupList = target.clientHeight - 20;
         };
         addResizeListener(this.groupListNode, this.resizeListenerForAppList);
       } catch(err) {
@@ -268,14 +276,15 @@
     data() {
       return {
         groupList: [],
+        groupListByPage: [],
         showLoading: false,
         groupListNode: null,
         heightOfGroupList: '',
 
-        pageSize: 0,
+        totalSize: 0,
+        pageSize: 12,
         currentPage: 1,
-        pageSize: 1,
-        showAppList: false,
+        showGroupList: true,
 
         operation: {
           group: null,
@@ -397,7 +406,7 @@
 
             this.addToWaitingResponseQueue(action);
             this.userList = [];
-            this.$net.getGroupNumbers({id: group.id}).then(userList => {
+            this.$net.getGroupMembers({id: group.id}).then(userList => {
               this.hideWaitingResponse(action);
               this.userList = userList;
               updateExpandRows();
@@ -475,7 +484,7 @@
       // 请求组内成员
       requestGroupNumbers(group) {
         this.userList = [];
-        this.$net.getGroupNumbers({id: group.id}).then(userList => {
+        this.$net.getGroupMembers({id: group.id}).then(userList => {
           this.userList = userList;
           if (group.hasOwnProperty('id')) {
             this.expandRows = [group.id];
@@ -554,7 +563,19 @@
         });
       },
 
-      handlePaginationPageChange() {
+      handlePaginationPageChange(page) {
+        this.currentPage = page;
+        this.updateGroupListByPage();
+      },
+
+      updateGroupListByPage() {
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        let start = page * this.pageSize;
+        let length = this.pageSize;
+        let end = start + length;
+        this.groupListByPage =  this.groupList.slice(start, end);
+
       }
     }
   }

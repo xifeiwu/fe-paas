@@ -56,6 +56,8 @@
   $aside-width: 180px;
 
   $main-background: #F2F6FC;
+  /*$main-background: #E4E7ED;*/
+
   $menu-background: white;
   $menu-background-hover: #ecf5ff;
   $menu-background-active: #409EFF;

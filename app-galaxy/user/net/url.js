@@ -14,15 +14,26 @@ class URL extends BaseURL {
     this.URL_LIST = {
       // 用户退出
       'logout': API_PATH + '/userLogout',
+      // 获取团队列表
       'group_list': {
         url: API_PATH + '/group/queryAllGroup',
         path: '/group/queryAllGroup'
       },
-      'group_numbers': {
+      // 分页获取团队列表
+      'group_list_by_page': {
+        url: API_PATH + '/group/queryByPage',
+        path: '/group/queryByPage'
+      },
+      'group_get_lob_list': {
+        url: API_PATH + '/group/queryLobList',
+        path: '/group/queryLobList'
+      },
+      // 获取团队成员
+      'group_members': {
         url: API_PATH + '/group/users',
         path: '/group/users'
       },
-      'group_number_change_roles': {
+      'group_member_change_roles': {
         url: API_PATH + '/group/user/updateJob',
         path: '/group/user/updateJob'
       },
@@ -30,7 +41,7 @@ class URL extends BaseURL {
         url: API_PATH + '/group/addUser',
         path: '/group/addUser'
       },
-      'group_remove_number': {
+      'group_remove_member': {
         url: API_PATH + '/group/user/delete',
         path: '/group/user/delete'
       }
