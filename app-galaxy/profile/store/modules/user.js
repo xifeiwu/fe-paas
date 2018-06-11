@@ -160,7 +160,6 @@ const actions = {
         SET_GROUP_INFO({state, dispatch}, {});
       }
     }
-
   },
 
   /**

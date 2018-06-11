@@ -178,6 +178,7 @@
     },
     created() {
 //      this.$store.dispatch('user/groupList');
+      // get group list of current user
       this.$net.getUserGroupList().then(content => {
         if (content.hasOwnProperty('groupList')) {
           let groupList = content.groupList;

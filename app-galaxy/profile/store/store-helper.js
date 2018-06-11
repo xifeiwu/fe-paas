@@ -13,6 +13,25 @@ class StoreHelper extends BaseHelper{
     this.SERVICE_ID_FOR_NULL = '';
   }
 
+  get currentGroupID() {
+    let groupID = null;
+    let groupInfo = this.$store.getters['user/groupInfo'];
+    if (groupInfo && groupInfo.hasOwnProperty('id')) {
+      groupID = groupInfo.id;
+    }
+    return groupID;
+  }
+  set currentGroupID(value) {
+    this.$store.dispatch('user/groupID', {
+      value,
+      from: 'store-helper'
+    });
+  }
+
+  groupList() {
+    return this.$store.getters['user/groupList'];
+  }
+
   groupInfo() {
     return this.$store.getters['user/groupInfo'];
   }
@@ -38,25 +57,6 @@ class StoreHelper extends BaseHelper{
 
   usersInGroup() {
     return this.$store.getters['user/usersInGroup'];
-  }
-
-  get currentGroupID() {
-    let groupID = null;
-    let groupInfo = this.$store.getters['user/groupInfo'];
-    if (groupInfo && groupInfo.hasOwnProperty('id')) {
-      groupID = groupInfo.id;
-    }
-    return groupID;
-  }
-  set currentGroupID(value) {
-    this.$store.dispatch('user/groupID', {
-      value,
-      from: 'store-helper'
-    });
-  }
-
-  groupList() {
-    return this.$store.getters['user/groupList'];
   }
 
   // get all users, request again if not exist
