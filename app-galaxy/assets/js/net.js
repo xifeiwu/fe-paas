@@ -94,7 +94,7 @@ class Net {
     let result = {
       success: false,
       title: '',
-      msg: ' '
+      msg: ''
     };
     if ('data' in response) {
       let data = response.data;

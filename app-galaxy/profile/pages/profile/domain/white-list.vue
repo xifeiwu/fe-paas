@@ -344,10 +344,6 @@
             this.addToWaitingResponseQueue('delete');
             this.$net.deleteWhiteIP(row.id).then(msg => {
               this.hideWaitingResponse('delete');
-              msg = msg.trim();
-              if (!msg) {
-                msg = '删除成功！';
-              }
               this.$message.success(msg);
 //              this.IPList.splice(this.selected.index, 1);
               this.requestWhiteIPList();

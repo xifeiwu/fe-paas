@@ -1066,6 +1066,9 @@ class Net extends NetBase {
       axios.post(URL_LIST.domain_add_white_ip.url, options).then(response => {
         let responseMsg = this.getResponseMsg(response);
         if (responseMsg.success) {
+          if (!responseMsg.msg) {
+            responseMsg.msg = '添加白名单成功！';
+          }
           resolve(responseMsg.msg);
         } else {
           reject(responseMsg.msg);
@@ -1083,6 +1086,9 @@ class Net extends NetBase {
       axios.put(url, options).then(response => {
         let responseMsg = this.getResponseMsg(response);
         if (responseMsg.success) {
+          if (!responseMsg.msg) {
+            responseMsg.msg = '修改白名单成功！';
+          }
           resolve(responseMsg.msg);
         } else {
           reject(responseMsg.msg);
@@ -1100,6 +1106,9 @@ class Net extends NetBase {
       axios.delete(url).then(response => {
         let responseMsg = this.getResponseMsg(response);
         if (responseMsg.success) {
+          if (!responseMsg.msg) {
+            responseMsg.msg = '删除成功！';
+          }
           resolve(responseMsg.msg);
         } else {
           reject(responseMsg.msg);
