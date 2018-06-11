@@ -58,7 +58,7 @@
    */
   export default {
     created() {
-      this.onProfileListOfGroup(this.profileListOfGroup);
+      this.onProfileListOfGroup(this.$storeHelper.profileListOfGroup);
     },
     data() {
       return {
@@ -119,15 +119,12 @@
       customConfig: Object
     },
     computed: {
-      profileListOfGroup() {
-        return this.$storeHelper.profileListOfGroup();
-      },
       appInfoListOfGroup() {
         return this.$storeHelper.appInfoListOfGroup;
       },
     },
     watch: {
-      'profileListOfGroup': 'onProfileListOfGroup',
+      '$storeHelper.profileListOfGroup': 'onProfileListOfGroup',
       'appInfoListOfGroup': function (value) {
         this.changeAppRelatedInfo('appInfoList');
       },

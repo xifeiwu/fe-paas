@@ -51,7 +51,7 @@ class StoreHelper extends BaseHelper{
     this.$store.commit('user/appInfoListOfGroup', value);
   }
 
-  profileListOfGroup() {
+  get profileListOfGroup() {
     return this.$store.getters['user/profileListOfGroup'];
   }
 
@@ -200,7 +200,7 @@ class StoreHelper extends BaseHelper{
    */
   getProfileInfoByID(id) {
     let target = null;
-    this.profileListOfGroup().some(it => {
+    this.profileListOfGroup.some(it => {
       target = it.id === id ? it : null;
       return target
     });
@@ -208,7 +208,7 @@ class StoreHelper extends BaseHelper{
   }
   getProfileInfoByType(type) {
     let target = null;
-    this.profileListOfGroup().some(it => {
+    this.profileListOfGroup.some(it => {
       target = it.spaceType === type ? it : null;
       return target
     });
@@ -219,7 +219,7 @@ class StoreHelper extends BaseHelper{
   }
   getProfileInfoByName(name) {
     let target = null;
-    let profileListOfGroup = this.profileListOfGroup();
+    let profileListOfGroup = this.profileListOfGroup;
     if (Array.isArray(profileListOfGroup)) {
       profileListOfGroup.some(it => {
         target = it.name === name ? it : null;

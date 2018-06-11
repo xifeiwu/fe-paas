@@ -71,7 +71,7 @@
         </el-table-column>
         <el-table-column label="运行环境" prop="profileList" minWidth="120" headerAlign="center" align="center">
           <template slot-scope="scope">
-              <span v-for="item in profileListOfGroup" :label="item.name" :key="item.name"
+              <span v-for="item in $storeHelper.profileListOfGroup" :label="item.name" :key="item.name"
                     :class="{'profile-item': true, 'active': scope.row.profileNames.indexOf(item.name) > -1}"
                     @click="jumpToServicePage(scope.$index, scope.row, item, scope.row.profileNames.indexOf(item.name) > -1)"
               >{{ item.description }}</span>
@@ -159,7 +159,7 @@
         </el-form-item>
         <el-form-item label="更改为：" prop="profileNames">
           <el-checkbox-group v-model="newProps.profileNames" @change="handleCheckboxChangeForProfileNames">
-            <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name"
+            <el-checkbox v-for="item in $storeHelper.profileListOfGroup" :label="item.name" :key="item.name"
                          :disabled="item.description == '生产环境'">
               {{item.description}}
             </el-checkbox>
@@ -437,9 +437,6 @@
       appInfoListOfGroup() {
         return this.$storeHelper.appInfoListOfGroup;
       },
-      profileListOfGroup() {
-        return this.$storeHelper.profileListOfGroup();
-      }
     },
     watch: {
       '$storeHelper.currentGroupID': function (value, oldValue) {
@@ -578,8 +575,8 @@
 
       // handle checkbox change in dialog
       handleCheckboxChangeForProfileNames(values) {
-        console.log(this.newProps.profileNames);
-        console.log(this.profileListOfGroup);
+//        console.log(this.newProps.profileNames);
+//        console.log(this.profileListOfGroup);
         let origin = this.selected.model.profileNames;
         let current = values;
         let toDelete = origin.filter(it => current.indexOf(it) === -1);
@@ -692,7 +689,7 @@
         switch (prop) {
           case 'profileNames':
             this.selected.model[prop] = newProp;
-            this.selected.app.profileList = this.profileListOfGroup
+            this.selected.app.profileList = this.$storeHelper.profileListOfGroup
               .filter(it => {
                 return newProp.indexOf(it.name) >= 0;
               });

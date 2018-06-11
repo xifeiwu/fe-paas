@@ -149,7 +149,7 @@
                label-width="120px" ref="newDomainForm">
         <el-form-item label="运行环境">
           <el-select v-model="domainProps.profileName" placeholder="请选择">
-            <el-option v-for="item in $storeHelper.profileListOfGroup()" :key="item.name" :label="item.description" :value="item.name">
+            <el-option v-for="item in $storeHelper.profileListOfGroup" :key="item.name" :label="item.description" :value="item.name">
             </el-option>
           </el-select>
         </el-form-item>
@@ -815,7 +815,7 @@
               this.domainProps.level1InfoListByProfile = domainMap;
               this.currentOpenedDialog = 'add-domain';
               // set default profileName for add-domain-dialog
-              this.domainProps.profileName = this.$storeHelper.profileListOfGroup()[0]['name'];
+              this.domainProps.profileName = this.$storeHelper.profileListOfGroup[0]['name'];
               if (this.$refs.hasOwnProperty('version-condition-filter')) {
                 let selectedProfile = this.$refs['version-condition-filter'].getSelectedValue().selectedProfile;
                 if (selectedProfile && selectedProfile.hasOwnProperty('id')

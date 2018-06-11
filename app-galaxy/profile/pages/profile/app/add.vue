@@ -6,7 +6,7 @@
              v-loading="showLoading"
              :element-loading-text="loadingText">
       <el-form-item label="团队" prop="groupID" class="group-list">
-        <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择">
+        <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择" filterable>
           <el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">
           </el-option>
         </el-select>
@@ -19,8 +19,8 @@
                   placeholder="输入GitLab里的project名称。只能包含字母、数字、中划线，2-50个字符"></el-input>
       </el-form-item>
       <el-form-item label="运行环境" prop="profiles" class="profiles">
-        <el-checkbox-group v-model="createAppForm.profiles">
-          <el-checkbox v-for="item in profileListOfGroup" :label="item.name" :key="item.name"
+        <el-checkbox-group v-model="createAppForm.profiles" @change="onProfilesChanged">
+          <el-checkbox v-for="item in $storeHelper.profileListOfGroup" :label="item.name" :key="item.name"
                        :disabled="item.description == '生产环境'">
             {{item.description}}
           </el-checkbox>
@@ -284,7 +284,7 @@
 export default {
   created() {
     this.onLanguageInfo(this.languageInfo, null);
-    this.onProfileListOfGroup(this.profileListOfGroup, null);
+    this.onProfileListOfGroup(this.$storeHelper.profileListOfGroup, null);
   },
   mounted() {
   },
@@ -330,13 +330,10 @@ export default {
     groupList() {
       return this.$storeHelper.groupList();
     },
-    profileListOfGroup() {
-      return this.$storeHelper.profileListOfGroup();
-    }
   },
   watch: {
     languageInfo: 'onLanguageInfo',
-    profileListOfGroup: 'onProfileListOfGroup',
+    '$storeHelper.profileListOfGroup': 'onProfileListOfGroup',
     '$storeHelper.currentGroupID': function (groupID) {
       this.createAppForm.groupID = groupID;
     }
@@ -360,6 +357,11 @@ export default {
         this.language.list = languageList;
         this.handleLanguageChange(defaultLanguage.type);
       }
+    },
+    // handle the change of profile
+    onProfilesChanged(value) {
+      console.log(value);
+      console.log(this.$storeHelper.profileListOfGroup);
     },
     handleLanguageChange: function (languageType) {
       if (Array.isArray(this.languageInfo)) {
