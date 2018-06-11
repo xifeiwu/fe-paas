@@ -27,6 +27,7 @@
         <el-button
                 size="mini-extral"
                 type="warning"
+                v-if="!$storeHelper.notPermitted['domain_bind_service']"
                 @click="handleButtonClick('open-bind-service-dialog')"
         >绑定服务
         </el-button>
@@ -101,6 +102,7 @@
               关联IP白名单
             </el-button>
             <el-button
+                    v-if="!$storeHelper.notPermitted['domain_remove']"
                     size="mini-extral"
                     type="danger"
                     :loading="statusOfWaitingResponse('remove') && selected.row.id === scope.row.id"

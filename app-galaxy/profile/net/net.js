@@ -74,6 +74,8 @@ class Net extends NetBase {
           '/2.x/instances/apm': 'instance_monitor',
           // 查看部署日志
           // '/2.x/service/search/deployLog': '',
+          // 删除域名
+          '/2.x/internet/delete': 'domain_remove',
           // 从实例列表打开终端
           '/2.x/instances/openTerminal': 'open_terminal_from_instance',
           // 从实例列表打开监控
@@ -102,6 +104,14 @@ class Net extends NetBase {
           '/2.x/order/todoList': '/work-order/todo',
           // 页面-审批管理/工单列表
           '/2.x/order/list': '/work-order/list',
+
+          // 跳转逻辑
+          '/2.x/service/update/DefaultInternetDomain': 'go-domain-from-service-global',
+          '/2.x/service/bindingInternetDomain': 'go-domain-from-service',
+          // 查看运营日志
+          '/2.x/instances/searchLogs': 'go-log-run-from-instance',
+          // 查看监控
+          '/2.x/instances/apm': 'go-monitor-from-instance',
         };
         // format of item in notPermittedList
         // {

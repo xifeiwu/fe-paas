@@ -59,13 +59,15 @@
             </div>
             <div>
               <div class="text"><span>外网二级域名：{{internetDomain}}</span></div>
-              <i class="el-icon-edit" @click="handleButtonClick('go-to-domain-app')"></i>
+              <i class="el-icon-edit"
+                 v-if="!$storeHelper.notPermitted['go-domain-from-service-global']"
+                 @click="handleButtonClick('go-to-domain-app')"></i>
             </div>
           </el-tooltip>
           <div v-else>
             <div class="text"><span>外网二级域名：{{internetDomain}}</span></div>
             <i class="el-icon-edit"
-               v-if="!$storeHelper.notPermitted['page_domain']"
+               v-if="!$storeHelper.notPermitted['go-domain-from-service-global']"
                @click="handleButtonClick('go-to-domain-app')"></i>
           </div>
         </div>
@@ -141,7 +143,7 @@
                     @click="handleRowButtonClick('go-to-instance-list', scope.$index, scope.row)">实例列表</el-button>
             <el-button
                     size="mini-extral" type="primary"
-                    v-if="!$storeHelper.notPermitted['page_domain']"
+                    v-if="!$storeHelper.notPermitted['go-domain-from-service']"
                     @click="handleRowButtonClick('go-to-domain-service', scope.$index, scope.row)">配置外网二级域名</el-button>
             <el-button
                     size="mini-extral" type="primary"

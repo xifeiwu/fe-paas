@@ -59,11 +59,13 @@
             <el-button
                     @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"
                     size="mini-extral"
+                    v-if="!$storeHelper.notPermitted['go-log-run-from-instance']"
                     type="primary">查看运行日志</el-button>
             <el-button
                     @click="handleRowButtonClick('monitor', scope.$index, scope.row)"
                     size="mini-extral"
                     :disabled="true"
+                    v-if="!$storeHelper.notPermitted['go-monitor-from-instance']"
                     type="info">监控</el-button>
           </template>
         </el-table-column>
