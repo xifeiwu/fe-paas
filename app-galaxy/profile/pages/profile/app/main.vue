@@ -587,6 +587,8 @@
         let productionTip = this.invalidProductionProfileTip();
         if (productionTip) {
           this.profileChangeStatus.productionProfileTip = productionTip;
+        } else {
+          this.profileChangeStatus.productionProfileTip = '';
         }
       },
 
@@ -643,8 +645,9 @@
             let productionTip = this.invalidProductionProfileTip();
             if (productionTip) {
               this.profileChangeStatus.productionProfileTip = productionTip;
-              this.$refs[formName].validate((valid) => {});
               return;
+            } else {
+              this.profileChangeStatus.productionProfileTip = '';
             }
             this.$refs[formName].validate((valid) => {
               if (!valid) {

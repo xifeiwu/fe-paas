@@ -489,6 +489,8 @@ export default {
       if (productionTip) {
         this.productionProfileTip = productionTip;
         return;
+      } else {
+        this.productionProfileTip = '';
       }
       this.$refs['createAppForm'].validate((valid) => {
         if (valid) {
