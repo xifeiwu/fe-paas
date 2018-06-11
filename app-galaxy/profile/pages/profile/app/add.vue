@@ -18,10 +18,10 @@
         <el-input v-model="createAppForm.projectName"
                   placeholder="输入GitLab里的project名称。只能包含字母、数字、中划线，2-50个字符"></el-input>
       </el-form-item>
-      <el-form-item label="运行环境" prop="profiles" class="profiles">
-        <el-checkbox-group v-model="createAppForm.profiles" @change="onProfilesChanged">
+      <el-form-item label="运行环境" prop="profiles" class="profiles" :error="productionProfileTip">
+        <el-checkbox-group v-model="createAppForm.profiles">
           <el-checkbox v-for="item in $storeHelper.profileListOfGroup" :label="item.name" :key="item.name"
-                       :disabled="item.description == '生产环境'">
+                       :disabled="item.spaceType == 'PRODUCTION' && onlyOneProductionProfile">
             {{item.description}}
           </el-checkbox>
         </el-checkbox-group>
@@ -122,11 +122,11 @@
       <el-row>
         <el-col :span="12" style="text-align: center">
           <el-button type="primary" size="mini"
-                     @click="$router.go(-1)">关闭</el-button>
+                     @click="handleFinish">完成</el-button>
         </el-col>
         <el-col :span="12" style="text-align: center">
           <el-button type="primary" size="mini"
-                     @click="handleFinish">完成</el-button>
+                     @click="$router.go(-1)">关闭</el-button>
         </el-col>
       </el-row>
     </div>
@@ -306,6 +306,9 @@ export default {
         maxAge4Script: '30',
         loadBalance: appPropUtil.getAllLoadBalance()[0],
       },
+      // if moreThanOneProductionProfile, one production profile must be set
+      onlyOneProductionProfile: false,
+      productionProfileTip: '',
       editScript: true,
       formattedScript4RollingUpdate: '',
       rules: appPropUtil.rules,
@@ -343,11 +346,32 @@ export default {
       // set java language as default
       this.setDefaultLanguage(value);
     },
-    onProfileListOfGroup: function (value, oldValue) {
-      if (Array.isArray(value)) {
-        this.createAppForm.profiles = value.map(it => {
+    /**
+     * get profileNameList from profileInfoList
+     * @param profileInfoList
+     * 处理规则：
+     * 1. 只有一个生产环境，生产环境必选
+     * 2. 有个一个以上的生产环境，默认不做勾选，在用户提交时校验（有且只能由一个生产环境）
+     */
+    onProfileListOfGroup: function (profileInfoList) {
+      let productionProfileCount = 0;
+      if (Array.isArray(profileInfoList)) {
+        this.createAppForm.profiles = profileInfoList.map(it => {
+          if (it.spaceType === 'PRODUCTION') {
+            productionProfileCount += 1;
+          }
           return it.name;
         });
+      }
+      this.onlyOneProductionProfile = (productionProfileCount === 1);
+      if (!this.onlyOneProductionProfile) {
+        if (Array.isArray(profileInfoList)) {
+          this.createAppForm.profiles = profileInfoList.filter(it => {
+            return it.spaceType !== 'PRODUCTION';
+          }).map(it => {
+            return it.name;
+          });
+        }
       }
     },
     setDefaultLanguage: function (languageList) {
@@ -358,11 +382,7 @@ export default {
         this.handleLanguageChange(defaultLanguage.type);
       }
     },
-    // handle the change of profile
-    onProfilesChanged(value) {
-      console.log(value);
-      console.log(this.$storeHelper.profileListOfGroup);
-    },
+
     handleLanguageChange: function (languageType) {
       if (Array.isArray(this.languageInfo)) {
         // get language info from languageList by language type
@@ -449,9 +469,35 @@ export default {
           break;
       }
     },
+
+    // 有且只能有一个生产环境
+    invalidProductionProfileTip() {
+      let messageTip = null;
+      let profileInfoList = this.createAppForm.profiles.map(it => {
+        return this.$storeHelper.getProfileInfoByName(it);
+      });
+      let productionProfileCount = 0;
+      profileInfoList.forEach(it => {
+        if (it && it.hasOwnProperty('spaceType') && it['spaceType'] === 'PRODUCTION') {
+          productionProfileCount += 1;
+        }
+      });
+      if (productionProfileCount === 0) {
+        messageTip = '必须选择一个生产环境';
+      } else if (productionProfileCount > 1) {
+        messageTip = '只能选择一个生产环境';
+      }
+      return messageTip;
+    },
+    // action for submit button
     handleFinish() {
 //      console.log(this.createAppForm);
       var self = this;
+      let productionTip = this.invalidProductionProfileTip();
+      if (productionTip) {
+        this.productionProfileTip = productionTip;
+        return;
+      }
       this.$refs['createAppForm'].validate((valid) => {
         if (valid) {
           this.createAppForm.groupID = this.$storeHelper.currentGroupID;
