@@ -21,7 +21,7 @@
       <el-form-item label="运行环境" prop="profiles" class="profiles" :error="productionProfileTip">
         <el-checkbox-group v-model="createAppForm.profiles">
           <el-checkbox v-for="item in $storeHelper.profileListOfGroup" :label="item.name" :key="item.name"
-                       :disabled="item.spaceType == 'PRODUCTION' && onlyOneProductionProfile">
+                       :disabled="item.spaceType == 'PRODUCTION' && $storeHelper.groupRelatedInfo.onlyOneProductionProfile">
             {{item.description}}
           </el-checkbox>
         </el-checkbox-group>
@@ -306,8 +306,6 @@ export default {
         maxAge4Script: '30',
         loadBalance: appPropUtil.getAllLoadBalance()[0],
       },
-      // if moreThanOneProductionProfile, one production profile must be set
-      onlyOneProductionProfile: false,
       productionProfileTip: '',
       editScript: true,
       formattedScript4RollingUpdate: '',
@@ -354,17 +352,7 @@ export default {
      * 2. 有个一个以上的生产环境，默认不做勾选，在用户提交时校验（有且只能由一个生产环境）
      */
     onProfileListOfGroup: function (profileInfoList) {
-      let productionProfileCount = 0;
-      if (Array.isArray(profileInfoList)) {
-        this.createAppForm.profiles = profileInfoList.map(it => {
-          if (it.spaceType === 'PRODUCTION') {
-            productionProfileCount += 1;
-          }
-          return it.name;
-        });
-      }
-      this.onlyOneProductionProfile = (productionProfileCount === 1);
-      if (!this.onlyOneProductionProfile) {
+      if (!this.$storeHelper.groupRelatedInfo['onlyOneProductionProfile']) {
         if (Array.isArray(profileInfoList)) {
           this.createAppForm.profiles = profileInfoList.filter(it => {
             return it.spaceType !== 'PRODUCTION';
@@ -372,6 +360,10 @@ export default {
             return it.name;
           });
         }
+      } else {
+        this.createAppForm.profiles = profileInfoList.map(it => {
+          return it.name;
+        });
       }
     },
     setDefaultLanguage: function (languageList) {

@@ -55,6 +55,21 @@ class StoreHelper extends BaseHelper{
     return this.$store.getters['user/profileListOfGroup'];
   }
 
+  get groupRelatedInfo() {
+    let productionProfileCount = 0;
+    if (Array.isArray(this.profileListOfGroup)) {
+      this.profileListOfGroup.forEach(it => {
+        if (it.spaceType === 'PRODUCTION') {
+          productionProfileCount += 1;
+        }
+      })
+    }
+    let onlyOneProductionProfile = (productionProfileCount === 1);
+    return {
+      onlyOneProductionProfile,
+    }
+  }
+
   usersInGroup() {
     return this.$store.getters['user/usersInGroup'];
   }

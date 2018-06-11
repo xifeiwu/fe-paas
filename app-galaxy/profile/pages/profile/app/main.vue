@@ -157,10 +157,10 @@
             {{item.description}}
           </el-tag>
         </el-form-item>
-        <el-form-item label="更改为：" prop="profileNames">
+        <el-form-item label="更改为：" prop="profileNames" :error="profileChangeStatus.productionProfileTip">
           <el-checkbox-group v-model="newProps.profileNames" @change="handleCheckboxChangeForProfileNames">
             <el-checkbox v-for="item in $storeHelper.profileListOfGroup" :label="item.name" :key="item.name"
-                         :disabled="item.description == '生产环境'">
+                         :disabled="item.spaceType == 'PRODUCTION' && $storeHelper.groupRelatedInfo.onlyOneProductionProfile">
               {{item.description}}
             </el-checkbox>
           </el-checkbox-group>
@@ -422,7 +422,8 @@
           toAdd: [],
           toDelete: [],
           openPopper: false,
-          popperContent: ''
+          popperContent: '',
+          productionProfileTip: ''
         },
 
         filterMyApp: false,
@@ -583,6 +584,30 @@
         let toAdd = current.filter(it => origin.indexOf(it) === -1);
         this.profileChangeStatus.toAdd = this.$storeHelper.getProfileInfoListByNameList(toAdd);
         this.profileChangeStatus.toDelete = this.$storeHelper.getProfileInfoListByNameList(toDelete);
+        let productionTip = this.invalidProductionProfileTip();
+        if (productionTip) {
+          this.profileChangeStatus.productionProfileTip = productionTip;
+        }
+      },
+
+      // 有且只能有一个生产环境
+      invalidProductionProfileTip() {
+        let messageTip = null;
+        let profileInfoList = this.newProps.profileNames.map(it => {
+          return this.$storeHelper.getProfileInfoByName(it);
+        });
+        let productionProfileCount = 0;
+        profileInfoList.forEach(it => {
+          if (it && it.hasOwnProperty('spaceType') && it['spaceType'] === 'PRODUCTION') {
+            productionProfileCount += 1;
+          }
+        });
+        if (productionProfileCount === 0) {
+          messageTip = '必须选择一个生产环境';
+        } else if (productionProfileCount > 1) {
+          messageTip = '只能选择一个生产环境';
+        }
+        return messageTip;
       },
 
       /**
@@ -615,6 +640,12 @@
             });
             break;
           case 'profileNames':
+            let productionTip = this.invalidProductionProfileTip();
+            if (productionTip) {
+              this.profileChangeStatus.productionProfileTip = productionTip;
+              this.$refs[formName].validate((valid) => {});
+              return;
+            }
             this.$refs[formName].validate((valid) => {
               if (!valid) {
                 return;
@@ -632,6 +663,7 @@
                 if (this.profileChangeStatus.toDelete.length > 0) {
                   let msg = '将要删除运行环境：' + this.profileChangeStatus.toDelete.map(it => {return it.description}).join(',');
                   msg += '。将销毁该环境的代码和配置信息，解绑所有公网域名、IP白名单，且不可恢复。确定继续吗？';
+                  // open popper
                   this.profileChangeStatus.popperContent = msg;
                   this.profileChangeStatus.openPopover = true;
                 } else {
@@ -639,6 +671,19 @@
                 }
               }
             });
+            break;
+        }
+      },
+
+      // handle button action in popper dialog
+      handlePopoverButton(action, tag) {
+        switch (action) {
+          case 'update-profile-name':
+            this.requestServerForUpdate('profileNames');
+            this.profileChangeStatus.openPopover = false;
+            break;
+          case 'cancel-update-profile-name':
+            this.profileChangeStatus.openPopover = false;
             break;
         }
       },
@@ -850,18 +895,6 @@
       handlePaginationPageChange(page) {
         this.currentPage = page;
         this.requestAPPList({});
-      },
-
-      handlePopoverButton(action, tag) {
-        switch (action) {
-          case 'update-profile-name':
-            this.requestServerForUpdate('profileNames');
-            this.profileChangeStatus.openPopover = false;
-            break;
-          case 'cancel-update-profile-name':
-            this.profileChangeStatus.openPopover = false;
-            break;
-        }
       },
     }
   }
