@@ -177,9 +177,16 @@
   </div>
 </template>
 
-<style type="scss">
+<style lang="scss">
   #group-manage .row-expand .el-table thead tr {
     background-color: #ddd;
+  }
+
+  #group-manage .row-expand .pagination-container .pagination .el-pagination .el-pager li {
+    height: 18px;
+    &.number {
+      line-height: 18px;
+    }
   }
 </style>
 <style lang="scss" scoped>
@@ -205,12 +212,6 @@
             }
             thead tr {
                background-color: red;
-             }
-          }
-          .pagination-container .pagination .el-pagination .el-pager li {
-            line-height: 18px;
-            &.number {
-              height: 18px;
             }
           }
         }
