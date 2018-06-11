@@ -102,12 +102,18 @@
 
       <el-form-item label="环境变量设置" prop="environments" class="environments"
                     :error="formItemMsgForEnvironments">
-
-        <el-row class="title">
-          <el-col :span="11" class="key">Key</el-col>
-          <el-col :span="11" class="value">Value</el-col>
-          <el-col :span="2"></el-col>
-        </el-row>
+        <div class="el-row title">
+          <div class="el-col el-col-11 key">Key</div>
+          <div class="el-col el-col-11 value">Value</div>
+          <div class="el-col el-col-2" style="text-align: center">
+            <el-tooltip slot="trigger" effect="dark" placement="bottom">
+              <div slot="content">
+                <div>容器运行前设置的环境变量。如env中的Name：string（环境变量名称），Value：string（环境变量的值）</div>
+              </div>
+              <span><i class="el-icon-question" style="color: #E6A23C"></i></span>
+            </el-tooltip>
+          </div>
+        </div>
         <el-row class="content"
                 v-for="(item, index) in serviceForm.environments"
                 :key="item.key"
@@ -134,11 +140,18 @@
 
       <el-form-item label="Host配置" prop="hosts" class="hosts"
                     :error="formItemMsgForHosts">
-        <el-row class="title">
-          <el-col :span="11" class="key">IP</el-col>
-          <el-col :span="11" class="value">域名</el-col>
-          <el-col :span="2"></el-col>
-        </el-row>
+        <div class="el-row title">
+          <div class="el-col el-col-11 key">IP</div>
+          <div class="el-col el-col-11 value">域名</div>
+          <div class="el-col el-col-2" style="text-align: center">
+            <el-tooltip slot="trigger" effect="dark" placement="bottom">
+              <div slot="content">
+                <div>该Host为/etc/hosts，配置主机名和IP地址。如：192.168.1.10 finup100</div>
+              </div>
+              <span><i class="el-icon-question" style="color: #E6A23C"></i></span>
+            </el-tooltip>
+          </div>
+        </div>
         <el-row class="content"
                 v-for="(item, index) in serviceForm.hosts"
                 :key="item.key"
