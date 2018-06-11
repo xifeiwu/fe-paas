@@ -500,14 +500,14 @@
     <el-dialog title="更改maven profile id" :visible="selected.prop == 'mavenProfileId'"
                :close-on-click-modal="false"
                @close="selected.prop = null"
-               class="gitlab-address size-500"
+               class="gitlab-address size-550"
                v-if="selected.service && selected.model"
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
         <span>更改maven profile id后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="160px" ref="changeMavenProfileIdForm" size="mini">
+      <el-form :model="newProps" :rules="rules" labelWidth="180px" ref="changeMavenProfileIdForm" size="mini">
         <el-form-item label="当前maven profile id：">
           <div class="expand-to-next-line">{{selected.model.mavenProfileId}}</div>
         </el-form-item>
