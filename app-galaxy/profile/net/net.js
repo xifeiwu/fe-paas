@@ -231,6 +231,10 @@ class Net extends NetBase {
           resolve(responseContent);
         } else {
           console.log('用户组列表获取失败！');
+          reject({
+            title: '数据格式不正确',
+            msg: '数据格式不正确'
+          })
         }
       }).catch(err => {
         reject({
@@ -567,29 +571,36 @@ class Net extends NetBase {
    * @returns {Promise}
    */
   appUpdate(prop, options) {
-    let urlList = {
-      appName: URL_LIST.app_change_name.url,
-      profileNames: URL_LIST.app_change_profile.url,
+    let urlMap = {
+      appName: URL_LIST.app_change_name,
+      profileNames: URL_LIST.app_change_profile,
     };
-    let url = urlList[prop];
-    if (!url) {
+    let urlDesc = urlMap[prop];
+    if (!urlDesc) {
       return new Promise((resolve, reject) => {
         reject('url not found');
       })
     }
     return new Promise((resolve, reject) => {
-      axios.post(url, options).then(response => {
+      axios.post(urlDesc.url, options).then(response => {
         if ('data' in response) {
           let data = response.data;
           if (0 === data.code) {
             let msg = data.msg ? data.msg : '修改成功';
             resolve(msg);
           } else {
-            reject(data.msg);
+            reject({
+              title: '数据格式不正确',
+              msg: data.msg
+            });
           }
         }
       }).catch(err => {
-        console.log(err);
+        // console.log(err);
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${urlDesc.path}；${err.toString()}`
+        });
       });
     });
   }

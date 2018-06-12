@@ -719,13 +719,15 @@
           }).catch(err => {
             this.waitingResponse = false;
             this.selected.prop = null;
-            this.$notify.error({
-              title: '修改运行环境失败！',
-              message: err,
-              duration: 0,
-              onClose: function () {
-              }
-            });
+            if (err.title && err.msg) {
+              this.$notify.error({
+                title: err.title,
+                message: err.msg,
+                duration: 0,
+                onClose: function () {
+                }
+              });
+            }
           })
         }
       },
