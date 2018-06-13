@@ -34,8 +34,7 @@
                 v-if="!$storeHelper.notPermitted['oauth_create_access_key']"
                 size="mini-extral"
                 type="primary"
-                :disabled="statusOfWaitingResponse('disable-create-access-key')"
-                @click="handleButtonClick('create-access-key')">
+                @click="handleButtonClick('open-dialog-4-create-access-key')">
           {{contentOfCreateAccessKeyButton}}
         </el-button>
       </el-col>
@@ -189,6 +188,56 @@
         </div>
       </div>
     </div>
+
+    <el-dialog title="创建Access Key" :visible="selected.operation == 'open-dialog-4-create-access-key'"
+               class="create-access-key size-700"
+               :close-on-click-modal="false"
+               @close="handleDialogClose('create-access-key')"
+    >
+      <el-form :model="createAccessKeyInfo" :rules="rulesForCreateAccessKey" labelWidth="110px" size="mini"
+               ref="createAccessKeyForm">
+        <el-form-item label="我的团队" v-if="groupInfo">
+          {{groupInfo.name}}
+        </el-form-item>
+        <el-form-item label="是否外部应用">
+          <el-radio-group v-model="createAccessKeyInfo.isExternalApp">
+            <el-radio :label="true">是</el-radio>
+            <el-radio :label="false">否</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="外部应用名称" prop="externalAppName" v-if="createAccessKeyInfo.isExternalApp">
+          <el-input v-model="createAccessKeyInfo.externalAppName" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
+        </el-form-item>
+        <el-form-item label="我的应用" prop="appID" v-if="!createAccessKeyInfo.isExternalApp">
+          <el-select filterable v-model="createAccessKeyInfo.appID" placeholder="请选择"
+                     style="display:block; max-width: 280px;">
+            <el-option v-for="(item, index) in appListOfCurrentGroup" :key="item.appId" :label="item.serviceName" :value="item.appId">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="访问环境" prop="production" v-if="!createAccessKeyInfo.isExternalApp">
+          <el-select v-model="createAccessKeyInfo.production" placeholder="请选择"
+                     style="display:block; max-width: 280px;">
+            <el-option :value="true" label="生产环境"></el-option>
+            <el-option :value="false" label="非生产环境"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       :loading="statusOfWaitingResponse('create-access-key')"
+                       @click="handleDialogButton('create-access-key')"
+            >保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button action="profile-dialog/cancel"
+                       @click="handleDialogClose('create-access-key')">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
 
     <el-dialog title="修改访问配置" :visible="selected.operation == 'open-dialog-for-modify-access-config'"
                class="modify-access-config size-700"
@@ -459,6 +508,7 @@
 
 <script>
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+  import utils from '$assets/libs/element-ui/utils';
 module.exports = {
   created() {
 //    console.log(this.appInfoListOfGroup);
@@ -506,7 +556,7 @@ module.exports = {
 
       targetGroupList: [],
       showLoading: false,
-      createAccessKeyTag: null,
+//      createAccessKeyTag: null,
       contentOfCreateAccessKeyButton: '创建Access Key',
       searchCondition: {
         groupID: '',
@@ -521,6 +571,29 @@ module.exports = {
         row: {id: null},
         operation: null,
         prop: null,
+      },
+
+      createAccessKeyInfo: {
+        isExternalApp: false,
+        appID: null,
+        production: false,
+        externalAppName: '',
+      },
+      rulesForCreateAccessKey: {
+        appID: [{
+          required: true,
+          message: '必须选择应用',
+        }],
+        production: [{
+          required: true,
+          message: '必须选择访问环境',
+        }],
+        externalAppName: [{
+          required: true,
+          message: '应用名不能为空',
+        }, {
+          validator: utils.generateValidator(true, true, 2, 30, true)
+        }],
       },
 
       // prop used for dialog modify-access-config
@@ -732,43 +805,19 @@ module.exports = {
 
     handleButtonClick(action) {
       switch (action) {
-        case 'create-access-key':
-          this.createAccessKeyTag = new Date().getTime();
-          this.addToWaitingResponseQueue('disable-create-access-key');
-          let intervalCount = 0;
-          let intervalTag = setInterval(() => {
-            intervalCount = intervalCount + 1;
-            if (intervalCount >= 9) {
-              clearInterval(intervalTag);
-              this.hideWaitingResponse('disable-create-access-key');
-              this.contentOfCreateAccessKeyButton = '创建Access Key';
-            } else {
-              this.contentOfCreateAccessKeyButton = `创建Access Key(请等待${9-intervalCount}s)`;
-            }
-          }, 1000);
-
-          this.$net.oAuthCreateAccessKey({
-            groupId: this.$storeHelper.currentGroupID
-          }).then(content => {
-            let item = this.getEmptyItem();
-            item.id = content.id;
-            item.createTime = content.createTime.split(' ');
-            item.creatorName = content.creatorName;
-            item.secret = content.secret;
-            item.accessKey = content.client_id;
-            this.accessKeyListByPage.unshift(item);
-            this.$message.success(`Access key ${content.secret} 创建成功！`);
-//            this.hideWaitingResponse('create-access-key');
-          }).catch(msg => {
-//            this.hideWaitingResponse('create-access-key');
-            this.$notify.error({
-              title: '创建Access Key失败！',
-              message: msg,
-              duration: 0,
-              onClose: function () {
-              }
-            });
-          });
+        case 'open-dialog-4-create-access-key':
+          if (!this.groupInfo || !this.appListOfCurrentGroup) {
+            this.$message.error('信息不完整');
+            return;
+          }
+          // init value of createAccessKeyInfo
+          this.createAccessKeyInfo.isExternalApp = false;
+          this.createAccessKeyInfo.appID = this.appListOfCurrentGroup[0].appId;
+          if (null == this.createAccessKeyInfo.production) {
+            this.createAccessKeyInfo.production = false;
+          }
+          this.createAccessKeyInfo.externalAppName = '';
+          this.selected.operation = action;
           break;
         case 'search':
           this.currentPage = 1;
@@ -944,6 +993,28 @@ module.exports = {
 
     handleDialogButton(action, index, item) {
       switch (action) {
+        case 'create-access-key':
+//          this.$net.oAuthCreateAccessKey({
+//            groupId: this.$storeHelper.currentGroupID
+//          }).then(content => {
+//            let item = this.getEmptyItem();
+//            item.id = content.id;
+//            item.createTime = content.createTime.split(' ');
+//            item.creatorName = content.creatorName;
+//            item.secret = content.secret;
+//            item.accessKey = content.client_id;
+//            this.accessKeyListByPage.unshift(item);
+//            this.$message.success(`Access key ${content.secret} 创建成功！`);
+//          }).catch(msg => {
+//            this.$notify.error({
+//              title: '创建Access Key失败！',
+//              message: msg,
+//              duration: 0,
+//              onClose: function () {
+//              }
+//            });
+//          });
+          break;
         case 'add-access-config':
 //          console.log(this.modifyAccessConfig);
           if (this.isTargetAppOK()) {

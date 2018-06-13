@@ -4,6 +4,7 @@ class Utils {
    * @param chinese
    * @param min
    * @param max
+   * @param strict, if frequently used char, such as .@: is allowed
    * @returns {{reg: RegExp, desc: string}}
    */
   generateReg(chinese, min, max, strict) {
