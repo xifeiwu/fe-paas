@@ -157,6 +157,13 @@
                 访问配置
               </el-button>
               <el-button
+                      size="mini-extral"
+                      type="warning"
+                      :loading="statusOfWaitingResponse('open-dialog-4-update-url-permission') && selected.row.id === scope.row.id"
+                      @click="handleTRClick('open-dialog-4-update-url-permission', scope.$index, scope.row)">
+                权限配置
+              </el-button>
+              <el-button
                       v-if="!$storeHelper.notPermitted['oauth_update_secret']"
                       size="mini-extral"
                       type="warning"
@@ -232,7 +239,7 @@
             >保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
-            <el-button action="profile-dialog/cancel"
+            <el-button
                        @click="handleDialogClose('create-access-key')">取&nbsp消</el-button>
           </el-col>
         </el-row>
@@ -342,14 +349,63 @@
                        >保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
-            <el-button action="profile-dialog/cancel"
+            <el-button
                        @click="handleDialogClose('add-access-config-in-dialog')">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
     </el-dialog>
 
-    <el-dialog title="更改秘钥" :visible="selected.operation == 'modify-secret'"
+    <el-dialog title="权限配置" :visible="selected.operation == 'open-dialog-4-update-url-permission'"
+               class="update-url-permission size-700"
+               :close-on-click-modal="false"
+               @close="handleDialogClose('update-url-permission')"
+    >
+      <el-form :model="createAccessKeyInfo" :rules="rulesForCreateAccessKey" labelWidth="110px" size="mini"
+               ref="createAccessKeyForm">
+        <el-form-item label="我的团队" v-if="groupInfo">
+          {{groupInfo.name}}
+          </el-form-item>
+        <el-form-item label="是否外部应用">
+          <el-radio-group v-model="createAccessKeyInfo.isExternalApp">
+            <el-radio :label="true">是</el-radio>
+            <el-radio :label="false">否</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="外部应用名称" prop="externalAppName" v-if="createAccessKeyInfo.isExternalApp">
+          <el-input v-model="createAccessKeyInfo.externalAppName" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
+        </el-form-item>
+        <el-form-item label="我的应用" prop="appID" v-if="!createAccessKeyInfo.isExternalApp">
+          <el-select filterable v-model="createAccessKeyInfo.appID" placeholder="请选择"
+                     style="display:block; max-width: 280px;">
+            <el-option v-for="(item, index) in appListOfCurrentGroup" :key="item.appId" :label="item.serviceName" :value="item.appId">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="访问环境" prop="production" v-if="!createAccessKeyInfo.isExternalApp">
+          <el-select v-model="createAccessKeyInfo.production" placeholder="请选择"
+                     style="display:block; max-width: 280px;">
+            <el-option :value="true" label="生产环境"></el-option>
+            <el-option :value="false" label="非生产环境"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       :loading="statusOfWaitingResponse('update-url-permission')"
+                       @click="handleDialogButton('update-url-permission')"
+            >保&nbsp存</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button @click="handleDialogClose('update-url-permission')">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+  <el-dialog title="更改秘钥" :visible="selected.operation == 'modify-secret'"
                class="modify-secret"
                :close-on-click-modal="false"
                @close="selected.operation = null"
@@ -915,6 +971,10 @@ module.exports = {
               })
             });
           }
+          break;
+        case 'open-dialog-4-update-url-permission':
+          this.selected.row = row;
+          this.selected.operation = action;
           break;
         case 'modify-secret':
           this.newProps.secret = row.secret;
