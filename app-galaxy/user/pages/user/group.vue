@@ -521,6 +521,8 @@
         this.memberList = [];
         this.$net.getGroupMembers({id: group.id}).then(memberList => {
           this.memberList = memberList;
+          this.memberPagination.currentPage = 1;
+          this.updateMemberListByPage();
           if (group.hasOwnProperty('id')) {
             this.expandRows = [group.id];
           }
