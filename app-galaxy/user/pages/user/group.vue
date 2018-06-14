@@ -31,7 +31,7 @@
         <el-table-column label="操作" prop="operation" minWidth="120" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
-                    v-if="!$storeHelper.notPermitted['show_group_numbers']"
+                    v-if="!$storeHelper.notPermitted['group_member_list']"
                     size="mini-extral"
                     type="primary"
                     @click="handleTRButton('show-group-numbers', scope.$index, scope.row)"
@@ -41,7 +41,7 @@
               <i class="el-icon-arrow-right"></i>
             </el-button>
             <el-button
-                    v-if="!$storeHelper.notPermitted['invite_numbers']"
+                    v-if="!$storeHelper.notPermitted['group_member_invite']"
                     size="mini-extral"
                     type="primary"
                     @click="handleTRButton('invite-group-number', scope.$index, scope.row)">
@@ -65,6 +65,7 @@
                 <el-table-column label="操作" prop="operation" headerAlign="center" align="center" width="180">
                   <template slot-scope="scope">
                     <el-button
+                            v-if="!$storeHelper.notPermitted['group_member_update_roles']"
                             size="mini-extral"
                             type="info"
                             round
@@ -74,6 +75,7 @@
                       <span>修改岗位</span>
                     </el-button>
                     <el-button
+                            v-if="!$storeHelper.notPermitted['group_member_remove']"
                             size="mini-extral"
                             type="info"
                             round

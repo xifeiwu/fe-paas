@@ -12,7 +12,7 @@ export default class RouterConfig {
     this.Vue = Vue;
     this._routes = [{
         path: '/',
-        redirect: '/info'
+        redirect: '/group'
       },
       {
         path: '/info',
