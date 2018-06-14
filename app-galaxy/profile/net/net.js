@@ -689,7 +689,7 @@ class Net extends NetBase {
   // 切换默认服务版本
   changeDefaultService(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST._service_change_default.url, options).then(response => {
+      axios.post(URL_LIST.service_change_default.url, options).then(response => {
         let responseMsg = this.getResponseMsg(response);
         if (responseMsg.success) {
           resolve(responseMsg.msg);

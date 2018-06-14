@@ -68,7 +68,7 @@ class Net {
     let response = null, data = null;
     if (error.hasOwnProperty('response')) {
       response = error.response;
-      if (response.hasOwnProperty('data')) {
+      if (response && response.hasOwnProperty('data')) {
         data = response.data;
         if (data.hasOwnProperty('error') && data.hasOwnProperty('path')) {
           content.msg = data.error + ': ' + data.path;
