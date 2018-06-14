@@ -34,7 +34,7 @@
           </div>
           <img src="/assets/imgs/index/storage.png">
         </el-row>
-        <el-row class="communication" type="flex" justify="space-between" align="middle">
+        <el-row class="communication" type="flex" justify="space-between" align="middle" v-if="false">
           <img src="/assets/imgs/index/communication.png">
           <div class="intro">
             <div class="summary">{{communicationIntro.title}}</div>
@@ -85,7 +85,6 @@
             <ul>
               <li class="linker" @click="handleClick('go-to-profile')">应用引擎</li>
               <li>对象存储</li>
-              <li>应用引擎</li>
             </ul>
           </div>
           <div class="col">
@@ -392,11 +391,7 @@ $menu-height: 45px;
       handleClick(action) {
         switch (action) {
           case 'go-to-profile':
-            this.$router.push({
-              path: '/profile/app',
-              query: {
-              }
-            });
+            this.$utils.goToPath('/profile');
             break;
         }
       }
