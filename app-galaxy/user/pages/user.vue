@@ -153,6 +153,9 @@
     },
     created() {
       this.updateActiveCommand();
+      this.$net.getNotPermittedCommands().then(permissionList => {
+        this.$storeHelper.notPermitted = permissionList;
+      });
     },
     mounted() {
       this.$nextTick(() => {

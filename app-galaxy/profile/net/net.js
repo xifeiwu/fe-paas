@@ -38,6 +38,7 @@ class Net extends NetBase {
     debug('%s, %o', func, data);
   }
 
+  // 获取用户不允许操作的功能列表
   getNotPermittedCommands() {
     function getPermissionMap() {
       return axios.post(URL_LIST.permission_url_map.url, {});

@@ -307,7 +307,6 @@
             this.$utils.goToPath('/user');
             break;
           case 'user/logout':
-
             this.$net.logout().then(msg => {
               this.$message({
                 type: 'success',

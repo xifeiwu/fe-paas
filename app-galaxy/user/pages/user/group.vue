@@ -252,7 +252,6 @@
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   module.exports = {
     created() {
-
     },
 
     mounted() {

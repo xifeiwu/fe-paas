@@ -44,6 +44,76 @@ class Net extends NetBase {
     })
   }
 
+  // 获取用户不允许操作的功能列表
+  getNotPermittedCommands() {
+    function getNotPermitted() {
+      return axios.get(URL_LIST.user_not_permitted.url);
+    }
+    return new Promise((resolve, reject) => {
+      axios.all([getNotPermitted()]).then(axios.spread((notPermittedRes) => {
+        let notPermittedListOrigin = this.getResponseContent2(notPermittedRes);
+        notPermittedListOrigin = notPermittedListOrigin.map(it => {
+          it.hasOwnProperty('id') && delete it.id;
+          it.hasOwnProperty('parentId') && delete it.parentId;
+          it.hasOwnProperty('createTime') && delete it.createTime;
+          it.hasOwnProperty('updateTime') && delete it.updateTime;
+          it.hasOwnProperty('permissionType') && delete it.permissionType;
+          return it;
+        });
+        // console.log(notPermittedListOrigin);
+
+        let notPermittedList = [];
+
+        // some permissionPath do not related to any url are list bellow
+        let pathToKey = {
+          // 团队列表
+          '/2.x/group/list': 'group_List',
+          // 查看成员
+          '/2.x/group/member/list': 'group_member_list',
+          // 邀请成员
+          '/2.x/group/member/add': 'group_member_invite',
+          // 修改岗位
+          '/2.x/group/member/update': 'group_member_update_roles',
+          // 移除成员
+          '/2.x/group/member/delete': 'group_member_remove',
+        };
+        // format of item in notPermittedList
+        // {
+        //   id: 110,
+        //   name: "创建外网域名",
+        //   parentId: 84,
+        //   path: "/2.x/internet/create",
+        //   permissionType: "BUTTON",
+        //   url: "/domain/record/create",
+        //   method: "POST",
+        //   key: "domain_bind_white_list"
+        // }
+
+        // add url and method by notPermittedListOrigin
+        notPermittedListOrigin.forEach(it => {
+          // check if permission in pathToKey first
+          if (pathToKey.hasOwnProperty(it.path)) {
+            it.key = pathToKey[it.path];
+            notPermittedList.push(it);
+          }
+        });
+        // console.log(notPermittedList);
+
+        let result = notPermittedList.filter(it => {
+          return it.hasOwnProperty('key') && it.key;
+        }).map(it => {
+          return it['key'];
+        });
+        // console.log(result);
+        resolve(result);
+      })).catch(err => {
+        reject([]);
+        console.log(err);
+      })
+    });
+  }
+
+
   // 获取团队
   getGroupList() {
     return new Promise((resolve, reject) => {
@@ -76,20 +146,25 @@ class Net extends NetBase {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.group_list_by_page.url, data).then(response => {
         let content = this.getResponseContent(response);
-        if (content && content.hasOwnProperty('groupList') && Array.isArray(content.groupList)) {
-          let groupList = content.groupList;
-          groupList.forEach(it => {
-            it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-            if (it.createTime) {
-              it.createTime = it.createTime.split(' ');
-            }
-          });
-          resolve(groupList);
+        if (content) {
+          if (content.hasOwnProperty('groupList') && Array.isArray(content.groupList)) {
+            let groupList = content.groupList;
+            groupList.forEach(it => {
+              it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              if (it.createTime) {
+                it.createTime = it.createTime.split(' ');
+              }
+            });
+            resolve(groupList);
+          } else {
+            reject({
+              title: '格式不正确',
+              msg: 'groupList不存在'
+            });
+          }
         } else {
-          reject({
-            title: '格式不正确',
-            msg: 'groupList不存在'
-          });
+          reject(this.getResponseMsg(response));
+
         }
       }).catch(err => {
         reject({
