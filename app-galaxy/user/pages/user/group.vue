@@ -58,7 +58,7 @@
               <el-table :data="memberListByPage" class="member-list">
                 <el-table-column label="用户名" prop="username" headerAlign="center" align="center" width="100">
                 </el-table-column>
-                <el-table-column label="真实项目" prop="realName" headerAlign="center" align="center" width="100">
+                <el-table-column label="真实姓名" prop="realName" headerAlign="center" align="center" width="100">
                 </el-table-column>
                 <el-table-column label="岗位" prop="jobDescription" headerAlign="center" align="center">
                 </el-table-column>
@@ -257,7 +257,9 @@
 
     mounted() {
       this.showLoading = true;
-      this.$net.getGroupList().then((groupList) => {
+//      this.$net.getLobList();
+      // draw: 1, start: 0, length: 10
+      this.$net.getGroupListByPage({}).then((groupList) => {
         this.groupList = groupList;
         this.showLoading = false;
 
@@ -277,10 +279,6 @@
           });
         }
       });
-//      this.$net.getLobList();
-//      this.$net.getGroupListByPage({draw: 1, start: 0, length: 10}).then((groupList) => {
-//      }).catch(err => {
-//      });
 
       try {
         this.groupListNode = this.$el.querySelector('.group-list');

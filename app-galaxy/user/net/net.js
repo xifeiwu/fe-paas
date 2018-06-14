@@ -83,16 +83,18 @@ class Net extends NetBase {
             if (it.createTime) {
               it.createTime = it.createTime.split(' ');
             }
-          })
+          });
           resolve(groupList);
         } else {
-          let responseMsg = this.getResponseMsg(response);
-          reject(responseMsg);
+          reject({
+            title: '格式不正确',
+            msg: 'groupList不存在'
+          });
         }
       }).catch(err => {
         reject({
-          title: '请求错误',
-          msg: err.toString()
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.group_list_by_page.path}；${err.toString()}`
         });
       })
     })
