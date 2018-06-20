@@ -154,7 +154,7 @@
                       size="mini-extral"
                       type="warning"
                       :loading="statusOfWaitingResponse('open-dialog-for-modify-access-config') && selected.row.id === scope.row.id"
-                      @click="handleTRClick('open-dialog-for-modify-access-config', scope.$index, scope.row)">
+                      @click="handleTRClick('open-dialog-4-modify-access-key', scope.$index, scope.row)">
                 访问配置
               </el-button>
               <el-button
@@ -261,7 +261,6 @@
                 <el-button type="warning" size="mini-extral"
                            round
                            slot="reference"
-                           :loading="statusOfWaitingResponse('delete-access-config-in-dialog') && selected.row.id === scope.row.id"
                            @click="handleDialogButton('delete-access-config', index, item)">删除</el-button>
               </el-popover>
             </el-col>
@@ -311,7 +310,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="修改访问配置" :visible="selected.operation == 'open-dialog-for-modify-access-config'"
+    <el-dialog title="修改访问配置" :visible="selected.operation == 'open-dialog-4-modify-access-key'"
                class="modify-access-config size-700"
                :close-on-click-modal="false"
                @close="handleDialogClose('add-access-config-in-dialog')"
@@ -321,40 +320,30 @@
         <i class="el-icon-warning"></i>
         <span>如需更换团队，请在页面右上角选择我的团队</span>
       </el-tag>
-      <el-form :model="modifyAccessKeyInfo" :rules="rulesForAccessConfig" labelWidth="110px" size="mini" ref="modifyAccessKeyInfoForm">
+      <el-form :model="modifyAccessKeyInfo" :rules="rulesForAccessConfig" labelWidth="140px" size="mini" ref="modifyAccessKeyInfoForm">
         <el-form-item label="我的团队" v-if="groupInfo">
           {{groupInfo.name}}
         </el-form-item>
-        <el-form-item label="我的应用" prop="appID">
-          <el-select filterable v-model="modifyAccessKeyInfo.appID" placeholder="请选择"
-                     :disabled="disableMyAppSelectInDialogModifyAccessConfig"
-                     style="display:block; max-width: 280px;">
-            <el-option v-for="(item, index) in appListOfCurrentGroup" :key="item.appId" :label="item.serviceName" :value="item.appId">
-            </el-option>
-          </el-select>
+        <el-form-item label="我的应用">
+          {{selected.row.myApp}}
         </el-form-item>
-        <el-form-item label="访问环境" prop="production">
-          <el-select v-model="modifyAccessKeyInfo.production" placeholder="请选择"
-                     :disabled="disableMyAppSelectInDialogModifyAccessConfig"
-                     style="display:block; max-width: 280px;">
-            <el-option :value="true" label="生产环境"></el-option>
-            <el-option :value="false" label="非生产环境"></el-option>
-          </el-select>
+        <el-form-item label="访问环境">
+          {{selected.row.profileName}}
         </el-form-item>
-        <el-form-item label="已绑应用" class="access-config-list" v-if="newProps.accessConfigList.length>0">
+        <el-form-item label="已申请应用" class="target-app-list" v-if="modifyAccessKeyInfo.targetAppList.length>0">
           <el-row class="title">
-            <el-col :span="7" class="group">团队</el-col>
-            <el-col :span="7" class="app">应用</el-col>
-            <el-col :span="7" class="app">状态</el-col>
+            <el-col :span="6" class="group">团队</el-col>
+            <el-col :span="10" class="app">应用</el-col>
+            <el-col :span="5" class="status">状态</el-col>
             <el-col :span="3"></el-col>
           </el-row>
           <el-row class="has-exist"
-                  v-for="(item, index) in newProps.accessConfigList"
+                  v-for="(item, index) in modifyAccessKeyInfo.targetAppList"
                   :key="index"
           >
-            <el-col :span="7" class="group">{{item.targetGroupName}}</el-col>
-            <el-col :span="7" class="app">{{item.targetApplicationName}}</el-col>
-            <el-col :span="7" class="app">{{item.status}}</el-col>
+            <el-col :span="6" class="group">{{item.targetGroupName}}</el-col>
+            <el-col :span="10" class="app">{{item.targetApplicationName}}</el-col>
+            <el-col :span="5" class="app">{{item.status}}</el-col>
             <el-col :span="3" style="text-align: right">
               <el-popover
                       width="160"
@@ -363,30 +352,30 @@
                       trigger="click"
                       popperClass="el-popover--small"
                       content="复制成功">
-                <p style="color: #fa5555">确定要解绑"{{item.targetGroupName}}"下的应用"{{item.targetApplicationName}}"吗？</p>
+                <p style="color: #fa5555">确定要删除"{{item.targetGroupName}}"下的应用"{{item.targetApplicationName}}"吗？</p>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
-                  <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-access-config', index, item)">确定</el-button>
+                  <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-target-app', index, item)">确定</el-button>
                 </div>
                 <el-button type="warning" size="mini-extral"
+                           round
                            slot="reference"
-                           :loading="statusOfWaitingResponse('delete-access-config-in-dialog') && selected.row.id === scope.row.id"
                            @click="handleDialogButton('delete-access-config', index, item)">删除</el-button>
               </el-popover>
             </el-col>
           </el-row>
         </el-form-item>
-        <el-form-item label="访问对方团队" prop="accessGroupID" class="add-access-config"
+        <el-form-item label="申请访问对方应用" prop="accessGroupID" class="add-target-app"
                       style="margin-bottom: 20px"
                       :error="errorMsgForAddTargetApp">
           <el-row>
-            <el-col :span="11">
+            <el-col :span="11" style="padding-right:4px;">
               <el-select filterable v-model="modifyAccessKeyInfo.targetGroupID" placeholder="请选择" style="display:block; max-width: 280px;">
                 <el-option v-for="(item, index) in dataForSelectApp.groupListAll" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="11">
+            <el-col :span="11" style="padding-right:4px;">
               <el-select filterable v-model="modifyAccessKeyInfo.targetAppID"
                          :placeholder="dataForSelectApp.appList.length==0?'应用列表为空':'请选择'" style="display:block; max-width: 280px;">
                 <el-option v-for="(item, index) in dataForSelectApp.appList" :key="item.appId" :label="item.appName" :value="item.appId">
@@ -395,11 +384,10 @@
             </el-col>
             <el-col :span="2" style="text-align: right">
               <el-button
-                size="mini-extral"
-                type="warning"
-                style="margin-bottom: 3px"
-                :loading="statusOfWaitingResponse('add-access-config-in-dialog') && selected.row.id === scope.row.id"
-                @click="handleDialogButton('add-access-config')">添加
+                      size="mini-extral"
+                      type="warning"
+                      style="margin-bottom: 3px"
+                      @click="handleDialogButton('add-target-app')">添加
               </el-button>
             </el-col>
           </el-row>
@@ -409,8 +397,8 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       :loading="statusOfWaitingResponse('submit-access-config-in-dialog')"
-                       @click="handleDialogButton('submit-access-config')"
+                       :loading="statusOfWaitingResponse('update-access-key-config-in-dialog')"
+                       @click="handleDialogButton('update-access-key-config')"
                        >保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -647,6 +635,7 @@
       }
       .el-button {
         margin: 2px 4px;
+        margin-left: 0px;
       }
     }
   }
@@ -963,9 +952,9 @@ module.exports = {
             this.$message.error('所需信息不完整！');
             return;
           }
+          this.addToWaitingResponseQueue(action);
           this.initModifyAccessKeyInfo();
           this.modifyAccessKeyInfo.appID = this.appListOfCurrentGroup[0].appId;
-          this.addToWaitingResponseQueue(action);
           // get dataForSelectApp
           if (!this.dataForSelectApp.groupListAll) {
             this.$net.getAllGroupList().then(content => {
@@ -996,7 +985,6 @@ module.exports = {
             }
             this.selected.operation = action;
           }
-          console.log(this.modifyAccessKeyInfo);
           break;
         case 'search':
           this.currentPage = 1;
@@ -1023,10 +1011,13 @@ module.exports = {
           }, 500);
 //          this.$message.success('复制成功');
           break;
-        case 'open-dialog-for-modify-access-config':
+        case 'open-dialog-4-modify-access-key':
           let openDialog = ()=>  {
-            if (Array.isArray(this.selected.row.accessConfigList)) {
-              this.newProps.accessConfigList = this.selected.row.accessConfigList.map(it => {
+            let selectedRow = this.selected.row;
+//            console.log(selectedRow);
+            this.modifyAccessKeyInfo.appID = selectedRow.applicationId;
+            if (Array.isArray(selectedRow.accessConfigList)) {
+              this.modifyAccessKeyInfo.targetAppList = selectedRow.accessConfigList.map(it => {
                 return {
                   status: it.status,
                   targetApplicationId: it.targetApplicationId,
@@ -1037,26 +1028,22 @@ module.exports = {
                 }
               });
             } else {
-              this.newProps.accessConfigList = [];
+              this.modifyAccessKeyInfo.targetAppList = [];
             }
             this.selected.operation = action;
             // remove error tip for button add-access-config
             this.errorMsgForAddTargetApp = '';
           };
-          this.addToWaitingResponseQueue(action);
+
           // check dialog-related-data before open dialog
-          // as margin-bottom of el-form-item is not set for error show in el-form of dialog modify-access-config
-          if (!this.groupInfo || !this.appListOfCurrentGroup) {
-            this.$message.error('信息不完整');
+          if (!this.groupInfo || !this.appListOfCurrentGroup || this.appListOfCurrentGroup.length === 0) {
+            this.$message.error('所需信息不完整！');
             return;
           }
-//          if (!this.modifyAccessKeyInfo.appID && this.appListOfCurrentGroup.length > 0) {
-//            this.modifyAccessKeyInfo.appID = this.appListOfCurrentGroup[0].appId;
-//          }
-          this.modifyAccessKeyInfo.appID = this.appListOfCurrentGroup[0].appId;
-          if (null == this.modifyAccessKeyInfo.production) {
-            this.modifyAccessKeyInfo.production = false;
-          }
+          this.addToWaitingResponseQueue(action);
+          this.initModifyAccessKeyInfo();
+//          this.modifyAccessKeyInfo.appID = this.appListOfCurrentGroup[0].appId;
+          // get dataForSelectApp
           if (!this.dataForSelectApp.groupListAll) {
             this.$net.getAllGroupList().then(content => {
               if (content.hasOwnProperty('groupList')) {
@@ -1079,21 +1066,20 @@ module.exports = {
             })
           } else {
             this.hideWaitingResponse(action);
+            this.modifyAccessKeyInfo.targetGroupID = this.dataForSelectApp.groupListAll[0].id;
             // set default accessID if necessary
             if (Array.isArray(this.dataForSelectApp.appList) && this.dataForSelectApp.appList.length > 0) {
               this.modifyAccessKeyInfo.targetAppID = this.dataForSelectApp.appList[0].appId;
             }
             openDialog();
           }
-
-          if (this.selected.operation) {
-            this.$nextTick(() => {
-              let formName = 'modifyAccessKeyInfoForm';
-              this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate((valid) => {
-                console.log(`valid: ${valid}`)
-              })
-            });
-          }
+//          if (this.selected.operation) {
+//            this.$nextTick(() => {
+//              let formName = 'modifyAccessKeyInfoForm';
+//              this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate((valid) => {
+//              })
+//            });
+//          }
           break;
         case 'open-dialog-4-update-url-permission':
           this.selected.row = row;
@@ -1174,18 +1160,21 @@ module.exports = {
       return !theSame;
     },
 
-    // TODO: not used
-    getEmptyItem() {
-      return {
-        "id": null,
-        "createTime": '',
-        "accessKey": '',
-        "secret": '',
-        "profileName": '',
-        "myApp": '',
-        "creatorName": "",
-        "accessConfigList": [],
-        "accessConfigDesc": []
+    handlePopoverButton(action, index, item) {
+      switch (action) {
+        case 'delete-target-app':
+          this.modifyAccessKeyInfo.targetAppList.splice(index, 1);
+          item['openPopover'] = false;
+          // update message of errorMsgForAddTargetApp after modifyAccessKeyInfo.targetAppList
+          this.isTargetAppOK();
+          break;
+        case 'delete-access-config':
+          this.newProps.accessConfigList.splice(index, 1);
+          item['openPopover'] = false;
+          break;
+        case 'cancel':
+          item['openPopover'] = false;
+          break;
       }
     },
     handleDialogButton(action, index, item) {
@@ -1205,13 +1194,6 @@ module.exports = {
             productEnv: this.modifyAccessKeyInfo.production,
             applyList: targetAppList
           }).then(content => {
-//            let item = this.getEmptyItem();
-//            item.id = content.id;
-//            item.createTime = content.createTime.split(' ');
-//            item.creatorName = content.creatorName;
-//            item.secret = content.secret;
-//            item.accessKey = content.client_id;
-//            this.accessKeyListByPage.unshift(item);
             this.handleDialogClose();
             this.$message.success(`Access key ${content.secret} 创建成功！`);
             this.refreshAccessKeyList();
@@ -1237,31 +1219,29 @@ module.exports = {
             });
           }
           break;
-        case 'add-access-config':
-//          console.log(this.modifyAccessKeyInfo);
-          if (this.isTargetAppOK()) {
-            this.newProps.accessConfigList.push({
-              status: '新加',
-              targetApplicationId: this.modifyAccessKeyInfo.targetAppID,
-              targetApplicationName: this.modifyAccessKeyInfo.targetAppName,
-              targetGroupId: this.modifyAccessKeyInfo.targetGroupID,
-              targetGroupName: this.modifyAccessKeyInfo.targetGroupName,
-              openPopover: false
-            });
-          }
-          break;
-        case 'delete-access-config':
-          if (item && item.hasOwnProperty('openPopover')) {
-            item.openPopover = true;
-          }
-          break;
-        case 'submit-access-config':
+//        case 'add-access-config':
+//          if (this.isTargetAppOK()) {
+//            this.newProps.accessConfigList.push({
+//              status: '新加',
+//              targetApplicationId: this.modifyAccessKeyInfo.targetAppID,
+//              targetApplicationName: this.modifyAccessKeyInfo.targetAppName,
+//              targetGroupId: this.modifyAccessKeyInfo.targetGroupID,
+//              targetGroupName: this.modifyAccessKeyInfo.targetGroupName,
+//              openPopover: false
+//            });
+//          }
+//          break;
+//        case 'delete-access-config':
+//          if (item && item.hasOwnProperty('openPopover')) {
+//            item.openPopover = true;
+//          }
+//          break;
+        case 'update-access-key-config':
           // if this.selected.row.accessConfigList.length == 0, go on.
           if (this.selected.row.accessConfigList.length > 0 &&
-            !this.ifAppListChanged(this.selected.row.accessConfigList, this.newProps.accessConfigList)) {
+            !this.ifAppListChanged(this.selected.row.accessConfigList, this.modifyAccessKeyInfo.targetAppList)) {
             this.$message.warning('您没有做修改');
-            this.selected.operation = null;
-            this.selected.row = {id: null};
+            this.handleDialogClose();
             return;
           }
           this.requestUpdate(action, 'accessConfigList');
@@ -1319,7 +1299,7 @@ module.exports = {
           });
           break;
         case 'accessConfigList':
-          let appListToPost = this.newProps.accessConfigList.map((it) => {
+          let appListToPost = this.modifyAccessKeyInfo.targetAppList.map((it) => {
             return {
               groupId: it.targetGroupId,
               applicationId: it.targetApplicationId
@@ -1348,11 +1328,6 @@ module.exports = {
           });
           break;
       }
-//      setTimeout(() => {
-//        this.hideWaitingResponse(action + '-in-dialog');
-//        this.selected.operation = null;
-//        this.selected.row[prop] = this.newProps[prop]
-//      }, 1000);
     },
     updateModelInfo(prop) {
       switch (prop) {
@@ -1360,16 +1335,17 @@ module.exports = {
           this.selected.row[prop] = this.newProps[prop];
           break;
         case 'accessConfigList':
-          let accessConfigList = this.newProps['accessConfigList'];
+//          let accessConfigList = this.newProps['accessConfigList'];
+          let targetAppList = this.modifyAccessKeyInfo.targetAppList;
           let accessConfigDesc = [];
-          if (accessConfigList.length > 0) {
-            accessConfigDesc = accessConfigList.map(it => {
+          if (targetAppList.length > 0) {
+            accessConfigDesc = targetAppList.map(it => {
               return [it.targetGroupName, it.targetApplicationName, it.status].join(',');
             });
           }
-          this.newProps['accessConfigDesc'] = accessConfigDesc;
-          this.selected.row['accessConfigList'] = JSON.parse(JSON.stringify(this.newProps['accessConfigList']));
-          this.selected.row['accessConfigDesc'] = JSON.parse(JSON.stringify(this.newProps['accessConfigDesc']));
+//          this.newProps['accessConfigDesc'] = accessConfigDesc;
+          this.selected.row['accessConfigList'] = JSON.parse(JSON.stringify(targetAppList));
+          this.selected.row['accessConfigDesc'] = JSON.parse(JSON.stringify(accessConfigDesc));
           if (!this.selected.row.myApp) {
             let app = this.$storeHelper.getAppByID(this.modifyAccessKeyInfo.appID);
             if (app) {
@@ -1379,25 +1355,6 @@ module.exports = {
           }
           // set this.selected.row = null at the end of operation
           this.selected.row = null;
-          break;
-      }
-
-    },
-
-    handlePopoverButton(action, index, item) {
-      switch (action) {
-        case 'delete-target-app':
-          this.modifyAccessKeyInfo.targetAppList.splice(index, 1);
-          item['openPopover'] = false;
-          // update message of errorMsgForAddTargetApp after modifyAccessKeyInfo.targetAppList
-          this.isTargetAppOK();
-          break;
-        case 'delete-access-config':
-          this.newProps.accessConfigList.splice(index, 1);
-          item['openPopover'] = false;
-          break;
-        case 'cancel':
-          item['openPopover'] = false;
           break;
       }
     },
@@ -1470,6 +1427,21 @@ module.exports = {
           reject()
         });
       });
+    },
+
+    // TODO: not used
+    getEmptyItem() {
+      return {
+        "id": null,
+        "createTime": '',
+        "accessKey": '',
+        "secret": '',
+        "profileName": '',
+        "myApp": '',
+        "creatorName": "",
+        "accessConfigList": [],
+        "accessConfigDesc": []
+      }
     },
   }
 }
