@@ -591,7 +591,7 @@ class Net extends NetBase {
             resolve(msg);
           } else {
             reject({
-              title: '数据格式不正确',
+              title: '修改失败',
               msg: data.msg
             });
           }

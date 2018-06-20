@@ -108,7 +108,7 @@
     </div>
     <div class="create-an-app" v-if="!showAppList">
       <img src="/assets/imgs/profile/create-an-app.png">
-      <div class="desc">应用引擎为您快速构建应用，一键部署，持续集成、交付，加快应用迭代效率，实现DevOps运维理解的微服务应用框架，快来试试吧!</div>
+      <div class="desc">应用引擎为您快速构建应用，一键部署，持续集成、交付，加快应用迭代效率，实现DevOps运维理念的微服务应用框架，快来试试吧!</div>
       <el-button
               type="primary"
               @click="handleButtonClick('linker', {path: '/app/add'})">
