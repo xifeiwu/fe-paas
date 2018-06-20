@@ -357,6 +357,12 @@ class URL extends BaseURL {
         path: '/application/authorization/{id}',
         method: 'put'
       },
+      // 获取AccessKey的所有授权URL
+      'oauth_get_url_permission_list': {
+        url: API_PATH + '/application/authorization/{id}/oauth',
+        path: '/application/authorization/{id}/oauth',
+        method: 'get'
+      },
       // 授权url
       'oauth_get_authorize_url_list': {
         url: API_PATH + '/application/authorization/record/query',
@@ -371,6 +377,16 @@ class URL extends BaseURL {
         url: API_PATH + '/application/authorization/record/{id}/auth',
         path: '/application/authorization/record/{id}/auth',
         method: 'put',
+      },
+      // 添加权限
+      'oauth_add_url_permission': {
+        url: API_PATH + '/application/authorization/oauth/create',
+        method: 'post'
+      },
+      // 删除权限
+      'oauth_remove_url_permission': {
+        url: API_PATH + '/application/authorization/oauth/{id}/delete ',
+        method: 'delete'
       },
       // 禁用/开启授权URL配置
       'oauth_authorize_url_toggle_enable': {

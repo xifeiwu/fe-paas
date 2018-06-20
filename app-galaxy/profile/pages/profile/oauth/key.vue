@@ -320,7 +320,8 @@
         <i class="el-icon-warning"></i>
         <span>如需更换团队，请在页面右上角选择我的团队</span>
       </el-tag>
-      <el-form :model="modifyAccessKeyInfo" :rules="rulesForAccessConfig" labelWidth="140px" size="mini" ref="modifyAccessKeyInfoForm">
+      <el-form :model="modifyAccessKeyInfo" :rules="rulesForAccessConfig" labelWidth="140px"
+               size="mini" ref="modifyAccessKeyInfoForm">
         <el-form-item label="我的团队" v-if="groupInfo">
           {{groupInfo.name}}
         </el-form-item>
@@ -414,47 +415,84 @@
                :close-on-click-modal="false"
                @close="handleDialogClose('update-url-permission')"
     >
-      <el-form :model="modifyAccessKeyInfo" :rules="rulesForCreateAccessKey" labelWidth="110px" size="mini"
+      <el-form :model="modifyAccessKeyInfo" :rules="rulesForCreateAccessKey" labelWidth="140px" size="mini"
                ref="createAccessKeyForm">
-        <el-form-item label="我的团队" v-if="groupInfo">
-          {{groupInfo.name}}
-          </el-form-item>
-        <el-form-item label="是否外部应用">
-          <el-radio-group v-model="modifyAccessKeyInfo.isExternalApp">
-            <el-radio :label="true">是</el-radio>
-            <el-radio :label="false">否</el-radio>
-          </el-radio-group>
+
+        <el-form-item label="我的应用">
+          {{selected.row.myApp}}
         </el-form-item>
-        <el-form-item label="外部应用名称" prop="externalAppName" v-show="modifyAccessKeyInfo.isExternalApp">
-          <el-input v-model="modifyAccessKeyInfo.externalAppName" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
+        <el-form-item label="访问环境">
+          {{selected.row.profileName}}
         </el-form-item>
-        <el-form-item label="我的应用" prop="appID" v-if="!modifyAccessKeyInfo.isExternalApp">
-          <el-select filterable v-model="modifyAccessKeyInfo.appID" placeholder="请选择"
-                     style="display:block; max-width: 280px;">
-            <el-option v-for="(item, index) in appListOfCurrentGroup" :key="item.appId" :label="item.serviceName" :value="item.appId">
-            </el-option>
-          </el-select>
+        <el-form-item label="所属AccessKey">
+          {{selected.row.accessKey}}
         </el-form-item>
-        <el-form-item label="访问环境" prop="production" v-if="!modifyAccessKeyInfo.isExternalApp">
-          <el-select v-model="modifyAccessKeyInfo.production" placeholder="请选择"
-                     style="display:block; max-width: 280px;">
-            <el-option :value="true" label="生产环境"></el-option>
-            <el-option :value="false" label="非生产环境"></el-option>
-          </el-select>
+        <el-form-item label="添加授权URL" prop="accessGroupID" class="add-authorize-url"
+                      style="margin-bottom: 20px"
+                      :error="errorMsgForAddUrlPermission">
+          <el-row>
+            <el-col :span="11" class="oauth" style="padding-right: 4px">
+              <el-input v-model="updateUrlPermissionInfo.newItem.oauth" placeholder="所属权限">
+                <template slot="prepend">{{selected.row.accessKey + '.'}}</template>
+              </el-input>
+            </el-col>
+            <el-col :span="11" class="resource" style="padding-right: 4px">
+              <el-input v-model="updateUrlPermissionInfo.newItem.resource" placeholder="资源URL"></el-input>
+            </el-col>
+            <el-col :span="2" class="operation" style="text-align: center">
+              <el-button
+                      size="mini-extral"
+                      type="primary"
+                      :loading="statusOfWaitingResponse('add-url-permission')"
+                      @click="handleDialogButton('add-url-permission')">添加
+              </el-button>
+            </el-col>
+          </el-row>
+        </el-form-item>
+        <el-form-item label="已有授权" class="url-permission-list" v-if="updateUrlPermissionInfo.urlPermissionList.length>0">
+          <el-row class="title">
+            <el-col :span="11" class="oauth">所属权限</el-col>
+            <el-col :span="11" class="resource">资源URL</el-col>
+            <el-col :span="2" class="operation"></el-col>
+          </el-row>
+          <el-row class="has-exist"
+                  v-for="(item, index) in updateUrlPermissionInfo.urlPermissionList"
+                  :key="index"
+          >
+            <el-col :span="11" class="oauth">{{item.oauth}}</el-col>
+            <el-col :span="11" class="resource">{{item.resource}}</el-col>
+            <el-col :span="2" class="operation" style="text-align: center">
+              <el-popover
+                      width="160"
+                      v-model="item.openPopover"
+                      placement="left"
+                      trigger="click"
+                      popperClass="el-popover--small"
+                      content="复制成功">
+                <p style="color: #fa5555">确定要删除该条授权吗？</p>
+                <div style="text-align: right; margin: 0">
+                  <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
+                  <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-url-permission', index, item)">确定</el-button>
+                </div>
+                <el-button type="warning" size="mini-extral"
+                           slot="reference"
+                           round
+                           :loading="statusOfWaitingResponse('delete-url-permission')">删除</el-button>
+              </el-popover>
+            </el-col>
+          </el-row>
         </el-form-item>
       </el-form>
+      <div class="helper-text-expanded">
+        <div class="title">添加授权URL规则<i class="el-icon-question"></i></div>
+        <div class="item">1. 写Access Key必须填为已创建的</div>
+        <div class="item">2. 所属权限分为两部分：Access Key部分，自定义部分，两者之间以.分割。Access Key部分必须为当前所写Access Key；自定义部分只能包括小写字母；50个字符以内。如，galaxy-WrJhXCOo.abcdef</div>
+        <div class="item">3. 资源URL，必须以/开头，路径可以包含字母、数字、*、/、中划线、下划线。多个路径之间以,分割。50个字符以内。如，/a/1-2_3/C,/**/d</div>
+      </div>
       <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       :loading="statusOfWaitingResponse('update-url-permission')"
-                       @click="handleDialogButton('update-url-permission')"
-            >保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button @click="handleDialogClose('update-url-permission')">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+        <div style="text-align: center">
+          <el-button @click="handleDialogClose('update-url-permission')">关闭</el-button>
+        </div>
       </div>
     </el-dialog>
 
@@ -489,6 +527,16 @@
 </template>
 
 <style lang="scss">
+  @mixin expand-inline-form-item() {
+    display: block;
+    width: 100%;
+    .el-form-item__label {
+      float: left;
+    }
+    .el-form-item__content {
+      display: block;
+    }
+  }
   #oauth-key {
     .el-dialog__wrapper {
       &.modify-secret {
@@ -503,11 +551,6 @@
         .el-form {
           .el-form-item {
             margin-bottom: 8px;
-            /*&.profile {*/
-              /*.el-form-item__error {*/
-                /*display: none;*/
-              /*}*/
-            /*}*/
             &.add-target-app, &.external-app-name {
               margin-bottom: 16px;
             }
@@ -527,14 +570,6 @@
       }
       &.modify-access-config {
         .el-dialog {
-          width: 80%;
-          max-width: 700px;
-          margin: 15px auto;
-          .add-access-config {
-            .el-col {
-              padding: 0px 2px;
-            }
-          }
           .el-form {
             .el-form-item--mini {
               margin-bottom: 5px;
@@ -571,6 +606,24 @@
               }
             }
           }
+        }
+      }
+      &.update-url-permission {
+        .el-form {
+          .el-form-item {
+            &.url-permission-list {
+              .title {
+                .el-col {
+                  font-weight: bold;
+                  text-align: center;
+                }
+              }
+              .oauth, .resource {
+                text-align: center;
+              }
+            }
+          }
+
         }
       }
       .el-col .el-button {
@@ -769,6 +822,18 @@ module.exports = {
         groupListAll: null,
         appList: []
       },
+      
+      updateUrlPermissionInfo: {
+        accessKeyId: null,
+        accessKey: null,
+        urlPermissionList: [],
+        newItem: {
+          oauth: '',
+          resource: ''
+        }
+      },
+      errorMsgForAddUrlPermission: '',
+
 
       // used for modify props
       newProps: {
@@ -1036,7 +1101,7 @@ module.exports = {
           };
 
           // check dialog-related-data before open dialog
-          if (!this.groupInfo || !this.appListOfCurrentGroup || this.appListOfCurrentGroup.length === 0) {
+          if (!this.groupInfo) {
             this.$message.error('所需信息不完整！');
             return;
           }
@@ -1082,8 +1147,39 @@ module.exports = {
 //          }
           break;
         case 'open-dialog-4-update-url-permission':
+          if (!this.groupInfo) {
+            this.$message.error('所需信息不完整！');
+            return;
+          }
           this.selected.row = row;
-          this.selected.operation = action;
+//          console.log(row);
+
+          if (row && row.hasOwnProperty('accessKey') && row.hasOwnProperty('id')) {
+            this.updateUrlPermissionInfo.accessKeyId = row.id;
+            this.updateUrlPermissionInfo.accessKey = row.accessKey;
+          } else {
+            console.log('err: access key not found');
+          }
+          this.addToWaitingResponseQueue(action);
+          this.$net.oauthGetUrlPermissionList(row.id).then(urlPermissionList => {
+            this.hideWaitingResponse(action);
+            this.updateUrlPermissionInfo.urlPermissionList = urlPermissionList;
+            this.updateUrlPermissionInfo.newItem.oauth = '';
+            this.updateUrlPermissionInfo.newItem.resource = '';
+            // reset error tip
+            this.errorMsgForAddUrlPermission = '';
+            this.selected.operation = action;
+          }).catch(err => {
+            this.hideWaitingResponse(action);
+            this.$notify.error({
+              title: err.title,
+              message: err.msg,
+              duration: 0,
+              onClose: function () {
+              }
+            });
+          });
+
           break;
         case 'modify-secret':
           this.newProps.secret = row.secret;
@@ -1160,6 +1256,103 @@ module.exports = {
       return !theSame;
     },
 
+
+    /**
+     *  used to check new added authorized-url in dialog modify-access-config
+     *  1. if the new item match regexp
+     *  2. if the new item has exist in item array
+     */
+    checkAuthorizeUrlValidation(newItem) {
+      if (!newItem) {
+        newItem = this.updateUrlPermissionInfo.newItem;
+      }
+
+      let checkValidation = () => {
+        let isValid = false;
+
+        if (!this.updateUrlPermissionInfo.accessKey) {
+          this.errorMsgForAddUrlPermission = '未找到accessKey';
+          return isValid;
+        }
+        let selectedRow = this.updateUrlPermissionInfo.accessKey;
+
+        if (!newItem.oauth) {
+          this.errorMsgForAddUrlPermission = '请填写授权URL的所属权限';
+          return isValid;
+        }
+        if (newItem.oauth.length > 50) {
+          this.errorMsgForAddUrlPermission = '所属权限不能超过50个字符';
+          return isValid;
+        }
+        if (!newItem.oauth.startsWith(selectedRow + '.')) {
+          this.errorMsgForAddUrlPermission = `所属权限必须以${selectedRow}.开头`;
+          return isValid;
+        }
+        if (!/^[a-z]+$/.test(newItem.oauth.replace(selectedRow + '.', ''))) {
+          this.errorMsgForAddUrlPermission = '所属权限格式不正确';
+          return isValid;
+        }
+        if (newItem.resource.length > 50) {
+          this.errorMsgForAddUrlPermission = '所属权限不能超过50个字符';
+          return isValid;
+        }
+        let resourceReg = /^(\/[a-zA-Z0-9\\*\/\-_]+)(, *\/[a-zA-Z0-9\\*\/\-_]+)*$/;
+        if (!resourceReg.test(newItem.resource)) {
+          this.errorMsgForAddUrlPermission = '资源URL格式不正确';
+          return isValid;
+        }
+        return true;
+      };
+      let isValid = checkValidation();
+      if (!isValid) {
+        return isValid;
+      }
+
+      let checkIfExist = () => {
+        let exist = false;
+        let urlPermissionList = this.updateUrlPermissionInfo.urlPermissionList;
+        urlPermissionList.some(it => {
+          exist = it['oauth'] == newItem.oauth;
+//            && it['resource'] == newItem.resource;
+          return exist;
+        });
+        return exist;
+      };
+
+      if (checkIfExist()) {
+        this.errorMsgForAddUrlPermission = '该权限已经存在';
+        isValid = false;
+      } else {
+        isValid = true;
+      }
+      if (isValid) {
+        this.errorMsgForAddUrlPermission = '';
+      }
+      return isValid;
+    },
+    ifAuthorizeUrlChanged(origin, current) {
+      let theSame = true;
+      if (origin.supportClientId != current.accessKey) {
+        theSame = false;
+      }
+      if (theSame) {
+        let detailList = origin.detailList;
+        let urlPermissionList = current.urlPermissionList;
+        if (detailList.length === urlPermissionList.length) {
+          let index = 0;
+          detailList.every((it) => {
+            let it2 = urlPermissionList[index];
+            index += 1;
+            theSame = it.oauth == it2.oauth && it.resource == it2.resource;
+            return theSame;
+          });
+        } else {
+          theSame = false;
+        }
+      }
+      return !theSame;
+    },
+    
     handlePopoverButton(action, index, item) {
       switch (action) {
         case 'delete-target-app':
@@ -1168,9 +1361,20 @@ module.exports = {
           // update message of errorMsgForAddTargetApp after modifyAccessKeyInfo.targetAppList
           this.isTargetAppOK();
           break;
-        case 'delete-access-config':
-          this.newProps.accessConfigList.splice(index, 1);
-          item['openPopover'] = false;
+        case 'delete-url-permission':
+          this.$net.oauthRemoveUrlPermission(this.updateUrlPermissionInfo.accessKeyId).then(content => {
+            this.$message.success(`权限${item.oauth}删除成功`);
+            this.updateUrlPermissionInfo.urlPermissionList.splice(index, 1);
+            item['openPopover'] = false;
+          }).catch(err => {
+            this.$notify.error({
+              title: err.title,
+              message: err.msg,
+              duration: 0,
+              onClose: function () {
+              }
+            });
+          });
           break;
         case 'cancel':
           item['openPopover'] = false;
@@ -1245,6 +1449,37 @@ module.exports = {
             return;
           }
           this.requestUpdate(action, 'accessConfigList');
+          break;
+        case 'add-url-permission':
+          let newItem = JSON.parse(JSON.stringify(this.updateUrlPermissionInfo.newItem));
+          if (newItem.oauth.length > 0) {
+            newItem.oauth = this.updateUrlPermissionInfo.accessKey + '.' + newItem.oauth;
+          }
+
+          if (this.checkAuthorizeUrlValidation(newItem)) {
+            this.$net.oauthAddUrlPermission({
+              accessKeyId: this.updateUrlPermissionInfo.accessKeyId,
+              oauth: newItem.oauth,
+              oauthUrl: newItem.resource
+            }).then(content => {
+              this.$message.success(`权限${newItem.oauth}添加成功`);
+              this.updateUrlPermissionInfo.urlPermissionList.push({
+                oauth: newItem.oauth,
+                resource: newItem.resource,
+                openPopover: false
+              });
+              this.updateUrlPermissionInfo.newItem.oauth = '';
+              this.updateUrlPermissionInfo.newItem.resource = '';
+            }).catch(err => {
+              this.$notify.error({
+                title: err.title,
+                message: err.msg,
+                duration: 0,
+                onClose: function () {
+                }
+              });
+            });
+          }
           break;
         case 'modify-secret':
           let prop = 'secret';

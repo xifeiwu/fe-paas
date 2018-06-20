@@ -1381,6 +1381,34 @@ class Net extends NetBase {
     })
   }
 
+  // 获取授权url列表
+  oauthGetUrlPermissionList(id) {
+    let url = this.$utils.formatUrl(URL_LIST.oauth_get_url_permission_list.url, {id});
+    return new Promise((resolve, reject) => {
+      axios.get(url).then(response => {
+        let resContent = this.getResponseContent2(response);
+        if (Array.isArray(resContent)) {
+          resContent.forEach(it => {
+            if (it && it.hasOwnProperty('oauthUrl')) {
+              it.resource = it.oauthUrl;
+            }
+          })
+          resolve(resContent);
+        } else {
+          reject({
+            title: '获取授权URL列表失败',
+            msg: '数据格式不正确'
+          })
+        }
+      }).catch(err => {
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.oauth_get_url_permission_list.path}；${err.toString()}`
+        });
+      })
+    })
+  }
+
   // 获取授权URL列表
   oauthGetAuthorizeUrlList(options) {
     let transfer = (it) => {
@@ -1471,6 +1499,61 @@ class Net extends NetBase {
       }).catch(err => {
         console.log(err);
         reject(err);
+      })
+    })
+  }
+
+  // 添加url权限配置
+  oauthAddUrlPermission(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.oauth_add_url_permission.url, options).then(response => {
+        let resContent = this.getResponseContent2(response);
+        if (resContent) {
+          resolve(resContent);
+        } else {
+          let resMsg = this.getResponseMsg(response);
+          if (resMsg && resMsg.msg) {
+            reject(resMsg);
+          } else {
+            reject({
+              title: '配置权限失败',
+              msg: '请联系管理员'
+            })
+          }
+        }
+      }).catch(err => {
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.oauth_add_url_permission.path}；${err.toString()}`
+        });
+      })
+    })
+  }
+
+  // 删除url权限配置
+  oauthRemoveUrlPermission(id) {
+    let url = this.$utils.formatUrl(URL_LIST.oauth_remove_url_permission.url, {id: id});
+    return new Promise((resolve, reject) => {
+      axios[URL_LIST.oauth_remove_url_permission.method](url).then(response => {
+        let resContent = this.getResponseContent2(response);
+        if (resContent) {
+          resolve(resContent);
+        } else {
+          let resMsg = this.getResponseMsg(response);
+          if (resMsg && resMsg.msg) {
+            reject(resMsg);
+          } else {
+            reject({
+              title: '删除失败',
+              msg: '请联系管理员'
+            })
+          }
+        }
+      }).catch(err => {
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.oauth_remove_url_permission.path}；${err.toString()}`
+        });
       })
     })
   }
