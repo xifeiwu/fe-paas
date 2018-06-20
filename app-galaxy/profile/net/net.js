@@ -666,6 +666,12 @@ class Net extends NetBase {
               it.volume = it.volume.split(',').filter(it => {return it})
               this.$utils.renameProperty(it, 'volume', 'fileLocation');
 
+              // fix运行实例/总实例数
+              if (it.hasOwnProperty('containerStatus')) {
+                let containerStatus = it['containerStatus'];
+                it.applicationServiceStatus = `${containerStatus.Running}/${containerStatus.Total}`;
+              }
+
               // ['mavenProfileId', 'healthCheck', 'loadBalance', 'relativePath'].forEach(prop => {
               //   if (it.hasOwnProperty(prop) && !it[prop]) {
               //     it[prop] = '未设置';
