@@ -97,7 +97,7 @@
         <el-radio-group v-model="serviceForm.memoryID" size="mini">
           <el-radio-button v-for="item in memorySizeList" :label="item.id" :key="item.id">
             {{item.memory}}G
-        </el-radio-button>
+          </el-radio-button>
         </el-radio-group>
       </el-form-item>
 

@@ -1287,6 +1287,7 @@ export default {
           } else {
             this.selectedProfileID = defaultProfileID;
           }
+          this.requestServiceList(this.selectedApp.appId, this.selectedProfileID);
         } else {
           // request service list when app id is changed while profile id is not changed.
           if (this.selectedProfileID === defaultProfileID) {
@@ -2044,7 +2045,7 @@ export default {
 
     /**
      * request service list by appId and profileId, the place this function is called:
-     * 1. appId changed is changed in selector
+     * 1. appId is changed in selector
      * 2. profileId is changed in selector
      * 3. refresh button
      * 4. success callback of delete service
