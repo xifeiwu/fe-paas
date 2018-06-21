@@ -1266,6 +1266,35 @@ class Net extends NetBase {
     })
   }
 
+
+  // 通过应用和运行环境获取AccessKey列表
+  oAuthGetAccessKeyListByApp(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.oauth_access_key_list_by_app.url, options).then(response => {
+        let resContent = this.getResponseContent2(response);
+        if (resContent) {
+          resolve(resContent);
+        } else {
+          let resMsg = this.getResponseMsg(response);
+          if (resMsg && resMsg.msg) {
+            reject(resMsg);
+          } else {
+            reject({
+              title: '获取AccessKey列表失败',
+              msg: '请联系管理员'
+            })
+          }
+        }
+        console.log(response);
+      }).catch(err => {
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.oauth_access_key_list_by_app.path}；${err.toString()}`
+        })
+      })
+    });
+  }
+
   // 获取Access Key列表
   getAccessKeyList(options) {
     /**
@@ -1277,7 +1306,7 @@ class Net extends NetBase {
      */
     let transfer = function(it) {
       it.accessKey = it.clientId;
-      it.myApp = it.requestApplicationName;
+      it.myApp = it['requestApplicationName'] ? it['requestApplicationName'] : '未配置';
       // 访问应用状态信息
       it.appAccessStatus = '';
       if (null == it.produceEnv) {
@@ -1363,7 +1392,7 @@ class Net extends NetBase {
   }
 
   // 添加访问配置
-  oauthAddAccessConfig(id, options) {
+  oauthUpdateTargetApp(id, options) {
     return new Promise((resolve, reject) => {
       let url = this.$utils.formatUrl(URL_LIST.oauth_add_access_config.url, {id});
       axios[URL_LIST.oauth_add_access_config.method](url, options).then(response => {

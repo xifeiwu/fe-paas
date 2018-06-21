@@ -335,6 +335,10 @@ class URL extends BaseURL {
         url: API_PATH + '/application/authorization/create',
         path: '/application/authorization/create'
       },
+      'oauth_access_key_list_by_app': {
+        url: API_PATH + '/application/authorization/queryByAppId',
+        path: '/application/authorization/queryByAppId'
+      },
       'oauth_get_access_key_list': {
         url: API_PATH + '/application/authorization/query',
         path: '/application/authorization/query'

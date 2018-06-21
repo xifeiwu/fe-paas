@@ -125,9 +125,9 @@
                     v-if="!$storeHelper.notPermitted['oauth_modify_authorize_url_list']"
                     size="mini-extral"
                     type="warning"
-                    :loading="statusOfWaitingResponse('open-dialog-for-authorize-url') && selected.row.id === scope.row.id"
-                    @click="handleTRClick('open-dialog-for-modify-authorize-url', scope.$index, scope.row)">
-              授权URL
+                    :loading="statusOfWaitingResponse('open-dialog-4-config-authorize-url') && selected.row.id === scope.row.id"
+                    @click="handleTRClick('open-dialog-4-config-authorize-url', scope.$index, scope.row)">
+              授权配置
             </el-button>
             <el-button
                     v-if="scope.row.enabled !== null && !$storeHelper.notPermitted['oauth_authorize_url_toggle_enable']"
@@ -155,33 +155,45 @@
       </div>
     </div>
 
-    <el-dialog title="修改授权URL" :visible="selected.operation == 'open-dialog-for-modify-authorize-url'"
-               class="modify-authorize-url size-700"
+    <el-dialog title="修改授权配置" :visible="selected.operation == 'open-dialog-4-config-authorize-url'"
+               class="config-authorize-url size-700"
                :close-on-click-modal="false"
                @close="selected.operation = null"
                v-if="selected.row"
     >
-      <el-form :model="newProps" :rules="rulesForAuthorizeUrl" labelWidth="140px" size="mini" ref="modifyAuthorizeUrlForm">
+      <el-form :model="configAuthorizeUrlInfo" :rules="rulesForAuthorizeUrl" labelWidth="200px" size="mini" ref="modifyAuthorizeUrlForm">
+        <el-form-item label="申请访问的团队/应用" class="target-app">
+          <div>
+            <span>{{selected.row.requestGroupName}}</span>
+            <span style="color: #409EFF; font-weight: bold">/</span>
+            <span>{{selected.row.requestApplicationName}}</span>
+          </div>
+        </el-form-item>
         <el-form-item label="被访问的环境" class="profile">
-          {{selected.row.envName}}
+          {{selected.row.profileName}}
         </el-form-item>
-        <el-form-item label="被访问的团队" v-if="groupInfo" class="group-name">
-          {{groupInfo.name}}
+        <el-form-item label="被访问的团队/应用" v-if="groupInfo" class="group-name">
+          <div>
+            <span>{{groupInfo.name}}</span>
+            <span style="color: #409EFF; font-weight: bold">/</span>
+            <span>{{selected.row.targetApplicationName}}</span>
+          </div>
         </el-form-item>
-        <el-form-item label="被访问的应用名称" class="app-name">
-          {{selected.row.targetApplicationName}}
+        <el-form-item label="被访问应用所属AccessKey" class="access-key">
+          <el-select filterable v-model="configAuthorizeUrlInfo.accessKeyID" placeholder="请选择">
+            <el-option v-for="(item, index) in configAuthorizeUrlInfo.accessKeyList"
+                       :key="item.id" :label="item.clientId" :value="item.id">
+            </el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="Access Key" prop="accessKey" class="access-key">
-          <el-input v-model="newProps.accessKey"></el-input>
-        </el-form-item>
-        <el-form-item label="已有授权" class="authorize-url-list" v-if="newProps.authorizeUrlList.length>0">
+        <el-form-item label="已有授权" class="authorize-url-list" v-if="configAuthorizeUrlInfo.authorizeUrlList.length>0">
           <el-row class="title">
             <el-col :span="11" class="oauth">所属权限</el-col>
             <el-col :span="11" class="resource">资源URL</el-col>
             <el-col :span="2" class="operation"></el-col>
           </el-row>
           <el-row class="has-exist"
-                  v-for="(item, index) in newProps.authorizeUrlList"
+                  v-for="(item, index) in configAuthorizeUrlInfo.authorizeUrlList"
                   :key="index"
           >
             <el-col :span="11" class="oauth">{{item.oauth}}</el-col>
@@ -206,33 +218,27 @@
             </el-col>
           </el-row>
         </el-form-item>
-        <el-form-item label="添加授权URL" prop="accessGroupID" class="add-authorize-url"
-                      style="margin-bottom: 20px"
-                      :error="errorMsgForAddAuthorizeUrl">
-          <el-row>
-            <el-col :span="11" class="oauth">
-              <el-input v-model="modifyAuthorizeUrl.newItem.oauth" placeholder="所属权限"></el-input>
-            </el-col>
-            <el-col :span="11" class="resource">
-              <el-input v-model="modifyAuthorizeUrl.newItem.resource" placeholder="资源URL"></el-input>
-            </el-col>
-            <el-col :span="2" class="operation" style="text-align: center">
-              <el-button
-                      size="mini-extral"
-                      type="primary"
-                      style="margin-bottom: 3px"
-                      @click="handleDialogButton('add-authorize-url')">添加
-              </el-button>
-            </el-col>
-          </el-row>
-        </el-form-item>
+        <!--<el-form-item label="添加授权URL" prop="accessGroupID" class="add-authorize-url"-->
+                      <!--style="margin-bottom: 20px"-->
+                      <!--:error="errorMsgForConfigAuthorizeUrl">-->
+          <!--<el-row>-->
+            <!--<el-col :span="11" class="oauth">-->
+              <!--<el-input v-model="modifyAuthorizeUrl.newItem.oauth" placeholder="所属权限"></el-input>-->
+            <!--</el-col>-->
+            <!--<el-col :span="11" class="resource">-->
+              <!--<el-input v-model="modifyAuthorizeUrl.newItem.resource" placeholder="资源URL"></el-input>-->
+            <!--</el-col>-->
+            <!--<el-col :span="2" class="operation" style="text-align: center">-->
+              <!--<el-button-->
+                      <!--size="mini-extral"-->
+                      <!--type="primary"-->
+                      <!--style="margin-bottom: 3px"-->
+                      <!--@click="handleDialogButton('add-authorize-url')">添加-->
+              <!--</el-button>-->
+            <!--</el-col>-->
+          <!--</el-row>-->
+        <!--</el-form-item>-->
       </el-form>
-      <div class="helper-text-expanded">
-        <div class="title">添加授权URL规则<i class="el-icon-question"></i></div>
-        <div class="item">1. 写Access Key必须填为已创建的</div>
-        <div class="item">2. 所属权限分为两部分：Access Key部分，自定义部分，两者之间以.分割。Access Key部分必须为当前所写Access Key；自定义部分只能包括小写字母；50个字符以内。如，galaxy-WrJhXCOo.abcdef</div>
-        <div class="item">3. 资源URL，必须以/开头，路径可以包含字母、数字、*、/、中划线、下划线。多个路径之间以,分割。50个字符以内。如，/a/1-2_3/C,/**/d</div>
-      </div>
       <div slot="footer" class="dialog-footer">
         <el-row>
           <el-col :span="12" style="text-align: center">
@@ -265,7 +271,7 @@
     }
 
     .el-dialog__wrapper {
-      &.modify-authorize-url {
+      &.config-authorize-url {
         .el-form {
           .el-form-item {
             &.profile, &.group-name, &.app-name, &.authorize-url-list {
@@ -274,11 +280,6 @@
             &.access-key {
               .el-input {
                 max-width: 300px;
-              }
-            }
-            &.add-authorize-url {
-              .el-col:nth-child(2) {
-                padding: 0px 2px;
               }
             }
             &.authorize-url-list {
@@ -382,21 +383,17 @@
           operation: null,
           prop: null,
         },
-        modifyAuthorizeUrl: {
-          newItem: {
-            oauth: '',
-            resource: ''
-          }
-        },
-        errorMsgForAddAuthorizeUrl: '',
+        errorMsgForConfigAuthorizeUrl: '',
         rulesForAuthorizeUrl: {
           accessKey: [{
             required: true,
             message: 'Access Key不能为空',
           }],
         },
-        newProps: {
+        configAuthorizeUrlInfo: {
           accessKey: '',
+          accessKeyID: '',
+          accessKeyList: [],
           authorizeUrlList: []
         },
 
@@ -421,12 +418,15 @@
         this.currentPage = 1;
         this.requestAuthorizeUrlList()
       },
-//      'modifyAuthorizeUrl.newItem.oauth': function(value) {
-//        this.checkAuthorizeUrlValidate(null, 'watch');
-//      },
-//      'modifyAuthorizeUrl.newItem.resource': function(value) {
-//        this.checkAuthorizeUrlValidate(null, 'watch');
-//      },
+      'configAuthorizeUrlInfo.accessKeyID': function (accessKeyID) {
+        if (!accessKeyID) {
+          return;
+        }
+        this.$net.oauthGetUrlPermissionList(accessKeyID).then(urlPermissionList => {
+          console.log(urlPermissionList);
+        })
+
+      }
     },
 
     methods: {
@@ -485,31 +485,49 @@
       handleTRClick(action, index, row) {
         this.selected.row = row;
         switch (action) {
-          case 'open-dialog-for-modify-authorize-url':
-            this.newProps.accessKey = '';
-            this.modifyAuthorizeUrl.newItem.oauth = '';
-            this.modifyAuthorizeUrl.newItem.resource = '';
+          case 'open-dialog-4-config-authorize-url':
+            console.log(row);
             // reset error tip
-            this.errorMsgForAddAuthorizeUrl = '';
-            if (row.hasOwnProperty('supportClientId')) {
-              this.newProps.accessKey = row.supportClientId;
+            if (!row.hasOwnProperty('targetApplicationId') || !row.hasOwnProperty('produceEnv')) {
+              this.$message.error('信息不完整！');
+              return;
             }
+            this.addToWaitingResponseQueue(action);
+            this.errorMsgForConfigAuthorizeUrl = '';
+            this.configAuthorizeUrlInfo.accessKeyList = [];
+            this.configAuthorizeUrlInfo.accessKeyID = null;
+            this.$net.oAuthGetAccessKeyListByApp({
+              applicationId: row['targetApplicationId'],
+              productEnv: row['produceEnv']
+            }).then(accessKeyList => {
+              this.hideWaitingResponse(action);
+              if (Array.isArray(accessKeyList) && accessKeyList.length > 0) {
+                this.configAuthorizeUrlInfo.accessKeyList = accessKeyList;
+                this.configAuthorizeUrlInfo.accessKeyID = accessKeyList[0].id;
+              }
+            }).catch(err => {
+              this.hideWaitingResponse(action);
+              this.$notify.error({
+                title: err.title,
+                message: err.msg,
+                duration: 0,
+                onClose: function () {
+                }
+              });
+            });
+
             if (Array.isArray(row.detailList)) {
-              this.newProps.authorizeUrlList = row.detailList.map(it => {
-//                it.openPopover = false;
-//                return it;
+              this.configAuthorizeUrlInfo.authorizeUrlList = row.detailList.map(it => {
                 return {
+                  id: it.id,
                   oauth: it.oauth,
                   resource: it.resource,
+                  clientId: it['requestClientId'],
                   openPopover: false
                 }
               });
-//              this.newProps.authorizeUrlList = JSON.parse(JSON.stringify(row.detailList));
-//              this.newProps.authorizeUrlList.forEach(it => {
-//                it.openPopover = false;
-//              });
             } else {
-              this.newProps.authorizeUrlList = [];
+              this.configAuthorizeUrlInfo.authorizeUrlList = [];
             }
             this.selected.operation = action;
             break;
@@ -537,76 +555,6 @@
         }
       },
 
-      /**
-       *  used to check new added authorized-url in dialog modify-access-config
-       *  1. if the new item match regexp
-       *  2. if the new item has exist in item array
-       */
-      checkAuthorizeUrlValidate(newItem) {
-        if (!newItem) {
-          newItem = this.modifyAuthorizeUrl.newItem;
-        }
-
-        let checkValidation = () => {
-          let isValid = false;
-          if (!this.newProps.accessKey) {
-            this.errorMsgForAddAuthorizeUrl = '请先填写Access Key';
-            return isValid;
-          }
-          if (!newItem.oauth) {
-            this.errorMsgForAddAuthorizeUrl = '请填写授权URL的所属权限';
-            return isValid;
-          }
-          if (newItem.oauth.length > 50) {
-            this.errorMsgForAddAuthorizeUrl = '所属权限不能超过50个字符';
-            return isValid;
-          }
-          if (!newItem.oauth.startsWith(this.newProps.accessKey + '.')) {
-            this.errorMsgForAddAuthorizeUrl = `所属权限必须以${this.newProps.accessKey}.开头`;
-            return isValid;
-          }
-          if (!/^[a-z]+$/.test(newItem.oauth.replace(this.newProps.accessKey + '.', ''))) {
-            this.errorMsgForAddAuthorizeUrl = '所属权限格式不正确';
-            return isValid;
-          }
-          if (newItem.resource.length > 50) {
-            this.errorMsgForAddAuthorizeUrl = '所属权限不能超过50个字符';
-            return isValid;
-          }
-          let resourceReg = /^(\/[a-zA-Z0-9\\*\/\-_]+)(, *\/[a-zA-Z0-9\\*\/\-_]+)*$/;
-          if (!resourceReg.test(newItem.resource)) {
-            this.errorMsgForAddAuthorizeUrl = '资源URL格式不正确';
-            return isValid;
-          }
-          return true;
-        };
-        let isValid = checkValidation();
-        if (!isValid) {
-          return isValid;
-        }
-
-        let checkIfExist = () => {
-          let exist = false;
-          let authorizeUrlList = this.newProps.authorizeUrlList;
-          authorizeUrlList.some(it => {
-            exist = it['oauth'] == newItem.oauth &&
-              it['resource'] == newItem.resource;
-            return exist;
-          });
-          return exist;
-        };
-
-        if (checkIfExist()) {
-          this.errorMsgForAddAuthorizeUrl = '该授权URL已经存在';
-          isValid = false;
-        } else {
-          isValid = true;
-        }
-        if (isValid) {
-          this.errorMsgForAddAuthorizeUrl = '';
-        }
-        return isValid;
-      },
       ifAuthorizeUrlChanged(origin, current) {
         let theSame = true;
         if (origin.supportClientId != current.accessKey) {
@@ -631,17 +579,20 @@
       },
       handleDialogButton(action, index, item) {
         switch (action) {
+//          case 'add-authorize-url':
+//            let newItem = this.modifyAuthorizeUrl.newItem;
+//            if (this.checkAuthorizeUrlValidate(newItem, 'button')) {
+//              this.configAuthorizeUrlInfo.authorizeUrlList.push({
+//                oauth: newItem.oauth,
+//                resource: newItem.resource,
+//                openPopover: false
+//              });
+//              newItem.oauth = '';
+//              newItem.resource = '';
+//            }
+//            break;
           case 'add-authorize-url':
-            let newItem = this.modifyAuthorizeUrl.newItem;
-            if (this.checkAuthorizeUrlValidate(newItem, 'button')) {
-              this.newProps.authorizeUrlList.push({
-                oauth: newItem.oauth,
-                resource: newItem.resource,
-                openPopover: false
-              });
-              newItem.oauth = '';
-              newItem.resource = '';
-            }
+            console.log(this.configAuthorizeUrlInfo);
             break;
           case 'delete-authorize-url':
             if (item && item.hasOwnProperty('openPopover')) {
@@ -653,16 +604,16 @@
               if (!valid) {
                 return;
               }
-              if (this.newProps.authorizeUrlList.length === 0) {
-                this.errorMsgForAddAuthorizeUrl = '至少要有一条授权URL记录';
+              if (this.configAuthorizeUrlInfo.authorizeUrlList.length === 0) {
+                this.errorMsgForConfigAuthorizeUrl = '至少要有一条授权URL记录';
                 return;
               }
-              if (!this.ifAuthorizeUrlChanged(this.selected.row, this.newProps)) {
+              if (!this.ifAuthorizeUrlChanged(this.selected.row, this.configAuthorizeUrlInfo)) {
                 this.$message.warning('您没有修改授权URL');
                 this.selected.operation = null;
                 return;
               }
-              let detailList = this.newProps.authorizeUrlList.map(it => {
+              let detailList = this.configAuthorizeUrlInfo.authorizeUrlList.map(it => {
                 return {
                   oauth: it.oauth,
                   resource: it.resource
@@ -670,7 +621,7 @@
               });
               this.addToWaitingResponseQueue(action + '-in-dialog');
               this.$net.oauthModifyAuthorizeList(this.selected.row.id, {
-                supportClientId: this.newProps.accessKey,
+                supportClientId: this.configAuthorizeUrlInfo.accessKey,
                 detailList: detailList
               }).then(msg => {
                 this.hideWaitingResponse(action + '-in-dialog');
@@ -695,8 +646,8 @@
       updateModelInfo(prop) {
         switch (prop) {
           case 'authorizeUrlList':
-            this.selected.row.supportClientId = this.newProps.accessKey;
-            this.selected.row.detailList = this.newProps.authorizeUrlList.map(it => {
+            this.selected.row.supportClientId = this.configAuthorizeUrlInfo.accessKey;
+            this.selected.row.detailList = this.configAuthorizeUrlInfo.authorizeUrlList.map(it => {
               return {
                 oauth: it.oauth,
                 resource: it.resource,
@@ -710,7 +661,7 @@
       handlePopoverButton(action, index, item) {
         switch (action) {
           case 'delete-access-config':
-            this.newProps.authorizeUrlList.splice(index, 1);
+            this.configAuthorizeUrlInfo.authorizeUrlList.splice(index, 1);
             item['openPopover'] = false;
             break;
           case 'cancel':
