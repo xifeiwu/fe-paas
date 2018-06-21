@@ -87,8 +87,17 @@
           </template>
         </el-table-column>
         <el-table-column
+                prop="profileName"
+                label="访问环境"
+                width="120"
+                headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <div>{{scope.row.profileName ? scope.row.profileName: '未配置'}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column
           prop="accessConfigDesc"
-          label="访问应用信息-状态"
+          label="访问团队-应用，状态"
           min-width="180"
           headerAlign="center" align="center">
           <template slot-scope="scope">
@@ -110,15 +119,6 @@
                 <div class="more">更多...</div>
               </el-tooltip>
             </div>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="profileName"
-          label="访问环境"
-          width="120"
-          headerAlign="center" align="center">
-          <template slot-scope="scope">
-            <div>{{scope.row.profileName ? scope.row.profileName: '未配置'}}</div>
           </template>
         </el-table-column>
         <el-table-column
@@ -197,7 +197,7 @@
       </div>
     </div>
 
-    <el-dialog title="创建Access Key" :visible="selected.operation == 'open-dialog-4-create-access-key'"
+    <el-dialog title="创建AccessKey" :visible="selected.operation == 'open-dialog-4-create-access-key'"
                class="create-access-key size-700"
                :close-on-click-modal="false"
                @close="handleDialogClose('create-access-key')"
@@ -225,11 +225,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="访问环境" prop="production" v-if="!modifyAccessKeyInfo.isExternalApp" class="profile">
-          <el-select v-model="modifyAccessKeyInfo.production" placeholder="请选择"
-                     style="display:block; max-width: 280px;">
-            <el-option :value="true" label="生产环境"></el-option>
-            <el-option :value="false" label="非生产环境"></el-option>
-          </el-select>
+          <el-radio-group v-model="modifyAccessKeyInfo.production">
+            <el-radio :label="true">生产环境</el-radio>
+            <el-radio :label="false">非生产环境</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="已申请应用" class="target-app-list" v-if="modifyAccessKeyInfo.targetAppList.length>0">
           <el-row class="title">
@@ -411,11 +410,11 @@
     </el-dialog>
 
     <el-dialog title="权限配置" :visible="selected.operation == 'open-dialog-4-update-url-permission'"
-               class="update-url-permission size-700"
+               class="update-url-permission size-750"
                :close-on-click-modal="false"
                @close="handleDialogClose('update-url-permission')"
     >
-      <el-form :model="modifyAccessKeyInfo" :rules="rulesForCreateAccessKey" labelWidth="140px" size="mini"
+      <el-form :model="modifyAccessKeyInfo" :rules="rulesForCreateAccessKey" labelWidth="130px" size="mini"
                ref="createAccessKeyForm">
 
         <el-form-item label="我的应用">
@@ -469,7 +468,7 @@
                       trigger="click"
                       popperClass="el-popover--small"
                       content="复制成功">
-                <p style="color: #fa5555">确定要删除该条授权吗？</p>
+                <p style="color: #fa5555">删除受管控的权限将会造成对应的资源URL不受访问限制，确定要这样做吗？</p>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
                   <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-url-permission', index, item)">确定</el-button>
@@ -477,7 +476,8 @@
                 <el-button type="warning" size="mini-extral"
                            slot="reference"
                            round
-                           :loading="statusOfWaitingResponse('delete-url-permission')">删除</el-button>
+                           :loading="statusOfWaitingResponse('delete-url-permission') && updateUrlPermissionInfo.urlPermissionToDelete.id == item.id">
+                  删除</el-button>
               </el-popover>
             </el-col>
           </el-row>
@@ -830,7 +830,8 @@ module.exports = {
         newItem: {
           oauth: '',
           resource: ''
-        }
+        },
+        urlPermissionToDelete: {}
       },
       errorMsgForAddUrlPermission: '',
 
@@ -1150,7 +1151,6 @@ module.exports = {
             this.$message.error('所需信息不完整！');
             return;
           }
-          this.selected.row = row;
 //          console.log(row);
 
           if (row && row.hasOwnProperty('accessKey') && row.hasOwnProperty('id')) {
@@ -1158,6 +1158,7 @@ module.exports = {
             this.updateUrlPermissionInfo.accessKey = row.accessKey;
           } else {
             console.log('err: access key not found');
+            return;
           }
           this.addToWaitingResponseQueue(action);
           this.$net.oauthGetUrlPermissionList(row.id).then(urlPermissionList => {
@@ -1178,26 +1179,26 @@ module.exports = {
               }
             });
           });
-
           break;
         case 'modify-secret':
           this.newProps.secret = row.secret;
           this.selected.operation = action;
           break;
         case 'delete-access-key':
-          let appToDelete = '';
-          if (this.selected.row.myAPP) {
-            appToDelete = this.seelcted.row.myAPP;
+          let appDesc = '';
+//          let row = this.selected.row;
+          if (row.myApp && row.profileName) {
+            appDesc = ` “${row.myApp}${row.profileName}” 的`;
           }
           this.addToWaitingResponseQueue(action);
-          this.warningConfirm('删除Oauth授权',
-            `你确定要删除${appToDelete}Oauth授权？它将会造成授权的URL不可访问。`).then(() => {
+          this.warningConfirm('删除AccessKey',
+            `你确定要删除${appDesc}AccessKey？它将会造成授权的URL不可访问。`).then(() => {
             this.$net.oauthDeleteAccessKey(this.selected.row.id).then(msg => {
-              this.addToWaitingResponseQueue(action);
+              this.hideWaitingResponse(action);
               this.$message.success(msg);
               this.requestAccessKeyList();
             }).catch((msg) => {
-              this.addToWaitingResponseQueue(action);
+              this.hideWaitingResponse(action);
               this.$notify.error({
                 title: '删除Oauth授权失败！',
                 message: msg,
@@ -1207,6 +1208,7 @@ module.exports = {
               });
             });
           }).catch(err => {
+            this.hideWaitingResponse(action);
           });
           break;
       }
@@ -1364,11 +1366,16 @@ module.exports = {
           this.isTargetAppOK();
           break;
         case 'delete-url-permission':
+          console.log(item);
+          this.updateUrlPermissionInfo.urlPermissionToDelete = item;
+          this.addToWaitingResponseQueue(action);
           this.$net.oauthRemoveUrlPermission(this.updateUrlPermissionInfo.accessKeyId).then(content => {
+            this.hideWaitingResponse(action);
             this.$message.success(`权限${item.oauth}删除成功`);
             this.updateUrlPermissionInfo.urlPermissionList.splice(index, 1);
             item['openPopover'] = false;
           }).catch(err => {
+            this.hideWaitingResponse(action);
             this.$notify.error({
               title: err.title,
               message: err.msg,
@@ -1425,23 +1432,6 @@ module.exports = {
             });
           }
           break;
-//        case 'add-access-config':
-//          if (this.isTargetAppOK()) {
-//            this.newProps.accessConfigList.push({
-//              status: '新加',
-//              targetApplicationId: this.modifyAccessKeyInfo.targetAppID,
-//              targetApplicationName: this.modifyAccessKeyInfo.targetAppName,
-//              targetGroupId: this.modifyAccessKeyInfo.targetGroupID,
-//              targetGroupName: this.modifyAccessKeyInfo.targetGroupName,
-//              openPopover: false
-//            });
-//          }
-//          break;
-//        case 'delete-access-config':
-//          if (item && item.hasOwnProperty('openPopover')) {
-//            item.openPopover = true;
-//          }
-//          break;
         case 'submit-target-app-list':
           // if this.selected.row.accessConfigList.length == 0, go on.
           if (this.selected.row.accessConfigList.length > 0 &&
@@ -1459,11 +1449,13 @@ module.exports = {
           }
 
           if (this.checkAuthorizeUrlValidation(newItem)) {
+            this.addToWaitingResponseQueue(action);
             this.$net.oauthAddUrlPermission({
               accessKeyId: this.updateUrlPermissionInfo.accessKeyId,
               oauth: newItem.oauth,
               oauthUrl: newItem.resource
             }).then(content => {
+              this.hideWaitingResponse(action);
               this.$message.success(`权限${newItem.oauth}添加成功`);
               this.updateUrlPermissionInfo.urlPermissionList.push({
                 oauth: newItem.oauth,
@@ -1473,6 +1465,7 @@ module.exports = {
               this.updateUrlPermissionInfo.newItem.oauth = '';
               this.updateUrlPermissionInfo.newItem.resource = '';
             }).catch(err => {
+              this.hideWaitingResponse(action);
               this.$notify.error({
                 title: err.title,
                 message: err.msg,
@@ -1577,10 +1570,9 @@ module.exports = {
           let accessConfigDesc = [];
           if (targetAppList.length > 0) {
             accessConfigDesc = targetAppList.map(it => {
-              return [it.targetGroupName, it.targetApplicationName, it.status].join(',');
+              return `${it.targetGroupName} - ${it.targetApplicationName}，${it.status}`;
             });
           }
-//          this.newProps['accessConfigDesc'] = accessConfigDesc;
           this.selected.row['accessConfigList'] = JSON.parse(JSON.stringify(targetAppList));
           this.selected.row['accessConfigDesc'] = JSON.parse(JSON.stringify(accessConfigDesc));
           if (!this.selected.row.myApp) {

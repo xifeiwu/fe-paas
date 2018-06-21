@@ -77,7 +77,7 @@
         </el-table-column>
         <el-table-column
                 prop="requestGroupName"
-                label="授权团队 / 应用"
+                label="申请授权的团队 / 应用"
                 headerAlign="center" align="center"
         >
           <template slot-scope="scope">
@@ -90,7 +90,7 @@
         </el-table-column>
         <el-table-column
                 prop="requestGroupName"
-                label="所属权限/资源URL"
+                label="授予访问权限"
                 headerAlign="center" align="center"
         >
           <template slot-scope="scope">

@@ -1285,7 +1285,6 @@ class Net extends NetBase {
             })
           }
         }
-        console.log(response);
       }).catch(err => {
         reject({
           title: '网络请求错误',
@@ -1322,7 +1321,7 @@ class Net extends NetBase {
       it.accessConfigList = it['requestApplicationInfoVOList'];
       if (it.accessConfigList.length > 0) {
         it.accessConfigDesc = it.accessConfigList.map(it => {
-          return [it.targetGroupName, it.targetApplicationName, it.status].join(',');
+          return `${it.targetGroupName} - ${it.targetApplicationName}，${it.status}`;
         });
       } else {
         it.accessConfigDesc = [];
