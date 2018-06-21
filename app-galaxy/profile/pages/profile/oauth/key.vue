@@ -175,8 +175,8 @@
                       v-if="!$storeHelper.notPermitted['oauth_delete_access_key']"
                       size="mini-extral"
                       type="danger"
-                      :loading="statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
-                      @click="handleTRClick('delete', scope.$index, scope.row)">删除
+                      :loading="statusOfWaitingResponse('delete-access-key') && selected.row.id === scope.row.id"
+                      @click="handleTRClick('delete-access-key', scope.$index, scope.row)">删除
               </el-button>
             </div>
           </template>
@@ -398,8 +398,8 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       :loading="statusOfWaitingResponse('update-access-key-config-in-dialog')"
-                       @click="handleDialogButton('update-access-key-config')"
+                       :loading="statusOfWaitingResponse('submit-target-app-list-in-dialog')"
+                       @click="handleDialogButton('submit-target-app-list')"
                        >保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -883,7 +883,7 @@ module.exports = {
       this.requestAccessKeyList();
     },
     'modifyAccessKeyInfo.targetGroupID': function (groupID) {
-      console.log(groupID);
+//      console.log(groupID);
       if (!groupID) {
         return;
       }
@@ -1099,7 +1099,6 @@ module.exports = {
             // remove error tip for button add-access-config
             this.errorMsgForAddTargetApp = '';
           };
-
           // check dialog-related-data before open dialog
           if (!this.groupInfo) {
             this.$message.error('所需信息不完整！');
@@ -1185,17 +1184,20 @@ module.exports = {
           this.newProps.secret = row.secret;
           this.selected.operation = action;
           break;
-        case 'delete':
+        case 'delete-access-key':
           let appToDelete = '';
           if (this.selected.row.myAPP) {
             appToDelete = this.seelcted.row.myAPP;
           }
+          this.addToWaitingResponseQueue(action);
           this.warningConfirm('删除Oauth授权',
             `你确定要删除${appToDelete}Oauth授权？它将会造成授权的URL不可访问。`).then(() => {
             this.$net.oauthDeleteAccessKey(this.selected.row.id).then(msg => {
+              this.addToWaitingResponseQueue(action);
               this.$message.success(msg);
               this.requestAccessKeyList();
             }).catch((msg) => {
+              this.addToWaitingResponseQueue(action);
               this.$notify.error({
                 title: '删除Oauth授权失败！',
                 message: msg,
@@ -1440,7 +1442,7 @@ module.exports = {
 //            item.openPopover = true;
 //          }
 //          break;
-        case 'update-access-key-config':
+        case 'submit-target-app-list':
           // if this.selected.row.accessConfigList.length == 0, go on.
           if (this.selected.row.accessConfigList.length > 0 &&
             !this.ifAppListChanged(this.selected.row.accessConfigList, this.modifyAccessKeyInfo.targetAppList)) {
@@ -1540,7 +1542,7 @@ module.exports = {
               applicationId: it.targetApplicationId
             }
           });
-          this.$net.oauthAddAccessConfig(this.selected.row.id, {
+          this.$net.oauthUpdateTargetApp(this.selected.row.id, {
             groupId: this.$storeHelper.currentGroupID,
             applicationId: this.modifyAccessKeyInfo.appID,
             productEnv: this.modifyAccessKeyInfo.production,
@@ -1589,7 +1591,7 @@ module.exports = {
             this.selected.row.profileName = this.modifyAccessKeyInfo.production ? '生产环境':'非生产环境';
           }
           // set this.selected.row = null at the end of operation
-          this.selected.row = null;
+//          this.selected.row = null;
           break;
       }
     },
