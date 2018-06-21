@@ -97,8 +97,8 @@
         </el-table-column>
         <el-table-column
           prop="accessConfigDesc"
-          label="访问团队-应用，状态"
-          min-width="180"
+          label="申请访问的团队-应用，状态"
+          min-width="200"
           headerAlign="center" align="center">
           <template slot-scope="scope">
             <div v-if="scope.row.accessConfigDesc.length==0">无</div>
@@ -155,7 +155,7 @@
                       type="warning"
                       :loading="statusOfWaitingResponse('open-dialog-for-modify-access-config') && selected.row.id === scope.row.id"
                       @click="handleTRClick('open-dialog-4-modify-access-key', scope.$index, scope.row)">
-                访问配置
+                修改访问配置
               </el-button>
               <el-button
                       size="mini-extral"
@@ -332,19 +332,19 @@
         </el-form-item>
         <el-form-item label="已申请应用" class="target-app-list" v-if="modifyAccessKeyInfo.targetAppList.length>0">
           <el-row class="title">
-            <el-col :span="6" class="group">团队</el-col>
-            <el-col :span="10" class="app">应用</el-col>
-            <el-col :span="5" class="status">状态</el-col>
-            <el-col :span="3"></el-col>
+            <el-col :span="8" class="group">团队</el-col>
+            <el-col :span="12" class="app">应用</el-col>
+            <el-col :span="0" class="status">状态</el-col>
+            <el-col :span="4"></el-col>
           </el-row>
           <el-row class="has-exist"
                   v-for="(item, index) in modifyAccessKeyInfo.targetAppList"
                   :key="index"
           >
-            <el-col :span="6" class="group">{{item.targetGroupName}}</el-col>
-            <el-col :span="10" class="app">{{item.targetApplicationName}}</el-col>
-            <el-col :span="5" class="app">{{item.status}}</el-col>
-            <el-col :span="3" style="text-align: right">
+            <el-col :span="8" class="group">{{item.targetGroupName}}</el-col>
+            <el-col :span="12" class="app">{{item.targetApplicationName}}</el-col>
+            <el-col :span="0" class="app">{{item.status}}</el-col>
+            <el-col :span="4" style="text-align: right">
               <el-popover
                       width="160"
                       v-model="item.openPopover"
@@ -385,7 +385,7 @@
             <el-col :span="2" style="text-align: right">
               <el-button
                       size="mini-extral"
-                      type="warning"
+                      type="primary"
                       style="margin-bottom: 3px"
                       @click="handleDialogButton('add-target-app')">添加
               </el-button>
@@ -426,7 +426,7 @@
         <el-form-item label="所属AccessKey">
           {{selected.row.accessKey}}
         </el-form-item>
-        <el-form-item label="添加授权URL" prop="accessGroupID" class="add-authorize-url"
+        <el-form-item label="添加受限制的权限" prop="accessGroupID" class="add-authorize-url"
                       style="margin-bottom: 20px"
                       :error="errorMsgForAddUrlPermission">
           <el-row>
@@ -448,7 +448,7 @@
             </el-col>
           </el-row>
         </el-form-item>
-        <el-form-item label="已有授权" class="url-permission-list" v-if="updateUrlPermissionInfo.urlPermissionList.length>0">
+        <el-form-item label="受限制的权限" class="url-permission-list" v-if="updateUrlPermissionInfo.urlPermissionList.length>0">
           <el-row class="title">
             <el-col :span="11" class="oauth">所属权限</el-col>
             <el-col :span="11" class="resource">资源URL</el-col>
@@ -484,10 +484,10 @@
         </el-form-item>
       </el-form>
       <div class="helper-text-expanded">
+        <div>初始默认为所有资源URL无需授权均可被访问，当配置了某些资源URL，这些资源URL就会受到限制，需要授权给对方应用才能访问，未配置的资源URL不受限制，无需授权即可被对方应用访问！</div>
         <div class="title">添加授权URL规则<i class="el-icon-question"></i></div>
-        <div class="item">1. 写Access Key必须填为已创建的</div>
-        <div class="item">2. 所属权限分为两部分：Access Key部分，自定义部分，两者之间以.分割。Access Key部分必须为当前所写Access Key；自定义部分只能包括小写字母；50个字符以内。如，galaxy-WrJhXCOo.abcdef</div>
-        <div class="item">3. 资源URL，必须以/开头，路径可以包含字母、数字、*、/、中划线、下划线。多个路径之间以,分割。50个字符以内。如，/a/1-2_3/C,/**/d</div>
+        <div class="item">1. 所属权限的自定义部分只能包括小写字母；50个字符以内。如，galaxy-WrJhXCOo.abcdef</div>
+        <div class="item">2. 资源URL，必须以/开头，路径可以包含字母、数字、*、/、中划线、下划线。多个路径之间以,分割。50个字符以内。如，/a/1-2_3/C,/**/d</div>
       </div>
       <div slot="footer" class="dialog-footer">
         <div style="text-align: center">
@@ -1188,11 +1188,11 @@ module.exports = {
           let appDesc = '';
 //          let row = this.selected.row;
           if (row.myApp && row.profileName) {
-            appDesc = ` “${row.myApp}${row.profileName}” 的`;
+            appDesc = `应用 “${row.myApp}” 的`;
           }
           this.addToWaitingResponseQueue(action);
           this.warningConfirm('删除AccessKey',
-            `你确定要删除${appDesc}AccessKey？它将会造成授权的URL不可访问。`).then(() => {
+            `删除${appDesc}AccessKey将会造成已经授权的配置失效，你确定需要这么做吗？`).then(() => {
             this.$net.oauthDeleteAccessKey(this.selected.row.id).then(msg => {
               this.hideWaitingResponse(action);
               this.$message.success(msg);
