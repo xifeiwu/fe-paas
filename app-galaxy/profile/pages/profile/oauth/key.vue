@@ -20,7 +20,7 @@
           </el-select>
         </div>
         <div class="item">
-          <label style="float: left; width: 90px; line-height: 26px">Access Key：</label>
+          <label style="float: left; width: 90px; line-height: 26px">AccessKey：</label>
           <el-input v-model="searchCondition.accessKey"
                     style="display:block; width: 200px; margin-left: 90px;"></el-input>
         </div>
@@ -50,7 +50,7 @@
       >
         <el-table-column
           prop="accessKey"
-          label="Access Key"
+          label="AccessKey"
           width="140"
           headerAlign="center" align="center">
           <template slot-scope="scope">
@@ -503,7 +503,7 @@
                v-if="selected.row"
     >
       <el-form :model="newProps" :rules="rulesForNewProps" labelWidth="160px" size="mini" ref="modifySecretForm">
-        <el-form-item label="Access Key：">
+        <el-form-item label="AccessKey：">
           {{selected.row.accessKey}}
         </el-form-item>
         <el-form-item label="Access Secret：" prop="secret">
@@ -746,7 +746,7 @@ module.exports = {
       targetGroupList: [],
       showLoading: false,
 //      createAccessKeyTag: null,
-      contentOfCreateAccessKeyButton: '创建Access Key',
+      contentOfCreateAccessKeyButton: '创建AccessKey',
       searchCondition: {
         groupID: '',
         production: null,
@@ -1418,7 +1418,7 @@ module.exports = {
             this.refreshAccessKeyList();
           }).catch(msg => {
             this.$notify.error({
-              title: '创建Access Key失败！',
+              title: '创建AccessKey失败！',
               message: msg,
               duration: 0,
               onClose: function () {

@@ -451,7 +451,7 @@
     height: 100%;
     margin:0px 6px;
     padding: 0px 5px;
-    max-width: 1200px;
+    max-width: 1300px;
     height: 100%;
     .header {
       padding: 3px 0px;

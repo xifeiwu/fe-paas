@@ -1005,7 +1005,7 @@
     height: 100%;
     margin:0px 6px;
     padding: 0px 5px;
-    max-width: 1200px;
+    max-width: 1300px;
 
     /*box-shadow: 0 2px 8px rgba(0,0,0,0.1);*/
     .el-icon-edit {
