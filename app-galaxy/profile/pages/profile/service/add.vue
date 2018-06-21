@@ -12,6 +12,7 @@
         {{infoForAddService.profileDescription}}
       </el-form-item>
       <el-form-item label="版本号" class="service-version"
+                    :required="true"
                     :error="errorMsgForVersion">
         <el-input v-model="serviceForm.serviceVersion" placeholder="版本号只能包含数字，不能超过五位">
           <template slot="prepend">V</template>
@@ -182,11 +183,11 @@
       <el-row>
         <el-col :span="12" style="text-align: center">
           <el-button type="primary" size="mini"
-                     @click="$router.go(-1)">关闭</el-button>
+                     @click="handleFinish">完成</el-button>
         </el-col>
         <el-col :span="12" style="text-align: center">
           <el-button type="primary" size="mini"
-                     @click="handleFinish">完成</el-button>
+                     @click="$router.go(-1)">关闭</el-button>
         </el-col>
       </el-row>
     </div>
@@ -473,7 +474,10 @@
     },
     methods: {
       checkVersion(value) {
-        if (!/^[0-9]{1,5}$/.test(value)) {
+        value = value.trim();
+        if (value === '') {
+          this.errorMsgForVersion = '版本号不能为空';
+        } else if (!/^[0-9]{1,5}$/.test(value)) {
           this.errorMsgForVersion = '版本号只能包含数字，不能超过五位';
         } else if (this.infoForAddService.versionList.indexOf(value) > -1) {
           this.errorMsgForVersion = `版本v${value}已经存在`;

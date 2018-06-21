@@ -121,7 +121,6 @@ class AppInfoHelper {
       serviceVersion: [{
         required: true,
         message: '版本号只能包含数字，不能超过五位',
-        pattern: /^[0-9]{1,5}$/,
       }],
       gitLabAddress: [{
         required: true,

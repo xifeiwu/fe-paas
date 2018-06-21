@@ -667,7 +667,7 @@ class Net extends NetBase {
               this.$utils.renameProperty(it, 'volume', 'fileLocation');
 
               // fix运行实例/总实例数
-              if (it.hasOwnProperty('containerStatus')) {
+              if (it.hasOwnProperty('containerStatus') && it['containerStatus']) {
                 let containerStatus = it['containerStatus'];
                 it.applicationServiceStatus = `${containerStatus.Running}/${containerStatus.Total}`;
               }
