@@ -224,7 +224,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="访问环境" prop="production" v-if="!modifyAccessKeyInfo.isExternalApp" class="profile">
+        <el-form-item label="访问环境" prop="production" class="profile">
           <el-radio-group v-model="modifyAccessKeyInfo.production">
             <el-radio :label="true">生产环境</el-radio>
             <el-radio :label="false">非生产环境</el-radio>
@@ -1400,13 +1400,19 @@ module.exports = {
               applicationId: it.targetApplicationId
             }
           });
-          this.$net.oAuthCreateAccessKey({
+          let dataToPost = {
             groupId: this.$storeHelper.currentGroupID,
             outerApp: this.modifyAccessKeyInfo.isExternalApp,
-            applicationId: this.modifyAccessKeyInfo.appID,
             productEnv: this.modifyAccessKeyInfo.production,
             applyList: targetAppList
-          }).then(content => {
+          };
+          if (this.modifyAccessKeyInfo.isExternalApp) {
+            dataToPost['outerAppName'] = this.modifyAccessKeyInfo.externalAppName;
+          } else {
+            dataToPost['applicationId'] = this.modifyAccessKeyInfo.appID;
+          }
+
+          this.$net.oAuthCreateAccessKey(dataToPost).then(content => {
             this.handleDialogClose();
             this.$message.success(`Access key ${content.secret} 创建成功！`);
             this.refreshAccessKeyList();

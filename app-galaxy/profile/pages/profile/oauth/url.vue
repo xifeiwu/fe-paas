@@ -90,7 +90,7 @@
         </el-table-column>
         <el-table-column
                 prop="requestGroupName"
-                label="授予访问权限"
+                label="授权访问权限"
                 headerAlign="center" align="center"
         >
           <template slot-scope="scope">
@@ -169,7 +169,7 @@
             <span>{{selected.row.requestApplicationName}}</span>
           </div>
         </el-form-item>
-        <el-form-item label="被访问的环境" class="profile">
+        <el-form-item label="访问环境" class="profile">
           {{selected.row.profileName}}
         </el-form-item>
         <el-form-item label="被访问的团队/应用" v-if="groupInfo" class="target-app">
@@ -186,7 +186,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="已经授予的授权" class="authorize-url-list" v-if="configAuthorizeUrlInfo.authorizeUrlList.length>0">
+        <el-form-item label="已经授予的访问授权" class="authorize-url-list" v-if="configAuthorizeUrlInfo.authorizeUrlList.length>0">
           <el-row class="title">
             <el-col :span="11" class="oauth">所属权限</el-col>
             <el-col :span="11" class="resource">资源URL</el-col>
@@ -217,7 +217,7 @@
             </el-col>
           </el-row>
         </el-form-item>
-        <el-form-item label="授予权限" class="all-authorize-url-list" :error="errorMsgForAuthorizeUrl">
+        <el-form-item label="授予访问权限" class="all-authorize-url-list" :error="errorMsgForAuthorizeUrl">
           <el-row>
             <el-col :span="18">
               <el-select filterable v-model="configAuthorizeUrlInfo.authorizeUrlID" placeholder="请选择">
@@ -235,7 +235,7 @@
       </el-form>
       <div class="helper-text-expanded">
         <div class="title">提示<i class="el-icon-question"></i></div>
-        <div class="item">不进行任何授权，对方只能访问未被管控的资源，被管控的资源必须授予权限后，对方才能带token进行访问。</div>
+        <div class="item">不进行任何授权，对方只能访问未被限制的资源，被限制的资源必须授予权限后，对方才能带token进行访问</div>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-row>
