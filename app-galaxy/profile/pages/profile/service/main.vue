@@ -166,6 +166,12 @@
                   <el-form-item label="项目名称" class="big">
                     {{valueToShow(selected.service.tag)}}
                   </el-form-item>
+                  <el-form-item label="所属Scrum" v-if="selected.service.scrumName">
+                    {{selected.service.scrumName}}
+                  </el-form-item>
+                  <el-form-item label="所属LOB" v-if="selected.service.lobName">
+                    {{selected.service.lobName}}
+                  </el-form-item>
                   <el-form-item label="开发语言">
                     {{selected.service.language + ' - ' + selected.service.languageVersion}}
                   </el-form-item>

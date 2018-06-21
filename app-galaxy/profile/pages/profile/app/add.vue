@@ -2,12 +2,24 @@
   <div id="app-add">
     <div class="section-title">创建应用</div>
     <el-form :model="createAppForm" :rules="rules" size="mini"
-             ref="createAppForm" label-width="110px"
+             ref="createAppForm" label-width="140px"
              v-loading="showLoading"
              :element-loading-text="loadingText">
       <el-form-item label="团队" prop="groupID" class="group-list">
         <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择" filterable>
           <el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="所属ScrumTeam" prop="scrumID" class="scrumTeam" v-if="true">
+        <el-select v-model="createAppForm.scrumID" placeholder="请选择" filterable>
+          <el-option v-for="item in scrumList" :key="item.id" :label="item.scrumName" :value="item.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="所属LOB" prop="lobID" class="lob" v-if="true">
+        <el-select v-model="createAppForm.lobID" placeholder="请选择" filterable>
+          <el-option v-for="item in lobList" :key="item.id" :label="item.lobName" :value="item.id">
           </el-option>
         </el-select>
       </el-form-item>
@@ -287,12 +299,31 @@ export default {
     this.onProfileListOfGroup(this.$storeHelper.profileListOfGroup, null);
   },
   mounted() {
+    if (!this.$storeHelper.lobInfo) {
+      this.$net.getLobInfo().then(result => {
+        this.$storeHelper.lobInfo = result;
+      }).catch(err => {
+        this.$notify.error({
+          title: err.title,
+          message: err.msg,
+          duration: 0,
+          onClose: function () {
+          }
+        });
+      })
+    } else {
+      this.onLobInfo(this.$storeHelper.lobInfo);
+    }
   },
   data() {
     return {
       fileLocationToAdd: '',
+      scrumList: [],
+      lobList: [],
       createAppForm: {
         groupID: this.$storeHelper.currentGroupID,
+        scrumID: '',
+        lobID: '',
         appName: '',
         projectName: '',
         profiles: [],
@@ -335,6 +366,7 @@ export default {
   watch: {
     languageInfo: 'onLanguageInfo',
     '$storeHelper.profileListOfGroup': 'onProfileListOfGroup',
+    '$storeHelper.lobInfo': 'onLobInfo',
     '$storeHelper.currentGroupID': function (groupID) {
       this.createAppForm.groupID = groupID;
     }
@@ -364,6 +396,19 @@ export default {
         this.createAppForm.profiles = profileInfoList.map(it => {
           return it.name;
         });
+      }
+    },
+    onLobInfo(lobInfo) {
+//      console.log(lobInfo);
+      if (lobInfo) {
+        if (lobInfo.hasOwnProperty('scrumList') && Array.isArray(lobInfo['scrumList']) && lobInfo['scrumList'].length > 0) {
+          this.scrumList = lobInfo['scrumList'];
+          this.createAppForm.scrumID = this.scrumList[0].id;
+        }
+        if (lobInfo.hasOwnProperty('lobList') && Array.isArray(lobInfo['lobList']) && lobInfo['lobList'].length > 0) {
+          this.lobList = lobInfo['lobList'];
+          this.createAppForm.lobID = this.lobList[0].id;
+        }
       }
     },
     setDefaultLanguage: function (languageList) {

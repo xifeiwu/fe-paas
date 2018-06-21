@@ -28,6 +28,13 @@ class StoreHelper extends BaseHelper{
     });
   }
 
+  get lobInfo() {
+    return this.$store.getters['user/lobInfo'];
+  }
+  set lobInfo(value) {
+    this.$store.dispatch('user/lobInfo', value);
+  }
+
   groupList() {
     return this.$store.getters['user/groupList'];
   }

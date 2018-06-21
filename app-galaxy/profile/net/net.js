@@ -246,6 +246,36 @@ class Net extends NetBase {
     })
   }
 
+  // 获取Scrum列表
+  getLobInfo() {
+    return new Promise((resolve, reject) => {
+      axios.all([
+        axios.get(URL_LIST.get_scrum_list.url),
+        axios.get(URL_LIST.get_lob_list.url)
+      ]).then(axios.spread((res1, res2) => {
+        let content1 = this.getResponseContent(res1);
+        let content2 = this.getResponseContent(res2);
+        let scrumList = [], lobList = [];
+        if (content1 && content1.hasOwnProperty('scrumList')) {
+          scrumList = content1['scrumList']
+        }
+        if (content2 && content2.hasOwnProperty('lobList')) {
+          lobList = content2['lobList']
+        }
+        // console.log(scrumList);
+        // console.log(lobList);
+        resolve({
+          scrumList, lobList
+        });
+      })).catch(err => {
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.get_scrum_list.path}；${err.toString()}`
+        });
+      })
+    });
+  }
+
   /**
    * 获取所有组列表
    * @returns {Promise}

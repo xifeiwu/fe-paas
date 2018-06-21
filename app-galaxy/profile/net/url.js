@@ -51,6 +51,16 @@ class URL extends BaseURL {
         url: API_PATH + '/group/queryByUser',
         path: '/group/queryByUser'
       },
+      // 获取Scrum列表
+      'get_scrum_list': {
+        url: API_PATH + '/group/getScrumList',
+        path: '/group/getScrumList'
+      },
+      // 获取line of business列表
+      'get_lob_list': {
+        url: API_PATH + '/group/queryLobList',
+        path: '/group/queryLobList'
+      },
 
       /** 全局相关 */
       // 获取所有用户列表

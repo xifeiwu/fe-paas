@@ -86,6 +86,14 @@ class AppInfoHelper {
         required: true,
         message: '请选择团队',
       }],
+      scrumID: [{
+        required: true,
+        message: '请选择Scrum',
+      }],
+      lobID: [{
+        required: true,
+        message: '请选择Lob',
+      }],
       // 运行环境, will be replaced
       profiles: [{
         type: 'array',
@@ -464,6 +472,8 @@ class AppInfoHelper {
       cpuID: 'cpuId',
       memoryID: 'memoryId',
       relativePathOfParentPOM: 'relativePath',
+      scrumID: 'scrumId',
+      lobID: 'lobId'
       // gitlabAddress: 'gitLabAddress',
       // gitlabBranch: 'gitLabBranch',
     };

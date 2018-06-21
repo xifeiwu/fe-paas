@@ -59,6 +59,7 @@ const state = {
   /* net data */
   // 用户所属组列表
   groupList: null,
+  lobInfo: null,
   // 当前组
   groupID: null,
   groupInfo: null,
@@ -95,6 +96,13 @@ const actions = {
     localStorage.setItem('user/groupList', JSON.stringify(groupList));
     // }
     dispatch('groupInfo');
+  },
+
+  /**
+   * 获取所有scrum列表
+   */
+  lobInfo({commit, state, dispatch}, lobInfo) {
+    state.lobInfo = lobInfo;
   },
   /**
    * 更改用户组ID
@@ -236,6 +244,9 @@ const getters = {
       groupID = state.groupList[0].id
     }
     return parseInt(groupID);
+  },
+  'lobInfo': (state, getters) => {
+    return state.lobInfo;
   },
   'groupInfo': (state, getters) => {
     return getValue({state, getters}, 'groupInfo');
