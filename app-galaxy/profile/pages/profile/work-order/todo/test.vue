@@ -6,7 +6,6 @@
           <div>工单测试注意事项</div>
           <div>1. 测试类型为跳过测试的情况下，不需要上传测试报告，其它情况均需要上传测试报告</div>
           <div>2. 如果选择拒绝处理，必须给出审批意见</div>
-          <div>3. 测试报告只能上传一个文件</div>
         </div>
         <span>测试工单<i class="el-icon-question"></i></span>
       </el-tooltip>

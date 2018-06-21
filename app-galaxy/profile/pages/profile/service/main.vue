@@ -1503,8 +1503,8 @@ export default {
           this.defaultServiceID = serviceID;
         }).catch(msg => {
           this.$notify({
-            title: '切换默认版本失败',
-            message: msg,
+            title: err.title,
+            message: err.msg,
             duration: 0,
             onClose: function () {
             }
@@ -2093,8 +2093,8 @@ export default {
       }).catch(err => {
         this.showLoading = false;
         this.$notify.error({
-          title: '提示',
-          message: err,
+          title: err.title,
+          message: err.msg,
           duration: 0,
           onClose: function () {
           }

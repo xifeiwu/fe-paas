@@ -344,12 +344,23 @@ class Net extends NetBase {
             resolve(content);
           }
         } else {
-          reject(this.getResponseMsg(response));
+          let resMsg = this.getResponseMsg(response);
+          if (resMsg && resMsg.msg) {
+            reject(resMsg);
+          } else {
+            reject({
+              title: '数据格式不正确',
+              msg: '请联系管理员'
+            })
+          }
         }
       }).catch(err => {
         this.requestingState.getAPPList = false;
-        this.showLog('getAPPList', err);
-        reject(this.getMsgFromErrorResponse(err));
+        // console.log(err);
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.app_list.path}；${err.toString()}`
+        });
       });
     });
   }
@@ -683,11 +694,17 @@ class Net extends NetBase {
           this.showLog('getServiceListByAppIDAndProfileID', content);
           resolve(content);
         } else {
-          reject('获取服务列表信息失败');
+          reject({
+            title: '获取服务列表信息失败',
+            msg: '请联系管理员'
+          });
         }
       }).catch(err => {
-        reject(err);
-        console.log(err);
+        // console.log(err);
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.get_service_by_appId_and_profile.path}；${err.toString()}`
+        });
       })
     })
   }
@@ -704,7 +721,10 @@ class Net extends NetBase {
         }
       }).catch(err => {
         console.log(err);
-        reject('切换默认服务版本失败');
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.service_change_default.path}；${err.toString()}`
+        });
       })
     });
   }

@@ -839,7 +839,17 @@
           }).then(content => {
             this.updateAppInfoModel(content);
           }).catch(err => {
+            this.showLoading = false;
             this.showPagination = false;
+            if (err.title && err.msg) {
+              this.$notify.error({
+                title: err.title,
+                message: err.msg,
+                duration: 0,
+                onClose: function () {
+                }
+              });
+            }
           });
         }
       },
