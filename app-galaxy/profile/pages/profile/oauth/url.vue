@@ -390,9 +390,9 @@
       if (updateAccessList) {
         this.requestAuthorizeUrlList();
       }
-      if (!this.targetAppList || this.targetAppList.length === 0) {
-        this.getTargetAppList(this.$storeHelper.currentGroupID)
-      }
+//      if (!this.targetAppList || this.targetAppList.length === 0) {
+      this.getTargetAppList(this.$storeHelper.currentGroupID);
+//      }
       // adjust element height after resize
       try {
         let header = this.$el.querySelector('.header:first-child');
