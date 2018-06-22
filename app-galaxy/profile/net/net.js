@@ -40,14 +40,11 @@ class Net extends NetBase {
 
   // 获取用户不允许操作的功能列表
   getNotPermittedCommands() {
-    function getPermissionMap() {
-      return axios.post(URL_LIST.permission_url_map.url, {});
-    }
-    function getNotPermitted() {
-      return axios.get(URL_LIST.user_not_permitted.url);
-    }
     return new Promise((resolve, reject) => {
-      axios.all([getPermissionMap(), getNotPermitted()]).then(axios.spread((permissionMapRes, notPermittedRes) => {
+      axios.all([
+        axios.post(URL_LIST.permission_url_map.url, {}),
+        axios.get(URL_LIST.user_not_permitted.url)
+      ]).then(axios.spread((permissionMapRes, notPermittedRes) => {
         let permissionMapListOrigin = this.getResponseContent2(permissionMapRes);
         let notPermittedListOrigin = this.getResponseContent2(notPermittedRes);
         notPermittedListOrigin = notPermittedListOrigin.map(it => {
@@ -175,8 +172,11 @@ class Net extends NetBase {
         // console.log(result);
         resolve(result);
       })).catch(err => {
-        reject([]);
         console.log(err);
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.user_not_permitted.path}；${err.toString()}`
+        });
       })
     });
   }

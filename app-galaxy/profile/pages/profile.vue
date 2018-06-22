@@ -219,6 +219,13 @@
         this.$storeHelper.notPermitted = list;
         this.$routeHelper.addPermission(this.$storeHelper.notPermitted);
       }).catch(err => {
+        this.$notify.error({
+          title: err.title,
+          message: err.msg,
+          duration: 0,
+          onClose: function () {
+          }
+        });
       });
 
 //      this.$store.dispatch('user/profileListOfGroup', {
