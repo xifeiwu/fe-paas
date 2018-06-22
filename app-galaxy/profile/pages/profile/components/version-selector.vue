@@ -3,7 +3,7 @@
     <div class="item">
       <label>应用名称:</label>
       <el-select filterable v-model="selectedAppID" placeholder="请选择">
-        <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
+        <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">
         </el-option>
       </el-select>
     </div>
@@ -263,20 +263,22 @@
                   this.selectedServiceID = this.customConfig['serviceID'];
                   // customConfig can only use once
                   delete this.customConfig['serviceID'];
-                } else if (this.customConfig.hasOwnProperty('serviceName')) {
-                  let theProfile = null;
-                  currentServiceList.some(it => {
-                    if (it.serviceName === this.customConfig['serviceName']) {
-                      theProfile = it;
-                    }
-                    return theProfile;
-                  });
-                  if (theProfile) {
-                    this.selectedServiceID = theProfile.id;
-                  } else {
-                    this.selectedServiceID = firstServiceID;
-                  }
-                } else {
+                }
+//                else if (this.customConfig.hasOwnProperty('serviceName')) {
+//                  let theProfile = null;
+//                  currentServiceList.some(it => {
+//                    if (it.serviceName === this.customConfig['serviceName']) {
+//                      theProfile = it;
+//                    }
+//                    return theProfile;
+//                  });
+//                  if (theProfile) {
+//                    this.selectedServiceID = theProfile.id;
+//                  } else {
+//                    this.selectedServiceID = firstServiceID;
+//                  }
+//                }
+                else {
                   this.selectedServiceID = firstServiceID;
                 }
               } else {

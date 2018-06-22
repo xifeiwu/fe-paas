@@ -198,7 +198,7 @@ const actions = {
   appInfoListOfGroup({commit, state}, {groupID, from}) {
     NetData.getAPPList({
       groupId: groupID,
-      serviceName: ''
+      // serviceName: ''
     }).then(content => {
       // commit('SET_APP_INFO_LIST_OF_GROUP', content);
       let appList = content;

@@ -49,7 +49,7 @@
             <div v-else>版本未知</div>
           </template>
         </el-table-column>
-        <el-table-column label="应用名称" prop="serviceName" headerAlign="center" align="center">
+        <el-table-column label="应用名称" prop="appName" headerAlign="center" align="center">
           <template slot-scope="scope">
             <span>{{scope.row.appName}}</span>
             <i v-if="!$storeHelper.notPermitted['app_change_name']"
@@ -486,7 +486,7 @@
             this.showLoading = true;
             this.$net.getAPPList({
               groupId: this.$storeHelper.currentGroupID,
-              serviceName: ''
+//              serviceName: ''
             }).then(content => {
               this.$storeHelper.appInfoListOfGroup = content;
               this.showLoading = false;
@@ -529,9 +529,9 @@
         }
         switch (action) {
           case 'deleteRow':
-            this.warningConfirm(`删除应用"${row.serviceName}"将会销毁所有环境的代码和配置信息，
+            this.warningConfirm(`删除应用"${row.appName}"将会销毁所有环境的代码和配置信息，
             解绑所有公网域名、IP白名单，删除后应用数据不可恢复！`).then(() => {
-              this.warningConfirm(`您确认要删除应用"${row.serviceName}"，并清除该应用的一切数据？`).then(() => {
+              this.warningConfirm(`您确认要删除应用"${row.appName}"，并清除该应用的一切数据？`).then(() => {
                 this.$net.deleteAPP({
                   groupId: this.$storeHelper.currentGroupID,
                   id: row.appId
@@ -772,7 +772,7 @@
 //        console.log(this.filterKey);
         let checkItem = function (item) {
           let isOK = true;
-          if (!item.hasOwnProperty('userName') || !item.hasOwnProperty('serviceName')) {
+          if (!item.hasOwnProperty('userName') || !item.hasOwnProperty('appName')) {
             isOK = false;
           }
           if (isOK && this.filterMyApp) {
@@ -781,7 +781,7 @@
             }
           }
           if (isOK && filterReg) {
-            if (!filterReg.exec(item.serviceName)) {
+            if (!filterReg.exec(item.appName)) {
               isOK = false;
             }
           }
@@ -805,11 +805,11 @@
        * 4. at the change of appInfoListOfGroup, if this.getFromStore is true
        * 5. operation of app: delete app. [change profile]
        * 6. at the change of filterMyApp or filterKey
-       * @param serviceName
+       * @param appName
        */
-      requestAPPList({serviceName}) {
-        if (!serviceName) {
-          serviceName = '';
+      requestAPPList({appName}) {
+        if (!appName) {
+          appName = '';
         }
         let page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
@@ -835,7 +835,7 @@
             groupId: this.$storeHelper.currentGroupID,
             start: start,
             length: length,
-            serviceName: serviceName
+//            serviceName: serviceName
           }).then(content => {
             this.updateAppInfoModel(content);
           }).catch(err => {

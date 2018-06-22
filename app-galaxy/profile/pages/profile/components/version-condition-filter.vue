@@ -10,7 +10,7 @@
     <div class="item">
       <label>应用名称:</label>
       <el-select filterable v-model="selectedAppID" placeholder="请选择">
-        <el-option v-for="(item, index) in appListWithAll" :key="item.appId" :label="item.serviceName" :value="item.appId">
+        <el-option v-for="(item, index) in appListWithAll" :key="item.appId" :label="item.appName" :value="item.appId">
         </el-option>
       </el-select>
     </div>
@@ -233,7 +233,7 @@
         if (this.addItemAll && this.addItemAll.app) {
           appAll = [{
             appId: this.$storeHelper.APP_ID_FOR_ALL,
-            serviceName: '全部'
+            appName: '全部'
           }];
         }
         if (appList) {

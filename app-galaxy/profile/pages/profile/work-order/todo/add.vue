@@ -55,7 +55,7 @@
                      v-if="appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')"
                      placeholder="请选择">
             <el-option v-for="(item, index) in appInfoListOfGroup.appList"
-                       :key="item.appId" :label="item.serviceName" :value="item.appId"
+                       :key="item.appId" :label="item.appName" :value="item.appId"
             >
             </el-option>
           </el-select>
@@ -354,7 +354,7 @@
       'workOrderDetail.appID': function (value) {
         let appInfo = this.$storeHelper.getAppInfoByID(value);
         if (appInfo && appInfo.hasOwnProperty('app')) {
-          this.workOrderDetail.appName = appInfo.app.serviceName;
+          this.workOrderDetail.appName = appInfo.app.appName;
         }
         this.requestProductVersionList(value);
         this.$storeHelper.setUserConfig('profile/work-order/appID', value);

@@ -220,7 +220,7 @@
         <el-form-item label="我的应用" prop="appID" v-if="!modifyAccessKeyInfo.isExternalApp" class="app">
           <el-select filterable v-model="modifyAccessKeyInfo.appID" placeholder="请选择"
                      style="display:block; max-width: 280px;">
-            <el-option v-for="(item, index) in appListOfCurrentGroup" :key="item.appId" :label="item.serviceName" :value="item.appId">
+            <el-option v-for="(item, index) in appListOfCurrentGroup" :key="item.appId" :label="item.appName" :value="item.appId">
             </el-option>
           </el-select>
         </el-form-item>

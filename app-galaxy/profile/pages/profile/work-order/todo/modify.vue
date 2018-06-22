@@ -54,7 +54,7 @@
         <el-form-item label="应用名称" prop="appID" v-if="workOrderDetail.appID">
           <el-select filterable v-model="workOrderDetail.appID" placeholder="请选择">
             <el-option v-if="appInfoListOfGroup" v-for="(item, index) in appInfoListOfGroup.appList"
-                       :key="item.appId" :label="item.serviceName" :value="item.appId">
+                       :key="item.appId" :label="item.appName" :value="item.appId">
             </el-option>
           </el-select>
         </el-form-item>
@@ -345,7 +345,7 @@
       'workOrderDetail.appID': function (value) {
         let appInfo = this.$storeHelper.getAppInfoByID(value);
         if (appInfo && appInfo.hasOwnProperty('app')) {
-          this.workOrderDetail.appName = appInfo.app.serviceName;
+          this.workOrderDetail.appName = appInfo.app.appName;
         }
         this.requestProductVersionList(value);
       },

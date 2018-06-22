@@ -361,11 +361,11 @@ class Net extends NetBase {
               }
               // it.appName = it.tag;
               // it.serviceName = it.tag;
-              if (it.hasOwnProperty('appName')) {
-                it.serviceName = it.appName;
-              } else {
-                it.appName = it.serviceName;
-              }
+              // if (it.hasOwnProperty('appName')) {
+              //   it.serviceName = it.appName;
+              // } else {
+              //   it.appName = it.serviceName;
+              // }
             });
             content.appModelList = getAppModelList(appList);
           }

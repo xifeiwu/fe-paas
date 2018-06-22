@@ -6,7 +6,7 @@
           <div class="item">
             <label style="float: left; width: 72px; line-height: 26px">应用名称：</label>
             <el-select filterable v-model="selectedAppID" placeholder="请选择" style="display:block; max-width: 280px; margin-left: 72px;">
-              <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.serviceName" :value="item.appId">
+              <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">
               </el-option>
             </el-select>
           </div>
@@ -1534,7 +1534,7 @@ export default {
     getVersionDescription(row) {
       let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
       let description = profileInfo && profileInfo.hasOwnProperty('description') ? profileInfo.description : '';
-      let desc = `${this.selectedApp.serviceName}-${description}-${row.serviceVersion}版本`;
+      let desc = `${this.selectedApp.appName}-${description}-${row.serviceVersion}版本`;
       return desc;
     },
     /**
