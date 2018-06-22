@@ -163,7 +163,6 @@
 </style>
 
 <script>
-  import routeUtils from './route';
   import paasHeaderProfile from '$components/header-profile';
 
   export default {
@@ -255,7 +254,7 @@
         return this.$storeHelper.menuList;
       },
       routerPathToName() {
-        return routeUtils.getRoutePathToName();
+        return this.$routeHelper.getRoutePathToName();
       },
       userName() {
         let userName = this.$storeHelper.getUserInfo('realName');

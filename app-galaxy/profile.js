@@ -23,7 +23,7 @@ new VueConfig({
   NetConfig
 });
 
-import routerConfig from './profile/pages/route';
+import routerConfig from './profile/pages/router';
 Vue.prototype.$routeHelper = routerConfig;
 
 // my-icons for icon and svg
