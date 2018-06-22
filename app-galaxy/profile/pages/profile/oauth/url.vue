@@ -156,12 +156,12 @@
     </div>
 
     <el-dialog title="修改授权配置" :visible="selected.operation == 'open-dialog-4-config-authorize-url'"
-               class="config-authorize-url size-700"
+               class="config-authorize-url size-900"
                :close-on-click-modal="false"
                @close="selected.operation = null"
                v-if="selected.row"
     >
-      <el-form :model="configAuthorizeUrlInfo" :rules="rulesForAuthorizeUrl" labelWidth="200px" size="mini" ref="configAuthorizeUrlForm">
+      <el-form labelWidth="160px" size="mini" inline>
         <el-form-item label="申请访问的团队/应用" class="request-app">
           <div>
             <span>{{selected.row.requestGroupName}}</span>
@@ -172,14 +172,16 @@
         <el-form-item label="访问环境" class="profile">
           {{selected.row.profileName}}
         </el-form-item>
-        <el-form-item label="被访问的团队/应用" v-if="groupInfo" class="target-app">
+        <el-form-item label="被访问的团队/应用" v-if="groupInfo" class="target-app big">
           <div>
             <span>{{groupInfo.name}}</span>
             <span style="color: #409EFF; font-weight: bold">/</span>
             <span>{{selected.row.targetApplicationName}}</span>
           </div>
         </el-form-item>
-        <el-form-item label="被访问应用所属AccessKey" class="access-key">
+      </el-form>
+      <el-form :model="configAuthorizeUrlInfo" :rules="rulesForAuthorizeUrl" labelWidth="200px" size="mini" ref="configAuthorizeUrlForm">
+        <el-form-item label="被访问应用所属AccessKey" class="access-key" prop="accessKeyID">
           <el-select filterable v-model="configAuthorizeUrlInfo.accessKeyID" placeholder="请选择">
             <el-option v-for="(item, index) in configAuthorizeUrlInfo.accessKeyList"
                        :key="item.id" :label="item.clientId" :value="item.id">
@@ -256,6 +258,16 @@
 </template>
 
 <style lang="scss">
+  @mixin expand-inline-form-item() {
+    display: block;
+    width: 100%;
+    .el-form-item__label {
+      float: left;
+    }
+    .el-form-item__content {
+      display: block;
+    }
+  }
   #oauth-url {
     .el-row.header {
       .el-input {
@@ -267,12 +279,40 @@
         height: 26px;
       }
     }
-
     .el-dialog__wrapper {
+      .el-form.el-form--inline {
+        margin-bottom: 6px;
+        text-align: left;
+        .el-form-item {
+          margin: 0px;
+          width: calc(50% - 2px);
+          &.big {
+            @include expand-inline-form-item;
+            .el-form-item__content {
+              margin-left: 140px;
+            }
+          }
+        }
+      }
       &.config-authorize-url {
         .el-form {
+          &.el-form--inline {
+            .el-form-item {
+              &.request-app {
+                width: calc(66% - 2px);
+              }
+              &.profile {
+                width: calc(33% - 2px);
+              }
+              &.target-app {
+                .el-form-item__content {
+                  margin-left: 160px;
+                }
+              }
+            }
+          }
           .el-form-item {
-            &.request-app, &.profile, &.target-app, &.authorize-url-list {
+            &.authorize-url-list {
               margin-bottom: 2px;
             }
             &.access-key {
@@ -395,9 +435,9 @@
         errorMsgForAuthorizeUrl: '',
         errorMsgForAccessKey: '',
         rulesForAuthorizeUrl: {
-          accessKey: [{
+          accessKeyID: [{
             required: true,
-            message: 'Access Key不能为空',
+            message: 'AccessKey不能为空',
           }],
         },
         configAuthorizeUrlInfo: {
@@ -525,10 +565,27 @@
               this.$message.error('信息不完整！');
               return;
             }
+            const openDialog = () => {
+              if (Array.isArray(row.detailList)) {
+                this.configAuthorizeUrlInfo.authorizeUrlList = row.detailList.map(it => {
+                  return {
+                    id: it.id,
+                    oauth: it.oauth,
+                    resource: it.resource,
+                    clientId: it['requestClientId'],
+                    openPopover: false
+                  }
+                });
+              } else {
+                this.configAuthorizeUrlInfo.authorizeUrlList = [];
+              }
+              this.selected.operation = action;
+            };
+
             this.addToWaitingResponseQueue(action);
             this.errorMsgForAuthorizeUrl = '';
             this.configAuthorizeUrlInfo.accessKeyList = [];
-            this.configAuthorizeUrlInfo.accessKeyID = null;
+            this.configAuthorizeUrlInfo.accessKeyID = '';
             this.$net.oAuthGetAccessKeyListByApp({
               applicationId: row['targetApplicationId'],
               productEnv: row['produceEnv']
@@ -537,7 +594,16 @@
               if (Array.isArray(accessKeyList) && accessKeyList.length > 0) {
                 this.configAuthorizeUrlInfo.accessKeyList = accessKeyList;
                 this.configAuthorizeUrlInfo.accessKeyID = accessKeyList[0].id;
+                openDialog();
 //                console.log(this.configAuthorizeUrlInfo);
+              } else {
+                this.$notify.error({
+                  title: '被访问的应用没有AccessKey',
+                  message: `请先在 "AccessKey列表页面" 为被访问的应用 "${row.requestApplicationName}" 创建AccessKey，否则无法进行授权配置`,
+                  duration: 0,
+                  onClose: function () {
+                  }
+                });
               }
             }).catch(err => {
               this.hideWaitingResponse(action);
@@ -549,21 +615,6 @@
                 }
               });
             });
-
-            if (Array.isArray(row.detailList)) {
-              this.configAuthorizeUrlInfo.authorizeUrlList = row.detailList.map(it => {
-                return {
-                  id: it.id,
-                  oauth: it.oauth,
-                  resource: it.resource,
-                  clientId: it['requestClientId'],
-                  openPopover: false
-                }
-              });
-            } else {
-              this.configAuthorizeUrlInfo.authorizeUrlList = [];
-            }
-            this.selected.operation = action;
             break;
           case 'toggle-enable':
 //            console.log(row);
@@ -591,7 +642,8 @@
 
       ifAuthorizeUrlChanged(origin, current) {
         let theSame = true;
-        if (origin.supportClientId != current.accessKey) {
+        // no need to compare when current.authorizeUrlList is empty
+        if (current.authorizeUrlList.length === 0) {
           theSame = false;
         }
         if (theSame) {
@@ -659,21 +711,15 @@
               if (!valid) {
                 return;
               }
-              if (this.configAuthorizeUrlInfo.authorizeUrlList.length === 0) {
-                this.errorMsgForAuthorizeUrl = '至少要有一条授权URL记录';
-                return;
-              }
+//              if (this.configAuthorizeUrlInfo.authorizeUrlList.length === 0) {
+//                this.errorMsgForAuthorizeUrl = '至少要有一条授权URL记录';
+//                return;
+//              }
               if (!this.ifAuthorizeUrlChanged(this.selected.row, this.configAuthorizeUrlInfo)) {
                 this.$message.warning('您没有修改授权URL');
                 this.selected.operation = null;
                 return;
               }
-//              let detailList = this.configAuthorizeUrlInfo.authorizeUrlList.map(it => {
-//                return {
-//                  oauth: it.oauth,
-//                  resource: it.resource
-//                }
-//              });
               let oauthList = this.configAuthorizeUrlInfo.authorizeUrlList.map(it => {
                 return it.oauth;
               });
