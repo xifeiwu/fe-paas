@@ -180,9 +180,18 @@
 //      this.$store.dispatch('user/groupList');
       // get group list of current user
       this.$net.getUserGroupList().then(content => {
-        if (content.hasOwnProperty('groupList')) {
+        if (content.hasOwnProperty('groupList') && Array.isArray(content['groupList'])) {
           let groupList = content.groupList;
           this.$store.dispatch('user/groupList', groupList);
+          if (groupList.length === 0) {
+            this.$notify.error({
+              title: '您所属的团队为空，某些操作可能无法进行',
+              message: '请联系管理员，添加团队',
+              duration: 0,
+              onClose: function () {
+              }
+            });
+          }
         } else {
           this.$notify.error({
             title: '数据错误',
