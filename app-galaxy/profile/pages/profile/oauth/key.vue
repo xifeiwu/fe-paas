@@ -83,7 +83,11 @@
           headerAlign="center" align="center"
         >
           <template slot-scope="scope">
-            <div>{{scope.row.myApp ? scope.row.myApp: '未配置'}}</div>
+            <div>
+              <span>{{scope.row.myApp ? scope.row.myApp: '未配置'}}</span>
+              <span v-if="scope.row.outerApp"
+                    style="color: #409EFF; font-size: 12px; line-height: 100%; padding: 2px; border: 1px solid #409EFF; border-radius: 4px;">外</span>
+            </div>
           </template>
         </el-table-column>
         <el-table-column

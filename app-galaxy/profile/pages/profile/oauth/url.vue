@@ -156,12 +156,12 @@
     </div>
 
     <el-dialog title="修改授权配置" :visible="selected.operation == 'open-dialog-4-config-authorize-url'"
-               class="config-authorize-url size-900"
+               class="config-authorize-url size-800"
                :close-on-click-modal="false"
                @close="selected.operation = null"
                v-if="selected.row"
     >
-      <el-form labelWidth="160px" size="mini" inline>
+      <el-form :model="configAuthorizeUrlInfo" :rules="rulesForAuthorizeUrl" labelWidth="200px" size="mini" ref="configAuthorizeUrlForm">
         <el-form-item label="申请访问的团队/应用" class="request-app">
           <div>
             <span>{{selected.row.requestGroupName}}</span>
@@ -179,8 +179,6 @@
             <span>{{selected.row.targetApplicationName}}</span>
           </div>
         </el-form-item>
-      </el-form>
-      <el-form :model="configAuthorizeUrlInfo" :rules="rulesForAuthorizeUrl" labelWidth="200px" size="mini" ref="configAuthorizeUrlForm">
         <el-form-item label="被访问应用所属AccessKey" class="access-key" prop="accessKeyID">
           <el-select filterable v-model="configAuthorizeUrlInfo.accessKeyID" placeholder="请选择">
             <el-option v-for="(item, index) in configAuthorizeUrlInfo.accessKeyList"
@@ -312,7 +310,7 @@
             }
           }
           .el-form-item {
-            &.authorize-url-list {
+            &.request-app, &.profile, &.target-app, &.authorize-url-list {
               margin-bottom: 2px;
             }
             &.access-key {
@@ -484,6 +482,7 @@
         this.configAuthorizeUrlInfo.accessKey = accessKey;
 
         this.configAuthorizeUrlInfo.authorizeUrlByAccessKey = [];
+        this.configAuthorizeUrlInfo.authorizeUrlID = '';
         this.$net.oauthGetUrlPermissionList(accessKeyID).then(urlPermissionList => {
           if (Array.isArray(urlPermissionList) && urlPermissionList.length > 0) {
             this.configAuthorizeUrlInfo.authorizeUrlByAccessKey = urlPermissionList;
@@ -493,10 +492,10 @@
         })
       },
       // update errorMsg
-      'configAuthorizeUrlInfo.authorizeUrlList': {
+      'configAuthorizeUrlInfo.authorizeUrlID': {
         deep: true,
         immediate: true,
-        handler() {
+        handler(value, oldValue) {
           this.checkExistBeforeAddAuthorizeUrl();
         }
       }
@@ -664,6 +663,9 @@
         return !theSame;
       },
 
+      /**
+       * 1. add, 2. delete, 3 change of
+       */
       checkExistBeforeAddAuthorizeUrl() {
         let target = null;
         this.configAuthorizeUrlInfo.authorizeUrlList.some(it => {
@@ -734,6 +736,8 @@
                 this.selected.operation = null;
                 this.updateModelInfo('authorizeUrlList');
                 this.$message.success(msg);
+                // refresh after update authorizeUrlList
+                this.requestAuthorizeUrlList();
               }).catch(msg => {
                 this.hideWaitingResponse(action + '-in-dialog');
                 this.selected.operation = null;
@@ -769,6 +773,7 @@
           case 'delete-authorize-url':
             this.configAuthorizeUrlInfo.authorizeUrlList.splice(index, 1);
             item['openPopover'] = false;
+            this.checkExistBeforeAddAuthorizeUrl();
             break;
           case 'cancel':
             item['openPopover'] = false;
