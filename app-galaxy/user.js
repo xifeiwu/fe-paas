@@ -19,13 +19,14 @@ import '$assets/css/fonts/my-icons.css';
 import '$assets/css/fonts/my-icons.js';
 
 import APP from './user/pages/user.vue';
-import RouterConfig from './user/pages/router';
+import routerConfig from './user/pages/router';
+Vue.prototype.$routeHelper = routerConfig;
 
 import(/* webpackChunkName: "components-docs" */ '$assets/libs/components/profile.js').then(components => {
   components.default.install(Vue);
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),
-    router: new RouterConfig(Vue).getVueRouter(),
+    router: routerConfig.vueRouter,
     store: Store
   }).$mount('#app');
 });

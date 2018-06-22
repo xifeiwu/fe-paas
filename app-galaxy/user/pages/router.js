@@ -1,15 +1,13 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-Vue.use(VueRouter);
 
 
 import UserInfo from './user/info.vue';
 import UserOperaion from './user/operation.vue';
 import ManageGroup from './user/group.vue';
 
-export default class RouterConfig {
-  constructor(Vue) {
-    this.Vue = Vue;
+class Router {
+  constructor() {
     this._routes = [{
         path: '/',
         redirect: '/group'
@@ -28,15 +26,12 @@ export default class RouterConfig {
         component: ManageGroup
       }
     ];
-    this._vueRouter = new VueRouter({
+    this.vueRouter = new VueRouter({
       mode: 'hash',
       routes: this._routes
     });
+    Vue.use(VueRouter);
     this.startRouteFilter();
-  }
-
-  getVueRouter() {
-    return this._vueRouter;
   }
 
   isValidURL(path) {
@@ -53,8 +48,8 @@ export default class RouterConfig {
   }
 
   startRouteFilter() {
-    this._vueRouter.beforeEach((to, from, next) => {
-      let token = this.Vue.prototype.$storeHelper.getUserInfo('token');
+    this.vueRouter.beforeEach((to, from, next) => {
+      let token = Vue.prototype.$storeHelper.getUserInfo('token');
       if (token) {
         if (!this.isValidURL(to.path)) {
           next(this.getValidURL(to.path));
@@ -62,8 +57,11 @@ export default class RouterConfig {
           next();
         }
       } else {
-        this.Vue.prototype.$utils.goToPath('/login?to=/profile');
+        Vue.prototype.$utils.goToPath('/login?to=/profile');
       }
     });
   }
 }
+
+var router = new Router();
+export default router;
