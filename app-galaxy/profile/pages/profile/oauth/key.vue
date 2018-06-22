@@ -64,7 +64,7 @@
                       content="复制成功">
                 <i class="my-icon-copy" slot="reference"
                    v-clipboard:copy="scope.row.accessKey"
-                   v-clipboard:success="handleTRClick.bind(this, 'copy-access-key', scope.$index, scope.row)"></i>
+                   v-clipboard:success="handleTRClick.bind(this, 'copy', scope.$index, scope.row)"></i>
               </el-popover>
             </div>
           </template>
@@ -75,6 +75,21 @@
           min-width="120"
           headerAlign="center" align="center"
         >
+          <template slot-scope="scope">
+            <div class="secret">
+              <span>{{scope.row.secret}}</span>
+              <el-popover
+                      placement="bottom"
+                      trigger="click"
+                      :disabled="disablePopper"
+                      popperClass="el-popover--small is-dark"
+                      content="复制成功">
+                <i class="my-icon-copy" slot="reference"
+                   v-clipboard:copy="scope.row.secret"
+                   v-clipboard:success="handleTRClick.bind(this, 'copy', scope.$index, scope.row)"></i>
+              </el-popover>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
           prop="myApp"
@@ -101,7 +116,7 @@
         </el-table-column>
         <el-table-column
           prop="accessConfigDesc"
-          label="申请访问的团队-应用，状态"
+          label="申请访问的对方团队-应用，状态"
           min-width="200"
           headerAlign="center" align="center">
           <template slot-scope="scope">
@@ -685,7 +700,7 @@
     /*height: calc(100% - 40px);*/
     /*overflow: scroll;*/
     .el-table {
-      .access-key {
+      .access-key, .secret {
         line-height: 26px;
         text-align: center;
         .my-icon-copy {
@@ -1091,7 +1106,7 @@ module.exports = {
     handleTRClick(action, index, row) {
       this.selected.row = row;
       switch (action) {
-        case 'copy-access-key':
+        case 'copy':
           this.disablePopper = false;
           setTimeout(() => {
             this.disablePopper = true;
@@ -1280,7 +1295,6 @@ module.exports = {
       }
       return !theSame;
     },
-
 
     /**
      *  used to check new added authorized-url in dialog update-target-app

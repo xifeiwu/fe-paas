@@ -235,7 +235,8 @@
       </el-form>
       <div class="helper-text-expanded">
         <div class="title">提示<i class="el-icon-question"></i></div>
-        <div class="item">不进行任何授权，对方只能访问未被限制的资源，被限制的资源必须授予权限后，对方才能带token进行访问</div>
+        <div class="item">1. 不进行任何授权，对方只能访问未被限制的资源，被限制的资源必须授予权限后，对方才能带token进行访问</div>
+        <div class="item">2. 授权完毕后，通知申请团队重启应用后才能使授权信息生效</div>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-row>
@@ -713,10 +714,10 @@
               if (!valid) {
                 return;
               }
-//              if (this.configAuthorizeUrlInfo.authorizeUrlList.length === 0) {
-//                this.errorMsgForAuthorizeUrl = '至少要有一条授权URL记录';
-//                return;
-//              }
+              if (this.configAuthorizeUrlInfo.authorizeUrlList.length === 0) {
+                this.errorMsgForAuthorizeUrl = '至少要有一条授权URL记录';
+                return;
+              }
               if (!this.ifAuthorizeUrlChanged(this.selected.row, this.configAuthorizeUrlInfo)) {
                 this.$message.warning('您没有修改授权URL');
                 this.selected.operation = null;

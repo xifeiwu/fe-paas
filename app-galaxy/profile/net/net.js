@@ -225,7 +225,8 @@ class Net extends NetBase {
               if (it.hasOwnProperty('lobName') && it.lobName && it.lobName.length > 0) {
                 lobName = '（' + it['lobName'] + '）';
               }
-              it.asLabel = it.name + lobName;
+              it.asLabel = it.name;
+              // it.asLabel = it.name + lobName;
               return it;
             })
           }
