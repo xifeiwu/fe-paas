@@ -42,7 +42,7 @@
                   ref="upload"
                   :headers="{token: this.$storeHelper.getUserInfo('token')}"
                   :data="{'id': this.workOrderDetail.id}"
-                  :action="$url.work_order_handle_upload_test_report"
+                  :action="$url.work_order_handle_upload_test_report.url"
                   :auto-upload="false"
                   :beforeUpload="beforeFileUpload"
                   :onChange="onFileChange"
