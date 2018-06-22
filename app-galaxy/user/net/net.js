@@ -66,8 +66,6 @@ class Net extends NetBase {
 
         // some permissionPath do not related to any url are list bellow
         let pathToKey = {
-          // 团队列表
-          '/2.x/group/list': 'group_List',
           // 查看成员
           '/2.x/group/member/list': 'group_member_list',
           // 邀请成员
@@ -76,6 +74,9 @@ class Net extends NetBase {
           '/2.x/group/member/update': 'group_member_update_roles',
           // 移除成员
           '/2.x/group/member/delete': 'group_member_remove',
+          // 页面相关
+          // 团队列表
+          '/2.x/group/list': '/group',
         };
         // format of item in notPermittedList
         // {
@@ -107,8 +108,11 @@ class Net extends NetBase {
         // console.log(result);
         resolve(result);
       })).catch(err => {
-        reject([]);
         console.log(err);
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.user_not_permitted.path}；${err.toString()}`
+        });
       })
     });
   }

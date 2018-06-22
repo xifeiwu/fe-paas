@@ -147,14 +147,27 @@
     components: {paasHeaderProfile},
     data() {
       return {
+        commandList: [],
         activeSideMenuItem: '/info',
         crumbList: [],
       }
     },
     created() {
+      this.commandList = this.$routeHelper.getPermittedSubRouteList('/');
       this.updateActiveCommand();
       this.$net.getNotPermittedCommands().then(permissionList => {
         this.$storeHelper.notPermitted = permissionList;
+        this.$routeHelper.addPermission(this.$storeHelper.notPermitted);
+        this.commandList = this.$routeHelper.getPermittedSubRouteList('/');
+        this.updateActiveCommand();
+      }).catch(err => {
+        this.$notify.error({
+          title: err.title,
+          message: err.msg,
+          duration: 0,
+          onClose: function () {
+          }
+        });
       });
     },
     mounted() {
@@ -162,25 +175,6 @@
       });
     },
     computed: {
-      commandList() {
-//        {
-//          name: "操作记录",
-//            route: "/operation",
-//          icon: "my-icon-log",
-//          isActive: false,
-//        },
-        return [{
-          name: "云产品",
-          route: "/info",
-          icon: "my-icon-user",
-          isActive: false,
-        }, {
-          name: "团队管理",
-          route: "/group",
-          icon: "my-icon-log",
-          isActive: false,
-        }]
-      },
       userName() {
         let userName = this.$storeHelper.getUserInfo('realName');
         if (!userName) {
@@ -239,7 +233,7 @@
       updateActiveCommand() {
         let path = this.$route.path;
         this.commandList.forEach(it => {
-          if (it.route === path) {
+          if (it.routePath === path) {
             it.isActive = true;
           } else {
             it.isActive = false;
@@ -247,7 +241,7 @@
         })
       },
       handleCommands(item) {
-        this.$router.push(item.route);
+        this.$router.push(item.routePath);
         this.updateActiveCommand();
       },
       handleOpen(key, keyPath) {

@@ -154,7 +154,7 @@ var Router = function() {
     name: '验收工单',
     component: WorkOrderAccept,
   }];
-  this.update();
+  this.addRoutePath(null, this.richRouterConfig);
 
   this.vueRouter = new VueRouter({
     mode: 'hash',
@@ -164,7 +164,7 @@ var Router = function() {
   });
   Vue.use(VueRouter);
 
-  this.routePathList = this.getAllRouterPath();
+  // this.routePathList = this.getAllRouterPath();
   this.routePathToConfig = this.getRoutePathToConfig();
 
   setTimeout(() => {
@@ -226,10 +226,6 @@ Router.prototype = {
     this.traverseComponent(updateItem, this.richRouterConfig);
   },
 
-  update() {
-    this.addRoutePath(null, this.richRouterConfig);
-  },
-
   // filter out useless config in richRouterConfig
   getVueRouterConfig() {
     function updateItem(item) {
@@ -283,6 +279,7 @@ Router.prototype = {
   /**
    * get all routePath in router config tree. it can be used:
    * 1. check whether current url is validate.
+   * TODO: not used
    */
   getAllRouterPath() {
     let routePath = [];
@@ -359,6 +356,7 @@ Router.prototype = {
     }
     return result;
   },
+
   /**
    * do some action before route change
    */
