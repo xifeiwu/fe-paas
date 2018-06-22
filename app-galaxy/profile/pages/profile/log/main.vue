@@ -1,5 +1,11 @@
 <template>
   <div id="log">
+    <div class="more-logs">
+      <span>更多运行日志请访问：</span>
+      <a href="https://log.finupgroup.com" target="_blank">生产环境GrayLog</a>
+      <span>，</span>
+      <a href="http://nplog.finupgroup.com:9000" target="_blank">非生产环境GrayLog</a>
+    </div>
     <el-tabs v-model="currentPath" type="card" @tab-click="handleClick">
       <el-tab-pane v-for="item in tabs" :label="item.name" :name="item.routePath" :key="item.routePath"
                    ></el-tab-pane>
@@ -14,12 +20,24 @@
 
 <style lang="scss">
   #log {
+    position: relative;
     background: white;
     height: 100%;
     margin:0px 6px;
     padding: 0px 5px;
     max-width: 1300px;
     height: 100%;
+    .more-logs {
+      position: absolute;
+      z-index: 10;
+      top: 0px;
+      right: 10px;
+      font-size: 14px;
+      line-height: 30px;
+      a {
+        color: blue;
+      }
+    }
     .el-tabs {
       /*margin-left: 5px;*/
       .el-tabs__nav {
