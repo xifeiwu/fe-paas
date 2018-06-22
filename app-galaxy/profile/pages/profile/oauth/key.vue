@@ -1383,10 +1383,12 @@ module.exports = {
           this.isTargetAppOK();
           break;
         case 'delete-url-permission':
-          console.log(item);
+          if (!item.hasOwnProperty('id')) {
+            this.$message.error('为找到授权URL的ID');
+          }
           this.updateUrlPermissionInfo.urlPermissionToDelete = item;
           this.addToWaitingResponseQueue(action);
-          this.$net.oauthRemoveUrlPermission(this.updateUrlPermissionInfo.accessKeyId).then(content => {
+          this.$net.oauthRemoveUrlPermission(item.id).then(content => {
             this.hideWaitingResponse(action);
             this.$message.success(`权限${item.oauth}删除成功`);
             this.updateUrlPermissionInfo.urlPermissionList.splice(index, 1);

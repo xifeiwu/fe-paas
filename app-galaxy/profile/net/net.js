@@ -1355,7 +1355,7 @@ class Net extends NetBase {
      */
     let transfer = function(it) {
       it.accessKey = it.clientId;
-      it.myApp = it['requestApplicationName'] ? it['requestApplicationName'] : '未配置';
+      it.myApp = it['applicationName'] ? it['applicationName'] : '未配置';
       // 访问应用状态信息
       it.appAccessStatus = '';
       if (null == it.produceEnv) {
