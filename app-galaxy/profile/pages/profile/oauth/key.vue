@@ -153,7 +153,7 @@
                       v-if="!$storeHelper.notPermitted['oauth_add_access_config']"
                       size="mini-extral"
                       type="warning"
-                      :loading="statusOfWaitingResponse('open-dialog-for-modify-access-config') && selected.row.id === scope.row.id"
+                      :loading="statusOfWaitingResponse('open-dialog-for-update-target-app') && selected.row.id === scope.row.id"
                       @click="handleTRClick('open-dialog-4-modify-access-key', scope.$index, scope.row)">
                 修改访问配置
               </el-button>
@@ -310,7 +310,7 @@
     </el-dialog>
 
     <el-dialog title="修改访问配置" :visible="selected.operation == 'open-dialog-4-modify-access-key'"
-               class="modify-access-config size-700"
+               class="update-target-app size-700"
                :close-on-click-modal="false"
                @close="handleDialogClose('add-access-config-in-dialog')"
                v-if="selected.row"
@@ -319,8 +319,7 @@
         <i class="el-icon-warning"></i>
         <span>如需更换团队，请在页面右上角选择我的团队</span>
       </el-tag>
-      <el-form :model="modifyAccessKeyInfo" :rules="rulesForAccessConfig" labelWidth="140px"
-               size="mini" ref="modifyAccessKeyInfoForm">
+      <el-form labelWidth="140px" inline size="mini" >
         <el-form-item label="我的团队" v-if="groupInfo">
           {{groupInfo.name}}
         </el-form-item>
@@ -330,6 +329,9 @@
         <el-form-item label="访问环境">
           {{selected.row.profileName}}
         </el-form-item>
+      </el-form>
+      <el-form :model="modifyAccessKeyInfo" :rules="rulesForAccessConfig" labelWidth="140px"
+               size="mini" ref="modifyAccessKeyInfoForm">
         <el-form-item label="已申请应用" class="target-app-list" v-if="modifyAccessKeyInfo.targetAppList.length>0">
           <el-row class="title">
             <el-col :span="8" class="group">团队</el-col>
@@ -414,9 +416,7 @@
                :close-on-click-modal="false"
                @close="handleDialogClose('update-url-permission')"
     >
-      <el-form :model="modifyAccessKeyInfo" :rules="rulesForCreateAccessKey" labelWidth="130px" size="mini"
-               ref="createAccessKeyForm">
-
+      <el-form labelWidth="130px" size="mini" inline>
         <el-form-item label="我的应用">
           {{selected.row.myApp}}
         </el-form-item>
@@ -426,6 +426,9 @@
         <el-form-item label="所属AccessKey">
           {{selected.row.accessKey}}
         </el-form-item>
+      </el-form>
+      <el-form :model="modifyAccessKeyInfo" :rules="rulesForCreateAccessKey" labelWidth="130px" size="mini"
+               ref="updateUrlPermissionForm">
         <el-form-item label="添加受限制的权限" prop="accessGroupID" class="add-authorize-url"
                       style="margin-bottom: 20px"
                       :error="errorMsgForAddUrlPermission">
@@ -486,8 +489,9 @@
       <div class="helper-text-expanded">
         <div>初始默认为所有资源URL无需授权均可被访问，当配置了某些资源URL，这些资源URL就会受到限制，需要授权给对方应用才能访问，未配置的资源URL不受限制，无需授权即可被对方应用访问！</div>
         <div class="title">添加授权URL规则<i class="el-icon-question"></i></div>
-        <div class="item">1. 所属权限的自定义部分只能包括小写字母；50个字符以内。如，galaxy-WrJhXCOo.abcdef</div>
-        <div class="item">2. 资源URL，必须以/开头，路径可以包含字母、数字、*、/、中划线、下划线。多个路径之间以,分割。50个字符以内。如，/a/1-2_3/C,/**/d</div>
+        <div class="item">1. 修改授权URL，需要重新部署我的应用，否则不能生效</div>
+        <div class="item">2. 所属权限的自定义部分只能包括小写字母；50个字符以内。如，galaxy-WrJhXCOo.abcdef</div>
+        <div class="item">3. 资源URL，必须以/开头，路径可以包含字母、数字、*、/、中划线、下划线。多个路径之间以,分割。50个字符以内。如，/a/1-2_3/C,/**/d</div>
       </div>
       <div slot="footer" class="dialog-footer">
         <div style="text-align: center">
@@ -539,6 +543,20 @@
   }
   #oauth-key {
     .el-dialog__wrapper {
+      .el-form.el-form--inline {
+        margin-bottom: 6px;
+        text-align: left;
+        .el-form-item {
+          margin: 0px;
+          width: calc(50% - 2px);
+          &.big {
+            @include expand-inline-form-item;
+            .el-form-item__content {
+              margin-left: 140px;
+            }
+          }
+        }
+      }
       &.modify-secret {
         width: 80%;
         max-width: 600px;
@@ -568,11 +586,10 @@
           }
         }
       }
-      &.modify-access-config {
+      &.update-target-app {
         .el-dialog {
           .el-form {
             .el-form-item--mini {
-              margin-bottom: 5px;
             }
           }
         }
@@ -785,7 +802,7 @@ module.exports = {
         }],
       },
 
-      // prop used for dialog modify-access-config
+      // prop used for dialog update-target-app
       errorMsgForAddTargetApp: '',
       disableMyAppSelectInDialogModifyAccessConfig: false,
       // prop for add or modify app access config
@@ -1215,7 +1232,7 @@ module.exports = {
     },
 
     /**
-     * if the app to add is ok? used in dialog modify-access-config
+     * if the app to add is ok? used in dialog update-target-app
      * if the app to add is ok?
      * 1. appId exist(some group does not have app)
      * 2. the appId not in the has-add-app-id-list
@@ -1262,7 +1279,7 @@ module.exports = {
 
 
     /**
-     *  used to check new added authorized-url in dialog modify-access-config
+     *  used to check new added authorized-url in dialog update-target-app
      *  1. if the new item match regexp
      *  2. if the new item has exist in item array
      */
