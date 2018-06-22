@@ -198,3 +198,96 @@
 └── yarn.lock
 ```
 
+# 通用样式类
+
+`/fe-paas/app-galaxy/assets/css/common.scss`
+
+## 空白补间类 
+
+> 主要控制`盒子模型`的内外边距，用于局部空白调整
+
+### 内边距：
+
+类名命名规则 `padding`的首字母`p` + (`all,left,right,top,bottom`) 的首字母 (`a,l,r,t,b`) 组合, 其中 `x` 为水平方向左和右， `y` 为垂直方向上和下, (0,1,2,3,4,5) 表示像素 (0px,4px, 8px, 16px, 24px, 48px)
+
+```
+.pa-0,.pa-1,.pa-2,.pa-3,.pa-4,.pa-5
+.pt-0,.pt-1,.pt-2,.pt-3,.pt-4,.pt-5
+.pb-0,.pb-1,.pb-2,.pb-3,.pb-4,.pb-5,
+.pl-0,.pl-1,.pl-2,.pl-3,.pl-4,.pl-5,
+.pr-0,.pr-1,.pr-2,.pr-3,.pr-4,.pr-5,
+.px-0,.px-1,.px-2,.px-3,.px-4,.px-5,
+.py-0,.py-1,.py-2,.py-3,.py-4,.py-5,
+```
+
+### 外边距 
+
+类名命名规则 取`margin`的首字母 `m`, 以及 (`left,right,top,bottom`) 的首字母 (`l,r,t,b`) 组合, 其中 x 为水平方向左和右， y 为垂直方向上和下, (0,1,2,3,4,5) 表示像素 (0px,4px, 8px, 16px, 24px, 48px)
+
+
+```
+.mt-0,.mt-1,.mt-2,.mt-3,.mt-4,.mt-5,
+.mb-0,.mb-1,.mb-2,.mb-3,.mb-4,.mb-5,
+.ml-0,.ml-1,.ml-2,.ml-3,.ml-4,.ml-5,
+.mr-0,.mr-1,.mr-2,.mr-3,.mr-4,.mr-5,
+.mx-0,.mx-1,.mx-2,.mx-3,.mx-4,.mx-5,
+.my-0,.my-1,.my-2,.my-3,.my-4,.my-5,
+```
+
+```css
+
+/* space补件 */
+
+.mx-auto {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+@each $level,$space in (0, 0),(1, 4),(2, 8)(3, 16),(4, 24),(5, 48) {
+
+  .pa-#{$level} {
+    padding: #{$space}px !important;
+  }
+  .pt-#{$level} {
+    padding-top: #{$space}px !important;
+  }
+  .pb-#{$level} {
+    padding-bottom: #{$space}px !important;
+  }
+  .pl-#{$level} {
+    padding-left: #{$space}px !important;
+  }
+  .pr-#{$level} {
+    padding-right: #{$space}px !important;
+  }
+  .px-#{$level} {
+    padding-left: #{$space}px !important;
+    padding-right: #{$space}px !important;
+  }
+  .py-#{$level} {
+    padding-top: #{$space}px !important;
+    padding-bottom: #{$space}px !important;
+  }
+  .mt-#{$level} {
+    margin-top: #{$space}px !important;
+  }
+  .mb-#{$level} {
+    margin-bottom: #{$space}px !important;
+  }
+  .ml-#{$level} {
+    margin-left: #{$space}px !important;
+  }
+  .mr-#{$level} {
+    margin-right: #{$space}px !important;
+  }
+  .mx-#{$level} {
+    margin-left: #{$space}px !important;
+    margin-right: #{$space}px !important;
+  }
+  .my-#{$level} {
+    margin-top: #{$space}px !important;
+    margin-bottom: #{$space}px !important;
+  }
+}
+
+```

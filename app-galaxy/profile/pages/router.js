@@ -30,6 +30,10 @@ import WorkOrderDeploy from './profile/work-order/todo/deploy.vue';
 import WorkOrderAccept from './profile/work-order/todo/accept.vue';
 import WorkOrderTest from './profile/work-order/todo/test.vue';
 
+import ConfigServerMain from './profile/config-server/main.vue';
+import ConfigServerFileList from './profile/config-server/list.vue';
+import ConfigServerEditor from './profile/config-server/editor.vue';
+
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
@@ -153,6 +157,18 @@ var Router = function() {
     path: '/work-order/todo/accept',
     name: '验收工单',
     component: WorkOrderAccept,
+  }, {
+    path: '/config-server',
+    name: '配置中心',
+    component: ConfigServerMain
+  }, {
+    path: '/config-server/list',
+    name: '文件列表',
+    component: ConfigServerFileList,
+  }, {
+    path: '/config-server/editor',
+    name: '修改配置',
+    component: ConfigServerEditor,
   }];
   this.addRoutePath(null, this.richRouterConfig);
 

@@ -1,0 +1,33 @@
+{
+    "applicationRemoteConfigFiles": [{
+        "id": 10,
+        "createTime": 1529397147000,
+        "updateTime": 1529397147000,
+        "applicationRemoteConfigId": 4,
+        "configFilePath": "/data/paas_share/galaxy/config-server/production/config-repo/abacus-web",
+        "creatorId": 1,
+        "lastOperateUserId": 1,
+        "version": "1529397147372_1",
+        "configFileName": "application-config.properties"
+    }, {
+        "id": 10,
+        "createTime": 1529397147000,
+        "updateTime": 1529397147000,
+        "applicationRemoteConfigId": 4,
+        "configFilePath": "/data/paas_share/galaxy/config-server/production/config-repo/abacus-web",
+        "creatorId": 1,
+        "lastOperateUserId": 1,
+        "version": "1529397147372_1",
+        "configFileName": "application-config-1.properties"
+    }, {
+        "id": 10,
+        "createTime": 1529397147000,
+        "updateTime": 1529397147000,
+        "applicationRemoteConfigId": 4,
+        "configFilePath": "/data/paas_share/galaxy/config-server/production/config-repo/abacus-web",
+        "creatorId": 1,
+        "lastOperateUserId": 1,
+        "version": "1529397147372_1",
+        "configFileName": "application-config-2.properties"
+    }]
+}

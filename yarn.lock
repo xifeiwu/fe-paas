@@ -1521,6 +1521,10 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
 
+codemirror@^5.32.0, codemirror@^5.39.0:
+  version "5.39.0"
+  resolved "http://registry.npm.taobao.org/codemirror/download/codemirror-5.39.0.tgz#4654f7d2f7e525e04a62e72d9482348ccb37dce5"
+
 collection-visit@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/collection-visit/-/collection-visit-1.0.0.tgz#4bc0373c164bc3291b4d368c829cf1a80a59dca0"
@@ -2032,6 +2036,10 @@ detect-libc@^1.0.2:
 detect-node@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/detect-node/-/detect-node-2.0.3.tgz#a2033c09cc8e158d37748fbde7507832bd6ce127"
+
+diff-match-patch@^1.0.0:
+  version "1.0.1"
+  resolved "http://registry.npm.taobao.org/diff-match-patch/download/diff-match-patch-1.0.1.tgz#d5f880213d82fbc124d2b95111fb3c033dbad7fa"
 
 diffie-hellman@^5.0.0:
   version "5.0.2"
@@ -3915,6 +3923,10 @@ lodash.clonedeep@^4.3.2:
 lodash.cond@^4.3.0:
   version "4.5.2"
   resolved "https://registry.yarnpkg.com/lodash.cond/-/lodash.cond-4.5.2.tgz#f471a1da486be60f6ab955d17115523dd1d255d5"
+
+lodash.debounce@^4.0.8:
+  version "4.0.8"
+  resolved "http://registry.npm.taobao.org/lodash.debounce/download/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
 
 lodash.memoize@^4.1.2:
   version "4.1.2"
@@ -6510,6 +6522,13 @@ vm-browserify@0.0.4:
   dependencies:
     indexof "0.0.1"
 
+vue-codemirror@^4.0.5:
+  version "4.0.5"
+  resolved "http://registry.npm.taobao.org/vue-codemirror/download/vue-codemirror-4.0.5.tgz#3a784d454fbfb17ce769b9fc90f10e9868687ecb"
+  dependencies:
+    codemirror "^5.32.0"
+    diff-match-patch "^1.0.0"
+
 vue-eslint-parser@^2.0.1:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/vue-eslint-parser/-/vue-eslint-parser-2.0.2.tgz#8d603545e9d7c134699075bd1772af1ffd86b744"
@@ -6543,6 +6562,13 @@ vue-loader@^13.3.0:
     vue-style-loader "^3.0.0"
     vue-template-es2015-compiler "^1.6.0"
 
+vue-monaco-editor@^0.0.19:
+  version "0.0.19"
+  resolved "http://registry.npm.taobao.org/vue-monaco-editor/download/vue-monaco-editor-0.0.19.tgz#eadeff1b6f1dcd894b6766383cda31e5d682ad11"
+  dependencies:
+    lodash.debounce "^4.0.8"
+    vue "^2.1.0"
+
 vue-router@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.0.1.tgz#d9b05ad9c7420ba0f626d6500d693e60092cc1e9"
@@ -6568,6 +6594,10 @@ vue-template-es2015-compiler@^1.6.0:
 vue@^2.0.1:
   version "2.5.13"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.5.13.tgz#95bd31e20efcf7a7f39239c9aa6787ce8cf578e1"
+
+vue@^2.1.0:
+  version "2.5.16"
+  resolved "http://registry.npm.taobao.org/vue/download/vue-2.5.16.tgz#07edb75e8412aaeed871ebafa99f4672584a0085"
 
 vuex@^3.0.1:
   version "3.0.1"

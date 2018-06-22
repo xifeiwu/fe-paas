@@ -8,11 +8,12 @@ import user from './modules/user';
 import app from './modules/app';
 import tmp from './modules/tmp';
 import global from '$assets/js/store/modules/global';
+import etc from './modules/etc';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   modules:{
-    user, app, tmp, global
+    user, app, tmp, global, etc
   }
 })
