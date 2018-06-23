@@ -527,6 +527,56 @@ class URL extends BaseURL {
         path: '/group/users'
       },
 
+      // 远程配置中心——分支列表
+      'config_server_branch': {
+        url: API_PATH + '/remote-config/branches',
+        path: 'remote-config/branches',
+        method: 'post',
+      },
+      // 远程配置中心——目录列表 eg. remote-config/list?groupId=2
+      'config_server_list': {
+        url: API_PATH + 'remote-config/list',
+        path: 'remote-config/list',
+        method: 'post',
+      },
+      // 远程配置中心——文件列表 eg. remote-config/get?applicationRemoteConfigId=111
+      'config_server_get': {
+        url: API_PATH + '/remote-config/get',
+        path: 'remote-config/get',
+        method: 'post',
+      },
+
+      // 远程配置中心——添加目录
+      'config_server_add': {
+        url: API_PATH + '/remote-config/add',
+        path: 'remote-config/add',
+        method: 'post',
+      },
+      // 远程配置中心——添加配置文件
+      'config_server_file_add': {
+        url: API_PATH + '/applicationRemoteConfigFile/add',
+        path: '/applicationRemoteConfigFile/add',
+        method: 'post',
+      },
+      // 远程配置中心——获取配置文件 eg. /applicationRemoteConfigFile/get?applicationRemoteConfigId=123123
+      'config_server_file_get': {
+        url: API_PATH + '/applicationRemoteConfigFile/get',
+        path: '/applicationRemoteConfigFile/get',
+        method: 'post',
+      },
+      // 远程配置中心——保存配置文件 eg. /applicationRemoteConfigFile/update?applicationRemoteConfigFileId=1123
+      'config_server_file_save': {
+        url: API_PATH + '/applicationRemoteConfigFile/update',
+        path: '/applicationRemoteConfigFile/update',
+        method: 'post',
+      },
+      // 远程配置中心——编辑配置文件 eg. /applicationRemoteConfigFile/update/edit-status?applicationRemoteConfigFileId=1123
+      'config_server_file_edit': {
+        url: API_PATH + '/applicationRemoteConfigFile/update/edit-status',
+        path: '/applicationRemoteConfigFile/update/edit-status',
+        method: 'post',
+      },
+
     };
   }
 
