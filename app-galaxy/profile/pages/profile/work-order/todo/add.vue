@@ -3,7 +3,7 @@
        v-loading="showLoading"
        :element-loading-text="loadingText">
     <div class="title-section">
-      <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
+      <el-tooltip slot="trigger" effect="dark" placement="bottom">
         <div slot="content">
           <div>申请工单注意事项</div>
           <div>1. 必须选定生产环境版本，确保所选择应用的生产环境下有版本。</div>

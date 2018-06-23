@@ -1,6 +1,6 @@
 <template>
   <div id="domain-white-list">
-    <el-row><span>外网二级域名：</span><span>{{paramsInQueryString.domainName}}</span></el-row>
+    <div class="domain-name"><span>外网二级域名：</span><span>{{paramsInQueryString.domainName}}</span></div>
     <el-row class="upload-area" type="flex">
       <el-col :span="8" class="upload">
         <el-upload
@@ -58,7 +58,6 @@
       </el-row>
       <el-table
               :data="IPList"
-              border
               style="width: 100%"
               v-clickoutside="handleClickOutsideTable"
       >
@@ -131,9 +130,11 @@
     background: white;
     height: 100%;
     margin:0px 6px;
-    padding: 0px 5px;
     max-width: 1200px;
     height: 100%;
+    .domain-name {
+      padding: 0px 5px;
+    }
     .upload-area {
       font-size: 14px;
       border: 1px solid lavenderblush;
