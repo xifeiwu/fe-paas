@@ -348,7 +348,7 @@
   #oauth-url {
     height: calc(100% - 30px);
     .el-row.header {
-      padding: 5px 0px;
+      padding: 5px;
       font-size: 14px;
       line-height: 20px;
       i {

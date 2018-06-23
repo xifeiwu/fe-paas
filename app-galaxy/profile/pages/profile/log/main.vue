@@ -24,7 +24,6 @@
     background: white;
     height: 100%;
     margin:0px 6px;
-    padding: 0px 5px;
     max-width: 1300px;
     height: 100%;
     .more-logs {

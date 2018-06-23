@@ -243,12 +243,11 @@
 <style lang="scss" scoped>
   #app-main {
     height: 100%;
-    margin: 0px 8px;
-    padding: 0px 5px;
+    margin: 0px 6px;
     max-width: 1300px;
     background: white;
     .header {
-      padding: 3px 0px;
+      padding: 3px 5px;
       font-size: 14px;
       .el-row {
         .el-col {

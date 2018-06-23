@@ -47,6 +47,10 @@ class Net extends NetBase {
           router: '/oauth',
           icon: 'my-icon-key'
         },
+        "Access Key管理": {
+          router: '/oauth',
+          icon: 'my-icon-key'
+        },
         "审批管理": {
           router: '/work-order',
           icon: 'my-icon-work-order'

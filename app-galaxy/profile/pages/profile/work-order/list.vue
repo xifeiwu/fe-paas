@@ -237,13 +237,12 @@
     }
 
     .header {
-      padding: 3px 0px;
+      padding: 5px;
       font-size: 14px;
       text-align: center;
       .el-row.operation {
         display: inline-block;
         .item {
-          margin: 3px;
           display: inline-block;
           label {
             /*color: #409EFF*/
