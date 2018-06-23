@@ -330,7 +330,8 @@
   }
   .create-an-app {
     max-width: 80%;
-    margin: 20px auto;
+    margin: 0px auto;
+    padding-top: 20px;
     img {
       display: block;
       margin: 0px auto;
@@ -365,13 +366,15 @@
     },
     mounted() {
       try {
-        this.appListNode = this.$el.querySelector('.app-list');
-        this.heightOfAppList = this.appListNode.clientHeight - 20;
-        this.resizeListenerForAppList = (evt) => {
-          let target = evt.target;
-          this.heightOfAppList = target.clientHeight - 20;
-        };
-        addResizeListener(this.appListNode, this.resizeListenerForAppList)
+        if (this.showAppList) {
+          this.appListNode = this.$el.querySelector('.app-list');
+          this.heightOfAppList = this.appListNode.clientHeight - 20;
+          this.resizeListenerForAppList = (evt) => {
+            let target = evt.target;
+            this.heightOfAppList = target.clientHeight - 20;
+          };
+          addResizeListener(this.appListNode, this.resizeListenerForAppList)
+        }
       } catch(err) {
       }
       if (!this.appInfoListOfGroup) {
