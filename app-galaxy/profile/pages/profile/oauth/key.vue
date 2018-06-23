@@ -286,7 +286,7 @@
         </el-form-item>
         <el-form-item label="申请访问对方应用" prop="accessGroupID" class="add-target-app"
                       style="margin-bottom: 20px"
-                      :error="errorMsgForAddTargetApp" v-if="false">
+                      :error="errorMsgForAddTargetApp" v-if="true">
           <el-row>
             <el-col :span="11" style="padding-right:4px;">
               <el-select filterable v-model="modifyAccessKeyInfo.targetGroupID" placeholder="请选择" style="display:block; max-width: 280px;">

@@ -95,8 +95,8 @@
         </el-table-column>
         <el-table-column
           prop="applicationServiceStatus"
-          label="运行实例数/总实例数"
-          width="160"
+          label="运行实例数/K8S总实例数"
+          width="180"
           headerAlign="center" align="center"
         >
         </el-table-column>
