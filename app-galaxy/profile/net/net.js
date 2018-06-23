@@ -1385,21 +1385,37 @@ class Net extends NetBase {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.oauth_get_access_key_list.url, options).then(response => {
         // console.log(response);
-        let content = this.getResponseContent(response);
-        if (content) {
-          if (content.hasOwnProperty('uaaList')) {
-            let uaaList = content['uaaList'];
+        let resContent = this.getResponseContent(response);
+        if (resContent) {
+          if (resContent.hasOwnProperty('uaaList')) {
+            let uaaList = resContent['uaaList'];
             if (Array.isArray(uaaList)) {
               uaaList.forEach(transfer.bind(this));
             }
+            resolve(resContent);
+          } else {
+            reject({
+              title: '数据格式不正确',
+              msg: '未找到uaaList'
+            });
           }
-          resolve(content);
         } else {
-          reject('获取Access Key列表失败！');
+          let resMsg = this.getResponseMsg(response);
+          if (resMsg && resMsg.msg) {
+            reject(resMsg);
+          } else {
+            reject({
+              title: '获取数据失败',
+              msg: '请联系管理员'
+            })
+          }
         }
       }).catch(err => {
         console.log(err);
-        reject(err);
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.oauth_get_access_key_list.path}；${err.toString()}`
+        });
       })
     })
   }
@@ -1471,7 +1487,7 @@ class Net extends NetBase {
             if (it && it.hasOwnProperty('oauthUrl')) {
               it.resource = it.oauthUrl;
             }
-          })
+          });
           resolve(resContent);
         } else {
           reject({

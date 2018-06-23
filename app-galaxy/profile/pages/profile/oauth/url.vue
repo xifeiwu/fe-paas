@@ -599,7 +599,7 @@
               } else {
                 this.$notify.error({
                   title: '被访问的应用没有AccessKey',
-                  message: `请先在 "AccessKey列表页面" 为被访问的应用 "${row.requestApplicationName}" 创建AccessKey，否则无法进行授权配置`,
+                  message: `请先在 "AccessKey列表页面" 为被访问的应用 "${row.targetApplicationName}" 创建AccessKey，否则无法进行授权配置`,
                   duration: 0,
                   onClose: function () {
                   }
