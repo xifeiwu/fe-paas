@@ -50,22 +50,24 @@
       </el-row>
       <div  class="domain el-row is-justify-center is-align-middle">
         <div class="el-col el-col-12">
-          <span class="text">内网域名：{{intranetDomain}}</span>
+          <span class="text">内网域名：<a :href="'http://' + intranetDomain" target="_blank">{{intranetDomain}}</a></span>
         </div>
         <div class="el-col el-col-12">
           <el-tooltip effect="dark" placement="bottom-start" v-if="internetDomainList.length > 1">
             <div slot="content">
-              <div v-for="(item, index) in internetDomainList" :key="index">{{item}}</div>
+              <div v-for="(item, index) in internetDomainList" :key="index">
+                <a :href="'http://' + item" target="_blank" style="color: white">{{item}}</a>
+              </div>
             </div>
             <div>
-              <div class="text"><span>外网二级域名：{{internetDomain}}</span></div>
+              <div class="text"><span>外网二级域名：</span><span v-html="internetDomainHtml"></span></div>
               <i class="el-icon-edit"
                  v-if="!$storeHelper.notPermitted['go-domain-from-service-global']"
                  @click="handleButtonClick('go-to-domain-app')"></i>
             </div>
           </el-tooltip>
           <div v-else>
-            <div class="text"><span>外网二级域名：{{internetDomain}}</span></div>
+            <div class="text"><span>外网二级域名：</span><span v-html="internetDomainHtml"></span></div>
             <i class="el-icon-edit"
                v-if="!$storeHelper.notPermitted['go-domain-from-service-global']"
                @click="handleButtonClick('go-to-domain-app')"></i>
@@ -1207,6 +1209,7 @@ export default {
       currentModelList: [],
       intranetDomain: '',
       internetDomain: '',
+      internetDomainHtml: '',
       internetDomainList: [],
 
       defaultServiceID: '',
@@ -2093,8 +2096,12 @@ export default {
         this.internetDomainList = content.hasOwnProperty('internetDomain') ? content.internetDomain : [];
         if (this.internetDomainList.length > 0) {
           this.internetDomain = this.internetDomainList.join(';');
+          this.internetDomainHtml = this.internetDomainList.map(it => {
+            return `<a href="http://${it}" target="_black">${it}</a>`;
+          }).join('<span>; </span>');
         } else {
           this.internetDomain = '未绑定';
+          this.internetDomainHtml = '未绑定';
         }
       }).catch(err => {
         this.showLoading = false;
