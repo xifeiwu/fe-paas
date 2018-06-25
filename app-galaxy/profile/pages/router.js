@@ -32,8 +32,6 @@ import WorkOrderTest from './profile/work-order/todo/test.vue';
 
 import ConfigServerMain from './profile/config-server/main.vue';
 import ConfigServerFileList from './profile/config-server/list.vue';
-import ConfigServerEditor from './profile/config-server/editor.vue';
-
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
@@ -163,13 +161,9 @@ var Router = function() {
     component: ConfigServerMain
   }, {
     path: '/config-server/list',
-    name: '文件列表',
+    name: '配置文件列表',
     component: ConfigServerFileList,
-  }, {
-    path: '/config-server/editor',
-    name: '修改配置',
-    component: ConfigServerEditor,
-  }];
+  }, ];
   this.addRoutePath(null, this.richRouterConfig);
 
   this.vueRouter = new VueRouter({

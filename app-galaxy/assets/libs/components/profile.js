@@ -8,9 +8,9 @@ import 'assets/libs/components/element-ui-fix.scss';
 import Pagination from 'element-ui/packages/pagination/index.js';
 import Dialog from 'element-ui/packages/dialog/index.js';
 // import Autocomplete from 'element-ui/packages/autocomplete/index.js';
-// import Dropdown from 'element-ui/packages/dropdown/index.js';
-// import DropdownMenu from 'element-ui/packages/dropdown-menu/index.js';
-// import DropdownItem from 'element-ui/packages/dropdown-item/index.js';
+import Dropdown from 'element-ui/packages/dropdown/index.js';
+import DropdownMenu from 'element-ui/packages/dropdown-menu/index.js';
+import DropdownItem from 'element-ui/packages/dropdown-item/index.js';
 import Menu from 'element-ui/packages/menu/index.js';
 import Submenu from 'element-ui/packages/submenu/index.js';
 import MenuItem from 'element-ui/packages/menu-item/index.js';
@@ -82,9 +82,9 @@ const components = [
   Pagination,
   Dialog,
   // Autocomplete,
-  // Dropdown,
-  // DropdownMenu,
-  // DropdownItem,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
   Menu,
   Submenu,
   MenuItem,

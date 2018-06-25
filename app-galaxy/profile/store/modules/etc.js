@@ -1,23 +1,83 @@
+import NetData from '../../net/net';
+import axios from 'axios';
+import {URL_LIST} from "../../net/url";
+
 const state = {
-    dirSelected: null,
-    dirFilter: '',
-    remoteConfigList: require('./mock/remote-config-list.json').data,
-    configFiles: require('./mock/file-list.json').applicationRemoteConfigFiles,
-    branchList: require('./mock/branch.json')
+  loading: true,
+  dirSelected: null,
+  dirFilter: '',
+  remoteConfigList: null, //require('./mock/remote-config-list.json').data,
+  configFiles: null, //require('./mock/file-list.json').applicationRemoteConfigFiles,
+  branchList: null, //require('./mock/branch.json')
 }
 
 const actions = {
-    
+  // 初始化数据
+  initData({dispatch}) {
+    dispatch('getDir');
+    dispatch('getBranch');
+  },
+  // 获取目录列表
+  getDir({commit}) {
+    commit('SET_LOADING', true);
+    axios.post('http://localhost:7002/api/remote-config/list?groupId=', {})
+      .then(res => {
+        commit('SET_REMOTE_CONFIG_LIST', res.data),
+        commit('SET_LOADING', false);
+      });
+  },
+  // 获取分支
+  getBranch({commit}) {
+    axios.post('http://localhost:7002/api/remote-config/branches', {})
+      .then(res => {
+        commit('SET_BRANCH_LIST', res.data)
+      })
+  },
+  // 添加目录
+  addDir({commit, dispatch}, payload) {
+    axios.post('http://localhost:7002/api/remote-config/add', payload)
+      .then(res => dispatch('getDir'))
+  },
+  // 文件列表
+  getFiles({commit, dispatch}, payload) {
+    axios.post('http://localhost:7002/api/applicationRemoteConfigFile/get?applicationRemoteConfigId=' + payload)
+      .then(res => commit('SET_CONFIG_FILES', res.data))
+  },
+  // 添加文件
+  addFile({commit, dispatch, state}, payload) {
+    axios.post('http://localhost:7002/api/applicationRemoteConfigFile/add', payload)
+      .then(res => {dispatch('getFiles', state.dirSelected.id)})
+  },
+  // 获取文件内容
+  getFileContent({commit, dispatch, state}, payload) {
+    axios.get('http://localhost:7002/api/applicationRemoteConfigFile/remote-config/content?applicationRemoteConfigFileId='+ payload)
+      .then()
+  }
 }
 
 const mutations = {
-    SET_DIR_SELECTED(state, payload) {
-        state.dirFilter = payload
-    }
+  SET_DIR_FILTER(state, payload) {
+    state.dirFilter = payload
+  },
+  SET_DIR_SELECTED(state, payload) {
+    state.dirSelected = payload
+  },
+  SET_REMOTE_CONFIG_LIST(state, payload) {
+    state.remoteConfigList = payload.content.data;
+  },
+  SET_BRANCH_LIST(state, payload) {
+    state.branchList = payload.content
+  },
+  SET_LOADING(state, payload) {
+    state.loading = payload
+  },
+  SET_CONFIG_FILES(state, payload) {
+    state.configFiles = payload.content
+  }
 }
 export default {
-    namespaced: true,
-    state,
-    actions,
-    mutations
+  namespaced: true,
+  state,
+  actions,
+  mutations
 }
