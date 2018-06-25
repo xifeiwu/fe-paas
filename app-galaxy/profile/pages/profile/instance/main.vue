@@ -82,7 +82,7 @@
           <div>{{instanceStatus.instanceCount}}个</div>
         </el-form-item>
         <el-form-item label="调整实例数为：" :error="manualScale.error">
-          <el-input-number v-model="manualScale.newCount" :min="1" size="mini"></el-input-number>
+          <el-input-number v-model="manualScale.newCount" :min="1" :max="20" size="mini"></el-input-number>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

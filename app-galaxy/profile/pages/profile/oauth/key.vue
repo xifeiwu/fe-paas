@@ -249,7 +249,7 @@
             <el-radio :label="false">非生产环境</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="已申请应用" class="target-app-list" v-if="modifyAccessKeyInfo.targetAppList.length>0">
+        <el-form-item label="已申请访问的应用" class="target-app-list" v-if="modifyAccessKeyInfo.targetAppList.length>0">
           <el-row class="title">
             <el-col :span="6" class="group">团队</el-col>
             <el-col :span="10" class="app">应用</el-col>
@@ -351,7 +351,7 @@
       </el-form>
       <el-form :model="modifyAccessKeyInfo" :rules="rulesForAccessConfig" labelWidth="140px"
                size="mini" ref="modifyAccessKeyInfoForm">
-        <el-form-item label="已申请应用" class="target-app-list" v-if="modifyAccessKeyInfo.targetAppList.length>0">
+        <el-form-item label="已申请访问的应用" class="target-app-list" v-if="modifyAccessKeyInfo.targetAppList.length>0">
           <el-row class="title">
             <el-col :span="8" class="group">团队</el-col>
             <el-col :span="12" class="app">应用</el-col>

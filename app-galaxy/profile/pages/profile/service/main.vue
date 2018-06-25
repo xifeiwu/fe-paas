@@ -53,7 +53,7 @@
           <span class="text">内网域名：<a :href="'http://' + intranetDomain" target="_blank">{{intranetDomain}}</a></span>
         </div>
         <div class="el-col el-col-12">
-          <el-tooltip effect="dark" placement="bottom-start" v-if="internetDomainList.length > 1">
+          <el-tooltip effect="dark" placement="bottom" v-if="internetDomainList.length > 1">
             <div slot="content">
               <div v-for="(item, index) in internetDomainList" :key="index">
                 <a :href="'http://' + item" target="_blank" style="color: white">{{item}}</a>
