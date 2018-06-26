@@ -1,6 +1,6 @@
 <template>
     <div v-loading="loading"
-         element-loading-text="拼命加载中"
+         element-loading-text="操作进行中"
          element-loading-spinner="el-icon-loading"
          element-loading-background="rgba(0, 0, 0, 0.8)"
     >
@@ -10,6 +10,10 @@
                     <el-button type="primary" icon="el-icon-circle-plus-outline"
                                @click="dialogCreateFolder = !dialogCreateFolder">
                         创建目录
+                    </el-button>
+                    <el-button type="primary" icon="el-icon-refresh"
+                               @click="$store.dispatch('etc/initData')">
+                        刷新目录
                     </el-button>
                 </el-col>
                 <el-col :span="10">
@@ -170,6 +174,9 @@
       createFolder(formName) {
         this.$refs[formName].validate((valid) => {
           if (!valid) return false;
+
+          this.$store.commit('etc/SET_LOADING', true);
+
           this.$ajax
             .post(this.$url.config_server_add.url, {
               branchName: this.form.branchName,
@@ -181,6 +188,8 @@
               this.$store.dispatch('etc/getDir');
               this.dialogCreateFolder = false;
             })
+            .catch(err => alert(err.message + '\n' + '请联系管理员！'))
+            .finally(() => this.$store.commit('etc/SET_LOADING', false))
         })
       },
       syncSearchState() {
