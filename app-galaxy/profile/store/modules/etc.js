@@ -20,7 +20,7 @@ const actions = {
   // 获取目录列表
   getDir({commit}) {
     commit('SET_LOADING', true);
-    axios.post('http://localhost:7002/api/remote-config/list?groupId=', {})
+    axios.post(URL_LIST.config_server_list.url + '?groupId=', {})
       .then(res => {
         commit('SET_REMOTE_CONFIG_LIST', res.data),
         commit('SET_LOADING', false);
@@ -28,30 +28,25 @@ const actions = {
   },
   // 获取分支
   getBranch({commit}) {
-    axios.post('http://localhost:7002/api/remote-config/branches', {})
+    axios.post(URL_LIST.config_server_branch.url, {})
       .then(res => {
         commit('SET_BRANCH_LIST', res.data)
       })
   },
   // 添加目录
   addDir({commit, dispatch}, payload) {
-    axios.post('http://localhost:7002/api/remote-config/add', payload)
+    axios.post(URL_LIST.config_server_add.url, payload)
       .then(res => dispatch('getDir'))
   },
   // 文件列表
   getFiles({commit, dispatch}, payload) {
-    axios.post('http://localhost:7002/api/applicationRemoteConfigFile/get?applicationRemoteConfigId=' + payload)
+    axios.post(URL_LIST.config_server_file_list.url + '?applicationRemoteConfigId=' + payload)
       .then(res => commit('SET_CONFIG_FILES', res.data))
   },
   // 添加文件
   addFile({commit, dispatch, state}, payload) {
-    axios.post('http://localhost:7002/api/applicationRemoteConfigFile/add', payload)
+    axios.post(URL_LIST.config_server_file_add.url, payload)
       .then(res => {dispatch('getFiles', state.dirSelected.id)})
-  },
-  // 获取文件内容
-  getFileContent({commit, dispatch, state}, payload) {
-    axios.get('http://localhost:7002/api/applicationRemoteConfigFile/remote-config/content?applicationRemoteConfigFileId='+ payload)
-      .then()
   }
 }
 

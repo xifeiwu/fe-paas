@@ -535,7 +535,7 @@ class URL extends BaseURL {
       },
       // 远程配置中心——目录列表 eg. remote-config/list?groupId=2
       'config_server_list': {
-        url: API_PATH + 'remote-config/list',
+        url: API_PATH + '/remote-config/list',
         path: 'remote-config/list',
         method: 'post',
       },
@@ -558,10 +558,16 @@ class URL extends BaseURL {
         path: '/applicationRemoteConfigFile/add',
         method: 'post',
       },
-      // 远程配置中心——获取配置文件 eg. /applicationRemoteConfigFile/get?applicationRemoteConfigId=123123
-      'config_server_file_get': {
+      // 远程配置中心——获取配置文件列表 eg. /applicationRemoteConfigFile/get?applicationRemoteConfigId=123123
+      'config_server_file_list': {
         url: API_PATH + '/applicationRemoteConfigFile/get',
         path: '/applicationRemoteConfigFile/get',
+        method: 'post',
+      },
+      // 远程配置中心——获取配置文件内容 eg. /applicationRemoteConfigFile/content?applicationRemoteConfigId=123123
+      'config_server_file_content': {
+        url: API_PATH + '/applicationRemoteConfigFile/remote-config/content',
+        path: '/applicationRemoteConfigFile/content',
         method: 'post',
       },
       // 远程配置中心——保存配置文件 eg. /applicationRemoteConfigFile/update?applicationRemoteConfigFileId=1123

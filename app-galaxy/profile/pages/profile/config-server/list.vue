@@ -186,7 +186,8 @@
       openEditor(val) {
         this.currentEditFile = val;
         this.dialogTitle = "编辑配置文件";
-        axios.get('http://localhost:7002/api/applicationRemoteConfigFile/remote-config/content?applicationRemoteConfigFileId=' + val.id)
+        this.$ajax
+          .get(this.$url.config_server_file_content.url + '?applicationRemoteConfigFileId='+ val.id)
           .then(res => {
             this.form.code = res.data.content.fileContent;
             this.showEditor = true;
@@ -196,19 +197,23 @@
         this.$refs[formName].validate(valid => {
           if (!valid) return false;
 
-          const baseurl = 'http://localhost:7002/api/applicationRemoteConfigFile';
-          const editPath = '/update/edit-status?applicationRemoteConfigFileId=' + this.currentEditFile.id;
-          const savePath = '/update?applicationRemoteConfigFileId=' + this.currentEditFile.id + '&commitMessage=' + this.form.commitMessage;
-          this.$ajax.post(baseurl + editPath)
+          this.$ajax
+            .request({
+              method: 'post',
+              url: this.$url.config_server_file_edit.url,
+              params: {applicationRemoteConfigFileId: this.currentEditFile.id,}
+            })
             .then(res => {
               console.log('lock', res);
               return axios.request({
-                url: baseurl + savePath,
                 method: 'post',
+                url: this.$url.config_server_file_save.url,
+                params: {
+                  applicationRemoteConfigFileId: this.currentEditFile.id,
+                  commitMessage: this.form.commitMessage
+                },
                 data: this.form.code,
-                headers: {
-                  'Content-Type': 'text/plain'
-                }
+                headers: {'Content-Type': 'text/plain'}
               })
             })
             .then(res => {
