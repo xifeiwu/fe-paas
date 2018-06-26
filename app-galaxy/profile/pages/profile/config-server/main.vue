@@ -1,7 +1,8 @@
 <template>
-    <div v-loading = "loading"
+    <div v-loading="loading"
          element-loading-text="拼命加载中"
          element-loading-spinner="el-icon-loading"
+         element-loading-background="rgba(0, 0, 0, 0.8)"
     >
         <div class="pa-3 pt-4" style="background-color: #fff;">
             <el-row :gutter="20">
@@ -11,9 +12,17 @@
                         创建目录
                     </el-button>
                 </el-col>
-                <el-col :span="12">
+                <el-col :span="10">
                     <el-input clearable prefix-icon="el-icon-search" placeholder="请输入关键字搜索目录" @change="syncSearchState"
                               v-model="search">
+                        <template slot="append">
+                            <div class="px-3">
+                                <el-button @click="search=''" type="danger">
+                                    <i class="el-icon-close"></i>
+                                    重置搜索
+                                </el-button>
+                            </div>
+                        </template>
                     </el-input>
                 </el-col>
             </el-row>
@@ -76,7 +85,7 @@
             </el-table-column>
             <el-table-column prop="groupId" label="团队名称" :width="180">
                 <template slot-scope="scope">
-                    {{groupNameMap.get(scope.row.groupId)}}
+                    {{scope.row.groupName}}
                 </template>
             </el-table-column>
             <el-table-column prop="branchName" label="分支" :width="120">
@@ -87,18 +96,22 @@
             <el-table-column prop="lastCommitMessage" label="最后修改">
                 <template slot-scope="scope">
                     <i class="el-icon-time"></i>
-                    <span style="margin-left: 6px; font-weight: 800;">
-                        {{ scope.row.lastOperateUserName || scope.row.creatorName }} | {{ scope.row.lastCommitMessage }}
-                    </span>
-                </template>
-            </el-table-column>
-            <el-table-column prop="updateTime" label="" :width="200">
-                <template slot-scope="scope">
                     <span>
-                        {{ scope.row.updateTime | localDate }}
+                        {{ scope.row.updateTime | localDate }} &emsp;&emsp;
+                    </span>
+                    <span style="margin-left: 6px; font-weight: 800;">
+                        {{ scope.row.lastOperateUserName || scope.row.creatorName }} |
+                        {{ scope.row.lastCommitMessage }}
                     </span>
                 </template>
             </el-table-column>
+            <!--<el-table-column prop="updateTime" label="" :width="200">-->
+            <!--<template slot-scope="scope">-->
+            <!--<span>-->
+            <!--{{ scope.row.updateTime | localDate }}-->
+            <!--</span>-->
+            <!--</template>-->
+            <!--</el-table-column>-->
         </el-table>
     </div>
 </template>
@@ -108,7 +121,7 @@
 
   export default {
     mounted() {
-      if (!this.configList.length) {
+      if (!this.configList.length || !this.branchList.length) {
         this.$store.dispatch('etc/initData');
       }
     },
@@ -116,7 +129,7 @@
       return {
         rules: {
           configDirName: [
-            {required: true, min: 3, message: '目录名称不能为空'},
+            {required: true, pattern: /^[a-z][a-z0-9-.]{0,100}$/, message: '有效字符包括 a-z,0-9,中横线 例如：foo-bar-name'},
           ],
           groupId: [{required: true, type: 'number', message: '请选择团队', trigger: 'change'},],
           branchName: [{required: true, message: '请选择分支', trigger: 'change'}],
@@ -137,17 +150,16 @@
         data = data.sort((a, b) => b.updateTime - a.updateTime);
         const search = this.search;
         return search
-          ? data
-            .filter(item => Object.values(item).join(",").toLowerCase().match(search))
-          : data;
+          ? data.filter(item => Object.values(item).join(",").toLowerCase().match(search))
+          : data.slice(0, 30);
       },
-      groupNameMap() {
-        const _groupNameMap = new Map();
-        this.groupList.forEach(item => {
-          _groupNameMap.set(item.id, item.asLabel)
-        })
-        return _groupNameMap;
-      }
+      // groupNameMap() {
+      //   const _groupNameMap = new Map();
+      //   this.groupList.forEach(item => {
+      //     _groupNameMap.set(item.id, item.asLabel)
+      //   })
+      //   return _groupNameMap;
+      // }
     },
     filters: {
       localDate(val) {
@@ -166,7 +178,7 @@
             })
             .then(res => {
               if (!res.data.hasOwnProperty('success')) return alert(res.data.msg);
-              this.$store.dispatch('etc/getDir')
+              this.$store.dispatch('etc/getDir');
               this.dialogCreateFolder = false;
             })
         })

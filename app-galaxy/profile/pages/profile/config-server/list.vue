@@ -2,6 +2,7 @@
     <div v-loading="loading"
          element-loading-text="操作进行中"
          element-loading-spinner="el-icon-loading"
+         element-loading-background="rgba(0, 0, 0, 0.8)"
     >
         <div class="pa-3 pt-4" style="background-color: #fff;">
             <el-row :gutter="20">
@@ -14,19 +15,28 @@
                         添加配置文件
                     </el-button>
                 </el-col>
-                <el-col :span="12">
+                <el-col :span="10">
                     <el-input clearable prefix-icon="el-icon-search" placeholder="请输入关键字搜索文件"
                               v-model="search">
+                        <template slot="append">
+                            <div class="px-3">
+                                <el-button @click="search=''" type="danger">
+                                    <i class="el-icon-close"></i>
+                                    重置搜索
+                                </el-button>
+                            </div>
+                        </template>
                     </el-input>
                 </el-col>
             </el-row>
         </div>
         <!--添加文件表单-->
         <div v-if="showCreateFileForm" class="px-3 pt-3">
-            <el-form :model="form" ref="createFileForm">
+            <el-form :model="form" :ref="'createFileForm'">
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item prop="configFileName" :rules="[{ required: true, message: '文件名称不能为空'}]">
+                        <el-form-item prop="configFileName"
+                                      :rules="[{required: true, pattern: /^[a-z][a-z0-9.]{0,100}$/, message: '有效字符包括 a-z,0-9及 . 例如: app.config' }]">
                             <el-input v-model="form.configFileName" placeholder="请输出文件名称">
                                 <template slot="prepend">
                                     <div>&emsp;文件名称：</div>
@@ -59,7 +69,7 @@
             </el-form>
         </div>
         <!--文件列表-->
-        <el-table :data="configFiles" max-height="650" stripe>
+        <el-table :data="configFilesFilter" max-height="650" stripe>
             <el-table-column prop="configFileName" label="文件名称">
                 <template slot-scope="scope">
                     <el-button type="text" @click="openEditor(scope.row)">
@@ -75,7 +85,7 @@
             </el-table-column>
             <el-table-column prop="version" label="文件版本" :width="300">
             </el-table-column>
-            <el-table-column prop="updateTime" label="最后修改时间" :width="300" sortable>
+            <el-table-column prop="updateTime" label="最后修改时间" :width="300">
                 <template slot-scope="scope">
                     <i class="el-icon-time"></i>
                     {{scope.row.updateTime || scope.row.createTime | localDate}}
@@ -83,7 +93,12 @@
             </el-table-column>
         </el-table>
         <!-- 编辑器 -->
-        <el-dialog :visible.sync="showEditor" top="30px" width="80%" :fullscreen="false">
+        <el-dialog :visible.sync="showEditor" top="30px" width="80%" :fullscreen="false"
+                   v-loading="saveFileLoading"
+                   element-loading-text="正在保存"
+                   element-loading-spinner="el-icon-loading"
+                   element-loading-background="rgba(0, 0, 0, 0.8)"
+        >
             <div class="py-3" style="width: 80%; text-align: left;">
                 <h4>
                     <span style="color: red;">
@@ -137,6 +152,7 @@
     },
     data() {
       return {
+        saveFileLoading: false,
         currentEditFile: null,
         showCreateFileForm: false,
         search: "",
@@ -161,6 +177,14 @@
     },
     computed: {
       ...mapState("etc", ["configFiles", "dirSelected", 'loading']),
+      configFilesFilter() {
+        let data = this.configFiles || [];
+        data = data.sort((a, b) => b.updateTime - a.updateTime);
+        const search = this.search;
+        return search
+          ? data.filter(item => Object.values(item).join(",").toLowerCase().match(search))
+          : data;
+      }
     },
     filters: {
       localDate(val) {
@@ -183,11 +207,11 @@
           };
           this.$ajax.post(this.$url.config_server_file_add.url, payload)
             .then(res => {
-              this.$store.commit('etc/SET_LOADING', false);
               if (!res.data.hasOwnProperty('success')) return alert(res.data.msg);
               this.$store.dispatch('etc/getFiles', this.dirSelected.id);
               this.showCreateFileForm = false;
             })
+            .finally(() => this.$store.commit('etc/SET_LOADING', false))
         })
       },
       openEditor(val) {
@@ -196,15 +220,15 @@
         this.$ajax
           .get(this.$url.config_server_file_content.url + '?applicationRemoteConfigFileId=' + val.id)
           .then(res => {
-            this.$store.commit('etc/SET_LOADING', false);
             this.form.code = res.data.content.fileContent;
             this.showEditor = true;
           })
+          .finally(() => this.$store.commit('etc/SET_LOADING', false))
       },
       saveFile(formName) {
         this.$refs[formName].validate(valid => {
           if (!valid) return false;
-
+          this.saveFileLoading = true;
           this.$ajax
             .request({
               method: 'post',
@@ -212,22 +236,29 @@
               params: {applicationRemoteConfigFileId: this.currentEditFile.id,}
             })
             .then(res => {
+              console.log('lock', res);
               return axios.request({
                 method: 'post',
                 url: this.$url.config_server_file_save.url,
-                params: {
+                data: {
                   applicationRemoteConfigFileId: this.currentEditFile.id,
-                  commitMessage: this.form.commitMessage
+                  commitMessage: this.form.commitMessage,
+                  fileContent: this.form.code
                 },
-                data: this.form.code,
-                headers: {'Content-Type': 'text/plain'}
+                // headers: {'Content-Type': 'text/plain'}
               })
             })
             .then(res => {
               console.log('save', res);
+              if(!res.data.hasOwnProperty('success')) return alert(res.data.msg);
               this.showEditor = false;
               this.$store.dispatch('etc/getFiles', this.dirSelected.id);
-            });
+            })
+            .catch(err => {
+              console.log(err);
+              alert('文件保存失败，请联系paas平台组')
+            })
+            .finally(() => this.saveFileLoading = false);
         })
       },
     }
