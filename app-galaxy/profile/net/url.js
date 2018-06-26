@@ -566,7 +566,7 @@ class URL extends BaseURL {
       },
       // 远程配置中心——获取配置文件内容 eg. /applicationRemoteConfigFile/content?applicationRemoteConfigId=123123
       'config_server_file_content': {
-        url: API_PATH + '/applicationRemoteConfigFile/remote-config/content',
+        url: API_PATH + '/applicationRemoteConfigFile/content',
         path: '/applicationRemoteConfigFile/content',
         method: 'post',
       },
