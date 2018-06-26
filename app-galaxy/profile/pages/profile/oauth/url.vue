@@ -122,6 +122,7 @@
         >
           <template slot-scope="scope">
             <el-button
+                    round
                     v-if="!$storeHelper.notPermitted['oauth_modify_authorize_url_list']"
                     size="mini-extral"
                     type="warning"
@@ -130,6 +131,7 @@
               授权配置
             </el-button>
             <el-button
+                    round
                     v-if="scope.row.enabled !== null && !$storeHelper.notPermitted['oauth_authorize_url_toggle_enable']"
                     size="mini-extral"
                     type="primary"

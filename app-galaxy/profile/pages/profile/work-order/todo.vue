@@ -69,6 +69,7 @@
         <el-table-column label="操作" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
+                    round
                     size="mini-extral"
                     type="primary"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
@@ -77,12 +78,16 @@
               <span>详情</span>
               <i class="el-icon-arrow-right"></i>
             </el-button>
-            <el-button v-if="scope.row.status!=='WORKORDER_APPLY'"
+            <el-button
+                    round
+                    v-if="scope.row.status!=='WORKORDER_APPLY'"
                     size="mini-extral"
                     type="warning"
                     :loading="statusOfWaitingResponse(scope.row.status) && operation.rowID == scope.row.id"
                     @click="handleTRButton(scope.row.status, scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
-            <el-button v-if="scope.row.status==='WORKORDER_APPLY'"
+            <el-button
+                    round
+                    v-if="scope.row.status==='WORKORDER_APPLY'"
                     size="mini-extral"
                     type="warning"
                     :loading="statusOfWaitingResponse('modify') && operation.rowID == scope.row.id"

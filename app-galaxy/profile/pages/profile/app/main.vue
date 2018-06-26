@@ -83,11 +83,13 @@
                     v-if="!$storeHelper.notPermitted['app_delete']"
               size="mini-extral"
               type="danger"
+                    round
               @click="handleTRButton('deleteRow', scope.$index, scope.row)">删除</el-button>
             <el-button
                     v-if="!$storeHelper.notPermitted['app_change_profile']"
               size="mini-extral"
               type="warning"
+                    round
               @click="handleTRButton('change-profileNames', scope.$index, scope.row)">更改运行环境</el-button>
           </template>
         </el-table-column>

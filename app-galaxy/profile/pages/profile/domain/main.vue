@@ -95,6 +95,7 @@
         >
           <template slot-scope="scope">
             <el-button
+                    round
                     v-if="!$storeHelper.notPermitted['domain_bind_white_list']"
                     size="mini-extral"
                     type="warning"
@@ -102,6 +103,7 @@
               关联IP白名单
             </el-button>
             <el-button
+                    round
                     v-if="!$storeHelper.notPermitted['domain_remove']"
                     size="mini-extral"
                     type="danger"

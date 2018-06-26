@@ -169,6 +169,7 @@
           <template slot-scope="scope">
             <div class="button-list">
               <el-button
+                      round
                       v-if="!$storeHelper.notPermitted['oauth_add_access_config']"
                       size="mini-extral"
                       type="warning"
@@ -177,6 +178,7 @@
                 修改访问配置
               </el-button>
               <el-button
+                      round
                       size="mini-extral"
                       type="warning"
                       :loading="statusOfWaitingResponse('open-dialog-4-update-url-permission') && selected.row.id === scope.row.id"
@@ -184,6 +186,7 @@
                 权限配置
               </el-button>
               <el-button
+                      round
                       v-if="!$storeHelper.notPermitted['oauth_update_secret']"
                       size="mini-extral"
                       type="warning"
@@ -191,6 +194,7 @@
                       @click="handleTRClick('modify-secret', scope.$index, scope.row)">修改秘钥
               </el-button>
               <el-button
+                      round
                       v-if="!$storeHelper.notPermitted['oauth_delete_access_key']"
                       size="mini-extral"
                       type="danger"

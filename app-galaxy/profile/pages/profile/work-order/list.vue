@@ -67,6 +67,7 @@
         <el-table-column label="操作" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
+                    round
                     size="mini-extral"
                     type="primary"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
@@ -76,6 +77,7 @@
               <i class="el-icon-arrow-right"></i>
             </el-button>
             <el-button
+                    round
                     size="mini-extral"
                     type="primary"
                     :loading="statusOfWaitingResponse('deploy-log') && operation.rowID == scope.row.id"

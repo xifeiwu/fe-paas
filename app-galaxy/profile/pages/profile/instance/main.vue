@@ -52,16 +52,19 @@
         <el-table-column label="操作" prop="operation" minWidth="300" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
+                    round
                     @click="handleRowButtonClick('terminal', scope.$index, scope.row)"
                     size="mini-extral"
                     v-if="!$storeHelper.notPermitted['open_terminal_from_instance']"
                     type="primary">终端</el-button>
             <el-button
+                    round
                     @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"
                     size="mini-extral"
                     v-if="!$storeHelper.notPermitted['go-log-run-from-instance']"
                     type="primary">查看运行日志</el-button>
             <el-button
+                    round
                     @click="handleRowButtonClick('monitor', scope.$index, scope.row)"
                     size="mini-extral"
                     :disabled="true"
