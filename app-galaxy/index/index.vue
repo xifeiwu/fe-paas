@@ -8,7 +8,7 @@
           <div class="content">
             <div class="line1">为凡普业务研发及合作伙伴</div>
             <div class="line2">提供领先的技术平台服务</div>
-            <div class="line3">敬请期待</div>
+            <div class="line3" v-if="false">敬请期待</div>
           </div>
         </div>
       </section>

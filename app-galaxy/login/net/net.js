@@ -55,6 +55,10 @@ class Net extends NetBase {
           router: '/work-order',
           icon: 'paas-icon-work-order'
         },
+        "配置中心": {
+          router: '/config-server',
+          icon: 'paas-icon-config'
+        }
       };
       let key = item.name;
       if (keyMap.hasOwnProperty(key)) {
@@ -87,11 +91,6 @@ class Net extends NetBase {
         it.hasOwnProperty('parentId') && delete it.parentId;
         return it;
       });
-      menuList.push({
-        name: '权限配置',
-        router: '/config-server',
-        icon: 'paas-icon-config'
-      })
     }
     let notPermitted = [];
     if (content.hasOwnProperty('excludeList') && Array.isArray(content['excludeList'])) {

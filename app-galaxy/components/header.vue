@@ -16,7 +16,7 @@
         <el-submenu index="product">
           <template slot="title">产品</template>
           <el-menu-item index="app">应用引擎</el-menu-item>
-          <el-menu-item index="object-storage">对象存储</el-menu-item>
+          <el-menu-item index="object-storage" :disabled="true">对象存储</el-menu-item>
         </el-submenu>
         <el-menu-item index="docs" v-show="true">帮助文档</el-menu-item>
         <el-menu-item index="profile">控制台</el-menu-item>
