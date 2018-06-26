@@ -33,21 +33,11 @@ const actions = {
         commit('SET_BRANCH_LIST', res.data)
       })
   },
-  // 添加目录
-  addDir({commit, dispatch}, payload) {
-    axios.post(URL_LIST.config_server_add.url, payload)
-      .then(res => dispatch('getDir'))
-  },
   // 文件列表
   getFiles({commit, dispatch}, payload) {
     axios.post(URL_LIST.config_server_file_list.url + '?applicationRemoteConfigId=' + payload)
       .then(res => commit('SET_CONFIG_FILES', res.data))
   },
-  // 添加文件
-  addFile({commit, dispatch, state}, payload) {
-    axios.post(URL_LIST.config_server_file_add.url, payload)
-      .then(res => {dispatch('getFiles', state.dirSelected.id)})
-  }
 }
 
 const mutations = {

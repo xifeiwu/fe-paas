@@ -1,5 +1,8 @@
 <template>
-    <div>
+    <div v-loading="loading"
+         element-loading-text="操作进行中"
+         element-loading-spinner="el-icon-loading"
+    >
         <div class="pa-3 pt-4" style="background-color: #fff;">
             <el-row :gutter="20">
                 <el-col :span="12">
@@ -72,7 +75,7 @@
             </el-table-column>
             <el-table-column prop="version" label="文件版本" :width="300">
             </el-table-column>
-            <el-table-column prop="updateTime" label="最后修改时间" :width="300">
+            <el-table-column prop="updateTime" label="最后修改时间" :width="300" sortable>
                 <template slot-scope="scope">
                     <i class="el-icon-time"></i>
                     {{scope.row.updateTime || scope.row.createTime | localDate}}
@@ -103,7 +106,8 @@
                 </el-form>
             </div>
             <div slot="footer" class="pa-3" style="text-align: center">
-                <el-button type="success" size="medium" @click="saveFile('editFileForm')">&emsp;保 存 修 改&emsp;</el-button>
+                <el-button type="success" size="medium" @click="saveFile('editFileForm')">&emsp;保 存 修 改&emsp;
+                </el-button>
                 <el-button type="danger" size="medium" @click="showEditor = false">&emsp;取 消 修 改&emsp;</el-button>
             </div>
         </el-dialog>
@@ -156,15 +160,12 @@
       };
     },
     computed: {
-      ...mapState("etc", ["configFiles", "dirSelected"]),
+      ...mapState("etc", ["configFiles", "dirSelected", 'loading']),
     },
     filters: {
       localDate(val) {
         return new Date(val).toLocaleString();
       },
-      fullPath(val) {
-        return ' / ' + val;
-      }
     },
     methods: {
       changeExtName(val) {
@@ -174,21 +175,28 @@
         // todo validate form
         this.$refs['createFileForm'].validate((valid) => {
           if (!valid) return false;
-
+          // show loading
+          this.$store.commit('etc/SET_LOADING', true);
           let payload = {
             "applicationRemoteConfigId": this.dirSelected.id,
             "configFileName": this.form.configFileName.trim() + this.form.extName,
           };
-          this.$store.dispatch('etc/addFile', payload);
-          this.showCreateFileForm = false;
+          this.$ajax.post(this.$url.config_server_file_add.url, payload)
+            .then(res => {
+              this.$store.commit('etc/SET_LOADING', false);
+              if (!res.data.hasOwnProperty('success')) return alert(res.data.msg);
+              this.$store.dispatch('etc/getFiles', this.dirSelected.id);
+              this.showCreateFileForm = false;
+            })
         })
       },
       openEditor(val) {
+        this.$store.commit('etc/SET_LOADING', true);
         this.currentEditFile = val;
-        this.dialogTitle = "编辑配置文件";
         this.$ajax
-          .get(this.$url.config_server_file_content.url + '?applicationRemoteConfigFileId='+ val.id)
+          .get(this.$url.config_server_file_content.url + '?applicationRemoteConfigFileId=' + val.id)
           .then(res => {
+            this.$store.commit('etc/SET_LOADING', false);
             this.form.code = res.data.content.fileContent;
             this.showEditor = true;
           })
@@ -204,7 +212,6 @@
               params: {applicationRemoteConfigFileId: this.currentEditFile.id,}
             })
             .then(res => {
-              console.log('lock', res);
               return axios.request({
                 method: 'post',
                 url: this.$url.config_server_file_save.url,

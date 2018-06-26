@@ -1,9 +1,13 @@
 <template>
-    <div>
+    <div v-loading = "loading"
+         element-loading-text="拼命加载中"
+         element-loading-spinner="el-icon-loading"
+    >
         <div class="pa-3 pt-4" style="background-color: #fff;">
             <el-row :gutter="20">
                 <el-col :span="12">
-                    <el-button type="primary" icon="el-icon-circle-plus-outline" @click="dialogCreateFolder = !dialogCreateFolder">
+                    <el-button type="primary" icon="el-icon-circle-plus-outline"
+                               @click="dialogCreateFolder = !dialogCreateFolder">
                         创建目录
                     </el-button>
                 </el-col>
@@ -23,7 +27,7 @@
                             <el-input v-model="form.configDirName" auto-complete="off" prefix-icon="el-icon-news"
                                       placeholder="目录名称,例如: foo-bar-some">
                                 <!--<template slot="prepend">-->
-                                    <!--<div>&emsp;目录名称：</div>-->
+                                <!--<div>&emsp;目录名称：</div>-->
                                 <!--</template>-->
                             </el-input>
                         </el-form-item>
@@ -37,7 +41,7 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="4" >
+                    <el-col :span="4">
                         <el-form-item prop="branchName">
                             <el-select v-model="form.branchName" filterable placeholder="请选择分支">
                                 <el-option v-for="(item, index) in branchList" :key="index" :label="item" :value="item">
@@ -47,7 +51,9 @@
                     </el-col>
                     <el-col :span="4">
                         <el-form-item>
-                            <el-button type="success" @click="createFolder('configDirForm')">确 定 创 建</el-button>
+                            <el-button type="success" @click="createFolder('configDirForm')">
+                                确 定 创 建
+                            </el-button>
                             <el-button type="danger" @click="dialogCreateFolder = false">取 消 创 建</el-button>
                         </el-form-item>
                     </el-col>
@@ -57,10 +63,7 @@
             </el-form>
         </div>
         <!--目录列表-->
-        <el-table v-loading="loading"
-                  element-loading-text="拼命加载中"
-                  element-loading-spinner="el-icon-loading"
-                  :data="configList" max-height="650" stripe>
+        <el-table :data="configList" max-height="650" stripe>
             <el-table-column prop="configDirName" label="目录名称" :width="320">
                 <template slot-scope="scope">
                     <el-button type="text" @click="gotoFileList(scope.row)">
@@ -131,17 +134,14 @@
       ...mapState("user", ["groupList"]),
       configList() {
         let data = this.remoteConfigList || [];
+        data = data.sort((a, b) => b.updateTime - a.updateTime);
         const search = this.search;
         return search
-          ? data.filter(item =>
-            Object.values(item)
-              .join(",")
-              .toLowerCase()
-              .match(search)
-          )
+          ? data
+            .filter(item => Object.values(item).join(",").toLowerCase().match(search))
           : data;
       },
-      groupNameMap(){
+      groupNameMap() {
         const _groupNameMap = new Map();
         this.groupList.forEach(item => {
           _groupNameMap.set(item.id, item.asLabel)
@@ -158,12 +158,17 @@
       createFolder(formName) {
         this.$refs[formName].validate((valid) => {
           if (!valid) return false;
-          this.$store.dispatch('etc/addDir', {
-            branchName: this.form.branchName,
-            configDirName: this.form.configDirName,
-            groupId: this.form.groupId
-          });
-          this.dialogCreateFolder = false;
+          this.$ajax
+            .post(this.$url.config_server_add.url, {
+              branchName: this.form.branchName,
+              configDirName: this.form.configDirName,
+              groupId: this.form.groupId
+            })
+            .then(res => {
+              if (!res.data.hasOwnProperty('success')) return alert(res.data.msg);
+              this.$store.dispatch('etc/getDir')
+              this.dialogCreateFolder = false;
+            })
         })
       },
       syncSearchState() {
