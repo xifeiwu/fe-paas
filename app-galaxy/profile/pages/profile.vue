@@ -92,7 +92,7 @@
         }
       }
 
-      [class^="my-icon-"] {
+      [class^="paas-icon-"] {
         display: inline-block;
         font-size: 14px;
         margin-top: 1px;
@@ -116,7 +116,7 @@
             color: $menu-font-color-active;
             background: $menu-background-active;
             border-radius: 0px;
-            [class^="my-icon-"] {
+            [class^="paas-icon-"] {
               /*font-size: 15px;*/
             }
           }

@@ -20,40 +20,40 @@ class Net extends NetBase {
       let keyMap = {
         "应用管理": {
           router: '/app',
-          icon: 'my-icon-app'
+          icon: 'paas-icon-app'
           // icon: 'el-icon-location'
         },
         "服务管理": {
           router: '/service',
-          icon: 'my-icon-service'
+          icon: 'paas-icon-service'
         },
         "实例列表": {
           router: '/instance',
-          icon: 'my-icon-instance'
+          icon: 'paas-icon-instance'
         },
         "外网域名": {
           router: '/domain',
-          icon: 'my-icon-domain',
+          icon: 'paas-icon-domain',
         },
         "日志中心": {
           router: '/log',
-          icon: 'my-icon-log'
+          icon: 'paas-icon-log'
         },
         "应用监控": {
           router: '/monitor',
-          icon: 'my-icon-monitor'
+          icon: 'paas-icon-monitor'
         },
         "Oauth权限": {
           router: '/oauth',
-          icon: 'my-icon-key'
+          icon: 'paas-icon-key'
         },
         "Access Key管理": {
           router: '/oauth',
-          icon: 'my-icon-key'
+          icon: 'paas-icon-key'
         },
         "审批管理": {
           router: '/work-order',
-          icon: 'my-icon-work-order'
+          icon: 'paas-icon-work-order'
         },
       };
       let key = item.name;
@@ -87,6 +87,11 @@ class Net extends NetBase {
         it.hasOwnProperty('parentId') && delete it.parentId;
         return it;
       });
+      menuList.push({
+        name: '权限配置',
+        router: '/config-server',
+        icon: 'paas-icon-config'
+      })
     }
     let notPermitted = [];
     if (content.hasOwnProperty('excludeList') && Array.isArray(content['excludeList'])) {

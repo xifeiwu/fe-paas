@@ -62,7 +62,7 @@
                       :disabled="disablePopper"
                       popperClass="el-popover--small is-dark"
                       content="复制成功">
-                <i class="my-icon-copy" slot="reference"
+                <i class="paas-icon-copy" slot="reference"
                    v-clipboard:copy="scope.row.accessKey"
                    v-clipboard:success="handleTRClick.bind(this, 'copy', scope.$index, scope.row)"></i>
               </el-popover>
@@ -84,7 +84,7 @@
                       :disabled="disablePopper"
                       popperClass="el-popover--small is-dark"
                       content="复制成功">
-                <i class="my-icon-copy" slot="reference"
+                <i class="paas-icon-copy" slot="reference"
                    v-clipboard:copy="scope.row.secret"
                    v-clipboard:success="handleTRClick.bind(this, 'copy', scope.$index, scope.row)"></i>
               </el-popover>
@@ -703,7 +703,7 @@
       .access-key, .secret {
         line-height: 26px;
         text-align: center;
-        .my-icon-copy {
+        .paas-icon-copy {
           font-size: 16px;
           margin-left: 5px;
           &:hover {

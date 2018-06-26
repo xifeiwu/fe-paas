@@ -41,8 +41,8 @@
                 element-loading-text="加载中">
         <el-table-column label="语言版本" prop="languageVersion" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
-            <svg :class="['my-icon-svg', 'my-icon-' + scope.row.languageLogo]" aria-hidden="true" v-if="scope.row.languageLogo">
-              <use :xlink:href="'#my-icon-' + scope.row.languageLogo"></use>
+            <svg :class="['paas-icon-svg', 'paas-icon-' + scope.row.languageLogo]" aria-hidden="true" v-if="scope.row.languageLogo">
+              <use :xlink:href="'#paas-icon-' + scope.row.languageLogo"></use>
             </svg>
             <div class="language" v-else>应用名未知</div>
             <div class="version" v-if="scope.row.languageVersion">{{scope.row.languageVersion}}</div>
@@ -275,10 +275,10 @@
         margin-bottom: 0px;
         color: black;
         .el-table__row {
-          .my-icon-svg {
+          .paas-icon-svg {
             width: 26px;
             height: 26px;
-            &.my-icon-java {
+            &.paas-icon-java {
               width: 30px;
               height: 30px;
             }

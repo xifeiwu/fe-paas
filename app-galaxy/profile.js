@@ -26,9 +26,9 @@ new VueConfig({
 import routerConfig from './profile/pages/router';
 Vue.prototype.$routeHelper = routerConfig;
 
-// my-icons for icon and svg
-import '$assets/css/fonts/my-icons.css';
-import '$assets/css/fonts/my-icons.js';
+// paas-icons for icon and svg
+import '$assets/css/fonts/paas-icon.css';
+import '$assets/css/fonts/paas-icon.js';
 
 import APP from './profile/pages/profile';
 

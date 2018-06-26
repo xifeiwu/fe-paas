@@ -15,8 +15,8 @@ new VueConfig({
   NetConfig,
 });
 
-import '$assets/css/fonts/my-icons.css';
-import '$assets/css/fonts/my-icons.js';
+import '$assets/css/fonts/paas-icon.css';
+import '$assets/css/fonts/paas-icon.js';
 
 import APP from './user/pages/user.vue';
 import routerConfig from './user/pages/router';

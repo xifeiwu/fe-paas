@@ -15,8 +15,8 @@
       <el-menu-item index="message" v-show="false">消息中心</el-menu-item>
       <el-submenu index="user" :withDrawOnMouseLeave="false">
         <template slot="title">{{userName}}</template>
-        <el-menu-item index="info"><i class="my-icon-user"></i><span>用户信息</span></el-menu-item>
-        <el-menu-item index="logout"><i class="my-icon-logout"></i><span>退出</span></el-menu-item>
+        <el-menu-item index="info"><i class="paas-icon-user"></i><span>用户信息</span></el-menu-item>
+        <el-menu-item index="logout"><i class="paas-icon-logout"></i><span>退出</span></el-menu-item>
       </el-submenu>
     </el-menu>
   </div>
@@ -78,7 +78,7 @@
       }
     }
     .el-menu.header-menu {
-      [class^="my-icon-"] {
+      [class^="paas-icon-"] {
         display: inline-block;
         font-size: 14px;
         margin-top: 1px;

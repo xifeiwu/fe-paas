@@ -1,0 +1,60 @@
+@charset "UTF-8";
+@font-face {
+  font-family: "paas-icon";
+  src: url("./paas-icon.eot?#iefix") format("eot"), url("./paas-icon.woff") format("woff"); }
+
+.paas-icon-svg {
+  width: 24px;
+  height: 24px; }
+
+[class^="paas-icon-"] {
+  font-size: 24px; }
+
+.paas-icon-app:before, .paas-icon-config:before, .paas-icon-copy:before, .paas-icon-domain:before, .paas-icon-instance:before, .paas-icon-key:before, .paas-icon-log:before, .paas-icon-logout:before, .paas-icon-monitor:before, .paas-icon-oauth:before, .paas-icon-service:before, .paas-icon-user:before, .paas-icon-work-order:before {
+  font-family: "paas-icon";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  text-decoration: none;
+  text-transform: none; }
+
+.paas-icon-app:before {
+  content: ""; }
+
+.paas-icon-config:before {
+  content: ""; }
+
+.paas-icon-copy:before {
+  content: ""; }
+
+.paas-icon-domain:before {
+  content: ""; }
+
+.paas-icon-instance:before {
+  content: ""; }
+
+.paas-icon-key:before {
+  content: ""; }
+
+.paas-icon-log:before {
+  content: ""; }
+
+.paas-icon-logout:before {
+  content: ""; }
+
+.paas-icon-monitor:before {
+  content: ""; }
+
+.paas-icon-oauth:before {
+  content: ""; }
+
+.paas-icon-service:before {
+  content: ""; }
+
+.paas-icon-user:before {
+  content: ""; }
+
+.paas-icon-work-order:before {
+  content: ""; }
