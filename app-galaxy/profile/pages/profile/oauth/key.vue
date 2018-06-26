@@ -431,7 +431,7 @@
     </el-dialog>
 
     <el-dialog title="权限配置" :visible="selected.operation == 'open-dialog-4-update-url-permission'"
-               class="update-url-permission size-750"
+               class="update-url-permission size-800"
                :close-on-click-modal="false"
                @close="handleDialogClose('update-url-permission')"
     >
