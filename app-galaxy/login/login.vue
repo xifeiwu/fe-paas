@@ -359,7 +359,7 @@
             this.verifyImageData = "data:" + mimeType + ";base64," + base64;
             this.form.verificationCode = response.headers['verification-code'];
           }).catch(err => {
-            this.showError('获取验证码失败，请检查网络是否正常连接。');
+            this.showError('获取验证码失败，请检查网络是否正常连接。', false);
             console.log(err);
           });
       },
@@ -425,7 +425,6 @@
        * @param updateVerifyCode, whether update verify code or not
        */
       showError(content, updateVerifyCode) {
-        updateVerifyCode = true;
         this.error.status = true;
         this.error.content = content;
         if (updateVerifyCode) {
@@ -438,15 +437,15 @@
       checkData() {
         let isOK = false;
         if (this.form.userName.length === 0) {
-          this.showError("请输入用户名");
+          this.showError("请输入用户名", true);
           return isOK;
         }
         if (this.form.password.length === 0) {
-          this.showError("请输入密码");
+          this.showError("请输入密码", true);
           return isOK;
         }
         if (this.form.verifyCode.length === 0) {
-          this.showError("请输入验证码");
+          this.showError("请输入验证码", true);
           return isOK;
         }
         isOK = true;
