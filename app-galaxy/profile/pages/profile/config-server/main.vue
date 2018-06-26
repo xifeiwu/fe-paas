@@ -129,7 +129,7 @@
       return {
         rules: {
           configDirName: [
-            {required: true, pattern: /^[a-z][a-z0-9-.]{0,100}$/, message: '有效字符包括 a-z,0-9,中横线 例如：foo-bar-name'},
+            {required: true, pattern: /^[a-z][a-z0-9-]{0,100}$/, message: '有效字符包括 a-z,0-9,中横线 例如：foo-bar-name'},
           ],
           groupId: [{required: true, type: 'number', message: '请选择团队', trigger: 'change'},],
           branchName: [{required: true, message: '请选择分支', trigger: 'change'}],
