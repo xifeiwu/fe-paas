@@ -1,24 +1,28 @@
 <template>
-  <el-container id="docs" direction="vertical">
+  <div id="docs">
     <paas-header @menu-click="handleClickOnPassHeader" defaultActive="docs"></paas-header>
-    <el-container class="inner-container">
-      <el-aside width="180px">
-        <el-tree ref="menu-list"
-            :data="menuList"
-            :props="defaultProps"
-             nodeKey='href'
-             :setCurrentNodeOnClick="false"
-             :expandOnClickNode="false"
-             default-expand-all
-            @node-click="handleNodeClick">
-        </el-tree>
-      </el-aside>
-      <el-main>
-        <div v-html="docContent.body" class="markdown">
-        </div>
-      </el-main>
-    </el-container>
-  </el-container>
+    <div class="help-content">
+      <div class="menu-list">
+        <el-scrollbar>
+          <el-tree ref="menu-list"
+              :data="menuList"
+              :props="defaultProps"
+               nodeKey='target'
+               :setCurrentNodeOnClick="false"
+               :expandOnClickNode="false"
+               default-expand-all
+              @node-click="handleNodeClick">
+          </el-tree>
+        </el-scrollbar>
+      </div>
+      <div class="content">
+        <el-scrollbar>
+          <div v-html="helpContent.body" class="markdown">
+          </div>
+        </el-scrollbar>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss">
@@ -36,7 +40,7 @@
           }
           .el-tree-node {
             &.is-current {
-              .el-tree-node__content {
+              & > .el-tree-node__content {
                 border-radius: 4px;
                 background-color: #409EFF;
                 color: white;
@@ -56,8 +60,39 @@
 </style>
 <style lang="scss">
   #docs {
-    .el-container.inner-container {
-      margin: 20px 40px;
+    height: 100%;
+    /*padding-top: 60px;*/
+    .pass-header {
+      /*position: fixed;*/
+      width: 100%;
+      /*top: 0px;*/
+      box-shadow: 0 0 2px 0 rgba(64,158,255, .6);
+      z-index: 100;
+    }
+    .help-content {
+      padding: 0px;
+      height: calc(100% - 60px);
+      box-sizing: border-box;
+      .menu-list {
+        width: 350px;
+        float: left;
+        height: 100%;
+        border-right: 1px solid gray;
+        .el-scrollbar {
+          height: 100%;
+          width: 100%;
+        }
+      }
+      .content {
+        margin-left: 350px;
+        height: 100%;
+        padding-left: 10px;
+        padding-right: 5px;
+        .el-scrollbar {
+          height: 100%;
+          width: 100%;
+        }
+      }
     }
   }
 </style>
@@ -68,48 +103,38 @@
   export default {
     components: {paasHeader},
     created() {
-      console.log(this.$net);
-      this.$net.getMenuList().then(content => {
-        this.menuList = content;
-      }).catch(err => {
-        this.menuList = [];
+      this.$net.getHelp().then(content => {
+        this.menuList = content.menuList;
+        this.helpContent = content.helpContent;
       })
     },
     mounted() {
     },
     data() {
       return {
-        url: {
-          menu: '/docs/guide/menu.json'
-        },
         menuList: [{
-          label: '一级 1',
-          isLeaf: true,
-          children: [{
-            label: '二级 1-1',
-            href: '222'
-          }, {
-            label: '二级 1-2'
-          }]
-        }, {
-          label: '一级 2',
-          isLeaf: true,
-          children: [{
-            label: '二级 2-1',
-          }, {
-            label: '二级 2-2',
-            href: 'dfs'
-          }]
-        }, {
-          label: '一级 3',
-          isLeaf: true,
-          children: [{
-            label: '二级 3-1',
-          }, {
-            label: '二级 3-2',
-          }]
+          label: ''
         }],
-        docContent: '',
+//        menuList: [{
+//          label: '一级 1',
+//          isLeaf: true,
+//          children: [{
+//            label: '二级 1-1',
+//            href: '222'
+//          }, {
+//            label: '二级 1-2'
+//          }]
+//        }, {
+//          label: '一级 2',
+//          isLeaf: true,
+//          children: [{
+//            label: '二级 2-1',
+//          }, {
+//            label: '二级 2-2',
+//            href: 'dfs'
+//          }]
+//        }],
+        helpContent: '',
         defaultProps: {
           children: 'children',
           label: 'label',
@@ -119,13 +144,10 @@
     },
     methods: {
       handleNodeClick(data) {
-        if (data.hasOwnProperty('href')) {
-          let href = data['href'];
-          this.$net.getContent(href).then(content => {
-            this.docContent = content;
-            this.$refs['menu-list'].setCurrentKey(href);
-          }).catch(err => {
-          });
+        if (data.hasOwnProperty('target')) {
+          let target = data['target'];
+          window.location.hash = target;
+          this.$refs['menu-list'].setCurrentKey(target);
         }
       },
 

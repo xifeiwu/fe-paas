@@ -12,6 +12,30 @@ class Net extends NetBase {
     this.$utils = Vue.prototype.$utils;
   }
 
+  getHelp() {
+    return new Promise((resolve, reject) => {
+      axios.all([
+        axios.get(URL_LIST.menu_list),
+        axios.get(this.$utils.formatUrl(URL_LIST.doc_content, {path: 'help'}))
+      ]).then(axios.spread((response1, response2) => {
+        let menuList = this.getResponseContent(response1);
+        let helpContent = this.getResponseContent(response2);
+        if (!menuList || !helpContent) {
+          reject({
+            title: '数据获取失败',
+            msg: '请联系管理员'
+          })
+        }
+        resolve({menuList, helpContent});
+      })).catch(err => {
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.menu_list}；${err.toString()}`
+        });
+      })
+    });
+  }
+
   getMenuList() {
     return new Promise((resolve, reject) => {
       axios.get(URL_LIST.menu_list).then(response => {

@@ -9,8 +9,8 @@ class URL extends BaseURL {
   setUrlList() {
     let ORIGIN = this.ORIGIN;
     this.URL_LIST = {
-      menu_list: ORIGIN + '/docs/guide/menu.json',
-      doc_content: ORIGIN + '/docs/{path}'
+      menu_list: ORIGIN + '/docs/help/menu.json',
+      doc_content: ORIGIN + '/docs/help/{path}'
     }
   }
 
