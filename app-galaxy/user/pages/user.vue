@@ -1,6 +1,6 @@
 <template>
   <div id="user" class="main spa" direction="vertical">
-    <paas-header-profile :userName="userName"  defaultActive="info"
+    <paas-header-profile :userName="userName"  defaultActive="info" :showGroupManager="false"
                          @menu-click="handleHeaderMenuClick"></paas-header-profile>
     <div class="content">
       <div class="container">
@@ -224,6 +224,9 @@
             break;
           case 'profile':
             this.$utils.goToPath('/profile');
+            break;
+          case 'docs':
+            this.$utils.goToPath('/docs');
             break;
           case 'index':
             this.$utils.goToPath('/index');

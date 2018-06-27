@@ -348,6 +348,12 @@
             break;
           case 'message':
             break;
+          case 'docs':
+            this.$utils.goToPath('/docs');
+            break;
+          case 'group-manager':
+            this.$utils.goToPath('/user#/group');
+            break;
           case 'profile':
 //            this.$utils.goToPath('/profile');
             break;

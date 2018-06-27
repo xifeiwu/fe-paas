@@ -12,6 +12,8 @@
              v-clickoutside="handleClickOutsideMenu"
     >
       <el-menu-item index="profile">控制台</el-menu-item>
+      <el-menu-item index="docs">帮助文档</el-menu-item>
+      <el-menu-item index="group-manager" v-if="showGroupManager">团队管理</el-menu-item>
       <el-menu-item index="message" v-show="false">消息中心</el-menu-item>
       <el-submenu index="user" :withDrawOnMouseLeave="false">
         <template slot="title">{{userName}}</template>
@@ -124,6 +126,10 @@
         default: 'index'
       },
       showImg: {
+        type: Boolean,
+        default: true
+      },
+      showGroupManager: {
         type: Boolean,
         default: true
       }
