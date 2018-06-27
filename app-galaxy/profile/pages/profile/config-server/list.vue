@@ -2,7 +2,6 @@
     <div v-loading="loading"
          element-loading-text="操作进行中"
          element-loading-spinner="el-icon-loading"
-         element-loading-background="rgba(0, 0, 0, 0.8)"
     >
         <div class="pa-3 pt-4" style="background-color: #fff;">
             <el-row :gutter="20">
@@ -36,7 +35,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item prop="configFileName"
-                                      :rules="[{required: true, pattern: /^[a-z][a-z0-9.]{0,100}$/, message: '有效字符包括 a-z,0-9及 . 例如: app.config' }]">
+                                      :rules="[{required: true, pattern: /^[a-z][a-z0-9.-]{0,100}$/, message: '有效字符包括 a-z,0-9及 . 和 - 例如: app-config' }]">
                             <el-input v-model="form.configFileName" placeholder="请输出文件名称">
                                 <template slot="prepend">
                                     <div>&emsp;文件名称：</div>
@@ -211,18 +210,22 @@
               this.$store.dispatch('etc/getFiles', this.dirSelected.id);
               this.showCreateFileForm = false;
             })
+            .catch(err => this.$alert('系统错误：创建配置文件时失败，请联系管理员' + err.message))
             .finally(() => this.$store.commit('etc/SET_LOADING', false))
         })
       },
       openEditor(val) {
         this.$store.commit('etc/SET_LOADING', true);
         this.currentEditFile = val;
+        // 清空commitMessage
+        this.form.commitMessage = ''
         this.$ajax
           .get(this.$url.config_server_file_content.url + '?applicationRemoteConfigFileId=' + val.id)
           .then(res => {
             this.form.code = res.data.content.fileContent;
             this.showEditor = true;
           })
+          .catch(err => this.$alert('系统错误：获取配置文件内容失败，请联系管理员' + err.message))
           .finally(() => this.$store.commit('etc/SET_LOADING', false))
       },
       saveFile(formName) {
@@ -274,4 +277,3 @@
         }
     }
 </style>
-
