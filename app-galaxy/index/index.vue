@@ -6,8 +6,8 @@
         <img src="/assets/imgs/index/poster.png">
         <div class="description">
           <div class="content">
-            <div class="line1">为凡普业务研发及合作伙伴</div>
-            <div class="line2">提供领先的技术平台服务</div>
+            <div class="line1">为凡普业务研发</div>
+            <div class="line2">提供可靠、弹性、易用的企业级私有云计算服务平台</div>
             <div class="line3" v-if="false">敬请期待</div>
           </div>
         </div>

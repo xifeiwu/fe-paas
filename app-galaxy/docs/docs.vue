@@ -10,7 +10,6 @@
                nodeKey='target'
                :setCurrentNodeOnClick="false"
                :expandOnClickNode="false"
-               default-expand-all
               @node-click="handleNodeClick">
           </el-tree>
         </el-scrollbar>
@@ -28,16 +27,13 @@
 <style lang="scss">
   #docs {
     .el-tree {
+      font-weight: bold;
       .el-tree-node__label {
         font-size: 16px;
         line-height: 1.5;
       }
       .el-tree-node {
         .el-tree-node__children {
-          .el-icon-caret-right {
-            box-sizing: border-box;
-            width: 0px;
-          }
           .el-tree-node {
             &.is-current {
               & > .el-tree-node__content {
@@ -47,9 +43,8 @@
               }
             }
             .el-tree-node__content {
-              &:hover {
-                /*color: #f5f7fa;*/
-                /*color: white;*/
+              span.is-leaf + span {
+                font-weight: normal;
               }
             }
           }
@@ -107,7 +102,8 @@
         this.menuList = content.menuList;
         this.helpContent = content.helpContent;
         this.$nextTick(() => {
-          this.updateScrollTopByHash()
+          this.updateScrollTopByHash();
+          this.listenScrollWrapper();
         });
       })
     },
@@ -157,6 +153,11 @@
         if (target) {
           this.scrollWrapper.scrollTop = target.offsetTop;
         }
+      },
+      listenScrollWrapper() {
+        this.scrollWrapper && this.scrollWrapper.addEventListener('scroll', (evt) => {
+          let scrollTop = evt.target.scrollTop;
+        })
       },
       handleNodeClick(data) {
         if (data.hasOwnProperty('target')) {
