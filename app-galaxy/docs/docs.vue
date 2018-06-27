@@ -106,12 +106,17 @@
       this.$net.getHelp().then(content => {
         this.menuList = content.menuList;
         this.helpContent = content.helpContent;
+        this.$nextTick(() => {
+          this.updateScrollTopByHash()
+        });
       })
     },
     mounted() {
+      this.scrollWrapper = this.$el.querySelector('.content .el-scrollbar .el-scrollbar__wrap');
     },
     data() {
       return {
+        scrollWrapper: null,
         menuList: [{
           label: ''
         }],
@@ -143,6 +148,16 @@
       };
     },
     methods: {
+      updateScrollTopByHash() {
+        let hash = location.hash;
+        if (!hash) {
+          return;
+        }
+        let target = this.$el.querySelector(decodeURI(hash));
+        if (target) {
+          this.scrollWrapper.scrollTop = target.offsetTop;
+        }
+      },
       handleNodeClick(data) {
         if (data.hasOwnProperty('target')) {
           let target = data['target'];

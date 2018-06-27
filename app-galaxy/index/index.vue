@@ -81,25 +81,26 @@
       <section class="footer">
         <div class="row">
           <div class="col">
-            <div class="title">{{footer[0].title}}</div>
+            <div class="title">{{footer.production.title}}</div>
             <ul>
-              <li class="linker" @click="handleClick('go-to-profile')">应用引擎</li>
-              <li>对象存储</li>
+              <li v-for="item in footer.production.items"
+                  :class="{'linker': item.target}"
+                  @click="handleFooterClick(item)">{{item.label}}</li>
             </ul>
           </div>
           <div class="col">
-            <div class="title">{{footer[1].title}}</div>
+            <div class="title">{{footer.helper.title}}</div>
             <ul>
-              <li v-for="(item, key) in footer[1].list">
-                {{item}}
-              </li>
+              <li v-for="(item, key) in footer.helper.items"
+                  :class="{'linker': item.target}"
+                  @click="handleFooterClick(item)">{{item.label}} </li>
             </ul>
           </div>
           <div class="col">
-            <div class="title">{{footer[2].title}}</div>
+            <div class="title">{{footer.about.title}}</div>
             <ul>
-              <li v-for="(item, key) in footer[2].list">
-                {{item}}
+              <li v-for="(item, key) in footer.about.items">
+                {{item.label}}
               </li>
             </ul>
           </div>
@@ -355,16 +356,39 @@ $menu-height: 45px;
           title: '按需所用',
           detail: '按应用所需效率灵活自动扩展资源，保障业务的高可靠性、可用性'
         }],
-        footer: [{
-          title: '产品',
-          list: ['应用引擎', '对象存储', '通信服务']
-        }, {
-          title: '帮助文档',
-          list: ['快速上手', '常见问题', '版本更新']
-        }, {
-          title: '关于凡普云',
-          list: ['平台架构', '用户协议']
-        }]
+        footer: {
+          production: {
+            title: '产品',
+            items: [{
+              label: '应用引擎',
+              target: '/profile'
+            }, {
+              label: '对象存储',
+            }, {
+              label: '通信服务'
+            }]
+          },
+          helper: {
+            title: '帮助文档',
+            items: [{
+              label: '快速入门',
+              target: '/docs#快速入门'
+            }, {
+              label: '常见问题',
+              target: '/docs#常见问题'
+            }, {
+              label: '版本更新'
+            }]
+          },
+          about: {
+            title: '关于凡普云',
+            items: [{
+              label: '平台架构'
+            }, {
+              label: '用户协议'
+            }]
+          }
+        }
       }
     },
     methods: {
@@ -388,11 +412,10 @@ $menu-height: 45px;
             break;
         }
       },
-      handleClick(action) {
-        switch (action) {
-          case 'go-to-profile':
-            this.$utils.goToPath('/profile');
-            break;
+      handleFooterClick(item) {
+        console.log(item);
+        if (item && item.hasOwnProperty('target')) {
+          this.$utils.goToPath(item.target);
         }
       }
     }
