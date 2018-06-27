@@ -1,126 +1,124 @@
 <template>
-    <el-container
-            style="background-color: white; height: 100%;"
+    <div
+            v-loading="loading"
+            element-loading-text="操作进行中"
+            element-loading-spinner="el-icon-loading"
     >
-        <el-header style="height: auto;" class="pa-0">
-            <div class="pa-3 pt-4" style="background-color: #fff;">
-                <el-row :gutter="20">
-                    <el-col :span="12">
-                        <el-button type="primary" icon="el-icon-circle-plus-outline"
-                                   @click="dialogCreateFolder = !dialogCreateFolder">
-                            创建目录
-                        </el-button>
-                        <el-button type="primary" icon="el-icon-refresh"
-                                   @click="$store.dispatch('etc/initData')">
-                            刷新目录
-                        </el-button>
+        <div class="pa-3 pt-4" style="background-color: #fff;">
+            <el-row :gutter="20">
+                <el-col :span="12">
+                    <el-button type="primary" icon="el-icon-circle-plus-outline"
+                               @click="dialogCreateFolder = !dialogCreateFolder">
+                        创建目录
+                    </el-button>
+                    <el-button type="primary" icon="el-icon-refresh"
+                               @click="$store.dispatch('etc/initData')">
+                        刷新目录
+                    </el-button>
+                </el-col>
+                <el-col :span="10">
+                    <el-input clearable prefix-icon="el-icon-search" placeholder="请输入关键字搜索目录"
+                              @change="syncSearchState"
+                              v-model="search">
+                        <template slot="append">
+                            <div class="px-3">
+                                <el-button @click="resetSearch" type="danger">
+                                    <i class="el-icon-close"></i>
+                                    重置搜索
+                                </el-button>
+                            </div>
+                        </template>
+                    </el-input>
+                </el-col>
+            </el-row>
+        </div>
+        <!--创建目录表单-->
+        <div v-if="dialogCreateFolder" class="px-3">
+            <el-form :model="form" :rules="rules" ref="configDirForm" class="mt-3">
+                <el-row>
+                    <el-col :span="6">
+                        <el-form-item prop="configDirName">
+                            <el-input v-model="form.configDirName" auto-complete="off" prefix-icon="el-icon-news"
+                                      placeholder="目录名称,例如: foo-bar-some">
+                                <!--<template slot="prepend">-->
+                                <!--<div>&emsp;目录名称：</div>-->
+                                <!--</template>-->
+                            </el-input>
+                        </el-form-item>
                     </el-col>
-                    <el-col :span="10">
-                        <el-input clearable prefix-icon="el-icon-search" placeholder="请输入关键字搜索目录"
-                                  @change="syncSearchState"
-                                  v-model="search">
-                            <template slot="append">
-                                <div class="px-3">
-                                    <el-button @click="resetSearch" type="danger">
-                                        <i class="el-icon-close"></i>
-                                        重置搜索
-                                    </el-button>
-                                </div>
-                            </template>
-                        </el-input>
+                    <el-col :span="4" class="pl-2">
+                        <el-form-item prop="groupId">
+                            <el-select v-model="form.groupId" filterable placeholder="请选择团队">
+                                <el-option v-for="(item, index) in groupList" :key="index" :label="item.asLabel"
+                                           :value="item.id">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="4">
+                        <el-form-item prop="branchName">
+                            <el-select v-model="form.branchName" filterable placeholder="请选择分支">
+                                <el-option v-for="(item, index) in branchList" :key="index" :label="item"
+                                           :value="item">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="4">
+                        <el-form-item>
+                            <el-button type="success" @click="createFolder('configDirForm')">
+                                确 定 创 建
+                            </el-button>
+                            <el-button type="danger" @click="dialogCreateFolder = false">取 消 创 建</el-button>
+                        </el-form-item>
                     </el-col>
                 </el-row>
-            </div>
-            <!--创建目录表单-->
-            <div v-if="dialogCreateFolder" class="px-3">
-                <el-form :model="form" :rules="rules" ref="configDirForm" class="mt-3">
-                    <el-row>
-                        <el-col :span="6">
-                            <el-form-item prop="configDirName">
-                                <el-input v-model="form.configDirName" auto-complete="off" prefix-icon="el-icon-news"
-                                          placeholder="目录名称,例如: foo-bar-some">
-                                    <!--<template slot="prepend">-->
-                                    <!--<div>&emsp;目录名称：</div>-->
-                                    <!--</template>-->
-                                </el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="4" class="pl-2">
-                            <el-form-item prop="groupId">
-                                <el-select v-model="form.groupId" filterable placeholder="请选择团队">
-                                    <el-option v-for="(item, index) in groupList" :key="index" :label="item.asLabel"
-                                               :value="item.id">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="4">
-                            <el-form-item prop="branchName">
-                                <el-select v-model="form.branchName" filterable placeholder="请选择分支">
-                                    <el-option v-for="(item, index) in branchList" :key="index" :label="item"
-                                               :value="item">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="4">
-                            <el-form-item>
-                                <el-button type="success" @click="createFolder('configDirForm')">
-                                    确 定 创 建
-                                </el-button>
-                                <el-button type="danger" @click="dialogCreateFolder = false">取 消 创 建</el-button>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                </el-form>
-            </div>
-        </el-header>
-        <el-main class="pa-0">
-            <!--目录列表-->
-            <el-table :data="configList" max-height="580">
-                <el-table-column prop="configDirName" label="目录名称" :width="320"
-                                 :show-overflow-tooltip="true">
-                    <template slot-scope="scope">
-                        <el-button type="text" @click="gotoFileList(scope.row)">
-                            <i class="el-icon-news"></i>
-                            <span style="margin-left: 6px; font-weight: 800; ">
+            </el-form>
+        </div>
+        <!--目录列表-->
+        <el-table :data="configList" max-height="580">
+            <el-table-column prop="configDirName" label="目录名称" :width="320"
+                             :show-overflow-tooltip="true">
+                <template slot-scope="scope">
+                    <el-button type="text" @click="gotoFileList(scope.row)">
+                        <i class="el-icon-news"></i>
+                        <span style="margin-left: 6px; font-weight: 800; ">
                             {{ scope.row.configDirName }}
                             </span>
-                        </el-button>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="groupId" label="团队名称" :width="180">
-                    <template slot-scope="scope">
-                        {{scope.row.groupName}}
-                    </template>
-                </el-table-column>
-                <el-table-column prop="branchName" label="分支" :width="120">
-                    <template slot-scope="scope">
-                        <el-tag size="small" type="danger">{{scope.row.branchName}}</el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="lastCommitMessage" label="最后修改">
-                    <template slot-scope="scope">
-                        <i class="el-icon-time"></i>
-                        <span>
+                    </el-button>
+                </template>
+            </el-table-column>
+            <el-table-column prop="groupId" label="团队名称" :width="180">
+                <template slot-scope="scope">
+                    {{scope.row.groupName}}
+                </template>
+            </el-table-column>
+            <el-table-column prop="branchName" label="分支" :width="120">
+                <template slot-scope="scope">
+                    <el-tag size="small" type="danger">{{scope.row.branchName}}</el-tag>
+                </template>
+            </el-table-column>
+            <el-table-column prop="lastCommitMessage" label="最后修改">
+                <template slot-scope="scope">
+                    <i class="el-icon-time"></i>
+                    <span>
                         {{ scope.row.updateTime | localDate }} &emsp;&emsp;
                     </span>
-                        <span style="margin-left: 6px; font-weight: 800;">
+                    <span style="margin-left: 6px; font-weight: 800;">
                         {{ scope.row.lastOperateUserName || scope.row.creatorName }} |
                         {{ scope.row.lastCommitMessage }}
                     </span>
-                    </template>
-                </el-table-column>
-                <!--<el-table-column prop="updateTime" label="" :width="200">-->
-                <!--<template slot-scope="scope">-->
-                <!--<span>-->
-                <!--{{ scope.row.updateTime | localDate }}-->
-                <!--</span>-->
-                <!--</template>-->
-                <!--</el-table-column>-->
-            </el-table>
-        </el-main>
-    </el-container>
+                </template>
+            </el-table-column>
+            <!--<el-table-column prop="updateTime" label="" :width="200">-->
+            <!--<template slot-scope="scope">-->
+            <!--<span>-->
+            <!--{{ scope.row.updateTime | localDate }}-->
+            <!--</span>-->
+            <!--</template>-->
+            <!--</el-table-column>-->
+        </el-table>
+    </div>
 </template>
 
 <script>
