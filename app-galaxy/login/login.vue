@@ -303,6 +303,9 @@
       this.updateVerifyCode();
     },
     mounted: function () {
+      // 清理localstore
+      window && window.localStorage.removeItem('galaxy');
+
       let loginForm = document.querySelector('.el-form.login-form');
       let results = [];
       results = results.concat(Array.prototype.slice.call(loginForm.querySelectorAll('input')));
