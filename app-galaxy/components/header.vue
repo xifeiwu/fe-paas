@@ -4,6 +4,9 @@
       <div class="img" @click="handleHeaderMenuClick(null, ['index'])">
         <img src="/assets/imgs/finup-cloud.png" height="45px">
       </div>
+      <div class="text">
+        <div>云端分享价值，平台成就用户</div>
+      </div>
     </el-col>
     <el-col :span="12" class="second-col">
       <el-menu class="header-menu"
@@ -18,6 +21,7 @@
           <el-menu-item index="app">应用引擎</el-menu-item>
           <el-menu-item index="object-storage" :disabled="true">对象存储</el-menu-item>
         </el-submenu>
+        <el-menu-item index="finup-community" v-show="true">凡普云社区</el-menu-item>
         <el-menu-item index="docs" v-show="true">帮助文档</el-menu-item>
         <el-menu-item index="profile">控制台</el-menu-item>
       </el-menu>
@@ -61,7 +65,17 @@ $menu-height: 45px;
     &.first-col {
       line-height: $header-height;
       .img {
+        display: inline-block;
         cursor: pointer;
+      }
+      .text {
+        display: inline-block;
+        vertical-align: bottom;
+        color: gray;
+        margin-left: 12px;
+        margin-bottom: 15px;
+        line-height: 120%;
+        font-size: 12px;
       }
     }
     &.second-col {
@@ -109,7 +123,11 @@ $menu-height: 45px;
     methods: {
       handleHeaderMenuClick(key, keyPath) {
         keyPath = keyPath.join('/');
-        this.$emit('menu-click', keyPath);
+        if (key === 'finup-community') {
+          window.open('http://club.finupclould.com/', '_blank');
+        } else {
+          this.$emit('menu-click', keyPath);
+        }
       },
     }
   }
