@@ -276,7 +276,7 @@
         if (relativePath && relativePath.length > 0) {
           // whether show groupList
           let pageNotShowGroupList = ['/app/add', '/service/add'];
-          let pageNotShowGroupListReg = /^\/work-order\/(todo|list).*$/;
+          let pageNotShowGroupListReg = /^\/(work-order\/(todo|list).*|config-server\/*)$/;
           if (pageNotShowGroupList.indexOf(relativePath) > -1 || pageNotShowGroupListReg.exec(relativePath)) {
             this.showGroupList = false;
           } else {
