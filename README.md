@@ -198,6 +198,19 @@
 └── yarn.lock
 ```
 
+
+# Vue原型扩展
+
+     Vue.prototype.$msgbox = MessageBox;
+     Vue.prototype.$alert = MessageBox.alert;
+     Vue.prototype.$confirm = MessageBox.confirm;
+     Vue.prototype.$prompt = MessageBox.prompt;
+     Vue.prototype.$notify = Notification;
+     Vue.prototype.$message = Message;
+     
+     Vue.prototype.$url
+     
+
 # 通用样式类
 
 `/fe-paas/app-galaxy/assets/css/common.scss`
