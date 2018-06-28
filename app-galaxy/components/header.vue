@@ -124,7 +124,7 @@ $menu-height: 45px;
       handleHeaderMenuClick(key, keyPath) {
         keyPath = keyPath.join('/');
         if (key === 'finup-community') {
-          window.open('http://club.finupclould.com/', '_blank');
+          window.open('http://club.finupcloud.com/', '_blank');
         } else {
           this.$emit('menu-click', keyPath);
         }
