@@ -412,6 +412,13 @@ $menu-height: 45px;
             break;
         }
       },
+      handleClick(action) {
+        switch (action) {
+          case 'go-to-profile':
+            this.$utils.goToPath('/profile');
+            break;
+        }
+      },
       handleFooterClick(item) {
         console.log(item);
         if (item && item.hasOwnProperty('target')) {
