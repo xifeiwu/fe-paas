@@ -136,7 +136,8 @@
   import "codemirror/lib/codemirror.css";
 
   // language
-  import "codemirror/mode/css/css.js";
+  import "codemirror/mode/properties/properties.js";
+  import "codemirror/mode/yaml/yaml.js";
   // theme
   import "codemirror/theme/monokai.css";
   // require active-line.js
@@ -167,7 +168,7 @@
           styleActiveLine: true,
           lineNumbers: true,
           line: true,
-          mode: "text/css",
+          mode: "text/x-properties",
           theme: "monokai",
           readOnly: false,
           viewportMargin: 10
@@ -204,7 +205,8 @@
             "applicationRemoteConfigId": this.dirSelected.id,
             "configFileName": this.form.configFileName.trim() + this.form.extName,
           };
-          this.$ajax.post(this.$url.config_server_file_add.url, payload)
+          this.$ajax
+            .post(this.$url.config_server_file_add.url, payload)
             .then(res => {
               if (!res.data.hasOwnProperty('success')) return alert(res.data.msg);
               this.$store.dispatch('etc/getFiles', this.dirSelected.id);
@@ -218,7 +220,10 @@
         this.$store.commit('etc/SET_LOADING', true);
         this.currentEditFile = val;
         // 清空commitMessage
-        this.form.commitMessage = ''
+        this.form.commitMessage = '';
+        // editor mode
+        this.editorOptions.mode = /yml/.test(val.configFileName) ? 'text/yaml' : 'text/x-properties';
+
         this.$ajax
           .get(this.$url.config_server_file_content.url + '?applicationRemoteConfigFileId=' + val.id)
           .then(res => {
