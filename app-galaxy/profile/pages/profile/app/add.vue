@@ -129,6 +129,10 @@
           <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item label="用户须知" prop="agree">
+        <el-checkbox v-model="createAppForm.agree">已知晓</el-checkbox>
+        <div style="font-size: 12px; color: #b4bccc">生产环境初次上线前需提交到paas.list@finupgroup.com；非生产环境可自助上线。</div>
+      </el-form-item>
     </el-form>
     <div class="section-footer">
       <el-row>
@@ -336,6 +340,7 @@ export default {
         script4RollingUpdate: '',
         maxAge4Script: '30',
         loadBalance: appPropUtil.getAllLoadBalance()[0],
+        agree: false,
       },
       productionProfileTip: '',
       editScript: true,

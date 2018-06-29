@@ -249,6 +249,17 @@ class AppInfoHelper {
       maxAge4Script: [{
         required: true,
         message: '请输入超时时间',
+      }],
+      agree: [{
+        required: false,
+      }, {
+        validator(rule, values, callback) {
+          if (values === false) {
+            callback('请同意用户须知');
+          } else {
+            callback();
+          }
+        }
       }]
     }
   }
