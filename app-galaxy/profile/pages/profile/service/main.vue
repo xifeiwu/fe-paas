@@ -254,7 +254,9 @@
                     {{valueToShow(selected.service.instanceNum)}}
                   </el-form-item>
                   <el-form-item label="当前服务的内网域名" class="big">
-                      {{valueToShow(selected.service.intranetDomain)}}
+                    <a :href="'http://' + selected.service.intranetDomain" target="_blank"
+                       v-if="selected.service.intranetDomain">{{selected.service.intranetDomain}}</a>
+                    <span v-else>{{valueToShow(selected.service.intranetDomain)}}</span>
                   </el-form-item>
                   <el-form-item label="文件存储" class="big file-location" v-if="false">
                     <div v-if="selected.service.fileLocation && selected.service.fileLocation.length > 0">
