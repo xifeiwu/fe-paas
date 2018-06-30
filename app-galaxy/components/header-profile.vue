@@ -17,7 +17,7 @@
       <el-menu-item index="message" v-show="false">消息中心</el-menu-item>
       <el-submenu index="user" :withDrawOnMouseLeave="false">
         <template slot="title">{{userName}}</template>
-        <el-menu-item index="info"><i class="paas-icon-user"></i><span>用户信息</span></el-menu-item>
+        <el-menu-item index="info"><i class="paas-icon-user"></i><span>用户中心</span></el-menu-item>
         <el-menu-item index="logout"><i class="paas-icon-logout"></i><span>退出</span></el-menu-item>
       </el-submenu>
     </el-menu>
@@ -137,7 +137,11 @@
     methods: {
       handleMenuClick(key, keyPath) {
         keyPath = keyPath.join('/');
-        this.$emit('menu-click', keyPath);
+        switch (keyPath) {
+          default:
+            this.$emit('menu-click', keyPath);
+            break;
+        }
       },
       handleClickOutsideMenu() {
         this.$refs['menu'].openedMenus = [];

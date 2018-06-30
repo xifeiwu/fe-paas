@@ -318,8 +318,9 @@
       handleHeaderMenuClick(keyPath) {
         switch (keyPath) {
           case 'user/info':
-//            this.$router.push('/user/info');
-            this.$utils.goToPath('/user');
+            this.$utils.goToPath('/user', {
+              target: '_blank'
+            });
             break;
           case 'user/logout':
             this.$net.logout().then(msg => {
@@ -349,10 +350,14 @@
           case 'message':
             break;
           case 'docs':
-            this.$utils.goToPath('/docs');
+            this.$utils.goToPath('/docs', {
+              target: '_blank'
+            });
             break;
           case 'group-manager':
-            this.$utils.goToPath('/user#/group');
+            this.$utils.goToPath('/user#/group', {
+              target: '_blank'
+            });
             break;
           case 'profile':
 //            this.$utils.goToPath('/profile');
