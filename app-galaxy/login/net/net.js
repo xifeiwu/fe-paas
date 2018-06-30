@@ -157,8 +157,11 @@ class Net extends NetBase {
           reject(responseMsg);
         }
       }).catch(err => {
-        reject(err);
         console.log(err);
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.login}；${err.toString()}`
+        });
       })
     });
   }

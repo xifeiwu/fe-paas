@@ -409,13 +409,8 @@
             }
             this.$utils.goToPath(toPath);
           }).catch(err => {
-            console.log(err);
-//            this.$notify.error({
-//              title: '运行失败！',
-//              message: JSON.stringify(err)
-//            });
             if (err.hasOwnProperty('msg')) {
-              this.showError(err.msg);
+              this.showError(err.msg, true);
             }
             this.showLoading = false;
           });
