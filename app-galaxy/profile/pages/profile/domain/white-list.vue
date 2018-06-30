@@ -293,6 +293,37 @@
 
       handleRowButtonClick(action, index, row) {
         switch (action) {
+          case 'add':
+            if (!this.checkIPFormat(this.itemToAdd.ip)) {
+              this.$message.error('ip格式不正确');
+              return;
+            }
+            if (this.itemToAdd.description.length === 0) {
+              this.$message.error('请填写说明');
+              return;
+            }
+            this.addToWaitingResponseQueue('add');
+            if (this.statusOfWaitingResponse('add')) {
+              return;
+            }
+            this.$net.addWhiteIP(this.itemToAdd).then(msg => {
+              this.hideWaitingResponse('add');
+              this.$message.success(msg);
+              // request and refresh is a better way than un-shift operation on IPList
+              this.requestWhiteIPList();
+              this.itemToAdd.ip = '';
+              this.itemToAdd.description = '';
+            }).catch(msg => {
+              this.hideWaitingResponse('add');
+              this.$notify.error({
+                title: '添加白名单失败！',
+                message: msg,
+                duration: 0,
+                onClose: function () {
+                }
+              });
+            });
+            break;
           case 'modify':
             this.selected.operation = action;
             this.selected.index = index;
@@ -354,34 +385,6 @@
               this.hideWaitingResponse('delete');
               this.$message.error(msg);
               this.selected.operation = null;
-            });
-            break;
-          case 'add':
-            if (!this.checkIPFormat(this.itemToAdd.ip)) {
-              this.$message.error('ip格式不正确');
-              return;
-            }
-            if (this.itemToAdd.description.length === 0) {
-              this.$message.error('请填写说明');
-              return;
-            }
-            this.addToWaitingResponseQueue('add');
-            this.$net.addWhiteIP(this.itemToAdd).then(msg => {
-              this.hideWaitingResponse('add');
-              this.$message.success(msg);
-              // request and refresh is a better way than un-shift operation on IPList
-              this.requestWhiteIPList();
-              this.itemToAdd.ip = '';
-              this.itemToAdd.description = '';
-            }).catch(msg => {
-              this.hideWaitingResponse('add');
-              this.$notify.error({
-                title: '添加白名单失败！',
-                message: msg,
-                duration: 0,
-                onClose: function () {
-                }
-              });
             });
             break;
         }
