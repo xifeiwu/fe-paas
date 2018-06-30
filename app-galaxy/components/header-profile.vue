@@ -145,7 +145,12 @@
       },
       handleClickOutsideMenu() {
         this.$refs['menu'].openedMenus = [];
-      }
+      },
+      setActiveMenu(index) {
+        if (this.$refs.hasOwnProperty('menu')) {
+          this.$refs['menu'].activeIndex = index;
+        }
+      },
     }
   }
 </script>
