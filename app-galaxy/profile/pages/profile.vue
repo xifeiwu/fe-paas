@@ -21,7 +21,7 @@
       </el-menu>
     </aside>
     <main>
-      <paas-header-profile :userName="userName" defaultActive="profile" :showImg="false"
+      <paas-header-profile :userName="userName" :showImg="false" ref="paasHeaderProfile"
                            @menu-click="handleHeaderMenuClick"></paas-header-profile>
       <div class="content">
         <el-row class="header" type="flex" align="middle">
@@ -246,7 +246,13 @@
       this.onRoutePath(this.$route);
     },
     mounted() {
+      this.$utils.onWindowVisibilityChange((evt) => {
+        if (!document.hidden) {
+          this.setDefaultActiveForHeader();
+        }
+      });
       this.$nextTick(() => {
+        this.setDefaultActiveForHeader();
       });
     },
     computed: {
@@ -271,6 +277,12 @@
       '$route': 'onRoutePath',
     },
     methods: {
+      // set el-menu profile as active menu of paasHeaderProfile
+      setDefaultActiveForHeader() {
+        if (this.$refs.hasOwnProperty('paasHeaderProfile')) {
+          this.$refs['paasHeaderProfile'].setActiveMenu('profile');
+        }
+      },
       onRoutePath (value, oldValue) {
         let relativePath = value.path;
         if (relativePath && relativePath.length > 0) {
