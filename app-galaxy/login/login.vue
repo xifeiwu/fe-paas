@@ -48,6 +48,12 @@
           <el-button type="primary" class="login-btn" @click="onSubmit">登&nbsp&nbsp&nbsp&nbsp录</el-button>
         </el-form-item>
       </el-form>
+      <div style="margin-top: 6px; font-size: 14px; line-height: 24px; color: #909399; background-color: #f4f4f5; border-radius: 4px;">
+        <i class="el-icon-warning"></i>
+        <span>请使用</span>
+        <a href="http://ops.finupgroup.com/login.htm" target="_blank">运管平台(ops)</a>
+        <span>账号登录</span>
+      </div>
     </div>
     <div class="footer">
       <div>Copyright © 2017 凡普金科</div>
