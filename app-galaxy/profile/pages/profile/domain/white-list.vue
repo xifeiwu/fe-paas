@@ -294,6 +294,17 @@
       handleRowButtonClick(action, index, row) {
         switch (action) {
           case 'add':
+            const ifHasExist = (toAdd) => {
+              let target = null;
+              this.IPList.some(it => {
+                if (it.ip == toAdd.ip) {
+                  target = it;
+                }
+                return target;
+              });
+              return target;
+            };
+
             if (!this.checkIPFormat(this.itemToAdd.ip)) {
               this.$message.error('ip格式不正确');
               return;
@@ -302,10 +313,15 @@
               this.$message.error('请填写说明');
               return;
             }
-            this.addToWaitingResponseQueue('add');
+            if (ifHasExist(this.itemToAdd)) {
+              this.$message.error(`IP "${this.itemToAdd.ip}" 已经存在，不能重复添加！`);
+              return;
+            }
+
             if (this.statusOfWaitingResponse('add')) {
               return;
             }
+            this.addToWaitingResponseQueue('add');
             this.$net.addWhiteIP(this.itemToAdd).then(msg => {
               this.hideWaitingResponse('add');
               this.$message.success(msg);
