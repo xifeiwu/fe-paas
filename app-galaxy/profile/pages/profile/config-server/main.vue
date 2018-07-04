@@ -76,7 +76,7 @@
             </el-form>
         </div>
         <!--目录列表-->
-        <el-table :data="configList" max-height="580">
+        <el-table :data="configListSplit">
             <el-table-column prop="configDirName" label="目录名称" :width="320"
                              :show-overflow-tooltip="true">
                 <template slot-scope="scope">
@@ -118,6 +118,17 @@
             <!--</template>-->
             <!--</el-table-column>-->
         </el-table>
+        <div class="pa-4" style="text-align: center; background-color: white;">
+            <el-pagination
+                    @size-change="handleSizeChange"
+                    background
+                    :current-page.sync="currentPage"
+                    :page-size="pageSize"
+                    :page-sizes="[10, 15, 20, 30]"
+                    layout="total, sizes, prev, pager, next"
+                    :total="this.configList.length">
+            </el-pagination>
+        </div>
     </div>
 </template>
 
@@ -144,7 +155,9 @@
         form: {
           configDirName: "",
           branchName: ""
-        }
+        },
+        currentPage: 1,
+        pageSize: 10
       };
     },
     computed: {
@@ -157,6 +170,11 @@
         return search
           ? data.filter(item => Object.values(item).join(",").toLowerCase().match(search))
           : data;
+      },
+      configListSplit() {
+        const start = (this.currentPage - 1) * this.pageSize;
+        const end = start + this.pageSize;
+        return this.configList.slice(start, end);
       },
       // groupNameMap() {
       //   const _groupNameMap = new Map();
@@ -172,6 +190,9 @@
       }
     },
     methods: {
+      handleSizeChange(val) {
+        this.pageSize = val;
+      },
       resetSearch() {
         this.search = '';
         this.syncSearchState();

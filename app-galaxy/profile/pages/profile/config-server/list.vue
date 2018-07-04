@@ -131,7 +131,6 @@
 
 <script>
   import {mapState} from "vuex";
-  import axios from 'axios';
   import {codemirror} from "vue-codemirror";
   import "codemirror/lib/codemirror.css";
 
@@ -245,7 +244,7 @@
             })
             .then(res => {
               console.log('lock', res);
-              return axios.request({
+              return this.$ajax.request({
                 method: 'post',
                 url: this.$url.config_server_file_save.url,
                 data: {
