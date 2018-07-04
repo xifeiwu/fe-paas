@@ -100,8 +100,7 @@
           <template slot-scope="scope">
             <div>
               <span>{{scope.row.myApp ? scope.row.myApp: '未配置'}}</span>
-              <span v-if="scope.row.outerApp"
-                    style="color: #409EFF; font-size: 12px; line-height: 100%; padding: 2px; border: 1px solid #409EFF; border-radius: 4px;">外</span>
+              <span v-if="scope.row.outerApp" class="outer-app-tag">外</span>
             </div>
           </template>
         </el-table-column>
@@ -347,7 +346,8 @@
           {{groupInfo.name}}
         </el-form-item>
         <el-form-item label="我的应用">
-          {{selected.row.myApp}}
+          <span>{{selected.row.myApp}}</span>
+          <span v-if="selected.row.outerApp" class="outer-app-tag">外</span>
         </el-form-item>
         <el-form-item label="访问环境">
           {{selected.row.profileName}}
@@ -441,7 +441,8 @@
     >
       <el-form labelWidth="130px" size="mini" inline>
         <el-form-item label="我的应用">
-          {{selected.row.myApp}}
+          <span>{{selected.row.myApp}}</span>
+          <span v-if="selected.row.outerApp" class="outer-app-tag">外</span>
         </el-form-item>
         <el-form-item label="访问环境">
           {{selected.row.profileName}}
@@ -685,6 +686,14 @@
 <style lang="scss" scoped>
 #oauth-key {
   height: calc(100% - 30px);
+  .outer-app-tag {
+    color: #409EFF;
+    font-size: 12px;
+    line-height: 100%;
+    padding: 1px 2px;
+    border: 1px solid #409EFF;
+    border-radius: 4px;
+  }
   .el-row.header {
     padding: 5px;
     font-size: 14px;

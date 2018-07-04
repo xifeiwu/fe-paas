@@ -279,7 +279,7 @@
     methods: {
       // set el-menu profile as active menu of paasHeaderProfile
       setDefaultActiveForHeader() {
-        if (this.$refs.hasOwnProperty('paasHeaderProfile')) {
+        if (this.$refs.hasOwnProperty('paasHeaderProfile') && this.$refs['paasHeaderProfile']) {
           this.$refs['paasHeaderProfile'].setActiveMenu('profile');
         }
       },
