@@ -130,12 +130,9 @@
 
     <el-dialog :title="domainProps.showResponse?'创建外网域名结果':'创建外网二级域名'" :visible="currentOpenedDialog == 'add-domain'"
                :class="{'add-domain': true, 'size-700': true, 'show-response': domainProps.showResponse}"
+               :close-on-click-modal="false"
                @close="handleButtonClickInDialog('close-domain-in-dialog')"
     >
-      <!--<el-tag type="success" disable-transitions>-->
-      <!--<i class="el-icon-warning"></i>-->
-      <!--<span>更改健康检查后需要重新【部署】才能生效！</span>-->
-      <!--</el-tag>-->
       <div v-if="domainProps.showResponse">
         <div class="key title">外网域名</div>
         <div class="value title">添加状态</div>
@@ -176,7 +173,7 @@
             <el-option v-for="(item, index) in domainProps.level1InfoList" :value="item.domainName" :label="item.domainName"
                        :key="index"></el-option>
           </el-select>
-          <el-button class="add-domain-btn" size="mini" @click="handleDomainInDialog('add')">添加</el-button>
+          <el-button class="add-domain-btn" size="mini-extral" type="primary" @click="handleDomainInDialog('add')">添加</el-button>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer" v-if="!domainProps.showResponse">

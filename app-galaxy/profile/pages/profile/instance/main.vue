@@ -313,9 +313,7 @@
           case 'manualScale':
             if (this.manualScale.newCount === this.instanceStatus.instanceCount) {
               this.$message.warning('您没有做修改');
-              setTimeout(() => {
-                this.operation = null;
-              }, 800);
+              this.operation = null;
               return;
             }
             this.addToWaitingResponseQueue('ok-button-in-dialog-manual-scale');
