@@ -303,7 +303,9 @@
 </style>
 <script>
   import appPropUtil from '../utils/app-props';
+  import commonUtils from '$components/mixins/common-utils';
 export default {
+  mixins: [commonUtils],
   created() {
     this.onLanguageInfo(this.languageInfo, null);
     this.onProfileListOfGroup(this.$storeHelper.profileListOfGroup, null);
@@ -361,7 +363,6 @@ export default {
 
       showLoading: false,
       loadingText: '',
-      queueForWaitingResponse: [],
     };
   },
   computed: {
@@ -384,21 +385,6 @@ export default {
     }
   },
   methods: {
-    // helper for loading action of el-button
-    addToWaitingResponseQueue(action) {
-      if (this.queueForWaitingResponse.indexOf(action) === -1) {
-        this.queueForWaitingResponse.push(action);
-      }
-    },
-    hideWaitingResponse(action) {
-      let index = this.queueForWaitingResponse.indexOf(action);
-      if (index > -1) {
-        this.queueForWaitingResponse.splice(index, 1);
-      }
-    },
-    statusOfWaitingResponse(action) {
-      return this.queueForWaitingResponse.indexOf(action) > -1;
-    },
 
     onLanguageInfo: function(value, oldValue) {
       // set java language as default

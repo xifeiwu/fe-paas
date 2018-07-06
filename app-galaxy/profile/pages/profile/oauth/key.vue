@@ -727,8 +727,6 @@
           }
         }
       }
-      .button-list {
-      }
       .more {
         &:hover {
         }

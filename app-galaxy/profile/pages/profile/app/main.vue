@@ -77,19 +77,20 @@
               >{{ item.description }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" prop="operation" minWidth="170" width="180" headerAlign="center" align="center">
+        <el-table-column label="操作" prop="operation" minWidth="170" width="200" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
-                    v-if="!$storeHelper.notPermitted['app_delete']"
+              v-if="!$storeHelper.notPermitted['app_delete']"
               size="mini-extral"
               type="danger"
-                    round
+              round
+              :loading="statusOfWaitingResponse('deleteRow') && selected.row.appId == scope.row.appId"
               @click="handleTRButton('deleteRow', scope.$index, scope.row)">删除</el-button>
             <el-button
-                    v-if="!$storeHelper.notPermitted['app_change_profile']"
+              v-if="!$storeHelper.notPermitted['app_change_profile']"
               size="mini-extral"
               type="warning"
-                    round
+              round
               @click="handleTRButton('change-profileNames', scope.$index, scope.row)">更改运行环境</el-button>
           </template>
         </el-table-column>
@@ -121,6 +122,7 @@
     <el-dialog title="更改应用名称" :visible="selected.prop == 'appName'"
                @close="selected.prop = null; waitingResponse=false"
                v-if="selected.app && selected.model"
+               :close-on-click-modal="false"
     >
       <el-form :model="newProps" :rules="rules" labelWidth="120px" size="mini" ref="changeAppNameForm">
         <el-form-item label="当前应用名称：">
@@ -147,6 +149,7 @@
     <el-dialog title="更改运行环境" :visible="selected.prop == 'profileNames'"
                @close="selected.prop = null; waitingResponse=false"
                class="change-profile"
+               :close-on-click-modal="false"
                v-if="selected.app && selected.model"
     >
       <el-tag type="danger" disable-transitions>
@@ -277,6 +280,11 @@
         margin-bottom: 0px;
         color: black;
         .el-table__row {
+          .el-button {
+            float: left;
+            margin: 2px 4px;
+            margin-left: 0px;
+          }
           .paas-icon-svg {
             width: 26px;
             height: 26px;
@@ -351,7 +359,9 @@
 <script>
   import AppPropUtils from '../utils/app-props';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+  import commonUtils from '$components/mixins/common-utils';
   export default {
+    mixins: [commonUtils],
     created() {
 //      let appInfoListOfGroup = this.appInfoListOfGroup;
 //      if (appInfoListOfGroup.hasOwnProperty('appList')) {
@@ -413,6 +423,7 @@
         getFromStore: true,
         selected: {
           prop: null,
+          row: null,
           app: null,
           model: null,
         },
@@ -528,11 +539,13 @@
         if (!appInfo) {
           return;
         } else {
+          this.selected.row = row;
           this.selected.app = appInfo.app;
           this.selected.model = appInfo.model;
         }
         switch (action) {
           case 'deleteRow':
+            this.addToWaitingResponseQueue(action);
             this.warningConfirm(`删除应用"${row.appName}"将会销毁所有环境的代码和配置信息，
             解绑所有公网域名、IP白名单，删除后应用数据不可恢复！`).then(() => {
               this.warningConfirm(`您确认要删除应用"${row.appName}"，并清除该应用的一切数据？`).then(() => {
@@ -540,7 +553,7 @@
                   groupId: this.$storeHelper.currentGroupID,
                   id: row.appId
                 }).then(res => {
-//                this.appListByPage.splice(index, 1);
+                  this.hideWaitingResponse(action);
                   this.$storeHelper.deleteAppInfoByID(row.appId);
                   this.$message({
                     type: 'success',
@@ -548,6 +561,7 @@
                   });
                   this.requestAPPList({});
                 }).catch((err) => {
+                  this.hideWaitingResponse(action);
                   this.$notify.error({
                     title: '删除应用失败！',
                     message: err,
@@ -557,12 +571,10 @@
                   });
                 });
               }).catch(() => {
-//              this.$message({
-//                type: 'info',
-//                message: '您已取消删除'
-//              });
+                this.hideWaitingResponse(action);
               });
             }).catch(()=> {
+              this.hideWaitingResponse(action);
             });
             break;
           case 'change-profileNames':
