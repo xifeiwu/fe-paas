@@ -130,14 +130,20 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="用户须知" prop="agree">
-        <el-checkbox v-model="createAppForm.agree">已知晓</el-checkbox>
-        <div style="font-size: 12px; color: #b4bccc">生产环境初次上线前需提交到paas.list@finupgroup.com；非生产环境可自助上线。</div>
+        <el-checkbox v-model="createAppForm.agree">
+          <span style="display: inline-block;">已知晓：</span>
+        </el-checkbox>
+        <div style="display: inline-block; font-size: 12px; line-height: 18px; vertical-align: top;">
+          <div>生产环境初次上线前需提交<a href="http://wiki.puhuitech.cn/pages/viewpage.action?pageId=28733856" target="_blank">生产准备就绪评审（PRR）</a>到paas.list@finupgroup.com；</div>
+          <div>非生产环境可自助上线。</div>
+        </div>
       </el-form-item>
     </el-form>
     <div class="section-footer">
       <el-row>
         <el-col :span="12" style="text-align: center">
           <el-button type="primary" size="mini"
+                     :loading="statusOfWaitingResponse('submit')"
                      @click="handleFinish">完成</el-button>
         </el-col>
         <el-col :span="12" style="text-align: center">
@@ -355,6 +361,7 @@ export default {
 
       showLoading: false,
       loadingText: '',
+      queueForWaitingResponse: [],
     };
   },
   computed: {
@@ -377,6 +384,22 @@ export default {
     }
   },
   methods: {
+    // helper for loading action of el-button
+    addToWaitingResponseQueue(action) {
+      if (this.queueForWaitingResponse.indexOf(action) === -1) {
+        this.queueForWaitingResponse.push(action);
+      }
+    },
+    hideWaitingResponse(action) {
+      let index = this.queueForWaitingResponse.indexOf(action);
+      if (index > -1) {
+        this.queueForWaitingResponse.splice(index, 1);
+      }
+    },
+    statusOfWaitingResponse(action) {
+      return this.queueForWaitingResponse.indexOf(action) > -1;
+    },
+
     onLanguageInfo: function(value, oldValue) {
       // set java language as default
       this.setDefaultLanguage(value);
@@ -548,9 +571,11 @@ export default {
           let toPost = appPropUtil.changePropNameForServer(this.createAppForm);
 //          console.log('toPost');
 //          console.log(toPost);
+          this.addToWaitingResponseQueue('submit');
           this.showLoading = true;
           this.loadingText = '正在为您创建应用' + toPost.appName;
           this.$net.createAPP(toPost).then((content) => {
+            this.hideWaitingResponse('submit');
             this.showLoading = false;
             // update appInfoList after create app success
             this.$store.dispatch('user/appInfoListOfGroup', {
@@ -563,6 +588,7 @@ export default {
             });
             this.$router.push('/app');
           }).catch((err) => {
+            this.hideWaitingResponse('submit');
             self.showLoading = false;
             this.$notify.error({
               title: err.title,
