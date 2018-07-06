@@ -5,12 +5,13 @@
         <el-col :span="24" class="selector">
           <div class="item">
             <label style="float: left; width: 72px; line-height: 26px">应用名称：</label>
-            <el-select filterable v-model="selectedAppID" placeholder="请选择" style="display:block; max-width: 280px; margin-left: 72px;">
+            <el-select filterable v-model="selectedAppID" placeholder="请选择"
+                       style="display:block; min-width: 360px; margin-left: 72px;">
               <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">
               </el-option>
             </el-select>
           </div>
-          <div class="item">
+          <div class="item" style="margin-left: 8px;">
             <label style="float: left; width: 72px; line-height: 26px">运行环境：</label>
             <el-select v-model="selectedProfileID" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 72px;">
               <el-option v-for="item in currentProfileList" :key="item.id" :label="item.description" :value="item.id">
@@ -841,7 +842,7 @@
 
     <my-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="log-list">
-        <div v-for="(item,index) in deployLogs" :key="index" class="log-item">{{item}}</div>
+        <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
       </div>
     </my-dialog-for-log>
   </div>
@@ -936,7 +937,6 @@
                 }
               }
             }
-
           }
         }
       }
@@ -1013,6 +1013,25 @@
             padding: 0px 3px;
           }
         }
+      }
+    }
+
+    .dialog4log {
+      .info {
+        color: #409EFF;
+        font-weight: bold;
+      }
+      .warning {
+        color: #E6A23C;
+        font-weight: bold;
+      }
+      .error {
+        color: #F56C6C;
+        font-weight: bold;
+      }
+      .success {
+        color: #67C23A;
+        font-weight: bold;
       }
     }
   }
@@ -1578,6 +1597,7 @@ export default {
           function showDeployLog(options) {
             this.deployLogs = [];
             this.dialogForLogStatus.visible = true;
+            const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
             // recursive function to fetch log from server with options {logName, logPath, offset}
             function getDeployLog(options) {
               // stop request deploy log when the window is closed
@@ -1587,13 +1607,39 @@ export default {
               this.$net.serviceGetDeployLog(options).then(content => {
                 if (content.hasOwnProperty('Orchestration')) {
                   let Orchestration = content.Orchestration;
-                  let log = Orchestration.log;
+                  let logs = Orchestration.log;
 //                  console.log(log);
 //                  console.log(content);
 //                  console.log(Orchestration.offset);
-                  if (log) {
+                  if (logs) {
+                    let logList = logs.split('\n').filter(it => {
+                      return it;
+                    }).map(it => {
+                      return it.replace(filterReg, (match, p1, p2, offset, string) => {
+                        // console.log(match, p1, offset, string);
+                        p2 = p2.replace(/(BUILD )*SUCCESS/g, (match, p1, offset, string) => {
+                          return `<span class="success">${match}</span>`;
+                        });
+                        p2 = p2.replace(/BUILD FAILURE/g, (match, p1, offset, string) => {
+                          return `<span class="error">${match}</span>`;
+                        });
+                        let result = '';
+                        switch (p1.toUpperCase()) {
+                          case 'INFO':
+                            result = `[<span class="info">${p1}</span>]${p2}`;
+                            break;
+                          case 'WARNING':
+                            result = `[<span class="warning">${p1}</span>]${p2}`;
+                            break;
+                          case 'ERROR':
+                            result = `[<span class="error">${p1}</span>]<span class="error">${p2}</span>`;
+                            break;
+                        }
+                        return result;
+                      });
+                    })
                     // scroll after render finish
-                    this.deployLogs = this.deployLogs.concat(log.split('\n'));
+                    this.deployLogs = this.deployLogs.concat(logList);
                     this.$nextTick(() => {
                       this.$refs.hasOwnProperty('dialogForDeployLog') &&
                       this.$refs['dialogForDeployLog'].scrollToBottom();
