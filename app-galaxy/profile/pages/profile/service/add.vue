@@ -183,6 +183,7 @@
       <el-row>
         <el-col :span="12" style="text-align: center">
           <el-button type="primary" size="mini"
+                     :loading="statusOfWaitingResponse('submit')"
                      @click="handleFinish">完成</el-button>
         </el-col>
         <el-col :span="12" style="text-align: center">
@@ -314,7 +315,9 @@
 <script>
   import appPropUtil from '../utils/app-props';
   const debug = browserDebug('pass-fe:profile/service/add');
+  import commonUtils from '$components/mixins/common-utils';
   export default {
+    mixins: [commonUtils],
     created() {
       let infoForAddService = this.$storeHelper.spaDataTransfer;
       if (!infoForAddService) {
@@ -657,9 +660,11 @@
             delete serviceForm.customImageValue;
             delete serviceForm.autoImageValue;
             let toPost = appPropUtil.changePropNameForServer(serviceForm);
+            this.addToWaitingResponseQueue('submit');
             this.showLoading = true;
             this.loadingText = '正在为您创建服务';
             this.$net.createService(toPost).then((content) => {
+              this.hideWaitingResponse('submit');
               this.showLoading = false;
               this.$message({
                 type: 'success',
@@ -667,14 +672,14 @@
               });
               this.$router.push('/service');
             }).catch((err) => {
-              console.log(err);
+              this.hideWaitingResponse('submit');
               this.showLoading = false;
               this.$notify({
-                title: '提示',
-                message: err,
+                title: err.title,
+                message: err.msg,
                 duration: 0,
                 onClose: function () {
-                  self.$router.push('/service/add');
+//                  self.$router.push('/service/add');
                 }
               });
             });

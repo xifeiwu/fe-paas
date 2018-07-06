@@ -573,11 +573,16 @@ class Net extends NetBase {
         if (result.success) {
           resolve(result.msg);
         } else {
-          reject(result.msg);
+          reject({
+            title: '创建失败',
+            msg: result.msg
+          });
         }
       }).catch(err => {
-        console.log(err);
-        reject(err);
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.service_create.path}；${err.toString()}`
+        });
       });
     });
   }
