@@ -874,7 +874,7 @@
               groupId: this.$storeHelper.currentGroupID
             }).then(domainMap => {
               this.domainProps.level1InfoListByProfile = domainMap;
-              this.currentOpenedDialog = 'add-domain';
+
               // set default profileName for add-domain-dialog
               this.domainProps.profileName = this.$storeHelper.profileListOfGroup[0]['name'];
               if (this.$refs.hasOwnProperty('version-condition-filter')) {
@@ -884,10 +884,18 @@
                   this.domainProps.profileName = selectedProfile['name'];
                 }
               }
+
               this.onProfileChangeInCreateDomainDialog(this.domainProps.profileName);
               this.hideWaitingResponse(action);
+              this.currentOpenedDialog = 'add-domain';
             }).catch(err => {
-              this.$message.error('获取运行环境信息失败！');
+              this.$notify.error({
+                title: err.title,
+                message: err.msg,
+                duration: 0,
+                onClose: function () {
+                }
+              })
               this.hideWaitingResponse(action);
             });
             break;

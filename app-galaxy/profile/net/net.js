@@ -1031,16 +1031,32 @@ class Net extends NetBase {
   getDomainLevel1Map(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.domain_level_1_list_all.url, options).then(response => {
-        let content = this.getResponseContent(response);
-        if (content) {
-          resolve(content);
-          this.showLog('getDomainLevel1Map', content);
+        let resContent = this.getResponseContent(response);
+        if (resContent) {
+          if (Object.keys(resContent).length > 0) {
+            resolve(resContent);
+          } else {
+            reject({
+              title: '数据格式不正确',
+              msg: '一级域名列表为空'
+            });
+          }
         } else {
-          reject('获取一级域名列表失败！');
+          let resMsg = this.getResponseMsg(response);
+          if (resMsg && resMsg.msg) {
+            reject(resMsg);
+          } else {
+            reject({
+              title: '获取一级域名列表失败！',
+              msg: '请联系管理员'
+            })
+          }
         }
       }).catch(err => {
-        console.log(err);
-        reject(err);
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.domain_level_1_list_all.path}；${err.toString()}`
+        });
       })
     })
   }
