@@ -22,7 +22,7 @@
                 type="primary"
                 :loading="statusOfWaitingResponse('open-create-domain-dialog')"
                 @click="handleButtonClick('open-create-domain-dialog')">
-          创建外网二级域名
+          申请外网二级域名
         </el-button>
         <el-button
                 size="mini-extral"
@@ -163,7 +163,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="将要添加的域名" class="has-existed" :error="domainProps.stateForDomainToAdd">
+        <el-form-item label="将要添加的域名" class="has-existed" :error="domainProps.errMsgForDomainToAdd">
           <div v-if="domainProps.domainToAdd.length > 0">
             <el-tag
                     v-for="domain in domainProps.domainToAdd"
@@ -176,7 +176,7 @@
           </div>
           <div v-else>无</div>
         </el-form-item>
-        <el-form-item label="外网二级域名" :error="domainProps.stateForLevel2Name">
+        <el-form-item label="外网二级域名" :error="domainProps.errMsgForLevel2Name">
           <el-input v-model="domainProps.level2Name" placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"></el-input>
           <el-select v-model="domainProps.level1Name">
             <el-option v-for="(item, index) in domainProps.level1InfoList" :value="item.domainName" :label="item.domainName"
@@ -600,8 +600,8 @@
           serverResponse: {},
           level1Name: '',
           level2Name: '',
-          stateForLevel2Name: '',
-          stateForDomainToAdd: '',
+          errMsgForLevel2Name: '',
+          errMsgForDomainToAdd: '',
         },
         bindServiceProps: {
           showResponse: false,
@@ -852,6 +852,9 @@
         this.domainProps.level2Name = '';
         this.domainProps.level1Name = '';
         this.domainProps.showResponse = false;
+        //clear error message tip
+        this.domainProps.errMsgForLevel2Name = '';
+        this.domainProps.errMsgForDomainToAdd = '';
       },
 
       /**
@@ -909,6 +912,44 @@
             break;
         }
       },
+
+      /**
+       * action for add or remove domain
+       * @param action
+       * @param domain
+       */
+      handleDomainInDialog(action, domain) {
+        let domainToAdd = this.domainProps.domainToAdd;
+
+        switch (action) {
+          case 'remove':
+            if (domainToAdd.indexOf(domain) > -1) {
+              domainToAdd.splice(domainToAdd.indexOf(domain), 1);
+            }
+            break;
+          case 'add':
+            this.domainProps.level2Name = this.domainProps.level2Name.trim();
+
+            this.domainProps.errMsgForLevel2Name = '';
+            this.domainProps.errMsgForDomainToAdd = '';
+            if (!/^[a-z0-9][a-z0-9\-]{0,62}$/.exec(this.domainProps.level2Name)) {
+              this.domainProps.errMsgForLevel2Name = '可以包含小写字符、数字、中划线，以字符数字开头，长度不超过63位';
+              return;
+            }
+            if (domainToAdd.length >= 5) {
+              this.domainProps.errMsgForDomainToAdd = '每次最多添加五个';
+              return;
+            }
+            let itemToAdd = this.domainProps.level2Name + '.' + this.domainProps.level1Name;
+            if (domainToAdd.indexOf(itemToAdd) > -1) {
+              domainToAdd.splice(domainToAdd.indexOf(itemToAdd), 1);
+            }
+            domainToAdd.push(itemToAdd);
+            this.domainProps.level2Name = '';
+            break;
+        }
+      },
+
       /**
        * action in popup dialog on the press of button-ok
        * @param action
@@ -920,11 +961,11 @@
 //            console.log(this.domainProps);
 //            console.log(this.domainProps.domainToAdd);
             if (this.domainProps.domainToAdd.length === 0) {
-              this.$message.error('至少填写一个域名');
+              this.domainProps.errMsgForDomainToAdd = '至少填写一个域名！';
               return;
             }
             if (this.domainProps.domainToAdd.length > 5) {
-              this.$message.error('一次创建域名不能超过5个');
+              this.domainProps.errMsgForDomainToAdd = '每次最多添加五个！';
               return;
             }
             this.addToWaitingResponseQueue(action);
@@ -1081,43 +1122,6 @@
               this.hideWaitingResponse(action);
               this.currentOpenedDialog = null;
             }, 1000);
-            break;
-        }
-      },
-
-      /**
-       * action for add or remove domain
-       * @param action
-       * @param domain
-       */
-      handleDomainInDialog(action, domain) {
-        let domainToAdd = this.domainProps.domainToAdd;
-
-        switch (action) {
-          case 'remove':
-            if (domainToAdd.indexOf(domain) > -1) {
-              domainToAdd.splice(domainToAdd.indexOf(domain), 1);
-            }
-            break;
-          case 'add':
-            this.domainProps.level2Name = this.domainProps.level2Name.trim();
-
-            this.domainProps.stateForLevel2Name = '';
-            this.domainProps.stateForDomainToAdd = '';
-            if (!/^[a-z0-9][a-z0-9\-]{0,62}$/.exec(this.domainProps.level2Name)) {
-              this.domainProps.stateForLevel2Name = '可以包含小写字符、数字、中划线，以字符数字开头，长度不超过63位';
-              return;
-            }
-            if (domainToAdd.length >= 5) {
-              this.domainProps.stateForDomainToAdd = '每次最多添加五个';
-              return;
-            }
-            let itemToAdd = this.domainProps.level2Name + '.' + this.domainProps.level1Name;
-            if (domainToAdd.indexOf(itemToAdd) > -1) {
-              domainToAdd.splice(domainToAdd.indexOf(itemToAdd), 1);
-            }
-            domainToAdd.push(itemToAdd);
-            this.domainProps.level2Name = '';
             break;
         }
       },

@@ -4,20 +4,20 @@
       <my-version-selector :customConfig="localConfig"
                            @version-selected="onVersionSelected"></my-version-selector>
       <div class="item">
-        <label>实例名称</label>
+        <label>实例名称:</label>
         <el-input
                 v-model="searchForm.instanceName"
                 size="mini" style="display: inline-block; width: 160px;"></el-input>
       </div>
       <div class="item">
-        <label>日志级别</label>
+        <label>日志级别:</label>
         <el-select v-model="searchForm.logLevel">
           <el-option v-for="(item, index) in logLevelList" :key="index" :label="item" :value="item">
           </el-option>
         </el-select>
       </div>
       <div class="item">
-        <label>时间</label>
+        <label>时间:</label>
         <el-date-picker
                 style="display: inline-block; width: 400px;"
                 size="mini"
@@ -33,7 +33,7 @@
         </el-date-picker>
       </div>
       <div class="item">
-        <label>关键字</label>
+        <label>关键字:</label>
         <el-input
                 v-model="searchForm.keyword"
                 size="mini" style="display: inline-block; width: 160px;"></el-input>
