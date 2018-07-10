@@ -69,6 +69,7 @@
         <el-table-column
                 prop="profileDesc"
                 headerAlign="center" align="center"
+                width="100"
                 label="运行环境">
         </el-table-column>
         <el-table-column
@@ -92,15 +93,15 @@
                 prop="operation"
                 label="操作"
                 headerAlign="center" align="center"
+                width="260"
         >
           <template slot-scope="scope">
             <el-button
                     round
-                    v-if="!$storeHelper.notPermitted['domain_bind_white_list']"
                     size="mini-extral"
                     type="warning"
-                    @click="handleRowButtonClick('to-white-list', scope.$index, scope.row)">
-              关联IP白名单
+                    @click="handleRowButtonClick('secure-verify', scope.$index, scope.row)">
+              安全审核
             </el-button>
             <el-button
                     round
@@ -109,6 +110,14 @@
                     type="danger"
                     :loading="statusOfWaitingResponse('remove') && selected.row.id === scope.row.id"
                     @click="handleRowButtonClick('remove', scope.$index, scope.row)">删除
+            </el-button>
+            <el-button
+                    round
+                    v-if="!$storeHelper.notPermitted['domain_bind_white_list']"
+                    size="mini-extral"
+                    type="primary"
+                    @click="handleRowButtonClick('to-white-list', scope.$index, scope.row)">
+              关联IP白名单
             </el-button>
           </template>
         </el-table-column>
@@ -192,6 +201,7 @@
 
     <el-dialog title="绑定服务" :visible="currentOpenedDialog == 'bind-service'"
                :class="{'bind-service': true, 'size-800': true, 'show-response': bindServiceProps.showResponse}"
+               :close-on-click-modal="false"
                @close="currentOpenedDialog = null"
     >
       <div v-if="bindServiceProps.showResponse">
@@ -251,6 +261,7 @@
 
     <el-dialog title="解绑服务" :visible="currentOpenedDialog == 'unbind-service'"
                :class="{'unbind-service': true, 'size-750': true, 'show-response': unBindServiceProps.showResponse}"
+               :close-on-click-modal="false"
                @close="currentOpenedDialog = null"
     >
       <div v-if="unBindServiceProps.showResponse">
@@ -289,6 +300,42 @@
         </el-row>
       </div>
     </el-dialog>
+
+    <el-dialog title="安全审核" :visible="currentOpenedDialog == 'secure-verify'"
+               :class="{'secure-verify': true, 'size-650': true,}"
+               :close-on-click-modal="false"
+               @close="currentOpenedDialog = null"
+    >
+      <el-form labelWidth="120px" size="mini">
+        <el-form-item label="审核意见：" class="custom-image">
+          <el-radio-group v-model="secureVerifyProps.passed" size="mini" class="passed">
+            <el-radio :label="true">审核通过</el-radio>
+            <el-radio :label="false">审核不通过</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="不通过理由：" :error="secureVerifyProps.tip" class="reason"
+        >
+          <el-input v-model="secureVerifyProps.reason"
+                    type="textarea"
+                    :rows="6"
+                    placeholder="审核不通过，请描述理由"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleButtonClickInDialog('secure-verify-in-dialog')"
+                       :loading="statusOfWaitingResponse('secure-verify-in-dialog')">确&nbsp定</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button @click="currentOpenedDialog = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -475,7 +522,7 @@
         .el-table__row {
           .el-button {
             margin: 2px 4px 2px 0px;
-            display: inline-block;
+            float: left;
           }
         }
         .el-table__expanded-cell {
@@ -564,6 +611,11 @@
         unBindServiceProps: {
           showResponse: false,
           serverResponse: {}
+        },
+        secureVerifyProps: {
+          passed: false,
+          reason: '',
+          tip: ''
         },
 
         appInfo: null,
@@ -743,6 +795,12 @@
       handleRowButtonClick(action, index, row) {
         this.selected.row = row;
         switch (action) {
+          case 'secure-verify':
+            this.currentOpenedDialog = action;
+            this.secureVerifyProps.passed = false;
+            this.secureVerifyProps.reason = '';
+            this.secureVerifyProps.tip = '';
+            break;
           case 'to-white-list':
             let domain = row.domain;
             this.$router.push({
@@ -1012,6 +1070,17 @@
               this.requestDomainList();
               this.unBindServiceProps.showResponse = false;
             }
+            break;
+          case 'secure-verify-in-dialog':
+            if (!this.secureVerifyProps.passed && !this.secureVerifyProps.reason) {
+              this.secureVerifyProps.tip = '请描述审核不通过的理由';
+              return;
+            }
+            this.addToWaitingResponseQueue(action);
+            setTimeout(() => {
+              this.hideWaitingResponse(action);
+              this.currentOpenedDialog = null;
+            }, 1000);
             break;
         }
       },
