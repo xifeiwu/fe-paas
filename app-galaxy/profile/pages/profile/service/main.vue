@@ -259,6 +259,23 @@
                        v-if="selected.service.intranetDomain">{{selected.service.intranetDomain}}</a>
                     <span v-else>{{valueToShow(selected.service.intranetDomain)}}</span>
                   </el-form-item>
+                  <el-form-item label="当前服务的外网域名" class="big">
+                    <div v-if="scope.row.internetDomainList.length==0">无</div>
+                    <div v-if="scope.row.internetDomainList.length==1">
+                      <a :href="'http://' + scope.row.internetDomainList[0]" target="_blank">{{scope.row.internetDomainList[0]}}</a>
+                    </div>
+                    <div v-if="scope.row.internetDomainList.length>1">
+                      <a :href="'http://' + scope.row.internetDomainList[0]" target="_blank">{{scope.row.internetDomainList[0]}}</a>
+                      <el-tooltip slot="trigger" effect="light" placement="top">
+                        <div slot="content">
+                          <div v-for="(item, index) in scope.row.internetDomainList" v-if="index!=0">
+                            <a :href="'http://' + item" target="_blank">{{item}}</a>
+                          </div>
+                        </div>
+                        <span class="more">更多...</span>
+                      </el-tooltip>
+                    </div>
+                  </el-form-item>
                   <el-form-item label="文件存储" class="big file-location" v-if="false">
                     <div v-if="selected.service.fileLocation && selected.service.fileLocation.length > 0">
                       <el-tag
