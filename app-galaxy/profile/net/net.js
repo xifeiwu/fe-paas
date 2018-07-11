@@ -1042,15 +1042,11 @@ class Net extends NetBase {
             });
           }
         } else {
-          let resMsg = this.getResponseMsg(response);
-          if (resMsg && resMsg.msg) {
-            reject(resMsg);
-          } else {
-            reject({
-              title: '获取一级域名列表失败！',
-              msg: '请联系管理员'
-            })
-          }
+          let resMsg = this.getResponseMsg(response, {
+            title: '获取一级域名列表失败！',
+            msg: '请联系管理员'
+          });
+          reject(resMsg);
         }
       }).catch(err => {
         reject({
@@ -1140,15 +1136,11 @@ class Net extends NetBase {
             })
           }
         } else {
-          let resMsg = this.getResponseMsg(response);
-          if (resMsg && resMsg.msg) {
-            reject(resMsg);
-          } else {
-            reject({
-              title: '获取外网域名列表失败',
-              msg: '请联系管理员'
-            })
-          }
+          let resMsg = this.getResponseMsg(response, {
+            title: '获取外网域名列表失败',
+            msg: '请联系管理员'
+          });
+          reject(resMsg);
         }
       }).catch(err => {
         reject({
@@ -1458,15 +1450,11 @@ class Net extends NetBase {
             });
           }
         } else {
-          let resMsg = this.getResponseMsg(response);
-          if (resMsg && resMsg.msg) {
-            reject(resMsg);
-          } else {
-            reject({
-              title: '获取数据失败',
-              msg: '请联系管理员'
-            })
-          }
+          let resMsg = this.getResponseMsg(response, {
+            title: '获取数据失败',
+            msg: '请联系管理员'
+          });
+          reject(resMsg);
         }
       }).catch(err => {
         console.log(err);
