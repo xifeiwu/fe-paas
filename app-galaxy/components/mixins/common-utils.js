@@ -20,5 +20,9 @@ export default {
     statusOfWaitingResponse(action) {
       return this.queueForWaitingResponse.indexOf(action) > -1;
     },
+
+    closeAllResponse() {
+      this.queueForWaitingResponse.length = 0;
+    }
   }
 }

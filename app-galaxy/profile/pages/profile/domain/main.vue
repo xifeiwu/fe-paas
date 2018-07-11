@@ -137,7 +137,7 @@
       </div>
     </div>
 
-    <el-dialog :title="domainProps.showResponse?'创建外网域名结果':'创建外网二级域名'" :visible="currentOpenedDialog == 'add-domain'"
+    <el-dialog :title="domainProps.showResponse?'创建外网域名结果':'申请外网二级域名'" :visible="currentOpenedDialog == 'add-domain'"
                :class="{'add-domain': true, 'size-700': true, 'show-response': domainProps.showResponse}"
                :close-on-click-modal="false"
                @close="handleButtonClickInDialog('close-domain-in-dialog')"
@@ -684,7 +684,12 @@
         this.serviceInfo = versionConditionFilter.selectedService;
         this.currentPage = 1;
         this.debounceRequestDomainList();
-      }
+      },
+      'secureVerifyProps.passed': function (value) {
+        if (value) {
+          this.secureVerifyProps.tip = '';
+        }
+      },
     },
     methods: {
       // helper for loading action of el-button
@@ -993,6 +998,7 @@
               this.domainProps.showResponse = true;
               this.hideWaitingResponse(action);
             }).catch(err => {
+              this.hideWaitingResponse(action);
               this.$notify.error({
                 title: err.title,
                 message: err.msg,
