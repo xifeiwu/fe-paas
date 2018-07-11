@@ -63,25 +63,21 @@
         </el-table-column>
         <el-table-column
                 prop="internetDomain"
-                headerAlign="center" align="center"
                 label="外网二级域名">
         </el-table-column>
         <el-table-column
                 prop="profileDesc"
-                headerAlign="center" align="center"
                 width="100"
                 label="运行环境">
         </el-table-column>
         <el-table-column
                 prop="createTime"
                 label="创建时间"
-                headerAlign="center" align="center"
                 width="180">
         </el-table-column>
         <el-table-column
                 prop="creatorName"
                 label="创建人"
-                headerAlign="center" align="center"
                 width="120">
         </el-table-column>
         <el-table-column
@@ -92,7 +88,6 @@
         <el-table-column
                 prop="operation"
                 label="操作"
-                headerAlign="center" align="center"
                 width="260"
         >
           <template slot-scope="scope">
