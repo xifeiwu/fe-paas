@@ -1065,20 +1065,16 @@ class Net extends NetBase {
   createDomain(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.domain_add.url, options).then(response => {
-        let content = this.getResponseContent(response);
+        let content = this.getResponseContent2(response);
         if (content) {
           resolve(content);
           this.showLog('createDomain', content);
         } else {
-          let resMsg = this.getResponseMsg(response);
-          if (resMsg && resMsg.msg) {
-            reject(resMsg);
-          } else {
-            reject({
-              title: '创建域名失败',
-              msg: '请联系管理员'
-            })
-          }
+          let resMsg = this.getResponseMsg2(response, {
+            title: '创建域名失败',
+            msg: '请联系管理员'
+          });
+          reject(resMsg);
         }
       }).catch(err => {
         reject({
@@ -1392,15 +1388,11 @@ class Net extends NetBase {
         if (resContent) {
           resolve(resContent);
         } else {
-          let resMsg = this.getResponseMsg(response);
-          if (resMsg && resMsg.msg) {
-            reject(resMsg);
-          } else {
-            reject({
-              title: '获取AccessKey列表失败',
-              msg: '请联系管理员'
-            })
-          }
+          let resMsg = this.getResponseMsg2(response, {
+            title: '获取AccessKey列表失败',
+            msg: '请联系管理员'
+          });
+          reject(resMsg);
         }
       }).catch(err => {
         reject({
@@ -1672,15 +1664,11 @@ class Net extends NetBase {
         if (resContent) {
           resolve(resContent);
         } else {
-          let resMsg = this.getResponseMsg(response);
-          if (resMsg && resMsg.msg) {
-            reject(resMsg);
-          } else {
-            reject({
-              title: '配置权限失败',
-              msg: '请联系管理员'
-            })
-          }
+          let resMsg = this.getResponseMsg2(response, {
+            title: '配置权限失败',
+            msg: '请联系管理员'
+          });
+          reject(resMsg);
         }
       }).catch(err => {
         reject({
@@ -1700,15 +1688,11 @@ class Net extends NetBase {
         if (resContent) {
           resolve(resContent);
         } else {
-          let resMsg = this.getResponseMsg(response);
-          if (resMsg && resMsg.msg) {
-            reject(resMsg);
-          } else {
-            reject({
-              title: '删除失败',
-              msg: '请联系管理员'
-            })
-          }
+          let resMsg = this.getResponseMsg2(response, {
+            title: '删除失败',
+            msg: '请联系管理员'
+          });
+          reject(resMsg);
         }
       }).catch(err => {
         reject({

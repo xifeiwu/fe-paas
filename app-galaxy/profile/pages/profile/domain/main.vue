@@ -317,7 +317,7 @@
         >
           <el-input v-model="secureCheckProps.reason"
                     type="textarea"
-                    :rows="6"
+                    :rows="3"
                     placeholder="审核不通过，请描述理由"
           ></el-input>
         </el-form-item>

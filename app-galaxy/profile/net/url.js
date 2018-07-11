@@ -260,8 +260,8 @@ class URL extends BaseURL {
       },
       // 添加域名
       'domain_add': {
-        url: API_PATH + '/domain/record/create',
-        path: '/domain/record/create'
+        url: API_PATH + '/domain/record/apply',
+        path: '/domain/record/apply'
       },
       'domain_secure_check': {
         url: API_PATH + '/domain/record/status/update',
