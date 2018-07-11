@@ -993,9 +993,9 @@
               this.domainProps.showResponse = true;
               this.hideWaitingResponse(action);
             }).catch(err => {
-              this.$notify({
-                title: '添加域名失败',
-                message: err,
+              this.$notify.error({
+                title: err.title,
+                message: err.msg,
                 duration: 0,
                 onClose: function () {
                 }

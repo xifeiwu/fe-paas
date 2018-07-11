@@ -1070,11 +1070,21 @@ class Net extends NetBase {
           resolve(content);
           this.showLog('createDomain', content);
         } else {
-          reject('添加域名失败！');
+          let resMsg = this.getResponseMsg(response);
+          if (resMsg && resMsg.msg) {
+            reject(resMsg);
+          } else {
+            reject({
+              title: '创建域名失败',
+              msg: '请联系管理员'
+            })
+          }
         }
       }).catch(err => {
-        console.log(err);
-        reject(err);
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.domain_add.path}；${err.toString()}`
+        });
       })
     })
   }
