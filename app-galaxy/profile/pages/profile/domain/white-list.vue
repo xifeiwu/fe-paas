@@ -1,43 +1,42 @@
 <template>
   <div id="domain-white-list">
-    <div class="domain-name"><span>外网二级域名：</span><span>{{paramsInQueryString.domainName}}</span></div>
-    <el-row class="upload-area" type="flex">
-      <el-col :span="8" class="upload">
-        <el-upload
-                class="upload-file"
-                ref="upload"
-                :limit="1"
-                :onExceed="onFileExceed"
-                :headers="{token: this.$storeHelper.getUserInfo('token')}"
-                :data="{'internetDomainId': this.itemToAdd.internetDomainId}"
-                :action="$url.domain_upload_white_ip_list_template.url"
-                :auto-upload="false"
-                :beforeUpload="beforeFileUpload"
-                :onSuccess="afterLoadSuccess"
-                :onError="afterLoadError"
-                accept=".xls, .xlsx"
-                @onUploadFiles="onUploadFiles"
-        >
-          <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>
-          <el-tooltip class="item" effect="dark"
-                      content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">
-            <el-button style="margin-left: 5px;" type="success" size="mini-extral"
-                       @click="handleSubmitUpload"><span>上传到服务器</span></el-button>
-          </el-tooltip>
-        </el-upload>
-      </el-col>
-      <el-col :span="16" class="download">
-        <el-tag type="success" disable-transitions>
-          <i class="el-icon-warning"></i>
-          <span>IP地址超过10个建议下载模板，填写完成后导入文本操作</span>
-        </el-tag>
-        <el-button type="info" size="mini-extral" round>
-          <a :href="$url.domain_download_white_ip_list_template.url"><i class="el-icon-download"></i><span>下载模板</span></a>
-        </el-button>
-      </el-col>
-    </el-row>
-
-    <div class="manual-area">
+    <div class="header">
+      <div class="domain-name"><span>外网二级域名：</span><span>{{paramsInQueryString.domainName}}</span></div>
+      <el-row class="upload-area" type="flex">
+        <el-col :span="8" class="upload">
+          <el-upload
+                  class="upload-file"
+                  ref="upload"
+                  :limit="1"
+                  :onExceed="onFileExceed"
+                  :headers="{token: this.$storeHelper.getUserInfo('token')}"
+                  :data="{'internetDomainId': this.itemToAdd.internetDomainId}"
+                  :action="$url.domain_upload_white_ip_list_template.url"
+                  :auto-upload="false"
+                  :beforeUpload="beforeFileUpload"
+                  :onSuccess="afterLoadSuccess"
+                  :onError="afterLoadError"
+                  accept=".xls, .xlsx"
+                  @onUploadFiles="onUploadFiles"
+          >
+            <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>
+            <el-tooltip class="item" effect="dark"
+                        content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">
+              <el-button style="margin-left: 5px;" type="success" size="mini-extral"
+                         @click="handleSubmitUpload"><span>上传到服务器</span></el-button>
+            </el-tooltip>
+          </el-upload>
+        </el-col>
+        <el-col :span="16" class="download">
+          <el-tag type="success" disable-transitions>
+            <i class="el-icon-warning"></i>
+            <span>IP地址超过10个建议下载模板，填写完成后导入文本操作</span>
+          </el-tag>
+          <el-button type="info" size="mini-extral" round>
+            <a :href="$url.domain_download_white_ip_list_template.url"><i class="el-icon-download"></i><span>下载模板</span></a>
+          </el-button>
+        </el-col>
+      </el-row>
       <el-row class="add-ip">
         <el-col :span="3">
           添加白名单
@@ -56,10 +55,14 @@
                   @click="handleRowButtonClick('add')">保存</el-button>
         </el-col>
       </el-row>
+    </div>
+
+    <div class="white-ip-list">
       <el-table
               :data="IPList"
               style="width: 100%"
               v-clickoutside="handleClickOutsideTable"
+              :height="heightOfTable"
       >
         <el-table-column
                 type="index"
@@ -132,59 +135,61 @@
     margin:0px 6px;
     max-width: 1200px;
     height: 100%;
-    .domain-name {
-      padding: 0px 5px;
-    }
-    .upload-area {
-      font-size: 14px;
-      border: 1px solid lavenderblush;
-      margin-bottom: 3px;
-      padding: 6px;
-      .el-col {
-        &.download {
-          text-align: center;
-          .el-tag {
-            line-height: 26px;
-            height: 28px;
-          }
-          .el-button {
-            vertical-align: middle;
-            padding: 2px 8px;
-            margin-left: 10px;
-            a {
-              font-size: 12px;
-              line-height: 16px;
-              color: white;
-              span, i {
-                vertical-align: middle;
-                margin: 0px;
+    display: flex;
+    flex-direction: column;
+    .header {
+      .domain-name {
+        padding: 0px 5px;
+      }
+      .upload-area {
+        font-size: 14px;
+        border: 1px solid lavenderblush;
+        margin-bottom: 3px;
+        padding: 6px;
+        .el-col {
+          &.download {
+            text-align: center;
+            .el-tag {
+              line-height: 26px;
+              height: 28px;
+            }
+            .el-button {
+              vertical-align: middle;
+              padding: 2px 8px;
+              margin-left: 10px;
+              a {
+                font-size: 12px;
+                line-height: 16px;
+                color: white;
+                span, i {
+                  vertical-align: middle;
+                  margin: 0px;
+                }
               }
             }
           }
-        }
-        &.upload {
-          text-align: center;
-          border-right: 1px solid gainsboro;
-          .upload-file {
-            display: inline-block;
-            .el-upload-list {
-              .el-upload-list__item {
-                margin-top: 0px;
-                &:first-child {
-                  margin-top: 3px;
-                }
-                .el-upload-list__item-name {
-                  color: #409EFF;
-                  font-size: 12px;
-                  line-height: 1.5;
+          &.upload {
+            text-align: center;
+            border-right: 1px solid gainsboro;
+            .upload-file {
+              display: inline-block;
+              .el-upload-list {
+                .el-upload-list__item {
+                  margin-top: 0px;
+                  &:first-child {
+                    margin-top: 3px;
+                  }
+                  .el-upload-list__item-name {
+                    color: #409EFF;
+                    font-size: 12px;
+                    line-height: 1.5;
+                  }
                 }
               }
             }
           }
         }
       }
-    }
-    .manual-area {
       .add-ip.el-row {
         width: 80%;
         margin: 3px auto;
@@ -203,6 +208,9 @@
           }
         }
       }
+    }
+    .white-ip-list {
+      flex: 1;
       .el-table {
         .el-button {
           float: left;
@@ -230,6 +238,7 @@
 
 <script>
   import Clickoutside from 'element-ui/src/utils/clickoutside';
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   module.exports = {
     directives: { Clickoutside },
     created() {
@@ -244,9 +253,22 @@
       } else {
         this.$router.go(-1);
       }
+
+      let headerNode = this.$el.querySelector(':scope > .header');
+      this.resizeListener = (evt) => {
+        let headerHeight = headerNode.offsetHeight;
+        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+      };
+      addResizeListener(this.$el, this.resizeListener)
+    },
+    beforeDestroy() {
+      removeResizeListener(this.$el, this.resizeListener);
     },
     data() {
       return {
+        resizeListener: () => {},
+        heightOfTable: '',
+
         paramsInQueryString: {
           id: null,
           domainName: null,
