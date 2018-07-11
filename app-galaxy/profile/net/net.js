@@ -1088,6 +1088,27 @@ class Net extends NetBase {
       })
     })
   }
+  domainSecureCheck(options) {
+    return new Promise((resolve, reject) => {
+      axios.post(URL_LIST.domain_secure_check.url, options).then(response => {
+        let resContent = this.getResponseContent2(response);
+        if (resContent) {
+          resolve();
+        } else {
+          let resMsg = this.getResponseMsg2(response, {
+            title: '提交安全审核失败！',
+            msg: '请联系管理员'
+          });
+          reject(resMsg);
+        }
+      }).catch(err => {
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.domain_secure_check.path}；${err.toString()}`
+        });
+      })
+    })
+  }
   // 删除域名
   removeDomain(options) {
     return new Promise((resolve, reject) => {

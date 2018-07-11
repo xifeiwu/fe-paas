@@ -263,6 +263,10 @@ class URL extends BaseURL {
         url: API_PATH + '/domain/record/create',
         path: '/domain/record/create'
       },
+      'domain_secure_check': {
+        url: API_PATH + '/domain/record/status/update',
+        path: '/domain/record/status/update'
+      },
       // 删除域名
       'domain_remove': {
         url: API_PATH + '/domain/record/delete',

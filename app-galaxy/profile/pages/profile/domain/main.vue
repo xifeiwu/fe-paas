@@ -140,7 +140,7 @@
     <el-dialog :title="domainProps.showResponse?'创建外网域名结果':'申请外网二级域名'" :visible="currentOpenedDialog == 'add-domain'"
                :class="{'add-domain': true, 'size-700': true, 'show-response': domainProps.showResponse}"
                :close-on-click-modal="false"
-               @close="handleButtonClickInDialog('close-domain-in-dialog')"
+               @close="handleClickInDialog('close-domain-in-dialog')"
     >
       <div v-if="domainProps.showResponse">
         <div class="key title">外网域名</div>
@@ -152,7 +152,7 @@
       </div>
       <div slot="footer" class="dialog-footer" style="text-align: center" v-if="domainProps.showResponse">
         <el-button type="primary"
-                   @click="handleButtonClickInDialog('close-domain-in-dialog')">确&nbsp定</el-button>
+                   @click="handleClickInDialog('close-domain-in-dialog')">确&nbsp定</el-button>
       </div>
 
       <el-form :model="domainProps" :rules="rules" size="mini" v-if="!domainProps.showResponse"
@@ -189,11 +189,11 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleButtonClickInDialog('add-domain-in-dialog')"
+                       @click="handleClickInDialog('add-domain-in-dialog')"
                        :loading="statusOfWaitingResponse('add-domain-in-dialog')">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
-            <el-button @click="handleButtonClickInDialog('close-domain-in-dialog')">取&nbsp消</el-button>
+            <el-button @click="handleClickInDialog('close-domain-in-dialog')">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
@@ -214,7 +214,7 @@
       </div>
       <div slot="footer" class="dialog-footer" style="text-align: center" v-if="bindServiceProps.showResponse">
         <el-button type="primary"
-                   @click="handleButtonClickInDialog('close-bind-service-in-dialog')">确&nbsp定</el-button>
+                   @click="handleClickInDialog('close-bind-service-in-dialog')">确&nbsp定</el-button>
       </div>
 
       <div v-if="!bindServiceProps.showResponse">
@@ -249,7 +249,7 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleButtonClickInDialog('bind-service-in-dialog')"
+                       @click="handleClickInDialog('bind-service-in-dialog')"
                        :loading="statusOfWaitingResponse('bind-service-in-dialog')">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -274,7 +274,7 @@
       </div>
       <div slot="footer" class="dialog-footer" style="text-align: center" v-if="unBindServiceProps.showResponse">
         <el-button type="primary"
-                   @click="handleButtonClickInDialog('close-unbind-service-in-dialog')">确&nbsp定</el-button>
+                   @click="handleClickInDialog('close-unbind-service-in-dialog')">确&nbsp定</el-button>
       </div>
 
       <div class="selected-domain" v-if="!unBindServiceProps.showResponse">
@@ -291,7 +291,7 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleButtonClickInDialog('unbind-service-in-dialog')"
+                       @click="handleClickInDialog('unbind-service-in-dialog')"
                        :loading="statusOfWaitingResponse('unbind-service-in-dialog')">确&nbsp定</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -308,14 +308,14 @@
     >
       <el-form labelWidth="120px" size="mini">
         <el-form-item label="审核意见：" class="custom-image">
-          <el-radio-group v-model="secureVerifyProps.passed" size="mini" class="passed">
+          <el-radio-group v-model="secureCheckProps.passed" size="mini" class="passed">
             <el-radio :label="true">审核通过</el-radio>
             <el-radio :label="false">审核不通过</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="不通过理由：" :error="secureVerifyProps.tip" class="reason"
+        <el-form-item label="不通过理由：" :error="secureCheckProps.tip" class="reason"
         >
-          <el-input v-model="secureVerifyProps.reason"
+          <el-input v-model="secureCheckProps.reason"
                     type="textarea"
                     :rows="6"
                     placeholder="审核不通过，请描述理由"
@@ -326,7 +326,7 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleButtonClickInDialog('secure-verify-in-dialog')"
+                       @click="handleClickInDialog('secure-verify-in-dialog')"
                        :loading="statusOfWaitingResponse('secure-verify-in-dialog')">确&nbsp定</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -612,7 +612,7 @@
           showResponse: false,
           serverResponse: {}
         },
-        secureVerifyProps: {
+        secureCheckProps: {
           passed: false,
           reason: '',
           tip: ''
@@ -685,9 +685,9 @@
         this.currentPage = 1;
         this.debounceRequestDomainList();
       },
-      'secureVerifyProps.passed': function (value) {
+      'secureCheckProps.passed': function (value) {
         if (value) {
-          this.secureVerifyProps.tip = '';
+          this.secureCheckProps.tip = '';
         }
       },
     },
@@ -809,9 +809,9 @@
         switch (action) {
           case 'secure-verify':
             this.currentOpenedDialog = action;
-            this.secureVerifyProps.passed = false;
-            this.secureVerifyProps.reason = '';
-            this.secureVerifyProps.tip = '';
+            this.secureCheckProps.passed = false;
+            this.secureCheckProps.reason = '';
+            this.secureCheckProps.tip = '';
             break;
           case 'to-white-list':
             let domain = row.domain;
@@ -940,7 +940,6 @@
        */
       handleDomainInDialog(action, domain) {
         let domainToAdd = this.domainProps.domainToAdd;
-
         switch (action) {
           case 'remove':
             if (domainToAdd.indexOf(domain) > -1) {
@@ -974,7 +973,7 @@
        * action in popup dialog on the press of button-ok
        * @param action
        */
-      handleButtonClickInDialog(action) {
+      handleClickInDialog(action) {
         let domainIdList = null;
         switch (action) {
           case 'add-domain-in-dialog':
@@ -1134,15 +1133,30 @@
             }
             break;
           case 'secure-verify-in-dialog':
-            if (!this.secureVerifyProps.passed && !this.secureVerifyProps.reason) {
-              this.secureVerifyProps.tip = '请描述审核不通过的理由';
+            if (!this.secureCheckProps.passed && !this.secureCheckProps.reason) {
+              this.secureCheckProps.tip = '请描述审核不通过的理由';
               return;
             }
             this.addToWaitingResponseQueue(action);
-            setTimeout(() => {
+            this.$net.domainSecureCheck({
+              id: this.selected.row.id,
+              status: this.secureCheckProps.passed ? 'EFFECTIVE' : 'NOT_EFFECTIVE',
+              reason: this.secureCheckProps.reason
+            }).then(() => {
               this.hideWaitingResponse(action);
               this.currentOpenedDialog = null;
-            }, 1000);
+              this.$message.success('提交成功');
+              this.requestDomainList();
+            }).catch(err => {
+              this.hideWaitingResponse(action);
+              this.currentOpenedDialog = null;
+              this.$notify.error({
+                title: err.title,
+                message: err.msg,
+                duration: 0,
+                onClose: function() {}
+              })
+            });
             break;
         }
       },

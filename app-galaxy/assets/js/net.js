@@ -90,11 +90,11 @@ class Net {
    *   "t":1526456545447
    * }
    */
-  getResponseMsg(response) {
+  getResponseMsg(response, {title, msg} = {title: '', msg: ''}) {
     let result = {
       success: false,
-      title: '',
-      msg: ''
+      title: title ? title : '',
+      msg: msg ? msg : ''
     };
     if ('data' in response) {
       let data = response.data;
@@ -103,15 +103,39 @@ class Net {
         result.title = '成功！';
       } else {
         result.success = false;
-        result.title = `错误! ${data.code}`;
+        result.title = '错误! ' + data.hasOwnProperty('code') ? data.code : '';
       }
       if (data.hasOwnProperty('msg') && data.msg && (data.msg.length > 0)) {
         result.msg = data.msg
-      } else if (data.hasOwnProperty('content')) {
+      } else if (data.hasOwnProperty('content') && data.content && (data.content.length > 0)) {
         result.msg = JSON.stringify(data.content);
       }
     }
     // console.log(result);
+    return result;
+  }
+
+  getResponseMsg2(response, {title, msg} = {title: '', msg: ''}) {
+    let result = {
+      success: false,
+      title: title ? title : '',
+      msg: msg ? msg : ''
+    };
+    if ('data' in response) {
+      let data = response.data;
+      if (true === data.success) {
+        result.success = true;
+        result.title = '成功！';
+      } else {
+        result.success = false;
+        result.title = '错误! ' + data.hasOwnProperty('code') ? data.code : '';
+      }
+      if (data.hasOwnProperty('msg') && data.msg && (data.msg.length > 0)) {
+        result.msg = data.msg
+      } else if (data.hasOwnProperty('content') && data.content && (data.content.length > 0)) {
+        result.msg = JSON.stringify(data.content);
+      }
+    }
     return result;
   }
 }
