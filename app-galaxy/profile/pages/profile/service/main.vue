@@ -1135,7 +1135,8 @@
       .el-table {
         .el-table__row {
           .el-button {
-            margin: 2px 4px;
+            margin: 1px 3px;
+            margin-left: 0px;
             float: left;
             .el-icon-arrow-right {
               vertical-align: middle;
@@ -1144,12 +1145,6 @@
                 transform: rotate(90deg);
               }
             }
-            &:first-child {
-              margin-left: 0px;
-            }
-          }
-          .el-button + .el-button {
-            margin-left: 0px;
           }
         }
 

@@ -63,13 +63,11 @@
       >
         <el-table-column
                 type="index"
-                label="编号"
-                width="80">
+                label="编号">
         </el-table-column>
         <el-table-column
                 prop="ip"
-                label="IP白名单"
-                width="180">
+                label="IP白名单">
           <template slot-scope="scope">
             <el-input
                     class="input-new-tag"
@@ -99,23 +97,25 @@
             <span v-else size="small" class="content" @click="">{{scope.row.description}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" prop="operation" width="160"
-                         headerAlign="center" align="center">
+        <el-table-column label="操作" prop="operation" width="160">
           <template slot-scope="scope">
             <el-button
                     v-if="selected.index == scope.$index && selected.operation == 'modify'"
                     size="mini-extral"
                     type="warning"
+                    round
                     :loading = "statusOfWaitingResponse('update')"
                     @click="handleRowButtonClick('update', scope.$index, scope.row)">更新</el-button>
             <el-button
                     size="mini-extral"
                     type="warning"
+                    round
                     v-else
                     @click="handleRowButtonClick('modify', scope.$index, scope.row)">修改</el-button>
             <el-button
                     size="mini-extral"
                     type="danger"
+                    round
                     :loading = "statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
                     @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
           </template>
@@ -204,6 +204,11 @@
         }
       }
       .el-table {
+        .el-button {
+          float: left;
+          margin: 1px 3px;
+          margin-left: 0px;
+        }
         tr {
           height: 32px;
         }
@@ -221,16 +226,6 @@
   }
 </style>
 <style lang="scss" scoped>
-  /*#domain-main {*/
-  /*.el-table {*/
-  /*td {*/
-  /*padding: 0px;*/
-  /*.cell {*/
-  /*padding: 0px;*/
-  /*}*/
-  /*}*/
-  /*}*/
-  /*}*/
 </style>
 
 <script>
