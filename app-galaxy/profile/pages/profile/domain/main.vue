@@ -787,6 +787,13 @@
 
           this.showLoading = false;
         }).catch(err => {
+          this.$notify.error({
+            title: err.title,
+            message: err.msg,
+            duration: 0,
+            onClose: function () {
+            }
+          });
           this.showLoading = false;
         })
       },

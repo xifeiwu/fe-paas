@@ -235,7 +235,7 @@ class Net extends NetBase {
           console.log('用户组列表获取失败！');
           reject({
             title: '数据格式不正确',
-            msg: '数据格式不正确'
+            msg: '用户组列表获取失败！'
           })
         }
       }).catch(err => {
@@ -381,7 +381,7 @@ class Net extends NetBase {
           } else {
             reject({
               title: '数据格式不正确',
-              msg: '请联系管理员'
+              msg: '获取应用列表失败！'
             })
           }
         }
@@ -1098,22 +1098,36 @@ class Net extends NetBase {
   getDomainList(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.domain_list.url, options).then(response => {
-        let content = this.getResponseContent(response);
-        if (content) {
-          if (content.hasOwnProperty('internetDomainList')) {
-            let domainList = content['internetDomainList'];
+        let resContent = this.getResponseContent(response);
+        if (resContent) {
+          if (resContent.hasOwnProperty('internetDomainList')) {
+            let domainList = resContent['internetDomainList'];
             domainList.forEach(it => {
               it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
             });
+            resolve(resContent);
+          } else {
+            reject({
+              title: '数据格式不正确',
+              msg: '未找到internetDomainList'
+            })
           }
-          resolve(content);
-          this.showLog('getDomainList', content);
         } else {
-          reject('获取外网域名列表失败');
+          let resMsg = this.getResponseMsg(response);
+          if (resMsg && resMsg.msg) {
+            reject(resMsg);
+          } else {
+            reject({
+              title: '获取外网域名列表失败',
+              msg: '请联系管理员'
+            })
+          }
         }
       }).catch(err => {
-        console.log(err);
-        reject(err);
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.domain_list.path}；${err.toString()}`
+        });
       })
     })
   }
@@ -1512,8 +1526,8 @@ class Net extends NetBase {
           resolve(resContent);
         } else {
           reject({
-            title: '获取授权URL列表失败',
-            msg: '数据格式不正确'
+            title: '数据格式不正确',
+            msg: '获取授权URL列表失败'
           })
         }
       }).catch(err => {
