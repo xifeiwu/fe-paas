@@ -68,12 +68,15 @@
       <el-table
               :data="IPList"
               style="width: 100%"
+              v-loading="showLoading"
               v-clickoutside="handleClickOutsideTable"
               :height="heightOfTable"
       >
         <el-table-column
-                type="index"
-                label="编号">
+                prop="index"
+                label="编号"
+                width="80"
+        >
         </el-table-column>
         <el-table-column
                 prop="ip"
@@ -81,7 +84,7 @@
           <template slot-scope="scope">
             <el-input
                     class="input-new-tag"
-                    v-if="selected.index == scope.$index && selected.operation == 'modify'"
+                    v-if="selected.row && selected.row.id == scope.row.id && selected.operation == 'modify'"
                     v-model="selected.row.ip"
                     size="small"
                     @keyup.enter.native="handleInputConfirm(scope.$index, scope.row)"
@@ -97,7 +100,7 @@
           <template slot-scope="scope">
             <el-input
                     class="input-new-tag"
-                    v-if="selected.index == scope.$index && selected.operation == 'modify'"
+                    v-if="selected.row && selected.row.id == scope.row.id && selected.operation == 'modify'"
                     v-model="selected.row.description"
                     size="small"
                     @keyup.enter.native="handleInputConfirm(scope.$index, scope.row)"
@@ -107,10 +110,10 @@
             <span v-else size="small" class="content" @click="">{{scope.row.description}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" prop="operation" width="160">
+        <el-table-column label="操作" prop="operation" width="200" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
-                    v-if="selected.index == scope.$index && selected.operation == 'modify'"
+                    v-if="selected.row && selected.row.id == scope.row.id && selected.operation == 'modify'"
                     size="mini-extral"
                     type="warning"
                     round
@@ -131,6 +134,19 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-container" v-if="totalSize > pageSize" :class="{'disable': showLoading}">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "pageSize"
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange"
+          >
+          </el-pagination>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -217,10 +233,11 @@
       }
     }
     .white-ip-list {
+      position: relative;
       flex: 1;
       .el-table {
         .el-button {
-          float: left;
+          /*float: left;*/
           margin: 1px 3px;
           margin-left: 0px;
         }
@@ -276,6 +293,11 @@
         resizeListener: () => {},
         heightOfTable: '',
 
+        totalSize: 0,
+        pageSize: 20,
+        currentPage: 1,
+        showLoading: false,
+
         domainInfo: {
         },
         itemToAdd: {
@@ -322,6 +344,11 @@
         if (index > -1) {
           this.queueForWaitingResponse.splice(index, 1);
         }
+      },
+      // the first page of pagination is 1
+      handlePaginationPageChange(page) {
+        this.currentPage = page;
+        this.requestWhiteIPList();
       },
 
       checkIPFormat(ip) {
@@ -380,7 +407,7 @@
             break;
           case 'modify':
             this.selected.operation = action;
-            this.selected.index = index;
+//            this.selected.index = index;
             this.selected.row = JSON.parse(JSON.stringify(row));
             break;
           case 'update':
@@ -477,13 +504,28 @@
        * 3. after upload excel file success or error
        */
       requestWhiteIPList() {
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        let start = page * this.pageSize;
+        let length = this.pageSize;
+        this.showLoading = true;
         this.$net.getWhiteIPList({
-          internetDomainId: this.domainInfo.id
+          internetDomainId: this.domainInfo.id,
+          start: start,
+          length: length,
         }).then(content => {
-          if (content && content.hasOwnProperty('whiteList')) {
-            this.IPList = content['whiteList'];
+          this.showLoading = false;
+          if (content.hasOwnProperty('whiteList')) {
+            if (content.hasOwnProperty('total')) {
+              this.totalSize = content['total'];
+            }
+            this.IPList = content['whiteList'].map((it, index) => {
+              it.index = start + index + 1;
+              return it;
+            });
           }
         }).catch(err => {
+          this.showLoading = false;
           this.IPList = [];
         })
       },
