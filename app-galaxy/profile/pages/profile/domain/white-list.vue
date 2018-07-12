@@ -293,8 +293,19 @@
       }
     },
     watch: {
-      'domainInfo.hasIPWhiteList': function (value) {
+      'domainInfo.hasIPWhiteList': function (value, oldValue) {
+        let domainID = this.domainInfo['id'];
+        if (!domainID) {
+          return;
+        }
+        if (oldValue === false && value === true) {
+          this.$net.domainDeleteAllWhiteIP(domainID);
+        }
+        if (oldValue === true && value === false) {
+          this.$net.domainAddOfficeWhiteIP(domainID)
+        }
         console.log(value);
+        console.log(oldValue);
       }
     },
     methods: {

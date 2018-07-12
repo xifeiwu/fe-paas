@@ -1247,6 +1247,23 @@ class Net extends NetBase {
       })
     });
   }
+  // 删除所有白名单
+  domainDeleteAllWhiteIP(id) {
+    let url = this.$utils.formatUrl(URL_LIST.domain_delete_all_white_ip.url, {id});
+    return new Promise((resolve, reject) => {
+      axios[URL_LIST.domain_delete_all_white_ip.method](url).then(response => {
+
+      });
+    })
+  }
+  domainAddOfficeWhiteIP(id) {
+    let url = this.$utils.formatUrl(URL_LIST.domain_add_office_ip_list.url, {id});
+    return new Promise((resolve, reject) => {
+      axios.post(url).then(response => {
+
+      });
+    })
+  }
   // 获取白名单列表
   getWhiteIPList(options) {
     return new Promise((resolve, reject) => {

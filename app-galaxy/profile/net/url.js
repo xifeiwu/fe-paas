@@ -287,20 +287,31 @@ class URL extends BaseURL {
         url: API_PATH + '/domain/unbind',
         path: '/domain/unbind'
       },
-      // 添加
+      // 添加白名单
       'domain_add_white_ip': {
         url: API_PATH + '/domain/whiteList/add',
         path: '/domain/whiteList/add'
       },
-      // 修改
+      // 修改白名单
       'domain_update_white_ip': {
         url: API_PATH + '/domain/whiteList/',
         path: '/domain/whiteList/'
       },
-      // 删除
+      // 删除白名单
       'domain_delete_white_ip': {
         url: API_PATH + '/domain/whiteList/',
         path: '/domain/whiteList/'
+      },
+      // 删除所有白名单
+      'domain_delete_all_white_ip': {
+        url: API_PATH + '/domain/whiteList/deleteAll?internetDomainId={id}',
+        path: '/domain/whiteList/deleteAll?internetDomainId={id}',
+        method: 'delete'
+      },
+      // 添加办公网白名单
+      'domain_add_office_ip_list': {
+        url: API_PATH + '/domain/whiteList/addOffice?internetDomainId={id}',
+        path: '/domain/whiteList/addOffice?internetDomainId={id}'
       },
       // 获取白名单列表
       'domain_white_ip_list': {
