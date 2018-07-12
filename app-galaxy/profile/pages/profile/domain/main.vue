@@ -84,6 +84,11 @@
                 prop="status"
                 label="状态"
         >
+          <template slot-scope="scope">
+            <span>{{scope.row.status}}</span>
+            <span v-if="scope.row.reason" style="color: #00f; cursor: pointer"
+                  @click="handleRowButtonClick('re-secure-verify', scope.$index, scope.row)">原因</span>
+          </template>
         </el-table-column>
         <el-table-column
                 prop="operation"
@@ -132,7 +137,7 @@
       </div>
     </div>
 
-    <el-dialog :title="domainProps.showResponse?'创建外网域名结果':'申请外网二级域名'" :visible="currentOpenedDialog == 'add-domain'"
+    <el-dialog :title="domainProps.showResponse?'创建外网域名结果':'申请外网二级域名'" :visible="selected.action == 'add-domain'"
                :class="{'add-domain': true, 'size-700': true, 'show-response': domainProps.showResponse}"
                :close-on-click-modal="false"
                @close="handleClickInDialog('close-domain-in-dialog')"
@@ -194,10 +199,10 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="绑定服务" :visible="currentOpenedDialog == 'bind-service'"
+    <el-dialog title="绑定服务" :visible="selected.action == 'bind-service'"
                :class="{'bind-service': true, 'size-800': true, 'show-response': bindServiceProps.showResponse}"
                :close-on-click-modal="false"
-               @close="currentOpenedDialog = null"
+               @close="selected.action = null"
     >
       <div v-if="bindServiceProps.showResponse">
         <div class="key title">外网域名</div>
@@ -248,16 +253,16 @@
                        :loading="statusOfWaitingResponse('bind-service-in-dialog')">保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
-            <el-button @click="currentOpenedDialog = null">取&nbsp消</el-button>
+            <el-button @click="selected.action = null">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
     </el-dialog>
 
-    <el-dialog title="解绑服务" :visible="currentOpenedDialog == 'unbind-service'"
+    <el-dialog title="解绑服务" :visible="selected.action == 'unbind-service'"
                :class="{'unbind-service': true, 'size-750': true, 'show-response': unBindServiceProps.showResponse}"
                :close-on-click-modal="false"
-               @close="currentOpenedDialog = null"
+               @close="selected.action = null"
     >
       <div v-if="unBindServiceProps.showResponse">
         <div class="key title">外网域名</div>
@@ -290,16 +295,16 @@
                        :loading="statusOfWaitingResponse('unbind-service-in-dialog')">确&nbsp定</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
-            <el-button @click="currentOpenedDialog = null">取&nbsp消</el-button>
+            <el-button @click="selected.action = null">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
     </el-dialog>
 
-    <el-dialog title="安全审核" :visible="currentOpenedDialog == 'secure-verify'"
+    <el-dialog title="安全审核" :visible="selected.action == 'secure-verify'"
                :class="{'secure-verify': true, 'size-650': true,}"
                :close-on-click-modal="false"
-               @close="currentOpenedDialog = null"
+               @close="selected.action = null"
     >
       <el-form labelWidth="120px" size="mini">
         <el-form-item label="审核意见：" class="custom-image">
@@ -325,12 +330,39 @@
                        :loading="statusOfWaitingResponse('secure-verify-in-dialog')">确&nbsp定</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
-            <el-button @click="currentOpenedDialog = null">取&nbsp消</el-button>
+            <el-button @click="selected.action = null">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
     </el-dialog>
 
+    <el-dialog title="审核不通过" :visible="selected.action == 're-secure-verify'"
+               :class="{'re-secure-verify': true, 'size-650': true,}"
+               :close-on-click-modal="false"
+               @close="selected.action = null"
+    >
+      <el-form labelWidth="120px" size="mini">
+        <el-form-item label="不通过原因：" class="reason" v-if="selected.row && selected.row.reason">
+          {{selected.row.reason}}
+        </el-form-item>
+        <el-form-item label="安全审核人：" class="tip"
+        >
+          李斌（NBSP-安全组），15600693326
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center">
+            <el-button type="primary"
+                       @click="handleClickInDialog('re-secure-verify')"
+                       :loading="statusOfWaitingResponse('re-secure-verify')">重新审核</el-button>
+          </el-col>
+          <el-col :span="12" style="text-align: center">
+            <el-button @click="selected.action = null">取&nbsp消</el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -483,6 +515,13 @@
           }
         }
       }
+      &.re-secure-verify {
+        .el-form-item {
+          &.reason {
+            margin-bottom: 8px;
+          }
+        }
+      }
     }
   }
 </style>
@@ -581,6 +620,7 @@
         showLoading: false,
         queueForWaitingResponse: [],
         selected: {
+          action: '',
           row: null
         },
 
@@ -624,8 +664,6 @@
         },
         // whether bind button is enabled
 //        isProfileSelected: false,
-
-        currentOpenedDialog: null,
 
         rules: {
           domainList: [{
@@ -803,7 +841,7 @@
         this.selected.row = row;
         switch (action) {
           case 'secure-verify':
-            this.currentOpenedDialog = action;
+            this.selected.action = action;
             this.secureCheckProps.passed = false;
             this.secureCheckProps.reason = '';
             this.secureCheckProps.tip = '';
@@ -843,6 +881,9 @@
                 this.hideWaitingResponse(action);
               });
             }
+            break;
+          case 're-secure-verify':
+            this.selected.action = action;
             break;
         }
       },
@@ -893,7 +934,7 @@
 
               this.onProfileChangeInCreateDomainDialog(this.domainProps.profileName);
               this.hideWaitingResponse(action);
-              this.currentOpenedDialog = 'add-domain';
+              this.selected.action = 'add-domain';
             }).catch(err => {
               this.$notify.error({
                 title: err.title,
@@ -915,14 +956,14 @@
               this.$message.warning('请先选择要操作的域名');
               return;
             }
-            this.currentOpenedDialog = 'bind-service';
+            this.selected.action = 'bind-service';
             break;
           case 'open-unbind-service-dialog':
             if (this.rowsSelected.length == 0) {
               this.$message.warning('请先选择要操作的域名');
               return;
             }
-            this.currentOpenedDialog = 'unbind-service';
+            this.selected.action = 'unbind-service';
             break;
         }
       },
@@ -1002,7 +1043,7 @@
             });
             break;
           case 'close-domain-in-dialog':
-            this.currentOpenedDialog = null;
+            this.selected.action = null;
             if (this.domainProps.showResponse) {
               this.requestDomainList();
             }
@@ -1071,7 +1112,7 @@
             });
             break;
           case 'close-bind-service-in-dialog':
-            this.currentOpenedDialog = null;
+            this.selected.action = null;
             if (this.bindServiceProps.showResponse) {
               this.requestDomainList();
               this.bindServiceProps.showResponse = false;
@@ -1120,7 +1161,7 @@
             });
             break;
           case 'close-unbind-service-in-dialog':
-            this.currentOpenedDialog = null;
+            this.selected.action = null;
             if (this.unBindServiceProps.showResponse) {
               this.requestDomainList();
               this.unBindServiceProps.showResponse = false;
@@ -1138,12 +1179,34 @@
               reason: this.secureCheckProps.reason
             }).then(() => {
               this.hideWaitingResponse(action);
-              this.currentOpenedDialog = null;
+              this.selected.action = null;
               this.$message.success('提交成功');
               this.requestDomainList();
             }).catch(err => {
               this.hideWaitingResponse(action);
-              this.currentOpenedDialog = null;
+              this.selected.action = null;
+              this.$notify.error({
+                title: err.title,
+                message: err.msg,
+                duration: 0,
+                onClose: function() {}
+              })
+            });
+            break;
+          case 're-secure-verify':
+            this.addToWaitingResponseQueue(action);
+            this.$net.domainSecureCheck({
+              id: this.selected.row.id,
+              status: 'APPLY',
+              reason: '重新申请'
+            }).then(() => {
+              this.hideWaitingResponse(action);
+              this.selected.action = null;
+              this.$message.success('提交成功');
+              this.requestDomainList();
+            }).catch(err => {
+              this.hideWaitingResponse(action);
+              this.selected.action = null;
               this.$notify.error({
                 title: err.title,
                 message: err.msg,
