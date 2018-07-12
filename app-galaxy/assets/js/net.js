@@ -80,8 +80,9 @@ class Net {
 
   /**
    * get the message to user from data
-   * @param data
-   * @returns {{success: boolean, msg: string}}
+   * @param response
+   * @param default error tip
+   * @returns {{success: boolean, title: string, msg: string}}
    *
    * format of error response.data
    * {
@@ -101,6 +102,7 @@ class Net {
       if (0 === data.code) {
         result.success = true;
         result.title = '成功！';
+        result.msg = '';
       } else {
         result.success = false;
         result.title = '错误! ' + data.hasOwnProperty('code') ? data.code : '';
@@ -126,6 +128,7 @@ class Net {
       if (true === data.success) {
         result.success = true;
         result.title = '成功！';
+        result.msg = '';
       } else {
         result.success = false;
         result.title = '错误! ' + data.hasOwnProperty('code') ? data.code : '';

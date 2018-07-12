@@ -1105,15 +1105,20 @@ class Net extends NetBase {
   removeDomain(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.domain_remove.url, options).then(response => {
-        let responseMsg = this.getResponseMsg(response);
+        let responseMsg = this.getResponseMsg(response, {
+          title: '删除域名失败',
+          msg: '请联系管理员'
+        });
         if (responseMsg.success) {
-          resolve(responseMsg.msg);
+          resolve(responseMsg);
         } else {
-          reject(responseMsg.msg);
+          reject(responseMsg);
         }
       }).catch(err => {
-        console.log(err);
-        reject('删除域名失败！');
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.domain_remove.path}；${err.toString()}`
+        });
       })
     })
   }

@@ -820,30 +820,35 @@
             break;
           case 'remove':
             this.addToWaitingResponseQueue(action);
-            this.warningConfirm(`删除外网二级域名"${row.internetDomain}"，将会同时删除该域名关联的IP白名单，确定吗？`).then(() => {
-              this.$net.removeDomain({
-                id: row.id
-              }).then(msg => {
+
+            if (row['hasBind']) {
+              this.warningConfirm(`外网域名"${row.internetDomain}"${row.status}，请先解绑服务，才能删除！`).then(() => {
                 this.hideWaitingResponse(action);
-                this.$message.success(`成功删除域名"${row['internetDomain']}"`);
-                this.requestDomainList();
-              }).catch(msg => {
+              }).catch(() => {
                 this.hideWaitingResponse(action);
-                this.$notify({
-                  title: '删除域名失败',
-                  message: msg,
-                  duration: 0,
-                  onClose: function () {
-                  }
-                });
               });
-            }).catch(() => {
-              this.hideWaitingResponse(action);
-//              this.$message({
-//                type: 'info',
-//                message: '您已取消删除'
-//              });
-            });
+            } else {
+              this.warningConfirm(`删除外网域名"${row.internetDomain}"，将会同时删除该域名关联的IP白名单，确定吗？`).then(() => {
+                this.$net.removeDomain({
+                  id: row.id
+                }).then(msg => {
+                  this.hideWaitingResponse(action);
+                  this.$message.success(`成功删除域名"${row['internetDomain']}"`);
+                  this.requestDomainList();
+                }).catch(err => {
+                  this.hideWaitingResponse(action);
+                  this.$notify({
+                    title: err.title,
+                    message: err.msg,
+                    duration: 0,
+                    onClose: function () {
+                    }
+                  });
+                });
+              }).catch(() => {
+                this.hideWaitingResponse(action);
+              });
+            }
             break;
         }
       },
