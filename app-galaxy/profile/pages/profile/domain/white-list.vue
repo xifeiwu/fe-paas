@@ -5,7 +5,7 @@
         <div style="font-weight: bold; display: inline-block; margin-right: 30px;">
           <span>外网二级域名：</span><span>{{domainInfo.domainName}}</span>
         </div>
-        <el-checkbox v-model="domainInfo.hasIPWhiteList">
+        <el-checkbox v-model="domainInfo.notHaveIPWhiteList">
           <span style="display: inline-block;">一键开启全网访问</span>
         </el-checkbox>
       </div>
@@ -262,7 +262,7 @@
     mounted() {
       let dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer && dataTransfer.hasOwnProperty('id') && dataTransfer.hasOwnProperty('internetDomain')
-        && dataTransfer.hasOwnProperty('hasIPWhiteList')) {
+        && dataTransfer.hasOwnProperty('notHaveIPWhiteList')) {
         this.domainInfo = dataTransfer;
         this.domainInfo.domainName = dataTransfer['internetDomain'];
         this.itemToAdd.internetDomainId = this.domainInfo['id'];
@@ -308,8 +308,8 @@
       }
     },
     watch: {
-      // action will not trigger at first change of domainInfo.hasIPWhiteList
-      'domainInfo.hasIPWhiteList': function (value, oldValue) {
+      // action will not trigger at first change of domainInfo.notHaveIPWhiteList
+      'domainInfo.notHaveIPWhiteList': function (value, oldValue) {
         let domainID = this.domainInfo['id'];
         if (!domainID) {
           return;
