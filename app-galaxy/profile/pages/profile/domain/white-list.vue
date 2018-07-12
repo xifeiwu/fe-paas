@@ -72,15 +72,9 @@
               v-clickoutside="handleClickOutsideTable"
               :height="heightOfTable"
       >
-        <el-table-column
-                prop="index"
-                label="编号"
-                width="80"
-        >
+        <el-table-column prop="index" label="编号" width="80" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column
-                prop="ip"
-                label="IP白名单">
+        <el-table-column prop="ip" label="IP白名单">
           <template slot-scope="scope">
             <el-input
                     class="input-new-tag"
@@ -94,9 +88,7 @@
             <span v-else size="small" class="content" @click="">{{scope.row.ip}}</span>
           </template>
         </el-table-column>
-        <el-table-column
-                prop="description"
-                label="说明">
+        <el-table-column prop="description" label="说明">
           <template slot-scope="scope">
             <el-input
                     class="input-new-tag"
@@ -324,6 +316,9 @@
         if (oldValue === false && value === true) {
           this.$net.domainDeleteAllWhiteIP(domainID).then(resMsg => {
             this.$message.success(resMsg.msg);
+            this.$storeHelper.dataTransfer = this.domainInfo;
+            this.currentPage = 1;
+            this.requestWhiteIPList();
           }).catch(err => {
             this.$notify.error({
               title: err.title,
@@ -337,6 +332,9 @@
         if (oldValue === true && value === false) {
           this.$net.domainAddOfficeWhiteIP(domainID).then(resMsg => {
             this.$message.success(resMsg.msg);
+            this.$storeHelper.dataTransfer = this.domainInfo;
+            this.currentPage = 1;
+            this.requestWhiteIPList();
           }).catch(err => {
             this.$notify.error({
               title: err.title,
