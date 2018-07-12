@@ -78,6 +78,10 @@ class Net extends NetBase {
           '/2.x/instances/openTerminal': 'open_terminal_from_instance',
           // 从实例列表打开监控
           '	/2.x/instances/apm': '',
+          // 外网域名安全审核
+          '/2.x/internet/update': 'domain_secure_check',
+
+          // 页面相关
           // 服务管理页面
           '/2.x/service': '/service',
           // 实例列表页面

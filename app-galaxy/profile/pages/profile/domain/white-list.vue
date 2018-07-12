@@ -265,6 +265,7 @@
         && dataTransfer.hasOwnProperty('hasIPWhiteList')) {
         this.domainInfo = dataTransfer;
         this.domainInfo.domainName = dataTransfer['internetDomain'];
+        this.itemToAdd.internetDomainId = this.domainInfo['id'];
         this.requestWhiteIPList();
       } else {
         this.$router.go(-1);

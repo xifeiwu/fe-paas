@@ -87,7 +87,7 @@
           <template slot-scope="scope">
             <span>{{scope.row.status}}</span>
             <span v-if="scope.row.reason" style="color: #00f; cursor: pointer"
-                  @click="handleRowButtonClick('re-secure-verify', scope.$index, scope.row)">原因</span>
+                  @click="handleRowButtonClick('re-secure-check', scope.$index, scope.row)">原因</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -98,9 +98,10 @@
           <template slot-scope="scope">
             <el-button
                     round
+                    v-if="!$storeHelper.notPermitted['domain_secure_check']"
                     size="mini-extral"
                     type="warning"
-                    @click="handleRowButtonClick('secure-verify', scope.$index, scope.row)">
+                    @click="handleRowButtonClick('secure-check', scope.$index, scope.row)">
               安全审核
             </el-button>
             <el-button
@@ -301,8 +302,8 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="安全审核" :visible="selected.action == 'secure-verify'"
-               :class="{'secure-verify': true, 'size-650': true,}"
+    <el-dialog title="安全审核" :visible="selected.action == 'secure-check'"
+               :class="{'secure-check': true, 'size-650': true,}"
                :close-on-click-modal="false"
                @close="selected.action = null"
     >
@@ -326,8 +327,8 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleClickInDialog('secure-verify-in-dialog')"
-                       :loading="statusOfWaitingResponse('secure-verify-in-dialog')">确&nbsp定</el-button>
+                       @click="handleClickInDialog('secure-check-in-dialog')"
+                       :loading="statusOfWaitingResponse('secure-check-in-dialog')">确&nbsp定</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button @click="selected.action = null">取&nbsp消</el-button>
@@ -336,8 +337,8 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="审核不通过" :visible="selected.action == 're-secure-verify'"
-               :class="{'re-secure-verify': true, 'size-650': true,}"
+    <el-dialog title="审核不通过" :visible="selected.action == 're-secure-check'"
+               :class="{'re-secure-check': true, 'size-650': true,}"
                :close-on-click-modal="false"
                @close="selected.action = null"
     >
@@ -354,8 +355,8 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleClickInDialog('re-secure-verify')"
-                       :loading="statusOfWaitingResponse('re-secure-verify')">重新审核</el-button>
+                       @click="handleClickInDialog('re-secure-check')"
+                       :loading="statusOfWaitingResponse('re-secure-check')">重新审核</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
             <el-button @click="selected.action = null">取&nbsp消</el-button>
@@ -515,7 +516,7 @@
           }
         }
       }
-      &.re-secure-verify {
+      &.re-secure-check {
         .el-form-item {
           &.reason {
             margin-bottom: 8px;
@@ -840,7 +841,7 @@
       handleRowButtonClick(action, index, row) {
         this.selected.row = row;
         switch (action) {
-          case 'secure-verify':
+          case 'secure-check':
             this.selected.action = action;
             this.secureCheckProps.passed = false;
             this.secureCheckProps.reason = '';
@@ -882,7 +883,7 @@
               });
             }
             break;
-          case 're-secure-verify':
+          case 're-secure-check':
             this.selected.action = action;
             break;
         }
@@ -1167,7 +1168,7 @@
               this.unBindServiceProps.showResponse = false;
             }
             break;
-          case 'secure-verify-in-dialog':
+          case 'secure-check-in-dialog':
             if (!this.secureCheckProps.passed && !this.secureCheckProps.reason) {
               this.secureCheckProps.tip = '请描述审核不通过的理由';
               return;
@@ -1193,7 +1194,7 @@
               })
             });
             break;
-          case 're-secure-verify':
+          case 're-secure-check':
             this.addToWaitingResponseQueue(action);
             this.$net.domainSecureCheck({
               id: this.selected.row.id,
