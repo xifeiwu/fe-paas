@@ -1043,8 +1043,8 @@ class Net extends NetBase {
           }
         } else {
           let resMsg = this.getResponseMsg(response, {
-            title: '获取一级域名列表失败！',
-            msg: '请联系管理员'
+            successMsg: '',
+            errorMsg: '获取一级域名列表失败！'
           });
           reject(resMsg);
         }
@@ -1067,8 +1067,8 @@ class Net extends NetBase {
           this.showLog('createDomain', content);
         } else {
           let resMsg = this.getResponseMsg2(response, {
-            title: '创建域名失败',
-            msg: '请联系管理员'
+            successMsg: '',
+            errorMsg: '创建域名失败'
           });
           reject(resMsg);
         }
@@ -1088,8 +1088,8 @@ class Net extends NetBase {
           resolve();
         } else {
           let resMsg = this.getResponseMsg2(response, {
-            title: '提交安全审核失败！',
-            msg: '请联系管理员'
+            successMsg: '',
+            errorMsg: '提交安全审核失败！'
           });
           reject(resMsg);
         }
@@ -1106,8 +1106,8 @@ class Net extends NetBase {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.domain_remove.url, options).then(response => {
         let responseMsg = this.getResponseMsg(response, {
-          title: '删除域名失败',
-          msg: '请联系管理员'
+          successMsg: '',
+          errorMsg: '删除域名失败'
         });
         if (responseMsg.success) {
           resolve(responseMsg);
@@ -1142,8 +1142,8 @@ class Net extends NetBase {
           }
         } else {
           let resMsg = this.getResponseMsg(response, {
-            title: '获取外网域名列表失败',
-            msg: '请联系管理员'
+            successMsg: '',
+            errorMsg: '获取外网域名列表失败'
           });
           reject(resMsg);
         }
@@ -1253,8 +1253,8 @@ class Net extends NetBase {
     return new Promise((resolve, reject) => {
       axios[URL_LIST.domain_delete_all_white_ip.method](url).then(response => {
         let resMsg = this.getResponseMsg(response, {
-          title: '一键开启全网访问失败！',
-          msg: '请联系管理员'
+          successMsg: '开启"一键开启全网访问"成功！',
+          errorMsg: '开启"一键开启全网访问"失败！'
         });
         if (resMsg.success) {
           resolve(resMsg);
@@ -1273,8 +1273,22 @@ class Net extends NetBase {
     let url = this.$utils.formatUrl(URL_LIST.domain_add_office_ip_list.url, {id});
     return new Promise((resolve, reject) => {
       axios.post(url).then(response => {
-
-      });
+        let resMsg = this.getResponseMsg(response, {
+          successMsg: '关闭"一键开启全网访问"成功！',
+          errorMsg: '关闭"一键开启全网访问"失败！'
+        });
+        console.log(resMsg);
+        if (resMsg.success) {
+          resolve(resMsg);
+        } else {
+          reject(resMsg);
+        }
+      }).catch(err => {
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.domain_add_office_ip_list.path}；${err.toString()}`
+        });
+      })
     })
   }
   // 获取白名单列表
@@ -1416,8 +1430,8 @@ class Net extends NetBase {
           resolve(resContent);
         } else {
           let resMsg = this.getResponseMsg2(response, {
-            title: '获取AccessKey列表失败',
-            msg: '请联系管理员'
+            successMsg: '',
+            errorMsg: '获取AccessKey列表失败'
           });
           reject(resMsg);
         }
@@ -1486,8 +1500,8 @@ class Net extends NetBase {
           }
         } else {
           let resMsg = this.getResponseMsg(response, {
-            title: '获取数据失败',
-            msg: '请联系管理员'
+            successMsg: '',
+            errorMsg: '获取数据失败'
           });
           reject(resMsg);
         }
@@ -1688,8 +1702,8 @@ class Net extends NetBase {
           resolve(resContent);
         } else {
           let resMsg = this.getResponseMsg2(response, {
-            title: '配置权限失败',
-            msg: '请联系管理员'
+            successMsg: '',
+            errorMsg: '配置权限失败'
           });
           reject(resMsg);
         }
@@ -1712,8 +1726,8 @@ class Net extends NetBase {
           resolve(resContent);
         } else {
           let resMsg = this.getResponseMsg2(response, {
-            title: '删除失败',
-            msg: '请联系管理员'
+            successMsg: '',
+            errorMsg: '删除失败'
           });
           reject(resMsg);
         }

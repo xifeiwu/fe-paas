@@ -91,11 +91,11 @@ class Net {
    *   "t":1526456545447
    * }
    */
-  getResponseMsg(response, {title, msg} = {title: '', msg: ''}) {
+  getResponseMsg(response, {successMsg, errorMsg} = {successMsg: '', errorMsg: ''}) {
     let result = {
       success: false,
-      title: title ? title : '',
-      msg: msg ? msg : ''
+      title: '',
+      msg: ''
     };
     if ('data' in response) {
       let data = response.data;
@@ -105,23 +105,31 @@ class Net {
         result.msg = '';
       } else {
         result.success = false;
-        result.title = '错误! ' + data.hasOwnProperty('code') ? data.code : '';
+        result.title = '错误! ' + (data.hasOwnProperty('code') ? data.code : '');
       }
       if (data.hasOwnProperty('msg') && data.msg && (data.msg.length > 0)) {
         result.msg = data.msg
       } else if (data.hasOwnProperty('content') && data.content && (data.content.length > 0)) {
         result.msg = JSON.stringify(data.content);
+      } else {
+        if (result.success) {
+          result.msg = successMsg;
+        } else {
+          result.msg = errorMsg;
+        }
       }
+    } else {
+      result.title = '失败';
+      result.msg = errorMsg;
     }
-    // console.log(result);
     return result;
   }
 
-  getResponseMsg2(response, {title, msg} = {title: '', msg: ''}) {
+  getResponseMsg2(response, {successMsg, errorMsg} = {successMsg: '', errorMsg: ''}) {
     let result = {
       success: false,
-      title: title ? title : '',
-      msg: msg ? msg : ''
+      title: '',
+      msg: ''
     };
     if ('data' in response) {
       let data = response.data;
@@ -131,13 +139,22 @@ class Net {
         result.msg = '';
       } else {
         result.success = false;
-        result.title = '错误! ' + data.hasOwnProperty('code') ? data.code : '';
+        result.title = '错误! ' + (data.hasOwnProperty('code') ? data.code : '');
       }
       if (data.hasOwnProperty('msg') && data.msg && (data.msg.length > 0)) {
         result.msg = data.msg
       } else if (data.hasOwnProperty('content') && data.content && (data.content.length > 0)) {
         result.msg = JSON.stringify(data.content);
+      } else {
+        if (result.success) {
+          result.msg = successMsg;
+        } else {
+          result.msg = errorMsg;
+        }
       }
+    } else {
+      result.title = '失败';
+      result.msg = errorMsg;
     }
     return result;
   }

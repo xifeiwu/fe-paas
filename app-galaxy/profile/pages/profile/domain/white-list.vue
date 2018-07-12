@@ -315,6 +315,7 @@
       }
     },
     watch: {
+      // action will not trigger at first change of domainInfo.hasIPWhiteList
       'domainInfo.hasIPWhiteList': function (value, oldValue) {
         let domainID = this.domainInfo['id'];
         if (!domainID) {
@@ -322,11 +323,11 @@
         }
         if (oldValue === false && value === true) {
           this.$net.domainDeleteAllWhiteIP(domainID).then(resMsg => {
-            this.$message.success('配置成功');
+            this.$message.success(resMsg.msg);
           }).catch(err => {
             this.$notify.error({
               title: err.title,
-              msg: err.msg,
+              message: err.msg,
               duration: 0,
               onClose: function () {
               }
@@ -335,19 +336,19 @@
         }
         if (oldValue === true && value === false) {
           this.$net.domainAddOfficeWhiteIP(domainID).then(resMsg => {
-            this.$message.success('配置成功');
+            this.$message.success(resMsg.msg);
           }).catch(err => {
             this.$notify.error({
               title: err.title,
-              msg: err.msg,
+              message: err.msg,
               duration: 0,
               onClose: function () {
               }
             })
           });
         }
-        console.log(value);
-        console.log(oldValue);
+//        console.log(value);
+//        console.log(oldValue);
       }
     },
     methods: {
