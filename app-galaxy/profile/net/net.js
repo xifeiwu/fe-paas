@@ -1252,8 +1252,21 @@ class Net extends NetBase {
     let url = this.$utils.formatUrl(URL_LIST.domain_delete_all_white_ip.url, {id});
     return new Promise((resolve, reject) => {
       axios[URL_LIST.domain_delete_all_white_ip.method](url).then(response => {
-
-      });
+        let resMsg = this.getResponseMsg(response, {
+          title: '一键开启全网访问失败！',
+          msg: '请联系管理员'
+        });
+        if (resMsg.success) {
+          resolve(resMsg);
+        } else {
+          reject(resMsg);
+        }
+      }).catch(err => {
+        reject({
+          title: '网络请求错误',
+          msg: `请求路径：${URL_LIST.domain_delete_all_white_ip.path}；${err.toString()}`
+        });
+      })
     })
   }
   domainAddOfficeWhiteIP(id) {

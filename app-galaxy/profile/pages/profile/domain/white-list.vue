@@ -118,14 +118,14 @@
                     type="warning"
                     round
                     :loading = "statusOfWaitingResponse('update')"
-                    @click="handleRowButtonClick('update', scope.$index, scope.row)">更新</el-button>
-            <el-button
+                    @click="handleRowButtonClick('update', scope.$index, scope.row)">更新</el-button><!--
+         --><el-button
                     size="mini-extral"
                     type="warning"
                     round
                     v-else
-                    @click="handleRowButtonClick('modify', scope.$index, scope.row)">修改</el-button>
-            <el-button
+                    @click="handleRowButtonClick('modify', scope.$index, scope.row)">修改</el-button><!--
+         --><el-button
                     size="mini-extral"
                     type="danger"
                     round
@@ -321,10 +321,30 @@
           return;
         }
         if (oldValue === false && value === true) {
-          this.$net.domainDeleteAllWhiteIP(domainID);
+          this.$net.domainDeleteAllWhiteIP(domainID).then(resMsg => {
+            this.$message.success('配置成功');
+          }).catch(err => {
+            this.$notify.error({
+              title: err.title,
+              msg: err.msg,
+              duration: 0,
+              onClose: function () {
+              }
+            })
+          });
         }
         if (oldValue === true && value === false) {
-          this.$net.domainAddOfficeWhiteIP(domainID)
+          this.$net.domainAddOfficeWhiteIP(domainID).then(resMsg => {
+            this.$message.success('配置成功');
+          }).catch(err => {
+            this.$notify.error({
+              title: err.title,
+              msg: err.msg,
+              duration: 0,
+              onClose: function () {
+              }
+            })
+          });
         }
         console.log(value);
         console.log(oldValue);
