@@ -1493,7 +1493,7 @@ export default {
             this.$message.error('数据不完整！尝试刷新页面重试');
             return;
           }
-          this.$storeHelper.spaDataTransfer = infoForAddService;
+          this.$storeHelper.dataTransfer = infoForAddService;
           this.$router.push('/service/add');
           break;
         case 'refreshAppList':

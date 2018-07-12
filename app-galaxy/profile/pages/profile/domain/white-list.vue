@@ -1,7 +1,7 @@
 <template>
   <div id="domain-white-list">
     <div class="header">
-      <div class="domain-name"><span>外网二级域名：</span><span>{{paramsInQueryString.domainName}}</span></div>
+      <div class="domain-name"><span>外网二级域名：</span><span>{{domainInfo.domainName}}</span></div>
       <el-row class="upload-area" type="flex">
         <el-col :span="8" class="upload">
           <el-upload
@@ -244,18 +244,17 @@
     created() {
     },
     mounted() {
-      let queryParam = this.$route.query;
-      if ('id' in queryParam && 'domainName' in queryParam) {
-        this.paramsInQueryString.id = parseInt(queryParam['id']);
-        this.paramsInQueryString.domainName = queryParam['domainName'];
-        this.itemToAdd.internetDomainId = this.paramsInQueryString.id;
+      let dataTransfer = this.$storeHelper.dataTransfer;
+      if (dataTransfer && dataTransfer.hasOwnProperty('id') && dataTransfer.hasOwnProperty('internetDomain')) {
+        this.domainInfo = dataTransfer;
+        this.domainInfo.domainName = dataTransfer['internetDomain'];
         this.requestWhiteIPList();
       } else {
         this.$router.go(-1);
       }
 
       let headerNode = this.$el.querySelector(':scope > .header');
-      this.resizeListener = (evt) => {
+      this.resizeListener = () => {
         let headerHeight = headerNode.offsetHeight;
         this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
       };
@@ -269,9 +268,7 @@
         resizeListener: () => {},
         heightOfTable: '',
 
-        paramsInQueryString: {
-          id: null,
-          domainName: null,
+        domainInfo: {
         },
         itemToAdd: {
           internetDomainId: '',
@@ -381,7 +378,7 @@
               }
               this.addToWaitingResponseQueue('update');
               this.$net.updateWhiteIP({
-                internetDomainId: this.paramsInQueryString.id,
+                internetDomainId: this.domainInfo.id,
                 description: this.selected.row.description,
                 ip: this.selected.row.ip
               }, this.selected.row.id).then(msg => {
@@ -457,7 +454,7 @@
        */
       requestWhiteIPList() {
         this.$net.getWhiteIPList({
-          internetDomainId: this.paramsInQueryString.id
+          internetDomainId: this.domainInfo.id
         }).then(content => {
           if (content && content.hasOwnProperty('whiteList')) {
             this.IPList = content['whiteList'];

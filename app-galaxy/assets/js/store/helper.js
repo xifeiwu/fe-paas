@@ -96,12 +96,12 @@ export default class StoreHelper {
     return this.$store.getters['global/menuList'];
   }
 
-  set spaDataTransfer(data) {
-    this.$store.commit('global/spaDataTransfer', data);
+  set dataTransfer(data) {
+    this.$store.commit('global/dataTransfer', data);
   }
 
-  get spaDataTransfer() {
-    return this.$store.getters['global/spaDataTransfer'];
+  get dataTransfer() {
+    return this.$store.getters['global/dataTransfer'];
   }
 
   /**

@@ -349,7 +349,7 @@
   export default {
     mixins: [commonUtils],
     created() {
-      let infoForAddService = this.$storeHelper.spaDataTransfer;
+      let infoForAddService = this.$storeHelper.dataTransfer;
       if (!infoForAddService) {
         this.$router.go(-1);
         return;

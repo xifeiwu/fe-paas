@@ -809,14 +809,8 @@
             this.secureCheckProps.tip = '';
             break;
           case 'to-white-list':
-            let domain = row.domain;
-            this.$router.push({
-              path: '/domain/white-list',
-              query: {
-                id: row.id,
-                domainName: row['internetDomain']
-              }
-            });
+            this.$router.push('/domain/white-list');
+            this.$storeHelper.dataTransfer = row;
             break;
           case 'remove':
             this.addToWaitingResponseQueue(action);
