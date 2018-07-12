@@ -1,7 +1,14 @@
 <template>
   <div id="domain-white-list">
     <div class="header">
-      <div class="domain-name"><span>外网二级域名：</span><span>{{domainInfo.domainName}}</span></div>
+      <div class="domain-name" style="padding: 6px 0px;">
+        <div style="font-weight: bold; display: inline-block; margin-right: 30px;">
+          <span>外网二级域名：</span><span>{{domainInfo.domainName}}</span>
+        </div>
+        <el-checkbox v-model="domainInfo.hasIPWhiteList">
+          <span style="display: inline-block;">一键开启全网访问</span>
+        </el-checkbox>
+      </div>
       <el-row class="upload-area" type="flex">
         <el-col :span="8" class="upload">
           <el-upload
@@ -245,7 +252,8 @@
     },
     mounted() {
       let dataTransfer = this.$storeHelper.dataTransfer;
-      if (dataTransfer && dataTransfer.hasOwnProperty('id') && dataTransfer.hasOwnProperty('internetDomain')) {
+      if (dataTransfer && dataTransfer.hasOwnProperty('id') && dataTransfer.hasOwnProperty('internetDomain')
+        && dataTransfer.hasOwnProperty('hasIPWhiteList')) {
         this.domainInfo = dataTransfer;
         this.domainInfo.domainName = dataTransfer['internetDomain'];
         this.requestWhiteIPList();
@@ -282,6 +290,11 @@
           row: null,
           operation: null,
         },
+      }
+    },
+    watch: {
+      'domainInfo.hasIPWhiteList': function (value) {
+        console.log(value);
       }
     },
     methods: {
