@@ -250,6 +250,15 @@ class AppInfoHelper {
         required: true,
         message: '请输入超时时间',
       }],
+      portMap: [{
+        required: false,
+        validator(rule, values, callback) {
+          let passed = true;
+          if (passed) {
+            callback();
+          }
+        }
+      }],
       agree: [{
         required: false,
       }, {

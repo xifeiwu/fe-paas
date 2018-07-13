@@ -175,30 +175,29 @@
           </el-col>
         </el-row>
       </el-form-item>
-      <el-form-item label="端口映射" class="port-mapping" prop="portMapping">
+      <el-form-item label="端口映射" class="port-map" prop="portMap">
         <div class="el-row title">
-          <div class="el-col el-col-3">协议</div>
-          <div class="el-col el-col-3">访问端口
-            <span>
-              <el-tooltip slot="trigger" effect="dark" placement="top">
-                <div slot="content">
-                  <div>访问端口的范围在40000~60000之间</div>
-                </div>
-                <span><i class="el-icon-question" style="color:#E6A23C"></i></span>
-              </el-tooltip>
-            </span>
+          <div class="el-col el-col-6">协议</div>
+          <div class="el-col el-col-6">
+            <span>访问端口</span>
+            <el-tooltip slot="trigger" effect="dark" placement="top">
+              <div slot="content">
+                <div>访问端口的范围在40000~60000之间</div>
+              </div>
+              <span><i class="el-icon-question" style="color:#E6A23C"></i></span>
+            </el-tooltip>
           </div>
-          <div class="el-col el-col-1" style="min-height:1px"></div>
-          <div class="el-col el-col-3">目标端口</div>
+          <div class="el-col el-col-2" style="min-height:1px"></div>
+          <div class="el-col el-col-6">目标端口</div>
         </div>
-        <el-row class="">
-          <div class="el-col el-col-3">TCP</div>
-          <el-col :span="3">
-            <el-input placeholder="如40002" size="mini"></el-input>
+        <el-row class="content">
+          <el-col :span="6">TCP</el-col>
+          <el-col :span="6">
+            <el-input placeholder="如40002" size="mini" v-model="serviceForm.portMap.from"></el-input>
           </el-col>
-          <div class="el-col el-col-1" style="text-align:center">--></div>
-          <el-col :span="3">
-            <el-input placeholder="如8100" size="mini"></el-input>
+          <el-col :span="2">--></el-col>
+          <el-col :span="6">
+            <el-input placeholder="如8100" size="mini" v-model="serviceForm.portMap.to"></el-input>
           </el-col>
         </el-row>
       </el-form-item>
@@ -335,8 +334,14 @@
             }
           }
         }
-        &.port-mapping{
-          font-weight:bold;
+        &.port-map {
+          .title {
+            font-weight: bold;
+            text-align: center;
+          }
+          .content {
+            text-align: center;
+          }
         }
       }
     }
@@ -396,6 +401,10 @@
           autoImageValue: '',
           // value of customImage
           customImageValue: '',
+          portMap: {
+            from: '',
+            to: ''
+          }
         },
         // error message for form-item environments
         formItemMsgForEnvironments: '',
