@@ -175,6 +175,33 @@
           </el-col>
         </el-row>
       </el-form-item>
+      <el-form-item label="端口映射" class="port-mapping" prop="portMapping">
+        <div class="el-row title">
+          <div class="el-col el-col-3">协议</div>
+          <div class="el-col el-col-3">访问端口
+            <span>
+              <el-tooltip slot="trigger" effect="dark" placement="top">
+                <div slot="content">
+                  <div>访问端口的范围在40000~60000之间</div>
+                </div>
+                <span><i class="el-icon-question" style="color:#E6A23C"></i></span>
+              </el-tooltip>
+            </span>
+          </div>
+          <div class="el-col el-col-1" style="min-height:1px"></div>
+          <div class="el-col el-col-3">目标端口</div>
+        </div>
+        <el-row class="">
+          <div class="el-col el-col-3">TCP</div>
+          <el-col :span="3">
+            <el-input placeholder="如40002" size="mini"></el-input>
+          </el-col>
+          <div class="el-col el-col-1" style="text-align:center">--></div>
+          <el-col :span="3">
+            <el-input placeholder="如8100" size="mini"></el-input>
+          </el-col>
+        </el-row>
+      </el-form-item>
       <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
         <el-input-number v-model="serviceForm.instanceCount" :min="1" :max="20" label="描述文字"></el-input-number>
       </el-form-item>
@@ -307,6 +334,9 @@
               padding: 0px 3px;
             }
           }
+        }
+        &.port-mapping{
+          font-weight:bold;
         }
       }
     }
