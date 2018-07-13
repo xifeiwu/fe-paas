@@ -36,7 +36,7 @@
                 type="primary"
                 :loading="statusOfWaitingResponse('open-dialog-4-create-access-key')"
                 @click="handleButtonClick('open-dialog-4-create-access-key')">
-          {{contentOfCreateAccessKeyButton}}
+          创建AccessKey
         </el-button>
       </el-col>
     </el-row>
@@ -793,7 +793,6 @@ module.exports = {
       targetGroupList: [],
       showLoading: false,
 //      createAccessKeyTag: null,
-      contentOfCreateAccessKeyButton: '创建AccessKey',
       searchCondition: {
         groupID: '',
         production: null,
@@ -1061,10 +1060,18 @@ module.exports = {
       switch (action) {
         case 'open-dialog-4-create-access-key':
 //          console.log(this.appListOfCurrentGroup);
-          if (!this.groupInfo || !this.appListOfCurrentGroup || this.appListOfCurrentGroup.length === 0) {
-            this.$message.error('所需信息不完整！');
+          let errorMsg = null;
+          if (!this.groupInfo) {
+            errorMsg = '团队信息获取失败';
+          }
+          if (!this.appListOfCurrentGroup || this.appListOfCurrentGroup.length === 0) {
+            errorMsg = '该团队应用列表为空';
+          }
+          if (errorMsg) {
+            this.$message.error(`无法创建AccessKey: ${errorMsg}`);
             return;
           }
+
           this.addToWaitingResponseQueue(action);
           this.initModifyAccessKeyInfo();
           this.modifyAccessKeyInfo.appID = this.appListOfCurrentGroup[0].appId;
