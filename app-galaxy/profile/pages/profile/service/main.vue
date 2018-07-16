@@ -125,9 +125,11 @@
             </el-button>
             <el-button
                     round
-                    size="mini-extral"type="warning"
+                    size="mini-extral"type="primary"
                     v-if="!$storeHelper.notPermitted['service_get_deploy_log']"
-                    @click="handleRowButtonClick('go-to-log-deploy', scope.$index, scope.row)">部署日志</el-button>
+                    @click="handleRowButtonClick('go-to-log-deploy', scope.$index, scope.row)">
+              <span>部署日志</span><i class="paas-icon-level-up"></i>
+            </el-button>
             <el-button
                     round
                     size="mini-extral" type="warning"
@@ -149,12 +151,16 @@
                     round
                     size="mini-extral" type="primary"
                     v-if="!$storeHelper.notPermitted['page_instance']"
-                    @click="handleRowButtonClick('go-to-instance-list', scope.$index, scope.row)">实例列表</el-button>
+                    @click="handleRowButtonClick('go-to-instance-list', scope.$index, scope.row)">
+              <span>实例列表</span><i class="paas-icon-level-up"></i>
+            </el-button>
             <el-button
                     round
                     size="mini-extral" type="primary"
                     v-if="!$storeHelper.notPermitted['go-domain-from-service']"
-                    @click="handleRowButtonClick('go-to-domain-service', scope.$index, scope.row)">配置外网二级域名</el-button>
+                    @click="handleRowButtonClick('go-to-domain-service', scope.$index, scope.row)">
+              <span>配置外网二级域名</span><i class="paas-icon-level-up"></i>
+            </el-button>
             <el-button
                     round
                     size="mini-extral" type="primary"
@@ -884,6 +890,13 @@
     line-height: 25px;
   }
   #service-main {
+    .paas-icon-level-up {
+      vertical-align: middle;
+      margin-left: 2px;
+      margin-top: 2px;
+      font-size: 12px;
+      line-height: 12px;
+    }
     .header {
       .el-select .el-input__inner {
         height: 26px;
