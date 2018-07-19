@@ -728,6 +728,9 @@ class Net extends NetBase {
               //     it[prop] = '未设置';
               //   }
               // })
+              if (!it.hasOwnProperty('internetDomainList')) {
+                it['internetDomainList'] = [];
+              }
             });
             content.serviceModelList = getServiceModelList(serviceList);
           }
