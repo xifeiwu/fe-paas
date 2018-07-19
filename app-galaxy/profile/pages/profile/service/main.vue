@@ -891,11 +891,8 @@
   }
   #service-main {
     .paas-icon-level-up {
-      vertical-align: middle;
       margin-left: 2px;
-      margin-top: 2px;
       font-size: 12px;
-      line-height: 12px;
     }
     .header {
       .el-select .el-input__inner {

@@ -394,6 +394,7 @@
           appId: this.searchForm.appId,
           spaceId: this.searchForm.spaceId,
           serviceVersion: this.searchForm.serviceVersion,
+          podName: this.searchForm.instanceName,
           logLevel: this.searchForm.logLevel,
           startTime: dateRange[0],
           endTime: dateRange[1],
