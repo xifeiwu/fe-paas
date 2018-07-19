@@ -309,6 +309,10 @@
       this.updateVerifyCode();
     },
     mounted: function () {
+      // jump to destination page when token is found
+      if (this.$storeHelper.getUserInfo('token')) {
+        this.pageJump();
+      }
       // 清理localstore
       window && window.localStorage.removeItem('galaxy');
 
@@ -373,6 +377,16 @@
           });
       },
 
+      pageJump() {
+        let queryString = window.location.search.replace(/^\?/, '');
+        let queryObj = this.$utils.parseQueryString(queryString);
+        let toPath = '/profile';
+        if (queryObj.hasOwnProperty('to')) {
+          toPath = queryObj['to'];
+        }
+        this.$utils.goToPath(toPath);
+      },
+
       // on click of login button
       onSubmit() {
         if (this.checkData()) {
@@ -405,15 +419,8 @@
               if (userInfo.hasOwnProperty('role')) {
                 this.$storeHelper.setUserInfo('role', userInfo.role);
               }
+              this.pageJump();
             }
-
-            let queryString = window.location.search.replace(/^\?/, '');
-            let queryObj = this.$utils.parseQueryString(queryString);
-            let toPath = '/profile';
-            if (queryObj.hasOwnProperty('to')) {
-              toPath = queryObj['to'];
-            }
-            this.$utils.goToPath(toPath);
           }).catch(err => {
             if (err.hasOwnProperty('msg')) {
               this.showError(err.msg, true);
