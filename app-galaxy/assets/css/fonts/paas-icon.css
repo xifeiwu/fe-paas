@@ -8,9 +8,18 @@
   height: 24px; }
 
 [class^="paas-icon-"] {
-  font-size: 24px; }
+  font-family: paas-icon !important;
+  speak: none;
+  font-style: normal;
+  font-weight: 400;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: middle;
+  display: inline-block;
+  -webkit-font-smoothing: antialiased; }
 
-.paas-icon-app:before, .paas-icon-config:before, .paas-icon-copy:before, .paas-icon-domain:before, .paas-icon-instance:before, .paas-icon-key:before, .paas-icon-log:before, .paas-icon-logout:before, .paas-icon-monitor:before, .paas-icon-oauth:before, .paas-icon-service:before, .paas-icon-user:before, .paas-icon-work-order:before {
+.paas-icon-align-center:before, .paas-icon-align-left:before, .paas-icon-align-right:before, .paas-icon-app:before, .paas-icon-bars:before, .paas-icon-bold:before, .paas-icon-code-html:before, .paas-icon-columns:before, .paas-icon-config:before, .paas-icon-copy:before, .paas-icon-domain:before, .paas-icon-eye-slash:before, .paas-icon-eye:before, .paas-icon-fa-level-up:before, .paas-icon-fa-upload:before, .paas-icon-header:before, .paas-icon-images:before, .paas-icon-instance:before, .paas-icon-italic:before, .paas-icon-key:before, .paas-icon-level-up:before, .paas-icon-link:before, .paas-icon-list-ol:before, .paas-icon-list-ul:before, .paas-icon-log:before, .paas-icon-logout:before, .paas-icon-markdown:before, .paas-icon-monitor:before, .paas-icon-oauth:before, .paas-icon-picture-o:before, .paas-icon-question-circle:before, .paas-icon-quote-left:before, .paas-icon-repeat:before, .paas-icon-save:before, .paas-icon-screen-expand:before, .paas-icon-screen-shrink:before, .paas-icon-service:before, .paas-icon-strikethrough:before, .paas-icon-subscript:before, .paas-icon-superscript:before, .paas-icon-table:before, .paas-icon-thumb-tack:before, .paas-icon-times:before, .paas-icon-trash-o:before, .paas-icon-underline:before, .paas-icon-undo:before, .paas-icon-user:before, .paas-icon-window-maximize:before, .paas-icon-work-order:before {
   font-family: "paas-icon";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -20,41 +29,149 @@
   text-decoration: none;
   text-transform: none; }
 
-.paas-icon-app:before {
+.paas-icon-align-center:before {
   content: ""; }
 
-.paas-icon-config:before {
+.paas-icon-align-left:before {
   content: ""; }
 
-.paas-icon-copy:before {
+.paas-icon-align-right:before {
   content: ""; }
 
-.paas-icon-domain:before {
+.paas-icon-app:before {
   content: ""; }
 
-.paas-icon-instance:before {
+.paas-icon-bars:before {
   content: ""; }
 
-.paas-icon-key:before {
+.paas-icon-bold:before {
   content: ""; }
 
-.paas-icon-log:before {
+.paas-icon-code-html:before {
   content: ""; }
 
-.paas-icon-logout:before {
+.paas-icon-columns:before {
   content: ""; }
 
-.paas-icon-monitor:before {
+.paas-icon-config:before {
   content: ""; }
 
-.paas-icon-oauth:before {
+.paas-icon-copy:before {
   content: ""; }
 
-.paas-icon-service:before {
+.paas-icon-domain:before {
   content: ""; }
 
-.paas-icon-user:before {
+.paas-icon-eye-slash:before {
   content: ""; }
 
-.paas-icon-work-order:before {
+.paas-icon-eye:before {
   content: ""; }
+
+.paas-icon-fa-level-up:before {
+  content: ""; }
+
+.paas-icon-fa-upload:before {
+  content: ""; }
+
+.paas-icon-header:before {
+  content: ""; }
+
+.paas-icon-images:before {
+  content: ""; }
+
+.paas-icon-instance:before {
+  content: ""; }
+
+.paas-icon-italic:before {
+  content: ""; }
+
+.paas-icon-key:before {
+  content: ""; }
+
+.paas-icon-level-up:before {
+  content: ""; }
+
+.paas-icon-link:before {
+  content: ""; }
+
+.paas-icon-list-ol:before {
+  content: ""; }
+
+.paas-icon-list-ul:before {
+  content: ""; }
+
+.paas-icon-log:before {
+  content: ""; }
+
+.paas-icon-logout:before {
+  content: ""; }
+
+.paas-icon-markdown:before {
+  content: ""; }
+
+.paas-icon-monitor:before {
+  content: ""; }
+
+.paas-icon-oauth:before {
+  content: ""; }
+
+.paas-icon-picture-o:before {
+  content: ""; }
+
+.paas-icon-question-circle:before {
+  content: ""; }
+
+.paas-icon-quote-left:before {
+  content: ""; }
+
+.paas-icon-repeat:before {
+  content: ""; }
+
+.paas-icon-save:before {
+  content: ""; }
+
+.paas-icon-screen-expand:before {
+  content: ""; }
+
+.paas-icon-screen-shrink:before {
+  content: ""; }
+
+.paas-icon-service:before {
+  content: ""; }
+
+.paas-icon-strikethrough:before {
+  content: ""; }
+
+.paas-icon-subscript:before {
+  content: ""; }
+
+.paas-icon-superscript:before {
+  content: ""; }
+
+.paas-icon-table:before {
+  content: ""; }
+
+.paas-icon-thumb-tack:before {
+  content: ""; }
+
+.paas-icon-times:before {
+  content: ""; }
+
+.paas-icon-trash-o:before {
+  content: ""; }
+
+.paas-icon-underline:before {
+  content: ""; }
+
+.paas-icon-undo:before {
+  content: ""; }
+
+.paas-icon-user:before {
+  content: ""; }
+
+.paas-icon-window-maximize:before {
+  content: ""; }
+
+.paas-icon-work-order:before {
+  content: ""; }
