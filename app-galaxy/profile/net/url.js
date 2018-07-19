@@ -21,127 +21,157 @@ class URL extends BaseURL {
       // permission与url的对应关系
       'permission_url_map': {
         url: API_PATH + '/permissionUrlMappings',
-        path: '/permissionUrlMappings'
+        path: '/permissionUrlMappings',
+        method: 'post'
       },
       // 当前用户禁用的权限
       'user_not_permitted': {
         url: API_PATH + '/user/roles/permissions?exclude=true',
-        path: '/user/roles/permissions?exclude=true'
+        path: '/user/roles/permissions?exclude=true',
+        method: 'get'
       },
       // 获取验证码
       'get_verify_code': {
         url: API_PATH + '/createRandomImage',
-        path: '/createRandomImage'
+        path: '/createRandomImage',
+        method: 'get'
       },
       'login': {
         url: API_PATH + '/login',
-        path: '/login'
+        path: '/login',
+        method: 'post'
       },
       // 用户退出
       'logout': {
         url: API_PATH + '/userLogout',
-        path: '/userLogout'
+        path: '/userLogout',
+        method: 'get'
       },
+      // 应用列表
       'app_list': {
         url: API_PATH + '/application/queryByPage',
-        path: '/application/queryByPage'
+        path: '/application/queryByPage',
+        method: 'post'
       },
       // 获取用户所在组列表
       'get_user_group_list': {
         url: API_PATH + '/group/queryByUser',
-        path: '/group/queryByUser'
+        path: '/group/queryByUser',
+        method: 'get'
       },
       // 获取Scrum列表
       'get_scrum_list': {
         url: API_PATH + '/group/getScrumList',
-        path: '/group/getScrumList'
+        path: '/group/getScrumList',
+        method: 'get'
       },
       // 获取line of business列表
       'get_lob_list': {
         url: API_PATH + '/group/queryLobList',
-        path: '/group/queryLobList'
+        path: '/group/queryLobList',
+        method: 'get'
       },
 
       /** 全局相关 */
       // 获取所有用户列表
       'users_all': {
         url: API_PATH + '/user/queryUserList',
-        path: '/user/queryUserList'
+        path: '/user/queryUserList',
+        method: 'get'
       },
       // 获取所有组列表
       'get_all_group_list': {
         url: API_PATH + '/group/queryAllGroup',
-        path: '/group/queryAllGroup'
+        path: '/group/queryAllGroup',
+        method: 'get'
       },
 
       /** 应用相关 */
       // 创建应用
       'app_create': {
         url: API_PATH + '/application/create',
-        path: '/application/create'
+        path: '/application/create',
+        method: 'post'
       },
       // 删除应用
       'app_delete': {
         url: API_PATH + '/application/delete',
-        path: '/application/delete'
+        path: '/application/delete',
+        method: 'post'
       },
+      // 获取团队的所有运行环境
       'get_profile_of_group': {
         url: API_PATH + '/space/querySpaceByGroupId',
-        path: '/space/querySpaceByGroupId'
+        path: '/space/querySpaceByGroupId',
+        method: 'post'
       },
+      // 获取cpu和memory的对应关系
       'get_cpu_and_memory_config': {
         url: API_PATH + '/cpuAndMemory/queryCpuAndMemory',
-        path: '/cpuAndMemory/queryCpuAndMemory'
+        path: '/cpuAndMemory/queryCpuAndMemory',
+        method: 'get'
       },
+      // 开发语言列表
       'get_all_language': {
         url: API_PATH + '/language/queryAllLanguage',
-        path: '/language/queryAllLanguage'
+        path: '/language/queryAllLanguage',
+        method: 'get'
       },
+      // 修改应用名称
       'app_change_name': {
         url: API_PATH + '/application/updateAppName',
-        path: '/application/updateAppName'
+        path: '/application/updateAppName',
+        method: 'post'
       },
       // 修改运行环境
       'app_change_profile': {
         url: API_PATH + '/application/update',
-        path: '/application/update'
+        path: '/application/update',
+        method: 'post'
       },
 
       /** 服务相关 */
       // 通过appID和profileID获取服务列表
       'get_service_by_appId_and_profile': {
         url: API_PATH + '/service/queryByAppIdAndSpaceId',
-        path: '/service/queryByAppIdAndSpaceId'
+        path: '/service/queryByAppIdAndSpaceId',
+        method: 'post'
       },
       // 修改默认服务
       'service_change_default': {
         url: API_PATH + '/service/switchService',
-        path: '/service/switchService'
+        path: '/service/switchService',
+        method: 'post'
       },
       // 获取服务版本
       'service_version': {
         url: API_PATH + '/service/queryApplicationServiceVersion',
-        path: '/service/queryApplicationServiceVersion'
+        path: '/service/queryApplicationServiceVersion',
+        method: 'post'
       },
       // 部署服务-开始部署
       'service_deploy': {
         url: API_PATH + '/service/deployApplicationService',
-        path: '/service/deployApplicationService'
+        path: '/service/deployApplicationService',
+        method: 'post'
       },
       // 部署服务-部署日志
       'service_get_deploy_log': {
         url: API_PATH + '/service/deploy/log',
-        path: '/service/deploy/log'
+        path: '/service/deploy/log',
+        method: 'post'
       },
       // 创建服务
       'service_create': {
         url: API_PATH + '/service/createApplicationService',
-        path: '/service/createApplicationService'
+        path: '/service/createApplicationService',
+        method: 'post'
       },
       // 删除服务
       'service_delete': {
         url: API_PATH + '/service/deleteApplicationService',
-        path: '/service/deleteApplicationService'
+        path: '/service/deleteApplicationService',
+        method: 'post'
       },
       // 停止服务
       'service_stop': {
@@ -439,37 +469,37 @@ class URL extends BaseURL {
         path: '/workOrderDeploy/validNoEndWorkOrderDeployByAppId'
       },
       // 工单详情
-      // 功能列表
+      // 工单详情-功能列表
       'work_order_detail_feature_list': {
         url: API_PATH + '/workOrderDeployFunction/getWorkOrderDeployFunctions',
         path: '/workOrderDeployFunction/getWorkOrderDeployFunctions'
       },
-      // 程序列表
+      // 工单详情-程序列表
       'work_order_detail_app_list': {
         url: API_PATH + '/workOrderDeployApp/getWorkOrderDeployApp',
         path: '/workOrderDeployApp/getWorkOrderDeployApp'
       },
-      // 待办人
+      // 工单详情-待办人
       'work_order_detail_user_todo': {
         url: API_PATH + '/workOrderDeploy/queryWorkOrderDeployToDoUser',
         path: '/workOrderDeploy/queryWorkOrderDeployToDoUser'
       },
-      // 验收人
+      // 工单详情-验收人
       'work_order_detail_user_accepted': {
         url: API_PATH + '/acceptanceUser/getWorkOrderDeployAcceptUser',
         path: '/acceptanceUser/getWorkOrderDeployAcceptUser'
       },
-      // 知会人
+      // 工单详情-知会人
       'work_order_detail_notify_user': {
         url: API_PATH + '/informUser/getWorkOrderDeployInformUser',
         path: '/informUser/getWorkOrderDeployInformUser'
       },
-      // 操作记录
+      // 工单详情-操作记录
       'work_order_detail_operation_list': {
         url: API_PATH + '/workOrderDeployLog/getWorkOrderDeployLog',
         path: '/workOrderDeployLog/getWorkOrderDeployLog'
       },
-      // 邮件组
+      // 工单详情-邮件组
       'work_order_detail_email_group': {
         url: API_PATH + '/emailGroup/getWorkOrderDeployEmailGroup',
         path: '/emailGroup/getWorkOrderDeployEmailGroup'
