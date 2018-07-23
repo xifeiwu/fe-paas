@@ -185,9 +185,8 @@
           </div>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
+      <div slot="footer" class="dialog-footer flex">
+          <div class="item">
             <el-popover
                     width="200"
                     v-model="profileChangeStatus.openPopover"
@@ -205,12 +204,11 @@
                          @click="handleDialogButton('profileNames')"
                          :loading="waitingResponse">保&nbsp存</el-button>
             </el-popover>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
+          </div>
+          <div class="item">
             <el-button action="profile-dialog/cancel"
                        @click="selected.prop = null; profileChangeStatus.openPopover = false">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+          </div>
       </div>
     </el-dialog>
   </div>
@@ -580,6 +578,7 @@
           case 'change-profileNames':
             this.profileChangeStatus.toAdd = [];
             this.profileChangeStatus.toDelete = [];
+            // NOTICE: not break need here
           case 'change-appName':
             let prop = action.split('-')[1];
             this.selected.prop = prop;
