@@ -1441,11 +1441,18 @@ export default {
     },
     // collect all related info for add-service before jump to page service/add
     getInfoForAddService() {
-      let result = null;
+      let result = {
+        success: false,
+        message: '',
+        content: null,
+      };
       let appInfo = this.$storeHelper.getAppByID(this.selectedAppID);
       let appName = null;
       if (appInfo && appInfo.hasOwnProperty('appName')) {
         appName = appInfo.appName;
+      } else {
+        result.message = '未找到应用相关信息！';
+        return result;
       }
 
       // profile info
@@ -1455,12 +1462,18 @@ export default {
       if (profileInfo && profileInfo.hasOwnProperty('name') && profileInfo.hasOwnProperty('description')) {
         profileName = profileInfo.name;
         profileDescription = profileInfo.description;
+      } else {
+        result.message = '未找到运行环境相关信息！';
+        return result;
       }
       // group info
       let groupInfo = this.$storeHelper.groupInfo();
       let groupTag = null;
       if (groupInfo && groupInfo.hasOwnProperty('tag')) {
         groupTag = groupInfo.tag;
+      } else {
+        result.message = '未找到团队相关信息！';
+        return result;
       }
       // language info
       let language = null;
@@ -1468,6 +1481,9 @@ export default {
       if (this.selectedApp && this.selectedApp.hasOwnProperty('language')) {
         language = this.selectedApp.language;
         languageVersion = this.selectedApp.languageVersion;
+      } else {
+        result.message = '未找到开发语言及语言版本信息！';
+        return result;
       }
       // has-existed version
       let versionList = [];
@@ -1477,11 +1493,15 @@ export default {
         }).map(it => {
           return it['serviceVersion'].substring(1);
         })
+      } else {
+        result.message = '未找到服务版本列表！';
+        return result;
       }
 
       if (null !== groupTag && null !== this.selectedAppID && null !== this.selectedProfileID &&
         appName, profileName && profileDescription && language && languageVersion) {
-        result = {
+        result.success = true;
+        result.content = {
           groupTag: groupTag,
           appId: this.selectedAppID,
           profileId: this.selectedProfileID,
@@ -1499,11 +1519,11 @@ export default {
       switch (action) {
         case 'add-service':
           let infoForAddService = this.getInfoForAddService();
-          if (null == infoForAddService) {
-            this.$message.error('数据不完整！尝试刷新页面重试');
+          if (!infoForAddService.success) {
+            this.$message.error(infoForAddService.message);
             return;
           }
-          this.$storeHelper.dataTransfer = infoForAddService;
+          this.$storeHelper.dataTransfer = infoForAddService.content;
           this.$router.push('/service/add');
           break;
         case 'refreshAppList':
@@ -1906,11 +1926,11 @@ export default {
         if (prop === 'image') {
           // pass parameter to component image-selector.vue
           let infoForAddService = this.getInfoForAddService();
-          if (infoForAddService) {
-            this.$refs[formName].init(this.getInfoForAddService(), this.newProps);
+          if (infoForAddService.success) {
+            this.$refs[formName].init(infoForAddService.content, this.newProps);
           } else {
+            this.$message.error(infoForAddService.message);
             this.selected.prop = null;
-            this.$message.error('获取信息失败！');
           }
         }
       })
