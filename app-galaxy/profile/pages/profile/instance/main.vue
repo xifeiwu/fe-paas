@@ -115,9 +115,9 @@
         </el-row>
       </div>
     </el-dialog>
-    <paas-dialog-for-log :showStatus="dialogForLogStatus" ref="dialogForlogStatus" title="实例状态">
+    <paas-dialog-for-log :showStatus="dialogLogInstanceStatus" ref="dialogLogInstanceStatus" title="实例状态">
       <div slot="log-list">
-        <div v-for="(item,index) in deployLogs" :key="index">
+        <div v-for="(item,index) in instanceStatusList" :key="index">
           <p>开始时间:{{item.firstTimestamp}}</p>
           <p>实例名称:{{item.kindName}}</p>
           <p>原因:{{item.reason}}</p>
@@ -231,12 +231,12 @@
           newCount: null,
           error: ''
         },
-        dialogForLogStatus: {
+        dialogLogInstanceStatus: {
           visible: false,
           full: false,
           showLoading: false
         },
-        deployLogs:[]
+        instanceStatusList:[]
       }
     },
     watch: {
@@ -418,32 +418,25 @@
           case 'monitor':
             break;
           case 'instanceStatus':
-            this.deployLogs = [];
-            this.dialogForLogStatus.visible = true;
+            this.instanceStatusList = [];
+            this.dialogLogInstanceStatus.visible = true;
             let service = this.checkVersionSelector();
             var options = {};
             options.applicationId = service.selectedAPP.appId;
             options.spaceId = service.selectedProfile.id;
             options.kindName = row['instanceName'];
-            function getDeployLog(options){
-              if(!this.dialogForLogStatus.visible){
+            const getInstanceStatusList = (options) => {
+              if(!this.dialogLogInstanceStatus.visible){
                 return ;
               }
-              this.deployLogs = [];
               this.$net.getInstanceStatus(options).then(content => {
-                content.forEach(it => {
-                  it.firstTimestamp = this.$utils.formatDate(it.firstTimestamp,'yyyy-MM-dd hh:mm:ss');
-                  it.lastTimestamp = this.$utils.formatDate(it.lastTimestamp,'yyyy-MM-dd hh:mm:ss');
-                  this.deployLogs.push(it);
-                });
-              })
-              if(this.dialogForLogStatus.visible == true){
+                this.instanceStatusList = content;
                 setTimeout(() => {
-                  getDeployLog.call(this,options);
+                  getInstanceStatusList(options);
                 },5000);
-              }
+              }).catch(err => {});
             }
-            getDeployLog.call(this,options);
+            getInstanceStatusList(options);
         }
       },
     }
