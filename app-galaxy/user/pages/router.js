@@ -236,5 +236,7 @@ class Router {
   }
 }
 
-var router = new Router();
+var router = new Router({
+  mode: 'history'
+});
 export default router;

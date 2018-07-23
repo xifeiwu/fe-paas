@@ -10,12 +10,13 @@ import app from './modules/app';
 import tmp from './modules/tmp';
 import global from '$assets/js/store/modules/global';
 import etc from './modules/etc';
+import cdn from './modules/cdn';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   modules:{
-    user, app, tmp, global, etc
+    user, app, tmp, global, etc, cdn
   },
   plugins: [createPersistedState({
     key: 'galaxy',

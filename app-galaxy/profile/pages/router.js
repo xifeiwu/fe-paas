@@ -30,8 +30,13 @@ import WorkOrderDeploy from './profile/work-order/todo/deploy.vue';
 import WorkOrderAccept from './profile/work-order/todo/accept.vue';
 import WorkOrderTest from './profile/work-order/todo/test.vue';
 
+// config-server
 import ConfigServerMain from './profile/config-server/main.vue';
 import ConfigServerFileList from './profile/config-server/list.vue';
+
+// cdn
+import CdnMain from './profile/cdn/main.vue';
+import CdnCreate from './profile/cdn/create.vue';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
@@ -163,7 +168,15 @@ var Router = function() {
     path: '/config-server/list',
     name: '配置文件列表',
     component: ConfigServerFileList,
-  }, ];
+  }, {
+      path: '/cdn',
+      name: 'cdn加速',
+      component: CdnMain,
+    },{
+    path: '/cdn/create',
+    name: '创建加速域名',
+    component: CdnCreate,
+  },];
   this.addRoutePath(null, this.richRouterConfig);
 
   this.vueRouter = new VueRouter({
@@ -452,5 +465,7 @@ Router.prototype = {
   }
 };
 
-var router = new Router();
+var router = new Router({
+  mode: 'history'
+});
 export default router;

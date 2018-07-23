@@ -1,0 +1,52 @@
+{"domains": [
+    {
+      "name": "b.cdn.finupgroup.com",
+      "pareDomain": "",
+      "type": "normal",
+      "cname": "b.cdn.finupgroup.com.qiniudns.com",
+      "testURLPath": "aa.jpg",
+      "protocol": "http",
+      "platform": "web",
+      "geoCover": "china",
+      "qiniuPrivate": false,
+      "operationType": "create_domain",
+      "operatingState": "success",
+      "operatingStateDesc": "",
+      "createAt": "2018-07-20T17:06:14.251+08:00",
+      "modifyAt": "2018-07-20T17:14:34.639+08:00"
+    },
+    {
+      "name": "qiniu.cdn.finupcloud.com",
+      "pareDomain": "",
+      "type": "normal",
+      "cname": "qiniu.cdn.finupcloud.com.qiniudns.com",
+      "testURLPath": "index.html",
+      "protocol": "http",
+      "platform": "web",
+      "geoCover": "china",
+      "qiniuPrivate": false,
+      "operationType": "create_domain",
+      "operatingState": "success",
+      "operatingStateDesc": "",
+      "createAt": "2018-07-13T15:47:06.735+08:00",
+      "modifyAt": "2018-07-13T15:53:04.77+08:00"
+    },
+    {
+      "name": "cdn.finupcloud.com",
+      "pareDomain": "",
+      "type": "normal",
+      "cname": "cdn.finupcloud.com.qiniudns.com",
+      "testURLPath": "index.html",
+      "protocol": "http",
+      "platform": "web",
+      "geoCover": "china",
+      "qiniuPrivate": false,
+      "operationType": "modify_source",
+      "operatingState": "success",
+      "operatingStateDesc": "",
+      "createAt": "2018-07-06T19:05:23.627+08:00",
+      "modifyAt": "2018-07-13T15:48:02.035+08:00"
+    }
+  ],
+  "marker": "MTUzMDg3NTEyMzYyNzAwMDAwMA=="
+}
