@@ -33,9 +33,23 @@
         <el-table-column
                 prop="status"
                 label="健康状态"
-                width="80"
+                width="180"
                 headerAlign="center" align="center"
         >
+        <template slot-scope="scope">
+          <div>
+            <span>{{scope.row.status ? scope.row.status : ''}}</span>
+            <el-button
+              round
+              type="primary"
+              size="mini-extral"
+              :disabled="scope.row.status == '运行中'"
+              class="statusButton"
+              @click="handleRowButtonClick('instanceStatus',scope.$index,scope.row)"
+              title=“查看详情”
+            >详情</el-button>
+          </div>
+        </template>
         </el-table-column>
         <el-table-column
                 prop="intranetIP"
@@ -101,6 +115,18 @@
         </el-row>
       </div>
     </el-dialog>
+    <paas-dialog-for-log :showStatus="dialogLogInstanceStatus" ref="dialogLogInstanceStatus" title="实例状态">
+      <div slot="log-list">
+        <div v-for="(item,index) in instanceStatusList" :key="index">
+          <p>开始时间:{{item.firstTimestamp}}</p>
+          <p>实例名称:{{item.kindName}}</p>
+          <p>原因:{{item.reason}}</p>
+          <p>Message:{{item.message}}</p>
+          <p>类型:{{item.type}}</p>
+          <p>结束时间:{{item.lastTimestamp}}</p>
+        </div>
+      </div>
+    </paas-dialog-for-log>
   </div>
 </template>
 
@@ -141,9 +167,10 @@
   import appPropUtils from '../utils/app-props';
   import MyVersionSelector from '../components/version-selector';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+  import paasDialogForLog from '../components/dialog4log.vue';
 
   export default {
-    components: {MyVersionSelector},
+    components: {MyVersionSelector,paasDialogForLog},
 
     /**
      * the sequence of create and mount in parent and child element is:
@@ -203,7 +230,13 @@
         manualScale: {
           newCount: null,
           error: ''
-        }
+        },
+        dialogLogInstanceStatus: {
+          visible: false,
+          full: false,
+          showLoading: false
+        },
+        instanceStatusList:[]
       }
     },
     watch: {
@@ -384,6 +417,26 @@
             break;
           case 'monitor':
             break;
+          case 'instanceStatus':
+            this.instanceStatusList = [];
+            this.dialogLogInstanceStatus.visible = true;
+            let service = this.checkVersionSelector();
+            var options = {};
+            options.applicationId = service.selectedAPP.appId;
+            options.spaceId = service.selectedProfile.id;
+            options.kindName = row['instanceName'];
+            const getInstanceStatusList = (options) => {
+              if(!this.dialogLogInstanceStatus.visible){
+                return ;
+              }
+              this.$net.getInstanceStatus(options).then(content => {
+                this.instanceStatusList = content;
+                setTimeout(() => {
+                  getInstanceStatusList(options);
+                },5000);
+              }).catch(err => {});
+            }
+            getInstanceStatusList(options);
         }
       },
     }
