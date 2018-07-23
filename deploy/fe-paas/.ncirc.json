@@ -1,0 +1,5 @@
+{
+  "dockerHost": "harbor.finupgroup.com",
+  "dockerGroup": "paastest",
+  "baseImage": "harbor.finupgroup.com/nchannel/node:alinode"
+}
