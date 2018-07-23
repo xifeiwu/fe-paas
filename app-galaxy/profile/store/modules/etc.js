@@ -22,9 +22,9 @@ const actions = {
     commit('SET_LOADING', true);
     axios.post(URL_LIST.config_server_list.url + '?groupId=', {})
       .then(res => {
-        commit('SET_REMOTE_CONFIG_LIST', res.data),
-        commit('SET_LOADING', false);
-      });
+        commit('SET_REMOTE_CONFIG_LIST', res.data)
+      })
+      .finally(() => commit('SET_LOADING', false));
   },
   // 获取分支
   getBranch({commit}) {
@@ -32,11 +32,13 @@ const actions = {
       .then(res => {
         commit('SET_BRANCH_LIST', res.data)
       })
+      .finally(() => commit('SET_LOADING', false));
   },
   // 文件列表
   getFiles({commit, dispatch}, payload) {
     axios.post(URL_LIST.config_server_file_list.url + '?applicationRemoteConfigId=' + payload)
       .then(res => commit('SET_CONFIG_FILES', res.data))
+      .finally(() => commit('SET_LOADING', false));
   },
 }
 
