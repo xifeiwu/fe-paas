@@ -2,7 +2,7 @@
   <div id="service-add">
     <div class="section-title">添加服务</div>
     <el-form :model="serviceForm" ref="serviceForm"
-             :rules="rules" label-width="200px" size="mini"
+             :rules="rules" :label-width="appLanguage == 'JAVA' ? '200px' : '140px'" size="mini"
              v-loading="showLoading"
              :element-loading-text="loadingText">
       <el-form-item label="应用名称" class="app-name">
@@ -122,7 +122,7 @@
           <el-col :span="11" class="key">{{item.key}}</el-col>
           <el-col :span="11" class="value">{{item.value}}</el-col>
           <el-col :span="2" style="text-align: center">
-            <el-button type="warning" size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
+            <el-button type="warning" round size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
           </el-col>
         </el-row>
         <el-row class="add-key-value">
@@ -133,7 +133,7 @@
             <el-input v-model="environmentValue" placeholder="512位以内的数字、字母、中划线、下划线" size="mini"></el-input>
           </el-col>
           <el-col :span="2" style="text-align: center">
-            <el-button type="primary" size="mini-extral"
+            <el-button type="primary" size="mini-extral" round
                        @click="handleEnvironment('add', environmentKey, environmentValue)">添加</el-button>
           </el-col>
         </el-row>
@@ -160,7 +160,7 @@
           <el-col :span="11" class="key">{{item.ip}}</el-col>
           <el-col :span="11" class="value">{{item.domain}}</el-col>
           <el-col :span="2" style="text-align: center">
-            <el-button  type="warning" size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
+            <el-button  type="warning" round size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
           </el-col>
         </el-row>
         <el-row class="add-key-value">
@@ -171,14 +171,14 @@
             <el-input v-model="hostValue" placeholder="域名" size="mini"></el-input>
           </el-col>
           <el-col :span="2" style="text-align: center">
-            <el-button  type="primary" size="mini-extral" @click="handleHost('add', hostKey, hostValue)">添加</el-button>
+            <el-button type="primary" size="mini-extral" round
+                       @click="handleHost('add', hostKey, hostValue)">添加</el-button>
           </el-col>
         </el-row>
       </el-form-item>
       <el-form-item label="端口映射" class="port-map" prop="portMap">
         <div class="el-row title">
-          <div class="el-col el-col-6">协议</div>
-          <div class="el-col el-col-6">
+          <div class="el-col el-col-10">
             <span>访问端口</span>
             <el-tooltip slot="trigger" effect="dark" placement="top">
               <div slot="content">
@@ -188,17 +188,18 @@
             </el-tooltip>
           </div>
           <div class="el-col el-col-2" style="min-height:1px"></div>
-          <div class="el-col el-col-6">目标端口</div>
+          <div class="el-col el-col-10">目标端口</div>
+          <div class="el-col el-col-2">协议</div>
         </div>
         <el-row class="content">
-          <el-col :span="6">TCP</el-col>
-          <el-col :span="6">
-            <el-input placeholder="如40002" size="mini" v-model="serviceForm.portMap.from"></el-input>
+          <el-col :span="10">
+            <el-input placeholder="如40002" size="mini" v-model="serviceForm.portMap.outerPort"></el-input>
           </el-col>
           <el-col :span="2">--></el-col>
-          <el-col :span="6">
-            <el-input placeholder="如8100" size="mini" v-model="serviceForm.portMap.to"></el-input>
+          <el-col :span="10">
+            <el-input placeholder="如8100" size="mini" v-model="serviceForm.portMap.containerPort"></el-input>
           </el-col>
+          <el-col :span="2">TCP</el-col>
         </el-row>
       </el-form-item>
       <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
@@ -329,8 +330,11 @@
             }
           }
           .el-row.add-key-value {
-            .el-col.key, .el-col.value {
-              padding: 0px 3px;
+            .key {
+              padding-right: 3px;
+            }
+            .value {
+              padding-left: 3px;
             }
           }
         }
@@ -402,8 +406,9 @@
           // value of customImage
           customImageValue: '',
           portMap: {
-            from: '',
-            to: ''
+            protocol: 'TCP',
+            outerPort: '',
+            containerPort: ''
           }
         },
         // error message for form-item environments
@@ -695,10 +700,25 @@
             } else {
               this.serviceForm.imageLocation = this.serviceForm.autoImageValue;
             }
-            let serviceForm = this.$utils.cloneDeep(this.serviceForm);
-            delete serviceForm.customImageValue;
-            delete serviceForm.autoImageValue;
-            let toPost = appPropUtil.changePropNameForServer(serviceForm);
+            let serviceForm = this.serviceForm;
+            let toPost = {
+              appId: serviceForm.appId,
+              spaceId: serviceForm.spaceId,
+              serviceVersion: serviceForm.serviceVersion,
+              gitLabAddress: serviceForm.gitLabAddress,
+              gitLabBranch: serviceForm.gitLabBranch,
+              relativePath: serviceForm.relativePathOfParentPOM,
+              vmOptions: serviceForm.vmOptions,
+              mavenProfileId: serviceForm.mavenProfileId,
+              cpuId: serviceForm.cpuID,
+              memoryId: serviceForm.memoryID,
+              environments: serviceForm.environments,
+              hosts: serviceForm.hosts,
+              instanceNum: serviceForm.instanceCount,
+              customImage: serviceForm.customImage,
+              image: serviceForm.imageLocation,
+              portsMapping: [serviceForm.portMap]
+            };
             this.addToWaitingResponseQueue('submit');
             this.showLoading = true;
             this.loadingText = '正在为您创建服务';
@@ -713,7 +733,7 @@
             }).catch((err) => {
               this.hideWaitingResponse('submit');
               this.showLoading = false;
-              this.$notify({
+              this.$notify.error({
                 title: err.title,
                 message: err.msg,
                 duration: 0,
