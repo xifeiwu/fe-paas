@@ -45,9 +45,9 @@
         </div>
       </div>
     </div>
-    <el-dialog-for-log :showStatus="dialogStatus">
+    <paas-dialog-for-log :showStatus="dialogStatus">
       <div slot="log-list" v-for="(item,index) in deployLogs" :key="index" class="log-item">{{item}}</div>
-    </el-dialog-for-log>
+    </paas-dialog-for-log>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -66,9 +66,9 @@
 </style>
 <script>
   import MyVersionSelector from '../components/version-selector';
-  import elDialogForLog from '../components/dialog4log.vue';
+  import paasDialogForLog from '../components/dialog4log.vue';
   export default {
-    components: {MyVersionSelector, elDialogForLog},
+    components: {MyVersionSelector, paasDialogForLog},
     created() {
       // set default service
       let queryParam = this.$route.query;

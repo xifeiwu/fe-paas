@@ -1390,6 +1390,21 @@ class Net extends NetBase {
   }
 
   /**
+   * 获取k8s实例状态
+   */
+  getInstanceStatus(options){
+    return new Promise((resolve,reject) => {
+      axios.post(URL_LIST.instance_status.url,options).then(response => {
+        let content = this.getResponseContent2(response);
+        resolve(content);
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
+  /**
    * oauth相关
    */
   // 获取绑定

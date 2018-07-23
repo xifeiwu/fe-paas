@@ -22,6 +22,7 @@
         /*background-color: #303133;*/
         width: 80%;
         height: 70%;
+        margin-left:80px;
         text-align: left;
         .el-dialog__header {
           padding: 6px;
