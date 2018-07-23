@@ -13,8 +13,8 @@ class URL {
         port = 7002;
         break;
     }
-    this.ORIGIN = window.location.protocol + '//' + window.location.hostname + ':' + port;
-    this.API_PATH = this.ORIGIN + '/api';
+    // this.ORIGIN = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
+    this.API_PATH = '/api';
   }
 }
 

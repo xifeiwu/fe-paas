@@ -1,0 +1,8 @@
+{
+  "name": "fe-paas",
+  "private": true,
+  "main": "main.js",
+  "dependencies": {
+    "koa-spa-server": "^1.2.0"
+  }
+}
