@@ -167,7 +167,7 @@ var Router = function() {
   this.addRoutePath(null, this.richRouterConfig);
 
   this.vueRouter = new VueRouter({
-    mode: 'hash',
+    mode: 'history',
     base: __dirname,
     // routes: routeConfig,
     routes: this.getVueRouterConfig()

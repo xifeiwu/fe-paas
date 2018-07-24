@@ -14,7 +14,7 @@ class Router {
       //   redirect: '/info'
       // },
       {
-        path: '/info',
+        path: '/user/info',
         name: '云产品',
         component: UserInfo,
       },
@@ -24,7 +24,7 @@ class Router {
       //   component: UserOperaion,
       // },
       {
-        path: '/group',
+        path: '/user/group',
         name: '团队管理',
         component: ManageGroup
       }
@@ -33,7 +33,7 @@ class Router {
     this.routePathToConfig = this.getRoutePathToConfig();
 
     this.vueRouter = new VueRouter({
-      mode: 'hash',
+      mode: 'history',
       routes: this.richRouterConfig
     });
     Vue.use(VueRouter);
