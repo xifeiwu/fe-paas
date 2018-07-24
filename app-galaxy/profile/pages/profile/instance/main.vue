@@ -65,25 +65,37 @@
         </el-table-column>
         <el-table-column label="操作" prop="operation" minWidth="300" headerAlign="center" align="center">
           <template slot-scope="scope">
-            <el-button
-                    round
-                    @click="handleRowButtonClick('terminal', scope.$index, scope.row)"
-                    size="mini-extral"
-                    v-if="!$storeHelper.notPermitted['open_terminal_from_instance']"
-                    type="primary">终端</el-button>
-            <el-button
-                    round
-                    @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"
-                    size="mini-extral"
-                    v-if="!$storeHelper.notPermitted['go-log-run-from-instance']"
-                    type="primary">查看运行日志</el-button>
-            <el-button
-                    round
-                    @click="handleRowButtonClick('monitor', scope.$index, scope.row)"
-                    size="mini-extral"
-                    :disabled="true"
-                    v-if="!$storeHelper.notPermitted['go-monitor-from-instance']"
-                    type="info">监控</el-button>
+            <div class="operation">
+              <el-button
+                      round
+                      @click="handleRowButtonClick('terminal', scope.$index, scope.row)"
+                      size="mini-extral"
+                      v-if="!$storeHelper.notPermitted['open_terminal_from_instance']"
+                      type="primary">终端</el-button>
+              <el-button
+                      round
+                      @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"
+                      size="mini-extral"
+                      v-if="!$storeHelper.notPermitted['go-log-run-from-instance']"
+                      type="primary">
+                 <span>查看运行日志</span><i class="paas-icon-level-up"></i>
+              </el-button>
+              <el-button
+                      round
+                      @click="handleRowButtonClick('show-console-log', scope.$index, scope.row)"
+                      size="mini-extral"
+                      v-if="!$storeHelper.notPermitted['show-console-log']"
+                      type="primary">
+                <span>查看console日志</span>
+              </el-button>
+              <el-button
+                      round
+                      @click="handleRowButtonClick('monitor', scope.$index, scope.row)"
+                      size="mini-extral"
+                      :disabled="true"
+                      v-if="!$storeHelper.notPermitted['go-monitor-from-instance']"
+                      type="info">监控</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -127,6 +139,12 @@
         </div>
       </div>
     </paas-dialog-for-log>
+
+    <paas-dialog-for-log :showStatus="dialogStatusForConsoleLog" ref="dialogForConsoleLog" title="console日志">
+      <div slot="log-list">
+        <pre>{{consoleLogList}}</pre>
+      </div>
+    </paas-dialog-for-log>
   </div>
 </template>
 
@@ -155,8 +173,12 @@
     }
     .instance-list {
       .el-table {
-        .el-button {
-          display: inline-block;
+        .operation {
+          .el-button {
+            float: left;
+            margin: 2px 4px;
+            margin-left: 0;
+          }
         }
       }
     }
@@ -236,7 +258,14 @@
           full: false,
           showLoading: false
         },
-        instanceStatusList:[]
+        instanceStatusList:[],
+
+        dialogStatusForConsoleLog: {
+          visible: false,
+          full: false,
+          showLoading: false
+        },
+        consoleLogList: []
       }
     },
     watch: {
@@ -437,6 +466,19 @@
               }).catch(err => {});
             }
             getInstanceStatusList(options);
+            break;
+          case 'show-console-log':
+            var selectedValue = this.$refs['version-selector'].getSelectedValue();
+            this.$net.getConsoleLog({
+              applicationId: selectedValue['selectedAPP'].appId,
+              spaceId: selectedValue['selectedProfile'].id,
+              podName: row['instanceName'],
+              limitLine: 350
+            }).then(resData => {
+              this.dialogStatusForConsoleLog.visible = true;
+              this.consoleLogList = resData;
+            })
+            break;
         }
       },
     }
