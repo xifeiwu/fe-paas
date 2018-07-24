@@ -1,10 +1,11 @@
 const path = require('path');
 
 const serverApi = {
-  production: 'http://172.31.160.106:30334',
-  beta: 'http://10.10.232.93:8091',
-  test: 'http://10.10.202.143:30333',
-  fpdev: 'http://10.10.202.143:30333',
+  production: 'http://galaxy-web-server.paastest.production',
+  beta: 'http://galaxy-web-server.paastest.beta',
+  test: 'http://galaxy-web-server.paastest.test',
+  performance: 'http://galaxy-web-server.paastest.performance',
+  fpdev: 'http://galaxy-web-server.paastest.fpdev',
 };
 const env = process.env.NODE_ENV;
 
