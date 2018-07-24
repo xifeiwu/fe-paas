@@ -56,8 +56,8 @@ module.exports = {
     // index: path.resolve(__dirname, '../dist/index.html'),
 
     // Paths
-    distDirectory: path.resolve(curWorkDir, 'dist'),
-    assetsRoot: path.resolve(curWorkDir, 'dist'),
+    distDirectory: path.resolve(curWorkDir, 'deploy/fe-paas/dist'),
+    assetsRoot: path.resolve(curWorkDir, 'deploy/fe-paas/dist'),
     assetsSubDirectory: 'assets',
     assetsPublicPath: './',
 
