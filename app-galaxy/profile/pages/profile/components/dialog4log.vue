@@ -1,9 +1,9 @@
 <template>
   <el-dialog :title="title" :visible="showStatus.visible"
              @close="showStatus.visible = false"
-             class="dialog4log"
+             class="dialog-for-log"
              :closeOnClickModal="false"
-             ref="dialog4log"
+             ref="dialog-for-log"
              v-loading="showStatus.showLoading"
              element-loading-text="加载中"
              element-loading-spinner="el-icon-loading"
@@ -16,7 +16,7 @@
 </template>
 <style lang="scss">
   .spa .el-dialog__wrapper {
-    &.dialog4log {
+    &.dialog-for-log {
       .el-dialog {
         background-color: rgba(0, 0, 0, 0.8);
         /*background-color: #303133;*/
@@ -102,7 +102,7 @@
 //      console.log('created');
     },
     mounted() {
-      let dialog = this.$refs['dialog4log'].$refs['dialog'];
+      let dialog = this.$refs['dialog-for-log'].$refs['dialog'];
       if (this.showStatus.full && dialog) {
         dialog.style.width = '100%';
         dialog.style.height = '100%';

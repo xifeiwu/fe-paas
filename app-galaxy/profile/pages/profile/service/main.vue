@@ -1043,7 +1043,7 @@
       }
     }
 
-    .dialog4log {
+    .dialog-for-log {
       .log-item{
         white-space: pre;
       }

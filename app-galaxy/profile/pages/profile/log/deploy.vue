@@ -67,7 +67,7 @@
   }
 </style>
 <style lang="scss">
-  .dialog4log {
+  .dialog-for-log {
       .info {
         color: #409EFF;
         font-weight: bold;
