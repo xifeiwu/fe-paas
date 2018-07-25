@@ -279,7 +279,7 @@
                   <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
                   <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-target-app', index, item)">确定</el-button>
                 </div>
-                <el-button type="warning" size="mini-extral"
+                <el-button type="primary" size="mini-extral"
                            round
                            slot="reference"
                            @click="handleDialogButton('delete-access-config', index, item)">删除</el-button>
@@ -307,7 +307,8 @@
             <el-col :span="2" style="text-align: right">
               <el-button
                       size="mini-extral"
-                      type="warning"
+                      type="primary"
+                      round
                       style="margin-bottom: 3px"
                       @click="handleDialogButton('add-target-app')">添加
               </el-button>
@@ -315,19 +316,16 @@
           </el-row>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
+      <div slot="footer" class="dialog-footer flex">
+          <div class="item">
             <el-button type="primary"
                        :loading="statusOfWaitingResponse('create-access-key')"
                        @click="handleDialogButton('create-access-key')"
             >保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button
-                       @click="handleDialogClose('create-access-key')">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+          </div>
+          <div class="item">
+            <el-button @click="handleDialogClose('create-access-key')">取&nbsp消</el-button>
+          </div>
       </div>
     </el-dialog>
 
@@ -382,7 +380,7 @@
                   <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
                   <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-target-app', index, item)">确定</el-button>
                 </div>
-                <el-button type="warning" size="mini-extral"
+                <el-button type="primary" size="mini-extral"
                            round
                            slot="reference"
                            @click="handleDialogButton('delete-access-config', index, item)">删除</el-button>
@@ -411,6 +409,7 @@
               <el-button
                       size="mini-extral"
                       type="primary"
+                      round
                       style="margin-bottom: 3px"
                       @click="handleDialogButton('add-target-app')">添加
               </el-button>
@@ -808,12 +807,6 @@ module.exports = {
         prop: null,
       },
 
-//      modifyAccessKeyInfo: {
-//        isExternalApp: false,
-//        appID: null,
-//        production: false,
-//        externalAppName: '',
-//      },
       rulesForCreateAccessKey: {
         appID: [{
           required: true,
@@ -980,6 +973,11 @@ module.exports = {
       } else {
         this.modifyAccessKeyInfo.targetAppName = '';
       }
+      // if current app is ok?
+      this.isTargetAppOK();
+    },
+    'modifyAccessKeyInfo.appID': function() {
+      // if current app is ok?
       this.isTargetAppOK();
     },
     'selected.row': function (row) {
@@ -1269,34 +1267,38 @@ module.exports = {
     },
 
     /**
-     * if the app to add is ok? used in dialog update-target-app
-     * if the app to add is ok?
+     * if the app to add is ok? (used in dialog update-target-app)
      * 1. appId exist(some group does not have app)
      * 2. the appId not in the has-add-app-id-list
+     *
+     * trigger by watch: modifyAccessKeyInfo.appID, modifyAccessKeyInfo.targetAppID
      */
     isTargetAppOK() {
-      let appIdIsOK = true;
-      let isExist = false;
+      let errMsg = '';
+      let modifyAccessKeyInfo = this.modifyAccessKeyInfo;
 
-      if (this.modifyAccessKeyInfo.targetAppID === this.$storeHelper.APP_ID_FOR_NULL) {
-        appIdIsOK = false;
+      if (modifyAccessKeyInfo.targetAppID === this.$storeHelper.APP_ID_FOR_NULL) {
+        errMsg = '未选择应用';
       }
-      if (appIdIsOK) {
+      if (!errMsg && (modifyAccessKeyInfo.appID === modifyAccessKeyInfo.targetAppID)) {
+        errMsg = '申请访问对方应用不能为当前应用';
+      }
+
+      if (!errMsg) {
+        let isExist = false;
         let hasExisted = this.modifyAccessKeyInfo.targetAppList;
         hasExisted.some(it => {
           isExist = it['targetGroupId'] == this.modifyAccessKeyInfo.targetGroupID &&
             it['targetApplicationId'] == this.modifyAccessKeyInfo.targetAppID;
           return isExist;
         });
+        if (isExist) {
+          errMsg = '已绑定该应用，不能重复绑定';
+        }
       }
-      if (!appIdIsOK) {
-        this.errorMsgForAddTargetApp = '未选择应用';
-      } else if (isExist) {
-        this.errorMsgForAddTargetApp = '已绑定该应用，不能重复绑定';
-      } else {
-        this.errorMsgForAddTargetApp = '';
-      }
-      return appIdIsOK && !isExist;
+
+      this.errorMsgForAddTargetApp = errMsg;
+      return !errMsg;
     },
     ifAppListChanged(origin, current) {
       let theSame = true;
@@ -1482,6 +1484,7 @@ module.exports = {
           });
           break;
         case 'add-target-app':
+//          console.log(this.modifyAccessKeyInfo);
           if (this.isTargetAppOK()) {
             this.modifyAccessKeyInfo.targetAppList.push({
               status: '新加',
