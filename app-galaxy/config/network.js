@@ -61,6 +61,39 @@ class NetworkConfig {
     }
   }
 
+  /**
+   * data format of response.data
+   * 1. format used before(still in use)
+   *  {
+   *    "code": 0,
+   *    "t": 1526456817162,
+   *    "content": {
+   *      "permission": [{
+   *        "id": 300,
+   *        "name": "应用管理",
+   *        "permissionType": "MENU",
+   *        "path": "/app",
+   *        "parentId": 0,
+   *      }],
+   *      "user": {
+   *        "username": "admin",
+   *        "password": null,
+   *      }
+   *    }
+   *  }
+   * 2. new format
+   *  {
+   *    "success": true,
+   *    "dup": false,
+   *    "content": "docker envs are",
+   *    "code": null,
+   *    "msg": null,
+   *    "t": 1532434559536,
+   *    "failure": false,
+   *    "items": null
+   *  }
+   */
+
   setConfig(Vue) {
     // Axios.defaults.withCredentials = true;
     Axios.defaults.timeout = 15000;
