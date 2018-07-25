@@ -863,11 +863,11 @@
       </div>
     </el-dialog>
 
-    <my-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
+    <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="log-list">
         <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
       </div>
-    </my-dialog-for-log>
+    </paas-dialog-for-log>
   </div>
 </template>
 
@@ -977,9 +977,6 @@
           vertical-align: middle;
         }
       }
-      .log-item{
-        white-space: pre;
-      }
     }
 
     .el-dialog__wrapper {
@@ -1047,6 +1044,9 @@
     }
 
     .dialog4log {
+      .log-item{
+        white-space: pre;
+      }
       .info {
         color: #409EFF;
         font-weight: bold;
@@ -1183,11 +1183,11 @@
 
 <script>
   import appPropUtils from '../utils/app-props';
-  import MyDialogForLog from '../components/dialog4log.vue'
+  import paasDialogForLog from '../components/dialog4log.vue'
   import MyImageSelector from '../components/image-selector.vue'
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 export default {
-  components: {MyDialogForLog, MyImageSelector},
+  components: {paasDialogForLog, MyImageSelector},
   created() {
   },
   mounted() {
