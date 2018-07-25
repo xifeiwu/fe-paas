@@ -977,6 +977,9 @@
           vertical-align: middle;
         }
       }
+      .log-item{
+        white-space: pre;
+      }
     }
 
     .el-dialog__wrapper {

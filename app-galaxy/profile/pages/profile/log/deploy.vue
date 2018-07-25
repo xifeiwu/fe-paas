@@ -46,7 +46,7 @@
       </div>
     </div>
     <paas-dialog-for-log :showStatus="dialogStatus">
-      <div slot="log-list" v-for="(item,index) in deployLogs" :key="index" class="log-item">{{item}}</div>
+      <div slot="log-list" v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item">{{item}}</div>
     </paas-dialog-for-log>
   </div>
 </template>
@@ -59,10 +59,32 @@
       .el-table {
       }
     }
+    .el-dialog {
+      .log-item{
+        white-space:pre;
+      }
+    }
   }
 </style>
 <style lang="scss">
-
+  .dialog4log {
+      .info {
+        color: #409EFF;
+        font-weight: bold;
+      }
+      .warning {
+        color: #E6A23C;
+        font-weight: bold;
+      }
+      .error {
+        color: #F56C6C;
+        font-weight: bold;
+      }
+      .success {
+        color: #67C23A;
+        font-weight: bold;
+      }
+    }
 </style>
 <script>
   import MyVersionSelector from '../components/version-selector';
@@ -140,6 +162,7 @@
           case 'show-log':
             let logPath = row.logPath;
             let logName = row.logName;
+            const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
             if (!logPath || !logName) {
               this.$message.error('该次部署失败，没有部署日志');
               return;
@@ -151,7 +174,31 @@
             }).then(deployLog => {
 //              console.log(deployLog);
               this.waitingResponse = false;
-              this.deployLogs = deployLog.split('\n');
+              this.deployLogs = deployLog.split('\n').filter(it => {
+                return it;
+              }).map(it => {  
+                return it.replace(filterReg,(match,p1,p2,offset,string) => {
+                  p2 = p2.replace(/(BUILD )*SUCCESS/g, (match, p1, offset, string) => {
+                    return `<span class="success">${match}</span>`;
+                  });
+                  p2 = p2.replace(/BUILD FAILURE/g, (match, p1, offset, string) => {
+                    return `<span class="error">${match}</span>`;
+                  });
+                  let result = '';
+                  switch (p1.toUpperCase()) {
+                    case 'INFO':
+                      result = `[<span class="info">${p1}</span>]${p2}`;
+                      break;
+                    case 'WARNING':
+                      result = `[<span class="warning">${p1}</span>]${p2}`;
+                      break;
+                    case 'ERROR':
+                      result = `[<span class="error">${p1}</span>]<span class="error">${p2}</span>`;
+                      break;
+                  }
+                  return result;
+                })
+              });
               this.dialogStatus.visible = true;
             });
             break;
