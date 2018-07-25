@@ -901,6 +901,10 @@
     }
     .service-list {
       .el-table {
+        .el-button > span {
+          display: flex;
+          align-items: center;
+        }
         .el-table__expanded-cell {
           .row-expand {
             box-sizing: border-box;
