@@ -1,58 +1,88 @@
 <template>
   <div id="login">
     <img class="finup-cloud" src="/assets/imgs/finup-cloud.png" @click="handleImageClick()">
-    <div class="login-form-container"
-         v-loading="showLoading"
-         element-loading-text="登录中"
-         element-loading-spinner="el-icon-loading"
-         element-loading-background="rgba(255, 255, 255, 0.6)"
-    >
-      <el-form ref="form" :model="form" label-width="0px" class="login-form"
-               @keydown.native="handleKeyDownOnForm"
-               @focus.native.capture="handleFocusOnForm"
+    <div class="main">
+      <div class="writting-code">
+          <pre><code class="javascript hljs"><span class="hljs-comment">/** ignore me */</span>
+<span class="hljs-keyword">const</span> codeWriter = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">node</span>) </span>{
+  <span class="hljs-keyword">let</span> str = node.innerHTML;
+  <span class="hljs-keyword">let</span> progress = <span class="hljs-number">0</span>;
+  node.innerHTML = <span class="hljs-string">''</span>;
+  <span class="hljs-keyword">var</span> timer = setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> current = str.substr(progress, <span class="hljs-number">1</span>);
+    <span class="hljs-keyword">switch</span>(current) {
+      <span class="hljs-keyword">case</span> <span class="hljs-string">'&lt;'</span>:
+        progress = str.indexOf(<span class="hljs-string">'&gt;'</span>, progress) + <span class="hljs-number">1</span>;
+        <span class="hljs-keyword">break</span>;
+      <span class="hljs-keyword">case</span> <span class="hljs-string">'&amp;'</span>:
+        progress += <span class="hljs-number">3</span>;
+        <span class="hljs-keyword">break</span>;
+      <span class="hljs-keyword">default</span>:
+        progress++;
+        <span class="hljs-keyword">break</span>;
+    }
+    node.innerHTML = str.substring(<span class="hljs-number">0</span>, progress) + (progress &amp; <span class="hljs-number">1</span> ? <span class="hljs-string">'_'</span> : <span class="hljs-string">''</span>);
+    <span class="hljs-keyword">if</span> (progress &gt;= str.length) {
+      clearInterval(timer);
+    }
+  }, <span class="hljs-number">150</span>);
+}
+codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'pre code'</span>));
+    </code></pre>
+      </div>
+      <div class="login-form-container"
+           v-loading="showLoading"
+           element-loading-text="登录中"
+           element-loading-spinner="el-icon-loading"
+           element-loading-background="rgba(255, 255, 255, 0.6)"
       >
-        <el-form-item labelWidth="0px">
-          <div class="login-title">登录凡普云</div>
-        </el-form-item>
-        <el-form-item labelWidth="0px" v-if="error.status">
-          <el-alert
-                  :title="error.content"
-                  type="error"
-                  :closable="false"
-                  class="login-error"
-          >
-          </el-alert>
-        </el-form-item>
-        <el-form-item>
-          <el-input v-model="form.userName" placeholder="请输入用户名"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-input v-model="form.password" placeholder="请输入密码" type="password"></el-input>
-        </el-form-item>
-        <el-form-item class="verify-code">
-          <el-input v-model="form.verifyCode" placeholder="请输入验证码"
-                    appendStyle="width: 60px; text-align: center"
-          >
-            <template slot="append"><img alt="..." :src="verifyImageData" style="width: 60px; height: 30px; font-size: 10px"
-                                         @click="updateVerifyCode"></template>
-          </el-input>
-        </el-form-item>
-        <el-form-item class="login-interval-item">
-          <el-checkbox v-model="freeLogin15Days"
-                       label="without_login"
-                       name="without_login"
-                       @change="freeLoginStateChange">15天免登录
-          </el-checkbox>
-        </el-form-item>
-        <el-form-item class="login-button-item">
-          <el-button type="primary" class="login-btn" @click="onSubmit">登&nbsp&nbsp&nbsp&nbsp录</el-button>
-        </el-form-item>
-      </el-form>
-      <div style="margin-top: 6px; font-size: 14px; line-height: 24px; color: #909399; background-color: #f4f4f5; border-radius: 4px;">
-        <i class="el-icon-warning"></i>
-        <span>请使用</span>
-        <a href="http://ops.finupgroup.com/login.htm" target="_blank">运管平台(ops)</a>
-        <span>账号登录</span>
+        <el-form ref="form" :model="form" label-width="0px" class="login-form"
+                 @keydown.native="handleKeyDownOnForm"
+                 @focus.native.capture="handleFocusOnForm"
+        >
+          <el-form-item labelWidth="0px">
+            <div class="login-title">登录凡普云</div>
+          </el-form-item>
+          <el-form-item labelWidth="0px" v-if="error.status">
+            <el-alert
+                    :title="error.content"
+                    type="error"
+                    :closable="false"
+                    class="login-error"
+            >
+            </el-alert>
+          </el-form-item>
+          <el-form-item>
+            <el-input v-model="form.userName" placeholder="请输入用户名"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-input v-model="form.password" placeholder="请输入密码" type="password"></el-input>
+          </el-form-item>
+          <el-form-item class="verify-code">
+            <el-input v-model="form.verifyCode" placeholder="请输入验证码"
+                      appendStyle="width: 60px; text-align: center"
+            >
+              <template slot="append"><img alt="..." :src="verifyImageData" style="width: 60px; height: 30px; font-size: 10px"
+                                           @click="updateVerifyCode"></template>
+            </el-input>
+          </el-form-item>
+          <el-form-item class="login-interval-item">
+            <el-checkbox v-model="freeLogin15Days"
+                         label="without_login"
+                         name="without_login"
+                         @change="freeLoginStateChange">15天免登录
+            </el-checkbox>
+          </el-form-item>
+          <el-form-item class="login-button-item">
+            <el-button type="primary" class="login-btn" @click="onSubmit">登&nbsp&nbsp&nbsp&nbsp录</el-button>
+          </el-form-item>
+        </el-form>
+        <div style="margin-top: 6px; font-size: 14px; line-height: 24px; color: #909399; background-color: #f4f4f5; border-radius: 4px;">
+          <i class="el-icon-warning"></i>
+          <span>请使用</span>
+          <a href="http://ops.finupgroup.com/login.htm" target="_blank">运管平台(ops)</a>
+          <span>账号登录</span>
+        </div>
       </div>
     </div>
     <div class="footer">
@@ -64,6 +94,7 @@
 </template>
 <style lang="scss" scoped>
   @import 'assets/css/mixin.scss';
+  @import 'assets/static/libs/highlight/styles/atelier-forest-light';
   $header-height: 45px;
   $header-background-color: #e7e7e7;
   #login {
@@ -79,54 +110,66 @@
       top: 12px;
       left: 12px;
     }
-    .login-form-container {
-      z-index: 10;
+    .main {
+      .hljs {
+        background: white;
+      }
+      max-width: 1500px;
+      min-width: 1000px;
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -60%);
-      padding: 20px;
-      @include box-shadow(0 0 2px 0 rgba(64,158,255, .6));
-      &:hover {
-        @include box-shadow(0 0 6px 0 rgba(64,158,255, .6));
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      .writting-code {
+        display: inline-block;
+        min-height: 450px;
       }
-      .el-form.login-form {
-        width: 320px;
-        .el-form-item {
-          margin-bottom: 16px;
-          .login-error {
-            line-height: 100%;
-            padding: 8px 2px;
-            font-weight: bold;
-          }
-          .login-title {
-            text-align: center;
-            font-size: 1.2rem;
-          }
-          &.login-interval-item {
-            .el-form-item__title {
-              line-height: 24px;
+      .login-form-container {
+        padding: 20px;
+        @include box-shadow(0 0 2px 0 rgba(64,158,255, .6));
+        &:hover {
+          @include box-shadow(0 0 6px 0 rgba(64,158,255, .6));
+        }
+        .el-form.login-form {
+          width: 320px;
+          .el-form-item {
+            margin-bottom: 16px;
+            .login-error {
+              line-height: 100%;
+              padding: 8px 2px;
+              font-weight: bold;
             }
-          }
-          &.login-button-item {
-            text-align: center;
-            .el-button {
-              width: 100%;
-            }
-          }
-          &.verify-code {
-            .el-input-group__append {
-              width: 60px;
+            .login-title {
               text-align: center;
+              font-size: 1.2rem;
             }
-          }
-          &:last-child {
-            margin-bottom: 0px;
-          }
-          .el-form-item__content {
-            /*margin-left: 0px !important;*/
-            input {
-              border-radius: 0px
+            &.login-interval-item {
+              .el-form-item__title {
+                line-height: 24px;
+              }
+            }
+            &.login-button-item {
+              text-align: center;
+              .el-button {
+                width: 100%;
+              }
+            }
+            &.verify-code {
+              .el-input-group__append {
+                width: 60px;
+                text-align: center;
+              }
+            }
+            &:last-child {
+              margin-bottom: 0px;
+            }
+            .el-form-item__content {
+              input {
+                border-radius: 0px
+              }
             }
           }
         }
@@ -139,6 +182,7 @@
       left: 50%;
       transform: translate(-50%);
     }
+
     canvas {
       position: fixed;
       top: 0;
@@ -147,11 +191,9 @@
       right: 0px;
       height: auto;
     }
-
     #canvas-fe {
       z-index: -1;
     }
-
     #canvas-bg {
       z-index: -2;
       -webkit-filter: blur(3px);
@@ -324,7 +366,34 @@
       setTimeout(() => {
         this.focusableElesInForm.length > 0 && this.focusableElesInForm[0].focus();
       }, 1000);
-      drawBG2();
+      // background effect
+//      drawBG2();
+
+      // code-writter effect
+      const codeWriter = function(node) {
+        let str = node.innerHTML;
+        let progress = 0;
+        node.innerHTML = '';
+        var timer = setInterval(function() {
+          var current = str.substr(progress, 1);
+          switch(current) {
+            case '<':
+              progress = str.indexOf('>', progress) + 1;
+              break;
+            case '&':
+              progress += 3;
+              break;
+            default:
+              progress++;
+              break;
+          }
+          node.innerHTML = str.substring(0, progress) + (progress & 1 ? '_' : '');
+          if (progress >= str.length) {
+            clearInterval(timer);
+          }
+        }, 250);
+      };
+      codeWriter(this.$el.querySelector('.main pre code'));
     },
     methods: {
       handleImageClick() {
