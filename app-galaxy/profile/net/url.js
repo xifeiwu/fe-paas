@@ -277,9 +277,9 @@ class URL extends BaseURL {
         path: '/service/instances/update'
       },
       // 查看实例状态
-      'instance_status':{
-        url:API_PATH + '/event/pod/info',
-        path:'/event/pod/info'
+      'instance_status': {
+        url: API_PATH + '/event/pod/info',
+        path: '/event/pod/info'
       },
 
       /** 域名相关 */

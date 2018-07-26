@@ -128,7 +128,7 @@
       </div>
     </el-dialog>
     <paas-dialog-for-log :showStatus="statusForDialogInstanceLog" ref="statusForDialogInstanceLog" title="实例状态">
-      <div slot="log-list">
+      <!-- <div slot="log-list">
         <div v-for="(item,index) in instanceStatusList" :key="index" class="log-item">
           <p><span class="log-title">开始时间</span>:{{item.firstTimestamp}}</p>
           <p><span class="log-title">实例名称</span>:{{item.kindName}}</p>
@@ -136,6 +136,15 @@
           <p><span class="log-title">Message</span>:{{item.message}}</p>
           <p><span class="log-title">类型</span>:{{item.type}}</p>
           <p><span class="log-title">结束时间</span>:{{item.lastTimestamp}}</p>
+        </div>
+      </div> -->
+      <div slot="log-list">
+        <div class="log-title">
+          <p v-html="formatColumn('Firstseen',25) + formatColumn('Lastseen',25) + formatColumn('Type',10) + formatColumn('Reason',25) + formatColumn('Message',40)"></p>
+          <p>{{'-'.repeat(120)}}</p>
+        </div>
+        <div v-for="(item,index) in instanceStatusList" :key="index">
+          <p v-html="item" class="log pb-2"></p>
         </div>
       </div>
     </paas-dialog-for-log>
@@ -157,12 +166,12 @@
         }
       }
     }
-    .el-dialog{
-      .log-item{
-        border-bottom: 1px solid #EBEEF5;
-        .log-title{
-          color:#409EFF;
-        }
+    .el-dialog {
+      .log-title,
+      .log {
+        font-size: 12px;
+        font-family: "Courier New", Courier, monospace;
+        line-height: 100% !important;
       }
     }
   }
@@ -194,13 +203,16 @@
 </style>
 
 <script>
-  import appPropUtils from '../utils/app-props';
-  import MyVersionSelector from '../components/version-selector';
-  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
-  import paasDialogForLog from '../components/dialog4log.vue';
+  import appPropUtils from "../utils/app-props";
+  import MyVersionSelector from "../components/version-selector";
+  import {
+    addResizeListener,
+    removeResizeListener
+  } from "element-ui/src/utils/resize-event";
+  import paasDialogForLog from "../components/dialog4log.vue";
 
   export default {
-    components: {MyVersionSelector,paasDialogForLog},
+    components: { MyVersionSelector, paasDialogForLog },
 
     /**
      * the sequence of create and mount in parent and child element is:
@@ -221,16 +233,15 @@
       try {
         let header = this.$el.querySelector('.header:first-child');
         let instanceList = this.$el.querySelector('.instance-list');
-        this.resizeListener = (evt) => {
+        this.resizeListener = evt => {
           let height = this.$el.clientHeight;
           let heightOfHeader = header.offsetHeight;
           let heightOfContent = height - heightOfHeader;
           instanceList.style.height = heightOfContent + 'px';
           this.heightOfInstanceList = height - heightOfHeader - 20;
         };
-        addResizeListener(this.$el, this.resizeListener)
-      } catch(err) {
-      }
+        addResizeListener(this.$el, this.resizeListener);
+      } catch (err) {}
     },
     beforeDestroy() {
       removeResizeListener(this.$el, this.resizeListener);
@@ -243,15 +254,15 @@
         localConfig: null,
         showLoading: false,
         queueForWaitingResponse: [],
-//        instanceStatus.instanceList: [{
-//          createTime: "2018-01-11 20:39:09",
-//          health: null,
-//          instanceName: "v3-puhui-notification-3270010048-3xp1s",
-//          intranetIP:null,
-//          message:null,
-//          status:"运行中",
-//          version: "puhui-notification:2018-01-11-20-38-12"
-//        }],
+        //        instanceStatus.instanceList: [{
+        //          createTime: '2018-01-11 20:39:09',
+        //          health: null,
+        //          instanceName: 'v3-puhui-notification-3270010048-3xp1s',
+        //          intranetIP:null,
+        //          message:null,
+        //          status:'运行中',
+        //          version: 'puhui-notification:2018-01-11-20-38-12'
+        //        }],
         instanceStatus: {
           instanceCount: null,
           instanceList: []
@@ -266,18 +277,10 @@
           full: false,
           showLoading: false
         },
-        instanceStatusList:[],
-
-        dialogStatusForConsoleLog: {
-          visible: false,
-          full: false,
-          showLoading: false
-        },
-        consoleLogList: []
-      }
+        instanceStatusList: []
+      };
     },
-    watch: {
-    },
+    watch: {},
     methods: {
       // helper for loading action of el-button
       addToWaitingResponseQueue(action) {
@@ -288,25 +291,23 @@
       statusOfWaitingResponse(action) {
         return this.queueForWaitingResponse.indexOf(action) > -1;
       },
-      hideWaitingResponse(action) {
-        let index = this.queueForWaitingResponse.indexOf(action);
-        if (index > -1) {
-          this.queueForWaitingResponse.splice(index, 1);
-        }
-      },
 
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
-//        console.log(appInfo, profileInfo, serviceInfo);
+        //        console.log(appInfo, profileInfo, serviceInfo);
         this.instanceStatus.instanceList = [];
         if (!appInfo || !profileInfo || !serviceInfo) {
           return;
         }
-//        this.$storeHelper.setUserConfig('profile/instance', {
-//          appID: appInfo.appId,
-//          profileID: profileInfo.id,
-//          serviceID: serviceInfo.id
-//        });
-        this.requestInstanceList(appInfo.appId, profileInfo.id, serviceInfo.serviceVersion);
+        //        this.$storeHelper.setUserConfig('profile/instance', {
+        //          appID: appInfo.appId,
+        //          profileID: profileInfo.id,
+        //          serviceID: serviceInfo.id
+        //        });
+        this.requestInstanceList(
+          appInfo.appId,
+          profileInfo.id,
+          serviceInfo.serviceVersion
+        );
       },
       /**
        * 获取实例列表
@@ -317,36 +318,42 @@
           return;
         }
         this.showLoading = true;
-        this.$net.getInstanceList({
-          appId: appID,
-          spaceId: spaceID,
-          serviceVersion: version
-        }).then(content => {
-//          console.log(content);
-          if (content.hasOwnProperty('instanceList')) {
-            if (Array.isArray(content['instanceList'])) {
-              this.instanceStatus.instanceList = content['instanceList'];
-            } else {
-              this.instanceStatus.instanceList = [];
+        this.$net
+          .getInstanceList({
+            appId: appID,
+            spaceId: spaceID,
+            serviceVersion: version
+          })
+          .then(content => {
+            //          console.log(content);
+            if (content.hasOwnProperty('instanceList')) {
+              if (Array.isArray(content['instanceList'])) {
+                this.instanceStatus.instanceList = content['instanceList'];
+              } else {
+                this.instanceStatus.instanceList = [];
+              }
             }
-          }
-          if (content.hasOwnProperty('instanceNum')) {
-            this.instanceStatus.instanceCount = content['instanceNum'];
-          }
-          this.showLoading = false;
-        }).catch(err => {
-          console.log(err);
-          this.$message({
-            type: 'error',
-            message: '查找服务版本失败！'
+            if (content.hasOwnProperty('instanceNum')) {
+              this.instanceStatus.instanceCount = content['instanceNum'];
+            }
+            this.showLoading = false;
+          })
+          .catch(err => {
+            console.log(err);
+            this.$message({
+              type: 'error',
+              message: '查找服务版本失败！'
+            });
+            this.showLoading = false;
           });
-          this.showLoading = false;
-        });
       },
 
       checkVersionSelector() {
         let serviceInfo = this.$refs['version-selector'].getSelectedValue();
-        if (!serviceInfo.selectedService || !serviceInfo.selectedService.hasOwnProperty('serviceVersion')) {
+        if (
+          !serviceInfo.selectedService ||
+          !serviceInfo.selectedService.hasOwnProperty('serviceVersion')
+        ) {
           this.$message.error('请选择服务版本！');
           return null;
         }
@@ -393,23 +400,25 @@
               id: serviceInfo.selectedService.id,
               instanceNum: this.manualScale.newCount
             };
-            this.$net.instanceChangeCount(options).then(msg => {
-              this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
-              this.operation = null;
-              // update model, show success message
-              this.instanceStatus.instanceCount = this.manualScale.newCount;
-              this.$message.success(msg);
-            }).catch(msg => {
-              this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
-              this.operation = null;
-              this.$notify.error({
-                title: '修改失败！',
-                message: msg,
-                duration: 0,
-                onClose: function () {
-                }
+            this.$net
+              .instanceChangeCount(options)
+              .then(msg => {
+                this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
+                this.operation = null;
+                // update model, show success message
+                this.instanceStatus.instanceCount = this.manualScale.newCount;
+                this.$message.success(msg);
+              })
+              .catch(msg => {
+                this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
+                this.operation = null;
+                this.$notify.error({
+                  title: '修改失败！',
+                  message: msg,
+                  duration: 0,
+                  onClose: function() {}
+                });
               });
-            });
             break;
         }
       },
@@ -420,8 +429,11 @@
       handleRowButtonClick(action, index, row) {
         switch (action) {
           case 'terminal':
-            let serviceInfo = this.$refs['version-selector'].getSelectedValue()['selectedService'];
-            let id = null, ip = null;
+            let serviceInfo = this.$refs['version-selector'].getSelectedValue()[
+              'selectedService'
+            ];
+            let id = null,
+              ip = null;
             if (serviceInfo && serviceInfo.hasOwnProperty('id')) {
               id = serviceInfo.id;
             }
@@ -429,10 +441,17 @@
               ip = row['intranetIP'];
             }
             if (id && ip) {
-              let terminalPath = this.$url.page_terminal_path + '?id=' + id + '&ip=' + ip + '&name=' + row['instanceName'];
-//              this.$net.getTerminalInfo({
-//                serviceId: id
-//              });
+              let terminalPath =
+                this.$url.page_terminal_path +
+                '?id=' +
+                id +
+                '&ip=' +
+                ip +
+                '&name=' +
+                row['instanceName'];
+              //              this.$net.getTerminalInfo({
+              //                serviceId: id
+              //              });
               window.open(terminalPath, '_blank');
             } else {
               this.$message.error('组ID或内网IP没有找到');
@@ -443,7 +462,7 @@
             this.$storeHelper.setUserConfig('profile/instance', {
               appID: selectedValue['selectedAPP'].appId,
               profileID: selectedValue['selectedProfile'].id,
-              serviceID: selectedValue['selectedService'].id,
+              serviceID: selectedValue['selectedService'].id
             });
             this.$router.push({
               path: '/log/run',
@@ -462,25 +481,33 @@
             options.applicationId = service.selectedAPP.appId;
             options.spaceId = service.selectedProfile.id;
             options.kindName = row['instanceName'];
-            const getInstanceStatusList = (options) => {
-              if(!this.statusForDialogInstanceLog.visible){
-                return ;
+            const getInstanceStatusList = options => {
+              if (!this.statusForDialogInstanceLog.visible) {
+                return;
               }
-              this.statusForDialogInstanceLog.showLoading = true;
-              this.$net.getInstanceStatus(options).then(content => {
-                setTimeout(() => {
-                  this.statusForDialogInstanceLog.showLoading = false;
-                  this.$refs['statusForDialogInstanceLog'].scrollToBottom();
-                }, 300);
-                this.instanceStatusList = content;
-                setTimeout(() => {
+              this.$net
+                .getInstanceStatus(options)
+                .then(content => {
+                  this.instanceStatusList = content.map(item => {
+                    return (
+                      `<i style='color: aqua;'>` +
+                      this.formatColumn(item.firstTimestamp, 25) +
+                      this.formatColumn(item.lastTimestamp, 25) +
+                      this.formatColumn(item.type, 10) +
+                      this.formatColumn(item.reason, 25) +
+                      '</i>' +
+                      item.message
+                    );
+                  });
+                  setTimeout(() => {
                     getInstanceStatusList(options);
-                  },5000);
-              }).catch(err => {
-                this.statusForDialogInstanceLog.showLoading = false;
-              });
-            }
-            getInstanceStatusList(options);
+                  }, 5000);
+                })
+                .catch(err => {
+                  this.statusForDialogInstanceLog.showLoading = false;
+                });
+              }
+              getInstanceStatusList(options);
             break;
           case 'show-console-log':
             var selectedValue = this.$refs['version-selector'].getSelectedValue();
@@ -494,8 +521,12 @@
               this.consoleLogList = resData;
             })
             break;
-        }
-      },
+          }
+        },
+      formatColumn(text, width) {
+        let space = '#'.repeat(width);
+        return (text + space).slice(0, width).replace(/\#/g, '&nbsp;');
+      }
     }
-  }
+  };
 </script>
