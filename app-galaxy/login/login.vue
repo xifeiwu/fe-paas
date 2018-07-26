@@ -27,8 +27,7 @@
     }
   }, <span class="hljs-number">150</span>);
 }
-codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'pre code'</span>));
-    </code></pre>
+codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'pre code'</span>));</code></pre>
       </div>
       <div class="login-form-container"
            v-loading="showLoading"
@@ -383,15 +382,21 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
             case '&':
               progress += 3;
               break;
+            case ' ':
+              while ((progress < str.length) && str.substr(progress, 1) == ' ') {
+                progress += 1;
+              }
+              break;
             default:
               progress++;
               break;
           }
           node.innerHTML = str.substring(0, progress) + (progress & 1 ? '_' : '');
           if (progress >= str.length) {
-            clearInterval(timer);
+//            clearInterval(timer);
+            progress = 0;
           }
-        }, 250);
+        }, 150);
       };
       codeWriter(this.$el.querySelector('.main pre code'));
     },
