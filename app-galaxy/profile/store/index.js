@@ -15,6 +15,26 @@ import cdn from './modules/cdn';
 Vue.use(Vuex);
 
 export default new Vuex.Store({
+  state: {
+    toasts: [],        // toasts
+  },
+  mutations: {
+    toastPush(state, payload) {
+      state.toasts.push(payload)
+    },
+    toastPop(state) {
+      state.toasts.splice(0, 1)
+    },
+  },
+  actions: {
+    toastPush({ commit }, payload) {
+      const _payload = Object.assign({ title: '', center: true, druing: 4000 }, payload);
+      commit('toastPush', _payload);
+      setTimeout(() => {
+        commit('toastPop')
+      }, _payload.druing)
+    },
+  },
   modules:{
     user, app, tmp, global, etc, cdn
   },
