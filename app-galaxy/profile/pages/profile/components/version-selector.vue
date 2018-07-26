@@ -211,7 +211,7 @@
             this.$notify.warning({
               title: '该团队应用列表为空',
               message: '某些操作可能无法正常进行！',
-              duration: 3 * 1000,
+              duration: 1 * 1000,
               onClose: function () {
               }
             });

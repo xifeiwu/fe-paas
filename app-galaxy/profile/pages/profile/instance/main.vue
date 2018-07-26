@@ -267,7 +267,13 @@
           full: false,
           showLoading: false
         },
-        instanceStatusList: []
+        instanceStatusList: [],
+        dialogStatusForConsoleLog: {
+          visible: false,
+          full: false,
+          showLoading: false
+        },
+        consoleLogList: []
       };
     },
     watch: {},
