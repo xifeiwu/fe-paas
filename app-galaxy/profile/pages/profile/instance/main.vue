@@ -128,16 +128,6 @@
       </div>
     </el-dialog>
     <paas-dialog-for-log :showStatus="statusForDialogInstanceLog" ref="statusForDialogInstanceLog" title="实例状态">
-      <!-- <div slot="log-list">
-        <div v-for="(item,index) in instanceStatusList" :key="index" class="log-item">
-          <p><span class="log-title">开始时间</span>:{{item.firstTimestamp}}</p>
-          <p><span class="log-title">实例名称</span>:{{item.kindName}}</p>
-          <p><span class="log-title">原因</span>:{{item.reason}}</p>
-          <p><span class="log-title">Message</span>:{{item.message}}</p>
-          <p><span class="log-title">类型</span>:{{item.type}}</p>
-          <p><span class="log-title">结束时间</span>:{{item.lastTimestamp}}</p>
-        </div>
-      </div> -->
       <div slot="log-list">
         <div class="log-title">
           <p v-html="formatColumn('Firstseen',25) + formatColumn('Lastseen',25) + formatColumn('Type',10) + formatColumn('Reason',25) + formatColumn('Message',40)"></p>
@@ -441,14 +431,7 @@
               ip = row['intranetIP'];
             }
             if (id && ip) {
-              let terminalPath =
-                this.$url.page_terminal_path +
-                '?id=' +
-                id +
-                '&ip=' +
-                ip +
-                '&name=' +
-                row['instanceName'];
+              let terminalPath = this.$url.page_terminal_path + '?id=' + id + '&ip=' + ip + '&name=' + row['instanceName'];
               //              this.$net.getTerminalInfo({
               //                serviceId: id
               //              });
