@@ -13,9 +13,16 @@ module.exports = {
     assetsSubDirectory: 'assets',
     assetsPublicPath: '/',
     proxyTable: {
+      '/api/cdn/': {
+        target: 'http://localhost:7001',
+        changeOrigin: true,
+        logLevel: 'debug',
+        pathRewrite: path => path.replace('\/api\/cdn\/', '\/'),
+      },
       '/api/': {
         target: 'http://10.10.202.143:30333',
         changeOrigin: true,
+        logLevel: 'debug',
         pathRewrite: path => path.replace('\/api\/', '\/'),
       },
     },
