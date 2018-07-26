@@ -16,6 +16,7 @@ import netHelper from './profile/net/net';
 import NetConfig from './config/network';
 
 import VueConfig from './config/vue';
+
 new VueConfig({
   URL_LIST,
   netHelper,
@@ -24,6 +25,7 @@ new VueConfig({
 });
 
 import routerConfig from './profile/pages/router';
+
 Vue.prototype.$routeHelper = routerConfig;
 
 // paas-icons for icon and svg
@@ -47,3 +49,12 @@ window.Vue = Vue;
 //     render: h => h(APP),
 //   router
 // })
+
+/** 全局为每个vue组件混入方法 */
+Vue.mixin({
+  methods: {
+    $toast(title = '操作成功', type= 'success' ,center = true) {
+      this.$store.dispatch('toastPush', {title, type, center})
+    },
+  },
+})

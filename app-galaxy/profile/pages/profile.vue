@@ -21,6 +21,17 @@
       </el-menu>
     </aside>
     <main>
+      <!--toasts area-->
+      <div style="width: 100%; position: fixed; z-index: 99999;">
+        <el-alert v-for="item in toasts"
+                  :title="item.title"
+                  :type="item.type"
+                  :center="item.center"
+                  class="mb-1"
+                  show-icon>
+        </el-alert>
+      </div>
+      <!--toasts-area-->
       <paas-header-profile :userName="userName" :showImg="false" ref="paasHeaderProfile"
                            @menu-click="handleHeaderMenuClick"></paas-header-profile>
       <div class="content">
@@ -155,6 +166,7 @@
         }
         .child {
           height: calc(100% - 32px);
+          display: flex;
           overflow: scroll;
         }
       }
@@ -163,6 +175,7 @@
 </style>
 
 <script>
+  import {mapState} from 'vuex';
   import paasHeaderProfile from '$components/header-profile';
 
   export default {
@@ -256,6 +269,7 @@
       });
     },
     computed: {
+      ...mapState(['toasts']),
       menuList() {
         return this.$storeHelper.menuList;
       },

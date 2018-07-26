@@ -11,7 +11,7 @@ import LogMain from './profile/log/main.vue';
 // const LogMain = () => import(
 //   /* webpackChunkName: "log" */
 //   /* webpackMode: "lazy" */
-//   './profile/log/main.vue');
+//   './profile/log/list.vue');
 import LogRun from './profile/log/run.vue';
 import LogDeploy from './profile/log/deploy.vue';
 
@@ -36,10 +36,16 @@ import ConfigServerFileList from './profile/config-server/list.vue';
 
 // cdn
 import CdnMain from './profile/cdn/main.vue';
+import CdnList from './profile/cdn/list.vue';
 import CdnCreate from './profile/cdn/create.vue';
+import CdnEdit from './profile/cdn/edit.vue';
+import CdnPrefetch from './profile/cdn/prefetch.vue';
+import CdnStatistics from './profile/cdn/statistics.vue';
+import CdnDashboard from './profile/cdn/dashboard.vue';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+
 /**
  * router config:
  * 1. path should have the same name as .vue file
@@ -47,7 +53,7 @@ import VueRouter from 'vue-router';
  * 3. url path should be correspond with page logic, as it is used for breadcrumb. such as
  *    if add app is sub page of app, its url should be app/add
  */
-var Router = function() {
+var Router = function () {
   this.richRouterConfig = [{
     path: '/',
     redirect: '/app',
@@ -169,13 +175,42 @@ var Router = function() {
     name: '配置文件列表',
     component: ConfigServerFileList,
   }, {
-      path: '/cdn',
-      name: 'cdn加速',
-      component: CdnMain,
-    },{
-    path: '/cdn/create',
-    name: '创建加速域名',
-    component: CdnCreate,
+    path: '/cdn',
+    name: 'cdn加速',
+    component: CdnMain,
+    children: [
+      {
+        path: 'list',
+        name: '加速域名列表',
+        component: CdnList,
+      },
+      {
+        path: 'create',
+        name: '创建加速域名',
+        component: CdnCreate,
+      },
+      {
+        path: 'edit',
+        name: '修改配置',
+        component: CdnEdit,
+      },
+      {
+        path: 'prefetch',
+        name: '刷新预取',
+        component: CdnPrefetch,
+      },
+      {
+        path: 'statistics',
+        name: '统计分析',
+        component: CdnStatistics,
+      },
+      {
+        path: 'dashboard',
+        name: '统计分析',
+        component: CdnDashboard,
+      },
+
+    ]
   },];
   this.addRoutePath(null, this.richRouterConfig);
 
@@ -385,6 +420,7 @@ Router.prototype = {
    */
   startRouteFilter() {
     let self = this;
+
     // if the path is valid
     function isValidateURL(path) {
       // remove / at end
@@ -408,10 +444,12 @@ Router.prototype = {
       // console.log(`${path}, ${isOk}`);
       return isOk;
     }
+
     // get parent path of the path
     function getParentPath(path) {
-      return path.split('/').slice(0,-1).join('/');
+      return path.split('/').slice(0, -1).join('/');
     }
+
     // get nearest path if the path is not valid
     function getValidateURL(path) {
       let result = path;

@@ -3,6 +3,7 @@
             v-loading="loading"
             element-loading-text="操作进行中"
             element-loading-spinner="el-icon-loading"
+            style="flex: 1"
     >
         <div class="pa-3 pt-4" style="background-color: #fff;">
             <el-row :gutter="20">
