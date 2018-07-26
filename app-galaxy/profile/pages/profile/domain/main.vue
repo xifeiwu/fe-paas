@@ -1,5 +1,5 @@
 <template>
-  <div id="domain-main">
+  <div id="domain-main" style="flex: 1">
     <div class="header">
       <div class="row selector">
         <my-version-condition-filter

@@ -1,5 +1,5 @@
 <template>
-  <div id="service-main">
+  <div id="service-main" style="flex: 1">
     <div class="header">
       <el-row class="operation">
         <el-col :span="24" class="selector">

@@ -20,7 +20,12 @@
                     <div class="pt-2">
                         <strong style="color: green;">当前状态:&emsp; {{domain.operationType}} {{domain.operatingState}}</strong>
                     </div>
-
+                </el-col>
+                <el-col :span="10" :offset="3" class="pt-3">
+                    <el-button type="danger" @click="updateSource"
+                               :disabled="editable"
+                    >停用</el-button>
+                    <el-button type="success" @click="getDomain">刷新</el-button>
                 </el-col>
             </el-row>
         </div>

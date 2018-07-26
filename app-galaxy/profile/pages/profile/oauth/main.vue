@@ -1,5 +1,5 @@
 <template>
-  <div id="oauth">
+  <div id="oauth" style="flex: 1">
     <el-tabs v-model="currentPath" type="card" @tab-click="handleClick">
       <el-tab-pane v-for="item in tabs" :label="item.name" :name="item.routePath" :key="item.routePath"></el-tab-pane>
     </el-tabs>
