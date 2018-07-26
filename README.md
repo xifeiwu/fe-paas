@@ -4,15 +4,24 @@
 
 ### 如何运行
 
-运行平台：node (v8.9.4)
+**平台配置**
 
-安装依赖包：yarn
+```
+运行平台：node (v8.9.4)，建议通过nvm安装
+安装全局依赖包yarn: `npm install yarn -g`
+```
 
-本地开发：npm run dev
+**本地开发**
+
+```
+1. 初始化submodule（只需运行一次）: git submodule init
+2. 更新submodule: git submodule update
+3. 更新依赖包：yarn
+4. 修改后台服务接口（可选）：修改文件build/config/index.js的proxyTable, '/api/'的target指向
+5. 本地运行：npm run dev
+```
 
 生成静态文件：npm run build:dev（针对dev环境）, npm run build:test（针对测试环境）
-
-注：该项需要[http://gitlab.puhuitech.cn/paas-fe/spa-server-paas](http://gitlab.puhuitech.cn/paas-fe/spa-server-paas)配合运行。后者提供api接口和静态服务器功能。
 
 ### 项目结构（针对 版本v2.0.0）
 
