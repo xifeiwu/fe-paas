@@ -1410,7 +1410,7 @@ class Net extends NetBase {
     return new Promise((resolve,reject) => {
       axios.post(URL_LIST.instance_status.url,options).then(response => {
         let content = this.getResponseContent2(response);
-        content = content.map(it => {
+        content.forEach(it => {
           it.firstTimestamp = this.$utils.formatDate(it.firstTimestamp,'yyyy-MM-dd hh:mm:ss');
           it.lastTimestamp = this.$utils.formatDate(it.lastTimestamp,'yyyy-MM-dd hh:mm:ss');
         });

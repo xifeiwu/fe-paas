@@ -127,15 +127,15 @@
         </el-row>
       </div>
     </el-dialog>
-    <paas-dialog-for-log :showStatus="dialogLogInstanceStatus" ref="dialogLogInstanceStatus" title="实例状态">
+    <paas-dialog-for-log :showStatus="statusForDialogInstanceLog" ref="statusForDialogInstanceLog" title="实例状态">
       <div slot="log-list">
-        <div v-for="(item,index) in instanceStatusList" :key="index">
-          <p>开始时间:{{item.firstTimestamp}}</p>
-          <p>实例名称:{{item.kindName}}</p>
-          <p>原因:{{item.reason}}</p>
-          <p>Message:{{item.message}}</p>
-          <p>类型:{{item.type}}</p>
-          <p>结束时间:{{item.lastTimestamp}}</p>
+        <div v-for="(item,index) in instanceStatusList" :key="index" class="log-item">
+          <p><span class="log-title">开始时间</span>:{{item.firstTimestamp}}</p>
+          <p><span class="log-title">实例名称</span>:{{item.kindName}}</p>
+          <p><span class="log-title">原因</span>:{{item.reason}}</p>
+          <p><span class="log-title">Message</span>:{{item.message}}</p>
+          <p><span class="log-title">类型</span>:{{item.type}}</p>
+          <p><span class="log-title">结束时间</span>:{{item.lastTimestamp}}</p>
         </div>
       </div>
     </paas-dialog-for-log>
@@ -154,6 +154,14 @@
       .el-form-item {
         &:first-child {
           margin-bottom: 5px;
+        }
+      }
+    }
+    .el-dialog{
+      .log-item{
+        border-bottom: 1px solid #EBEEF5;
+        .log-title{
+          color:#409EFF;
         }
       }
     }
@@ -253,7 +261,7 @@
           newCount: null,
           error: ''
         },
-        dialogLogInstanceStatus: {
+        statusForDialogInstanceLog: {
           visible: false,
           full: false,
           showLoading: false
@@ -448,22 +456,29 @@
             break;
           case 'instanceStatus':
             this.instanceStatusList = [];
-            this.dialogLogInstanceStatus.visible = true;
+            this.statusForDialogInstanceLog.visible = true;
             let service = this.checkVersionSelector();
             var options = {};
             options.applicationId = service.selectedAPP.appId;
             options.spaceId = service.selectedProfile.id;
             options.kindName = row['instanceName'];
             const getInstanceStatusList = (options) => {
-              if(!this.dialogLogInstanceStatus.visible){
+              if(!this.statusForDialogInstanceLog.visible){
                 return ;
               }
+              this.statusForDialogInstanceLog.showLoading = true;
               this.$net.getInstanceStatus(options).then(content => {
+                setTimeout(() => {
+                  this.statusForDialogInstanceLog.showLoading = false;
+                  this.$refs['statusForDialogInstanceLog'].scrollToBottom();
+                }, 300);
                 this.instanceStatusList = content;
                 setTimeout(() => {
-                  getInstanceStatusList(options);
-                },5000);
-              }).catch(err => {});
+                    getInstanceStatusList(options);
+                  },5000);
+              }).catch(err => {
+                this.statusForDialogInstanceLog.showLoading = false;
+              });
             }
             getInstanceStatusList(options);
             break;
