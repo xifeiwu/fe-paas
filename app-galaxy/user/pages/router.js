@@ -9,10 +9,10 @@ import ManageGroup from './user/group.vue';
 class Router {
   constructor() {
     this.richRouterConfig = [
-      // {
-      //   path: '/',
-      //   redirect: '/info'
-      // },
+      {
+        path: '/user',
+        redirect: '/user/info'
+      },
       {
         path: '/user/info',
         name: '云产品',
@@ -119,6 +119,10 @@ class Router {
         return isPermitted;
       })
     }
+    // filter item with property 'name'
+    result = result.filter(it => {
+      return it.hasOwnProperty('name');
+    });
     return JSON.parse(JSON.stringify(result));
   }
 

@@ -412,7 +412,11 @@ Router.prototype = {
         return isPermitted;
       })
     }
-    return result;
+    // filter item with property 'name'
+    result = result.filter(it => {
+      return it.hasOwnProperty('name');
+    });
+    return JSON.parse(JSON.stringify(result));
   },
 
   /**
@@ -487,7 +491,7 @@ Router.prototype = {
     this.vueRouter.beforeEach((to, from, next) => {
       // console.log(from);
       // console.log(to);
-      // console.log(JSON.stringify(to.path) + ' -> ' + JSON.stringify(from.path));
+      // console.log(JSON.stringify(from.path) + ' -> ' + JSON.stringify(to.path));
 
       let token = Vue.prototype.$storeHelper.getUserInfo('token');
       if (token) {
