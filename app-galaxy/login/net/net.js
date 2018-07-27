@@ -104,6 +104,11 @@ class Net extends NetBase {
       })
     }
 
+    // add property token to user if exist
+    if (content.hasOwnProperty('token')) {
+      content.user.token = content.token;
+    }
+
     // generate two level menu tree by parentId
     // let twoLevelMenu = [];
     // permission.forEach(it => {

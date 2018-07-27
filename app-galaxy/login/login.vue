@@ -125,6 +125,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       .writting-code {
         display: inline-block;
         min-height: 450px;
+        font-size: 12px;
       }
       .login-form-container {
         padding: 20px;
@@ -492,6 +493,9 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
               }
               if (userInfo.hasOwnProperty('role')) {
                 this.$storeHelper.setUserInfo('role', userInfo.role);
+              }
+              if (userInfo.hasOwnProperty('token')) {
+                this.$storeHelper.setUserInfo('token', userInfo.token);
               }
               this.pageJump();
             }
