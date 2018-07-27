@@ -111,13 +111,6 @@
                     </span>
                 </template>
             </el-table-column>
-            <!--<el-table-column prop="updateTime" label="" :width="200">-->
-            <!--<template slot-scope="scope">-->
-            <!--<span>-->
-            <!--{{ scope.row.updateTime | localDate }}-->
-            <!--</span>-->
-            <!--</template>-->
-            <!--</el-table-column>-->
         </el-table>
         <div class="pa-4" style="text-align: center; background-color: white;">
             <el-pagination
@@ -177,13 +170,6 @@
         const end = start + this.pageSize;
         return this.configList.slice(start, end);
       },
-      // groupNameMap() {
-      //   const _groupNameMap = new Map();
-      //   this.groupList.forEach(item => {
-      //     _groupNameMap.set(item.id, item.asLabel)
-      //   })
-      //   return _groupNameMap;
-      // }
     },
     filters: {
       localDate(val) {

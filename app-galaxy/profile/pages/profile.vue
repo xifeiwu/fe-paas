@@ -27,6 +27,7 @@
                   :title="item.title"
                   :type="item.type"
                   :center="item.center"
+                  :key="item.title"
                   class="mb-1"
                   show-icon>
         </el-alert>
