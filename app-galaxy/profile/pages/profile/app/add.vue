@@ -1,6 +1,15 @@
 <template>
   <div id="app-add">
-    <div class="section-title">创建应用</div>
+    <div class="section-title"><span>创建应用</span>
+      <el-popover
+              width="300"
+              v-model="showPopoverForHelp"
+              placement="bottom"
+              popperClass="el-popover--small">
+        <div>1. 健康检查/延迟时间：延迟时间以秒为单位，取值范围在30-1800之间</div>
+        <i class="paas-icon-fa-question" slot="reference" @click="handleClick('show-popover-for-help')"></i>
+      </el-popover>
+    </div>
     <el-form :model="createAppForm" :rules="rules" size="mini"
              ref="createAppForm" label-width="140px"
              v-loading="showLoading"
@@ -250,6 +259,13 @@
       text-align: center;
       margin-bottom: 20px;
       font-weight: bold;
+      .paas-icon-fa-question {
+        font-size: 14px;
+        color: #E6A23C;
+        &:hover {
+          cursor: pointer;
+        }
+      }
     }
     .section-footer {
       margin: 0px -10px;
@@ -340,6 +356,7 @@ export default {
       fileLocationToAdd: '',
       scrumList: [],
       lobList: [],
+      showPopoverForHelp: false,
       createAppForm: {
         groupID: this.$storeHelper.currentGroupID,
         scrumID: '',
@@ -530,6 +547,13 @@ export default {
       }
     },
 
+    handleClick(action) {
+      switch (action) {
+        case 'show-popover-for-help':
+          this.showPopoverForHelp = true;
+          break;
+      }
+    },
     // 有且只能有一个生产环境
     invalidProductionProfileTip() {
       let messageTip = null;
