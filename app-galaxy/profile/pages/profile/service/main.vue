@@ -208,8 +208,10 @@
                     {{valueToShow(selected.service.loadBalance)}}
                     <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="false"></i>
                   </el-form-item>
-                  <el-form-item label="健康检查">
+                  <el-form-item label="健康检查/延迟时间">
                     <span>{{valueToShow(selected.service.healthCheck)}}</span>
+                    <span style="color: #409eff">/</span>
+                    <span>{{valueToShow(selected.service.initialDelaySeconds)}}</span>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
@@ -368,9 +370,9 @@
       </el-table>
     </div>
 
-    <el-dialog title="更改健康检查" :visible="selected.prop == 'healthCheck'"
+    <el-dialog title="更改健康检查配置" :visible="selected.prop == 'healthCheck'"
                :close-on-click-modal="false"
-               class="health-check size-500"
+               class="health-check size-700"
                @close="selected.prop = null"
                v-if="selected.service && selected.model"
     >
@@ -378,26 +380,40 @@
         <i class="el-icon-warning"></i>
         <span>更改健康检查后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" size="mini" labelWidth="150px" ref="changeHealthCheckForm">
-        <el-form-item label="当前健康检查：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-          <div class="expand-to-next-line">{{selected.model.healthCheck}}</div>
+      <el-form :model="newProps" :rules="rules" size="mini" labelWidth="170px" ref="changeHealthCheckForm">
+        <el-form-item label="当前健康检查/延迟时间：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+          <el-row>
+            <el-col :span="17">
+              <div class="expand-to-next-line">{{selected.model.healthCheck}}</div>
+            </el-col>
+            <el-col :span="1" style="text-align: center">/</el-col>
+            <el-col :span="6">
+              <div>{{selected.model.initialDelaySeconds}}</div>
+            </el-col>
+          </el-row>
         </el-form-item>
-        <el-form-item label="更改健康检查为：" prop="healthCheck" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-          <el-input v-model="newProps.healthCheck" placeholder="以/开头，可以包含字母数字下划线中划线，2-50位"></el-input>
+        <el-form-item label="健康检查/延迟时间：" prop="healthCheck" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+          <el-row>
+            <el-col :span="17">
+              <el-input v-model="newProps.healthCheck" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-50个字符"></el-input>
+            </el-col>
+            <el-col :span="1" style="text-align: center">/</el-col>
+            <el-col :span="6">
+              <el-input-number v-model="newProps.initialDelaySeconds" :min="30" :max="1800" label="延迟时间"></el-input-number>
+            </el-col>
+          </el-row>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleDialogButtonClick('healthCheck')"
-                       :loading="waitingResponse">保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button action="profile-dialog/cancel"
-                       @click="selected.prop = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleDialogButtonClick('healthCheck')"
+                     :loading="waitingResponse">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="selected.prop = null">取&nbsp消</el-button>
+        </div>
       </div>
     </el-dialog>
 
@@ -1286,6 +1302,7 @@ export default {
       },
       newProps: {
         healthCheck: '',
+        initialDelaySeconds: 120,
         environments: [],
         hosts: [],
         cpuID: null,
@@ -1903,7 +1920,6 @@ export default {
       this.waitingResponse = false;
       let formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
       switch (prop) {
-        case 'healthCheck':
         case 'gitLabAddress':
         case 'gitLabBranch':
         case 'mavenProfileId':
@@ -1914,6 +1930,10 @@ export default {
           this.newProps[prop] = this.selected.model[prop];
           this.$refs.hasOwnProperty(formName) &&
           this.$refs[formName].validate();
+          break;
+        case 'healthCheck':
+          this.newProps[prop] = this.selected.model[prop];
+          this.newProps['initialDelaySeconds'] = this.selected.model['initialDelaySeconds'];
           break;
         case 'environments':
         case 'hosts':
@@ -1954,7 +1974,6 @@ export default {
     handleDialogButtonClick(prop) {
       let formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
       switch (prop) {
-        case 'healthCheck':
         case 'gitLabAddress':
         case 'gitLabBranch':
         case 'mavenProfileId':
@@ -1970,6 +1989,26 @@ export default {
               return;
             }
             if (this.newProps[prop] == this.selected.model[prop]) {
+              this.selected.prop = null;
+              this.$message({
+                type: 'warning',
+                message: '您没有做修改'
+              });
+            } else {
+              this.requestUpdate(prop);
+            }
+          });
+          break;
+        case 'healthCheck':
+          this.$refs[formName].validate((valid) => {
+            if (!valid) {
+              return;
+            }
+            if (!this.newProps.hasOwnProperty(prop) || !this.selected.model.hasOwnProperty(prop)) {
+              return;
+            }
+            if ((this.newProps['healthCheck'] == this.selected.model['healthCheck'])
+              && (this.newProps['initialDelaySeconds'] == this.selected.model['initialDelaySeconds'])) {
               this.selected.prop = null;
               this.$message({
                 type: 'warning',
@@ -2057,7 +2096,6 @@ export default {
         id: this.selected.service['id'],
       };
       switch (prop) {
-        case 'healthCheck':
         case 'gitLabAddress':
         case 'gitLabBranch':
         case 'mavenProfileId':
@@ -2077,6 +2115,10 @@ export default {
             optionKey = propMap[prop];
           }
           options[optionKey] = this.newProps[prop];
+          break;
+        case 'healthCheck':
+          options['healthCheck'] = this.newProps['healthCheck'];
+          options['initialDelaySeconds'] = this.newProps['initialDelaySeconds'];
           break;
         case 'image':
           options['customImage'] = this.newProps['customImage'];
@@ -2123,7 +2165,6 @@ export default {
      */
     updateModelInfo(prop) {
       switch (prop) {
-        case 'healthCheck':
         case 'rollingUpdate':
         case 'loadBalance':
         case 'gitLabAddress':
@@ -2133,6 +2174,14 @@ export default {
         case 'vmOptions':
           this.selected.model[prop] = this.newProps[prop];
           this.selected.service[prop] = this.newProps[prop];
+          break;
+        case 'healthCheck':
+          this.selected.model[prop] = this.newProps[prop];
+          this.selected.service[prop] = this.newProps[prop];
+          this.selected.model['initialDelaySeconds'] = this.newProps['initialDelaySeconds'];
+          this.selected.service['initialDelaySeconds'] = this.newProps['initialDelaySeconds'];
+//          console.log(this.currentServiceList);
+//          console.log(this.selected.service);
           break;
         case 'environments':
         case 'hosts':
