@@ -45,7 +45,7 @@
         </div>
       </div>
     </div>
-    <paas-dialog-for-log :showStatus="dialogStatus">
+    <paas-dialog-for-log :showStatus="dialogStatus" ref="dialogForStatus">
       <div slot="log-list" v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item">{{item}}</div>
     </paas-dialog-for-log>
   </div>
@@ -162,44 +162,75 @@
           case 'show-log':
             let logPath = row.logPath;
             let logName = row.logName;
-            const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
+            let offset = 0;
             if (!logPath || !logName) {
               this.$message.error('该次部署失败，没有部署日志');
               return;
             }
             this.operation.rowID = row.id;
             this.waitingResponse = true;
-            this.$net.getHistoryDeployLog({
-              logPath, logName
-            }).then(deployLog => {
-//              console.log(deployLog);
-              this.waitingResponse = false;
-              this.deployLogs = deployLog.split('\n').filter(it => {
-                return it;
-              }).map(it => {  
-                return it.replace(filterReg,(match,p1,p2,offset,string) => {
-                  p2 = p2.replace(/(BUILD )*SUCCESS/g, (match, p1, offset, string) => {
-                    return `<span class="success">${match}</span>`;
-                  });
-                  p2 = p2.replace(/BUILD FAILURE/g, (match, p1, offset, string) => {
-                    return `<span class="error">${match}</span>`;
-                  });
-                  let result = '';
-                  switch (p1.toUpperCase()) {
-                    case 'INFO':
-                      result = `[<span class="info">${p1}</span>]${p2}`;
-                      break;
-                    case 'WARNING':
-                      result = `[<span class="warning">${p1}</span>]${p2}`;
-                      break;
-                    case 'ERROR':
-                      result = `[<span class="error">${p1}</span>]<span class="error">${p2}</span>`;
-                      break;
-                  }
-                  return result;
-                })
-              });
+            let getHistoryDialog = function (options) {
+              this.deployLogs = [];
               this.dialogStatus.visible = true;
+              const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
+              function getDeployLog(options){
+                if(!this.dialogStatus.visible){
+                  return ;
+                }
+                this.$net.serviceGetDeployLog(options).then(content => {
+                  if(content.hasOwnProperty('Orchestration')){
+                    this.waitingResponse = false;
+                    let Orchestration = content.Orchestration;
+                    let logs = Orchestration.log;
+                    if(logs){
+                      let logList = logs.split('\n').filter(it => {
+                        return it;
+                      }).map(it => {
+                        return it.replace(filterReg,(match,p1,p2,offset,string) => {
+                          p2 = p2.replace(/(BUILD)*SUCCESS/g,(match,p1,offset,string) => {
+                            return `<span class="success">${match}</span>`
+                          });
+                          p2 = p2.replace(/BUILD FAILURE/g,(match,p1,offset,string) => {
+                            return `<span class="error">${match}</span>`
+                          });
+                          let result = '';
+                          switch(p1.toUpperCase()){
+                            case 'INFO':
+                              result = `[<span class="info">${p1}</span>]${p2}`;
+                              break;
+                            case 'WARNING':
+                              result = `[<span class="warning">${p1}</span>]${p2}`;
+                              break;
+                            case 'ERROR':
+                              result = `[<span class="error">]${p1}</span>${p2}`;
+                              break;
+                          }
+                          return result;
+                        })
+                      });
+                      this.deployLogs = this.deployLogs.concat(logList);
+                      this.$nextTick(() => {
+                        this.$refs.hasOwnProperty('dialogForStatus') &&
+                        this.$refs['dialogForStatus'].scrollToBottom();
+                      })
+                    }
+                    options.offset =  Orchestration.offset;
+                    if(Orchestration.moreData && Orchestration.log !== null){
+                      setTimeout(() => {
+                        getDeployLog.call(this,options);
+                      },1800);
+                    }
+                  }
+                }).catch(err => {
+                  console.log(err);
+                });
+              }
+              getDeployLog.call(this,options);
+            };
+            getHistoryDialog.call(this,{
+              logPath : logPath,
+              logName : logName,
+              offset : offset
             });
             break;
         }
