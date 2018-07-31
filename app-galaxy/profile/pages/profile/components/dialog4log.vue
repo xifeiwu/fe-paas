@@ -4,6 +4,7 @@
              class="dialog-for-log"
              :closeOnClickModal="false"
              ref="dialog-for-log"
+             :custom-class="addExpandClass()"
              v-loading="showStatus.showLoading"
              element-loading-text="加载中"
              element-loading-spinner="el-icon-loading"
@@ -12,11 +13,22 @@
     <el-scrollbar>
       <slot name="log-list"></slot>
     </el-scrollbar>
+    <div slot="title" class="dialog-title">
+      <span class="el-dialog__title">{{title}}</span>
+      <el-button class="log-screen-expand el-icon" :class="isExpand ? 'paas-icon-screen-shrink':'paas-icon-screen-expand'"
+                 size="mini" @click="isExpand = !isExpand"></el-button>
+    </div>
   </el-dialog>
 </template>
 <style lang="scss">
   .spa .el-dialog__wrapper {
     &.dialog-for-log {
+      .logExpand{
+        width: 100% !important;
+        height: 100% !important;
+        margin-top: 0px !important;
+        margin-bottom: 0px;
+      }
       .el-dialog {
         background-color: rgba(0, 0, 0, 0.8);
         /*background-color: #303133;*/
@@ -34,6 +46,16 @@
           }
           .el-dialog__headerbtn {
             top: 10px;
+          }
+          .log-screen-expand{
+            color:#878d99;
+            background: 0 0;
+            border:0;
+            &:hover{
+              color:#46A0FC;
+            }
+            float:right;
+            margin-right: 25px;
           }
         }
         .el-dialog__body {
@@ -148,7 +170,8 @@
       return {
         dialog: null,
         scrollWrap: null,
-        scrollListener: null
+        scrollListener: null,
+        isExpand: false
       }
     },
     methods: {
@@ -196,6 +219,9 @@
           return;
         }
         this.scrollWrap.scrollTop = this.scrollWrap.scrollHeight - this.scrollWrap.clientHeight;
+      },
+      addExpandClass(){
+        return this.isExpand ? 'logExpand' : '';
       }
     }
 

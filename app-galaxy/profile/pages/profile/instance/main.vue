@@ -43,7 +43,7 @@
               round
               type="primary"
               size="mini-extral"
-              :disabled="scope.row.status == '运行中'"
+              v-if="scope.row.status !== '运行中'"
               class="statusButton"
               @click="handleRowButtonClick('instanceStatus',scope.$index,scope.row)"
               title=“查看详情”
