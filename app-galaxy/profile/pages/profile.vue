@@ -167,7 +167,6 @@
         }
         .child {
           height: calc(100% - 32px);
-          display: flex;
           overflow: scroll;
         }
       }

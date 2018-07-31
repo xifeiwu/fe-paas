@@ -1,5 +1,5 @@
 <template>
-    <el-container style="display: flex; flex: 1">
+    <el-container style="height: 100%">
         <el-aside width="160px" style="height: 100%">
             <div class="pa-3" style="border-right: 1px solid #eee;">
                 <strong>CDN加速服务</strong>

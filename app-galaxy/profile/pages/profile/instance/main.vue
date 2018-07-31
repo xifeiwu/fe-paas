@@ -1,5 +1,5 @@
 <template>
-  <div id="instance-main" style="flex: 1">
+  <div id="instance-main">
     <el-row class="header" type="flex" justify="center" align="middle">
       <el-col :span="20">
         <my-version-selector :customConfig="localConfig" ref="version-selector"

@@ -1,5 +1,5 @@
 <template>
-  <div id="app-add" style="flex: 1">
+  <div id="app-add">
     <div class="section-title">创建应用</div>
     <el-form :model="createAppForm" :rules="rules" size="mini"
              ref="createAppForm" label-width="140px"

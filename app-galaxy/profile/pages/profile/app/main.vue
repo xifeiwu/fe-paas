@@ -1,5 +1,5 @@
 <template>
-  <div id="app-main" style="flex: 1">
+  <div id="app-main">
     <div class="header" v-if="showAppList">
       <el-row type="flex" justify="center" align="middle">
         <el-col :span="10">
