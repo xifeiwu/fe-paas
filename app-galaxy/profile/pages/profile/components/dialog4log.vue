@@ -130,7 +130,6 @@
     },
     mounted() {
       let dialog = this.$refs['dialog-for-log'].$refs['dialog'];
-      console.log(this.showStatus);
       if (!this.showStatus.hasOwnProperty('full')) {
         this.showIconExpand = false;
         this.showStatus.full = false;
@@ -176,13 +175,12 @@
       'showStatus.showLoading': function (value) {
       },
       'showStatus.full': function(value) {
-        console.log(`full: ${value}`);
         let dialog = this.$refs['dialog-for-log'].$refs['dialog'];
         if (this.showStatus.full) {
           dialog.style.width = '100%';
           dialog.style.height = '100%';
           dialog.style.margin = '0px';
-        }else{
+        } else {
           dialog.style.width = '80%';
           dialog.style.height = '70%';
           dialog.style.margin = 'auto';
@@ -196,7 +194,6 @@
         scrollWrap: null,
         scrollListener: null,
         showIconExpand: true,
-        isExpand: false
       }
     },
     methods: {
