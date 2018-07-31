@@ -4,7 +4,6 @@
              class="dialog-for-log"
              :closeOnClickModal="false"
              ref="dialog-for-log"
-             :custom-class="addExpandClass()"
              v-loading="showStatus.showLoading"
              element-loading-text="加载中"
              element-loading-spinner="el-icon-loading"
@@ -14,21 +13,14 @@
       <slot name="log-list"></slot>
     </el-scrollbar>
     <div slot="title" class="dialog-title">
-      <span class="el-dialog__title">{{title}}</span>
-      <el-button class="log-screen-expand el-icon" :class="isExpand ? 'paas-icon-screen-shrink':'paas-icon-screen-expand'"
-                 size="mini" @click="isExpand = !isExpand"></el-button>
+      <span class="title">{{title}}</span>
+      <i :class="['paas-icon', showStatus.full ? 'paas-icon-screen-shrink':'paas-icon-screen-expand', !showIconExpand ? 'hide': '']" @click="showStatus.full = !showStatus.full"></i>
     </div>
   </el-dialog>
 </template>
 <style lang="scss">
   .spa .el-dialog__wrapper {
     &.dialog-for-log {
-      .logExpand{
-        width: 100% !important;
-        height: 100% !important;
-        margin-top: 0px !important;
-        margin-bottom: 0px;
-      }
       .el-dialog {
         background-color: rgba(0, 0, 0, 0.8);
         /*background-color: #303133;*/
@@ -39,23 +31,36 @@
           padding: 6px;
           border-bottom: 1px solid gray;
           background-color: transparent;
-          .el-dialog__title {
-            font-size: 14px;
-            font-weight: bold;
-            color: white;
+          .dialog-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-right: 30px;
+            .title {
+              font-size: 14px;
+              font-weight: bold;
+              color: white;
+            }
+            .paas-icon {
+              display: inline-block;
+              font-size: 12px;
+              line-height: 100%;
+              margin-top: 2px;
+              font-weight: normal;
+              color:#878d99;
+              &.hide {
+                visibility: hidden;
+              }
+              &:hover{
+                color:#46A0FC;
+              }
+              &.paas-icon-screen-expand {
+                transform: rotate(45deg);
+              }
+            }
           }
           .el-dialog__headerbtn {
-            top: 10px;
-          }
-          .log-screen-expand{
-            color:#878d99;
-            background: 0 0;
-            border:0;
-            &:hover{
-              color:#46A0FC;
-            }
-            float:right;
-            margin-right: 25px;
+            top: 8px;
           }
         }
         .el-dialog__body {
@@ -125,6 +130,11 @@
     },
     mounted() {
       let dialog = this.$refs['dialog-for-log'].$refs['dialog'];
+      console.log(this.showStatus);
+      if (!this.showStatus.hasOwnProperty('full')) {
+        this.showIconExpand = false;
+        this.showStatus.full = false;
+      }
       if (this.showStatus.full && dialog) {
         dialog.style.width = '100%';
         dialog.style.height = '100%';
@@ -164,6 +174,20 @@
         }
       },
       'showStatus.showLoading': function (value) {
+      },
+      'showStatus.full': function(value) {
+        console.log(`full: ${value}`);
+        let dialog = this.$refs['dialog-for-log'].$refs['dialog'];
+        if (this.showStatus.full) {
+          dialog.style.width = '100%';
+          dialog.style.height = '100%';
+          dialog.style.margin = '0px';
+        }else{
+          dialog.style.width = '80%';
+          dialog.style.height = '70%';
+          dialog.style.margin = 'auto';
+          dialog.style.marginTop = '15vh';
+        }
       }
     },
     data() {
@@ -171,6 +195,7 @@
         dialog: null,
         scrollWrap: null,
         scrollListener: null,
+        showIconExpand: true,
         isExpand: false
       }
     },
@@ -219,9 +244,6 @@
           return;
         }
         this.scrollWrap.scrollTop = this.scrollWrap.scrollHeight - this.scrollWrap.clientHeight;
-      },
-      addExpandClass(){
-        return this.isExpand ? 'logExpand' : '';
       }
     }
 
