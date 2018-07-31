@@ -208,10 +208,10 @@
                     {{valueToShow(selected.service.loadBalance)}}
                     <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="false"></i>
                   </el-form-item>
-                  <el-form-item label="健康检查/延迟时间">
+                  <el-form-item label="健康检查">
                     <span>{{valueToShow(selected.service.healthCheck)}}</span>
-                    <span style="color: #409eff">/</span>
-                    <span>{{valueToShow(selected.service.initialDelaySeconds)}}</span>
+                    <span style="font-weight: bold; margin-left: 12px">延迟时间</span>
+                    <span>{{selected.service.initialDelaySeconds}}秒</span>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
@@ -1302,7 +1302,7 @@ export default {
       },
       newProps: {
         healthCheck: '',
-        initialDelaySeconds: 120,
+        initialDelaySeconds: 0,
         environments: [],
         hosts: [],
         cpuID: null,

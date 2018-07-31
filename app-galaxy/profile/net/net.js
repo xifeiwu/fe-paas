@@ -716,6 +716,7 @@ class Net extends NetBase {
         modelList.push({
           oneApm: it.oneapm,
           healthCheck: it.healthCheck,
+          initialDelaySeconds: it.hasOwnProperty('initialDelaySeconds') ? it['initialDelaySeconds'] : 120,
           environments: JSON.parse(JSON.stringify(it.environments)),
           hosts: JSON.parse(JSON.stringify(it.hosts)),
           cpuID: it.cpuInfo.id,
