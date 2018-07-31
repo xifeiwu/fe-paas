@@ -155,8 +155,12 @@ class AppInfoHelper {
       }, {
         validator: limit256
       }],
+      appMonitor: [{
+        required: true
+      }],
       vmOptions: [{
-        required: false,
+        required: true,
+        message: '请填写VM_Options',
       }, {
         validator(rule, values, callback) {
           let passed = true;
@@ -439,6 +443,21 @@ class AppInfoHelper {
       id: true,
       name: '自定义镜像'
     }]
+  }
+  get appMonitorList() {
+    return [{
+      id: 0,
+      name: '无监控'
+    }, {
+      id: 1,
+      name: 'OneAPM监控'
+    }, {
+      id: 2,
+      name: '鹰眼监控'
+    }]
+  }
+  get defaultAppMonitorId() {
+    return 0;
   }
 
   getRollingInfo() {

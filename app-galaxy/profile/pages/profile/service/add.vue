@@ -80,12 +80,12 @@
       >
         <el-input v-model="serviceForm.vmOptions" placeholder="不能包含中文，不能超过512个字符"></el-input>
       </el-form-item>
-      <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
-                    v-if="appLanguage == 'JAVA'"
+      <el-form-item label="应用监控" prop="appMonitor" class="app-monitor"
       >
-        <el-input v-model="serviceForm.mavenProfileId" placeholder="不能超过100个字符"></el-input>
+        <el-radio-group v-model="serviceForm.appMonitor" size="mini" v-if="appPropUtil">
+          <el-radio v-for="item in appPropUtil.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
+        </el-radio-group>
       </el-form-item>
-
       <el-form-item label="CPU" prop="cpuID" class="cpu">
         <el-radio-group v-model="serviceForm.cpuID" size="mini">
           <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
@@ -100,9 +100,23 @@
           </el-radio-button>
         </el-radio-group>
       </el-form-item>
+      <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
+        <el-input-number v-model="serviceForm.instanceCount" :min="1" :max="20" label="描述文字"></el-input-number>
+      </el-form-item>
 
-      <el-form-item label="环境变量设置" prop="environments" class="environments"
-                    :error="formItemMsgForEnvironments">
+      <el-form-item class="expand">
+        <div class="more" @click="handleClick('more-config')">
+          <span>更多配置</span>
+          <i :class="showMoreConfig?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
+        </div>
+      </el-form-item>
+      <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
+                    v-if="appLanguage == 'JAVA' && showMoreConfig"
+      >
+        <el-input v-model="serviceForm.mavenProfileId" placeholder="不能超过100个字符"></el-input>
+      </el-form-item>
+      <el-form-item label="环境变量设置" prop="environments" class="environments" :error="formItemMsgForEnvironments"
+                    v-if="showMoreConfig">
         <div class="el-row title">
           <div class="el-col el-col-11 key">Key</div>
           <div class="el-col el-col-11 value">Value</div>
@@ -138,9 +152,8 @@
           </el-col>
         </el-row>
       </el-form-item>
-
-      <el-form-item label="Host配置" prop="hosts" class="hosts"
-                    :error="formItemMsgForHosts">
+      <el-form-item label="Host配置" prop="hosts" class="hosts" :error="formItemMsgForHosts"
+                    v-if="showMoreConfig">
         <div class="el-row title">
           <div class="el-col el-col-11 key">IP</div>
           <div class="el-col el-col-11 value">域名</div>
@@ -176,7 +189,7 @@
           </el-col>
         </el-row>
       </el-form-item>
-      <el-form-item label="端口映射" class="port-map" prop="portMap">
+      <el-form-item label="端口映射" class="port-map" prop="portMap" v-if="showMoreConfig">
         <div class="el-row title">
           <div class="el-col el-col-10">
             <span>访问端口</span>
@@ -202,22 +215,17 @@
           <el-col :span="2">TCP</el-col>
         </el-row>
       </el-form-item>
-      <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
-        <el-input-number v-model="serviceForm.instanceCount" :min="1" :max="20" label="描述文字"></el-input-number>
-      </el-form-item>
     </el-form>
     <div class="section-footer">
-      <el-row>
-        <el-col :span="12" style="text-align: center">
-          <el-button type="primary" size="mini"
-                     :loading="statusOfWaitingResponse('submit')"
-                     @click="handleFinish">完成</el-button>
-        </el-col>
-        <el-col :span="12" style="text-align: center">
-          <el-button type="primary" size="mini"
-                     @click="$router.go(-1)">关闭</el-button>
-        </el-col>
-      </el-row>
+      <div class="item">
+        <el-button type="primary" size="mini"
+                   :loading="statusOfWaitingResponse('submit')"
+                   @click="handleClick('submit')">完&nbsp成</el-button>
+      </div>
+      <div class="item">
+        <el-button type="primary" size="mini"
+                   @click="handleClick('back')">关&nbsp闭</el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -236,6 +244,19 @@
               width: 24px;
               text-align: center;
               color: black;
+            }
+          }
+        }
+        &.expand {
+          margin-bottom: 10px;
+          .el-form-item__content {
+            margin-left: 0px !important;
+            background-color: #F2F6FC;
+            &:hover {
+              background-color: #EBEEF5;
+            }
+            text-align: center;
+            &.more {
             }
           }
         }
@@ -261,11 +282,13 @@
       margin: 0px -10px;
       padding-top: 10px;
       border-top: 1px solid #e7e7e7;
-      .el-button {
-        display: block;
-        margin: 0px auto;
-        width: 150px;
+      display: flex;
+      .item {
+        flex: 1;
         text-align: center;
+      }
+      .el-button {
+        width: 100px;
       }
     }
     .el-form {
@@ -358,6 +381,9 @@
   export default {
     mixins: [commonUtils],
     created() {
+      // appPropUtil will be used in template
+      this.appPropUtil = appPropUtil;
+
       let infoForAddService = this.$storeHelper.dataTransfer;
       if (!infoForAddService) {
         this.$router.go(-1);
@@ -392,6 +418,7 @@
           gitLabAddress: '',
           gitLabBranch: '',
           relativePathOfParentPOM: '',
+          appMonitor: appPropUtil.defaultAppMonitorId,
           vmOptions: '',
           mavenProfileId: '',
           cpuID: '',
@@ -411,6 +438,7 @@
             containerPort: ''
           }
         },
+        showMoreConfig: false,
         // error message for form-item environments
         formItemMsgForEnvironments: '',
         formItemMsgForHosts: '',
@@ -687,66 +715,75 @@
         }
       },
 
-      handleFinish() {
-        let self = this;
-        if (!this.checkVersion(this.serviceForm.serviceVersion)) {
-          return;
-        }
-        this.$refs['serviceForm'].validate((valid) => {
-          if (valid) {
-            this.serviceForm.customImage = this.imageSelectState.customImage;
-            if (this.imageSelectState.customImage) {
-              this.serviceForm.imageLocation = this.serviceForm.customImageValue;
-            } else {
-              this.serviceForm.imageLocation = this.serviceForm.autoImageValue;
+      handleClick(action) {
+        switch (action) {
+          case 'more-config':
+            this.showMoreConfig = !this.showMoreConfig;
+            break;
+          case 'back':
+            this.$router.go(-1);
+            break;
+          case 'submit':
+            if (!this.checkVersion(this.serviceForm.serviceVersion)) {
+              return;
             }
-            let serviceForm = this.serviceForm;
-            let toPost = {
-              appId: serviceForm.appId,
-              spaceId: serviceForm.spaceId,
-              serviceVersion: serviceForm.serviceVersion,
-              gitLabAddress: serviceForm.gitLabAddress,
-              gitLabBranch: serviceForm.gitLabBranch,
-              relativePath: serviceForm.relativePathOfParentPOM,
-              vmOptions: serviceForm.vmOptions,
-              mavenProfileId: serviceForm.mavenProfileId,
-              cpuId: serviceForm.cpuID,
-              memoryId: serviceForm.memoryID,
-              environments: serviceForm.environments,
-              hosts: serviceForm.hosts,
-              instanceNum: serviceForm.instanceCount,
-              customImage: serviceForm.customImage,
-              image: serviceForm.imageLocation,
-              portsMapping: [serviceForm.portMap]
-            };
-            this.addToWaitingResponseQueue('submit');
-            this.showLoading = true;
-            this.loadingText = '正在为您创建服务';
-            this.$net.createService(toPost).then((content) => {
-              this.hideWaitingResponse('submit');
-              this.showLoading = false;
-              this.$message({
-                type: 'success',
-                message: '服务' + toPost.serviceVersion + '创建成功！'
-              });
-              this.$router.push('/service');
-            }).catch((err) => {
-              this.hideWaitingResponse('submit');
-              this.showLoading = false;
-              this.$notify.error({
-                title: err.title,
-                message: err.msg,
-                duration: 0,
-                onClose: function () {
-//                  self.$router.push('/service/add');
+            this.$refs['serviceForm'].validate((valid) => {
+              if (valid) {
+                this.serviceForm.customImage = this.imageSelectState.customImage;
+                if (this.imageSelectState.customImage) {
+                  this.serviceForm.imageLocation = this.serviceForm.customImageValue;
+                } else {
+                  this.serviceForm.imageLocation = this.serviceForm.autoImageValue;
                 }
-              });
+                let serviceForm = this.serviceForm;
+                let toPost = {
+                  appId: serviceForm.appId,
+                  spaceId: serviceForm.spaceId,
+                  serviceVersion: serviceForm.serviceVersion,
+                  gitLabAddress: serviceForm.gitLabAddress,
+                  gitLabBranch: serviceForm.gitLabBranch,
+                  relativePath: serviceForm.relativePathOfParentPOM,
+                  vmOptions: serviceForm.vmOptions,
+                  appMonitor: serviceForm.appMonitor,
+                  mavenProfileId: serviceForm.mavenProfileId,
+                  cpuId: serviceForm.cpuID,
+                  memoryId: serviceForm.memoryID,
+                  environments: serviceForm.environments,
+                  hosts: serviceForm.hosts,
+                  instanceNum: serviceForm.instanceCount,
+                  customImage: serviceForm.customImage,
+                  image: serviceForm.imageLocation,
+                  portsMapping: [serviceForm.portMap]
+                };
+                this.addToWaitingResponseQueue('submit');
+                this.showLoading = true;
+                this.loadingText = '正在为您创建服务';
+                this.$net.createService(toPost).then((content) => {
+                  this.hideWaitingResponse('submit');
+                  this.showLoading = false;
+                  this.$message({
+                    type: 'success',
+                    message: '服务' + toPost.serviceVersion + '创建成功！'
+                  });
+                  this.$router.push('/service');
+                }).catch((err) => {
+                  this.hideWaitingResponse('submit');
+                  this.showLoading = false;
+                  this.$notify.error({
+                    title: err.title,
+                    message: err.msg,
+                    duration: 0,
+                    onClose: function () {
+                    }
+                  });
+                });
+              } else {
+                console.log('error submit!!');
+                return false;
+              }
             });
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
-        });
+            break;
+        }
       },
       /**
        * used for two-way choose after success action, howto:
