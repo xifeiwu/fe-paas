@@ -9,9 +9,9 @@
                     background-color="transparent"
                     router
             >
-                <el-menu-item index="dashboard" :route="{path: '/cdn/dashboard'}">
-                    <span slot="title">概览</span>
-                </el-menu-item>
+                <!--<el-menu-item index="dashboard" :route="{path: '/cdn/dashboard'}">-->
+                    <!--<span slot="title">概览</span>-->
+                <!--</el-menu-item>-->
                 <el-menu-item index="list" :route="{path: '/cdn/list'}">
                     <span slot="title">域名管理</span>
                 </el-menu-item>

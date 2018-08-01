@@ -18,13 +18,21 @@
                         <strong style="color: green;">CNAME :&emsp; {{domain.cname}}</strong>
                     </div>
                     <div class="pt-2">
-                        <strong style="color: green;">当前状态:&emsp; {{domain.operationType}} {{domain.operatingState}}</strong>
+                        <strong style="color: green;">当前状态:&emsp; {{domain.operationType}}
+                            {{domain.operatingState}}</strong>
                     </div>
                 </el-col>
                 <el-col :span="10" :offset="3" class="pt-3">
+                    <el-tooltip class="item" effect="dark" content="通过DIG命令测试域名状态" placement="top-start">
+                        <el-button type="primary" @click="checkDomain">域名测试</el-button>
+                    </el-tooltip>
+                    <el-tooltip class="item" effect="dark" content="点击后会添加CNAME" placement="top-start">
+                        <el-button type="primary" @click="addCname">添加CNAME记录</el-button>
+                    </el-tooltip>
                     <el-button type="danger" @click="updateSource"
                                :disabled="editable"
-                    >停用</el-button>
+                    >停用
+                    </el-button>
                     <el-button type="success" @click="getDomain">刷新</el-button>
                 </el-col>
             </el-row>
@@ -70,7 +78,8 @@
                 <el-col :span="10" :offset="3" class="pt-3">
                     <el-button type="primary" @click="updateSource"
                                :disabled="editable"
-                    >修改配置</el-button>
+                    >修改配置
+                    </el-button>
                 </el-col>
             </el-row>
         </div>
@@ -99,7 +108,8 @@
                     <el-button type="primary"
                                @click="updateCache"
                                :disabled="editable"
-                    >修改配置</el-button>
+                    >修改配置
+                    </el-button>
                 </el-col>
             </el-row>
         </div>
@@ -170,7 +180,7 @@
       updateSource() {
         this.$store.commit('cdn/SET_LOADING', true)
         this.$ajax
-          .post('/api/cdn/domain/'+ this.$route.query.domain +'/source', this.domain.source)
+          .post('/api/cdn/domain/' + this.$route.query.domain + '/source', this.domain.source)
           .then(res => {
             if (!res.data.hasOwnProperty('code') || res.data.code !== 200) {
               return this.$toast(res.data.code + '\n' + res.data.error, 'error');
@@ -187,13 +197,43 @@
       updateCache() {
         this.$store.commit('cdn/SET_LOADING', true)
         this.$ajax
-          .post('/api/cdn/domain/'+ this.$route.query.domain +'/cache', this.domain.cache)
+          .post('/api/cdn/domain/' + this.$route.query.domain + '/cache', this.domain.cache)
           .then(res => {
             if (!res.data.hasOwnProperty('code') || res.data.code !== 200) {
               return this.$toast(res.data.code + '\n' + res.data.error, 'error');
             }
             this.getDomain();
             this.$toast('缓存规则修改成功！！');
+          })
+          .catch(err => alert(err.message + '\n' + '请联系管理员！'))
+          .finally(() => {
+            // 隐藏loading
+            this.$store.commit('cdn/SET_LOADING', false)
+          })
+      },
+      // 检查域名是否正常
+      checkDomain() {
+        let {host, protocol} = window.location;
+        let checkurl = `${protocol}//${host}/api/cdn/dns/dig/` + this.domain.name
+        window.open(checkurl);
+      },
+      addCname() {
+        console.log('%s CNAME TO %s', this.domain.name, this.domain.cname);
+        this.$store.commit('cdn/SET_LOADING', true)
+        this.$ajax
+          .post('/api/cdn/dns/cname', {
+            domain: this.domain.name,
+            cname: this.domain.cname
+          })
+          .then(res => {
+            if (!res.data.hasOwnProperty('status') || res.data.status.code !== '1') {
+              let errMsg = res.data.status.code + '\n' + res.data.status.message;
+              if (res.data.status.code === '500026') {
+                errMsg = res.data.status.code + '\n' + 'cname记录已经存在！'
+              }
+              return this.$toast(errMsg, 'error');
+            }
+            this.$toast('cname添加成功！！');
           })
           .catch(err => alert(err.message + '\n' + '请联系管理员！'))
           .finally(() => {
