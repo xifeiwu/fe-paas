@@ -1,230 +1,241 @@
 <template>
   <div id="service-add">
-    <div class="section-title">添加服务</div>
-    <el-form :model="serviceForm" ref="serviceForm"
-             :rules="rules" :label-width="appLanguage == 'JAVA' ? '200px' : '140px'" size="mini"
-             v-loading="showLoading"
-             :element-loading-text="loadingText">
-      <el-form-item label="应用名称" class="app-name">
-        {{infoForAddService.appName}}
-      </el-form-item>
-      <el-form-item label="运行环境" class="profile-description">
-        {{infoForAddService.profileDescription}}
-      </el-form-item>
-      <el-form-item label="版本号" class="service-version"
-                    :required="true"
-                    :error="errorMsgForVersion">
-        <el-input v-model="serviceForm.serviceVersion" placeholder="版本号只能包含数字，不能超过五位">
-          <template slot="prepend">V</template>
-        </el-input>
-      </el-form-item>
-      <el-form-item label="镜像方式" prop="customImage" class="custom-image">
-        <el-radio-group v-model="imageSelectState.customImage" size="mini">
-          <el-radio :label="false" v-if="appLanguage != 'PYTHON'">自动打镜像</el-radio>
-          <el-radio :label="true">自定义镜像</el-radio>
-        </el-radio-group>
-      </el-form-item>
+    <div class="sheet">
+      <div class="section-title">添加服务</div>
+      <el-form :model="serviceForm" ref="serviceForm"
+               :rules="rules" :label-width="appLanguage == 'JAVA' ? '200px' : '140px'" size="mini"
+               v-loading="showLoading"
+               :element-loading-text="loadingText">
+        <el-form-item label="应用名称" class="app-name">
+          {{infoForAddService.appName}}
+        </el-form-item>
+        <el-form-item label="运行环境" class="profile-description">
+          {{infoForAddService.profileDescription}}
+        </el-form-item>
+        <el-form-item label="版本号" class="service-version"
+                      :required="true"
+                      :error="errorMsgForVersion">
+          <el-input v-model="serviceForm.serviceVersion" placeholder="版本号只能包含数字，不能超过五位">
+            <template slot="prepend">V</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="镜像方式" prop="customImage" class="custom-image">
+          <el-radio-group v-model="imageSelectState.customImage" size="mini">
+            <el-radio :label="false" v-if="appLanguage != 'PYTHON'">自动打镜像</el-radio>
+            <el-radio :label="true">自定义镜像</el-radio>
+          </el-radio-group>
+        </el-form-item>
 
-      <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-if="!imageSelectState.customImage">
-        <el-select v-model="serviceForm.autoImageValue"
-                   :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
-          <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
-                     :key="index" :label="item" :value="item">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="镜像地址" prop="customImageValue" v-else
-                    :class="['custom-image', imageSelectState.customImageType.toLowerCase()+'-image']"
-      >
-        <el-input v-model="serviceForm.customImageValue" placeholder="输入镜像地址，包含版本"></el-input>
-        <!--<el-select v-model="imageSelectState.customImageType">-->
-          <!--<el-option v-for="(item, index) in customImageTypeList"-->
-                     <!--:key="index" :label="item.label" :value="item.value"></el-option>-->
-        <!--</el-select>-->
-        <!--<el-select v-model="serviceForm.customImageValue" v-if="imageSelectState.customImageType=='ENV'"-->
-                   <!--:placeholder="imageInfoFromNet.customEnvImageList.length > 0 ? '请选择' : '无数据'">-->
-          <!--<el-option v-for="(item, index) in imageInfoFromNet.customEnvImageList"-->
-                     <!--:key="index" :label="item.imageName" :value="item.imageName">-->
-          <!--</el-option>-->
-        <!--</el-select>-->
-        <!--<el-select v-model="imageSelectState.currentPrivateApp" v-if="imageSelectState.customImageType=='PRIVATE'"-->
-                   <!--:placeholder="imageInfoFromNet.privateAppList.length > 0 ? '请选择' : '无数据'">-->
-          <!--<el-option v-for="(item, index) in imageInfoFromNet.privateAppList"-->
-                     <!--:key="index" :label="item" :value="item">-->
-          <!--</el-option>-->
-        <!--</el-select>-->
-        <!--<el-select v-model="serviceForm.customImageValue" v-if="imageSelectState.customImageType=='PRIVATE'"-->
-                   <!--:placeholder="currentPrivateAppVersionList.length > 0 ? '请选择' : '无数据'">-->
-          <!--<el-option v-for="(item, index) in currentPrivateAppVersionList"-->
-                     <!--:key="index" :label="item" :value="item">-->
-          <!--</el-option>-->
-        <!--</el-select>-->
-      </el-form-item>
+        <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-if="!imageSelectState.customImage">
+          <el-select v-model="serviceForm.autoImageValue"
+                     :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
+            <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
+                       :key="index" :label="item" :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="镜像地址" prop="customImageValue" v-else
+                      :class="['custom-image', imageSelectState.customImageType.toLowerCase()+'-image']"
+        >
+          <el-input v-model="serviceForm.customImageValue" placeholder="输入镜像地址，包含版本"></el-input>
+          <!--<el-select v-model="imageSelectState.customImageType">-->
+            <!--<el-option v-for="(item, index) in customImageTypeList"-->
+                       <!--:key="index" :label="item.label" :value="item.value"></el-option>-->
+          <!--</el-select>-->
+          <!--<el-select v-model="serviceForm.customImageValue" v-if="imageSelectState.customImageType=='ENV'"-->
+                     <!--:placeholder="imageInfoFromNet.customEnvImageList.length > 0 ? '请选择' : '无数据'">-->
+            <!--<el-option v-for="(item, index) in imageInfoFromNet.customEnvImageList"-->
+                       <!--:key="index" :label="item.imageName" :value="item.imageName">-->
+            <!--</el-option>-->
+          <!--</el-select>-->
+          <!--<el-select v-model="imageSelectState.currentPrivateApp" v-if="imageSelectState.customImageType=='PRIVATE'"-->
+                     <!--:placeholder="imageInfoFromNet.privateAppList.length > 0 ? '请选择' : '无数据'">-->
+            <!--<el-option v-for="(item, index) in imageInfoFromNet.privateAppList"-->
+                       <!--:key="index" :label="item" :value="item">-->
+            <!--</el-option>-->
+          <!--</el-select>-->
+          <!--<el-select v-model="serviceForm.customImageValue" v-if="imageSelectState.customImageType=='PRIVATE'"-->
+                     <!--:placeholder="currentPrivateAppVersionList.length > 0 ? '请选择' : '无数据'">-->
+            <!--<el-option v-for="(item, index) in currentPrivateAppVersionList"-->
+                       <!--:key="index" :label="item" :value="item">-->
+            <!--</el-option>-->
+          <!--</el-select>-->
+        </el-form-item>
 
-      <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress" class="gitlab-address">
-        <el-input v-model="serviceForm.gitLabAddress" placeholder="请输入项目的gitLab地址，不能超过256个字符"></el-input>
-      </el-form-item>
-      <el-form-item label="Gitlab分支" prop="gitLabBranch" class="gitlab-branch">
-        <el-input v-model="serviceForm.gitLabBranch" placeholder="请输入gitLab分支名，不能超过100个字符"></el-input>
-      </el-form-item>
+        <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress" class="gitlab-address">
+          <el-input v-model="serviceForm.gitLabAddress" placeholder="请输入项目的gitLab地址，不能超过256个字符"></el-input>
+        </el-form-item>
+        <el-form-item label="Gitlab分支" prop="gitLabBranch" class="gitlab-branch">
+          <el-input v-model="serviceForm.gitLabBranch" placeholder="请输入gitLab分支名，不能超过100个字符"></el-input>
+        </el-form-item>
 
-      <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
-                    v-if="appLanguage == 'JAVA'"
-                    class="relative-path-of-parent-pom"
-      >
-        <el-input v-model="serviceForm.relativePathOfParentPOM"
-                  placeholder="不能超过256个字符"></el-input>
-      </el-form-item>
-      <el-form-item label="VM_Options" prop="vmOptions" class="vm-options"
-                    v-if="appLanguage == 'JAVA'"
-      >
-        <el-input v-model="serviceForm.vmOptions" placeholder="不能包含中文，不能超过512个字符"></el-input>
-      </el-form-item>
-      <el-form-item label="应用监控" prop="appMonitor" class="app-monitor"
-      >
-        <el-radio-group v-model="serviceForm.appMonitor" size="mini" v-if="appPropUtil">
-          <el-radio v-for="item in appPropUtil.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="CPU" prop="cpuID" class="cpu">
-        <el-radio-group v-model="serviceForm.cpuID" size="mini">
-          <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
-            {{item.cpu}}核
-        </el-radio-button>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="内存" prop="memoryID" class="memory">
-        <el-radio-group v-model="serviceForm.memoryID" size="mini">
-          <el-radio-button v-for="item in memorySizeList" :label="item.id" :key="item.id">
-            {{item.memory}}G
+        <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
+                      v-if="appLanguage == 'JAVA'"
+                      class="relative-path-of-parent-pom"
+        >
+          <el-input v-model="serviceForm.relativePathOfParentPOM"
+                    placeholder="不能超过256个字符"></el-input>
+        </el-form-item>
+        <el-form-item label="VM_Options" prop="vmOptions" class="vm-options"
+                      v-if="appLanguage == 'JAVA'"
+        >
+          <el-input v-model="serviceForm.vmOptions" placeholder="不能包含中文，不能超过512个字符"></el-input>
+        </el-form-item>
+        <el-form-item label="应用监控" prop="appMonitor" class="app-monitor"
+        >
+          <el-radio-group v-model="serviceForm.appMonitor" size="mini" v-if="appPropUtil">
+            <el-radio v-for="item in appPropUtil.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="CPU" prop="cpuID" class="cpu">
+          <el-radio-group v-model="serviceForm.cpuID" size="mini">
+            <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
+              {{item.cpu}}核
           </el-radio-button>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
-        <el-input-number v-model="serviceForm.instanceCount" :min="1" :max="20" label="描述文字"></el-input-number>
-      </el-form-item>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="内存" prop="memoryID" class="memory">
+          <el-radio-group v-model="serviceForm.memoryID" size="mini">
+            <el-radio-button v-for="item in memorySizeList" :label="item.id" :key="item.id">
+              {{item.memory}}G
+            </el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
+          <el-input-number v-model="serviceForm.instanceCount" :min="1" :max="20" label="描述文字"></el-input-number>
+        </el-form-item>
 
-      <el-form-item class="expand">
-        <div class="more" @click="handleClick('more-config')">
-          <span>更多配置</span>
-          <i :class="showMoreConfig?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
-        </div>
-      </el-form-item>
-      <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
-                    v-if="appLanguage == 'JAVA' && showMoreConfig"
-      >
-        <el-input v-model="serviceForm.mavenProfileId" placeholder="不能超过100个字符"></el-input>
-      </el-form-item>
-      <el-form-item label="环境变量设置" prop="environments" class="environments" :error="formItemMsgForEnvironments"
-                    v-if="showMoreConfig">
-        <div class="el-row title">
-          <div class="el-col el-col-11 key">Key</div>
-          <div class="el-col el-col-11 value">Value</div>
-          <div class="el-col el-col-2" style="text-align: center">
-            <el-tooltip slot="trigger" effect="dark" placement="bottom">
-              <div slot="content">
-                <div>容器运行前设置的环境变量。如env中的Name：string（环境变量名称），Value：string（环境变量的值）</div>
+        <transition name="more-config">
+          <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
+                        v-if="appLanguage == 'JAVA' && showMoreConfig"
+          >
+            <el-input v-model="serviceForm.mavenProfileId" placeholder="不能超过100个字符"></el-input>
+          </el-form-item>
+        </transition>
+        <transition name="more-config">
+          <el-form-item label="环境变量设置" prop="environments" class="environments" :error="formItemMsgForEnvironments"
+                        v-if="showMoreConfig">
+            <div class="el-row title">
+              <div class="el-col el-col-11 key">Key</div>
+              <div class="el-col el-col-11 value">Value</div>
+              <div class="el-col el-col-2" style="text-align: center">
+                <el-tooltip slot="trigger" effect="dark" placement="bottom">
+                  <div slot="content">
+                    <div>容器运行前设置的环境变量。如env中的Name：string（环境变量名称），Value：string（环境变量的值）</div>
+                  </div>
+                  <span><i class="el-icon-question" style="color: #E6A23C"></i></span>
+                </el-tooltip>
               </div>
-              <span><i class="el-icon-question" style="color: #E6A23C"></i></span>
-            </el-tooltip>
-          </div>
-        </div>
-        <el-row class="content"
-                v-for="(item, index) in serviceForm.environments"
-                :key="item.key"
-        >
-          <el-col :span="11" class="key">{{item.key}}</el-col>
-          <el-col :span="11" class="value">{{item.value}}</el-col>
-          <el-col :span="2" style="text-align: center">
-            <el-button type="warning" round size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
-          </el-col>
-        </el-row>
-        <el-row class="add-key-value">
-          <el-col :span="11" class="key">
-            <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
-          </el-col>
-          <el-col :span="11" class="value">
-            <el-input v-model="environmentValue" placeholder="512位以内的数字、字母、中划线、下划线" size="mini"></el-input>
-          </el-col>
-          <el-col :span="2" style="text-align: center">
-            <el-button type="primary" size="mini-extral" round
-                       @click="handleEnvironment('add', environmentKey, environmentValue)">添加</el-button>
-          </el-col>
-        </el-row>
-      </el-form-item>
-      <el-form-item label="Host配置" prop="hosts" class="hosts" :error="formItemMsgForHosts"
-                    v-if="showMoreConfig">
-        <div class="el-row title">
-          <div class="el-col el-col-11 key">IP</div>
-          <div class="el-col el-col-11 value">域名</div>
-          <div class="el-col el-col-2" style="text-align: center">
-            <el-tooltip slot="trigger" effect="dark" placement="bottom">
-              <div slot="content">
-                <div>该Host为/etc/hosts，配置主机名和IP地址。如：192.168.1.10 finup100</div>
+            </div>
+            <el-row class="content"
+                    v-for="(item, index) in serviceForm.environments"
+                    :key="item.key"
+            >
+              <el-col :span="11" class="key">{{item.key}}</el-col>
+              <el-col :span="11" class="value">{{item.value}}</el-col>
+              <el-col :span="2" style="text-align: center">
+                <el-button type="warning" round size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
+              </el-col>
+            </el-row>
+            <el-row class="add-key-value">
+              <el-col :span="11" class="key">
+                <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
+              </el-col>
+              <el-col :span="11" class="value">
+                <el-input v-model="environmentValue" placeholder="512位以内的数字、字母、中划线、下划线" size="mini"></el-input>
+              </el-col>
+              <el-col :span="2" style="text-align: center">
+                <el-button type="primary" size="mini-extral" round
+                           @click="handleEnvironment('add', environmentKey, environmentValue)">添加</el-button>
+              </el-col>
+            </el-row>
+          </el-form-item>
+        </transition>
+        <transition name="more-config">
+          <el-form-item label="Host配置" prop="hosts" class="hosts" :error="formItemMsgForHosts"
+                        v-if="showMoreConfig">
+            <div class="el-row title">
+              <div class="el-col el-col-11 key">IP</div>
+              <div class="el-col el-col-11 value">域名</div>
+              <div class="el-col el-col-2" style="text-align: center">
+                <el-tooltip slot="trigger" effect="dark" placement="bottom">
+                  <div slot="content">
+                    <div>该Host为/etc/hosts，配置主机名和IP地址。如：192.168.1.10 finup100</div>
+                  </div>
+                  <span><i class="el-icon-question" style="color: #E6A23C"></i></span>
+                </el-tooltip>
               </div>
-              <span><i class="el-icon-question" style="color: #E6A23C"></i></span>
-            </el-tooltip>
-          </div>
-        </div>
-        <el-row class="content"
-                v-for="(item, index) in serviceForm.hosts"
-                :key="item.key"
-        >
-          <el-col :span="11" class="key">{{item.ip}}</el-col>
-          <el-col :span="11" class="value">{{item.domain}}</el-col>
-          <el-col :span="2" style="text-align: center">
-            <el-button  type="warning" round size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
-          </el-col>
-        </el-row>
-        <el-row class="add-key-value">
-          <el-col :span="11" class="key">
-            <el-input v-model="hostKey" placeholder="IP" size="mini"></el-input>
-          </el-col>
-          <el-col :span="11" class="value">
-            <el-input v-model="hostValue" placeholder="域名" size="mini"></el-input>
-          </el-col>
-          <el-col :span="2" style="text-align: center">
-            <el-button type="primary" size="mini-extral" round
-                       @click="handleHost('add', hostKey, hostValue)">添加</el-button>
-          </el-col>
-        </el-row>
-      </el-form-item>
-      <el-form-item label="端口映射" class="port-map" prop="portMap" v-if="showMoreConfig">
-        <div class="el-row title">
-          <div class="el-col el-col-10">
-            <span>访问端口</span>
-            <el-tooltip slot="trigger" effect="dark" placement="top">
-              <div slot="content">
-                <div>访问端口的范围在40000~60000之间</div>
+            </div>
+            <el-row class="content"
+                    v-for="(item, index) in serviceForm.hosts"
+                    :key="item.key"
+            >
+              <el-col :span="11" class="key">{{item.ip}}</el-col>
+              <el-col :span="11" class="value">{{item.domain}}</el-col>
+              <el-col :span="2" style="text-align: center">
+                <el-button  type="warning" round size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
+              </el-col>
+            </el-row>
+            <el-row class="add-key-value">
+              <el-col :span="11" class="key">
+                <el-input v-model="hostKey" placeholder="IP" size="mini"></el-input>
+              </el-col>
+              <el-col :span="11" class="value">
+                <el-input v-model="hostValue" placeholder="域名" size="mini"></el-input>
+              </el-col>
+              <el-col :span="2" style="text-align: center">
+                <el-button type="primary" size="mini-extral" round
+                           @click="handleHost('add', hostKey, hostValue)">添加</el-button>
+              </el-col>
+            </el-row>
+          </el-form-item>
+        </transition>
+        <transition name="more-config">
+          <el-form-item label="端口映射" class="port-map" prop="portMap" v-if="showMoreConfig">
+            <div class="el-row title">
+              <div class="el-col el-col-10">
+                <span>访问端口</span>
+                <el-tooltip slot="trigger" effect="dark" placement="top">
+                  <div slot="content">
+                    <div>访问端口的范围在40000~60000之间</div>
+                  </div>
+                  <span><i class="el-icon-question" style="color:#E6A23C"></i></span>
+                </el-tooltip>
               </div>
-              <span><i class="el-icon-question" style="color:#E6A23C"></i></span>
-            </el-tooltip>
+              <div class="el-col el-col-2" style="min-height:1px"></div>
+              <div class="el-col el-col-10">目标端口</div>
+              <div class="el-col el-col-2">协议</div>
+            </div>
+            <el-row class="content">
+              <el-col :span="10">
+                <el-input placeholder="如40002" size="mini" v-model="serviceForm.portMap.outerPort"></el-input>
+              </el-col>
+              <el-col :span="2">--></el-col>
+              <el-col :span="10">
+                <el-input placeholder="如8100" size="mini" v-model="serviceForm.portMap.containerPort"></el-input>
+              </el-col>
+              <el-col :span="2">TCP</el-col>
+            </el-row>
+          </el-form-item>
+        </transition>
+        <el-form-item class="expand">
+          <div class="more" @click="handleClick('more-config')">
+            <span v-if="showMoreConfig">收起配置</span><span v-else>更多配置</span>
+            <i :class="showMoreConfig?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
           </div>
-          <div class="el-col el-col-2" style="min-height:1px"></div>
-          <div class="el-col el-col-10">目标端口</div>
-          <div class="el-col el-col-2">协议</div>
+        </el-form-item>
+
+      </el-form>
+      <div class="section-footer">
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     :loading="statusOfWaitingResponse('submit')"
+                     @click="handleClick('submit')">完&nbsp成</el-button>
         </div>
-        <el-row class="content">
-          <el-col :span="10">
-            <el-input placeholder="如40002" size="mini" v-model="serviceForm.portMap.outerPort"></el-input>
-          </el-col>
-          <el-col :span="2">--></el-col>
-          <el-col :span="10">
-            <el-input placeholder="如8100" size="mini" v-model="serviceForm.portMap.containerPort"></el-input>
-          </el-col>
-          <el-col :span="2">TCP</el-col>
-        </el-row>
-      </el-form-item>
-    </el-form>
-    <div class="section-footer">
-      <div class="item">
-        <el-button type="primary" size="mini"
-                   :loading="statusOfWaitingResponse('submit')"
-                   @click="handleClick('submit')">完&nbsp成</el-button>
-      </div>
-      <div class="item">
-        <el-button type="primary" size="mini"
-                   @click="handleClick('back')">关&nbsp闭</el-button>
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     @click="handleClick('back')">关&nbsp闭</el-button>
+        </div>
       </div>
     </div>
   </div>
@@ -266,108 +277,139 @@
 </style>
 <style lang="scss" scoped>
   #service-add {
-    background-color: white;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-    margin: 20px;
-    padding: 10px 20px;
-    width: 80%;
-    max-width: 900px;
-    .section-title {
-      font-size: 18px;
-      text-align: center;
-      margin-bottom: 20px;
-      font-weight: bold;
+    @keyframes to-show {
+      0% {
+        opacity: 0;
+        /*max-height: 0px;*/
+      }
+      25% {
+        opacity: .75;
+      }
+      100% {
+        opacity: 1;
+        /*max-height: 600px;*/
+      }
     }
-    .section-footer {
-      margin: 0px -10px;
-      padding-top: 10px;
-      border-top: 1px solid #e7e7e7;
-      display: flex;
-      .item {
-        flex: 1;
+    @keyframes to-hide {
+      0% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+    .more-config-enter-active  {
+      animation: to-show 1.5s ease-in-out;
+    }
+    .more-config-leave-active {
+      animation: to-hide .2s ease-in-out;
+    }
+    height: 100%;
+    overflow: scroll;
+    .sheet {
+      background-color: white;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+      margin: 15px;
+      padding: 10px 20px;
+      width: 80%;
+      max-width: 900px;
+      .section-title {
+        font-size: 18px;
         text-align: center;
+        margin-bottom: 20px;
+        font-weight: bold;
       }
-      .el-button {
-        width: 100px;
+      .section-footer {
+        margin: 0px -10px;
+        padding-top: 10px;
+        border-top: 1px solid #e7e7e7;
+        display: flex;
+        .item {
+          flex: 1;
+          text-align: center;
+        }
+        .el-button {
+          width: 100px;
+        }
       }
-    }
-    .el-form {
-      .el-form-item {
-        &.app-name {
-          margin-bottom: 8px;
-        }
-        &.profile-description {
-          margin-bottom: 10px;
-        }
-        &.auto-image {
-          max-width: 600px;
-          .el-select {
-            width: 100%;
+      .el-form {
+        .el-form-item {
+          &.app-name {
+            margin-bottom: 8px;
           }
-        }
-        &.custom-image {
-          max-width: 600px;
-          &.env-image {
+          &.profile-description {
+            margin-bottom: 10px;
+          }
+          &.auto-image {
+            max-width: 600px;
             .el-select {
-              width: calc(50% - 2px);
+              width: 100%;
             }
           }
-          &.private-image {
-            .el-select {
-              box-sizing: border-box;
-              width: calc(50% - 2px);
-              &:nth-child(3) {
-                width: 100%;
+          &.custom-image {
+            max-width: 600px;
+            &.env-image {
+              .el-select {
+                width: calc(50% - 2px);
+              }
+            }
+            &.private-image {
+              .el-select {
+                box-sizing: border-box;
+                width: calc(50% - 2px);
+                &:nth-child(3) {
+                  width: 100%;
+                }
               }
             }
           }
-        }
-        &.gitlab-address {
-          max-width: 600px;
-        }
-        &.gitlab-branch {
-          max-width: 600px;
-        }
-        &.relative-path-of-parent-pom {
-          max-width: 600px;
-        }
-        &.vm-options {
-          max-width: 600px;
-        }
-        &.maven-profile-id {
-          max-width: 600px;
-        }
+          &.gitlab-address {
+            max-width: 600px;
+          }
+          &.gitlab-branch {
+            max-width: 600px;
+          }
+          &.relative-path-of-parent-pom {
+            max-width: 600px;
+          }
+          &.vm-options {
+            max-width: 600px;
+          }
+          &.maven-profile-id {
+            max-width: 600px;
+          }
 
-        &.environments, &.hosts {
-          .key, .value {
-            text-align: center;
-          }
-          .el-row.title {
-            font-weight: bold;
-          }
-          .content {
+          &.environments, &.hosts {
             .key, .value {
-              word-wrap: break-word;
-              word-break: break-all;
-              line-height: 1.2;
+              text-align: center;
+            }
+            .el-row.title {
+              font-weight: bold;
+            }
+            .content {
+              .key, .value {
+                word-wrap: break-word;
+                word-break: break-all;
+                line-height: 1.2;
+              }
+            }
+            .el-row.add-key-value {
+              .key {
+                padding-right: 3px;
+              }
+              .value {
+                padding-left: 3px;
+              }
             }
           }
-          .el-row.add-key-value {
-            .key {
-              padding-right: 3px;
+          &.port-map {
+            .title {
+              font-weight: bold;
+              text-align: center;
             }
-            .value {
-              padding-left: 3px;
+            .content {
+              text-align: center;
             }
-          }
-        }
-        &.port-map {
-          .title {
-            font-weight: bold;
-            text-align: center;
-          }
-          .content {
-            text-align: center;
           }
         }
       }
@@ -548,6 +590,23 @@
 //      'imageSelectState.currentPrivateApp': 'requestPrivateImageLocation'
     },
     methods: {
+      scrollTop() {
+        this.$el.scrollTop = '0px';
+      },
+      scrollBottom() {
+        this.$nextTick(() => {
+          let containerHeight = this.$el.offsetHeight;
+          let sheet = this.$el.querySelector('.sheet');
+          if (!sheet) {
+            return;
+          }
+          // 30px is the sum of marginTop and marginBottom
+          let sheetHeight = sheet.offsetHeight + 30;
+          if (sheetHeight > containerHeight) {
+            this.$el.scrollTop = sheetHeight - containerHeight;
+          }
+        });
+      },
       checkVersion(value) {
         value = value.trim();
         if (value === '') {
@@ -719,6 +778,11 @@
         switch (action) {
           case 'more-config':
             this.showMoreConfig = !this.showMoreConfig;
+            if (this.showMoreConfig) {
+              this.scrollBottom();
+            } else {
+              this.scrollTop();
+            }
             break;
           case 'back':
             this.$router.go(-1);
