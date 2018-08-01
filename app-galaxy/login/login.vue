@@ -126,6 +126,8 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
         display: inline-block;
         min-height: 450px;
         font-size: 12px;
+        filter: blur(1px);
+        opacity: 0.8;
       }
       .login-form-container {
         padding: 20px;
@@ -147,6 +149,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
               font-size: 1.2rem;
             }
             &.login-interval-item {
+              margin-bottom: 3px;
               .el-form-item__title {
                 line-height: 24px;
               }
@@ -374,7 +377,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
         let str = node.innerHTML;
         let progress = 0;
         node.innerHTML = '';
-        var timer = setInterval(function() {
+        const update = () => {
           var current = str.substr(progress, 1);
           switch(current) {
             case '<':
@@ -394,10 +397,13 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
           }
           node.innerHTML = str.substring(0, progress) + (progress & 1 ? '_' : '');
           if (progress >= str.length) {
-//            clearInterval(timer);
             progress = 0;
+            setTimeout(update, 5000);
+          } else {
+            setTimeout(update, 200);
           }
-        }, 150);
+        };
+        update();
       };
       codeWriter(this.$el.querySelector('.main pre code'));
     },
