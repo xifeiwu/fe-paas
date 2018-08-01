@@ -62,12 +62,18 @@
           <!--</el-select>-->
         </el-form-item>
 
-        <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress" class="gitlab-address">
-          <el-input v-model="serviceForm.gitLabAddress" placeholder="请输入项目的gitLab地址，不能超过256个字符"></el-input>
-        </el-form-item>
-        <el-form-item label="Gitlab分支" prop="gitLabBranch" class="gitlab-branch">
-          <el-input v-model="serviceForm.gitLabBranch" placeholder="请输入gitLab分支名，不能超过100个字符"></el-input>
-        </el-form-item>
+        <transition name="more-config">
+          <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress" class="gitlab-address"
+                        v-if="!imageSelectState.customImage">
+            <el-input v-model="serviceForm.gitLabAddress" placeholder="请输入项目的gitLab地址，不能超过256个字符"></el-input>
+          </el-form-item>
+        </transition>
+        <transition name="more-config">
+          <el-form-item label="Gitlab分支" prop="gitLabBranch" class="gitlab-branch"
+                        v-if="!imageSelectState.customImage">
+            <el-input v-model="serviceForm.gitLabBranch" placeholder="请输入gitLab分支名，不能超过100个字符"></el-input>
+          </el-form-item>
+        </transition>
 
         <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
                       v-if="appLanguage == 'JAVA'"
@@ -220,7 +226,7 @@
         </transition>
         <el-form-item class="expand">
           <div class="more" @click="handleClick('more-config')">
-            <span v-if="showMoreConfig">收起配置</span><span v-else>更多配置</span>
+            <span v-if="showMoreConfig">收起更多配置</span><span v-else>更多配置</span>
             <i :class="showMoreConfig?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
           </div>
         </el-form-item>
@@ -280,14 +286,12 @@
     @keyframes to-show {
       0% {
         opacity: 0;
-        /*max-height: 0px;*/
       }
       25% {
         opacity: .75;
       }
       100% {
         opacity: 1;
-        /*max-height: 600px;*/
       }
     }
     @keyframes to-hide {
@@ -302,7 +306,7 @@
       animation: to-show 1.5s ease-in-out;
     }
     .more-config-leave-active {
-      animation: to-hide .2s ease-in-out;
+      animation: to-hide .5s ease-in-out;
     }
     height: 100%;
     overflow: scroll;
