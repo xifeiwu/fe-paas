@@ -20,7 +20,7 @@ switch (process.env.NODE_ENV) {
     env = require('./config/test.env')
     break;
   case 'production':
-    env = require('./config/prod.env')
+    env = require('./config/production.env')
     break;
   case 'dev':
   default:
