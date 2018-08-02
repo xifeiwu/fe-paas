@@ -9,6 +9,8 @@
 ```
 运行平台：node (v8.9.4)，建议通过nvm安装
 安装全局依赖包yarn: `npm install yarn -g`
+修改npm registry: `npm config set registry https://registry.npm.taobao.org`
+安装全局依赖包pm2: `npm install pm2 -g`
 ```
 
 **本地开发**
