@@ -262,7 +262,8 @@
     mounted() {
       let dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer && dataTransfer.hasOwnProperty('id') && dataTransfer.hasOwnProperty('internetDomain')
-        && dataTransfer.hasOwnProperty('notHaveIPWhiteList')) {
+//        && dataTransfer.hasOwnProperty('notHaveIPWhiteList')
+      ) {
         this.domainInfo = dataTransfer;
         this.domainInfo.domainName = dataTransfer['internetDomain'];
         this.itemToAdd.internetDomainId = this.domainInfo['id'];
@@ -371,9 +372,26 @@
         this.requestWhiteIPList();
       },
 
-      checkIPFormat(ip) {
-        let ipRegExp = new RegExp('^([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})$');
-        return ipRegExp.exec(ip);
+      // 检查IP地址是否正确，返回错误提示。返回null说明没有错误。
+      errMsgForIpCheck(ip) {
+        let errMsg = null;
+        let ipRegExp = this.$utils.getReg('ip');
+        let result = ipRegExp.exec(ip);
+        if (result && result.length === 6) {
+          if (result[5]) {
+            try {
+              let subDomain = parseInt(result[5].substring(1));
+              if (subDomain > 32) {
+                errMsg = '子网掩码长度应在0-32之间'
+              }
+            } catch(err) {
+              errMsg = '子网掩码长度设置不正确！';
+            }
+          }
+        } else {
+          errMsg = 'ip格式不正确！'
+        }
+        return errMsg;
       },
 
       handleRowButtonClick(action, index, row) {
@@ -390,8 +408,8 @@
               return target;
             };
 
-            if (!this.checkIPFormat(this.itemToAdd.ip)) {
-              this.$message.error('ip格式不正确');
+            if (this.errMsgForIpCheck(this.itemToAdd.ip)) {
+              this.$message.error(this.errMsgForIpCheck(this.itemToAdd.ip));
               return;
             }
             if (this.itemToAdd.description.length === 0) {
@@ -439,8 +457,8 @@
               this.selected.operation = null;
             } else {
               let description = this.selected.row.description;
-              if (!this.checkIPFormat(this.selected.row.ip)) {
-                this.$message.error('ip格式不正确');
+              if (this.errMsgForIpCheck(this.selected.row.ip)) {
+                this.$message.error(this.errMsgForIpCheck(this.selected.row.ip));
                 return;
               }
               if (!description || description.length === 0) {
