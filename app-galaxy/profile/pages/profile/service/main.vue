@@ -124,6 +124,7 @@
               {{statusOfWaitingResponse('deploy') && selected.service.id == scope.row.id ? '部署中': '部署'}}
             </el-button>
             <el-button
+                    class="flex"
                     round
                     size="mini-extral"type="primary"
                     v-if="!$storeHelper.notPermitted['service_get_deploy_log']"
@@ -148,6 +149,7 @@
                     :loading="statusOfWaitingResponse('delete') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
             <el-button
+                    class="flex"
                     round
                     size="mini-extral" type="primary"
                     v-if="!$storeHelper.notPermitted['page_instance']"
@@ -155,6 +157,7 @@
               <span>实例列表</span><i class="paas-icon-level-up"></i>
             </el-button>
             <el-button
+                    class="flex"
                     round
                     size="mini-extral" type="primary"
                     v-if="!$storeHelper.notPermitted['go-domain-from-service']"
@@ -162,6 +165,7 @@
               <span>配置外网二级域名</span><i class="paas-icon-level-up"></i>
             </el-button>
             <el-button
+                    class="flex"
                     round
                     size="mini-extral" type="primary"
                     @click="handleRowButtonClick('service_info', scope.$index, scope.row)">
@@ -901,7 +905,7 @@
     }
     .service-list {
       .el-table {
-        .el-button > span {
+        .el-button.flex > span {
           display: flex;
           align-items: center;
         }
