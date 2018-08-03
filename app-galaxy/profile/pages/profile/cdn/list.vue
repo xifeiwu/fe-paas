@@ -48,7 +48,7 @@
             </el-table-column>
             <el-table-column prop="operatingStateDesc" label="状态" :width="120">
                 <template slot-scope="scope">
-                    <el-tag size="small" :type="scope.row.operatingState=='success'?'success':'info'">{{scope.row.operatingStateDesc}}</el-tag>
+                    <el-tag size="small" :type="typeForOperationState(scope.row.operatingState)">{{scope.row.operatingStateDesc}}</el-tag>
                 </template>
             </el-table-column>
             <el-table-column prop="protocol" label="协议" :width="120">
@@ -62,12 +62,24 @@
             </el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="$router.push({path: '/cdn/edit', query: {domain: scope.row.name}})">配置</el-button>
-                    <span class="ant-divider"></span>
-                    <el-button type="text" @click="$router.push({path: '/cdn/statistics', query: {domain: scope.row.name}})">统计</el-button>
-                    <span class="ant-divider"></span>
-                    <el-button type="text" @click="handleTRClick('offline', scope.row, scope.$index)"
-                               :loading="action.row && action.row.name==scope.row.name && action.name=='offline'">停用</el-button>
+                    <div v-if="scope.row.operatingState=='offlined'">
+                        <el-button type="text" @click="handleTRClick('online', scope.row, scope.$index)"
+                                   :loading="action.row && action.row.name==scope.row.name && action.name=='online'">启用</el-button>
+                        <span class="ant-divider"></span>
+                        <el-button type="text" @click="handleTRClick('delete', scope.row, scope.$index)"
+                                   :loading="action.row && action.row.name==scope.row.name && action.name=='delete'">删除</el-button>
+                        <span class="ant-divider"></span>
+                        <el-button type="text" @click="$router.push({path: '/cdn/statistics', query: {domain: scope.row.name}})">统计</el-button>
+                    </div>
+                    <div v-if="scope.row.operatingState=='success' || scope.row.operatingState=='processing'">
+                        <el-button type="text" @click="$router.push({path: '/cdn/edit', query: {domain: scope.row.name}})">配置</el-button>
+                        <span class="ant-divider"></span>
+                        <el-button type="text" @click="$router.push({path: '/cdn/statistics', query: {domain: scope.row.name}})">统计</el-button>
+                        <span class="ant-divider"></span>
+                        <el-button v-if="scope.row.operatingState=='success'"
+                                   type="text" @click="handleTRClick('offline', scope.row, scope.$index)"
+                                   :loading="action.row && action.row.name==scope.row.name && action.name=='offline'">停用</el-button>
+                    </div>
                 </template>
             </el-table-column>
         </el-table>
@@ -138,6 +150,25 @@
         // todo sync search to store/etc
         this.$store.commit("cdn/SET_DOMAIN_FILTER", this.search);
       },
+      typeForOperationState(state) {
+        let type = 'info';
+        switch (state) {
+          case 'success':
+            type = 'success';
+            break;
+          case 'offlined':
+            type = 'info';
+            break;
+          case 'processing':
+            type = 'warning';
+            break;
+          case 'failed':
+          case 'frozen':
+            type = 'error';
+            break;
+        }
+        return type;
+      },
       handleTRClick(action, row, index) {
 //        console.log(row);
 //        console.log(this.action);
@@ -148,7 +179,10 @@
             setTimeout(() => {
               this.action.name = null;
             }, 2000);
-
+            break;
+          case 'online':
+            break;
+          case 'delete':
             break;
         }
       }
