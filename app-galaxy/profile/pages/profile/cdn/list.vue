@@ -176,9 +176,16 @@
         this.action.name = action;
         switch (action) {
           case 'offline':
-            setTimeout(() => {
+            this.$net.requestDomainServer(this.$net.URL_LIST.cdn_domain_offline, {
+              params: {domain: row.name},
+              payload: {}
+            }).then(resContent => {
+              this.$message.success(`已停用域名${row.name}`);
+              this.$store.dispatch('cdn/initData');
               this.action.name = null;
-            }, 2000);
+            }).catch(err => {
+              this.action.name = null;
+            });
             break;
           case 'online':
             break;

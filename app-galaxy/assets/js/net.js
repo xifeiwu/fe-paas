@@ -1,5 +1,11 @@
+import Vue from 'vue';
+import axios from 'axios';
 
 class Net {
+  constructor() {
+    // this.DOMAIN_PATH_PREFIX = '/n-api/domain';
+    this.DOMAIN_PATH_PREFIX = '/api/cdn';
+  }
   setVue(Vue) {
   }
   /**
@@ -157,6 +163,153 @@ class Net {
       result.msg = errorMsg;
     }
     return result;
+  }
+
+
+  showError (err) {
+    let title = `${err.title}! ${err.hasOwnProperty('code') ? err.code : ''}`;
+    Vue.prototype.$notify.error({
+      title,
+      message: err.message,
+      duration: 0
+    })
+  };
+  /**
+   *
+   * @param path
+   * @param method
+   * @param options: {
+   *  query: {key: value},
+   *  params: {id}
+   *  payload: {}
+   * }
+   * @returns {Promise}
+   * return resData.content if success
+   * else return {}
+   */
+  requestPaasServer({path, method}, options = {}) {
+    if (!method) {
+      return Promise.reject({
+        title: '参数错误',
+        message: '未设置请求方式'
+      });
+    }
+    let payload = {};
+    if (options.params) {
+      Object.keys(options.params).forEach((key) => {
+        path = path.replace('{' + key + '}', encodeURIComponent(options.params[key]));
+      });
+    }
+    if (options.query) {
+      path = path + '?' + querystring.stringify(data.query);
+    }
+    if (options.payload) {
+      payload = options.payload;
+    }
+    return new Promise((resolve, reject) => {
+      axios[method](path, payload).then(res => {
+        let resData = res.data;
+        if (resData.hasOwnProperty('success')) {
+          if (resData.success) {
+            resolve(resData.content);
+          } else {
+            const err = {
+              code: resData.code,
+              title: '请求失败',
+              message: resData.msg
+            };
+            this.showError(err);
+            reject(err);
+          }
+        } else if (resData.hasOwnProperty('code')) {
+          if (resData.code === 0) {
+            // return resData;
+            resolve(resData.content);
+          } else {
+            const err = {
+              code: resData.code,
+              title: '请求失败',
+              message: resData.msg
+            };
+            this.showError(err);
+            reject(err);
+          }
+        }
+      }).catch(error => {
+        if (error.hasOwnProperty('title') && error.hasOwnProperty('message')) {
+          this.showError(error);
+          reject(error);
+        } else {
+          let err = {
+            title: '网络请求错误',
+            message: `请求路径：${path}，${error.toString()}`
+          };
+          this.showError(err);
+          reject(err);
+        }
+      });
+    });
+  }
+
+  // request for dns server and cdn server
+  requestDomainServer({path, method}, options = {}) {
+    if (!method) {
+      return Promise.reject({
+        title: '参数错误',
+        message: '未设置请求方式'
+      });
+    }
+    let payload = {};
+    if (options.params) {
+      Object.keys(options.params).forEach((key) => {
+        // path = path.replace('{' + key + '}', encodeURIComponent(options.params[key]));
+        path = path.replace('{' + key + '}', options.params[key]);
+      });
+    }
+    if (options.query) {
+      path = path + '?' + querystring.stringify(data.query);
+    }
+    if (options.payload) {
+      payload = options.payload;
+    }
+    return new Promise((resolve, reject) => {
+      axios[method](path, payload).then(res => {
+        let resData = res.data;
+        if (resData.hasOwnProperty('code')) {
+          if (resData.code === 200) {
+            // return resData;
+            resolve(resData);
+          } else {
+            const err = {
+              code: resData.code,
+              title: '请求失败',
+              message: resData.msg
+            };
+            this.showError(err);
+            reject(err);
+          }
+        } else {
+          const err = {
+            title: '请求失败',
+            message: resData
+          };
+          this.showError(err);
+          reject(err);
+        }
+      }).catch(error => {
+        if (error.hasOwnProperty('title') && error.hasOwnProperty('message')) {
+          this.showError(error);
+          reject(error);
+        } else {
+          let err = {
+            title: '网络请求错误',
+            message: `请求路径：${path}，${error.toString()}`
+          };
+          this.showError(err);
+          reject(err);
+        }
+      });
+    });
   }
 }
 

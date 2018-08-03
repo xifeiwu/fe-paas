@@ -26,6 +26,17 @@ class Net extends NetBase {
     this.requestingState = {
       getAPPList: false,
     };
+    const DOMAIN_URL_LIST = {
+      'cdn_domain_offline': {
+        path: '/domain/{domain}/offline',
+        method: 'post'
+      }
+    };
+    Object.keys(DOMAIN_URL_LIST).forEach(key => {
+      let item = DOMAIN_URL_LIST[key];
+      item.path = this.DOMAIN_PATH_PREFIX + item.path;
+    });
+    this.URL_LIST = Object.assign(DOMAIN_URL_LIST);
   }
 
   // called at config/vue
