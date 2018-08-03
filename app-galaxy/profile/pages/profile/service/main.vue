@@ -1,39 +1,5 @@
 <template>
   <div id="service-main">
-    <div class="pa-3 pt-4" style="background-color: #fff;">
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <div>
-            当前应用：
-            <el-select filterable v-model="selectedAppID" placeholder="请选择">
-              <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">
-              </el-option>
-            </el-select>
-          </div>
-        </el-col>
-        <el-col :span="10">
-          <el-button type="primary" icon="el-icon-circle-plus-outline">
-            添加服务
-          </el-button>
-          <el-button type="primary" icon="el-icon-refresh">
-            刷新
-          </el-button>
-        </el-col>
-      </el-row>
-    </div>
-    <div class="pa-3">
-      <el-tabs v-model="activeName2" @tab-click="handleClick">
-        <el-tab-pane label="开发环境" name="first">
-          <el-row>
-            <el-col :span="3">内网域名</el-col>
-            <el-col :span="10">puhui-lend-bi-cloud-server.fbi.dev</el-col>
-          </el-row>
-        </el-tab-pane>
-        <el-tab-pane label="测试环境" name="second">测试环境</el-tab-pane>
-        <el-tab-pane label="联调环境" name="third">联调环境</el-tab-pane>
-        <el-tab-pane label="生产环境" name="fourth">生产环境</el-tab-pane>
-      </el-tabs>
-    </div>
     <div class="header">
       <el-row class="operation">
         <el-col :span="24" class="selector">
@@ -1112,7 +1078,7 @@
   #service-main {
     background: white;
     height: 100%;
-    /*margin:0px 6px;*/
+    margin:0px 6px;
     max-width: 1300px;
 
     /*box-shadow: 0 2px 8px rgba(0,0,0,0.1);*/
