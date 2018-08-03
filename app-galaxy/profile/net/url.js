@@ -10,7 +10,6 @@ class URL extends BaseURL {
   }
 
   setUrlList() {
-    let ORIGIN = this.ORIGIN;
     let API_PATH = this.API_PATH;
     this.URL_LIST = {
       'page_terminal_path': 'http://' + window.location.host + '/terminal.html',
@@ -353,13 +352,14 @@ class URL extends BaseURL {
         url: API_PATH + '/domain/whiteList/query',
         path: '/domain/whiteList/query'
       },
-      // 下载白名单模板
+      // 下载白名单模板（从java服务器）
       'domain_download_white_ip_list_template': {
         url: API_PATH + '/domain/whiteList/download/template',
         path: '/domain/whiteList/download/template'
       },
+      // 下载白名单模板
       'domain_download_white_ip_list_template': {
-        url: ORIGIN + '/assets/files/ip白名单模板.xlsx',
+        url: '/assets/files/ip白名单模板.xlsx',
         path: '/assets/files/ip白名单模板.xlsx'
       },
       // 上传白名单模板
@@ -646,10 +646,8 @@ class URL extends BaseURL {
   }
 }
 let url = new URL();
-const ORIGIN = url.ORIGIN;
 const URL_LIST = url.getUrlList();
 
 export {
-  ORIGIN,
   URL_LIST
 }
