@@ -30,7 +30,15 @@ class Net extends NetBase {
       'cdn_domain_offline': {
         path: '/domain/{domain}/offline',
         method: 'post'
-      }
+      },
+      'cdn_domain_online': {
+        path: '/domain/{domain}/online',
+        method: 'post'
+      },
+      'cdn_domain_delete': {
+        path: '/domain/{domain}',
+        method: 'delete'
+      },
     };
     Object.keys(DOMAIN_URL_LIST).forEach(key => {
       let item = DOMAIN_URL_LIST[key];

@@ -180,7 +180,7 @@
               params: {domain: row.name},
               payload: {}
             }).then(resContent => {
-              this.$message.success(`已停用域名${row.name}`);
+              this.$message.success(`已申请停用域名${row.name}`);
               this.$store.dispatch('cdn/initData');
               this.action.name = null;
             }).catch(err => {
@@ -188,8 +188,28 @@
             });
             break;
           case 'online':
+            this.$net.requestDomainServer(this.$net.URL_LIST.cdn_domain_online, {
+              params: {domain: row.name},
+              payload: {}
+            }).then(resContent => {
+              this.$message.success(`已申请启用域名${row.name}`);
+              this.$store.dispatch('cdn/initData');
+              this.action.name = null;
+            }).catch(err => {
+              this.action.name = null;
+            });
             break;
           case 'delete':
+            this.$net.requestDomainServer(this.$net.URL_LIST.cdn_domain_delete, {
+              params: {domain: row.name},
+              payload: {}
+            }).then(resContent => {
+              this.$message.success(`已申请删除域名${row.name}`);
+              this.$store.dispatch('cdn/initData');
+              this.action.name = null;
+            }).catch(err => {
+              this.action.name = null;
+            });
             break;
         }
       }
