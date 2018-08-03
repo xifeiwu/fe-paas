@@ -13,7 +13,7 @@
           <el-button v-if="true"
                      size="mini-extral"
                      type="primary"
-                     @click="handleButtonClick('refreshAppList')">刷新</el-button>
+                     @click="handleButtonClick('refreshAppList')"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
         </el-col>
         <el-col :span="1">
           <span>&nbsp</span>
@@ -49,14 +49,14 @@
             <div v-else>版本未知</div>
           </template>
         </el-table-column>
-        <el-table-column label="应用名称" prop="appName" headerAlign="center" align="center">
+        <el-table-column label="应用名称" prop="appName" headerAlign="left" align="left">
           <template slot-scope="scope">
             <span>{{scope.row.appName}}</span>
             <i v-if="!$storeHelper.notPermitted['app_change_name']"
                     class="el-icon-edit" @click="handleTRButton('change-appName', scope.$index, scope.row)"></i>
           </template>
         </el-table-column>
-        <el-table-column label="项目名称" prop="tag" headerAlign="center" align="center"></el-table-column>
+        <el-table-column label="项目名称" prop="tag" headerAlign="left" align="left"></el-table-column>
         <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="120">
         </el-table-column>
         <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="100">

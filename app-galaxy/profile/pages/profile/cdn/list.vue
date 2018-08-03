@@ -63,10 +63,12 @@
             <el-table-column label="操作">
                 <template slot-scope="scope">
                     <el-button type="text" @click="$router.push({path: '/cdn/edit', query: {domain: scope.row.name}})">配置</el-button>
+                    <span class="ant-divider"></span>
                     <el-button type="text" @click="$router.push({path: '/cdn/statistics', query: {domain: scope.row.name}})">统计</el-button>
-                    <el-button type="text">停用</el-button>
+                    <span class="ant-divider"></span>
+                    <el-button type="text" @click="handleTRClick('offline', scope.row, scope.$index)"
+                               :loading="action.row && action.row.name==scope.row.name && action.name=='offline'">停用</el-button>
                 </template>
-
             </el-table-column>
         </el-table>
         <div class="pa-4" style="text-align: center; background-color: white;">
@@ -95,7 +97,11 @@
       return {
         search: this.$store.state.etc.domainFilter,
         currentPage: 1,
-        pageSize: 10
+        pageSize: 10,
+        action: {
+          row: null,
+          name: null,
+        }
       };
     },
     computed: {
@@ -132,6 +138,20 @@
         // todo sync search to store/etc
         this.$store.commit("cdn/SET_DOMAIN_FILTER", this.search);
       },
+      handleTRClick(action, row, index) {
+//        console.log(row);
+//        console.log(this.action);
+        this.action.row = row;
+        this.action.name = action;
+        switch (action) {
+          case 'offline':
+            setTimeout(() => {
+              this.action.name = null;
+            }, 2000);
+
+            break;
+        }
+      }
     }
   }
 </script>
