@@ -18,7 +18,20 @@ const actions = {
     commit('SET_LOADING', true);
     axios.get('/api/cdn/domain/list')
       .then(res => {
-        commit('SET_DOMAIN_LIST', res.data.domains)
+        let domains = res.data.domains;
+        const stateMap = {
+          'processing': '处理中',
+          'success': '成功',
+          'offlined': '已停用',
+          'failed': '失败',
+          'frozen': '冻结'
+        };
+        domains.forEach(it => {
+          if (stateMap.hasOwnProperty(it.operatingState)) {
+            it.operatingStateDesc = stateMap[it.operatingState];
+          }
+        });
+        commit('SET_DOMAIN_LIST', domains)
       })
       .finally(() => commit('SET_LOADING', false));
   },

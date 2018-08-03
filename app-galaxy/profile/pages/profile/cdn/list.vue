@@ -46,9 +46,9 @@
                     </el-button>
                 </template>
             </el-table-column>
-            <el-table-column prop="operatingState" label="状态" :width="120">
+            <el-table-column prop="operatingStateDesc" label="状态" :width="120">
                 <template slot-scope="scope">
-                    <el-tag size="small" type="danger">{{scope.row.operatingState}}</el-tag>
+                    <el-tag size="small" :type="scope.row.operatingState=='success'?'success':'info'">{{scope.row.operatingStateDesc}}</el-tag>
                 </template>
             </el-table-column>
             <el-table-column prop="protocol" label="协议" :width="120">
