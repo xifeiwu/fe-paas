@@ -14,7 +14,7 @@ class URL {
     //     break;
     // }
     // this.ORIGIN = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
-    this.API_PATH = '/api';
+    this.API_PATH = '/j-api/paas';
   }
 }
 

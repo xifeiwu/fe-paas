@@ -26,25 +26,25 @@ class Net extends NetBase {
     this.requestingState = {
       getAPPList: false,
     };
-    const DOMAIN_URL_LIST = {
+    const CDN_URL_LIST = {
       'cdn_domain_offline': {
-        path: '/domain/{domain}/offline',
+        path: '/cdn/domain/{domain}/offline',
         method: 'post'
       },
       'cdn_domain_online': {
-        path: '/domain/{domain}/online',
+        path: '/cdn/domain/{domain}/online',
         method: 'post'
       },
       'cdn_domain_delete': {
-        path: '/domain/{domain}',
+        path: '/cdn/domain/{domain}',
         method: 'delete'
       },
     };
-    Object.keys(DOMAIN_URL_LIST).forEach(key => {
-      let item = DOMAIN_URL_LIST[key];
-      item.path = this.DOMAIN_PATH_PREFIX + item.path;
+    Object.keys(CDN_URL_LIST).forEach(key => {
+      let item = CDN_URL_LIST[key];
+      item.path = this.CDN_PREFIX + item.path;
     });
-    this.URL_LIST = Object.assign(DOMAIN_URL_LIST);
+    this.URL_LIST = Object.assign(CDN_URL_LIST);
   }
 
   // called at config/vue

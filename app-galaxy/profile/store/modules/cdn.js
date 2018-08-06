@@ -16,7 +16,7 @@ const actions = {
   // 获取域名列表
   getDomainList({commit}) {
     commit('SET_LOADING', true);
-    axios.get('/api/cdn/domain/list')
+    axios.get('/n-api/cdn/domain/list')
       .then(res => {
         let domains = res.data.domains;
         const stateMap = {

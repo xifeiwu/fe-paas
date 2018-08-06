@@ -235,7 +235,7 @@
           this.$store.commit('etc/SET_LOADING', true);
 
           this.$ajax
-            .post('/api/cdn/domain/create/' + this.domain, this.form)
+            .post('/n-api/cdn/domain/create/' + this.domain, this.form)
             .then(res => {
               if (!res.data.hasOwnProperty('code')) return this.$alert(res.data.msg);
               this.$router.push({path: '/cdn/list'})

@@ -4,7 +4,8 @@ import axios from 'axios';
 class Net {
   constructor() {
     // this.DOMAIN_PATH_PREFIX = '/n-api/domain';
-    this.DOMAIN_PATH_PREFIX = '/api/cdn';
+    this.CDN_PREFIX = '/n-api';
+    this.DNS_PREFIX = '/n-api';
   }
   setVue(Vue) {
   }
@@ -251,6 +252,20 @@ class Net {
     });
   }
 
+  /**
+{
+  "status": {
+    "code": "1",
+    "message": "Action completed successful",
+    "created_at": "2015-01-18 20:07:29"
+  },
+  "record": {
+    "id": 16909160,
+    "name": "@",
+    "status": "disable"
+  }
+}
+   */
   // request for dns server and cdn server
   requestDomainServer({path, method}, options = {}) {
     if (!method) {
@@ -289,12 +304,13 @@ class Net {
             reject(err);
           }
         } else {
-          const err = {
-            title: '请求失败',
-            message: resData
-          };
-          this.showError(err);
-          reject(err);
+          resolve(resData);
+          // const err = {
+          //   title: '请求失败',
+          //   message: resData
+          // };
+          // this.showError(err);
+          // reject(err);
         }
       }).catch(error => {
         if (error.hasOwnProperty('title') && error.hasOwnProperty('message')) {

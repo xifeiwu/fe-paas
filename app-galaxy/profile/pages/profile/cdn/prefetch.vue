@@ -97,7 +97,7 @@
         } else {
           payload[this.activeName] = this[this.activeName].split('\n').map(i => i.trim()).filter(i => i.length > 1)
         }
-        const url = this.activeName !== 'files' ? '/api/cdn/domain/refresh' : '/api/cdn/domain/prefetch';
+        const url = this.activeName !== 'files' ? '/n-api/cdn/domain/refresh' : '/n-api/cdn/domain/prefetch';
         this.$ajax
           .post(url, payload)
           .then(res => {

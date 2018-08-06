@@ -167,7 +167,7 @@
       getDomain() {
         // 显示loading
         this.$store.commit('cdn/SET_LOADING', true);
-        this.$ajax('/api/cdn/domain/' + this.$route.query.domain)
+        this.$ajax('/n-api/cdn/domain/' + this.$route.query.domain)
           .then(res => {
             this.domain = res.data;
           })
@@ -180,7 +180,7 @@
       updateSource() {
         this.$store.commit('cdn/SET_LOADING', true)
         this.$ajax
-          .post('/api/cdn/domain/' + this.$route.query.domain + '/source', this.domain.source)
+          .post('/n-api/cdn/domain/' + this.$route.query.domain + '/source', this.domain.source)
           .then(res => {
             if (!res.data.hasOwnProperty('code') || res.data.code !== 200) {
               return this.$toast(res.data.code + '\n' + res.data.error, 'error');
@@ -197,7 +197,7 @@
       updateCache() {
         this.$store.commit('cdn/SET_LOADING', true)
         this.$ajax
-          .post('/api/cdn/domain/' + this.$route.query.domain + '/cache', this.domain.cache)
+          .post('/n-api/cdn/domain/' + this.$route.query.domain + '/cache', this.domain.cache)
           .then(res => {
             if (!res.data.hasOwnProperty('code') || res.data.code !== 200) {
               return this.$toast(res.data.code + '\n' + res.data.error, 'error');
@@ -214,14 +214,14 @@
       // 检查域名是否正常
       checkDomain() {
         let {host, protocol} = window.location;
-        let checkurl = `${protocol}//${host}/api/cdn/dns/dig/` + this.domain.name
+        let checkurl = `${protocol}//${host}/n-api/dns/dig/` + this.domain.name
         window.open(checkurl);
       },
       addCname() {
         console.log('%s CNAME TO %s', this.domain.name, this.domain.cname);
         this.$store.commit('cdn/SET_LOADING', true)
         this.$ajax
-          .post('/api/cdn/dns/record/create', {
+          .post('/n-api/dns/record/create', {
             domain: this.domain.name,
             value: this.domain.cname,
             type: 'CNAME'
