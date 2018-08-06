@@ -221,9 +221,10 @@
         console.log('%s CNAME TO %s', this.domain.name, this.domain.cname);
         this.$store.commit('cdn/SET_LOADING', true)
         this.$ajax
-          .post('/api/cdn/dns/cname', {
+          .post('/api/cdn/dns/record/create', {
             domain: this.domain.name,
-            cname: this.domain.cname
+            value: this.domain.cname,
+            type: 'CNAME'
           })
           .then(res => {
             if (!res.data.hasOwnProperty('status') || res.data.status.code !== '1') {
