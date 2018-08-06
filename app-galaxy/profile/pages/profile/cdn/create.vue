@@ -1,6 +1,6 @@
 <template>
     <div id="cdn-create" class="pa-3" style="background-color: #fff;">
-        <el-form :model="form" ref="configDirForm" class="mt-3" label-width="120px" size="medium">
+        <el-form :model="form" ref="createForm" class="mt-3" label-width="120px" size="medium" :rules="rules">
             <el-form-item label="域名类型:">
                 <el-row>
                     <el-col :span="10">
@@ -10,13 +10,10 @@
                 </el-row>
             </el-form-item>
             <hr>
-            <el-form-item label="加速域名:">
+            <el-form-item label="加速域名:" :required="true" :error="errMsgForDomainName">
                 <el-row>
                     <el-col :span="10">
-                        <el-input v-model="domain" type="text" label="domain"></el-input>
-                    </el-col>
-                    <el-col :span="2" class="pt-1 pl-1">
-                        必填项
+                        <el-input v-model="domain" type="text" label="domain" placeholder="域名格式: *.cdn.finupcloud.com"></el-input>
                     </el-col>
                 </el-row>
             </el-form-item>
@@ -127,7 +124,7 @@
             <hr v-if="false">
             <el-row class="py-4">
                 <el-col :span="10" :offset="3">
-                    <el-button type="primary" @click="createDomain('configDirForm')">提交</el-button>
+                    <el-button type="primary" @click="createDomain('createForm')">提交</el-button>
                     <el-button type="primary">重置</el-button>
                 </el-col>
             </el-row>
@@ -136,11 +133,37 @@
 </template>
 
 <script>
-  import ElFormItem from "../../../../../element-ui/packages/form/src/form-item";
   export default {
-    components: {ElFormItem}, name: "cdn-create-domain",
+    name: "cdn-create-domain",
     data() {
       return {
+        rules: {
+          domain: [{
+            required: true,
+            message: '请输入域名',
+            trigger: 'blur'
+          }, {
+            validator(rule, values, callback){
+              let passed = true;
+              let reg = /^([A-Za-z0-9][A-Za-z0-9\-_]*).cdn.finupcloud.com$/;
+              if (!values) {
+                passed = false;
+                callback('内容不能为空');
+              } else if (values.length > 0) {
+                values = values.trim();
+                if (!reg.exec(values)) {
+                  passed = false;
+                  callback('域名格式: *.cdn.finupcloud.com，星号部分职能包括字母数字下划线');
+                }
+              }
+              if (passed) {
+                callback();
+              }
+            }
+          }],
+        },
+        errMsgForDomainName: '',
+
         cacheTips: {
           default: '默认缓存30天',
           follow: '缓存时间将跟源站同步',
@@ -189,6 +212,9 @@
         }
       }
     },
+    watch: {
+      domain: 'getErrMsgForDomainName'
+    },
     computed: {
       sourceIps: {
         get() {
@@ -224,10 +250,28 @@
         console.log(this.form);
         alert('测试通过')
       },
+      getErrMsgForDomainName(domain) {
+        let errMsg = '';
+        let domainReg = /^([A-Za-z0-9][A-Za-z0-9\-_]*).cdn.finupcloud.com$/;
+        if (!domain) {
+          errMsg = '内容不能为空';
+        } else if (domain.length > 0) {
+          domain = domain.trim();
+          if (!domainReg.exec(domain)) {
+            errMsg = '域名格式: *.cdn.finupcloud.com，星号部分职能包括字母数字下划线';
+          }
+        }
+        this.errMsgForDomainName = errMsg;
+        return errMsg;
+      },
       createDomain(formName) {
         // alert('formcall');
         this.$refs[formName].validate((valid) => {
+          if (this.getErrMsgForDomainName()) {
+            return;
+          }
           if (!valid) return false;
+          return;
           // 显示loading
           this.$store.commit('etc/SET_LOADING', true);
 
