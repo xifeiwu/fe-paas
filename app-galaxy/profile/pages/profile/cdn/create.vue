@@ -109,19 +109,18 @@
                         <p>定义指定资源内容的缓存过期时间规则。</p>
                         <el-radio v-model="cacheControls" label="default" border>默认</el-radio>
                         <el-radio v-model="cacheControls" label="follow" border>遵循源站</el-radio>
-                        <el-radio v-model="cacheControls" label="custom" border>自定义</el-radio>
+                        <el-radio v-model="cacheControls" label="custom" border :disabled="true">自定义</el-radio>
                         <p class="tip py-1" v-html="cacheTips[cacheControls]"></p>
                     </div>
                     <div class="py-2">
                         <p>忽略 URL 参数</p>
-
                         <el-switch v-model="form.cache.ignoreParam">
                         </el-switch>
                     </div>
                 </el-col>
             </el-row>
             <hr>
-            <el-row>
+            <el-row v-if="false">
                 <el-col :span="3" class="pl-3">
                     <strong>高级配置 :</strong>
                 </el-col>
@@ -129,7 +128,7 @@
                     <el-button type="text" @click="external = !external">{{external ? '隐藏': '显示'}}</el-button>
                 </el-col>
             </el-row>
-            <hr>
+            <hr v-if="false">
             <el-row class="py-4">
                 <el-col :span="10" :offset="3">
                     <el-button type="primary" @click="createDomain('configDirForm')">提交</el-button>
