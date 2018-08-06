@@ -1,64 +1,60 @@
 <template>
-    <div class="pa-3" style="background-color: #fff;">
-        <el-form :model="form" ref="configDirForm" class="mt-3">
-            <el-row>
-                <el-col :span="3" class="pl-3">
-                    <strong>域名类型:</strong>
-                </el-col>
-                <el-col :span="10">
-                    <el-radio v-model="form.type" label="normal" border>普通域名</el-radio>
-                    <el-radio v-model="form.type" label="wildcard" border :disabled="true">泛域名</el-radio>
-                </el-col>
-            </el-row>
+    <div id="cdn-create" class="pa-3" style="background-color: #fff;">
+        <el-form :model="form" ref="configDirForm" class="mt-3" label-width="120px" size="medium">
+            <el-form-item label="域名类型:">
+                <el-row>
+                    <el-col :span="10">
+                        <el-radio v-model="form.type" label="normal" border>普通域名</el-radio>
+                        <el-radio v-model="form.type" label="wildcard" border :disabled="true">泛域名</el-radio>
+                    </el-col>
+                </el-row>
+            </el-form-item>
             <hr>
-            <el-row>
-                <el-col :span="3" class="pl-3">
-                    <strong>加速域名:</strong>
-                </el-col>
-                <el-col :span="10">
-                    <el-input v-model="domain" type="text" label="domain"></el-input>
-                </el-col>
-                <el-col :span="2" class="pt-1 pl-1">
-                    必填项
-                </el-col>
-            </el-row>
+            <el-form-item label="加速域名:">
+                <el-row>
+                    <el-col :span="10">
+                        <el-input v-model="domain" type="text" label="domain"></el-input>
+                    </el-col>
+                    <el-col :span="2" class="pt-1 pl-1">
+                        必填项
+                    </el-col>
+                </el-row>
+            </el-form-item>
             <hr>
-            <el-row>
-                <el-col :span="3" class="pl-3">
-                    <strong>覆盖范围 :</strong>
-                </el-col>
-                <el-col :span="10">
-                    <el-radio v-model="form.geoCover" label="china" border>中国大陆</el-radio>
-                    <el-radio v-model="form.geoCover" label="foreign" border :disabled="true">海外</el-radio>
-                    <el-radio v-model="form.geoCover" label="global" border :disabled="true">全球</el-radio>
-                </el-col>
-            </el-row>
+            <el-form-item label="覆盖范围:">
+                <el-row>
+                    <el-col :span="10">
+                        <el-radio v-model="form.geoCover" label="china" border>中国大陆</el-radio>
+                        <el-radio v-model="form.geoCover" label="foreign" border :disabled="true">海外</el-radio>
+                        <el-radio v-model="form.geoCover" label="global" border :disabled="true">全球</el-radio>
+                    </el-col>
+                </el-row>
+            </el-form-item>
             <hr>
-            <el-row>
-                <el-col :span="3" class="pl-3">
-                    <strong>通信协议 :</strong>
-                </el-col>
-                <el-col :span="10">
-                    <el-radio v-model="form.protocol" label="http" border>http</el-radio>
-                    <el-radio v-model="form.protocol" label="https" border :disabled="true">https</el-radio>
-                </el-col>
-            </el-row>
+            <el-form-item label="通信协议:">
+                <el-row>
+                    <el-col :span="10">
+                        <el-radio v-model="form.protocol" label="http" border>http</el-radio>
+                        <el-radio v-model="form.protocol" label="https" border :disabled="true">https</el-radio>
+                    </el-col>
+                </el-row>
+            </el-form-item>
             <hr>
-            <el-row>
-                <el-col :span="3" class="pl-3">
-                    <strong>使用场景 :</strong>
-                </el-col>
-                <el-col :span="10">
-                    <div class="py-2">针对资源的特性进行特定场景的线路优化，获得最优的加速效果</div>
-                    <el-radio v-model="form.platform" label="web" border>图片小文件</el-radio>
-                    <el-radio v-model="form.platform" label="download" border :disabled="true">下载分发</el-radio>
-                    <el-radio v-model="form.platform" label="vod" border :disabled="true">视频直播</el-radio>
-                </el-col>
-            </el-row>
+            <el-form-item label="使用场景:">
+                <el-row>
+                    <el-col :span="18">
+                        <div class="py-2">针对资源的特性进行特定场景的线路优化，获得最优的加速效果</div>
+                        <el-radio v-model="form.platform" label="web" border>图片小文件</el-radio>
+                        <el-radio v-model="form.platform" label="download" border :disabled="true">下载分发</el-radio>
+                        <el-radio v-model="form.platform" label="vod" border :disabled="true">视频直播</el-radio>
+                    </el-col>
+                </el-row>
+            </el-form-item>
             <hr>
+            <el-form-item label="源站配置:" class="source-config">
             <el-row>
                 <el-col :span="3" class="pl-3">
-                    <strong>源站配置 :</strong>
+                    <strong></strong>
                 </el-col>
                 <el-col :span="11">
                     <div class="py-2">
@@ -98,27 +94,27 @@
                     </div>
                 </el-col>
             </el-row>
+            </el-form-item>
             <hr>
-            <el-row>
-                <el-col :span="3" class="pl-3">
-                    <strong>缓存配置 :</strong>
-                </el-col>
-                <el-col :span="21">
-                    <div class="py-2">
-                        <strong>基础配置</strong>
-                        <p>定义指定资源内容的缓存过期时间规则。</p>
-                        <el-radio v-model="cacheControls" label="default" border>默认</el-radio>
-                        <el-radio v-model="cacheControls" label="follow" border>遵循源站</el-radio>
-                        <el-radio v-model="cacheControls" label="custom" border :disabled="true">自定义</el-radio>
-                        <p class="tip py-1" v-html="cacheTips[cacheControls]"></p>
-                    </div>
-                    <div class="py-2">
-                        <p>忽略 URL 参数</p>
-                        <el-switch v-model="form.cache.ignoreParam">
-                        </el-switch>
-                    </div>
-                </el-col>
-            </el-row>
+            <el-form-item label="缓存配置:" class="cache-config">
+                <el-row>
+                    <el-col :span="21">
+                        <div class="py-2">
+                            <strong>基础配置</strong>
+                            <p>定义指定资源内容的缓存过期时间规则。</p>
+                            <el-radio v-model="cacheControls" label="default" border>默认</el-radio>
+                            <el-radio v-model="cacheControls" label="follow" border>遵循源站</el-radio>
+                            <el-radio v-model="cacheControls" label="custom" border :disabled="true">自定义</el-radio>
+                            <p class="tip py-1" v-html="cacheTips[cacheControls]"></p>
+                        </div>
+                        <div class="py-2">
+                            <p>忽略 URL 参数</p>
+                            <el-switch v-model="form.cache.ignoreParam">
+                            </el-switch>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-form-item>
             <hr>
             <el-row v-if="false">
                 <el-col :span="3" class="pl-3">
@@ -140,8 +136,9 @@
 </template>
 
 <script>
+  import ElFormItem from "../../../../../element-ui/packages/form/src/form-item";
   export default {
-    name: "cdn-create-domain",
+    components: {ElFormItem}, name: "cdn-create-domain",
     data() {
       return {
         cacheTips: {
@@ -224,6 +221,7 @@
     },
     methods: {
       testSource() {
+        console.log(this.form);
         alert('测试通过')
       },
       createDomain(formName) {
@@ -250,7 +248,24 @@
   }
 </script>
 
-<style scoped>
+<style lang="scss">
+    #cdn-create {
+        .el-form {
+            .el-form-item {
+                &.source-config, &.cache-config {
+                    .el-form-item__content {
+                        line-height: 120%;
+                    }
+                }
+            }
+            .el-form-item__label {
+                font-size: 16px;
+                font-weight: bold;
+            }
+        }
+    }
+</style>
+<style lang="scss" scoped>
     .tip {
         color: #999;
         font-size: 12px;
@@ -260,7 +275,7 @@
         box-sizing: content-box;
         height: 0;
         overflow: visible;
-        margin: 30px 0;
+        margin: 10px 0;
         border: none;
         border-top: 1px solid #e6e9f0;
     }
