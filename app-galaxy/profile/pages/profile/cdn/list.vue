@@ -38,12 +38,12 @@
             <el-table-column prop="name" label="加速域名" :width="320"
                              :show-overflow-tooltip="true">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="gotoFileList(scope.row)">
+                    <!--<el-button type="text">-->
                         <i class="el-icon-news"></i>
                         <span style="margin-left: 6px; font-weight: 800; ">
                             {{ scope.row.name }}
                             </span>
-                    </el-button>
+                    <!--</el-button>-->
                 </template>
             </el-table-column>
             <el-table-column prop="operatingStateDesc" label="状态" :width="120">
@@ -206,8 +206,8 @@
             }).then(resContent => {
               this.$message.success(`已申请删除域名${row.name}`);
               this.$store.dispatch('cdn/initData');
-              this.action.name = null;
             }).catch(err => {
+            }).finally(() => {
               this.action.name = null;
             });
             break;

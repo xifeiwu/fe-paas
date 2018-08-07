@@ -46,6 +46,15 @@ class Net extends NetBase {
       'cdn_fusion_source_check': {
         path: '/cdn/fusion/domains/{domain}/source/check',
         method: 'post'
+      },
+
+      'dns_record_remove': {
+        path: '/dns/record/remove',
+        method: 'post'
+      },
+      'dns_record_info': {
+        path: '/dns/record/info',
+        method: 'post'
       }
     };
     Object.keys(CDN_URL_LIST).forEach(key => {

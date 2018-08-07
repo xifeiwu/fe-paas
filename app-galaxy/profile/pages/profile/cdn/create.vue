@@ -11,9 +11,21 @@
             </el-form-item>
             <hr>
             <el-form-item label="加速域名:" :required="true" :error="errMsgForDomainName">
-                <el-row>
-                    <el-col :span="10">
+                <el-row style="max-width: 600px;">
+                    <el-col :span="16">
                         <el-input v-model="domain" type="text" label="domain" placeholder="域名格式: *.cdn.finupcloud.com"></el-input>
+                    </el-col>
+                    <el-col :span="4" style="padding: 0px 3px;">
+                        <el-tooltip class="item" effect="dark" content="检测域名是否被占用" placement="bottom">
+                            <el-button type="info" @click="handleClick('check-domain')">域名检测</el-button>
+                        </el-tooltip>
+                    </el-col>
+                    <el-col :span="4" style="padding-left: 5px; text-align: left; font-size: 14px; line-height: 100%">
+                        <span v-if="!statusOfDomainCheck.hasCheck" style="color: #F56C6C">未检测</span>
+                        <span v-if="statusOfDomainCheck.hasCheck && statusOfDomainCheck.hasExist"
+                              style="color: #F56C6C;">域名已被占用，请尝试其它域名</span>
+                        <span v-if="statusOfDomainCheck.hasCheck && !statusOfDomainCheck.hasExist"
+                              style="color: #67C23A;">可以使用该域名</span>
                     </el-col>
                 </el-row>
             </el-form-item>
@@ -49,49 +61,47 @@
             </el-form-item>
             <hr>
             <el-form-item label="源站配置:" class="source-config" :required="true" :error="errMsgForSourceConfig">
-            <el-row>
-                <el-col :span="16">
-                    <div class="py-2">
-                        <p><strong>基础设置</strong></p>
-                        <!--<p>指定需要加速的资源。填写资源所在的域名或IP，也可以对保存在七牛云存储上的资源创建更多的加速功能。</p>-->
-                        <div class="py-3">
-                            <el-radio v-model="form.source.sourceType" label="domain">源站域名</el-radio>
-                            <el-radio v-model="form.source.sourceType" label="ip" v-if="false">ip 地址</el-radio>
-                            <el-radio v-model="form.source.sourceType" label="advanced" v-if="false">高级</el-radio>
-                        </div>
-                        <el-input
-                                v-if="form.source.sourceType !== 'ip'"
-                                v-model="form.source.sourceDomain" label=""></el-input>
-                        <el-input v-if="form.source.sourceType === 'ip'"
-                                  type="textarea"
-                                  :autosize="{ minRows: 2, maxRows: 4}"
-                                  v-model="sourceIps"></el-input
-                        >
+            <el-row style="max-width: 600px;">
+                <div class="py-2">
+                    <p><strong>基础设置</strong></p>
+                    <!--<p>指定需要加速的资源。填写资源所在的域名或IP，也可以对保存在七牛云存储上的资源创建更多的加速功能。</p>-->
+                    <div class="py-3">
+                        <el-radio v-model="form.source.sourceType" label="domain">源站域名</el-radio>
+                        <el-radio v-model="form.source.sourceType" label="ip" v-if="false">ip 地址</el-radio>
+                        <el-radio v-model="form.source.sourceType" label="advanced" v-if="false">高级</el-radio>
                     </div>
-                    <div class="py-2">
-                        <strong>回源host</strong>
-                        <p>可选项，默认为加速域名</p>
-                        <el-input v-model="form.source.sourceHost" label=""></el-input>
-                    </div>
-                    <div class="py-2">
-                        <strong>测试网址</strong>
-                        <el-row>
-                            <el-col :span="16">
-                                <el-input v-model="form.source.testURLPath" label="" placeholder="测试资源名">
-                                    <template slot="prepend">&emsp;http(s)://{{form.source.sourceDomain}}/</template>
-                                </el-input>
-                            </el-col>
-                            <el-col :span="4" style="padding: 0px 3px;">
-                                <el-button type="info" @click="testSource">测试源站</el-button>
-                            </el-col>
-                            <el-col :span="4" style="text-align: right">
-                                <span v-if="!statusOfSourceConfig.hasCheck" style="color: #F56C6C">未测试</span>
-                                <span v-if="statusOfSourceConfig.hasCheck && statusOfSourceConfig.isOk" style="color: #67C23A">测试成功</span>
-                                <span v-if="statusOfSourceConfig.hasCheck && !statusOfSourceConfig.isOk" style="color: #F56C6C">测试失败</span>
-                            </el-col>
-                        </el-row>
-                    </div>
-                </el-col>
+                    <el-input
+                            v-if="form.source.sourceType !== 'ip'"
+                            v-model="form.source.sourceDomain" label=""></el-input>
+                    <el-input v-if="form.source.sourceType === 'ip'"
+                              type="textarea"
+                              :autosize="{ minRows: 2, maxRows: 4}"
+                              v-model="sourceIps"></el-input
+                    >
+                </div>
+                <div class="py-2">
+                    <strong>回源host</strong>
+                    <p>可选项，默认为加速域名</p>
+                    <el-input v-model="form.source.sourceHost" label=""></el-input>
+                </div>
+                <div class="py-2">
+                    <strong>测试网址</strong>
+                    <el-row>
+                        <el-col :span="16">
+                            <el-input v-model="form.source.testURLPath" label="" placeholder="测试资源名">
+                                <template slot="prepend">&emsp;http(s)://{{form.source.sourceDomain}}/</template>
+                            </el-input>
+                        </el-col>
+                        <el-col :span="4" style="padding: 0px 3px;">
+                            <el-button type="info" @click="testSource">测试源站</el-button>
+                        </el-col>
+                        <el-col :span="4" style="padding-left: 5px; text-align: left; font-size: 14px; line-height: 100%">
+                            <span v-if="!statusOfSourceConfig.hasCheck" style="color: #F56C6C">未测试</span>
+                            <span v-if="statusOfSourceConfig.hasCheck && statusOfSourceConfig.isOk" style="color: #67C23A">测试成功</span>
+                            <span v-if="statusOfSourceConfig.hasCheck && !statusOfSourceConfig.isOk" style="color: #F56C6C">测试失败</span>
+                        </el-col>
+                    </el-row>
+                </div>
             </el-row>
             </el-form-item>
             <hr>
@@ -126,8 +136,7 @@
             <hr v-if="false">
             <el-row class="py-4">
                 <el-col :span="10" :offset="3">
-                    <el-button type="primary" @click="createDomain('createForm')">提交</el-button>
-                    <!--<el-button type="primary">重置</el-button>-->
+                    <el-button type="primary" @click="handleClick('submit')">提交</el-button>
                 </el-col>
             </el-row>
         </el-form>
@@ -175,6 +184,11 @@
         statusOfSourceConfig: {
           hasCheck: false,
           isOk: false
+        },
+        statusOfDomainCheck: {
+          hasCheck: false,
+          hasExist: false,
+          recordInfo: ''
         },
 
         cacheTips: {
@@ -259,6 +273,93 @@
       }
     },
     methods: {
+      checkDomain() {
+        let domain = 'finupcloud.com';
+        let sub_domain = this.domain.trim().replace(/\.finupcloud\.com$/, '');
+        return new Promise((resolve, reject) => {
+          this.$net.formatRequest(this.$net.URL_LIST.dns_record_info, {
+            payload: {domain, sub_domain}
+          }).then(res => {
+            /**
+             {
+               domain: {id: "67076424", domain: "finupcloud.com", domain_grade: "DP_Free"},
+               record: {id: "373872980", sub_domain: "a.cdn", record_type: "CNAME"}
+               status: {code: '1', message: ''}
+             }
+             */
+            let resData = res.data;
+            if (resData.hasOwnProperty('status')) {
+              this.statusOfDomainCheck.hasCheck = true;
+              let status = resData.status;
+              if (resData.hasOwnProperty('record') && status.code == 1) {
+                this.statusOfDomainCheck.hasExist = true;
+                this.statusOfDomainCheck.recordInfo = resData.record;
+              } else {
+                this.statusOfDomainCheck.hasExist = false;
+              }
+            } else {
+              this.statusOfDomainCheck.hasExist = false;
+            }
+            resolve();
+          }).catch(err => {
+            this.$notify.error({
+              title: '请求错误',
+              message: err.toString()
+            });
+            resolve();
+          })
+        });
+      },
+      handleClick(action) {
+        switch (action) {
+          case 'check-domain':
+            if (this.getErrMsgForDomainName()) {
+              return;
+            }
+            this.checkDomain();
+            break;
+          case 'submit':
+            this.$refs['createForm'].validate(async (valid) => {
+              if (this.getErrMsgForDomainName()) {
+                return;
+              }
+              if (this.getErrMegForSourceConfig()) {
+                return;
+              }
+              await this.checkDomain();
+              if (this.statusOfDomainCheck.hasExist) {
+                this.$message.error(`域名${this.domain}已被占用`);
+                return;
+              }
+
+              if (!this.statusOfSourceConfig.isOk) {
+                this.$message.warning('请先测试源站');
+                return;
+              }
+              if (!valid) return false;
+              // 显示loading
+              this.$store.commit('etc/SET_LOADING', true);
+
+              this.$net.formatRequest(this.$net.URL_LIST.cdn_domain_create, {
+                params: {domain: this.domain}, payload: this.form
+              }).then(res => {
+                let resData = res.data;
+                if (resData.hasOwnProperty('code') && resData.hasOwnProperty('error')) {
+                  this.$message.error(`${resData.code}: ${resData.error}`);
+                  this.$router.push({path: '/cdn/list'})
+                }
+              }).catch(err => {
+                this.$net.showError({
+                  title: '请求错误',
+                  message: err.toString()
+                })
+              }).finally(() => {
+                this.$store.commit('etc/SET_LOADING', false)
+              });
+            });
+            break;
+        }
+      },
       testSource() {
         if (this.getErrMsgForDomainName()) {
           return;
@@ -317,41 +418,6 @@
         }
         this.errMsgForSourceConfig = errMsg;
         return errMsg;
-      },
-      createDomain(formName) {
-        // alert('formcall');
-        this.$refs[formName].validate((valid) => {
-          if (this.getErrMsgForDomainName()) {
-            return;
-          }
-          if (this.getErrMegForSourceConfig()) {
-            return;
-          }
-          if (!this.statusOfSourceConfig.isOk) {
-            this.$message.warning('请先测试源站');
-            return;
-          }
-          if (!valid) return false;
-          // 显示loading
-          this.$store.commit('etc/SET_LOADING', true);
-
-          this.$net.formatRequest(this.$net.URL_LIST.cdn_domain_create, {
-            params: {domain: this.domain}, payload: this.form
-          }).then(res => {
-            let resData = res.data;
-            if (resData.hasOwnProperty('code') && resData.hasOwnProperty('error')) {
-              this.$message.error(`${resData.code}: ${resData.error}`);
-              this.$router.push({path: '/cdn/list'})
-            }
-          }).catch(err => {
-            this.$net.showError({
-              title: '请求错误',
-              message: err.toString()
-            })
-          }).finally(() => {
-            this.$store.commit('etc/SET_LOADING', false)
-          });
-        })
       },
     }
   }

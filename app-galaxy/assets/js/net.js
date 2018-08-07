@@ -282,42 +282,29 @@ class Net {
   }
 
   /**
-{
-  "status": {
-    "code": "1",
-    "message": "Action completed successful",
-    "created_at": "2015-01-18 20:07:29"
-  },
-  "record": {
-    "id": 16909160,
-    "name": "@",
-    "status": "disable"
-  }
-}
+   * format of response data from qiniu-cdn is not fixed
+   * {"code":200}
+   * or
+   * {"domains": [], "marker": "MTUzMTEzMjg5NDQxMDAwMDAwMA=="}
+   *
+   * format of response data from dns-pod
+    {
+      "status": {
+        "code": "1",
+        "message": "Action completed successful",
+        "created_at": "2015-01-18 20:07:29"
+      },
+      "record": {
+        "id": 16909160,
+        "name": "@",
+        "status": "disable"
+      }
+    }
    */
   // request for dns server and cdn server
   requestDomainServer({path, method}, options = {}) {
-    if (!method) {
-      return Promise.reject({
-        title: '参数错误',
-        message: '未设置请求方式'
-      });
-    }
-    let payload = {};
-    if (options.params) {
-      Object.keys(options.params).forEach((key) => {
-        // path = path.replace('{' + key + '}', encodeURIComponent(options.params[key]));
-        path = path.replace('{' + key + '}', options.params[key]);
-      });
-    }
-    if (options.query) {
-      path = path + '?' + querystring.stringify(data.query);
-    }
-    if (options.payload) {
-      payload = options.payload;
-    }
     return new Promise((resolve, reject) => {
-      axios[method](path, payload).then(res => {
+      this.formatRequest({path, method}, options).then(res => {
         let resData = res.data;
         if (resData.hasOwnProperty('code')) {
           if (resData.code === 200) {
@@ -334,12 +321,6 @@ class Net {
           }
         } else {
           resolve(resData);
-          // const err = {
-          //   title: '请求失败',
-          //   message: resData
-          // };
-          // this.showError(err);
-          // reject(err);
         }
       }).catch(error => {
         if (error.hasOwnProperty('title') && error.hasOwnProperty('message')) {
