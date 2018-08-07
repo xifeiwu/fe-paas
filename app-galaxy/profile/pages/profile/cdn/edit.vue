@@ -1,16 +1,13 @@
 <template>
-    <div class="pa-3" style="background-color: #fff;"
+    <div id="cdn-edit" class="pa-3" style="background-color: #fff;"
          v-loading="loading"
          element-loading-text="操作进行中"
          element-loading-spinner="el-icon-loading"
          v-if="domain.source"
     >
-        <div class="pt-3">
-            <el-row>
-                <el-col :span="3" class="pl-3">
-                    <strong>基本信息</strong>
-                </el-col>
-                <el-col :span="20">
+        <el-form labelWidth="100px" size="medium">
+            <el-form-item label="基本信息">
+                <div>
                     <div>
                         <strong style="color: green;">加速域名:&emsp; {{domain.name}}</strong>
                     </div>
@@ -19,37 +16,32 @@
                     </div>
                     <div class="pt-2">
                         <strong style="color: green;">当前状态:&emsp; {{domain.operationType}}
-                            {{domain.operatingState}}</strong>
+                        {{domain.operatingState}}</strong>
                     </div>
-                </el-col>
-                <el-col :span="16" :offset="3" class="pt-3">
+                </div>
+                <div class="pt-3">
                     <el-tooltip class="item" effect="dark" content="通过DIG命令测试域名状态" placement="top-start">
-                        <el-button type="primary" @click="checkDomain">域名测试</el-button>
+                        <el-button type="primary" @click="checkDomain" size="small">域名测试</el-button>
                     </el-tooltip>
                     <el-tooltip class="item" effect="dark" content="点击后会添加CNAME" placement="top-start">
-                        <el-button type="primary" @click="addCname">添加CNAME记录</el-button>
+                        <el-button type="primary" @click="addCname" size="small">添加CNAME记录</el-button>
                     </el-tooltip>
                     <el-button type="danger" @click="updateSource"
                                :disabled="editable"
                                v-if="false"
                     >停用</el-button>
-                    <el-button type="success" @click="getDomain">刷新</el-button>
-                </el-col>
-            </el-row>
-        </div>
-        <hr>
-        <div>
-            <el-row>
-                <el-col :span="3" class="pl-3">
-                    <strong>回源配置</strong>
-                </el-col>
-                <el-col :span="10" class="pa-0">
+                    <el-button type="success" @click="getDomain" size="small">刷新</el-button>
+                </div>
+            </el-form-item>
+            <hr>
+            <el-form-item label="回源配置" class="source-config" :required="true" :error="errMsgForSourceConfig">
+                <div style="max-width: 600px;">
                     <div>
                         <!--<p>指定需要加速的资源。填写资源所在的域名或IP，也可以对保存在七牛云存储上的资源创建更多的加速功能。</p>-->
-                        <div class="py-3">
+                        <div>
                             <el-radio v-model="domain.source.sourceType" label="domain">源站域名</el-radio>
                             <el-radio v-model="domain.source.sourceType" label="ip">ip 地址</el-radio>
-                            <el-radio v-model="domain.source.sourceType" label="advanced">高级</el-radio>
+                            <el-radio v-model="domain.source.sourceType" label="advanced" v-if="false">高级</el-radio>
                         </div>
                         <el-input
                                 v-if="domain.source.sourceType !== 'ip'"
@@ -67,51 +59,51 @@
                     </div>
                     <div class="py-2">
                         <strong>源站测试</strong>
-                        <el-input v-model="domain.source.testURLPath" label="">
-                            <template slot="prepend">&emsp;http(s)://{{domain.source.sourceDomain}}/</template>
-                            <template slot="append">&emsp;<el-button type="info" @click="alert('test')">测试源站
-                            </el-button>&emsp;
-                            </template>
-                        </el-input>
+                        <el-row>
+                            <el-col :span="20">
+                                <el-input v-model="domain.source.testURLPath" label="">
+                                    <template slot="prepend">&emsp;http(s)://{{domain.source.sourceDomain}}/</template>
+                                    <template slot="append">
+                                        <el-button type="info" @click="testSource()">测试源站</el-button>&emsp;
+                                    </template>
+                                </el-input>
+                            </el-col>
+                            <el-col :span="4">
+                                <span v-if="!statusOfSourceConfig.hasCheck" style="color: #F56C6C"></span>
+                                <span v-if="statusOfSourceConfig.hasCheck && statusOfSourceConfig.isOk" style="color: #67C23A">测试成功</span>
+                                <span v-if="statusOfSourceConfig.hasCheck && !statusOfSourceConfig.isOk" style="color: #F56C6C">测试失败</span>
+                            </el-col>
+                        </el-row>
                     </div>
-                </el-col>
-                <el-col :span="10" :offset="3" class="pt-3">
-                    <el-button type="primary" @click="updateSource"
+                    <div>
+                        <el-button type="primary" @click="updateSource" size="small"
+                                   :disabled="editable"
+                        >修改配置</el-button>
+                    </div>
+                </div>
+            </el-form-item>
+            <hr>
+            <el-form-item label="缓存配置">
+                <div>
+                    <strong>基础配置</strong>
+                    <p>定义指定资源内容的缓存过期时间规则。</p>
+                    <el-radio v-model="cacheControls" label="default" border>默认</el-radio>
+                    <el-radio v-model="cacheControls" label="follow" border>遵循源站</el-radio>
+                    <el-radio v-model="cacheControls" label="custom" border :disabled="true">自定义</el-radio>
+                    <p class="tip py-1" v-html="cacheTips[cacheControls]"></p>
+                </div>
+                <div class="py-3">
+                    <p>忽略 URL 参数</p>
+                    <el-switch v-model="domain.cache.ignoreParam">
+                    </el-switch>
+                </div>
+                <div>
+                    <el-button type="primary" @click="updateCache" size="small"
                                :disabled="editable"
-                    >修改配置
-                    </el-button>
-                </el-col>
-            </el-row>
-        </div>
-        <hr>
-            <el-row>
-                <el-col :span="3" class="pl-3">
-                    <strong>缓存配置</strong>
-                </el-col>
-                <el-col :span="21">
-                    <div class="py-2">
-                        <strong>基础配置</strong>
-                        <p>定义指定资源内容的缓存过期时间规则。</p>
-                        <el-radio v-model="cacheControls" label="default" border>默认</el-radio>
-                        <el-radio v-model="cacheControls" label="follow" border>遵循源站</el-radio>
-                        <el-radio v-model="cacheControls" label="custom" border :disabled="true">自定义</el-radio>
-                        <p class="tip py-1" v-html="cacheTips[cacheControls]"></p>
-                    </div>
-                    <div class="py-2">
-                        <p>忽略 URL 参数</p>
-                        <el-switch v-model="domain.cache.ignoreParam">
-                        </el-switch>
-                    </div>
-                </el-col>
-                <el-col :span="10" :offset="3" class="pt-3">
-                    <el-button type="primary"
-                               @click="updateCache"
-                               :disabled="editable"
-                    >修改配置
-                    </el-button>
-                </el-col>
-            </el-row>
-        </div>
+                    >修改配置</el-button>
+                </div>
+            </el-form-item>
+        </el-form>
     </div>
 </template>
 
@@ -125,6 +117,11 @@
     },
     data() {
       return {
+        errMsgForSourceConfig: '',
+        statusOfSourceConfig: {
+          hasCheck: false,
+          isOk: false
+        },
         domain: {},
         cacheTips: {
           default: '默认缓存30天',
@@ -182,12 +179,31 @@
         this.$ajax('/n-api/cdn/domain/' + this.$route.query.domain)
           .then(res => {
             this.domain = res.data;
+//            console.log(res.data);
           })
           .catch(err => alert(err.message + '\n' + '请联系管理员！'))
           .finally(() => {
             // 隐藏loading
             this.$store.commit('cdn/SET_LOADING', false)
           })
+      },
+      getErrMegForSourceConfig() {
+        let source = this.domain.source;
+        if (!source) {
+          return;
+        }
+        let errMsg = '';
+        if (!source.sourceDomain) {
+          errMsg = '源站域名不能为空';
+        }
+        if (!errMsg && !source.sourceDomain) {
+          errMsg = '回源Host不能为空';
+        }
+        if (!errMsg && !source.testURLPath) {
+          errMsg = '测试资源名不能为空';
+        }
+        this.errMsgForSourceConfig = errMsg;
+        return errMsg;
       },
       updateSource() {
         this.$store.commit('cdn/SET_LOADING', true)
@@ -205,6 +221,31 @@
             // 隐藏loading
             this.$store.commit('cdn/SET_LOADING', false)
           })
+      },
+      testSource() {
+        if (this.getErrMegForSourceConfig()) {
+          return;
+        }
+        let source = this.domain.source;
+        this.$net.formatRequest(this.$net.URL_LIST.cdn_fusion_source_check, {
+          params: {domain: 'common'}, payload: {
+            advancedSources: source.advancedSources,
+            protocol: this.domain.protocol,
+            sourceDomain: source.sourceDomain,
+            sourceHost: source.sourceHost,
+            sourceIPs: source.sourceIPs,
+            sourceType: source.sourceType,
+            sourceURLScheme: source.sourceURLScheme,
+            testURLPath: source.testURLPath,
+          }
+        }).then(res => {
+          this.statusOfSourceConfig.hasCheck = true;
+          this.statusOfSourceConfig.isOk = true;
+//          alert('测试通过')
+        }).catch(err => {
+          this.statusOfSourceConfig.hasCheck = true;
+          this.statusOfSourceConfig.isOk = false;
+        });
       },
       updateCache() {
         this.$store.commit('cdn/SET_LOADING', true)
@@ -258,13 +299,36 @@
   }
 </script>
 
+
 <style scoped>
-    hr {
-        box-sizing: content-box;
-        height: 0;
-        overflow: visible;
-        margin: 30px 0;
-        border: none;
-        border-top: 1px solid #e6e9f0;
+</style>
+<style lang="scss">
+    #cdn-edit {
+        hr {
+            box-sizing: content-box;
+            height: 0;
+            overflow: visible;
+            margin: 30px 0;
+            border: none;
+            border-top: 1px solid #e6e9f0;
+        }
+        .el-form {
+            .el-form-item {
+                &.source-config, &.cache-config {
+                    .el-form-item__content {
+                        line-height: 120%;
+                    }
+                }
+            }
+            .el-form-item__label {
+                color: black;
+                font-size: 16px;
+                font-weight: bold;
+                line-height: 120%;
+            }
+            .el-form-item__content {
+                line-height: 120%;
+            }
+        }
     }
 </style>

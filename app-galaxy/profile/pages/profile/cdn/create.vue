@@ -61,48 +61,48 @@
             </el-form-item>
             <hr>
             <el-form-item label="源站配置:" class="source-config" :required="true" :error="errMsgForSourceConfig">
-            <el-row style="max-width: 600px;">
-                <div class="py-2">
-                    <p><strong>基础设置</strong></p>
-                    <!--<p>指定需要加速的资源。填写资源所在的域名或IP，也可以对保存在七牛云存储上的资源创建更多的加速功能。</p>-->
-                    <div class="py-3">
-                        <el-radio v-model="form.source.sourceType" label="domain">源站域名</el-radio>
-                        <el-radio v-model="form.source.sourceType" label="ip" v-if="false">ip 地址</el-radio>
-                        <el-radio v-model="form.source.sourceType" label="advanced" v-if="false">高级</el-radio>
+                <div style="max-width: 600px;">
+                    <div class="py-2">
+                        <p><strong>基础设置</strong></p>
+                        <!--<p>指定需要加速的资源。填写资源所在的域名或IP，也可以对保存在七牛云存储上的资源创建更多的加速功能。</p>-->
+                        <div class="py-3">
+                            <el-radio v-model="form.source.sourceType" label="domain">源站域名</el-radio>
+                            <el-radio v-model="form.source.sourceType" label="ip" v-if="false">ip 地址</el-radio>
+                            <el-radio v-model="form.source.sourceType" label="advanced" v-if="false">高级</el-radio>
+                        </div>
+                        <el-input
+                                v-if="form.source.sourceType !== 'ip'"
+                                v-model="form.source.sourceDomain" label=""></el-input>
+                        <el-input v-if="form.source.sourceType === 'ip'"
+                                  type="textarea"
+                                  :autosize="{ minRows: 2, maxRows: 4}"
+                                  v-model="sourceIps"></el-input
+                        >
                     </div>
-                    <el-input
-                            v-if="form.source.sourceType !== 'ip'"
-                            v-model="form.source.sourceDomain" label=""></el-input>
-                    <el-input v-if="form.source.sourceType === 'ip'"
-                              type="textarea"
-                              :autosize="{ minRows: 2, maxRows: 4}"
-                              v-model="sourceIps"></el-input
-                    >
+                    <div class="py-2">
+                        <strong>回源host</strong>
+                        <p>可选项，默认为加速域名</p>
+                        <el-input v-model="form.source.sourceHost" label=""></el-input>
+                    </div>
+                    <div class="py-2">
+                        <strong>测试网址</strong>
+                        <el-row>
+                            <el-col :span="16">
+                                <el-input v-model="form.source.testURLPath" label="" placeholder="测试资源名">
+                                    <template slot="prepend">&emsp;http(s)://{{form.source.sourceDomain}}/</template>
+                                </el-input>
+                            </el-col>
+                            <el-col :span="4" style="padding: 0px 3px;">
+                                <el-button type="info" @click="testSource">测试源站</el-button>
+                            </el-col>
+                            <el-col :span="4" style="padding-left: 5px; text-align: left; font-size: 14px; line-height: 100%">
+                                <span v-if="!statusOfSourceConfig.hasCheck" style="color: #F56C6C">未测试</span>
+                                <span v-if="statusOfSourceConfig.hasCheck && statusOfSourceConfig.isOk" style="color: #67C23A">测试成功</span>
+                                <span v-if="statusOfSourceConfig.hasCheck && !statusOfSourceConfig.isOk" style="color: #F56C6C">测试失败</span>
+                            </el-col>
+                        </el-row>
+                    </div>
                 </div>
-                <div class="py-2">
-                    <strong>回源host</strong>
-                    <p>可选项，默认为加速域名</p>
-                    <el-input v-model="form.source.sourceHost" label=""></el-input>
-                </div>
-                <div class="py-2">
-                    <strong>测试网址</strong>
-                    <el-row>
-                        <el-col :span="16">
-                            <el-input v-model="form.source.testURLPath" label="" placeholder="测试资源名">
-                                <template slot="prepend">&emsp;http(s)://{{form.source.sourceDomain}}/</template>
-                            </el-input>
-                        </el-col>
-                        <el-col :span="4" style="padding: 0px 3px;">
-                            <el-button type="info" @click="testSource">测试源站</el-button>
-                        </el-col>
-                        <el-col :span="4" style="padding-left: 5px; text-align: left; font-size: 14px; line-height: 100%">
-                            <span v-if="!statusOfSourceConfig.hasCheck" style="color: #F56C6C">未测试</span>
-                            <span v-if="statusOfSourceConfig.hasCheck && statusOfSourceConfig.isOk" style="color: #67C23A">测试成功</span>
-                            <span v-if="statusOfSourceConfig.hasCheck && !statusOfSourceConfig.isOk" style="color: #F56C6C">测试失败</span>
-                        </el-col>
-                    </el-row>
-                </div>
-            </el-row>
             </el-form-item>
             <hr>
             <el-form-item label="缓存配置:" class="cache-config">
@@ -361,16 +361,13 @@
         }
       },
       testSource() {
-        if (this.getErrMsgForDomainName()) {
-          return;
-        }
         if (this.getErrMegForSourceConfig()) {
           return;
         }
         let source = this.form.source;
 
         this.$net.formatRequest(this.$net.URL_LIST.cdn_fusion_source_check, {
-          params: {domain: this.domain}, payload: {
+          params: {domain: 'common'}, payload: {
             advancedSources: source.advancedSources,
             protocol: this.form.protocol,
             sourceDomain: source.sourceDomain,
