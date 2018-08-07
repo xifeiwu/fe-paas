@@ -14,7 +14,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/n-api/': {
-        target: 'http://localhost:7001',
+        target: 'http://127.0.0.1:6002',
         changeOrigin: true,
         logLevel: 'debug',
         pathRewrite: path => path.replace('\/n-api', ''),
