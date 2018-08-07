@@ -197,7 +197,7 @@
           </el-form-item>
         </transition>
         <transition name="more-config">
-          <el-form-item label="端口映射" class="port-map" prop="portMap" v-if="showMoreConfig">
+          <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig" :error="errMsgForPortMap">
             <div class="el-row title">
               <div class="el-col el-col-10">
                 <span>访问端口</span>
@@ -449,6 +449,7 @@
       this.requestImageRelatedInfo();
     },
     mounted() {
+      this.setDebounce();
     },
     data() {
       return {
@@ -522,6 +523,9 @@
         infoForAddService: null,
         showLoading: false,
         loadingText: '',
+
+        errMsgForPortMap: '',
+        debounceCheckPortMap: () => {},
       };
     },
     computed: {
@@ -572,7 +576,10 @@
         }
       },
 
-      'serviceForm.serviceVersion': 'checkVersion'
+      'serviceForm.serviceVersion': 'checkVersion',
+      'serviceForm.portMap.outerPort': function (value) {
+        this.debounceCheckPortMap(value)
+      },
 //      'imageInfoFromNet': {
 //        immediate: true,
 //        handler (info) {
@@ -594,6 +601,9 @@
 //      'imageSelectState.currentPrivateApp': 'requestPrivateImageLocation'
     },
     methods: {
+      setDebounce() {
+        this.debounceCheckPortMap = this.$utils.debounce(this.checkPortMap.bind(this), 1500, false);
+      },
       scrollTop() {
         this.$el.scrollTop = '0px';
       },
@@ -623,6 +633,25 @@
           this.errorMsgForVersion = ''
         }
         return this.errorMsgForVersion === '';
+      },
+      // 检查访问端口是否被占用
+      checkPortMap(port) {
+        this.$net.formatRequest(this.$net.URL_LIST.service_port_map_check, {
+          payload: {
+            appId: this.serviceForm.appId,
+            spaceId: this.serviceForm.spaceId,
+            outerPort: port
+          }
+        }).then(res => {
+          let resData = res.data;
+          if (resData.code === 0) {
+            this.errMsgForPortMap = '';
+          } else {
+            this.errMsgForPortMap = resData.msg;
+          }
+        }).catch(err => {
+          this.errMsgForPortMap = '';
+        });
       },
       // get image related info from network
       requestImageRelatedInfo() {
@@ -793,6 +822,9 @@
             break;
           case 'submit':
             if (!this.checkVersion(this.serviceForm.serviceVersion)) {
+              return;
+            }
+            if (this.errMsgForPortMap) {
               return;
             }
             this.$refs['serviceForm'].validate((valid) => {
