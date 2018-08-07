@@ -20,7 +20,7 @@
             <hr>
             <el-form-item label="覆盖范围:">
                 <el-row>
-                    <el-col :span="10">
+                    <el-col :span="18">
                         <el-radio v-model="form.geoCover" label="china" border>中国大陆</el-radio>
                         <el-radio v-model="form.geoCover" label="foreign" border :disabled="true">海外</el-radio>
                         <el-radio v-model="form.geoCover" label="global" border :disabled="true">全球</el-radio>
@@ -48,19 +48,16 @@
                 </el-row>
             </el-form-item>
             <hr>
-            <el-form-item label="源站配置:" class="source-config">
+            <el-form-item label="源站配置:" class="source-config" :required="true" :error="errMsgForSourceConfig">
             <el-row>
-                <el-col :span="3" class="pl-3">
-                    <strong></strong>
-                </el-col>
-                <el-col :span="11">
+                <el-col :span="16">
                     <div class="py-2">
                         <p><strong>基础设置</strong></p>
                         <!--<p>指定需要加速的资源。填写资源所在的域名或IP，也可以对保存在七牛云存储上的资源创建更多的加速功能。</p>-->
                         <div class="py-3">
                             <el-radio v-model="form.source.sourceType" label="domain">源站域名</el-radio>
-                            <el-radio v-model="form.source.sourceType" label="ip">ip 地址</el-radio>
-                            <el-radio v-model="form.source.sourceType" label="advanced" :disabled="true">高级</el-radio>
+                            <el-radio v-model="form.source.sourceType" label="ip" v-if="false">ip 地址</el-radio>
+                            <el-radio v-model="form.source.sourceType" label="advanced" v-if="false">高级</el-radio>
                         </div>
                         <el-input
                                 v-if="form.source.sourceType !== 'ip'"
@@ -79,13 +76,18 @@
                     <div class="py-2">
                         <strong>测试网址</strong>
                         <el-row>
-                            <el-col :span="19">
-                                <el-input v-model="form.source.testURLPath" label="">
+                            <el-col :span="16">
+                                <el-input v-model="form.source.testURLPath" label="" placeholder="测试资源名">
                                     <template slot="prepend">&emsp;http(s)://{{form.source.sourceDomain}}/</template>
                                 </el-input>
                             </el-col>
-                            <el-col :span="2" :offset="1">
+                            <el-col :span="4" style="padding: 0px 3px;">
                                 <el-button type="info" @click="testSource">测试源站</el-button>
+                            </el-col>
+                            <el-col :span="4" style="text-align: right">
+                                <span v-if="!statusOfSourceConfig.hasCheck" style="color: #F56C6C">未测试</span>
+                                <span v-if="statusOfSourceConfig.hasCheck && statusOfSourceConfig.isOk" style="color: #67C23A">测试成功</span>
+                                <span v-if="statusOfSourceConfig.hasCheck && !statusOfSourceConfig.isOk" style="color: #F56C6C">测试失败</span>
                             </el-col>
                         </el-row>
                     </div>
@@ -135,6 +137,12 @@
 <script>
   export default {
     name: "cdn-create-domain",
+    mounted() {
+//      this.domain = 'a.cdn.finupcloud.com';
+//      this.form.source.sourceDomain = 'www.elif.site';
+//      this.form.source.sourceHost = 'www.elif.site';
+//      this.form.source.testURLPath = 'index.js';
+    },
     data() {
       return {
         rules: {
@@ -163,6 +171,11 @@
           }],
         },
         errMsgForDomainName: '',
+        errMsgForSourceConfig: '',
+        statusOfSourceConfig: {
+          hasCheck: false,
+          isOk: false
+        },
 
         cacheTips: {
           default: '默认缓存30天',
@@ -247,10 +260,36 @@
     },
     methods: {
       testSource() {
-        console.log(this.form);
-        alert('测试通过')
+        if (this.getErrMsgForDomainName()) {
+          return;
+        }
+        if (this.getErrMegForSourceConfig()) {
+          return;
+        }
+        let source = this.form.source;
+
+        this.$net.formatRequest(this.$net.URL_LIST.cdn_fusion_source_check, {
+          params: {domain: this.domain}, payload: {
+            advancedSources: source.advancedSources,
+            protocol: this.form.protocol,
+            sourceDomain: source.sourceDomain,
+            sourceHost: source.sourceHost,
+            sourceIPs: source.sourceIPs,
+            sourceType: source.sourceType,
+            sourceURLScheme: source.sourceURLScheme,
+            testURLPath: source.testURLPath,
+          }
+        }).then(res => {
+          this.statusOfSourceConfig.hasCheck = true;
+          this.statusOfSourceConfig.isOk = true;
+          alert('测试通过')
+        }).catch(err => {
+          this.statusOfSourceConfig.hasCheck = true;
+          this.statusOfSourceConfig.isOk = false;
+        });
       },
-      getErrMsgForDomainName(domain) {
+      getErrMsgForDomainName() {
+        let domain = this.domain;
         let errMsg = '';
         let domainReg = /^([A-Za-z0-9][A-Za-z0-9\-_]*).cdn.finupcloud.com$/;
         if (!domain) {
@@ -264,14 +303,35 @@
         this.errMsgForDomainName = errMsg;
         return errMsg;
       },
+      getErrMegForSourceConfig() {
+        let source = this.form.source;
+        let errMsg = '';
+        if (!source.sourceDomain) {
+          errMsg = '源站域名不能为空';
+        }
+        if (!errMsg && !source.sourceDomain) {
+          errMsg = '回源Host不能为空';
+        }
+        if (!errMsg && !source.testURLPath) {
+          errMsg = '测试资源名不能为空';
+        }
+        this.errMsgForSourceConfig = errMsg;
+        return errMsg;
+      },
       createDomain(formName) {
         // alert('formcall');
         this.$refs[formName].validate((valid) => {
           if (this.getErrMsgForDomainName()) {
             return;
           }
+          if (this.getErrMegForSourceConfig()) {
+            return;
+          }
+          if (!this.statusOfSourceConfig.isOk) {
+            alert('请先测试源站');
+            return;
+          }
           if (!valid) return false;
-          return;
           // 显示loading
           this.$store.commit('etc/SET_LOADING', true);
 

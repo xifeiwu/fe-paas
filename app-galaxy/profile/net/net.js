@@ -39,6 +39,10 @@ class Net extends NetBase {
         path: '/cdn/domain/{domain}',
         method: 'delete'
       },
+      'cdn_fusion_source_check': {
+        path: '/cdn/fusion/domains/{domain}/source/check',
+        method: 'post'
+      }
     };
     Object.keys(CDN_URL_LIST).forEach(key => {
       let item = CDN_URL_LIST[key];

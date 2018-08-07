@@ -175,6 +175,36 @@ class Net {
       duration: 0
     })
   };
+
+  /**
+   * 格式化请求
+   * @param path
+   * @param method
+   * @param options
+   * @returns request in the form of Promise
+   */
+  formatRequest({path, method}, options = {}) {
+    if (!path || !method) {
+      return Promise.reject({
+        title: '参数错误',
+        message: '未设置请求方式'
+      });
+    }
+    let payload = {};
+    if (options.params) {
+      Object.keys(options.params).forEach((key) => {
+        // path = path.replace('{' + key + '}', encodeURIComponent(options.params[key]));
+        path = path.replace('{' + key + '}', options.params[key]);
+      });
+    }
+    if (options.query) {
+      path = path + '?' + querystring.stringify(data.query);
+    }
+    if (options.payload) {
+      payload = options.payload;
+    }
+    return axios[method](path, payload);
+  }
   /**
    *
    * @param path
