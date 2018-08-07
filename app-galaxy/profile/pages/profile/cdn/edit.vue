@@ -22,7 +22,7 @@
                             {{domain.operatingState}}</strong>
                     </div>
                 </el-col>
-                <el-col :span="10" :offset="3" class="pt-3">
+                <el-col :span="16" :offset="3" class="pt-3">
                     <el-tooltip class="item" effect="dark" content="通过DIG命令测试域名状态" placement="top-start">
                         <el-button type="primary" @click="checkDomain">域名测试</el-button>
                     </el-tooltip>
@@ -31,8 +31,8 @@
                     </el-tooltip>
                     <el-button type="danger" @click="updateSource"
                                :disabled="editable"
-                    >停用
-                    </el-button>
+                               v-if="false"
+                    >停用</el-button>
                     <el-button type="success" @click="getDomain">刷新</el-button>
                 </el-col>
             </el-row>
@@ -84,22 +84,21 @@
             </el-row>
         </div>
         <hr>
-        <div>
             <el-row>
                 <el-col :span="3" class="pl-3">
                     <strong>缓存配置</strong>
                 </el-col>
-                <el-col :span="10">
+                <el-col :span="21">
                     <div class="py-2">
                         <strong>基础配置</strong>
                         <p>定义指定资源内容的缓存过期时间规则。</p>
                         <el-radio v-model="cacheControls" label="default" border>默认</el-radio>
                         <el-radio v-model="cacheControls" label="follow" border>遵循源站</el-radio>
-                        <el-radio v-model="cacheControls" label="custom" border>自定义</el-radio>
+                        <el-radio v-model="cacheControls" label="custom" border :disabled="true">自定义</el-radio>
+                        <p class="tip py-1" v-html="cacheTips[cacheControls]"></p>
                     </div>
                     <div class="py-2">
                         <p>忽略 URL 参数</p>
-
                         <el-switch v-model="domain.cache.ignoreParam">
                         </el-switch>
                     </div>
@@ -126,7 +125,20 @@
     },
     data() {
       return {
-        domain: {}
+        domain: {},
+        cacheTips: {
+          default: '默认缓存30天',
+          follow: '缓存时间将跟源站同步',
+          custom: `
+<li>后缀，必须以「.」(英文点)开始，多个后缀请用「;」(英文分号)隔开，例如(.png;.jpg;.gif)；</li>
+<li> 路径，必须以「/」(英文斜杠)开始，多个路径请用「;」(英文分号)隔开，例如: (/a/b/c;/d/e/f;/h/i/j) ，路径中不能包含「.」，也不能以「/」结尾；</li>
+<li>缓存规则最多15条；</li>
+<li>1条缓存规则中，最多10个后缀/路径，「;」(英文分号)隔开；</li>
+<li>时间单位：分/小时/天，只能输入整数，最大值为 365 天；</li>
+<li>0 代表不缓存；</li>
+<li>按从上至下顺序，采取优先匹配原则。</li>
+          `
+        },
       }
     },
     computed: {
