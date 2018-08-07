@@ -75,13 +75,13 @@
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item label="健康检查/延迟时间" prop="healthCheck">
+      <el-form-item :label="false ? '健康检查/延迟时间' : '健康检查'" prop="healthCheck">
         <el-row>
           <el-col :span="17">
             <el-input v-model="createAppForm.healthCheck" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-50个字符"></el-input>
           </el-col>
-          <el-col :span="1" style="text-align: center">/</el-col>
-          <el-col :span="6">
+          <el-col :span="1" style="text-align: center" v-if="false">/</el-col>
+          <el-col :span="6" v-if="false">
             <el-input-number v-model="createAppForm.initialDelaySeconds" :min="30" :max="1800" label="延迟时间"></el-input-number>
           </el-col>
         </el-row>

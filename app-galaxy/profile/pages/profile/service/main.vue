@@ -399,7 +399,7 @@
             </el-col>
             <el-col :span="1" style="text-align: center">/</el-col>
             <el-col :span="6">
-              <el-input-number v-model="newProps.initialDelaySeconds" :min="30" :max="1800" label="延迟时间"></el-input-number>
+              <el-input-number v-model="newProps.initialDelaySeconds" :min="30" :max="1800" label="延迟时间" disabled></el-input-number>
             </el-col>
           </el-row>
         </el-form-item>

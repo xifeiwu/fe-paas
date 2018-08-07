@@ -87,8 +87,7 @@
         >
           <el-input v-model="serviceForm.vmOptions" placeholder="不能包含中文，不能超过512个字符"></el-input>
         </el-form-item>
-        <el-form-item label="应用监控" prop="appMonitor" class="app-monitor"
-        >
+        <el-form-item label="应用监控" prop="appMonitor" class="app-monitor" v-if="false">
           <el-radio-group v-model="serviceForm.appMonitor" size="mini" v-if="appPropUtil">
             <el-radio v-for="item in appPropUtil.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
           </el-radio-group>
@@ -197,7 +196,7 @@
           </el-form-item>
         </transition>
         <transition name="more-config">
-          <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig" :error="errMsgForPortMap">
+          <el-form-item label="端口映射" class="port-map" v-if="false && showMoreConfig" :error="errMsgForPortMap">
             <div class="el-row title">
               <div class="el-col el-col-10">
                 <span>访问端口</span>
