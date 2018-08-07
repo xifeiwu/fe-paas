@@ -84,7 +84,7 @@
                       round
                       @click="handleRowButtonClick('show-console-log', scope.$index, scope.row)"
                       size="mini-extral"
-                      v-if="!$storeHelper.notPermitted['show-console-log']"
+                      v-if="!$storeHelper.notPermitted['show-console-log'] && false"
                       type="primary">
                 <span>查看console日志</span>
               </el-button>
