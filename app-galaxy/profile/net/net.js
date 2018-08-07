@@ -26,6 +26,16 @@ class Net extends NetBase {
     this.requestingState = {
       getAPPList: false,
     };
+    const PAAS_URL_LIST = {
+      'service_port_map_check': {
+        path: '/service/checkPortMapping',
+        method: 'post'
+      }
+    };
+    Object.keys(PAAS_URL_LIST).forEach(key => {
+      let item = PAAS_URL_LIST[key];
+      item.path = this.PAAS_PREFIX + item.path;
+    });
     const CDN_URL_LIST = {
       'cdn_domain_create': {
         path: '/cdn/domain/create/{domain}',
@@ -61,7 +71,7 @@ class Net extends NetBase {
       let item = CDN_URL_LIST[key];
       item.path = this.CDN_PREFIX + item.path;
     });
-    this.URL_LIST = Object.assign(CDN_URL_LIST);
+    this.URL_LIST = Object.assign(PAAS_URL_LIST, CDN_URL_LIST);
   }
 
   // called at config/vue

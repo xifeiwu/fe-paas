@@ -6,6 +6,7 @@ class Net {
     // this.DOMAIN_PATH_PREFIX = '/n-api/domain';
     this.CDN_PREFIX = '/n-api';
     this.DNS_PREFIX = '/n-api';
+    this.PAAS_PREFIX = '/j-api/paas';
   }
   setVue(Vue) {
   }
