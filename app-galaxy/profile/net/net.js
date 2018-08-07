@@ -27,6 +27,10 @@ class Net extends NetBase {
       getAPPList: false,
     };
     const CDN_URL_LIST = {
+      'cdn_domain_create': {
+        path: '/cdn/domain/create/{domain}',
+        method: 'post'
+      },
       'cdn_domain_offline': {
         path: '/cdn/domain/{domain}/offline',
         method: 'post'

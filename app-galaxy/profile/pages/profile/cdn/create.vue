@@ -127,7 +127,7 @@
             <el-row class="py-4">
                 <el-col :span="10" :offset="3">
                     <el-button type="primary" @click="createDomain('createForm')">提交</el-button>
-                    <el-button type="primary">重置</el-button>
+                    <!--<el-button type="primary">重置</el-button>-->
                 </el-col>
             </el-row>
         </el-form>
@@ -282,7 +282,7 @@
         }).then(res => {
           this.statusOfSourceConfig.hasCheck = true;
           this.statusOfSourceConfig.isOk = true;
-          alert('测试通过')
+//          alert('测试通过')
         }).catch(err => {
           this.statusOfSourceConfig.hasCheck = true;
           this.statusOfSourceConfig.isOk = false;
@@ -328,24 +328,29 @@
             return;
           }
           if (!this.statusOfSourceConfig.isOk) {
-            alert('请先测试源站');
+            this.$message.warning('请先测试源站');
             return;
           }
           if (!valid) return false;
           // 显示loading
           this.$store.commit('etc/SET_LOADING', true);
 
-          this.$ajax
-            .post('/n-api/cdn/domain/create/' + this.domain, this.form)
-            .then(res => {
-              if (!res.data.hasOwnProperty('code')) return this.$alert(res.data.msg);
+          this.$net.formatRequest(this.$net.URL_LIST.cdn_domain_create, {
+            params: {domain: this.domain}, payload: this.form
+          }).then(res => {
+            let resData = res.data;
+            if (resData.hasOwnProperty('code') && resData.hasOwnProperty('error')) {
+              this.$message.error(`${resData.code}: ${resData.error}`);
               this.$router.push({path: '/cdn/list'})
+            }
+          }).catch(err => {
+            this.$net.showError({
+              title: '请求错误',
+              message: err.toString()
             })
-            .catch(err => alert(err.message + '\n' + '请联系管理员！'))
-            .finally(() => {
-              // 隐藏loading
-              this.$store.commit('etc/SET_LOADING', false)
-            })
+          }).finally(() => {
+            this.$store.commit('etc/SET_LOADING', false)
+          });
         })
       },
     }

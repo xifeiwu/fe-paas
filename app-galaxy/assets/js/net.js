@@ -166,7 +166,6 @@ class Net {
     return result;
   }
 
-
   showError (err) {
     let title = `${err.title}! ${err.hasOwnProperty('code') ? err.code : ''}`;
     Vue.prototype.$notify.error({
