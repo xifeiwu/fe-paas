@@ -716,7 +716,7 @@
         <i class="el-icon-warning"></i>
         <span>更改VM_Options后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeVmOptionsForm" size="mini">
+      <el-form :model="newProps" :rules="rules" labelWidth="180px" ref="changeVmOptionsForm" size="mini">
         <el-form-item label="当前VM_Options：">
           <div class="expand-to-next-line">{{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}</div>
         </el-form-item>

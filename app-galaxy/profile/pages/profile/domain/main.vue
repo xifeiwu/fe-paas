@@ -1174,24 +1174,19 @@
               return;
             }
             this.addToWaitingResponseQueue(action);
-            this.$net.domainSecureCheck({
-              id: this.selected.row.id,
-              status: this.secureCheckProps.passed ? 'EFFECTIVE' : 'NOT_EFFECTIVE',
-              reason: this.secureCheckProps.reason
+            this.$net.requestPaasServer(this.$net.URL_LIST.domain_secure_check, {
+              payload: {
+                id: this.selected.row.id,
+                status: this.secureCheckProps.passed ? 'EFFECTIVE' : 'NOT_EFFECTIVE',
+                reason: this.secureCheckProps.reason
+              }
             }).then(() => {
-              this.hideWaitingResponse(action);
-              this.selected.action = null;
               this.$message.success('提交成功');
               this.requestDomainList();
             }).catch(err => {
+            }).finally(() => {
               this.hideWaitingResponse(action);
               this.selected.action = null;
-              this.$notify.error({
-                title: err.title,
-                message: err.msg,
-                duration: 0,
-                onClose: function() {}
-              })
             });
             break;
           case 're-secure-check':

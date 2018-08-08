@@ -168,7 +168,7 @@ class Net {
   }
 
   showError (err) {
-    let title = `${err.title}! ${err.hasOwnProperty('code') ? err.code : ''}`;
+    const title = `${err.title}!`;
     Vue.prototype.$notify.error({
       title,
       message: err.message,
@@ -253,6 +253,7 @@ class Net {
           this.showError(error);
           reject(error);
         } else {
+          path = path.replace(this.PAAS_PREFIX, '');
           let err = {
             title: '网络请求错误',
             message: `请求路径：${path}，${error.toString()}`

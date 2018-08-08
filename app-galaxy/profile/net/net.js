@@ -30,7 +30,11 @@ class Net extends NetBase {
       'service_port_map_check': {
         path: '/service/checkPortMapping',
         method: 'post'
-      }
+      },
+      'domain_secure_check': {
+        path: '/domain/record/status/update',
+        method: 'post'
+      },
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];
@@ -1130,27 +1134,6 @@ class Net extends NetBase {
         reject({
           title: '网络请求错误',
           msg: `请求路径：${URL_LIST.domain_add.path}；${err.toString()}`
-        });
-      })
-    })
-  }
-  domainSecureCheck(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.domain_secure_check.url, options).then(response => {
-        let resContent = this.getResponseContent2(response);
-        if (resContent) {
-          resolve();
-        } else {
-          let resMsg = this.getResponseMsg2(response, {
-            successMsg: '',
-            errorMsg: '提交安全审核失败！'
-          });
-          reject(resMsg);
-        }
-      }).catch(err => {
-        reject({
-          title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.domain_secure_check.path}；${err.toString()}`
         });
       })
     })
