@@ -339,7 +339,7 @@
         <i class="el-icon-warning"></i>
         <span>如需更换团队，请在页面右上角选择我的团队</span>
       </el-tag>
-      <el-form labelWidth="140px" inline size="mini" >
+      <el-form labelWidth="140px" size="mini" class="message-show">
         <el-form-item label="我的团队" v-if="groupInfo">
           {{groupInfo.name}}
         </el-form-item>
