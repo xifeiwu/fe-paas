@@ -200,10 +200,8 @@
     removeResizeListener
   } from "element-ui/src/utils/resize-event";
   import paasDialogForLog from "../components/dialog4log.vue";
-  import commonUtils from '$components/mixins/common-utils';
 
   export default {
-    mixins: [commonUtils],
     components: { MyVersionSelector, paasDialogForLog },
 
     /**
@@ -246,6 +244,15 @@
         localConfig: null,
         showLoading: false,
         queueForWaitingResponse: [],
+        //        instanceStatus.instanceList: [{
+        //          createTime: '2018-01-11 20:39:09',
+        //          health: null,
+        //          instanceName: 'v3-puhui-notification-3270010048-3xp1s',
+        //          intranetIP:null,
+        //          message:null,
+        //          status:'运行中',
+        //          version: 'puhui-notification:2018-01-11-20-38-12'
+        //        }],
         instanceStatus: {
           instanceCount: null,
           instanceList: []
@@ -271,6 +278,16 @@
     },
     watch: {},
     methods: {
+      // helper for loading action of el-button
+      addToWaitingResponseQueue(action) {
+        if (this.queueForWaitingResponse.indexOf(action) === -1) {
+          this.queueForWaitingResponse.push(action);
+        }
+      },
+      statusOfWaitingResponse(action) {
+        return this.queueForWaitingResponse.indexOf(action) > -1;
+      },
+
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
         //        console.log(appInfo, profileInfo, serviceInfo);
         this.instanceStatus.instanceList = [];
