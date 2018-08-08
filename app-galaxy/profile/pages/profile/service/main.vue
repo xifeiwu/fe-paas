@@ -210,8 +210,8 @@
                   </el-form-item>
                   <el-form-item label="健康检查">
                     <span>{{valueToShow(selected.service.healthCheck)}}</span>
-                    <span style="font-weight: bold; margin-left: 12px">延迟时间</span>
-                    <span>{{selected.service.initialDelaySeconds}}秒</span>
+                    <span style="font-weight: bold; margin-left: 12px" v-if="showInitialDelay">延迟时间</span>
+                    <span v-if="showInitialDelay">{{selected.service.initialDelaySeconds}}秒</span>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
@@ -381,24 +381,24 @@
         <span>更改健康检查后需要重新【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" size="mini" labelWidth="170px" ref="changeHealthCheckForm">
-        <el-form-item label="当前健康检查/延迟时间：" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+        <el-form-item :label="showInitialDelay?'当前健康检查/延迟时间：':'当前健康检查'" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
           <el-row>
             <el-col :span="17">
               <div class="expand-to-next-line">{{selected.model.healthCheck}}</div>
             </el-col>
-            <el-col :span="1" style="text-align: center">/</el-col>
-            <el-col :span="6">
+            <el-col :span="1" style="text-align: center" v-if="showInitialDelay">/</el-col>
+            <el-col :span="6" v-if="showInitialDelay">
               <div>{{selected.model.initialDelaySeconds}}</div>
             </el-col>
           </el-row>
         </el-form-item>
-        <el-form-item label="健康检查/延迟时间：" prop="healthCheck" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
+        <el-form-item :label="showInitialDelay?'健康检查/延迟时间：':'健康检查'" prop="healthCheck" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
           <el-row>
             <el-col :span="17">
               <el-input v-model="newProps.healthCheck" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-50个字符"></el-input>
             </el-col>
-            <el-col :span="1" style="text-align: center">/</el-col>
-            <el-col :span="6">
+            <el-col :span="1" style="text-align: center" v-if="showInitialDelay">/</el-col>
+            <el-col :span="6" v-if="showInitialDelay">
               <el-input-number v-model="newProps.initialDelaySeconds" :min="30" :max="1800" label="延迟时间" disabled></el-input-number>
             </el-col>
           </el-row>
@@ -1262,6 +1262,7 @@ export default {
   },
   data() {
     return {
+      showInitialDelay: false,
       serviceListNode: null,
       resizeListenerForServiceList: () => {},
       heightOfServiceList: '',
