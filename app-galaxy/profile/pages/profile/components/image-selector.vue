@@ -133,8 +133,11 @@
         }
         this.infoForAddService = infoForAddService;
         this.imageSelectState.customImage = imageInfo.customImage;
-        this.imageSelectState.customImageValue = null;
-        this.imageSelectState.autoImageValue = null;
+        if (imageInfo.customImage) {
+          this.imageSelectState.customImageValue = imageInfo.imageLocation;
+        } else {
+          this.imageSelectState.autoImageValue = imageInfo.imageLocation;
+        }
         this.requestImageRelatedInfo();
       },
 

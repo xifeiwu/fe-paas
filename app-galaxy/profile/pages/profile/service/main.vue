@@ -433,19 +433,17 @@
       <el-row>
         更改镜像方式为：
       </el-row>
-      <my-image-selector ref="changeImageForm"></my-image-selector>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleDialogButtonClick('image')"
-                       :loading="waitingResponse">保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button action="profile-dialog/cancel"
-                       @click="selected.prop = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+      <paas-image-selector ref="changeImageForm"></paas-image-selector>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleDialogButtonClick('image')"
+                     :loading="waitingResponse">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="selected.prop = null">取&nbsp消</el-button>
+        </div>
       </div>
     </el-dialog>
 
@@ -1208,10 +1206,10 @@
 <script>
   import appPropUtils from '../utils/app-props';
   import paasDialogForLog from '../components/dialog4log.vue'
-  import MyImageSelector from '../components/image-selector.vue'
+  import paasImageSelector from '../components/image-selector.vue'
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 export default {
-  components: {paasDialogForLog, MyImageSelector},
+  components: {paasDialogForLog, paasImageSelector},
   created() {
   },
   mounted() {
@@ -1959,7 +1957,10 @@ export default {
           // pass parameter to component image-selector.vue
           let infoForAddService = this.getInfoForAddService();
           if (infoForAddService.success) {
-            this.$refs[formName].init(infoForAddService.content, this.newProps);
+            this.$refs[formName].init(infoForAddService.content, {
+              customImage: this.newProps.customImage,
+              imageLocation: this.newProps.imageLocation
+            });
           } else {
             this.$message.error(infoForAddService.message);
             this.selected.prop = null;
