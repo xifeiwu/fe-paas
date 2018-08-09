@@ -80,7 +80,7 @@
       <el-table
         :data="currentServiceList"
         stripe
-        :height="heightOfServiceList"
+        :height="heightOfTable"
         :row-key="getRowKeys"
         :expand-row-keys="expandRows"
         v-loading="showLoading"
@@ -183,7 +183,7 @@
             <div class="row-expand">
               <div class="app-info">
                 <div class="title">应用信息</div>
-                <el-form label-position="right" label-width="140px" inline size="mini">
+                <el-form label-position="right" label-width="140px" inline size="mini" class="message-show">
                   <el-form-item label="项目名称" class="big">
                     {{valueToShow(selected.service.tag)}}
                   </el-form-item>
@@ -219,7 +219,7 @@
               </div>
               <div class="image-info">
                 <div class="title">镜像信息</div>
-                <el-form label-position="right" label-width="200px" size="mini">
+                <el-form label-position="right" label-width="200px" size="mini" class="message-show">
                   <el-form-item label="镜像方式">
                     <span>{{valueToShow(selected.service.image.typeName)}}</span>
                     <span style="padding-left: 12px; font-weight: bold">基础镜像地址</span>
@@ -257,7 +257,7 @@
               </div>
               <div class="instance-info">
                 <div class="title">服务信息</div>
-                <el-form label-position="right" label-width="140px" inline size="mini">
+                <el-form label-position="right" label-width="140px" inline size="mini" class="message-show">
                   <el-form-item label="CPU/内存">
                     <span>{{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}</span>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
@@ -1166,7 +1166,6 @@
     }
 
     .service-list {
-      height: calc(100% - 120px);
       .el-table {
         .el-table__row {
           .el-button {
@@ -1228,19 +1227,15 @@ export default {
     }
 
     // adjust the height of el-table in the area service-list
-    try {
-      this.serviceListNode = this.$el.querySelector('.service-list');
-      this.heightOfServiceList = this.serviceListNode.clientHeight - 20;
-      this.resizeListenerForServiceList = (evt) => {
-        let target = evt.target;
-        this.heightOfServiceList = target.clientHeight - 20;
-      };
-      addResizeListener(this.serviceListNode, this.resizeListenerForServiceList)
-    } catch(err) {
-    }
+    let headerNode = this.$el.querySelector(':scope > .header');
+    this.resizeListener = () => {
+      let headerHeight = headerNode.offsetHeight;
+      this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+    };
+    addResizeListener(this.$el, this.resizeListener)
   },
   beforeDestroy() {
-    removeResizeListener(this.serviceListNode, this.resizeListenerForServiceList);
+    removeResizeListener(this.$el, this.resizeListener);
   },
   computed: {
     appInfoListOfGroup() {
@@ -1261,9 +1256,8 @@ export default {
   data() {
     return {
       showInitialDelay: false,
-      serviceListNode: null,
       resizeListenerForServiceList: () => {},
-      heightOfServiceList: '',
+      heightOfTable: '',
 
       appList: [],
 //      totalSize: 0,
