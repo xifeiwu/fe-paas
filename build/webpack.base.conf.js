@@ -30,7 +30,7 @@ const chunksAndTemplates = (() => {
   let entries = {
     'index': path.resolve(vueBaseDir, 'app-galaxy/index.js'),
     'docs': path.resolve(vueBaseDir, 'app-galaxy/docs.js'),
-    'login': path.resolve(vueBaseDir, 'app-galaxy/login.js'),
+    'login': path.resolve(vueBaseDir, 'app-galaxy/login/entry.js'),
     'profile': path.resolve(vueBaseDir, 'app-galaxy/profile.js'),
     'user': path.resolve(vueBaseDir, 'app-galaxy/user.js'),
     'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),

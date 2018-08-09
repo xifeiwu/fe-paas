@@ -486,6 +486,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
             if (menuList) {
 //              this.$storeHelper.setUserInfo('menuList', menuList);
               this.$storeHelper.menuList = menuList;
+              this.$store.dispatch('menuList', menuList);
             }
 //            if (notPermitted) {
 //              this.$storeHelper.setPermission({'profile': notPermitted});

@@ -10,14 +10,21 @@
               @close="handleClose"
               @select="handleAsideMenuSelect"
               :defaultOpeneds="['app_menu']"
+              :collapse="false"
               :defaultActive="activeSideMenuItem">
-        <!--<el-menu-item index="app_manager">-->
-        <!--<i class="el-icon-location"></i>-->
-        <!--<span>应用管理</span>-->
-        <!--</el-menu-item>-->
         <el-menu-item v-for="menu in menuList" :key="menu.name" :index="menu.router">
           <i :class="menu.icon"></i><span>{{menu.name}}</span>
         </el-menu-item>
+        <!--<el-submenu v-for="menu in menuList2.level2" :key="menu.id" :index="menu.url || menu.name">-->
+          <!--<template slot="title">-->
+            <!--<i v-if="menu.icon" :class="menu.icon"></i>-->
+            <!--<span>{{menu.name}}</span>-->
+          <!--</template>-->
+          <!--<el-menu-item v-for="subMenu in menu.children" :key="subMenu.id" :index="subMenu.url || subMenu.name">-->
+            <!--<i v-if="subMenu.icon" :class="subMenu.icon"></i>-->
+            <!--<span>{{subMenu.name}}</span>-->
+          <!--</el-menu-item>-->
+        <!--</el-submenu>-->
       </el-menu>
     </aside>
     <main>
