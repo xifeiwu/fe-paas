@@ -22,6 +22,9 @@ export default new Vuex.Store({
       if (!userInfo) {
         state.userInfo = {};
       } else {
+        if (!state.userInfo) {
+          state.userInfo = {};
+        }
         for (let key in userInfo) {
           // localStorage will not update if code run in the following way
           // state.info[key] = userInfo[key];

@@ -122,7 +122,11 @@ export default class StoreHelper {
   }
   // TODO: for compatible
   getUserInfo(key) {
-    return this.userInfo[key];
+    let value = null;
+    if (this.userInfo) {
+      value = this.userInfo[key];
+    }
+    return value;
   }
 
   set dataTransfer(data) {

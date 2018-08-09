@@ -1,6 +1,7 @@
 /**
  * Created by xifei.wu on 2017/12/5.
  */
+import Vue from 'vue';
 import axios from 'axios';
 import {URL_LIST} from './url';
 import appInfoHelper from '../pages/profile/utils/app-props';
@@ -20,7 +21,6 @@ function permission(target, name, descriptor) {
 class Net extends NetBase {
   constructor() {
     super();
-    this.SHOW_LOG = true;
     this.$utils = null;
     this.$storeHelper = null;
     this.requestingState = {

@@ -8,8 +8,9 @@ class Net {
     this.DNS_PREFIX = '/n-api';
     this.PAAS_PREFIX = '/j-api/paas';
   }
-  setVue(Vue) {
-  }
+  // some function of Vue.prototype may be used in net.js
+  setVue() {}
+
   /**
    * get content from response
    * 1. if response if error, return null

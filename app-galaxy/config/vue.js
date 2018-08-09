@@ -3,8 +3,9 @@
  */
 
 import Vue from 'vue';
-import Utils from '$assets/js/utils';
 import axios from 'axios';
+import './axios-config';
+import Utils from '$assets/js/utils';
 
 import 'assets/css/fix-style.scss';
 import '$assets/css/common.scss';
@@ -23,9 +24,8 @@ import '$assets/css/common.scss';
  * 1. NetConfig for axios
  */
 class VUEConfig {
-  constructor({URL_LIST, netHelper, storeHelper, NetConfig}) {
+  constructor({URL_LIST, netHelper, storeHelper}) {
     this.addPrototype({URL_LIST, storeHelper, netHelper});
-    this.setConfig({NetConfig});
   }
 
   addMixin(Vue){
@@ -54,12 +54,6 @@ class VUEConfig {
       // $storeHelper and $utils in Vue.prototype will be used in NetData
       netHelper.setVue(Vue);
       Vue.prototype.$net = netHelper;
-    }
-  }
-
-  setConfig({NetConfig}) {
-    if (NetConfig) {
-      new NetConfig(Vue);
     }
   }
 }

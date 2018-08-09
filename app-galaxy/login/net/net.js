@@ -1,18 +1,36 @@
 /**
  * Created by xifei.wu on 2017/12/5.
  */
+import Vue from 'vue';
 import axios from 'axios';
-import {URL_LIST} from './url';
 import NetBase from '$assets/js/net';
-var debug = browserDebug('pass-fe:net');
+// var debug = browserDebug('pass-fe:net');
 
 class Net extends NetBase {
   constructor() {
     super();
-  }
-
-  setVue(Vue) {
-    this.$utils = Vue.prototype.$utils;
+    const PAAS_URL_LIST = {
+      // 获取验证码
+      'get_verify_code': {
+        path: '/createRandomImage',
+        method: 'get'
+      },
+      // 登录
+      'login': {
+        path: '/login',
+        method: 'post'
+      },
+      // 用户退出
+      'logout': {
+        path: '/userLogout',
+        method: 'get'
+      }
+    };
+    Object.keys(PAAS_URL_LIST).forEach(key => {
+      let item = PAAS_URL_LIST[key];
+      item.path = this.PAAS_PREFIX + item.path;
+    });
+    this.URL_LIST = Object.assign(PAAS_URL_LIST);
   }
 
   parseLoginResponse (content) {
@@ -151,29 +169,9 @@ class Net extends NetBase {
     };
   }
 
-  login(data) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.login, data).then(response => {
-        let content = this.getResponseContent(response);
-        if (content) {
-          resolve(this.parseLoginResponse(content));
-        } else {
-          let responseMsg = this.getResponseMsg(response);
-          reject(responseMsg);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject({
-          title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.login}；${err.toString()}`
-        });
-      })
-    });
-  }
-
   logout() {
     return new Promise((resolve, reject) => {
-      axios.get(URL_LIST.logout).then(res => {
+      axios.get(this.URL_LIST.logout.path).then(res => {
         if ('data' in res) {
           let data = res.data;
           if (0 === data.code) {

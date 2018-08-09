@@ -68,9 +68,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
           <el-form-item class="login-interval-item">
             <el-checkbox v-model="freeLogin15Days"
                          label="without_login"
-                         name="without_login"
-                         @change="freeLoginStateChange">15天免登录
-            </el-checkbox>
+                         name="without_login">15天免登录</el-checkbox>
           </el-form-item>
           <el-form-item class="login-button-item">
             <el-button type="primary" class="login-btn" @click="onSubmit">登&nbsp&nbsp&nbsp&nbsp录</el-button>
@@ -421,11 +419,8 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
             break;
           case keyCode.ENTER:
             // if keydown event of enter is trigger on the last input, the form will be submitted.
-            let lastInputIndex = 2;
-            let submitButtonIndex = 4;
-//            if (lastInputIndex === this.focusIndex) {
-              this.focusableElesInForm[submitButtonIndex].click();
-//            }
+            const submitButtonIndex = 4;
+            this.focusableElesInForm[submitButtonIndex].click();
             break;
         }
         this.focusIndex = this.focusIndex < 0 ? 0 : this.focusIndex;
@@ -439,23 +434,6 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
             this.focusIndex = index;
           }
         });
-      },
-      freeLoginStateChange: function (value, evt) {
-      },
-      updateVerifyCode() {
-        let verifyImageURL = this.$url.get_verify_code + '?t=' + new Date().getTime();
-          this.$ajax.get(verifyImageURL, {
-            responseType: 'arraybuffer',
-            timeout: 6000
-          }).then(response => {
-            let base64 = new Buffer(response.data, 'binary').toString('base64');
-            let mimeType = response.headers['content-type'];
-            this.verifyImageData = "data:" + mimeType + ";base64," + base64;
-            this.form.verificationCode = response.headers['verification-code'];
-          }).catch(err => {
-            this.showError('获取验证码失败，请检查网络是否正常连接。', false);
-            console.log(err);
-          });
       },
 
       pageJump() {
@@ -471,37 +449,56 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       // on click of login button
       onSubmit() {
         if (this.checkData()) {
-          let data = {
+          let payload = {
             username: this.form.userName,
             password: this.form.password,
             randomCode: this.form.verifyCode,
             verificationCode: this.form.verificationCode,
             freeLogin: this.freeLogin15Days,
           };
-//          console.log(objToPost);
-          this.showLoading = true;
-          this.$net.login(data).then(({userInfo, menuList, notPermitted}) => {
-            this.showLoading = false;
 
-            if (menuList) {
-              this.$store.dispatch('addMenuList', menuList);
-            }
-//            if (notPermitted) {
-//              this.$storeHelper.setPermission({'profile': notPermitted});
-//            }
-            if (userInfo) {
-              this.$store.dispatch('updateUserInfo', {
-                userName: userInfo.username,
-                realName: userInfo.realName,
-                role: userInfo.role,
-                token: userInfo.token
+          this.showLoading = true;
+          this.$net.formatRequest(this.$net.URL_LIST.login, {
+            payload
+          }).then(response => {
+            let content = this.$net.getResponseContent(response);
+            if (content) {
+              const {userInfo, menuList, notPermitted} = this.$net.parseLoginResponse(content);
+              if (menuList) {
+                this.$store.dispatch('addMenuList', menuList);
+              }
+//              if (notPermitted) {
+//                this.$storeHelper.setPermission({'profile': notPermitted});
+//              }
+              if (!userInfo.hasOwnProperty('token')) {
+                userInfo.token = response.headers.token;
+              }
+              if (userInfo) {
+                this.$store.dispatch('updateUserInfo', {
+                  userName: userInfo.username,
+                  realName: userInfo.realName,
+                  role: userInfo.role,
+                  token: userInfo.token
+                });
+              }
+              if (userInfo.token) {
+                this.pageJump();
+              }
+            } else {
+              let resMsgObj = this.$net.getResponseMsg(response, {
+                errorMsg: '登录失败'
               });
-              this.pageJump();
+              throw new Error(resMsgObj.msg);
             }
           }).catch(err => {
             if (err.hasOwnProperty('msg')) {
+              // status err
               this.showError(err.msg, true);
+            } else {
+              // network error
+              this.showError(err.message, true);
             }
+          }).finally(() => {
             this.showLoading = false;
           });
         }
@@ -519,6 +516,21 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
           this.form.verifyCode = '';
           this.updateVerifyCode();
         }
+      },
+      updateVerifyCode() {
+        let verifyImageURL = this.$net.URL_LIST.get_verify_code.path + '?t=' + new Date().getTime();
+        this.$ajax.get(verifyImageURL, {
+          responseType: 'arraybuffer',
+          timeout: 6000
+        }).then(response => {
+          let base64 = new Buffer(response.data, 'binary').toString('base64');
+          let mimeType = response.headers['content-type'];
+          this.verifyImageData = "data:" + mimeType + ";base64," + base64;
+          this.form.verificationCode = response.headers['verification-code'];
+        }).catch(err => {
+          this.showError('获取验证码失败，请检查网络是否正常连接。', false);
+          console.log(err);
+        });
       },
 
       // check data before submit

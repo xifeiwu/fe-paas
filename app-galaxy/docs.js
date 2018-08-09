@@ -2,13 +2,11 @@ import Vue from 'vue';
 
 import {URL_LIST} from './docs/net/url';
 import netHelper from './docs/net/net';
-import NetConfig from './config/network';
 
 import VueConfig from './config/vue';
 new VueConfig({
   URL_LIST,
   netHelper,
-  NetConfig
 });
 
 import 'assets/css/markdown.scss';

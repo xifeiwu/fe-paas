@@ -13,7 +13,6 @@ import StoreHelper from './profile/store/store-helper';
 
 import {URL_LIST} from './profile/net/url';
 import netHelper from './profile/net/net';
-import NetConfig from './config/network';
 
 import VueConfig from './config/vue';
 
@@ -21,7 +20,6 @@ new VueConfig({
   URL_LIST,
   netHelper,
   storeHelper: new StoreHelper(Store),
-  NetConfig
 });
 
 import routerConfig from './profile/pages/router';

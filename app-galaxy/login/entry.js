@@ -3,16 +3,12 @@ import Vue from 'vue';
 import store from './store';
 import StoreHelper from './store/helper';
 
-import {URL_LIST} from './net/url';
 import netHelper from './net/net';
-import NetConfig from '../config/network';
 
 import VueConfig from '../config/vue';
 new VueConfig({
-  URL_LIST,
   netHelper,
   storeHelper: new StoreHelper(store),
-  NetConfig,
 });
 
 import APP from './login.vue';

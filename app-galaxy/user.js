@@ -5,14 +5,12 @@ import StoreHelper from './user/store/store-helper';
 
 import {URL_LIST} from './user/net/url';
 import netHelper from './user/net/net';
-import NetConfig from './config/network';
 
 import VueConfig from './config/vue';
 new VueConfig({
   URL_LIST,
   netHelper,
   storeHelper: new StoreHelper(Store),
-  NetConfig,
 });
 
 import '$assets/css/fonts/paas-icon.css';
