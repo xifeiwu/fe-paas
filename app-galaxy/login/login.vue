@@ -484,26 +484,18 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
             this.showLoading = false;
 
             if (menuList) {
-//              this.$storeHelper.setUserInfo('menuList', menuList);
-              this.$storeHelper.menuList = menuList;
-              this.$store.dispatch('menuList', menuList);
+              this.$store.dispatch('addMenuList', menuList);
             }
 //            if (notPermitted) {
 //              this.$storeHelper.setPermission({'profile': notPermitted});
 //            }
             if (userInfo) {
-              if (userInfo.hasOwnProperty('username')) {
-                this.$storeHelper.setUserInfo('userName', userInfo.username);
-              }
-              if (userInfo.hasOwnProperty('realName')) {
-                this.$storeHelper.setUserInfo('realName', userInfo.realName);
-              }
-              if (userInfo.hasOwnProperty('role')) {
-                this.$storeHelper.setUserInfo('role', userInfo.role);
-              }
-              if (userInfo.hasOwnProperty('token')) {
-                this.$storeHelper.setUserInfo('token', userInfo.token);
-              }
+              this.$store.dispatch('updateUserInfo', {
+                userName: userInfo.username,
+                realName: userInfo.realName,
+                role: userInfo.role,
+                token: userInfo.token
+              });
               this.pageJump();
             }
           }).catch(err => {

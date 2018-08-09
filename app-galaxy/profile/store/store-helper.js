@@ -351,6 +351,11 @@ class StoreHelper extends BaseHelper{
     }
     return result;
   }
+
+  logout() {
+    this.$store.dispatch('user/logout');
+    super.logout();
+  }
 }
 
 export default StoreHelper;

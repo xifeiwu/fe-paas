@@ -4,7 +4,7 @@ const warning = function(prop, where) {
   debug(`warning: get user/${prop} from ${where}`);
 };
 
-var LOCAL_PROP = ['config', 'info', 'menuList', 'permission', 'dataTransfer'];
+var LOCAL_PROP = ['config', 'permission', 'dataTransfer'];
 const getValue = function({state, getters}, prop) {
   const getLocalValue = function() {
     let result = null;
@@ -36,10 +36,6 @@ const state = {
   /* net data */
   // 用户配置相关信息
   config: null,
-  // 用户相关信息
-  info: null,
-  // 侧边栏
-  menuList: null,
   // 权限相关
   permission: JSON.parse(localStorage.getItem('user/permission')) ? JSON.parse(localStorage.getItem('user/permission')) : {},
   // 在spa页面传递数据
@@ -48,13 +44,8 @@ const state = {
 
 const actions = {
   clearOnLogout({commit, state, getters}) {
-    state.info = null;
     state.config = null;
-    localStorage.removeItem('user/info');
     localStorage.removeItem('user/config');
-
-    state.menuList = null;
-    localStorage.removeItem('user/menuList');
   },
 
   /**
@@ -93,46 +84,10 @@ const actions = {
     if (state.config && typeof(state.config) === 'object') {
       localStorage.setItem('user/config', JSON.stringify(state.config));
     }
-  },
-  setInfo({commit, state, getters}, {keys, value}) {
-    if (!keys || 0 === keys.length) {
-      return;
-    }
-    if (null == state.info) {
-      let local = getters['info'];
-      // for case 'user/info' is 'undefined'
-      if (local && typeof(state.info) === 'object') {
-        state.info = local;
-      } else {
-        state.info = {};
-      }
-    }
-    let keyList = keys.split('/');
-    let lastKeyIndex = keyList.length - 1;
-    let prop = keyList[lastKeyIndex];
-    if (0 === lastKeyIndex) {
-      state.info[prop] = value;
-    } else {
-      let tmpValue = state.info;
-      keyList.slice(0, lastKeyIndex).forEach(it => {
-        if (!tmpValue.hasOwnProperty(it)) {
-          tmpValue[it] = {};
-        }
-        tmpValue = tmpValue[it];
-      });
-      tmpValue[prop] = value;
-    }
-    if (state.info && typeof(state.info) === 'object') {
-      localStorage.setItem('user/info', JSON.stringify(state.info));
-    }
-  },
+  }
 };
 
 const mutations = {
-  menuList(state, menuList) {
-    state.menuList = menuList;
-    localStorage.setItem('user/menuList', JSON.stringify(menuList));
-  },
   dataTransfer(state, data) {
     state.dataTransfer = data;
     localStorage.setItem('user/dataTransfer', JSON.stringify(data));
@@ -146,12 +101,6 @@ const mutations = {
 const getters = {
   'config': (state, getters) => {
     return getValue({state, getters}, 'config');
-  },
-  'info': (state, getters) => {
-    return getValue({state, getters}, 'info');
-  },
-  'menuList': (state, getters) => {
-    return getValue({state, getters}, 'menuList');
   },
   'permission': (state, getters) => {
     return getValue({state, getters}, 'permission');

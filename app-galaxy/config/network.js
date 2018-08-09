@@ -56,8 +56,8 @@ class NetworkConfig {
 
   setToken(token) {
     let Vue = this.Vue;
-    if (Vue && Vue.prototype && Vue.prototype.$storeHelper && Vue.prototype.$storeHelper.setUserInfo) {
-      Vue.prototype.$storeHelper.setUserInfo('token', token);
+    if (Vue && Vue.prototype && Vue.prototype.$storeHelper && Vue.prototype.$storeHelper.updateLoginState) {
+      Vue.prototype.$storeHelper.updateLoginState('userInfo/token', token);
     }
   }
 

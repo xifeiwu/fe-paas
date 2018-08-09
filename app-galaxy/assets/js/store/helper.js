@@ -47,53 +47,82 @@ export default class StoreHelper {
     return value;
   }
 
-  setUserInfo(keys, value) {
-    this.$store.dispatch('global/setInfo', {
-      keys, value
-    })
+  getState(key) {
+    try {
+      let value = localStorage.getItem(key);
+      if (value !== 'undefined') {
+        return JSON.parse(value);
+      }
+    } catch (err) {
+    }
+    return undefined;
   }
 
-  getUserInfo(keys) {
-    let config = this.$store.getters['global/info'];
-    if (!keys || 0 === keys.length) {
-      return;
+  setState(key, state) {
+    return localStorage.setItem(key, JSON.stringify(state));
+  }
+
+  updateLoginState(key, value) {
+    let loginState = this.getState('login');
+    if (!loginState) {
+      loginState = {};
     }
-    if (!config) {
-      return;
-    }
-    let value = null;
-    let keyList = keys.split('/');
+    let keyList = key.split('/');
     let lastKeyIndex = keyList.length - 1;
     let prop = keyList[lastKeyIndex];
     if (0 === lastKeyIndex) {
-      if (config.hasOwnProperty(prop)) {
-        value = config[prop];
+      loginState[prop] = value;
+    } else {
+      let tmpValue = loginState;
+      keyList.slice(0, lastKeyIndex).forEach(it => {
+        if (!tmpValue.hasOwnProperty(it)) {
+          tmpValue[it] = {};
+        }
+        tmpValue = tmpValue[it];
+      });
+      tmpValue[prop] = value;
+    }
+    this.setState('login', loginState);
+  }
+
+  getLoginState(key) {
+    let value = null;
+    let loginState = this.getState('login');
+    if (!loginState) {
+      return value;
+    }
+    let keyList = key.split('/');
+    let lastKeyIndex = keyList.length - 1;
+    let prop = keyList[lastKeyIndex];
+    if (0 === lastKeyIndex) {
+      if (loginState.hasOwnProperty(prop)) {
+        value = loginState[prop];
       }
     } else {
-      let tmpValue = config;
-      let subList = keyList.slice(0, lastKeyIndex);
-      for (var index in subList) {
-        let key = keyList[index];
-        if (tmpValue.hasOwnProperty(key)) {
-          tmpValue = tmpValue[key];
+      let tmpValue = loginState;
+      keyList.slice(0, lastKeyIndex).every(it => {
+        if (tmpValue.hasOwnProperty(it)) {
+          tmpValue = tmpValue[it];
         } else {
           tmpValue = null;
-          break;
         }
-      }
+        return tmpValue;
+      });
       if (tmpValue && tmpValue.hasOwnProperty(prop)) {
         value = tmpValue[prop];
       }
     }
     return value;
   }
-
-  set menuList(value) {
-    this.$store.commit('global/menuList', value);
-
-  }
   get menuList() {
-    return this.$store.getters['global/menuList'];
+    return this.getLoginState('menuList');
+  }
+  get userInfo() {
+    return this.getLoginState('userInfo');
+  }
+  // TODO: for compatible
+  getUserInfo(key) {
+    return this.userInfo[key];
   }
 
   set dataTransfer(data) {
@@ -123,5 +152,6 @@ export default class StoreHelper {
 
   logout() {
     this.$store.dispatch('global/clearOnLogout');
+    this.updateLoginState('userInfo', null);
   }
 }

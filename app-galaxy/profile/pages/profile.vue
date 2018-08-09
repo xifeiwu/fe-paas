@@ -362,7 +362,7 @@
                 message: msg,
                 duration: 500,
                 onClose: () => {
-                  this.$store.dispatch('user/logout');
+                  this.$storeHelper.logout();
                   this.$utils.goToPath('/login?to=/profile');
                 }
               });
@@ -373,7 +373,7 @@
                   message: err.msg,
                   duration: 500,
                   onClose: () => {
-                    this.$store.dispatch('user/logout');
+                    this.$storeHelper.logout();
                     this.$utils.goToPath('/login?to=/user');
                   }
                 });
