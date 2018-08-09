@@ -49,6 +49,6 @@ export default new Vuex.Store({
   plugins: [createPersistedState({
     key: 'login',
     // 暂时只持久化 etc 模块，防止冲突
-    // paths: ['']
+    paths: ['menuList', 'userInfo']
   })]
 })
