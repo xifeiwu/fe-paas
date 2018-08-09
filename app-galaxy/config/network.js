@@ -1,11 +1,11 @@
 /**
  * Created by xifei.wu on 2017/12/1.
  */
+import Vue from 'vue';
 import Axios from 'axios';
 
 class NetworkConfig {
-  constructor(Vue) {
-    this.Vue = Vue;
+  constructor() {
     this.setConfig();
   }
 
@@ -44,18 +44,17 @@ class NetworkConfig {
   getToken() {
     let token = null;
     try {
-      token = this.Vue.prototype.$storeHelper.getUserInfo('token');
+      token = Vue.prototype.$storeHelper.getUserInfo('token');
     } catch (err) {
     }
     return token;
   }
 
   goToLoginPage() {
-    this.Vue.prototype.$utils.goToPath('/login');
+    Vue.prototype.$utils.goToPath('/login');
   }
 
   setToken(token) {
-    let Vue = this.Vue;
     if (Vue && Vue.prototype && Vue.prototype.$storeHelper && Vue.prototype.$storeHelper.updateLoginState) {
       Vue.prototype.$storeHelper.updateLoginState('userInfo/token', token);
     }
