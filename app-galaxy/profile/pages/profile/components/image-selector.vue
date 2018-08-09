@@ -7,18 +7,18 @@
         <el-radio :label="true">自定义镜像</el-radio>
       </el-radio-group>
     </el-form-item>
-    <el-form-item label="镜像地址" prop="customImageValue" v-if="imageSelectState.customImage"
-                  :class="['custom-image', imageSelectState.customImageType.toLowerCase()+'-image']"
-    >
-      <el-input v-model="imageSelectState.customImageValue" placeholder="输入镜像地址，包含版本"></el-input>
-    </el-form-item>
-    <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-else>
+    <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-if="!imageSelectState.customImage">
       <el-select v-model="imageSelectState.autoImageValue"
                  :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
         <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
-                   :key="index" :label="item" :value="item">
+                   :key="index" :label="item.label" :value="item.value">
         </el-option>
       </el-select>
+    </el-form-item>
+    <el-form-item label="镜像地址" prop="customImageValue"  v-else
+                  :class="['custom-image', imageSelectState.customImageType.toLowerCase()+'-image']"
+    >
+      <el-input v-model="imageSelectState.customImageValue" placeholder="输入镜像地址，包含版本"></el-input>
     </el-form-item>
   </el-form>
 </template>
@@ -135,7 +135,9 @@
         this.imageSelectState.customImage = imageInfo.customImage;
         if (imageInfo.customImage) {
           this.imageSelectState.customImageValue = imageInfo.imageLocation;
+          this.imageSelectState.autoImageValue = '';
         } else {
+          this.imageSelectState.customImageValue = '';
           this.imageSelectState.autoImageValue = imageInfo.imageLocation;
         }
         this.requestImageRelatedInfo();
@@ -154,8 +156,16 @@
           groupTag: groupTag
         }, {
           groupTag: groupTag
-        }).then(imageInfoFromNet => {
-          this.imageInfoFromNet = imageInfoFromNet;
+        }).then(autoImageList => {
+          this.imageInfoFromNet['autoImageList'] = [{
+            label: '无',
+            value: ''
+          }].concat(autoImageList.map(it => {
+            return {
+              label: it,
+              value: it,
+            }
+          }));
 //          if (imageInfoFromNet && imageInfoFromNet.hasOwnProperty('privateAppList')
 //            && Array.isArray(imageInfoFromNet.privateAppList) && imageInfoFromNet.privateAppList.length > 0) {
 //            this.imageSelectState.currentPrivateApp = imageInfoFromNet.privateAppList[0];

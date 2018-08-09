@@ -997,7 +997,7 @@ class Net extends NetBase {
           // } else {
           //   reject('privateAppList not found');
           // }
-          resolve({autoImageList, customEnvImageList, privateAppList});
+          resolve(autoImageList);
       })).catch(err => {
         console.log(err);
         reject(err);
