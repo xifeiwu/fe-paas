@@ -74,14 +74,22 @@
             <el-input v-model="serviceForm.gitLabBranch" placeholder="请输入gitLab分支名，不能超过100个字符"></el-input>
           </el-form-item>
         </transition>
-
-        <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
-                      v-if="appLanguage == 'JAVA'"
-                      class="relative-path-of-parent-pom"
-        >
-          <el-input v-model="serviceForm.relativePathOfParentPOM"
-                    placeholder="不能超过256个字符"></el-input>
-        </el-form-item>
+        <transition name="more-config">
+          <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
+                        v-if="appLanguage == 'JAVA' && !imageSelectState.customImage"
+                        class="relative-path-of-parent-pom"
+          >
+            <el-input v-model="serviceForm.relativePathOfParentPOM"
+                      placeholder="不能超过256个字符"></el-input>
+          </el-form-item>
+        </transition>
+        <transition name="more-config">
+          <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
+                        v-if="appLanguage == 'JAVA' && !imageSelectState.customImage"
+          >
+            <el-input v-model="serviceForm.mavenProfileId" placeholder="不能超过100个字符"></el-input>
+          </el-form-item>
+        </transition>
         <el-form-item label="VM_Options" prop="vmOptions" class="vm-options"
                       v-if="appLanguage == 'JAVA'"
         >
@@ -110,13 +118,6 @@
           <el-input-number v-model="serviceForm.instanceCount" :min="1" :max="20" label="描述文字"></el-input-number>
         </el-form-item>
 
-        <transition name="more-config">
-          <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
-                        v-if="appLanguage == 'JAVA' && showMoreConfig"
-          >
-            <el-input v-model="serviceForm.mavenProfileId" placeholder="不能超过100个字符"></el-input>
-          </el-form-item>
-        </transition>
         <transition name="more-config">
           <el-form-item label="环境变量设置" prop="environments" class="environments" :error="formItemMsgForEnvironments"
                         v-if="showMoreConfig">
@@ -665,8 +666,8 @@
           groupTag: groupTag
         }, {
           groupTag: groupTag
-        }).then(imageInfoFromNet => {
-          this.imageInfoFromNet = imageInfoFromNet;
+        }).then(autoImageList => {
+          this.imageInfoFromNet['autoImageList'] = autoImageList;
 //          if (imageInfoFromNet && imageInfoFromNet.hasOwnProperty('privateAppList')
 //            && Array.isArray(imageInfoFromNet.privateAppList) && imageInfoFromNet.privateAppList.length > 0) {
 //            this.imageSelectState.currentPrivateApp = imageInfoFromNet.privateAppList[0];
