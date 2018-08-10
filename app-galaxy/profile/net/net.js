@@ -1,7 +1,6 @@
 /**
  * Created by xifei.wu on 2017/12/5.
  */
-import Vue from 'vue';
 import axios from 'axios';
 import {URL_LIST} from './url';
 import appInfoHelper from '../pages/profile/utils/app-props';
@@ -145,6 +144,8 @@ class Net extends NetBase {
           '	/2.x/instances/apm': '',
           // 外网域名安全审核
           '/2.x/internet/update': 'domain_secure_check',
+          // 待办/工单/部署应用
+          '/2.x/order/todoList/deploy': 'work-order_deploy_app',
 
           // 页面相关
           // 服务管理页面
