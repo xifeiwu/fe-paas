@@ -1,7 +1,7 @@
 <template>
   <div id="profile" class="spa">
     <paas-nav-bar :activeSideMenuItem="activeSideMenuItem"></paas-nav-bar>
-    <main>
+    <main :class="{'collapse-menu': collapseMenu}">
       <!--toasts area-->
       <div style="width: 100%; position: fixed; z-index: 99999;">
         <el-alert v-for="item in toasts"
@@ -50,6 +50,10 @@
     main {
       background: $main-background;
       width: calc(100% - 200px);
+      &.collapse-menu {
+        width: calc(100% - 64px);
+      }
+      transition: width 0.3s ease-out;
       height: 100%;
       float: left;
       .paas-header-profile {
@@ -87,7 +91,7 @@
 </style>
 
 <script>
-  import {mapState} from 'vuex';
+  import {mapState, mapGetters} from 'vuex';
   import paasHeaderProfile from '$components/header-profile';
   import paasNavBar from './nav-bar.vue';
 
@@ -183,6 +187,9 @@
     },
     computed: {
       ...mapState(['toasts']),
+      ...mapGetters({
+        'collapseMenu': 'collapseMenu'
+      }),
       routerPathToName() {
         return this.$routeHelper.getRoutePathToName();
       },
