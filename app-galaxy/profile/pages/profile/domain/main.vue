@@ -87,7 +87,7 @@
           <template slot-scope="scope">
             <span>{{scope.row.status}}</span>
             <span v-if="scope.row.reason" style="color: #00f; cursor: pointer"
-                  @click="handleRowButtonClick('re-secure-check', scope.$index, scope.row)">原因</span>
+                  @click="handleRowButtonClick('re-secure-check-in-dialog', scope.$index, scope.row)">原因</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -337,8 +337,8 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="审核不通过" :visible="selected.action == 're-secure-check'"
-               :class="{'re-secure-check': true, 'size-650': true,}"
+    <el-dialog title="审核不通过" :visible="selected.action == 're-secure-check-in-dialog'"
+               :class="{'re-secure-check-in-dialog': true, 'size-650': true,}"
                :close-on-click-modal="false"
                @close="selected.action = null"
     >
@@ -346,22 +346,17 @@
         <el-form-item label="不通过原因：" class="reason" v-if="selected.row && selected.row.reason">
           {{selected.row.reason}}
         </el-form-item>
-        <el-form-item label="安全审核人：" class="tip"
-        >
-          李斌（NBSP-安全组），15600693326
-        </el-form-item>
+        <el-form-item label="安全审核人：" class="tip">李斌（NBSP-安全组），15600693326</el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleClickInDialog('re-secure-check')"
-                       :loading="statusOfWaitingResponse('re-secure-check')">重新审核</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button @click="selected.action = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleClickInDialog('re-secure-check-in-dialog')"
+                     :loading="statusOfWaitingResponse('re-secure-check-in-dialog')">重新审核</el-button>
+        </div>
+        <div class="item">
+          <el-button @click="selected.action = null">取&nbsp消</el-button>
+        </div>
       </div>
     </el-dialog>
   </div>
@@ -516,7 +511,7 @@
           }
         }
       }
-      &.re-secure-check {
+      &.re-secure-check-in-dialog {
         .el-form-item {
           &.reason {
             margin-bottom: 8px;
@@ -883,7 +878,7 @@
               });
             }
             break;
-          case 're-secure-check':
+          case 're-secure-check-in-dialog':
             this.selected.action = action;
             break;
         }
@@ -1189,26 +1184,21 @@
               this.selected.action = null;
             });
             break;
-          case 're-secure-check':
+          case 're-secure-check-in-dialog':
             this.addToWaitingResponseQueue(action);
-            this.$net.domainSecureCheck({
-              id: this.selected.row.id,
-              status: 'APPLY',
-              reason: '重新申请'
+            this.$net.requestPaasServer(this.$net.URL_LIST.domain_secure_check, {
+              payload: {
+                id: this.selected.row.id,
+                status: 'APPLY',
+                reason: '重新申请'
+              }
             }).then(() => {
-              this.hideWaitingResponse(action);
-              this.selected.action = null;
               this.$message.success('提交成功');
               this.requestDomainList();
             }).catch(err => {
+            }).finally(() => {
               this.hideWaitingResponse(action);
               this.selected.action = null;
-              this.$notify.error({
-                title: err.title,
-                message: err.msg,
-                duration: 0,
-                onClose: function() {}
-              })
             });
             break;
         }

@@ -173,7 +173,7 @@ class Net {
     Vue.prototype.$notify.error({
       title,
       message: err.message,
-      duration: 0
+      duration: 6000
     })
   };
 
