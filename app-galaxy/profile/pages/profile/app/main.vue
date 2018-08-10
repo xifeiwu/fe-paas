@@ -37,7 +37,7 @@
       <el-table :data="appListByPage"
                 v-loading="showLoading"
                 stripe
-                :height="heightOfAppList"
+                :height="heightOfTable"
                 element-loading-text="加载中">
         <el-table-column label="语言版本" prop="languageVersion" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
@@ -95,7 +95,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="showAppList">
+      <div class="pagination-container" v-if="showAppList && totalSize > pageSize">
         <div class="pagination">
           <el-pagination
                   :current-page="currentPage"
@@ -265,8 +265,6 @@
     }
     .app-list {
       padding: 0px 0px;
-      height: calc(100% - 36px);
-      /*overflow: scroll;*/
       .el-table {
         width: auto;
         th {
@@ -377,16 +375,17 @@
     mounted() {
       try {
         if (this.showAppList) {
-          this.appListNode = this.$el.querySelector('.app-list');
-          this.heightOfAppList = this.appListNode.clientHeight - 20;
-          this.resizeListenerForAppList = (evt) => {
-            let target = evt.target;
-            this.heightOfAppList = target.clientHeight - 20;
+          // adjust the height of el-table in the area service-list
+          let headerNode = this.$el.querySelector(':scope > .header');
+          this.resizeListener = () => {
+            let headerHeight = headerNode.offsetHeight;
+            this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
           };
-          addResizeListener(this.appListNode, this.resizeListenerForAppList)
+          addResizeListener(this.$el, this.resizeListener)
         }
       } catch(err) {
       }
+
       if (!this.appInfoListOfGroup) {
         this.$store.dispatch('user/appInfoListOfGroup', {
           from: 'page/app',
@@ -397,13 +396,14 @@
       }
     },
     beforeDestroy() {
-      removeResizeListener(this.appListNode, this.resizeListenerForAppList);
+      if (this.showAppList) {
+        removeResizeListener(this.$el, this.resizeListener);
+      }
     },
     data() {
       return {
-        appListNode: null,
-        resizeListenerForAppList: () => {},
-        heightOfAppList: '',
+        resizeListener: () => {},
+        heightOfTable: '',
 
         showAppList: true,
         showLoading: false,
