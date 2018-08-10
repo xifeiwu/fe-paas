@@ -1,7 +1,7 @@
 <template>
   <div id="app-add">
     <div class="section-title"><span>创建应用</span>
-      <el-popover
+      <el-popover v-if="false"
               width="300"
               v-model="showPopoverForHelp"
               placement="bottom"

@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'nav-bar': true, collapse: isMenuHidden}">
+  <div :class="{'nav-bar': true, collapse: collapseMenu}">
     <div class="img" @click="handleAsideMenuSelect('index', ['index'])">
       <img src="/assets/imgs/finup-cloud-2.png">
     </div>
@@ -7,8 +7,8 @@
             class="el-menu-vertical-demo"
             :collapseTransition="false"
             @select="handleAsideMenuSelect"
-            :collapse="isMenuHidden"
-            background-color="#324157" text-color="#bfcbd9"
+            :collapse="collapseMenu"
+            background-color="#324157" text-color="white"
             :defaultActive="activeSideMenuItem">
       <el-submenu v-for="menu in navMenu.level2" :key="menu.name" :index="menu.router">
         <template slot="title">
@@ -22,6 +22,9 @@
         <i :class="menu.icon"></i><span>{{menu.name}}</span>
       </el-menu-item>
     </el-menu>
+    <div :class="{'toggle': true, collapse: collapseMenu}">
+      <i :class="{'paas-icon-double-arrow-right': true, collapse: collapseMenu}" @click="toggleMenu"></i>
+    </div>
   </div>
 </template>
 
@@ -30,7 +33,7 @@
   $header-background-color: #3976EF;
   $header-background-color: #e7e7e7;
   $split-line-color: #e7e7e7;
-  $aside-width: 220px;
+  $aside-width: 200px;
 
   $main-background: #F2F6FC;
   /*$main-background: #E4E7ED;*/
@@ -49,6 +52,10 @@
   $menu-font-color-hover: white;
   $menu-font-color-active: black;
   .nav-bar {
+    position: relative;
+    &.collapse {
+      width: 64px;
+    }
     box-sizing: border-box;
     width: $aside-width;
     height: 100%;
@@ -68,6 +75,28 @@
     .el-menu {
       margin-top: 15px;
       width: 100%;
+    }
+    .toggle {
+      position: absolute;
+      bottom: 18px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0px 15px;
+      font-size: 18px;
+      color: white;
+      text-align: right;
+      i {
+        transform: rotate(180deg);
+        &:hover {
+          cursor: pointer;
+        }
+      }
+      &.collapse {
+        text-align: center;
+        i {
+          transform: rotate(0deg);
+        }
+      }
     }
   }
 </style>
@@ -98,7 +127,7 @@
     },
     data() {
       return {
-        isMenuHidden: false,
+        collapseMenu: false,
       }
     },
     props: {
@@ -126,12 +155,9 @@
           }
         }
       },
-      handleOpen(key, keyPath) {
-        console.log(key, keyPath);
+      toggleMenu() {
+        this.collapseMenu = !this.collapseMenu;
       },
-      handleClose(key, keyPath) {
-        console.log(key, keyPath);
-      }
     }
   }
 </script>
