@@ -66,7 +66,7 @@ module.exports = {
     distDirectory: path.resolve(curWorkDir, 'deploy/fe-paas/dist'),
     assetsRoot: path.resolve(curWorkDir, 'deploy/fe-paas/dist'),
     assetsSubDirectory: 'assets',
-    assetsPublicPath: './',
+    assetsPublicPath: '/',
 
     /**
      * Source Maps

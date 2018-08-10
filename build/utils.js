@@ -12,6 +12,13 @@ exports.assetsPath = function (_path) {
   return path.posix.join(assetsSubDirectory, _path)
 };
 
+exports.assetsPublicPath = function () {
+  const assetsPublicPath = process.env.NODE_ENV === 'production'
+    ? config.build.assetsPublicPath
+    : config.dev.assetsPublicPath
+  return assetsPublicPath;
+};
+
 exports.contextPath = function() {
   // return path.resolve(__dirname, '../');
   return config.curWorkDir;
