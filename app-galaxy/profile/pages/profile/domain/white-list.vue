@@ -9,7 +9,7 @@
           <span style="display: inline-block;">一键开启全网访问</span>
         </el-checkbox>
       </div>
-      <el-row class="upload-area" type="flex">
+      <el-row class="upload-area" type="flex" v-if="!allNetWorkAccessAble">
         <el-col :span="8" class="upload">
           <el-upload
                   class="upload-file"
