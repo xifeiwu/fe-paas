@@ -5,25 +5,22 @@
     </div>
     <el-menu
             class="el-menu-vertical-demo"
-            @open="handleOpen"
-            @close="handleClose"
+            :collapseTransition="false"
             @select="handleAsideMenuSelect"
-            :defaultOpeneds="['app_menu']"
             :collapse="isMenuHidden"
+            background-color="#324157" text-color="#bfcbd9"
             :defaultActive="activeSideMenuItem">
-      <el-menu-item v-for="menu in menuList" :key="menu.name" :index="menu.router">
+      <el-submenu v-for="menu in navMenu.level2" :key="menu.name" :index="menu.router">
+        <template slot="title">
+          <i v-if="menu.icon" :class="menu.icon"></i><span>{{menu.name}}</span>
+        </template>
+        <el-menu-item v-for="subMenu in menu.children" :key="subMenu.name" :index="subMenu.router">
+          <i v-if="subMenu.icon" :class="subMenu.icon"></i><span>{{subMenu.name}}</span>
+        </el-menu-item>
+      </el-submenu>
+      <el-menu-item v-for="menu in navMenu.level1" :key="menu.name" :index="menu.router">
         <i :class="menu.icon"></i><span>{{menu.name}}</span>
       </el-menu-item>
-      <!--<el-submenu v-for="menu in menuList2.level2" :key="menu.id" :index="menu.url || menu.name">-->
-      <!--<template slot="title">-->
-      <!--<i v-if="menu.icon" :class="menu.icon"></i>-->
-      <!--<span>{{menu.name}}</span>-->
-      <!--</template>-->
-      <!--<el-menu-item v-for="subMenu in menu.children" :key="subMenu.id" :index="subMenu.url || subMenu.name">-->
-      <!--<i v-if="subMenu.icon" :class="subMenu.icon"></i>-->
-      <!--<span>{{subMenu.name}}</span>-->
-      <!--</el-menu-item>-->
-      <!--</el-submenu>-->
     </el-menu>
   </div>
 </template>
@@ -33,7 +30,7 @@
   $header-background-color: #3976EF;
   $header-background-color: #e7e7e7;
   $split-line-color: #e7e7e7;
-  $aside-width: 180px;
+  $aside-width: 220px;
 
   $main-background: #F2F6FC;
   /*$main-background: #E4E7ED;*/
@@ -53,10 +50,10 @@
   $menu-font-color-active: black;
   .nav-bar {
     box-sizing: border-box;
-    width: 180px;
+    width: $aside-width;
     height: 100%;
     float: left;
-    background: $menu-background;
+    background: #324157;
 
     .img {
       line-height: $header-height;
@@ -68,35 +65,9 @@
       }
     }
 
-    [class^="paas-icon-"] {
-      display: inline-block;
-      font-size: 14px;
-      margin-top: 1px;
-      margin-right: 5px;
-    }
     .el-menu {
-      background-color: $menu-background;
-      margin-top: 10px;
-      border-width: 0px;
-      .el-menu-item {
-        color: $menu-font-color;
-        font-size: 15px;
-        height: 40px;
-        margin: 8px 0px;
-        line-height: 40px;
-        &:hover {
-          background-color: $menu-background-hover;
-          color: $menu-font-color-hover;
-        }
-        &.is-active {
-          color: $menu-font-color-active;
-          background: $menu-background-active;
-          border-radius: 0px;
-          [class^="paas-icon-"] {
-            /*font-size: 15px;*/
-          }
-        }
-      }
+      margin-top: 15px;
+      width: 100%;
     }
   }
 </style>
@@ -114,6 +85,13 @@
         let value = [];
         if (this.$storeHelper.menuList) {
           value = this.$storeHelper.menuList;
+        }
+        return value;
+      },
+      navMenu() {
+        let value = {}
+        if (this.$storeHelper.navMenu) {
+          value = this.$storeHelper.navMenu;
         }
         return value;
       }

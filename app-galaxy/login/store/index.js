@@ -11,11 +11,22 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    navMenu: {},
     menuList: [],
     userInfo: {},
   },
   mutations: {
-    SET_MENUS(state, menuList) {
+    SET_NAV_MENU(state, navMenu) {
+      state.navMenu = {};
+      if (navMenu) {
+        for (let key in navMenu) {
+          // localStorage will not update if code run in the following way
+          // state.info[key] = userInfo[key];
+          Vue.set(state.navMenu, key, navMenu[key]);
+        }
+      }
+    },
+    SET_MENUS_LIST(state, menuList) {
       state.menuList = menuList;
     },
     SET_USER_INFO(state, userInfo) {
@@ -36,8 +47,11 @@ export default new Vuex.Store({
   actions: {
     addMenuList ({ commit, state }, menuList) {
       if (Array.isArray(menuList) && menuList.length > 0) {
-        commit('SET_MENUS', menuList)
+        commit('SET_MENUS_LIST', menuList)
       }
+    },
+    saveNavMenu ({ commit, state }, navMenu) {
+      commit('SET_NAV_MENU', navMenu)
     },
     updateUserInfo ({ commit, state }, userInfo) {
       commit('SET_USER_INFO', userInfo)
@@ -49,6 +63,6 @@ export default new Vuex.Store({
   plugins: [createPersistedState({
     key: 'login',
     // 暂时只持久化 etc 模块，防止冲突
-    paths: ['menuList', 'userInfo']
+    paths: ['navMenu', 'menuList', 'userInfo']
   })]
 })

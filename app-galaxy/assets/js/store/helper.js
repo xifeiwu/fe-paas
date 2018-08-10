@@ -117,6 +117,9 @@ export default class StoreHelper {
   get menuList() {
     return this.getLoginState('menuList');
   }
+  get navMenu() {
+    return this.getLoginState('navMenu');
+  }
   get userInfo() {
     return this.getLoginState('userInfo');
   }

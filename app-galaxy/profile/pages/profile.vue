@@ -49,7 +49,7 @@
     height: 100%;
     main {
       background: $main-background;
-      width: calc(100% - 180px);
+      width: calc(100% - 220px);
       height: 100%;
       float: left;
       .paas-header-profile {

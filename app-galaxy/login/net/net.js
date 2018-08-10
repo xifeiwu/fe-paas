@@ -62,6 +62,7 @@ class Net extends NetBase {
           icon: 'paas-icon-monitor'
         },
         "Oauth权限": {
+          name: 'Access Key管理',
           router: '/oauth',
           icon: 'paas-icon-key'
         },
@@ -74,6 +75,7 @@ class Net extends NetBase {
           icon: 'paas-icon-work-order'
         },
         "配置中心": {
+          name: '应用配置',
           router: '/config-server',
           icon: 'paas-icon-config'
         }
@@ -98,9 +100,6 @@ class Net extends NetBase {
       }).filter(it => {
         return menuToIgnore.indexOf(it.name) === -1;
       }).map(it => {
-        if (it.name === 'Oauth权限') {
-          it.name = 'Access Key管理';
-        }
         it.hasOwnProperty('children') && delete it.children;
         it.hasOwnProperty('createTime') && delete it.createTime;
         it.hasOwnProperty('permissionType') && delete it.permissionType;
@@ -167,6 +166,30 @@ class Net extends NetBase {
       userInfo: content.user,
       menuList, notPermitted
     };
+  }
+
+  parseLoginResponseMore(resContent) {
+    let origin = this.parseLoginResponse(resContent);
+    let contentOfAppEngine = ['应用管理', '服务管理', '实例列表', '外网域名', '日志中心', '应用监控', '审批管理'];
+    let level2 = [{
+      name: '应用引擎',
+      icon: 'paas-icon-app',
+      router: '/app-engine',
+      children: []
+    }];
+    let level1 = [];
+    origin.menuList.forEach(it => {
+      if (contentOfAppEngine.indexOf(it.name) > -1) {
+        level2[0].children.push(it);
+      } else {
+        level1.push(it)
+      }
+    });
+    origin.menuList = {
+      level1, level2
+    };
+    console.log(origin);
+    return origin;
   }
 
   logout() {
