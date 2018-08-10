@@ -332,17 +332,6 @@ class URL extends BaseURL {
         url: API_PATH + '/domain/whiteList/',
         path: '/domain/whiteList/'
       },
-      // 删除所有白名单
-      'domain_delete_all_white_ip': {
-        url: API_PATH + '/domain/whiteList/deleteAll?internetDomainId={id}',
-        path: '/domain/whiteList/deleteAll?internetDomainId={id}',
-        method: 'delete'
-      },
-      // 添加办公网白名单
-      'domain_add_office_ip_list': {
-        url: API_PATH + '/domain/whiteList/addOffice?internetDomainId={id}',
-        path: '/domain/whiteList/addOffice?internetDomainId={id}'
-      },
       // 获取白名单列表
       'domain_white_ip_list': {
         url: API_PATH + '/domain/whiteList/query',

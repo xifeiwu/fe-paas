@@ -35,6 +35,16 @@ class Net extends NetBase {
         path: '/domain/record/status/update',
         method: 'post'
       },
+      // 删除所有白名单
+      'domain_delete_all_white_ip': {
+        path: '/domain/whiteList/deleteAll',
+        method: 'delete'
+      },
+      // 添加办公网白名单
+      'domain_add_office_ip_list': {
+        path: '/domain/whiteList/addOffice',
+        method: 'post'
+      },
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];
@@ -1285,49 +1295,49 @@ class Net extends NetBase {
     });
   }
   // 删除所有白名单
-  domainDeleteAllWhiteIP(id) {
-    let url = this.$utils.formatUrl(URL_LIST.domain_delete_all_white_ip.url, {id});
-    return new Promise((resolve, reject) => {
-      axios[URL_LIST.domain_delete_all_white_ip.method](url).then(response => {
-        let resMsg = this.getResponseMsg2(response, {
-          successMsg: '开启"一键开启全网访问"成功！',
-          errorMsg: '开启"一键开启全网访问"失败！'
-        });
-        if (resMsg.success) {
-          resolve(resMsg);
-        } else {
-          reject(resMsg);
-        }
-      }).catch(err => {
-        reject({
-          title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.domain_delete_all_white_ip.path}；${err.toString()}`
-        });
-      })
-    })
-  }
+  // domainDeleteAllWhiteIP(id) {
+  //   let url = this.$utils.formatUrl(URL_LIST.domain_delete_all_white_ip.url, {id});
+  //   return new Promise((resolve, reject) => {
+  //     axios[URL_LIST.domain_delete_all_white_ip.method](url).then(response => {
+  //       let resMsg = this.getResponseMsg2(response, {
+  //         successMsg: '开启"一键开启全网访问"成功！',
+  //         errorMsg: '开启"一键开启全网访问"失败！'
+  //       });
+  //       if (resMsg.success) {
+  //         resolve(resMsg);
+  //       } else {
+  //         reject(resMsg);
+  //       }
+  //     }).catch(err => {
+  //       reject({
+  //         title: '网络请求错误',
+  //         msg: `请求路径：${URL_LIST.domain_delete_all_white_ip.path}；${err.toString()}`
+  //       });
+  //     })
+  //   })
+  // }
   // 添加办公环境白名单
-  domainAddOfficeWhiteIP(id) {
-    let url = this.$utils.formatUrl(URL_LIST.domain_add_office_ip_list.url, {id});
-    return new Promise((resolve, reject) => {
-      axios.post(url).then(response => {
-        let resMsg = this.getResponseMsg2(response, {
-          successMsg: '关闭"一键开启全网访问"成功！',
-          errorMsg: '关闭"一键开启全网访问"失败！'
-        });
-        if (resMsg.success) {
-          resolve(resMsg);
-        } else {
-          reject(resMsg);
-        }
-      }).catch(err => {
-        reject({
-          title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.domain_add_office_ip_list.path}；${err.toString()}`
-        });
-      })
-    })
-  }
+  // domainAddOfficeWhiteIP(id) {
+  //   let url = this.$utils.formatUrl(URL_LIST.domain_add_office_ip_list.url, {id});
+  //   return new Promise((resolve, reject) => {
+  //     axios.post(url).then(response => {
+  //       let resMsg = this.getResponseMsg2(response, {
+  //         successMsg: '关闭"一键开启全网访问"成功！',
+  //         errorMsg: '关闭"一键开启全网访问"失败！'
+  //       });
+  //       if (resMsg.success) {
+  //         resolve(resMsg);
+  //       } else {
+  //         reject(resMsg);
+  //       }
+  //     }).catch(err => {
+  //       reject({
+  //         title: '网络请求错误',
+  //         msg: `请求路径：${URL_LIST.domain_add_office_ip_list.path}；${err.toString()}`
+  //       });
+  //     })
+  //   })
+  // }
   // 获取白名单列表
   getWhiteIPList(options) {
     return new Promise((resolve, reject) => {

@@ -847,15 +847,10 @@
             this.$storeHelper.dataTransfer = row;
             break;
           case 'remove':
-            this.addToWaitingResponseQueue(action);
-
             if (row['hasBind']) {
-              this.warningConfirm(`外网域名"${row.internetDomain}"${row.status}，请先解绑服务，才能删除！`).then(() => {
-                this.hideWaitingResponse(action);
-              }).catch(() => {
-                this.hideWaitingResponse(action);
-              });
+              this.$message.error(`外网域名"${row.internetDomain}"${row.status}，请先解绑服务，才能删除！`);
             } else {
+              this.addToWaitingResponseQueue(action);
               this.warningConfirm(`删除外网域名"${row.internetDomain}"，将会同时删除该域名关联的IP白名单，确定吗？`).then(() => {
                 this.$net.removeDomain({
                   id: row.id

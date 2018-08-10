@@ -5,7 +5,7 @@
         <div style="font-weight: bold; display: inline-block; margin-right: 30px;">
           <span>外网二级域名：</span><span>{{domainInfo.domainName}}</span>
         </div>
-        <el-checkbox v-model="domainInfo.notHaveIPWhiteList">
+        <el-checkbox v-model="allNetWorkAccessAble" @change="toggleAllNetWorkAccessAble">
           <span style="display: inline-block;">一键开启全网访问</span>
         </el-checkbox>
       </div>
@@ -271,6 +271,7 @@
       } else {
         this.$router.go(-1);
       }
+      this.allNetWorkAccessAble = domainInfo.notHaveIPWhiteList;
 
       let headerNode = this.$el.querySelector(':scope > .header');
       this.resizeListener = () => {
@@ -306,45 +307,43 @@
           row: null,
           operation: null,
         },
+        // 全网访问
+        allNetWorkAccessAble: null,
       }
     },
     watch: {
       // action will not trigger at first change of domainInfo.notHaveIPWhiteList
-      'domainInfo.notHaveIPWhiteList': function (value, oldValue) {
+      'allNetWorkAccessAble': function (value, oldValue) {
         let domainID = this.domainInfo['id'];
         if (!domainID) {
           return;
         }
         if (oldValue === false && value === true) {
-          this.$net.domainDeleteAllWhiteIP(domainID).then(resMsg => {
-            this.$message.success(resMsg.msg);
+//          this.$net.domainDeleteAllWhiteIP(domainID).
+          this.$net.requestPaasServer(this.$net.URL_LIST.domain_delete_all_white_ip, {
+            query: {
+              internetDomainId: domainID
+            }
+          }).then(resContent => {
+            this.$message.success('开启"一键开启全网访问"成功！');
             this.$storeHelper.dataTransfer = this.domainInfo;
             this.currentPage = 1;
             this.requestWhiteIPList();
           }).catch(err => {
-            this.$notify.error({
-              title: err.title,
-              message: err.msg,
-              duration: 0,
-              onClose: function () {
-              }
-            })
           });
         }
         if (oldValue === true && value === false) {
-          this.$net.domainAddOfficeWhiteIP(domainID).then(resMsg => {
-            this.$message.success(resMsg.msg);
+//          this.$net.domainAddOfficeWhiteIP(domainID)
+          this.$net.requestPaasServer(this.$net.URL_LIST.domain_add_office_ip_list, {
+            query: {
+              internetDomainId: domainID
+            }
+          }).then(resContent => {
+            this.$message.success('关闭"一键开启全网访问"成功！');
             this.$storeHelper.dataTransfer = this.domainInfo;
             this.currentPage = 1;
             this.requestWhiteIPList();
           }).catch(err => {
-            this.$notify.error({
-              title: err.title,
-              message: err.msg,
-              duration: 0,
-              onClose: function () {
-              }
-            })
           });
         }
 //        console.log(value);
@@ -370,6 +369,9 @@
       handlePaginationPageChange(page) {
         this.currentPage = page;
         this.requestWhiteIPList();
+      },
+
+      toggleAllNetWorkAccessAble(value) {
       },
 
       // 检查IP地址是否正确，返回错误提示。返回null说明没有错误。
