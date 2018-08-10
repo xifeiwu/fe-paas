@@ -31,6 +31,11 @@ class Net extends NetBase {
         path: '/service/checkPortMapping',
         method: 'post'
       },
+      // 更改实例数量
+      'instance_change_count': {
+        path: '/service/instances/update',
+        method: 'post'
+      },
       'domain_secure_check': {
         path: '/domain/record/status/update',
         method: 'post'
@@ -1056,23 +1061,6 @@ class Net extends NetBase {
       }).catch(err => {
         console.log(err);
         reject(err);
-      })
-    })
-  }
-  // 更改实例数量
-  instanceChangeCount(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.instance_change_count.url, options).then(response => {
-        // let content = this.getResponseContent(response);
-        let responseMsg = this.getResponseMsg(response);
-        if (responseMsg.success) {
-          resolve(responseMsg.msg);
-        } else {
-          reject(responseMsg.msg);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject('网络请求失败！');
       })
     })
   }

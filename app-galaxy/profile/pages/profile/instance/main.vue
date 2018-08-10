@@ -200,8 +200,10 @@
     removeResizeListener
   } from "element-ui/src/utils/resize-event";
   import paasDialogForLog from "../components/dialog4log.vue";
+  import commonUtils from '$components/mixins/common-utils';
 
   export default {
+    mixins: [commonUtils],
     components: { MyVersionSelector, paasDialogForLog },
 
     /**
@@ -278,16 +280,6 @@
     },
     watch: {},
     methods: {
-      // helper for loading action of el-button
-      addToWaitingResponseQueue(action) {
-        if (this.queueForWaitingResponse.indexOf(action) === -1) {
-          this.queueForWaitingResponse.push(action);
-        }
-      },
-      statusOfWaitingResponse(action) {
-        return this.queueForWaitingResponse.indexOf(action) > -1;
-      },
-
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
         //        console.log(appInfo, profileInfo, serviceInfo);
         this.instanceStatus.instanceList = [];
@@ -390,31 +382,23 @@
               return;
             }
             this.addToWaitingResponseQueue('ok-button-in-dialog-manual-scale');
-            let options = {
+            let payload = {
               spaceId: serviceInfo.selectedProfile.id,
               appId: serviceInfo.selectedAPP.appId,
               id: serviceInfo.selectedService.id,
               instanceNum: this.manualScale.newCount
             };
-            this.$net
-              .instanceChangeCount(options)
-              .then(msg => {
-                this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
-                this.operation = null;
-                // update model, show success message
-                this.instanceStatus.instanceCount = this.manualScale.newCount;
-                this.$message.success(msg);
-              })
-              .catch(msg => {
-                this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
-                this.operation = null;
-                this.$notify.error({
-                  title: '修改失败！',
-                  message: msg,
-                  duration: 0,
-                  onClose: function() {}
-                });
-              });
+            this.$net.requestPaasServer(this.$net.URL_LIST.instance_change_count, {
+              payload
+            }).then(msg => {
+              this.instanceStatus.instanceCount = this.manualScale.newCount;
+              this.$message.success('修改成功！');
+            })
+            .catch(msg => {
+            }).finally(() => {
+              this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
+              this.operation = null;
+            });
             break;
         }
       },

@@ -169,6 +169,13 @@ class Net {
     return result;
   }
 
+  showSuccess(msg) {
+    Vue.prototype.$notify.success({
+      title: '成功',
+      message: msg,
+      duration: 6000
+    })
+  }
   showError (err) {
     const title = `${err.title}!`;
     Vue.prototype.$notify.error({
@@ -243,7 +250,9 @@ class Net {
           }
         } else if (resData.hasOwnProperty('code')) {
           if (resData.code === 0) {
-            // return resData;
+            if (resData.hasOwnProperty('msg') && resData.msg) {
+              this.showSuccess(resData.msg);
+            }
             resolve(resData.content);
           } else {
             const err = {
