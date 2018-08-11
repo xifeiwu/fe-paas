@@ -1,10 +1,24 @@
-import {URL_LIST} from './url';
 import axios from 'axios';
 import NetBase from '$assets/js/net';
 
 class Net extends NetBase {
   constructor() {
     super();
+    const URL_LIST = {
+      menu_list: {
+        path: '/docs/help/menu.json',
+        method: 'get'
+      },
+      doc_content: {
+        path: '/docs/help/{path}',
+        method: 'get'
+      }
+    };
+    Object.keys(URL_LIST).forEach(key => {
+      let item = URL_LIST[key];
+      item.path = this.ASSIST_PREFIX + item.path;
+    });
+    this.URL_LIST = Object.assign(URL_LIST);
   }
 
   setVue(Vue) {
@@ -15,8 +29,8 @@ class Net extends NetBase {
   getHelp() {
     return new Promise((resolve, reject) => {
       axios.all([
-        axios.get(URL_LIST.menu_list),
-        axios.get(this.$utils.formatUrl(URL_LIST.doc_content, {path: 'help'}))
+        axios.get(this.URL_LIST.menu_list.path),
+        axios.get(this.$utils.formatUrl(this.URL_LIST.doc_content.path, {path: 'help'}))
       ]).then(axios.spread((response1, response2) => {
         let menuList = this.getResponseContent(response1);
         let helpContent = this.getResponseContent(response2);
@@ -30,7 +44,7 @@ class Net extends NetBase {
       })).catch(err => {
         reject({
           title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.menu_list}；${err.toString()}`
+          msg: `请求路径：${this.URL_LIST.menu_list.path}；${err.toString()}`
         });
       })
     });
@@ -38,7 +52,7 @@ class Net extends NetBase {
 
   getMenuList() {
     return new Promise((resolve, reject) => {
-      axios.get(URL_LIST.menu_list).then(response => {
+      axios.get(this.URL_LIST.menu_list.path).then(response => {
         let responseContent = this.getResponseContent(response);
         if (responseContent) {
           resolve(responseContent);
@@ -54,7 +68,7 @@ class Net extends NetBase {
 
   getContent(path) {
     return new Promise((resolve, reject) => {
-      let url = this.$utils.formatUrl(URL_LIST.doc_content, {path});
+      let url = this.$utils.formatUrl(this.URL_LIST.doc_content.path, {path});
       axios.get(url).then(response => {
         let responseContent = this.getResponseContent(response);
         if (responseContent) {
