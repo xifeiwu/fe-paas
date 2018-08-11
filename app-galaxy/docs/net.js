@@ -14,10 +14,10 @@ class Net extends NetBase {
         method: 'get'
       }
     };
-    Object.keys(URL_LIST).forEach(key => {
-      let item = URL_LIST[key];
-      item.path = this.ASSIST_PREFIX + item.path;
-    });
+    // Object.keys(URL_LIST).forEach(key => {
+    //   let item = URL_LIST[key];
+    //   item.path = this.ASSIST_PREFIX + item.path;
+    // });
     this.URL_LIST = Object.assign(URL_LIST);
   }
 

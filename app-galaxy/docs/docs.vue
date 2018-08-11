@@ -69,7 +69,7 @@
       height: calc(100% - 60px);
       box-sizing: border-box;
       .menu-list {
-        width: 350px;
+        width: 300px;
         float: left;
         height: 100%;
         border-right: 1px solid gray;
@@ -79,7 +79,7 @@
         }
       }
       .content {
-        margin-left: 350px;
+        margin-left: 300px;
         height: 100%;
         padding-left: 10px;
         padding-right: 5px;
