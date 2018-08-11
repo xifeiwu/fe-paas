@@ -13,17 +13,23 @@ module.exports = {
     assetsSubDirectory: 'assets',
     assetsPublicPath: '/',
     proxyTable: {
-      '/n-api/': {
-        target: 'http://127.0.0.1:6002',
-        changeOrigin: true,
-        logLevel: 'debug',
-        pathRewrite: path => path.replace('\/n-api', ''),
-      },
       '/j-api/paas/': {
         target: 'http://10.10.202.143:30333',
         changeOrigin: true,
         logLevel: 'debug',
         pathRewrite: path => path.replace('\/j-api\/paas\/', '\/'),
+      },
+      '/n-api/assist': {
+        target: 'http://127.0.0.1:6002',
+        changeOrigin: true,
+        logLevel: 'debug',
+        pathRewrite: path => path.replace('\/n-api\/assist\/', ''),
+      },
+      '/n-api/': {
+        target: 'http://127.0.0.1:6003',
+        changeOrigin: true,
+        logLevel: 'debug',
+        pathRewrite: path => path.replace('\/n-api', ''),
       },
     },
 
