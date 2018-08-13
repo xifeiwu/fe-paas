@@ -77,9 +77,10 @@
 <style lang="scss" scoped>
   #log-run {
     height: calc(100% - 30px);
+    padding: 0px 5px;
     .header {
+      padding: 5px 0px;
       font-size: 14px;
-      padding: 5px;
       .el-version-selector {
         display: inline-block;
       }
@@ -91,25 +92,19 @@
     }
     .section-log {
       position: relative;
-      margin: 0px;
-      /*height: 560px;*/
+      /*padding: 5px;*/
       background-color: rgba(0, 0, 0, 0.8);
-      /*.title {*/
-        /*height: 24px;*/
-        /*border-bottom: 1px solid white;*/
-        /*position: relative;*/
-        .el-icon-rank {
-          position: absolute;
-          right: 5px;
-          top: 5px;
-          color: white;
-          font-size: 22px;
-          transform: rotate(45deg);
-          &:hover {
-            color: #409EFF;
-          }
+      .el-icon-rank {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        color: white;
+        font-size: 22px;
+        transform: rotate(45deg);
+        &:hover {
+          color: #409EFF;
         }
-      /*}*/
+      }
     }
   }
 </style>
@@ -221,17 +216,18 @@
 
       // adjust element height after resize
       try {
-        let header = this.$el.querySelector('.header:first-child');
-        let logSection = this.$el.querySelector('.section-log');
-        this.resizeListener = (evt) => {
-          let height = this.$el.clientHeight;
-          let heightOfHeader = header.offsetHeight;
-          let heightOfContent = height - heightOfHeader;
-          logSection.style.height = (heightOfContent - 15) + 'px';
+        const headerNode = this.$el.querySelector(':scope > .header');
+        const logSection = this.$el.querySelector(':scope > .section-log');
+        this.resizeListener = () => {
+          let headerHeight = headerNode.offsetHeight;
+          logSection.style.height = this.$el.clientHeight - headerHeight - 5 + 'px';
         };
-        addResizeListener(this.$el, this.resizeListener)
+        addResizeListener(this.$el, this.resizeListener);
       } catch(err) {
       }
+    },
+    beforeDestroy() {
+      removeResizeListener(this.$el, this.resizeListener);
     },
     data() {
       return {
