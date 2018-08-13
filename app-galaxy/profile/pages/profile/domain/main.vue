@@ -138,38 +138,38 @@
       </div>
     </div>
 
-    <el-dialog :title="domainProps.showResponse?'创建外网域名结果':'申请外网二级域名'" :visible="selected.action == 'add-domain'"
-               :class="{'add-domain': true, 'size-700': true, 'show-response': domainProps.showResponse}"
+    <el-dialog :title="props4CreateDomain.showResponse?'创建外网域名结果':'申请外网二级域名'" :visible="selected.action == 'add-domain'"
+               :class="{'add-domain': true, 'size-700': true, 'show-response': props4CreateDomain.showResponse}"
                :close-on-click-modal="false"
                @close="handleClickInDialog('close-domain-in-dialog')"
     >
-      <div v-if="domainProps.showResponse">
+      <div v-if="props4CreateDomain.showResponse">
         <div class="title">
           <div class="key">外网域名</div>
           <div class="value">添加状态</div>
         </div>
-        <div class="item" v-for="(value, key) in domainProps.serverResponse">
+        <div class="item" v-for="(value, key) in props4CreateDomain.serverResponse">
           <div class="key">{{key}}</div>
           <div class="value">{{value}}</div>
         </div>
       </div>
-      <div slot="footer" class="dialog-footer" style="text-align: center" v-if="domainProps.showResponse">
+      <div slot="footer" class="dialog-footer" style="text-align: center" v-if="props4CreateDomain.showResponse">
         <el-button type="primary"
                    @click="handleClickInDialog('close-domain-in-dialog')">确&nbsp定</el-button>
       </div>
 
-      <el-form :model="domainProps" :rules="rules" size="mini" v-if="!domainProps.showResponse"
+      <el-form :model="props4CreateDomain" :rules="rules" size="mini" v-if="!props4CreateDomain.showResponse"
                label-width="120px" ref="newDomainForm">
         <el-form-item label="运行环境">
-          <el-select v-model="domainProps.profileName" placeholder="请选择">
+          <el-select v-model="props4CreateDomain.profileName" placeholder="请选择">
             <el-option v-for="item in $storeHelper.profileListOfGroup" :key="item.name" :label="item.description" :value="item.name">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="将要添加的域名" class="has-existed" :error="domainProps.errMsgForDomainToAdd">
-          <div v-if="domainProps.domainToAdd.length > 0">
+        <el-form-item label="将要添加的域名" class="has-existed" :error="props4CreateDomain.errMsgForDomainToAdd">
+          <div v-if="props4CreateDomain.domainToAdd.length > 0">
             <el-tag
-                    v-for="domain in domainProps.domainToAdd"
+                    v-for="domain in props4CreateDomain.domainToAdd"
                     :key="domain"
                     closable
                     type="success"
@@ -179,16 +179,16 @@
           </div>
           <div v-else>无</div>
         </el-form-item>
-        <el-form-item label="外网二级域名" :error="domainProps.errMsgForLevel2Name">
-          <el-input v-model="domainProps.level2Name" placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"></el-input>
-          <el-select v-model="domainProps.level1Name">
-            <el-option v-for="(item, index) in domainProps.level1InfoList" :value="item.domainName" :label="item.domainName"
+        <el-form-item label="外网二级域名" :error="props4CreateDomain.errMsgForLevel2Name">
+          <el-input v-model="props4CreateDomain.level2Name" placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"></el-input>
+          <el-select v-model="props4CreateDomain.level1Name">
+            <el-option v-for="(item, index) in props4CreateDomain.level1InfoList" :value="item.domainName" :label="item.domainName"
                        :key="index"></el-option>
           </el-select>
           <el-button class="add-domain-btn" size="mini-extral" type="primary" @click="handleDomainInDialog('add')">添加</el-button>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer" v-if="!domainProps.showResponse">
+      <div slot="footer" class="dialog-footer" v-if="!props4CreateDomain.showResponse">
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
@@ -604,9 +604,9 @@
         },
 
         // props for add domain
-        domainProps: {
-          dialogTitle: '创建外网二级域名',
+        props4CreateDomain: {
           level1InfoListByProfile: {},
+          profileId: null,
           profileName: null,
           level1InfoList: [],
           domainToAdd: [],
@@ -677,7 +677,7 @@
       }
     },
     watch: {
-      'domainProps.profileName': 'onProfileChangeInCreateDomainDialog',
+      'props4CreateDomain.profileName': 'onProfileChangeInCreateDomainDialog',
       'profileInfo.id': function (id) {
 //        this.isProfileSelected = id !== this.$storeHelper.PROFILE_ID_FOR_ALL;
         this.fixedInfoForVersionCondition.id = id;
@@ -723,14 +723,14 @@
       // used to listen domain change in dialog of create-domain
       onProfileChangeInCreateDomainDialog(value) {
         let profileName = value;
-        this.domainProps.level1InfoList = [];
-        this.domainProps.level1Name = '';
-        if (this.domainProps.level1InfoListByProfile.hasOwnProperty(profileName)) {
-          let level1InfoList = this.domainProps.level1InfoListByProfile[profileName];
+        this.props4CreateDomain.level1InfoList = [];
+        this.props4CreateDomain.level1Name = '';
+        if (this.props4CreateDomain.level1InfoListByProfile.hasOwnProperty(profileName)) {
+          let level1InfoList = this.props4CreateDomain.level1InfoListByProfile[profileName];
           if (Array.isArray(level1InfoList) && level1InfoList.length > 0) {
-            this.domainProps.level1Name = level1InfoList[0]['domainName'];
+            this.props4CreateDomain.level1Name = level1InfoList[0]['domainName'];
           }
-          this.domainProps.level1InfoList = level1InfoList;
+          this.props4CreateDomain.level1InfoList = level1InfoList;
         }
       },
       onServiceConditionChanged(profileInfo, appInfo, serviceInfo) {
@@ -868,14 +868,14 @@
 
       // some init action for domain props
       initDomainProps() {
-        this.domainProps.level1InfoList = [];
-        this.domainProps.domainToAdd = [];
-        this.domainProps.level2Name = '';
-        this.domainProps.level1Name = '';
-        this.domainProps.showResponse = false;
+        this.props4CreateDomain.level1InfoList = [];
+        this.props4CreateDomain.domainToAdd = [];
+        this.props4CreateDomain.level2Name = '';
+        this.props4CreateDomain.level1Name = '';
+        this.props4CreateDomain.showResponse = false;
         //clear error message tip
-        this.domainProps.errMsgForLevel2Name = '';
-        this.domainProps.errMsgForDomainToAdd = '';
+        this.props4CreateDomain.errMsgForLevel2Name = '';
+        this.props4CreateDomain.errMsgForDomainToAdd = '';
       },
 
       /**
@@ -894,19 +894,20 @@
             this.$net.getDomainLevel1Map({
               groupId: this.$storeHelper.currentGroupID
             }).then(domainMap => {
-              this.domainProps.level1InfoListByProfile = domainMap;
+              this.props4CreateDomain.level1InfoListByProfile = domainMap;
 
-              // set default profileName for add-domain-dialog
-              this.domainProps.profileName = this.$storeHelper.profileListOfGroup[0]['name'];
+              // set default profileName for add-domain-dialog(the same as profile in version-condition-filter)
+              this.props4CreateDomain.profileName = this.$storeHelper.profileListOfGroup[0]['name'];
+              console.log(this.$storeHelper.profileListOfGroup[0]);
               if (this.$refs.hasOwnProperty('version-condition-filter')) {
                 let selectedProfile = this.$refs['version-condition-filter'].getSelectedValue().selectedProfile;
                 if (selectedProfile && selectedProfile.hasOwnProperty('id')
                   && selectedProfile.id !== this.$storeHelper.PROFILE_ID_FOR_ALL) {
-                  this.domainProps.profileName = selectedProfile['name'];
+                  this.props4CreateDomain.profileName = selectedProfile['name'];
                 }
               }
 
-              this.onProfileChangeInCreateDomainDialog(this.domainProps.profileName);
+              this.onProfileChangeInCreateDomainDialog(this.props4CreateDomain.profileName);
               this.hideWaitingResponse(action);
               this.selected.action = 'add-domain';
             }).catch(err => {
@@ -916,7 +917,7 @@
                 duration: 0,
                 onClose: function () {
                 }
-              })
+              });
               this.hideWaitingResponse(action);
             });
             break;
@@ -948,7 +949,7 @@
        * @param domain
        */
       handleDomainInDialog(action, domain) {
-        let domainToAdd = this.domainProps.domainToAdd;
+        let domainToAdd = this.props4CreateDomain.domainToAdd;
         switch (action) {
           case 'remove':
             if (domainToAdd.indexOf(domain) > -1) {
@@ -956,24 +957,24 @@
             }
             break;
           case 'add':
-            this.domainProps.level2Name = this.domainProps.level2Name.trim();
+            this.props4CreateDomain.level2Name = this.props4CreateDomain.level2Name.trim();
 
-            this.domainProps.errMsgForLevel2Name = '';
-            this.domainProps.errMsgForDomainToAdd = '';
-            if (!/^[a-z0-9][a-z0-9\-]{0,62}$/.exec(this.domainProps.level2Name)) {
-              this.domainProps.errMsgForLevel2Name = '可以包含小写字符、数字、中划线，以字符数字开头，长度不超过63位';
+            this.props4CreateDomain.errMsgForLevel2Name = '';
+            this.props4CreateDomain.errMsgForDomainToAdd = '';
+            if (!/^[a-z0-9][a-z0-9\-]{0,62}$/.exec(this.props4CreateDomain.level2Name)) {
+              this.props4CreateDomain.errMsgForLevel2Name = '可以包含小写字符、数字、中划线，以字符数字开头，长度不超过63位';
               return;
             }
             if (domainToAdd.length >= 5) {
-              this.domainProps.errMsgForDomainToAdd = '每次最多添加五个';
+              this.props4CreateDomain.errMsgForDomainToAdd = '每次最多添加五个';
               return;
             }
-            let itemToAdd = this.domainProps.level2Name + '.' + this.domainProps.level1Name;
+            let itemToAdd = this.props4CreateDomain.level2Name + '.' + this.props4CreateDomain.level1Name;
             if (domainToAdd.indexOf(itemToAdd) > -1) {
               domainToAdd.splice(domainToAdd.indexOf(itemToAdd), 1);
             }
             domainToAdd.push(itemToAdd);
-            this.domainProps.level2Name = '';
+            this.props4CreateDomain.level2Name = '';
             break;
         }
       },
@@ -986,24 +987,24 @@
         let domainIdList = null;
         switch (action) {
           case 'add-domain-in-dialog':
-//            console.log(this.domainProps);
-//            console.log(this.domainProps.domainToAdd);
-            if (this.domainProps.domainToAdd.length === 0) {
-              this.domainProps.errMsgForDomainToAdd = '至少填写一个域名！';
+//            console.log(this.props4CreateDomain);
+//            console.log(this.props4CreateDomain.domainToAdd);
+            if (this.props4CreateDomain.domainToAdd.length === 0) {
+              this.props4CreateDomain.errMsgForDomainToAdd = '至少添加一个域名！';
               return;
             }
-            if (this.domainProps.domainToAdd.length > 5) {
-              this.domainProps.errMsgForDomainToAdd = '每次最多添加五个！';
+            if (this.props4CreateDomain.domainToAdd.length > 5) {
+              this.props4CreateDomain.errMsgForDomainToAdd = '每次最多添加五个！';
               return;
             }
             this.addToWaitingResponseQueue(action);
             this.$net.createDomain({
-              "spaceId": this.$storeHelper.getProfileInfoByName(this.domainProps.profileName)['id'],
+              "spaceId": this.$storeHelper.getProfileInfoByName(this.props4CreateDomain.profileName)['id'],
               "groupId": this.$storeHelper.currentGroupID,
-              "internetDomainList": this.domainProps.domainToAdd
+              "internetDomainList": this.props4CreateDomain.domainToAdd
             }).then(content => {
-              this.domainProps.serverResponse = content;
-              this.domainProps.showResponse = true;
+              this.props4CreateDomain.serverResponse = content;
+              this.props4CreateDomain.showResponse = true;
               this.hideWaitingResponse(action);
             }).catch(err => {
               this.hideWaitingResponse(action);
@@ -1018,7 +1019,7 @@
             break;
           case 'close-domain-in-dialog':
             this.selected.action = null;
-            if (this.domainProps.showResponse) {
+            if (this.props4CreateDomain.showResponse) {
               this.requestDomainList();
             }
             break;
