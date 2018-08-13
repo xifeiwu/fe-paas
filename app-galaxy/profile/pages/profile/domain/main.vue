@@ -52,7 +52,7 @@
       <el-table
               :data="currentDomainList"
               style="width: 100%"
-              :height="heightOfDomainList"
+              :height="heightOfTable"
               v-loading="showLoading"
               element-loading-text="加载中"
               @selection-change="handleSelectionChangeInTable"
@@ -535,7 +535,6 @@
     }
     .domain-list {
       box-sizing: border-box;
-      height: calc(100% - 57px);
       .el-table {
         .el-table__row {
           .el-button {
@@ -572,16 +571,12 @@
       this.keyword = '';
       // adjust element height after resize
       try {
-        let header = this.$el.querySelector('.header:first-child');
-        let domainList = this.$el.querySelector('.domain-list');
-        this.resizeListener = (evt) => {
-          let height = this.$el.clientHeight;
-          let heightOfHeader = header.offsetHeight;
-          let heightOfContent = height - heightOfHeader;
-          domainList.style.height = heightOfContent + 'px';
-          this.heightOfDomainList = height - heightOfHeader - 20;
+        let headerNode = this.$el.querySelector(':scope > .header');
+        this.resizeListener = () => {
+          let headerHeight = headerNode.offsetHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
         };
-        addResizeListener(this.$el, this.resizeListener)
+        addResizeListener(this.$el, this.resizeListener);
       } catch(err) {
       }
     },
@@ -591,7 +586,7 @@
     data() {
       return {
         resizeListener: () => {},
-        heightOfDomainList: '',
+        heightOfTable: '',
 
         totalSize: 0,
         pageSize: 10,
