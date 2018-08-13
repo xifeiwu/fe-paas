@@ -144,9 +144,11 @@
                @close="handleClickInDialog('close-domain-in-dialog')"
     >
       <div v-if="domainProps.showResponse">
-        <div class="key title">外网域名</div>
-        <div class="value title">添加状态</div>
-        <div class="clear list-item" v-for="(value, key) in domainProps.serverResponse">
+        <div class="title">
+          <div class="key">外网域名</div>
+          <div class="value">添加状态</div>
+        </div>
+        <div class="item" v-for="(value, key) in domainProps.serverResponse">
           <div class="key">{{key}}</div>
           <div class="value">{{value}}</div>
         </div>
@@ -206,9 +208,11 @@
                @close="selected.action = null"
     >
       <div v-if="bindServiceProps.showResponse">
-        <div class="key title">外网域名</div>
-        <div class="value title">绑定状态</div>
-        <div class="clear list-item" v-for="(value, key) in bindServiceProps.serverResponse">
+        <div class="title">
+          <div class="key">外网域名</div>
+          <div class="value">绑定状态</div>
+        </div>
+        <div class="item" v-for="(value, key) in bindServiceProps.serverResponse">
           <div class="key">{{key}}</div>
           <div class="value">{{value}}</div>
         </div>
@@ -266,9 +270,11 @@
                @close="selected.action = null"
     >
       <div v-if="unBindServiceProps.showResponse">
-        <div class="key title">外网域名</div>
-        <div class="value title">绑定状态</div>
-        <div class="clear list-item" v-for="(value, key) in unBindServiceProps.serverResponse">
+        <div class="title">
+          <div class="key">外网域名</div>
+          <div class="value">绑定状态</div>
+        </div>
+        <div class="item" v-for="(value, key) in unBindServiceProps.serverResponse">
           <div class="key">{{key}}</div>
           <div class="value">{{value}}</div>
         </div>
@@ -389,32 +395,26 @@
       &.add-domain {
         &.show-response {
           .el-dialog__body {
-            .list-item {
+            .title {
+              display: flex;
+              .key, .value {
+                font-weight: bold;
+              }
+            }
+            .item {
+              display: flex;
               border-bottom: 1px solid #909399;
               margin-bottom: 3px;
               &:last-child {
                 border-width: 0px;
               }
             }
-            .key {
-              &.title {
-                font-weight: bold;
-                text-align: center;
-              }
-              width: 160px;
+            .key, .value {
+              flex: 1;
               text-align: center;
-              float: left;
               text-overflow: ellipsis;
               word-wrap: break-word;
               word-break: break-all;
-            }
-            .value {
-              &.title {
-                font-weight: bold;
-                text-align: center;
-              }
-              margin-left: 180px;
-              text-align: center;
             }
           }
         }
@@ -442,32 +442,26 @@
         }
         &.show-response {
           .el-dialog__body {
-            .list-item {
-              border-bottom: 1px solid #e7e7e7;
+            .title {
+              display: flex;
+              .key, .value {
+                font-weight: bold;
+              }
+            }
+            .item {
+              display: flex;
+              border-bottom: 1px solid #909399;
               margin-bottom: 3px;
               &:last-child {
                 border-width: 0px;
               }
             }
-            .key {
-              &.title {
-                font-weight: bold;
-                text-align: center;
-              }
-              width: 220px;
+            .key, .value {
+              flex: 1;
               text-align: center;
-              float: left;
               text-overflow: ellipsis;
               word-wrap: break-word;
               word-break: break-all;
-            }
-            .value {
-              &.title {
-                font-weight: bold;
-                text-align: center;
-              }
-              margin-left: 228px;
-              text-align: center;
             }
           }
         }
@@ -481,32 +475,26 @@
         }
         &.show-response {
           .el-dialog__body {
-            .list-item {
-              border-bottom: 1px solid #e7e7e7;
+            .title {
+              display: flex;
+              .key, .value {
+                font-weight: bold;
+              }
+            }
+            .item {
+              display: flex;
+              border-bottom: 1px solid #909399;
               margin-bottom: 3px;
               &:last-child {
                 border-width: 0px;
               }
             }
-            .key {
-              &.title {
-                font-weight: bold;
-                text-align: center;
-              }
-              width: 160px;
+            .key, .value {
+              flex: 1;
               text-align: center;
-              float: left;
               text-overflow: ellipsis;
               word-wrap: break-word;
               word-break: break-all;
-            }
-            .value {
-              &.title {
-                font-weight: bold;
-                text-align: center;
-              }
-              margin-left: 180px;
-              text-align: center;
             }
           }
         }
