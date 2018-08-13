@@ -147,7 +147,7 @@
   #domain-white-list {
     background: white;
     height: 100%;
-    margin:0px 6px;
+    /*margin:0px 6px;*/
     max-width: 1200px;
     height: 100%;
     display: flex;
@@ -229,7 +229,6 @@
       flex: 1;
       .el-table {
         .el-button {
-          /*float: left;*/
           margin: 1px 3px;
           margin-left: 0px;
         }
@@ -271,7 +270,7 @@
       } else {
         this.$router.go(-1);
       }
-      this.allNetWorkAccessAble = domainInfo.notHaveIPWhiteList;
+      this.allNetWorkAccessAble = this.domainInfo.notHaveIPWhiteList;
 
       let headerNode = this.$el.querySelector(':scope > .header');
       this.resizeListener = () => {
