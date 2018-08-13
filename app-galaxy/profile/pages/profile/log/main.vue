@@ -23,7 +23,7 @@
     position: relative;
     background: white;
     height: 100%;
-    margin:0px 6px;
+    /*margin:0px 6px;*/
     max-width: 1300px;
     height: 100%;
     .more-logs {

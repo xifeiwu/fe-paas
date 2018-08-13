@@ -246,7 +246,7 @@
 <style lang="scss" scoped>
   #app-main {
     height: 100%;
-    margin: 0px 6px;
+    /*margin: 0px 6px;*/
     max-width: 1300px;
     background: white;
     .header {
