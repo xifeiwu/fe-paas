@@ -41,7 +41,7 @@ class Net extends NetBase {
       },
       // 删除所有白名单
       'domain_delete_all_white_ip': {
-        path: '/domain/whiteList/deleteAll',
+        path: '/domain/whiteList/deleteOffice',
         method: 'delete'
       },
       // 添加办公网白名单
