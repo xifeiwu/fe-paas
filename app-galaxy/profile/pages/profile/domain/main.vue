@@ -169,13 +169,13 @@
         <el-form-item label="将要添加的域名" class="has-existed" :error="props4CreateDomain.errMsgForDomainToAdd">
           <div v-if="props4CreateDomain.domainToAdd.length > 0">
             <el-tag
-                    v-for="domain in props4CreateDomain.domainToAdd"
-                    :key="domain"
+                    v-for="(item, index) in props4CreateDomain.domainToAdd"
+                    :key="index"
                     closable
                     type="success"
                     size="small"
-                    @close="handleDomainInDialog('remove', domain)"
-            >{{domain}}</el-tag>
+                    @close="handleDomainInDialog('remove', item)"
+            >{{item.domain}}</el-tag>
           </div>
           <div v-else>无</div>
         </el-form-item>
@@ -188,17 +188,15 @@
           <el-button class="add-domain-btn" size="mini-extral" type="primary" @click="handleDomainInDialog('add')">添加</el-button>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer" v-if="!props4CreateDomain.showResponse">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleClickInDialog('add-domain-in-dialog')"
-                       :loading="statusOfWaitingResponse('add-domain-in-dialog')">保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button @click="handleClickInDialog('close-domain-in-dialog')">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+      <div slot="footer" class="dialog-footer flex" v-if="!props4CreateDomain.showResponse">
+        <div class="item">
+          <el-button
+                  type="primary"
+                  @click="handleClickInDialog('add-domain-in-dialog')"
+                  :loading="statusOfWaitingResponse('add-domain-in-dialog')">保&nbsp存</el-button></div>
+        <div class="item">
+          <el-button @click="handleClickInDialog('close-domain-in-dialog')">取&nbsp消</el-button>
+        </div>
       </div>
     </el-dialog>
 
@@ -606,9 +604,10 @@
         // props for add domain
         props4CreateDomain: {
           level1InfoListByProfile: {},
-          profileId: null,
+          profile: null,
           profileName: null,
           level1InfoList: [],
+          // item in domainToAdd: {domain, profileId}
           domainToAdd: [],
           showResponse: false,
           serverResponse: {},
@@ -721,8 +720,9 @@
       },
 
       // used to listen domain change in dialog of create-domain
-      onProfileChangeInCreateDomainDialog(value) {
-        let profileName = value;
+      onProfileChangeInCreateDomainDialog(profileName) {
+        // get profile by profileName
+        this.props4CreateDomain.profile = this.$storeHelper.getProfileInfoByName(profileName);
         this.props4CreateDomain.level1InfoList = [];
         this.props4CreateDomain.level1Name = '';
         if (this.props4CreateDomain.level1InfoListByProfile.hasOwnProperty(profileName)) {
@@ -898,7 +898,6 @@
 
               // set default profileName for add-domain-dialog(the same as profile in version-condition-filter)
               this.props4CreateDomain.profileName = this.$storeHelper.profileListOfGroup[0]['name'];
-              console.log(this.$storeHelper.profileListOfGroup[0]);
               if (this.$refs.hasOwnProperty('version-condition-filter')) {
                 let selectedProfile = this.$refs['version-condition-filter'].getSelectedValue().selectedProfile;
                 if (selectedProfile && selectedProfile.hasOwnProperty('id')
@@ -946,14 +945,14 @@
       /**
        * action for add or remove domain
        * @param action
-       * @param domain
+       * @param domainItem: domain item in this.props4CreateDomain.domainToAdd(for remove)
        */
-      handleDomainInDialog(action, domain) {
+      handleDomainInDialog(action, domainItem) {
         let domainToAdd = this.props4CreateDomain.domainToAdd;
         switch (action) {
           case 'remove':
-            if (domainToAdd.indexOf(domain) > -1) {
-              domainToAdd.splice(domainToAdd.indexOf(domain), 1);
+            if (domainToAdd.indexOf(domainItem) > -1) {
+              domainToAdd.splice(domainToAdd.indexOf(domainItem), 1);
             }
             break;
           case 'add':
@@ -969,11 +968,22 @@
               this.props4CreateDomain.errMsgForDomainToAdd = '每次最多添加五个';
               return;
             }
-            let itemToAdd = this.props4CreateDomain.level2Name + '.' + this.props4CreateDomain.level1Name;
-            if (domainToAdd.indexOf(itemToAdd) > -1) {
-              domainToAdd.splice(domainToAdd.indexOf(itemToAdd), 1);
+            let domain = this.props4CreateDomain.level2Name + '.' + this.props4CreateDomain.level1Name;
+            let item = null;
+            domainToAdd.some(it => {
+              if (it.domain === domain) {
+                item = it;
+              }
+              return item
+            });
+            if (item) {
+              this.props4CreateDomain.errMsgForLevel2Name = `域名${domain}已经存在！`
+              return;
             }
-            domainToAdd.push(itemToAdd);
+            domainToAdd.push({
+              domain: domain,
+              profileId: this.props4CreateDomain.profile['id']
+            });
             this.props4CreateDomain.level2Name = '';
             break;
         }
@@ -987,8 +997,18 @@
         let domainIdList = null;
         switch (action) {
           case 'add-domain-in-dialog':
-//            console.log(this.props4CreateDomain);
 //            console.log(this.props4CreateDomain.domainToAdd);
+            let internetDomainList = {};
+            this.props4CreateDomain.domainToAdd.forEach(it => {
+              let profileId = it['profileId'];
+              if (!internetDomainList.hasOwnProperty(profileId)) {
+                internetDomainList[profileId] = [];
+              }
+              internetDomainList[profileId].push(it.domain);
+            });
+//            console.log(internetDomainList);
+
+            return;
             if (this.props4CreateDomain.domainToAdd.length === 0) {
               this.props4CreateDomain.errMsgForDomainToAdd = '至少添加一个域名！';
               return;
