@@ -605,7 +605,9 @@
         this.debounceCheckPortMap = this.$utils.debounce(this.checkPortMap.bind(this), 1500, false);
       },
       scrollTop() {
-        this.$el.scrollTop = '0px';
+        setTimeout(() => {
+          this.$el.scrollTop = '0px';
+        }, 500);
       },
       scrollBottom() {
         this.$nextTick(() => {
@@ -617,7 +619,9 @@
           // 30px is the sum of marginTop and marginBottom
           let sheetHeight = sheet.offsetHeight + 30;
           if (sheetHeight > containerHeight) {
-            this.$el.scrollTop = sheetHeight - containerHeight;
+            setTimeout(() => {
+              this.$el.scrollTop = sheetHeight - containerHeight;
+            }, 500);
           }
         });
       },
