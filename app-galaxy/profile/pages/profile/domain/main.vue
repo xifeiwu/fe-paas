@@ -998,6 +998,7 @@
         switch (action) {
           case 'add-domain-in-dialog':
 //            console.log(this.props4CreateDomain.domainToAdd);
+//            console.log(internetDomainList);
             let internetDomainList = {};
             this.props4CreateDomain.domainToAdd.forEach(it => {
               let profileId = it['profileId'];
@@ -1006,9 +1007,6 @@
               }
               internetDomainList[profileId].push(it.domain);
             });
-//            console.log(internetDomainList);
-
-            return;
             if (this.props4CreateDomain.domainToAdd.length === 0) {
               this.props4CreateDomain.errMsgForDomainToAdd = '至少添加一个域名！';
               return;
@@ -1019,9 +1017,8 @@
             }
             this.addToWaitingResponseQueue(action);
             this.$net.createDomain({
-              "spaceId": this.$storeHelper.getProfileInfoByName(this.props4CreateDomain.profileName)['id'],
               "groupId": this.$storeHelper.currentGroupID,
-              "internetDomainList": this.props4CreateDomain.domainToAdd
+              internetDomainList
             }).then(content => {
               this.props4CreateDomain.serverResponse = content;
               this.props4CreateDomain.showResponse = true;
