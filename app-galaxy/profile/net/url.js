@@ -270,11 +270,6 @@ class URL extends BaseURL {
         url: API_PATH + '/service/queryInstance',
         path: '/service/queryInstance'
       },
-      // 查看实例状态
-      'instance_status': {
-        url: API_PATH + '/event/pod/info',
-        path: '/event/pod/info'
-      },
 
       /** 域名相关 */
       // 获取一级域名

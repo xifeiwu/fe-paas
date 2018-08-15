@@ -251,9 +251,10 @@ class Net {
           }
         } else if (resData.hasOwnProperty('code')) {
           if (resData.code === 0) {
-            if (resData.hasOwnProperty('msg') && resData.msg) {
-              this.showSuccess(resData.msg);
-            }
+            // show msg if exist, when code == 0
+            // if (resData.hasOwnProperty('msg') && resData.msg) {
+            //   this.showSuccess(resData.msg);
+            // }
             resolve(resData.content);
           } else {
             const err = {

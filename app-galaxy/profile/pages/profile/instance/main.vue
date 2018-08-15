@@ -101,9 +101,9 @@
       </el-table>
     </div>
 
-    <el-dialog title="手动伸缩" :visible="operation == 'manual-scale'"
+    <el-dialog title="手动伸缩" :visible="action.name == 'manual-scale'"
                :close-on-click-modal="false"
-               @close="operation = null"
+               @close="action.name = null"
                class="manual-scale size-500"
     >
       <el-form labelWidth="120px" size="mini">
@@ -122,7 +122,7 @@
                        :loading="statusOfWaitingResponse('ok-button-in-dialog-manual-scale')">确&nbsp定</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
-            <el-button @click="operation = null">取&nbsp消</el-button>
+            <el-button @click="action.name = null">取&nbsp消</el-button>
           </el-col>
         </el-row>
       </div>
@@ -259,7 +259,10 @@
           instanceCount: null,
           instanceList: []
         },
-        operation: null,
+        action: {
+          name: null,
+          row: null
+        },
         manualScale: {
           newCount: null,
           error: ''
@@ -336,6 +339,10 @@
           });
       },
 
+      /**
+       * if version is selected.
+       * return selected service if version is selected
+       */
       checkVersionSelector() {
         let serviceInfo = this.$refs['version-selector'].getSelectedValue();
         if (
@@ -364,7 +371,7 @@
             break;
           case 'manual-scale':
             this.manualScale.newCount = this.instanceStatus.instanceCount;
-            this.operation = 'manual-scale';
+            this.action.name = 'manual-scale';
             break;
         }
       },
@@ -378,7 +385,7 @@
           case 'manualScale':
             if (this.manualScale.newCount === this.instanceStatus.instanceCount) {
               this.$message.warning('您没有做修改');
-              this.operation = null;
+              this.action.name = null;
               return;
             }
             this.addToWaitingResponseQueue('ok-button-in-dialog-manual-scale');
@@ -392,21 +399,63 @@
               payload
             }).then(msg => {
               this.instanceStatus.instanceCount = this.manualScale.newCount;
-              this.$message.success('修改成功！');
+              this.$message.success('扩容缩容操作成功，请过几十秒后刷新查看实例运行情况');
             })
             .catch(msg => {
             }).finally(() => {
               this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
-              this.operation = null;
+              this.action.name = null;
             });
             break;
         }
       },
 
       /**
+       * @param goOn, if run updateInstanceStatusList recursively
+       */
+      updateInstanceStatusList(goOn) {
+        if (!this.statusForDialogInstanceLog.visible) {
+          return;
+        }
+        let service = this.checkVersionSelector();
+        const payload = {
+          applicationId: service.selectedAPP.appId,
+          spaceId: service.selectedProfile.id,
+          kindName: this.action.row['instanceName']
+        };
+        this.statusForDialogInstanceLog.showLoading = true;
+        this.$net.requestPaasServer(this.$net.URL_LIST.instance_status, {
+          payload
+        }).then(resContent => {
+          this.instanceStatusList = resContent.map(item => {
+            item.firstTimestamp = this.$utils.formatDate(item.firstTimestamp, 'yyyy-MM-dd hh:mm:ss');
+            item.lastTimestamp = this.$utils.formatDate(item.lastTimestamp, 'yyyy-MM-dd hh:mm:ss');
+            return (
+              `<i style='color: aqua;'>` +
+              this.formatColumn(item.firstTimestamp, 25) +
+              this.formatColumn(item.lastTimestamp, 25) +
+              this.formatColumn(item.type, 10) +
+              this.formatColumn(item.reason, 25) +
+              '</i>' +
+              item.message
+            );
+          });
+          if (goOn) {
+            setTimeout(() => {
+              this.updateInstanceStatusList(true);
+            }, 6000);
+          }
+        }).catch(err => {
+        }).finally(() => {
+          this.statusForDialogInstanceLog.showLoading = false;
+        });
+      },
+
+      /**
        * handle click event in operation column
        */
       handleRowButtonClick(action, index, row) {
+        this.action.row = row;
         switch (action) {
           case 'terminal':
             let serviceInfo = this.$refs['version-selector'].getSelectedValue()[
@@ -447,40 +496,8 @@
           case 'monitor':
             break;
           case 'instanceStatus':
-            this.instanceStatusList = [];
             this.statusForDialogInstanceLog.visible = true;
-            let service = this.checkVersionSelector();
-            var options = {};
-            options.applicationId = service.selectedAPP.appId;
-            options.spaceId = service.selectedProfile.id;
-            options.kindName = row['instanceName'];
-            const getInstanceStatusList = options => {
-              if (!this.statusForDialogInstanceLog.visible) {
-                return;
-              }
-              this.$net
-                .getInstanceStatus(options)
-                .then(content => {
-                  this.instanceStatusList = content.map(item => {
-                    return (
-                      `<i style='color: aqua;'>` +
-                      this.formatColumn(item.firstTimestamp, 25) +
-                      this.formatColumn(item.lastTimestamp, 25) +
-                      this.formatColumn(item.type, 10) +
-                      this.formatColumn(item.reason, 25) +
-                      '</i>' +
-                      item.message
-                    );
-                  });
-                  setTimeout(() => {
-                    getInstanceStatusList(options);
-                  }, 5000);
-                })
-                .catch(err => {
-                  this.statusForDialogInstanceLog.showLoading = false;
-                });
-              }
-              getInstanceStatusList(options);
+            this.updateInstanceStatusList(true);
             break;
           case 'show-console-log':
             var selectedValue = this.$refs['version-selector'].getSelectedValue();
