@@ -127,7 +127,7 @@
         </el-row>
       </div>
     </el-dialog>
-    <paas-dialog-for-log :showStatus="statusForDialogInstanceLog" ref="statusForDialogInstanceLog" title="实例状态">
+    <paas-dialog-for-log :showStatus="statusForDialogInstanceLog" @refresh='updateInstanceStatusList(false)' title="实例状态">
       <div slot="log-list">
         <div class="log-title">
           <p v-html="formatColumn('Firstseen',25) + formatColumn('Lastseen',25) + formatColumn('Type',10) + formatColumn('Reason',25) + formatColumn('Message',40)"></p>
@@ -270,7 +270,9 @@
         statusForDialogInstanceLog: {
           visible: false,
           full: false,
-          showLoading: false
+          showLoading: false,
+          iconRefresh: true,
+          iconExpand: true,
         },
         instanceStatusList: [],
         dialogStatusForConsoleLog: {
@@ -405,6 +407,9 @@
             }).finally(() => {
               this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
               this.action.name = null;
+//              setTimeout(() => {
+//                this.handleButtonClick('refresh');
+//              }, 5000);
             });
             break;
         }
