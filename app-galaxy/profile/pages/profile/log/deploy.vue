@@ -123,6 +123,7 @@
         dialogStatus: {
           visible: false,
           full: false,
+          iconExpand: true,
         },
         deployLogs: [],
         deployLogListByPage: [],

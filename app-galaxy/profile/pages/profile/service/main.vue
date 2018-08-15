@@ -1332,7 +1332,8 @@ export default {
       dialogForLogStatus: {
         visible: false,
         full: false,
-        showLoading: false
+        showLoading: false,
+        iconExpand: true
       },
 
       queueForWaitingResponse: []

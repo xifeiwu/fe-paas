@@ -61,9 +61,9 @@
           <span class="exception" v-if="item.exception">{{item.exception}}</span>
         </div>
       </el-scrollbar>
-      <i class="el-icon-rank" @click="dialogStatus.visible = true"></i>
+      <i class="paas-icon-screen-expand" @click="dialogStatus.visible = true"></i>
     </div>
-    <my-dialog-for-log class="log-run-log" title="运行日志" :showStatus="dialogStatus" @scrollBottom="requestLog">
+    <paas-dialog-for-log class="log-run-log" title="运行日志" :showStatus="dialogStatus" @scrollBottom="requestLog">
       <div slot="log-list" v-for="(item,index) in runLogs" :key="index" class="log-item">
         <span class="time">{{item.timestamp}}</span>
         <span class="thread">{{item.thread}}</span>
@@ -71,7 +71,7 @@
         <span class="content">{{item.content}}</span>
         <div class="exception" v-if="item.exception">{{item.exception}}</div>
       </div>
-    </my-dialog-for-log>
+    </paas-dialog-for-log>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -92,15 +92,14 @@
     }
     .section-log {
       position: relative;
-      /*padding: 5px;*/
       background-color: rgba(0, 0, 0, 0.8);
-      .el-icon-rank {
+      .paas-icon-screen-expand {
         position: absolute;
         right: 5px;
         top: 5px;
-        color: white;
-        font-size: 22px;
-        transform: rotate(45deg);
+        font-size: 18px;
+        color: #878d99;
+        transform: rotateZ(90deg);
         &:hover {
           color: #409EFF;
         }
@@ -171,10 +170,10 @@
 </style>
 <script>
   import MyVersionSelector from '../components/version-selector';
-  import MyDialogForLog from '../components/dialog4log.vue';
+  import paasDialogForLog from '../components/dialog4log.vue';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   export default {
-    components: {MyVersionSelector, MyDialogForLog},
+    components: {MyVersionSelector, paasDialogForLog},
     /**
      * the sequence of create and mount in parent and child element is:
      * create parent -> create children -> mount children -> mount parent
@@ -287,7 +286,7 @@
         dialogStatus: {
           visible: false,
           full: true,
-          showLoading: false
+          showLoading: false,
         },
         runLogs: [],
         requestPage: 1,
