@@ -42,9 +42,9 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
           <el-form-item labelWidth="0px">
             <div class="login-title">登录凡普云</div>
           </el-form-item>
-          <el-form-item labelWidth="0px" v-if="error.status">
+          <el-form-item labelWidth="0px" v-if="errMsg">
             <el-alert
-                    :title="error.content"
+                    :title="errMsg"
                     type="error"
                     :closable="false"
                     class="login-error"
@@ -339,10 +339,8 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
         },
         verifyImageData: '',
         freeLogin15Days: false,
-        error: {
-          status: false,
-          content: ''
-        },
+        errMsgForVerifyCode: '获取验证码失败，请检查网络是否正常连接。',
+        errMsg: '',
         showLoading: false,
         focusIndex: 0,
         focusableElesInForm: []
@@ -437,6 +435,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       },
 
       pageJump() {
+        return;
         let queryString = window.location.search.replace(/^\?/, '');
         let queryObj = this.$utils.parseQueryString(queryString);
         let toPath = '/profile';
@@ -510,8 +509,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
        * @param updateVerifyCode, whether update verify code or not
        */
       showError(content, updateVerifyCode) {
-        this.error.status = true;
-        this.error.content = content;
+        this.errMsg = content;
         if (updateVerifyCode) {
           this.form.verifyCode = '';
           this.updateVerifyCode();
@@ -527,8 +525,12 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
           let mimeType = response.headers['content-type'];
           this.verifyImageData = "data:" + mimeType + ";base64," + base64;
           this.form.verificationCode = response.headers['verification-code'];
+          // hide error if current error is errMsgForVerifyCode
+          if (this.errMsg === this.errMsgForVerifyCode) {
+            this.showError('', false);
+          }
         }).catch(err => {
-          this.showError('获取验证码失败，请检查网络是否正常连接。', false);
+          this.showError(this.errMsgForVerifyCode, false);
           console.log(err);
         });
       },
@@ -549,8 +551,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
           return isOK;
         }
         isOK = true;
-        this.error.status = false;
-        this.error.content = '';
+        this.errMsg = '';
         return isOK;
       }
     }
