@@ -16,9 +16,9 @@
     <div slot="title" class="dialog-title">
       <span class="title">{{title}}</span>
       <div class="icon-list">
-        <i :class="['paas-icon', 'el-icon-refresh', showStatus.showLoading ? 'loading' : '']"
+        <i :class="['paas-icon', 'el-icon-refresh', showStatus.showLoading ? 'loading' : '', !showStatus.iconRefresh ? 'hide': '']"
            @click="handleIconClick('refresh')"></i>
-        <i :class="['paas-icon', showStatus.full ? 'paas-icon-screen-shrink':'paas-icon-screen-expand', !iconToShow.expand ? 'hide': '']"
+        <i :class="['paas-icon', showStatus.full ? 'paas-icon-screen-shrink':'paas-icon-screen-expand', !showStatus.iconExpand ? 'hide': '']"
            @click="handleIconClick('expand-or-shrink')"></i>
       </div>
     </div>
@@ -149,13 +149,10 @@
 //      console.log('created');
     },
     mounted() {
-      if (!this.showStatus.hasOwnProperty('full')) {
-        this.iconToShow.expand = false;
-        this.showStatus.full = false;
-      }
-      if (!this.showStatus.hasOwnProperty('iconRefresh')) {
-        this.iconToShow.refresh = false;
-      }
+//      if (!this.showStatus.hasOwnProperty('full')) {
+//        this.iconToShow.expand = false;
+//        this.showStatus.full = false;
+//      }
       let dialog = this.$refs['dialog-for-log'].$refs['dialog'];
       if (this.showStatus.full && dialog) {
         dialog.style.width = '100%';
@@ -174,7 +171,10 @@
         default() {
           return {
             visible: false,
-            full: false
+            full: false,
+            showLoading: false,
+            iconRefresh: false,
+            iconExpand: false
           };
         }
       },
@@ -216,10 +216,6 @@
         dialog: null,
         scrollWrap: null,
         scrollListener: null,
-        iconToShow: {
-          expand: true,
-          refresh: false,
-        }
       }
     },
     methods: {
