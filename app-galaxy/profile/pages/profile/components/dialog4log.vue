@@ -4,26 +4,39 @@
              class="dialog-for-log"
              :closeOnClickModal="false"
              ref="dialog-for-log"
-             v-loading="showStatus.showLoading"
-             element-loading-text="加载中"
-             element-loading-spinner="el-icon-loading"
-             element-loading-background="rgba(0, 0, 0, 0.1)"
   >
-    <el-scrollbar>
+    <el-scrollbar
+      v-loading="showStatus.showLoading"
+      element-loading-text="加载中"
+      element-loading-spinner="el-icon-loading"
+      element-loading-background="rgba(0, 0, 0, 0.1)"
+    >
       <slot name="log-list"></slot>
     </el-scrollbar>
     <div slot="title" class="dialog-title">
       <span class="title">{{title}}</span>
-      <i :class="['paas-icon', showStatus.full ? 'paas-icon-screen-shrink':'paas-icon-screen-expand', !showIconExpand ? 'hide': '']" @click="showStatus.full = !showStatus.full"></i>
+      <div class="icon-list">
+        <i :class="['paas-icon', 'el-icon-refresh', showStatus.showLoading ? 'loading' : '']"
+           @click="handleIconClick('refresh')"></i>
+        <i :class="['paas-icon', showStatus.full ? 'paas-icon-screen-shrink':'paas-icon-screen-expand', !iconToShow.expand ? 'hide': '']"
+           @click="handleIconClick('expand-or-shrink')"></i>
+      </div>
     </div>
   </el-dialog>
 </template>
 <style lang="scss">
   .spa .el-dialog__wrapper {
     &.dialog-for-log {
+      @keyframes rotating {
+        0% {
+          transform: rotateZ(0deg);
+        }
+        100% {
+          transform: rotateZ(360deg);
+        }
+      }
       .el-dialog {
         background-color: rgba(0, 0, 0, 0.8);
-        /*background-color: #303133;*/
         width: 80%;
         height: 70%;
         text-align: left;
@@ -41,21 +54,28 @@
               font-weight: bold;
               color: white;
             }
-            .paas-icon {
-              display: inline-block;
-              font-size: 12px;
-              line-height: 100%;
-              margin-top: 2px;
-              font-weight: normal;
-              color:#878d99;
-              &.hide {
-                visibility: hidden;
-              }
-              &:hover{
-                color:#46A0FC;
-              }
-              &.paas-icon-screen-expand {
-                transform: rotate(45deg);
+            .icon-list {
+              .paas-icon {
+                display: inline-block;
+                font-size: 14px;
+                line-height: 100%;
+                margin-top: 2px;
+                margin-right: 2px;
+                font-weight: normal;
+                color: #878d99;
+                cursor: pointer;
+                &.hide {
+                  display: none;
+                }
+                &:hover {
+                  color: #46A0FC;
+                }
+                &.el-icon-refresh {
+                  &.loading {
+                    pointer-events: none;
+                    animation: rotating 2s linear infinite;
+                  }
+                }
               }
             }
           }
@@ -129,11 +149,14 @@
 //      console.log('created');
     },
     mounted() {
-      let dialog = this.$refs['dialog-for-log'].$refs['dialog'];
       if (!this.showStatus.hasOwnProperty('full')) {
-        this.showIconExpand = false;
+        this.iconToShow.expand = false;
         this.showStatus.full = false;
       }
+      if (!this.showStatus.hasOwnProperty('iconRefresh')) {
+        this.iconToShow.refresh = false;
+      }
+      let dialog = this.$refs['dialog-for-log'].$refs['dialog'];
       if (this.showStatus.full && dialog) {
         dialog.style.width = '100%';
         dialog.style.height = '100%';
@@ -193,7 +216,10 @@
         dialog: null,
         scrollWrap: null,
         scrollListener: null,
-        showIconExpand: true,
+        iconToShow: {
+          expand: true,
+          refresh: false,
+        }
       }
     },
     methods: {
@@ -227,6 +253,17 @@
       removeListenerForScrollWrap() {
         if (this.scrollWrap && this.scrollListener) {
           this.scrollWrap.removeEventListener('scroll', this.scrollListener);
+        }
+      },
+
+      handleIconClick(action) {
+        switch (action) {
+          case 'expand-or-shrink':
+            this.showStatus.full = !this.showStatus.full
+            break;
+          case 'refresh':
+            this.$emit('refresh');
+            break;
         }
       },
 
