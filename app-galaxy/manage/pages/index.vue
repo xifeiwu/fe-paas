@@ -32,7 +32,48 @@
       </div>
     </div>
     <div class="detail-list">
-
+      <el-table
+              :data="appStatusList"
+              style="width: 100%"
+              v-loading="showLoading"
+              element-loading-text="加载中"
+      >
+        <el-table-column prop="appName" label="应用名称" width="100"></el-table-column>
+        <el-table-column prop="tag" label="项目名称" width="100"></el-table-column>
+        <el-table-column label="语言版本" width="100">
+          <template slot-scope="scope">
+            <span>{{scope.row.language}}</span><span v-if="scope.row.languageVersion">{{scope.row.languageVersion}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="lobName" label="LOB" width="100"></el-table-column>
+        <el-table-column prop="scrumName" label="团队名称" width="100"></el-table-column>
+        <el-table-column prop="creator" label="创建人" width="100"></el-table-column>
+        <el-table-column prop="profileDesc" label="运行环境（实例数）">
+          <template slot-scope="scope">
+            <span v-for="(item, index) in scope.row.spaceAndInstanceNum" :key="index">{{item.spaceName}}（{{item.instanceNum}}）</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+                prop="operation"
+                label="操作"
+                width="160"
+        >
+          <template slot-scope="scope">
+            <el-button
+                    size="mini-extral"
+                    type="text"
+                    @click="handleRowButtonClick('transfer', scope.$index, scope.row)">
+              应用转让
+            </el-button>
+            <el-button
+                    size="mini-extral"
+                    type="text"
+                    :loading="statusOfWaitingResponse('remove') && selected.row.id === scope.row.id"
+                    @click="handleRowButtonClick('remove', scope.$index, scope.row)">销毁应用
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
   </div>
 </template>
@@ -71,7 +112,9 @@
 
 <script>
   import {mapState} from "vuex";
+  import commonUtils from '$components/mixins/common-utils';
   export default {
+    mixins: [commonUtils],
     created() {
       Promise.all([
         this.$net.requestPaasServer(this.$net.URL_LIST.lob_list),
@@ -106,6 +149,8 @@
 
         lobList: [],
         groupList: [],
+        showLoading: false,
+        appStatusList: [],
       }
     },
     computed: {
@@ -119,17 +164,33 @@
             const payload = {
               pageNum: 1,
               pageSize: 10,
-              lobId: this.lobId,
-              scrumId: this.groupId,
             };
-            if (this.keyWordType === 1) {
-              payload['appName'] = this.keyword;
-            } else {
-              payload['tag'] = this.keyword;
+            if ('' !== this.lobId) {
+              payload.lobId = this.lobId
             }
-            console.log(payload);
+            if ('' !== this.groupId) {
+              payload.scrumId = this.groupId;
+            }
+            this.keyword = this.keyword.trim();
+            if (this.keyword.length > 0) {
+              if (this.keyWordType === 1) {
+                payload['appName'] = this.keyword;
+              } else {
+                payload['tag'] = this.keyword;
+              }
+            }
+            this.$net.requestPaasServer(this.$net.URL_LIST.app_status_list, {
+              payload
+            }).then(resContent => {
+              this.appStatusList = resContent['backStageList'];
+            }).catch(err => {
+
+            })
             break;
         }
+      },
+      handleRowButtonClick(action, index, row) {
+
       }
     }
   }

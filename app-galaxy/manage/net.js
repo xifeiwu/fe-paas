@@ -11,9 +11,9 @@ class Net extends NetBase {
     };
     const PAAS_URL_LIST = Object.assign(this.URL_LIST_PAAS_SUPER, {
       // 获取用户所在组列表
-      'user_group_list': {
-        path: '/group/queryByUser',
-        method: 'get'
+      'app_status_list': {
+        path: '/backstage',
+        method: 'post'
       },
       // 获取团队的所有运行环境
       'profile_list_of_group': {
