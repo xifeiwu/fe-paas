@@ -8,13 +8,13 @@
 
 import Vue from 'vue';
 
-import Store from './profile/store';
-import StoreHelper from './profile/store/store-helper';
+import Store from './store';
+import StoreHelper from './store/store-helper';
 
-import {URL_LIST} from './profile/net/url';
-import netHelper from './profile/net/net';
+import {URL_LIST} from './net/url';
+import netHelper from './net/net';
 
-import VueConfig from './config/vue';
+import VueConfig from '../config/vue';
 
 new VueConfig({
   URL_LIST,
@@ -22,7 +22,7 @@ new VueConfig({
   storeHelper: new StoreHelper(Store),
 });
 
-import routerConfig from './profile/pages/router';
+import routerConfig from './pages/router';
 
 Vue.prototype.$routeHelper = routerConfig;
 
@@ -30,7 +30,7 @@ Vue.prototype.$routeHelper = routerConfig;
 import '$assets/css/fonts/paas-icon.css';
 import '$assets/css/fonts/paas-icon.js';
 
-import APP from './profile/pages/profile';
+import APP from './pages/profile';
 
 import(/* webpackChunkName: "components-profile" */ '$assets/libs/components/profile.js').then(components => {
   components.default.install(Vue);
