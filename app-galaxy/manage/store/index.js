@@ -5,8 +5,16 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    toasts: [],        // toasts,
-    config: {},
+    lobList: [],        // toasts,
+    groupList: [],
+  },
+  actions: {
+    lobList({ commit, state }, lobList) {
+      state.lobList = lobList;
+    },
+    groupList({commit, state }, groupList) {
+      state.groupList = groupList;
+    }
   },
   mutations: {
     toastPush(state, payload) {
@@ -25,25 +33,13 @@ export default new Vuex.Store({
       }
     }
   },
-  actions: {
-    toastPush({ commit }, payload) {
-      const _payload = Object.assign({ title: '', center: true, druing: 4000 }, payload);
-      commit('toastPush', _payload);
-      setTimeout(() => {
-        commit('toastPop')
-      }, _payload.druing)
-    },
-    setConfig({commit}, config) {
-      commit('SET_CONFIG', config)
-    }
-  },
 
   getters: {
-    'collapseMenu': (state, getters) => {
-      if (!state.config) {
-        state.config = {}
-      }
-      return state.config.collapseMenu;
+    'lobList': (state, getters) => {
+      return state.lobList;
+    },
+    'groupList': (state, getters) => {
+      return state.groupList;
     }
   },
 

@@ -9,7 +9,7 @@ class Net extends NetBase {
     this.requestingState = {
       getAPPList: false,
     };
-    const PAAS_URL_LIST = {
+    const PAAS_URL_LIST = Object.assign(this.URL_LIST_PAAS_SUPER, {
       // 获取用户所在组列表
       'user_group_list': {
         path: '/group/queryByUser',
@@ -64,7 +64,7 @@ class Net extends NetBase {
         path: '/domain/whiteList/addOffice',
         method: 'post'
       },
-    };
+    });
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];
       item.path = this.PAAS_PREFIX + item.path;

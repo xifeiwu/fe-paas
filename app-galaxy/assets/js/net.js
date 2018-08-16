@@ -8,6 +8,20 @@ class Net {
     this.CDN_PREFIX = '/n-api';
     // this.DNS_PREFIX = '/n-api';
     this.PAAS_PREFIX = '/j-api/paas';
+
+
+    this.URL_LIST_PAAS_SUPER = {
+      // 获取用户所在组列表
+      'user_group_list': {
+        path: '/group/queryByUser',
+        method: 'get'
+      },
+      // 获取line of business列表
+      'lob_list': {
+        path: '/group/queryLobList',
+        method: 'get'
+      },
+    }
   }
   // some function of Vue.prototype may be used in net.js
   setVue() {}
