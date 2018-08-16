@@ -32,6 +32,7 @@ const chunksAndTemplates = (() => {
     'docs': path.resolve(vueBaseDir, 'app-galaxy/docs/entry.js'),
     'login': path.resolve(vueBaseDir, 'app-galaxy/login/entry.js'),
     'profile': path.resolve(vueBaseDir, 'app-galaxy/profile/entry.js'),
+    'manage': path.resolve(vueBaseDir, 'app-galaxy/manage/entry.js'),
     'user': path.resolve(vueBaseDir, 'app-galaxy/user.js'),
     'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),
   };
@@ -73,6 +74,15 @@ const chunksAndTemplates = (() => {
       "chunks": ["profile"],
     },
     {
+      "filename": "manage.html",
+      "title": "凡普云-管理平台",
+      "cdn": {
+        "js": [],
+        "css": ['/assets/libs/element-ui/element-ui.css']
+      },
+      "chunks": ["manage"],
+    },
+    {
       "filename": "user.html",
       "title": "凡普云-用户中心",
       "cdn": {
@@ -91,31 +101,6 @@ const chunksAndTemplates = (() => {
       "chunks": ["terminal"],
     }
   ];
-
-  // var more = process.env.NODE_ENV !== 'production';
-  var more = false;
-  if (more) {
-    entries['element'] = path.resolve(vueBaseDir, 'app-test/element.js');
-    entries['custom'] = path.resolve(vueBaseDir, 'app-test/custom.js');
-    htmlConfigs.push({
-      "filename": "element.html",
-      "title": "element-ui-demo",
-      "cdn": {
-        "js": [],
-        "css": []
-      },
-      "chunks": ["element"],
-    });
-    htmlConfigs.push({
-      "filename": "custom.html",
-      "title": "custom-component-demo",
-      "cdn": {
-        "js": [],
-        "css": []
-      },
-      "chunks": ["custom"],
-    })
-  }
 
   let templates = htmlConfigs.map(it => {
     it.chunks = ["manifest"].concat(it.chunks);

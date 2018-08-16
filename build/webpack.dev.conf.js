@@ -33,6 +33,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         { from: /^\/terminal/, to: '/terminal.html' },
         { from: /^\/docs/, to: '/docs.html' },
         { from: /^\/(profile|app|work-order|config-server|instance|service|domain|log|oauth|cdn)/, to: '/profile.html' },
+        { from: /^\/manage/, to: '/manage.html' },
       ],
     },
     hot: true,

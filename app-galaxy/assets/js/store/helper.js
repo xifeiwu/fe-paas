@@ -1,6 +1,6 @@
 export default class StoreHelper {
-  constructor(Store) {
-    this.$store = Store;
+  constructor(store) {
+    this.$store = store;
   }
 
   setUserConfig(keys, value) {
