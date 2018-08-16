@@ -435,7 +435,6 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       },
 
       pageJump() {
-        return;
         let queryString = window.location.search.replace(/^\?/, '');
         let queryObj = this.$utils.parseQueryString(queryString);
         let toPath = '/profile';
