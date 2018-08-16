@@ -260,7 +260,7 @@
       if (!this.appInfoListOfGroup) {
         this.$store.dispatch('user/appInfoListOfGroup', {
           from: 'page/work-order/todo/add',
-          groupID: this.currentGroupID
+          groupId: this.currentGroupID
         });
       } else {
         this.onAppInfoListOfGroup(this.appInfoListOfGroup);

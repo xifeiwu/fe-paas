@@ -52,12 +52,6 @@ class URL extends BaseURL {
         path: '/application/queryByPage',
         method: 'post'
       },
-      // 获取用户所在组列表
-      'get_user_group_list': {
-        url: API_PATH + '/group/queryByUser',
-        path: '/group/queryByUser',
-        method: 'get'
-      },
       // 获取Scrum列表
       'get_scrum_list': {
         url: API_PATH + '/group/getScrumList',
@@ -96,12 +90,6 @@ class URL extends BaseURL {
       'app_delete': {
         url: API_PATH + '/application/delete',
         path: '/application/delete',
-        method: 'post'
-      },
-      // 获取团队的所有运行环境
-      'get_profile_of_group': {
-        url: API_PATH + '/space/querySpaceByGroupId',
-        path: '/space/querySpaceByGroupId',
         method: 'post'
       },
       // 修改应用名称
@@ -537,12 +525,6 @@ class URL extends BaseURL {
       'work_order_fetch_deploy_log': {
         url: API_PATH + '/workOrderDeploy/searchDeployLog',
         path: '/workOrderDeploy/searchDeployLog'
-      },
-
-      // 获取验收人列表
-      'users_in_group': {
-        url: API_PATH + '/group/users',
-        path: '/group/users'
       },
 
       // 远程配置中心——分支列表

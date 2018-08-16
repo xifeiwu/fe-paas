@@ -59,7 +59,7 @@
       if (!this.appInfoListOfGroup) {
         this.$store.dispatch('user/appInfoListOfGroup', {
           from: 'component version-selector',
-          groupID: this.$storeHelper.currentGroupID
+          groupId: this.$storeHelper.currentGroupID
         });
       } else {
         this.onAppInfoListOfGroup(this.appInfoListOfGroup);

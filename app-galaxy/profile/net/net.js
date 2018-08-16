@@ -26,6 +26,21 @@ class Net extends NetBase {
       getAPPList: false,
     };
     const PAAS_URL_LIST = {
+      // 获取用户所在组列表
+      'user_group_list': {
+        path: '/group/queryByUser',
+        method: 'get'
+      },
+      // 获取团队的所有运行环境
+      'profile_list_of_group': {
+        path: '/space/querySpaceByGroupId',
+        method: 'post'
+      },
+      // 获取验收人列表
+      'users_list_of_group': {
+        path: '/group/users',
+        method: 'post'
+      },
       // 获取cpu和memory的对应关系
       'cpu_and_memory_config': {
         path: '/cpuAndMemory/queryCpuAndMemory',
@@ -296,43 +311,6 @@ class Net extends NetBase {
     })
   }
 
-  /**
-   * 获取用户所在的组列表
-   * @returns {Promise}
-   */
-  getUserGroupList () {
-    return new Promise((resolve, reject) => {
-      axios.get(URL_LIST.get_user_group_list.url).then(response => {
-        let responseContent = this.getResponseContent(response);
-        if (responseContent) {
-          if (responseContent.hasOwnProperty('groupList') && Array.isArray(responseContent['groupList'])) {
-            responseContent.groupList = responseContent.groupList.map(it => {
-              let lobName = '';
-              if (it.hasOwnProperty('lobName') && it.lobName && it.lobName.length > 0) {
-                lobName = '（' + it['lobName'] + '）';
-              }
-              it.asLabel = it.name;
-              // it.asLabel = it.name + lobName;
-              return it;
-            })
-          }
-          resolve(responseContent);
-        } else {
-          console.log('用户组列表获取失败！');
-          reject({
-            title: '数据格式不正确',
-            msg: '用户组列表获取失败！'
-          })
-        }
-      }).catch(err => {
-        reject({
-          title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.get_user_group_list.path}；${err.toString()}`
-        });
-      });
-    })
-  }
-
   // 获取Scrum列表
   getLobInfo() {
     return new Promise((resolve, reject) => {
@@ -391,12 +369,12 @@ class Net extends NetBase {
    */
   getAPPList (options) {
     // console.log(`options: ${JSON.stringify(options)}`);
-    if (this.requestingState.getAPPList || !options.groupId) {
-      this.showLog('getAPPList', 'in the state of requesting');
-      return new Promise((resolve, reject) => {
-        reject('getAPPList is in requesting');
-      })
-    }
+    // if (this.requestingState.getAPPList || !options.groupId) {
+    //   this.showLog('getAPPList', 'in the state of requesting');
+    //   return new Promise((resolve, reject) => {
+    //     reject('getAPPList is in requesting');
+    //   })
+    // }
     let getAppModelList = function(appList) {
       let appModelList = [];
       appList.forEach(app => {
@@ -502,20 +480,6 @@ class Net extends NetBase {
     });
   }
 
-  // only call when group id is changed
-  getProfileListOfGroup(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.get_profile_of_group.url, options).then(response => {
-        let content = this.getResponseContent(response);
-        if (content) {
-          this.showLog('getProfileListOfGroup', content);
-          resolve(content);
-        }
-      }).catch(err => {
-      });
-    });
-  }
-
   /**
    * 获取创建APP时的相关信息
    * 1. 相关语言
@@ -566,25 +530,6 @@ class Net extends NetBase {
     return result;
   }
 
-  /**
-   * 获取当前组的所有用户
-   * @param options
-   * @returns {Promise}
-   */
-  getUsersInGroup(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.users_in_group.url, options).then(response => {
-        let content = this.getResponseContent(response);
-        if (content) {
-          this.showLog('getUsersInGroup', content);
-          resolve(content);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject(err);
-      })
-    })
-  }
 
   /**
    * 获取当前组的所有用户

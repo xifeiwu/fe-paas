@@ -64,7 +64,9 @@ export default new Vuex.Store({
   plugins: [createPersistedState({
     key: 'profile',
     // 暂时只持久化 etc 模块，防止冲突
-    paths: ['config', 'user', 'app.messageForCreateAPP', 'etc'],
+    paths: ['config',
+      'user.groupInfo', 'user.groupList', 'user.profileListOfGroup',
+      'app.messageForCreateAPP', 'etc'],
     // filter: (mutation) => {console.log(mutation)}
   })]
 })

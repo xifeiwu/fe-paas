@@ -389,7 +389,7 @@
       if (!this.appInfoListOfGroup) {
         this.$store.dispatch('user/appInfoListOfGroup', {
           from: 'page/app',
-          groupID: this.$storeHelper.currentGroupID
+          groupId: this.$storeHelper.currentGroupID
         });
       } else {
         this.onAppInfoListOfGroup(this.appInfoListOfGroup);
@@ -501,7 +501,7 @@
               groupId: this.$storeHelper.currentGroupID,
 //              serviceName: ''
             }).then(content => {
-              this.$storeHelper.appInfoListOfGroup = content;
+              this.$store.dispatch('user/appInfoList', content);
               this.showLoading = false;
             }).catch(err => {
               this.showLoading = false;

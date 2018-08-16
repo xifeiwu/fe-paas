@@ -14,18 +14,10 @@ class StoreHelper extends BaseHelper{
   }
 
   get currentGroupID() {
-    let groupID = null;
-    let groupInfo = this.$store.getters['user/groupInfo'];
-    if (groupInfo && groupInfo.hasOwnProperty('id')) {
-      groupID = groupInfo.id;
-    }
-    return groupID;
+    return this.$store.getters['user/groupId'];
   }
   set currentGroupID(value) {
-    this.$store.dispatch('user/groupID', {
-      value,
-      from: 'store-helper'
-    });
+    this.$store.dispatch('user/groupId', value);
   }
 
   get lobInfo() {
@@ -45,17 +37,13 @@ class StoreHelper extends BaseHelper{
 
   get appInfoListOfGroup() {
     let appInfoListOfGroup = this.$store.getters['user/appInfoListOfGroup'];
-    if (!appInfoListOfGroup) {
-      this.$store.dispatch('user/appInfoListOfGroup', {
-        from: 'vue.$storeHelper',
-        groupID: this.currentGroupID
-      });
-    }
+    // if (!appInfoListOfGroup) {
+    //   this.$store.dispatch('user/appInfoListOfGroup', {
+    //     from: 'vue.$storeHelper',
+    //     groupID: this.currentGroupID
+    //   });
+    // }
     return appInfoListOfGroup;
-  }
-
-  set appInfoListOfGroup(value) {
-    this.$store.commit('user/appInfoListOfGroup', value);
   }
 
   get profileListOfGroup() {
@@ -222,10 +210,14 @@ class StoreHelper extends BaseHelper{
    */
   getProfileInfoByID(id) {
     let target = null;
-    this.profileListOfGroup.some(it => {
-      target = it.id === id ? it : null;
-      return target
-    });
+    try {
+      this.profileListOfGroup.some(it => {
+        target = it.id === id ? it : null;
+        return target
+      });
+    } catch(err) {
+      console.log(err);
+    }
     return target;
   }
   getProfileInfoByType(type) {

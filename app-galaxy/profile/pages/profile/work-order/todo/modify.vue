@@ -270,7 +270,7 @@
         console.log('warning: appInfoListOfGroup not found');
         this.$store.dispatch('user/appInfoListOfGroup', {
           from: 'page/work-order/todo/add',
-          groupID: this.currentGroupID
+          groupId: this.currentGroupID
         });
       }
     },

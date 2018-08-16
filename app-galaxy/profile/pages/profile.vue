@@ -106,45 +106,8 @@
       }
     },
     created() {
-//      this.$store.dispatch('user/groupList');
-      // get group list of current user
-      this.$net.getUserGroupList().then(content => {
-        if (content.hasOwnProperty('groupList') && Array.isArray(content['groupList'])) {
-          let groupList = content.groupList;
-          this.$store.dispatch('user/groupList', groupList);
-          if (groupList.length === 0) {
-            this.$notify.error({
-              title: '您所属的团队为空，某些操作可能无法进行',
-              message: '请联系管理员，添加团队',
-              duration: 0,
-              onClose: function () {
-              }
-            });
-          }
-        } else {
-          this.$notify.error({
-            title: '数据错误',
-            message: '数据格式不正确',
-            duration: 0,
-            onClose: function () {
-            }
-          });
-        }
-      }).catch(err => {
-        if (err.title && err.msg) {
-          this.$notify.error({
-            title: err.title,
-            message: err.msg,
-            duration: 0,
-            onClose: function () {
-            }
-          });
-        }
-      });
-
-      this.$store.dispatch('app/messageForCreateAPP').then(messageForCreateAPP => {
-        console.log(messageForCreateAPP);
-      });
+      this.$store.dispatch('user/groupList');
+      this.$store.dispatch('app/messageForCreateAPP');
 
       // for permission list
       this.$net.getNotPermittedCommands().then(list => {
@@ -160,22 +123,7 @@
         });
       });
 
-//      this.$store.dispatch('user/profileListOfGroup', {
-//        id: this.currentGroupID
-//      });
-//      this.$store.dispatch('user/appInfoListOfGroup', {
-//        from: 'page/profile',
-//        groupID: this.currentGroupID
-//      });
-      /**
-       * all the request related with groupID will be refreshed, include:
-       * 1. profileListOfGroup
-       * 2. appInfoListOfGroup
-       * 3. usersInGroup
-       */
-      this.$store.dispatch('user/groupID', {
-        value: this.$storeHelper.currentGroupID
-      });
+      this.$store.dispatch('user/groupId', this.$storeHelper.currentGroupID);
       this.onRoutePath(this.$route);
     },
     mounted() {
@@ -190,6 +138,7 @@
     },
     computed: {
       ...mapState(['toasts']),
+      ...mapState("user", ["groupInfo"]),
       ...mapGetters({
         'collapseMenu': 'collapseMenu'
       }),
@@ -209,6 +158,43 @@
     },
     watch: {
       '$route': 'onRoutePath',
+      'groupInfo': function (groupInfo, oldValue) {
+//        if (groupInfo.id === oldValue.id) {
+//          return;
+//        }
+//        console.log(groupInfo);
+        /**
+         * all the request related with groupID will be refreshed, include:
+         * 1. profileListOfGroup
+         * 2. appInfoListOfGroup
+         * 3. usersInGroup
+         */
+        Promise.all([
+          this.$net.requestPaasServer(this.$net.URL_LIST.profile_list_of_group, {
+            payload: {
+              id: groupInfo.id
+            }
+          }),
+          this.$net.requestPaasServer(this.$net.URL_LIST.users_list_of_group, {
+            payload: {
+              id: groupInfo.id
+            }
+          }),
+          this.$net.getAPPList({
+            groupId: groupInfo.id
+          })
+        ]).then(resContentList => {
+          const [resContent1, resContent2, resContent3] = resContentList;
+          const profileList = resContent1['spaceList'];
+          const userList = resContent2['groupUserList'];
+          const appInfoList = resContent3;
+          this.$store.dispatch('user/userList', userList);
+          this.$store.dispatch('user/appInfoList', appInfoList);
+          this.$store.dispatch('user/profileList', profileList);
+        }).catch(err => {
+          console.log(err);
+        })
+      }
     },
     methods: {
       // set el-menu profile as active menu of paasHeaderProfile

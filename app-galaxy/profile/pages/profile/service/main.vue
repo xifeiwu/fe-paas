@@ -1215,7 +1215,7 @@ export default {
     if (!this.appInfoListOfGroup) {
       this.$store.dispatch('user/appInfoListOfGroup', {
         from: 'page/app/add',
-        groupID: this.$storeHelper.currentGroupID
+        groupId: this.$storeHelper.currentGroupID
       });
     } else {
       this.onAppInfoListOfGroup(this.appInfoListOfGroup);

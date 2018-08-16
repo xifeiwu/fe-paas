@@ -599,7 +599,7 @@ export default {
             // update appInfoList after create app success
             this.$store.dispatch('user/appInfoListOfGroup', {
               from: 'page/app/add',
-              groupID: this.$storeHelper.currentGroupID
+              groupId: this.$storeHelper.currentGroupID
             });
             this.$message({
               type: 'success',
