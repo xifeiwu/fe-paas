@@ -142,7 +142,10 @@
         }
       });
 
-      this.$store.dispatch('app/messageForCreateAPP');
+      this.$store.dispatch('app/messageForCreateAPP').then(messageForCreateAPP => {
+        console.log(messageForCreateAPP);
+      });
+
       // for permission list
       this.$net.getNotPermittedCommands().then(list => {
         this.$storeHelper.notPermitted = list;

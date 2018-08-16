@@ -1,47 +1,14 @@
 /**
  * Created by xifei.wu on 2017/12/6.
  */
-import NetData from '../../net/net';
-const USE_LOCAL_STORAGE = false;
-
-const warning = function(prop, where) {
-  console.log(`warning: get app/${prop} from ${where}`);
-};
+import Vue from 'vue';
+// import NetData from '../../net/net';
 
 /**
  * used in getter:
  * 1. if the prop in state has not null, return state.prop
  * 2. else get from localStorage, and assign the value to state.prop
  */
-var localProps = ['messageForCreateAPP'];
-const getValue = function({state, getters}, prop) {
-  const getLocalValue = function() {
-    let result = null;
-    warning(prop, 'localStorage');
-    let local = localStorage.getItem('app/' + prop);
-    if (local) {
-      try {
-        local = JSON.parse(local);
-      } catch(err) {
-        if (local == 'undefined') {
-          local = null;
-        }
-      }
-      result = local;
-      state[prop] = local;
-    }
-    return result;
-  };
-  let result = null;
-  if (null != state[prop]) {
-    result = state[prop];
-  } else if(USE_LOCAL_STORAGE) {
-    result = getLocalValue();
-  } else if (localProps.indexOf(prop) > -1) {
-    result = getLocalValue();
-  }
-  return result;
-}
 
 const state = {
   /* net data */
@@ -55,18 +22,14 @@ const actions = {
    * get message of creating app from server
    * format: @../mock/app/messageForCreateAPP
    */
-  messageForCreateAPP({commit, state}) {
-    // if (!stateHasUpdated(state.messageForCreateAPP)) {
-      NetData.getMessageForCreateAPP().then(content => {
-        state.messageForCreateAPP = content;
-        localStorage.setItem('app/messageForCreateAPP', JSON.stringify(content));
-      });
-    // }
+  async messageForCreateAPP({commit, state}) {
+    state.messageForCreateAPP = await Vue.prototype.$net.getMessageForCreateAPP();
+    return state.messageForCreateAPP;
   },
   usersAll({commit, state}) {
     if (!state.usersAll) {
-      NetData.getUsersAll().then(userList => {
-        // console.log(userList);
+      Vue.prototype.$net.getUsersAll().then(userList => {
+        console.log(userList);
         state.usersAll = userList;
       });
     }
@@ -79,7 +42,7 @@ const mutations = {
 const getters = {
   /* net data */
   'messageForCreateAPP': (state, getters) => {
-    return getValue({state, getters}, 'messageForCreateAPP');
+    return state.messageForCreateAPP;
   },
   'usersAll': (state, getters) => {
     return state.usersAll;

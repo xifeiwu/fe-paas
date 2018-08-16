@@ -62,8 +62,9 @@ export default new Vuex.Store({
     user, app, tmp, global, etc, cdn
   },
   plugins: [createPersistedState({
-    key: 'galaxy',
+    key: 'profile',
     // 暂时只持久化 etc 模块，防止冲突
-    paths: ['config', 'etc']
+    paths: ['config', 'user', 'app.messageForCreateAPP', 'etc'],
+    // filter: (mutation) => {console.log(mutation)}
   })]
 })

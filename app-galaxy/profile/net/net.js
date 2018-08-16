@@ -26,6 +26,17 @@ class Net extends NetBase {
       getAPPList: false,
     };
     const PAAS_URL_LIST = {
+      // 获取cpu和memory的对应关系
+      'cpu_and_memory_config': {
+        path: '/cpuAndMemory/queryCpuAndMemory',
+        method: 'get'
+      },
+      // 开发语言列表
+      'language_list': {
+        path: '/language/queryAllLanguage',
+        method: 'get'
+      },
+      // 检测服务端口映射
       'service_port_map_check': {
         path: '/service/checkPortMapping',
         method: 'post'
@@ -510,67 +521,49 @@ class Net extends NetBase {
    * 1. 相关语言
    * 2. cpu memory对应关系
    */
-  getMessageForCreateAPP () {
-    function get1() {
-      return axios.get(URL_LIST.get_cpu_and_memory_config.url);
+  async getMessageForCreateAPP() {
+    const resContentList = await Promise.all([this.requestPaasServer(this.URL_LIST.cpu_and_memory_config),
+      this.requestPaasServer(this.URL_LIST.language_list)]);
+    const resContent1 = resContentList[0];
+    const resContent2 = resContentList[1];
+    let result = null;
+    if (resContent1 && resContent2) {
+      result = Object.assign(resContent1, resContent2);
     }
-    function get2() {
-      return axios.get(URL_LIST.get_all_language.url);
-    }
-    return new Promise((resolve, reject) => {
-      axios.all([get1(), get2()]).then(axios.spread((cpu_and_memory, language) => {
-        let cpuAndMemoryContent = this.getResponseContent(cpu_and_memory);
-        let languageContent = this.getResponseContent(language);
-        let content = null;
-        if (cpuAndMemoryContent && languageContent) {
-          content = Object.assign(cpuAndMemoryContent, languageContent);
+    if (result && result.hasOwnProperty('LanguageList')) {
+      result.LanguageList.forEach(it => {
+        let language = it.language;
+        // add property type which will be send to server
+        // change the style of language
+        it.type = language;
+        switch (language) {
+          case 'JAVA':
+            it.language = 'Java';
+            break;
+          case 'NODE_JS':
+            it.language = 'NodeJS';
+            break;
+          case 'PYTHON':
+            it.language = 'Python';
+            break;
         }
-        if (content && content.hasOwnProperty('LanguageList')) {
-          content.LanguageList.forEach(it => {
-            let language = it.language;
-            // add property type which will be send to server
-            // change the style of language
-            it.type = language;
-            switch (language) {
-              case 'JAVA':
-                it.language = 'Java';
-                break;
-              case 'NODE_JS':
-                it.language = 'NodeJS';
-                break;
-              case 'PYTHON':
-                it.language = 'Python';
-                break;
-            }
-            if (it.hasOwnProperty('languageVersionList')) {
-              let languageVersionList = it['languageVersionList'];
-              // console.log(languageVersionList);
-              Array.isArray(languageVersionList) && languageVersionList.forEach(version => {
-                // console.log(version.packageTypeList);
-                version.packageTypeList = version.packageTypeList.map(packageType => {
-                  return {
-                    type: packageType,
-                    packageType: packageType.replace('_', '.')
-                  }
-                });
-              });
-            }
+        if (it.hasOwnProperty('languageVersionList')) {
+          let languageVersionList = it['languageVersionList'];
+          // console.log(languageVersionList);
+          Array.isArray(languageVersionList) && languageVersionList.forEach(version => {
+            // console.log(version.packageTypeList);
+            version.packageTypeList = version.packageTypeList.map(packageType => {
+              return {
+                type: packageType,
+                packageType: packageType.replace('_', '.')
+              }
+            });
           });
         }
-        // console.log(content);
-        //两个请求现已完成
-        this.showLog('getMessageForCreateAPP', content);
-        if (content) {
-          resolve(content);
-        } else {
-          throw new Error('getMessageForCreateAPP fail');
-        }
-      })).catch(err => {
-        this.showLog('getMessageForCreateAPP', err);
-        reject(err);
       });
-
-    })
+    }
+    // console.log(result);
+    return result;
   }
 
   /**

@@ -104,18 +104,6 @@ class URL extends BaseURL {
         path: '/space/querySpaceByGroupId',
         method: 'post'
       },
-      // 获取cpu和memory的对应关系
-      'get_cpu_and_memory_config': {
-        url: API_PATH + '/cpuAndMemory/queryCpuAndMemory',
-        path: '/cpuAndMemory/queryCpuAndMemory',
-        method: 'get'
-      },
-      // 开发语言列表
-      'get_all_language': {
-        url: API_PATH + '/language/queryAllLanguage',
-        path: '/language/queryAllLanguage',
-        method: 'get'
-      },
       // 修改应用名称
       'app_change_name': {
         url: API_PATH + '/application/updateAppName',

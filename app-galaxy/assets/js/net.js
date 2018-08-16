@@ -4,7 +4,6 @@ import querystring from 'query-string';
 
 class Net {
   constructor() {
-    // this.DOMAIN_PATH_PREFIX = '/n-api/domain';
     this.ASSIST_PREFIX = '/n-api/assist';
     this.CDN_PREFIX = '/n-api';
     // this.DNS_PREFIX = '/n-api';
@@ -178,6 +177,12 @@ class Net {
     })
   }
   showError (err) {
+    if (err instanceof Error) {
+      err = {
+        title: '请求失败',
+        message: err.toString()
+      }
+    }
     const title = `${err.title}!`;
     Vue.prototype.$notify.error({
       title,
