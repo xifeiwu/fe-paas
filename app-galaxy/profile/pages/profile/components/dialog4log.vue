@@ -6,12 +6,12 @@
              ref="dialog-for-log"
   >
     <el-scrollbar
-      v-loading="showStatus.showLoading"
-      element-loading-text="加载中"
-      element-loading-spinner="el-icon-loading"
-      element-loading-background="rgba(0, 0, 0, 0.1)"
+            v-loading="showStatus.showLoading"
+            element-loading-text="加载中"
+            element-loading-spinner="el-icon-loading"
+            element-loading-background="rgba(0, 0, 0, 0.1)"
     >
-      <slot name="log-list"></slot>
+      <slot name="content"></slot>
     </el-scrollbar>
     <div slot="title" class="dialog-title">
       <span class="title">{{title}}</span>
@@ -146,13 +146,20 @@
 <script>
   export default {
     created() {
-//      console.log('created');
     },
     mounted() {
-//      if (!this.showStatus.hasOwnProperty('full')) {
-//        this.iconToShow.expand = false;
-//        this.showStatus.full = false;
-//      }
+      /**
+       * Notice: prop visible, full must be passed, as it is watched in this component
+       */
+      if (!this.showStatus.hasOwnProperty('showLoading')) {
+        this.showStatus['showLoading'] = false;
+      }
+      if (!this.showStatus.hasOwnProperty('iconRefresh')) {
+        this.showStatus['iconRefresh'] = false;
+      }
+      if (!this.showStatus.hasOwnProperty('iconExpand')) {
+        this.showStatus['iconExpand'] = false;
+      }
       let dialog = this.$refs['dialog-for-log'].$refs['dialog'];
       if (this.showStatus.full && dialog) {
         dialog.style.width = '100%';
@@ -194,8 +201,6 @@
         } else {
           this.removeListenerForScrollWrap();
         }
-      },
-      'showStatus.showLoading': function (value) {
       },
       'showStatus.full': function(value) {
         let dialog = this.$refs['dialog-for-log'].$refs['dialog'];
@@ -255,7 +260,7 @@
       handleIconClick(action) {
         switch (action) {
           case 'expand-or-shrink':
-            this.showStatus.full = !this.showStatus.full
+            this.showStatus.full = !this.showStatus.full;
             break;
           case 'refresh':
             this.$emit('refresh');

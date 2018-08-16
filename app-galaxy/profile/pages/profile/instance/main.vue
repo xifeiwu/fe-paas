@@ -128,7 +128,7 @@
       </div>
     </el-dialog>
     <paas-dialog-for-log :showStatus="statusForDialogInstanceLog" @refresh='updateInstanceStatusList(false)' title="实例状态">
-      <div slot="log-list">
+      <div slot="content">
         <div class="log-title">
           <p v-html="formatColumn('Firstseen',25) + formatColumn('Lastseen',25) + formatColumn('Type',10) + formatColumn('Reason',25) + formatColumn('Message',40)"></p>
           <p>{{'-'.repeat(120)}}</p>
@@ -140,7 +140,7 @@
     </paas-dialog-for-log>
 
     <paas-dialog-for-log :showStatus="dialogStatusForConsoleLog" ref="dialogForConsoleLog" title="console日志">
-      <div slot="log-list">
+      <div slot="content">
         <pre>{{consoleLogList}}</pre>
       </div>
     </paas-dialog-for-log>

@@ -882,7 +882,7 @@
     </el-dialog>
 
     <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
-      <div slot="log-list">
+      <div slot="content">
         <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
       </div>
     </paas-dialog-for-log>
