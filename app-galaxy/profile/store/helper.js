@@ -1,8 +1,9 @@
-import BaseHelper from '$assets/js/store/helper'
+import BaseHelper from '$assets/js/store/helper';
+import store from './index';
 
 class StoreHelper extends BaseHelper{
-  constructor(Store) {
-    super(Store);
+  constructor() {
+    super(store);
 
     // used for item '全部' in app list, profile list, service list
     this.GROUP_ID_FOR_ALL = -1;

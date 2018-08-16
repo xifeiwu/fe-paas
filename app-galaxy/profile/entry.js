@@ -8,8 +8,8 @@
 
 import Vue from 'vue';
 
-import Store from './store';
-import StoreHelper from './store/store-helper';
+import store from './store';
+import StoreHelper from './store/helper';
 
 import {URL_LIST} from './net/url';
 import netHelper from './net/net';
@@ -19,7 +19,7 @@ import VueConfig from '../config/vue';
 new VueConfig({
   URL_LIST,
   netHelper,
-  storeHelper: new StoreHelper(Store),
+  storeHelper: new StoreHelper(),
 });
 
 import routerConfig from './pages/router';
@@ -37,7 +37,7 @@ import(/* webpackChunkName: "components-profile" */ '$assets/libs/components/pro
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),
     router: routerConfig.vueRouter,
-    store: Store
+    store: store
   }).$mount('#app');
 });
 
