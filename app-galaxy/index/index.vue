@@ -398,11 +398,6 @@ $menu-height: 45px;
           case 'product/app':
           case 'login':
             this.$utils.goToPath('/profile');
-//            this.$router.push({
-//              path: '/profile/app',
-//              query: {
-//              }
-//            });
             break;
           case 'docs':
             this.$utils.goToPath('/docs');

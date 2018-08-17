@@ -27,6 +27,8 @@ class Net {
       'profile/app': '/app',
       'profile/oauth': '/oauth',
       'profile/config-server': '/config-server',
+      'docs': '/docs',
+      'index': '/index',
     }
   }
   // some function of Vue.prototype may be used in net.js

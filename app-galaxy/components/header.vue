@@ -18,8 +18,7 @@
         <el-menu-item index="index">首页</el-menu-item>
         <el-submenu index="product">
           <template slot="title">产品</template>
-          <el-menu-item index="app">应用引擎</el-menu-item>
-          <el-menu-item index="object-storage" :disabled="true">对象存储</el-menu-item>
+          <el-menu-item v-for="item in productionList" :key="item.index" :index="item.index" v-if="item.index">{{item.name}}</el-menu-item>
         </el-submenu>
         <el-menu-item index="finup-community" v-show="true">凡普云社区</el-menu-item>
         <el-menu-item index="docs" v-show="true">帮助文档</el-menu-item>
@@ -94,11 +93,6 @@ $menu-height: 45px;
         }
         .el-submenu {
           height: $menu-height;
-          /*<!--.el-submenu__title {-->*/
-          /*<!--height: 100%;-->*/
-          /*<!--font-size: $menu-font-size;-->*/
-          /*<!--line-height: $menu-height;-->*/
-          /*<!--}-->*/
         }
       }
       .login {
@@ -120,13 +114,54 @@ $menu-height: 45px;
         default: 'index'
       },
     },
+    data() {
+      return {
+        productionList: [{
+          name: '应用引擎',
+          index: 'profile/app',
+        }, {
+          name: '对象存储',
+          index: false,
+          path: 'unknown',
+        }, {
+          name: '应用配置',
+          index: 'profile/config-server',
+        }, {
+          name: 'Access Key',
+          index: 'profile/oauth',
+        }]
+      }
+    },
     methods: {
       handleHeaderMenuClick(key, keyPath) {
-        keyPath = keyPath.join('/');
-        if (key === 'finup-community') {
-          window.open('http://club.finupcloud.com/', '_blank');
-        } else {
-          this.$emit('menu-click', keyPath);
+        const keyAll = keyPath.join('/');
+        if (keyPath.length === 0) {
+          return;
+        }
+        const key1 = keyPath[0];
+        const key2 = keyPath.length > 1 ? keyPath[1] : '';
+        switch (key1) {
+          case 'docs':
+          case 'index':
+            window.location.pathname = this.$net.page[key1];
+            break;
+          case 'product':
+            switch (key2) {
+              case 'profile/app':
+              case 'profile/config-server':
+              case 'profile/oauth':
+                window.location.pathname = this.$net.page[key2];
+                break;
+              default:
+                this.$emit('menu-click', keyAll);
+                break;
+            }
+            break;
+          case 'finup-community':
+            window.open('http://club.finupcloud.com/', '_blank');
+            break;
+          default:
+            this.$emit('menu-click', keyAll);
         }
       },
     }
