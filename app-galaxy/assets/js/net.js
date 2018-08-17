@@ -21,6 +21,12 @@ class Net {
         path: '/group/queryLobList',
         method: 'get'
       },
+    };
+
+    this.page = {
+      'profile/app': '/app',
+      'profile/oauth': '/oauth',
+      'profile/config-server': '/config-server',
     }
   }
   // some function of Vue.prototype may be used in net.js

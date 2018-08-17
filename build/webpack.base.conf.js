@@ -28,7 +28,7 @@ const chunksAndTemplates = (() => {
   let vueBaseDir = utils.contextPath();
 
   let entries = {
-    'index': path.resolve(vueBaseDir, 'app-galaxy/index.js'),
+    'index': path.resolve(vueBaseDir, 'app-galaxy/index/entry.js'),
     'docs': path.resolve(vueBaseDir, 'app-galaxy/docs/entry.js'),
     'login': path.resolve(vueBaseDir, 'app-galaxy/login/entry.js'),
     'profile': path.resolve(vueBaseDir, 'app-galaxy/profile/entry.js'),
