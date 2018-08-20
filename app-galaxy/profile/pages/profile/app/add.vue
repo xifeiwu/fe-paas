@@ -1,5 +1,7 @@
 <template>
-  <div id="app-add">
+  <div id="app-add"
+       v-loading="showLoading"
+       :element-loading-text="loadingText">
     <div class="section-title"><span>创建应用</span>
       <el-popover v-if="false"
               width="300"
@@ -11,9 +13,7 @@
       </el-popover>
     </div>
     <el-form :model="createAppForm" :rules="rules" size="mini"
-             ref="createAppForm" label-width="140px"
-             v-loading="showLoading"
-             :element-loading-text="loadingText">
+             ref="createAppForm" label-width="140px">
       <el-form-item label="团队" prop="groupID" class="group-list">
         <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择" filterable>
           <el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">
@@ -619,7 +619,7 @@ export default {
         }
         if (valid) {
           createAppForm.groupID = this.$storeHelper.currentGroupID;
-          const toPost = {
+          const payload = {
             groupId: createAppForm.groupID,
             scrumId: createAppForm.scrumID,
             lobId: createAppForm.lobID,
@@ -638,14 +638,14 @@ export default {
             maxAge4Script: createAppForm.maxAge4Script,
             loadBalance: createAppForm.loadBalance,
           };
-//          console.log('toPost');
-//          console.log(toPost);
+//          console.log('payload');
+//          console.log(payload);
           this.addToWaitingResponseQueue('submit');
           this.showLoading = true;
-          this.loadingText = '正在为您创建应用' + toPost.appName;
-          this.$net.createAPP(toPost).then((content) => {
-            this.hideWaitingResponse('submit');
-            this.showLoading = false;
+          this.loadingText = '正在为您创建应用' + payload.appName;
+          this.$net.requestPaasServer(this.$net.URL_LIST.app_create, {
+            payload
+          }).then(resContent => {
             // update appInfoList after create app success
             this.$store.dispatch('user/appInfoListOfGroup', {
               from: 'page/app/add',
@@ -653,20 +653,13 @@ export default {
             });
             this.$message({
               type: 'success',
-              message: '应用' + toPost.appName + '创建成功！'
+              message: '应用' + payload.appName + '创建成功！'
             });
             this.$router.push('/app');
           }).catch((err) => {
+          }).finally(() => {
             this.hideWaitingResponse('submit');
             self.showLoading = false;
-            this.$notify.error({
-              title: err.title,
-              message: err.msg,
-              duration: 0,
-              onClose: function () {
-              }
-            });
-            console.log(err);
           });
         } else {
           console.log('error submit!!');

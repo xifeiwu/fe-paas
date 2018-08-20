@@ -51,6 +51,13 @@ class Net extends NetBase {
         path: '/language/queryAllLanguage',
         method: 'get'
       },
+      /** 应用相关 */
+      // 创建应用
+      'app_create': {
+        path: '/application/create',
+        method: 'post'
+      },
+
       // 检测服务端口映射
       'service_port_map_check': {
         path: '/service/checkPortMapping',
@@ -550,32 +557,6 @@ class Net extends NetBase {
         reject(err);
       })
     })
-  }
-
-  createAPP(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.app_create.url, options).then(response => {
-        // let content = this.getResponseContent(response);
-        // if (content) {
-        //   resolve(content);
-        // } else {
-        //   reject('创建应用失败');
-        // }
-        let content = null;
-        if ('data' in response) {
-          let data = response.data;
-          if (0 === data.code) {
-            content = data.content ? data.content : {};
-            resolve(content);
-          } else {
-            reject({title: '创建应用失败', msg: data.msg});
-          }
-        }
-      }).catch(err => {
-        console.log(err);
-        reject(this.getMsgFromErrorResponse(err));
-      });
-    });
   }
 
   createService(options) {
