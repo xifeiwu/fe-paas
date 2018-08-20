@@ -67,12 +67,17 @@
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item label="构建类型" prop="buildType" v-if="language.buildTypeList.length > 0">
-        <el-radio-group v-model="createAppForm.buildType">
-          <el-radio v-for="item in language.buildTypeList" :label="item.type" :key="item.type">
-            {{item.packageType}}
-          </el-radio>
-        </el-radio-group>
+      <el-form-item class="build-type" label="构建类型" v-if="language.buildTypeList.length > 0" :error="errMsg4BuildName">
+        <div class="flex-layout">
+          <div class="type-list">
+            <el-radio-group v-model="createAppForm.buildType">
+              <el-radio v-for="item in language.buildTypeList" :label="item.type" :key="item.type">
+                {{item.packageType}}
+              </el-radio>
+            </el-radio-group>
+          </div>
+          <div :class="['war-name', createAppForm.buildType!=='WAR'?'hide':'']"><el-input v-model="createAppForm.buildName" placeholder="构建类型为WAR时，必须填写构建包名称"></el-input></div>
+        </div>
       </el-form-item>
 
       <el-form-item :label="false ? '健康检查/延迟时间' : '健康检查'" prop="healthCheck">
@@ -157,17 +162,13 @@
       </el-form-item>
     </el-form>
     <div class="section-footer">
-      <el-row>
-        <el-col :span="12" style="text-align: center">
-          <el-button type="primary" size="mini"
-                     :loading="statusOfWaitingResponse('submit')"
+        <div class="item">
+          <el-button type="primary" size="mini"  :loading="statusOfWaitingResponse('submit')"
                      @click="handleFinish">完成</el-button>
-        </el-col>
-        <el-col :span="12" style="text-align: center">
-          <el-button type="primary" size="mini"
-                     @click="$router.go(-1)">关闭</el-button>
-        </el-col>
-      </el-row>
+        </div>
+        <div class="item">
+          <el-button type="primary" size="mini" @click="$router.go(-1)">关闭</el-button>
+        </div>
     </div>
   </div>
 </template>
@@ -271,11 +272,14 @@
       margin: 0px -10px;
       padding-top: 10px;
       border-top: 1px solid #e7e7e7;
-      .el-button {
-        display: block;
-        margin: 0px auto;
-        width: 150px;
+      display: flex;
+      .item {
+        flex: 1;
         text-align: center;
+      }
+      .el-button {
+        display: inline-block;
+        width: 150px;
       }
     }
     .el-form {
@@ -291,6 +295,22 @@
         &.profiles {
           .el-checkbox + .el-checkbox {
             margin-left: 20px;
+          }
+        }
+        &.build-type {
+          .flex-layout {
+            display: flex;
+            align-items: center;
+            .war-name {
+              padding-left: 10px;
+              flex: 1;
+              min-width: 100px;
+              opacity: 1;
+              transition: opacity .5s;
+              &.hide {
+                opacity: 0;
+              }
+            }
           }
         }
         &.finish {
@@ -367,6 +387,7 @@ export default {
         language: '',
         languageVersion: '',
         buildType: 'NO',
+        buildName: '',
         healthCheck: '',
         initialDelaySeconds: 120,
         fileLocation: [],
@@ -376,6 +397,7 @@ export default {
         loadBalance: appPropUtil.getAllLoadBalance()[0],
         agree: false,
       },
+      errMsg4BuildName: '',
       productionProfileTip: '',
       editScript: true,
       formattedScript4RollingUpdate: '',
@@ -408,6 +430,12 @@ export default {
     '$storeHelper.lobInfo': 'onLobInfo',
     '$storeHelper.currentGroupID': function (groupID) {
       this.createAppForm.groupID = groupID;
+    },
+    'createAppForm.buildType': function(buildType) {
+      if (buildType !== 'WAR') {
+        this.createAppForm.buildName = '';
+        this.errMsg4BuildName = '';
+      }
     }
   },
   methods: {
@@ -575,7 +603,6 @@ export default {
     },
     // action for submit button
     handleFinish() {
-//      console.log(this.createAppForm);
       var self = this;
       let productionTip = this.invalidProductionProfileTip();
       if (productionTip) {
@@ -584,10 +611,33 @@ export default {
       } else {
         this.productionProfileTip = '';
       }
+      const createAppForm = this.createAppForm;
       this.$refs['createAppForm'].validate((valid) => {
+        if (createAppForm.buildType === 'WAR' && createAppForm.buildName === '') {
+          this.errMsg4BuildName = '构建类型为WAR时，必须填写构建包名称';
+          valid = false;
+        }
         if (valid) {
-          this.createAppForm.groupID = this.$storeHelper.currentGroupID;
-          let toPost = appPropUtil.changePropNameForServer(this.createAppForm);
+          createAppForm.groupID = this.$storeHelper.currentGroupID;
+          const toPost = {
+            groupId: createAppForm.groupID,
+            scrumId: createAppForm.scrumID,
+            lobId: createAppForm.lobID,
+            appName: createAppForm.appName,
+            tag: createAppForm.projectName,
+            spaceList: createAppForm.profiles,
+            language: createAppForm.language,
+            languageVersion: createAppForm.languageVersion,
+            packageType: createAppForm.buildType,
+            buildName: createAppForm.buildName,
+            healthCheck: createAppForm.healthCheck,
+            initialDelaySeconds: createAppForm.initialDelaySeconds,
+            volumes: createAppForm.fileLocation,
+            rollingUpdate: createAppForm.rollingUpdate,
+            script4RollingUpdate: createAppForm.script4RollingUpdate,
+            maxAge4Script: createAppForm.maxAge4Script,
+            loadBalance: createAppForm.loadBalance,
+          };
 //          console.log('toPost');
 //          console.log(toPost);
           this.addToWaitingResponseQueue('submit');

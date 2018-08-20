@@ -120,11 +120,11 @@ class AppInfoHelper {
         message: '请选择开发语言版本',
       }],
       // 构建类型
-      buildType: [{
-        required: true,
-        message: '请选择构建类型',
-        trigger: 'change'
-      }],
+      // buildType: [{
+      //   required: true,
+      //   message: '请选择构建类型',
+      //   trigger: 'change'
+      // }],
 
       serviceVersion: [{
         required: true,
