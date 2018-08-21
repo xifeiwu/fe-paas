@@ -399,7 +399,7 @@
             </el-col>
             <el-col :span="1" style="text-align: center" v-if="showInitialDelay">/</el-col>
             <el-col :span="6" v-if="showInitialDelay">
-              <el-input-number v-model="newProps.initialDelaySeconds" :min="30" :max="1800" label="延迟时间" disabled></el-input-number>
+              <el-input-number v-model="newProps.initialDelaySeconds" :min="30" :max="1800" label="延迟时间"></el-input-number>
             </el-col>
           </el-row>
         </el-form-item>
@@ -1251,7 +1251,7 @@ export default {
   },
   data() {
     return {
-      showInitialDelay: false,
+      showInitialDelay: true,
       resizeListenerForServiceList: () => {},
       heightOfTable: '',
 

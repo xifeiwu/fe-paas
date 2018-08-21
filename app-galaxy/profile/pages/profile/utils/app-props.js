@@ -50,7 +50,7 @@ class AppInfoHelper {
       }, {
         validator(rule, values, callback) {
           let passed = true;
-          let reg = /^\/[A-Za-z0-9_\-\.\/]{1,49}$/;
+          let reg = /^\/[A-Za-z0-9_\-\.\/]{1,99}$/;
           if (!reg.exec(values)) {
             passed = false;
             callback('以/开头，可以包含字母、数字、下划线、中划线。2-50个字符');
@@ -159,7 +159,7 @@ class AppInfoHelper {
         required: true
       }],
       vmOptions: [{
-        required: true,
+        required: false,
         message: '请填写VM_Options',
       }, {
         validator(rule, values, callback) {
