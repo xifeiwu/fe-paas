@@ -46,7 +46,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="lobName" label="LOB" width="100"></el-table-column>
-        <el-table-column prop="scrumName" label="团队名称" width="100"></el-table-column>
+        <el-table-column prop="groupName" label="团队名称" width="100"></el-table-column>
         <el-table-column prop="creator" label="创建人" width="100"></el-table-column>
         <el-table-column prop="profileDesc" label="运行环境（实例数）">
           <template slot-scope="scope">
@@ -169,7 +169,7 @@
               payload.lobId = this.lobId
             }
             if ('' !== this.groupId) {
-              payload.scrumId = this.groupId;
+              payload.groupId = this.groupId;
             }
             this.keyword = this.keyword.trim();
             if (this.keyword.length > 0) {
