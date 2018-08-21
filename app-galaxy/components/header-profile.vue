@@ -13,7 +13,7 @@
     >
       <el-menu-item index="profile">控制台</el-menu-item>
       <el-menu-item index="docs">帮助文档</el-menu-item>
-      <el-menu-item index="group-manager" v-if="showGroupManager">团队管理</el-menu-item>
+      <el-menu-item index="user/group" v-if="showGroupManager">团队管理</el-menu-item>
       <el-menu-item index="message" v-show="false">消息中心</el-menu-item>
       <el-submenu index="user" :withDrawOnMouseLeave="false">
         <template slot="title">{{userName}}</template>
@@ -136,11 +136,32 @@
     },
     methods: {
       handleMenuClick(key, keyPath) {
-        keyPath = keyPath.join('/');
-        switch (keyPath) {
-          default:
-            this.$emit('menu-click', keyPath);
+        const keyAll = keyPath.join('/');
+        if (keyPath.length === 0) {
+          return;
+        }
+        const key1 = keyPath[0];
+        const key2 = keyPath.length > 1 ? keyPath[1] : '';
+        switch (key1) {
+          case 'profile':
+          case 'docs':
+            window.location.pathname = this.$net.page[key1];
             break;
+          case 'user/group':
+            window.location.pathname = this.$net.page[key1];
+            break;
+          case 'user':
+            switch (key2) {
+              case 'info':
+                window.location.pathname = this.$net.page['user/info'];
+                break;
+              case 'logout':
+                this.$emit('menu-click', keyAll);
+                break;
+            }
+            break;
+          default:
+            this.$emit('menu-click', keyAll);
         }
       },
       handleClickOutsideMenu() {

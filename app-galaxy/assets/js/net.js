@@ -28,6 +28,8 @@ class Net {
       'profile/app': '/app',
       'profile/oauth': '/oauth',
       'profile/config-server': '/config-server',
+      'user/info': '/user/info',
+      'user/group': '/user/group',
       'docs': '/docs',
       'index': '/index',
       'manage': '/manage'
