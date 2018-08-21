@@ -46,6 +46,7 @@
 </style>
 
 <script>
+  import {mapGetters} from 'vuex';
   /**
    * used to select service, the place used:
    * page domain：header selector，dialog for binding service
@@ -56,12 +57,7 @@
     created() {
     },
     mounted() {
-      if (!this.appInfoListOfGroup) {
-        this.$store.dispatch('user/appInfoListOfGroup', {
-          from: 'component version-selector',
-          groupId: this.$storeHelper.currentGroupID
-        });
-      } else {
+      if (this.appInfoListOfGroup) {
         this.onAppInfoListOfGroup(this.appInfoListOfGroup);
       }
     },
@@ -100,13 +96,95 @@
       }
     },
     computed: {
-      appInfoListOfGroup() {
-        return this.$storeHelper.appInfoListOfGroup;
-      }
+      ...mapGetters('user', {
+        'appInfoListOfGroup': 'appInfoListOfGroup'
+      }),
     },
     watch: {
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
-      selectedAppID: function (value, oldValue) {
+      selectedAppID: 'onSelectedAppIdChanged',
+      selectedProfileID: function (value, oldValue) {
+        let profileID = value;
+        let appID = this.selectedAPP ? this.selectedAPP.appId: null;
+        this.requestServiceList(appID, profileID);
+//        this.$storeHelper.setUserConfig('profile/service/profileID', profileID);
+      },
+
+      // update currentService when selectedServiceID is changed
+      selectedServiceID: function (serviceID, oldValue) {
+        if (null == serviceID) {
+          return;
+        }
+        let target = null;
+        this.currentServiceList.some(it => {
+          if (it.id == serviceID) {
+            target = it;
+          }
+          return target;
+        });
+        if (!target) {
+          return;
+        }
+        this.selectedService = target;
+        this.changeVersion(this.selectedAPP, this.selectedProfileID, target);
+      },
+    },
+    methods: {
+      initDataStatus() {
+        this.appList = [];
+        this.selectedAppID = '';
+        this.currentProfileList = [];
+        this.selectedProfileID = this.$storeHelper.SERVICE_ID_FOR_NULL;
+        this.currentServiceList = [];
+        this.selectedServiceID = this.$storeHelper.SERVICE_ID_FOR_NULL;
+      },
+      /**
+       * this function is the start point of watcher chain
+       * the start of watcher chain: appID -> profileID -> serviceID
+       *
+       * call in two place:
+       * 1. created function
+       * 2. appInfoListOfGroup watcher
+       *
+       * what is done?
+       * 1. refresh this.appList
+       * 2. get default appId
+       */
+      onAppInfoListOfGroup(appInfoListOfGroup) {
+        this.initDataStatus();
+        setTimeout(() => {
+          if (appInfoListOfGroup) {
+            if (appInfoListOfGroup.hasOwnProperty('appList')) {
+              this.appList = appInfoListOfGroup.appList;
+            }
+            if (!this.appList || (0 == this.appList.length)) {
+              this.$notify.warning({
+                title: '该团队应用列表为空',
+                message: '某些操作可能无法正常进行！',
+                duration: 1 * 1000,
+                onClose: function () {
+                }
+              });
+              return;
+            }
+            // the sequence of getting default appID:
+            // 1. customConfig.appId if customConfig exist
+            // 2. first element of appList
+            let defaultAppID = null;
+            if (this.customConfig && this.customConfig.hasOwnProperty('appID')) {
+              defaultAppID = this.customConfig['appID'];
+              // customConfig can only use once
+              delete this.customConfig['appID'];
+            }
+            if (defaultAppID && this.$storeHelper.getAppInfoByID(defaultAppID)) {
+              this.selectedAppID = defaultAppID;
+            } else {
+              this.selectedAppID = this.appList[0]['appId'];
+            }
+          }
+        });
+      },
+      onSelectedAppIdChanged (value, oldValue) {
         let appID = value;
         let appInfo = this.$storeHelper.getAppInfoByID(appID);
         if (!appInfo) {
@@ -154,92 +232,13 @@
         }
 //        this.$setUserConfig('profile/service/appID', appID);
       },
-      selectedProfileID: function (value, oldValue) {
-        let profileID = value;
-        let appID = this.selectedAPP ? this.selectedAPP.appId: null;
-        this.requestServiceList(appID, profileID);
-//        this.$storeHelper.setUserConfig('profile/service/profileID', profileID);
-      },
-
-      // update currentService when selectedServiceID is changed
-      selectedServiceID: function (serviceID, oldValue) {
-        if (null == serviceID) {
-          return;
-        }
-        let target = null;
-        this.currentServiceList.some(it => {
-          if (it.id == serviceID) {
-            target = it;
-          }
-          return target;
-        });
-        if (!target) {
-          return;
-        }
-        this.selectedService = target;
-        this.changeVersion(this.selectedAPP, this.selectedProfileID, target);
-      },
-    },
-    methods: {
-      initDataStatus() {
-        this.appList = [];
-        this.selectedAppID = null;
-        this.currentProfileList = [];
-        this.selectedProfileID = this.$storeHelper.SERVICE_ID_FOR_NULL;
-        this.currentServiceList = [];
-        this.selectedServiceID = this.$storeHelper.SERVICE_ID_FOR_NULL;
-      },
-      /**
-       * this function is the start point of watcher chain
-       * the start of watcher chain: appID -> profileID -> serviceID
-       *
-       * call in two place:
-       * 1. created function
-       * 2. appInfoListOfGroup watcher
-       *
-       * what is done?
-       * 1. refresh this.appList
-       * 2. get default appId
-       */
-      onAppInfoListOfGroup(appInfoListOfGroup) {
-        this.initDataStatus();
-        if (appInfoListOfGroup) {
-          if (appInfoListOfGroup.hasOwnProperty('appList')) {
-            this.appList = appInfoListOfGroup.appList;
-          }
-          if (!this.appList || (0 == this.appList.length)) {
-            this.$notify.warning({
-              title: '该团队应用列表为空',
-              message: '某些操作可能无法正常进行！',
-              duration: 1 * 1000,
-              onClose: function () {
-              }
-            });
-            return;
-          }
-          // the sequence of getting default appID:
-          // 1. customConfig.appId if customConfig exist
-          // 2. first element of appList
-          let defaultAppID = null;
-          if (this.customConfig && this.customConfig.hasOwnProperty('appID')) {
-            defaultAppID = this.customConfig['appID'];
-            // customConfig can only use once
-            delete this.customConfig['appID'];
-          }
-          if (defaultAppID && this.$storeHelper.getAppInfoByID(defaultAppID)) {
-            this.selectedAppID = defaultAppID;
-          } else {
-            this.selectedAppID = this.appList[0]['appId'];
-          }
-        }
-      },
 
       /**
        * request service list when selectedAppId or selectedProfileId is changed
        */
       requestServiceList(appID, spaceID) {
         if (!appID || !spaceID) {
-          console.log('appID or spaceID can not be empty');
+          console.log(`appID or spaceID can not be empty: ${appID}, ${spaceID}`);
           return;
         }
         this.selectedServiceID = null;
@@ -290,7 +289,6 @@
             }
           }
         }).catch(err => {
-          console.log(err);
           this.$message({
             type: 'error',
             message: '查找服务版本失败！'
@@ -327,7 +325,7 @@
        */
       requestVersionList(appID, spaceID) {
         if (!appID || !spaceID) {
-          console.log('appID or spaceID can not be empty');
+          console.log(`appID or spaceID can not be empty: ${appID}, ${spaceID}`);
           return;
         }
         this.selectedVersion = null;
