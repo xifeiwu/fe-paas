@@ -435,12 +435,22 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       },
 
       pageJump() {
-        let queryString = window.location.search.replace(/^\?/, '');
-        let queryObj = this.$utils.parseQueryString(queryString);
-        let toPath = '/profile';
+        // 1. go to profile by default
+        let toPath = this.$net.page['profile'];
+
+        // 2. judge by user role
+        const role = this.$storeHelper.userInfo['role'];
+        if (role === '平台管理员') {
+          toPath = this.$net.page['manage'];
+        }
+
+        // 3. judge by querystring ?to=/profile
+        const queryString = window.location.search.replace(/^\?/, '');
+        const queryObj = this.$utils.parseQueryString(queryString);
         if (queryObj.hasOwnProperty('to')) {
           toPath = queryObj['to'];
         }
+
         this.$utils.goToPath(toPath);
       },
 

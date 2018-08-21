@@ -24,11 +24,13 @@ class Net {
     };
 
     this.page = {
+      'profile': '/profile',
       'profile/app': '/app',
       'profile/oauth': '/oauth',
       'profile/config-server': '/config-server',
       'docs': '/docs',
       'index': '/index',
+      'manage': '/manage'
     }
   }
   // some function of Vue.prototype may be used in net.js
