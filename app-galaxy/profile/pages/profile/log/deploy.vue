@@ -26,7 +26,7 @@
             <el-button
                     size="mini-extral"
                     type="success"
-                    :loading="waitingResponse && operation.rowID == scope.row.id"
+                    :loading="statusOfWaitingResponse('show-log') && operation.rowID == scope.row.id"
                     @click="handleOperationClick('show-log', scope.$index, scope.row)">查看日志</el-button>
           </template>
         </el-table-column>
@@ -45,8 +45,8 @@
         </div>
       </div>
     </div>
-    <paas-dialog-for-log :showStatus="dialogStatus">
-      <div slot="log-list" v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item">{{item}}</div>
+    <paas-dialog-for-log :showStatus="dialogForLogStatus" ref="dialogForStatus">
+      <div slot="content" v-for="(item, index) in deployLogs" :key="index" class="log-item" v-html="item">{{item}}</div>
     </paas-dialog-for-log>
   </div>
 </template>
@@ -89,7 +89,9 @@
 <script>
   import MyVersionSelector from '../components/version-selector';
   import paasDialogForLog from '../components/dialog4log.vue';
+  import commonUtils from '$components/mixins/common-utils';
   export default {
+    mixins: [commonUtils],
     components: {MyVersionSelector, paasDialogForLog},
     created() {
       // set default service
@@ -118,9 +120,9 @@
         operation: {
           appID: 0
         },
-        waitingResponse: false,
 
-        dialogStatus: {
+        dialogForLogStatus: {
+          showLoading: false,
           visible: false,
           full: false,
           iconExpand: true,
@@ -163,44 +165,86 @@
           case 'show-log':
             let logPath = row.logPath;
             let logName = row.logName;
-            const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
+            let offset = 0;
             if (!logPath || !logName) {
               this.$message.error('该次部署失败，没有部署日志');
               return;
             }
             this.operation.rowID = row.id;
-            this.waitingResponse = true;
-            this.$net.getHistoryDeployLog({
-              logPath, logName
-            }).then(deployLog => {
-//              console.log(deployLog);
-              this.waitingResponse = false;
-              this.deployLogs = deployLog.split('\n').filter(it => {
-                return it;
-              }).map(it => {  
-                return it.replace(filterReg,(match,p1,p2,offset,string) => {
-                  p2 = p2.replace(/(BUILD )*SUCCESS/g, (match, p1, offset, string) => {
-                    return `<span class="success">${match}</span>`;
-                  });
-                  p2 = p2.replace(/BUILD FAILURE/g, (match, p1, offset, string) => {
-                    return `<span class="error">${match}</span>`;
-                  });
-                  let result = '';
-                  switch (p1.toUpperCase()) {
-                    case 'INFO':
-                      result = `[<span class="info">${p1}</span>]${p2}`;
-                      break;
-                    case 'WARNING':
-                      result = `[<span class="warning">${p1}</span>]${p2}`;
-                      break;
-                    case 'ERROR':
-                      result = `[<span class="error">${p1}</span>]<span class="error">${p2}</span>`;
-                      break;
+            this.addToWaitingResponseQueue(action);
+
+            ((options) => {
+              this.deployLogs = [];
+              this.dialogForLogStatus.visible = true;
+              this.hideWaitingResponse('show-log');
+              const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
+              // recursive function to fetch log from server with options {logName, logPath, offset}
+              function getDeployLog(options) {
+                // stop request deploy log when the window is closed
+                if (!this.dialogForLogStatus.visible) {
+                  return;
+                }
+                this.dialogForLogStatus.showLoading = true;
+                this.$net.serviceGetDeployLog(options).then(content => {
+                  if (content.hasOwnProperty('Orchestration')) {
+                    let Orchestration = content.Orchestration;
+                    let logs = Orchestration.log;
+  //                  console.log(log);
+  //                  console.log(content);
+  //                  console.log(Orchestration.offset);
+                    if (logs) {
+                      let logList = logs.split('\n').filter(it => {
+                        return it;
+                      }).map(it => {
+                        return it.replace(filterReg, (match, p1, p2, offset, string) => {
+                          // console.log(match, p1, offset, string);
+                          p2 = p2.replace(/(BUILD )*SUCCESS/g, (match, p1, offset, string) => {
+                            return `<span class="success">${match}</span>`;
+                          });
+                          p2 = p2.replace(/BUILD FAILURE/g, (match, p1, offset, string) => {
+                            return `<span class="error">${match}</span>`;
+                          });
+                          let result = '';
+                          switch (p1.toUpperCase()) {
+                            case 'INFO':
+                              result = `[<span class="info">${p1}</span>]${p2}`;
+                              break;
+                            case 'WARNING':
+                              result = `[<span class="warning">${p1}</span>]${p2}`;
+                              break;
+                            case 'ERROR':
+                              result = `[<span class="error">${p1}</span>]<span class="error">${p2}</span>`;
+                              break;
+                          }
+                          return result;
+                        });
+                      })
+                      // scroll after render finish
+                      this.deployLogs = this.deployLogs.concat(logList);
+                      this.$nextTick(() => {
+                        this.$refs.hasOwnProperty('dialogForDeployLog') &&
+                        this.$refs['dialogForDeployLog'].scrollToBottom();
+                      });
+                    }
+                    options.offset = Orchestration.offset;
+                    if (Orchestration.moreData) {
+                      setTimeout(() => {
+                        getDeployLog.call(this, options);
+                      }, 1800);
+                    }
                   }
-                  return result;
-                })
-              });
-              this.dialogStatus.visible = true;
+                }).catch(err => {
+                  console.log(err);
+                }).finally(() => {
+                  this.dialogForLogStatus.showLoading = false;
+                });
+              }
+
+              getDeployLog.call(this, options);
+            })({
+              logPath : logPath,
+              logName : logName,
+              offset : offset
             });
             break;
         }
