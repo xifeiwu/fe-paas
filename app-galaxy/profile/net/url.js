@@ -97,12 +97,6 @@ class URL extends BaseURL {
       },
 
       /** 服务相关 */
-      // 通过appID和profileID获取服务列表
-      'get_service_by_appId_and_profile': {
-        url: API_PATH + '/service/queryByAppIdAndSpaceId',
-        path: '/service/queryByAppIdAndSpaceId',
-        method: 'post'
-      },
       // 修改默认服务
       'service_change_default': {
         url: API_PATH + '/service/switchService',

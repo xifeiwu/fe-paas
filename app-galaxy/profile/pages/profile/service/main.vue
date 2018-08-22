@@ -2218,10 +2218,13 @@ export default {
         return;
       }
       this.showLoading = true;
-      this.$net.getServiceListByAppIDAndProfileID({
-        appId: appID,
-        spaceId: profileID
-      }).then(content => {
+      this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
+        payload: {
+          appId: appID,
+          spaceId: profileID
+        }
+      }).then(resContent => {
+        const content = this.$net.parseServiceList(resContent);
         if (content.hasOwnProperty('applicationServerList')) {
           this.currentServiceList = content['applicationServerList'];
           this.currentModelList = content['serviceModelList'];
@@ -2256,17 +2259,7 @@ export default {
           this.internetDomain = '未绑定';
           this.internetDomainHtml = '未绑定';
         }
-      }).catch(err => {
-        this.showLoading = false;
-        this.$notify.error({
-          title: err.title,
-          message: err.msg,
-          duration: 0,
-          onClose: function () {
-          }
-        });
-        console.log(err);
-      });
+      }).catch();
     },
     warningConfirm(content) {
       return new Promise((resolve, reject) => {

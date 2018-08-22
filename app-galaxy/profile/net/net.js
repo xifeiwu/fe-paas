@@ -658,13 +658,13 @@ class Net extends NetBase {
   }
 
   /**
-   * get service list by appID and profileID
-   * @param options
-   * @returns {Promise}
+   * format the response content of service list
+   * @param resContent
+   * @returns resContent
    */
-  getServiceListByAppIDAndProfileID(options) {
+  parseServiceList(resContent) {
 
-    function getServiceModelList(items) {
+    const getServiceModelList = function(items) {
       let modelList = [];
       Array.isArray(items) && items.forEach(it => {
         modelList.push({
@@ -690,67 +690,46 @@ class Net extends NetBase {
       return modelList;
     }
 
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.get_service_by_appId_and_profile.url, options).then(response => {
-        let content = this.getResponseContent(response);
-        // console.log(content);
-        if (content) {
-          if (content.hasOwnProperty('applicationServerList')) {
-            let serviceList = content['applicationServerList'];
-            Array.isArray(serviceList) && serviceList.forEach(it => {
-              it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+    if (resContent.hasOwnProperty('applicationServerList')) {
+      let serviceList = resContent['applicationServerList'];
+      Array.isArray(serviceList) && serviceList.forEach(it => {
+        it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
 
-              it.image = {
-                customImage: null == it.customImage ? false : it.customImage,
-                typeName: appInfoHelper.getImageNameById(it.customImage),
-                location: it.image,
-              };
+        it.image = {
+          customImage: null == it.customImage ? false : it.customImage,
+          typeName: appInfoHelper.getImageNameById(it.customImage),
+          location: it.image,
+        };
 
-              // cpu and memory from server is value, such as 2.0/4096
-              // so get cpu and memory info by cpuAndMemoryInfo.
-              let cpuAndMemoryInfo = appInfoHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);
-              it.cpuInfo = cpuAndMemoryInfo[0];
-              it.memoryInfo = cpuAndMemoryInfo[1];
+        // cpu and memory from server is value, such as 2.0/4096
+        // so get cpu and memory info by cpuAndMemoryInfo.
+        let cpuAndMemoryInfo = appInfoHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);
+        it.cpuInfo = cpuAndMemoryInfo[0];
+        it.memoryInfo = cpuAndMemoryInfo[1];
 
-              if (!it.volume) {
-                it.volume = '';
-              }
-              it.volume = it.volume.split(',').filter(it => {return it})
-              this.$utils.renameProperty(it, 'volume', 'fileLocation');
-
-              // fix运行实例/总实例数
-              if (it.hasOwnProperty('containerStatus') && it['containerStatus']) {
-                let containerStatus = it['containerStatus'];
-                it.applicationServiceStatus = `${containerStatus.Running}/${containerStatus.Total}`;
-              }
-
-              // ['mavenProfileId', 'healthCheck', 'loadBalance', 'relativePath'].forEach(prop => {
-              //   if (it.hasOwnProperty(prop) && !it[prop]) {
-              //     it[prop] = '未设置';
-              //   }
-              // })
-              if (!it.hasOwnProperty('internetDomainList')) {
-                it['internetDomainList'] = [];
-              }
-            });
-            content.serviceModelList = getServiceModelList(serviceList);
-          }
-          this.showLog('getServiceListByAppIDAndProfileID', content);
-          resolve(content);
-        } else {
-          reject({
-            title: '获取服务列表信息失败',
-            msg: '请联系管理员'
-          });
+        if (!it.volume) {
+          it.volume = '';
         }
-      }).catch(err => {
-        // console.log(err);
-        reject({
-          title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.get_service_by_appId_and_profile.path}；${err.toString()}`
-        });
-      })
-    })
+        it.volume = it.volume.split(',').filter(it => {return it})
+        this.$utils.renameProperty(it, 'volume', 'fileLocation');
+
+        // fix运行实例/总实例数
+        if (it.hasOwnProperty('containerStatus') && it['containerStatus']) {
+          let containerStatus = it['containerStatus'];
+          it.applicationServiceStatus = `${containerStatus.Running}/${containerStatus.Total}`;
+        }
+        // ['mavenProfileId', 'healthCheck', 'loadBalance', 'relativePath'].forEach(prop => {
+        //   if (it.hasOwnProperty(prop) && !it[prop]) {
+        //     it[prop] = '未设置';
+        //   }
+        // })
+        if (!it.hasOwnProperty('internetDomainList')) {
+          it['internetDomainList'] = [];
+        }
+      });
+      resContent.serviceModelList = getServiceModelList(serviceList);
+    }
+    return resContent;
   }
 
   // 切换默认服务版本
