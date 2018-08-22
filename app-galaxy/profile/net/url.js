@@ -175,8 +175,13 @@ class URL extends BaseURL {
         path: '/service/updateGitLabSsh'
       },
       // 更改gitLabBranch
+      'service_update_relative_path': {
+        url: API_PATH + '/service/updateRelativePath',
+        path: '/service/updateRelativePath'
+      },
+      // 更改gitLabBranch
       'service_update_gitLab_branch': {
-        url: API_PATH + '/service/updateGitLabBranch',
+        url: API_PATH + '/service/updateRelativePath',
         path: '/service/updateGitLabBranch'
       },
       // 更改relativePath

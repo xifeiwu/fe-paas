@@ -682,6 +682,7 @@ class Net extends NetBase {
           loadBalance: it.loadBalance,
           gitLabAddress: it.gitLabAddress,
           gitLabBranch: it.gitLabBranch,
+          relativePath: it.relativePath,
           mavenProfileId: it.mavenProfileId,
           fileLocation: it.fileLocation ? it.fileLocation : [],
           vmOptions: it.vmOptions
@@ -825,6 +826,7 @@ class Net extends NetBase {
       'image': URL_LIST.service_update_image.url,
       'gitLabAddress': URL_LIST.service_update_gitLab_address.url,
       'gitLabBranch': URL_LIST.service_update_gitLab_branch.url,
+      'relativePath': URL_LIST.service_update_relative_path.url,
       'mavenProfileId': URL_LIST.service_update_maven_profile_id.url,
       'cpuAndMemory': URL_LIST.service_update_cpu_and_memory.url,
       'rollingUpdate': URL_LIST.service_update_rolling_update.url,

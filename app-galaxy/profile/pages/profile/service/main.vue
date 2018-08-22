@@ -209,7 +209,9 @@
                     <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="false"></i>
                   </el-form-item>
                   <el-form-item label="健康检查">
-                    <span>{{valueToShow(selected.service.healthCheck)}}</span>
+                    <a :href="'http://' + selected.service.intranetDomain + selected.service.healthCheck" target="_blank"
+                       v-if="selected.service.healthCheck">{{selected.service.healthCheck}}</a>
+                    <span v-else>{{valueToShow(selected.service.healthCheck)}}</span>
                     <span style="font-weight: bold; margin-left: 12px" v-if="showInitialDelay">延迟时间</span>
                     <span v-if="showInitialDelay">{{selected.service.initialDelaySeconds}}秒</span>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
@@ -241,10 +243,12 @@
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
                   </el-form-item>
-                  <el-form-item label="Gitlab父级pom.xml相对路径" v-if="selectedApp.isJavaLanguage" class="relativePathOfParentPOM">
+                  <el-form-item label="Gitlab父级pom相对路径" v-if="selectedApp.isJavaLanguage" class="relativePathOfParentPOM">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.relativePath)}}
                      </div>
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                       class="el-icon-edit" @click="handleChangeProp('relativePath')"></i>
                   </el-form-item>
                   <el-form-item label="Maven profile id" v-if="selectedApp.isJavaLanguage">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
@@ -395,7 +399,7 @@
         <el-form-item :label="showInitialDelay?'健康检查/延迟时间：':'健康检查'" prop="healthCheck" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
           <el-row>
             <el-col :span="17">
-              <el-input v-model="newProps.healthCheck" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-50个字符"></el-input>
+              <el-input v-model="newProps.healthCheck" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
             </el-col>
             <el-col :span="1" style="text-align: center" v-if="showInitialDelay">/</el-col>
             <el-col :span="6" v-if="showInitialDelay">
@@ -556,6 +560,37 @@
                        @click="selected.prop = null">取&nbsp消</el-button>
           </el-col>
         </el-row>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="更改pom相对路径" :visible="selected.prop == 'relativePath'"
+               :close-on-click-modal="false"
+               @close="selected.prop = null"
+               class="gitlab-address size-600"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改pom相对路径后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="260px" ref="changeRelativePathForm" size="mini">
+        <el-form-item label="当前Gitlab父级pom相对路径：">
+          <div class="expand-to-next-line">{{selected.model.relativePath}}</div>
+        </el-form-item>
+        <el-form-item label="更改父级pom相对路径为：" prop="relativePath">
+          <el-input v-model="newProps.relativePath" placeholder="不能包含中文，不能超过512个字符"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+          <div class="item">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('relativePath')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </div>
+          <div class="item">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </div>
       </div>
     </el-dialog>
 
@@ -1302,6 +1337,7 @@ export default {
         loadBalance: '',
         gitLabAddress: '',
         gitLabBranch: '',
+        relativePath: '',
         mavenProfileId: '',
         fileLocation: [],
         vmOptions: '',
@@ -1905,7 +1941,7 @@ export default {
      * @param prop
      */
     handleChangeProp(prop) {
-      if (['healthCheck', 'image','gitLabAddress', 'gitLabBranch', 'mavenProfileId',
+      if (['healthCheck', 'image','gitLabAddress', 'gitLabBranch', 'relativePath','mavenProfileId',
           'cpuAndMemory', 'rollingUpdate', 'loadBalance', 'environments', 'hosts',
           'fileLocation', 'vmOptions', 'oneApm'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
@@ -1916,6 +1952,7 @@ export default {
       switch (prop) {
         case 'gitLabAddress':
         case 'gitLabBranch':
+        case 'relativePath':
         case 'mavenProfileId':
         case 'rollingUpdate':
         case 'loadBalance':
@@ -1973,6 +2010,7 @@ export default {
       switch (prop) {
         case 'gitLabAddress':
         case 'gitLabBranch':
+        case 'relativePath':
         case 'mavenProfileId':
         case 'rollingUpdate':
         case 'loadBalance':
@@ -2095,6 +2133,7 @@ export default {
       switch (prop) {
         case 'gitLabAddress':
         case 'gitLabBranch':
+        case 'relativePath':
         case 'mavenProfileId':
         case 'rollingUpdate':
         case 'loadBalance':
@@ -2166,6 +2205,7 @@ export default {
         case 'loadBalance':
         case 'gitLabAddress':
         case 'gitLabBranch':
+        case 'relativePath':
         case 'mavenProfileId':
         case 'oneApm':
         case 'vmOptions':
