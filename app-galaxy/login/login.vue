@@ -446,10 +446,10 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
         }
 
         // 3. judge by user role
-        const role = this.$storeHelper.userInfo['role'];
-        if (role === '平台管理员') {
-          toPath = this.$net.page['manage'];
-        }
+//        const role = this.$storeHelper.userInfo['role'];
+//        if (role === '平台管理员') {
+//          toPath = this.$net.page['manage'];
+//        }
 
         this.$utils.goToPath(toPath);
       },
