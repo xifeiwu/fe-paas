@@ -1203,6 +1203,7 @@
 </style>
 
 <script>
+  import {mapGetters} from 'vuex';
   import appPropUtils from '../utils/app-props';
   import paasDialogForLog from '../components/dialog4log.vue'
   import paasImageSelector from '../components/image-selector.vue'
@@ -1212,12 +1213,7 @@ export default {
   created() {
   },
   mounted() {
-    if (!this.appInfoListOfGroup) {
-      this.$store.dispatch('user/appInfoListOfGroup', {
-        from: 'page/app/add',
-        groupId: this.$storeHelper.currentGroupID
-      });
-    } else {
+    if (this.appInfoListOfGroup) {
       this.onAppInfoListOfGroup(this.appInfoListOfGroup);
     }
     if (!this.cpuAndMemoryList) {
@@ -1238,9 +1234,9 @@ export default {
     removeResizeListener(this.$el, this.resizeListener);
   },
   computed: {
-    appInfoListOfGroup() {
-      return this.$storeHelper.appInfoListOfGroup;
-    },
+    ...mapGetters('user', {
+      'appInfoListOfGroup': 'appInfoListOfGroup'
+    }),
     cpuAndMemoryList() {
       return this.$storeHelper.cpuAndMemoryList();
     },
@@ -1451,7 +1447,9 @@ export default {
         } else {
           appID = this.appList[0]['appId'];
         }
-        this.selectedAppID = appID;
+        setTimeout(() => {
+          this.selectedAppID = appID;
+        });
       }
     },
     onCpuAndMemoryList(value, oldValue) {

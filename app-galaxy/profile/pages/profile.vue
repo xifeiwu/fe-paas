@@ -161,43 +161,43 @@
     },
     watch: {
       '$route': 'onRoutePath',
-      'groupInfo': function (groupInfo, oldValue) {
-//        if (groupInfo.id === oldValue.id) {
-//          return;
-//        }
-//        console.log(groupInfo);
-        /**
-         * all the request related with groupID will be refreshed, include:
-         * 1. profileListOfGroup
-         * 2. appInfoListOfGroup
-         * 3. usersInGroup
-         */
-        Promise.all([
-          this.$net.requestPaasServer(this.$net.URL_LIST.profile_list_of_group, {
-            payload: {
-              id: groupInfo.id
-            }
-          }),
-          this.$net.requestPaasServer(this.$net.URL_LIST.users_list_of_group, {
-            payload: {
-              id: groupInfo.id
-            }
-          }),
-          this.$net.getAPPList({
-            groupId: groupInfo.id
+
+      'groupInfo.id': {
+        immediate: true,
+        handler (groupId, oldValue) {
+          /**
+           * all the request related with groupID will be refreshed, include:
+           * 1. profileListOfGroup
+           * 2. appInfoListOfGroup
+           * 3. usersInGroup
+           */
+          Promise.all([
+            this.$net.requestPaasServer(this.$net.URL_LIST.profile_list_of_group, {
+              payload: {
+                id: groupId
+              }
+            }),
+            this.$net.requestPaasServer(this.$net.URL_LIST.users_list_of_group, {
+              payload: {
+                id: groupId
+              }
+            }),
+            this.$net.getAPPList({
+              groupId: groupId
+            })
+          ]).then(resContentList => {
+            const [resContent1, resContent2, resContent3] = resContentList;
+            const profileList = resContent1['spaceList'];
+            const userList = resContent2['groupUserList'];
+            const appInfoList = resContent3;
+            this.$store.dispatch('user/userList', userList);
+            this.$store.dispatch('user/appInfoList', appInfoList);
+            this.$store.dispatch('user/profileList', profileList);
+          }).catch(err => {
+            console.log(err);
           })
-        ]).then(resContentList => {
-          const [resContent1, resContent2, resContent3] = resContentList;
-          const profileList = resContent1['spaceList'];
-          const userList = resContent2['groupUserList'];
-          const appInfoList = resContent3;
-          this.$store.dispatch('user/userList', userList);
-          this.$store.dispatch('user/appInfoList', appInfoList);
-          this.$store.dispatch('user/profileList', profileList);
-        }).catch(err => {
-          console.log(err);
-        })
-      }
+        }
+      },
     },
     methods: {
       // set el-menu profile as active menu of paasHeaderProfile
