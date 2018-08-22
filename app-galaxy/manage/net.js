@@ -9,7 +9,7 @@ class Net extends NetBase {
     this.requestingState = {
       getAPPList: false,
     };
-    const PAAS_URL_LIST = Object.assign(this.URL_LIST_PAAS_SUPER, {
+    const PAAS_URL_LIST = {
       // 获取用户所在组列表
       'app_status_list': {
         path: '/backstage',
@@ -64,7 +64,7 @@ class Net extends NetBase {
         path: '/domain/whiteList/addOffice',
         method: 'post'
       },
-    });
+    };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];
       item.path = this.PAAS_PREFIX + item.path;
@@ -104,7 +104,11 @@ class Net extends NetBase {
       let item = CDN_URL_LIST[key];
       item.path = this.CDN_PREFIX + item.path;
     });
-    this.URL_LIST = Object.assign(PAAS_URL_LIST, CDN_URL_LIST);
+
+    // extend URL_LIST from super
+    if (this.URL_LIST) {
+      this.URL_LIST = Object.assign(this.URL_LIST, PAAS_URL_LIST, CDN_URL_LIST);
+    }
   }
 
   // called at config/vue

@@ -10,7 +10,7 @@ class Net {
     this.PAAS_PREFIX = '/j-api/paas';
 
 
-    this.URL_LIST_PAAS_SUPER = {
+    const PAAS_URL_LIST = {
       // 用户退出
       'logout': {
         path: '/userLogout',
@@ -27,6 +27,12 @@ class Net {
         method: 'get'
       },
     };
+    Object.keys(PAAS_URL_LIST).forEach(key => {
+      let item = PAAS_URL_LIST[key];
+      item.path = this.PAAS_PREFIX + item.path;
+    });
+
+    this.URL_LIST = PAAS_URL_LIST;
 
     this.page = {
       'profile': '/profile',

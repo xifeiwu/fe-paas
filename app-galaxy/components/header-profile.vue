@@ -156,7 +156,21 @@
                 window.location.pathname = this.$net.page['user/info'];
                 break;
               case 'logout':
-                this.$emit('menu-click', keyAll);
+                if (this.$net && this.$net.URL_LIST && this.$net.URL_LIST['logout']) {
+                  this.$net.requestPaasServer(this.$net.URL_LIST.logout).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '退出成功',
+                      duration: 500,
+                      onClose: () => {
+                        this.$storeHelper.logout();
+                        this.$utils.goToPath('/login');
+                      }
+                    });
+                  }).catch();
+                } else {
+                  this.$emit('menu-click', keyAll);
+                }
                 break;
             }
             break;
