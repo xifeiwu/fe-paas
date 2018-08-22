@@ -100,6 +100,9 @@ const actions = {
    * @param groupId
    */
   async appInfoListOfGroup({commit, state}, {groupId, from}) {
+    if (!groupId) {
+      return;
+    }
     state.appInfoListOfGroup = await NetData.getAPPList({
       groupId: groupId,
     });
@@ -129,8 +132,8 @@ const mutations = {
       }
     }
     state.groupInfo = target;
-    if (!state.groupId) {
-      state.groupId = state.groupId['id'];
+    if (!state.groupId && state.groupInfo) {
+      state.groupId = state.groupInfo['id'];
     }
   },
 

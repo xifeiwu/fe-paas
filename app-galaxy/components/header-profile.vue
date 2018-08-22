@@ -139,6 +139,11 @@
         default: true
       }
     },
+    computed: {
+      userInfo() {
+        return this.$storeHelper.userInfo;
+      }
+    },
     methods: {
       handleMenuClick(key, keyPath) {
         const keyAll = keyPath.join('/');
@@ -164,18 +169,23 @@
                 window.location.pathname = this.$net.page['user/info'];
                 break;
               case 'logout':
+                const logout = () => {
+                  this.$message({
+                    type: 'success',
+                    message: '退出成功',
+                    duration: 500,
+                    onClose: () => {
+                      this.$storeHelper.logout();
+                      window.location.pathname = this.$net.page['login'];
+                    }
+                  });
+                };
+                if (!this.$storeHelper.getUserInfo('token')) {
+                  logout();
+                  return;
+                }
                 if (this.$net && this.$net.URL_LIST && this.$net.URL_LIST['logout']) {
-                  this.$net.requestPaasServer(this.$net.URL_LIST.logout).then(() => {
-                    this.$message({
-                      type: 'success',
-                      message: '退出成功',
-                      duration: 500,
-                      onClose: () => {
-                        this.$storeHelper.logout();
-                        window.location.pathname = this.$net.page['login'];
-                      }
-                    });
-                  }).catch();
+                  this.$net.requestPaasServer(this.$net.URL_LIST.logout).then(logout).catch(err => {});
                 } else {
                   this.$emit('menu-click', keyAll);
                 }

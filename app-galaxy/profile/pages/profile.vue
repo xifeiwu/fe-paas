@@ -165,6 +165,9 @@
       'groupInfo.id': {
         immediate: true,
         handler (groupId, oldValue) {
+          if (!groupId) {
+            return;
+          }
           /**
            * all the request related with groupID will be refreshed, include:
            * 1. profileListOfGroup
