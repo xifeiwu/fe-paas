@@ -218,7 +218,7 @@
                           }
                           return result;
                         });
-                      })
+                      });
                       // scroll after render finish
                       this.deployLogs = this.deployLogs.concat(logList);
                       this.$nextTick(() => {

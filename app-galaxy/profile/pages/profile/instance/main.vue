@@ -481,8 +481,14 @@
           limitLine: 500
         }).then(resData => {
           this.consoleLogList = resData;
+          this.$nextTick(() => {
+            this.$refs.hasOwnProperty('dialogForConsoleLog') &&
+            this.$refs['dialogForConsoleLog'].scrollToBottom();
+          });
         }).finally(() => {
-          this.dialogStatusForConsoleLog.showLoading = false;
+          setTimeout(() => {
+            this.dialogStatusForConsoleLog.showLoading = false;
+          }, 200);
         });
       },
 
