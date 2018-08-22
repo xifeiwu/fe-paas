@@ -39,15 +39,10 @@
         <template slot-scope="scope">
           <div>
             <span>{{scope.row.status ? scope.row.status : ''}}</span>
-            <el-button
-              round
-              type="primary"
-              size="mini-extral"
-              v-if="scope.row.status !== '运行中'"
-              class="statusButton"
-              @click="handleRowButtonClick('instanceStatus',scope.$index,scope.row)"
-              title=“查看详情”
-            >详情</el-button>
+            <span style="color: #409EFF; font-size: 12px; cursor: pointer; padding: 1px; border: 1px solid #409EFF; border-radius: 4px;"
+                  v-if="scope.row.status !== '运行中'"
+                  @click="handleRowButtonClick('instanceStatus',scope.$index,scope.row)"
+            >详情</span>
           </div>
         </template>
         </el-table-column>
