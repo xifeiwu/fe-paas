@@ -310,10 +310,11 @@
         }
         let appId = this.selectedAppID;
         let spaceId = this.selectedProfileID;
-        this.$net.getServiceListByAppIDAndProfileID({
-          appId, spaceId
+        this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
+          payload: {
+            appId, spaceId
+          }
         }).then(content => {
-//          console.log(content);
           this.serviceListWithAll = versionAll;
           if (content.hasOwnProperty('applicationServerList')) {
             let serviceList = content['applicationServerList'];
@@ -359,11 +360,6 @@
         }).catch(err => {
           this.serviceListWithAll = versionAll;
           this.changeServiceCondition();
-          console.log(err);
-//          this.$message({
-//            type: 'error',
-//            message: '查找服务版本失败！'
-//          });
         })
       },
 
