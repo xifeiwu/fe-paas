@@ -40,12 +40,6 @@ class URL extends BaseURL {
         path: '/login',
         method: 'post'
       },
-      // 用户退出
-      'logout': {
-        url: API_PATH + '/userLogout',
-        path: '/userLogout',
-        method: 'get'
-      },
       // 应用列表
       'app_list': {
         url: API_PATH + '/application/queryByPage',

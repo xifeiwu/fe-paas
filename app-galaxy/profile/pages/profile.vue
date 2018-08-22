@@ -255,29 +255,17 @@
             });
             break;
           case 'user/logout':
-            this.$net.logout().then(msg => {
+            this.$net.requestPaasServer(this.$net.URL_LIST.logout).then(() => {
               this.$message({
                 type: 'success',
-                message: msg,
+                message: '退出成功',
                 duration: 500,
                 onClose: () => {
                   this.$storeHelper.logout();
                   this.$utils.goToPath('/login?to=/profile');
                 }
               });
-            }).catch(err => {
-              if (err.msg) {
-                this.$message({
-                  type: 'error',
-                  message: err.msg,
-                  duration: 500,
-                  onClose: () => {
-                    this.$storeHelper.logout();
-                    this.$utils.goToPath('/login?to=/user');
-                  }
-                });
-              }
-            });
+            }).catch();
             break;
           case 'message':
             break;

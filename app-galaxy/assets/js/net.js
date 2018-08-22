@@ -11,6 +11,11 @@ class Net {
 
 
     this.URL_LIST_PAAS_SUPER = {
+      // 用户退出
+      'logout': {
+        path: '/userLogout',
+        method: 'get'
+      },
       // 获取用户所在组列表
       'user_group_list': {
         path: '/group/queryByUser',

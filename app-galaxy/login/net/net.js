@@ -192,25 +192,6 @@ class Net extends NetBase {
     return origin;
   }
 
-  logout() {
-    return new Promise((resolve, reject) => {
-      axios.get(this.URL_LIST.logout.path).then(res => {
-        if ('data' in res) {
-          let data = res.data;
-          if (0 === data.code) {
-            let msg = null;
-            if (data.hasOwnProperty('msg')) {
-              msg = data.msg;
-            }
-            resolve(msg);
-          }
-        }
-      }).catch(err => {
-        reject(this.getMsgFromErrorResponse(err));
-      });
-    })
-  }
-
 }
 
 export default new Net();
