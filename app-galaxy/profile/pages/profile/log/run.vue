@@ -306,9 +306,12 @@
     },
     methods: {
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
+        if (!appInfo || !profileInfo || !serviceInfo) {
+          return;
+        }
         this.searchForm.appId = appInfo.appId;
-        this.searchForm.spaceId = profileInfo ? profileInfo.id: '';
-        this.searchForm.serviceVersion = serviceInfo ? serviceInfo.serviceVersion : '';
+        this.searchForm.spaceId = profileInfo.id;
+        this.searchForm.serviceVersion = serviceInfo.serviceVersion;
 //        this.requestLogAtStart();
       },
       handleButtonClick(action) {
