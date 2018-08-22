@@ -14,7 +14,7 @@
         </el-alert>
       </div>
       <!--toasts-area-->
-      <paas-header-profile :userName="userName" :showImg="false" ref="paasHeaderProfile"
+      <paas-header-profile :userName="userName" :userRole=userRole :showImg="false" ref="paasHeaderProfile"
                            @menu-click="handleHeaderMenuClick"></paas-header-profile>
       <div class="content">
         <el-row class="header" type="flex" align="middle">
@@ -151,6 +151,9 @@
           userName = '未知';
         }
         return userName;
+      },
+      userRole() {
+        return this.$storeHelper.getUserInfo('role');;
       },
       groupList() {
         return this.$storeHelper.groupList();

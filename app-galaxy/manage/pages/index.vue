@@ -2,8 +2,8 @@
   <div id="manage" class="spa">
     <main :class="{'collapse-menu': false}">
       <!--toasts-area-->
-      <paas-header-profile :userName="userName" :showImg="false" ref="paasHeaderProfile"
-                           @menu-click="handleHeaderMenuClick"></paas-header-profile>
+      <paas-header-profile :userName="userName" :userRole="userRole" :showImg="false" ref="paasHeaderProfile"
+                           defaultActive="manage" @menu-click="handleHeaderMenuClick"></paas-header-profile>
       <div class="content">
         <!--<el-row class="header" type="flex" align="middle">-->
           <!--<el-col :span="12" class="current-step">-->
@@ -113,6 +113,10 @@
       this.onRoutePath(this.$route);
     },
     mounted() {
+      if (this.userRole !== '平台管理员') {
+        window.location.pathname = this.$net.page['profile'];
+        return;
+      }
       this.$utils.onWindowVisibilityChange((evt) => {
         if (!document.hidden) {
           this.setDefaultActiveForHeader();
@@ -123,7 +127,6 @@
       });
     },
     computed: {
-//      ...mapState(['toasts']),
       routerPathToName() {
         return this.$routeHelper.getRoutePathToName();
       },
@@ -133,6 +136,9 @@
           userName = '未知';
         }
         return userName;
+      },
+      userRole() {
+        return this.$storeHelper.getUserInfo('role');
       },
       groupList() {
         return this.$storeHelper.groupList();
@@ -181,6 +187,7 @@
     methods: {
       // set el-menu profile as active menu of paasHeaderProfile
       setDefaultActiveForHeader() {
+        return;
         if (this.$refs.hasOwnProperty('paasHeaderProfile') && this.$refs['paasHeaderProfile']) {
           this.$refs['paasHeaderProfile'].setActiveMenu('profile');
         }

@@ -12,26 +12,10 @@ import VueRouter from 'vue-router';
  *    if add app is sub page of app, its url should be app/add
  */
 var Router = function () {
-  // this.richRouterConfig = [{
-  //   path: '/',
-  //   redirect: '/app',
-  // }, {
-  //   path: '/app',
-  //   name: '应用管理',
-  //   component: AppMain,
-  //   meta: {
-  //     isPermitted: true,
-  //   },
-  // }];
-  // this.richRouterConfig = [{
-  //   path: '/manage',
-  //   component: Index,
-  //   children: [{
-  //     path: 'app',
-  //     component: AppMain
-  //   }]
-  // }];
   this.richRouterConfig = [{
+    path: '/manage',
+    redirect: '/manage/app',
+  },{
     path: '/manage/app',
     component: AppMain
   }];

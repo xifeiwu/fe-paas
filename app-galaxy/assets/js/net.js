@@ -35,6 +35,7 @@ class Net {
     this.URL_LIST = PAAS_URL_LIST;
 
     this.page = {
+      'login': '/login',
       'profile': '/profile',
       'profile/app': '/app',
       'profile/oauth': '/oauth',
@@ -224,7 +225,7 @@ class Net {
     Vue.prototype.$notify.error({
       title,
       message: err.message,
-      duration: 6000
+      duration: 3000
     })
   };
 
