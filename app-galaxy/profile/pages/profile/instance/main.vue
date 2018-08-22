@@ -84,7 +84,7 @@
                       round
                       @click="handleRowButtonClick('show-console-log', scope.$index, scope.row)"
                       size="mini-extral"
-                      v-if="!$storeHelper.notPermitted['show-console-log'] && false"
+                      v-if="!$storeHelper.notPermitted['show-console-log']"
                       type="primary">
                 <span>查看console日志</span>
               </el-button>
@@ -139,9 +139,11 @@
       </div>
     </paas-dialog-for-log>
 
-    <paas-dialog-for-log :showStatus="dialogStatusForConsoleLog" ref="dialogForConsoleLog" title="console日志">
+    <paas-dialog-for-log :showStatus="dialogStatusForConsoleLog"  @refresh='updateConsoleLog(false)'
+                         class="dialog-console-log"
+                         ref="dialogForConsoleLog" title="console日志">
       <div slot="content">
-        <pre>{{consoleLogList}}</pre>
+        <pre class="content">{{consoleLogList}}</pre>
       </div>
     </paas-dialog-for-log>
   </div>
@@ -186,6 +188,14 @@
             margin: 2px 4px;
             margin-left: 0;
           }
+        }
+      }
+    }
+    .dialog-for-log {
+      &.dialog-console-log {
+        pre.content {
+          font-size: 12px;
+          line-height: 14px;
         }
       }
     }
@@ -278,9 +288,11 @@
         dialogStatusForConsoleLog: {
           visible: false,
           full: false,
-          showLoading: false
+          showLoading: false,
+          iconRefresh: true,
+          iconExpand: true
         },
-        consoleLogList: []
+        consoleLogList: ''
       };
     },
     watch: {},
@@ -457,6 +469,24 @@
       },
 
       /**
+       * 更新consoleLog
+       */
+      updateConsoleLog() {
+        var selectedValue = this.$refs['version-selector'].getSelectedValue();
+        this.dialogStatusForConsoleLog.showLoading = true;
+        this.$net.getConsoleLog({
+          applicationId: selectedValue['selectedAPP'].appId,
+          spaceId: selectedValue['selectedProfile'].id,
+          podName: this.action.row['instanceName'],
+          limitLine: 500
+        }).then(resData => {
+          this.consoleLogList = resData;
+        }).finally(() => {
+          this.dialogStatusForConsoleLog.showLoading = false;
+        });
+      },
+
+      /**
        * handle click event in operation column
        */
       handleRowButtonClick(action, index, row) {
@@ -505,16 +535,8 @@
             this.updateInstanceStatusList(true);
             break;
           case 'show-console-log':
-            var selectedValue = this.$refs['version-selector'].getSelectedValue();
-            this.$net.getConsoleLog({
-              applicationId: selectedValue['selectedAPP'].appId,
-              spaceId: selectedValue['selectedProfile'].id,
-              podName: row['instanceName'],
-              limitLine: 350
-            }).then(resData => {
-              this.dialogStatusForConsoleLog.visible = true;
-              this.consoleLogList = resData;
-            })
+            this.dialogStatusForConsoleLog.visible = true;
+            this.updateConsoleLog();
             break;
           }
         },
