@@ -221,6 +221,9 @@
         dialog: null,
         scrollWrap: null,
         scrollListener: null,
+
+        // 是否滚动到了最底端
+        isScrolledBottom: true,
       }
     },
     methods: {
@@ -236,14 +239,12 @@
         if (this.scrollWrap) {
           scrollListener = (evt) => {
             let target = evt.target;
+            this.isScrolledBottom = target.scrollTop + target.clientHeight === target.scrollHeight;
             if (target) {
-//            console.log(target.scrollTop);
               if (target.scrollTop === 0) {
                 this.$emit('scrollTop');
-//              console.log('scrollTop');
               } else if (target.scrollTop + target.clientHeight === target.scrollHeight) {
                 this.$emit('scrollBottom');
-//              console.log('scrollBottom');
               }
             }
           };

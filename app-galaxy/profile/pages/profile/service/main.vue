@@ -1699,12 +1699,14 @@ export default {
                         }
                         return result;
                       });
-                    })
+                    });
                     // scroll after render finish
                     this.deployLogs = this.deployLogs.concat(logList);
                     this.$nextTick(() => {
-                      this.$refs.hasOwnProperty('dialogForDeployLog') &&
-                      this.$refs['dialogForDeployLog'].scrollToBottom();
+                      if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
+                        let dialogForDeployLog = this.$refs['dialogForDeployLog'];
+                        dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+                      }
                     });
                   }
                   options.offset = Orchestration.offset;
