@@ -76,7 +76,7 @@
               </el-radio>
             </el-radio-group>
           </div>
-          <div :class="['war-name', createAppForm.buildType!=='WAR'?'hide':'']"><el-input v-model="createAppForm.buildName" placeholder="构建类型为WAR时，必须填写构建包名称"></el-input></div>
+          <div :class="['war-name', createAppForm.buildType!=='WAR'?'hide':'', useBuildName?'hide':'']"><el-input v-model="createAppForm.buildName" placeholder="构建类型为WAR时，必须填写构建包名称"></el-input></div>
         </div>
       </el-form-item>
 
@@ -373,6 +373,7 @@ export default {
   },
   data() {
     return {
+      useBuildName: false,
       fileLocationToAdd: '',
       scrumList: [],
       lobList: [],
@@ -613,7 +614,7 @@ export default {
       }
       const createAppForm = this.createAppForm;
       this.$refs['createAppForm'].validate((valid) => {
-        if (createAppForm.buildType === 'WAR' && createAppForm.buildName === '') {
+        if (this.useBuildName && createAppForm.buildType === 'WAR' && createAppForm.buildName === '') {
           this.errMsg4BuildName = '构建类型为WAR时，必须填写构建包名称';
           valid = false;
         }

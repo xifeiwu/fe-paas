@@ -179,6 +179,11 @@ class URL extends BaseURL {
         url: API_PATH + '/service/updateGitLabBranch',
         path: '/service/updateGitLabBranch'
       },
+      // 更改relativePath
+      'service_update_relative_path': {
+        url: API_PATH + '/service/updateRelativePath',
+        path: '/service/updateRelativePath'
+      },
       // 更改maven profile id
       'service_update_maven_profile_id': {
         url: API_PATH + '/service/updateMavenProfileId',
