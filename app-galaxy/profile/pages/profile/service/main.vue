@@ -208,7 +208,7 @@
                     {{valueToShow(selected.service.loadBalance)}}
                     <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="false"></i>
                   </el-form-item>
-                  <el-form-item label="健康检查">
+                  <el-form-item label="健康检查" class="big">
                     <a :href="'http://' + selected.service.intranetDomain + selected.service.healthCheck" target="_blank"
                        v-if="selected.service.healthCheck">{{selected.service.healthCheck}}</a>
                     <span v-else>{{valueToShow(selected.service.healthCheck)}}</span>
@@ -224,33 +224,33 @@
                 <el-form label-position="right" label-width="200px" size="mini" class="message-show">
                   <el-form-item label="镜像方式">
                     <span>{{valueToShow(selected.service.image.typeName)}}</span>
-                    <span style="padding-left: 12px; font-weight: bold">基础镜像地址</span>
+                    <span style="padding-left: 12px; font-weight: bold">{{selected.service.image.customImage?'镜像地址':'基础镜像'}}</span>
                     <span>{{selected.service.image.location}} </span>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('image')"></i>
                   </el-form-item>
-                  <el-form-item label="gitlab_ssh地址">
+                  <el-form-item label="gitlab_ssh地址" v-if="!selected.service.image.customImage">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.gitLabAddress)}}
                     </div>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
                   </el-form-item>
-                  <el-form-item label="gitlab分支">
+                  <el-form-item label="gitlab分支" v-if="!selected.service.image.customImage">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.gitLabBranch)}}
                     </div>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
                   </el-form-item>
-                  <el-form-item label="Gitlab父级pom相对路径" v-if="selectedApp.isJavaLanguage" class="relativePathOfParentPOM">
+                  <el-form-item label="Gitlab父级pom相对路径" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage" class="relativePathOfParentPOM">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.relativePath)}}
                      </div>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('relativePath')"></i>
                   </el-form-item>
-                  <el-form-item label="Maven profile id" v-if="selectedApp.isJavaLanguage">
+                  <el-form-item label="Maven profile id" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{valueToShow(selected.service.mavenProfileId)}}
                     </div>
