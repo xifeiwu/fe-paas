@@ -58,6 +58,13 @@ class Net extends NetBase {
         method: 'post'
       },
 
+      /** 服务相关 */
+      // 通过appID和profileID获取服务列表
+      'service_list_by_app_and_profile': {
+        path: '/service/queryByAppIdAndSpaceId',
+        method: 'post'
+      },
+
       // 检测服务端口映射
       'service_port_map_check': {
         path: '/service/checkPortMapping',

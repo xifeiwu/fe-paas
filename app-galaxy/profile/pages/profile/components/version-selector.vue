@@ -243,12 +243,14 @@
         }
         this.selectedServiceID = null;
         this.currentServiceList = [];
-        this.$net.getServiceListByAppIDAndProfileID({
-          appId: appID,
-          spaceId: spaceID
-        }).then(content => {
-          if (content.hasOwnProperty('applicationServerList')) {
-            let currentServiceList = content['applicationServerList'];
+        this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
+          payload: {
+            appId: appID,
+            spaceId: spaceID
+          }
+        }).then(resContent => {
+          if (resContent.hasOwnProperty('applicationServerList')) {
+            let currentServiceList = resContent['applicationServerList'];
             // get default version
             if (currentServiceList && Array.isArray(currentServiceList) && currentServiceList.length > 0) {
               this.currentServiceList = currentServiceList;
@@ -288,12 +290,7 @@
               this.changeVersion(this.selectedAPP, this.selectedProfileID, null);
             }
           }
-        }).catch(err => {
-          this.$message({
-            type: 'error',
-            message: '查找服务版本失败！'
-          });
-        })
+        }).catch();
       },
 
       /**
