@@ -7,10 +7,10 @@
                v-loading="showLoading"
                :element-loading-text="loadingText">
         <el-form-item label="应用名称" class="app-name">
-          {{infoForAddService.appName}}
+          {{appName}}
         </el-form-item>
         <el-form-item label="运行环境" class="profile-description">
-          {{infoForAddService.profileDescription}}
+          {{profileInfo? profileInfo.description: ''}}
         </el-form-item>
         <el-form-item label="版本号" class="service-version"
                       :required="true"
@@ -430,14 +430,16 @@
       // appPropUtil will be used in template
       this.appPropUtil = appPropUtil;
 
-      let infoForAddService = this.$storeHelper.dataTransfer;
-      if (!infoForAddService) {
+      const dataPassed = this.$storeHelper.dataTransfer;
+      if (!dataPassed) {
         this.$router.go(-1);
         return;
       }
-      this.serviceForm.appId = infoForAddService.appId;
-      this.serviceForm.spaceId = infoForAddService.profileId;
-      this.infoForAddService = infoForAddService;
+      this.type = dataPassed['type'];
+      this.serviceForm.appId = dataPassed.data.appId;
+      this.serviceForm.spaceId = dataPassed.data.profileId;
+      this.appName = dataPassed.data.appName;
+      this.appLanguage = dataPassed.data.language;
 
       this.rules.imageLocation.required = false;
       // set default cpu, default memorySizeList will be set in watch
@@ -446,18 +448,23 @@
         this.serviceForm.cpuID = 'cpu' in firstItem ? firstItem.id : '';
       }
 
-      this.requestImageRelatedInfo();
     },
     mounted() {
       this.setDebounce();
     },
     data() {
       return {
+        type: '',
         environmentKey: '',
         environmentValue: '',
         hostKey: '',
         hostValue: '',
         errorMsgForVersion: '',
+
+        appName: '',
+        profileInfo:  null,
+        appLanguage: null,
+        versionList: [],
         serviceForm: {
           appId: null,
           spaceId: null,
@@ -520,7 +527,6 @@
         memorySizeList: [],
         rules: appPropUtil.rules,
 
-        infoForAddService: null,
         showLoading: false,
         loadingText: '',
 
@@ -538,15 +544,41 @@
       appInfoListOfGroup() {
         return this.$storeHelper.appInfoListOfGroup;
       },
-      appLanguage() {
-        let result = null;
-        if (this.infoForAddService) {
-          result = this.infoForAddService.language;
-        }
-        return result;
-      }
     },
     watch: {
+      'serviceForm.spaceId': function (profileId) {
+        // update profile info
+        this.profileInfo = this.$storeHelper.getProfileInfoByID(profileId);
+        // request image related info
+        this.requestImageRelatedInfo();
+        // update versionList
+        this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
+          payload: {
+            appId: this.serviceForm.appId,
+            spaceId: profileId
+          }
+        }).then(content => {
+          if(content.hasOwnProperty('applicationServerList')){
+            let serviceList = content['applicationServerList'];
+            this.versionList = serviceList.filter(it => {
+              return it.hasOwnProperty('serviceVersion') && it['serviceVersion'] && it['serviceVersion'][0] === 'v';
+            }).map(it => {
+              return it['serviceVersion'].substring(1);
+            });
+            // set default service version when this.type == 'copy'
+            if (this.type === 'copy') {
+              let maxVersion = 0;
+              this.versionList.forEach(it => {
+                if (it > maxVersion) {
+                  maxVersion = it;
+                }
+              });
+              this.serviceForm.serviceVersion = (maxVersion + 1).toString();
+//              this.checkVersion(this.serviceForm.serviceVersion);
+            }
+          }
+        })
+      },
       /**
        * set memoryID at watcher of serviceForm.cpuID
        */
@@ -631,7 +663,7 @@
           this.errorMsgForVersion = '版本号不能为空';
         } else if (!/^[0-9]{1,5}$/.test(value)) {
           this.errorMsgForVersion = '版本号只能包含数字，不能超过五位';
-        } else if (this.infoForAddService.versionList.indexOf(value) > -1) {
+        } else if (versionList.indexOf(value) > -1) {
           this.errorMsgForVersion = `版本v${value}已经存在`;
         } else {
           this.errorMsgForVersion = ''
@@ -659,8 +691,9 @@
       },
       // get image related info from network
       requestImageRelatedInfo() {
-        // check group tag
-        let {groupTag, appId, profileName} = this.infoForAddService;
+        const groupTag = this.groupInfo.tag;
+        const appId = this.serviceForm.appId;
+        const profileName = this.profileInfo.name;
         this.$net.getImageRelatedInfo({
           groupTag,
           appId

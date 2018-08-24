@@ -173,6 +173,15 @@
                     <i class="el-icon-arrow-right"
                       :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"></i>
                   </el-button>
+            <el-button
+                    class="flex"
+                    round
+                    size="mini-extral"
+                    type="primary"
+                    @click="handleRowButtonClick('copy-to-add-service',scope.$index,scope.row)">
+              <span>复制服务</span>
+              <i class="paas-icon-level-up"></i>
+            </el-button>
           </template>
         </el-table-column>
         <el-table-column type="expand"
@@ -1502,69 +1511,39 @@ export default {
         message: '',
         content: null,
       };
+      // check group info
+      let groupInfo = this.$storeHelper.groupInfo();
+      if (!groupInfo) {
+        result.message = '未找到团队相关信息！';
+        return result;
+      }
+      // app info
       let appInfo = this.$storeHelper.getAppByID(this.selectedAppID);
       let appName = null;
-      if (appInfo && appInfo.hasOwnProperty('appName')) {
+      let language = null;
+      let languageVersion = null;
+      if (appInfo && appInfo.hasOwnProperty('appName') && appInfo.hasOwnProperty('language')) {
         appName = appInfo.appName;
+        language = appInfo.language;
+        languageVersion = appInfo.languageVersion;
       } else {
         result.message = '未找到应用相关信息！';
         return result;
       }
 
-      // profile info
-      let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
-      let profileName = null;
-      let profileDescription = null;
-      if (profileInfo && profileInfo.hasOwnProperty('name') && profileInfo.hasOwnProperty('description')) {
-        profileName = profileInfo.name;
-        profileDescription = profileInfo.description;
-      } else {
-        result.message = '未找到运行环境相关信息！';
-        return result;
-      }
-      // group info
-      let groupInfo = this.$storeHelper.groupInfo();
-      let groupTag = null;
-      if (groupInfo && groupInfo.hasOwnProperty('tag')) {
-        groupTag = groupInfo.tag;
-      } else {
-        result.message = '未找到团队相关信息！';
-        return result;
-      }
-      // language info
-      let language = null;
-      let languageVersion = null;
-      if (this.selectedApp && this.selectedApp.hasOwnProperty('language')) {
-        language = this.selectedApp.language;
-        languageVersion = this.selectedApp.languageVersion;
-      } else {
-        result.message = '未找到开发语言及语言版本信息！';
-        return result;
-      }
-      // has-existed version
-      let versionList = [];
-      if (this.currentServiceList && Array.isArray(this.currentServiceList)) {
-        versionList = this.currentServiceList.filter(it => {
-          return it.hasOwnProperty('serviceVersion') && it['serviceVersion'] && it['serviceVersion'][0] === 'v';
-        }).map(it => {
-          return it['serviceVersion'].substring(1);
-        })
-      } else {
-        result.message = '未找到服务版本列表！';
-        return result;
+      if (!this.selectedProfileID) {
+        result.message = '未找到运行环境相关信息';
+        return;
       }
 
-      if (null !== groupTag && null !== this.selectedAppID && null !== this.selectedProfileID &&
-        appName, profileName && profileDescription && language && languageVersion) {
+      if (appName && language && languageVersion && null !== this.selectedProfileID) {
         result.success = true;
         result.content = {
-          groupTag: groupTag,
+          appName,
+          language,
+          languageVersion,
           appId: this.selectedAppID,
           profileId: this.selectedProfileID,
-          appName, profileName, profileDescription,
-          language: language,
-          languageVersion: languageVersion,
-          versionList: versionList
         }
       } else {
         console.log('error: infoForAddService');
@@ -1579,7 +1558,10 @@ export default {
             this.$message.error(infoForAddService.message);
             return;
           }
-          this.$storeHelper.dataTransfer = infoForAddService.content;
+          this.$storeHelper.dataTransfer = {
+            type: 'add',
+            data: infoForAddService.content
+          };
           this.$router.push('/service/add');
           break;
         case 'refreshAppList':
@@ -1866,6 +1848,19 @@ export default {
           } else {
             this.expandRows = [key];
           }
+          break;
+        case 'copy-to-add-service':
+//          console.log(this.selected);
+//          return;
+          let infoForAddService2 = this.getInfoForAddService();
+          if (!infoForAddService2.success) {
+            this.$message.error(infoForAddService2.message);
+            return;
+          }
+          infoForAddService2.content.initData = this.selected.service;
+          infoForAddService2.content.initData.firstInit = true;
+          this.$storeHelper.dataTransfer = infoForAddService2.content;
+          this.$router.push('/service/add');
           break;
         case 'go-to-instance-list':
           statusOK = false;
