@@ -178,7 +178,7 @@
                     round
                     size="mini-extral"
                     type="primary"
-                    @click="handleRowButtonClick('copy-to-add-service',scope.$index,scope.row)">
+                    @click="handleRowButtonClick('copy-service',scope.$index,scope.row)">
               <span>复制服务</span>
               <i class="paas-icon-level-up"></i>
             </el-button>
@@ -1849,17 +1849,17 @@ export default {
             this.expandRows = [key];
           }
           break;
-        case 'copy-to-add-service':
-//          console.log(this.selected);
-//          return;
-          let infoForAddService2 = this.getInfoForAddService();
-          if (!infoForAddService2.success) {
-            this.$message.error(infoForAddService2.message);
+        case 'copy-service':
+          let infoForAddService = this.getInfoForAddService();
+          if (!infoForAddService.success) {
+            this.$message.error(infoForAddService.message);
             return;
           }
-          infoForAddService2.content.initData = this.selected.service;
-          infoForAddService2.content.initData.firstInit = true;
-          this.$storeHelper.dataTransfer = infoForAddService2.content;
+
+          this.$storeHelper.dataTransfer = {
+            type: 'copy',
+            data: JSON.parse(JSON.stringify(Object.assign(infoForAddService.content, this.selected.model)))
+          };
           this.$router.push('/service/add');
           break;
         case 'go-to-instance-list':

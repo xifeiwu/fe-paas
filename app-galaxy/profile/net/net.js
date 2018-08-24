@@ -685,7 +685,8 @@ class Net extends NetBase {
           relativePath: it.relativePath,
           mavenProfileId: it.mavenProfileId,
           fileLocation: it.fileLocation ? it.fileLocation : [],
-          vmOptions: it.vmOptions
+          vmOptions: it.vmOptions,
+          instanceNum: it.instanceNum,
         })
       });
       return modelList;

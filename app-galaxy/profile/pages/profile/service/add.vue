@@ -9,8 +9,14 @@
         <el-form-item label="应用名称" class="app-name">
           {{appName}}
         </el-form-item>
-        <el-form-item label="运行环境" class="profile-description">
+        <el-form-item label="运行环境" class="profile-description" v-if="type==='add'">
           {{profileInfo? profileInfo.description: ''}}
+        </el-form-item>
+        <el-form-item label="运行环境" class="profile-description" v-if="type==='copy'">
+          <el-select v-model="serviceForm.spaceId" placeholder="请选择" style="display:block; max-width: 200px;">
+            <el-option v-for="item in profileListOfGroup" :key="item.id" :label="item.description" :value="item.id">
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="版本号" class="service-version"
                       :required="true"
@@ -71,7 +77,7 @@
         <transition name="more-config">
           <el-form-item label="Gitlab分支" prop="gitLabBranch" class="gitlab-branch"
                         v-if="!imageSelectState.customImage">
-            <el-input v-model="serviceForm.gitLabBranch" placeholder="请输入gitLab分支名，不能超过100个字符"></el-input>
+            <el-input v-model="serviceForm.gitLabBranch" placeholder="不能超过100个字符，默认为master分支"></el-input>
           </el-form-item>
         </transition>
         <transition name="more-config">
@@ -421,6 +427,7 @@
   }
 </style>
 <script>
+  import {mapGetters} from 'vuex';
   import appPropUtil from '../utils/app-props';
   const debug = browserDebug('pass-fe:profile/service/add');
   import commonUtils from '$components/mixins/common-utils';
@@ -430,47 +437,73 @@
       // appPropUtil will be used in template
       this.appPropUtil = appPropUtil;
 
-      const dataPassed = this.$storeHelper.dataTransfer;
-      if (!dataPassed) {
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      if (!dataTransfer) {
         this.$router.go(-1);
         return;
       }
-      this.type = dataPassed['type'];
-      this.serviceForm.appId = dataPassed.data.appId;
-      this.serviceForm.spaceId = dataPassed.data.profileId;
-      this.appName = dataPassed.data.appName;
-      this.appLanguage = dataPassed.data.language;
-
-      this.rules.imageLocation.required = false;
-      // set default cpu, default memorySizeList will be set in watch
-      if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
-        let firstItem = this.cpuAndMemoryList[0];
-        this.serviceForm.cpuID = 'cpu' in firstItem ? firstItem.id : '';
+//      console.log(dataTransfer);
+      this.type = dataTransfer['type'];
+      const theData = dataTransfer.data;
+      this.dataPassed = theData;
+      this.serviceForm.appId = theData.appId;
+      this.serviceForm.spaceId = theData.profileId;
+      this.appName = theData.appName;
+      this.appLanguage = theData.language;
+      if (this.type === 'copy') {
+        this.serviceForm.gitLabBranch = theData.gitLabBranch;
+        this.imageSelectState.customImage = theData.customImage;
+        if(theData.customImage){
+          this.serviceForm.customImageValue = theData.imageLocation;
+        } else {
+          // set after requestImageRelatedInfo
+          // this.serviceForm.autoImageValue = theData.imageLocation;
+        }
+        this.serviceForm.gitLabAddress = theData.gitLabAddress;
+        this.serviceForm.relativePathOfParentPOM = theData.relativePath;
+        this.serviceForm.mavenProfileId = theData.mavenProfileId;
+        this.serviceForm.vmOptions = theData.vmOptions;
+        this.serviceForm.instanceCount = theData.instanceNum;
+        this.serviceForm.environments = theData.environments;
+        this.serviceForm.hosts = theData.hosts;
+        this.serviceForm.cpuID = theData.cpuID;
+      } else {
+        // set default cpu, default memorySizeList will be set in watch
+        if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
+          let firstItem = this.cpuAndMemoryList[0];
+          this.serviceForm.cpuID = 'cpu' in firstItem ? firstItem.id : '';
+        }
       }
 
+      this.rules.imageLocation.required = false;
     },
     mounted() {
       this.setDebounce();
     },
     data() {
       return {
-        type: '',
         environmentKey: '',
         environmentValue: '',
         hostKey: '',
         hostValue: '',
         errorMsgForVersion: '',
 
+        type: '',
+        dataPassed: {},
         appName: '',
         profileInfo:  null,
         appLanguage: null,
         versionList: [],
+        propsUsed: {
+          memoryId: false,
+          imageLocation: false
+        },
         serviceForm: {
           appId: null,
           spaceId: null,
           serviceVersion: '',
           gitLabAddress: '',
-          gitLabBranch: '',
+          gitLabBranch: 'master',
           relativePathOfParentPOM: '',
           appMonitor: appPropUtil.defaultAppMonitorId,
           vmOptions: '',
@@ -535,14 +568,14 @@
       };
     },
     computed: {
+      ...mapGetters('user', {
+        'profileListOfGroup': 'profileListOfGroup'
+      }),
       cpuAndMemoryList() {
         return this.$storeHelper.cpuAndMemoryList();
       },
       groupInfo() {
         return this.$storeHelper.groupInfo();
-      },
-      appInfoListOfGroup() {
-        return this.$storeHelper.appInfoListOfGroup;
       },
     },
     watch: {
@@ -598,12 +631,25 @@
             return;
           }
           this.memorySizeList = cpuInfo.memoryList;
-          if (Array.isArray(this.memorySizeList)) {
-            this.memorySizeList.some(it => {
-              if (it.hasOwnProperty('defaultSelect') && 1 === it.defaultSelect) {
-                this.serviceForm.memoryID = it.id;
-              }
-            })
+          if (this.type === 'copy' && !this.propsUsed.memoryId) {
+            // check if memoryId existed in memorySizeList
+            if (this.memorySizeList.map(it => {
+              return it.id
+            }).indexOf(this.dataPassed.memoryID) > -1) {
+              this.serviceForm.memoryID = this.dataPassed.memoryID;
+            } else {
+              this.serviceForm.memoryID = this.memorySizeList[0]['id'];
+            }
+            this.propsUsed.memoryId = true;
+          } else {
+            // set default memory
+            if (Array.isArray(this.memorySizeList)) {
+              this.memorySizeList.some(it => {
+                if (it.hasOwnProperty('defaultSelect') && 1 === it.defaultSelect) {
+                  this.serviceForm.memoryID = it.id;
+                }
+              })
+            }
           }
         }
       },
@@ -663,7 +709,7 @@
           this.errorMsgForVersion = '版本号不能为空';
         } else if (!/^[0-9]{1,5}$/.test(value)) {
           this.errorMsgForVersion = '版本号只能包含数字，不能超过五位';
-        } else if (versionList.indexOf(value) > -1) {
+        } else if (this.versionList.indexOf(value) > -1) {
           this.errorMsgForVersion = `版本v${value}已经存在`;
         } else {
           this.errorMsgForVersion = ''
@@ -705,6 +751,11 @@
           groupTag: groupTag
         }).then(autoImageList => {
           this.imageInfoFromNet['autoImageList'] = autoImageList;
+          if (!this.dataPassed.customImage && !this.propsUsed.imageLocation && autoImageList.indexOf(this.dataPassed.imageLocation) > -1) {
+            this.serviceForm.autoImageValue = this.dataPassed.imageLocation;
+            this.propsUsed.imageLocation = true;
+          }
+
 //          if (imageInfoFromNet && imageInfoFromNet.hasOwnProperty('privateAppList')
 //            && Array.isArray(imageInfoFromNet.privateAppList) && imageInfoFromNet.privateAppList.length > 0) {
 //            this.imageSelectState.currentPrivateApp = imageInfoFromNet.privateAppList[0];
