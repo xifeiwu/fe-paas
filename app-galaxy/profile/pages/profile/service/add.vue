@@ -755,7 +755,6 @@
             this.serviceForm.autoImageValue = this.dataPassed.imageLocation;
             this.propsUsed.imageLocation = true;
           }
-
 //          if (imageInfoFromNet && imageInfoFromNet.hasOwnProperty('privateAppList')
 //            && Array.isArray(imageInfoFromNet.privateAppList) && imageInfoFromNet.privateAppList.length > 0) {
 //            this.imageSelectState.currentPrivateApp = imageInfoFromNet.privateAppList[0];
@@ -947,16 +946,20 @@
                 this.showLoading = true;
                 this.loadingText = '正在为您创建服务';
                 this.$net.createService(toPost).then((content) => {
-                  this.hideWaitingResponse('submit');
-                  this.showLoading = false;
                   this.$message({
                     type: 'success',
                     message: '服务' + toPost.serviceVersion + '创建成功！'
                   });
+                  if (this.type === 'copy') {
+                    this.$storeHelper.dataTransfer = {
+                      from: 'service/add',
+                      data: {
+                        profileId: this.serviceForm.spaceId
+                      }
+                    };
+                  }
                   this.$router.push('/service');
                 }).catch((err) => {
-                  this.hideWaitingResponse('submit');
-                  this.showLoading = false;
                   this.$notify.error({
                     title: err.title,
                     message: err.msg,
@@ -964,6 +967,9 @@
                     onClose: function () {
                     }
                   });
+                }).finally(() => {
+                  this.hideWaitingResponse('submit');
+                  this.showLoading = false;
                 });
               } else {
                 console.log('error submit!!');

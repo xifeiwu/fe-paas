@@ -230,7 +230,7 @@
                     if (Orchestration.moreData) {
                       setTimeout(() => {
                         getDeployLog.call(this, options);
-                      }, 1800);
+                      }, 2000);
                     }
                   }
                 }).catch(err => {

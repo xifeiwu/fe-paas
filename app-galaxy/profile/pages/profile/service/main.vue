@@ -1272,7 +1272,17 @@ export default {
       let headerHeight = headerNode.offsetHeight;
       this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
     };
-    addResizeListener(this.$el, this.resizeListener)
+    addResizeListener(this.$el, this.resizeListener);
+
+    if (this.$storeHelper.dataTransfer) {
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      try {
+        const from = dataTransfer['from'];
+        this.profileIdFromPageServiceAdd = dataTransfer['data']['profileId'];
+        this.$storeHelper.dataTransfer = null;
+      } catch(err) {
+      }
+    }
   },
   beforeDestroy() {
     removeResizeListener(this.$el, this.resizeListener);
@@ -1303,6 +1313,7 @@ export default {
 //      totalSize: 0,
 
       showLoading: false,
+      profileIdFromPageServiceAdd: null,
       selectedAppID: null,
       selectedApp: null,
       selectedProfileID: null,
@@ -1398,6 +1409,12 @@ export default {
         let defaultProfileID = this.currentProfileList[0]['id'];
         if (null == this.selectedProfileID || this.$storeHelper.SERVICE_ID_FOR_NULL == this.selectedProfileID) {
           let selectedProfileID = this.$storeHelper.getUserConfig('profile/service/profileID');
+          // set profileIdFromPageServiceAdd if exist
+          if (this.profileIdFromPageServiceAdd) {
+            selectedProfileID = this.profileIdFromPageServiceAdd;
+            this.profileIdFromPageServiceAdd = null;
+          }
+
           // check whether selectedProfileID exist in currentProfileList
           selectedProfileID = this.currentProfileList.map(it => {
             if (it && it.id) {

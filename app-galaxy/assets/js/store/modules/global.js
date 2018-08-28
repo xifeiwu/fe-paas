@@ -4,7 +4,7 @@ const warning = function(prop, where) {
   debug(`warning: get user/${prop} from ${where}`);
 };
 
-var LOCAL_PROP = ['config', 'permission', 'dataTransfer'];
+var LOCAL_PROP = ['config', 'permission'];
 const getValue = function({state, getters}, prop) {
   const getLocalValue = function() {
     let result = null;
@@ -38,8 +38,6 @@ const state = {
   config: null,
   // 权限相关
   permission: JSON.parse(localStorage.getItem('user/permission')) ? JSON.parse(localStorage.getItem('user/permission')) : {},
-  // 在spa页面传递数据
-  dataTransfer: null,
 };
 
 const actions = {
@@ -88,10 +86,6 @@ const actions = {
 };
 
 const mutations = {
-  dataTransfer(state, data) {
-    state.dataTransfer = data;
-    localStorage.setItem('user/dataTransfer', JSON.stringify(data));
-  },
   permission(state, permission) {
     state.permission = Object.assign(state.permission, permission);
     localStorage.setItem('user/permission', JSON.stringify(state.permission));
@@ -104,9 +98,6 @@ const getters = {
   },
   'permission': (state, getters) => {
     return getValue({state, getters}, 'permission');
-  },
-  'dataTransfer': (state, getters) => {
-    return getValue({state, getters}, 'dataTransfer');
   },
 };
 

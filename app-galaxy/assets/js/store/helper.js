@@ -1,6 +1,7 @@
 export default class StoreHelper {
   constructor(store) {
     this.$store = store;
+    this._dataTransfer = null;
   }
 
   setUserConfig(keys, value) {
@@ -133,11 +134,11 @@ export default class StoreHelper {
   }
 
   set dataTransfer(data) {
-    this.$store.commit('global/dataTransfer', data);
+    this._dataTransfer = data;
   }
 
   get dataTransfer() {
-    return this.$store.getters['global/dataTransfer'];
+    return this._dataTransfer;
   }
 
   /**
