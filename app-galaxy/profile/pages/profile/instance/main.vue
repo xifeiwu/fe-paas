@@ -218,10 +218,32 @@
      * as this.localConfig is used in child component, as it must be set in created method
      */
     created() {
-      let queryParam = this.$route.query;
-      if (queryParam && queryParam.hasOwnProperty('from')) {
-        if (queryParam['from'] === '/service') {
-          this.localConfig = this.$storeHelper.getUserConfig('profile/instance');
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      if (dataTransfer) {
+        const from = dataTransfer['from'];
+        const data = dataTransfer['data'];
+        this.localConfig = {
+          appID: data['appId'],
+          profileID: data['profileId'],
+          serviceID: data['serviceId'],
+        };
+        this.$storeHelper.dataTransfer = null;
+        this.$store.dispatch('user/config', {
+          page: 'instance',
+          data
+        });
+      } else {
+        // get config from localStorage
+        const userConfig = this.$store.getters['user/config'];
+        if (userConfig.hasOwnProperty('instance')) {
+          const instanceConfig = userConfig['instance'];
+          if (this.$utils.hasProps(instanceConfig, 'appId', 'profileId', 'serviceId')) {
+            this.localConfig = {
+              appID: instanceConfig['appId'],
+              profileID: instanceConfig['profileId'],
+              serviceID: instanceConfig['serviceId'],
+            }
+          }
         }
       }
     },
@@ -293,16 +315,20 @@
     watch: {},
     methods: {
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
-        //        console.log(appInfo, profileInfo, serviceInfo);
+//                console.log(appInfo, profileInfo, serviceInfo);
         this.instanceStatus.instanceList = [];
         if (!appInfo || !profileInfo || !serviceInfo) {
           return;
         }
-        //        this.$storeHelper.setUserConfig('profile/instance', {
-        //          appID: appInfo.appId,
-        //          profileID: profileInfo.id,
-        //          serviceID: serviceInfo.id
-        //        });
+        // save to localStorage after selected change
+        this.$store.dispatch('user/config', {
+          page: 'instance',
+          data: {
+            appId: appInfo.appId,
+            profileId: profileInfo.id,
+            serviceId: serviceInfo.id
+          }
+        });
         this.requestInstanceList(
           appInfo.appId,
           profileInfo.id,
@@ -422,7 +448,8 @@
       },
 
       /**
-       * @param goOn, if run updateInstanceStatusList recursively
+       * 更新实例状态信息。
+       * @param goOn, 手动更新还是自动更新
        */
       updateInstanceStatusList(goOn) {
         if (!this.statusForDialogInstanceLog.visible) {
@@ -435,6 +462,7 @@
           kindName: this.action.row['instanceName']
         };
         this.statusForDialogInstanceLog.showLoading = true;
+
         this.$net.requestPaasServer(this.$net.URL_LIST.instance_status, {
           payload
         }).then(resContent => {
@@ -463,7 +491,7 @@
       },
 
       /**
-       * 更新consoleLog
+       * 更新consoleLog，手动更新
        */
       updateConsoleLog() {
         var selectedValue = this.$refs['version-selector'].getSelectedValue();
@@ -538,9 +566,11 @@
             this.dialogStatusForConsoleLog.visible = true;
             this.updateConsoleLog();
             break;
-          }
-        },
-      formatColumn(text, width) {
+        }
+      },
+
+      // 对齐，填充空白信息
+      formatColumn (text, width) {
         let space = '#'.repeat(width);
         return (text + space).slice(0, width).replace(/\#/g, '&nbsp;');
       }

@@ -1887,17 +1887,15 @@ export default {
           if (!statusOK) {
             this.$message.error('所需信息不完整！');
           } else {
-            this.$storeHelper.setUserConfig('profile/instance', {
-              appID: this.selectedAppID,
-              profileID: this.selectedProfileID,
-              serviceID: row.id
-            });
-            this.$router.push({
-              path: '/instance',
-              query: {
-                from: '/service'
+            this.$storeHelper.dataTransfer = {
+              from: 'service',
+              data: {
+                appId: this.selectedAppID,
+                profileId: this.selectedProfileID,
+                serviceId: row.id
               }
-            });
+            };
+            this.$router.push(this.$net.page['profile/instance']);
           }
           break;
         case 'go-to-domain-service':

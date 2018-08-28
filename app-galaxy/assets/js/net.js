@@ -38,6 +38,7 @@ class Net {
       'login': '/login',
       'profile': '/profile',
       'profile/app': '/app',
+      'profile/instance': '/instance',
       'profile/oauth': '/oauth',
       'profile/config-server': '/config-server',
       'user/info': '/user/info',

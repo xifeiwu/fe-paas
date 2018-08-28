@@ -1,6 +1,7 @@
 /**
  * Created by xifei.wu on 2017/12/4.
  */
+import Vue from 'vue';
 import NetData from '../../net/net';
 const debug = browserDebug('pass-fe:net');
 
@@ -30,7 +31,7 @@ const state = {
   // 当前做的所有APP列表
   appInfoListOfGroup: null,
   config: {
-    versionSelector: {}
+    instance: {}
   }
 };
 
@@ -92,6 +93,9 @@ const actions = {
     state.appInfoListOfGroup = userList;
   },
 
+  config({commit, state}, {page, data}) {
+    commit('UPDATE_CONFIG', {page, data});
+  },
 
   /**
    * 获取该groupId下的所有app, the case of triggering state action:
@@ -146,6 +150,20 @@ const mutations = {
 
   SET_APP_INFO_LIST_OF_GROUP(state, appList) {
   },
+
+  UPDATE_CONFIG(state, {page, data}) {
+    const config = state.config;
+    if (!config.hasOwnProperty(page)) {
+      console.log(`not found page ${page}`);
+      return;
+    }
+    if (!config[page]) {
+      config[page] = {};
+    }
+    for (let key in data) {
+      Vue.set(config[page], key, data[key]);
+    }
+  }
 };
 
 const getters = {
@@ -178,6 +196,9 @@ const getters = {
   },
   'usersInGroup': (state, getters) => {
     return state.usersInGroup;
+  },
+  'config': (state, getters) => {
+    return state.config;
   }
 };
 
