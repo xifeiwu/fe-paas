@@ -53,6 +53,22 @@
                 headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
+              label="内存占用"
+              width="120"
+              headerAlign="center" align="center">
+          <template slot-scope="scope">
+            {{bytes(parseInt(scope.row['memoryUsageBytes']))}}
+          </template>
+        </el-table-column>
+        <el-table-column
+                label="CPU使用时间"
+                width="120"
+                headerAlign="center" align="center">
+          <template slot-scope="scope">
+            {{parseFloat(scope.row['cpuUsageSecondsSum']).toFixed(2)}}s
+          </template>
+        </el-table-column>
+        <el-table-column
                 label="创建时间"
                 prop="createTime"
                 width="200"
@@ -193,6 +209,7 @@
 <script>
   import appPropUtils from "../utils/app-props";
   import PaasVersionSelector from "../components/version-selector";
+  import bytes from 'bytes';
   import {
     addResizeListener,
     removeResizeListener
@@ -211,6 +228,7 @@
      * as this.localConfig is used in child component, as it must be set in created method
      */
     created() {
+      this.bytes = bytes;
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer) {
         const from = dataTransfer['from'];
