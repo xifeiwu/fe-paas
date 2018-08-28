@@ -2,8 +2,8 @@
   <div id="instance-main">
     <el-row class="header" type="flex" justify="center" align="middle">
       <el-col :span="20">
-        <my-version-selector :customConfig="localConfig" ref="version-selector"
-                             @version-selected="onVersionSelected"></my-version-selector>
+        <paas-version-selector :customConfig="localConfig" ref="version-selector"
+                             @version-selected="onVersionSelected"></paas-version-selector>
       </el-col>
       <el-col :span="4">
         <el-button v-if="true"
@@ -199,7 +199,7 @@
 
 <script>
   import appPropUtils from "../utils/app-props";
-  import MyVersionSelector from "../components/version-selector";
+  import PaasVersionSelector from "../components/version-selector";
   import {
     addResizeListener,
     removeResizeListener
@@ -209,7 +209,7 @@
 
   export default {
     mixins: [commonUtils],
-    components: { MyVersionSelector, paasDialogForLog },
+    components: { PaasVersionSelector, paasDialogForLog },
 
     /**
      * the sequence of create and mount in parent and child element is:

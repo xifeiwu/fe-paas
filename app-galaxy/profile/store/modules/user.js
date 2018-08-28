@@ -29,6 +29,9 @@ const state = {
   usersInGroup: null,
   // 当前做的所有APP列表
   appInfoListOfGroup: null,
+  config: {
+    versionSelector: {}
+  }
 };
 
 const actions = {

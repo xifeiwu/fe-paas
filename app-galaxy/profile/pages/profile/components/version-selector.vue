@@ -152,37 +152,38 @@
        */
       onAppInfoListOfGroup(appInfoListOfGroup) {
         this.initDataStatus();
-        setTimeout(() => {
-          if (appInfoListOfGroup) {
-            if (appInfoListOfGroup.hasOwnProperty('appList')) {
-              this.appList = appInfoListOfGroup.appList;
-            }
-            if (!this.appList || (0 == this.appList.length)) {
-              this.$notify.warning({
-                title: '该团队应用列表为空',
-                message: '某些操作可能无法正常进行！',
-                duration: 1 * 1000,
-                onClose: function () {
-                }
-              });
-              return;
-            }
-            // the sequence of getting default appID:
-            // 1. customConfig.appId if customConfig exist
-            // 2. first element of appList
-            let defaultAppID = null;
-            if (this.customConfig && this.customConfig.hasOwnProperty('appID')) {
-              defaultAppID = this.customConfig['appID'];
-              // customConfig can only use once
-              delete this.customConfig['appID'];
-            }
+        if (appInfoListOfGroup) {
+          if (appInfoListOfGroup.hasOwnProperty('appList')) {
+            this.appList = appInfoListOfGroup.appList;
+          }
+          if (!this.appList || (0 == this.appList.length)) {
+            this.$notify.warning({
+              title: '该团队应用列表为空',
+              message: '某些操作可能无法正常进行！',
+              duration: 1 * 1000,
+              onClose: function () {
+              }
+            });
+            return;
+          }
+          // the sequence of getting default appID:
+          // 1. customConfig.appId if customConfig exist
+          // 2. first element of appList
+          let defaultAppID = null;
+          if (this.customConfig && this.customConfig.hasOwnProperty('appID')) {
+            defaultAppID = this.customConfig['appID'];
+            // customConfig can only use once
+            delete this.customConfig['appID'];
+          }
+          // change selectedAppID in next tick to make sure value change can be watched
+          setTimeout(() => {
             if (defaultAppID && this.$storeHelper.getAppInfoByID(defaultAppID)) {
               this.selectedAppID = defaultAppID;
             } else {
               this.selectedAppID = this.appList[0]['appId'];
             }
-          }
-        });
+          });
+        }
       },
       onSelectedAppIdChanged (value, oldValue) {
         let appID = value;
