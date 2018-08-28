@@ -232,10 +232,7 @@ class URL extends BaseURL {
 
       /** 实例相关*/
       // 获取实例列表
-      'instance_list': {
-        url: API_PATH + '/service/queryInstance',
-        path: '/service/queryInstance'
-      },
+      // 'instance_list':
 
       /** 域名相关 */
       // 获取一级域名

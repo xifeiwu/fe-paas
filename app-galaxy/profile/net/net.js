@@ -70,6 +70,13 @@ class Net extends NetBase {
         path: '/service/checkPortMapping',
         method: 'post'
       },
+
+      /** 实例相关*/
+      // 获取实例列表
+      'instance_list': {
+        path: '/service/queryInstance',
+        method: 'post'
+      },
       // 更改实例数量
       'instance_change_count': {
         path: '/service/instances/update',
@@ -955,31 +962,6 @@ class Net extends NetBase {
         reject(err);
       })
     });
-  }
-
-  /**
-   * 获取实例列表
-   */
-  getInstanceList(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.instance_list.url, options).then(response => {
-        let content = this.getResponseContent(response);
-        if (content.hasOwnProperty('instanceList')) {
-          let instanceList = content.instanceList;
-          instanceList.forEach(it => {
-            this.$utils.renameProperty(it, 'id', 'instanceName');
-            this.$utils.renameProperty(it, 'state', 'status');
-            this.$utils.renameProperty(it, 'ip', 'intranetIP');
-            this.$utils.renameProperty(it, 'updated', 'createTime');
-          });
-        }
-        this.showLog('getInstanceList', content);
-        resolve(content);
-      }).catch(err => {
-        console.log(err);
-        reject(err);
-      })
-    })
   }
 
   // 获取一级域名列表

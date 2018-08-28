@@ -318,34 +318,33 @@
           return;
         }
         this.showLoading = true;
-        this.$net
-          .getInstanceList({
+
+        this.$net.requestPaasServer(this.$net.URL_LIST.instance_list, {
+          payload: {
             appId: appID,
             spaceId: spaceID,
             serviceVersion: version
-          })
-          .then(content => {
-            //          console.log(content);
-            if (content.hasOwnProperty('instanceList')) {
-              if (Array.isArray(content['instanceList'])) {
-                this.instanceStatus.instanceList = content['instanceList'];
-              } else {
-                this.instanceStatus.instanceList = [];
-              }
-            }
-            if (content.hasOwnProperty('instanceNum')) {
-              this.instanceStatus.instanceCount = content['instanceNum'];
-            }
-            this.showLoading = false;
-          })
-          .catch(err => {
-            console.log(err);
-            this.$message({
-              type: 'error',
-              message: '查找服务版本失败！'
+          }
+        }).then(resContent => {
+          if (resContent.hasOwnProperty('instanceList')) {
+            const instanceList = resContent.instanceList;
+            instanceList.forEach(it => {
+              this.$utils.renameProperty(it, 'id', 'instanceName');
+              this.$utils.renameProperty(it, 'state', 'status');
+              this.$utils.renameProperty(it, 'ip', 'intranetIP');
+              this.$utils.renameProperty(it, 'updated', 'createTime');
             });
-            this.showLoading = false;
-          });
+            this.instanceStatus.instanceList = instanceList;
+          } else {
+            this.instanceStatus.instanceList = [];
+          }
+          if (resContent.hasOwnProperty('instanceNum')) {
+            this.instanceStatus.instanceCount = resContent['instanceNum'];
+          }
+        }).catch(err => {
+        }).finally(() => {
+          this.showLoading = false;
+        });
       },
 
       /**
