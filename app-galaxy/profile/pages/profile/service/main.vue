@@ -1289,8 +1289,16 @@ export default {
   },
   computed: {
     ...mapGetters('user', {
-      'appInfoListOfGroup': 'appInfoListOfGroup'
+      'appInfoListOfGroup': 'appInfoListOfGroup',
+      'userConfig': 'config'
     }),
+    serviceConfig() {
+      let result = null;
+      if (this.userConfig.hasOwnProperty('service')) {
+        result = this.userConfig['service'];
+      }
+      return result;
+    },
     cpuAndMemoryList() {
       return this.$storeHelper.cpuAndMemoryList();
     },
@@ -1394,13 +1402,12 @@ export default {
   watch: {
     appInfoListOfGroup: 'onAppInfoListOfGroup',
     cpuAndMemoryList: 'onCpuAndMemoryList',
-    selectedAppID: function (value, oldValue) {
-      let appID = value;
-      let appInfo = this.$storeHelper.getAppInfoByID(appID);
+    selectedAppID: function (appId, oldValue) {
+      let appInfo = this.$storeHelper.getAppInfoByID(appId);
       if (!appInfo) {
         return;
       }
-      this.serviceInfo.appID = value;
+      this.serviceInfo.appID = appId;
       this.selectedApp = appInfo['app'];
       this.currentProfileList = this.selectedApp['profileList'];
       if (Array.isArray(this.currentProfileList) && this.currentProfileList.length > 0) {
@@ -1408,7 +1415,8 @@ export default {
         // else selectedProfileID is the first element in profileList of selectedApp
         let defaultProfileID = this.currentProfileList[0]['id'];
         if (null == this.selectedProfileID || this.$storeHelper.SERVICE_ID_FOR_NULL == this.selectedProfileID) {
-          let selectedProfileID = this.$storeHelper.getUserConfig('profile/service/profileID');
+          // set selectedProfileID by local config
+          let selectedProfileID = this.serviceConfig ? this.serviceConfig['profileId'] : null;
           // set profileIdFromPageServiceAdd if exist
           if (this.profileIdFromPageServiceAdd) {
             selectedProfileID = this.profileIdFromPageServiceAdd;
@@ -1437,17 +1445,27 @@ export default {
           }
         }
       }
-      this.$storeHelper.setUserConfig('profile/service/appID', appID);
+      this.$store.dispatch('user/config', {
+        page: 'service',
+        data: {
+          appId
+        }
+      });
     },
-    selectedProfileID: function (profileID, oldValue) {
-      if (this.$storeHelper.SERVICE_ID_FOR_NULL === profileID) {
+    selectedProfileID: function (profileId, oldValue) {
+      if (this.$storeHelper.SERVICE_ID_FOR_NULL === profileId) {
         return;
       }
-      this.serviceInfo.profileID = profileID;
-      this.isProductionProfile = this.$storeHelper.isProductionProfile(profileID);
+      this.serviceInfo.profileID = profileId;
+      this.isProductionProfile = this.$storeHelper.isProductionProfile(profileId);
       let appID = this.selectedApp.appId;
-      this.requestServiceList(appID, profileID);
-      this.$storeHelper.setUserConfig('profile/service/profileID', profileID);
+      this.requestServiceList(appID, profileId);
+      this.$store.dispatch('user/config', {
+        page: 'service',
+        data: {
+          profileId
+        }
+      });
     },
   },
 
@@ -1502,15 +1520,15 @@ export default {
           });
           return;
         }
-        let localID = this.$storeHelper.getUserConfig('profile/service/appID');
-        let appID = null;
-        if (localID && this.$storeHelper.getAppInfoByID(localID)) {
-          appID = localID;
+        const localId = this.serviceConfig ? this.serviceConfig['appId'] : null;
+        let appId = null;
+        if (localId && this.$storeHelper.getAppInfoByID(localId)) {
+          appId = localId;
         } else {
-          appID = this.appList[0]['appId'];
+          appId = this.appList[0]['appId'];
         }
         setTimeout(() => {
-          this.selectedAppID = appID;
+          this.selectedAppID = appId;
         });
       }
     },

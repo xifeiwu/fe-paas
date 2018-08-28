@@ -31,6 +31,7 @@ const state = {
   // 当前做的所有APP列表
   appInfoListOfGroup: null,
   config: {
+    service: {},
     instance: {}
   }
 };
