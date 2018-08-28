@@ -441,6 +441,8 @@
       if (!dataTransfer) {
         this.$router.go(-1);
         return;
+      } else {
+        this.$storeHelper.dataTransfer = null;
       }
 //      console.log(dataTransfer);
       this.type = dataTransfer['type'];

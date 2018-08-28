@@ -259,7 +259,7 @@
     created() {
     },
     mounted() {
-      let dataTransfer = this.$storeHelper.dataTransfer;
+      const dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer && dataTransfer.hasOwnProperty('id') && dataTransfer.hasOwnProperty('internetDomain')
 //        && dataTransfer.hasOwnProperty('notHaveIPWhiteList')
       ) {
@@ -267,6 +267,7 @@
         this.domainInfo.domainName = dataTransfer['internetDomain'];
         this.itemToAdd.internetDomainId = this.domainInfo['id'];
         this.requestWhiteIPList();
+        this.$storeHelper.dataTransfer = null;
       } else {
         this.$router.go(-1);
       }
