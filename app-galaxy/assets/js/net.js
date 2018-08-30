@@ -264,6 +264,44 @@ class Net {
     } finally {
     }
   }
+
+  /**
+   * 格式化请求
+   * @param path
+   * @param method
+   * @param options
+   * @returns request in the form of Promise
+   */
+  getFormattedRequest(config) {
+    const instance = axios.create(config);
+    return ({path, method}, options = {}) => {
+      try {
+        if (!path || !method) {
+          return Promise.reject({
+            title: '参数错误',
+            message: '未设置请求方式'
+          });
+        }
+        let payload = {};
+        if (options.params) {
+          Object.keys(options.params).forEach((key) => {
+            // path = path.replace('{' + key + '}', encodeURIComponent(options.params[key]));
+            path = path.replace('{' + key + '}', options.params[key]);
+          });
+        }
+        if (options.query) {
+          path = path + '?' + querystring.stringify(options.query);
+        }
+        if (options.payload) {
+          payload = options.payload;
+        }
+        return instance[method](path, payload);
+      } catch (err) {
+        return Promise.reject(err);
+      } finally {
+      }
+    }
+  }
   /**
    *
    * @param path
@@ -327,6 +365,59 @@ class Net {
     });
   }
 
+  requestAssistServer({path, method}, options = {}) {
+    return new Promise((resolve, reject) => {
+      this.getFormattedRequest({
+        headers: {
+          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl9uYW1lIjoiZmUtcGFhcyIsImlhdCI6MTUzNTYxMDMzNywiZXhwIjoxNTY3MTQ2MzM3fQ.VxHIEWnrMPGvHPkFZZpFO9ZKlhq8EkeHNkhGtk13RX8'
+        }
+      })({path, method}, options).then(res => {
+        let resData = res.data;
+        if (resData.hasOwnProperty('success')) {
+          if (resData.success) {
+            resolve(resData.content);
+          } else {
+            const err = {
+              code: resData.code,
+              title: '请求失败',
+              message: resData.msg
+            };
+            this.showError(err);
+            reject(err);
+          }
+        } else if (resData.hasOwnProperty('code')) {
+          if (resData.code === 0) {
+            // show msg if exist, when code == 0
+            // if (resData.hasOwnProperty('msg') && resData.msg) {
+            //   this.showSuccess(resData.msg);
+            // }
+            resolve(resData.content);
+          } else {
+            const err = {
+              code: resData.code,
+              title: '请求失败',
+              message: resData.msg
+            };
+            this.showError(err);
+            reject(err);
+          }
+        }
+      }).catch(error => {
+        if (error.hasOwnProperty('title') && error.hasOwnProperty('message')) {
+          this.showError(error);
+          reject(error);
+        } else {
+          path = path.replace(this.ASSIST_PREFIX, '');
+          let err = {
+            title: '网络请求错误',
+            message: `请求路径：${path}，${error.toString()}`
+          };
+          this.showError(err);
+          reject(err);
+        }
+      });
+    });
+  }
   /**
    * format of response data from qiniu-cdn is not fixed
    * {"code":200}

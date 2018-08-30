@@ -14,11 +14,21 @@ class Net extends NetBase {
         method: 'get'
       }
     };
+    const ASSIST_URL_LIST = {
+      md_detail: {
+        path: '/api/md/view',
+        method: 'post'
+      }
+    };
     // Object.keys(URL_LIST).forEach(key => {
     //   let item = URL_LIST[key];
     //   item.path = this.ASSIST_PREFIX + item.path;
     // });
-    this.URL_LIST = Object.assign(URL_LIST);
+    Object.keys(ASSIST_URL_LIST).forEach(key => {
+      let item = ASSIST_URL_LIST[key];
+      item.path = this.ASSIST_PREFIX + item.path;
+    });
+    this.URL_LIST = Object.assign(URL_LIST, ASSIST_URL_LIST);
   }
 
   setVue(Vue) {
