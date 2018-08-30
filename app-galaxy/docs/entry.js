@@ -2,12 +2,12 @@ import Vue from 'vue';
 
 import netHelper from './net';
 
-import VueConfig from '../config/vue';
+import VueConfig from '../config/vue2';
 new VueConfig({
   netHelper,
 });
 
-import 'assets/css/markdown.scss';
+import 'assets/css/markdown-github.css';
 import 'assets/css/highlight.scss';
 import APP from './docs.vue';
 

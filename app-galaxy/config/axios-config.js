@@ -23,7 +23,8 @@ class AxiosConfig {
   }
 
   goToLoginPage() {
-    Vue.prototype.$utils.goToPath('/login');
+    console.log('goToLoginPage');
+    // Vue.prototype.$utils.goToPath('/login');
   }
 
   setToken(token) {

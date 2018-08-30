@@ -2,21 +2,21 @@
   <div id="docs">
     <paas-header @menu-click="handleClickOnPassHeader" defaultActive="docs"></paas-header>
     <div class="help-content">
-      <div class="menu-list">
-        <el-scrollbar>
-          <el-tree ref="menu-list"
-              :data="menuList"
-              :props="defaultProps"
-               nodeKey='target'
-               :setCurrentNodeOnClick="false"
-               :expandOnClickNode="false"
-              @node-click="handleNodeClick">
-          </el-tree>
-        </el-scrollbar>
+      <div class="menu-list markdown-body" ref="navigation">
+        <!--<el-scrollbar>-->
+          <!--<el-tree ref="menu-list"-->
+              <!--:data="menuList"-->
+              <!--:props="defaultProps"-->
+               <!--nodeKey='target'-->
+               <!--:setCurrentNodeOnClick="false"-->
+               <!--:expandOnClickNode="false"-->
+              <!--@node-click="handleNodeClick">-->
+          <!--</el-tree>-->
+        <!--</el-scrollbar>-->
       </div>
       <div class="content">
         <el-scrollbar>
-          <div v-html="helpContent.body" class="markdown">
+          <div v-html="netData.html" class="markdown-body">
           </div>
         </el-scrollbar>
       </div>
@@ -97,14 +97,20 @@
   export default {
     components: {paasHeader},
     created() {
-      this.$net.getHelp().then(content => {
-        this.menuList = content.menuList;
-        this.helpContent = content.helpContent;
-        this.$nextTick(() => {
-          this.updateScrollTopByHash();
-          this.listenScrollWrapper();
-        });
-      })
+//      this.$net.getHelp().then(content => {
+//        this.menuList = content.menuList;
+//        this.helpContent = content.helpContent;
+//        this.$nextTick(() => {
+//          this.updateScrollTopByHash();
+//          this.listenScrollWrapper();
+//        });
+//      });
+      this.$net.requestAssistServer(this.$net.URL_LIST.md_detail, {
+        payload: {title: '云平台帮助文档'}
+      }).then(resContent => {
+        this.netData.html = resContent['html'];
+        this.netData.markdown = resContent['markdown'];
+      }).catch();
     },
     mounted() {
       this.scrollWrapper = this.$el.querySelector('.content .el-scrollbar .el-scrollbar__wrap');
@@ -134,13 +140,42 @@
 //            href: 'dfs'
 //          }]
 //        }],
-        helpContent: '',
+        netData: {
+          markdown: '',
+          html: ''
+        },
         defaultProps: {
           children: 'children',
           label: 'label',
           isLeaf: 'isLeaf',
         }
       };
+    },
+    watch: {
+      '$route': function (value) {
+        console.log(value);
+      },
+      'netData.html': function (value) {
+        if (!this.$refs.hasOwnProperty('navigation')) {
+          return;
+        }
+        const navigation = this.$refs['navigation'];
+        navigation.innerHTML = this.netData.html;
+        Array.prototype.slice.call(navigation.children).forEach((node, index) => {
+          let reg = /^H[1-8]{1}$/;
+          if (!reg.exec(node.tagName)) {
+            node.style.display = 'none'
+          } else {
+            node.addEventListener('click', (evt) => {
+              const target = evt.target;
+//              console.log(this.$router);
+//              this.$router.push(`/docs/${target}`);
+//              location.pathname = `/docs/${target.innerHTML}`;
+//              console.log(index);
+            });
+          }
+        });
+      }
     },
     methods: {
       updateScrollTopByHash() {
