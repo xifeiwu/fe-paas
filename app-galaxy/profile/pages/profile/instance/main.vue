@@ -28,12 +28,12 @@
                 prop="instanceName"
                 label="实例名称"
                 min-width="200"
-                headerAlign="center" align="center">
+                headerAlign="left" align="left">
         </el-table-column>
         <el-table-column
                 prop="status"
                 label="健康状态"
-                width="180"
+                width="100"
                 headerAlign="center" align="center"
         >
         <template slot-scope="scope">
@@ -53,11 +53,11 @@
                 headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
-              label="内存占用"
-              width="120"
+              label="使用内存/总内存"
+              width="160"
               headerAlign="center" align="center">
           <template slot-scope="scope">
-            {{bytes(parseInt(scope.row['memoryUsageBytes']))}}
+            {{bytes(parseInt(scope.row['memoryUsageBytes']))}} / {{bytes(parseInt(scope.row['actualMemory']))}}
           </template>
         </el-table-column>
         <el-table-column
