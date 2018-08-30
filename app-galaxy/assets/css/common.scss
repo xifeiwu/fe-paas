@@ -162,3 +162,22 @@ $space in (0, 0),(1, 4),(2, 8),(3, 16),(4, 24),(5, 48) {
   width: 1px;
   background: #ccc;
 }
+
+.badge {
+  background-color: #E6A23C;
+  border-radius: 8px;
+  color: #fff;
+  display: inline-block;
+  font-size: 12px;
+  height: 16px;
+  line-height: 16px;
+  padding: 0 4px;
+  text-align: center;
+  white-space: nowrap;
+  &.fixed {
+    position: absolute;
+    top: 0;
+    right: 0px;
+    transform: translateY(-50%) translateX(50%);
+  }
+}

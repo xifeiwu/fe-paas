@@ -26,6 +26,8 @@ import routerConfig from './pages/router';
 
 Vue.prototype.$routeHelper = routerConfig;
 
+// import 'assets/css/bootstrap.scss';
+
 // paas-icons for icon and svg
 import '$assets/css/fonts/paas-icon.css';
 import '$assets/css/fonts/paas-icon.js';

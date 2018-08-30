@@ -398,13 +398,6 @@ class Net extends NetBase {
    * resolve only when content data is ok.
    */
   getAPPList (payload) {
-    // console.log(`options: ${JSON.stringify(options)}`);
-    // if (this.requestingState.getAPPList || !options.groupId) {
-    //   this.showLog('getAPPList', 'in the state of requesting');
-    //   return new Promise((resolve, reject) => {
-    //     reject('getAPPList is in requesting');
-    //   })
-    // }
     let getAppModelList = function(appList) {
       let appModelList = [];
       appList.forEach(app => {
@@ -429,37 +422,36 @@ class Net extends NetBase {
         if (content) {
           if (content.hasOwnProperty('appList') && Array.isArray(content.appList)) {
             let appList = content.appList;
-            appList.forEach(it => {
-              it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-              if (it.createTime) {
-                it.createTime = it.createTime.split(' ');
+            appList.forEach(app => {
+              app.createTime = this.$utils.formatDate(app.createTime, 'yyyy-MM-dd hh:mm:ss');
+              if (app.createTime) {
+                app.createTime = app.createTime.split(' ');
               }
-              // utils.renameProperty(it, 'spaceList', 'profileList');
-              // rename spaceList to profileNames
-              it['profileNames'] = this.$utils.cloneDeep(it.spaceList);
-              it['profileList'] = this.$storeHelper.getProfileInfoListByNameList(it.spaceList);
-              if (it.hasOwnProperty('language')) {
+              app['profileNames'] = app['serviceCountList'].map(it => {
+                return it['envName']
+              });
+              // app['profileList'] = this.$storeHelper.getProfileInfoListByNameList(app.spaceList);
+              app['profileList'] = app['serviceCountList'].map(it => {
+                const profileInfo = this.$storeHelper.getProfileInfoByName(it['envName']);
+                return Object.assign(profileInfo, {
+                  serviceNameCount: it['serviceNameCount']
+                });
+              });
+              if (app.hasOwnProperty('language')) {
                 // whether the language of app is JAVA
-                it['isJavaLanguage'] = it.hasOwnProperty('language') && 'JAVA' == it.language;
-                it.languageLogo = null;
-                switch (it.language) {
+                app['isJavaLanguage'] = app.hasOwnProperty('language') && 'JAVA' == app.language;
+                app.languageLogo = null;
+                switch (app.language) {
                   case 'JAVA':
-                    it.languageLogo = 'java';
+                    app.languageLogo = 'java';
                     break;
                   case 'NODE_JS':
-                    it.languageLogo = 'nodejs';
+                    app.languageLogo = 'nodejs';
                     break;
                   case 'PYTHON':
-                    it.languageLogo = 'python';
+                    app.languageLogo = 'python';
                 }
               }
-              // it.appName = it.tag;
-              // it.serviceName = it.tag;
-              // if (it.hasOwnProperty('appName')) {
-              //   it.serviceName = it.appName;
-              // } else {
-              //   it.appName = it.serviceName;
-              // }
             });
             content.appModelList = getAppModelList(appList);
           }

@@ -69,10 +69,11 @@
         </el-table-column>
         <el-table-column label="运行环境" prop="profileList" minWidth="200" headerAlign="center" align="center">
           <template slot-scope="scope">
-              <span v-for="item in $storeHelper.profileListOfGroup" :label="item.name" :key="item.name"
-                    :class="{'profile-item': true, 'active': scope.row.profileNames.indexOf(item.name) > -1}"
-                    @click="jumpToServicePage(scope.$index, scope.row, item, scope.row.profileNames.indexOf(item.name) > -1)"
-              >{{ item.description }}</span>
+            <div v-for="item in scope.row.profileListAll" :label="item.name" :key="item.name"
+                 :class="{'profile-item': true, 'active': item.active}"
+                 @click="jumpToServicePage(scope.$index, scope.row, item)">
+              <span>{{item.description}}</span><span class="badge fixed" v-if="item.active&&item.serviceNameCount>0">{{item.serviceNameCount}}</span>
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="操作" prop="operation" minWidth="170" width="200" headerAlign="center" align="center">
@@ -292,6 +293,7 @@
             line-height: 16px;
           }
           .profile-item {
+            position: relative;
             display: inline-block;
             margin: 0px 5px;
             color: #909399;
@@ -299,10 +301,10 @@
             &.active {
               cursor: pointer;
               color: blue;
-              /*border-bottom: 1px solid gray;*/
               &:hover {
                 color: blue;
                 border-color: blue;
+                font-weight: bold;
               }
             }
           }
@@ -352,6 +354,7 @@
   }
 </style>
 <script>
+  import {mapGetters} from 'vuex';
   import AppPropUtils from '../utils/app-props';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   import commonUtils from '$components/mixins/common-utils';
@@ -385,12 +388,7 @@
       } catch(err) {
       }
 
-      if (!this.appInfoListOfGroup) {
-        this.$store.dispatch('user/appInfoListOfGroup', {
-          from: 'page/app',
-          groupId: this.$storeHelper.currentGroupID
-        });
-      } else {
+      if (this.appInfoListOfGroup) {
         this.onAppInfoListOfGroup(this.appInfoListOfGroup);
       }
     },
@@ -443,12 +441,14 @@
       }
     },
     computed: {
+      ...mapGetters('user', {
+        'appInfoListOfGroup': 'appInfoListOfGroup',
+        'profileListOfGroup': 'profileListOfGroup',
+        'userConfig': 'config'
+      }),
       needFilter() {
         return this.filterMyApp || (this.filterKey.length > 0);
-      },
-      appInfoListOfGroup() {
-        return this.$storeHelper.appInfoListOfGroup;
-      },
+      }
     },
     watch: {
       '$storeHelper.currentGroupID': function (value, oldValue) {
@@ -487,6 +487,28 @@
         } else {
           this.showAppList = true;
         }
+
+        this.appInfoListOfGroup.appList.forEach(app => {
+          const profileMap = {};
+          app['serviceCountList'].forEach(it => {
+            profileMap[it['envName']] = it['serviceNameCount'];
+          });
+          app.profileListAll = this.profileListOfGroup.map(it => {
+            const result = {
+              id: it.id,
+              name: it.name,
+              description: it.description,
+            };
+            const envName = it['name'];
+            if (profileMap.hasOwnProperty(envName)) {
+              result.active = true;
+              result.serviceNameCount = profileMap[envName];
+            } else {
+              result.active = false;
+            }
+            return result;
+          });
+        });
       },
       handleButtonClick(action, params) {
         switch (action) {
@@ -888,8 +910,8 @@
           }
         }
       },
-      jumpToServicePage(index, row, profile, active) {
-        if (!active) {
+      jumpToServicePage(index, row, profile) {
+        if (!profile.active) {
           return;
         }
         if (this.$storeHelper.notPermitted['page_service']) {
