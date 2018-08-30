@@ -1255,6 +1255,35 @@
 export default {
   components: {paasDialogForLog, paasImageSelector},
   created() {
+    if (this.$storeHelper.dataTransfer) {
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      try {
+        const from = dataTransfer['from'];
+        // data save to localStorage
+        let dataToSave = null;
+        switch (from) {
+          case 'app':
+            dataToSave = {
+              appId: dataTransfer['data']['appId'],
+              profileId: dataTransfer['data']['profileId']
+            };
+            break;
+          case 'service/add':
+            dataToSave = {
+              profileId: dataTransfer['data']['profileId']
+            };
+            break;
+        }
+        if (dataToSave) {
+          this.$store.dispatch('user/config', {
+            page: 'service',
+            data: dataToSave
+          });
+        }
+        this.$storeHelper.dataTransfer = null;
+      } catch(err) {
+      }
+    }
   },
   mounted() {
     if (this.appInfoListOfGroup) {
@@ -1273,16 +1302,6 @@ export default {
       this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
     };
     addResizeListener(this.$el, this.resizeListener);
-
-    if (this.$storeHelper.dataTransfer) {
-      const dataTransfer = this.$storeHelper.dataTransfer;
-      try {
-        const from = dataTransfer['from'];
-        this.profileIdFromPageServiceAdd = dataTransfer['data']['profileId'];
-        this.$storeHelper.dataTransfer = null;
-      } catch(err) {
-      }
-    }
   },
   beforeDestroy() {
     removeResizeListener(this.$el, this.resizeListener);
@@ -1321,7 +1340,6 @@ export default {
 //      totalSize: 0,
 
       showLoading: false,
-      profileIdFromPageServiceAdd: null,
       selectedAppID: null,
       selectedApp: null,
       selectedProfileID: null,
@@ -1417,11 +1435,6 @@ export default {
         if (null == this.selectedProfileID || this.$storeHelper.SERVICE_ID_FOR_NULL == this.selectedProfileID) {
           // set selectedProfileID by local config
           let selectedProfileID = this.serviceConfig ? this.serviceConfig['profileId'] : null;
-          // set profileIdFromPageServiceAdd if exist
-          if (this.profileIdFromPageServiceAdd) {
-            selectedProfileID = this.profileIdFromPageServiceAdd;
-            this.profileIdFromPageServiceAdd = null;
-          }
 
           // check whether selectedProfileID exist in currentProfileList
           selectedProfileID = this.currentProfileList.map(it => {

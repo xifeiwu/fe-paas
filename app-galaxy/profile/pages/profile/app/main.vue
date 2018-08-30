@@ -903,7 +903,13 @@
         }
         let appID = row.appId;
         let profileID = profile.id;
-        this.$storeHelper.setUserConfig('profile/service', {appID, profileID});
+        this.$storeHelper.dataTransfer = {
+          from: 'app',
+          data: {
+            appId: appID,
+            profileId: profileID
+          }
+        };
         this.$router.push('service');
       },
 
