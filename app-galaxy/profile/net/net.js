@@ -476,7 +476,7 @@ class Net extends NetBase {
         }
       }).catch(err => {
         this.requestingState.getAPPList = false;
-        // console.log(err);
+        console.log(err);
         reject({
           title: '网络请求错误',
           msg: `请求路径：${URL_LIST.app_list.path}；${err.toString()}`

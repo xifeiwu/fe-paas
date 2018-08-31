@@ -177,32 +177,33 @@
            * 2. appInfoListOfGroup
            * 3. usersInGroup
            */
-          Promise.all([
-            this.$net.requestPaasServer(this.$net.URL_LIST.profile_list_of_group, {
-              payload: {
-                id: groupId
-              }
-            }),
-            this.$net.requestPaasServer(this.$net.URL_LIST.users_list_of_group, {
-              payload: {
-                id: groupId
-              }
-            }),
-            this.$net.getAPPList({
-              groupId: groupId
-            })
-          ]).then(resContentList => {
-            const [resContent1, resContent2, resContent3] = resContentList;
-            const profileList = resContent1['spaceList'];
-            const userList = resContent2['groupUserList'];
-            const appInfoList = resContent3;
-            this.$store.dispatch('user/userList', userList);
-            this.$store.dispatch('user/appInfoList', appInfoList);
+          // 解析app列表的时候需要profileList的相关信息
+          this.$net.requestPaasServer(this.$net.URL_LIST.profile_list_of_group, {
+            payload: {
+              id: groupId
+            }
+          }).then(resContent => {
+            const profileList = resContent['spaceList'];
             this.$store.dispatch('user/profileList', profileList);
-          }).catch(err => {
-            this.$net.showError(err);
-            console.log(err);
-          })
+            Promise.all([
+              this.$net.getAPPList({
+                groupId: groupId
+              }),
+              this.$net.requestPaasServer(this.$net.URL_LIST.users_list_of_group, {
+                payload: {
+                  id: groupId
+                }
+              })
+            ]).then(resContentList => {
+              const [resContent1, resContent2] = resContentList;
+              const appInfoList = resContent1;
+              const userList = resContent2['groupUserList'];
+              this.$store.dispatch('user/userList', userList);
+              this.$store.dispatch('user/appInfoList', appInfoList);
+            }).catch(err => {
+              this.$net.showError(err);
+            })
+          }).catch(err => {});
         }
       },
     },
