@@ -1,25 +1,23 @@
 <template>
   <div id="docs-paas">
-    <div class="section-main">
-      <div class="section-navigation">
-        <el-scrollbar>
-          <el-tree ref="menu-list"
-                   :data="menuList"
-                   :props="defaultProps"
-                   nodeKey='target'
-                   :setCurrentNodeOnClick="false"
-                   :expandOnClickNode="false"
-                   @node-click="handleNodeClick">
-          </el-tree>
-          <div class="navigation markdown-body" style="display: none" ref="navigation"></div>
-        </el-scrollbar>
-      </div>
-      <div class="section-content">
-        <el-scrollbar>
-          <div v-html="netData.html" class="content markdown-body">
-          </div>
-        </el-scrollbar>
-      </div>
+    <div class="section-navigation">
+      <el-scrollbar>
+        <el-tree ref="menu-list"
+                 :data="menuList"
+                 :props="defaultProps"
+                 nodeKey='target'
+                 :setCurrentNodeOnClick="false"
+                 :expandOnClickNode="false"
+                 @node-click="handleNodeClick">
+        </el-tree>
+        <div class="navigation markdown-body" style="display: none" ref="navigation"></div>
+      </el-scrollbar>
+    </div>
+    <div class="section-content">
+      <el-scrollbar>
+        <div v-html="netData.html" class="content markdown-body">
+        </div>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -55,30 +53,37 @@
 </style>
 <style lang="scss">
   #docs-paas {
+    position: relative;
     height: 100%;
-    .section-main {
-      padding: 0px;
-      height: calc(100% - 60px);
+    padding: 0px;
+    box-sizing: border-box;
+    .section-navigation {
+      width: 320px;
+      position: absolute;
+      left: 0px;
+      top: 15px;
+      bottom: 15px;
+      z-index: 10;
+      margin: 0;
       box-sizing: border-box;
-      .section-navigation {
-        width: 350px;
-        float: left;
+      box-shadow: 0 2px 6px 0 rgba(0,0,0,.04);
+      border-radius: 9px;
+      background-color: white;
+      .el-scrollbar {
         height: 100%;
-        border-right: 1px solid gray;
-        .el-scrollbar {
-          height: 100%;
-          width: 100%;
-        }
+        width: 100%;
       }
-      .section-content {
-        margin-left: 350px;
+    }
+    .section-content {
+      margin-left: 350px;
+      height: 100%;
+      padding-left: 10px;
+      padding-right: 5px;
+      .el-scrollbar {
         height: 100%;
-        padding-left: 10px;
-        padding-right: 5px;
-        .el-scrollbar {
-          height: 100%;
-          width: 100%;
-        }
+        width: 100%;
+      }
+      .markdown-body {
       }
     }
   }

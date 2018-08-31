@@ -9,14 +9,18 @@
 
 <style lang="scss">
   #docs {
+    display: flex;
+    flex-direction: column;
     height: 100%;
-    /*padding-top: 60px;*/
+    background-color: #fcfcfc;
     .pass-header {
-      /*position: fixed;*/
       width: 100%;
-      /*top: 0px;*/
-      box-shadow: 0 0 2px 0 rgba(64,158,255, .6);
+      /*box-shadow: 0 0 2px 0 rgba(64,158,255, .6);*/
       z-index: 100;
+    }
+    .child {
+      flex: 1;
+      overflow: scroll;
     }
   }
 </style>
