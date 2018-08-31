@@ -197,6 +197,7 @@
             this.$store.dispatch('user/appInfoList', appInfoList);
             this.$store.dispatch('user/profileList', profileList);
           }).catch(err => {
+            this.$net.showError(err);
             console.log(err);
           })
         }
