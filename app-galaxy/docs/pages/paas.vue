@@ -1,16 +1,15 @@
 <template>
-  <div id="docs">
-    <paas-header @menu-click="handleClickOnPassHeader" defaultActive="docs"></paas-header>
+  <div id="docs-paas">
     <div class="section-main">
       <div class="section-navigation">
         <el-scrollbar>
           <el-tree ref="menu-list"
-              :data="menuList"
-              :props="defaultProps"
-               nodeKey='target'
-               :setCurrentNodeOnClick="false"
-               :expandOnClickNode="false"
-              @node-click="handleNodeClick">
+                   :data="menuList"
+                   :props="defaultProps"
+                   nodeKey='target'
+                   :setCurrentNodeOnClick="false"
+                   :expandOnClickNode="false"
+                   @node-click="handleNodeClick">
           </el-tree>
           <div class="navigation markdown-body" style="display: none" ref="navigation"></div>
         </el-scrollbar>
@@ -26,7 +25,7 @@
 </template>
 
 <style lang="scss">
-  #docs {
+  #docs-paas {
     .el-tree {
       font-weight: bold;
       .el-tree-node__label {
@@ -55,16 +54,8 @@
   }
 </style>
 <style lang="scss">
-  #docs {
+  #docs-paas {
     height: 100%;
-    /*padding-top: 60px;*/
-    .pass-header {
-      /*position: fixed;*/
-      width: 100%;
-      /*top: 0px;*/
-      box-shadow: 0 0 2px 0 rgba(64,158,255, .6);
-      z-index: 100;
-    }
     .section-main {
       padding: 0px;
       height: calc(100% - 60px);
@@ -93,10 +84,8 @@
   }
 </style>
 <script>
-  import paasHeader from '../components/header';
 
   export default {
-    components: {paasHeader},
     created() {
       this.$net.requestAssistServer(this.$net.URL_LIST.md_detail, {
         payload: {title: '云平台帮助文档'}
@@ -266,28 +255,7 @@
           this.updateScrollTopByHash();
           this.$refs['menu-list'].setCurrentKey(target);
         }
-      },
-
-      handleClickOnPassHeader(keyPath) {
-        switch (keyPath) {
-          case 'profile':
-          case 'product/app':
-          case 'login':
-            this.$utils.goToPath('/profile');
-//            this.$router.push({
-//              path: '/profile/app',
-//              query: {
-//              }
-//            });
-            break;
-          case 'docs':
-            this.$utils.goToPath('/docs');
-            break;
-          case 'index':
-            this.$utils.goToPath('/index');
-            break;
-        }
-      },
+      }
     }
   };
 </script>

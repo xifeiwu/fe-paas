@@ -9,11 +9,13 @@ new VueConfig({
 
 import 'assets/css/markdown-github.css';
 import 'assets/css/highlight.scss';
-import APP from './docs.vue';
+import APP from './pages/index.vue';
 
+import router from './pages/router';
 import(/* webpackChunkName: "components-docs" */ '$assets/libs/components/docs.js').then(components => {
   components.default.install(Vue);
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),
+    router: router,
   }).$mount('#app');
 });
