@@ -520,6 +520,24 @@ class Net extends NetBase {
           });
         }
       });
+      resContent['healthCheckList'] = Object.keys(resContent['healthCheckList']).map(key => {
+        let desc = '';
+        switch (key) {
+          case '0':
+            desc = 'http';
+            break;
+          case '1':
+            desc = 'shell';
+            break;
+          case '2':
+            desc = 'socket';
+            break;
+        }
+        return {
+          key, desc,
+          label: resContent['healthCheckList'][key]
+        };
+      })
     }
     return resContent;
   }

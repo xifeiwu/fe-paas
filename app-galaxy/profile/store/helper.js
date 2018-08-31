@@ -108,6 +108,36 @@ class StoreHelper extends BaseHelper{
     return result;
   }
 
+  // 健康检查类型
+  get healthCheckTypeList() {
+    let result = [];
+    let messageForCreateAPP = this.messageForCreateAPP();
+    if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('healthCheckList')) {
+      result = messageForCreateAPP['healthCheckList'];
+    }
+    return result;
+  }
+
+  // 默认健康检查类型
+  get defaultHealthCheckType() {
+    return this.healthCheckTypeList[0].desc;
+  }
+
+  // 通过desc获得key
+  getHealthCheckTypeKeyByDesc(desc) {
+    let target = null;
+    this.healthCheckTypeList.some(it => {
+      if (it.desc === desc) {
+        target = it;
+      }
+    });
+    let key = null;
+    if (target) {
+      key = target.key;
+    }
+    return key;
+  }
+
   /**
    *
    * @param appID

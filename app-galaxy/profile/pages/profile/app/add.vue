@@ -80,17 +80,30 @@
         </div>
       </el-form-item>
 
-      <el-form-item :label="true ? '健康检查/延迟时间' : '健康检查'" prop="healthCheck">
-        <el-row>
-          <el-col :span="17">
-            <el-input v-model="createAppForm.healthCheck" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
-          </el-col>
-          <el-col :span="1" style="text-align: center">/</el-col>
-          <el-col :span="6">
-            <el-input-number v-model="createAppForm.initialDelaySeconds" :min="30" :max="1800" label="延迟时间"></el-input-number>
-          </el-col>
-        </el-row>
+      <el-form-item label="健康检查配置" :error="errMsgForHealthCheck">
+        <div class="health-check-type" style="height: 65px">
+          <el-radio-group v-model="createAppForm.healthCheckType">
+            <el-radio v-for="(item, index) in $storeHelper.healthCheckTypeList" :label="item.desc" :key="item.desc">{{item.label}}</el-radio>
+          </el-radio-group>
+          <div class="input-area">
+            <div :class="createAppForm.healthCheckType != 'http' ? 'hide': ''">
+              <el-input v-model="createAppForm.healthCheck.http" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
+            </div>
+            <div :class="createAppForm.healthCheckType != 'shell' ? 'hide' : ''">
+              <el-input v-model="createAppForm.healthCheck.shell"placeholder="请填写shell指令"></el-input>
+            </div>
+            <div :class="createAppForm.healthCheckType != 'socket' ? 'hide' : ''">
+              <span>端口号：</span>
+              <el-input-number v-model="createAppForm.healthCheck.socket" :min="0" :max="10000" label="延迟时间"></el-input-number>
+            </div>
+          </div>
+        </div>
+        <div class="initial-delay" style="line-height: 28px; margin-top: 2px">
+          <span>延迟时间：</span>
+          <el-input-number v-model="createAppForm.initialDelaySeconds" :min="30" :max="1800" label="延迟时间"></el-input-number>
+        </div>
       </el-form-item>
+
       <el-form-item label="文件存储" prop="fileLocation" class="fileLocation" v-if="false">
           <el-tag
             v-for="tag in createAppForm.fileLocation"
@@ -346,6 +359,7 @@
   }
 </style>
 <script>
+  import {mapGetters} from 'vuex';
   import appPropUtil from '../utils/app-props';
   import commonUtils from '$components/mixins/common-utils';
 export default {
@@ -378,6 +392,7 @@ export default {
       scrumList: [],
       lobList: [],
       showPopoverForHelp: false,
+      errMsgForHealthCheck: '',
       createAppForm: {
         groupID: this.$storeHelper.currentGroupID,
         scrumID: '',
@@ -389,7 +404,12 @@ export default {
         languageVersion: '',
         buildType: 'NO',
         buildName: '',
-        healthCheck: '',
+        healthCheckType:  this.$storeHelper.defaultHealthCheckType,
+        healthCheck: {
+          http: '',
+          shell: '',
+          socket: 8080
+        },
         initialDelaySeconds: 120,
         fileLocation: [],
         rollingUpdate: true,
@@ -415,6 +435,9 @@ export default {
     };
   },
   computed: {
+    ...mapGetters('app', {
+      'globalConfigForApp': 'messageForCreateAPP',
+    }),
     loadBalanceType() {
       return appPropUtil.getAllLoadBalance();
     },
@@ -426,6 +449,20 @@ export default {
     },
   },
   watch: {
+    'createAppForm.healthCheckType': function (type) {
+      switch (type) {
+        case 'http':
+//          this.createAppForm.healthCheck = '';
+          break;
+        case 'shell':
+//          this.createAppForm.healthCheck = '';
+          break;
+        case 'socket':
+          this.createAppForm.healthCheck.socket = 8080;
+          break;
+      }
+      this.getErrMsgForHealthCheck();
+    },
     languageInfo: 'onLanguageInfo',
     '$storeHelper.profileListOfGroup': 'onProfileListOfGroup',
     '$storeHelper.lobInfo': 'onLobInfo',
@@ -440,7 +477,6 @@ export default {
     }
   },
   methods: {
-
     onLanguageInfo: function(value, oldValue) {
       // set java language as default
       this.setDefaultLanguage(value);
@@ -602,6 +638,29 @@ export default {
       }
       return messageTip;
     },
+
+    getErrMsgForHealthCheck() {
+      let errMsg = '';
+      const healthCheck = this.createAppForm.healthCheck;
+      switch (this.createAppForm.healthCheckType) {
+        case 'http':
+          const regForHttp = /^\/[A-Za-z0-9_\-\.\/]{1,99}$/;
+          if (!regForHttp.exec(healthCheck.http)) {
+            errMsg = '以/开头，可以包含字母、数字、下划线、中划线。2-100个字符';
+          }
+          break;
+        case 'shell':
+          if (healthCheck.shell.trim().length === 0) {
+            errMsg = '健康检查不能为空';
+          }
+          break;
+        case 'socket':
+          break;
+      }
+      this.errMsgForHealthCheck = errMsg;
+      return errMsg;
+    },
+
     // action for submit button
     handleFinish() {
       var self = this;
@@ -618,6 +677,9 @@ export default {
           this.errMsg4BuildName = '构建类型为WAR时，必须填写构建包名称';
           valid = false;
         }
+        if (this.getErrMsgForHealthCheck()) {
+          valid = false;
+        }
         if (valid) {
           createAppForm.groupID = this.$storeHelper.currentGroupID;
           const payload = {
@@ -631,7 +693,6 @@ export default {
             languageVersion: createAppForm.languageVersion,
             packageType: createAppForm.buildType,
             buildName: createAppForm.buildName,
-            healthCheck: createAppForm.healthCheck,
             initialDelaySeconds: createAppForm.initialDelaySeconds,
             volumes: createAppForm.fileLocation,
             rollingUpdate: createAppForm.rollingUpdate,
@@ -639,6 +700,18 @@ export default {
             maxAge4Script: createAppForm.maxAge4Script,
             loadBalance: createAppForm.loadBalance,
           };
+          payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(createAppForm.healthCheckType);
+          switch (createAppForm.healthCheckType) {
+            case 'http':
+              payload.healthCheck = createAppForm.healthCheck.http;
+              break;
+            case 'shell':
+              payload.healthCheck = createAppForm.healthCheck.shell;
+              break;
+            case 'socket':
+              payload.healthCheck = createAppForm.healthCheck.socket;
+              break;
+          }
 //          console.log('payload');
 //          console.log(payload);
           this.addToWaitingResponseQueue('submit');

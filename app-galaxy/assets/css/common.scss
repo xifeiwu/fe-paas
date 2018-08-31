@@ -181,3 +181,30 @@ $space in (0, 0),(1, 4),(2, 8),(3, 16),(4, 24),(5, 48) {
     transform: translateY(-50%) translateX(50%);
   }
 }
+
+@keyframes to-show {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: .75;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes to-hide {
+  0% {
+    opacity: 1;
+    z-index: -10;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.slow-fade-enter-active  {
+  animation: to-show 1.5s ease-in-out;
+}
+.slow-fade-leave-active {
+  animation: to-hide .5s ease-in-out;
+}

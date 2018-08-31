@@ -44,6 +44,7 @@ class AppInfoHelper {
         }
       }],
       // 健康检查
+      // TODO:not used
       healthCheck: [{
         required: true,
         message: '请填写健康检查',

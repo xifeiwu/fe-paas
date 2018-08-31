@@ -111,6 +111,7 @@
     },
     created() {
       this.$store.dispatch('user/groupList');
+      // get global config for app
       this.$net.requestPaasServer(this.$net.URL_LIST.config_query).then(resContent => {
         resContent = this.$net.parseConfigList(resContent);
         this.$store.dispatch('app/globalConfig', resContent);
