@@ -2,15 +2,7 @@
   <div id="docs-paas">
     <div class="section-navigation">
       <el-scrollbar>
-        <el-tree ref="menu-list"
-                 :data="menuList"
-                 :props="defaultProps"
-                 nodeKey='target'
-                 :setCurrentNodeOnClick="false"
-                 :expandOnClickNode="false"
-                 @node-click="handleNodeClick">
-        </el-tree>
-        <div class="navigation markdown-body" style="display: none" ref="navigation"></div>
+        <div class="navigation markdown-body" ref="navigation"></div>
       </el-scrollbar>
     </div>
     <div class="section-content">
@@ -74,6 +66,48 @@
         height: 100%;
         width: 100%;
       }
+      .navigation {
+        padding: 8px 0px;
+        overflow-y: auto;
+        padding: 8px 0px;
+        h1, h2, h3, h4, h5, h6 {
+          margin: 2px 0;
+          font-weight: 500;
+          font-size: 17px;
+          color: #2185d0;
+          cursor: pointer;
+          line-height: normal;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          padding: 0px 12px;
+          border-bottom: none;
+          &:hover {
+            color: #483D8B;
+            text-decoration-line: underline;
+          }
+        }
+        h2 {
+          padding-left: 27px;
+          font-size: 17px
+        }
+        h3 {
+          padding-left: 42px;
+          font-size: 17px
+        }
+        h4 {
+          padding-left: 58px;
+          font-size: 15px
+        }
+        h5 {
+          padding-left: 72px;
+          font-size: 15px;
+        }
+        h6 {
+          padding-left: 87px;
+          font-size: 15px;
+        }
+      }
     }
     .section-content {
       margin-left: 320px;
@@ -96,11 +130,12 @@
       if (this.$route.params.hasOwnProperty('title')) {
         this.title = this.$route.params['title'];
       } else {
-
+        this.$router.push('/page-not-found');
+        return;
       }
 
       this.$net.requestAssistServer(this.$net.URL_LIST.md_detail, {
-        payload: {title: '云平台帮助文档'}
+        payload: {title: this.title}
       }).then(resContent => {
         this.netData.html = resContent['html'];
         this.netData.markdown = resContent['markdown'];
@@ -129,16 +164,12 @@
       };
     },
     watch: {
-      '$route': function (value) {
-        console.log(value);
-      },
       'netData.html': function (value) {
         if (!this.$refs.hasOwnProperty('navigation')) {
           return;
         }
         const nodeList = [];
-//        const navigation = this.$refs['navigation'];
-        const  navigationNode = document.createElement('div');
+        const navigationNode = this.$refs['navigation'];
         navigationNode.innerHTML = this.netData.html;
         Array.prototype.slice.call(navigationNode.children).forEach((node, index) => {
 //          let reg = /^H[1-8]{1}$/;
@@ -159,76 +190,15 @@
               node.label = match[2].trim();
             }
             nodeList.push(node);
-//            node.addEventListener('click', (evt) => {
-//              let target = evt.target;
-//              while (!reg.exec(target.outerHTML)) {
-//                target = target.parentNode;
-//              }
-//              this.contentScrollWrapper.scrollTop = this.contentNode.children[index].offsetTop;
-//            });
-          }
-        });
-
-        let levelStack = [];
-        let levelList = [];
-        const pushIt = function(list, item) {
-          if (!list.hasOwnProperty('children')) {
-            list.children = [];
-          }
-          list.children.push(item);
-        };
-        nodeList.map(node => {
-          return {
-            index: node.index,
-            level: node.level,
-            target: node.target,
-            label: node.label
-          }
-        }).forEach(it => {
-//          console.log(it);
-//          return;
-          let lastItem = null;
-          if (levelStack.length === 0) {
-            levelStack.push(it);
-            levelList.push(it);
-          } else {
-            lastItem = levelStack[levelStack.length - 1];
-            // console.log(lastItem.level, lastItem.word);
-            if (lastItem.level < it.level) {
-              pushIt(lastItem, it);
-              levelStack.push(it);
-            } else {
-              levelStack.pop();
-              // console.log(levelStack);
-              if (levelStack.length === 0) {
-                levelStack.push(it);
-                levelList.push(it);
-              } else {
-                lastItem = levelStack[levelStack.length - 1];
-                // console.log(lastItem);
-                // console.log(it);
-                while (lastItem && lastItem.level >= it.level && levelStack.length > 0) {
-                  levelStack.pop();
-                  if (levelStack.length === 0) {
-                    lastItem = null;
-                  } else {
-                    lastItem = levelStack[levelStack.length - 1];
-                  }
-                }
-                if (lastItem) {
-                  pushIt(lastItem, it);
-                  levelStack.push(it);
-                } else {
-                  levelStack.push(it);
-                  levelList.push(it);
-                }
+            node.addEventListener('click', (evt) => {
+              let target = evt.target;
+              while (!reg.exec(target.outerHTML)) {
+                target = target.parentNode;
               }
-            }
+              this.contentScrollWrapper.scrollTop = this.contentNode.children[index].offsetTop;
+            });
           }
         });
-//        console.log(levelStack);
-//        console.log(levelList);
-        this.menuList = levelList;
       }
     },
     methods: {
