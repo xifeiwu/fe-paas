@@ -88,7 +88,7 @@
       >
         <el-table-column
           label="服务默认版本"
-          width="150">
+          width="120">
           <template slot-scope="scope">
             <el-radio :label="scope.row.id"
                       :value="defaultServiceID"
@@ -106,7 +106,7 @@
         <el-table-column
           prop="createTime"
           label="创建时间"
-          width="200"
+          width="160"
           headerAlign="center" align="center"
         >
         </el-table-column>
@@ -115,72 +115,66 @@
         >
           <template slot-scope="scope">
             <el-button
-                    round
+                    class="danger"
                     v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"
-                    size="mini-extral" type="warning"
+                    type="text"
                     :loading="statusOfWaitingResponse('deploy') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('deploy', scope.$index, scope.row)"
             >
               {{statusOfWaitingResponse('deploy') && selected.service.id == scope.row.id ? '部署中': '部署'}}
             </el-button>
+            <div class="ant-divider"></div>
             <el-button
-                    class="flex"
-                    round
-                    size="mini-extral"type="primary"
+                    class="danger" type="text"
+                    :loading="statusOfWaitingResponse('stop') && selected.service.id == scope.row.id"
+                    v-if="!$storeHelper.notPermitted['service_stop']"
+                    @click="handleRowButtonClick('stop', scope.$index, scope.row)">停止</el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    v-if="isProductionProfile"
+                    class="primary" type="text"
+                    @click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
+            <div class="ant-divider" v-if="isProductionProfile"></div>
+            <el-button
+                    v-if="!$storeHelper.notPermitted['service_delete']"
+                    class="danger" type="text"
+                    :loading="statusOfWaitingResponse('delete') && selected.service.id == scope.row.id"
+                    @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    class="flex primary" type="text"
                     v-if="!$storeHelper.notPermitted['service_get_deploy_log']"
                     @click="handleRowButtonClick('go-to-log-deploy', scope.$index, scope.row)">
               <span>部署日志</span><i class="paas-icon-level-up"></i>
             </el-button>
+            <div class="ant-divider"></div>
             <el-button
-                    round
-                    size="mini-extral" type="warning"
-                    :loading="statusOfWaitingResponse('stop') && selected.service.id == scope.row.id"
-                    v-if="!$storeHelper.notPermitted['service_stop']"
-                    @click="handleRowButtonClick('stop', scope.$index, scope.row)">停止</el-button>
-            <el-button
-                    round
-                    v-if="isProductionProfile"
-                    size="mini-extral" type="warning"
-                    @click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
-            <el-button
-                    round
-                    v-if="!$storeHelper.notPermitted['service_delete']"
-                    size="mini-extral" type="danger"
-                    :loading="statusOfWaitingResponse('delete') && selected.service.id == scope.row.id"
-                    @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
-            <el-button
-                    class="flex"
-                    round
-                    size="mini-extral" type="primary"
+                    class="flex primary" type="text"
                     v-if="!$storeHelper.notPermitted['page_instance']"
                     @click="handleRowButtonClick('go-to-instance-list', scope.$index, scope.row)">
               <span>实例列表</span><i class="paas-icon-level-up"></i>
             </el-button>
+            <div class="ant-divider"></div>
             <el-button
-                    class="flex"
-                    round
-                    size="mini-extral" type="primary"
+                    class="flex primary" type="text"
                     v-if="!$storeHelper.notPermitted['go-domain-from-service']"
                     @click="handleRowButtonClick('go-to-domain-service', scope.$index, scope.row)">
               <span>配置外网二级域名</span><i class="paas-icon-level-up"></i>
             </el-button>
+            <div class="ant-divider"></div>
             <el-button
-                    class="flex"
-                    round
-                    size="mini-extral" type="primary"
-                    @click="handleRowButtonClick('service_info', scope.$index, scope.row)">
-                    <span>服务详情</span>
-                    <i class="el-icon-arrow-right"
-                      :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"></i>
-                  </el-button>
-            <el-button
-                    class="flex"
-                    round
-                    size="mini-extral"
-                    type="primary"
+                    class="flex primary" type="text"
                     @click="handleRowButtonClick('copy-service',scope.$index,scope.row)">
               <span>复制服务</span>
               <i class="paas-icon-level-up"></i>
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+              class="flex primary" type="text"
+              @click="handleRowButtonClick('service_info', scope.$index, scope.row)">
+              <span>服务详情</span>
+              <i class="el-icon-arrow-right"
+                :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"></i>
             </el-button>
           </template>
         </el-table-column>
@@ -963,10 +957,6 @@
     }
     .service-list {
       .el-table {
-        .el-button.flex > span {
-          display: flex;
-          align-items: center;
-        }
         .el-table__expanded-cell {
           .row-expand {
             box-sizing: border-box;
@@ -1213,9 +1203,7 @@
       .el-table {
         .el-table__row {
           .el-button {
-            margin: 1px 3px;
-            margin-left: 0px;
-            float: left;
+            margin: 1px 3px 1px 0px;
             .el-icon-arrow-right {
               vertical-align: middle;
               transition: transform 0.2s ease-in-out;
@@ -1223,6 +1211,8 @@
                 transform: rotate(90deg);
               }
             }
+          }
+          .ant-divider {
           }
         }
 
