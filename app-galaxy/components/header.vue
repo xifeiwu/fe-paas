@@ -1,8 +1,8 @@
 <template>
-  <el-row class="pass-header" width="180px" type="flex" justify="center" align="middle">
+  <el-row class="pass-header" type="flex" justify="center" align="middle">
     <el-col :span=12 class="first-col">
       <div class="img" @click="handleHeaderMenuClick(null, ['index'])">
-        <img src="/assets/imgs/finup-cloud.png" height="45px">
+        <img src="/assets/imgs/finup-cloud.png" height="32px">
       </div>
       <div class="text">
         <div>云端分享价值，平台成就用户</div>
@@ -30,7 +30,7 @@
 </template>
 
 <style lang="scss">
-$header-height: 60px;
+$header-height: 45px;
 $header-background-color: #e7e7e7;
 $aside-width: 180px;
 $menu-font-size: 16px;
@@ -72,7 +72,7 @@ $menu-height: 45px;
         vertical-align: bottom;
         color: gray;
         margin-left: 12px;
-        margin-bottom: 15px;
+        margin-bottom: 8px;
         line-height: 120%;
         font-size: 12px;
       }

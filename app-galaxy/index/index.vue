@@ -118,6 +118,9 @@ $menu-font-size: 16px;
 $menu-height: 45px;
 #index.el-container {
   height: 100%;
+  .pass-header {
+    margin-bottom: 10px;
+  }
   .el-main {
     padding: 0px;
     section.poster {
