@@ -111,7 +111,10 @@
     },
     created() {
       this.$store.dispatch('user/groupList');
-      this.$store.dispatch('app/messageForCreateAPP');
+      this.$net.requestPaasServer(this.$net.URL_LIST.config_query).then(resContent => {
+        resContent = this.$net.parseConfigList(resContent);
+        this.$store.dispatch('app/globalConfig', resContent);
+      }).catch(err => {});
 
       Promise.all([
         this.$net.requestPaasServer(this.$net.URL_LIST.permission_url_map),

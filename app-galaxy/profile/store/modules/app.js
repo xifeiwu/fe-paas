@@ -22,9 +22,8 @@ const actions = {
    * get message of creating app from server
    * format: @../mock/app/messageForCreateAPP
    */
-  async messageForCreateAPP({commit, state}) {
-    state.messageForCreateAPP = await Vue.prototype.$net.getMessageForCreateAPP();
-    return state.messageForCreateAPP;
+  async globalConfig({commit, state}, globalConfig) {
+    commit('SET_GLOBAL_CONFIG', globalConfig);
   },
   usersAll({commit, state}) {
     if (!state.usersAll) {
@@ -36,6 +35,9 @@ const actions = {
 };
 
 const mutations = {
+  SET_GLOBAL_CONFIG(state, globalConfig) {
+    state.messageForCreateAPP = globalConfig;
+  }
 };
 
 const getters = {

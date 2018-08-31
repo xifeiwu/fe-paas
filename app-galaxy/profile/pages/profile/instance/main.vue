@@ -33,7 +33,7 @@
         <el-table-column
                 prop="status"
                 label="健康状态"
-                width="100"
+                width="160"
                 headerAlign="center" align="center"
         >
         <template slot-scope="scope">

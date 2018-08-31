@@ -36,6 +36,23 @@ class Net extends NetBase {
         path: '/user/roles/permissions?exclude=true',
         method: 'get'
       },
+      // 获取配置信息：如，cpu和memory的对应关系、开发语言列表
+      'config_query': {
+        path: '/config/query',
+        method: 'get'
+      },
+      // 获取cpu和memory的对应关系
+      // TODO: not used
+      'cpu_and_memory_config': {
+        path: '/cpuAndMemory/queryCpuAndMemory',
+        method: 'get'
+      },
+      // 开发语言列表
+      // TODO: not used
+      'language_list': {
+        path: '/language/queryAllLanguage',
+        method: 'get'
+      },
       // 获取用户所在组列表
       'user_group_list': {
         path: '/group/queryByUser',
@@ -50,16 +67,6 @@ class Net extends NetBase {
       'users_list_of_group': {
         path: '/group/users',
         method: 'post'
-      },
-      // 获取cpu和memory的对应关系
-      'cpu_and_memory_config': {
-        path: '/cpuAndMemory/queryCpuAndMemory',
-        method: 'get'
-      },
-      // 开发语言列表
-      'language_list': {
-        path: '/language/queryAllLanguage',
-        method: 'get'
       },
       /** 应用相关 */
       // 应用列表
@@ -481,17 +488,9 @@ class Net extends NetBase {
    * 1. 相关语言
    * 2. cpu memory对应关系
    */
-  async getMessageForCreateAPP() {
-    const resContentList = await Promise.all([this.requestPaasServer(this.URL_LIST.cpu_and_memory_config),
-      this.requestPaasServer(this.URL_LIST.language_list)]);
-    const resContent1 = resContentList[0];
-    const resContent2 = resContentList[1];
-    let result = null;
-    if (resContent1 && resContent2) {
-      result = Object.assign(resContent1, resContent2);
-    }
-    if (result && result.hasOwnProperty('LanguageList')) {
-      result.LanguageList.forEach(it => {
+  parseConfigList(resContent) {
+    if (resContent && resContent.hasOwnProperty('LanguageList')) {
+      resContent['LanguageList'].forEach(it => {
         let language = it.language;
         // add property type which will be send to server
         // change the style of language
@@ -522,8 +521,7 @@ class Net extends NetBase {
         }
       });
     }
-    // console.log(result);
-    return result;
+    return resContent;
   }
 
 
