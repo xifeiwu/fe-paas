@@ -55,13 +55,13 @@
   #docs-paas {
     position: relative;
     height: 100%;
-    padding: 0px;
+    padding-top: 5px;
     box-sizing: border-box;
     .section-navigation {
       width: 320px;
       position: absolute;
       left: 0px;
-      top: 15px;
+      top: 10px;
       bottom: 15px;
       z-index: 10;
       margin: 0;
@@ -70,12 +70,13 @@
       border-radius: 9px;
       background-color: white;
       .el-scrollbar {
+        margin-top: 5px;
         height: 100%;
         width: 100%;
       }
     }
     .section-content {
-      margin-left: 350px;
+      margin-left: 320px;
       height: 100%;
       padding-left: 10px;
       padding-right: 5px;

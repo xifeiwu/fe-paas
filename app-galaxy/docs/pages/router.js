@@ -1,4 +1,6 @@
 import Paas from './paas.vue';
+import ViewByTitle from './view-by-title.vue';
+import PageNotFound from '../../components/page-not-found.vue';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
@@ -8,9 +10,15 @@ class Helper {
     this.richRouterConfig = [{
       path: '/docs',
       redirect: '/docs/paas',
-    },{
+    }, {
       path: '/docs/paas',
       component: Paas
+    }, {
+      path: '/docs/title/:title',
+      component: ViewByTitle
+    }, {
+       path: "/docs/*",
+      component: PageNotFound
     }];
 
     this.addRoutePath(null, this.richRouterConfig);

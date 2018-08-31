@@ -17,6 +17,7 @@
       width: 100%;
       /*box-shadow: 0 0 2px 0 rgba(64,158,255, .6);*/
       z-index: 100;
+      box-shadow: 0 2px 20px 0 rgba(0,0,0,.04);
     }
     .child {
       flex: 1;
