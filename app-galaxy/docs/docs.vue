@@ -1,22 +1,23 @@
 <template>
   <div id="docs">
     <paas-header @menu-click="handleClickOnPassHeader" defaultActive="docs"></paas-header>
-    <div class="help-content">
-      <div class="menu-list markdown-body" ref="navigation">
-        <!--<el-scrollbar>-->
-          <!--<el-tree ref="menu-list"-->
-              <!--:data="menuList"-->
-              <!--:props="defaultProps"-->
-               <!--nodeKey='target'-->
-               <!--:setCurrentNodeOnClick="false"-->
-               <!--:expandOnClickNode="false"-->
-              <!--@node-click="handleNodeClick">-->
-          <!--</el-tree>-->
-        <!--</el-scrollbar>-->
-      </div>
-      <div class="content">
+    <div class="section-main">
+      <div class="section-navigation">
         <el-scrollbar>
-          <div v-html="netData.html" class="markdown-body">
+          <el-tree ref="menu-list"
+              :data="menuList"
+              :props="defaultProps"
+               nodeKey='target'
+               :setCurrentNodeOnClick="false"
+               :expandOnClickNode="false"
+              @node-click="handleNodeClick">
+          </el-tree>
+          <div class="navigation markdown-body" style="display: none" ref="navigation"></div>
+        </el-scrollbar>
+      </div>
+      <div class="section-content">
+        <el-scrollbar>
+          <div v-html="netData.html" class="content markdown-body">
           </div>
         </el-scrollbar>
       </div>
@@ -64,11 +65,11 @@
       box-shadow: 0 0 2px 0 rgba(64,158,255, .6);
       z-index: 100;
     }
-    .help-content {
+    .section-main {
       padding: 0px;
       height: calc(100% - 60px);
       box-sizing: border-box;
-      .menu-list {
+      .section-navigation {
         width: 350px;
         float: left;
         height: 100%;
@@ -78,7 +79,7 @@
           width: 100%;
         }
       }
-      .content {
+      .section-content {
         margin-left: 350px;
         height: 100%;
         padding-left: 10px;
@@ -97,14 +98,6 @@
   export default {
     components: {paasHeader},
     created() {
-//      this.$net.getHelp().then(content => {
-//        this.menuList = content.menuList;
-//        this.helpContent = content.helpContent;
-//        this.$nextTick(() => {
-//          this.updateScrollTopByHash();
-//          this.listenScrollWrapper();
-//        });
-//      });
       this.$net.requestAssistServer(this.$net.URL_LIST.md_detail, {
         payload: {title: '云平台帮助文档'}
       }).then(resContent => {
@@ -113,11 +106,12 @@
       }).catch();
     },
     mounted() {
-      this.scrollWrapper = this.$el.querySelector('.content .el-scrollbar .el-scrollbar__wrap');
+      this.contentScrollWrapper = this.$el.querySelector('.section-content .el-scrollbar .el-scrollbar__wrap');
+      this.contentNode = this.contentScrollWrapper.querySelector('.content.markdown-body');
     },
     data() {
       return {
-        scrollWrapper: null,
+        contentScrollWrapper: null,
         menuList: [{
           label: ''
         }],
@@ -159,22 +153,99 @@
         if (!this.$refs.hasOwnProperty('navigation')) {
           return;
         }
-        const navigation = this.$refs['navigation'];
-        navigation.innerHTML = this.netData.html;
-        Array.prototype.slice.call(navigation.children).forEach((node, index) => {
-          let reg = /^H[1-8]{1}$/;
-          if (!reg.exec(node.tagName)) {
+        const nodeList = [];
+//        const navigation = this.$refs['navigation'];
+        const  navigationNode = document.createElement('div');
+        navigationNode.innerHTML = this.netData.html;
+        Array.prototype.slice.call(navigationNode.children).forEach((node, index) => {
+//          let reg = /^H[1-8]{1}$/;
+          const reg =/^<h([1-8])(?: id="(.*)")*>(.*)<\/h\1>$/;
+          const match = reg.exec(node.outerHTML);
+          if (!match) {
             node.style.display = 'none'
           } else {
-            node.addEventListener('click', (evt) => {
-              const target = evt.target;
-//              console.log(this.$router);
-//              this.$router.push(`/docs/${target}`);
-//              location.pathname = `/docs/${target.innerHTML}`;
-//              console.log(index);
-            });
+            // get level, target, and text by regexp
+            node.index = index;
+            if (match.length === 4) {
+              node.level = match[1];
+              node.target = `#${match[2]}`;
+              node.label = match[3].trim();
+            } else if (match.length === 3) {
+              node.level = match[1];
+              node.target = `#${match[2]}`;
+              node.label = match[2].trim();
+            }
+            nodeList.push(node);
+//            node.addEventListener('click', (evt) => {
+//              let target = evt.target;
+//              while (!reg.exec(target.outerHTML)) {
+//                target = target.parentNode;
+//              }
+//              this.contentScrollWrapper.scrollTop = this.contentNode.children[index].offsetTop;
+//            });
           }
         });
+
+        let levelStack = [];
+        let levelList = [];
+        const pushIt = function(list, item) {
+          if (!list.hasOwnProperty('children')) {
+            list.children = [];
+          }
+          list.children.push(item);
+        };
+        nodeList.map(node => {
+          return {
+            index: node.index,
+            level: node.level,
+            target: node.target,
+            label: node.label
+          }
+        }).forEach(it => {
+//          console.log(it);
+//          return;
+          let lastItem = null;
+          if (levelStack.length === 0) {
+            levelStack.push(it);
+            levelList.push(it);
+          } else {
+            lastItem = levelStack[levelStack.length - 1];
+            // console.log(lastItem.level, lastItem.word);
+            if (lastItem.level < it.level) {
+              pushIt(lastItem, it);
+              levelStack.push(it);
+            } else {
+              levelStack.pop();
+              // console.log(levelStack);
+              if (levelStack.length === 0) {
+                levelStack.push(it);
+                levelList.push(it);
+              } else {
+                lastItem = levelStack[levelStack.length - 1];
+                // console.log(lastItem);
+                // console.log(it);
+                while (lastItem && lastItem.level >= it.level && levelStack.length > 0) {
+                  levelStack.pop();
+                  if (levelStack.length === 0) {
+                    lastItem = null;
+                  } else {
+                    lastItem = levelStack[levelStack.length - 1];
+                  }
+                }
+                if (lastItem) {
+                  pushIt(lastItem, it);
+                  levelStack.push(it);
+                } else {
+                  levelStack.push(it);
+                  levelList.push(it);
+                }
+              }
+            }
+          }
+        });
+//        console.log(levelStack);
+//        console.log(levelList);
+        this.menuList = levelList;
       }
     },
     methods: {
@@ -185,18 +256,14 @@
         }
         let target = this.$el.querySelector(decodeURI(hash));
         if (target) {
-          this.scrollWrapper.scrollTop = target.offsetTop;
+          this.contentScrollWrapper.scrollTop = target.offsetTop;
         }
-      },
-      listenScrollWrapper() {
-        this.scrollWrapper && this.scrollWrapper.addEventListener('scroll', (evt) => {
-          let scrollTop = evt.target.scrollTop;
-        })
       },
       handleNodeClick(data) {
         if (data.hasOwnProperty('target')) {
           let target = data['target'];
           window.location.hash = target;
+          this.updateScrollTopByHash();
           this.$refs['menu-list'].setCurrentKey(target);
         }
       },
