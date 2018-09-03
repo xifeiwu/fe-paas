@@ -252,6 +252,11 @@ class Net {
       duration: 6000
     })
   }
+
+  /**
+   * show error
+   * @param err: {title, message}
+   */
   showError (err) {
     if (err instanceof Error) {
       err = {

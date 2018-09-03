@@ -91,13 +91,86 @@ class Net extends NetBase {
         path: '/service/queryByAppIdAndSpaceId',
         method: 'post'
       },
-
       // 检测服务端口映射
       'service_port_map_check': {
         path: '/service/checkPortMapping',
         method: 'post'
       },
 
+      // 更改健康检查
+      'service_update_health': {
+        path: '/service/updateHealth',
+        method: 'post'
+      },
+      // 更改镜像方式
+      'service_update_image': {
+        path: '/service/updateImage',
+        method: 'post'
+      },
+      // 更改gitLabAddress
+      'service_update_gitLab_address': {
+        path: '/service/updateGitLabSsh',
+        method: 'post'
+      },
+      // 更改gitLabBranch
+      'service_update_gitLab_branch': {
+        path: '/service/updateGitLabBranch',
+        method: 'post'
+      },
+      // 更改relativePath
+      'service_update_relative_path': {
+        path: '/service/updateRelativePath',
+        method: 'post'
+      },
+      // 更改maven profile id
+      'service_update_maven_profile_id': {
+        path: '/service/updateMavenProfileId',
+        method: 'post'
+      },
+      // 更改CPU和Memory
+      'service_update_cpu_and_memory': {
+        path: '/service/updateCpuAndMemory',
+        method: 'post'
+      },
+      // 更改滚动升级
+      'service_update_rolling_update': {
+        path: '',
+        method: 'post'
+      },
+      // 更改负载均衡
+      'service_update_load_balance': {
+        path: '',
+        method: 'post'
+      },
+      // 更改文件存储
+      'service_update_file_location': {
+        path: '/service/updateVolume',
+        method: 'post'
+      },
+      // 更改环境变量
+      'service_update_environment': {
+        path: '/service/updateEnv'
+      },
+      // 更改Host配置
+      'service_update_host': {
+        path: '/service/updateHostIp',
+        method: 'post'
+      },
+      // 更改OneAPM
+      'service_update_one_apm': {
+        path: '/service/updateOneApm',
+        method: 'post'
+      },
+      // 更改VM_Options
+      'service_update_vm_options': {
+        path: '/service/updateVMOptions',
+        method: 'post'
+      },
+      // 更改prestop
+      'service_update_prestop_command': {
+        path: '/service/updatePrestop',
+        method: 'post'
+      },
       /** 实例相关*/
       // 获取实例列表
       'instance_list': {
@@ -654,6 +727,7 @@ class Net extends NetBase {
           hosts: JSON.parse(JSON.stringify(service.hosts)),
           cpuID: service.cpuInfo.id,
           memoryID: service.memoryInfo.id,
+          prestopCommand: service.prestopCommand,
           // image: JSON.parse(JSON.stringify(service.image))
           customImage: service.image.customImage,
           imageLocation: service.image.location,
@@ -850,32 +924,35 @@ class Net extends NetBase {
     });
   }
 
-  serviceUpdate(prop, options) {
+  serviceUpdate(prop, payload) {
+    const URL_LIST = this.URL_LIST;
     let urlMap = {
-      'healthCheck': URL_LIST.service_update_health.url,
-      'image': URL_LIST.service_update_image.url,
-      'gitLabAddress': URL_LIST.service_update_gitLab_address.url,
-      'gitLabBranch': URL_LIST.service_update_gitLab_branch.url,
-      'relativePath': URL_LIST.service_update_relative_path.url,
-      'mavenProfileId': URL_LIST.service_update_maven_profile_id.url,
-      'cpuAndMemory': URL_LIST.service_update_cpu_and_memory.url,
-      'rollingUpdate': URL_LIST.service_update_rolling_update.url,
-      'loadBalance': URL_LIST.service_update_load_balance.url,
-      'fileLocation': URL_LIST.service_update_file_location.url,
-      'environments': URL_LIST.service_update_environment.url,
-      'hosts': URL_LIST.service_update_host.url,
-      'oneApm': URL_LIST.service_update_one_apm.url,
-      'vmOptions': URL_LIST.service_update_vm_options.url
+      'healthCheck': URL_LIST.service_update_health,
+      'image': URL_LIST.service_update_image,
+      'gitLabAddress': URL_LIST.service_update_gitLab_address,
+      'gitLabBranch': URL_LIST.service_update_gitLab_branch,
+      'relativePath': URL_LIST.service_update_relative_path,
+      'mavenProfileId': URL_LIST.service_update_maven_profile_id,
+      'cpuAndMemory': URL_LIST.service_update_cpu_and_memory,
+      'rollingUpdate': URL_LIST.service_update_rolling_update,
+      'loadBalance': URL_LIST.service_update_load_balance,
+      'fileLocation': URL_LIST.service_update_file_location,
+      'environments': URL_LIST.service_update_environment,
+      'hosts': URL_LIST.service_update_host,
+      'oneApm': URL_LIST.service_update_one_apm,
+      'vmOptions': URL_LIST.service_update_vm_options,
+      'prestopCommand': URL_LIST.service_update_prestop_command
     };
     let url = urlMap[prop];
-    // console.log(url);
     if (!url) {
       return new Promise((resolve, reject) => {
         reject('url not found');
       });
     }
     return new Promise((resolve, reject) => {
-      axios.post(url, options).then(response => {
+      this.formatRequest(url, {
+        payload
+      }).then(response => {
         if ('data' in response) {
           let data = response.data;
           if (0 === data.code) {
@@ -886,7 +963,7 @@ class Net extends NetBase {
           }
         }
       }).catch(err => {
-        console.log(err);
+        reject(err.message);
       })
     })
   }

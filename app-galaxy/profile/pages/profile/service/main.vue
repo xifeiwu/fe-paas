@@ -256,6 +256,11 @@
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
+                  <el-form-item label="preStop指令" class="big">
+                    <span>{{valueToShow(selected.model.prestopCommand)}}</span>
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                       class="el-icon-edit" @click="handleChangeProp('prestopCommand')"></i>
+                  </el-form-item>
                   <el-form-item label="文件存储" class="big file-location" v-if="false">
                     <div v-if="selected.service.fileLocation && selected.service.fileLocation.length > 0">
                       <el-tag
@@ -423,6 +428,39 @@
         <div class="item">
           <el-button type="primary"
                      @click="handleDialogButtonClick('healthCheck')"
+                     :loading="waitingResponse">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="selected.prop = null">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="更改prestop指令" :visible="selected.prop == 'prestopCommand'"
+               :close-on-click-modal="false"
+               class="health-check size-700"
+               @close="selected.prop = null"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改preStop指令后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" size="mini" labelWidth="140px" ref="changePrestopCommandForm">
+        <el-form-item label="prestop脚本">
+          <el-input v-model="newProps.prestopCommand"
+                    size="mini"
+                    type="textarea"
+                    :rows="6"
+                    placeholder="例如：shell & sleep 30 //30为变量，0-120之间的整数"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleDialogButtonClick('prestopCommand')"
                      :loading="waitingResponse">保&nbsp存</el-button>
         </div>
         <div class="item">
@@ -1278,12 +1316,15 @@ export default {
     }
 
     // adjust the height of el-table in the area service-list
-    let headerNode = this.$el.querySelector(':scope > .header');
-    this.resizeListener = () => {
-      let headerHeight = headerNode.offsetHeight;
-      this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
-    };
-    addResizeListener(this.$el, this.resizeListener);
+    try {
+      let headerNode = this.$el.querySelector(':scope > .header');
+      this.resizeListener = () => {
+        let headerHeight = headerNode.offsetHeight;
+        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+      };
+      addResizeListener(this.$el, this.resizeListener);
+    } catch(err) {
+    }
   },
   beforeDestroy() {
     removeResizeListener(this.$el, this.resizeListener);
@@ -1398,6 +1439,7 @@ export default {
             return this._initialDelay
           },
         },
+        prestopCommand: '',
         environments: [],
         hosts: [],
         cpuID: null,
@@ -2033,7 +2075,7 @@ export default {
      * @param prop
      */
     handleChangeProp(prop) {
-      if (['healthCheck', 'image','gitLabAddress', 'gitLabBranch', 'relativePath','mavenProfileId',
+      if (['healthCheck', 'prestopCommand', 'image','gitLabAddress', 'gitLabBranch', 'relativePath','mavenProfileId',
           'cpuAndMemory', 'rollingUpdate', 'loadBalance', 'environments', 'hosts',
           'fileLocation', 'vmOptions', 'oneApm'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
@@ -2058,7 +2100,9 @@ export default {
           this.newProps['healthCheck'].type = this.selected.model['healthCheck'].type;
           this.newProps['healthCheck'].content = this.selected.model['healthCheck'].content;
           this.newProps['healthCheck'].initialDelay = this.selected.model['healthCheck'].initialDelay;
-          console.log(this.newProps['healthCheck']);
+          break;
+        case 'prestopCommand':
+          this.newProps[prop] = this.selected.model[prop];
           break;
         case 'environments':
         case 'hosts':
@@ -2110,6 +2154,7 @@ export default {
         case 'loadBalance':
         case 'oneApm':
         case 'vmOptions':
+        case 'prestopCommand':
           this.$refs[formName].validate((valid) => {
             if (!valid) {
               return;
@@ -2241,6 +2286,7 @@ export default {
         case 'hosts':
         case 'oneApm':
         case 'vmOptions':
+        case 'prestopCommand':
           let propMap = {
             'fileLocation': 'volumes',
             'oneApm': 'oneapm'
@@ -2274,14 +2320,11 @@ export default {
             message: msg
           });
           this.updateModelInfo(prop);
-        }).catch(err => {
-          this.$notify.error({
-            title: '修改失败！',
-            message: err,
-            duration: 0,
-            onClose: function () {
-            }
-          });
+        }).catch(errMsg => {
+          this.$net.showError({
+            title: '修改失败',
+            message: errMsg
+          })
         }).finally(() => {
           this.waitingResponse = false;
           this.selected.prop = null;
@@ -2308,6 +2351,7 @@ export default {
         case 'mavenProfileId':
         case 'oneApm':
         case 'vmOptions':
+        case 'prestopCommand':
           this.selected.model[prop] = this.newProps[prop];
           this.selected.service[prop] = this.newProps[prop];
           break;
