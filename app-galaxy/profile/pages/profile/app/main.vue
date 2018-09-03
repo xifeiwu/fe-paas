@@ -493,7 +493,7 @@
           app['serviceCountList'].forEach(it => {
             profileMap[it['envName']] = it['serviceNameCount'];
           });
-          app.profileListAll = this.profileListOfGroup.map(it => {
+          this.$set(app, 'profileListAll', this.profileListOfGroup.map(it => {
             const result = {
               id: it.id,
               name: it.name,
@@ -507,7 +507,7 @@
               result.active = false;
             }
             return result;
-          });
+          }));
         });
       },
       handleButtonClick(action, params) {
@@ -772,12 +772,14 @@
         switch (prop) {
           case 'profileNames':
             this.selected.model[prop] = newProp;
-            this.selected.app.profileList = this.$storeHelper.profileListOfGroup
-              .filter(it => {
-                return newProp.indexOf(it.name) >= 0;
-              });
+            this.selected.app.profileList = this.$storeHelper.profileListOfGroup.filter(it => {
+              return newProp.indexOf(it.name) >= 0;
+            });
             this.selected.app.profileNames = this.selected.app.profileList.map(it => {
               return it.name;
+            });
+            this.selected.app.profileListAll.forEach(it => {
+              it['active'] = newProp.indexOf(it['name']) > -1;
             });
             break;
           case 'appName':
