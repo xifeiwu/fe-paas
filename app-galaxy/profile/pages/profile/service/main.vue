@@ -1427,43 +1427,32 @@ export default {
       }
       this.serviceInfo.appID = appId;
       this.selectedApp = appInfo['app'];
-      this.currentProfileList = this.selectedApp['profileList'];
-      if (Array.isArray(this.currentProfileList) && this.currentProfileList.length > 0) {
-        // at the beginning of this page(value of selectedProfileID is null), get selectedProfileID from localStorage
-        // else selectedProfileID is the first element in profileList of selectedApp
-        let defaultProfileID = this.currentProfileList[0]['id'];
-        if (null == this.selectedProfileID || this.$storeHelper.SERVICE_ID_FOR_NULL == this.selectedProfileID) {
-          // set selectedProfileID by local config
-          let selectedProfileID = this.serviceConfig ? this.serviceConfig['profileId'] : null;
-
-          // check whether selectedProfileID exist in currentProfileList
-          selectedProfileID = this.currentProfileList.map(it => {
-            if (it && it.id) {
-              return it.id
-            }
-          }).indexOf(selectedProfileID) > -1 ? selectedProfileID: defaultProfileID;
-
-          if (selectedProfileID) {
-            this.selectedProfileID = selectedProfileID;
-          } else {
-            this.selectedProfileID = defaultProfileID;
-          }
-          this.requestServiceList(this.selectedApp.appId, this.selectedProfileID);
-        } else {
-          // request service list when app id is changed while profile id is not changed.
-          if (this.selectedProfileID === defaultProfileID) {
-            this.requestServiceList(this.selectedApp.appId, this.selectedProfileID);
-          } else {
-            this.selectedProfileID = defaultProfileID;
-          }
-        }
-      }
       this.$store.dispatch('user/config', {
         page: 'service',
         data: {
           appId
         }
       });
+
+      this.currentProfileList = this.selectedApp['profileList'];
+      if (!Array.isArray(this.currentProfileList) || this.currentProfileList.length === 0) {
+        return;
+      }
+      // the logic of set profileId:
+      // 1. profileId in local config; 2. first profileId in profileList
+      let defaultProfileID = this.currentProfileList[0]['id'];
+      this.selectedProfileID = null;
+      const localProfileId = this.serviceConfig ? this.serviceConfig['profileId'] : null;
+      // check whether localProfileId exist in currentProfileList
+      defaultProfileID = this.currentProfileList.map(it => {
+        if (it && it.id) {
+          return it.id
+        }
+      }).indexOf(localProfileId) > -1 ? localProfileId: defaultProfileID;
+      setTimeout(() => {
+        this.selectedProfileID = defaultProfileID;
+      });
+
     },
     selectedProfileID: function (profileId, oldValue) {
       if (this.$storeHelper.SERVICE_ID_FOR_NULL === profileId) {
