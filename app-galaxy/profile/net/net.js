@@ -644,32 +644,79 @@ class Net extends NetBase {
    * @returns resContent
    */
   parseServiceList(resContent) {
-
-    const getServiceModelList = (items) => {
+    // 从service中摘取有用信息并封装到特定的数据格式中（部分属性进行了重命名）
+    const getServiceModelList = (serviceList) => {
       let modelList = [];
-      Array.isArray(items) && items.forEach(it => {
-        modelList.push({
-          oneApm: it.oneapm,
-          healthCheckTypeDesc: this.$storeHelper.getHealthCheckTypeDescByKey(it.healthCheckType),
-          healthCheck: it.healthCheck,
-          initialDelaySeconds: it.hasOwnProperty('initialDelaySeconds') ? it['initialDelaySeconds'] : 120,
-          environments: JSON.parse(JSON.stringify(it.environments)),
-          hosts: JSON.parse(JSON.stringify(it.hosts)),
-          cpuID: it.cpuInfo.id,
-          memoryID: it.memoryInfo.id,
-          // image: JSON.parse(JSON.stringify(it.image))
-          customImage: it.image.customImage,
-          imageLocation: it.image.location,
-          rollingUpdate: it.rollingUpdate,
-          loadBalance: it.loadBalance,
-          gitLabAddress: it.gitLabAddress,
-          gitLabBranch: it.gitLabBranch,
-          relativePath: it.relativePath,
-          mavenProfileId: it.mavenProfileId,
-          fileLocation: it.fileLocation ? it.fileLocation : [],
-          vmOptions: it.vmOptions,
-          instanceNum: it.instanceNum,
-        })
+      Array.isArray(serviceList) && serviceList.forEach(service => {
+        const item = {
+          oneApm: service.oneapm,
+          environments: JSON.parse(JSON.stringify(service.environments)),
+          hosts: JSON.parse(JSON.stringify(service.hosts)),
+          cpuID: service.cpuInfo.id,
+          memoryID: service.memoryInfo.id,
+          // image: JSON.parse(JSON.stringify(service.image))
+          customImage: service.image.customImage,
+          imageLocation: service.image.location,
+          rollingUpdate: service.rollingUpdate,
+          loadBalance: service.loadBalance,
+          gitLabAddress: service.gitLabAddress,
+          gitLabBranch: service.gitLabBranch,
+          relativePath: service.relativePath,
+          mavenProfileId: service.mavenProfileId,
+          fileLocation: service.fileLocation ? service.fileLocation : [],
+          vmOptions: service.vmOptions,
+          instanceNum: service.instanceNum,
+        };
+        const healthCheck = {
+          _type: '',
+          _content: {
+            http: '',
+            shell: '',
+            socket: '8080',
+          },
+          _contentDesc: '',
+          _initialDelay: 120,
+
+          set type(type) {
+            this._type = type;
+            switch (type) {
+              case 'http':
+                this._contentDesc = '路径';
+                break;
+              case 'shell':
+                this._contentDesc = '脚本';
+                break;
+              case 'socket':
+                this._contentDesc = '端口';
+                break;
+            }
+          },
+          get type() {
+            return this._type
+          },
+          set content(value) {
+            if (['http', 'shell', 'socket'].indexOf(this._type) > -1) {
+              this._content[this._type] = value;
+            }
+          },
+          get content() {
+            return this._content[this._type];
+          },
+          get contentDesc() {
+            return this._contentDesc;
+          },
+          set initialDelay(type) {
+            this._initialDelay = type
+          },
+          get initialDelay() {
+            return this._initialDelay
+          },
+        };
+        healthCheck.type = this.$storeHelper.getHealthCheckTypeDescByKey(service.healthCheckType);
+        healthCheck.content = service.healthCheck;
+        healthCheck.initialDelay = service.hasOwnProperty('initialDelaySeconds') ? service['initialDelaySeconds'] : 120;
+        item.healthCheck = healthCheck;
+        modelList.push(item);
       });
       return modelList;
     };

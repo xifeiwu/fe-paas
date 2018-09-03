@@ -184,32 +184,36 @@
         >
           <template slot-scope="scope">
             <div class="row-expand">
-              <div class="app-info">
-                <div class="title">应用信息</div>
+              <div class="instance-info">
+                <div class="title">服务信息</div>
                 <el-form label-position="right" label-width="140px" inline size="mini" class="message-show">
-                  <el-form-item label="项目名称" class="big">
-                    {{valueToShow(selected.service.tag)}}
+                  <el-form-item label="当前服务内网域名" class="big">
+                    <a :href="'http://' + selected.service.intranetDomain" target="_blank"
+                       v-if="selected.service.intranetDomain">{{selected.service.intranetDomain}}</a>
+                    <span v-else>{{valueToShow(selected.service.intranetDomain)}}</span>
                   </el-form-item>
-                  <el-form-item label="所属Scrum" v-if="selected.service.scrumName">
-                    {{selected.service.scrumName}}
-                  </el-form-item>
-                  <el-form-item label="所属LOB" v-if="selected.service.lobName">
-                    {{selected.service.lobName}}
+                  <el-form-item label="当前服务外网域名" class="big">
+                    <div v-if="scope.row.internetDomainList.length==0">无</div>
+                    <div v-if="scope.row.internetDomainList.length==1">
+                      <a :href="'http://' + scope.row.internetDomainList[0]" target="_blank">{{scope.row.internetDomainList[0]}}</a>
+                    </div>
+                    <div v-if="scope.row.internetDomainList.length>1">
+                      <a :href="'http://' + scope.row.internetDomainList[0]" target="_blank">{{scope.row.internetDomainList[0]}}</a>
+                      <el-tooltip slot="trigger" effect="light" placement="top">
+                        <div slot="content">
+                          <div v-for="(item, index) in scope.row.internetDomainList" v-if="index!=0">
+                            <a :href="'http://' + item" target="_blank">{{item}}</a>
+                          </div>
+                        </div>
+                        <span class="more">更多...</span>
+                      </el-tooltip>
+                    </div>
                   </el-form-item>
                   <el-form-item label="开发语言">
                     {{selected.service.language + ' - ' + selected.service.languageVersion}}
                   </el-form-item>
                   <el-form-item label="构建类型">
                     {{valueToShow(selected.service.packageType)}}
-                  </el-form-item>
-                  <el-form-item label="滚动升级">
-                    <span>{{selected.service.rollingUpdate? '需要' : '不需要'}}</span>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
-                       class="el-icon-edit" @click="handleChangeProp('rollingUpdate')"></i>
-                  </el-form-item>
-                  <el-form-item label="负载均衡">
-                    {{valueToShow(selected.service.loadBalance)}}
-                    <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="false"></i>
                   </el-form-item>
                   <el-form-item label="健康检查" class="big">
                     <a :href="'http://' + selected.service.intranetDomain + selected.service.healthCheck" target="_blank"
@@ -219,6 +223,15 @@
                     <span>{{selected.service.initialDelaySeconds}}秒</span>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
+                  </el-form-item>
+                  <el-form-item label="滚动升级">
+                    <span>{{selected.service.rollingUpdate? '需要' : '不需要'}}</span>
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                       class="el-icon-edit" @click="handleChangeProp('rollingUpdate')"></i>
+                  </el-form-item>
+                  <el-form-item label="负载均衡">
+                    {{valueToShow(selected.service.loadBalance)}}
+                    <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="false"></i>
                   </el-form-item>
                 </el-form>
               </div>
@@ -272,28 +285,6 @@
                   </el-form-item>
                   <el-form-item label="实例数量">
                     {{valueToShow(selected.service.instanceNum)}}
-                  </el-form-item>
-                  <el-form-item label="当前服务的内网域名" class="big">
-                    <a :href="'http://' + selected.service.intranetDomain" target="_blank"
-                       v-if="selected.service.intranetDomain">{{selected.service.intranetDomain}}</a>
-                    <span v-else>{{valueToShow(selected.service.intranetDomain)}}</span>
-                  </el-form-item>
-                  <el-form-item label="当前服务的外网域名" class="big">
-                    <div v-if="scope.row.internetDomainList.length==0">无</div>
-                    <div v-if="scope.row.internetDomainList.length==1">
-                      <a :href="'http://' + scope.row.internetDomainList[0]" target="_blank">{{scope.row.internetDomainList[0]}}</a>
-                    </div>
-                    <div v-if="scope.row.internetDomainList.length>1">
-                      <a :href="'http://' + scope.row.internetDomainList[0]" target="_blank">{{scope.row.internetDomainList[0]}}</a>
-                      <el-tooltip slot="trigger" effect="light" placement="top">
-                        <div slot="content">
-                          <div v-for="(item, index) in scope.row.internetDomainList" v-if="index!=0">
-                            <a :href="'http://' + item" target="_blank">{{item}}</a>
-                          </div>
-                        </div>
-                        <span class="more">更多...</span>
-                      </el-tooltip>
-                    </div>
                   </el-form-item>
                   <el-form-item label="文件存储" class="big file-location" v-if="false">
                     <div v-if="selected.service.fileLocation && selected.service.fileLocation.length > 0">
@@ -392,16 +383,16 @@
           <div class="label" style="width: 140px;">当前健康检查配置</div>
           <div class="content"style="margin-left: 140px;">
             <div>
-              <span>健康检查类型：</span>
-              <span v-if="selected.model.healthCheckTypeInfo">{{selected.model.healthCheckTypeInfo.label}}</span>
+              <span>健康检查方式：</span>
+              <span v-if="selected.model.healthCheck.type">{{selected.model.healthCheck.type}}</span>
             </div>
             <div>
-              <span v-if="selected.model.healthCheckTypeInfo">{{selected.model.healthCheckTypeInfo.contentDesc}}：</span>
-              <span>{{selected.model.healthCheck}}</span>
+              <span v-if="selected.model.healthCheck.contentDesc">{{selected.model.healthCheck.contentDesc}}：</span>
+              <span>{{selected.model.healthCheck.content}}</span>
             </div>
             <div>
               <span>延迟时间：</span>
-              <span>{{selected.model.initialDelaySeconds}}s</span>
+              <span>{{selected.model.healthCheck.initialDelay}}s</span>
             </div>
           </div>
         </div>
@@ -988,9 +979,10 @@
             padding: 8px 12px;
             width: 85%;
             margin: 0px auto;
-            max-width: 800px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            max-width: 900px;
+            /*box-shadow: 0 2px 15px rgba(0,0,0,0.1);*/
             box-shadow: 0 0 2px 0 rgba(64,158,255, .6);
+            /*box-shadow: 0 6px 18px 0 rgba(232,237,250,0.50);*/
             .el-form {
               .el-form-item {
                 .el-form-item__label {
@@ -1393,10 +1385,22 @@ export default {
             shell: '',
             socket: '8080',
           },
+          _contentDesc: '',
           _initialDelay: 120,
 
           set type(type) {
-            this._type = type
+            this._type = type;
+            switch (type) {
+              case 'http':
+                this._contentDesc = '路径';
+                break;
+              case 'shell':
+                this._contentDesc = '脚本';
+                break;
+              case 'socket':
+                this._contentDesc = '端口';
+                break;
+            }
           },
           get type() {
             return this._type
@@ -1408,6 +1412,9 @@ export default {
           },
           get content() {
             return this._content[this._type];
+          },
+          get contentDesc() {
+            return this._contentDesc;
           },
           set initialDelay(type) {
             this._initialDelay = type
@@ -1514,7 +1521,7 @@ export default {
     },
     // add more info to selected.model
     'selected.model': function (model) {
-      model.healthCheckTypeInfo = this.$storeHelper.getHealthCheckTypeInfoByDesc(model.healthCheckTypeDesc);
+//      model.healthCheckTypeInfo = this.$storeHelper.getHealthCheckTypeInfoByDesc(model.healthCheck.type);
     },
     'newProps.healthCheck.type': function (type) {
       this.getErrMsgForHealthCheck();
@@ -2073,9 +2080,10 @@ export default {
           this.$refs[formName].validate();
           break;
         case 'healthCheck':
-          this.newProps['healthCheck'].type = this.selected.model.healthCheckTypeDesc;
-          this.newProps['healthCheck'].content = this.selected.model.healthCheck;
-          this.newProps['healthCheck'].initialDelay = this.selected.model['initialDelaySeconds'];
+          this.newProps['healthCheck'].type = this.selected.model['healthCheck'].type;
+          this.newProps['healthCheck'].content = this.selected.model['healthCheck'].content;
+          this.newProps['healthCheck'].initialDelay = this.selected.model['healthCheck'].initialDelay;
+          console.log(this.newProps['healthCheck']);
           break;
         case 'environments':
         case 'hosts':
@@ -2153,11 +2161,11 @@ export default {
             if (!valid) {
               return;
             }
-            if (!this.newProps.hasOwnProperty(prop) || !this.selected.model.hasOwnProperty(prop)) {
-              return;
-            }
-            if ((this.newProps['healthCheck'] == this.selected.model['healthCheck'])
-              && (this.newProps['initialDelaySeconds'] == this.selected.model['initialDelaySeconds'])) {
+            if (
+              this.newProps['healthCheck'].type == this.selected.model['healthCheck'].type &&
+              this.newProps['healthCheck'].content == this.selected.model['healthCheck'].content &&
+              this.newProps['healthCheck'].initialDelay == this.selected.model['healthCheck'].initialDelay
+            ) {
               this.selected.prop = null;
               this.$message({
                 type: 'warning',
@@ -2329,11 +2337,9 @@ export default {
           this.selected.service[prop] = this.newProps[prop];
           break;
         case 'healthCheck':
-          this.selected.model.healthCheckTypeDesc = this.newProps['healthCheck'].type;
-          this.selected.model.healthCheck = this.newProps['healthCheck'].content;
-          this.selected.service.healthCheck = this.newProps['healthCheck'].content;
-          this.selected.model['initialDelaySeconds'] = this.newProps['healthCheck'].initialDelay;
-          this.selected.service['initialDelaySeconds'] = this.newProps['healthCheck'].initialDelay;
+          this.selected.model['healthCheck'].type = this.newProps['healthCheck'].type;
+          this.selected.model['healthCheck'].content = this.newProps['healthCheck'].content;
+          this.selected.model['healthCheck'].initialDelay = this.newProps['healthCheck'].initialDelay;
           break;
         case 'environments':
         case 'hosts':
