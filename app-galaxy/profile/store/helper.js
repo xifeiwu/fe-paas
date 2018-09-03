@@ -109,6 +109,9 @@ class StoreHelper extends BaseHelper{
   }
 
   // 健康检查类型
+  // 0: {key: "0", desc: "http", label: "HTTP方式"}
+  // 1: {key: "1", desc: "shell", label: "SHELL方式"}
+  // 2: {key: "2", desc: "socket", label: "SOCKET方式"}
   get healthCheckTypeList() {
     let result = [];
     let messageForCreateAPP = this.messageForCreateAPP();
@@ -119,7 +122,7 @@ class StoreHelper extends BaseHelper{
   }
 
   // 默认健康检查类型
-  get defaultHealthCheckType() {
+  get defaultHealthCheckTypeDesc() {
     return this.healthCheckTypeList[0].desc;
   }
 
@@ -136,6 +139,43 @@ class StoreHelper extends BaseHelper{
       key = target.key;
     }
     return key;
+  }
+
+  // 通过desc获得key
+  getHealthCheckTypeDescByKey(key) {
+    let target = null;
+    this.healthCheckTypeList.some(it => {
+      if (it.key == key) {
+        target = it;
+      }
+    });
+    let desc = null;
+    if (target) {
+      desc = target.desc;
+    }
+    return desc;
+  }
+
+  // 通过key获得HealthCheckType
+  getHealthCheckTypeInfoByKey(key) {
+    let target = null;
+    this.healthCheckTypeList.some(it => {
+      if (it.key == key) {
+        target = it;
+      }
+    });
+    return target;
+  }
+
+  // 通过desc获得HealthCheckType
+  getHealthCheckTypeInfoByDesc(desc) {
+    let target = null;
+    this.healthCheckTypeList.some(it => {
+      if (it.desc == desc) {
+        target = it;
+      }
+    });
+    return target;
   }
 
   /**

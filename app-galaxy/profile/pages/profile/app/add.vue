@@ -408,7 +408,7 @@ export default {
         languageVersion: '',
         buildType: 'NO',
         buildName: '',
-        healthCheckType:  this.$storeHelper.defaultHealthCheckType,
+        healthCheckType:  this.$storeHelper.defaultHealthCheckTypeDesc,
         healthCheck: {
           http: '',
           shell: '',

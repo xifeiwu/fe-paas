@@ -521,20 +521,23 @@ class Net extends NetBase {
         }
       });
       resContent['healthCheckList'] = Object.keys(resContent['healthCheckList']).map(key => {
-        let desc = '';
+        let desc = '', contentDesc = '';
         switch (key) {
           case '0':
             desc = 'http';
+            contentDesc = '路径';
             break;
           case '1':
             desc = 'shell';
+            contentDesc = '脚本';
             break;
           case '2':
             desc = 'socket';
+            contentDesc = '端口号';
             break;
         }
         return {
-          key, desc,
+          key, desc, contentDesc,
           label: resContent['healthCheckList'][key]
         };
       })
@@ -659,11 +662,12 @@ class Net extends NetBase {
    */
   parseServiceList(resContent) {
 
-    const getServiceModelList = function(items) {
+    const getServiceModelList = (items) => {
       let modelList = [];
       Array.isArray(items) && items.forEach(it => {
         modelList.push({
           oneApm: it.oneapm,
+          healthCheckTypeDesc: this.$storeHelper.getHealthCheckTypeDescByKey(it.healthCheckType),
           healthCheck: it.healthCheck,
           initialDelaySeconds: it.hasOwnProperty('initialDelaySeconds') ? it['initialDelaySeconds'] : 120,
           environments: JSON.parse(JSON.stringify(it.environments)),
@@ -685,7 +689,7 @@ class Net extends NetBase {
         })
       });
       return modelList;
-    }
+    };
 
     if (resContent.hasOwnProperty('applicationServerList')) {
       let serviceList = resContent['applicationServerList'];

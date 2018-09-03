@@ -215,8 +215,8 @@
                     <a :href="'http://' + selected.service.intranetDomain + selected.service.healthCheck" target="_blank"
                        v-if="selected.service.healthCheck">{{selected.service.healthCheck}}</a>
                     <span v-else>{{valueToShow(selected.service.healthCheck)}}</span>
-                    <span style="font-weight: bold; margin-left: 12px" v-if="showInitialDelay">延迟时间</span>
-                    <span v-if="showInitialDelay">{{selected.service.initialDelaySeconds}}秒</span>
+                    <span style="font-weight: bold; margin-left: 12px">延迟时间</span>
+                    <span>{{selected.service.initialDelaySeconds}}秒</span>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
@@ -387,29 +387,54 @@
         <i class="el-icon-warning"></i>
         <span>更改健康检查后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" size="mini" labelWidth="170px" ref="changeHealthCheckForm">
-        <el-form-item :label="showInitialDelay?'当前健康检查/延迟时间：':'当前健康检查'" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-          <el-row>
-            <el-col :span="17">
-              <div class="expand-to-next-line">{{selected.model.healthCheck}}</div>
-            </el-col>
-            <el-col :span="1" style="text-align: center" v-if="showInitialDelay">/</el-col>
-            <el-col :span="6" v-if="showInitialDelay">
-              <div>{{selected.model.initialDelaySeconds}}</div>
-            </el-col>
-          </el-row>
-        </el-form-item>
-        <el-form-item :label="showInitialDelay?'健康检查/延迟时间：':'健康检查'" prop="healthCheck" :labelClass="['fix-form-item-label']" :contentClass="['fix-form-item-content']">
-          <el-row>
-            <el-col :span="17">
-              <el-input v-model="newProps.healthCheck" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
-            </el-col>
-            <el-col :span="1" style="text-align: center" v-if="showInitialDelay">/</el-col>
-            <el-col :span="6" v-if="showInitialDelay">
-              <el-input-number v-model="newProps.initialDelaySeconds" :min="30" :max="1800" label="延迟时间"></el-input-number>
-            </el-col>
-          </el-row>
-        </el-form-item>
+      <el-form :model="newProps" :rules="rules" size="mini" labelWidth="160px" ref="changeHealthCheckForm">
+        <div class="el-form-item-group">
+          <div class="label" style="width: 160px;">当前健康检查配置</div>
+          <div class="content"style="margin-left: 160px;">
+            <div>
+              <span>健康检查类型：</span>
+              <span v-if="selected.model.healthCheckTypeInfo">{{selected.model.healthCheckTypeInfo.label}}</span>
+            </div>
+            <div>
+              <span v-if="selected.model.healthCheckTypeInfo">{{selected.model.healthCheckTypeInfo.contentDesc}}：</span>
+              <span>{{selected.model.healthCheck}}</span>
+            </div>
+            <div>
+              <span>延迟时间：</span>
+              <span>{{selected.model.initialDelaySeconds}}s</span>
+            </div>
+          </div>
+        </div>
+        <div class="el-form-item-group is-required">
+          <div class="label" style="width: 140px;">健康检查配置</div>
+          <div class="content" style="margin-left: 140px;">
+            <el-form-item :error="errMsgForHealthCheck">
+              <div class="health-check-type" style="height: 64px">
+                <el-radio-group v-model="newProps.healthCheck.type">
+                  <el-radio v-for="(item, index) in $storeHelper.healthCheckTypeList" :label="item.desc" :key="item.desc">{{item.label}}</el-radio>
+                </el-radio-group>
+                <div class="input-area">
+                  <div v-if="newProps.healthCheck.type == 'http'">
+                    <el-input v-model="newProps.healthCheck.content" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
+                  </div>
+                  <div v-if="newProps.healthCheck.type == 'shell'">
+                    <el-input v-model="newProps.healthCheck.content"placeholder="请填写shell指令"></el-input>
+                  </div>
+                  <div v-if="newProps.healthCheck.type == 'socket'">
+                    <span>端口号：</span>
+                    <el-input-number v-model="newProps.healthCheck.content" :min="0" :max="10000" label="延迟时间"></el-input-number>
+                  </div>
+                </div>
+              </div>
+            </el-form-item>
+            <el-form-item>
+              <div class="initial-delay" style="line-height: 28px">
+                <span>延迟时间：</span>
+                <el-input-number v-model="newProps.healthCheck.initialDelay" :min="30" :max="1800" label="延迟时间"></el-input-number>
+              </div>
+            </el-form-item>
+          </div>
+        </div>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
@@ -1322,7 +1347,6 @@ export default {
   },
   data() {
     return {
-      showInitialDelay: true,
       resizeListenerForServiceList: () => {},
       heightOfTable: '',
 
@@ -1360,9 +1384,38 @@ export default {
         // which operation button is clicked
         operation: '',
       },
+      errMsgForHealthCheck: '',
       newProps: {
-        healthCheck: '',
-        initialDelaySeconds: 0,
+        healthCheck: {
+          _type: '',
+          _content: {
+            http: '',
+            shell: '',
+            socket: '8080',
+          },
+          _initialDelay: 120,
+
+          set type(type) {
+            this._type = type
+          },
+          get type() {
+            return this._type
+          },
+          set content(value) {
+            if (['http', 'shell', 'socket'].indexOf(this._type) > -1) {
+              this._content[this._type] = value;
+            }
+          },
+          get content() {
+            return this._content[this._type];
+          },
+          set initialDelay(type) {
+            this._initialDelay = type
+          },
+          get initialDelay() {
+            return this._initialDelay
+          },
+        },
         environments: [],
         hosts: [],
         cpuID: null,
@@ -1459,6 +1512,16 @@ export default {
         }
       });
     },
+    // add more info to selected.model
+    'selected.model': function (model) {
+      model.healthCheckTypeInfo = this.$storeHelper.getHealthCheckTypeInfoByDesc(model.healthCheckTypeDesc);
+    },
+    'newProps.healthCheck.type': function (type) {
+      this.getErrMsgForHealthCheck();
+    },
+    'newProps.healthCheck.content': function (type) {
+      this.getErrMsgForHealthCheck();
+    }
   },
 
   methods: {
@@ -1577,6 +1640,33 @@ export default {
       }
       return result;
     },
+
+    // get error message tip for change healthCheck, used in the case
+    // 1. change of healthCheck.type
+    // 2. change of healthCheck.content
+    // 3. submit in dialog of change-healthCheck
+    getErrMsgForHealthCheck() {
+      let errMsg = '';
+      const healthCheck = this.newProps.healthCheck;
+      switch (healthCheck.type) {
+        case 'http':
+          const regForHttp = /^\/[A-Za-z0-9_\-\.\/]{1,99}$/;
+          if (!regForHttp.exec(healthCheck.content)) {
+            errMsg = '以/开头，可以包含字母、数字、下划线、中划线。2-100个字符';
+          }
+          break;
+        case 'shell':
+          if (healthCheck.content.trim().length === 0) {
+            errMsg = '健康检查不能为空';
+          }
+          break;
+        case 'socket':
+          break;
+      }
+      this.errMsgForHealthCheck = errMsg;
+      return errMsg;
+    },
+
     handleButtonClick(action) {
       switch (action) {
         case 'go-to-page-service-add':
@@ -1983,8 +2073,9 @@ export default {
           this.$refs[formName].validate();
           break;
         case 'healthCheck':
-          this.newProps[prop] = this.selected.model[prop];
-          this.newProps['initialDelaySeconds'] = this.selected.model['initialDelaySeconds'];
+          this.newProps['healthCheck'].type = this.selected.model.healthCheckTypeDesc;
+          this.newProps['healthCheck'].content = this.selected.model.healthCheck;
+          this.newProps['healthCheck'].initialDelay = this.selected.model['initialDelaySeconds'];
           break;
         case 'environments':
         case 'hosts':
@@ -2056,6 +2147,9 @@ export default {
           break;
         case 'healthCheck':
           this.$refs[formName].validate((valid) => {
+            if (this.getErrMsgForHealthCheck()) {
+              valid = false;
+            }
             if (!valid) {
               return;
             }
@@ -2175,8 +2269,9 @@ export default {
           options[optionKey] = this.newProps[prop];
           break;
         case 'healthCheck':
-          options['healthCheck'] = this.newProps['healthCheck'];
-          options['initialDelaySeconds'] = this.newProps['initialDelaySeconds'];
+          options['healthCheckType'] = this.$storeHelper.getHealthCheckTypeKeyByDesc(this.newProps['healthCheck'].type);
+          options['healthCheck'] = this.newProps['healthCheck'].content;
+          options['initialDelaySeconds'] = this.newProps['healthCheck'].initialDelay;
           break;
         case 'image':
           options['customImage'] = this.newProps['customImage'];
@@ -2191,16 +2286,12 @@ export default {
       }
       if (Object.keys(options).length > 3) {
         this.$net.serviceUpdate(prop, options).then(msg => {
-          this.waitingResponse = false;
-          this.selected.prop = null;
           this.$message({
             type: 'success',
             message: msg
           });
           this.updateModelInfo(prop);
         }).catch(err => {
-          this.waitingResponse = false;
-          this.selected.prop = null;
           this.$notify.error({
             title: '修改失败！',
             message: err,
@@ -2208,6 +2299,9 @@ export default {
             onClose: function () {
             }
           });
+        }).finally(() => {
+          this.waitingResponse = false;
+          this.selected.prop = null;
         });
       } else {
         // simulate post
@@ -2235,12 +2329,11 @@ export default {
           this.selected.service[prop] = this.newProps[prop];
           break;
         case 'healthCheck':
-          this.selected.model[prop] = this.newProps[prop];
-          this.selected.service[prop] = this.newProps[prop];
-          this.selected.model['initialDelaySeconds'] = this.newProps['initialDelaySeconds'];
-          this.selected.service['initialDelaySeconds'] = this.newProps['initialDelaySeconds'];
-//          console.log(this.currentServiceList);
-//          console.log(this.selected.service);
+          this.selected.model.healthCheckTypeDesc = this.newProps['healthCheck'].type;
+          this.selected.model.healthCheck = this.newProps['healthCheck'].content;
+          this.selected.service.healthCheck = this.newProps['healthCheck'].content;
+          this.selected.model['initialDelaySeconds'] = this.newProps['healthCheck'].initialDelay;
+          this.selected.service['initialDelaySeconds'] = this.newProps['healthCheck'].initialDelay;
           break;
         case 'environments':
         case 'hosts':
