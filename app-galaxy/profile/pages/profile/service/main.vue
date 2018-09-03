@@ -184,45 +184,14 @@
         >
           <template slot-scope="scope">
             <div class="row-expand">
-              <div class="instance-info">
+              <div class="service-info">
                 <div class="title">服务信息</div>
-                <el-form label-position="right" label-width="140px" inline size="mini" class="message-show">
-                  <el-form-item label="当前服务内网域名" class="big">
-                    <a :href="'http://' + selected.service.intranetDomain" target="_blank"
-                       v-if="selected.service.intranetDomain">{{selected.service.intranetDomain}}</a>
-                    <span v-else>{{valueToShow(selected.service.intranetDomain)}}</span>
-                  </el-form-item>
-                  <el-form-item label="当前服务外网域名" class="big">
-                    <div v-if="scope.row.internetDomainList.length==0">无</div>
-                    <div v-if="scope.row.internetDomainList.length==1">
-                      <a :href="'http://' + scope.row.internetDomainList[0]" target="_blank">{{scope.row.internetDomainList[0]}}</a>
-                    </div>
-                    <div v-if="scope.row.internetDomainList.length>1">
-                      <a :href="'http://' + scope.row.internetDomainList[0]" target="_blank">{{scope.row.internetDomainList[0]}}</a>
-                      <el-tooltip slot="trigger" effect="light" placement="top">
-                        <div slot="content">
-                          <div v-for="(item, index) in scope.row.internetDomainList" v-if="index!=0">
-                            <a :href="'http://' + item" target="_blank">{{item}}</a>
-                          </div>
-                        </div>
-                        <span class="more">更多...</span>
-                      </el-tooltip>
-                    </div>
-                  </el-form-item>
+                <el-form label-position="right" label-width="170px" inline size="mini" class="message-show">
                   <el-form-item label="开发语言">
                     {{selected.service.language + ' - ' + selected.service.languageVersion}}
                   </el-form-item>
                   <el-form-item label="构建类型">
                     {{valueToShow(selected.service.packageType)}}
-                  </el-form-item>
-                  <el-form-item label="健康检查" class="big">
-                    <a :href="'http://' + selected.service.intranetDomain + selected.service.healthCheck" target="_blank"
-                       v-if="selected.service.healthCheck">{{selected.service.healthCheck}}</a>
-                    <span v-else>{{valueToShow(selected.service.healthCheck)}}</span>
-                    <span style="font-weight: bold; margin-left: 12px">延迟时间</span>
-                    <span>{{selected.service.initialDelaySeconds}}秒</span>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
-                       class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
                   <el-form-item label="滚动升级">
                     <span>{{selected.service.rollingUpdate? '需要' : '不需要'}}</span>
@@ -233,51 +202,6 @@
                     {{valueToShow(selected.service.loadBalance)}}
                     <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="false"></i>
                   </el-form-item>
-                </el-form>
-              </div>
-              <div class="image-info">
-                <div class="title">镜像信息</div>
-                <el-form label-position="right" label-width="200px" size="mini" class="message-show">
-                  <el-form-item label="镜像方式">
-                    <span>{{valueToShow(selected.service.image.typeName)}}</span>
-                    <span style="padding-left: 12px; font-weight: bold">{{selected.service.image.customImage?'镜像地址':'基础镜像'}}</span>
-                    <span>{{selected.service.image.location}} </span>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
-                       class="el-icon-edit" @click="handleChangeProp('image')"></i>
-                  </el-form-item>
-                  <el-form-item label="gitlab_ssh地址" v-if="!selected.service.image.customImage">
-                    <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
-                      {{valueToShow(selected.service.gitLabAddress)}}
-                    </div>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
-                       class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
-                  </el-form-item>
-                  <el-form-item label="gitlab分支" v-if="!selected.service.image.customImage">
-                    <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
-                      {{valueToShow(selected.service.gitLabBranch)}}
-                    </div>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
-                       class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
-                  </el-form-item>
-                  <el-form-item label="Gitlab父级pom相对路径" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage" class="relativePathOfParentPOM">
-                    <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
-                      {{valueToShow(selected.service.relativePath)}}
-                     </div>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
-                       class="el-icon-edit" @click="handleChangeProp('relativePath')"></i>
-                  </el-form-item>
-                  <el-form-item label="Maven profile id" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
-                    <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
-                      {{valueToShow(selected.service.mavenProfileId)}}
-                    </div>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
-                       class="el-icon-edit" @click="handleChangeProp('mavenProfileId')"></i>
-                  </el-form-item>
-                </el-form>
-              </div>
-              <div class="instance-info">
-                <div class="title">服务信息</div>
-                <el-form label-position="right" label-width="140px" inline size="mini" class="message-show">
                   <el-form-item label="CPU/内存">
                     <span>{{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}</span>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
@@ -285,6 +209,52 @@
                   </el-form-item>
                   <el-form-item label="实例数量">
                     {{valueToShow(selected.service.instanceNum)}}
+                  </el-form-item>
+                  <el-form-item label="镜像方式">
+                    <span>{{valueToShow(selected.service.image.typeName)}}</span>
+                    <span style="padding-left: 12px; font-weight: bold">{{selected.service.image.customImage?'镜像地址':'基础镜像'}}</span>
+                    <span>{{selected.service.image.location}} </span>
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                       class="el-icon-edit" @click="handleChangeProp('image')"></i>
+                  </el-form-item>
+                  <el-form-item label="gitlab_ssh地址" class="big" v-if="!selected.service.image.customImage">
+                    <div class="expand-to-next-line">
+                      {{valueToShow(selected.service.gitLabAddress)}}
+                    </div>
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                       class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
+                  </el-form-item>
+                  <el-form-item label="gitlab父级pom相对路径" class="relativePathOfParentPOM big" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
+                    <div class="expand-to-next-line">
+                      {{valueToShow(selected.service.relativePath)}}
+                     </div>
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                       class="el-icon-edit" @click="handleChangeProp('relativePath')"></i>
+                  </el-form-item>
+                  <el-form-item label="gitlab分支" v-if="!selected.service.image.customImage">
+                    <div class="expand-to-next-line">
+                      {{valueToShow(selected.service.gitLabBranch)}}
+                    </div>
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                       class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
+                  </el-form-item>
+                  <el-form-item label="Maven profile id" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
+                    <div class="expand-to-next-line">
+                      {{valueToShow(selected.service.mavenProfileId)}}
+                    </div>
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                       class="el-icon-edit" @click="handleChangeProp('mavenProfileId')"></i>
+                  </el-form-item>
+                  <el-form-item label="健康检查配置" class="big">
+                    <span style="font-weight: bold">类型：</span><span>{{selected.model.healthCheck.type}}</span>
+                    <span style="font-weight: bold; margin-left: 12px">{{selected.model.healthCheck.contentDesc}}：</span>
+                    <a v-if="selected.model.healthCheck.type === 'http'"
+                       :href="'http://' + selected.service.intranetDomain + selected.model.healthCheck.content" target="_blank">{{selected.model.healthCheck.content}}</a>
+                    <span v-else>{{valueToShow(selected.model.healthCheck.content)}}</span>
+                    <span style="font-weight: bold; margin-left: 12px">延迟时间：</span>
+                    <span>{{selected.model.healthCheck.initialDelay}}秒</span>
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                       class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
                   <el-form-item label="文件存储" class="big file-location" v-if="false">
                     <div v-if="selected.service.fileLocation && selected.service.fileLocation.length > 0">
@@ -358,6 +328,28 @@
                       <span>未设置</span>
                       <i v-if="!$storeHelper.notPermitted['service_update']"
                          class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
+                    </div>
+                  </el-form-item>
+                  <el-form-item label="当前服务内网域名" class="big">
+                    <a :href="'http://' + selected.service.intranetDomain" target="_blank"
+                       v-if="selected.service.intranetDomain">{{selected.service.intranetDomain}}</a>
+                    <span v-else>{{valueToShow(selected.service.intranetDomain)}}</span>
+                  </el-form-item>
+                  <el-form-item label="当前服务外网域名" class="big">
+                    <div v-if="scope.row.internetDomainList.length==0">无</div>
+                    <div v-if="scope.row.internetDomainList.length==1">
+                      <a :href="'http://' + scope.row.internetDomainList[0]" target="_blank">{{scope.row.internetDomainList[0]}}</a>
+                    </div>
+                    <div v-if="scope.row.internetDomainList.length>1">
+                      <a :href="'http://' + scope.row.internetDomainList[0]" target="_blank">{{scope.row.internetDomainList[0]}}</a>
+                      <el-tooltip slot="trigger" effect="light" placement="top">
+                        <div slot="content">
+                          <div v-for="(item, index) in scope.row.internetDomainList" v-if="index!=0">
+                            <a :href="'http://' + item" target="_blank">{{item}}</a>
+                          </div>
+                        </div>
+                        <span class="more">更多...</span>
+                      </el-tooltip>
                     </div>
                   </el-form-item>
                 </el-form>
@@ -999,25 +991,8 @@
                 }
               }
             }
-
-            .app-info {
-              border-bottom: 1px solid lightgray;
-              .el-form {
-                .el-form-item {
-                  width: 50%;
-                  &.big {
-                    @include expand-inline-form-item;
-                    .el-form-item__content {
-                      margin-left: 140px;
-                    }
-                  }
-                }
-              }
-            }
-            .image-info {
-              border-bottom: 1px solid lightgray;
-            }
-            .instance-info {
+            .service-info {
+              /*border-bottom: 1px solid lightgray;*/
               .el-form {
                 .el-form-item {
                   width: 50%;
