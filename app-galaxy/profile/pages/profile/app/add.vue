@@ -57,7 +57,6 @@
           <!--<el-radio label="PHP"></el-radio>-->
         </el-radio-group>
       </el-form-item>
-
       <el-form-item label="语言版本" prop="languageVersion">
         <el-radio-group v-model="createAppForm.languageVersion"
                         @change="handleVersionChange">
@@ -66,7 +65,6 @@
           </el-radio>
         </el-radio-group>
       </el-form-item>
-
       <el-form-item class="build-type" label="构建类型" v-if="language.buildTypeList.length > 0" :error="errMsg4BuildName">
         <div class="flex-layout">
           <div class="type-list">
@@ -79,30 +77,36 @@
           <div :class="['war-name', createAppForm.buildType!=='WAR'?'hide':'', useBuildName?'':'hide']"><el-input v-model="createAppForm.buildName" placeholder="构建类型为WAR时，必须填写构建包名称"></el-input></div>
         </div>
       </el-form-item>
-
-      <el-form-item label="健康检查配置" :error="errMsgForHealthCheck">
-        <div class="health-check-type" style="height: 65px">
-          <el-radio-group v-model="createAppForm.healthCheckType">
-            <el-radio v-for="(item, index) in $storeHelper.healthCheckTypeList" :label="item.desc" :key="item.desc">{{item.label}}</el-radio>
-          </el-radio-group>
-          <div class="input-area">
-            <div :class="createAppForm.healthCheckType != 'http' ? 'hide': ''">
-              <el-input v-model="createAppForm.healthCheck.http" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
+      <div class="el-form-item-group is-required">
+        <div class="label" style="width: 140px;">健康检查配置</div>
+        <div class="content" style="margin-left: 140px;">
+          <el-form-item :error="errMsgForHealthCheck">
+            <div class="health-check-type" style="height: 64px">
+              <el-radio-group v-model="createAppForm.healthCheckType">
+                <el-radio v-for="(item, index) in $storeHelper.healthCheckTypeList" :label="item.desc" :key="item.desc">{{item.label}}</el-radio>
+              </el-radio-group>
+              <div class="input-area">
+                <div :class="createAppForm.healthCheckType != 'http' ? 'hide': ''">
+                  <el-input v-model="createAppForm.healthCheck.http" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
+                </div>
+                <div :class="createAppForm.healthCheckType != 'shell' ? 'hide' : ''">
+                  <el-input v-model="createAppForm.healthCheck.shell"placeholder="请填写shell指令"></el-input>
+                </div>
+                <div :class="createAppForm.healthCheckType != 'socket' ? 'hide' : ''">
+                  <span>端口号：</span>
+                  <el-input-number v-model="createAppForm.healthCheck.socket" :min="0" :max="10000" label="延迟时间"></el-input-number>
+                </div>
+              </div>
             </div>
-            <div :class="createAppForm.healthCheckType != 'shell' ? 'hide' : ''">
-              <el-input v-model="createAppForm.healthCheck.shell"placeholder="请填写shell指令"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <div class="initial-delay" style="line-height: 28px">
+              <span>延迟时间：</span>
+              <el-input-number v-model="createAppForm.initialDelaySeconds" :min="30" :max="1800" label="延迟时间"></el-input-number>
             </div>
-            <div :class="createAppForm.healthCheckType != 'socket' ? 'hide' : ''">
-              <span>端口号：</span>
-              <el-input-number v-model="createAppForm.healthCheck.socket" :min="0" :max="10000" label="延迟时间"></el-input-number>
-            </div>
-          </div>
+          </el-form-item>
         </div>
-        <div class="initial-delay" style="line-height: 28px; margin-top: 2px">
-          <span>延迟时间：</span>
-          <el-input-number v-model="createAppForm.initialDelaySeconds" :min="30" :max="1800" label="延迟时间"></el-input-number>
-        </div>
-      </el-form-item>
+      </div>
 
       <el-form-item label="文件存储" prop="fileLocation" class="fileLocation" v-if="false">
           <el-tag
