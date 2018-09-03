@@ -20,7 +20,7 @@ module.exports = {
         pathRewrite: path => path.replace('\/j-api\/paas\/', '\/'),
       },
       '/n-api/assist': {
-        target: 'http://127.0.0.1:6002',
+        target: 'http://10.10.80.242:6002',
         changeOrigin: true,
         logLevel: 'debug',
         pathRewrite: path => path.replace('\/n-api\/assist\/', ''),

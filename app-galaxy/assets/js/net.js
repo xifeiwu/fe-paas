@@ -369,7 +369,7 @@ class Net {
     return new Promise((resolve, reject) => {
       this.getFormattedRequest({
         headers: {
-          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl9uYW1lIjoiZmUtcGFhcyIsImlhdCI6MTUzNTYxMDMzNywiZXhwIjoxNTY3MTQ2MzM3fQ.VxHIEWnrMPGvHPkFZZpFO9ZKlhq8EkeHNkhGtk13RX8'
+          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJmZS1wYWFzIiwiaWF0IjoxNTM1ODE0NzU2LCJleHAiOjE1NjczNTA3NTZ9.Kua5fOfg7KJ5xOU08ImvcWdSfJnZpdHATQ_uwCW1nAI'
         }
       })({path, method}, options).then(res => {
         let resData = res.data;
