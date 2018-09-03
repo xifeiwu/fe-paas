@@ -210,7 +210,7 @@
                   <el-form-item label="实例数量">
                     {{valueToShow(selected.service.instanceNum)}}
                   </el-form-item>
-                  <el-form-item label="镜像方式">
+                  <el-form-item label="镜像方式" class="big">
                     <span>{{valueToShow(selected.service.image.typeName)}}</span>
                     <span style="padding-left: 12px; font-weight: bold">{{selected.service.image.customImage?'镜像地址':'基础镜像'}}</span>
                     <span>{{selected.service.image.location}} </span>
@@ -791,19 +791,21 @@
     <el-dialog title="更改VM_Options" :visible="selected.prop == 'vmOptions'"
                :close-on-click-modal="false"
                @close="selected.prop = null"
-               class="vm-options size-700"
+               class="vm-options size-750"
                v-if="selected.service && selected.model"
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
         <span>更改VM_Options后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" labelWidth="180px" ref="changeVmOptionsForm" size="mini">
-        <el-form-item label="当前VM_Options：">
-          <div class="expand-to-next-line">{{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}</div>
-        </el-form-item>
-        <el-form-item label="更改VM_Options为：" prop="vmOptions">
-          <el-input v-model="newProps.vmOptions" placeholder="不能包含中文，不能超过512个字符"></el-input>
+      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeVmOptionsForm" size="mini">
+        <el-form-item label="更改VM_Options">
+          <el-input v-model="newProps.vmOptions"
+                    size="mini"
+                    type="textarea"
+                    :rows="6"
+                    placeholder="不能包含中文，不能超过512个字符"
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -992,6 +994,9 @@
     line-height: 25px;
   }
   #service-main {
+    .el-textarea__inner {
+      font-size: 14px;
+    }
     .paas-icon-level-up {
       margin-left: 2px;
       font-size: 12px;
@@ -1037,7 +1042,7 @@
                   &.big {
                     @include expand-inline-form-item;
                     .el-form-item__content {
-                      margin-left: 140px;
+                      margin-left: 170px;
                     }
                   }
                   &.file-location {
