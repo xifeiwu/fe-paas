@@ -608,7 +608,11 @@
                   maxVersion = it;
                 }
               });
-              this.serviceForm.serviceVersion = (maxVersion + 1).toString();
+              try {
+                maxVersion = parseInt(maxVersion) + 1;
+                this.serviceForm.serviceVersion = maxVersion.toString();
+              } catch (err) {
+              }
 //              this.checkVersion(this.serviceForm.serviceVersion);
             }
           }

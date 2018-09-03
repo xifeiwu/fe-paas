@@ -2110,7 +2110,9 @@ export default {
             if (!valid) {
               return;
             }
-            this.newProps = this.$refs[formName].getImageInfo();
+            const imageInfo = this.$refs[formName].getImageInfo();
+            this.newProps.customImage = imageInfo.customImage;
+            this.newProps.imageLocation = imageInfo.imageLocation;
             if (!this.newProps.hasOwnProperty('customImage') || !this.selected.model.hasOwnProperty('customImage')
               || !this.newProps.hasOwnProperty('imageLocation') || !this.selected.model.hasOwnProperty('imageLocation')) {
               return;
