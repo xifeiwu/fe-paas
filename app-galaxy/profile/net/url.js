@@ -103,12 +103,6 @@ class URL extends BaseURL {
         path: '/service/deploy/log',
         method: 'post'
       },
-      // 创建服务
-      'service_create': {
-        url: API_PATH + '/service/createApplicationService',
-        path: '/service/createApplicationService',
-        method: 'post'
-      },
       // 删除服务
       'service_delete': {
         url: API_PATH + '/service/deleteApplicationService',

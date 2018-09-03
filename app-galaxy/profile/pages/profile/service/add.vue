@@ -203,7 +203,7 @@
           </el-form-item>
         </transition>
         <transition name="more-config">
-          <el-form-item label="端口映射" class="port-map" v-if="true && showMoreConfig" :error="errMsgForPortMap">
+          <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig" :error="errMsgForPortMap">
             <div class="el-row title">
               <div class="el-col el-col-10">
                 <span>访问端口</span>
@@ -228,6 +228,16 @@
               </el-col>
               <el-col :span="2">TCP</el-col>
             </el-row>
+          </el-form-item>
+        </transition>
+        <transition name="more-config">
+          <el-form-item label="prestop脚本" v-if="showMoreConfig">
+            <el-input v-model="serviceForm.prestopCommand"
+                      size="mini"
+                      type="textarea"
+                      :rows="3"
+                      placeholder="例如：shell & sleep 30 //30为变量，0-120之间的整数"
+            ></el-input>
           </el-form-item>
         </transition>
         <el-form-item class="expand">
@@ -525,7 +535,8 @@
             protocol: 'TCP',
             outerPort: '',
             containerPort: ''
-          }
+          },
+          prestopCommand: ''
         },
         showMoreConfig: false,
         // error message for form-item environments
@@ -929,7 +940,7 @@
                   this.serviceForm.imageLocation = this.serviceForm.autoImageValue;
                 }
                 let serviceForm = this.serviceForm;
-                let toPost = {
+                let payload = {
                   appId: serviceForm.appId,
                   spaceId: serviceForm.spaceId,
                   serviceVersion: serviceForm.serviceVersion,
@@ -946,15 +957,18 @@
                   instanceNum: serviceForm.instanceCount,
                   customImage: serviceForm.customImage,
                   image: serviceForm.imageLocation,
-                  portsMapping: [serviceForm.portMap]
+                  portsMapping: [serviceForm.portMap],
+                  prestopCommand: serviceForm.prestopCommand
                 };
                 this.addToWaitingResponseQueue('submit');
                 this.showLoading = true;
                 this.loadingText = '正在为您创建服务';
-                this.$net.createService(toPost).then((content) => {
+                this.$net.requestPaasServer(this.$net.URL_LIST.service_create, {
+                  payload
+                }).then(resConent => {
                   this.$message({
                     type: 'success',
-                    message: '服务' + toPost.serviceVersion + '创建成功！'
+                    message: '服务' + payload.serviceVersion + '创建成功！'
                   });
                   if (this.type === 'copy') {
                     this.$storeHelper.dataTransfer = {
@@ -970,7 +984,6 @@
                   this.showLoading = false;
                 });
               } else {
-                console.log('error submit!!');
                 return false;
               }
             });

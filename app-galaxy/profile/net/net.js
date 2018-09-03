@@ -81,6 +81,11 @@ class Net extends NetBase {
       },
 
       /** 服务相关 */
+      // 创建服务
+      'service_create': {
+        path: '/service/createApplicationService',
+        method: 'post'
+      },
       // 通过appID和profileID获取服务列表
       'service_list_by_app_and_profile': {
         path: '/service/queryByAppIdAndSpaceId',
@@ -565,28 +570,6 @@ class Net extends NetBase {
         reject(err);
       })
     })
-  }
-
-  createService(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.service_create.url, options).then(response => {
-        // console.log(response);
-        let result = this.getResponseMsg(response);
-        if (result.success) {
-          resolve(result.msg);
-        } else {
-          reject({
-            title: '创建失败',
-            msg: result.msg
-          });
-        }
-      }).catch(err => {
-        reject({
-          title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.service_create.path}；${err.toString()}`
-        });
-      });
-    });
   }
 
   deleteAPP(options) {

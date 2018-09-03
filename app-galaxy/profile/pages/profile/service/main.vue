@@ -387,10 +387,10 @@
         <i class="el-icon-warning"></i>
         <span>更改健康检查后需要重新【部署】才能生效！</span>
       </el-tag>
-      <el-form :model="newProps" :rules="rules" size="mini" labelWidth="160px" ref="changeHealthCheckForm">
+      <el-form :model="newProps" :rules="rules" size="mini" labelWidth="140px" ref="changeHealthCheckForm">
         <div class="el-form-item-group">
-          <div class="label" style="width: 160px;">当前健康检查配置</div>
-          <div class="content"style="margin-left: 160px;">
+          <div class="label" style="width: 140px;">当前健康检查配置</div>
+          <div class="content"style="margin-left: 140px;">
             <div>
               <span>健康检查类型：</span>
               <span v-if="selected.model.healthCheckTypeInfo">{{selected.model.healthCheckTypeInfo.label}}</span>
