@@ -65,16 +65,17 @@
           </el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item class="build-type" label="构建类型" v-if="language.buildTypeList.length > 0" :error="errMsg4BuildName">
+      <el-form-item class="build-type" label="构建类型"  style="height: 30px;"
+                    v-if="language.buildTypeList.length > 0" :error="createAppForm.packageInfo.errMsg">
         <div class="flex-layout">
           <div class="type-list">
-            <el-radio-group v-model="createAppForm.buildType">
+            <el-radio-group v-model="createAppForm.packageInfo.type">
               <el-radio v-for="item in language.buildTypeList" :label="item.type" :key="item.type">
                 {{item.packageType}}
               </el-radio>
             </el-radio-group>
           </div>
-          <div :class="['war-name', createAppForm.buildType!=='WAR'?'hide':'', useBuildName?'':'hide']"><el-input v-model="createAppForm.buildName" placeholder="构建类型为WAR时，必须填写构建包名称"></el-input></div>
+          <div :class="['war-name', createAppForm.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']"><el-input v-model="createAppForm.packageInfo.name" placeholder="构建类型为WAR时，必须填写构建包名称"></el-input></div>
         </div>
       </el-form-item>
       <div class="el-form-item-group is-required">
@@ -317,7 +318,7 @@
         &.build-type {
           .flex-layout {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             .war-name {
               padding-left: 10px;
               flex: 1;
@@ -369,7 +370,7 @@
 export default {
   mixins: [commonUtils],
   created() {
-    this.onLanguageInfo(this.languageInfo, null);
+    this.onLanguageInfo(this.$storeHelper.languageInfo, null);
     this.onProfileListOfGroup(this.$storeHelper.profileListOfGroup, null);
   },
   mounted() {
@@ -391,7 +392,7 @@ export default {
   },
   data() {
     return {
-      useBuildName: false,
+      useBuildName: true,
       fileLocationToAdd: '',
       scrumList: [],
       lobList: [],
@@ -406,8 +407,35 @@ export default {
         profiles: [],
         language: '',
         languageVersion: '',
-        buildType: 'NO',
-        buildName: '',
+        packageInfo: {
+          _type: '',
+          _name: '',
+          set type(value) {
+            if (value !== 'WAR') {
+              this._name = '';
+            }
+            this._type = value;
+          },
+          get type() {
+            return this._type;
+          },
+          set name(value) {
+            this._name = value;
+          },
+          get name() {
+            return this._name;
+          },
+          get needSetName() {
+            return this._type == 'WAR';
+          },
+          get errMsg() {
+            if (this._type === 'WAR' && !this._name) {
+              return '构建类型为WAR时，必须填写构建包名称';
+            } else {
+              return '';
+            }
+          }
+        },
         healthCheckType:  this.$storeHelper.defaultHealthCheckTypeDesc,
         healthCheck: {
           http: '',
@@ -422,7 +450,6 @@ export default {
         loadBalance: appPropUtil.getAllLoadBalance()[0],
         agree: false,
       },
-      errMsg4BuildName: '',
       productionProfileTip: '',
       editScript: true,
       formattedScript4RollingUpdate: '',
@@ -445,9 +472,6 @@ export default {
     loadBalanceType() {
       return appPropUtil.getAllLoadBalance();
     },
-    languageInfo() {
-      return this.$storeHelper.languageInfo();
-    },
     groupList() {
       return this.$storeHelper.groupList();
     },
@@ -467,24 +491,14 @@ export default {
       }
       this.getErrMsgForHealthCheck();
     },
-    languageInfo: 'onLanguageInfo',
+    '$storeHelper.languageInfo': 'onLanguageInfo',
     '$storeHelper.profileListOfGroup': 'onProfileListOfGroup',
     '$storeHelper.lobInfo': 'onLobInfo',
     '$storeHelper.currentGroupID': function (groupID) {
       this.createAppForm.groupID = groupID;
     },
-    'createAppForm.buildType': function(buildType) {
-      if (buildType !== 'WAR') {
-        this.createAppForm.buildName = '';
-        this.errMsg4BuildName = '';
-      }
-    }
   },
   methods: {
-    onLanguageInfo: function(value, oldValue) {
-      // set java language as default
-      this.setDefaultLanguage(value);
-    },
     /**
      * get profileNameList from profileInfoList
      * @param profileInfoList
@@ -520,7 +534,9 @@ export default {
         }
       }
     },
-    setDefaultLanguage: function (languageList) {
+
+    // 处理语言信息
+    onLanguageInfo (languageList) {
       if (Array.isArray(languageList) && languageList.length > 0) {
         let defaultLanguage = languageList[0];
         this.createAppForm.language = defaultLanguage.type;
@@ -529,10 +545,11 @@ export default {
       }
     },
 
+    // 语言改变时，更新版本列表
     handleLanguageChange: function (languageType) {
-      if (Array.isArray(this.languageInfo)) {
+      if (Array.isArray(this.$storeHelper.languageInfo)) {
         // get language info from languageList by language type
-        this.languageInfo.some(it => {
+        this.$storeHelper.languageInfo.some(it => {
           if (it.hasOwnProperty('type') && it.type === languageType) {
             this.language.selected = it;
 //            console.log(it);
@@ -545,18 +562,18 @@ export default {
         })
       }
     },
+    // 版本改变时，更新包类型
     handleVersionChange: function (version) {
       let versionList = this.language.versionList;
 //      console.log(versionList);
       Array.isArray(versionList) && versionList.some(it => {
-//        console.log(it);
         if (version == it.version) {
           if (1 === it.packageTypeList.length && 'NO' === it.packageTypeList[0].type){
             this.language.buildTypeList = [];
             this.createAppForm.buildType = 'NO';
           } else {
             this.language.buildTypeList = it.packageTypeList;
-            this.createAppForm.buildType = it.packageTypeList[0].type;
+            this.createAppForm.packageInfo.type = it.packageTypeList[0].type;
           }
           return true;
         }
@@ -677,8 +694,7 @@ export default {
       }
       const createAppForm = this.createAppForm;
       this.$refs['createAppForm'].validate((valid) => {
-        if (this.useBuildName && createAppForm.buildType === 'WAR' && createAppForm.buildName === '') {
-          this.errMsg4BuildName = '构建类型为WAR时，必须填写构建包名称';
+        if (this.useBuildName && createAppForm.packageInfo.errMsg) {
           valid = false;
         }
         if (this.getErrMsgForHealthCheck()) {
@@ -695,8 +711,8 @@ export default {
             spaceList: createAppForm.profiles,
             language: createAppForm.language,
             languageVersion: createAppForm.languageVersion,
-            packageType: createAppForm.buildType,
-            buildName: createAppForm.buildName,
+            packageType: createAppForm.packageInfo.type,
+            buildName: createAppForm.packageInfo.name,
             initialDelaySeconds: createAppForm.initialDelaySeconds,
             volumes: createAppForm.fileLocation,
             rollingUpdate: createAppForm.rollingUpdate,
