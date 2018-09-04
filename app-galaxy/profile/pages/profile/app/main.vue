@@ -81,16 +81,15 @@
           <template slot-scope="scope">
             <el-button
               v-if="!$storeHelper.notPermitted['app_delete']"
-              size="mini-extral"
-              type="danger"
-              round
+              type="text"
+              class="danger"
               :loading="statusOfWaitingResponse('deleteRow') && selected.row.appId == scope.row.appId"
               @click="handleTRButton('deleteRow', scope.$index, scope.row)">删除</el-button>
+            <div class="ant-divider"></div>
             <el-button
               v-if="!$storeHelper.notPermitted['app_change_profile']"
-              size="mini-extral"
-              type="warning"
-              round
+              type="text"
+              class="warning"
               @click="handleTRButton('change-profileNames', scope.$index, scope.row)">更改运行环境</el-button>
           </template>
         </el-table-column>
@@ -239,6 +238,11 @@
     }
     .app-list {
       .el-table {
+        td {
+          .cell {
+            padding: 3px 0px;
+          }
+        }
       }
     }
   }
@@ -277,9 +281,6 @@
         color: black;
         .el-table__row {
           .el-button {
-            float: left;
-            margin: 2px 4px;
-            margin-left: 0px;
           }
           .paas-icon-svg {
             width: 26px;
