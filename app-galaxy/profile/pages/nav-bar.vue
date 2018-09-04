@@ -57,6 +57,8 @@
   $menu-font-color-active: black;
   .nav-bar {
     position: relative;
+    flex-flow: 0;
+    flex-shrink: 0;
     transition: width 0.3s ease-out;
     &.collapse {
       width: 64px;
@@ -64,7 +66,6 @@
     box-sizing: border-box;
     width: $aside-width;
     height: 100%;
-    float: left;
     background: #324157;
 
     .img {

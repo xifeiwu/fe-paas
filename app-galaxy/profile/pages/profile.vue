@@ -51,21 +51,21 @@
 
   #profile {
     height: 100%;
+    display: flex;
+    flex-direction: row;
     main {
-      background: $main-background;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
       width: calc(100% - 200px);
-      &.collapse-menu {
-        width: calc(100% - 64px);
-      }
-      transition: width 0.3s ease-out;
+      background: $main-background;
       height: 100%;
-      float: left;
       .paas-header-profile {
       }
       .content {
+        flex: 1;
         margin-top: 3px;
         padding: 0px;
-        height: calc(100% - 36px);
         .el-row.header {
           background: white;
           border-bottom: 1px solid #e7e7e7;
