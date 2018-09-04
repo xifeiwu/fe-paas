@@ -1,5 +1,5 @@
 <template>
-  <div id="manage" class="spa">
+  <div id="manage_app" class="spa">
     <div class="header">
       <div class="item">
         <label>LOB:</label>
@@ -79,31 +79,35 @@
 </template>
 
 <style lang="scss">
-  .header {
-    label {
-      font-size: 14px;
-    }
-    .el-input {
-      .el-input__inner {
-        height: 24px;
+  #manage_app {
+    .header {
+      label {
+        font-size: 14px;
+      }
+      .el-input {
+        .el-input__inner {
+          height: 24px;
+        }
       }
     }
   }
 </style>
 <style lang="scss" scoped>
-  .header {
-    display: flex;
-    .item {
-      display: inline-block;
-      margin-right: 3px;
-      &.key-word {
-        display: flex;
-        width: 300px;
-      }
-      .el-select {
-        max-width: 190px;
-        &.key-word-type {
-          max-width: 100px;
+  #manage_app {
+    .header {
+      display: flex;
+      .item {
+        display: inline-block;
+        margin-right: 3px;
+        &.key-word {
+          display: flex;
+          width: 300px;
+        }
+        .el-select {
+          max-width: 190px;
+          &.key-word-type {
+            max-width: 100px;
+          }
         }
       }
     }

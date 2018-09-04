@@ -1,4 +1,3 @@
-import Index from './index.vue';
 import AppMain from './app/main.vue';
 
 import Vue from 'vue';

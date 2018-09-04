@@ -1,5 +1,6 @@
 <template>
   <div id="manage" class="spa">
+    <paas-nav-bar :activeSideMenuItem="activeSideMenuItem"></paas-nav-bar>
     <main :class="{'collapse-menu': false}">
       <!--toasts-area-->
       <paas-header-profile :userName="userName" :userRole="userRole" :showImg="false" ref="paasHeaderProfile"
@@ -33,14 +34,16 @@
   $main-background: #F2F6FC;
   /*$main-background: #E4E7ED;*/
 
-  #profile {
+  #manage {
     height: 100%;
+    display: flex;
+    flex-direction: row;
     main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      width: calc(100% - 200px);
       background: $main-background;
-      /*width: calc(100% - 200px);*/
-      /*&.collapse-menu {*/
-        /*width: calc(100% - 64px);*/
-      /*}*/
       transition: width 0.3s ease-out;
       height: 100%;
       .paas-header-profile {
@@ -80,9 +83,10 @@
 <script>
   import {mapState, mapGetters} from 'vuex';
   import paasHeaderProfile from '$components/header-profile';
+  import paasNavBar from './nav-bar.vue';
 
   export default {
-    components: {paasHeaderProfile},
+    components: {paasHeaderProfile, paasNavBar},
     data() {
       return {
         activeSideMenuItem: '/app',
