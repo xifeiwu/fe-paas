@@ -113,18 +113,12 @@
       this.$store.dispatch('user/groupList');
       this.$store.dispatch('app/messageForCreateAPP');
 
-      // for permission list
-      this.$net.getNotPermittedCommands().then(list => {
-        this.$storeHelper.notPermitted = list;
+      Promise.all([
+        this.$net.requestPaasServer(this.$net.URL_LIST.permission_url_map),
+        this.$net.requestPaasServer(this.$net.URL_LIST.user_not_permitted)
+      ]).then(resContentList => {
+        this.$storeHelper.notPermitted = this.$net.parseNotPermittedCommands(resContentList);
         this.$routeHelper.addPermission(this.$storeHelper.notPermitted);
-      }).catch(err => {
-        this.$notify.error({
-          title: err.title,
-          message: err.msg,
-          duration: 0,
-          onClose: function () {
-          }
-        });
       });
 
       this.$store.dispatch('user/groupId', this.$storeHelper.currentGroupID);

@@ -17,18 +17,6 @@ class URL extends BaseURL {
       'highlight.js': '/assets/libs/highlight/highlight.pack.js',
       'highlight.css': '/assets/libs/highlight/styles/vs2015.css',
 
-      // permission与url的对应关系
-      'permission_url_map': {
-        url: API_PATH + '/permissionUrlMappings',
-        path: '/permissionUrlMappings',
-        method: 'post'
-      },
-      // 当前用户禁用的权限
-      'user_not_permitted': {
-        url: API_PATH + '/user/roles/permissions?exclude=true',
-        path: '/user/roles/permissions?exclude=true',
-        method: 'get'
-      },
       // 获取验证码
       'get_verify_code': {
         url: API_PATH + '/createRandomImage',

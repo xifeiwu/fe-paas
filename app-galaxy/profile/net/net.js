@@ -26,6 +26,16 @@ class Net extends NetBase {
       getAPPList: false,
     };
     const PAAS_URL_LIST = {
+      // permission与url的对应关系
+      'permission_url_map': {
+        path: '/permissionUrlMappings',
+        method: 'post'
+      },
+      // 当前用户禁用的权限
+      'user_not_permitted': {
+        path: '/user/roles/permissions?exclude=true',
+        method: 'get'
+      },
       // 获取用户所在组列表
       'user_group_list': {
         path: '/group/queryByUser',
@@ -157,153 +167,144 @@ class Net extends NetBase {
     debug('%s, %o', func, data);
   }
 
-  // 获取用户不允许操作的功能列表
-  getNotPermittedCommands() {
-    return new Promise((resolve, reject) => {
-      axios.all([
-        axios.post(URL_LIST.permission_url_map.url, {}),
-        axios.get(URL_LIST.user_not_permitted.url)
-      ]).then(axios.spread((permissionMapRes, notPermittedRes) => {
-        let permissionMapListOrigin = this.getResponseContent2(permissionMapRes);
-        let notPermittedListOrigin = this.getResponseContent2(notPermittedRes);
-        notPermittedListOrigin = notPermittedListOrigin.map(it => {
-          it.hasOwnProperty('id') && delete it.id;
-          it.hasOwnProperty('parentId') && delete it.parentId;
-          it.hasOwnProperty('createTime') && delete it.createTime;
-          it.hasOwnProperty('updateTime') && delete it.updateTime;
-          it.hasOwnProperty('permissionType') && delete it.permissionType;
-          return it;
-        });
-        // console.log(permissionMapListOrigin);
-        // console.log(notPermittedListOrigin);
-        let notPermittedList = [];
-
-        // some permissionPath do not related to any url are list bellow
-        let pathToKey = {
-          '/2.x/internet/ipWhiteList': 'domain_bind_white_list',
-          // 应用监控
-          '/2.x/apm': 'app_monitor',
-          // 应用转让
-          '/2.x/app/transfer': 'app_transfer',
-          // 更改服务信息
-          '/2.x/service/update': 'service_update',
-          // 查看实例监控
-          '/2.x/instances/apm': 'instance_monitor',
-          // 查看部署日志
-          // '/2.x/service/search/deployLog': '',
-          // 删除域名
-          '/2.x/internet/delete': 'domain_remove',
-          // 从实例列表打开终端
-          '/2.x/instances/openTerminal': 'open_terminal_from_instance',
-          // 从实例列表打开监控
-          '	/2.x/instances/apm': '',
-          // 外网域名安全审核
-          '/2.x/internet/update': 'domain_secure_check',
-          // 待办/工单/部署应用
-          '/2.x/order/todoList/deploy': 'work-order_deploy_app',
-
-          // 页面相关
-          // 服务管理页面
-          '/2.x/service': '/service',
-          // 实例列表页面
-          '/2.x/instances': '/instance',
-          // 外网域名页面
-          '/2.x/internet': '/domain',
-          // 页面-日志中心
-          '/2.x/logs': '/log',
-          // 页面-查看运行日志
-          '/2.x/logs/searchLog': '/log/run',
-          // 页面-查看部署日志
-          '/2.x/logs/searchDeployLog': '/log/deploy',
-          // 页面-Oauth权限
-          '/2.x/keys': '/oauth',
-          // 页面-Oauth/Access Key
-          '/2.x/keys/AccessKey': '/oauth/key',
-          // 页面-Oauth/url
-          '/2.x/keys/authUrl': '/oauth/url',
-          // 页面-审批管理页面
-          '/2.x/orders': '/work-order',
-          // 页面-审批管理/待办工单
-          '/2.x/order/todoList': '/work-order/todo',
-          // 页面-审批管理/工单列表
-          '/2.x/order/list': '/work-order/list',
-
-          // 跳转逻辑
-          '/2.x/service/update/DefaultInternetDomain': 'go-domain-from-service-global',
-          '/2.x/service/bindingInternetDomain': 'go-domain-from-service',
-          // 查看运营日志
-          '/2.x/instances/searchLogs': 'go-log-run-from-instance',
-          // 查看监控
-          '/2.x/instances/apm': 'go-monitor-from-instance',
-        };
-        // format of item in notPermittedList
-        // {
-        //   id: 110,
-        //   name: "创建外网域名",
-        //   parentId: 84,
-        //   path: "/2.x/internet/create",
-        //   permissionType: "BUTTON",
-        //   url: "/domain/record/create",
-        //   method: "POST",
-        //   key: "domain_bind_white_list"
-        // }
-
-        // add url and method by notPermittedListOrigin
-        notPermittedListOrigin.forEach(it => {
-          // check if permission in pathToKey first
-          if (pathToKey.hasOwnProperty(it.path)) {
-            it.key = pathToKey[it.path];
-            notPermittedList.push(it);
-          } else {
-            permissionMapListOrigin.forEach(it2 => {
-              if (it.path === it2['permissionPath']) {
-                notPermittedList.push(Object.assign({}, it, {url: it2.url, method: it2.method}));
-              }
-            });
-          }
-        });
-        // console.log(notPermittedList);
-
-        // add key by URL_LIST
-        for (let key in URL_LIST) {
-          let item = URL_LIST[key];
-          if (!this.$utils.isObject(item)) {
-            continue;
-          }
-          if (!item.hasOwnProperty('path')) {
-            continue;
-          }
-          notPermittedList.forEach(it => {
-            if (it.url === item['path']) {
-              // if item has property 'method', it must be the same as item in notPermittedList before add
-              if (item.hasOwnProperty('method') && it.hasOwnProperty('method')) {
-                if (item.method.toLowerCase() == it.method.toLowerCase()) {
-                  it['key'] = key;
-                }
-              } else {
-                it['key'] = key;
-              }
-            }
-          })
-        }
-
-        let result = notPermittedList.filter(it => {
-          return it.hasOwnProperty('key') && it.key;
-        }).map(it => {
-          return it['key'];
-        });
-
-        // console.log(notPermittedList);
-        // console.log(result);
-        resolve(result);
-      })).catch(err => {
-        console.log(err);
-        reject({
-          title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.user_not_permitted.path}；${err.toString()}`
-        });
-      })
+  /**
+   * 解析用户权限
+   * @param resContent
+   * @returns {Array}
+   */
+  parseNotPermittedCommands(resContentList) {
+    let permissionMapListOrigin = resContentList[0];
+    let notPermittedListOrigin = resContentList[1];
+    notPermittedListOrigin = notPermittedListOrigin.map(it => {
+      it.hasOwnProperty('id') && delete it.id;
+      it.hasOwnProperty('parentId') && delete it.parentId;
+      it.hasOwnProperty('createTime') && delete it.createTime;
+      it.hasOwnProperty('updateTime') && delete it.updateTime;
+      it.hasOwnProperty('permissionType') && delete it.permissionType;
+      return it;
     });
+    // console.log(permissionMapListOrigin);
+    // console.log(notPermittedListOrigin);
+    let notPermittedList = [];
+
+    // some permissionPath do not related to any url are list bellow
+    let pathToKey = {
+      '/2.x/internet/ipWhiteList': 'domain_bind_white_list',
+      // 应用监控
+      '/2.x/apm': 'app_monitor',
+      // 应用转让
+      '/2.x/app/transfer': 'app_transfer',
+      // 更改服务信息
+      '/2.x/service/update': 'service_update',
+      // 查看实例监控
+      '/2.x/instances/apm': 'instance_monitor',
+      // 查看部署日志
+      // '/2.x/service/search/deployLog': '',
+      // 删除域名
+      '/2.x/internet/delete': 'domain_remove',
+      // 从实例列表打开终端
+      '/2.x/instances/openTerminal': 'open_terminal_from_instance',
+      // 从实例列表打开监控
+      '	/2.x/instances/apm': '',
+      // 外网域名安全审核
+      '/2.x/internet/update': 'domain_secure_check',
+      // 待办/工单/部署应用
+      '/2.x/order/todoList/deploy': 'work-order_deploy_app',
+
+      // 页面相关
+      // 服务管理页面
+      '/2.x/service': '/service',
+      // 实例列表页面
+      '/2.x/instances': '/instance',
+      // 外网域名页面
+      '/2.x/internet': '/domain',
+      // 页面-日志中心
+      '/2.x/logs': '/log',
+      // 页面-查看运行日志
+      '/2.x/logs/searchLog': '/log/run',
+      // 页面-查看部署日志
+      '/2.x/logs/searchDeployLog': '/log/deploy',
+      // 页面-Oauth权限
+      '/2.x/keys': '/oauth',
+      // 页面-Oauth/Access Key
+      '/2.x/keys/AccessKey': '/oauth/key',
+      // 页面-Oauth/url
+      '/2.x/keys/authUrl': '/oauth/url',
+      // 页面-审批管理页面
+      '/2.x/orders': '/work-order',
+      // 页面-审批管理/待办工单
+      '/2.x/order/todoList': '/work-order/todo',
+      // 页面-审批管理/工单列表
+      '/2.x/order/list': '/work-order/list',
+
+      // 跳转逻辑
+      '/2.x/service/update/DefaultInternetDomain': 'go-domain-from-service-global',
+      '/2.x/service/bindingInternetDomain': 'go-domain-from-service',
+      // 查看运营日志
+      '/2.x/instances/searchLogs': 'go-log-run-from-instance',
+      // 查看监控
+      '/2.x/instances/apm': 'go-monitor-from-instance',
+    };
+    // format of item in notPermittedList
+    // {
+    //   id: 110,
+    //   name: "创建外网域名",
+    //   parentId: 84,
+    //   path: "/2.x/internet/create",
+    //   permissionType: "BUTTON",
+    //   url: "/domain/record/create",
+    //   method: "POST",
+    //   key: "domain_bind_white_list"
+    // }
+
+    // add url and method by notPermittedListOrigin
+    notPermittedListOrigin.forEach(it => {
+      // check if permission in pathToKey first
+      if (pathToKey.hasOwnProperty(it.path)) {
+        it.key = pathToKey[it.path];
+        notPermittedList.push(it);
+      } else {
+        permissionMapListOrigin.forEach(it2 => {
+          if (it.path === it2['permissionPath']) {
+            notPermittedList.push(Object.assign({}, it, {url: it2.url, method: it2.method}));
+          }
+        });
+      }
+    });
+    // console.log(notPermittedList);
+
+    // add key by URL_LIST
+    for (let key in URL_LIST) {
+      let item = URL_LIST[key];
+      if (!this.$utils.isObject(item)) {
+        continue;
+      }
+      if (!item.hasOwnProperty('path')) {
+        continue;
+      }
+      notPermittedList.forEach(it => {
+        if (it.url === item['path']) {
+          // if item has property 'method', it must be the same as item in notPermittedList before add
+          if (item.hasOwnProperty('method') && it.hasOwnProperty('method')) {
+            if (item.method.toLowerCase() == it.method.toLowerCase()) {
+              it['key'] = key;
+            }
+          } else {
+            it['key'] = key;
+          }
+        }
+      })
+    }
+
+    let result = notPermittedList.filter(it => {
+      return it.hasOwnProperty('key') && it.key;
+    }).map(it => {
+      return it['key'];
+    });
+
+    // console.log(notPermittedList);
+    // console.log(result);
+    return result;
   }
 
   logout() {
