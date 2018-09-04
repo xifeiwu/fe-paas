@@ -46,11 +46,31 @@ class Net {
       'docs': '/docs',
       'index': '/index',
       'manage': '/manage'
-    }
+    };
+
+    this.vm = new Vue({
+      data: {
+        requestingUrlListLength: 0
+      },
+      template: '<div>{{ message }}</div>'
+    });
+    this.requestingUrlList = [];
   }
+
   // some function of Vue.prototype may be used in net.js
   setVue() {}
 
+  addToRequestingRrlList(path) {
+    this.requestingUrlList.push(path);
+    this.vm.requestingUrlListLength = this.requestingUrlList.length;
+  }
+  removeFromRequestingRrlList(path) {
+    const index = this.requestingUrlList.indexOf(path);
+    if (index > -1) {
+      this.requestingUrlList.splice(index, 1);
+    }
+    this.vm.requestingUrlListLength = this.requestingUrlList.length;
+  }
   /**
    * get content from response
    * 1. if response if error, return null
@@ -316,6 +336,7 @@ class Net {
    * else return {}
    */
   requestPaasServer({path, method}, options = {}) {
+    this.addToRequestingRrlList(path);
     return new Promise((resolve, reject) => {
       this.formatRequest({path, method}, options).then(res => {
         let resData = res.data;
@@ -353,14 +374,15 @@ class Net {
           this.showError(error);
           reject(error);
         } else {
-          path = path.replace(this.PAAS_PREFIX, '');
           let err = {
             title: '网络请求错误',
-            message: `请求路径：${path}，${error.toString()}`
+            message: `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.toString()}`
           };
           this.showError(err);
           reject(err);
         }
+      }).finally(() => {
+        this.removeFromRequestingRrlList(path);
       });
     });
   }
@@ -368,6 +390,7 @@ class Net {
   requestAssistServer({path, method}, options = {}) {
     return new Promise((resolve, reject) => {
       this.getFormattedRequest({
+        timeout: 15000,
         headers: {
           token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJmZS1wYWFzIiwiaWF0IjoxNTM1ODE0NzU2LCJleHAiOjE1NjczNTA3NTZ9.Kua5fOfg7KJ5xOU08ImvcWdSfJnZpdHATQ_uwCW1nAI'
         }

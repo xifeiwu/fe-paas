@@ -33,7 +33,11 @@
             </el-select>
           </el-col>
         </el-row>
-        <div class="child">
+        <div class="child"
+             v-loading="$net.vm.requestingUrlListLength > 0"
+             element-loading-text="网络请求中..."
+             element-loading-spinner="el-icon-loading"
+        >
           <router-view></router-view>
         </div>
       </div>
@@ -161,7 +165,12 @@
     },
     watch: {
       '$route': 'onRoutePath',
-
+      '$net.vm.requestingUrlListLength': {
+        deep: true,
+        handler (urlListLength) {
+//          console.log(urlListLength);
+        }
+      },
       'groupInfo.id': {
         immediate: true,
         handler (groupId, oldValue) {

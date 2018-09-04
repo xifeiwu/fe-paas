@@ -6,9 +6,6 @@ class Net extends NetBase {
     super();
     this.$utils = null;
     this.$storeHelper = null;
-    this.requestingState = {
-      getAPPList: false,
-    };
     const PAAS_URL_LIST = {
       // 获取用户所在组列表
       'app_status_list': {
