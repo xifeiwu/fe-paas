@@ -240,7 +240,7 @@
       .el-table {
         td {
           .cell {
-            padding: 3px 0px;
+            padding: 5px 2px;
           }
         }
       }
