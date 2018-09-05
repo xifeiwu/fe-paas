@@ -66,6 +66,7 @@
         flex: 1;
         margin-top: 3px;
         padding: 0px;
+        height: calc(100% - 36px);
         .el-row.header {
           background: white;
           border-bottom: 1px solid #e7e7e7;
