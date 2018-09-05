@@ -1984,13 +1984,13 @@ export default {
 
           var desc = this.getVersionDescription(row);
           this.warningConfirm(`您确认要部署${desc}吗?`).then(() => {
-            this.$net.serviceDeploy({
-              id: serviceID,
-              appId: this.selectedAppID,
-              spaceId: this.selectedProfileID
+            this.$net.requestPaasServer(this.$net.URL_LIST.service_deploy, {
+              payload: {
+                id: serviceID,
+                appId: this.selectedAppID,
+                spaceId: this.selectedProfileID
+              }
             }).then(content => {
-              this.hideWaitingResponse('deploy');
-//            console.log(content);
               if (content.hasOwnProperty('orchestration')) {
                 let orchestration = content['orchestration'];
                 showDeployLog.call(this, {
@@ -2000,14 +2000,8 @@ export default {
                 });
               }
             }).catch(err => {
+            }).finally(() => {
               this.hideWaitingResponse('deploy');
-              this.$notify.error({
-                title: '部署失败',
-                message: err,
-                duration: 0,
-                onClose: function () {
-                }
-              });
             });
           }).catch(() => {
             this.hideWaitingResponse('deploy');

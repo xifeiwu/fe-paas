@@ -91,6 +91,11 @@ class Net extends NetBase {
         path: '/service/queryByAppIdAndSpaceId',
         method: 'post'
       },
+      // 部署服务-开始部署
+      'service_deploy': {
+        path: '/service/deployApplicationService',
+        method: 'post'
+      },
       // 检测服务端口映射
       'service_port_map_check': {
         path: '/service/checkPortMapping',
@@ -887,24 +892,6 @@ class Net extends NetBase {
     });
   }
 
-  serviceDeploy(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.service_deploy.url, options).then(response => {
-        if ('data' in response) {
-          let data = response.data;
-          if (0 === data.code) {
-            let content = data.content ? data.content : {};
-            resolve(content);
-          } else {
-            reject(data.msg);
-          }
-        }
-      }).catch(err => {
-        reject(err);
-        console.log(err);
-      })
-    });
-  }
   // 获取部署日志（轮询）
   serviceGetDeployLog(options) {
     return new Promise((resolve, reject) => {

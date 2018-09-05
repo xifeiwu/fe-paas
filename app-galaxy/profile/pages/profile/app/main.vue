@@ -295,7 +295,7 @@
           .profile-item {
             position: relative;
             display: inline-block;
-            margin: 0px 5px;
+            margin: 0px 6px;
             color: #909399;
             line-height: 18px;
             &.active {

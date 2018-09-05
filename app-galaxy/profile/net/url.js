@@ -91,12 +91,6 @@ class URL extends BaseURL {
         path: '/service/queryApplicationServiceVersion',
         method: 'post'
       },
-      // 部署服务-开始部署
-      'service_deploy': {
-        url: API_PATH + '/service/deployApplicationService',
-        path: '/service/deployApplicationService',
-        method: 'post'
-      },
       // 部署服务-部署日志
       'service_get_deploy_log': {
         url: API_PATH + '/service/deploy/log',
