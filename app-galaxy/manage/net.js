@@ -21,6 +21,10 @@ class Net extends NetBase {
         path: '/space/querySpaceByGroupId',
         method: 'post'
       },
+      'analyze_app_count': {
+        path: '/backstage/queryAppCount',
+        method: 'post'
+      }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];

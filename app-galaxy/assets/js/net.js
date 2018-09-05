@@ -9,7 +9,6 @@ class Net {
     // this.DNS_PREFIX = '/n-api';
     this.PAAS_PREFIX = '/j-api/paas';
 
-
     const PAAS_URL_LIST = {
       // 用户退出
       'logout': {
@@ -24,6 +23,11 @@ class Net {
       // 获取line of business列表
       'lob_list': {
         path: '/group/queryLobList',
+        method: 'get'
+      },
+      // 获取Scrum列表
+      'scrum_list': {
+        path: '/group/getScrumList',
         method: 'get'
       },
     };

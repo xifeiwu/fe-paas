@@ -6,7 +6,8 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    lobList: [],        // toasts,
+    lobList: [],
+    scrumList: [],
     groupList: [],
     profileListAll: [],
     config: {},
@@ -14,6 +15,9 @@ export default new Vuex.Store({
   actions: {
     lobList({ commit, state }, lobList) {
       state.lobList = lobList;
+    },
+    scrumList({ commit, state }, scrumList) {
+      state.scrumList = scrumList;
     },
     groupList({commit, state }, groupList) {
       state.groupList = groupList;
@@ -55,6 +59,9 @@ export default new Vuex.Store({
   getters: {
     'lobList': (state, getters) => {
       return state.lobList;
+    },
+    'scrumList': (state, getters) => {
+      return state.scrumList;
     },
     'groupList': (state, getters) => {
       return state.groupList;

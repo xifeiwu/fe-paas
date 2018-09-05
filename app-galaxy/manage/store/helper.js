@@ -9,6 +9,9 @@ class StoreHelper extends BaseHelper{
   get lobList() {
     return this.$store.getters['lobList'];
   }
+  get scrumList() {
+    return this.$store.getters['scrumList'];
+  }
   get groupList() {
     return this.$store.getters['groupList'];
   }

@@ -18,6 +18,14 @@
         </el-select>
       </div>
       <div class="item">
+        <label style="float: left; width: 52px; line-height: 24px">scrum:</label>
+        <el-select style="display:block; width: 160px; margin-left: 52px;"
+                   filterable v-model="payload.scrumId" placeholder="请选择">
+          <el-option v-for="(item, index) in scrumList" :key="item.id" :label="item.scrumName" :value="item.id">
+          </el-option>
+        </el-select>
+      </div>
+      <div class="item" style="display: none">
         <label style="float: left; width: 70px; line-height: 24px">团队名称:</label>
         <el-select style="display:block; width: 160px; margin-left: 70px;"
                    filterable v-model="payload.groupId" placeholder="请选择">
@@ -173,6 +181,7 @@
         payload: {
           profileId: '',
           lobId: '',
+          scrumId: '',
           groupId: '',
           dateRange: '',
         },
@@ -248,6 +257,13 @@
           return [];
         }
       },
+      scrumList() {
+        if (this.$storeHelper.scrumList) {
+          return [{id: '', scrumName: '全部'}].concat(this.$storeHelper.scrumList);
+        } else {
+          return [];
+        }
+      },
       groupList() {
         if (this.$storeHelper.groupList) {
           return [{id: '', name: '全部'}].concat(this.$storeHelper.groupList);
@@ -271,30 +287,25 @@
       handleClick(action) {
         switch (action) {
           case 'search':
-            console.log(this.payload);
-            return;
             const payload = {
-              pageNum: 1,
-              pageSize: 10,
+//              pageNum: 1,
+//              pageSize: 10,
+              endTime: this.$utils.formatDate(this.payload.dateRange, 'yyyyMMdd')
             };
+            if ('' !== this.payload.profileId) {
+              payload.profileId = this.payload.profileId
+            }
             if ('' !== this.payload.lobId) {
               payload.lobId = this.payload.lobId
             }
-            if ('' !== this.payload.groupId) {
-              payload.groupId = this.payload.groupId;
+            if ('' !== this.payload.scrumId) {
+              payload.scrumId = this.payload.scrumId
             }
-            this.keyword = this.keyword.trim();
-            if (this.keyword.length > 0) {
-              if (this.keyWordType === 1) {
-                payload['appName'] = this.keyword;
-              } else {
-                payload['tag'] = this.keyword;
-              }
-            }
-            this.$net.requestPaasServer(this.$net.URL_LIST.app_status_list, {
+            this.$net.requestPaasServer(this.$net.URL_LIST.analyze_app_count, {
               payload
             }).then(resContent => {
-              this.appStatusList = resContent['backStageList'];
+              console.log(resContent);
+//              this.appStatusList = resContent['backStageList'];
             }).catch(err => {
             });
             break;
