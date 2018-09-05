@@ -62,6 +62,11 @@ class Net extends NetBase {
         method: 'get'
       },
       /** 应用相关 */
+      // 应用列表
+      'app_list': {
+        path: '/application/queryByPage',
+        method: 'post'
+      },
       // 创建应用
       'app_create': {
         path: '/application/create',
@@ -392,7 +397,7 @@ class Net extends NetBase {
    * @returns {Promise}
    * resolve only when content data is ok.
    */
-  getAPPList (options) {
+  getAPPList (payload) {
     // console.log(`options: ${JSON.stringify(options)}`);
     // if (this.requestingState.getAPPList || !options.groupId) {
     //   this.showLog('getAPPList', 'in the state of requesting');
@@ -419,9 +424,8 @@ class Net extends NetBase {
 
     this.requestingState.getAPPList = true;
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.app_list.url, options).then(response => {
+      this.requestPaasServer(this.URL_LIST.app_list, {payload}).then(content => {
         this.requestingState.getAPPList = false;
-        let content = this.getResponseContent(response);
         if (content) {
           if (content.hasOwnProperty('appList') && Array.isArray(content.appList)) {
             let appList = content.appList;

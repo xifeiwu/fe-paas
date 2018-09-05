@@ -28,12 +28,6 @@ class URL extends BaseURL {
         path: '/login',
         method: 'post'
       },
-      // 应用列表
-      'app_list': {
-        url: API_PATH + '/application/queryByPage',
-        path: '/application/queryByPage',
-        method: 'post'
-      },
       // 获取Scrum列表
       'get_scrum_list': {
         url: API_PATH + '/group/getScrumList',
