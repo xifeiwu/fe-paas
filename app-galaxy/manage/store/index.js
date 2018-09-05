@@ -8,6 +8,7 @@ export default new Vuex.Store({
   state: {
     lobList: [],        // toasts,
     groupList: [],
+    profileListAll: [],
     config: {},
   },
   actions: {
@@ -16,6 +17,9 @@ export default new Vuex.Store({
     },
     groupList({commit, state }, groupList) {
       state.groupList = groupList;
+    },
+    profileListAll({commit, state }, profileListAll) {
+      state.profileListAll = profileListAll;
     },
     setConfig({commit}, config) {
       commit('SET_CONFIG', config)
@@ -54,6 +58,9 @@ export default new Vuex.Store({
     },
     'groupList': (state, getters) => {
       return state.groupList;
+    },
+    'profileListAll': (state, getters) => {
+      return state.profileListAll;
     },
     'collapseMenu': (state, getters) => {
       if (!state.config) {

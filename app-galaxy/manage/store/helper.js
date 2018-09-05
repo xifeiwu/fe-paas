@@ -12,6 +12,9 @@ class StoreHelper extends BaseHelper{
   get groupList() {
     return this.$store.getters['groupList'];
   }
+  get profileListAll() {
+    return this.$store.getters['profileListAll'];
+  }
 }
 
 export default StoreHelper;

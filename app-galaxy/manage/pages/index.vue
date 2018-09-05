@@ -102,12 +102,16 @@
       Promise.all([
         this.$net.requestPaasServer(this.$net.URL_LIST.lob_list),
         this.$net.requestPaasServer(this.$net.URL_LIST.user_group_list),
+        this.$net.requestPaasServer(this.$net.URL_LIST.profile_list_all)
       ]).then(resContentList => {
         const lobList = resContentList[0]['lobList'];
         const groupList = resContentList[1]['groupList'];
+        const profileListAll = resContentList[2]['allSpace'];
         this.$store.dispatch('lobList', lobList);
         this.$store.dispatch('groupList', groupList);
-      })
+        this.$store.dispatch('profileListAll', profileListAll);
+      }).catch(err => {
+      });
       this.onRoutePath(this.$route);
     },
     mounted() {
