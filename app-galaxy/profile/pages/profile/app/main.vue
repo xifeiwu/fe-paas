@@ -35,10 +35,8 @@
     </div>
     <div class="app-list" v-if="showAppList">
       <el-table :data="appListByPage"
-                v-loading="showLoading"
                 stripe
-                :height="heightOfTable"
-                element-loading-text="加载中">
+                :height="heightOfTable">
         <el-table-column label="语言版本" prop="languageVersion" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
             <svg :class="['paas-icon-svg', 'paas-icon-' + scope.row.languageLogo]" aria-hidden="true" v-if="scope.row.languageLogo">
@@ -407,7 +405,6 @@
         heightOfTable: '',
 
         showAppList: true,
-        showLoading: false,
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
@@ -497,15 +494,12 @@
             this.$router.push(params.path);
             break;
           case 'refreshAppList':
-            this.showLoading = true;
             this.$net.getAPPList({
               groupId: this.$storeHelper.currentGroupID,
 //              serviceName: ''
             }).then(content => {
               this.$store.dispatch('user/appInfoList', content);
-              this.showLoading = false;
             }).catch(err => {
-              this.showLoading = false;
               if (err.title && err.msg) {
                 this.$notify.error({
                   title: err.title,
@@ -855,7 +849,6 @@
           }).then(content => {
             this.updateAppInfoModel(content);
           }).catch(err => {
-            this.showLoading = false;
             this.showPagination = false;
             if (err.title && err.msg) {
               this.$notify.error({
