@@ -1,5 +1,5 @@
 <template>
-  <div id="manage_app" class="spa">
+  <div id="manage-app">
     <div class="header">
       <div class="item">
         <label>LOB:</label>
@@ -35,8 +35,8 @@
       <el-table
               :data="appStatusList"
               style="width: 100%"
-              v-loading="showLoading"
-              element-loading-text="加载中"
+              stripe
+              :height="heightOfTable"
       >
         <el-table-column prop="appName" label="应用名称" width="100"></el-table-column>
         <el-table-column prop="tag" label="项目名称" width="100"></el-table-column>
@@ -79,7 +79,7 @@
 </template>
 
 <style lang="scss">
-  #manage_app {
+  #manage-app {
     .header {
       label {
         font-size: 14px;
@@ -93,9 +93,12 @@
   }
 </style>
 <style lang="scss" scoped>
-  #manage_app {
+  #manage-app {
+    height: 100%;
     .header {
       display: flex;
+      padding: 3px 5px;
+      background-color: white;
       .item {
         display: inline-block;
         margin-right: 3px;
@@ -117,6 +120,8 @@
 <script>
   import {mapState} from "vuex";
   import commonUtils from '$components/mixins/common-utils';
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+
   export default {
     mixins: [commonUtils],
     created() {
@@ -135,10 +140,22 @@
 
     },
     mounted() {
-
+      const headerNode = this.$el.querySelector(':scope > .header');
+      this.resizeListener = () => {
+        let headerHeight = headerNode.offsetHeight;
+        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+      };
+      addResizeListener(this.$el, this.resizeListener)
+    },
+    beforeDestroy() {
+      if (this.showAppList) {
+        removeResizeListener(this.$el, this.resizeListener);
+      }
     },
     data() {
       return {
+        resizeListener: () => {},
+        heightOfTable: '',
         lobId: '',
         groupId: '',
         keyword: '',
@@ -153,7 +170,6 @@
 
         lobList: [],
         groupList: [],
-        showLoading: false,
         appStatusList: [],
       }
     },

@@ -22,7 +22,11 @@
             <!--</el-select>-->
           <!--</el-col>-->
         <!--</el-row>-->
-        <div class="child">
+        <div class="child"
+             v-loading="$net.vm.requestingUrlListLength > 0"
+             element-loading-text="网络请求中..."
+             element-loading-spinner="el-icon-loading"
+        >
           <router-view></router-view>
         </div>
       </div>
@@ -72,7 +76,8 @@
           }
         }
         .child {
-          height: calc(100% - 32px);
+          /*height: calc(100% - 32px);*/
+          height: 100%;
           overflow: scroll;
         }
       }
@@ -89,31 +94,11 @@
     components: {paasHeaderProfile, paasNavBar},
     data() {
       return {
-        activeSideMenuItem: '/app',
+        activeSideMenuItem: '/manage',
         crumbList: [],
-
-        showGroupList: true,
       }
     },
     created() {
-//      this.$store.dispatch('user/groupList');
-//      this.$store.dispatch('app/messageForCreateAPP');
-//
-//      // for permission list
-//      this.$net.getNotPermittedCommands().then(list => {
-//        this.$storeHelper.notPermitted = list;
-//        this.$routeHelper.addPermission(this.$storeHelper.notPermitted);
-//      }).catch(err => {
-//        this.$notify.error({
-//          title: err.title,
-//          message: err.msg,
-//          duration: 0,
-//          onClose: function () {
-//          }
-//        });
-//      });
-//
-//      this.$store.dispatch('user/groupId', this.$storeHelper.currentGroupID);
       this.onRoutePath(this.$route);
     },
     mounted() {
@@ -131,9 +116,6 @@
       });
     },
     computed: {
-      routerPathToName() {
-        return this.$routeHelper.getRoutePathToName();
-      },
       userName() {
         let userName = this.$storeHelper.getUserInfo('realName');
         if (!userName) {
@@ -150,6 +132,12 @@
     },
     watch: {
       '$route': 'onRoutePath',
+      '$net.vm.requestingUrlListLength': {
+        deep: true,
+        handler (urlListLength) {
+//          console.log(urlListLength);
+        }
+      },
       'groupInfo': function (groupInfo, oldValue) {
 //        if (groupInfo.id === oldValue.id) {
 //          return;
@@ -197,18 +185,9 @@
         }
       },
       onRoutePath (value, oldValue) {
-        let relativePath = value.path;
-        if (relativePath && relativePath.length > 0) {
-          // whether show groupList
-          let pageNotShowGroupList = ['/app/add', '/service/add'];
-          let pageNotShowGroupListReg = /^\/(work-order\/(todo|list).*|config-server\/*)$/;
-          if (pageNotShowGroupList.indexOf(relativePath) > -1 || pageNotShowGroupListReg.exec(relativePath)) {
-            this.showGroupList = false;
-          } else {
-            this.showGroupList = true;
-          }
-          // update content of crumb list
-          this.updateCrumbList(relativePath);
+        let path = value.path;
+        if (path && path.length > 0) {
+          this.updateCrumbList(path);
         }
       },
       /**
@@ -220,22 +199,22 @@
        */
       updateCrumbList(path) {
         // url中只能包括：\w(字母或数字、下划线、汉字)或中划线
-        let pathConcat = '';
-        this.crumbList = [];
-        path.split('/').filter(it => {
-          return it.length > 0
-        }).map(it => {
-          return '/' + it
-        }).forEach((it, index) => {
-          if (0 === index) {
-            this.activeSideMenuItem = it;
-          }
-          pathConcat += it;
-          if (pathConcat in this.routerPathToName) {
-            this.crumbList.push(pathConcat);
-          }
-        });
-//        console.log(this.crumbList);
+//        let pathConcat = '';
+//        this.crumbList = [];
+//        path.split('/').filter(it => {
+//          return it.length > 0
+//        }).map(it => {
+//          return '/' + it
+//        }).forEach((it, index) => {
+//          if (0 === index) {
+//            this.activeSideMenuItem = it;
+//          }
+//          pathConcat += it;
+//          if (pathConcat in this.routerPathToName) {
+//            this.crumbList.push(pathConcat);
+//          }
+//        });
+        this.activeSideMenuItem = path;
       },
       /**
        * register some global variable at start of page profile

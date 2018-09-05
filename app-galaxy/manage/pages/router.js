@@ -1,4 +1,6 @@
-import AppMain from './app/main.vue';
+import appMain from './app.vue';
+import analyzeAppCount from './analyze/app-count.vue';
+import analyzeAppDeploy from './analyze/app-deploy.vue';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
@@ -14,9 +16,15 @@ var Router = function () {
   this.richRouterConfig = [{
     path: '/manage',
     redirect: '/manage/app',
-  },{
+  }, {
     path: '/manage/app',
-    component: AppMain
+    component: appMain
+  }, {
+    path: '/manage/analyze/app-count',
+    component: analyzeAppCount
+  }, {
+    path: '/manage/analyze/app-deploy',
+    component: analyzeAppDeploy
   }];
 
   this.addRoutePath(null, this.richRouterConfig);
