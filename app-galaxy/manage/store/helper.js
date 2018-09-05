@@ -5,6 +5,13 @@ class StoreHelper extends BaseHelper{
   constructor() {
     super(store);
   }
+
+  get lobList() {
+    return this.$store.getters['lobList'];
+  }
+  get groupList() {
+    return this.$store.getters['groupList'];
+  }
 }
 
 export default StoreHelper;

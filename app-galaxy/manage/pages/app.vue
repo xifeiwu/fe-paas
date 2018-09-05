@@ -125,19 +125,6 @@
   export default {
     mixins: [commonUtils],
     created() {
-      Promise.all([
-        this.$net.requestPaasServer(this.$net.URL_LIST.lob_list),
-        this.$net.requestPaasServer(this.$net.URL_LIST.user_group_list),
-      ]).then(resContentList => {
-        const lobList = resContentList[0]['lobList'];
-        const groupList = resContentList[1]['groupList'];
-        this.$store.dispatch('lobList', lobList);
-        this.$store.dispatch('groupList', groupList);
-        this.lobList = [{id: '', lobName: '全部'}].concat(lobList);
-        this.groupList = [{id: '', name: '全部'}].concat(groupList);
-//        console.log(resContentList);
-      })
-
     },
     mounted() {
       const headerNode = this.$el.querySelector(':scope > .header');
@@ -168,13 +155,25 @@
           name: '项目名称'
         }],
 
-        lobList: [],
-        groupList: [],
         appStatusList: [],
       }
     },
     computed: {
 //      ...mapState(['lobList', 'groupList'])
+      lobList() {
+        if (this.$storeHelper.lobList) {
+          return [{id: '', lobName: '全部'}].concat(this.$storeHelper.lobList);
+        } else {
+          return [];
+        }
+      },
+      groupList() {
+        if (this.$storeHelper.groupList) {
+          return [{id: '', name: '全部'}].concat(this.$storeHelper.groupList);
+        } else {
+          return [];
+        }
+      }
     },
 
     methods: {

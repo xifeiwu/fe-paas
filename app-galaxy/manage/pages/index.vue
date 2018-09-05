@@ -99,6 +99,15 @@
       }
     },
     created() {
+      Promise.all([
+        this.$net.requestPaasServer(this.$net.URL_LIST.lob_list),
+        this.$net.requestPaasServer(this.$net.URL_LIST.user_group_list),
+      ]).then(resContentList => {
+        const lobList = resContentList[0]['lobList'];
+        const groupList = resContentList[1]['groupList'];
+        this.$store.dispatch('lobList', lobList);
+        this.$store.dispatch('groupList', groupList);
+      })
       this.onRoutePath(this.$route);
     },
     mounted() {
