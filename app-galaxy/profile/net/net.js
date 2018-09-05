@@ -171,6 +171,11 @@ class Net extends NetBase {
         path: '/service/updatePrestop',
         method: 'post'
       },
+      // 更改包信息
+      'service_update_package_info': {
+        path: '/service/updatePackage',
+        method: 'post'
+      },
       /** 实例相关*/
       // 获取实例列表
       'instance_list': {
@@ -790,6 +795,31 @@ class Net extends NetBase {
         healthCheck.content = service.healthCheck;
         healthCheck.initialDelay = service.hasOwnProperty('initialDelaySeconds') ? service['initialDelaySeconds'] : 120;
         item.healthCheck = healthCheck;
+        const packageInfo = {
+          _type: '',
+          _name: '',
+          set type(value) {
+            if (value !== 'WAR') {
+              this._name = '';
+            }
+            this._type = value;
+          },
+          get type() {
+            return this._type;
+          },
+          set name(value) {
+            this._name = value;
+          },
+          get name() {
+            return this._name;
+          },
+          get needSetName() {
+            return this._type == 'WAR';
+          }
+        };
+        packageInfo.type = service.packageType;
+        packageInfo.name = service.buildName;
+        item.packageInfo = packageInfo;
         modelList.push(item);
       });
       return modelList;
@@ -941,7 +971,8 @@ class Net extends NetBase {
       'hosts': URL_LIST.service_update_host,
       'oneApm': URL_LIST.service_update_one_apm,
       'vmOptions': URL_LIST.service_update_vm_options,
-      'prestopCommand': URL_LIST.service_update_prestop_command
+      'prestopCommand': URL_LIST.service_update_prestop_command,
+      'packageInfo': URL_LIST.service_update_package_info
     };
     let url = urlMap[prop];
     if (!url) {
@@ -953,14 +984,11 @@ class Net extends NetBase {
       this.formatRequest(url, {
         payload
       }).then(response => {
-        if ('data' in response) {
-          let data = response.data;
-          if (0 === data.code) {
-            let msg = data.msg ? data.msg : '修改成功';
-            resolve(msg);
-          } else {
-            reject(data.msg);
-          }
+        const resData = response.data;
+        if (this.isResponseSuccess(resData)) {
+          resolve(resData.msg ? resData.msg : '修改成功');
+        } else {
+          reject(data.msg);
         }
       }).catch(err => {
         reject(err.message);

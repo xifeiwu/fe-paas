@@ -411,9 +411,6 @@ export default {
           _type: '',
           _name: '',
           set type(value) {
-            if (value !== 'WAR') {
-              this._name = '';
-            }
             this._type = value;
           },
           get type() {
@@ -423,7 +420,11 @@ export default {
             this._name = value;
           },
           get name() {
-            return this._name;
+            if (this._type === 'WAR') {
+              return this._name;
+            } else {
+              return '';
+            }
           },
           get needSetName() {
             return this._type == 'WAR';

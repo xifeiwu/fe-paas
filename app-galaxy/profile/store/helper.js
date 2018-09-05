@@ -108,6 +108,66 @@ class StoreHelper extends BaseHelper{
     return result;
   }
 
+  get languageInfo() {
+    let result = [];
+    let messageForCreateAPP = this.messageForCreateAPP();
+    if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('LanguageList')) {
+      result = messageForCreateAPP.LanguageList;
+    }
+    return result;
+  }
+
+  // [{
+  //   "id": 1,
+  //   "language": "Java",
+  //   "languageVersionList": [{
+  //     "version": "1.8",
+  //     "packageTypeList": [{
+  //       "type": "JAR",
+  //       "packageType": "JAR"
+  //     }, {
+  //       "type": "WAR",
+  //       "packageType": "WAR"
+  //     }, {
+  //       "type": "ZIP",
+  //       "packageType": "ZIP"
+  //     }]
+  //   }, {
+  //     "version": "1.7",
+  //     "packageTypeList": [{
+  //       "type": "JAR",
+  //       "packageType": "JAR"
+  //     }, {
+  //       "type": "WAR",
+  //       "packageType": "WAR"
+  //     }, {
+  //       "type": "ZIP",
+  //       "packageType": "ZIP"
+  //     }]
+  //   }],
+  //   "type": "JAVA"
+  // }]
+  getPackageTypeListByLanguageAndVersion(language, version) {
+    const languageInfo = this.languageInfo;
+    let versionList = null;
+    languageInfo.some(it => {
+      if (it.language.toLowerCase() == language.toLowerCase()) {
+        versionList = it.languageVersionList;
+      }
+      return versionList;
+    });
+
+    let packageTypeList = null;
+    if (versionList) {
+      versionList.some(it => {
+        if (it.version == version) {
+          packageTypeList = it.packageTypeList;
+        }
+      })
+    }
+    return packageTypeList;
+  }
+
   // 健康检查类型
   // 0: {key: "0", desc: "http", label: "HTTP方式"}
   // 1: {key: "1", desc: "shell", label: "SHELL方式"}

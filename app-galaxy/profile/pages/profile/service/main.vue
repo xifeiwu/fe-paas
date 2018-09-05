@@ -83,8 +83,6 @@
         :height="heightOfTable"
         :row-key="getRowKeys"
         :expand-row-keys="expandRows"
-        v-loading="showLoading"
-        element-loading-text="加载中"
       >
         <el-table-column
           label="服务默认版本"
@@ -191,7 +189,10 @@
                     {{selected.service.language + ' - ' + selected.service.languageVersion}}
                   </el-form-item>
                   <el-form-item label="构建类型">
-                    {{valueToShow(selected.service.packageType)}}
+                    <span>{{valueToShow(selected.model.packageInfo.type)}}</span>
+                    <span v-if="selected.model.packageInfo.name">（{{selected.model.packageInfo.name}}）</span>
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                       class="el-icon-edit" @click="handleChangeProp('packageInfo')"></i>
                   </el-form-item>
                   <el-form-item label="滚动升级">
                     <span>{{selected.service.rollingUpdate? '需要' : '不需要'}}</span>
@@ -428,6 +429,44 @@
         <div class="item">
           <el-button type="primary"
                      @click="handleDialogButtonClick('healthCheck')"
+                     :loading="waitingResponse">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="selected.prop = null">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="更改包类型" :visible="selected.prop == 'packageInfo'"
+               :close-on-click-modal="false"
+               class="package-info size-700"
+               @close="selected.prop = null"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改包类型后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" size="mini" labelWidth="80px" ref="changePackageInfoForm">
+        <el-form-item class="build-type" label="构建类型"  style="height: 30px;"
+                      :error="newProps.packageInfo.errMsg">
+          <div class="flex-layout">
+            <div class="type-list">
+              <el-radio-group v-model="newProps.packageInfo.type">
+                <el-radio v-for="item in newProps.packageInfo.packageTypeList" :label="item.type" :key="item.type">
+                  {{item.packageType}}
+              </el-radio>
+              </el-radio-group>
+            </div>
+            <div :class="['war-name', newProps.packageInfo.needSetName ?'':'hide']"><el-input v-model="newProps.packageInfo.name" placeholder="构建类型为WAR时，必须填写构建包名称"></el-input></div>
+          </div>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleDialogButtonClick('packageInfo')"
                      :loading="waitingResponse">保&nbsp存</el-button>
         </div>
         <div class="item">
@@ -1016,7 +1055,8 @@
             margin: 0px auto;
             max-width: 900px;
             /*box-shadow: 0 2px 15px rgba(0,0,0,0.1);*/
-            box-shadow: 0 0 2px 0 rgba(64,158,255, .6);
+            /*box-shadow: 0 0 2px 0 rgba(64,158,255, .6);*/
+            box-shadow: 0 2px 7px 0 rgba(0,0,0,.18);
             /*box-shadow: 0 6px 18px 0 rgba(232,237,250,0.50);*/
             .el-form {
               .el-form-item {
@@ -1079,6 +1119,22 @@
       &.image {
         .el-row {
           text-align: left;
+        }
+      }
+      &.package-info {
+        .flex-layout {
+          display: flex;
+          align-items: flex-start;
+          .war-name {
+            padding-left: 10px;
+            flex: 1;
+            min-width: 100px;
+            opacity: 1;
+            transition: opacity .5s;
+            &.hide {
+              opacity: 0;
+            }
+          }
         }
       }
       &.file-location {
@@ -1238,7 +1294,6 @@
       .el-table {
         .el-table__row {
           .el-button {
-            margin: 1px 3px 1px 0px;
             .el-icon-arrow-right {
               vertical-align: middle;
               transition: transform 0.2s ease-in-out;
@@ -1366,7 +1421,6 @@ export default {
       appList: [],
 //      totalSize: 0,
 
-      showLoading: false,
       selectedAppID: null,
       selectedApp: null,
       selectedProfileID: null,
@@ -1443,6 +1497,43 @@ export default {
           get initialDelay() {
             return this._initialDelay
           },
+        },
+        packageInfo: {
+          _type: '',
+          _name: '',
+          _packageTypeList: null,
+          set type(value) {
+            this._type = value;
+          },
+          get type() {
+            return this._type;
+          },
+          set name(value) {
+            this._name = value;
+          },
+          get name() {
+            if (this._type === 'WAR') {
+              return this._name;
+            } else {
+              return '';
+            }
+          },
+          get needSetName() {
+            return this._type == 'WAR';
+          },
+          set packageTypeList(value) {
+            this._packageTypeList = value;
+          },
+          get packageTypeList() {
+            return this._packageTypeList;
+          },
+          get errMsg() {
+            if (this._type == 'WAR' && !this._name) {
+              return '构建类型为WAR时，必须填写构建包名称';
+            } else {
+              return '';
+            }
+          }
         },
         prestopCommand: '',
         environments: [],
@@ -2080,7 +2171,7 @@ export default {
      * @param prop
      */
     handleChangeProp(prop) {
-      if (['healthCheck', 'prestopCommand', 'image','gitLabAddress', 'gitLabBranch', 'relativePath','mavenProfileId',
+      if (['healthCheck', 'packageInfo', 'prestopCommand', 'image','gitLabAddress', 'gitLabBranch', 'relativePath','mavenProfileId',
           'cpuAndMemory', 'rollingUpdate', 'loadBalance', 'environments', 'hosts',
           'fileLocation', 'vmOptions', 'oneApm'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
@@ -2105,6 +2196,23 @@ export default {
           this.newProps['healthCheck'].type = this.selected.model['healthCheck'].type;
           this.newProps['healthCheck'].content = this.selected.model['healthCheck'].content;
           this.newProps['healthCheck'].initialDelay = this.selected.model['healthCheck'].initialDelay;
+          break;
+        case 'packageInfo':
+          this.newProps['packageInfo'].type = this.selected.model['packageInfo'].type;
+          this.newProps['packageInfo'].name = this.selected.model['packageInfo'].name;
+          if (!this.$storeHelper.messageForCreateAPP) {
+            this.$message.error('信息不完整，请刷新后重试！');
+            return;
+          }
+          const packageTypeList = this.$storeHelper.getPackageTypeListByLanguageAndVersion(
+            this.selected.service.language,
+            this.selected.service.languageVersion
+          );
+          if (!packageTypeList) {
+            this.$message.error('信息不完整，请刷新后重试！');
+            return;
+          }
+          this.newProps['packageInfo'].packageTypeList = packageTypeList;
           break;
         case 'prestopCommand':
           this.newProps[prop] = this.selected.model[prop];
@@ -2200,6 +2308,23 @@ export default {
               this.requestUpdate(prop);
             }
           });
+          break;
+        case 'packageInfo':
+          if (this.newProps.packageInfo.errMsg) {
+            return;
+          }
+          if (
+            this.newProps['packageInfo'].type == this.selected.model['packageInfo'].type &&
+            this.newProps['packageInfo'].name == this.selected.model['packageInfo'].name
+          ) {
+            this.selected.prop = null;
+            this.$message({
+              type: 'warning',
+              message: '您没有做修改'
+            });
+          } else {
+            this.requestUpdate(prop);
+          }
           break;
         case 'fileLocation':
         case 'environments':
@@ -2307,6 +2432,10 @@ export default {
           options['healthCheck'] = this.newProps['healthCheck'].content;
           options['initialDelaySeconds'] = this.newProps['healthCheck'].initialDelay;
           break;
+        case 'packageInfo':
+          options['packageType'] = this.newProps['packageInfo'].type;
+          options['buildName'] = this.newProps['packageInfo'].name;
+          break;
         case 'image':
           options['customImage'] = this.newProps['customImage'];
           options['image'] = this.newProps['imageLocation'];
@@ -2365,6 +2494,10 @@ export default {
           this.selected.model['healthCheck'].content = this.newProps['healthCheck'].content;
           this.selected.model['healthCheck'].initialDelay = this.newProps['healthCheck'].initialDelay;
           break;
+        case 'packageInfo':
+          this.selected.model['packageInfo'].type = this.newProps['packageInfo'].type;
+          this.selected.model['packageInfo'].name = this.newProps['packageInfo'].name;
+          break;
         case 'environments':
         case 'hosts':
         case 'fileLocation':
@@ -2404,7 +2537,6 @@ export default {
         console.log('appID or profileID can not be empty');
         return;
       }
-      this.showLoading = true;
       this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
         payload: {
           appId: appID,
@@ -2415,7 +2547,6 @@ export default {
         if (content.hasOwnProperty('applicationServerList')) {
           this.currentServiceList = content['applicationServerList'];
           this.currentModelList = content['serviceModelList'];
-          this.showLoading = false;
           this.expandRows = [];
 
           // get default version
