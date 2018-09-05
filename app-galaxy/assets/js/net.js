@@ -322,6 +322,16 @@ class Net {
       }
     }
   }
+
+  isResponseSuccess(resData) {
+    let success = false;
+    if (resData.hasOwnProperty('success')) {
+      success = resData['success'];
+    } else if (resData.hasOwnProperty('code')) {
+      success = resData.code === 0;
+    }
+    return success;
+  }
   /**
    *
    * @param path
@@ -340,34 +350,16 @@ class Net {
     return new Promise((resolve, reject) => {
       this.formatRequest({path, method}, options).then(res => {
         let resData = res.data;
-        if (resData.hasOwnProperty('success')) {
-          if (resData.success) {
-            resolve(resData.content);
-          } else {
-            const err = {
-              code: resData.code,
-              title: '请求失败',
-              message: resData.msg
-            };
-            this.showError(err);
-            reject(err);
-          }
-        } else if (resData.hasOwnProperty('code')) {
-          if (resData.code === 0) {
-            // show msg if exist, when code == 0
-            // if (resData.hasOwnProperty('msg') && resData.msg) {
-            //   this.showSuccess(resData.msg);
-            // }
-            resolve(resData.content);
-          } else {
-            const err = {
-              code: resData.code,
-              title: '请求失败',
-              message: resData.msg
-            };
-            this.showError(err);
-            reject(err);
-          }
+        if (this.isResponseSuccess(resData)) {
+          resolve(resData.content);
+        } else {
+          const err = {
+            code: resData.code,
+            title: '请求失败',
+            message: resData.msg
+          };
+          this.showError(err);
+          reject(err);
         }
       }).catch(error => {
         if (error.hasOwnProperty('title') && error.hasOwnProperty('message')) {
