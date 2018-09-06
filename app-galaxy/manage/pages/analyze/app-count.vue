@@ -1,5 +1,5 @@
 <template>
-  <div id="manage-app">
+  <div id="manage-analyze-app_count">
     <div class="header">
       <div class="item">
         <label style="float: left; width: 70px; line-height: 24px">运行环境:</label>
@@ -60,26 +60,16 @@
     </div>
     <div class="detail-list">
       <el-table
-              :data="appStatusList"
+              :data="appCountList"
               style="width: 100%"
               stripe
               :height="heightOfTable"
       >
-        <el-table-column prop="appName" label="应用名称" width="100"></el-table-column>
-        <el-table-column prop="tag" label="项目名称" width="100"></el-table-column>
-        <el-table-column label="语言版本" width="100">
-          <template slot-scope="scope">
-            <span>{{scope.row.language}}</span><span v-if="scope.row.languageVersion">{{scope.row.languageVersion}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="lobName" label="LOB" width="100"></el-table-column>
-        <el-table-column prop="groupName" label="团队名称" width="100"></el-table-column>
-        <el-table-column prop="creator" label="创建人" width="100"></el-table-column>
-        <el-table-column prop="profileDesc" label="运行环境（实例数）">
-          <template slot-scope="scope">
-            <span v-for="(item, index) in scope.row.spaceAndInstanceNum" :key="index">{{item.spaceName}}（{{item.instanceNum}}）</span>
-          </template>
-        </el-table-column>
+        <el-table-column prop="spaceName" label="运行环境"></el-table-column>
+        <el-table-column prop="lobName" label="LOB"></el-table-column>
+        <el-table-column prop="scrumName" label="Scrum"></el-table-column>
+        <el-table-column prop="appCount" label="应用数"></el-table-column>
+        <el-table-column prop="instanceCount" label="实例数"></el-table-column>
         <el-table-column
                 prop="operation"
                 label="操作"
@@ -87,26 +77,32 @@
         >
           <template slot-scope="scope">
             <el-button
-                    size="mini-extral"
                     type="text"
                     @click="handleRowButtonClick('transfer', scope.$index, scope.row)">
-              应用转让
-            </el-button>
-            <el-button
-                    size="mini-extral"
-                    type="text"
-                    :loading="statusOfWaitingResponse('remove') && selected.row.id === scope.row.id"
-                    @click="handleRowButtonClick('remove', scope.$index, scope.row)">销毁应用
+              详情
             </el-button>
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-container" v-if="totalSize > pageSize">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "pageSize"
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange"
+          >
+          </el-pagination>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss">
-  #manage-app {
+  #manage-analyze-app_count {
     .header {
       label {
         font-size: 14px;
@@ -126,19 +122,15 @@
   }
 </style>
 <style lang="scss" scoped>
-  #manage-app {
+  #manage-analyze-app_count {
     height: 100%;
     .header {
-      display: flex;
+      /*display: flex;*/
       padding: 3px 5px;
       background-color: white;
       .item {
         display: inline-block;
         margin-right: 5px;
-        &.key-word {
-          display: flex;
-          width: 300px;
-        }
         .el-select {
           max-width: 190px;
           &.key-word-type {
@@ -146,6 +138,9 @@
           }
         }
       }
+    }
+    .detail-list {
+      max-width: 1000px;
     }
   }
 </style>
@@ -185,6 +180,12 @@
           groupId: '',
           dateRange: '',
         },
+        appCountList: [],
+
+        totalSize: 0,
+        pageSize: 16,
+        currentPage: 1,
+
         pickerOptions: {
           disabledDate(time) {
             return time.getTime() > Date.now();
@@ -245,7 +246,6 @@
 //            }
 //          }]
 //        },
-        appStatusList: [],
       }
     },
     computed: {
@@ -284,36 +284,58 @@
       setDateRange() {
         this.payload.dateRange = new Date(Date.now() - 3600 * 1000 * 24);
       },
+      // 获取详情列表
+      requestDetailList() {
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.pageSize;
+        const length = this.pageSize;
+        const payload = {
+          start, length,
+          endTime: this.$utils.formatDate(this.payload.dateRange, 'yyyyMMdd')
+        };
+        if ('' !== this.payload.profileId) {
+          payload.profileId = this.payload.profileId
+        }
+        if ('' !== this.payload.lobId) {
+          payload.lobId = this.payload.lobId
+        }
+        if ('' !== this.payload.scrumId) {
+          payload.scrumId = this.payload.scrumId
+        }
+        this.$net.requestPaasServer(this.$net.URL_LIST.analyze_app_count, {
+          payload
+        }).then(resContent => {
+          this.totalSize = resContent['totalNum'];
+          this.appCountList = resContent['appList'].map(it => {
+            if (!it.lobName) {
+              it.lobName = '无';
+            }
+            if (!it.scrumName) {
+              it.scrumName = '无';
+            }
+            return it;
+          });
+        }).catch(err => {
+        });
+      },
+
       handleClick(action) {
         switch (action) {
           case 'search':
-            const payload = {
-//              pageNum: 1,
-//              pageSize: 10,
-              endTime: this.$utils.formatDate(this.payload.dateRange, 'yyyyMMdd')
-            };
-            if ('' !== this.payload.profileId) {
-              payload.profileId = this.payload.profileId
-            }
-            if ('' !== this.payload.lobId) {
-              payload.lobId = this.payload.lobId
-            }
-            if ('' !== this.payload.scrumId) {
-              payload.scrumId = this.payload.scrumId
-            }
-            this.$net.requestPaasServer(this.$net.URL_LIST.analyze_app_count, {
-              payload
-            }).then(resContent => {
-              console.log(resContent);
-//              this.appStatusList = resContent['backStageList'];
-            }).catch(err => {
-            });
+            this.requestDetailList();
             break;
         }
       },
-      handleRowButtonClick(action, index, row) {
 
-      }
+      handleRowButtonClick(action, index, row) {
+      },
+
+      // the first page of pagination is 1
+      handlePaginationPageChange(page) {
+        this.currentPage = page;
+        this.requestDetailList();
+      },
     }
   }
 </script>

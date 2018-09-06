@@ -18,6 +18,32 @@ class StoreHelper extends BaseHelper{
   get profileListAll() {
     return this.$store.getters['profileListAll'];
   }
+
+  getLobInfoById(id) {
+    let result = null;
+    if (id && this.lobList && Array.isArray(this.lobList)) {
+      this.lobList.some(it => {
+        if (it.id == id) {
+          result = it;
+        }
+        return result;
+      })
+    }
+    return result
+  }
+
+  getScrumInfoById(id) {
+    let result = null;
+    if (id && this.scrumList && Array.isArray(this.scrumList)) {
+      this.scrumList.some(it => {
+        if (it.id == id) {
+          result = it;
+        }
+        return result;
+      })
+    }
+    return result
+  }
 }
 
 export default StoreHelper;
