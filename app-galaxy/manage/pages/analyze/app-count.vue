@@ -77,8 +77,9 @@
         >
           <template slot-scope="scope">
             <el-button
+                    :loading="statusOfWaitingResponse('app-count-detail') && action.row == scope.row"
                     type="text"
-                    @click="handleRowButtonClick('transfer', scope.$index, scope.row)">
+                    @click="handleTrButton('app-count-detail', scope.$index, scope.row)">
               详情
             </el-button>
           </template>
@@ -98,6 +99,44 @@
         </div>
       </div>
     </div>
+    <el-dialog title="应用数详情" :visible="action.name == 'app-count-detail'"
+               :close-on-click-modal="false"
+               class="app-count-detail size-800"
+               @close="handleCloseDialog('app-count-detail')"
+               v-if="action.name && action.row"
+    >
+      <el-table
+              :data="appCountDetailListByPage"
+              style="width: 100%"
+              stripe
+      >
+        <el-table-column prop="appName" label="应用名称"></el-table-column>
+        <el-table-column prop="lobName" label="LOB">
+          <template slot-scope="scope">
+            {{action.row.lobName}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="scrumName" label="Scrum">
+          <template slot-scope="scope">
+            {{action.row.scrumName}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="instanceCount" label="实例数"></el-table-column>
+      </el-table>
+      <div class="pagination-container" v-if="appCountDetail.totalSize > appCountDetail.pageSize">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="appCountDetail.currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "appCountDetail.pageSize"
+                  :total="appCountDetail.totalSize"
+                  @current-change="handlePaginationPageChangeInDialog"
+          >
+          </el-pagination>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -116,6 +155,18 @@
         width: 160px;
         .el-input__icon {
           line-height: 24px;
+        }
+      }
+    }
+    .el-dialog__wrapper {
+      .el-dialog {
+        margin-top: 45px !important;
+        height: 700px;
+      }
+      &.app-count-detail {
+        .el-dialog__body {
+          padding: 0px;
+          margin-bottom: 20px;
         }
       }
     }
@@ -181,10 +232,22 @@
           dateRange: '',
         },
         appCountList: [],
+        appCountDetailList: [],
+
+        action: {
+          name: null,
+          row: null
+        },
 
         totalSize: 0,
         pageSize: 16,
         currentPage: 1,
+
+        appCountDetail: {
+          totalSize: 0,
+          pageSize: 12,
+          currentPage: 1,
+        },
 
         pickerOptions: {
           disabledDate(time) {
@@ -279,8 +342,18 @@
         }
       }
     },
+    watch: {
+      'payload.profileId': 'requestDetailList',
+      'payload.lobId': 'requestDetailList',
+      'payload.scrumId': 'requestDetailList',
+      'payload.dateRange': 'requestDetailList',
+    },
 
     methods: {
+      handleCloseDialog(action) {
+        this.action.name = null;
+        this.hideWaitingResponse(action);
+      },
       setDateRange() {
         this.payload.dateRange = new Date(Date.now() - 3600 * 1000 * 24);
       },
@@ -328,13 +401,49 @@
         }
       },
 
-      handleRowButtonClick(action, index, row) {
+      handleTrButton(action, index, row) {
+        this.action.row = row;
+        switch (action) {
+          case 'app-count-detail':
+            this.addToWaitingResponseQueue(action);
+            this.$net.requestPaasServer(this.$net.URL_LIST.analyze_app_count_detail, {
+              payload: {
+                endTime: this.$utils.formatDate(this.payload.dateRange, 'yyyyMMdd'),
+                spaceId: row.spaceId,
+                lobId: row.lobId,
+                scrumId: row.scrumId
+              }
+            }).then(resContent => {
+              this.appCountDetailList = resContent['detailList'];
+              this.appCountDetail.totalSize = resContent['totalNum'];
+              this.appCountDetail.currentPage = 1;
+              this.setAppCountDetailListByPage();
+              // open after success request
+              this.action.name = action;
+            }).catch(() => {
+              this.hideWaitingResponse(action);
+            });
+            break;
+        }
       },
 
+      setAppCountDetailListByPage() {
+        let page = this.appCountDetail.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.appCountDetail.pageSize;
+        const length = this.appCountDetail.pageSize;
+        const end = start + length;
+        this.appCountDetailListByPage = this.appCountDetailList.slice(start, end);
+      },
       // the first page of pagination is 1
       handlePaginationPageChange(page) {
         this.currentPage = page;
         this.requestDetailList();
+      },
+
+      handlePaginationPageChangeInDialog(page) {
+        this.appCountDetail.currentPage = page;
+        this.setAppCountDetailListByPage();
       },
     }
   }
