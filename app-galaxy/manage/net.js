@@ -28,6 +28,10 @@ class Net extends NetBase {
       'analyze_app_count_detail': {
         path: '/backstage/queryAppCountDetail',
         method: 'post'
+      },
+      'download_app_count_detail': {
+        path: '/backstage/downloadAppCountXls',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

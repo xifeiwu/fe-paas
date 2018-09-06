@@ -349,6 +349,22 @@ class Net {
    * return resData.content if success
    * else return {}
    */
+  async requestPaasServer1({path, method}, options = {}) {
+    this.addToRequestingRrlList(path);
+    try {
+      const response = await this.formatRequest({path, method}, options);
+      return response;
+    } catch (err) {
+      let err = {
+        title: '网络请求错误',
+        message: `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.toString()}`
+      };
+      this.showError(err);
+      throw err;
+    } finally {
+      this.removeFromRequestingRrlList(path);
+    }
+  }
   requestPaasServer({path, method}, options = {}) {
     this.addToRequestingRrlList(path);
     return new Promise((resolve, reject) => {

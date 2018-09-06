@@ -57,6 +57,11 @@
       <div class="item">
         <el-button size="mini-extral" @click="handleClick('search')">搜索</el-button>
       </div>
+      <div class="item">
+        <el-button size="mini-extral" round @click="handleClick('download-analyze')">
+          <i class="el-icon-download"></i><span>导出表格</span>
+        </el-button>
+      </div>
     </div>
     <div class="detail-list">
       <el-table
@@ -68,8 +73,8 @@
         <el-table-column prop="spaceName" label="运行环境"></el-table-column>
         <el-table-column prop="lobName" label="LOB"></el-table-column>
         <el-table-column prop="scrumName" label="Scrum"></el-table-column>
-        <el-table-column prop="appCount" label="应用数"></el-table-column>
-        <el-table-column prop="instanceCount" label="实例数"></el-table-column>
+        <el-table-column prop="appCount" label="应用数" sortable></el-table-column>
+        <el-table-column prop="instanceCount" label="实例数" sortable></el-table-column>
         <el-table-column
                 prop="operation"
                 label="操作"
@@ -161,7 +166,7 @@
     .el-dialog__wrapper {
       .el-dialog {
         margin-top: 45px !important;
-        height: 700px;
+        height: 600px;
       }
       &.app-count-detail {
         .el-dialog__body {
@@ -175,6 +180,8 @@
 <style lang="scss" scoped>
   #manage-analyze-app_count {
     height: 100%;
+    background-color: white;
+    max-width: 1200px;
     .header {
       /*display: flex;*/
       padding: 3px 5px;
@@ -191,7 +198,6 @@
       }
     }
     .detail-list {
-      max-width: 1000px;
     }
   }
 </style>
@@ -245,7 +251,7 @@
 
         appCountDetail: {
           totalSize: 0,
-          pageSize: 12,
+          pageSize: 10,
           currentPage: 1,
         },
 
@@ -397,6 +403,36 @@
         switch (action) {
           case 'search':
             this.requestDetailList();
+            break;
+          case 'download-analyze':
+            const payload = {
+              endTime: this.$utils.formatDate(this.payload.dateRange, 'yyyyMMdd')
+            };
+            if ('' !== this.payload.profileId) {
+              payload.profileId = this.payload.profileId
+            }
+            if ('' !== this.payload.lobId) {
+              payload.lobId = this.payload.lobId
+            }
+            if ('' !== this.payload.scrumId) {
+              payload.scrumId = this.payload.scrumId
+            }
+            this.$ajax({
+              method: this.$net.URL_LIST.download_app_count_detail.method,
+              url: this.$net.URL_LIST.download_app_count_detail.path,
+              data: payload,
+              responseType: 'blob',
+            }).then(res => {
+              const a = document.createElement('a');
+              const blob = new Blob([res.data]);
+              a.href = window.URL.createObjectURL(blob);
+              a.download = `应用数统计-${payload.endTime}.xls`;
+              a.style.display = 'none';
+              document.body.appendChild(a);
+              a.click();
+            }).catch(err => {
+
+            });
             break;
         }
       },
