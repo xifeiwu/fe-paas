@@ -210,7 +210,7 @@
                   <span>访问端口</span>
                   <el-tooltip slot="trigger" effect="dark" placement="top">
                     <div slot="content">
-                      <div>访问端口的范围在40000~60000之间</div>
+                      <div>访问端口的范围在40000~59999之间</div>
                     </div>
                     <span><i class="el-icon-question" style="color:#E6A23C"></i></span>
                   </el-tooltip>
@@ -566,9 +566,9 @@
 //                errMsg = '请填写目标端口';
 //              } else {
               if (outerPort != '' && containerPort != '') {
-                if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 60000) {
+                if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 59999) {
                 } else {
-                  errMsg = '访问端口只能是40000-60000之间的数字';
+                  errMsg = '访问端口只能是40000-59999之间的数字';
                 }
                 if (!errMsg && !numberReg.exec(outerPort)) {
                   errMsg = '目标端口只能是数字';

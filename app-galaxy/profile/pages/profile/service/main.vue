@@ -219,30 +219,24 @@
                        class="el-icon-edit" @click="handleChangeProp('image')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab_ssh地址" class="big" v-if="!selected.service.image.customImage">
-                    <div class="expand-to-next-line">
-                      {{valueToShow(selected.service.gitLabAddress)}}
-                    </div>
+                    <div class="expand-to-next-line">{{valueToShow(selected.service.gitLabAddress)}}</div>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
                   </el-form-item>
+                  <el-form-item label="gitlab分支" class="big" v-if="!selected.service.image.customImage">
+                    <div class="expand-to-next-line">
+                      <span>{{valueToShow(selected.service.gitLabBranch)}}</span>
+                      <i v-if="!$storeHelper.notPermitted['service_update']" class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i></div>
+                  </el-form-item>
                   <el-form-item label="gitlab父级pom相对路径" class="relativePathOfParentPOM big" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
                     <div class="expand-to-next-line">
-                      {{valueToShow(selected.service.relativePath)}}
-                     </div>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
-                       class="el-icon-edit" @click="handleChangeProp('relativePath')"></i>
-                  </el-form-item>
-                  <el-form-item label="gitlab分支" v-if="!selected.service.image.customImage">
-                    <div class="expand-to-next-line">
-                      {{valueToShow(selected.service.gitLabBranch)}}
+                      <span>{{valueToShow(selected.service.relativePath)}}</span>
+                      <i v-if="!$storeHelper.notPermitted['service_update']"
+                         class="el-icon-edit" @click="handleChangeProp('relativePath')"></i>
                     </div>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
-                       class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i>
                   </el-form-item>
                   <el-form-item label="Maven profile id" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
-                    <div class="expand-to-next-line">
-                      {{valueToShow(selected.service.mavenProfileId)}}
-                    </div>
+                    <div class="expand-to-next-line">{{valueToShow(selected.service.mavenProfileId)}}</div>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('mavenProfileId')"></i>
                   </el-form-item>
@@ -1011,7 +1005,7 @@
               <span>访问端口</span>
               <el-tooltip slot="trigger" effect="dark" placement="top">
                 <div slot="content">
-                  <div>访问端口的范围在40000~60000之间</div>
+                  <div>访问端口的范围在40000~59999之间</div>
                 </div>
                 <span><i class="el-icon-question" style="color:#E6A23C"></i></span>
               </el-tooltip>
@@ -1635,9 +1629,9 @@ export default {
 //              errMsg = '请填写目标端口';
 //            } else {
             if (outerPort != '' && containerPort != '') {
-              if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 60000) {
+              if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 59999) {
               } else {
-                errMsg = '访问端口只能是40000-60000之间的数字';
+                errMsg = '访问端口只能是40000-59999之间的数字';
               }
               if (!errMsg && !numberReg.exec(outerPort)) {
                 errMsg = '目标端口只能是数字';
