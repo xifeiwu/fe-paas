@@ -877,6 +877,32 @@ class Net extends NetBase {
     return resContent;
   }
 
+  /**
+   * 端口映射：检测端口是否被占用
+   * @param payload: {appId, spaceId， outerPort}
+   * @param cb
+   */
+  getDebounce4CheckPortMap() {
+    const checkPortMap = (payload, cb) => {
+      this.formatRequest(this.URL_LIST.service_port_map_check, {
+        payload
+      }).then(res => {
+        let errMsgForPortMap = '';
+        if (!this.isResponseSuccess(res.data)) {
+          errMsgForPortMap = res.data.msg;
+        }
+        cb(null, errMsgForPortMap);
+      }).catch(err => {
+        cb(err);
+      });
+    };
+    const func = this.$utils.debounce(checkPortMap.bind(this), 1500, false);
+    return (payload, cb) => {
+      func(payload, cb);
+    }
+  }
+
+
   // 切换默认服务版本
   changeDefaultService(options) {
     return new Promise((resolve, reject) => {
