@@ -908,7 +908,7 @@ class Net extends NetBase {
    */
   getDebounce4CheckPortMap() {
     const checkPortMap = (payload, cb) => {
-      this.formatRequest(this.URL_LIST.service_port_map_check, {
+      this.getResponse(this.URL_LIST.service_port_map_check, {
         payload
       }).then(res => {
         let errMsgForPortMap = '';
@@ -1024,7 +1024,7 @@ class Net extends NetBase {
       });
     }
     return new Promise((resolve, reject) => {
-      this.formatRequest(url, {
+      this.getResponse(url, {
         payload
       }).then(response => {
         const resData = response.data;

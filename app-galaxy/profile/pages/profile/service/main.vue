@@ -1636,6 +1636,13 @@ export default {
               if (!errMsg && !numberReg.exec(outerPort)) {
                 errMsg = '目标端口只能是数字';
               }
+            } else if (outerPort == '' && containerPort == '') {
+            } else {
+              if (outerPort == '') {
+                errMsg = '不能使用空的访问端口指向目标端口';
+              } else {
+                errMsg = '指向的目标端口不能为空';
+              }
             }
             return errMsg;
           },
