@@ -1118,7 +1118,7 @@
             box-sizing: border-box;
             padding: 8px 12px;
             width: 85%;
-            margin: 0px auto;
+            margin: 6px auto;
             max-width: 900px;
             /*box-shadow: 0 2px 15px rgba(0,0,0,0.1);*/
             /*box-shadow: 0 0 2px 0 rgba(64,158,255, .6);*/

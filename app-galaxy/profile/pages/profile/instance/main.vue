@@ -27,7 +27,7 @@
         <el-table-column
                 prop="instanceName"
                 label="实例名称"
-                min-width="200"
+                width="200"
                 headerAlign="left" align="left">
         </el-table-column>
         <el-table-column
@@ -40,7 +40,6 @@
           <div>
             <span>{{scope.row.status ? scope.row.status : ''}}</span>
             <span style="color: #409EFF; font-size: 12px; cursor: pointer; padding: 1px; border: 1px solid #409EFF; border-radius: 4px;"
-                  v-if="scope.row.status !== '运行中'"
                   @click="handleRowButtonClick('instanceStatus',scope.$index,scope.row)"
             >详情</span>
           </div>
@@ -71,10 +70,10 @@
         <el-table-column
                 label="创建时间"
                 prop="createTime"
-                width="200"
+                width="180"
                 headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="操作" prop="operation" minWidth="300" headerAlign="center" align="center">
+        <el-table-column label="操作" prop="operation" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
                     @click="handleRowButtonClick('terminal', scope.$index, scope.row)"
@@ -186,13 +185,6 @@
     }
     .instance-list {
       .el-table {
-        .operation {
-          .el-button {
-            float: left;
-            margin: 2px 4px;
-            margin-left: 0;
-          }
-        }
       }
     }
     .dialog-for-log {

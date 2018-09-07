@@ -76,7 +76,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" prop="operation" minWidth="170" width="200" headerAlign="center" align="center">
+        <el-table-column label="操作" prop="operation" width="160" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
               v-if="!$storeHelper.notPermitted['app_delete']"
