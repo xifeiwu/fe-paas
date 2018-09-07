@@ -258,11 +258,16 @@ class Net {
    * 格式化请求
    * @param path
    * @param method
-   * @param options
+   * @param options,
+   * @param config, config for axios
    * @returns request in the form of Promise
    */
-  formatRequest({path, method}, options = {}) {
+  getResponse({path, method}, options = {}, config) {
     try {
+      let instance = axios;
+      if (config) {
+        instance = axios.create(config);
+      }
       if (!path || !method) {
         return Promise.reject({
           title: '参数错误',
@@ -282,48 +287,10 @@ class Net {
       if (options.payload) {
         payload = options.payload;
       }
-      return axios[method](path, payload);
+      return instance[method](path, payload);
     } catch(err) {
       return Promise.reject(err);
     } finally {
-    }
-  }
-
-  /**
-   * 格式化请求
-   * @param path
-   * @param method
-   * @param options
-   * @returns request in the form of Promise
-   */
-  getFormattedRequest(config) {
-    const instance = axios.create(config);
-    return ({path, method}, options = {}) => {
-      try {
-        if (!path || !method) {
-          return Promise.reject({
-            title: '参数错误',
-            message: '未设置请求方式'
-          });
-        }
-        let payload = {};
-        if (options.params) {
-          Object.keys(options.params).forEach((key) => {
-            // path = path.replace('{' + key + '}', encodeURIComponent(options.params[key]));
-            path = path.replace('{' + key + '}', options.params[key]);
-          });
-        }
-        if (options.query) {
-          path = path + '?' + querystring.stringify(options.query);
-        }
-        if (options.payload) {
-          payload = options.payload;
-        }
-        return instance[method](path, payload);
-      } catch (err) {
-        return Promise.reject(err);
-      } finally {
-      }
     }
   }
 
@@ -349,109 +316,69 @@ class Net {
    * return resData.content if success
    * else return {}
    */
-  async requestPaasServer1({path, method}, options = {}) {
-    this.addToRequestingRrlList(path);
+
+  async requestPaasServer({path, method}, options = {}) {
     try {
-      const response = await this.formatRequest({path, method}, options);
-      return response;
-    } catch (err) {
-      let err = {
-        title: '网络请求错误',
-        message: `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.toString()}`
-      };
-      this.showError(err);
-      throw err;
+      this.addToRequestingRrlList(path);
+      const response = await this.getResponse({path, method}, options);
+      let resData = response.data;
+      if (this.isResponseSuccess(resData)) {
+        return resData.content;
+      } else {
+        const err = {
+          code: resData.code,
+          title: '请求失败',
+          message: resData.msg
+        };
+        this.showError(err);
+        return Promise.reject(err);
+      }
+    } catch (error) {
+      if (error.hasOwnProperty('title') && error.hasOwnProperty('message')) {
+      } else if (error instanceof Error) {
+        error = {
+          title: '网络请求错误',
+          message: `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.toString()}`
+        };
+      }
+      this.showError(error);
+      return Promise.reject(error);
     } finally {
       this.removeFromRequestingRrlList(path);
     }
   }
-  requestPaasServer({path, method}, options = {}) {
-    this.addToRequestingRrlList(path);
-    return new Promise((resolve, reject) => {
-      this.formatRequest({path, method}, options).then(res => {
-        let resData = res.data;
-        if (this.isResponseSuccess(resData)) {
-          resolve(resData.content);
-        } else {
-          const err = {
-            code: resData.code,
-            title: '请求失败',
-            message: resData.msg
-          };
-          this.showError(err);
-          reject(err);
-        }
-      }).catch(error => {
-        if (error.hasOwnProperty('title') && error.hasOwnProperty('message')) {
-          this.showError(error);
-          reject(error);
-        } else {
-          let err = {
-            title: '网络请求错误',
-            message: `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.toString()}`
-          };
-          this.showError(err);
-          reject(err);
-        }
-      }).finally(() => {
-        this.removeFromRequestingRrlList(path);
-      });
-    });
-  }
 
-  requestAssistServer({path, method}, options = {}) {
-    return new Promise((resolve, reject) => {
-      this.getFormattedRequest({
+  async requestAssistServer({path, method}, options = {}) {
+    try {
+      const response = await this.getResponse({path, method}, options, {
         timeout: 15000,
         headers: {
           token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJmZS1wYWFzIiwiaWF0IjoxNTM1ODE0NzU2LCJleHAiOjE1NjczNTA3NTZ9.Kua5fOfg7KJ5xOU08ImvcWdSfJnZpdHATQ_uwCW1nAI'
         }
-      })({path, method}, options).then(res => {
-        let resData = res.data;
-        if (resData.hasOwnProperty('success')) {
-          if (resData.success) {
-            resolve(resData.content);
-          } else {
-            const err = {
-              code: resData.code,
-              title: '请求失败',
-              message: resData.msg
-            };
-            this.showError(err);
-            reject(err);
-          }
-        } else if (resData.hasOwnProperty('code')) {
-          if (resData.code === 0) {
-            // show msg if exist, when code == 0
-            // if (resData.hasOwnProperty('msg') && resData.msg) {
-            //   this.showSuccess(resData.msg);
-            // }
-            resolve(resData.content);
-          } else {
-            const err = {
-              code: resData.code,
-              title: '请求失败',
-              message: resData.msg
-            };
-            this.showError(err);
-            reject(err);
-          }
-        }
-      }).catch(error => {
-        if (error.hasOwnProperty('title') && error.hasOwnProperty('message')) {
-          this.showError(error);
-          reject(error);
-        } else {
-          path = path.replace(this.ASSIST_PREFIX, '');
-          let err = {
-            title: '网络请求错误',
-            message: `请求路径：${path}，${error.toString()}`
-          };
-          this.showError(err);
-          reject(err);
-        }
       });
-    });
+      let resData = response.data;
+      if (this.isResponseSuccess(resData)) {
+        return resData.content;
+      } else {
+        const err = {
+          code: resData.code,
+          title: '请求失败',
+          message: resData.msg
+        };
+        this.showError(err);
+        return Promise.reject(err);
+      }
+    } catch (error) {
+      if (error.hasOwnProperty('title') && error.hasOwnProperty('message')) {
+      } else if (error instanceof Error) {
+        error = {
+          title: '网络请求错误',
+          message: `请求路径：${path.replace(this.ASSIST_PREFIX, '')}，${error.toString()}`
+        };
+      }
+      this.showError(error);
+      return Promise.reject(error);
+    }
   }
   /**
    * format of response data from qiniu-cdn is not fixed
@@ -476,7 +403,7 @@ class Net {
   // request for dns server and cdn server
   requestDomainServer({path, method}, options = {}) {
     return new Promise((resolve, reject) => {
-      this.formatRequest({path, method}, options).then(res => {
+      this.getResponse({path, method}, options).then(res => {
         let resData = res.data;
         if (resData.hasOwnProperty('code')) {
           if (resData.code === 200) {

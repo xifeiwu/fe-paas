@@ -468,7 +468,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
           };
 
           this.showLoading = true;
-          this.$net.formatRequest(this.$net.URL_LIST.login, {
+          this.$net.getResponse(this.$net.URL_LIST.login, {
             payload
           }).then(response => {
             let content = this.$net.getResponseContent(response);

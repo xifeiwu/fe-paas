@@ -227,7 +227,7 @@
           return;
         }
         let source = this.domain.source;
-        this.$net.formatRequest(this.$net.URL_LIST.cdn_fusion_source_check, {
+        this.$net.getResponse(this.$net.URL_LIST.cdn_fusion_source_check, {
           params: {domain: 'common'}, payload: {
             advancedSources: source.advancedSources,
             protocol: this.domain.protocol,

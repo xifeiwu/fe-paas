@@ -47,14 +47,14 @@
             <div v-else>版本未知</div>
           </template>
         </el-table-column>
-        <el-table-column label="应用名称" prop="appName" headerAlign="left" align="left">
+        <el-table-column label="应用名称" prop="appName" headerAlign="left" align="left" minWidth="120">
           <template slot-scope="scope">
             <span>{{scope.row.appName}}</span>
             <i v-if="!$storeHelper.notPermitted['app_change_name']"
                     class="el-icon-edit" @click="handleTRButton('change-appName', scope.$index, scope.row)"></i>
           </template>
         </el-table-column>
-        <el-table-column label="项目名称" prop="tag" headerAlign="left" align="left"></el-table-column>
+        <el-table-column label="项目名称" prop="tag" headerAlign="left" align="left" minWidth="120"></el-table-column>
         <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="120">
         </el-table-column>
         <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="100">
@@ -67,7 +67,7 @@
             <div v-else>{{scope.row.createTime}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="运行环境" prop="profileList" minWidth="120" headerAlign="center" align="center">
+        <el-table-column label="运行环境" prop="profileList" minWidth="200" headerAlign="center" align="center">
           <template slot-scope="scope">
               <span v-for="item in $storeHelper.profileListOfGroup" :label="item.name" :key="item.name"
                     :class="{'profile-item': true, 'active': scope.row.profileNames.indexOf(item.name) > -1}"

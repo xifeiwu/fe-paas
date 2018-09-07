@@ -277,7 +277,7 @@
         let domain = 'finupcloud.com';
         let sub_domain = this.domain.trim().replace(/\.finupcloud\.com$/, '');
         return new Promise((resolve, reject) => {
-          this.$net.formatRequest(this.$net.URL_LIST.dns_record_info, {
+          this.$net.getResponse(this.$net.URL_LIST.dns_record_info, {
             payload: {domain, sub_domain}
           }).then(res => {
             /**
@@ -340,7 +340,7 @@
               // 显示loading
               this.$store.commit('etc/SET_LOADING', true);
 
-              this.$net.formatRequest(this.$net.URL_LIST.cdn_domain_create, {
+              this.$net.getResponse(this.$net.URL_LIST.cdn_domain_create, {
                 params: {domain: this.domain}, payload: this.form
               }).then(res => {
                 let resData = res.data;
@@ -366,7 +366,7 @@
         }
         let source = this.form.source;
 
-        this.$net.formatRequest(this.$net.URL_LIST.cdn_fusion_source_check, {
+        this.$net.getResponse(this.$net.URL_LIST.cdn_fusion_source_check, {
           params: {domain: 'common'}, payload: {
             advancedSources: source.advancedSources,
             protocol: this.form.protocol,
