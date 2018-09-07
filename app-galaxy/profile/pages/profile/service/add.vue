@@ -204,7 +204,7 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig" :error="errMsgForPortMap">
+            <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig" :error="serviceForm.portMap.errMsg">
               <div class="el-row title">
                 <div class="el-col el-col-10">
                   <span>访问端口</span>
@@ -498,6 +498,8 @@
     },
     mounted() {
       this.checkPortMap = this.$net.getDebounce4CheckPortMap();
+      this.$scrollWrapper = this.$el.querySelector('.el-scrollbar .el-scrollbar__wrap');
+//      this.showMoreConfig = true;
     },
     data() {
       return {
@@ -541,7 +543,31 @@
           portMap: {
             protocol: 'TCP',
             outerPort: '',
-            containerPort: ''
+            containerPort: '',
+            _portErrMsg: '',
+            get errMsg() {
+              // 先检测语法错误，后检测端口号错误
+              let errMsg = '';
+              const numberReg = /^[0-9]+$/;
+              const outerPort = this.outerPort;
+              const containerPort = this.containerPort;
+              if (outerPort != '' && containerPort != '') {
+                if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 60000) {
+                } else {
+                  errMsg = '访问端口只能是40000-60000之间的数字';
+                }
+                if (!errMsg && !numberReg.exec(outerPort)) {
+                  errMsg = '目标端口只能是数字';
+                }
+              }
+              if (this._portErrMsg) {
+                errMsg = this._portErrMsg;
+              }
+              return errMsg;
+            },
+            set portErrMsg(value) {
+              this._portErrMsg = value;
+            }
           },
           prestopCommand: ''
         },
@@ -584,7 +610,6 @@
         loadingText: '',
 
         checkPortMap: null,
-        errMsgForPortMap: '',
       };
     },
     computed: {
@@ -678,17 +703,20 @@
         }
       },
 
-      'serviceForm.serviceVersion': 'checkVersion',
+      'serviceForm.serviceVersion': 'getErrMsgForVersion',
       'serviceForm.portMap.outerPort': function (value) {
+        if (this.serviceForm.portMap.errMsg) {
+          return;
+        }
         this.checkPortMap({
           appId: this.serviceForm.appId,
           spaceId: this.serviceForm.spaceId,
           outerPort: this.serviceForm.portMap.outerPort
         }, (err, msg) => {
           if (err) {
-            this.errMsgForPortMap = '';
+            this.serviceForm.portMap.portErrMsg = '';
           } else {
-            this.errMsgForPortMap = msg;
+            this.serviceForm.portMap.portErrMsg = msg;
           }
         })
       },
@@ -715,12 +743,12 @@
     methods: {
       scrollTop() {
         setTimeout(() => {
-          this.$el.scrollTop = '0px';
+          this.$scrollWrapper.scrollTop = 0;
         }, 500);
       },
       scrollBottom() {
         this.$nextTick(() => {
-          let containerHeight = this.$el.offsetHeight;
+          let containerHeight = this.$scrollWrapper.offsetHeight;
           let sheet = this.$el.querySelector('.sheet');
           if (!sheet) {
             return;
@@ -729,23 +757,24 @@
           let sheetHeight = sheet.offsetHeight + 30;
           if (sheetHeight > containerHeight) {
             setTimeout(() => {
-              this.$el.scrollTop = sheetHeight - containerHeight;
+              this.$scrollWrapper.scrollTop = sheetHeight - containerHeight;
             }, 500);
           }
         });
       },
-      checkVersion(value) {
+      // 检测版本号
+      getErrMsgForVersion(value) {
+        let errMsg = '';
         value = value.trim();
         if (value === '') {
-          this.errorMsgForVersion = '版本号不能为空';
+          errMsg = '版本号不能为空';
         } else if (!/^[0-9]{1,5}$/.test(value)) {
-          this.errorMsgForVersion = '版本号只能包含数字，不能超过五位';
+          errMsg = '版本号只能包含数字，不能超过五位';
         } else if (this.versionList.indexOf(value) > -1) {
-          this.errorMsgForVersion = `版本v${value}已经存在`;
-        } else {
-          this.errorMsgForVersion = ''
+          errMsg = `版本v${value}已经存在`;
         }
-        return this.errorMsgForVersion === '';
+        this.errorMsgForVersion = errMsg;
+        return errMsg;
       },
       // get image related info from network
       requestImageRelatedInfo() {
@@ -920,13 +949,13 @@
             this.$router.go(-1);
             break;
           case 'submit':
-            if (!this.checkVersion(this.serviceForm.serviceVersion)) {
-              return;
-            }
-            if (this.errMsgForPortMap) {
-              return;
-            }
             this.$refs['serviceForm'].validate((valid) => {
+              if (this.getErrMsgForVersion(this.serviceForm.serviceVersion)) {
+                valid = false;
+              }
+              if (this.serviceForm.portMap.errMsg) {
+                valid = false;
+              }
               if (valid) {
                 this.serviceForm.customImage = this.imageSelectState.customImage;
                 if (this.imageSelectState.customImage) {
