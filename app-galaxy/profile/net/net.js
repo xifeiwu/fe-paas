@@ -139,12 +139,12 @@ class Net extends NetBase {
       },
       // 更改滚动升级
       'service_update_rolling_update': {
-        path: '',
+        path: '/service/updateRollingUpdate',
         method: 'post'
       },
       // 更改负载均衡
       'service_update_load_balance': {
-        path: '',
+        path: '/service/updateLoadBalance',
         method: 'post'
       },
       // 更改文件存储
@@ -154,7 +154,8 @@ class Net extends NetBase {
       },
       // 更改环境变量
       'service_update_environment': {
-        path: '/service/updateEnv'
+        path: '/service/updateEnv',
+        method: 'post'
       },
       // 更改Host配置
       'service_update_host': {
@@ -816,7 +817,11 @@ class Net extends NetBase {
             this._name = value;
           },
           get name() {
-            return this._name;
+            if (this._type == 'WAR') {
+              return this._name;
+            } else {
+              return '';
+            }
           },
           get needSetName() {
             return this._type == 'WAR';

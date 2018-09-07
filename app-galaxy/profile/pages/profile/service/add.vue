@@ -2,7 +2,7 @@
   <div id="service-add">
     <el-scrollbar>
       <div class="sheet">
-        <div class="section-title">添加服务</div>
+        <div class="section-title">{{type=='copy'?'复制服务':'添加服务'}}</div>
         <el-form :model="serviceForm" ref="serviceForm"
                  :rules="rules" :label-width="appLanguage == 'JAVA' ? '200px' : '140px'" size="mini"
                  v-loading="showLoading"
@@ -484,6 +484,7 @@
         this.serviceForm.instanceCount = theData.instanceNum;
         this.serviceForm.environments = theData.environments;
         this.serviceForm.hosts = theData.hosts;
+        this.serviceForm.prestopCommand = theData.prestopCommand;
         this.serviceForm.cpuID = theData.cpuID;
       } else {
         // set default cpu, default memorySizeList will be set in watch
