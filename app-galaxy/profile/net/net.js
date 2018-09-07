@@ -182,6 +182,10 @@ class Net extends NetBase {
         path: '/service/updatePackage',
         method: 'post'
       },
+      'service_update_port_map': {
+        path: '/service/updatePortMapping',
+        method: 'post'
+      },
       /** 实例相关*/
       // 获取实例列表
       'instance_list': {
@@ -752,6 +756,7 @@ class Net extends NetBase {
           vmOptions: service.vmOptions,
           instanceNum: service.instanceNum,
         };
+        // 更新healthCheck格式
         const healthCheck = {
           _type: '',
           _content: {
@@ -801,6 +806,25 @@ class Net extends NetBase {
         healthCheck.content = service.healthCheck;
         healthCheck.initialDelay = service.hasOwnProperty('initialDelaySeconds') ? service['initialDelaySeconds'] : 120;
         item.healthCheck = healthCheck;
+
+        const portMap = {
+          id: null,
+          protocol: 'TCP',
+          outerPort: '',
+          containerPort: '',
+          get exist() {
+            return this.outerPort && this.containerPort;
+          }
+        };
+        // 更新portMap格式
+        if (service.portsMapping.length > 0) {
+          portMap.id = service.portsMapping[0].id;
+          portMap.protocol = service.portsMapping[0].protocol;
+          portMap.outerPort = service.portsMapping[0].outerPort;
+          portMap.containerPort = service.portsMapping[0].containerPort;
+        }
+        item.portMap = portMap;
+
         const packageInfo = {
           _type: '',
           _name: '',
@@ -990,7 +1014,8 @@ class Net extends NetBase {
       'oneApm': URL_LIST.service_update_one_apm,
       'vmOptions': URL_LIST.service_update_vm_options,
       'prestopCommand': URL_LIST.service_update_prestop_command,
-      'packageInfo': URL_LIST.service_update_package_info
+      'packageInfo': URL_LIST.service_update_package_info,
+      'portMap': URL_LIST.service_update_port_map,
     };
     let url = urlMap[prop];
     if (!url) {
@@ -1006,7 +1031,7 @@ class Net extends NetBase {
         if (this.isResponseSuccess(resData)) {
           resolve(resData.msg ? resData.msg : '修改成功');
         } else {
-          reject(data.msg);
+          reject(resData.msg);
         }
       }).catch(err => {
         reject(err.message);

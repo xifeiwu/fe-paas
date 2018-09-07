@@ -314,9 +314,9 @@
                   <el-form-item label="Host配置" class="big">
                     <div v-if="selected.service.hosts && selected.service.hosts.length > 0">
                       <el-row>
-                        <el-col :span="10" style="font-weight: bold; text-align: center">IP</el-col>
-                        <el-col :span="10" style="font-weight: bold; text-align: center">域名</el-col>
-                        <el-col :span="4" style="font-weight: bold;text-align: left">
+                        <el-col :span="8" style="font-weight: bold; text-align: center">IP</el-col>
+                        <el-col :span="8" style="font-weight: bold; text-align: center">域名</el-col>
+                        <el-col :span="2" style="font-weight: bold;text-align: left">
                           <i v-if="!$storeHelper.notPermitted['service_update']"
                              class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
                         </el-col>
@@ -325,15 +325,40 @@
                               v-for="(item, index) in selected.service.hosts"
                               :key="item.ip"
                       >
-                        <el-col :span="10" style="text-align: center">{{item.ip}}</el-col>
-                        <el-col :span="10" style="text-align: center">{{item.domain}}</el-col>
-                        <el-col :span="4"></el-col>
+                        <el-col :span="8" style="text-align: center">{{item.ip}}</el-col>
+                        <el-col :span="8" style="text-align: center">{{item.domain}}</el-col>
+                        <el-col :span="2"></el-col>
                       </el-row>
                     </div>
                     <div v-else>
                       <span>未设置</span>
                       <i v-if="!$storeHelper.notPermitted['service_update']"
                          class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
+                    </div>
+                  </el-form-item>
+                  <el-form-item label="端口映射" class="port-map big">
+                    <div v-if="selected.model.portMap.exist">
+                      <div class="el-row">
+                        <div class="el-col el-col-6" style="font-weight: bold; text-align: center">访问端口</div>
+                        <div class="el-col el-col-2" style="min-height:1px"></div>
+                        <div class="el-col el-col-6" style="font-weight: bold; text-align: center">目标端口</div>
+                        <div class="el-col el-col-2" style="font-weight: bold; text-align: center">协议</div>
+                        <div class="el-col el-col-2" style="font-weight: bold; text-align: center">
+                          <i v-if="!$storeHelper.notPermitted['service_update']"
+                             class="el-icon-edit" @click="handleChangeProp('portMap')"></i>
+                        </div>
+                      </div>
+                      <el-row class="content">
+                        <el-col :span="6" style="text-align: center">{{selected.model.portMap.outerPort}}</el-col>
+                        <el-col :span="2" style="text-align: center">--></el-col>
+                        <el-col :span="6" style="text-align: center">{{selected.model.portMap.containerPort}}</el-col>
+                        <el-col :span="2" style="text-align: center">TCP</el-col>
+                      </el-row>
+                    </div>
+                    <div v-else>
+                      <span>未设置</span>
+                      <i v-if="!$storeHelper.notPermitted['service_update']"
+                         class="el-icon-edit" @click="handleChangeProp('portMap')"></i>
                     </div>
                   </el-form-item>
                   <el-form-item label="当前服务内网域名" class="big">
@@ -973,6 +998,53 @@
       </div>
     </el-dialog>
 
+    <el-dialog title="修改端口映射" :visible="selected.prop == 'portMap'"
+               :close-on-click-modal="false"
+               class="hosts size-700"
+               @close="selected.prop = null"
+               v-if="selected.service && selected.model"
+    >
+      <el-form :model="newProps" :rules="rules" size="mini" labelWidth="120px" ref="changePortMapForm">
+        <el-form-item label="端口映射" class="port-map" :error="newProps.portMap.errMsg">
+          <div class="el-row title">
+            <div class="el-col el-col-8" style="text-align: center; font-weight: bold">
+              <span>访问端口</span>
+              <el-tooltip slot="trigger" effect="dark" placement="top">
+                <div slot="content">
+                  <div>访问端口的范围在40000~60000之间</div>
+                </div>
+                <span><i class="el-icon-question" style="color:#E6A23C"></i></span>
+              </el-tooltip>
+            </div>
+            <div class="el-col el-col-2" style="min-height:1px"></div>
+            <div class="el-col el-col-8" style="text-align: center; font-weight: bold">目标端口</div>
+            <div class="el-col el-col-2" style="text-align: center; font-weight: bold">协议</div>
+          </div>
+          <el-row class="content">
+            <el-col :span="8" style="text-align: center">
+              <el-input placeholder="如40002" size="mini" v-model="newProps.portMap.outerPort"></el-input>
+            </el-col>
+            <el-col :span="2" style="text-align: center">--></el-col>
+            <el-col :span="8" style="text-align: center">
+              <el-input placeholder="如8100" size="mini" v-model="newProps.portMap.containerPort"></el-input>
+            </el-col>
+            <el-col :span="2" style="text-align: center">TCP</el-col>
+          </el-row>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+          <div class="item">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('portMap')"
+                       :loading="waitingResponse">保&nbsp存</el-button>
+          </div>
+          <div class="item">
+            <el-button action="profile-dialog/cancel"
+                       @click="selected.prop = null">取&nbsp消</el-button>
+          </div>
+      </div>
+    </el-dialog>
+
     <el-dialog title="更改OneApm" :visible="selected.prop == 'oneApm'"
                :close-on-click-modal="false"
                @close="selected.prop = null"
@@ -1385,6 +1457,7 @@ export default {
       addResizeListener(this.$el, this.resizeListener);
     } catch(err) {
     }
+    this.checkPortMap = this.$net.getDebounce4CheckPortMap();
   },
   beforeDestroy() {
     removeResizeListener(this.$el, this.resizeListener);
@@ -1535,6 +1608,50 @@ export default {
             }
           }
         },
+        portMap: {
+          id: null,
+          protocol: 'TCP',
+          outerPort: '',
+          containerPort: '',
+          _validateErrMsg: '',
+          get errMsg() {
+            if (this.syntaxErrMsg) {
+              return this.syntaxErrMsg;
+            } else if (this._validateErrMsg) {
+              return this._validateErrMsg;
+            } else {
+              return '';
+            }
+          },
+          get syntaxErrMsg() {
+            // 先检测语法错误，后检测端口号错误
+            let errMsg = '';
+            const numberReg = /^[0-9]+$/;
+            const outerPort = this.outerPort;
+            const containerPort = this.containerPort;
+//            if (outerPort == '') {
+//              errMsg = '请填写访问端口';
+//            } else if (containerPort == '') {
+//              errMsg = '请填写目标端口';
+//            } else {
+            if (outerPort != '' && containerPort != '') {
+              if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 60000) {
+              } else {
+                errMsg = '访问端口只能是40000-60000之间的数字';
+              }
+              if (!errMsg && !numberReg.exec(outerPort)) {
+                errMsg = '目标端口只能是数字';
+              }
+            }
+            return errMsg;
+          },
+          set validateErrMsg(value) {
+            this._validateErrMsg = value;
+          },
+          get exist() {
+            return this.outerPort && this.containerPort;
+          }
+        },
         prestopCommand: '',
         environments: [],
         hosts: [],
@@ -1641,7 +1758,24 @@ export default {
     },
     'newProps.healthCheck.content': function (type) {
       this.getErrMsgForHealthCheck();
-    }
+    },
+
+    'newProps.portMap.outerPort': function (value) {
+      if (this.newProps.portMap.syntaxErrMsg) {
+        return;
+      }
+      this.checkPortMap({
+        appId: this.selectedAppID,
+        spaceId: this.selectedProfileID,
+        outerPort: this.newProps.portMap.outerPort
+      }, (err, msg) => {
+        if (err) {
+          this.newProps.portMap.validateErrMsg = '';
+        } else {
+          this.newProps.portMap.validateErrMsg = msg;
+        }
+      })
+    },
   },
 
   methods: {
@@ -2165,7 +2299,7 @@ export default {
      * @param prop
      */
     handleChangeProp(prop) {
-      if (['healthCheck', 'packageInfo', 'prestopCommand', 'image','gitLabAddress', 'gitLabBranch', 'relativePath','mavenProfileId',
+      if (['healthCheck', 'packageInfo', 'portMap', 'prestopCommand', 'image','gitLabAddress', 'gitLabBranch', 'relativePath','mavenProfileId',
           'cpuAndMemory', 'rollingUpdate', 'loadBalance', 'environments', 'hosts',
           'fileLocation', 'vmOptions', 'oneApm'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
@@ -2207,6 +2341,12 @@ export default {
             return;
           }
           this.newProps['packageInfo'].packageTypeList = packageTypeList;
+          break;
+        case 'portMap':
+          this.newProps['portMap'].id = this.selected.model['portMap'].id;
+          this.newProps['portMap'].protocol = this.selected.model['portMap'].protocol;
+          this.newProps['portMap'].outerPort = this.selected.model['portMap'].outerPort;
+          this.newProps['portMap'].containerPort = this.selected.model['portMap'].containerPort;
           break;
         case 'prestopCommand':
           this.newProps[prop] = this.selected.model[prop];
@@ -2310,6 +2450,24 @@ export default {
           if (
             this.newProps['packageInfo'].type == this.selected.model['packageInfo'].type &&
             this.newProps['packageInfo'].name == this.selected.model['packageInfo'].name
+          ) {
+            this.selected.prop = null;
+            this.$message({
+              type: 'warning',
+              message: '您没有做修改'
+            });
+          } else {
+            this.requestUpdate(prop);
+          }
+          break;
+        case 'portMap':
+          if (this.newProps.portMap.errMsg) {
+            return;
+          }
+          if (
+            this.newProps['portMap'].outerPort == this.selected.model['portMap'].outerPort &&
+            this.newProps['portMap'].containerPort == this.selected.model['portMap'].containerPort&&
+            this.newProps['portMap'].protocol == this.selected.model['portMap'].protocol
           ) {
             this.selected.prop = null;
             this.$message({
@@ -2430,6 +2588,16 @@ export default {
           options['packageType'] = this.newProps['packageInfo'].type;
           options['buildName'] = this.newProps['packageInfo'].name;
           break;
+        case 'portMap':
+          options['seviceName'] = this.selected.service['serviceName'];
+          options['portsMapping'] = [{
+            id: this.newProps['portMap'].id,
+            protocol: this.newProps['portMap'].protocol,
+            outerPort: this.newProps['portMap'].outerPort,
+            containerPort: this.newProps['portMap'].containerPort,
+            appConfigId: this.selected.service['id']
+          }];
+          break;
         case 'image':
           options['customImage'] = this.newProps['customImage'];
           options['image'] = this.newProps['imageLocation'];
@@ -2448,6 +2616,8 @@ export default {
             message: msg
           });
           this.updateModelInfo(prop);
+          // 只在更新成功后关闭弹框
+          this.selected.prop = null;
         }).catch(errMsg => {
           this.$net.showError({
             title: '修改失败',
@@ -2455,7 +2625,6 @@ export default {
           })
         }).finally(() => {
           this.waitingResponse = false;
-          this.selected.prop = null;
         });
       } else {
         // simulate post
@@ -2491,6 +2660,11 @@ export default {
         case 'packageInfo':
           this.selected.model['packageInfo'].type = this.newProps['packageInfo'].type;
           this.selected.model['packageInfo'].name = this.newProps['packageInfo'].name;
+          break;
+        case 'portMap':
+          this.selected.model['portMap'].protocol = this.newProps['portMap'].protocol;
+          this.selected.model['portMap'].outerPort = this.newProps['portMap'].outerPort;
+          this.selected.model['portMap'].containerPort = this.newProps['portMap'].containerPort;
           break;
         case 'environments':
         case 'hosts':

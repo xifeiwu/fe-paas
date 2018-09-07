@@ -206,7 +206,7 @@
           <transition name="more-config">
             <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig" :error="serviceForm.portMap.errMsg">
               <div class="el-row title">
-                <div class="el-col el-col-10">
+                <div class="el-col el-col-6">
                   <span>访问端口</span>
                   <el-tooltip slot="trigger" effect="dark" placement="top">
                     <div slot="content">
@@ -216,15 +216,15 @@
                   </el-tooltip>
                 </div>
                 <div class="el-col el-col-2" style="min-height:1px"></div>
-                <div class="el-col el-col-10">目标端口</div>
+                <div class="el-col el-col-6">目标端口</div>
                 <div class="el-col el-col-2">协议</div>
               </div>
               <el-row class="content">
-                <el-col :span="10">
+                <el-col :span="6">
                   <el-input placeholder="如40002" size="mini" v-model="serviceForm.portMap.outerPort"></el-input>
                 </el-col>
                 <el-col :span="2">--></el-col>
-                <el-col :span="10">
+                <el-col :span="6">
                   <el-input placeholder="如8100" size="mini" v-model="serviceForm.portMap.containerPort"></el-input>
                 </el-col>
                 <el-col :span="2">TCP</el-col>
@@ -544,13 +544,27 @@
             protocol: 'TCP',
             outerPort: '',
             containerPort: '',
-            _portErrMsg: '',
+            _validateErrMsg: '',
             get errMsg() {
+              if (this.syntaxErrMsg) {
+                return this.syntaxErrMsg;
+              } else if (this._validateErrMsg) {
+                return this._validateErrMsg;
+              } else {
+                return '';
+              }
+            },
+            get syntaxErrMsg() {
               // 先检测语法错误，后检测端口号错误
               let errMsg = '';
               const numberReg = /^[0-9]+$/;
               const outerPort = this.outerPort;
               const containerPort = this.containerPort;
+//              if (outerPort == '') {
+//                errMsg = '请填写访问端口';
+//              } else if (containerPort == '') {
+//                errMsg = '请填写目标端口';
+//              } else {
               if (outerPort != '' && containerPort != '') {
                 if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 60000) {
                 } else {
@@ -560,13 +574,10 @@
                   errMsg = '目标端口只能是数字';
                 }
               }
-              if (this._portErrMsg) {
-                errMsg = this._portErrMsg;
-              }
               return errMsg;
             },
-            set portErrMsg(value) {
-              this._portErrMsg = value;
+            set validateErrMsg(value) {
+              this._validateErrMsg = value;
             }
           },
           prestopCommand: ''
@@ -705,7 +716,7 @@
 
       'serviceForm.serviceVersion': 'getErrMsgForVersion',
       'serviceForm.portMap.outerPort': function (value) {
-        if (this.serviceForm.portMap.errMsg) {
+        if (this.serviceForm.portMap.syntaxErrMsg) {
           return;
         }
         this.checkPortMap({
@@ -714,9 +725,9 @@
           outerPort: this.serviceForm.portMap.outerPort
         }, (err, msg) => {
           if (err) {
-            this.serviceForm.portMap.portErrMsg = '';
+            this.serviceForm.portMap.validateErrMsg = '';
           } else {
-            this.serviceForm.portMap.portErrMsg = msg;
+            this.serviceForm.portMap.validateErrMsg = msg;
           }
         })
       },
@@ -981,9 +992,13 @@
                   instanceNum: serviceForm.instanceCount,
                   customImage: serviceForm.customImage,
                   image: serviceForm.imageLocation,
-                  portsMapping: [serviceForm.portMap],
                   prestopCommand: serviceForm.prestopCommand
                 };
+                payload.portsMapping = [{
+                  protocol: serviceForm.portMap.protocol,
+                  outerPort: serviceForm.portMap.outerPort,
+                  containerPort: serviceForm.portMap.containerPort,
+                }];
                 this.addToWaitingResponseQueue('submit');
                 this.showLoading = true;
                 this.loadingText = '正在为您创建服务';
