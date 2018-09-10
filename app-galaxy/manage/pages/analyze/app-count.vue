@@ -116,21 +116,21 @@
               :data="appCountDetailListByPage"
               style="width: 100%"
               stripe
-              :defaultSort="tableSort"
+              :defaultSort="appCountDetail.tableSort"
               @sort-change="onSortChangeInTable2"
       >
-        <el-table-column prop="appName" label="应用名称"></el-table-column>
-        <el-table-column prop="lobName" label="LOB">
+        <el-table-column prop="appName" label="应用名称" headerAlign="center" align="center"></el-table-column>
+        <el-table-column prop="lobName" label="LOB" headerAlign="center" align="center">
           <template slot-scope="scope">
             {{action.row.lobName}}
           </template>
         </el-table-column>
-        <el-table-column prop="scrumName" label="Scrum">
+        <el-table-column prop="scrumName" label="Scrum" headerAlign="center" align="center">
           <template slot-scope="scope">
             {{action.row.scrumName}}
           </template>
         </el-table-column>
-        <el-table-column prop="instanceCount" label="实例数"sortable></el-table-column>
+        <el-table-column prop="instanceCount" label="实例数"sortable headerAlign="center" align="center"></el-table-column>
       </el-table>
       <div class="pagination-container" v-if="appCountDetail.totalSize > appCountDetail.pageSize">
         <div class="pagination">
@@ -243,6 +243,10 @@
         },
         appCountList: [],
         appCountDetailList: [],
+        appCountDetailListSorted: {
+          asc: [],
+          desc: []
+        },
         tableSort: {
           prop: 'appCount',
           order: 'descending',
@@ -365,7 +369,8 @@
       'payload.lobId': 'requestDetailList',
       'payload.scrumId': 'requestDetailList',
       'payload.dateRange': 'requestDetailList',
-      'tableSort': 'requestDetailList'
+      'tableSort': 'requestDetailList',
+      'appCountDetail.tableSort': 'getAppCountDetailListByPage',
     },
 
     methods: {
@@ -477,9 +482,22 @@
               }
             }).then(resContent => {
               this.appCountDetailList = resContent['detailList'];
+              this.appCountDetailListSorted.asc = [];
+              this.appCountDetailListSorted.desc = [];
+              this.appCountDetailList.forEach(it => {
+                this.appCountDetailListSorted.asc.push(it);
+                this.appCountDetailListSorted.desc.push(it);
+              });
+              this.appCountDetailListSorted.asc.sort((it1, it2) => {
+                return it1['instanceCount'] - it2['instanceCount'];
+              });
+              this.appCountDetailListSorted.desc.sort((it1, it2) => {
+                return it2['instanceCount'] - it1['instanceCount'];
+              });
+
               this.appCountDetail.totalSize = resContent['totalNum'];
               this.appCountDetail.currentPage = 1;
-              this.setAppCountDetailListByPage();
+              this.getAppCountDetailListByPage();
               // open after success request
               this.action.name = action;
             }).catch(() => {
@@ -489,13 +507,21 @@
         }
       },
 
-      setAppCountDetailListByPage() {
+      /**
+       * 获取应用数详情
+       * 应用数详情与应用数列表的逻辑的不同：应用数列表是分页请求；应用数详情是完整请求
+       */
+      getAppCountDetailListByPage() {
         let page = this.appCountDetail.currentPage - 1;
         page = page >= 0 ? page : 0;
         const start = page * this.appCountDetail.pageSize;
         const length = this.appCountDetail.pageSize;
         const end = start + length;
-        this.appCountDetailListByPage = this.appCountDetailList.slice(start, end);
+        if (this.appCountDetail.tableSort.order == 'ascending') {
+          this.appCountDetailListByPage = this.appCountDetailListSorted['asc'].slice(start, end);
+        } else {
+          this.appCountDetailListByPage = this.appCountDetailListSorted['desc'].slice(start, end);
+        }
       },
       // the first page of pagination is 1
       handlePaginationPageChange(page) {
@@ -505,7 +531,7 @@
 
       handlePaginationPageChangeInDialog(page) {
         this.appCountDetail.currentPage = page;
-        this.setAppCountDetailListByPage();
+        this.getAppCountDetailListByPage();
       },
 
       onSortChangeInTable1(tableSort) {
