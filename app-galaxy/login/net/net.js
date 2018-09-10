@@ -34,49 +34,49 @@ class Net extends NetBase {
   }
 
   parseLoginResponse (content) {
-    function updateItem(item) {
+    const updateItem = (item) => {
       let keyMap = {
         "应用管理": {
-          router: '/app',
+          router: this.page['profile/app'],
           icon: 'paas-icon-app'
           // icon: 'el-icon-location'
         },
         "服务管理": {
-          router: '/service',
+          router: this.page['profile/service'],
           icon: 'paas-icon-service'
         },
         "实例列表": {
-          router: '/instance',
+          router: this.page['profile/instance'],
           icon: 'paas-icon-instance'
         },
         "外网域名": {
-          router: '/domain',
+          router: this.page['profile/domain'],
           icon: 'paas-icon-domain',
         },
         "日志中心": {
-          router: '/log',
+          router: this.page['profile/log'],
           icon: 'paas-icon-log'
         },
         "应用监控": {
-          router: '/monitor',
+          router: this.page['profile/monitor'],
           icon: 'paas-icon-monitor'
         },
         "Oauth权限": {
           name: 'Access Key管理',
-          router: '/oauth',
+          router: this.page['profile/oauth'],
           icon: 'paas-icon-key'
         },
         "Access Key管理": {
-          router: '/oauth',
+          router: this.page['profile/oauth'],
           icon: 'paas-icon-key'
         },
         "审批管理": {
-          router: '/work-order',
+          router: this.page['profile/work-order'],
           icon: 'paas-icon-work-order'
         },
         "配置中心": {
           name: '应用配置',
-          router: '/config-server',
+          router: this.page['profile/config-server'],
           icon: 'paas-icon-config'
         }
       };
@@ -174,7 +174,7 @@ class Net extends NetBase {
     let level2 = [{
       name: '应用引擎',
       icon: 'paas-icon-app',
-      router: '/app-engine',
+      router: '/profile/app-engine',
       children: []
     }];
     let level1 = [];

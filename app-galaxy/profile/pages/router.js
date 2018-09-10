@@ -43,6 +43,8 @@ import CdnPrefetch from './profile/cdn/prefetch.vue';
 import CdnStatistics from './profile/cdn/statistics.vue';
 import CdnDashboard from './profile/cdn/dashboard.vue';
 
+import PageNotFound from '../../components/page-not-found.vue';
+
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
@@ -55,41 +57,45 @@ import VueRouter from 'vue-router';
  */
 var Router = function () {
   this.richRouterConfig = [{
-    path: '/',
-    redirect: '/app',
+    path: '/profile',
+    redirect: '/profile/app',
   }, {
-    path: '/app',
+    path: '/profile/app',
     name: '应用管理',
     component: AppMain,
     meta: {
       isPermitted: true,
     },
   }, {
-    path: '/app/add',
+    path: '/profile/app/add',
     name: '创建应用',
     component: AppAdd,
   }, {
-    path: '/service',
+    path: '/profile/service',
     name: '服务管理',
     component: ServiceMain,
   }, {
-    path: '/service/add',
+    path: '/profile/service/add',
     name: '添加服务',
     component: ServiceAdd,
   }, {
-    path: '/instance',
+    path: '/profile/service/copy',
+    name: '复制服务',
+    component: ServiceAdd,
+  }, {
+    path: '/profile/instance',
     name: '实例列表',
     component: InstanceMain,
   }, {
-    path: '/domain',
+    path: '/profile/domain',
     name: '外网域名',
     component: DomainMain,
   }, {
-    path: '/domain/white-list',
+    path: '/profile/domain/white-list',
     name: '关联IP白名单',
     component: DomainWhiteList,
   }, {
-    path: '/log',
+    path: '/profile/log',
     // name: '审批管理',
     component: LogMain,
     // redirect: '/log/run',
@@ -109,11 +115,11 @@ var Router = function () {
       }
     }]
   }, {
-    path: '/monitor',
+    path: '/profile/monitor',
     name: '应用监控',
     component: MonitorMain,
   }, {
-    path: '/oauth',
+    path: '/profile/oauth',
     // name: '权限管理',
     component: OAuthMain,
     // redirect: 'oauth/key',
@@ -133,7 +139,7 @@ var Router = function () {
       }
     }]
   }, {
-    path: '/work-order',
+    path: '/profile/work-order',
     // name: '审批管理',
     component: WorkOrderMain,
     // redirect: '/work-order/todo',
@@ -147,35 +153,35 @@ var Router = function () {
       component: WorkOrderList,
     }]
   }, {
-    path: '/work-order/todo/add',
+    path: '/profile/work-order/todo/add',
     name: '申请工单',
     component: WorkOrderAdd,
   }, {
-    path: '/work-order/todo/modify',
+    path: '/profile/work-order/todo/modify',
     name: '修改工单',
     component: WorkOrderModify,
   }, {
-    path: '/work-order/todo/deploy',
+    path: '/profile/work-order/todo/deploy',
     name: '部署工单',
     component: WorkOrderDeploy,
   }, {
-    path: '/work-order/todo/test',
+    path: '/profile/work-order/todo/test',
     name: '测试工单',
     component: WorkOrderTest,
   }, {
-    path: '/work-order/todo/accept',
+    path: '/profile/work-order/todo/accept',
     name: '验收工单',
     component: WorkOrderAccept,
   }, {
-    path: '/config-server',
+    path: '/profile/config-server',
     name: '配置中心',
     component: ConfigServerMain
   }, {
-    path: '/config-server/list',
+    path: '/profile/config-server/list',
     name: '配置文件列表',
     component: ConfigServerFileList,
   }, {
-    path: '/cdn',
+    path: '/profile/cdn',
     name: 'cdn加速',
     component: CdnMain,
     children: [
@@ -211,7 +217,10 @@ var Router = function () {
       },
 
     ]
-  },];
+  }, {
+    path: "/profile/*",
+    component: PageNotFound
+  }];
   this.addRoutePath(null, this.richRouterConfig);
 
   this.vueRouter = new VueRouter({

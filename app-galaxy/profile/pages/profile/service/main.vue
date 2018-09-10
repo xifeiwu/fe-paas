@@ -24,7 +24,7 @@
                   v-if="!$storeHelper.notPermitted['service_create']"
               size="mini-extral"
               type="primary"
-              @click="handleButtonClick('add-service')">
+              @click="handleButtonClick('go-to-page-service-add')">
             添加服务
           </el-button>
           <el-button v-if="true"
@@ -1589,7 +1589,7 @@ export default {
     },
     handleButtonClick(action) {
       switch (action) {
-        case 'add-service':
+        case 'go-to-page-service-add':
           let infoForAddService = this.getInfoForAddService();
           if (!infoForAddService.success) {
             this.$message.error(infoForAddService.message);
@@ -1599,7 +1599,7 @@ export default {
             type: 'add',
             data: infoForAddService.content
           };
-          this.$router.push('/service/add');
+          this.$router.push(this.$net.page['profile/service/add']);
           break;
         case 'refreshAppList':
           this.requestServiceList(this.selectedAppID, this.selectedProfileID);

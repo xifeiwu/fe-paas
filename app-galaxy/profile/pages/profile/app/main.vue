@@ -7,7 +7,7 @@
                   v-if="!$storeHelper.notPermitted['app_create']"
                   size="mini-extral"
                   type="primary"
-                  @click="handleButtonClick('linker', {path: '/app/add'})">
+                  @click="handleButtonClick('go-to-page-app-add')">
             创建应用
           </el-button>
           <el-button v-if="true"
@@ -111,7 +111,7 @@
       <div class="desc">应用引擎为您快速构建应用，一键部署，持续集成、交付，加快应用迭代效率，实现DevOps运维理念的微服务应用框架，快来试试吧!</div>
       <el-button
               type="primary"
-              @click="handleButtonClick('linker', {path: '/app/add'})">
+              @click="handleButtonClick('go-to-page-app-add')">
         创建应用
       </el-button>
     </div>
@@ -490,9 +490,10 @@
       },
       handleButtonClick(action, params) {
         switch (action) {
-          case 'linker':
-            this.$router.push(params.path);
+          case 'go-to-page-app-add':
+            this.$router.push(this.$net.page['profile/app/add']);
             break;
+
           case 'refreshAppList':
             this.$net.getAPPList({
               groupId: this.$storeHelper.currentGroupID,

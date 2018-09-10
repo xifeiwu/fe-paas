@@ -38,7 +38,7 @@
     },
     data() {
       return {
-        tabs: this.$routeHelper.getPermittedSubRouteList('/oauth')
+        tabs: this.$routeHelper.getPermittedSubRouteList(this.$net.page['profile/oauth'])
 //        allTabs: [{
 //          label: 'Access Key',
 //          name: '/oauth/key',

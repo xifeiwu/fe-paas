@@ -122,7 +122,6 @@
       });
 
       this.$store.dispatch('user/groupId', this.$storeHelper.currentGroupID);
-      this.onRoutePath(this.$route);
     },
     mounted() {
       this.$utils.onWindowVisibilityChange((evt) => {
@@ -133,6 +132,7 @@
       this.$nextTick(() => {
         this.setDefaultActiveForHeader();
       });
+      this.onRoutePath(this.$route);
     },
     computed: {
       ...mapState(['toasts']),
@@ -218,8 +218,8 @@
         let relativePath = value.path;
         if (relativePath && relativePath.length > 0) {
           // whether show groupList
-          let pageNotShowGroupList = ['/app/add', '/service/add'];
-          let pageNotShowGroupListReg = /^\/(work-order\/(todo|list).*|config-server\/*)$/;
+          let pageNotShowGroupList = ['/profile/app/add', '/profile/service/add'];
+          let pageNotShowGroupListReg = /^\/profile\/(work-order\/(todo|list).*|config-server\/*)$/;
           if (pageNotShowGroupList.indexOf(relativePath) > -1 || pageNotShowGroupListReg.exec(relativePath)) {
             this.showGroupList = false;
           } else {
@@ -237,23 +237,24 @@
        * @param path: url path
        */
       updateCrumbList(path) {
-        // url中只能包括：\w(字母或数字、下划线、汉字)或中划线
-        let pathConcat = '';
+        if (!path.startsWith('/')) {
+          return;
+        }
+        const pathList = path.split('/');
+
+        if (pathList.length >= 3) {
+          this.activeSideMenuItem = pathList.slice(0, 3).join('/');
+        }
+
+        let index = 1;
         this.crumbList = [];
-        path.split('/').filter(it => {
-          return it.length > 0
-        }).map(it => {
-          return '/' + it
-        }).forEach((it, index) => {
-          if (0 === index) {
-            this.activeSideMenuItem = it;
+        while (index <= pathList.length) {
+          let portionPath = pathList.slice(0, index).join('/');
+          if (portionPath in this.routerPathToName) {
+            this.crumbList.push(portionPath);
           }
-          pathConcat += it;
-          if (pathConcat in this.routerPathToName) {
-            this.crumbList.push(pathConcat);
-          }
-        });
-//        console.log(this.crumbList);
+          index += 1;
+        }
       },
       /**
        * register some global variable at start of page profile
