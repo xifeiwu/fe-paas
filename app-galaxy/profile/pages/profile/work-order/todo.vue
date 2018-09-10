@@ -50,12 +50,10 @@
     </div>
     <div class="work-order-list">
       <el-table :data="workOrderListByPage"
-                v-loading="showLoading"
                 stripe
                 :height="heightOfWorkOrderList"
                 :row-key="getRowKeys"
-                :expand-row-keys="expandRows"
-                element-loading-text="加载中">
+                :expand-row-keys="expandRows">
         <el-table-column label="审批工单名称" prop="name" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="申请人" prop="creatorName" width="120" headerAlign="center" align="center">
@@ -69,29 +67,24 @@
         <el-table-column label="操作" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
-                    round
-                    size="mini-extral"
-                    type="primary"
-                    :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
-                    @click="handleTRButton('detail', scope.$index, scope.row)"
-                    :loading="statusOfWaitingResponse('detail') && operation.rowID == scope.row.id">
-              <span>详情</span>
-              <i class="el-icon-arrow-right"></i>
-            </el-button>
-            <el-button
-                    round
+                    type="text" class="warning"
                     v-if="scope.row.status!=='WORKORDER_APPLY'"
-                    size="mini-extral"
-                    type="warning"
                     :loading="statusOfWaitingResponse(scope.row.status) && operation.rowID == scope.row.id"
                     @click="handleTRButton(scope.row.status, scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
             <el-button
-                    round
+                    type="text" class="warning"
                     v-if="scope.row.status==='WORKORDER_APPLY'"
-                    size="mini-extral"
-                    type="warning"
                     :loading="statusOfWaitingResponse('modify') && operation.rowID == scope.row.id"
                     @click="handleTRButton('modify', scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text" class="primary"
+                    :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
+                    @click="handleTRButton('detail', scope.$index, scope.row)"
+                    :loading="statusOfWaitingResponse('detail') && operation.rowID == scope.row.id">
+              <span>详情</span><i class="el-icon-arrow-right"></i>
+              <i class="el-icon-arrow-right"></i>
+            </el-button>
           </template>
         </el-table-column>
         <el-table-column type="expand"
@@ -221,9 +214,6 @@
       .el-table {
         .el-table__row {
           .el-button {
-            /*display: inline-block;*/
-            margin: 2px 4px;
-            /*float: left;*/
             &.expand {
               .el-icon-arrow-right {
                 transform: rotate(90deg);
@@ -236,9 +226,6 @@
             &:first-child {
               margin-left: 0px;
             }
-          }
-          .el-button + .el-button {
-            margin-left: 0px;
           }
         }
         .el-table__expanded-cell {
@@ -327,7 +314,6 @@
         },
         queueForWaitingResponse: [],
 
-        showLoading: false,
         workOrderList: [],
         getRowKeys: function (row) {
           return row.id;
@@ -678,16 +664,13 @@
           options.startTime = '';
           options.endTime = '';
         }
-        this.showLoading = true;
         this.$net.getWorkOrderToDoList(options).then(content => {
 //          console.log(content);
           if (content.hasOwnProperty('todoWorkOrderList')) {
             this.workOrderList = content.todoWorkOrderList;
             this.totalSize = content.todoWorkOrderList.length;
           }
-          this.showLoading = false;
         }).catch(err => {
-          this.showLoading = false;
         });
       }
     }

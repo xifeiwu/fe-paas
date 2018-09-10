@@ -60,37 +60,30 @@
         </el-table-column>
         <el-table-column label="操作" prop="operation" minWidth="300" headerAlign="center" align="center">
           <template slot-scope="scope">
-            <div class="operation">
-              <el-button
-                      round
-                      @click="handleRowButtonClick('terminal', scope.$index, scope.row)"
-                      size="mini-extral"
-                      v-if="!$storeHelper.notPermitted['open_terminal_from_instance']"
-                      type="primary">终端</el-button>
-              <el-button
-                      round
-                      @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"
-                      size="mini-extral"
-                      v-if="!$storeHelper.notPermitted['go-log-run-from-instance']"
-                      type="primary">
-                 <span>查看运行日志</span><i class="paas-icon-level-up"></i>
-              </el-button>
-              <el-button
-                      round
-                      @click="handleRowButtonClick('show-console-log', scope.$index, scope.row)"
-                      size="mini-extral"
-                      v-if="!$storeHelper.notPermitted['show-console-log']"
-                      type="primary">
-                <span>查看console日志</span>
-              </el-button>
-              <el-button
-                      round
-                      @click="handleRowButtonClick('monitor', scope.$index, scope.row)"
-                      size="mini-extral"
-                      :disabled="true"
-                      v-if="!$storeHelper.notPermitted['go-monitor-from-instance']"
-                      type="info">监控</el-button>
-            </div>
+            <el-button
+                    @click="handleRowButtonClick('terminal', scope.$index, scope.row)"
+                    v-if="!$storeHelper.notPermitted['open_terminal_from_instance']"
+                    type="text" class="primary">终端</el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"
+                    v-if="!$storeHelper.notPermitted['go-log-run-from-instance']"
+                    type="text" class="primary flex">
+              <span>查看运行日志</span><i class="paas-icon-level-up"></i>
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    @click="handleRowButtonClick('show-console-log', scope.$index, scope.row)"
+                    v-if="!$storeHelper.notPermitted['show-console-log']"
+                    type="text" class="primary">
+              <span>查看console日志</span>
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    @click="handleRowButtonClick('monitor', scope.$index, scope.row)"
+                    :disabled="true"
+                    v-if="!$storeHelper.notPermitted['go-monitor-from-instance']"
+                    type="text" class="primary">监控</el-button>
           </template>
         </el-table-column>
       </el-table>

@@ -97,28 +97,24 @@
         >
           <template slot-scope="scope">
             <el-button
-                    round
                     v-if="!$storeHelper.notPermitted['domain_secure_check']"
-                    size="mini-extral"
-                    type="warning"
+                    type="text" class="warning"
                     @click="handleRowButtonClick('secure-check', scope.$index, scope.row)">
               安全审核
             </el-button>
+            <div class="ant-divider"></div>
             <el-button
-                    round
                     v-if="!$storeHelper.notPermitted['domain_remove']"
-                    size="mini-extral"
-                    type="danger"
+                    type="text" class="danger"
                     :loading="statusOfWaitingResponse('remove') && selected.row.id === scope.row.id"
                     @click="handleRowButtonClick('remove', scope.$index, scope.row)">删除
             </el-button>
+            <div class="ant-divider"></div>
             <el-button
-                    round
                     v-if="!$storeHelper.notPermitted['domain_bind_white_list']"
-                    size="mini-extral"
-                    type="primary"
+                    type="text" class="primary flex"
                     @click="handleRowButtonClick('to-white-list', scope.$index, scope.row)">
-              关联IP白名单
+              <span>关联IP白名单</span><i class="paas-icon-level-up"></i>
             </el-button>
           </template>
         </el-table-column>
@@ -536,8 +532,6 @@
       .el-table {
         .el-table__row {
           .el-button {
-            margin: 2px 4px 2px 0px;
-            float: left;
           }
         }
         .el-table__expanded-cell {

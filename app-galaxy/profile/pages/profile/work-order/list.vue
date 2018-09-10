@@ -50,10 +50,8 @@
       <el-table :data="workOrderListByPage"
                 stripe
                 :height="heightOfWorkOrderList"
-                v-loading="showLoading"
                 :row-key="getRowKeys"
-                :expand-row-keys="expandRows"
-                element-loading-text="加载中">
+                :expand-row-keys="expandRows">
         <el-table-column label="审批工单名称" prop="name" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="申请人" prop="creatorName" width="120" headerAlign="center" align="center">
@@ -67,21 +65,19 @@
         <el-table-column label="操作" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
-                    round
-                    size="mini-extral"
-                    type="primary"
+                    type="text" class="primary"
+                    :loading="statusOfWaitingResponse('deploy-log') && operation.rowID == scope.row.id"
+                    @click="handleOperationClick('deploy-log', scope.$index, scope.row)">
+              <span>部署日志</span><i class="paas-icon-level-up"></i>
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text" class="primary"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     @click="handleOperationClick('detail', scope.$index, scope.row)"
                     :loading="statusOfWaitingResponse('detail') && operation.rowID == scope.row.id">
-              <span>详情</span>
-              <i class="el-icon-arrow-right"></i>
+              <span>详情</span><i class="el-icon-arrow-right"></i>
             </el-button>
-            <el-button
-                    round
-                    size="mini-extral"
-                    type="primary"
-                    :loading="statusOfWaitingResponse('deploy-log') && operation.rowID == scope.row.id"
-                    @click="handleOperationClick('deploy-log', scope.$index, scope.row)">部署日志</el-button>
           </template>
         </el-table-column>
         <el-table-column type="expand"
@@ -181,8 +177,6 @@
       .el-table {
         .el-table__row {
           .el-button {
-            margin: 2px 4px;
-            /*float: left;*/
             &.expand {
               .el-icon-arrow-right {
                 transform: rotate(90deg);
@@ -195,9 +189,6 @@
             &:first-child {
               margin-left: 0px;
             }
-          }
-          .el-button + .el-button {
-            margin-left: 0px;
           }
         }
         .el-table__expanded-cell {
@@ -314,7 +305,6 @@
         },
         queueForWaitingResponse: [],
 
-        showLoading: false,
         workOrderList: [],
         getRowKeys: function (row) {
           return row.id;
@@ -562,7 +552,7 @@
                 serviceVersion: detail.serviceVersion
               });
               this.$router.push({
-                path: '/log/deploy',
+                path: this.$net.page['profile/log/deploy'],
                 query: {
                   from: '/work-order/list'
                 }
@@ -616,16 +606,13 @@
           options.startTime = '';
           options.endTime = '';
         }
-        this.showLoading = true;
         this.$net.getWorkOrderList(options).then(content => {
 //          console.log(content);
           if (content.hasOwnProperty('workOrderDeployList')) {
             this.workOrderList = content.workOrderDeployList;
             this.totalSize = content.workOrderDeployList.length;
           }
-          this.showLoading = false;
         }).catch(err => {
-          this.showLoading = false;
         });
       }
     }
