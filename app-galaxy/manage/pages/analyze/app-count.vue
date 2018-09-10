@@ -69,6 +69,8 @@
               style="width: 100%"
               stripe
               :height="heightOfTable"
+              :defaultSort="tableSort"
+              @sort-change="onSortChangeInTable1"
       >
         <el-table-column prop="spaceName" label="运行环境"></el-table-column>
         <el-table-column prop="lobName" label="LOB"></el-table-column>
@@ -114,6 +116,8 @@
               :data="appCountDetailListByPage"
               style="width: 100%"
               stripe
+              :defaultSort="tableSort"
+              @sort-change="onSortChangeInTable2"
       >
         <el-table-column prop="appName" label="应用名称"></el-table-column>
         <el-table-column prop="lobName" label="LOB">
@@ -126,7 +130,7 @@
             {{action.row.scrumName}}
           </template>
         </el-table-column>
-        <el-table-column prop="instanceCount" label="实例数"></el-table-column>
+        <el-table-column prop="instanceCount" label="实例数"sortable></el-table-column>
       </el-table>
       <div class="pagination-container" v-if="appCountDetail.totalSize > appCountDetail.pageSize">
         <div class="pagination">
@@ -239,6 +243,10 @@
         },
         appCountList: [],
         appCountDetailList: [],
+        tableSort: {
+          prop: 'appCount',
+          order: 'descending',
+        },
 
         action: {
           name: null,
@@ -250,6 +258,10 @@
         currentPage: 1,
 
         appCountDetail: {
+          tableSort: {
+            prop: 'instanceCount',
+            order: 'descending',
+          },
           totalSize: 0,
           pageSize: 10,
           currentPage: 1,
@@ -353,6 +365,7 @@
       'payload.lobId': 'requestDetailList',
       'payload.scrumId': 'requestDetailList',
       'payload.dateRange': 'requestDetailList',
+      'tableSort': 'requestDetailList'
     },
 
     methods: {
@@ -382,6 +395,19 @@
         if ('' !== this.payload.scrumId) {
           payload.scrumId = this.payload.scrumId
         }
+        if (this.tableSort.prop && this.tableSort.order) {
+//          console.log(this.tableSort);
+          const order = this.tableSort.order == 'ascending' ? 'asc' : 'desc';
+          switch (this.tableSort.prop) {
+            case 'appCount':
+              payload['appOrder'] = order;
+              break;
+            case 'instanceCount':
+              payload['instanceOrder'] = order;
+              break;
+          }
+        }
+
         this.$net.requestPaasServer(this.$net.URL_LIST.analyze_app_count, {
           payload
         }).then(resContent => {
@@ -481,6 +507,13 @@
         this.appCountDetail.currentPage = page;
         this.setAppCountDetailListByPage();
       },
+
+      onSortChangeInTable1(tableSort) {
+        this.tableSort = tableSort;
+      },
+      onSortChangeInTable2(tableSort) {
+        this.appCountDetail.tableSort = tableSort;
+      }
     }
   }
 </script>
