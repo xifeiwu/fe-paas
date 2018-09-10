@@ -539,7 +539,7 @@
             WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
               this.hideWaitingResponse('modify');
               this.$storeHelper.setTmpProp('workOrderDetail', detail);
-              this.$router.push('/work-order/todo/modify');
+              this.$router.push('/profile/work-order/todo/modify');
             }).catch(() => {
               this.hideWaitingResponse('modify');
             });
@@ -566,7 +566,7 @@
                 }
                 this.hideWaitingResponse(action);
                 this.$storeHelper.setTmpProp('workOrderDetail', detail);
-                this.$router.push('/work-order/todo/test');
+                this.$router.push('/profile/work-order/todo/test');
               }).catch(() => {
                 this.hideWaitingResponse(action);
               });
@@ -596,7 +596,7 @@
               WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
                 this.hideWaitingResponse(action);
                 this.$storeHelper.setTmpProp('workOrderDetail', detail);
-                this.$router.push('/work-order/todo/deploy');
+                this.$router.push('/profile/work-order/todo/deploy');
               }).catch(() => {
                 this.hideWaitingResponse(action);
               });
@@ -625,7 +625,7 @@
                 workOrderBasic.status = newStatus;
                 workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
                 this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
-                this.$router.push('/work-order/todo/accept');
+                this.$router.push('/profile/work-order/todo/accept');
               }).catch(errMsg => {
                 this.hideWaitingResponse(action);
                 console.log(errMsg);

@@ -637,7 +637,7 @@
                   this.$alert('工单"' + this.workOrderDetail.name +'"提交成功，即将进入待办工单页', '修改工单成功', {
                     confirmButtonText: '确定',
                     callback: () => {
-                      this.$router.push('/work-order/todo');
+                      this.$router.push(this.$net.page['profile/work-order/todo']);
                     }
                   });
                   this.showLoading = false;

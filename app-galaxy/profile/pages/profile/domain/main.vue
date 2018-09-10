@@ -826,7 +826,7 @@
             this.secureCheckProps.tip = '';
             break;
           case 'to-white-list':
-            this.$router.push('/domain/white-list');
+            this.$router.push(this.$net.page['profile/domain/white-list']);
             this.$storeHelper.dataTransfer = row;
             break;
           case 'remove':

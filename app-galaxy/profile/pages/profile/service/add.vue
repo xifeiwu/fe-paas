@@ -964,16 +964,8 @@
                       }
                     };
                   }
-                  this.$router.push('/service');
-                }).catch((err) => {
-                  this.$notify.error({
-                    title: err.title,
-                    message: err.msg,
-                    duration: 0,
-                    onClose: function () {
-                    }
-                  });
-                }).finally(() => {
+                  this.$router.push(this.$net.page['profile/service']);
+                }).catch().finally(() => {
                   this.hideWaitingResponse('submit');
                   this.showLoading = false;
                 });

@@ -1897,7 +1897,7 @@ export default {
             type: 'copy',
             data: JSON.parse(JSON.stringify(Object.assign(infoForAddService.content, this.selected.model)))
           };
-          this.$router.push('/service/add');
+          this.$router.push(this.$net.page['profile/service/copy']);
           break;
         case 'go-to-instance-list':
           statusOK = false;
@@ -1932,7 +1932,7 @@ export default {
               serviceID: row.id
             });
             this.$router.push({
-              path: '/domain',
+              path: this.$net.page['profile/domain'],
               query: {
                 from: '/service',
                 action: 'go-to-domain-service'
@@ -1954,7 +1954,7 @@ export default {
               serviceID: row.id
             });
             this.$router.push({
-              path: '/log/deploy',
+              path: this.$net.page['profile/log/deploy'],
               query: {
                 from: '/service'
               }

@@ -905,7 +905,7 @@
             profileId: profileID
           }
         };
-        this.$router.push('service');
+        this.$router.push(this.$net.page['profile/service']);
       },
 
       warningConfirm(content) {

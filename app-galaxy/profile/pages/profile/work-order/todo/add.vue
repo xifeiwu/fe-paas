@@ -634,7 +634,7 @@
                   this.$alert('工单"' + this.workOrderDetail.name  +'"创建成功，即将进入工单列表页', '创建工单成功', {
                     confirmButtonText: '确定',
                     callback: () => {
-                      this.$router.push('/work-order/list');
+                      this.$router.push(this.$net.page['profile/work-order/list']);
                     }
                   });
                   this.showLoading = false;

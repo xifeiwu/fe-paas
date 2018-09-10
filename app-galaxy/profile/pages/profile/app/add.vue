@@ -656,7 +656,7 @@ export default {
               type: 'success',
               message: '应用' + payload.appName + '创建成功！'
             });
-            this.$router.push('/app');
+            this.$router.push(this.$net.page['profile/app']);
           }).catch((err) => {
           }).finally(() => {
             this.hideWaitingResponse('submit');

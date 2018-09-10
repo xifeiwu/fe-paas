@@ -346,7 +346,7 @@
                 let resData = res.data;
                 if (resData.hasOwnProperty('code') && resData.hasOwnProperty('error')) {
                   this.$message.error(`${resData.code}: ${resData.error}`);
-                  this.$router.push({path: '/cdn/list'})
+                  this.$router.push({path: '/profile/cdn/list'})
                 }
               }).catch(err => {
                 this.$net.showError({
