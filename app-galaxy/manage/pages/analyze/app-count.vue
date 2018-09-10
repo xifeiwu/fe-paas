@@ -54,13 +54,15 @@
                         <!--:picker-options="datePickerOptions">-->
         <!--</el-date-picker>-->
       </div>
-      <div class="item">
-        <el-button size="mini-extral" @click="handleClick('search')">搜索</el-button>
+      <div class="item" @click="handleClick('search')">
+        <i :class="['el-icon-refresh']"></i>
       </div>
-      <div class="item">
-        <el-button size="mini-extral" round @click="handleClick('download-analyze')">
-          <i class="el-icon-download"></i><span>导出表格</span>
-        </el-button>
+      <div class="item export-excel" @click="handleClick('download-analyze')">
+        <el-tooltip effect="dark" content="导出表格" placement="bottom">
+          <svg :class="['paas-icon-svg', 'paas-icon-excel']" aria-hidden="true">
+            <use :xlink:href="'#paas-icon-excel'"></use>
+          </svg>
+        </el-tooltip>
       </div>
     </div>
     <div class="detail-list">
@@ -183,11 +185,19 @@
 </style>
 <style lang="scss" scoped>
   #manage-analyze-app_count {
+    @keyframes rotating {
+      0% {
+        transform: rotateZ(0deg);
+      }
+      100% {
+        transform: rotateZ(360deg);
+      }
+    }
+
     height: 100%;
     background-color: white;
     max-width: 1200px;
     .header {
-      /*display: flex;*/
       padding: 3px 5px;
       background-color: white;
       .item {
@@ -198,6 +208,22 @@
           &.key-word-type {
             max-width: 100px;
           }
+        }
+        &.export-excel {
+          margin-left: 8px;
+        }
+        .el-icon-refresh {
+          cursor: pointer;
+          &.loading {
+            pointer-events: none;
+            animation: rotating 1s linear;
+          }
+        }
+        .paas-icon-excel {
+          cursor: pointer;
+          width: 20px;
+          height: 20px;
+          margin-top: 3px;
         }
       }
     }
@@ -223,6 +249,7 @@
       };
       addResizeListener(this.$el, this.resizeListener);
       this.setDateRange();
+      this.refreshIcon = this.$el.querySelector('.header .item > .el-icon-refresh');
     },
     beforeDestroy() {
       if (this.showAppList) {
@@ -382,7 +409,7 @@
         this.payload.dateRange = new Date(Date.now() - 3600 * 1000 * 24);
       },
       // 获取详情列表
-      requestDetailList() {
+      requestDetailList(cb) {
         let page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
         const start = page * this.pageSize;
@@ -427,13 +454,22 @@
             return it;
           });
         }).catch(err => {
+        }).finally(() => {
+          if (cb) {
+            cb();
+          }
         });
       },
 
       handleClick(action) {
         switch (action) {
           case 'search':
-            this.requestDetailList();
+            this.refreshIcon.classList.add('loading');
+            this.requestDetailList(() => {
+              setTimeout(() => {
+                this.refreshIcon.classList.remove('loading');
+              }, 1000);
+            });
             break;
           case 'download-analyze':
             const payload = {
@@ -448,11 +484,10 @@
             if ('' !== this.payload.scrumId) {
               payload.scrumId = this.payload.scrumId
             }
-            this.$ajax({
-              method: this.$net.URL_LIST.download_app_count_detail.method,
-              url: this.$net.URL_LIST.download_app_count_detail.path,
-              data: payload,
-              responseType: 'blob',
+
+            this.$net.addToRequestingRrlList(this.$net.URL_LIST.download_app_count_detail.path);
+            this.$net.getResponse(this.$net.URL_LIST.download_app_count_detail, {}, {
+              responseType: 'blob'
             }).then(res => {
               const a = document.createElement('a');
               const blob = new Blob([res.data]);
@@ -462,7 +497,8 @@
               document.body.appendChild(a);
               a.click();
             }).catch(err => {
-
+            }).finally(() => {
+              this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.download_app_count_detail.path);
             });
             break;
         }

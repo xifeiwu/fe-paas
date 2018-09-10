@@ -428,6 +428,7 @@
               payload.scrumId = this.payload.scrumId
             }
 
+            this.$net.addToRequestingRrlList(this.$net.URL_LIST.download_app_deploy_count.path);
             this.$net.getResponse(this.$net.URL_LIST.download_app_deploy_count, {}, {
               responseType: 'blob'
             }).then(res => {
@@ -445,7 +446,8 @@
               document.body.appendChild(a);
               a.click();
             }).catch(err => {
-
+            }).finally(() => {
+              this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.download_app_deploy_count.path);
             });
             break;
         }
