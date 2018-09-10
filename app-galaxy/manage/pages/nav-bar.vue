@@ -151,15 +151,15 @@
           level2: [{
             name: '数据统计',
             router: '/manage/data',
-            icon: 'paas-icon-app',
+            icon: 'paas-icon-list-ul',
             children: [{
               name: '应用数',
               router: '/manage/analyze/app-count',
-              icon: 'paas-icon-app',
+              icon: 'paas-icon-fa-circle',
             }, {
               name: '应用部署次数',
               router: '/manage/analyze/app-deploy',
-              icon: 'paas-icon-app',
+              icon: 'paas-icon-fa-circle',
             }]
           }]
         }
