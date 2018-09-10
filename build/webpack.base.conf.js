@@ -35,6 +35,7 @@ const chunksAndTemplates = (() => {
     'manage': path.resolve(vueBaseDir, 'app-galaxy/manage/entry.js'),
     'user': path.resolve(vueBaseDir, 'app-galaxy/user.js'),
     'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),
+    'page-not-found': path.resolve(vueBaseDir, 'app-galaxy/components/page-not-found-entry.js'),
   };
   let htmlConfigs = [
     {
@@ -99,6 +100,14 @@ const chunksAndTemplates = (() => {
         "css": []
       },
       "chunks": ["terminal"],
+    },
+    {
+      "filename": "page-not-found.html",
+      "title": "凡普云-页面未找到",
+      "cdn": {
+        "css": []
+      },
+      "chunks": ["page-not-found"],
     }
   ];
 

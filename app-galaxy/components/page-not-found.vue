@@ -3,10 +3,16 @@
     <div class="main">
       <div class="code">404</div>
       <div class="text">page not found</div>
+
       <div class="navigate">
-        <a href="/profile">控制台</a>
-        <div class="ant-divider"></div>
-        <a href="/docs">帮助文档</a>
+        <div class="tip">页面导航：</div>
+        <div class="list">
+          <a href="/index">首页</a>
+          <div class="ant-divider"></div>
+          <a href="/profile">控制台</a>
+          <div class="ant-divider"></div>
+          <a href="/docs">帮助文档</a>
+        </div>
       </div>
     </div>
   </div>
@@ -32,6 +38,13 @@
       }
       .navigate {
         margin-top: 20px;
+        .tip {
+          font-size: 14px;
+          font-weight: bold;
+          line-height: 18px;
+          text-align: center;
+          color: #E6A23C;
+        }
       }
       .ant-divider {
         margin: 0 6px;
