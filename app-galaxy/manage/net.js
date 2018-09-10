@@ -32,7 +32,20 @@ class Net extends NetBase {
       'download_app_count_detail': {
         path: '/backstage/downloadAppCountXls',
         method: 'post'
+      },
+      'analyze_app_deploy_count_list': {
+        path: '/backstage/queryDeploy',
+        method: 'post'
+      },
+      'analyze_app_deploy_count_detail': {
+        path: '/backstage/queryDetailDeploy',
+        method: 'post'
+      },
+      'download_app_deploy_count': {
+        path: '/backstage/downloadDeployCountXls',
+        method: 'post'
       }
+
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];
