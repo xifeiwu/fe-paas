@@ -56,6 +56,7 @@ class Net {
       'profile/work-order': '/profile/work-order',
       'profile/work-order/list': '/profile/work-order/list',
       'profile/work-order/todo': '/profile/work-order/todo',
+      'profile/work-order/todo/add': '/profile/work-order/todo/add',
       'profile/config-server': '/profile/config-server',
       'user/info': '/user/info',
       'user/group': '/user/group',

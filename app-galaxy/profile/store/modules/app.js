@@ -29,7 +29,6 @@ const actions = {
   usersAll({commit, state}) {
     if (!state.usersAll) {
       Vue.prototype.$net.getUsersAll().then(userList => {
-        console.log(userList);
         state.usersAll = userList;
       });
     }

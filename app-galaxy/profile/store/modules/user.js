@@ -87,11 +87,21 @@ const actions = {
     commit('SET_PROFILE_LIST', profileList);
   },
 
-  userList({commit, state}, userList) {
-    state.usersInGroup = userList;
+  usersInGroup({commit, state}) {
+    const net = Vue.prototype.$net;
+    if (!state.usersInGroup) {
+      net.requestPaasServer(net.URL_LIST.users_list_of_group, {
+        payload: {
+          id: state.groupId
+        }
+      }).then(resContent => {
+        state.usersInGroup = resContent['groupUserList'];
+      }).catch(() => {});
+    }
   },
-  appInfoList({commit, state}, userList) {
-    state.appInfoListOfGroup = userList;
+
+  appInfoList({commit, state}, infoList) {
+    state.appInfoListOfGroup = infoList;
   },
 
   config({commit, state}, {page, data}) {

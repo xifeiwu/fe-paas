@@ -189,16 +189,9 @@
               this.$net.getAPPList({
                 groupId: groupId
               }),
-              this.$net.requestPaasServer(this.$net.URL_LIST.users_list_of_group, {
-                payload: {
-                  id: groupId
-                }
-              })
             ]).then(resContentList => {
-              const [resContent1, resContent2] = resContentList;
+              const [resContent1] = resContentList;
               const appInfoList = resContent1;
-              const userList = resContent2['groupUserList'];
-              this.$store.dispatch('user/userList', userList);
               this.$store.dispatch('user/appInfoList', appInfoList);
             }).catch(err => {
               this.$net.showError(err);

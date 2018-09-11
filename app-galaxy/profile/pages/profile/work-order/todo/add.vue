@@ -76,7 +76,7 @@
                label-width="120px">
         <el-form-item label="验收人" prop="acceptedUserIdList">
           <el-select filterable v-model="workOrderDetail.acceptedUserIdList" multiple placeholder="请选择">
-            <el-option v-for="item in usersInGroup" :key="item.userId" :label="item.realName" :value="item.userId">
+            <el-option v-for="item in $storeHelper.usersInGroup" :key="item.userId" :label="item.realName" :value="item.userId">
             </el-option>
           </el-select>
         </el-form-item>
@@ -265,9 +265,6 @@
       } else {
         this.onAppInfoListOfGroup(this.appInfoListOfGroup);
       }
-      if (!this.usersInGroup) {
-        this.$store.dispatch('user/usersInGroup', {id: this.currentGroupID});
-      }
     },
     mounted() {
 //      let workOrder = this.$store.getters['app/currentWorkOrder'];
@@ -344,9 +341,6 @@
       },
       usersAll() {
         return this.$storeHelper.usersAll();
-      },
-      usersInGroup() {
-        return this.$storeHelper.usersInGroup();
       }
     },
     watch: {

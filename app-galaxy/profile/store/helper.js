@@ -66,8 +66,12 @@ class StoreHelper extends BaseHelper{
     }
   }
 
-  usersInGroup() {
-    return this.$store.getters['user/usersInGroup'];
+  get usersInGroup() {
+    const usersInGroup = this.$store.getters['user/usersInGroup'];
+    if (!usersInGroup) {
+      this.$store.dispatch('user/usersInGroup');
+    }
+    return usersInGroup;
   }
 
   // get all users, request again if not exist

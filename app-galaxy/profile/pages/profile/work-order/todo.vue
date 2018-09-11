@@ -6,7 +6,7 @@
           <el-button
                   size="mini-extral"
                   type="primary"
-                  @click="handleButtonClick('linker', {path: '/work-order/todo/add'})">申请审批工单</el-button>
+                  @click="handleButtonClick('go-to-page-work-order-todo-add')">申请审批工单</el-button>
           <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
             <div slot="content">
               <div>1. 如果一个应用下有正在处理的工单，则不可以提交新的工单</div>
@@ -433,7 +433,7 @@
         start.setTime(start.getTime() - 1000 * 3600 * 24 * 30);
         this.searchForm.dateRange = [start, end];
       },
-      handleButtonClick(action, params) {
+      handleButtonClick(action) {
         switch (action) {
           case 'search':
             this.currentPage = 1;
@@ -443,8 +443,8 @@
             this.currentPage = 1;
             this.setDateRange();
             break;
-          case 'linker':
-            this.$router.push(params.path);
+          case 'go-to-page-work-order-todo-add':
+            this.$router.push(this.$net.page['profile/work-order/todo/add']);
             break;
         }
       },
