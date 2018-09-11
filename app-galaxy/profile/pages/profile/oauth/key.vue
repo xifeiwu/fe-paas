@@ -166,41 +166,34 @@
                 headerAlign="center" align="center"
         >
           <template slot-scope="scope">
-            <div class="button-list">
-              <el-button
-                      round
-                      v-if="!$storeHelper.notPermitted['oauth_add_access_config']"
-                      size="mini-extral"
-                      type="warning"
-                      :loading="statusOfWaitingResponse('open-dialog-for-update-target-app') && selected.row.id === scope.row.id"
-                      @click="handleTRClick('open-dialog-4-modify-access-key', scope.$index, scope.row)">
-                修改访问配置
-              </el-button>
-              <el-button
-                      round
-                      size="mini-extral"
-                      type="warning"
-                      :loading="statusOfWaitingResponse('open-dialog-4-update-url-permission') && selected.row.id === scope.row.id"
-                      @click="handleTRClick('open-dialog-4-update-url-permission', scope.$index, scope.row)">
-                权限配置
-              </el-button>
-              <el-button
-                      round
-                      v-if="!$storeHelper.notPermitted['oauth_update_secret']"
-                      size="mini-extral"
-                      type="warning"
-                      :loading="statusOfWaitingResponse('modify-secret') && selected.row.id === scope.row.id"
-                      @click="handleTRClick('modify-secret', scope.$index, scope.row)">修改秘钥
-              </el-button>
-              <el-button
-                      round
-                      v-if="!$storeHelper.notPermitted['oauth_delete_access_key']"
-                      size="mini-extral"
-                      type="danger"
-                      :loading="statusOfWaitingResponse('delete-access-key') && selected.row.id === scope.row.id"
-                      @click="handleTRClick('delete-access-key', scope.$index, scope.row)">删除
-              </el-button>
-            </div>
+            <el-button
+                    v-if="!$storeHelper.notPermitted['oauth_add_access_config']"
+                    type="text" class="warning"
+                    :loading="statusOfWaitingResponse('open-dialog-for-update-target-app') && selected.row.id === scope.row.id"
+                    @click="handleTRClick('open-dialog-4-modify-access-key', scope.$index, scope.row)">
+              修改访问配置
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text" class="warning"
+                    :loading="statusOfWaitingResponse('open-dialog-4-update-url-permission') && selected.row.id === scope.row.id"
+                    @click="handleTRClick('open-dialog-4-update-url-permission', scope.$index, scope.row)">
+              权限配置
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    v-if="!$storeHelper.notPermitted['oauth_update_secret']"
+                    type="text" class="warning"
+                    :loading="statusOfWaitingResponse('modify-secret') && selected.row.id === scope.row.id"
+                    @click="handleTRClick('modify-secret', scope.$index, scope.row)">修改秘钥
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    v-if="!$storeHelper.notPermitted['oauth_delete_access_key']"
+                    type="text" class="danger"
+                    :loading="statusOfWaitingResponse('delete-access-key') && selected.row.id === scope.row.id"
+                    @click="handleTRClick('delete-access-key', scope.$index, scope.row)">删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -730,11 +723,6 @@
         &:hover {
         }
         font-size: 12px;
-      }
-      .el-button {
-        float: left;
-        margin: 2px 4px;
-        margin-left: 0px;
       }
     }
   }

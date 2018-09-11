@@ -86,7 +86,7 @@
         >
           <template slot-scope="scope">
             <div class="row-expand">
-              <el-form labelWidth="120px" size="mini">
+              <el-form labelWidth="120px" size="mini" class="message-show">
                 <el-form-item label="审批工单名称">
                   <div class="expand-to-next-line">{{workOrderDetail.name}}</div>
                 </el-form-item>

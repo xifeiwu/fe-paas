@@ -122,19 +122,16 @@
         >
           <template slot-scope="scope">
             <el-button
-                    round
                     v-if="!$storeHelper.notPermitted['oauth_modify_authorize_url_list']"
-                    size="mini-extral"
-                    type="warning"
+                    type="text" class="warning"
                     :loading="statusOfWaitingResponse('open-dialog-4-config-authorize-url') && selected.row.id === scope.row.id"
                     @click="handleTRClick('open-dialog-4-config-authorize-url', scope.$index, scope.row)">
               授权配置
             </el-button>
+            <div class="ant-divider"></div>
             <el-button
-                    round
                     v-if="scope.row.enabled !== null && !$storeHelper.notPermitted['oauth_authorize_url_toggle_enable']"
-                    size="mini-extral"
-                    type="primary"
+                    type="text" class="primary"
                     :loading="statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
                     @click="handleTRClick('toggle-enable', scope.$index, scope.row)">
               {{scope.row.enabled?'禁用':'开启'}}
@@ -365,9 +362,6 @@
       }
     }
     .el-table {
-      .el-button {
-        margin: 2px 4px;
-      }
       .more {
         font-size: 12px;
       }
