@@ -83,7 +83,6 @@
                     @click="handleTRButton('detail', scope.$index, scope.row)"
                     :loading="statusOfWaitingResponse('detail') && operation.rowID == scope.row.id">
               <span>详情</span><i class="el-icon-arrow-right"></i>
-              <i class="el-icon-arrow-right"></i>
             </el-button>
           </template>
         </el-table-column>

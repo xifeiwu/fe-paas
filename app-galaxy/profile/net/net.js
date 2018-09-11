@@ -485,26 +485,6 @@ class Net extends NetBase {
   }
 
   /**
-   * 通过groupId获取该group的所有App列表
-   * @param options
-   * @returns {Promise}
-   */
-  getAppListByGroupID(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.app_list.url, options).then(response => {
-        let resContent = this.getResponseContent(response);
-        if (resContent) {
-          resolve(resContent);
-        } else {
-          reject('获取组列表失败！');
-        }
-      }).catch(err => {
-        reject(err);
-      })
-    });
-  }
-
-  /**
    * 获取创建APP时的相关信息
    * 1. 相关语言
    * 2. cpu memory对应关系

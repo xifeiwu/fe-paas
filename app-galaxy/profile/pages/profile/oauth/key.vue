@@ -291,8 +291,11 @@
               </el-select>
             </el-col>
             <el-col :span="11" style="padding-right:4px;">
-              <el-select filterable v-model="modifyAccessKeyInfo.targetAppID"
-                         :placeholder="dataForSelectApp.appList.length==0?'应用列表为空':'请选择'" style="display:block; max-width: 280px;">
+              <el-select
+                      v-loading="modifyAccessKeyInfo.requestingAppList"
+                      element-loading-spinner="el-icon-loading"
+                      filterable v-model="modifyAccessKeyInfo.targetAppID"
+                      :placeholder="dataForSelectApp.appList.length==0?'应用列表为空':'请选择'" style="display:block; max-width: 280px;">
                 <el-option v-for="(item, index) in dataForSelectApp.appList" :key="item.appId" :label="item.appName" :value="item.appId">
                 </el-option>
               </el-select>
@@ -821,6 +824,7 @@ module.exports = {
         appID: null,
         production: null,
         externalAppName: '',
+        requestingAppList: false,
         targetAppList: [],
         targetGroupID: null,
         targetGroupName: '',
@@ -915,15 +919,17 @@ module.exports = {
       if (!groupID) {
         return;
       }
-      this.$net.getAppListByGroupID({
-        groupId: groupID
-      }).then(content => {
-        if (content && content.hasOwnProperty('appList')) {
+
+      this.modifyAccessKeyInfo.requestingAppList = true;
+      this.$net.requestPaasServer(this.$net.URL_LIST.app_list, {
+        payload: {groupId: groupID}
+      }).then(resContent => {
+        if (resContent && resContent.hasOwnProperty('appList')) {
           this.modifyAccessKeyInfo.targetAppID = this.$storeHelper.APP_ID_FOR_NULL;
-          if (Array.isArray(content.appList)) {
-            this.dataForSelectApp.appList = content.appList;
-            if (content.appList.length > 0) {
-              this.modifyAccessKeyInfo.targetAppID = content.appList[0].appId;
+          if (Array.isArray(resContent.appList)) {
+            this.dataForSelectApp.appList = resContent.appList;
+            if (resContent.appList.length > 0) {
+              this.modifyAccessKeyInfo.targetAppID = resContent.appList[0].appId;
             }
           }
         }
@@ -943,7 +949,11 @@ module.exports = {
         } else {
           this.modifyAccessKeyInfo.targetGroupName = '';
         }
-      });
+      }).catch(err => {
+        this.$message.error('获取应用列表失败！');
+      }).finally(() => {
+        this.modifyAccessKeyInfo.requestingAppList = false;
+      })
     },
     'modifyAccessKeyInfo.targetAppID': function (appId) {
       let appList = this.dataForSelectApp.appList;
@@ -1456,7 +1466,7 @@ module.exports = {
           } else {
             dataToPost['applicationId'] = this.modifyAccessKeyInfo.appID;
           }
-
+          this.addToWaitingResponseQueue(action);
           this.$net.oAuthCreateAccessKey(dataToPost).then(content => {
             this.handleDialogClose();
             this.$message.success(`Access key ${content.secret} 创建成功！`);
@@ -1469,6 +1479,8 @@ module.exports = {
               onClose: function () {
               }
             });
+          }).finally(() => {
+            this.hideWaitingResponse(action);
           });
           break;
         case 'add-target-app':
