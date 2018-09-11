@@ -51,6 +51,7 @@ class Net {
       'profile/domain/white-list': '/profile/domain/white-list',
       'profile/log': '/profile/log',
       'profile/log/deploy': '/profile/log/deploy',
+      'profile/log/run': '/profile/log/run',
       'profile/oauth': '/profile/oauth',
       'profile/work-order': '/profile/work-order',
       'profile/work-order/list': '/profile/work-order/list',

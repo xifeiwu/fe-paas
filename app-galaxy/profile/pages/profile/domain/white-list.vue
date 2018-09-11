@@ -228,10 +228,6 @@
       position: relative;
       flex: 1;
       .el-table {
-        .el-button {
-          margin: 1px 3px;
-          margin-left: 0px;
-        }
         tr {
           height: 32px;
         }

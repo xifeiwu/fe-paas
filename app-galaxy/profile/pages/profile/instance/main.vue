@@ -543,7 +543,7 @@
               serviceID: selectedValue['selectedService'].id
             });
             this.$router.push({
-              path: '/log/run',
+              path: this.$net.page['profile/log/run'],
               query: {
                 from: '/instance'
               }
