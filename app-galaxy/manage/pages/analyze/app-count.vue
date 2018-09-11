@@ -455,7 +455,7 @@
           });
         }).catch(err => {
         }).finally(() => {
-          if (cb) {
+          if (cb && cb instanceof Function) {
             cb();
           }
         });

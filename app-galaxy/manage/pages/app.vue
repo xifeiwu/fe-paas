@@ -3,25 +3,25 @@
     <div class="header">
       <div class="item">
         <label>LOB:</label>
-        <el-select filterable v-model="lobId" placeholder="请选择">
+        <el-select filterable v-model="search.lobId" placeholder="请选择">
           <el-option v-for="(item, index) in lobList" :key="item.id" :label="item.lobName" :value="item.id">
           </el-option>
         </el-select>
       </div>
       <div class="item">
         <label>团队名称:</label>
-        <el-select filterable v-model="groupId" placeholder="请选择">
+        <el-select filterable v-model="search.groupId" placeholder="请选择">
           <el-option v-for="(item, index) in groupList" :key="item.id" :label="item.name" :value="item.id">
           </el-option>
         </el-select>
       </div>
       <div class="item key-word">
-        <el-select filterable v-model="keyWordType" placeholder="请选择" class="key-word-type">
+        <el-select filterable v-model="search.keyWordType" placeholder="请选择" class="key-word-type">
           <el-option v-for="(item, index) in keyWordTypeList" :key="item.id" :label="item.name" :value="item.id">
           </el-option>
         </el-select>
         <el-input
-                v-model="keyword"
+                v-model="search.keyword"
                 size="mini"
                 style="max-width: 200px"
                 placeholder="按关键字搜索外网二级域名">
@@ -38,8 +38,8 @@
               stripe
               :height="heightOfTable"
       >
-        <el-table-column prop="appName" label="应用名称" width="100"></el-table-column>
-        <el-table-column prop="tag" label="项目名称" width="100"></el-table-column>
+        <el-table-column prop="appName" label="应用名称" width="180"></el-table-column>
+        <el-table-column prop="tag" label="项目名称" width="180"></el-table-column>
         <el-table-column label="语言版本" width="100">
           <template slot-scope="scope">
             <span>{{scope.row.language}}</span><span v-if="scope.row.languageVersion">{{scope.row.languageVersion}}</span>
@@ -60,13 +60,12 @@
         >
           <template slot-scope="scope">
             <el-button
-                    size="mini-extral"
                     type="text"
                     @click="handleRowButtonClick('transfer', scope.$index, scope.row)">
               应用转让
             </el-button>
+            <div class="ant-divider"></div>
             <el-button
-                    size="mini-extral"
                     type="text"
                     :loading="statusOfWaitingResponse('remove') && selected.row.id === scope.row.id"
                     @click="handleRowButtonClick('remove', scope.$index, scope.row)">销毁应用
@@ -74,6 +73,19 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-container" v-if="totalSize > pageSize">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "pageSize"
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange"
+          >
+          </el-pagination>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +107,8 @@
 <style lang="scss" scoped>
   #manage-app {
     height: 100%;
+    background-color: white;
+    max-width: 1200px;
     .header {
       display: flex;
       padding: 3px 5px;
@@ -132,7 +146,8 @@
         let headerHeight = headerNode.offsetHeight;
         this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
       };
-      addResizeListener(this.$el, this.resizeListener)
+      addResizeListener(this.$el, this.resizeListener);
+//      console.log(this.$storeHelper.profileListAll);
     },
     beforeDestroy() {
       if (this.showAppList) {
@@ -143,10 +158,7 @@
       return {
         resizeListener: () => {},
         heightOfTable: '',
-        lobId: '',
-        groupId: '',
-        keyword: '',
-        keyWordType: 1,
+
         keyWordTypeList: [{
           id: 1,
           name: '应用名称'
@@ -154,9 +166,23 @@
           id: 2,
           name: '项目名称'
         }],
+        search: {
+          lobId: '',
+          groupId: '',
+          keyword: '',
+          keyWordType: 1,
+        },
+
+        totalSize: 0,
+        pageSize: 12,
+        currentPage: 1,
 
         appStatusList: [],
       }
+    },
+    watch: {
+      'search.lobId': 'requestAppStatusList',
+      'search.groupId': 'requestAppStatusList',
     },
     computed: {
 //      ...mapState(['lobList', 'groupList'])
@@ -177,34 +203,48 @@
     },
 
     methods: {
+      requestAppStatusList() {
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.pageSize;
+        const length = this.pageSize;
+        const payload = {
+          start, length
+        };
+        if ('' !== this.search.lobId) {
+          payload.lobId = this.search.lobId
+        }
+        if ('' !== this.search.groupId) {
+          payload.groupId = this.search.groupId;
+        }
+        this.search.keyword = this.search.keyword.trim();
+        if (this.search.keyword.length > 0) {
+          if (this.search.keyWordType === 1) {
+            payload['appName'] = this.search.keyword;
+          } else {
+            payload['tag'] = this.search.keyword;
+          }
+        }
+        this.$net.requestPaasServer(this.$net.URL_LIST.app_status_list, {
+          payload
+        }).then(resContent => {
+          this.totalSize = resContent['totalNum'];
+          this.appStatusList = resContent['backStageList'];
+        }).catch(err => {
+
+        });
+      },
+
+      // the first page of pagination is 1
+      handlePaginationPageChange(page) {
+        this.currentPage = page;
+        this.requestAppStatusList();
+      },
+
       handleClick(action) {
         switch (action) {
           case 'search':
-            const payload = {
-              pageNum: 1,
-              pageSize: 10,
-            };
-            if ('' !== this.lobId) {
-              payload.lobId = this.lobId
-            }
-            if ('' !== this.groupId) {
-              payload.groupId = this.groupId;
-            }
-            this.keyword = this.keyword.trim();
-            if (this.keyword.length > 0) {
-              if (this.keyWordType === 1) {
-                payload['appName'] = this.keyword;
-              } else {
-                payload['tag'] = this.keyword;
-              }
-            }
-            this.$net.requestPaasServer(this.$net.URL_LIST.app_status_list, {
-              payload
-            }).then(resContent => {
-              this.appStatusList = resContent['backStageList'];
-            }).catch(err => {
-
-            })
+            this.requestAppStatusList();
             break;
         }
       },

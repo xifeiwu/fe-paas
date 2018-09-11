@@ -13,7 +13,7 @@ class Net extends NetBase {
       },
       // 获取用户所在组列表
       'app_status_list': {
-        path: '/backstage',
+        path: '/querybackstage',
         method: 'post'
       },
       // 获取团队的所有运行环境
