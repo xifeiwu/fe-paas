@@ -102,7 +102,7 @@
       Promise.all([
         this.$net.requestPaasServer(this.$net.URL_LIST.lob_list),
         this.$net.requestPaasServer(this.$net.URL_LIST.scrum_list),
-        this.$net.requestPaasServer(this.$net.URL_LIST.user_group_list),
+        this.$net.requestPaasServer(this.$net.URL_LIST.group_list_all),
         this.$net.requestPaasServer(this.$net.URL_LIST.profile_list_all)
       ]).then(resContentList => {
         const lobList = resContentList[0]['lobList'];

@@ -21,6 +21,10 @@ class Net extends NetBase {
         path: '/space/querySpaceByGroupId',
         method: 'post'
       },
+      'group_list_all': {
+        path: '/queryAllGroup',
+        method: 'get'
+      },
       'analyze_app_count': {
         path: '/backstage/queryAppCount',
         method: 'post'

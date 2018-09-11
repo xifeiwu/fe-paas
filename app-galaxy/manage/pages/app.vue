@@ -47,12 +47,8 @@
         </el-table-column>
         <el-table-column prop="lobName" label="LOB" width="100"></el-table-column>
         <el-table-column prop="groupName" label="团队名称" width="100"></el-table-column>
-        <el-table-column prop="creator" label="创建人" width="100"></el-table-column>
-        <el-table-column prop="profileDesc" label="运行环境（实例数）">
-          <template slot-scope="scope">
-            <span v-for="(item, index) in scope.row.spaceAndInstanceNum" :key="index">{{item.spaceName}}（{{item.instanceNum}}）</span>
-          </template>
-        </el-table-column>
+        <el-table-column prop="creator" label="创建人" width="80"></el-table-column>
+        <el-table-column prop="instanceNumPerProfile" label="运行环境（实例数）"></el-table-column>
         <el-table-column
                 prop="operation"
                 label="操作"
@@ -64,8 +60,8 @@
                     @click="handleRowButtonClick('transfer', scope.$index, scope.row)">
               应用转让
             </el-button>
-            <div class="ant-divider"></div>
-            <el-button
+            <div class="ant-divider" v-if="false"></div>
+            <el-button v-if="false"
                     type="text"
                     :loading="statusOfWaitingResponse('remove') && selected.row.id === scope.row.id"
                     @click="handleRowButtonClick('remove', scope.$index, scope.row)">销毁应用
@@ -87,6 +83,7 @@
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -147,7 +144,7 @@
         this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
       };
       addResizeListener(this.$el, this.resizeListener);
-//      console.log(this.$storeHelper.profileListAll);
+      this.requestAppStatusList();
     },
     beforeDestroy() {
       if (this.showAppList) {
@@ -229,9 +226,13 @@
           payload
         }).then(resContent => {
           this.totalSize = resContent['totalNum'];
-          this.appStatusList = resContent['backStageList'];
+          this.appStatusList = resContent['backStageList'].map(record => {
+            record['instanceNumPerProfile'] = record['spaceAndInstanceNum'].map(it => {
+              return `${it.description}(${it.instanceNum})`;
+            }).join('，');
+            return record;
+          })
         }).catch(err => {
-
         });
       },
 
