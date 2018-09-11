@@ -3,7 +3,7 @@
        v-loading="showLoading"
        :element-loading-text="loadingText">
     <div class="section-title"><span>创建应用</span>
-      <el-popover v-if="true"
+      <el-popover v-if="false"
               width="300"
               v-model="showPopoverForHelp"
               placement="bottom"
@@ -104,6 +104,9 @@
             <div class="initial-delay" style="line-height: 28px">
               <span>延迟时间：</span>
               <el-input-number v-model="createAppForm.initialDelaySeconds" :min="30" :max="1800" label="延迟时间"></el-input-number>
+              <el-tooltip effect="dark" content="健康检查延迟时间：延迟时间以秒为单位，取值范围在30-1800之间" placement="bottom">
+                <i class="paas-icon-fa-question" style="font-size: 12px; color: #E6A23C"></i>
+              </el-tooltip>
             </div>
           </el-form-item>
         </div>

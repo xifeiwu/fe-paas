@@ -121,7 +121,8 @@
             >
               {{statusOfWaitingResponse('deploy') && selected.service.id == scope.row.id ? '部署中': '部署'}}
             </el-button>
-            <div class="ant-divider"></div>
+            <div class="ant-divider"
+                 v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"></div>
             <el-button
                     class="danger" type="text"
                     :loading="statusOfWaitingResponse('stop') && selected.service.id == scope.row.id"
@@ -129,16 +130,16 @@
                     @click="handleRowButtonClick('stop', scope.$index, scope.row)">停止</el-button>
             <div class="ant-divider"></div>
             <el-button
-                    v-if="isProductionProfile"
-                    class="primary" type="text"
-                    @click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
-            <div class="ant-divider" v-if="isProductionProfile"></div>
-            <el-button
                     v-if="!$storeHelper.notPermitted['service_delete']"
                     class="danger" type="text"
                     :loading="statusOfWaitingResponse('delete') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
             <div class="ant-divider"></div>
+            <el-button
+                    v-if="isProductionProfile"
+                    class="primary" type="text"
+                    @click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
+            <div class="ant-divider" v-if="isProductionProfile"></div>
             <el-button
                     class="flex primary" type="text"
                     v-if="!$storeHelper.notPermitted['service_get_deploy_log']"
