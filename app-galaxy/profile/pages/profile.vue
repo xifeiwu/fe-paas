@@ -89,7 +89,7 @@
         .child {
           height: calc(100% - 32px);
           overflow: scroll;
-          max-width: 1300px;
+          /*max-width: 1300px;*/
         }
       }
     }

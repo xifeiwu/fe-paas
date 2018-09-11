@@ -240,6 +240,7 @@ var Router = function () {
   });
   // console.log(this.$storeHelper.notPermitted);
   this.startRouteFilter()
+  this.pathList = [];
 };
 
 Router.prototype = {
@@ -501,6 +502,9 @@ Router.prototype = {
       // console.log(from);
       // console.log(to);
       // console.log(JSON.stringify(from.path) + ' -> ' + JSON.stringify(to.path));
+      this.pathList.push({
+        from, to
+      });
 
       let token = Vue.prototype.$storeHelper.getUserInfo('token');
       if (token) {

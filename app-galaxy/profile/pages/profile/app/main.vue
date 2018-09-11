@@ -361,18 +361,14 @@
   export default {
     mixins: [commonUtils],
     created() {
-//      let appInfoListOfGroup = this.appInfoListOfGroup;
-//      if (appInfoListOfGroup.hasOwnProperty('appList')) {
-//        this.appList = appInfoListOfGroup.appList;
-//      }
-//      this.appListByPage = this.appList;
-//      if (appInfoListOfGroup.hasOwnProperty('appModelList')) {
-//        this.appModelList = appInfoListOfGroup.appModelList;
-//      }
-//      if (appInfoListOfGroup.hasOwnProperty('total')) {
-//        this.totalSize = appInfoListOfGroup.total;
-//      }
-//      console.log(this.totalSize);
+      // 刷新页面是不请求应用列表，以免和profile中请求应用列表的逻辑重复
+      if (this.$routeHelper.pathList.length > 1) {
+        this.$net.getAPPList({
+          groupId: this.$storeHelper.currentGroupID
+        }).then(appInfoList => {
+          this.$store.dispatch('user/appInfoList', appInfoList);
+        });
+      }
     },
     mounted() {
       try {
