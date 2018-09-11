@@ -377,8 +377,8 @@
         }
       },
       groupList() {
-        if (this.$storeHelper.groupList) {
-          return [{id: '', name: '全部'}].concat(this.$storeHelper.groupList);
+        if (this.$storeHelper.groupListAll) {
+          return [{id: '', name: '全部'}].concat(this.$storeHelper.groupListAll);
         } else {
           return [];
         }

@@ -111,7 +111,7 @@
         const profileListAll = resContentList[3]['allSpace'];
         this.$store.dispatch('lobList', lobList);
         this.$store.dispatch('scrumList', scrumList);
-        this.$store.dispatch('groupList', groupList);
+        this.$store.dispatch('groupListAll', groupList);
         this.$store.dispatch('profileListAll', profileListAll);
       }).catch(err => {
       });
@@ -142,9 +142,6 @@
       userRole() {
         return this.$storeHelper.getUserInfo('role');
       },
-      groupList() {
-        return this.$storeHelper.groupList();
-      }
     },
     watch: {
       '$route': 'onRoutePath',

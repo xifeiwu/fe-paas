@@ -16,6 +16,10 @@ class Net extends NetBase {
         path: '/querybackstage',
         method: 'post'
       },
+      'app_transfer': {
+        path: '/application/updateGroup',
+        method: 'post'
+      },
       // 获取团队的所有运行环境
       'profile_list_of_group': {
         path: '/space/querySpaceByGroupId',

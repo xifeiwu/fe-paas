@@ -12,8 +12,8 @@ class StoreHelper extends BaseHelper{
   get scrumList() {
     return this.$store.getters['scrumList'];
   }
-  get groupList() {
-    return this.$store.getters['groupList'];
+  get groupListAll() {
+    return this.$store.getters['groupListAll'];
   }
   get profileListAll() {
     return this.$store.getters['profileListAll'];

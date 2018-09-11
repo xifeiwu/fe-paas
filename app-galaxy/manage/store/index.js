@@ -8,7 +8,7 @@ export default new Vuex.Store({
   state: {
     lobList: [],
     scrumList: [],
-    groupList: [],
+    groupListAll: [],
     profileListAll: [],
     config: {},
   },
@@ -19,8 +19,8 @@ export default new Vuex.Store({
     scrumList({ commit, state }, scrumList) {
       state.scrumList = scrumList;
     },
-    groupList({commit, state }, groupList) {
-      state.groupList = groupList;
+    groupListAll({commit, state }, groupListAll) {
+      state.groupListAll = groupListAll;
     },
     profileListAll({commit, state }, profileListAll) {
       state.profileListAll = profileListAll;
@@ -63,8 +63,8 @@ export default new Vuex.Store({
     'scrumList': (state, getters) => {
       return state.scrumList;
     },
-    'groupList': (state, getters) => {
-      return state.groupList;
+    'groupListAll': (state, getters) => {
+      return state.groupListAll;
     },
     'profileListAll': (state, getters) => {
       return state.profileListAll;
