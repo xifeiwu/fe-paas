@@ -204,7 +204,7 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig" :error="serviceForm.portMap.errMsg">
+            <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig && !isProductionProfile" :error="serviceForm.portMap.errMsg">
               <div class="el-row title">
                 <div class="el-col el-col-6">
                   <span>访问端口</span>
@@ -232,7 +232,7 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="prestop脚本" v-if="showMoreConfig">
+            <el-form-item label="prestop脚本" v-if="showMoreConfig && !isProductionProfile">
               <el-input v-model="serviceForm.prestopCommand"
                         size="mini"
                         type="textarea"
@@ -633,6 +633,9 @@
       groupInfo() {
         return this.$storeHelper.groupInfo();
       },
+      isProductionProfile() {
+        return this.$storeHelper.isProductionProfile(this.serviceForm.spaceId);
+      }
     },
     watch: {
       'serviceForm.spaceId': function (profileId) {

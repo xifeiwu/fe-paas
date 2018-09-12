@@ -11,7 +11,7 @@
              ref="menu"
              v-clickoutside="handleClickOutsideMenu"
     >
-      <el-menu-item index="manage" v-if="userRole && userRole=='平台管理员'">管理后台</el-menu-item>
+      <el-menu-item index="manage" v-if="userRole && userRole=='平台管理员' && false">管理后台</el-menu-item>
       <el-menu-item index="profile">控制台</el-menu-item>
       <el-menu-item index="docs">帮助文档</el-menu-item>
       <el-menu-item index="user/group" v-if="showGroupManager">团队管理</el-menu-item>

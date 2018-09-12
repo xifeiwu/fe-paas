@@ -263,7 +263,7 @@
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
-                  <el-form-item label="preStop脚本" class="big">
+                  <el-form-item label="preStop脚本" class="big" v-if="!isProductionProfile">
                     <span>{{valueToShow(selected.model.prestopCommand)}}</span>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('prestopCommand')"></i>
@@ -342,7 +342,7 @@
                          class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
                     </div>
                   </el-form-item>
-                  <el-form-item label="端口映射" class="port-map big">
+                  <el-form-item label="端口映射" class="port-map big" v-if="!isProductionProfile">
                     <div v-if="selected.model.portMap.exist">
                       <div class="el-row">
                         <div class="el-col el-col-6" style="font-weight: bold; text-align: center">访问端口</div>
@@ -507,7 +507,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="更改prestop指令" :visible="selected.prop == 'prestopCommand'"
+    <el-dialog title="更改prestop脚本" :visible="selected.prop == 'prestopCommand'"
                :close-on-click-modal="false"
                class="health-check size-700"
                @close="selected.prop = null"
@@ -1500,7 +1500,10 @@ export default {
     },
     loadBalanceType() {
       return appPropUtils.getAllLoadBalance();
-    }
+    },
+//    isProductionProfile() {
+//      return this.$storeHelper.isProductionProfile(this.selectedProfileID);
+//    }
     /* used for dialog end */
   },
   data() {
