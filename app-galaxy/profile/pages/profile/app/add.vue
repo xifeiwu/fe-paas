@@ -75,7 +75,7 @@
               </el-radio>
             </el-radio-group>
           </div>
-          <div :class="['war-name', createAppForm.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']"><el-input v-model="createAppForm.packageInfo.name" placeholder="构建类型为WAR时，必须填写构建包名称"></el-input></div>
+          <div :class="['war-name', createAppForm.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']"><el-input v-model="createAppForm.packageInfo.name" placeholder="构建类型为WAR时，请填写构建包名称"></el-input></div>
         </div>
       </el-form-item>
       <div class="el-form-item-group is-required">
@@ -433,6 +433,7 @@ export default {
             return this._type == 'WAR';
           },
           get errMsg() {
+            return '';
             if (this._type === 'WAR' && !this._name) {
               return '构建类型为WAR时，必须填写构建包名称';
             } else {

@@ -490,7 +490,7 @@
               </el-radio>
               </el-radio-group>
             </div>
-            <div :class="['war-name', newProps.packageInfo.needSetName ?'':'hide']"><el-input v-model="newProps.packageInfo.name" placeholder="构建类型为WAR时，必须填写构建包名称"></el-input></div>
+            <div :class="['war-name', newProps.packageInfo.needSetName ?'':'hide']"><el-input v-model="newProps.packageInfo.name" placeholder="构建类型为WAR时，请填写构建包名称"></el-input></div>
           </div>
         </el-form-item>
       </el-form>
@@ -1618,6 +1618,7 @@ export default {
             return this._packageTypeList;
           },
           get errMsg() {
+            return '';
             if (this._type == 'WAR' && !this._name) {
               return '构建类型为WAR时，必须填写构建包名称';
             } else {
