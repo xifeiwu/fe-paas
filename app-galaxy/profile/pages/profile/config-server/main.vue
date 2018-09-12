@@ -131,9 +131,7 @@
 
   export default {
     mounted() {
-      if (!this.configList.length || !this.branchList.length) {
-        this.$store.dispatch('etc/initData');
-      }
+      this.$store.dispatch('etc/initData');
     },
     data() {
       return {
