@@ -4,6 +4,7 @@
              class="dialog-for-log"
              :closeOnClickModal="false"
              ref="dialog-for-log"
+             top="80px"
   >
     <el-scrollbar
             v-loading="showStatus.showLoading"

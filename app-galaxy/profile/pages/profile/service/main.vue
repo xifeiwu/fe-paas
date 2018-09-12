@@ -124,6 +124,17 @@
             <div class="ant-divider"
                  v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"></div>
             <el-button
+                    class="danger"
+                    v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"
+                    type="text"
+                    :loading="statusOfWaitingResponse('quick-deploy') && selected.service.id == scope.row.id"
+                    @click="handleRowButtonClick('quick-deploy', scope.$index, scope.row)"
+            >
+              {{statusOfWaitingResponse('quick-deploy') && selected.service.id == scope.row.id ? '部署中': '快速部署'}}
+            </el-button>
+            <div class="ant-divider"
+                 v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"></div>
+            <el-button
                     class="danger" type="text"
                     :loading="statusOfWaitingResponse('stop') && selected.service.id == scope.row.id"
                     v-if="!$storeHelper.notPermitted['service_stop']"
@@ -1258,8 +1269,14 @@
     }
 
     .dialog-for-log {
+      .el-dialog {
+        width: 95%;
+      }
       .log-item{
-        white-space: pre;
+        max-width: 100%;
+        word-wrap: break-word;
+        word-break: break-all;
+        line-height: 1.4;
       }
       .info {
         color: #409EFF;
@@ -2022,10 +2039,113 @@ export default {
       let desc = `${this.selectedApp.appName}-${description}-${row.serviceVersion}版本`;
       return desc;
     },
+
+    async serviceDeploy(type) {
+      // request and show log
+      const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
+      // recursive function to fetch log from server with options {logName, logPath, offset}
+      const getDeployLog = async (options) => {
+        // stop request deploy log when the window is closed
+        if (!this.dialogForLogStatus.visible) {
+          return Promise.reject('弹框关闭');
+        }
+        const resContent = await this.$net.serviceGetDeployLog(options);
+        if (resContent.hasOwnProperty('Orchestration')) {
+          const orchestration = resContent['Orchestration'];
+          const logs = orchestration.log;
+          if (logs) {
+            const logList = logs.split('\n').filter(it => {
+              return it;
+            }).map(it => {
+              return it.replace(filterReg, (match, p1, p2, offset, string) => {
+                // console.log(match, p1, offset, string);
+                p2 = p2.replace(/(BUILD )*SUCCESS/g, (match, p1, offset, string) => {
+                  return `<span class="success">${match}</span>`;
+                });
+                p2 = p2.replace(/BUILD FAILURE/g, (match, p1, offset, string) => {
+                  return `<span class="error">${match}</span>`;
+                });
+                let result = '';
+                switch (p1.toUpperCase()) {
+                  case 'INFO':
+                    result = `[<span class="info">${p1}</span>]${p2}`;
+                    break;
+                  case 'WARNING':
+                    result = `[<span class="warning">${p1}</span>]${p2}`;
+                    break;
+                  case 'ERROR':
+                    result = `[<span class="error">${p1}</span>]<span class="error">${p2}</span>`;
+                    break;
+                }
+                return result;
+              });
+            });
+            orchestration.logList = logList;
+            return orchestration;
+          } else {
+            // may be orchestration has not prop log at start
+            return orchestration;
+          }
+        } else {
+          throw new Error('格式不正确');
+        }
+      };
+
+      const desc = this.getVersionDescription(this.selected.service);
+      const warningMsg = type == 'quick-deploy' ? `您确认要快速部署${desc}吗?` :`您确认要部署${desc}吗?`;
+      const urlDesc = type == 'quick-deploy' ? this.$net.URL_LIST.service_quick_deploy : this.$net.URL_LIST.service_deploy
+      await this.warningConfirm(warningMsg);
+      const resContent = await this.$net.requestPaasServer(urlDesc, {
+        payload: {
+          id: this.selected.service['id'],
+          appId: this.selectedAppID,
+          spaceId: this.selectedProfileID
+        }
+      });
+      if (resContent.hasOwnProperty('orchestration')) {
+        this.deployLogs = [];
+        this.dialogForLogStatus.visible = true;
+        this.dialogForLogStatus.showLoading = true;
+        let orchestration = resContent['orchestration'];
+
+        while(orchestration && orchestration['moreData']) {
+          await new Promise((resolve) => {
+            setTimeout(resolve, 1500);
+          });
+          orchestration = await getDeployLog({
+            logName: orchestration.logName,
+            logPath: orchestration.logPath,
+            offset: null == orchestration.offset ? 0 : orchestration.offset
+          });
+          if (!orchestration) {
+            break;
+          }
+          if (orchestration.hasOwnProperty('logList')) {
+            // stop showLoading when orchestration.log is not null
+            this.dialogForLogStatus.showLoading = false;
+            this.deployLogs = this.deployLogs.concat(orchestration['logList']);
+            // scroll after render finish
+            this.$nextTick(() => {
+              if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
+                let dialogForDeployLog = this.$refs['dialogForDeployLog'];
+                dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+              }
+            });
+          }
+        }
+        return Promise.reject('已拉取所有日志');
+      } else {
+        return Promise.reject({
+          title: '数据格式错误',
+          message: '未找到orchestration'
+        })
+      }
+    },
+
     /**
      * handle click event in the operation-column
      */
-    handleRowButtonClick(action, index, row) {
+    async handleRowButtonClick(action, index, row) {
       let currentService = this.currentServiceList[index];
       if (!currentService) {
         return;
@@ -2042,106 +2162,14 @@ export default {
       let statusOK = false;
       switch (action) {
         case 'deploy':
-          this.addToWaitingResponseQueue('deploy');
-//          setTimeout(() => {
-//            this.hideWaitingResponse('deploy');
-//          }, 30000);
-          // request and show log
-          function showDeployLog(options) {
-            this.deployLogs = [];
-            this.dialogForLogStatus.visible = true;
-            const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
-            // recursive function to fetch log from server with options {logName, logPath, offset}
-            function getDeployLog(options) {
-              // stop request deploy log when the window is closed
-              if (!this.dialogForLogStatus.visible) {
-                return;
-              }
-              this.$net.serviceGetDeployLog(options).then(content => {
-                if (content.hasOwnProperty('Orchestration')) {
-                  let Orchestration = content.Orchestration;
-                  let logs = Orchestration.log;
-//                  console.log(log);
-//                  console.log(content);
-//                  console.log(Orchestration.offset);
-                  if (logs) {
-                    let logList = logs.split('\n').filter(it => {
-                      return it;
-                    }).map(it => {
-                      return it.replace(filterReg, (match, p1, p2, offset, string) => {
-                        // console.log(match, p1, offset, string);
-                        p2 = p2.replace(/(BUILD )*SUCCESS/g, (match, p1, offset, string) => {
-                          return `<span class="success">${match}</span>`;
-                        });
-                        p2 = p2.replace(/BUILD FAILURE/g, (match, p1, offset, string) => {
-                          return `<span class="error">${match}</span>`;
-                        });
-                        let result = '';
-                        switch (p1.toUpperCase()) {
-                          case 'INFO':
-                            result = `[<span class="info">${p1}</span>]${p2}`;
-                            break;
-                          case 'WARNING':
-                            result = `[<span class="warning">${p1}</span>]${p2}`;
-                            break;
-                          case 'ERROR':
-                            result = `[<span class="error">${p1}</span>]<span class="error">${p2}</span>`;
-                            break;
-                        }
-                        return result;
-                      });
-                    });
-                    // scroll after render finish
-                    this.deployLogs = this.deployLogs.concat(logList);
-                    this.$nextTick(() => {
-                      if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
-                        let dialogForDeployLog = this.$refs['dialogForDeployLog'];
-                        dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
-                      }
-                    });
-                  }
-                  options.offset = Orchestration.offset;
-//                  if (null != log) {
-                  if (Orchestration.moreData) {
-                    setTimeout(() => {
-                      getDeployLog.call(this, options);
-                    }, 1800);
-                  }
-                }
-              }).catch(err => {
-                console.log(err);
-              });
-            }
-
-            setTimeout(() => {
-              getDeployLog.call(this, options);
-            }, 1500);
+        case 'quick-deploy':
+          this.addToWaitingResponseQueue(action);
+          try {
+            await this.serviceDeploy(action);
+          } catch (err) {
+            console.log(err);
+            this.hideWaitingResponse(action);
           }
-
-          var desc = this.getVersionDescription(row);
-          this.warningConfirm(`您确认要部署${desc}吗?`).then(() => {
-            this.$net.requestPaasServer(this.$net.URL_LIST.service_deploy, {
-              payload: {
-                id: serviceID,
-                appId: this.selectedAppID,
-                spaceId: this.selectedProfileID
-              }
-            }).then(content => {
-              if (content.hasOwnProperty('orchestration')) {
-                let orchestration = content['orchestration'];
-                showDeployLog.call(this, {
-                  logName: orchestration.logName,
-                  logPath: orchestration.logPath,
-                  offset: null == orchestration.offset ? 0 : orchestration.offset
-                });
-              }
-            }).catch(err => {
-            }).finally(() => {
-              this.hideWaitingResponse('deploy');
-            });
-          }).catch(() => {
-            this.hideWaitingResponse('deploy');
-          });
           break;
         case 'delete':
           this.addToWaitingResponseQueue('delete');

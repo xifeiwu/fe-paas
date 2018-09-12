@@ -96,6 +96,11 @@ class Net extends NetBase {
         path: '/service/deployApplicationService',
         method: 'post'
       },
+      // 部署服务-开始部署
+      'service_quick_deploy': {
+        path: '/service/quickDeployApplicationService',
+        method: 'post'
+      },
       // 检测服务端口映射
       'service_port_map_check': {
         path: '/service/checkPortMapping',
