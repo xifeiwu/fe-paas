@@ -138,25 +138,9 @@
           this.imageSelectState.autoImageValue = '';
         } else {
           this.imageSelectState.customImageValue = '';
-          this.imageSelectState.autoImageValue = imageInfo.imageLocation;
+          this.imageSelectState.autoImageValue = '';
         }
-        this.requestImageRelatedInfo();
-      },
-
-      // get image related info from network
-      requestImageRelatedInfo() {
-        // check group tag
-        let {groupTag, appId, profileName} = this.infoForAddService;
-        this.$net.getImageRelatedInfo({
-          groupTag,
-          appId
-        }, {
-          env: profileName,
-          applicationId: appId,
-          groupTag: groupTag
-        }, {
-          groupTag: groupTag
-        }).then(autoImageList => {
+        this.requestImageRelatedInfo().then((autoImageList) => {
           this.imageInfoFromNet['autoImageList'] = [{
             label: '无',
             value: ''
@@ -166,13 +150,36 @@
               value: it,
             }
           }));
-//          if (imageInfoFromNet && imageInfoFromNet.hasOwnProperty('privateAppList')
-//            && Array.isArray(imageInfoFromNet.privateAppList) && imageInfoFromNet.privateAppList.length > 0) {
-//            this.imageSelectState.currentPrivateApp = imageInfoFromNet.privateAppList[0];
-//          }
-        }).catch(err => {
-          console.log(err);
+
+//          设置自动打镜像的值：
+//          1. 开始设置为空（无）
+//          2. 请求镜像列表后，查看传递过来的imageInfo.autoImageValue的值是否在
+//          this.setAutoImageValue(imageInfo);
+          if (!imageInfo.customImage && autoImageList.indexOf(imageInfo.imageLocation) > -1) {
+            this.imageSelectState.autoImageValue = imageInfo.imageLocation;
+          }
         })
+      },
+
+      // get image related info from network
+      async requestImageRelatedInfo() {
+        // check group tag
+        let {groupTag, appId, profileName} = this.infoForAddService;
+        const autoImageList =  await this.$net.getImageRelatedInfo({
+          groupTag,
+          appId
+        }, {
+          env: profileName,
+          applicationId: appId,
+          groupTag: groupTag
+        }, {
+          groupTag: groupTag
+        });
+        return autoImageList;
+//        if (imageInfoFromNet && imageInfoFromNet.hasOwnProperty('privateAppList')
+//          && Array.isArray(imageInfoFromNet.privateAppList) && imageInfoFromNet.privateAppList.length > 0) {
+//          this.imageSelectState.currentPrivateApp = imageInfoFromNet.privateAppList[0];
+//        }
       },
 
       getImageInfo() {
