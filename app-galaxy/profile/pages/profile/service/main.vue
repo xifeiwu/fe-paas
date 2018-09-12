@@ -35,9 +35,9 @@
                      size="mini-extral"
                      type="primary"
                      @click="handleButtonClick('go-to-work-order-todo-add')">申请工单</el-button>
-          <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
+          <el-tooltip slot="trigger" effect="dark" placement="bottom">
             <div slot="content">
-              <div>每次创建的服务版本信息为所在应用创建时的配置信息</div>
+              <div v-for="(item, index) in helpList" :key="index">{{item}}</div>
             </div>
             <span class="helper-text-tool-tip" style="font-size: 12px">相关提示<i class="el-icon-question" ></i></span>
           </el-tooltip>
@@ -125,7 +125,7 @@
                  v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"></div>
             <el-button
                     class="danger"
-                    v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"
+                    v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy'] && false"
                     type="text"
                     :loading="statusOfWaitingResponse('quick-deploy') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('quick-deploy', scope.$index, scope.row)"
@@ -133,7 +133,7 @@
               {{statusOfWaitingResponse('quick-deploy') && selected.service.id == scope.row.id ? '部署中': '快速部署'}}
             </el-button>
             <div class="ant-divider"
-                 v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"></div>
+                 v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy'] && false"></div>
             <el-button
                     class="danger" type="text"
                     :loading="statusOfWaitingResponse('stop') && selected.service.id == scope.row.id"
@@ -263,7 +263,7 @@
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
-                  <el-form-item label="preStop指令" class="big">
+                  <el-form-item label="preStop脚本" class="big">
                     <span>{{valueToShow(selected.model.prestopCommand)}}</span>
                     <i v-if="!$storeHelper.notPermitted['service_update']"
                        class="el-icon-edit" @click="handleChangeProp('prestopCommand')"></i>
@@ -1272,7 +1272,8 @@
       .el-dialog {
         width: 95%;
       }
-      .log-item{
+      .log-item {
+        /*white-space: pre;*/
         max-width: 100%;
         word-wrap: break-word;
         word-break: break-all;
@@ -1500,6 +1501,10 @@ export default {
   },
   data() {
     return {
+      helpList: [
+      '1. 每次创建的服务版本信息为所在应用创建时的配置信息',
+//      '2. 快速部署：采用当前容器内镜像部署，跳过代码编译并且不生成新的镜像。'
+      ],
       resizeListenerForServiceList: () => {},
       heightOfTable: '',
 
@@ -1867,6 +1872,7 @@ export default {
         this.memeorySizeList = 'memoryList' in firstItem ? firstItem.memoryList : '';
       }
     },
+
     // collect all related info for add-service before jump to page service/add
     getInfoForAddService() {
       let result = {
@@ -2056,6 +2062,11 @@ export default {
           if (logs) {
             const logList = logs.split('\n').filter(it => {
               return it;
+            }).map(it => {
+              // replace white-space with &nbsp
+              return it.replace(/^( *)(.*)$/, (match, p1, p2) => {
+                return '&nbsp;'.repeat(p1.length) + p2;
+              });
             }).map(it => {
               return it.replace(filterReg, (match, p1, p2, offset, string) => {
                 // console.log(match, p1, offset, string);

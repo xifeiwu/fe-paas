@@ -654,21 +654,19 @@
             }).map(it => {
               return it['serviceVersion'].substring(1);
             });
-            // set default service version when this.type == 'copy'
-            if (this.type === 'copy') {
-              let maxVersion = 0;
-              this.versionList.forEach(it => {
-                if (it > maxVersion) {
-                  maxVersion = it;
-                }
-              });
-              try {
-                maxVersion = parseInt(maxVersion) + 1;
-                this.serviceForm.serviceVersion = maxVersion.toString();
-              } catch (err) {
+            // set default service version when this.type == 'copy' or 'add'
+            let maxVersion = 0;
+            this.versionList.forEach(it => {
+              if (it > maxVersion) {
+                maxVersion = it;
               }
-//              this.checkVersion(this.serviceForm.serviceVersion);
+            });
+            try {
+              maxVersion = parseInt(maxVersion) + 1;
+              this.serviceForm.serviceVersion = maxVersion.toString();
+            } catch (err) {
             }
+//              this.checkVersion(this.serviceForm.serviceVersion);
           }
         })
       },
