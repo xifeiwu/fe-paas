@@ -746,10 +746,7 @@ export default {
             payload
           }).then(resContent => {
             // update appInfoList after create app success
-            this.$store.dispatch('user/appInfoListOfGroup', {
-              from: 'page/app/add',
-              groupId: this.$storeHelper.currentGroupID
-            });
+            this.$net.needUpdateAppList = true;
             this.$message({
               type: 'success',
               message: '应用' + payload.appName + '创建成功！'

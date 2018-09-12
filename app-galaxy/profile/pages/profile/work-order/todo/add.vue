@@ -257,14 +257,7 @@
       }
 
       this.onCurrentGroupID(this.currentGroupID);
-      if (!this.appInfoListOfGroup) {
-        this.$store.dispatch('user/appInfoListOfGroup', {
-          from: 'page/work-order/todo/add',
-          groupId: this.currentGroupID
-        });
-      } else {
-        this.onAppInfoListOfGroup(this.appInfoListOfGroup);
-      }
+      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
     },
     mounted() {
 //      let workOrder = this.$store.getters['app/currentWorkOrder'];

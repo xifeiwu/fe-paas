@@ -2198,6 +2198,7 @@ export default {
                   type: 'success',
                   message: msg
                 });
+                this.$net.needUpdateAppList = true;
                 this.requestServiceList(this.selectedAppID, this.selectedProfileID);
               }).catch(err => {
                 this.hideWaitingResponse('delete');

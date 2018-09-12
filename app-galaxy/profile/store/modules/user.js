@@ -2,7 +2,6 @@
  * Created by xifei.wu on 2017/12/4.
  */
 import Vue from 'vue';
-import NetData from '../../net/net';
 const debug = browserDebug('pass-fe:net');
 
 
@@ -100,12 +99,12 @@ const actions = {
     }
   },
 
-  appInfoList({commit, state}, infoList) {
-    state.appInfoListOfGroup = infoList;
-  },
-
   config({commit, state}, {page, data}) {
     commit('UPDATE_CONFIG', {page, data});
+  },
+
+  appInfoList({commit, state}, infoList) {
+    state.appInfoListOfGroup = infoList;
   },
 
   /**
@@ -117,11 +116,11 @@ const actions = {
    * @param state
    * @param groupId
    */
-  async appInfoListOfGroup({commit, state}, {groupId, from}) {
+  async appInfoListOfGroup({commit, state}, {groupId}) {
     if (!groupId) {
       return;
     }
-    state.appInfoListOfGroup = await NetData.getAPPList({
+    state.appInfoListOfGroup = await Vue.prototype.$net.getAPPList({
       groupId: groupId,
     });
     return state.appInfoListOfGroup;

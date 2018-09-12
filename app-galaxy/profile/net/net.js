@@ -25,6 +25,11 @@ class Net extends NetBase {
     this.requestingState = {
       getAPPList: false,
     };
+    // 需要更新应用列表：
+    // 1. 添加应用
+    // 2. 添加服务
+    // 3. 删除服务
+    this.needUpdateAppList = false;
     const PAAS_URL_LIST = {
       // permission与url的对应关系
       'permission_url_map': {

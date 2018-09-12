@@ -361,13 +361,14 @@
   export default {
     mixins: [commonUtils],
     created() {
-      // 刷新页面是不请求应用列表，以免和profile中请求应用列表的逻辑重复
-      if (this.$routeHelper.pathList.length > 1) {
+      // 按需更新应用列表
+      if (this.$net.needUpdateAppList) {
         this.$net.getAPPList({
           groupId: this.$storeHelper.currentGroupID
         }).then(appInfoList => {
           this.$store.dispatch('user/appInfoList', appInfoList);
         });
+        this.$net.needUpdateAppList = false;
       }
     },
     mounted() {

@@ -266,13 +266,6 @@
 
     created() {
 //      this.onCurrentGroupID(this.currentGroupID);
-      if (!this.appInfoListOfGroup) {
-        console.log('warning: appInfoListOfGroup not found');
-        this.$store.dispatch('user/appInfoListOfGroup', {
-          from: 'page/work-order/todo/add',
-          groupId: this.currentGroupID
-        });
-      }
     },
     mounted() {
       let workOrderDetail = this.$storeHelper.getTmpProp('workOrderDetail');

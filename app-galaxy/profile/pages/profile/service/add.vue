@@ -1015,6 +1015,7 @@
                       }
                     };
                   }
+                  this.$net.needUpdateAppList = true;
                   this.$router.push(this.$net.page['profile/service']);
                 }).catch().finally(() => {
                   this.hideWaitingResponse('submit');
