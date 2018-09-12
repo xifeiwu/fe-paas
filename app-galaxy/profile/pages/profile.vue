@@ -191,17 +191,20 @@
           }).then(resContent => {
             const profileList = resContent['spaceList'];
             this.$store.dispatch('user/profileList', profileList);
-            Promise.all([
-              this.$net.getAPPList({
-                groupId: groupId
-              }),
-            ]).then(resContentList => {
-              const [resContent1] = resContentList;
-              const appInfoList = resContent1;
-              this.$store.dispatch('user/appInfoList', appInfoList);
-            }).catch(err => {
-              this.$net.showError(err);
-            })
+            this.$store.dispatch('user/appInfoList', {
+              groupId: this.$storeHelper.currentGroupID,
+            });
+//            Promise.all([
+//              this.$net.getAPPList({
+//                groupId: groupId
+//              }),
+//            ]).then(resContentList => {
+//              const [resContent1] = resContentList;
+//              const appInfoList = resContent1;
+//              this.$store.dispatch('user/appInfoList', appInfoList);
+//            }).catch(err => {
+//              this.$net.showError(err);
+//            })
           }).catch(err => {});
         }
       },

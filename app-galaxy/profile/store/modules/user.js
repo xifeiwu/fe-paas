@@ -103,10 +103,6 @@ const actions = {
     commit('UPDATE_CONFIG', {page, data});
   },
 
-  appInfoList({commit, state}, infoList) {
-    state.appInfoListOfGroup = infoList;
-  },
-
   /**
    * 获取该groupId下的所有app, the case of triggering state action:
    * 1. at created of profile.vue
@@ -116,9 +112,9 @@ const actions = {
    * @param state
    * @param groupId
    */
-  async appInfoListOfGroup({commit, state}, {groupId}) {
+  async appInfoList({commit, state}, {groupId}) {
     if (!groupId) {
-      return;
+      return Promise.reject('groupId not found');
     }
     state.appInfoListOfGroup = await Vue.prototype.$net.getAPPList({
       groupId: groupId,

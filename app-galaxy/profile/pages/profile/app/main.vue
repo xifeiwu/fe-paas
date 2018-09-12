@@ -363,10 +363,8 @@
     created() {
       // 按需更新应用列表
       if (this.$net.needUpdateAppList) {
-        this.$net.getAPPList({
-          groupId: this.$storeHelper.currentGroupID
-        }).then(appInfoList => {
-          this.$store.dispatch('user/appInfoList', appInfoList);
+        this.$store.dispatch('user/appInfoList', {
+          groupId: this.$storeHelper.currentGroupID,
         });
         this.$net.needUpdateAppList = false;
       }
@@ -514,21 +512,8 @@
             break;
 
           case 'refreshAppList':
-            this.$net.getAPPList({
+            this.$store.dispatch('user/appInfoList', {
               groupId: this.$storeHelper.currentGroupID,
-//              serviceName: ''
-            }).then(content => {
-              this.$store.dispatch('user/appInfoList', content);
-            }).catch(err => {
-              if (err.title && err.msg) {
-                this.$notify.error({
-                  title: err.title,
-                  message: err.msg,
-                  duration: 0,
-                  onClose: function () {
-                  }
-                });
-              }
             });
             break;
         }
