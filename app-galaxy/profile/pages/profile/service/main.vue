@@ -1010,6 +1010,10 @@
                @close="selected.prop = null"
                v-if="selected.service && selected.model"
     >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改端口映射配置后【立即生效】！</span>
+      </el-tag>
       <el-form :model="newProps" :rules="rules" size="mini" labelWidth="120px" ref="changePortMapForm">
         <el-form-item label="端口映射" class="port-map" :error="newProps.portMap.errMsg">
           <div class="el-row title">
@@ -1786,20 +1790,23 @@ export default {
     },
 
     'newProps.portMap.outerPort': function (value) {
-      if (this.newProps.portMap.syntaxErrMsg) {
-        return;
+      const numberReg = /^[0-9]+$/;
+      const outerPort = this.newProps.portMap.outerPort;
+      if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 59999) {
+        this.checkPortMap({
+          appId: this.selectedAppID,
+          spaceId: this.selectedProfileID,
+          outerPort: this.newProps.portMap.outerPort
+        }, (err, msg) => {
+          if (err) {
+            this.newProps.portMap.validateErrMsg = '';
+          } else {
+            this.newProps.portMap.validateErrMsg = msg;
+          }
+        })
+      } else if (outerPort == '') {
+        this.newProps.portMap.validateErrMsg = '';
       }
-      this.checkPortMap({
-        appId: this.selectedAppID,
-        spaceId: this.selectedProfileID,
-        outerPort: this.newProps.portMap.outerPort
-      }, (err, msg) => {
-        if (err) {
-          this.newProps.portMap.validateErrMsg = '';
-        } else {
-          this.newProps.portMap.validateErrMsg = msg;
-        }
-      })
     },
   },
 
@@ -2632,7 +2639,7 @@ export default {
           options['buildName'] = this.newProps['packageInfo'].name;
           break;
         case 'portMap':
-          options['seviceName'] = this.selected.service['serviceName'];
+          options['serviceName'] = this.selected.service['serviceName'];
           options['portsMapping'] = [{
             id: this.newProps['portMap'].id,
             protocol: this.newProps['portMap'].protocol,
