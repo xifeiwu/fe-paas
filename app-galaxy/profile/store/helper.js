@@ -176,7 +176,8 @@ class StoreHelper extends BaseHelper{
     let result = [];
     let messageForCreateAPP = this.messageForCreateAPP();
     if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('healthCheckList')) {
-      result = messageForCreateAPP['healthCheckList'];
+      // only use HTTP type
+      result = messageForCreateAPP['healthCheckList'].slice(0, 1)
     }
     return result;
   }

@@ -2529,6 +2529,8 @@ export default {
             const outerPort = this.newProps.portMap.outerPort;
             if (outerPort == '') {
               this.newProps.portMap.validateErrMsg = '';
+            } else if (outerPort == this.selected.model['portMap'].outerPort) {
+              this.requestUpdate(prop);
             } else {
               this.addToWaitingResponseQueue(`change-${prop}`);
               this.$net.getResponse(this.$net.URL_LIST.service_port_map_check, {
