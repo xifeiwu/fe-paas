@@ -75,7 +75,7 @@
               </el-radio>
             </el-radio-group>
           </div>
-          <div :class="['war-name', createAppForm.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']"><el-input v-model="createAppForm.packageInfo.name" placeholder="构建类型为WAR时，请填写构建包名称"></el-input></div>
+          <div :class="['war-name', createAppForm.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']"><el-input v-model="createAppForm.packageInfo.name" placeholder="默认与项目名称一致"></el-input></div>
         </div>
       </el-form-item>
       <div class="el-form-item-group is-required">
