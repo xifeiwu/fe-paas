@@ -1,4 +1,4 @@
-import STORE from '../../../store';
+import STORE from '../../store';
 import utils from '$assets/libs/element-ui/utils';
 
 class AppInfoHelper {

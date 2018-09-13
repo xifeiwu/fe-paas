@@ -1,47 +1,47 @@
-import AppMain from './profile/app/main.vue';
-import AppAdd from './profile/app/add.vue';
-import ServiceMain from './profile/service/main.vue';
-import ServiceAdd from './profile/service/add.vue';
-import InstanceMain from './profile/instance/main.vue';
+import AppMain from './app/main.vue';
+import AppAdd from './app/add.vue';
+import ServiceMain from './service/main.vue';
+import ServiceAdd from './service/add.vue';
+import InstanceMain from './instance/main.vue';
 
-import DomainMain from './profile/domain/main.vue';
-import DomainWhiteList from './profile/domain/white-list.vue';
+import DomainMain from './domain/main.vue';
+import DomainWhiteList from './domain/white-list.vue';
 
-import LogMain from './profile/log/main.vue';
+import LogMain from './log/main.vue';
 // const LogMain = () => import(
 //   /* webpackChunkName: "log" */
 //   /* webpackMode: "lazy" */
-//   './profile/log/list.vue');
-import LogRun from './profile/log/run.vue';
-import LogDeploy from './profile/log/deploy.vue';
+//   './log/list.vue');
+import LogRun from './log/run.vue';
+import LogDeploy from './log/deploy.vue';
 
-import MonitorMain from './profile/monitor/main.vue';
+import MonitorMain from './monitor/main.vue';
 
-import OAuthMain from './profile/oauth/main.vue';
-import OAuthKey from './profile/oauth/key.vue';
-import OAuthURL from './profile/oauth/url.vue';
+import OAuthMain from './oauth/main.vue';
+import OAuthKey from './oauth/key.vue';
+import OAuthURL from './oauth/url.vue';
 
-import WorkOrderMain from './profile/work-order/main.vue';
-import WorkOrderToDo from './profile/work-order/todo.vue';
-import WorkOrderList from './profile/work-order/list.vue';
-import WorkOrderAdd from './profile/work-order/todo/add.vue';
-import WorkOrderModify from './profile/work-order/todo/modify.vue';
-import WorkOrderDeploy from './profile/work-order/todo/deploy.vue';
-import WorkOrderAccept from './profile/work-order/todo/accept.vue';
-import WorkOrderTest from './profile/work-order/todo/test.vue';
+import WorkOrderMain from './work-order/main.vue';
+import WorkOrderToDo from './work-order/todo.vue';
+import WorkOrderList from './work-order/list.vue';
+import WorkOrderAdd from './work-order/todo/add.vue';
+import WorkOrderModify from './work-order/todo/modify.vue';
+import WorkOrderDeploy from './work-order/todo/deploy.vue';
+import WorkOrderAccept from './work-order/todo/accept.vue';
+import WorkOrderTest from './work-order/todo/test.vue';
 
 // config-server
-import ConfigServerMain from './profile/config-server/main.vue';
-import ConfigServerFileList from './profile/config-server/list.vue';
+import ConfigServerMain from './config-server/main.vue';
+import ConfigServerFileList from './config-server/list.vue';
 
 // cdn
-import CdnMain from './profile/cdn/main.vue';
-import CdnList from './profile/cdn/list.vue';
-import CdnCreate from './profile/cdn/create.vue';
-import CdnEdit from './profile/cdn/edit.vue';
-import CdnPrefetch from './profile/cdn/prefetch.vue';
-import CdnStatistics from './profile/cdn/statistics.vue';
-import CdnDashboard from './profile/cdn/dashboard.vue';
+import CdnMain from './cdn/main.vue';
+import CdnList from './cdn/list.vue';
+import CdnCreate from './cdn/create.vue';
+import CdnEdit from './cdn/edit.vue';
+import CdnPrefetch from './cdn/prefetch.vue';
+import CdnStatistics from './cdn/statistics.vue';
+import CdnDashboard from './cdn/dashboard.vue';
 
 import PageNotFound from '../../components/page-not-found.vue';
 
