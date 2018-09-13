@@ -101,30 +101,6 @@
     computed: {
     },
     watch: {
-      // sync data from imageSelectState to formData
-      'imageSelectState.customImageValue': {
-        immediate: true,
-        handler(value) {
-          if (this.formData.customImage) {
-            this.formData.imageLocation = value;
-          }
-        }
-      },
-      'imageSelectState.autoImageValue': {
-        immediate: true,
-        handler(value) {
-          if (!this.formData.customImage) {
-            this.formData.imageLocation = value;
-          }
-        }
-      },
-
-      'imageSelectState.customImage': {
-        immediate: true,
-        handler (value) {
-          this.formData.customImage = value;
-        }
-      },
     },
     methods: {
       init(infoForAddService, imageInfo) {
@@ -183,7 +159,11 @@
       },
 
       getImageInfo() {
-        return this.formData;
+        const imageSelectState = this.imageSelectState;
+        return {
+          customImage: imageSelectState.customImage,
+          imageLocation: imageSelectState.customImage ? imageSelectState.customImageValue : imageSelectState.autoImageValue
+        }
       },
 
       validate(cb) {
