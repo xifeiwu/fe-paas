@@ -134,9 +134,10 @@
                 <div class="el-col el-col-2" style="text-align: center">
                   <el-tooltip slot="trigger" effect="dark" placement="bottom">
                     <div slot="content">
-                      <div>容器运行前设置的环境变量。如env中的Name：string（环境变量名称），Value：string（环境变量的值）</div>
+                      <div>容器运行前设置的环境变量。</div>
+                      <div>如env中的Name：string（环境变量名称），Value：string（环境变量的值）</div>
                     </div>
-                    <span><i class="el-icon-question" style="color: #E6A23C"></i></span>
+                    <span><i class="paas-icon-fa-question" style="color: #E6A23C"></i></span>
                   </el-tooltip>
                 </div>
               </div>
@@ -175,7 +176,7 @@
                     <div slot="content">
                       <div>该Host为/etc/hosts，配置主机名和IP地址。如：192.168.1.10 finup100</div>
                     </div>
-                    <span><i class="el-icon-question" style="color: #E6A23C"></i></span>
+                    <span><i class="paas-icon-fa-question" style="color: #E6A23C"></i></span>
                   </el-tooltip>
                 </div>
               </div>
@@ -210,9 +211,11 @@
                   <span>访问端口</span>
                   <el-tooltip slot="trigger" effect="dark" placement="top">
                     <div slot="content">
-                      <div>访问端口的范围在40000~59999之间</div>
+                      <!--<div>访问端口的范围在40000~59999之间</div>-->
+                      <div>访问端口由后端自动生成</div>
+                      <div>服务创建成功后，可以在服务详情中查看或修改</div>
                     </div>
-                    <span><i class="el-icon-question" style="color:#E6A23C"></i></span>
+                    <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
                   </el-tooltip>
                 </div>
                 <div class="el-col el-col-2" style="min-height:1px"></div>
@@ -221,7 +224,7 @@
               </div>
               <el-row class="content">
                 <el-col :span="6">
-                  <el-input placeholder="如40002" size="mini" v-model="serviceForm.portMap.outerPort"></el-input>
+                  <el-input placeholder="如40002" size="mini" disabled v-model="serviceForm.portMap.outerPort"></el-input>
                 </el-col>
                 <el-col :span="2">--></el-col>
                 <el-col :span="6">
@@ -337,8 +340,7 @@
       box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
       margin: 15px;
       padding: 10px 20px;
-      width: 80%;
-      max-width: 900px;
+      width: 900px;
       .section-title {
         font-size: 18px;
         text-align: center;
@@ -359,6 +361,9 @@
         }
       }
       .el-form {
+        .paas-icon-fa-question {
+          font-size: 12px;
+        }
         .el-form-item {
           &.app-name {
             margin-bottom: 8px;
@@ -565,12 +570,12 @@
 //              } else if (containerPort == '') {
 //                errMsg = '请填写目标端口';
 //              } else {
-              if (outerPort != '' && containerPort != '') {
-                if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 59999) {
-                } else {
-                  errMsg = '访问端口只能是40000-59999之间的数字';
-                }
-                if (!errMsg && !numberReg.exec(outerPort)) {
+              if (containerPort != '') {
+//                if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 59999) {
+//                } else {
+//                  errMsg = '访问端口只能是40000-59999之间的数字';
+//                }
+                if (!errMsg && !numberReg.exec(containerPort)) {
                   errMsg = '目标端口只能是数字';
                 }
               }

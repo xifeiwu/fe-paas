@@ -1022,8 +1022,9 @@
               <el-tooltip slot="trigger" effect="dark" placement="top">
                 <div slot="content">
                   <div>访问端口的范围在40000~59999之间</div>
+                  <div>如需删除端口映射，可将访问端口，目标端口都设为空</div>
                 </div>
-                <span><i class="el-icon-question" style="color:#E6A23C"></i></span>
+                <span><i class="paas-icon-fa-question" style="font-size: 12px; color:#E6A23C"></i></span>
               </el-tooltip>
             </div>
             <div class="el-col el-col-2" style="min-height:1px"></div>
@@ -1639,6 +1640,7 @@ export default {
           outerPort: '',
           containerPort: '',
           _validateErrMsg: '',
+          _errMsg: '',
           get errMsg() {
             if (this.syntaxErrMsg) {
               return this.syntaxErrMsg;
@@ -1647,6 +1649,9 @@ export default {
             } else {
               return '';
             }
+          },
+          set errMsg(value) {
+            this._errMsg = value;
           },
           get syntaxErrMsg() {
             // 先检测语法错误，后检测端口号错误
@@ -1664,7 +1669,7 @@ export default {
               } else {
                 errMsg = '访问端口只能是40000-59999之间的数字';
               }
-              if (!errMsg && !numberReg.exec(outerPort)) {
+              if (!errMsg && !numberReg.exec(containerPort)) {
                 errMsg = '目标端口只能是数字';
               }
             } else if (outerPort == '' && containerPort == '') {
@@ -1793,6 +1798,10 @@ export default {
     },
 
     'newProps.portMap.outerPort': function (value) {
+      // 如果端口号没有变，不需要检测
+      if (value === this.selected.model.portMap.outerPort) {
+        return ''
+      }
       const numberReg = /^[0-9]+$/;
       const outerPort = this.newProps.portMap.outerPort;
       if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 59999) {
