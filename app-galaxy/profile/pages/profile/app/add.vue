@@ -49,8 +49,8 @@
       </el-form-item>
       <el-form-item label="开发语言" prop="language">
         <el-radio-group v-model="createAppForm.language" @change="handleLanguageChange">
-          <el-radio v-for="item in language.list" :label="item.type" :key="item.id">
-            {{item.language}}
+          <el-radio v-for="item in language.list" :label="item.language" :key="item.id">
+            {{item.languageDesc}}
           </el-radio>
           <!--<el-radio label="JAVA"></el-radio>-->
           <!--<el-radio label="NODE_JS"></el-radio>-->
@@ -435,7 +435,8 @@ export default {
           get errMsg() {
             return '';
             if (this._type === 'WAR' && !this._name) {
-              return '构建类型为WAR时，必须填写构建包名称';
+              return '默认与项目名称一致';
+//              return '构建类型为WAR时，必须填写构建包名称';
             } else {
               return '';
             }
@@ -544,18 +545,18 @@ export default {
     onLanguageInfo (languageList) {
       if (Array.isArray(languageList) && languageList.length > 0) {
         let defaultLanguage = languageList[0];
-        this.createAppForm.language = defaultLanguage.type;
+        this.createAppForm.language = defaultLanguage.language;
         this.language.list = languageList;
-        this.handleLanguageChange(defaultLanguage.type);
+        this.handleLanguageChange(defaultLanguage.language);
       }
     },
 
     // 语言改变时，更新版本列表
     handleLanguageChange: function (languageType) {
       if (Array.isArray(this.$storeHelper.languageInfo)) {
-        // get language info from languageList by language type
+        // get language info from languageList by language
         this.$storeHelper.languageInfo.some(it => {
-          if (it.hasOwnProperty('type') && it.type === languageType) {
+          if (it.hasOwnProperty('language') && it.language === languageType) {
             this.language.selected = it;
 //            console.log(it);
             this.language.versionList = it['languageVersionList'];

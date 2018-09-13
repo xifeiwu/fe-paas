@@ -490,7 +490,7 @@
               </el-radio>
               </el-radio-group>
             </div>
-            <div :class="['war-name', newProps.packageInfo.needSetName ?'':'hide']"><el-input v-model="newProps.packageInfo.name" placeholder="构建类型为WAR时，请填写构建包名称"></el-input></div>
+            <div :class="['war-name', newProps.packageInfo.needSetName ?'':'hide']"><el-input v-model="newProps.packageInfo.name" placeholder="默认与项目名称一致"></el-input></div>
           </div>
         </el-form-item>
       </el-form>

@@ -607,16 +607,16 @@ class Net extends NetBase {
         let language = it.language;
         // add property type which will be send to server
         // change the style of language
-        it.type = language;
+        // it.type = language;
         switch (language) {
           case 'JAVA':
-            it.language = 'Java';
+            it.languageDesc = 'Java';
             break;
           case 'NODE_JS':
-            it.language = 'NodeJS';
+            it.languageDesc = 'NodeJS';
             break;
           case 'PYTHON':
-            it.language = 'Python';
+            it.languageDesc = 'Python';
             break;
         }
         if (it.hasOwnProperty('languageVersionList')) {
