@@ -1637,10 +1637,17 @@ export default {
         portMap: {
           id: null,
           protocol: 'TCP',
-          outerPort: '',
+          _outerPort: '',
           containerPort: '',
           _validateErrMsg: '',
           _errMsg: '',
+          set outerPort(value) {
+            this._outerPort = value;
+            this.validateErrMsg = '';
+          },
+          get outerPort() {
+            return this._outerPort;
+          },
           get errMsg() {
             if (this.syntaxErrMsg) {
               return this.syntaxErrMsg;
@@ -1798,27 +1805,6 @@ export default {
     },
 
     'newProps.portMap.outerPort': function (value) {
-      // 如果端口号没有变，不需要检测
-      if (value === this.selected.model.portMap.outerPort) {
-        return ''
-      }
-      const numberReg = /^[0-9]+$/;
-      const outerPort = this.newProps.portMap.outerPort;
-      if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 59999) {
-        this.checkPortMap({
-          appId: this.selectedAppID,
-          spaceId: this.selectedProfileID,
-          outerPort: this.newProps.portMap.outerPort
-        }, (err, msg) => {
-          if (err) {
-            this.newProps.portMap.validateErrMsg = '';
-          } else {
-            this.newProps.portMap.validateErrMsg = msg;
-          }
-        })
-      } else if (outerPort == '') {
-        this.newProps.portMap.validateErrMsg = '';
-      }
     },
   },
 
@@ -2405,6 +2391,8 @@ export default {
           this.newProps['packageInfo'].packageTypeList = packageTypeList;
           break;
         case 'portMap':
+          // reset props for dialog
+          this.newProps.portMap.validateErrMsg = '';
           this.newProps['portMap'].id = this.selected.model['portMap'].id;
           this.newProps['portMap'].protocol = this.selected.model['portMap'].protocol;
           this.newProps['portMap'].outerPort = this.selected.model['portMap'].outerPort;
@@ -2452,7 +2440,7 @@ export default {
      * do some action of ok button in popup-dialog
      * @param prop
      */
-    handleDialogButtonClick(prop) {
+    async handleDialogButtonClick(prop) {
       let formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
       switch (prop) {
         case 'gitLabAddress':
@@ -2523,9 +2511,6 @@ export default {
           }
           break;
         case 'portMap':
-          if (this.newProps.portMap.errMsg) {
-            return;
-          }
           if (
             this.newProps['portMap'].outerPort == this.selected.model['portMap'].outerPort &&
             this.newProps['portMap'].containerPort == this.selected.model['portMap'].containerPort&&
@@ -2537,7 +2522,38 @@ export default {
               message: '您没有做修改'
             });
           } else {
-            this.requestUpdate(prop);
+            if (this.newProps.portMap.syntaxErrMsg) {
+              return;
+            }
+            // 如果端口号没有变，不需要检测
+            const outerPort = this.newProps.portMap.outerPort;
+            if (outerPort == '') {
+              this.newProps.portMap.validateErrMsg = '';
+            } else {
+              this.addToWaitingResponseQueue(`change-${prop}`);
+              this.$net.getResponse(this.$net.URL_LIST.service_port_map_check, {
+                payload: {
+                  appId: this.selectedAppID,
+                  spaceId: this.selectedProfileID,
+                  outerPort: this.newProps.portMap.outerPort
+                }
+              }).then(res => {
+                let errMsgForPortMap = '';
+                if (!this.$net.isResponseSuccess(res.data)) {
+                  errMsgForPortMap = res.data.msg;
+                }
+                this.newProps.portMap.validateErrMsg = errMsgForPortMap;
+                // 端口检测通过后，更新端口映射
+                if (!this.newProps.portMap.errMsg) {
+                  this.requestUpdate(prop);
+                } else {
+                  this.hideWaitingResponse(`change-${prop}`);
+                }
+              }).catch(err => {
+                console.log(err);
+                this.hideWaitingResponse(`change-${prop}`);
+              });
+            }
           }
           break;
         case 'fileLocation':
@@ -2686,6 +2702,7 @@ export default {
             message: errMsg
           })
         }).finally(() => {
+          this.hideWaitingResponse(`change-${prop}`);
           this.waitingResponse = false;
         });
       } else {
