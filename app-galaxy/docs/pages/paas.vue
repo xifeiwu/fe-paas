@@ -98,6 +98,9 @@
       }).then(resContent => {
         this.netData.html = resContent['html'];
         this.netData.markdown = resContent['markdown'];
+        this.$nextTick(() => {
+          this.updateScrollTopByHash();
+        })
       }).catch();
     },
     mounted() {
@@ -142,7 +145,7 @@
     },
     watch: {
       '$route': function (value) {
-        console.log(value);
+//        console.log(value);
       },
       'netData.html': function (value) {
         if (!this.$refs.hasOwnProperty('navigation')) {

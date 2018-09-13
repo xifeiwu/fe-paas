@@ -366,21 +366,22 @@ $menu-height: 45px;
               label: '应用引擎',
               target: '/profile'
             }, {
-              label: '对象存储',
+              label: '应用配置',
             }, {
-              label: '通信服务'
+              label: 'Access Key'
             }]
           },
           helper: {
             title: '帮助文档',
             items: [{
               label: '快速入门',
-              target: '/docs#快速入门'
+              target: `${this.$net.page['docs/paas']}#快速入门`
             }, {
               label: '常见问题',
-              target: '/docs#常见问题'
+              target: `${this.$net.page['docs/paas']}#常见问题`
             }, {
-              label: '版本更新'
+              label: '版本更新',
+              target: `${this.$net.page['docs/paas']}#版本更新`
             }]
           },
           about: {

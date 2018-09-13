@@ -61,6 +61,7 @@ class Net {
       'user/info': '/user/info',
       'user/group': '/user/group',
       'docs': '/docs',
+      'docs/paas': '/docs/paas',
       'index': '/index',
       'manage': '/manage'
     };

@@ -139,6 +139,9 @@
       }).then(resContent => {
         this.netData.html = resContent['html'];
         this.netData.markdown = resContent['markdown'];
+        this.$nextTick(() => {
+          this.updateScrollTopByHash();
+        })
       }).catch();
     },
     mounted() {
