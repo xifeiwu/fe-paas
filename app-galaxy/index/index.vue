@@ -364,11 +364,13 @@ $menu-height: 45px;
             title: '产品',
             items: [{
               label: '应用引擎',
-              target: '/profile'
+              target: this.$net.page['profile/app']
             }, {
               label: '应用配置',
+              target: this.$net.page['profile/config-server']
             }, {
-              label: 'Access Key'
+              label: 'Access Key',
+              target: this.$net.page['profile/oauth']
             }]
           },
           helper: {
