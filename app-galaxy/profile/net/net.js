@@ -304,6 +304,15 @@ class Net extends NetBase {
 
     // some permissionPath do not related to any url are list bellow
     let pathToKey = {
+      // 创建应用
+      '/2.x/app/create': 'app_create',
+      // 更改运行环境
+      '/2.x/app/update/space': 'app_change_profile',
+      // 应用转让
+      '/2.x/app/transfer': 'app_transfer',
+      // 删除应用
+      '/2.x/app/delete': 'app_delete',
+
       '/2.x/internet/ipWhiteList': 'domain_bind_white_list',
       // 应用监控
       '/2.x/apm': 'app_monitor',
@@ -315,6 +324,7 @@ class Net extends NetBase {
       '/2.x/instances/apm': 'instance_monitor',
       // 查看部署日志
       // '/2.x/service/search/deployLog': '',
+      '/2.x/internet/create': 'domain_add',
       // 删除域名
       '/2.x/internet/delete': 'domain_remove',
       // 从实例列表打开终端

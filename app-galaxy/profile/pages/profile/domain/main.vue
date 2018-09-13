@@ -102,14 +102,14 @@
                     @click="handleRowButtonClick('secure-check', scope.$index, scope.row)">
               安全审核
             </el-button>
-            <div class="ant-divider"></div>
+            <div class="ant-divider" v-if="!$storeHelper.notPermitted['domain_secure_check']"></div>
             <el-button
                     v-if="!$storeHelper.notPermitted['domain_remove']"
                     type="text" class="danger"
                     :loading="statusOfWaitingResponse('remove') && selected.row.id === scope.row.id"
                     @click="handleRowButtonClick('remove', scope.$index, scope.row)">删除
             </el-button>
-            <div class="ant-divider"></div>
+            <div class="ant-divider" v-if="!$storeHelper.notPermitted['domain_remove']"></div>
             <el-button
                     v-if="!$storeHelper.notPermitted['domain_bind_white_list']"
                     type="text" class="primary flex"
