@@ -446,6 +446,7 @@
               document.body.appendChild(a);
               a.click();
             }).catch(err => {
+              this.$net.showError(err);
             }).finally(() => {
               this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.download_app_deploy_count.path);
             });

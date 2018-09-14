@@ -55,7 +55,7 @@
         <!--</el-date-picker>-->
       </div>
       <div class="item" @click="handleClick('search')">
-        <i :class="['el-icon-refresh']"></i>
+        <i :class="['el-icon-refresh']" style="color: #207245"></i>
       </div>
       <div class="item export-excel" @click="handleClick('download-analyze')">
         <el-tooltip effect="dark" content="导出表格" placement="bottom">
@@ -497,6 +497,7 @@
               document.body.appendChild(a);
               a.click();
             }).catch(err => {
+              this.$net.showError(err);
             }).finally(() => {
               this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.download_app_count_detail.path);
             });

@@ -1982,7 +1982,7 @@ export default {
               profileID: this.selectedProfileID
             });
             this.$router.push({
-              path: '/work-order/todo/add',
+              path: this.$net.page['profile/work-order/todo/add'],
               query: {
                 from: '/service'
               }
