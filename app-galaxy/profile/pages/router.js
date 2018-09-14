@@ -43,7 +43,7 @@ import CdnPrefetch from './cdn/prefetch.vue';
 import CdnStatistics from './cdn/statistics.vue';
 import CdnDashboard from './cdn/dashboard.vue';
 
-import PageNotFound from '../../components/page-not-found.vue';
+import PageNotFound from 'assets/components/page-not-found.vue';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';

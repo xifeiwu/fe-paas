@@ -26,7 +26,7 @@
   }
 </style>
 <script>
-  import paasHeader from '../../components/header';
+  import paasHeader from 'assets/components/header';
 
   export default {
     components: {paasHeader},

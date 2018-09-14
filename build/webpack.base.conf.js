@@ -35,7 +35,7 @@ const chunksAndTemplates = (() => {
     'manage': path.resolve(vueBaseDir, 'app-galaxy/manage/entry.js'),
     'user': path.resolve(vueBaseDir, 'app-galaxy/user.js'),
     'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),
-    'page-not-found': path.resolve(vueBaseDir, 'app-galaxy/components/page-not-found-entry.js'),
+    'page-not-found': path.resolve(vueBaseDir, 'app-galaxy/assets/components/page-not-found-entry.js'),
   };
   let htmlConfigs = [
     {
@@ -138,10 +138,9 @@ var baseConfig = {
     extensions: ['.js', '.vue', '.json', '.scss', '.sass'],
     alias: {
       'element-ui': utils.contextPath() + '/element-ui',
-      'components': utils.contextPath() + '/components',
+      '$components': utils.contextPath() + '/components',
       '$assets': utils.contextPath() + '/assets',
       'assets': utils.contextPath() + '/app-galaxy/assets',
-      '$components': utils.contextPath() + '/app-galaxy/components',
     }
   },
   module: {

@@ -89,7 +89,7 @@
 <script>
   import MyVersionSelector from '../components/version-selector';
   import paasDialogForLog from '../components/dialog4log.vue';
-  import commonUtils from '$components/mixins/common-utils';
+  import commonUtils from 'assets/components/mixins/common-utils';
   export default {
     mixins: [commonUtils],
     components: {MyVersionSelector, paasDialogForLog},

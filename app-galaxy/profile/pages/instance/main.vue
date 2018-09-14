@@ -207,7 +207,7 @@
     removeResizeListener
   } from "element-ui/src/utils/resize-event";
   import paasDialogForLog from "../components/dialog4log.vue";
-  import commonUtils from '$components/mixins/common-utils';
+  import commonUtils from 'assets/components/mixins/common-utils';
 
   export default {
     mixins: [commonUtils],

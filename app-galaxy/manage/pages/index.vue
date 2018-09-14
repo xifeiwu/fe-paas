@@ -87,7 +87,7 @@
 
 <script>
   import {mapState, mapGetters} from 'vuex';
-  import paasHeaderProfile from '$components/header-profile';
+  import paasHeaderProfile from 'assets/components/header-profile';
   import paasNavBar from './nav-bar.vue';
 
   export default {

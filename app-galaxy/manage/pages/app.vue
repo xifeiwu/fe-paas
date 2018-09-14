@@ -159,7 +159,7 @@
 
 <script>
   import {mapState} from "vuex";
-  import commonUtils from '$components/mixins/common-utils';
+  import commonUtils from 'assets/components/mixins/common-utils';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 
   export default {

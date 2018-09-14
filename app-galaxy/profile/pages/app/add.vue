@@ -369,7 +369,7 @@
 <script>
   import {mapGetters} from 'vuex';
   import appPropUtil from '../utils/app-props';
-  import commonUtils from '$components/mixins/common-utils';
+  import commonUtils from 'assets/components/mixins/common-utils';
 export default {
   mixins: [commonUtils],
   created() {

@@ -1,6 +1,6 @@
 import Paas from './paas.vue';
 import ViewByTitle from './view-by-title.vue';
-import PageNotFound from '../../components/page-not-found.vue';
+import PageNotFound from 'assets/components/page-not-found.vue';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';

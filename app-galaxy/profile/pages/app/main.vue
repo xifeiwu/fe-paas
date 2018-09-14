@@ -357,7 +357,7 @@
   import {mapGetters} from 'vuex';
   import AppPropUtils from '../utils/app-props';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
-  import commonUtils from '$components/mixins/common-utils';
+  import commonUtils from 'assets/components/mixins/common-utils';
   export default {
     mixins: [commonUtils],
     created() {

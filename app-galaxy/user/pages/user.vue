@@ -141,7 +141,7 @@
 </style>
 
 <script>
-  import paasHeaderProfile from '$components/header-profile';
+  import paasHeaderProfile from 'assets/components/header-profile';
 
   export default {
     components: {paasHeaderProfile},
