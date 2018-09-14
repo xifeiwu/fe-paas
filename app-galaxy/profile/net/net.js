@@ -3,8 +3,8 @@
  */
 import axios from 'axios';
 import {URL_LIST} from './url';
-import appInfoHelper from '../pages/profile/utils/app-props';
-import NetBase from '$assets/js/net';
+import appInfoHelper from '../pages/utils/app-props';
+import NetBase from 'assets/js/net';
 var debug = browserDebug('pass-fe:net');
 
 function permission(target, name, descriptor) {

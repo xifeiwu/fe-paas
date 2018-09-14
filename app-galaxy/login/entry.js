@@ -13,7 +13,10 @@ new VueConfig({
 
 import APP from './login.vue';
 
-import(/* webpackChunkName: "components-docs" */ '$assets/libs/components/docs.js').then(components => {
+import '$assets/css/mixin.scss';
+import '$assets/static/libs/highlight/styles/atelier-forest-light.css';
+
+import(/* webpackChunkName: "components-docs" */ 'assets/libs/components/docs.js').then(components => {
   components.default.install(Vue);
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),

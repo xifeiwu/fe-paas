@@ -1,4 +1,4 @@
-import BaseHelper from '$assets/js/store/helper'
+import BaseHelper from 'assets/js/store/helper'
 
 class StoreHelper extends BaseHelper{
   constructor(store) {

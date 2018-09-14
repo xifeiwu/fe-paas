@@ -4,10 +4,10 @@
 
 import Vue from 'vue';
 import axios from 'axios';
-import Utils from '$assets/js/utils';
+import Utils from 'assets/js/utils';
 
-import 'assets/css/fix-style.scss';
-import '$assets/css/common.scss';
+import '$assets/css/fix-style.scss';
+import 'assets/css/common.scss';
 
 /**
  * add global css used for all components

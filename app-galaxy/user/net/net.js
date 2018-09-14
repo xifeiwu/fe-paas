@@ -3,7 +3,7 @@
  */
 import axios from 'axios';
 import {URL_LIST} from './url';
-import NetBase from '$assets/js/net';
+import NetBase from 'assets/js/net';
 var debug = browserDebug('pass-fe:net');
 
 class Net extends NetBase {

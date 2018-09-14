@@ -139,8 +139,8 @@ var baseConfig = {
     alias: {
       'element-ui': utils.contextPath() + '/element-ui',
       'components': utils.contextPath() + '/components',
-      'assets': utils.contextPath() + '/assets',
-      '$assets': utils.contextPath() + '/app-galaxy/assets',
+      '$assets': utils.contextPath() + '/assets',
+      'assets': utils.contextPath() + '/app-galaxy/assets',
       '$components': utils.contextPath() + '/app-galaxy/components',
     }
   },

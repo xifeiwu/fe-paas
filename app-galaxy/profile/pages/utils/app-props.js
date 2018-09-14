@@ -1,5 +1,5 @@
 import STORE from '../../store';
-import utils from '$assets/libs/element-ui/utils';
+import utils from 'assets/libs/element-ui/utils';
 
 class AppInfoHelper {
   constructor() {

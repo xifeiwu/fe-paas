@@ -1,6 +1,6 @@
 import Vue from 'vue';
 
-import Store from '$assets/js/store';
+import Store from 'assets/js/store';
 import StoreHelper from './user/store/store-helper';
 
 import {URL_LIST} from './user/net/url';
@@ -13,14 +13,14 @@ new VueConfig({
   storeHelper: new StoreHelper(Store),
 });
 
-import '$assets/css/fonts/paas-icon.css';
-import '$assets/css/fonts/paas-icon.js';
+import 'assets/css/fonts/paas-icon.css';
+import 'assets/css/fonts/paas-icon.js';
 
 import APP from './user/pages/user.vue';
 import routerConfig from './user/pages/router';
 Vue.prototype.$routeHelper = routerConfig;
 
-import(/* webpackChunkName: "components-docs" */ '$assets/libs/components/profile.js').then(components => {
+import(/* webpackChunkName: "components-docs" */ 'assets/libs/components/profile.js').then(components => {
   components.default.install(Vue);
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),

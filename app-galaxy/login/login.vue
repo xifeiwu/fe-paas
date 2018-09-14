@@ -90,8 +90,6 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
   </div>
 </template>
 <style lang="scss" scoped>
-  @import 'assets/css/mixin.scss';
-  @import 'assets/static/libs/highlight/styles/atelier-forest-light';
   $header-height: 45px;
   $header-background-color: #e7e7e7;
   #login {

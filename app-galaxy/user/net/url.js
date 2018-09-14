@@ -1,7 +1,7 @@
 /**
  * Created by xifei.wu on 2017/11/30.
  */
-import BaseURL from '$assets/js/url';
+import BaseURL from 'assets/js/url';
 
 class URL extends BaseURL {
   constructor() {

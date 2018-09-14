@@ -1,4 +1,4 @@
-import BaseURL from '$assets/js/url';
+import BaseURL from 'assets/js/url';
 
 class URL extends BaseURL {
   constructor() {

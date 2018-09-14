@@ -1,5 +1,5 @@
 import axios from 'axios';
-import NetBase from '$assets/js/net';
+import NetBase from 'assets/js/net';
 
 class Net extends NetBase {
   constructor() {

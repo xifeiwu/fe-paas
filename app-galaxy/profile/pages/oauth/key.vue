@@ -734,7 +734,7 @@
 
 <script>
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
-  import utils from '$assets/libs/element-ui/utils';
+  import utils from 'assets/libs/element-ui/utils';
 module.exports = {
   created() {
 //    console.log(this.appInfoListOfGroup);

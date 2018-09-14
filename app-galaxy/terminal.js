@@ -1,7 +1,7 @@
 import Vue from 'vue';
 
-import Store from '$assets/js/store/index';
-import StoreHelper from '$assets/js/store/helper';
+import Store from 'assets/js/store/index';
+import StoreHelper from 'assets/js/store/helper';
 import {URL_LIST} from './terminal/net/url';
 import VueConfig from './config/vue';
 new VueConfig({

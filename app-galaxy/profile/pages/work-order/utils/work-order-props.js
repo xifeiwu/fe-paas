@@ -1,4 +1,4 @@
-import utils from '$assets/libs/element-ui/utils';
+import utils from 'assets/libs/element-ui/utils';
 
 class WorkOrderUtils {
 

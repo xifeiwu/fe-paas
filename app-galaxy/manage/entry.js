@@ -25,12 +25,12 @@ import routerConfig from './pages/router';
 Vue.prototype.$routeHelper = routerConfig;
 
 // paas-icons for icon and svg
-import '$assets/css/fonts/paas-icon.css';
-import '$assets/css/fonts/paas-icon.js';
+import 'assets/css/fonts/paas-icon.css';
+import 'assets/css/fonts/paas-icon.js';
 
 import APP from './pages/index';
 
-import(/* webpackChunkName: "components-profile" */ '$assets/libs/components/profile.js').then(components => {
+import(/* webpackChunkName: "components-profile" */ 'assets/libs/components/profile.js').then(components => {
   components.default.install(Vue);
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),
