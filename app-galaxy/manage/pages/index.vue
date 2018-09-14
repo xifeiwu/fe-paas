@@ -103,16 +103,16 @@
         this.$net.requestPaasServer(this.$net.URL_LIST.lob_list),
         this.$net.requestPaasServer(this.$net.URL_LIST.scrum_list),
         this.$net.requestPaasServer(this.$net.URL_LIST.group_list_all),
-//        this.$net.requestPaasServer(this.$net.URL_LIST.profile_list_all)
+        this.$net.requestPaasServer(this.$net.URL_LIST.profile_list_all)
       ]).then(resContentList => {
         const lobList = resContentList[0]['lobList'];
         const scrumList = resContentList[1]['scrumList'];
         const groupList = resContentList[2]['groupList'];
-//        const profileListAll = resContentList[3]['allSpace'];
+        const profileListAll = resContentList[3]['allSpace'];
         this.$store.dispatch('lobList', lobList);
         this.$store.dispatch('scrumList', scrumList);
         this.$store.dispatch('groupListAll', groupList);
-//        this.$store.dispatch('profileListAll', profileListAll);
+        this.$store.dispatch('profileListAll', profileListAll);
       }).catch(err => {
       });
       this.onRoutePath(this.$route);
