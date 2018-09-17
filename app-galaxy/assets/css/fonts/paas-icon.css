@@ -19,7 +19,7 @@
   display: inline-block;
   -webkit-font-smoothing: antialiased; }
 
-.paas-icon-align-center:before, .paas-icon-align-left:before, .paas-icon-align-right:before, .paas-icon-app:before, .paas-icon-bars:before, .paas-icon-bold:before, .paas-icon-code-html:before, .paas-icon-columns:before, .paas-icon-config:before, .paas-icon-copy:before, .paas-icon-domain:before, .paas-icon-double-arrow-right:before, .paas-icon-edit:before, .paas-icon-eye-slash:before, .paas-icon-eye:before, .paas-icon-fa-arrow-down:before, .paas-icon-fa-arrow-left:before, .paas-icon-fa-arrow-right:before, .paas-icon-fa-arrow-up:before, .paas-icon-fa-circle-o:before, .paas-icon-fa-circle:before, .paas-icon-fa-file-o:before, .paas-icon-fa-level-up:before, .paas-icon-fa-question:before, .paas-icon-fa-square-o:before, .paas-icon-fa-square:before, .paas-icon-fa-upload:before, .paas-icon-header:before, .paas-icon-images:before, .paas-icon-instance:before, .paas-icon-italic:before, .paas-icon-key:before, .paas-icon-level-up:before, .paas-icon-link:before, .paas-icon-list-ol:before, .paas-icon-list-ul:before, .paas-icon-log:before, .paas-icon-logout:before, .paas-icon-markdown:before, .paas-icon-monitor:before, .paas-icon-more:before, .paas-icon-oauth:before, .paas-icon-picture-o:before, .paas-icon-question-circle:before, .paas-icon-quote-left:before, .paas-icon-repeat:before, .paas-icon-save:before, .paas-icon-screen-expand:before, .paas-icon-screen-shrink:before, .paas-icon-service:before, .paas-icon-strikethrough:before, .paas-icon-subscript:before, .paas-icon-superscript:before, .paas-icon-table:before, .paas-icon-thumb-tack:before, .paas-icon-times:before, .paas-icon-trash-o:before, .paas-icon-underline:before, .paas-icon-undo:before, .paas-icon-user:before, .paas-icon-window-maximize:before, .paas-icon-work-order:before {
+.paas-icon-align-center:before, .paas-icon-align-left:before, .paas-icon-align-right:before, .paas-icon-app:before, .paas-icon-bars:before, .paas-icon-bold:before, .paas-icon-code-html:before, .paas-icon-columns:before, .paas-icon-config:before, .paas-icon-copy:before, .paas-icon-domain:before, .paas-icon-double-arrow-right:before, .paas-icon-edit:before, .paas-icon-eye-slash:before, .paas-icon-eye:before, .paas-icon-fa-arrow-down:before, .paas-icon-fa-arrow-left:before, .paas-icon-fa-arrow-right:before, .paas-icon-fa-arrow-up:before, .paas-icon-fa-caret-down:before, .paas-icon-fa-caret-left:before, .paas-icon-fa-caret-right:before, .paas-icon-fa-caret-up:before, .paas-icon-fa-circle-o:before, .paas-icon-fa-circle:before, .paas-icon-fa-file-o:before, .paas-icon-fa-hand-o-down:before, .paas-icon-fa-hand-o-left:before, .paas-icon-fa-hand-o-right:before, .paas-icon-fa-hand-o-up:before, .paas-icon-fa-level-up:before, .paas-icon-fa-long-arrow-down:before, .paas-icon-fa-long-arrow-left:before, .paas-icon-fa-long-arrow-right:before, .paas-icon-fa-long-arrow-up:before, .paas-icon-fa-question:before, .paas-icon-fa-square-o:before, .paas-icon-fa-square:before, .paas-icon-fa-upload:before, .paas-icon-header:before, .paas-icon-images:before, .paas-icon-instance:before, .paas-icon-italic:before, .paas-icon-key:before, .paas-icon-level-up:before, .paas-icon-link:before, .paas-icon-list-ol:before, .paas-icon-list-ul:before, .paas-icon-log:before, .paas-icon-logout:before, .paas-icon-markdown:before, .paas-icon-monitor:before, .paas-icon-more:before, .paas-icon-oauth:before, .paas-icon-picture-o:before, .paas-icon-question-circle:before, .paas-icon-quote-left:before, .paas-icon-repeat:before, .paas-icon-save:before, .paas-icon-screen-expand:before, .paas-icon-screen-shrink:before, .paas-icon-service:before, .paas-icon-strikethrough:before, .paas-icon-subscript:before, .paas-icon-superscript:before, .paas-icon-table:before, .paas-icon-thumb-tack:before, .paas-icon-times:before, .paas-icon-trash-o:before, .paas-icon-underline:before, .paas-icon-undo:before, .paas-icon-user:before, .paas-icon-window-maximize:before, .paas-icon-work-order:before {
   font-family: "paas-icon";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -86,131 +86,167 @@
 .paas-icon-fa-arrow-up:before {
   content: ""; }
 
-.paas-icon-fa-circle-o:before {
+.paas-icon-fa-caret-down:before {
   content: ""; }
 
-.paas-icon-fa-circle:before {
+.paas-icon-fa-caret-left:before {
   content: ""; }
 
-.paas-icon-fa-file-o:before {
+.paas-icon-fa-caret-right:before {
   content: ""; }
 
-.paas-icon-fa-level-up:before {
+.paas-icon-fa-caret-up:before {
   content: ""; }
 
-.paas-icon-fa-question:before {
+.paas-icon-fa-circle-o:before {
   content: ""; }
 
-.paas-icon-fa-square-o:before {
+.paas-icon-fa-circle:before {
   content: ""; }
 
-.paas-icon-fa-square:before {
+.paas-icon-fa-file-o:before {
   content: ""; }
 
-.paas-icon-fa-upload:before {
+.paas-icon-fa-hand-o-down:before {
   content: ""; }
 
-.paas-icon-header:before {
+.paas-icon-fa-hand-o-left:before {
   content: ""; }
 
-.paas-icon-images:before {
+.paas-icon-fa-hand-o-right:before {
   content: ""; }
 
-.paas-icon-instance:before {
+.paas-icon-fa-hand-o-up:before {
   content: ""; }
 
-.paas-icon-italic:before {
+.paas-icon-fa-level-up:before {
   content: ""; }
 
-.paas-icon-key:before {
+.paas-icon-fa-long-arrow-down:before {
   content: ""; }
 
-.paas-icon-level-up:before {
+.paas-icon-fa-long-arrow-left:before {
   content: ""; }
 
-.paas-icon-link:before {
+.paas-icon-fa-long-arrow-right:before {
   content: ""; }
 
-.paas-icon-list-ol:before {
+.paas-icon-fa-long-arrow-up:before {
   content: ""; }
 
-.paas-icon-list-ul:before {
+.paas-icon-fa-question:before {
   content: ""; }
 
-.paas-icon-log:before {
+.paas-icon-fa-square-o:before {
   content: ""; }
 
-.paas-icon-logout:before {
+.paas-icon-fa-square:before {
   content: ""; }
 
-.paas-icon-markdown:before {
+.paas-icon-fa-upload:before {
   content: ""; }
 
-.paas-icon-monitor:before {
+.paas-icon-header:before {
   content: ""; }
 
-.paas-icon-more:before {
+.paas-icon-images:before {
   content: ""; }
 
-.paas-icon-oauth:before {
+.paas-icon-instance:before {
   content: ""; }
 
-.paas-icon-picture-o:before {
+.paas-icon-italic:before {
   content: ""; }
 
-.paas-icon-question-circle:before {
+.paas-icon-key:before {
   content: ""; }
 
-.paas-icon-quote-left:before {
+.paas-icon-level-up:before {
   content: ""; }
 
-.paas-icon-repeat:before {
+.paas-icon-link:before {
   content: ""; }
 
-.paas-icon-save:before {
+.paas-icon-list-ol:before {
   content: ""; }
 
-.paas-icon-screen-expand:before {
+.paas-icon-list-ul:before {
   content: ""; }
 
-.paas-icon-screen-shrink:before {
+.paas-icon-log:before {
   content: ""; }
 
-.paas-icon-service:before {
+.paas-icon-logout:before {
   content: ""; }
 
-.paas-icon-strikethrough:before {
+.paas-icon-markdown:before {
   content: ""; }
 
-.paas-icon-subscript:before {
+.paas-icon-monitor:before {
   content: ""; }
 
-.paas-icon-superscript:before {
+.paas-icon-more:before {
   content: ""; }
 
-.paas-icon-table:before {
+.paas-icon-oauth:before {
   content: ""; }
 
-.paas-icon-thumb-tack:before {
+.paas-icon-picture-o:before {
   content: ""; }
 
-.paas-icon-times:before {
+.paas-icon-question-circle:before {
   content: ""; }
 
-.paas-icon-trash-o:before {
+.paas-icon-quote-left:before {
   content: ""; }
 
-.paas-icon-underline:before {
+.paas-icon-repeat:before {
   content: ""; }
 
-.paas-icon-undo:before {
+.paas-icon-save:before {
   content: ""; }
 
-.paas-icon-user:before {
+.paas-icon-screen-expand:before {
   content: ""; }
 
-.paas-icon-window-maximize:before {
+.paas-icon-screen-shrink:before {
   content: ""; }
 
-.paas-icon-work-order:before {
+.paas-icon-service:before {
   content: ""; }
+
+.paas-icon-strikethrough:before {
+  content: ""; }
+
+.paas-icon-subscript:before {
+  content: ""; }
+
+.paas-icon-superscript:before {
+  content: ""; }
+
+.paas-icon-table:before {
+  content: ""; }
+
+.paas-icon-thumb-tack:before {
+  content: ""; }
+
+.paas-icon-times:before {
+  content: ""; }
+
+.paas-icon-trash-o:before {
+  content: ""; }
+
+.paas-icon-underline:before {
+  content: ""; }
+
+.paas-icon-undo:before {
+  content: ""; }
+
+.paas-icon-user:before {
+  content: ""; }
+
+.paas-icon-window-maximize:before {
+  content: ""; }
+
+.paas-icon-work-order:before {
+  content: ""; }
