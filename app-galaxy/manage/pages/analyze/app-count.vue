@@ -419,7 +419,7 @@
           endTime: this.$utils.formatDate(this.payload.dateRange, 'yyyyMMdd')
         };
         if ('' !== this.payload.profileId) {
-          payload.profileId = this.payload.profileId
+          payload.spaceId = this.payload.profileId
         }
         if ('' !== this.payload.lobId) {
           payload.lobId = this.payload.lobId
@@ -476,7 +476,7 @@
               endTime: this.$utils.formatDate(this.payload.dateRange, 'yyyyMMdd')
             };
             if ('' !== this.payload.profileId) {
-              payload.profileId = this.payload.profileId
+              payload.spaceId = this.payload.profileId
             }
             if ('' !== this.payload.lobId) {
               payload.lobId = this.payload.lobId
