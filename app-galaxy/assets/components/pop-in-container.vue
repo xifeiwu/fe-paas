@@ -5,7 +5,9 @@
         <span>{{title}}</span>
         <i class="paas-icon-fa-caret-left" @click="handleClickOutside"></i>
       </div>
-      <slot name="content"></slot>
+      <div class="content">
+        <slot name="content"></slot>
+      </div>
     </div>
   </transition>
 </template>
@@ -35,13 +37,18 @@
     position: absolute;
     height: 100%;
     /*background-color: rgb(242, 246, 252);*/
-    background-color: #F2F6FC;
+    /*background-color: #F2F6FC;*/
+    background-color: white;
+    border-right: 1px solid #eee;
     transition: opacity .3s, transform .3s;
     width: 800px;
     top: 0px;
+    display: flex;
+    flex-direction: column;
     .header {
       text-align: center;
       background-color: #eee;
+      border-right: 1px solid #eee;
       font-size: 16px;
       line-height: 28px;
       i {
@@ -52,6 +59,10 @@
           color: #409EFF;
         }
       }
+    }
+    .content {
+      flex: 1;
+      overflow-y: scroll;
     }
   }
 </style>
