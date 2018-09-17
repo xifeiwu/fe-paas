@@ -16,7 +16,8 @@
                    @click="handleButtonClick('manual-scale')">手动伸缩</el-button>
       </el-col>
     </el-row>
-    <div class="instance-list">
+    <div class="instance-list"
+         v-clickoutside="handleClickOutsideOfInstanceList">
       <el-table
               :data="instanceStatus.instanceList"
               style="width: 100%"
@@ -99,9 +100,51 @@
                     :disabled="true"
                     v-if="!$storeHelper.notPermitted['go-monitor-from-instance']"
                     type="text" class="primary">监控</el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    @click="handleRowButtonClick('more', scope.$index, scope.row)"
+                    type="text" class="more"><span>实例详情</span><i :class="[statusForPop.visible ? 'paas-icon-fa-caret-left':'paas-icon-fa-caret-right']"></i></el-button>
           </template>
         </el-table-column>
       </el-table>
+      <paas-pop-in-container :title="titleForPop" :status="statusForPop">
+        <div slot="content">
+          <div class="data-range">
+            <label>监控区间:</label>
+            <el-date-picker
+                    style="display: inline-block; width: 400px;"
+                    size="mini"
+                    v-model="dateTimeRange"
+                    type="datetimerange"
+                    :picker-options="pickerOptions2"
+                    range-separator="至"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    align="right"
+                    :enableClose="false"
+                    @change="onDateRangeChange"
+            >
+            </el-date-picker>
+          </div>
+          <div class="chart-container">
+            <div class="title">CPU使用率</div>
+            <ve-line height="200px" :data="chartData" :data-zoom="dataZoom"
+                     :legend-visible="false"></ve-line>
+          </div>
+          <div class="chart-container">
+            <div class="title">内存使用</div>
+            <ve-line height="200px" :data="chartData2"  :data-zoom="dataZoom"
+                     :settings="chartSettings2" :events="chartEvents"
+                     :legend-visible="false"></ve-line>
+          </div>
+          <div class="chart-container">
+            <div class="title">网络连接</div>
+            <ve-line height="200px" :data="chartData3"  :data-zoom="dataZoom"
+                     :settings="chartSettings3"
+                     :legend-visible="false"></ve-line>
+          </div>
+        </div>
+      </paas-pop-in-container>
     </div>
 
     <el-dialog title="手动伸缩" :visible="action.name == 'manual-scale'"
@@ -184,6 +227,36 @@
       min-height: 28px;
     }
     .instance-list {
+      position: relative;
+      .pop-in-container {
+        .data-range {
+          margin: 3px 0px;
+          text-align: center;
+        }
+        .chart-container {
+          position: relative;
+          float: left;
+          width: 100%;
+          box-sizing: border-box;
+          border-radius: 10px;
+          /*padding: 16px 16px 0px 16px;*/
+          .title {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
+            line-height: 28px;
+          }
+          .ve-line {
+            top: -15px;
+            /*box-shadow: 0 0 10px rgba(0, 0, 0, .2);*/
+            canvas {
+              top: 12px;
+            }
+          }
+        }
+      }
       .el-table {
       }
     }
@@ -202,16 +275,21 @@
   import appPropUtils from "../utils/app-props";
   import PaasVersionSelector from "../components/version-selector";
   import bytes from 'bytes';
+  import PaasPopInContainer from 'assets/components/pop-in-container';
+  import Clickoutside from 'element-ui/src/utils/clickoutside';
   import {
     addResizeListener,
     removeResizeListener
   } from "element-ui/src/utils/resize-event";
   import paasDialogForLog from "../components/dialog4log.vue";
   import commonUtils from 'assets/components/mixins/common-utils';
+  import 'echarts/lib/component/dataZoom'
+  import VeLine from 'v-charts/lib/line.common'
 
   export default {
+    directives: { Clickoutside },
     mixins: [commonUtils],
-    components: { PaasVersionSelector, paasDialogForLog },
+    components: { PaasVersionSelector, paasDialogForLog, PaasPopInContainer, VeLine },
 
     /**
      * the sequence of create and mount in parent and child element is:
@@ -264,6 +342,7 @@
         };
         addResizeListener(this.$el, this.resizeListener);
       } catch (err) {}
+      this.setDefaultDateRange();
     },
     beforeDestroy() {
       removeResizeListener(this.$el, this.resizeListener);
@@ -289,6 +368,40 @@
           instanceCount: null,
           instanceList: []
         },
+        titleForPop: '',
+        statusForPop: {
+          visible: false,
+        },
+
+        dateTimeRange: [],
+        pickerOptions2: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近两个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 60);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
+
         action: {
           name: null,
           row: null
@@ -312,13 +425,77 @@
           iconRefresh: true,
           iconExpand: true
         },
-        consoleLogList: ''
+        consoleLogList: '',
+
+        dataZoom: [
+          {
+            type: 'slider',
+            start: 0,
+            end: 100
+          }
+        ],
+        chartData: {
+          columns: ['日期', '访问用户', '下单用户', '下单率'],
+          rows: [
+            { '日期': '1/1', '访问用户': 1393, '下单用户': 1093, '下单率': 0.32 },
+            { '日期': '1/2', '访问用户': 3530, '下单用户': 3230, '下单率': 0.26 },
+            { '日期': '1/3', '访问用户': 2923, '下单用户': 2623, '下单率': 0.76 },
+            { '日期': '1/4', '访问用户': 1723, '下单用户': 1423, '下单率': 0.49 },
+            { '日期': '1/5', '访问用户': 3792, '下单用户': 3492, '下单率': 0.323 },
+            { '日期': '1/6', '访问用户': 4593, '下单用户': 4293, '下单率': 0.78 }
+          ]
+        },
+        chartSettings2: {
+          metrics: ['下单率'],
+          dimension: ['日期'],
+          height: "300px"
+        },
+        chartEvents: {
+          click: (evt) => {
+            console.log(evt);
+          }
+        },
+        chartData2: {
+          columns: ['日期', '下单率', '访问用户', '下单用户'],
+          rows: [
+            { '日期': '1/1', '下单率': 0.32 },
+            { '日期': '1/2', '下单率': 0.26 },
+            { '日期': '1/3', '下单率': 0.76 },
+            { '日期': '1/4', '下单率': 0.49 },
+            { '日期': '1/5', '下单率': 0.323 },
+            { '日期': '1/6', '下单率': 0.78 }
+          ]
+        },
+        chartSettings3: {
+          axisSite: { right: ['下单率'] },
+          yAxisType: ['KMB', 'percent'],
+          yAxisName: ['数值', '比率'],
+
+        },
+        chartData3: {
+          columns: ['日期', '访问用户', '下单用户', '下单率'],
+          rows: [
+            { '日期': '1/1', '访问用户': 1393, '下单用户': 1093, '下单率': 0.32 },
+            { '日期': '1/2', '访问用户': 3530, '下单用户': 3230, '下单率': 0.26 },
+            { '日期': '1/3', '访问用户': 2923, '下单用户': 2623, '下单率': 0.76 },
+            { '日期': '1/4', '访问用户': 1723, '下单用户': 1423, '下单率': 0.49 },
+            { '日期': '1/5', '访问用户': 3792, '下单用户': 3492, '下单率': 0.323 },
+            { '日期': '1/6', '访问用户': 4593, '下单用户': 4293, '下单率': 0.78 }
+          ]
+        }
       };
     },
     watch: {},
     methods: {
+      setDefaultDateRange() {
+        const end = new Date();
+        const start = new Date();
+        start.setTime(start.getTime() - 1000 * 60 * 5);
+        this.dateTimeRange = [start, end];
+      },
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
 //                console.log(appInfo, profileInfo, serviceInfo);
+        this.hidePop();
         this.instanceStatus.instanceList = [];
         if (!appInfo || !profileInfo || !serviceInfo) {
           return;
@@ -393,6 +570,7 @@
       },
 
       handleButtonClick(action) {
+        this.hidePop();
         let serviceInfo = this.checkVersionSelector();
         if (!serviceInfo) {
           return;
@@ -517,11 +695,23 @@
         });
       },
 
+      togglePop() {
+        this.statusForPop.visible = !this.statusForPop.visible;
+      },
+      hidePop() {
+        this.statusForPop.visible = false;
+      },
+      handleClickOutsideOfInstanceList() {
+      },
+
       /**
        * handle click event in operation column
        */
       handleRowButtonClick(action, index, row) {
         this.action.row = row;
+        if (action !== 'more') {
+          this.hidePop();
+        }
         switch (action) {
           case 'terminal':
             let serviceInfo = this.$refs['version-selector'].getSelectedValue()[
@@ -561,6 +751,10 @@
             break;
           case 'monitor':
             break;
+          case 'more':
+            this.titleForPop = `实例${this.action.row['instanceName']}`;
+            this.togglePop();
+            break;
           case 'instanceStatus':
             this.statusForDialogInstanceLog.visible = true;
             this.updateInstanceStatusList(true);
@@ -576,6 +770,11 @@
       formatColumn (text, width) {
         let space = '#'.repeat(width);
         return (text + space).slice(0, width).replace(/\#/g, '&nbsp;');
+      },
+
+      onDateRangeChange(range) {
+        console.log(range[0].getTime());
+        console.log(range[1].getTime());
       }
     }
   };
