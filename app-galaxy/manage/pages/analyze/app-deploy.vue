@@ -111,6 +111,17 @@
                @close="handleCloseDialog('app-count-detail')"
                v-if="action.name && action.row"
     >
+      <el-row class="general">
+        <el-col :span="8">
+          <span class="key">LOB：</span><span class="value"> {{action.row.lobName}}</span>
+        </el-col>
+        <el-col :span="8">
+          <span class="key">Scrum：</span><span class="value"> {{action.row.scrumName}}</span>
+        </el-col>
+        <el-col :span="8">
+          <span class="key">运行环境：</span><span class="value"> {{action.row.spaceName}}</span>
+        </el-col>
+      </el-row>
       <el-table
               :data="appCountDetailListByPage"
               style="width: 100%"
@@ -119,16 +130,6 @@
               @sort-change="onSortChangeInTable2"
       >
         <el-table-column prop="appName" label="应用名称" headerAlign="center" align="center"></el-table-column>
-        <el-table-column prop="lobName" label="LOB" headerAlign="center" align="center">
-          <template slot-scope="scope">
-            {{action.row.lobName}}
-          </template>
-        </el-table-column>
-        <el-table-column prop="scrumName" label="Scrum" headerAlign="center" align="center">
-          <template slot-scope="scope">
-            {{action.row.scrumName}}
-          </template>
-        </el-table-column>
         <el-table-column prop="deployCount" label="部署次数"sortable headerAlign="center" align="center"></el-table-column>
       </el-table>
       <div class="pagination-container" v-if="appCountDetail.totalSize > appCountDetail.pageSize">
@@ -174,6 +175,15 @@
       }
       &.app-count-detail {
         .el-dialog__body {
+          .general {
+            margin: 0px 3px;
+            .el-col {
+              text-align: left;
+              .key {
+                font-weight: bold;
+              }
+            }
+          }
           padding: 0px;
           margin-bottom: 20px;
         }
@@ -272,7 +282,10 @@
         },
         datePickerOptions: {
           disabledDate(time) {
-            return time.getTime() > Date.now() - 3600 * 1000 * 24;
+            const getDate = function(dt) {
+              return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+            };
+            return getDate(time) >= getDate(new Date());
           },
           shortcuts: [{
             text: '最近一周',
