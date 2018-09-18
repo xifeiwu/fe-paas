@@ -442,7 +442,12 @@
             }
 
             this.$net.addToRequestingRrlList(this.$net.URL_LIST.download_app_deploy_count.path);
-            this.$net.getResponse(this.$net.URL_LIST.download_app_deploy_count, {}, {
+            this.$net.getResponse(this.$net.URL_LIST.download_app_deploy_count, {
+              payload
+            }, {
+              headers: {
+                token: this.$storeHelper.getUserInfo('token')
+              },
               responseType: 'blob'
             }).then(res => {
 //            this.$ajax({

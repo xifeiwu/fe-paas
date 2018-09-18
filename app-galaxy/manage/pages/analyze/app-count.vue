@@ -461,7 +461,12 @@
             }
 
             this.$net.addToRequestingRrlList(this.$net.URL_LIST.download_app_count_detail.path);
-            this.$net.getResponse(this.$net.URL_LIST.download_app_count_detail, {}, {
+            this.$net.getResponse(this.$net.URL_LIST.download_app_count_detail, {
+              payload
+            }, {
+              headers: {
+                token: this.$storeHelper.getUserInfo('token')
+              },
               responseType: 'blob'
             }).then(res => {
               const a = document.createElement('a');
