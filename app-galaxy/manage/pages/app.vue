@@ -24,11 +24,11 @@
                 v-model="search.keyword"
                 size="mini"
                 style="max-width: 200px"
-                placeholder="按关键字搜索外网二级域名">
+                placeholder="请输入关键字">
         </el-input>
       </div>
       <div class="item">
-        <el-button size="mini-extral" @click="handleClick('search')">搜索</el-button>
+        <el-button type="primary" size="mini-extral" @click="handleClick('search')">搜索</el-button>
       </div>
     </div>
     <div class="detail-list">
@@ -216,8 +216,8 @@
       }
     },
     watch: {
-      'search.lobId': 'requestAppStatusList',
-      'search.groupId': 'requestAppStatusList',
+//      'search.lobId': 'requestAppStatusList',
+//      'search.groupId': 'requestAppStatusList',
     },
     computed: {
 //      ...mapState(['lobList', 'groupList'])

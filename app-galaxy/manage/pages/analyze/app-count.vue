@@ -41,28 +41,24 @@
                 :picker-options="pickerOptions"
                 placeholder="选择日期">
         </el-date-picker>
-        <!--<el-date-picker style="display: inline-block; width: 240px;"-->
-                        <!--class="custom"-->
-                        <!--v-model="dateRange"-->
-                        <!--type="daterange"-->
-                        <!--size="mini"-->
-                        <!--align="right"-->
-                        <!--unlink-panels-->
-                        <!--range-separator="至"-->
-                        <!--start-placeholder="开始日期"-->
-                        <!--end-placeholder="结束日期"-->
-                        <!--:picker-options="datePickerOptions">-->
-        <!--</el-date-picker>-->
       </div>
-      <div class="item" @click="handleClick('search')">
-        <i :class="['el-icon-refresh']" style="color: #207245"></i>
+      <!--<div class="item" @click="handleClick('search')">-->
+        <!--<i :class="['el-icon-refresh']" style="color: #207245"></i>-->
+      <!--</div>-->
+      <!--<div class="item export-excel" @click="handleClick('download-analyze')">-->
+        <!--<el-tooltip effect="dark" content="导出表格" placement="bottom">-->
+          <!--<svg :class="['paas-icon-svg', 'paas-icon-excel']" aria-hidden="true">-->
+            <!--<use :xlink:href="'#paas-icon-excel'"></use>-->
+          <!--</svg>-->
+        <!--</el-tooltip>-->
+      <!--</div>-->
+      <div class="item">
+        <el-button type="primary" size="mini-extral" @click="handleClick('search')">查询</el-button>
       </div>
-      <div class="item export-excel" @click="handleClick('download-analyze')">
-        <el-tooltip effect="dark" content="导出表格" placement="bottom">
-          <svg :class="['paas-icon-svg', 'paas-icon-excel']" aria-hidden="true">
-            <use :xlink:href="'#paas-icon-excel'"></use>
-          </svg>
-        </el-tooltip>
+      <div class="item">
+        <el-button size="mini-extral" plain type="primary" @click="handleClick('download-analyze')">
+          <i class="el-icon-download"></i><span>导出表格</span>
+        </el-button>
       </div>
     </div>
     <div class="detail-list">
@@ -392,10 +388,10 @@
       }
     },
     watch: {
-      'payload.profileId': 'requestDetailList',
-      'payload.lobId': 'requestDetailList',
-      'payload.scrumId': 'requestDetailList',
-      'payload.dateRange': 'requestDetailList',
+//      'payload.profileId': 'requestDetailList',
+//      'payload.lobId': 'requestDetailList',
+//      'payload.scrumId': 'requestDetailList',
+//      'payload.dateRange': 'requestDetailList',
       'tableSort': 'requestDetailList',
       'appCountDetail.tableSort': 'getAppCountDetailListByPage',
     },
@@ -464,12 +460,13 @@
       handleClick(action) {
         switch (action) {
           case 'search':
-            this.refreshIcon.classList.add('loading');
-            this.requestDetailList(() => {
-              setTimeout(() => {
-                this.refreshIcon.classList.remove('loading');
-              }, 1000);
-            });
+//            this.refreshIcon.classList.add('loading');
+//            () => {
+//              setTimeout(() => {
+//                this.refreshIcon.classList.remove('loading');
+//              }, 1000);
+//            }
+            this.requestDetailList();
             break;
           case 'download-analyze':
             const payload = {

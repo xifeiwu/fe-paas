@@ -55,10 +55,10 @@
         </el-date-picker>
       </div>
       <div class="item">
-        <el-button size="mini-extral" @click="handleClick('search')">搜索</el-button>
+        <el-button type="primary" size="mini-extral" @click="handleClick('search')">查询</el-button>
       </div>
       <div class="item">
-        <el-button size="mini-extral" round @click="handleClick('download-analyze')">
+        <el-button size="mini-extral" plain type="primary" @click="handleClick('download-analyze')">
           <i class="el-icon-download"></i><span>导出表格</span>
         </el-button>
       </div>
@@ -342,10 +342,10 @@
       }
     },
     watch: {
-      'payload.profileId': 'requestDetailList',
-      'payload.lobId': 'requestDetailList',
-      'payload.scrumId': 'requestDetailList',
-      'payload.dateRange': 'requestDetailList',
+//      'payload.profileId': 'requestDetailList',
+//      'payload.lobId': 'requestDetailList',
+//      'payload.scrumId': 'requestDetailList',
+//      'payload.dateRange': 'requestDetailList',
       'tableSort': 'requestDetailList',
       'appCountDetail.tableSort': 'getAppCountDetailListByPage',
     },
