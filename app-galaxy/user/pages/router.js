@@ -2,9 +2,9 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 
 
-import UserInfo from './user/info.vue';
-import UserOperaion from './user/operation.vue';
-import ManageGroup from './user/group.vue';
+import UserInfo from './info.vue';
+import UserOperaion from './operation.vue';
+import ManageGroup from './group.vue';
 
 class Router {
   constructor() {
