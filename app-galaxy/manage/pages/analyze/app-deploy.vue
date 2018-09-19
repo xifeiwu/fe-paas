@@ -268,7 +268,7 @@
         },
 
         totalSize: 0,
-        pageSize: 16,
+        pageSize: 14,
         currentPage: 1,
 
         appCountDetail: {

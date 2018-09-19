@@ -74,7 +74,7 @@
         <el-table-column prop="lobName" label="LOB"></el-table-column>
         <el-table-column prop="scrumName" label="Scrum"></el-table-column>
         <el-table-column prop="appCount" label="应用数" sortable></el-table-column>
-        <el-table-column prop="instanceCount" label="实例数" sortable></el-table-column>
+        <el-table-column prop="instanceCount" label="创建实例数" sortable></el-table-column>
         <el-table-column
                 prop="operation"
                 label="操作"
@@ -129,7 +129,7 @@
               @sort-change="onSortChangeInTable2"
       >
         <el-table-column prop="appName" label="应用名称" headerAlign="center" align="center"></el-table-column>
-        <el-table-column prop="instanceCount" label="实例数"sortable headerAlign="center" align="center"></el-table-column>
+        <el-table-column prop="instanceCount" label="创建实例数" sortable headerAlign="center" align="center"></el-table-column>
       </el-table>
       <div class="pagination-container" v-if="appCountDetail.totalSize > appCountDetail.pageSize">
         <div class="pagination">
@@ -291,7 +291,7 @@
         },
 
         totalSize: 0,
-        pageSize: 16,
+        pageSize: 14,
         currentPage: 1,
 
         appCountDetail: {
