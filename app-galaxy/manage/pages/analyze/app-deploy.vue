@@ -375,6 +375,12 @@
         this.payload.dateRange = [start, end];
       },
 
+      getOneDayBefore(origin) {
+        origin = new Date(origin);
+        const result = new Date();
+        result.setTime(origin.getTime() - 1000 * 3600 * 24);
+        return result;
+      },
       // 获取详情列表
       requestDetailList() {
         let page = this.currentPage - 1;
@@ -387,7 +393,7 @@
         }
         const payload = {
           start, length,
-          startTime: this.$utils.formatDate(this.payload.dateRange[0], 'yyyyMMdd'),
+          startTime: this.$utils.formatDate(this.getOneDayBefore(this.payload.dateRange[0]), 'yyyyMMdd'),
           endTime: this.$utils.formatDate(this.payload.dateRange[1], 'yyyyMMdd')
         };
         if ('' !== this.payload.profileId) {
