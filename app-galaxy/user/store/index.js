@@ -6,6 +6,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 import etc from './modules/etc';
+import k8s from './modules/k8s';
 
 Vue.use(Vuex);
 
@@ -43,7 +44,7 @@ export default new Vuex.Store({
   },
 
   modules: {
-    etc
+    etc, k8s
   },
   plugins: [createPersistedState({
     key: 'user',

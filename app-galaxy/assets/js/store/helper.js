@@ -170,4 +170,23 @@ export default class StoreHelper {
     this.$globalStore.dispatch('logout');
     this.updateLoginState('userInfo', null);
   }
+
+  get JOB_LIST() {
+    return [{
+      description: "开发工程师",
+      name: "DEVELOP_ENGINEER"
+    }, {
+      description: "测试工程师",
+      name: "TESTING_ENGINEER"
+    }, {
+      description: "DBA",
+      name: "DBA"
+    }, {
+      description: "TECH LEADER",
+      name: "TECH_LEADER"
+    }, {
+      description: "PRODUCT OWNER",
+      name: "PRODUCT_OWNER"
+    }];
+  }
 }

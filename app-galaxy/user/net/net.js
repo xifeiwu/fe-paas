@@ -10,10 +10,15 @@ class Net extends NetBase {
   constructor() {
     super();
     const PAAS_URL_LIST = {
-      // 添加办公网白名单
+      // k8s异常事件列表
+      'k8s_event_type': {
+        path: '/event/type/query',
+        method: 'get'
+      },
+      // k8s事件报警列表
       'k8s_warning_list': {
         path: '/application/alert/config/query/list',
-        method: 'get'
+        method: 'post'
       },
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
