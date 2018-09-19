@@ -5,6 +5,7 @@ import VueRouter from 'vue-router';
 import UserInfo from './info.vue';
 import UserOperaion from './operation.vue';
 import ManageGroup from './group.vue';
+import k8sWarning from './k8s-warning.vue';
 
 class Router {
   constructor() {
@@ -27,6 +28,11 @@ class Router {
         path: '/user/group',
         name: '团队管理',
         component: ManageGroup
+      },
+      {
+        path: '/user/k8s',
+        name: 'k8s事件报警',
+        component: k8sWarning
       }
     ];
     this.addRoutePath(null, this.richRouterConfig);

@@ -9,6 +9,20 @@ var debug = browserDebug('pass-fe:net');
 class Net extends NetBase {
   constructor() {
     super();
+    const PAAS_URL_LIST = {
+      // 添加办公网白名单
+      'k8s_warning_list': {
+        path: '/application/alert/config/query/list',
+        method: 'get'
+      },
+    };
+    Object.keys(PAAS_URL_LIST).forEach(key => {
+      let item = PAAS_URL_LIST[key];
+      item.path = this.PAAS_PREFIX + item.path;
+    });
+    if (this.URL_LIST) {
+      this.URL_LIST = Object.assign(this.URL_LIST, PAAS_URL_LIST);
+    }
   }
 
   setVue(Vue) {

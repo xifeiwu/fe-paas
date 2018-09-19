@@ -1,6 +1,6 @@
 import Vue from 'vue';
 
-import Store from 'assets/js/store';
+import Store from './store';
 import StoreHelper from './store/store-helper';
 
 import {URL_LIST} from './net/url';
