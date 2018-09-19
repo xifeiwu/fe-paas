@@ -4,7 +4,6 @@
 
 import Vue from 'vue';
 import Vuex from 'vuex';
-import global from 'assets/js/store/modules/global';
 import createPersistedState from 'vuex-persistedstate';
 
 Vue.use(Vuex);
@@ -58,7 +57,6 @@ export default new Vuex.Store({
     },
   },
   modules:{
-    global
   },
   plugins: [createPersistedState({
     key: 'login',

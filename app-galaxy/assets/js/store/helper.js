@@ -1,5 +1,8 @@
+import globalStore from './index';
+
 export default class StoreHelper {
   constructor(store) {
+    this.$globalStore = globalStore;
     this.$store = store;
     this._dataTransfer = null;
   }
@@ -8,6 +11,10 @@ export default class StoreHelper {
     this.$store.dispatch('global/setConfig', {
       keys, value
     })
+  }
+
+  get globalUserGroupInfo() {
+    return this.$globalStore.getters['user/groupInfo'];
   }
 
   getUserConfig(keys) {
@@ -146,12 +153,13 @@ export default class StoreHelper {
    * @param permission, format: {page: permissionList}
    */
   setPermission(permission) {
-    this.$store.commit('global/permission', permission);
+    // this.$store.commit('status/permission', permission);
+    this.$globalStore.commit('user/SET_PERMISSION', permission);
   }
 
   getPermission(page) {
     let result = null;
-    let permission= this.$store.getters['global/permission'];
+    let permission= this.$globalStore.getters['user/permission'];
     if (permission && permission[page]) {
       result = permission[page];
     }
@@ -159,7 +167,7 @@ export default class StoreHelper {
   }
 
   logout() {
-    this.$store.dispatch('global/clearOnLogout');
+    this.$globalStore.dispatch('logout');
     this.updateLoginState('userInfo', null);
   }
 }

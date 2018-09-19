@@ -481,8 +481,8 @@ class StoreHelper extends BaseHelper{
   }
 
   logout() {
-    this.$store.dispatch('user/logout');
     super.logout();
+    this.$store.dispatch('logout');
   }
 }
 

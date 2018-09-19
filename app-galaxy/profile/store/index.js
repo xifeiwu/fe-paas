@@ -8,7 +8,6 @@ import createPersistedState from 'vuex-persistedstate';
 import user from './modules/user';
 import app from './modules/app';
 import tmp from './modules/tmp';
-import global from 'assets/js/store/modules/global';
 import etc from './modules/etc';
 import cdn from './modules/cdn';
 
@@ -34,6 +33,8 @@ export default new Vuex.Store({
         // localStorage will not update if code run in the following way
         Vue.set(state.config, key, config[key]);
       }
+    },
+    CLEAR(state) {
     }
   },
   actions: {
@@ -46,6 +47,10 @@ export default new Vuex.Store({
     },
     setConfig({commit}, config) {
       commit('SET_CONFIG', config)
+    },
+    logout({dispatch, state, commit}) {
+      dispatch('user/clear');
+      commit('CLEAR');
     }
   },
 
@@ -59,7 +64,7 @@ export default new Vuex.Store({
   },
 
   modules:{
-    user, app, tmp, global, etc, cdn
+    user, app, tmp, etc, cdn
   },
   plugins: [createPersistedState({
     key: 'profile',

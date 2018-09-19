@@ -75,10 +75,7 @@ class Net extends NetBase {
       },
       /** 应用相关 */
       // 应用列表
-      'app_list': {
-        path: '/application/queryByPage',
-        method: 'post'
-      },
+      // 'app_list'
       // 创建应用
       'app_create': {
         path: '/application/create',
@@ -513,7 +510,7 @@ class Net extends NetBase {
 
   /**
    * 获得用户当前组的app列表
-   * @param options
+   * @param payload: {groupId}
    * @returns {Promise}
    * resolve only when content data is ok.
    */

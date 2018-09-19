@@ -35,7 +35,7 @@ const getValue = function({state, getters}, prop) {
 const state = {
   /* net data */
   // 用户配置相关信息
-  config: null,
+  config: {},
   // 权限相关
   permission: JSON.parse(localStorage.getItem('user/permission')) ? JSON.parse(localStorage.getItem('user/permission')) : {},
 };

@@ -3,7 +3,7 @@
  */
 import Vue from 'vue';
 const debug = browserDebug('pass-fe:net');
-
+import globalStore from 'assets/js/store';
 
 /**
  * the property write to and read from localStorage by default, and refresh when the network data is arrived.
@@ -17,9 +17,9 @@ const debug = browserDebug('pass-fe:net');
  */
 const state = {
   /* net data */
-  groupInfo: null,
+  groupInfo: {},
   // 用户所属组列表
-  groupList: null,
+  groupList: [],
   lobInfo: null,
   // 当前组
   groupId: null,
@@ -36,17 +36,9 @@ const state = {
 };
 
 const actions = {
-  logout({commit, state, dispatch}) {
-    // state.menuList = null;
+  clear({commit, state, dispatch}) {
     state.groupInfo = null;
-    state.groupList = null;
-    state.profileListOfGroup = null;
-    // remove menuList will have affect on UI
-    // localStorage.removeItem('user/menuList');
-    localStorage.removeItem('user/groupInfo');
-    localStorage.removeItem('user/groupList');
-    localStorage.removeItem('user/profileListOfGroup');
-    dispatch('global/clearOnLogout', {}, {root: true});
+    state.groupList = [];
   },
 
   /**
@@ -145,6 +137,7 @@ const mutations = {
       }
     }
     state.groupInfo = target;
+    globalStore.dispatch('user/setGroupInfo', target);
     if (!state.groupId && state.groupInfo) {
       state.groupId = state.groupInfo['id'];
     }
