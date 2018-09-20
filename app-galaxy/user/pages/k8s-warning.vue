@@ -1,8 +1,8 @@
 <template>
   <div id="k8s">
     <div class="header">
-      <el-button type="primary"
-           :loading="statusOfWaitingResponse('add') && selected.row.id === scope.row.id"
+      <el-button type="primary" size="mini"
+           :loading="statusOfWaitingResponse('add')"
            @click="handleRowButtonClick('add')">设置k8s事件报警
       </el-button>
     </div>
@@ -43,10 +43,81 @@
                :visible="action.name == 'add' || action.name == 'modify'"
                :close-on-click-modal="false"
                class="modify-warning size-900"
-               @close="handleCloseDialog('modify')"
+               @close="handleCloseDialog(action.name)"
                v-if="action.name"
     >
-      <div>modify</div>
+      <el-form labelWidth="120px" :model="statusForModifyWarning" :rules="rulesForAddWarning"
+               size="mini" ref="formModifyWarningInDialog">
+        <el-form-item prop="groupId" label="团队" v-if="action.name == 'add'">
+          <el-select v-model="statusForModifyWarning.groupId" placeholder="请选择" filterable>
+            <el-option v-for="item in statusForModifyWarning.groupList" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item prop="appId" label="应用" v-if="action.name == 'add'">
+          <el-select v-model="statusForModifyWarning.appId" placeholder="请选择" filterable>
+            <el-option v-for="item in statusForModifyWarning.appList" :key="item.appId" :label="item.appName" :value="item.appId">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="运行环境">生产环境</el-form-item>
+        <el-form-item label="事件类型" prop="eventSelected">
+          <el-checkbox-group v-model="statusForModifyWarning.eventSelected" class="col-3">
+            <el-checkbox v-for="item in statusForModifyWarning.eventList" :label="item.eventType" :key="item.eventType">
+              {{item.eventDescription}}
+          </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="报警邮件接收者" prop="eventSelected">
+          <el-checkbox-group v-model="statusForModifyWarning.receiverSelected" class="col-3">
+            <el-checkbox v-for="item in statusForModifyWarning.receiverList" :label="item.name" :key="item.name">
+              {{item.description}}
+          </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="报警邮件抄送给">
+          <el-checkbox-group v-model="statusForModifyWarning.ccUserSelected">
+            <el-checkbox v-for="item in statusForModifyWarning.ccUserList" :label="item.desc" :key="item.mail">
+              {{item.desc}}
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="报警时间段">
+          <el-radio-group v-model="statusForModifyWarning.intervalDaySelected">
+            <el-radio v-for="item in statusForModifyWarning.intervalDayList" :label="item.type" :key="item.type">
+              {{item.desc}}
+            </el-radio>
+          </el-radio-group>
+          <el-time-picker
+                  style="margin-left: 10px;"
+                  class="custom"
+                  is-range
+                  v-model="statusForModifyWarning.intervalPeriodSelected"
+                  range-separator="至"
+                  start-placeholder="开始时间"
+                  end-placeholder="结束时间"
+                  placeholder="选择时间范围">
+          </el-time-picker>
+        </el-form-item>
+        <el-form-item label="报警频率" prop="intervalTimeSelected">
+          <el-select v-model="statusForModifyWarning.intervalTimeSelected"
+                     placeholder="请选择" filterable style="width: 60px">
+            <el-option v-for="item in statusForModifyWarning.intervalTimeList" :key="item" :label="item" :value="item">
+            </el-option>
+          </el-select>
+          <span>分钟执行一次</span>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+          <div class="item">
+            <el-button type="primary"
+                       @click="handleClickInDialog(action.name)"
+                       :loading="statusOfWaitingResponse(action.name)">确&nbsp定</el-button>
+          </div>
+          <div class="item">
+            <el-button @click="handleCloseDialog(action.name)">取&nbsp消</el-button>
+          </div>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -59,9 +130,10 @@
   import {mapGetters} from 'vuex';
   import commonUtils from 'assets/components/mixins/common-utils';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+  import ElFormItem from "../../../element-ui/packages/form/src/form-item";
 
   export default {
-    mixins: [commonUtils],
+    components: {ElFormItem}, mixins: [commonUtils],
     created() {},
     async mounted() {
       this.EVENT_TYPE_LIST = await this.$store.dispatch('k8s/setEventTypeList');
@@ -71,22 +143,114 @@
     data() {
       return {
         warningList: [],
-        INTERVAL_TYPE_LIST: [{
+        INTERVAL_DAY_LIST: [{
           type: 'EVERY_DAY',
           desc: '每天'
         }, {
           type: 'WORK_DAY',
           desc: '工作日'
         }],
-        ccUserList: [{
-          mail: 'paas.list@finupgroup.com',
-          desc: 'PaaS团队邮件组'
-        }],
+//        CC_USER_LIST: [{
+//          mail: 'paas.list@finupgroup.com',
+//          desc: 'PaaS团队邮件组'
+//        }],
         EVENT_TYPE_LIST: [],
 
         action: {
           name: '',
           row: null
+        },
+        rulesForAddWarning: {
+          groupId: [{
+            required: true,
+            message: '请选择团队',
+          }, {
+            validator(rule, values, callback) {
+              let passed = true;
+              if (!values) {
+                passed = false;
+              }
+              if (passed) {
+                callback();
+              } else {
+                callback('请选择团队');
+              }
+            }
+          }],
+          appId: [{
+            required: true,
+            message: '请选择应用',
+          }, {
+            validator(rule, values, callback) {
+              let passed = true;
+              if (!values) {
+                passed = false;
+              }
+              if (passed) {
+                callback();
+              } else {
+                callback('请选择应用');
+              }
+            }
+          }],
+          eventSelected: [{
+            required: true,
+            message: '至少选择一个事件类型',
+          }, {
+            validator(rule, values, callback) {
+              let passed = true;
+              if (!values) {
+                passed = false;
+              } else if (Array.isArray(values) && values.length === 0) {
+                passed = false;
+              }
+              if (passed) {
+                callback();
+              } else {
+                callback('至少选择一个事件类型')
+              }
+            }
+          }],
+          receiverSelected: [{
+            required: true,
+            message: '至少选择一个报警邮件抄送者',
+            trigger: 'blur'
+          }, {
+            validator(rule, values, callback) {
+              let passed = true;
+              if (!values) {
+                passed = false;
+              } else if (Array.isArray(values) && values.length === 0) {
+                passed = false;
+              }
+              if (passed) {
+                callback();
+              } else {
+                callback('至少选择一个报警邮件抄送者')
+              }
+            }
+          }],
+          intervalDaySelected: [{
+            required: true,
+            message: '必须选择报警时间段',
+          }],
+          intervalTimeSelected: [{
+            required: true,
+            message: '请选择报警频率',
+          }, {
+            validator(rule, values, callback) {
+              console.log(values);
+              let passed = true;
+              if (!values) {
+                passed = false;
+              }
+              if (passed) {
+                callback();
+              } else {
+                callback('请选择报警频率');
+              }
+            }
+          }],
         },
         statusForModifyWarning: {
           groupList: [],
@@ -98,12 +262,16 @@
           eventList: [],
           eventSelected: [],
           receiverList: this.$storeHelper.JOB_LIST,
-          ccUserList: this.ccUserList,
-          intervalDayList: this.INTERVAL_TYPE_LIST,
-          intervalTimeList: [5, 10, 15,30],
+          ccUserList: [{
+            mail: 'paas.list@finupgroup.com',
+            desc: 'PaaS团队邮件组'
+          }],
+          intervalDayList: [],
+          intervalTimeList: [5, 10, 15, 30],
           receiverSelected: [],
           ccUserSelected: [],
           intervalDaySelected: '',
+          intervalPeriodSelected: [new Date(2016, 9, 10, 10, 0), new Date(2016, 9, 10, 18, 0)],
           intervalTimeSelected: 15
         }
       }
@@ -112,6 +280,13 @@
       ...mapGetters({
         'visitPageCount': 'visitPageCount'
       }),
+    },
+    watch: {
+      'statusForModifyWarning.groupId': function (groupId) {
+        if (groupId) {
+          this.updateAppList();
+        }
+      }
     },
     methods: {
       handleCloseDialog(action) {
@@ -130,9 +305,9 @@
         this.EVENT_TYPE_LIST.forEach(it => {
           eventTypeMap[it['eventType']] = it['eventDescription'];
         });
-        const intervalTypeMap = {};
-        this.INTERVAL_TYPE_LIST.forEach(it => {
-          intervalTypeMap[it['type']] = it['desc'];
+        const intervalDayMap = {};
+        this.INTERVAL_DAY_LIST.forEach(it => {
+          intervalDayMap[it['type']] = it['desc'];
         });
         const jobTypeMap = {};
         this.$storeHelper.JOB_LIST.forEach(it => {
@@ -153,7 +328,7 @@
               return ''
             }
           }).join('，');
-          it.alertTimeDesc = `${intervalTypeMap[it['alertTime']]} ${it.period}`;
+          it.alertTimeDesc = `${intervalDayMap[it['alertTime']]} ${it.period}`;
           it.intervalDesc = `${it.interval}一次`
         });
 
@@ -162,12 +337,28 @@
         return warningList;
       },
 
+      // 更新app列表，设置默认appId
+      async updateAppList() {
+        const status = this.statusForModifyWarning;
+        status.appList = (await this.$net.requestPaasServer(this.$net.URL_LIST.app_list, {
+          payload: {
+            groupId: status.groupId
+          }
+        }))['appList'];
+        if (status.appList.length > 0) {
+          status.appId = status.appList[0]['appId'];
+        } else {
+          status.appId = '';
+        }
+      },
+
       async getStatusForModifyWarning(action, row) {
 //      this.$store.dispatch('setConfig', {
 //        visitPageCount: this.visitPageCount + 1
 //      });
         const status = this.statusForModifyWarning;
         status.eventList = this.EVENT_TYPE_LIST;
+        status.intervalDayList = this.INTERVAL_DAY_LIST;
         switch (action) {
           case 'add':
             status.groupList = (await this.$net.requestPaasServer(this.$net.URL_LIST.user_group_list))['groupList'];
@@ -179,16 +370,8 @@
             }).indexOf(groupInfo['id']) == -1) {
               status.groupId = status.groupList[0]['id'];
             }
-            status.appList = (await this.$net.requestPaasServer(this.$net.URL_LIST.app_list, {
-              payload: {
-                groupId: status.groupId
-              }
-            }))['appList'];
-            if (status.appList.length > 0) {
-              status.appId = status.appList[0]['appId'];
-            } else {
-              status.appId = '';
-            }
+
+            await this.updateAppList();
 
             status.eventSelected = status.eventList.filter(it => {
               return it['defaultSelect'];
@@ -196,16 +379,14 @@
               return it['eventType'];
             });
 
-            status['receiverSelected'] = [];
             status['ccUserSelected'] = status.ccUserList[0]['mail'];
             status['receiverSelected'] = ['TECH_LEADER'];
             status.ccUserSelected = [];
             status.intervalDaySelected = 'EVERY_DAY';
             status['intervalTimeSelected'] = 15;
+            console.log(this.statusForModifyWarning);
+            console.log(status);
 
-//            console.log(status.groupList);
-//            console.log(status.appList);
-//            console.log(groupInfo);
             break;
           case 'modify':
             break;
@@ -213,19 +394,41 @@
       },
 
       handleRowButtonClick(action, index, row) {
+        this.addToWaitingResponseQueue(action);
         switch (action) {
           case 'add':
             this.getStatusForModifyWarning(action).then(() => {
               this.action.name = action;
+            }).finally(() => {
+              this.hideWaitingResponse(action);
             });
             break;
           case 'modify':
             this.action.row = row;
             this.getStatusForModifyWarning(action).then(() => {
+              this.hideWaitingResponse(action);
               this.action.name = action;
+            }).finally(() => {
+              this.hideWaitingResponse(action);
             });
             break;
           case 'remove':
+            break;
+        }
+      },
+
+      handleClickInDialog(action) {
+        switch (action) {
+          case 'add':
+            console.log(this.statusForModifyWarning);
+            this.$refs['formModifyWarningInDialog'].validate(valid => {
+              if (!valid) {
+                return;
+              }
+
+            });
+            break;
+          case 'modify':
             break;
         }
       }
