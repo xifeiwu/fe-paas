@@ -53,11 +53,18 @@
         @media (min-width: 992px) {
           max-width: 990px;
         }
-        @media (min-width: 1200px) {
-          max-width: 1230px;
+        @media (min-width: 1100px) {
+          max-width: 1000px;
+        }
+        @media (min-width: 1400px) {
+          max-width: 1300px;
+        }
+        @media (min-width: 1600px) {
+          max-width: 1500px;
         }
         .left {
-          flex: 0 0 25%;
+          /*flex: 0 0 25%;*/
+          width: 25%;
           padding: 0px 8px;
           box-sizing: border-box;
           .user-info {
@@ -125,7 +132,8 @@
           }
         }
         .right {
-          flex: 0 0 75%;
+          /*flex: 0 0 75%;*/
+          width: 75%;
           padding: 0px 8px;
           box-sizing: border-box;
           .detail {

@@ -63,7 +63,7 @@
         <el-form-item label="运行环境">生产环境</el-form-item>
         <el-form-item label="事件类型" prop="eventSelected">
           <el-checkbox-group v-model="statusForModifyWarning.eventSelected" class="col-3">
-            <el-checkbox v-for="item in statusForModifyWarning.eventList" :label="item.eventType" :key="item.eventType">
+            <el-checkbox v-for="item in statusForModifyWarning.eventList" :label="item.id" :key="item.id">
               {{item.eventDescription}}
           </el-checkbox>
           </el-checkbox-group>
@@ -376,7 +376,7 @@
             status.eventSelected = status.eventList.filter(it => {
               return it['defaultSelect'];
             }).map(it => {
-              return it['eventType'];
+              return it['id'];
             });
 
             status['ccUserSelected'] = status.ccUserList[0]['mail'];
@@ -443,7 +443,7 @@
               }
               const payload = {
                 groupId: status.groupId,
-                appId: status.appId,
+                applicationId: status.appId,
                 eventTypeId: status.eventSelected,
                 emailReceive: status.receiverSelected,
                 ccUser: status.ccUserSelected.length > 0 ? status.ccUserSelected[0] : '',
