@@ -546,17 +546,15 @@
               }
               this.hideWaitingResponse('deploy-log');
               let productionProfile = this.$storeHelper.getProductionProfile();
-              this.$storeHelper.setTmpProp('versionInfo', {
-                appID: detail.appID,
-                profileID: productionProfile ? productionProfile.id:null,
-                serviceVersion: detail.serviceVersion
-              });
-              this.$router.push({
-                path: this.$net.page['profile/log/deploy'],
-                query: {
-                  from: '/work-order/list'
+              this.$storeHelper.dataTransfer = {
+                from: this.$net.page['profile/work-order/list'],
+                data: {
+                  appID: detail.appID,
+                  profileID: productionProfile ? productionProfile.id:null,
+                  serviceVersion: detail.serviceVersion
                 }
-              });
+              };
+              this.$router.push(this.$net.page['profile/log/deploy']);
             }).catch(err => {
               this.hideWaitingResponse('deploy-log');
             });

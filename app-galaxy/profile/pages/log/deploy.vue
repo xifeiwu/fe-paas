@@ -95,15 +95,28 @@
     components: {MyVersionSelector, paasDialogForLog},
     created() {
       // set default service
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      if (dataTransfer) {
+        const from = dataTransfer['from'];
+        const data = dataTransfer['data'];
+        switch (from) {
+          case this.$net.page['profile/work-order/list']:
+            this.localServiceConfig = {
+              appID: data['appID'],
+              profileID: data['profileID'],
+              serviceVersion: data['serviceVersion'],
+            };
+            break;
+        }
+        this.$storeHelper.dataTransfer = null;
+      }
+
       let queryParam = this.$route.query;
       if (queryParam && queryParam.hasOwnProperty('from')) {
         let formerPage = queryParam['from'];
         switch (formerPage) {
           case '/service':
             this.localServiceConfig = this.$storeHelper.getUserConfig('profile/service');
-            break;
-          case '/work-order/list':
-            this.localServiceConfig = this.$storeHelper.getTmpProp('versionInfo');
             break;
         }
       }

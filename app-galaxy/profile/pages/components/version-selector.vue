@@ -63,6 +63,7 @@
     },
     props: {
       /**
+       * serviceID or serviceVersion can be passed
        * format of customConfig: {
        *   appID: null,
        *   profileID: null,
@@ -244,6 +245,28 @@
         }
         this.selectedServiceID = null;
         this.currentServiceList = [];
+
+        const getServiceById = (serviceList, serviceId) => {
+          let service = null;
+          serviceList.some(it => {
+            if (it['id'] === serviceId) {
+              service = it;
+            }
+            return service;
+          });
+          return service;
+        };
+
+        const getServiceByVersion = (serviceList, serviceVersion) => {
+          let service = null;
+          serviceList.some(it => {
+            if (it['serviceVersion'] === serviceVersion) {
+              service = it;
+            }
+            return service;
+          });
+          return service;
+        };
         this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
           payload: {
             appId: appID,
@@ -261,26 +284,19 @@
               // 2. customConfig.serviceName if exist
               // 3. first element of profileList in selectedApp
               if (this.customConfig) {
+                let targetService = null;
                 if (this.customConfig.hasOwnProperty('serviceID')) {
-                  this.selectedServiceID = this.customConfig['serviceID'];
+                  targetService = getServiceById(currentServiceList, this.customConfig['serviceID']);
                   // customConfig can only use once
                   delete this.customConfig['serviceID'];
+                } else if (this.customConfig.hasOwnProperty('serviceVersion')) {
+                  targetService = getServiceByVersion(currentServiceList, this.customConfig['serviceVersion']);
+                  // customConfig can only use once
+                  delete this.customConfig['serviceVersion'];
                 }
-//                else if (this.customConfig.hasOwnProperty('serviceName')) {
-//                  let theProfile = null;
-//                  currentServiceList.some(it => {
-//                    if (it.serviceName === this.customConfig['serviceName']) {
-//                      theProfile = it;
-//                    }
-//                    return theProfile;
-//                  });
-//                  if (theProfile) {
-//                    this.selectedServiceID = theProfile.id;
-//                  } else {
-//                    this.selectedServiceID = firstServiceID;
-//                  }
-//                }
-                else {
+                if (targetService) {
+                  this.selectedServiceID = targetService.id;
+                } else {
                   this.selectedServiceID = firstServiceID;
                 }
               } else {
