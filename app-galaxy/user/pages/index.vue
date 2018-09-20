@@ -53,14 +53,20 @@
         @media (min-width: 992px) {
           max-width: 990px;
         }
-        @media (min-width: 1100px) {
-          max-width: 1000px;
+        @media (min-width: 1200px) {
+          max-width: 1150px;
+        }
+        @media (min-width: 1300px) {
+          max-width: 1250px;
         }
         @media (min-width: 1400px) {
-          max-width: 1300px;
+          max-width: 1350px;
+        }
+        @media (min-width: 1500px) {
+          max-width: 1450px;
         }
         @media (min-width: 1600px) {
-          max-width: 1500px;
+          max-width: 1550px;
         }
         .left {
           /*flex: 0 0 25%;*/

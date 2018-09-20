@@ -8,11 +8,11 @@
                 :row-key="(row) => {return row.id}"
                 :expand-row-keys="expandRows"
                 element-loading-text="加载中">
-        <el-table-column label="团队名称" prop="name" headerAlign="center" align="center" width="100">
+        <el-table-column label="团队名称" prop="name" headerAlign="center" align="center" minWidth="100">
         </el-table-column>
-        <el-table-column label="团队标签" prop="tag" headerAlign="center" align="center">
+        <el-table-column label="团队标签" prop="tag" headerAlign="center" align="center" minWidth="80">
         </el-table-column>
-        <el-table-column label="所属业务线LOB" prop="lobName" headerAlign="center" align="center">
+        <el-table-column label="所属业务线LOB" prop="lobName" headerAlign="center" align="center" minWidth="100">
           <template slot-scope="scope">
             <div v-if="scope.row.lobName">{{scope.row.lobName}}</div>
             <div v-else>无</div>
@@ -28,7 +28,7 @@
             <div v-else>{{scope.row.createTime}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" prop="operation" minWidth="120" headerAlign="center" align="center">
+        <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="100">
           <template slot-scope="scope">
             <el-button
                     v-if="!$storeHelper.notPermitted['group_member_list']"
@@ -306,7 +306,7 @@
         heightOfGroupList: '',
 
         totalSize: 0,
-        pageSize: 12,
+        pageSize: 10,
         currentPage: 1,
         showGroupList: true,
 

@@ -30,8 +30,8 @@
               修改
             </el-button>
             <div class="ant-divider"></div>
-            <el-button type="text"
-                       :loading="statusOfWaitingResponse('remove') && selected.row.id === scope.row.id"
+            <el-button type="text" class="danger"
+                       :loading="statusOfWaitingResponse('remove') && action.row.id === scope.row.id"
                        @click="handleRowButtonClick('remove', scope.$index, scope.row)">删除
             </el-button>
           </template>
@@ -49,13 +49,13 @@
       <el-form labelWidth="120px" :model="statusForModifyWarning" :rules="rulesForAddWarning"
                size="mini" ref="formModifyWarningInDialog">
         <el-form-item prop="groupId" label="团队" v-if="action.name == 'add'">
-          <el-select v-model="statusForModifyWarning.groupId" placeholder="请选择" filterable>
+          <el-select v-model="statusForModifyWarning.groupId" placeholder="请选择" style="width: 300px;" filterable>
             <el-option v-for="item in statusForModifyWarning.groupList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item prop="appId" label="应用" v-if="action.name == 'add'">
-          <el-select v-model="statusForModifyWarning.appId" placeholder="请选择" filterable>
+          <el-select v-model="statusForModifyWarning.appId" placeholder="请选择" style="width: 300px;" filterable>
             <el-option v-for="item in statusForModifyWarning.appList" :key="item.appId" :label="item.appName" :value="item.appId">
             </el-option>
           </el-select>
@@ -321,6 +321,9 @@
               return ''
             }
           }).join('，');
+          it.eventIdList = it['eventList'].map(it => {
+            return eventTypeMap[it]['id'];
+          });
           it.jobDesc = it['jobTypeList'].map(it => {
             if (jobTypeMap.hasOwnProperty(it)) {
               return jobTypeMap[it];
@@ -329,7 +332,7 @@
             }
           }).join('，');
           it.alertTimeDesc = `${intervalDayMap[it['alertTime']]} ${it.period}`;
-          it.intervalDesc = `${it.interval}一次`
+          it.intervalDesc = `${it.interval}分钟一次`
         });
 
         console.log(this.EVENT_TYPE_LIST);
@@ -356,9 +359,24 @@
 //      this.$store.dispatch('setConfig', {
 //        visitPageCount: this.visitPageCount + 1
 //      });
+        const peroidToDate = (period) => {
+          const start = period.split('-')[0];
+          const end = period.split('-')[1];
+          const periodStart = new Date();
+          const periodEnd = new Date();
+          periodStart.setHours(start.split(':')[0]);
+          periodStart.setMinutes(start.split(':')[1]);
+          periodStart.setSeconds(0);
+          periodEnd.setHours(end.split(':')[0]);
+          periodEnd.setMinutes(end.split(':')[1]);
+          periodEnd.setSeconds(0);
+          return [periodStart, periodEnd];
+        };
         const status = this.statusForModifyWarning;
         status.eventList = this.EVENT_TYPE_LIST;
         status.intervalDayList = this.INTERVAL_DAY_LIST;
+        const periodStart = new Date();
+        const periodEnd = new Date();
         switch (action) {
           case 'add':
             status.groupList = (await this.$net.requestPaasServer(this.$net.URL_LIST.user_group_list))['groupList'];
@@ -383,17 +401,42 @@
             status['receiverSelected'] = ['TECH_LEADER'];
             status.ccUserSelected = [];
             status.intervalDaySelected = 'EVERY_DAY';
-            status['intervalTimeSelected'] = 15;
-            console.log(this.statusForModifyWarning);
-            console.log(status);
 
+            periodStart.setHours(10);
+            periodStart.setMinutes(0);
+            periodStart.setSeconds(0);
+            periodEnd.setHours(18);
+            periodEnd.setMinutes(0);
+            periodEnd.setSeconds(0);
+            status.intervalPeriodSelected = [periodStart, periodEnd],
+            status['intervalTimeSelected'] = 15;
+//            console.log(this.statusForModifyWarning);
+//            console.log(status);
             break;
           case 'modify':
+            status.groupName = row['groupName'];
+            status.appName = row['appName'];
+            status.eventSelected = [];
+            status['receiverSelected'] = row['jobTypeList'];
+            if (row['ccUser']) {
+              status.ccUserSelected = [row['ccUser']];
+            } else {
+              status.ccUserSelected = [];
+            }
+
+//            const peroidStart = new Date();
+//            peroidStart.setHours()
+//            const peroidEnd = new Date();
+            status.intervalDaySelected = row['alertTime'];
+            status.intervalPeriodSelected = peroidToDate(row['period']);
+            status.intervalTimeSelected = row['interval'];
+
+            console.log(row);
             break;
         }
       },
 
-      handleRowButtonClick(action, index, row) {
+      async handleRowButtonClick(action, index, row) {
         this.addToWaitingResponseQueue(action);
         switch (action) {
           case 'add':
@@ -405,7 +448,7 @@
             break;
           case 'modify':
             this.action.row = row;
-            this.getStatusForModifyWarning(action).then(() => {
+            this.getStatusForModifyWarning(action, row).then(() => {
               this.hideWaitingResponse(action);
               this.action.name = action;
             }).finally(() => {
@@ -413,8 +456,26 @@
             });
             break;
           case 'remove':
+            this.action.name = name;
+            this.action.row = row;
+            this.addToWaitingResponseQueue(action);
+            await this.warningConfirm(`确定要删除针对应用${row.appName}的k8s时间报警吗？`);
+            this.hideWaitingResponse(action);
             break;
         }
+      },
+      warningConfirm(content) {
+        return new Promise((resolve, reject) => {
+          this.$confirm(content, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            resolve();
+          }).catch(() => {
+            reject()
+          });
+        });
       },
 
       handleClickInDialog(action) {
