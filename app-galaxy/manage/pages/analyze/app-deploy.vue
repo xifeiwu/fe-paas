@@ -113,13 +113,13 @@
     >
       <el-row class="general">
         <el-col :span="8">
+          <span class="key">运行环境：</span><span class="value"> {{action.row.spaceName}}</span>
+        </el-col>
+        <el-col :span="8">
           <span class="key">LOB：</span><span class="value"> {{action.row.lobName}}</span>
         </el-col>
         <el-col :span="8">
           <span class="key">Scrum：</span><span class="value"> {{action.row.scrumName}}</span>
-        </el-col>
-        <el-col :span="8">
-          <span class="key">运行环境：</span><span class="value"> {{action.row.spaceName}}</span>
         </el-col>
       </el-row>
       <el-table
@@ -287,39 +287,39 @@
             };
             return getDate(time) >= getDate(new Date());
           },
-          shortcuts: [{
-            text: '最近一周',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近一个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近两个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 60);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近三个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
-            }
-          }]
+//          shortcuts: [{
+//            text: '最近一周',
+//            onClick(picker) {
+//              const end = new Date();
+//              const start = new Date();
+//              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+//              picker.$emit('pick', [start, end]);
+//            }
+//          }, {
+//            text: '最近一个月',
+//            onClick(picker) {
+//              const end = new Date();
+//              const start = new Date();
+//              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+//              picker.$emit('pick', [start, end]);
+//            }
+//          }, {
+//            text: '最近两个月',
+//            onClick(picker) {
+//              const end = new Date();
+//              const start = new Date();
+//              start.setTime(start.getTime() - 3600 * 1000 * 24 * 60);
+//              picker.$emit('pick', [start, end]);
+//            }
+//          }, {
+//            text: '最近三个月',
+//            onClick(picker) {
+//              const end = new Date();
+//              const start = new Date();
+//              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+//              picker.$emit('pick', [start, end]);
+//            }
+//          }]
         },
       }
     },
@@ -434,7 +434,7 @@
             break;
           case 'download-analyze':
             const payload = {
-              startTime: this.$utils.formatDate(this.payload.dateRange[0], 'yyyyMMdd'),
+              startTime: this.$utils.formatDate(this.getOneDayBefore(this.payload.dateRange[0]), 'yyyyMMdd'),
               endTime: this.$utils.formatDate(this.payload.dateRange[1], 'yyyyMMdd')
             };
             if ('' !== this.payload.profileId) {
@@ -485,8 +485,8 @@
             this.addToWaitingResponseQueue(action);
             this.$net.requestPaasServer(this.$net.URL_LIST.analyze_app_deploy_count_detail, {
               payload: {
+                startTime: this.$utils.formatDate(this.getOneDayBefore(this.payload.dateRange[0]), 'yyyyMMdd'),
                 endTime: this.$utils.formatDate(this.payload.dateRange[1], 'yyyyMMdd'),
-                startTime: this.$utils.formatDate(this.payload.dateRange[0], 'yyyyMMdd'),
                 spaceId: row.spaceId,
                 lobId: row.lobId,
                 scrumId: row.scrumId

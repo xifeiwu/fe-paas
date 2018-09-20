@@ -112,13 +112,13 @@
     >
       <el-row class="general">
         <el-col :span="8">
+          <span class="key">运行环境：</span><span class="value"> {{action.row.spaceName}}</span>
+        </el-col>
+        <el-col :span="8">
           <span class="key">LOB：</span><span class="value"> {{action.row.lobName}}</span>
         </el-col>
         <el-col :span="8">
           <span class="key">Scrum：</span><span class="value"> {{action.row.scrumName}}</span>
-        </el-col>
-        <el-col :span="8">
-          <span class="key">运行环境：</span><span class="value"> {{action.row.spaceName}}</span>
         </el-col>
       </el-row>
       <el-table
@@ -311,26 +311,26 @@
             };
             return getDate(time) >= getDate(new Date());
           },
-          shortcuts: [{
-            text: '今天',
-            onClick(picker) {
-              picker.$emit('pick', new Date());
-            }
-          }, {
-            text: '昨天',
-            onClick(picker) {
-              const date = new Date();
-              date.setTime(date.getTime() - 3600 * 1000 * 24);
-              picker.$emit('pick', date);
-            }
-          }, {
-            text: '一周前',
-            onClick(picker) {
-              const date = new Date();
-              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', date);
-            }
-          }]
+//          shortcuts: [{
+//            text: '今天',
+//            onClick(picker) {
+//              picker.$emit('pick', new Date());
+//            }
+//          }, {
+//            text: '昨天',
+//            onClick(picker) {
+//              const date = new Date();
+//              date.setTime(date.getTime() - 3600 * 1000 * 24);
+//              picker.$emit('pick', date);
+//            }
+//          }, {
+//            text: '一周前',
+//            onClick(picker) {
+//              const date = new Date();
+//              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+//              picker.$emit('pick', date);
+//            }
+//          }]
         },
       }
     },
