@@ -223,6 +223,12 @@ class Net extends NetBase {
         path: '/domain/whiteList/addOffice',
         method: 'post'
       },
+      /**工单相关*/
+      // 部署工单中部署服务
+      'work_order_app_deploy': {
+        path: '/workOrderDeploy/deploy',
+        method: 'post'
+      },
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];
@@ -2208,26 +2214,6 @@ class Net extends NetBase {
         reject('删除工单失败！')
       })
     })
-  }
-
-  // 工单-部署引用
-  workOrderDeployApp(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_app_deploy.url, options).then(response => {
-        if ('data' in response) {
-          let data = response.data;
-          if (0 === data.code) {
-            let content = data.content ? data.content : {};
-            resolve(content);
-          } else {
-            reject(data.msg);
-          }
-        }
-      }).catch(err => {
-        reject(err);
-        console.log(err);
-      })
-    });
   }
 
   // 工单-部署应用-拉取日志

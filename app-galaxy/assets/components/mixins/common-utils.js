@@ -23,6 +23,20 @@ export default {
 
     closeAllResponse() {
       this.queueForWaitingResponse.length = 0;
-    }
+    },
+
+    warningConfirm(content) {
+      return new Promise((resolve, reject) => {
+        this.$confirm(content, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          resolve();
+        }).catch(() => {
+          reject()
+        });
+      });
+    },
   }
 }

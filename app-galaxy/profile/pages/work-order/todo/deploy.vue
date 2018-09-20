@@ -42,11 +42,11 @@
               type="primary"
               @click="handleButtonClick('finish-handle')">处理完成</el-button>
     </div>
-    <my-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
+    <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="content">
-        <div v-for="(item,index) in deployLogs" :key="index" class="log-item">{{item}}</div>
+        <div v-for="(item, index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
       </div>
-    </my-dialog-for-log>
+    </paas-dialog-for-log>
   </div>
 </template>
 
@@ -59,6 +59,35 @@
             font-size: 12px;
           }
         }
+      }
+    }
+
+    .dialog-for-log {
+      .el-dialog {
+        width: 95%;
+      }
+      .log-item {
+        /*white-space: pre;*/
+        max-width: 100%;
+        word-wrap: break-word;
+        word-break: break-all;
+        line-height: 1.4;
+      }
+      .info {
+        color: #409EFF;
+        font-weight: bold;
+      }
+      .warning {
+        color: #E6A23C;
+        font-weight: bold;
+      }
+      .error {
+        color: #F56C6C;
+        font-weight: bold;
+      }
+      .success {
+        color: #67C23A;
+        font-weight: bold;
       }
     }
   }
@@ -84,9 +113,11 @@
 <script>
   import WorkOrderPropUtils from '../utils/work-order-props';
   import MyShowDetail from '../components/show-detail.vue';
-  import MyDialogForLog from '../../components/dialog4log.vue';
+  import paasDialogForLog from '../../components/dialog4log.vue';
+  import commonUtils from 'assets/components/mixins/common-utils';
   export default {
-    components: {MyDialogForLog, MyShowDetail},
+    mixins: [commonUtils],
+    components: {paasDialogForLog, MyShowDetail},
     created() {
     },
     mounted() {
@@ -117,61 +148,129 @@
         dialogForLogStatus: {
           visible: false,
           full: false,
-          showLoading: false
+          showLoading: false,
+          iconExpand: true
         },
         deployLogs: []
       }
     },
     methods: {
-      handleButtonClick(action) {
+
+      /**
+       *
+       * @param type, 'quick-deploy' or 'deploy'
+       * @returns {Promise<Promise<T>|Promise<never>|Promise.<*>>}
+       */
+      async serviceDeploy(payload) {
+        // request and show log
+        const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
+        // recursive function to fetch log from server with options {logName, logPath, offset}
+        const getDeployLog = async (options) => {
+          // stop request deploy log when the window is closed
+          if (!this.dialogForLogStatus.visible) {
+            return Promise.reject('弹框关闭');
+          }
+          const resContent = await this.$net.serviceGetDeployLog(options);
+          if (resContent.hasOwnProperty('Orchestration')) {
+            const orchestration = resContent['Orchestration'];
+            const logs = orchestration.log;
+            if (logs) {
+              const logList = logs.split('\n').filter(it => {
+                return it;
+              }).map(it => {
+                // replace white-space with &nbsp
+                return it.replace(/^( *)(.*)$/, (match, p1, p2) => {
+                  return '&nbsp;'.repeat(p1.length) + p2;
+                });
+              }).map(it => {
+                return it.replace(filterReg, (match, p1, p2, offset, string) => {
+                  // console.log(match, p1, offset, string);
+                  p2 = p2.replace(/(BUILD )*SUCCESS/g, (match, p1, offset, string) => {
+                    return `<span class="success">${match}</span>`;
+                  });
+                  p2 = p2.replace(/BUILD FAILURE/g, (match, p1, offset, string) => {
+                    return `<span class="error">${match}</span>`;
+                  });
+                  let result = '';
+                  switch (p1.toUpperCase()) {
+                    case 'INFO':
+                      result = `[<span class="info">${p1}</span>]${p2}`;
+                      break;
+                    case 'WARNING':
+                      result = `[<span class="warning">${p1}</span>]${p2}`;
+                      break;
+                    case 'ERROR':
+                      result = `[<span class="error">${p1}</span>]<span class="error">${p2}</span>`;
+                      break;
+                  }
+                  return result;
+                });
+              });
+              orchestration.logList = logList;
+              return orchestration;
+            } else {
+              // may be orchestration has not prop log at start
+              return orchestration;
+            }
+          } else {
+            throw new Error('格式不正确');
+          }
+        };
+
+//        const desc = this.getVersionDescription(this.selected.service);
+        const warningMsg = '确定要部署应用吗？';
+        const urlDesc = this.$net.URL_LIST.work_order_app_deploy;
+        await this.warningConfirm(warningMsg);
+        const resContent = await this.$net.requestPaasServer(urlDesc, {
+          payload
+        });
+        if (resContent.hasOwnProperty('orchestration')) {
+          this.deployLogs = [];
+          this.dialogForLogStatus.visible = true;
+          this.dialogForLogStatus.showLoading = true;
+          let orchestration = resContent['orchestration'];
+
+          while(orchestration && orchestration['moreData']) {
+            await new Promise((resolve) => {
+              setTimeout(resolve, 1500);
+            });
+            orchestration = await getDeployLog({
+              logName: orchestration.logName,
+              logPath: orchestration.logPath,
+              offset: null == orchestration.offset ? 0 : orchestration.offset
+            });
+            if (!orchestration) {
+              break;
+            }
+            if (orchestration.hasOwnProperty('logList')) {
+              // stop showLoading when orchestration.log is not null
+              this.dialogForLogStatus.showLoading = false;
+              this.deployLogs = this.deployLogs.concat(orchestration['logList']);
+              // scroll after render finish
+              this.$nextTick(() => {
+                if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
+                  let dialogForDeployLog = this.$refs['dialogForDeployLog'];
+                  dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+                }
+              });
+            }
+          }
+          return Promise.reject('已拉取所有日志');
+        } else {
+          return Promise.reject({
+            title: '数据格式错误',
+            message: '未找到orchestration'
+          })
+        }
+      },
+
+      async handleButtonClick(action) {
         switch (action) {
           case 'deploy':
-            // request and show log
-            function showDeployLog(options) {
-              this.deployLogs = [];
-              this.dialogForLogStatus.visible = true;
-
-              // recursive function to fetch log from server with options {logName, logPath, offset}
-              function getDeployLog(options) {
-                // stop request deploy log when the window is closed
-                if (!this.dialogForLogStatus.visible) {
-                  return;
-                }
-                this.$net.workOrderFetchDeployLog(options).then(content => {
-                  if (content.hasOwnProperty('orchestrationVO')) {
-                    let Orchestration = content['orchestrationVO'];
-                    let log = Orchestration.log;
-//                    console.log(Orchestration);
-//                    console.log(content);
-  //                  console.log(Orchestration.offset);
-                    if (log) {
-                      // scroll after render finish
-                      this.deployLogs = this.deployLogs.concat(log.split('\n'));
-                      this.$nextTick(() => {
-                        this.$refs.hasOwnProperty('dialogForDeployLog') &&
-                        this.$refs['dialogForDeployLog'].scrollToBottom();
-                      });
-                    }
-                    options.offset = Orchestration.offset;
-//                    if (null != log) {
-                    if (Orchestration.moreData) {
-                      setTimeout(() => {
-                        getDeployLog.call(this, options);
-                      }, 1800);
-                    }
-                  }
-                }).catch(err => {
-                  console.log(err);
-                });
-              }
-
-              setTimeout(() => {
-                getDeployLog.call(this, options);
-              }, 1500);
-            }
-//            let profileType = 'DEV';
-            let profileType = 'PRODUCTION';
-            let profileInfo = this.$storeHelper.getProfileInfoByType(profileType);
+//            console.log(this.workOrderDetail);
+//            console.log(profileInfo);
+            const profileType = 'PRODUCTION';
+            const profileInfo = this.$storeHelper.getProfileInfoByType(profileType);
             if (!profileInfo || !profileInfo.hasOwnProperty('id')) {
               this.$message.error('未找到profileID');
               return;
@@ -180,31 +279,17 @@
               this.$message.error('信息不完整：请检查应用名和版本是否完整！');
               return;
             }
-
-            this.$net.workOrderDeployApp({
-              applicationId: this.workOrderDetail.appID,
-              spaceId: profileInfo.id,
-              serviceVersion: this.workOrderDetail.serviceVersion,
-              groupId: this.$storeHelper.currentGroupID
-            }).then(content => {
-//              console.log(content);
-              if (content.hasOwnProperty('orchestration')) {
-                let orchestration = content['orchestration'];
-                showDeployLog.call(this, {
-                  logName: orchestration.logName,
-                  logPath: orchestration.logPath,
-                  offset: null == orchestration.offset ? 0 : orchestration.offset
-                });
-              }
-            }).catch(err => {
-              this.$notify.error({
-                title: '部署失败',
-                message: err,
-                duration: 0,
-                onClose: function () {
-                }
+            try {
+              await this.serviceDeploy({
+                applicationId: this.workOrderDetail.appID,
+                spaceId: profileInfo.id,
+                serviceVersion: this.workOrderDetail.serviceVersion,
+                groupId: this.$storeHelper.currentGroupID
               });
-            });
+            } catch (err) {
+              console.log(err);
+//              this.hideWaitingResponse(action);
+            }
             break;
           case 'back':
             this.$router.go(-1);

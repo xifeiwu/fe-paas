@@ -402,11 +402,6 @@ class URL extends BaseURL {
         url: API_PATH + '/workOrderDeploy/againSendWorkOrderDeploy',
         path: '/workOrderDeploy/againSendWorkOrderDeploy'
       },
-      // 部署应用
-      'work_order_app_deploy': {
-        url: API_PATH + '/workOrderDeploy/deploy',
-        path: '/workOrderDeploy/deploy'
-      },
       // 部署应用-获取日志
       'work_order_fetch_deploy_log': {
         url: API_PATH + '/workOrderDeploy/searchDeployLog',
