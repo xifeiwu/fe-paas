@@ -77,7 +77,7 @@
         </el-form-item>
         <el-form-item label="报警邮件抄送给">
           <el-checkbox-group v-model="statusForModifyWarning.ccUserSelected">
-            <el-checkbox v-for="item in statusForModifyWarning.ccUserList" :label="item.desc" :key="item.mail">
+            <el-checkbox v-for="item in statusForModifyWarning.ccUserList" :label="item.mail" :key="item.mail">
               {{item.desc}}
             </el-checkbox>
           </el-checkbox-group>
@@ -418,13 +418,46 @@
       },
 
       handleClickInDialog(action) {
+        const status = this.statusForModifyWarning;
+        console.log(status);
         switch (action) {
           case 'add':
             console.log(this.statusForModifyWarning);
+//            {
+//              "alertTime": "EVERY_DAY",
+//              "applicationId": 0,
+//              "ccUser": "string",
+//              "emailReceive": [
+//              "string"
+//            ],
+//              "eventTypeId": [
+//              0
+//            ],
+//              "groupId": 0,
+//              "interval": 0,
+//              "period": "string"
+//            }
             this.$refs['formModifyWarningInDialog'].validate(valid => {
               if (!valid) {
                 return;
               }
+              const payload = {
+                groupId: status.groupId,
+                appId: status.appId,
+                eventTypeId: status.eventSelected,
+                emailReceive: status.receiverSelected,
+                ccUser: status.ccUserSelected.length > 0 ? status.ccUserSelected[0] : '',
+                alertTime: status.intervalDaySelected,
+                period: `${this.$utils.formatDate(status.intervalPeriodSelected[0], 'hh:mm')}-${this.$utils.formatDate(status.intervalPeriodSelected[1], 'hh:mm')}`,
+                interval: status.intervalTimeSelected
+              };
+              console.log(payload);
+              this.$net.requestPaasServer(this.$net.URL_LIST.k8s_warning_add, {
+                payload
+              }).then(resContent => {
+                console.log(resContent);
+              })
+
 
             });
             break;

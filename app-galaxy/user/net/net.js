@@ -20,6 +20,11 @@ class Net extends NetBase {
         path: '/application/alert/config/query/list',
         method: 'post'
       },
+      // 添加k8s事件报警
+      'k8s_warning_add': {
+        path: '/application/alert/config/add',
+        method: 'post'
+      }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];
