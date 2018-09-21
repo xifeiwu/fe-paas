@@ -24,6 +24,15 @@ class Net extends NetBase {
       'k8s_warning_add': {
         path: '/application/alert/config/add',
         method: 'post'
+      },
+      // 添加k8s事件报警
+      'k8s_warning_update': {
+        path: '/application/alert/config/update',
+        method: 'post'
+      },
+      'k8s_warning_delete': {
+        path: '/application/alert/config/delete/{appId}',
+        method: 'delete'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

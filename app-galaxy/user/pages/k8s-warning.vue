@@ -1,9 +1,13 @@
 <template>
   <div id="k8s">
     <div class="header">
-      <el-button type="primary" size="mini"
+      <el-button type="primary" size="mini-extral"
            :loading="statusOfWaitingResponse('add')"
            @click="handleRowButtonClick('add')">设置k8s事件报警
+      </el-button>
+      <el-button type="primary" size="mini-extral"
+                 :loading="statusOfWaitingResponse('refresh')"
+                 @click="handleRowButtonClick('refresh')">刷新
       </el-button>
     </div>
     <div class="warning-list">
@@ -12,21 +16,21 @@
               style="width: 100%"
               stripe
       >
-        <el-table-column prop="appName" label="应用名称" minWidth="150"></el-table-column>
-        <el-table-column label="运行环境" width="100">
+        <el-table-column prop="appName" label="应用名称" minWidth="120"></el-table-column>
+        <el-table-column label="运行环境" width="80">
           <template slot-scope="scope">
             生产环境
           </template>
         </el-table-column>
-        <el-table-column prop="eventDesc" label="事件类型" minWidth="150"></el-table-column>
-        <el-table-column prop="jobDesc" label="报警接收者" minWidth="120"></el-table-column>
-        <el-table-column prop="alertTimeDesc" label="报警时间段" width="150"></el-table-column>
-        <el-table-column prop="intervalDesc" label="报警频率" width="80"></el-table-column>
-        <el-table-column prop="appName" label="操作" minWidth="150">
+        <el-table-column prop="eventDesc" label="事件类型" minWidth="120"></el-table-column>
+        <el-table-column prop="jobDesc" label="报警接收者" minWidth="80"></el-table-column>
+        <el-table-column prop="alertTimeDesc" label="报警时间段" width="120"></el-table-column>
+        <el-table-column prop="intervalDesc" label="报警频率" minWidth="50"></el-table-column>
+        <el-table-column prop="appName" label="操作" width="100">
           <template slot-scope="scope">
             <el-button
                     type="text" class="warning"
-                    @click="handleRowButtonClick('modify', scope.$index, scope.row)">
+                    @click="handleRowButtonClick('update', scope.$index, scope.row)">
               修改
             </el-button>
             <div class="ant-divider"></div>
@@ -39,10 +43,10 @@
       </el-table>
     </div>
 
-    <el-dialog :title="action.name == 'modify'?'修改k8s事件报警':'添加k8s事件报警'"
-               :visible="action.name == 'add' || action.name == 'modify'"
+    <el-dialog :title="action.name == 'update'?'修改k8s事件报警':'添加k8s事件报警'"
+               :visible="action.name == 'add' || action.name == 'update'"
                :close-on-click-modal="false"
-               class="modify-warning size-900"
+               class="update-warning size-900"
                @close="handleCloseDialog(action.name)"
                v-if="action.name"
     >
@@ -54,13 +58,19 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item prop="groupId" label="团队" v-if="action.name == 'update'" class="message-show">
+          {{statusForModifyWarning.groupName}}
+        </el-form-item>
         <el-form-item prop="appId" label="应用" v-if="action.name == 'add'">
           <el-select v-model="statusForModifyWarning.appId" placeholder="请选择" style="width: 300px;" filterable>
             <el-option v-for="item in statusForModifyWarning.appList" :key="item.appId" :label="item.appName" :value="item.appId">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="运行环境">生产环境</el-form-item>
+        <el-form-item prop="groupId" label="应用" v-if="action.name == 'update'" class="message-show">
+          {{statusForModifyWarning.appName}}
+        </el-form-item>
+        <el-form-item label="运行环境" class="message-show">生产环境</el-form-item>
         <el-form-item label="事件类型" prop="eventSelected">
           <el-checkbox-group v-model="statusForModifyWarning.eventSelected" class="col-3">
             <el-checkbox v-for="item in statusForModifyWarning.eventList" :label="item.id" :key="item.id">
@@ -68,7 +78,7 @@
           </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item label="报警邮件接收者" prop="eventSelected">
+        <el-form-item label="报警邮件接收者" prop="receiverSelected">
           <el-checkbox-group v-model="statusForModifyWarning.receiverSelected" class="col-3">
             <el-checkbox v-for="item in statusForModifyWarning.receiverList" :label="item.name" :key="item.name">
               {{item.description}}
@@ -109,14 +119,14 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
-          <div class="item">
-            <el-button type="primary"
-                       @click="handleClickInDialog(action.name)"
-                       :loading="statusOfWaitingResponse(action.name)">确&nbsp定</el-button>
-          </div>
-          <div class="item">
-            <el-button @click="handleCloseDialog(action.name)">取&nbsp消</el-button>
-          </div>
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleClickInDialog(`submit-${action.name}`)"
+                     :loading="statusOfWaitingResponse(`submit-${action.name}`)">确&nbsp定</el-button>
+        </div>
+        <div class="item">
+          <el-button @click="handleCloseDialog(action.name)">取&nbsp消</el-button>
+        </div>
       </div>
     </el-dialog>
   </div>
@@ -214,9 +224,9 @@
           receiverSelected: [{
             required: true,
             message: '至少选择一个报警邮件抄送者',
-            trigger: 'blur'
           }, {
             validator(rule, values, callback) {
+              console.log(values);
               let passed = true;
               if (!values) {
                 passed = false;
@@ -293,6 +303,11 @@
         this.action.name = null;
         this.hideWaitingResponse(action);
       },
+
+      /**
+       * 请求报警事件列表（并添加部分属性）
+       * @returns {Promise.<Promise|*>}
+       */
       async requestWarningList() {
         const warningList = await this.$net.requestPaasServer(this.$net.URL_LIST.k8s_warning_list, {
           payload: {
@@ -303,7 +318,7 @@
 
         const eventTypeMap = {};
         this.EVENT_TYPE_LIST.forEach(it => {
-          eventTypeMap[it['eventType']] = it['eventDescription'];
+          eventTypeMap[it['eventType']] = it;
         });
         const intervalDayMap = {};
         this.INTERVAL_DAY_LIST.forEach(it => {
@@ -316,7 +331,7 @@
         warningList.forEach(it => {
           it.eventDesc = it['eventList'].map(it => {
             if (eventTypeMap.hasOwnProperty(it)) {
-              return eventTypeMap[it];
+              return eventTypeMap[it]['eventDescription'];
             } else {
               return ''
             }
@@ -334,9 +349,8 @@
           it.alertTimeDesc = `${intervalDayMap[it['alertTime']]} ${it.period}`;
           it.intervalDesc = `${it.interval}分钟一次`
         });
-
-        console.log(this.EVENT_TYPE_LIST);
-        console.log(warningList);
+//        console.log(this.EVENT_TYPE_LIST);
+//        console.log(warningList);
         return warningList;
       },
 
@@ -355,7 +369,13 @@
         }
       },
 
-      async getStatusForModifyWarning(action, row) {
+      /**
+       * 初始化修改k8s时间报警相关的参数
+       * @param action
+       * @param row
+       * @returns {Promise.<void>}
+       */
+      async getStatusForModifyK8sWarning(action, row) {
 //      this.$store.dispatch('setConfig', {
 //        visitPageCount: this.visitPageCount + 1
 //      });
@@ -413,25 +433,23 @@
 //            console.log(this.statusForModifyWarning);
 //            console.log(status);
             break;
-          case 'modify':
+          case 'update':
+            status.groupId = row['groupId'];
+            status.appId = row['applicationId'];
             status.groupName = row['groupName'];
             status.appName = row['appName'];
-            status.eventSelected = [];
+            status.eventSelected = row['eventIdList'];
             status['receiverSelected'] = row['jobTypeList'];
             if (row['ccUser']) {
               status.ccUserSelected = [row['ccUser']];
             } else {
               status.ccUserSelected = [];
             }
-
-//            const peroidStart = new Date();
-//            peroidStart.setHours()
-//            const peroidEnd = new Date();
             status.intervalDaySelected = row['alertTime'];
             status.intervalPeriodSelected = peroidToDate(row['period']);
             status.intervalTimeSelected = row['interval'];
-
-            console.log(row);
+//            console.log(row);
+//            console.log(status);
             break;
         }
       },
@@ -439,16 +457,22 @@
       async handleRowButtonClick(action, index, row) {
         this.addToWaitingResponseQueue(action);
         switch (action) {
+          case 'refresh':
+            this.requestWarningList().then(() => {
+            }).finally(() => {
+              this.hideWaitingResponse(action);
+            });
+            break;
           case 'add':
-            this.getStatusForModifyWarning(action).then(() => {
+            this.getStatusForModifyK8sWarning(action).then(() => {
               this.action.name = action;
             }).finally(() => {
               this.hideWaitingResponse(action);
             });
             break;
-          case 'modify':
+          case 'update':
             this.action.row = row;
-            this.getStatusForModifyWarning(action, row).then(() => {
+            this.getStatusForModifyK8sWarning(action, row).then(() => {
               this.hideWaitingResponse(action);
               this.action.name = action;
             }).finally(() => {
@@ -459,31 +483,40 @@
             this.action.name = name;
             this.action.row = row;
             this.addToWaitingResponseQueue(action);
-            await this.warningConfirm(`确定要删除针对应用${row.appName}的k8s时间报警吗？`);
-            this.hideWaitingResponse(action);
+            this.warningConfirm(`确定要删除针对应用${row.appName}的k8s时间报警吗？`).then(() => {
+              this.$net.requestPaasServer(this.$net.URL_LIST.k8s_warning_delete, {
+                params: {
+                  appId: row['applicationId']
+                }
+              })
+            }).finally(() => {
+              this.hideWaitingResponse(action);
+            });
             break;
         }
       },
-      warningConfirm(content) {
-        return new Promise((resolve, reject) => {
-          this.$confirm(content, '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            resolve();
-          }).catch(() => {
-            reject()
-          });
-        });
+
+      // 从statusForK8sWarning获取payload
+      getPayloadFromStatusForK8sWarning(status) {
+        const payload = {
+          groupId: status.groupId,
+          applicationId: status.appId,
+          eventTypeId: status.eventSelected,
+          emailReceive: status.receiverSelected,
+          ccUser: status.ccUserSelected.length > 0 ? status.ccUserSelected[0] : '',
+          alertTime: status.intervalDaySelected,
+          period: `${this.$utils.formatDate(status.intervalPeriodSelected[0], 'hh:mm')}-${this.$utils.formatDate(status.intervalPeriodSelected[1], 'hh:mm')}`,
+          interval: status.intervalTimeSelected
+        };
+        return payload;
       },
 
       handleClickInDialog(action) {
         const status = this.statusForModifyWarning;
-        console.log(status);
+//        console.log(action);
+//        console.log(status);
         switch (action) {
-          case 'add':
-            console.log(this.statusForModifyWarning);
+          case 'submit-add':
 //            {
 //              "alertTime": "EVERY_DAY",
 //              "applicationId": 0,
@@ -502,27 +535,30 @@
               if (!valid) {
                 return;
               }
-              const payload = {
-                groupId: status.groupId,
-                applicationId: status.appId,
-                eventTypeId: status.eventSelected,
-                emailReceive: status.receiverSelected,
-                ccUser: status.ccUserSelected.length > 0 ? status.ccUserSelected[0] : '',
-                alertTime: status.intervalDaySelected,
-                period: `${this.$utils.formatDate(status.intervalPeriodSelected[0], 'hh:mm')}-${this.$utils.formatDate(status.intervalPeriodSelected[1], 'hh:mm')}`,
-                interval: status.intervalTimeSelected
-              };
-              console.log(payload);
               this.$net.requestPaasServer(this.$net.URL_LIST.k8s_warning_add, {
-                payload
+                payload: this.getPayloadFromStatusForK8sWarning(this.statusForModifyWarning)
               }).then(resContent => {
                 console.log(resContent);
               })
-
-
             });
             break;
-          case 'modify':
+          case 'submit-update':
+//            console.log(this.getPayloadFromStatusForK8sWarning(this.statusForModifyWarning));
+            this.$refs['formModifyWarningInDialog'].validate(valid => {
+              if (!valid) {
+                return;
+              }
+              this.addToWaitingResponseQueue(action);
+              this.$net.requestPaasServer(this.$net.URL_LIST.k8s_warning_update, {
+                payload: this.getPayloadFromStatusForK8sWarning(this.statusForModifyWarning)
+              }).then(resContent => {
+//                console.log(resContent);
+                this.requestWarningList();
+              }).finally(() => {
+                this.hideWaitingResponse(action);
+                this.closeDialog();
+              })
+            });
             break;
         }
       }
