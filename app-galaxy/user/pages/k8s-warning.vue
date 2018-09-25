@@ -1,5 +1,5 @@
 <template>
-  <div id="k8s">
+  <div id="k8s-warning">
     <div class="header">
       <el-button type="primary" size="mini-extral"
            :loading="statusOfWaitingResponse('add')"
@@ -42,6 +42,19 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-container">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "pageSize"
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange"
+          >
+          </el-pagination>
+        </div>
+      </div>
     </div>
 
     <el-dialog :title="action.name == 'update'?'修改k8s事件报警':'添加k8s事件报警'"
@@ -134,7 +147,11 @@
 </template>
 
 <style lang="scss">
-
+  #k8s-warning {
+    .warning-list {
+      position: relative;
+    }
+  }
 </style>
 
 <script>
@@ -283,7 +300,11 @@
           intervalDaySelected: '',
           intervalPeriodSelected: [new Date(2016, 9, 10, 10, 0), new Date(2016, 9, 10, 18, 0)],
           intervalTimeSelected: 15
-        }
+        },
+
+        totalSize: 0,
+        pageSize: 8,
+        currentPage: 1,
       }
     },
     computed: {
@@ -309,12 +330,17 @@
        * @returns {Promise.<Promise|*>}
        */
       async requestWarningList() {
-        const warningList = await this.$net.requestPaasServer(this.$net.URL_LIST.k8s_warning_list, {
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.pageSize;
+        const length = this.pageSize;
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.k8s_warning_list, {
           payload: {
-            start: 0,
-            length: 10
+            start, length
           }
         });
+        this.totalSize = resContent['total'];
+        const warningList = resContent['applicationAlertStrategyVOList'];
 
         const eventTypeMap = {};
         this.EVENT_TYPE_LIST.forEach(it => {
@@ -568,7 +594,12 @@
             });
             break;
         }
-      }
+      },
+
+      handlePaginationPageChange(page) {
+        this.currentPage = page;
+        this.requestWarningList();
+      },
     }
   }
 </script>
