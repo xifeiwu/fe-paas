@@ -48,30 +48,33 @@
       .container {
         display: flex;
         margin: 0px auto;
-        margin-top: 10px;
-        height: calc(100% - 10px);
+        margin-top: 8px;
+        height: calc(100% - 8px);
         @media (min-width: 992px) {
           max-width: 990px;
         }
+        @media (min-width: 1100px) {
+          max-width: 1080px;
+        }
         @media (min-width: 1200px) {
-          max-width: 1150px;
+          max-width: 1180px;
         }
         @media (min-width: 1300px) {
-          max-width: 1250px;
+          max-width: 1280px;
         }
         @media (min-width: 1400px) {
-          max-width: 1350px;
+          max-width: 1380px;
         }
         @media (min-width: 1500px) {
-          max-width: 1450px;
+          max-width: 1480px;
         }
         @media (min-width: 1600px) {
-          max-width: 1550px;
+          max-width: 1580px;
         }
         .left {
           /*flex: 0 0 25%;*/
           width: 25%;
-          padding: 0px 8px;
+          padding: 0px 6px;
           box-sizing: border-box;
           .user-info {
             background-color: white;
@@ -140,7 +143,7 @@
         .right {
           /*flex: 0 0 75%;*/
           width: 75%;
-          padding: 0px 8px;
+          padding: 0px 6px;
           box-sizing: border-box;
           .detail {
             height: calc(100% - 5px);

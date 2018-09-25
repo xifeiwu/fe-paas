@@ -26,16 +26,17 @@
         <el-table-column prop="jobDesc" label="报警接收者" minWidth="80"></el-table-column>
         <el-table-column prop="alertTimeDesc" label="报警时间段" width="120"></el-table-column>
         <el-table-column prop="intervalDesc" label="报警频率" minWidth="50"></el-table-column>
-        <el-table-column prop="appName" label="操作" width="100">
+        <el-table-column prop="appName" label="操作" width="140">
           <template slot-scope="scope">
             <el-button
                     type="text" class="warning"
+                    :loading="action.name == 'update' && action.row.id === scope.row.id"
                     @click="handleRowButtonClick('update', scope.$index, scope.row)">
               修改
             </el-button>
             <div class="ant-divider"></div>
             <el-button type="text" class="danger"
-                       :loading="statusOfWaitingResponse('remove') && action.row.id === scope.row.id"
+                       :loading="action.name == 'remove' && action.row.id === scope.row.id"
                        @click="handleRowButtonClick('remove', scope.$index, scope.row)">删除
             </el-button>
           </template>
@@ -140,15 +141,14 @@
   import {mapGetters} from 'vuex';
   import commonUtils from 'assets/components/mixins/common-utils';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
-  import ElFormItem from "../../../element-ui/packages/form/src/form-item";
 
   export default {
-    components: {ElFormItem}, mixins: [commonUtils],
+    mixins: [commonUtils],
     created() {},
     async mounted() {
       this.EVENT_TYPE_LIST = await this.$store.dispatch('k8s/setEventTypeList');
       // 报警事件列表
-      this.warningList = await this.requestWarningList();
+      await this.requestWarningList();
     },
     data() {
       return {
@@ -318,7 +318,7 @@
 
         const eventTypeMap = {};
         this.EVENT_TYPE_LIST.forEach(it => {
-          eventTypeMap[it['eventType']] = it;
+          eventTypeMap[it['id']] = it;
         });
         const intervalDayMap = {};
         this.INTERVAL_DAY_LIST.forEach(it => {
@@ -329,16 +329,13 @@
           jobTypeMap[it['name']] = it['description'];
         });
         warningList.forEach(it => {
-          it.eventDesc = it['eventList'].map(it => {
+          it.eventDesc = it['eventTypeList'].map(it => {
             if (eventTypeMap.hasOwnProperty(it)) {
               return eventTypeMap[it]['eventDescription'];
             } else {
               return ''
             }
           }).join('，');
-          it.eventIdList = it['eventList'].map(it => {
-            return eventTypeMap[it]['id'];
-          });
           it.jobDesc = it['jobTypeList'].map(it => {
             if (jobTypeMap.hasOwnProperty(it)) {
               return jobTypeMap[it];
@@ -351,12 +348,14 @@
         });
 //        console.log(this.EVENT_TYPE_LIST);
 //        console.log(warningList);
+        this.warningList = warningList;
         return warningList;
       },
 
       // 更新app列表，设置默认appId
       async updateAppList() {
         const status = this.statusForModifyWarning;
+//        this.addToWaitingResponseQueue('loading-app-list');
         status.appList = (await this.$net.requestPaasServer(this.$net.URL_LIST.app_list, {
           payload: {
             groupId: status.groupId
@@ -379,7 +378,7 @@
 //      this.$store.dispatch('setConfig', {
 //        visitPageCount: this.visitPageCount + 1
 //      });
-        const peroidToDate = (period) => {
+        const periodToDate = (period) => {
           const start = period.split('-')[0];
           const end = period.split('-')[1];
           const periodStart = new Date();
@@ -438,7 +437,7 @@
             status.appId = row['applicationId'];
             status.groupName = row['groupName'];
             status.appName = row['appName'];
-            status.eventSelected = row['eventIdList'];
+            status.eventSelected = row['eventTypeList'];
             status['receiverSelected'] = row['jobTypeList'];
             if (row['ccUser']) {
               status.ccUserSelected = [row['ccUser']];
@@ -446,7 +445,7 @@
               status.ccUserSelected = [];
             }
             status.intervalDaySelected = row['alertTime'];
-            status.intervalPeriodSelected = peroidToDate(row['period']);
+            status.intervalPeriodSelected = periodToDate(row['period']);
             status.intervalTimeSelected = row['interval'];
 //            console.log(row);
 //            console.log(status);
@@ -480,17 +479,19 @@
             });
             break;
           case 'remove':
-            this.action.name = name;
+            this.action.name = action;
             this.action.row = row;
-            this.addToWaitingResponseQueue(action);
-            this.warningConfirm(`确定要删除针对应用${row.appName}的k8s时间报警吗？`).then(() => {
-              this.$net.requestPaasServer(this.$net.URL_LIST.k8s_warning_delete, {
+            this.warningConfirm(`确定要删除针对应用${row.appName}的k8s时间报警吗？`).then(async () => {
+              // delete record
+              await this.$net.requestPaasServer(this.$net.URL_LIST.k8s_warning_delete, {
                 params: {
                   appId: row['applicationId']
                 }
-              })
+              });
+              // refresh record list
+              await this.requestWarningList();
             }).finally(() => {
-              this.hideWaitingResponse(action);
+              this.handleCloseDialog(action);
             });
             break;
         }
@@ -517,33 +518,40 @@
 //        console.log(status);
         switch (action) {
           case 'submit-add':
-//            {
-//              "alertTime": "EVERY_DAY",
-//              "applicationId": 0,
-//              "ccUser": "string",
-//              "emailReceive": [
-//              "string"
-//            ],
-//              "eventTypeId": [
-//              0
-//            ],
-//              "groupId": 0,
-//              "interval": 0,
-//              "period": "string"
-//            }
+            /**
+             * format of post data
+             * {
+             *  "alertTime": "EVERY_DAY",
+             *  "applicationId": 0,
+             *  "ccUser": "string",
+             *  "emailReceive": [
+             *  "string"
+             * ],
+             *  "eventTypeId": [
+             *  0
+             * ],
+             *  "groupId": 0,
+             *  "interval": 0,
+             *  "period": "string"
+             * }
+             */
             this.$refs['formModifyWarningInDialog'].validate(valid => {
               if (!valid) {
                 return;
               }
+              this.addToWaitingResponseQueue(action);
               this.$net.requestPaasServer(this.$net.URL_LIST.k8s_warning_add, {
                 payload: this.getPayloadFromStatusForK8sWarning(this.statusForModifyWarning)
               }).then(resContent => {
-                console.log(resContent);
+//                console.log(resContent);
+                this.requestWarningList();
+                this.handleCloseDialog();
+              }).finally(() => {
+                this.hideWaitingResponse(action);
               })
             });
             break;
           case 'submit-update':
-//            console.log(this.getPayloadFromStatusForK8sWarning(this.statusForModifyWarning));
             this.$refs['formModifyWarningInDialog'].validate(valid => {
               if (!valid) {
                 return;
@@ -552,11 +560,10 @@
               this.$net.requestPaasServer(this.$net.URL_LIST.k8s_warning_update, {
                 payload: this.getPayloadFromStatusForK8sWarning(this.statusForModifyWarning)
               }).then(resContent => {
-//                console.log(resContent);
                 this.requestWarningList();
               }).finally(() => {
                 this.hideWaitingResponse(action);
-                this.closeDialog();
+                this.handleCloseDialog();
               })
             });
             break;
