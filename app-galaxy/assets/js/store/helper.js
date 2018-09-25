@@ -16,6 +16,28 @@ export default class StoreHelper {
   get globalUserGroupInfo() {
     return this.$globalStore.getters['user/groupInfo'];
   }
+  // global
+  get userInfo() {
+    return this.$globalStore.getters['user/userInfo'];
+  }
+  // TODO: for compatible
+  getUserInfo(key) {
+    let value = null;
+    if (this.userInfo) {
+      value = this.userInfo[key];
+    }
+    return value;
+  }
+  get menus() {
+    return this.$globalStore.getters['user/menus'];
+  }
+  get profileNavMenu() {
+    let result = [];
+    if (this.menus && this.menus.hasOwnProperty('profile')) {
+      result = this.menus['profile'];
+    }
+    return result;
+  }
 
   getUserConfig(keys) {
     let config = this.$store.getters['global/config'];
@@ -70,76 +92,6 @@ export default class StoreHelper {
     return localStorage.setItem(key, JSON.stringify(state));
   }
 
-  updateLoginState(key, value) {
-    let loginState = this.getState('login');
-    if (!loginState) {
-      loginState = {};
-    }
-    let keyList = key.split('/');
-    let lastKeyIndex = keyList.length - 1;
-    let prop = keyList[lastKeyIndex];
-    if (0 === lastKeyIndex) {
-      loginState[prop] = value;
-    } else {
-      let tmpValue = loginState;
-      keyList.slice(0, lastKeyIndex).forEach(it => {
-        if (!tmpValue.hasOwnProperty(it)) {
-          tmpValue[it] = {};
-        }
-        tmpValue = tmpValue[it];
-      });
-      tmpValue[prop] = value;
-    }
-    this.setState('login', loginState);
-  }
-
-  getLoginState(key) {
-    let value = null;
-    let loginState = this.getState('login');
-    if (!loginState) {
-      return value;
-    }
-    let keyList = key.split('/');
-    let lastKeyIndex = keyList.length - 1;
-    let prop = keyList[lastKeyIndex];
-    if (0 === lastKeyIndex) {
-      if (loginState.hasOwnProperty(prop)) {
-        value = loginState[prop];
-      }
-    } else {
-      let tmpValue = loginState;
-      keyList.slice(0, lastKeyIndex).every(it => {
-        if (tmpValue.hasOwnProperty(it)) {
-          tmpValue = tmpValue[it];
-        } else {
-          tmpValue = null;
-        }
-        return tmpValue;
-      });
-      if (tmpValue && tmpValue.hasOwnProperty(prop)) {
-        value = tmpValue[prop];
-      }
-    }
-    return value;
-  }
-  get menuList() {
-    return this.getLoginState('menuList');
-  }
-  get navMenu() {
-    return this.getLoginState('navMenu');
-  }
-  get userInfo() {
-    return this.getLoginState('userInfo');
-  }
-  // TODO: for compatible
-  getUserInfo(key) {
-    let value = null;
-    if (this.userInfo) {
-      value = this.userInfo[key];
-    }
-    return value;
-  }
-
   set dataTransfer(data) {
     this._dataTransfer = data;
   }
@@ -168,7 +120,6 @@ export default class StoreHelper {
 
   logout() {
     this.$globalStore.dispatch('logout');
-    this.updateLoginState('userInfo', null);
   }
 
   get JOB_LIST() {

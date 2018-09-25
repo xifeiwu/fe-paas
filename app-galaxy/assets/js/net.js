@@ -52,6 +52,7 @@ class Net {
       'profile/service/add': '/profile/service/add',
       'profile/service/copy': '/profile/service/copy',
       'profile/instance': '/profile/instance',
+      'profile/monitor': '/profile/monitor',
       'profile/domain': '/profile/domain',
       'profile/domain/white-list': '/profile/domain/white-list',
       'profile/log': '/profile/log',
@@ -349,6 +350,13 @@ class Net {
       if (this.isResponseSuccess(resData)) {
         return resData.content;
       } else {
+        // code 555 stands for token is out of date
+        if (resData.code === 555) {
+          Vue.prototype.$storeHelper.logout();
+          window.location.pathname = Vue.prototype.$net.page['login'];
+          return;
+        }
+
         const err = {
           code: resData.code,
           title: '请求失败',

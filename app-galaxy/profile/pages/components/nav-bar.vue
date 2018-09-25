@@ -125,17 +125,10 @@
       ...mapGetters({
         'collapseMenu': 'collapseMenu'
       }),
-      menuList() {
-        let value = [];
-        if (this.$storeHelper.menuList) {
-          value = this.$storeHelper.menuList;
-        }
-        return value;
-      },
       navMenu() {
         let value = {}
-        if (this.$storeHelper.navMenu) {
-          value = this.$storeHelper.navMenu;
+        if (this.$storeHelper.profileNavMenu) {
+          value = this.$storeHelper.profileNavMenu;
         }
         return value;
       }

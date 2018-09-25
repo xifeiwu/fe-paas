@@ -27,10 +27,9 @@ class AxiosConfig {
     Vue.prototype.$utils.goToPath('/login');
   }
 
-  setToken(token) {
-    if (Vue && Vue.prototype && Vue.prototype.$storeHelper && Vue.prototype.$storeHelper.updateLoginState) {
-      Vue.prototype.$storeHelper.updateLoginState('userInfo/token', token);
-    }
+  logout() {
+    Vue.prototype.$storeHelper.logout();
+    window.location.pathname = Vue.prototype.$net.page['login'];
   }
 
   /**
@@ -66,6 +65,7 @@ class AxiosConfig {
    *  }
    */
 
+  // TODO: the logic of setConfig will be move to requestPaasServer
   setConfig(Vue) {
     // axios.defaults.withCredentials = true;
     axios.defaults.timeout = 15000;
@@ -93,7 +93,7 @@ class AxiosConfig {
         let statueCode = response.data.code;
         if (0 === statueCode) {
         } else if (555 === statueCode) {
-          this.setToken(null);
+          this.logout(null);
           this.goToLoginPage();
         }
       }
