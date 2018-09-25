@@ -13,8 +13,18 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     config: {},
+    screen: {
+      width: 0,
+      height: 0,
+      size: 0
+    }
   },
   actions: {
+    setScreenSize({state, commit}, {width, height}) {
+      state.screen.width = width;
+      state.screen.height = height;
+      state.screen.size = width * height;
+    },
     setConfig({commit}, config) {
       commit('SET_CONFIG', config)
     }
@@ -40,6 +50,9 @@ export default new Vuex.Store({
         state.config.visitPageCount = 0;
       }
       return state.config.visitPageCount;
+    },
+    'screen': (state) => {
+      return state.screen;
     }
   },
 

@@ -14,6 +14,7 @@
       <el-table
               :data="warningList"
               style="width: 100%"
+              :height="heightOfTable"
               stripe
       >
         <el-table-column prop="appName" label="应用名称" minWidth="120"></el-table-column>
@@ -51,6 +52,7 @@
                   :page-size = "pageSize"
                   :total="totalSize"
                   @current-change="handlePaginationPageChange"
+                  v-if="totalSize > pageSize"
           >
           </el-pagination>
         </div>
@@ -148,7 +150,11 @@
 
 <style lang="scss">
   #k8s-warning {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     .warning-list {
+      flex: 1;
       position: relative;
     }
   }
@@ -166,6 +172,7 @@
       this.EVENT_TYPE_LIST = await this.$store.dispatch('k8s/setEventTypeList');
       // 报警事件列表
       await this.requestWarningList();
+      this.onScreenSizeChange(this.screen.size);
     },
     data() {
       return {
@@ -305,11 +312,14 @@
         totalSize: 0,
         pageSize: 8,
         currentPage: 1,
+
+        heightOfTable: '',
       }
     },
     computed: {
       ...mapGetters({
-        'visitPageCount': 'visitPageCount'
+        'visitPageCount': 'visitPageCount',
+        'screen': 'screen'
       }),
     },
     watch: {
@@ -317,9 +327,20 @@
         if (groupId) {
           this.updateAppList();
         }
-      }
+      },
+      'screen.size': 'onScreenSizeChange'
     },
     methods: {
+      onScreenSizeChange(size) {
+//        console.log(size);
+        if (size === 0) {
+          return;
+        }
+//        console.log(this.$el);
+        const headerNode = this.$el.querySelector(':scope > .header');
+        const headerHeight = headerNode.offsetHeight;
+        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+      },
       handleCloseDialog(action) {
         this.action.name = null;
         this.hideWaitingResponse(action);

@@ -24,7 +24,10 @@
           </div>
         </div>
         <div class="right">
-          <div class="detail"><router-view></router-view></div>
+          <div class="detail"
+               v-loading="$net.vm.requestingUrlListLength > 0">
+            <router-view></router-view>
+          </div>
         </div>
       </div>
     </div>
@@ -159,6 +162,7 @@
 
 <script>
   import paasHeaderProfile from 'assets/components/header-profile';
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 
   export default {
     components: {paasHeaderProfile},
@@ -188,8 +192,18 @@
       });
     },
     mounted() {
+      this.resizeListener = () => {
+        this.$store.dispatch('setScreenSize', {
+          width: this.$el.offsetWidth,
+          height: this.$el.offsetHeight
+        })
+      };
+      addResizeListener(this.$el, this.resizeListener);
       this.$nextTick(() => {
       });
+    },
+    beforeDestroy() {
+      removeResizeListener(this.$el, this.resizeListener);
     },
     computed: {
       userName() {
