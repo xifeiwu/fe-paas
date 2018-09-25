@@ -397,6 +397,11 @@
                          @click="handleChangeProp($event, 'portMap')"></i>
                     </div>
                   </el-form-item>
+                  <el-form-item label="剩余过期时间" class="big" v-if="showExpiredDays()">
+                    <span>{{expiredValue(selected.service.remainExpiredDays)}}</span>
+                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                       class="el-icon-edit" @click="handleChangeProp('expiredDays')"></i>
+                  </el-form-item>
                   <el-form-item label="当前服务内网域名" class="big">
                     <a :href="'http://' + selected.service.intranetDomain" target="_blank"
                        v-if="selected.service.intranetDomain">{{selected.service.intranetDomain}}</a>
@@ -1221,6 +1226,30 @@
       </div>
     </el-dialog>
 
+    <el-dialog title="延长过期时间" :visible="selected.prop == 'expiredDays'"
+               :close-on-click-modal="false"
+               class="health-check size-700"
+               @close="selected.prop = null"
+               v-if="selected.service && selected.model"
+    >
+      <el-form :model="newProps" :rules="rules" size="mini" labelWidth="140px" ref="changeExpiredDaysForm">
+        <el-form-item label="延长天数">
+          <el-input-number v-model="newProps.expiredDays" :min="1"></el-input-number>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleDialogButtonClick('expiredDays')"
+                     :loading="waitingResponse">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="selected.prop = null">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
     <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="content">
         <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
@@ -1848,6 +1877,7 @@ export default {
         oneApm: '',
         instanceNum: '',
         appMonitor: '',
+        expiredDays:'',
       },
       waitingResponse: false,
       formItemMsgForEnvironments: '',
@@ -2296,6 +2326,8 @@ export default {
       const resContent = await this.$net.requestPaasServer(urlDesc, {
         payload
       });
+      //每次点击部署,过期时间自动加1
+      this.expiredDaysAutoAdd();
       if (resContent.hasOwnProperty('orchestration')) {
         this.deployLogs = [];
         this.dialogForLogStatus.visible = true;
@@ -2564,7 +2596,7 @@ export default {
       if (['instanceNum', 'healthCheck', 'packageInfo', 'portMap', 'prestopCommand', 'image','gitLabAddress', 'gitLabBranch',
           'mainClass', 'relativePath','mavenProfileId',
           'cpuAndMemory', 'rollingUpdate', 'loadBalance', 'environments', 'hosts',
-          'fileLocation', 'vmOptions', 'oneApm', 'appMonitor'].indexOf(prop) == -1) {
+          'fileLocation', 'vmOptions', 'oneApm', 'appMonitor', 'expiredDays'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
         return;
       }
@@ -2631,6 +2663,9 @@ export default {
         case 'image':
           this.newProps['customImage'] = this.selected.model['customImage'];
           this.newProps['imageLocation'] = this.selected.model['imageLocation'];
+          break;
+        case 'expiredDays':
+          this.newProps['expiredDays'] = this.selected.model['expiredDays'];
           break;
       }
       this.selected.prop = prop;
@@ -2859,6 +2894,10 @@ export default {
             }
           });
           break;
+        case 'expiredDays':
+          this.requestUpdate(prop);
+          break;
+        default: break;
       }
     },
     /**
@@ -2923,6 +2962,10 @@ export default {
         case 'cpuAndMemory':
           options['cpuId'] = this.newProps['cpuID'];
           options['memoryId'] = this.newProps['memoryID'];
+          break;
+        case 'expiredDays':
+          options['expiredDays'] = this.newProps['expiredDays'];
+          options['remainExpiredDays'] = this.selected.service.remainExpiredDays;
           break;
         default:
           break;
@@ -3011,6 +3054,13 @@ export default {
           let cpuAndMemoryInfo = this.$storeHelper.getCPUAndMemoryInfoByID(cpuID, memoryID);
           this.selected.service['cpuInfo'] = cpuAndMemoryInfo[0];
           this.selected.service['memoryInfo'] = cpuAndMemoryInfo[1];
+          break;
+        case 'expiredDays':
+          if(this.selected.service['remainExpiredDays'] >= 0) {
+            this.selected.service['remainExpiredDays'] += this.newProps['expiredDays'];
+          }else{
+            this.selected.service['remainExpiredDays'] = this.newProps['expiredDays'];
+          }
           break;
       }
     },
@@ -3218,6 +3268,45 @@ export default {
           }
         })
       }
+    },
+    showExpiredDays(){
+      return this.currentProfileList.some(it => {
+        if(this.selectedProfileID == it.id && it.spaceType != 'PRODUCTION'){
+          return true;
+        }
+      })
+    },
+
+    expiredDaysAutoAdd(){
+      if(this.showExpiredDays()){
+        let options = {
+          appId: this.selectedAppID,
+          spaceId: this.selectedProfileID,
+          id: this.selected.service['id'],
+          expiredDays:1,
+          remainExpiredDays:this.selected.service.remainExpiredDays,
+        };
+        this.$net.serviceUpdate("expiredDays", options).then(msg => {
+          if(this.selected.service['remainExpiredDays'] >= 0) {
+            this.selected.service['remainExpiredDays'] += 1;
+          }else{
+            this.selected.service['remainExpiredDays'] = 1;
+          }
+        }).catch(errMsg => {
+          console.log(errMsg);
+        })
+      }
+    },
+
+    expiredValue(value){
+      let result = this.valueToShow(value);
+      if(typeof result != "未设置"){
+        if(result < 0){
+          result = 0;
+          return result;
+        }
+      }
+      return result;
     },
     handleImageTypeChange(value) {
 //      switch (value) {

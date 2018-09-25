@@ -152,7 +152,17 @@
           <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
             <el-input-number v-model="serviceForm.instanceCount" :min="1" :max="20" label="描述文字"></el-input-number>
           </el-form-item>
-
+          <el-form-item label="过期时间(天)" prop="expiredDays" class="expired-days" v-if="showExpired()">
+            <el-input-number v-model="serviceForm.expiredDays" :min="1"></el-input-number>
+            <span>
+              <el-tooltip slot="trigger" effect="dark" placement="top">
+                <div slot="content">
+                  <div>服务的实例将在指定时间后被删除</div>
+                </div>
+                <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
+              </el-tooltip>
+            </span>
+          </el-form-item>
           <transition name="more-config">
             <el-form-item label="环境变量设置" prop="environments" class="environments" :error="formItemMsgForEnvironments"
                           v-if="showMoreConfig">
@@ -574,6 +584,7 @@
           environments: [],
           hosts: [],
           instanceCount: 1,
+          expiredDays:90,
           customImage: false,
           imageLocation: '',
           // value of autoImage
@@ -712,6 +723,7 @@
             }
 //              this.checkVersion(this.serviceForm.serviceVersion);
           }
+          this.serviceForm.expiredDays = content.defaultExpiredDays;
         })
       },
       /**
@@ -1031,6 +1043,7 @@
                 } else {
                   this.serviceForm.imageLocation = this.serviceForm.autoImageValue;
                 }
+                let expiredDays = this.showExpired() ? this.serviceForm.expiredDays : null;
                 let serviceForm = this.serviceForm;
                 let payload = {
                   appId: serviceForm.appId,
@@ -1050,7 +1063,8 @@
                   instanceNum: serviceForm.instanceCount,
                   customImage: serviceForm.customImage,
                   image: serviceForm.imageLocation,
-                  prestopCommand: serviceForm.prestopCommand
+                  prestopCommand: serviceForm.prestopCommand,
+                  expiredDays: expiredDays,
                 };
                 payload.portsMapping = [{
                   protocol: serviceForm.portMap.protocol,
@@ -1110,6 +1124,19 @@
       resetForm(formName) {
         this.$refs[formName].resetFields();
       },
+
+      showExpired(){
+        if(this.type === 'add'){
+          return this.profileInfo.spaceType !== 'PRODUCTION';
+        }else if(this.type === 'copy'){
+          let spaceId = this.serviceForm.spaceId;
+          return this.profileListOfGroup.some(it => {
+            if(it.id === spaceId && it.spaceType !== 'PRODUCTION'){
+              return true;
+            }
+          })
+        }
+      }
     }
   }
 </script>

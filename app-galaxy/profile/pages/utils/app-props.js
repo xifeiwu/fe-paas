@@ -235,6 +235,10 @@ class AppInfoHelper {
         required: true,
         message: '请输入实例数量',
       }],
+      expiredDays: [{
+        required: true,
+        message: '请输入过期时间',
+      }],
       rollingUpdate: [{
         required: true,
         message: '请选择是否回滚',

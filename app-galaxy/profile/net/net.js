@@ -215,7 +215,11 @@ class Net extends NetBase {
         path: '/service/updatePortMapping',
         method: 'post'
       },
-
+      //延长过期时间
+      'service_expired_days_change':{
+        path: '/service/updateExpiredDays',
+        method: 'post'
+      },
       /** 实例相关*/
       // 获取实例列表
       'instance_list': {
@@ -1129,6 +1133,7 @@ class Net extends NetBase {
       'prestopCommand': URL_LIST.service_update_prestop_command,
       'packageInfo': URL_LIST.service_update_package_info,
       'portMap': URL_LIST.service_update_port_map,
+      'expiredDays': URL_LIST.service_expired_days_change,
     };
     let url = urlMap[prop];
     if (!url) {
