@@ -10,6 +10,12 @@ class Net extends NetBase {
   constructor() {
     super();
     const PAAS_URL_LIST = {
+      // 分页获取团队列表
+      'group_list_by_page': {
+        path: '/group/queryByPage',
+        method: 'post'
+      },
+
       // k8s异常事件列表
       'k8s_event_type': {
         path: '/event/type/query',
@@ -177,41 +183,6 @@ class Net extends NetBase {
       })
     })
   }
-  // 分页获取团队列表
-  // not used
-  getGroupListByPage(data) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.group_list_by_page.url, data).then(response => {
-        let content = this.getResponseContent(response);
-        if (content) {
-          if (content.hasOwnProperty('groupList') && Array.isArray(content.groupList)) {
-            let groupList = content.groupList;
-            groupList.forEach(it => {
-              it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-              if (it.createTime) {
-                it.createTime = it.createTime.split(' ');
-              }
-            });
-            resolve(groupList);
-          } else {
-            reject({
-              title: '格式不正确',
-              msg: 'groupList不存在'
-            });
-          }
-        } else {
-          reject(this.getResponseMsg(response));
-
-        }
-      }).catch(err => {
-        reject({
-          title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.group_list_by_page.path}；${err.toString()}`
-        });
-      })
-    })
-  }
-
   // 获取Lob（line of business）信息
   getLobList() {
     return new Promise((resolve, reject) => {

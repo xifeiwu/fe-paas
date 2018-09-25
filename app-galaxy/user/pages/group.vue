@@ -2,9 +2,8 @@
   <div id="group-manage">
     <div class="group-list">
       <el-table :data="groupListByPage"
-                v-loading="showLoading"
                 stripe
-                :height="heightOfGroupList"
+                :height="heightOfTable"
                 :row-key="(row) => {return row.id}"
                 :expand-row-keys="expandRows"
                 element-loading-text="加载中">
@@ -31,21 +30,20 @@
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="100">
           <template slot-scope="scope">
             <el-button
+                    v-if="!$storeHelper.notPermitted['group_member_invite']"
+                    type="text" class="primary"
+                    @click="handleTRButton('invite-group-number', scope.$index, scope.row)">
+              <span>邀请成员</span>
+            </el-button>
+            <div class="ant-divider" v-if="!$storeHelper.notPermitted['group_member_invite']"></div>
+            <el-button
                     v-if="!$storeHelper.notPermitted['group_member_list']"
-                    size="mini-extral"
-                    type="primary"
+                    type="text" class="primary"
                     @click="handleTRButton('show-group-numbers', scope.$index, scope.row)"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     :loading="statusOfWaitingResponse('show-group-numbers') && operation.group.id == scope.row.id">
               <span>查看成员</span>
               <i class="el-icon-arrow-right"></i>
-            </el-button>
-            <el-button
-                    v-if="!$storeHelper.notPermitted['group_member_invite']"
-                    size="mini-extral"
-                    type="primary"
-                    @click="handleTRButton('invite-group-number', scope.$index, scope.row)">
-              <span>邀请成员</span>
             </el-button>
           </template>
         </el-table-column>
@@ -110,6 +108,7 @@
                   :page-size = "pageSize"
                   :total="totalSize"
                   @current-change="handlePaginationPageChange"
+                  v-if="totalSize > pageSize"
           >
           </el-pagination>
         </div>
@@ -251,64 +250,45 @@
 </style>
 
 <script>
-  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+  import commonUtils from 'assets/components/mixins/common-utils';
+
   module.exports = {
+    mixins: [commonUtils],
     created() {
     },
 
-    mounted() {
-      this.showLoading = true;
+    async mounted() {
 //      this.$net.getLobList();
       // draw: 1, start: 0, length: 10
-      this.$net.getGroupListByPage({}).then((groupList) => {
-        this.groupList = groupList;
-        this.showLoading = false;
-
-        this.totalSize = this.groupList.length;
-
-        this.currentPage = 1;
-        this.updateGroupListByPage();
-      }).catch(err => {
-        this.showLoading = false;
-        if (err.title && err.msg) {
-          this.$notify.error({
-            title: err.title,
-            message: err.msg,
-            duration: 0,
-            onClose: function () {
-            }
-          });
-        }
+      const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.group_list_by_page, {
+        payload: {},
       });
+      const groupList = resContent['groupList'].map(it => {
+        it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+        if (it.createTime) {
+          it.createTime = it.createTime.split(' ');
+        }
+        return it;
+      });
+      this.groupList = groupList;
+      this.totalSize = this.groupList.length;
+      this.currentPage = 1;
+      this.updateGroupListByPage();
 
-      try {
-        this.groupListNode = this.$el.querySelector('.group-list');
-        this.heightOfGroupList = this.groupListNode.offsetHeight - 20;
-        this.resizeListenerForAppList = (evt) => {
-          let target = evt.target;
-          this.heightOfGroupList = target.clientHeight - 20;
-        };
-        addResizeListener(this.groupListNode, this.resizeListenerForAppList);
-      } catch(err) {
-        console.log(err);
-      }
-    },
-    beforeDestroy() {
-      removeResizeListener(this.groupListNode, this.resizeListenerForAppList);
+      this.onScreenSizeChange(this.$storeHelper.screen.size);
     },
 
     data() {
       return {
         groupList: [],
         groupListByPage: [],
-        showLoading: false,
         groupListNode: null,
-        heightOfGroupList: '',
 
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
         showGroupList: true,
+        heightOfTable: '',
 
         showMemberList: true,
         memberPagination: {
@@ -334,24 +314,7 @@
           jobName: 'DEVELOP_ENGINEER'
         },
 
-        queueForWaitingResponse: [],
-
-        allJobs: [{
-          description: "开发工程师",
-          name: "DEVELOP_ENGINEER"
-        }, {
-          description: "测试工程师",
-          name: "TESTING_ENGINEER"
-        }, {
-          description: "DBA",
-          name: "DBA"
-        }, {
-          description: "TECH LEADER",
-          name: "TECH_LEADER"
-        }, {
-          description: "PRODUCT OWNER",
-          name: "PRODUCT_OWNER"
-        }],
+        allJobs: this.$storeHelper.JOB_LIST,
         jobNames: [],
         emailReg: this.$utils.getReg('mail'),
         rules: {
@@ -377,22 +340,16 @@
         }
       }
     },
+    watch: {
+      '$storeHelper.screen.size': 'onScreenSizeChange'
+    },
 
     methods: {
-      // helper for loading action of el-button
-      addToWaitingResponseQueue(action) {
-        if (this.queueForWaitingResponse.indexOf(action) === -1) {
-          this.queueForWaitingResponse.push(action);
+      onScreenSizeChange(size) {
+        if (size === 0) {
+          return;
         }
-      },
-      statusOfWaitingResponse(action) {
-        return this.queueForWaitingResponse.indexOf(action) > -1;
-      },
-      hideWaitingResponse(action) {
-        let index = this.queueForWaitingResponse.indexOf(action);
-        if (index > -1) {
-          this.queueForWaitingResponse.splice(index, 1);
-        }
+        this.heightOfTable = this.$el.clientHeight - 18;
       },
 
       handleTRButton(action, index, row) {

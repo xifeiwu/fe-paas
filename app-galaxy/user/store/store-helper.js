@@ -1,6 +1,11 @@
 import BaseHelper from 'assets/js/store/helper'
+import store from './index';
 
 class StoreHelper extends BaseHelper {
+  constructor() {
+    super(store);
+  }
+
   set notPermitted(value) {
     this.setPermission({user: value})
   }
@@ -14,6 +19,10 @@ class StoreHelper extends BaseHelper {
       })
     }
     return result;
+  }
+
+  get screen() {
+    return this.$store.getters['screen'];
   }
 }
 
