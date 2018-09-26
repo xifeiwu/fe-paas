@@ -738,7 +738,7 @@
           case 'go-to-log-run':
             let selectedValue = this.$refs['version-selector'].getSelectedValue();
             this.$storeHelper.dataTransfer = {
-              page: this.$net.page['profile/instance'],
+              from: this.$net.page['profile/instance'],
               data: {
                 appID: selectedValue['selectedAPP'].appId,
                 profileID: selectedValue['selectedProfile'].id,

@@ -547,7 +547,7 @@
               this.hideWaitingResponse('deploy-log');
               let productionProfile = this.$storeHelper.getProductionProfile();
               this.$storeHelper.dataTransfer = {
-                page: this.$net.page['profile/work-order/list'],
+                from: this.$net.page['profile/work-order/list'],
                 data: {
                   appId: detail.appID,
                   profileId: productionProfile ? productionProfile.id:null,

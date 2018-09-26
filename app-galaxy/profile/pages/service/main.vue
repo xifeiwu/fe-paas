@@ -1432,13 +1432,13 @@ export default {
         // data save to localStorage
         let dataToSave = null;
         switch (from) {
-          case 'app':
+          case this.$net.page['profile/app']:
             dataToSave = {
               appId: dataTransfer['data']['appId'],
               profileId: dataTransfer['data']['profileId']
             };
             break;
-          case 'service/add':
+          case this.$net.page['profile/app/add']:
             dataToSave = {
               profileId: dataTransfer['data']['profileId']
             };
@@ -1961,6 +1961,7 @@ export default {
             return;
           }
           this.$storeHelper.dataTransfer = {
+            from: this.$net.page['profile/service'],
             type: 'add',
             data: infoForAddService.content
           };
@@ -1975,7 +1976,7 @@ export default {
             return;
           }
           this.$storeHelper.dataTransfer = {
-            page: this.$net.page['profile/service'],
+            from: this.$net.page['profile/service'],
             data: {
               appId: this.selectedAppID,
               profileId: this.selectedProfileID
@@ -1989,7 +1990,7 @@ export default {
             return;
           }
           this.$storeHelper.dataTransfer = {
-            page: this.$net.page['profile/service'],
+            from: this.$net.page['profile/service'],
             data: {
               appId: this.selectedAppID,
               profileId: this.selectedProfileID
@@ -2257,6 +2258,7 @@ export default {
           }
 
           this.$storeHelper.dataTransfer = {
+            from: this.$net.page['profile/service'],
             type: 'copy',
             data: JSON.parse(JSON.stringify(Object.assign(infoForAddService.content, this.selected.model)))
           };
@@ -2271,7 +2273,7 @@ export default {
             this.$message.error('所需信息不完整！');
           } else {
             this.$storeHelper.dataTransfer = {
-              from: 'service',
+              from: this.$net.page['profile/service'],
               data: {
                 appId: this.selectedAppID,
                 profileId: this.selectedProfileID,
@@ -2287,7 +2289,7 @@ export default {
             return;
           }
           this.$storeHelper.dataTransfer = {
-            page: this.$net.page['profile/service'],
+            from: this.$net.page['profile/service'],
             data: {
               appId: this.selectedAppID,
               profileId: this.selectedProfileID,
@@ -2302,7 +2304,7 @@ export default {
             return;
           }
           this.$storeHelper.dataTransfer = {
-            page: this.$net.page['profile/service'],
+            from: this.$net.page['profile/service'],
             data: {
               appId: this.selectedAppID,
               profileId: this.selectedProfileID,

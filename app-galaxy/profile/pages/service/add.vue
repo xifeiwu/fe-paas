@@ -1017,7 +1017,7 @@
                   });
                   if (this.type === 'copy') {
                     this.$storeHelper.dataTransfer = {
-                      from: 'service/add',
+                      from: this.$net.page['profile/app/add'],
                       data: {
                         profileId: this.serviceForm.spaceId
                       }

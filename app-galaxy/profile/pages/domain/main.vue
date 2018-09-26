@@ -551,9 +551,9 @@
       // 1. page service
       try {
         const dataTransfer = this.$storeHelper.dataTransfer;
-        if (dataTransfer && dataTransfer.hasOwnProperty('page')) {
+        if (dataTransfer && dataTransfer.hasOwnProperty('from')) {
           let data = dataTransfer['data'];
-          switch (dataTransfer['page']) {
+          switch (dataTransfer['from']) {
             case this.$net.page['profile/service']:
               this.localServiceConfig = {
                 appID: data['appId'],

@@ -905,7 +905,7 @@
         let appID = row.appId;
         let profileID = profile.id;
         this.$storeHelper.dataTransfer = {
-          from: 'app',
+          from: this.$net.page['profile/app'],
           data: {
             appId: appID,
             profileId: profileID

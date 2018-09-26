@@ -184,9 +184,9 @@
       // set default service
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer) {
-        const page = dataTransfer['page'];
+        const from = dataTransfer['from'];
         const data = dataTransfer['data'];
-        switch (page) {
+        switch (from) {
           case this.$net.page['profile/instance']:
             this.localConfig = {
               appID: data['appId'],

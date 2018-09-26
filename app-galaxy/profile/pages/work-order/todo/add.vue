@@ -245,8 +245,8 @@
     created() {
       try {
         const dataTransfer = this.$storeHelper.dataTransfer;
-        if (dataTransfer && dataTransfer.hasOwnProperty('page')) {
-          switch (dataTransfer['page']) {
+        if (dataTransfer && dataTransfer.hasOwnProperty('from')) {
+          switch (dataTransfer['from']) {
             case this.$net.page['profile/service']:
               this.workOrderDetail.appID = dataTransfer['data']['appId'];
               break;
@@ -346,7 +346,7 @@
           this.workOrderDetail.appName = appInfo.app.appName;
         }
         this.requestProductVersionList(value);
-        this.$storeHelper.setUserConfig('profile/work-order/appID', value);
+//        this.$storeHelper.setUserConfig('profile/work-order/appID', value);
       },
       'workOrderDetail.serviceVersion': function (value) {
         if (!value) {

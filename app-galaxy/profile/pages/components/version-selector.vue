@@ -212,9 +212,6 @@
               // customConfig can only use once
               delete this.customConfig['profileID'];
             }
-            if (!defaultProfileID) {
-              defaultProfileID = this.$storeHelper.getUserConfig('profile/service/profileID');
-            }
             if (defaultProfileID && this.currentProfileList.map(it => {return it.id}).indexOf(defaultProfileID) > -1) {
               this.selectedProfileID = defaultProfileID;
             } else {
