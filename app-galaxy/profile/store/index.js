@@ -17,6 +17,11 @@ export default new Vuex.Store({
   state: {
     toasts: [],        // toasts,
     config: {},
+    screen: {
+      width: 0,
+      height: 0,
+      size: 0
+    }
   },
   mutations: {
     toastPush(state, payload) {
@@ -38,6 +43,11 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    setScreenSize({state, commit}, {width, height}) {
+      state.screen.width = width;
+      state.screen.height = height;
+      state.screen.size = width * height;
+    },
     toastPush({ commit }, payload) {
       const _payload = Object.assign({ title: '', center: true, druing: 4000 }, payload);
       commit('toastPush', _payload);
@@ -60,6 +70,9 @@ export default new Vuex.Store({
         state.config = {}
       }
       return state.config.collapseMenu;
+    },
+    'screen': (state) => {
+      return state.screen;
     }
   },
 

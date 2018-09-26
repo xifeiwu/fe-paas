@@ -356,7 +356,6 @@
 <script>
   import {mapGetters} from 'vuex';
   import AppPropUtils from '../utils/app-props';
-  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   import commonUtils from 'assets/components/mixins/common-utils';
   export default {
     mixins: [commonUtils],
@@ -370,27 +369,12 @@
       }
     },
     mounted() {
-      try {
-        if (this.showAppList) {
-          // adjust the height of el-table in the area service-list
-          let headerNode = this.$el.querySelector(':scope > .header');
-          this.resizeListener = () => {
-            let headerHeight = headerNode.offsetHeight;
-            this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
-          };
-          addResizeListener(this.$el, this.resizeListener)
-        }
-      } catch(err) {
-      }
-
       if (this.appInfoListOfGroup) {
         this.onAppInfoListOfGroup(this.appInfoListOfGroup);
       }
+      this.onScreenSizeChange(this.$storeHelper.screen.size);
     },
     beforeDestroy() {
-      if (this.showAppList) {
-        removeResizeListener(this.$el, this.resizeListener);
-      }
     },
     data() {
       return {
@@ -449,6 +433,7 @@
       '$storeHelper.currentGroupID': function (value, oldValue) {
         this.requestAPPList({});
       },
+      '$storeHelper.screen.size': 'onScreenSizeChange',
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
       'filterMyApp': function () {
         this.currentPage = 1;
@@ -460,6 +445,15 @@
       }
     },
     methods: {
+      onScreenSizeChange(size) {
+//        console.log(this.$storeHelper.screen);
+        if (!size) {
+          return;
+        }
+        const headerNode = this.$el.querySelector(':scope > .header');
+        const headerHeight = headerNode.offsetHeight;
+        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+      },
       onAppInfoListOfGroup(value, oldValue) {
         // go to first page
         this.currentPage = 1;

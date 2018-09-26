@@ -100,6 +100,7 @@
   import {mapState, mapGetters} from 'vuex';
   import paasHeaderProfile from 'assets/components/header-profile';
   import paasNavBar from './components/nav-bar.vue';
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 
   export default {
     components: {paasHeaderProfile, paasNavBar},
@@ -130,6 +131,14 @@
       this.$store.dispatch('user/groupId', this.$storeHelper.currentGroupID);
     },
     mounted() {
+      this.resizeListener = () => {
+        this.$store.dispatch('setScreenSize', {
+          width: this.$el.offsetWidth,
+          height: this.$el.offsetHeight
+        })
+      };
+      addResizeListener(this.$el, this.resizeListener);
+
       this.$utils.onWindowVisibilityChange((evt) => {
         if (!document.hidden) {
           this.setDefaultActiveForHeader();
@@ -139,6 +148,9 @@
         this.setDefaultActiveForHeader();
       });
       this.onRoutePath(this.$route);
+    },
+    beforeDestroy() {
+      removeResizeListener(this.$el, this.resizeListener);
     },
     computed: {
       ...mapState(['toasts']),

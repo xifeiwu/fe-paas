@@ -32,6 +32,10 @@ class StoreHelper extends BaseHelper{
     this.$store.dispatch('user/lobInfo', value);
   }
 
+  get screen() {
+    return this.$store.getters['screen'];
+  }
+
   groupList() {
     return this.$store.getters['user/groupList'];
   }

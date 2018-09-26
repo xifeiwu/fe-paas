@@ -34,7 +34,7 @@
         <el-table-column
                 prop="status"
                 label="健康状态"
-                width="160"
+                width="120"
                 headerAlign="center" align="center"
         >
         <template slot-scope="scope">
@@ -49,12 +49,12 @@
         <el-table-column
                 prop="intranetIP"
                 label="内网IP"
-                width="120"
+                width="100"
                 headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
               label="使用内存/总内存"
-              width="160"
+              width="140"
               headerAlign="center" align="center">
           <template slot-scope="scope">
             {{bytes(parseInt(scope.row['memoryUsageBytes']))}} / {{bytes(parseInt(scope.row['actualMemory']))}}
@@ -71,8 +71,16 @@
         <el-table-column
                 label="创建时间"
                 prop="createTime"
-                width="180"
+                width="100"
                 headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <div v-if="Array.isArray(scope.row.createTime)">
+              <div v-for="(item, index) in scope.row.createTime" :key="index">
+                {{item}}
+              </div>
+            </div>
+            <div v-else>{{scope.row.createTime}}</div>
+          </template>
         </el-table-column>
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center">
           <template slot-scope="scope">
@@ -535,6 +543,7 @@
           if (resContent.hasOwnProperty('instanceList')) {
             const instanceList = resContent.instanceList;
             instanceList.forEach(it => {
+              it.updated = it.updated.split(' ');
               this.$utils.renameProperty(it, 'id', 'instanceName');
               this.$utils.renameProperty(it, 'state', 'status');
               this.$utils.renameProperty(it, 'ip', 'intranetIP');
@@ -726,7 +735,7 @@
               ip = row['intranetIP'];
             }
             if (id && ip) {
-              let terminalPath = this.$url.page_terminal_path + '?id=' + id + '&ip=' + ip + '&name=' + row['instanceName'];
+              let terminalPath = this.$net.page['terminal'] + '?id=' + id + '&ip=' + ip + '&name=' + row['instanceName'];
               //              this.$net.getTerminalInfo({
               //                serviceId: id
               //              });
