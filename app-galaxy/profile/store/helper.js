@@ -21,6 +21,10 @@ class StoreHelper extends BaseHelper{
     this.$store.dispatch('user/groupId', value);
   }
 
+  get userConfig() {
+    return this.$store.getters['user/config'];
+  }
+
   get lobInfo() {
     return this.$store.getters['user/lobInfo'];
   }

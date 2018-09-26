@@ -548,15 +548,27 @@
   export default {
     components: {MyVersionConditionFilter},
     created() {
-      let queryParam = this.$route.query;
-      if (queryParam && queryParam.hasOwnProperty('from')) {
-        if (queryParam['from'] === '/service') {
-          this.localServiceConfig = this.$utils.cloneDeep(this.$storeHelper.getUserConfig('profile/service'));
-          if (queryParam['action'] === 'go-to-domain-app') {
-            this.localServiceConfig.serviceID = this.$storeHelper.SERVICE_ID_FOR_ALL;
+      // 1. page service
+      try {
+        const dataTransfer = this.$storeHelper.dataTransfer;
+        if (dataTransfer && dataTransfer.hasOwnProperty('page')) {
+          let data = dataTransfer['data'];
+          switch (dataTransfer['page']) {
+            case this.$net.page['profile/service']:
+              this.localServiceConfig = {
+                appID: data['appId'],
+                profileID: data['profileId']
+              };
+              if (data.hasOwnProperty('serviceId')) {
+                this.localServiceConfig['serviceID'] = data['serviceId'];
+              }
+              break;
           }
+          this.$storeHelper.dataTransfer = null;
         }
+      } catch(err) {
       }
+//      console.log(this.localServiceConfig);
     },
     mounted() {
       this.setDebounce();

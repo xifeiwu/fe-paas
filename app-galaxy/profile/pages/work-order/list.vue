@@ -547,10 +547,10 @@
               this.hideWaitingResponse('deploy-log');
               let productionProfile = this.$storeHelper.getProductionProfile();
               this.$storeHelper.dataTransfer = {
-                from: this.$net.page['profile/work-order/list'],
+                page: this.$net.page['profile/work-order/list'],
                 data: {
-                  appID: detail.appID,
-                  profileID: productionProfile ? productionProfile.id:null,
+                  appId: detail.appID,
+                  profileId: productionProfile ? productionProfile.id:null,
                   serviceVersion: detail.serviceVersion
                 }
               };

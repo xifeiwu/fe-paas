@@ -7,12 +7,6 @@ export default class StoreHelper {
     this._dataTransfer = null;
   }
 
-  setUserConfig(keys, value) {
-    this.$store.dispatch('global/setConfig', {
-      keys, value
-    })
-  }
-
   get globalUserGroupInfo() {
     return this.$globalStore.getters['user/groupInfo'];
   }
@@ -37,6 +31,12 @@ export default class StoreHelper {
       result = this.menus['profile'];
     }
     return result;
+  }
+
+  setUserConfig(keys, value) {
+    this.$store.dispatch('global/setConfig', {
+      keys, value
+    })
   }
 
   getUserConfig(keys) {

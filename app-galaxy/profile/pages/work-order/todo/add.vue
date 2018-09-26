@@ -243,17 +243,19 @@
     components: {MyFeature},
 
     created() {
-      let queryParam = this.$route.query;
-      if (queryParam && queryParam.hasOwnProperty('from')) {
-        if (queryParam['from'] === '/service') {
-          let localServiceConfig = this.$storeHelper.getUserConfig('profile/service');
-          this.workOrderDetail.appID = localServiceConfig.appID;
+      try {
+        const dataTransfer = this.$storeHelper.dataTransfer;
+        if (dataTransfer && dataTransfer.hasOwnProperty('page')) {
+          switch (dataTransfer['page']) {
+            case this.$net.page['profile/service']:
+              this.workOrderDetail.appID = dataTransfer['data']['appId'];
+              break;
+          }
+          this.$storeHelper.dataTransfer = null;
+        } else {
+          this.workOrderDetail.appID = this.$storeHelper.userConfig['service']['appId'];
         }
-      } else {
-        let appIdInLocal = this.$storeHelper.getUserConfig('profile/work-order/appID');
-        if (appIdInLocal) {
-          this.workOrderDetail.appID = appIdInLocal;
-        }
+      } catch(err) {
       }
 
       this.onCurrentGroupID(this.currentGroupID);

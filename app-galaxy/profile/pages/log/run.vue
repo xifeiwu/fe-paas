@@ -182,12 +182,29 @@
      */
     created() {
       // set default service
-      let queryParam = this.$route.query;
-      if (queryParam && queryParam.hasOwnProperty('from')) {
-        if (queryParam['from'] === '/instance') {
-          this.localConfig = this.$storeHelper.getUserConfig('profile/instance');
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      if (dataTransfer) {
+        const page = dataTransfer['page'];
+        const data = dataTransfer['data'];
+        switch (page) {
+          case this.$net.page['profile/instance']:
+            this.localConfig = {
+              appID: data['appId'],
+              profileID: data['profileId'],
+              serviceVersion: data['serviceVersion'],
+            };
+            break;
+//          case this.$net.page['profile/work-order/list']:
+//            this.localServiceConfig = {
+//              appID: data['appId'],
+//              profileID: data['profileId'],
+//              serviceVersion: data['serviceVersion'],
+//            };
+            break;
         }
+        this.$storeHelper.dataTransfer = null;
       }
+
     },
     mounted() {
       // set default date duration

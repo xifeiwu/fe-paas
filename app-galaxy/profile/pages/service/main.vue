@@ -1970,45 +1970,32 @@ export default {
           this.requestServiceList(this.selectedAppID, this.selectedProfileID);
           break;
         case 'go-to-work-order-todo-add':
-          let statusOK = false;
-          if (this.selectedAppID != null && this.selectedProfileID != null) {
-            statusOK = true;
-          }
-          if (!statusOK) {
+          if (this.selectedAppID == null && this.selectedProfileID == null) {
             this.$message.error('所需信息不完整！');
-          } else {
-            this.$storeHelper.setUserConfig('profile/service', {
-              appID: this.selectedAppID,
-              profileID: this.selectedProfileID
-            });
-            this.$router.push({
-              path: this.$net.page['profile/work-order/todo/add'],
-              query: {
-                from: '/service'
-              }
-            });
+            return;
           }
+          this.$storeHelper.dataTransfer = {
+            page: this.$net.page['profile/service'],
+            data: {
+              appId: this.selectedAppID,
+              profileId: this.selectedProfileID
+            }
+          };
+          this.$router.push(this.$net.page['profile/work-order/todo/add']);
           break;
         case 'go-to-domain-app':
-          var statusOK = false;
-          if (this.selectedAppID != null && this.selectedProfileID != null) {
-            statusOK = true;
-          }
-          if (!statusOK) {
+          if (this.selectedAppID == null && this.selectedProfileID == null) {
             this.$message.error('所需信息不完整！');
-          } else {
-            this.$storeHelper.setUserConfig('profile/service', {
-              appID: this.selectedAppID,
-              profileID: this.selectedProfileID,
-            });
-            this.$router.push({
-              path: '/domain',
-              query: {
-                from: '/service',
-                action: 'go-to-domain-app'
-              }
-            });
+            return;
           }
+          this.$storeHelper.dataTransfer = {
+            page: this.$net.page['profile/service'],
+            data: {
+              appId: this.selectedAppID,
+              profileId: this.selectedProfileID
+            }
+          };
+          this.$router.push(this.$net.page['profile/domain']);
           break;
       }
     },
@@ -2295,47 +2282,34 @@ export default {
           }
           break;
         case 'go-to-domain-service':
-          statusOK = false;
-          if (row.hasOwnProperty('id') && this.selectedAppID != null && this.selectedProfileID != null) {
-            statusOK = true;
-          }
-          if (!statusOK) {
+          if (!row.hasOwnProperty('id') || this.selectedAppID == null || this.selectedProfileID == null) {
             this.$message.error('所需信息不完整！');
-          } else {
-            this.$storeHelper.setUserConfig('profile/service', {
-              appID: this.selectedAppID,
-              profileID: this.selectedProfileID,
-              serviceID: row.id
-            });
-            this.$router.push({
-              path: this.$net.page['profile/domain'],
-              query: {
-                from: '/service',
-                action: 'go-to-domain-service'
-              }
-            });
+            return;
           }
+          this.$storeHelper.dataTransfer = {
+            page: this.$net.page['profile/service'],
+            data: {
+              appId: this.selectedAppID,
+              profileId: this.selectedProfileID,
+              serviceId: row.id
+            }
+          };
+          this.$router.push(this.$net.page['profile/domain']);
           break;
         case 'go-to-log-deploy':
-          statusOK = false;
-          if (row.hasOwnProperty('id') && this.selectedAppID != null && this.selectedProfileID != null) {
-            statusOK = true;
-          }
-          if (!statusOK) {
+          if (!row.hasOwnProperty('id') || this.selectedAppID == null || this.selectedProfileID == null) {
             this.$message.error('所需信息不完整！');
-          } else {
-            this.$storeHelper.setUserConfig('profile/service', {
-              appID: this.selectedAppID,
-              profileID: this.selectedProfileID,
-              serviceID: row.id
-            });
-            this.$router.push({
-              path: this.$net.page['profile/log/deploy'],
-              query: {
-                from: '/service'
-              }
-            });
+            return;
           }
+          this.$storeHelper.dataTransfer = {
+            page: this.$net.page['profile/service'],
+            data: {
+              appId: this.selectedAppID,
+              profileId: this.selectedProfileID,
+              serviceId: row.id
+            }
+          };
+          this.$router.push(this.$net.page['profile/log/deploy']);
           break;
         case 'one-apm':
           this.handleChangeProp('oneApm')

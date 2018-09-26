@@ -737,17 +737,15 @@
             break;
           case 'go-to-log-run':
             let selectedValue = this.$refs['version-selector'].getSelectedValue();
-            this.$storeHelper.setUserConfig('profile/instance', {
-              appID: selectedValue['selectedAPP'].appId,
-              profileID: selectedValue['selectedProfile'].id,
-              serviceID: selectedValue['selectedService'].id
-            });
-            this.$router.push({
-              path: this.$net.page['profile/log/run'],
-              query: {
-                from: '/instance'
+            this.$storeHelper.dataTransfer = {
+              page: this.$net.page['profile/instance'],
+              data: {
+                appID: selectedValue['selectedAPP'].appId,
+                profileID: selectedValue['selectedProfile'].id,
+                serviceID: selectedValue['selectedService'].id
               }
-            });
+            };
+            this.$router.push(this.$net.page['profile/log/run']);
             break;
           case 'monitor':
             break;
