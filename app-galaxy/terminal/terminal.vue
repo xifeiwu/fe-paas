@@ -70,19 +70,19 @@
         let ip = this.$utils.getQueryString('ip');
         let name = this.$utils.getQueryString('name');
         this.ip = ip;
-        if (id && ip && name) {
-          // save terminal config to localStorage
-          this.$storeHelper.setUserConfig('terminal/id', id);
-          this.$storeHelper.setUserConfig('terminal/ip', ip);
-          this.$storeHelper.setUserConfig('terminal/name', name);
-        } else {
-          // in the page of terminal
-          if (this.$utils.getQueryString('location')) {
-            id = this.$storeHelper.getUserConfig('terminal/id');
-            ip = this.$storeHelper.getUserConfig('terminal/ip');
-            name = this.$storeHelper.getUserConfig('terminal/name');
-          }
-        }
+//        if (id && ip && name) {
+//          // save terminal config to localStorage
+//          this.$storeHelper.setUserConfig('terminal/id', id);
+//          this.$storeHelper.setUserConfig('terminal/ip', ip);
+//          this.$storeHelper.setUserConfig('terminal/name', name);
+//        } else {
+//          // in the page of terminal
+//          if (this.$utils.getQueryString('location')) {
+//            id = this.$storeHelper.getUserConfig('terminal/id');
+//            ip = this.$storeHelper.getUserConfig('terminal/ip');
+//            name = this.$storeHelper.getUserConfig('terminal/name');
+//          }
+//        }
         if (id && ip) {
           return axios.post(URL_LIST.terminal_info, {
             name: name,

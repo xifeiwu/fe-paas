@@ -33,12 +33,14 @@ export default class StoreHelper {
     return result;
   }
 
+  // TODO: not used
   setUserConfig(keys, value) {
     this.$store.dispatch('global/setConfig', {
       keys, value
     })
   }
 
+  // TODO: not used
   getUserConfig(keys) {
     let config = this.$store.getters['global/config'];
     if (!keys || 0 === keys.length) {
