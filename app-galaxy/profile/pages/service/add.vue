@@ -13,7 +13,7 @@
           <el-form-item label="运行环境" class="profile-description" v-if="type==='add'">
             {{profileInfo? profileInfo.description: ''}}
           </el-form-item>
-          <el-form-item label="运行环境" class="profile-description" v-if="type==='copy'">
+          <el-form-item label="目标运行环境" class="profile-description" v-if="type==='copy'">
             <el-select v-model="serviceForm.spaceId" placeholder="请选择" style="display:block; max-width: 200px;">
               <el-option v-for="item in profileListOfCurrentApp" :key="item.id" :label="item.description" :value="item.id">
               </el-option>
