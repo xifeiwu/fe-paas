@@ -19,7 +19,7 @@
       <div class="item">
         <label>时间:</label>
         <el-date-picker
-                style="display: inline-block; width: 400px;"
+                style="display: inline-block; width: 360px;"
                 size="mini"
                 v-model="searchForm.dateTimeRange"
                 type="datetimerange"
@@ -81,7 +81,7 @@
     .header {
       padding: 5px 0px;
       font-size: 14px;
-      .el-version-selector {
+      .paas-version-selector {
         display: inline-block;
       }
       .item {

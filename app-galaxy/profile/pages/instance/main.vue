@@ -294,7 +294,6 @@
         };
         addResizeListener(this.$el, this.resizeListener);
       } catch (err) {}
-      this.setDefaultDateRange();
     },
     beforeDestroy() {
       removeResizeListener(this.$el, this.resizeListener);
@@ -352,12 +351,6 @@
     },
     watch: {},
     methods: {
-      setDefaultDateRange() {
-        const end = new Date();
-        const start = new Date();
-        start.setTime(start.getTime() - 1000 * 60 * 5);
-        this.dateTimeRange = [start, end];
-      },
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
 //                console.log(appInfo, profileInfo, serviceInfo);
         this.hidePop();

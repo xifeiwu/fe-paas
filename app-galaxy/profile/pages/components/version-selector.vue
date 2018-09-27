@@ -1,5 +1,5 @@
 <template>
-  <div class="my-version-selector">
+  <div class="paas-version-selector">
     <div class="item">
       <label>应用名称:</label>
       <el-select filterable v-model="selectedAppID" placeholder="请选择">
@@ -29,14 +29,14 @@
 </template>
 
 <style lang="scss">
-  .my-version-selector {
+  .paas-version-selector {
     .el-select .el-input__inner {
       height: 24px;
     }
   }
 </style>
 <style lang="scss" scoped>
-  .my-version-selector {
+  .paas-version-selector {
     font-size: 14px;
     .item {
       display: inline-block;
