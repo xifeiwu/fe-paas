@@ -33,11 +33,18 @@
             </el-select>
           </el-col>
         </el-row>
-        <div class="child"
-             v-loading="$net.vm.requestingUrlListLength > 0"
-             element-loading-text="网络请求中..."
-             element-loading-spinner="el-icon-loading"
-        >
+        <!--<div class="child"-->
+             <!--v-loading="$net.vm.requestingUrlListLength > 0"-->
+             <!--element-loading-text="网络请求中..."-->
+             <!--element-loading-spinner="el-icon-loading"-->
+        <!--&gt;-->
+        <div class="child">
+          <div class="el-loading-mask" v-if="$net.vm.requestingUrlListLength > 0">
+            <div class="el-loading-spinner">
+              <i class="el-icon-loading"></i>
+              <p class="el-loading-text">网络请求中...</p>
+            </div>
+          </div>
           <router-view></router-view>
         </div>
       </div>
@@ -87,9 +94,29 @@
           }
         }
         .child {
+          position: relative;
           height: calc(100% - 32px);
           overflow: scroll;
           /*max-width: 1300px;*/
+          .el-loading-mask {
+            position: absolute;
+            z-index: 2000;
+            background-color: rgba(255, 255, 255, 0.5);;
+            margin: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            transition: opacity .3s;
+          }
+          .el-loading-spinner {
+            top: 50%;
+            margin-top: -21px;
+            width: 100%;
+            height: 100px;
+            text-align: center;
+            position: absolute;
+          }
         }
       }
     }
