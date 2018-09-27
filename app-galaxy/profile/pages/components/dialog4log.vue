@@ -1,6 +1,6 @@
 <template>
   <el-dialog :title="title" :visible="showStatus.visible"
-             @close="showStatus.visible = false"
+             @close="handleIconClick('close')"
              class="dialog-for-log"
              :closeOnClickModal="false"
              ref="dialog-for-log"
@@ -86,7 +86,7 @@
         }
         .el-dialog__body {
           padding: 0px;
-          color: lightgray;
+          color: white;
           height: calc(100% - 40px);
           box-sizing: border-box;
           overflow: scroll;
@@ -266,6 +266,10 @@
             break;
           case 'refresh':
             this.$emit('refresh');
+            break;
+          case 'close':
+            this.showStatus.visible = false;
+            this.$emit('close');
             break;
         }
       },

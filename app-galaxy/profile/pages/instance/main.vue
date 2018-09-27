@@ -22,7 +22,6 @@
               :data="instanceStatus.instanceList"
               style="width: 100%"
               :height="heightOfInstanceList"
-              v-loading="showLoading"
               element-loading-text="加载中"
       >
         <el-table-column
@@ -181,7 +180,8 @@
         </el-row>
       </div>
     </el-dialog>
-    <paas-dialog-for-log :showStatus="statusForDialogInstanceLog" @refresh='updateInstanceStatusList(false)' title="实例状态">
+    <paas-dialog-for-log :showStatus="statusForDialogInstanceLog" @refresh='updateInstanceStatusList(false)'
+                         class="dialog-instance-log" title="实例状态" @close="handleDialogButtonClick('close-dialog-for-instance-log')">
       <div slot="content">
         <div class="log-title">
           <p v-html="formatColumn('Firstseen',25) + formatColumn('Lastseen',25) + formatColumn('Type',10) + formatColumn('Reason',25) + formatColumn('Message',40)"></p>
@@ -212,12 +212,24 @@
         }
       }
     }
-    .el-dialog {
-      .log-title,
-      .log {
-        font-size: 12px;
-        font-family: "Courier New", Courier, monospace;
-        line-height: 100% !important;
+    &.dialog-for-log {
+      &.dialog-instance-log {
+        .el-dialog {
+          width: 95% !important;
+        }
+        .log-title,
+        .log {
+          color: white;
+          font-size: 14px;
+          font-family: "Courier New", Courier, monospace;
+          line-height: 100%;
+        }
+      }
+      &.dialog-console-log {
+        pre.content {
+          font-size: 12px;
+          line-height: 14px;
+        }
       }
     }
   }
@@ -266,14 +278,6 @@
         }
       }
       .el-table {
-      }
-    }
-    .dialog-for-log {
-      &.dialog-console-log {
-        pre.content {
-          font-size: 12px;
-          line-height: 14px;
-        }
       }
     }
   }
@@ -361,7 +365,6 @@
         heightOfInstanceList: '',
 
         config4VersionSelector: null,
-        showLoading: false,
         queueForWaitingResponse: [],
         //        instanceStatus.instanceList: [{
         //          createTime: '2018-01-11 20:39:09',
@@ -531,7 +534,6 @@
           console.log('appID or spaceID can not be empty');
           return;
         }
-        this.showLoading = true;
 
         this.$net.requestPaasServer(this.$net.URL_LIST.instance_list, {
           payload: {
@@ -558,7 +560,6 @@
           }
         }).catch(err => {
         }).finally(() => {
-          this.showLoading = false;
         });
       },
 
@@ -634,6 +635,9 @@
 //              }, 5000);
             });
             break;
+          case 'close-dialog-for-instance-log':
+            this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.instance_status.path);
+            break;
         }
       },
 
@@ -643,6 +647,7 @@
        */
       updateInstanceStatusList(goOn) {
         if (!this.statusForDialogInstanceLog.visible) {
+          this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.instance_status.path);
           return;
         }
         let service = this.checkVersionSelector();
