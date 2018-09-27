@@ -28,7 +28,7 @@
       </div>
       <div class="statistic-type-list">
         <div class="title">实例指标：</div>
-        <el-checkbox-group v-model="selectedStatisticType">
+        <el-checkbox-group v-model="selectedStatisticTypeList">
           <el-checkbox v-for="item in statisticTypeList" :label="item.type" :key="item.type">
             {{item.label}}
           </el-checkbox>
@@ -36,7 +36,7 @@
       </div>
       <div class="instance-list">
         <div class="title">实例列表：</div>
-        <el-checkbox-group v-model="selectedInstanceId">
+        <el-checkbox-group v-model="selectedInstanceList">
           <el-checkbox v-for="item in instanceList" :label="item.id" :key="item.id">
             {{item.id}}
           </el-checkbox>
@@ -164,8 +164,8 @@
               profileId: data['profileId'],
               serviceId: data['serviceId'],
             };
-            this.selectedInstanceId.push(data['instanceId']);
-            this.instanceList = data.hasOwnProperty('instanceList') ? data['instanceList'] : null;
+            this.selectedInstanceList.push(data['instanceId']);
+//            this.instanceList = data.hasOwnProperty('instanceList') ? data['instanceList'] : null;
             this.$store.dispatch('user/config', {
               page: 'monitor',
               data: {
@@ -243,7 +243,7 @@
       setDefaultDateRange() {
         const end = new Date();
         const start = new Date();
-        start.setTime(start.getTime() - 1000 * 60 * 5);
+        start.setTime(start.getTime() - 1000 * 3600 * 24 * 3);
         this.dateTimeRange = [start, end];
       },
       onScreenSizeChange() {
@@ -269,7 +269,8 @@
               }
             });
             this.instanceList = resContent['instanceList'];
-            console.log(this.instanceList);
+//            console.log(this.instanceList);
+            this.getData();
           } else {
           }
         } else {
@@ -280,25 +281,46 @@
         console.log(range[1].getTime());
       },
       getData() {
-//        serviceInfo = this.$refs['version-selector'].getSelectedValue();
+//        'cpu', 'memory', 'network-in', 'network-out', 'disk-read', 'disk-write'
+        const URL_LIST = this.$net.URL_LIST;
+        const urlMap = {
+          'cpu': URL_LIST.monitor_statistic_cpu,
+          'memory': URL_LIST.monitor_statistic_memory,
+          'network-in': URL_LIST.monitor_statistic_net_in,
+          'network-out': URL_LIST.monitor_statistic_net_out,
+        };
+
+        const serviceInfo = this.$refs['version-selector'].getSelectedValue();
+        const payload = {
+          groupId: this.$storeHelper.groupInfo()['id'],
+          groupTag: this.$storeHelper.groupInfo()['tag'],
+          spaceId: serviceInfo.selectedProfile.id,
+          spaceName: serviceInfo.selectedProfile.name,
+          env: serviceInfo.selectedProfile.name,
+          serviceName: serviceInfo.selectedService.serviceName,
+          instanceName: this.selectedInstanceList[0],
+          startTime: this.dateTimeRange[0].getTime(),
+          endTime: this.dateTimeRange[1].getTime(),
+          interval: "1h"
+        };
 //        console.log(serviceInfo);
-//        console.log(this.action.row);
-        this.$net.requestPaasServer(this.$net.URL_LIST.monitor_statistic_memory, {
-          payload: {
-            "spaceId": 1,
-            "spaceName": "fpdev",
-            "groupId": 4506,
-            "groupTag":"paastest",
-            "instanceName": "v100-galaxy-job-console-782795121-71h4d",
-            "serviceName":"v100-galaxy-job-console",
-            "env": "fpdev",
-            "startTime": 1537408825000,
-            "endTime": 1537408945000,
-            "interval": "1h"
+//        console.log(this.$storeHelper.groupInfo());
+//        console.log(this.dateTimeRange[0].getTime());
+        console.log(payload);
+
+        Promise.all(this.selectedStatisticTypeList.filter(it => {
+          if (urlMap.hasOwnProperty(it)) {
+            return true;
+          } else {
+            return false;
           }
-        }).then(resContent => {
-          console.log(JSON.stringify(resContent));
-        });
+        }).map(it => {
+          return this.$net.requestPaasServer(urlMap[it], {
+            payload
+          });
+        })).then(resContentList => {
+          console.log(resContentList);
+        })
       }
     },
     watch: {
@@ -338,7 +360,7 @@
           }]
         },
 
-        selectedStatisticType: ['cpu', 'memory', 'network-in', 'network-out', 'disk-read', 'disk-write'],
+        selectedStatisticTypeList: ['cpu', 'memory', 'network-in', 'network-out', 'disk-read', 'disk-write'],
         statisticTypeList: [{
           type: 'cpu',
           label: 'CPU',
@@ -358,7 +380,7 @@
           type: 'disk-write',
           label: '磁盘(写)'
         }],
-        selectedInstanceId: [],
+        selectedInstanceList: [],
 
         chartHeight: '280px',
         grid: {

@@ -209,9 +209,25 @@ class Net extends NetBase {
         path: '/event/pod/info',
         method: 'post'
       },
-      // 获取监控数据
+
+      // 获取监控数据-CPU
+      'monitor_statistic_cpu': {
+        path: '/service/monitorCPUUsage',
+        method: 'post'
+      },
+      // 获取监控数据-内存
       'monitor_statistic_memory': {
         path: '/service/monitorMemoryUsage',
+        method: 'post'
+      },
+      // 获取监控数据-网络in
+      'monitor_statistic_net_in': {
+        path: '/service/monitorNetworkInput',
+        method: 'post'
+      },
+      // 获取监控数据-网络out
+      'monitor_statistic_net_out': {
+        path: '/service/monitorNetworkOutput',
         method: 'post'
       },
 
