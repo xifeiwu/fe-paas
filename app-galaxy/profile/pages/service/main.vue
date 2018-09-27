@@ -1765,7 +1765,6 @@ export default {
       // the logic of set profileId:
       // 1. profileId in local config; 2. first profileId in profileList
       let defaultProfileID = this.currentProfileList[0]['id'];
-      this.selectedProfileID = null;
       const localProfileId = this.serviceConfig ? this.serviceConfig['profileId'] : null;
       // check whether localProfileId exist in currentProfileList
       defaultProfileID = this.currentProfileList.map(it => {
@@ -1773,10 +1772,10 @@ export default {
           return it.id
         }
       }).indexOf(localProfileId) > -1 ? localProfileId: defaultProfileID;
+      this.selectedProfileID = null;
       setTimeout(() => {
         this.selectedProfileID = defaultProfileID;
       });
-
     },
     selectedProfileID: function (profileId, oldValue) {
       if (this.$storeHelper.SERVICE_ID_FOR_NULL === profileId) {

@@ -2,14 +2,14 @@
   <div class="paas-version-selector">
     <div class="item">
       <label>应用名称:</label>
-      <el-select filterable v-model="selectedAppID" placeholder="请选择">
+      <el-select filterable v-model="selectedAppId" placeholder="请选择">
         <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">
         </el-option>
       </el-select>
     </div>
     <div class="item">
       <label>运行环境:</label>
-      <el-select v-model="selectedProfileID" placeholder="请选择">
+      <el-select v-model="selectedProfileId" placeholder="请选择">
         <el-option v-for="item in currentProfileList" :key="item.id" :label="item.description" :value="item.id">
         </el-option>
       </el-select>
@@ -20,7 +20,7 @@
         <!--<el-option v-for="item in currentVersionList" :key="item" :label="item" :value="item">-->
         <!--</el-option>-->
       <!--</el-select>-->
-      <el-select filterable v-model="selectedServiceID" :placeholder="currentServiceList.length > 0 ? '请选择' : '当前运行环境下没有版本！'">
+      <el-select filterable v-model="selectedServiceId" :placeholder="currentServiceList.length > 0 ? '请选择' : '当前运行环境下没有版本！'">
         <el-option v-for="item in currentServiceList" :key="item.id" :label="item.serviceVersion" :value="item.id">
         </el-option>
       </el-select>
@@ -77,20 +77,18 @@
       return {
         appList: [],
 
-        selectedAppID: null,
+        selectedAppId: null,
         selectedAPP: null,
 
         // profile related
-        selectedProfileID: null,
+        selectedProfileId: null,
         selectedProfile: null,
         currentProfileList: [],
 
         // 版本（既服务）列表
-        selectedServiceID: null,
+        selectedServiceId: null,
         selectedService: null,
         currentServiceList: [],
-//        getVersionList: this.requestServiceList,
-//        getVersionList: this.requestVersionList,
 
         // TODO: not used
         currentVersionList: [],
@@ -103,15 +101,18 @@
     },
     watch: {
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
-      selectedAppID: 'onSelectedAppIdChanged',
-      selectedProfileID: function (value, oldValue) {
+      selectedAppId: 'onSelectedAppIdChanged',
+      selectedProfileId: function (value, oldValue) {
         let profileId = value;
         let appId = this.selectedAPP ? this.selectedAPP.appId: null;
+        if (!appId || !profileId) {
+          return;
+        }
         this.requestServiceList(appId, profileId);
       },
 
-      // update currentService when selectedServiceID is changed
-      selectedServiceID: function (serviceId, oldValue) {
+      // update currentService when selectedServiceId is changed
+      selectedServiceId: function (serviceId, oldValue) {
         if (null == serviceId) {
           return;
         }
@@ -126,17 +127,17 @@
           return;
         }
         this.selectedService = target;
-        this.changeVersion(this.selectedAPP, this.selectedProfileID, target);
+        this.changeVersion(this.selectedAPP, this.selectedProfileId, target);
       },
     },
     methods: {
       initDataStatus() {
         this.appList = [];
-        this.selectedAppID = '';
+        this.selectedAppId = '';
         this.currentProfileList = [];
-        this.selectedProfileID = this.$storeHelper.SERVICE_ID_FOR_NULL;
+        this.selectedProfileId = this.$storeHelper.SERVICE_ID_FOR_NULL;
         this.currentServiceList = [];
-        this.selectedServiceID = this.$storeHelper.SERVICE_ID_FOR_NULL;
+        this.selectedServiceId = this.$storeHelper.SERVICE_ID_FOR_NULL;
       },
       /**
        * this function is the start point of watcher chain
@@ -175,12 +176,12 @@
             // customConfig can only use once
             delete this.customConfig['appId'];
           }
-          // change selectedAppID in next tick to make sure value change can be watched
+          // change selectedAppId in next tick to make sure value change can be watched
           setTimeout(() => {
             if (defaultAppID && this.$storeHelper.getAppInfoByID(defaultAppID)) {
-              this.selectedAppID = defaultAppID;
+              this.selectedAppId = defaultAppID;
             } else {
-              this.selectedAppID = this.appList[0]['appId'];
+              this.selectedAppId = this.appList[0]['appId'];
             }
           });
         }
@@ -196,49 +197,44 @@
         this.selectedAPP = appInfo['app'];
         this.currentProfileList = this.selectedAPP['profileList'];
 
-        // set default profileId
-        if (Array.isArray(this.currentProfileList) && this.currentProfileList.length > 0) {
-          // if value of selectedProfileID is null(at the beginning of this page),
-          // set default profileId as follows:
-          // 1. customConfig.profileId if customConfig is not null
-          // 2. localStorage
-          // 3. first element of profileList in selectedApp
-          let firstProfileID = this.currentProfileList[0]['id'];
-          if (null == this.selectedProfileID || this.$storeHelper.SERVICE_ID_FOR_NULL == this.selectedProfileID) {
-            let defaultProfileID = null;
-            if (this.customConfig && this.customConfig.hasOwnProperty('profileId')) {
-              defaultProfileID = this.customConfig['profileId'];
-              // customConfig can only use once
-              delete this.customConfig['profileId'];
-            }
-            if (defaultProfileID && this.currentProfileList.map(it => {return it.id}).indexOf(defaultProfileID) > -1) {
-              this.selectedProfileID = defaultProfileID;
-            } else {
-              this.selectedProfileID = firstProfileID;
-            }
-          } else {
-            // request service list when app id is changed while profile id is not changed.
-            if (this.selectedProfileID == firstProfileID) {
-              this.requestServiceList(this.selectedAPP.appId, this.selectedProfileID);
-            } else {
-              this.selectedProfileID = firstProfileID;
-            }
-          }
-        } else {
+        if (!Array.isArray(this.currentProfileList) || this.currentProfileList.length === 0) {
           // changeVersion even the length of profileList is zero
           this.changeVersion(this.selectedAPP, null, null);
+          return;
         }
+
+        // set default profileId
+        // if value of selectedProfileId is null(at the beginning of this page),
+        // set default profileId as follows:
+        // 1. customConfig.profileId if customConfig is not null
+        // 2. first element of profileList in selectedApp
+        var defaultProfileId = this.currentProfileList[0]['id'];
+        // custom profileId
+        var customProfileId = null;
+        if (this.customConfig && this.customConfig.hasOwnProperty('profileId')) {
+          customProfileId = this.customConfig['profileId'];
+          // customConfig can only use once
+          delete this.customConfig['profileId'];
+        }
+        defaultProfileId = this.currentProfileList.map(it => {
+          return it.id;
+        }).indexOf(customProfileId) > -1 ? customProfileId : defaultProfileId;
+
+        this.selectedProfileId = null;
+        setTimeout(() => {
+          this.selectedProfileId = defaultProfileId;
+        });
       },
 
       /**
        * request service list when selectedAppId or selectedProfileId is changed
        */
-      requestServiceList(appId, spaceID) {
-        if (!appId || !spaceID) {
-          console.log(`appId or spaceID can not be empty: ${appId}, ${spaceID}`);
+      requestServiceList(appId, profileId) {
+        if (!appId || !profileId) {
+          console.log(`appId or profileId can not be empty: ${appId}, ${profileId}`);
           return;
         }
-        this.selectedServiceID = null;
+        this.selectedServiceId = null;
         this.currentServiceList = [];
 
         const getServiceById = (serviceList, serviceId) => {
@@ -265,7 +261,7 @@
         this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
           payload: {
             appId: appId,
-            spaceId: spaceID
+            spaceId: profileId
           }
         }).then(resContent => {
           if (resContent.hasOwnProperty('applicationServerList')) {
@@ -290,16 +286,17 @@
                   delete this.customConfig['serviceVersion'];
                 }
                 if (targetService) {
-                  this.selectedServiceID = targetService.id;
+                  this.selectedServiceId = targetService.id;
                 } else {
-                  this.selectedServiceID = firstServiceID;
+                  console.log('service info passed is ignored');
+                  this.selectedServiceId = firstServiceID;
                 }
               } else {
-                this.selectedServiceID = firstServiceID;
+                this.selectedServiceId = firstServiceID;
               }
             } else {
               // changeVersion even the length of profileList is zero
-              this.changeVersion(this.selectedAPP, this.selectedProfileID, null);
+              this.changeVersion(this.selectedAPP, this.selectedProfileId, null);
             }
           }
         }).catch();
@@ -307,12 +304,12 @@
 
       /**
        * emit event for value changed
-       * 1. at change of selectedServiceID
+       * 1. at change of selectedServiceId
        * 2. the length of profileList is zero
        * 3. the length of serviceList is zero
        */
-      changeVersion(selectedAPP, selectedProfileID, selectedService) {
-        let profileInfo = this.$storeHelper.getProfileInfoByID(selectedProfileID);
+      changeVersion(selectedAPP, selectedProfileId, selectedService) {
+        let profileInfo = this.$storeHelper.getProfileInfoByID(selectedProfileId);
         this.selectedProfile = profileInfo;
         this.$emit('version-selected', selectedAPP, profileInfo, selectedService);
       },
@@ -334,7 +331,7 @@
        */
       requestVersionList(appId, profileId) {
         if (!appId || !profileId) {
-          console.log(`appId or spaceID can not be empty: ${appId}, ${profileId}`);
+          console.log(`appId or profileId can not be empty: ${appId}, ${profileId}`);
           return;
         }
         this.selectedVersion = null;
