@@ -2,7 +2,7 @@
   <div id="instance-main">
     <el-row class="header" type="flex" justify="center" align="middle">
       <el-col :span="20">
-        <paas-version-selector :customConfig="localConfig" ref="version-selector"
+        <paas-version-selector :customConfig="config4VersionSelector" ref="version-selector"
                              @version-selected="onVersionSelected"></paas-version-selector>
       </el-col>
       <el-col :span="4">
@@ -303,7 +303,7 @@
      * the sequence of create and mount in parent and child element is:
      * create parent -> create children -> mount children -> mount parent
      *
-     * as this.localConfig is used in child component, as it must be set in created method
+     * as this.config4VersionSelector is used in child component, as it must be set in created method
      */
     created() {
       this.bytes = bytes;
@@ -311,10 +311,10 @@
       if (dataTransfer) {
         const from = dataTransfer['from'];
         const data = dataTransfer['data'];
-        this.localConfig = {
-          appID: data['appId'],
-          profileID: data['profileId'],
-          serviceID: data['serviceId'],
+        this.config4VersionSelector = {
+          appId: data['appId'],
+          profileId: data['profileId'],
+          serviceId: data['serviceId'],
         };
         this.$storeHelper.dataTransfer = null;
         this.$store.dispatch('user/config', {
@@ -327,10 +327,10 @@
         if (userConfig.hasOwnProperty('instance')) {
           const instanceConfig = userConfig['instance'];
           if (this.$utils.hasProps(instanceConfig, 'appId', 'profileId', 'serviceId')) {
-            this.localConfig = {
-              appID: instanceConfig['appId'],
-              profileID: instanceConfig['profileId'],
-              serviceID: instanceConfig['serviceId'],
+            this.config4VersionSelector = {
+              appId: instanceConfig['appId'],
+              profileId: instanceConfig['profileId'],
+              serviceId: instanceConfig['serviceId'],
             }
           }
         }
@@ -360,7 +360,7 @@
         resizeListener: () => {},
         heightOfInstanceList: '',
 
-        localConfig: null,
+        config4VersionSelector: null,
         showLoading: false,
         queueForWaitingResponse: [],
         //        instanceStatus.instanceList: [{

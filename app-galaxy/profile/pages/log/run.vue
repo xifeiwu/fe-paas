@@ -1,8 +1,8 @@
 <template>
   <div id="log-run">
     <div class="header">
-      <my-version-selector :customConfig="localConfig"
-                           @version-selected="onVersionSelected"></my-version-selector>
+      <paas-version-selector :customConfig="config4VersionSelector"
+                           @version-selected="onVersionSelected"></paas-version-selector>
       <div class="item">
         <label>实例名称:</label>
         <el-input
@@ -169,16 +169,16 @@
   }
 </style>
 <script>
-  import MyVersionSelector from '../components/version-selector';
+  import paasVersionSelector from '../components/version-selector';
   import paasDialogForLog from '../components/dialog4log.vue';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   export default {
-    components: {MyVersionSelector, paasDialogForLog},
+    components: {paasVersionSelector, paasDialogForLog},
     /**
      * the sequence of create and mount in parent and child element is:
      * create parent -> create children -> mount children -> mount parent
      *
-     * as this.localConfig is used in child component, as it must be set in created method
+     * as this.config4VersionSelector is used in child component, as it must be set in created method
      */
     created() {
       // set default service
@@ -188,9 +188,9 @@
         const data = dataTransfer['data'];
         switch (from) {
           case this.$net.page['profile/instance']:
-            this.localConfig = {
-              appID: data['appId'],
-              profileID: data['profileId'],
+            this.config4VersionSelector = {
+              appId: data['appId'],
+              profileId: data['profileId'],
               serviceVersion: data['serviceVersion'],
             };
             break;
@@ -248,7 +248,7 @@
     data() {
       return {
         resizeListener: () => {},
-        localConfig: null,
+        config4VersionSelector: null,
         searchForm: {
           appId: '',
           spaceId: '',

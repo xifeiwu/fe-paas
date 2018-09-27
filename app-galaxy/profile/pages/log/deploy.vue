@@ -1,8 +1,8 @@
 <template>
   <div id="log-deploy">
     <div class="header">
-      <my-version-selector :customConfig="localServiceConfig"
-                           @version-selected="onVersionSelected"></my-version-selector>
+      <paas-version-selector :customConfig="config4VersionSelector"
+                           @version-selected="onVersionSelected"></paas-version-selector>
     </div>
     <div class="list">
       <el-table
@@ -87,12 +87,12 @@
     }
 </style>
 <script>
-  import MyVersionSelector from '../components/version-selector';
+  import paasVersionSelector from '../components/version-selector';
   import paasDialogForLog from '../components/dialog4log.vue';
   import commonUtils from 'assets/components/mixins/common-utils';
   export default {
     mixins: [commonUtils],
-    components: {MyVersionSelector, paasDialogForLog},
+    components: {paasVersionSelector, paasDialogForLog},
     created() {
       // set default service
       const dataTransfer = this.$storeHelper.dataTransfer;
@@ -101,29 +101,29 @@
         const data = dataTransfer['data'];
         switch (from) {
           case this.$net.page['profile/service']:
-            this.localServiceConfig = {
-              appID: data['appId'],
-              profileID: data['profileId'],
+            this.config4VersionSelector = {
+              appId: data['appId'],
+              profileId: data['profileId'],
               serviceVersion: data['serviceVersion'],
             };
             break;
           case this.$net.page['profile/work-order/list']:
-            this.localServiceConfig = {
-              appID: data['appId'],
-              profileID: data['profileId'],
+            this.config4VersionSelector = {
+              appId: data['appId'],
+              profileId: data['profileId'],
               serviceVersion: data['serviceVersion'],
             };
             break;
         }
         this.$storeHelper.dataTransfer = null;
       }
-//      console.log('this.localServiceConfig');
-//      console.log(this.localServiceConfig);
+//      console.log('this.config4VersionSelector');
+//      console.log(this.config4VersionSelector);
     },
     data() {
       return {
         // service config in localStorage
-        localServiceConfig: null,
+        config4VersionSelector: null,
 
         showLoading: false,
         deployLogList: [],

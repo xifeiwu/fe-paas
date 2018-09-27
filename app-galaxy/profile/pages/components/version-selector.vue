@@ -63,11 +63,11 @@
     },
     props: {
       /**
-       * serviceID or serviceVersion can be passed
+       * serviceId or serviceVersion can be passed
        * format of customConfig: {
-       *   appID: null,
-       *   profileID: null,
-       *   serviceID: null,
+       *   appId: null,
+       *   profileId: null,
+       *   serviceId: null,
        *   serviceVersion: null
        * }
        */
@@ -105,20 +105,19 @@
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
       selectedAppID: 'onSelectedAppIdChanged',
       selectedProfileID: function (value, oldValue) {
-        let profileID = value;
-        let appID = this.selectedAPP ? this.selectedAPP.appId: null;
-        this.requestServiceList(appID, profileID);
-//        this.$storeHelper.setUserConfig('profile/service/profileID', profileID);
+        let profileId = value;
+        let appId = this.selectedAPP ? this.selectedAPP.appId: null;
+        this.requestServiceList(appId, profileId);
       },
 
       // update currentService when selectedServiceID is changed
-      selectedServiceID: function (serviceID, oldValue) {
-        if (null == serviceID) {
+      selectedServiceID: function (serviceId, oldValue) {
+        if (null == serviceId) {
           return;
         }
         let target = null;
         this.currentServiceList.some(it => {
-          if (it.id == serviceID) {
+          if (it.id == serviceId) {
             target = it;
           }
           return target;
@@ -141,7 +140,7 @@
       },
       /**
        * this function is the start point of watcher chain
-       * the start of watcher chain: appID -> profileID -> serviceID
+       * the start of watcher chain: appId -> profileId -> serviceId
        *
        * call in two place:
        * 1. created function
@@ -167,14 +166,14 @@
             });
             return;
           }
-          // the sequence of getting default appID:
+          // the sequence of getting default appId:
           // 1. customConfig.appId if customConfig exist
           // 2. first element of appList
           let defaultAppID = null;
-          if (this.customConfig && this.customConfig.hasOwnProperty('appID')) {
-            defaultAppID = this.customConfig['appID'];
+          if (this.customConfig && this.customConfig.hasOwnProperty('appId')) {
+            defaultAppID = this.customConfig['appId'];
             // customConfig can only use once
-            delete this.customConfig['appID'];
+            delete this.customConfig['appId'];
           }
           // change selectedAppID in next tick to make sure value change can be watched
           setTimeout(() => {
@@ -187,8 +186,8 @@
         }
       },
       onSelectedAppIdChanged (value, oldValue) {
-        let appID = value;
-        let appInfo = this.$storeHelper.getAppInfoByID(appID);
+        let appId = value;
+        let appInfo = this.$storeHelper.getAppInfoByID(appId);
         if (!appInfo) {
           // emit 'version-selected' even selectedApp is null
           this.changeVersion(null, null, null);
@@ -197,20 +196,20 @@
         this.selectedAPP = appInfo['app'];
         this.currentProfileList = this.selectedAPP['profileList'];
 
-        // set default profileID
+        // set default profileId
         if (Array.isArray(this.currentProfileList) && this.currentProfileList.length > 0) {
           // if value of selectedProfileID is null(at the beginning of this page),
-          // set default profileID as follows:
-          // 1. customConfig.profileID if customConfig is not null
+          // set default profileId as follows:
+          // 1. customConfig.profileId if customConfig is not null
           // 2. localStorage
           // 3. first element of profileList in selectedApp
           let firstProfileID = this.currentProfileList[0]['id'];
           if (null == this.selectedProfileID || this.$storeHelper.SERVICE_ID_FOR_NULL == this.selectedProfileID) {
             let defaultProfileID = null;
-            if (this.customConfig && this.customConfig.hasOwnProperty('profileID')) {
-              defaultProfileID = this.customConfig['profileID'];
+            if (this.customConfig && this.customConfig.hasOwnProperty('profileId')) {
+              defaultProfileID = this.customConfig['profileId'];
               // customConfig can only use once
-              delete this.customConfig['profileID'];
+              delete this.customConfig['profileId'];
             }
             if (defaultProfileID && this.currentProfileList.map(it => {return it.id}).indexOf(defaultProfileID) > -1) {
               this.selectedProfileID = defaultProfileID;
@@ -229,15 +228,14 @@
           // changeVersion even the length of profileList is zero
           this.changeVersion(this.selectedAPP, null, null);
         }
-//        this.$setUserConfig('profile/service/appID', appID);
       },
 
       /**
        * request service list when selectedAppId or selectedProfileId is changed
        */
-      requestServiceList(appID, spaceID) {
-        if (!appID || !spaceID) {
-          console.log(`appID or spaceID can not be empty: ${appID}, ${spaceID}`);
+      requestServiceList(appId, spaceID) {
+        if (!appId || !spaceID) {
+          console.log(`appId or spaceID can not be empty: ${appId}, ${spaceID}`);
           return;
         }
         this.selectedServiceID = null;
@@ -266,7 +264,7 @@
         };
         this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
           payload: {
-            appId: appID,
+            appId: appId,
             spaceId: spaceID
           }
         }).then(resContent => {
@@ -276,16 +274,16 @@
             if (currentServiceList && Array.isArray(currentServiceList) && currentServiceList.length > 0) {
               this.currentServiceList = currentServiceList;
               let firstServiceID = currentServiceList[0].id;
-              // set default serviceID as follows:
-              // 1. customConfig.serviceID if exist
+              // set default serviceId as follows:
+              // 1. customConfig.serviceId if exist
               // 2. customConfig.serviceName if exist
               // 3. first element of profileList in selectedApp
               if (this.customConfig) {
                 let targetService = null;
-                if (this.customConfig.hasOwnProperty('serviceID')) {
-                  targetService = getServiceById(currentServiceList, this.customConfig['serviceID']);
+                if (this.customConfig.hasOwnProperty('serviceId')) {
+                  targetService = getServiceById(currentServiceList, this.customConfig['serviceId']);
                   // customConfig can only use once
-                  delete this.customConfig['serviceID'];
+                  delete this.customConfig['serviceId'];
                 } else if (this.customConfig.hasOwnProperty('serviceVersion')) {
                   targetService = getServiceByVersion(currentServiceList, this.customConfig['serviceVersion']);
                   // customConfig can only use once
@@ -334,15 +332,15 @@
        * request version list when selectedAppId or selectedProfileId is changed
        * TODO: not used
        */
-      requestVersionList(appID, spaceID) {
-        if (!appID || !spaceID) {
-          console.log(`appID or spaceID can not be empty: ${appID}, ${spaceID}`);
+      requestVersionList(appId, profileId) {
+        if (!appId || !profileId) {
+          console.log(`appId or spaceID can not be empty: ${appId}, ${profileId}`);
           return;
         }
         this.selectedVersion = null;
         this.$net.getServiceVersion({
-          appId: appID,
-          spaceId: spaceID
+          appId: appId,
+          spaceId: profileId
         }).then(content => {
 //          console.log(content);
           if (content.hasOwnProperty('version')) {
