@@ -20,7 +20,8 @@ export default new Vuex.Store({
     screen: {
       width: 0,
       height: 0,
-      size: 0
+      size: 0,
+      ratioHeight: 0
     }
   },
   mutations: {
@@ -46,6 +47,11 @@ export default new Vuex.Store({
     setScreenSize({state, commit}, {width, height}) {
       state.screen.width = width;
       state.screen.height = height;
+      try {
+        state.screen.ratioHeight = height / window.devicePixelRatio;
+      } catch(err) {
+        state.screen.ratioHeight = 500
+      }
       state.screen.size = width * height;
     },
     toastPush({ commit }, payload) {

@@ -249,7 +249,8 @@
 <style lang="scss" scoped>
   #app-main {
     height: 100%;
-    /*margin: 0px 6px;*/
+    display: flex;
+    flex-direction: column;
     max-width: 1300px;
     background: white;
     .header {
@@ -267,6 +268,8 @@
       }
     }
     .app-list {
+      flex: 1;
+      position: relative;
       padding: 0px 0px;
       .el-table {
         width: auto;
@@ -373,6 +376,10 @@
         this.onAppInfoListOfGroup(this.appInfoListOfGroup);
       }
       this.onScreenSizeChange(this.$storeHelper.screen.size);
+      // update value in next tick
+      setTimeout(() => {
+        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 8;
+      });
     },
     beforeDestroy() {
     },
