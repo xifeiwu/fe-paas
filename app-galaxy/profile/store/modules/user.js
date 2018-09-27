@@ -31,7 +31,8 @@ const state = {
   appInfoListOfGroup: null,
   config: {
     service: {},
-    instance: {}
+    instance: {},
+    monitor: {}
   }
 };
 

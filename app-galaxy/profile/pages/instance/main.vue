@@ -25,7 +25,7 @@
               element-loading-text="加载中"
       >
         <el-table-column
-                prop="instanceName"
+                prop="id"
                 label="实例名称"
                 width="200"
                 headerAlign="left" align="left">
@@ -87,23 +87,23 @@
                     @click="handleRowButtonClick('terminal', scope.$index, scope.row)"
                     v-if="!$storeHelper.notPermitted['open_terminal_from_instance']"
                     type="text" class="primary">终端</el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"
-                    v-if="!$storeHelper.notPermitted['go-log-run-from-instance']"
-                    type="text" class="primary flex">
-              <span>查看运行日志</span><i class="paas-icon-level-up"></i>
-            </el-button>
-            <div class="ant-divider"></div>
+            <div class="ant-divider" v-if="!$storeHelper.notPermitted['open_terminal_from_instance']"></div>
             <el-button
                     @click="handleRowButtonClick('show-console-log', scope.$index, scope.row)"
                     v-if="!$storeHelper.notPermitted['show-console-log']"
                     type="text" class="primary">
               <span>查看console日志</span>
             </el-button>
-            <div class="ant-divider"></div>
+            <div class="ant-divider" v-if="!$storeHelper.notPermitted['show-console-log']"></div>
             <el-button
-                    @click="handleRowButtonClick('go-to-monitor', scope.$index, scope.row)"
+                    @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"
+                    v-if="!$storeHelper.notPermitted['go-log-run-from-instance']"
+                    type="text" class="primary flex">
+              <span>查看运行日志</span><i class="paas-icon-level-up"></i>
+            </el-button>
+            <div class="ant-divider" v-if="!$storeHelper.notPermitted['go-log-run-from-instance']"></div>
+            <el-button
+                    @click="handleRowButtonClick('go-to-page-monitor', scope.$index, scope.row)"
                     :disabled="false"
                     v-if="!$storeHelper.notPermitted['go-monitor-from-instance']"
                     type="text" class="primary flex">
@@ -308,7 +308,7 @@
         //        instanceStatus.instanceList: [{
         //          createTime: '2018-01-11 20:39:09',
         //          health: null,
-        //          instanceName: 'v3-puhui-notification-3270010048-3xp1s',
+        //          id: 'v3-puhui-notification-3270010048-3xp1s',
         //          intranetIP:null,
         //          message:null,
         //          status:'运行中',
@@ -393,7 +393,6 @@
             const instanceList = resContent.instanceList;
             instanceList.forEach(it => {
               it.updated = it.updated.split(' ');
-              this.$utils.renameProperty(it, 'id', 'instanceName');
               this.$utils.renameProperty(it, 'state', 'status');
               this.$utils.renameProperty(it, 'ip', 'intranetIP');
               this.$utils.renameProperty(it, 'updated', 'createTime');
@@ -501,7 +500,7 @@
         const payload = {
           applicationId: service.selectedAPP.appId,
           spaceId: service.selectedProfile.id,
-          kindName: this.action.row['instanceName']
+          kindName: this.action.row['id']
         };
         this.statusForDialogInstanceLog.showLoading = true;
 
@@ -541,7 +540,7 @@
         this.$net.getConsoleLog({
           applicationId: selectedValue['selectedAPP'].appId,
           spaceId: selectedValue['selectedProfile'].id,
-          podName: this.action.row['instanceName'],
+          podName: this.action.row['id'],
           limitLine: 500
         }).then(resData => {
           this.consoleLogList = resData;
@@ -589,7 +588,7 @@
               ip = row['intranetIP'];
             }
             if (id && ip) {
-              let terminalPath = this.$net.page['terminal'] + '?id=' + id + '&ip=' + ip + '&name=' + row['instanceName'];
+              let terminalPath = this.$net.page['terminal'] + '?id=' + id + '&ip=' + ip + '&name=' + row['id'];
               //              this.$net.getTerminalInfo({
               //                serviceId: id
               //              });
@@ -610,21 +609,22 @@
             };
             this.$router.push(this.$net.page['profile/log/run']);
             break;
-          case 'go-to-monitor':
+          case 'go-to-page-monitor':
             valueOfVersionSelector = this.$refs['version-selector'].getSelectedValue();
             this.$storeHelper.dataTransfer = {
               from: this.$net.page['profile/instance'],
               data: {
-                appID: valueOfVersionSelector['selectedAPP'].appId,
-                profileID: valueOfVersionSelector['selectedProfile'].id,
-                serviceID: valueOfVersionSelector['selectedService'].id,
-                instanceName: row['instanceName']
+                appId: valueOfVersionSelector['selectedAPP'].appId,
+                profileId: valueOfVersionSelector['selectedProfile'].id,
+                serviceId: valueOfVersionSelector['selectedService'].id,
+                instanceId: row['id'],
+                instanceList: this.instanceStatus.instanceList,
               }
             };
             this.$router.push(this.$net.page['profile/monitor']);
             break;
           case 'more':
-            this.titleForPop = `实例${this.action.row['instanceName']}`;
+            this.titleForPop = `实例${this.action.row['id']}`;
             this.togglePop();
             break;
           case 'instanceStatus':

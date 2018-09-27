@@ -1,28 +1,47 @@
 <template>
   <div id="monitor">
     <div class="header">
-      <paas-version-selector @version-selected="onVersionSelected"></paas-version-selector>
-      <div class="item">
-        <label>监控区间:</label>
-        <el-date-picker
-                style="display: inline-block; width: 340px;"
-                size="mini"
-                v-model="dateTimeRange"
-                type="datetimerange"
-                :picker-options="pickerOptions2"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                align="right"
-                :enableClose="false"
-                @change="onDateRangeChange"
-        >
-        </el-date-picker>
+      <div class="condition">
+        <paas-version-selector :customConfig="config4VersionSelector" ref="version-selector"
+                               @version-selected="onVersionSelected"></paas-version-selector>
+        <div class="item">
+          <label>监控区间:</label>
+          <el-date-picker
+                  style="display: inline-block; width: 340px;"
+                  size="mini"
+                  v-model="dateTimeRange"
+                  type="datetimerange"
+                  :picker-options="pickerOptions2"
+                  range-separator="至"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  align="right"
+                  :enableClose="false"
+                  @change="onDateRangeChange"
+          >
+          </el-date-picker>
+        </div>
+        <el-button
+                size="mini-extral"
+                type="primary"
+                @click="handleButtonClick('search')">查询</el-button>
       </div>
-      <el-button
-              size="mini-extral"
-              type="primary"
-              @click="handleButtonClick('search')">查询</el-button>
+      <div class="statistic-type-list">
+        <div class="title">实例指标：</div>
+        <el-checkbox-group v-model="selectedStatisticType">
+          <el-checkbox v-for="item in statisticTypeList" :label="item.type" :key="item.type">
+            {{item.label}}
+          </el-checkbox>
+        </el-checkbox-group>
+      </div>
+      <div class="instance-list">
+        <div class="title">实例列表：</div>
+        <el-checkbox-group v-model="selectedInstanceId">
+          <el-checkbox v-for="item in instanceList" :label="item.id" :key="item.id">
+            {{item.id}}
+          </el-checkbox>
+        </el-checkbox-group>
+      </div>
     </div>
     <div :class="{'chart-list': true, 'large-screen': largeScreen}">
       <div class="chart-container" v-if="statisticCpu">
@@ -36,12 +55,6 @@
                  ref="charts-memory" :extend="extend"
                  :data="statisticMemory" :settings="chartMemorySetting" :events="chartEvents"></ve-line>
       </div>
-      <!--<div class="chart-container">-->
-        <!--<div class="title">网络连接</div>-->
-        <!--<ve-line width="100%" :height="chartHeight" :data="chartData3" :grid="grid" :data-zoom="dataZoom"-->
-                 <!--:settings="chartSettings3"-->
-                 <!--:legend-visible="false"></ve-line>-->
-      <!--</div>-->
     </div>
   </div>
 </template>
@@ -60,6 +73,22 @@
       .item {
         display: inline-block;
         margin-right: 3px;
+      }
+      .statistic-type-list, .instance-list {
+        margin: 5px 0px;
+        display: flex;
+        justify-content: flex-start;
+        .title {
+          color: rgb(19, 206, 102);
+          line-height: 19px;
+          font-weight: bold;
+        }
+        .el-checkbox-group {
+          display: inline-block;
+          .el-checkbox {
+            height: auto;
+          }
+        }
       }
     }
     .chart-list {
@@ -124,9 +153,49 @@
   export default {
     components: { VeLine, paasVersionSelector },
     created() {
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      if (dataTransfer) {
+        const from = dataTransfer['from'];
+        const data = dataTransfer['data'];
+        switch (from) {
+          case this.$net.page['profile/instance']:
+            this.config4VersionSelector = {
+              appId: data['appId'],
+              profileId: data['profileId'],
+              serviceId: data['serviceId'],
+            };
+            this.selectedInstanceId.push(data['instanceId']);
+            this.instanceList = data.hasOwnProperty('instanceList') ? data['instanceList'] : null;
+            this.$store.dispatch('user/config', {
+              page: 'monitor',
+              data: {
+                appId: data['appId'],
+                profileId: data['profileId'],
+                serviceId: data['serviceId'],
+                instanceId: data['instanceId'],
+              }
+            });
+            break;
+        }
+        this.$storeHelper.dataTransfer = null;
+      }
 
+      if (!this.config4VersionSelector) {
+        // get config from localStorage
+        const userConfig = this.$storeHelper.userConfig;
+        if (userConfig.hasOwnProperty('monitor')) {
+          const monitorConfig = userConfig['monitor'];
+          if (this.$utils.hasProps(monitorConfig, 'appId', 'profileId', 'serviceId')) {
+            this.config4VersionSelector = {
+              appId: monitorConfig['appId'],
+              profileId: monitorConfig['profileId'],
+              serviceId: monitorConfig['serviceId'],
+            }
+          }
+        }
+      }
     },
-    mounted() {
+    async mounted() {
       this.setDefaultDateRange();
       setTimeout(() => {
         this.onScreenSizeChange();
@@ -165,7 +234,7 @@
 //        memory = memory.toFixed(2) + '';
 //        it.memory = `${memory}%`;
       });
-      console.log(this.statisticMemory.rows);
+//      console.log(this.statisticMemory.rows);
       setTimeout(() => {
         this.$refs['charts-memory'].echarts.resize();
       });
@@ -189,8 +258,22 @@
       },
       handleButtonClick() {
       },
-      onVersionSelected() {
-
+      async onVersionSelected(selectedAPP, selectedProfile, selectedService) {
+        if (!this.instanceList) {
+          if (selectedAPP && selectedProfile && selectedService) {
+            const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.instance_list, {
+              payload: {
+                appId: selectedAPP.appId,
+                spaceId: selectedProfile.id,
+                serviceVersion: selectedService.serviceVersion
+              }
+            });
+            this.instanceList = resContent['instanceList'];
+            console.log(this.instanceList);
+          } else {
+          }
+        } else {
+        }
       },
       onDateRangeChange(range) {
         console.log(range[0].getTime());
@@ -223,6 +306,8 @@
     },
     data() {
       return {
+        config4VersionSelector: null,
+        instanceList: null,
         largeScreen: false,
         dateTimeRange: [],
         pickerOptions2: {
@@ -252,6 +337,28 @@
             }
           }]
         },
+
+        selectedStatisticType: ['cpu', 'memory', 'network-in', 'network-out', 'disk-read', 'disk-write'],
+        statisticTypeList: [{
+          type: 'cpu',
+          label: 'CPU',
+        }, {
+          type: 'memory',
+          label: '内存'
+        }, {
+          type: 'network-in',
+          label: '网络(进)'
+        }, {
+          type: 'network-out',
+          label: '网络(出)'
+        }, {
+          type: 'disk-read',
+          label: '磁盘(读)'
+        }, {
+          type: 'disk-write',
+          label: '磁盘(写)'
+        }],
+        selectedInstanceId: [],
 
         chartHeight: '280px',
         grid: {
