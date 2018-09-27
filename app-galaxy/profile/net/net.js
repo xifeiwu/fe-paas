@@ -209,6 +209,13 @@ class Net extends NetBase {
         path: '/event/pod/info',
         method: 'post'
       },
+      // 获取监控数据
+      'monitor_statistic_memory': {
+        path: '/service/monitorMemoryUsage',
+        method: 'post'
+      },
+
+      /** 域名相关*/
       'domain_secure_check': {
         path: '/domain/record/status/update',
         method: 'post'
