@@ -43,17 +43,40 @@
         </el-checkbox-group>
       </div>
     </div>
-    <div :class="{'chart-list': true, 'large-screen': largeScreen}">
-      <div class="chart-container" v-if="statisticCpu">
-        <div class="title">CPU使用率</div>
-        <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom" ref="charts-cpu"
-                 :data="statisticCpu"></ve-line>
+    <div class="chart-list">
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['cpu']['expand']}"
+           v-if="chartContainerStatus['cpu'].show">
+        <div class="chart-card">
+          <div class="title">
+            <span>CPU使用率</span>
+            <i :class="['paas-icon', chartContainerStatus['cpu']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('cpu')"></i>
+          </div>
+          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+                   :settings="chartSettingPercent" :extend="extend"
+                   v-if="chartData['cpu'] != null"
+                   ref="charts-cpu" :data="chartData['cpu']"></ve-line>
+          <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
+            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+          </div>
+        </div>
       </div>
-      <div class="chart-container" v-if="statisticMemory">
-        <div class="title">内存使用</div>
-        <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
-                 ref="charts-memory" :extend="extend"
-                 :data="statisticMemory" :settings="chartMemorySetting" :events="chartEvents"></ve-line>
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['memory']['expand']}"
+           v-if="chartContainerStatus['memory'].show">
+        <div class="chart-card">
+          <div class="title">
+            <span>内存使用率</span>
+            <i :class="['paas-icon', chartContainerStatus['memory']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('memory')"></i>
+          </div>
+          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+                   :settings="chartSettingPercent" :extend="extend"
+                   v-if="chartData['memory'] != null"
+                   ref="charts-memory" :data="chartData['memory']"></ve-line>
+          <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
+            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -97,30 +120,38 @@
       display: flex;
       align-content: flex-start;
       flex-wrap: wrap;
-      &.large-screen {
-        .chart-container {
-          width: 50%;
-        }
-      }
       .chart-container {
         position: relative;
         width: 100%;
         box-sizing: border-box;
         border-radius: 10px;
         padding: 6px;
-        .title {
-          position: absolute;
-          top: -6px;
-          width: 100%;
-          text-align: center;
-          font-size: 14px;
-          line-height: 1.5;
+        &.shrink {
+          width: 50%;
         }
-        .ve-line {
-          top: -15px;
+        .chart-card {
           box-shadow: 0 0 10px rgba(0, 0, 0, .2);
-          canvas {
-            top: 12px;
+          .title {
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.5;
+            .paas-icon {
+              position: absolute;
+              right: 14px;
+              &:hover {
+                color: #409EFF;
+              }
+            }
+          }
+          .ve-line {
+          }
+          .empty {
+            font-size: 14px;
+            color: gray;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
           }
         }
       }
@@ -200,63 +231,38 @@
       setTimeout(() => {
         this.onScreenSizeChange();
       });
-
-      this.statisticCpu = {
-        columns: ['日期', '访问用户', '下单用户', '下单率'],
-        rows: [
-          { '日期': '1/1', '访问用户': 1393, '下单用户': 1093, '下单率': 0.32 },
-          { '日期': '1/2', '访问用户': 3530, '下单用户': 3230, '下单率': 0.26 },
-          { '日期': '1/3', '访问用户': 2923, '下单用户': 2623, '下单率': 0.76 },
-          { '日期': '1/4', '访问用户': 1723, '下单用户': 1423, '下单率': 0.49 },
-          { '日期': '1/5', '访问用户': 3792, '下单用户': 3492, '下单率': 0.323 },
-          { '日期': '1/6', '访问用户': 4593, '下单用户': 4293, '下单率': 0.78 }
-        ]
-      };
-      setTimeout(() => {
-        this.$refs['charts-cpu'].echarts.resize();
-      });
-
-
-      this.statisticMemory = {
-        columns: ['timestamp', 'memory'],
-        rows: [
-          {"memory":0.3242940902709961,"timestamp":'1537408825000'},
-          {"memory":0.32430171966552734,"timestamp":'1537408855000'},
-          {"memory":0.3243064880371094,"timestamp":'1537408885000'},
-          {"memory":0.2242826461791992,"timestamp":'1537408915000'},
-          {"memory":0.32425880432128906,"timestamp":'1537408945000'}
-        ]
-      };
-      this.statisticMemory.rows.forEach(it => {
-        it.timestamp = this.$utils.formatDate(it.timestamp, 'yyyy-MM-dd hh:mm:ss');
-//        let memory = it.memory * 100;
-//        it.memory = memory;
-//        memory = memory.toFixed(2) + '';
-//        it.memory = `${memory}%`;
-      });
-//      console.log(this.statisticMemory.rows);
-      setTimeout(() => {
-        this.$refs['charts-memory'].echarts.resize();
-      });
     },
     methods: {
       setDefaultDateRange() {
         const end = new Date();
         const start = new Date();
-        start.setTime(start.getTime() - 1000 * 3600 * 24 * 3);
+        start.setTime(start.getTime() - 1000 * 3600 * 24 * 2);
         this.dateTimeRange = [start, end];
       },
       onScreenSizeChange() {
-        this.largeScreen = this.$el.clientWidth > 900 ? true : false;
-        [].slice.call(this.$el.querySelectorAll('.chart-list .chart-container')).forEach(it => {
-          if (this.largeScreen) {
-            it.style.width = '50%';
-          } else {
-            it.style.width = '100%';
+        const largeScreen = this.$el.clientWidth > 900 ? true : false;
+        for (let key in this.chartContainerStatus) {
+          let status = this.chartContainerStatus[key];
+          if (!status['manual'] && largeScreen) {
+            status['expand'] = false;
           }
-        })
+        }
       },
-      handleButtonClick() {
+      handleButtonClick(action) {
+        switch (action) {
+          case 'search':
+            this.requestStatisticData();
+            break;
+        }
+      },
+      handleChartEvent(type) {
+        this.chartContainerStatus[type]['expand'] = !this.chartContainerStatus[type]['expand'];
+        this.chartContainerStatus[type]['manual'] = true;
+        this.$nextTick(() => {
+          if (this.$refs[`charts-${type}`]) {
+            this.$refs[`charts-${type}`].echartsResize();
+          };
+        });
       },
       async onVersionSelected(selectedAPP, selectedProfile, selectedService) {
         if (!this.instanceList) {
@@ -270,7 +276,6 @@
             });
             this.instanceList = resContent['instanceList'];
 //            console.log(this.instanceList);
-            this.getData();
           } else {
           }
         } else {
@@ -280,16 +285,18 @@
         console.log(range[0].getTime());
         console.log(range[1].getTime());
       },
-      getData() {
-//        'cpu', 'memory', 'network-in', 'network-out', 'disk-read', 'disk-write'
-        const URL_LIST = this.$net.URL_LIST;
-        const urlMap = {
-          'cpu': URL_LIST.monitor_statistic_cpu,
-          'memory': URL_LIST.monitor_statistic_memory,
-          'network-in': URL_LIST.monitor_statistic_net_in,
-          'network-out': URL_LIST.monitor_statistic_net_out,
-        };
 
+      requestStatisticData() {
+        if (!this.instanceList) {
+          this.$message.error('实例列表为空，请确保该服务下有运行实例');
+          return;
+        }
+        if (this.selectedInstanceList.length === 0) {
+          this.$message.error('当前所选实例为空，请在实例列表中选择实例');
+          return;
+        }
+
+//        ['cpu', 'memory', 'network-in', 'network-out', 'disk-read', 'disk-write']
         const serviceInfo = this.$refs['version-selector'].getSelectedValue();
         const payload = {
           groupId: this.$storeHelper.groupInfo()['id'],
@@ -306,31 +313,145 @@
 //        console.log(serviceInfo);
 //        console.log(this.$storeHelper.groupInfo());
 //        console.log(this.dateTimeRange[0].getTime());
-        console.log(payload);
+//        console.log(payload);
 
-        Promise.all(this.selectedStatisticTypeList.filter(it => {
-          if (urlMap.hasOwnProperty(it)) {
+        const URL_LIST = this.$net.URL_LIST;
+        const URL_MAP = {
+          'cpu': URL_LIST.monitor_statistic_cpu,
+          'memory': URL_LIST.monitor_statistic_memory,
+          'network-in': URL_LIST.monitor_statistic_net_in,
+          'network-out': URL_LIST.monitor_statistic_net_out,
+        };
+        const statisticTypeList = this.selectedStatisticTypeList.filter(it => {
+          if (URL_MAP.hasOwnProperty(it)) {
             return true;
           } else {
             return false;
           }
-        }).map(it => {
-          return this.$net.requestPaasServer(urlMap[it], {
+        });
+
+        // init value of this.chartData
+        statisticTypeList.forEach(it => {
+          this.chartData[it] = null;
+        });
+
+        const formatResponseData = (type, data) => {
+          var result = data;
+          switch (type) {
+            case 'cpu':
+              result = data.map(it => {
+                let item = {};
+                item['timestamp'] = this.$utils.formatDate(it['timestamp'], 'yyyy-MM-dd hh:mm:ss');
+                item[payload.instanceName] = it['cpuLoads'];
+                return item;
+              });
+              break;
+            case 'memory':
+              result = data.map(it => {
+                let item = {};
+                item['timestamp'] = this.$utils.formatDate(it['timestamp'], 'yyyy-MM-dd hh:mm:ss');
+                item[payload.instanceName] = it['memory'];
+                return item;
+              });
+              break;
+          }
+          return result;
+        };
+        // get statistic data
+        const statisticData = {};
+        Promise.all(statisticTypeList.map(it => {
+          return this.$net.requestPaasServer(URL_MAP[it], {
             payload
           });
         })).then(resContentList => {
-          console.log(resContentList);
-        })
+//          console.log(resContentList);
+          if (resContentList.length === statisticTypeList.length) {
+            statisticTypeList.forEach((type, index) => {
+              statisticData[type] = formatResponseData(type, resContentList[index]);
+            });
+          }
+        }).catch(err => {
+          console.log(err);
+        }).finally(() => {
+          if (Object.keys(statisticData).length !== statisticTypeList.length) {
+            this.$message.error('数据获取失败');
+            console.log(Object.keys(statisticData).length);
+            console.log(statisticTypeList.length);
+          } else {
+            const columns = ['timestamp'].concat(this.selectedInstanceList);
+            for (let key in statisticData) {
+              this.chartData[key] = {
+                columns,
+                rows: statisticData[key]
+              }
+            }
+
+            setTimeout(() => {
+              statisticTypeList.forEach(it => {
+                if (this.$refs[`charts-${it}`]) {
+                  this.$refs[`charts-${it}`].echartsResize();
+                };
+              });
+            });
+//            console.log(columns);
+            console.log(statisticData);
+            console.log(this.chartData);
+          }
+        });
+
+//        this.chartData['cpu'] = {
+//          "columns": ["timestamp", "v100-galaxy-job-console-782795121-4jhp5"],
+//          "rows": [{
+//            "timestamp": "2018-09-27 11:59:10",
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.07069556809333334
+//          }, {
+//            "timestamp": "2018-09-27 11:59:40",
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.000505632773333331
+//          }, {
+//            "timestamp": "2018-09-27 12:00:10",
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.0005720369442037211
+//          }, {
+//            "timestamp": "2018-09-27 12:00:40",
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.00465175705047003
+//          }, {
+//            "timestamp": "2018-09-27 12:01:10",
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.00638525202813053
+//          }, {
+//            "timestamp": "2018-09-27 12:01:40",
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.0020305455315177147
+//          }, {
+//            "timestamp": "2018-09-27 12:02:10",
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.0027648132208813927
+//          }, {
+//            "timestamp": "2018-09-27 12:02:40",
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.005621772853333326
+//          }, {
+//            "timestamp": "2018-09-27 12:03:10",
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.001717748366666676
+//          }, {
+//            "timestamp": "2018-09-27 12:03:40",
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.0018137060599999859
+//          }]
+//        };
       }
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
+      'selectedStatisticTypeList': function (selectedList) {
+        // whether show the chart or not
+        for (let key in this.chartContainerStatus) {
+         if (selectedList.indexOf(key) > -1) {
+           this.chartContainerStatus[key]['show'] = true;
+         } else {
+           this.chartContainerStatus[key]['show'] = false;
+         }
+        }
+      }
     },
     data() {
       return {
         config4VersionSelector: null,
         instanceList: null,
-        largeScreen: false,
         dateTimeRange: [],
         pickerOptions2: {
           shortcuts: [{
@@ -380,7 +501,46 @@
           type: 'disk-write',
           label: '磁盘(写)'
         }],
+        chartContainerStatus: {
+          'cpu': {
+            expand: true,
+            show: true,
+            manual: false,
+          },
+          'memory': {
+            expand: true,
+            show: true,
+            manual: false,
+          },
+          'network-in': {
+            expand: true,
+            show: true,
+            manual: false,
+          },
+          'network-out': {
+            expand: true,
+            show: true,
+            manual: false,
+          },
+          'disk-read': {
+            expand: true,
+            show: true,
+            manual: false,
+          },
+          'disk-write': {
+            expand: true,
+            show: true,
+            manual: false,
+          }
+        },
         selectedInstanceList: [],
+
+        chartData: {
+          cpu: null,
+          memory: null,
+          'network-in': null,
+          'network-out': null,
+        },
 
         chartHeight: '280px',
         grid: {
@@ -400,32 +560,17 @@
           }
         ],
         extend: {
-          'xAxis.0.axisLabel.rotate': 0
+          'xAxis.0.axisLabel.rotate': 0,
+          'tooltip.textStyle.fontSize': 12,
+          'tooltip.textStyle.lineHeight': 14,
+          'tooltip.position': [3, 3],
         },
         chartEvents: {
           click: (evt) => {
             console.log(evt);
           }
         },
-        statisticCpu: null,
-        chartCpuSetting: {
-          metrics: ['memory'],
-          dimension: ['timestamp'],
-          yAxisName: ['使用率'],
-        },
-        statisticMemory: null,
-//        chartMemoryConfig: {
-//          xAxis: {
-//            name: '日期',
-//            axisLabel: {
-//              formatter() {
-//                return 2;
-//              }
-//            }
-//          }
-//        },
-        chartMemorySetting: {
-          metrics: ['memory'],
+        chartSettingPercent: {
           dimension: ['timestamp'],
 //          xAxisType: 'time',
 //          xAxisType: 'value',
@@ -436,19 +581,7 @@
           axisSite: { right: ['下单率'] },
           yAxisType: ['KMB', 'percent'],
           yAxisName: ['数值', '比率'],
-
         },
-        chartData3: {
-          columns: ['日期', '访问用户', '下单用户', '下单率'],
-          rows: [
-            { '日期': '1/1', '访问用户': 1393, '下单用户': 1093, '下单率': 0.32 },
-            { '日期': '1/2', '访问用户': 3530, '下单用户': 3230, '下单率': 0.26 },
-            { '日期': '1/3', '访问用户': 2923, '下单用户': 2623, '下单率': 0.76 },
-            { '日期': '1/4', '访问用户': 1723, '下单用户': 1423, '下单率': 0.49 },
-            { '日期': '1/5', '访问用户': 3792, '下单用户': 3492, '下单率': 0.323 },
-            { '日期': '1/6', '访问用户': 4593, '下单用户': 4293, '下单率': 0.78 }
-          ]
-        }
       }
     }
   }
