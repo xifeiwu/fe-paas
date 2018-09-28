@@ -43,7 +43,7 @@
         </el-checkbox-group>
       </div>
     </div>
-    <div class="chart-list">
+    <div class="chart-list" :style="{height: heightOfChartList + 'px'}">
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['cpu']['expand']}"
            v-if="chartContainerStatus['cpu'].show">
         <div class="chart-card">
@@ -73,6 +73,78 @@
                    :settings="chartSettingPercent" :extend="extend"
                    v-if="chartData['memory'] != null"
                    ref="charts-memory" :data="chartData['memory']"></ve-line>
+          <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
+            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+          </div>
+        </div>
+      </div>
+
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['network-in']['expand']}"
+           v-if="chartContainerStatus['network-in'].show">
+        <div class="chart-card">
+          <div class="title">
+            <span>网络流量-入</span>
+            <i :class="['paas-icon', chartContainerStatus['network-in']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('network-in')"></i>
+          </div>
+          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+                   :settings="chartSettingBytes" :extend="extend"
+                   v-if="chartData['network-in'] != null"
+                   ref="charts-network-in" :data="chartData['network-in']"></ve-line>
+          <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
+            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+          </div>
+        </div>
+      </div>
+
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['network-out']['expand']}"
+           v-if="chartContainerStatus['network-out'].show">
+        <div class="chart-card">
+          <div class="title">
+            <span>网络流量-出</span>
+            <i :class="['paas-icon', chartContainerStatus['network-out']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('network-out')"></i>
+          </div>
+          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+                   :settings="chartSettingBytes" :extend="extend"
+                   v-if="chartData['network-out'] != null"
+                   ref="charts-network-out" :data="chartData['network-out']"></ve-line>
+          <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
+            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+          </div>
+        </div>
+      </div>
+
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['disk-read']['expand']}"
+           v-if="chartContainerStatus['disk-read'].show">
+        <div class="chart-card">
+          <div class="title">
+            <span>磁盘-读</span>
+            <i :class="['paas-icon', chartContainerStatus['disk-read']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('disk-read')"></i>
+          </div>
+          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+                   :settings="chartSettingBytes" :extend="extend"
+                   v-if="chartData['disk-read'] != null"
+                   ref="charts-disk-read" :data="chartData['disk-read']"></ve-line>
+          <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
+            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+          </div>
+        </div>
+      </div>
+
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['disk-write']['expand']}"
+           v-if="chartContainerStatus['disk-write'].show">
+        <div class="chart-card">
+          <div class="title">
+            <span>磁盘-写</span>
+            <i :class="['paas-icon', chartContainerStatus['disk-write']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('disk-write')"></i>
+          </div>
+          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+                   :settings="chartSettingBytes" :extend="extend"
+                   v-if="chartData['disk-write'] != null"
+                   ref="charts-disk-write" :data="chartData['disk-write']"></ve-line>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
             <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
@@ -116,29 +188,36 @@
     }
     .chart-list {
       padding: 6px;
-      padding-top: 12px;
       display: flex;
       align-content: flex-start;
       flex-wrap: wrap;
+      box-sizing: border-box;
+      overflow-y: scroll;
+      /*background-color: #F2F6FC;*/
       .chart-container {
         position: relative;
         width: 100%;
         box-sizing: border-box;
-        border-radius: 10px;
         padding: 6px;
         &.shrink {
           width: 50%;
         }
         .chart-card {
           box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+          /*background-color: white;*/
+          /*border: 1px solid rgba(0, 0, 0, .2);*/
+          border-radius: 10px;
           .title {
+            position: absolute;
+            z-index: 1000;
             width: 100%;
             text-align: center;
             font-size: 14px;
             line-height: 1.5;
+            background: transparent;
             .paas-icon {
               position: absolute;
-              right: 14px;
+              right: 16px;
               &:hover {
                 color: #409EFF;
               }
@@ -247,6 +326,10 @@
             status['expand'] = false;
           }
         }
+
+        const headerNode = this.$el.querySelector(':scope > .header');
+        const headerHeight = headerNode.offsetHeight;
+        this.heightOfChartList = this.$el.clientHeight - headerHeight - 5;
       },
       handleButtonClick(action) {
         switch (action) {
@@ -321,6 +404,8 @@
           'memory': URL_LIST.monitor_statistic_memory,
           'network-in': URL_LIST.monitor_statistic_net_in,
           'network-out': URL_LIST.monitor_statistic_net_out,
+          'disk-read': URL_LIST.monitor_statistic_disk_read,
+          'disk-write': URL_LIST.monitor_statistic_disk_write,
         };
         const statisticTypeList = this.selectedStatisticTypeList.filter(it => {
           if (URL_MAP.hasOwnProperty(it)) {
@@ -339,20 +424,25 @@
           var result = data;
           switch (type) {
             case 'cpu':
-              result = data.map(it => {
-                let item = {};
-                item['timestamp'] = this.$utils.formatDate(it['timestamp'], 'yyyy-MM-dd hh:mm:ss');
-                item[payload.instanceName] = it['cpuLoads'];
-                return item;
-              });
-              break;
             case 'memory':
               result = data.map(it => {
                 let item = {};
                 item['timestamp'] = this.$utils.formatDate(it['timestamp'], 'yyyy-MM-dd hh:mm:ss');
-                item[payload.instanceName] = it['memory'];
+                item[payload.instanceName] = it['values'];
                 return item;
               });
+              break;
+            case 'network-in':
+            case 'network-out':
+            case 'disk-read':
+            case 'disk-write':
+              result = data.map(it => {
+                let item = {};
+                item['timestamp'] = this.$utils.formatDate(it['timestamp'], 'yyyy-MM-dd hh:mm:ss');
+                item[payload.instanceName] = it['values'];
+                return item;
+              });
+              break;
               break;
           }
           return result;
@@ -451,6 +541,7 @@
     data() {
       return {
         config4VersionSelector: null,
+        heightOfChartList: 0,
         instanceList: null,
         dateTimeRange: [],
         pickerOptions2: {
@@ -542,12 +633,12 @@
           'network-out': null,
         },
 
-        chartHeight: '280px',
+        chartHeight: '230px',
         grid: {
           top: 30,
           left: 5,
           bottom: 20,
-          height: 230,
+          height: 180,
         },
         dataZoom: [
           {
@@ -577,6 +668,12 @@
           yAxisName: ['使用率'],
           yAxisType: ['percent']
         },
+        chartSettingBytes: {
+          dimension: ['timestamp'],
+          yAxisName: ['流量'],
+          yAxisType: ['value']
+        },
+
         chartSettings3: {
           axisSite: { right: ['下单率'] },
           yAxisType: ['KMB', 'percent'],

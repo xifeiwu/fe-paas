@@ -230,6 +230,16 @@ class Net extends NetBase {
         path: '/service/monitorNetworkOutput',
         method: 'post'
       },
+      // 获取监控数据-磁盘读
+      'monitor_statistic_disk_read': {
+        path: '/service/monitorFSReadBytes',
+        method: 'post'
+      },
+      // 获取监控数据-磁盘写
+      'monitor_statistic_disk_write': {
+        path: '/service/monitorFSWriteBytes',
+        method: 'post'
+      },
 
       /** 域名相关*/
       'domain_secure_check': {
