@@ -452,7 +452,7 @@
     },
     computed: {
       groupInfo() {
-        return this.$storeHelper.groupInfo();
+        return this.$storeHelper.groupInfo;
       },
     },
     watch: {

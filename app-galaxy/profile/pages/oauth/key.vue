@@ -888,7 +888,7 @@ module.exports = {
 
   computed: {
     groupInfo() {
-      return this.$storeHelper.groupInfo();
+      return this.$storeHelper.groupInfo;
     },
     appListOfCurrentGroup() {
       let appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup;

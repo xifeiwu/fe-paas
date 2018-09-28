@@ -636,7 +636,7 @@
         return this.$storeHelper.cpuAndMemoryList();
       },
       groupInfo() {
-        return this.$storeHelper.groupInfo();
+        return this.$storeHelper.groupInfo;
       },
       isProductionProfile() {
         return this.$storeHelper.isProductionProfile(this.serviceForm.spaceId);

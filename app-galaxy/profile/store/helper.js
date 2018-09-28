@@ -40,7 +40,17 @@ class StoreHelper extends BaseHelper{
     return this.$store.getters['user/groupList'];
   }
 
-  groupInfo() {
+  get groupVersion() {
+    var result = 'v2';
+    try {
+      result = this.groupInfo['supportVersion'] == '1.x' ? 'v1' : 'v2';
+    } catch(err) {
+
+    }
+    return result;
+  }
+
+  get groupInfo() {
     return this.$store.getters['user/groupInfo'];
   }
 

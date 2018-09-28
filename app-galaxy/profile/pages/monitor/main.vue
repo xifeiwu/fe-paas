@@ -382,8 +382,8 @@
 //        ['cpu', 'memory', 'network-in', 'network-out', 'disk-read', 'disk-write']
         const serviceInfo = this.$refs['version-selector'].getSelectedValue();
         const payload = {
-          groupId: this.$storeHelper.groupInfo()['id'],
-          groupTag: this.$storeHelper.groupInfo()['tag'],
+          groupId: this.$storeHelper.groupInfo['id'],
+          groupTag: this.$storeHelper.groupInfo['tag'],
           spaceId: serviceInfo.selectedProfile.id,
           spaceName: serviceInfo.selectedProfile.name,
           env: serviceInfo.selectedProfile.name,

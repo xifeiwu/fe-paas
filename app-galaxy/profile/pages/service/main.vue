@@ -1886,7 +1886,7 @@ export default {
         content: null,
       };
       // check group info
-      let groupInfo = this.$storeHelper.groupInfo();
+      let groupInfo = this.$storeHelper.groupInfo;
       if (!groupInfo) {
         result.message = '未找到团队相关信息！';
         return result;
