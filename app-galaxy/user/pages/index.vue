@@ -225,39 +225,11 @@
        */
       handleHeaderMenuClick(keyPath) {
         switch (keyPath) {
+          case 'user/group':
           case 'user/info':
-            break;
-          case 'user/logout':
-            this.$net.logout().then(msg => {
-              this.$message({
-                type: 'success',
-                message: msg,
-                duration: 500,
-                onClose: () => {
-                  this.$storeHelper.logout();
-//                  this.$store.dispatch('user/logout');
-                  this.$utils.goToPath('/login?to=/user');
-                }
-              });
-            }).catch(err => {
-              if (err.msg) {
-                this.$message({
-                  type: 'error',
-                  message: err.msg,
-                  duration: 500,
-                  onClose: () => {
-                    this.$storeHelper.logout();
-                    this.$utils.goToPath('/login?to=/user');
-                  }
-                });
-              }
-            });
-            break;
+          case 'manage':
           case 'profile':
-            this.$utils.goToPath('/profile');
-            break;
-          case 'docs':
-            this.$utils.goToPath('/docs');
+            window.location.pathname = this.$net.page[keyPath];
             break;
           case 'index':
             this.$utils.goToPath('/index');

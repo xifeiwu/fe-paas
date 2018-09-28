@@ -302,38 +302,14 @@
        */
       handleHeaderMenuClick(keyPath) {
         switch (keyPath) {
+          case 'user/group':
           case 'user/info':
-            this.$utils.goToPath('/user', {
-              target: '_blank'
-            });
-            break;
-          case 'user/logout':
-            this.$net.requestPaasServer(this.$net.URL_LIST.logout).then(() => {
-              this.$message({
-                type: 'success',
-                message: '退出成功',
-                duration: 500,
-                onClose: () => {
-                  this.$storeHelper.logout();
-                  this.$utils.goToPath('/login?to=/profile');
-                }
-              });
-            }).catch();
-            break;
-          case 'message':
-            break;
-          case 'docs':
-            this.$utils.goToPath('/docs', {
-              target: '_blank'
-            });
-            break;
-          case 'group-manager':
-            this.$utils.goToPath('/user#/group', {
-              target: '_blank'
-            });
+          case 'manage':
+            window.open(this.$net.page[keyPath], '_blank');
             break;
           case 'profile':
-//            this.$utils.goToPath('/profile');
+            break;
+          case 'user/logout':
             break;
           case 'index':
             this.$utils.goToPath('/index');

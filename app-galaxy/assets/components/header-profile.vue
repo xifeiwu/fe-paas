@@ -115,6 +115,10 @@
 
 <script>
   import Clickoutside from 'element-ui/src/utils/clickoutside';
+  /**
+   * this component is used in page:
+   * profile, manage, user
+   */
   export default {
     directives: { Clickoutside },
     props: {
@@ -153,20 +157,19 @@
         const key1 = keyPath[0];
         const key2 = keyPath.length > 1 ? keyPath[1] : '';
         switch (key1) {
-          case 'manage':
-            window.location.pathname = this.$net.page[key1];
-            break;
-          case 'profile':
           case 'docs':
-            window.location.pathname = this.$net.page[key1];
+            window.open(this.$net.page[key1], '_blank');
+//            window.location.pathname = this.$net.page[key1];
             break;
+          case 'manage':
+          case 'profile':
           case 'user/group':
-            window.location.pathname = this.$net.page[key1];
+            this.$emit('menu-click', key1);
             break;
           case 'user':
             switch (key2) {
               case 'info':
-                window.location.pathname = this.$net.page['user/info'];
+                this.$emit('menu-click', keyAll);
                 break;
               case 'logout':
                 const logout = () => {
