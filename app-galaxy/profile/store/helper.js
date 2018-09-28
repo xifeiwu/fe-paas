@@ -36,7 +36,7 @@ class StoreHelper extends BaseHelper{
     return this.$store.getters['screen'];
   }
 
-  groupList() {
+  get groupList() {
     return this.$store.getters['user/groupList'];
   }
 
@@ -417,7 +417,7 @@ class StoreHelper extends BaseHelper{
 
   getGroupInfoByID(groupID) {
     let target;
-    this.groupList().some(it => {
+    this.groupList.some(it => {
       target = it.id === groupID ? it : null;
       return target
     });
@@ -426,7 +426,7 @@ class StoreHelper extends BaseHelper{
 
   getGroupInfoByName(groupName) {
     let target;
-    this.groupList().some(it => {
+    this.groupList.some(it => {
       target = it.name === groupName ? it : null;
       return target
     });

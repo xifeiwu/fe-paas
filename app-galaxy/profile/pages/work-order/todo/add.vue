@@ -329,7 +329,7 @@
 //        }
       },
       groupList() {
-        return this.$storeHelper.groupList();
+        return this.$storeHelper.groupList;
       },
       appInfoListOfGroup() {
         return this.$storeHelper.appInfoListOfGroup;

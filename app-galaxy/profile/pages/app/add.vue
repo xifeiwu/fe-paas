@@ -479,7 +479,7 @@ export default {
       return appPropUtil.getAllLoadBalance();
     },
     groupList() {
-      return this.$storeHelper.groupList();
+      return this.$storeHelper.groupList;
     },
   },
   watch: {

@@ -199,7 +199,7 @@
         return this.$storeHelper.getUserInfo('role');;
       },
       groupList() {
-        return this.$storeHelper.groupList();
+        return this.$storeHelper.groupList;
       }
     },
     watch: {
