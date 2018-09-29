@@ -324,8 +324,8 @@ class Net extends NetBase {
    * @returns {Array}
    */
   parseNotPermittedCommands(resContentList) {
-    let permissionMapListOrigin = resContentList[0];
-    let notPermittedListOrigin = resContentList[1];
+    // let permissionMapListOrigin = resContentList[0];
+    let notPermittedListOrigin = resContentList[0];
     notPermittedListOrigin = notPermittedListOrigin.map(it => {
       it.hasOwnProperty('id') && delete it.id;
       it.hasOwnProperty('parentId') && delete it.parentId;
@@ -349,7 +349,52 @@ class Net extends NetBase {
       // 删除应用
       '/2.x/app/delete': 'app_delete',
 
+      /** 服务相关 */
+      // 创建服务
+      '/2.x/service/create': 'service_create',
+      // 切换默认服务版本
+      '/2.x/service/update/defaultVersion': 'service_change_default',
+      //  部署服务
+      '/2.x/service/deploy': 'service_deploy',
+      // 停止服务
+      '/2.x/service/stop': 'service_stop',
+      // 删除服务
+      '/2.x/service/delete': 'service_delete',
+      // 修改服务信息
+      '/2.x/service/update': 'service_update',
+      // 服务管理（服务列表） -> 外网域名
+      '/2.x/service/update/DefaultInternetDomain': 'go-page-domain-from-service-list',
+      // 服务管理（单个服务） -> 外网域名
+      '/2.x/service/bindingInternetDomain': 'go-page-domain-from-service',
+      // 服务管理 -> 日志/部署日志
+      '/2.x/service/search/deployLog': 'go-to-page-log-deploy-from-service',
+
+      /** 实例相关 */
+      // 手动伸缩
+      '/2.x/instances/autoChangeNum': 'instance_change_count',
+      // 删除实例
+      '/2.x/instances/delete': '',
+      // 实例管理 -> 终端
+      '/2.x/instances/openTerminal': 'go-to-page-terminal-from-instance',
+      // 实例管理 -> 监控
+      '/2.x/instances/apm': 'go-to-page-monitor-from-instance',
+      // 实例管理 -> 运行日志
+      '/2.x/instances/searchLogs': 'go-to-log-run-from-instance',
+
+      /** 外网域名 */
+      // 创建外网域名
+      '/2.x/internet/create': 'domain_add',
+      // 绑定服务
+      '/2.x/internet/binging': 'domain_bind_service',
+      // 解绑服务
+      '/2.x/internet/unbind': 'domain_unbind_service',
+      // 安全审核
+      '/2.x/internet/update': 'domain_secure_check',
+      // 删除域名
+      '/2.x/internet/delete': 'domain_remove',
+      // 关联白名单
       '/2.x/internet/ipWhiteList': 'domain_bind_white_list',
+
       // 应用监控
       '/2.x/apm': 'app_monitor',
       // 应用转让
@@ -358,53 +403,68 @@ class Net extends NetBase {
       '/2.x/service/update': 'service_update',
       // 查看实例监控
       '/2.x/instances/apm': 'instance_monitor',
-      // 查看部署日志
-      // '/2.x/service/search/deployLog': '',
       '/2.x/internet/create': 'domain_add',
       // 删除域名
       '/2.x/internet/delete': 'domain_remove',
-      // 从实例列表打开终端
-      '/2.x/instances/openTerminal': 'open_terminal_from_instance',
-      // 从实例列表打开监控
-      '	/2.x/instances/apm': '',
       // 外网域名安全审核
       '/2.x/internet/update': 'domain_secure_check',
       // 待办/工单/部署应用
       '/2.x/order/todoList/deploy': 'work-order_deploy_app',
 
-      // 页面相关
-      // 服务管理页面
-      '/2.x/service': '/profile/service',
-      // 实例列表页面
-      '/2.x/instances': '/profile/instance',
-      // 外网域名页面
-      '/2.x/internet': '/profile/domain',
-      // 页面-日志中心
-      '/2.x/logs': '/profile/log',
-      // 页面-查看运行日志
-      '/2.x/logs/searchLog': '/profile/log/run',
-      // 页面-查看部署日志
-      '/2.x/logs/searchDeployLog': '/profile/log/deploy',
-      // 页面-Oauth权限
-      '/2.x/keys': '/profile/oauth',
-      // 页面-Oauth/Access Key
-      '/2.x/keys/AccessKey': '/profile/oauth/key',
-      // 页面-Oauth/url
-      '/2.x/keys/authUrl': '/profile/oauth/url',
-      // 页面-审批管理页面
-      '/2.x/orders': '/profile/work-order',
-      // 页面-审批管理/待办工单
-      '/2.x/order/todoList': '/profile/work-order/todo',
-      // 页面-审批管理/工单列表
-      '/2.x/order/list': '/profile/work-order/list',
+      /** oauth / accessKey相关 */
+      // 创建accessKey
+      '/2.x/keys/AccessKey/create': 'oauth_create_access_key',
+      // 删除accessKey
+      '/2.x/keys/AccessKey/delete': 'oauth_delete_access_key',
+      // 修改访问配置
+      '/2.x/keys/AccessKey/update': 'oauth_update_access_config',
+      // 修改密钥
+      '/2.x/keys/AccessKey/updateSecret': 'oauth_update_secret',
+      /** oauth / 授权url相关 */
+      // 授权URL
+      '/2.x/keys/authUrl/auth': 'oauth_modify_authorize_url_list',
+      // 禁用/开启
+      '/2.x/keys/AccessKey/disable': 'oauth_authorize_url_toggle_enable',
 
-      // 跳转逻辑
-      '/2.x/service/update/DefaultInternetDomain': 'go-domain-from-service-global',
-      '/2.x/service/bindingInternetDomain': 'go-domain-from-service',
-      // 查看运营日志
-      '/2.x/instances/searchLogs': 'go-log-run-from-instance',
-      // 查看监控
-      '/2.x/instances/apm': 'go-monitor-from-instance',
+      /** 工单相关 */
+      // 工单列表 -> 日志/部署日志
+      '/2.x/order/list/deployLog': 'go-to-page-log-deploy-from-work-order-list',
+      // 工单详情
+      '/2.x/order/list/info': '',
+      // 申请工单
+      '/2.x/order/todoList/apply': 'work-order-create',
+      // 工单部署
+      '/2.x/order/todoList/deploy': 'work-order-deploy',
+
+      /** 页面相关 */
+      // 服务管理
+      '/2.x/service': this.page['profile/service'],
+      // 实例列表
+      '/2.x/instances': this.page['profile/instance'],
+      // 外网域名
+      '/2.x/internet': this.page['profile/domain'],
+      // 日志中心
+      '/2.x/logs': this.page['profile/log'],
+      // 日志中心/运行日志
+      '/2.x/logs/searchLog': this.page['profile/log/run'],
+      // 日志中心/部署日志
+      '/2.x/logs/searchDeployLog': this.page['profile/log/deploy'],
+      // 页面-Oauth/Access Key
+      '/2.x/keys/AccessKey': this.page['profile/oauth/key'],
+      // 页面-Oauth权限
+      '/2.x/keys': this.page['profile/oauth'],
+      // 页面-Oauth/url
+      '/2.x/keys/authUrl': this.page['profile/oauth/url'],
+      // 页面-审批管理页面
+      '/2.x/orders': this.page['profile/work-order'],
+      // 页面-审批管理/待办工单
+      '/2.x/order/todoList': this.page['profile/work-order/todo'],
+      // 页面-审批管理/工单列表
+      '/2.x/order/list': this.page['profile/work-order/list'],
+      // 应用监控
+      '/2.x/apm': this.page['profile/monitor'],
+      // 配置中心
+      '/2.x/config/server': this.page['profile/config-server']
     };
     // format of item in notPermittedList
     // {
@@ -424,38 +484,39 @@ class Net extends NetBase {
       if (pathToKey.hasOwnProperty(it.path)) {
         it.key = pathToKey[it.path];
         notPermittedList.push(it);
-      } else {
-        permissionMapListOrigin.forEach(it2 => {
-          if (it.path === it2['permissionPath']) {
-            notPermittedList.push(Object.assign({}, it, {url: it2.url, method: it2.method}));
-          }
-        });
       }
+      // else {
+      //   permissionMapListOrigin.forEach(it2 => {
+      //     if (it.path === it2['permissionPath']) {
+      //       notPermittedList.push(Object.assign({}, it, {url: it2.url, method: it2.method}));
+      //     }
+      //   });
+      // }
     });
     // console.log(notPermittedList);
 
     // add key by URL_LIST
-    for (let key in URL_LIST) {
-      let item = URL_LIST[key];
-      if (!this.$utils.isObject(item)) {
-        continue;
-      }
-      if (!item.hasOwnProperty('path')) {
-        continue;
-      }
-      notPermittedList.forEach(it => {
-        if (it.url === item['path']) {
-          // if item has property 'method', it must be the same as item in notPermittedList before add
-          if (item.hasOwnProperty('method') && it.hasOwnProperty('method')) {
-            if (item.method.toLowerCase() == it.method.toLowerCase()) {
-              it['key'] = key;
-            }
-          } else {
-            it['key'] = key;
-          }
-        }
-      })
-    }
+    // for (let key in URL_LIST) {
+    //   let item = URL_LIST[key];
+    //   if (!this.$utils.isObject(item)) {
+    //     continue;
+    //   }
+    //   if (!item.hasOwnProperty('path')) {
+    //     continue;
+    //   }
+    //   notPermittedList.forEach(it => {
+    //     if (it.url === item['path']) {
+    //       // if item has property 'method', it must be the same as item in notPermittedList before add
+    //       if (item.hasOwnProperty('method') && it.hasOwnProperty('method')) {
+    //         if (item.method.toLowerCase() == it.method.toLowerCase()) {
+    //           it['key'] = key;
+    //         }
+    //       } else {
+    //         it['key'] = key;
+    //       }
+    //     }
+    //   })
+    // }
 
     let result = notPermittedList.filter(it => {
       return it.hasOwnProperty('key') && it.key;

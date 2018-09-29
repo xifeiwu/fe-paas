@@ -167,7 +167,7 @@
         >
           <template slot-scope="scope">
             <el-button
-                    v-if="!$storeHelper.notPermitted['oauth_add_access_config']"
+                    v-if="!$storeHelper.notPermitted['oauth_update_access_config']"
                     type="text" class="warning"
                     :loading="statusOfWaitingResponse('open-dialog-for-update-target-app') && selected.row.id === scope.row.id"
                     @click="handleTRClick('open-dialog-4-modify-access-key', scope.$index, scope.row)">

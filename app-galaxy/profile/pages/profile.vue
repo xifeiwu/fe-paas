@@ -154,7 +154,6 @@
       }
     },
     created() {
-      console.log(this.$router);
       this.$store.dispatch('user/groupList');
       // get global config for app
       this.$net.requestPaasServer(this.$net.URL_LIST.config_query).then(resContent => {
@@ -163,7 +162,7 @@
       }).catch(err => {});
 
       Promise.all([
-        this.$net.requestPaasServer(this.$net.URL_LIST.permission_url_map),
+//        this.$net.requestPaasServer(this.$net.URL_LIST.permission_url_map),
         this.$net.requestPaasServer(this.$net.URL_LIST.user_not_permitted)
       ]).then(resContentList => {
         this.$storeHelper.notPermitted = this.$net.parseNotPermittedCommands(resContentList);

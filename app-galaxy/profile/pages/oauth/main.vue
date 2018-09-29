@@ -38,7 +38,7 @@
     },
     data() {
       return {
-        tabs: this.$route.elper.getPermittedSubRouteList(this.$net.page['profile/oauth'])
+        tabs: this.$router.helper.getPermittedSubRouteList(this.$net.page['profile/oauth'])
 //        allTabs: [{
 //          label: 'Access Key',
 //          name: '/oauth/key',

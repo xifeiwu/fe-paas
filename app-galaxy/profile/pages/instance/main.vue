@@ -85,9 +85,9 @@
           <template slot-scope="scope">
             <el-button
                     @click="handleRowButtonClick('terminal', scope.$index, scope.row)"
-                    v-if="!$storeHelper.notPermitted['open_terminal_from_instance']"
+                    v-if="!$storeHelper.notPermitted['go-to-page-terminal-from-instance']"
                     type="text" class="primary">终端</el-button>
-            <div class="ant-divider" v-if="!$storeHelper.notPermitted['open_terminal_from_instance']"></div>
+            <div class="ant-divider" v-if="!$storeHelper.notPermitted['go-to-page-terminal-from-instance']"></div>
             <el-button
                     @click="handleRowButtonClick('show-console-log', scope.$index, scope.row)"
                     v-if="!$storeHelper.notPermitted['show-console-log']"
@@ -97,15 +97,15 @@
             <div class="ant-divider" v-if="!$storeHelper.notPermitted['show-console-log']"></div>
             <el-button
                     @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"
-                    v-if="!$storeHelper.notPermitted['go-log-run-from-instance']"
+                    v-if="!$storeHelper.notPermitted['go-to-log-run-from-instance']"
                     type="text" class="primary flex">
               <span>查看运行日志</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div class="ant-divider" v-if="!$storeHelper.notPermitted['go-log-run-from-instance']"></div>
+            <div class="ant-divider" v-if="!$storeHelper.notPermitted['go-to-log-run-from-instance']"></div>
             <el-button
                     @click="handleRowButtonClick('go-to-page-monitor', scope.$index, scope.row)"
                     :disabled="false"
-                    v-if="!$storeHelper.notPermitted['go-monitor-from-instance']"
+                    v-if="!$storeHelper.notPermitted['go-to-page-monitor-from-instance']"
                     type="text" class="primary flex">
               <span>监控</span><i class="paas-icon-level-up"></i>
             </el-button>

@@ -20,8 +20,7 @@
           </div>
         </el-col>
         <div class="el-col el-col-24 btn-list">
-          <el-button
-                  v-if="!$storeHelper.notPermitted['service_create']"
+          <el-button v-if="!$storeHelper.notPermitted['service_create']"
               size="mini-extral"
               type="primary"
               @click="handleButtonClick('go-to-page-service-add')">
@@ -63,14 +62,14 @@
             <div>
               <div class="text"><span>外网二级域名：</span><span v-html="internetDomainHtml"></span></div>
               <i class="el-icon-edit"
-                 v-if="!$storeHelper.notPermitted['go-domain-from-service-global']"
+                 v-if="!$storeHelper.notPermitted['go-page-domain-from-service-list']"
                  @click="handleButtonClick('go-to-domain-app')"></i>
             </div>
           </el-tooltip>
           <div v-else>
             <div class="text"><span>外网二级域名：</span><span v-html="internetDomainHtml"></span></div>
             <i class="el-icon-edit"
-               v-if="!$storeHelper.notPermitted['go-domain-from-service-global']"
+               v-if="!$storeHelper.notPermitted['go-page-domain-from-service-list']"
                @click="handleButtonClick('go-to-domain-app')"></i>
           </div>
         </div>
@@ -160,11 +159,11 @@
 
             <el-button
                     class="flex primary" type="text"
-                    v-if="!$storeHelper.notPermitted['service_get_deploy_log']"
+                    v-if="!$storeHelper.notPermitted['go-to-page-log-deploy-from-service']"
                     @click="handleRowButtonClick('go-to-log-deploy', scope.$index, scope.row)">
               <span>部署日志</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div v-if="!$storeHelper.notPermitted['service_get_deploy_log']"
+            <div v-if="!$storeHelper.notPermitted['go-to-page-log-deploy-from-service']"
                  class="ant-divider"></div>
 
             <el-button
@@ -178,11 +177,11 @@
 
             <el-button
                     class="flex primary" type="text"
-                    v-if="!$storeHelper.notPermitted['go-domain-from-service']"
+                    v-if="!$storeHelper.notPermitted['go-page-domain-from-service']"
                     @click="handleRowButtonClick('go-to-domain-service', scope.$index, scope.row)">
               <span>配置外网二级域名</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div v-if="!$storeHelper.notPermitted['go-domain-from-service']"
+            <div v-if="!$storeHelper.notPermitted['go-page-domain-from-service']"
                  class="ant-divider"></div>
 
             <el-button
