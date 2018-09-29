@@ -1913,6 +1913,7 @@ export default {
       if (appName && language && languageVersion && null !== this.selectedProfileID) {
         result.success = true;
         result.content = {
+          appInfo,
           appName,
           language,
           languageVersion,

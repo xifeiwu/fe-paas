@@ -15,7 +15,7 @@
           </el-form-item>
           <el-form-item label="运行环境" class="profile-description" v-if="type==='copy'">
             <el-select v-model="serviceForm.spaceId" placeholder="请选择" style="display:block; max-width: 200px;">
-              <el-option v-for="item in profileListOfGroup" :key="item.id" :label="item.description" :value="item.id">
+              <el-option v-for="item in profileListOfCurrentApp" :key="item.id" :label="item.description" :value="item.id">
               </el-option>
             </el-select>
           </el-form-item>
@@ -474,6 +474,7 @@
       this.appName = theData.appName;
       this.appLanguage = theData.language;
       if (this.type === 'copy') {
+        this.profileListOfCurrentApp = theData['appInfo']['profileList'];
         this.serviceForm.gitLabBranch = theData.gitLabBranch;
         this.imageSelectState.customImage = theData.customImage;
         if(theData.customImage){
@@ -524,6 +525,7 @@
           memoryId: false,
           imageLocation: false
         },
+        profileListOfCurrentApp: [],
         serviceForm: {
           appId: null,
           spaceId: null,
