@@ -140,6 +140,7 @@
       }
     },
     created() {
+      console.log(this.$router);
       this.$store.dispatch('user/groupList');
       // get global config for app
       this.$net.requestPaasServer(this.$net.URL_LIST.config_query).then(resContent => {
@@ -152,7 +153,7 @@
         this.$net.requestPaasServer(this.$net.URL_LIST.user_not_permitted)
       ]).then(resContentList => {
         this.$storeHelper.notPermitted = this.$net.parseNotPermittedCommands(resContentList);
-        this.$routeHelper.addPermission(this.$storeHelper.notPermitted);
+        this.$router.helper.addPermission(this.$storeHelper.notPermitted);
       });
 
       this.$store.dispatch('user/groupId', this.$storeHelper.currentGroupID);
@@ -186,7 +187,7 @@
         'collapseMenu': 'collapseMenu'
       }),
       routerPathToName() {
-        return this.$routeHelper.getRoutePathToName();
+        return this.$router.helper.getRoutePathToName();
       },
       userName() {
         let userName = this.$storeHelper.getUserInfo('realName');

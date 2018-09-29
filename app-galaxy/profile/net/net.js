@@ -374,29 +374,29 @@ class Net extends NetBase {
 
       // 页面相关
       // 服务管理页面
-      '/2.x/service': '/service',
+      '/2.x/service': '/profile/service',
       // 实例列表页面
-      '/2.x/instances': '/instance',
+      '/2.x/instances': '/profile/instance',
       // 外网域名页面
-      '/2.x/internet': '/domain',
+      '/2.x/internet': '/profile/domain',
       // 页面-日志中心
-      '/2.x/logs': '/log',
+      '/2.x/logs': '/profile/log',
       // 页面-查看运行日志
-      '/2.x/logs/searchLog': '/log/run',
+      '/2.x/logs/searchLog': '/profile/log/run',
       // 页面-查看部署日志
-      '/2.x/logs/searchDeployLog': '/log/deploy',
+      '/2.x/logs/searchDeployLog': '/profile/log/deploy',
       // 页面-Oauth权限
-      '/2.x/keys': '/oauth',
+      '/2.x/keys': '/profile/oauth',
       // 页面-Oauth/Access Key
-      '/2.x/keys/AccessKey': '/oauth/key',
+      '/2.x/keys/AccessKey': '/profile/oauth/key',
       // 页面-Oauth/url
-      '/2.x/keys/authUrl': '/oauth/url',
+      '/2.x/keys/authUrl': '/profile/oauth/url',
       // 页面-审批管理页面
-      '/2.x/orders': '/work-order',
+      '/2.x/orders': '/profile/work-order',
       // 页面-审批管理/待办工单
-      '/2.x/order/todoList': '/work-order/todo',
+      '/2.x/order/todoList': '/profile/work-order/todo',
       // 页面-审批管理/工单列表
-      '/2.x/order/list': '/work-order/list',
+      '/2.x/order/list': '/profile/work-order/list',
 
       // 跳转逻辑
       '/2.x/service/update/DefaultInternetDomain': 'go-domain-from-service-global',

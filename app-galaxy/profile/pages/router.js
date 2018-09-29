@@ -55,195 +55,194 @@ import VueRouter from 'vue-router';
  * 3. url path should be correspond with page logic, as it is used for breadcrumb. such as
  *    if add app is sub page of app, its url should be app/add
  */
-var Router = function () {
-  this.richRouterConfig = [{
-    path: '/profile',
-    redirect: '/profile/app',
-  }, {
-    path: '/profile/app',
-    name: '应用管理',
-    component: AppMain,
-    meta: {
-      isPermitted: true,
-    },
-  }, {
-    path: '/profile/app/add',
-    name: '创建应用',
-    component: AppAdd,
-  }, {
-    path: '/profile/service',
-    name: '服务管理',
-    component: ServiceMain,
-  }, {
-    path: '/profile/service/add',
-    name: '添加服务',
-    component: ServiceAdd,
-  }, {
-    path: '/profile/service/copy',
-    name: '复制服务',
-    component: ServiceAdd,
-  }, {
-    path: '/profile/instance',
-    name: '实例列表',
-    component: InstanceMain,
-  }, {
-    path: '/profile/domain',
-    name: '外网域名',
-    component: DomainMain,
-  }, {
-    path: '/profile/domain/white-list',
-    name: '关联IP白名单',
-    component: DomainWhiteList,
-  }, {
-    path: '/profile/log',
-    // name: '审批管理',
-    component: LogMain,
-    // redirect: '/log/run',
-    children: [{
-      path: 'run',
-      name: '运行日志',
-      component: LogRun,
-      meta: {
-        keepAlive: true
-      }
+class Helper {
+  constructor() {
+    this.richRouterConfig = [{
+      path: '/profile',
+      redirect: '/profile/app',
     }, {
-      path: 'deploy',
-      name: '部署日志',
-      component: LogDeploy,
+      path: '/profile/app',
+      name: '应用管理',
+      component: AppMain,
       meta: {
-        keepAlive: true
-      }
-    }]
-  }, {
-    path: '/profile/monitor',
-    name: '应用监控',
-    component: MonitorMain,
-  }, {
-    path: '/profile/oauth',
-    // name: '权限管理',
-    component: OAuthMain,
-    // redirect: 'oauth/key',
-    children: [{
-      path: 'key',
-      name: 'AccessKey列表',
-      component: OAuthKey,
-      meta: {
-        keepAlive: true
-      }
+        isPermitted: true,
+      },
     }, {
-      path: 'url',
-      name: '授权URL',
-      component: OAuthURL,
-      meta: {
-        keepAlive: true
-      }
-    }]
-  }, {
-    path: '/profile/work-order',
-    // name: '审批管理',
-    component: WorkOrderMain,
-    // redirect: '/work-order/todo',
-    children: [{
-      path: 'todo',
-      name: '待办工单',
-      component: WorkOrderToDo,
+      path: '/profile/app/add',
+      name: '创建应用',
+      component: AppAdd,
     }, {
-      path: 'list',
-      name: '工单列表',
-      component: WorkOrderList,
-    }]
-  }, {
-    path: '/profile/work-order/todo/add',
-    name: '申请工单',
-    component: WorkOrderAdd,
-  }, {
-    path: '/profile/work-order/todo/modify',
-    name: '修改工单',
-    component: WorkOrderModify,
-  }, {
-    path: '/profile/work-order/todo/deploy',
-    name: '部署工单',
-    component: WorkOrderDeploy,
-  }, {
-    path: '/profile/work-order/todo/test',
-    name: '测试工单',
-    component: WorkOrderTest,
-  }, {
-    path: '/profile/work-order/todo/accept',
-    name: '验收工单',
-    component: WorkOrderAccept,
-  }, {
-    path: '/profile/config-server',
-    name: '配置中心',
-    component: ConfigServerMain
-  }, {
-    path: '/profile/config-server/list',
-    name: '配置文件列表',
-    component: ConfigServerFileList,
-  }, {
-    path: '/profile/cdn',
-    name: 'cdn加速',
-    component: CdnMain,
-    children: [
-      {
+      path: '/profile/service',
+      name: '服务管理',
+      component: ServiceMain,
+    }, {
+      path: '/profile/service/add',
+      name: '添加服务',
+      component: ServiceAdd,
+    }, {
+      path: '/profile/service/copy',
+      name: '复制服务',
+      component: ServiceAdd,
+    }, {
+      path: '/profile/instance',
+      name: '实例列表',
+      component: InstanceMain,
+    }, {
+      path: '/profile/domain',
+      name: '外网域名',
+      component: DomainMain,
+    }, {
+      path: '/profile/domain/white-list',
+      name: '关联IP白名单',
+      component: DomainWhiteList,
+    }, {
+      path: '/profile/log',
+      // name: '审批管理',
+      component: LogMain,
+      // redirect: '/log/run',
+      children: [{
+        path: 'run',
+        name: '运行日志',
+        component: LogRun,
+        meta: {
+          keepAlive: true
+        }
+      }, {
+        path: 'deploy',
+        name: '部署日志',
+        component: LogDeploy,
+        meta: {
+          keepAlive: true
+        }
+      }]
+    }, {
+      path: '/profile/monitor',
+      name: '应用监控',
+      component: MonitorMain,
+    }, {
+      path: '/profile/oauth',
+      // name: '权限管理',
+      component: OAuthMain,
+      // redirect: 'oauth/key',
+      children: [{
+        path: 'key',
+        name: 'AccessKey列表',
+        component: OAuthKey,
+        meta: {
+          keepAlive: true
+        }
+      }, {
+        path: 'url',
+        name: '授权URL',
+        component: OAuthURL,
+        meta: {
+          keepAlive: true
+        }
+      }]
+    }, {
+      path: '/profile/work-order',
+      // name: '审批管理',
+      component: WorkOrderMain,
+      // redirect: '/work-order/todo',
+      children: [{
+        path: 'todo',
+        name: '待办工单',
+        component: WorkOrderToDo,
+      }, {
         path: 'list',
-        name: '加速域名列表',
-        component: CdnList,
-      },
-      {
-        path: 'create',
-        name: '创建加速域名',
-        component: CdnCreate,
-      },
-      {
-        path: 'edit',
-        name: '修改配置',
-        component: CdnEdit,
-      },
-      {
-        path: 'prefetch',
-        name: '刷新预取',
-        component: CdnPrefetch,
-      },
-      {
-        path: 'statistics',
-        name: '统计分析',
-        component: CdnStatistics,
-      },
-      {
-        path: 'dashboard',
-        name: '统计分析',
-        component: CdnDashboard,
-      },
+        name: '工单列表',
+        component: WorkOrderList,
+      }]
+    }, {
+      path: '/profile/work-order/todo/add',
+      name: '申请工单',
+      component: WorkOrderAdd,
+    }, {
+      path: '/profile/work-order/todo/modify',
+      name: '修改工单',
+      component: WorkOrderModify,
+    }, {
+      path: '/profile/work-order/todo/deploy',
+      name: '部署工单',
+      component: WorkOrderDeploy,
+    }, {
+      path: '/profile/work-order/todo/test',
+      name: '测试工单',
+      component: WorkOrderTest,
+    }, {
+      path: '/profile/work-order/todo/accept',
+      name: '验收工单',
+      component: WorkOrderAccept,
+    }, {
+      path: '/profile/config-server',
+      name: '配置中心',
+      component: ConfigServerMain
+    }, {
+      path: '/profile/config-server/list',
+      name: '配置文件列表',
+      component: ConfigServerFileList,
+    }, {
+      path: '/profile/cdn',
+      name: 'cdn加速',
+      component: CdnMain,
+      children: [
+        {
+          path: 'list',
+          name: '加速域名列表',
+          component: CdnList,
+        },
+        {
+          path: 'create',
+          name: '创建加速域名',
+          component: CdnCreate,
+        },
+        {
+          path: 'edit',
+          name: '修改配置',
+          component: CdnEdit,
+        },
+        {
+          path: 'prefetch',
+          name: '刷新预取',
+          component: CdnPrefetch,
+        },
+        {
+          path: 'statistics',
+          name: '统计分析',
+          component: CdnStatistics,
+        },
+        {
+          path: 'dashboard',
+          name: '统计分析',
+          component: CdnDashboard,
+        },
 
-    ]
-  }, {
-    path: "/profile/*",
-    component: PageNotFound
-  }];
-  this.addRoutePath(null, this.richRouterConfig);
+      ]
+    }, {
+      path: "/profile/*",
+      component: PageNotFound
+    }];
+    this.addRoutePath(null, this.richRouterConfig);
 
-  this.vueRouter = new VueRouter({
-    mode: 'history',
-    base: __dirname,
-    // routes: routeConfig,
-    routes: this.getVueRouterConfig()
-  });
-  Vue.use(VueRouter);
+    // this.vueRouter = new VueRouter({
+    //   mode: 'history',
+    //   base: __dirname,
+    //   // routes: routeConfig,
+    //   routes: this.getVueRouterConfig()
+    // });
+    // Vue.use(VueRouter);
 
-  // this.routePathList = this.getAllRouterPath();
-  this.routePathToConfig = this.getRoutePathToConfig();
+    // this.routePathList = this.getAllRouterPath();
+    this.routePathToConfig = this.getRoutePathToConfig();
 
-  setTimeout(() => {
-    // add permission by config from localStorage
-    this.addPermission(Vue.prototype.$storeHelper.notPermitted);
-  });
-  // console.log(this.$storeHelper.notPermitted);
-  this.startRouteFilter()
-  this.pathList = [];
-};
-
-Router.prototype = {
+    setTimeout(() => {
+      // add permission by config from localStorage
+      this.addPermission(Vue.prototype.$storeHelper.notPermitted);
+    });
+    // console.log(this.$storeHelper.notPermitted);
+    // this.startRouteFilter()
+    this.pathList = [];
+  }
   /**
    * traverse router config tree to add routerPath to all component:
    * routerPath = parent.path + path, it is the full path of hash in url
@@ -272,7 +271,7 @@ Router.prototype = {
 
     traverseComponent(null, this.richRouterConfig);
     // console.log(this.richRouterConfig);
-  },
+  }
 
   /**
    * add prop isPermitted to all item in richRouteConfig. called by:
@@ -292,7 +291,7 @@ Router.prototype = {
     }
 
     this.traverseComponent(updateItem, this.richRouterConfig);
-  },
+  }
 
   // filter out useless config in richRouterConfig
   getVueRouterConfig() {
@@ -331,7 +330,7 @@ Router.prototype = {
 
     let vueRouterConfig = traverseComponent(this.richRouterConfig);
     return vueRouterConfig;
-  },
+  }
 
   traverseComponent(func, component) {
     if (Array.isArray(component)) {
@@ -342,7 +341,7 @@ Router.prototype = {
         this.traverseComponent(func, component['children']);
       }
     }
-  },
+  }
 
   /**
    * get all routePath in router config tree. it can be used:
@@ -360,7 +359,7 @@ Router.prototype = {
 
     this.traverseComponent(updateItem, this.richRouterConfig);
     return routePath;
-  },
+  }
 
   /**
    * get routePath to name, in the following format:
@@ -389,7 +388,7 @@ Router.prototype = {
 
     this.traverseComponent(updateItem, this.richRouterConfig);
     return routePath;
-  },
+  }
 
 
   getRoutePathToConfig() {
@@ -403,7 +402,7 @@ Router.prototype = {
 
     this.traverseComponent(updateItem, this.richRouterConfig);
     return result;
-  },
+  }
 
   /**
    * get permitted children in routeConfig by routePath
@@ -427,12 +426,12 @@ Router.prototype = {
       return it.hasOwnProperty('name');
     });
     return JSON.parse(JSON.stringify(result));
-  },
+  }
 
   /**
    * do some action before route change
    */
-  startRouteFilter() {
+  startRouteFilter(vueRouter) {
     let self = this;
 
     // if the path is valid
@@ -498,7 +497,7 @@ Router.prototype = {
       return result;
     }
 
-    this.vueRouter.beforeEach((to, from, next) => {
+    vueRouter.beforeEach((to, from, next) => {
       // console.log(from);
       // console.log(to);
       // console.log(JSON.stringify(from.path) + ' -> ' + JSON.stringify(to.path));
@@ -518,9 +517,21 @@ Router.prototype = {
       }
     });
   }
-};
+}
 
-var router = new Router({
-  mode: 'history'
+// var router = new Router({
+//   mode: 'history'
+// });
+// export default router;
+
+const helper = new Helper();
+const vueRouter = new VueRouter({
+  mode: 'history',
+  base: __dirname,
+  routes: helper.getVueRouterConfig()
 });
-export default router;
+helper.startRouteFilter(vueRouter);
+vueRouter.helper = helper;
+Vue.use(VueRouter);
+
+export default vueRouter;

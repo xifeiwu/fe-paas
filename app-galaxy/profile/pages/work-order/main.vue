@@ -38,7 +38,7 @@
     },
     data() {
       return {
-        tabs: this.$routeHelper.getPermittedSubRouteList(this.$net.page['profile/work-order'])
+        tabs: this.$router.helper.getPermittedSubRouteList(this.$net.page['profile/work-order'])
       };
     },
     computed: {

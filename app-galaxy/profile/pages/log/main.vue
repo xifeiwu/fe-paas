@@ -63,7 +63,7 @@
     },
     data() {
       return {
-        tabs: this.$routeHelper.getPermittedSubRouteList(this.$net.page['profile/log'])
+        tabs: this.$router.helper.getPermittedSubRouteList(this.$net.page['profile/log'])
       };
     },
     computed: {

@@ -22,9 +22,7 @@ new VueConfig({
   storeHelper: new StoreHelper(),
 });
 
-import routerConfig from './pages/router';
-
-Vue.prototype.$routeHelper = routerConfig;
+import router from './pages/router';
 
 // import 'assets/css/bootstrap.scss';
 
@@ -38,7 +36,7 @@ import(/* webpackChunkName: "components-profile" */ 'assets/libs/components/prof
   components.default.install(Vue);
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),
-    router: routerConfig.vueRouter,
+    router: router,
     store: store
   }).$mount('#app');
 });
