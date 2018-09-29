@@ -43,8 +43,6 @@ import CdnPrefetch from './cdn/prefetch.vue';
 import CdnStatistics from './cdn/statistics.vue';
 import CdnDashboard from './cdn/dashboard.vue';
 
-import PageNotFound from 'assets/components/page-not-found.vue';
-
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
@@ -216,11 +214,7 @@ class Helper {
           name: '统计分析',
           component: CdnDashboard,
         },
-
       ]
-    }, {
-      path: "/profile/*",
-      component: PageNotFound
     }];
     this.addRoutePath(null, this.richRouterConfig);
 
@@ -299,6 +293,7 @@ class Helper {
       let keysMap = {
         path: 'path',
         name: 'name',
+        props: 'props',
         redirect: 'redirect',
         component: 'component',
         meta: 'meta',
@@ -389,7 +384,6 @@ class Helper {
     this.traverseComponent(updateItem, this.richRouterConfig);
     return routePath;
   }
-
 
   getRoutePathToConfig() {
     let result = {};

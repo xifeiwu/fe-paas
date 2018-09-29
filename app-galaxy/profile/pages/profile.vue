@@ -16,7 +16,10 @@
       <!--toasts-area-->
       <paas-header-profile :userName="userName" :userRole=userRole :showImg="false" ref="paasHeaderProfile"
                            @menu-click="handleHeaderMenuClick"></paas-header-profile>
-      <div class="content">
+      <div v-if="invalidPath" class="content">
+        <page-not-found :navigateList="navigateList"></page-not-found>
+      </div>
+      <div v-else class="content">
         <el-row class="header" type="flex" align="middle">
           <el-col :span="12" class="current-step">
             <el-breadcrumb separator-class="el-icon-arrow-right">
@@ -124,18 +127,29 @@
 </style>
 
 <script>
+  import PageNotFound from 'assets/components/page-not-found.vue';
   import {mapState, mapGetters} from 'vuex';
   import paasHeaderProfile from 'assets/components/header-profile';
   import paasNavBar from './components/nav-bar.vue';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 
   export default {
-    components: {paasHeaderProfile, paasNavBar},
+    components: {PageNotFound, paasHeaderProfile, paasNavBar},
     data() {
       return {
         activeSideMenuItem: '/app',
         crumbList: [],
-
+        invalidPath: false,
+        navigateList: [{
+          href: '/profile/app',
+          label: '应用引擎'
+        }, {
+          href: '/profile/oauth',
+          label: 'AccessKey管理'
+        }, {
+          href: '/profile/config-server',
+          label: '应用配置'
+        }],
         showGroupList: true,
       }
     },
@@ -188,6 +202,9 @@
       }),
       routerPathToName() {
         return this.$router.helper.getRoutePathToName();
+      },
+      routePathToConfig() {
+        return this.$router.helper.getRoutePathToConfig();
       },
       userName() {
         let userName = this.$storeHelper.getUserInfo('realName');
@@ -256,19 +273,23 @@
           this.$refs['paasHeaderProfile'].setActiveMenu('profile');
         }
       },
-      onRoutePath (value, oldValue) {
-        let relativePath = value.path;
-        if (relativePath && relativePath.length > 0) {
+      onRoutePath (route, preRoute) {
+//        console.log(route);
+//        console.log(preRoute);
+//        console.log(this.routePathToConfig);
+        let path = route.path;
+        this.invalidPath = !this.routePathToConfig.hasOwnProperty(path);
+        if (!this.invalidPath) {
           // whether show groupList
           let pageNotShowGroupList = ['/profile/app/add', '/profile/service/add'];
           let pageNotShowGroupListReg = /^\/profile\/(work-order\/(todo|list).*|config-server\/*)$/;
-          if (pageNotShowGroupList.indexOf(relativePath) > -1 || pageNotShowGroupListReg.exec(relativePath)) {
+          if (pageNotShowGroupList.indexOf(path) > -1 || pageNotShowGroupListReg.exec(path)) {
             this.showGroupList = false;
           } else {
             this.showGroupList = true;
           }
           // update content of crumb list
-          this.updateCrumbList(relativePath);
+          this.updateCrumbList(path);
         }
       },
       /**
