@@ -22,7 +22,8 @@
         <div class="el-col el-col-24 btn-list">
           <el-button v-if="!$storeHelper.notPermitted['service_create']"
               size="mini-extral"
-              type="primary"
+              :type="$storeHelper.groupVersion === 'v1' ? 'plain': 'primary'"
+              :disabled="$storeHelper.groupVersion === 'v1'"
               @click="handleButtonClick('go-to-page-service-add')">
             添加服务
           </el-button>
@@ -32,7 +33,8 @@
              @click="handleButtonClick('refreshAppList')">刷新</el-button>
           <el-button v-if="isProductionProfile"
                      size="mini-extral"
-                     type="primary"
+                     :type="$storeHelper.groupVersion === 'v1' ? 'plain': 'primary'"
+                     :disabled="$storeHelper.groupVersion === 'v1'"
                      @click="handleButtonClick('go-to-work-order-todo-add')">申请工单</el-button>
           <el-tooltip slot="trigger" effect="dark" placement="bottom">
             <div slot="content">
@@ -62,14 +64,14 @@
             <div>
               <div class="text"><span>外网二级域名：</span><span v-html="internetDomainHtml"></span></div>
               <i class="el-icon-edit"
-                 v-if="!$storeHelper.notPermitted['go-page-domain-from-service-list']"
+                 v-if="!$storeHelper.notPermitted['go-page-domain-from-service-list'] && $storeHelper.groupVersion !== 'v1'"
                  @click="handleButtonClick('go-to-domain-app')"></i>
             </div>
           </el-tooltip>
           <div v-else>
             <div class="text"><span>外网二级域名：</span><span v-html="internetDomainHtml"></span></div>
             <i class="el-icon-edit"
-               v-if="!$storeHelper.notPermitted['go-page-domain-from-service-list']"
+               v-if="!$storeHelper.notPermitted['go-page-domain-from-service-list'] && $storeHelper.groupVersion !== 'v1'"
                @click="handleButtonClick('go-to-domain-app')"></i>
           </div>
         </div>
@@ -176,8 +178,10 @@
                  class="ant-divider"></div>
 
             <el-button
-                    class="flex primary" type="text"
                     v-if="!$storeHelper.notPermitted['go-page-domain-from-service']"
+                    class="flex" type="text"
+                    :class="$storeHelper.groupVersion === 'v1' ? 'plain' : 'primary'"
+                    :disabled="$storeHelper.groupVersion === 'v1'"
                     @click="handleRowButtonClick('go-to-domain-service', scope.$index, scope.row)">
               <span>配置外网二级域名</span><i class="paas-icon-level-up"></i>
             </el-button>
@@ -185,7 +189,9 @@
                  class="ant-divider"></div>
 
             <el-button
-                    class="flex primary" type="text"
+                    class="flex" type="text"
+                    :class="$storeHelper.groupVersion === 'v1' ? 'plain' : 'primary'"
+                    :disabled="$storeHelper.groupVersion === 'v1'"
                     @click="handleRowButtonClick('copy-service',scope.$index,scope.row)">
               <span>复制服务</span>
               <i class="paas-icon-level-up"></i>

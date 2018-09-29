@@ -6,7 +6,8 @@
           <el-button
                   v-if="!$storeHelper.notPermitted['app_create']"
                   size="mini-extral"
-                  type="primary"
+                  :type="$storeHelper.groupVersion === 'v1' ? 'plain': 'primary'"
+                  :disabled="$storeHelper.groupVersion === 'v1'"
                   @click="handleButtonClick('go-to-page-app-add')">
             创建应用
           </el-button>
@@ -90,7 +91,8 @@
             <el-button
               v-if="!$storeHelper.notPermitted['app_change_profile']"
               type="text"
-              class="warning"
+              class="$storeHelper.groupVersion === 'v1' ? 'plain' : 'warning'"
+              :disabled="$storeHelper.groupVersion === 'v1'"
               @click="handleTRButton('change-profileNames', scope.$index, scope.row)">更改运行环境</el-button>
           </template>
         </el-table-column>

@@ -98,7 +98,10 @@
             <el-button
                     @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"
                     v-if="!$storeHelper.notPermitted['go-to-log-run-from-instance']"
-                    type="text" class="primary flex">
+                    class="flex"
+                    :class="$storeHelper.groupVersion === 'v1' ? 'plain' : 'primary'"
+                    :disabled="$storeHelper.groupVersion === 'v1'"
+                    type="text">
               <span>查看运行日志</span><i class="paas-icon-level-up"></i>
             </el-button>
             <div class="ant-divider" v-if="!$storeHelper.notPermitted['go-to-log-run-from-instance'] && false"></div>

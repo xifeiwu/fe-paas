@@ -1,5 +1,5 @@
 <template>
-  <div id="profile" class="spa">
+  <div id="profile" :class="['spa', $storeHelper.groupVersion]">
     <paas-nav-bar :activeSideMenuItem="activeSideMenuItem"></paas-nav-bar>
     <main :class="{'collapse-menu': collapseMenu}">
       <!--toasts area-->
@@ -29,10 +29,25 @@
             </el-breadcrumb>
           </el-col>
           <el-col :span="12" class="group-list">
-            <el-select v-model="$storeHelper.currentGroupID" size="mini" filterable
-                       :placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'" v-if="showGroupList">
-              <el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">
-              </el-option>
+            <!--<el-select v-model="$storeHelper.currentGroupID" size="mini" filterable-->
+                       <!--:placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'" v-if="showGroupList">-->
+              <!--<el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">-->
+              <!--</el-option>-->
+            <!--</el-select>-->
+            <el-select  v-model="$storeHelper.currentGroupID" size="mini" filterable
+                        :placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'" v-if="showGroupList">
+              <el-option-group
+                      v-for="version in groupListByVersion"
+                      :key="version.label"
+                      :class="version['class']"
+                      :label="version.label">
+                <el-option
+                        v-for="group in version.groupList"
+                        :key="group.id"
+                        :label="group.asLabel"
+                        :value="group.id">
+                </el-option>
+              </el-option-group>
             </el-select>
           </el-col>
         </el-row>
@@ -41,7 +56,7 @@
              <!--element-loading-text="网络请求中..."-->
              <!--element-loading-spinner="el-icon-loading"-->
         <!--&gt;-->
-        <div class="child">
+        <div :class="['child']">
           <div class="el-loading-mask" v-if="$net.vm.requestingUrlListLength > 0">
             <div class="el-loading-spinner">
               <i class="el-icon-loading"></i>
@@ -55,6 +70,37 @@
   </div>
 </template>
 
+<style lang="scss">
+  #profile.v1 {
+    .content {
+      .header {
+        .group-list {
+          .el-select {
+            .el-input {
+              input {
+                color: #E6A23C;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  .el-select-dropdown.el-popper {
+    .el-select-group__wrap {
+      &.v1 {
+        .el-select-dropdown__item {
+          &:hover {
+            background-color: #C0C4CC;
+          }
+          &.selected {
+            color: #E6A23C;
+          }
+        }
+      }
+    }
+  }
+</style>
 <style lang="scss" scoped>
   $main-background: #F2F6FC;
   /*$main-background: #E4E7ED;*/
@@ -217,6 +263,32 @@
       },
       groupList() {
         return this.$storeHelper.groupList;
+      },
+      groupListByVersion() {
+        var result = [{
+          label: 'pass2.x团队',
+          class: 'v2',
+          groupList: []
+        }, {
+          label: 'pass1.x团队',
+          class: 'v1',
+          groupList: []
+        }];
+        this.$storeHelper.groupList.forEach(it => {
+          if (it['supportVersion']) {
+            switch (it['supportVersion']) {
+              case '2.x':
+                result[0].groupList.push(it);
+                break;
+              case '1.x':
+                result[1].groupList.push(it);
+                break;
+            }
+          } else {
+            result[0].groupList.push(it);
+          }
+        });
+        return result;
       }
     },
     watch: {
