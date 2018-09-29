@@ -97,7 +97,7 @@ class Helper {
       path: '/profile/log',
       // name: '审批管理',
       component: LogMain,
-      // redirect: '/log/run',
+      // redirect: '/profile/log/run',
       children: [{
         path: 'run',
         name: '运行日志',
@@ -426,50 +426,44 @@ class Helper {
    * do some action before route change
    */
   startRouteFilter(vueRouter) {
-    let self = this;
-
-    // if the path is valid
-    function isValidateURL(path) {
-      // remove / at end
-      path = path.trim().replace(/\/+$/, '');
-      let isOk = true;
-      let config = null;
-      if (self.routePathToConfig.hasOwnProperty(path)) {
-        config = self.routePathToConfig[path];
-      }
-      if (!config) {
-        isOk = false;
-      } else {
-        if (config.hasOwnProperty('meta') && config.meta.hasOwnProperty('isPermitted')) {
-          isOk = config.meta.isPermitted;
-        }
-        if (config.hasOwnProperty('children')) {
-          isOk = false;
-        }
-      }
-      // console.log(config);
-      // console.log(`${path}, ${isOk}`);
-      return isOk;
-    }
+    const ROOT_PATH = '/profile';
 
     // get parent path of the path
-    function getParentPath(path) {
-      return path.split('/').slice(0, -1).join('/');
-    }
+    const getParentPath = (path) => {
+      var result = '';
+      if (!path.startsWith(ROOT_PATH)) {
+        result = ROOT_PATH;
+      } else {
+        result = path.split('/').slice(0, -1).join('/');
+        if (!result) {
+          result = ROOT_PATH;
+        }
+      }
+      return result;
+    };
+
+    // if the path is valid
+    const isPermittedPath = (path) => {
+      var permitted = true;
+      const config = this.routePathToConfig[path];
+      if (config.hasOwnProperty('meta') && config.meta.hasOwnProperty('isPermitted')) {
+        permitted = config.meta.isPermitted;
+      }
+      if (config.hasOwnProperty('children')) {
+        permitted = false;
+      }
+      return permitted;
+    };
 
     // get nearest path if the path is not valid
-    function getValidateURL(path) {
-      let result = path;
-
-      let config = null;
-      if (self.routePathToConfig.hasOwnProperty(path)) {
-        config = self.routePathToConfig[path];
-      }
-      // check children first
+    const getPermittedPath = (path) => {
+      var result = '';
       let firstValidChild = null;
+      const config = this.routePathToConfig[path];
+      // find downward
       if (config && config.hasOwnProperty('children')) {
         config.children.some(it => {
-          if (isValidateURL(it.routePath)) {
+          if (isPermittedPath(it.routePath)) {
             firstValidChild = it;
           }
           return firstValidChild;
@@ -478,18 +472,36 @@ class Helper {
           result = firstValidChild.routePath;
         }
       }
+      // find upward
       if (!firstValidChild) {
         // check parent
-        while (!isValidateURL(result) && '' != result) {
+        while (!isPermittedPath(result) && ROOT_PATH != result) {
           result = getParentPath(result);
         }
       }
-
-      if ('' == result) {
-        result = '/';
-      }
       return result;
-    }
+    };
+
+    const pathCheck = (path) => {
+      const result = {
+        jumpTo: path,
+        tip: '',
+        // isOk: true,
+      };
+      // remove / at end
+      path = path.trim().replace(/\/+$/, '');
+
+      // 1. isPermitted check
+      const routeConfig = this.routePathToConfig[path];
+      if (routeConfig) {
+        if (!isPermittedPath(path)) {
+          result.jumpTo = getPermittedPath(path);
+        }
+      }
+
+
+      return result;
+    };
 
     vueRouter.beforeEach((to, from, next) => {
       // console.log(from);
@@ -501,22 +513,20 @@ class Helper {
 
       let token = Vue.prototype.$storeHelper.getUserInfo('token');
       if (token) {
-        if (!isValidateURL(to.path)) {
-          next(getValidateURL(to.path));
-        } else {
-          next();
+        const result = pathCheck(to.path);
+        if (result.jumpTo) {
+          if (result.jumpTo == to.path) {
+            next();
+          } else {
+            next(result.jumpTo);
+          }
         }
       } else {
-        Vue.prototype.$utils.goToPath('/login?to=/profile');
+        window.location.pathname = '/login?to=/profile';
       }
     });
   }
 }
-
-// var router = new Router({
-//   mode: 'history'
-// });
-// export default router;
 
 const helper = new Helper();
 const vueRouter = new VueRouter({

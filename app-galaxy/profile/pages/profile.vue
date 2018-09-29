@@ -277,7 +277,7 @@
 //        console.log(route);
 //        console.log(preRoute);
 //        console.log(this.routePathToConfig);
-        let path = route.path;
+        const path = route['path'];
         this.invalidPath = !this.routePathToConfig.hasOwnProperty(path);
         if (!this.invalidPath) {
           // whether show groupList
@@ -292,6 +292,7 @@
           this.updateCrumbList(path);
         }
       },
+
       /**
        * update crumb list by path and routerPathToName which get from router config, such as:
        * /service/add
