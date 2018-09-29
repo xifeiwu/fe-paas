@@ -85,7 +85,8 @@
               class="danger"
               :loading="statusOfWaitingResponse('deleteRow') && selected.row.appId == scope.row.appId"
               @click="handleTRButton('deleteRow', scope.$index, scope.row)">删除</el-button>
-            <div class="ant-divider"></div>
+            <div v-if="!$storeHelper.notPermitted['app_delete']"
+                 class="ant-divider"></div>
             <el-button
               v-if="!$storeHelper.notPermitted['app_change_profile']"
               type="text"

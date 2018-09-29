@@ -134,44 +134,57 @@
             </el-button>
             <div class="ant-divider"
                  v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy'] && false"></div>
+
             <el-button
                     class="danger" type="text"
                     :loading="statusOfWaitingResponse('stop') && selected.service.id == scope.row.id"
                     v-if="!$storeHelper.notPermitted['service_stop']"
                     @click="handleRowButtonClick('stop', scope.$index, scope.row)">停止</el-button>
-            <div class="ant-divider"></div>
+            <div v-if="!$storeHelper.notPermitted['service_stop']"
+                 class="ant-divider"></div>
+
             <el-button
                     v-if="!$storeHelper.notPermitted['service_delete']"
                     class="danger" type="text"
                     :loading="statusOfWaitingResponse('delete') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
-            <div class="ant-divider"></div>
+            <div v-if="!$storeHelper.notPermitted['service_delete']"
+                 class="ant-divider"></div>
+
             <el-button
                     v-if="isProductionProfile"
                     class="primary" type="text"
                     @click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
-            <div class="ant-divider" v-if="isProductionProfile"></div>
+            <div v-if="isProductionProfile"
+                 class="ant-divider"></div>
+
             <el-button
                     class="flex primary" type="text"
                     v-if="!$storeHelper.notPermitted['service_get_deploy_log']"
                     @click="handleRowButtonClick('go-to-log-deploy', scope.$index, scope.row)">
               <span>部署日志</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div class="ant-divider"></div>
+            <div v-if="!$storeHelper.notPermitted['service_get_deploy_log']"
+                 class="ant-divider"></div>
+
             <el-button
                     class="flex primary" type="text"
                     v-if="!$storeHelper.notPermitted['page_instance']"
                     @click="handleRowButtonClick('go-to-instance-list', scope.$index, scope.row)">
               <span>实例列表</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div class="ant-divider"></div>
+            <div v-if="!$storeHelper.notPermitted['page_instance']"
+                 class="ant-divider"></div>
+
             <el-button
                     class="flex primary" type="text"
                     v-if="!$storeHelper.notPermitted['go-domain-from-service']"
                     @click="handleRowButtonClick('go-to-domain-service', scope.$index, scope.row)">
               <span>配置外网二级域名</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div class="ant-divider"></div>
+            <div v-if="!$storeHelper.notPermitted['go-domain-from-service']"
+                 class="ant-divider"></div>
+
             <el-button
                     class="flex primary" type="text"
                     @click="handleRowButtonClick('copy-service',scope.$index,scope.row)">
@@ -179,6 +192,7 @@
               <i class="paas-icon-level-up"></i>
             </el-button>
             <div class="ant-divider"></div>
+
             <el-button
               class="flex primary" type="text"
               @click="handleRowButtonClick('service_info', scope.$index, scope.row)">
