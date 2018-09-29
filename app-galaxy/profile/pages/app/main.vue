@@ -72,7 +72,8 @@
             <div v-for="item in scope.row.profileListAll" :label="item.name" :key="item.name"
                  :class="{'profile-item': true, 'active': item.active}"
                  @click="jumpToServicePage(scope.$index, scope.row, item)">
-              <span>{{item.description}}</span><span class="badge fixed" v-if="item.active&&item.serviceNameCount>0">{{item.serviceNameCount}}</span>
+              <span>{{item.description}}</span><span v-if="item.active&&item.serviceNameCount>0">({{item.serviceNameCount}})</span>
+              <span class="badge fixed" v-if="item.active&&item.serviceNameCount>0 && false">{{item.serviceNameCount}}</span>
             </div>
           </template>
         </el-table-column>
