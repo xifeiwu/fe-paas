@@ -287,22 +287,38 @@ class Helper {
     this.traverseComponent(updateItem, this.richRouterConfig);
   }
 
-  updateConfigState(pathList, type, tip) {
+  /**
+   * 更新路径配置文件(是否禁用)
+   * @param pathList, path to set
+   * @param type, exclude or include
+   * @param tip, tip message
+   * disabled: {
+  *   'NO_APP', // 当前团队应用数为零。请先创建应用，才能进行后续操作
+  *   'NOT_SUPPORT_IN_1.X' // '您当前在1.x团队，部分功能正在迁移。置灰的功能暂时无法使用！
+  * }
+   */
+  updateDisabledState({pathList, pathType}, {key, value}) {
     function updateItem(item) {
       if (item.hasOwnProperty('routePath')) {
         if (!item.hasOwnProperty('meta')) {
           item.meta = {};
         }
-        switch (type) {
+        if (!item.meta.hasOwnProperty('disabled')) {
+          item.meta['disabled'] = {
+            'NO_APP': false,
+            'NOT_SUPPORT_IN_1': false,
+          };
+        }
+        switch (pathType) {
           case 'exclude':
             if (pathList.indexOf(item['routePath']) > -1) {
             } else {
-              item.meta['disabled'] = tip;
+              item.meta['disabled'][key] = value;
             }
             break;
           case 'include':
             if (pathList.indexOf(item['routePath']) > -1) {
-              item.meta['disabled'] = tip;
+              item.meta['disabled'][key] = value;
             } else {
             }
             break;
@@ -525,10 +541,18 @@ class Helper {
         }
       }
 
-      // 2. disabled check
+      const DISABLE_MAP = {
+        'NO_APP': '当前团队应用数为零。请先创建应用，才能进行后续操作',
+        'NOT_SUPPORT_IN_1.X': '正在功能迁移中，1.x团队暂时无法使用该页面。'
+      };
       if (routeConfig.hasOwnProperty('meta') && routeConfig.meta.disabled) {
-        result.jumpTo = '';
-        result.tip = routeConfig.meta.disabled;
+        for (let key in routeConfig.meta.disabled) {
+          if (routeConfig.meta.disabled[key]) {
+            result.jumpTo = '';
+            result.tip = DISABLE_MAP[key];
+            break;
+          }
+        }
       }
       return result;
     };

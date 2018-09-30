@@ -233,6 +233,10 @@
           if (!groupId) {
             return;
           }
+          var groupVersion = '2.x';
+          if (this.groupInfo.hasOwnProperty('supportVersion') && this.groupInfo['supportVersion'] === '1.x') {
+            groupVersion = '1.x';
+          }
           /**
            * all the request related with groupID will be refreshed, include:
            * 1. profileListOfGroup
@@ -253,12 +257,37 @@
             });
             // 当前团队应用数为零，只能进入应用管理和添加应用页面
             if (appInfoList.total === 0) {
-              this.$router.helper.updateConfigState([
-                this.$net.page['profile/app'],
-                this.$net.page['profile/app/add'],
-              ], 'exclude', '当前团队应用数为零。请先创建应用，才能进行后续操作');
+              this.$router.helper.updateDisabledState({
+                pathList: [
+                  this.$net.page['profile/app'],
+                  this.$net.page['profile/app/add'],
+                ],
+                pathType: 'exclude'
+              }, {key: 'NO_APP', value: true});
             } else {
-              this.$router.helper.updateConfigState([], 'exclude', '');
+              this.$router.helper.updateDisabledState({
+                pathList: [],
+                pathType: 'exclude'
+              }, {key: 'NO_APP', value: false});
+            }
+
+            // 1.x团队不支持：外网域名、审批管理、Access Key、团队管理
+            if (groupVersion === '1.x') {
+              this.$message.warning('您当前在1.x团队，部分功能正在迁移。置灰的功能暂时无法使用！');
+              this.$router.helper.updateDisabledState({
+                pathList: [
+                  this.$net.page['profile/domain'],
+                  this.$net.page['profile/work-order'],
+                  this.$net.page['profile/oauth'],
+                ],
+                pathType: 'include'
+              }, {key: 'NOT_SUPPORT_IN_1.X', value: true});
+            } else {
+              this.$router.helper.updateDisabledState({
+                pathList: [
+                ],
+                pathType: 'exclude'
+              }, {key: 'NOT_SUPPORT_IN_1.X', value: false});
             }
           } catch(err) {
             console.log(err);
