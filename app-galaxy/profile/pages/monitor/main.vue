@@ -388,10 +388,11 @@
           spaceName: serviceInfo.selectedProfile.name,
           env: serviceInfo.selectedProfile.name,
           serviceName: serviceInfo.selectedService.serviceName,
-          instanceName: this.selectedInstanceList[0],
+//          instanceName: this.selectedInstanceList[0],
+          instanceList: this.selectedInstanceList,
           startTime: this.dateTimeRange[0].getTime(),
           endTime: this.dateTimeRange[1].getTime(),
-          interval: "1h"
+//          interval: "1h"
         };
 //        console.log(serviceInfo);
 //        console.log(this.$storeHelper.groupInfo());
@@ -447,6 +448,35 @@
           }
           return result;
         };
+        const formatResponseData2 = (type, resContent) => {
+          var keys = [];
+          resContent = resContent.slice(-100);
+          const transContent = resContent.map(it => {
+            const result = {};
+            it['values'].forEach(v => {
+              result[v[0]] = {};
+              result[v[0]][it['pod_name']] = v[1];
+            });
+            keys = keys.concat(Object.keys(result));
+            return result;
+          });
+          keys = Array.from(new Set(keys)).sort((pre, next) => {
+            return next - pre;
+          });
+
+          var transContent2 = keys.map(key => {
+            var result = {
+              timestamp: key
+            };
+            transContent.forEach(it => {
+              if (it.hasOwnProperty(key)) {
+                result = Object.assign(result, it[key]);
+              }
+            });
+            return result;
+          });
+          return transContent2;
+        };
         // get statistic data
         const statisticData = {};
         Promise.all(statisticTypeList.map(it => {
@@ -454,11 +484,12 @@
             payload
           });
         })).then(resContentList => {
-//          console.log(resContentList);
           if (resContentList.length === statisticTypeList.length) {
             statisticTypeList.forEach((type, index) => {
-              statisticData[type] = formatResponseData(type, resContentList[index]);
+              statisticData[type] = formatResponseData2(type, resContentList[index]);
             });
+//            console.log(resContentList);
+//            console.log(statisticData);
           }
         }).catch(err => {
           console.log(err);
@@ -484,7 +515,7 @@
               });
             });
 //            console.log(columns);
-            console.log(statisticData);
+//            console.log(statisticData);
             console.log(this.chartData);
           }
         });
