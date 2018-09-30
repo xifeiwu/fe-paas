@@ -52,8 +52,17 @@ class Net extends NetBase {
       'download_app_deploy_count': {
         path: '/backstage/downloadDeployCountXls',
         method: 'post'
+      },
+      //通过lob获取group列表
+      'get_group_list_by_lob':{
+        path:'/queryGroupByLobId',
+        method:'post',
+      },
+      //通过lob获取scrum列表
+      'get_scrum_list_by_lob':{
+        path:'/queryScrumByLobId',
+        method:'post',
       }
-
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];

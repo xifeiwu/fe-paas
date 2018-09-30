@@ -4,7 +4,7 @@
       <div class="item">
         <label>LOB:</label>
         <el-select filterable v-model="search.lobId" placeholder="请选择">
-          <el-option v-for="(item, index) in lobList" :key="item.id" :label="item.lobName" :value="item.id">
+          <el-option v-for="(item, index) in getLobList" :key="item.id" :label="item.lobName" :value="item.id">
           </el-option>
         </el-select>
       </div>
@@ -195,8 +195,8 @@
           name: '项目名称'
         }],
         search: {
-          lobId: '',
-          groupId: '',
+          lobId: null,
+          groupId: null,
           keyword: '',
           keyWordType: 1,
         },
@@ -213,29 +213,38 @@
         },
         appTransfer: {
           targetGroupId: null
-        }
+        },
+        groupList:[],
       }
     },
     watch: {
 //      'search.lobId': 'requestAppStatusList',
 //      'search.groupId': 'requestAppStatusList',
+      'search.lobId':function(){
+        if(this.search.lobId == ''){
+          this.groupList = this.getGroupList();
+          if(Array.isArray(this.groupList) && this.groupList.length > 0) {
+            this.search.groupId = this.groupList[0]["id"];
+          }else{
+            this.search.groupId = null;
+          }
+        }else{
+          let payload = {
+            lobId:this.search.lobId,
+          };
+          this.$net.requestPaasServer(this.$net.URL_LIST.get_group_list_by_lob,{payload}).then(result => {
+            if(Array.isArray(result['groupList']) && result['groupList'].length > 0) {
+              this.groupList = result['groupList'];
+              this.search.groupId = this.groupList[0]["id"];
+            }else{
+              this.groupList = [];
+              this.search.groupId = null;
+            }
+          })
+        }
+      }
     },
     computed: {
-//      ...mapState(['lobList', 'groupList'])
-      lobList() {
-        if (this.$storeHelper.lobList) {
-          return [{id: '', lobName: '全部'}].concat(this.$storeHelper.lobList);
-        } else {
-          return [];
-        }
-      },
-      groupList() {
-        if (this.$storeHelper.groupListAll) {
-          return [{id: '', name: '全部'}].concat(this.$storeHelper.groupListAll);
-        } else {
-          return [];
-        }
-      },
       targetGroupList() {
         if (this.action.row && this.action.row.hasOwnProperty('groupId')) {
           return this.$storeHelper.groupListAll.filter(it => {
@@ -244,7 +253,16 @@
         } else {
           return [];
         }
-      }
+      },
+      getLobList() {
+        if (Array.isArray(this.$storeHelper.lobList) && this.$storeHelper.lobList.length > 0) {
+          let lobList =  [{id: '', lobName: '全部'}].concat(this.$storeHelper.lobList);
+          this.search.lobId = lobList[0].id;
+          return lobList;
+        } else {
+          return [];
+        }
+      },
     },
 
     methods: {
@@ -335,6 +353,14 @@
 
       closeDialog() {
         this.action.name = null;
+      },
+
+      getGroupList() {
+        if (Array.isArray(this.$storeHelper.groupListAll) && this.$storeHelper.groupListAll.length > 0) {
+          return [{id: '', name: '全部'}].concat(this.$storeHelper.groupListAll);
+        } else {
+          return [];
+        }
       },
     }
   }

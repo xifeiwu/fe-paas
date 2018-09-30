@@ -380,6 +380,7 @@ export default {
     if (!this.$storeHelper.lobInfo) {
       this.$net.getLobInfo().then(result => {
         this.$storeHelper.lobInfo = result;
+        this.onLobInfo(result);
       }).catch(err => {
         this.$notify.error({
           title: err.title,
@@ -397,8 +398,8 @@ export default {
     return {
       useBuildName: true,
       fileLocationToAdd: '',
-      scrumList: [],
       lobList: [],
+      scrumList:[],
       showPopoverForHelp: false,
       errMsgForHealthCheck: '',
       createAppForm: {
@@ -503,6 +504,20 @@ export default {
     '$storeHelper.currentGroupID': function (groupID) {
       this.createAppForm.groupID = groupID;
     },
+    'createAppForm.lobID':function(){
+      let options = {
+        lobId:this.createAppForm.lobID,
+      };
+      this.$net.getScrumByLobId(options).then(result => {
+        if(Array.isArray(result.scrumList) && result.scrumList.length > 0) {
+          this.scrumList = result.scrumList;
+          this.createAppForm.scrumID = this.scrumList[0].id;
+        }else{
+          this.scrumList = [];
+          this.createAppForm.scrumID = '';
+        }
+      });
+    }
   },
   methods: {
     /**
@@ -530,10 +545,6 @@ export default {
     onLobInfo(lobInfo) {
 //      console.log(lobInfo);
       if (lobInfo) {
-        if (lobInfo.hasOwnProperty('scrumList') && Array.isArray(lobInfo['scrumList']) && lobInfo['scrumList'].length > 0) {
-          this.scrumList = lobInfo['scrumList'];
-          this.createAppForm.scrumID = this.scrumList[0].id;
-        }
         if (lobInfo.hasOwnProperty('lobList') && Array.isArray(lobInfo['lobList']) && lobInfo['lobList'].length > 0) {
           this.lobList = lobInfo['lobList'];
           this.createAppForm.lobID = this.lobList[0].id;

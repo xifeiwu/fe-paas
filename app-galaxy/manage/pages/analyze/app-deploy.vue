@@ -240,11 +240,12 @@
 
         payload: {
           profileId: '',
-          lobId: '',
-          scrumId: '',
+          lobId: null,
+          scrumId: null,
           groupId: '',
           dateRange: '',
         },
+        scrumList:[],
         appCountList: [],
         appCountDetailList: [],
         appCountDetailListSorted: {
@@ -320,15 +321,10 @@
     computed: {
 //      ...mapState(['lobList', 'groupList'])
       lobList() {
-        if (this.$storeHelper.lobList) {
-          return [{id: '', lobName: '全部'}].concat(this.$storeHelper.lobList);
-        } else {
-          return [];
-        }
-      },
-      scrumList() {
-        if (this.$storeHelper.scrumList) {
-          return [{id: '', scrumName: '全部'}].concat(this.$storeHelper.scrumList);
+        if (Array.isArray(this.$storeHelper.lobList) && this.$storeHelper.lobList.length > 0) {
+          let lobList = [{id: '', lobName: '全部'}].concat(this.$storeHelper.lobList);
+          this.payload.lobId = lobList[0].id;
+          return lobList;
         } else {
           return [];
         }
@@ -356,6 +352,29 @@
       'tableSort': 'requestDetailList',
       'appCountDetail.tableSort': 'getAppCountDetailListByPage',
       '$storeHelper.screen.size': 'onScreenSizeChange',
+      'payload.lobId':function(){
+        if(this.payload.lobId == ''){
+          this.scrumList = this.getScrumList();
+          if(Array.isArray(this.scrumList) && this.scrumList.length > 0) {
+            this.payload.scrumId = this.scrumList[0]["id"];
+          }else{
+            this.payload.scrumId = null;
+          }
+        }else{
+          let payload = {
+            lobId:this.payload.lobId,
+          };
+          this.$net.requestPaasServer(this.$net.URL_LIST.get_scrum_list_by_lob,{payload}).then(result => {
+            if(Array.isArray(result['scrumList']) && result['scrumList'].length > 0) {
+              this.scrumList = result['scrumList'];
+              this.payload.scrumId = this.scrumList[0]["id"];
+            }else{
+              this.scrumList = [];
+              this.payload.scrumId = null;
+            }
+          })
+        }
+      }
     },
 
     methods: {
@@ -557,7 +576,14 @@
       },
       onSortChangeInTable2(tableSort) {
         this.appCountDetail.tableSort = tableSort;
-      }
+      },
+      getScrumList() {
+        if (Array.isArray(this.$storeHelper.scrumList) && this.$storeHelper.scrumList.length > 0) {
+          return [{id: '', scrumName: '全部'}].concat(this.$storeHelper.scrumList);
+        } else {
+          return [];
+        }
+      },
     }
   }
 </script>

@@ -446,7 +446,12 @@ class URL extends BaseURL {
         path: '/applicationRemoteConfigFile/update/edit-status',
         method: 'post',
       },
-
+      //通过lob获取scrum列表
+      'get_scrum_list_by_lob':{
+        url:API_PATH + '/queryScrumByLobId',
+        path:'/queryScrumByLobId',
+        method:'post',
+      },
     };
   }
 
