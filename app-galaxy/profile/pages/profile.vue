@@ -229,7 +229,7 @@
       },
       'groupInfo.id': {
         immediate: true,
-        handler (groupId, oldValue) {
+        async handler(groupId, oldValue) {
           if (!groupId) {
             return;
           }
@@ -239,17 +239,19 @@
            * 2. appInfoListOfGroup
            * 3. usersInGroup
            */
-          // 解析app列表的时候需要profileList的相关信息
-          this.$net.requestPaasServer(this.$net.URL_LIST.profile_list_of_group, {
-            payload: {
-              id: groupId
-            }
-          }).then(async resContent => {
-            const profileList = resContent['spaceList'];
+          try {
+            // 解析app列表的时候需要profileList的相关信息，所有profile列表和app列表不能同时请求。
+            const profileList = (await this.$net.requestPaasServer(this.$net.URL_LIST.profile_list_of_group, {
+              payload: {
+                id: groupId
+              }
+            }))['spaceList'];
             this.$store.dispatch('user/profileList', profileList);
+
             const appInfoList = await this.$store.dispatch('user/appInfoList', {
               groupId: this.$storeHelper.currentGroupID,
             });
+            // 当前团队应用数为零，只能进入应用管理和添加应用页面
             if (appInfoList.total === 0) {
               this.$router.helper.updateConfigState([
                 this.$net.page['profile/app'],
@@ -258,18 +260,9 @@
             } else {
               this.$router.helper.updateConfigState([], 'exclude', '');
             }
-//            Promise.all([
-//              this.$net.getAPPList({
-//                groupId: groupId
-//              }),
-//            ]).then(resContentList => {
-//              const [resContent1] = resContentList;
-//              const appInfoList = resContent1;
-//              this.$store.dispatch('user/appInfoList', appInfoList);
-//            }).catch(err => {
-//              this.$net.showError(err);
-//            })
-          }).catch(err => {});
+          } catch(err) {
+            console.log(err);
+          }
         }
       },
     },

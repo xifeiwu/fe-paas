@@ -921,7 +921,7 @@ module.exports = {
       }
 
       this.modifyAccessKeyInfo.requestingAppList = true;
-      this.$net.requestPaasServer(this.$net.URL_LIST.app_list, {
+      this.$net.requestPaasServer(this.$net.URL_LIST.app_list_by_group, {
         payload: {groupId: groupID}
       }).then(resContent => {
         if (resContent && resContent.hasOwnProperty('appList')) {

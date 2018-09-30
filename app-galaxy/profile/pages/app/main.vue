@@ -855,25 +855,6 @@
           };
           this.updateAppInfoModel(filteredAppInfo);
         } else {
-          this.$net.getAPPList({
-            groupId: this.$storeHelper.currentGroupID,
-            start: start,
-            length: length,
-//            serviceName: serviceName
-          }).then(content => {
-            this.updateAppInfoModel(content);
-          }).catch(err => {
-            this.showPagination = false;
-            if (err.title && err.msg) {
-              this.$notify.error({
-                title: err.title,
-                message: err.msg,
-                duration: 0,
-                onClose: function () {
-                }
-              });
-            }
-          });
         }
       },
       /**

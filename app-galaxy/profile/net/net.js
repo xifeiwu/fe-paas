@@ -22,9 +22,6 @@ class Net extends NetBase {
     super();
     this.$utils = null;
     this.$storeHelper = null;
-    this.requestingState = {
-      getAPPList: false,
-    };
     // 需要更新应用列表：
     // 1. 添加应用
     // 2. 添加服务
@@ -609,13 +606,12 @@ class Net extends NetBase {
   }
 
   /**
-   * 获得用户当前组的app列表
-   * @param payload: {groupId}
-   * @returns {Promise}
-   * resolve only when content data is ok.
+   * 解析应用列表数据
+   * @param resContent
+   * @returns {Promise.<*>}
    */
-  getAPPList (payload) {
-    let getAppModelList = function(appList) {
+  async parseAppList(resContent) {
+    const getAppModelList = (appList) => {
       let appModelList = [];
       appList.forEach(app => {
         appModelList.push({
@@ -632,65 +628,42 @@ class Net extends NetBase {
       return appModelList;
     };
 
-    this.requestingState.getAPPList = true;
-    return new Promise((resolve, reject) => {
-      this.requestPaasServer(this.URL_LIST.app_list, {payload}).then(content => {
-        this.requestingState.getAPPList = false;
-        if (content) {
-          if (content.hasOwnProperty('appList') && Array.isArray(content.appList)) {
-            let appList = content.appList;
-            appList.forEach(app => {
-              app.createTime = this.$utils.formatDate(app.createTime, 'yyyy-MM-dd hh:mm:ss');
-              if (app.createTime) {
-                app.createTime = app.createTime.split(' ');
-              }
-              app['profileNames'] = app['serviceCountList'].map(it => {
-                return it['envName']
-              });
-              // app['profileList'] = this.$storeHelper.getProfileInfoListByNameList(app.spaceList);
-              app['profileList'] = app['serviceCountList'].map(it => {
-                const profileInfo = this.$storeHelper.getProfileInfoByName(it['envName']);
-                return Object.assign(profileInfo, {
-                  serviceNameCount: it['serviceNameCount']
-                });
-              });
-              if (app.hasOwnProperty('language')) {
-                // whether the language of app is JAVA
-                app['isJavaLanguage'] = app.hasOwnProperty('language') && 'JAVA' == app.language;
-                app.languageLogo = null;
-                switch (app.language) {
-                  case 'JAVA':
-                    app.languageLogo = 'java';
-                    break;
-                  case 'NODE_JS':
-                    app.languageLogo = 'nodejs';
-                    break;
-                  case 'PYTHON':
-                    app.languageLogo = 'python';
-                }
-              }
-            });
-            content.appModelList = getAppModelList(appList);
-          }
-          this.showLog('getAPPList', content);
-          if (content) {
-            resolve(content);
-          }
-        } else {
-          let resMsg = this.getResponseMsg(response);
-          if (resMsg && resMsg.msg) {
-            reject(resMsg);
-          } else {
-            reject({
-              title: '数据格式不正确',
-              msg: '获取应用列表失败！'
-            })
+    if (resContent.hasOwnProperty('appList') && Array.isArray(resContent.appList)) {
+      let appList = resContent.appList;
+      appList.forEach(app => {
+        app.createTime = this.$utils.formatDate(app.createTime, 'yyyy-MM-dd hh:mm:ss');
+        if (app.createTime) {
+          app.createTime = app.createTime.split(' ');
+        }
+        app['profileNames'] = app['serviceCountList'].map(it => {
+          return it['envName']
+        });
+        // app['profileList'] = this.$storeHelper.getProfileInfoListByNameList(app.spaceList);
+        app['profileList'] = app['serviceCountList'].map(it => {
+          const profileInfo = this.$storeHelper.getProfileInfoByName(it['envName']);
+          return Object.assign(profileInfo, {
+            serviceNameCount: it['serviceNameCount']
+          });
+        });
+        if (app.hasOwnProperty('language')) {
+          // whether the language of app is JAVA
+          app['isJavaLanguage'] = app.hasOwnProperty('language') && 'JAVA' == app.language;
+          app.languageLogo = null;
+          switch (app.language) {
+            case 'JAVA':
+              app.languageLogo = 'java';
+              break;
+            case 'NODE_JS':
+              app.languageLogo = 'nodejs';
+              break;
+            case 'PYTHON':
+              app.languageLogo = 'python';
           }
         }
-      }).catch(err => {
-        this.requestingState.getAPPList = false;
       });
-    });
+      resContent.appModelList = getAppModelList(appList);
+    }
+    return resContent;
   }
 
   /**

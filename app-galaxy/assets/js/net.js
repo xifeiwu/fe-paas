@@ -31,7 +31,7 @@ class Net {
         method: 'get'
       },
       // 应用列表
-      'app_list': {
+      'app_list_by_group': {
         path: '/application/queryByPage',
         method: 'post'
       },
