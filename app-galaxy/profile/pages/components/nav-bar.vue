@@ -10,6 +10,7 @@
             @select="handleAsideMenuSelect"
             :collapse="collapseMenu"
             background-color="#324157" text-color="white"
+            :setActiveIndexByDefaultActive="true"
             :defaultActive="activeSideMenuItem">
       <el-submenu v-for="menu in navMenu.level2" :key="menu.name" :index="menu.router">
         <template slot="title">
@@ -141,6 +142,8 @@
       activeSideMenuItem: {
         type: String,
       },
+    },
+    watch: {
     },
     methods: {
       /**

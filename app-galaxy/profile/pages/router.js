@@ -287,6 +287,32 @@ class Helper {
     this.traverseComponent(updateItem, this.richRouterConfig);
   }
 
+  updateConfigState(pathList, type, tip) {
+    function updateItem(item) {
+      if (item.hasOwnProperty('routePath')) {
+        if (!item.hasOwnProperty('meta')) {
+          item.meta = {};
+        }
+        switch (type) {
+          case 'exclude':
+            if (pathList.indexOf(item['routePath']) > -1) {
+            } else {
+              item.meta['disabled'] = tip;
+            }
+            break;
+          case 'include':
+            if (pathList.indexOf(item['routePath']) > -1) {
+              item.meta['disabled'] = tip;
+            } else {
+            }
+            break;
+        }
+      }
+    }
+
+    this.traverseComponent(updateItem, this.richRouterConfig);
+  }
+
   // filter out useless config in richRouterConfig
   getVueRouterConfig() {
     function updateItem(item) {
@@ -499,7 +525,11 @@ class Helper {
         }
       }
 
-
+      // 2. disabled check
+      if (routeConfig.hasOwnProperty('meta') && routeConfig.meta.disabled) {
+        result.jumpTo = '';
+        result.tip = routeConfig.meta.disabled;
+      }
       return result;
     };
 
@@ -520,6 +550,8 @@ class Helper {
           } else {
             next(result.jumpTo);
           }
+        } else {
+          Vue.prototype.$message.warning(result.tip);
         }
       } else {
         window.location.pathname = '/login?to=/profile';

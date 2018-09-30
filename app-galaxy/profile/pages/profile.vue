@@ -137,7 +137,7 @@
     components: {PageNotFound, paasHeaderProfile, paasNavBar},
     data() {
       return {
-        activeSideMenuItem: '/app',
+        activeSideMenuItem: this.$net.page['profile'],
         crumbList: [],
         invalidPath: false,
         navigateList: [{
@@ -244,12 +244,20 @@
             payload: {
               id: groupId
             }
-          }).then(resContent => {
+          }).then(async resContent => {
             const profileList = resContent['spaceList'];
             this.$store.dispatch('user/profileList', profileList);
-            this.$store.dispatch('user/appInfoList', {
+            const appInfoList = await this.$store.dispatch('user/appInfoList', {
               groupId: this.$storeHelper.currentGroupID,
             });
+            if (appInfoList.total === 0) {
+              this.$router.helper.updateConfigState([
+                this.$net.page['profile/app'],
+                this.$net.page['profile/app/add'],
+              ], 'exclude', '当前团队应用数为零。请先创建应用，才能进行后续操作');
+            } else {
+              this.$router.helper.updateConfigState([], 'exclude', '');
+            }
 //            Promise.all([
 //              this.$net.getAPPList({
 //                groupId: groupId

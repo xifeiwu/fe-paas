@@ -377,9 +377,9 @@
       if (this.appInfoListOfGroup) {
         this.onAppInfoListOfGroup(this.appInfoListOfGroup);
       }
-      this.onScreenSizeChange(this.$storeHelper.screen.size);
       // update value in next tick
       setTimeout(() => {
+        this.onScreenSizeChange(this.$storeHelper.screen.size);
         this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 8;
       });
     },
@@ -459,9 +459,13 @@
         if (!size) {
           return;
         }
-        const headerNode = this.$el.querySelector(':scope > .header');
-        const headerHeight = headerNode.offsetHeight;
-        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+        try {
+          // if this.showAppList == false, headerNode will not exist
+          const headerNode = this.$el.querySelector(':scope > .header');
+          const headerHeight = headerNode.offsetHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+        } catch(err) {
+        }
       },
       onAppInfoListOfGroup(value, oldValue) {
         // go to first page
