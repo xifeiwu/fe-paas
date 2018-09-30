@@ -157,16 +157,16 @@
           if (appInfoListOfGroup.hasOwnProperty('appList')) {
             this.appList = appInfoListOfGroup.appList;
           }
-          if (!this.appList || (0 == this.appList.length)) {
-            this.$notify.warning({
-              title: '该团队应用列表为空',
-              message: '某些操作可能无法正常进行！',
-              duration: 1 * 1000,
-              onClose: function () {
-              }
-            });
-            return;
-          }
+//          if (!this.appList || (0 == this.appList.length)) {
+//            this.$notify.warning({
+//              title: '该团队应用列表为空',
+//              message: '某些操作可能无法正常进行！',
+//              duration: 1 * 1000,
+//              onClose: function () {
+//              }
+//            });
+//            return;
+//          }
           // the sequence of getting default appId:
           // 1. customConfig.appId if customConfig exist
           // 2. first element of appList

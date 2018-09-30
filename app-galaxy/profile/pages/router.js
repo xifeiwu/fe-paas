@@ -527,7 +527,7 @@ class Helper {
     const pathCheck = (path) => {
       const result = {
         jumpTo: path,
-        tip: '',
+        errMsg: '',
         // isOk: true,
       };
       // remove / at end
@@ -548,8 +548,13 @@ class Helper {
       if (routeConfig.hasOwnProperty('meta') && routeConfig.meta.disabled) {
         for (let key in routeConfig.meta.disabled) {
           if (routeConfig.meta.disabled[key]) {
-            result.jumpTo = '';
-            result.tip = DISABLE_MAP[key];
+            // jump to '/profile/app' if 'NO_APP'
+            if (key === 'NO_APP') {
+              result.jumpTo = '/profile/app';
+            } else {
+              result.jumpTo = '';
+            }
+            result.errMsg = DISABLE_MAP[key];
             break;
           }
         }
@@ -568,14 +573,15 @@ class Helper {
       let token = Vue.prototype.$storeHelper.getUserInfo('token');
       if (token) {
         const result = pathCheck(to.path);
+        if (result.errMsg) {
+          Vue.prototype.$message.warning(result.errMsg);
+        }
         if (result.jumpTo) {
           if (result.jumpTo == to.path) {
             next();
           } else {
             next(result.jumpTo);
           }
-        } else {
-          Vue.prototype.$message.warning(result.tip);
         }
       } else {
         window.location.pathname = '/login?to=/profile';
