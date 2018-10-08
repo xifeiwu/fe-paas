@@ -315,7 +315,7 @@
       setDefaultDateRange() {
         const end = new Date();
         const start = new Date();
-        start.setTime(start.getTime() - 1000 * 3600 * 24 * 2);
+        start.setTime(start.getTime() - 1000 * 3600 * 24 * 0.5);
         this.dateTimeRange = [start, end];
       },
       onScreenSizeChange() {
@@ -415,11 +415,8 @@
             return false;
           }
         });
-
-        // init value of this.chartData
-        statisticTypeList.forEach(it => {
-          this.chartData[it] = null;
-        });
+//        console.log('statisticTypeList');
+//        console.log(statisticTypeList);
 
         const formatResponseData = (type, data) => {
           var result = data;
@@ -448,15 +445,58 @@
           }
           return result;
         };
+
+//        format of resContent
+//        [{
+//          "values": [
+//            [1538967596727, 4.479063662422774E-4],
+//            [1538967626727, 3.0130078341165993E-4],
+//            [1538967656727, 3.2901569999997573E-4],
+//            [1538967686727, 3.893222559247866E-4],
+//            [1538967716727, 2.838068735623653E-4],
+//            [1538967746727, 3.1570615646147866E-4]
+//          ],
+//          "pod_name": "v1-dubbo-admin-1504092750-2t8kj"
+//        }, {
+//          "values": [
+//            [1538967596727, 4.1082689333336473E-4],
+//            [1538967626727, 3.6549626000028946E-4],
+//            [1538967656727, 2.630858638041186E-4],
+//            [1538967686727, 3.122274275816876E-4],
+//            [1538967716727, 2.588080933327319E-4],
+//            [1538967746727, 3.4944235192167745E-4]
+//          ],
+//          "pod_name": "v1-dubbo-admin-1504092750-6fpvb"
+//        }, {
+//          "values": [
+//            [1538967596727, 3.416146395118482E-4],
+//            [1538967626727, 4.1579116607796805E-4],
+//            [1538967656727, 3.828823400001132E-4],
+//            [1538967686727, 3.8507435752130266E-4],
+//            [1538967716727, 5.054297943262974E-4],
+//            [1538967746727, 3.573285090499018E-4]
+//          ],
+//          "pod_name": "v1-dubbo-admin-1504092750-zfj3c"
+//        }]
         const formatResponseData2 = (type, resContent) => {
           var keys = [];
           resContent = resContent.slice(-100);
           const transContent = resContent.map(it => {
+//          format of result
+//          {
+//            1538967596727: {
+//              'v1-dubbo-admin-1504092750-zfj3c': 3.416146395118482E-4
+//            },
+//            1538967626727: {
+//              'v1-dubbo-admin-1504092750-zfj3c': 4.1579116607796805E-4
+//            }
+//          }
             const result = {};
             it['values'].forEach(v => {
               result[v[0]] = {};
               result[v[0]][it['pod_name']] = v[1];
             });
+            // get all timestamp
             keys = keys.concat(Object.keys(result));
             return result;
           });
@@ -466,7 +506,7 @@
 
           var transContent2 = keys.map(key => {
             var result = {
-              timestamp: key
+              timestamp: this.$utils.formatDate(key, 'yyyy-MM-dd hh:mm:ss')
             };
             transContent.forEach(it => {
               if (it.hasOwnProperty(key)) {
@@ -477,8 +517,15 @@
           });
           return transContent2;
         };
+
         // get statistic data
         const statisticData = {};
+        const chartData = {};
+        // init value of this.chartData
+        statisticTypeList.forEach(it => {
+          this.chartData[it] = null;
+        });
+
         Promise.all(statisticTypeList.map(it => {
           return this.$net.requestPaasServer(URL_MAP[it], {
             payload
@@ -496,12 +543,12 @@
         }).finally(() => {
           if (Object.keys(statisticData).length !== statisticTypeList.length) {
             this.$message.error('数据获取失败');
-            console.log(Object.keys(statisticData).length);
-            console.log(statisticTypeList.length);
+//            console.log(Object.keys(statisticData).length);
+//            console.log(statisticTypeList.length);
           } else {
             const columns = ['timestamp'].concat(this.selectedInstanceList);
             for (let key in statisticData) {
-              this.chartData[key] = {
+              chartData[key] = {
                 columns,
                 rows: statisticData[key]
               }
@@ -514,14 +561,15 @@
                 };
               });
             });
-//            console.log(columns);
 //            console.log(statisticData);
-            console.log(this.chartData);
+//            console.log(chartData);
+            this.chartData = chartData;
           }
         });
 
+
 //        this.chartData['cpu'] = {
-//          "columns": ["timestamp", "v100-galaxy-job-console-782795121-4jhp5"],
+//          "columns": ["timestamp", "v100-galaxy-job-console-782795121-4jhp5", "v100-galaxy-job-console-782795121-4jhp6"],
 //          "rows": [{
 //            "timestamp": "2018-09-27 11:59:10",
 //            "v100-galaxy-job-console-782795121-4jhp5": 0.07069556809333334
@@ -533,25 +581,32 @@
 //            "v100-galaxy-job-console-782795121-4jhp5": 0.0005720369442037211
 //          }, {
 //            "timestamp": "2018-09-27 12:00:40",
-//            "v100-galaxy-job-console-782795121-4jhp5": 0.00465175705047003
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.00465175705047003,
+//            "v100-galaxy-job-console-782795121-4jhp6": '-'
 //          }, {
 //            "timestamp": "2018-09-27 12:01:10",
-//            "v100-galaxy-job-console-782795121-4jhp5": 0.00638525202813053
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.00638525202813053,
+//            "v100-galaxy-job-console-782795121-4jhp6": 0.00638525202813053
 //          }, {
 //            "timestamp": "2018-09-27 12:01:40",
-//            "v100-galaxy-job-console-782795121-4jhp5": 0.0020305455315177147
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.0020305455315177147,
+//            "v100-galaxy-job-console-782795121-4jhp6": 0.00638525202813053
 //          }, {
 //            "timestamp": "2018-09-27 12:02:10",
-//            "v100-galaxy-job-console-782795121-4jhp5": 0.0027648132208813927
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.0027648132208813927,
+//            "v100-galaxy-job-console-782795121-4jhp6": 0.00638525202813053
 //          }, {
 //            "timestamp": "2018-09-27 12:02:40",
-//            "v100-galaxy-job-console-782795121-4jhp5": 0.005621772853333326
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.005621772853333326,
+//            "v100-galaxy-job-console-782795121-4jhp6": 0.00638525202813053
 //          }, {
 //            "timestamp": "2018-09-27 12:03:10",
-//            "v100-galaxy-job-console-782795121-4jhp5": 0.001717748366666676
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.001717748366666676,
+//            "v100-galaxy-job-console-782795121-4jhp6": 0.00638525202813053
 //          }, {
 //            "timestamp": "2018-09-27 12:03:40",
-//            "v100-galaxy-job-console-782795121-4jhp5": 0.0018137060599999859
+//            "v100-galaxy-job-console-782795121-4jhp5": 0.0018137060599999859,
+//            "v100-galaxy-job-console-782795121-4jhp6": 0.00638525202813053
 //          }]
 //        };
       }
