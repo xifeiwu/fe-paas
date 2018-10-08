@@ -102,15 +102,15 @@ class StoreHelper extends BaseHelper{
   }
 
   /**
-   * message for create app: cpuAndMemoryList, languageInfo
+   * message for create app: cpuAndMemoryList, languageInfo, healthCheckTypeList
    */
-  messageForCreateAPP() {
+  get messageForCreateAPP() {
     return this.$store.getters['app/messageForCreateAPP'];
   }
 
   cpuAndMemoryList() {
     let result = [];
-    let messageForCreateAPP = this.messageForCreateAPP();
+    let messageForCreateAPP = this.messageForCreateAPP;
     if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('cpuAndMemorylist')) {
       result = messageForCreateAPP.cpuAndMemorylist;
     }
@@ -119,7 +119,7 @@ class StoreHelper extends BaseHelper{
 
   languageInfo() {
     let result = [];
-    let messageForCreateAPP = this.messageForCreateAPP();
+    let messageForCreateAPP = this.messageForCreateAPP;
     if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('LanguageList')) {
       result = messageForCreateAPP.LanguageList;
     }
@@ -128,7 +128,7 @@ class StoreHelper extends BaseHelper{
 
   get languageInfo() {
     let result = [];
-    let messageForCreateAPP = this.messageForCreateAPP();
+    let messageForCreateAPP = this.messageForCreateAPP;
     if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('LanguageList')) {
       result = messageForCreateAPP.LanguageList;
     }
@@ -192,10 +192,19 @@ class StoreHelper extends BaseHelper{
   // 2: {key: "2", desc: "socket", label: "SOCKET方式"}
   get healthCheckTypeList() {
     let result = [];
-    let messageForCreateAPP = this.messageForCreateAPP();
+    let messageForCreateAPP = this.messageForCreateAPP;
     if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('healthCheckList')) {
       // only use HTTP type
       result = messageForCreateAPP['healthCheckList'].slice(0, 1)
+    }
+    return result;
+  }
+  get healthCheckTypeListAll() {
+    let result = [];
+    let messageForCreateAPP = this.messageForCreateAPP;
+    if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('healthCheckList')) {
+      // only use HTTP type
+      result = messageForCreateAPP['healthCheckList']
     }
     return result;
   }
@@ -223,7 +232,7 @@ class StoreHelper extends BaseHelper{
   // 通过desc获得key
   getHealthCheckTypeDescByKey(key) {
     let target = null;
-    this.healthCheckTypeList.some(it => {
+    this.healthCheckTypeListAll.some(it => {
       if (it.key == key) {
         target = it;
       }
