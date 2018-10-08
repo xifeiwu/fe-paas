@@ -289,7 +289,7 @@ class Helper {
 
   /**
    * 更新路径配置文件(是否禁用)
-   * @param pathList, path to set
+   * @param pathList, path to set. can be string or regexp
    * @param type, exclude or include
    * @param tip, tip message
    * disabled: {
@@ -309,15 +309,41 @@ class Helper {
             'NOT_SUPPORT_IN_1': false,
           };
         }
+
+        const strList = [];
+        const regList = [];
+        const isRegExp = Vue.prototype.$utils.isRegExp;
+        pathList.forEach(it => {
+          if (isRegExp(it)) {
+            regList.push(it);
+          } else {
+            strList.push(it);
+          }
+        });
+
+        const isPathMatch = (path) => {
+          let match = false;
+          if (strList.indexOf(path) > -1) {
+            match = true;
+          }
+          if (!match) {
+            regList.some(reg => {
+              match = path.match(reg) ? true : false;
+              return match;
+            })
+          }
+          return match
+        };
+
         switch (pathType) {
           case 'exclude':
-            if (pathList.indexOf(item['routePath']) > -1) {
+            if (isPathMatch(item['routePath'])) {
             } else {
               item.meta['disabled'][key] = value;
             }
             break;
           case 'include':
-            if (pathList.indexOf(item['routePath']) > -1) {
+            if (isPathMatch(item['routePath'])) {
               item.meta['disabled'][key] = value;
             } else {
             }

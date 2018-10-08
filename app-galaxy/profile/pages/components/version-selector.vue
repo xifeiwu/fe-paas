@@ -181,7 +181,7 @@
             if (defaultAppID && this.$storeHelper.getAppInfoByID(defaultAppID)) {
               this.selectedAppId = defaultAppID;
             } else {
-              this.selectedAppId = this.appList[0]['appId'];
+              this.selectedAppId = this.appList.length > 0 ? this.appList[0]['appId'] : this.$storeHelper.APP_ID_FOR_NULL;
             }
           });
         }

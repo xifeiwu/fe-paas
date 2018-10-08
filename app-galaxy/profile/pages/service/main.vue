@@ -1866,7 +1866,7 @@ export default {
         if (localId && this.$storeHelper.getAppInfoByID(localId)) {
           appId = localId;
         } else {
-          appId = this.appList[0]['appId'];
+          appId = this.appList.length > 0 ? this.appList[0]['appId'] : this.$storeHelper.APP_ID_FOR_NULL;
         }
         setTimeout(() => {
           this.selectedAppID = appId;

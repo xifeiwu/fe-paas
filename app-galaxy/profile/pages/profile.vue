@@ -261,6 +261,8 @@
                 pathList: [
                   this.$net.page['profile/app'],
                   this.$net.page['profile/app/add'],
+                  // path start with profile/config-server
+                  new RegExp(`^${this.$utils.escapeRegexp(this.$net.page['profile/config-server'])}.*`)
                 ],
                 pathType: 'exclude'
               }, {key: 'NO_APP', value: true});

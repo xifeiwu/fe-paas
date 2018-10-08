@@ -110,10 +110,18 @@ const actions = {
       return Promise.reject('groupId not found');
     }
     const net = Vue.prototype.$net;
-    const resContent = await net.requestPaasServer(net.URL_LIST.app_list_by_group, {
-      payload: {groupId: groupId}
-    });
-    state.appInfoListOfGroup = await net.parseAppList(resContent);
+    try {
+      const resContent = await net.requestPaasServer(net.URL_LIST.app_list_by_group, {
+        payload: {groupId: groupId}
+      });
+      state.appInfoListOfGroup = await net.parseAppList(resContent);
+    } catch(err) {
+      Vue.prototype.$notify.error({
+        title: '获取应用列表失败，请联系管理员',
+        message: err.message,
+        duration: 8000
+      });
+    }
     return state.appInfoListOfGroup;
   },
 };
