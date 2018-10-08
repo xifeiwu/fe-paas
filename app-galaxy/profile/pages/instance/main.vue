@@ -101,11 +101,11 @@
                     type="text" class="primary flex">
               <span>查看运行日志</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div class="ant-divider" v-if="!$storeHelper.notPermitted['go-to-log-run-from-instance']"></div>
+            <div class="ant-divider" v-if="!$storeHelper.notPermitted['go-to-log-run-from-instance'] && false"></div>
             <el-button
                     @click="handleRowButtonClick('go-to-page-monitor', scope.$index, scope.row)"
                     :disabled="false"
-                    v-if="!$storeHelper.notPermitted['go-to-page-monitor-from-instance']"
+                    v-if="!$storeHelper.notPermitted['go-to-page-monitor-from-instance'] && false"
                     type="text" class="primary flex">
               <span>监控</span><i class="paas-icon-level-up"></i>
             </el-button>

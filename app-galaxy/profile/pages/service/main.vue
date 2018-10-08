@@ -124,15 +124,15 @@
                  v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"></div>
             <el-button
                     class="danger"
-                    v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy'] && false"
+                    v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"
                     type="text"
                     :loading="statusOfWaitingResponse('quick-deploy') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('quick-deploy', scope.$index, scope.row)"
             >
-              {{statusOfWaitingResponse('quick-deploy') && selected.service.id == scope.row.id ? '部署中': '快速部署'}}
+              {{statusOfWaitingResponse('quick-deploy') && selected.service.id == scope.row.id ? '部署中': '重启'}}
             </el-button>
             <div class="ant-divider"
-                 v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy'] && false"></div>
+                 v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"></div>
 
             <el-button
                     class="danger" type="text"
