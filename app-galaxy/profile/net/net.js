@@ -274,6 +274,11 @@ class Net extends NetBase {
         path: '/workOrderDeploy/deploy',
         method: 'post'
       },
+      // 工单详情
+      'work_order_detail': {
+        path: '/workOrderDeploy/{id}/details',
+        method: 'get'
+      }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];
@@ -2012,7 +2017,7 @@ class Net extends NetBase {
   /**
    * 获取工单详情
    */
-  getWorkOrderDetail(options) {
+  getWorkOrderDetail_1(options) {
     const getFeatureList = () => {
       return axios.post(URL_LIST.work_order_detail_feature_list.url, options);
     };

@@ -213,6 +213,122 @@ class WorkOrderUtils {
     }
   }
 
+  async getWorkOrderDetail(vueComponent, workOrderId) {
+    const $net = vueComponent.$net;
+    const $utils = vueComponent.$utils;
+    const resContent = await $net.requestPaasServer($net.URL_LIST.work_order_detail, {
+      params: {id: workOrderId}
+    });
+    // console.log(resContent);
+
+    const workOrderDetail = {
+      id: resContent['id'],
+      name: resContent['name'],
+      creatorName: resContent['creatorName'],
+      groupId: resContent['groupId'],
+      groupName: resContent['groupName'],
+      // 功能列表
+      featureList: [],
+      appID: resContent['appVOList'][0]['appId'], // to delete
+      appName: resContent['appVOList'][0]['appName'], // to delete
+      serviceVersion: resContent['appVOList'][0]['serviceVersion'], // to delete
+      // 应用列表
+      appList: resContent['appVOList'],
+      // 验收人列表
+      acceptedUserList: [],
+      acceptedUserIdList: [],
+      // 知会人列表
+      notifyUserList: resContent['informUserList'],
+      notifyUserIdList: resContent['informUserList'].map(it => {
+        return it['userId'];
+      }),
+      // 邮件组列表
+      mailGroupList: resContent['emailGroupList'].map(it => {
+        return it.emailGroupName;
+      }),
+      // 操作记录
+      operationList: [],
+      // 测试报告列表
+      testLogList: resContent['workOrderDeployTestReportList'].map(it => {
+        return {
+          path: it['testReportFilePath'],
+          name: it['testReportFileName'],
+          url: encodeURI($utils.formatUrl($net.URL_LIST.work_order_detail_download_test_log_get.url, {
+            id: it.id
+          })),
+          id: it.id
+        }
+      }),
+
+      // 工单状态
+      status: resContent['status'],
+      statusName: this.getNameByStatus(resContent['status']),
+      // 测试类型
+      testType: '',
+      testTypeLabel: this.getTestTypeByValue(resContent['testType']),
+      // 工单备注
+      comment: resContent['remark'] ? resContent['remark'] : '无备注',
+    };
+    // 功能列表
+    const featureNameMap = {
+      'DEMAND': '需求',
+      'BUG': 'BUG'
+    };
+    workOrderDetail['featureList'] = resContent['functionVOList'].map(it => {
+      return {
+        name: it.functionName,
+        type: it.functionType,
+        typeName: featureNameMap[it.functionType],
+        jiraAddress: it.jiraAddress,
+        description: it.description,
+        valid: true,
+      }
+    });
+
+    // 验收人列表
+    const acceptedStatusMap = {
+      NO_HANDLE: '未处理',
+      REJECT: '拒绝处理',
+      HANDLEING: '处理中',
+      PASS: '通过'
+    };
+    workOrderDetail['acceptedUserList'] = resContent['acceptanceUserList'].map(it => {
+      return {
+        id: it.userId,
+        userName: it.userName,
+        status: acceptedStatusMap[it.status]
+      }
+    });
+    workOrderDetail['acceptedUserIdList'] = workOrderDetail['acceptedUserList'].map(it => {
+      return it['id'];
+    });
+
+    // 操作记录
+    const operationMap = {
+      'WORKORDER_APPLY': '工单申请',
+      'WAIT_TEST': '等待测试',
+      'TESTING': '测试受理中',
+      'HANDLEING': '处理中',
+      'WAIT_DBA': '等待DBA处理',
+      'DBAING': 'DBA受理中',
+      'WAIT_DEPLOY': '等待部署',
+      'DEPLOYING': '部署受理中',
+      'WAIT_ACCEPTANCE': '等待验收',
+      'ACCEPTANCEING': '验收受理中',
+      'END': '结束',
+    };
+    workOrderDetail['operationList'] = resContent['workOrderDeployLogList'].map(it => {
+      return {
+        createTime: $utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss'),
+        handleUserName: it['handleUserName'],
+        actionName: it['actionName'],
+        remark: it['remark'],
+      }
+    });
+
+    return workOrderDetail;
+  }
+
   /**
    * 通过工单基本信息获得工单详情
    * @param vueComponent
@@ -225,7 +341,7 @@ class WorkOrderUtils {
       if (!workOrder.hasOwnProperty('id')) {
         reject(workOrderDetail);
       }
-      vueComponent.$net.getWorkOrderDetail({
+      vueComponent.$net.getWorkOrderDetail_1({
         id: workOrder.id
       }).then(result => {
         // console.log(result);

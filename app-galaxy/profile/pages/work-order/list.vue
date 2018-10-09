@@ -477,6 +477,8 @@
       handleOperationClick(action, index, row) {
         // operation.rowID is used to indicate which row is active
         this.operation.rowID = row.id;
+//        console.log(action);
+//        console.log(row);
         switch (action) {
           case 'detail':
             // update expandRows
@@ -527,16 +529,27 @@
             };
             // update data of model for work-order-detail
             this.addToWaitingResponseQueue('detail');
-            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
-              this.hideWaitingResponse('detail');
-//              console.log(detail);
+
+            WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
               this.workOrderDetail = detail;
-              this.operation.name = action;
               updateExpandRows();
             }).catch(err => {
+              console.log(err);
+            }).finally(() => {
               this.hideWaitingResponse('detail');
               this.operation.name = action;
             });
+            return;
+//            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
+//              this.hideWaitingResponse('detail');
+//              this.workOrderDetail = detail;
+//              console.log(JSON.stringify(detail));
+//              this.operation.name = action;
+//              updateExpandRows();
+//            }).catch(err => {
+//              this.hideWaitingResponse('detail');
+//              this.operation.name = action;
+//            });
             break;
           case 'deploy-log':
             this.addToWaitingResponseQueue('deploy-log');
