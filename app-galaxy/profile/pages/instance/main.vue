@@ -405,6 +405,7 @@
             this.instanceStatus.instanceCount = resContent['instanceNum'];
           }
         }).catch(err => {
+          console.log(err);
         }).finally(() => {
         });
       },
@@ -602,9 +603,9 @@
             this.$storeHelper.dataTransfer = {
               from: this.$net.page['profile/instance'],
               data: {
-                appID: valueOfVersionSelector['selectedAPP'].appId,
-                profileID: valueOfVersionSelector['selectedProfile'].id,
-                serviceID: valueOfVersionSelector['selectedService'].id
+                appId: valueOfVersionSelector['selectedAPP'].appId,
+                profileId: valueOfVersionSelector['selectedProfile'].id,
+                serviceId: valueOfVersionSelector['selectedService'].id
               }
             };
             this.$router.push(this.$net.page['profile/log/run']);

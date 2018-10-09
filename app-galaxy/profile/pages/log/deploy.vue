@@ -104,7 +104,7 @@
             this.config4VersionSelector = {
               appId: data['appId'],
               profileId: data['profileId'],
-              serviceVersion: data['serviceVersion'],
+              serviceId: data['serviceId'],
             };
             break;
           case this.$net.page['profile/work-order/list']:
