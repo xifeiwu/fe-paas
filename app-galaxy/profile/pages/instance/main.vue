@@ -392,7 +392,7 @@
           if (resContent.hasOwnProperty('instanceList')) {
             const instanceList = resContent.instanceList;
             instanceList.forEach(it => {
-              it.updated = it.updated.split(' ');
+              it.updated = it.updated ? it.updated.split(' ') : '---';
               this.$utils.renameProperty(it, 'state', 'status');
               this.$utils.renameProperty(it, 'ip', 'intranetIP');
               this.$utils.renameProperty(it, 'updated', 'createTime');
