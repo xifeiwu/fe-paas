@@ -79,17 +79,16 @@ const actions = {
     commit('SET_PROFILE_LIST', profileList);
   },
 
-  usersInGroup({commit, state}) {
+  async usersInGroup({commit, state}) {
     const net = Vue.prototype.$net;
-    if (!state.usersInGroup) {
-      net.requestPaasServer(net.URL_LIST.users_list_of_group, {
-        payload: {
-          id: state.groupId
-        }
-      }).then(resContent => {
-        state.usersInGroup = resContent['groupUserList'];
-      }).catch(() => {});
-    }
+    const resContent = await net.requestPaasServer(net.URL_LIST.users_list_of_group, {
+      payload: {
+        id: state.groupId
+      }
+    });
+    const usersInGroup = resContent['groupUserList'];
+    state.usersInGroup = usersInGroup;
+    return usersInGroup;
   },
 
   config({commit, state}, {page, data}) {

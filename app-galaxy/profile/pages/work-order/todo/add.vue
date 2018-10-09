@@ -3,13 +3,14 @@
        v-loading="showLoading"
        :element-loading-text="loadingText">
     <div class="title-section">
+      <span>申请工单</span>
       <el-tooltip slot="trigger" effect="dark" placement="bottom">
         <div slot="content">
           <div>申请工单注意事项</div>
           <div>1. 必须选定生产环境版本，确保所选择应用的生产环境下有版本。</div>
           <div>2. 在所选应用版本的工单处理完成前，不可提交新的工单。</div>
         </div>
-        <span>申请工单<i class="el-icon-question"></i></span>
+        <i class="paas-icon-fa-question" style="font-size: 14px; color: #E6A23C; cursor: pointer"></i>
       </el-tooltip>
     </div>
     <div class="basic-section">
@@ -175,7 +176,9 @@
     margin-left: 30px;
     padding: 16px 30px;
     .title-section {
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       margin: 15px 0px;
     }
     .basic-section {
@@ -380,6 +383,9 @@
         if (groupInfo && groupInfo.hasOwnProperty('name')) {
           this.workOrderDetail.groupName = groupInfo.name;
         }
+
+        // update usersInGroup
+        this.$store.dispatch('user/usersInGroup');
       },
       // set defaultAppID(first element in array) for this.workOrderDetail.appID
       onAppInfoListOfGroup(value) {
