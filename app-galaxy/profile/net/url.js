@@ -59,12 +59,6 @@ class URL extends BaseURL {
       // 创建应用
       'app_create': {
       },
-      // 删除应用
-      'app_delete': {
-        url: API_PATH + '/application/delete',
-        path: '/application/delete',
-        method: 'post'
-      },
       // 修改应用名称
       'app_change_name': {
         url: API_PATH + '/application/updateAppName',

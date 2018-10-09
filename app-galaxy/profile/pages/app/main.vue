@@ -67,7 +67,7 @@
             <div v-else>{{scope.row.createTime}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="运行环境" prop="profileList" minWidth="200" headerAlign="center" align="center">
+        <el-table-column label="运行环境（服务版本数）" prop="profileList" minWidth="200" headerAlign="center" align="center">
           <template slot-scope="scope">
             <div v-for="item in scope.row.profileListAll" :label="item.name" :key="item.name"
                  :class="{'profile-item': true, 'active': item.active}"
@@ -467,6 +467,17 @@
         } catch(err) {
         }
       },
+
+      // change value of showAppList
+      onAppListChange() {
+        // whether show page appList or createApp
+        if (this.appInfoListOfGroup.appList && this.appInfoListOfGroup.appList.length === 0) {
+          this.showAppList = false;
+        } else {
+          this.showAppList = true;
+        }
+      },
+
       onAppInfoListOfGroup(value, oldValue) {
         // go to first page
         this.currentPage = 1;
@@ -483,12 +494,8 @@
           });
           this.myAppCount = count;
         }
-        // whether show page appList or createApp
-        if (this.appInfoListOfGroup.appList && this.appInfoListOfGroup.appList.length === 0) {
-          this.showAppList = false;
-        } else {
-          this.showAppList = true;
-        }
+
+        this.onAppListChange();
 
         this.appInfoListOfGroup.appList.forEach(app => {
           const profileMap = {};
@@ -539,7 +546,7 @@
       /**
        * handle click event in the operation-column
        */
-      handleTRButton(action, index, row) {
+      async handleTRButton(action, index, row) {
         let appInfo = this.$storeHelper.getAppInfoByID(row.appId);
         if (!appInfo) {
           return;
@@ -551,36 +558,27 @@
         switch (action) {
           case 'deleteRow':
             this.addToWaitingResponseQueue(action);
-            this.warningConfirm(`删除应用"${row.appName}"将会销毁所有环境的代码和配置信息，
-            解绑所有公网域名、IP白名单，删除后应用数据不可恢复！`).then(() => {
-              this.warningConfirm(`您确认要删除应用"${row.appName}"，并清除该应用的一切数据？`).then(() => {
-                this.$net.deleteAPP({
+            try {
+              await this.warningConfirm(`删除应用"${row.appName}"将会销毁所有环境的代码和配置信息，解绑所有公网域名、IP白名单，删除后应用数据不可恢复！`);
+              await this.warningConfirm(`您确认要删除应用"${row.appName}"，并清除该应用的一切数据？`);
+              await this.$net.requestPaasServer(this.$net.URL_LIST.app_delete, {
+                payload: {
                   groupId: this.$storeHelper.currentGroupID,
                   id: row.appId
-                }).then(res => {
-                  this.hideWaitingResponse(action);
-                  this.$storeHelper.deleteAppInfoByID(row.appId);
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.requestAPPList({});
-                }).catch((err) => {
-                  this.hideWaitingResponse(action);
-                  this.$notify.error({
-                    title: '删除应用失败！',
-                    message: err,
-                    duration: 0,
-                    onClose: function () {
-                    }
-                  });
-                });
-              }).catch(() => {
-                this.hideWaitingResponse(action);
+                }
               });
-            }).catch(()=> {
               this.hideWaitingResponse(action);
-            });
+              this.$storeHelper.deleteAppInfoByID(row.appId);
+              this.onAppListChange();
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              });
+              this.requestAPPList({});
+            } catch(err) {
+              this.hideWaitingResponse(action);
+            }
+            this.onAppListChange();
             break;
           case 'change-profileNames':
             this.profileChangeStatus.toAdd = [];

@@ -213,7 +213,7 @@
         return userName;
       },
       userRole() {
-        return this.$storeHelper.getUserInfo('role');;
+        return this.$storeHelper.getUserInfo('role');
       },
       groupList() {
         return this.$storeHelper.groupList;

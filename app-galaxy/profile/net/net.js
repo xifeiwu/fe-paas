@@ -78,6 +78,11 @@ class Net extends NetBase {
         path: '/application/create',
         method: 'post'
       },
+      // 删除应用
+      'app_delete': {
+        path: '/application/delete',
+        method: 'post'
+      },
 
       /** 服务相关 */
       // 创建服务
@@ -748,31 +753,6 @@ class Net extends NetBase {
         reject(err);
       })
     })
-  }
-
-  deleteAPP(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.app_delete.url, options).then(response => {
-        // console.log('in deleteAPP');
-        let content = null;
-        if ('data' in response) {
-          let data = response.data;
-          if (0 === data.code) {
-            content = data.content ? data.content : {};
-            resolve(content);
-          } else {
-            reject(data.msg);
-          }
-        }
-        // if (content) {
-        //   resolve(content);
-        // } else {
-        //   reject('删除应用失败');
-        // }
-      }).catch(err => {
-        reject(JSON.stringify(err));
-      })
-    });
   }
 
   /**

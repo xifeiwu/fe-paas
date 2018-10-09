@@ -541,11 +541,14 @@
           case 'deploy-log':
             this.addToWaitingResponseQueue('deploy-log');
             WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
-              // NOTICE: set groupID when
-              if (!detail.groupId) {
-                this.$message.error('您无法查看其它团队的部署日志！');
-                throw new Error('groupId not found!');
-                return;
+              // 平台管理员不受限制
+              if (this.$storeHelper.getUserInfo('role') !== '平台管理员') {
+                // NOTICE: set groupID when
+                if (!detail.groupId) {
+                  this.$message.error('您无法查看其它团队的部署日志！');
+                  throw new Error('groupId not found!');
+                  return;
+                }
               }
               if (this.$storeHelper.currentGroupID != detail.groupId) {
                 this.$storeHelper.currentGroupID = detail.groupId;

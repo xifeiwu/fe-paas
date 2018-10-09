@@ -29,11 +29,11 @@ class Router {
         name: '团队管理',
         component: ManageGroup
       },
-      {
-        path: '/user/k8s',
-        name: 'k8s事件报警',
-        component: k8sWarning
-      }
+      // {
+      //   path: '/user/k8s',
+      //   name: 'k8s事件报警',
+      //   component: k8sWarning
+      // }
     ];
     this.addRoutePath(null, this.richRouterConfig);
     this.routePathToConfig = this.getRoutePathToConfig();
