@@ -12,7 +12,7 @@
       </el-tooltip>
     </div>
     <div class="section-body">
-      <my-show-detail :workOrderDetail="workOrderDetail"></my-show-detail>
+      <my-show-detail :workOrderDetail="workOrderDetail" :showAppDeploy="true" @app-deploy="handleButtonClick"></my-show-detail>
       <el-form labelWidth="110px" size="mini" :model="handleInfo" :rules="rules" ref="handle-form">
         <el-form-item label="审批意见" prop="comment" class="comment">
           <el-input v-model="handleInfo.comment"
@@ -31,7 +31,7 @@
       <el-button
               size="mini"
               type="primary"
-              v-if="!$storeHelper.notPermitted['work-order_deploy_app']"
+              v-if="!$storeHelper.notPermitted['work-order_deploy_app'] && false"
               @click="handleButtonClick('deploy')">部署应用</el-button>
       <el-button
               size="mini"
@@ -264,13 +264,40 @@
         }
       },
 
-      async handleButtonClick(action) {
+      getProductionProfile() {
+        const profileType = 'PRODUCTION';
+        const profileInfo = this.$storeHelper.getProfileInfoByType(profileType);
+        return profileInfo;
+      },
+
+      async handleButtonClick(action, index, row) {
         switch (action) {
+          case 'app-deploy':
+//            console.log(index, row);
+            var profileInfo = this.getProductionProfile();
+            if (!profileInfo || !profileInfo.hasOwnProperty('id')) {
+              this.$message.error('未找到profileID');
+              return;
+            }
+            if (!row.serviceVersion || !row.appId) {
+              this.$message.error('信息不完整：请检查应用名和版本是否完整！');
+              return;
+            }
+            try {
+              await this.serviceDeploy({
+                applicationId: row.appId,
+                spaceId: profileInfo.id,
+                serviceVersion: row.serviceVersion,
+                groupId: this.$storeHelper.currentGroupID
+              });
+            } catch (err) {
+              console.log(err);
+            }
+            break;
           case 'deploy':
 //            console.log(this.workOrderDetail);
 //            console.log(profileInfo);
-            const profileType = 'PRODUCTION';
-            const profileInfo = this.$storeHelper.getProfileInfoByType(profileType);
+            var profileInfo = this.getProductionProfile();
             if (!profileInfo || !profileInfo.hasOwnProperty('id')) {
               this.$message.error('未找到profileID');
               return;

@@ -277,6 +277,7 @@
         switch (dataTransfer['from']) {
           case this.$net.page['profile/work-order/todo']:
             const detail = dataTransfer['data'];
+            this.workOrderForm.id = detail['id'];
             this.workOrderForm.name = detail['name'];
             this.workOrderForm.groupId = detail['groupId'];
             this.workOrderForm.groupName = detail['groupName'];
@@ -319,6 +320,7 @@
         rules: WorkOrderPropUtils.rules.workOrder,
         mailGroup: '',
         workOrderForm: {
+          id: '',
           name: '',
           creatorName: this.$storeHelper.getUserInfo('realName'),
 //          groupId: this.currentGroupID,

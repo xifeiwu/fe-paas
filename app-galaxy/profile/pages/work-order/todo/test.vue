@@ -12,7 +12,8 @@
     </div>
 
     <div class="section-body">
-      <my-show-detail :workOrderDetail="workOrderDetail" :showTestLog="false"></my-show-detail>
+      <my-show-detail :workOrderDetail="workOrderDetail"
+                      :showTestLog="false" :showAppDeploy="false" @app-deploy="handleButtonClick"></my-show-detail>
       <el-form labelWidth="110px" size="mini" :model="handleInfo" :rules="rules" ref="handle-form">
         <el-form-item label="测试类型" prop="testType" class="test-type">
           <el-select  v-model="handleInfo.testType">
@@ -303,6 +304,9 @@
             break;
           case 'delete-test-log':
             item.openPopover = true;
+            break;
+          case 'app-deploy':
+            console.log(index, item);
             break;
         }
       },

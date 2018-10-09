@@ -21,6 +21,19 @@
         </el-table-column>
         <el-table-column label="版本" prop="serviceVersion" headerAlign="center" align="center">
         </el-table-column>
+        <el-table-column
+                label="操作"
+                v-if="showAppDeploy"
+        >
+          <template slot-scope="scope">
+            <el-button
+                    type="warning"
+                    size="mini-extral"
+                    v-if="!$storeHelper.notPermitted['work-order_deploy_app']"
+                    @click="handleRowButtonClick('app-deploy', scope.$index, scope.row)"
+            >部署</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </el-form-item>
     <el-form-item label="待办人">{{workOrderDetail.userToDo}}</el-form-item>
@@ -128,12 +141,23 @@
         type: Boolean,
         default: true
       },
+      showAppDeploy: {
+        type: Boolean,
+        default: false
+      }
     },
     data() {
       return {
       }
     },
     methods: {
+      handleRowButtonClick(action, index, row) {
+        switch (action) {
+          case 'app-deploy':
+            this.$emit('app-deploy', 'app-deploy', index, row);
+            break;
+        }
+      }
     }
   }
 </script>
