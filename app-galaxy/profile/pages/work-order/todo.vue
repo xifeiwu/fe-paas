@@ -529,7 +529,13 @@
             this.addToWaitingResponseQueue('modify');
             WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
 //            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
-              this.$storeHelper.setTmpProp('workOrderDetail', detail);
+              if (this.$storeHelper.currentGroupID != detail.groupId) {
+                this.$storeHelper.currentGroupID = detail.groupId;
+              }
+              this.$storeHelper.dataTransfer = {
+                from: this.$net.page['profile/work-order/todo'],
+                data: detail
+              };
               this.$router.push('/profile/work-order/todo/modify');
             }).catch(() => {
             }).finally(() => {
