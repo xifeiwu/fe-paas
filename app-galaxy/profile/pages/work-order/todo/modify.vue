@@ -3,27 +3,29 @@
        v-loading="showLoading"
        :element-loading-text="loadingText">
     <div class="title-section">
-      <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
+      <span>修改工单</span>
+      <el-tooltip slot="trigger" effect="dark" placement="bottom">
         <div slot="content">
-          <div>修改工单注意事项</div>
+          <div>申请工单注意事项</div>
           <div>1. 必须选定生产环境版本，确保所选择应用的生产环境下有版本。</div>
           <div>2. 在所选应用版本的工单处理完成前，不可提交新的工单。</div>
         </div>
-        <span>修改工单<i class="el-icon-question"></i></span>
+        <i class="paas-icon-fa-question" style="font-size: 14px; color: #E6A23C; cursor: pointer"></i>
       </el-tooltip>
     </div>
+
     <div class="basic-section">
       <el-form :model="workOrderDetail" :rules="rules"
                ref="basicForm"
                size="mini"
                label-width="110px">
-        <el-form-item label="审批工单名称" prop="name">
+        <el-form-item label="审批工单名称" prop="name" class="message-show">
           <span>{{workOrderDetail.name}}</span>
         </el-form-item>
-        <el-form-item label="申请人：">
+        <el-form-item label="申请人" class="message-show">
           {{workOrderDetail.creatorName}}
         </el-form-item>
-        <el-form-item label="团队名称" prop="groupName">
+        <el-form-item label="团队名称" prop="groupName" class="message-show">
           <span>{{workOrderDetail.groupName}}</span>
           <!--<el-select v-model="currentGroupID" placeholder="请选择">-->
             <!--<el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">-->
@@ -181,17 +183,19 @@
   #work-order-modify {
     background: white;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-    width: 660px;
+    width: 700px;
     margin: 20px;
     margin-left: 30px;
-    padding: 18px;
+    padding: 16px 30px;
     .title-section {
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       margin: 15px 0px;
     }
     .feature-section {
+      width: 660px;
       margin-top: 22px;
-      width: 620px;
       .title {
         border-left: 5px solid gray;
         border-top: 1px solid gray;
@@ -199,6 +203,7 @@
         margin: 15px 0px 15px -2px;
       }
       .feature-form-list {
+        text-align: center;
         .work-order-feature {
           display: inline-block;
           /*& + .work-order-feature {*/
