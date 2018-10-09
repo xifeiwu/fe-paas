@@ -53,11 +53,6 @@ class Net extends NetBase {
         path: '/backstage/downloadDeployCountXls',
         method: 'post'
       },
-      //通过lob获取group列表
-      'get_group_list_by_lob':{
-        path:'/queryGroupByLobId',
-        method:'post',
-      },
       //通过lob获取scrum列表
       'get_scrum_list_by_lob':{
         path:'/queryScrumByLobId',

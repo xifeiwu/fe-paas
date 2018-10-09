@@ -20,15 +20,15 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="所属ScrumTeam" prop="scrumID" class="scrumTeam" v-if="true">
-        <el-select v-model="createAppForm.scrumID" placeholder="请选择" filterable>
-          <el-option v-for="item in scrumList" :key="item.id" :label="item.scrumName" :value="item.id">
-          </el-option>
-        </el-select>
-      </el-form-item>
       <el-form-item label="所属LOB" prop="lobID" class="lob" v-if="true">
         <el-select v-model="createAppForm.lobID" placeholder="请选择" filterable>
           <el-option v-for="item in lobList" :key="item.id" :label="item.lobName" :value="item.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="所属ScrumTeam" prop="scrumID" class="scrumTeam" v-if="true">
+        <el-select v-model="createAppForm.scrumID" placeholder="请选择" filterable>
+          <el-option v-for="item in scrumList" :key="item.id" :label="item.scrumName" :value="item.id">
           </el-option>
         </el-select>
       </el-form-item>
