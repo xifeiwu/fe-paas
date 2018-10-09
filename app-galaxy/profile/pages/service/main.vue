@@ -97,7 +97,7 @@
         </el-table-column>
         <el-table-column
           prop="applicationServiceStatus"
-          label="运行实例数/K8S总实例数"
+          label="运行实例数/总实例数"
           width="180"
           headerAlign="center" align="center"
         >
@@ -232,7 +232,7 @@
                   </el-form-item>
                   <el-form-item label="负载均衡">
                     {{valueToShow(selected.service.loadBalance)}}
-                    <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="false"></i>
+                    <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="$storeHelper.groupVersion === 'v1'"></i>
                   </el-form-item>
                   <el-form-item label="CPU/内存">
                     <span>{{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}</span>
@@ -258,6 +258,13 @@
                     <div class="expand-to-next-line">
                       <span>{{valueToShow(selected.service.gitLabBranch)}}</span>
                       <i v-if="!$storeHelper.notPermitted['service_update']" class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i></div>
+                  </el-form-item>
+                  <el-form-item label="mainClass" class="main-class big" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
+                    <div class="expand-to-next-line">
+                      <span>{{valueToShow(selected.service.mainClass)}}</span>
+                      <i v-if="!$storeHelper.notPermitted['service_update']"
+                         class="el-icon-edit" @click="handleChangeProp('mainClass')"></i>
+                    </div>
                   </el-form-item>
                   <el-form-item label="gitlab父级pom相对路径" class="relativePathOfParentPOM big" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
                     <div class="expand-to-next-line">
@@ -701,6 +708,37 @@
       </div>
     </el-dialog>
 
+    <el-dialog title="更改mainClass" :visible="selected.prop == 'mainClass'"
+               :close-on-click-modal="false"
+               @close="selected.prop = null"
+               class="main-class size-500"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改mainClass后需要重新【部署】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeMainClassForm" size="mini">
+        <el-form-item label="当前mainClass：">
+          <div class="expand-to-next-line">{{selected.model.mainClass}}</div>
+        </el-form-item>
+        <el-form-item label="更改mainClass为：" prop="mainClass">
+          <el-input v-model="newProps.mainClass" placeholder=""></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleDialogButtonClick('mainClass')"
+                     :loading="waitingResponse">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="selected.prop = null">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
     <el-dialog title="更改pom相对路径" :visible="selected.prop == 'relativePath'"
                :close-on-click-modal="false"
                @close="selected.prop = null"
@@ -852,7 +890,7 @@
     <el-dialog title="更改负载均衡" :visible="selected.prop == 'loadBalance'"
                :close-on-click-modal="false"
                @close="selected.prop = null"
-               class="load-balance size-500"
+               class="load-balance size-600"
                v-if="selected.service && selected.model"
     >
       <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeLoadBalanceForm">
@@ -897,6 +935,15 @@
           ></el-input>
         </el-form-item>
       </el-form>
+      <div style="color:#409EFF; text-align:left; cursor:pointer" @click="handleDialogButtonClick('set-default-vmOptions')">
+        <span>帮我填</span>
+        <el-tooltip slot="trigger" effect="dark" placement="bottom">
+          <div slot="content">
+            <div>填写默认的VM_options</div>
+          </div>
+          <span><i class="paas-icon-fa-question" style="color: #E6A23C; font-size:12px;"></i></span>
+        </el-tooltip>
+      </div>
       <div slot="footer" class="dialog-footer">
         <el-row>
           <el-col :span="12" style="text-align: center">
@@ -2342,7 +2389,8 @@ export default {
      * @param prop
      */
     handleChangeProp(prop) {
-      if (['healthCheck', 'packageInfo', 'portMap', 'prestopCommand', 'image','gitLabAddress', 'gitLabBranch', 'relativePath','mavenProfileId',
+      if (['healthCheck', 'packageInfo', 'portMap', 'prestopCommand', 'image','gitLabAddress', 'gitLabBranch',
+          'mainClass', 'relativePath','mavenProfileId',
           'cpuAndMemory', 'rollingUpdate', 'loadBalance', 'environments', 'hosts',
           'fileLocation', 'vmOptions', 'oneApm'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
@@ -2354,6 +2402,7 @@ export default {
         case 'gitLabAddress':
         case 'gitLabBranch':
         case 'relativePath':
+        case 'mainClass':
         case 'mavenProfileId':
         case 'rollingUpdate':
         case 'loadBalance':
@@ -2438,8 +2487,15 @@ export default {
     async handleDialogButtonClick(prop) {
       let formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
       switch (prop) {
+        case 'set-default-vmOptions':
+          this.newProps['vmOptions'] = `-server -Xmx2g -Xms2g -Xmn256m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=256m -Xss256k -XX:+UseConcMarkSweepGC -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -XX:+PrintGCTimeStamps -XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses -XX:+PrintGCDetails -XX:+PrintGCDateStamps`;
+          break;
+        case 'clear-vmOptions':
+          this.newProps['vmOptions'] = '';
+          break;
         case 'gitLabAddress':
         case 'gitLabBranch':
+        case 'mainClass':
         case 'relativePath':
         case 'mavenProfileId':
         case 'rollingUpdate':
@@ -2634,6 +2690,7 @@ export default {
       switch (prop) {
         case 'gitLabAddress':
         case 'gitLabBranch':
+        case 'mainClass':
         case 'relativePath':
         case 'mavenProfileId':
         case 'rollingUpdate':
@@ -2720,6 +2777,7 @@ export default {
         case 'loadBalance':
         case 'gitLabAddress':
         case 'gitLabBranch':
+        case 'mainClass':
         case 'relativePath':
         case 'mavenProfileId':
         case 'oneApm':

@@ -82,6 +82,15 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
+            <el-form-item label="mainClass" prop="mainClass"
+                          v-if="appLanguage == 'JAVA' && !imageSelectState.customImage"
+                          class="main-class"
+            >
+              <el-input v-model="serviceForm.mainClass"
+                        placeholder=""></el-input>
+            </el-form-item>
+          </transition>
+          <transition name="more-config">
             <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
                           v-if="appLanguage == 'JAVA' && !imageSelectState.customImage"
                           class="relative-path-of-parent-pom"
@@ -100,7 +109,23 @@
           <el-form-item label="VM_Options" prop="vmOptions" class="vm-options"
                         v-if="appLanguage == 'JAVA'"
           >
-            <el-input v-model="serviceForm.vmOptions" placeholder="不能包含中文，不能超过512个字符"></el-input>
+            <div>
+              <el-input v-model="serviceForm.vmOptions"
+                        size="mini"
+                        type="textarea"
+                        :rows="3"
+                        placeholder="不能包含中文，不能超过512个字符"
+              ></el-input>
+              <div style="color:#409EFF; display:flex; align-items: flex-start; cursor:pointer; font-size: 12px; line-height: 16px;">
+                <span style="line-height: 20px;" @click="handleClick('set-default-vmOptions')">帮我填</span>
+                <el-tooltip slot="trigger" effect="dark" placement="bottom">
+                  <div slot="content">
+                    <div>填写默认的VM_options</div>
+                  </div>
+                  <span><i class="paas-icon-fa-question" style="color: #E6A23C; font-size:12px;"></i></span>
+                </el-tooltip>
+              </div>
+            </div>
           </el-form-item>
           <el-form-item label="应用监控" prop="appMonitor" class="app-monitor" v-if="false">
             <el-radio-group v-model="serviceForm.appMonitor" size="mini" v-if="appPropUtil">
@@ -403,7 +428,7 @@
           &.relative-path-of-parent-pom {
             max-width: 600px;
           }
-          &.vm-options {
+          &.main-class {
             max-width: 600px;
           }
           &.maven-profile-id {
@@ -532,6 +557,7 @@
           serviceVersion: '',
           gitLabAddress: '',
           gitLabBranch: 'master',
+          mainClass: '',
           relativePathOfParentPOM: '',
           appMonitor: appPropUtil.defaultAppMonitorId,
           vmOptions: '',
@@ -965,6 +991,9 @@
               this.scrollTop();
             }
             break;
+          case 'set-default-vmOptions':
+            this.serviceForm['vmOptions'] = `-server -Xmx2g -Xms2g -Xmn256m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=256m -Xss256k -XX:+UseConcMarkSweepGC -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -XX:+PrintGCTimeStamps -XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses -XX:+PrintGCDetails -XX:+PrintGCDateStamps`;
+            break;
           case 'back':
             this.$router.go(-1);
             break;
@@ -990,6 +1019,7 @@
                   serviceVersion: serviceForm.serviceVersion,
                   gitLabAddress: serviceForm.gitLabAddress,
                   gitLabBranch: serviceForm.gitLabBranch,
+                  mainClass: serviceForm.mainClass,
                   relativePath: serviceForm.relativePathOfParentPOM,
                   vmOptions: serviceForm.vmOptions,
                   appMonitor: serviceForm.appMonitor,

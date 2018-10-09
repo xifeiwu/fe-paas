@@ -55,7 +55,16 @@
                     class="el-icon-edit" @click="handleTRButton('change-appName', scope.$index, scope.row)"></i>
           </template>
         </el-table-column>
-        <el-table-column label="项目名称" prop="tag" headerAlign="left" align="left" minWidth="120"></el-table-column>
+        <el-table-column label="项目名称" prop="tag" headerAlign="left" align="left" minWidth="120">
+          <template slot-scope="scope">
+            <span>{{scope.row.tag}}</span>
+            <el-tooltip slot="trigger" effect="light" placement="top" v-if="$storeHelper.groupVersion === 'v1'">
+              <div slot="content">这是一个{{scope.row.k8s === 1 ? 'k8s':'mesos'}}应用</div>
+              <span style="display: inline; color: #409EFF; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #409EFF; border-radius: 4px; word-break: normal"
+              >{{scope.row.k8s === 1 ? 'k8s':'mesos'}}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="120">
         </el-table-column>
         <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="100">

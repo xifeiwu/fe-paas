@@ -480,8 +480,7 @@ class AppInfoHelper {
   }
 
   getAllLoadBalance() {
-  // , 'Session_sticky'
-    return ['Round_robin'].map(it => {
+    return ['Session_sticky', 'Round_robin', 'IP_HASH'].map(it => {
       return it.toUpperCase();
     })
   }

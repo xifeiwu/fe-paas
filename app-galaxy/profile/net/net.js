@@ -141,6 +141,11 @@ class Net extends NetBase {
         path: '/service/updateRelativePath',
         method: 'post'
       },
+      // 更改mainClass
+      'service_update_main_class': {
+        path: '/service/updateMainClass',
+        method: 'post'
+      },
       // 更改maven profile id
       'service_update_maven_profile_id': {
         path: '/service/updateMavenProfileId',
@@ -825,6 +830,7 @@ class Net extends NetBase {
           loadBalance: service.loadBalance,
           gitLabAddress: service.gitLabAddress,
           gitLabBranch: service.gitLabBranch,
+          mainClass: service.mainClass,
           relativePath: service.relativePath,
           mavenProfileId: service.mavenProfileId,
           fileLocation: service.fileLocation ? service.fileLocation : [],
@@ -1078,6 +1084,7 @@ class Net extends NetBase {
       'image': URL_LIST.service_update_image,
       'gitLabAddress': URL_LIST.service_update_gitLab_address,
       'gitLabBranch': URL_LIST.service_update_gitLab_branch,
+      'mainClass': URL_LIST.service_update_main_class,
       'relativePath': URL_LIST.service_update_relative_path,
       'mavenProfileId': URL_LIST.service_update_maven_profile_id,
       'cpuAndMemory': URL_LIST.service_update_cpu_and_memory,
