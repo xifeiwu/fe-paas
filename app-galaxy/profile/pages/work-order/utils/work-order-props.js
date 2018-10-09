@@ -234,6 +234,7 @@ class WorkOrderUtils {
       serviceVersion: resContent['appVOList'][0]['serviceVersion'], // to delete
       // 应用列表
       appList: resContent['appVOList'],
+      userToDo: resContent['todoUserNames'],
       // 验收人列表
       acceptedUserList: [],
       acceptedUserIdList: [],
@@ -253,7 +254,7 @@ class WorkOrderUtils {
         return {
           path: it['testReportFilePath'],
           name: it['testReportFileName'],
-          url: encodeURI($utils.formatUrl($net.URL_LIST.work_order_detail_download_test_log_get.url, {
+          url: encodeURI($utils.formatUrl($net.URL_LIST.work_order_detail_download_test_log_get.path, {
             id: it.id
           })),
           id: it.id

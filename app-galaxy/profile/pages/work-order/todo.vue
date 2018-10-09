@@ -111,10 +111,13 @@
                     </el-table-column>
                   </el-table>
                 </el-form-item>
-                <el-form-item label="应用名/版本">
-                  <span>{{workOrderDetail.appName}}</span>
-                  <span>/</span>
-                  <span v-if="workOrderDetail.serviceVersion">{{workOrderDetail.serviceVersion}}</span><span v-else>版本未知</span>
+                <el-form-item label="应用列表">
+                  <el-table :data="workOrderDetail.appList">
+                    <el-table-column label="应用名称" prop="appName" headerAlign="center" align="center">
+                    </el-table-column>
+                    <el-table-column label="版本" prop="serviceVersion" headerAlign="center" align="center">
+                    </el-table-column>
+                  </el-table>
                 </el-form-item>
                 <el-form-item label="待办人">{{workOrderDetail.userToDo}}</el-form-item>
                 <el-form-item label="验收人">
@@ -508,25 +511,28 @@
 
             // update data of model for work-order-detail
             this.addToWaitingResponseQueue('detail');
-            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
-              this.hideWaitingResponse('detail');
+            WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
+//            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
 //              console.log(row);
 //              console.log(detail);
               this.workOrderDetail = detail;
-              this.operation.name = action;
               updateExpandRows();
             }).catch(err => {
+              console.log(err);
+            }).finally(() => {
               this.hideWaitingResponse('detail');
               this.operation.name = action;
+
             });
             break;
           case 'modify':
             this.addToWaitingResponseQueue('modify');
-            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
-              this.hideWaitingResponse('modify');
+            WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
+//            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
               this.$storeHelper.setTmpProp('workOrderDetail', detail);
               this.$router.push('/profile/work-order/todo/modify');
             }).catch(() => {
+            }).finally(() => {
               this.hideWaitingResponse('modify');
             });
             break;
@@ -543,7 +549,8 @@
               workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
 //              this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
 //              this.$router.push('/profile/work-order/todo/test');
-              WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
+              WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
+//              WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
                 if (detail.hasOwnProperty('testLogList')) {
                   // openPopover will be used for el-popover in work-order/todo/modify(test)
                   detail.testLogList.forEach(it => {
@@ -579,7 +586,8 @@
               let newStatus = workOrderInfo['status'];
               workOrderBasic.status = newStatus;
               workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
-              WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
+              WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
+//              WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
                 this.hideWaitingResponse(action);
                 this.$storeHelper.setTmpProp('workOrderDetail', detail);
                 this.$router.push('/profile/work-order/todo/deploy');

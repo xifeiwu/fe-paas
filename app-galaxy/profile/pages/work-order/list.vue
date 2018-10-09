@@ -105,10 +105,13 @@
                     </el-table-column>
                   </el-table>
                 </el-form-item>
-                <el-form-item label="应用名/版本">
-                  <span>{{workOrderDetail.appName}}</span>
-                  <span>/</span>
-                  <span v-if="workOrderDetail.serviceVersion">{{workOrderDetail.serviceVersion}}</span><span v-else>版本未知</span>
+                <el-form-item label="应用列表">
+                  <el-table :data="workOrderDetail.appList">
+                    <el-table-column label="应用名称" prop="appName" headerAlign="center" align="center">
+                    </el-table-column>
+                    <el-table-column label="版本" prop="serviceVersion" headerAlign="center" align="center">
+                    </el-table-column>
+                  </el-table>
                 </el-form-item>
                 <el-form-item label="待办人">{{workOrderDetail.userToDo}}</el-form-item>
                 <el-form-item label="验收人">
@@ -512,21 +515,6 @@
               return;
             }
 
-            let workOrderBasic = {
-              id: row.id,
-              name: row.name,
-              creatorName: row.creatorName,
-              groupName: row.groupName,
-              mailGroupList: [],
-              featureList: [],
-              appList: [],
-              userToDo: '获取失败',
-              acceptedUserList: [],
-              operationList: [],
-              comment: row.remark,
-              status: null,
-              statusName: null
-            };
             // update data of model for work-order-detail
             this.addToWaitingResponseQueue('detail');
 
@@ -553,7 +541,8 @@
             break;
           case 'deploy-log':
             this.addToWaitingResponseQueue('deploy-log');
-            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
+            WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
+//            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
               // 平台管理员不受限制
               if (this.$storeHelper.getUserInfo('role') !== '平台管理员') {
                 // NOTICE: set groupID when

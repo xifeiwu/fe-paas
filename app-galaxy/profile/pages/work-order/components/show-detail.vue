@@ -15,10 +15,13 @@
         </el-table-column>
       </el-table>
     </el-form-item>
-    <el-form-item label="应用名/版本">
-      <span>{{workOrderDetail.appName}}</span>
-      <span>/</span>
-      <span v-if="workOrderDetail.serviceVersion">{{workOrderDetail.serviceVersion}}</span><span v-else>版本未知</span>
+    <el-form-item label="应用列表">
+      <el-table :data="workOrderDetail.appList">
+        <el-table-column label="应用名称" prop="appName" headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column label="版本" prop="serviceVersion" headerAlign="center" align="center">
+        </el-table-column>
+      </el-table>
     </el-form-item>
     <el-form-item label="待办人">{{workOrderDetail.userToDo}}</el-form-item>
     <el-form-item label="验收人">

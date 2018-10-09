@@ -353,10 +353,6 @@ class URL extends BaseURL {
         url: API_PATH + '/workOrderDeploy/downloadTestReport',
         path: '/workOrderDeploy/downloadTestReport'
       },
-      'work_order_detail_download_test_log_get': {
-        url: API_PATH + '/workOrderDeploy/downloadTestReport/{id}',
-        path: '/workOrderDeploy/downloadTestReport/{id}'
-      },
       // 删除测试日志
       'work_order_delete_test_log': {
         url: API_PATH + '/workOrderDeploy/deleteTestReport/{id}',

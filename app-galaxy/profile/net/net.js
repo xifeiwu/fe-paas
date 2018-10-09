@@ -278,7 +278,11 @@ class Net extends NetBase {
       'work_order_detail': {
         path: '/workOrderDeploy/{id}/details',
         method: 'get'
-      }
+      },
+      'work_order_detail_download_test_log_get': {
+        path: '/workOrderDeploy/downloadTestReport/{id}',
+        method: 'get'
+      },
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];
