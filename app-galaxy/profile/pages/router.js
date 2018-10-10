@@ -559,32 +559,38 @@ class Helper {
       // remove / at end
       path = path.trim().replace(/\/+$/, '');
 
-      // 1. isPermitted check
-      const routeConfig = this.routePathToConfig[path];
+      var routeConfig = this.routePathToConfig[path];
       if (routeConfig) {
+        // 1. isPermitted check
         if (!isPermittedPath(path)) {
           result.jumpTo = getPermittedPath(path);
         }
-      }
-
-      const DISABLE_MAP = {
-        'NO_APP': '当前团队应用数为零。请先创建应用，才能进行后续操作',
-        'NOT_SUPPORT_IN_1.X': '正在功能迁移中，1.x团队暂时无法使用该页面。'
-      };
-      if (routeConfig.hasOwnProperty('meta') && routeConfig.meta.disabled) {
-        for (let key in routeConfig.meta.disabled) {
-          if (routeConfig.meta.disabled[key]) {
-            // jump to '/profile/app' if 'NO_APP'
-            if (key === 'NO_APP') {
-              result.jumpTo = '/profile/app';
-            } else {
-              result.jumpTo = '';
+        // update routeConfig
+        routeConfig = this.routePathToConfig[result.jumpTo];
+        // 2. disable check
+        const DISABLE_MAP = {
+          'NO_APP': '当前团队应用数为零。请先创建应用，才能进行后续操作',
+          'NOT_SUPPORT_IN_1.X': '正在功能迁移中，1.x团队暂时无法使用该页面。'
+        };
+        if (routeConfig.hasOwnProperty('meta') && routeConfig.meta.disabled) {
+          for (let key in routeConfig.meta.disabled) {
+            if (routeConfig.meta.disabled[key]) {
+              // jump to '/profile/app' if 'NO_APP'
+              if (key === 'NO_APP') {
+                result.jumpTo = '/profile/app';
+              } else {
+                result.jumpTo = '';
+              }
+              result.errMsg = DISABLE_MAP[key];
+              break;
             }
-            result.errMsg = DISABLE_MAP[key];
-            break;
           }
         }
+      } else {
+        // 404
+        result.jumpTo = path;
       }
+
       return result;
     };
 
