@@ -186,12 +186,11 @@
           });
         }
       },
-      onSelectedAppIdChanged (value, oldValue) {
-        let appId = value;
-        let appInfo = this.$storeHelper.getAppInfoByID(appId);
+      onSelectedAppIdChanged (appId, oldValue) {
+        const appInfo = this.$storeHelper.getAppInfoByID(appId);
         if (!appInfo) {
           // emit 'version-selected' even selectedApp is null
-          this.changeVersion(null, null, null);
+//          this.changeVersion(null, null, null);
           return;
         }
         this.selectedAPP = appInfo['app'];
@@ -269,12 +268,12 @@
             // get default version
             if (currentServiceList && Array.isArray(currentServiceList) && currentServiceList.length > 0) {
               this.currentServiceList = currentServiceList;
-              let firstServiceID = currentServiceList[0].id;
+              const firstServiceId = currentServiceList[0].id;
               // set default serviceId as follows:
               // 1. customConfig.serviceId if exist
               // 2. customConfig.serviceName if exist
               // 3. first element of profileList in selectedApp
-              if (this.customConfig) {
+              if (this.customConfig && (this.customConfig.hasOwnProperty('serviceId') || this.customConfig.hasOwnProperty('serviceVersion'))) {
                 let targetService = null;
                 if (this.customConfig.hasOwnProperty('serviceId')) {
                   targetService = getServiceById(currentServiceList, this.customConfig['serviceId']);
@@ -289,10 +288,10 @@
                   this.selectedServiceId = targetService.id;
                 } else {
                   console.log('service info passed is ignored');
-                  this.selectedServiceId = firstServiceID;
+                  this.selectedServiceId = firstServiceId;
                 }
               } else {
-                this.selectedServiceId = firstServiceID;
+                this.selectedServiceId = firstServiceId;
               }
             } else {
               // changeVersion even the length of profileList is zero
