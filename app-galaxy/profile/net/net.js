@@ -110,6 +110,11 @@ class Net extends NetBase {
         path: '/service/checkPortMapping',
         method: 'post'
       },
+      // 获取自动打镜像类型列表
+      'auto_image_list': {
+        path: '/image/queryBasicImage',
+        method: 'post'
+      },
 
       // 更改健康检查
       'service_update_health': {
@@ -1142,46 +1147,21 @@ class Net extends NetBase {
    * @param options
    * @returns {Promise}
    */
-  getImageRelatedInfo(options4Auto, options4Env, options4PrivateApp) {
+  async getImageRelatedInfo(options4Auto, options4Env, options4PrivateApp) {
     // 自动打镜像列表
-    const getAutoImageList = () => {
-      return axios.post(URL_LIST.auto_image_list.url, options4Auto);
-    };
+    // return axios.post(this.URL_LIST.auto_image_list.url, options4Auto);
     // 自定义镜像-环境镜像
-    const getCustomEnvImageList = () => {
-      return axios.post(URL_LIST.custom_image_env_list.url, options4Env);
-    };
+    // return axios.post(URL_LIST.custom_image_env_list.url, options4Env);
     // 自定义镜像-私有镜像(项目列表)
-    const getCustomPrivateImageAppList = () => {
-      return axios.post(URL_LIST.custom_image_private_app_list.url, options4PrivateApp);
-    };
-    return new Promise((resolve, reject) => {
-      axios.all([getAutoImageList()])
-        .then(axios.spread((autoImageList, customEnvImageList, privateAppList) => {
-          autoImageList = this.getResponseContent(autoImageList);
-          if (autoImageList && autoImageList.hasOwnProperty('basicImage')) {
-            autoImageList = autoImageList['basicImage'];
-          } else {
-            reject('autoImageList not found');
-          }
-          // customEnvImageList = this.getResponseContent(customEnvImageList);
-          // if (customEnvImageList && customEnvImageList.hasOwnProperty('envImage')) {
-          //   customEnvImageList = customEnvImageList['envImage'];
-          // } else {
-          //   reject('customEnvImageList not found');
-          // }
-          // privateAppList = this.getResponseContent(privateAppList);
-          // if (privateAppList && privateAppList.hasOwnProperty('projectName')) {
-          //   privateAppList = privateAppList['projectName'];
-          // } else {
-          //   reject('privateAppList not found');
-          // }
-          resolve(autoImageList);
-      })).catch(err => {
-        console.log(err);
-        reject(err);
-      });
-    })
+    // return axios.post(URL_LIST.custom_image_private_app_list.url, options4PrivateApp);
+
+    const resContentList = Promise.all([
+      this.requestPaasServer(this.URL_LIST.auto_image_list, {
+        payload: options4Auto
+      })
+    ]);
+    const autoImageList = resContentList[0]['basicImage'];
+    return autoImageList;
   }
 
   /**

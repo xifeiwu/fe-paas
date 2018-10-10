@@ -102,21 +102,19 @@ class URL extends BaseURL {
         url: API_PATH + '/service/stopApplicationService',
         path: '/service/stopApplicationService'
       },
-      // 获取自动打镜像类型列表
-      'auto_image_list': {
-        url: API_PATH + '/image/queryBasicImage',
-        path: '/image/queryBasicImage'
-      },
+      // TODO: not used
       // 自定义镜像-环境镜像
       'custom_image_env_list': {
         url: API_PATH + '/image/queryEnvImageByEnvAndGroupTagAndApplicationId',
         path: '/image/queryEnvImageByEnvAndGroupTagAndApplicationId'
       },
+      // TODO: not used
       // 自定义镜像-私有镜像-项目列表
       'custom_image_private_app_list': {
         url: API_PATH + '/image/queryProjectNameByGroupTag',
         path: '/image/queryProjectNameByGroupTag'
       },
+      // TODO: not used
       // 自定义镜像-私有镜像-项目-版本列表
       'custom_image_private_version_list_of_app': {
         url: API_PATH + '/image/queryCustomImage',

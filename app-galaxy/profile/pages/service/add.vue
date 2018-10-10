@@ -604,6 +604,7 @@
         // image related info requested from network, with the format:
         imageInfoFromNet: {
           autoImageList: [],
+          customImageList: [],
           customEnvImageList: [],
           privateAppList: [],
         },
