@@ -348,20 +348,33 @@
         });
       },
       async onVersionSelected(selectedAPP, selectedProfile, selectedService) {
-        if (!this.instanceList) {
-          if (selectedAPP && selectedProfile && selectedService) {
-            const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.instance_list, {
-              payload: {
-                appId: selectedAPP.appId,
-                spaceId: selectedProfile.id,
-                serviceVersion: selectedService.serviceVersion
-              }
-            });
-            this.instanceList = resContent['instanceList'];
-//            console.log(this.instanceList);
-          } else {
-          }
+        this.instanceList = [];
+//        console.log(selectedAPP, selectedProfile, selectedService);
+        if (selectedAPP && selectedProfile && selectedService) {
+          const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.instance_list, {
+            payload: {
+              appId: selectedAPP.appId,
+              spaceId: selectedProfile.id,
+              serviceVersion: selectedService.serviceVersion
+            }
+          });
+          this.instanceList = resContent['instanceList'];
+          const instanceIdList = this.instanceList.map(it => {
+            return it['id'];
+          });
+//          console.log(instanceIdList);
+//          console.log(JSON.stringify(this.selectedInstanceList));
+          this.selectedInstanceList = this.selectedInstanceList.filter(it => {
+            return instanceIdList.indexOf(it) > -1;
+          });
+          this.requestStatisticData();
+//          console.log(this.instanceList);
         } else {
+          if (!selectedService) {
+            this.$message.warning('当前所选环境下没有服务版本');
+          }
+          this.resetChartData();
+//          this.requestStatisticData();
         }
       },
       onDateRangeChange(range) {
@@ -369,13 +382,24 @@
         console.log(range[1].getTime());
       },
 
+      // reset of value for charts
+      resetChartData() {
+        const URL_MAP = this.URL_MAP;
+        // init value of this.chartData
+        Object.keys(URL_MAP).forEach(it => {
+          this.chartData[it] = null;
+        });
+      },
+
       requestStatisticData() {
-        if (!this.instanceList) {
-          this.$message.error('实例列表为空，请确保该服务下有运行实例');
+        this.resetChartData();
+
+        if (this.instanceList.length === 0) {
+          this.$message.warning('实例列表为空，请确保该服务下有运行实例');
           return;
         }
         if (this.selectedInstanceList.length === 0) {
-          this.$message.error('当前所选实例为空，请在实例列表中选择实例');
+          this.$message.warning('当前所选实例为空，请在实例列表中选择实例');
           return;
         }
 
@@ -399,17 +423,8 @@
 //        console.log(this.dateTimeRange[0].getTime());
 //        console.log(payload);
 
-        const URL_LIST = this.$net.URL_LIST;
-        const URL_MAP = {
-          'cpu': URL_LIST.monitor_statistic_cpu,
-          'memory': URL_LIST.monitor_statistic_memory,
-          'network-in': URL_LIST.monitor_statistic_net_in,
-          'network-out': URL_LIST.monitor_statistic_net_out,
-          'disk-read': URL_LIST.monitor_statistic_disk_read,
-          'disk-write': URL_LIST.monitor_statistic_disk_write,
-        };
         const statisticTypeList = this.selectedStatisticTypeList.filter(it => {
-          if (URL_MAP.hasOwnProperty(it)) {
+          if (this.URL_MAP.hasOwnProperty(it)) {
             return true;
           } else {
             return false;
@@ -521,13 +536,9 @@
         // get statistic data
         const statisticData = {};
         const chartData = {};
-        // init value of this.chartData
-        statisticTypeList.forEach(it => {
-          this.chartData[it] = null;
-        });
 
         Promise.all(statisticTypeList.map(it => {
-          return this.$net.requestPaasServer(URL_MAP[it], {
+          return this.$net.requestPaasServer(this.URL_MAP[it], {
             payload
           });
         })).then(resContentList => {
@@ -626,9 +637,17 @@
     },
     data() {
       return {
+        URL_MAP: {
+          'cpu': this.$net.URL_LIST.monitor_statistic_cpu,
+          'memory': this.$net.URL_LIST.monitor_statistic_memory,
+          'network-in': this.$net.URL_LIST.monitor_statistic_net_in,
+          'network-out': this.$net.URL_LIST.monitor_statistic_net_out,
+          'disk-read': this.$net.URL_LIST.monitor_statistic_disk_read,
+          'disk-write': this.$net.URL_LIST.monitor_statistic_disk_write,
+        },
         config4VersionSelector: null,
         heightOfChartList: 0,
-        instanceList: null,
+        instanceList: [],
         dateTimeRange: [],
         pickerOptions2: {
           shortcuts: [{
