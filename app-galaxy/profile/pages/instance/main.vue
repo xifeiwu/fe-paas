@@ -106,11 +106,11 @@
                     :class="['flex', $storeHelper.permission['go-to-log-run-from-instance'].disabled ? 'disabled' : 'primary']">
               <span>查看运行日志</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div class="ant-divider" v-if="false"></div>
+            <div class="ant-divider"></div>
             <el-button
                     @click="handleRowButtonClick($event, 'go-to-page-monitor', scope.$index, scope.row)"
                     :disabled="false"
-                    v-if="!$storeHelper.permission['go-to-page-monitor-from-instance'] && false"
+                    v-if="!$storeHelper.permission['go-to-page-monitor-from-instance']"
                     type="text" class="primary flex">
               <span>监控</span><i class="paas-icon-level-up"></i>
             </el-button>

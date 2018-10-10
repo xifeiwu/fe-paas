@@ -114,11 +114,11 @@ class Helper {
         }
       }]
     },
-    //   {
-    //   path: '/profile/monitor',
-    //   name: '应用监控',
-    //   component: MonitorMain,
-    // },
+      {
+      path: '/profile/monitor',
+      name: '应用监控',
+      component: MonitorMain,
+    },
       {
       path: '/profile/oauth',
       // name: '权限管理',
