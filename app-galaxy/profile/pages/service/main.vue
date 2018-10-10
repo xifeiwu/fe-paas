@@ -2039,7 +2039,7 @@ export default {
     getVersionDescription(row) {
       let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
       let description = profileInfo && profileInfo.hasOwnProperty('description') ? profileInfo.description : '';
-      let desc = `${this.selectedApp.appName}-${description}-${row.serviceVersion}版本`;
+      let desc = `应用"${this.selectedApp.appName}"${description}的${row.serviceVersion}版本服务`;
       return desc;
     },
 
@@ -2100,9 +2100,19 @@ export default {
       };
 
       const desc = this.getVersionDescription(this.selected.service);
-      const warningMsg = type == 'quick-deploy' ? `您确认要快速部署${desc}吗?` :`您确认要部署${desc}吗?`;
+
+      var warningMsg = `您确认要部署${desc}吗?`;
+      if (type == 'quick-deploy') {
+        warningMsg = `<p>您确认要重启${desc}吗?</p><p style="color: #E6A23C; font-size: 12px;">(重启：采用最近一次部署成功的镜像进行服务的重新启动，跳过代码编译、镜像生成阶段)</p>`;
+      }
       const urlDesc = type == 'quick-deploy' ? this.$net.URL_LIST.service_quick_deploy : this.$net.URL_LIST.service_deploy
-      await this.warningConfirm(warningMsg);
+//      await this.warningConfirm(warningMsg);
+      await this.$confirm(warningMsg, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        dangerouslyUseHTMLString: true
+      });
       const resContent = await this.$net.requestPaasServer(urlDesc, {
         payload: {
           id: this.selected.service['id'],
