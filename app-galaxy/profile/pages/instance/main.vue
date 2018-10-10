@@ -39,7 +39,7 @@
         <template slot-scope="scope">
           <div>
             <span>{{scope.row.status ? scope.row.status : ''}}</span>
-            <span style="color: #409EFF; font-size: 12px; cursor: pointer; padding: 1px; border: 1px solid #409EFF; border-radius: 4px;"
+            <span v-if="!isMesosApp" style="color: #409EFF; font-size: 12px; cursor: pointer; padding: 1px; border: 1px solid #409EFF; border-radius: 4px;"
                   @click="handleRowButtonClick('instanceStatus',scope.$index,scope.row)"
             >详情</span>
           </div>
@@ -85,16 +85,16 @@
           <template slot-scope="scope">
             <el-button
                     @click="handleRowButtonClick('terminal', scope.$index, scope.row)"
-                    v-if="!$storeHelper.notPermitted['go-to-page-terminal-from-instance']"
+                    v-if="!$storeHelper.notPermitted['go-to-page-terminal-from-instance'] && !isMesosApp"
                     type="text" class="primary">终端</el-button>
-            <div class="ant-divider" v-if="!$storeHelper.notPermitted['go-to-page-terminal-from-instance']"></div>
+            <div class="ant-divider" v-if="!$storeHelper.notPermitted['go-to-page-terminal-from-instance'] && !isMesosApp"></div>
             <el-button
                     @click="handleRowButtonClick('show-console-log', scope.$index, scope.row)"
-                    v-if="!$storeHelper.notPermitted['show-console-log']"
+                    v-if="!$storeHelper.notPermitted['show-console-log'] && !isMesosApp"
                     type="text" class="primary">
               <span>查看console日志</span>
             </el-button>
-            <div class="ant-divider" v-if="!$storeHelper.notPermitted['show-console-log']"></div>
+            <div class="ant-divider" v-if="!$storeHelper.notPermitted['show-console-log'] && !isMesosApp"></div>
             <el-button
                     @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"
                     v-if="!$storeHelper.notPermitted['go-to-log-run-from-instance']"
@@ -350,6 +350,8 @@
           iconExpand: true
         },
         consoleLogList: '',
+
+        isMesosApp: false,
       };
     },
     watch: {},
@@ -370,6 +372,8 @@
             serviceId: serviceInfo.id
           }
         });
+        // 是否mesos应用
+        this.isMesosApp = appInfo.hasOwnProperty('k8s') && appInfo.k8s !== 1;
         this.requestInstanceList(
           appInfo.appId,
           profileInfo.id,

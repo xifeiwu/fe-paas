@@ -125,9 +125,10 @@
             <div class="ant-divider"
                  v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"></div>
             <el-button
-                    class="danger"
                     v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"
                     type="text"
+                    :class="isMesosApp ? 'plain' : 'danger'"
+                    :disabled="isMesosApp"
                     :loading="statusOfWaitingResponse('quick-deploy') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('quick-deploy', scope.$index, scope.row)"
             >
@@ -146,7 +147,9 @@
 
             <el-button
                     v-if="!$storeHelper.notPermitted['service_delete']"
-                    class="danger" type="text"
+                    type="text"
+                    :class="$storeHelper.groupVersion === 'v1' ? 'plain' : 'danger'"
+                    :disabled="$storeHelper.groupVersion === 'v1'"
                     :loading="statusOfWaitingResponse('delete') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
             <div v-if="!$storeHelper.notPermitted['service_delete']"
@@ -1575,9 +1578,11 @@ export default {
   },
   data() {
     return {
+//      1. 对于1.x团队的应用，服务管理页面中删除、配置外网域名、复制服务不可用，创建服务不可用。
+//      2.对于mesos应用，服务管理页面中重启按钮不可用
       helpList: [
-      '1. 每次创建的服务版本信息为所在应用创建时的配置信息',
-//      '2. 快速部署：采用当前容器内镜像部署，跳过代码编译并且不生成新的镜像。'
+        '1. 每次创建的服务版本信息为所在应用创建时的配置信息',
+        '2. 重启：采用最近一次部署成功的镜像进行服务的重新启动',
       ],
       resizeListenerForServiceList: () => {},
       heightOfTable: '',
@@ -1804,7 +1809,9 @@ export default {
         iconExpand: true
       },
 
-      queueForWaitingResponse: []
+      queueForWaitingResponse: [],
+
+      isMesosApp: false,
     }
   },
   watch: {
@@ -1817,6 +1824,8 @@ export default {
       }
       this.serviceInfo.appID = appId;
       this.selectedApp = appInfo['app'];
+
+      this.isMesosApp = this.selectedApp.hasOwnProperty('k8s') && this.selectedApp.k8s !== 1;
       this.$store.dispatch('user/config', {
         page: 'service',
         data: {
