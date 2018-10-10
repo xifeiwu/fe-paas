@@ -7,7 +7,7 @@ import '$assets/libs/components/element-ui-fix.scss';
 
 import Pagination from 'element-ui/packages/pagination/index.js';
 import Dialog from 'element-ui/packages/dialog/index.js';
-// import Autocomplete from 'element-ui/packages/autocomplete/index.js';
+import Autocomplete from 'element-ui/packages/autocomplete/index.js';
 import Dropdown from 'element-ui/packages/dropdown/index.js';
 import DropdownMenu from 'element-ui/packages/dropdown-menu/index.js';
 import DropdownItem from 'element-ui/packages/dropdown-item/index.js';
@@ -81,7 +81,7 @@ const ClipBoard = require('element-ui/components/clipboard');
 const components = [
   Pagination,
   Dialog,
-  // Autocomplete,
+  Autocomplete,
   Dropdown,
   DropdownMenu,
   DropdownItem,
