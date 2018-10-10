@@ -7,6 +7,13 @@ export default class StoreHelper {
     this._dataTransfer = null;
   }
 
+  get version() {
+    return this.$globalStore.getters['version'];
+  }
+  set version(version) {
+    this.$globalStore.dispatch('version', version);
+  }
+
   get globalUserGroupInfo() {
     return this.$globalStore.getters['user/groupInfo'];
   }

@@ -616,7 +616,7 @@ class Helper {
           }
         }
       } else {
-        window.location.pathname = '/login?to=/profile';
+        window.location = '/login?to=/profile';
       }
     });
   }

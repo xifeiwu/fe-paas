@@ -7,7 +7,13 @@ import user from './modules/user';
 Vue.use(Vuex);
 
 export default new Vuex.Store({
+  state: {
+    version: ''
+  },
   actions: {
+    version({dispatch, state, commit}, version) {
+      commit('SET_VERSION', version);
+    },
     logout({dispatch, state, commit}, groupList) {
       dispatch('user/clear');
       // commit('user/CLEAR');
@@ -15,6 +21,9 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    SET_VERSION(state, version) {
+      state.version = version;
+    },
     SET_GROUP_INFO(state, groupInfo) {
       state.groupInfo = groupInfo;
     },
@@ -25,13 +34,19 @@ export default new Vuex.Store({
     CLEAR(state) {
     }
   },
+
+  getters: {
+    'version': (state, getters) => {
+      return state.version;
+    },
+  },
   modules:{
     user
   },
   plugins: [createPersistedState({
     key: 'global',
     // 暂时只持久化 etc 模块，防止冲突
-    paths: ['user'],
+    paths: ['version', 'user'],
     filter: (mutation) => {
       // console.log(mutation);
       return true;

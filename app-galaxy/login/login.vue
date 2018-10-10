@@ -348,6 +348,10 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
     },
     created: function () {
       this.updateVerifyCode();
+      const version = '1.2';
+      if (this.$storeHelper.version != version) {
+//        this.$storeHelper.version = version
+      }
     },
     mounted: function () {
       // jump to destination page when token is found
