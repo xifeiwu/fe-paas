@@ -18,33 +18,31 @@
     <el-form-item label="镜像地址" prop="customImageValue"  v-else
                   :class="['custom-image', imageSelectState.customImageType.toLowerCase()+'-image']"
     >
-      <el-input v-model="imageSelectState.customImageValue" placeholder="输入镜像地址，包含版本"></el-input>
+      <el-autocomplete
+              class="inline-input"
+              v-model="imageSelectState.customImageValue"
+              :fetch-suggestions="querySearch"
+              placeholder="输入镜像地址，包含版本"
+      ></el-autocomplete>
     </el-form-item>
   </el-form>
 </template>
 <style lang="scss" scoped>
   .el-form {
-    width: 600px;
     .el-form-item {
       &.auto-image {
+        max-width: 800px;
         .el-select {
           width: 100%;
         }
       }
       &.custom-image {
-        &.env-image {
-          .el-select {
-            width: calc(50% - 2px);
-          }
+        max-width: 800px;
+        .el-autocomplete {
+          width: 100%;
         }
-        &.private-image {
-          .el-select {
-            box-sizing: border-box;
-            width: calc(50% - 2px);
-            &:nth-child(3) {
-              width: 100%;
-            }
-          }
+        .el-select {
+          width: 100%;
         }
       }
     }
@@ -71,18 +69,16 @@
           }],
           autoImageValue: [{
             required: false,
-            message: '请输入镜像地址',
           }],
           customImageValue: [{
             required: true,
-            message: '请输入镜像地址',
+            message: '请选择打镜像方式',
           }],
         },
 
         imageInfoFromNet: {
           autoImageList: [],
-          customEnvImageList: [],
-          privateAppList: [],
+          customImageList: [],
         },
         imageSelectState: {
           customImage: false,
@@ -101,64 +97,75 @@
     computed: {
     },
     watch: {
+      'imageSelectState.customImage': function () {
+        // update validate rules when imageSelectState.customImage is changed
+        this.formRules.customImageValue[0]['required'] = this.imageSelectState.customImage;
+        this.validate(valid => {
+        });
+      }
     },
     methods: {
-      init(payload4RequestImageList, imageInfo) {
-        if (!payload4RequestImageList) {
+      async init(infoForAddService, imageInfo) {
+        if (!infoForAddService) {
           return;
         }
-        this.payload4RequestImageList = payload4RequestImageList;
-        this.imageSelectState.customImage = imageInfo.customImage;
-        if (imageInfo.customImage) {
-          this.imageSelectState.customImageValue = imageInfo.imageLocation;
-          this.imageSelectState.autoImageValue = '';
-        } else {
-          this.imageSelectState.customImageValue = '';
-          this.imageSelectState.autoImageValue = '';
-        }
-        this.requestImageRelatedInfo().then((autoImageList) => {
-          this.imageInfoFromNet['autoImageList'] = [{
-            label: '无',
-            value: ''
-          }].concat(autoImageList.map(it => {
-            return {
-              label: it,
-              value: it,
-            }
-          }));
 
-//          设置自动打镜像的值：
-//          1. 开始设置为空（无）
-//          2. 请求镜像列表后，查看传递过来的imageInfo.autoImageValue的值是否在
-//          this.setAutoImageValue(imageInfo);
-          if (!imageInfo.customImage && autoImageList.indexOf(imageInfo.imageLocation) > -1) {
-            this.imageSelectState.autoImageValue = imageInfo.imageLocation;
-          }
-        })
-      },
-
-      // get image related info from network
-      async requestImageRelatedInfo() {
-        // check group tag
-        let {groupTag, appId, profileName, language, languageVersion, packageType} = this.payload4RequestImageList;
-        const autoImageList =  await this.$net.getImageRelatedInfo({
+        this.infoForAddService = infoForAddService;
+//        const {groupTag, appId, profileName} = this.infoForAddService;
+        let {groupTag, appId, profileName, language, languageVersion, packageType} = this.infoForAddService;
+        const results =  await this.$net.getImageRelatedInfo({
           groupTag,
           appId,
           language,
           languageVersion,
           packageType
         }, {
-          env: profileName,
-          applicationId: appId,
-          groupTag: groupTag
-        }, {
-          groupTag: groupTag
+          groupTag,
+          appId
         });
-        return autoImageList;
-//        if (imageInfoFromNet && imageInfoFromNet.hasOwnProperty('privateAppList')
-//          && Array.isArray(imageInfoFromNet.privateAppList) && imageInfoFromNet.privateAppList.length > 0) {
-//          this.imageSelectState.currentPrivateApp = imageInfoFromNet.privateAppList[0];
-//        }
+        const customImageList = results['customImageList'];
+        const autoImageList = results['autoImageList'];
+
+        this.imageInfoFromNet['autoImageList'] = [{
+          label: '无',
+          value: ''
+        }].concat(autoImageList.map(it => {
+          return {
+            label: it,
+            value: it,
+          }
+        }));
+        this.imageInfoFromNet['customImageList'] = customImageList;
+
+//        设置自动打镜像的值：
+//        1. 开始设置为空（无）
+//        2. 请求镜像列表后，查看传递过来的imageInfo.autoImageValue的值是否在
+        this.imageSelectState.customImage = imageInfo.customImage;
+        this.imageSelectState.autoImageValue = '';
+        this.imageSelectState.customImageValue = '';
+        if (imageInfo.customImage) {
+          if (customImageList.indexOf(imageInfo.imageLocation) > -1) {
+            this.imageSelectState.customImageValue = imageInfo.imageLocation;
+          }
+        } else {
+          if (autoImageList.indexOf(imageInfo.imageLocation) > -1) {
+            this.imageSelectState.autoImageValue = imageInfo.imageLocation;
+          }
+        }
+      },
+
+      querySearch(queryString, cb) {
+        var results = [];
+        if (this.imageInfoFromNet['customImageList'].length > 1) {
+          results = this.imageInfoFromNet['customImageList'].filter(it => {
+            return it.indexOf(queryString) > -1;
+          }).map(it => {
+            return {
+              value: it
+            }
+          })
+        }
+        cb(results);
       },
 
       getImageInfo() {

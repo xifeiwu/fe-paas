@@ -864,6 +864,7 @@
           const groupTag = this.groupInfo.tag;
           const appId = this.serviceForm.appId;
           const profileName = this.profileInfo.name;
+          const projectName = this.appName;
           const results = await this.$net.getImageRelatedInfo({
             groupTag,
             appId,
@@ -872,8 +873,7 @@
             packageType: ''
           }, {
             groupTag,
-            appId,
-            projectName: this.appName
+            appId
           });
           const customImageList = results['customImageList'];
           const autoImageList = results['autoImageList'];

@@ -607,7 +607,7 @@
 
     <el-dialog title="更改镜像方式" :visible="selected.prop == 'image'"
                :close-on-click-modal="false"
-               class="image"
+               class="image size-750"
                @close="selected.prop = null"
                v-if="selected.service && selected.model"
     >
@@ -2114,6 +2114,7 @@ export default {
           appName,
           language,
           languageVersion,
+          groupTag: groupInfo['tag'],
           appId: this.selectedAppID,
           profileId: this.selectedProfileID,
         }
