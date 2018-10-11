@@ -59,8 +59,8 @@
               headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
-                label="CPU使用时间"
-                prop="cpuUsageSecondsSum"
+                prop="cpuUsageInPercent"
+                label="CPU使用率"
                 width="120"
                 headerAlign="center" align="center">
         </el-table-column>
@@ -408,6 +408,7 @@
             instanceList.forEach(it => {
               it.name = it.id;
               it.updated = it.updated ? it.updated.split(' ') : '---';
+              it.cpuUsageInPercent = it['cpuUsage'] ? `${parseFloat(it['cpuUsage'] * 100).toFixed(2)}%` : '---';
               this.$utils.renameProperty(it, 'state', 'status');
               this.$utils.renameProperty(it, 'ip', 'intranetIP');
               this.$utils.renameProperty(it, 'updated', 'createTime');
