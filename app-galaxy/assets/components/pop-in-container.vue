@@ -1,8 +1,8 @@
 <template>
   <transition name="pop-in-container">
-    <div class="pop-in-container left" v-if="status.visible">
-      <div class="header" v-if="title">
-        <span>{{title}}</span>
+    <div class="pop-in-container left" v-if="popStatus.visible" v-clickoutside="">
+      <div class="header" v-if="popStatus.title">
+        <span>{{popStatus.title}}</span>
         <i class="paas-icon-fa-caret-left" @click="handleClickOutside"></i>
       </div>
       <div class="content">
@@ -74,19 +74,48 @@ export default {
   mounted() {
   },
   props: {
-    title: String,
-    status: {
+    popStatus: {
       type: Object,
       default() {
         return {
+          id: null,
+          title: '',
           visible: false,
         };
       }
     }
   },
   methods: {
+    popToggle() {
+      this.popStatus.visible = !this.popStatus.visible;
+    },
+    popShow() {
+      this.popStatus.visible = true;
+    },
+    popHide() {
+      this.popStatus.visible = false;
+    },
+    popSetId(id) {
+      if (this.popStatus.id === id) {
+        this.popToggle();
+      } else {
+        this.popStatus.id = id;
+        if (this.popStatus.visible) {
+          this.popHide();
+          setTimeout(() => {
+            this.popShow();
+          }, 300);
+        } else {
+          this.popShow();
+        }
+      }
+    },
     handleClickOutside(evt) {
-      this.status.visible = false;
+//      setTimeout(() => {
+        if (this.popStatus.visible) {
+          this.popStatus.visible = false;
+        }
+//      });
     }
   }
 }
