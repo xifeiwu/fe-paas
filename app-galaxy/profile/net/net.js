@@ -115,6 +115,11 @@ class Net extends NetBase {
         path: '/image/queryBasicImage',
         method: 'post'
       },
+      // 获取自定义镜像列表
+      'custom_image_list': {
+        path: '/image/query/tag',
+        method: 'post'
+      },
 
       // 更改实例数
       'service_update_instance_num': {
@@ -684,10 +689,13 @@ class Net extends NetBase {
     if (resContent.hasOwnProperty('appList') && Array.isArray(resContent.appList)) {
       let appList = resContent.appList;
       appList.forEach(app => {
-        app.createTime = this.$utils.formatDate(app.createTime, 'yyyy-MM-dd hh:mm:ss');
-        if (app.createTime) {
-          app.createTime = app.createTime.split(' ');
+        const createTime = app.createTime;
+        try {
+          app.createTime = this.$utils.formatDate(createTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
+        } catch(err) {
+          app.createTime = '---';
         }
+
         app['profileNames'] = app['serviceCountList'].map(it => {
           return it['envName']
         });
@@ -1203,21 +1211,25 @@ class Net extends NetBase {
    * @param options
    * @returns {Promise}
    */
-  async getImageRelatedInfo(options4Auto, options4Env, options4PrivateApp) {
+  async getImageRelatedInfo(payload4AutoImageList, payload4CustomImageList, options4PrivateApp) {
     // 自动打镜像列表
     // return axios.post(this.URL_LIST.auto_image_list.url, options4Auto);
     // 自定义镜像-环境镜像
     // return axios.post(URL_LIST.custom_image_env_list.url, options4Env);
     // 自定义镜像-私有镜像(项目列表)
     // return axios.post(URL_LIST.custom_image_private_app_list.url, options4PrivateApp);
-
     const resContentList = await Promise.all([
       this.requestPaasServer(this.URL_LIST.auto_image_list, {
-        payload: options4Auto
-      })
+        payload: payload4AutoImageList
+      }),
+      this.requestPaasServer(this.URL_LIST.custom_image_list, {
+        payload: payload4CustomImageList
+      }),
     ]);
+    // console.log(resContentList);
     const autoImageList = resContentList[0]['basicImage'];
-    return autoImageList;
+    const customImageList = resContentList[1];
+    return {autoImageList, customImageList};
   }
 
   /**

@@ -34,7 +34,7 @@
           </el-form-item>
 
           <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-if="!imageSelectState.customImage">
-            <el-select v-model="serviceForm.autoImageValue"
+            <el-select v-model="serviceForm.autoImageValue" filterable
                        :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
               <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
                          :key="index" :label="item" :value="item">
@@ -44,29 +44,19 @@
           <el-form-item label="镜像地址" prop="customImageValue" v-else
                         :class="['custom-image', imageSelectState.customImageType.toLowerCase()+'-image']"
           >
-            <el-input v-model="serviceForm.customImageValue" placeholder="输入镜像地址，包含版本"></el-input>
-            <!--<el-select v-model="imageSelectState.customImageType">-->
-              <!--<el-option v-for="(item, index) in customImageTypeList"-->
-                         <!--:key="index" :label="item.label" :value="item.value"></el-option>-->
-            <!--</el-select>-->
-            <!--<el-select v-model="serviceForm.customImageValue" v-if="imageSelectState.customImageType=='ENV'"-->
-                       <!--:placeholder="imageInfoFromNet.customEnvImageList.length > 0 ? '请选择' : '无数据'">-->
-              <!--<el-option v-for="(item, index) in imageInfoFromNet.customEnvImageList"-->
-                         <!--:key="index" :label="item.imageName" :value="item.imageName">-->
-              <!--</el-option>-->
-            <!--</el-select>-->
-            <!--<el-select v-model="imageSelectState.currentPrivateApp" v-if="imageSelectState.customImageType=='PRIVATE'"-->
-                       <!--:placeholder="imageInfoFromNet.privateAppList.length > 0 ? '请选择' : '无数据'">-->
-              <!--<el-option v-for="(item, index) in imageInfoFromNet.privateAppList"-->
+            <!--<el-select v-model="serviceForm.customImageValue" filterable-->
+                       <!--:placeholder="imageInfoFromNet.customImageList.length > 0 ? '请选择' : '无数据'">-->
+              <!--<el-option v-for="(item, index) in imageInfoFromNet.customImageList"-->
                          <!--:key="index" :label="item" :value="item">-->
               <!--</el-option>-->
             <!--</el-select>-->
-            <!--<el-select v-model="serviceForm.customImageValue" v-if="imageSelectState.customImageType=='PRIVATE'"-->
-                       <!--:placeholder="currentPrivateAppVersionList.length > 0 ? '请选择' : '无数据'">-->
-              <!--<el-option v-for="(item, index) in currentPrivateAppVersionList"-->
-                         <!--:key="index" :label="item" :value="item">-->
-              <!--</el-option>-->
-            <!--</el-select>-->
+            <el-autocomplete
+                    class="inline-input"
+                    v-model="serviceForm.customImageValue"
+                    :fetch-suggestions="querySearch"
+                    placeholder="请输入内容"
+                    @select="handleSelect"
+            ></el-autocomplete>
           </el-form-item>
 
           <transition name="more-config">
@@ -410,25 +400,29 @@
             margin-bottom: 10px;
           }
           &.auto-image {
-            max-width: 600px;
+            max-width: 800px;
             .el-select {
               width: 100%;
             }
           }
           &.custom-image {
-            max-width: 600px;
+            max-width: 800px;
+            .el-autocomplete {
+              width: 100%;
+            }
+            .el-select {
+              width: 100%;
+            }
+            .el-input {
+              width: 100%;
+            }
             &.env-image {
               .el-select {
-                width: calc(50% - 2px);
               }
             }
             &.private-image {
               .el-select {
                 box-sizing: border-box;
-                width: calc(50% - 2px);
-                &:nth-child(3) {
-                  width: 100%;
-                }
               }
             }
           }
@@ -517,7 +511,8 @@
         this.serviceForm.gitLabBranch = theData.gitLabBranch;
         this.imageSelectState.customImage = theData.customImage;
         if(theData.customImage){
-          this.serviceForm.customImageValue = theData.imageLocation;
+          // set after requestImageRelatedInfo
+//          this.serviceForm.customImageValue = theData.imageLocation;
         } else {
           // set after requestImageRelatedInfo
           // this.serviceForm.autoImageValue = theData.imageLocation;
@@ -563,9 +558,11 @@
         appLanguage: null,
         appLanguageVersion: null,
         versionList: [],
+        // （复制服务传递过来的）属性是否已经使用过
         propsUsed: {
           memoryId: false,
-          imageLocation: false
+          customImageValue: false,
+          autoImageValue: false
         },
         profileListOfCurrentApp: [],
         serviceForm: {
@@ -649,8 +646,8 @@
         imageInfoFromNet: {
           autoImageList: [],
           customImageList: [],
-          customEnvImageList: [],
-          privateAppList: [],
+//          customEnvImageList: [],
+//          privateAppList: [],
         },
         imageSelectState: {
           // custom image or not
@@ -827,6 +824,23 @@
           }
         });
       },
+
+      querySearch(queryString, cb) {
+        var results = [];
+        if (this.imageInfoFromNet['customImageList'].length > 1) {
+          results = this.imageInfoFromNet['customImageList'].filter(it => {
+            return it.indexOf(queryString) > -1;
+          }).map(it => {
+            return {
+              value: it
+            }
+          })
+        }
+        cb(results);
+      },
+      handleSelect(item) {
+        console.log(item);
+      },
       // 检测版本号
       getErrMsgForVersion(value) {
         let errMsg = '';
@@ -841,37 +855,65 @@
         this.errorMsgForVersion = errMsg;
         return errMsg;
       },
+
       // get image related info from network
-      requestImageRelatedInfo() {
-        const groupTag = this.groupInfo.tag;
-        const appId = this.serviceForm.appId;
-        const profileName = this.profileInfo.name;
-        this.$net.getImageRelatedInfo({
-          groupTag,
-          appId,
-          language: this.appLanguage,
-          languageVersion: this.appLanguageVersion,
-          packageType: ''
-        }, {
-          env: profileName,
-          applicationId: appId,
-          groupTag: groupTag
-        }, {
-          groupTag: groupTag
-        }).then(autoImageList => {
+      async requestImageRelatedInfo() {
+        this.imageInfoFromNet['customImageList'] = [];
+        this.imageInfoFromNet['autoImageList'] = [];
+        try {
+          const groupTag = this.groupInfo.tag;
+          const appId = this.serviceForm.appId;
+          const profileName = this.profileInfo.name;
+          const results = await this.$net.getImageRelatedInfo({
+            groupTag,
+            appId,
+            language: this.appLanguage,
+            languageVersion: this.appLanguageVersion,
+            packageType: ''
+          }, {
+            groupTag,
+            appId,
+            projectName: this.appName
+          });
+          const customImageList = results['customImageList'];
+          const autoImageList = results['autoImageList'];
+
+          this.imageInfoFromNet['customImageList'] = customImageList;
           this.imageInfoFromNet['autoImageList'] = autoImageList;
-          if (!this.dataPassed.customImage && !this.propsUsed.imageLocation && autoImageList.indexOf(this.dataPassed.imageLocation) > -1) {
-            this.serviceForm.autoImageValue = this.dataPassed.imageLocation;
-            this.propsUsed.imageLocation = true;
-          }
-//          if (imageInfoFromNet && imageInfoFromNet.hasOwnProperty('privateAppList')
-//            && Array.isArray(imageInfoFromNet.privateAppList) && imageInfoFromNet.privateAppList.length > 0) {
-//            this.imageSelectState.currentPrivateApp = imageInfoFromNet.privateAppList[0];
-//          }
 //          console.log(this.imageInfoFromNet);
-        }).catch(err => {
+//          console.log(this.dataPassed);
+
+          // set default value by dataPassed if necessary
+          if (this.dataPassed.hasOwnProperty('customImage')) {
+            if (this.dataPassed.customImage) {
+              // 自定义镜像
+                if (!this.propsUsed.customImageValue && customImageList.indexOf(this.dataPassed.imageLocation) > -1) {
+                  this.serviceForm.customImageValue = this.dataPassed.imageLocation;
+                  this.propsUsed.customImageValue = true;
+                }
+            } else {
+              // 自动打镜像
+              if (!this.propsUsed.autoImageValue && autoImageList.indexOf(this.dataPassed.imageLocation) > -1) {
+                this.serviceForm.autoImageValue = this.dataPassed.imageLocation;
+                this.propsUsed.autoImageValue = true;
+              }
+            }
+          }
+
+          // not set default value for customImageValue
+          if (customImageList.length > 0 && false) {
+            if (customImageList.indexOf(this.serviceForm.customImageValue) === -1) {
+              this.serviceForm.customImageValue = customImageList[0];
+            }
+          }
+        } catch (err) {
           console.log(err);
-        })
+          this.$notify.error({
+            title: '获取镜像信息失败，请联系管理员',
+            message: err.message,
+            duration: 8000
+          });
+        }
       },
       // set default image at the change of custom-image's type
       // TODO: not used
