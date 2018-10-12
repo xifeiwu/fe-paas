@@ -516,7 +516,7 @@
             return result;
           });
           keys = Array.from(new Set(keys)).sort((pre, next) => {
-            return next - pre;
+            return pre - next;
           });
 
           var transContent2 = keys.map(key => {
