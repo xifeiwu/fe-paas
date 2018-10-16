@@ -3,6 +3,7 @@
   "private": true,
   "main": "main.js",
   "dependencies": {
-    "koa-spa-server": "^1.2.0"
+    "@paas/spa-server": "^1.1.0",
+    "koa-spa-server": "^1.2.3"
   }
 }
