@@ -120,7 +120,7 @@ export default class StoreHelper {
 
   getPermission(page) {
     let result = null;
-    let permission= this.$globalStore.getters['user/permission'];
+    let permission = this.$globalStore.getters['user/permission'];
     if (permission && permission[page]) {
       result = permission[page];
     }
