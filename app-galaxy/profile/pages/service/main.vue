@@ -33,8 +33,7 @@
              @click="handleButtonClick('refreshAppList')">刷新</el-button>
           <el-button v-if="isProductionProfile"
                      size="mini-extral"
-                     :type="$storeHelper.groupVersion === 'v1' ? 'plain': 'primary'"
-                     :disabled="$storeHelper.groupVersion === 'v1'"
+                     :type="'primary'"
                      @click="handleButtonClick('go-to-work-order-todo-add')">申请工单</el-button>
           <el-tooltip slot="trigger" effect="dark" placement="bottom">
             <div slot="content">

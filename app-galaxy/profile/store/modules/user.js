@@ -46,17 +46,7 @@ const actions = {
    * 获取用户所属组列表
    */
   async groupList({commit, state, dispatch}, groupList) {
-    const net = Vue.prototype.$net;
-    const resContent = await net.requestPaasServer(net.URL_LIST.user_group_list);
-    state.groupList = resContent.groupList.map(it => {
-      let lobName = '';
-      if (it.hasOwnProperty('lobName') && it.lobName && it.lobName.length > 0) {
-        lobName = '（' + it['lobName'] + '）';
-      }
-      it.asLabel = it.name;
-      // it.asLabel = it.name + lobName;
-      return it;
-    });
+    state.groupList = groupList;
     commit('SET_GROUP_INFO');
     return state.groupList;
   },

@@ -28,7 +28,7 @@ class Net extends NetBase {
     // 3. 删除服务
     this.needUpdateAppList = false;
     const PAAS_URL_LIST = {
-      // permission与url的对应关系
+      // permission与url的对应关系。TODO: not used
       'permission_url_map': {
         path: '/permissionUrlMappings',
         method: 'post'
@@ -344,10 +344,8 @@ class Net extends NetBase {
    * @param resContent
    * @returns {Array}
    */
-  parseNotPermittedCommands(resContentList) {
-    // let permissionMapListOrigin = resContentList[0];
-    let notPermittedListOrigin = resContentList[0];
-    notPermittedListOrigin = notPermittedListOrigin.map(it => {
+  parseNotPermittedCommands(notPermittedList) {
+    notPermittedList = notPermittedList.map(it => {
       it.hasOwnProperty('id') && delete it.id;
       it.hasOwnProperty('parentId') && delete it.parentId;
       it.hasOwnProperty('createTime') && delete it.createTime;
@@ -355,9 +353,7 @@ class Net extends NetBase {
       it.hasOwnProperty('permissionType') && delete it.permissionType;
       return it;
     });
-    // console.log(permissionMapListOrigin);
-    // console.log(notPermittedListOrigin);
-    let notPermittedList = [];
+    // console.log(notPermittedList);
 
     // some permissionPath do not related to any url are list bellow
     let pathToKey = {
@@ -499,45 +495,15 @@ class Net extends NetBase {
     //   key: "domain_bind_white_list"
     // }
 
-    // add url and method by notPermittedListOrigin
-    notPermittedListOrigin.forEach(it => {
+    // add url and method by notPermittedList
+    notPermittedList.forEach(it => {
       // check if permission in pathToKey first
       if (pathToKey.hasOwnProperty(it.path)) {
         it.key = pathToKey[it.path];
         notPermittedList.push(it);
       }
-      // else {
-      //   permissionMapListOrigin.forEach(it2 => {
-      //     if (it.path === it2['permissionPath']) {
-      //       notPermittedList.push(Object.assign({}, it, {url: it2.url, method: it2.method}));
-      //     }
-      //   });
-      // }
     });
     // console.log(notPermittedList);
-
-    // add key by URL_LIST
-    // for (let key in URL_LIST) {
-    //   let item = URL_LIST[key];
-    //   if (!this.$utils.isObject(item)) {
-    //     continue;
-    //   }
-    //   if (!item.hasOwnProperty('path')) {
-    //     continue;
-    //   }
-    //   notPermittedList.forEach(it => {
-    //     if (it.url === item['path']) {
-    //       // if item has property 'method', it must be the same as item in notPermittedList before add
-    //       if (item.hasOwnProperty('method') && it.hasOwnProperty('method')) {
-    //         if (item.method.toLowerCase() == it.method.toLowerCase()) {
-    //           it['key'] = key;
-    //         }
-    //       } else {
-    //         it['key'] = key;
-    //       }
-    //     }
-    //   })
-    // }
 
     let result = notPermittedList.filter(it => {
       return it.hasOwnProperty('key') && it.key;

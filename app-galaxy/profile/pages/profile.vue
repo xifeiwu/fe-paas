@@ -200,19 +200,38 @@
       }
     },
     created() {
-      this.$store.dispatch('user/groupList');
-      // get global config for app
-      this.$net.requestPaasServer(this.$net.URL_LIST.config_query).then(resContent => {
-        resContent = this.$net.parseConfigList(resContent);
-        this.$store.dispatch('app/globalConfig', resContent);
-      }).catch(err => {});
-
+      // 获取页面相关配置
       Promise.all([
-//        this.$net.requestPaasServer(this.$net.URL_LIST.permission_url_map),
+        this.$net.requestPaasServer(this.$net.URL_LIST.user_group_list),
+        this.$net.requestPaasServer(this.$net.URL_LIST.config_query),
         this.$net.requestPaasServer(this.$net.URL_LIST.user_not_permitted)
       ]).then(resContentList => {
-        this.$storeHelper.notPermitted = this.$net.parseNotPermittedCommands(resContentList);
+        // groupList
+        const groupList = resContentList[0].groupList.map(it => {
+          let lobName = '';
+          if (it.hasOwnProperty('lobName') && it.lobName && it.lobName.length > 0) {
+            lobName = '（' + it['lobName'] + '）';
+          }
+          it.asLabel = it.name;
+          // it.asLabel = it.name + lobName;
+          return it;
+        });
+        this.$store.dispatch('user/groupList', groupList);
+
+        // app config related
+        const configList = this.$net.parseConfigList(resContentList[1]);
+        this.$store.dispatch('app/globalConfig', configList);
+
+        // permission
+        this.$storeHelper.notPermitted = this.$net.parseNotPermittedCommands(resContentList[2]);
         this.$router.helper.addPermission(this.$storeHelper.notPermitted);
+      }).catch(err => {
+        console.log(err);
+        this.$notify.error({
+          title: '配置信息获取失败，请刷新页面重试',
+          message: err.message,
+          duration: 0,
+        });
       });
 
       this.$store.dispatch('user/groupId', this.$storeHelper.currentGroupID);
@@ -422,6 +441,11 @@
           }
           index += 1;
         }
+      },
+
+      updatePermissionInfo() {
+        const groupInfo = this.$storeHelper.groupInfo;
+        const notPermittedList = this.$storeHelper.notPermitted;
       },
       /**
        * register some global variable at start of page profile
