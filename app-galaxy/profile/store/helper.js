@@ -12,6 +12,7 @@ class StoreHelper extends BaseHelper{
     this.APP_ID_FOR_NULL = '';
     this.SERVICE_ID_FOR_ALL = -1;
     this.SERVICE_ID_FOR_NULL = '';
+    this._notPermitted = {};
   }
 
   get currentGroupID() {
@@ -489,19 +490,26 @@ class StoreHelper extends BaseHelper{
     return this.$store.getters[`tmp/${key}`];
   }
 
-  set notPermitted(value) {
-    this.setPermission({profile: value})
-  }
+  // set notPermitted(value) {
+  //   this.setPermission({profile: value})
+  // }
+  //
+  // get notPermitted() {
+  //   let result = {};
+  //   let permission = this.getPermission('profile');
+  //   if (Array.isArray(permission)) {
+  //     permission.forEach(it => {
+  //       result[it] = true;
+  //     })
+  //   }
+  //   return result;
+  // }
 
+  set notPermitted(value) {
+    this._notPermitted = value;
+  }
   get notPermitted() {
-    let result = {};
-    let permission = this.getPermission('profile');
-    if (Array.isArray(permission)) {
-      permission.forEach(it => {
-        result[it] = true;
-      })
-    }
-    return result;
+    return this._notPermitted;
   }
 
   logout() {

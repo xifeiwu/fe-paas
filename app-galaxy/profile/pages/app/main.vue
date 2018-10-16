@@ -90,18 +90,16 @@
         <el-table-column label="操作" prop="operation" width="160" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
-              v-if="!$storeHelper.notPermitted['app_delete']"
               type="text"
-              class="danger"
+              :class="$storeHelper.notPermitted['app_delete'] ? 'plain' : 'danger'"
+              :disabled="!!$storeHelper.notPermitted['app_delete']"
               :loading="statusOfWaitingResponse('deleteRow') && selected.row.appId == scope.row.appId"
               @click="handleTRButton('deleteRow', scope.$index, scope.row)">删除</el-button>
-            <div v-if="!$storeHelper.notPermitted['app_delete']"
-                 class="ant-divider"></div>
+            <div class="ant-divider"></div>
             <el-button
-              v-if="!$storeHelper.notPermitted['app_change_profile']"
               type="text"
-              class="$storeHelper.groupVersion === 'v1' ? 'plain' : 'warning'"
-              :disabled="$storeHelper.groupVersion === 'v1'"
+              :class="$storeHelper.notPermitted['app_change_profile'] ? 'plain' : 'warning'"
+              :disabled="!!$storeHelper.notPermitted['app_change_profile']"
               @click="handleTRButton('change-profileNames', scope.$index, scope.row)">更改运行环境</el-button>
           </template>
         </el-table-column>

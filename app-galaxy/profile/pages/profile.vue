@@ -197,6 +197,8 @@
           label: '应用配置'
         }],
         showGroupList: true,
+
+        notPermitted: []
       }
     },
     created() {
@@ -223,8 +225,9 @@
         this.$store.dispatch('app/globalConfig', configList);
 
         // permission
-        this.$storeHelper.notPermitted = this.$net.parseNotPermittedCommands(resContentList[2]);
-        this.$router.helper.addPermission(this.$storeHelper.notPermitted);
+        this.notPermitted = this.$net.parseNotPermittedCommands(resContentList[2]);
+        this.$router.helper.addPermission(this.notPermitted);
+        this.updatePermissionInfo();
       }).catch(err => {
         console.log(err);
         this.$notify.error({
@@ -346,6 +349,8 @@
             const appInfoList = await this.$store.dispatch('user/appInfoList', {
               groupId: this.$storeHelper.currentGroupID,
             });
+            // 更新（1.x支持、权限）相关信息
+            this.updatePermissionInfo();
             // 当前团队应用数为零，只能进入应用管理和添加应用页面
             if (appInfoList.total === 0) {
               this.$router.helper.updateDisabledState({
@@ -443,9 +448,22 @@
         }
       },
 
+      // 更新权限信息（团队更新或获得禁用列表时）
       updatePermissionInfo() {
-        const groupInfo = this.$storeHelper.groupInfo;
-        const notPermittedList = this.$storeHelper.notPermitted;
+        const groupVersion = this.$storeHelper.groupVersion;
+        const permission = {};
+        const notSupportedByV2 = ['app_delete', 'app_change_profile'];
+        if (groupVersion === 'v1') {
+          notSupportedByV2.forEach(it => {
+            permission[it] = '1.x团队暂时无法使用该功能';
+          })
+        }
+
+        this.notPermitted.forEach(it => {
+          permission[it] = '您无使用该功能的权限';
+        });
+
+        this.$storeHelper.notPermitted = permission;
       },
       /**
        * register some global variable at start of page profile
