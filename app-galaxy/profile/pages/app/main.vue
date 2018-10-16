@@ -43,7 +43,7 @@
             <svg :class="['paas-icon-svg', 'paas-icon-' + scope.row.languageLogo]" aria-hidden="true" v-if="scope.row.languageLogo">
               <use :xlink:href="'#paas-icon-' + scope.row.languageLogo"></use>
             </svg>
-            <div class="language" v-else>应用名未知</div>
+            <div class="language" v-else>{{scope.row.language ? scope.row.language : '语言名未知'}}</div>
             <div class="version" v-if="scope.row.languageVersion">{{scope.row.languageVersion}}</div>
             <div v-else>版本未知</div>
           </template>

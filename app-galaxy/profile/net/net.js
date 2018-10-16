@@ -682,6 +682,10 @@ class Net extends NetBase {
               break;
             case 'PYTHON':
               app.languageLogo = 'python';
+              break;
+            case 'PHP':
+              app.languageLogo = 'php';
+              break;
           }
         }
       });
