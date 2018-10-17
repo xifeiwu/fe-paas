@@ -367,7 +367,7 @@
                         <div class="el-col el-col-6" style="font-weight: bold; text-align: center">目标端口</div>
                         <div class="el-col el-col-2" style="font-weight: bold; text-align: center">协议</div>
                         <div class="el-col el-col-2" style="font-weight: bold; text-align: center">
-                          <i v-if="!$storeHelper.permission['service_update'].hide"
+                          <i v-if="!$storeHelper.permission['service_update'].hide && $storeHelper.groupVersion !== 'v1'"
                              class="el-icon-edit" @click="handleChangeProp('portMap')"></i>
                         </div>
                       </div>
