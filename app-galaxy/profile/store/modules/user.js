@@ -61,8 +61,8 @@ const actions = {
    * 更改用户组ID
    */
   groupId({commit, state, dispatch}, value) {
-    state.groupId = value;
-    commit('SET_GROUP_INFO');
+    // state.groupId = value;
+    commit('SET_GROUP_INFO', value);
   },
 
   profileList({commit, state, dispatch}, profileList) {
@@ -117,12 +117,20 @@ const actions = {
 
 const mutations = {
   /* net state */
-  SET_GROUP_INFO(state) {
+  SET_GROUP_INFO(state, toGroupId) {
+    // SET_GROUP_INFO when groupList or groupId is change
+    if (!toGroupId) {
+      try {
+        toGroupId = state.groupInfo['id'];
+      } catch(err) {
+        toGroupId = null;
+      }
+    }
     let target = null;
-    if (state.groupId) {
+    if (toGroupId) {
       if (state.groupList && Array.isArray(state.groupList)) {
         state.groupList.some(it => {
-          target = it.id === state.groupId ? it : null;
+          target = it.id === toGroupId ? it : null;
           return target
         });
         if (!target && state.groupList.length > 0) {
@@ -138,7 +146,7 @@ const mutations = {
     }
     state.groupInfo = target;
     globalStore.dispatch('user/setGroupInfo', target);
-    if (!state.groupId && state.groupInfo) {
+    if (state.groupInfo) {
       state.groupId = state.groupInfo['id'];
     }
   },
@@ -166,17 +174,6 @@ const mutations = {
 };
 
 const getters = {
-  'groupId': (state, getters) => {
-    let groupId = state.groupId;
-    if (null === groupId) {
-      if (state.groupInfo) {
-        groupId = state.groupInfo['id'];
-      } else if (state.groupList && state.groupList.length > 0) {
-        groupId = state.groupList[0].id
-      }
-    }
-    return parseInt(groupId);
-  },
   'lobInfo': (state, getters) => {
     return state.lobInfo;
   },

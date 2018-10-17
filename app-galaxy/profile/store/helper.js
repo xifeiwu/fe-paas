@@ -12,14 +12,28 @@ class StoreHelper extends BaseHelper{
     this.APP_ID_FOR_NULL = '';
     this.SERVICE_ID_FOR_ALL = -1;
     this.SERVICE_ID_FOR_NULL = '';
-    this._notPermitted = {};
+    this._permission = {};
+    // popover on click
+    this.globalPopover = null;
   }
 
-  get currentGroupID() {
-    return this.$store.getters['user/groupId'];
-  }
   set currentGroupID(value) {
     this.$store.dispatch('user/groupId', value);
+  }
+  get currentGroupID() {
+    var groupId = null;
+    if (this.groupInfo) {
+      groupId = this.groupInfo['id'];
+    }
+    try {
+      groupId = parseInt(groupId);
+    } catch(err) {
+      groupId = null;
+    }
+    return groupId;
+  }
+  get groupInfo() {
+    return this.$store.getters['user/groupInfo'];
   }
 
   get userConfig() {
@@ -49,10 +63,6 @@ class StoreHelper extends BaseHelper{
 
     }
     return result;
-  }
-
-  get groupInfo() {
-    return this.$store.getters['user/groupInfo'];
   }
 
   get appInfoListOfGroup() {
@@ -505,11 +515,11 @@ class StoreHelper extends BaseHelper{
   //   return result;
   // }
 
-  set notPermitted(value) {
-    this._notPermitted = value;
+  set permission(value) {
+    this._permission = value;
   }
-  get notPermitted() {
-    return this._notPermitted;
+  get permission() {
+    return this._permission;
   }
 
   logout() {
