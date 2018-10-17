@@ -31,7 +31,7 @@
       <el-button
               size="mini"
               type="primary"
-              v-if="!$storeHelper.notPermitted['work-order_deploy_app'] && false"
+              v-if="!$storeHelper.permission['work-order_deploy_app'].hide && false"
               @click="handleButtonClick('deploy')">部署应用</el-button>
       <el-button
               size="mini"

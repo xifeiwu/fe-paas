@@ -29,7 +29,7 @@
             <el-button
                     type="warning"
                     size="mini-extral"
-                    v-if="!$storeHelper.notPermitted['work-order_deploy_app']"
+                    v-if="!$storeHelper.permission['work-order_deploy_app'].hide"
                     @click="handleRowButtonClick('app-deploy', scope.$index, scope.row)"
             >部署</el-button>
           </template>

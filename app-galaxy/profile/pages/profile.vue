@@ -436,7 +436,9 @@
           'go-to-log-run-from-instance', 'go-to-page-monitor-from-instance'];
         const pageDomain = ['domain_add', 'domain_bind_service', 'domain_unbind_service', 'domain_secure_check',
         'domain_remove', 'domain_bind_white_list'];
-        const allPermissionList = [...pageApp, ...pageService, ...pageInstance, ...pageDomain];
+        const pageWorkOrder = ['go-to-page-log-deploy-from-work-order-list', 'work-order-create', 'work-order_deploy_app'];
+        const pageOauth = ['oauth_modify_authorize_url_list']
+        const allPermissionList = [...pageApp, ...pageService, ...pageInstance, ...pageDomain, ...pageWorkOrder, ...pageOauth];
         allPermissionList.forEach(it => {
           permission[it] = {
             disable: false,

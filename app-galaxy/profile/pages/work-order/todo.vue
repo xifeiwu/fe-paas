@@ -4,7 +4,7 @@
       <el-row class="operation" type="flex" justify="center" align="middle">
         <div class="el-col el-col-6 operation">
           <el-button
-                  v-if="!$storeHelper.notPermitted['work-order-create']"
+                  v-if="!$storeHelper.permission['work-order-create'].hide"
                   size="mini-extral"
                   type="primary"
                   @click="handleButtonClick('go-to-page-work-order-todo-add')">申请审批工单</el-button>

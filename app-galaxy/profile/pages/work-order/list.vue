@@ -65,7 +65,7 @@
         <el-table-column label="操作" headerAlign="center" align="center" minWidth="80">
           <template slot-scope="scope">
             <el-button
-                    v-if="!$storeHelper.notPermitted['go-to-page-log-deploy-from-work-order-list']"
+                    v-if="!$storeHelper.permission['go-to-page-log-deploy-from-work-order-list'].hide"
                     type="text" class="primary"
                     :loading="statusOfWaitingResponse('deploy-log') && operation.rowID == scope.row.id"
                     @click="handleOperationClick('deploy-log', scope.$index, scope.row)">
