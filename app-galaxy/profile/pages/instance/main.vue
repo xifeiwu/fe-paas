@@ -9,11 +9,11 @@
         <el-button v-if="true"
                    size="mini-extral"
                    type="primary"
-                   @click="handleButtonClick('refresh')">刷新</el-button>
+                   @click="handleButtonClick($event, 'refresh')">刷新</el-button>
         <el-button size="mini-extral"
                    type="primary"
-                   v-if="!$storeHelper.notPermitted['instance_change_count']"
-                   @click="handleButtonClick('manual-scale')">手动伸缩</el-button>
+                   :class="{'disabled': $storeHelper.permission['instance_change_count'].disabled}"
+                   @click="handleButtonClick($event, 'instance_change_count')">手动伸缩</el-button>
       </el-col>
     </el-row>
     <div class="instance-list"
@@ -40,7 +40,7 @@
           <div>
             <span>{{scope.row.status ? scope.row.status : ''}}</span>
             <span v-if="!isMesosApp" style="color: #409EFF; font-size: 12px; cursor: pointer; padding: 1px; border: 1px solid #409EFF; border-radius: 4px;"
-                  @click="handleRowButtonClick('instanceStatus',scope.$index,scope.row)"
+                  @click="handleRowButtonClick($event, 'instanceStatus',scope.$index,scope.row)"
             >详情</span>
           </div>
         </template>
@@ -84,37 +84,37 @@
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
-                    @click="handleRowButtonClick('terminal', scope.$index, scope.row)"
-                    v-if="!$storeHelper.notPermitted['go-to-page-terminal-from-instance'] && !isMesosApp"
-                    type="text" class="primary">终端</el-button>
-            <div class="ant-divider" v-if="!$storeHelper.notPermitted['go-to-page-terminal-from-instance'] && !isMesosApp"></div>
+                    type="text"
+                    :class="$storeHelper.permission['go-to-page-terminal-from-instance'].disabled ? 'disabled' : 'primary'"
+                    @click="handleRowButtonClick($event, 'go-to-page-terminal-from-instance', scope.$index, scope.row)"
+                    v-if="!$storeHelper.permission['go-to-page-terminal-from-instance'].hide && !isMesosApp"
+                    >终端</el-button>
+            <div class="ant-divider" v-if="!$storeHelper.permission['go-to-page-terminal-from-instance'].hide && !isMesosApp"></div>
             <el-button
-                    @click="handleRowButtonClick('show-console-log', scope.$index, scope.row)"
-                    v-if="!$storeHelper.notPermitted['show-console-log'] && !isMesosApp"
+                    @click="handleRowButtonClick($event, 'show-console-log', scope.$index, scope.row)"
+                    v-if="!$storeHelper.permission['show-console-log'] && !isMesosApp"
                     type="text" class="primary">
               <span>查看console日志</span>
             </el-button>
-            <div class="ant-divider" v-if="!$storeHelper.notPermitted['show-console-log'] && !isMesosApp"></div>
+            <div class="ant-divider" v-if="!$storeHelper.permission['show-console-log'] && !isMesosApp"></div>
             <el-button
-                    @click="handleRowButtonClick('go-to-log-run', scope.$index, scope.row)"
-                    v-if="!$storeHelper.notPermitted['go-to-log-run-from-instance']"
-                    class="flex"
-                    :class="$storeHelper.groupVersion === 'v1' ? 'plain' : 'primary'"
-                    :disabled="$storeHelper.groupVersion === 'v1'"
-                    type="text">
+                    type="text"
+                    @click="handleRowButtonClick($event, 'go-to-log-run-from-instance', scope.$index, scope.row)"
+                    :class="['flex', $storeHelper.permission['go-to-log-run-from-instance'].disabled ? 'disabled' : 'primary']"
+                    >
               <span>查看运行日志</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div class="ant-divider" v-if="!$storeHelper.notPermitted['go-to-log-run-from-instance'] && false"></div>
+            <div class="ant-divider" v-if="false"></div>
             <el-button
-                    @click="handleRowButtonClick('go-to-page-monitor', scope.$index, scope.row)"
+                    @click="handleRowButtonClick($event, 'go-to-page-monitor', scope.$index, scope.row)"
                     :disabled="false"
-                    v-if="!$storeHelper.notPermitted['go-to-page-monitor-from-instance'] && false"
+                    v-if="!$storeHelper.permission['go-to-page-monitor-from-instance'] && false"
                     type="text" class="primary flex">
               <span>监控</span><i class="paas-icon-level-up"></i>
             </el-button>
             <div class="ant-divider" v-if="false"></div>
             <el-button v-if="false"
-                    @click="handleRowButtonClick('more', scope.$index, scope.row)"
+                    @click="handleRowButtonClick($event, 'more', scope.$index, scope.row)"
                     type="text" class="more"><span>实例详情</span><i :class="[statusForPop.visible ? 'paas-icon-fa-caret-left':'paas-icon-fa-caret-right']"></i></el-button>
           </template>
         </el-table-column>
@@ -433,7 +433,14 @@
         return serviceInfo;
       },
 
-      handleButtonClick(action) {
+      handleButtonClick(evt, action) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         this.hidePop();
         let serviceInfo = this.checkVersionSelector();
         if (!serviceInfo) {
@@ -485,7 +492,7 @@
               this.hideWaitingResponse('ok-button-in-dialog-manual-scale');
               this.action.name = null;
 //              setTimeout(() => {
-//                this.handleButtonClick('refresh');
+//                this.handleButtonClick($event, 'refresh');
 //              }, 5000);
             });
             break;
@@ -575,7 +582,14 @@
       /**
        * handle click event in operation column
        */
-      handleRowButtonClick(action, index, row) {
+      handleRowButtonClick(evt, action, index, row) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         this.action.row = row;
         if (action !== 'more') {
           this.hidePop();
@@ -583,7 +597,7 @@
         let serviceInfo = null;
         let valueOfVersionSelector = null;
         switch (action) {
-          case 'terminal':
+          case 'go-to-page-terminal-from-instance':
             serviceInfo = this.$refs['version-selector'].getSelectedValue()[
               'selectedService'
             ];
@@ -605,7 +619,7 @@
               this.$message.error('组ID或内网IP没有找到');
             }
             break;
-          case 'go-to-log-run':
+          case 'go-to-log-run-from-instance':
             valueOfVersionSelector = this.$refs['version-selector'].getSelectedValue();
             this.$storeHelper.dataTransfer = {
               from: this.$net.page['profile/instance'],

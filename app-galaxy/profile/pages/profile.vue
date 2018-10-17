@@ -429,7 +429,12 @@
       initPermissionInfo() {
         const permission = {};
         const pageApp = ['app_create', 'app_change_name', 'app_delete', 'app_change_profile'];
-        const allPermissionList = [...pageApp];
+        const pageService = ['service_create', 'service_deploy', 'service_stop', 'service_delete', 'copy-service',
+          'go-to-page-log-deploy-from-service', 'go-page-domain-from-service', 'go-page-domain-from-service-list',
+          'service_update', 'service_change_default'];
+        const pageInstance = ['instance_change_count', 'go-to-page-terminal-from-instance',
+          'go-to-log-run-from-instance', 'go-to-page-monitor-from-instance'];
+        const allPermissionList = [...pageApp, ...pageService, ...pageInstance];
         allPermissionList.forEach(it => {
           permission[it] = {
             disable: false,
@@ -485,7 +490,9 @@
 
         // update this.$storeHelper.permission
         const permission = this.$storeHelper.permission;
-        const notSupportedByV2 = ['app_create', 'app_delete', 'app_change_profile'];
+        const notSupportedByV2 = ['app_create', 'app_delete', 'app_change_profile',
+          'service_create', 'service_delete', 'copy-service', 'go-page-domain-from-service-list', 'go-page-domain-from-service',
+        'go-to-log-run-from-instance'];
         if (groupVersion === 'v1') {
           notSupportedByV2.forEach(it => {
             permission[it]['disabled'] = true;
