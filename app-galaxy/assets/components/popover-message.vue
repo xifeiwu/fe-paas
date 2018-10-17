@@ -1,22 +1,20 @@
 <template>
-  <span>
-    <transition
-            :name="transition"
-            @after-enter="handleAfterEnter"
-            @after-leave="handleAfterLeave">
-      <div
-        class="el-popover el-popper"
-        :class="[popperClass, content && 'el-popover--plain']"
-        ref="popper"
-        v-show="showPopper"
-        :style="{ width: width + 'px' }"
-        :id="tooltipId"
-      >
-        <div class="el-popover__title" v-if="title" v-text="title"></div>
-        <div>{{ content }}</div>
-      </div>
-    </transition>
-  </span>
+  <transition
+          :name="transition"
+          @after-enter="handleAfterEnter"
+          @after-leave="handleAfterLeave">
+    <div
+      class="el-popover el-popper"
+      :class="[popperClass, content && 'el-popover--plain']"
+      ref="popper"
+      v-show="showPopper"
+      :style="{ width: width + 'px' }"
+      :id="tooltipId"
+    >
+      <div class="el-popover__title" v-if="title" v-text="title"></div>
+      <div>{{ content }}</div>
+    </div>
+  </transition>
 </template>
 <script>
   import Vue from 'vue';
@@ -73,7 +71,7 @@
         default: 'click',
         validator: value => ['click', 'focus', 'hover', 'manual'].indexOf(value) > -1
       },
-      openDelay: {
+      closeDelay: {
         type: Number,
         default: 0
       },
@@ -130,6 +128,11 @@
           this.content = msg;
           this.showPopper = true;
           this.createPopper();
+          if (this.closeDelay) {
+            setTimeout(() => {
+              this.showPopper = false;
+            }, this.closeDelay);
+          }
         });
       },
       doClose() {
