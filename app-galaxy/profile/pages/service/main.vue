@@ -20,21 +20,20 @@
           </div>
         </el-col>
         <div class="el-col el-col-24 btn-list">
-          <el-button v-if="!$storeHelper.notPermitted['service_create']"
-              size="mini-extral"
-              :type="$storeHelper.groupVersion === 'v1' ? 'plain': 'primary'"
-              :disabled="$storeHelper.groupVersion === 'v1'"
-              @click="handleButtonClick('go-to-page-service-add')">
+          <el-button
+              size="mini-extral" type="primary"
+              :class="{'disabled': $storeHelper.permission['service_create'].disabled}"
+              @click="handleButtonClick($event, 'service_create')">
             添加服务
           </el-button>
           <el-button v-if="true"
              size="mini-extral"
              type="primary"
-             @click="handleButtonClick('refreshAppList')">刷新</el-button>
+             @click="handleButtonClick($event, 'refreshAppList')">刷新</el-button>
           <el-button v-if="isProductionProfile"
                      size="mini-extral"
                      :type="'primary'"
-                     @click="handleButtonClick('go-to-work-order-todo-add')">申请工单</el-button>
+                     @click="handleButtonClick($event, 'go-to-work-order-todo-add')">申请工单</el-button>
           <el-tooltip slot="trigger" effect="dark" placement="bottom">
             <div slot="content">
               <div v-for="(item, index) in helpList" :key="index">{{item}}</div>
@@ -63,15 +62,15 @@
             <div>
               <div class="text"><span>外网二级域名：</span><span v-html="internetDomainHtml"></span></div>
               <i class="el-icon-edit"
-                 v-if="!$storeHelper.notPermitted['go-page-domain-from-service-list'] && $storeHelper.groupVersion !== 'v1'"
-                 @click="handleButtonClick('go-to-domain-app')"></i>
+                 v-if="!$storeHelper.permission['go-page-domain-from-service-list'].hide"
+                 @click="handleButtonClick($event, 'go-page-domain-from-service-list')"></i>
             </div>
           </el-tooltip>
           <div v-else>
             <div class="text"><span>外网二级域名：</span><span v-html="internetDomainHtml"></span></div>
             <i class="el-icon-edit"
-               v-if="!$storeHelper.notPermitted['go-page-domain-from-service-list'] && $storeHelper.groupVersion !== 'v1'"
-               @click="handleButtonClick('go-to-domain-app')"></i>
+               v-if="!$storeHelper.permission['go-page-domain-from-service-list'].hide"
+               @click="handleButtonClick($event, 'go-page-domain-from-service-list')"></i>
           </div>
         </div>
       </div>
@@ -90,7 +89,7 @@
           <template slot-scope="scope">
             <el-radio :label="scope.row.id"
                       :value="defaultServiceID"
-                      :disabled="$storeHelper.notPermitted['service_change_default']"
+                      :disabled="$storeHelper.permission['service_change_default'].disabled"
                       @input="changeDefaultVersion">{{scope.row.serviceVersion}}</el-radio>
           </template>
         </el-table-column>
@@ -114,87 +113,77 @@
           <template slot-scope="scope">
             <el-button
                     class="danger"
-                    v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"
+                    v-if="!isProductionProfile && !$storeHelper.permission['service_deploy'].hide"
                     type="text"
-                    :loading="statusOfWaitingResponse('deploy') && selected.service.id == scope.row.id"
-                    @click="handleRowButtonClick('deploy', scope.$index, scope.row)"
+                    :loading="statusOfWaitingResponse('service_deploy') && selected.service.id == scope.row.id"
+                    @click="handleRowButtonClick($event, 'service_deploy', scope.$index, scope.row)"
             >
               {{statusOfWaitingResponse('deploy') && selected.service.id == scope.row.id ? '部署中': '部署'}}
             </el-button>
             <div class="ant-divider"
-                 v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"></div>
+                 v-if="!isProductionProfile && !$storeHelper.permission['service_deploy'].hide"></div>
             <el-button
-                    v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"
+                    v-if="!isProductionProfile && !$storeHelper.permission['service_deploy'].hide"
                     type="text"
                     :class="isMesosApp ? 'plain' : 'danger'"
                     :disabled="isMesosApp"
                     :loading="statusOfWaitingResponse('quick-deploy') && selected.service.id == scope.row.id"
-                    @click="handleRowButtonClick('quick-deploy', scope.$index, scope.row)"
+                    @click="handleRowButtonClick($event, 'quick-deploy', scope.$index, scope.row)"
             >
               {{statusOfWaitingResponse('quick-deploy') && selected.service.id == scope.row.id ? '部署中': '重启'}}
             </el-button>
             <div class="ant-divider"
-                 v-if="!isProductionProfile && !$storeHelper.notPermitted['service_deploy']"></div>
+                 v-if="!isProductionProfile && !$storeHelper.permission['service_deploy'].hide"></div>
 
             <el-button
                     class="danger" type="text"
-                    :loading="statusOfWaitingResponse('stop') && selected.service.id == scope.row.id"
-                    v-if="!$storeHelper.notPermitted['service_stop']"
-                    @click="handleRowButtonClick('stop', scope.$index, scope.row)">停止</el-button>
-            <div v-if="!$storeHelper.notPermitted['service_stop']"
-                 class="ant-divider"></div>
+                    :loading="statusOfWaitingResponse('service_stop') && selected.service.id == scope.row.id"
+                    :class="{'disabled': $storeHelper.permission['service_stop'].disabled}"
+                    @click="handleRowButtonClick($event, 'service_stop', scope.$index, scope.row)">停止</el-button>
+            <div class="ant-divider"></div>
 
             <el-button
-                    v-if="!$storeHelper.notPermitted['service_delete']"
                     type="text"
-                    :class="$storeHelper.groupVersion === 'v1' ? 'plain' : 'danger'"
-                    :disabled="$storeHelper.groupVersion === 'v1'"
-                    :loading="statusOfWaitingResponse('delete') && selected.service.id == scope.row.id"
-                    @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
-            <div v-if="!$storeHelper.notPermitted['service_delete']"
-                 class="ant-divider"></div>
+                    :class="$storeHelper.permission['service_delete'].disabled ? 'disabled' : 'danger'"
+                    :loading="statusOfWaitingResponse('service_delete') && selected.service.id == scope.row.id"
+                    @click="handleRowButtonClick($event, 'service_delete', scope.$index, scope.row)">删除</el-button>
+            <div class="ant-divider"></div>
 
             <el-button
                     v-if="isProductionProfile"
                     class="primary" type="text"
-                    @click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
+                    @click="handleRowButtonClick($event, 'one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
             <div v-if="isProductionProfile"
                  class="ant-divider"></div>
 
             <el-button
-                    class="flex primary" type="text"
-                    v-if="!$storeHelper.notPermitted['go-to-page-log-deploy-from-service']"
-                    @click="handleRowButtonClick('go-to-log-deploy', scope.$index, scope.row)">
+                    type="text"
+                    :class="['flex', $storeHelper.permission['go-to-page-log-deploy-from-service'].disabled ? 'disabled' : 'primary']"
+                    @click="handleRowButtonClick($event, 'go-to-page-log-deploy-from-service', scope.$index, scope.row)">
               <span>部署日志</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div v-if="!$storeHelper.notPermitted['go-to-page-log-deploy-from-service']"
-                 class="ant-divider"></div>
+            <div class="ant-divider"></div>
 
             <el-button
-                    class="flex primary" type="text"
-                    v-if="!$storeHelper.notPermitted['page_instance']"
-                    @click="handleRowButtonClick('go-to-instance-list', scope.$index, scope.row)">
+                    type="text"
+                    :class="['flex', 'primary']"
+                    @click="handleRowButtonClick($event, 'go-to-instance-list', scope.$index, scope.row)">
               <span>实例列表</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div v-if="!$storeHelper.notPermitted['page_instance']"
-                 class="ant-divider"></div>
+            <div class="ant-divider"></div>
 
             <el-button
-                    v-if="!$storeHelper.notPermitted['go-page-domain-from-service']"
-                    class="flex" type="text"
-                    :class="$storeHelper.groupVersion === 'v1' ? 'plain' : 'primary'"
-                    :disabled="$storeHelper.groupVersion === 'v1'"
-                    @click="handleRowButtonClick('go-to-domain-service', scope.$index, scope.row)">
+                    type="text"
+                    :class="['flex', $storeHelper.permission['go-page-domain-from-service'].disabled ? 'disabled' : 'primary']"
+                    @click="handleRowButtonClick($event, 'go-page-domain-from-service', scope.$index, scope.row)">
               <span>配置外网二级域名</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div v-if="!$storeHelper.notPermitted['go-page-domain-from-service']"
-                 class="ant-divider"></div>
+            <div class="ant-divider"></div>
 
             <el-button
-                    class="flex" type="text"
-                    :class="$storeHelper.groupVersion === 'v1' ? 'plain' : 'primary'"
-                    :disabled="$storeHelper.groupVersion === 'v1'"
-                    @click="handleRowButtonClick('copy-service',scope.$index,scope.row)">
+                    type="text"
+                    :class="['flex', $storeHelper.permission['copy-service'].disabled ? 'disabled' : 'primary']"
+                    @click="handleRowButtonClick($event, 'copy-service',scope.$index,scope.row)">
               <span>复制服务</span>
               <i class="paas-icon-level-up"></i>
             </el-button>
@@ -202,7 +191,7 @@
 
             <el-button
               class="flex primary" type="text"
-              @click="handleRowButtonClick('service_info', scope.$index, scope.row)">
+              @click="handleRowButtonClick($event, 'service_info', scope.$index, scope.row)">
               <span>服务详情</span>
               <i class="el-icon-arrow-right"
                 :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"></i>
@@ -224,12 +213,12 @@
                   <el-form-item label="构建类型">
                     <span>{{valueToShow(selected.model.packageInfo.type)}}</span>
                     <span v-if="selected.model.packageInfo.name">（{{selected.model.packageInfo.name}}）</span>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                    <i v-if="!$storeHelper.permission['service_update'].hide"
                        class="el-icon-edit" @click="handleChangeProp('packageInfo')"></i>
                   </el-form-item>
                   <el-form-item label="滚动升级">
                     <span>{{selected.service.rollingUpdate? '需要' : '不需要'}}</span>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                    <i v-if="!$storeHelper.permission['service_update'].hide"
                        class="el-icon-edit" @click="handleChangeProp('rollingUpdate')"></i>
                   </el-form-item>
                   <el-form-item label="负载均衡">
@@ -238,7 +227,7 @@
                   </el-form-item>
                   <el-form-item label="CPU/内存">
                     <span>{{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}</span>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                    <i v-if="!$storeHelper.permission['service_update'].hide"
                        class="el-icon-edit" @click="handleChangeProp('cpuAndMemory')"></i>
                   </el-form-item>
                   <el-form-item label="实例数量">
@@ -248,36 +237,36 @@
                     <span>{{valueToShow(selected.service.image.typeName)}}</span>
                     <span style="padding-left: 12px; font-weight: bold">{{selected.service.image.customImage?'镜像地址':'基础镜像'}}</span>
                     <span>{{selected.service.image.location}} </span>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                    <i v-if="!$storeHelper.permission['service_update'].hide"
                        class="el-icon-edit" @click="handleChangeProp('image')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab_ssh地址" class="big" v-if="!selected.service.image.customImage">
                     <div class="expand-to-next-line">{{valueToShow(selected.service.gitLabAddress)}}</div>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                    <i v-if="!$storeHelper.permission['service_update'].hide"
                        class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab分支" class="big" v-if="!selected.service.image.customImage">
                     <div class="expand-to-next-line">
                       <span>{{valueToShow(selected.service.gitLabBranch)}}</span>
-                      <i v-if="!$storeHelper.notPermitted['service_update']" class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i></div>
+                      <i v-if="!$storeHelper.permission['service_update'].hide" class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i></div>
                   </el-form-item>
                   <el-form-item label="mainClass" class="main-class big" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
                     <div class="expand-to-next-line">
                       <span>{{valueToShow(selected.service.mainClass)}}</span>
-                      <i v-if="!$storeHelper.notPermitted['service_update']"
+                      <i v-if="!$storeHelper.permission['service_update'].hide"
                          class="el-icon-edit" @click="handleChangeProp('mainClass')"></i>
                     </div>
                   </el-form-item>
                   <el-form-item label="gitlab父级pom相对路径" class="relativePathOfParentPOM big" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
                     <div class="expand-to-next-line">
                       <span>{{valueToShow(selected.service.relativePath)}}</span>
-                      <i v-if="!$storeHelper.notPermitted['service_update']"
+                      <i v-if="!$storeHelper.permission['service_update'].hide"
                          class="el-icon-edit" @click="handleChangeProp('relativePath')"></i>
                     </div>
                   </el-form-item>
                   <el-form-item label="Maven profile id" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
                     <div class="expand-to-next-line">{{valueToShow(selected.service.mavenProfileId)}}</div>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                    <i v-if="!$storeHelper.permission['service_update'].hide"
                        class="el-icon-edit" @click="handleChangeProp('mavenProfileId')"></i>
                   </el-form-item>
                   <el-form-item label="健康检查配置" class="big">
@@ -288,12 +277,12 @@
                     <span v-else>{{valueToShow(selected.model.healthCheck.content)}}</span>
                     <span style="font-weight: bold; margin-left: 12px">延迟时间：</span>
                     <span>{{selected.model.healthCheck.initialDelay}}秒</span>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                    <i v-if="!$storeHelper.permission['service_update'].hide"
                        class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
                   </el-form-item>
                   <el-form-item label="preStop脚本" class="big" v-if="!isProductionProfile">
                     <span>{{valueToShow(selected.model.prestopCommand)}}</span>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                    <i v-if="!$storeHelper.permission['service_update'].hide"
                        class="el-icon-edit" @click="handleChangeProp('prestopCommand')"></i>
                   </el-form-item>
                   <el-form-item label="文件存储" class="big file-location" v-if="false">
@@ -314,7 +303,7 @@
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}
                     </div>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
+                    <i v-if="!$storeHelper.permission['service_update'].hide"
                        class="el-icon-edit" @click="handleChangeProp('vmOptions')"></i>
                   </el-form-item>
                   <el-form-item label="环境变量配置" class="big">
@@ -323,7 +312,7 @@
                         <el-col :span="10" style="font-weight: bold;text-align: center">Key</el-col>
                         <el-col :span="10" style="font-weight: bold;text-align: center">Value</el-col>
                         <el-col :span="4" style="font-weight: bold;text-align: left">
-                          <i v-if="!$storeHelper.notPermitted['service_update']"
+                          <i v-if="!$storeHelper.permission['service_update'].hide"
                              class="el-icon-edit" @click="handleChangeProp('environments')"></i>
                         </el-col>
                       </el-row>
@@ -341,7 +330,7 @@
                     </div>
                     <div v-else>
                       <span>未设置</span>
-                      <i v-if="!$storeHelper.notPermitted['service_update']"
+                      <i v-if="!$storeHelper.permission['service_update'].hide"
                          class="el-icon-edit" @click="handleChangeProp('environments')"></i>
                     </div>
                   </el-form-item>
@@ -351,7 +340,7 @@
                         <el-col :span="8" style="font-weight: bold; text-align: center">IP</el-col>
                         <el-col :span="8" style="font-weight: bold; text-align: center">域名</el-col>
                         <el-col :span="2" style="font-weight: bold;text-align: left">
-                          <i v-if="!$storeHelper.notPermitted['service_update']"
+                          <i v-if="!$storeHelper.permission['service_update'].hide"
                              class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
                         </el-col>
                       </el-row>
@@ -366,7 +355,7 @@
                     </div>
                     <div v-else>
                       <span>未设置</span>
-                      <i v-if="!$storeHelper.notPermitted['service_update']"
+                      <i v-if="!$storeHelper.permission['service_update'].hide"
                          class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
                     </div>
                   </el-form-item>
@@ -378,7 +367,7 @@
                         <div class="el-col el-col-6" style="font-weight: bold; text-align: center">目标端口</div>
                         <div class="el-col el-col-2" style="font-weight: bold; text-align: center">协议</div>
                         <div class="el-col el-col-2" style="font-weight: bold; text-align: center">
-                          <i v-if="!$storeHelper.notPermitted['service_update']"
+                          <i v-if="!$storeHelper.permission['service_update'].hide"
                              class="el-icon-edit" @click="handleChangeProp('portMap')"></i>
                         </div>
                       </div>
@@ -391,7 +380,7 @@
                     </div>
                     <div v-else>
                       <span>未设置</span>
-                      <i v-if="!$storeHelper.notPermitted['service_update']"
+                      <i v-if="!$storeHelper.permission['service_update'].hide"
                          class="el-icon-edit" @click="handleChangeProp('portMap')"></i>
                     </div>
                   </el-form-item>
@@ -2016,9 +2005,16 @@ export default {
       return errMsg;
     },
 
-    handleButtonClick(action) {
+    handleButtonClick(evt, action) {
+      if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+        this.$storeHelper.globalPopover.show({
+          ref: evt.target,
+          msg: this.$storeHelper.permission[action].reason
+        });
+        return;
+      }
       switch (action) {
-        case 'go-to-page-service-add':
+        case 'service_create':
           let infoForAddService = this.getInfoForAddService();
           if (!infoForAddService.success) {
             this.$message.error(infoForAddService.message);
@@ -2048,7 +2044,7 @@ export default {
           };
           this.$router.push(this.$net.page['profile/work-order/todo/add']);
           break;
-        case 'go-to-domain-app':
+        case 'go-page-domain-from-service-list':
           if (this.selectedAppID == null && this.selectedProfileID == null) {
             this.$message.error('所需信息不完整！');
             return;
@@ -2224,7 +2220,14 @@ export default {
     /**
      * handle click event in the operation-column
      */
-    async handleRowButtonClick(action, index, row) {
+    async handleRowButtonClick(evt, action, index, row) {
+      if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+        this.$storeHelper.globalPopover.show({
+          ref: evt.target,
+          msg: this.$storeHelper.permission[action].reason
+        });
+        return;
+      }
       let currentService = this.currentServiceList[index];
       if (!currentService) {
         return;
@@ -2240,7 +2243,7 @@ export default {
       }
       let statusOK = false;
       switch (action) {
-        case 'deploy':
+        case 'service_deploy':
         case 'quick-deploy':
           this.addToWaitingResponseQueue(action);
           try {
@@ -2250,8 +2253,8 @@ export default {
             this.hideWaitingResponse(action);
           }
           break;
-        case 'delete':
-          this.addToWaitingResponseQueue('delete');
+        case 'service_delete':
+          this.addToWaitingResponseQueue(action);
           var desc = this.getVersionDescription(row);
           this.warningConfirm(`删除服务将会销毁"${desc}"的代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。`).then(() => {
             this.warningConfirm(`你确认要删除"${desc}"，并清除该服务的一切数据？`).then(() => {
@@ -2260,7 +2263,7 @@ export default {
                 appId: this.selectedAppID,
                 spaceId: this.selectedProfileID
               }).then(msg => {
-                this.hideWaitingResponse('delete');
+                this.hideWaitingResponse(action);
                 this.$message({
                   type: 'success',
                   message: msg
@@ -2268,7 +2271,7 @@ export default {
                 this.$net.needUpdateAppList = true;
                 this.requestServiceList(this.selectedAppID, this.selectedProfileID);
               }).catch(err => {
-                this.hideWaitingResponse('delete');
+                this.hideWaitingResponse(action);
                 this.$notify.error({
                   title: '提示',
                   message: err,
@@ -2284,8 +2287,8 @@ export default {
             this.hideWaitingResponse('delete');
           });
           break;
-        case 'stop':
-          this.addToWaitingResponseQueue('stop');
+        case 'service_stop':
+          this.addToWaitingResponseQueue(action);
           var desc = this.getVersionDescription(row);
           this.$confirm(`停止将会导致"${desc}"不可用，但不会删除代码及配置信息，你确定需要这么做吗?`).then(() => {
             this.$net.serviceStop({
@@ -2293,13 +2296,13 @@ export default {
               appId: this.selectedAppID,
               spaceId: this.selectedProfileID
             }).then(msg => {
-              this.hideWaitingResponse('stop');
+              this.hideWaitingResponse(action);
               this.$message({
                 type: 'success',
                 message: msg
               });
             }).catch(err => {
-              this.hideWaitingResponse('stop');
+              this.hideWaitingResponse(action);
               this.$notify({
                 title: '提示',
                 message: err,
@@ -2310,7 +2313,7 @@ export default {
               console.log(err);
             });
           }).catch(() => {
-            this.hideWaitingResponse('stop');
+            this.hideWaitingResponse(action);
           });
           break;
         case 'service_info':
@@ -2357,7 +2360,7 @@ export default {
             this.$router.push(this.$net.page['profile/instance']);
           }
           break;
-        case 'go-to-domain-service':
+        case 'go-page-domain-from-service':
           if (!row.hasOwnProperty('id') || this.selectedAppID == null || this.selectedProfileID == null) {
             this.$message.error('所需信息不完整！');
             return;
@@ -2372,7 +2375,7 @@ export default {
           };
           this.$router.push(this.$net.page['profile/domain']);
           break;
-        case 'go-to-log-deploy':
+        case 'go-to-page-log-deploy-from-service':
           if (!row.hasOwnProperty('id') || this.selectedAppID == null || this.selectedProfileID == null) {
             this.$message.error('所需信息不完整！');
             return;
