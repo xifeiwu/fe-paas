@@ -186,14 +186,15 @@
         activeSideMenuItem: this.$net.page['profile'],
         crumbList: [],
         invalidPath: false,
+        // 用于配置404页面的属性
         navigateList: [{
-          href: '/profile/app',
+          href: this.$net.page['profile/app'],
           label: '应用引擎'
         }, {
-          href: '/profile/oauth',
+          href: this.$net.page['profile/oauth'],
           label: 'AccessKey管理'
         }, {
-          href: '/profile/config-server',
+          href: this.$net.page['profile/config-server'],
           label: '应用配置'
         }],
         showGroupList: true,
@@ -327,10 +328,6 @@
           if (!groupId) {
             return;
           }
-          var groupVersion = '2.x';
-          if (this.groupInfo.hasOwnProperty('supportVersion') && this.groupInfo['supportVersion'] === '1.x') {
-            groupVersion = '1.x';
-          }
           /**
            * all the request related with groupID will be refreshed, include:
            * 1. profileListOfGroup
@@ -351,47 +348,14 @@
             });
             // 更新（1.x支持、权限）相关信息
             this.updatePermissionInfo();
-            // 当前团队应用数为零，只能进入应用管理和添加应用页面
-            if (appInfoList.total === 0) {
-              this.$router.helper.updateDisabledState({
-                pathList: [
-                  this.$net.page['profile/app'],
-                  this.$net.page['profile/app/add'],
-                  // path start with profile/config-server
-                  new RegExp(`^${this.$utils.escapeRegexp(this.$net.page['profile/config-server'])}.*`)
-                ],
-                pathType: 'exclude'
-              }, {key: 'NO_APP', value: true});
-            } else {
-              this.$router.helper.updateDisabledState({
-                pathList: [],
-                pathType: 'exclude'
-              }, {key: 'NO_APP', value: false});
-            }
-
-            // 1.x团队不支持：外网域名、审批管理、Access Key、团队管理
-            if (groupVersion === '1.x') {
-              this.$message.warning('您当前在1.x团队，部分功能正在迁移。置灰的功能暂时无法使用！');
-              this.$router.helper.updateDisabledState({
-                pathList: [
-                  this.$net.page['profile/domain'],
-                  this.$net.page['profile/work-order'],
-                  this.$net.page['profile/oauth'],
-                ],
-                pathType: 'include'
-              }, {key: 'NOT_SUPPORT_IN_1.X', value: true});
-            } else {
-              this.$router.helper.updateDisabledState({
-                pathList: [
-                ],
-                pathType: 'exclude'
-              }, {key: 'NOT_SUPPORT_IN_1.X', value: false});
-            }
           } catch(err) {
             console.log(err);
           }
         }
       },
+      '$storeHelper.appInfoListOfGroup': function () {
+        this.updatePermissionInfo();
+      }
     },
     methods: {
       // set el-menu profile as active menu of paasHeaderProfile
@@ -448,23 +412,62 @@
         }
       },
 
-      // 更新权限信息（团队更新或获得禁用列表时）
+      // 更新权限信息：页面访问权限；按钮点击权限。
       updatePermissionInfo() {
+        // 当前团队应用数为零，只能进入应用管理和添加应用页面
+        const appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup;
+        if (appInfoListOfGroup.total === 0) {
+          this.$router.helper.updateDisabledState({
+            pathList: [
+              this.$net.page['profile/app'],
+              this.$net.page['profile/app/add'],
+              // path start with profile/config-server
+              new RegExp(`^${this.$utils.escapeRegexp(this.$net.page['profile/config-server'])}.*`)
+            ],
+            pathType: 'exclude'
+          }, {key: 'NO_APP', value: true});
+        } else {
+          this.$router.helper.updateDisabledState({
+            pathList: [],
+            pathType: 'exclude'
+          }, {key: 'NO_APP', value: false});
+        }
+
         const groupVersion = this.$storeHelper.groupVersion;
+        // 1.x团队不支持：外网域名、审批管理、Access Key、团队管理
+        if (groupVersion === '1.x') {
+          this.$message.warning('您当前在1.x团队，部分功能正在迁移。置灰的功能暂时无法使用！');
+          this.$router.helper.updateDisabledState({
+            pathList: [
+              this.$net.page['profile/domain'],
+              this.$net.page['profile/work-order'],
+              this.$net.page['profile/oauth'],
+            ],
+            pathType: 'include'
+          }, {key: 'NOT_SUPPORT_IN_1.X', value: true});
+        } else {
+          this.$router.helper.updateDisabledState({
+            pathList: [
+            ],
+            pathType: 'exclude'
+          }, {key: 'NOT_SUPPORT_IN_1.X', value: false});
+        }
+
         const permission = {};
         const notSupportedByV2 = ['app_delete', 'app_change_profile'];
+
+        const allPermissionList = notSupportedByV2;
         if (groupVersion === 'v1') {
           notSupportedByV2.forEach(it => {
             permission[it] = '1.x团队暂时无法使用该功能';
           })
         }
-
         this.notPermitted.forEach(it => {
           permission[it] = '您无使用该功能的权限';
         });
-
         this.$storeHelper.notPermitted = permission;
       },
+
       /**
        * register some global variable at start of page profile
        */
