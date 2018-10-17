@@ -434,7 +434,9 @@
           'service_update', 'service_change_default'];
         const pageInstance = ['instance_change_count', 'go-to-page-terminal-from-instance',
           'go-to-log-run-from-instance', 'go-to-page-monitor-from-instance'];
-        const allPermissionList = [...pageApp, ...pageService, ...pageInstance];
+        const pageDomain = ['domain_add', 'domain_bind_service', 'domain_unbind_service', 'domain_secure_check',
+        'domain_remove', 'domain_bind_white_list'];
+        const allPermissionList = [...pageApp, ...pageService, ...pageInstance, ...pageDomain];
         allPermissionList.forEach(it => {
           permission[it] = {
             disable: false,

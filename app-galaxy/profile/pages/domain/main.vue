@@ -17,25 +17,25 @@
       </div>
       <div class="row operation">
         <el-button
-                v-if="!$storeHelper.notPermitted['domain_add']"
                 size="mini-extral"
                 type="primary"
-                :loading="statusOfWaitingResponse('open-create-domain-dialog')"
-                @click="handleButtonClick('open-create-domain-dialog')">
+                :class="{'disabled': $storeHelper.permission['domain_add'].disabled}"
+                :loading="statusOfWaitingResponse('domain_add')"
+                @click="handleButtonClick($event, 'domain_add')">
           申请外网二级域名
         </el-button>
         <el-button
                 size="mini-extral"
                 type="warning"
-                v-if="!$storeHelper.notPermitted['domain_bind_service']"
-                @click="handleButtonClick('open-bind-service-dialog')"
+                :class="{'disabled': $storeHelper.permission['domain_bind_service'].disabled}"
+                @click="handleButtonClick($event, 'domain_bind_service')"
         >绑定服务
         </el-button>
         <el-button
-                v-if="!$storeHelper.notPermitted['domain_unbind_service']"
                 size="mini-extral"
                 type="warning"
-                @click="handleButtonClick('open-unbind-service-dialog')">解绑服务
+                :class="{'disabled': $storeHelper.permission['domain_unbind_service'].disabled}"
+                @click="handleButtonClick($event, 'domain_unbind_service')">解绑服务
         </el-button>
 
         <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
@@ -87,7 +87,7 @@
           <template slot-scope="scope">
             <span>{{scope.row.status}}</span>
             <span v-if="scope.row.reason" style="color: #00f; cursor: pointer"
-                  @click="handleRowButtonClick('re-secure-check-in-dialog', scope.$index, scope.row)">原因</span>
+                  @click="handleRowButtonClick($event, 're-secure-check-in-dialog', scope.$index, scope.row)">原因</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -97,23 +97,23 @@
         >
           <template slot-scope="scope">
             <el-button
-                    v-if="!$storeHelper.notPermitted['domain_secure_check']"
-                    type="text" class="warning"
-                    @click="handleRowButtonClick('secure-check', scope.$index, scope.row)">
+                    type="text"
+                    :class="$storeHelper.permission['domain_secure_check'].disabled ? 'disabled' : 'warning'"
+                    @click="handleRowButtonClick($event, 'domain_secure_check', scope.$index, scope.row)">
               安全审核
             </el-button>
-            <div class="ant-divider" v-if="!$storeHelper.notPermitted['domain_secure_check']"></div>
+            <div class="ant-divider"></div>
             <el-button
-                    v-if="!$storeHelper.notPermitted['domain_remove']"
-                    type="text" class="danger"
-                    :loading="statusOfWaitingResponse('remove') && selected.row.id === scope.row.id"
-                    @click="handleRowButtonClick('remove', scope.$index, scope.row)">删除
+                    type="text"
+                    :class="$storeHelper.permission['domain_remove'].disabled ? 'disabled' : 'danger'"
+                    :loading="statusOfWaitingResponse('domain_remove') && selected.row.id === scope.row.id"
+                    @click="handleRowButtonClick($event, 'domain_remove', scope.$index, scope.row)">删除
             </el-button>
-            <div class="ant-divider" v-if="!$storeHelper.notPermitted['domain_remove']"></div>
+            <div class="ant-divider"></div>
             <el-button
-                    v-if="!$storeHelper.notPermitted['domain_bind_white_list']"
                     type="text" class="primary flex"
-                    @click="handleRowButtonClick('to-white-list', scope.$index, scope.row)">
+                    :class="$storeHelper.permission['domain_bind_white_list'].disabled ? 'disabled' : 'danger'"
+                    @click="handleRowButtonClick($event, 'domain_bind_white_list', scope.$index, scope.row)">
               <span>关联IP白名单</span><i class="paas-icon-level-up"></i>
             </el-button>
           </template>
@@ -302,8 +302,8 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="安全审核" :visible="selected.action == 'secure-check'"
-               :class="{'secure-check': true, 'size-650': true,}"
+    <el-dialog title="安全审核" :visible="selected.action == 'domain_secure_check'"
+               :class="{'domain_secure_check': true, 'size-650': true,}"
                :close-on-click-modal="false"
                @close="selected.action = null"
     >
@@ -822,20 +822,27 @@
       },
 
       // handle the button in operation column of table
-      handleRowButtonClick(action, index, row) {
+      handleRowButtonClick(evt, action, index, row) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         this.selected.row = row;
         switch (action) {
-          case 'secure-check':
+          case 'domain_secure_check':
             this.selected.action = action;
             this.secureCheckProps.passed = false;
             this.secureCheckProps.reason = '';
             this.secureCheckProps.tip = '';
             break;
-          case 'to-white-list':
+          case 'domain_bind_white_list':
             this.$router.push(this.$net.page['profile/domain/white-list']);
             this.$storeHelper.dataTransfer = row;
             break;
-          case 'remove':
+          case 'domain_remove':
             if (row['hasBind']) {
               this.$message.error(`外网域名"${row.internetDomain}"${row.status}，请先解绑服务，才能删除！`);
             } else {
@@ -887,9 +894,16 @@
       /**
        * do some init action before dialog popup
        */
-      handleButtonClick(action) {
+      handleButtonClick(evt, action) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         switch (action) {
-          case 'open-create-domain-dialog':
+          case 'domain_add':
             if (!this.profileInfo) {
               this.$message.error('获取运行环境信息失败！');
               return;
@@ -926,7 +940,7 @@
               this.hideWaitingResponse(action);
             });
             break;
-          case 'open-bind-service-dialog':
+          case 'domain_bind_service':
             if (this.profileInfo.id === this.$storeHelper.PROFILE_ID_FOR_ALL) {
               this.$message.warning('运行环境为"全部"的情况下，不能进行绑定服务操作。请先将运行环境切换为其它运行环境！');
               return;
@@ -938,7 +952,7 @@
             }
             this.selected.action = 'bind-service';
             break;
-          case 'open-unbind-service-dialog':
+          case 'domain_unbind_service':
             if (this.rowsSelected.length == 0) {
               this.$message.warning('请先选择要操作的域名');
               return;
