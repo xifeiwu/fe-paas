@@ -484,6 +484,11 @@ class AppInfoHelper {
       return it.toUpperCase();
     })
   }
+  getSupportedLoadBalance() {
+    return ['Round_robin'].map(it => {
+      return it.toUpperCase();
+    })
+  }
 
   /** map key from local to server, used for add app and add service
    * @param origin

@@ -453,7 +453,7 @@ export default {
         rollingUpdate: true,
         script4RollingUpdate: '',
         maxAge4Script: '30',
-        loadBalance: appPropUtil.getAllLoadBalance()[0],
+        loadBalance: appPropUtil.getSupportedLoadBalance()[0],
         agree: false,
       },
       productionProfileTip: '',
@@ -476,7 +476,7 @@ export default {
       'globalConfigForApp': 'messageForCreateAPP',
     }),
     loadBalanceType() {
-      return appPropUtil.getAllLoadBalance();
+      return appPropUtil.getSupportedLoadBalance();
     },
     groupList() {
       return this.$storeHelper.groupList;
