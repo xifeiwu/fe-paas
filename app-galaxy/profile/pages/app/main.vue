@@ -4,17 +4,16 @@
       <el-row type="flex" justify="center" align="middle">
         <el-col :span="10">
           <el-button
-                  v-if="!$storeHelper.notPermitted['app_create']"
                   size="mini-extral"
-                  :type="$storeHelper.groupVersion === 'v1' ? 'plain': 'primary'"
-                  :disabled="$storeHelper.groupVersion === 'v1'"
-                  @click="handleButtonClick('go-to-page-app-add')">
+                  :type="'primary'"
+                  :class="{'disabled': $storeHelper.permission['app_create'].disabled}"
+                  @click="handleButtonClick($event, 'app_create')">
             创建应用
           </el-button>
           <el-button v-if="true"
                      size="mini-extral"
                      type="primary"
-                     @click="handleButtonClick('refreshAppList')"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
+                     @click="handleButtonClick($event, 'refreshAppList')"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
         </el-col>
         <el-col :span="1">
           <span>&nbsp</span>
@@ -51,8 +50,8 @@
         <el-table-column label="应用名称" prop="appName" headerAlign="left" align="left" minWidth="120">
           <template slot-scope="scope">
             <span>{{scope.row.appName}}</span>
-            <i v-if="!$storeHelper.notPermitted['app_change_name']"
-                    class="el-icon-edit" @click="handleTRButton('change-appName', scope.$index, scope.row)"></i>
+            <i v-if="!$storeHelper.permission['app_change_name'].hide"
+                    class="el-icon-edit" @click="handleTRButton($event, 'app_change_name', scope.$index, scope.row)"></i>
           </template>
         </el-table-column>
         <el-table-column label="项目名称" prop="tag" headerAlign="left" align="left" minWidth="120">
@@ -91,16 +90,14 @@
           <template slot-scope="scope">
             <el-button
               type="text"
-              :class="$storeHelper.notPermitted['app_delete'] ? 'plain' : 'danger'"
-              :disabled="!!$storeHelper.notPermitted['app_delete']"
-              :loading="statusOfWaitingResponse('deleteRow') && selected.row.appId == scope.row.appId"
-              @click="handleTRButton('deleteRow', scope.$index, scope.row)">删除</el-button>
+              :class="$storeHelper.permission['app_delete'].disabled ? 'disabled' : 'danger'"
+              :loading="statusOfWaitingResponse('app_delete') && selected.row.appId == scope.row.appId"
+              @click="handleTRButton($event, 'app_delete', scope.$index, scope.row)">删除</el-button>
             <div class="ant-divider"></div>
             <el-button
               type="text"
-              :class="$storeHelper.notPermitted['app_change_profile'] ? 'plain' : 'warning'"
-              :disabled="!!$storeHelper.notPermitted['app_change_profile']"
-              @click="handleTRButton('change-profileNames', scope.$index, scope.row)">更改运行环境</el-button>
+              :class="$storeHelper.permission['app_change_profile'].disabled ? 'disabled' : 'warning'"
+              @click="handleTRButton($event, 'app_change_profile', scope.$index, scope.row)">更改运行环境</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -123,7 +120,8 @@
       <div class="desc">应用引擎为您快速构建应用，一键部署，持续集成、交付，加快应用迭代效率，实现DevOps运维理念的微服务应用框架，快来试试吧!</div>
       <el-button
               type="primary"
-              @click="handleButtonClick('go-to-page-app-add')">
+              :type="$storeHelper.permission['app_create'].disabled ? 'plain': 'primary'"
+              @click="handleButtonClick($event, 'app_create')">
         创建应用
       </el-button>
     </div>
@@ -528,12 +526,18 @@
           }));
         });
       },
-      handleButtonClick(action, params) {
+      handleButtonClick(evt, action) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         switch (action) {
-          case 'go-to-page-app-add':
+          case 'app_create':
             this.$router.push(this.$net.page['profile/app/add']);
             break;
-
           case 'refreshAppList':
             this.$store.dispatch('user/appInfoList', {
               groupId: this.$storeHelper.currentGroupID,
@@ -555,8 +559,16 @@
       /**
        * handle click event in the operation-column
        */
-      async handleTRButton(action, index, row) {
-        let appInfo = this.$storeHelper.getAppInfoByID(row.appId);
+      async handleTRButton(evt, action, index, row) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
+        const appInfo = this.$storeHelper.getAppInfoByID(row.appId);
+//        console.log(appInfo);
         if (!appInfo) {
           return;
         } else {
@@ -564,8 +576,9 @@
           this.selected.app = appInfo.app;
           this.selected.model = appInfo.model;
         }
+        var prop = null, formName = null;
         switch (action) {
-          case 'deleteRow':
+          case 'app_delete':
             this.addToWaitingResponseQueue(action);
             try {
               await this.warningConfirm(`删除应用"${row.appName}"将会销毁所有环境的代码和配置信息，解绑所有公网域名、IP白名单，删除后应用数据不可恢复！`);
@@ -589,15 +602,20 @@
             }
             this.onAppListChange();
             break;
-          case 'change-profileNames':
+          case 'app_change_profile':
             this.profileChangeStatus.toAdd = [];
             this.profileChangeStatus.toDelete = [];
-            // NOTICE: not break need here
-          case 'change-appName':
-            let prop = action.split('-')[1];
+            prop = 'profileNames';
             this.selected.prop = prop;
             this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
-            let formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
+            formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
+            this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate();
+            break;
+          case 'app_change_name':
+            prop = 'appName';
+            this.selected.prop = prop;
+            this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
+            formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
             this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate();
             break;
         }
@@ -893,7 +911,7 @@
         if (!profile.active) {
           return;
         }
-        if (this.$storeHelper.notPermitted['page_service']) {
+        if (this.$storeHelper.permission['page_service']) {
           this.$message.warning('您没有权限进入服务管理页面');
           return;
         }

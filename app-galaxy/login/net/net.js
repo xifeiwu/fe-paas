@@ -93,7 +93,7 @@ class Net extends NetBase {
     let menuList = [];
     if (content.hasOwnProperty('menuList') && Array.isArray(content.menuList)) {
       // let menuToIgnore = ["应用监控", "Oauth权限"];
-      let menuToIgnore = ["应用监控"];
+      let menuToIgnore = ["应用监控", "后台管理"];
       // let menuToIgnore = [];
       menuList = content.menuList.map(it => {
         // append some property to each item

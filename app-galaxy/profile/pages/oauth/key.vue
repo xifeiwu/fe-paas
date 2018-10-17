@@ -59,7 +59,7 @@
               <el-popover
                       placement="bottom"
                       trigger="click"
-                      :disabled="disablePopper"
+                      :disabled="false"
                       popperClass="el-popover--small is-dark"
                       content="复制成功">
                 <i class="paas-icon-copy" slot="reference"

@@ -231,10 +231,10 @@ class Helper {
     // this.routePathList = this.getAllRouterPath();
     this.routePathToConfig = this.getRoutePathToConfig();
 
-    setTimeout(() => {
+    // setTimeout(() => {
       // add permission by config from localStorage
-      this.addPermission(Vue.prototype.$storeHelper.notPermitted);
-    });
+      // this.addPermission(Vue.prototype.$storeHelper.notPermitted);
+    // });
     // console.log(this.$storeHelper.notPermitted);
     // this.startRouteFilter()
     this.pathList = [];
@@ -275,14 +275,13 @@ class Helper {
    * 2. created of profile.vue
    * @param permissionMap: {'/app': true, '/oauth/key': true}
    */
-  addPermission(permissionMap) {
-    // console.log(permissionMap);
+  addPermission(notPermittedList) {
     function updateItem(item) {
       if (item.hasOwnProperty('routePath')) {
         if (!item.hasOwnProperty('meta')) {
           item.meta = {};
         }
-        item.meta['isPermitted'] = !permissionMap[item.routePath];
+        item.meta['isPermitted'] = notPermittedList.indexOf(item.routePath) > -1 ? false : true;
       }
     }
 
@@ -516,6 +515,11 @@ class Helper {
     const isPermittedPath = (path) => {
       var permitted = true;
       const config = this.routePathToConfig[path];
+      // console.log(path);
+      // console.log(config);
+      if (!config) {
+        return false;
+      }
       if (config.hasOwnProperty('meta') && config.meta.hasOwnProperty('isPermitted')) {
         permitted = config.meta.isPermitted;
       }

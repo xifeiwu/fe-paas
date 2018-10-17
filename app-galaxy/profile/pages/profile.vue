@@ -14,6 +14,10 @@
         </el-alert>
       </div>
       <!--toasts-area-->
+      <!--popover-message-area-->
+      <paas-popover-message ref="global-popover" popperClass="el-popover--small is-dark"
+                            placement="top" :closeDelay="3000"></paas-popover-message>
+      <!--popover-message-area-->
       <paas-header-profile :userName="userName" :userRole=userRole :showImg="false" ref="paasHeaderProfile"
                            @menu-click="handleHeaderMenuClick"></paas-header-profile>
       <div v-if="invalidPath" class="content">
@@ -178,9 +182,10 @@
   import paasHeaderProfile from 'assets/components/header-profile';
   import paasNavBar from './components/nav-bar.vue';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+  import paasPopoverMessage from 'assets/components/popover-message';
 
   export default {
-    components: {PageNotFound, paasHeaderProfile, paasNavBar},
+    components: {PageNotFound, paasHeaderProfile, paasNavBar, paasPopoverMessage},
     data() {
       return {
         activeSideMenuItem: this.$net.page['profile'],
@@ -203,6 +208,8 @@
       }
     },
     created() {
+      // 初始化权限信息
+      this.initPermissionInfo();
       // 获取页面相关配置
       Promise.all([
         this.$net.requestPaasServer(this.$net.URL_LIST.user_group_list),
@@ -228,7 +235,8 @@
         // permission
         this.notPermitted = this.$net.parseNotPermittedCommands(resContentList[2]);
         this.$router.helper.addPermission(this.notPermitted);
-        this.updatePermissionInfo();
+        // trigger change of currentGroupId
+//        this.$store.dispatch('user/groupId', this.$storeHelper.currentGroupID);
       }).catch(err => {
         console.log(err);
         this.$notify.error({
@@ -238,7 +246,6 @@
         });
       });
 
-      this.$store.dispatch('user/groupId', this.$storeHelper.currentGroupID);
     },
     mounted() {
       this.resizeListener = () => {
@@ -258,6 +265,10 @@
         this.setDefaultActiveForHeader();
       });
       this.onRoutePath(this.$route);
+
+      // set value of globalPopover to $storeHelper.globalPopover
+      const globalPopover = this.$refs['global-popover'];
+      this.$storeHelper.globalPopover = globalPopover;
     },
     beforeDestroy() {
       removeResizeListener(this.$el, this.resizeListener);
@@ -353,8 +364,10 @@
           }
         }
       },
-      '$storeHelper.appInfoListOfGroup': function () {
-        this.updatePermissionInfo();
+      '$storeHelper.appInfoListOfGroup': function (appInfoList) {
+        if (appInfoList) {
+          this.updatePermissionInfo();
+        }
       }
     },
     methods: {
@@ -412,10 +425,27 @@
         }
       },
 
+      // 初始化部分权限相关信息（权限的更新在网络请求完成后，不初始化会导致无法访问，报错：undefined）
+      initPermissionInfo() {
+        const permission = {};
+        const pageApp = ['app_create', 'app_change_name', 'app_delete', 'app_change_profile'];
+        const allPermissionList = [...pageApp];
+        allPermissionList.forEach(it => {
+          permission[it] = {
+            disable: false,
+            hide: false,
+            reason: ''
+          }
+        });
+        this.$storeHelper.permission = permission;
+      },
+
       // 更新权限信息：页面访问权限；按钮点击权限。
       updatePermissionInfo() {
         // 当前团队应用数为零，只能进入应用管理和添加应用页面
         const appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup;
+//        console.log('appInfoListOfGroup');
+//        console.log(appInfoListOfGroup);
         if (appInfoListOfGroup.total === 0) {
           this.$router.helper.updateDisabledState({
             pathList: [
@@ -435,7 +465,7 @@
 
         const groupVersion = this.$storeHelper.groupVersion;
         // 1.x团队不支持：外网域名、审批管理、Access Key、团队管理
-        if (groupVersion === '1.x') {
+        if (groupVersion === 'v1') {
           this.$message.warning('您当前在1.x团队，部分功能正在迁移。置灰的功能暂时无法使用！');
           this.$router.helper.updateDisabledState({
             pathList: [
@@ -453,19 +483,21 @@
           }, {key: 'NOT_SUPPORT_IN_1.X', value: false});
         }
 
-        const permission = {};
-        const notSupportedByV2 = ['app_delete', 'app_change_profile'];
-
-        const allPermissionList = notSupportedByV2;
+        // update this.$storeHelper.permission
+        const permission = this.$storeHelper.permission;
+        const notSupportedByV2 = ['app_create', 'app_delete', 'app_change_profile'];
         if (groupVersion === 'v1') {
           notSupportedByV2.forEach(it => {
-            permission[it] = '1.x团队暂时无法使用该功能';
+            permission[it]['disabled'] = true;
+            permission[it]['hide'] = true;
+            permission[it]['reason'] = '1.x团队无法使用';
           })
         }
         this.notPermitted.forEach(it => {
-          permission[it] = '您无使用该功能的权限';
+          permission[it]['disabled'] = true;
+          permission[it]['hide'] = true;
+          permission[it]['reason'] = '您无权使用该功能';
         });
-        this.$storeHelper.notPermitted = permission;
       },
 
       /**

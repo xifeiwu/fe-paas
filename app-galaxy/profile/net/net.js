@@ -1141,7 +1141,7 @@ class Net extends NetBase {
     // 自定义镜像-私有镜像(项目列表)
     // return axios.post(URL_LIST.custom_image_private_app_list.url, options4PrivateApp);
 
-    const resContentList = Promise.all([
+    const resContentList = await Promise.all([
       this.requestPaasServer(this.URL_LIST.auto_image_list, {
         payload: options4Auto
       })
