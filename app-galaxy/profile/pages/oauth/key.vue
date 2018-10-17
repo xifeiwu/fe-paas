@@ -27,15 +27,15 @@
         <el-button size="mini-extral"
                    type="primary"
                    :loading="statusOfWaitingResponse('search')"
-                   @click="handleButtonClick('search')">搜索</el-button>
+                   @click="handleButtonClick($event, 'search')">搜索</el-button>
       </el-col>
       <el-col :span="4">
         <el-button
-                v-if="!$storeHelper.notPermitted['oauth_create_access_key']"
                 size="mini-extral"
                 type="primary"
-                :loading="statusOfWaitingResponse('open-dialog-4-create-access-key')"
-                @click="handleButtonClick('open-dialog-4-create-access-key')">
+                :class="{'disabled': $storeHelper.permission['oauth_create_access_key'].disabled}"
+                :loading="statusOfWaitingResponse('oauth_create_access_key')"
+                @click="handleButtonClick($event, 'oauth_create_access_key')">
           创建AccessKey
         </el-button>
       </el-col>
@@ -167,32 +167,31 @@
         >
           <template slot-scope="scope">
             <el-button
-                    v-if="!$storeHelper.notPermitted['oauth_update_access_config']"
-                    type="text" class="warning"
-                    :loading="statusOfWaitingResponse('open-dialog-for-update-target-app') && selected.row.id === scope.row.id"
-                    @click="handleTRClick('open-dialog-4-modify-access-key', scope.$index, scope.row)">
+                    type="text"
+                    :class="$storeHelper.permission['oauth_update_access_config'].disabled ? 'disabled' : 'warning'"
+                    :loading="statusOfWaitingResponse('oauth_update_access_config') && selected.row.id === scope.row.id"
+                    @click="handleTRClick($event, 'oauth_update_access_config', scope.$index, scope.row)">
               修改访问配置
             </el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text" class="warning"
                     :loading="statusOfWaitingResponse('open-dialog-4-update-url-permission') && selected.row.id === scope.row.id"
-                    @click="handleTRClick('open-dialog-4-update-url-permission', scope.$index, scope.row)">
+                    @click="handleTRClick($event, 'open-dialog-4-update-url-permission', scope.$index, scope.row)">
               权限配置
             </el-button>
             <div class="ant-divider"></div>
             <el-button
-                    v-if="!$storeHelper.notPermitted['oauth_update_secret']"
                     type="text" class="warning"
-                    :loading="statusOfWaitingResponse('modify-secret') && selected.row.id === scope.row.id"
-                    @click="handleTRClick('modify-secret', scope.$index, scope.row)">修改秘钥
+                    :loading="statusOfWaitingResponse('oauth_update_secret') && selected.row.id === scope.row.id"
+                    @click="handleTRClick($event, 'oauth_update_secret', scope.$index, scope.row)">修改秘钥
             </el-button>
             <div class="ant-divider"></div>
             <el-button
-                    v-if="!$storeHelper.notPermitted['oauth_delete_access_key']"
-                    type="text" class="danger"
-                    :loading="statusOfWaitingResponse('delete-access-key') && selected.row.id === scope.row.id"
-                    @click="handleTRClick('delete-access-key', scope.$index, scope.row)">删除
+                    type="text"
+                    :class="$storeHelper.permission['oauth_delete_access_key'].disabled ? 'disabled' : 'danger'"
+                    :loading="statusOfWaitingResponse('oauth_delete_access_key') && selected.row.id === scope.row.id"
+                    @click="handleTRClick($event, 'oauth_delete_access_key', scope.$index, scope.row)">删除
             </el-button>
           </template>
         </el-table-column>
@@ -212,7 +211,7 @@
       </div>
     </div>
 
-    <el-dialog title="创建AccessKey" :visible="selected.operation == 'open-dialog-4-create-access-key'"
+    <el-dialog title="创建AccessKey" :visible="selected.operation == 'oauth_create_access_key'"
                class="create-access-key size-700"
                :close-on-click-modal="false"
                @close="handleDialogClose('create-access-key')"
@@ -325,7 +324,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="修改访问配置" :visible="selected.operation == 'open-dialog-4-modify-access-key'"
+    <el-dialog title="修改访问配置" :visible="selected.operation == 'oauth_update_access_config'"
                class="update-target-app size-700"
                :close-on-click-modal="false"
                @close="handleDialogClose('add-access-config-in-dialog')"
@@ -519,7 +518,7 @@
       </div>
     </el-dialog>
 
-  <el-dialog title="更改秘钥" :visible="selected.operation == 'modify-secret'"
+  <el-dialog title="更改秘钥" :visible="selected.operation == 'oauth_update_secret'"
                class="modify-secret"
                :close-on-click-modal="false"
                @close="selected.operation = null"
@@ -1052,9 +1051,16 @@ module.exports = {
 //      this.modifyAccessKeyInfo.targetAppName = '';
     },
 
-    handleButtonClick(action) {
+    handleButtonClick(evt, action) {
+      if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+        this.$storeHelper.globalPopover.show({
+          ref: evt.target,
+          msg: this.$storeHelper.permission[action].reason
+        });
+        return;
+      }
       switch (action) {
-        case 'open-dialog-4-create-access-key':
+        case 'oauth_create_access_key':
 //          console.log(this.appListOfCurrentGroup);
           let errorMsg = null;
           if (!this.groupInfo) {
@@ -1117,7 +1123,14 @@ module.exports = {
      * @param index
      * @param row
      */
-    handleTRClick(action, index, row) {
+    handleTRClick(evt, action, index, row) {
+      if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+        this.$storeHelper.globalPopover.show({
+          ref: evt.target,
+          msg: this.$storeHelper.permission[action].reason
+        });
+        return;
+      }
       this.selected.row = row;
       switch (action) {
         case 'copy':
@@ -1127,7 +1140,7 @@ module.exports = {
           }, 500);
 //          this.$message.success('复制成功');
           break;
-        case 'open-dialog-4-modify-access-key':
+        case 'oauth_update_access_config':
           let openDialog = ()=>  {
             let selectedRow = this.selected.row;
 //            console.log(selectedRow);
@@ -1230,11 +1243,11 @@ module.exports = {
             });
           });
           break;
-        case 'modify-secret':
+        case 'oauth_update_secret':
           this.newProps.secret = row.secret;
           this.selected.operation = action;
           break;
-        case 'delete-access-key':
+        case 'oauth_delete_access_key':
           let appDesc = '';
 //          let row = this.selected.row;
           if (row.myApp && row.profileName) {

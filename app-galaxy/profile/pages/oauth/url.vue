@@ -122,7 +122,7 @@
         >
           <template slot-scope="scope">
             <el-button
-                    v-if="!$storeHelper.notPermitted['oauth_modify_authorize_url_list']"
+                    v-if="!$storeHelper.permission['oauth_modify_authorize_url_list'].hide"
                     type="text" class="warning"
                     :loading="statusOfWaitingResponse('open-dialog-4-config-authorize-url') && selected.row.id === scope.row.id"
                     @click="handleTRClick('open-dialog-4-config-authorize-url', scope.$index, scope.row)">
@@ -130,7 +130,7 @@
             </el-button>
             <div class="ant-divider"></div>
             <el-button
-                    v-if="scope.row.enabled !== null && !$storeHelper.notPermitted['oauth_authorize_url_toggle_enable']"
+                    v-if="scope.row.enabled !== null && !$storeHelper.permission['oauth_authorize_url_toggle_enable'].hide"
                     type="text" class="primary"
                     :loading="statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
                     @click="handleTRClick('toggle-enable', scope.$index, scope.row)">
