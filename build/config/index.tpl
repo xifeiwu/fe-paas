@@ -8,7 +8,7 @@
     <% for (var i in htmlWebpackPlugin.options.cdn.css) { %>
     <link rel="stylesheet" href="<%= htmlWebpackPlugin.options.cdn.css[i] %>"><% } %>
   </head>
-  <body>
+  <body id="paas">
     <div id="app"></div>
     <% for (var i in htmlWebpackPlugin.options.cdn.js) { %>
     <script src="<%= htmlWebpackPlugin.options.cdn.js[i] %>"></script><% } %>

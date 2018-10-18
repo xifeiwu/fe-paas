@@ -90,15 +90,30 @@
       }
     }
   }
-  .el-select-dropdown.el-popper {
-    .el-select-group__wrap {
-      &.v1 {
-        .el-select-dropdown__item {
-          &:hover {
-            background-color: #C0C4CC;
-          }
-          &.selected {
-            color: #E6A23C;
+  #paas {
+    .el-select-dropdown.el-popper {
+      .el-select-group__wrap:not(:last-of-type)::after {
+        content: '';
+        position: absolute;
+        display: block;
+        left: 5px;
+        right: 5px;
+        bottom: 12px;
+        height: 1px;
+        background: #dfe4ed;
+      }
+      .el-select-group__wrap {
+        .el-select-group__title {
+          color: #F56C6C;
+        }
+        &.v1 {
+          .el-select-dropdown__item {
+            &:hover {
+              background-color: #C0C4CC;
+            }
+            &.selected {
+              color: #E6A23C;
+            }
           }
         }
       }
@@ -300,11 +315,11 @@
       },
       groupListByVersion() {
         var result = [{
-          label: 'pass2.x团队',
+          label: '== pass2.x新团队 ==',
           class: 'v2',
           groupList: []
         }, {
-          label: 'pass1.x团队',
+          label: '== pass1.x老团队 ==',
           class: 'v1',
           groupList: []
         }];

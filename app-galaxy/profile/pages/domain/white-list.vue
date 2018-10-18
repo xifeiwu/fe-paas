@@ -6,7 +6,7 @@
           <span>外网二级域名：</span><span>{{domainInfo.domainName}}</span>
         </div>
         <el-checkbox v-model="allNetWorkAccessAble" @change="toggleAllNetWorkAccessAble">
-          <span style="display: inline-block;">一键开启全网访问</span>
+          <span style="display: inline-block;">一键开启全网访问（默认已开通各职场IP白名单）</span>
         </el-checkbox>
       </div>
       <el-row class="upload-area" type="flex" v-if="!allNetWorkAccessAble">
