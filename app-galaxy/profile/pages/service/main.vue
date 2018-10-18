@@ -125,8 +125,7 @@
             <el-button
                     v-if="!isProductionProfile && !$storeHelper.permission['service_deploy'].hide"
                     type="text"
-                    :class="isMesosApp ? 'plain' : 'danger'"
-                    :disabled="isMesosApp"
+                    :class="canQuickDeploy(scope.row) ? 'danger' : 'disabled'"
                     :loading="statusOfWaitingResponse('quick-deploy') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick($event, 'quick-deploy', scope.$index, scope.row)"
             >
@@ -1887,6 +1886,16 @@ export default {
       return this.queueForWaitingResponse.indexOf(action) > -1;
     },
 
+    canQuickDeploy(item) {
+      var result = true;
+      try {
+        result = item['containerStatus'].Running > 0 && !this.isMesosApp
+      } catch(err) {
+        result = true;
+      }
+      return result;
+    },
+
     initDataStatus() {
       this.appList = [];
       this.selectedAppID = null;
@@ -2228,6 +2237,7 @@ export default {
         });
         return;
       }
+
       let currentService = this.currentServiceList[index];
       if (!currentService) {
         return;
@@ -2244,10 +2254,27 @@ export default {
       let statusOK = false;
       switch (action) {
         case 'service_deploy':
-        case 'quick-deploy':
           this.addToWaitingResponseQueue(action);
           try {
             await this.serviceDeploy(action);
+          } catch (err) {
+            console.log(err);
+            this.hideWaitingResponse(action);
+          }
+          break;
+        case 'quick-deploy':
+          try {
+            let canDeploy = this.canQuickDeploy(row);
+            if (canDeploy) {
+              this.addToWaitingResponseQueue(action);
+              await this.serviceDeploy(action);
+              this.hideWaitingResponse(action);
+            } else {
+              this.$storeHelper.globalPopover.show({
+                ref: evt.target,
+                msg: '运行实例数为0，不能进行重启操作！'
+              });
+            }
           } catch (err) {
             console.log(err);
             this.hideWaitingResponse(action);
