@@ -468,6 +468,7 @@
 
       // 更新权限信息：页面访问权限；按钮点击权限。
       updatePermissionInfo() {
+        this.initPermissionInfo();
         // 当前团队应用数为零，只能进入应用管理和添加应用页面
         const appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup;
 //        console.log('appInfoListOfGroup');

@@ -104,7 +104,7 @@
           headerAlign="center" align="center"
         >
           <template slot-scope="scope">
-            {{isMesosApp ? '---' : applicationServiceStatus}}
+            {{isMesosApp ? '---' : scope.row.applicationServiceStatus}}
           </template>
         </el-table-column>
         <el-table-column
@@ -237,7 +237,9 @@
                        class="el-icon-edit" @click="handleChangeProp('cpuAndMemory')"></i>
                   </el-form-item>
                   <el-form-item label="实例数量">
-                    {{valueToShow(selected.service.instanceNum)}}
+                    <span>{{valueToShow(selected.model.instanceNum)}}</span>
+                    <i v-if="!$storeHelper.permission['service_update'].hide"
+                       class="el-icon-edit" @click="handleChangeProp('instanceNum')"></i>
                   </el-form-item>
                   <el-form-item label="镜像方式" class="big">
                     <span>{{valueToShow(selected.service.image.typeName)}}</span>
@@ -386,7 +388,7 @@
                     </div>
                     <div v-else>
                       <span>未设置</span>
-                      <i v-if="!$storeHelper.permission['service_update'].hide"
+                      <i v-if="!$storeHelper.permission['service_update'].hide && $storeHelper.groupVersion !== 'v1'"
                          class="el-icon-edit" @click="handleChangeProp('portMap')"></i>
                     </div>
                   </el-form-item>
@@ -419,6 +421,36 @@
         </el-table-column>
       </el-table>
     </div>
+
+    <el-dialog title="更改实例数量" :visible="selected.prop == 'instanceNum'"
+               :close-on-click-modal="false"
+               class="manual-scale size-500"
+               @close="selected.prop = null"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改实例数量后需要【重启】才能生效！</span>
+      </el-tag>
+      <el-form :model="newProps" labelWidth="120px" size="mini" ref="changeInstanceNumForm">
+        <el-form-item label="当前实例数：">
+          <div>{{selected.model.instanceNum}}个</div>
+        </el-form-item>
+        <el-form-item label="调整实例数为：">
+          <el-input-number v-model="newProps.instanceNum" :min="1" :max="20" size="mini"></el-input-number>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+          <div class="item">
+            <el-button type="primary"
+                       @click="handleDialogButtonClick('instanceNum')"
+                       :loading="waitingResponse">确&nbsp定</el-button>
+          </div>
+          <div class="item">
+            <el-button @click="selected.prop = null">取&nbsp消</el-button>
+          </div>
+      </div>
+    </el-dialog>
 
     <el-dialog title="更改健康检查配置" :visible="selected.prop == 'healthCheck'"
                :close-on-click-modal="false"
@@ -2441,7 +2473,7 @@ export default {
      * @param prop
      */
     handleChangeProp(prop) {
-      if (['healthCheck', 'packageInfo', 'portMap', 'prestopCommand', 'image','gitLabAddress', 'gitLabBranch',
+      if (['instanceNum', 'healthCheck', 'packageInfo', 'portMap', 'prestopCommand', 'image','gitLabAddress', 'gitLabBranch',
           'mainClass', 'relativePath','mavenProfileId',
           'cpuAndMemory', 'rollingUpdate', 'loadBalance', 'environments', 'hosts',
           'fileLocation', 'vmOptions', 'oneApm'].indexOf(prop) == -1) {
@@ -2451,6 +2483,7 @@ export default {
       this.waitingResponse = false;
       let formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
       switch (prop) {
+        case 'instanceNum':
         case 'gitLabAddress':
         case 'gitLabBranch':
         case 'relativePath':
@@ -2545,6 +2578,7 @@ export default {
         case 'clear-vmOptions':
           this.newProps['vmOptions'] = '';
           break;
+        case 'instanceNum':
         case 'gitLabAddress':
         case 'gitLabBranch':
         case 'mainClass':
@@ -2740,6 +2774,7 @@ export default {
         id: this.selected.service['id'],
       };
       switch (prop) {
+        case 'instanceNum':
         case 'gitLabAddress':
         case 'gitLabBranch':
         case 'mainClass':
@@ -2825,6 +2860,7 @@ export default {
      */
     updateModelInfo(prop) {
       switch (prop) {
+        case 'instanceNum':
         case 'rollingUpdate':
         case 'loadBalance':
         case 'gitLabAddress':

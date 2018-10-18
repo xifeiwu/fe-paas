@@ -117,6 +117,10 @@ class Net extends NetBase {
       },
 
       // 更改健康检查
+      'service_update_instance_num': {
+        path: '/service/instances/update',
+        method: 'post'
+      },
       'service_update_health': {
         path: '/service/updateHealth',
         method: 'post'
@@ -1059,6 +1063,7 @@ class Net extends NetBase {
   serviceUpdate(prop, payload) {
     const URL_LIST = this.URL_LIST;
     let urlMap = {
+      'instanceNum': URL_LIST.service_update_instance_num,
       'healthCheck': URL_LIST.service_update_health,
       'image': URL_LIST.service_update_image,
       'gitLabAddress': URL_LIST.service_update_gitLab_address,

@@ -122,7 +122,7 @@
       </paas-pop-in-container>
     </div>
 
-    <el-dialog title="手动伸缩" :visible="action.name == 'manual-scale'"
+    <el-dialog title="手动伸缩" :visible="action.name == 'instance_change_count'"
                :close-on-click-modal="false"
                @close="action.name = null"
                class="manual-scale size-500"
@@ -456,9 +456,9 @@
             ];
             this.requestInstanceList.apply(this, params);
             break;
-          case 'manual-scale':
+          case 'instance_change_count':
             this.manualScale.newCount = this.instanceStatus.instanceCount;
-            this.action.name = 'manual-scale';
+            this.action.name = action;
             break;
         }
       },
