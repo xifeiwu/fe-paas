@@ -7,7 +7,7 @@
       class="el-popover el-popper"
       :class="[popperClass, content && 'el-popover--plain']"
       ref="popper"
-      v-show="showPopper"
+      v-show="popperStatus.show"
       :style="{ width: width + 'px' }"
       :id="tooltipId"
     >
@@ -23,10 +23,6 @@
   } from 'element-ui/src/utils/popup';
 
   const PopperJS = Vue.prototype.$isServer ? function() {} : require('element-ui/src/utils/popper');
-  const stop = e => e.stopPropagation();
-//  import PopperJS from 'element-ui/src/utils/popper';
-
-//  import Popper from 'element-ui/src/utils/vue-popper';
   import { on, off } from 'element-ui/src/utils/dom';
   import { addClass, removeClass } from 'element-ui/src/utils/dom';
   import { generateId } from 'element-ui/src/utils/util';
@@ -87,7 +83,10 @@
       return {
         reference: null,
         content: '',
-        showPopper: false,
+        popperStatus: {
+          show: false,
+          ref:null
+        },
         currentPlacement: ''
       }
     },
@@ -98,7 +97,7 @@
       }
     },
     watch: {
-      showPopper(val) {
+      'popperStatus.show': function(val) {
         val ? this.$emit('show') : this.$emit('hide');
       },
     },
@@ -116,27 +115,28 @@
     },
 
     methods: {
-      doToggle() {
-        this.showPopper = !this.showPopper;
-      },
       show({ref, msg}) {
-        if (this.reference && this.reference !== ref && this.showPopper) {
-          this.showPopper = false;
-        }
+//        if (this.reference && this.reference !== ref && this.showPopper) {
+//          this.showPopper = false;
+//          this.popperStatus.show = false;
+//        }
         this.$nextTick(() => {
           this.reference = ref;
           this.content = msg;
-          this.showPopper = true;
+          this.popperStatus.show = true;
+          this.popperStatus.ref = ref;
           this.createPopper();
           if (this.closeDelay) {
             setTimeout(() => {
-              this.showPopper = false;
+              if (this.popperStatus.ref === ref) {
+                this.popperStatus.show = false;
+              }
             }, this.closeDelay);
           }
         });
       },
       doClose() {
-        this.showPopper = false;
+        this.popperStatus.show = false;
 //        this.doDestroy();
       },
       handleDocumentClick(e) {
@@ -148,7 +148,7 @@
           reference.contains(e.target) ||
           !popper ||
           popper.contains(e.target)) return;
-        this.showPopper = false;
+        this.popperStatus.show = false;
       },
       handleAfterEnter() {
         this.$emit('after-enter');
@@ -204,13 +204,6 @@
         this.popperJS ? this.popperJS.update() : this.createPopper();
       },
 
-      doDestroy() {
-        /* istanbul ignore if */
-        if (this.showPopper || !this.popperJS) return;
-        this.popperJS.destroy();
-        this.popperJS = null;
-      },
-
       destroyPopper() {
         if (this.popperJS) {
           this.resetTransformOrigin();
@@ -252,6 +245,13 @@
         arrow.setAttribute('x-arrow', '');
         arrow.className = 'popper__arrow';
         element.appendChild(arrow);
+      },
+
+      doDestroy() {
+        /* istanbul ignore if */
+//        if (this.showPopper || !this.popperJS) return;
+        this.popperJS.destroy();
+        this.popperJS = null;
       }
     },
     beforeDestroy() {
