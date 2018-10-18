@@ -328,7 +328,9 @@
             })({
               logPath : logPath,
               logName : logName,
-              offset : offset
+              offset : offset,
+              // 历史部署日志
+              logType: 'history'
             });
             break;
         }

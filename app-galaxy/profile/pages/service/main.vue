@@ -2261,7 +2261,9 @@ export default {
           orchestration = await getDeployLog({
             logName: orchestration.logName,
             logPath: orchestration.logPath,
-            offset: null == orchestration.offset ? 0 : orchestration.offset
+            offset: null == orchestration.offset ? 0 : orchestration.offset,
+            // 正在部署中的日志
+            logType: 'deployLog'
           });
           if (!orchestration) {
             break;
