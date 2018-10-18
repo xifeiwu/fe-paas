@@ -281,7 +281,7 @@
   }
 </style>
 <script>
-  import WorkerOrderPropUtils from './utils/work-order-props';
+  import WorkOrderPropUtils from './utils/work-order-props';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   export default {
     created() {
@@ -511,8 +511,8 @@
 
             // update data of model for work-order-detail
             this.addToWaitingResponseQueue('detail');
-            WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
-//            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
+            WorkOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
+//            WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
 //              console.log(row);
 //              console.log(detail);
               this.workOrderDetail = detail;
@@ -527,8 +527,8 @@
             break;
           case 'modify':
             this.addToWaitingResponseQueue('modify');
-            WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
-//            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
+            WorkOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
+//            WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
               if (this.$storeHelper.currentGroupID != detail.groupId) {
                 this.$storeHelper.currentGroupID = detail.groupId;
               }
@@ -552,11 +552,11 @@
             }).then(workOrderInfo => {
               let newStatus = workOrderInfo['status'];
               workOrderBasic.status = newStatus;
-              workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
+              workOrderBasic.statusName = WorkOrderPropUtils.getNameByStatus(newStatus);
 //              this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
 //              this.$router.push('/profile/work-order/todo/test');
-              WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
-//              WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
+              WorkOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
+//              WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
                 if (detail.hasOwnProperty('testLogList')) {
                   // openPopover will be used for el-popover in work-order/todo/modify(test)
                   detail.testLogList.forEach(it => {
@@ -591,9 +591,9 @@
             }).then(workOrderInfo => {
               let newStatus = workOrderInfo['status'];
               workOrderBasic.status = newStatus;
-              workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
-              WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
-//              WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
+              workOrderBasic.statusName = WorkOrderPropUtils.getNameByStatus(newStatus);
+              WorkOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
+//              WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
                 this.hideWaitingResponse(action);
                 this.$storeHelper.setTmpProp('workOrderDetail', detail);
                 this.$router.push('/profile/work-order/todo/deploy');
@@ -622,10 +622,18 @@
               }).then(workOrderInfo => {
                 this.hideWaitingResponse(action);
                 let newStatus = workOrderInfo['status'];
-                workOrderBasic.status = newStatus;
-                workOrderBasic.statusName = WorkerOrderPropUtils.getNameByStatus(newStatus);
-                this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
-                this.$router.push('/profile/work-order/todo/accept');
+//                workOrderBasic.status = newStatus;
+//                workOrderBasic.statusName = WorkOrderPropUtils.getNameByStatus(newStatus);
+//              this.$storeHelper.setTmpProp('workOrderBasic', workOrderBasic);
+//              WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
+                WorkOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
+                  this.hideWaitingResponse(action);
+                  this.$storeHelper.setTmpProp('workOrderDetail', detail);
+                  this.$router.push('/profile/work-order/todo/accept');
+                }).catch(() => {
+                  this.hideWaitingResponse(action);
+                });
+
               }).catch(errMsg => {
                 this.hideWaitingResponse(action);
                 console.log(errMsg);

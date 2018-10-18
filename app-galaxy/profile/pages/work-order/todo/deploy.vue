@@ -121,7 +121,7 @@
     created() {
     },
     mounted() {
-      let workOrderDetail = this.$storeHelper.getTmpProp('workOrderDetail');
+      const workOrderDetail = this.$storeHelper.getTmpProp('workOrderDetail');
       if (!workOrderDetail || !workOrderDetail.hasOwnProperty('id')) {
         this.$router.push(this.$net.page['profile/work-order/todo']);
         return;

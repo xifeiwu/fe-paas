@@ -87,19 +87,12 @@
       }
     },
     mounted() {
-      let workOrder = this.$storeHelper.getTmpProp('workOrderBasic');
-      if (!workOrder || !workOrder.hasOwnProperty('id')) {
+      const workOrderDetail = this.$storeHelper.getTmpProp('workOrderDetail');
+      if (!workOrderDetail || !workOrderDetail.hasOwnProperty('id')) {
         this.$router.push(this.$net.page['profile/work-order/todo']);
         return;
       }
-      this.$nextTick(() => {
-        WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
-//          console.log(workOrder);
-//          console.log(detail);
-          this.workOrderDetail = detail;
-        }).catch(err => {
-        })
-      });
+      this.workOrderDetail = workOrderDetail;
     },
     methods: {
       handleButtonClick(action) {
