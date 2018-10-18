@@ -92,8 +92,8 @@
                       :disabled="$storeHelper.permission['service_change_default'].disabled"
                       @input="changeDefaultVersion">{{scope.row.serviceVersion}}</el-radio>
               <span v-if="$storeHelper.groupVersion === 'v1'"
-                    style="display: inline; color: #409EFF; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #409EFF; border-radius: 4px; word-break: normal"
-                    @click="handleRowButtonClick($event, 'k8s-tag', scope.$index, scope.row)"
+                    style="display: inline; color: #909399; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #909399; border-radius: 4px; word-break: normal"
+                    @mouseenter="handleRowButtonClick($event, 'k8s-tag', scope.$index, scope.row)"
               >{{scope.row.k8s === 1 ? 'k8s':'mesos'}}</span>
           </template>
         </el-table-column>
@@ -103,6 +103,9 @@
           width="180"
           headerAlign="center" align="center"
         >
+          <template slot-scope="scope">
+            {{isMesosApp ? '---' : applicationServiceStatus}}
+          </template>
         </el-table-column>
         <el-table-column
           prop="createTime"

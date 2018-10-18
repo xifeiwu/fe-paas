@@ -53,19 +53,15 @@
         </el-table-column>
         <el-table-column
               label="使用内存/总内存"
+              prop="memoryStatus"
               width="140"
               headerAlign="center" align="center">
-          <template slot-scope="scope">
-            {{bytes(parseInt(scope.row['memoryUsageBytes']))}} / {{bytes(parseInt(scope.row['actualMemory']))}}
-          </template>
         </el-table-column>
         <el-table-column
                 label="CPU使用时间"
+                prop="cpuUsageSecondsSum"
                 width="120"
                 headerAlign="center" align="center">
-          <template slot-scope="scope">
-            {{parseFloat(scope.row['cpuUsageSecondsSum']).toFixed(2)}}s
-          </template>
         </el-table-column>
         <el-table-column
                 label="创建时间"
@@ -85,18 +81,18 @@
           <template slot-scope="scope">
             <el-button
                     type="text"
-                    :class="$storeHelper.permission['go-to-page-terminal-from-instance'].disabled ? 'disabled' : 'primary'"
+                    :class="['flex', $storeHelper.permission['go-to-page-terminal-from-instance'].disabled || isMesosApp ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'go-to-page-terminal-from-instance', scope.$index, scope.row)"
-                    v-if="!$storeHelper.permission['go-to-page-terminal-from-instance'].hide && !isMesosApp"
-                    >终端</el-button>
-            <div class="ant-divider" v-if="!$storeHelper.permission['go-to-page-terminal-from-instance'].hide && !isMesosApp"></div>
+            ><span>终端</span><i class="paas-icon-level-up"></i></el-button>
+            <div class="ant-divider"></div>
             <el-button
+                    type="text"
+                    :class="[isMesosApp ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'show-console-log', scope.$index, scope.row)"
-                    v-if="!$storeHelper.permission['show-console-log'] && !isMesosApp"
-                    type="text" class="primary">
+            >
               <span>查看console日志</span>
             </el-button>
-            <div class="ant-divider" v-if="!$storeHelper.permission['show-console-log'] && !isMesosApp"></div>
+            <div class="ant-divider"></div>
             <el-button
                     type="text"
                     @click="handleRowButtonClick($event, 'go-to-log-run-from-instance', scope.$index, scope.row)"
@@ -403,6 +399,11 @@
               this.$utils.renameProperty(it, 'state', 'status');
               this.$utils.renameProperty(it, 'ip', 'intranetIP');
               this.$utils.renameProperty(it, 'updated', 'createTime');
+              it.memoryStatus = '---';
+              if (it['memoryUsageBytes'] && it['actualMemory']) {
+                it.memoryStatus = parseInt(it['memoryUsageBytes']) + ' / ' + bytes(parseInt(it['actualMemory']));
+              }
+              it.cpuUsageSecondsSum = it.cpuUsageSecondsSum ? `${parseFloat(it['cpuUsageSecondsSum']).toFixed(2)}s` : '---'
             });
             this.instanceStatus.instanceList = instanceList;
           } else {
@@ -587,6 +588,13 @@
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
             msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
+        if (['show-console-log', 'go-to-page-terminal-from-instance'].indexOf(action) > -1) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: '老mesos应用不支持'
           });
           return;
         }
