@@ -91,6 +91,10 @@
                       :value="defaultServiceID"
                       :disabled="$storeHelper.permission['service_change_default'].disabled"
                       @input="changeDefaultVersion">{{scope.row.serviceVersion}}</el-radio>
+              <span v-if="$storeHelper.groupVersion === 'v1'"
+                    style="display: inline; color: #409EFF; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #409EFF; border-radius: 4px; word-break: normal"
+                    @click="handleRowButtonClick($event, 'k8s-tag', scope.$index, scope.row)"
+              >{{scope.row.k8s === 1 ? 'k8s':'mesos'}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -2234,6 +2238,13 @@ export default {
         this.$storeHelper.globalPopover.show({
           ref: evt.target,
           msg: this.$storeHelper.permission[action].reason
+        });
+        return;
+      }
+      if (action === 'k8s-tag') {
+        this.$storeHelper.globalPopover.show({
+          ref: evt.target,
+          msg: `这是一个${row.k8s === 1 ? 'k8s':'mesos'}服务`
         });
         return;
       }
