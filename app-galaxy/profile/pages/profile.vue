@@ -482,7 +482,8 @@
             pathList: [
               this.$net.page['profile/domain'],
               this.$net.page['profile/work-order'],
-              this.$net.page['profile/oauth'],
+              // path start with /profile/oauth
+              new RegExp(`^${this.$utils.escapeRegexp(this.$net.page['profile/oauth'])}.*`)
             ],
             pathType: 'include'
           }, {key: 'NOT_SUPPORT_IN_1.X', value: true});
