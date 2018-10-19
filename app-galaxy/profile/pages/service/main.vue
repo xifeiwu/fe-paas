@@ -2315,7 +2315,7 @@ export default {
             } else {
               this.$storeHelper.globalPopover.show({
                 ref: evt.target,
-                msg: '运行实例数为0，不能进行重启操作！'
+                msg: row['k8s'] !== 1 ? '老mesos应用不支持' : '运行实例数为0，不能进行重启操作！'
               });
             }
           } catch (err) {
