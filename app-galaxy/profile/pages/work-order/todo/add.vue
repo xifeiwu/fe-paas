@@ -25,7 +25,7 @@
           <el-input v-model="workOrderForm.name" placeholder="100字符内"></el-input>
         </el-form-item>
         <el-form-item label="团队名称" prop="groupName">
-          <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择">
+          <el-select v-model="$storeHelper.currentGroupID" filterable placeholder="请选择">
             <el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">
             </el-option>
           </el-select>
@@ -261,7 +261,7 @@
       } catch(err) {
       }
 
-      this.onCurrentGroupID(this.currentGroupID);
+      this.onCurrentGroupID(this.$storeHelper.currentGroupID);
       this.onAppInfoListOfGroup(this.appInfoListOfGroup);
     },
     mounted() {
@@ -297,7 +297,7 @@
         workOrderForm: {
           name: '',
           creatorName: this.$storeHelper.getUserInfo('realName'),
-          groupId: this.currentGroupID,
+          groupId: this.$storeHelper.currentGroupID,
           groupName: '',
           featureList: [],
           appID: null,
@@ -323,14 +323,6 @@
       };
     },
     computed: {
-      currentGroupID: {
-        get() {
-          return this.$storeHelper.currentGroupID;
-        },
-//        set(value) {
-//          this.$storeHelper.currentGroupID = value;
-//        }
-      },
       groupList() {
         return this.$storeHelper.groupList;
       },
@@ -389,6 +381,9 @@
       },
       // set defaultAppID(first element in array) for this.workOrderForm.appID
       onAppInfoListOfGroup(value) {
+        if (!value) {
+          return;
+        }
         if (!value.hasOwnProperty('appList')) {
           return;
         }

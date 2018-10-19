@@ -73,7 +73,7 @@ const actions = {
     const net = Vue.prototype.$net;
     const resContent = await net.requestPaasServer(net.URL_LIST.users_list_of_group, {
       payload: {
-        id: state.groupId
+        id: state.groupInfo['id']
       }
     });
     const usersInGroup = resContent['groupUserList'];
