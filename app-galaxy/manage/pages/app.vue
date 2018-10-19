@@ -135,7 +135,7 @@
   #manage-app {
     height: 100%;
     background-color: white;
-    max-width: 1200px;
+    /*max-width: 1200px;*/
     .header {
       display: flex;
       padding: 3px 5px;

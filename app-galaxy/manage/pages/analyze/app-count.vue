@@ -202,7 +202,7 @@
 
     height: 100%;
     background-color: white;
-    max-width: 1200px;
+    /*max-width: 1200px;*/
     .header {
       padding: 3px 5px;
       background-color: white;
@@ -241,26 +241,20 @@
 <script>
   import {mapState} from "vuex";
   import commonUtils from 'assets/components/mixins/common-utils';
-  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 
   export default {
     mixins: [commonUtils],
     created() {
     },
     mounted() {
-      const headerNode = this.$el.querySelector(':scope > .header');
-      this.resizeListener = () => {
-        let headerHeight = headerNode.offsetHeight;
-        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
-      };
-      addResizeListener(this.$el, this.resizeListener);
       this.setDateRange();
       this.refreshIcon = this.$el.querySelector('.header .item > .el-icon-refresh');
+      this.$nextTick(() => {
+        this.onScreenSizeChange(this.$storeHelper.screen.size);
+//        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 8;
+      });
     },
     beforeDestroy() {
-      if (this.showAppList) {
-        removeResizeListener(this.$el, this.resizeListener);
-      }
     },
     data() {
       return {
@@ -372,9 +366,22 @@
 //      'payload.dateRange': 'requestDetailList',
       'tableSort': 'requestDetailList',
       'appCountDetail.tableSort': 'getAppCountDetailListByPage',
+      '$storeHelper.screen.size': 'onScreenSizeChange',
     },
 
     methods: {
+      onScreenSizeChange(size) {
+//        console.log(this.$storeHelper.screen);
+        if (!size) {
+          return;
+        }
+        try {
+          const headerNode = this.$el.querySelector(':scope > .header');
+          const headerHeight = headerNode.offsetHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+        } catch(err) {
+        }
+      },
       handleCloseDialog(action) {
         this.action.name = null;
         this.hideWaitingResponse(action);

@@ -89,6 +89,7 @@
   import {mapState, mapGetters} from 'vuex';
   import paasHeaderProfile from 'assets/components/header-profile';
   import paasNavBar from './nav-bar.vue';
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 
   export default {
     components: {paasHeaderProfile, paasNavBar},
@@ -118,6 +119,14 @@
       this.onRoutePath(this.$route);
     },
     mounted() {
+      this.resizeListener = () => {
+        this.$store.dispatch('setScreenSize', {
+          width: this.$el.offsetWidth,
+          height: this.$el.offsetHeight
+        })
+      };
+      addResizeListener(this.$el, this.resizeListener);
+
       if (this.userRole !== '平台管理员') {
         window.location.pathname = this.$net.page['profile'];
         return;
@@ -130,6 +139,9 @@
       this.$nextTick(() => {
         this.setDefaultActiveForHeader();
       });
+    },
+    beforeDestroy() {
+      removeResizeListener(this.$el, this.resizeListener);
     },
     computed: {
       userName() {

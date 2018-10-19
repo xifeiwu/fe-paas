@@ -11,8 +11,24 @@ export default new Vuex.Store({
     groupListAll: [],
     profileListAll: [],
     config: {},
+    screen: {
+      width: 0,
+      height: 0,
+      size: 0,
+      ratioHeight: 0
+    }
   },
   actions: {
+    setScreenSize({state, commit}, {width, height}) {
+      state.screen.width = width;
+      state.screen.height = height;
+      try {
+        state.screen.ratioHeight = height / window.devicePixelRatio;
+      } catch(err) {
+        state.screen.ratioHeight = 500
+      }
+      state.screen.size = width * height;
+    },
     lobList({ commit, state }, lobList) {
       state.lobList = lobList;
     },
@@ -57,6 +73,9 @@ export default new Vuex.Store({
   },
 
   getters: {
+    'screen': (state, getters) => {
+      return state.screen;
+    },
     'lobList': (state, getters) => {
       return state.lobList;
     },
