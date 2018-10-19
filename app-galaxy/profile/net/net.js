@@ -210,6 +210,7 @@ class Net extends NetBase {
         path: '/service/updatePortMapping',
         method: 'post'
       },
+
       /** 实例相关*/
       // 获取实例列表
       'instance_list': {
@@ -224,6 +225,11 @@ class Net extends NetBase {
       // 获取k8s实例状态
       'instance_status': {
         path: '/event/pod/info',
+        method: 'post'
+      },
+      // 驱逐实例
+      'instance_replace': {
+        path: '/service/deletePod',
         method: 'post'
       },
 

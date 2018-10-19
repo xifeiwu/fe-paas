@@ -81,10 +81,10 @@
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
-                    type="text"
-                    :class="['flex', $storeHelper.permission['go-to-page-terminal-from-instance'].disabled || isMesosService ? 'disabled' : 'primary']"
-                    @click="handleRowButtonClick($event, 'go-to-page-terminal-from-instance', scope.$index, scope.row)"
-            ><span>终端</span><i class="paas-icon-level-up"></i></el-button>
+                    @click="handleRowButtonClick($event, 'instance_replace', scope.$index, scope.row)"
+                    type="text" class="warning">
+              <span>驱逐</span>
+            </el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
@@ -96,9 +96,14 @@
             <div class="ant-divider"></div>
             <el-button
                     type="text"
+                    :class="['flex', $storeHelper.permission['go-to-page-terminal-from-instance'].disabled || isMesosService ? 'disabled' : 'primary']"
+                    @click="handleRowButtonClick($event, 'go-to-page-terminal-from-instance', scope.$index, scope.row)"
+                    >终端</el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text"
                     @click="handleRowButtonClick($event, 'go-to-log-run-from-instance', scope.$index, scope.row)"
-                    :class="['flex', $storeHelper.permission['go-to-log-run-from-instance'].disabled ? 'disabled' : 'primary']"
-                    >
+                    :class="['flex', $storeHelper.permission['go-to-log-run-from-instance'].disabled ? 'disabled' : 'primary']">
               <span>查看运行日志</span><i class="paas-icon-level-up"></i>
             </el-button>
             <div class="ant-divider" v-if="false"></div>
@@ -306,6 +311,7 @@
         resizeListener: () => {},
         heightOfInstanceList: '',
 
+        profileInfo: null,
         config4VersionSelector: null,
         queueForWaitingResponse: [],
         //        instanceStatus.instanceList: [{
@@ -363,6 +369,7 @@
         if (!appInfo || !profileInfo || !serviceInfo) {
           return;
         }
+        this.profileInfo = profileInfo;
         // save to localStorage after selected change
         this.$store.dispatch('user/config', {
           page: 'instance',
@@ -399,6 +406,7 @@
           if (resContent.hasOwnProperty('instanceList')) {
             const instanceList = resContent.instanceList;
             instanceList.forEach(it => {
+              it.name = it.id;
               it.updated = it.updated ? it.updated.split(' ') : '---';
               this.$utils.renameProperty(it, 'state', 'status');
               this.$utils.renameProperty(it, 'ip', 'intranetIP');
@@ -587,7 +595,7 @@
       /**
        * handle click event in operation column
        */
-      handleRowButtonClick(evt, action, index, row) {
+      async handleRowButtonClick(evt, action, index, row) {
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
@@ -609,6 +617,30 @@
         let serviceInfo = null;
         let valueOfVersionSelector = null;
         switch (action) {
+          case 'instance_replace':
+//            console.log(this.$storeHelper.groupInfo);
+//            console.log(this.profileInfo);
+            this.addToWaitingResponseQueue(action);
+            try {
+              var desc = `<p>确定要驱逐实例 "${row.name}" 吗？</p><p style="color: #E6A23C; font-size: 12px;">大概30分钟后生效</p>`;
+              await this.$confirm(desc, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              await this.$net.requestPaasServer(this.$net.URL_LIST.instance_replace, {
+                payload: {
+                  namespace: `${this.profileInfo.name}-${this.$storeHelper.groupInfo.tag}`,
+                  name: row.name
+                }
+              });
+            } catch(err) {
+              console.log(err);
+            } finally {
+              this.hideWaitingResponse(action);
+            }
+            break;
           case 'go-to-page-terminal-from-instance':
             serviceInfo = this.$refs['version-selector'].getSelectedValue()[
               'selectedService'
