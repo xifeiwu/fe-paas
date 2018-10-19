@@ -405,7 +405,7 @@
               this.$utils.renameProperty(it, 'updated', 'createTime');
               it.memoryStatus = '---';
               if (it['memoryUsageBytes'] && it['actualMemory']) {
-                it.memoryStatus = parseInt(it['memoryUsageBytes']) + ' / ' + bytes(parseInt(it['actualMemory']));
+                it.memoryStatus = bytes(parseInt(it['memoryUsageBytes'])) + ' / ' + bytes(parseInt(it['actualMemory']));
               }
               it.cpuUsageSecondsSum = it.cpuUsageSecondsSum ? `${parseFloat(it['cpuUsageSecondsSum']).toFixed(2)}s` : '---'
             });
