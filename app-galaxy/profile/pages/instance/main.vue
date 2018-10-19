@@ -39,7 +39,7 @@
         <template slot-scope="scope">
           <div>
             <span>{{scope.row.status ? scope.row.status : ''}}</span>
-            <span v-if="!isMesosApp" style="color: #409EFF; font-size: 12px; cursor: pointer; padding: 1px; border: 1px solid #409EFF; border-radius: 4px;"
+            <span v-if="!isMesosService" style="color: #409EFF; font-size: 12px; cursor: pointer; padding: 1px; border: 1px solid #409EFF; border-radius: 4px;"
                   @click="handleRowButtonClick($event, 'instanceStatus',scope.$index,scope.row)"
             >详情</span>
           </div>
@@ -81,13 +81,13 @@
           <template slot-scope="scope">
             <el-button
                     type="text"
-                    :class="['flex', $storeHelper.permission['go-to-page-terminal-from-instance'].disabled || isMesosApp ? 'disabled' : 'primary']"
+                    :class="['flex', $storeHelper.permission['go-to-page-terminal-from-instance'].disabled || isMesosService ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'go-to-page-terminal-from-instance', scope.$index, scope.row)"
             ><span>终端</span><i class="paas-icon-level-up"></i></el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="[isMesosApp ? 'disabled' : 'primary']"
+                    :class="[isMesosService ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'show-console-log', scope.$index, scope.row)"
             >
               <span>查看console日志</span>
@@ -194,6 +194,9 @@
         }
       }
       &.dialog-console-log {
+        .el-dialog {
+          width: 95% !important;
+        }
         pre.content {
           font-size: 12px;
           line-height: 14px;
@@ -347,7 +350,7 @@
         },
         consoleLogList: '',
 
-        isMesosApp: false,
+        isMesosService: false,
       };
     },
     watch: {},
@@ -368,8 +371,8 @@
             serviceId: serviceInfo.id
           }
         });
-        // 是否mesos应用
-        this.isMesosApp = appInfo.hasOwnProperty('k8s') && appInfo.k8s !== 1;
+        // 是否mesos服务
+        this.isMesosService = serviceInfo.hasOwnProperty('k8s') && serviceInfo['k8s'] !== 1;
         this.requestInstanceList(
           appInfo.appId,
           profileInfo.id,
@@ -591,7 +594,7 @@
           });
           return;
         }
-        if (['show-console-log', 'go-to-page-terminal-from-instance'].indexOf(action) > -1) {
+        if (this.isMesosService && ['show-console-log', 'go-to-page-terminal-from-instance'].indexOf(action) > -1) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
             msg: '老mesos应用不支持'

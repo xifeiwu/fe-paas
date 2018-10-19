@@ -250,8 +250,10 @@
       doDestroy() {
         /* istanbul ignore if */
 //        if (this.showPopper || !this.popperJS) return;
-        this.popperJS.destroy();
-        this.popperJS = null;
+        if (this.popperJS) {
+          this.popperJS.destroy();
+          this.popperJS = null;
+        }
       }
     },
     beforeDestroy() {

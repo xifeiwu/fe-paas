@@ -38,8 +38,15 @@ const state = {
 
 const actions = {
   clear({commit, state, dispatch}) {
-    state.groupInfo = null;
+    // state.groupInfo = null;
     state.groupList = [];
+  },
+
+  /**
+   * 更改用户组ID
+   */
+  toGroupId({commit, state, dispatch}, groupId) {
+    commit('SET_GROUP_INFO', groupId);
   },
 
   /**
@@ -56,13 +63,6 @@ const actions = {
    */
   lobInfo({commit, state, dispatch}, lobInfo) {
     state.lobInfo = lobInfo;
-  },
-  /**
-   * 更改用户组ID
-   */
-  groupId({commit, state, dispatch}, value) {
-    // state.groupId = value;
-    commit('SET_GROUP_INFO', value);
   },
 
   profileList({commit, state, dispatch}, profileList) {
@@ -144,10 +144,11 @@ const mutations = {
       } else {
       }
     }
-    state.groupInfo = target;
-    globalStore.dispatch('user/setGroupInfo', target);
-    if (state.groupInfo) {
-      state.groupId = state.groupInfo['id'];
+    if (target) {
+      state.groupInfo = target;
+      globalStore.dispatch('user/setGroupInfo', target);
+    } else {
+      console.log('err: not found groupInfo');
     }
   },
 

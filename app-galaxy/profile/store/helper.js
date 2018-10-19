@@ -17,8 +17,8 @@ class StoreHelper extends BaseHelper{
     this.globalPopover = null;
   }
 
-  set currentGroupID(value) {
-    this.$store.dispatch('user/groupId', value);
+  set currentGroupID(groupId) {
+    this.$store.dispatch('user/toGroupId', groupId);
   }
   get currentGroupID() {
     var groupId = null;
