@@ -4,16 +4,16 @@
       <el-row class="operation">
         <el-col :span="24" class="selector">
           <div class="item">
-            <label style="float: left; width: 72px; line-height: 26px">应用名称：</label>
+            <label style="float: left; width: 66px; line-height: 26px">应用名称:</label>
             <el-select filterable v-model="selectedAppID" placeholder="请选择"
-                       style="display:block; min-width: 360px; margin-left: 72px;">
+                       style="display:block; min-width: 360px; margin-left: 66px;">
               <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">
               </el-option>
             </el-select>
           </div>
           <div class="item" style="margin-left: 8px;">
-            <label style="float: left; width: 72px; line-height: 26px">运行环境：</label>
-            <el-select v-model="selectedProfileID" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 72px;">
+            <label style="float: left; width: 66px; line-height: 26px">运行环境:</label>
+            <el-select v-model="selectedProfileID" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 66px;">
               <el-option v-for="item in currentProfileList" :key="item.id" :label="item.description" :value="item.id">
               </el-option>
             </el-select>
@@ -104,7 +104,7 @@
           headerAlign="center" align="center"
         >
           <template slot-scope="scope">
-            {{isMesosApp ? '---' : scope.row.applicationServiceStatus}}
+            {{scope.row.k8s === 1 ? scope.row.applicationServiceStatus : '---' }}
           </template>
         </el-table-column>
         <el-table-column
@@ -1837,7 +1837,6 @@ export default {
 
       queueForWaitingResponse: [],
 
-      isMesosApp: false,
     }
   },
   watch: {
@@ -1850,8 +1849,6 @@ export default {
       }
       this.serviceInfo.appID = appId;
       this.selectedApp = appInfo['app'];
-
-      this.isMesosApp = this.selectedApp.hasOwnProperty('k8s') && this.selectedApp.k8s !== 1;
       this.$store.dispatch('user/config', {
         page: 'service',
         data: {
@@ -1928,7 +1925,7 @@ export default {
     canQuickDeploy(item) {
       var result = true;
       try {
-        result = item['containerStatus'].Running > 0 && !this.isMesosApp
+        result = item['containerStatus'].Running > 0 && item['k8s'] === 1;
       } catch(err) {
         result = true;
       }
