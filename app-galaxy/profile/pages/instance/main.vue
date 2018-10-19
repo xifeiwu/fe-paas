@@ -39,7 +39,8 @@
         <template slot-scope="scope">
           <div>
             <span>{{scope.row.status ? scope.row.status : ''}}</span>
-            <span v-if="!isMesosService" style="color: #409EFF; font-size: 12px; cursor: pointer; padding: 1px; border: 1px solid #409EFF; border-radius: 4px;"
+            <span :style="{border: !isMesosService ? '1px solid #409EFF' : '1px solid #b4bccc', color: !isMesosService ? '#409EFF':'#b4bccc',
+             'font-size': '12px', cursor: 'pointer', padding: '1px','border-radius': '4px'}"
                   @click="handleRowButtonClick($event, 'instanceStatus',scope.$index,scope.row)"
             >详情</span>
           </div>
@@ -594,7 +595,7 @@
           });
           return;
         }
-        if (this.isMesosService && ['show-console-log', 'go-to-page-terminal-from-instance'].indexOf(action) > -1) {
+        if (this.isMesosService && ['show-console-log', 'go-to-page-terminal-from-instance', 'instanceStatus'].indexOf(action) > -1) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
             msg: '老mesos应用不支持'
