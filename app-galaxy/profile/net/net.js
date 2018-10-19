@@ -116,9 +116,10 @@ class Net extends NetBase {
         method: 'post'
       },
 
-      // 更改健康检查
+      // 更改实例数
       'service_update_instance_num': {
-        path: '/service/instances/update',
+        // path: '/service/instances/update',
+        path: '/service/instances/updateDB',
         method: 'post'
       },
       'service_update_health': {
