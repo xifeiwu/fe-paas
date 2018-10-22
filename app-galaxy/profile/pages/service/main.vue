@@ -61,15 +61,13 @@
             </div>
             <div>
               <div class="text"><span>外网二级域名：</span><span v-html="internetDomainHtml"></span></div>
-              <i class="el-icon-edit"
-                 v-if="!$storeHelper.permission['go-page-domain-from-service-list'].hide"
+              <i :class="['paas-icon', 'el-icon-edit', $storeHelper.permission['go-page-domain-from-service-list'].disabled ?  'disabled':'warning']"
                  @click="handleButtonClick($event, 'go-page-domain-from-service-list')"></i>
             </div>
           </el-tooltip>
           <div v-else>
             <div class="text"><span>外网二级域名：</span><span v-html="internetDomainHtml"></span></div>
-            <i class="el-icon-edit"
-               v-if="!$storeHelper.permission['go-page-domain-from-service-list'].hide"
+            <i :class="['paas-icon', 'el-icon-edit', $storeHelper.permission['go-page-domain-from-service-list'].disabled ?  'disabled':'warning']"
                @click="handleButtonClick($event, 'go-page-domain-from-service-list')"></i>
           </div>
         </div>
@@ -219,63 +217,65 @@
                   <el-form-item label="构建类型">
                     <span>{{valueToShow(selected.model.packageInfo.type)}}</span>
                     <span v-if="selected.model.packageInfo.name">（{{selected.model.packageInfo.name}}）</span>
-                    <i v-if="!$storeHelper.permission['service_update'].hide"
-                       class="el-icon-edit" @click="handleChangeProp('packageInfo')"></i>
+                    <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('packageInfo') ? 'warning' : 'disabled']"
+                       @click="handleChangeProp($event, 'packageInfo')"></i>
                   </el-form-item>
                   <el-form-item label="滚动升级">
                     <span>{{selected.service.rollingUpdate? '需要' : '不需要'}}</span>
-                    <i v-if="!$storeHelper.permission['service_update'].hide"
-                       class="el-icon-edit" @click="handleChangeProp('rollingUpdate')"></i>
+                    <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('rollingUpdate') ? 'warning' : 'disabled']"
+                       @click="handleChangeProp($event, 'rollingUpdate')"></i>
                   </el-form-item>
                   <el-form-item label="负载均衡">
                     {{valueToShow(selected.service.loadBalance)}}
-                    <i class="el-icon-edit" @click="handleChangeProp('loadBalance')" v-if="$storeHelper.groupVersion === 'v1'"></i>
+                    <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('loadBalance') ? 'warning' : 'disabled']"
+                       @click="handleChangeProp($event, 'loadBalance')" v-if="$storeHelper.groupVersion === 'v1'"></i>
                   </el-form-item>
                   <el-form-item label="CPU/内存">
                     <span>{{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}</span>
-                    <i v-if="!$storeHelper.permission['service_update'].hide"
-                       class="el-icon-edit" @click="handleChangeProp('cpuAndMemory')"></i>
+                    <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('cpuAndMemory') ? 'warning' : 'disabled']"
+                       @click="handleChangeProp($event, 'cpuAndMemory')"></i>
                   </el-form-item>
                   <el-form-item label="实例数量">
                     <span>{{valueToShow(selected.model.instanceNum)}}</span>
-                    <i v-if="!$storeHelper.permission['service_update'].hide"
-                       class="el-icon-edit" @click="handleChangeProp('instanceNum')"></i>
+                    <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('instanceNum') ? 'warning' : 'disabled']"
+                       @click="handleChangeProp($event, 'instanceNum')"></i>
                   </el-form-item>
                   <el-form-item label="镜像方式" class="big">
                     <span>{{valueToShow(selected.service.image.typeName)}}</span>
                     <span style="padding-left: 12px; font-weight: bold">{{selected.service.image.customImage?'镜像地址':'基础镜像'}}</span>
                     <span>{{selected.service.image.location}} </span>
-                    <i v-if="!$storeHelper.permission['service_update'].hide"
-                       class="el-icon-edit" @click="handleChangeProp('image')"></i>
+                    <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('image') ? 'warning' : 'disabled']"
+                       @click="handleChangeProp($event, 'image')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab_ssh地址" class="big" v-if="!selected.service.image.customImage">
                     <div class="expand-to-next-line">{{valueToShow(selected.service.gitLabAddress)}}</div>
-                    <i v-if="!$storeHelper.permission['service_update'].hide"
-                       class="el-icon-edit" @click="handleChangeProp('gitLabAddress')"></i>
+                    <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('gitLabAddress') ? 'warning' : 'disabled']"
+                       @click="handleChangeProp($event, 'gitLabAddress')"></i>
                   </el-form-item>
                   <el-form-item label="gitlab分支" class="big" v-if="!selected.service.image.customImage">
                     <div class="expand-to-next-line">
                       <span>{{valueToShow(selected.service.gitLabBranch)}}</span>
-                      <i v-if="!$storeHelper.permission['service_update'].hide" class="el-icon-edit" @click="handleChangeProp('gitLabBranch')"></i></div>
+                      <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('gitLabBranch') ? 'warning' : 'disabled']"
+                         @click="handleChangeProp($event, 'gitLabBranch')"></i></div>
                   </el-form-item>
                   <el-form-item label="mainClass" class="main-class big" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
                     <div class="expand-to-next-line">
                       <span>{{valueToShow(selected.service.mainClass)}}</span>
-                      <i v-if="!$storeHelper.permission['service_update'].hide"
-                         class="el-icon-edit" @click="handleChangeProp('mainClass')"></i>
+                      <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('mainClass') ? 'warning' : 'disabled']"
+                         @click="handleChangeProp($event, 'mainClass')"></i>
                     </div>
                   </el-form-item>
                   <el-form-item label="gitlab父级pom相对路径" class="relativePathOfParentPOM big" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
                     <div class="expand-to-next-line">
                       <span>{{valueToShow(selected.service.relativePath)}}</span>
-                      <i v-if="!$storeHelper.permission['service_update'].hide"
-                         class="el-icon-edit" @click="handleChangeProp('relativePath')"></i>
+                      <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('relativePath') ? 'warning' : 'disabled']"
+                         @click="handleChangeProp($event, 'relativePath')"></i>
                     </div>
                   </el-form-item>
                   <el-form-item label="Maven profile id" v-if="selectedApp.isJavaLanguage&&!selected.service.image.customImage">
                     <div class="expand-to-next-line">{{valueToShow(selected.service.mavenProfileId)}}</div>
-                    <i v-if="!$storeHelper.permission['service_update'].hide"
-                       class="el-icon-edit" @click="handleChangeProp('mavenProfileId')"></i>
+                    <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('mavenProfileId') ? 'warning' : 'disabled']"
+                       @click="handleChangeProp($event, 'mavenProfileId')"></i>
                   </el-form-item>
                   <el-form-item label="健康检查配置" class="big">
                     <span style="font-weight: bold">类型：</span><span>{{selected.model.healthCheck.type}}</span>
@@ -285,13 +285,13 @@
                     <span v-else>{{valueToShow(selected.model.healthCheck.content)}}</span>
                     <span style="font-weight: bold; margin-left: 12px">延迟时间：</span>
                     <span>{{selected.model.healthCheck.initialDelay}}秒</span>
-                    <i v-if="!$storeHelper.permission['service_update'].hide"
-                       class="el-icon-edit" @click="handleChangeProp('healthCheck')"></i>
+                    <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('healthCheck') ? 'warning' : 'disabled']"
+                       @click="handleChangeProp($event, 'healthCheck')"></i>
                   </el-form-item>
                   <el-form-item label="preStop脚本" class="big" v-if="!isProductionProfile">
                     <span>{{valueToShow(selected.model.prestopCommand)}}</span>
-                    <i v-if="!$storeHelper.permission['service_update'].hide"
-                       class="el-icon-edit" @click="handleChangeProp('prestopCommand')"></i>
+                    <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('prestopCommand') ? 'warning' : 'disabled']"
+                       @click="handleChangeProp($event, 'prestopCommand')"></i>
                   </el-form-item>
                   <el-form-item label="文件存储" class="big file-location" v-if="false">
                     <div v-if="selected.service.fileLocation && selected.service.fileLocation.length > 0">
@@ -300,19 +300,19 @@
                               :key="tag"
                               type="success"
                       >{{tag}}</el-tag>
-                      <i class="el-icon-edit" @click="handleChangeProp('fileLocation')"></i>
+                      <i class="el-icon-edit" @click="handleChangeProp($event, 'fileLocation')"></i>
                     </div>
                     <div v-else>
                       <span>未设置</span>
-                      <i class="el-icon-edit" @click="handleChangeProp('fileLocation')"></i>
+                      <i class="el-icon-edit" @click="handleChangeProp($event, 'fileLocation')"></i>
                     </div>
                   </el-form-item>
                   <el-form-item label="VM_Options" class="big" v-if="selectedApp.isJavaLanguage">
                     <div class="expand-to-next-line" style="display: inline-block; max-width: calc(100% - 24px)">
                       {{selected.service.vmOptions ? selected.service.vmOptions:'未设置'}}
                     </div>
-                    <i v-if="!$storeHelper.permission['service_update'].hide"
-                       class="el-icon-edit" @click="handleChangeProp('vmOptions')"></i>
+                    <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('vmOptions') ? 'warning' : 'disabled']"
+                       @click="handleChangeProp($event, 'vmOptions')"></i>
                   </el-form-item>
                   <el-form-item label="环境变量配置" class="big">
                     <div v-if="selected.service.environments && selected.service.environments.length > 0">
@@ -320,8 +320,8 @@
                         <el-col :span="10" style="font-weight: bold;text-align: center">Key</el-col>
                         <el-col :span="10" style="font-weight: bold;text-align: center">Value</el-col>
                         <el-col :span="4" style="font-weight: bold;text-align: left">
-                          <i v-if="!$storeHelper.permission['service_update'].hide"
-                             class="el-icon-edit" @click="handleChangeProp('environments')"></i>
+                          <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('environments') ? 'warning' : 'disabled']"
+                             @click="handleChangeProp($event, 'environments')"></i>
                         </el-col>
                       </el-row>
                       <el-row
@@ -338,8 +338,8 @@
                     </div>
                     <div v-else>
                       <span>未设置</span>
-                      <i v-if="!$storeHelper.permission['service_update'].hide"
-                         class="el-icon-edit" @click="handleChangeProp('environments')"></i>
+                      <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('environments') ? 'warning' : 'disabled']"
+                         @click="handleChangeProp($event, 'environments')"></i>
                     </div>
                   </el-form-item>
                   <el-form-item label="Host配置" class="big">
@@ -348,8 +348,8 @@
                         <el-col :span="8" style="font-weight: bold; text-align: center">IP</el-col>
                         <el-col :span="8" style="font-weight: bold; text-align: center">域名</el-col>
                         <el-col :span="2" style="font-weight: bold;text-align: left">
-                          <i v-if="!$storeHelper.permission['service_update'].hide"
-                             class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
+                          <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('hosts') ? 'warning' : 'disabled']"
+                             @click="handleChangeProp($event, 'hosts')"></i>
                         </el-col>
                       </el-row>
                       <el-row
@@ -363,8 +363,8 @@
                     </div>
                     <div v-else>
                       <span>未设置</span>
-                      <i v-if="!$storeHelper.permission['service_update'].hide"
-                         class="el-icon-edit" @click="handleChangeProp('hosts')"></i>
+                      <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('hosts') ? 'warning' : 'disabled']"
+                         @click="handleChangeProp($event, 'hosts')"></i>
                     </div>
                   </el-form-item>
                   <el-form-item label="端口映射" class="port-map big" v-if="!isProductionProfile">
@@ -375,8 +375,8 @@
                         <div class="el-col el-col-6" style="font-weight: bold; text-align: center">目标端口</div>
                         <div class="el-col el-col-2" style="font-weight: bold; text-align: center">协议</div>
                         <div class="el-col el-col-2" style="font-weight: bold; text-align: center">
-                          <i v-if="!$storeHelper.permission['service_update'].hide && $storeHelper.groupVersion !== 'v1'"
-                             class="el-icon-edit" @click="handleChangeProp('portMap')"></i>
+                          <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('portMap') ? 'warning' : 'disabled']"
+                             @click="handleChangeProp($event, 'portMap')"></i>
                         </div>
                       </div>
                       <el-row class="content">
@@ -388,8 +388,8 @@
                     </div>
                     <div v-else>
                       <span>未设置</span>
-                      <i v-if="!$storeHelper.permission['service_update'].hide && $storeHelper.groupVersion !== 'v1'"
-                         class="el-icon-edit" @click="handleChangeProp('portMap')"></i>
+                      <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('portMap') ? 'warning' : 'disabled']"
+                         @click="handleChangeProp($event, 'portMap')"></i>
                     </div>
                   </el-form-item>
                   <el-form-item label="当前服务内网域名" class="big">
@@ -1410,7 +1410,6 @@
       margin-left: 2px;
       font-size: 100%;
       line-height: 100%;
-      color: #eb9e05;
       vertical-align: middle;
       &:hover {
         font-weight: bold;
@@ -1922,6 +1921,7 @@ export default {
       return this.queueForWaitingResponse.indexOf(action) > -1;
     },
 
+    // 是否支持快速部署：1. 是k8s应用，2. 有正在运行的实例
     canQuickDeploy(item) {
       var result = true;
       try {
@@ -1930,6 +1930,23 @@ export default {
         result = true;
       }
       return result;
+    },
+    // 有些属性，1.x团队无法修改
+    isPermittedToChangeProp(key) {
+      var permitted = true;
+      if (key === 'go-page-domain-from-service-list') {
+        permitted = !this.$storeHelper.permission[key].disabled;
+      } else {
+        // icon in change service detail
+        // 1. all is disable if service_update is not permitted
+        permitted = !this.$storeHelper.permission['service_update'].disabled;
+        // 2. the prop in notPermittedInV1 is disabled when groupVersion is v1
+        if (permitted && (this.$storeHelper.groupVersion === 'v1')) {
+          const notPermittedInV1 = ['packageInfo', 'rollingUpdate', 'loadBalance', 'instanceNum', 'prestopCommand', 'environments', 'hosts', 'portMap'];
+          permitted = notPermittedInV1.indexOf(key) === -1;
+        }
+      }
+      return permitted;
     },
 
     initDataStatus() {
@@ -2461,7 +2478,7 @@ export default {
           this.$router.push(this.$net.page['profile/log/deploy']);
           break;
         case 'one-apm':
-          this.handleChangeProp('oneApm')
+          this.handleChangeProp($event, 'oneApm')
           break;
       }
     },
@@ -2469,7 +2486,14 @@ export default {
      * do some init action before dialog popup
      * @param prop
      */
-    handleChangeProp(prop) {
+    handleChangeProp(evt, prop) {
+      if (!this.isPermittedToChangeProp(prop)) {
+        this.$storeHelper.globalPopover.show({
+          ref: evt.target,
+          msg: '1.x团队无法修改该属性'
+        });
+        return;
+      }
       if (['instanceNum', 'healthCheck', 'packageInfo', 'portMap', 'prestopCommand', 'image','gitLabAddress', 'gitLabBranch',
           'mainClass', 'relativePath','mavenProfileId',
           'cpuAndMemory', 'rollingUpdate', 'loadBalance', 'environments', 'hosts',

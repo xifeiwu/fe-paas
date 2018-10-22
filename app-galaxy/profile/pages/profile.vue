@@ -519,13 +519,13 @@
         if (groupVersion === 'v1') {
           notSupportedByV2.forEach(it => {
             permission[it]['disabled'] = true;
-            permission[it]['hide'] = true;
+            permission[it]['hide'] = false;
             permission[it]['reason'] = '1.x团队无法使用';
           })
         }
         this.notPermitted.forEach(it => {
           permission[it]['disabled'] = true;
-          permission[it]['hide'] = true;
+          permission[it]['hide'] = false;
           permission[it]['reason'] = '您无权使用该功能';
         });
       },
