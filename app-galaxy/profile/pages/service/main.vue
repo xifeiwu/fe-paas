@@ -1808,6 +1808,7 @@ export default {
         fileLocation: [],
         vmOptions: '',
         oneApm: '',
+        instanceNum: '',
       },
       waitingResponse: false,
       formItemMsgForEnvironments: '',
