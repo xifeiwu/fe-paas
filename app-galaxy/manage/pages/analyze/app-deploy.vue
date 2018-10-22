@@ -65,7 +65,7 @@
     </div>
     <div class="detail-list">
       <el-table
-              :data="appCountList"
+              :data="appDeployAnalyze"
               style="width: 100%"
               stripe
               :height="heightOfTable"
@@ -75,9 +75,17 @@
         <el-table-column prop="spaceName" label="运行环境"></el-table-column>
         <el-table-column prop="lobName" label="LOB"></el-table-column>
         <el-table-column prop="scrumName" label="Scrum"></el-table-column>
-        <el-table-column prop="deployCount" label="部署次数" sortable></el-table-column>
+        <el-table-column prop="deployCount" label="部署次数"  headerAlign="center" align="center" minWidth="140"
+                         sortable :sortMethod="sortColumn"></el-table-column>
+        <el-table-column prop="mavenTime" label="平均打包时长(ms)"  headerAlign="center" align="center" minWidth="140"
+                         sortable :sortMethod="sortColumn"></el-table-column>
+        <el-table-column prop="buildImageTime" label="平均做镜像时长(ms)"  headerAlign="center" align="center" minWidth="140"
+                         sortable :sortMethod="sortColumn"></el-table-column>
+        <el-table-column prop="pushImageTime" label="平均推镜像时长(ms)"  headerAlign="center" align="center" minWidth="140"
+                         sortable :sortMethod="sortColumn"></el-table-column>
         <el-table-column
                 prop="operation"
+                headerAlign="center" align="center"
                 label="操作"
                 width="160"
         >
@@ -107,7 +115,7 @@
     </div>
     <el-dialog title="应用数详情" :visible="action.name == 'app-count-detail'"
                :close-on-click-modal="false"
-               class="app-count-detail size-800"
+               class="app-count-detail size-1000"
                @close="handleCloseDialog('app-count-detail')"
                v-if="action.name && action.row"
     >
@@ -130,8 +138,11 @@
               @sort-change="onSortChangeInTable2"
       >
         <el-table-column prop="appName" label="应用名称" headerAlign="center" align="center"></el-table-column>
-        <el-table-column prop="deployCount" label="部署次数"sortable headerAlign="center" align="center"></el-table-column>
-      </el-table>
+        <el-table-column prop="deployCount" label="部署次数" sortable headerAlign="center" align="center"></el-table-column>
+        <el-table-column prop="mavenTime" label="平均打包时长(ms)" headerAlign="center" align="center"></el-table-column>
+        <el-table-column prop="buildImageTime" label="平均做镜像时长(ms)" headerAlign="center" align="center"></el-table-column>
+        <el-table-column prop="pushImageTime" label="平均推镜像时长(ms)" headerAlign="center" align="center"></el-table-column>
+        </el-table>
       <div class="pagination-container" v-if="appCountDetail.totalSize > appCountDetail.pageSize">
         <div class="pagination">
           <el-pagination
@@ -212,6 +223,7 @@
       }
     }
     .detail-list {
+      position: relative;
     }
   }
 </style>
@@ -246,7 +258,7 @@
           dateRange: '',
         },
         scrumList:[],
-        appCountList: [],
+        appDeployAnalyze: [],
         appCountDetailList: [],
         appCountDetailListSorted: {
           asc: [],
@@ -404,7 +416,15 @@
       getOneDayBefore(origin) {
         origin = new Date(origin);
         const result = new Date();
-        result.setTime(origin.getTime() - 1000 * 3600 * 24);
+        //  - 1000 * 3600 * 24
+        result.setTime(origin.getTime());
+        return result;
+      },
+      getTimeStamp(dateOrLong) {
+        var result = dateOrLong;
+        if (dateOrLong instanceof Date) {
+          result = dateOrLong.getTime();
+        }
         return result;
       },
       // 获取详情列表
@@ -419,8 +439,8 @@
         }
         const payload = {
           start, length,
-          startTime: this.$utils.formatDate(this.getOneDayBefore(this.payload.dateRange[0]), 'yyyyMMdd'),
-          endTime: this.$utils.formatDate(this.payload.dateRange[1], 'yyyyMMdd')
+          startTime: this.getTimeStamp(this.payload.dateRange[0]),
+          endTime: this.getTimeStamp(this.payload.dateRange[1])
         };
         if ('' !== this.payload.profileId) {
           payload.spaceId = this.payload.profileId
@@ -432,21 +452,27 @@
           payload.scrumId = this.payload.scrumId
         }
         if (this.tableSort.prop && this.tableSort.order) {
-          const order = this.tableSort.order == 'ascending' ? 'asc' : 'desc';
-          payload['deployOrder'] = order;
+//          const order = this.tableSort.order == 'ascending' ? 'asc' : 'desc';
+//          payload['deployOrder'] = order;
+          payload['order'] = this.tableSort.order == 'ascending' ? 'asc' : 'desc';
+          payload['orderField'] = this.tableSort.prop;
         }
 
         this.$net.requestPaasServer(this.$net.URL_LIST.analyze_app_deploy_count_list, {
           payload
         }).then(resContent => {
           this.totalSize = resContent['totalNum'];
-          this.appCountList = resContent['totalList'].map(it => {
+          this.appDeployAnalyze = resContent['totalList'].map(it => {
             if (!it.lobName) {
               it.lobName = '无';
             }
             if (!it.scrumName) {
               it.scrumName = '无';
             }
+            it.deployCount = null !== it.deployCount ? it.deployCount : '---';
+            it.mavenTime = null !== it.mavenTime ? it.mavenTime : '---';
+            it.buildImageTime = null !== it.buildImageTime ? it.buildImageTime : '---';
+            it.pushImageTime = null !== it.pushImageTime ? it.pushImageTime : '---';
             return it;
           });
         }).catch(err => {
@@ -460,8 +486,8 @@
             break;
           case 'download-analyze':
             const payload = {
-              startTime: this.$utils.formatDate(this.getOneDayBefore(this.payload.dateRange[0]), 'yyyyMMdd'),
-              endTime: this.$utils.formatDate(this.payload.dateRange[1], 'yyyyMMdd')
+              startTime: this.getTimeStamp(this.payload.dateRange[0]),
+              endTime: this.getTimeStamp(this.payload.dateRange[1])
             };
             if ('' !== this.payload.profileId) {
               payload.spaceId = this.payload.profileId
@@ -491,7 +517,7 @@
               const a = document.createElement('a');
               const blob = new Blob([res.data]);
               a.href = window.URL.createObjectURL(blob);
-              a.download = `应用部署次数统计-${payload.startTime}-${payload.endTime}.xls`;
+              a.download = `应用部署次数统计-${this.$utils.formatDate(this.getOneDayBefore(payload.startTime), 'yyyyMMdd')}-${this.$utils.formatDate(this.getOneDayBefore(payload.endTime), 'yyyyMMdd')}.xls`;
               a.style.display = 'none';
               document.body.appendChild(a);
               a.click();
@@ -511,8 +537,8 @@
             this.addToWaitingResponseQueue(action);
             this.$net.requestPaasServer(this.$net.URL_LIST.analyze_app_deploy_count_detail, {
               payload: {
-                startTime: this.$utils.formatDate(this.getOneDayBefore(this.payload.dateRange[0]), 'yyyyMMdd'),
-                endTime: this.$utils.formatDate(this.payload.dateRange[1], 'yyyyMMdd'),
+                startTime: this.getTimeStamp(this.payload.dateRange[0]),
+                endTime: this.getTimeStamp(this.payload.dateRange[1]),
                 spaceId: row.spaceId,
                 lobId: row.lobId,
                 scrumId: row.scrumId
@@ -522,14 +548,22 @@
               this.appCountDetailListSorted.asc = [];
               this.appCountDetailListSorted.desc = [];
               this.appCountDetailList.forEach(it => {
+                it.deployCount = null !== it.deployCount ? it.deployCount : '---';
+                it.mavenTime = null !== it.mavenTime ? it.mavenTime : '---';
+                it.buildImageTime = null !== it.buildImageTime ? it.buildImageTime : '---';
+                it.pushImageTime = null !== it.pushImageTime ? it.pushImageTime : '---';
                 this.appCountDetailListSorted.asc.push(it);
                 this.appCountDetailListSorted.desc.push(it);
               });
               this.appCountDetailListSorted.asc.sort((it1, it2) => {
-                return it1['instanceCount'] - it2['instanceCount'];
+                var pre = typeof it1['deployCount'] == 'number' ? it1['deployCount'] : 0;
+                var next = typeof it2['deployCount'] == 'number' ? it2['deployCount'] : 0;
+                return pre - next;
               });
               this.appCountDetailListSorted.desc.sort((it1, it2) => {
-                return it2['instanceCount'] - it1['instanceCount'];
+                var pre = typeof it1['deployCount'] == 'number' ? it1['deployCount'] : 0;
+                var next = typeof it2['deployCount'] == 'number' ? it2['deployCount'] : 0;
+                return next - pre;
               });
 
               this.appCountDetail.totalSize = resContent['totalNum'];
@@ -584,6 +618,25 @@
           return [];
         }
       },
+      sortColumn(preItem, nextItem) {
+        const prop = this.tableSort['prop'];
+        var pre = preItem[prop];
+        var next = nextItem[prop];
+        pre = typeof pre == 'number' ? pre : 0;
+        next = typeof next == 'number' ? next : 0;
+        var sortType = pre - next;
+//        if (typeof pre == 'number' && typeof next == 'number' ) {
+//          sortType = pre - next;
+//        } else if (typeof pre == 'number' && typeof next !== 'number') {
+//          sortType = 1;
+//        } else if (typeof pre !== 'number' && typeof next == 'number') {
+//          sortType = -1;
+//        } else {
+//          sortType = 0;
+//        }
+        sortType = this.tableSort['order'] !== 'descending' ? sortType * -1 : sortType;
+        return sortType;
+      }
     }
   }
 </script>
