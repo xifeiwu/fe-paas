@@ -279,8 +279,7 @@
           return;
         }
         switch (action) {
-          case 'app-deploy':
-//            console.log(index, row);
+          case 'work-order_deploy_app':
             var profileInfo = this.getProductionProfile();
             if (!profileInfo || !profileInfo.hasOwnProperty('id')) {
               this.$message.error('未找到profileID');
@@ -299,30 +298,6 @@
               });
             } catch (err) {
               console.log(err);
-            }
-            break;
-          case 'deploy':
-//            console.log(this.workOrderDetail);
-//            console.log(profileInfo);
-            var profileInfo = this.getProductionProfile();
-            if (!profileInfo || !profileInfo.hasOwnProperty('id')) {
-              this.$message.error('未找到profileID');
-              return;
-            }
-            if (!this.workOrderDetail.serviceVersion || !this.workOrderDetail.appID) {
-              this.$message.error('信息不完整：请检查应用名和版本是否完整！');
-              return;
-            }
-            try {
-              await this.serviceDeploy({
-                applicationId: this.workOrderDetail.appID,
-                spaceId: profileInfo.id,
-                serviceVersion: this.workOrderDetail.serviceVersion,
-                groupId: this.$storeHelper.currentGroupID
-              });
-            } catch (err) {
-              console.log(err);
-//              this.hideWaitingResponse(action);
             }
             break;
           case 'back':
