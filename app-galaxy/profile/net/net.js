@@ -237,6 +237,16 @@ class Net extends NetBase {
         path: '/service/monitorMemoryUsage',
         method: 'post'
       },
+      // 获取监控数据-磁盘读
+      'monitor_statistic_disk_read': {
+        path: '/service/monitorFSReadBytes',
+        method: 'post'
+      },
+      // 获取监控数据-磁盘写
+      'monitor_statistic_disk_write': {
+        path: '/service/monitorFSWriteBytes',
+        method: 'post'
+      },
       // 获取监控数据-网络in
       'monitor_statistic_net_in': {
         path: '/service/monitorNetworkInput',
@@ -247,14 +257,16 @@ class Net extends NetBase {
         path: '/service/monitorNetworkOutput',
         method: 'post'
       },
-      // 获取监控数据-磁盘读
-      'monitor_statistic_disk_read': {
-        path: '/service/monitorFSReadBytes',
+      // 获取监控数据-入包量
+      // payload: {netWorkPackageDirection: 'receive'}
+      'monitor_statistic_package_count_in': {
+        path: '/service/monitorNetWork',
         method: 'post'
       },
-      // 获取监控数据-磁盘写
-      'monitor_statistic_disk_write': {
-        path: '/service/monitorFSWriteBytes',
+      // 获取监控数据-出包量
+      // payload: {netWorkPackageDirection: 'transmit'}
+      'monitor_statistic_package_count_out': {
+        path: '/service/monitorNetWork',
         method: 'post'
       },
 

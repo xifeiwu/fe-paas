@@ -79,6 +79,42 @@
         </div>
       </div>
 
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['disk-read']['expand']}"
+           v-if="chartContainerStatus['disk-read'].show">
+        <div class="chart-card">
+          <div class="title">
+            <span>磁盘-读</span>
+            <i :class="['paas-icon', chartContainerStatus['disk-read']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('disk-read')"></i>
+          </div>
+          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+                   :settings="chartSettingBytes" :extend="extend"
+                   v-if="chartData['disk-read'] != null"
+                   ref="charts-disk-read" :data="chartData['disk-read']"></ve-line>
+          <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
+            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+          </div>
+        </div>
+      </div>
+
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['disk-write']['expand']}"
+           v-if="chartContainerStatus['disk-write'].show">
+        <div class="chart-card">
+          <div class="title">
+            <span>磁盘-写</span>
+            <i :class="['paas-icon', chartContainerStatus['disk-write']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('disk-write')"></i>
+          </div>
+          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+                   :settings="chartSettingBytes" :extend="extend"
+                   v-if="chartData['disk-write'] != null"
+                   ref="charts-disk-write" :data="chartData['disk-write']"></ve-line>
+          <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
+            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+          </div>
+        </div>
+      </div>
+
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['network-in']['expand']}"
            v-if="chartContainerStatus['network-in'].show">
         <div class="chart-card">
@@ -115,36 +151,38 @@
         </div>
       </div>
 
-      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['disk-read']['expand']}"
-           v-if="chartContainerStatus['disk-read'].show">
+
+      <!--new add-->
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['package-count-in']['expand']}"
+                               v-if="chartContainerStatus['package-count-in'].show">
         <div class="chart-card">
           <div class="title">
-            <span>磁盘-读</span>
-            <i :class="['paas-icon', chartContainerStatus['disk-read']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
-               @click="handleChartEvent('disk-read')"></i>
+            <span>网络流量-入</span>
+            <i :class="['paas-icon', chartContainerStatus['package-count-in']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('package-count-in')"></i>
           </div>
           <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
                    :settings="chartSettingBytes" :extend="extend"
-                   v-if="chartData['disk-read'] != null"
-                   ref="charts-disk-read" :data="chartData['disk-read']"></ve-line>
+                   v-if="chartData['package-count-in'] != null"
+                   ref="charts-package-count-in" :data="chartData['package-count-in']"></ve-line>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
             <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
         </div>
       </div>
 
-      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['disk-write']['expand']}"
-           v-if="chartContainerStatus['disk-write'].show">
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['package-count-out']['expand']}"
+           v-if="chartContainerStatus['package-count-out'].show">
         <div class="chart-card">
           <div class="title">
-            <span>磁盘-写</span>
-            <i :class="['paas-icon', chartContainerStatus['disk-write']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
-               @click="handleChartEvent('disk-write')"></i>
+            <span>网络流量-出</span>
+            <i :class="['paas-icon', chartContainerStatus['package-count-out']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('package-count-out')"></i>
           </div>
           <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
                    :settings="chartSettingBytes" :extend="extend"
-                   v-if="chartData['disk-write'] != null"
-                   ref="charts-disk-write" :data="chartData['disk-write']"></ve-line>
+                   v-if="chartData['package-count-out'] != null"
+                   ref="charts-package-count-out" :data="chartData['package-count-out']"></ve-line>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
             <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
@@ -640,10 +678,12 @@
         URL_MAP: {
           'cpu': this.$net.URL_LIST.monitor_statistic_cpu,
           'memory': this.$net.URL_LIST.monitor_statistic_memory,
-          'network-in': this.$net.URL_LIST.monitor_statistic_net_in,
-          'network-out': this.$net.URL_LIST.monitor_statistic_net_out,
           'disk-read': this.$net.URL_LIST.monitor_statistic_disk_read,
           'disk-write': this.$net.URL_LIST.monitor_statistic_disk_write,
+          'network-in': this.$net.URL_LIST.monitor_statistic_net_in,
+          'network-out': this.$net.URL_LIST.monitor_statistic_net_out,
+          'package-count-in': this.$net.URL_LIST.monitor_statistic_package_count_in,
+          'package-count-out': this.$net.URL_LIST.monitor_statistic_package_count_out,
         },
         config4VersionSelector: null,
         heightOfChartList: 0,
@@ -677,7 +717,7 @@
           }]
         },
 
-        selectedStatisticTypeList: ['cpu', 'memory', 'network-in', 'network-out', 'disk-read', 'disk-write'],
+        selectedStatisticTypeList: ['cpu', 'memory', 'disk-read', 'disk-write', 'network-in', 'network-out', 'package-count-in', 'package-count-out'],
         statisticTypeList: [{
           type: 'cpu',
           label: 'CPU',
@@ -685,17 +725,23 @@
           type: 'memory',
           label: '内存'
         }, {
+          type: 'disk-read',
+          label: '磁盘(读)'
+        }, {
+          type: 'disk-write',
+          label: '磁盘(写)'
+        }, {
           type: 'network-in',
           label: '网络(进)'
         }, {
           type: 'network-out',
           label: '网络(出)'
         }, {
-          type: 'disk-read',
-          label: '磁盘(读)'
+          type: 'package-count-in',
+          label: '包流量(进)'
         }, {
-          type: 'disk-write',
-          label: '磁盘(写)'
+          type: 'package-count-out',
+          label: '包流量(出)'
         }],
         chartContainerStatus: {
           'cpu': {
@@ -704,6 +750,16 @@
             manual: false,
           },
           'memory': {
+            expand: true,
+            show: true,
+            manual: false,
+          },
+          'disk-read': {
+            expand: true,
+            show: true,
+            manual: false,
+          },
+          'disk-write': {
             expand: true,
             show: true,
             manual: false,
@@ -718,16 +774,16 @@
             show: true,
             manual: false,
           },
-          'disk-read': {
+          'package-count-in': {
             expand: true,
             show: true,
             manual: false,
           },
-          'disk-write': {
+          'package-count-out': {
             expand: true,
             show: true,
             manual: false,
-          }
+          },
         },
         selectedInstanceList: [],
 
