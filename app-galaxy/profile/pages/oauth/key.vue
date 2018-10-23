@@ -175,14 +175,16 @@
             </el-button>
             <div class="ant-divider"></div>
             <el-button
-                    type="text" class="warning"
-                    :loading="statusOfWaitingResponse('open-dialog-4-update-url-permission') && selected.row.id === scope.row.id"
-                    @click="handleTRClick($event, 'open-dialog-4-update-url-permission', scope.$index, scope.row)">
+                    type="text"
+                    :class="$storeHelper.permission['oauth_set_permission'].disabled ? 'disabled' : 'warning'"
+                    :loading="statusOfWaitingResponse('oauth_set_permission') && selected.row.id === scope.row.id"
+                    @click="handleTRClick($event, 'oauth_set_permission', scope.$index, scope.row)">
               权限配置
             </el-button>
             <div class="ant-divider"></div>
             <el-button
-                    type="text" class="warning"
+                    type="text"
+                    :class="[$storeHelper.permission['oauth_update_secret'].disabled ? 'disabled' : 'warning']"
                     :loading="statusOfWaitingResponse('oauth_update_secret') && selected.row.id === scope.row.id"
                     @click="handleTRClick($event, 'oauth_update_secret', scope.$index, scope.row)">修改秘钥
             </el-button>
@@ -428,7 +430,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="权限配置" :visible="selected.operation == 'open-dialog-4-update-url-permission'"
+    <el-dialog title="权限配置" :visible="selected.operation == 'oauth_set_permission'"
                class="update-url-permission size-800"
                :close-on-click-modal="false"
                @close="handleDialogClose('update-url-permission')"
@@ -1209,7 +1211,7 @@ module.exports = {
 //            });
 //          }
           break;
-        case 'open-dialog-4-update-url-permission':
+        case 'oauth_set_permission':
           if (!this.groupInfo) {
             this.$message.error('所需信息不完整！');
             return;

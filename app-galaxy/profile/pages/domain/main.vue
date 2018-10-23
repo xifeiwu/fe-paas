@@ -111,8 +111,8 @@
             </el-button>
             <div class="ant-divider"></div>
             <el-button
-                    type="text" class="primary flex"
-                    :class="$storeHelper.permission['domain_bind_white_list'].disabled ? 'disabled' : 'danger'"
+                    type="text"
+                    :class="['flex', $storeHelper.permission['domain_bind_white_list'].disabled ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'domain_bind_white_list', scope.$index, scope.row)">
               <span>关联IP白名单</span><i class="paas-icon-level-up"></i>
             </el-button>

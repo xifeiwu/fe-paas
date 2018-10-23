@@ -250,6 +250,7 @@
         // permission
         this.notPermitted = this.$net.parseNotPermittedCommands(resContentList[2]);
         this.$router.helper.addPermission(this.notPermitted);
+//        console.log(this.notPermitted);
         // trigger change of currentGroupId
 //        this.$store.dispatch('user/groupId', this.$storeHelper.currentGroupID);
       }).catch(err => {
@@ -455,14 +456,26 @@
         const pageOauth = ['oauth_create_access_key', 'oauth_update_access_config', 'oauth_delete_access_key',
           'oauth_modify_authorize_url_list',
           'oauth_authorize_url_toggle_enable'];
-        const allPermissionList = [...pageApp, ...pageService, ...pageInstance, ...pageDomain, ...pageWorkOrder, ...pageOauth];
-        allPermissionList.forEach(it => {
+        const allPermissionList1 = [...pageApp, ...pageService, ...pageInstance, ...pageDomain, ...pageWorkOrder, ...pageOauth];
+        const permissionMap = this.$net.getPermissionMap();
+        const allPermissionList = [];
+        Object.keys(permissionMap).forEach(it => {
+//          console.log(`${it} -> ${permissionMap[it]}`);
+          allPermissionList.push(permissionMap[it])
+        });
+
+        Array.from(new Set(allPermissionList.concat(allPermissionList1))).forEach(it => {
           permission[it] = {
-            disable: false,
+            disabled: false,
             hide: false,
             reason: ''
           }
         });
+//        allPermissionList1.forEach(it => {
+//          if (allPermissionList.indexOf(it) === -1) {
+//            console.log(it);
+//          }
+//        });
         this.$storeHelper.permission = permission;
       },
 

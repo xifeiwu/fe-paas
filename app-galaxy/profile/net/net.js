@@ -344,24 +344,9 @@ class Net extends NetBase {
     debug('%s, %o', func, data);
   }
 
-  /**
-   * 解析用户权限
-   * @param resContent
-   * @returns {Array}
-   */
-  parseNotPermittedCommands(notPermittedList) {
-    notPermittedList = notPermittedList.map(it => {
-      it.hasOwnProperty('id') && delete it.id;
-      it.hasOwnProperty('parentId') && delete it.parentId;
-      it.hasOwnProperty('createTime') && delete it.createTime;
-      it.hasOwnProperty('updateTime') && delete it.updateTime;
-      it.hasOwnProperty('permissionType') && delete it.permissionType;
-      return it;
-    });
-    // console.log(notPermittedList);
-
+  getPermissionMap() {
     // some permissionPath do not related to any url are list bellow
-    let pathToKey = {
+    return {
       // 创建应用
       '/2.x/app/create': 'app_create',
       // 更改运行环境
@@ -395,7 +380,7 @@ class Net extends NetBase {
       // 手动伸缩
       '/2.x/instances/autoChangeNum': 'instance_change_count',
       // 删除实例
-      '/2.x/instances/delete': '',
+      // '/2.x/instances/delete': '',
       // 实例管理 -> 终端
       '/2.x/instances/openTerminal': 'go-to-page-terminal-from-instance',
       // 实例管理 -> 监控
@@ -440,6 +425,8 @@ class Net extends NetBase {
       '/2.x/keys/AccessKey/delete': 'oauth_delete_access_key',
       // 修改访问配置
       '/2.x/keys/AccessKey/update': 'oauth_update_access_config',
+      // 权限配置
+      '/2.x/keys/AccessKey/oauth/list': 'oauth_set_permission',
       // 修改密钥
       '/2.x/keys/AccessKey/updateSecret': 'oauth_update_secret',
       /** oauth / 授权url相关 */
@@ -452,7 +439,7 @@ class Net extends NetBase {
       // 工单列表 -> 日志/部署日志
       '/2.x/order/list/deployLog': 'go-to-page-log-deploy-from-work-order-list',
       // 工单详情
-      '/2.x/order/list/info': '',
+      // '/2.x/order/list/info': '',
       // 申请工单
       '/2.x/order/todoList/apply': 'work-order-create',
       // 工单部署
@@ -488,6 +475,23 @@ class Net extends NetBase {
       // 配置中心
       '/2.x/config/server': this.page['profile/config-server']
     };
+  }
+  /**
+   * 解析用户权限
+   * @param resContent
+   * @returns {Array}
+   */
+  parseNotPermittedCommands(notPermittedList) {
+    notPermittedList = notPermittedList.map(it => {
+      it.hasOwnProperty('id') && delete it.id;
+      it.hasOwnProperty('parentId') && delete it.parentId;
+      it.hasOwnProperty('createTime') && delete it.createTime;
+      it.hasOwnProperty('updateTime') && delete it.updateTime;
+      it.hasOwnProperty('permissionType') && delete it.permissionType;
+      return it;
+    });
+    // console.log(notPermittedList);
+
     // format of item in notPermittedList
     // {
     //   id: 110,
@@ -499,12 +503,13 @@ class Net extends NetBase {
     //   method: "POST",
     //   key: "domain_bind_white_list"
     // }
+    const permissionMap = this.getPermissionMap();
 
     // add url and method by notPermittedList
     notPermittedList.forEach(it => {
-      // check if permission in pathToKey first
-      if (pathToKey.hasOwnProperty(it.path)) {
-        it.key = pathToKey[it.path];
+      // check if permission in permissionMap first
+      if (permissionMap.hasOwnProperty(it.path)) {
+        it.key = permissionMap[it.path];
         notPermittedList.push(it);
       }
     });
