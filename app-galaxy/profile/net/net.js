@@ -415,8 +415,6 @@ class Net extends NetBase {
       '/2.x/internet/delete': 'domain_remove',
       // 外网域名安全审核
       '/2.x/internet/update': 'domain_secure_check',
-      // 待办/工单/部署应用
-      '/2.x/order/todoList/deploy': 'work-order_deploy_app',
 
       /** oauth / accessKey相关 */
       // 创建accessKey
@@ -441,9 +439,9 @@ class Net extends NetBase {
       // 工单详情
       // '/2.x/order/list/info': '',
       // 申请工单
-      '/2.x/order/todoList/apply': 'work-order-create',
-      // 工单部署
-      '/2.x/order/todoList/deploy': 'work-order-deploy',
+      '/2.x/order/todoList/apply': 'work-order_create',
+      // 待办/工单/部署应用
+      '/2.x/order/todoList/deploy': 'work-order_deploy_app',
 
       /** 页面相关 */
       // 服务管理

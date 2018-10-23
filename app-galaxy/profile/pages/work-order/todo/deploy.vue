@@ -27,20 +27,20 @@
       <el-button
               size="mini"
               type="primary"
-              @click="handleButtonClick('back')">返回</el-button>
+              @click="handleButtonClick($event, 'back')">返回</el-button>
       <el-button
               size="mini"
               type="primary"
-              v-if="!$storeHelper.permission['work-order_deploy_app'].hide && false"
-              @click="handleButtonClick('deploy')">部署应用</el-button>
+              v-if="false"
+              @click="handleButtonClick($event, 'deploy')">部署应用</el-button>
       <el-button
               size="mini"
               type="primary"
-              @click="handleButtonClick('reject-handle')">拒绝处理</el-button>
+              @click="handleButtonClick($event, 'reject-handle')">拒绝处理</el-button>
       <el-button
               size="mini"
               type="primary"
-              @click="handleButtonClick('finish-handle')">处理完成</el-button>
+              @click="handleButtonClick($event, 'finish-handle')">处理完成</el-button>
     </div>
     <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="content">
@@ -270,7 +270,14 @@
         return profileInfo;
       },
 
-      async handleButtonClick(action, index, row) {
+      async handleButtonClick(evt, action, index, row) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         switch (action) {
           case 'app-deploy':
 //            console.log(index, row);

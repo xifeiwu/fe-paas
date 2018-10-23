@@ -22,15 +22,16 @@
         <el-table-column label="版本" prop="serviceVersion" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
-                label="操作"
                 v-if="showAppDeploy"
+                label="操作"
+                headerAlign="center" align="center"
         >
           <template slot-scope="scope">
             <el-button
-                    type="warning"
-                    size="mini-extral"
-                    v-if="!$storeHelper.permission['work-order_deploy_app'].hide"
-                    @click="handleRowButtonClick('app-deploy', scope.$index, scope.row)"
+                    type="text"
+                    style="font-size: 14px;"
+                    :class="[$storeHelper.permission['work-order_deploy_app'].disabled ? 'disabled' : 'warning']"
+                    @click="handleRowButtonClick($event, 'work-order_deploy_app', scope.$index, scope.row)"
             >部署</el-button>
           </template>
         </el-table-column>
@@ -151,10 +152,10 @@
       }
     },
     methods: {
-      handleRowButtonClick(action, index, row) {
+      handleRowButtonClick($event, action, index, row) {
         switch (action) {
-          case 'app-deploy':
-            this.$emit('app-deploy', 'app-deploy', index, row);
+          case 'work-order_deploy_app':
+            this.$emit('app-deploy', $event, action, index, row);
             break;
         }
       }

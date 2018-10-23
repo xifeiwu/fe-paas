@@ -122,18 +122,19 @@
         >
           <template slot-scope="scope">
             <el-button
-                    v-if="!$storeHelper.permission['oauth_modify_authorize_url_list'].hide"
-                    type="text" class="warning"
-                    :loading="statusOfWaitingResponse('open-dialog-4-config-authorize-url') && selected.row.id === scope.row.id"
-                    @click="handleTRClick('open-dialog-4-config-authorize-url', scope.$index, scope.row)">
+                    type="text"
+                    :loading="statusOfWaitingResponse('oauth_modify_authorize_url_list') && selected.row.id === scope.row.id"
+                    :class="[$storeHelper.permission['oauth_modify_authorize_url_list'].disabled ? 'disabled': 'warning']"
+                    @click="handleTRClick($event, 'oauth_modify_authorize_url_list', scope.$index, scope.row)">
               授权配置
             </el-button>
             <div class="ant-divider"></div>
             <el-button
-                    v-if="scope.row.enabled !== null && !$storeHelper.permission['oauth_authorize_url_toggle_enable'].hide"
-                    type="text" class="primary"
+                    v-if="scope.row.enabled !== null"
+                    type="text"
+                    :class="[$storeHelper.permission['oauth_authorize_url_toggle_enable'].disabled ? 'disabled': 'primary']"
                     :loading="statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
-                    @click="handleTRClick('toggle-enable', scope.$index, scope.row)">
+                    @click="handleTRClick($event, 'oauth_authorize_url_toggle_enable', scope.$index, scope.row)">
               {{scope.row.enabled?'禁用':'开启'}}
             </el-button>
           </template>
@@ -154,7 +155,7 @@
       </div>
     </div>
 
-    <el-dialog title="修改授权配置" :visible="selected.operation == 'open-dialog-4-config-authorize-url'"
+    <el-dialog title="修改授权配置" :visible="selected.operation == 'oauth_modify_authorize_url_list'"
                class="config-authorize-url size-800"
                :close-on-click-modal="false"
                @close="selected.operation = null"
@@ -551,10 +552,17 @@
         }
       },
 
-      handleTRClick(action, index, row) {
+      handleTRClick(evt, action, index, row) {
+      if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+        this.$storeHelper.globalPopover.show({
+          ref: evt.target,
+          msg: this.$storeHelper.permission[action].reason
+        });
+        return;
+      }
         this.selected.row = row;
         switch (action) {
-          case 'open-dialog-4-config-authorize-url':
+          case 'oauth_modify_authorize_url_list':
 //            console.log(row);
             // reset error tip
             if (!row.hasOwnProperty('targetApplicationId') || !row.hasOwnProperty('produceEnv')) {
@@ -612,7 +620,7 @@
               });
             });
             break;
-          case 'toggle-enable':
+          case 'oauth_authorize_url_toggle_enable':
 //            console.log(row);
             if (row.hasOwnProperty('enabled')) {
               if (row.enabled === true || row.enabled === false) {

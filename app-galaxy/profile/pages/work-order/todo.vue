@@ -4,10 +4,11 @@
       <el-row class="operation" type="flex" justify="center" align="middle">
         <div class="el-col el-col-6 operation">
           <el-button
-                  v-if="!$storeHelper.permission['work-order-create'].hide"
+                  v-if="!$storeHelper.permission['work-order_create'].hide"
                   size="mini-extral"
                   type="primary"
-                  @click="handleButtonClick('go-to-page-work-order-todo-add')">申请审批工单</el-button>
+                  :class="{'disabled': $storeHelper.permission['work-order_create'].disabled}"
+                  @click="handleButtonClick($event, 'work-order_create')">申请审批工单</el-button>
           <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
             <div slot="content">
               <div>1. 如果一个应用下有正在处理的工单，则不可以提交新的工单</div>
@@ -41,11 +42,11 @@
           <el-button
             size="mini-extral"
             type="primary"
-            @click="handleButtonClick('search')">搜索</el-button>
+            @click="handleButtonClick($event, 'search')">搜索</el-button>
           <el-button
                   size="mini-extral"
                   type="primary"
-                  @click="handleButtonClick('refresh')">刷新</el-button>
+                  @click="handleButtonClick($event, 'refresh')">刷新</el-button>
         </el-col>
       </el-row>
     </div>
@@ -422,7 +423,14 @@
         start.setTime(start.getTime() - 1000 * 3600 * 24 * 30);
         this.searchForm.dateRange = [start, end];
       },
-      handleButtonClick(action) {
+      handleButtonClick(evt, action) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         switch (action) {
           case 'search':
             this.currentPage = 1;
@@ -432,7 +440,7 @@
             this.currentPage = 1;
             this.setDateRange();
             break;
-          case 'go-to-page-work-order-todo-add':
+          case 'work-order_create':
             this.$router.push(this.$net.page['profile/work-order/todo/add']);
             break;
         }

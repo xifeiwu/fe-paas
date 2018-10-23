@@ -117,18 +117,18 @@
         >
           <template slot-scope="scope">
             <el-button
-                    class="danger"
-                    v-if="!isProductionProfile && !$storeHelper.permission['service_deploy'].hide"
+                    v-if="!isProductionProfile"
                     type="text"
+                    :class="[$storeHelper.permission['service_deploy'].disabled? 'disabled': 'danger']"
                     :loading="statusOfWaitingResponse('service_deploy') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick($event, 'service_deploy', scope.$index, scope.row)"
             >
               {{statusOfWaitingResponse('deploy') && selected.service.id == scope.row.id ? '部署中': '部署'}}
             </el-button>
             <div class="ant-divider"
-                 v-if="!isProductionProfile && !$storeHelper.permission['service_deploy'].hide"></div>
+                 v-if="!isProductionProfile"></div>
             <el-button
-                    v-if="!isProductionProfile && !$storeHelper.permission['service_deploy'].hide"
+                    v-if="!isProductionProfile"
                     type="text"
                     :class="canQuickDeploy(scope.row) ? 'danger' : 'disabled'"
                     :loading="statusOfWaitingResponse('quick-deploy') && selected.service.id == scope.row.id"
@@ -140,9 +140,9 @@
                  v-if="!isProductionProfile && !$storeHelper.permission['service_deploy'].hide"></div>
 
             <el-button
-                    class="danger" type="text"
+                    type="text"
                     :loading="statusOfWaitingResponse('service_stop') && selected.service.id == scope.row.id"
-                    :class="{'disabled': $storeHelper.permission['service_stop'].disabled}"
+                    :class="[$storeHelper.permission['service_stop'].disabled? 'disabled': 'danger']"
                     @click="handleRowButtonClick($event, 'service_stop', scope.$index, scope.row)">停止</el-button>
             <div class="ant-divider"></div>
 
@@ -1932,7 +1932,8 @@ export default {
       }
       return result;
     },
-    // 有些属性，1.x团队无法修改
+
+    // 是否允许修改属性（有些属性，1.x团队无法修改）
     isPermittedToChangeProp(key) {
       var permitted = true;
       if (key === 'go-page-domain-from-service-list') {
@@ -1949,6 +1950,17 @@ export default {
       }
       return permitted;
     },
+    // 获取不允许修改属性的原因
+    reasonForNotPermittedToChangeProp(prop) {
+      var reason = '';
+      if (this.$storeHelper.permission['service_update'].disabled) {
+        reason = '您无权限修改服务属性';
+      } else {
+        reason = '1.x团队无法修改该属性';
+      }
+      return reason;
+    },
+
 
     initDataStatus() {
       this.appList = [];
@@ -2491,7 +2503,7 @@ export default {
       if (!this.isPermittedToChangeProp(prop)) {
         this.$storeHelper.globalPopover.show({
           ref: evt.target,
-          msg: '1.x团队无法修改该属性'
+          msg: this.reasonForNotPermittedToChangeProp(prop)
         });
         return;
       }

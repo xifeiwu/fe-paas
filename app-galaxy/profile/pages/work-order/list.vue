@@ -65,17 +65,17 @@
         <el-table-column label="操作" headerAlign="center" align="center" minWidth="80">
           <template slot-scope="scope">
             <el-button
-                    v-if="!$storeHelper.permission['go-to-page-log-deploy-from-work-order-list'].hide"
-                    type="text" class="primary"
-                    :loading="statusOfWaitingResponse('deploy-log') && operation.rowID == scope.row.id"
-                    @click="handleOperationClick('deploy-log', scope.$index, scope.row)">
+                    type="text"
+                    :class="['flex', $storeHelper.permission['go-to-page-log-deploy-from-work-order-list'].disabled?'disabled':'primary']"
+                    :loading="statusOfWaitingResponse('go-to-page-log-deploy-from-work-order-list') && operation.rowID == scope.row.id"
+                    @click="handleTRClick($event, 'go-to-page-log-deploy-from-work-order-list', scope.$index, scope.row)">
               <span>部署日志</span><i class="paas-icon-level-up"></i>
             </el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text" class="primary"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
-                    @click="handleOperationClick('detail', scope.$index, scope.row)"
+                    @click="handleTRClick($event, 'detail', scope.$index, scope.row)"
                     :loading="statusOfWaitingResponse('detail') && operation.rowID == scope.row.id">
               <span>详情</span><i class="el-icon-arrow-right"></i>
             </el-button>
@@ -477,7 +477,14 @@
             break;
         }
       },
-      handleOperationClick(action, index, row) {
+      handleTRClick(evt, action, index, row) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         // operation.rowID is used to indicate which row is active
         this.operation.rowID = row.id;
 //        console.log(action);
@@ -539,8 +546,8 @@
 //              this.operation.name = action;
 //            });
             break;
-          case 'deploy-log':
-            this.addToWaitingResponseQueue('deploy-log');
+          case 'go-to-page-log-deploy-from-work-order-list':
+            this.addToWaitingResponseQueue(action);
             WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
 //            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
               // 平台管理员不受限制
@@ -555,7 +562,7 @@
               if (this.$storeHelper.currentGroupID != detail.groupId) {
                 this.$storeHelper.currentGroupID = detail.groupId;
               }
-              this.hideWaitingResponse('deploy-log');
+              this.hideWaitingResponse(action);
               let productionProfile = this.$storeHelper.getProductionProfile();
               this.$storeHelper.dataTransfer = {
                 from: this.$net.page['profile/work-order/list'],
@@ -567,7 +574,7 @@
               };
               this.$router.push(this.$net.page['profile/log/deploy']);
             }).catch(err => {
-              this.hideWaitingResponse('deploy-log');
+              this.hideWaitingResponse(action);
             });
             break;
         }
