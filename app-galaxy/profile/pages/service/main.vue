@@ -2491,7 +2491,7 @@ export default {
           this.$router.push(this.$net.page['profile/log/deploy']);
           break;
         case 'one-apm':
-          this.handleChangeProp($event, 'oneApm')
+          this.handleChangeProp(evt, 'oneApm')
           break;
       }
     },
