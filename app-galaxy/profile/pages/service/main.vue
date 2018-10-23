@@ -2381,10 +2381,10 @@ export default {
                 });
               });
             }).catch(() => {
-              this.hideWaitingResponse('delete');
+              this.hideWaitingResponse(action);
             });
           }).catch(()=> {
-            this.hideWaitingResponse('delete');
+            this.hideWaitingResponse(action);
           });
           break;
         case 'service_stop':
