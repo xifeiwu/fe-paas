@@ -137,8 +137,10 @@
         this.pageNum = val;
       },
       goToDetail(row){
-        this.$storeHelper.imageRepositoryName = row.name;
-        this.$router.push(this.$net.page['profile/image/detail']);
+        const targetPath = this.$router.helper.getPathByRouterPath(this.$net.page['profile/image/detail'], {
+          id: row.id
+        });
+        this.$router.push(targetPath);
       }
     },
     filters:{

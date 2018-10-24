@@ -20,7 +20,7 @@
       <!--popover-message-area-->
       <paas-header-profile :userName="userName" :userRole=userRole :showImg="false" ref="paasHeaderProfile"
                            @menu-click="handleHeaderMenuClick"></paas-header-profile>
-      <div v-if="invalidPath" class="content">
+      <div v-if="!routeConfig" class="content">
         <page-not-found :navigateList="navigateList"></page-not-found>
       </div>
       <div v-else class="content">
@@ -205,8 +205,8 @@
       return {
         activeSideMenuItem: this.$net.page['profile'],
         crumbList: [],
-        invalidPath: false,
         // 用于配置404页面的属性
+        routeConfig: null,
         navigateList: [{
           href: this.$net.page['profile/app'],
           label: '应用引擎'
@@ -394,8 +394,8 @@
 //        console.log(preRoute);
 //        console.log(this.routePathToConfig);
         const path = route['path'];
-        this.invalidPath = !this.routePathToConfig.hasOwnProperty(path);
-        if (!this.invalidPath) {
+        this.routeConfig = this.$router.helper.getConfigByRouterPath(path);
+        if (this.routeConfig) {
           // whether show groupList
           let pageNotShowGroupList = ['/profile/app/add', '/profile/service/add'];
           let pageNotShowGroupListReg = /^\/profile\/(work-order\/(todo|list).*|config-server\/*)$/;

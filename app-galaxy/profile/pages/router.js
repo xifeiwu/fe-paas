@@ -46,11 +46,13 @@ import CdnStatistics from './cdn/statistics.vue';
 import CdnDashboard from './cdn/dashboard.vue';
 
 //image
-import ImageMain from './image/main.vue';
+import ImageList from './image/main.vue';
 import ImageDetail from './image/detail.vue';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+
+import pathToRegexp from 'path-to-regexp';
 
 /**
  * router config:
@@ -224,11 +226,11 @@ class Helper {
         },
       ]
     }, {
-      path: '/profile/image',
+      path: '/profile/image/list',
       name: '镜像中心',
-      component: ImageMain,
+      component: ImageList,
     }, {
-      path:'/profile/image/detail',
+      path: '/profile/image/:id/list',
       name:'镜像详情',
       component: ImageDetail,
     }];
@@ -479,6 +481,37 @@ class Helper {
 
     this.traverseComponent(updateItem, this.richRouterConfig);
     return result;
+  }
+
+  getConfigByRouterPath(path) {
+    var result = null;
+    if (!path) {
+      return result;
+    }
+    const routerPathToConfig = this.getRoutePathToConfig();
+    for (let key in routerPathToConfig) {
+      if (pathToRegexp(key).exec(path)) {
+        result = routerPathToConfig[key];
+        break;
+      }
+    }
+    return result;
+  }
+
+  getPathByRouterPath(routerPath, payload) {
+    return routerPath.split('/').map(it => {
+      if (it.startsWith(':')) {
+        const key = it.substring(1);
+        if (payload.hasOwnProperty(key)) {
+          return payload[key];
+        } else {
+          return it;
+        }
+      } else {
+        return it;
+      }
+    }).join('/');
+
   }
 
   /**
