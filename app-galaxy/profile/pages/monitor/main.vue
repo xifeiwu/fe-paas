@@ -157,12 +157,12 @@
                                v-if="chartContainerStatus['package-count-in'].show">
         <div class="chart-card">
           <div class="title">
-            <span>网络流量-入</span>
+            <span>收包速率</span>
             <i :class="['paas-icon', chartContainerStatus['package-count-in']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
                @click="handleChartEvent('package-count-in')"></i>
           </div>
           <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
-                   :settings="chartSettingBytes" :extend="extend"
+                   :settings="chartSettingPackage" :extend="extend"
                    v-if="chartData['package-count-in'] != null"
                    ref="charts-package-count-in" :data="chartData['package-count-in']"></ve-line>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
@@ -175,12 +175,12 @@
            v-if="chartContainerStatus['package-count-out'].show">
         <div class="chart-card">
           <div class="title">
-            <span>网络流量-出</span>
+            <span>发包速率</span>
             <i :class="['paas-icon', chartContainerStatus['package-count-out']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
                @click="handleChartEvent('package-count-out')"></i>
           </div>
           <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
-                   :settings="chartSettingBytes" :extend="extend"
+                   :settings="chartSettingPackage" :extend="extend"
                    v-if="chartData['package-count-out'] != null"
                    ref="charts-package-count-out" :data="chartData['package-count-out']"></ve-line>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
@@ -576,8 +576,18 @@
         const chartData = {};
 
         Promise.all(statisticTypeList.map(it => {
+          var appendParam = {};
+          switch (it) {
+            case 'package-count-in':
+              appendParam['netWorkPackageDirection'] = 'receive';
+              break;
+            case 'package-count-out':
+              appendParam['netWorkPackageDirection'] = 'transmit';
+              break;
+          }
+          var thePayload = Object.assign(appendParam, payload);
           return this.$net.requestPaasServer(this.URL_MAP[it], {
-            payload
+            payload: thePayload
           });
         })).then(resContentList => {
           if (resContentList.length === statisticTypeList.length) {
@@ -832,6 +842,11 @@
         chartSettingBytes: {
           dimension: ['timestamp'],
           yAxisName: ['流量'],
+          yAxisType: ['value']
+        },
+        chartSettingPackage: {
+          dimension: ['timestamp'],
+          yAxisName: ['速率'],
           yAxisType: ['value']
         },
 
