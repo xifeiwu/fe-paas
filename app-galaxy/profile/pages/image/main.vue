@@ -137,9 +137,10 @@
         this.pageNum = val;
       },
       goToDetail(row){
-        const targetPath = this.$router.helper.getPathByRouterPath(this.$net.page['profile/image/detail'], {
-          id: row.id
-        });
+//        const targetPath = this.$router.helper.getPathByRouterPath(this.$net.page['profile/image/detail'], {
+//          id: row.id
+//        });
+        const targetPath = `${this.$net.page['profile/image/repo/list']}?repoName=${row.name}`;
         this.$router.push(targetPath);
       }
     },

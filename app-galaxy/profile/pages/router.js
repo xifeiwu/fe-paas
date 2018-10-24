@@ -229,11 +229,18 @@ class Helper {
       path: '/profile/image/list',
       name: '镜像中心',
       component: ImageList,
-    }, {
-      path: '/profile/image/:id/list',
-      name:'镜像详情',
-      component: ImageDetail,
-    }];
+    },
+    //   {
+    //   path: '/profile/image/:id/list',
+    //   name:'镜像详情',
+    //   component: ImageDetail,
+    // },
+      {
+        path: '/profile/image/repo/list',
+        name:'镜像详情',
+        component: ImageDetail,
+      }
+    ];
     this.addRoutePath(null, this.richRouterConfig);
 
     // this.vueRouter = new VueRouter({

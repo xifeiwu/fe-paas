@@ -9,7 +9,9 @@
 <script>
   export default {
     created() {
-      console.log(this.$route.params.id);
+      const queryString = window.location.search.replace(/^\?/, '');
+      const queryObj = this.$utils.parseQueryString(queryString);
+      console.log(queryObj);
     }
   }
 </script>
