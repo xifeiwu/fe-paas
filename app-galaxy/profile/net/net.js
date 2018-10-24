@@ -275,8 +275,13 @@ class Net extends NetBase {
       },
       /**工单相关*/
       // 部署工单中部署服务
-      'work_order_app_deploy': {
+      'work_order_service_deploy': {
         path: '/workOrderDeploy/deploy',
+        method: 'post'
+      },
+      // 部署工单中重启服务
+      'work_order_service_restart': {
+        path: '/workOrderDeploy/quickDeployWorkOrder',
         method: 'post'
       },
       // 工单详情
@@ -441,7 +446,7 @@ class Net extends NetBase {
       // 申请工单
       '/2.x/order/todoList/apply': 'work-order_create',
       // 待办/工单/部署应用
-      '/2.x/order/todoList/deploy': 'work-order_deploy_app',
+      '/2.x/order/todoList/deploy': 'work-order_deploy_service',
 
       /** 页面相关 */
       // 服务管理

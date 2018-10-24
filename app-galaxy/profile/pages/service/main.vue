@@ -2175,7 +2175,7 @@ export default {
       return desc;
     },
 
-    async serviceDeploy(type) {
+    async serviceDeploy(payload, type) {
       // request and show log
       const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
       // recursive function to fetch log from server with options {logName, logPath, offset}
@@ -2246,11 +2246,7 @@ export default {
         dangerouslyUseHTMLString: true
       });
       const resContent = await this.$net.requestPaasServer(urlDesc, {
-        payload: {
-          id: this.selected.service['id'],
-          appId: this.selectedAppID,
-          spaceId: this.selectedProfileID
-        }
+        payload
       });
       if (resContent.hasOwnProperty('orchestration')) {
         this.deployLogs = [];
@@ -2329,7 +2325,11 @@ export default {
         case 'service_deploy':
           this.addToWaitingResponseQueue(action);
           try {
-            await this.serviceDeploy(action);
+            await this.serviceDeploy({
+              id: this.selected.service['id'],
+              appId: this.selectedAppID,
+              spaceId: this.selectedProfileID
+            }, action);
           } catch (err) {
             console.log(err);
             this.hideWaitingResponse(action);
@@ -2340,7 +2340,11 @@ export default {
             let canDeploy = this.canQuickDeploy(row);
             if (canDeploy) {
               this.addToWaitingResponseQueue(action);
-              await this.serviceDeploy(action);
+              await this.serviceDeploy({
+                id: this.selected.service['id'],
+                appId: this.selectedAppID,
+                spaceId: this.selectedProfileID
+              }, action);
               this.hideWaitingResponse(action);
             } else {
               this.$storeHelper.globalPopover.show({

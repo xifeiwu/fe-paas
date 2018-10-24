@@ -452,7 +452,7 @@
           'go-to-log-run-from-instance', 'go-to-page-monitor-from-instance'];
         const pageDomain = ['domain_add', 'domain_bind_service', 'domain_unbind_service', 'domain_secure_check',
         'domain_remove', 'domain_bind_white_list'];
-        const pageWorkOrder = ['go-to-page-log-deploy-from-work-order-list', 'work-order_create', 'work-order_deploy_app'];
+        const pageWorkOrder = ['go-to-page-log-deploy-from-work-order-list', 'work-order_create', 'work-order_deploy_service', 'work-order_restart_service'];
         const pageOauth = ['oauth_create_access_key', 'oauth_update_access_config', 'oauth_delete_access_key',
           'oauth_modify_authorize_url_list',
           'oauth_authorize_url_toggle_enable'];

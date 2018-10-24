@@ -30,9 +30,15 @@
             <el-button
                     type="text"
                     style="font-size: 14px;"
-                    :class="[$storeHelper.permission['work-order_deploy_app'].disabled ? 'disabled' : 'warning']"
-                    @click="handleRowButtonClick($event, 'work-order_deploy_app', scope.$index, scope.row)"
+                    :class="[$storeHelper.permission['work-order_deploy_service'].disabled ? 'disabled' : 'warning']"
+                    @click="handleRowButtonClick($event, 'work-order_deploy_service', scope.$index, scope.row)"
             >部署</el-button>
+            <el-button
+                    type="text"
+                    style="font-size: 14px;"
+                    :class="[$storeHelper.permission['work-order_restart_service'].disabled ? 'disabled' : 'warning']"
+                    @click="handleRowButtonClick($event, 'work-order_restart_service', scope.$index, scope.row)"
+            >重启</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -154,7 +160,8 @@
     methods: {
       handleRowButtonClick($event, action, index, row) {
         switch (action) {
-          case 'work-order_deploy_app':
+          case 'work-order_deploy_service':
+          case 'work-order_restart_service':
             this.$emit('app-deploy', $event, action, index, row);
             break;
         }

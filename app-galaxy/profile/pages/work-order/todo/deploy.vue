@@ -161,7 +161,7 @@
        * @param type, 'quick-deploy' or 'deploy'
        * @returns {Promise<Promise<T>|Promise<never>|Promise.<*>>}
        */
-      async serviceDeploy(payload) {
+      async serviceDeploy(payload, type) {
         // request and show log
         const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
         // recursive function to fetch log from server with options {logName, logPath, offset}
@@ -217,10 +217,19 @@
           }
         };
 
-//        const desc = this.getVersionDescription(this.selected.service);
-        const warningMsg = '确定要部署应用吗？';
-        const urlDesc = this.$net.URL_LIST.work_order_app_deploy;
-        await this.warningConfirm(warningMsg);
+        const desc = '';//this.getVersionDescription(this.selected.service);
+
+        var warningMsg = `您确认要部署${desc}吗?`;
+        if (type == 'quick-deploy') {
+          warningMsg = `<p>您确认要重启${desc}吗?</p><p style="color: #E6A23C; font-size: 12px;">(重启：采用最近一次部署成功的镜像进行服务的重新启动，跳过代码编译、镜像生成阶段)</p>`;
+        }
+        const urlDesc = type == 'quick-deploy' ? this.$net.URL_LIST.work_order_service_restart : this.$net.URL_LIST.work_order_service_deploy;
+        await this.$confirm(warningMsg, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          dangerouslyUseHTMLString: true
+        });
         const resContent = await this.$net.requestPaasServer(urlDesc, {
           payload
         });
@@ -279,7 +288,9 @@
           return;
         }
         switch (action) {
-          case 'work-order_deploy_app':
+          case 'work-order_restart_service':
+          case 'work-order_deploy_service':
+            this.addToWaitingResponseQueue(action);
             var profileInfo = this.getProductionProfile();
             if (!profileInfo || !profileInfo.hasOwnProperty('id')) {
               this.$message.error('未找到profileID');
@@ -295,9 +306,10 @@
                 spaceId: profileInfo.id,
                 serviceVersion: row.serviceVersion,
                 groupId: this.$storeHelper.currentGroupID
-              });
+              }, action === 'work-order_restart_service' ? 'quick-deploy' : 'deploy');
             } catch (err) {
               console.log(err);
+              this.hideWaitingResponse(action);
             }
             break;
           case 'back':
