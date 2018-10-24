@@ -79,7 +79,6 @@
   }
 </style>
 <script>
-  import utils from 'assets/js/utils'
   export default {
     created(){
       this.getImage();
@@ -105,30 +104,32 @@
     methods:{
       searchImage(){
         this.imageList = [];
-        let options = {
-          "groupTag":this.$storeHelper.groupInfo.tag,
-          "repository":this.repository,
-        };
-        this.$net.searchImageRepository(options).then(data => {
-          data.forEach(it => {
-            it.creation_time = this.utils.formatDate(Date.parse(it.creation_time),"yyyy-MM-dd hh:mm:ss");
+        this.$net.requestPaasServer(this.$net.URL_LIST.image_list_by_keyword, {
+          payload: {
+            "groupTag":this.$storeHelper.groupInfo.tag,
+            "repository":this.repository,
+          }
+        }).then(resContent => {
+          resContent.forEach(it => {
+            it.creation_time = this.$utils.formatDate(Date.parse(it.creation_time),"yyyy-MM-dd hh:mm:ss");
           });
-          this.imageList = data;
+          this.imageList = resContent;
           this.totalSize = this.imageList.length;
-        })
+        });
       },
       getImage(){
         this.imageList = [];
-        let options = {
-          "groupTag":this.$storeHelper.groupInfo.tag,
-        };
-        this.$net.getImageRepository(options).then(data => {
-          data.forEach(it => {
+        this.$net.requestPaasServer(this.$net.URL_LIST.image_list_by_group, {
+          payload: {
+            groupTag: this.$storeHelper.groupInfo.tag,
+          }
+        }).then(resContent => {
+          resContent.forEach(it => {
             it.creation_time = this.$utils.formatDate(Date.parse(it.creation_time),"yyyy-MM-dd hh:mm:ss");
           });
-          this.imageList = data;
+          this.imageList = resContent;
           this.totalSize = this.imageList.length;
-        })
+        });
       },
       handleSizeChange(val){
         this.pageSize = val;
