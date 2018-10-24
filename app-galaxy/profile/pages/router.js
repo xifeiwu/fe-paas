@@ -45,6 +45,10 @@ import CdnPrefetch from './cdn/prefetch.vue';
 import CdnStatistics from './cdn/statistics.vue';
 import CdnDashboard from './cdn/dashboard.vue';
 
+//image
+import ImageMain from './image/main.vue';
+import ImageDetail from './image/detail.vue';
+
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
@@ -219,6 +223,14 @@ class Helper {
           component: CdnDashboard,
         },
       ]
+    }, {
+      path: '/profile/image',
+      name: '镜像中心',
+      component: ImageMain,
+    }, {
+      path:'/profile/image/detail',
+      name:'镜像详情',
+      component: ImageDetail,
     }];
     this.addRoutePath(null, this.richRouterConfig);
 

@@ -72,7 +72,9 @@ class Net {
       'docs/paas': '/docs/paas',
       'index': '/index',
       'manage': '/manage',
-      'terminal': '/terminal'
+      'terminal': '/terminal',
+      'profile/image': '/profile/image',
+      'profile/image/detail': '/profile/image/detail',
     };
 
     this.vm = new Vue({

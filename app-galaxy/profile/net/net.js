@@ -2344,6 +2344,40 @@ class Net extends NetBase {
     })
   }
 
+  /**镜像中心相关*/
+  //通过groupTag获取镜像列表
+  getImageRepository(options){
+    return new Promise((resolve,reject) => {
+      axios.post(URL_LIST.get_image_repository_by_group.url,options).then(response => {
+        let content = this.getResponseContent2(response);
+        if(content){
+          resolve(content);
+        }else{
+          reject(response.data.msg);
+        }
+      }).catch(err => {
+        reject(err);
+        console.log(err);
+      })
+    })
+  }
+
+  //搜索镜像仓库
+  searchImageRepository(options){
+    return new Promise((resolve,reject) => {
+      axios.post(URL_LIST.search_image_repository.url,options).then(response => {
+        let content = this.getResponseContent2(response);
+        if(content){
+          resolve(content);
+        }else{
+          reject(response.data.msg);
+        }
+      }).catch(err => {
+        reject(err);
+        console.log(err);
+      })
+    })
+  }
 }
 
 export default new Net();

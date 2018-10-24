@@ -78,7 +78,11 @@ class Net extends NetBase {
           name: '应用配置',
           router: this.page['profile/config-server'],
           icon: 'paas-icon-config'
-        }
+        },
+        "镜像中心":{
+          router: this.page['profile/image'],
+          icon: 'paas-icon-image'
+        },
       };
       let key = item.name;
       if (keyMap.hasOwnProperty(key)) {
@@ -92,8 +96,10 @@ class Net extends NetBase {
 
     let menuList = [];
     if (content.hasOwnProperty('menuList') && Array.isArray(content.menuList)) {
-      // let menuToIgnore = ["应用监控", "后台管理"];
-      let menuToIgnore = ["后台管理"];
+      // content.menuList.push({
+      //   name:"镜像中心",
+      // });
+      let menuToIgnore = ["应用监控", "后台管理"];
       menuList = content.menuList.map(it => {
         // append some property to each item
         return updateItem(it);
@@ -170,7 +176,7 @@ class Net extends NetBase {
 
   parseLoginResponseMore(resContent) {
     let origin = this.parseLoginResponse(resContent);
-    let contentOfAppEngine = ['应用管理', '服务管理', '实例列表', '外网域名', '日志中心', '应用监控', '审批管理'];
+    let contentOfAppEngine = ['应用管理', '服务管理', '镜像中心','实例列表', '外网域名', '日志中心', '应用监控', '审批管理'];
     let level2 = [{
       name: '应用引擎',
       icon: 'paas-icon-app',

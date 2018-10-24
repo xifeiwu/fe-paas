@@ -447,11 +447,24 @@ class URL extends BaseURL {
         method: 'post',
       },
       //通过lob获取scrum列表
-      'get_scrum_list_by_lob':{
+      'get_scrum_list_by_lob': {
         url:API_PATH + '/queryScrumByLobId',
         path:'/queryScrumByLobId',
         method:'get',
       },
+      /**镜像中心相关*/
+      //获取镜像仓库列表
+      'get_image_repository_by_group': {
+        url:API_PATH + '/image/queryRepositoryByGroupTag',
+        path: '/image/queryRepositoryByGroupTag',
+        method:'post',
+      },
+      //搜索镜像仓库
+      'search_image_repository': {
+        url:API_PATH + '/image/searchRepositoryByGroupTag',
+        path:'/image/searchRepositoryByGroupTag',
+        method:'post',
+      }
     };
   }
 
