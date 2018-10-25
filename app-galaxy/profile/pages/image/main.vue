@@ -2,14 +2,15 @@
   <div id="image-main">
     <div class="header">
       <label>镜像仓库名称：</label>
-      <el-input size="mini" style="max-width: 300px" v-model="repository" @keyup.enter.native="searchImage"></el-input>
-      <el-button type="primary" @click="searchImage">搜索</el-button>
+      <el-input size="mini" style="max-width: 300px" v-model="repository" @keyup.enter.native="getImage"></el-input>
+      <el-button type="primary" @click="getImage">搜索</el-button>
     </div>
     <div class="image-list">
       <el-table
-        :data="imageList | pageSlice(pageNum,pageSize)"
+        :data="imageList"
         style="width: 90%;"
-        stripe>
+        stripe
+        :height="heightOfTable">
         <el-table-column
           prop="name"
           label="镜像仓库名称"
@@ -37,16 +38,15 @@
           <!--width="220px">-->
         <!--</el-table-column>-->
       </el-table>
-      <div class="pagination-container" v-if="imageList.length > pageSize">
+      <div class="pagination-container" v-if="totalNum > pageSize">
         <div class="pagination">
           <el-pagination
-            :current-page="pageNum"
+            :current-page="currentPage"
             size="large"
             layout="prev,pager,next"
             :page-size="pageSize"
-            :total="imageList.length"
-            @size-change="handleSizeChange"
-            @current-change="handleNumChange">
+            :total="totalNum"
+            @current-change="handlePaginationPageChange">
           </el-pagination>
         </div>
       </div>
@@ -87,8 +87,10 @@
       return {
         imageList:[],
         repository:"",
-        pageNum:1,
+        currentPage:1,
         pageSize:12,
+        totalNum:0,
+        heightOfTable:'',
       }
     },
     computed:{
@@ -99,58 +101,45 @@
     watch:{
       'groupTag':function () {
         this.getImage();
-      }
+      },
     },
     methods:{
-      searchImage(){
-        this.imageList = [];
-        this.$net.requestPaasServer(this.$net.URL_LIST.image_list_by_keyword, {
-          payload: {
-            "groupTag":this.$storeHelper.groupInfo.tag,
-            "repository":this.repository,
-          }
-        }).then(resContent => {
-          resContent.forEach(it => {
-            it.creation_time = this.$utils.formatDate(Date.parse(it.creation_time),"yyyy-MM-dd hh:mm:ss");
-          });
-          this.imageList = resContent;
-          this.totalSize = this.imageList.length;
-        });
-      },
       getImage(){
         this.imageList = [];
+        let payload = {};
+        payload["groupTag"] = this.$storeHelper.groupInfo.tag;
+        if(this.repository != null && this.repository != ""){
+          payload["repository"] = this.repository;
+        }
+        payload["page"] = this.currentPage;
+        payload["pageSize"] = this.pageSize;
         this.$net.requestPaasServer(this.$net.URL_LIST.image_list_by_group, {
-          payload: {
-            groupTag: this.$storeHelper.groupInfo.tag,
-          }
+          payload
         }).then(resContent => {
-          resContent.forEach(it => {
+          resContent.body.forEach(it => {
             it.creation_time = this.$utils.formatDate(Date.parse(it.creation_time),"yyyy-MM-dd hh:mm:ss");
           });
-          this.imageList = resContent;
-          this.totalSize = this.imageList.length;
+          this.imageList = resContent.body;
+          this.totalNum = parseInt(resContent.total);
         });
       },
-      handleSizeChange(val){
-        this.pageSize = val;
-      },
-      handleNumChange(val){
-        this.pageNum = val;
-      },
+
       goToDetail(row){
-//        const targetPath = this.$router.helper.getPathByRouterPath(this.$net.page['profile/image/detail'], {
-//          id: row.id
-//        });
         const targetPath = `${this.$net.page['profile/image/repo/list']}?repoName=${row.name}`;
         this.$router.push(targetPath);
-      }
+      },
+
+      handlePaginationPageChange(page){
+        this.currentPage = page;
+        console.log(page);
+        this.getImage();
+      },
+
+      onScreenSizeChange() {
+        const headerNode = this.$el.querySelector(':scope > .header');
+        const headerHeight = headerNode.offsetHeight;
+        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+      },
     },
-    filters:{
-      pageSlice(array,pageNum,pageSize){
-        let offset = (pageNum - 1) * pageSize;
-        let data = (offset+pageSize >= array.length) ? array.slice(offset,array.length) : array.slice(offset,offset+pageSize);
-        return data;
-      }
-    }
   }
 </script>

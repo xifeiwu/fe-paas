@@ -304,9 +304,9 @@ class Net extends NetBase {
         path: '/image/queryRepositoryByGroupTag',
         method:'post',
       },
-      //搜索镜像仓库
-      'image_list_by_keyword':{
-        path:'/image/searchRepositoryByGroupTag',
+      //获取镜像详情
+      'image_detail_by_image_name':{
+        path: '/image/queryImageTagByProjectAndRepository',
         method:'post',
       },
 
