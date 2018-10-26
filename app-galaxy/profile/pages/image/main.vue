@@ -54,12 +54,13 @@
   </div>
 </template>
 <style lang="scss" scoped>
-  #image-main{
+  #image-main {
+    height: 100%;
     .header{
       display: flex;
       flex-direction: row;
       justify-content: flex-end;
-      margin-top: 20px;
+      padding-top: 20px;
       label{
         font-size: 16px;
         color:#232933;
@@ -79,11 +80,25 @@
   }
 </style>
 <script>
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+
   export default {
-    created(){
+    created() {
+    },
+    mounted() {
+      const headerNode = this.$el.querySelector(':scope > .header');
+      this.resizeListener = () => {
+        let headerHeight = headerNode.offsetHeight;
+        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+      };
+      this.resizeListener();
+      addResizeListener(this.$el, this.resizeListener);
       this.getImage();
     },
-    data(){
+    beforeDestroy() {
+      removeResizeListener(this.$el, this.resizeListener);
+    },
+    data() {
       return {
         imageList:[],
         repository:"",
@@ -91,21 +106,21 @@
         pageSize:12,
         totalNum:0,
         heightOfTable:'',
+        resizeListener: () => {},
       }
     },
-    computed:{
+    computed: {
       groupTag(){
         return this.$storeHelper.groupInfo.tag;
       }
     },
-    watch:{
+    watch: {
       'groupTag':function () {
         this.getImage();
       },
     },
-    methods:{
-      getImage(){
-        this.imageList = [];
+    methods: {
+      getImage() {
         let payload = {};
         payload["groupTag"] = this.$storeHelper.groupInfo.tag;
         if(this.repository != null && this.repository != ""){
@@ -124,21 +139,15 @@
         });
       },
 
-      goToDetail(row){
+      goToDetail(row) {
         const targetPath = `${this.$net.page['profile/image/repo/list']}?repoName=${row.name}`;
         this.$router.push(targetPath);
       },
 
-      handlePaginationPageChange(page){
+      handlePaginationPageChange(page) {
         this.currentPage = page;
         console.log(page);
         this.getImage();
-      },
-
-      onScreenSizeChange() {
-        const headerNode = this.$el.querySelector(':scope > .header');
-        const headerHeight = headerNode.offsetHeight;
-        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
       },
     },
   }

@@ -70,11 +70,12 @@
 
 <style lang="scss" scoped>
   #image-detail{
+    height: 100%;
     .header{
       display: flex;
       flex-direction: row;
       justify-content: flex-end;
-      margin-top: 20px;
+      padding-top: 20px;
       label{
         font-size: 16px;
         color:#232933;
@@ -105,6 +106,8 @@
 </style>
 
 <script>
+  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+
   export default {
     created() {
       const queryString = window.location.search.replace(/^\?/, '');
@@ -112,14 +115,28 @@
       this.repoName = queryObj.repoName;
       this.getVersionList();
     },
+    mounted(){
+      const headerNode = this.$el.querySelector(':scope > .header');
+      this.resizeListener = () => {
+        let headerHeight = headerNode.offsetHeight;
+        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+      };
+      this.resizeListener();
+      addResizeListener(this.$el, this.resizeListener);
+      this.getImage();
+    },
+    beforeDestroy() {
+      removeResizeListener(this.$el, this.resizeListener);
+    },
     data() {
       return {
         versionList:[],
         repoName:'',
         tag:'',
         pageNum:1,
-        pageSize:12,
+        pageSize:6,
         heightOfTable:'',
+        resizeListener: () => {},
       }
     },
     methods: {
