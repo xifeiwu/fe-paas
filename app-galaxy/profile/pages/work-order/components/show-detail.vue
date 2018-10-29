@@ -33,7 +33,7 @@
                     :class="[$storeHelper.permission['work-order_deploy_service'].disabled ? 'disabled' : 'warning']"
                     @click="handleRowButtonClick($event, 'work-order_deploy_service', scope.$index, scope.row)"
             >部署</el-button>
-            <el-button
+            <el-button v-if="false"
                     type="text"
                     style="font-size: 14px;"
                     :class="[$storeHelper.permission['work-order_restart_service'].disabled ? 'disabled' : 'warning']"
