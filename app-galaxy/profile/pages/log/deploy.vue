@@ -59,15 +59,21 @@
       .el-table {
       }
     }
-    .el-dialog {
-      .log-item{
-        white-space:pre;
-      }
-    }
   }
 </style>
 <style lang="scss">
-  .dialog-for-log {
+  #log-deploy {
+    .dialog-for-log {
+      .el-dialog {
+        width: 95%;
+      }
+      .log-item {
+        /*white-space: pre;*/
+        max-width: 100%;
+        word-wrap: break-word;
+        word-break: break-all;
+        line-height: 1.4;
+      }
       .info {
         color: #409EFF;
         font-weight: bold;
@@ -85,6 +91,7 @@
         font-weight: bold;
       }
     }
+  }
 </style>
 <script>
   import paasVersionSelector from '../components/version-selector';
