@@ -227,6 +227,14 @@ class Net extends NetBase {
         method: 'post'
       },
 
+      /** 日志相关 */
+      // 获取部署日志列表
+      'log_deploy_list': {
+        path: '/deployLog/getDeployLog',
+        method: 'post'
+      },
+
+      /** 监控相关 */
       // 获取监控数据-CPU
       'monitor_statistic_cpu': {
         path: '/service/monitorCPUUsage',
@@ -1482,27 +1490,6 @@ class Net extends NetBase {
       }).catch(err => {
         console.log(err);
         reject('下载白名单模板失败！')
-      })
-    })
-  }
-
-  // 获取部署列表
-  getDeployLogList(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.log_deploy_list.url, options).then(response => {
-        let content = this.getResponseContent(response);
-        if (content && content.hasOwnProperty('deployLogList')) {
-          content.deployLogList.forEach(it => {
-            it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-          });
-          resolve(content.deployLogList);
-          this.showLog('getDeployLogList', content.deployLogList);
-        } else {
-          reject('getDeployLogList, not found.')
-        }
-      }).catch(err => {
-        console.log(err);
-        reject(err);
       })
     })
   }

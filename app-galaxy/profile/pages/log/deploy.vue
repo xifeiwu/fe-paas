@@ -1,8 +1,17 @@
 <template>
   <div id="log-deploy">
     <div class="header">
-      <paas-version-selector :customConfig="config4VersionSelector"
-                           @version-selected="onVersionSelected"></paas-version-selector>
+      <paas-version-selector style="display: inline-block"
+                             :customConfig="config4VersionSelector"
+                             ref="version-selector"
+                             @version-selected="onVersionSelected"></paas-version-selector>
+      <el-button
+              style="display: inline-block"
+              size="mini-extral"
+              :type="'primary'"
+              @click="handleButtonClick($event, 'refresh')">
+        刷新
+      </el-button>
     </div>
     <div class="list">
       <el-table
@@ -196,22 +205,44 @@
           }
         });
 
-        const profileID = profileInfo.id;
-        this.showLoading = true;
-        this.$net.getDeployLogList({
-          appId: appInfo.appId,
-          spaceId: profileID,
-          serviceVersion: serviceInfo.serviceVersion
-        }).then(deployLogList => {
-//          console.log(deployLogList);
+        this.requestDeployLogList(appInfo.appId, profileInfo.id, serviceInfo.serviceVersion);
+      },
+
+      handleButtonClick(evt, action) {
+        switch (action) {
+          case 'refresh':
+            try {
+              const {selectedAPP, selectedProfile, selectedService} = this.$refs['version-selector'].getSelectedValue();
+              if (!selectedAPP || !selectedProfile || !selectedService) {
+                return;
+              }
+              this.requestDeployLogList(selectedAPP.appId, selectedProfile.id, selectedService.serviceVersion);
+            } catch(err) {
+              console.log(err);
+            }
+            break;
+        }
+      },
+
+      requestDeployLogList(appId, profileId, serviceVersion) {
+        this.$net.requestPaasServer(this.$net.URL_LIST.log_deploy_list, {
+          payload: {
+            appId,
+            spaceId: profileId,
+            serviceVersion: serviceVersion
+          }
+        }).then(resContent => {
+          this.totalSize = resContent['total'];
+          const deployLogList = resContent['deployLogList'];
+          deployLogList.forEach(it => {
+            it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+          });
           this.deployLogList = deployLogList;
-          this.totalSize = this.deployLogList.length;
-          this.showLoading = false;
           this.getDeployLogListByPage();
         }).catch(err => {
-          this.$message.error('列表获取失败！');
-          this.showLoading = false;
+          console.log(err);
         });
+
       },
       handleOperationClick(action, index, row) {
         switch (action) {

@@ -197,11 +197,6 @@ class URL extends BaseURL {
         path: '/domain/whiteList/upload/template'
       },
 
-      // 获取部署列表
-      'log_deploy_list': {
-        url: API_PATH + '/deployLog/getDeployLog',
-        path: '/deployLog/getDeployLog'
-      },
       // 获取运行日志
       'log_run_log': {
         url: API_PATH + '/searchLog',
