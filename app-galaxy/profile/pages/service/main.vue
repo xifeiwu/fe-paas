@@ -153,12 +153,12 @@
                     @click="handleRowButtonClick($event, 'service_delete', scope.$index, scope.row)">删除</el-button>
             <div class="ant-divider"></div>
 
-            <el-button
-                    v-if="isProductionProfile"
-                    class="primary" type="text"
-                    @click="handleRowButtonClick($event, 'one-apm', scope.$index, scope.row)">OneAPM监控</el-button>
-            <div v-if="isProductionProfile"
-                 class="ant-divider"></div>
+            <!--<el-button-->
+                    <!--v-if="isProductionProfile"-->
+                    <!--class="primary" type="text"-->
+                    <!--@click="handleRowButtonClick('one-apm', scope.$index, scope.row)">OneAPM监控</el-button>-->
+            <!--<div v-if="isProductionProfile"-->
+                 <!--class="ant-divider"></div>-->
 
             <el-button
                     type="text"
@@ -239,6 +239,11 @@
                     <span>{{valueToShow(selected.model.instanceNum)}}</span>
                     <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('instanceNum') ? 'warning' : 'disabled']"
                        @click="handleChangeProp($event, 'instanceNum')"></i>
+                  </el-form-item>
+                  <el-form-item label="应用监控">
+                    <span>{{appPropUtils.getMonitorNameById(selected.model.appMonitor)}}</span>
+                    <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('appMonitor') ? 'warning' : 'disabled']"
+                       @click="handleChangeProp($event, 'appMonitor')"></i>
                   </el-form-item>
                   <el-form-item label="镜像方式" class="big">
                     <span>{{valueToShow(selected.service.image.typeName)}}</span>
@@ -1151,6 +1156,7 @@
       </div>
     </el-dialog>
 
+    <!--TODO: not used-->
     <el-dialog title="更改OneApm" :visible="selected.prop == 'oneApm'"
                :close-on-click-modal="false"
                @close="selected.prop = null"
@@ -1169,18 +1175,46 @@
           </el-radio-group>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
+      <div slot="footer" class="dialog-footer flex">
+          <div class="item">
             <el-button type="primary"
                        @click="handleDialogButtonClick('oneApm')"
                        :loading="waitingResponse">保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
+          </div>
+          <div class="item">
             <el-button action="profile-dialog/cancel"
                        @click="selected.prop = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+          </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="更改应用监控" :visible="selected.prop == 'appMonitor'"
+               :close-on-click-modal="false"
+               @close="selected.prop = null"
+               class="app-monitor size-550"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>更改应用监控后需要重启才能生效</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeAppMonitorForm">
+        <el-form-item label="应用监控" prop="appMonitor" class="app-monitor">
+          <el-radio-group v-model="newProps.appMonitor" size="mini" v-if="appPropUtils">
+            <el-radio v-for="item in appPropUtils.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleDialogButtonClick('appMonitor')"
+                     :loading="waitingResponse">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="selected.prop = null">取&nbsp消</el-button>
+        </div>
       </div>
     </el-dialog>
 
@@ -1519,6 +1553,7 @@
 export default {
   components: {paasDialogForLog, paasImageSelector},
   created() {
+    this.appPropUtils = appPropUtils;
     if (this.$storeHelper.dataTransfer) {
       const dataTransfer = this.$storeHelper.dataTransfer;
       try {
@@ -1809,6 +1844,7 @@ export default {
         vmOptions: '',
         oneApm: '',
         instanceNum: '',
+        appMonitor: '',
       },
       waitingResponse: false,
       formItemMsgForEnvironments: '',
@@ -2518,7 +2554,7 @@ export default {
       if (['instanceNum', 'healthCheck', 'packageInfo', 'portMap', 'prestopCommand', 'image','gitLabAddress', 'gitLabBranch',
           'mainClass', 'relativePath','mavenProfileId',
           'cpuAndMemory', 'rollingUpdate', 'loadBalance', 'environments', 'hosts',
-          'fileLocation', 'vmOptions', 'oneApm'].indexOf(prop) == -1) {
+          'fileLocation', 'vmOptions', 'oneApm', 'appMonitor'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
         return;
       }
@@ -2534,6 +2570,7 @@ export default {
         case 'rollingUpdate':
         case 'loadBalance':
         case 'oneApm':
+        case 'appMonitor':
         case 'vmOptions':
           this.newProps[prop] = this.selected.model[prop];
           this.$refs.hasOwnProperty(formName) &&
@@ -2629,6 +2666,7 @@ export default {
         case 'rollingUpdate':
         case 'loadBalance':
         case 'oneApm':
+        case 'appMonitor':
         case 'vmOptions':
         case 'prestopCommand':
           this.$refs[formName].validate((valid) => {
@@ -2828,6 +2866,7 @@ export default {
         case 'environments':
         case 'hosts':
         case 'oneApm':
+        case 'appMonitor':
         case 'vmOptions':
         case 'prestopCommand':
           let propMap = {
@@ -2911,6 +2950,7 @@ export default {
         case 'relativePath':
         case 'mavenProfileId':
         case 'oneApm':
+        case 'appMonitor':
         case 'vmOptions':
         case 'prestopCommand':
           this.selected.model[prop] = this.newProps[prop];

@@ -191,6 +191,11 @@ class Net extends NetBase {
         path: '/service/updateOneApm',
         method: 'post'
       },
+      // 更改应用监控
+      'service_update_app_monitor': {
+        path: '/service/updateAppMonitor',
+        method: 'post'
+      },
       // 更改VM_Options
       'service_update_vm_options': {
         path: '/service/updateVMOptions',
@@ -836,6 +841,7 @@ class Net extends NetBase {
       Array.isArray(serviceList) && serviceList.forEach(service => {
         const item = {
           oneApm: service.oneapm,
+          appMonitor: service.appMonitor,
           environments: JSON.parse(JSON.stringify(service.environments)),
           hosts: JSON.parse(JSON.stringify(service.hosts)),
           cpuID: service.cpuInfo.id,
@@ -1113,6 +1119,7 @@ class Net extends NetBase {
       'environments': URL_LIST.service_update_environment,
       'hosts': URL_LIST.service_update_host,
       'oneApm': URL_LIST.service_update_one_apm,
+      'appMonitor': URL_LIST.service_update_app_monitor,
       'vmOptions': URL_LIST.service_update_vm_options,
       'prestopCommand': URL_LIST.service_update_prestop_command,
       'packageInfo': URL_LIST.service_update_package_info,

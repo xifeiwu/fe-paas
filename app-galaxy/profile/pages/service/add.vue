@@ -127,9 +127,9 @@
               </div>
             </div>
           </el-form-item>
-          <el-form-item label="应用监控" prop="appMonitor" class="app-monitor" v-if="false">
-            <el-radio-group v-model="serviceForm.appMonitor" size="mini" v-if="appPropUtil">
-              <el-radio v-for="item in appPropUtil.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
+          <el-form-item label="应用监控" prop="appMonitor" class="app-monitor" v-if="true">
+            <el-radio-group v-model="serviceForm.appMonitor" size="mini" v-if="appPropUtils">
+              <el-radio v-for="item in appPropUtils.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="CPU" prop="cpuID" class="cpu">
@@ -474,14 +474,14 @@
 </style>
 <script>
   import {mapGetters} from 'vuex';
-  import appPropUtil from '../utils/app-props';
+  import appPropUtils from '../utils/app-props';
   const debug = browserDebug('pass-fe:profile/service/add');
   import commonUtils from 'assets/components/mixins/common-utils';
   export default {
     mixins: [commonUtils],
     created() {
-      // appPropUtil will be used in template
-      this.appPropUtil = appPropUtil;
+      // appPropUtils will be used in template
+      this.appPropUtils = appPropUtils;
 
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (!dataTransfer) {
@@ -559,7 +559,7 @@
           gitLabBranch: 'master',
           mainClass: '',
           relativePathOfParentPOM: '',
-          appMonitor: appPropUtil.defaultAppMonitorId,
+          appMonitor: appPropUtils.defaultAppMonitorId,
           vmOptions: '',
           mavenProfileId: '',
           cpuID: '',
@@ -649,7 +649,7 @@
         currentPrivateAppVersionList: [],
 
         memorySizeList: [],
-        rules: appPropUtil.rules,
+        rules: appPropUtils.rules,
 
         showLoading: false,
         loadingText: '',
