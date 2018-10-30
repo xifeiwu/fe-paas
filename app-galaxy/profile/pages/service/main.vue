@@ -130,7 +130,7 @@
             <el-button
                     v-if="!isProductionProfile"
                     type="text"
-                    :class="canQuickDeploy(scope.row) ? 'danger' : 'disabled'"
+                    :class="reason4DisableQuickDeploy(scope.row) ? 'disabled' : 'danger'"
                     :loading="statusOfWaitingResponse('quick-deploy') && selected.service.id == scope.row.id"
                     @click="handleRowButtonClick($event, 'quick-deploy', scope.$index, scope.row)"
             >
@@ -1923,14 +1923,16 @@ export default {
     },
 
     // 是否支持快速部署：1. 是k8s应用，2. 有正在运行的实例
-    canQuickDeploy(item) {
-      var result = true;
-      try {
-        result = item['containerStatus'].Running > 0 && item['k8s'] === 1;
-      } catch(err) {
-        result = true;
+    reason4DisableQuickDeploy(item) {
+      var reason = false;
+      if (this.$storeHelper.groupVersion === 'v1') {
+        reason = '1.x团队无法使用';
+      } else if (item['k8s'] !== 1) {
+        reason = '老mesos应用不支持';
+      } else if (!item['containerStatus'].Running || item['containerStatus'].Running == 0) {
+        reason = '运行实例数为0，不能进行重启操作！';
       }
-      return result;
+      return reason;
     },
 
     // 是否允许修改属性（有些属性，1.x团队无法修改）
@@ -2339,8 +2341,13 @@ export default {
           break;
         case 'quick-deploy':
           try {
-            let canDeploy = this.canQuickDeploy(row);
-            if (canDeploy) {
+            let reason = this.reason4DisableQuickDeploy(row);
+            if (reason) {
+              this.$storeHelper.globalPopover.show({
+                ref: evt.target,
+                msg: reason
+              });
+            } else {
               this.addToWaitingResponseQueue(action);
               await this.serviceDeploy({
                 id: this.selected.service['id'],
@@ -2348,11 +2355,6 @@ export default {
                 spaceId: this.selectedProfileID
               }, action);
               this.hideWaitingResponse(action);
-            } else {
-              this.$storeHelper.globalPopover.show({
-                ref: evt.target,
-                msg: row['k8s'] !== 1 ? '老mesos应用不支持' : '运行实例数为0，不能进行重启操作！'
-              });
             }
           } catch (err) {
             console.log(err);
