@@ -80,7 +80,7 @@
         </el-table-column>
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center">
           <template slot-scope="scope">
-            <el-button
+            <el-button v-if="false"
                     @click="handleRowButtonClick($event, 'instance_replace', scope.$index, scope.row)"
                     type="text" class="warning">
               <span>驱逐</span>
