@@ -27,6 +27,7 @@
 </template>
 <style lang="scss">
   .spa .el-dialog__wrapper {
+    font-family: "微软雅黑", 'Microsoft Yahei','HelveticaNeue',sans-serif;
     &.dialog-for-log {
       @keyframes rotating {
         0% {
