@@ -115,7 +115,33 @@
             };
             break;
         }
+        // save to localStorage after selected change
+        if (this.config4VersionSelector) {
+          this.$store.dispatch('user/config', {
+            page: 'log/deploy',
+            data: this.config4VersionSelector
+          });
+        }
         this.$storeHelper.dataTransfer = null;
+      } else {
+        // get config from localStorage
+        const userConfig = this.$store.getters['user/config'];
+        if (userConfig.hasOwnProperty('log/deploy')) {
+          const logDeployConfig = userConfig['log/deploy'];
+          if (this.$utils.hasProps(logDeployConfig, 'appId', 'profileId', 'serviceId')) {
+            this.config4VersionSelector = {
+              appId: logDeployConfig['appId'],
+              profileId: logDeployConfig['profileId'],
+              serviceId: logDeployConfig['serviceId'],
+            }
+          } else if (this.$utils.hasProps(logDeployConfig, 'appId', 'profileId', 'serviceVersion')) {
+            this.config4VersionSelector = {
+              appId: logDeployConfig['appId'],
+              profileId: logDeployConfig['profileId'],
+              serviceVersion: logDeployConfig['serviceVersion'],
+            }
+          }
+        }
       }
 //      console.log('this.config4VersionSelector');
 //      console.log(this.config4VersionSelector);
@@ -153,7 +179,17 @@
         if (!appInfo || !profileInfo || !serviceInfo) {
           return;
         }
-        let profileID = profileInfo.id;
+        // save to localStorage after selected change
+        this.$store.dispatch('user/config', {
+          page: 'log/deploy',
+          data: {
+            appId: appInfo.appId,
+            profileId: profileInfo.id,
+            serviceId: serviceInfo.id
+          }
+        });
+
+        const profileID = profileInfo.id;
         this.showLoading = true;
         this.$net.getDeployLogList({
           appId: appInfo.appId,

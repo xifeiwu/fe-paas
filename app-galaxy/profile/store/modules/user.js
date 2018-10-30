@@ -32,7 +32,8 @@ const state = {
   config: {
     service: {},
     instance: {},
-    monitor: {}
+    monitor: {},
+    'log/deploy': {},
   }
 };
 
