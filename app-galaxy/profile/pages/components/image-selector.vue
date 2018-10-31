@@ -8,7 +8,7 @@
       </el-radio-group>
     </el-form-item>
     <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-if="!imageSelectState.customImage">
-      <el-select v-model="imageSelectState.autoImageValue"
+      <el-select v-model="imageSelectState.autoImageValue" :disabled="this.$storeHelper.groupVersion === 'v1'"
                  :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
         <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
                    :key="index" :label="item.label" :value="item.value">
