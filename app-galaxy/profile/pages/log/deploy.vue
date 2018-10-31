@@ -54,7 +54,7 @@
         </div>
       </div>
     </div>
-    <paas-dialog-for-log :showStatus="dialogForLogStatus" ref="dialogForStatus">
+    <paas-dialog-for-log :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="content" v-for="(item, index) in deployLogs" :key="index" class="log-item" v-html="item">{{item}}</div>
     </paas-dialog-for-log>
   </div>
@@ -241,9 +241,148 @@
         }).catch(err => {
           console.log(err);
         });
-
       },
-      handleOperationClick(action, index, row) {
+
+      async serviceDeploy(payload) {
+        // request and show log
+        const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
+        const parseDeployLog = (logs) => {
+          var logObjList = logs.split('\n').filter(it => {
+            return it;
+          }).map(it => {
+            var logObj = {
+              LOG: '',
+              TYPE: 'DEFAULT'
+            };
+            try {
+              var parsedLog = JSON.parse(it);
+              if (this.$utils.isObject(parsedLog) && parsedLog.hasOwnProperty('LOG') && parsedLog.hasOwnProperty('LOG')) {
+                logObj = parsedLog;
+              } else {
+                throw new Error('格式不正确');
+              }
+            } catch (err) {
+              logObj['LOG'] = it;
+            }
+            return logObj;
+          });
+
+          logObjList.forEach(it => {
+            // replace white-space with &nbsp
+            it['LOG'] = it['LOG'].replace(/^( *)(.*)$/, (match, p1, p2) => {
+              return '&nbsp;'.repeat(p1.length) + p2;
+            }).replace(filterReg, (match, p1, p2, offset, string) => {
+              // console.log(match, p1, offset, string);
+              p2 = p2.replace(/(BUILD )*SUCCESS/g, (match, p1, offset, string) => {
+                return `<span class="success">${match}</span>`;
+              });
+              p2 = p2.replace(/BUILD FAILURE/g, (match, p1, offset, string) => {
+                return `<span class="error">${match}</span>`;
+              });
+              let result = '';
+              switch (p1.toUpperCase()) {
+                case 'INFO':
+                  result = `[<span class="info">${p1}</span>]${p2}`;
+                  break;
+                case 'WARNING':
+                  result = `[<span class="warning">${p1}</span>]${p2}`;
+                  break;
+                case 'ERROR':
+                  result = `[<span class="error">${p1}</span>]<span class="error">${p2}</span>`;
+                  break;
+              }
+              return result;
+            })
+          });
+          return logObjList;
+        };
+
+        // recursive function to fetch log from server with options {logName, logPath, offset}
+        const getDeployLog = async (options) => {
+          // stop request deploy log when the window is closed
+          if (!this.dialogForLogStatus.visible) {
+            return Promise.reject('弹框关闭');
+          }
+          const resContent = await this.$net.serviceGetDeployLog(options);
+          if (resContent.hasOwnProperty('Orchestration')) {
+            const orchestration = resContent['Orchestration'];
+            orchestration.logList = parseDeployLog(orchestration.log);
+            return orchestration;
+          } else {
+            throw new Error('格式不正确');
+          }
+        };
+
+        // mock resContent of serviceDeploy
+        const resContent = {
+          orchestration: {
+            logName: payload.logName,
+            logPath: payload.logPath,
+            moreData: true
+          }
+        };
+
+        if (resContent.hasOwnProperty('orchestration')) {
+          this.deployLogs = [];
+          this.dialogForLogStatus.visible = true;
+          this.dialogForLogStatus.showLoading = true;
+          var orchestration = resContent['orchestration'];
+          var moreData = orchestration && orchestration['moreData'];
+
+          var deployLogQueue = [];
+          const tagUpdateDeployLog = setInterval(() => {
+            if (!moreData && deployLogQueue.length === 0) {
+              clearInterval(tagUpdateDeployLog);
+              return;
+            }
+            var nextItem = deployLogQueue.shift();
+            if (!nextItem) {
+              return;
+            }
+            if (nextItem['TYPE'] === 'DOWNLOAD') {
+              this.deployLogs.pop();
+              this.deployLogs.push(nextItem['LOG']);
+            } else {
+              this.deployLogs.push(nextItem['LOG']);
+            }
+            // scroll after render finish
+            this.$nextTick(() => {
+              if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
+                const dialogForDeployLog = this.$refs['dialogForDeployLog'];
+                dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+              }
+            });
+          }, 10);
+
+          while(moreData) {
+            orchestration = await getDeployLog({
+              logName: orchestration.logName,
+              logPath: orchestration.logPath,
+              offset: null == orchestration.offset ? 0 : orchestration.offset,
+              // 正在部署中的日志
+              logType: payload.logType
+            });
+//          console.log(orchestration);
+            if (orchestration && orchestration.hasOwnProperty('logList')) {
+              // stop showLoading when orchestration.log is not null
+              this.dialogForLogStatus.showLoading = false;
+              deployLogQueue = deployLogQueue.concat(orchestration['logList']);
+            }
+            moreData = orchestration && orchestration['moreData'];
+            await new Promise((resolve) => {
+              setTimeout(resolve, 1500);
+            });
+          }
+          return Promise.reject('已拉取所有日志');
+        } else {
+          return Promise.reject({
+            title: '数据格式错误',
+            message: '未找到orchestration'
+          })
+        }
+      },
+
+      async handleOperationClick(action, index, row) {
         switch (action) {
           case 'show-log':
             let logPath = row.logPath;
@@ -254,83 +393,20 @@
               return;
             }
             this.operation.rowID = row.id;
+
             this.addToWaitingResponseQueue(action);
-
-            ((options) => {
-              this.deployLogs = [];
-              this.dialogForLogStatus.visible = true;
-              this.hideWaitingResponse('show-log');
-              const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
-              // recursive function to fetch log from server with options {logName, logPath, offset}
-              function getDeployLog(options) {
-                // stop request deploy log when the window is closed
-                if (!this.dialogForLogStatus.visible) {
-                  return;
-                }
-                this.dialogForLogStatus.showLoading = true;
-                this.$net.serviceGetDeployLog(options).then(content => {
-                  if (content.hasOwnProperty('Orchestration')) {
-                    let Orchestration = content.Orchestration;
-                    let logs = Orchestration.log;
-  //                  console.log(log);
-  //                  console.log(content);
-  //                  console.log(Orchestration.offset);
-                    if (logs) {
-                      let logList = logs.split('\n').filter(it => {
-                        return it;
-                      }).map(it => {
-                        return it.replace(filterReg, (match, p1, p2, offset, string) => {
-                          // console.log(match, p1, offset, string);
-                          p2 = p2.replace(/(BUILD )*SUCCESS/g, (match, p1, offset, string) => {
-                            return `<span class="success">${match}</span>`;
-                          });
-                          p2 = p2.replace(/BUILD FAILURE/g, (match, p1, offset, string) => {
-                            return `<span class="error">${match}</span>`;
-                          });
-                          let result = '';
-                          switch (p1.toUpperCase()) {
-                            case 'INFO':
-                              result = `[<span class="info">${p1}</span>]${p2}`;
-                              break;
-                            case 'WARNING':
-                              result = `[<span class="warning">${p1}</span>]${p2}`;
-                              break;
-                            case 'ERROR':
-                              result = `[<span class="error">${p1}</span>]<span class="error">${p2}</span>`;
-                              break;
-                          }
-                          return result;
-                        });
-                      });
-                      // scroll after render finish
-                      this.deployLogs = this.deployLogs.concat(logList);
-                      this.$nextTick(() => {
-                        this.$refs.hasOwnProperty('dialogForDeployLog') &&
-                        this.$refs['dialogForDeployLog'].scrollToBottom();
-                      });
-                    }
-                    options.offset = Orchestration.offset;
-                    if (Orchestration.moreData) {
-                      setTimeout(() => {
-                        getDeployLog.call(this, options);
-                      }, 2000);
-                    }
-                  }
-                }).catch(err => {
-                  console.log(err);
-                }).finally(() => {
-                  this.dialogForLogStatus.showLoading = false;
-                });
-              }
-
-              getDeployLog.call(this, options);
-            })({
-              logPath : logPath,
-              logName : logName,
-              offset : offset,
-              // 历史部署日志
-              logType: 'history'
-            });
+            try {
+              await this.serviceDeploy({
+                logPath : logPath,
+                logName : logName,
+                offset : offset,
+                // 历史部署日志
+                logType: 'history'
+              }, action);
+            } catch (err) {
+              console.log(err);
+              this.hideWaitingResponse(action);
+            }
             break;
         }
       },
