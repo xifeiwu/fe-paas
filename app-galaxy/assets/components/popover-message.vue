@@ -12,7 +12,8 @@
       :id="tooltipId"
     >
       <div class="el-popover__title" v-if="title" v-text="title"></div>
-      <div>{{ content }}</div>
+      <div v-if="contentType === 'html'" v-html="content"></div>
+      <div v-else>{{ content }}</div>
     </div>
   </transition>
 </template>
@@ -23,7 +24,7 @@
   } from 'element-ui/src/utils/popup';
 
   const PopperJS = Vue.prototype.$isServer ? function() {} : require('element-ui/src/utils/popper');
-  import { on, off } from 'element-ui/src/utils/dom';
+  import { on, off, once } from 'element-ui/src/utils/dom';
   import { addClass, removeClass } from 'element-ui/src/utils/dom';
   import { generateId } from 'element-ui/src/utils/util';
 
@@ -71,6 +72,10 @@
         type: Number,
         default: 0
       },
+      closeOnLeave: {
+        type: Boolean,
+        default: false
+      },
       popperClass: String,
       width: {},
       transition: {
@@ -83,6 +88,7 @@
       return {
         reference: null,
         content: '',
+        contentType: 'text',
         popperStatus: {
           show: false,
           ref:null
@@ -115,11 +121,16 @@
     },
 
     methods: {
-      show({ref, msg}) {
+      show({ref, msg, type}) {
 //        if (this.reference && this.reference !== ref && this.showPopper) {
 //          this.showPopper = false;
 //          this.popperStatus.show = false;
 //        }
+        if (type && ['text', 'html'].indexOf(type) > -1) {
+          this.contentType = type;
+        } else {
+          this.contentType = 'text';
+        }
         this.$nextTick(() => {
           this.reference = ref;
           this.content = msg;
@@ -132,6 +143,11 @@
                 this.popperStatus.show = false;
               }
             }, this.closeDelay);
+          }
+          if (this.closeOnLeave) {
+            once(ref, 'mouseleave', () => {
+              this.doClose();
+            })
           }
         });
       },

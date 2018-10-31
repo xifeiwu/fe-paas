@@ -16,7 +16,7 @@
       <!--toasts-area-->
       <!--popover-message-area-->
       <paas-popover-message ref="global-popover" popperClass="el-popover--small is-dark"
-                            placement="top" :closeDelay="3000"></paas-popover-message>
+                            placement="top" :closeDelay="0" :closeOnLeave="true"></paas-popover-message>
       <!--popover-message-area-->
       <paas-header-profile :userName="userName" :userRole=userRole :showImg="false" ref="paasHeaderProfile"
                            @menu-click="handleHeaderMenuClick"></paas-header-profile>
