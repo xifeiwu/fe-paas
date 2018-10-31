@@ -33,10 +33,22 @@
                 label="操作">
           <template slot-scope="scope">
             <el-button
-                    size="mini-extral"
-                    type="success"
-                    :loading="statusOfWaitingResponse('show-log') && operation.rowID == scope.row.id"
-                    @click="handleOperationClick('show-log', scope.$index, scope.row)">查看日志</el-button>
+                    type="text"
+                    class="primary"
+                    :loading="statusOfWaitingResponse('show-log') && operation.row.id == scope.row.id"
+                    @click="handleTRButton($event, 'show-log', scope.$index, scope.row)">查看日志</el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text"
+                    :class="isEnable('time-analyze', scope.row) ? 'primary':'disabled'"
+                    @click="handleTRButton($event, 'time-analyze', scope.$index, scope.row)">部署时间分析</el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text"
+                    :class="['flex', isEnable('related-image', scope.row) ? 'primary':'disabled']"
+                    @click="handleTRButton($event, 'related-image', scope.$index, scope.row)">
+              <span>相关镜像</span><i class="paas-icon-level-up"></i>
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -168,7 +180,7 @@
         showLoading: false,
         deployLogList: [],
         operation: {
-          appID: 0
+          row: null,
         },
 
         dialogForLogStatus: {
@@ -207,22 +219,6 @@
         this.requestDeployLogList(appInfo.appId, profileInfo.id, serviceVersion);
       },
 
-      handleButtonClick(evt, action) {
-        switch (action) {
-          case 'refresh':
-            try {
-              const {selectedAPP, selectedProfile, selectedService} = this.$refs['version-selector'].getSelectedValue();
-              if (!selectedAPP || !selectedProfile || !selectedService) {
-                return;
-              }
-              this.requestDeployLogList(selectedAPP.appId, selectedProfile.id, selectedService.serviceVersion);
-            } catch(err) {
-              console.log(err);
-            }
-            break;
-        }
-      },
-
       requestDeployLogList(appId, profileId, serviceVersion) {
         this.$net.requestPaasServer(this.$net.URL_LIST.log_deploy_list, {
           payload: {
@@ -241,6 +237,22 @@
         }).catch(err => {
           console.log(err);
         });
+      },
+
+      getDeployLogListByPage() {
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        let start = page * this.pageSize;
+        let length = this.pageSize;
+        let end = start + length;
+        this.deployLogListByPage = this.deployLogList.slice(start, end);
+      },
+
+      // the first page of pagination is 1
+      // called at: 1. at the data of response; 2. change of pagination
+      handlePaginationPageChange(value) {
+        this.currentPage = value;
+        this.getDeployLogListByPage();
       },
 
       async serviceDeploy(payload) {
@@ -384,7 +396,57 @@
         }
       },
 
-      async handleOperationClick(action, index, row) {
+      handleButtonClick(evt, action) {
+        switch (action) {
+          case 'refresh':
+            try {
+              const {selectedAPP, selectedProfile, selectedService} = this.$refs['version-selector'].getSelectedValue();
+              if (!selectedAPP || !selectedProfile || !selectedService) {
+                return;
+              }
+              this.requestDeployLogList(selectedAPP.appId, selectedProfile.id, selectedService.serviceVersion);
+            } catch(err) {
+              console.log(err);
+            }
+            break;
+        }
+      },
+
+
+      isEnable(action, row) {
+        var enable = false;
+        switch (action) {
+          case 'time-analyze':
+            try {
+              const logDetail = JSON.parse(row['logDetail']);
+              const keyMap = {
+                'git': '代码下载',
+                'maven': 'Maven打包',
+                'docker': '镜像制作',
+                'harbor': '镜像发布',
+                'k8s': 'k8s编排'
+              };
+              enable = ['git', 'maven', 'docker', 'harbor', 'k8s'].filter(it => {
+                return logDetail.hasOwnProperty(it);
+              }).map(it => {
+                var timeUsed = this.$utils.formatMilliSeconds(parseInt(logDetail[it]));
+                return `<div><div style="display: inline-block; width: 80px; text-align: right">${keyMap[it]}：</div><div style="display: inline-block">${timeUsed}</div></div>`;
+              }).join('');
+            } catch(err) {
+              console.log(err);
+            }
+            break;
+          case 'related-image':
+            enable = row['fullImage']
+            break;
+          default:
+            break;
+        }
+        return enable;
+      },
+
+      async handleTRButton(evt, action, index, row) {
+        var enable = '';
         switch (action) {
           case 'show-log':
             let logPath = row.logPath;
@@ -394,7 +456,7 @@
               this.$message.error('该次部署失败，没有部署日志');
               return;
             }
-            this.operation.rowID = row.id;
+            this.operation.row = row;
 
             this.addToWaitingResponseQueue(action);
             try {
@@ -410,24 +472,28 @@
               this.hideWaitingResponse(action);
             }
             break;
+          case 'time-analyze':
+            enable = this.isEnable(action, row);
+            if (enable) {
+              this.$storeHelper.globalPopover.show({
+                ref: evt.target,
+                type: 'html',
+                msg: enable
+              });
+            } else {
+              this.$storeHelper.globalPopover.show({
+                ref: evt.target,
+                msg: '没有相关信息'
+              });
+            }
+            break;
+          case 'related-image':
+            enable = this.isEnable(action, row);
+            console.log(enable);
+            break;
         }
       },
 
-      getDeployLogListByPage() {
-        let page = this.currentPage - 1;
-        page = page >= 0 ? page : 0;
-        let start = page * this.pageSize;
-        let length = this.pageSize;
-        let end = start + length;
-        this.deployLogListByPage = this.deployLogList.slice(start, end);
-      },
-
-      // the first page of pagination is 1
-      // called at: 1. at the data of response; 2. change of pagination
-      handlePaginationPageChange(value) {
-        this.currentPage = value;
-        this.getDeployLogListByPage();
-      },
     }
   }
 </script>
