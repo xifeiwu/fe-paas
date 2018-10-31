@@ -435,7 +435,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改实例数量后需要【重启】才能生效！</span>
+        <span>更改实例数量后需要【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" labelWidth="120px" size="mini" ref="changeInstanceNumForm">
         <el-form-item label="当前实例数：">
@@ -465,7 +465,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改健康检查后需要【重启】才能生效！</span>
+        <span>更改健康检查后需要【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" size="mini" labelWidth="140px" ref="changeHealthCheckForm">
         <div class="el-form-item-group">
@@ -537,7 +537,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改包类型后需要【重启】才能生效！</span>
+        <span>更改包类型后需要【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" size="mini" labelWidth="80px" ref="changePackageInfoForm">
         <el-form-item class="build-type" label="构建类型"  style="height: 30px;"
@@ -575,7 +575,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改preStop指令后需要【重启】才能生效！</span>
+        <span>更改preStop指令后需要【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" size="mini" labelWidth="140px" ref="changePrestopCommandForm">
         <el-form-item label="prestop脚本">
@@ -608,7 +608,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改镜像方式后需要【重启】才能生效！</span>
+        <span>更改镜像方式后需要【部署】才能生效！</span>
       </el-tag>
       <el-row>
         当前镜像方式： {{selected.service.image.typeName}}；镜像地址： {{selected.service.image.location}}
@@ -638,7 +638,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改文件存储后需要【重启】才能生效！</span>
+        <span>更改文件存储后需要【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" size="mini"
                label-width="120px" ref="changeFileLocationForm">
@@ -684,7 +684,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改Gitlab_ssh后需要【重启】才能生效！</span>
+        <span>更改Gitlab_ssh后需要【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeGitLabAddressForm" size="mini">
         <el-form-item label="当前gitlab_ssh地址：">
@@ -717,7 +717,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改Gitlab分支后需要【重启】才能生效！</span>
+        <span>更改Gitlab分支后需要【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeGitLabBranchForm" size="mini">
         <el-form-item label="当前gitlab分支：">
@@ -781,7 +781,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改pom相对路径后需要【重启】才能生效！</span>
+        <span>更改pom相对路径后需要【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="260px" ref="changeRelativePathForm" size="mini">
         <el-form-item label="当前Gitlab父级pom相对路径：">
@@ -812,7 +812,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改maven profile id后需要【重启】才能生效！</span>
+        <span>更改maven profile id后需要【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="180px" ref="changeMavenProfileIdForm" size="mini">
         <el-form-item label="当前maven profile id：">
@@ -845,7 +845,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改实例规格后需要【重启】才能生效！</span>
+        <span>更改实例规格后需要【部署】才能生效！</span>
       </el-tag>
       <el-row>
         当前实例规格: {{selected.service.cpuInfo.size + '核 / ' + selected.service.memoryInfo.size + 'G'}}
@@ -896,7 +896,7 @@
       </el-tag>
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改滚动升级后需要【重启】才能生效！</span>
+        <span>更改滚动升级后需要【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeRollingUpdateForm">
         <el-form-item label="滚动升级">
@@ -957,7 +957,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改VM_Options后需要【重启】才能生效！</span>
+        <span>更改VM_Options后需要【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="150px" ref="changeVmOptionsForm" size="mini">
         <el-form-item label="更改VM_Options">
@@ -1001,7 +1001,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改环境变量后需要【重启】才能生效！</span>
+        <span>更改环境变量后需要【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" size="mini" :rules="rules" labelWidth="160px" ref="changeEnvironmentsForm">
         <el-form-item labelWidth="0px" :error="formItemMsgForEnvironments">
@@ -1057,7 +1057,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改Host配置后需要【重启】才能生效！</span>
+        <span>更改Host配置后需要【部署】才能生效！</span>
       </el-tag>
       <el-form :model="newProps" size="mini" :rules="rules" labelWidth="160px" ref="changeHostsForm">
         <el-form-item labelWidth="0px" :error="formItemMsgForHosts">
@@ -1112,7 +1112,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改端口映射配置后【立即生效】！</span>
+        <span>更改端口映射配置后【重启】后生效！</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" size="mini" labelWidth="120px" ref="changePortMapForm">
         <el-form-item label="端口映射" class="port-map" :error="newProps.portMap.errMsg">

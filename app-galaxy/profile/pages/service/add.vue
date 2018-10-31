@@ -510,6 +510,8 @@
           // this.serviceForm.autoImageValue = theData.imageLocation;
         }
         this.serviceForm.gitLabAddress = theData.gitLabAddress;
+        this.serviceForm.appMonitor = theData.appMonitor;
+        this.serviceForm.mainClass = theData.mainClass;
         this.serviceForm.relativePathOfParentPOM = theData.relativePath;
         this.serviceForm.mavenProfileId = theData.mavenProfileId;
         this.serviceForm.vmOptions = theData.vmOptions;
