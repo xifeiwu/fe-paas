@@ -58,7 +58,7 @@
     },
     data() {
       return {
-        infoForAddService: null,
+        payload4RequestImageList: null,
         formData: {
           customImage: null,
           imageLocation: null,
@@ -103,11 +103,11 @@
     watch: {
     },
     methods: {
-      init(infoForAddService, imageInfo) {
-        if (!infoForAddService) {
+      init(payload4RequestImageList, imageInfo) {
+        if (!payload4RequestImageList) {
           return;
         }
-        this.infoForAddService = infoForAddService;
+        this.payload4RequestImageList = payload4RequestImageList;
         this.imageSelectState.customImage = imageInfo.customImage;
         if (imageInfo.customImage) {
           this.imageSelectState.customImageValue = imageInfo.imageLocation;
@@ -140,10 +140,13 @@
       // get image related info from network
       async requestImageRelatedInfo() {
         // check group tag
-        let {groupTag, appId, profileName} = this.infoForAddService;
+        let {groupTag, appId, profileName, language, languageVersion, packageType} = this.payload4RequestImageList;
         const autoImageList =  await this.$net.getImageRelatedInfo({
           groupTag,
-          appId
+          appId,
+          language,
+          languageVersion,
+          packageType
         }, {
           env: profileName,
           applicationId: appId,

@@ -2632,7 +2632,15 @@ export default {
           // pass parameter to component image-selector.vue
           let infoForAddService = this.getInfoForAddService();
           if (infoForAddService.success) {
-            this.$refs[formName].init(infoForAddService.content, {
+            let content = infoForAddService.content;
+            this.$refs[formName].init({
+              groupTag: this.$storeHelper.groupInfo.tag,
+              appId: content.appId,
+              profileName: content.profileName,
+              language: content.language,
+              languageVersion: content.languageVersion,
+              packageType: this.selected.model.packageInfo.type
+            }, {
               customImage: this.newProps.customImage,
               imageLocation: this.newProps.imageLocation
             });

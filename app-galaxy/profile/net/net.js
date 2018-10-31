@@ -840,6 +840,9 @@ class Net extends NetBase {
       let modelList = [];
       Array.isArray(serviceList) && serviceList.forEach(service => {
         const item = {
+          /** copy prop */
+          language: service.language,
+          /** used for update prop */
           oneApm: service.oneapm,
           appMonitor: service.appMonitor,
           environments: JSON.parse(JSON.stringify(service.environments)),

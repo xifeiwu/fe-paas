@@ -498,6 +498,7 @@
       this.serviceForm.spaceId = theData.profileId;
       this.appName = theData.appName;
       this.appLanguage = theData.language;
+      this.appLanguageVersion = theData.languageVersion;
       if (this.type === 'copy') {
         this.profileListOfCurrentApp = theData['appInfo']['profileList'];
         this.serviceForm.gitLabBranch = theData.gitLabBranch;
@@ -545,6 +546,7 @@
         appName: '',
         profileInfo:  null,
         appLanguage: null,
+        appLanguageVersion: null,
         versionList: [],
         propsUsed: {
           memoryId: false,
@@ -829,7 +831,10 @@
         const profileName = this.profileInfo.name;
         this.$net.getImageRelatedInfo({
           groupTag,
-          appId
+          appId,
+          language: this.appLanguage,
+          languageVersion: this.appLanguageVersion,
+          packageType: ''
         }, {
           env: profileName,
           applicationId: appId,
