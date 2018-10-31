@@ -164,6 +164,57 @@
       async serviceDeploy(payload, type) {
         // request and show log
         const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
+        const parseDeployLog = (logs) => {
+          var logObjList = logs.split('\n').filter(it => {
+            return it;
+          }).map(it => {
+            var logObj = {
+              LOG: '',
+              TYPE: 'DEFAULT'
+            };
+            try {
+              var parsedLog = JSON.parse(it);
+              if (this.$utils.isObject(parsedLog) && parsedLog.hasOwnProperty('LOG') && parsedLog.hasOwnProperty('LOG')) {
+                logObj = parsedLog;
+              } else {
+                throw new Error('格式不正确');
+              }
+            } catch (err) {
+              logObj['LOG'] = it;
+            }
+            return logObj;
+          });
+
+          logObjList.forEach(it => {
+            // replace white-space with &nbsp
+            it['LOG'] = it['LOG'].replace(/^( *)(.*)$/, (match, p1, p2) => {
+              return '&nbsp;'.repeat(p1.length) + p2;
+            }).replace(filterReg, (match, p1, p2, offset, string) => {
+              // console.log(match, p1, offset, string);
+              p2 = p2.replace(/(BUILD )*SUCCESS/g, (match, p1, offset, string) => {
+                return `<span class="success">${match}</span>`;
+              });
+              p2 = p2.replace(/BUILD FAILURE/g, (match, p1, offset, string) => {
+                return `<span class="error">${match}</span>`;
+              });
+              let result = '';
+              switch (p1.toUpperCase()) {
+                case 'INFO':
+                  result = `[<span class="info">${p1}</span>]${p2}`;
+                  break;
+                case 'WARNING':
+                  result = `[<span class="warning">${p1}</span>]${p2}`;
+                  break;
+                case 'ERROR':
+                  result = `[<span class="error">${p1}</span>]<span class="error">${p2}</span>`;
+                  break;
+              }
+              return result;
+            })
+          });
+          return logObjList;
+        };
+
         // recursive function to fetch log from server with options {logName, logPath, offset}
         const getDeployLog = async (options) => {
           // stop request deploy log when the window is closed
@@ -173,45 +224,8 @@
           const resContent = await this.$net.serviceGetDeployLog(options);
           if (resContent.hasOwnProperty('Orchestration')) {
             const orchestration = resContent['Orchestration'];
-            const logs = orchestration.log;
-            if (logs) {
-              const logList = logs.split('\n').filter(it => {
-                return it;
-              }).map(it => {
-                // replace white-space with &nbsp
-                return it.replace(/^( *)(.*)$/, (match, p1, p2) => {
-                  return '&nbsp;'.repeat(p1.length) + p2;
-                });
-              }).map(it => {
-                return it.replace(filterReg, (match, p1, p2, offset, string) => {
-                  // console.log(match, p1, offset, string);
-                  p2 = p2.replace(/(BUILD )*SUCCESS/g, (match, p1, offset, string) => {
-                    return `<span class="success">${match}</span>`;
-                  });
-                  p2 = p2.replace(/BUILD FAILURE/g, (match, p1, offset, string) => {
-                    return `<span class="error">${match}</span>`;
-                  });
-                  let result = '';
-                  switch (p1.toUpperCase()) {
-                    case 'INFO':
-                      result = `[<span class="info">${p1}</span>]${p2}`;
-                      break;
-                    case 'WARNING':
-                      result = `[<span class="warning">${p1}</span>]${p2}`;
-                      break;
-                    case 'ERROR':
-                      result = `[<span class="error">${p1}</span>]<span class="error">${p2}</span>`;
-                      break;
-                  }
-                  return result;
-                });
-              });
-              orchestration.logList = logList;
-              return orchestration;
-            } else {
-              // may be orchestration has not prop log at start
-              return orchestration;
-            }
+            orchestration.logList = parseDeployLog(orchestration.log);
+            return orchestration;
           } else {
             throw new Error('格式不正确');
           }
@@ -224,6 +238,7 @@
           warningMsg = `<p>您确认要重启${desc}吗?</p><p style="color: #E6A23C; font-size: 12px;">(重启：采用最近一次部署成功的镜像进行服务的重新启动，跳过代码编译、镜像生成阶段)</p>`;
         }
         const urlDesc = type == 'quick-deploy' ? this.$net.URL_LIST.work_order_service_restart : this.$net.URL_LIST.work_order_service_deploy;
+//      await this.warningConfirm(warningMsg);
         await this.$confirm(warningMsg, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -237,32 +252,52 @@
           this.deployLogs = [];
           this.dialogForLogStatus.visible = true;
           this.dialogForLogStatus.showLoading = true;
-          let orchestration = resContent['orchestration'];
+          var orchestration = resContent['orchestration'];
+          var moreData = orchestration && orchestration['moreData'];
 
-          while(orchestration && orchestration['moreData']) {
+          var deployLogQueue = [];
+          const tagUpdateDeployLog = setInterval(() => {
+            if (!moreData && deployLogQueue.length === 0) {
+              clearInterval(tagUpdateDeployLog);
+              return;
+            }
+            var nextItem = deployLogQueue.shift();
+            if (!nextItem) {
+              return;
+            }
+            if (nextItem['TYPE'] === 'DOWNLOAD') {
+              this.deployLogs.pop();
+              this.deployLogs.push(nextItem['LOG']);
+            } else {
+              this.deployLogs.push(nextItem['LOG']);
+            }
+            // scroll after render finish
+            this.$nextTick(() => {
+              if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
+                const dialogForDeployLog = this.$refs['dialogForDeployLog'];
+                dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+              }
+            });
+          }, 10);
+
+          while(moreData) {
             await new Promise((resolve) => {
               setTimeout(resolve, 1500);
             });
             orchestration = await getDeployLog({
               logName: orchestration.logName,
               logPath: orchestration.logPath,
-              offset: null == orchestration.offset ? 0 : orchestration.offset
+              offset: null == orchestration.offset ? 0 : orchestration.offset,
+              // 正在部署中的日志
+              logType: 'deployLog'
             });
-            if (!orchestration) {
-              break;
-            }
-            if (orchestration.hasOwnProperty('logList')) {
+//          console.log(orchestration);
+            if (orchestration && orchestration.hasOwnProperty('logList')) {
               // stop showLoading when orchestration.log is not null
               this.dialogForLogStatus.showLoading = false;
-              this.deployLogs = this.deployLogs.concat(orchestration['logList']);
-              // scroll after render finish
-              this.$nextTick(() => {
-                if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
-                  let dialogForDeployLog = this.$refs['dialogForDeployLog'];
-                  dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
-                }
-              });
+              deployLogQueue = deployLogQueue.concat(orchestration['logList']);
             }
+            moreData = orchestration && orchestration['moreData'];
           }
           return Promise.reject('已拉取所有日志');
         } else {
