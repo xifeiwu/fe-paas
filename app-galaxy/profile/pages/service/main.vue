@@ -2267,7 +2267,7 @@ export default {
           };
           try {
             var parsedLog = JSON.parse(it);
-            if (this.$utils.isObject(parsedLog) && parsedLog.hasOwnProperty('LOG') && parsedLog.hasOwnProperty('LOG')) {
+            if (this.$utils.isObject(parsedLog) && parsedLog.hasOwnProperty('TYPE') && parsedLog.hasOwnProperty('LOG')) {
               logObj = parsedLog;
             } else {
               throw new Error('格式不正确');
@@ -2351,21 +2351,23 @@ export default {
         var moreData = orchestration && orchestration['moreData'];
 
         var deployLogQueue = [];
+        var preItem = null, nextItem = null;
         const tagUpdateDeployLog = setInterval(() => {
           if (!moreData && deployLogQueue.length === 0) {
             clearInterval(tagUpdateDeployLog);
             return;
           }
-          var nextItem = deployLogQueue.shift();
+          nextItem = deployLogQueue.shift();
           if (!nextItem) {
             return;
           }
-          if (nextItem['TYPE'] === 'DOWNLOAD') {
+          if (nextItem['TYPE'] === 'DOWNLOAD' && preItem['TYPE'] === 'DOWNLOAD') {
             this.deployLogs.pop();
             this.deployLogs.push(nextItem['LOG']);
           } else {
             this.deployLogs.push(nextItem['LOG']);
           }
+          preItem = nextItem;
           // scroll after render finish
           this.$nextTick(() => {
             if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
