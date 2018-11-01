@@ -555,6 +555,17 @@ class AppInfoHelper {
     updateProp(copy);
     return copy;
   }
+
+
+  get warningList() {
+    return {
+      'warning-app-monitor': {
+        text: '内部测试中',
+        more: '内部测试中，如部署出现问题，请尝试禁用鹰眼监控'
+      }
+    }
+  }
 }
 
-export default new AppInfoHelper();
+const profileUtils = new AppInfoHelper();
+export default profileUtils;

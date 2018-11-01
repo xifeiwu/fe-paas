@@ -241,7 +241,7 @@
                        @click="handleChangeProp($event, 'instanceNum')"></i>
                   </el-form-item>
                   <el-form-item label="应用监控">
-                    <span>{{appPropUtils.getMonitorNameById(selected.model.appMonitor)}}</span>
+                    <span>{{profileUtils.getMonitorNameById(selected.model.appMonitor)}}</span>
                     <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('appMonitor') ? 'warning' : 'disabled']"
                        @click="handleChangeProp($event, 'appMonitor')"></i>
                   </el-form-item>
@@ -1200,9 +1200,12 @@
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeAppMonitorForm">
         <el-form-item label="应用监控" prop="appMonitor" class="app-monitor">
-          <el-radio-group v-model="newProps.appMonitor" size="mini" v-if="appPropUtils">
-            <el-radio v-for="item in appPropUtils.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
+          <el-radio-group v-model="newProps.appMonitor" size="mini" v-if="profileUtils">
+            <el-radio v-for="item in profileUtils.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
           </el-radio-group>
+          <span style="display: inline-block; margin-left: 10px; color: #E6A23C; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #E6A23C; border-radius: 4px; word-break: normal"
+                @mouseenter="handleButtonClick($event, 'warning-app-monitor')"
+          >{{profileUtils['warningList']['warning-app-monitor']['text']}}</span>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
@@ -1546,14 +1549,14 @@
 
 <script>
   import {mapGetters} from 'vuex';
-  import appPropUtils from '../utils/app-props';
+  import profileUtils from '../utils/app-props';
   import paasDialogForLog from '../components/dialog4log.vue'
   import paasImageSelector from '../components/image-selector.vue'
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 export default {
   components: {paasDialogForLog, paasImageSelector},
   created() {
-    this.appPropUtils = appPropUtils;
+    this.profileUtils = profileUtils;
     if (this.$storeHelper.dataTransfer) {
       const dataTransfer = this.$storeHelper.dataTransfer;
       try {
@@ -1626,10 +1629,10 @@ export default {
     },
     /* used for dialog */
     imageInfo() {
-      return appPropUtils.getImageInfo();
+      return profileUtils.getImageInfo();
     },
     loadBalanceType() {
-      return appPropUtils.getAllLoadBalance();
+      return profileUtils.getAllLoadBalance();
     },
 //    isProductionProfile() {
 //      return this.$storeHelper.isProductionProfile(this.selectedProfileID);
@@ -1662,7 +1665,7 @@ export default {
         profileID: null
       },
 
-      rules: appPropUtils.rules,
+      rules: profileUtils.rules,
       currentServiceList: null,
       currentModelList: [],
       intranetDomain: '',
@@ -1961,9 +1964,7 @@ export default {
     // 是否支持快速部署：1. 是k8s应用，2. 有正在运行的实例
     reason4DisableQuickDeploy(item) {
       var reason = false;
-      if (this.$storeHelper.groupVersion === 'v1') {
-        reason = '1.x团队无法使用';
-      } else if (item['k8s'] !== 1) {
+      if (item['k8s'] !== 1) {
         reason = '老mesos应用不支持';
       } else if (!item['containerStatus'].Running || item['containerStatus'].Running == 0) {
         reason = '运行实例数为0，不能进行重启操作！';
@@ -2124,6 +2125,15 @@ export default {
           ref: evt.target,
           msg: this.$storeHelper.permission[action].reason
         });
+        return;
+      }
+      if (['warning-app-monitor'].indexOf(action) > -1) {
+        if (this.profileUtils['warningList'].hasOwnProperty(action)) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.profileUtils['warningList'][action]['more']
+          });
+        }
         return;
       }
       switch (action) {
@@ -2990,7 +3000,7 @@ export default {
           this.selected.model['customImage'] = customImage;
           this.selected.model['imageLocation'] = imageLocation;
           this.selected.service.image.customImage = customImage;
-          this.selected.service.image.typeName = appPropUtils.getImageNameById(customImage);
+          this.selected.service.image.typeName = profileUtils.getImageNameById(customImage);
           this.selected.service.image.location = imageLocation;
           break;
         case 'cpuAndMemory':
@@ -2998,7 +3008,7 @@ export default {
           let memoryID = this.newProps['memoryID'];
           this.selected.model['cpuID'] = cpuID;
           this.selected.model['memoryID'] = memoryID;
-          let cpuAndMemoryInfo = appPropUtils.getCPUAndMemoryInfoByID(cpuID, memoryID);
+          let cpuAndMemoryInfo = profileUtils.getCPUAndMemoryInfoByID(cpuID, memoryID);
           this.selected.service['cpuInfo'] = cpuAndMemoryInfo[0];
           this.selected.service['memoryInfo'] = cpuAndMemoryInfo[1];
           break;

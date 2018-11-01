@@ -128,9 +128,12 @@
             </div>
           </el-form-item>
           <el-form-item label="应用监控" prop="appMonitor" class="app-monitor" v-if="true">
-            <el-radio-group v-model="serviceForm.appMonitor" size="mini" v-if="appPropUtils">
-              <el-radio v-for="item in appPropUtils.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
+            <el-radio-group v-model="serviceForm.appMonitor" size="mini" v-if="profileUtils">
+              <el-radio v-for="item in profileUtils.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
             </el-radio-group>
+            <span style="display: inline; margin-left: 10px; color: #E6A23C; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #E6A23C; border-radius: 4px; word-break: normal"
+                  @mouseenter="handleClick($event, 'warning-app-monitor')"
+            >{{profileUtils['warningList']['warning-app-monitor']['text']}}</span>
           </el-form-item>
           <el-form-item label="CPU" prop="cpuID" class="cpu">
             <el-radio-group v-model="serviceForm.cpuID" size="mini">
@@ -270,7 +273,7 @@
             </el-form-item>
           </transition>
           <el-form-item class="expand">
-            <div class="more" @click="handleClick('more-config')">
+            <div class="more" @click="handleClick($event, 'more-config')">
               <span v-if="showMoreConfig">收起更多配置</span><span v-else>更多配置</span>
               <i :class="showMoreConfig?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
             </div>
@@ -281,11 +284,11 @@
           <div class="item">
             <el-button type="primary" size="mini"
                        :loading="statusOfWaitingResponse('submit')"
-                       @click="handleClick('submit')">完&nbsp成</el-button>
+                       @click="handleClick($event, 'submit')">完&nbsp成</el-button>
           </div>
           <div class="item">
             <el-button type="primary" size="mini"
-                       @click="handleClick('back')">关&nbsp闭</el-button>
+                       @click="handleClick($event, 'back')">关&nbsp闭</el-button>
           </div>
         </div>
       </div>
@@ -474,14 +477,14 @@
 </style>
 <script>
   import {mapGetters} from 'vuex';
-  import appPropUtils from '../utils/app-props';
+  import profileUtils from '../utils/app-props';
   const debug = browserDebug('pass-fe:profile/service/add');
   import commonUtils from 'assets/components/mixins/common-utils';
   export default {
     mixins: [commonUtils],
     created() {
-      // appPropUtils will be used in template
-      this.appPropUtils = appPropUtils;
+      // profileUtils will be used in template
+      this.profileUtils = profileUtils;
 
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (!dataTransfer) {
@@ -563,7 +566,7 @@
           gitLabBranch: 'master',
           mainClass: '',
           relativePathOfParentPOM: '',
-          appMonitor: appPropUtils.defaultAppMonitorId,
+          appMonitor: profileUtils.defaultAppMonitorId,
           vmOptions: '',
           mavenProfileId: '',
           cpuID: '',
@@ -653,7 +656,7 @@
         currentPrivateAppVersionList: [],
 
         memorySizeList: [],
-        rules: appPropUtils.rules,
+        rules: profileUtils.rules,
 
         showLoading: false,
         loadingText: '',
@@ -988,7 +991,16 @@
         }
       },
 
-      handleClick(action) {
+      handleClick(evt, action) {
+        if (['warning-app-monitor'].indexOf(action) > -1) {
+          if (this.profileUtils['warningList'].hasOwnProperty(action)) {
+             this.$storeHelper.globalPopover.show({
+               ref: evt.target,
+               msg: this.profileUtils['warningList'][action]['more']
+             });
+          }
+          return;
+        }
         switch (action) {
           case 'more-config':
             this.showMoreConfig = !this.showMoreConfig;
