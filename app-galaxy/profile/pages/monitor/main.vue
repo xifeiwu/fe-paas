@@ -533,9 +533,8 @@
 //        }]
         const formatResponseData2 = (type, resContent) => {
           var keys = [];
-          resContent = resContent.slice(-100);
-          const transContent = resContent.map(it => {
-//          format of result
+//          resContent = resContent.slice(-100);
+//          format of transContent
 //          {
 //            1538967596727: {
 //              'v1-dubbo-admin-1504092750-zfj3c': 3.416146395118482E-4
@@ -544,6 +543,7 @@
 //              'v1-dubbo-admin-1504092750-zfj3c': 4.1579116607796805E-4
 //            }
 //          }
+          const transContent = resContent.map(it => {
             const result = {};
             it['values'].forEach(v => {
               result[v[0]] = {};
@@ -557,6 +557,17 @@
             return pre - next;
           });
 
+//          format of transContent2
+//          [
+//            {
+//              timestamp: 1538967596727,
+//              'v1-dubbo-admin-1504092750-zfj3c': 3.416146395118482E-4
+//            },
+//            {
+//              timestamp: 1538967596727,
+//              'v1-dubbo-admin-1504092750-zfj3c': 4.1579116607796805E-4
+//            }
+//          ]
           var transContent2 = keys.map(key => {
             var result = {
               timestamp: this.$utils.formatDate(key, 'yyyy-MM-dd hh:mm:ss')
