@@ -102,16 +102,15 @@
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    @click="handleRowButtonClick($event, 'go-to-log-run-from-instance', scope.$index, scope.row)"
-                    :class="['flex', $storeHelper.permission['go-to-log-run-from-instance'].disabled ? 'disabled' : 'primary']">
+                    :class="['flex', $storeHelper.permission['go-to-log-run-from-instance'].disabled ? 'disabled' : 'primary']"
+                    @click="handleRowButtonClick($event, 'go-to-log-run-from-instance', scope.$index, scope.row)">
               <span>查看运行日志</span><i class="paas-icon-level-up"></i>
             </el-button>
             <div class="ant-divider"></div>
             <el-button
-                    @click="handleRowButtonClick($event, 'go-to-page-monitor', scope.$index, scope.row)"
-                    :disabled="false"
-                    v-if="!$storeHelper.permission['go-to-page-monitor-from-instance']"
-                    type="text" class="primary flex">
+                    type="text"
+                    :class="['flex', $storeHelper.permission['go-to-page-monitor-from-instance'].disabled ? 'disabled' : 'primary']"
+                    @click="handleRowButtonClick($event, 'go-to-page-monitor-from-instance', scope.$index, scope.row)">
               <span>监控</span><i class="paas-icon-level-up"></i>
             </el-button>
             <div class="ant-divider" v-if="false"></div>
@@ -623,7 +622,7 @@
 //            console.log(this.profileInfo);
             this.addToWaitingResponseQueue(action);
             try {
-              var desc = `<p>确定要驱逐实例 "${row.name}" 吗？</p><p style="color: #E6A23C; font-size: 12px;">大概30分钟后生效</p>`;
+              var desc = `<p>确定要驱逐实例 "${row.name}" 吗？</p><p style="color: #E6A23C; font-size: 12px;">驱逐成功后，系统会自动补充一个实例，保持总实例数量不变。大概30分钟后生效</p>`;
               await this.$confirm(desc, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -676,7 +675,7 @@
             };
             this.$router.push(this.$net.page['profile/log/run']);
             break;
-          case 'go-to-page-monitor':
+          case 'go-to-page-monitor-from-instance':
             valueOfVersionSelector = this.$refs['version-selector'].getSelectedValue();
             this.$storeHelper.dataTransfer = {
               from: this.$net.page['profile/instance'],

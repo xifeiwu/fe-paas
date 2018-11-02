@@ -59,7 +59,7 @@ class Net extends NetBase {
         },
         "应用监控": {
           router: this.page['profile/monitor'],
-          icon: 'paas-icon-monitor'
+          icon: 'paas-icon-charts'
         },
         "Oauth权限": {
           name: 'Access Key管理',
