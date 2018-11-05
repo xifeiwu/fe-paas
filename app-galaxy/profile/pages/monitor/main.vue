@@ -193,6 +193,78 @@
           </div>
         </div>
       </div>
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['young-gc-count']['expand']}"
+           v-if="chartContainerStatus['young-gc-count'].show">
+        <div class="chart-card">
+          <div class="title">
+            <span>新生代GC次数</span>
+            <i :class="['paas-icon', chartContainerStatus['young-gc-count']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('young-gc-count')"></i>
+          </div>
+          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+                   :settings="chartSettingGcCount" :extend="extend"
+                   v-if="chartData['young-gc-count'] != null"
+                   ref="charts-young-gc-count" :data="chartData['young-gc-count']"></ve-line>
+          <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
+            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+          </div>
+        </div>
+      </div>
+
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['young-gc-time']['expand']}"
+           v-if="chartContainerStatus['young-gc-time'].show">
+        <div class="chart-card">
+          <div class="title">
+            <span>新生代GC用时</span>
+            <i :class="['paas-icon', chartContainerStatus['young-gc-time']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('young-gc-time')"></i>
+          </div>
+          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+                   :settings="chartSettingGcTime" :extend="extend"
+                   v-if="chartData['young-gc-time'] != null"
+                   ref="charts-young-gc-time" :data="chartData['young-gc-time']"></ve-line>
+          <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
+            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+          </div>
+        </div>
+      </div>
+
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['old-gc-count']['expand']}"
+           v-if="chartContainerStatus['old-gc-count'].show">
+        <div class="chart-card">
+          <div class="title">
+            <span>老年代GC次数</span>
+            <i :class="['paas-icon', chartContainerStatus['old-gc-count']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('old-gc-count')"></i>
+          </div>
+          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+                   :settings="chartSettingGcCount" :extend="extend"
+                   v-if="chartData['old-gc-count'] != null"
+                   ref="charts-old-gc-count" :data="chartData['old-gc-count']"></ve-line>
+          <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
+            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+          </div>
+        </div>
+      </div>
+
+      <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['old-gc-time']['expand']}"
+           v-if="chartContainerStatus['old-gc-time'].show">
+        <div class="chart-card">
+          <div class="title">
+            <span>老年代GC用时</span>
+            <i :class="['paas-icon', chartContainerStatus['old-gc-time']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
+               @click="handleChartEvent('old-gc-time')"></i>
+          </div>
+          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+                   :settings="chartSettingGcTime" :extend="extend"
+                   v-if="chartData['old-gc-time'] != null"
+                   ref="charts-old-gc" :data="chartData['old-gc-time']"></ve-line>
+          <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
+            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -221,12 +293,15 @@
           line-height: 19px;
           font-weight: bold;
           width: 80px;
+          white-space: nowrap;
         }
         .el-checkbox-group {
           display: inline-block;
           flex: 1;
           .el-checkbox {
             height: auto;
+            margin-left:0;
+            margin-right: 20px;
           }
         }
       }
@@ -468,7 +543,20 @@
 
 //        ['cpu', 'memory', 'network-in', 'network-out', 'disk-read', 'disk-write']
         const serviceInfo = this.$refs['version-selector'].getSelectedValue();
+        const selectedInstanceIPList = [];
+        this.selectedInstanceList.forEach(it => {
+          this.instanceList.forEach(instance => {
+            if(instance["id"] == it){
+              let serviceNameAndIp = {
+                ip:instance["ip"],
+                instanceName:it,
+              };
+              selectedInstanceIPList.push(serviceNameAndIp);
+            }
+          });
+        });
         const payload = {
+          appName: serviceInfo.selectedAPP.appName,
           groupId: this.$storeHelper.groupInfo['id'],
           groupTag: this.$storeHelper.groupInfo['tag'],
           spaceId: serviceInfo.selectedProfile.id,
@@ -479,6 +567,7 @@
           instanceList: this.selectedInstanceList,
           startTime: this.dateTimeRange[0].getTime(),
           endTime: this.dateTimeRange[1].getTime(),
+          instanceIPList: selectedInstanceIPList,
 //          interval: "1h"
         };
 //        console.log(serviceInfo);
@@ -594,9 +683,16 @@
 //            }
 //          ]
           var transContent2 = keys.map(key => {
+            //因为GC接口返回数据格式不同，时间戳是用秒为单位的，所以需要转化为毫秒
+            if(type == "young-gc-count" || type == "young-gc-time" || type == "old-gc-count" || type == "old-gc-time"){
+              key = key * 1000;
+            }
             var result = {
               timestamp: this.$utils.formatDate(key, 'yyyy-MM-dd hh:mm:ss')
             };
+            if(type == "young-gc-count" || type == "young-gc-time" || type == "old-gc-count" || type == "old-gc-time"){
+              key = key / 1000;
+            }
             transContent.forEach(it => {
               if (it.hasOwnProperty(key)) {
                 result = Object.assign(result, it[key]);
@@ -730,6 +826,10 @@
           'network-out': this.$net.URL_LIST.monitor_statistic_net_out,
           'package-count-in': this.$net.URL_LIST.monitor_statistic_package_count_in,
           'package-count-out': this.$net.URL_LIST.monitor_statistic_package_count_out,
+          'young-gc-count': this.$net.URL_LIST.monitor_statistic_young_gc_count,
+          'young-gc-time': this.$net.URL_LIST.monitor_statistic_young_gc_time,
+          'old-gc-count': this.$net.URL_LIST.monitor_statistic_old_gc_count,
+          'old-gc-time': this.$net.URL_LIST.monitor_statistic_old_gc_time,
         },
         config4VersionSelector: null,
         heightOfChartList: 0,
@@ -770,7 +870,7 @@
           },
         },
 
-        selectedStatisticTypeList: ['cpu', 'memory', 'disk-read', 'disk-write', 'network-in', 'network-out', 'package-count-in', 'package-count-out'],
+        selectedStatisticTypeList: ['cpu', 'memory', 'disk-read', 'disk-write', 'network-in', 'network-out', 'package-count-in', 'package-count-out', 'young-gc-count', 'young-gc-time', 'old-gc-count', 'old-gc-time'],
         statisticTypeList: [{
           type: 'cpu',
           label: 'CPU',
@@ -795,6 +895,18 @@
         }, {
           type: 'package-count-out',
           label: '包流量(出)'
+        }, {
+          type: 'young-gc-count',
+          label: '新生代GC次数'
+        }, {
+          type: 'young-gc-time',
+          label: '新生代GC用时'
+        }, {
+          type: 'old-gc-count',
+          label: '老年代GC次数'
+        }, {
+          type: 'old-gc-time',
+          label: '老年代GC用时'
         }],
         chartContainerStatus: {
           'cpu': {
@@ -837,6 +949,26 @@
             show: true,
             manual: false,
           },
+          'young-gc-count': {
+            expand: true,
+            show: true,
+            manual: false,
+          },
+          'young-gc-time': {
+            expand: true,
+            show: true,
+            manual: false,
+          },
+          'old-gc-count': {
+            expand: true,
+            show: true,
+            manual: false,
+          },
+          'old-gc-time': {
+            expand: true,
+            show: true,
+            manual: false,
+          }
         },
         selectAllInstance: false,
         selectedInstanceList: [],
@@ -893,7 +1025,16 @@
           yAxisName: ['速率'],
           yAxisType: ['value']
         },
-
+        chartSettingGcCount: {
+          dimension: ['timestamp'],
+          yAxisName: ['次数'],
+          yAxisType: ['value']
+        },
+        chartSettingGcTime: {
+          dimension: ['timestamp'],
+          yAxisName: ['用时'],
+          yAxisType: ['value'],
+        },
         chartSettings3: {
           axisSite: { right: ['下单率'] },
           yAxisType: ['KMB', 'percent'],

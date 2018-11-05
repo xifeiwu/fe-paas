@@ -729,6 +729,7 @@
                 serviceId: valueOfVersionSelector['selectedService'].id,
                 instanceId: row['id'],
                 instanceList: this.instanceStatus.instanceList,
+                instanceIp: row['ip'],
               }
             };
             this.$router.push(this.$net.page['profile/monitor']);

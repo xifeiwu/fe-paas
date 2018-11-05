@@ -306,6 +306,25 @@ class Net extends NetBase {
         path: '/service/monitorNetWork',
         method: 'post'
       },
+      //获取监控数据-新生代GC次数
+      'monitor_statistic_young_gc_count': {
+        path: '/service/monitorYoungGcCount',
+        method: 'post'
+      },
+      //获取监控数据-新生代GC时间
+      'monitor_statistic_young_gc_time': {
+        path: '/service/monitorYoungGcTime',
+        method: 'post'
+      },
+      //获取监控数据-老生代GC次数
+      'monitor_statistic_old_gc_count': {
+        path: '/service/monitorOldGcCount',
+        method: 'post'
+      },
+      'monitor_statistic_old_gc_time': {
+        path: '/service/monitorOldGcTime',
+        method: 'post'
+      },
 
       /**镜像相关*/
       //获取镜像仓库列表
