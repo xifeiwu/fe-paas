@@ -8,14 +8,16 @@ import DomainMain from './domain/main.vue';
 import DomainWhiteList from './domain/white-list.vue';
 
 import LogMain from './log/main.vue';
-// const LogMain = () => import(
-//   /* webpackChunkName: "log" */
-//   /* webpackMode: "lazy" */
-//   './log/list.vue');
 import LogRun from './log/run.vue';
 import LogDeploy from './log/deploy.vue';
 
 import MonitorMain from './monitor/main.vue';
+// const MonitorMain = () => {
+//   return import(
+//   /* webpackChunkName: "profileMonitor" */
+//   /* webpackMode: "lazy" */
+//   './monitor/main.vue')
+// };
 
 import OAuthMain from './oauth/main.vue';
 import OAuthKey from './oauth/key.vue';

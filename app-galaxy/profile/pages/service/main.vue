@@ -1196,7 +1196,7 @@
     >
       <el-tag type="success" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>更改应用监控后需要重启才能生效</span>
+        <span>更改应用监控后需要【部署】才能生效</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" labelWidth="80px" ref="changeAppMonitorForm">
         <el-form-item label="应用监控" prop="appMonitor" class="app-monitor">
