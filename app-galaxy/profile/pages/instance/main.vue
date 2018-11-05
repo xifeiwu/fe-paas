@@ -624,7 +624,7 @@
 //            console.log(this.profileInfo);
             this.addToWaitingResponseQueue(action);
             try {
-              var desc = `<p>确定要驱逐实例 "${row.name}" 吗？</p><p style="color: #E6A23C; font-size: 12px;">驱逐成功后，系统会自动补充一个实例，保持总实例数量不变。大概30分钟后生效</p>`;
+              var desc = `<p>确定要驱逐实例 "${row.name}" 吗？</p><p style="color: #E6A23C; font-size: 12px;">驱逐成功后，系统会自动补充一个实例，保持总实例数量不变。大概30秒后生效</p>`;
               await this.$confirm(desc, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
