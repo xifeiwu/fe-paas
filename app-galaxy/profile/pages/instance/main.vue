@@ -81,11 +81,13 @@
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
+                    v-if="profileInfo.name !== 'production'"
                     @click="handleRowButtonClick($event, 'instance_replace', scope.$index, scope.row)"
                     type="text" class="warning">
               <span>驱逐</span>
             </el-button>
-            <div class="ant-divider"></div>
+            <div v-if="profileInfo.name !== 'production'"
+                 class="ant-divider"></div>
             <el-button
                     type="text"
                     :class="[isMesosService ? 'disabled' : 'primary']"
