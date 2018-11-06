@@ -2192,8 +2192,8 @@ export default {
       let languageVersion = null;
       if (appInfo && appInfo.hasOwnProperty('appName') && appInfo.hasOwnProperty('language')) {
         appName = appInfo.appName;
-        language = appInfo.language;
-        languageVersion = appInfo.languageVersion;
+        language = appInfo.language.name;
+        languageVersion = appInfo.language.version;
       } else {
         result.message = '未找到应用相关信息！';
         return result;

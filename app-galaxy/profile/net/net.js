@@ -971,26 +971,17 @@ class Net extends NetBase {
   async parseAppListV2(resContent, profileListOfGroup) {
     const result = {
       total: 0,
+      data: [],
       appList: [],
       appModelList: []
     };
 
-    if (!resContent.hasOwnProperty('data') || !Array.isArray(resContent['data'])
-      || !resContent.hasOwnProperty('recordsTotal')) {
+    if (!resContent.hasOwnProperty('data') || !Array.isArray(resContent['data']) || !resContent.hasOwnProperty('recordsTotal')) {
       return result;
     }
-
     result.total = resContent['recordsTotal'];
+    result.data = resContent['data'];
     result.appList = resContent['data'].map(app => {
-      // app['appId'] = app['id'];
-      // app['profileList'] = profileListOfGroup;
-      return {
-        appId: app['id'],
-        appName: app['appName'],
-        profileList: profileListOfGroup
-      };
-    });
-    result.appModelList = resContent['data'].map(app => {
       var createTime = this.$utils.formatDate(app.createTime, 'yyyy-MM-dd hh:mm:ss');
       // if (createTime) {
       //   createTime = createTime.split(' ');
@@ -1024,8 +1015,16 @@ class Net extends NetBase {
         userName: app.userName,
         creator: app.creator,
         createTime,
-        language
+        language,
+        profileList: profileListOfGroup
       }
+    });
+    result.appModelList = result.appList.map(app => {
+      var result = {};
+      ['appId', 'appName', 'projectName', 'creator', 'userName', 'createTime', 'language'].forEach(key => {
+        result[key] = app[key];
+      });
+      return result;
     });
     return result;
   }
