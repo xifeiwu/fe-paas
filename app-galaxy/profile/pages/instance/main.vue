@@ -81,10 +81,11 @@
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
+                    type="text"
                     v-if="profileInfo.name !== 'production'"
                     :class="['flex', $storeHelper.permission['instance_replace'].disabled ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'instance_replace', scope.$index, scope.row)"
-                    type="text" class="warning">
+                    >
               <span>驱逐</span>
             </el-button>
             <div v-if="profileInfo.name !== 'production'"
