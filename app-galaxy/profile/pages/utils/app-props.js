@@ -372,6 +372,10 @@ class AppInfoHelper {
       'warning-app-monitor': {
         text: '内部测试中',
         more: '内部测试中，如部署出现问题，请尝试禁用鹰眼监控'
+      },
+      'warning-app-add-profile': {
+        text: '',
+        more: '会在该应用的所有运行环境下创建服务'
       }
     }
   }
