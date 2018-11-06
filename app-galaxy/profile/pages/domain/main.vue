@@ -235,8 +235,8 @@
         </el-form>
         <div class="helper-text-expanded" style="margin-top: 3px;">
           <div>
-            <div style="font-weight: bold">提示 <i class="el-icon-warning"></i></div>
-            <div>{{bindServiceProps.bindTipForApp}}</div>
+            <div style="font-weight: bold; font-size: 14px;">提示 <i class="el-icon-warning"></i></div>
+            <div style="font-size: 13px; margin-top: 3px;">{{bindServiceProps.bindTipForApp}}</div>
           </div>
         </div>
       </div>
@@ -275,14 +275,14 @@
       </div>
 
       <div class="selected-domain" v-if="!unBindServiceProps.showResponse">
-        <span>解绑域名</span>
+        <span>解绑</span>
         <span
                 v-for="(item, index) in rowsSelected"
                 :key="index"
                 type="success"
                 size="small"
-        >{{'"' + item['internetDomain'] + '"，'}}</span>
-        <span>将导致外网二级域名与服务分离，你确定需要这么做吗？</span>
+        >{{'"' + item['internetDomain'] + '"'}}</span>
+        <span>域名将导致绑定在域名上的应用不能通过这个域名进行访问，你确定这么做吗？</span>
       </div>
       <div slot="footer" class="dialog-footer" v-if="!unBindServiceProps.showResponse">
         <el-row>
@@ -774,16 +774,16 @@
         if (this.appInfo && this.appInfo.hasOwnProperty('appId') && this.appInfo.appId != this.$storeHelper.APP_ID_FOR_ALL) {
           appID = this.appInfo.appId;
         }
-        let serviceID = '';
-        if (this.serviceInfo && this.serviceInfo.hasOwnProperty('id')
-          && this.serviceInfo.id != this.$storeHelper.SERVICE_ID_FOR_ALL) {
-          serviceID = this.serviceInfo.id;
-        }
+        // let serviceID = '';
+        // if (this.serviceInfo && this.serviceInfo.hasOwnProperty('id')
+        //   && this.serviceInfo.id != this.$storeHelper.SERVICE_ID_FOR_ALL) {
+        //   serviceID = this.serviceInfo.id;
+        // }
         let requestOptions = {
           groupId: this.$storeHelper.currentGroupID,
           spaceId: profileID,
           applicationId: appID,
-//          serviceId: serviceID,
+          // serviceId: serviceID,
           start: start,
           length: length,
           keyword: this.keyword
@@ -1083,12 +1083,12 @@
               internetDomainIdList: domainIdList,
               spaceId: selectedValue['selectedProfile'].id,
               applicationId: selectedValue['selectedAPP']['appId'],
-//              serviceId: ''
+              // serviceId: ''
             };
-//            if (selectedValue['selectedService']
-//              && selectedValue['selectedService'].id !== this.$storeHelper.SERVICE_ID_FOR_ALL) {
-//              options['serviceId'] = selectedValue['selectedService'].id;
-//            }
+            // if (selectedValue['selectedService']
+            //   && selectedValue['selectedService'].id !== this.$storeHelper.SERVICE_ID_FOR_ALL) {
+            //   options['serviceId'] = selectedValue['selectedService'].id;
+            // }
 //            console.log(options);
             this.$net.domainBindService(options).then(content => {
               let domainIDList = Object.keys(content);
@@ -1219,11 +1219,7 @@
       },
 
       handleConditionChangeInDialog(profile, app, service) {
-        if (false) {
-          this.bindServiceProps.bindTipForApp = `所选外网域名会作为全局域名，绑定到应用"${app.appName}"的"${profile.description}"的默认服务下。`;
-        } else {
-          this.bindServiceProps.bindTipForApp = `所选外网域名会绑定到应用"${app.appName}"的"${profile.description}"的版本为"${service.serviceVersion}"的服务下。`;
-        }
+        this.bindServiceProps.bindTipForApp = `所选域名正在绑定"${profile.description}"的"${app.appName}"应用,绑定成功后即可使用外网域名访问应用`;
       },
 
       warningConfirm(content) {
