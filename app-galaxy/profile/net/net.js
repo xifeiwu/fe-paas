@@ -964,6 +964,72 @@ class Net extends NetBase {
   }
 
   /**
+   * 解析应用列表数据
+   * @param resContent
+   * @returns {Promise.<*>}
+   */
+  async parseAppListV2(resContent, profileListOfGroup) {
+    const result = {
+      total: 0,
+      appList: [],
+      appModelList: []
+    };
+
+    if (!resContent.hasOwnProperty('data') || !Array.isArray(resContent['data'])
+      || !resContent.hasOwnProperty('recordsTotal')) {
+      return result;
+    }
+
+    result.total = resContent['recordsTotal'];
+    result.appList = resContent['data'].map(app => {
+      // app['appId'] = app['id'];
+      // app['profileList'] = profileListOfGroup;
+      return {
+        appId: app['id'],
+        appName: app['appName'],
+        profileList: profileListOfGroup
+      };
+    });
+    result.appModelList = resContent['data'].map(app => {
+      var createTime = this.$utils.formatDate(app.createTime, 'yyyy-MM-dd hh:mm:ss');
+      // if (createTime) {
+      //   createTime = createTime.split(' ');
+      // }
+      const language = {
+        version: app.languageVersion,
+        type: app.language,
+        get name() {
+          var name = '';
+          switch (this.type) {
+            case 'JAVA':
+              name = 'java';
+              break;
+            case 'NODE_JS':
+              name = 'nodejs';
+              break;
+            case 'PYTHON':
+              name = 'python';
+              break;
+            case 'PHP':
+              name = 'php';
+              break;
+          }
+          return name;
+        }
+      };
+      return {
+        appId: app.id,
+        appName: app.appName,
+        projectName: app.tag,
+        userName: app.userName,
+        creator: app.creator,
+        createTime,
+        language
+      }
+    });
+    return result;
+  }
+  /**
    * 获取创建APP时的相关信息
    * 1. 相关语言
    * 2. cpu memory对应关系

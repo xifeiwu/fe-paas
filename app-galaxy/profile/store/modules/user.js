@@ -116,7 +116,8 @@ const actions = {
       const resContent = await net.requestPaasServer(net.URL_LIST.app_list_by_group, {
         payload: {groupId: groupId}
       });
-      state.appInfoListOfGroup = await net.parseAppList(resContent);
+      // state.appInfoListOfGroup = await net.parseAppList(resContent);
+      state.appInfoListOfGroup = await net.parseAppListV2(resContent, state.profileListOfGroup);
     } catch(err) {
       Vue.prototype.$notify.error({
         title: '获取应用列表失败，请联系管理员',
