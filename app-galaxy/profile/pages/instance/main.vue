@@ -82,6 +82,7 @@
           <template slot-scope="scope">
             <el-button
                     v-if="profileInfo.name !== 'production'"
+                    :class="['flex', $storeHelper.permission['instance_replace'].disabled ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'instance_replace', scope.$index, scope.row)"
                     type="text" class="warning">
               <span>驱逐</span>

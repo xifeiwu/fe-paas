@@ -448,7 +448,7 @@
         const pageService = ['service_create', 'service_deploy', 'service_stop', 'service_delete', 'copy-service',
           'go-to-page-log-deploy-from-service', 'go-page-domain-from-service', 'go-page-domain-from-service-list',
           'service_update', 'service_change_default'];
-        const pageInstance = ['instance_change_count', 'go-to-page-terminal-from-instance',
+        const pageInstance = ['instance_change_count', 'instance_replace', 'go-to-page-terminal-from-instance',
           'go-to-log-run-from-instance', 'go-to-page-monitor-from-instance'];
         const pageDomain = ['domain_add', 'domain_bind_service', 'domain_unbind_service', 'domain_secure_check',
         'domain_remove', 'domain_bind_white_list'];

@@ -415,6 +415,8 @@ class Net extends NetBase {
       /** 实例相关 */
       // 手动伸缩
       '/2.x/instances/autoChangeNum': 'instance_change_count',
+      // 驱逐实例
+      '/2.x/instances/delete': 'instance_replace',
       // 删除实例
       // '/2.x/instances/delete': '',
       // 实例管理 -> 终端
