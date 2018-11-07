@@ -52,7 +52,7 @@
           <template slot-scope="scope">
             <span>{{scope.row.appName}}</span>
             <i v-if="!$storeHelper.permission['app_change_name'].hide && false"
-                    class="el-icon-edit" @click="handleTRButton($event, 'app_change_name', scope.$index, scope.row)"></i>
+                    class="el-icon-edit" @click="handleTRClick($event, 'app_change_name', scope.$index, scope.row)"></i>
           </template>
         </el-table-column>
         <el-table-column label="项目名称" prop="projectName" headerAlign="left" align="left" minWidth="120">
@@ -76,13 +76,15 @@
           <template slot-scope="scope">
             <el-button
                     type="text"
-                    :class="$storeHelper.permission['app_change_profile'].disabled ? 'disabled' : 'primary'"
-                    @click="handleTRButton($event, 'app_change_profile', scope.$index, scope.row)">运行环境</el-button>
+                    :class="['flex', $storeHelper.permission['app_show_profile'].disabled ? 'disabled' : 'primary']"
+                    @click="handleTRClick($event, 'app_show_profile', scope.$index, scope.row)">
+              <span>运行环境</span><i class="paas-icon-popover" style="margin-left: 3px;"></i>
+            </el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
                     :class="['flex', $storeHelper.permission['app_change_props'].disabled ? 'disabled' : 'warning']"
-                    @click="handleTRButton($event, 'app_change_props', scope.$index, scope.row)">
+                    @click="handleTRClick($event, 'app_change_props', scope.$index, scope.row)">
               <span>修改应用</span><i class="paas-icon-level-up"></i>
             </el-button>
             <div class="ant-divider"></div>
@@ -90,7 +92,7 @@
               type="text"
               :class="$storeHelper.permission['app_delete'].disabled ? 'disabled' : 'danger'"
               :loading="statusOfWaitingResponse('app_delete') && selected.row.appId == scope.row.appId"
-              @click="handleTRButton($event, 'app_delete', scope.$index, scope.row)">删除</el-button>
+              @click="handleTRClick($event, 'app_delete', scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -118,6 +120,16 @@
         创建应用
       </el-button>
     </div>
+    <paas-popover-message ref="popover-profile-list" popperClass="el-popover--small is-dark"
+                          placement="top">
+      <div slot="content">
+        <div v-for="(item, index) in profileListOfGroup" :key="index">
+          <div style="display: inline-block; font-size: 14px; min-width: 86px; text-align: right; color: blue; cursor: pointer"
+               @click="handleProfileClick($event, item)">{{item.description}}</div>
+          <div style="display: inline-block; min-width: 80px;">无实例</div>
+        </div>
+      </div>
+    </paas-popover-message>
 
     <el-dialog title="更改应用名称" :visible="selected.prop == 'appName'"
                @close="selected.prop = null; waitingResponse=false"
@@ -362,8 +374,10 @@
   import {mapGetters} from 'vuex';
   import AppPropUtils from '../utils/app-props';
   import commonUtils from 'assets/components/mixins/common-utils';
+  import paasPopoverMessage from 'assets/components/popover-message';
   export default {
     mixins: [commonUtils],
+    components: {paasPopoverMessage},
     created() {
       // 按需更新应用列表
       if (this.$net.needUpdateAppList) {
@@ -382,11 +396,14 @@
         this.onScreenSizeChange(this.$storeHelper.screen.size);
         this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 8;
       });
+      this.popoverProfileList = this.$refs['popover-profile-list'];
+      console.log(this.popoverProfileList);
     },
     beforeDestroy() {
     },
     data() {
       return {
+        popoverProfileList: null,
         resizeListener: () => {},
         heightOfTable: '',
 
@@ -528,7 +545,7 @@
       /**
        * handle click event in the operation-column
        */
-      async handleTRButton(evt, action, index, row) {
+      async handleTRClick(evt, action, index, row) {
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
@@ -578,6 +595,12 @@
             }
             this.onAppListChange();
             break;
+          case 'app_show_profile':
+            this.popoverProfileList.show({
+              ref: evt.target,
+              type: 'node'
+            });
+            break;
 //          case 'app_change_profile':
 //            this.profileChangeStatus.toAdd = [];
 //            this.profileChangeStatus.toDelete = [];
@@ -595,6 +618,10 @@
 //            this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate();
             break;
         }
+      },
+
+      handleProfileClick(evt, item) {
+        console.log(item);
       },
 
       // handle checkbox change in dialog

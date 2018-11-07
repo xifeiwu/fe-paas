@@ -556,7 +556,7 @@
       // 初始化部分权限相关信息（权限的更新在网络请求完成后，不初始化会导致无法访问，报错：undefined）
       initPermissionInfo() {
         const permission = {};
-        const pageApp = ['app_create', 'app_change_name', 'app_delete', 'app_change_profile', 'app_change_props'];
+        const pageApp = ['app_create', 'app_change_name', 'app_delete', 'app_show_profile', 'app_change_props'];
         const pageService = ['service_create', 'service_deploy', 'service_stop', 'service_delete', 'copy-service',
           'go-to-page-log-deploy-from-service', 'go-page-domain-from-service', 'go-page-domain-from-service-list',
           'service_update', 'service_change_default'];
