@@ -472,9 +472,9 @@ export default {
     };
   },
   computed: {
-    ...mapGetters('app', {
-      'globalConfigForApp': 'messageForCreateAPP',
-    }),
+//    ...mapGetters('app', {
+//      'globalConfigForApp': 'messageForCreateAPP',
+//    }),
     loadBalanceType() {
       return appPropUtil.getSupportedLoadBalance();
     },

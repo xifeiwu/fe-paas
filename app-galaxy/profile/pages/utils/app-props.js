@@ -278,18 +278,6 @@ class AppInfoHelper {
     }
   }
 
-  getMessageForCreateAPP(prop) {
-    if (['cpuAndMemorylist', 'LanguageList'].indexOf(prop) > -1) {
-      let messageForCreateAPP = STORE.getters['app/messageForCreateAPP'];
-      if (!messageForCreateAPP) {
-        return null;
-      }
-      return messageForCreateAPP[prop];
-    } else {
-      return null;
-    }
-  }
-
   getProfileMessage() {
     let profileListOfGroup = STORE.getters['user/profileListOfGroup'];
     if (!profileListOfGroup) {
@@ -328,100 +316,6 @@ class AppInfoHelper {
     return result;
   }
 
-  /**
-   *
-   * @param cpuSize, 1, 2, 4 ...
-   * @param memorySize, in the format of G or M. such as 1024, 6048. if memorySize >= 1024, treat as M, or treat as G.
-   * @returns {Array}
-   */
-  getCPUAndMemoryInfoBySize(cpuSize, memorySize) {
-    let model = [];
-    let cpuAndMemorylist = this.getMessageForCreateAPP('cpuAndMemorylist');
-    if (!cpuAndMemorylist || !Array.isArray(cpuAndMemorylist)) {
-      return model;
-    }
-    // console.log(cpuAndMemorylist);
-    memorySize = parseInt(memorySize);
-    if (memorySize >= 1024) {
-      memorySize /= 1024;
-    }
-    for (let index in cpuAndMemorylist) {
-      let item = cpuAndMemorylist[index];
-      if (item.cpu == cpuSize) {
-        model.push({
-          id: item.id,
-          size: item.cpu
-        });
-        let memoryList = item.memoryList;
-        for (let index2 in memoryList) {
-          let item = memoryList[index2];
-          if (item.memory == memorySize) {
-            model.push({
-              id: item.id,
-              size: item.memory
-            });
-            break;
-          }
-        }
-        break;
-      }
-    }
-    // deal with the case cpuID or memoryID not found
-    if (model.length != 2 && cpuAndMemorylist.length > 0) {
-      model = [];
-      let defaultConfig = cpuAndMemorylist[0];
-      model.push({
-        id: defaultConfig.id,
-        size: cpuSize
-        // size: defaultConfig.cpu
-      });
-      let memoryList = defaultConfig.memoryList;
-      for (let index in memoryList) {
-        let item = memoryList[index];
-        if (1 == item.defaultSelect) {
-          model.push({
-            id: item.id,
-            // size: item.memory
-            size: memorySize
-          });
-        }
-      }
-    }
-    return model;
-  }
-
-  /**
-   * get cpu and memory info by id
-   * @param cpuID
-   * @param memoryID
-   * @returns {Array}
-   */
-  getCPUAndMemoryInfoByID(cpuID, memoryID) {
-    let cpuAndMemorylist = this.getMessageForCreateAPP('cpuAndMemorylist');
-    let model = [];
-    for (let index in cpuAndMemorylist) {
-      let item = cpuAndMemorylist[index];
-      if (item.id == cpuID) {
-        model.push({
-          id: item.id,
-          size: item.cpu
-        });
-        let memoryList = item.memoryList;
-        for (let index2 in memoryList) {
-          let item = memoryList[index2];
-          if (item.id == memoryID) {
-            model.push({
-              id: item.id,
-              size: item.memory
-            });
-            break;
-          }
-        }
-        break;
-      }
-    }
-    return model;
-  }
 
   getImageNameById(id) {
     let name = '未知';

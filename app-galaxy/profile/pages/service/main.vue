@@ -1592,7 +1592,7 @@ export default {
       this.onAppInfoListOfGroup(this.appInfoListOfGroup);
     }
     if (!this.cpuAndMemoryList) {
-      this.$store.dispatch('app/messageForCreateAPP');
+      this.$store.dispatch('app/globalConfig');
     } else {
       this.onCpuAndMemoryList(this.cpuAndMemoryList);
     }
@@ -1625,7 +1625,7 @@ export default {
       return result;
     },
     cpuAndMemoryList() {
-      return this.$storeHelper.cpuAndMemoryList();
+      return this.$storeHelper.cpuAndMemoryList;
     },
     /* used for dialog */
     imageInfo() {
@@ -2594,7 +2594,7 @@ export default {
         case 'packageInfo':
           this.newProps['packageInfo'].type = this.selected.model['packageInfo'].type;
           this.newProps['packageInfo'].name = this.selected.model['packageInfo'].name;
-          if (!this.$storeHelper.messageForCreateAPP) {
+          if (!this.$storeHelper.globalConfig) {
             this.$message.error('信息不完整，请刷新后重试！');
             return;
           }
@@ -3008,7 +3008,7 @@ export default {
           let memoryID = this.newProps['memoryID'];
           this.selected.model['cpuID'] = cpuID;
           this.selected.model['memoryID'] = memoryID;
-          let cpuAndMemoryInfo = profileUtils.getCPUAndMemoryInfoByID(cpuID, memoryID);
+          let cpuAndMemoryInfo = this.$storeHelper.getCPUAndMemoryInfoByID(cpuID, memoryID);
           this.selected.service['cpuInfo'] = cpuAndMemoryInfo[0];
           this.selected.service['memoryInfo'] = cpuAndMemoryInfo[1];
           break;

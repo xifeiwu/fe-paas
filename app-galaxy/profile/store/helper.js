@@ -112,35 +112,134 @@ class StoreHelper extends BaseHelper{
   /**
    * message for create app: cpuAndMemoryList, languageInfo, healthCheckTypeList
    */
-  get messageForCreateAPP() {
-    return this.$store.getters['app/messageForCreateAPP'];
+  get globalConfig() {
+    return this.$store.getters['app/globalConfig'];
   }
 
-  cpuAndMemoryList() {
+  get cpuAndMemoryList() {
     let result = [];
-    let messageForCreateAPP = this.messageForCreateAPP;
-    if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('cpuAndMemorylist')) {
-      result = messageForCreateAPP.cpuAndMemorylist;
-    }
-    return result;
-  }
-
-  languageInfo() {
-    let result = [];
-    let messageForCreateAPP = this.messageForCreateAPP;
-    if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('LanguageList')) {
-      result = messageForCreateAPP.LanguageList;
+    let globalConfig = this.globalConfig;
+    if (globalConfig && globalConfig.hasOwnProperty('cpuAndMemorylist')) {
+      result = globalConfig.cpuAndMemorylist;
     }
     return result;
   }
 
   get languageInfo() {
     let result = [];
-    let messageForCreateAPP = this.messageForCreateAPP;
-    if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('LanguageList')) {
-      result = messageForCreateAPP.LanguageList;
+    let globalConfig = this.globalConfig;
+    if (globalConfig && globalConfig.hasOwnProperty('LanguageList')) {
+      result = globalConfig.LanguageList;
     }
     return result;
+  }
+
+  // 创建应用时用到的信息：cpu和内存信息；语言列表
+  // getMessageForCreateAPP(prop) {
+  //   if (['cpuAndMemorylist', 'LanguageList'].indexOf(prop) > -1) {
+  //     if (!this.globalConfig) {
+  //       return null;
+  //     }
+  //     return this.globalConfig[prop];
+  //   } else {
+  //     return null;
+  //   }
+  // }
+
+  /**
+   *
+   * @param cpuSize, 1, 2, 4 ...
+   * @param memorySize, in the format of G or M. such as 1024, 6048. if memorySize >= 1024, treat as M, or treat as G.
+   * @returns {Array}
+   */
+  getCPUAndMemoryInfoBySize(cpuSize, memorySize) {
+    let model = [];
+    const cpuAndMemoryList = this.cpuAndMemoryList;
+    if (!cpuAndMemoryList || !Array.isArray(cpuAndMemoryList)) {
+      return model;
+    }
+    // console.log(cpuAndMemoryList);
+    memorySize = parseInt(memorySize);
+    if (memorySize >= 1024) {
+      memorySize /= 1024;
+    }
+    for (let index in cpuAndMemoryList) {
+      let item = cpuAndMemoryList[index];
+      if (item.cpu == cpuSize) {
+        model.push({
+          id: item.id,
+          size: item.cpu
+        });
+        let memoryList = item.memoryList;
+        for (let index2 in memoryList) {
+          let item = memoryList[index2];
+          if (item.memory == memorySize) {
+            model.push({
+              id: item.id,
+              size: item.memory
+            });
+            break;
+          }
+        }
+        break;
+      }
+    }
+    // deal with the case cpuID or memoryID not found
+    if (model.length != 2 && cpuAndMemoryList.length > 0) {
+      model = [];
+      let defaultConfig = cpuAndMemoryList[0];
+      model.push({
+        id: defaultConfig.id,
+        size: cpuSize
+        // size: defaultConfig.cpu
+      });
+      let memoryList = defaultConfig.memoryList;
+      for (let index in memoryList) {
+        let item = memoryList[index];
+        if (1 == item.defaultSelect) {
+          model.push({
+            id: item.id,
+            // size: item.memory
+            size: memorySize
+          });
+        }
+      }
+    }
+    return model;
+  }
+
+  /**
+   * get cpu and memory info by id
+   * @param cpuID
+   * @param memoryID
+   * @returns {Array}
+   */
+  getCPUAndMemoryInfoByID(cpuID, memoryID) {
+    // let cpuAndMemoryList = this.getMessageForCreateAPP('cpuAndMemoryList');
+    const cpuAndMemoryList = this.cpuAndMemoryList;
+    let model = [];
+    for (let index in cpuAndMemoryList) {
+      let item = cpuAndMemoryList[index];
+      if (item.id == cpuID) {
+        model.push({
+          id: item.id,
+          size: item.cpu
+        });
+        let memoryList = item.memoryList;
+        for (let index2 in memoryList) {
+          let item = memoryList[index2];
+          if (item.id == memoryID) {
+            model.push({
+              id: item.id,
+              size: item.memory
+            });
+            break;
+          }
+        }
+        break;
+      }
+    }
+    return model;
   }
 
   // [{
@@ -200,19 +299,19 @@ class StoreHelper extends BaseHelper{
   // 2: {key: "2", desc: "socket", label: "SOCKET方式"}
   get healthCheckTypeList() {
     let result = [];
-    let messageForCreateAPP = this.messageForCreateAPP;
-    if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('healthCheckList')) {
+    let globalConfig = this.globalConfig;
+    if (globalConfig && globalConfig.hasOwnProperty('healthCheckList')) {
       // only use HTTP type
-      result = messageForCreateAPP['healthCheckList'].slice(0, 1)
+      result = globalConfig['healthCheckList'].slice(0, 1)
     }
     return result;
   }
   get healthCheckTypeListAll() {
     let result = [];
-    let messageForCreateAPP = this.messageForCreateAPP;
-    if (messageForCreateAPP && messageForCreateAPP.hasOwnProperty('healthCheckList')) {
+    let globalConfig = this.globalConfig;
+    if (globalConfig && globalConfig.hasOwnProperty('healthCheckList')) {
       // only use HTTP type
-      result = messageForCreateAPP['healthCheckList']
+      result = globalConfig['healthCheckList']
     }
     return result;
   }
@@ -470,27 +569,6 @@ class StoreHelper extends BaseHelper{
       }
     }
     return results;
-  }
-
-  cpuAndMemoryList() {
-    let result = [];
-    let value = this.$store.getters['app/messageForCreateAPP'];
-    if (value && value.hasOwnProperty('cpuAndMemorylist')) {
-      result = value.cpuAndMemorylist;
-    }
-    return result;
-  }
-
-  // 创建应用时用到的信息：cpu和内存信息；语言列表
-  getMessageForCreateAPP(prop) {
-    if (['cpuAndMemorylist', 'LanguageList'].indexOf(prop) > -1) {
-      if (!this.messageForCreateAPP) {
-        return null;
-      }
-      return this.messageForCreateAPP[prop];
-    } else {
-      return null;
-    }
   }
 
   setTmpProp(key, value) {

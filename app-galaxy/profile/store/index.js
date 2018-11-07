@@ -90,7 +90,7 @@ export default new Vuex.Store({
     // 暂时只持久化 etc 模块，防止冲突
     paths: ['config',
       'user.groupInfo', 'user.groupList', 'user.profileListOfGroup', 'user.config',
-      'app.messageForCreateAPP', 'etc'],
+      'app.globalConfig', 'etc'],
     // filter: (mutation) => {console.log(mutation)}
   })]
 })

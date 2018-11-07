@@ -669,7 +669,7 @@
         'profileListOfGroup': 'profileListOfGroup'
       }),
       cpuAndMemoryList() {
-        return this.$storeHelper.cpuAndMemoryList();
+        return this.$storeHelper.cpuAndMemoryList;
       },
       groupInfo() {
         return this.$storeHelper.groupInfo;

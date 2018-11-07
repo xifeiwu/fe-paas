@@ -12,7 +12,7 @@ import Vue from 'vue';
 
 const state = {
   /* net data */
-  messageForCreateAPP: null,
+  globalConfig: null,
   usersAll: null,
 };
 
@@ -20,7 +20,7 @@ const actions = {
   /* net data */
   /**
    * get message of creating app from server
-   * format: @../mock/app/messageForCreateAPP
+   * format: @../mock/app/globalConfig
    */
   async globalConfig({commit, state}, globalConfig) {
     commit('SET_GLOBAL_CONFIG', globalConfig);
@@ -36,14 +36,14 @@ const actions = {
 
 const mutations = {
   SET_GLOBAL_CONFIG(state, globalConfig) {
-    state.messageForCreateAPP = globalConfig;
+    state.globalConfig = globalConfig;
   }
 };
 
 const getters = {
   /* net data */
-  'messageForCreateAPP': (state, getters) => {
-    return state.messageForCreateAPP;
+  'globalConfig': (state, getters) => {
+    return state.globalConfig;
   },
   'usersAll': (state, getters) => {
     return state.usersAll;
