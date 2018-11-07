@@ -375,8 +375,19 @@
 export default {
   mixins: [commonUtils],
   created() {
-    this.onLanguageInfo(this.$storeHelper.languageInfo, null);
-    this.onProfileListOfGroup(this.$storeHelper.profileListOfGroup, null);
+    this.onLanguageInfo(this.$storeHelper.languageInfo);
+    this.onProfileListOfGroup(this.$storeHelper.profileListOfGroup);
+
+    const dataTransfer = this.$storeHelper.dataTransfer;
+    if (dataTransfer) {
+      const from = dataTransfer['from'];
+      const data = dataTransfer['data'];
+      if (from === this.$net.page['profile/app']) {
+        this.pageType = 'update';
+
+      }
+      this.$storeHelper.dataTransfer = null;
+    }
   },
   mounted() {
     if (!this.$storeHelper.lobInfo) {
@@ -403,13 +414,13 @@ export default {
       lobList: [],
       showPopoverForHelp: false,
       errMsgForHealthCheck: '',
+      pageType: 'add',
       createAppForm: {
         groupID: this.$storeHelper.currentGroupID,
         scrumID: '',
         lobID: '',
         appName: '',
         projectName: '',
-        profiles: [],
         language: '',
         languageVersion: '',
         packageInfo: {
@@ -444,6 +455,7 @@ export default {
             }
           }
         },
+        profiles: [],
         healthCheckType:  this.$storeHelper.defaultHealthCheckTypeDesc,
         healthCheck: {
           http: '',
@@ -474,9 +486,6 @@ export default {
     };
   },
   computed: {
-    ...mapGetters('app', {
-      'globalConfigForApp': 'messageForCreateAPP',
-    }),
     loadBalanceType() {
       return profileUtils.getSupportedLoadBalance();
     },
@@ -515,19 +524,9 @@ export default {
      * 2. 有个一个以上的生产环境，默认不做勾选，在用户提交时校验（有且只能由一个生产环境）
      */
     onProfileListOfGroup: function (profileInfoList) {
-      if (!this.$storeHelper.groupRelatedInfo['onlyOneProductionProfile']) {
-        if (Array.isArray(profileInfoList)) {
-          this.createAppForm.profiles = profileInfoList.filter(it => {
-            return it.spaceType !== 'PRODUCTION';
-          }).map(it => {
-            return it.name;
-          });
-        }
-      } else {
-        this.createAppForm.profiles = profileInfoList.map(it => {
-          return it.name;
-        });
-      }
+      this.createAppForm.profiles = profileInfoList.map(it => {
+        return it.name;
+      });
     },
     onLobInfo(lobInfo) {
 //      console.log(lobInfo);
@@ -711,12 +710,12 @@ export default {
           }
           const createAppForm = this.createAppForm;
           this.$refs['createAppForm'].validate((valid) => {
-            if (this.useBuildName && createAppForm.packageInfo.errMsg) {
-              valid = false;
-            }
-            if (this.getErrMsgForHealthCheck()) {
-              valid = false;
-            }
+//            if (this.useBuildName && createAppForm.packageInfo.errMsg) {
+//              valid = false;
+//            }
+//            if (this.getErrMsgForHealthCheck()) {
+//              valid = false;
+//            }
             if (valid) {
               createAppForm.groupID = this.$storeHelper.currentGroupID;
               const payload = {
@@ -725,17 +724,17 @@ export default {
                 lobId: createAppForm.lobID,
                 appName: createAppForm.appName,
                 tag: createAppForm.projectName,
-                spaceList: createAppForm.profiles,
                 language: createAppForm.language,
                 languageVersion: createAppForm.languageVersion,
                 packageType: createAppForm.packageInfo.type,
-                buildName: createAppForm.packageInfo.name,
-                initialDelaySeconds: createAppForm.initialDelaySeconds,
-                volumes: createAppForm.fileLocation,
-                rollingUpdate: createAppForm.rollingUpdate,
-                script4RollingUpdate: createAppForm.script4RollingUpdate,
-                maxAge4Script: createAppForm.maxAge4Script,
-                loadBalance: createAppForm.loadBalance,
+//                spaceList: createAppForm.profiles,
+//                buildName: createAppForm.packageInfo.name,
+//                initialDelaySeconds: createAppForm.initialDelaySeconds,
+//                volumes: createAppForm.fileLocation,
+//                rollingUpdate: createAppForm.rollingUpdate,
+//                script4RollingUpdate: createAppForm.script4RollingUpdate,
+//                maxAge4Script: createAppForm.maxAge4Script,
+//                loadBalance: createAppForm.loadBalance,
               };
               payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(createAppForm.healthCheckType);
               switch (createAppForm.healthCheckType) {

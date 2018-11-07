@@ -1016,12 +1016,15 @@ class Net extends NetBase {
         creator: app.creator,
         createTime,
         language,
-        profileList: profileListOfGroup
+        packageType: app.packageType,
+        profileList: profileListOfGroup,
+        lobId: app.lobId,
+        scrumId: app.scrumId
       }
     });
     result.appModelList = result.appList.map(app => {
       var result = {};
-      ['appId', 'appName', 'projectName', 'creator', 'userName', 'createTime', 'language'].forEach(key => {
+      ['appId', 'appName', 'projectName', 'creator', 'userName', 'createTime', 'language', 'lobId', 'scrumId'].forEach(key => {
         result[key] = app[key];
       });
       return result;

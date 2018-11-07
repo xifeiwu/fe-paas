@@ -547,6 +547,13 @@
         }
         var prop = null, formName = null;
         switch (action) {
+          case'app_change_props':
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page['profile/app'],
+              data: this.selected.model
+            };
+            this.$router.push(this.$net.page['profile/app/add']);
+            break;
           case 'app_delete':
             this.addToWaitingResponseQueue(action);
             try {
