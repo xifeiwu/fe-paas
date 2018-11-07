@@ -372,10 +372,10 @@
             this.payload.scrumId = null;
           }
         }else{
-          let payload = {
+          let query = {
             lobId:this.payload.lobId,
           };
-          this.$net.requestPaasServer(this.$net.URL_LIST.get_scrum_list_by_lob,{payload}).then(result => {
+          this.$net.requestPaasServer(this.$net.URL_LIST.get_scrum_list_by_lob,{query}).then(result => {
             if(Array.isArray(result['scrumList']) && result['scrumList'].length > 0) {
               this.scrumList = result['scrumList'];
               this.payload.scrumId = this.scrumList[0]["id"];

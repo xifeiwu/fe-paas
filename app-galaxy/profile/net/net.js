@@ -619,7 +619,8 @@ class Net extends NetBase {
   //通过lob获取scrum列表
   getScrumByLobId(options) {
     return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.get_scrum_list_by_lob.url,options).then(res => {
+      let queryString = URL_LIST.get_scrum_list_by_lob.url + "?lobId=" + options["lobId"];
+      axios.get(queryString).then(res => {
         let content = this.getResponseContent2(res);
         let scrumList = [];
         if(content && content.hasOwnProperty('scrumList')){

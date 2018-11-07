@@ -450,7 +450,7 @@ class URL extends BaseURL {
       'get_scrum_list_by_lob':{
         url:API_PATH + '/queryScrumByLobId',
         path:'/queryScrumByLobId',
-        method:'post',
+        method:'get',
       },
     };
   }

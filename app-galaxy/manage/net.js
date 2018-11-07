@@ -56,7 +56,7 @@ class Net extends NetBase {
       //通过lob获取scrum列表
       'get_scrum_list_by_lob':{
         path:'/queryScrumByLobId',
-        method:'post',
+        method:'get',
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
