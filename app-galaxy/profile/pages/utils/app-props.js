@@ -86,11 +86,11 @@ class AppInfoHelper {
         required: true,
         message: '请选择团队',
       }],
-      scrumID: [{
+      scrumId: [{
         required: true,
         message: '请选择Scrum',
       }],
-      lobID: [{
+      lobId: [{
         required: true,
         message: '请选择Lob',
       }],

@@ -78,6 +78,11 @@ class Net extends NetBase {
         path: '/application/create',
         method: 'post'
       },
+      // 修改应用
+      'app_update': {
+        path: '/application/update',
+        method: 'post'
+      },
       // 删除应用
       'app_delete': {
         path: '/application/delete',
@@ -976,6 +981,16 @@ class Net extends NetBase {
       appModelList: []
     };
 
+    // // 应用列表解析依赖语言相关配置信息
+    // if (!this.$storeHelper.languageInfo) {
+    //   console.log('未找到语言相关信息！');
+    //   return result;
+    // }
+    // const languageNameToId = {};
+    // this.$storeHelper.languageInfo.forEach(it => {
+    //   languageNameToId[it.language] = it.id;
+    // });
+
     if (!resContent.hasOwnProperty('data') || !Array.isArray(resContent['data']) || !resContent.hasOwnProperty('recordsTotal')) {
       return result;
     }
@@ -989,6 +1004,14 @@ class Net extends NetBase {
       const language = {
         version: app.languageVersion,
         type: app.language,
+        // get id() {
+        //   if (languageNameToId.hasOwnProperty(this.type)) {
+        //     return languageNameToId[this.type];
+        //   } else {
+        //     console.log(`未找到${this.type}的信息`);
+        //     return null;
+        //   }
+        // },
         get name() {
           var name = '';
           switch (this.type) {
@@ -1024,7 +1047,7 @@ class Net extends NetBase {
     });
     result.appModelList = result.appList.map(app => {
       var result = {};
-      ['appId', 'appName', 'projectName', 'creator', 'userName', 'createTime', 'language', 'lobId', 'scrumId'].forEach(key => {
+      ['appId', 'appName', 'projectName', 'creator', 'userName', 'createTime', 'language', 'packageType', 'lobId', 'scrumId'].forEach(key => {
         result[key] = app[key];
       });
       return result;

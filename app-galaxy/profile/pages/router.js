@@ -87,6 +87,10 @@ class Helper {
       name: '创建应用',
       component: AppAdd,
     }, {
+      path: '/profile/app/update',
+      name: '修改应用',
+      component: AppAdd,
+    }, {
       path: '/profile/service',
       name: '服务管理',
       component: ServiceMain,

@@ -111,7 +111,6 @@ const actions = {
     if (!groupId) {
       return Promise.reject('groupId not found');
     }
-    console.log(rootState.app.globalConfig);
     const net = Vue.prototype.$net;
     try {
       const resContent = await net.requestPaasServer(net.URL_LIST.app_list_by_group, {

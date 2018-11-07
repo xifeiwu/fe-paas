@@ -403,8 +403,8 @@ export default {
       errMsgForHealthCheck: '',
       createAppForm: {
         groupID: this.$storeHelper.currentGroupID,
-        scrumID: '',
-        lobID: '',
+        scrumId: '',
+        lobId: '',
         appName: '',
         projectName: '',
         profiles: [],
@@ -556,7 +556,7 @@ export default {
       if (lobInfo) {
         if (lobInfo.hasOwnProperty('lobList') && Array.isArray(lobInfo['lobList']) && lobInfo['lobList'].length > 0) {
           this.lobList = lobInfo['lobList'];
-          this.createAppForm.lobID = this.lobList[0].id;
+          this.createAppForm.lobId = this.lobList[0].id;
         }
       }
     },
@@ -730,8 +730,8 @@ export default {
           createAppForm.groupID = this.$storeHelper.currentGroupID;
           const payload = {
             groupId: createAppForm.groupID,
-            scrumId: createAppForm.scrumID,
-            lobId: createAppForm.lobID,
+            scrumId: createAppForm.scrumId,
+            lobId: createAppForm.lobId,
             appName: createAppForm.appName,
             tag: createAppForm.projectName,
             spaceList: createAppForm.profiles,

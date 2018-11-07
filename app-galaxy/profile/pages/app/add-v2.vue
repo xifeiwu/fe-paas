@@ -2,7 +2,7 @@
   <div id="app-add"
        v-loading="showLoading"
        :element-loading-text="loadingText">
-    <div class="section-title"><span>创建应用</span>
+    <div class="section-title"><span>{{pageType == 'update'? '修改应用':'创建应用'}}</span>
       <el-popover v-if="false"
               width="300"
               v-model="showPopoverForHelp"
@@ -15,19 +15,19 @@
     <el-form :model="createAppForm" :rules="rules" size="mini"
              ref="createAppForm" label-width="140px">
       <el-form-item label="团队" prop="groupID" class="group-list">
-        <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择" filterable>
+        <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择" filterable :disabled="pageType == 'update'">
           <el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="所属ScrumTeam" prop="scrumID" class="scrumTeam" v-if="true">
-        <el-select v-model="createAppForm.scrumID" placeholder="请选择" filterable>
+      <el-form-item label="所属ScrumTeam" prop="scrumId" class="scrumTeam" v-if="true">
+        <el-select v-model="createAppForm.scrumId" placeholder="请选择" filterable>
           <el-option v-for="item in scrumList" :key="item.id" :label="item.scrumName" :value="item.id">
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="所属LOB" prop="lobID" class="lob" v-if="true">
-        <el-select v-model="createAppForm.lobID" placeholder="请选择" filterable>
+      <el-form-item label="所属LOB" prop="lobId" class="lob" v-if="true">
+        <el-select v-model="createAppForm.lobId" placeholder="请选择" filterable>
           <el-option v-for="item in lobList" :key="item.id" :label="item.lobName" :value="item.id">
           </el-option>
         </el-select>
@@ -40,8 +40,8 @@
                   placeholder="输入GitLab里的project名称。只能包含字母、数字、中划线，2-50个字符"></el-input>
       </el-form-item>
       <el-form-item label="开发语言" prop="language">
-        <el-radio-group v-model="createAppForm.language" @change="handleLanguageChange">
-          <el-radio v-for="item in language.list" :label="item.language" :key="item.id">
+        <el-radio-group v-model="createAppForm.language">
+          <el-radio v-for="item in language.list" :label="item.language" :key="item.language">
             {{item.languageDesc}}
           </el-radio>
           <!--<el-radio label="JAVA"></el-radio>-->
@@ -50,19 +50,18 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="语言版本" prop="languageVersion">
-        <el-radio-group v-model="createAppForm.languageVersion"
-                        @change="handleVersionChange">
+        <el-radio-group v-model="createAppForm.languageVersion">
           <el-radio v-for="item in language.versionList" :label="item.version" :key="item.version">
             {{item.version}}
           </el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item class="build-type" label="构建类型"  style="height: 30px;"
-                    v-if="language.buildTypeList.length > 0" :error="createAppForm.packageInfo.errMsg">
+                    v-if="language.packageTypeList.length > 0" :error="createAppForm.packageInfo.errMsg">
         <div class="flex-layout">
           <div class="type-list">
             <el-radio-group v-model="createAppForm.packageInfo.type">
-              <el-radio v-for="item in language.buildTypeList" :label="item.type" :key="item.type">
+              <el-radio v-for="item in language.packageTypeList" :label="item.type" :key="item.type">
                 {{item.packageType}}
               </el-radio>
             </el-radio-group>
@@ -375,19 +374,37 @@
 export default {
   mixins: [commonUtils],
   created() {
+    switch (this.$route.path) {
+      case this.$net.page['profile/app/update']:
+        this.pageType = 'update';
+        break;
+      default:
+        this.pageType = 'add';
+        break;
+    }
+    if (this.pageType == 'update') {
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      if (dataTransfer) {
+        const from = dataTransfer['from'];
+        const data = dataTransfer['data'];
+        if (from === this.$net.page['profile/app']) {
+          this.dataPassed = data;
+          this.createAppForm.lobId = data['lobId'];
+          this.createAppForm.scrumId = data['scrumId'];
+          this.createAppForm.appName = data['appName'];
+          this.createAppForm.projectName = data['projectName'];
+          // the follow prop is set in watch function
+          this.propsUsed.language = false;
+          this.propsUsed.languageVersion = false;
+          this.propsUsed.packageType = false;
+        }
+        this.$storeHelper.dataTransfer = null;
+      } else {
+        this.$router.go(-1);
+      }
+    }
     this.onLanguageInfo(this.$storeHelper.languageInfo);
     this.onProfileListOfGroup(this.$storeHelper.profileListOfGroup);
-
-    const dataTransfer = this.$storeHelper.dataTransfer;
-    if (dataTransfer) {
-      const from = dataTransfer['from'];
-      const data = dataTransfer['data'];
-      if (from === this.$net.page['profile/app']) {
-        this.pageType = 'update';
-
-      }
-      this.$storeHelper.dataTransfer = null;
-    }
   },
   mounted() {
     if (!this.$storeHelper.lobInfo) {
@@ -414,11 +431,18 @@ export default {
       lobList: [],
       showPopoverForHelp: false,
       errMsgForHealthCheck: '',
+      // 添加应用或修改应用
       pageType: 'add',
+      dataPassed: {},
+      propsUsed: {
+        language: false,
+        languageVersion: false,
+        packageType: false
+      },
       createAppForm: {
         groupID: this.$storeHelper.currentGroupID,
-        scrumID: '',
-        lobID: '',
+        scrumId: '',
+        lobId: '',
         appName: '',
         projectName: '',
         language: '',
@@ -475,10 +499,9 @@ export default {
       formattedScript4RollingUpdate: '',
       rules: profileUtils.rules,
       language: {
-        selected: null,
         list: [],
         versionList: [],
-        buildTypeList: []
+        packageTypeList: []
       },
 
       showLoading: false,
@@ -514,6 +537,8 @@ export default {
     '$storeHelper.currentGroupID': function (groupID) {
       this.createAppForm.groupID = groupID;
     },
+    'createAppForm.language': 'onLanguageTypeChange',
+    'createAppForm.languageVersion': 'onLanguageVersionChange'
   },
   methods: {
     /**
@@ -533,11 +558,11 @@ export default {
       if (lobInfo) {
         if (lobInfo.hasOwnProperty('scrumList') && Array.isArray(lobInfo['scrumList']) && lobInfo['scrumList'].length > 0) {
           this.scrumList = lobInfo['scrumList'];
-          this.createAppForm.scrumID = this.scrumList[0].id;
+          this.createAppForm.scrumId = this.scrumList[0].id;
         }
         if (lobInfo.hasOwnProperty('lobList') && Array.isArray(lobInfo['lobList']) && lobInfo['lobList'].length > 0) {
           this.lobList = lobInfo['lobList'];
-          this.createAppForm.lobID = this.lobList[0].id;
+          this.createAppForm.lobId = this.lobList[0].id;
         }
       }
     },
@@ -545,46 +570,61 @@ export default {
     // 处理语言信息
     onLanguageInfo (languageList) {
       if (Array.isArray(languageList) && languageList.length > 0) {
-        let defaultLanguage = languageList[0];
-        this.createAppForm.language = defaultLanguage.language;
+        if (this.pageType === 'update' && !this.propsUsed.language) {
+          this.createAppForm.language = this.dataPassed.language.type;
+          this.propsUsed.language = true;
+        } else {
+          this.createAppForm.language = languageList[0].language;
+        }
         this.language.list = languageList;
-        this.handleLanguageChange(defaultLanguage.language);
       }
     },
 
     // 语言改变时，更新版本列表
-    handleLanguageChange: function (languageType) {
+    onLanguageTypeChange (languageType) {
+      this.language.versionList = [];
       if (Array.isArray(this.$storeHelper.languageInfo)) {
         // get language info from languageList by language
         this.$storeHelper.languageInfo.some(it => {
           if (it.hasOwnProperty('language') && it.language === languageType) {
-            this.language.selected = it;
 //            console.log(it);
             this.language.versionList = it['languageVersionList'];
-            if (Array.isArray(this.language.versionList) && this.language.versionList.length > 0) {
-              this.createAppForm.languageVersion = this.language.versionList[0].version;
-              this.handleVersionChange(this.createAppForm.languageVersion);
-            }
+            return true;
+          } else {
+            return false;
           }
         })
       }
+      if (Array.isArray(this.language.versionList) && this.language.versionList.length > 0) {
+        if (this.pageType === 'update' && !this.propsUsed.languageVersion) {
+          this.createAppForm.languageVersion = this.dataPassed.language.version;
+          this.propsUsed.languageVersion = true;
+        } else {
+          this.createAppForm.languageVersion = this.language.versionList[0].version;
+        }
+      }
+//      this.createAppForm.packageInfo.type = data['packageType'];
     },
     // 版本改变时，更新包类型
-    handleVersionChange: function (version) {
-      let versionList = this.language.versionList;
-//      console.log(versionList);
+    onLanguageVersionChange (version) {
+      const versionList = this.language.versionList;
+      this.language.packageTypeList = [];
       Array.isArray(versionList) && versionList.some(it => {
         if (version == it.version) {
-          if (1 === it.packageTypeList.length && 'NO' === it.packageTypeList[0].type){
-            this.language.buildTypeList = [];
-            this.createAppForm.buildType = 'NO';
-          } else {
-            this.language.buildTypeList = it.packageTypeList;
-            this.createAppForm.packageInfo.type = it.packageTypeList[0].type;
-          }
+          this.language.packageTypeList = it.packageTypeList;
           return true;
+        } else {
+          return false;
         }
       });
+      if (Array.isArray(this.language.packageTypeList) && this.language.packageTypeList.length > 0) {
+        if (this.pageType === 'update' && !this.propsUsed.packageType) {
+          this.createAppForm.packageInfo.type = this.dataPassed.packageType;
+          this.propsUsed.packageType = true;
+        } else {
+          this.createAppForm.packageInfo.type = this.language.packageTypeList[0].type;
+        }
+      }
     },
 
     toggleEditScript() {
@@ -700,7 +740,6 @@ export default {
           this.$router.go(-1);
           break;
         case 'submit':
-          var self = this;
           let productionTip = this.invalidProductionProfileTip();
           if (productionTip) {
             this.productionProfileTip = productionTip;
@@ -708,25 +747,22 @@ export default {
           } else {
             this.productionProfileTip = '';
           }
-          const createAppForm = this.createAppForm;
           this.$refs['createAppForm'].validate((valid) => {
-//            if (this.useBuildName && createAppForm.packageInfo.errMsg) {
-//              valid = false;
-//            }
-//            if (this.getErrMsgForHealthCheck()) {
-//              valid = false;
-//            }
-            if (valid) {
-              createAppForm.groupID = this.$storeHelper.currentGroupID;
-              const payload = {
-                groupId: createAppForm.groupID,
-                scrumId: createAppForm.scrumID,
-                lobId: createAppForm.lobID,
-                appName: createAppForm.appName,
-                tag: createAppForm.projectName,
-                language: createAppForm.language,
-                languageVersion: createAppForm.languageVersion,
-                packageType: createAppForm.packageInfo.type,
+            if (!valid) {
+              console.log('error submit!!');
+              return false;
+            }
+            const createAppForm = this.createAppForm;
+            createAppForm.groupID = this.$storeHelper.currentGroupID;
+            const payload = {
+              groupId: createAppForm.groupID,
+              scrumId: createAppForm.scrumId,
+              lobId: createAppForm.lobId,
+              appName: createAppForm.appName,
+              tag: createAppForm.projectName,
+              language: createAppForm.language,
+              languageVersion: createAppForm.languageVersion,
+              packageType: createAppForm.packageInfo.type,
 //                spaceList: createAppForm.profiles,
 //                buildName: createAppForm.packageInfo.name,
 //                initialDelaySeconds: createAppForm.initialDelaySeconds,
@@ -735,43 +771,56 @@ export default {
 //                script4RollingUpdate: createAppForm.script4RollingUpdate,
 //                maxAge4Script: createAppForm.maxAge4Script,
 //                loadBalance: createAppForm.loadBalance,
-              };
-              payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(createAppForm.healthCheckType);
-              switch (createAppForm.healthCheckType) {
-                case 'http':
-                  payload.healthCheck = createAppForm.healthCheck.http;
-                  break;
-                case 'shell':
-                  payload.healthCheck = createAppForm.healthCheck.shell;
-                  break;
-                case 'socket':
-                  payload.healthCheck = createAppForm.healthCheck.socket;
-                  break;
-              }
+            };
+            payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(createAppForm.healthCheckType);
+            switch (createAppForm.healthCheckType) {
+              case 'http':
+                payload.healthCheck = createAppForm.healthCheck.http;
+                break;
+              case 'shell':
+                payload.healthCheck = createAppForm.healthCheck.shell;
+                break;
+              case 'socket':
+                payload.healthCheck = createAppForm.healthCheck.socket;
+                break;
+            }
 //          console.log('payload');
 //          console.log(payload);
-              this.addToWaitingResponseQueue('submit');
-              this.showLoading = true;
-              this.loadingText = '正在为您创建应用' + payload.appName;
-              this.$net.requestPaasServer(this.$net.URL_LIST.app_create, {
-                payload
-              }).then(resContent => {
-                // update appInfoList after create app success
-                this.$net.needUpdateAppList = true;
-                this.$message({
-                  type: 'success',
-                  message: '应用' + payload.appName + '创建成功！'
-                });
-                this.$router.push(this.$net.page['profile/app']);
-              }).catch((err) => {
-              }).finally(() => {
-                this.hideWaitingResponse('submit');
-                self.showLoading = false;
-              });
-            } else {
-              console.log('error submit!!');
-              return false;
+            this.addToWaitingResponseQueue('submit');
+            this.showLoading = true;
+
+            var loadingTip = '';
+            var successTip = '';
+            var destUrl = '';
+            switch (this.pageType) {
+              case 'update':
+                payload.id = this.dataPassed.appId;
+                loadingTip = `正在更新应用 ${payload.appName}`;
+                successTip = `应用${payload.appName}更新成功！`;
+                destUrl = this.$net.URL_LIST.app_update;
+                break;
+              case 'add':
+                loadingTip = `正在创建应用 ${payload.appName}`;
+                successTip = `应用${payload.appName}创建成功！`;
+                destUrl = this.$net.URL_LIST.app_create;
+                break;
             }
+            this.loadingText = loadingTip;
+            this.$net.requestPaasServer(destUrl, {
+              payload
+            }).then(resContent => {
+              // update appInfoList after create app success
+              this.$net.needUpdateAppList = true;
+              this.$message({
+                type: 'success',
+                message: successTip
+              });
+              this.$router.push(this.$net.page['profile/app']);
+            }).catch((err) => {
+            }).finally(() => {
+              this.hideWaitingResponse('submit');
+              this.showLoading = false;
+            });
           });
           break;
       }

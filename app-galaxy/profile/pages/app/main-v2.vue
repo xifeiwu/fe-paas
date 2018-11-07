@@ -552,7 +552,7 @@
               from: this.$net.page['profile/app'],
               data: this.selected.model
             };
-            this.$router.push(this.$net.page['profile/app/add']);
+            this.$router.push(this.$net.page['profile/app/update']);
             break;
           case 'app_delete':
             this.addToWaitingResponseQueue(action);
