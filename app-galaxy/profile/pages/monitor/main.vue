@@ -353,7 +353,7 @@
       setDefaultDateRange() {
         const end = new Date();
         const start = new Date();
-        start.setTime(start.getTime() - 1000 * 3600 * 24 * 0.5);
+        start.setTime(start.getTime() - 1000 * 3600 * 6);
         this.dateTimeRange = [start, end];
       },
       onScreenSizeChange() {
@@ -416,8 +416,8 @@
         }
       },
       onDateRangeChange(range) {
-        console.log(range[0].getTime());
-        console.log(range[1].getTime());
+//        console.log(range[0].getTime());
+//        console.log(range[1].getTime());
       },
 
       // reset of value for charts
@@ -438,6 +438,10 @@
         }
         if (this.selectedInstanceList.length === 0) {
           this.$message.warning('当前所选实例为空，请在实例列表中选择实例');
+          return;
+        }
+        if (!this.dateTimeRange) {
+          this.$message.warning('请选择监控区间');
           return;
         }
 
@@ -712,30 +716,37 @@
         dateTimeRange: [],
         pickerOptions2: {
           shortcuts: [{
-            text: '最近一周',
+            text: '最近两小时',
             onClick(picker) {
               const end = new Date();
               const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              start.setTime(start.getTime() - 3600 * 1000 * 2);
               picker.$emit('pick', [start, end]);
             }
           }, {
-            text: '最近一个月',
+            text: '最近四小时',
             onClick(picker) {
               const end = new Date();
               const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              start.setTime(start.getTime() - 3600 * 1000 * 4);
               picker.$emit('pick', [start, end]);
             }
           }, {
-            text: '最近两个月',
+            text: '最近十二小时',
             onClick(picker) {
               const end = new Date();
               const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 60);
+              start.setTime(start.getTime() - 3600 * 1000 * 12);
               picker.$emit('pick', [start, end]);
             }
-          }]
+          }],
+          disabledDate(time) {
+            const getDate = function(dt) {
+              return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+            };
+            const toDate = getDate(time);
+            return toDate > getDate(new Date());
+          },
         },
 
         selectedStatisticTypeList: ['cpu', 'memory', 'disk-read', 'disk-write', 'network-in', 'network-out', 'package-count-in', 'package-count-out'],
