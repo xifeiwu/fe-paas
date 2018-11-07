@@ -12,8 +12,9 @@
       :id="tooltipId"
     >
       <div class="el-popover__title" v-if="title" v-text="title"></div>
-      <div v-if="contentType === 'html'" v-html="content"></div>
-      <div v-else>{{ content }}</div>
+      <div class="content" v-if="contentType === 'html'" v-html="content"></div>
+      <div class="content" v-if="contentType === 'text'">{{ content }}</div>
+      <slot name="content" v-if="contentType === 'node'"></slot>
     </div>
   </transition>
 </template>
@@ -126,7 +127,7 @@
 //          this.showPopper = false;
 //          this.popperStatus.show = false;
 //        }
-        if (type && ['text', 'html'].indexOf(type) > -1) {
+        if (type && ['text', 'html', 'node'].indexOf(type) > -1) {
           this.contentType = type;
         } else {
           this.contentType = 'text';
