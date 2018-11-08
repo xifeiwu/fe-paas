@@ -608,7 +608,7 @@
           case 'app_show_profile':
             this.addToWaitingResponseQueue(action);
             this.profileStatusList.forEach(it => {
-              it.instanceStatus = '无此环境';
+              it.instanceStatus = '';
             });
             this.$net.requestPaasServer(this.$net.URL_LIST.app_instance_status, {
               query: {
@@ -619,6 +619,8 @@
                 this.profileStatusList.forEach(it => {
                   if (resContent.hasOwnProperty(it.id)) {
                     it.instanceStatus = resContent[it.id] ? '有运行实例' : '无运行实例';
+                  } else {
+                    it.instanceStatus = '无此环境';
                   }
                 });
               }, 200);
@@ -654,7 +656,19 @@
       },
 
       handleProfileClick(evt, item) {
-        console.log(item);
+        if (this.$storeHelper.permission['page_service']) {
+          this.$message.warning('您没有权限进入服务管理页面');
+          return;
+        }
+        const appId = this.selected.model.appId;
+        const profileId = item['id'];
+        this.$storeHelper.dataTransfer = {
+          from: this.$net.page['profile/app'],
+          data: {
+            appId, profileId
+          }
+        };
+        this.$router.push(this.$net.page['profile/service']);
       },
 
       // handle checkbox change in dialog
@@ -942,25 +956,6 @@
             this.showPagination = true;
           }
         }
-      },
-      jumpToServicePage(index, row, profile) {
-        if (!profile.active) {
-          return;
-        }
-        if (this.$storeHelper.permission['page_service']) {
-          this.$message.warning('您没有权限进入服务管理页面');
-          return;
-        }
-        let appID = row.appId;
-        let profileID = profile.id;
-        this.$storeHelper.dataTransfer = {
-          from: this.$net.page['profile/app'],
-          data: {
-            appId: appID,
-            profileId: profileID
-          }
-        };
-        this.$router.push(this.$net.page['profile/service']);
       },
 
       warningConfirm(content) {

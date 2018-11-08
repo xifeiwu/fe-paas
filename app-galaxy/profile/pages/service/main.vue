@@ -3276,6 +3276,10 @@ export default {
         console.log('appID or profileID can not be empty');
         return;
       }
+      // init value
+      this.currentServiceList = [];
+      this.currentModelList = [];
+      this.expandRows = [];
       this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
         payload: {
           appId: appID,
