@@ -399,8 +399,8 @@
                   </el-form-item>
                   <el-form-item label="剩余过期时间" class="big" v-if="showExpiredDays()">
                     <span>{{expiredValue(selected.service.remainExpiredDays)}}</span>
-                    <i v-if="!$storeHelper.notPermitted['service_update']"
-                       class="el-icon-edit" @click="handleChangeProp('expiredDays')"></i>
+                    <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('expiredDays') ? 'warning' : 'disabled']"
+                       @click="handleChangeProp($event, 'expiredDays')"></i>
                   </el-form-item>
                   <el-form-item label="当前服务内网域名" class="big">
                     <a :href="'http://' + selected.service.intranetDomain" target="_blank"
