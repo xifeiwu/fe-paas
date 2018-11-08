@@ -123,10 +123,13 @@
     <paas-popover-message ref="popover-profile-list" popperClass="el-popover--small is-dark"
                           placement="top">
       <div slot="content">
-        <div v-for="(item, index) in profileListOfGroup" :key="index">
+        <div v-for="(item, index) in profileStatusList" :key="index">
           <div style="display: inline-block; font-size: 14px; min-width: 86px; text-align: right; color: blue; cursor: pointer"
                @click="handleProfileClick($event, item)">{{item.description}}</div>
-          <div style="display: inline-block; min-width: 80px;">无实例</div>
+          <div style="display: inline-block; min-width: 80px;">
+            <i class="el-icon-loading" v-if="statusOfWaitingResponse('app_show_profile')"></i>
+            <span v-else>{{item.instanceStatus}}</span>
+          </div>
         </div>
       </div>
     </paas-popover-message>
@@ -397,13 +400,21 @@
         this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 8;
       });
       this.popoverProfileList = this.$refs['popover-profile-list'];
-      console.log(this.popoverProfileList);
+
+      this.profileStatusList = this.$storeHelper.profileListOfGroup.map(it => {
+        return {
+          id: it.id,
+          description: it.description,
+          instanceStatus: ''
+        };
+      });
     },
     beforeDestroy() {
     },
     data() {
       return {
         popoverProfileList: null,
+        profileStatusList: [],
         resizeListener: () => {},
         heightOfTable: '',
 
@@ -448,7 +459,6 @@
     computed: {
       ...mapGetters('user', {
         'appInfoListOfGroup': 'appInfoListOfGroup',
-        'profileListOfGroup': 'profileListOfGroup',
         'userConfig': 'config'
       }),
       needFilter() {
@@ -596,8 +606,31 @@
             this.onAppListChange();
             break;
           case 'app_show_profile':
+            this.addToWaitingResponseQueue(action);
+            this.profileStatusList.forEach(it => {
+              it.instanceStatus = '无此环境';
+            });
+            this.$net.requestPaasServer(this.$net.URL_LIST.app_instance_status, {
+              query: {
+                applicationId: this.selected.model.appId
+              }
+            }).then(resContent => {
+              setTimeout(() => {
+                this.profileStatusList.forEach(it => {
+                  if (resContent.hasOwnProperty(it.id)) {
+                    it.instanceStatus = resContent[it.id] ? '有运行实例' : '无运行实例';
+                  }
+                });
+              }, 200);
+            }).finally(() => {
+              this.hideWaitingResponse(action);
+            });
+            var target = evt.target;
+            while (!target.classList.contains('el-button')) {
+              target = target.parentNode;
+            }
             this.popoverProfileList.show({
-              ref: evt.target,
+              ref: target,
               type: 'node'
             });
             break;
