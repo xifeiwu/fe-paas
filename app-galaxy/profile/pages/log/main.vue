@@ -10,9 +10,9 @@
       <el-tab-pane v-for="item in tabs" :label="item.name" :name="item.routePath" :key="item.routePath"
                    ></el-tab-pane>
     </el-tabs>
-    <keep-alive>
-      <router-view v-if="$route.meta.keepAlive"></router-view>
-    </keep-alive>
+    <!--<keep-alive>-->
+      <router-view></router-view>
+    <!--</keep-alive>-->
   </div>
 </template>
 <style lang="scss" scoped>

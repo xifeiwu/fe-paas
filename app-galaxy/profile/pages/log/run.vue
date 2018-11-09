@@ -202,9 +202,32 @@
 //            };
             break;
         }
+        // save to localStorage after selected change
+        if (this.config4VersionSelector) {
+          this.$store.dispatch('user/config', {
+            page: 'log/deploy',
+            data: this.config4VersionSelector
+          });
+        }
         this.$storeHelper.dataTransfer = null;
+      } else {
+        // get config from localStorage
+        const userConfig = this.$store.getters['user/config'];
+        if (userConfig.hasOwnProperty('log/deploy')) {
+          const logDeployConfig = userConfig['log/deploy'];
+          if (this.$utils.hasProps(logDeployConfig, 'appId', 'profileId')) {
+            this.config4VersionSelector = {
+              appId: logDeployConfig['appId'],
+              profileId: logDeployConfig['profileId'],
+            };
+            if (logDeployConfig.hasOwnProperty('serviceId')) {
+              this.config4VersionSelector['serviceId'] = logDeployConfig['serviceId'];
+            } else if (logDeployConfig.hasOwnProperty('serviceVersion')) {
+              this.config4VersionSelector['serviceVersion'] = logDeployConfig['serviceVersion'];
+            }
+          }
+        }
       }
-
     },
     mounted() {
       // set default date duration
@@ -323,13 +346,22 @@
     },
     methods: {
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
-        if (!appInfo || !profileInfo || !serviceInfo) {
+        if (!appInfo || !profileInfo) {
           return;
         }
         this.searchForm.appId = appInfo.appId;
         this.searchForm.spaceId = profileInfo.id;
-        this.searchForm.serviceVersion = serviceInfo.serviceVersion;
+        this.searchForm.serviceVersion = serviceInfo ? serviceInfo.serviceVersion : '';
 //        this.requestLogAtStart();
+        // save to localStorage after selected change
+        this.$store.dispatch('user/config', {
+          page: 'log/deploy',
+          data: {
+            appId: appInfo.appId,
+            profileId: profileInfo.id,
+            serviceId: serviceInfo ? serviceInfo.id : ''
+          }
+        });
       },
       handleButtonClick(action) {
         switch (action) {

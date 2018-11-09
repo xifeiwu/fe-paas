@@ -144,17 +144,15 @@
         const userConfig = this.$store.getters['user/config'];
         if (userConfig.hasOwnProperty('log/deploy')) {
           const logDeployConfig = userConfig['log/deploy'];
-          if (this.$utils.hasProps(logDeployConfig, 'appId', 'profileId', 'serviceId')) {
+          if (this.$utils.hasProps(logDeployConfig, 'appId', 'profileId')) {
             this.config4VersionSelector = {
               appId: logDeployConfig['appId'],
               profileId: logDeployConfig['profileId'],
-              serviceId: logDeployConfig['serviceId'],
-            }
-          } else if (this.$utils.hasProps(logDeployConfig, 'appId', 'profileId', 'serviceVersion')) {
-            this.config4VersionSelector = {
-              appId: logDeployConfig['appId'],
-              profileId: logDeployConfig['profileId'],
-              serviceVersion: logDeployConfig['serviceVersion'],
+            };
+            if (logDeployConfig.hasOwnProperty('serviceId')) {
+              this.config4VersionSelector['serviceId'] = logDeployConfig['serviceId'];
+            } else if (logDeployConfig.hasOwnProperty('serviceVersion')) {
+              this.config4VersionSelector['serviceVersion'] = logDeployConfig['serviceVersion'];
             }
           }
         }
@@ -192,20 +190,21 @@
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
         this.deployLogList = [];
         this.deployLogListByPage = [];
-        if (!appInfo || !profileInfo || !serviceInfo) {
+        if (!appInfo || !profileInfo) {
           return;
         }
+        const serviceId = serviceInfo ? serviceInfo.id : '';
+        const serviceVersion = serviceInfo ? serviceInfo.serviceVersion : '';
         // save to localStorage after selected change
         this.$store.dispatch('user/config', {
           page: 'log/deploy',
           data: {
             appId: appInfo.appId,
             profileId: profileInfo.id,
-            serviceId: serviceInfo.id
+            serviceId: serviceId
           }
         });
-
-        this.requestDeployLogList(appInfo.appId, profileInfo.id, serviceInfo.serviceVersion);
+        this.requestDeployLogList(appInfo.appId, profileInfo.id, serviceVersion);
       },
 
       handleButtonClick(evt, action) {

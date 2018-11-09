@@ -23,6 +23,8 @@
               style="width: 100%"
               :height="heightOfInstanceList"
               element-loading-text="加载中"
+              @sort-change="onSortChangeInTable"
+              :defaultSort="tableSort"
       >
         <el-table-column
                 prop="id"
@@ -55,13 +57,15 @@
         <el-table-column
               label="使用内存/总内存"
               prop="memoryStatus"
-              width="140"
+              width="160"
+              sortable :sortMethod="sortColumn"
               headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
                 prop="cpuUsageInPercent"
                 label="CPU使用率"
                 width="120"
+                sortable :sortMethod="sortColumn"
                 headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
@@ -361,6 +365,11 @@
         consoleLogList: '',
 
         isMesosService: false,
+
+        tableSort: {
+          prop: 'cpuUsageInPercent',
+          order: 'descending',
+        }
       };
     },
     watch: {},
@@ -713,6 +722,21 @@
         let space = '#'.repeat(width);
         return (text + space).slice(0, width).replace(/\#/g, '&nbsp;');
       },
+
+      onSortChangeInTable(tableSort) {
+        this.tableSort = tableSort;
+      },
+      sortColumn(preItem, nextItem) {
+        const keyMap = {
+          'cpuUsageInPercent': 'cpuUsage',
+          'memoryStatus': 'memoryUsageBytes'
+        };
+        const key = keyMap[this.tableSort.prop];
+        if (!key) {
+          return 0;
+        }
+        return preItem[key] - nextItem[key];
+      }
     }
   };
 </script>

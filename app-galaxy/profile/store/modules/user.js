@@ -169,9 +169,10 @@ const mutations = {
     if (!config[page]) {
       config[page] = {};
     }
-    for (let key in data) {
-      Vue.set(config[page], key, data[key]);
-    }
+    config[page] = data;
+    // for (let key in data) {
+    //   Vue.set(config[page], key, data[key]);
+    // }
   }
 };
 

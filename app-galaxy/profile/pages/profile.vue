@@ -233,14 +233,10 @@
       ]).then(resContentList => {
         // groupList
         const groupList = resContentList[0].groupList.map(it => {
-          let lobName = '';
-          if (it.hasOwnProperty('lobName') && it.lobName && it.lobName.length > 0) {
-            lobName = '（' + it['lobName'] + '）';
-          }
-          it.asLabel = it.name;
-          // it.asLabel = it.name + lobName;
+           it.asLabel = `${it.name} (${it.tag})`;
           return it;
         });
+
         this.$store.dispatch('user/groupList', groupList);
 
         // app config related
