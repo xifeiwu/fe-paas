@@ -504,7 +504,7 @@ export default {
     '$storeHelper.currentGroupID': function (groupID) {
       this.createAppForm.groupID = groupID;
     },
-    'createAppForm.lobID':function(){
+    'createAppForm.lobID': function(){
       let options = {
         lobId:this.createAppForm.lobID,
       };
@@ -517,6 +517,16 @@ export default {
           this.createAppForm.scrumID = '';
         }
       });
+    },
+    'scrumList': function () {
+      if(this.scrumList.length == 0){
+        this.$message({
+          message: '此LOB下无ScrumTeam,不能创建应用,如有疑问,请联系平台管理员!',
+          type: 'error',
+          center: true,
+          duration:5000
+        })
+      }
     }
   },
   methods: {
