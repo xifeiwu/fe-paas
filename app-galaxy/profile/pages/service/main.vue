@@ -3270,12 +3270,10 @@ export default {
         })
       }
     },
+
     showExpiredDays(){
-      return this.currentProfileList.some(it => {
-        if(this.selectedProfileID == it.id && it.spaceType != 'PRODUCTION'){
-          return true;
-        }
-      })
+      const profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
+      return profileInfo && profileInfo.spaceType != 'PRODUCTION'
     },
 
     expiredDaysAutoAdd(){
@@ -3301,11 +3299,11 @@ export default {
 
     expiredValue(value){
       let result = this.valueToShow(value);
-      if(typeof result != "未设置"){
+      if (result != "未设置") {
         if(result < 0){
           result = 0;
-          return result;
         }
+        result = `${result}天`;
       }
       return result;
     },
