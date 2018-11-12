@@ -829,7 +829,7 @@
 
       querySearch(queryString, cb) {
         var results = [];
-        if (this.imageInfoFromNet['customImageList'].length > 1) {
+        if (this.imageInfoFromNet['customImageList'].length > 0) {
           results = this.imageInfoFromNet['customImageList'].filter(it => {
             return it.indexOf(queryString) > -1;
           }).map(it => {
