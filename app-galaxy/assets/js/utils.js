@@ -39,4 +39,19 @@ export default class Utils extends BaseUtils {
     }
     return timeList.join('');
   }
+
+  // get Date from DateTime or timeStamp
+  getDate(dateOrLong) {
+    var result = dateOrLong;
+    if (!(dateOrLong instanceof Date)) {
+      result = new Date(dateOrLong);
+    }
+    result.setHours(0);
+    result.setMinutes(0);
+    result.setSeconds(0);
+    return result.getTime();
+  }
+  getDate2(dt) {
+    return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+  }
 }

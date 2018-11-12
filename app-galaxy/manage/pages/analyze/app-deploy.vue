@@ -420,13 +420,7 @@
         result.setTime(origin.getTime());
         return result;
       },
-      getTimeStamp(dateOrLong) {
-        var result = dateOrLong;
-        if (dateOrLong instanceof Date) {
-          result = dateOrLong.getTime();
-        }
-        return result;
-      },
+
       // 获取详情列表
       requestDetailList() {
         let page = this.currentPage - 1;
@@ -439,8 +433,8 @@
         }
         const payload = {
           start, length,
-          startTime: this.getTimeStamp(this.payload.dateRange[0]),
-          endTime: this.getTimeStamp(this.payload.dateRange[1])
+          startTime: this.$utils.getDate(this.payload.dateRange[0]),
+          endTime: this.$utils.getDate(this.payload.dateRange[1])
         };
         if ('' !== this.payload.profileId) {
           payload.spaceId = this.payload.profileId
@@ -486,8 +480,8 @@
             break;
           case 'download-analyze':
             const payload = {
-              startTime: this.getTimeStamp(this.payload.dateRange[0]),
-              endTime: this.getTimeStamp(this.payload.dateRange[1])
+              startTime: this.$utils.getDate(this.payload.dateRange[0]),
+              endTime: this.$utils.getDate(this.payload.dateRange[1])
             };
             if ('' !== this.payload.profileId) {
               payload.spaceId = this.payload.profileId
@@ -537,8 +531,8 @@
             this.addToWaitingResponseQueue(action);
             this.$net.requestPaasServer(this.$net.URL_LIST.analyze_app_deploy_count_detail, {
               payload: {
-                startTime: this.getTimeStamp(this.payload.dateRange[0]),
-                endTime: this.getTimeStamp(this.payload.dateRange[1]),
+                startTime: this.$utils.getDate(this.payload.dateRange[0]),
+                endTime: this.$utils.getDate(this.payload.dateRange[1]),
                 spaceId: row.spaceId,
                 lobId: row.lobId,
                 scrumId: row.scrumId
