@@ -1169,17 +1169,8 @@
         this.$refs[formName].resetFields();
       },
 
-      showExpired(){
-        if(this.type === 'add'){
-          return this.profileInfo.spaceType !== 'PRODUCTION';
-        }else if(this.type === 'copy'){
-          let spaceId = this.serviceForm.spaceId;
-          return this.profileListOfGroup.some(it => {
-            if(it.id === spaceId && it.spaceType !== 'PRODUCTION'){
-              return true;
-            }
-          })
-        }
+      showExpired() {
+        return this.profileInfo && this.profileInfo.spaceType !== 'PRODUCTION';
       }
     }
   }
