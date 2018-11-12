@@ -540,7 +540,9 @@
     },
     mounted() {
       this.checkPortMap = this.$net.getDebounce4CheckPortMap();
-      this.$scrollWrapper = this.$el.querySelector('.el-scrollbar .el-scrollbar__wrap');
+      this.$nextTick(() => {
+        this.$scrollWrapper = this.$el.querySelector('.el-scrollbar .el-scrollbar__wrap');
+      });
 //      this.showMoreConfig = true;
     },
     data() {
