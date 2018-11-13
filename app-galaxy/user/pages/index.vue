@@ -1,7 +1,12 @@
 <template>
   <div id="user" class="main spa" direction="vertical">
-    <paas-header-profile :userName="userName"  defaultActive="info" :showGroupManager="false"
-                         @menu-click="handleHeaderMenuClick"></paas-header-profile>
+    <div class="header">
+      <div class="img" @click="handleHeaderMenuClick('index')">
+        <img src="/assets/imgs/finup-cloud.png">
+      </div>
+      <paas-header-profile :userName="userName"  defaultActive="info" :showGroupManager="false" backgroundColor="#fafafa"
+                           @menu-click="handleHeaderMenuClick"></paas-header-profile>
+    </div>
     <div class="content">
       <div class="container">
         <div class="left">
@@ -45,6 +50,25 @@
     flex-direction: column;
     background: #f5f8fa;
     height: 100%;
+    .header {
+      background-color: #fafafa;
+      border-bottom: 1px solid rgb(235, 235, 235);
+      display: flex;
+      justify-content: space-between;
+      .img {
+        line-height: 32px;
+        cursor: pointer;
+        img {
+          height: 24px;
+          margin-left: 8px;
+          margin-top: -2px;
+          vertical-align: middle;
+        }
+      }
+      .paas-header-profile {
+        display: inline-block;
+      }
+    }
     .content {
       flex: 1;
       height: calc(100% - 55px);

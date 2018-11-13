@@ -18,8 +18,12 @@
       <paas-popover-message ref="global-popover" popperClass="el-popover--small is-dark"
                             placement="top" :closeDelay="0" :closeOnLeave="true"></paas-popover-message>
       <!--popover-message-area-->
-      <paas-header-profile :userName="userName" :userRole=userRole :showImg="false" ref="paasHeaderProfile"
-                           @menu-click="handleHeaderMenuClick"></paas-header-profile>
+      <div class="header">
+        <div></div>
+        <paas-header-profile :userName="userName" :userRole=userRole backgroundColor="#fafafa"
+                             ref="paasHeaderProfile"
+                             @menu-click="handleHeaderMenuClick"></paas-header-profile>
+      </div>
       <div v-if="!routeConfig" class="content">
         <page-not-found :navigateList="navigateList"></page-not-found>
       </div>
@@ -135,7 +139,14 @@
       width: calc(100% - 200px);
       background: $main-background;
       height: 100%;
-      .paas-header-profile {
+      .header {
+        background-color: #fafafa;
+        border-bottom: 1px solid rgb(235, 235, 235);
+        display: flex;
+        justify-content: space-between;
+        .paas-header-profile {
+          display: inline-block;
+        }
       }
       .content {
         flex: 1;

@@ -1,24 +1,24 @@
 <template>
   <div class="paas-header-profile">
-    <div class="img" @click="handleMenuClick(null, ['index'])" v-show="showImg">
-      <img src="/assets/imgs/finup-cloud.png">
-    </div>
-    <el-menu class="header-menu"
+    <el-menu class="horizontal-menu"
              mode="horizontal"
-             menuTrigger="click"
+             menuTrigger="hover"
              @select="handleMenuClick"
              :defaultActive="defaultActive"
              ref="menu"
+             :backgroundColor="backgroundColor"
+             text-color="#909399"
+             active-text-color="#000"
              v-clickoutside="handleClickOutsideMenu"
     >
-      <el-menu-item index="manage" v-if="userRole && userRole=='平台管理员'">管理后台</el-menu-item>
-      <el-menu-item index="profile">控制台</el-menu-item>
-      <el-menu-item index="docs">帮助文档</el-menu-item>
-      <el-menu-item index="user/group" v-if="showGroupManager">团队管理</el-menu-item>
-      <el-menu-item index="message" v-show="false">消息中心</el-menu-item>
+      <el-menu-item index="manage" v-if="userRole && userRole=='平台管理员'"><i class="paas-icon-manage"></i><span>管理后台</span></el-menu-item>
+      <el-menu-item index="profile"><i class="paas-icon-profile"></i><span>控制台</span></el-menu-item>
+      <el-menu-item index="docs"><i class="paas-icon-docs"></i><span>帮助文档</span></el-menu-item>
+      <el-menu-item index="message" v-show="false"><i class="paas-icon-message"></i><span>消息中心</span></el-menu-item>
       <el-submenu index="user" :withDrawOnMouseLeave="false">
-        <template slot="title">{{userName}}</template>
+        <template slot="title"><i class="paas-icon-user"></i><span>{{userName}}</span></template>
         <el-menu-item index="info"><i class="paas-icon-user"></i><span>用户中心</span></el-menu-item>
+        <el-menu-item index="group" v-if="showGroupManager"><i class="paas-icon-group"></i><span>团队管理</span></el-menu-item>
         <el-menu-item index="logout"><i class="paas-icon-logout"></i><span>退出</span></el-menu-item>
       </el-submenu>
     </el-menu>
@@ -28,86 +28,33 @@
 <style lang="scss">
   $header-height: 32px;
   .paas-header-profile {
-    height: $header-height;
-    .el-menu.header-menu {
+    .el-menu.horizontal-menu {
       .el-submenu {
-        .el-submenu__title {
-          font-size: 15px;
-          line-height: $header-height;
-          height: $header-height;
+        & > .el-menu {
+          top: 33px;
         }
-        .el-menu {
-          top: $header-height;
-          .el-menu-item {
-            text-align: left;
-          }
+        .el-submenu__title {
+          line-height: 32px;
+          height: 32px;
+          padding: 0px 8px;
         }
       }
     }
   }
 </style>
 <style lang="scss" scoped>
-  $header-height: 32px;
-  $header-background-color: rgb(0, 21, 41);
-  $header-background-color: #e7e7e7;
-  $header-background-color: linear-gradient(120deg, #155799, #159957);
-  $header-background-color: linear-gradient(120deg, rgb(0, 21, 41), #159957, rgb(0, 21, 41));
-  $header-background-color: linear-gradient(120deg, #002766, rgb(0, 21, 41), #002766);
-  $header-background-color: white;
-
-  $menu-background: white;
-  $menu-background-hover: white;
-  $menu-background-active: white;
-  $menu-font-color: black;
-  $menu-font-color-hover: black;
-  $menu-font-color-active: black;
-
   .paas-header-profile {
-    background: $header-background-color;
-    border-bottom: 1px solid #409EFF;
-
-    padding: 0px 30px 0px 0px;
-    color: #333;
-    text-align: center;
-    .img {
-      float: left;
-      line-height: $header-height;
-      cursor: pointer;
-      img {
-        height: 24px;
-        margin-left: 8px;
-        margin-top: -2px;
-        vertical-align: middle;
+    display: inline-block;
+    height: 32px;
+    .el-menu.horizontal-menu {
+      border-bottom-width: 0px;
+      padding-right: 30px;
+      .el-submenu {
       }
-    }
-    .el-menu.header-menu {
-      [class^="paas-icon-"] {
-        display: inline-block;
-        font-size: 14px;
-        margin-top: 1px;
-        margin-right: 5px;
-      }
-      /*background-color: transparent;*/
-      background-color: $menu-background;
-      float: right;
-      border-width: 0px;
       .el-menu-item {
-        font-size: 15px;
-        line-height: $header-height;
-        height: $header-height;
-        color: $menu-font-color;
-        box-sizing: border-box;
-        &:hover {
-          background-color: $menu-background-hover;
-          color: $menu-font-color-hover;
-        }
-        &.is-active {
-          color: $menu-font-color-active;
-          border-radius: 0px;
-        }
-      }
-      .el-submenu .el-menu-item {
-        min-width: 120px;
+        line-height: 32px;
+        height: 32px;
+        padding: 0px 8px;
       }
     }
   }
@@ -138,6 +85,10 @@
         type: Boolean,
         default: true
       },
+      backgroundColor: {
+        type: String,
+        default: 'white'
+      },
       showGroupManager: {
         type: Boolean,
         default: true
@@ -163,12 +114,14 @@
             break;
           case 'manage':
           case 'profile':
-          case 'user/group':
             this.$emit('menu-click', key1);
             break;
           case 'user':
             switch (key2) {
               case 'info':
+                this.$emit('menu-click', keyAll);
+                break;
+              case 'group':
                 this.$emit('menu-click', keyAll);
                 break;
               case 'logout':
