@@ -18,7 +18,7 @@
       <el-submenu index="user" :withDrawOnMouseLeave="false">
         <template slot="title"><i class="paas-icon-user"></i><span>{{userName}}</span></template>
         <el-menu-item index="info"><i class="paas-icon-user"></i><span>用户中心</span></el-menu-item>
-        <el-menu-item index="group" v-if="showGroupManager"><i class="paas-icon-group"></i><span>团队管理</span></el-menu-item>
+        <el-menu-item index="group" v-if="showGroupManager"><i class="paas-icon-group-1"></i><span>团队管理</span></el-menu-item>
         <el-menu-item index="logout"><i class="paas-icon-logout"></i><span>退出</span></el-menu-item>
       </el-submenu>
     </el-menu>

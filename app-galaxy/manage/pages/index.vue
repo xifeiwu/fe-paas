@@ -1,10 +1,14 @@
 <template>
   <div id="manage" class="spa">
-    <paas-nav-bar :activeSideMenuItem="activeSideMenuItem"></paas-nav-bar>
-    <main :class="{'collapse-menu': false}">
+      <paas-nav-bar :activeSideMenuItem="activeSideMenuItem"></paas-nav-bar>
+    <main :style="{width: mainNodeWidth ? mainNodeWidth+'px':''}">
       <!--toasts-area-->
-      <paas-header-profile :userName="userName" :userRole="userRole" :showImg="false" ref="paasHeaderProfile"
-                           defaultActive="manage" @menu-click="handleHeaderMenuClick"></paas-header-profile>
+      <div class="header">
+        <div></div>
+        <paas-header-profile :userName="userName" :userRole="userRole"  backgroundColor="#fafafa"
+                             ref="paasHeaderProfile"
+                             defaultActive="manage" @menu-click="handleHeaderMenuClick"></paas-header-profile>
+      </div>
       <div class="content">
         <!--<el-row class="header" type="flex" align="middle">-->
           <!--<el-col :span="12" class="current-step">-->
@@ -50,7 +54,13 @@
       background: $main-background;
       transition: width 0.3s ease-out;
       height: 100%;
-      .paas-header-profile {
+      .header {
+        display: flex;
+        justify-content: space-between;
+        background-color: #fafafa;
+        border-bottom: 1px solid rgb(235, 235, 235);
+        .paas-header-profile {
+        }
       }
       .content {
         margin-top: 3px;
@@ -95,6 +105,8 @@
     components: {paasHeaderProfile, paasNavBar},
     data() {
       return {
+        // calc by change of screenChange or collapseMenu
+        mainNodeWidth: '',
         activeSideMenuItem: '/manage',
         crumbList: [],
       }
@@ -123,7 +135,8 @@
         this.$store.dispatch('setScreenSize', {
           width: this.$el.offsetWidth,
           height: this.$el.offsetHeight
-        })
+        });
+        this.mainNodeWidth =  this.$el.offsetWidth - this.$storeHelper.navMenuWidth;
       };
       addResizeListener(this.$el, this.resizeListener);
 
@@ -144,6 +157,9 @@
       removeResizeListener(this.$el, this.resizeListener);
     },
     computed: {
+      ...mapGetters({
+        'collapseMenu': 'collapseMenu'
+      }),
       userName() {
         let userName = this.$storeHelper.getUserInfo('realName');
         if (!userName) {
@@ -156,6 +172,9 @@
       },
     },
     watch: {
+      'collapseMenu': function() {
+        this.mainNodeWidth =  this.$el.offsetWidth - this.$storeHelper.navMenuWidth;
+      },
       '$route': 'onRoutePath',
       '$net.vm.requestingUrlListLength': {
         deep: true,

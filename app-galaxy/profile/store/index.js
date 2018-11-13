@@ -89,7 +89,7 @@ export default new Vuex.Store({
       if (state.config.collapseMenu) {
         return 56;
       } else {
-        return 170;
+        return 180;
       }
     }
   },

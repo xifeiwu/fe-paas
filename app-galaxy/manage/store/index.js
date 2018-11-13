@@ -93,6 +93,13 @@ export default new Vuex.Store({
         state.config = {}
       }
       return state.config.collapseMenu;
+    },
+    navMenuWidth(state, getters) {
+      if (state.config.collapseMenu) {
+        return 56;
+      } else {
+        return 180;
+      }
     }
   },
 

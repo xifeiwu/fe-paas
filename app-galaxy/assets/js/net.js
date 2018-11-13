@@ -35,6 +35,7 @@ class Net {
         path: '/application/queryByPage',
         method: 'post'
       },
+
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];
