@@ -377,7 +377,7 @@
           };
           this.$net.requestPaasServer(this.$net.URL_LIST.get_scrum_list_by_lob,{query}).then(result => {
             if(Array.isArray(result['scrumList']) && result['scrumList'].length > 0) {
-              this.scrumList = result['scrumList'];
+              this.scrumList = [{id: '', scrumName: "全部"}].concat(result['scrumList']);
               this.payload.scrumId = this.scrumList[0]["id"];
             }else{
               this.scrumList = [];
