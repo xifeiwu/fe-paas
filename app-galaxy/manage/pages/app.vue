@@ -155,6 +155,9 @@
         }
       }
     }
+    .detail-list {
+      position: relative;
+    }
   }
 </style>
 
@@ -171,7 +174,7 @@
       const headerNode = this.$el.querySelector(':scope > .header');
       this.resizeListener = () => {
         let headerHeight = headerNode.offsetHeight;
-        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+        this.heightOfTable = this.$el.clientHeight - headerHeight;
       };
       addResizeListener(this.$el, this.resizeListener);
       this.requestAppStatusList();
