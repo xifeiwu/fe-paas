@@ -19,31 +19,28 @@
                             placement="top" :closeDelay="0" :closeOnLeave="true"></paas-popover-message>
       <!--popover-message-area-->
       <div class="header">
-        <div></div>
-        <paas-header-profile :userName="userName" :userRole=userRole backgroundColor="#fafafa"
-                             ref="paasHeaderProfile"
-                             @menu-click="handleHeaderMenuClick"></paas-header-profile>
-      </div>
-      <div v-if="!routeConfig" class="content">
-        <page-not-found :navigateList="navigateList"></page-not-found>
-      </div>
-      <div v-else class="content">
-        <el-row class="header" type="flex" align="middle">
-          <el-col :span="12" class="current-step">
+        <div class="content-header">
+          <div class="current-step">
             <el-breadcrumb separator-class="el-icon-arrow-right">
               <el-breadcrumb-item v-for="item in crumbList" :key="item" :to="{path: item}">
                 {{routerPathToName[item]}}
               </el-breadcrumb-item>
             </el-breadcrumb>
-          </el-col>
-          <el-col :span="12" class="group-list">
-            <!--<el-select v-model="$storeHelper.currentGroupID" size="mini" filterable-->
-                       <!--:placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'" v-if="showGroupList">-->
-              <!--<el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">-->
-              <!--</el-option>-->
-            <!--</el-select>-->
-            <el-select  v-model="$storeHelper.currentGroupID" size="mini" filterable
-                        :placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'" v-if="showGroupList">
+          </div>
+          <!--<el-select v-model="$storeHelper.currentGroupID" size="mini" filterable-->
+          <!--:placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'" v-if="showGroupList">-->
+          <!--<el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">-->
+          <!--</el-option>-->
+          <!--</el-select>-->
+          <div class="group" v-if="showGroupList">
+            <el-tooltip slot="trigger" effect="dark" placement="bottom">
+              <div slot="content">
+                <div>当前所在团队</div>
+              </div>
+              <i class="paas-icon-group"></i>
+            </el-tooltip>
+            <el-select  v-model="$storeHelper.currentGroupID" class="group-list" size="mini" filterable
+                        :placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'">
               <el-option-group
                       v-for="version in groupListByVersion"
                       :key="version.label"
@@ -57,8 +54,16 @@
                 </el-option>
               </el-option-group>
             </el-select>
-          </el-col>
-        </el-row>
+          </div>
+        </div>
+        <paas-header-profile :userName="userName" :userRole=userRole backgroundColor="#fafafa"
+                             ref="paasHeaderProfile"
+                             @menu-click="handleHeaderMenuClick"></paas-header-profile>
+      </div>
+      <div v-if="!routeConfig" class="content">
+        <page-not-found :navigateList="navigateList"></page-not-found>
+      </div>
+      <div v-else class="content">
         <!--<div class="child"-->
              <!--v-loading="$net.vm.requestingUrlListLength > 0"-->
              <!--element-loading-text="网络请求中..."-->
@@ -79,21 +84,52 @@
 </template>
 
 <style lang="scss">
-  #profile.v1 {
-    .content {
-      .header {
-        .group-list {
-          .el-select {
-            .el-input {
-              input {
-                color: #E6A23C;
-              }
+  #profile {
+    .header {
+      .el-breadcrumb {
+        .el-breadcrumb__item {
+          .el-breadcrumb__inner, .el-breadcrumb__inner a {
+            font-weight: normal;
+            color: #409EFF
+          }
+          &:last-child {
+            .el-breadcrumb__inner, .el-breadcrumb__inner a {
+              color: #5a5e66;
+            }
+          }
+        }
+      }
+      .el-select.group-list {
+        width: 240px;
+        .el-input {
+          &.is-focus {
+            .el-input__inner {
+              border-bottom: 1px solid black;
+            }
+          }
+        }
+        .el-input__inner {
+          border-width: 0px;
+          border-bottom: 1px solid transparent;
+          border-radius: 0px;
+          height: 32px;
+          background-color: #fafafa;
+        }
+      }
+    }
+    &.v1 {
+      .content-header {
+        .el-select.group-list {
+          .el-input {
+            input {
+              color: #E6A23C;
             }
           }
         }
       }
     }
   }
+
   #paas {
     .el-select-dropdown.el-popper {
       .el-select-group__wrap:not(:last-of-type)::after {
@@ -144,37 +180,37 @@
         border-bottom: 1px solid rgb(235, 235, 235);
         display: flex;
         justify-content: space-between;
+        .content-header {
+          flex: 1;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: transparent;
+          /*border-bottom: 1px solid #e7e7e7;*/
+          height: 32px;
+          .current-step {
+            padding-left: 6px;
+            .el-breadcrumb {
+              font-size: 14px;
+            }
+          }
+        }
         .paas-header-profile {
           display: inline-block;
         }
       }
       .content {
         flex: 1;
-        margin-top: 3px;
         padding: 0px;
-        height: calc(100% - 36px);
-        .el-row.header {
-          background: white;
-          border-bottom: 1px solid #e7e7e7;
-          height:30px;
-          .el-col {
-            &.current-step {
-              padding-left: 6px;
-              .el-breadcrumb {
-                font-size: 14px;
-              }
-            }
-            &.group-list {
-              text-align: right;
-              .el-select {
-                width: 240px;
-              }
-            }
-          }
-        }
+        /*height: 100%;*/
+        height: calc(100% - 33px);
         .child {
           position: relative;
-          height: calc(100% - 32px);
+          /*height: calc(100% - 32px);*/
+          padding-top: 5px;
+          padding-left: 5px;
+          height: 100%;
+          box-sizing: border-box;
           overflow: scroll;
           /*max-width: 1300px;*/
           .el-loading-mask {
