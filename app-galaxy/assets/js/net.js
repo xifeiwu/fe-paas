@@ -345,9 +345,11 @@ class Net {
    * else return {}
    */
 
-  async requestPaasServer({path, method}, options = {}) {
+  async requestPaasServer({path, method, partial}, options = {}) {
     try {
-      this.addToRequestingRrlList(path);
+      if (!partial) {
+        this.addToRequestingRrlList(path);
+      }
       const response = await this.getResponse({path, method}, options);
       let resData = response.data;
       if (this.isResponseSuccess(resData)) {
