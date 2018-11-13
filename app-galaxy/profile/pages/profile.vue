@@ -1,7 +1,7 @@
 <template>
   <div id="profile" :class="['spa', $storeHelper.groupVersion]">
     <paas-nav-bar :activeSideMenuItem="activeSideMenuItem"></paas-nav-bar>
-    <main :class="{'collapse-menu': collapseMenu}">
+    <main :style="{width: mainNodeWidth ? mainNodeWidth+'px':''}">
       <!--toasts area-->
       <div style="width: 100%; position: fixed; z-index: 99999;">
         <el-alert v-for="item in toasts"
@@ -172,7 +172,6 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      width: calc(100% - 200px);
       background: $main-background;
       height: 100%;
       .header {
@@ -250,6 +249,8 @@
     components: {PageNotFound, paasHeaderProfile, paasNavBar, paasPopoverMessage},
     data() {
       return {
+        // calc by change of screenChange or collapseMenu
+        mainNodeWidth: '',
         activeSideMenuItem: this.$net.page['profile'],
         crumbList: [],
         // 用于配置404页面的属性
@@ -311,7 +312,8 @@
         this.$store.dispatch('setScreenSize', {
           width: this.$el.offsetWidth,
           height: this.$el.offsetHeight
-        })
+        });
+        this.mainNodeWidth =  this.$el.offsetWidth - this.$storeHelper.navMenuWidth;
       };
       addResizeListener(this.$el, this.resizeListener);
 
@@ -385,6 +387,9 @@
       }
     },
     watch: {
+      'collapseMenu': function() {
+        this.mainNodeWidth =  this.$el.offsetWidth - this.$storeHelper.navMenuWidth;
+      },
       '$route': 'onRoutePath',
       '$net.vm.requestingUrlListLength': {
         deep: true,

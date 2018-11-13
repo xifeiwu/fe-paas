@@ -15,8 +15,13 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    constants: {
+      navMenuWidth: 180,
+    },
     toasts: [],        // toasts,
-    config: {},
+    config: {
+      collapseMenu: false
+    },
     screen: {
       width: 0,
       height: 0,
@@ -79,6 +84,13 @@ export default new Vuex.Store({
     },
     'screen': (state) => {
       return state.screen;
+    },
+    navMenuWidth(state, getters) {
+      if (state.config.collapseMenu) {
+        return 56;
+      } else {
+        return 170;
+      }
     }
   },
 

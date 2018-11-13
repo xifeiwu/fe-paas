@@ -50,6 +50,9 @@ class StoreHelper extends BaseHelper{
   get screen() {
     return this.$store.getters['screen'];
   }
+  get navMenuWidth() {
+    return this.$store.getters['navMenuWidth'];
+  }
 
   get groupList() {
     return this.$store.getters['user/groupList'];
