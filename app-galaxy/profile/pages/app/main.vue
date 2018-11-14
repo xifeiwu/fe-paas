@@ -376,13 +376,13 @@
       }
     },
     mounted() {
-      if (this.appInfoListOfGroup) {
-        this.onAppInfoListOfGroup(this.appInfoListOfGroup);
-      }
       // update value in next tick
       setTimeout(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
         this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 8;
+        if (this.appInfoListOfGroup) {
+          this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+        }
       });
     },
     beforeDestroy() {
