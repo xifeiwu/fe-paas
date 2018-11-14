@@ -36,6 +36,11 @@ class Net {
         method: 'post'
       },
 
+      // 未读消息条数
+      message_unread_count: {
+        path: '/message/query/count',
+        method: 'post'
+      },
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];

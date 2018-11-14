@@ -58,7 +58,8 @@
             </el-select>
           </div>
         </div>
-        <paas-header-profile :showDescriptor="showDescriptor4Header" :userName="userName" backgroundColor="#fafafa"
+        <paas-header-profile :showDescriptor="showDescriptor4Header"
+                             :userName="userName" :messageCountTip="messageCountTip" backgroundColor="#fafafa"
                              ref="paasHeaderProfile"
                              @menu-click="handleHeaderMenuClick"></paas-header-profile>
       </div>
@@ -271,6 +272,7 @@
           label: '应用配置'
         }],
         showGroupList: true,
+        messageCountTip: 0,
 
         notPermitted: []
       }
@@ -315,6 +317,11 @@
         'profile': false
       };
 
+      this.$net.requestPaasServer(this.$net.URL_LIST.message_unread_count, {}).then(resContent => {
+        this.messageCountTip = resContent;
+      }).catch(() => {
+        this.messageCountTip = 0;
+      }).finally(() => {});
     },
     mounted() {
       this.resizeListener = () => {
