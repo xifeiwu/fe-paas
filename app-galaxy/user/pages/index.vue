@@ -4,7 +4,7 @@
       <div class="img" @click="handleHeaderMenuClick('index')">
         <img src="/assets/imgs/finup-cloud.png">
       </div>
-      <paas-header-profile :userName="userName"  defaultActive="info" :showGroupManager="false" backgroundColor="#fafafa"
+      <paas-header-profile :showDescriptor="showDescriptor4Header" :userName="userName"  defaultActive="info" backgroundColor="#fafafa"
                            @menu-click="handleHeaderMenuClick"></paas-header-profile>
     </div>
     <div class="content">
@@ -192,6 +192,12 @@
     components: {paasHeaderProfile},
     data() {
       return {
+        showDescriptor4Header: {
+          'manage': this.$storeHelper.getUserInfo('role') && this.$storeHelper.getUserInfo('role') === '平台管理员',
+          'user/info': false,
+          'user/group': false,
+          'user/message': false,
+        },
         commandList: [],
         activeSideMenuItem: '/info',
         crumbList: [],

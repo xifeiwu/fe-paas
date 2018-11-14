@@ -5,27 +5,11 @@
       <!--toasts-area-->
       <div class="header">
         <div></div>
-        <paas-header-profile :userName="userName" :userRole="userRole"  backgroundColor="#fafafa"
+        <paas-header-profile ::showDescriptor="showDescriptor4Header" userName="userName" backgroundColor="#fafafa"
                              ref="paasHeaderProfile"
                              defaultActive="manage" @menu-click="handleHeaderMenuClick"></paas-header-profile>
       </div>
       <div class="content">
-        <!--<el-row class="header" type="flex" align="middle">-->
-          <!--<el-col :span="12" class="current-step">-->
-            <!--<el-breadcrumb separator-class="el-icon-arrow-right">-->
-              <!--<el-breadcrumb-item v-for="item in crumbList" :key="item" :to="{path: item}">-->
-                <!--{{routerPathToName[item]}}-->
-              <!--</el-breadcrumb-item>-->
-            <!--</el-breadcrumb>-->
-          <!--</el-col>-->
-          <!--<el-col :span="12" class="group-list">-->
-            <!--<el-select v-model="$storeHelper.currentGroupID" size="mini" filterable-->
-                       <!--:placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'" v-if="showGroupList">-->
-              <!--<el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">-->
-              <!--</el-option>-->
-            <!--</el-select>-->
-          <!--</el-col>-->
-        <!--</el-row>-->
         <div class="child"
              v-loading="$net.vm.requestingUrlListLength > 0"
              element-loading-text="网络请求中..."
@@ -105,6 +89,7 @@
     components: {paasHeaderProfile, paasNavBar},
     data() {
       return {
+        showDescriptor4Header: {},
         // calc by change of screenChange or collapseMenu
         mainNodeWidth: '',
         activeSideMenuItem: '/manage',
@@ -152,6 +137,9 @@
       this.$nextTick(() => {
         this.setDefaultActiveForHeader();
       });
+      this.showDescriptor4Header = {
+        'manage': false,
+      };
     },
     beforeDestroy() {
       removeResizeListener(this.$el, this.resizeListener);
@@ -166,9 +154,6 @@
           userName = '未知';
         }
         return userName;
-      },
-      userRole() {
-        return this.$storeHelper.getUserInfo('role');
       },
     },
     watch: {

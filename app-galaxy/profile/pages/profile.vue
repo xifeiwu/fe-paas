@@ -56,7 +56,7 @@
             </el-select>
           </div>
         </div>
-        <paas-header-profile :userName="userName" :userRole=userRole backgroundColor="#fafafa"
+        <paas-header-profile :showDescriptor="showDescriptor4Header" :userName="userName" backgroundColor="#fafafa"
                              ref="paasHeaderProfile"
                              @menu-click="handleHeaderMenuClick"></paas-header-profile>
       </div>
@@ -249,6 +249,7 @@
     components: {PageNotFound, paasHeaderProfile, paasNavBar, paasPopoverMessage},
     data() {
       return {
+        showDescriptor4Header: {},
         // calc by change of screenChange or collapseMenu
         mainNodeWidth: '',
         activeSideMenuItem: this.$net.page['profile'],
@@ -325,6 +326,10 @@
       this.$nextTick(() => {
         this.setDefaultActiveForHeader();
       });
+      this.showDescriptor4Header = {
+        'manage': this.$storeHelper.getUserInfo('role') && this.$storeHelper.getUserInfo('role') === '平台管理员',
+      };
+
       this.onRoutePath(this.$route);
 
       // set value of globalPopover to $storeHelper.globalPopover
@@ -352,9 +357,6 @@
           userName = '未知';
         }
         return userName;
-      },
-      userRole() {
-        return this.$storeHelper.getUserInfo('role');
       },
       groupList() {
         return this.$storeHelper.groupList;
