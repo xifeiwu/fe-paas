@@ -46,6 +46,11 @@ class Net extends NetBase {
       'message_list_all': {
         path: '/message/query/user/all/list',
         method: 'post'
+      },
+      // 标记消息为已读
+      'message_mark_read': {
+        path: '/message/update/status',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

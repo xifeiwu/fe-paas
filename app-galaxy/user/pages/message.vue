@@ -106,7 +106,7 @@
         it.releaseTime = this.$utils.formatDate(it.releaseTime, 'yyyy-MM-dd hh:mm:ss');
         return it;
       });
-      console.log(messageList);
+//      console.log(messageList);
       this.messageList = messageList;
       this.totalSize = resContent['recordTotal'];
       this.currentPage = 1;
@@ -140,7 +140,7 @@
         this.heightOfTable = this.$el.clientHeight - 18;
       },
 
-      handleTRButton(action, index, row) {
+      async handleTRButton(action, index, row) {
         this.operation.row = row;
         switch (action) {
           case 'show-content':
@@ -148,16 +148,26 @@
               return;
             }
             const updateExpandRows = (id) => {
+              var isOpened = false;
               if (this.expandRows.indexOf(id) > -1) {
+                isOpened = true;
                 this.expandRows.splice(this.expandRows.indexOf(id), 1);
               } else {
 //                this.expandRows.push(key);
                 this.expandRows = [id];
               }
+              return isOpened;
             };
-            updateExpandRows(row.id);
-            row.readStatus = 1;
-            
+            if (updateExpandRows(row.id)) {
+              row.readStatus = 1;
+            } else {
+              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.message_mark_read, {
+                query: {
+                  messageId: row.messageId
+                }
+              });
+              row.readStatus = 1;
+            }
             break;
         }
       },
