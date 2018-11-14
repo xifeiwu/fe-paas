@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 
 
 import UserInfo from './info.vue';
+import UserMessage from './message.vue';
 import UserOperaion from './operation.vue';
 import ManageGroup from './group.vue';
 import k8sWarning from './k8s-warning.vue';
@@ -18,6 +19,11 @@ class Router {
         path: '/user/info',
         name: '云产品',
         component: UserInfo,
+      },
+      {
+        path: '/user/message',
+        name: '消息中心',
+        component: UserMessage,
       },
       // {
       //   path: '/operation',

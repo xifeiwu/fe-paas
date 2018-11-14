@@ -74,6 +74,7 @@ class Net {
       'profile/config-server': '/profile/config-server',
       'user/info': '/user/info',
       'user/group': '/user/group',
+      'user/message': '/user/message',
       'docs': '/docs',
       'docs/paas': '/docs/paas',
       'index': '/index',

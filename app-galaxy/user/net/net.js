@@ -39,6 +39,13 @@ class Net extends NetBase {
       'k8s_warning_delete': {
         path: '/application/alert/config/delete/{appId}',
         method: 'delete'
+      },
+
+      /** 消息相关 */
+      // 获取消息记录
+      'message_list_all': {
+        path: '/message/query/user/all/list',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

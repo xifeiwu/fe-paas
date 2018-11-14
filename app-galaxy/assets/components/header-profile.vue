@@ -14,7 +14,7 @@
       <el-menu-item index="manage" v-if="show['manage']"><i class="paas-icon-manage"></i><span>管理后台</span></el-menu-item>
       <el-menu-item index="profile" v-if="show['profile']"><i class="paas-icon-profile"></i><span>控制台</span></el-menu-item>
       <el-menu-item index="docs" v-if="show['docs']"><i class="paas-icon-docs"></i><span>帮助文档</span></el-menu-item>
-      <el-menu-item index="message" v-if="show['user/message']"><i class="paas-icon-message"></i><span>消息</span>
+      <el-menu-item index="user/message" v-if="show['user/message']"><i class="paas-icon-message"></i><span>消息</span>
         <span class="badge danger" v-if="messageCountTip > 0">{{messageCountTip}}</span></el-menu-item>
       <el-submenu index="user" :withDrawOnMouseLeave="false">
         <template slot="title"><i class="paas-icon-user"></i><span>{{userName}}</span></template>
@@ -134,6 +134,7 @@
             break;
           case 'manage':
           case 'profile':
+          case 'user/message':
             this.$emit('menu-click', key1);
             break;
           case 'user':
