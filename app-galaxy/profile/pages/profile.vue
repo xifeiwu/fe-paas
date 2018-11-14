@@ -32,14 +32,14 @@
           <!--<el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">-->
           <!--</el-option>-->
           <!--</el-select>-->
-          <div class="group" v-if="showGroupList">
+          <div class="group" v-if="true">
             <el-tooltip slot="trigger" effect="dark" placement="bottom">
               <div slot="content">
                 <div>当前所在团队</div>
               </div>
               <i class="paas-icon-group"></i>
             </el-tooltip>
-            <el-select  v-model="$storeHelper.currentGroupID" class="group-list" size="mini" filterable
+            <el-select  v-model="$storeHelper.currentGroupID" class="group-list" size="mini" filterable :disabled="!showGroupList"
                         :placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'">
               <el-option-group
                       v-for="version in groupListByVersion"
@@ -205,10 +205,8 @@
         height: calc(100% - 33px);
         .child {
           position: relative;
-          /*height: calc(100% - 32px);*/
-          padding-top: 5px;
-          padding-left: 5px;
           height: 100%;
+          padding: 5px;
           box-sizing: border-box;
           overflow: scroll;
           /*max-width: 1300px;*/
