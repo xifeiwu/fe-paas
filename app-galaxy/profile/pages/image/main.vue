@@ -1,9 +1,7 @@
 <template>
   <div id="image-main">
     <div class="header">
-      <label>镜像仓库名称：</label>
-      <el-input size="mini" style="max-width: 300px" v-model="repository" @keyup.enter.native="getImage"></el-input>
-      <el-button type="primary" @click="getImage">搜索</el-button>
+      <el-input size="mini" style="max-width: 300px" v-model="searchValue" placeholder="搜索镜像" suffix-icon="el-icon-search"></el-input>
     </div>
     <div class="image-list">
       <el-table
@@ -62,14 +60,7 @@
       flex-direction: row;
       justify-content: flex-end;
       padding-top: 20px;
-      label{
-        font-size: 16px;
-        color:#232933;
-      }
-      .el-button{
-        margin-left: 10px;
-        margin-right: 65px;
-      }
+      margin-right: 65px;
     }
     .image-list{
       text-align: center;
@@ -102,7 +93,9 @@
     data() {
       return {
         imageList:[],
+        responseValue:[],
         repository:"",
+        searchValue:"",
         pageSize:12,
         pageNum:1,
         heightOfTable:'',
@@ -118,6 +111,23 @@
       'groupTag':function () {
         this.getImage();
       },
+
+      'searchValue':function (searchValue) {
+        let filterReg = null;
+        if(searchValue){
+          filterReg = new RegExp(searchValue);
+          let filterResult = [];
+          this.responseValue.forEach(it => {
+            let filterValue = filterReg.exec(it["name"]);
+            if(filterValue){
+              filterResult.push(it);
+            }
+          });
+          this.imageList = filterResult;
+        }else{
+          this.imageList = this.responseValue;
+        }
+      }
     },
     methods: {
       getImage() {
@@ -135,6 +145,7 @@
           resContent.body.sort(function (a,b) {
             return Date.parse(new Date(b.creation_time)) - Date.parse(new Date(a.creation_time));
           });
+          this.responseValue = resContent.body;
           this.imageList = resContent.body;
         });
       },

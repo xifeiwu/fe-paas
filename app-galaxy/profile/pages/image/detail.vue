@@ -5,9 +5,7 @@
         <div class="paas-icon-back back-icon" @click="backLastPage"></div>
         <div class="back-image">{{repoName}}</div>
       </div>
-      <label>版本：</label>
-      <el-input size="mini" style="max-width: 300px" v-model="tag" @keyup.enter.native="getVersionList"></el-input>
-      <el-button type="primary" @click="getVersionList">搜索</el-button>
+      <el-input size="mini" style="max-width: 300px" v-model="searchValue" placeholder="搜索镜像" suffix-icon="el-icon-search"></el-input>
     </div>
     <div class="version-list">
       <el-table
@@ -81,14 +79,7 @@
       flex-direction: row;
       justify-content: flex-end;
       padding-top: 20px;
-      label{
-        font-size: 16px;
-        color:#232933;
-      }
-      .el-button{
-        margin-left: 10px;
-        margin-right: 33px;
-      }
+      margin-right: 33px;
       .back-page{
         position: absolute;
         left:45px;
@@ -135,6 +126,8 @@
     data() {
       return {
         versionList:[],
+        responseValue:[],
+        searchValue:'',
         repoName:'',
         tag:'',
         pageNum:1,
@@ -143,6 +136,26 @@
         resizeListener: () => {},
       }
     },
+
+    watch: {
+      'searchValue':function (searchValue) {
+        let filterReg = null;
+        if(searchValue){
+          filterReg = new RegExp(searchValue);
+          let filterResult = [];
+          this.responseValue.forEach(it => {
+            let filterValue = filterReg.exec(it["name"]);
+            if(filterValue){
+              filterResult.push(it);
+            }
+          });
+          this.versionList = filterResult;
+        }else{
+          this.versionList = this.responseValue;
+        }
+      }
+    },
+
     methods: {
       getVersionList() {
         this.versionList = [];
@@ -165,6 +178,7 @@
               }
             })
           });
+          this.responseValue = resContent;
           this.versionList = resContent;
         })
       },
