@@ -144,7 +144,7 @@
           filterReg = new RegExp(searchValue);
           let filterResult = [];
           this.responseValue.forEach(it => {
-            let filterValue = filterReg.exec(it["name"]);
+            let filterValue = filterReg.exec(it["imageName"]);
             if(filterValue){
               filterResult.push(it);
             }
