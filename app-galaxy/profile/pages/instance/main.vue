@@ -58,14 +58,14 @@
               label="使用内存/总内存"
               prop="memoryStatus"
               width="160"
-              sortable :sortMethod="sortColumn"
+              sortable="custom"
               headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
                 prop="cpuUsageInPercent"
                 label="CPU使用率"
                 width="120"
-                sortable :sortMethod="sortColumn"
+                sortable="custom"
                 headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
@@ -437,6 +437,8 @@
           if (resContent.hasOwnProperty('instanceNum')) {
             this.instanceStatus.instanceCount = resContent['instanceNum'];
           }
+          // sort table by this.tableSort after success request
+          this.onSortChangeInTable(this.tableSort);
         }).catch(err => {
           console.log(err);
         }).finally(() => {
@@ -725,8 +727,6 @@
 
       onSortChangeInTable(tableSort) {
         this.tableSort = tableSort;
-      },
-      sortColumn(preItem, nextItem) {
         const keyMap = {
           'cpuUsageInPercent': 'cpuUsage',
           'memoryStatus': 'memoryUsageBytes'
@@ -735,7 +735,20 @@
         if (!key) {
           return 0;
         }
-        return preItem[key] - nextItem[key];
+        this.instanceStatus.instanceList.sort((pre, next) => {
+          var result = pre[key] - next[key];
+          switch (tableSort['order']) {
+            case 'ascending':
+              break;
+            case 'descending':
+              result = -1 * result;
+              break;
+            default:
+              result = 0;
+              break;
+          }
+          return result;
+        });
       }
     }
   };
