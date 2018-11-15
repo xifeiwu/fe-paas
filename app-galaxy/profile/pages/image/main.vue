@@ -124,6 +124,8 @@
             }
           });
           this.imageList = filterResult;
+          this.pageNum = 1;
+          this.pageSize = 12;
         }else{
           this.imageList = this.responseValue;
         }

@@ -150,6 +150,8 @@
             }
           });
           this.versionList = filterResult;
+          this.pageSize = 6;
+          this.pageNum = 1;
         }else{
           this.versionList = this.responseValue;
         }
