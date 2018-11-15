@@ -22,11 +22,20 @@
       >
         <el-table-column
                 prop="createTime"
-                label="部署时间">
+                label="部署时间"
+                headerAlign="center" align="center"
+        >
         </el-table-column>
         <el-table-column
                 prop="deployUserName"
                 label="部署人员"
+                headerAlign="center" align="center"
+        >
+        </el-table-column>
+        <el-table-column
+                prop="fullImage"
+                label="部署镜像"
+                headerAlign="center" align="center"
         >
         </el-table-column>
         <el-table-column
@@ -40,14 +49,9 @@
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="isEnable('time-analyze', scope.row) ? 'primary':'disabled'"
-                    @click="handleTRButton($event, 'time-analyze', scope.$index, scope.row)">部署时间分析</el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    type="text"
-                    :class="['flex', isEnable('related-image', scope.row) ? 'primary':'disabled']"
-                    @click="handleTRButton($event, 'related-image', scope.$index, scope.row)">
-              <span>相关镜像</span><i class="paas-icon-level-up"></i>
+                    :class="['flex', isEnable('time-analyze', scope.row) ? 'primary':'disabled']"
+                    @click="handleTRButton($event, 'time-analyze', scope.$index, scope.row)">
+              <span>部署时间分析</span><i class="paas-icon-popover" style="margin-left: 2px;"></i>
             </el-button>
           </template>
         </el-table-column>
@@ -231,6 +235,9 @@
           const deployLogList = resContent['deployLogList'];
           deployLogList.forEach(it => {
             it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+            if (!it['fullImage']) {
+              it['fullImage'] = '---';
+            }
           });
           this.deployLogList = deployLogList;
           this.getDeployLogListByPage();
@@ -419,6 +426,9 @@
           case 'time-analyze':
             try {
               const logDetail = JSON.parse(row['logDetail']);
+              if (!logDetail) {
+                break;
+              }
               const keyMap = {
                 'git': '代码下载',
                 'maven': 'Maven打包',
