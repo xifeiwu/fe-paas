@@ -173,7 +173,7 @@ class Net extends NetBase {
 
   parseLoginResponseMore(resContent) {
     let origin = this.parseLoginResponse(resContent);
-    let contentOfAppEngine = ['应用管理', '服务管理', '镜像中心','实例列表', '外网域名', '日志中心', '应用监控', '审批管理'];
+    let contentOfAppEngine = ['应用管理', '服务管理','实例列表', '外网域名', '日志中心', '应用监控', '审批管理'];
     let level2 = [{
       name: '应用引擎',
       icon: 'paas-icon-app',

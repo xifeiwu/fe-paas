@@ -123,7 +123,6 @@
       };
       this.resizeListener();
       addResizeListener(this.$el, this.resizeListener);
-      this.getImage();
     },
     beforeDestroy() {
       removeResizeListener(this.$el, this.resizeListener);
@@ -153,6 +152,9 @@
           resContent.forEach(it => {
             it.created = this.$utils.formatDate(Date.parse(it.created),"yyyy-MM-dd hh:mm:ss");
             it.size = parseInt(it.size / (1024 * 1024)) + "MB";
+          });
+          resContent.sort(function (a,b) {
+            return Date.parse(new Date(b.created)) - Date.parse(new Date(a.created));
           });
           this.versionList = resContent;
         })

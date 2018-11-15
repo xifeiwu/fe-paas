@@ -7,7 +7,7 @@
     </div>
     <div class="image-list">
       <el-table
-        :data="imageList"
+        :data="imageList | pageSlice(pageNum,pageSize)"
         style="width: 90%;"
         stripe
         :height="heightOfTable">
@@ -38,15 +38,16 @@
           <!--width="220px">-->
         <!--</el-table-column>-->
       </el-table>
-      <div class="pagination-container" v-if="totalNum > pageSize">
+      <div class="pagination-container" v-if="imageList.length > pageSize">
         <div class="pagination">
           <el-pagination
-            :current-page="currentPage"
+            :current-page="pageNum"
             size="large"
             layout="prev,pager,next"
             :page-size="pageSize"
-            :total="totalNum"
-            @current-change="handlePaginationPageChange">
+            :total="imageList.length"
+            @size-change="handleSizeChange"
+            @current-change="handleNumChange">
           </el-pagination>
         </div>
       </div>
@@ -102,9 +103,8 @@
       return {
         imageList:[],
         repository:"",
-        currentPage:1,
         pageSize:12,
-        totalNum:0,
+        pageNum:1,
         heightOfTable:'',
         resizeListener: () => {},
       }
@@ -126,16 +126,16 @@
         if(this.repository != null && this.repository != ""){
           payload["repository"] = this.repository;
         }
-        payload["page"] = this.currentPage;
-        payload["pageSize"] = this.pageSize;
         this.$net.requestPaasServer(this.$net.URL_LIST.image_list_by_group, {
           payload
         }).then(resContent => {
           resContent.body.forEach(it => {
             it.creation_time = this.$utils.formatDate(Date.parse(it.creation_time),"yyyy-MM-dd hh:mm:ss");
           });
+          resContent.body.sort(function (a,b) {
+            return Date.parse(new Date(b.creation_time)) - Date.parse(new Date(a.creation_time));
+          });
           this.imageList = resContent.body;
-          this.totalNum = parseInt(resContent.total);
         });
       },
 
@@ -149,6 +149,22 @@
         console.log(page);
         this.getImage();
       },
+
+      handleSizeChange(val){
+        this.pageSize = val;
+      },
+
+      handleNumChange(val){
+        this.pageNum = val;
+      },
     },
+
+    filters:{
+      pageSlice(array,pageNum,pageSize){
+        let offset = (pageNum - 1) * pageSize;
+        let data = (offset+pageSize >= array.length) ? array.slice(offset,array.length) : array.slice(offset,offset+pageSize);
+        return data;
+      }
+    }
   }
 </script>
