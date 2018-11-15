@@ -80,7 +80,7 @@ class Net extends NetBase {
           icon: 'paas-icon-config'
         },
         "镜像中心":{
-          router: this.page['profile/image/list'],
+          router: this.page['profile/image/repo'],
           icon: 'paas-icon-image'
         },
       };

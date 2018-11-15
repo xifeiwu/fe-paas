@@ -140,7 +140,7 @@
       },
 
       goToDetail(row) {
-        const targetPath = `${this.$net.page['profile/image/repo/list']}?repoName=${row.name}`;
+        const targetPath = `${this.$net.page['profile/image/repo/version']}?repoName=${row.name}`;
         this.$router.push(targetPath);
       },
 

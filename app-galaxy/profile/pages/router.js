@@ -226,8 +226,8 @@ class Helper {
         },
       ]
     }, {
-      path: '/profile/image/list',
-      name: '镜像中心',
+      path: '/profile/image/repo',
+      name: '镜像仓库',
       component: ImageList,
     },
     //   {
@@ -236,8 +236,8 @@ class Helper {
     //   component: ImageDetail,
     // },
       {
-        path: '/profile/image/repo/list',
-        name:'镜像详情',
+        path: '/profile/image/repo/version',
+        name:'镜像版本',
         component: ImageDetail,
       }
     ];

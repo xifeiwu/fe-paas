@@ -73,8 +73,8 @@ class Net {
       'index': '/index',
       'manage': '/manage',
       'terminal': '/terminal',
-      'profile/image/list': '/profile/image/list',
-      'profile/image/repo/list': '/profile/image/repo/list',
+      'profile/image/repo': '/profile/image/repo',
+      'profile/image/repo/version': '/profile/image/repo/version',
     };
 
     this.vm = new Vue({
