@@ -18,24 +18,27 @@
         <el-table-column
           prop="imageName"
           label="镜像：版本"
-          align="left">
+          aheaderAlign="center" align="left"
+          minWidth="150px"
+        >
         </el-table-column>
         <el-table-column
           prop="size"
           label="镜像大小"
-          align="center"
+          headerAlign="center" align="center"
           width="120px">
         </el-table-column>
         <el-table-column
           prop="created"
           label="构建成功时间"
-          align="center"
+          headerAlign="center" align="center"
           width="180px">
         </el-table-column>
         <el-table-column
           prop="gitAddress"
           label="git地址/分支"
-          align="center">
+          headerAlign="center" align="center"
+          minWidth="120px">
           <template slot-scope="scope">
             {{gitAddressAndBranch(scope.row)}}
           </template>
@@ -43,12 +46,14 @@
         <el-table-column
           prop="gitCommit"
           label="git commit"
-          align="center">
+          headerAlign="center" align="center"
+          minWidth="120px">
         </el-table-column>
         <el-table-column
           prop="imageDescribe"
           label="描述"
-          align="center">
+          headerAlign="center" align="center"
+          minWidth="120px">
         </el-table-column>
       </el-table>
       <div class="pagination-container" v-if="versionList.length > pageSize">
@@ -149,12 +154,16 @@
         this.$net.requestPaasServer(this.$net.URL_LIST.image_detail_by_image_name,{
           payload
         }).then(resContent => {
-          resContent.forEach(it => {
+          resContent.sort(function(a, b) {
+            return Date.parse(new Date(b.created)) - Date.parse(new Date(a.created));
+          }).forEach(it => {
             it.created = this.$utils.formatDate(Date.parse(it.created),"yyyy-MM-dd hh:mm:ss");
             it.size = parseInt(it.size / (1024 * 1024)) + "MB";
-          });
-          resContent.sort(function (a,b) {
-            return Date.parse(new Date(b.created)) - Date.parse(new Date(a.created));
+            ['gitAddress', 'gitBranch', 'gitCommit', 'imageDescribe'].forEach(key => {
+              if (!it[key]) {
+                it[key] = '---';
+              }
+            })
           });
           this.versionList = resContent;
         })
