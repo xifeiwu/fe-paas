@@ -63,6 +63,32 @@
             </el-button>
           </template>
         </el-table-column>
+        <el-table-column type="expand">
+          <template slot-scope="scope">
+            <div class="row-expand">
+              <el-form label-position="right" label-width="170px" inline size="mini" class="message-show">
+                <el-form-item label="实例名称">
+                  {{instanceMoreInfo.name}}
+                </el-form-item>
+                <el-form-item label="状态">
+                  {{instanceMoreInfo.status}}
+                </el-form-item>
+                <el-form-item label="数据库地址:端口">
+                  {{instanceMoreInfo.address+':'+instanceMoreInfo.port}}
+                </el-form-item>
+                <el-form-item label="CPU/内存">
+                  {{instanceMoreInfo.cpu + '/' + instanceMoreInfo.memory}}
+                </el-form-item>
+                <el-form-item label="已用/总磁盘空间">
+                  {{instanceMoreInfo.diskUsage + '/' + instanceMoreInfo.diskTotal}}
+                </el-form-item>
+                <el-form-item label="用户名/密码">
+                  {{instanceMoreInfo.userName + '/' + instanceMoreInfo.password}}
+                </el-form-item>
+              </el-form>
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
   </div>
@@ -91,6 +117,35 @@
           }
         }
         .ant-divider {
+        }
+      }
+      .row-expand {
+        box-sizing: border-box;
+        padding: 8px 12px;
+        width: 85%;
+        margin: 6px auto;
+        max-width: 900px;
+        box-shadow: 0 2px 7px 0 rgba(0, 0, 0, .18);
+        .el-form {
+          .el-form-item {
+            box-sizing: border-box;
+            width: calc(50% - 2px);
+            &.big {
+              .el-form-item__content {
+                margin-left: 170px;
+              }
+            }
+            .el-form-item__label {
+              font-weight: bold;
+            }
+            &.el-form-item--mini {
+              margin-bottom: 2px;
+            }
+            &.relativePathOfParentPOM {
+              .el-form-item__label {
+              }
+            }
+          }
         }
       }
     }
@@ -156,6 +211,7 @@
           return row.id;
         },
         expandRows: [],
+        instanceMoreInfo: {},
         operation: {
           name: '',
           row: null
@@ -228,24 +284,32 @@
             if (this.expandRows.indexOf(key) > -1) {
               this.expandRows.splice(this.expandRows.indexOf(key), 1);
             } else {
-//              const style = {
-//                "clusterId": 2,
-//                "middlewareNameId": 2,
-//                "middlewareVersionId": 3,
-//                "namespace": "lalala1",
-//                "name": "bqdtestmariadb27"
-//              };
               this.addToWaitingResponseQueue(action);
               this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_instance_info_detail, {
                 payload: {
                   clusterId: this.clusterId,
-                  middlewareNameId: row.id,
-                  middlewareVersionId: '',
+                  middlewareId: this.middlewareId,
+                  middlewareVersionId: 3,
                   namespace: this.$storeHelper.groupInfo.tag,
                   name: row.name
                 }
               }).then(resContent => {
                 console.log(resContent);
+                const cluster = resContent['cluster'];
+                const instance = resContent['instances'][0];
+                this.instanceMoreInfo = {
+                  name: cluster['metadata']['name'],
+                  address: instance['address'],
+                  port: instance['port'],
+                  userName: instance['user'],
+                  password: instance['password'],
+                  status: instance['status'],
+                  cpu: instance['cpu'],
+                  memory: instance['memory'],
+                  diskUsage: instance['diskUsage'],
+                  diskTotal: instance['disk']
+                };
+                console.log(this.instanceMoreInfo);
                 this.expandRows = [key];
               }).finally(() => {
                 this.hideWaitingResponse(action);
