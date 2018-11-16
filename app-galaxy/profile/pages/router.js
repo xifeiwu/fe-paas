@@ -32,6 +32,10 @@ import WorkOrderDeploy from './work-order/todo/deploy.vue';
 import WorkOrderAccept from './work-order/todo/accept.vue';
 import WorkOrderTest from './work-order/todo/test.vue';
 
+// middleware-mariadb
+import Middleware from './middleware/main.vue';
+import MiddlewareMariadbList from './middleware/mariadb/list';
+
 // config-server
 import ConfigServerMain from './config-server/main.vue';
 import ConfigServerFileList from './config-server/list.vue';
@@ -181,6 +185,15 @@ class Helper {
       path: '/profile/work-order/todo/accept',
       name: '验收工单',
       component: WorkOrderAccept,
+    }, {
+      path: '/profile/middleware',
+      // name: '中间件',
+      component: Middleware,
+      children: [{
+        path: 'mariadb/list',
+        name: 'mariadb实例列表',
+        component: MiddlewareMariadbList,
+      }]
     }, {
       path: '/profile/config-server',
       name: '配置中心',

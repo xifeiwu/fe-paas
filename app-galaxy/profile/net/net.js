@@ -414,6 +414,27 @@ class Net extends NetBase {
         path: '/workOrderDeploy/queryPendingOrdersByAppIdList',
         method: 'post',
         partial: false
+      },
+      /** 中间件相关 */
+      'middleware_cluster': {
+        path: '/middleware/queryOpenShiftCluster',
+        method: 'get'
+      },
+      'middleware_middleware': {
+        path: '/middleware/queryOpenShiftMiddleware',
+        method: 'get'
+      },
+      'middleware_middleware_version': {
+        path: '/middleware/queryMiddlewareVersion',
+        method: 'get'
+      },
+      'middleware_middleware_info_basic': {
+        path: '/middleware/queryMiddlewareMariaDBInstances',
+        method: 'post'
+      },
+      'middleware_middleware_info_detail': {
+        path: '/middleware/getMiddlewareMariaDBStatus',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
