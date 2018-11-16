@@ -28,7 +28,7 @@
         </el-table-column>
         <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="120">
         </el-table-column>
-        <el-table-column label="操作" prop="operation" minWidth="160" headerAlign="center" align="center">
+        <el-table-column label="操作" prop="operation" minWidth="180" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
                     type="text"
@@ -202,7 +202,7 @@
             break;
         }
       },
-      handleTRClick(evt, action, index, row) {
+      async handleTRClick(evt, action, index, row) {
         this.operation.row = row;
         switch (action) {
           case 'middleware_instance_update': break;
@@ -217,7 +217,28 @@
             if (this.expandRows.indexOf(key) > -1) {
               this.expandRows.splice(this.expandRows.indexOf(key), 1);
             } else {
-              this.expandRows = [key];
+//              const style = {
+//                "clusterId": 2,
+//                "middlewareNameId": 2,
+//                "middlewareVersionId": 3,
+//                "namespace": "lalala1",
+//                "name": "bqdtestmariadb27"
+//              };
+              this.addToWaitingResponseQueue(action);
+              this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_instance_info_detail, {
+                payload: {
+                  clusterId: this.clusterId,
+                  middlewareNameId: row.id,
+                  middlewareVersionId: '',
+                  namespace: this.$storeHelper.groupInfo.tag,
+                  name: row.name
+                }
+              }).then(resContent => {
+                console.log(resContent);
+                this.expandRows = [key];
+              }).finally(() => {
+                this.hideWaitingResponse(action);
+              });
             }
             break;
         }
