@@ -223,7 +223,7 @@
     background: white;
     height: 100%;
     /*margin:0px 6px;*/
-    max-width: 1300px;
+    max-width: 1500px;
     height: 100%;
     .el-row.header {
       padding: 3px 5px;

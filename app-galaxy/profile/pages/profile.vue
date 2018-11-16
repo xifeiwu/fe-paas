@@ -20,7 +20,9 @@
       <!--popover-message-area-->
       <div class="header">
         <div class="content-header">
+
           <div class="current-step">
+            <i class="paas-icon-fa-home" style="margin-right: 2px;"></i>
             <el-breadcrumb separator-class="el-icon-arrow-right">
               <el-breadcrumb-item v-for="item in crumbList" :key="item" :to="{path: item}">
                 {{routerPathToName[item]}}
@@ -87,7 +89,11 @@
   #profile {
     .header {
       .el-breadcrumb {
+        display: inline-block;
         .el-breadcrumb__item {
+          .el-breadcrumb__separator {
+            margin: 0px;
+          }
           .el-breadcrumb__inner, .el-breadcrumb__inner a {
             font-weight: normal;
             color: #409EFF
@@ -304,6 +310,10 @@
           duration: 0,
         });
       });
+      this.showDescriptor4Header = {
+        'manage': this.$storeHelper.getUserInfo('role') && this.$storeHelper.getUserInfo('role') === '平台管理员',
+        'profile': false
+      };
 
     },
     mounted() {
@@ -324,9 +334,6 @@
       this.$nextTick(() => {
         this.setDefaultActiveForHeader();
       });
-      this.showDescriptor4Header = {
-        'manage': this.$storeHelper.getUserInfo('role') && this.$storeHelper.getUserInfo('role') === '平台管理员',
-      };
 
       this.onRoutePath(this.$route);
 

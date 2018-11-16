@@ -1469,7 +1469,7 @@
     background: white;
     height: 100%;
     /*margin:0px 6px;*/
-    max-width: 1300px;
+    max-width: 1500px;
 
     /*box-shadow: 0 2px 8px rgba(0,0,0,0.1);*/
     .el-icon-edit {

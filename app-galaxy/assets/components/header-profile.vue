@@ -88,14 +88,9 @@
       },
       showDescriptor: {
         type: Object,
-        default: {
-          manage: false,
-          profile: true,
-          docs: true,
-          'user/info': false,
-          'user/message': false,
-          'user/group': true,
-          'user/logout': true
+        default(){
+          return {
+          }
         }
       }
     },

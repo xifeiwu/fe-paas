@@ -366,8 +366,8 @@
     .sheet {
       background-color: white;
       box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-      margin: 15px;
-      padding: 10px 20px;
+      margin: 10px;
+      padding: 10px 30px;
       width: 900px;
       .section-title {
         font-size: 18px;

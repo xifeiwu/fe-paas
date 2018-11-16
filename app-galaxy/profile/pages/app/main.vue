@@ -255,7 +255,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    max-width: 1300px;
+    max-width: 1500px;
     background: white;
     .header {
       padding: 3px 5px;

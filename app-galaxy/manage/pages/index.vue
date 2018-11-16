@@ -125,7 +125,7 @@
       };
       addResizeListener(this.$el, this.resizeListener);
 
-      if (this.userRole !== '平台管理员') {
+      if (this.$storeHelper.getUserInfo('role') !== '平台管理员') {
         window.location.pathname = this.$net.page['profile'];
         return;
       }
