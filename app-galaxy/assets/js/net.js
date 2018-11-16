@@ -93,6 +93,10 @@ class Net {
       'index': '/index',
       'manage': '/manage',
       'terminal': '/terminal',
+      'profile/image/repo': '/profile/image/repo',
+      'profile/image/repo/version': '/profile/image/repo/version',
+      'profile/middleware/mariadb': '/profile/middleware/mariadb',
+      'profile/middleware/mariadb/add': '/profile/middleware/mariadb/add'
     };
 
     this.vm = new Vue({

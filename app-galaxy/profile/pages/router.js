@@ -34,7 +34,8 @@ import WorkOrderTest from './work-order/todo/test.vue';
 
 // middleware-mariadb
 import Middleware from './middleware/main.vue';
-import MiddlewareMariadbList from './middleware/mariadb/list';
+import MiddlewareMariadb from './middleware/mariadb/index.vue';
+import MiddlewareMariadbAdd from './middleware/mariadb/add.vue';
 
 // config-server
 import ConfigServerMain from './config-server/main.vue';
@@ -191,8 +192,12 @@ class Helper {
       component: Middleware,
       children: [{
         path: 'mariadb',
-        name: 'mariadb实例列表',
-        component: MiddlewareMariadbList,
+        name: 'mariadb实例',
+        component: MiddlewareMariadb,
+      }, {
+        path: 'mariadb/add',
+        name: '添加实例',
+        component: MiddlewareMariadbAdd,
       }]
     }, {
       path: '/profile/config-server',

@@ -196,6 +196,7 @@
       handleButtonClick(evt, action) {
         switch (action) {
           case 'middleware_new_instance':
+            this.$router.push(this.$net.page['profile/middleware/mariadb/add']);
             break;
           case 'refreshList':
             this.requestList();
