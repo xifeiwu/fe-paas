@@ -568,7 +568,10 @@
         const pageOauth = ['oauth_create_access_key', 'oauth_update_access_config', 'oauth_delete_access_key',
           'oauth_modify_authorize_url_list',
           'oauth_authorize_url_toggle_enable'];
-        const allPermissionList1 = [...pageApp, ...pageService, ...pageInstance, ...pageDomain, ...pageWorkOrder, ...pageOauth];
+        const pageMiddleware = ['middleware_instance_update', 'middleware_instance_delete', 'middleware_instance_start',
+          'middleware_instance_stop'];
+        const allPermissionList1 = [...pageApp, ...pageService, ...pageInstance, ...pageDomain, ...pageWorkOrder,
+          ...pageOauth, ...pageMiddleware];
         const permissionMap = this.$net.getPermissionMap();
         const allPermissionList = [];
         Object.keys(permissionMap).forEach(it => {

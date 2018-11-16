@@ -190,7 +190,7 @@ class Helper {
       // name: '中间件',
       component: Middleware,
       children: [{
-        path: 'mariadb/list',
+        path: 'mariadb',
         name: 'mariadb实例列表',
         component: MiddlewareMariadbList,
       }]

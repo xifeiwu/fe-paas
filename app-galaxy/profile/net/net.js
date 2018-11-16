@@ -428,11 +428,11 @@ class Net extends NetBase {
         path: '/middleware/queryMiddlewareVersion',
         method: 'get'
       },
-      'middleware_middleware_info_basic': {
+      'middleware_middleware_instance_info_basic': {
         path: '/middleware/queryMiddlewareMariaDBInstances',
         method: 'post'
       },
-      'middleware_middleware_info_detail': {
+      'middleware_middleware_instance_info_detail': {
         path: '/middleware/getMiddlewareMariaDBStatus',
         method: 'post'
       }
