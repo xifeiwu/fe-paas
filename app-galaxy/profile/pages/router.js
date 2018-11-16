@@ -196,7 +196,7 @@ class Helper {
         component: MiddlewareMariadb,
       }, {
         path: 'mariadb/add',
-        name: '添加实例',
+        name: '申请实例',
         component: MiddlewareMariadbAdd,
       }]
     }, {

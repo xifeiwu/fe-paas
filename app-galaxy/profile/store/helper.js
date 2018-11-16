@@ -16,6 +16,11 @@ class StoreHelper extends BaseHelper{
     // popover on click
     this.globalPopover = null;
     this.globalTip = null;
+
+    this.middlewarePromiseChain = [];
+    this.clusterList = null;
+    this.currentClusterId = null;
+    this.currentMiddlewareId = null;
   }
 
   set currentGroupID(groupId) {
@@ -639,6 +644,65 @@ class StoreHelper extends BaseHelper{
   logout() {
     super.logout();
     this.$store.dispatch('logout');
+  }
+
+  setClusterList(clusterList) {
+    this.clusterList = clusterList;
+  }
+  getClusterById(clusterId) {
+    var cluster = null;
+    this.clusterList.some(it => {
+      if (clusterId === it['id']) {
+        cluster = it;
+      }
+      return cluster;
+    });
+    if (!cluster) {
+      console.log(`error: cluster not found`);
+    }
+    return cluster;
+  }
+
+  setMiddlewareList(clusterId, middlewareList) {
+    var cluster = this.getClusterById(clusterId);
+    if (cluster) {
+      cluster['middlewareList'] = middlewareList;
+    }
+  }
+  getMiddlewareList(clusterId) {
+    var middlewareList = null;
+    var cluster = this.getClusterById(clusterId);
+    if (cluster) {
+      middlewareList = cluster['middlewareList'];
+    }
+    return middlewareList;
+  }
+  getMiddlewareById(clusterId, middlewareId) {
+    var middleware = null;
+    var middlewareList = this.getMiddlewareList(clusterId);
+    if (middlewareList) {
+      middlewareList.some(it => {
+        if (middlewareId === it['id']) {
+          middleware = it;
+        }
+        return middleware;
+      });
+    }
+    if (!middleware) {
+      console.log(`error: middleware not found`);
+    }
+    return middleware;
+  }
+
+  setMiddlewareVersionList(clusterId, middlewareId, middlewareVersionList) {
+    var middleware = this.getMiddlewareById(clusterId, middlewareId);
+    if (middleware) {
+      middleware.versionList = middlewareVersionList;
+    }
+  }
+  getMiddlewareVersionList(clusterId, middlewareId) {
+    var middleware = this.getMiddlewareById(clusterId, middlewareId);
+    return middleware['versionList'];
   }
 }
 

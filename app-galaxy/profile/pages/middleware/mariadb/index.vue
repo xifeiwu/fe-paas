@@ -102,28 +102,38 @@
   module.exports = {
     mixins: [commonUtils],
     async created() {
-      const clusterList = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_cluster);
-      const clusterId = clusterList[0]['id'];
-      const middlewareList = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware, {
-        query: {
-          clusterId
+      this.$storeHelper.middlewarePromiseChain.push(async() => {
+//        console.log('middleware/mariadb created');
+        const clusterId = this.$storeHelper.currentClusterId;
+        const middlewareList = this.$storeHelper.getMiddlewareList(clusterId);
+        this.clusterId = clusterId;
+
+        var middlewareId = null;
+        middlewareList.some(it => {
+          if (it['middlewareName'] === 'mariadb') {
+            middlewareId = it['id'];
+          }
+          return middlewareId;
+        });
+        if (!middlewareId) {
+          console.log(`error: middlewareId not found!`);
         }
+
+        this.middlewareId = middlewareId;
+        this.$storeHelper.currentMiddlewareId = middlewareId;
+
+        var middlewareVersionList = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_version, {
+          query: {
+            middlewareId
+          }
+        });
+//      console.log(middlewareVersionList);
+        this.$storeHelper.setMiddlewareVersionList(clusterId, middlewareId, middlewareVersionList);
+
+        this.requestList();
       });
-      const middlewareId = middlewareList[0]['id'];
-      this.clusterId = clusterId;
-      this.middlewareId = middlewareId;
-
-      var middlewareVersionList = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_version, {
-        query: {
-          middlewareId
-        }
-      });
-
-      this.requestList();
-
-      console.log(clusterList);
-      console.log(middlewareList);
-      console.log(middlewareVersionList);
+      await this.$storeHelper.middlewarePromiseChain[0]();
+      await this.$storeHelper.middlewarePromiseChain[1]();
     },
     mounted() {
       // update value in next tick
@@ -191,7 +201,7 @@
           }
         });
         this.instanceList = instanceList;
-        console.log(instanceList);
+//        console.log(instanceList);
       },
       handleButtonClick(evt, action) {
         switch (action) {
