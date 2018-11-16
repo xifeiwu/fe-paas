@@ -51,8 +51,8 @@
             <el-button
                     type="text"
                     :class="$storeHelper.permission['middleware_instance_stop'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_instance_start') && operation.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_instance_start', scope.$index, scope.row)">停止</el-button>
+                    :loading="statusOfWaitingResponse('middleware_instance_stop') && operation.row.id == scope.row.id"
+                    @click="handleTRClick($event, 'middleware_instance_stop', scope.$index, scope.row)">停止</el-button>
             <div class="ant-divider"></div>
             <el-button
                     class="flex primary" type="text"
@@ -91,6 +91,41 @@
         </el-table-column>
       </el-table>
     </div>
+
+    <el-dialog title="更改实例规格" :visible="operation.name == 'middleware_instance_update'"
+               :close-on-click-modal="false"
+               @close="handleDialogButtonClick('close')"
+               class="middleware_instance_update size-500"
+               v-if="operation.name && operation.row"
+    >
+      <el-form :model="newProps" size="mini" labelWidth="80px">
+        <el-form-item label="CPU" prop="cpu">
+          <el-radio-group v-model="newProps.cpu" size="small">
+            <el-radio v-for="item in constants.cpuList" :label="item" :key="item">
+              {{item}}核
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="内存" prop="memory">
+          <el-radio-group v-model="newProps.memory" size="small">
+            <el-radio v-for="item in constants.memoryList" :label="item" :key="item">
+              {{item}}G
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleDialogButtonClick('middleware_instance_update')"
+                     :loading="statusOfWaitingResponse('middleware_instance_update')">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="handleDialogButtonClick('close')">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <style lang="scss">
@@ -216,6 +251,14 @@
           name: '',
           row: null
         },
+        newProps: {
+          cpu: '',
+          memory: ''
+        },
+        constants: {
+          cpuList: [1, 2],
+          memoryList: [2, 3, 4]
+        },
 
         totalSize: 0,
         pageSize: 10,
@@ -269,13 +312,103 @@
             break;
         }
       },
+      handleDialogButtonClick(action) {
+        console.log(action);
+        switch (action) {
+          case 'middleware_instance_update':
+            this.addToWaitingResponseQueue(action);
+            this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_update, {
+              payload: {
+                clusterId: this.clusterId,
+                middlewareId: this.middlewareId,
+                middlewareVersionId: 3,
+                namespace: this.$storeHelper.groupInfo.tag,
+                replicas: 1,
+                name: this.operation.row.name,
+                cpuRequests: this.newProps.cpu,
+                memoryRequests: this.newProps.memory
+              }
+            }).then(resContent => {
+              console.log(resContent);
+            }).finally(() => {
+              this.hideWaitingResponse(action);
+              this.operation.name = null;
+            });
+            break;
+          case 'close':
+            console.log(this.operation.name);
+            console.log(this.queueForWaitingResponse)
+            this.hideWaitingResponse(this.operation.name);
+            this.operation.name = null;
+            break
+        }
+      },
       async handleTRClick(evt, action, index, row) {
         this.operation.row = row;
         switch (action) {
-          case 'middleware_instance_update': break;
-          case 'middleware_instance_delete': break;
-          case 'middleware_instance_start': break;
-          case 'middleware_instance_stop': break;
+          case 'middleware_instance_update':
+            if (this.constants.cpuList.indexOf(this.newProps.cpu) === -1) {
+              this.newProps.cpu = this.constants.cpuList[0]
+            }
+            if (this.constants.memoryList.indexOf(this.newProps.memory) === -1) {
+              this.newProps.memory = this.constants.memoryList[0]
+            }
+            this.operation.name = action;
+            break;
+          case 'middleware_instance_delete':
+            this.addToWaitingResponseQueue(action);
+            try {
+              await this.warningConfirm(`删除mariadb "${row.name}"?`);
+              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_delete, {
+                payload: {
+                  clusterId: this.clusterId,
+                  middlewareId: this.middlewareId,
+                  middlewareVersionId: 3,
+                  namespace: this.$storeHelper.groupInfo.tag,
+                  name: this.operation.row.name,
+                }
+              });
+              this.hideWaitingResponse(action);
+            } catch(err) {
+              this.hideWaitingResponse(action);
+            }
+            break;
+          case 'middleware_instance_start':
+            this.addToWaitingResponseQueue(action);
+            try {
+              await this.warningConfirm(`启动mariadb实例 "${row.name}"?`);
+              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_start, {
+                payload: {
+                  clusterId: this.clusterId,
+                  middlewareId: this.middlewareId,
+                  middlewareVersionId: 3,
+                  namespace: this.$storeHelper.groupInfo.tag,
+                  name: this.operation.row.name,
+                }
+              });
+              this.hideWaitingResponse(action);
+            } catch(err) {
+              this.hideWaitingResponse(action);
+            }
+            break;
+          case 'middleware_instance_stop':
+            this.addToWaitingResponseQueue(action);
+            try {
+              await this.warningConfirm(`停止mariadb实例 "${row.name}"?`);
+              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_stop, {
+                payload: {
+                  clusterId: this.clusterId,
+                  middlewareId: this.middlewareId,
+                  middlewareVersionId: 3,
+                  namespace: this.$storeHelper.groupInfo.tag,
+                  name: this.operation.row.name,
+                }
+              });
+              this.hideWaitingResponse(action);
+            } catch(err) {
+              this.hideWaitingResponse(action);
+            }
+            break;
           case 'instance_more_info':
             if (!row.hasOwnProperty('id')) {
               return;
@@ -296,6 +429,10 @@
               }).then(resContent => {
                 console.log(resContent);
                 const cluster = resContent['cluster'];
+                if (resContent['instances'].length === 0) {
+                  this.$message.error('无运行实例，请联系管理员！');
+                  throw new Error('无运行实例！');
+                }
                 const instance = resContent['instances'][0];
                 this.instanceMoreInfo = {
                   name: cluster['metadata']['name'],

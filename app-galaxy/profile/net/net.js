@@ -416,24 +416,49 @@ class Net extends NetBase {
         partial: false
       },
       /** 中间件相关 */
+      // 获取cluster列表
       'middleware_cluster': {
         path: '/middleware/queryOpenShiftCluster',
         method: 'get'
       },
+      // 获取中间件列表
       'middleware_middleware': {
         path: '/middleware/queryOpenShiftMiddleware',
         method: 'get'
       },
+      // 获取中间件版本列表
       'middleware_middleware_version': {
         path: '/middleware/queryMiddlewareVersion',
         method: 'get'
       },
+      // 获取实例列表
       'middleware_middleware_instance_info_basic': {
         path: '/middleware/queryMiddlewareMariaDBInstances',
         method: 'post'
       },
+      // 获取更多实例信息
       'middleware_middleware_instance_info_detail': {
         path: '/middleware/getMiddlewareMariaDBStatus',
+        method: 'post'
+      },
+      // 修改实例信息（CPU, 内存）
+      'middleware_mariadb_instance_update': {
+        path: '/middleware/updateMiddlewareMariaDB',
+        method: 'post'
+      },
+      // 删除mariadb实例
+      'middleware_mariadb_instance_delete': {
+        path: '/middleware/deleteMiddlewareMariaDB',
+        method: 'post'
+      },
+      // 启动mariadb实例
+      'middleware_mariadb_instance_start': {
+        path: '/middleware/startMiddlewareMariaDBInstance',
+        method: 'post'
+      },
+      // 停止mariadb实例
+      'middleware_mariadb_instance_stop': {
+        path: '/middleware/stopMiddlewareMariaDBInstance',
         method: 'post'
       }
     };
