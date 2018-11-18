@@ -14,8 +14,9 @@
             active-text-color="#409EFF"
             :defaultActive="activeSideMenuItem">
       <el-menu-item v-for="menu in navMenu.level1" :key="menu.name" :index="menu.router">
+        <i :class="menu.icon"></i>
         <template slot="title">
-          <i :class="menu.icon"></i><span>{{menu.name}}</span>
+          <span>{{menu.name}}</span>
         </template>
       </el-menu-item>
       <el-submenu v-for="menu in navMenu.level2" :key="menu.name" :index="menu.router">

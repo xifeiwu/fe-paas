@@ -1,11 +1,11 @@
 <template>
   <div id="manage" class="spa">
-      <paas-nav-bar :activeSideMenuItem="activeSideMenuItem"></paas-nav-bar>
+    <paas-nav-bar :activeSideMenuItem="activeSideMenuItem"></paas-nav-bar>
     <main :style="{width: mainNodeWidth ? mainNodeWidth+'px':''}">
       <!--toasts-area-->
       <div class="header">
         <div></div>
-        <paas-header-profile ::showDescriptor="showDescriptor4Header" userName="userName" backgroundColor="#fafafa"
+        <paas-header-profile :showDescriptor="showDescriptor4Header" :userName="userName" backgroundColor="#fafafa"
                              ref="paasHeaderProfile"
                              defaultActive="manage" @menu-click="handleHeaderMenuClick"></paas-header-profile>
       </div>
@@ -47,9 +47,8 @@
         }
       }
       .content {
-        margin-top: 3px;
         padding: 0px;
-        height: calc(100% - 36px);
+        height: calc(100% - 33px);
         .el-row.header {
           background: white;
           border-bottom: 1px solid #e7e7e7;
@@ -72,6 +71,8 @@
         .child {
           /*height: calc(100% - 32px);*/
           height: 100%;
+          box-sizing: border-box;
+          padding: 5px;
           overflow: scroll;
         }
       }
@@ -208,9 +209,8 @@
     methods: {
       // set el-menu profile as active menu of paasHeaderProfile
       setDefaultActiveForHeader() {
-        return;
         if (this.$refs.hasOwnProperty('paasHeaderProfile') && this.$refs['paasHeaderProfile']) {
-          this.$refs['paasHeaderProfile'].setActiveMenu('profile');
+          this.$refs['paasHeaderProfile'].setActiveMenu('manage');
         }
       },
       onRoutePath (value, oldValue) {
