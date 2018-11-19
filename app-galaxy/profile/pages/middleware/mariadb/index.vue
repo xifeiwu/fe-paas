@@ -55,7 +55,7 @@
                     @click="handleTRClick($event, 'middleware_instance_stop', scope.$index, scope.row)">停止</el-button>
             <div class="ant-divider"></div>
             <el-button
-                    class="flex primary" type="text"
+                    class="primary" type="text"
                     :loading="statusOfWaitingResponse('instance_more_info') && operation.row.id == scope.row.id"
                     @click="handleTRClick($event, 'instance_more_info', scope.$index, scope.row)">
               <span>服务详情</span>
@@ -63,7 +63,8 @@
             </el-button>
           </template>
         </el-table-column>
-        <el-table-column type="expand">
+        <el-table-column type="expand"
+                         width="0">
           <template slot-scope="scope">
             <div class="row-expand">
               <el-form label-position="right" label-width="170px" inline size="mini" class="message-show">
@@ -348,6 +349,7 @@
               });
               this.$message.success(`mariadb实例 "${row.name}" 删除成功！`);
               this.hideWaitingResponse(action);
+              this.requestList();
             } catch(err) {
               this.hideWaitingResponse(action);
             }
@@ -365,7 +367,9 @@
                   name: this.operation.row.name,
                 }
               });
+              this.$message.success(`mariadb实例 "${row.name}" 启动成功！`);
               this.hideWaitingResponse(action);
+              this.expandRows = [];
             } catch(err) {
               this.hideWaitingResponse(action);
             }
@@ -383,7 +387,9 @@
                   name: this.operation.row.name,
                 }
               });
+              this.$message.success(`mariadb实例 "${row.name}" 停止成功！`);
               this.hideWaitingResponse(action);
+              this.expandRows = [];
             } catch(err) {
               this.hideWaitingResponse(action);
             }
@@ -406,13 +412,25 @@
                   name: row.name
                 }
               }).then(resContent => {
-                console.log(resContent);
+//                console.log(resContent);
                 const cluster = resContent['cluster'];
+                var instance = {
+                  status: '无运行实例',
+                  address: '---',
+                  port: '---',
+                  user: '---',
+                  password: '---',
+                  cpu: '---',
+                  memory: '---',
+                  diskUsage: '---',
+                  disk: '---',
+                };
                 if (resContent['instances'].length === 0) {
-                  this.$message.error('无运行实例，请联系管理员！');
-                  throw new Error('无运行实例！');
+//                  this.$message.error('无运行实例，请联系管理员！');
+//                  throw new Error('无运行实例！');
+                } else {
+                  instance = resContent['instances'][0];
                 }
-                const instance = resContent['instances'][0];
                 this.instanceMoreInfo = {
                   name: cluster['metadata']['name'],
                   address: instance['address'],
@@ -425,7 +443,7 @@
                   diskUsage: instance['diskUsage'],
                   diskTotal: instance['disk']
                 };
-                console.log(this.instanceMoreInfo);
+//                console.log(this.instanceMoreInfo);
                 this.expandRows = [key];
               }).finally(() => {
                 this.hideWaitingResponse(action);
