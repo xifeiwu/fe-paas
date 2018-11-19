@@ -192,38 +192,15 @@
   module.exports = {
     mixins: [commonUtils],
     async created() {
-      this.$storeHelper.middlewarePromiseChain.push(async() => {
-//        console.log('middleware/mariadb created');
-        const clusterId = this.$storeHelper.currentClusterId;
-        const middlewareList = this.$storeHelper.getMiddlewareList(clusterId);
-        this.clusterId = clusterId;
+      const profile = 'unProduction';
+      const middlewareName = 'mariadb';
+      await this.$storeHelper.checkMiddleBasicData(profile, middlewareName);
+//      console.log(this.$storeHelper.getClusterList());
+//      console.log(this.$storeHelper.currentMiddleware);
 
-        var middlewareId = null;
-        middlewareList.some(it => {
-          if (it['middlewareName'] === 'mariadb') {
-            middlewareId = it['id'];
-          }
-          return middlewareId;
-        });
-        if (!middlewareId) {
-          console.log(`error: middlewareId not found!`);
-        }
-
-        this.middlewareId = middlewareId;
-        this.$storeHelper.currentMiddlewareId = middlewareId;
-
-        var middlewareVersionList = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_version, {
-          query: {
-            middlewareId
-          }
-        });
-//      console.log(middlewareVersionList);
-        this.$storeHelper.setMiddlewareVersionList(clusterId, middlewareId, middlewareVersionList);
-
-        this.requestList();
-      });
-      await this.$storeHelper.middlewarePromiseChain[0]();
-      await this.$storeHelper.middlewarePromiseChain[1]();
+      this.clusterId = this.$storeHelper.currentMiddleware['clusterId'];
+      this.middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
+      this.requestList();
     },
     mounted() {
       // update value in next tick
@@ -358,7 +335,8 @@
           case 'middleware_instance_delete':
             this.addToWaitingResponseQueue(action);
             try {
-              await this.warningConfirm(`删除mariadb "${row.name}"?`);
+              const warningMsg = `删除mariadb实例 "${row.name}"?`;
+              await this.warningConfirm(warningMsg);
               const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_delete, {
                 payload: {
                   clusterId: this.clusterId,
@@ -368,6 +346,7 @@
                   name: this.operation.row.name,
                 }
               });
+              this.$message.success(`mariadb实例 "${row.name}" 删除成功！`);
               this.hideWaitingResponse(action);
             } catch(err) {
               this.hideWaitingResponse(action);

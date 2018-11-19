@@ -17,10 +17,12 @@ class StoreHelper extends BaseHelper{
     this.globalPopover = null;
     this.globalTip = null;
 
-    this.middlewarePromiseChain = [];
+    this.checkMiddleBasicData = () => {};
+    this.currentMiddleware = {
+      clusterId: null,
+      middlewareId: null,
+    };
     this.clusterList = null;
-    this.currentClusterId = null;
-    this.currentMiddlewareId = null;
   }
 
   set currentGroupID(groupId) {
@@ -648,6 +650,9 @@ class StoreHelper extends BaseHelper{
 
   setClusterList(clusterList) {
     this.clusterList = clusterList;
+  }
+  getClusterList() {
+    return this.clusterList;
   }
   getClusterById(clusterId) {
     var cluster = null;
