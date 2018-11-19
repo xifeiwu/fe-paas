@@ -251,6 +251,7 @@
       handleHeaderMenuClick(keyPath) {
         switch (keyPath) {
           case 'user/group':
+          case 'user/message':
           case 'user/info':
           case 'profile':
             window.open(this.$net.page[keyPath], '_blank');

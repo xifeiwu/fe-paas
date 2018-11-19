@@ -47,6 +47,25 @@
   </div>
 </template>
 
+<style lang="scss">
+  #user-message {
+    .message-list {
+      .el-table {
+        .el-table__body-wrapper {
+          tr {
+            color: black;
+            .row-expand {
+              font-size: 12px;
+              text-indent: 2em;
+              color: #545454;
+              padding: 0px;
+            }
+          }
+        }
+      }
+    }
+  }
+</style>
 <style lang="scss" scoped>
   #user-message {
     height: 100%;
@@ -63,14 +82,14 @@
           }
         }
         tr .row-expand {
-          color: black;
           box-sizing: border-box;
-          padding: 2px 6px;
           width: 85%;
-          margin: 6px auto;
           max-width: 900px;
-          border: 1px solid #eee;
-          /*box-shadow: 0 2px 7px 0 rgba(0,0,0,.18);*/
+          margin: 3px auto;
+          padding: 2px;
+          /*border: 1px solid #eee;*/
+          /*border-radius: 6px;*/
+          box-shadow: 0 1px 1px 0 rgba(0,0,0,.18);
         }
         .el-table__row {
           .el-button {
