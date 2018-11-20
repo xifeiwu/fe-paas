@@ -486,12 +486,19 @@
         if (!path.startsWith('/')) {
           return;
         }
+        var activeSideMenuItem = null;
+        ['profile/app', 'profile/service', 'profile/instance', 'profile/domain', 'profile/log', 'profile/work-order',
+          'profile/oauth', 'profile/config-server', 'profile/image/repo'].map(it => {
+            return this.$net.page[it];
+        }).some(it => {
+          if (path.startsWith(it)) {
+            activeSideMenuItem = it;
+          }
+          return activeSideMenuItem;
+        });
+        this.activeSideMenuItem = activeSideMenuItem;
+
         const pathList = path.split('/');
-
-        if (pathList.length >= 3) {
-          this.activeSideMenuItem = pathList.slice(0, 3).join('/');
-        }
-
         let index = 1;
         this.crumbList = [];
         while (index <= pathList.length) {

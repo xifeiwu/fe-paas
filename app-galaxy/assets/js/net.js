@@ -72,6 +72,8 @@ class Net {
       'profile/work-order/todo': '/profile/work-order/todo',
       'profile/work-order/todo/add': '/profile/work-order/todo/add',
       'profile/config-server': '/profile/config-server',
+      'profile/image/repo': '/profile/image/repo',
+      'profile/image/repo/version': '/profile/image/repo/version',
       'user/info': '/user/info',
       'user/group': '/user/group',
       'user/message': '/user/message',
@@ -80,8 +82,6 @@ class Net {
       'index': '/index',
       'manage': '/manage',
       'terminal': '/terminal',
-      'profile/image/repo': '/profile/image/repo',
-      'profile/image/repo/version': '/profile/image/repo/version',
     };
 
     this.vm = new Vue({
