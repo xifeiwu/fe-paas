@@ -43,6 +43,19 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-container" v-if="totalSize > pageSize">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "pageSize"
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange"
+          >
+          </el-pagination>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -53,11 +66,11 @@
       .el-table {
         .el-table__body-wrapper {
           tr {
-            color: black;
+            color: darkgrey;
             .row-expand {
+              color: #545454;
               font-size: 12px;
               text-indent: 2em;
-              color: #545454;
               padding: 0px;
             }
           }
@@ -118,20 +131,8 @@
 
     },
     async mounted() {
-      const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.message_list_all, {});
-
-      const messageList = resContent['data'].map(it => {
-        it.id = it.messageId;
-        it.releaseTime = this.$utils.formatDate(it.releaseTime, 'yyyy-MM-dd hh:mm:ss');
-        return it;
-      });
-//      console.log(messageList);
-      this.messageList = messageList;
-      this.totalSize = resContent['recordTotal'];
-      this.currentPage = 1;
-      this.updateMessageListByPage();
-
       this.onScreenSizeChange(this.$storeHelper.screen.size);
+      await this.requestMessage();
     },
     data() {
       return {
@@ -143,7 +144,7 @@
         expandRows: [],
 
         totalSize: 0,
-        pageSize: 15,
+        pageSize: 12,
         currentPage: 1,
         heightOfTable: '',
       }
@@ -157,6 +158,21 @@
           return;
         }
         this.heightOfTable = this.$el.clientHeight - 18;
+//        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 10;
+        this.updateMessageListByPage();
+      },
+
+      async requestMessage() {
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.message_list_all, {});
+        const messageList = resContent['data'].map(it => {
+          it.id = it.messageId;
+          it.releaseTime = this.$utils.formatDate(it.releaseTime, 'yyyy-MM-dd hh:mm:ss');
+          return it;
+        });
+        this.messageList = messageList;
+        this.totalSize = resContent['recordsTotal'];
+        this.currentPage = 1;
+        this.updateMessageListByPage();
       },
 
       async handleTRButton(action, index, row) {
@@ -193,7 +209,7 @@
 
       handlePaginationPageChange(page) {
         this.currentPage = page;
-        this.updateGroupListByPage();
+        this.updateMessageListByPage();
       },
 
       updateMessageListByPage() {

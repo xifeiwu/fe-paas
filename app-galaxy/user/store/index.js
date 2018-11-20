@@ -16,13 +16,19 @@ export default new Vuex.Store({
     screen: {
       width: 0,
       height: 0,
-      size: 0
+      size: 0,
+      ratioHeight: 0
     }
   },
   actions: {
     setScreenSize({state, commit}, {width, height}) {
       state.screen.width = width;
       state.screen.height = height;
+      try {
+        state.screen.ratioHeight = height / window.devicePixelRatio;
+      } catch(err) {
+        state.screen.ratioHeight = 500
+      }
       state.screen.size = width * height;
     },
     setConfig({commit}, config) {
