@@ -255,7 +255,8 @@
               memoryRequests: formData.memory,
               storageSize: formData.disk,
               databaseUser: formData.userName,
-              databasePassword: formData.password
+              databasePassword: formData.password,
+              instanceDescribe: formData.comment
             };
 //            console.log(payload);
             const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_create, {
