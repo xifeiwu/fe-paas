@@ -460,6 +460,11 @@ class Net extends NetBase {
       'middleware_mariadb_instance_stop': {
         path: '/middleware/stopMiddlewareMariaDBInstance',
         method: 'post'
+      },
+      // 创建mariadb实例
+      'middleware_mariadb_instance_create': {
+        path: '/middleware/createMiddlewareMariaDB',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

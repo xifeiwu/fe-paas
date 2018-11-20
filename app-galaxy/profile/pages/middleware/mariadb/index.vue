@@ -291,7 +291,6 @@
         }
       },
       handleDialogButtonClick(action) {
-        console.log(action);
         switch (action) {
           case 'middleware_instance_update':
             this.addToWaitingResponseQueue(action);
@@ -307,7 +306,8 @@
                 memoryRequests: this.newProps.memory
               }
             }).then(resContent => {
-              console.log(resContent);
+//              console.log(resContent);
+              this.expandRows = [];
             }).finally(() => {
               this.hideWaitingResponse(action);
               this.operation.name = null;
@@ -315,7 +315,7 @@
             break;
           case 'close':
             console.log(this.operation.name);
-            console.log(this.queueForWaitingResponse)
+            console.log(this.queueForWaitingResponse);
             this.hideWaitingResponse(this.operation.name);
             this.operation.name = null;
             break
