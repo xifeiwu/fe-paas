@@ -69,9 +69,11 @@
             color: darkgrey;
             .row-expand {
               color: #545454;
-              font-size: 12px;
+              background-color: #fafafa;
+              font-size: 13px;
+              line-height: 150%;
               text-indent: 2em;
-              padding: 0px;
+              padding: 5px;
             }
           }
         }
@@ -96,13 +98,13 @@
         }
         tr .row-expand {
           box-sizing: border-box;
-          width: 85%;
-          max-width: 900px;
           margin: 3px auto;
-          padding: 2px;
-          /*border: 1px solid #eee;*/
-          /*border-radius: 6px;*/
-          box-shadow: 0 1px 1px 0 rgba(0,0,0,.18);
+          max-width: 900px;
+          min-height: 150px;
+          width: 85%;
+          box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+          border: none;
+          border-radius: 2px;
         }
         .el-table__row {
           .el-button {

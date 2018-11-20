@@ -1302,6 +1302,9 @@
             /*box-shadow: 0 0 2px 0 rgba(64,158,255, .6);*/
             box-shadow: 0 2px 7px 0 rgba(0,0,0,.18);
             /*box-shadow: 0 6px 18px 0 rgba(232,237,250,0.50);*/
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+            border: none;
+            border-radius: 2px;
             .el-form {
               .el-form-item {
                 .el-form-item__label {
