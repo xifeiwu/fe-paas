@@ -107,7 +107,7 @@
                         placeholder="不能包含中文，不能超过512个字符"
               ></el-input>
               <div style="color:#409EFF; display:flex; align-items: flex-start; cursor:pointer; font-size: 12px; line-height: 16px;">
-                <span style="line-height: 20px;" @click="handleClick('set-default-vmOptions')">帮我填</span>
+                <span style="line-height: 20px;" @click="handleClick($event, 'set-default-vmOptions')">帮我填</span>
                 <el-tooltip slot="trigger" effect="dark" placement="bottom">
                   <div slot="content">
                     <div>填写默认的VM_options</div>
