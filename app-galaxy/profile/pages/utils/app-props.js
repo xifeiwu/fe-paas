@@ -1,4 +1,3 @@
-import STORE from '../../store';
 import utils from 'assets/libs/element-ui/utils';
 
 class AppInfoHelper {
@@ -282,45 +281,6 @@ class AppInfoHelper {
     }
   }
 
-  getProfileMessage() {
-    let profileListOfGroup = STORE.getters['user/profileListOfGroup'];
-    if (!profileListOfGroup) {
-      return null;
-    }
-    return profileListOfGroup;
-  }
-
-  getProfileInfoByName(name) {
-    let profileListOfGroup = this.getProfileMessage();
-    let result = null;
-    if (Array.isArray(profileListOfGroup)) {
-      for (let key in profileListOfGroup) {
-        let item = profileListOfGroup[key];
-        if (name == item.name) {
-          result = item;
-          break;
-        }
-      }
-    }
-    return result;
-  }
-
-  getProfileInfoByID(id) {
-    let profileListOfGroup = this.getProfileMessage();
-    let result = null;
-    if (Array.isArray(profileListOfGroup)) {
-      for (let key in profileListOfGroup) {
-        let item = profileListOfGroup[key];
-        if (id == item.id) {
-          result = item;
-          break;
-        }
-      }
-    }
-    return result;
-  }
-
-
   getImageNameById(id) {
     let name = '未知';
     if (null == id) {
@@ -403,57 +363,6 @@ class AppInfoHelper {
       return it.toUpperCase();
     })
   }
-
-  /** map key from local to server, used for add app and add service
-   * @param origin
-   */
-  changePropNameForServer(origin) {
-    let preTreat = function(item) {
-      if (item.hasOwnProperty('serviceVersion')) {
-        item['serviceVersion'] = 'v' + item['serviceVersion'];
-      }
-      return item;
-    };
-    let keyMap = {
-      instanceCount: 'instanceNum',
-      // appName: 'tag',
-      // projectName: 'serviceName',
-      // appName: 'serviceName',
-      projectName: 'tag',
-
-      profiles: 'spaceList',
-      buildType: 'packageType',
-      imageType: 'customImage',
-      imageLocation: 'image',
-      fileLocation: 'volumes',
-      groupID: 'groupId',
-      cpuID: 'cpuId',
-      memoryID: 'memoryId',
-      relativePathOfParentPOM: 'relativePath',
-      scrumID: 'scrumId',
-      lobID: 'lobId'
-      // gitlabAddress: 'gitLabAddress',
-      // gitlabBranch: 'gitLabBranch',
-    };
-    let updateProp = function(item) {
-      if ('object' === typeof(item)) {
-        for (let key in item) {
-          if (keyMap.hasOwnProperty(key)) {
-            item[keyMap[key]] = item[key];
-            delete item[key];
-          }
-        }
-      } else if (Array.isArray(item)) {
-        item.forEach(updateProp);
-      }
-    };
-
-    let copy = JSON.parse(JSON.stringify(origin));
-    copy = preTreat(copy);
-    updateProp(copy);
-    return copy;
-  }
-
 
   get warningList() {
     return {
