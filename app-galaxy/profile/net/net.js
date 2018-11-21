@@ -433,12 +433,12 @@ class Net extends NetBase {
       },
       // 获取实例列表
       'middleware_middleware_instance_info_basic': {
-        path: '/middleware/queryMiddlewareMariaDBInstances',
+        path: '/middleware/queryMiddlewareRuntime',
         method: 'post'
       },
       // 获取更多实例信息
       'middleware_middleware_instance_info_detail': {
-        path: '/middleware/getMiddlewareMariaDBStatus',
+        path: '/middleware/getMiddlewareStatus',
         method: 'post'
       },
       // 修改实例信息（CPU, 内存）
@@ -448,17 +448,17 @@ class Net extends NetBase {
       },
       // 删除mariadb实例
       'middleware_mariadb_instance_delete': {
-        path: '/middleware/deleteMiddlewareMariaDB',
+        path: '/middleware/deleteMiddleware',
         method: 'post'
       },
       // 启动mariadb实例
       'middleware_mariadb_instance_start': {
-        path: '/middleware/startMiddlewareMariaDBInstance',
+        path: '/middleware/startMiddlewareInstance',
         method: 'post'
       },
       // 停止mariadb实例
       'middleware_mariadb_instance_stop': {
-        path: '/middleware/stopMiddlewareMariaDBInstance',
+        path: '/middleware/stopMiddlewareInstance',
         method: 'post'
       },
       // 创建mariadb实例
