@@ -16,10 +16,6 @@
     </div>
     <div class="item">
       <label>版本:</label>
-      <!--<el-select v-model="selectedVersion" :placeholder="currentVersionList.length > 0 ? '加载中' : '当前运行环境下没有版本！'">-->
-        <!--<el-option v-for="item in currentVersionList" :key="item" :label="item" :value="item">-->
-        <!--</el-option>-->
-      <!--</el-select>-->
       <el-select filterable v-model="selectedServiceId" :placeholder="currentServiceList.length > 0 ? '请选择' : '当前运行环境下没有版本！'">
         <el-option v-for="item in currentServiceList" :key="item.id" :label="item.serviceVersion" :value="item.id">
         </el-option>
@@ -157,16 +153,9 @@
           if (appInfoListOfGroup.hasOwnProperty('appList')) {
             this.appList = appInfoListOfGroup.appList;
           }
-//          if (!this.appList || (0 == this.appList.length)) {
-//            this.$notify.warning({
-//              title: '该团队应用列表为空',
-//              message: '某些操作可能无法正常进行！',
-//              duration: 1 * 1000,
-//              onClose: function () {
-//              }
-//            });
-//            return;
-//          }
+          if (!this.appList || (0 == this.appList.length)) {
+            console.log('该团队应用列表为空，某些操作可能无法正常进行');
+          }
           // the sequence of getting default appId:
           // 1. customConfig.appId if customConfig exist
           // 2. first element of appList
