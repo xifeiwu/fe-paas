@@ -410,6 +410,8 @@
       });
     },
     beforeDestroy() {
+      this.popoverProfileList.doClose();
+      this.popoverProfileList.doDestroy();
     },
     data() {
       return {
