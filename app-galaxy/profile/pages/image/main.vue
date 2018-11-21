@@ -1,18 +1,26 @@
 <template>
   <div id="image-main">
     <div class="header">
-      <el-input size="mini" style="max-width: 300px" v-model="searchValue" placeholder="搜索镜像" suffix-icon="el-icon-search"></el-input>
+      <el-row type="flex" justify="center" align="middle">
+        <el-col :span="6" :offset="17">
+          <el-input size="mini" style="max-width: 300px" v-model="searchValue" placeholder="搜索镜像" suffix-icon="el-icon-search"></el-input>
+        </el-col>
+        <el-col :span="1" style="margin-right: 5px">
+          <el-button size="mini-extral" type="primary" @click="getImage()"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
+        </el-col>
+      </el-row>
     </div>
     <div class="image-list">
       <el-table
         :data="imageList | pageSlice(pageNum,pageSize)"
-        style="width: 90%;"
+        style="width: 100%;"
         stripe
         :height="heightOfTable">
         <el-table-column
           prop="name"
           label="镜像仓库名称"
-          align="left">
+          align="left"
+          minWidth="200px">
           <template slot-scope="scope">
             <el-button type="text" @click="goToDetail(scope.row)">{{scope.row.name}}</el-button>
           </template>
@@ -20,14 +28,12 @@
         <el-table-column
           prop="tags_count"
           label="镜像数"
-          align="center"
-          width="330px">
+          align="center">
         </el-table-column>
         <el-table-column
           prop="creation_time"
           label="创建时间"
-          align="center"
-          width="330px">
+          align="center">
         </el-table-column>
         <!--<el-table-column-->
           <!--prop="creator"-->
@@ -56,15 +62,10 @@
   #image-main {
     height: 100%;
     .header{
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-      padding-top: 20px;
-      margin-right: 65px;
+      padding: 4px 6px;
     }
     .image-list{
       text-align: center;
-      margin-top: 30px;
       .el-table{
         display: inline-block;
       }
@@ -81,7 +82,7 @@
       const headerNode = this.$el.querySelector(':scope > .header');
       this.resizeListener = () => {
         let headerHeight = headerNode.offsetHeight;
-        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+        this.heightOfTable = this.$el.clientHeight - headerHeight;
       };
       this.resizeListener();
       addResizeListener(this.$el, this.resizeListener);
@@ -94,7 +95,6 @@
       return {
         imageList:[],
         responseValue:[],
-        repository:"",
         searchValue:"",
         pageSize:12,
         pageNum:1,
@@ -135,9 +135,6 @@
       getImage() {
         let payload = {};
         payload["groupTag"] = this.$storeHelper.groupInfo.tag;
-        if(this.repository != null && this.repository != ""){
-          payload["repository"] = this.repository;
-        }
         this.$net.requestPaasServer(this.$net.URL_LIST.image_list_by_group, {
           payload
         }).then(resContent => {
@@ -149,6 +146,8 @@
           });
           this.responseValue = resContent.body;
           this.imageList = resContent.body;
+          this.pageNum = 1;
+          this.pageSize = 12;
         });
       },
 

@@ -1,16 +1,19 @@
 <template>
   <div id="image-detail">
     <div class="header">
-      <div class="back-page">
-        <div class="paas-icon-back back-icon" @click="backLastPage"></div>
-        <div class="back-image">{{repoName}}</div>
-      </div>
-      <el-input size="mini" style="max-width: 300px" v-model="searchValue" placeholder="搜索镜像" suffix-icon="el-icon-search"></el-input>
+      <el-row type="flex" justify="center" align="middle">
+        <el-col :span="10">{{repoName}}</el-col>
+        <el-col :span="6" :offset="7">
+          <el-input size="mini" style="max-width: 300px" v-model="searchValue" placeholder="搜索镜像" suffix-icon="el-icon-search"></el-input>
+        </el-col>
+        <el-col :span="1" style="margin-right: 5px">
+          <el-button size="mini-extral" type="primary" @click="getVersionList()"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
+        </el-col>
+      </el-row>
     </div>
     <div class="version-list">
       <el-table
         :data="versionList | pageSlice(pageNum,pageSize)"
-        style="width: 95%"
         stripe
         :height="heightOfTable">
         <el-table-column
@@ -75,25 +78,10 @@
   #image-detail{
     height: 100%;
     .header{
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-      padding-top: 20px;
-      margin-right: 33px;
-      .back-page{
-        position: absolute;
-        left:45px;
-        top: 10px;
-        .back-icon{
-          cursor: pointer;
-          &:hover{color:blue;}
-          font-size:25px;
-        }
-      }
+      padding: 4px 6px;
     }
     .version-list{
       text-align: center;
-      margin-top: 30px;
       .el-table{
         display: inline-block;
       }
@@ -115,7 +103,7 @@
       const headerNode = this.$el.querySelector(':scope > .header');
       this.resizeListener = () => {
         let headerHeight = headerNode.offsetHeight;
-        this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+        this.heightOfTable = this.$el.clientHeight - headerHeight;
       };
       this.resizeListener();
       addResizeListener(this.$el, this.resizeListener);
@@ -129,9 +117,8 @@
         responseValue:[],
         searchValue:'',
         repoName:'',
-        tag:'',
         pageNum:1,
-        pageSize:6,
+        pageSize:10,
         heightOfTable:'',
         resizeListener: () => {},
       }
@@ -150,7 +137,7 @@
             }
           });
           this.versionList = filterResult;
-          this.pageSize = 6;
+          this.pageSize = 10;
           this.pageNum = 1;
         }else{
           this.versionList = this.responseValue;
@@ -163,9 +150,6 @@
         this.versionList = [];
         let payload = {};
         payload["projectAndRepository"] = this.repoName;
-        if(this.tag != null && this.tag != ""){
-          payload["tag"] = this.tag;
-        }
         this.$net.requestPaasServer(this.$net.URL_LIST.image_detail_by_image_name,{
           payload
         }).then(resContent => {
@@ -182,11 +166,9 @@
           });
           this.responseValue = resContent;
           this.versionList = resContent;
+          this.pageNum = 1;
+          this.pageSize = 10;
         })
-      },
-
-      backLastPage(){
-        this.$router.go(-1);
       },
 
       handleSizeChange(val){
