@@ -2,11 +2,11 @@
   <div id="domain-main">
     <div class="header">
       <div class="row selector">
-        <my-version-condition-filter
+        <paas-service-selector
                 ref="version-condition-filter"
-                :addItemAll="{app:true, profile:true, service: true}"
+                :addItemAll="{app:true, profile:true}"
                 :customConfig="localServiceConfig"
-                @service-condition-changed="onServiceConditionChanged"></my-version-condition-filter>
+                @service-selected="onServiceConditionChanged"></paas-service-selector>
         <el-input
                 size="mini"
                 style="max-width: 200px"
@@ -238,10 +238,6 @@
             <div style="font-weight: bold">提示 <i class="el-icon-warning"></i></div>
             <div>{{bindServiceProps.bindTipForApp}}</div>
           </div>
-          <br>
-          <div class="title">域名绑定服务规则<i class="el-icon-question"></i></div>
-          <div class="item">1. 所选版本为全部时，所选域名会作为该应用的全局域名，指向应用的默认服务版本。</div>
-          <div class="item">2. 所选版本为特定版本时，所选域名只会绑定到所选服务版本上。</div>
         </div>
       </div>
       <div slot="footer" class="dialog-footer" v-if="!bindServiceProps.showResponse">
@@ -521,7 +517,7 @@
         }
         &.selector {
           text-align: left;
-          .profile-version-condition-filter {
+          .paas-service-selector {
             display: inline-block;
           }
         }
@@ -543,10 +539,10 @@
 </style>
 
 <script>
-  import MyVersionConditionFilter from '../components/version-condition-filter.vue';
+  import paasServiceSelector from '../components/service-selector.vue';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   export default {
-    components: {MyVersionConditionFilter},
+    components: {paasServiceSelector},
     created() {
       // 1. page service
       try {
@@ -556,11 +552,11 @@
           switch (dataTransfer['from']) {
             case this.$net.page['profile/service']:
               this.localServiceConfig = {
-                appID: data['appId'],
-                profileID: data['profileId']
+                appId: data['appId'],
+                profileId: data['profileId']
               };
               if (data.hasOwnProperty('serviceId')) {
-                this.localServiceConfig['serviceID'] = data['serviceId'];
+                this.localServiceConfig['serviceId'] = data['serviceId'];
               }
               break;
           }
@@ -787,7 +783,7 @@
           groupId: this.$storeHelper.currentGroupID,
           spaceId: profileID,
           applicationId: appID,
-          serviceId: serviceID,
+//          serviceId: serviceID,
           start: start,
           length: length,
           keyword: this.keyword
@@ -1087,12 +1083,12 @@
               internetDomainIdList: domainIdList,
               spaceId: selectedValue['selectedProfile'].id,
               applicationId: selectedValue['selectedAPP']['appId'],
-              serviceId: ''
+//              serviceId: ''
             };
-            if (selectedValue['selectedService']
-              && selectedValue['selectedService'].id !== this.$storeHelper.SERVICE_ID_FOR_ALL) {
-              options['serviceId'] = selectedValue['selectedService'].id;
-            }
+//            if (selectedValue['selectedService']
+//              && selectedValue['selectedService'].id !== this.$storeHelper.SERVICE_ID_FOR_ALL) {
+//              options['serviceId'] = selectedValue['selectedService'].id;
+//            }
 //            console.log(options);
             this.$net.domainBindService(options).then(content => {
               let domainIDList = Object.keys(content);
@@ -1223,7 +1219,7 @@
       },
 
       handleConditionChangeInDialog(profile, app, service) {
-        if (service.id === this.$storeHelper.SERVICE_ID_FOR_ALL) {
+        if (false) {
           this.bindServiceProps.bindTipForApp = `所选外网域名会作为全局域名，绑定到应用"${app.appName}"的"${profile.description}"的默认服务下。`;
         } else {
           this.bindServiceProps.bindTipForApp = `所选外网域名会绑定到应用"${app.appName}"的"${profile.description}"的版本为"${service.serviceVersion}"的服务下。`;
