@@ -152,10 +152,6 @@
           }
         });
       },
-      doClose() {
-        this.popperStatus.show = false;
-//        this.doDestroy();
-      },
       handleDocumentClick(e) {
         let reference = this.reference;
         const popper = this.popper || this.$refs.popper;
@@ -264,12 +260,21 @@
         element.appendChild(arrow);
       },
 
+      // hide realated node
+      doClose() {
+        this.popperStatus.show = false;
+//        this.doDestroy();
+      },
+
+      // remove realated node
       doDestroy() {
         /* istanbul ignore if */
-//        if (this.showPopper || !this.popperJS) return;
         if (this.popperJS) {
           this.popperJS.destroy();
           this.popperJS = null;
+        }
+        if (this.popperElm && this.popperElm.parentNode === document.body) {
+          document.body.removeChild(this.popperElm);
         }
       }
     },
