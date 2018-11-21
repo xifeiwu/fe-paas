@@ -14,7 +14,7 @@
         </el-option>
       </el-select>
     </div>
-    <div class="item">
+    <div class="item" v-if="false">
       <label>版本:</label>
       <el-select filterable v-model="selectedServiceId" :placeholder="currentServiceList.length > 0 ? '请选择' : '当前运行环境下没有版本！'">
         <el-option v-for="item in currentServiceList" :key="item.id" :label="item.serviceVersion" :value="item.id">
@@ -84,6 +84,7 @@
         // 版本（既服务）列表
         selectedServiceId: null,
         selectedService: null,
+        DEFAULT_SERVICE_ID: 10,
         currentServiceList: [],
 
         // TODO: not used
@@ -104,7 +105,15 @@
         if (!appId || !profileId) {
           return;
         }
-        this.requestServiceList(appId, profileId);
+//        this.requestServiceList(appId, profileId);
+        this.currentServiceList = [{
+          id: this.DEFAULT_SERVICE_ID,
+          serviceVersion: 'default'
+        }];
+        this.selectedServiceId = null;
+        setTimeout(() => {
+          this.selectedServiceId = this.DEFAULT_SERVICE_ID;
+        });
       },
 
       // update currentService when selectedServiceId is changed
