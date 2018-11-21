@@ -48,7 +48,7 @@
       </div>
     </div>
     <div class="application-section">
-      <div class="title">程序列表</div>
+      <div class="title">相关应用</div>
       <el-form :model="workOrderForm" :rules="rules"
                ref="applicationForm"
                size="mini"
@@ -60,7 +60,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="生产环境版本" prop="serviceVersion" :error="serviceVersionError.description">
+        <el-form-item label="生产环境版本" prop="serviceVersion" :error="serviceVersionError.description" v-if="false">
           <el-select v-model="workOrderForm.serviceVersion"
                      :placeholder="versionList.length > 0 ? '请选择': '当前应用的生产环境下没有版本'">
             <el-option v-for="(item, index) in versionList" :key="index" :label="item" :value="item"></el-option>

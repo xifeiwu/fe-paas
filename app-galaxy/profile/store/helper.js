@@ -10,6 +10,7 @@ class StoreHelper extends BaseHelper{
     this.PROFILE_ID_FOR_ALL = -1;
     this.APP_ID_FOR_ALL = -1;
     this.APP_ID_FOR_NULL = '';
+    this.PROFILE_ID_FOR_NULL = '';
     this.SERVICE_ID_FOR_ALL = -1;
     this.SERVICE_ID_FOR_NULL = '';
     // popover on click

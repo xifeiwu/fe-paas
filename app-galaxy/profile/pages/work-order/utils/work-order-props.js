@@ -242,7 +242,10 @@ class WorkOrderUtils {
       // 功能列表
       featureList: [],
       // 应用列表
-      appList: resContent['appVOList'],
+      appList: resContent['appVOList'].map(it => {
+        it['serviceVersion'] = '生产环境';
+        return it;
+      }),
       // 第一个应用的信息
       appID: resContent['appVOList'][0]['appId'], // to delete
       appName: resContent['appVOList'][0]['appName'], // to delete
