@@ -17,7 +17,7 @@ class StoreHelper extends BaseHelper{
     this.globalPopover = null;
     this.globalTip = null;
 
-    this.checkMiddleBasicData = () => {};
+    this.checkBasicData4Middleware = () => {};
     this.currentMiddleware = {
       clusterId: null,
       middlewareId: null,

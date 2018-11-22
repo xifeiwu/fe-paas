@@ -67,6 +67,8 @@
                          width="0">
           <template slot-scope="scope">
             <div class="row-expand">
+              <i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('instance_more_info_refresh') ? 'loading':'']"
+                 @click="handleTRClick($event, 'instance_more_info_refresh')"></i>
               <el-form label-position="right" label-width="170px" inline size="mini" class="message-show">
                 <el-form-item label="实例名称">
                   {{instanceMoreInfo.name}}
@@ -156,12 +158,30 @@
         }
       }
       .row-expand {
+        position: relative;
         box-sizing: border-box;
         padding: 8px 12px;
         width: 85%;
         margin: 6px auto;
         max-width: 900px;
-        box-shadow: 0 2px 7px 0 rgba(0, 0, 0, .18);
+        box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+        border: none;
+        border-radius: 2px;
+        .el-icon-refresh {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          font-size: 14px;
+          &:hover {
+            /*font-size: 16px;*/
+            color: #409EFF;
+            cursor: pointer;
+          }
+          &.loading {
+            pointer-events: none;
+            animation: rotating 1s linear;
+          }
+        }
         .el-form {
           .el-form-item {
             box-sizing: border-box;
@@ -193,14 +213,7 @@
   module.exports = {
     mixins: [commonUtils],
     async created() {
-      const profile = 'unProduction';
-      const middlewareName = 'mariadb';
-      await this.$storeHelper.checkMiddleBasicData(profile, middlewareName);
-//      console.log(this.$storeHelper.getClusterList());
-//      console.log(this.$storeHelper.currentMiddleware);
-
-      this.clusterId = this.$storeHelper.currentMiddleware['clusterId'];
-      this.middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
+      await this.checkBasicData4Middleware();
       this.requestList();
     },
     mounted() {
@@ -247,6 +260,17 @@
       '$storeHelper.screen.size': 'onScreenSizeChange',
     },
     methods: {
+      // check if all necessary data is get
+      async checkBasicData4Middleware() {
+        const profile = 'unProduction';
+        const middlewareName = 'mariadb';
+        await this.$storeHelper.checkBasicData4Middleware(profile, middlewareName);
+//      console.log(this.$storeHelper.getClusterList());
+//      console.log(this.$storeHelper.currentMiddleware);
+        this.clusterId = this.$storeHelper.currentMiddleware['clusterId'];
+        this.middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
+      },
+
       onScreenSizeChange(size) {
 //        console.log(this.$storeHelper.screen);
         if (!size) {
@@ -261,7 +285,11 @@
         }
       },
 
+      // request instance list
       async requestList() {
+        if (!this.clusterId || !this.middlewareId) {
+          await this.checkBasicData4Middleware();
+        }
         this.instanceList = [];
         const instanceList = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_instance_info_basic, {
           payload: {
@@ -280,6 +308,7 @@
         this.instanceList = instanceList;
 //        console.log(instanceList);
       },
+
       handleButtonClick(evt, action) {
         switch (action) {
           case 'middleware_new_instance':
@@ -321,8 +350,57 @@
             break
         }
       },
+
+      async getInstanceMoreInfo() {
+        if (!this.clusterId || !this.middlewareId) {
+          await this.checkBasicData4Middleware();
+        }
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_instance_info_detail, {
+          payload: {
+            clusterId: this.clusterId,
+            middlewareId: this.middlewareId,
+            middlewareVersionId: 3,
+            namespace: this.$storeHelper.groupInfo.tag,
+            name: this.operation.row.name
+          }
+        });
+        const cluster = resContent['cluster'];
+        var instance = {
+          status: '无运行实例',
+          address: '---',
+          port: '---',
+          user: '---',
+          password: '---',
+          cpu: '---',
+          memory: '---',
+          diskUsage: '---',
+          disk: '---',
+        };
+        if (resContent['instances'].length === 0) {
+//          this.$message.error('无运行实例，请联系管理员！');
+//          throw new Error('无运行实例！');
+        } else {
+          instance = resContent['instances'][0];
+        }
+        return {
+          name: cluster['metadata']['name'],
+          address: instance['address'],
+          port: instance['port'],
+          userName: instance['user'],
+          password: instance['password'],
+          status: instance['status'],
+          cpu: instance['cpu'],
+          memory: instance['memory'],
+          diskUsage: instance['diskUsage'],
+          diskTotal: instance['disk']
+        };
+      },
+
       async handleTRClick(evt, action, index, row) {
-        this.operation.row = row;
+        // action 'instance_more_info_refresh' does not pass param index and row
+        if (row) {
+          this.operation.row = row;
+        }
         switch (action) {
           case 'middleware_instance_update':
             if (this.constants.cpuList.indexOf(this.newProps.cpu) === -1) {
@@ -394,6 +472,19 @@
               this.hideWaitingResponse(action);
             }
             break;
+          case 'instance_more_info_refresh':
+            this.addToWaitingResponseQueue(action);
+            try {
+              this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              setTimeout(() => {
+                this.hideWaitingResponse(action);
+              }, 1000);
+            } catch(err) {
+              setTimeout(() => {
+                this.hideWaitingResponse(action);
+              }, 1000);
+            }
+            break;
           case 'instance_more_info':
             if (!row.hasOwnProperty('id')) {
               return;
@@ -403,51 +494,13 @@
               this.expandRows.splice(this.expandRows.indexOf(key), 1);
             } else {
               this.addToWaitingResponseQueue(action);
-              this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_instance_info_detail, {
-                payload: {
-                  clusterId: this.clusterId,
-                  middlewareId: this.middlewareId,
-                  middlewareVersionId: 3,
-                  namespace: this.$storeHelper.groupInfo.tag,
-                  name: row.name
-                }
-              }).then(resContent => {
-//                console.log(resContent);
-                const cluster = resContent['cluster'];
-                var instance = {
-                  status: '无运行实例',
-                  address: '---',
-                  port: '---',
-                  user: '---',
-                  password: '---',
-                  cpu: '---',
-                  memory: '---',
-                  diskUsage: '---',
-                  disk: '---',
-                };
-                if (resContent['instances'].length === 0) {
-//                  this.$message.error('无运行实例，请联系管理员！');
-//                  throw new Error('无运行实例！');
-                } else {
-                  instance = resContent['instances'][0];
-                }
-                this.instanceMoreInfo = {
-                  name: cluster['metadata']['name'],
-                  address: instance['address'],
-                  port: instance['port'],
-                  userName: instance['user'],
-                  password: instance['password'],
-                  status: instance['status'],
-                  cpu: instance['cpu'],
-                  memory: instance['memory'],
-                  diskUsage: instance['diskUsage'],
-                  diskTotal: instance['disk']
-                };
-//                console.log(this.instanceMoreInfo);
+              try {
+                this.instanceMoreInfo = await this.getInstanceMoreInfo();
                 this.expandRows = [key];
-              }).finally(() => {
                 this.hideWaitingResponse(action);
-              });
+              } catch(err) {
+                this.hideWaitingResponse(action);
+              }
             }
             break;
         }

@@ -13,7 +13,7 @@
 <script>
   module.exports = {
     async created() {
-      this.$storeHelper.checkMiddleBasicData = this.checkBasicData;
+      this.$storeHelper.checkBasicData4Middleware = this.checkBasicData;
     },
     methods: {
       async requestClusterList() {
@@ -33,6 +33,8 @@
           }
         });
       },
+
+      // check data: clusterList, middlewareList, middlewareVersionList
       async checkBasicData (profile, middlewareName) {
         profile = 'unProduction';
         const currentMiddleware = this.$storeHelper.currentMiddleware;
