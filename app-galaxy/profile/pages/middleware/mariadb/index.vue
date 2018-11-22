@@ -80,7 +80,7 @@
                   {{instanceMoreInfo.address+':'+instanceMoreInfo.port}}
                 </el-form-item>
                 <el-form-item label="CPU/内存">
-                  {{instanceMoreInfo.cpu + '/' + instanceMoreInfo.memory}}
+                  {{instanceMoreInfo.cpu + '核/' + instanceMoreInfo.memorySize}}
                 </el-form-item>
                 <el-form-item label="已用/总磁盘空间">
                   {{instanceMoreInfo.diskUsage + '/' + instanceMoreInfo.diskTotal}}
@@ -209,6 +209,7 @@
 }
 </style>
 <script>
+  import bytes from 'bytes';
   import commonUtils from 'assets/components/mixins/common-utils';
   module.exports = {
     mixins: [commonUtils],
@@ -319,6 +320,7 @@
             break;
         }
       },
+
       handleDialogButtonClick(action) {
         switch (action) {
           case 'middleware_instance_update':
@@ -337,14 +339,16 @@
             }).then(resContent => {
 //              console.log(resContent);
               this.expandRows = [];
+              // updateTime is change when by this action
+              this.requestList();
             }).finally(() => {
               this.hideWaitingResponse(action);
               this.operation.name = null;
             });
             break;
           case 'close':
-            console.log(this.operation.name);
-            console.log(this.queueForWaitingResponse);
+//            console.log(this.operation.name);
+//            console.log(this.queueForWaitingResponse);
             this.hideWaitingResponse(this.operation.name);
             this.operation.name = null;
             break
@@ -389,10 +393,11 @@
           userName: instance['user'],
           password: instance['password'],
           status: instance['status'],
-          cpu: instance['cpu'],
-          memory: instance['memory'],
-          diskUsage: instance['diskUsage'],
-          diskTotal: instance['disk']
+          cpu: parseInt(instance['cpu']),
+          memory: parseInt(instance['memory'][0]),
+          memorySize: instance['memory'],
+          diskUsage: bytes(parseInt(instance['diskUsage'])),
+          diskTotal: bytes(parseInt(instance['disk']))
         };
       },
 
@@ -403,13 +408,24 @@
         }
         switch (action) {
           case 'middleware_instance_update':
-            if (this.constants.cpuList.indexOf(this.newProps.cpu) === -1) {
-              this.newProps.cpu = this.constants.cpuList[0]
+            this.addToWaitingResponseQueue(action);
+            try {
+              const instanceStatus = await this.getInstanceMoreInfo();
+//              console.log(instanceStatus);
+              this.newProps.cpu = this.constants.cpuList[0];
+              if (this.constants.cpuList.indexOf(instanceStatus['cpu']) > -1) {
+                this.newProps.cpu = instanceStatus['cpu'];
+              }
+              this.newProps.memory = this.constants.memoryList[0];
+              if (this.constants.memoryList.indexOf(instanceStatus['memory']) > -1) {
+                this.newProps.memory = instanceStatus['memory'];
+              }
+              this.operation.name = action;
+              this.hideWaitingResponse(action);
+            } catch (err) {
+              console.log(err);
+              this.hideWaitingResponse(action);
             }
-            if (this.constants.memoryList.indexOf(this.newProps.memory) === -1) {
-              this.newProps.memory = this.constants.memoryList[0]
-            }
-            this.operation.name = action;
             break;
           case 'middleware_instance_delete':
             this.addToWaitingResponseQueue(action);
