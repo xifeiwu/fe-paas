@@ -16,15 +16,19 @@
       <el-table :data="instanceList"
                 :row-key="getRowKeys"
                 :expand-row-keys="expandRows"
+                @sort-change="onSortChangeInTable"
+                :defaultSort="tableSort"
                 stripe
                 :height="heightOfTable">
         <el-table-column label="mariadb名称" prop="name" headerAlign="center" align="center" minWidth="120">
         </el-table-column>
         <el-table-column label="创建者" prop="realName" headerAlign="center" align="center" width="100">
         </el-table-column>
-        <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="160">
+        <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="160"
+                         sortable="custom">
         </el-table-column>
-        <el-table-column label="更新时间" prop="formattedUpdateTime" headerAlign="center" align="center" width="160">
+        <el-table-column label="更新时间" prop="formattedUpdateTime" headerAlign="center" align="center" width="160"
+                         sortable="custom">
         </el-table-column>
         <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="120">
         </el-table-column>
@@ -255,6 +259,11 @@
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
+
+        tableSort: {
+          prop: 'formattedUpdateTime',
+          order: 'descending',
+        }
       }
     },
     watch: {
@@ -308,6 +317,8 @@
         });
         this.instanceList = instanceList;
 //        console.log(instanceList);
+        // sort table by this.tableSort after success request
+        this.onSortChangeInTable(this.tableSort);
       },
 
       handleButtonClick(evt, action) {
@@ -520,6 +531,33 @@
             }
             break;
         }
+      },
+
+      onSortChangeInTable(tableSort) {
+//        console.log(tableSort);
+        this.tableSort = tableSort;
+        const keyMap = {
+          'formattedUpdateTime': 'updateTime',
+          'formattedCreateTime': 'createTime'
+        };
+        const key = keyMap[this.tableSort.prop];
+        if (!key) {
+          return 0;
+        }
+        this.instanceList.sort((pre, next) => {
+          var result = pre[key] - next[key];
+          switch (tableSort['order']) {
+            case 'ascending':
+              break;
+            case 'descending':
+              result = -1 * result;
+              break;
+            default:
+              result = 0;
+              break;
+          }
+          return result;
+        });
       }
     }
   }
