@@ -5,21 +5,21 @@
     <div class="section-title">申请Mariadb实例</div>
     <el-form :model="formData" :rules="formRules" size="mini"
              ref="createInstanceForm" label-width="120px">
-      <el-form-item label="实例名称" prop="name" class="name">
-        <el-input v-model="formData.name" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
-      </el-form-item>
-      <el-form-item label="mariadb版本" prop="versionId" class="name">
-        <el-radio-group v-model="formData.versionId">
-          <el-radio v-for="item in middlewareVersionList" :label="item.id" :key="item.id">
-            {{item.middlewareVersion}}
-          </el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="数据库名" prop="dbName" class="db-name">
-        <el-input v-model="formData.dbName" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
-      </el-form-item>
       <div>
-        <div class="title">实例规划</div>
+        <div class="title">基本信息</div>
+        <el-form-item label="实例名称" prop="name" class="name">
+          <el-input v-model="formData.name" placeholder="小写字符，数字，中划线，不能以中划线开始或结尾。2-256个字符"></el-input>
+        </el-form-item>
+        <el-form-item label="mariadb版本" prop="versionId" class="name">
+          <el-radio-group v-model="formData.versionId">
+            <el-radio v-for="item in middlewareVersionList" :label="item.id" :key="item.id">
+              {{item.middlewareVersion}}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </div>
+      <div>
+        <div class="title">资源信息</div>
         <el-form-item label="CPU" prop="cpu">
           <el-radio-group v-model="formData.cpu" size="small">
             <el-radio v-for="item in constants.cpuList" :label="item" :key="item">
@@ -36,18 +36,21 @@
         </el-form-item>
         <el-form-item label="磁盘" prop="disk" class="disk">
           <div style="width: 200px; display: inline-block; margin-left: 5px;">
-            <el-slider v-model="formData.disk" :show-tooltip="true" :show-stops="false" :min="1" :max="5" :step="1"></el-slider>
+            <el-slider v-model="formData.disk" :show-tooltip="true" :show-stops="true" :min="1" :max="5" :step="1"></el-slider>
           </div>
           <div style="display: inline-block">{{formData.disk}}G</div>
         </el-form-item>
       </div>
       <div>
-        <div class="title">mariadb账号</div>
+        <div class="title">数据库信息</div>
+        <el-form-item label="数据库名" prop="dbName" class="db-name">
+          <el-input v-model="formData.dbName" placeholder="英文，数字，下划线，中划线。2-30个字符"></el-input>
+        </el-form-item>
         <el-form-item label="用户名" prop="userName" class="user-name">
-          <el-input v-model="formData.userName" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
+          <el-input v-model="formData.userName" placeholder="英文，数字，下划线，中划线。2-30个字符"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password" class="password">
-          <el-input v-model="formData.password" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
+          <el-input v-model="formData.password" placeholder="英文，数字，下划线，中划线。2-30个字符"></el-input>
         </el-form-item>
         <el-form-item label="备注" prop="comment" class="comment">
           <el-input v-model="formData.comment" placeholder="备注"
@@ -141,7 +144,7 @@
     async created() {
       const profile = 'unProduction';
       const middlewareName = 'mariadb';
-      await this.$storeHelper.checkMiddleBasicData(profile, middlewareName);
+      await this.$storeHelper.checkBasicData4Middleware(profile, middlewareName);
 //      console.log(this.$storeHelper.getClusterList());
 //      console.log(this.$storeHelper.currentMiddleware);
 
@@ -154,8 +157,8 @@
       this.formData.cpu = this.constants['cpuList'][0];
       this.formData.memory = this.constants['memoryList'][0];
       console.log(this.middlewareVersionList);
-
     },
+
     mounted() {
 
     },
@@ -183,7 +186,17 @@
             message: '请输入实例名称',
             trigger: 'blur'
           }, {
-            validator: utils.generateValidator(true, false, 2, 30, true)
+            validator: (rule, values, callback) => {
+              const reg = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/;
+              let passed = true;
+              if (!reg.exec(values)) {
+                passed = false;
+                callback('可以包含小写字符数字或中划线，但不能以中划线开始或结尾');
+              }
+              if (passed) {
+                callback();
+              }
+            }
           }],
           versionId: [{
             required: true,

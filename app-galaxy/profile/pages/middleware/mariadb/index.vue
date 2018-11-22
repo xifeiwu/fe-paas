@@ -397,13 +397,19 @@
         } else {
           instance = resContent['instances'][0];
         }
+        const statusMap = {
+          Pending: '启动中',
+          Running: '运行中',
+          Failed: '启动失败',
+          Deleting: '删除中'
+        };
         return {
           name: cluster['metadata']['name'],
           address: instance['address'],
           port: instance['port'],
           userName: instance['user'],
           password: instance['password'],
-          status: instance['status'],
+          status: statusMap.hasOwnProperty(instance['status']) ? statusMap[instance['status']] : instance['status'],
           cpu: parseInt(instance['cpu']),
           memory: parseInt(instance['memory'][0]),
           memorySize: instance['memory'],
