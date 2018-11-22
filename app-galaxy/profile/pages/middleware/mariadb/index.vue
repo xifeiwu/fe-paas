@@ -22,12 +22,12 @@
                 :height="heightOfTable">
         <el-table-column label="mariadb名称" prop="name" headerAlign="center" align="center" minWidth="120">
         </el-table-column>
-        <el-table-column label="创建者" prop="realName" headerAlign="center" align="center" width="100">
+        <el-table-column label="创建者" prop="realName" headerAlign="center" align="center" width="80">
         </el-table-column>
-        <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="160"
+        <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="150"
                          sortable="custom">
         </el-table-column>
-        <el-table-column label="更新时间" prop="formattedUpdateTime" headerAlign="center" align="center" width="160"
+        <el-table-column label="更新时间" prop="formattedUpdateTime" headerAlign="center" align="center" width="150"
                          sortable="custom">
         </el-table-column>
         <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="120">

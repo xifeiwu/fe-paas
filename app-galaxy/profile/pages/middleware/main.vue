@@ -8,6 +8,7 @@
 <style lang="scss" scoped>
   #middleware {
     height: 100%;
+    /*height: calc(100% - 10px);*/
   }
 </style>
 <script>

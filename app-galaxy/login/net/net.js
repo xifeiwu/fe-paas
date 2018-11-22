@@ -93,8 +93,9 @@ class Net extends NetBase {
         },
         // mariadb中间件
         '/2.x/openShift/mariaDB': {
+          router: this.page['profile/middleware/mariadb'],
+          icon: 'paas-icon-mysql',
           name: 'mariadb(非生产)',
-          router: 'dd',
           beta: true
         },
         // 管理后台
@@ -114,7 +115,7 @@ class Net extends NetBase {
     let menuList = [];
     if (content.hasOwnProperty('menuList') && Array.isArray(content.menuList)) {
       const menuPathToIgnore = [
-        '/2.x/openShift/mariaDB', // mariaDB中间件
+        // '/2.x/openShift/mariaDB', // mariaDB中间件
         '/2.x/backstage'// "后台管理"
       ];
       menuList = content.menuList.map(it => {
@@ -202,16 +203,26 @@ class Net extends NetBase {
       '/2.x/apm', // 应用监控
       '/2.x/orders' // 审批管理
     ];
+    const pathOfMiddleware = [
+      '/2.x/openShift/mariaDB'
+    ];
     let level2 = [{
       name: '应用引擎',
       icon: 'paas-icon-app',
       router: '/profile/app-engine',
+      children: []
+    }, {
+      name: '中间件',
+      icon: 'paas-icon-openshift',
+      router: '/profile/middleware',
       children: []
     }];
     let level1 = [];
     origin.menuList.forEach(it => {
       if (pathOfAppEngine.indexOf(it.path) > -1) {
         level2[0].children.push(it);
+      } else if(pathOfMiddleware.indexOf(it.path) > -1) {
+        level2[1].children.push(it);
       } else {
         level1.push(it)
       }
