@@ -34,74 +34,85 @@ class Net extends NetBase {
   }
 
   parseLoginResponse (content) {
-    const updateItem = (item) => {
+    const updateMenuConfig = (item) => {
       let keyMap = {
-        "应用管理": {
+        // 应用管理
+        '/2.x/app': {
           router: this.page['profile/app'],
           icon: 'paas-icon-app'
           // icon: 'el-icon-location'
         },
-        "服务管理": {
+        // 服务管理
+        '/2.x/service': {
           router: this.page['profile/service'],
           icon: 'paas-icon-service'
         },
-        "实例列表": {
+        // 实例列表
+        '/2.x/instances': {
           router: this.page['profile/instance'],
           icon: 'paas-icon-instance'
         },
-        "外网域名": {
+        // 外网域名
+        '/2.x/internet': {
           router: this.page['profile/domain'],
           icon: 'paas-icon-domain',
         },
-        "日志中心": {
+        // 日志中心
+        '/2.x/logs': {
           router: this.page['profile/log'],
           icon: 'paas-icon-log'
         },
-        "应用监控": {
+        // 应用监控
+        '/2.x/apm': {
           router: this.page['profile/monitor'],
           icon: 'paas-icon-charts'
         },
-        "Oauth权限": {
+        // Access Key管理
+        '/2.x/keys': {
           name: 'Access Key管理',
           router: this.page['profile/oauth'],
           icon: 'paas-icon-key'
         },
-        "Access Key管理": {
-          router: this.page['profile/oauth'],
-          icon: 'paas-icon-key'
-        },
-        "审批管理": {
+        // 审批管理
+        '/2.x/orders': {
           router: this.page['profile/work-order'],
           icon: 'paas-icon-work-order'
         },
-        "配置中心": {
+        // 应用配置
+        '/2.x/config/server': {
           name: '应用配置',
           router: this.page['profile/config-server'],
           icon: 'paas-icon-config'
         },
-        "镜像中心":{
+        // 镜像中心
+        '/2.x/images': {
           router: this.page['profile/image/repo'],
           icon: 'paas-icon-image'
         },
-      };
-      let key = item.name;
-      if (keyMap.hasOwnProperty(key)) {
-        let props = keyMap[key];
-        for (let key in props) {
-          item[key] = props[key];
+        // mariadb中间件
+        '/2.x/openShift/mariaDB': {
+          name: 'mariadb(非生产)',
+          router: 'dd'
         }
+      };
+      const key = item.path;
+      if (keyMap.hasOwnProperty(key)) {
+        item = Object.assign(item, keyMap[key]);
       }
       return item;
     };
 
     let menuList = [];
     if (content.hasOwnProperty('menuList') && Array.isArray(content.menuList)) {
-      let menuToIgnore = ["后台管理"];
+      const menuPathToIgnore = [
+        '/2.x/openShift/mariaDB' // mariaDB中间件
+        // "后台管理"
+      ];
       menuList = content.menuList.map(it => {
         // append some property to each item
-        return updateItem(it);
+        return updateMenuConfig(it);
       }).filter(it => {
-        return menuToIgnore.indexOf(it.name) === -1;
+        return menuPathToIgnore.indexOf(it.path) === -1;
       }).map(it => {
         it.hasOwnProperty('children') && delete it.children;
         it.hasOwnProperty('createTime') && delete it.createTime;
@@ -164,7 +175,6 @@ class Net extends NetBase {
     //     })
     //   }
     // });
-
     return {
       userInfo: content.user,
       menuList, notPermitted
@@ -173,7 +183,16 @@ class Net extends NetBase {
 
   parseLoginResponseMore(resContent) {
     let origin = this.parseLoginResponse(resContent);
-    let contentOfAppEngine = ['应用管理', '服务管理','实例列表', '外网域名', '日志中心', '应用监控', '审批管理'];
+    // let contentOfAppEngine = ['应用管理', '服务管理','实例列表', '外网域名', '日志中心', '应用监控', '审批管理'];
+    const pathOfAppEngine = [
+      '/2.x/app', // 应用管理
+      '/2.x/service', // 服务管理
+      '/2.x/instances', // 实例列表
+      '/2.x/internet', // 外网域名
+      '/2.x/logs', // 日志中心
+      '/2.x/apm', // 应用监控
+      '/2.x/orders' // 审批管理
+    ];
     let level2 = [{
       name: '应用引擎',
       icon: 'paas-icon-app',
@@ -182,13 +201,13 @@ class Net extends NetBase {
     }];
     let level1 = [];
     origin.menuList.forEach(it => {
-      if (contentOfAppEngine.indexOf(it.name) > -1) {
+      if (pathOfAppEngine.indexOf(it.path) > -1) {
         level2[0].children.push(it);
       } else {
         level1.push(it)
       }
     });
-    origin.menuList = {
+    origin.menuConfig = {
       level1, level2
     };
     console.log(origin);

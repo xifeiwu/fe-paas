@@ -475,9 +475,9 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
           }).then(response => {
             let content = this.$net.getResponseContent(response);
             if (content) {
-              const {userInfo, menuList, notPermitted} = this.$net.parseLoginResponseMore(content);
-              if (menuList) {
-                this.$store.dispatch('saveNavMenu', menuList);
+              const {userInfo, menuConfig, notPermitted} = this.$net.parseLoginResponseMore(content);
+              if (menuConfig) {
+                this.$store.dispatch('saveNavMenu', menuConfig);
               }
 //              if (notPermitted) {
 //                this.$storeHelper.setPermission({'profile': notPermitted});
