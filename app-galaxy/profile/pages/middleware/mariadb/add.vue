@@ -38,7 +38,7 @@
           <div style="width: 200px; display: inline-block; margin-left: 5px;">
             <el-slider v-model="formData.disk" :show-tooltip="true" :show-stops="true" :min="1" :max="5" :step="1"></el-slider>
           </div>
-          <div style="display: inline-block">{{formData.disk}}G</div>
+          <div style="display: inline-block; margin-left: 15px;"><span>当前值：</span>{{formData.disk}}G</div>
         </el-form-item>
       </div>
       <div>
@@ -50,7 +50,10 @@
           <el-input v-model="formData.userName" placeholder="英文，数字，下划线，中划线。2-30个字符"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password" class="password">
-          <el-input v-model="formData.password" placeholder="英文，数字，下划线，中划线。2-30个字符"></el-input>
+          <el-input v-model="formData.password" placeholder="英文，数字，下划线，中划线。2-30个字符" type="password"></el-input>
+        </el-form-item>
+        <el-form-item label="确认密码" prop="confirmPassword" class="confirm-password" v-if="false">
+          <el-input v-model="formData.confirmPassword" placeholder="英文，数字，下划线，中划线。2-30个字符" type="password"></el-input>
         </el-form-item>
         <el-form-item label="备注" prop="comment" class="comment">
           <el-input v-model="formData.comment" placeholder="备注"
@@ -178,6 +181,7 @@
           disk: 1,
           userName: '',
           password: '',
+          confirmPassword: '',
           comment: '',
         },
         formRules: {
@@ -227,7 +231,7 @@
           }],
           userName: [{
             required: true,
-            message: '请输入应用名称',
+            message: '请输入用户名',
             trigger: 'blur'
           }, {
             validator: utils.generateValidator(true, false, 2, 30, true)

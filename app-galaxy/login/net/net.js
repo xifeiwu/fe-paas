@@ -212,7 +212,7 @@ class Net extends NetBase {
       router: '/profile/app-engine',
       children: []
     }, {
-      name: '中间件',
+      name: '中间件与数据库',
       icon: 'paas-icon-openshift',
       router: '/profile/middleware',
       children: []

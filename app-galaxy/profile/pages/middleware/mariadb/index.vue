@@ -261,13 +261,16 @@
         currentPage: 1,
 
         tableSort: {
-          prop: 'formattedUpdateTime',
+          prop: 'formattedCreateTime',
           order: 'descending',
         }
       }
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
+      '$storeHelper.groupInfo.id': function () {
+        this.requestList();
+      }
     },
     methods: {
       // check if all necessary data is get
@@ -332,30 +335,34 @@
         }
       },
 
-      handleDialogButtonClick(action) {
+      async handleDialogButtonClick(action) {
         switch (action) {
           case 'middleware_instance_update':
             this.addToWaitingResponseQueue(action);
-            this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_update, {
-              payload: {
-                clusterId: this.clusterId,
-                middlewareId: this.middlewareId,
-                middlewareVersionId: 3,
-                namespace: this.$storeHelper.groupInfo.tag,
-                replicas: 1,
-                name: this.operation.row.name,
-                cpuRequests: this.newProps.cpu,
-                memoryRequests: this.newProps.memory
-              }
-            }).then(resContent => {
+            try {
+              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_update, {
+                payload: {
+                  clusterId: this.clusterId,
+                  middlewareId: this.middlewareId,
+                  middlewareVersionId: 3,
+                  namespace: this.$storeHelper.groupInfo.tag,
+                  replicas: 1,
+                  name: this.operation.row.name,
+                  cpuRequests: this.newProps.cpu,
+                  memoryRequests: this.newProps.memory
+                }
+              });
 //              console.log(resContent);
-              this.expandRows = [];
               // updateTime is change when by this action
-              this.requestList();
-            }).finally(() => {
+              await this.requestList();
+              this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              this.expandRows = [this.operation.row.id];
               this.hideWaitingResponse(action);
               this.operation.name = null;
-            });
+            } catch (err) {
+              this.hideWaitingResponse(action);
+              this.operation.name = null;
+            }
             break;
           case 'close':
 //            console.log(this.operation.name);
@@ -400,8 +407,8 @@
           Failed: '启动失败',
           Deleting: '删除中'
         };
-        const cpu = parseInt(spec['resources']['limits']['cpu']);
-        const memorySize = spec['resources']['limits']['memory'];
+        const cpu = parseInt(spec['resources']['requests']['cpu']);
+        const memorySize = spec['resources']['requests']['memory'];
         return {
           name: cluster['metadata']['name'],
           address: instance['address'],
@@ -479,7 +486,8 @@
               });
               this.$message.success(`mariadb实例 "${row.name}" 启动成功！`);
               this.hideWaitingResponse(action);
-              this.expandRows = [];
+//              this.expandRows = [];
+              this.instanceMoreInfo = await this.getInstanceMoreInfo();
             } catch(err) {
               this.hideWaitingResponse(action);
             }
@@ -499,7 +507,8 @@
               });
               this.$message.success(`mariadb实例 "${row.name}" 停止成功！`);
               this.hideWaitingResponse(action);
-              this.expandRows = [];
+              this.instanceMoreInfo = await this.getInstanceMoreInfo();
+//              this.expandRows = [];
             } catch(err) {
               this.hideWaitingResponse(action);
             }
