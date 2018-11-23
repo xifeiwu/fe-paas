@@ -380,14 +380,11 @@
           }
         });
         const cluster = resContent['cluster'];
+        const spec = cluster['spec'];
         var instance = {
           status: '无运行实例',
           address: '---',
           port: '---',
-          user: '---',
-          password: '---',
-          cpu: '---',
-          memory: '---',
           diskUsage: '---',
           disk: '---',
         };
@@ -403,18 +400,20 @@
           Failed: '启动失败',
           Deleting: '删除中'
         };
+        const cpu = parseInt(spec['resources']['limits']['cpu']);
+        const memorySize = spec['resources']['limits']['memory'];
         return {
           name: cluster['metadata']['name'],
           address: instance['address'],
           port: instance['port'],
-          userName: instance['user'],
-          password: instance['password'],
+          userName: spec['user'],
+          password: spec['password'],
           status: statusMap.hasOwnProperty(instance['status']) ? statusMap[instance['status']] : instance['status'],
-          cpu: parseInt(instance['cpu']),
-          memory: parseInt(instance['memory'][0]),
-          memorySize: instance['memory'],
-          diskUsage: bytes(parseInt(instance['diskUsage'])),
-          diskTotal: bytes(parseInt(instance['disk']))
+          cpu,
+          memory: parseInt(memorySize.substr(0, memorySize.length - 2)),
+          memorySize,
+          diskUsage: instance['diskUsage'] != '---' ? bytes(parseInt(instance['diskUsage'])) : '---',
+          diskTotal: instance['disk'] != '---' ? bytes(parseInt(instance['disk'])) : '---'
         };
       },
 
