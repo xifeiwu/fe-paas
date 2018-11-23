@@ -8,6 +8,8 @@
 <style lang="scss" scoped>
   #middleware {
     height: 100%;
+    border: 1px solid transparent;
+    box-sizing: border-box;
     /*height: calc(100% - 10px);*/
   }
 </style>
