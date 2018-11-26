@@ -22,7 +22,7 @@
         <div class="el-col el-col-24 btn-list">
           <el-button
               size="mini-extral" type="primary"
-              :class="{'disabled': $storeHelper.permission['service_create'].disabled}"
+              :class="{'disabled': $storeHelper.permission['service_create'].disabled || moreThanOneService}"
               @click="handleButtonClick($event, 'service_create')">
             添加服务
           </el-button>
@@ -185,13 +185,14 @@
             <div class="ant-divider"></div>
 
             <el-button
+                    v-if="false"
                     type="text"
                     :class="['flex', $storeHelper.permission['copy-service'].disabled ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'copy-service',scope.$index,scope.row)">
               <span>复制服务</span>
               <i class="paas-icon-level-up"></i>
             </el-button>
-            <div class="ant-divider"></div>
+            <div v-if="false" class="ant-divider"></div>
 
             <el-button
               class="flex primary" type="text"
@@ -1716,6 +1717,9 @@ export default {
       'appInfoListOfGroup': 'appInfoListOfGroup',
       'userConfig': 'config'
     }),
+    moreThanOneService() {
+      return this.currentServiceList && Array.isArray(this.currentServiceList) && this.currentServiceList.length > 0;
+    },
     serviceConfig() {
       let result = null;
       if (this.userConfig.hasOwnProperty('service')) {
@@ -2232,6 +2236,14 @@ export default {
     },
 
     handleButtonClick(evt, action) {
+      // 只支持创建一个服务
+      if (this.moreThanOneService) {
+        this.$storeHelper.globalPopover.show({
+          ref: evt.target,
+          msg: '一个运行环境下只能创建一个服务！'
+        });
+        return;
+      }
       if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
         this.$storeHelper.globalPopover.show({
           ref: evt.target,
