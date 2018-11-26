@@ -21,6 +21,7 @@
           </el-form-item>
           <el-form-item label="版本号" class="service-version"
                         :required="true"
+                        v-if="false"
                         :error="errorMsgForVersion">
             <el-input v-model="serviceForm.serviceVersion" placeholder="版本号只能包含数字，不能超过五位">
               <template slot="prepend">V</template>
