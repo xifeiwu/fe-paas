@@ -86,7 +86,7 @@
           <template slot-scope="scope">
             <el-button
                     type="text"
-                    v-if="profileInfo.name !== 'production'"
+                    v-if="true"
                     :class="['flex', $storeHelper.permission['instance_replace'].disabled ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'instance_replace', scope.$index, scope.row)"
                     >
