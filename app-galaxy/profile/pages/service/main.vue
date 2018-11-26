@@ -2261,7 +2261,7 @@ export default {
       // request and show log
       const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
       const parseDeployLog = (logs) => {
-        var logObjList = logs.split('\n').filter(it => {
+        var logObjList = logs ? logs.split('\n').filter(it => {
           return it;
         }).map(it => {
           var logObj = {
@@ -2279,7 +2279,7 @@ export default {
             logObj['LOG'] = it;
           }
           return logObj;
-        });
+        }) : [];
 
         logObjList.forEach(it => {
           // replace white-space with &nbsp
