@@ -183,7 +183,7 @@
           }
           &.loading {
             pointer-events: none;
-            animation: rotating 1s linear;
+            animation: rotating 1s linear infinite;
           }
         }
         .el-form {
