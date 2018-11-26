@@ -47,7 +47,7 @@ import Tag from 'element-ui/packages/tag/index.js';
 import Tree from 'element-ui/packages/tree/index.js';
 import Alert from 'element-ui/packages/alert/index.js';
 import Notification from 'element-ui/packages/notification/index.js';
-// import Slider from 'element-ui/packages/slider/index.js';
+import Slider from 'element-ui/packages/slider/index.js';
 import Loading from 'element-ui/packages/loading/index.js';
 import Icon from 'element-ui/packages/icon/index.js';
 import Row from 'element-ui/packages/row/index.js';
@@ -120,7 +120,7 @@ const components = [
   Tree,
   Alert,
   Loading,
-  // Slider,
+  Slider,
   Icon,
   Row,
   Col,
