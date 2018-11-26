@@ -646,7 +646,11 @@
           notSupportedByV2.forEach(it => {
             permission[it]['disabled'] = true;
             permission[it]['hide'] = false;
-            permission[it]['reason'] = '1.x团队无法使用';
+            if ('app_create' === it) {
+              permission[it]['reason'] = '不能创建新应用，需要先迁移到云平台2.0，请联系Paas团队。';
+            } else {
+              permission[it]['reason'] = '1.x团队无法使用';
+            }
           })
         }
         this.notPermitted.forEach(it => {

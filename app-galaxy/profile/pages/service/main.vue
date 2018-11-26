@@ -87,7 +87,8 @@
           <template slot-scope="scope">
             <el-radio :label="scope.row.id"
                       :value="defaultServiceID"
-                      :disabled="$storeHelper.permission['service_change_default'].disabled"
+                      :disabled="$storeHelper.permission['service_change_default'].disabled || true"
+                      :style="{marginLeft: '3px'}"
                       @input="changeDefaultVersion">{{scope.row.serviceVersion}}</el-radio>
               <span v-if="$storeHelper.groupVersion === 'v1'"
                     style="display: inline; color: #909399; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #909399; border-radius: 4px; word-break: normal"
@@ -2098,7 +2099,7 @@ export default {
         permitted = !this.$storeHelper.permission['service_update'].disabled;
         // 2. the prop in notPermittedInV1 is disabled when groupVersion is v1
         if (permitted && (this.$storeHelper.groupVersion === 'v1')) {
-          const notPermittedInV1 = ['packageInfo', 'rollingUpdate', 'loadBalance', 'instanceNum', 'prestopCommand', 'environments', 'hosts', 'portMap'];
+          const notPermittedInV1 = ['prestopCommand', 'environments', 'hosts', 'portMap'];
           permitted = notPermittedInV1.indexOf(key) === -1;
         }
       }
@@ -2236,14 +2237,6 @@ export default {
     },
 
     handleButtonClick(evt, action) {
-      // 只支持创建一个服务
-      if (this.moreThanOneService) {
-        this.$storeHelper.globalPopover.show({
-          ref: evt.target,
-          msg: '一个运行环境下只能创建一个服务！'
-        });
-        return;
-      }
       if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
         this.$storeHelper.globalPopover.show({
           ref: evt.target,
@@ -2262,6 +2255,14 @@ export default {
       }
       switch (action) {
         case 'service_create':
+          // 只支持创建一个服务
+          if (this.moreThanOneService) {
+            this.$storeHelper.globalPopover.show({
+              ref: evt.target,
+              msg: '一个运行环境下只能创建一个服务！'
+            });
+            return;
+          }
           let infoForAddService = this.getInfoForAddService();
           if (!infoForAddService.success) {
             this.$message.error(infoForAddService.message);
