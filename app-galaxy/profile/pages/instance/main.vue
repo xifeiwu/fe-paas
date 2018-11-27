@@ -476,7 +476,7 @@
         }
         switch (action) {
           case 'refresh':
-            let params = [
+            const params = [
               serviceInfo.selectedAPP.appId,
               serviceInfo.selectedProfile.id,
               serviceInfo.selectedService.serviceVersion
@@ -637,7 +637,7 @@
 //            console.log(this.profileInfo);
             this.addToWaitingResponseQueue(action);
             try {
-              var desc = `<p>确定要驱逐实例 "${row.name}" 吗？</p><p style="color: #E6A23C; font-size: 12px;">驱逐成功后，系统会自动补充一个实例，保持总实例数量不变。大概30秒后生效</p>`;
+              var desc = `<p>确定要驱逐实例 "${row.name}" 吗？</p><p style="color: #E6A23C; font-size: 12px;">驱逐成功后，系统会自动补充一个实例，保持总实例数量不变。10秒内生效。</p>`;
               await this.$confirm(desc, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -650,6 +650,7 @@
                   name: row.name
                 }
               });
+              this.$message.success('驱逐成功，稍后可点击刷新按钮，更新实例列表。');
             } catch(err) {
               console.log(err);
             } finally {
