@@ -408,7 +408,10 @@
                     <span v-else>{{valueToShow(selected.service.intranetDomain)}}</span>
                   </el-form-item>
                   <el-form-item label="当前服务外网域名" class="big">
-                    <div v-if="scope.row.internetDomainList.length==0">无</div>
+                    <div v-if="scope.row.internetDomainList.length==0">无<i v-if="$storeHelper.groupVersion === 'v1'"
+                            :class="['el-icon-error', 'paas-icon', 'warning']" style="transform: rotate(45deg); margin-top: -1px;"
+                            @click="handleChangeProp($event, 'internetDomain')"
+                    ></i></div>
                     <div v-if="scope.row.internetDomainList.length==1">
                       <a :href="'http://' + scope.row.internetDomainList[0]" target="_blank">{{scope.row.internetDomainList[0]}}</a>
                     </div>
@@ -1250,6 +1253,54 @@
       </div>
     </el-dialog>
 
+    <el-dialog title="添加外网域名" :visible="selected.prop == 'internetDomain'"
+               :close-on-click-modal="false"
+               class="internet-domain size-700"
+               @close="selected.prop = null"
+               v-if="selected.service && selected.model"
+    >
+      <el-tag type="success" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>只支持添加一个外网域名</span>
+      </el-tag>
+      <el-form :model="newProps" :rules="rules" size="mini" label-width="120px" ref="changeInternetDomainForm">
+        <el-form-item label="将要添加的域名" :error="props4CreateDomain.errMsgForDomainToAdd">
+          <div v-if="props4CreateDomain.domainToAdd.length > 0">
+            <el-tag class="domain-to-add"
+                    v-for="(item, index) in props4CreateDomain.domainToAdd"
+                    :key="index"
+                    closable
+                    type="success"
+                    size="small"
+                    @close="handleDomainInDialog($event, 'remove', item)"
+            >{{item}}</el-tag>
+          </div>
+          <div v-else>无</div>
+        </el-form-item>
+        <el-form-item label="外网二级域名" :error="props4CreateDomain.errMsgForPrefixName">
+          <el-input v-model="props4CreateDomain.prefixName" placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"
+                    style="margin-bottom: 3px;"></el-input>
+          <el-select v-model="props4CreateDomain.subDomain">
+            <el-option v-for="(item, index) in props4CreateDomain.subDomainList" :value="item.domainName" :label="item.domainName"
+                       :key="index"></el-option>
+          </el-select>
+          <el-button :class="['add-domain-btn', props4CreateDomain.domainToAdd.length > 0 ? 'disabled': '']"
+                     size="mini-extral" type="primary" @click="handleDomainInDialog($event, 'add')">添加</el-button>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleDialogButtonClick('internetDomain')"
+                     :loading="waitingResponse">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="selected.prop = null">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
     <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="content">
         <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
@@ -1305,6 +1356,14 @@
             box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
             border: none;
             border-radius: 2px;
+            .paas-icon {
+              margin-left: 2px;
+              vertical-align: middle;
+              &:hover {
+                font-weight: bold;
+                cursor: pointer;
+              }
+            }
             .el-form {
               .el-form-item {
                 .el-form-item__label {
@@ -1435,6 +1494,14 @@
           }
         }
       }
+      &.internet-domain {
+        .el-form {
+          margin-top: 5px;
+        }
+        .el-tag.domain-to-add {
+          display: inline-block;
+        }
+      }
     }
 
     .dialog-for-log {
@@ -1475,19 +1542,19 @@
     max-width: 1500px;
 
     /*box-shadow: 0 2px 8px rgba(0,0,0,0.1);*/
-    .el-icon-edit {
-      margin-left: 2px;
-      font-size: 100%;
-      line-height: 100%;
-      vertical-align: middle;
-      &:hover {
-        font-weight: bold;
-      }
-    }
     .header {
       padding: 0px 5px;
       font-size: 14px;
       line-height: 20px;
+      .el-icon-edit {
+        margin-left: 2px;
+        font-size: 100%;
+        line-height: 100%;
+        vertical-align: middle;
+        &:hover {
+          font-weight: bold;
+        }
+      }
       i {
         font-size: 14px;
       }
@@ -1687,6 +1754,7 @@ export default {
 
       selectedAppID: null,
       selectedApp: null,
+      selectedProfile: null,
       selectedProfileID: null,
       // whether current profile is production
       isProductionProfile: null,
@@ -1907,6 +1975,15 @@ export default {
         iconExpand: true
       },
 
+      props4CreateDomain: {
+        prefixName: '',
+        subDomain: '',
+        subDomainList: [],
+        domainToAdd: [],
+        errMsgForPrefixName: '',
+        errMsgForDomainToAdd: ''
+      },
+
       queueForWaitingResponse: [],
 
     }
@@ -1952,6 +2029,7 @@ export default {
         return;
       }
       this.serviceInfo.profileID = profileId;
+      this.selectedProfile = this.$storeHelper.getProfileInfoByID(profileId);
       this.isProductionProfile = this.$storeHelper.isProductionProfile(profileId);
       let appID = this.selectedApp.appId;
       this.requestServiceList(appID, profileId);
@@ -2623,7 +2701,7 @@ export default {
      * do some init action before dialog popup
      * @param prop
      */
-    handleChangeProp(evt, prop) {
+    async handleChangeProp(evt, prop) {
       if (!this.isPermittedToChangeProp(prop)) {
         this.$storeHelper.globalPopover.show({
           ref: evt.target,
@@ -2634,7 +2712,7 @@ export default {
       if (['instanceNum', 'healthCheck', 'packageInfo', 'portMap', 'prestopCommand', 'image','gitLabAddress', 'gitLabBranch',
           'mainClass', 'relativePath','mavenProfileId',
           'cpuAndMemory', 'rollingUpdate', 'loadBalance', 'environments', 'hosts',
-          'fileLocation', 'vmOptions', 'oneApm', 'appMonitor', 'expiredDays'].indexOf(prop) == -1) {
+          'fileLocation', 'vmOptions', 'oneApm', 'appMonitor', 'expiredDays', 'internetDomain'].indexOf(prop) == -1) {
         console.log(`${prop} not found`);
         return;
       }
@@ -2704,6 +2782,25 @@ export default {
           break;
         case 'expiredDays':
           this.newProps['expiredDays'] = this.selected.model['expiredDays'];
+          break;
+        case 'internetDomain':
+          const subDomainListByProfile = await this.$store.dispatch('app/getSubDomainByProfile', {
+            net: this.$net,
+            urlDesc: this.$net.URL_LIST.domain_level_1_list_all,
+            payload: {groupId: this.$storeHelper.currentGroupID}
+          });
+          // init props for add domain before dialog is popup
+          this.initDomainProps();
+          if (subDomainListByProfile.hasOwnProperty(this.selectedProfile.name)) {
+            this.props4CreateDomain.subDomainList = subDomainListByProfile[this.selectedProfile.name];
+            this.props4CreateDomain.subDomain = this.props4CreateDomain.subDomainList[0]['domainName'];
+          } else {
+            this.props4CreateDomain.subDomainList = [];
+          }
+//            console.log(this.selectedProfile);
+//            console.log(this.$storeHelper.profileListOfGroup);
+//            console.log(domainLevel1ByProfile);
+//            console.log(this.subDomainList);
           break;
       }
       this.selected.prop = prop;
@@ -2935,6 +3032,13 @@ export default {
         case 'expiredDays':
           this.requestUpdate(prop);
           break;
+        case 'internetDomain':
+          if (this.props4CreateDomain.domainToAdd.length === 0) {
+            this.props4CreateDomain.errMsgForDomainToAdd = '至少添加一个域名！';
+            return;
+          }
+          this.requestUpdate(prop);
+          break;
         default: break;
       }
     },
@@ -3004,6 +3108,9 @@ export default {
         case 'expiredDays':
           options['expiredDays'] = this.newProps['expiredDays'];
           options['remainExpiredDays'] = this.selected.service.remainExpiredDays;
+          break;
+        case 'internetDomain':
+          options['outerDomain'] = this.props4CreateDomain.domainToAdd[0];
           break;
         default:
           break;
@@ -3099,6 +3206,12 @@ export default {
           }else{
             this.selected.service['remainExpiredDays'] = this.newProps['expiredDays'];
           }
+          break;
+        case 'internetDomain':
+          this.selected.service['internetDomainList'] = [];
+          this.props4CreateDomain.domainToAdd.forEach(it => {
+            this.selected.service['internetDomainList'].push(it);
+          });
           break;
       }
     },
@@ -3285,6 +3398,66 @@ export default {
         case 'delete':
           let index = key;
           this.newProps.hosts.splice(index, 1);
+          break;
+      }
+    },
+
+    // some init action for domain props
+    initDomainProps() {
+      this.props4CreateDomain.domainToAdd = [];
+      this.props4CreateDomain.prefixName = '';
+      this.props4CreateDomain.subDomain = '';
+      this.props4CreateDomain.errMsgForPrefixName = '';
+      this.props4CreateDomain.errMsgForDomainToAdd = '';
+    },
+
+    /**
+     * action for add or remove domain
+     * @param action
+     * @param domainItem: domain item in this.props4CreateDomain.domainToAdd(for remove)
+     */
+    handleDomainInDialog(evt, action, domainItem) {
+      const domainToAdd = this.props4CreateDomain.domainToAdd;
+      switch (action) {
+        case 'remove':
+          if (domainToAdd.indexOf(domainItem) > -1) {
+            domainToAdd.splice(domainToAdd.indexOf(domainItem), 1);
+          }
+          break;
+        case 'add':
+          if (this.props4CreateDomain.domainToAdd.length > 0) {
+            this.$storeHelper.globalPopover.show({
+              ref: evt.target,
+              msg: '只支持添加一个外网域名'
+            });
+            return;
+          }
+          this.props4CreateDomain.prefixName = this.props4CreateDomain.prefixName.trim();
+
+          this.props4CreateDomain.errMsgForPrefixName = '';
+          this.props4CreateDomain.errMsgForDomainToAdd = '';
+          if (!/^[a-z0-9][a-z0-9\-]{0,62}$/.exec(this.props4CreateDomain.prefixName)) {
+            this.props4CreateDomain.errMsgForPrefixName = '可以包含小写字符、数字、中划线，以字符数字开头，长度不超过63位';
+            return;
+          }
+//          if (domainToAdd.length >= 5) {
+//            this.props4CreateDomain.errMsgForDomainToAdd = '每次最多添加五个';
+//            return;
+//          }
+          const domain = this.props4CreateDomain.prefixName + '.' + this.props4CreateDomain.subDomain;
+//          let item = null;
+//          domainToAdd.some(it => {
+//            if (it === domain) {
+//              item = it;
+//            }
+//            return item
+//          });
+//          if (item) {
+//            this.props4CreateDomain.errMsgForPrefixName = `域名${domain}已经存在！`
+//            return;
+//          }
+          domainToAdd.push(domain);
+          this.props4CreateDomain.prefixName = '';
           break;
       }
     },

@@ -225,6 +225,10 @@ class Net extends NetBase {
         path: '/service/updateExpiredDays',
         method: 'post'
       },
+      'service_update_internet_domain': {
+        path: '/service/1.x/updateOuterDomain',
+        method: 'post'
+      },
       /** 实例相关*/
       // 获取实例列表
       'instance_list': {
@@ -1178,6 +1182,7 @@ class Net extends NetBase {
       'packageInfo': URL_LIST.service_update_package_info,
       'portMap': URL_LIST.service_update_port_map,
       'expiredDays': URL_LIST.service_expired_days_change,
+      'internetDomain': URL_LIST.service_update_internet_domain
     };
     let url = urlMap[prop];
     if (!url) {
