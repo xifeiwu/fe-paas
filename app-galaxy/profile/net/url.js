@@ -131,11 +131,6 @@ class URL extends BaseURL {
         url: API_PATH + '/domain/queryBySpaceId',
         path: '/domain/queryBySpaceId'
       },
-      // 获取当前组的所有一级域名
-      'domain_level_1_list_all': {
-        url: API_PATH + '/domain/queryDomainList',
-        path: '/domain/queryDomainList'
-      },
       // 添加域名
       'domain_add': {
         url: API_PATH + '/domain/record/apply',

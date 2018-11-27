@@ -14,6 +14,7 @@ const state = {
   /* net data */
   globalConfig: null,
   usersAll: null,
+  domainLevelByProfile: null
 };
 
 const actions = {
@@ -32,6 +33,14 @@ const actions = {
       });
     }
   },
+  async getSubDomainByProfile({commit, state}, {net, urlDesc, payload}) {
+    if (!state.domainLevelByProfile) {
+      state.domainLevelByProfile = await net.requestPaasServer(urlDesc, {
+        payload
+      });
+    }
+    return state.domainLevelByProfile;
+  }
 };
 
 const mutations = {

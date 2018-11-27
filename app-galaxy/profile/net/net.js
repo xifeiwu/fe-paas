@@ -316,6 +316,12 @@ class Net extends NetBase {
       },
 
       /** 域名相关*/
+      // 获取当前组的所有一级域名（在服务管理和域名管理都被调用，存储到全局store中）
+      'domain_level_1_list_all': {
+        path: '/domain/queryDomainList',
+        method: 'post'
+      },
+      // 域名-安全审核
       'domain_secure_check': {
         path: '/domain/record/status/update',
         method: 'post'
@@ -1284,35 +1290,6 @@ class Net extends NetBase {
       }).catch(err => {
         console.log(err);
         reject(err);
-      })
-    })
-  }
-  // 获取当前组的所有一级域名
-  getDomainLevel1Map(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.domain_level_1_list_all.url, options).then(response => {
-        let resContent = this.getResponseContent(response);
-        if (resContent) {
-          if (Object.keys(resContent).length > 0) {
-            resolve(resContent);
-          } else {
-            reject({
-              title: '数据格式不正确',
-              msg: '一级域名列表为空'
-            });
-          }
-        } else {
-          let resMsg = this.getResponseMsg(response, {
-            successMsg: '',
-            errorMsg: '获取一级域名列表失败！'
-          });
-          reject(resMsg);
-        }
-      }).catch(err => {
-        reject({
-          title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.domain_level_1_list_all.path}；${err.toString()}`
-        });
       })
     })
   }

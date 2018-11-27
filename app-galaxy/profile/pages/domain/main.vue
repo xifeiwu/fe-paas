@@ -911,8 +911,10 @@
             this.addToWaitingResponseQueue(action);
 
             this.initDomainProps();
-            this.$net.getDomainLevel1Map({
-              groupId: this.$storeHelper.currentGroupID
+            this.$store.dispatch('app/getSubDomainByProfile', {
+              net: this.$net,
+              urlDesc: this.$net.URL_LIST.domain_level_1_list_all,
+              payload: {groupId: this.$storeHelper.currentGroupID}
             }).then(domainMap => {
               this.props4CreateDomain.level1InfoListByProfile = domainMap;
 
