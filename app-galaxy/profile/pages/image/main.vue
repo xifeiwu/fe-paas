@@ -1,7 +1,7 @@
 <template>
   <div id="image-main">
     <div class="header">
-      <el-input size="mini" style="max-width: 300px" v-model="imageRepoFilter" placeholder="搜索镜像" suffix-icon="el-icon-search"></el-input>
+      <el-input size="mini" style="max-width: 300px" v-model="keyFilter" placeholder="搜索镜像" suffix-icon="el-icon-search"></el-input>
       <el-button size="mini-extral" type="primary" style="margin-left: 5px;"
                  @click="handleClick($event, 'refresh')"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
     </div>
@@ -60,7 +60,7 @@
       font-size: 14px;
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: flex-start;
     }
     .image-list{
       text-align: center;
@@ -89,10 +89,10 @@
     },
     data() {
       return {
-        imageRepoList: [],
+        imageRepoList: null,
         imageRepoListFiltered: [],
         imageRepoListByPage: [],
-        imageRepoFilter: "",
+        keyFilter: "",
 
         totalSize: 0,
         pageSize: 12,
@@ -109,7 +109,7 @@
       },
 
       '$storeHelper.screen.size': 'onScreenSizeChange',
-      'imageRepoFilter': function () {
+      'keyFilter': function () {
         this.updateImageRepoListByPage();
       }
     },
@@ -127,8 +127,8 @@
         }
       },
 
-
       async requestImageRepoList() {
+        this.imageRepoList = [];
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.image_repo_list_by_group, {
           payload: {
             groupTag: this.$storeHelper.groupInfo.tag
@@ -159,12 +159,13 @@
         const end = start + length;
 
         this.imageRepoListFiltered = this.imageRepoList;
-        if (this.imageRepoFilter) {
-          const filterReg = new RegExp(this.imageRepoFilter);
+        if (this.keyFilter) {
+          const filterReg = new RegExp(this.keyFilter);
           this.imageRepoListFiltered = this.imageRepoList.filter(it => {
             return filterReg.exec(it['name']);
           });
         }
+        this.totalSize = this.imageRepoListFiltered.length;
         this.imageRepoListByPage = this.imageRepoListFiltered.slice(start, end);
       },
 

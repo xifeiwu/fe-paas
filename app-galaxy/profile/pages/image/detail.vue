@@ -1,19 +1,13 @@
 <template>
   <div id="image-detail">
     <div class="header">
-      <el-row type="flex" justify="center" align="middle">
-        <el-col :span="10">{{repoName}}</el-col>
-        <el-col :span="6" :offset="7">
-          <el-input size="mini" style="max-width: 300px" v-model="searchValue" placeholder="搜索镜像" suffix-icon="el-icon-search"></el-input>
-        </el-col>
-        <el-col :span="1" style="margin-right: 5px">
-          <el-button size="mini-extral" type="primary" @click="getVersionList()"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
-        </el-col>
-      </el-row>
+        <el-input size="mini" style="max-width: 300px" v-model="keyFilter" placeholder="搜索镜像" suffix-icon="el-icon-search"></el-input>
+        <el-button size="mini-extral" type="primary" style="margin-left: 5px;"
+                   @click="handleClick($event, 'refresh')"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
     </div>
     <div class="version-list">
       <el-table
-        :data="versionList | pageSlice(pageNum,pageSize)"
+        :data="versionListByPage"
         stripe
         :height="heightOfTable">
         <el-table-column
@@ -27,13 +21,13 @@
           prop="size"
           label="镜像大小"
           headerAlign="center" align="center"
-          width="120px">
+          width="100px">
         </el-table-column>
         <el-table-column
           prop="created"
           label="构建成功时间"
           headerAlign="center" align="center"
-          width="180px">
+          width="160px">
         </el-table-column>
         <el-table-column
           prop="gitAddress"
@@ -56,17 +50,22 @@
           headerAlign="center" align="center"
           minWidth="120px">
         </el-table-column>
+        <el-table-column
+                prop="label"
+                label="标签"
+                headerAlign="center" align="center"
+                minWidth="120px">
+        </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="versionList.length > pageSize">
+      <div class="pagination-container" v-if="totalSize > pageSize">
         <div class="pagination">
           <el-pagination
-                  :current-page="pageNum"
+                  :current-page="currentPage"
                   size="large"
                   layout="prev,pager,next"
                   :page-size="pageSize"
-                  :total="versionList.length"
-                  @size-change="handleSizeChange"
-                  @current-change="handleNumChange">
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange">
           </el-pagination>
         </div>
       </div>
@@ -78,7 +77,11 @@
   #image-detail{
     height: 100%;
     .header{
-      padding: 4px 6px;
+      padding: 3px 5px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
     }
     .version-list{
       text-align: center;
@@ -90,93 +93,119 @@
 </style>
 
 <script>
-  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
-
   export default {
     created() {
       const queryString = window.location.search.replace(/^\?/, '');
       const queryObj = this.$utils.parseQueryString(queryString);
       this.repoName = queryObj.repoName;
-      this.getVersionList();
     },
     mounted(){
-      const headerNode = this.$el.querySelector(':scope > .header');
-      this.resizeListener = () => {
-        let headerHeight = headerNode.offsetHeight;
-        this.heightOfTable = this.$el.clientHeight - headerHeight;
-      };
-      this.resizeListener();
-      addResizeListener(this.$el, this.resizeListener);
+      this.onScreenSizeChange(this.$storeHelper.screen.size);
+      this.updateVersionListByPage();
     },
     beforeDestroy() {
-      removeResizeListener(this.$el, this.resizeListener);
     },
     data() {
       return {
-        versionList:[],
-        responseValue:[],
-        searchValue:'',
+        versionList: null,
+        versionListFiltered: [],
+        versionListByPage: [],
+        keyFilter: '',
+
         repoName:'',
-        pageNum:1,
-        pageSize:10,
+
+        totalSize: 0,
+        currentPage: 1,
+        pageSize: 12,
+
         heightOfTable:'',
+
         resizeListener: () => {},
       }
     },
 
     watch: {
-      'searchValue':function (searchValue) {
-        let filterReg = null;
-        if(searchValue){
-          filterReg = new RegExp(searchValue);
-          let filterResult = [];
-          this.responseValue.forEach(it => {
-            let filterValue = filterReg.exec(it["imageName"]);
-            if(filterValue){
-              filterResult.push(it);
-            }
-          });
-          this.versionList = filterResult;
-          this.pageSize = 10;
-          this.pageNum = 1;
-        }else{
-          this.versionList = this.responseValue;
-        }
+      '$storeHelper.screen.size': 'onScreenSizeChange',
+      'keyFilter': function () {
+        this.updateVersionListByPage();
       }
     },
 
     methods: {
-      getVersionList() {
+      onScreenSizeChange(size) {
+        if (!size) {
+          return;
+        }
+        try {
+          const headerNode = this.$el.querySelector(':scope > .header');
+          const headerHeight = headerNode.offsetHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+          this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
+        } catch(err) {
+        }
+      },
+
+      async requestVersionList() {
         this.versionList = [];
-        let payload = {};
-        payload["projectAndRepository"] = this.repoName;
-        this.$net.requestPaasServer(this.$net.URL_LIST.image_detail_by_image_name,{
-          payload
-        }).then(resContent => {
-          resContent.sort(function(a, b) {
-            return Date.parse(new Date(b.created)) - Date.parse(new Date(a.created));
-          }).forEach(it => {
-            it.created = this.$utils.formatDate(Date.parse(it.created),"yyyy-MM-dd hh:mm:ss");
-            it.size = parseInt(it.size / (1024 * 1024)) + "MB";
-            ['gitAddress', 'gitBranch', 'gitCommit', 'imageDescribe'].forEach(key => {
-              if (!it[key]) {
-                it[key] = '---';
-              }
-            })
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.image_detail_by_image_name,{
+          payload: {
+            'projectAndRepository':  this.repoName
+          }
+        });
+//        console.log(resContent);
+
+        const versionList = resContent.map(it => {
+          it['create_time'] = new Date(it.created).getTime();
+          it.created = this.$utils.formatDate(Date.parse(it.created),"yyyy-MM-dd hh:mm:ss");
+          it.size = parseInt(it.size / (1024 * 1024)) + "MB";
+          ['gitAddress', 'gitBranch', 'gitCommit', 'imageDescribe'].forEach(key => {
+            if (!it[key]) {
+              it[key] = '---';
+            }
           });
-          this.responseValue = resContent;
-          this.versionList = resContent;
-          this.pageNum = 1;
-          this.pageSize = 10;
-        })
+          return it;
+        }).sort((pre, next) => {
+          return pre['create_time'] - next['create_time'];
+        });
+        this.versionList = resContent;
+        this.totalSize = versionList.length;
+        this.currentPage = 1;
       },
 
-      handleSizeChange(val){
-        this.pageSize = val;
+      async updateVersionListByPage(refresh) {
+        if (refresh || !this.versionList) {
+          await this.requestVersionList();
+        }
+        // update pageSize by screen size
+        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
+        var page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.pageSize;
+        const length = this.pageSize;
+        const end = start + length;
+
+        this.versionListFiltered = this.versionList;
+        if (this.keyFilter) {
+          const filterReg = new RegExp(this.keyFilter);
+          this.versionListFiltered = this.versionList.filter(it => {
+            return filterReg.exec(it['imageName']);
+          });
+        }
+        this.totalSize = this.versionListFiltered.length;
+        this.versionListByPage = this.versionListFiltered.slice(start, end);
       },
 
-      handleNumChange(val){
-        this.pageNum = val;
+      handleClick(evt, action) {
+        switch (action) {
+          case 'refresh':
+            this.updateVersionListByPage(true);
+            break;
+        }
+      },
+
+      handlePaginationPageChange(val){
+        this.currentPage = val;
+        this.updateVersionListByPage();
       },
 
       gitAddressAndBranch(row){
@@ -187,13 +216,5 @@
         }
       }
     },
-
-    filters:{
-      pageSlice(array,pageNum,pageSize){
-        let offset = (pageNum - 1) * pageSize;
-        let data = (offset+pageSize >= array.length) ? array.slice(offset,array.length) : array.slice(offset,offset+pageSize);
-        return data;
-      }
-    }
   }
 </script>
