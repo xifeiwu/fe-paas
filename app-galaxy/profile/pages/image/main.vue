@@ -1,18 +1,13 @@
 <template>
   <div id="image-main">
     <div class="header">
-      <el-row type="flex" justify="center" align="middle">
-        <el-col :span="6" :offset="17">
-          <el-input size="mini" style="max-width: 300px" v-model="searchValue" placeholder="搜索镜像" suffix-icon="el-icon-search"></el-input>
-        </el-col>
-        <el-col :span="1" style="margin-right: 5px">
-          <el-button size="mini-extral" type="primary" @click="getImage()"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
-        </el-col>
-      </el-row>
+      <el-input size="mini" style="max-width: 300px" v-model="imageRepoFilter" placeholder="搜索镜像" suffix-icon="el-icon-search"></el-input>
+      <el-button size="mini-extral" type="primary" style="margin-left: 5px;"
+                 @click="handleClick($event, 'refresh')"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
     </div>
     <div class="image-list">
       <el-table
-        :data="imageList | pageSlice(pageNum,pageSize)"
+        :data="imageRepoListByPage"
         style="width: 100%;"
         stripe
         :height="heightOfTable">
@@ -22,7 +17,7 @@
           align="left"
           minWidth="200px">
           <template slot-scope="scope">
-            <el-button type="text" @click="goToDetail(scope.row)">{{scope.row.name}}</el-button>
+            <span class="page-jump" @click="handleTRClick($event, 'page-jump', scope.$index, scope.row)">{{scope.row.name}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -42,16 +37,15 @@
           <!--width="220px">-->
         <!--</el-table-column>-->
       </el-table>
-      <div class="pagination-container" v-if="imageList.length > pageSize">
+      <div class="pagination-container" v-if="totalSize > pageSize">
         <div class="pagination">
           <el-pagination
-            :current-page="pageNum"
+            :current-page="currentPage"
             size="large"
             layout="prev,pager,next"
             :page-size="pageSize"
-            :total="imageList.length"
-            @size-change="handleSizeChange"
-            @current-change="handleNumChange">
+            :total="totalSize"
+            @current-change="handlePaginationPageChange">
           </el-pagination>
         </div>
       </div>
@@ -62,121 +56,142 @@
   #image-main {
     height: 100%;
     .header{
-      padding: 4px 6px;
+      padding: 3px 5px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
     }
     .image-list{
       text-align: center;
       .el-table{
-        display: inline-block;
+        .page-jump {
+          color: #409EFF;
+          &:hover {
+            font-weight: bold;
+            cursor: pointer;
+          }
+        }
       }
     }
   }
 </style>
 <script>
-  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
 
   export default {
     created() {
     },
     mounted() {
-      const headerNode = this.$el.querySelector(':scope > .header');
-      this.resizeListener = () => {
-        let headerHeight = headerNode.offsetHeight;
-        this.heightOfTable = this.$el.clientHeight - headerHeight;
-      };
-      this.resizeListener();
-      addResizeListener(this.$el, this.resizeListener);
-      this.getImage();
+      this.onScreenSizeChange(this.$storeHelper.screen.size);
+      this.updateImageRepoListByPage(true);
     },
     beforeDestroy() {
-      removeResizeListener(this.$el, this.resizeListener);
     },
     data() {
       return {
-        imageList:[],
-        responseValue:[],
-        searchValue:"",
-        pageSize:12,
-        pageNum:1,
+        imageRepoList: [],
+        imageRepoListFiltered: [],
+        imageRepoListByPage: [],
+        imageRepoFilter: "",
+
+        totalSize: 0,
+        pageSize: 12,
+        currentPage: 1,
+
         heightOfTable:'',
-        resizeListener: () => {},
       }
     },
     computed: {
-      groupTag(){
-        return this.$storeHelper.groupInfo.tag;
-      }
     },
     watch: {
-      'groupTag':function () {
-        this.getImage();
+      '$storeHelper.groupInfo.id': function () {
+        this.updateImageRepoListByPage(true);
       },
 
-      'searchValue':function (searchValue) {
-        let filterReg = null;
-        if(searchValue){
-          filterReg = new RegExp(searchValue);
-          let filterResult = [];
-          this.responseValue.forEach(it => {
-            let filterValue = filterReg.exec(it["name"]);
-            if(filterValue){
-              filterResult.push(it);
-            }
-          });
-          this.imageList = filterResult;
-          this.pageNum = 1;
-          this.pageSize = 12;
-        }else{
-          this.imageList = this.responseValue;
-        }
+      '$storeHelper.screen.size': 'onScreenSizeChange',
+      'imageRepoFilter': function () {
+        this.updateImageRepoListByPage();
       }
     },
     methods: {
-      getImage() {
-        let payload = {};
-        payload["groupTag"] = this.$storeHelper.groupInfo.tag;
-        this.$net.requestPaasServer(this.$net.URL_LIST.image_list_by_group, {
-          payload
-        }).then(resContent => {
-          resContent.body.forEach(it => {
-            it.creation_time = this.$utils.formatDate(Date.parse(it.creation_time),"yyyy-MM-dd hh:mm:ss");
-          });
-          resContent.body.sort(function (a,b) {
-            return Date.parse(new Date(b.creation_time)) - Date.parse(new Date(a.creation_time));
-          });
-          this.responseValue = resContent.body;
-          this.imageList = resContent.body;
-          this.pageNum = 1;
-          this.pageSize = 12;
-        });
+      onScreenSizeChange(size) {
+        if (!size) {
+          return;
+        }
+        try {
+          const headerNode = this.$el.querySelector(':scope > .header');
+          const headerHeight = headerNode.offsetHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+          this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
+        } catch(err) {
+        }
       },
 
-      goToDetail(row) {
-        const targetPath = `${this.$net.page['profile/image/repo/version']}?repoName=${row.name}`;
-        this.$router.push(targetPath);
+
+      async requestImageRepoList() {
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.image_repo_list_by_group, {
+          payload: {
+            groupTag: this.$storeHelper.groupInfo.tag
+          }
+        });
+        const imageRepoList = resContent.body.map(it => {
+          it['create_time'] = Date.parse(it.creation_time);
+          it.creation_time = this.$utils.formatDate(it['create_time'], "yyyy-MM-dd hh:mm:ss");
+          return it;
+        }).sort(function (pre, next) {
+          return pre['create_time'] - next['create_time'];
+        });
+        this.imageRepoList = imageRepoList;
+        this.totalSize = parseInt(resContent.total);
+        this.currentPage = 1;
+      },
+
+      async updateImageRepoListByPage(refresh) {
+        if (refresh || !this.imageRepoList) {
+          await this.requestImageRepoList();
+        }
+        // update pageSize by screen size
+        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
+        var page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.pageSize;
+        const length = this.pageSize;
+        const end = start + length;
+
+        this.imageRepoListFiltered = this.imageRepoList;
+        if (this.imageRepoFilter) {
+          const filterReg = new RegExp(this.imageRepoFilter);
+          this.imageRepoListFiltered = this.imageRepoList.filter(it => {
+            return filterReg.exec(it['name']);
+          });
+        }
+        this.imageRepoListByPage = this.imageRepoListFiltered.slice(start, end);
+      },
+
+      handleClick(evt, action) {
+        switch (action) {
+          case 'refresh':
+            this.updateImageRepoListByPage(true);
+            break;
+        }
+      },
+      handleTRClick(evt, action, index, row) {
+        switch (action) {
+          case 'page-jump':
+            const targetPath = `${this.$net.page['profile/image/repo/version']}?repoName=${row.name}`;
+            this.$router.push(targetPath);
+            break;
+        }
       },
 
       handlePaginationPageChange(page) {
         this.currentPage = page;
-        console.log(page);
-        this.getImage();
+        this.updateImageRepoListByPage();
       },
 
       handleSizeChange(val){
         this.pageSize = val;
       },
-
-      handleNumChange(val){
-        this.pageNum = val;
-      },
     },
-
-    filters:{
-      pageSlice(array,pageNum,pageSize){
-        let offset = (pageNum - 1) * pageSize;
-        let data = (offset+pageSize >= array.length) ? array.slice(offset,array.length) : array.slice(offset,offset+pageSize);
-        return data;
-      }
-    }
   }
 </script>

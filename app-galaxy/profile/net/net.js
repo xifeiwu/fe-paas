@@ -300,7 +300,7 @@ class Net extends NetBase {
 
       /**镜像相关*/
       //获取镜像仓库列表
-      'image_list_by_group':{
+      'image_repo_list_by_group':{
         path: '/image/queryRepositoryByGroupTag',
         method:'post',
       },
