@@ -15,8 +15,10 @@
       </div>
       <!--toasts-area-->
       <!--popover-message-area-->
-      <paas-popover-message ref="global-popover" popperClass="el-popover--small is-dark"
+      <paas-popover-message ref="global-popover-close-on-leave" popperClass="el-popover--small is-dark"
                             placement="top" :closeDelay="0" :closeOnLeave="true"></paas-popover-message>
+      <paas-popover-message ref="global-popover-close-on-delay" popperClass="el-popover--small is-dark"
+                            placement="bottom" :closeDelay="1000" :closeOnLeave="false"></paas-popover-message>
       <!--popover-message-area-->
 
       <div class="profile header">
@@ -379,8 +381,8 @@
       this.onRoutePath(this.$route);
 
       // set value of globalPopover to $storeHelper.globalPopover
-      const globalPopover = this.$refs['global-popover'];
-      this.$storeHelper.globalPopover = globalPopover;
+      this.$storeHelper.globalPopover = this.$refs['global-popover-close-on-leave'];
+      this.$storeHelper.globalTip = this.$refs['global-popover-close-on-delay'];
     },
     beforeDestroy() {
       removeResizeListener(this.$el, this.resizeListener);

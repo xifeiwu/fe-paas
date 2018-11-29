@@ -55,17 +55,9 @@
           headerAlign="center" align="center">
           <template slot-scope="scope">
             <div class="access-key">
-              <span>{{scope.row.accessKey}}</span>
-              <el-popover
-                      placement="bottom"
-                      trigger="click"
-                      :disabled="false"
-                      popperClass="el-popover--small is-dark"
-                      content="复制成功">
-                <i class="paas-icon-copy" slot="reference"
+              <span>{{scope.row.accessKey}}</span><i class="paas-icon-copy"
                    v-clipboard:copy="scope.row.accessKey"
-                   v-clipboard:success="handleTRClick.bind(this, 'copy', scope.$index, scope.row)"></i>
-              </el-popover>
+                   v-clipboard:success="handleSuccessCopy"></i>
             </div>
           </template>
         </el-table-column>
@@ -77,17 +69,9 @@
         >
           <template slot-scope="scope">
             <div class="secret">
-              <span>{{scope.row.secret}}</span>
-              <el-popover
-                      placement="bottom"
-                      trigger="click"
-                      :disabled="disablePopper"
-                      popperClass="el-popover--small is-dark"
-                      content="复制成功">
-                <i class="paas-icon-copy" slot="reference"
+              <span>{{scope.row.secret}}</span><i class="paas-icon-copy"
                    v-clipboard:copy="scope.row.secret"
-                   v-clipboard:success="handleTRClick.bind(this, 'copy', scope.$index, scope.row)"></i>
-              </el-popover>
+                   v-clipboard:success="handleSuccessCopy"></i>
             </div>
           </template>
         </el-table-column>
@@ -790,7 +774,6 @@ module.exports = {
         accessKey: ''
       },
       accessKeyListByPage: [],
-      disablePopper: false,
       popoverForDeleteAccessConfig: true,
 
       selected: {
@@ -1135,13 +1118,6 @@ module.exports = {
       }
       this.selected.row = row;
       switch (action) {
-        case 'copy':
-          this.disablePopper = false;
-          setTimeout(() => {
-            this.disablePopper = true;
-          }, 500);
-//          this.$message.success('复制成功');
-          break;
         case 'oauth_update_access_config':
           let openDialog = ()=>  {
             let selectedRow = this.selected.row;
@@ -1277,6 +1253,12 @@ module.exports = {
           });
           break;
       }
+    },
+    handleSuccessCopy(evt) {
+      this.$storeHelper.globalTip.show({
+        ref: evt.trigger,
+        msg: '复制成功'
+      });
     },
 
     /**

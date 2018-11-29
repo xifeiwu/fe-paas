@@ -15,6 +15,7 @@ class StoreHelper extends BaseHelper{
     this._permission = {};
     // popover on click
     this.globalPopover = null;
+    this.globalTip = null;
   }
 
   set currentGroupID(groupId) {
