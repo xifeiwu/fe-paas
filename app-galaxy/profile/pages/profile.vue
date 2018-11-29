@@ -18,9 +18,9 @@
       <paas-popover-message ref="global-popover" popperClass="el-popover--small is-dark"
                             placement="top" :closeDelay="0" :closeOnLeave="true"></paas-popover-message>
       <!--popover-message-area-->
-      <div class="header">
-        <div class="content-header">
 
+      <div class="profile header">
+        <div class="header-left">
           <div class="current-step">
             <i class="paas-icon-fa-home" style="margin-right: 2px;"></i>
             <el-breadcrumb separator-class="el-icon-arrow-right">
@@ -29,19 +29,14 @@
               </el-breadcrumb-item>
             </el-breadcrumb>
           </div>
-          <!--<el-select v-model="$storeHelper.currentGroupID" size="mini" filterable-->
-          <!--:placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'" v-if="showGroupList">-->
-          <!--<el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">-->
-          <!--</el-option>-->
-          <!--</el-select>-->
-          <div class="group" v-if="true">
+          <div class="group">
             <el-tooltip slot="trigger" effect="dark" placement="bottom">
               <div slot="content">
                 <div>当前所在团队</div>
               </div>
               <i class="paas-icon-group"></i>
             </el-tooltip>
-            <el-select  v-model="$storeHelper.currentGroupID" class="group-list" size="mini" filterable :disabled="!showGroupList"
+            <el-select  v-model="$storeHelper.currentGroupID" size="mini" filterable :disabled="!showGroupList"
                         :placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'">
               <el-option-group
                       v-for="version in groupListByVersion"
@@ -56,17 +51,20 @@
                 </el-option>
               </el-option-group>
             </el-select>
+            <div class="no-select" v-if="false">
+              <span :title="`${$storeHelper.groupInfo ? $storeHelper.groupInfo['asLabel'] : ''}`">{{$storeHelper.groupInfo ? $storeHelper.groupInfo['asLabel'] : ''}}</span>
+            </div>
           </div>
         </div>
-        <paas-header-profile :showDescriptor="showDescriptor4Header"
+        <paas-header-profile :showDescriptor="showDescriptor4Header" class="header-right"
                              :userName="userName" :messageCountTip="messageCountTip" backgroundColor="#fafafa"
                              ref="paasHeaderProfile"
                              @menu-click="handleHeaderMenuClick"></paas-header-profile>
       </div>
-      <div v-if="!routeConfig" class="content">
+      <div v-if="!routeConfig" class="profile content">
         <page-not-found :navigateList="navigateList"></page-not-found>
       </div>
-      <div v-else class="content">
+      <div class="profile content" v-else>
         <!--<div class="child"-->
              <!--v-loading="$net.vm.requestingUrlListLength > 0"-->
              <!--element-loading-text="网络请求中..."-->
@@ -88,48 +86,108 @@
 
 <style lang="scss">
   #profile {
-    .header {
-      .el-breadcrumb {
-        display: inline-block;
-        .el-breadcrumb__item {
-          .el-breadcrumb__separator {
-            margin: 0px;
+    .profile.header {
+      background-color: #fafafa;
+      border-bottom: 1px solid rgb(235, 235, 235);
+      display: flex;
+      justify-content: space-between;
+      .header-left {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: transparent;
+        height: 32px;
+        .current-step {
+          padding-left: 6px;
+          .el-breadcrumb {
+            font-size: 14px;
+            display: inline-block;
+            .el-breadcrumb__item {
+              .el-breadcrumb__separator {
+                margin: 0px;
+              }
+              .el-breadcrumb__inner, .el-breadcrumb__inner a {
+                font-weight: normal;
+                color: #409EFF
+              }
+              &:last-child {
+                .el-breadcrumb__inner, .el-breadcrumb__inner a {
+                  color: #5a5e66;
+                }
+              }
+            }
           }
-          .el-breadcrumb__inner, .el-breadcrumb__inner a {
-            font-weight: normal;
-            color: #409EFF
+        }
+        .group {
+          .el-select {
+            width: 240px;
+            .el-input {
+              &.is-disabled {
+                &:hover, &.is-focus {
+                  .el-input__inner {
+                    border-bottom-color: transparent;
+                  }
+                }
+              }
+              &:hover, &.is-focus {
+                .el-input__inner {
+                  border-bottom: 1px solid black;
+                }
+              }
+            }
+            .el-input__inner {
+              border-width: 0px;
+              border-bottom: 1px solid transparent;
+              border-radius: 0px;
+              height: 32px;
+              background-color: #fafafa;
+            }
           }
-          &:last-child {
-            .el-breadcrumb__inner, .el-breadcrumb__inner a {
-              color: #5a5e66;
+          .no-select {
+            display: inline-block;
+            width: 240px;
+            box-sizing: border-box;
+            height: 32px;
+            font-size: 12px;
+            color: #5a5e66;
+            line-height: 32px;
+            padding: 0px 30px 0px 10px;
+            text-align: start;
+            text-indent: 0px;
+            text-rendering: auto;
+            text-shadow: none;
+            text-transform: none;
+            font-weight: 400;
+
+            span {
+              width: 100%;
+              display: inline-block;
+              overflow: hidden;
+              white-space: nowrap;
+              word-wrap: break-word;
+              word-break: break-all;
+              text-overflow: ellipsis;
+            }
+            &:hover {
+              /*z-index: 50;*/
+              /*overflow: visible;*/
             }
           }
         }
       }
-      .el-select.group-list {
-        width: 240px;
-        .el-input {
-          &.is-focus {
-            .el-input__inner {
-              border-bottom: 1px solid black;
-            }
-          }
-        }
-        .el-input__inner {
-          border-width: 0px;
-          border-bottom: 1px solid transparent;
-          border-radius: 0px;
-          height: 32px;
-          background-color: #fafafa;
-        }
+      .paas-header-profile {
+        display: inline-block;
       }
     }
     &.v1 {
-      .content-header {
-        .el-select.group-list {
-          .el-input {
-            input {
-              color: #E6A23C;
+      .header-left {
+        .group {
+          .el-select {
+            .el-input {
+              input {
+                color: #E6A23C;
+              }
             }
           }
         }
@@ -137,6 +195,7 @@
     }
   }
 
+  /*parent of popper for el-select is body */
   #paas {
     .el-select-dropdown.el-popper {
       .el-select-group__wrap:not(:last-of-type)::after {
@@ -170,41 +229,17 @@
 <style lang="scss" scoped>
   $main-background: #F2F6FC;
   /*$main-background: #E4E7ED;*/
-
   #profile {
     height: 100%;
     display: flex;
     flex-direction: row;
+    min-width: 1000px;
     main {
       flex: 1;
       display: flex;
       flex-direction: column;
       background: $main-background;
       height: 100%;
-      .header {
-        background-color: #fafafa;
-        border-bottom: 1px solid rgb(235, 235, 235);
-        display: flex;
-        justify-content: space-between;
-        .content-header {
-          flex: 1;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: transparent;
-          /*border-bottom: 1px solid #e7e7e7;*/
-          height: 32px;
-          .current-step {
-            padding-left: 6px;
-            .el-breadcrumb {
-              font-size: 14px;
-            }
-          }
-        }
-        .paas-header-profile {
-          display: inline-block;
-        }
-      }
       .content {
         flex: 1;
         padding: 0px;
@@ -216,7 +251,6 @@
           padding: 5px;
           box-sizing: border-box;
           overflow: scroll;
-          /*max-width: 1300px;*/
           .el-loading-mask {
             position: absolute;
             z-index: 2000;
@@ -461,9 +495,10 @@
 //        console.log(this.routePathToConfig);
         const path = route['path'];
         this.routeConfig = this.$router.helper.getConfigByRouterPath(path);
+        console.log(path);
         if (this.routeConfig) {
           // whether show groupList
-          let pageNotShowGroupList = ['/profile/app/add', '/profile/service/add'];
+          let pageNotShowGroupList = ['/profile/app/add', '/profile/service/add', '/profile/image/repo/version'];
           let pageNotShowGroupListReg = /^\/profile\/(work-order\/(todo|list).*|config-server\/*)$/;
           if (pageNotShowGroupList.indexOf(path) > -1 || pageNotShowGroupListReg.exec(path)) {
             this.showGroupList = false;
@@ -488,7 +523,7 @@
         }
         var activeSideMenuItem = null;
         ['profile/app', 'profile/service', 'profile/instance', 'profile/domain', 'profile/log', 'profile/work-order',
-          'profile/oauth', 'profile/config-server', 'profile/image/repo'].map(it => {
+          'profile/monitor', 'profile/oauth', 'profile/config-server', 'profile/image/repo'].map(it => {
             return this.$net.page[it];
         }).some(it => {
           if (path.startsWith(it)) {
