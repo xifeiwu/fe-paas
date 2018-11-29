@@ -367,8 +367,8 @@
       background-color: white;
       box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
       margin: 10px;
-      padding: 10px 30px;
-      width: 900px;
+      padding: 10px 20px 10px 10px;
+      width: 800px;
       .section-title {
         font-size: 18px;
         text-align: center;

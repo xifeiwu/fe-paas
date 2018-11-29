@@ -272,9 +272,8 @@
   #app-add {
     background: white;
     margin: 10px;
-    padding: 10px 30px;
-    width: 80%;
-    max-width: 750px;
+    padding: 10px 20px 10px 10px;
+    max-width: 800px;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     .section-title {
       font-size: 18px;
