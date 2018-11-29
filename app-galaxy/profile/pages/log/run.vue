@@ -233,7 +233,7 @@
       // set default date duration
       const end = new Date();
       const start = new Date();
-      start.setTime(start.getTime() - 1000 * 60 * 5);
+      start.setTime(start.getTime() - 1000 * 3600);
       this.searchForm.dateTimeRange = [start, end];
 
       this.$nextTick(() => {
@@ -287,6 +287,14 @@
 //        defaultTime: start.getTime() - 3600 * 1000 * 24 * 7,
         pickerOptions2: {
           shortcuts: [{
+            text: '最近三天',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 3);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
             text: '最近一周',
             onClick(picker) {
               const end = new Date();
@@ -295,19 +303,11 @@
               picker.$emit('pick', [start, end]);
             }
           }, {
-            text: '最近一个月',
+            text: '最近两周',
             onClick(picker) {
               const end = new Date();
               const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近两个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 60);
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 14);
               picker.$emit('pick', [start, end]);
             }
           }
@@ -342,6 +342,18 @@
     watch: {
       'currentGroupID': function () {
         this.resetSearchCondition();
+      },
+      'searchForm.dateTimeRange': function (value) {
+        console.log(value);
+        const threeDays = 1000 * 3600 * 24 * 3;
+        const start = this.searchForm.dateTimeRange[0];
+        const end = this.searchForm.dateTimeRange[1];
+        if ((end.getTime() - start.getTime()) > threeDays) {
+          end.setTime(start.getTime() + threeDays);
+          console.log(start, end);
+          this.searchForm.dateTimeRange[1] = end;
+          this.$message.warning('为减轻后台压力，默认截取从开始日期三天内的数据。');
+        }
       }
     },
     methods: {
