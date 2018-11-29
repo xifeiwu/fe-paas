@@ -121,7 +121,7 @@
         try {
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
-          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+          this.heightOfTable = this.$el.clientHeight - headerHeight;
           this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
         } catch(err) {
         }

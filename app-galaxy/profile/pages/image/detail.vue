@@ -51,10 +51,15 @@
           minWidth="120px">
         </el-table-column>
         <el-table-column
-                prop="label"
                 label="标签"
                 headerAlign="center" align="center"
                 minWidth="120px">
+          <template slot-scope="scope">
+            <div class="labels">
+              <el-tag v-for="(label, index) in scope.row.labels" :key="index" size="mini" :disableTransitions="false" closable
+                      @close="handleTRClick($event, 'remove-label', label, scope.row)">{{label.description}}</el-tag>
+            </div>
+          </template>
         </el-table-column>
       </el-table>
       <div class="pagination-container" v-if="totalSize > pageSize">
@@ -87,6 +92,12 @@
       text-align: center;
       .el-table{
         display: inline-block;
+        .labels {
+          .el-tag {
+            margin: 1px 2px;
+            display: inline-block;
+          }
+        }
       }
     }
   }
@@ -139,7 +150,7 @@
         try {
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
-          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+          this.heightOfTable = this.$el.clientHeight - headerHeight;
           this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
         } catch(err) {
         }
@@ -147,7 +158,7 @@
 
       async requestVersionList() {
         this.versionList = [];
-        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.image_detail_by_image_name,{
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.image_version_list_by_repo,{
           payload: {
             'projectAndRepository':  this.repoName
           }
@@ -199,6 +210,36 @@
         switch (action) {
           case 'refresh':
             this.updateVersionListByPage(true);
+            break;
+        }
+      },
+      async handleTRClick(evt, action, index, row) {
+        switch (action) {
+          case 'remove-label':
+            const label = index;
+            try {
+              const warningMsg = `确定要移除镜像 “${row.imageName}” 的标签 "${label.description}" 吗？`;
+              await this.$confirm(warningMsg, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.image_version_remove_label, {
+                payload: {
+                  fullName: row['imageName'],
+                  labelName: label['name']
+                }
+              });
+              // refresh label list
+              const index = row.labels.indexOf(label);
+              if (index > -1) {
+                row.labels.splice(index, 1);
+              }
+              this.$message.success('标签删除成功！');
+            } catch (err) {
+
+            }
             break;
         }
       },

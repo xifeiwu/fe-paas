@@ -305,9 +305,14 @@ class Net extends NetBase {
         method:'post',
       },
       //获取镜像详情
-      'image_detail_by_image_name':{
+      'image_version_list_by_repo':{
         path: '/image/queryImageTagByProjectAndRepository',
         method:'post',
+      },
+      // 删除镜像标签
+      'image_version_remove_label': {
+        path: '/image/removeLabel',
+        method: 'post'
       },
 
       /** 域名相关*/
