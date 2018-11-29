@@ -137,7 +137,7 @@ var baseConfig = {
   resolve: {
     extensions: ['.js', '.vue', '.json', '.scss', '.sass'],
     alias: {
-      'element-ui': utils.contextPath() + '/element-ui',
+      'element-ui': utils.contextPath() + '/components/element-ui',
       '$components': utils.contextPath() + '/components',
       '$assets': utils.contextPath() + '/assets',
       'assets': utils.contextPath() + '/app-galaxy/assets',

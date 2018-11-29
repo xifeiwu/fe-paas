@@ -32,12 +32,16 @@ import 'assets/css/fonts/paas-icon.js';
 
 import APP from './pages/profile';
 
-import(/* webpackChunkName: "components-profile" */ 'assets/libs/components/profile.js').then(components => {
-  components.default.install(Vue);
+Promise.all([
+  import(/* webpackChunkName: "components-element-ui" */ 'assets/libs/components/profile.js'),
+  import(/* webpackChunkName: "components-custom" */ 'assets/libs/components/custom.js')
+]).then(components => {
+  components[0].default.install(Vue);
+  components[1].default.install(Vue);
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),
+    store: store,
     router: router,
-    store: store
   }).$mount('#app');
 });
 
