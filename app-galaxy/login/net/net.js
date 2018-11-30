@@ -65,7 +65,8 @@ class Net extends NetBase {
         // 应用监控
         '/2.x/apm': {
           router: this.page['profile/monitor'],
-          icon: 'paas-icon-charts'
+          icon: 'paas-icon-charts',
+          beta: true
         },
         // Access Key管理
         '/2.x/keys': {
@@ -87,12 +88,14 @@ class Net extends NetBase {
         // 镜像中心
         '/2.x/images': {
           router: this.page['profile/image/repo'],
-          icon: 'paas-icon-image'
+          icon: 'paas-icon-image',
+          beta: true
         },
         // mariadb中间件
         '/2.x/openShift/mariaDB': {
           name: 'mariadb(非生产)',
-          router: 'dd'
+          router: 'dd',
+          beta: true
         },
         // 管理后台
         '/2.x/backstage': {

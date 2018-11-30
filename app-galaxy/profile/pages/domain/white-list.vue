@@ -267,7 +267,7 @@
       } else {
         this.$router.go(-1);
       }
-      this.allNetWorkAccessAble = this.domainInfo.notHaveIPWhiteList;
+      this.allNetWorkAccessAble = this.domainInfo['notHaveIPWhiteList'];
 
       let headerNode = this.$el.querySelector(':scope > .header');
       this.resizeListener = () => {
@@ -309,41 +309,7 @@
     },
     watch: {
       // action will not trigger at first change of domainInfo.notHaveIPWhiteList
-      'allNetWorkAccessAble': function (value, oldValue) {
-        let domainID = this.domainInfo['id'];
-        if (!domainID) {
-          return;
-        }
-        if (oldValue === false && value === true) {
-//          this.$net.domainDeleteAllWhiteIP(domainID).
-          this.$net.requestPaasServer(this.$net.URL_LIST.domain_delete_all_white_ip, {
-            query: {
-              internetDomainId: domainID
-            }
-          }).then(resContent => {
-            this.$message.success('开启"一键开启全网访问"成功！');
-            this.$storeHelper.dataTransfer = this.domainInfo;
-            this.currentPage = 1;
-            this.requestWhiteIPList();
-          }).catch(err => {
-          });
-        }
-        if (oldValue === true && value === false) {
-//          this.$net.domainAddOfficeWhiteIP(domainID)
-          this.$net.requestPaasServer(this.$net.URL_LIST.domain_add_office_ip_list, {
-            query: {
-              internetDomainId: domainID
-            }
-          }).then(resContent => {
-            this.$message.success('关闭"一键开启全网访问"成功！');
-            this.$storeHelper.dataTransfer = this.domainInfo;
-            this.currentPage = 1;
-            this.requestWhiteIPList();
-          }).catch(err => {
-          });
-        }
-//        console.log(value);
-//        console.log(oldValue);
+      'allNetWorkAccessAble': async function (value, oldValue) {
       }
     },
     methods: {
@@ -367,7 +333,46 @@
         this.requestWhiteIPList();
       },
 
-      toggleAllNetWorkAccessAble(value) {
+      async toggleAllNetWorkAccessAble(value) {
+        let domainID = this.domainInfo['id'];
+        if (!domainID) {
+          return;
+        }
+        if (value === true) {
+          try {
+            await this.$confirm('你确定需要开启全网访问吗？', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning',
+              dangerouslyUseHTMLString: true
+            });
+            const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.domain_delete_all_white_ip, {
+              query: {
+                internetDomainId: domainID
+              }
+            });
+            this.$message.success('开启"一键开启全网访问"成功！');
+            this.$storeHelper.dataTransfer = this.domainInfo;
+            this.currentPage = 1;
+            this.requestWhiteIPList();
+          } catch (err) {
+            this.allNetWorkAccessAble = false;
+            this.$message.warning('未开启"一键开启全网访问"');
+          }
+        } else {
+//          this.$net.domainAddOfficeWhiteIP(domainID)
+          this.$net.requestPaasServer(this.$net.URL_LIST.domain_add_office_ip_list, {
+            query: {
+              internetDomainId: domainID
+            }
+          }).then(resContent => {
+            this.$message.success('关闭"一键开启全网访问"成功！');
+            this.$storeHelper.dataTransfer = this.domainInfo;
+            this.currentPage = 1;
+            this.requestWhiteIPList();
+          }).catch(err => {
+          });
+        }
       },
 
       // 检查IP地址是否正确，返回错误提示。返回null说明没有错误。

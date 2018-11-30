@@ -20,6 +20,7 @@
         </template>
         <el-menu-item v-for="subMenu in menu.children" :key="subMenu.name" :index="subMenu.router">
           <i v-if="subMenu.icon" :class="subMenu.icon"></i><span>{{subMenu.name}}</span>
+          <span class="beta" v-if="subMenu.beta">beta</span>
         </el-menu-item>
       </el-submenu>
       <el-menu-item v-for="menu in navMenu.level1" :key="menu.name" :index="menu.router">
@@ -69,6 +70,31 @@
     .el-menu {
       margin-top: 15px;
       width: 100%;
+      .el-menu-item {
+        position: relative;
+        .beta {
+          position: absolute;
+          top: 13px;
+          right: 5px;
+          display: inline;
+          /*color: #E6A23C;*/
+          /*border: 1px solid #E6A23C;*/
+          color: #F56C6C;
+          border: 1px solid #F56C6C;
+          font-size: 12px;
+          line-height: 12px;
+          cursor: pointer;
+          padding: 1px;
+          border-radius: 4px;
+          word-break: normal
+        }
+        &:hover {
+          .beta {
+            color: red;
+            border: 1px solid red;
+          }
+        }
+      }
     }
     .toggle {
       position: absolute;
