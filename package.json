@@ -7,7 +7,8 @@
     "dev": "NODE_ENV=dev-server webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "test": "npm run unit",
     "lint": "eslint --ext .js,.vue src test/unit",
-    "build": "NODE_ENV=production node build/build.js"
+    "build": "npm run pre-build && NODE_ENV=production node build/build.js",
+    "pre-build": "node build/element-ui.js"
   },
   "dependencies": {
     "async-validator": "^1.8.1",
@@ -18,8 +19,14 @@
     "debug": "^3.1.0",
     "deepmerge": "^2.0.1",
     "echarts": "^4.2.0-rc.1",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^5.0.0",
+    "gulp-cssmin": "^0.1.7",
+    "gulp-sass": "^3.1.0",
     "jquery": "^3.1.0",
+    "json-templater": "^1.0.4",
     "throttle-debounce": "^1.0.1",
+    "uppercamelcase": "^1.1.0",
     "v-charts": "^1.17.10",
     "vue": "^2.0.1",
     "vue-codemirror": "^4.0.5",

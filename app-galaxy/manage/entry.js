@@ -30,7 +30,8 @@ import 'assets/css/fonts/paas-icon.js';
 
 import APP from './pages/index';
 
-import(/* webpackChunkName: "components-profile" */ 'assets/libs/components/profile.js').then(components => {
+import '$assets/libs/components/element-ui-fix.scss';
+import(/* webpackChunkName: "components-profile" */ 'assets/static/components/ele/profile.js').then(components => {
   components.default.install(Vue);
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),

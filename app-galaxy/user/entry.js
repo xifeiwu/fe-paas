@@ -20,7 +20,8 @@ import APP from './pages/index.vue';
 import routerConfig from './pages/router';
 Vue.prototype.$routeHelper = routerConfig;
 
-import(/* webpackChunkName: "components-docs" */ 'assets/libs/components/profile.js').then(components => {
+import '$assets/libs/components/element-ui-fix.scss';
+import(/* webpackChunkName: "components-docs" */ 'assets/static/components/ele/profile.js').then(components => {
   components.default.install(Vue);
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),
