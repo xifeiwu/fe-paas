@@ -235,8 +235,9 @@
   }
 </style>
 <style lang="scss" scoped>
-  $main-background: #F2F6FC;
   /*$main-background: #E4E7ED;*/
+  $main-background: #F2F6FC;
+  $main-background: #f4f5f5;
   #profile {
     height: 100%;
     display: flex;
