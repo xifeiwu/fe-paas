@@ -14,10 +14,7 @@
             active-text-color="#409EFF"
             :defaultActive="activeSideMenuItem">
       <el-menu-item v-for="menu in navMenu.level1" :key="menu.name" :index="menu.router">
-        <i :class="menu.icon"></i>
-        <template slot="title">
-          <span>{{menu.name}}</span>
-        </template>
+        <i :class="menu.icon"></i><span slot="title">{{menu.name}}</span>
       </el-menu-item>
       <el-submenu v-for="menu in navMenu.level2" :key="menu.name" :index="menu.router">
         <template slot="title">
@@ -139,11 +136,11 @@
             children: [{
               name: '应用数',
               router: '/manage/analyze/app-count',
-              icon: 'paas-icon-fa-circle',
+              icon: 'el-icon-arrow-right',
             }, {
               name: '应用部署次数',
               router: '/manage/analyze/app-deploy',
-              icon: 'paas-icon-fa-circle',
+              icon: 'el-icon-arrow-right',
             }]
           }]
         }
