@@ -1,12 +1,12 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import Net from '../net';
 import createPersistedState from 'vuex-persistedstate';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    lobList: [],
     scrumList: [],
     groupListAll: [],
     profileListAll: [],
@@ -16,7 +16,11 @@ export default new Vuex.Store({
       height: 0,
       size: 0,
       ratioHeight: 0
-    }
+    },
+    currentLobId: '',
+    currentScrumList: [],
+    currentScrumId: '',
+    lobList: [],
   },
   actions: {
     setScreenSize({state, commit}, {width, height}) {
@@ -52,7 +56,34 @@ export default new Vuex.Store({
         // localStorage will not update if code run in the following way
         Vue.set(state.config, key, config[key]);
       }
-    }
+    },
+    // TODO: not used
+    async currentLobId(state, lobId) {
+      state.currentLobId = lobId;
+      try {
+        var scrumList = [];
+        if (lobId === '') {
+          scrumList = this.$storeHelper.scrumList;
+        } else {
+          const query = {
+            lobId
+          };
+          const resContent = await Net.requestPaasServer(Net.URL_LIST.get_scrum_list_by_lob, {
+            query
+          });
+          scrumList = resContent['scrumList'];
+        }
+        scrumList = [{id: '', scrumName: "全部"}].concat(scrumList);
+        state.currentScrumId = scrumList.map(it => it.id).indexOf(state.currentScrumId) > -1 ? state.currentScrumId : scrumList[0]['id'];
+        state.currentScrumList = scrumList;
+
+        state.currentLobId = lobId;
+        return true;
+        // console.log(state.currentLobId);
+      } catch (err) {
+        console.log(err);
+      }
+    },
   },
   mutations: {
     toastPush(state, payload) {

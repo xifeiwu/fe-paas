@@ -1,6 +1,7 @@
 import appMain from './app.vue';
 import analyzeAppCount from './analyze/app-count.vue';
 import analyzeAppDeploy from './analyze/app-deploy.vue';
+import analyzeResources from './analyze/resources.vue';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
@@ -25,6 +26,9 @@ var Router = function () {
   }, {
     path: '/manage/analyze/app-deploy',
     component: analyzeAppDeploy
+  }, {
+    path: '/manage/analyze/resources',
+    component: analyzeResources
   }];
 
   this.addRoutePath(null, this.richRouterConfig);

@@ -25,7 +25,12 @@ class Net {
         path: '/group/queryLobList',
         method: 'get'
       },
-      // 获取Scrum列表
+      //通过lob获取scrum列表
+      'get_scrum_list_by_lob':{
+        path:'/queryScrumByLobId',
+        method:'get',
+      },
+      // 获取所有Scrum列表
       'scrum_list': {
         path: '/group/getScrumList',
         method: 'get'

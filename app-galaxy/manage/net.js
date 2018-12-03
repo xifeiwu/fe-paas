@@ -41,22 +41,33 @@ class Net extends NetBase {
         path: '/backstage/downloadAppCountXls',
         method: 'post'
       },
+      // 应用部署次数列表
       'analyze_app_deploy_count_list': {
         path: '/backstage/queryDeploy',
         method: 'post'
       },
+      // 应用部署次数详情
       'analyze_app_deploy_count_detail': {
         path: '/backstage/queryDetailDeploy',
         method: 'post'
       },
+      // 下载应用部署次数列表
       'download_app_deploy_count': {
         path: '/backstage/downloadDeployCountXls',
         method: 'post'
       },
-      //通过lob获取scrum列表
-      'get_scrum_list_by_lob':{
-        path:'/queryScrumByLobId',
-        method:'get',
+      // 资源使用率统计
+      analyze_resources_list: {
+        path: '/backstage/queryCpuAndMemoryTotal',
+        method: 'post'
+      },
+      analyze_resources_list_download: {
+        path: '/backstage/downloadCpuAndMemoryExcel',
+        method: 'post'
+      },
+      analyze_resource_list_item_detail: {
+        path: '/backstage/queryCpuAndMemoryDetail',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

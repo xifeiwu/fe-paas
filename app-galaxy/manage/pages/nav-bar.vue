@@ -141,6 +141,10 @@
               name: '应用部署次数',
               router: '/manage/analyze/app-deploy',
               icon: 'el-icon-arrow-right',
+            }, {
+              name: '资源使用量',
+              router: '/manage/analyze/resources',
+              icon: 'el-icon-arrow-right',
             }]
           }]
         }

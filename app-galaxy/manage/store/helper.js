@@ -13,6 +13,23 @@ class StoreHelper extends BaseHelper{
     return this.$store.getters['navMenuWidth'];
   }
 
+  get currentLobId() {
+    return this.$store.state.currentLobId;
+  }
+  set currentLobId(lobId) {
+    this.$store.state.currentLobId = lobId;
+    // this.$store.dispatch('currentLobId',  lobId);
+  }
+  get currentScrumList() {
+    return this.$store.state.currentScrumList;
+  }
+  set currentScrumId(scrumId) {
+    this.$store.state.currentScrumId = scrumId;
+  }
+  get currentScrumId() {
+    return this.$store.state.currentScrumId;
+  }
+
   get lobList() {
     return this.$store.getters['lobList'];
   }
