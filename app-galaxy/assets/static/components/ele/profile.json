@@ -45,6 +45,7 @@
   "popover": "element-ui/packages/popover/index.js",
   // "progress": "element-ui/packages/progress/index.js",
   "radio": "element-ui/packages/radio/index.js",
+  "radio-group": "element-ui/packages/radio-group/index.js",
   "radio-button": "element-ui/packages/radio-button/index.js",
   // "rate": "element-ui/packages/rate/index.js",
   "row": "element-ui/packages/row/index.js",

@@ -38,6 +38,7 @@ import OptionGroup from 'element-ui/packages/option-group/index.js';
 import Pagination from 'element-ui/packages/pagination/index.js';
 import Popover from 'element-ui/packages/popover/index.js';
 import Radio from 'element-ui/packages/radio/index.js';
+import RadioGroup from 'element-ui/packages/radio-group/index.js';
 import RadioButton from 'element-ui/packages/radio-button/index.js';
 import Row from 'element-ui/packages/row/index.js';
 import Scrollbar from 'element-ui/packages/scrollbar/index.js';
@@ -95,6 +96,7 @@ const components = [
   Pagination,
   Popover,
   Radio,
+  RadioGroup,
   RadioButton,
   Row,
   Scrollbar,
@@ -191,6 +193,7 @@ module.exports = {
   Pagination,
   Popover,
   Radio,
+  RadioGroup,
   RadioButton,
   Row,
   Scrollbar,
