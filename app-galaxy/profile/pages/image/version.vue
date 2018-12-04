@@ -52,7 +52,7 @@
         </el-table-column>
         <el-table-column
                 label="废弃标签"
-                headerAlign="center" align="left"
+                headerAlign="center" align="center"
                 minWidth="100px">
           <template slot-scope="scope">
             <div class="labels">

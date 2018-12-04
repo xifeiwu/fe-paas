@@ -47,7 +47,7 @@ import CdnDashboard from './cdn/dashboard.vue';
 
 //image
 import ImageList from './image/main.vue';
-import ImageDetail from './image/detail.vue';
+import ImageVersion from './image/version.vue';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
@@ -238,7 +238,7 @@ class Helper {
       {
         path: '/profile/image/repo/version',
         name:'镜像版本',
-        component: ImageDetail,
+        component: ImageVersion,
       }
     ];
     this.addRoutePath(null, this.richRouterConfig);
