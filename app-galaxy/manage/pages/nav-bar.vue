@@ -145,6 +145,10 @@
               name: '资源使用量',
               router: '/manage/analyze/resources',
               icon: 'el-icon-arrow-right',
+            }, {
+              name: '调用量',
+              router: '/manage/analyze/visit',
+              icon: 'el-icon-arrow-right',
             }]
           }]
         }

@@ -69,9 +69,7 @@
         <el-table-column prop="spaceName" label="运行环境"></el-table-column>
         <el-table-column prop="lobName" label="LOB"></el-table-column>
         <el-table-column prop="scrumName" label="Scrum"></el-table-column>
-        <el-table-column prop="cpuUsage" label="CPU总量"  headerAlign="center" align="center" minWidth="140"
-                         sortable></el-table-column>
-        <el-table-column prop="memoryUsage" label="内存总量"  headerAlign="center" align="center" minWidth="140"
+        <el-table-column prop="visitCount" label="调用量(次)"  headerAlign="center" align="center" minWidth="140"
                          sortable></el-table-column>
         <el-table-column
                 prop="operation"
@@ -104,7 +102,7 @@
       </div>
     </div>
 
-    <el-dialog title="资源利用率详情" :visible="action.name == 'detail-show'"
+    <el-dialog title="调用量详情" :visible="action.name == 'detail-show'"
                :close-on-click-modal="false"
                class="app-count-detail size-800"
                @close="handleCloseDialog('detail-show')"
@@ -129,18 +127,17 @@
               @sort-change="onDetailSortChangeInTable"
       >
         <el-table-column prop="appName" label="应用名称" headerAlign="center" align="center"></el-table-column>
-        <el-table-column prop="cpuUsage" label="CPU数" headerAlign="center" align="center" sortable></el-table-column>
-        <el-table-column prop="memoryUsage" label="内存总量" headerAlign="center" align="center" sortable></el-table-column>
+        <el-table-column prop="visitCount" label="调用量(次)" headerAlign="center" align="center" sortable></el-table-column>
       </el-table>
       <div class="pagination-container" v-if="detailInfo.totalSize > detailInfo.pageSize">
         <div class="pagination">
           <el-pagination
-            :current-page="detailInfo.currentPage"
-            size="large"
-            layout="prev, pager, next"
-            :page-size = "detailInfo.pageSize"
-            :total="detailInfo.totalSize"
-            @current-change="handlePaginationPageChangeInDialog"
+                  :current-page="detailInfo.currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "detailInfo.pageSize"
+                  :total="detailInfo.totalSize"
+                  @current-change="handlePaginationPageChangeInDialog"
           >
           </el-pagination>
         </div>
@@ -221,11 +218,13 @@
   import {mapState} from "vuex";
   import commonUtils from 'assets/components/mixins/common-utils';
 
-  const PROPS_MAP = {
-    'cpuUsage': 'cpuAmount',
-    'memoryUsage': 'memoryAmount'
+  const DEFAULT_TABLE_SORT = {
+    prop: 'visitCount',
+    order: 'descending',
   };
-
+  const PROPS_MAP = {
+    'visitCount': 'callAmount',
+  };
   export default {
     mixins: [commonUtils],
     created() {
@@ -252,12 +251,9 @@
         },
 //        lobList: [],
 //        scrumList:[],
-        
+
         statisticListByPage: [],
-        tableSort: {
-          prop: 'memoryUsage',
-          order: 'descending',
-        },
+        tableSort: DEFAULT_TABLE_SORT,
 
         action: {
           name: null,
@@ -265,16 +261,13 @@
         },
 
         totalSize: 0,
-        pageSize: 14,
+        pageSize: 16,
         currentPage: 1,
 
         detailInfo: {
           list: [],
           listByPage: [],
-          tableSort: {
-            prop: 'memoryUsage',
-            order: 'descending',
-          },
+          tableSort: DEFAULT_TABLE_SORT,
           totalSize: 0,
           pageSize: 10,
           currentPage: 1,
@@ -357,7 +350,7 @@
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
           this.heightOfTable = this.$el.clientHeight - headerHeight;
-          this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 14 : 12;
+          this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 16 : 12;
         } catch(err) {
         }
       },
@@ -412,7 +405,7 @@
 
         this.totalSize = 0;
         this.statisticListByPage = [];
-        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.analyze_resources_list, {
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.analyze_visit_list, {
           payload
         });
         this.totalSize = resContent['totalNum'];
@@ -426,8 +419,7 @@
           if (!it.scrumName) {
             it.scrumName = '---';
           }
-          it.cpuUsage = null !== it['cpuAmount'] ? `${it['cpuAmount']}核` : '---';
-          it.memoryUsage = null !== it['memoryAmount'] ? `${it['memoryAmount']}G` : '---';
+          it.visitCount = null !== it['callAmount'] ? `${it['callAmount']}` : '---';
           return it;
         });
       },
@@ -463,7 +455,7 @@
               payload.scrumId = this.$storeHelper.currentScrumId;
             }
 
-            const REQUEST_DESC_DOWNLOAD = this.$net.URL_LIST['analyze_resources_list_download'];
+            const REQUEST_DESC_DOWNLOAD = this.$net.URL_LIST['analyze_visit_list_download'];
 
             this.$net.addToRequestingRrlList(REQUEST_DESC_DOWNLOAD.path);
             this.$net.getResponse(REQUEST_DESC_DOWNLOAD, {
@@ -477,7 +469,7 @@
               const a = document.createElement('a');
               const blob = new Blob([res.data]);
               a.href = window.URL.createObjectURL(blob);
-              a.download = `资源使用量统计-${this.$utils.formatDate(this.getOneDayBefore(payload.startTime), 'yyyyMMdd')}-${this.$utils.formatDate(this.getOneDayBefore(payload.endTime), 'yyyyMMdd')}.xls`;
+              a.download = `调用量统计-${this.$utils.formatDate(this.getOneDayBefore(payload.startTime), 'yyyyMMdd')}-${this.$utils.formatDate(this.getOneDayBefore(payload.endTime), 'yyyyMMdd')}.xls`;
               a.style.display = 'none';
               document.body.appendChild(a);
               a.click();
@@ -498,10 +490,7 @@
             try {
               await this.requestDetailList();
               // sort by memory descending when dialog is open
-              this.onDetailSortChangeInTable({
-                prop: 'memoryUsage',
-                order: 'descending',
-              });
+              this.onDetailSortChangeInTable(DEFAULT_TABLE_SORT);
               this.detailInfo.currentPage = 1;
               this.getDetailListByPage();
               // open after success request
@@ -516,7 +505,7 @@
 
       // request detail list
       async requestDetailList() {
-        const REQUEST_DESC_DETAIL = this.$net.URL_LIST['analyze_resource_list_item_detail'];
+        const REQUEST_DESC_DETAIL = this.$net.URL_LIST['analyze_visit_list_item_detail'];
         const resContent = await this.$net.requestPaasServer(REQUEST_DESC_DETAIL, {
           payload: {
             startTime: this.$utils.getDate(this.payload.dateRange[0]),
@@ -527,12 +516,14 @@
           }
         });
         this.detailInfo.totalSize = resContent['totalNum'];
-        this.detailInfo.list = resContent['detailList'].map(it => {
-          it['cpuUsage'] = `${it['cpuAmount']}核`;
-          it['memoryUsage'] = `${it['memoryAmount']}G`;
+        this.detailInfo.list = resContent['totalList'].map(it => {
+          if (!it.appName) {
+            it.appName = '---';
+          }
+          it['visitCount'] = it['callAmount'];
           return it;
         });
-        console.log(resContent);
+//        console.log(resContent);
         return resContent;
       },
       // sort detail list

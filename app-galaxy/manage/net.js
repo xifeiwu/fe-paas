@@ -68,6 +68,21 @@ class Net extends NetBase {
       analyze_resource_list_item_detail: {
         path: '/backstage/queryCpuAndMemoryDetail',
         method: 'post'
+      },
+      // 调用次数列表
+      analyze_visit_list: {
+        path: '/backstage/queryCallTotal',
+        method: 'post'
+      },
+      // 下载调用次数列表
+      analyze_visit_list_download: {
+        path: '/backstage/downloadCallAmountXls',
+        method: 'post'
+      },
+      // 调用次数详情
+      analyze_visit_list_item_detail: {
+        path: '/backstage/queryCallDetail',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
