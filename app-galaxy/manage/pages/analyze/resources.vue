@@ -245,7 +245,8 @@
           groupId: '',
           dateRange: '',
         },
-        scrumList:[],
+//        lobList: [],
+//        scrumList:[],
         
         statisticListByPage: [],
         tableSort: {
@@ -317,16 +318,6 @@
       }
     },
     computed: {
-//      ...mapState(['lobList', 'groupList'])
-      lobList() {
-        if (Array.isArray(this.$storeHelper.lobList) && this.$storeHelper.lobList.length > 0) {
-          let lobList = [{id: '', lobName: '全部'}].concat(this.$storeHelper.lobList);
-          this.payload.lobId = lobList[0].id;
-          return lobList;
-        } else {
-          return [];
-        }
-      },
       groupList() {
         if (this.$storeHelper.groupListAll) {
           return [{id: '', name: '全部'}].concat(this.$storeHelper.groupListAll);
@@ -340,13 +331,16 @@
         } else {
           return [];
         }
+      },
+      lobList() {
+        return [{id: '', lobName: '全部'}].concat(this.$storeHelper.lobList);
+      },
+      scrumList() {
+        return [{id: '', scrumName: "全部"}].concat(this.$storeHelper.currentScrumList);
       }
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
-      '$storeHelper.currentScrumList': function (scrumList) {
-        this.scrumList = scrumList;
-      },
     },
 
     methods: {
@@ -399,11 +393,11 @@
         if ('' !== this.payload.profileId) {
           payload.spaceId = this.payload.profileId
         }
-        if ('' !== this.payload.lobId) {
-          payload.lobId = this.payload.lobId
+        if ('' !== this.$storeHelper.currentLobId) {
+          payload.lobId = this.$storeHelper.currentLobId;
         }
-        if ('' !== this.payload.scrumId) {
-          payload.scrumId = this.payload.scrumId
+        if ('' !== this.$storeHelper.currentScrumId) {
+          payload.scrumId = this.$storeHelper.currentScrumId;
         }
         // sort by request
         if (this.tableSort.prop && this.tableSort.order) {
@@ -460,11 +454,11 @@
             if ('' !== this.payload.profileId) {
               payload.spaceId = this.payload.profileId
             }
-            if ('' !== this.payload.lobId) {
-              payload.lobId = this.payload.lobId
+            if ('' !== this.$storeHelper.currentLobId) {
+              payload.lobId = this.$storeHelper.currentLobId;
             }
-            if ('' !== this.payload.scrumId) {
-              payload.scrumId = this.payload.scrumId
+            if ('' !== this.$storeHelper.currentScrumId) {
+              payload.scrumId = this.$storeHelper.currentScrumId;
             }
 
             const downloadRequestDesc = this.$net.URL_LIST['analyze_resources_list_download'];

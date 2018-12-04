@@ -207,24 +207,15 @@
       },
       '$storeHelper.currentLobId': async function (lobId) {
         console.log(lobId);
-        var scrumList = [];
-        if (lobId === '') {
-          scrumList = this.$storeHelper.scrumList;
-        } else {
-          const query = {
-            lobId
-          };
-          const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.get_scrum_list_by_lob, {
-            query
-          });
-
-          scrumList = resContent['scrumList'];
-        }
-        scrumList = [{id: '', scrumName: "全部"}].concat(scrumList);
-        this.$storeHelper.currentScrumId = scrumList.map(it => it.id).indexOf(this.$storeHelper.currentScrumId) > -1 ?
-          this.$storeHelper.currentScrumId : scrumList[0]['id'];
-        this.$store.state.currentScrumList = scrumList;
-      }
+      },
+//      '$storeHelper.currentScrumList': function (scrumList) {
+//        console.log('currentScrumList');
+//        console.log(scrumList);
+//      },
+//      '$store.state.scrumListByLobId': function (scrumList) {
+//        console.log('scrumListByLobId');
+//        console.log(scrumList);
+//      }
     },
     methods: {
       // set el-menu profile as active menu of paasHeaderProfile

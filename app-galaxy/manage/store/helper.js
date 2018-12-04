@@ -17,11 +17,11 @@ class StoreHelper extends BaseHelper{
     return this.$store.state.currentLobId;
   }
   set currentLobId(lobId) {
-    this.$store.state.currentLobId = lobId;
-    // this.$store.dispatch('currentLobId',  lobId);
+    // this.$store.state.currentLobId = lobId;
+    this.$store.dispatch('currentLobId',  lobId);
   }
   get currentScrumList() {
-    return this.$store.state.currentScrumList;
+    return this.$store.getters['currentScrumList'];
   }
   set currentScrumId(scrumId) {
     this.$store.state.currentScrumId = scrumId;

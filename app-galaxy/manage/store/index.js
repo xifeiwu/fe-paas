@@ -18,7 +18,7 @@ export default new Vuex.Store({
       ratioHeight: 0
     },
     currentLobId: '',
-    currentScrumList: [],
+    scrumListByLobId: [],
     currentScrumId: '',
     lobList: [],
   },
@@ -57,29 +57,20 @@ export default new Vuex.Store({
         Vue.set(state.config, key, config[key]);
       }
     },
-    // TODO: not used
-    async currentLobId(state, lobId) {
-      state.currentLobId = lobId;
+    async currentLobId({state}, lobId) {
       try {
-        var scrumList = [];
-        if (lobId === '') {
-          scrumList = this.$storeHelper.scrumList;
-        } else {
-          const query = {
+        const resContent = await Net.requestPaasServer(Net.URL_LIST.get_scrum_list_by_lob, {
+          query: {
             lobId
-          };
-          const resContent = await Net.requestPaasServer(Net.URL_LIST.get_scrum_list_by_lob, {
-            query
-          });
-          scrumList = resContent['scrumList'];
+          }
+        });
+        var scrumList = resContent['scrumList'];
+        // update currentScrumId when currentScrum is not '全部'
+        if ('' !== state.currentScrumId) {
+          state.currentScrumId = scrumList.map(it => it.id).indexOf(state.currentScrumId) > -1 ? state.currentScrumId : scrumList[0]['id'];
         }
-        scrumList = [{id: '', scrumName: "全部"}].concat(scrumList);
-        state.currentScrumId = scrumList.map(it => it.id).indexOf(state.currentScrumId) > -1 ? state.currentScrumId : scrumList[0]['id'];
-        state.currentScrumList = scrumList;
-
+        state.scrumListByLobId = scrumList;
         state.currentLobId = lobId;
-        return true;
-        // console.log(state.currentLobId);
       } catch (err) {
         console.log(err);
       }
@@ -131,6 +122,16 @@ export default new Vuex.Store({
       } else {
         return 180;
       }
+    },
+    currentScrumList(state, getters) {
+      var scrumList = [];
+      // currentLobId '' stands for '全部'
+      if ('' === state.currentLobId) {
+        scrumList = state.scrumList;
+      } else {
+        scrumList = state.scrumListByLobId;
+      }
+      return scrumList;
     }
   },
 
