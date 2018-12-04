@@ -93,6 +93,12 @@ class Net extends NetBase {
         '/2.x/openShift/mariaDB': {
           name: 'mariadb(非生产)',
           router: 'dd'
+        },
+        // 管理后台
+        '/2.x/backstage': {
+          name: '管理后台',
+          router: '/manage',
+          icon: 'el-icon-setting'
         }
       };
       const key = item.path;
