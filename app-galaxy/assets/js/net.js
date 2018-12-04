@@ -359,7 +359,12 @@ class Net {
       if (!partial) {
         this.addToRequestingRrlList(path);
       }
-      const response = await this.getResponse({path, method}, options);
+      const response = await this.getResponse({path, method}, options, {
+        timeout: 15000,
+        headers: {
+          token: Vue.prototype.$storeHelper.getUserInfo('token')
+        }
+      });
       let resData = response.data;
       if (this.isResponseSuccess(resData)) {
         return resData.content;
