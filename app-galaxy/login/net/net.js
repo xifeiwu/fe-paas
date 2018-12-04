@@ -105,8 +105,8 @@ class Net extends NetBase {
     let menuList = [];
     if (content.hasOwnProperty('menuList') && Array.isArray(content.menuList)) {
       const menuPathToIgnore = [
-        '/2.x/openShift/mariaDB' // mariaDB中间件
-        // "后台管理"
+        '/2.x/openShift/mariaDB', // mariaDB中间件
+        '/2.x/backstage'// "后台管理"
       ];
       menuList = content.menuList.map(it => {
         // append some property to each item
