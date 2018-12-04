@@ -31,7 +31,7 @@
               </el-breadcrumb-item>
             </el-breadcrumb>
           </div>
-          <div class="group">
+          <div :class="['group', !showGroupList?'disabled':'']">
             <el-tooltip slot="trigger" effect="dark" placement="bottom">
               <div slot="content">
                 <div>当前所在团队</div>
@@ -122,6 +122,12 @@
           }
         }
         .group {
+          &.disabled {
+            cursor: not-allowed;
+            .paas-icon-group {
+              color: #b4bccc;
+            }
+          }
           .el-select {
             width: 240px;
             .el-input {

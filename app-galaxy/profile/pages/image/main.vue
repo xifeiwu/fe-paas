@@ -68,7 +68,6 @@
         .page-jump {
           color: #409EFF;
           &:hover {
-            font-weight: bold;
             cursor: pointer;
           }
         }

@@ -12,7 +12,7 @@
         :height="heightOfTable">
         <el-table-column
           prop="imageName"
-          label="镜像：版本"
+          label="镜像:版本"
           aheaderAlign="center" align="left"
           minWidth="150px"
         >
@@ -51,12 +51,12 @@
           minWidth="120px">
         </el-table-column>
         <el-table-column
-                label="标签"
-                headerAlign="center" align="center"
-                minWidth="120px">
+                label="废弃标签"
+                headerAlign="center" align="left"
+                minWidth="100px">
           <template slot-scope="scope">
             <div class="labels">
-              <el-tag v-for="(label, index) in scope.row.labels" :key="index" size="mini" :disableTransitions="false" closable
+              <el-tag v-for="(label, index) in scope.row.labels" :key="index" size="small" :disableTransitions="false" closable
                       @close="handleTRClick($event, 'remove-label', label, scope.row)">{{label.description}}</el-tag>
             </div>
           </template>
@@ -137,6 +137,7 @@
 
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
+      'pageSize': 'updateVersionListByPage',
       'keyFilter': function () {
         this.updateVersionListByPage();
       }
@@ -151,7 +152,7 @@
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
           this.heightOfTable = this.$el.clientHeight - headerHeight;
-          this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
+          this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 12 : 10;
         } catch(err) {
         }
       },
@@ -178,17 +179,20 @@
         }).sort((pre, next) => {
           return pre['create_time'] - next['create_time'];
         });
-        this.versionList = resContent;
+        this.versionList = versionList;
         this.totalSize = versionList.length;
         this.currentPage = 1;
       },
 
+      /**
+       * 更新分页列表：versionListByPage
+       * @param refresh, 是否更新列表
+       * @returns {Promise.<void>}
+       */
       async updateVersionListByPage(refresh) {
         if (refresh || !this.versionList) {
           await this.requestVersionList();
         }
-        // update pageSize by screen size
-        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
         var page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
         const start = page * this.pageSize;
