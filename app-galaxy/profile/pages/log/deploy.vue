@@ -219,7 +219,7 @@
           return;
         }
         const serviceId = serviceInfo ? serviceInfo.id : '';
-        const serviceVersion = serviceInfo ? serviceInfo.serviceVersion : '';
+//        const serviceVersion = serviceInfo ? serviceInfo.serviceVersion : '';
         // save to localStorage after selected change
         this.$store.dispatch('user/config', {
           page: 'log/deploy',
@@ -229,15 +229,25 @@
             serviceId: serviceId
           }
         });
-        this.requestDeployLogList(appInfo.appId, profileInfo.id, serviceVersion);
+        this.requestDeployLogList();
       },
 
       requestDeployLogList(appId, profileId, serviceVersion) {
+        const {selectedAPP, selectedProfile, selectedService} = this.$refs['version-selector'].getSelectedValue();
+        if (!selectedAPP || !selectedProfile || !selectedService) {
+          return;
+        }
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.pageSize;
+        const length = this.pageSize;
+
         this.$net.requestPaasServer(this.$net.URL_LIST.log_deploy_list, {
           payload: {
-            appId,
-            spaceId: profileId,
-            serviceVersion: serviceVersion
+            start, length,
+            appId: selectedAPP.appId,
+            spaceId: selectedProfile.id,
+            serviceVersion: selectedService.serviceVersion
           }
         }).then(resContent => {
           this.totalSize = resContent['total'];
@@ -269,13 +279,14 @@
             }
           });
           this.deployLogList = deployLogList;
-//          console.log(deployLogList);
-          this.getDeployLogListByPage();
+          this.deployLogListByPage = this.deployLogList;
+//          this.getDeployLogListByPage();
         }).catch(err => {
           console.log(err);
         });
       },
 
+      // TODO: not used
       getDeployLogListByPage() {
         let page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
@@ -289,7 +300,8 @@
       // called at: 1. at the data of response; 2. change of pagination
       handlePaginationPageChange(value) {
         this.currentPage = value;
-        this.getDeployLogListByPage();
+        this.requestDeployLogList();
+//        this.getDeployLogListByPage();
       },
 
       async serviceDeploy(payload) {
@@ -436,15 +448,8 @@
       handleButtonClick(evt, action) {
         switch (action) {
           case 'refresh':
-            try {
-              const {selectedAPP, selectedProfile, selectedService} = this.$refs['version-selector'].getSelectedValue();
-              if (!selectedAPP || !selectedProfile || !selectedService) {
-                return;
-              }
-              this.requestDeployLogList(selectedAPP.appId, selectedProfile.id, selectedService.serviceVersion);
-            } catch(err) {
-              console.log(err);
-            }
+            this.currentPage = 1;
+            this.requestDeployLogList();
             break;
         }
       },
