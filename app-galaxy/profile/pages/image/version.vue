@@ -177,7 +177,7 @@
           });
           return it;
         }).sort((pre, next) => {
-          return pre['create_time'] - next['create_time'];
+          return (pre['create_time'] - next['create_time']) * -1;
         });
         this.versionList = versionList;
         this.totalSize = versionList.length;
