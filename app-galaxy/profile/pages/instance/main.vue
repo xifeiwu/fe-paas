@@ -70,17 +70,37 @@
         </el-table-column>
         <el-table-column
                 label="创建时间"
-                prop="createTime"
+                prop="formattedCreateTime"
                 width="100"
                 headerAlign="center" align="center">
           <template slot-scope="scope">
-            <div v-if="Array.isArray(scope.row.createTime)">
-              <div v-for="(item, index) in scope.row.createTime" :key="index">
+            <div v-if="Array.isArray(scope.row.formattedCreateTime)">
+              <div v-for="(item, index) in scope.row.formattedCreateTime" :key="index">
                 {{item}}
               </div>
             </div>
-            <div v-else>{{scope.row.createTime}}</div>
+            <div v-else>{{scope.row.formattedCreateTime}}</div>
           </template>
+        </el-table-column>
+        <el-table-column
+                label="启动时间"
+                prop="formattedStartTime"
+                width="100"
+                headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <div v-if="Array.isArray(scope.row.formattedStartTime)">
+              <div v-for="(item, index) in scope.row.formattedStartTime" :key="index">
+                {{item}}
+              </div>
+            </div>
+            <div v-else>{{scope.row.formattedStartTime}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column
+                prop="restartCount"
+                label="重启次数"
+                width="80"
+                headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center">
           <template slot-scope="scope">
@@ -99,7 +119,7 @@
                     :class="[isMesosService ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'show-console-log', scope.$index, scope.row)"
             >
-              <span>查看console日志</span>
+              <span>console日志</span>
             </el-button>
             <div class="ant-divider"></div>
             <el-button
@@ -402,47 +422,50 @@
       /**
        * 获取实例列表
        */
-      requestInstanceList(appID, spaceID, version) {
+      async requestInstanceList(appID, spaceID, version) {
         if (!appID || !spaceID) {
           console.log('appID or spaceID can not be empty');
           return;
         }
+        try {
+          this.instanceStatus.instanceList = [];
+          const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.instance_list, {
+            payload: {
+              appId: appID,
+              spaceId: spaceID,
+              serviceVersion: version
+            }
+          });
+//          console.log(resContent);
+          if (!resContent.hasOwnProperty('instanceList')) {
+            return;
+          }
 
-        this.$net.requestPaasServer(this.$net.URL_LIST.instance_list, {
-          payload: {
-            appId: appID,
-            spaceId: spaceID,
-            serviceVersion: version
-          }
-        }).then(resContent => {
-          if (resContent.hasOwnProperty('instanceList')) {
-            const instanceList = resContent.instanceList;
-            instanceList.forEach(it => {
-              it.name = it.id;
-              it.updated = it.updated ? it.updated.split(' ') : '---';
-              it.cpuUsageInPercent = it['cpuUsage'] ? `${parseFloat(it['cpuUsage'] * 100).toFixed(2)}%` : '---';
-              this.$utils.renameProperty(it, 'state', 'status');
-              this.$utils.renameProperty(it, 'ip', 'intranetIP');
-              this.$utils.renameProperty(it, 'updated', 'createTime');
-              it.memoryStatus = '---';
-              if (it['memoryUsageBytes'] && it['actualMemory']) {
-                it.memoryStatus = bytes(parseInt(it['memoryUsageBytes'])) + ' / ' + bytes(parseInt(it['actualMemory']));
-              }
-              it.cpuUsageSecondsSum = it.cpuUsageSecondsSum ? `${parseFloat(it['cpuUsageSecondsSum']).toFixed(2)}s` : '---'
-            });
-            this.instanceStatus.instanceList = instanceList;
-          } else {
-            this.instanceStatus.instanceList = [];
-          }
+          const instanceList = resContent.instanceList;
+          instanceList.forEach(it => {
+            it.name = it.id;
+            it['formattedCreateTime'] = this.$utils.formatDate(it['createTime'], 'yyyy-MM-dd hh:mm:ss').split(' ');
+            it['formattedStartTime'] = this.$utils.formatDate(it['startTime'], 'yyyy-MM-dd hh:mm:ss').split(' ');
+            it.cpuUsageInPercent = it['cpuUsage'] ? `${parseFloat(it['cpuUsage'] * 100).toFixed(2)}%` : '---';
+            this.$utils.renameProperty(it, 'state', 'status');
+            this.$utils.renameProperty(it, 'ip', 'intranetIP');
+
+            it.memoryStatus = '---';
+            if (it['memoryUsageBytes'] && it['actualMemory']) {
+              it.memoryStatus = bytes(parseInt(it['memoryUsageBytes'])) + ' / ' + bytes(parseInt(it['actualMemory']));
+            }
+            it.cpuUsageSecondsSum = it.cpuUsageSecondsSum ? `${parseFloat(it['cpuUsageSecondsSum']).toFixed(2)}s` : '---'
+          });
+          this.instanceStatus.instanceList = instanceList;
           if (resContent.hasOwnProperty('instanceNum')) {
             this.instanceStatus.instanceCount = resContent['instanceNum'];
           }
           // sort table by this.tableSort after success request
           this.onSortChangeInTable(this.tableSort);
-        }).catch(err => {
+          console.log(this.instanceStatus);
+        } catch(err) {
           console.log(err);
-        }).finally(() => {
-        });
+        }
       },
 
       /**

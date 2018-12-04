@@ -23,19 +23,28 @@
         <el-table-column
                 prop="createTime"
                 label="部署时间"
-                headerAlign="center" align="center"
+                headerAlign="center" align="center" width="160"
         >
         </el-table-column>
         <el-table-column
                 prop="deployUserName"
                 label="部署人员"
-                headerAlign="center" align="center"
+                headerAlign="center" align="center" width="100"
         >
         </el-table-column>
         <el-table-column
                 prop="fullImage"
                 label="部署镜像"
                 headerAlign="center" align="center"
+        >
+          <template slot-scope="scope">
+            <span>{{scope.row.fullImage}}</span><span class="image-status" :style="scope.row.imageStatus.style">{{scope.row.imageStatus.imageStatus}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+                prop="deployTypeDesc"
+                label="部署类型"
+                headerAlign="center" align="center" width="80"
         >
         </el-table-column>
         <el-table-column
@@ -235,11 +244,32 @@
           const deployLogList = resContent['deployLogList'];
           deployLogList.forEach(it => {
             it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-            if (!it['fullImage']) {
-              it['fullImage'] = '---';
+            ['fullImage', 'deployTypeDesc'].forEach(prop => {
+              if (!it[prop]) {
+                it[prop] = '---';
+              }
+            });
+            if (!it['imageStatus']) {
+              it['imageStatus'] = {
+                imageStatus: '---',
+                style: {
+                }
+              }
+            } else {
+              const color = it['imageStatus']['color'];
+              it['imageStatus']['style'] = {
+                color: `rgba(${color.red}, ${color.green}, ${color.blue}, ${color.alpha})`,
+                border: `1px solid rgba(${color.red}, ${color.green}, ${color.blue}, ${color.alpha})`,
+                padding: '1px 2px',
+                marginLeft: '2px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                lineHeight: '100%'
+              };
             }
           });
           this.deployLogList = deployLogList;
+//          console.log(deployLogList);
           this.getDeployLogListByPage();
         }).catch(err => {
           console.log(err);
