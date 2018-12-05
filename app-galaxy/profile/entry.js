@@ -14,7 +14,7 @@ import StoreHelper from './store/helper';
 import {URL_LIST} from './net/url';
 import netHelper from './net/net';
 
-import VueConfig from '../config/vue2';
+import VueConfig from '../config/vue';
 
 new VueConfig({
   URL_LIST,
