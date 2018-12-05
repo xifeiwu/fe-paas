@@ -480,6 +480,16 @@ class Net extends NetBase {
       'middleware_mariadb_backup_create': {
         path: '/middleware/createMiddlewareMariaDBBackup',
         method: 'post'
+      },
+      // 删除备份
+      'middleware_mariadb_backup_delete': {
+        path: '/middleware/deleteMiddlewareMariaDBBackup',
+        method: 'post'
+      },
+      // 恢复备份
+      'middleware_mariadb_backup_recover': {
+        path: '/middleware/createMiddlewareMariaDBRestore',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

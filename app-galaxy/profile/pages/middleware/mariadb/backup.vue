@@ -1,21 +1,21 @@
 <template>
-  <div id="middleware-mariadb-backup">
+  <div id="middleware-mariadb-backup" @click="handleButtonClick($event, 'click-on-page')">
     <div class="header">
       <el-button size="mini-extral"
                  type="primary"
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_create')">
         <span>立即备份</span>
       </el-button>
-        <el-button size="mini-extral"
-                   type="primary"
-                   @click="handleButtonClick($event, 'middleware_mariadb_backup_recover')">
+      <el-button size="mini-extral"
+                 type="primary"
+                 @click="handleButtonClick($event, 'middleware_mariadb_backup_delete')">
+        <span>删除</span>
+      </el-button>
+      <el-button size="mini-extral"
+                 type="primary"
+                 @click="handleButtonClick($event, 'middleware_mariadb_backup_recover')">
           <span>恢复</span>
-        </el-button>
-          <el-button size="mini-extral"
-                     type="primary"
-                     @click="handleButtonClick($event, 'middleware_mariadb_backup_delete')">
-            <span>删除</span>
-          </el-button>
+      </el-button>
       <el-button size="mini-extral"
                  type="primary"
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_refresh')">
@@ -36,7 +36,7 @@
                 minWidth="200">
           <template slot-scope="scope">
             <el-radio :label="scope.row.name"
-                      :value="currentBackupName"
+                      :value="selectedBackupName"
                       @input="changeDefaultBackup"></el-radio>
           </template>
         </el-table-column>
@@ -68,13 +68,25 @@
                     type="text"
                     :loading="statusOfWaitingResponse('mariadb_backup_recover_list') && action.row.name == scope.row.name"
                     :class="[false? 'disabled': 'primary']"
-                    @click="handleTRClick($event, 'mariadb_backup_recover_list', scope.$index, scope.row)">恢复历史</el-button>
+                    @click="handleTRClick($event, 'mariadb_backup_recover_list', scope.$index, scope.row)">
+              <span>恢复历史</span><i :class="['el-icon-arrow-right', popperStatus.id == scope.row.name? 'rotate':'']"></i>
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
-      <paas-pop-in-container :popStatus="popperStatus" style="width: 500px;">
+      <paas-pop-in-container :popStatus="popperStatus" style="width: 500px;" ref="pop-in-container">
         <div slot="content">
-          detail
+          <div class="recover-list">
+            <div class="row title">
+              <span class="time">还原时间</span><span class="status">还原状态</span>
+            </div>
+            <template v-if="recoverList.length > 0">
+              <div class="row content" v-for="(item ,index) in recoverList" :key="index">
+                <span class="time">{{item.timeStarted}}</span><span class="status">{{item.status}}</span>
+              </div>
+            </template>
+            <div class="no-data" v-else>无数据</div>
+          </div>
         </div>
       </paas-pop-in-container>
     </div>
@@ -93,6 +105,40 @@
   }
   > .main {
     position: relative;
+    .el-table {
+      .el-icon-arrow-right {
+        transition: transform 0.2s ease-in-out;
+        &.rotate {
+          transform: rotate(180deg);
+        }
+      }
+    }
+    .pop-in-container {
+      .recover-list {
+        padding: 10px 6px;
+        box-sizing: border-box;
+        height: 100%;
+        overflow-y: scroll;
+        font-size: 14px;
+        line-height: 28px;
+        .row {
+          display: flex;
+          .time, .status {
+            flex: 1;
+          }
+        }
+        .title {
+          border-bottom: 1px solid gray;
+          font-weight: bold;
+        }
+        .content {
+          border-bottom: 1px dotted gray;
+        }
+        .no-data {
+          text-align: center;
+        }
+      }
+    }
   }
 }
 </style>
@@ -152,7 +198,8 @@
         pageTotal: 0,
 
         backupList: [],
-        currentBackupName: null,
+        selectedBackupName: null,
+        recoverList: [],
 
         action: {
           name: null,
@@ -164,6 +211,17 @@
           title: '恢复记录',
           visible: false
         }
+      }
+    },
+    computed: {
+      selectedBackup() {
+        var result = null;
+        this.backupList.some(it => {
+          if (it.name == this.selectedBackupName) {
+            result = it;
+          }
+        });
+        return result;
       }
     },
     methods: {
@@ -198,27 +256,102 @@
           return record;
         });
         if (this.backupList.length > 0) {
-          this.currentBackupName = this.backupList[0]['name'];
+          this.selectedBackupName = this.backupList[0]['name'];
         }
         console.log(this.backupList);
       },
       changeDefaultBackup(backupName) {
-        this.currentBackupName = backupName;
+        this.selectedBackupName = backupName;
         console.log(backupName);
       },
       async handleButtonClick(evt, action) {
         var resContent = null;
         switch (action) {
+          case 'click-on-page':
+            var popInContainer = this.$refs['pop-in-container'].$el;
+            if (popInContainer && popInContainer.contains(evt.target)) {
+            } else {
+              this.popperStatus.visible = false;
+              this.popperStatus.id = null;
+            }
+            break;
           case 'middleware_mariadb_backup_create':
-            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_create, {
-              payload: {
-                clusterId: this.clusterId,
-                middlewareId: this.middlewareId,
-                backupCluster: this.instanceInfo.name,
-                namespace: this.$storeHelper.groupInfo.tag
+            try {
+              await this.$confirm(`确定要备份mariadb实例 "${this.instanceInfo.name}" 吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_create, {
+                payload: {
+                  clusterId: this.clusterId,
+                  middlewareId: this.middlewareId,
+                  backupCluster: this.instanceInfo.name,
+                  namespace: this.$storeHelper.groupInfo.tag
+                }
+              });
+              this.$message.success(`备份创建成功！`);
+              await this.requestBackupList();
+            } catch (err) {
+              console.log(err);
+            }
+            break;
+          case 'middleware_mariadb_backup_delete':
+            try {
+              if (!this.selectedBackup) {
+                this.$message.error('请选择要操作的备份！');
+                return;
               }
-            });
-//            console.log(resContent);
+              await this.$confirm(`确定要删除备份 "${this.selectedBackup.name}" 吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_delete, {
+                payload: {
+                  clusterId: this.clusterId,
+                  middlewareId: this.middlewareId,
+                  name: this.selectedBackup.name,
+                  namespace: this.$storeHelper.groupInfo.tag
+                }
+              });
+              this.$message.success(`备份 "${this.selectedBackup.name}" 删除成功！`);
+              await this.requestBackupList();
+            } catch (err) {
+              console.log(err);
+            }
+            break;
+          case 'middleware_mariadb_backup_recover':
+            try {
+              if (!this.selectedBackup) {
+                this.$message.error('请选择要操作的备份！');
+                return;
+              }
+              if (!this.selectedBackup.location) {
+                this.$message.error('未找到备份地址！');
+                return;
+              }
+              await this.$confirm(`确定要恢复备份 "${this.selectedBackup.name}" 吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_recover, {
+                payload: {
+                  clusterId: this.clusterId,
+                  middlewareId: this.middlewareId,
+                  dataFrom: this.selectedBackup.location,
+                  clusterReference: this.instanceInfo.name,
+                  namespace: this.$storeHelper.groupInfo.tag
+                }
+              });
+              this.$message.success(`备份 "${this.selectedBackup.name}" 恢复成功！`);
+            } catch (err) {
+              console.log(err);
+            }
             break;
           case 'middleware_mariadb_backup_refresh':
             try {
@@ -240,6 +373,7 @@
             if (toOpenPopper) {
               this.addToWaitingResponseQueue(action);
               try {
+                this.recoverList = [];
                 resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_recovery_list, {
                   payload: {
                     clusterId: this.clusterId,
@@ -249,8 +383,21 @@
                     location: row.location
                   }
                 });
-//              console.log(resContent);
                 setTimeout(() => {
+                  this.recoverList = resContent['data'].filter(it => {
+                    return it['records'] && it['records'].length > 0;
+                  }).map(it => {
+                    const record = it['records'][0];
+                    record['name'] = it['name'];
+                    record['status'] = `还原${STATUS_MAP[record['status']]}`;
+                    return record;
+                  });
+//                  console.log(this.recoverList);
+//                  this.recoverList = this.recoverList.concat(this.recoverList);
+//                  this.recoverList = this.recoverList.concat(this.recoverList);
+//                  this.recoverList = this.recoverList.concat(this.recoverList);
+//                  this.recoverList = this.recoverList.concat(this.recoverList);
+//                  this.recoverList = this.recoverList.concat(this.recoverList);
                   this.hideWaitingResponse(action);
                   this.popperStatus.visible = true;
                   this.popperStatus.id = row.name;
