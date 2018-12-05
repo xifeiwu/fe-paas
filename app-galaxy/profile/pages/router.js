@@ -36,6 +36,7 @@ import WorkOrderTest from './work-order/todo/test.vue';
 import Middleware from './middleware/main.vue';
 import MiddlewareMariadb from './middleware/mariadb/index.vue';
 import MiddlewareMariadbAdd from './middleware/mariadb/add.vue';
+import MiddlewareMariadbBackup from './middleware/mariadb/backup.vue';
 
 // config-server
 import ConfigServerMain from './config-server/main.vue';
@@ -198,6 +199,10 @@ class Helper {
         path: 'mariadb/add',
         name: '申请实例',
         component: MiddlewareMariadbAdd,
+      }, {
+        path: 'mariadb/backup',
+        name: '备份与恢复',
+        component: MiddlewareMariadbBackup,
       }]
     }, {
       path: '/profile/config-server',

@@ -20,7 +20,7 @@
                 :defaultSort="tableSort"
                 stripe
                 :height="heightOfTable">
-        <el-table-column label="mariadb名称" prop="name" headerAlign="center" align="center" minWidth="120">
+        <el-table-column label="mariadb名称" prop="name" headerAlign="center" align="center" width="150">
         </el-table-column>
         <el-table-column label="创建者" prop="realName" headerAlign="center" align="center" width="80">
         </el-table-column>
@@ -30,9 +30,9 @@
         <el-table-column label="更新时间" prop="formattedUpdateTime" headerAlign="center" align="center" width="150"
                          sortable="custom">
         </el-table-column>
-        <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="120">
+        <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="100">
         </el-table-column>
-        <el-table-column label="操作" prop="operation" minWidth="180" headerAlign="center" align="center">
+        <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="150">
           <template slot-scope="scope">
             <el-button
                     type="text"
@@ -57,6 +57,15 @@
                     :class="$storeHelper.permission['middleware_instance_stop'].disabled ? 'disabled' : 'warning'"
                     :loading="statusOfWaitingResponse('middleware_instance_stop') && operation.row.id == scope.row.id"
                     @click="handleTRClick($event, 'middleware_instance_stop', scope.$index, scope.row)">停止</el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text"
+                    :class="['flex', false ? 'disabled' : 'primary']"
+                    :loading="statusOfWaitingResponse('go-to-page-backup') && operation.row.id == scope.row.id"
+                    @click="handleTRClick($event, 'go-to-page-backup', scope.$index, scope.row)">
+              <span>备份与恢复</span>
+              <i class="paas-icon-level-up"></i>
+            </el-button>
             <div class="ant-divider"></div>
             <el-button
                     class="primary" type="text"
@@ -226,9 +235,9 @@
       setTimeout(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
         this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 8;
-        if (this.appInfoListOfGroup) {
-          this.onAppInfoListOfGroup(this.appInfoListOfGroup);
-        }
+//        if (this.appInfoListOfGroup) {
+//          this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+//        }
       });
     },
     data() {
@@ -543,6 +552,13 @@
                 this.hideWaitingResponse(action);
               }
             }
+            break;
+          case 'go-to-page-backup':
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page['profile/middleware/mariadb'],
+              data: row
+            };
+            this.$router.push(this.$net.page['profile/middleware/mariadb/backup']);
             break;
         }
       },

@@ -39,7 +39,8 @@
     /*background-color: rgb(242, 246, 252);*/
     /*background-color: #F2F6FC;*/
     background-color: white;
-    border-right: 1px solid #eee;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+    /*border-right: 1px solid #eee;*/
     transition: opacity .3s, transform .3s;
     width: 800px;
     top: 0px;

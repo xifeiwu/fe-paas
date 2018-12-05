@@ -96,7 +96,8 @@ class Net {
       'profile/image/repo': '/profile/image/repo',
       'profile/image/repo/version': '/profile/image/repo/version',
       'profile/middleware/mariadb': '/profile/middleware/mariadb',
-      'profile/middleware/mariadb/add': '/profile/middleware/mariadb/add'
+      'profile/middleware/mariadb/add': '/profile/middleware/mariadb/add',
+      'profile/middleware/mariadb/backup': '/profile/middleware/mariadb/backup'
     };
 
     this.vm = new Vue({

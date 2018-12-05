@@ -16,7 +16,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     constants: {
-      navMenuWidth: 180,
+      navMenuWidth: 190,
     },
     toasts: [],        // toasts,
     config: {
@@ -89,7 +89,7 @@ export default new Vuex.Store({
       if (state.config.collapseMenu) {
         return 56;
       } else {
-        return 180;
+        return 190;
       }
     }
   },
