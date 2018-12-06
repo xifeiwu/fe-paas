@@ -456,12 +456,15 @@
           payload
         }).then(resContent => {
           this.totalSize = resContent['totalNum'];
-          this.appDeployAnalyze = resContent['totalList'].map(it => {
+          this.appDeployAnalyze = resContent['appList'].map(it => {
             if (!it.lobName) {
-              it.lobName = '无';
+              it.lobName = '---';
             }
             if (!it.scrumName) {
-              it.scrumName = '无';
+              it.scrumName = '---';
+            }
+            if (!it.spaceName) {
+              it.spaceName = '---';
             }
             it.deployCount = null !== it.deployCount ? it.deployCount : '---';
             it.mavenTime = null !== it.mavenTime ? it.mavenTime : '---';
@@ -538,7 +541,7 @@
                 scrumId: row.scrumId
               }
             }).then(resContent => {
-              this.appCountDetailList = resContent['totalList'];
+              this.appCountDetailList = resContent['detailList'];
               this.appCountDetailListSorted.asc = [];
               this.appCountDetailListSorted.desc = [];
               this.appCountDetailList.forEach(it => {
@@ -548,6 +551,9 @@
                 it.pushImageTime = null !== it.pushImageTime ? it.pushImageTime : '---';
                 this.appCountDetailListSorted.asc.push(it);
                 this.appCountDetailListSorted.desc.push(it);
+                if (!it.appName) {
+                  it.appName = '---';
+                }
               });
               this.appCountDetailListSorted.asc.sort((it1, it2) => {
                 var pre = typeof it1['deployCount'] == 'number' ? it1['deployCount'] : 0;

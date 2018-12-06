@@ -34,18 +34,12 @@
         </el-select>
       </div>
       <div class="item key-word">
-        <label style="float: left; width: 80px; line-height: 24px;">起止日期：</label>
-        <el-date-picker style="display: inline-block; width: 240px;"
-                        class="custom"
+        <label style="float: left; width: 80px; line-height: 24px;">截止日期：</label>
+        <el-date-picker style="display: inline-block; width: 180px;"
                         v-model="payload.dateRange"
-                        type="daterange"
-                        size="mini"
-                        align="right"
-                        unlink-panels
-                        range-separator="至"
-                        start-placeholder="开始日期"
-                        end-placeholder="结束日期"
-                        :picker-options="datePickerOptions">
+                        type="date"
+                        :picker-options="datePickerOptions"
+                        placeholder="选择日期">
         </el-date-picker>
       </div>
       <div class="item">
@@ -70,9 +64,9 @@
         <el-table-column prop="lobName" label="LOB"></el-table-column>
         <el-table-column prop="scrumName" label="Scrum"></el-table-column>
         <el-table-column prop="cpuUsage" label="CPU总量"  headerAlign="center" align="center" minWidth="140"
-                         sortable></el-table-column>
+                         sortable="custom"></el-table-column>
         <el-table-column prop="memoryUsage" label="内存总量"  headerAlign="center" align="center" minWidth="140"
-                         sortable></el-table-column>
+                         sortable="custom"></el-table-column>
         <el-table-column
                 prop="operation"
                 headerAlign="center" align="center"
@@ -129,8 +123,8 @@
               @sort-change="onDetailSortChangeInTable"
       >
         <el-table-column prop="appName" label="应用名称" headerAlign="center" align="center"></el-table-column>
-        <el-table-column prop="cpuUsage" label="CPU数" headerAlign="center" align="center" sortable></el-table-column>
-        <el-table-column prop="memoryUsage" label="内存总量" headerAlign="center" align="center" sortable></el-table-column>
+        <el-table-column prop="cpuUsage" label="CPU数" headerAlign="center" align="center" sortable="custom"></el-table-column>
+        <el-table-column prop="memoryUsage" label="内存总量" headerAlign="center" align="center" sortable="custom"></el-table-column>
       </el-table>
       <div class="pagination-container" v-if="detailInfo.totalSize > detailInfo.pageSize">
         <div class="pagination">
@@ -366,10 +360,7 @@
         this.hideWaitingResponse(action);
       },
       setDateRange() {
-        const end = new Date() - 1000 * 3600 * 24;
-        const start = new Date();
-        start.setTime(start.getTime() - 1000 * 3600 * 24 * 5);
-        this.payload.dateRange = [start, end];
+        this.payload.dateRange = new Date(Date.now() - 3600 * 1000 * 24);
       },
       // return the same date
       getOneDayBefore(origin) {
@@ -387,13 +378,12 @@
         const start = page * this.pageSize;
         const length = this.pageSize;
         if (!this.payload.dateRange) {
-          this.$message.error('请设置起止日期');
+          this.$message.error('请设置截止日期');
           return;
         }
         const payload = {
           start, length,
-          startTime: this.$utils.getDate(this.payload.dateRange[0]),
-          endTime: this.$utils.getDate(this.payload.dateRange[1])
+          endTime: this.$utils.getDate(this.payload.dateRange)
         };
         if ('' !== this.payload.profileId) {
           payload.spaceId = this.payload.profileId
@@ -450,8 +440,7 @@
             break;
           case 'download-analyze':
             const payload = {
-              startTime: this.$utils.getDate(this.payload.dateRange[0]),
-              endTime: this.$utils.getDate(this.payload.dateRange[1])
+              endTime: this.$utils.getDate(this.payload.dateRange)
             };
             if ('' !== this.payload.profileId) {
               payload.spaceId = this.payload.profileId
@@ -477,7 +466,7 @@
               const a = document.createElement('a');
               const blob = new Blob([res.data]);
               a.href = window.URL.createObjectURL(blob);
-              a.download = `资源使用量统计-${this.$utils.formatDate(this.getOneDayBefore(payload.startTime), 'yyyyMMdd')}-${this.$utils.formatDate(this.getOneDayBefore(payload.endTime), 'yyyyMMdd')}.xls`;
+              a.download = `资源使用量统计-${this.$utils.formatDate(this.getOneDayBefore(payload.endTime), 'yyyyMMdd')}.xls`;
               a.style.display = 'none';
               document.body.appendChild(a);
               a.click();
@@ -519,8 +508,7 @@
         const REQUEST_DESC_DETAIL = this.$net.URL_LIST['analyze_resource_list_item_detail'];
         const resContent = await this.$net.requestPaasServer(REQUEST_DESC_DETAIL, {
           payload: {
-            startTime: this.$utils.getDate(this.payload.dateRange[0]),
-            endTime: this.$utils.getDate(this.payload.dateRange[1]),
+            endTime: this.$utils.getDate(this.payload.dateRange),
             spaceId: this.action.row.spaceId,
             lobId: this.action.row.lobId,
             scrumId: this.action.row.scrumId
@@ -530,6 +518,9 @@
         this.detailInfo.list = resContent['detailList'].map(it => {
           it['cpuUsage'] = `${it['cpuAmount']}核`;
           it['memoryUsage'] = `${it['memoryAmount']}G`;
+          if (!it.appName) {
+            it.appName = '---';
+          }
           return it;
         });
         console.log(resContent);

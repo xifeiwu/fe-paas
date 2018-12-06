@@ -70,7 +70,7 @@
         <el-table-column prop="lobName" label="LOB"></el-table-column>
         <el-table-column prop="scrumName" label="Scrum"></el-table-column>
         <el-table-column prop="visitCount" label="调用量(次)"  headerAlign="center" align="center" minWidth="140"
-                         sortable></el-table-column>
+                         sortable="custom"></el-table-column>
         <el-table-column
                 prop="operation"
                 headerAlign="center" align="center"

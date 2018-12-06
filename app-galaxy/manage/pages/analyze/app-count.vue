@@ -417,7 +417,7 @@
         const length = this.pageSize;
         const payload = {
           start, length,
-          endTime: this.$utils.formatDate(this.payload.dateRange, 'yyyyMMdd')
+          endTime: this.$utils.getDate(this.payload.dateRange)
         };
         if ('' !== this.payload.profileId) {
           payload.spaceId = this.payload.profileId
@@ -429,16 +429,8 @@
           payload.scrumId = this.payload.scrumId
         }
         if (this.tableSort.prop && this.tableSort.order) {
-//          console.log(this.tableSort);
-          const order = this.tableSort.order == 'ascending' ? 'asc' : 'desc';
-          switch (this.tableSort.prop) {
-            case 'appCount':
-              payload['appOrder'] = order;
-              break;
-            case 'instanceCount':
-              payload['instanceOrder'] = order;
-              break;
-          }
+          payload['order'] = this.tableSort.order == 'ascending' ? 'asc' : 'desc';
+          payload['orderField'] = this.tableSort.prop;
         }
 
         this.$net.requestPaasServer(this.$net.URL_LIST.analyze_app_count, {
@@ -447,10 +439,13 @@
           this.totalSize = resContent['totalNum'];
           this.appCountList = resContent['appList'].map(it => {
             if (!it.lobName) {
-              it.lobName = '无';
+              it.lobName = '---';
             }
             if (!it.scrumName) {
-              it.scrumName = '无';
+              it.scrumName = '---';
+            }
+            if (!it.spaceName) {
+              it.spaceName = '---';
             }
             return it;
           });
@@ -475,7 +470,7 @@
             break;
           case 'download-analyze':
             const payload = {
-              endTime: this.$utils.formatDate(this.payload.dateRange, 'yyyyMMdd')
+              endTime: this.$utils.getDate(this.payload.dateRange)
             };
             if ('' !== this.payload.profileId) {
               payload.spaceId = this.payload.profileId
@@ -519,7 +514,7 @@
             this.addToWaitingResponseQueue(action);
             this.$net.requestPaasServer(this.$net.URL_LIST.analyze_app_count_detail, {
               payload: {
-                endTime: this.$utils.formatDate(this.payload.dateRange, 'yyyyMMdd'),
+                endTime: this.$utils.getDate(this.payload.dateRange),
                 spaceId: row.spaceId,
                 lobId: row.lobId,
                 scrumId: row.scrumId
@@ -531,6 +526,9 @@
               this.appCountDetailList.forEach(it => {
                 this.appCountDetailListSorted.asc.push(it);
                 this.appCountDetailListSorted.desc.push(it);
+                if (!it.appName) {
+                  it.appName = '---';
+                }
               });
               this.appCountDetailListSorted.asc.sort((it1, it2) => {
                 return it1['instanceCount'] - it2['instanceCount'];
