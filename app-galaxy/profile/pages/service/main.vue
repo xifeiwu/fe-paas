@@ -242,7 +242,7 @@
                     <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('instanceNum') ? 'warning' : 'disabled']"
                        @click="handleChangeProp($event, 'instanceNum')"></i>
                   </el-form-item>
-                  <el-form-item label="应用监控">
+                  <el-form-item label="应用监控" v-if="!selected.service.image.customImage">
                     <span>{{profileUtils.getMonitorNameById(selected.model.appMonitor)}}</span>
                     <i :class="['paas-icon', 'el-icon-edit', isPermittedToChangeProp('appMonitor') ? 'warning' : 'disabled']"
                        @click="handleChangeProp($event, 'appMonitor')"></i>
