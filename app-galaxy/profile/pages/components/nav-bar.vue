@@ -78,9 +78,9 @@
           right: 5px;
           display: inline;
           /*color: #E6A23C;*/
-          /*border: 1px solid #E6A23C;*/
-          color: #F56C6C;
-          border: 1px solid #F56C6C;
+          /*color: #F56C6C;*/
+          color: #EF9C69;
+          border: 1px solid #EF9C69;
           font-size: 12px;
           line-height: 12px;
           cursor: pointer;
@@ -92,6 +92,16 @@
           .beta {
             color: red;
             border: 1px solid red;
+          }
+        }
+      }
+      &.el-menu--collapse {
+        .el-submenu {
+          .el-menu {
+            .el-menu-item {
+              min-width: 165px;
+              padding-left: 8px !important;
+            }
           }
         }
       }
