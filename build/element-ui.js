@@ -26,6 +26,20 @@ class PreBuilder {
     return JSON.parse(content);
   }
 
+  deleteFolderRecursive(path) {
+    if (fs.existsSync(path)) {
+      fs.readdirSync(path).forEach((file, index) => {
+        var curPath = path + "/" + file;
+        if (fs.lstatSync(curPath).isDirectory()) { // recurse
+          this.deleteFolderRecursive(curPath);
+        } else { // delete file
+          fs.unlinkSync(curPath);
+        }
+      });
+      fs.rmdirSync(path);
+    }
+  };
+
   async generateJs(custom) {
     const components = await this.readConfig(custom);
 
@@ -159,6 +173,7 @@ module.exports.default = module.exports;
       }
       const sourceDir = path.resolve(THEME_DIR, 'lib');
       console.log(execSync(`cp -r ${sourceDir}/* ${outputDir}`, { encoding: 'utf-8' }));
+      this.deleteFolderRecursive(sourceDir);
     });
   }
 }
