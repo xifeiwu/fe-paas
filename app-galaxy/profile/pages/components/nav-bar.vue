@@ -25,6 +25,7 @@
       </el-submenu>
       <el-menu-item v-for="menu in navMenu.level1" :key="menu.name" :index="menu.router">
         <i :class="menu.icon"></i><span slot="title">{{menu.name}}</span>
+        <span class="beta" v-if="menu.beta">beta</span>
       </el-menu-item>
     </el-menu>
     <div :class="{'toggle': true, collapse: collapseMenu}">

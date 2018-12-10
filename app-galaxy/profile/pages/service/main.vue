@@ -89,6 +89,7 @@
                       :value="defaultServiceID"
                       :disabled="$storeHelper.permission['service_change_default'].disabled || true"
                       :style="{marginLeft: '3px'}"
+                      :class="{'default-service': defaultServiceID === scope.row.id}"
                       @input="changeDefaultVersion">{{scope.row.serviceVersion}}</el-radio>
               <span v-if="$storeHelper.groupVersion === 'v1'"
                     style="display: inline; color: #909399; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #909399; border-radius: 4px; word-break: normal"
@@ -1344,6 +1345,12 @@
     }
     .service-list {
       .el-table {
+        .default-service {
+          .el-radio__label {
+            color: #409EFF;
+            font-weight: bold;
+          }
+        }
         .el-table__expanded-cell {
           .row-expand {
             box-sizing: border-box;
@@ -3249,6 +3256,9 @@ export default {
       }).then(resContent => {
         const content = this.$net.parseServiceList(resContent);
         if (content.hasOwnProperty('applicationServerList')) {
+//         content['applicationServerList'].forEach(it => {
+//           it['internetDomainList'] = [];
+//         });
           this.currentServiceList = content['applicationServerList'];
           this.currentModelList = content['serviceModelList'];
           this.expandRows = [];
