@@ -1262,12 +1262,12 @@
                @close="selected.prop = null"
                v-if="selected.service && selected.model"
     >
-      <el-tag type="success" disable-transitions>
+      <el-tag type="warning" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>只支持添加一个外网域名</span>
+        <span>老团队只支持添加一个外网域名（如想自助式配置外网域名和IP白名单，请联系Paas团队，进行应用迁移）</span>
       </el-tag>
       <el-form :model="newProps" :rules="rules" size="mini" label-width="120px" ref="changeInternetDomainForm">
-        <el-form-item label="将要添加的域名" :error="props4CreateDomain.errMsgForDomainToAdd">
+        <el-form-item label="将要添加的域名" :error="props4CreateDomain.errMsgForDomainList">
           <div v-if="props4CreateDomain.domainToAdd.length > 0">
             <el-tag class="domain-to-add"
                     v-for="(item, index) in props4CreateDomain.domainToAdd"
@@ -1280,10 +1280,11 @@
           </div>
           <div v-else>无</div>
         </el-form-item>
-        <el-form-item label="外网二级域名" :error="props4CreateDomain.errMsgForPrefixName">
+        <el-form-item label="外网二级域名" :error="props4CreateDomain.errMsgForDomainName">
           <el-input v-model="props4CreateDomain.prefixName" placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"
                     style="margin-bottom: 3px;"></el-input>
-          <el-select v-model="props4CreateDomain.subDomain">
+          <el-select v-model="props4CreateDomain.subDomain"
+                     :placeholder="(props4CreateDomain.subDomainList && props4CreateDomain.subDomainList.length > 0) ? '请选择':'无数据'">
             <el-option v-for="(item, index) in props4CreateDomain.subDomainList" :value="item.domainName" :label="item.domainName"
                        :key="index"></el-option>
           </el-select>
@@ -1992,8 +1993,10 @@ export default {
         subDomain: '',
         subDomainList: [],
         domainToAdd: [],
-        errMsgForPrefixName: '',
-        errMsgForDomainToAdd: ''
+        // 校验规则：单个元素（语法校验）
+        errMsgForDomainName: '',
+        // 校验规则：域名数组（大于一个小于五个，无域名后缀）
+        errMsgForDomainList: ''
       },
 
       queueForWaitingResponse: [],
@@ -3054,7 +3057,7 @@ export default {
           break;
         case 'internetDomain':
           if (this.props4CreateDomain.domainToAdd.length === 0) {
-            this.props4CreateDomain.errMsgForDomainToAdd = '至少添加一个域名！';
+            this.props4CreateDomain.errMsgForDomainList = '至少添加一个域名！';
             return;
           }
           this.requestUpdate(prop);
@@ -3430,8 +3433,8 @@ export default {
       this.props4CreateDomain.domainToAdd = [];
       this.props4CreateDomain.prefixName = '';
       this.props4CreateDomain.subDomain = '';
-      this.props4CreateDomain.errMsgForPrefixName = '';
-      this.props4CreateDomain.errMsgForDomainToAdd = '';
+      this.props4CreateDomain.errMsgForDomainName = '';
+      this.props4CreateDomain.errMsgForDomainList = '';
     },
 
     /**
@@ -3457,16 +3460,23 @@ export default {
           }
           this.props4CreateDomain.prefixName = this.props4CreateDomain.prefixName.trim();
 
-          this.props4CreateDomain.errMsgForPrefixName = '';
-          this.props4CreateDomain.errMsgForDomainToAdd = '';
+          this.props4CreateDomain.errMsgForDomainName = '';
+          this.props4CreateDomain.errMsgForDomainList = '';
+
+          if (this.props4CreateDomain.subDomainList.length === 0) {
+            this.props4CreateDomain.errMsgForDomainName = '当前运行环境，域名后缀列表为空，无法创建。请联系Paas团队。';
+            return;
+          }
           if (!/^[a-z0-9][a-z0-9\-]{0,62}$/.exec(this.props4CreateDomain.prefixName)) {
-            this.props4CreateDomain.errMsgForPrefixName = '可以包含小写字符、数字、中划线，以字符数字开头，长度不超过63位';
+            this.props4CreateDomain.errMsgForDomainName = '可以包含小写字符、数字、中划线，以字符数字开头，长度不超过63位';
             return;
           }
 //          if (domainToAdd.length >= 5) {
-//            this.props4CreateDomain.errMsgForDomainToAdd = '每次最多添加五个';
+//            this.props4CreateDomain.errMsgForDomainList = '每次最多添加五个';
 //            return;
 //          }
+
+
           const domain = this.props4CreateDomain.prefixName + '.' + this.props4CreateDomain.subDomain;
 //          let item = null;
 //          domainToAdd.some(it => {
@@ -3476,7 +3486,7 @@ export default {
 //            return item
 //          });
 //          if (item) {
-//            this.props4CreateDomain.errMsgForPrefixName = `域名${domain}已经存在！`
+//            this.props4CreateDomain.errMsgForDomainName = `域名${domain}已经存在！`
 //            return;
 //          }
           domainToAdd.push(domain);
