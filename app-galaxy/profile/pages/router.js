@@ -8,6 +8,9 @@ import serviceList from './service/list.vue';
 
 import InstanceMain from './instance/main.vue';
 
+import pipeLine from './pipeline';
+import pipelineAdd from './pipeline/add';
+
 import DomainMain from './domain/main.vue';
 import DomainWhiteList from './domain/white-list.vue';
 
@@ -110,6 +113,15 @@ class Helper {
       path: '/profile/service/detail',
       name: '服务详情',
       component: serviceDetail
+    }, {
+      path: '/profile/pipeline',
+      name: 'pipeline',
+      component: pipeLine,
+      children: [{
+        path: 'add',
+        name: '添加pipeline',
+        component: pipelineAdd
+      }]
     }, {
       path: '/profile/instance',
       name: '实例列表',
