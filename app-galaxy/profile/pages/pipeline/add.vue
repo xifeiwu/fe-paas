@@ -22,7 +22,10 @@
             步骤二
           </div>
           <div class="config">
-            content of config
+            <pipeline-stage name="start" description="start"></pipeline-stage><!--
+            --><pipeline-stage v-for="(item, index) in stages" :name="item.name" :index="item.index"
+                            :description="item.description" :key="index"></pipeline-stage>
+            <pipeline-stage name="end" description="end"></pipeline-stage>
           </div>
         </div>
         <div class="step step3">
@@ -90,6 +93,12 @@
               border-top: none;
             }
           }
+          &.step2 {
+            .config {
+              padding-left: 15px;
+              padding-top: 30px;
+            }
+          }
           .config {
             border-left: 5px solid rgba(0, 0, 0, 0.1);
             padding-left: 5px;
@@ -100,7 +109,9 @@
   }
 </style>
 <script>
+  import pipelineStage from './components/stage.vue';
   export default {
+    components: {pipelineStage},
     created() {},
     mounted() {
       this.stepNodeList = [].slice.call(this.$el.querySelectorAll('.sheet .steps .step'));
@@ -108,7 +119,19 @@
     },
     data() {
       return {
-
+        stages: [{
+          name: 'step1',
+          description: '打包制作镜像',
+          index: 1
+        }, {
+          name: 'step2',
+          description: '部署到测试环境',
+          index: null,
+        }, {
+          name: 'step3',
+          description: '单元测试',
+          index: 3
+        }]
       }
     },
     computed: {
