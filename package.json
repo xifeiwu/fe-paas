@@ -29,11 +29,12 @@
     "uppercamelcase": "^1.1.0",
     "v-charts": "^1.17.10",
     "vue": "^2.0.1",
-    "vue-codemirror": "^4.0.5",
+    "vue-codemirror": "4.0.5",
     "vue-monaco-editor": "^0.0.19",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",
-    "vuex-persistedstate": "^2.5.4"
+    "vuex-persistedstate": "^2.5.4",
+    "xml-loader": "1.1.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
