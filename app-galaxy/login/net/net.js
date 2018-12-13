@@ -141,6 +141,11 @@ class Net extends NetBase {
         it.hasOwnProperty('parentId') && delete it.parentId;
         return it;
       });
+      menuList = menuList.concat({
+        name: 'pipeline',
+        router: '/profile/pipeline',
+        icon: 'paas-icon-jenkins'
+      })
     }
     let notPermitted = [];
     if (content.hasOwnProperty('excludeList') && Array.isArray(content['excludeList'])) {

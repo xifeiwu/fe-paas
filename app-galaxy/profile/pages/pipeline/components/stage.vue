@@ -1,8 +1,8 @@
 <template>
   <div :class="['stage', name, hovering ? 'is-hover':'']">
     <div :class="{'node': true, 'un-selected': !index}"
-         @mouseenter="handleMouseEnter"
-         @mouseleave="handleMouseLeave"
+         @mouseenter="handleMouseEnter($event)"
+         @mouseleave="handleMouseLeave($event)"
     >{{index ? index : ''}}</div>
     <div class="description">{{description}}</div>
     <div class="line"></div>
@@ -105,13 +105,15 @@
       }
     },
     methods: {
-      handleMouseEnter() {
+      handleMouseEnter(evt) {
         this.hovering = true;
+        this.$emit('stage-mouse-event', 'enter', evt, this.description);
 //        console.log(this.hovering);
       },
 
-      handleMouseLeave() {
+      handleMouseLeave(evt) {
         this.hovering = false;
+        this.$emit('stage-mouse-event', 'leave', evt, this.description);
 //        console.log(this.hovering);
       },
     }

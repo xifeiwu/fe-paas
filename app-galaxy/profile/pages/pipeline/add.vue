@@ -24,6 +24,7 @@
           <div class="config">
             <pipeline-stage name="start" description="start"></pipeline-stage><!--
             --><pipeline-stage v-for="(item, index) in stages" :name="item.name" :index="item.index"
+                               @stage-mouse-event="handleMouseEvent"
                             :description="item.description" :key="index"></pipeline-stage>
             <pipeline-stage name="end" description="end"></pipeline-stage>
           </div>
@@ -38,6 +39,12 @@
         </div>
       </div>
     </div>
+    <paas-popover-element ref="popover-for-content-show" popperClass="el-popover--small is-dark"
+                          placement="bottom" :closeOnLeave="true">
+      <div slot="content">
+        <div>fdsfdsafdsfds</div>
+      </div>
+    </paas-popover-element>
   </div>
 </template>
 <style lang="scss">
@@ -109,12 +116,14 @@
   }
 </style>
 <script>
+  import paasPopoverElement from 'assets/components/popover-element';
   import pipelineStage from './components/stage.vue';
   export default {
-    components: {pipelineStage},
+    components: {paasPopoverElement, pipelineStage},
     created() {},
     mounted() {
       this.stepNodeList = [].slice.call(this.$el.querySelectorAll('.sheet .steps .step'));
+      this.popperForContentShow = this.$refs['popover-for-content-show'];
 //      console.log(this.stepNodeList);
     },
     data() {
@@ -152,6 +161,19 @@
             console.log(evt.target);
             break;
         }
+      },
+      handleMouseEvent(action, evt, name) {
+        if (action === 'leave') {
+          return;
+        }
+        console.log(this.popperForContentShow.$slots);
+        this.popperForContentShow.show({
+          ref: evt.target,
+          type: 'node',
+//          msg: name
+        });
+//        console.log(evt.target);
+//        console.log(action, name);
       }
     }
   }
