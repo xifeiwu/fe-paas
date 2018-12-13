@@ -91,8 +91,8 @@
         }
         &:hover {
           .beta {
-            color: red;
-            border: 1px solid red;
+            color: #F56C6C;
+            border: 1px solid #F56C6C;
           }
         }
       }
