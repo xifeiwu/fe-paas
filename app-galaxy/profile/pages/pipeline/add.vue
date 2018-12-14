@@ -14,7 +14,20 @@
             1. 基本配置
           </div>
           <div class="config">
-            content of config
+            <el-form labelWidth="120px" size="mini">
+              <el-form-item label="pipeline名称">
+                <el-input></el-input>
+              </el-form-item>
+              <el-form-item label="pipeline描述">
+                <el-input></el-input>
+              </el-form-item>
+              <el-form-item label="gitlab仓库">
+                <el-input></el-input>
+              </el-form-item>
+              <el-form-item label="gitlab分支">
+                <el-input></el-input>
+              </el-form-item>
+            </el-form>
           </div>
         </div>
         <div class="step step2">
@@ -22,22 +35,22 @@
             2. 定义pipeline脚本
           </div>
           <div class="config">
-            <pipeline-stage name="start" description="start"></pipeline-stage><!--
-            --><pipeline-stage v-for="(item, index) in stages" :name="item.name" :index="item.index"
-                               @stage-mouse-event="handleMouseEvent"
-                               @stage-click-event="handleStageClick"
-                            :description="item.description" :key="index"></pipeline-stage>
-            <pipeline-stage name="end" description="end"></pipeline-stage>
-          </div>
-          <div class="transition">
-            <transition name="el-zoom-in-top">
-              <codemirror v-model="script" :options="groovyOption" v-if="currentStage === '打包制作镜像'"></codemirror>
-            </transition>
-            <transition name="el-zoom-in-top">
-              <div v-if="currentStage === '单元测试'">
-                <div>{{script}}</div>
-              </div>
-            </transition>
+            <div class="stage-list">
+              <pipeline-stage v-for="(item, index) in stages" :item="item"
+                                 @stage-mouse-event="handleMouseEvent"
+                                 @stage-click-event="handleStageClick"
+                              :description="item.description" :key="index"></pipeline-stage>
+            </div>
+            <div class="transition">
+              <transition name="el-zoom-in-top">
+                <codemirror v-model="script" :options="groovyOption" v-if="currentStage === '打包制作镜像'"></codemirror>
+              </transition>
+              <transition name="el-zoom-in-top">
+                <div v-if="currentStage === '单元测试'">
+                  <div>{{script}}</div>
+                </div>
+              </transition>
+            </div>
           </div>
         </div>
         <div class="step step3">
@@ -45,7 +58,11 @@
             3. 修改通知设置
           </div>
           <div class="config">
-            content of config
+            <el-form labelWidth="120px" size="mini">
+              <el-form-item label="通知类型">
+
+              </el-form-item>
+            </el-form>
           </div>
         </div>
       </div>
@@ -132,11 +149,16 @@
             .title {
               border-top: none;
             }
+            .el-form {
+              .el-input {
+                max-width: 500px;
+              }
+            }
           }
           &.step2 {
             .config {
-              padding-left: 15px;
-              padding-top: 30px;
+              padding-left: 30px;
+              padding-top: 28px;
             }
             .transition {
               height: 300px;
@@ -165,6 +187,43 @@
   import "codemirror/theme/abcdef.css";
   // require active-line.js
   import "codemirror/addon/selection/active-line.js";
+
+  const STAGE_NAME_MAP = {
+    'start': {
+      description: '开始',
+      type: 'prefix',
+    },
+    'download': {
+      description: '下载代码',
+      type: 'const',
+      selected: true,
+    },
+    'testAndSonarScript': {
+      description: 'sonar及单元测试'
+    },
+    'packageAndBuildImage': {
+      description: '打包及制作镜像'
+    },
+    'deployToTestEnv': {
+      description: '部署到测试环境'
+    },
+    'autoScript': {
+      description: '自动化测试'
+    },
+    'sonarCheck': {
+      description: 'Sonar数据检查'
+    },
+    'functionValidate': {
+      description: '功能测试（人工验证）'
+    },
+    'deployToBetaEnv': {
+      description: '部署到联调环境'
+    },
+    'end': {
+      description: 'end',
+      type: 'suffix',
+    }
+  };
   export default {
     components: {paasPopoverElement, pipelineStage, codemirror},
     async created() {
@@ -173,6 +232,45 @@
           appId: 24
         }
       });
+      resContent['deployEnv'].forEach(it => {
+        const key = {
+          'TEST': 'deployToTestEnv',
+          'BETA': 'deployToBetaEnv'
+        }[it.env];
+        resContent[key] = it;
+      });
+
+      const stages = [
+        'start',  //开始
+        'download',  //下载代码
+        'testAndSonarScript',  //sonar及单元测试
+        'packageAndBuildImage',  //打包及制作镜像
+        'deployToTestEnv', //部署到测试环境
+        'autoScript',  //自动化测试
+        'sonarCheck',  //Sonar数据检查
+        'functionValidate',  //功能测试（人工验证）
+        'deployToBetaEnv',  //部署到联调环境
+        'end'
+      ].map(key => {
+        var result = null;
+        if (['start', 'download', 'end'].indexOf(key) > -1) {
+          result = Object.assign({name: key}, STAGE_NAME_MAP[key]);
+        } else {
+          if (resContent.hasOwnProperty(key)) {
+            result = Object.assign({
+              'selected': resContent[key]['stepStatus']
+            }, {name: key}, STAGE_NAME_MAP[key]);
+          } else {
+            console.log(`prop ${key} is not found in response content!`);
+          }
+        }
+        return result;
+      });
+      this.updateStageIndex(stages);
+      this.stages = stages;
+
+//      console.log(stages);
+
       console.log(resContent);
     },
     mounted() {
@@ -182,19 +280,7 @@
     },
     data() {
       return {
-        stages: [{
-          name: 'step1',
-          description: '打包制作镜像',
-          index: 1
-        }, {
-          name: 'step2',
-          description: '部署到测试环境',
-          index: null,
-        }, {
-          name: 'step3',
-          description: '单元测试',
-          index: 3
-        }],
+        stages: [],
         currentStage: '',
 
         groovyOption: {
@@ -251,6 +337,16 @@
 
     },
     methods: {
+      updateStageIndex(stage) {
+        var index = 1;
+        stage.forEach(it => {
+          if (it.selected) {
+            it['index'] = index++;
+          } else {
+            it['index'] = null;
+          }
+        });
+      },
       handleClick(evt, action) {
         const target = evt.target;
         switch (action) {

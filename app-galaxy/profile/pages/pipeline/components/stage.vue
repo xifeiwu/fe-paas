@@ -1,26 +1,69 @@
 <template>
-  <div :class="['stage', name, hovering ? 'is-hover':'']">
-    <div :class="{'node': true, 'un-selected': !index}"
+  <div :class="['stage', item.name, hovering?'is-hover':'', active?'is-active':'', item.selected?'is-selected':'']">
+    <div :class="{'node': true,}"
          @mouseenter="handleMouseEnter($event)"
          @mouseleave="handleMouseLeave($event)"
          @click="handleClick($event)"
-    >{{index ? index : ''}}</div>
+         v-clickoutside="handleClickOutside"
+    >{{item.index ? item.index : ''}}</div>
     <div class="description">{{description}}</div>
     <div class="line"></div>
   </div>
 </template>
 <style lang="scss">
   .stage {
+    margin-top: 20px;
     display: inline-flex;
     position: relative;
     align-items: center;
     height: 30px;
-    width: 160px;
+    width: 120px;
     &.is-hover {
       .description {
-        font-weight: 700;
       }
     }
+    &.is-selected {
+      .node {
+        width: 28px;
+        height: 28px;
+        background-color: rgb(140, 192, 79);
+        border: 2px solid white;
+      }
+      &.is-active {
+        .description {
+          font-weight: 700;
+        }
+        .node {
+          border-color: #409EFF;
+        }
+      }
+      &.download {
+        width: 100px;
+        .node {
+          width: 24px;
+          height: 24px;
+          background-color: #949393;
+          border-width: 0px;
+        }
+      }
+    }
+    &.start, &.end {
+      width: 80px;
+      .node {
+        border-width: 0px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: #949393;
+      }
+    }
+    &:nth-last-of-type(2) {
+      width: 80px;
+    }
+    &:nth-last-of-type(1) {
+      width: 7px;
+    }
+
     .line {
       height: 4px;
       width: 100%;
@@ -30,33 +73,18 @@
       position: absolute;
       left: 0px;
       transform: translateX(-50%);
-      background-color: rgb(140, 192, 79);
       box-sizing: border-box;
-      width: 28px;
-      height: 28px;
-      border: 2px solid white;
-      /*padding: 2px;*/
       border-radius: 50%;
       cursor: pointer;
-      &:hover {
-        border-color: #409EFF;
-      }
-
       text-align: center;
       line-height: 24px;
       font-size: 14px;
       color: white;
 
-      &.un-selected {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background-color: transparent;
-        border: 2px solid #949393;
-        &:hover {
-          border-color: #409EFF;
-        }
-      }
+      width: 24px;
+      height: 24px;
+      background-color: transparent;
+      border: 2px solid #949393;
     }
     .description {
       position: absolute;
@@ -64,29 +92,30 @@
       left: 0px;
       color: #4a4a4a;
       font-size: 14px;
+      text-align: center;
       transform: translate(-50%, -100%);
-    }
-    &.start, &.end {
-      width: 100px;
-      .node {
-        border-width: 0px;
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        background-color: #949393;
-      }
-    }
-    &:nth-last-child(2) {
-      width: 100px;
-    }
-    &:last-of-type {
-      width: 7px;
     }
   }
 </style>
 <script>
+  import Clickoutside from 'element-ui/src/utils/clickoutside';
   export default {
+    directives: { Clickoutside },
+    mounted() {
+      console.log(this.active);
+    },
     props: {
+      item: {
+        type: Object,
+        default() {
+          return {
+            name: 'unknown',
+            selected: false,
+            description: 'unknown',
+            index: 0
+          }
+        }
+      },
       name: {
         type: String,
         default: 'normal'
@@ -103,6 +132,7 @@
     data() {
       return {
         hovering: false,
+        active: false,
       }
     },
     methods: {
@@ -119,7 +149,12 @@
       },
 
       handleClick(evt) {
-        this.$emit('stage-click-event', evt, this.description);
+//        console.log(evt);
+        this.active = true;
+        this.$emit('stage-click-event', evt, this.name);
+      },
+      handleClickOutside() {
+        this.active = false;
       }
     }
   }
