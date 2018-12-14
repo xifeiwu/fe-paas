@@ -577,6 +577,12 @@ class Net extends NetBase {
       'middleware_redis_update_config': {
         path: '/middleware/editMiddlewareRedis',
         method: 'post'
+      },
+
+      /** pipeline相关*/
+      'pipeline_stage_query': {
+        path: '/pipeline/query',
+        method: 'get'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

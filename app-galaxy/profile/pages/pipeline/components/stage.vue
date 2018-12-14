@@ -3,6 +3,7 @@
     <div :class="{'node': true, 'un-selected': !index}"
          @mouseenter="handleMouseEnter($event)"
          @mouseleave="handleMouseLeave($event)"
+         @click="handleClick($event)"
     >{{index ? index : ''}}</div>
     <div class="description">{{description}}</div>
     <div class="line"></div>
@@ -116,6 +117,10 @@
         this.$emit('stage-mouse-event', 'leave', evt, this.description);
 //        console.log(this.hovering);
       },
+
+      handleClick(evt) {
+        this.$emit('stage-click-event', evt, this.description);
+      }
     }
   }
 </script>
