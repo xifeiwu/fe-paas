@@ -1,5 +1,5 @@
 <template>
-  <div :class="['stage', item.name, hovering?'is-hover':'', active?'is-active':'', item.selected?'is-selected':'']">
+  <div :class="['stage', item.name, hovering?'is-hover':'', active?'is-active':'', item.selected?'is-selected':'un-selected']">
     <div :class="{'node': true,}"
          @mouseenter="handleMouseEnter($event)"
          @mouseleave="handleMouseLeave($event)"
@@ -10,14 +10,14 @@
     <div class="line"></div>
   </div>
 </template>
-<style lang="scss">
+<style lang="scss" scoped>
   .stage {
     margin-top: 20px;
     display: inline-flex;
     position: relative;
     align-items: center;
     height: 30px;
-    width: 120px;
+    width: 110px;
     &.is-hover {
       .description {
       }
@@ -37,24 +37,50 @@
           border-color: #409EFF;
         }
       }
-      &.download {
-        width: 100px;
+    }
+    &.un-selected {
+      .node {
+        width: 24px;
+        height: 24px;
+        background-color: transparent;
+        border: 2px solid #949393;
+      }
+      &.is-active {
+        .description {
+          font-weight: 700;
+        }
         .node {
-          width: 24px;
-          height: 24px;
-          background-color: #949393;
-          border-width: 0px;
+          width: 26px;
+          height: 26px;
+          border-color: #409EFF;
         }
       }
     }
     &.start, &.end {
-      width: 80px;
+      width: 70px;
       .node {
+        cursor: not-allowed;
         border-width: 0px;
         width: 14px;
         height: 14px;
         border-radius: 50%;
         background-color: #949393;
+      }
+      .description {
+        font-weight: normal;
+      }
+    }
+    &.download, &.download.is-selected.is-active {
+      width: 90px;
+      .node {
+        cursor: not-allowed;
+        width: 24px;
+        height: 24px;
+        background-color: #949393;
+        border-width: 0px;
+      }
+      .description {
+        font-weight: normal;
       }
     }
     &:nth-last-of-type(2) {
@@ -81,10 +107,6 @@
       font-size: 14px;
       color: white;
 
-      width: 24px;
-      height: 24px;
-      background-color: transparent;
-      border: 2px solid #949393;
     }
     .description {
       position: absolute;
@@ -102,7 +124,6 @@
   export default {
     directives: { Clickoutside },
     mounted() {
-      console.log(this.active);
     },
     props: {
       item: {
@@ -137,24 +158,22 @@
     },
     methods: {
       handleMouseEnter(evt) {
-        this.hovering = true;
-        this.$emit('stage-mouse-event', 'enter', evt, this.description);
-//        console.log(this.hovering);
+//        this.hovering = true;
+//        this.$emit('stage-mouse-event', 'enter', evt, this.description);
       },
 
       handleMouseLeave(evt) {
-        this.hovering = false;
-        this.$emit('stage-mouse-event', 'leave', evt, this.description);
-//        console.log(this.hovering);
+//        this.hovering = false;
+//        this.$emit('stage-mouse-event', 'leave', evt, this.description);
       },
 
       handleClick(evt) {
-//        console.log(evt);
         this.active = true;
-        this.$emit('stage-click-event', evt, this.name);
+        this.$emit('stage-click-event', evt, this.item.name);
       },
       handleClickOutside() {
         this.active = false;
+        this.$emit('stage-click-event', null, null);
       }
     }
   }
