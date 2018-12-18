@@ -48,7 +48,7 @@
         <el-table-column prop="lobName" label="LOB" width="100"></el-table-column>
         <el-table-column prop="groupName" label="团队名称" width="100"></el-table-column>
         <el-table-column prop="creator" label="创建人" width="80"></el-table-column>
-        <el-table-column prop="instanceNumPerProfile" label="运行环境（实例数）" minWidth="250"></el-table-column>
+        <el-table-column prop="instanceNumPerProfile" label="运行环境（配置实例数）" minWidth="250"></el-table-column>
         <!--<el-table-column-->
                 <!--prop="operation"-->
                 <!--label="操作"-->

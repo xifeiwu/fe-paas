@@ -83,7 +83,7 @@
           </template>
         </el-table-column>
         <el-table-column
-                label="启动时间"
+                label="k8s重启时间"
                 prop="formattedStartTime"
                 width="100"
                 headerAlign="center" align="center">
@@ -98,7 +98,7 @@
         </el-table-column>
         <el-table-column
                 prop="restartCount"
-                label="重启次数"
+                label="K8s重启次数"
                 width="80"
                 headerAlign="center" align="center">
         </el-table-column>

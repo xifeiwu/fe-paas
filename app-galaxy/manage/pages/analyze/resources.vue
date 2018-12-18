@@ -98,9 +98,9 @@
       </div>
     </div>
 
-    <el-dialog title="资源利用率详情" :visible="action.name == 'detail-show'"
+    <el-dialog title="资源使用量详情" :visible="action.name == 'detail-show'"
                :close-on-click-modal="false"
-               class="app-count-detail size-800"
+               class="detail-show size-800"
                @close="handleCloseDialog('detail-show')"
                v-if="action.name && action.row"
     >
@@ -122,9 +122,9 @@
               :defaultSort="detailInfo.tableSort"
               @sort-change="onDetailSortChangeInTable"
       >
-        <el-table-column prop="appName" label="应用名称" headerAlign="center" align="center"></el-table-column>
-        <el-table-column prop="cpuUsage" label="CPU数" headerAlign="center" align="center" sortable="custom"></el-table-column>
-        <el-table-column prop="memoryUsage" label="内存总量" headerAlign="center" align="center" sortable="custom"></el-table-column>
+        <el-table-column prop="appName" label="应用名称" headerAlign="center" align="center" minWidth="200"></el-table-column>
+        <el-table-column prop="cpuUsage" label="CPU数" headerAlign="center" align="center" sortable="custom" minWidth="100"></el-table-column>
+        <el-table-column prop="memoryUsage" label="内存总量" headerAlign="center" align="center" sortable="custom" minWidth="100"></el-table-column>
       </el-table>
       <div class="pagination-container" v-if="detailInfo.totalSize > detailInfo.pageSize">
         <div class="pagination">
@@ -167,7 +167,7 @@
         margin-top: 45px !important;
         height: 600px;
       }
-      &.app-count-detail {
+      &.detail-show {
         .el-dialog__body {
           .general {
             margin: 0px 3px;

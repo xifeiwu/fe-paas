@@ -74,7 +74,7 @@
         <el-table-column prop="lobName" label="LOB"></el-table-column>
         <el-table-column prop="scrumName" label="Scrum"></el-table-column>
         <el-table-column prop="appCount" label="应用数" sortable></el-table-column>
-        <el-table-column prop="instanceCount" label="创建实例数" sortable></el-table-column>
+        <el-table-column prop="instanceCount" label="配置实例数" sortable></el-table-column>
         <el-table-column
                 prop="operation"
                 label="操作"

@@ -48,7 +48,7 @@
         >
         </el-table-column>
         <el-table-column
-                label="操作">
+                label="操作" width="240">
           <template slot-scope="scope">
             <el-button
                     type="text"
@@ -271,10 +271,11 @@
                 color: `rgba(${color.red}, ${color.green}, ${color.blue}, ${color.alpha})`,
                 border: `1px solid rgba(${color.red}, ${color.green}, ${color.blue}, ${color.alpha})`,
                 padding: '1px 2px',
-                marginLeft: '2px',
+                marginLeft: '3px',
                 borderRadius: '6px',
                 fontSize: '12px',
-                lineHeight: '100%'
+                lineHeight: '100%',
+                display: 'inline-block'
               };
             }
           });

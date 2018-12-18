@@ -91,9 +91,9 @@
         >
           <template slot-scope="scope">
             <el-button
-                    :loading="statusOfWaitingResponse('app-count-detail') && action.row == scope.row"
+                    :loading="statusOfWaitingResponse('app-deploy-detail') && action.row == scope.row"
                     type="text"
-                    @click="handleTrButton('app-count-detail', scope.$index, scope.row)">
+                    @click="handleTrButton('app-deploy-detail', scope.$index, scope.row)">
               详情
             </el-button>
           </template>
@@ -113,10 +113,10 @@
         </div>
       </div>
     </div>
-    <el-dialog title="应用数详情" :visible="action.name == 'app-count-detail'"
+    <el-dialog title="应用部署次数详情" :visible="action.name == 'app-deploy-detail'"
                :close-on-click-modal="false"
-               class="app-count-detail size-1000"
-               @close="handleCloseDialog('app-count-detail')"
+               class="app-deploy-detail size-1000"
+               @close="handleCloseDialog('app-deploy-detail')"
                v-if="action.name && action.row"
     >
       <el-row class="general">
@@ -137,11 +137,11 @@
               :defaultSort="appCountDetail.tableSort"
               @sort-change="onSortChangeInTable2"
       >
-        <el-table-column prop="appName" label="应用名称" headerAlign="center" align="center"></el-table-column>
-        <el-table-column prop="deployCount" label="部署次数" sortable headerAlign="center" align="center"></el-table-column>
-        <el-table-column prop="mavenTime" label="平均打包时长(ms)" headerAlign="center" align="center"></el-table-column>
-        <el-table-column prop="buildImageTime" label="平均做镜像时长(ms)" headerAlign="center" align="center"></el-table-column>
-        <el-table-column prop="pushImageTime" label="平均推镜像时长(ms)" headerAlign="center" align="center"></el-table-column>
+        <el-table-column prop="appName" label="应用名称" headerAlign="center" align="center" minWidth="180"></el-table-column>
+        <el-table-column prop="deployCount" label="部署次数" sortable headerAlign="center" align="center" width="100"></el-table-column>
+        <el-table-column prop="mavenTime" label="平均打包时长(ms)" headerAlign="center" align="center" minWidth="100"></el-table-column>
+        <el-table-column prop="buildImageTime" label="平均做镜像时长(ms)" headerAlign="center" align="center" minWidth="100"></el-table-column>
+        <el-table-column prop="pushImageTime" label="平均推镜像时长(ms)" headerAlign="center" align="center" minWidth="100"></el-table-column>
         </el-table>
       <div class="pagination-container" v-if="appCountDetail.totalSize > appCountDetail.pageSize">
         <div class="pagination">
@@ -184,7 +184,7 @@
         margin-top: 45px !important;
         height: 600px;
       }
-      &.app-count-detail {
+      &.app-deploy-detail {
         .el-dialog__body {
           .general {
             margin: 0px 3px;
@@ -530,7 +530,7 @@
       handleTrButton(action, index, row) {
         this.action.row = row;
         switch (action) {
-          case 'app-count-detail':
+          case 'app-deploy-detail':
             this.addToWaitingResponseQueue(action);
             this.$net.requestPaasServer(this.$net.URL_LIST.analyze_app_deploy_count_detail, {
               payload: {
