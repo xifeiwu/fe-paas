@@ -250,6 +250,11 @@ class Net extends NetBase {
         path: '/service/deletePod',
         method: 'post'
       },
+      // 获取实例的console日志
+      'instance_console_log': {
+        path: '/pod/console/log',
+        method: 'post'
+      },
 
       /** 日志相关 */
       // 获取部署日志列表
@@ -1577,20 +1582,6 @@ class Net extends NetBase {
         }
       }).catch(err => {
         console.log(err);
-        reject(err);
-      })
-    })
-  }
-
-  /**
-   * 获取历史console日志
-   */
-  getConsoleLog(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.log_console_log.url, options).then(response => {
-        let content = this.getResponseContent2(response);
-        resolve(content);
-      }).catch(err => {
         reject(err);
       })
     })

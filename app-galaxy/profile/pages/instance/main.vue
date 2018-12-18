@@ -51,7 +51,7 @@
         <el-table-column
                 prop="intranetIP"
                 label="内网IP"
-                width="100"
+                width="90"
                 headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
@@ -71,7 +71,7 @@
         <el-table-column
                 label="创建时间"
                 prop="formattedCreateTime"
-                width="100"
+                width="90"
                 headerAlign="center" align="center">
           <template slot-scope="scope">
             <div v-if="Array.isArray(scope.row.formattedCreateTime)">
@@ -99,7 +99,7 @@
         <el-table-column
                 prop="restartCount"
                 label="K8s重启次数"
-                width="80"
+                width="100"
                 headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center">
@@ -198,7 +198,7 @@
                          class="dialog-console-log"
                          ref="dialogForConsoleLog" title="console日志">
       <div slot="content">
-        <pre class="content">{{consoleLogList}}</pre>
+        <div v-for="(item, index) in consoleLogList" :key="index" class="log-item">{{item}}</div>
       </div>
     </paas-dialog-for-log>
   </div>
@@ -230,9 +230,12 @@
         .el-dialog {
           width: 95% !important;
         }
-        pre.content {
-          font-size: 12px;
-          line-height: 14px;
+        .log-item {
+          max-width: 100%;
+          word-wrap: break-word;
+          word-break: break-all;
+          line-height: 1.4;
+          color: #eee;
         }
       }
     }
@@ -382,7 +385,7 @@
           iconRefresh: true,
           iconExpand: true
         },
-        consoleLogList: '',
+        consoleLogList: [],
 
         isMesosService: false,
 
@@ -603,13 +606,15 @@
       updateConsoleLog() {
         var selectedValue = this.$refs['version-selector'].getSelectedValue();
         this.dialogStatusForConsoleLog.showLoading = true;
-        this.$net.getConsoleLog({
-          applicationId: selectedValue['selectedAPP'].appId,
-          spaceId: selectedValue['selectedProfile'].id,
-          podName: this.action.row['id'],
-          limitLine: 500
+        this.$net.requestPaasServer(this.$net.URL_LIST.instance_console_log, {
+          payload: {
+            applicationId: selectedValue['selectedAPP'].appId,
+            spaceId: selectedValue['selectedProfile'].id,
+            podName: this.action.row['id'],
+            limitLine: 500
+          }
         }).then(resData => {
-          this.consoleLogList = resData;
+          this.consoleLogList = resData.split('\n');
           this.$nextTick(() => {
             this.$refs.hasOwnProperty('dialogForConsoleLog') &&
             this.$refs['dialogForConsoleLog'].scrollToBottom();

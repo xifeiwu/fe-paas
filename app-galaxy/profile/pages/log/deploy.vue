@@ -107,6 +107,7 @@
         word-wrap: break-word;
         word-break: break-all;
         line-height: 1.4;
+        color: #eee;
       }
       .info {
         color: #409EFF;

@@ -202,11 +202,6 @@ class URL extends BaseURL {
         url: API_PATH + '/service/historylog',
         path: '/service/historylog'
       },
-      // 获取console日志
-      'log_console_log': {
-        url: API_PATH + '/pod/console/log',
-        path: '/pod/console/log'
-      },
 
       /** oauth相关 */
       // access key
