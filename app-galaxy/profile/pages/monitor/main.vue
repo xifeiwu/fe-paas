@@ -35,7 +35,12 @@
         </el-checkbox-group>
       </div>
       <div class="instance-list">
-        <div class="title">实例列表：</div>
+        <div class="title">
+          <div>实例列表：</div>
+          <el-checkbox @change="handleSelectInstance"
+                       style="margin-top: 10px;"
+                       v-if="instanceList && instanceList.length > 5">{{(selectAllInstance? '取消' : '') + '全选'}}</el-checkbox>
+        </div>
         <el-checkbox-group v-model="selectedInstanceList">
           <el-checkbox v-for="item in instanceList" :label="item.id" :key="item.id">
             {{item.id}}
@@ -215,9 +220,11 @@
           color: rgb(19, 206, 102);
           line-height: 19px;
           font-weight: bold;
+          width: 80px;
         }
         .el-checkbox-group {
           display: inline-block;
+          flex: 1;
           .el-checkbox {
             height: auto;
           }
@@ -376,6 +383,16 @@
             break;
         }
       },
+      handleSelectInstance(value) {
+        this.selectAllInstance = value;
+        if (value) {
+          this.selectedInstanceList = this.instanceList.map(it => {
+            return it['id'];
+          })
+        } else {
+          this.selectedInstanceList = [];
+        }
+      },
       handleChartEvent(type) {
         this.chartContainerStatus[type]['expand'] = !this.chartContainerStatus[type]['expand'];
         this.chartContainerStatus[type]['manual'] = true;
@@ -414,6 +431,10 @@
           this.resetChartData();
 //          this.requestStatisticData();
         }
+        // the height of header depends on the size of instanceList
+        this.$nextTick(() => {
+          this.onScreenSizeChange();
+        });
       },
       onDateRangeChange(range) {
 //        console.log(range[0].getTime());
@@ -817,6 +838,7 @@
             manual: false,
           },
         },
+        selectAllInstance: false,
         selectedInstanceList: [],
 
         chartData: {

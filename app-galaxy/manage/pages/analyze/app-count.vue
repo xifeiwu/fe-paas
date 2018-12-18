@@ -129,7 +129,7 @@
               @sort-change="onSortChangeInTable2"
       >
         <el-table-column prop="appName" label="应用名称" headerAlign="center" align="center"></el-table-column>
-        <el-table-column prop="instanceCount" label="创建实例数" sortable headerAlign="center" align="center"></el-table-column>
+        <el-table-column prop="instanceCount" label="配置实例数" sortable headerAlign="center" align="center"></el-table-column>
       </el-table>
       <div class="pagination-container" v-if="appCountDetail.totalSize > appCountDetail.pageSize">
         <div class="pagination">
