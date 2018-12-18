@@ -1,23 +1,23 @@
 <template>
-  <div :class="['stage', item.name, hovering?'is-hover':'', active?'is-active':'', item.selected?'is-selected':'un-selected']">
+  <div :class="['stage', item.name, hovering?'is-hover':'', item.active?'is-active':'', item.selected?'is-selected':'un-selected']">
     <div :class="{'node': true,}"
          @mouseenter="handleMouseEnter($event)"
          @mouseleave="handleMouseLeave($event)"
          @click="handleClick($event)"
          v-clickoutside="handleClickOutside"
     >{{item.index ? item.index : ''}}</div>
-    <div class="description">{{description}}</div>
+    <div class="description">{{item.description}}</div>
     <div class="line"></div>
   </div>
 </template>
 <style lang="scss" scoped>
   .stage {
-    margin-top: 20px;
+    margin-top: 30px;
     display: inline-flex;
     position: relative;
     align-items: center;
     height: 30px;
-    width: 110px;
+    width: 120px;
     &.is-hover {
       .description {
       }
@@ -114,6 +114,7 @@
       left: 0px;
       color: #4a4a4a;
       font-size: 14px;
+      line-height: 100%;
       text-align: center;
       transform: translate(-50%, -100%);
     }
@@ -133,27 +134,15 @@
             name: 'unknown',
             selected: false,
             description: 'unknown',
+            active: false,
             index: 0
           }
         }
-      },
-      name: {
-        type: String,
-        default: 'normal'
-      },
-      index: {
-        type: Number,
-        default: null
-      },
-      description: {
-        type: String,
-        default: ''
       }
     },
     data() {
       return {
         hovering: false,
-        active: false,
       }
     },
     methods: {
@@ -168,12 +157,12 @@
       },
 
       handleClick(evt) {
-        this.active = true;
-        this.$emit('stage-click-event', evt, this.item.name);
+        this.item.active = true;
+        this.$emit('stage-click-event', evt, this.item);
       },
       handleClickOutside() {
-        this.active = false;
-        this.$emit('stage-click-event', null, null);
+//        this.active = false;
+//        this.$emit('stage-click-event', null, null);
       }
     }
   }
