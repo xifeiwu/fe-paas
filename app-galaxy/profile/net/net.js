@@ -165,8 +165,12 @@ class Net extends NetBase {
         path: '/pipeline/getPipelineList',
         method: 'post'
       },
-      'get_build_list': {
+      'pipeline_build_list': {
         path: '/pipeline/queryBuildList',
+        method: 'post'
+      },
+      'pipeline_record_restart': {
+        path: '/pipeline/executePipeline',
         method: 'post'
       },
 
