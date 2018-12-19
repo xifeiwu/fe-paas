@@ -272,6 +272,9 @@
         if(resContent) {
           this.pipelineList = resContent.map(it => {
             it["createTime"] = this.$utils.formatDate(Date.parse(it["createTime"]),"yyyy-MM-dd hh:mm:ss");
+            it["lastRunStatusName"] = this.statusList.find(obj => {
+              return it["lastRunStatus"] === obj["status"];
+            })["statusName"];
             return it;
           });
         }
@@ -337,7 +340,8 @@
             this.$storeHelper.dataTransfer = {
               from: this.$net.page["profile/pipeline/list"],
               data: {
-                appId: app["appId"],
+                // appId: row["appId"],
+                appId: 1934,
               }
             };
             this.$router.push(this.$net.page['profile/pipeline/records']);

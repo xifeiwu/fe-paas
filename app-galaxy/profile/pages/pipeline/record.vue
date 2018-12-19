@@ -11,50 +11,59 @@
       <el-col :offset="14" :span="5">
         <el-button size="mini-extral" type="primary" style="margin-right: 5px;">执行</el-button>
         <el-button size="mini-extral" type="primary" style="margin-right: 5px">修改配置</el-button>
-        <el-button size="mini-extral" type="primary" @click="getBuildList">
-          <i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新
-        </el-button>
       </el-col>
     </el-row>
     <div class="record-list">
       <el-table
         style="width: 100%"
         stripe
-        element-loading-text="加载中">
+        element-loading-text="加载中"
+        :data="buildList">
         <el-table-column
-          prop=""
+          prop="statusName"
           label="状态"
           width="200"
           headerAlign="left"
           align="left">
         </el-table-column>
         <el-table-column
-          prop=""
+          prop="executionTime"
           label="执行时间"
           width="200"
-          headerAlign="left"
-          align="left">
+          headerAlign="center"
+          align="center">
         </el-table-column>
         <el-table-column
-          prop=""
+          prop="duration"
+          label="持续时间(s)"
+          width="200"
+          headerAlign="center"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="message"
           label="消息"
-          width="200"
-          headerAligin="left"
-          align="left">
+          width="400"
+          headerAligin="center"
+          align="center">
         </el-table-column>
         <el-table-column
-          prop=""
-          label="持续时间"
-          width="200"
-          headerAlign="left"
-          align="left">
-        </el-table-column>
-        <el-table-column
-          prop=""
+          prop="operation"
           label="操作"
-          width="200"
-          headerAlign="left"
-          align="left">
+          headerAlign="center"
+          align="center">
+          <template slot-scope="scope" v-if="scope.$index === 0">
+            <el-button
+              type="text"
+              :clase="['flex', 'primary']">
+              <span>停止</span>
+            </el-button>
+            <el-button
+              type="text"
+              :clase="['flex', 'primary']">
+              <span>重启</span>
+            </el-button>
+          </template>
         </el-table-column>
       </el-table>
     </div>
@@ -105,6 +114,37 @@
         selectedAppId: null,
         buildList: [],
         pipeline: null,
+        statusList: [{
+          status: "",
+          statusName: "全部",
+        },{
+          status: "SUCCESS",
+          statusName: "成功",
+        },{
+          status: "FAILURE",
+          statusName: "失败",
+        },{
+          status: "ABORTED",
+          statusName: "中止"
+        },{
+          status: "CANCELLED",
+          statusName: "已取消",
+        },{
+          status: "REBUILDING",
+          statusName: "重建中",
+        },{
+          status: "UNSTABLE",
+          statusName: "不稳定",
+        },{
+          status: "BUILDING",
+          statusName: "构建中",
+        },{
+          status: "NOT_BUILD",
+          statusName: "未构建",
+        },{
+          status: "UNKNOWN",
+          statusName: "未知",
+        }],
       }
     },
     computed: {
@@ -136,7 +176,7 @@
           groupTag: this.$storeHelper.groupInfo.tag,
           serviceName: selectedApp.serviceName,
         };
-        this.pipeline = await this.$net.requestPaasServer(this.$net.URL_LIST.get_pipeline_list,{payload});
+        this.pipeline = await this.$net.requestPaasServer(this.$net.URL_LIST.get_list,{payload});
       },
 
       async getBuildList() {
@@ -149,7 +189,20 @@
           jobName: "job-jingang-demo-jar-bqd-4940",
           appId: 20480,
         };
-        this.buildList = this.$net.requestPaasServer(this.$net.URL_LIST.get_build_list,{payload});
+        let resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.get_build_list,{payload});
+        if(resContent) {
+          this.buildList = resContent.map(it => {
+            it["executionTime"] = this.$utils.formatDate(new Date(it["executionTime"]),"yyyy-MM-dd hh:mm:ss");
+            it["duration"] = Math.floor(it["duration"] / 1000);
+            it["statusName"] = this.statusList.find(obj => {
+              return it["status"] === obj["status"];
+            })["statusName"];
+            if(!it["message"]){
+              it["message"] = "---"
+            }
+            return it;
+          });
+        }
       }
     }
   }
