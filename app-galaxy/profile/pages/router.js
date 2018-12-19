@@ -70,6 +70,9 @@ import VueRouter from 'vue-router';
 
 import pathToRegexp from 'path-to-regexp';
 
+//pipeline
+import PipeLine from "./pipeline/main"
+import Record from "./pipeline/record"
 /**
  * router config:
  * 1. path should have the same name as .vue file
@@ -123,6 +126,14 @@ class Helper {
         component: pipelineAdd
       }]
     }, {
+      path: '/profile/pipeline/pipeline-list',
+      name: 'Pipeline',
+      component: PipeLine,
+    },{
+      path: '/profile/pipeline/pipeline-list/record',
+      name: '执行记录',
+      component: Record,
+    },{
       path: '/profile/instance',
       name: '实例列表',
       component: InstanceMain,

@@ -47,6 +47,11 @@ class Net extends NetBase {
           router: this.page['profile/service'],
           icon: 'paas-icon-service'
         },
+        // pipeline
+        '/2.x/pipeline': {
+          router: this.page['profile/pipeline/pipeline-list'],
+          icon: 'paas-icon-jenkins'
+        },
         // 实例列表
         '/2.x/instances': {
           router: this.page['profile/instance'],
@@ -211,6 +216,7 @@ class Net extends NetBase {
     const pathOfAppEngine = [
       '/2.x/app', // 应用管理
       '/2.x/service', // 服务管理
+      '/2.x/pipeline', //pipeline
       '/2.x/instances', // 实例列表
       '/2.x/internet', // 外网域名
       '/2.x/logs', // 日志中心

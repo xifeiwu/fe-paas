@@ -69,6 +69,8 @@ class Net {
       'profile/service/add': '/profile/service/add',
       'profile/service/modify': '/profile/service/modify',
       'profile/service/detail': '/profile/service/detail',
+      'profile/pipeline/pipeline-list': '/profile/pipeline/pipeline-list',
+      'profile/pipeline/pipeline-list/record': '/profile/pipeline/pipeline-list/record',
       'profile/instance': '/profile/instance',
       'profile/monitor': '/profile/monitor',
       'profile/domain': '/profile/domain',

@@ -157,6 +157,19 @@ class Net extends NetBase {
         method: 'post'
       },
 
+      /*
+      pipline相关
+       */
+      // 获取pipeline列表
+      'get_list': {
+        path: '/pipeline/getPipelineList',
+        method: 'post'
+      },
+      'get_build_list': {
+        path: '/pipeline/queryBuildList',
+        method: 'post'
+      },
+
       // 更改实例数
       'service_update_instance_num': {
         // path: '/service/instances/update',
