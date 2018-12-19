@@ -8,8 +8,11 @@ import serviceList from './service/list.vue';
 
 import InstanceMain from './instance/main.vue';
 
+//pipeline
 import pipeLine from './pipeline';
 import pipelineAdd from './pipeline/add';
+import pipeLineList from "./pipeline/main"
+import pipeLineRecord from "./pipeline/record"
 
 import DomainMain from './domain/main.vue';
 import DomainWhiteList from './domain/white-list.vue';
@@ -70,9 +73,6 @@ import VueRouter from 'vue-router';
 
 import pathToRegexp from 'path-to-regexp';
 
-//pipeline
-import PipeLine from "./pipeline/main"
-import Record from "./pipeline/record"
 /**
  * router config:
  * 1. path should have the same name as .vue file
@@ -120,19 +120,24 @@ class Helper {
       path: '/profile/pipeline',
       name: 'pipeline',
       component: pipeLine,
+      redirect: '/profile/pipeline/list',
       children: [{
+        path: 'list',
+        name: '列表',
+        component: pipeLineList,
+      }, {
         path: 'add',
         name: '添加pipeline',
         component: pipelineAdd
+      }, {
+        path: 'update',
+        name: '修改配置',
+        component: pipelineAdd
+      }, {
+        path: 'records',
+        name: '执行记录',
+        component: pipeLineRecord,
       }]
-    }, {
-      path: '/profile/pipeline/pipeline-list',
-      name: 'Pipeline',
-      component: PipeLine,
-    },{
-      path: '/profile/pipeline/pipeline-list/record',
-      name: '执行记录',
-      component: Record,
     },{
       path: '/profile/instance',
       name: '实例列表',

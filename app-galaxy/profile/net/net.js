@@ -161,7 +161,7 @@ class Net extends NetBase {
       pipline相关
        */
       // 获取pipeline列表
-      'get_list': {
+      'pipeline_list': {
         path: '/pipeline/getPipelineList',
         method: 'post'
       },

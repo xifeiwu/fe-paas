@@ -1,29 +1,35 @@
 <template>
   <div id="pipeline-main">
-    <el-row class="header" type="flex" justify="left" align="middle">
-        <el-col :span="5">
-          <label style="float: left; width: 66px; line-height: 26px">应用名称:</label>
-          <el-select filterable placeholder="请选择" style="display: block; margin-left: 66px" v-model="selectedAppId">
+    <div class="header">
+      <div class="item">
+        <label>
+          <span style="line-height: 26px">应用名称:</span>
+          <el-select filterable placeholder="请选择" size="mini-extral" v-model="selectedAppId">
             <el-option v-for="(item,index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">
             </el-option>
           </el-select>
-        </el-col>
-        <el-col :span="6" style="margin-left: 10px;">
-          <label style="float: left; width: 125px; line-height: 26px;">最近一次执行状态:</label>
-          <el-select placeholder="请选择" style="display: block; margin-left: 125px;" v-model="selectedStatus">
+        </label>
+      </div>
+      <div class="item">
+        <label>
+          <span style="line-height: 26px">最近一次执行状态:</span>
+          <el-select placeholder="请选择" size="mini-extral" v-model="selectedStatus">
             <el-option v-for="(item,index) in statusList" :key="item.index" :label="item.statusName" :value="item.status"></el-option>
           </el-select>
-        </el-col>
-        <el-col :span="5" style="margin-left: 20px;">
-          <el-input size="mini" placeholder="搜索pipeline" suffix-icon="el-icon-search" id="search" v-model="keyFilter"></el-input>
-        </el-col>
-        <el-col :span="4" :offset="4">
-          <el-button size="mini-extral" type="primary" style="margin-right: 5px" @click="handleClick($event, 'refresh')">
-            <i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新
-          </el-button>
-          <el-button size="mini-extral" type="primary">创建pipeline</el-button>
-        </el-col>
-    </el-row>
+        </label>
+      </div>
+      <div class="item">
+        <el-input size="mini-extral" placeholder="搜索pipeline" suffix-icon="el-icon-search" class="search" v-model="keyFilter"></el-input>
+      </div>
+      <div class="item">
+        <el-button size="mini-extral" type="primary" style="margin-right: 5px" @click="handleClick($event, 'refresh')">
+          <span>刷新</span><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>
+        </el-button>
+        <el-button size="mini-extral" class="flex" type="primary" @click="handleClick($event, 'add')">
+          <span>创建pipeline</span><i class="paas-icon-level-up"></i>
+        </el-button>
+      </div>
+    </div>
     <div class="pipeline-list">
       <el-table
               :data="pipelineListByPage"
@@ -82,15 +88,15 @@
             <el-button
               type="text"
               :clase="['flex', 'primary']"
-              >
-              <span>配置</span>
+              @click="handleTRClick($event, 'go-to-page-pipeline-update', scope.$index, scope.row)">
+              <span>配置</span><i class="paas-icon-level-up"></i>
             </el-button>
             <div class="ant-divider"></div>
             <el-button
               type="text"
               :clase="['flex', 'primary']"
-              @click="handleRowButtonClick($event, 'go-to-record', scope.$index, scope.row)">
-              <span>执行记录</span>
+              @click="handleTRClick($event, 'got-to-page-pipeline-records', scope.$index, scope.row)">
+              <span>执行记录</span><i class="paas-icon-level-up"></i>
             </el-button>
           </template>
         </el-table-column>
@@ -114,12 +120,6 @@
 <style lang="scss">
   #pipeline-main {
     .header {
-      .el-select .el-input__inner {
-        height: 26px;
-      }
-      #search {
-        height: 26px;
-      }
     }
   }
 </style>
@@ -128,10 +128,17 @@
     background-color: white;
     height:100%;
     max-width: 1500px;
-    .el-row.header {
+    & > .header {
       padding: 3px 5px;
       font-size: 14px;
       min-height: 28px;
+      .item {
+        display: inline-block;
+        margin-right: 5px;
+      }
+      .el-select {
+        width: 180px;
+      }
     }
   }
 </style>
@@ -259,7 +266,9 @@
           groupTag: this.$storeHelper.groupInfo.tag,
           serviceName: selectedApp.serviceName,
         };
-        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.get_list,{payload});
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_list,{
+          payload
+        });
         if(resContent) {
           this.pipelineList = resContent.map(it => {
             it["createTime"] = this.$utils.formatDate(Date.parse(it["createTime"]),"yyyy-MM-dd hh:mm:ss");
@@ -313,22 +322,29 @@
           case 'refresh':
             this.updatePipelineListByPage(true,false);
             break;
+          case 'add':
+            this.$router.push(this.$net.page['profile/pipeline/add']);
+            break;
         }
       },
 
-      handleRowButtonClick(evt, action, index, row) {
+      handleTRClick(evt, action, index, row) {
         switch (action) {
-          case 'go-to-record':
+          case 'got-to-page-pipeline-records':
             let app = this.appList.find(it => {
               return it["appName"] === row.appName;
             });
             this.$storeHelper.dataTransfer = {
-              from: this.$net.page["profile/pipeline/pipeline-list"],
+              from: this.$net.page["profile/pipeline/list"],
               data: {
                 appId: app["appId"],
               }
             };
-            this.$router.push(this.$net.page['profile/pipeline/pipeline-list/record']);
+            this.$router.push(this.$net.page['profile/pipeline/records']);
+            break;
+          case 'go-to-page-pipeline-update':
+            this.$router.push(this.$net.page['profile/pipeline/update']);
+            break;
         }
       },
 

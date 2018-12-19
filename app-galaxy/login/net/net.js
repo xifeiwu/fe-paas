@@ -49,7 +49,7 @@ class Net extends NetBase {
         },
         // pipeline
         '/2.x/pipeline': {
-          router: this.page['profile/pipeline/pipeline-list'],
+          router: this.page['profile/pipeline'],
           icon: 'paas-icon-jenkins'
         },
         // 实例列表
