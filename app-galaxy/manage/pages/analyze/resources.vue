@@ -223,9 +223,11 @@
   export default {
     mixins: [commonUtils],
     created() {
+      this.setDateRange();
+      this.requestStatisticList = this.$utils.debounce(this.requestStatisticListOnce.bind(this), 100, false);
+//      this.requestStatisticList = this.requestStatisticListOnce;
     },
     mounted() {
-      this.setDateRange();
       this.$nextTick(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
         this.requestStatisticList();
@@ -371,8 +373,9 @@
         return result;
       },
 
-      // 获取详情列表
-      async requestStatisticList() {
+      // 获取统计列表
+      // 触发请求：payload参数变化、pageSize变化
+      async requestStatisticListOnce() {
         let page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
         const start = page * this.pageSize;
@@ -523,7 +526,6 @@
           }
           return it;
         });
-        console.log(resContent);
         return resContent;
       },
       // sort detail list
