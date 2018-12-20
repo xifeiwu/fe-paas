@@ -173,6 +173,15 @@ class Net extends NetBase {
         path: '/pipeline/executePipeline',
         method: 'post'
       },
+      'pipeline_record_stop': {
+        path: '/pipeline/stopPipeline',
+        method: 'post'
+      },
+      'pipeline_in_building': {
+        path: '/pipeline/runsPipeline',
+        method: 'post',
+        partial: true
+      },
 
       // 更改实例数
       'service_update_instance_num': {

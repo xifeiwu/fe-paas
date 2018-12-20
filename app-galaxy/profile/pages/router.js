@@ -123,7 +123,7 @@ class Helper {
       redirect: '/profile/pipeline/list',
       children: [{
         path: 'list',
-        name: '列表',
+        // name: '列表',
         component: pipeLineList,
       }, {
         path: 'add',

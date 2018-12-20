@@ -23,10 +23,10 @@
       </div>
       <div class="item">
         <el-button size="mini-extral" type="primary" style="margin-right: 5px" @click="handleClick($event, 'refresh')">
-          <span>刷新</span><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>
+          <span>刷新</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
         </el-button>
         <el-button size="mini-extral" class="flex" type="primary" @click="handleClick($event, 'add')">
-          <span>创建pipeline</span><i class="paas-icon-level-up"></i>
+          <span>创建pipeline</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
         </el-button>
       </div>
     </div>
@@ -40,14 +40,14 @@
         <el-table-column
                 prop="pipelineName"
                 label="Pipeline名称"
-                width="180"
+                minWidth="100"
                 headerAlign="left"
                 align="left">
         </el-table-column>
         <el-table-column
                 prop="appName"
                 label="应用名称"
-                width="180"
+                minWidth="100"
                 headerAlign="center"
                 align="center">
         </el-table-column>
@@ -61,27 +61,28 @@
         <el-table-column
                 prop="creator"
                 label="创建人"
-                width="150"
+                width="100"
                 headerAlign="center"
                 align="center">
         </el-table-column>
         <el-table-column
                 prop="createTime"
                 label="创建时间"
-                width="180"
+                width="160"
                 headerAlign="center"
                 align="center">
         </el-table-column>
         <el-table-column
                 prop="description"
                 label="描述"
-                width="200"
+                minWidth="120"
                 headerAlign="center"
                 align="center">
         </el-table-column>
         <el-table-column
                 prop="operation"
                 label="操作"
+                width="180"
                 headerAlign="center"
                 align="center">
           <template slot-scope="scope">
