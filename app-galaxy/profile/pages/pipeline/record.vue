@@ -11,7 +11,9 @@
         <!--</label>-->
       <!--</div>-->
       <div class="item">
-        <el-button size="mini-extral" type="primary" style="margin-right: 5px;" @click="handleClick($event, 'execute')">执行</el-button>
+        <el-button size="mini-extral" type="primary" style="margin-right: 5px;"
+                   :loading="loadingStatus4Execute"
+                   @click="handleClick($event, 'execute')">执行</el-button>
         <el-button size="mini-extral" type="primary" style="margin-right: 5px;" @click="handleClick($event, 'fresh-record-list')">刷新</el-button>
         <!--<el-button size="mini-extral" type="primary" style="margin-right: 5px">修改配置</el-button>-->
       </div>
@@ -21,7 +23,7 @@
         style="width: 100%"
         stripe
         element-loading-text="加载中"
-        :data="buildList">
+        :data="buildListAll">
         <el-table-column
           prop="statusName"
           label="状态"
@@ -37,7 +39,7 @@
                 align="center">
         </el-table-column>
         <el-table-column
-          prop="executionTime"
+          prop="formattedExecutionTime"
           label="执行时间"
           width="200"
           headerAlign="center"
@@ -109,39 +111,33 @@
 </style>
 
 <script>
-  import {mapGetters} from "vuex"
-
   export default {
     created() {
-      this.leavePage = false;
       if (this.$storeHelper.dataTransfer) {
         this.selectedAppId = this.$storeHelper.dataTransfer["data"]["appId"];
         this.$storeHelper.dataTransfer = null;
       }
     },
-    mounted() {
-      if(this.appInfoListOfGroup) {
-        this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+    async mounted() {
+      try {
+        await this.startOneSecondInterval();
+        await this.startThreeSecondsInterval();
+      } catch(err) {
+        console.log(err);
       }
-      this.getBuildList();
-      this.getBuildingList();
-      this.oneSecondInterval = setInterval(() => {
-        this.formatBuildList();
-//        console.log('in oneSecondInterval');
-      }, 1000);
     },
     beforeDestroy() {
-      clearInterval(this.oneSecondInterval);
       this.leavePage = true;
     },
     data() {
       return {
-        oneSecondInterval: null,
-        lastBuildId: null,
+        lastBuildRecord: null,
         leavePage: false,
+        loadingStatus4Execute: false,
 
         appList: [],
         selectedAppId: null,
+        buildListAll: [],
         buildList: [],
         buildingList: [],
         pipeline: null,
@@ -161,44 +157,118 @@
       }
     },
     computed: {
-      ...mapGetters('user', {
-        'appInfoListOfGroup': 'appInfoListOfGroup'
-      }),
     },
     watch: {
-      'appInfoListOfGroup' : 'onAppInfoListOfGroup',
-      'selectedAppId': function () {
-        this.getBuildList();
-      }
     },
     methods: {
-      onAppInfoListOfGroup(appInfoListOfGroup) {
-        this.appList = [];
-        if (appInfoListOfGroup) {
-          if (appInfoListOfGroup.hasOwnProperty("appList")) {
-            this.appList = appInfoListOfGroup["appList"];
+      async startOneSecondInterval() {
+        if (this.leavePage) {
+          return;
+        }
+        this.formatBuildList();
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1000);
+        });
+        this.startOneSecondInterval();
+      },
+
+      mergeBuildList() {
+//        {
+//          buildId: "92"
+//          duration: 76675
+//          executionTime: 1545374195910
+//          message: null
+//          status: "FAILURE"
+//        }
+//        {
+//          buildId: "92"
+//          durationMillis: "76675"
+//          endTimeMillis: "1545374272616"
+//          listStage: null
+//          startTimeMillis: "1545374195941"
+//          status: "FAILED"
+//        }
+        const transfer = (o) => {
+          return {
+            buildId: o['buildId'],
+            duration: parseInt(o['durationMillis']),
+            executionTime: parseInt(o['startTimeMillis']),
+//            message: null,
+            status: o['status'],
+          }
+        };
+        const buildMap = {}, buildingMap = {};
+        this.buildList.forEach(it => {
+          buildMap[it['buildId']] = it;
+        });
+        this.buildingList.forEach(it => {
+          buildingMap[it['buildId']] = transfer(it);
+        });
+        const keys = Array.from(new Set(
+          this.buildList.map(it => it['buildId']).concat(this.buildingList.map(it => it['buildId']))
+        )).sort((pre, next) => {
+          return (pre - next) * -1;
+        });
+        var result = keys.map(key => {
+          return Object.assign(buildMap.hasOwnProperty(key) ? buildMap[key] : {}, buildingMap.hasOwnProperty(key) ? buildingMap[key] : {});
+        });
+        return result;
+      },
+
+      async startThreeSecondsInterval() {
+        const theSameRecord = (one, two) => {
+          var theSame = true;
+          ['buildId', 'status'].forEach(key => {
+            theSame = theSame & (one[key] == two[key])
+          });
+          return theSame;
+        };
+        if (this.leavePage) {
+          return;
+        }
+//        console.log(this.lastBuildRecord);
+        var needUpdateBuildList = false;
+        if (null === this.lastBuildRecord) {
+          needUpdateBuildList = true;
+        } else if (this.buildingList.every(it => {
+            return it.tag === 'has-build';
+          })) {
+          needUpdateBuildList = true;
+          if ((this.lastBuildRecord['status'] !== 'UNKNOWN') && (this.buildingList[0]['buildId'] == this.lastBuildRecord['buildId'])) {
+            needUpdateBuildList = false;
           }
         }
-      },
 
-      async requestPipelineList() {
-        let selectedApp = this.appList.find(it => {
-          return it["appId"] === this.selectedAppId;
+//        console.log(needUpdateBuildList);
+        if (needUpdateBuildList) {
+          await this.requestBuildList();
+        }
+        await this.requestBuildingList();
+        this.buildListAll = this.mergeBuildList();
+//        console.log(this.buildListAll);
+        this.formatBuildList();
+        await new Promise((resolve) => {
+          setTimeout(resolve, 4000);
         });
-        let payload = {
-          groupTag: this.$storeHelper.groupInfo.tag,
-          serviceName: selectedApp.serviceName,
-        };
-        this.pipeline = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_list,{payload});
+        this.startThreeSecondsInterval();
       },
 
+      formatBuildList() {
+        this.buildListAll.forEach(it => {
+          it["formattedExecutionTime"] = this.$utils.formatDate(new Date(it["executionTime"]), "yyyy-MM-dd hh:mm:ss");
+          it['formattedDuration'] = this.$utils.formatSeconds(it['duration']);
+          it["statusName"] = this.statusMap[it['status']];
+          if(!it["message"]) {
+            it["message"] = "---"
+          }
+        });
+      },
       /** 获取构建列表
-       * getBuildList
-       * lastBuildId
+       * requestBuildList
        *
        * @returns {Promise.<*|Array>}
        */
-      async getBuildList() {
+      async requestBuildList() {
         // let payload = {
         //   appId: this.selectedAppId,
         //   jobName: this.pipeline[0]["jobName"],
@@ -212,142 +282,38 @@
           payload
         });
         this.buildList = resContent;
-        this.formatBuildList();
 
+        var lastBuildRecord = null;
+        if (this.buildList.length > 0) {
+          lastBuildRecord = this.buildList[0];
+        }
+        this.buildList.forEach(it => {
+          if (('UNKNOWN' === it['status'])) {
+            lastBuildRecord = it;
+          }
+        });
+        this.lastBuildRecord = lastBuildRecord;
+
+//        this.formatBuildList();
         return this.buildList;
       },
 
-      // 不断更新该pipeline的构建状态
-      async getBuildingList() {
-        if (this.leavePage) {
-          return;
-        }
-//        console.log(this.lastBuildId);
-        if (this.lastBuildId) {
-          const payload = {
-            buildId: this.lastBuildId,
-            jobName: 'job-jingang-demo-jar-bqd-4940',
-            appId: 20480
-          };
-          this.buildingList = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_in_building, {
-            payload
-          });
-          var lastBuildingId = this.lastBuildId;
-          if (Array.isArray(this.buildingList)) {
-            this.buildingList.forEach(it => {
-              if ('IN_PROGRESS' === it['status']) {
-                lastBuildingId = it['buildId'];
-              }
-            });
-          }
-          if (lastBuildingId !== this.lastBuildId) {
-            this.lastBuildId = lastBuildingId;
-            this.getBuildList();
-          }
-        } else {
-          await this.getBuildList();
-        }
-        await new Promise((resolve) => {
-          setTimeout(resolve, 3600);
-        });
-        await this.getBuildingList();
-      },
-
-      formatBuildList() {
-//        {
-//          buildId: "73"
-//          duration: 76112
-//          executionTime: 1545300998672
-//          message: null
-//          status: "FAILURE"
-//        }
-//        {
-//          buildId: "73"
-//          durationMillis: "76112"
-//          endTimeMillis: "1545301074841"
-//          listStage: null
-//          startTimeMillis: "1545300998729"
-//          status: "FAILED"
-//        }
-        const updateBuildStatus1 = () => {
-//          const buildIdList = Object.keys(this.buildList);
-//          const buildingIdList = Object.keys(this.buildingList);
-          const buildMap = {}, buildingMap = {};
-          this.buildList.forEach(it => {
-            buildMap[it['buildId']] = it;
-          });
-          this.buildingList.forEach(it => {
-            buildingMap[it['buildId']] = it;
-          });
-          const keys = Array.from(new Set(
-            this.buildList.map(it => it['buildId']).concat(this.buildingList.map(it => it['buildId']))
-          )).sort((pre, next) => {
-            return (pre - next) * -1;
-          });
-          keys.forEach(key => {
-            if (buildingMap.hasOwnProperty(key)) {
-              const buildingItem = buildingMap[key];
-              if (buildMap.hasOwnProperty(key)) {
-                buildMap[key]['status'] = buildingItem['status'];
-                buildMap[key]['duration'] = parseInt(buildingItem['durationMillis']);
-              } else {
-              }
-            }
-          });
+      async requestBuildingList() {
+        const payload = {
+          buildId: this.lastBuildRecord['buildId'],
+          jobName: 'job-jingang-demo-jar-bqd-4940',
+          appId: 20480
         };
-        const updateBuildStatus = () => {
-          var buildingMap = {};
-          this.buildingList.forEach(it => {
-            buildingMap[it['buildId']] = it;
-          });
-          const buildingKeys = this.buildingList.map(it => it['buildId']);
-          buildingKeys.forEach(key => {
-            this.buildList.some(it2 => {
-              if (it2['buildId'] == key) {
-                var item = buildingMap[key];
-                it2['status'] = item['status'];
-                it2['duration'] = parseInt(item['durationMillis']);
-                return true;
-              }
-            })
-          });
-          const buildList = this.buildList;
-          this.buildList = [];
-          this.buildList = buildList;
-        };
-
-        const origin = this.buildList;
-        var lastBuildId = null;
-        if (origin.length > 0) {
-          lastBuildId = origin[0]['buildId'];
-        }
-        updateBuildStatus();
-        console.log(this.buildList);
-        origin.forEach(it => {
-//          if (Array.isArray(this.buildingList)) {
-//            this.buildingList.find(it2 => {
-//              return it2['buildId'] === it['buildId'];
-//            })
-//          }
-//          if ('UNKNOWN' === it['status']) {
-          if ('IN_PROGRESS' === it['status']) {
-            it['duration'] += 1000;
-            lastBuildId = it['buildId'];
-          }
-          it["executionTime"] = this.$utils.formatDate(new Date(it["executionTime"]),"yyyy-MM-dd hh:mm:ss");
-          it['formattedDuration'] = this.$utils.formatSeconds(it['duration']);
-          it["statusName"] = this.statusMap[it['status']];
-          if(!it["message"]) {
-            it["message"] = "---"
-          }
-          return it;
+        this.buildingList = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_in_building, {
+          payload
         });
-        if (lastBuildId) {
-          this.lastBuildId = lastBuildId;
-        }
-//        console.log(lastBuildId);
-//        console.log(this.buildList);
-        return origin;
+        this.buildingList.forEach(it => {
+          if (['NOT_EXECUTED', 'IN_PROGRESS'].indexOf(it.status) > -1) {
+            it.tag = 'building';
+          } else {
+            it.tag = 'has-build';
+          }
+        });
       },
 
       // 执行pipeline
@@ -365,9 +331,13 @@
       async handleClick(evt, action) {
         switch (action) {
           case 'fresh-record-list':
-            this.getBuildList();
+            this.requestBuildList();
             break;
           case 'execute':
+            this.loadingStatus4Execute = true;
+            setTimeout(() => {
+              this.loadingStatus4Execute = false;
+            }, 4000);
             this.executePipeLine();
             break;
         }
