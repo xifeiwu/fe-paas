@@ -201,10 +201,10 @@
             <i :class="['paas-icon', chartContainerStatus['young-gc-count']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
                @click="handleChartEvent('young-gc-count')"></i>
           </div>
-          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+          <ve-histogram width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
                    :settings="chartSettingGcCount" :extend="extend"
                    v-if="chartData['young-gc-count'] != null"
-                   ref="charts-young-gc-count" :data="chartData['young-gc-count']"></ve-line>
+                   ref="charts-young-gc-count" :data="chartData['young-gc-count']"></ve-histogram>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
             <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
@@ -219,10 +219,10 @@
             <i :class="['paas-icon', chartContainerStatus['young-gc-time']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
                @click="handleChartEvent('young-gc-time')"></i>
           </div>
-          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+          <ve-histogram width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
                    :settings="chartSettingGcTime" :extend="extend"
                    v-if="chartData['young-gc-time'] != null"
-                   ref="charts-young-gc-time" :data="chartData['young-gc-time']"></ve-line>
+                   ref="charts-young-gc-time" :data="chartData['young-gc-time']"></ve-histogram>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
             <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
@@ -237,10 +237,10 @@
             <i :class="['paas-icon', chartContainerStatus['old-gc-count']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
                @click="handleChartEvent('old-gc-count')"></i>
           </div>
-          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+          <ve-histogram width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
                    :settings="chartSettingGcCount" :extend="extend"
                    v-if="chartData['old-gc-count'] != null"
-                   ref="charts-old-gc-count" :data="chartData['old-gc-count']"></ve-line>
+                   ref="charts-old-gc-count" :data="chartData['old-gc-count']"></ve-histogram>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
             <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
@@ -255,10 +255,10 @@
             <i :class="['paas-icon', chartContainerStatus['old-gc-time']['expand']?'paas-icon-fa-arrow-left':'paas-icon-fa-arrow-right']"
                @click="handleChartEvent('old-gc-time')"></i>
           </div>
-          <ve-line width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
+          <ve-histogram width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
                    :settings="chartSettingGcTime" :extend="extend"
                    v-if="chartData['old-gc-time'] != null"
-                   ref="charts-old-gc" :data="chartData['old-gc-time']"></ve-line>
+                   ref="charts-old-gc" :data="chartData['old-gc-time']"></ve-histogram>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
             <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
@@ -379,9 +379,10 @@
 <script>
   import 'echarts/lib/component/dataZoom';
   import VeLine from 'v-charts/lib/line.common';
+  import VeHistogram from 'v-charts/lib/histogram.common'
   import paasVersionSelector from '../components/version-selector';
   export default {
-    components: { VeLine, paasVersionSelector },
+    components: { VeLine, paasVersionSelector, VeHistogram },
     created() {
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer) {
