@@ -14,18 +14,18 @@
             1. 基本配置
           </div>
           <div class="config">
-            <el-form labelWidth="120px" size="mini">
-              <el-form-item label="pipeline名称">
-                <el-input></el-input>
+            <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules">
+              <el-form-item label="pipeline名称" prop="pipelineName">
+                <el-input size="mini-extral" v-model="formData.pipelineName"></el-input>
               </el-form-item>
-              <el-form-item label="pipeline描述">
-                <el-input></el-input>
+              <el-form-item label="pipeline描述" prop="pipelineDescription">
+                <el-input size="mini-extral" v-model="formData.pipelineDescription"></el-input>
               </el-form-item>
-              <el-form-item label="gitlab仓库">
-                <el-input></el-input>
+              <el-form-item label="gitlab仓库" prop="gitLabPath">
+                <el-input size="mini-extral" v-model="formData.gitLabPath"></el-input>
               </el-form-item>
-              <el-form-item label="gitlab分支">
-                <el-input></el-input>
+              <el-form-item label="gitlab分支" prop="gitLabBranch">
+                <el-input size="mini-extral" v-model="formData.gitLabBranch"></el-input>
               </el-form-item>
             </el-form>
           </div>
@@ -48,15 +48,15 @@
                     <el-form-item label="Sonar及单元测试脚本：" class="testAndSonarScript" v-if="stageName === 'testAndSonarScript'">
                       <codemirror v-model="formData.testAndSonarScript.script" :options="groovyOption"></codemirror>
                     </el-form-item>
-                    <el-form-item label="基础镜像：" class="packageAndBuildImage" v-if="stageName === 'packageAndBuildImage'">
-                      <el-select v-model="formData.packageAndBuildImage.selectedImage" placeholder="请选择">
-                        <el-option v-for="(item, index) in pipeLineInfo['packageAndBuildImage']['basicImage']"
+                    <el-form-item label="打包脚本：" class="mvnPackage-script" v-if="stageName === 'mvnPackage'">
+                      <codemirror v-model="formData.mvnPackage.script" :options="groovyOption"></codemirror>
+                    </el-form-item>
+                    <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'">
+                      <el-select v-model="formData.buildImage.selectedImage" placeholder="请选择">
+                        <el-option v-for="(item, index) in pipeLineInfo['buildImage']['basicImage']"
                                    :key="item" :label="item" :value="item">
                         </el-option>
                       </el-select>
-                    </el-form-item>
-                    <el-form-item label="打包脚本：" class="packageAndBuildImage-script" v-if="stageName === 'packageAndBuildImage'">
-                      <codemirror v-model="formData.packageAndBuildImage.script" :options="groovyOption"></codemirror>
                     </el-form-item>
                     <el-form-item label="自动化测试：" class="autoScript" v-if="stageName === 'autoScript'">
                       <codemirror v-model="formData.autoScript.script" :options="groovyOption"></codemirror>
@@ -167,11 +167,11 @@
     height: 100%;
     background-color: white;
 
-    .is-required::before {
-      content: '*';
-      color: #fa5555;
-      margin-right: 4px;
-    }
+    /*.is-required::before {*/
+      /*content: '*';*/
+      /*color: #fa5555;*/
+      /*margin-right: 4px;*/
+    /*}*/
     .sheet {
       position: relative;
       height: 100%;
@@ -253,7 +253,7 @@
                       width: 800px;
                     }
                     .el-form-item {
-                      &.testAndSonarScript, &.packageAndBuildImage-script, &.autoScript {
+                      &.testAndSonarScript, &.mvnPackage-script, &.autoScript {
                         .el-form-item__content {
                           line-height: 100%;
                         }
@@ -345,10 +345,13 @@
     'testAndSonarScript': {
       description: 'sonar及单元测试'
     },
-    'packageAndBuildImage': {
-      description: '打包及制作镜像'
+    'mvnPackage': {
+      description: '打包'
     },
-    'deployToTestEnv': {
+    'buildImage': {
+      description: '制作镜像'
+    },
+    'deployTestEnv': {
       description: '部署到测试环境'
     },
     'autoScript': {
@@ -360,7 +363,7 @@
     'functionValidate': {
       description: '功能测试（人工验证）'
     },
-    'deployToBetaEnv': {
+    'deployBetaEnv': {
       description: '部署到联调环境'
     },
     'end': {
@@ -376,13 +379,6 @@
           appId: 24
         }
       });
-      resContent['deployEnv'].forEach(it => {
-        const key = {
-          'TEST': 'deployToTestEnv',
-          'BETA': 'deployToBetaEnv'
-        }[it.env];
-        resContent[key] = it;
-      });
 
       const commonProp = {
         active: false
@@ -391,12 +387,13 @@
         'start',  //开始
         'download',  //下载代码
         'testAndSonarScript',  //sonar及单元测试
-        'packageAndBuildImage',  //打包及制作镜像
-        'deployToTestEnv', //部署到测试环境
+        'mvnPackage',  //打包
+        'buildImage',  //制作镜像
+        'deployTestEnv', //部署到测试环境
         'autoScript',  //自动化测试
         'sonarCheck',  //Sonar数据检查
         'functionValidate',  //功能测试（人工验证）
-        'deployToBetaEnv',  //部署到联调环境
+        'deployBetaEnv',  //部署到联调环境
         'end'
       ].map(key => {
         var result = null;
@@ -413,13 +410,13 @@
         }
         return result;
       });
+//      console.log(stages);
       this.updateStageIndex(stages);
       this.stages = stages;
-//      console.log(stages);
       this.pipeLineInfo = resContent;
       this.syncFormDataByServerData(this.formData, this.pipeLineInfo);
-      console.log(this.formData);
-      console.log(this.pipeLineInfo);
+//      console.log(this.formData);
+//      console.log(this.pipeLineInfo);
     },
     mounted() {
       this.stepNodeList = [].slice.call(this.$el.querySelectorAll('.sheet .nav-steps .step'));
@@ -432,7 +429,9 @@
         stages: [],
         stageName: '',
         currentStage: null,
+
         formData: {
+          appId: '',
           pipelineName: '',
           pipelineDescription: '',
           gitLabPath: '',
@@ -442,14 +441,18 @@
             script: '',
             selected: false,
           },
-          // 打包及制作镜像
-          packageAndBuildImage: {
-            selectedImage: null,
+          // 打包
+          mvnPackage: {
             script: '',
             selected: false,
           },
+          // 制作镜像
+          buildImage: {
+            selectedImage: null,
+            selected: false,
+          },
           // 部署到测试环境
-          deployToTestEnv: {
+          deployTestEnv: {
             env: 'TEST',
             selected: false,
           },
@@ -471,7 +474,7 @@
             selected: false,
           },
           // 部署到联调环境
-          deployToBetaEnv: {
+          deployBetaEnv: {
             env: 'BETA',
             selected: false,
           },
@@ -484,6 +487,24 @@
             // 接受人列表
             noticeEmails: []
           }
+        },
+        formDataRules: {
+          pipelineName: {
+            type: "string",
+            required: true
+          },
+          pipelineDescription: {
+            type: "string",
+            required: true
+          },
+          gitLabPath: {
+            type: "string",
+            required: true
+          },
+          gitLabBranch: {
+            type: "string",
+            required: true
+          },
         },
         emailProps: {
           emailToAdd: '',
@@ -622,7 +643,11 @@
         if (this.stageName === stage.name) {
           return;
         }
-//        console.log(stage);
+        // 不处理['开始', '下载代码', '结束']
+        if (['start', 'download', 'end'].indexOf(stage.name) > -1) {
+          return;
+        }
+        console.log(stage);
         this.currentStage = stage;
         this.stageName = stage.name;
         this.stages.forEach(it => {
