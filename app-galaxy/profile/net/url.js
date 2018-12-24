@@ -278,15 +278,7 @@ class URL extends BaseURL {
         method: 'patch'
       },
 
-      // 工单列表
-      'work_order_list': {
-        url: API_PATH + '/workOrderDeploy/getWorkOrderDeployList',
-        path: '/workOrderDeploy/getWorkOrderDeployList'
-      },
-      'work_order_todo_list': {
-        url: API_PATH + '/workOrderDeploy/getTodoWorkOrderListByUser',
-        path: '/workOrderDeploy/getTodoWorkOrderListByUser'
-      },
+      /** 工单相关 */
       // 是否有未处理工单
       'work_order_in_handling': {
         url: API_PATH + '/workOrderDeploy/validNoEndWorkOrderDeployByAppId',

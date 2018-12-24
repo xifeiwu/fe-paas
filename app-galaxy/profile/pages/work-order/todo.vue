@@ -672,7 +672,7 @@
        * 1. at the change of searchForm.dateRange
        * 2. at press of search button
        */
-      requestWorkOrderList() {
+      async requestWorkOrderList() {
         let options = {
           creatorName: '',
           startTime: '',
@@ -694,14 +694,14 @@
           options.startTime = '';
           options.endTime = '';
         }
-        this.$net.getWorkOrderToDoList(options).then(content => {
-//          console.log(content);
-          if (content.hasOwnProperty('todoWorkOrderList')) {
-            this.workOrderList = content.todoWorkOrderList;
-            this.totalSize = content.todoWorkOrderList.length;
-          }
-        }).catch(err => {
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.work_order_todo_list, {
+          payload: options
         });
+        this.workOrderList = resContent['todoWorkOrderList'];
+        this.workOrderList.forEach(it => {
+          it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+        });
+        this.totalSize = resContent['todoWorkOrderList'].length;
       }
     }
   }

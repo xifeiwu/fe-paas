@@ -365,6 +365,16 @@ class Net extends NetBase {
         method: 'post'
       },
       /**工单相关*/
+      // 工单列表
+      'work_order_list': {
+        path: '/workOrderDeploy/getWorkOrderDeployList',
+        method: 'post'
+      },
+      // 待办工单列表
+      'work_order_todo_list': {
+        path: '/workOrderDeploy/getTodoWorkOrderListByUser',
+        method: 'post'
+      },
       // 部署工单中部署服务
       'work_order_service_deploy': {
         path: '/workOrderDeploy/deploy',
@@ -1985,61 +1995,6 @@ class Net extends NetBase {
           resolve(resMsg.msg);
         } else {
           reject(resMsg.msg);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject(err);
-      })
-    })
-  }
-
-  /**
-   * 获取工单列表
-   */
-  getWorkOrderList(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_list.url, options).then(response => {
-        let content = this.getResponseContent(response);
-        if (content) {
-          if (content.hasOwnProperty('workOrderDeployList') && Array.isArray(content.workOrderDeployList)) {
-            content.workOrderDeployList.forEach(it => {
-              if (it.hasOwnProperty('createTime')) {
-               it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-              }
-            })
-          }
-          debug('%s, %o', 'getWorkOrderList', content);
-          resolve(content);
-          this.showLog('getWorkOrderList', content);
-        } else {
-          reject('error: getWorkOrderToDoList');
-        }
-      }).catch(err => {
-        console.log(err);
-        reject(err);
-      })
-    })
-  }
-  /**
-   * 获取待办工单列表
-   */
-  getWorkOrderToDoList(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_todo_list.url, options).then(response => {
-        let content = this.getResponseContent(response);
-        if (content) {
-          if (content.hasOwnProperty('todoWorkOrderList') && Array.isArray(content.todoWorkOrderList)) {
-            content.todoWorkOrderList.forEach(it => {
-              if (it.hasOwnProperty('createTime')) {
-                it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-              }
-            })
-          }
-
-          resolve(content);
-          this.showLog('getWorkOrderToDoList', content);
-        } else {
-          reject('error: getWorkOrderToDoList');
         }
       }).catch(err => {
         console.log(err);

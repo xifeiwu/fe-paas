@@ -588,7 +588,7 @@
        * 1. at the change of searchForm.dateRange
        * 2. at press of search button
        */
-      requestWorkOrderList() {
+      async requestWorkOrderList() {
         let options = {
           name: '',
           creatorName: '',
@@ -622,14 +622,14 @@
           options.startTime = '';
           options.endTime = '';
         }
-        this.$net.getWorkOrderList(options).then(content => {
-//          console.log(content);
-          if (content.hasOwnProperty('workOrderDeployList')) {
-            this.workOrderList = content.workOrderDeployList;
-            this.totalSize = content.workOrderDeployList.length;
-          }
-        }).catch(err => {
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.work_order_list, {
+          payload: options
         });
+        this.workOrderList = resContent['workOrderDeployList'];
+        this.workOrderList.forEach(it => {
+          it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+        });
+        this.totalSize = resContent['workOrderDeployList'].length;
       }
     }
   }
