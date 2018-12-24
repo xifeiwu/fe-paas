@@ -170,11 +170,10 @@
   }
   #work-order-add {
     background: white;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-    width: 700px;
     margin: 20px;
-    margin-left: 30px;
-    padding: 16px 30px;
+    padding: 10px 20px 10px 20px;
+    width: 700px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     .title-section {
       display: flex;
       justify-content: center;

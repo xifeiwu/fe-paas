@@ -56,17 +56,17 @@
                 :height="heightOfWorkOrderList"
                 :row-key="getRowKeys"
                 :expand-row-keys="expandRows">
-        <el-table-column label="审批工单名称" prop="name" headerAlign="center" align="center">
+        <el-table-column label="审批工单名称" prop="name" minWidth="150" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="申请人" prop="creatorName" width="120" headerAlign="center" align="center">
+        <el-table-column label="申请人" prop="creatorName" width="100" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="状态" prop="statusName" width="120" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="申请时间" prop="createTime" width="200" headerAlign="center" align="center">
+        <el-table-column label="申请时间" prop="createTime" width="180" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="团队" prop="groupName"  width="120" headerAlign="center" align="center">
+        <el-table-column label="团队" prop="groupName"  minWidth="150" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="操作" headerAlign="center" align="center">
+        <el-table-column label="操作" minWidth="100" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
                     type="text" class="warning"
