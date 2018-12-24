@@ -504,7 +504,6 @@
 //        console.log(this.routePathToConfig);
         const path = route['path'];
         this.routeConfig = this.$router.helper.getConfigByRouterPath(path);
-        console.log(path);
         if (this.routeConfig) {
           // whether show groupList
           let pageNotShowGroupList = ['/profile/app/add', '/profile/service/add', '/profile/image/repo/version', '/profile/domain/white-list'];
