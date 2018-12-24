@@ -14,7 +14,7 @@
             1. 基本配置
           </div>
           <div class="config">
-            <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules">
+            <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" ref="basic-info-form">
               <el-form-item label="pipeline名称" prop="pipelineName">
                 <el-input size="mini-extral" v-model="formData.pipelineName"></el-input>
               </el-form-item>
@@ -44,11 +44,13 @@
             <div class="config-list" v-if="currentStage">
               <transition name="el-zoom-in-top">
                 <div class="stage-config" v-if="currentStage.selected" :key="stageName">
-                  <el-form labelWidth="170px" size="mini">
-                    <el-form-item label="Sonar及单元测试脚本：" class="testAndSonarScript" v-if="stageName === 'testAndSonarScript'">
+                  <el-form labelWidth="180px" size="mini" :model="formData" :rules="formDataRules" ref="pipeline-script-form">
+                    <el-form-item label="Sonar及单元测试脚本：" class="testAndSonarScript" prop="testAndSonarScript" :multiFields="true"
+                                  v-show="stageName === 'testAndSonarScript'">
                       <codemirror v-model="formData.testAndSonarScript.script" :options="groovyOption"></codemirror>
                     </el-form-item>
-                    <el-form-item label="打包脚本：" class="mvnPackage-script" v-if="stageName === 'mvnPackage'">
+                    <el-form-item label="打包脚本：" class="mvnPackage-script" prop="mvnPackage" :multiFields="true"
+                                  v-if="stageName === 'mvnPackage'">
                       <codemirror v-model="formData.mvnPackage.script" :options="groovyOption"></codemirror>
                     </el-form-item>
                     <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'">
@@ -58,7 +60,8 @@
                         </el-option>
                       </el-select>
                     </el-form-item>
-                    <el-form-item label="自动化测试：" class="autoScript" v-if="stageName === 'autoScript'">
+                    <el-form-item label="自动化测试：" class="autoScript" prop="autoScript" :multiFields="true"
+                                  v-if="stageName === 'autoScript'">
                       <codemirror v-model="formData.autoScript.script" :options="groovyOption"></codemirror>
                     </el-form-item>
                     <el-form-item label="检查项：" class="sonarCheck" v-if="stageName === 'sonarCheck'">
@@ -318,6 +321,7 @@
   }
 </style>
 <script>
+  import AsyncValidator from 'async-validator';
   import paasPopoverElement from 'assets/components/popover-element';
   import pipelineStage from './components/stage.vue';
 
@@ -491,20 +495,63 @@
         formDataRules: {
           pipelineName: {
             type: "string",
-            required: true
+            required: true,
+            message: '请填写pipeline名称',
+            trigger: ['blur', 'change']
           },
           pipelineDescription: {
             type: "string",
-            required: true
+            required: false,
+            trigger: ['blur']
           },
           gitLabPath: {
             type: "string",
-            required: true
+            required: true,
+            message: '请填写gitlab路径',
+            trigger: ['blur']
           },
           gitLabBranch: {
             type: "string",
-            required: true
+            required: true,
+            message: '请填写gitlab分支',
+            trigger: ['blur']
           },
+          testAndSonarScript: {
+            type: 'object',
+            required: true,
+            trigger: ['blur', 'change'],
+            fields: {
+              script: [{
+                type: "string",
+                required: true,
+                message: '请填写sonar及单元测试脚本'
+              }]
+            }
+          },
+          mvnPackage: {
+            type: 'object',
+            required: true,
+            trigger: ['blur', 'change'],
+            fields: {
+              script: [{
+                type: "string",
+                required: true,
+                message: '请填写打包脚本'
+              }]
+            }
+          },
+          autoScript: {
+            type: 'object',
+            required: true,
+            trigger: ['blur', 'change'],
+            fields: {
+              script: [{
+                type: "string",
+                required: true,
+                message: '请填写自动化测试脚本'
+              }]
+            }
+          }
         },
         emailProps: {
           emailToAdd: '',
@@ -631,7 +678,31 @@
             this.formData[this.currentStage['name']]['selected'] = false;
             break;
           case 'save':
-            console.log(this.formData);
+            const basicInfoForm = this.$refs['basic-info-form'];
+
+            var validator = new AsyncValidator(this.formDataRules);
+            validator.validate(this.formData, (errors, fields) => {
+              if (errors) {
+                console.log(errors);
+                console.log(fields);
+                var firstFields = errors[0]['field'];
+                if (firstFields.indexOf('.') > -1) {
+                  firstFields = firstFields.split('.')[0];
+                }
+                console.log(firstFields);
+                // sonar及单元测试，打包，自动化测试
+                if (['testAndSonarScript', 'mvnPackage', 'autoScript'].indexOf(firstFields) > -1) {
+                  this.setActiveStageByName(firstFields);
+                  this.$nextTick(() => {
+                    this.$refs['pipeline-script-form'].validate();
+                  });
+                } else {
+                  basicInfoForm.validate();
+                }
+              } else {
+                console.log(this.formData);
+              }
+            });
             break;
           case 'apply':
             break;
@@ -652,6 +723,18 @@
         this.stageName = stage.name;
         this.stages.forEach(it => {
           if (it !== stage) {
+            it.active = false;
+          }
+        });
+      },
+      // 通过name属性设置stage.active
+      setActiveStageByName(name) {
+        this.stages.forEach(it => {
+          if (it.name == name) {
+            it.active = true;
+            this.currentStage = it;
+            this.stageName = it.name;
+          } else {
             it.active = false;
           }
         });
