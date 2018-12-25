@@ -613,7 +613,7 @@
 
     <el-dialog title="更改镜像方式" :visible="selected.prop == 'image'"
                :close-on-click-modal="false"
-               class="image size-750"
+               class="image size-850"
                @close="selected.prop = null"
                v-if="selected.service && selected.model"
     >

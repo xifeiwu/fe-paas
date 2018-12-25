@@ -32,7 +32,7 @@ import 'assets/css/fonts/paas-icon.js';
 
 import APP from './pages/profile';
 
-import '$assets/libs/components/element-ui-fix.scss';
+import 'assets/libs/element-ui/fix.scss';
 Promise.all([
   import(/* webpackChunkName: "components-element-ui" */ 'assets/static/components/ele/profile.js'),
   import(/* webpackChunkName: "components-custom" */ 'assets/static/components/custom.js')
