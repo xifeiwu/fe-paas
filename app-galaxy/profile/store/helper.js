@@ -164,9 +164,9 @@ class StoreHelper extends BaseHelper{
     }
     // console.log(cpuAndMemoryList);
     memorySize = parseInt(memorySize);
-    if (memorySize >= 1024) {
+    // if (memorySize >= 1024) {
       memorySize /= 1024;
-    }
+    // }
     for (let index in cpuAndMemoryList) {
       let item = cpuAndMemoryList[index];
       if (item.cpu == cpuSize) {

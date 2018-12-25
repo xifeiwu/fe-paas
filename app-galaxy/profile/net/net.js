@@ -1039,9 +1039,20 @@ class Net extends NetBase {
 
         // cpu and memory from server is value, such as 2.0/4096
         // so get cpu and memory info by cpuAndMemoryInfo.
-        let cpuAndMemoryInfo = this.$storeHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);
-        it.cpuInfo = cpuAndMemoryInfo[0];
-        it.memoryInfo = cpuAndMemoryInfo[1];
+        if (it.cpuId && it.memoryId) {
+          it.cpuInfo = {
+            id: it.cpuId,
+            size: it.cpu
+          };
+          it.memoryInfo = {
+            id: it.memoryId,
+            size: it.memory / 1024
+          };
+        } else {
+          let cpuAndMemoryInfo = this.$storeHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);
+          it.cpuInfo = cpuAndMemoryInfo[0];
+          it.memoryInfo = cpuAndMemoryInfo[1];
+        }
 
         if (!it.volume) {
           it.volume = '';
