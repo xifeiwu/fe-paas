@@ -56,7 +56,7 @@
                     <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'">
                       <el-select v-model="formData.buildImage.selectedImage" placeholder="请选择">
                         <el-option v-for="(item, index) in pipeLineInfo['buildImage']['basicImage']"
-                                   :key="item" :label="item" :value="item">
+                                   :key="item" :label="item?item:'无'" :value="item">
                         </el-option>
                       </el-select>
                     </el-form-item>
@@ -261,6 +261,11 @@
                           line-height: 100%;
                         }
                       }
+                      &.buildImage {
+                        .el-select {
+                          width: 360px;
+                        }
+                      }
                       &.sonarCheck {
                         .sonarCheck-unitTestRatio, .sonarCheck-codeDebt {
                           .el-input {
@@ -417,6 +422,10 @@
 //      console.log(stages);
       this.updateStageIndex(stages);
       this.stages = stages;
+      if (resContent.hasOwnProperty('buildImage') && Array.isArray(resContent['buildImage']['basicImage'])) {
+        // 可以不选择基础镜像
+        resContent['buildImage']['basicImage'].unshift('');
+      }
       this.pipeLineInfo = resContent;
       this.syncFormDataByServerData(this.formData, this.pipeLineInfo);
 //      console.log(this.formData);
@@ -452,7 +461,7 @@
           },
           // 制作镜像
           buildImage: {
-            selectedImage: null,
+            selectedImage: '',
             selected: false,
           },
           // 部署到测试环境
@@ -683,21 +692,21 @@
             var validator = new AsyncValidator(this.formDataRules);
             validator.validate(this.formData, (errors, fields) => {
               if (errors) {
-                console.log(errors);
-                console.log(fields);
+//                console.log(errors);
+//                console.log(fields);
                 var firstFields = errors[0]['field'];
                 if (firstFields.indexOf('.') > -1) {
                   firstFields = firstFields.split('.')[0];
                 }
-                console.log(firstFields);
+//                console.log(firstFields);
                 // sonar及单元测试，打包，自动化测试
                 if (['testAndSonarScript', 'mvnPackage', 'autoScript'].indexOf(firstFields) > -1) {
                   this.setActiveStageByName(firstFields);
                   this.$nextTick(() => {
-                    this.$refs['pipeline-script-form'].validate();
+                    this.$refs['pipeline-script-form'].validate(() => {});
                   });
                 } else {
-                  basicInfoForm.validate();
+                  basicInfoForm.validate(() => {});
                 }
               } else {
                 console.log(this.formData);
@@ -718,7 +727,7 @@
         if (['start', 'download', 'end'].indexOf(stage.name) > -1) {
           return;
         }
-        console.log(stage);
+//        console.log(stage);
         this.currentStage = stage;
         this.stageName = stage.name;
         this.stages.forEach(it => {
