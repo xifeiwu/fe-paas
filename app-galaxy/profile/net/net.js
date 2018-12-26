@@ -370,6 +370,16 @@ class Net extends NetBase {
         path: '/workOrderDeploy/getWorkOrderDeployList',
         method: 'post'
       },
+      // 创建工单
+      'work_order_create': {
+        path: '/workOrderDeploy/applyWordOrderDeploy',
+        method: 'post'
+      },
+      // 删除工单
+      'work_order_remove': {
+        path: '/workOrderDeploy/revoked',
+        method: 'post'
+      },
       // 待办工单列表
       'work_order_todo_list': {
         path: '/workOrderDeploy/getTodoWorkOrderListByUser',
@@ -2217,24 +2227,6 @@ class Net extends NetBase {
         reject(err);
       })
     })
-
-  }
-
-  // 创建工单
-  createWorkOrder(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_create.url, options).then(response => {
-        let result = this.getResponseMsg(response);
-        if (result.success) {
-          resolve(result.msg);
-        } else {
-          reject(result.msg);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject('创建工单失败！');
-      })
-    })
   }
 
   // 修改工单
@@ -2252,23 +2244,6 @@ class Net extends NetBase {
       }).catch(err => {
         console.log(err);
         reject('创建工单失败！');
-      })
-    })
-  }
-
-  // 删除工单
-  removeWorkOrder(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_remove.url, options).then(response => {
-        // console.log(response);
-        let responseMsg = this.getResponseMsg(response);
-        if (responseMsg.success) {
-          resolve(responseMsg.msg);
-        } else {
-          reject(responseMsg.msg);
-        }
-      }).catch(err => {
-        reject('删除工单失败！')
       })
     })
   }

@@ -76,6 +76,7 @@ class Net {
       'profile/work-order/list': '/profile/work-order/list',
       'profile/work-order/todo': '/profile/work-order/todo',
       'profile/work-order/todo/add': '/profile/work-order/todo/add',
+      'profile/work-order/todo/modify': '/profile/work-order/todo/modify',
       'profile/config-server': '/profile/config-server',
       'profile/image/repo': '/profile/image/repo',
       'profile/image/repo/version': '/profile/image/repo/version',

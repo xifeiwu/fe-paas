@@ -352,16 +352,6 @@ class URL extends BaseURL {
         url: API_PATH + '/workOrderDeploy/handleWorkOrderDeploy',
         path: '/workOrderDeploy/handleWorkOrderDeploy'
       },
-      // 创建工单
-      'work_order_create': {
-        url: API_PATH + '/workOrderDeploy/applyWordOrderDeploy',
-        path: '/workOrderDeploy/applyWordOrderDeploy'
-      },
-      // 删除工单
-      'work_order_remove': {
-        url: API_PATH + '/workOrderDeploy/revoked',
-        path: '/workOrderDeploy/revoked'
-      },
       // 需改工单
       'work_order_modify': {
         url: API_PATH + '/workOrderDeploy/againSendWorkOrderDeploy',

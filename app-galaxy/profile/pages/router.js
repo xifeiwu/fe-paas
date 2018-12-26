@@ -168,7 +168,7 @@ class Helper {
     }, {
       path: '/profile/work-order/todo/modify',
       name: '修改工单',
-      component: WorkOrderModify,
+      component: WorkOrderAdd,
     }, {
       path: '/profile/work-order/todo/deploy',
       name: '部署工单',

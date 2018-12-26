@@ -276,7 +276,7 @@ class WorkOrderUtils {
       testType: '',
       testTypeLabel: this.getTestTypeByValue(resContent['testType']),
       // 工单备注
-      comment: resContent['remark'] ? resContent['remark'] : '无备注',
+      comment: resContent['remark'],
     };
     // 功能列表
     const featureNameMap = {
