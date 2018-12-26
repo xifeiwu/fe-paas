@@ -72,6 +72,7 @@ class Net {
       'profile/pipeline': '/profile/pipeline',
       'profile/pipeline/list': '/profile/pipeline/list',
       'profile/pipeline/add': '/profile/pipeline/add',
+      'profile/pipeline/modify': '/profile/pipeline/modify',
       'profile/pipeline/update': '/profile/pipeline/update',
       'profile/pipeline/records': '/profile/pipeline/records',
       'profile/instance': '/profile/instance',

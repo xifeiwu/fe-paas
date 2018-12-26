@@ -15,6 +15,13 @@
           </div>
           <div class="config">
             <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" ref="basic-info-form">
+              <el-form-item label="目标应用" prop="appId">
+                <el-select v-model="formData.appId" filterable placeholder="请选择">
+                  <el-option v-for="(item, index) in appList"
+                             :key="item.appId" :label="item.appName" :value="item.appId">
+                  </el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item label="pipeline名称" prop="pipelineName">
                 <el-input size="mini-extral" v-model="formData.pipelineName"></el-input>
               </el-form-item>
@@ -140,7 +147,7 @@
     overflow: scroll;
     &::-webkit-scrollbar {
       width: 3px;
-      background-color: #F5F5F5;
+      background-color: transparent;
     }
     &::-webkit-scrollbar-thumb {
       background-color: #909399;
@@ -170,11 +177,6 @@
     height: 100%;
     background-color: white;
 
-    /*.is-required::before {*/
-      /*content: '*';*/
-      /*color: #fa5555;*/
-      /*margin-right: 4px;*/
-    /*}*/
     .sheet {
       position: relative;
       height: 100%;
@@ -208,7 +210,8 @@
       .section-config {
         border: 1px solid #cccccc;
         padding: 10px;
-        background: #f9f9f9;
+        /*background: #f9f9f9;*/
+        background-color: white;
         box-sizing: border-box;
         border-radius: 3px;
         /*border-bottom-left-radius: 3px;*/
@@ -232,6 +235,9 @@
               border-top: none;
             }
             .el-form {
+              .el-select {
+                width: 500px;
+              }
               .el-input {
                 max-width: 500px;
               }
@@ -383,6 +389,36 @@
   export default {
     components: {paasPopoverElement, pipelineStage, codemirror},
     async created() {
+      var goBack = false;
+      if (this.$route.path === this.$net.page["profile/pipeline/add"]) {
+        this.pageType = 'add';
+      } else if (this.$route.path === this.$net.page["profile/pipeline/modify"]) {
+        this.pageType = 'modify';
+      } else {
+        goBack = true;
+      }
+
+      if (this.pageType === 'add') {
+        const dataTransfer = this.$storeHelper.dataTransfer;
+        if (dataTransfer) {
+          switch (dataTransfer.from) {
+            case this.$net.page["profile/pipeline/list"]:
+              this.dataPassed.appIdList = dataTransfer['data']['appIdList'];
+              this.appList = this.$storeHelper.appInfoListOfGroup['appModelList'].filter(it => {
+                return this.dataPassed.appIdList.indexOf(it['appId']) > -1
+              });
+              break;
+          }
+          this.$storeHelper.dataTransfer = null;
+        } else {
+          goBack = true;
+        }
+      }
+
+      if (goBack) {
+        this.$router.go(-1);
+      }
+
       const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_stage_query, {
         query: {
           appId: 24
@@ -409,7 +445,7 @@
         if (['start', 'download', 'end'].indexOf(key) > -1) {
           result = Object.assign({name: key}, commonProp, STAGE_NAME_MAP[key]);
         } else {
-          if (resContent.hasOwnProperty(key)) {
+          if (resContent.hasOwnProperty(key) && resContent[key]) {
             result = Object.assign({
               'selected': resContent[key]['selected']
             }, commonProp, {name: key}, STAGE_NAME_MAP[key]);
@@ -418,7 +454,7 @@
           }
         }
         return result;
-      });
+      }).filter(it => it);
 //      console.log(stages);
       this.updateStageIndex(stages);
       this.stages = stages;
@@ -438,6 +474,13 @@
     },
     data() {
       return {
+        // 页面类型：add or modify
+        pageType: null,
+        dataPassed: {
+          // 可以创建pipeLine的应用列表
+          appIdList: null
+        },
+        appList: [],
         pipeLineInfo: null,
         stages: [],
         stageName: '',
@@ -502,11 +545,17 @@
           }
         },
         formDataRules: {
+          appId: {
+            type: "number",
+            required: true,
+            message: '请选择目标应用',
+            trigger: ['blur', 'change']
+          },
           pipelineName: {
             type: "string",
             required: true,
             message: '请填写pipeline名称',
-            trigger: ['blur', 'change']
+            trigger: ['blur']
           },
           pipelineDescription: {
             type: "string",
@@ -632,8 +681,16 @@
     methods: {
       // 根据服务端数据更新formData
       syncFormDataByServerData(formData, netData) {
+        // ignore key not need to overwrite
+        var keyIgnore = [];
+        if (this.pageType === 'add') {
+          keyIgnore = keyIgnore.concat(['appId']);
+        }
         const syncObject = (target, origin) => {
           for (let key in target) {
+            if (keyIgnore.indexOf(key) > -1) {
+              continue;
+            }
             if (Array.isArray(origin[key])) {
 //              console.log(origin[key]);
 //              console.log(Array.isArray(origin[key]));

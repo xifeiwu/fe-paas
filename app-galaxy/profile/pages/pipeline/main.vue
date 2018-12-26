@@ -211,13 +211,13 @@
     watch: {
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
       'selectedAppId': function () {
-        this.updatePipelineListByPage(true,false);
+        this.updatePipelineListByPage(true, false);
       },
       'selectedStatus': function () {
-        this.updatePipelineListByPage(false,true);
+        this.updatePipelineListByPage(false, true);
       },
       'keyFilter': function () {
-        this.updatePipelineListByPage(false,true);
+        this.updatePipelineListByPage(false, true);
       },
     },
     methods: {
@@ -240,9 +240,10 @@
         if (appInfoListOfGroup) {
           if (appInfoListOfGroup.hasOwnProperty("appList")) {
             this.appList = appInfoListOfGroup["appList"];
-            this.appList = [{appId:'',appName:"全部",serviceName:''}].concat(this.appList);
+            this.appList = [{appId:'', appName:"全部", serviceName:''}].concat(this.appList);
             this.selectedAppId = this.appList[0]["appId"];
-            this.updatePipelineListByPage(true);
+            // comment this line as updatePipelineListByPage by selectedAppId (above)
+//            this.updatePipelineListByPage(true);
           }
         }
       },
@@ -267,24 +268,29 @@
           groupTag: this.$storeHelper.groupInfo.tag,
           serviceName: selectedApp.serviceName,
         };
-        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_list,{
-          payload
-        });
-        if(resContent) {
-          this.pipelineList = resContent.map(it => {
-            it["createTime"] = this.$utils.formatDate(Date.parse(it["createTime"]),"yyyy-MM-dd hh:mm:ss");
-            it["lastRunStatusName"] = this.statusList.find(obj => {
-              return it["lastRunStatus"] === obj["status"];
-            })["statusName"];
-            return it;
+        try {
+          const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_list, {
+            payload
           });
+          if (resContent) {
+            this.pipelineList = resContent.map(it => {
+              it["createTime"] = this.$utils.formatDate(Date.parse(it["createTime"]), "yyyy-MM-dd hh:mm:ss");
+              it["lastRunStatusName"] = this.statusList.find(obj => {
+                return it["lastRunStatus"] === obj["status"];
+              })["statusName"];
+              return it;
+            });
+          }
+          this.totalSize = this.pipelineList.length;
+        } catch(err) {
+          this.pipelineList = [];
+          this.totalSize = this.pipelineList.length;
         }
-        this.totalSize = this.pipelineList.length;
         this.currentPage = 1;
       },
 
-      async updatePipelineListByPage(refresh,search) {
-        if (refresh || !this.pipelineList) {
+      async updatePipelineListByPage(refresh, search) {
+        if (refresh) {
           await this.requestPipelineList();
         }
         if(search) {
@@ -327,6 +333,19 @@
             this.updatePipelineListByPage(true,false);
             break;
           case 'add':
+            const appAll = this.$storeHelper.appInfoListOfGroup['appList'].map(it => it['appId']);
+            const appHasPipeLine = this.pipelineList.map(it => it['appId']);
+            const appCanAddPipeLine = appAll.filter(it => !(appHasPipeLine.indexOf(it) > -1));
+            if (appCanAddPipeLine.length === 0) {
+              this.$message.warning('当前团队所有应用已创建pipeline');
+              return;
+            }
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page["profile/pipeline/list"],
+              data: {
+                appIdList: appCanAddPipeLine,
+              }
+            };
             this.$router.push(this.$net.page['profile/pipeline/add']);
             break;
         }

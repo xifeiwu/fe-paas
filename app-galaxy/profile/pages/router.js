@@ -130,6 +130,10 @@ class Helper {
         name: '添加pipeline',
         component: pipelineAdd
       }, {
+        path: 'modify',
+        name: '修改配置',
+        component: pipelineAdd
+      }, {
         path: 'update',
         name: '修改配置',
         component: pipelineAdd
