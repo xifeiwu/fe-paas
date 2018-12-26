@@ -7,8 +7,8 @@
       <el-tooltip slot="trigger" effect="dark" placement="bottom">
         <div slot="content">
           <div>申请工单注意事项</div>
-          <div>1. 必须选定生产环境版本，确保所选择应用的生产环境下有版本。</div>
-          <div>2. 在所选应用版本的工单处理完成前，不可提交新的工单。</div>
+          <div>1. 工单只可用来处理生产环境的服务。</div>
+          <div>2. 在所选应用对应工单处理完成前，不可对该应用提交新的工单。</div>
         </div>
         <i class="paas-icon-fa-question" style="font-size: 14px; color: #E6A23C; cursor: pointer"></i>
       </el-tooltip>
@@ -59,9 +59,11 @@
             <el-option v-for="(item, index) in appModelListOfGroup" :disabled="item.hasOwnProperty('workOrder')"
                        :key="item.appId" :value="item.appId" :label="item.appName"
             >
-              <span>{{item.appName}}</span>
-              <span v-if="item.hasOwnProperty('workOrder')"
-                    style="color: #E6A23C; font-size: 12px;">(有未处理工单：{{item['workOrder']['name']}})</span>
+              <div style="display: flex; justify-content: space-between">
+                <span>{{item.appName}}</span>
+                <span v-if="item.hasOwnProperty('workOrder')"
+                      style="color: #E6A23C; font-size: 12px;">(有未处理工单：{{item['workOrder']['name']}})</span>
+              </div>
             </el-option>
           </el-select>
         </el-form-item>
@@ -191,7 +193,7 @@
         margin: 0px 0px 12px -2px;
       }
       .feature-form-list {
-        text-align: center;
+        text-align: right;
         .work-order-feature {
           display: inline-block;
           /*& + .work-order-feature {*/
