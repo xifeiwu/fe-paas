@@ -606,9 +606,15 @@ class Net extends NetBase {
       },
 
       /** pipeline相关*/
+      // 查询pipieline相关信息
       'pipeline_stage_query': {
         path: '/pipeline/query',
         method: 'get'
+      },
+      // 创建或更新pipeline
+      'pipeline_add_or_update': {
+        path: '/pipeline/createOrUpdate',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

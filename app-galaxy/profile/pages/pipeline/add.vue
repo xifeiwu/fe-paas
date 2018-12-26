@@ -718,7 +718,9 @@
           }
         });
       },
-      handleClick(evt, action) {
+
+      // 处理按钮click事件
+      async handleClick(evt, action) {
         const target = evt.target;
         switch (action) {
           case 'change-step':
@@ -747,7 +749,7 @@
             const basicInfoForm = this.$refs['basic-info-form'];
 
             var validator = new AsyncValidator(this.formDataRules);
-            validator.validate(this.formData, (errors, fields) => {
+            validator.validate(this.formData, async (errors, fields) => {
               if (errors) {
 //                console.log(errors);
 //                console.log(fields);
@@ -766,7 +768,16 @@
                   basicInfoForm.validate(() => {});
                 }
               } else {
-                console.log(this.formData);
+                await this.$confirm('保存pipeline配置？', '提示', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  type: 'warning',
+                  dangerouslyUseHTMLString: true
+                });
+                await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_add_or_update, {
+                  payload: this.formData
+                });
+//                console.log(this.formData);
               }
             });
             break;

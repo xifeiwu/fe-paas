@@ -14,7 +14,7 @@
         <label>
           <span style="line-height: 26px">最近一次执行状态:</span>
           <el-select placeholder="请选择" size="mini-extral" v-model="selectedStatus">
-            <el-option v-for="(item,index) in statusList" :key="item.index" :label="item.statusName" :value="item.status"></el-option>
+            <el-option v-for="(item,index) in STATUS_LIST" :key="item.index" :label="item.statusName" :value="item.status"></el-option>
           </el-select>
         </label>
       </div>
@@ -22,8 +22,8 @@
         <el-input size="mini-extral" placeholder="搜索pipeline" suffix-icon="el-icon-search" class="search" v-model="keyFilter"></el-input>
       </div>
       <div class="item">
-        <el-button size="mini-extral" type="primary" style="margin-right: 5px" @click="handleClick($event, 'refresh')">
-          <span>刷新</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
+        <el-button size="mini-extral" type="primary" style="margin-right: 5px" @click="handleClick($event, 'search')">
+          <span>查找</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
         </el-button>
         <el-button size="mini-extral" class="flex" type="primary" @click="handleClick($event, 'add')">
           <span>创建pipeline</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
@@ -165,34 +165,34 @@
         filterPipelineList: [],
         pipelineListByPage: [],
         selectedStatus: "",
-        statusList: [{
+        STATUS_LIST: [{
           status: "",
           statusName: "全部",
-        },{
+        }, {
           status: "SUCCESS",
           statusName: "成功",
-        },{
+        }, {
           status: "FAILURE",
           statusName: "失败",
-        },{
+        }, {
           status: "ABORTED",
           statusName: "中止"
-        },{
+        }, {
           status: "CANCELLED",
           statusName: "已取消",
-        },{
+        }, {
           status: "REBUILDING",
           statusName: "重建中",
-        },{
+        }, {
           status: "UNSTABLE",
           statusName: "不稳定",
-        },{
+        }, {
           status: "BUILDING",
           statusName: "构建中",
-        },{
-          status: "NOT_BUILD",
+        }, {
+          status: "NOT_BUILT",
           statusName: "未构建",
-        },{
+        }, {
           status: "UNKNOWN",
           statusName: "未知",
         }],
@@ -264,6 +264,9 @@
         let selectedApp = this.appList.find(it => {
           return it["appId"] === this.selectedAppId;
         });
+        if (!selectedApp) {
+          return;
+        }
         let payload = {
           groupTag: this.$storeHelper.groupInfo.tag,
           serviceName: selectedApp.serviceName,
@@ -275,14 +278,20 @@
           if (resContent) {
             this.pipelineList = resContent.map(it => {
               it["createTime"] = this.$utils.formatDate(Date.parse(it["createTime"]), "yyyy-MM-dd hh:mm:ss");
-              it["lastRunStatusName"] = this.statusList.find(obj => {
+              var statusInfo = this.STATUS_LIST.find(obj => {
                 return it["lastRunStatus"] === obj["status"];
-              })["statusName"];
+              });
+              if (statusInfo) {
+                it["lastRunStatusName"] = statusInfo["statusName"];
+              } else {
+                it["lastRunStatusName"] = '---';
+              }
               return it;
             });
           }
           this.totalSize = this.pipelineList.length;
         } catch(err) {
+          console.log(err);
           this.pipelineList = [];
           this.totalSize = this.pipelineList.length;
         }
@@ -305,6 +314,7 @@
         this.searchPipeline();
         this.totalSize = this.filterPipelineList.length;
         this.pipelineListByPage = this.filterPipelineList.slice(start, end);
+//        console.log(this.pipelineListByPage);
       },
 
       searchPipeline() {
@@ -329,12 +339,12 @@
 
       handleClick(evt, action) {
         switch (action) {
-          case 'refresh':
+          case 'search':
             this.updatePipelineListByPage(true,false);
             break;
           case 'add':
             const appAll = this.$storeHelper.appInfoListOfGroup['appList'].map(it => it['appId']);
-            const appHasPipeLine = this.pipelineList.map(it => it['appId']);
+            const appHasPipeLine = this.pipelineList.filter(it => it['appId']).map(it => it['appId']);
             const appCanAddPipeLine = appAll.filter(it => !(appHasPipeLine.indexOf(it) > -1));
             if (appCanAddPipeLine.length === 0) {
               this.$message.warning('当前团队所有应用已创建pipeline');
@@ -367,7 +377,7 @@
             this.$router.push(this.$net.page['profile/pipeline/records']);
             break;
           case 'go-to-page-pipeline-update':
-            this.$router.push(this.$net.page['profile/pipeline/update']);
+            this.$router.push(this.$net.page['profile/pipeline/modify']);
             break;
         }
       },
