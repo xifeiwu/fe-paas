@@ -14,8 +14,9 @@
       </el-tooltip>
     </div>
     <div class="basic-section">
-      <el-form :model="formData" :rules="rules"
+      <el-form :model="formData" :rules="formDataRules"
                ref="basicForm"
+               :class="{'message-show': pageType === 'modify'}"
                size="mini"
                label-width="110px">
         <el-form-item label="申请人">
@@ -25,7 +26,7 @@
           <span v-if="pageType === 'modify'">{{formData.name}}</span>
           <el-input v-model="formData.name" placeholder="100字符内" v-else></el-input>
         </el-form-item>
-        <el-form-item label="团队名称" prop="groupName">
+        <el-form-item label="团队名称" prop="groupId">
           <span v-if="pageType === 'modify'">{{dataPassed.groupName}}</span>
           <el-select v-model="$storeHelper.currentGroupID" filterable placeholder="请选择" v-else>
             <el-option v-for="item in $storeHelper.groupList" :key="item.id" :label="item.asLabel" :value="item.id">
@@ -37,7 +38,7 @@
     <div class="feature-section">
       <div class="title">功能列表</div>
       <div class="feature-form-list">
-        <my-feature v-for="(item, index) in formData.featureList" :key="index"
+        <my-feature v-for="(item, index) in formData.featureList" :key="index" ref="featureForm"
                     :id="index"
                     :featureInfo="item"
                     :showAdd="index == formData.featureList.length - 1"
@@ -49,7 +50,7 @@
     </div>
     <div class="application-section">
       <div class="title">程序列表</div>
-      <el-form :model="formData" :rules="rules"
+      <el-form :model="formData" :rules="formDataRules"
                ref="applicationForm"
                size="mini"
                label-width="120px">
@@ -73,7 +74,7 @@
     </div>
     <div class="acceptance-section">
       <div class="title">验收信息</div>
-      <el-form :model="formData" :rules="rules"
+      <el-form :model="formData" :rules="formDataRules"
                ref="acceptanceForm"
                size="mini"
                label-width="120px">
@@ -308,18 +309,20 @@
           switch (dataTransfer['from']) {
             case this.$net.page['profile/work-order/todo']:
               const detail = dataTransfer['data'];
-              console.log(detail);
+              this.formData.groupId = detail['groupId'];
               this.formData.name = detail['name'];
               this.formData.creatorName = detail['creatorName'];
               this.formData.featureList = detail['featureList'];
-              this.formData.appIdList = detail['appList'].map(it => it['appId']);
+              // dataPassed.appIdList will filtered onAppInfoListOfGroup
+              this.dataPassed.appIdList = detail['appList'].map(it => it['appId']);
               this.formData.acceptedUserIdList = detail['acceptedUserIdList'];
               this.formData.notifyUserIdList = detail['notifyUserIdList'];
               this.formData.mailGroupList = detail['mailGroupList'];
               this.formData.comment = detail['comment'];
+//              console.log(detail);
+//              console.log(this.formData);
 
               this.dataPassed.workOrderId = detail['id'];
-              this.dataPassed.groupId = detail['groupId'];
               this.dataPassed.groupName = detail['groupName'];
               this.dataPassed.operationList = detail['operationList'];
               // update groupId if necessary
@@ -335,7 +338,6 @@
           goBack = true;
         }
       }
-
       if (goBack) {
         this.$router.go(-1);
         return;
@@ -373,14 +375,14 @@
           appIdList: null,
           // for modify
           workOrderId: '',
-          groupId: '',
           groupName: '',
           operationList: [],
         },
 
-        rules: WorkOrderPropUtils.rules.workOrder,
+        formDataRules: WorkOrderPropUtils.rules.workOrder,
         mailGroup: '',
         formData: {
+          groupId: this.$storeHelper.currentGroupID,
           name: '',
           creatorName: this.$storeHelper.getUserInfo('realName'),
           featureList: [],
@@ -409,6 +411,7 @@
         this.$store.dispatch('user/usersInGroup');
         // data should be init at change of group
         this.formData.appIdList = [];
+        this.formData.groupId = this.$storeHelper.currentGroupID;
       },
       // set defaultAppID(first element in array) for this.formData.appID
       async onAppInfoListOfGroup(value) {
@@ -433,12 +436,22 @@
 
         // append appIdList passed to this.formData.appIdList
         if (this.dataPassed.appIdList) {
-          const appIdCanSelect = this.appModelListOfGroup.filter(it => !it.hasOwnProperty('workOrder')).map(it => it['appId']);
-          const appIdListToAppend = this.dataPassed.appIdList.filter(it => appIdCanSelect.indexOf(it) > -1);
+          var appIdListToAppend = [];
+          if (this.pageType === 'modify') {
+            var appIdAll = this.appModelListOfGroup.map(it => it['appId']);
+            appIdListToAppend = this.dataPassed.appIdList.filter(it => {
+              return appIdAll.indexOf(it) >= -1;
+            });
+          } else {
+            var appIdCanSelect = this.appModelListOfGroup.filter(it => !it.hasOwnProperty('workOrder')).map(it => it['appId']);
+            appIdListToAppend = this.dataPassed.appIdList.filter(it => appIdCanSelect.indexOf(it) > -1);
+          }
           this.formData.appIdList = this.formData.appIdList.concat(appIdListToAppend);
-          if (appIdToAppend.length != this.dataPassed.appIdList.length) {
+          if (appIdListToAppend.length != this.dataPassed.appIdList.length) {
             console.log(`some appId is ignored!`);
           }
+          // use only once
+          this.dataPassed.appIdList = [];
         }
       },
       // 添加功能描述
@@ -506,23 +519,28 @@
       async handleButtonClick(action) {
         switch (action) {
           case 'add':
+//            console.log(this.formData);
+//            console.log(this.$refs['featureForm']);
+//            return;
             if (!WorkOrderPropUtils.checkComment(this.formData.comment)) {
               this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
               return;
             }
-//        console.log(this.formData);
             const basicPromise = new Promise((resolve, reject) => {
               this.$refs['basicForm'].validate((valid) => {
                 resolve(valid);
               });
             });
+
             const featurePromise = new Promise((resolve, reject) => {
-              let valid = this.formData.featureList
-                .map(it => {return it.valid})
-                .reduce((sum, valid) => {
-                  return sum && valid;
-                });
-              resolve(valid);
+              Promise.all(this.$refs['featureForm'].map(it => it.validate())).then(results => {
+                let valid = results.reduce((sum, it) => {
+                  return sum && it[0];
+                }, true);
+                resolve(valid);
+              }).catch(err => {
+                resolve(false);
+              })
             });
             const applicationPromise = new Promise((resolve, reject) => {
               this.$refs['applicationForm'].validate((valid) => {

@@ -171,6 +171,11 @@
   }
 
   .el-form {
+    &.message-show {
+      .el-form-item {
+        margin-bottom: 5px;
+      }
+    }
     .el-form-item-group {
       &.is-required {
         .label:before {

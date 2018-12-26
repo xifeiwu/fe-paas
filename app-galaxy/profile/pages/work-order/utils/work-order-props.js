@@ -11,7 +11,7 @@ class WorkOrderUtils {
         name: [{
           required: true,
           message: '请输入功能名称',
-          trigger: 'blur'
+          trigger: ['blur', 'change']
         }, {
           validator: limit100Required
         }],
@@ -41,6 +41,12 @@ class WorkOrderUtils {
           trigger: 'blur'
         }, {
           validator: limit100Required
+        }],
+        groupId: [{
+          type: "number",
+          required: true,
+          message: '请选择团队',
+          trigger: 'blur'
         }],
         groupName: [{
           required: true,

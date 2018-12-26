@@ -100,34 +100,36 @@ export default {
     }
   },
   watch: {
-    'featureInfo.name': {
-      immediate: true,
-      handler (value) {
-        this.checkValidate();
-      }
-    },
-    'featureInfo.type': {
-      immediate: true,
-      handler (value) {
-        this.checkValidate();
-      }
-    },
-    'featureInfo.jiraAddress': {
-      immediate: true,
-      handler (value) {
-        this.checkValidate();
-      }
-    },
+//    'featureInfo.name': {
+//      immediate: true,
+//      handler (value) {
+//        this.checkValidate();
+//      }
+//    },
+//    'featureInfo.type': {
+//      immediate: true,
+//      handler (value) {
+//        this.checkValidate();
+//      }
+//    },
+//    'featureInfo.jiraAddress': {
+//      immediate: true,
+//      handler (value) {
+//        this.checkValidate();
+//      }
+//    },
   },
   methods: {
     featureTypeList() {
       return workOrderUtils.getFeatureTypeList();
     },
-    checkValidate() {
-      this.$refs.hasOwnProperty('featureForm') && this.$refs['featureForm'].validate(valid => {
-//        console.log(valid);
-        this.featureInfo.valid = valid;
-      })
+//    checkValidate() {
+//      this.$refs.hasOwnProperty('featureForm') && this.$refs['featureForm'].validate(valid => {
+//        this.featureInfo.valid = valid;
+//      })
+//    },
+    validate() {
+      return this.$refs['featureForm'].validate();
     },
     onIconClick(action) {
       switch (action) {
