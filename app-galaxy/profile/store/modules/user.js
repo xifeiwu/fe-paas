@@ -70,6 +70,12 @@ const actions = {
     commit('SET_PROFILE_LIST', profileList);
   },
 
+  /**
+   * 当前团队所有成员列表
+   * @param commit
+   * @param state
+   * @returns {Promise.<*>}
+   */
   async usersInGroup({commit, state}) {
     const net = Vue.prototype.$net;
     const resContent = await net.requestPaasServer(net.URL_LIST.users_list_of_group, {

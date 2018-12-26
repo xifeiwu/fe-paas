@@ -61,6 +61,12 @@ class WorkOrderUtils {
           message: '必须选择应用版本',
           trigger: 'change'
         }],
+        appIdList: [{
+          type: 'array',
+          required: true,
+          message: '请选择应用名称',
+          trigger: ['blur', 'change']
+        }],
         acceptedUserIdList: [{
           type: 'array',
           required: true,

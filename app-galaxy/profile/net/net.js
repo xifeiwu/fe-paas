@@ -394,6 +394,12 @@ class Net extends NetBase {
         path: '/workOrderDeploy/downloadTestReport/{id}',
         method: 'get'
       },
+      // 查询当前团队所有应用的工单处理状态
+      'work_order_app_status': {
+        path: '/workOrderDeploy/queryPendingOrdersByAppIdList',
+        method: 'post',
+        partial: false
+      }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];
@@ -1252,6 +1258,7 @@ class Net extends NetBase {
   }
 
   /**
+   * TODO: maybe not used later
    * 获取服务版本号列表
    * @param options {appId, profileId}
    * @returns {Promise}
@@ -2004,6 +2011,7 @@ class Net extends NetBase {
   }
 
   /**
+   * TODO: not used
    * 检查是否有正在处理的工单
    * @param options: {appId:, serviceVersion:}
    * @returns {Promise}

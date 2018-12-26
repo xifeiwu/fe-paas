@@ -8,7 +8,10 @@
                   size="mini-extral"
                   type="primary"
                   :class="{'disabled': $storeHelper.permission['work-order_create'].disabled}"
-                  @click="handleButtonClick($event, 'work-order_create')">申请审批工单</el-button>
+                  :loading="statusOfWaitingResponse('work-order_create')"
+                  @click="handleButtonClick($event, 'work-order_create')">
+            <span>申请审批工单</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
+          </el-button>
           <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
             <div slot="content">
               <div>1. 如果一个应用下有正在处理的工单，则不可以提交新的工单</div>
@@ -22,7 +25,7 @@
             <label style="width: 68px; line-height: 26px; color: black">申请人：</label>
             <el-input
                     v-model="searchForm.userName"
-                    size="mini" style="display: inline-block; width: 160px;"></el-input>
+                    size="mini-extral" style="display: inline-block; width: 160px;"></el-input>
           </div>
           <div class="item">
             <label style="width: 72px; line-height: 26px; color: black">申请时间：</label>
@@ -284,7 +287,10 @@
 <script>
   import WorkOrderPropUtils from './utils/work-order-props';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+  import commonUtils from 'assets/components/mixins/common-utils';
+
   export default {
+    mixins: [commonUtils],
     created() {
     },
     mounted() {
@@ -401,29 +407,13 @@
       },
     },
     methods: {
-      // helper for loading action of el-button
-      addToWaitingResponseQueue(action) {
-        if (this.queueForWaitingResponse.indexOf(action) === -1) {
-          this.queueForWaitingResponse.push(action);
-        }
-      },
-      statusOfWaitingResponse(action) {
-        return this.queueForWaitingResponse.indexOf(action) > -1;
-      },
-      hideWaitingResponse(action) {
-        let index = this.queueForWaitingResponse.indexOf(action);
-        if (index > -1) {
-          this.queueForWaitingResponse.splice(index, 1);
-        }
-      },
-
       setDateRange() {
         const end = new Date();
         const start = new Date();
         start.setTime(start.getTime() - 1000 * 3600 * 24 * 30);
         this.searchForm.dateRange = [start, end];
       },
-      handleButtonClick(evt, action) {
+      async handleButtonClick(evt, action) {
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
@@ -441,7 +431,18 @@
             this.setDateRange();
             break;
           case 'work-order_create':
-            this.$router.push(this.$net.page['profile/work-order/todo/add']);
+            this.addToWaitingResponseQueue(action);
+            try {
+              this.hideWaitingResponse(action);
+              this.$storeHelper.dataTransfer = {
+                from: this.$net.page['profile/work-order/todo'],
+                data: null
+              };
+              this.$router.push(this.$net.page['profile/work-order/todo/add']);
+            } catch(err) {
+              console.log(err);
+              this.hideWaitingResponse(action);
+            }
             break;
         }
       },

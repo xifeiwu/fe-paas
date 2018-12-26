@@ -14,19 +14,19 @@
       </el-tooltip>
     </div>
     <div class="basic-section">
-      <el-form :model="workOrderForm" :rules="rules"
+      <el-form :model="formData" :rules="rules"
                ref="basicForm"
                size="mini"
                label-width="110px">
         <el-form-item label="申请人">
-          {{workOrderForm.creatorName}}
+          {{formData.creatorName}}
         </el-form-item>
         <el-form-item label="审批工单名称" prop="name">
-          <el-input v-model="workOrderForm.name" placeholder="100字符内"></el-input>
+          <el-input v-model="formData.name" placeholder="100字符内"></el-input>
         </el-form-item>
         <el-form-item label="团队名称" prop="groupName">
           <el-select v-model="$storeHelper.currentGroupID" filterable placeholder="请选择">
-            <el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">
+            <el-option v-for="item in $storeHelper.groupList" :key="item.id" :label="item.asLabel" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -35,11 +35,11 @@
     <div class="feature-section">
       <div class="title">功能列表</div>
       <div class="feature-form-list">
-        <my-feature v-for="(item, index) in workOrderForm.featureList" :key="index"
+        <my-feature v-for="(item, index) in formData.featureList" :key="index"
                     :id="index"
                     :featureInfo="item"
-                    :showAdd="index == workOrderForm.featureList.length - 1"
-                    :showRemove="workOrderForm.featureList.length > 1"
+                    :showAdd="index == formData.featureList.length - 1"
+                    :showRemove="formData.featureList.length > 1"
                     @add="addFeatureComponent"
                     @remove="removeFeatureComponent"
         >{{item}}</my-feature>
@@ -47,49 +47,47 @@
     </div>
     <div class="application-section">
       <div class="title">程序列表</div>
-      <el-form :model="workOrderForm" :rules="rules"
+      <el-form :model="formData" :rules="rules"
                ref="applicationForm"
                size="mini"
                label-width="120px">
-        <el-form-item label="应用名称" prop="appID">
-          <el-select filterable v-model="workOrderForm.appID"
-                     v-if="appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')"
-                     placeholder="请选择">
-            <el-option v-for="(item, index) in appInfoListOfGroup.appList"
-                       :key="item.appId" :label="item.appName" :value="item.appId"
+        <el-form-item label="应用名称" prop="appIdList">
+          <el-select  v-model="formData.appIdList"
+                      filterable multiple
+                      placeholder="请选择"
+                      v-if="appModelListOfGroup">
+            <el-option v-for="(item, index) in appModelListOfGroup" :disabled="item.hasOwnProperty('workOrder')"
+                       :key="item.appId" :value="item.appId" :label="item.appName"
             >
+              <span>{{item.appName}}</span>
+              <span v-if="item.hasOwnProperty('workOrder')"
+                    style="color: #E6A23C; font-size: 12px;">(有未处理工单：{{item['workOrder']['name']}})</span>
             </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="生产环境版本" prop="serviceVersion" :error="serviceVersionError.description">
-          <el-select v-model="workOrderForm.serviceVersion"
-                     :placeholder="versionList.length > 0 ? '请选择': '当前应用的生产环境下没有版本'">
-            <el-option v-for="(item, index) in versionList" :key="index" :label="item" :value="item"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
     </div>
     <div class="acceptance-section">
       <div class="title">验收信息</div>
-      <el-form :model="workOrderForm" :rules="rules"
+      <el-form :model="formData" :rules="rules"
                ref="acceptanceForm"
                size="mini"
                label-width="120px">
         <el-form-item label="验收人" prop="acceptedUserIdList">
-          <el-select filterable v-model="workOrderForm.acceptedUserIdList" multiple placeholder="请选择">
+          <el-select filterable v-model="formData.acceptedUserIdList" multiple placeholder="请选择">
             <el-option v-for="item in $storeHelper.usersInGroup" :key="item.userId" :label="item.realName" :value="item.userId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="知会人" prop="notifyUserIdList">
-          <el-select filterable v-model="workOrderForm.notifyUserIdList" multiple placeholder="请选择">
+          <el-select filterable v-model="formData.notifyUserIdList" multiple placeholder="请选择">
             <el-option v-for="item in usersAll" :key="item.id" :label="item.realName" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="邮件组" prop="mailGroupList" class="mail-group">
           <el-tag
-                  v-for="tag in workOrderForm.mailGroupList"
+                  v-for="tag in formData.mailGroupList"
                   size="small"
                   :key="tag"
                   closable
@@ -98,14 +96,14 @@
           >{{tag}}</el-tag>
           <el-input v-model="mailGroup" placeholder="请填写">
             <template slot="append">
-              <el-button type="primary" class="add-mail-group-btn" @click="handleMailGroup('add', mailGroup)">
-                添加
-              </el-button>
+              <div class="add-mail-group-btn" @click="handleMailGroup('add', mailGroup)">
+                <span>添加</span>
+              </div>
             </template>
           </el-input>
         </el-form-item>
         <el-form-item label="工单备注" prop="comment">
-          <el-input v-model="workOrderForm.comment"
+          <el-input v-model="formData.comment"
                     type="textarea"
                     placeholder="不超过200个字符"
                     :rows="2"
@@ -114,8 +112,12 @@
       </el-form>
     </div>
     <div class="section-footer">
-      <el-button size="mini" type="primary" @click="handleButtonClick('add')">完成</el-button>
-      <el-button size="mini" type="primary" @click="handleButtonClick('back')">取消</el-button>
+      <div class="item">
+        <el-button size="mini" type="primary" @click="handleButtonClick('add')">完 成</el-button>
+      </div>
+      <div class="item">
+        <el-button size="mini" type="primary" @click="handleButtonClick('back')">取 消</el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -136,7 +138,7 @@
 <style lang="scss" scoped>
   .el-form {
     .el-input, .el-select, .el-textarea {
-      width: 400px;
+      width: 100%;
     }
     .el-textarea {
       margin-top: 3px;
@@ -147,22 +149,12 @@
     .el-form-item {
       &.mail-group {
         .add-mail-group-btn {
-          color: white;
-          /*background-color: #79bbff;*/
-          background-color: #6c757d;
-          border-color: #6c757d;
-          margin: 0px;
-          width: 60px;
-          padding: 0px;
-          font-size: 12px;
-          line-height: 25px;
-          border-width: 0px;
-          border-radius: 0px;
+          cursor: pointer;
+          color: #E6A23C;
+          padding: 0px 8px;
+          font-weight: bold;
           &:hover {
-            font-weight: bold;
-            /*background-color: #409EFF;*/
-            background-color: #5a6268;
-            border-color: #545b62;
+            color: #E68C0F;
           }
         }
       }
@@ -170,7 +162,8 @@
   }
   #work-order-add {
     background: white;
-    margin: 20px;
+    margin-top: 10px;
+    margin-left: 15px;
     padding: 10px 20px 10px 20px;
     width: 700px;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
@@ -209,7 +202,7 @@
     }
     .application-section {
       margin-bottom: 22px;
-      width: 600px;
+      width: 660px;
       .title {
         border-left: 5px solid #409EFF;
         border-top: 1px solid #409EFF;
@@ -219,7 +212,7 @@
     }
     .acceptance-section {
       margin-bottom: 22px;
-      width: 600px;
+      width: 660px;
       .title {
         border-left: 5px solid #409EFF;
         border-top: 1px solid #409EFF;
@@ -231,8 +224,16 @@
       }
     }
     .section-footer {
-      text-align: center;
+      display: flex;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #e7e7e7;
+      .item {
+        flex: 1;
+        text-align: center;
+      }
       .el-button {
+        width: 100px;
         padding: 6px 20px;
       }
     }
@@ -250,167 +251,120 @@
         if (dataTransfer && dataTransfer.hasOwnProperty('from')) {
           switch (dataTransfer['from']) {
             case this.$net.page['profile/service']:
-              this.workOrderForm.appID = dataTransfer['data']['appId'];
+              this.dataPassed.appIdList = [dataTransfer['data']['appId']];
+//              this.appStatus = dataTransfer['data']['appStatus'];
               break;
+//            case this.$net.page['profile/work-order/todo']:
+//              this.appStatus = dataTransfer['data']['appStatus'];
+//              break;
           }
           this.$storeHelper.dataTransfer = null;
         } else {
-          this.workOrderForm.appID = this.$storeHelper.userConfig['service']['appId'];
+//          this.formData.appID = this.$storeHelper.userConfig['service']['appId'];
         }
       } catch(err) {
       }
 
+      // get appModelListOfGroup
       this.onCurrentGroupID(this.$storeHelper.currentGroupID);
-      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+      this.onAppInfoListOfGroup(this.$storeHelper.appInfoListOfGroup);
     },
     mounted() {
-//      let workOrder = this.$store.getters['app/currentWorkOrder'];
-//      if (!workOrder || !workOrder.hasOwnProperty('id')) {
-//        this.$router.push('/profile/work-order/todo');
-//        return;
-//      }
-//      this.$nextTick(() => {
-//        WorkOrderPropUtils.getWorkOrderDetailByBasic(this, workOrder).then(detail => {
-//          this.workOrderForm = detail;
-          // should have at least one feature item
-          if (this.workOrderForm.featureList.length == 0) {
-            this.workOrderForm.featureList.push({
-              id: 1,
-              name: '',
-              type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
-              jiraAddress: null,
-              description: null,
-              valid: false
-            })
-          }
-//        })
-//      });
+      // should have at least one feature item
+      if (this.formData.featureList.length == 0) {
+        this.formData.featureList.push({
+          id: 1,
+          name: '',
+          type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
+          jiraAddress: null,
+          description: null,
+          valid: false
+        })
+      }
     },
     data() {
       return {
+        appModelListOfGroup: [],
         showLoading: false,
         loadingText: '',
+        appStatus: null,
+
+        dataPassed: {
+          appIdList: null
+        },
 
         rules: WorkOrderPropUtils.rules.workOrder,
         mailGroup: '',
-        workOrderForm: {
+        formData: {
           name: '',
           creatorName: this.$storeHelper.getUserInfo('realName'),
-          groupId: this.$storeHelper.currentGroupID,
-          groupName: '',
           featureList: [],
-          appID: null,
-          appName: null,
-          serviceVersion: '',
+          appIdList: [],
           acceptedUserIdList: [],
           notifyUserIdList: [],
           mailGroupList: [],
           comment: '',
         },
-        versionList: [],
-        serviceVersionError: {
-          isOK: true,
-          reason: 'NO',
-          description: ''
-        },
-        serviceVersionState: {
-          'WORK_ORDER_HAS_EXIST': '该服务有正在处理的工单',
-          'NO_PRODUCTION_VERSION': '该应用无生产环境版本',
-          'GET_VERSION_LIST_FAIL': '获取版本列表失败'
-        },
-
       };
     },
     computed: {
-      groupList() {
-        return this.$storeHelper.groupList;
-      },
-      appInfoListOfGroup() {
-        return this.$storeHelper.appInfoListOfGroup;
-      },
       usersAll() {
         return this.$storeHelper.usersAll();
       }
     },
     watch: {
-      appInfoListOfGroup: 'onAppInfoListOfGroup',
-      'workOrderForm.appID': function (value) {
-        let appInfo = this.$storeHelper.getAppInfoByID(value);
-        if (appInfo && appInfo.hasOwnProperty('app')) {
-          this.workOrderForm.appName = appInfo.app.appName;
-        }
-        this.requestProductVersionList(value);
-//        this.$storeHelper.setUserConfig('profile/work-order/appID', value);
-      },
-      'workOrderForm.serviceVersion': function (value) {
-        if (!value) {
-          return;
-        }
-        if (this.workOrderForm.appID && this.workOrderForm.serviceVersion) {
-          this.$net.checkWorkOrderHandling({
-            appId: this.workOrderForm.appID,
-            serviceVersion: this.workOrderForm.serviceVersion
-          }).then((msg) => {
-            this.serviceVersionError.isOK = true;
-            this.serviceVersionError.description = '';
-          }).catch((msg) => {
-            this.serviceVersionError.isOK = false;
-            this.serviceVersionError.reason = 'WORK_ORDER_HAS_EXIST';
-            msg = msg.trim();
-            if (this.serviceVersionError.description == msg) {
-              this.serviceVersionError.description = msg + ' ';
-            } else {
-              this.serviceVersionError.description = msg;
-            }
-          });
-        }
-      },
-      '$storeHelper.currentGroupID': 'onCurrentGroupID',
+      '$storeHelper.groupInfo.id': 'onCurrentGroupID',
+      '$storeHelper.appInfoListOfGroup': 'onAppInfoListOfGroup',
     },
     methods: {
       onCurrentGroupID(value) {
-        this.workOrderForm.groupId = value;
-        let groupInfo = this.$storeHelper.getGroupInfoByID(value);
-        if (groupInfo && groupInfo.hasOwnProperty('name')) {
-          this.workOrderForm.groupName = groupInfo.name;
-        }
-
-        // update usersInGroup
-        this.$store.dispatch('user/usersInGroup');
-      },
-      // set defaultAppID(first element in array) for this.workOrderForm.appID
-      onAppInfoListOfGroup(value) {
         if (!value) {
           return;
         }
-        if (!value.hasOwnProperty('appList')) {
+        this.$store.dispatch('user/usersInGroup');
+        // data should be init at change of group
+        this.formData.appIdList = [];
+      },
+      // set defaultAppID(first element in array) for this.formData.appID
+      async onAppInfoListOfGroup(value) {
+        if (!value) {
           return;
         }
-        if (Array.isArray(value.appList) && value.appList.length > 0) {
-          const defaultAppID = value.appList[0].appId;
-          let targetApp = null;
-          value.appList.some(it => {
-            if (this.workOrderForm.appID === it.appId) {
-              targetApp = it;
-            }
-            return targetApp;
-          });
-          if (!targetApp) {
-            this.workOrderForm.appID = defaultAppID;
+
+        const appIdList = this.$storeHelper.appInfoListOfGroup['appList'].map(it => it['appId']);
+        const appStatus = await this.$net.requestPaasServer(this.$net.URL_LIST.work_order_app_status, {
+          payload: {
+            appIdList
           }
-        } else {
-          this.workOrderForm.appID = this.$storeHelper.APP_ID_FOR_NULL;
+        });
+//        console.log(appStatus);
+        this.appModelListOfGroup = this.$utils.cloneDeep(this.$storeHelper.appInfoListOfGroup['appModelList']);
+        this.appModelListOfGroup.forEach(it => {
+          if (appStatus.hasOwnProperty(it['appId'])) {
+            it['workOrder'] = appStatus[it['appId']];
+//            console.log(it);
+          }
+        });
+
+        // append appIdList passed to this.formData.appIdList
+        if (this.dataPassed.appIdList) {
+          const appIdCanSelect = this.appModelListOfGroup.filter(it => !it.hasOwnProperty('workOrder')).map(it => it['appId']);
+          const appIdListToAppend = this.dataPassed.appIdList.filter(it => appIdCanSelect.indexOf(it) > -1);
+          this.formData.appIdList = this.formData.appIdList.concat(appIdListToAppend);
+          if (appIdToAppend.length != this.dataPassed.appIdList.length) {
+            console.log(`some appId is ignored!`);
+          }
         }
       },
       // 添加功能描述
       addFeatureComponent() {
         let maxID = 0;
-        this.workOrderForm.featureList.forEach(it => {
+        this.formData.featureList.forEach(it => {
           if (it.id > maxID) {
             maxID = it.id;
           }
         });
-        this.workOrderForm.featureList.push({
+        this.formData.featureList.push({
           id: maxID + 1,
           name: '',
           type: WorkOrderPropUtils.getFeatureTypeList()[0]['id'],
@@ -423,7 +377,7 @@
       removeFeatureComponent(params) {
         let target = null;
         let index = null;
-        let featureList = this.workOrderForm.featureList;
+        let featureList = this.formData.featureList;
         featureList.some((it, loc) => {
           target = it.id === params.id ? it : null;
           if (target) {
@@ -439,59 +393,12 @@
       },
 
       /**
-       * request version list when selectedAppId or selectedProfileId is changed
-       */
-      requestProductVersionList(appID) {
-        let spaceID = null;
-        let profileInfo = this.$storeHelper.getProductionProfile();
-        if (profileInfo && profileInfo.hasOwnProperty('id')) {
-          spaceID = profileInfo.id;
-        }
-        if (!appID || !spaceID) {
-          console.log('appID or spaceID can not be empty');
-          return;
-        }
-        // make sure this.workOrderForm.serviceVersion is changed
-        this.workOrderForm.serviceVersion = null;
-        this.versionList = [];
-        this.$net.getServiceVersion({
-          appId: appID,
-          spaceId: spaceID
-        }).then(content => {
-//          console.log(content);
-          if (content.hasOwnProperty('version')) {
-            let version = content.version;
-            if (version && Array.isArray(version) && version.length > 0) {
-              this.versionList = version;
-              this.workOrderForm.serviceVersion = version[0];
-            } else {
-              this.serviceVersionError.isOK = false;
-              this.serviceVersionError.reason = 'NO_PRODUCTION_VERSION';
-              this.serviceVersionError.description = '';
-              this.serviceVersionError.description = this.serviceVersionState['NO_PRODUCTION_VERSION'];
-            }
-          }
-        }).catch(err => {
-          console.log(err);
-          this.serviceVersionError.isOK = false;
-          this.serviceVersionError.reason = 'GET_VERSION_LIST_FAIL';
-          this.serviceVersionError.description = '';
-          this.serviceVersionError.description = this.serviceVersionState['GET_VERSION_LIST_FAIL'];
-
-//          this.$message({
-//            type: 'error',
-//            message: '查找服务版本失败！'
-//          });
-        });
-      },
-
-      /**
        * action for add or remove mailGroup
        * @param action
        * @param domain
        */
       handleMailGroup(action, mailGroup) {
-        let mailGroupList = this.workOrderForm.mailGroupList;
+        let mailGroupList = this.formData.mailGroupList;
         let mailReg = this.$utils.getReg('mail');
         switch (action) {
           case 'remove':
@@ -514,37 +421,31 @@
       handleButtonClick(action) {
         switch (action) {
           case 'add':
-            if (!WorkOrderPropUtils.checkComment(this.workOrderForm.comment)) {
+            if (!WorkOrderPropUtils.checkComment(this.formData.comment)) {
               this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
               return;
             }
-//        console.log(this.workOrderForm);
-            let basicPromise = new Promise((resolve, reject) => {
+//        console.log(this.formData);
+            const basicPromise = new Promise((resolve, reject) => {
               this.$refs['basicForm'].validate((valid) => {
-//            console.log(valid);
                 resolve(valid);
               });
             });
-            let featurePromise = new Promise((resolve, reject) => {
-              let valid = this.workOrderForm.featureList
+            const featurePromise = new Promise((resolve, reject) => {
+              let valid = this.formData.featureList
                 .map(it => {return it.valid})
                 .reduce((sum, valid) => {
                   return sum && valid;
                 });
               resolve(valid);
             });
-            let applicationPromise = new Promise((resolve, reject) => {
-              if (!this.serviceVersionError.isOK) {
-                resolve(false);
-              } else {
-                this.$refs['applicationForm'].validate((valid) => {
-                  resolve(valid);
-                });
-              }
+            const applicationPromise = new Promise((resolve, reject) => {
+              this.$refs['applicationForm'].validate((valid) => {
+                resolve(valid);
+              });
             });
-            let acceptancePromise = new Promise((resolve, reject) => {
+            const acceptancePromise = new Promise((resolve, reject) => {
               this.$refs['acceptanceForm'].validate((valid) => {
-//            console.log(valid);
                 resolve(valid);
               });
             });
@@ -556,22 +457,17 @@
                 return sum && valid;
               });
               if (valid) {
-                // check if a work-order in handling first
-                if (!this.serviceVersionError.isOK ) {
-                  let reason = this.serviceVersionError.reason;
-                  this.$message.error(this.serviceVersionState[reason]);
-                  return;
-                }
                 // check the format of el-form-item
                 let toPost = {
                   workOrderDeploy: {
-                    name: this.workOrderForm.name,
-                    groupId: this.workOrderForm.groupId,
-                    groupName: this.workOrderForm.groupName,
-                    remark: this.workOrderForm.comment
+                    name: this.formData.name,
+                    groupId: this.$storeHelper.groupInfo['id'],
+                    groupName: this.$storeHelper.groupInfo['name'],
+                    remark: this.formData.comment
                   }
                 };
-                toPost.workOrderDeployFunctionList = this.workOrderForm.featureList.map(it => {
+                // 功能列表
+                toPost.workOrderDeployFunctionList = this.formData.featureList.map(it => {
                   return {
                     functionName: it.name,
                     functionType: it.type,
@@ -579,13 +475,14 @@
                     description: it.description
                   }
                 });
-                toPost.workOrderDeployAppList = [{
-                  appId: this.workOrderForm.appID,
-                  appName: this.workOrderForm.appName,
-                  serviceVersion: this.workOrderForm.serviceVersion,
-                }];
+                // 应用列表
+                toPost.workOrderDeployAppList = this.formData.appIdList.map(it => {
+                  return {
+                    appId: it
+                  }
+                });
                 // 验收人
-                let userAcceptedList = this.$storeHelper.getUserInfoByID(this.workOrderForm.acceptedUserIdList);
+                let userAcceptedList = this.$storeHelper.getUserInfoByID(this.formData.acceptedUserIdList);
                 if (userAcceptedList) {
                   toPost.acceptanceUserList = userAcceptedList.map(it => {
                     return {
@@ -597,7 +494,7 @@
                   toPost.acceptanceUserList = [];
                 }
                 // 知会人
-                let userNotifyList = this.$storeHelper.getUserInfoByID(this.workOrderForm.notifyUserIdList);
+                let userNotifyList = this.$storeHelper.getUserInfoByID(this.formData.notifyUserIdList);
                 if (userNotifyList) {
                   toPost.informUserList = userNotifyList.map(it => {
                     return {
@@ -609,16 +506,16 @@
                   toPost.informUserList = [];
                 }
                 // 邮件组
-                toPost.emailGroupList = this.workOrderForm.mailGroupList.map(it => {
+                toPost.emailGroupList = this.formData.mailGroupList.map(it => {
                   return {
                     emailGroupName: it
                   }
                 });
 //                console.log(toPost);
                 this.showLoading = true;
-                this.loadingText = '正在提交工单"' + this.workOrderForm.name + '"';
+                this.loadingText = '正在提交工单"' + this.formData.name + '"';
                 this.$net.createWorkOrder(toPost).then((msg) => {
-                  this.$alert('工单"' + this.workOrderForm.name  +'"创建成功，即将进入工单列表页', '创建工单成功', {
+                  this.$alert('工单"' + this.formData.name  +'"创建成功，即将进入工单列表页', '创建工单成功', {
                     confirmButtonText: '确定',
                     callback: () => {
                       this.$router.push(this.$net.page['profile/work-order/list']);
