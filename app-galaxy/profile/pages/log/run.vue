@@ -239,14 +239,14 @@
       this.$nextTick(() => {
         this.scrollWrap = document.querySelector('#log-run .section-log .el-scrollbar .el-scrollbar__wrap');
         this.scrollWrap && this.scrollWrap.addEventListener('scroll', (evt) => {
-          let target = evt.target;
+          const target = evt.target;
           if (target) {
             if (target.scrollTop === 0) {
 //              this.$emit('scrollTop');
-              console.log('scrollTop');
+//              console.log('scrollTop');
             } else if (target.scrollTop + target.clientHeight === target.scrollHeight) {
 //              this.$emit('scrollBottom');
-              console.log('scrollBottom');
+//              console.log('scrollBottom');
               this.requestLog();
             }
           }
@@ -258,8 +258,12 @@
         const headerNode = this.$el.querySelector(':scope > .header');
         const logSection = this.$el.querySelector(':scope > .section-log');
         this.resizeListener = () => {
-          let headerHeight = headerNode.offsetHeight;
-          logSection.style.height = this.$el.clientHeight - headerHeight - 5 + 'px';
+          const headerHeight = headerNode.offsetHeight;
+          var targetHeight = this.$el.clientHeight - headerHeight - 5;
+          if (targetHeight > 1000) {
+            targetHeight = 1000;
+          }
+          logSection.style.height = `${targetHeight}px`;
         };
         addResizeListener(this.$el, this.resizeListener);
       } catch(err) {
@@ -310,17 +314,7 @@
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 14);
               picker.$emit('pick', [start, end]);
             }
-          }
-//          , {
-//            text: '最近三个月',
-//            onClick(picker) {
-//              const end = new Date();
-//              const start = new Date();
-//              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-//              picker.$emit('pick', [start, end]);
-//            }
-//          }
-          ]
+          }]
         },
 
         dialogStatus: {
@@ -330,7 +324,7 @@
         },
         runLogs: [],
         requestPage: 1,
-        requestSize: 50,
+        requestSize: 150,
         showLoading: false
       }
     },
