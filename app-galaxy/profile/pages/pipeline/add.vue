@@ -719,6 +719,31 @@
         });
       },
 
+      // 更加pipeline结点的选择情况，更新formRules
+      updateFormDataRules() {
+        var pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'autoScript'];
+        pipelineStageList.forEach(it => {
+          const required = this.formData[it]['selected']
+          this.formDataRules[it]['required'] = required;
+            this.formDataRules[it]['fields']['script'].forEach(rule => {
+              rule['required'] = required;
+            })
+        });
+      },
+
+      // 请求更新
+      async requestUpdate() {
+        await this.$confirm('保存pipeline配置？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          dangerouslyUseHTMLString: true
+        });
+        await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_add_or_update, {
+          payload: this.formData
+        });
+      },
+
       // 处理按钮click事件
       async handleClick(evt, action) {
         const target = evt.target;
@@ -746,20 +771,25 @@
             this.formData[this.currentStage['name']]['selected'] = false;
             break;
           case 'save':
+            console.log(this.formData);
             const basicInfoForm = this.$refs['basic-info-form'];
 
+            this.updateFormDataRules();
+//            console.log(this.formDataRules);
             var validator = new AsyncValidator(this.formDataRules);
             validator.validate(this.formData, async (errors, fields) => {
               if (errors) {
 //                console.log(errors);
 //                console.log(fields);
                 var firstFields = errors[0]['field'];
+                // such as autoScript.script
                 if (firstFields.indexOf('.') > -1) {
                   firstFields = firstFields.split('.')[0];
                 }
 //                console.log(firstFields);
                 // sonar及单元测试，打包，自动化测试
-                if (['testAndSonarScript', 'mvnPackage', 'autoScript'].indexOf(firstFields) > -1) {
+                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'autoScript'];
+                if (pipelineStageList.indexOf(firstFields) > -1) {
                   this.setActiveStageByName(firstFields);
                   this.$nextTick(() => {
                     this.$refs['pipeline-script-form'].validate(() => {});
@@ -768,16 +798,7 @@
                   basicInfoForm.validate(() => {});
                 }
               } else {
-                await this.$confirm('保存pipeline配置？', '提示', {
-                  confirmButtonText: '确定',
-                  cancelButtonText: '取消',
-                  type: 'warning',
-                  dangerouslyUseHTMLString: true
-                });
-                await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_add_or_update, {
-                  payload: this.formData
-                });
-//                console.log(this.formData);
+                this.requestUpdate();
               }
             });
             break;
