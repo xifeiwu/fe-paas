@@ -66,7 +66,7 @@
                 align="center">
         </el-table-column>
         <el-table-column
-                prop="createTime"
+                prop="formattedCreateTime"
                 label="创建时间"
                 width="160"
                 headerAlign="center"
@@ -115,6 +115,38 @@
         </div>
       </div>
     </div>
+
+    <el-dialog title="选择目标应用" :visible="action.name == 'dialog4SelectApp'"
+               :close-on-click-modal="false"
+               class="image size-700"
+               @close="action.name = null"
+               v-if="action.name"
+    >
+      <el-tag type="success" disable-transitions style="display: block; text-align: left" size="small">
+        <i class="el-icon-warning"></i>
+        <span>请选择将要创建pipeline的应用</span>
+      </el-tag>
+      <el-form size="mini" :model="dialog4SelectApp" :rules="rules"
+               labelWidth="150px" style="margin: 10px 0px 30px 0px;" ref="formInDialog4SelectApp">
+        <el-form-item label="目标应用：" prop="appId">
+          <el-select v-model="dialog4SelectApp.appId" filterable placeholder="请选择" style="width: 400px;">
+            <el-option v-for="(item, index) in dialog4SelectApp.appList"
+                       :key="item.appId" :label="item.appName" :value="item.appId">
+            </el-option>
+          </el-select>
+          <el-button type="primary" style="margin-left: 8px;" size="mini-extral"
+                     @click="handleDialogButtonClick('dialog4SelectApp', 'yes')">确定&nbsp>></el-button>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex" v-if="false">
+        <div class="item">
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="action.name = null">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -201,6 +233,23 @@
         pageSize: 12,
         currentPage: 1,
         heightOfTable: "",
+
+        action: {
+          name: null,
+          row: null
+        },
+        dialog4SelectApp: {
+          appId: '',
+          appList: []
+        },
+        rules: {
+          appId: {
+            type: "number",
+            required: true,
+            message: '请选择目标应用',
+            trigger: ['blur', 'change']
+          },
+        }
       }
     },
     computed: {
@@ -267,7 +316,7 @@
         if (!selectedApp) {
           return;
         }
-        let payload = {
+        const payload = {
           groupTag: this.$storeHelper.groupInfo.tag,
           serviceName: selectedApp.serviceName,
         };
@@ -277,14 +326,16 @@
           });
           if (resContent) {
             this.pipelineList = resContent.map(it => {
-              it["createTime"] = this.$utils.formatDate(Date.parse(it["createTime"]), "yyyy-MM-dd hh:mm:ss");
+              it["formattedCreateTime"] = '---';
+              it["lastRunStatusName"] = '---';
+              if (it["createTime"]) {
+                it["formattedCreateTime"] = this.$utils.formatDate(it["createTime"], "yyyy-MM-dd hh:mm:ss");
+              }
               var statusInfo = this.STATUS_LIST.find(obj => {
                 return it["lastRunStatus"] === obj["status"];
               });
               if (statusInfo) {
                 it["lastRunStatusName"] = statusInfo["statusName"];
-              } else {
-                it["lastRunStatusName"] = '---';
               }
               return it;
             });
@@ -343,20 +394,39 @@
             this.updatePipelineListByPage(true,false);
             break;
           case 'add':
-            const appAll = this.$storeHelper.appInfoListOfGroup['appList'].map(it => it['appId']);
             const appHasPipeLine = this.pipelineList.filter(it => it['appId']).map(it => it['appId']);
-            const appCanAddPipeLine = appAll.filter(it => !(appHasPipeLine.indexOf(it) > -1));
-            if (appCanAddPipeLine.length === 0) {
+            this.dialog4SelectApp.appList = this.$storeHelper.appInfoListOfGroup['appModelList'].filter(it => {
+              return !(appHasPipeLine.indexOf(it.appId) > -1);
+            });
+            if (this.dialog4SelectApp.appList.length === 0) {
               this.$message.warning('当前团队所有应用已创建pipeline');
               return;
             }
-            this.$storeHelper.dataTransfer = {
-              from: this.$net.page["profile/pipeline/list"],
-              data: {
-                appIdList: appCanAddPipeLine,
-              }
-            };
-            this.$router.push(this.$net.page['profile/pipeline/add']);
+            this.action.name = 'dialog4SelectApp';
+            break;
+        }
+      },
+
+      async handleDialogButtonClick(dialog, action) {
+        switch (dialog) {
+          case 'dialog4SelectApp':
+            var [valid, errors] = await this.$refs['formInDialog4SelectApp'].validate();
+            if (valid) {
+//              var appModel = this.$storeHelper.appInfoListOfGroup['appModelList'].find(it => {
+//                return it.appId == this.dialog4SelectApp.appId;
+//              });
+//              if (!appModel) {
+//                console.log('appModel not found!');
+//                return;
+//              }
+              this.$storeHelper.dataTransfer = {
+                from: this.$net.page["profile/pipeline/list"],
+                data: {
+                  appId: this.dialog4SelectApp.appId
+                }
+              };
+              this.$router.push(this.$net.page['profile/pipeline/add']);
+            }
             break;
         }
       },
@@ -377,6 +447,17 @@
             this.$router.push(this.$net.page['profile/pipeline/records']);
             break;
           case 'go-to-page-pipeline-update':
+            if (!row["appId"]) {
+              this.$message.error('未找到应用信息！');
+              return;
+            }
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page["profile/pipeline/list"],
+              data: {
+               appId: row["appId"],
+//                appId: 1934,
+              }
+            };
             this.$router.push(this.$net.page['profile/pipeline/modify']);
             break;
         }

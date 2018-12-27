@@ -15,23 +15,19 @@
           </div>
           <div class="config">
             <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" ref="basic-info-form">
-              <el-form-item label="目标应用" prop="appId">
-                <el-select v-model="formData.appId" filterable placeholder="请选择">
-                  <el-option v-for="(item, index) in appList"
-                             :key="item.appId" :label="item.appName" :value="item.appId">
-                  </el-option>
-                </el-select>
+              <el-form-item label="目标应用：">
+                {{appInfo.appName}}
               </el-form-item>
-              <el-form-item label="pipeline名称" prop="pipelineName">
+              <el-form-item label="pipeline名称：" prop="pipelineName">
                 <el-input size="mini-extral" v-model="formData.pipelineName"></el-input>
               </el-form-item>
-              <el-form-item label="pipeline描述" prop="pipelineDescription">
+              <el-form-item label="pipeline描述：" prop="pipelineDescription">
                 <el-input size="mini-extral" v-model="formData.pipelineDescription"></el-input>
               </el-form-item>
-              <el-form-item label="gitlab仓库" prop="gitLabPath">
+              <el-form-item label="gitlab仓库：" prop="gitLabPath">
                 <el-input size="mini-extral" v-model="formData.gitLabPath"></el-input>
               </el-form-item>
-              <el-form-item label="gitlab分支" prop="gitLabBranch">
+              <el-form-item label="gitlab分支：" prop="gitLabBranch">
                 <el-input size="mini-extral" v-model="formData.gitLabBranch"></el-input>
               </el-form-item>
             </el-form>
@@ -390,38 +386,51 @@
     components: {paasPopoverElement, pipelineStage, codemirror},
     async created() {
       var goBack = false;
-      if (this.$route.path === this.$net.page["profile/pipeline/add"]) {
-        this.pageType = 'add';
-      } else if (this.$route.path === this.$net.page["profile/pipeline/modify"]) {
-        this.pageType = 'modify';
-      } else {
-        goBack = true;
-      }
+      this.pageType = this.$route.path === this.$net.page["profile/pipeline/modify"] ? 'modify' : 'add';
 
-      if (this.pageType === 'add') {
-        const dataTransfer = this.$storeHelper.dataTransfer;
-        if (dataTransfer) {
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      if (dataTransfer) {
+        if (this.pageType === 'modify') {
           switch (dataTransfer.from) {
             case this.$net.page["profile/pipeline/list"]:
-              this.dataPassed.appIdList = dataTransfer['data']['appIdList'];
-              this.appList = this.$storeHelper.appInfoListOfGroup['appModelList'].filter(it => {
-                return this.dataPassed.appIdList.indexOf(it['appId']) > -1
-              });
+              this.dataPassed.appId = dataTransfer['data']['appId'];
+              break;
+            default:
+              goBack = true;
               break;
           }
-          this.$storeHelper.dataTransfer = null;
         } else {
-          goBack = true;
+          switch (dataTransfer.from) {
+            case this.$net.page["profile/pipeline/list"]:
+              this.dataPassed.appId = dataTransfer['data']['appId'];
+              break;
+            default:
+              goBack = true;
+              break;
+          }
         }
+        this.$storeHelper.dataTransfer = null;
+      }
+      // get app info
+      if (this.dataPassed.appId) {
+        this.appInfo = this.$storeHelper.appInfoListOfGroup['appModelList'].find(it => {
+          return it.appId == this.dataPassed.appId;
+        });
+        if (!this.appInfo) {
+          console.log('appInfo not found');
+        }
+        this.formData.appId = this.dataPassed.appId;
+      } else {
+        goBack = true;
       }
 
       if (goBack) {
         this.$router.go(-1);
       }
 
-      const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_stage_query, {
+      const pipelineInfo = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_stage_query, {
         query: {
-          appId: 24
+          appId: this.formData.appId
         }
       });
 
@@ -445,9 +454,9 @@
         if (['start', 'download', 'end'].indexOf(key) > -1) {
           result = Object.assign({name: key}, commonProp, STAGE_NAME_MAP[key]);
         } else {
-          if (resContent.hasOwnProperty(key) && resContent[key]) {
+          if (pipelineInfo.hasOwnProperty(key) && pipelineInfo[key]) {
             result = Object.assign({
-              'selected': resContent[key]['selected']
+              'selected': pipelineInfo[key]['selected']
             }, commonProp, {name: key}, STAGE_NAME_MAP[key]);
           } else {
             console.log(`prop ${key} is not found in response content!`);
@@ -458,12 +467,14 @@
 //      console.log(stages);
       this.updateStageIndex(stages);
       this.stages = stages;
-      if (resContent.hasOwnProperty('buildImage') && Array.isArray(resContent['buildImage']['basicImage'])) {
+      if (pipelineInfo.hasOwnProperty('buildImage') && Array.isArray(pipelineInfo['buildImage']['basicImage'])) {
         // 可以不选择基础镜像
-        resContent['buildImage']['basicImage'].unshift('');
+        pipelineInfo['buildImage']['basicImage'].unshift('');
       }
-      this.pipeLineInfo = resContent;
+      this.pipeLineInfo = pipelineInfo;
       this.syncFormDataByServerData(this.formData, this.pipeLineInfo);
+      // override appId
+      this.formData.appId = this.dataPassed.appId;
 //      console.log(this.formData);
 //      console.log(this.pipeLineInfo);
     },
@@ -475,12 +486,11 @@
     data() {
       return {
         // 页面类型：add or modify
-        pageType: null,
+        pageType: 'add',
+        appInfo: null,
         dataPassed: {
-          // 可以创建pipeLine的应用列表
-          appIdList: null
+          appId: null,
         },
-        appList: [],
         pipeLineInfo: null,
         stages: [],
         stageName: '',
@@ -742,6 +752,7 @@
         await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_add_or_update, {
           payload: this.formData
         });
+        this.$message.success(`"${this.formData.name}"配置已更新！`);
       },
 
       // 处理按钮click事件
@@ -803,6 +814,12 @@
             });
             break;
           case 'apply':
+            await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_enable, {
+              query: {
+                appId: this.formData.appId
+              }
+            });
+            this.$message.success(`"${this.formData.name}"配置已生效！`);
             break;
         }
       },

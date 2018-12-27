@@ -157,32 +157,6 @@ class Net extends NetBase {
         method: 'post'
       },
 
-      /*
-      pipline相关
-       */
-      // 获取pipeline列表
-      'pipeline_list': {
-        path: '/pipeline/getPipelineList',
-        method: 'post'
-      },
-      'pipeline_build_list': {
-        path: '/pipeline/queryBuildList',
-        method: 'post'
-      },
-      'pipeline_record_restart': {
-        path: '/pipeline/executePipeline',
-        method: 'post'
-      },
-      'pipeline_record_stop': {
-        path: '/pipeline/stopPipeline',
-        method: 'post'
-      },
-      'pipeline_in_building': {
-        path: '/pipeline/runsPipeline',
-        method: 'post',
-        partial: true
-      },
-
       // 更改实例数
       'service_update_instance_num': {
         // path: '/service/instances/update',
@@ -615,6 +589,33 @@ class Net extends NetBase {
       'pipeline_add_or_update': {
         path: '/pipeline/createOrUpdate',
         method: 'post'
+      },
+      // 生效pipeline
+      'pipeline_enable': {
+        path: '/pipeline/enable',
+        method: 'post'
+      },
+      // 获取pipeline列表
+      'pipeline_list': {
+        path: '/pipeline/getPipelineList',
+        method: 'post'
+      },
+      'pipeline_build_list': {
+        path: '/pipeline/queryBuildList',
+        method: 'post'
+      },
+      'pipeline_record_restart': {
+        path: '/pipeline/executePipeline',
+        method: 'post'
+      },
+      'pipeline_record_stop': {
+        path: '/pipeline/stopPipeline',
+        method: 'post'
+      },
+      'pipeline_in_building': {
+        path: '/pipeline/runsPipeline',
+        method: 'post',
+        partial: true
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
