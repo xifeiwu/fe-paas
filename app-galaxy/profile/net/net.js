@@ -375,6 +375,11 @@ class Net extends NetBase {
         path: '/workOrderDeploy/applyWordOrderDeploy',
         method: 'post'
       },
+      // 修改工单
+      'work_order_modify': {
+        path: '/workOrderDeploy/againSendWorkOrderDeploy',
+        method: 'post'
+      },
       // 删除工单
       'work_order_remove': {
         path: '/workOrderDeploy/revoked',
@@ -2225,25 +2230,6 @@ class Net extends NetBase {
       }).catch(err => {
         console.log(err);
         reject(err);
-      })
-    })
-  }
-
-  // 修改工单
-  modifyWorkOrder(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_modify.url, options).then(response => {
-        debug('%s, %o', 'modifyWorkOrder', response);
-        console.log(response);
-        let result = this.getResponseMsg(response);
-        if (result.success) {
-          resolve(result.msg);
-        } else {
-          reject(result.msg);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject('创建工单失败！');
       })
     })
   }

@@ -406,6 +406,7 @@
           // if el-option for this app can be selected
           let disabled = it.hasOwnProperty('workOrder');
           if (this.dataPassed.appIdList && this.dataPassed.appIdList.indexOf(appId) > -1) {
+            it['workOrder']['name'] = '当前工单';
             disabled = false;
           }
           it['disabled'] = disabled;
@@ -533,7 +534,7 @@
             });
             if (valid) {
               // check the format of el-form-item
-              let toPost = {
+              const toPost = {
                 workOrderDeploy: {
                   name: this.formData.name,
                   groupId: this.$storeHelper.groupInfo['id'],
@@ -591,10 +592,17 @@
               this.loadingText = '正在提交工单"' + this.formData.name + '"';
 
               try {
-                await this.$net.requestPaasServer(this.$net.URL_LIST.work_order_create, {
+                let urlDesc = this.$net.URL_LIST.work_order_create;
+                let action = '创建';
+                if (this.pageType === 'modify') {
+                  urlDesc = this.$net.URL_LIST.work_order_modify;
+                  toPost.workOrderDeploy.id = this.dataPassed.workOrderId;
+                  action = '更新'
+                }
+                await this.$net.requestPaasServer(urlDesc, {
                   payload: toPost
                 });
-                this.$alert('工单"' + this.formData.name + '"创建成功，即将进入工单列表页', '创建工单成功', {
+                this.$alert(`工单 "${this.formData.name}" ${action}成功，即将进入工单列表页`, `${action}工单成功`, {
                   confirmButtonText: '确定',
                   callback: () => {
                     this.$router.push(this.$net.page['profile/work-order/list']);
@@ -604,7 +612,7 @@
                 this.loadingText = '';
               } catch (err) {
                 this.$notify.error({
-                  title: '创建工单失败',
+                  title: `${action}工单失败`,
                   message: msg
                 });
                 this.showLoading = false;
@@ -622,14 +630,14 @@
             }
             break;
           case 'remove':
-            const warningMsg = `确定要删除工单 “${this.formData.name}”  吗？`;
-            await this.$confirm(warningMsg, '提示', {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning',
-              dangerouslyUseHTMLString: true
-            });
             try {
+              const warningMsg = `确定要删除工单 “${this.formData.name}”  吗？`;
+              await this.$confirm(warningMsg, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
               await this.$net.requestPaasServer(this.$net.URL_LIST.work_order_remove, {
                 payload: {
                   workOrderDeployId: this.dataPassed.workOrderId
@@ -638,7 +646,6 @@
               this.$message.success(`工单 “${this.formData.name}” 删除成功！`);
               this.$router.go(-1);
             } catch (err) {
-              this.$message.error(`工单 “${this.formData.name}” 删除失败！`);
             }
             break;
           case 'back':

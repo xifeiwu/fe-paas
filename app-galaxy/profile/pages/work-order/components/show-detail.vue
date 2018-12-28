@@ -4,7 +4,7 @@
     <el-form-item label="申请人">{{workOrderDetail.creatorName}}</el-form-item>
     <el-form-item label="团队名称">{{workOrderDetail.groupName}}</el-form-item>
     <el-form-item label="功能列表">
-      <el-table :data="workOrderDetail.featureList">
+      <el-table :data="workOrderDetail.featureList" class="compact">
         <el-table-column label="功能名称" prop="name" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="功能类型" prop="typeName" headerAlign="center" align="center">
@@ -16,7 +16,7 @@
       </el-table>
     </el-form-item>
     <el-form-item label="应用列表">
-      <el-table :data="workOrderDetail.appList">
+      <el-table :data="workOrderDetail.appList" class="compact">
         <el-table-column label="应用名称" prop="appName" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="版本" prop="serviceVersion" headerAlign="center" align="center">
@@ -45,7 +45,7 @@
     </el-form-item>
     <el-form-item label="待办人">{{workOrderDetail.userToDo}}</el-form-item>
     <el-form-item label="验收人">
-      <el-table :data="workOrderDetail.acceptedUserList">
+      <el-table :data="workOrderDetail.acceptedUserList" class="compact">
         <el-table-column label="验收人" prop="userName" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="状态" prop="status" headerAlign="center" align="center">
@@ -62,7 +62,7 @@
       <span v-else>未设置</span>
     </el-form-item>
     <el-form-item label="操作记录">
-      <el-table :data="workOrderDetail.operationList">
+      <el-table :data="workOrderDetail.operationList" class="compact">
         <el-table-column label="处理时间" prop="createTime" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="处理操作" prop="actionName" headerAlign="center" align="center">
