@@ -425,6 +425,8 @@
           }
         }
       }
+
+      this.onSelectedStatisticTypeListChange(this.selectedStatisticTypeList);
     },
     async mounted() {
       this.setDefaultDateRange();
@@ -467,6 +469,17 @@
           })
         } else {
           this.selectedInstanceList = [];
+        }
+      },
+      // update chartListStatus by selectStatisticTypeList
+      onSelectedStatisticTypeListChange (selectedList) {
+        // whether show the chart or not
+        for (let key in this.chartContainerStatus) {
+          if (selectedList.indexOf(key) > -1) {
+            this.chartContainerStatus[key]['show'] = true;
+          } else {
+            this.chartContainerStatus[key]['show'] = false;
+          }
         }
       },
       handleChartEvent(type) {
@@ -558,6 +571,7 @@
         });
         const payload = {
           appName: serviceInfo.selectedAPP.appName,
+          appServiceName: serviceInfo.selectedAPP.serviceName,
           groupId: this.$storeHelper.groupInfo['id'],
           groupTag: this.$storeHelper.groupInfo['tag'],
           spaceId: serviceInfo.selectedProfile.id,
@@ -805,16 +819,7 @@
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
-      'selectedStatisticTypeList': function (selectedList) {
-        // whether show the chart or not
-        for (let key in this.chartContainerStatus) {
-         if (selectedList.indexOf(key) > -1) {
-           this.chartContainerStatus[key]['show'] = true;
-         } else {
-           this.chartContainerStatus[key]['show'] = false;
-         }
-        }
-      }
+      'selectedStatisticTypeList': 'onSelectedStatisticTypeListChange',
     },
     data() {
       return {
@@ -871,7 +876,7 @@
           },
         },
 
-        selectedStatisticTypeList: ['cpu', 'memory', 'disk-read', 'disk-write', 'network-in', 'network-out', 'package-count-in', 'package-count-out', 'young-gc-count', 'young-gc-time', 'old-gc-count', 'old-gc-time'],
+        selectedStatisticTypeList: ['cpu', 'memory', 'disk-read', 'disk-write', 'network-in', 'network-out', 'package-count-in', 'package-count-out'].concat(['young-gc-count', 'young-gc-time', 'old-gc-count', 'old-gc-time']),
         statisticTypeList: [{
           type: 'cpu',
           label: 'CPU',
@@ -896,7 +901,8 @@
         }, {
           type: 'package-count-out',
           label: '包流量(出)'
-        }, {
+        }
+        , {
           type: 'young-gc-count',
           label: '新生代GC次数'
         }, {
@@ -908,7 +914,8 @@
         }, {
           type: 'old-gc-time',
           label: '老年代GC用时'
-        }],
+        }
+        ],
         chartContainerStatus: {
           'cpu': {
             expand: true,
