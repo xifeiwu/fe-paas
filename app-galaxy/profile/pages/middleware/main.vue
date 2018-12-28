@@ -37,21 +37,41 @@
         });
       },
 
+      // all profile: ['fpdev', 'test', 'beta', 'performance', 'production']
       // check data: clusterList, middlewareList, middlewareVersionList
       async checkBasicData (profile, middlewareName) {
-        profile = 'unProduction';
         const currentMiddleware = this.$storeHelper.currentMiddleware;
 
         var clusterList = this.$storeHelper.getClusterList();
         if (!clusterList) {
           clusterList = await this.requestClusterList();
+          // check clusterList
+          if (!clusterList || !Array.isArray(clusterList) || clusterList.length === 0) {
+            console.log(`format of clusterList is error!`);
+            return;
+          }
           this.$storeHelper.setClusterList(clusterList);
         }
 
         var currentClusterId = null;
-        if (profile === 'unProduction') {
+        var currentCluster = null;
+        // if !profile, get the first element of clusterList
+        // if profile is 'unProduction', get the first un-production element of clusterList
+        if (!profile) {
           currentClusterId = clusterList[0]['id'];
+        } else if (profile === 'unProduction') {
+          var unProductionClusterList = clusterList.filter(it => it['clusterName'] != 'production');
+          if (unProductionClusterList.length > 0) {
+            currentCluster = unProductionClusterList[0];
+          }
+        } else {
+          currentCluster = clusterList.find(it => it['clusterName'] === profile);
         }
+        if (!currentCluster) {
+          console.log(`currentCluster not found!`);
+          return;
+        }
+        currentClusterId = currentCluster['id'];
         currentMiddleware['clusterId'] = currentClusterId;
 
         var middlewareList = this.$storeHelper.getMiddlewareList(currentClusterId);

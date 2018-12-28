@@ -313,6 +313,10 @@
           await this.checkBasicData4Middleware();
         }
         this.instanceList = [];
+        // if current middleware not exist, set this.instanceList as empty array
+        if (!this.middlewareId) {
+          return;
+        }
         const instanceList = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_instance_info_basic, {
           payload: {
             clusterId: this.clusterId,
