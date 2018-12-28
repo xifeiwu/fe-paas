@@ -113,6 +113,15 @@
   }
 
   .el-table {
+    &.compact {
+      margin-bottom: 2px;
+      th, td {
+        padding: 0px;
+      }
+      td .cell {
+        padding: 0px;
+      }
+    }
     &::before {
       height: 0px;
     }

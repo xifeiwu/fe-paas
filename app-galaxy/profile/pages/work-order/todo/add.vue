@@ -2,7 +2,7 @@
   <div id="work-order-add"
        v-loading="showLoading"
        :element-loading-text="loadingText">
-    <div class="title-section">
+    <div class="page-title">
       <span>{{pageType === 'modify' ? '修改工单' : '申请工单'}}</span>
       <el-tooltip slot="trigger" effect="dark" placement="bottom">
         <div slot="content">
@@ -13,12 +13,12 @@
         <i class="paas-icon-fa-question" style="font-size: 14px; color: #E6A23C; cursor: pointer"></i>
       </el-tooltip>
     </div>
-    <div class="basic-section">
+    <div class="section section-basic">
       <el-form :model="formData" :rules="formDataRules"
                ref="basicForm"
                :class="{'message-show': pageType === 'modify'}"
                size="mini"
-               label-width="110px">
+               label-width="140px">
         <el-form-item label="申请人">
           {{formData.creatorName}}
         </el-form-item>
@@ -35,7 +35,7 @@
         </el-form-item>
       </el-form>
     </div>
-    <div class="feature-section">
+    <div class="section section-feature">
       <div class="title">功能列表</div>
       <div class="feature-form-list">
         <my-feature v-for="(item, index) in formData.featureList" :key="index" ref="featureForm"
@@ -48,7 +48,7 @@
         >{{item}}</my-feature>
       </div>
     </div>
-    <div class="application-section">
+    <div class="section section-application">
       <div class="title">程序列表</div>
       <el-form :model="formData" :rules="formDataRules"
                ref="applicationForm"
@@ -59,7 +59,7 @@
                       filterable multiple
                       placeholder="请选择"
                       v-if="appModelListOfGroup">
-            <el-option v-for="(item, index) in appModelListOfGroup" :disabled="item.hasOwnProperty('workOrder')"
+            <el-option v-for="(item, index) in appModelListOfGroup" :disabled="item.disabled"
                        :key="item.appId" :value="item.appId" :label="item.appName"
             >
               <div style="display: flex; justify-content: space-between">
@@ -72,7 +72,7 @@
         </el-form-item>
       </el-form>
     </div>
-    <div class="acceptance-section">
+    <div class="section section-acceptance">
       <div class="title">验收信息</div>
       <el-form :model="formData" :rules="formDataRules"
                ref="acceptanceForm"
@@ -116,9 +116,9 @@
         </el-form-item>
       </el-form>
     </div>
-    <div class="operation-history-section" v-if="pageType === 'modify'">
+    <div class="section section-operation-history" v-if="pageType === 'modify'">
       <div class="title">操作记录</div>
-      <el-table :data="dataPassed.operationList">
+      <el-table :data="dataPassed.operationList" class="compact">
         <el-table-column label="处理时间" prop="createTime" headerAlign="center" align="center" width="200px">
         </el-table-column>
         <el-table-column label="处理操作" prop="actionName" headerAlign="center" align="center">
@@ -129,7 +129,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <div class="section-footer">
+    <div class="page-footer">
       <div class="item">
         <el-button size="mini" type="primary" @click="handleButtonClick('add')">提 交</el-button>
       </div>
@@ -156,29 +156,6 @@
     }
   }
 </style>
-<style lang="scss">
-  #work-order-add {
-    .operation-history-section {
-      margin-top: 32px;
-      width: 660px;
-      .title {
-        border-left: 5px solid #409EFF;
-        border-top: 1px solid #409EFF;
-        padding-left: 5px;
-        margin-bottom: 5px;
-      }
-      .el-table {
-        margin-left: 20px;
-      }
-      .el-table {
-        margin-bottom: 2px;
-        th, td {
-          padding: 0px;
-        }
-      }
-    }
-  }
-</style>
 <style lang="scss" scoped>
   .el-form {
     .el-input, .el-select, .el-textarea {
@@ -198,7 +175,8 @@
           padding: 0px 8px;
           font-weight: bold;
           &:hover {
-            color: #E68C0F;
+            /*color: #E68C0F;*/
+            color: #F4B805;
           }
         }
       }
@@ -209,65 +187,15 @@
     margin-top: 10px;
     margin-left: 15px;
     padding: 10px 20px 10px 20px;
-    width: 750px;
+    width: 800px;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-    .title-section {
+    .page-title {
       display: flex;
       justify-content: center;
       align-items: center;
       margin: 15px 0px;
     }
-    .basic-section {
-      width: 620px;
-      margin-bottom: 22px;
-      .el-form {
-        .el-form-item {
-        }
-      }
-    }
-    .feature-section {
-      width: 660px;
-      margin-bottom: 12px;
-      .title {
-        border-left: 5px solid #409EFF;
-        border-top: 1px solid #409EFF;
-        padding-left: 5px;
-        margin: 0px 0px 12px -2px;
-      }
-      .feature-form-list {
-        text-align: right;
-        .work-order-feature {
-          display: inline-block;
-          /*& + .work-order-feature {*/
-            /*margin-left: 10px;*/
-          /*}*/
-        }
-      }
-    }
-    .application-section {
-      margin-bottom: 22px;
-      width: 660px;
-      .title {
-        border-left: 5px solid #409EFF;
-        border-top: 1px solid #409EFF;
-        padding-left: 5px;
-        margin-bottom: 5px;
-      }
-    }
-    .acceptance-section {
-      margin-bottom: 22px;
-      width: 660px;
-      .title {
-        border-left: 5px solid #409EFF;
-        border-top: 1px solid #409EFF;
-        padding-left: 5px;
-        margin-bottom: 5px;
-      }
-      textarea {
-        margin-top: 3px;
-      }
-    }
-    .section-footer {
+    .page-footer {
       display: flex;
       margin-top: 8px;
       padding-top: 8px;
@@ -279,6 +207,48 @@
       .el-button {
         width: 100px;
         padding: 6px 20px;
+      }
+    }
+    .section {
+      width: 90%;
+      .title {
+        border-left: 5px solid #409EFF;
+        border-top: 1px solid #409EFF;
+        padding-left: 5px;
+        margin: 0px 0px 12px -2px;
+      }
+    }
+    .section-basic {
+      margin-bottom: 22px;
+      .el-form {
+        .el-form-item {
+        }
+      }
+    }
+    .section-feature {
+      width: 100%;
+      margin-bottom: 12px;
+      .feature-form-list {
+        text-align: left;
+        .work-order-feature {
+          margin-right: 5px;
+          display: inline-block;
+          width: calc(50% - 10px);
+        }
+      }
+    }
+    .section-application {
+      margin-bottom: 22px;
+    }
+    .section-acceptance {
+      margin-bottom: 22px;
+      textarea {
+        margin-top: 3px;
+      }
+    }
+    .section-operation-history {
+      .el-table {
+        margin-left: 20px;
       }
     }
   }
@@ -371,7 +341,8 @@
         appStatus: null,
 
         dataPassed: {
-          // for add
+          // for add and modify
+          // for el-option, appIdList passed will not be disabled
           appIdList: null,
           // for modify
           workOrderId: '',
@@ -410,7 +381,6 @@
         }
         this.$store.dispatch('user/usersInGroup');
         // data should be init at change of group
-        this.formData.appIdList = [];
         this.formData.groupId = this.$storeHelper.currentGroupID;
       },
       // set defaultAppID(first element in array) for this.formData.appID
@@ -418,6 +388,7 @@
         if (!value) {
           return;
         }
+        this.formData.appIdList = [];
 
         const appIdList = this.$storeHelper.appInfoListOfGroup['appList'].map(it => it['appId']);
         const appStatus = await this.$net.requestPaasServer(this.$net.URL_LIST.work_order_app_status, {
@@ -428,10 +399,16 @@
 //        console.log(appStatus);
         this.appModelListOfGroup = this.$utils.cloneDeep(this.$storeHelper.appInfoListOfGroup['appModelList']);
         this.appModelListOfGroup.forEach(it => {
+          const appId = it['appId'];
           if (appStatus.hasOwnProperty(it['appId'])) {
-            it['workOrder'] = appStatus[it['appId']];
-//            console.log(it);
+            it['workOrder'] = appStatus[appId];
           }
+          // if el-option for this app can be selected
+          let disabled = it.hasOwnProperty('workOrder');
+          if (this.dataPassed.appIdList && this.dataPassed.appIdList.indexOf(appId) > -1) {
+            disabled = false;
+          }
+          it['disabled'] = disabled;
         });
 
         // append appIdList passed to this.formData.appIdList
@@ -450,8 +427,6 @@
           if (appIdListToAppend.length != this.dataPassed.appIdList.length) {
             console.log(`some appId is ignored!`);
           }
-          // use only once
-          this.dataPassed.appIdList = [];
         }
       },
       // 添加功能描述
