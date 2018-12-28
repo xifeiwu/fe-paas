@@ -98,6 +98,13 @@ class Net extends NetBase {
           name: 'mariadb(非生产)',
           beta: true
         },
+        // redis中间件
+        '/2.x/openShift/redis': {
+          router: this.page['profile/middleware/redis'],
+          icon: 'paas-icon-redis',
+          name: 'redis',
+          beta: true
+        },
         // 管理后台
         '/2.x/backstage': {
           name: '管理后台',
@@ -204,7 +211,8 @@ class Net extends NetBase {
       '/2.x/orders' // 审批管理
     ];
     const pathOfMiddleware = [
-      '/2.x/openShift/mariaDB'
+      '/2.x/openShift/mariaDB', //mariadb中间件
+      '/2.x/openShift/redis' //redis中间件
     ];
     let level2 = [{
       name: '应用引擎',
