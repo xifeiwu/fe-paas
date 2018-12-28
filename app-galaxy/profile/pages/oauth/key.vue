@@ -198,7 +198,7 @@
     </div>
 
     <el-dialog title="创建AccessKey" :visible="selected.operation == 'oauth_create_access_key'"
-               class="create-access-key size-700"
+               class="create-access-key size-800"
                :close-on-click-modal="false"
                @close="handleDialogClose('create-access-key')"
     >
@@ -311,7 +311,7 @@
     </el-dialog>
 
     <el-dialog title="修改访问配置" :visible="selected.operation == 'oauth_update_access_config'"
-               class="update-target-app size-700"
+               class="update-target-app size-800"
                :close-on-click-modal="false"
                @close="handleDialogClose('add-access-config-in-dialog')"
                v-if="selected.row"
@@ -905,7 +905,7 @@ module.exports = {
       }
 
       this.modifyAccessKeyInfo.requestingAppList = true;
-      this.$net.requestPaasServer(this.$net.URL_LIST.app_list_by_group, {
+      this.$net.requestPaasServer(this.$net.URL_LIST.app_list_by_group_without_permission, {
         payload: {groupId: groupID}
       }).then(resContent => {
         if (resContent && resContent.hasOwnProperty('appList')) {

@@ -40,6 +40,11 @@ class Net {
         path: '/application/queryByPage',
         method: 'post'
       },
+      // 应用列表（无权限认证）
+      'app_list_by_group_without_permission': {
+        path: '/application/queryByGroupId',
+        method: 'post'
+      },
 
       // 未读消息条数
       message_unread_count: {

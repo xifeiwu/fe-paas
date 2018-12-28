@@ -57,8 +57,6 @@ class URL extends BaseURL {
 
       /** 应用相关 */
       // 创建应用
-      'app_create': {
-      },
       // 修改应用名称
       'app_change_name': {
         url: API_PATH + '/application/updateAppName',
