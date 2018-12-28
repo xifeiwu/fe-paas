@@ -2,12 +2,12 @@
   <div id="middleware-mariadb-backup" @click="handleButtonClick($event, 'click-on-page')">
     <div class="header">
       <el-button size="mini-extral"
-                 type="primary"
+                 type="warning"
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_create')">
         <span>立即备份</span>
       </el-button>
       <el-button size="mini-extral"
-                 type="primary"
+                 type="danger"
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_delete')">
         <span>删除</span>
       </el-button>
@@ -41,7 +41,7 @@
           </template>
         </el-table-column>
         <el-table-column
-                prop="timeStarted"
+                prop="formattedStartTime"
                 label="备份时间"
                 width="160"
                 headerAlign="center" align="center">
@@ -74,15 +74,15 @@
           </template>
         </el-table-column>
       </el-table>
-      <paas-pop-in-container :popStatus="popperStatus" style="width: 500px;" ref="pop-in-container">
+      <paas-pop-in-container :popStatus="popperStatus" style="width: 660px;" ref="pop-in-container">
         <div slot="content">
           <div class="recover-list">
             <div class="row title">
-              <span class="time">还原时间</span><span class="status">还原状态</span>
+              <span class="id">还原ID</span><span class="start-time">开始时间</span><span class="complete-time">结束时间</span><span class="status">还原状态</span>
             </div>
             <template v-if="recoverList.length > 0">
               <div class="row content" v-for="(item ,index) in recoverList" :key="index">
-                <span class="time">{{item.timeStarted}}</span><span class="status">{{item.status}}</span>
+                <span class="id">{{item.name}}</span><span class="start-time">{{item.formattedStartTime}}</span><span class="complete-time">{{item.formattedCompletedTime}}</span><span class="status">{{item.status}}</span>
               </div>
             </template>
             <div class="no-data" v-else>无数据</div>
@@ -123,8 +123,14 @@
         line-height: 28px;
         .row {
           display: flex;
-          .time, .status {
+          .id {
             flex: 1;
+          }
+          .start-time, .complete-time {
+            flex-basis: 160px;
+          }
+          .status {
+            flex-basis: 90px;
           }
         }
         .title {
@@ -145,6 +151,7 @@
 <script>
   import commonUtils from 'assets/components/mixins/common-utils';
   import PaasPopInContainer from 'assets/components/pop-in-container';
+  import bytes from 'bytes';
 
   const STATUS_MAP = {
     Complete: '成功',
@@ -174,13 +181,13 @@
       this.clusterId = this.$storeHelper.currentMiddleware['clusterId'];
       this.middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
       this.instanceInfo = dataTransfer['data'];
-    },
-    mounted() {
       setTimeout(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
         this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 8;
         this.requestBackupList();
       });
+    },
+    mounted() {
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
@@ -252,17 +259,21 @@
         }).map(it => {
           const record = it['records'][0];
           record['name'] = it['name'];
+          record['formattedStartTime'] = this.$utils.formatDate(record.timeStarted, 'yyyy-MM-dd hh:mm:ss');
           record['status'] = `备份${STATUS_MAP[record['status']]}`;
+          record['size'] = record['size'] ? bytes(record['size']) : '---';
           return record;
+        }).sort((pre, next) => {
+          return (pre['timeStarted'] - next['timeStarted']) * -1;
         });
         if (this.backupList.length > 0) {
           this.selectedBackupName = this.backupList[0]['name'];
         }
-        console.log(this.backupList);
+//        console.log(this.backupList);
       },
       changeDefaultBackup(backupName) {
         this.selectedBackupName = backupName;
-        console.log(backupName);
+//        console.log(backupName);
       },
       async handleButtonClick(evt, action) {
         var resContent = null;
@@ -291,8 +302,8 @@
                   namespace: this.$storeHelper.groupInfo.tag
                 }
               });
-              this.$message.success(`备份创建成功！`);
-              await this.requestBackupList();
+              this.$message.success(`已提交创建备份申请，请稍后刷新页面查看备份记录`);
+//              await this.requestBackupList();
             } catch (err) {
               console.log(err);
             }
@@ -313,12 +324,14 @@
                 payload: {
                   clusterId: this.clusterId,
                   middlewareId: this.middlewareId,
+                  backupCluster: this.instanceInfo['name'],
+                  location: this.action.row['location'],
                   name: this.selectedBackup.name,
                   namespace: this.$storeHelper.groupInfo.tag
                 }
               });
-              this.$message.success(`备份 "${this.selectedBackup.name}" 删除成功！`);
-              await this.requestBackupList();
+              this.$message.success(`备份 "${this.selectedBackup.name}" 删除成功！稍后可刷新页面查看`);
+//              await this.requestBackupList();
             } catch (err) {
               console.log(err);
             }
@@ -348,7 +361,7 @@
                   namespace: this.$storeHelper.groupInfo.tag
                 }
               });
-              this.$message.success(`备份 "${this.selectedBackup.name}" 恢复成功！`);
+              this.$message.success(`已提交恢复备份 "${this.selectedBackup.name}" ，稍后可在恢复历史中查看`);
             } catch (err) {
               console.log(err);
             }
@@ -390,6 +403,8 @@
                     const record = it['records'][0];
                     record['name'] = it['name'];
                     record['status'] = `还原${STATUS_MAP[record['status']]}`;
+                    record['formattedStartTime'] = this.$utils.formatDate(record.timeStarted, 'yyyy-MM-dd hh:mm:ss');
+                    record['formattedCompletedTime'] = this.$utils.formatDate(record.timeCompleted, 'yyyy-MM-dd hh:mm:ss');
                     return record;
                   });
 //                  console.log(this.recoverList);

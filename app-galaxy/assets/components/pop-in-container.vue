@@ -114,6 +114,7 @@ export default {
     handleClickOutside(evt) {
 //      setTimeout(() => {
         if (this.popStatus.visible) {
+          this.popStatus.id = null;
           this.popStatus.visible = false;
         }
 //      });
