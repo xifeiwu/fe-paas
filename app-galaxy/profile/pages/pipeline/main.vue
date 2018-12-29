@@ -450,14 +450,15 @@
       handleTRClick(evt, action, index, row) {
         switch (action) {
           case 'got-to-page-pipeline-records':
-            let app = this.appListWithAll.find(it => {
-              return it['appName'] === row.appName;
-            });
+            if (!row.appId) {
+              this.$message.error('未找到appId');
+              return;
+            }
             this.$storeHelper.dataTransfer = {
               from: this.$net.page['profile/pipeline/list'],
               data: {
-                // appId: row['appId'],
-                appId: 1934,
+                appId: row['appId'],
+//                appId: 1934,
               }
             };
             this.$router.push(this.$net.page['profile/pipeline/records']);

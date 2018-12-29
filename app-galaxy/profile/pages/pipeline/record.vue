@@ -1,15 +1,6 @@
 <template>
   <div id="record-main">
     <div class="header">
-      <!--<div class="item">-->
-        <!--<label>-->
-          <!--<span>应用名称:</span>-->
-          <!--<el-select filterable placeholder="请选择" size="mini-extral" v-model="selectedAppId">-->
-            <!--<el-option v-for="(item,index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">-->
-            <!--</el-option>-->
-          <!--</el-select>-->
-        <!--</label>-->
-      <!--</div>-->
       <div class="item">
         <el-button size="mini-extral" type="primary" style="margin-right: 5px;"
                    :loading="loadingStatus4Execute"
@@ -113,9 +104,12 @@
 <script>
   export default {
     created() {
-      if (this.$storeHelper.dataTransfer) {
-        this.selectedAppId = this.$storeHelper.dataTransfer["data"]["appId"];
-        this.$storeHelper.dataTransfer = null;
+      var dataTransfer = this.$storeHelper.dataTransfer;
+      if (dataTransfer) {
+        this.relatedAppId = dataTransfer["data"]["appId"];
+        dataTransfer = null;
+      } else {
+        this.$router.push(this.$net.page['profile/pipeline/list']);
       }
     },
     async mounted() {
@@ -135,8 +129,7 @@
         leavePage: false,
         loadingStatus4Execute: false,
 
-        appList: [],
-        selectedAppId: null,
+        relatedAppId: null,
         buildListAll: [],
         buildList: [],
         buildingList: [],
@@ -165,11 +158,18 @@
         if (this.leavePage) {
           return;
         }
-        this.formatBuildList();
-        await new Promise((resolve) => {
-          setTimeout(resolve, 1000);
-        });
-        this.startOneSecondInterval();
+        try {
+          this.formatBuildList();
+          await new Promise((resolve) => {
+            setTimeout(resolve, 1000);
+          });
+          this.startOneSecondInterval();
+        } catch(err) {
+          await new Promise((resolve) => {
+            setTimeout(resolve, 1000);
+          });
+          this.startOneSecondInterval();
+        }
       },
 
       mergeBuildList() {
@@ -216,6 +216,8 @@
       },
 
       async startThreeSecondsInterval() {
+//        console.log('startThreeSecondsInterval');
+        const sleepMilliSeconds = 4000;
         const theSameRecord = (one, two) => {
           var theSame = true;
           ['buildId', 'status'].forEach(key => {
@@ -226,31 +228,40 @@
         if (this.leavePage) {
           return;
         }
+        try {
 //        console.log(this.lastBuildRecord);
-        var needUpdateBuildList = false;
-        if (null === this.lastBuildRecord) {
-          needUpdateBuildList = true;
-        } else if (this.buildingList.every(it => {
-            return it.tag === 'has-build';
-          })) {
-          needUpdateBuildList = true;
-          if ((this.lastBuildRecord['status'] !== 'UNKNOWN') && (this.buildingList[0]['buildId'] == this.lastBuildRecord['buildId'])) {
-            needUpdateBuildList = false;
+          var needUpdateBuildList = false;
+          if (null === this.lastBuildRecord) {
+            needUpdateBuildList = true;
+          } else if (this.buildingList && this.buildingList.length > 0 && this.buildingList.every(it => {
+              return it.tag === 'has-build';
+            })) {
+            needUpdateBuildList = true;
+            if ((this.lastBuildRecord['status'] !== 'UNKNOWN') && (this.buildingList[0]['buildId'] == this.lastBuildRecord['buildId'])) {
+              needUpdateBuildList = false;
+            }
           }
-        }
 
 //        console.log(needUpdateBuildList);
-        if (needUpdateBuildList) {
-          await this.requestBuildList();
-        }
-        await this.requestBuildingList();
-        this.buildListAll = this.mergeBuildList();
+          if (needUpdateBuildList) {
+            await this.requestBuildList();
+          }
+          await this.requestBuildingList();
+          this.buildListAll = this.mergeBuildList();
 //        console.log(this.buildListAll);
-        this.formatBuildList();
-        await new Promise((resolve) => {
-          setTimeout(resolve, 4000);
-        });
-        this.startThreeSecondsInterval();
+          this.formatBuildList();
+          await new Promise((resolve) => {
+            setTimeout(resolve, sleepMilliSeconds);
+          });
+          await this.startThreeSecondsInterval();
+        } catch(err) {
+          console.log(err);
+          // ensure startThreeSecondsInterval go-on when any error is thrown
+          await new Promise((resolve) => {
+            setTimeout(resolve, sleepMilliSeconds);
+          });
+          await this.startThreeSecondsInterval();
+        }
       },
 
       formatBuildList() {
@@ -270,16 +281,14 @@
        */
       async requestBuildList() {
         // let payload = {
-        //   appId: this.selectedAppId,
+        //   appId: this.relatedAppId,
         //   jobName: this.pipeline[0]["jobName"],
         // };
         this.buildList = [];
-        const payload = {
-          jobName: "job-jingang-demo-jar-bqd-4940",
-          appId: 20480,
-        };
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_build_list, {
-          payload
+          params: {
+            appId: this.relatedAppId
+          }
         });
         this.buildList = resContent;
 
@@ -305,7 +314,12 @@
           appId: 20480
         };
         this.buildingList = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_in_building, {
-          payload
+          params: {
+            appId: this.relatedAppId
+          },
+          query: {
+            buildId: this.lastBuildRecord['buildId']
+          }
         });
         this.buildingList.forEach(it => {
           if (['NOT_EXECUTED', 'IN_PROGRESS'].indexOf(it.status) > -1) {
@@ -318,12 +332,14 @@
 
       // 执行pipeline
       async executePipeLine() {
-        const payload = {
-          jobName: "job-jingang-demo-jar-bqd-4940",
-          appId: 20480,
-        };
+//        const payload = {
+//          jobName: "job-jingang-demo-jar-bqd-4940",
+//          appId: 20480,
+//        };
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_restart, {
-          payload
+          params: {
+            appId: this.relatedAppId
+          }
         });
 //        console.log(resContent);
       },
@@ -349,11 +365,14 @@
             this.executePipeLine();
             break;
           case 'stop':
-            this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_stop, {
-              payload: {
-                jobName: "job-jingang-demo-jar-bqd-4940",
+            const payload = {
+              jobName: "job-jingang-demo-jar-bqd-4940",
                 appId: 20480,
                 buildId: row['buildId']
+            };
+            this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_stop, {
+              params: {
+                appId: this.relatedAppId
               }
             });
             break;
