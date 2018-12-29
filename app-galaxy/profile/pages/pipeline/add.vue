@@ -48,25 +48,30 @@
               <transition name="el-zoom-in-top">
                 <div class="stage-config" v-if="currentStage.selected" :key="stageName">
                   <el-form labelWidth="180px" size="mini" :model="formData" :rules="formDataRules" ref="pipeline-script-form">
+                    <!--sonar及单元测试-->
                     <el-form-item label="Sonar及单元测试脚本：" class="testAndSonarScript" prop="testAndSonarScript" :multiFields="true"
                                   v-show="stageName === 'testAndSonarScript'">
                       <codemirror v-model="formData.testAndSonarScript.script" :options="groovyOption"></codemirror>
                     </el-form-item>
+                    <!--打包-->
                     <el-form-item label="打包脚本：" class="mvnPackage-script" prop="mvnPackage" :multiFields="true"
                                   v-if="stageName === 'mvnPackage'">
                       <codemirror v-model="formData.mvnPackage.script" :options="groovyOption"></codemirror>
                     </el-form-item>
+                    <!--制作镜像-->
                     <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'">
                       <el-select v-model="formData.buildImage.selectedImage" placeholder="请选择">
-                        <el-option v-for="(item, index) in pipeLineInfo['buildImage']['basicImage']"
+                        <el-option v-for="(item, index) in pipelineInfoFromNet['buildImage']['basicImage']"
                                    :key="item" :label="item?item:'无'" :value="item">
                         </el-option>
                       </el-select>
                     </el-form-item>
+                    <!--自动化测试-->
                     <el-form-item label="自动化测试：" class="autoScript" prop="autoScript" :multiFields="true"
                                   v-if="stageName === 'autoScript'">
                       <codemirror v-model="formData.autoScript.script" :options="groovyOption"></codemirror>
                     </el-form-item>
+                    <!--sonar数据检查-->
                     <el-form-item label="检查项：" class="sonarCheck" v-if="stageName === 'sonarCheck'">
                       <div class="sonarCheck-unitTestRatio"><el-checkbox v-model="formData['sonarCheck']['unitTestSelected']"></el-checkbox>
                         <span>当单元测试覆盖率≥</span>
@@ -79,6 +84,15 @@
                       </div>
                     </el-form-item>
                   </el-form>
+                  <!--部署到测试环境-->
+                  <div v-if="stageName === 'deployTestEnv'">
+                    <div v-if="currentStageInfo['serviceStatus'] && currentStageInfo['applicationConfig']">
+                      <paas-service-info :serviceInfo="currentStageInfo['applicationConfig']"></paas-service-info>
+                    </div>
+                    <div v-else>
+                      当前应用无测试环境服务
+                    </div>
+                  </div>
                   <div class="stage-change-selection">
                     <span>删除结点 "{{currentStage.description}}"?</span>
                     <el-button size="mini-extral" type="danger" @click="handleClick($event, 'stage-remove')">确定</el-button>
@@ -246,6 +260,7 @@
               .stage-list {
                 /*padding-left: 28px;*/
                 text-align: center;
+                border: 1px solid #F2F6FC;
               }
               .config-list {
                 margin-top: 20px;
@@ -342,6 +357,7 @@
   import "codemirror/theme/abcdef.css";
   // require active-line.js
   import "codemirror/addon/selection/active-line.js";
+  import paasServiceInfo from './components/service-info.vue';
 
   const STAGE_NAME_MAP = {
     'start': {
@@ -383,7 +399,7 @@
     }
   };
   export default {
-    components: {paasPopoverElement, pipelineStage, codemirror},
+    components: {paasPopoverElement, pipelineStage, codemirror, paasServiceInfo},
     async created() {
       var goBack = false;
       this.pageType = this.$route.path === this.$net.page["profile/pipeline/modify"] ? 'modify' : 'add';
@@ -428,7 +444,7 @@
         this.$router.go(-1);
       }
 
-      const pipelineInfo = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_stage_query, {
+      const pipelineInfoFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_stage_query, {
         query: {
           appId: this.formData.appId
         }
@@ -454,9 +470,9 @@
         if (['start', 'download', 'end'].indexOf(key) > -1) {
           result = Object.assign({name: key}, commonProp, STAGE_NAME_MAP[key]);
         } else {
-          if (pipelineInfo.hasOwnProperty(key) && pipelineInfo[key]) {
+          if (pipelineInfoFromNet.hasOwnProperty(key) && pipelineInfoFromNet[key]) {
             result = Object.assign({
-              'selected': pipelineInfo[key]['selected']
+              'selected': pipelineInfoFromNet[key]['selected']
             }, commonProp, {name: key}, STAGE_NAME_MAP[key]);
           } else {
             console.log(`prop ${key} is not found in response content!`);
@@ -467,16 +483,16 @@
 //      console.log(stages);
       this.updateStageIndex(stages);
       this.stages = stages;
-      if (pipelineInfo.hasOwnProperty('buildImage') && Array.isArray(pipelineInfo['buildImage']['basicImage'])) {
+      if (pipelineInfoFromNet.hasOwnProperty('buildImage') && Array.isArray(pipelineInfoFromNet['buildImage']['basicImage'])) {
         // 可以不选择基础镜像
-        pipelineInfo['buildImage']['basicImage'].unshift('');
+        pipelineInfoFromNet['buildImage']['basicImage'].unshift('');
       }
-      this.pipeLineInfo = pipelineInfo;
-      this.syncFormDataByServerData(this.formData, this.pipeLineInfo);
+      this.pipelineInfoFromNet = pipelineInfoFromNet;
+      this.syncFormDataByServerData(this.formData, this.pipelineInfoFromNet);
       // override appId
       this.formData.appId = this.dataPassed.appId;
 //      console.log(this.formData);
-//      console.log(this.pipeLineInfo);
+//      console.log(this.pipelineInfoFromNet);
     },
     mounted() {
       this.stepNodeList = [].slice.call(this.$el.querySelectorAll('.sheet .nav-steps .step'));
@@ -491,10 +507,11 @@
         dataPassed: {
           appId: null,
         },
-        pipeLineInfo: null,
+        pipelineInfoFromNet: null,
         stages: [],
         stageName: '',
         currentStage: null,
+        currentStageInfo: null,
 
         formData: {
           appId: '',
@@ -782,7 +799,7 @@
             this.formData[this.currentStage['name']]['selected'] = false;
             break;
           case 'save':
-            console.log(this.formData);
+//            console.log(this.formData);
             const basicInfoForm = this.$refs['basic-info-form'];
 
             this.updateFormDataRules();
@@ -836,6 +853,7 @@
 //        console.log(stage);
         this.currentStage = stage;
         this.stageName = stage.name;
+        this.currentStageInfo = this.pipelineInfoFromNet[stage.name];
         this.stages.forEach(it => {
           if (it !== stage) {
             it.active = false;
