@@ -2,12 +2,21 @@
   display: none;
 }
 
-.clear:before, .clear:after {
-  display: table;
-  content: '';
+//TODO: not use
+.clear {
+  &:before, &:after {
+    display: table;
+    content: '';
+    clear: both;
+  }
 }
-.clear:after {
-  clear: both;
+
+.clear-fix {
+  &:before, &:after {
+    display: table;
+    content: '';
+    clear: both;
+  }
 }
 
 .expand-to-next-line {

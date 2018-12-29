@@ -113,6 +113,38 @@ class StoreHelper extends BaseHelper{
     return usersAll;
   }
 
+  get appMonitorList() {
+    return [{
+      id: 0,
+      name: '无监控'
+    },
+      //   {
+      //   id: 1,
+      //   name: 'OneAPM监控'
+      // },
+      {
+        id: 2,
+        name: '鹰眼监控'
+      }]
+  }
+  get defaultAppMonitorId() {
+    return this.appMonitorList[0]['id'];
+  }
+  getMonitorNameById(id) {
+    var target = null;
+    this.appMonitorList.some(it => {
+      if (it.id === id) {
+        target = it;
+      }
+      return target;
+    });
+    var result = '未设置';
+    if (target && target.hasOwnProperty('name')) {
+      result = target['name'];
+    }
+    return result
+  }
+
   /**
    * message for create app: cpuAndMemoryList, languageInfo, healthCheckTypeList
    */

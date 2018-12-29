@@ -303,6 +303,7 @@ class AppInfoHelper {
       name: '自定义镜像'
     }]
   }
+  // TODO: will move to storeHelper
   get appMonitorList() {
     return [{
       id: 0,
@@ -317,9 +318,11 @@ class AppInfoHelper {
       name: '鹰眼监控'
     }]
   }
+  // TODO: will move to storeHelper
   get defaultAppMonitorId() {
     return this.appMonitorList[0]['id'];
   }
+  // TODO: will move to storeHelper
   getMonitorNameById(id) {
     var target = null;
     this.appMonitorList.some(it => {
