@@ -590,7 +590,7 @@ class Net extends NetBase {
         path: '/pipeline/createOrUpdate',
         method: 'post'
       },
-      // 生效pipeline
+      // pipeline生效
       'pipeline_enable': {
         path: '/pipeline/enable',
         method: 'post'
@@ -600,18 +600,22 @@ class Net extends NetBase {
         path: '/pipeline/getPipelineList',
         method: 'post'
       },
+      // pipeline构建列表
       'pipeline_build_list': {
         path: '/pipeline/queryBuildList',
         method: 'post'
       },
+      // 开始构建pipeline
       'pipeline_record_restart': {
         path: '/pipeline/executePipeline',
         method: 'post'
       },
+      // 停止构建pipeline
       'pipeline_record_stop': {
         path: '/pipeline/stopPipeline',
         method: 'post'
       },
+      // pipeline构建信息（可查询正在构建的信息）
       'pipeline_in_building': {
         path: '/pipeline/runsPipeline',
         method: 'post',
