@@ -65,7 +65,7 @@
               <div style="display: flex; justify-content: space-between">
                 <span>{{item.appName}}</span>
                 <span v-if="item.hasOwnProperty('workOrder')"
-                      style="color: #E6A23C; font-size: 12px;">(有未处理工单：{{item['workOrder']['name']}})</span>
+                      style="color: #E6A23C; font-size: 12px;">(有未完成工单：{{item['workOrder']['name']}})</span>
               </div>
             </el-option>
           </el-select>
