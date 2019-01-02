@@ -96,7 +96,7 @@ class Net extends NetBase {
       },
 
       /** 服务相关 */
-      // 创建服务
+      // 创建和更新服务
       'service_create': {
         path: '/service/createApplicationService',
         method: 'post'
@@ -104,6 +104,15 @@ class Net extends NetBase {
       // 通过appID和profileID获取服务列表
       'service_list_by_app_and_profile': {
         path: '/service/queryByAppIdAndSpaceId',
+        method: 'post'
+      },
+      // 获取服务列表 V2
+      'get_service_list_v2': {
+        path: '/service/getRuntimeAppConfig',
+        method: 'post'
+      },
+      'query_default_expired_days': {
+        path: '/service/queryDefaultExpiredDays',
         method: 'post'
       },
       // 部署服务-开始部署

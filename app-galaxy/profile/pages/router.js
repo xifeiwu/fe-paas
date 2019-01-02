@@ -1,7 +1,7 @@
 import AppMain from './app/main-v2.vue';
 import AppAdd from './app/add-v2.vue';
-import ServiceMain from './service/main.vue';
-import ServiceAdd from './service/add.vue';
+import ServiceMain from './service/main-v2.vue';
+import ServiceAdd from './service/add-v2.vue';
 import InstanceMain from './instance/main.vue';
 
 import DomainMain from './domain/main.vue';
@@ -99,8 +99,8 @@ class Helper {
       name: '添加服务',
       component: ServiceAdd,
     }, {
-      path: '/profile/service/copy',
-      name: '复制服务',
+      path: '/profile/service/edit',
+      name: '修改服务',
       component: ServiceAdd,
     }, {
       path: '/profile/instance',

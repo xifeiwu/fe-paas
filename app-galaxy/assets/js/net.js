@@ -67,7 +67,7 @@ class Net {
       'profile/app/update': '/profile/app/update',
       'profile/service': '/profile/service',
       'profile/service/add': '/profile/service/add',
-      'profile/service/copy': '/profile/service/copy',
+      'profile/service/edit': '/profile/service/edit',
       'profile/instance': '/profile/instance',
       'profile/monitor': '/profile/monitor',
       'profile/domain': '/profile/domain',
