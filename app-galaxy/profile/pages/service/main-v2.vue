@@ -107,6 +107,10 @@
         </colgroup>
         <tbody>
         <tr>
+          <td>服务ID</td>
+          <td>{{model["id"]}}</td>
+        </tr>
+        <tr>
           <td>外网域名</td>
           <td>{{applicationConfigBasic["internetDomainList"] ? applicationConfigBasic["internetDomainList"] : "未绑定"}}</td>
         </tr>
