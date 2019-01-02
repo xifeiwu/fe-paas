@@ -451,7 +451,7 @@
             try {
               const warningMsg = `删除mariadb实例 "${row.name}"?`;
               await this.warningConfirm(warningMsg);
-              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_delete, {
+              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_instance_delete, {
                 payload: {
                   clusterId: this.clusterId,
                   middlewareId: this.middlewareId,
