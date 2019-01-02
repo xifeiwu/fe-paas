@@ -1,8 +1,8 @@
 <template>
   <div class="paas-service-info" v-if="serviceInfo">
     <!--测试环境基本信息{{serviceInfo}}-->
-    <el-form label-position="right" label-width="170px" inline size="mini" class="message-show">
-      <el-form-item label="开发语言">
+    <el-form label-position="right" label-width="170px" inline size="mini" class="message-show clear-fix">
+      <el-form-item label="开发语言：">
         {{serviceInfo.language + ' - ' + serviceInfo.languageVersion}}
       </el-form-item>
       <el-form-item label="构建类型">
@@ -22,6 +22,9 @@
       </el-form-item>
       <el-form-item label="应用监控" v-if="!serviceInfo.customImage">
         <span>{{$storeHelper.getMonitorNameById(serviceInfo.appMonitor)}}</span>
+      </el-form-item>
+      <el-form-item label="剩余过期时间">
+        <span>{{serviceInfo.expiredDays}}</span>
       </el-form-item>
       <el-form-item label="镜像方式" class="big">
         <span>{{serviceInfo.customImage ? '自定义镜像':'自动打镜像'}}</span>
@@ -77,9 +80,6 @@
           <span>未设置</span>
         </div>
       </el-form-item>
-      <el-form-item label="剩余过期时间">
-        <span>{{serviceInfo.expiredDays}}</span>
-      </el-form-item>
     </el-form>
   </div>
 </template>
@@ -96,10 +96,9 @@
   }
   .paas-service-info {
     .el-form {
-      /*@extend .clear-fix;*/
       .el-form-item {
         width: 50%;
-        /*float: left;*/
+        float: left;
         &.big {
           @include expand-inline-form-item;
           .el-form-item__content {
