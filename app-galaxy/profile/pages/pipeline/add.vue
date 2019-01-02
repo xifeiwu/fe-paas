@@ -47,7 +47,8 @@
             <div class="config-list" v-if="currentStage">
               <transition name="el-zoom-in-top">
                 <div class="stage-config" v-if="currentStage.selected" :key="stageName">
-                  <el-form labelWidth="180px" size="mini" :model="formData" :rules="formDataRules" ref="pipeline-script-form">
+                  <el-form labelWidth="180px" size="mini" :model="formData" :rules="formDataRules"
+                           ref="pipeline-script-form">
                     <!--sonar及单元测试-->
                     <el-form-item label="Sonar及单元测试脚本：" class="testAndSonarScript" prop="testAndSonarScript" :multiFields="true"
                                   v-show="stageName === 'testAndSonarScript'">
@@ -85,12 +86,21 @@
                     </el-form-item>
                   </el-form>
                   <!--部署到测试环境-->
-                  <div v-if="stageName === 'deployTestEnv'">
+                  <div v-if="stageName === 'deployTestEnv'" class="deployTestEnv">
                     <div v-if="currentStageInfo['serviceStatus'] && currentStageInfo['applicationConfig']">
                       <paas-service-info :serviceInfo="currentStageInfo['applicationConfig']"></paas-service-info>
                     </div>
-                    <div v-else>
-                      当前应用无测试环境服务
+                    <div style="color:#E6A23C; text-align: center" v-else>
+                      当前应用无"测试环境"服务
+                    </div>
+                  </div>
+                  <!--部署到联调环境-->
+                  <div v-if="stageName === 'deployBetaEnv'" class="deployBetaEnv">
+                    <div v-if="currentStageInfo['serviceStatus'] && currentStageInfo['applicationConfig']">
+                      <paas-service-info :serviceInfo="currentStageInfo['applicationConfig']"></paas-service-info>
+                    </div>
+                    <div style="color:#E6A23C; text-align: center" v-else>
+                      当前应用无"联调环境"服务
                     </div>
                   </div>
                   <div class="stage-change-selection">
@@ -295,6 +305,17 @@
                       }
                     }
                   }
+                  .deployTestEnv {
+                    font-size: 14px;
+                  }
+                  .deployBetaEnv {
+                    font-size: 14px;
+                  }
+                  .paas-service-info {
+                    display: inline-block;
+                    width: 760px;
+                    margin: 0px auto;
+                  }
                 }
                 .stage-change-selection {
                   padding-top: 10px;
@@ -302,7 +323,6 @@
                   font-size: 14px;
                 }
               }
-
             }
           }
           &.step3 {
@@ -449,6 +469,25 @@
           appId: this.formData.appId
         }
       });
+      if (pipelineInfoFromNet.hasOwnProperty('buildImage') && Array.isArray(pipelineInfoFromNet['buildImage']['basicImage'])) {
+        // 可以不选择基础镜像
+        pipelineInfoFromNet['buildImage']['basicImage'].unshift('');
+      }
+      ['deployTestEnv', 'deployBetaEnv'].forEach(stage => {
+        var applicationConfig = null;
+        if (pipelineInfoFromNet.hasOwnProperty(stage) && pipelineInfoFromNet[stage]['applicationConfig']) {
+          applicationConfig = pipelineInfoFromNet[stage]['applicationConfig'];
+        }
+        if(applicationConfig) {
+          for (let key in applicationConfig) {
+            if (null === applicationConfig[key]) {
+              applicationConfig[key] = '---';
+            }
+          }
+        }
+      });
+      this.pipelineInfoFromNet = pipelineInfoFromNet;
+//      pipelineInfoFromNet
 
       const commonProp = {
         active: false
@@ -483,11 +522,6 @@
 //      console.log(stages);
       this.updateStageIndex(stages);
       this.stages = stages;
-      if (pipelineInfoFromNet.hasOwnProperty('buildImage') && Array.isArray(pipelineInfoFromNet['buildImage']['basicImage'])) {
-        // 可以不选择基础镜像
-        pipelineInfoFromNet['buildImage']['basicImage'].unshift('');
-      }
-      this.pipelineInfoFromNet = pipelineInfoFromNet;
       this.syncFormDataByServerData(this.formData, this.pipelineInfoFromNet);
       // override appId
       this.formData.appId = this.dataPassed.appId;

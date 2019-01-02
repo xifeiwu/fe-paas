@@ -334,21 +334,23 @@
           const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_list, {
             payload
           });
-          this.pipelineList = resContent.map(it => {
-            it['formattedCreateTime'] = '---';
-            it['lastRunStatusName'] = '---';
-            if (it['createTime']) {
-              it['formattedCreateTime'] = this.$utils.formatDate(it['createTime'], 'yyyy-MM-dd hh:mm:ss');
-            }
-            var statusInfo = STATUS_LIST.find(obj => {
-              return it['lastRunStatus'] === obj['status'];
+          if (Array.isArray(resContent)) {
+            this.pipelineList = resContent.map(it => {
+              it['formattedCreateTime'] = '---';
+              it['lastRunStatusName'] = '---';
+              if (it['createTime']) {
+                it['formattedCreateTime'] = this.$utils.formatDate(it['createTime'], 'yyyy-MM-dd hh:mm:ss');
+              }
+              var statusInfo = STATUS_LIST.find(obj => {
+                return it['lastRunStatus'] === obj['status'];
+              });
+              if (statusInfo) {
+                it['lastRunStatusName'] = statusInfo['statusName'];
+              }
+              return it;
             });
-            if (statusInfo) {
-              it['lastRunStatusName'] = statusInfo['statusName'];
-            }
-            return it;
-          });
-          this.totalSize = this.pipelineList.length;
+            this.totalSize = this.pipelineList.length;
+          }
         } catch(err) {
           console.log(err);
         }
