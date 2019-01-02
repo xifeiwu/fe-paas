@@ -104,6 +104,11 @@ class Net {
     this.requestingUrlList = [];
   }
 
+  // add prop to urlDesc without change origin value
+  updateUrlDesc(desc, props) {
+    return Object.assign({}, desc, props);
+  }
+
   // some function of Vue.prototype may be used in net.js
   setVue() {}
 

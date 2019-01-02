@@ -411,7 +411,7 @@
 
   .el-button {
     &.flex > span {
-      display: flex;
+      display: inline-flex;
       align-items: center;
     }
     &.disabled {

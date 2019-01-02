@@ -433,10 +433,19 @@
           case 'work-order_create':
             this.addToWaitingResponseQueue(action);
             try {
+              const appStatusList = await this.$net.requestPaasServer(this.$net.updateUrlDesc(this.$net.URL_LIST.work_order_app_status, {
+                partial: true
+              }), {
+                payload: {
+                  appIdList: this.$storeHelper.appInfoListOfGroup['appList'].map(it => it['appId'])
+                }
+              });
               this.hideWaitingResponse(action);
               this.$storeHelper.dataTransfer = {
                 from: this.$net.page['profile/work-order/todo'],
-                data: null
+                data: {
+                  appStatusList
+                }
               };
               this.$router.push(this.$net.page['profile/work-order/todo/add']);
             } catch(err) {

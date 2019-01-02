@@ -269,11 +269,11 @@
           switch (dataTransfer['from']) {
             case this.$net.page['profile/service']:
               this.dataPassed.appIdList = [dataTransfer['data']['appId']];
-//              this.appStatus = dataTransfer['data']['appStatus'];
+              this.dataPassed.appStatusList = dataTransfer['data'].hasOwnProperty('appStatusList') ? dataTransfer['data']['appStatusList'] : null;
               break;
-//            case this.$net.page['profile/work-order/todo']:
-//              this.appStatus = dataTransfer['data']['appStatus'];
-//              break;
+            case this.$net.page['profile/work-order/todo']:
+              this.dataPassed.appStatusList = dataTransfer['data'].hasOwnProperty('appStatusList') ? dataTransfer['data']['appStatusList'] : null;
+              break;
           }
         } else if (this.pageType === 'modify') {
           switch (dataTransfer['from']) {
@@ -338,12 +338,13 @@
         appModelListOfGroup: [],
         showLoading: false,
         loadingText: '',
-        appStatus: null,
+//        appStatusList: null,
 
         dataPassed: {
           // for add and modify
           // for el-option, appIdList passed will not be disabled
           appIdList: null,
+          appStatusList: null,
           // for modify
           workOrderId: '',
           groupName: '',
@@ -388,26 +389,40 @@
         if (!value) {
           return;
         }
+//        console.log('onAppInfoListOfGroup');
+//        console.log(this.dataPassed.appStatusList);
+//        console.log(this.$net.URL_LIST.work_order_app_status);
         this.formData.appIdList = [];
 
-        const appIdList = this.$storeHelper.appInfoListOfGroup['appList'].map(it => it['appId']);
-        const appStatus = await this.$net.requestPaasServer(this.$net.URL_LIST.work_order_app_status, {
-          payload: {
-            appIdList
-          }
-        });
-//        console.log(appStatus);
+        var appStatusList = [];
+        // use appStatusList passed first
+        if (this.dataPassed.appStatusList) {
+          appStatusList = this.dataPassed.appStatusList;
+          this.dataPassed.appStatusList = null;
+        } else {
+          const appIdList = this.$storeHelper.appInfoListOfGroup['appList'].map(it => it['appId']);
+          appStatusList = await this.$net.requestPaasServer(this.$net.URL_LIST.work_order_app_status, {
+            payload: {
+              appIdList
+            }
+          });
+        }
+//        console.log(appStatusList);
         this.appModelListOfGroup = this.$utils.cloneDeep(this.$storeHelper.appInfoListOfGroup['appModelList']);
         this.appModelListOfGroup.forEach(it => {
           const appId = it['appId'];
-          if (appStatus.hasOwnProperty(it['appId'])) {
-            it['workOrder'] = appStatus[appId];
+          if (appStatusList.hasOwnProperty(it['appId'])) {
+            it['workOrder'] = appStatusList[appId];
           }
           // if el-option for this app can be selected
           let disabled = it.hasOwnProperty('workOrder');
-          if (this.dataPassed.appIdList && this.dataPassed.appIdList.indexOf(appId) > -1) {
-            it['workOrder']['name'] = '当前工单';
-            disabled = false;
+
+          if (this.pageType === 'modify') {
+            // 对于修改工单，如果页面传递过的appIdList中包含当前appId，则为当前工单
+            if (this.dataPassed.appIdList && this.dataPassed.appIdList.indexOf(appId) > -1) {
+              it['workOrder']['name'] = '当前工单';
+              disabled = false;
+            }
           }
           it['disabled'] = disabled;
         });

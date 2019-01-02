@@ -33,7 +33,11 @@
           <el-button v-if="isProductionProfile"
                      size="mini-extral"
                      :type="'primary'"
-                     @click="handleButtonClick($event, 'go-to-work-order-todo-add')">申请工单</el-button>
+                     class="flex"
+                     :loading="statusOfWaitingResponse('go-to-work-order-todo-add')"
+                     @click="handleButtonClick($event, 'go-to-work-order-todo-add')">
+            <span>申请工单</span><i class="paas-icon-level-up"></i>
+          </el-button>
           <el-tooltip slot="trigger" effect="dark" placement="bottom">
             <div slot="content">
               <div v-for="(item, index) in helpList" :key="index">{{item}}</div>
@@ -1565,9 +1569,6 @@
           font-weight: bold;
         }
       }
-      i {
-        font-size: 14px;
-      }
       .el-row {
         min-height: 28px;
         &.operation {
@@ -2246,7 +2247,7 @@ export default {
       return errMsg;
     },
 
-    handleButtonClick(evt, action) {
+    async handleButtonClick(evt, action) {
       if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
         this.$storeHelper.globalPopover.show({
           ref: evt.target,
@@ -2293,14 +2294,32 @@ export default {
             this.$message.error('所需信息不完整！');
             return;
           }
-          this.$storeHelper.dataTransfer = {
-            from: this.$net.page['profile/service'],
-            data: {
-              appId: this.selectedAppID,
-              profileId: this.selectedProfileID
+          this.addToWaitingResponseQueue(action);
+          try {
+            const appStatusList = await this.$net.requestPaasServer(this.$net.updateUrlDesc(this.$net.URL_LIST.work_order_app_status, {
+              partial: true
+            }), {
+              payload: {
+                appIdList: this.$storeHelper.appInfoListOfGroup['appList'].map(it => it['appId'])
+              }
+            });
+            this.hideWaitingResponse(action);
+            if (appStatusList.hasOwnProperty(this.selectedAppID)) {
+              this.$message.error(`当前应用有未结束工单（工单名："${appStatusList[this.selectedAppID].name}"），无法创建新工单！`);
+              return;
             }
-          };
-          this.$router.push(this.$net.page['profile/work-order/todo/add']);
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page['profile/service'],
+              data: {
+                appId: this.selectedAppID,
+                profileId: this.selectedProfileID,
+                appStatusList
+              }
+            };
+            this.$router.push(this.$net.page['profile/work-order/todo/add']);
+          } catch(err) {
+            this.hideWaitingResponse(action);
+          }
           break;
         case 'go-page-domain-from-service-list':
           if (this.selectedAppID == null && this.selectedProfileID == null) {
