@@ -908,16 +908,22 @@ module.exports = {
       this.$net.requestPaasServer(this.$net.URL_LIST.app_list_by_group_without_permission, {
         payload: {groupId: groupID}
       }).then(resContent => {
-        if (resContent && resContent.hasOwnProperty('appList')) {
-          this.modifyAccessKeyInfo.targetAppID = this.$storeHelper.APP_ID_FOR_NULL;
-          if (Array.isArray(resContent.appList)) {
-            this.dataForSelectApp.appList = resContent.appList;
-            if (resContent.appList.length > 0) {
-              this.modifyAccessKeyInfo.targetAppID = resContent.appList[0].appId;
-            }
+        // init default value for appList and modifyAccessKeyInfo.targetAppID
+        this.dataForSelectApp.appList = [];
+        this.modifyAccessKeyInfo.targetAppID = this.$storeHelper.APP_ID_FOR_NULL;
+
+        // update appList and modifyAccessKeyInfo.targetAppID
+        if (Array.isArray(resContent)) {
+          resContent.forEach(it => {
+            it['appId'] = it['id'];
+          });
+          this.dataForSelectApp.appList = resContent;
+          if (resContent.length > 0) {
+            this.modifyAccessKeyInfo.targetAppID = resContent[0].appId;
           }
         }
 
+        // get targetGroupName by id
         let target = null;
         let groupList = this.dataForSelectApp.groupListAll;
         if (groupList && Array.isArray(groupList)) {
