@@ -21,30 +21,38 @@
                 :defaultSort="tableSort"
                 stripe
                 :height="heightOfTable">
-        <el-table-column label="实例ID" prop="id" headerAlign="center" align="center" width="80">
+        <el-table-column label="实例ID" prop="id" headerAlign="center" align="center" width="60">
         </el-table-column>
-        <el-table-column label="redis名称" prop="name" headerAlign="center" align="center" width="150">
+        <el-table-column label="redis名称" prop="name" headerAlign="center" align="center" minWidth="120">
         </el-table-column>
         <el-table-column label="创建者" prop="realName" headerAlign="center" align="center" width="80">
         </el-table-column>
-        <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="150"
+        <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="136"
                          sortable="custom">
         </el-table-column>
-        <el-table-column label="更新时间" prop="formattedUpdateTime" headerAlign="center" align="center" width="150"
+        <el-table-column label="更新时间" prop="formattedUpdateTime" headerAlign="center" align="center" width="136"
                          sortable="custom">
         </el-table-column>
-        <el-table-column label="到期时间" prop="formattedExpiredTime" headerAlign="center" align="center" width="150"
+        <el-table-column label="到期时间" prop="formattedExpiredTime" headerAlign="center" align="center" width="136"
                          sortable="custom">
         </el-table-column>
-        <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="100">
+        <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="120">
         </el-table-column>
-        <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="150">
+        <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="200">
           <template slot-scope="scope">
             <el-button
                     type="text"
                     :class="['warning']"
                     :loading="statusOfWaitingResponse('middleware_instance_update_memory') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'middleware_instance_update_memory', scope.$index, scope.row)">内存扩容</el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text"
+                    :class="['warning', 'flex']"
+                    :loading="statusOfWaitingResponse('middleware_instance_update_config') && action.row.id == scope.row.id"
+                    @click="handleTRClick($event, 'middleware_instance_update_config', scope.$index, scope.row)">
+              <span>修改配置</span><i class="paas-icon-level-up"></i>
+            </el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
@@ -246,6 +254,8 @@
       return {
         clusterId: null,
         middlewareId: null,
+        clusterInfo: null,
+        middlewareInfo: null,
 
         instanceList: [],
         heightOfTable: '',
@@ -290,11 +300,15 @@
         const profile = 'test';
         const middlewareName = 'redis';
         await this.$storeHelper.checkBasicData4Middleware(profile, middlewareName);
-//      console.log(this.$storeHelper.getClusterList());
+        console.log(this.$storeHelper.getClusterList());
 //      console.log(this.$storeHelper.currentMiddleware);
         this.clusterId = this.$storeHelper.currentMiddleware['clusterId'];
         this.middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
-        console.log(this.$storeHelper.getClusterList());
+        this.clusterInfo = this.$storeHelper.getClusterById(this.clusterId);
+        this.middlewareInfo = this.$storeHelper.getMiddlewareById(this.clusterId, this.middlewareId);
+//        console.log(this.clusterInfo);
+//        console.log(this.middlewareInfo);
+//        console.log(this.$storeHelper.getClusterList());
       },
 
       onScreenSizeChange(size) {
@@ -333,6 +347,7 @@
           it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
           it.formattedUpdateTime = this.$utils.formatDate(it.updateTime, 'yyyy-MM-dd hh:mm:ss');
           it.formattedExpiredTime = this.$utils.formatDate(it.expiredTime, 'yyyy-MM-dd hh:mm:ss');
+          it.leaveTime = (it.expiredTime - it.createTime) / (24 * 3600 * 1000);
           if(!it.instanceDescribe) {
             it.instanceDescribe = '---';
           }
@@ -346,6 +361,13 @@
       handleButtonClick(evt, action) {
         switch (action) {
           case 'middleware_new_instance':
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page['profile/middleware/redis'],
+              data: {
+                clusterInfo: this.clusterInfo,
+                middlewareInfo: this.middlewareInfo,
+              }
+            };
             this.$router.push(this.$net.page['profile/middleware/redis/add']);
             break;
           case 'refreshList':
@@ -400,6 +422,26 @@
             } catch (err) {
               console.log(err);
               this.hideWaitingResponse(action);
+            }
+            break;
+          case 'middleware_instance_update_config':
+            try {
+//              const moreInfo = await this.getInstanceMoreInfo();
+//              console.log(moreInfo);
+              this.$storeHelper.dataTransfer = {
+                from: this.$net.page['profile/middleware/redis'],
+                data: {
+                  clusterInfo: this.clusterInfo,
+                  middlewareInfo: this.middlewareInfo,
+                  name: this.action.row.name,
+                  instanceDescribe: this.action.row.instanceDescribe,
+                  leaveTime: this.action.row.leaveTime
+//                  memory: moreInfo['memoryTotal']
+                }
+              };
+              this.$router.push(this.$net.page['profile/middleware/redis/modify']);
+            } catch (err) {
+              console.log(err);
             }
             break;
           case 'middleware_instance_delete':

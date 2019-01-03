@@ -2,13 +2,14 @@
   <div id="middleware-mariadb-add"
        v-loading="showLoading"
        :element-loading-text="loadingText">
-    <div class="section-title">申请Redis实例</div>
+    <div class="section-title">{{forModify ? '修改Redis实例配置' : '申请Redis实例'}}</div>
     <el-form :model="formData" :rules="formRules" size="mini"
              ref="createInstanceForm" label-width="120px">
       <div>
         <div class="title">基本信息</div>
         <el-form-item label="实例名称" prop="name" class="name">
-          <el-input v-model="formData.name" placeholder="小写字符，数字，中划线，不能以中划线开始或结尾。2-256个字符"></el-input>
+          <div v-if="forModify">{{formData.name}}</div>
+          <el-input v-model="formData.name" placeholder="小写字符，数字，中划线，不能以中划线开始或结尾。2-256个字符" v-else></el-input>
         </el-form-item>
         <el-form-item label="mariadb版本" prop="versionId" class="name">
           <el-radio-group v-model="formData.versionId">
@@ -18,7 +19,8 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="运行环境" prop="clusterId" class="cluster-id">
-          <el-radio-group v-model="formData.clusterId">
+          <div v-if="forModify">{{clusterInfo.description}}</div>
+          <el-radio-group v-model="formData.clusterId" v-else>
             <el-radio v-for="item in clusterList" :label="item.id" :key="item.id">
               {{item.description}}
             </el-radio>
@@ -34,7 +36,7 @@
           </div>
           <div style="display: inline-block; margin-left: 15px;"><span>{{formData.leaveTime}}天</span></div>
         </el-form-item>
-        <el-form-item label="磁盘大小" prop="memory" class="memory">
+        <el-form-item label="磁盘大小" prop="memory" class="memory" v-if="!forModify">
           <div style="width: 360px; display: inline-block; margin-left: 5px;">
             <el-slider v-model="formData.memory" :show-tooltip="true" :show-stops="false" :format-tooltip="utils.formatTooltipForMemory"
                        :min="512 * utils.ONE_MILLION" :max="256 * 4 * 5 * utils.ONE_MILLION" :step="256 * utils.ONE_MILLION"></el-slider>
@@ -51,8 +53,7 @@
     </el-form>
     <div class="section-footer">
       <div class="item">
-        <el-button type="primary" size="mini" @click="handleClick($event, 'submit')"
-                   :loading="statusOfWaitingResponse('submit')">完成</el-button>
+        <el-button type="primary" size="mini" @click="handleClick($event, forModify ? 'update' : 'create')">完成</el-button>
       </div>
       <div class="item">
         <el-button type="primary" size="mini" @click="$router.go(-1)">关闭</el-button>
@@ -136,26 +137,47 @@
     async created() {
       this.bytes = bytes;
       this.utils = utils;
-      const profile = 'test';
-      const middlewareName = 'redis';
-      await this.$storeHelper.checkBasicData4Middleware(profile, middlewareName);
-//      console.log(this.$storeHelper.getClusterList());
-//      console.log(this.$storeHelper.currentMiddleware);
 
-      this.clusterId = this.$storeHelper.currentMiddleware['clusterId'];
-      this.middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
-      this.middlewareVersionList = this.$storeHelper.getMiddlewareVersionList(this.clusterId, this.middlewareId);
+      this.forModify = (this.$route['path'] == this.$net.page['profile/middleware/redis/modify']);
 
-      this.formData.clusterId = this.clusterId;
+      var goBack = false;
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      if (dataTransfer) {
+//        console.log(dataTransfer);
+        const data = dataTransfer['data'];
+        if (this.forModify) {
+          this.clusterInfo = data.clusterInfo;
+          this.middlewareInfo = data.middlewareInfo;
+          this.formData.name = data.name;
+          this.dataPassed.leaveTime = data.leaveTime;
+          this.formData.leaveTime = data.leaveTime;
+          this.formData.comment = data.instanceDescribe;
+          this.$storeHelper.dataTransfer = null;
+        } else {
+          this.clusterInfo = data.clusterInfo;
+          this.middlewareInfo = data.middlewareInfo;
+        }
+      } else {
+        goBack = true;
+      }
+
+      if (goBack) {
+        this.$router.push(this.$net.page['profile/middleware/redis']);
+        return;
+      }
+
+//      const profile = this.clusterInfo['clusterName'];
+//      const middlewareName = this.middlewareInfo['middlewareName'];
+//      await this.$storeHelper.checkBasicData4Middleware(profile, middlewareName);
+//      this.clusterId = this.$storeHelper.currentMiddleware['clusterId'];
+//      this.middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
+
+      this.middlewareVersionList = this.$storeHelper.getMiddlewareVersionList(this.clusterInfo.id, this.middlewareInfo.id);
+
+      this.formData.clusterId = this.clusterInfo.id;
       if (this.middlewareVersionList.length > 0) {
         this.formData.versionId = this.middlewareVersionList[0]['id'];
       }
-      this.formData.cpu = this.constants['cpuList'][0];
-      this.formData.memory = this.constants['memoryList'][0];
-
-//      console.log(this.middlewareVersionList);
-//      console.log(this.clusterId);
-//      console.log(this.$storeHelper.getClusterList());
     },
 
     mounted() {
@@ -173,30 +195,27 @@
     },
     data() {
       return {
-        clusterId: null,
-        middlewareId: null,
+        forModify: false,
+
+//        clusterId: null,
+//        middlewareId: null,
+        clusterInfo: null,
+        middlewareInfo: null,
         middlewareVersionList: [],
         showLoading: false,
         loadingText: '',
+        dataPassed: {
+          leaveTime: null,
+        },
         formData: {
           name: '',
           versionId: '',
           clusterId: '',
-          dbName: '',
-//          cpu: '',
           leaveTime: 30,
           memory: 256 * utils.ONE_MILLION,
-          userName: '',
-          password: '',
-          confirmPassword: '',
           comment: '',
         },
         formRules: utils.redis.rules,
-
-        constants: {
-          cpuList: [1, 2],
-          memoryList: [2, 3, 4]
-        },
 
       }
     },
@@ -205,36 +224,54 @@
     },
     methods: {
       async handleClick(evt, action) {
-        switch (action) {
-          case 'submit':
+        const formData = this.formData;
+        var payload = {
+          groupId: this.$storeHelper.currentGroupID,
+          namespace: this.$storeHelper.groupInfo.tag,
+          clusterId: this.clusterInfo.id,
+          middlewareId: this.middlewareInfo.id,
+          name: formData.name,
+        };
 //            console.log(this.formData);
-            try {
-              var [valid, errors] = await this.$refs['createInstanceForm'].validate();
+        var resContent = null;
+        var [valid, errors] = await this.$refs['createInstanceForm'].validate();
 //            console.log(valid, errors);
-              if (!valid) {
-                return;
-              }
-              const formData = this.formData;
-              const payload = {
-                groupId: this.$storeHelper.currentGroupID,
-                namespace: this.$storeHelper.groupInfo.tag,
-                clusterId: this.clusterId,
-                middlewareId: this.middlewareId,
+        if (!valid) {
+          return;
+        }
+        switch (action) {
+          case 'create':
+            try {
+              payload = Object.assign(payload, {
                 middlewareVersionId: formData.versionId,
-                name: formData.name,
                 memory: formData.memory / utils.ONE_MILLION,
                 instanceDescribe: formData.comment,
                 lifecycle: formData.leaveTime,
                 isCluster: ''
-              };
-              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_redis_instance_create, {
+              });
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_redis_instance_create, {
                 payload
               });
 //            console.log(resContent);
-              this.$message.success(`实例${formData.name}创建成功！`);
+              this.$message.success(`实例 "${formData.name}" 创建成功！`);
               this.$router.push(this.$net.page['profile/middleware/redis']);
             } catch (err) {
-
+              console.log(err);
+            }
+            break;
+          case 'update':
+            try {
+              payload = Object.assign(payload, {
+                instanceDescribe: formData.comment,
+                lifecycle: formData.leaveTime,
+              });
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_redis_update_config, {
+                payload
+              });
+              this.$message.success(`实例 "${formData.name}" 更新成功！`);
+              this.$router.push(this.$net.page['profile/middleware/redis']);
+            } catch (err) {
+              console.log(err);
             }
             break;
         }

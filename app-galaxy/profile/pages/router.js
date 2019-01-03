@@ -32,13 +32,14 @@ import WorkOrderDeploy from './work-order/todo/deploy.vue';
 import WorkOrderAccept from './work-order/todo/accept.vue';
 import WorkOrderTest from './work-order/todo/test.vue';
 
-// middleware-mariadb
+// middleware
 import Middleware from './middleware/main.vue';
 import MiddlewareMariadb from './middleware/mariadb/index.vue';
 import MiddlewareMariadbAdd from './middleware/mariadb/add.vue';
 import MiddlewareMariadbBackup from './middleware/mariadb/backup.vue';
 import middlewareRedis from './middleware/redis/index.vue';
 import middlewareRedisAdd from './middleware/redis/add.vue';
+import middlewareRedisModify from './middleware/redis/add.vue';
 
 // config-server
 import ConfigServerMain from './config-server/main.vue';
@@ -213,6 +214,10 @@ class Helper {
         path: 'redis/add',
         name: '申请实例',
         component: middlewareRedisAdd
+      }, {
+        path: 'redis/modify',
+        name: '修改配置',
+        component: middlewareRedisModify
       }]
     }, {
       path: '/profile/config-server',

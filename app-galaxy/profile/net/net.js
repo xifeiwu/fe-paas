@@ -506,9 +506,14 @@ class Net extends NetBase {
         path: '/middleware/getMiddlewareRedisStatus',
         method: 'post'
       },
-      // 更改redis使用内存信息
+      // 更改redis使用内存信息（openshift部分）
       'middleware_redis_update_memory': {
         path: '/middleware/updateMiddlewareRedis',
+        method: 'post'
+      },
+      // 更改redis配置（数据库配置部分）
+      'middleware_redis_update_config': {
+        path: '/middleware/editMiddlewareRedis',
         method: 'post'
       }
     };
