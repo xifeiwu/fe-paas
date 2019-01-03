@@ -346,7 +346,7 @@
         instanceList.forEach(it => {
           it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
           it.formattedUpdateTime = this.$utils.formatDate(it.updateTime, 'yyyy-MM-dd hh:mm:ss');
-          it.formattedExpiredTime = this.$utils.formatDate(it.expiredTime, 'yyyy-MM-dd hh:mm:ss');
+          it.formattedExpiredTime = this.$utils.formatDate(it.expiredTime, 'yyyy-MM-dd');
           it.leaveTime = (it.expiredTime - it.createTime) / (24 * 3600 * 1000);
           if(!it.instanceDescribe) {
             it.instanceDescribe = '---';

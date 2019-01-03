@@ -263,7 +263,7 @@
             try {
               payload = Object.assign(payload, {
                 instanceDescribe: formData.comment,
-                lifecycle: formData.leaveTime,
+                delayDays: formData.leaveTime,
               });
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_redis_update_config, {
                 payload
