@@ -1,6 +1,8 @@
+import bytes from 'bytes';
 import utils from 'assets/libs/element-ui/utils';
 class Utils {
   constructor() {
+    this.ONE_MILLION = 1024 * 1024;
     this.redis = {
       rules: {
         name: [{
@@ -60,6 +62,10 @@ class Utils {
         }],
       }
     }
+  }
+
+  formatTooltipForMemory(val) {
+    return bytes(val);
   }
 }
 export default new Utils();

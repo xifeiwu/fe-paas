@@ -505,6 +505,11 @@ class Net extends NetBase {
       'middleware_redis_instance_info_more': {
         path: '/middleware/getMiddlewareRedisStatus',
         method: 'post'
+      },
+      // 更改redis使用内存信息
+      'middleware_redis_update_memory': {
+        path: '/middleware/updateMiddlewareRedis',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

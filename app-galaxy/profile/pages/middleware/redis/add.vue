@@ -36,8 +36,8 @@
         </el-form-item>
         <el-form-item label="磁盘大小" prop="memory" class="memory">
           <div style="width: 360px; display: inline-block; margin-left: 5px;">
-            <el-slider v-model="formData.memory" :show-tooltip="true" :show-stops="false" :format-tooltip="formatTooltipForMemory"
-                       :min="512 * 1048576" :max="256 * 4 * 5 * 1048576" :step="256 * 1048576"></el-slider>
+            <el-slider v-model="formData.memory" :show-tooltip="true" :show-stops="false" :format-tooltip="utils.formatTooltipForMemory"
+                       :min="512 * utils.ONE_MILLION" :max="256 * 4 * 5 * utils.ONE_MILLION" :step="256 * utils.ONE_MILLION"></el-slider>
           </div>
           <div style="display: inline-block; margin-left: 15px;"><span></span>{{bytes(formData.memory)}}</div>
         </el-form-item>
@@ -135,7 +135,7 @@
     mixins: [commonUtils],
     async created() {
       this.bytes = bytes;
-      this.formatTooltipForMemory = val => bytes(val);
+      this.utils = utils;
       const profile = 'test';
       const middlewareName = 'redis';
       await this.$storeHelper.checkBasicData4Middleware(profile, middlewareName);
@@ -185,7 +185,7 @@
           dbName: '',
 //          cpu: '',
           leaveTime: 30,
-          memory: 256 * 1048576,
+          memory: 256 * utils.ONE_MILLION,
           userName: '',
           password: '',
           confirmPassword: '',
@@ -222,7 +222,7 @@
                 middlewareId: this.middlewareId,
                 middlewareVersionId: formData.versionId,
                 name: formData.name,
-                memory: formData.memory / 1048576,
+                memory: formData.memory / utils.ONE_MILLION,
                 instanceDescribe: formData.comment,
                 lifecycle: formData.leaveTime,
                 isCluster: ''

@@ -43,31 +43,31 @@
             <el-button
                     type="text"
                     :class="['warning']"
-                    :loading="statusOfWaitingResponse('middleware_instance_update_memory') && operation.row.id == scope.row.id"
+                    :loading="statusOfWaitingResponse('middleware_instance_update_memory') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'middleware_instance_update_memory', scope.$index, scope.row)">内存扩容</el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
                     :class="$storeHelper.permission['middleware_instance_delete'].disabled ? 'disabled' : 'danger'"
-                    :loading="statusOfWaitingResponse('middleware_instance_delete') && operation.row.id == scope.row.id"
+                    :loading="statusOfWaitingResponse('middleware_instance_delete') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'middleware_instance_delete', scope.$index, scope.row)">删除</el-button>
             <div class="ant-divider"></div>
             <el-button v-if="false"
                     type="text"
                     :class="$storeHelper.permission['middleware_instance_start'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_instance_start') && operation.row.id == scope.row.id"
+                    :loading="statusOfWaitingResponse('middleware_instance_start') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'middleware_instance_start', scope.$index, scope.row)">启动</el-button>
             <div class="ant-divider" v-if="false"></div>
             <el-button v-if="false"
                     type="text"
                     :class="$storeHelper.permission['middleware_instance_stop'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_instance_stop') && operation.row.id == scope.row.id"
+                    :loading="statusOfWaitingResponse('middleware_instance_stop') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'middleware_instance_stop', scope.$index, scope.row)">停止</el-button>
             <div class="ant-divider" v-if="false"></div>
             <el-button v-if="false"
                     type="text"
                     :class="['flex', false ? 'disabled' : 'primary']"
-                    :loading="statusOfWaitingResponse('go-to-page-backup') && operation.row.id == scope.row.id"
+                    :loading="statusOfWaitingResponse('go-to-page-backup') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'go-to-page-backup', scope.$index, scope.row)">
               <span>备份与恢复</span>
               <i class="paas-icon-level-up"></i>
@@ -75,7 +75,7 @@
             <div class="ant-divider" v-if="false"></div>
             <el-button
                     class="primary" type="text"
-                    :loading="statusOfWaitingResponse('instance_more_info') && operation.row.id == scope.row.id"
+                    :loading="statusOfWaitingResponse('instance_more_info') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'instance_more_info', scope.$index, scope.row)">
               <span>实例详情</span>
               <i :class="{'el-icon-arrow-right': true, 'expand': expandRows.indexOf(scope.row.id) > -1}"></i>
@@ -111,37 +111,33 @@
       </el-table>
     </div>
 
-    <el-dialog title="更改实例规格" :visible="operation.name == 'middleware_instance_update_memory'"
+    <el-dialog title="内存扩(缩)容" :visible="action.name == 'middleware_instance_update_memory'"
                :close-on-click-modal="false"
                @close="handleDialogButtonClick('close')"
-               class="middleware_instance_update_memory size-500"
-               v-if="operation.name && operation.row"
+               class="middleware_instance_update_memory size-700"
+               v-if="action.name && action.row"
     >
-      <el-form :model="newProps" size="mini" labelWidth="80px">
-        <el-form-item label="CPU" prop="cpu">
-          <el-radio-group v-model="newProps.cpu" size="small">
-            <el-radio v-for="item in constants.cpuList" :label="item" :key="item">
-              {{item}}核
-            </el-radio>
-          </el-radio-group>
+      <el-form :model="dialog4UpdateMemory" :rules="rules" size="mini" labelWidth="120px">
+        <el-form-item label="当前内存容量" class="memory">
+          {{dialog4UpdateMemory.memoryNow}}
         </el-form-item>
-        <el-form-item label="内存" prop="memory">
-          <el-radio-group v-model="newProps.memory" size="small">
-            <el-radio v-for="item in constants.memoryList" :label="item" :key="item">
-              {{item}}G
-            </el-radio>
-          </el-radio-group>
+        <el-form-item label="修改磁盘容量为" prop="memory" class="memory">
+          <div style="width: 360px; display: inline-block; margin-left: 5px;">
+            <el-slider v-model="dialog4UpdateMemory.memory" :show-tooltip="true" :show-stops="false" :format-tooltip="utils.formatTooltipForMemory"
+                       :min="512 * 1048576" :max="256 * 4 * 5 * 1048576" :step="256 * 1048576"></el-slider>
+          </div>
+          <div style="display: inline-block; margin-left: 15px;"><span></span>{{bytes(dialog4UpdateMemory.memory)}}</div>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
           <el-button type="primary"
                      @click="handleDialogButtonClick('middleware_instance_update_memory')"
-                     :loading="statusOfWaitingResponse('middleware_instance_update_memory')">保&nbsp存</el-button>
+                     :loading="statusOfWaitingResponse('middleware_instance_update_memory')">确定重启</el-button>
         </div>
         <div class="item">
           <el-button action="profile-dialog/cancel"
-                     @click="handleDialogButtonClick('close')">取&nbsp消</el-button>
+                     @click="handleDialogButtonClick('close')">取消</el-button>
         </div>
       </div>
     </el-dialog>
@@ -226,10 +222,13 @@
 </style>
 <script>
   import bytes from 'bytes';
+  import utils from '../utils';
   import commonUtils from 'assets/components/mixins/common-utils';
   module.exports = {
     mixins: [commonUtils],
     async created() {
+      this.bytes = bytes;
+      this.utils = utils;
       await this.checkBasicData4Middleware();
       this.requestList();
     },
@@ -255,13 +254,9 @@
         },
         expandRows: [],
         instanceMoreInfo: {},
-        operation: {
+        action: {
           name: '',
           row: null
-        },
-        newProps: {
-          cpu: '',
-          memory: ''
         },
         constants: {
           cpuList: [1, 2],
@@ -275,7 +270,12 @@
         tableSort: {
           prop: 'formattedCreateTime',
           order: 'descending',
-        }
+        },
+        dialog4UpdateMemory: {
+          memoryNow: '',
+          memory: '',
+        },
+        rules: utils.redis.rules
       }
     },
     watch: {
@@ -354,44 +354,6 @@
         }
       },
 
-      async handleDialogButtonClick(action) {
-        switch (action) {
-          case 'middleware_instance_update_memory':
-            this.addToWaitingResponseQueue(action);
-            try {
-              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_update, {
-                payload: {
-                  clusterId: this.clusterId,
-                  middlewareId: this.middlewareId,
-                  middlewareVersionId: 3,
-                  namespace: this.$storeHelper.groupInfo.tag,
-                  replicas: 1,
-                  name: this.operation.row.name,
-                  cpuRequests: this.newProps.cpu,
-                  memoryRequests: this.newProps.memory
-                }
-              });
-//              console.log(resContent);
-              // updateTime is change when by this action
-              await this.requestList();
-              this.instanceMoreInfo = await this.getInstanceMoreInfo();
-              this.expandRows = [this.operation.row.id];
-              this.hideWaitingResponse(action);
-              this.operation.name = null;
-            } catch (err) {
-              this.hideWaitingResponse(action);
-              this.operation.name = null;
-            }
-            break;
-          case 'close':
-//            console.log(this.operation.name);
-//            console.log(this.queueForWaitingResponse);
-            this.hideWaitingResponse(this.operation.name);
-            this.operation.name = null;
-            break
-        }
-      },
-
       async getInstanceMoreInfo() {
         if (!this.clusterId || !this.middlewareId) {
           await this.checkBasicData4Middleware();
@@ -402,7 +364,7 @@
             middlewareId: this.middlewareId,
 //            middlewareVersionId: 3,
             namespace: this.$storeHelper.groupInfo.tag,
-            name: this.operation.row.name
+            name: this.action.row.name
           }
         });
         ['memoryUsed', 'memoryTotal'].forEach(it => {
@@ -423,7 +385,7 @@
       async handleTRClick(evt, action, index, row) {
         // action 'instance_more_info_refresh' does not pass param index and row
         if (row) {
-          this.operation.row = row;
+          this.action.row = row;
         }
         switch (action) {
           case 'middleware_instance_update_memory':
@@ -431,15 +393,9 @@
             try {
               const instanceStatus = await this.getInstanceMoreInfo();
 //              console.log(instanceStatus);
-              this.newProps.cpu = this.constants.cpuList[0];
-              if (this.constants.cpuList.indexOf(instanceStatus['cpu']) > -1) {
-                this.newProps.cpu = instanceStatus['cpu'];
-              }
-              this.newProps.memory = this.constants.memoryList[0];
-              if (this.constants.memoryList.indexOf(instanceStatus['memory']) > -1) {
-                this.newProps.memory = instanceStatus['memory'];
-              }
-              this.operation.name = action;
+              this.dialog4UpdateMemory.memoryNow = bytes(parseInt(instanceStatus['memoryTotal']));
+              this.dialog4UpdateMemory.memory = parseInt(instanceStatus['memoryTotal']);
+              this.action.name = action;
               this.hideWaitingResponse(action);
             } catch (err) {
               console.log(err);
@@ -457,7 +413,7 @@
                   middlewareId: this.middlewareId,
                   middlewareVersionId: 3,
                   namespace: this.$storeHelper.groupInfo.tag,
-                  name: this.operation.row.name,
+                  name: this.action.row.name,
                 }
               });
               this.$message.success(`mariadb实例 "${row.name}" 删除成功！`);
@@ -477,7 +433,7 @@
                   middlewareId: this.middlewareId,
                   middlewareVersionId: 3,
                   namespace: this.$storeHelper.groupInfo.tag,
-                  name: this.operation.row.name,
+                  name: this.action.row.name,
                 }
               });
               this.$message.success(`mariadb实例 "${row.name}" 启动成功！`);
@@ -498,7 +454,7 @@
                   middlewareId: this.middlewareId,
                   middlewareVersionId: 3,
                   namespace: this.$storeHelper.groupInfo.tag,
-                  name: this.operation.row.name,
+                  name: this.action.row.name,
                 }
               });
               this.$message.success(`mariadb实例 "${row.name}" 停止成功！`);
@@ -547,6 +503,42 @@
             };
             this.$router.push(this.$net.page['profile/middleware/mariadb/backup']);
             break;
+        }
+      },
+
+      async handleDialogButtonClick(action) {
+        switch (action) {
+          case 'middleware_instance_update_memory':
+            this.addToWaitingResponseQueue(action);
+            try {
+              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_redis_update_memory, {
+                payload: {
+                  clusterId: this.clusterId,
+                  middlewareId: this.middlewareId,
+                  name: this.action.row.name,
+                  memory: this.dialog4UpdateMemory.memory / this.utils.ONE_MILLION,
+                  groupId: this.$storeHelper.groupInfo.id,
+                  namespace: this.$storeHelper.groupInfo.tag,
+                  isCluster: false,
+                }
+              });
+              // updateTime is change when by this action
+//              await this.requestList();
+              this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              this.expandRows = [this.action.row.id];
+              this.hideWaitingResponse(action);
+              this.action.name = null;
+            } catch (err) {
+              this.hideWaitingResponse(action);
+              this.action.name = null;
+            }
+            break;
+          case 'close':
+//            console.log(this.action.name);
+//            console.log(this.queueForWaitingResponse);
+            this.hideWaitingResponse(this.action.name);
+            this.action.name = null;
+            break
         }
       },
 
