@@ -608,27 +608,27 @@
             this.onAppListChange();
             break;
           case 'app_show_profile':
-            this.addToWaitingResponseQueue(action);
-            this.profileStatusList.forEach(it => {
-              it.instanceStatus = '';
-            });
-            this.$net.requestPaasServer(this.$net.URL_LIST.app_instance_status, {
-              query: {
-                applicationId: this.selected.model.appId
-              }
-            }).then(resContent => {
-              setTimeout(() => {
-                this.profileStatusList.forEach(it => {
-                  if (resContent.hasOwnProperty(it.id)) {
-                    it.instanceStatus = resContent[it.id] ? '有运行实例' : '无运行实例';
-                  } else {
-                    it.instanceStatus = '无此环境';
-                  }
-                });
-              }, 200);
-            }).finally(() => {
-              this.hideWaitingResponse(action);
-            });
+            // this.addToWaitingResponseQueue(action);
+            // this.profileStatusList.forEach(it => {
+            //   it.instanceStatus = '';
+            // });
+            // this.$net.requestPaasServer(this.$net.URL_LIST.app_instance_status, {
+            //   query: {
+            //     applicationId: this.selected.model.appId
+            //   }
+            // }).then(resContent => {
+            //   setTimeout(() => {
+            //     this.profileStatusList.forEach(it => {
+            //       if (resContent.hasOwnProperty(it.id)) {
+            //         it.instanceStatus = resContent[it.id] ? '有运行实例' : '无运行实例';
+            //       } else {
+            //         it.instanceStatus = '无此环境';
+            //       }
+            //     });
+            //   }, 200);
+            // }).finally(() => {
+            //   this.hideWaitingResponse(action);
+            // });
             var target = evt.target;
             while (!target.classList.contains('el-button')) {
               target = target.parentNode;

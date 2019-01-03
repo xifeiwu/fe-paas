@@ -15,10 +15,11 @@
     <el-form :model="createAppForm" :rules="rules" size="mini"
              ref="createAppForm" label-width="140px">
       <el-form-item label="团队" prop="groupID" class="group-list">
-        <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择" filterable :disabled="pageType == 'update'">
+        <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择" filterable v-if="pageType != 'update'">
           <el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">
           </el-option>
         </el-select>
+        <span v-else>{{findGroupNameById()}}</span>
       </el-form-item>
       <el-form-item label="所属ScrumTeam" prop="scrumId" class="scrumTeam" v-if="true">
         <el-select v-model="createAppForm.scrumId" placeholder="请选择" filterable>
@@ -37,7 +38,8 @@
       </el-form-item>
       <el-form-item label="项目名称" prop="projectName">
         <el-input v-model="createAppForm.projectName"
-                  placeholder="输入GitLab里的project名称。只能包含字母、数字、中划线，2-50个字符"></el-input>
+                  placeholder="输入GitLab里的project名称。只能包含字母、数字、中划线，2-50个字符" v-if="pageType != 'update'"></el-input>
+        <span v-else>{{createAppForm.projectName}}</span>
       </el-form-item>
       <el-form-item label="开发语言" prop="language">
         <el-radio-group v-model="createAppForm.language">
@@ -538,7 +540,33 @@ export default {
       this.createAppForm.groupID = groupID;
     },
     'createAppForm.language': 'onLanguageTypeChange',
-    'createAppForm.languageVersion': 'onLanguageVersionChange'
+    'createAppForm.languageVersion': 'onLanguageVersionChange',
+    'createAppForm.lobId': function() {
+      let options = {
+        lobId:this.createAppForm.lobId,
+      };
+      this.$net.getScrumByLobId(options).then(result => {
+        if(Array.isArray(result.scrumList) && result.scrumList.length > 0) {
+          this.scrumList = result.scrumList;
+          if (this.pageType === 'add') {
+            this.createAppForm.scrumId = this.scrumList[0].id;
+          }
+        }else{
+          this.scrumList = [];
+          this.createAppForm.scrumId = '';
+        }
+      });
+    },
+    'scrumList': function () {
+      if(this.scrumList.length == 0 && this.pageType === 'add'){
+        this.$message({
+          message: '此LOB下无ScrumTeam,不能创建应用,如有疑问,请联系平台管理员!',
+          type: 'error',
+          center: true,
+          duration:5000
+        })
+      }
+    }
   },
   methods: {
     /**
@@ -554,7 +582,6 @@ export default {
       });
     },
     onLobInfo(lobInfo) {
-//      console.log(lobInfo);
       if (lobInfo) {
         if (lobInfo.hasOwnProperty('scrumList') && Array.isArray(lobInfo['scrumList']) && lobInfo['scrumList'].length > 0) {
           this.scrumList = lobInfo['scrumList'];
@@ -562,7 +589,9 @@ export default {
         }
         if (lobInfo.hasOwnProperty('lobList') && Array.isArray(lobInfo['lobList']) && lobInfo['lobList'].length > 0) {
           this.lobList = lobInfo['lobList'];
-          this.createAppForm.lobId = this.lobList[0].id;
+          if (this.pageType === 'add') {
+            this.createAppForm.lobId = this.lobList[0].id;
+          }
         }
       }
     },
@@ -827,6 +856,12 @@ export default {
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();
+    },
+    findGroupNameById(){
+      let groupInfo = this.groupList.find(it => {
+        return it.id == this.$storeHelper.currentGroupID;
+      });
+      return groupInfo.asLabel;
     },
   }
 }

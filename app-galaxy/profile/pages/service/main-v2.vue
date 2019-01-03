@@ -90,114 +90,122 @@
         </div>
       </el-row>
     </div>
-    <div class="service-info-title">
-      <div class="title" v-if="showServiceInfo">服务实时信息</div>
-      <div class="title" v-else="showServiceInfo">暂无服务</div>
+    <div class="expand" v-if="haveService">
+      <div class="service-info">
+        <div class="title">基本信息</div>
+        <el-form label-position="right" label-width="170px">
+          <el-form-item label="服务ID">
+            {{model["id"]}}
+          </el-form-item>
+          <el-form-item label="外网域名">
+            {{applicationConfigBasic["internetDomainList"] ? applicationConfigBasic["internetDomainList"] : "未绑定"}}
+          </el-form-item>
+          <el-form-item label="内网域名">
+            {{applicationConfigBasic["intranetDomain"] ? applicationConfigBasic["intranetDomain"] : "未绑定"}}
+          </el-form-item>
+          <el-form-item label="更新时间">
+            {{this.$utils.formatDate(applicationConfigBasic["updateTime"],"yyyy-MM-dd hh:mm:ss")}}
+          </el-form-item>
+          <el-form-item label="namespace">
+            {{applicationConfigBasic["namespace"]}}
+          </el-form-item>
+          <el-form-item label="label">
+            {{applicationConfigBasic["serviceName"]}}
+          </el-form-item>
+          <el-form-item label="开发语言">
+            {{applicationConfigBasic["language"] + "-" + applicationConfigBasic["languageVersion"]}}
+          </el-form-item>
+          <el-form-item label="构建方式">
+            {{applicationConfigBasic["packageType"] ? applicationConfigBasic["packageType"] : "未知"}}
+          </el-form-item>
+          <el-form-item label="服务期限" v-if="!isProductionProfile">
+            {{applicationConfigBasic["expiredDays"] ? applicationConfigBasic["expiredDays"] + "天": "未配置"}}
+          </el-form-item>
+        </el-form>
+      </div>
+      <div class="service-info">
+        <div class="title">配置信息</div>
+        <el-form label-position="right" label-width="170px">
+          <el-form-item label="CPU/内存">
+            {{applicationConfigDeployment["cpu"] == null || applicationConfigDeployment["memory"] == null ? "未知" : applicationConfigDeployment["cpu"] + "核/" + applicationConfigDeployment["memory"] / 1024 + "G"}}
+          </el-form-item>
+          <el-form-item label="运行实例数">
+            {{applicationConfigDeployment["instances"] ? applicationConfigDeployment["instances"] : 0}}
+          </el-form-item>
+          <el-form-item label="健康检查">
+            {{applicationConfigDeployment["healthCheck"] ? applicationConfigDeployment["healthCheck"] : "未设置"}}
+          </el-form-item>
+          <el-form-item label="健康检查等待时间">
+            {{applicationConfigDeployment["initialDelaySeconds"] ? applicationConfigDeployment["initialDelaySeconds"] + "s" : "未知"}}
+          </el-form-item>
+          <el-form-item label="负载均衡">
+            {{applicationConfigDeployment["loadBalance"] ? applicationConfigDeployment["loadBalance"] : "未设置"}}
+          </el-form-item>
+          <el-form-item label="滚动升级">
+            {{applicationConfigDeployment["rollingUpdate"] ? applicationConfigDeployment["rollingUpdate"] : "未设置"}}
+          </el-form-item>
+          <el-form-item label="应用监控">
+            {{applicationConfigDeployment["appMonitor"] ? applicationConfigDeployment["appMonitor"] : "未设置"}}
+          </el-form-item>
+          <el-form-item label="环境变量配置">
+            <div v-if="applicationConfigDeployment.environments && applicationConfigDeployment.environments.length > 0">
+              <el-row>
+                <el-col :span="10" style="font-weight: bold;text-align: center">Key</el-col>
+                <el-col :span="10" style="font-weight: bold;text-align: center">Value</el-col>
+              </el-row>
+              <el-row v-for="(item, index) in applicationConfigDeployment.environments" :key="item.key">
+                <el-col :span="10" style="text-align: center">
+                  <div class="expand-to-next-line">{{item.key}}</div>
+                </el-col>
+                <el-col :span="10" style="text-align: center">
+                  <div class="expand-to-next-line">{{item.value}}</div>
+                </el-col>
+              </el-row>
+            </div>
+            <div v-else>
+              <span>未设置</span>
+            </div>
+          </el-form-item>
+          <el-form-item label="Host配置">
+            <div v-if="applicationConfigDeployment.hosts && applicationConfigDeployment.hosts.length > 0">
+              <el-row>
+                <el-col :span="8" style="font-weight: bold; text-align: center">IP</el-col>
+                <el-col :span="8" style="font-weight: bold; text-align: center">域名</el-col>
+              </el-row>
+              <el-row v-for="(item, index) in applicationConfigDeployment.hosts" :key="item.key">
+                <el-col :span="8" style="text-align: center">{{item.ip}}</el-col>
+                <el-col :span="8" style="text-align: center">{{item.domain}}</el-col>
+                <el-col :span="2"></el-col>
+              </el-row>
+            </div>
+            <div v-else>
+              <span>未设置</span>
+            </div>
+          </el-form-item>
+          <el-form-item label="端口映射">
+            <div v-if="applicationConfigDeployment.postMapped">
+              <div class="el-row">
+                <div class="el-col el-col-6" style="font-weight: bold; text-align: center">访问端口</div>
+                <div class="el-col el-col-2" style="min-height:1px"></div>
+                <div class="el-col el-col-6" style="font-weight: bold; text-align: center">目标端口</div>
+                <div class="el-col el-col-2" style="font-weight: bold; text-align: center">协议</div>
+                <div class="el-col el-col-2" style="font-weight: bold; text-align: center"></div>
+              </div>
+              <el-row class="content">
+                <el-col :span="6" style="text-align: center">{{applicationConfigDeployment.postMapped.outerPort}}</el-col>
+                <el-col :span="2" style="text-align: center">&ndash;&gt;</el-col>
+                <el-col :span="6" style="text-align: center">{{applicationConfigDeployment.postMapped.containerPort}}</el-col>
+                <el-col :span="2" style="text-align: center">TCP</el-col>
+              </el-row>
+            </div>
+            <div v-else>
+              <span>未设置</span>
+            </div>
+          </el-form-item>
+        </el-form>
+      </div>
     </div>
-    <div v-if="showServiceInfo" class="service-info">
-      <table cellspacing="0" cellpadding="0">
-        <thead>
-        <tr>
-          <th colspan="2" style="text-align: left;background-color: lightgrey;font-size: 14px;">基本信息</th>
-        </tr>
-        </thead>
-        <colgroup>
-          <col width="40%" />
-          <col width="60%" />
-        </colgroup>
-        <tbody>
-        <tr>
-          <td>服务ID</td>
-          <td>{{model["id"]}}</td>
-        </tr>
-        <tr>
-          <td>外网域名</td>
-          <td>{{applicationConfigBasic["internetDomainList"] ? applicationConfigBasic["internetDomainList"] : "未绑定"}}</td>
-        </tr>
-        <tr>
-          <td>内网域名</td>
-          <td>{{applicationConfigBasic["intranetDomain"] ? applicationConfigBasic["intranetDomain"] : "未绑定"}}</td>
-        </tr>
-        <tr>
-          <td>更新时间</td>
-          <td>{{this.$utils.formatDate(applicationConfigBasic["updateTime"],"yyyy-MM-dd hh:mm:ss")}}</td>
-        </tr>
-        <tr>
-          <td>namespace</td>
-          <td>{{applicationConfigBasic["namespace"]}}</td>
-        </tr>
-        <tr>
-          <td>label</td>
-          <td>{{applicationConfigBasic["serviceName"]}}</td>
-        </tr>
-        <tr>
-          <td>开发语言</td>
-          <td>{{applicationConfigBasic["language"] + applicationConfigBasic["languageVersion"]}}</td>
-        </tr>
-        <tr>
-          <td>构建方式</td>
-          <td>{{applicationConfigBasic["packageType"] ? applicationConfigBasic["packageType"] : "未知"}}</td>
-        </tr>
-        <tr v-if="!isProductionProfile">
-          <td>服务期限</td>
-          <td>{{applicationConfigBasic["expiredDays"] ? applicationConfigBasic["expiredDays"] + "天": "未配置"}}</td>
-        </tr>
-        </tbody>
-      </table>
-      <table cellspacing="0" cellpadding="0" style="margin-top: 0px">
-        <thead>
-        <tr>
-          <th colspan="2" style="text-align: left;background-color: lightgrey;font-size: 14px;">配置信息</th>
-        </tr>
-        </thead>
-        <colgroup>
-          <col width="40%" />
-          <col width="60%" />
-        </colgroup>
-        <tbody>
-        <tr>
-          <td>CPU/内存</td>
-          <td>{{applicationConfigDeployment["cpu"] == null || applicationConfigDeployment["memory"] == null ? "未知" : applicationConfigDeployment["cpu"] + "核/" + applicationConfigDeployment["memory"] / 1024 + "G"}}</td>
-        </tr>
-        <tr>
-          <td>运行实例数</td>
-          <td>{{applicationConfigDeployment["instances"] ? applicationConfigDeployment["instances"] : 0}}</td>
-        </tr>
-        <tr>
-          <td>健康检查</td>
-          <td>{{applicationConfigDeployment["healthCheck"] ? applicationConfigDeployment["healthCheck"] : "未设置"}}</td>
-        </tr>
-        <tr>
-          <td>健康检查等待时间</td>
-          <td>{{applicationConfigDeployment["initialDelaySeconds"] ? applicationConfigDeployment["initialDelaySeconds"] + "s" : "未知"}}</td>
-        </tr>
-        <tr>
-          <td>负载均衡</td>
-          <td>{{applicationConfigDeployment["loadBalance"] ? applicationConfigDeployment["loadBalance"] : "未设置"}}</td>
-        </tr>
-        <tr>
-          <td>滚动升级</td>
-          <td>{{applicationConfigDeployment["rollingUpdate"] ? applicationConfigDeployment["rollingUpdate"] : "未设置"}}</td>
-        </tr>
-        <tr>
-          <td>应用监控</td>
-          <td>{{applicationConfigDeployment["appMonitor"] ? applicationConfigDeployment["appMonitor"] : "未设置"}}</td>
-        </tr>
-        <tr>
-          <td>环境变量配置</td>
-          <td>{{applicationConfigDeployment["environments"] ? applicationConfigDeployment["environments"] : "未设置"}}</td>
-        </tr>
-        <tr>
-          <td>Host配置</td>
-          <td>{{applicationConfigDeployment["hosts"] ? applicationConfigDeployment["hosts"] : "未设置"}}</td>
-        </tr>
-        <tr>
-          <td>端口映射</td>
-          <td>{{applicationConfigDeployment["postMapped"] ?  applicationConfigDeployment["postMapped"] : "未设置"}}</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+    <div v-else class="el-table__empty-text" style="color: #545454">暂无服务</div>
     <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="content">
         <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
@@ -235,6 +243,64 @@
     .header {
       .el-select .el-input__inner {
         height: 26px;
+      }
+    }
+    .expand {
+      box-sizing: border-box;
+      padding: 8px 12px;
+      width: 90%;
+      margin: 6px auto;
+      max-width: 900px;
+      box-shadow: 0 2px 7px 0 rgba(0,0,0,.18);
+      box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+      border: none;
+      border-radius: 2px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      .paas-icon {
+        margin-left: 2px;
+        vertical-align: middle;
+        &:hover {
+          font-weight: bold;
+          cursor: pointer;
+        }
+      }
+      .el-form {
+        .el-form-item {
+          .el-form-item__label {
+            /*color: #409EFF;*/
+            font-weight: bold;
+          }
+          &.el-form-item--mini {
+            margin-bottom: 2px;
+          }
+          &.relativePathOfParentPOM {
+            .el-form-item__label {
+              /*line-height: 120%;*/
+            }
+          }
+        }
+      }
+      .service-info {
+        width: 50%;
+        /*border-bottom: 1px solid lightgray;*/
+        .el-form {
+          .el-form-item {
+            width: 50%;
+            @include expand-inline-form-item;
+            .el-form-item__content {
+              margin-left: 170px;
+            }
+            &.file-location {
+              .el-tag {
+                display: inline-block;
+                line-height: 26px;
+                height: 26px;
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -306,27 +372,20 @@
         }
       }
     }
-
-    .service-info-title {
-      .title {
-        font-size: 16px;
-        margin-top: 5px;
-        border-left: 10px solid #409eff;
-      }
-    }
-
-    table {
-      width: 50%;
-      font-size: 14px;
-      color: #606266;
-      table-layout: fixed;
-      border-collapse: separate;
-      margin-top: 10px;
-      border-left: 1px solid #EBEEF5;
-      tbody {
-        td {
-          border-right: 1px solid #EBEEF5;
-          border-bottom: 1px solid #EBEEF5;
+    .expand {
+      .service-info {
+        .title {
+          margin: 8px 0px;
+          padding-left: 5px;
+          border-left: 6px solid darkslategray;
+          font-weight: bold;
+        }
+        .el-form {
+          font-size: 0;
+          .el-form-item {
+            margin-right: 0;
+            margin-bottom: 10px;
+          }
         }
       }
     }
@@ -556,8 +615,10 @@ export default {
           this.model = content["applicationServerList"].find(it => {
             return it["defaultSelect"] === true;
           });
+          if (this.model) {
+            this.serviceInfo.serviceID = this.model.id;
+          }
         }
-        this.serviceInfo.serviceID = this.model.id;
       })
     },
 

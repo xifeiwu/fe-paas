@@ -90,7 +90,7 @@
               <el-input v-model="serviceForm.vmOptions"
                         size="mini"
                         type="textarea"
-                        :rows="3"
+                        :rows="4"
                         placeholder="不能包含中文，不能超过512个字符"
               ></el-input>
               <div style="color:#409EFF; display:flex; align-items: flex-start; cursor:pointer; font-size: 12px; line-height: 16px;">
@@ -545,7 +545,7 @@
       } else {
         this.$storeHelper.dataTransfer = null;
       }
-      console.log(dataTransfer);
+      // console.log(dataTransfer);
       this.type = dataTransfer['type'];
       const theData = dataTransfer.data;
       this.dataPassed = theData;
@@ -553,6 +553,9 @@
       this.serviceForm.spaceId = theData.profileId;
       this.appName = theData.appName;
       this.appLanguage = theData.language;
+      if (this.appLanguage.toUpperCase() !== 'JAVA') {
+        this.imageSelectState.customImage = true;
+      }
       this.appLanguageVersion = theData.languageVersion;
       if (this.type === 'edit') {
         this.profileListOfCurrentApp = theData['appInfo']['profileList'];
