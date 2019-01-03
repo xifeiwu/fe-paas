@@ -93,7 +93,7 @@
     <div class="expand" v-if="haveService">
       <div class="service-info">
         <div class="title">基本信息</div>
-        <el-form label-position="right" label-width="170px">
+        <el-form label-position="right" label-width="150px" size="mini">
           <el-form-item label="服务ID">
             {{model["id"]}}
           </el-form-item>
@@ -124,8 +124,8 @@
         </el-form>
       </div>
       <div class="service-info">
-        <div class="title">配置信息</div>
-        <el-form label-position="right" label-width="170px">
+        <div class="title">实时信息</div>
+        <el-form label-position="right" label-width="150px" size="mini">
           <el-form-item label="CPU/内存">
             {{applicationConfigDeployment["cpu"] == null || applicationConfigDeployment["memory"] == null ? "未知" : applicationConfigDeployment["cpu"] + "核/" + applicationConfigDeployment["memory"] / 1024 + "G"}}
           </el-form-item>
@@ -248,8 +248,8 @@
     .expand {
       box-sizing: border-box;
       padding: 8px 12px;
-      width: 90%;
-      margin: 6px auto;
+      width: 65%;
+      margin: 5px 5px;
       max-width: 900px;
       box-shadow: 0 2px 7px 0 rgba(0,0,0,.18);
       box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
