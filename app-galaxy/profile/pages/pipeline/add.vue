@@ -150,6 +150,7 @@
       <div class="footer">
         <el-button size="mini" type="primary" @click="handleClick($event, 'save')">保存</el-button>
         <el-button size="mini" type="primary" @click="handleClick($event, 'apply')">应用</el-button>
+        <el-button size="mini" type="primary" @click="handleClick($event, 'back')">返回</el-button>
       </div>
     </div>
     <paas-popover-element ref="popover-for-content-show" popperClass="el-popover--small is-dark" title="fdsafdsafd"
@@ -752,17 +753,21 @@
             if (keyIgnore.indexOf(key) > -1) {
               continue;
             }
-            if (Array.isArray(origin[key])) {
+            if (null !== origin[key]) {
+              if (Array.isArray(origin[key])) {
 //              console.log(origin[key]);
 //              console.log(Array.isArray(origin[key]));
 //              console.log(JSON.parse(JSON.stringify(origin[key])));
-              target[key] = JSON.parse(JSON.stringify(origin[key]));
-            } else if (this.$utils.isObject(origin[key])) {
-              syncObject(target[key], origin[key]);
-            } else if (this.$utils.isString(origin[key])) {
-              target[key] = !origin[key] ? '' : origin[key];
+                target[key] = JSON.parse(JSON.stringify(origin[key]));
+              } else if (this.$utils.isObject(origin[key])) {
+                syncObject(target[key], origin[key]);
+              } else {
+                target[key] = origin[key];
+              }
             } else {
-              target[key] = origin[key];
+//              if (this.$utils.isString(origin[key])) {
+//                target[key] = !origin[key] ? '' : origin[key];
+//              }
             }
           }
         };
@@ -803,7 +808,7 @@
         await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_add_or_update, {
           payload: this.formData
         });
-        this.$message.success(`"${this.formData.name}"配置已更新！`);
+        this.$message.success(`"${this.formData.pipelineName}"配置已更新！`);
       },
 
       // 处理按钮click事件
@@ -870,7 +875,10 @@
                 appId: this.formData.appId
               }
             });
-            this.$message.success(`"${this.formData.name}"配置已生效！`);
+            this.$message.success(`"${this.formData.pipelineName}"配置已生效！`);
+            break;
+          case 'back':
+            this.$router.go(-1);
             break;
         }
       },
