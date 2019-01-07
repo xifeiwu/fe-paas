@@ -5,7 +5,7 @@
         <el-button size="mini-extral" type="primary" style="margin-right: 5px;"
                    :loading="loadingStatus4Execute"
                    @click="handleClick($event, 'execute')">执行</el-button>
-        <el-button size="mini-extral" type="primary" style="margin-right: 5px;" @click="handleClick($event, 'fresh-record-list')">刷新</el-button>
+        <el-button size="mini-extral" type="primary" style="margin-right: 5px;" @click="handleClick($event, 'refresh-record-list')">刷新</el-button>
         <!--<el-button size="mini-extral" type="primary" style="margin-right: 5px">修改配置</el-button>-->
       </div>
     </div>
@@ -21,6 +21,10 @@
           width="200"
           headerAlign="center"
           align="center">
+          <template slot-scope="scope">
+            {{scope.row.statusName}}
+            <!--{{scope.row.buildingStatus ? scope.row.buildingStatus : scope.row.statusName}}-->
+          </template>
         </el-table-column>
         <el-table-column
                 prop="buildId"
@@ -189,13 +193,19 @@
 //          status: "FAILED"
 //        }
         const transfer = (o) => {
-          return {
+          var result = {
             buildId: o['buildId'],
             duration: parseInt(o['durationMillis']),
             executionTime: parseInt(o['startTimeMillis']),
 //            message: null,
             status: o['status'],
+            tag: o['tag'],
+            stages: o['stages'],
+          };
+          if (result.tag && result.tag === 'building' && Array.isArray(result.stages) && result.stages.length > 0) {
+            result['buildingStatus'] = `构建中/${result['stages'][result['stages'].length - 1]['name']}`;
           }
+          return result;
         };
         const buildMap = {}, buildingMap = {};
         this.buildList.forEach(it => {
@@ -212,6 +222,7 @@
         var result = keys.map(key => {
           return Object.assign(buildMap.hasOwnProperty(key) ? buildMap[key] : {}, buildingMap.hasOwnProperty(key) ? buildingMap[key] : {});
         });
+//        console.log(result);
         return result;
       },
 
@@ -308,11 +319,11 @@
       },
 
       async requestBuildingList() {
-        const payload = {
-          buildId: this.lastBuildRecord['buildId'],
-          jobName: 'job-jingang-demo-jar-bqd-4940',
-          appId: 20480
-        };
+//        const payload = {
+//          buildId: this.lastBuildRecord['buildId'],
+//          jobName: 'job-jingang-demo-jar-bqd-4940',
+//          appId: 20480
+//        };
         this.buildingList = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_in_building, {
           params: {
             appId: this.relatedAppId
@@ -346,7 +357,7 @@
 
       async handleClick(evt, action) {
         switch (action) {
-          case 'fresh-record-list':
+          case 'refresh-record-list':
             this.requestBuildList();
             break;
           case 'execute':
@@ -373,6 +384,9 @@
             this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_stop, {
               params: {
                 appId: this.relatedAppId
+              },
+              query: {
+                buildId: row['buildId']
               }
             });
             break;
