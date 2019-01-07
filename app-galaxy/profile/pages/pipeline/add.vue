@@ -122,12 +122,12 @@
             3. 通知设置
           </div>
           <div class="config">
-            <el-form labelWidth="170px" size="mini">
+            <el-form labelWidth="170px" size="mini" :model="formData" :rules="formDataRules" ref="config-info-form">
               <el-form-item label="通知类型：">
                 <el-checkbox v-model="formData.noticeConfig.executeSuccess">每次Pipeline执行成功时通知</el-checkbox>
                 <el-checkbox v-model="formData.noticeConfig.executeFail">每次Pipeline执行失败时通知</el-checkbox>
               </el-form-item>
-              <el-form-item label="通知接受人：" :error="emailProps.errMsg">
+              <el-form-item label="通知接受人：" prop="noticeConfig" :multiFields="true" :error="emailProps.errMsg">
                 <div class="notice-email-list">
                   <el-tag
                           v-for="(item, index) in formData.noticeConfig.noticeEmails"
@@ -679,6 +679,16 @@
             required: false,
             trigger: ['blur', 'change'],
             fields: {
+              // codeDebt
+              // unitTestRatio
+            }
+          },
+          noticeConfig: {
+            type: 'object',
+            required: false,
+            trigger: ['blur', 'change'],
+            fields: {
+              // noticeEmails
             }
           }
         },
@@ -841,6 +851,32 @@
           delete sonarCheckRules['unitTestRatio']
         }
 
+        const validatorForNoticeConfig = function(rule, values, callback) {
+          if (!Array.isArray(values)) {
+            callback('格式不正确');
+            return;
+          }
+          if (values.length === 0) {
+            callback('请至少添加一个邮箱地址');
+            return;
+          }
+          callback();
+        };
+
+        // fix rules for noticeConfig
+        const noticeConfig = this.formData['noticeConfig'];
+        const noticeConfigRules = this.formDataRules['noticeConfig'];
+        if (noticeConfig.executeFail || noticeConfig.executeSuccess) {
+          noticeConfigRules.required = true;
+          noticeConfigRules['fields']['noticeEmails'] = [{
+            validator: validatorForNoticeConfig
+          }]
+        } else {
+          noticeConfigRules.required = false;
+          delete noticeConfigRules['fields']['noticeEmails']
+        }
+
+//        console.log(this.formDataRules);
       },
 
       // 请求更新
@@ -909,10 +945,12 @@
           case 'save':
 //            console.log(this.formData);
             const basicInfoForm = this.$refs['basic-info-form'];
+            const configInfoForm = this.$refs['config-info-form'];
 
             this.updateFormDataRules();
 //            console.log(this.formDataRules);
             var validator = new AsyncValidator(this.formDataRules);
+            // 先用async-validator进行全局验证，找到对应的el-form，然后使用el-form自带的validator进行局部验证
             validator.validate(this.formData, async (errors, fields) => {
               if (errors) {
 //                console.log(errors);
@@ -922,7 +960,7 @@
                 if (firstFields.indexOf('.') > -1) {
                   firstFields = firstFields.split('.')[0];
                 }
-//                console.log(firstFields);
+                console.log(firstFields);
                 // sonar及单元测试，打包，自动化测试
                 const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'autoScript', 'sonarCheck'];
                 if (pipelineStageList.indexOf(firstFields) > -1) {
@@ -930,6 +968,8 @@
                   this.$nextTick(() => {
                     this.$refs['pipeline-script-form'].validate(() => {});
                   });
+                } else if (firstFields === 'noticeConfig') {
+                  configInfoForm.validate(() => {});
                 } else {
                   basicInfoForm.validate(() => {});
                 }
