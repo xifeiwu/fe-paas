@@ -92,7 +92,8 @@
                 label="k8s重启时间"
                 prop="formattedStartTime"
                 width="100"
-                headerAlign="center" align="center">
+                headerAlign="center" align="center"
+                v-if="!isMesosService">
           <template slot-scope="scope">
             <div v-if="Array.isArray(scope.row.formattedStartTime)">
               <div v-for="(item, index) in scope.row.formattedStartTime" :key="index">
@@ -106,14 +107,15 @@
                 prop="restartCount"
                 label="K8s重启次数"
                 width="100"
-                headerAlign="center" align="center">
+                headerAlign="center" align="center"
+                v-if="!isMesosService">
         </el-table-column>
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
                     type="text"
                     v-if="true"
-                    :class="['flex', $storeHelper.permission['instance_replace'].disabled ? 'disabled' : 'primary']"
+                    :class="['flex', $storeHelper.permission['instance_replace'].disabled || isMesosService ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'instance_replace', scope.$index, scope.row)"
                     >
               <span>驱逐</span>
@@ -651,7 +653,7 @@
           });
           return;
         }
-        if (this.isMesosService && ['show-console-log', 'go-to-page-terminal-from-instance', 'instanceStatus'].indexOf(action) > -1) {
+        if (this.isMesosService && ['show-console-log', 'go-to-page-terminal-from-instance', 'instanceStatus', 'instance_replace'].indexOf(action) > -1) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
             msg: '老mesos应用不支持'

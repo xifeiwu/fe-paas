@@ -14,8 +14,8 @@
             {{profileInfo? profileInfo.description: ''}}
           </el-form-item>
           <el-form-item label="镜像方式" prop="customImage" class="custom-image">
-            <el-radio-group v-model="imageSelectState.customImage" size="mini">
-              <el-radio :label="false" v-if="appLanguage != 'PYTHON'">自动打镜像</el-radio>
+            <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="handleCustomImage()">
+              <el-radio :label="false">自动打镜像</el-radio>
               <el-radio :label="true">自定义镜像</el-radio>
             </el-radio-group>
           </el-form-item>
@@ -60,7 +60,7 @@
           </transition>
           <transition name="more-config">
             <el-form-item label="mainClass" prop="mainClass"
-                          v-if="appLanguage.toUpperCase() == 'JAVA' && !imageSelectState.customImage"
+                          v-if="appLanguage.toUpperCase() === 'JAVA' && !imageSelectState.customImage"
                           class="main-class"
             >
               <el-input v-model="serviceForm.mainClass"
@@ -320,7 +320,7 @@
               <div>非生产环境可自助上线。</div>
             </div>
           </el-form-item>
-          <el-form-item class="expand">
+          <el-form-item class="expand" v-if="$storeHelper.groupVersion !== 'v1'">
             <div class="more" @click="handleClick($event, 'more-config')">
               <span v-if="showMoreConfig">收起更多配置</span><span v-else>更多配置</span>
               <i :class="showMoreConfig?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
@@ -763,7 +763,11 @@
         return this.$storeHelper.isProductionProfile(this.serviceForm.spaceId);
       },
       loadBalanceType() {
-        return profileUtils.getSupportedLoadBalance();
+        if (this.$storeHelper.groupVersion === "v1") {
+          return profileUtils.getAllLoadBalance();
+        } else {
+          return profileUtils.getSupportedLoadBalance();
+        }
       },
     },
     watch: {
@@ -1266,7 +1270,15 @@
         this.errMsgForHealthCheck = errMsg;
         return errMsg;
       },
-
+      handleCustomImage() {
+        if (this.appLanguage.toUpperCase() === "JAVA") {
+          return false
+        } else if (this.appLanguage.toUpperCase() === "NODEJS" && this.$storeHelper.groupVersion === "v1") {
+          return false
+        } else {
+          return true
+        }
+      }
     }
   }
 </script>

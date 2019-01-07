@@ -27,26 +27,35 @@
             刷新
           </el-button>
           <el-button
+                  v-if="!haveService"
                   size="mini-extral"
                   type="primary"
-                  @click="handleButtonClick($event, 'service-create')">
-            {{haveService ? '修改配置' : '创建服务'}}
+                  @click="handleButtonClick($event, 'service_create')"
+                  :class="{'disabled': $storeHelper.permission['service_create'].disabled && !haveService}">
+            创建服务
+          </el-button>
+          <el-button
+                  v-else
+                  size="mini-extral"
+                  type="primary"
+                  @click="handleButtonClick($event, 'service_edit')">
+            修改配置
           </el-button>
           <el-button
                   size="mini-extral"
                   type="danger"
                   :loading="statusOfWaitingResponse('service_deploy')"
                   v-if="haveService && !isProductionProfile"
-                  @click="handleButtonClick($event, 'service-deploy')"
-                  :disabled="$storeHelper.permission['service_deploy'].disabled ? true : false">
+                  @click="handleButtonClick($event, 'service_deploy')"
+                  :class="$storeHelper.permission['service_deploy'].disabled ? 'disabled' : ''">
             {{statusOfWaitingResponse('deploy') ? '部署中': '部署'}}
           </el-button>
           <el-button
                   size="mini-extral"
                   v-if="haveService && !isProductionProfile"
                   type="danger"
-                  :loading="statusOfWaitingResponse('quick-deploy')"
-                  @click="handleButtonClick($event, 'quick-deploy')"
+                  :loading="statusOfWaitingResponse('quick_deploy')"
+                  @click="handleButtonClick($event, 'quick_deploy')"
                   :class="reason4DisableQuickDeploy() ? 'disabled' : ''">
             {{statusOfWaitingResponse('quick-deploy') ? '部署中': '重启'}}
           </el-button>
@@ -55,9 +64,18 @@
                   type="danger"
                   v-if="haveService"
                   :loading="statusOfWaitingResponse('service_stop')"
-                  @click="handleButtonClick($event, 'service-stop')"
-                  :disabled="$storeHelper.permission['service_stop'].disabled ? true : false">
+                  @click="handleButtonClick($event, 'service_stop')"
+                  :class="$storeHelper.permission['service_stop'].disabled ? 'disabled' : ''">
             停止
+          </el-button>
+          <el-button
+                  size="mini-extral"
+                  type="danger"
+                  v-if="haveService"
+                  :loading="statusOfWaitingResponse('service_delete')"
+                  @click="handleButtonClick($event, 'service_delete')"
+                  :class="$storeHelper.permission['service_delete'].disabled ? 'disabled' : ''">
+            删除
           </el-button>
           <el-button
                   size="mini-extral"
@@ -83,9 +101,18 @@
           <el-button
                   size="mini-extral"
                   type="primary"
-                  v-if="haveService"
-                  @click="handleButtonClick($event, 'go-page-domain-from-service')">
+                  v-if="haveService && this.$storeHelper.groupVersion === 'v2'"
+                  @click="handleButtonClick($event, 'go-page-domain-from-service')"
+                  :class="$storeHelper.permission['go-page-domain-from-service'].disabled ? 'disabled' : ''">
             <span>配置外网二级域名</span><i class="paas-icon-level-up"></i>
+          </el-button>
+          <el-button
+                  size="mini-extral"
+                  type="primary"
+                  v-else-if="haveService"
+                  @click="handleButtonClick($event, 'v1-add-internetDomain')"
+                  :class="{'disabled': model.internetDomainList.length > 0}">
+            <span>添加外网域名</span>
           </el-button>
         </div>
       </el-row>
@@ -97,29 +124,48 @@
           <el-form-item label="服务ID">
             {{model["id"]}}
           </el-form-item>
+          <el-form-item label="所在集群" v-if="$storeHelper.groupVersion === 'v1'">
+            {{model["k8s"] === 1 ? 'k8s' : 'mesos'}}
+          </el-form-item>
           <el-form-item label="外网域名">
-            {{applicationConfigBasic["internetDomainList"] ? applicationConfigBasic["internetDomainList"] : "未绑定"}}
+            <div v-if="model.internetDomainList.length==0">未绑定</div>
+            <div v-if="model.internetDomainList.length==1">
+              <a :href="'http://' + model.internetDomainList[0]" target="_blank">{{model.internetDomainList[0]}}</a>
+            </div>
+            <div v-if="model.internetDomainList.length>1">
+              <a :href="'http://' + model.internetDomainList[0]" target="_blank">{{model.internetDomainList[0]}}</a>
+              <el-tooltip slot="trigger" effect="light" placement="top">
+                <div slot="content">
+                  <div v-for="(item, index) in model.internetDomainList" v-if="index!=0">
+                    <a :href="'http://' + item" target="_blank">{{item}}</a>
+                  </div>
+                </div>
+                <span class="more"><i class="paas-icon-more"></i></span>
+              </el-tooltip>
+            </div>
           </el-form-item>
           <el-form-item label="内网域名">
-            {{applicationConfigBasic["intranetDomain"] ? applicationConfigBasic["intranetDomain"] : "未绑定"}}
+            <a :href="'http://' + model['intranetDomain']" target="_blank"
+               v-if="model['intranetDomain']">{{model['intranetDomain']}}</a>
+            <span v-else>未绑定</span>
           </el-form-item>
           <el-form-item label="更新时间">
-            {{this.$utils.formatDate(applicationConfigBasic["updateTime"],"yyyy-MM-dd hh:mm:ss")}}
+            {{this.$utils.formatDate(model["updateTime"],"yyyy-MM-dd hh:mm:ss")}}
           </el-form-item>
           <el-form-item label="namespace">
-            {{applicationConfigBasic["namespace"]}}
+            {{applicationConfigDeployment["namespace"]}}
           </el-form-item>
           <el-form-item label="label">
-            {{applicationConfigBasic["serviceName"]}}
+            {{model["serviceName"]}}
           </el-form-item>
           <el-form-item label="开发语言">
-            {{applicationConfigBasic["language"] + "-" + applicationConfigBasic["languageVersion"]}}
+            {{model["language"] + "-" + model["languageVersion"]}}
           </el-form-item>
           <el-form-item label="构建方式">
-            {{applicationConfigBasic["packageType"] ? applicationConfigBasic["packageType"] : "未知"}}
+            {{model["packageType"] ? model["packageType"] : "未知"}}
           </el-form-item>
           <el-form-item label="服务期限" v-if="!isProductionProfile">
-            {{applicationConfigBasic["expiredDays"] ? applicationConfigBasic["expiredDays"] + "天": "未配置"}}
+            {{model["remainExpiredDays"] ? model["remainExpiredDays"] + "天": "未配置"}}
           </el-form-item>
         </el-form>
       </div>
@@ -127,25 +173,25 @@
         <div class="title">实时信息</div>
         <el-form label-position="right" label-width="150px" size="mini">
           <el-form-item label="CPU/内存">
-            {{applicationConfigDeployment["cpu"] == null || applicationConfigDeployment["memory"] == null ? "未知" : applicationConfigDeployment["cpu"] + "核/" + applicationConfigDeployment["memory"] / 1024 + "G"}}
+            {{applicationConfigDeployment["cpu"] == null || applicationConfigDeployment["memory"] == null ? "未知" : applicationConfigDeployment["cpu"] + "/" + applicationConfigDeployment["memory"]}}
           </el-form-item>
           <el-form-item label="运行实例数">
-            {{applicationConfigDeployment["instances"] ? applicationConfigDeployment["instances"] : 0}}
+            {{applicationConfigDeployment["status"] == null ? '未知' : applicationConfigDeployment["status"]["Running"] + "/" +applicationConfigDeployment["status"]["Total"]}}
           </el-form-item>
           <el-form-item label="健康检查">
-            {{applicationConfigDeployment["healthCheck"] ? applicationConfigDeployment["healthCheck"] : "未设置"}}
+            {{applicationConfigDeployment["healthCheck"] ? applicationConfigDeployment["healthCheck"] : "未知"}}
           </el-form-item>
           <el-form-item label="健康检查等待时间">
             {{applicationConfigDeployment["initialDelaySeconds"] ? applicationConfigDeployment["initialDelaySeconds"] + "s" : "未知"}}
           </el-form-item>
           <el-form-item label="负载均衡">
-            {{applicationConfigDeployment["loadBalance"] ? applicationConfigDeployment["loadBalance"] : "未设置"}}
+            {{applicationConfigDeployment["loadBalance"] ? applicationConfigDeployment["loadBalance"] : "未知"}}
           </el-form-item>
           <el-form-item label="滚动升级">
-            {{applicationConfigDeployment["rollingUpdate"] ? applicationConfigDeployment["rollingUpdate"] : "未设置"}}
+            {{applicationConfigDeployment["rollingUpdate"] ? applicationConfigDeployment["rollingUpdate"] : "未知"}}
           </el-form-item>
           <el-form-item label="应用监控">
-            {{applicationConfigDeployment["appMonitor"] ? applicationConfigDeployment["appMonitor"] : "未设置"}}
+            {{applicationConfigDeployment["appMonitor"] ? applicationConfigDeployment["appMonitor"] : "未知"}}
           </el-form-item>
           <el-form-item label="环境变量配置">
             <div v-if="applicationConfigDeployment.environments && applicationConfigDeployment.environments.length > 0">
@@ -163,7 +209,7 @@
               </el-row>
             </div>
             <div v-else>
-              <span>未设置</span>
+              <span>未知</span>
             </div>
           </el-form-item>
           <el-form-item label="Host配置">
@@ -179,7 +225,7 @@
               </el-row>
             </div>
             <div v-else>
-              <span>未设置</span>
+              <span>未知</span>
             </div>
           </el-form-item>
           <el-form-item label="端口映射">
@@ -199,13 +245,60 @@
               </el-row>
             </div>
             <div v-else>
-              <span>未设置</span>
+              <span>未知</span>
             </div>
           </el-form-item>
         </el-form>
       </div>
     </div>
     <div v-else class="el-table__empty-text" style="color: #545454">暂无服务</div>
+    <el-dialog title="添加外网域名" :visible="showInternetDomainDialog"
+               :close-on-click-modal="false"
+               class="internet-domain size-700"
+               @close="showInternetDomainDialog = false"
+    >
+      <el-tag type="warning" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>老团队只支持添加一个外网域名（如想自助式配置外网域名和IP白名单，请联系Paas团队，进行应用迁移）</span>
+      </el-tag>
+      <el-form size="mini" label-width="120px" ref="changeInternetDomainForm">
+        <el-form-item label="将要添加的域名" :error="props4CreateDomain.errMsgForDomainList">
+          <div v-if="props4CreateDomain.domainToAdd.length > 0">
+            <el-tag class="domain-to-add"
+                    v-for="(item, index) in props4CreateDomain.domainToAdd"
+                    :key="index"
+                    closable
+                    type="success"
+                    size="small"
+                    @close="handleDomainInDialog($event, 'remove', item)"
+            >{{item}}</el-tag>
+          </div>
+          <div v-else>无</div>
+        </el-form-item>
+        <el-form-item label="外网二级域名" :error="props4CreateDomain.errMsgForDomainName">
+          <el-input v-model="props4CreateDomain.prefixName" placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"
+                    style="margin-bottom: 3px;"></el-input>
+          <el-select v-model="props4CreateDomain.subDomain"
+                     :placeholder="(props4CreateDomain.subDomainList && props4CreateDomain.subDomainList.length > 0) ? '请选择':'无数据'">
+            <el-option v-for="(item, index) in props4CreateDomain.subDomainList" :value="item.domainName" :label="item.domainName"
+                       :key="index"></el-option>
+          </el-select>
+          <el-button :class="['add-domain-btn', props4CreateDomain.domainToAdd.length > 0 ? 'disabled': '']"
+                     size="mini-extral" type="primary" @click="handleDomainInDialog($event, 'add')">添加</el-button>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="v1UpdateInternetDomain"
+                     :loading="waitingResponse">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="showInternetDomainDialog = false">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
     <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="content">
         <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
@@ -396,6 +489,7 @@
   import {mapGetters} from 'vuex';
   import paasDialogForLog from '../components/dialog4log.vue'
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+  import fa from "../../../../components/element-ui/src/locale/lang/fa";
 export default {
   components: {paasDialogForLog},
   created() {
@@ -467,8 +561,10 @@ export default {
       heightOfTable: '',
       appList: [],
       selectedAppID: null,
+      waitingResponse: false,
       selectedApp: null,
       selectedProfileID: null,
+      selectedProfile: null,
       // whether current profile is production
       isProductionProfile: null,
       currentProfileList: [],
@@ -479,7 +575,6 @@ export default {
       },
       // used for component MyImageSelector
       queueForWaitingResponse: [],
-      applicationConfigBasic: null,
       applicationConfigDeployment: null,
       showServiceInfo: false,
       haveService: false,
@@ -491,11 +586,23 @@ export default {
         showLoading: false,
         iconExpand: true
       },
+      props4CreateDomain: {
+        prefixName: '',
+        subDomain: '',
+        subDomainList: [],
+        domainToAdd: [],
+        // 校验规则：单个元素（语法校验）
+        errMsgForDomainName: '',
+        // 校验规则：域名数组（大于一个小于五个，无域名后缀）
+        errMsgForDomainList: ''
+      },
+      showInternetDomainDialog: false,
     }
   },
   watch: {
     appInfoListOfGroup: 'onAppInfoListOfGroup',
     selectedAppID: function (appId) {
+      this.recoveryStatus();
       let appInfo = this.$storeHelper.getAppInfoByID(appId);
       if (!appInfo) {
         return;
@@ -517,6 +624,7 @@ export default {
       let defaultProfileID = this.currentProfileList[0]['id'];
       const localProfileId = this.serviceConfig ? this.serviceConfig['profileId'] : null;
       // check whether localProfileId exist in currentProfileList
+      console.log(this.currentProfileList);
       defaultProfileID = this.currentProfileList.map(it => {
         if (it && it.id) {
           return it.id
@@ -528,10 +636,12 @@ export default {
       });
     },
     selectedProfileID: function (profileId, oldValue) {
+      this.recoveryStatus();
       if (this.$storeHelper.SERVICE_ID_FOR_NULL === profileId) {
         return;
       }
       this.serviceInfo.profileID = profileId;
+      this.selectedProfile = this.$storeHelper.getProfileInfoByID(profileId);
       this.isProductionProfile = this.$storeHelper.isProductionProfile(profileId);
       let appID = this.selectedApp.appId;
       this.requestService(appID, profileId);
@@ -588,25 +698,27 @@ export default {
       this.selectedProfileID = this.$storeHelper.SERVICE_ID_FOR_NULL;
     },
 
+    recoveryStatus() {
+      this.applicationConfigDeployment = null;
+      this.showServiceInfo = false;
+      this.haveService = false;
+      this.model = null;
+    },
+
     requestService(appID, profileID) {
+      this.recoveryStatus();
       if (!appID || !profileID) {
         console.log('appID or profileID can not be empty');
         return;
       }
-      this.applicationConfigBasic = null;
-      this.applicationConfigDeployment = null;
-      this.showServiceInfo = false;
-      this.haveService = false;
       let payload = {
         appId: appID,
         spaceId: profileID
       };
       this.$net.requestPaasServer(this.$net.URL_LIST.get_service_list_v2, {payload}).then(resContent => {
-        if (resContent.hasOwnProperty("applicationConfigBasic") && resContent.hasOwnProperty("applicationConfigDeployment")) {
-          this.applicationConfigBasic = resContent["applicationConfigBasic"];
+        if (resContent.hasOwnProperty("applicationConfigDeployment")) {
           this.applicationConfigDeployment = resContent["applicationConfigDeployment"];
           this.showServiceInfo = true;
-          this.haveService = true;
         }
       });
       this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {payload}).then(resContent => {
@@ -616,6 +728,7 @@ export default {
             return it["defaultSelect"] === true;
           });
           if (this.model) {
+            this.haveService = true;
             this.serviceInfo.serviceID = this.model.id;
           }
         }
@@ -696,7 +809,7 @@ export default {
     },
 
     gotToWorkOrderPage(){
-      if (this.applicationConfigBasic == null && this.applicationConfigDeployment == null) {
+      if (!this.haveService) {
         this.$message.error('请先创建服务!');
         return;
       }
@@ -886,7 +999,19 @@ export default {
       }
     },
 
-
+    warningConfirm(content) {
+      return new Promise((resolve, reject) => {
+        this.$confirm(content, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          resolve();
+        }).catch(() => {
+          reject()
+        });
+      });
+    },
 
     // 是否支持快速部署：1. 是k8s应用，2. 有正在运行的实例
     reason4DisableQuickDeploy() {
@@ -904,8 +1029,102 @@ export default {
     getVersionDescription() {
       let profileInfo = this.$storeHelper.getProfileInfoByID(this.selectedProfileID);
       let description = profileInfo && profileInfo.hasOwnProperty('description') ? profileInfo.description : '';
-      let desc = `应用"${this.selectedApp.appName}"${description}的服务`;
+      let desc = `应用"${this.selectedApp.appName}:${description}"的服务`;
       return desc;
+    },
+
+    // some init action for domain props
+    initDomainProps() {
+      this.props4CreateDomain.domainToAdd = [];
+      this.props4CreateDomain.prefixName = '';
+      this.props4CreateDomain.subDomain = '';
+      this.props4CreateDomain.errMsgForDomainName = '';
+      this.props4CreateDomain.errMsgForDomainList = '';
+    },
+
+    handleDomainInDialog(evt, action, domainItem) {
+      const domainToAdd = this.props4CreateDomain.domainToAdd;
+      switch (action) {
+        case 'remove':
+          if (domainToAdd.indexOf(domainItem) > -1) {
+            domainToAdd.splice(domainToAdd.indexOf(domainItem), 1);
+          }
+          break;
+        case 'add':
+          if (this.props4CreateDomain.domainToAdd.length > 0) {
+            this.$storeHelper.globalPopover.show({
+              ref: evt.target,
+              msg: '只支持添加一个外网域名'
+            });
+            return;
+          }
+          this.props4CreateDomain.prefixName = this.props4CreateDomain.prefixName.trim();
+
+          this.props4CreateDomain.errMsgForDomainName = '';
+          this.props4CreateDomain.errMsgForDomainList = '';
+
+          if (this.props4CreateDomain.subDomainList.length === 0) {
+            this.props4CreateDomain.errMsgForDomainName = '当前运行环境，域名后缀列表为空，无法创建。请联系Paas团队。';
+            return;
+          }
+          if (!/^[a-z0-9][a-z0-9\-]{0,62}$/.exec(this.props4CreateDomain.prefixName)) {
+            this.props4CreateDomain.errMsgForDomainName = '可以包含小写字符、数字、中划线，以字符数字开头，长度不超过63位';
+            return;
+          }
+//          if (domainToAdd.length >= 5) {
+//            this.props4CreateDomain.errMsgForDomainList = '每次最多添加五个';
+//            return;
+//          }
+
+
+          const domain = this.props4CreateDomain.prefixName + '.' + this.props4CreateDomain.subDomain;
+//          let item = null;
+//          domainToAdd.some(it => {
+//            if (it === domain) {
+//              item = it;
+//            }
+//            return item
+//          });
+//          if (item) {
+//            this.props4CreateDomain.errMsgForDomainName = `域名${domain}已经存在！`
+//            return;
+//          }
+          domainToAdd.push(domain);
+          this.props4CreateDomain.prefixName = '';
+          break;
+      }
+    },
+
+    v1UpdateInternetDomain() {
+      this.waitingResponse = true;
+      this.addToWaitingResponseQueue("update-internet-domain");
+      if (this.props4CreateDomain.domainToAdd.length === 0) {
+        this.props4CreateDomain.errMsgForDomainList = '至少添加一个域名！';
+        return;
+      }
+      let options = {
+        appId: this.serviceInfo.appID,
+        spaceId: this.serviceInfo.profileID,
+        id: this.serviceInfo.serviceID,
+      };
+      options['outerDomain'] = this.props4CreateDomain.domainToAdd[0];
+      this.$net.serviceUpdate('internetDomain', options).then(msg => {
+        this.$message({
+          type: 'success',
+          message: msg
+        });
+        // 只在更新成功后关闭弹框
+        this.showInternetDomainDialog = false;
+        this.requestService(this.selectedAppID,this.selectedProfileID);
+      }).catch(errMsg => {
+        this.$net.showError({
+          title: '修改失败',
+          message: errMsg
+        })
+      }).finally(() => {
+        this.waitingResponse = false;
+        this.hideWaitingResponse("update-internet-domain");
+      });
     },
 
     async handleButtonClick(evt,action) {
@@ -923,10 +1142,13 @@ export default {
         case "go-to-work-order-todo-add" :
           this.gotToWorkOrderPage();
           break;
-        case 'service-create' :
+        case 'service_create' :
           this.goToAddServicePage();
           break;
-        case 'service-deploy':
+        case 'service_edit' :
+          this.goToAddServicePage();
+          break;
+        case 'service_deploy':
           this.addToWaitingResponseQueue(action);
           try {
             await this.serviceDeploy({
@@ -939,7 +1161,7 @@ export default {
             this.hideWaitingResponse(action);
           }
           break;
-        case 'quick-deploy':
+        case 'quick_deploy':
           try {
             let reason = this.reason4DisableQuickDeploy();
             if (reason) {
@@ -961,10 +1183,10 @@ export default {
             this.hideWaitingResponse(action);
           }
           break;
-        case 'service-stop':
+        case 'service_stop':
           this.addToWaitingResponseQueue(action);
           var desc = this.getVersionDescription();
-          this.$confirm(`停止将会导致"${desc}"不可用，但不会删除代码及配置信息，你确定需要这么做吗?`).then(() => {
+          this.$confirm(`停止将会导致${desc}不可用，但不会删除代码及配置信息，你确定需要这么做吗?`).then(() => {
             this.$net.serviceStop({
               id: this.serviceInfo.serviceID,
               appId: this.serviceInfo.appID,
@@ -987,6 +1209,40 @@ export default {
               console.log(err);
             });
           }).catch(() => {
+            this.hideWaitingResponse(action);
+          });
+          break;
+        case 'service_delete':
+          this.addToWaitingResponseQueue(action);
+          var desc = this.getVersionDescription();
+          this.warningConfirm(`删除服务将会销毁${desc}的代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。`).then(() => {
+            this.warningConfirm(`你确认要删除${desc}，并清除该服务的一切数据？`).then(() => {
+              this.$net.serviceDelete({
+                id: this.serviceInfo.serviceID,
+                appId: this.serviceInfo.appID,
+                spaceId: this.serviceInfo.profileID,
+              }).then(msg => {
+                this.hideWaitingResponse(action);
+                this.$message({
+                  type: 'success',
+                  message: msg
+                });
+                this.$net.needUpdateAppList = true;
+                this.requestService(this.serviceInfo.appID, this.serviceInfo.profileID);
+              }).catch(err => {
+                this.hideWaitingResponse(action);
+                this.$notify.error({
+                  title: '提示',
+                  message: err,
+                  duration: 0,
+                  onClose: function () {
+                  }
+                });
+              });
+            }).catch(() => {
+              this.hideWaitingResponse(action);
+            });
+          }).catch(()=> {
             this.hideWaitingResponse(action);
           });
           break;
@@ -1034,6 +1290,28 @@ export default {
             }
           };
           this.$router.push(this.$net.page['profile/domain']);
+          break;
+        case 'v1-add-internetDomain':
+          if (this.model.internetDomainList.length > 0) {
+            this.$storeHelper.globalPopover.show({
+              ref: evt.target,
+              msg: "老团队只支持添加一个外网域名（如想自助式配置外网域名和IP白名单，请联系Paas团队，进行应用迁移）"
+            });
+            break;
+          }
+          this.showInternetDomainDialog = true;
+          const subDomainListByProfile = await this.$store.dispatch('app/getSubDomainByProfile', {
+            net: this.$net,
+            urlDesc: this.$net.URL_LIST.domain_level_1_list_all,
+            payload: {groupId: this.$storeHelper.currentGroupID}
+          });
+          this.initDomainProps();
+          if (subDomainListByProfile.hasOwnProperty(this.selectedProfile.name)) {
+            this.props4CreateDomain.subDomainList = subDomainListByProfile[this.selectedProfile.name];
+            this.props4CreateDomain.subDomain = this.props4CreateDomain.subDomainList[0]['domainName'];
+          } else {
+            this.props4CreateDomain.subDomainList = [];
+          }
           break;
       }
     }
