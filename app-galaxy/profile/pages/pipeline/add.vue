@@ -903,16 +903,18 @@
 
       // 请求更新
       async requestUpdate() {
-        await this.$confirm('保存pipeline配置？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-          dangerouslyUseHTMLString: true
-        });
-        await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_add_or_update, {
-          payload: this.formData
-        });
-        this.$message.success(`"${this.formData.pipelineName}"配置已更新！`);
+        try {
+          await this.$confirm('保存pipeline配置？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+            dangerouslyUseHTMLString: true
+          });
+          await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_add_or_update, {
+            payload: this.formData
+          });
+          this.$message.success(`"${this.formData.pipelineName}"配置已更新！`);
+        } catch (err) {}
       },
 
       // 处理按钮click事件

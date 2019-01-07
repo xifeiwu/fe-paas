@@ -82,20 +82,27 @@
         <el-table-column
                 prop="operation"
                 label="操作"
-                width="180"
+                width="250"
                 headerAlign="center"
                 align="center">
           <template slot-scope="scope">
             <el-button
+                    type="text"
+                    :class="['flex', 'warning']"
+                    @click="handleTRClick($event, 'delete', scope.$index, scope.row)">
+              <span>删除</span>
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
               type="text"
-              :clase="['flex', 'primary']"
+              :class="['flex', 'primary']"
               @click="handleTRClick($event, 'go-to-page-pipeline-update', scope.$index, scope.row)">
               <span>配置</span><i class="paas-icon-level-up"></i>
             </el-button>
             <div class="ant-divider"></div>
             <el-button
               type="text"
-              :clase="['flex', 'primary']"
+              :class="['flex', 'primary']"
               @click="handleTRClick($event, 'got-to-page-pipeline-records', scope.$index, scope.row)">
               <span>执行记录</span><i class="paas-icon-level-up"></i>
             </el-button>
@@ -452,8 +459,29 @@
         }
       },
 
-      handleTRClick(evt, action, index, row) {
+      async handleTRClick(evt, action, index, row) {
         switch (action) {
+          case 'delete':
+            try {
+              if (!row.appId) {
+                this.$message.error('未找到appId');
+                return;
+              }
+              await this.$confirm(`删除pipeline "${row.pipelineName}"`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_delete, {
+                params: {
+                  appId: row.appId
+                }
+              });
+              this.$message.success(`pipeline "${row.pipelineName}" 已删除！`);
+              await this.updatePipelineListByPage(true);
+            } catch (err) {}
+            break;
           case 'got-to-page-pipeline-records':
             if (!row.appId) {
               this.$message.error('未找到appId');
