@@ -14,20 +14,20 @@
             1. 基本配置
           </div>
           <div class="config">
-            <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" ref="basic-info-form">
-              <el-form-item label="目标应用：" v-if="appInfo">
+            <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" class="clear-fix" ref="basic-info-form">
+              <el-form-item label="目标应用" v-if="appInfo" class="big">
                 {{appInfo.appName}}
               </el-form-item>
-              <el-form-item label="pipeline名称：" prop="pipelineName">
+              <el-form-item label="pipeline名称" prop="pipelineName">
                 <el-input size="mini-extral" v-model="formData.pipelineName"></el-input>
               </el-form-item>
-              <el-form-item label="pipeline描述：" prop="pipelineDescription">
+              <el-form-item label="pipeline描述" prop="pipelineDescription">
                 <el-input size="mini-extral" v-model="formData.pipelineDescription"></el-input>
               </el-form-item>
-              <el-form-item label="gitlab仓库：" prop="gitLabPath">
+              <el-form-item label="gitlab仓库" prop="gitLabPath">
                 <el-input size="mini-extral" v-model="formData.gitLabPath"></el-input>
               </el-form-item>
-              <el-form-item label="gitlab分支：" prop="gitLabBranch">
+              <el-form-item label="gitlab分支" prop="gitLabBranch">
                 <el-input size="mini-extral" v-model="formData.gitLabBranch"></el-input>
               </el-form-item>
             </el-form>
@@ -264,6 +264,25 @@
                 max-width: 500px;
               }
             }
+            @mixin expand-inline-form-item() {
+              display: block;
+              width: 100%;
+              .el-form-item__label {
+                float: left;
+              }
+              .el-form-item__content {
+                display: block;
+              }
+            }
+            .el-form {
+              .el-form-item {
+                width: 50%;
+                float: left;
+                &.big {
+                  @include expand-inline-form-item;
+                }
+              }
+            }
           }
           &.step2 {
             padding-bottom: 8px;
@@ -283,6 +302,9 @@
                     margin: 0px auto;
                     .vue-codemirror {
                       width: 100%;
+                      .CodeMirror {
+                        height: 250px;
+                      }
                     }
                     .el-form-item {
                       &.testAndSonarScript, &.mvnPackage-script, &.autoScript {

@@ -2,7 +2,7 @@
   <div class="paas-service-info" v-if="serviceInfo">
     <!--测试环境基本信息{{serviceInfo}}-->
     <el-form label-position="right" label-width="160px" inline size="mini" class="compact clear-fix">
-      <el-form-item label="开发语言：">
+      <el-form-item label="开发语言">
         {{serviceInfo.language + ' - ' + serviceInfo.languageVersion}}
       </el-form-item>
       <el-form-item label="构建类型">
