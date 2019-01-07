@@ -110,7 +110,7 @@
                   {{instanceMoreInfo.password}}
                 </el-form-item>
                 <el-form-item label="已用内存/总内存">
-                  {{instanceMoreInfo.memoryUsed + " / " + instanceMoreInfo.memoryTotal}}
+                  {{instanceMoreInfo.memoryUsed + " / " + instanceMoreInfo.memorySelected}}
                 </el-form-item>
                 <el-form-item label="已用存储/总磁盘">
                   {{instanceMoreInfo.storageUsed + " / " + instanceMoreInfo.storageTotal}}
