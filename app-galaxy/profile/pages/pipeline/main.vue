@@ -428,8 +428,9 @@
       async handleDialogButtonClick(dialog, action) {
         switch (dialog) {
           case 'dialog4SelectApp':
-            var [valid, errors] = await this.$refs['formInDialog4SelectApp'].validate();
-            if (valid) {
+            try {
+              var [valid, errors] = await this.$refs['formInDialog4SelectApp'].validate();
+              if (valid) {
 //              var appModel = this.$storeHelper.appInfoListOfGroup['appModelList'].find(it => {
 //                return it.appId == this.dialog4SelectApp.appId;
 //              });
@@ -437,13 +438,15 @@
 //                console.log('appModel not found!');
 //                return;
 //              }
-              this.$storeHelper.dataTransfer = {
-                from: this.$net.page['profile/pipeline/list'],
-                data: {
-                  appId: this.dialog4SelectApp.appId
-                }
-              };
-              this.$router.push(this.$net.page['profile/pipeline/add']);
+                this.$storeHelper.dataTransfer = {
+                  from: this.$net.page['profile/pipeline/list'],
+                  data: {
+                    appId: this.dialog4SelectApp.appId
+                  }
+                };
+                this.$router.push(this.$net.page['profile/pipeline/add']);
+              }
+            } catch(err) {
             }
             break;
         }

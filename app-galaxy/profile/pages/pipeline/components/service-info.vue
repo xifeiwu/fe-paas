@@ -102,7 +102,7 @@
         &.big {
           @include expand-inline-form-item;
           .el-form-item__content {
-            margin-left: 170px;
+            /*margin-left: 170px;*/
           }
         }
       }

@@ -15,7 +15,7 @@
           </div>
           <div class="config">
             <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" ref="basic-info-form">
-              <el-form-item label="目标应用：">
+              <el-form-item label="目标应用：" v-if="appInfo">
                 {{appInfo.appName}}
               </el-form-item>
               <el-form-item label="pipeline名称：" prop="pipelineName">
@@ -47,10 +47,11 @@
             <div class="config-list" v-if="currentStage">
               <transition name="el-zoom-in-top">
                 <div class="stage-config" v-if="currentStage.selected" :key="stageName">
-                  <el-form labelWidth="180px" size="mini" :model="formData" :rules="formDataRules"
+                  <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" class="union-form"
                            ref="pipeline-script-form">
                     <!--sonar及单元测试-->
-                    <el-form-item label="Sonar及单元测试脚本：" class="testAndSonarScript" prop="testAndSonarScript" :multiFields="true"
+                    <el-form-item label="Sonar及单元测试脚本：" labelWidth="180px" class="testAndSonarScript"
+                                  prop="testAndSonarScript" :multiFields="true"
                                   v-show="stageName === 'testAndSonarScript'">
                       <codemirror v-model="formData.testAndSonarScript.script" :options="groovyOption"></codemirror>
                     </el-form-item>
@@ -87,8 +88,8 @@
                   </el-form>
                   <!--部署到测试环境-->
                   <div v-if="stageName === 'deployTestEnv'" class="deployTestEnv">
-                    <div v-if="currentStageInfo['serviceStatus'] && currentStageInfo['applicationConfig']">
-                      <paas-service-info :serviceInfo="currentStageInfo['applicationConfig']"></paas-service-info>
+                    <div v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
+                      <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
                     </div>
                     <div style="color:#E6A23C; text-align: center" v-else>
                       当前应用无"测试环境"服务
@@ -96,8 +97,8 @@
                   </div>
                   <!--部署到联调环境-->
                   <div v-if="stageName === 'deployBetaEnv'" class="deployBetaEnv">
-                    <div v-if="currentStageInfo['serviceStatus'] && currentStageInfo['applicationConfig']">
-                      <paas-service-info :serviceInfo="currentStageInfo['applicationConfig']"></paas-service-info>
+                    <div v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
+                      <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
                     </div>
                     <div style="color:#E6A23C; text-align: center" v-else>
                       当前应用无"联调环境"服务
@@ -277,11 +278,11 @@
                 margin-top: 20px;
                 margin-right: 10px;
                 .stage-config {
-                  .el-form {
-                    max-width: 1000px;
+                  .el-form.union-form {
+                    max-width: 900px;
                     margin: 0px auto;
-                    .CodeMirror {
-                      width: 800px;
+                    .vue-codemirror {
+                      width: 100%;
                     }
                     .el-form-item {
                       &.testAndSonarScript, &.mvnPackage-script, &.autoScript {
@@ -306,16 +307,13 @@
                       }
                     }
                   }
-                  .deployTestEnv {
+                  .deployTestEnv, .deployBetaEnv {
                     font-size: 14px;
-                  }
-                  .deployBetaEnv {
-                    font-size: 14px;
-                  }
-                  .paas-service-info {
-                    display: inline-block;
-                    width: 760px;
-                    margin: 0px auto;
+                    .paas-service-info {
+                      display: block;
+                      width: 760px;
+                      margin: 0px auto;
+                    }
                   }
                 }
                 .stage-change-selection {
@@ -454,6 +452,7 @@
           return it.appId == this.dataPassed.appId;
         });
         if (!this.appInfo) {
+          goBack = true;
           console.log('appInfo not found');
         }
         this.formData.appId = this.dataPassed.appId;
@@ -463,6 +462,7 @@
 
       if (goBack) {
         this.$router.go(-1);
+        return;
       }
 
       const pipelineInfoFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_stage_query, {
@@ -545,8 +545,10 @@
         pipelineInfoFromNet: null,
         stages: [],
         stageName: '',
+        // 当前stage（用于状态展示）的信息
         currentStage: null,
-        currentStageInfo: null,
+        // 当前stage（服务端返回）的信息
+        currentStageNetInfo: null,
 
         formData: {
           appId: '',
@@ -814,6 +816,14 @@
       // 处理按钮click事件
       async handleClick(evt, action) {
         const target = evt.target;
+        const profileNameMap = {
+          deployTestEnv: '测试环境',
+          deployBetaEnv: '联调环境',
+        };
+        var stageChangeStatus = {
+          success: true,
+          reason: ''
+        };
         switch (action) {
           case 'change-step':
             this.stepNodeList.forEach(it => {
@@ -826,10 +836,27 @@
 //            console.log(evt.target);
             break;
           case 'stage-add':
-            this.currentStage['selected'] = true;
-            this.updateStageIndex(this.stages);
-            this.$message.success(`添加结点 "${this.currentStage['name']}" 成功！`);
-            this.formData[this.currentStage['name']]['selected'] = true;
+            switch (this.currentStage.name) {
+              case 'deployTestEnv':
+              case 'deployBetaEnv':
+                if (this.currentStageNetInfo['serviceStatus'] && this.currentStageNetInfo['applicationConfig']) {
+                  stageChangeStatus.success = true;
+                  console.log('stageChangeStatus.success = true;');
+                } else {
+                  stageChangeStatus.success = false;
+                  console.log('stageChangeStatus.success = false;');
+                  stageChangeStatus.reason = `当前应用无"${profileNameMap[this.currentStage.name]}"服务，无法添加结点"${this.currentStage.description}"`;
+                }
+                break;
+            }
+            if (stageChangeStatus.success) {
+              this.currentStage['selected'] = true;
+              this.updateStageIndex(this.stages);
+              this.$message.success(`添加结点 "${this.currentStage['name']}" 成功！`);
+              this.formData[this.currentStage['name']]['selected'] = true;
+            } else {
+              this.$message.error(stageChangeStatus.reason);
+            }
             break;
           case 'stage-remove':
             this.currentStage['selected'] = false;
@@ -895,7 +922,7 @@
 //        console.log(stage);
         this.currentStage = stage;
         this.stageName = stage.name;
-        this.currentStageInfo = this.pipelineInfoFromNet[stage.name];
+        this.currentStageNetInfo = this.pipelineInfoFromNet[stage.name];
         this.stages.forEach(it => {
           if (it !== stage) {
             it.active = false;
