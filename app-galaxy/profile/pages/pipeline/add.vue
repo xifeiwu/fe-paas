@@ -74,7 +74,7 @@
                       <codemirror v-model="formData.autoScript.script" :options="groovyOption"></codemirror>
                     </el-form-item>
                     <!--sonar数据检查-->
-                    <el-form-item label="检查项：" class="sonarCheck" v-if="stageName === 'sonarCheck'">
+                    <el-form-item label="检查项：" class="sonarCheck" prop="sonarCheck" v-if="stageName === 'sonarCheck'">
                       <div class="sonarCheck-unitTestRatio"><el-checkbox v-model="formData['sonarCheck']['unitTestSelected']"></el-checkbox>
                         <span>当单元测试覆盖率≥</span>
                         <el-input v-model="formData['sonarCheck']['unitTestRatio']"></el-input>
@@ -673,6 +673,13 @@
                 message: '请填写自动化测试脚本'
               }]
             }
+          },
+          sonarCheck: {
+            type: 'object',
+            required: false,
+            trigger: ['blur', 'change'],
+            fields: {
+            }
           }
         },
         emailProps: {
@@ -789,14 +796,51 @@
 
       // 更加pipeline结点的选择情况，更新formRules
       updateFormDataRules() {
-        var pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'autoScript'];
+        // fix rules for 'testAndSonarScript', 'mvnPackage', 'autoScript'
+        var pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'autoScript'];//.concat(['sonarCheck']);
         pipelineStageList.forEach(it => {
-          const required = this.formData[it]['selected']
+          const required = this.formData[it]['selected'];
           this.formDataRules[it]['required'] = required;
             this.formDataRules[it]['fields']['script'].forEach(rule => {
               rule['required'] = required;
             })
         });
+
+        const validatorForSonarCheck = function(rule, values, callback) {
+          values = parseInt(values.trim());
+          var passed = false;
+//          if (!values) {
+//            passed = true;
+//          } else
+          if (/^[0-9]+$/.exec(values) && (values > 0 && values < 100)) {
+            passed = true;
+          }
+          if (passed) {
+            callback();
+          } else {
+            callback('请填写0-100之间的数字');
+          }
+        };
+
+        // fix rules for sonarCheck
+        // sonarCheck可以不填，如果填写，格式必须正确
+        const sonarCheck = this.formData['sonarCheck'];
+        const sonarCheckRules = this.formDataRules['sonarCheck']['fields'];
+        if (sonarCheck.codeDebtSelected) {
+          sonarCheckRules['codeDebt'] = [{
+            validator: validatorForSonarCheck
+          }]
+        } else {
+          delete sonarCheckRules['codeDebt']
+        }
+        if (sonarCheck.unitTestSelected) {
+          sonarCheckRules['unitTestRatio'] = [{
+            validator: validatorForSonarCheck
+          }]
+        } else {
+          delete sonarCheckRules['unitTestRatio']
+        }
+
       },
 
       // 请求更新
@@ -841,10 +885,8 @@
               case 'deployBetaEnv':
                 if (this.currentStageNetInfo['serviceStatus'] && this.currentStageNetInfo['applicationConfig']) {
                   stageChangeStatus.success = true;
-                  console.log('stageChangeStatus.success = true;');
                 } else {
                   stageChangeStatus.success = false;
-                  console.log('stageChangeStatus.success = false;');
                   stageChangeStatus.reason = `当前应用无"${profileNameMap[this.currentStage.name]}"服务，无法添加结点"${this.currentStage.description}"`;
                 }
                 break;
@@ -882,7 +924,7 @@
                 }
 //                console.log(firstFields);
                 // sonar及单元测试，打包，自动化测试
-                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'autoScript'];
+                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'autoScript', 'sonarCheck'];
                 if (pipelineStageList.indexOf(firstFields) > -1) {
                   this.setActiveStageByName(firstFields);
                   this.$nextTick(() => {
