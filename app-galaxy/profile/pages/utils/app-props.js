@@ -192,6 +192,10 @@ class AppInfoHelper {
         required: true,
         message: '请选择打镜像方式',
       }],
+      packageType: [{
+        required: true,
+        message: '请选择构建方式'
+      }],
       // 镜像方式
       imageTypeID: [{
         required: true,

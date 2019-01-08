@@ -319,7 +319,7 @@ class StoreHelper extends BaseHelper{
     const languageInfo = this.languageInfo;
     let versionList = null;
     languageInfo.some(it => {
-      if (it.language.toLowerCase() == language.toLowerCase()) {
+      if (it.languageDesc.toLowerCase() == language.toLowerCase()) {
         versionList = it.languageVersionList;
       }
       return versionList;

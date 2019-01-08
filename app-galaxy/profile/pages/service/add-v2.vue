@@ -13,6 +13,18 @@
           <el-form-item label="运行环境" class="profile-description">
             {{profileInfo? profileInfo.description: ''}}
           </el-form-item>
+          <el-form-item class="build-type" label="构建类型" v-if="packageTypeList.length > 0" :error="serviceForm.packageInfo.errMsg" prop="packageType">
+            <div class="flex-layout">
+              <div class="type-list">
+                <el-radio-group v-model="serviceForm.packageInfo.type">
+                  <el-radio v-for="item in packageTypeList" :label="item.type" :key="item.type">
+                    {{item.packageType}}
+                  </el-radio>
+                </el-radio-group>
+              </div>
+              <div :class="['war-name', serviceForm.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']"><el-input v-model="serviceForm.packageInfo.name" placeholder="默认与项目名称一致"></el-input></div>
+            </div>
+          </el-form-item>
           <el-form-item label="镜像方式" prop="customImage" class="custom-image">
             <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="handleCustomImage()">
               <el-radio :label="false">自动打镜像</el-radio>
@@ -271,36 +283,36 @@
               </el-row>
             </el-form-item>
           </transition>
-          <transition name="more-config">
-            <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig && !isProductionProfile" :error="serviceForm.portMap.errMsg">
-              <div class="el-row title">
-                <div class="el-col el-col-6">
-                  <span>访问端口</span>
-                  <el-tooltip slot="trigger" effect="dark" placement="top">
-                    <div slot="content">
-                      <div v-if="serviceForm.portMap.update">访问端口的范围在40000~59999之间</div>
-                      <div v-if="!serviceForm.portMap.update">访问端口由后端自动生成</div>
-                      <div v-if="!serviceForm.portMap.update">服务创建成功后，可以进行修改</div>
-                    </div>
-                    <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
-                  </el-tooltip>
-                </div>
-                <div class="el-col el-col-2" style="min-height:1px"></div>
-                <div class="el-col el-col-6">目标端口</div>
-                <div class="el-col el-col-2">协议</div>
-              </div>
-              <el-row class="content">
-                <el-col :span="6">
-                  <el-input placeholder="如40002" size="mini" :disabled="!this.serviceForm.portMap.update" v-model="serviceForm.portMap.outerPort"></el-input>
-                </el-col>
-                <el-col :span="2">--></el-col>
-                <el-col :span="6">
-                  <el-input placeholder="如8100" size="mini" v-model="serviceForm.portMap.containerPort"></el-input>
-                </el-col>
-                <el-col :span="2">TCP</el-col>
-              </el-row>
-            </el-form-item>
-          </transition>
+          <!--<transition name="more-config">-->
+            <!--<el-form-item label="端口映射" class="port-map" v-if="showMoreConfig && !isProductionProfile" :error="serviceForm.portMap.errMsg">-->
+              <!--<div class="el-row title">-->
+                <!--<div class="el-col el-col-6">-->
+                  <!--<span>访问端口</span>-->
+                  <!--<el-tooltip slot="trigger" effect="dark" placement="top">-->
+                    <!--<div slot="content">-->
+                      <!--<div v-if="serviceForm.portMap.update">访问端口的范围在40000~59999之间</div>-->
+                      <!--<div v-if="!serviceForm.portMap.update">访问端口由后端自动生成</div>-->
+                      <!--<div v-if="!serviceForm.portMap.update">服务创建成功后，可以进行修改</div>-->
+                    <!--</div>-->
+                    <!--<span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>-->
+                  <!--</el-tooltip>-->
+                <!--</div>-->
+                <!--<div class="el-col el-col-2" style="min-height:1px"></div>-->
+                <!--<div class="el-col el-col-6">目标端口</div>-->
+                <!--<div class="el-col el-col-2">协议</div>-->
+              <!--</div>-->
+              <!--<el-row class="content">-->
+                <!--<el-col :span="6">-->
+                  <!--<el-input placeholder="如40002" size="mini" :disabled="!this.serviceForm.portMap.update" v-model="serviceForm.portMap.outerPort"></el-input>-->
+                <!--</el-col>-->
+                <!--<el-col :span="2">&ndash;&gt;</el-col>-->
+                <!--<el-col :span="6">-->
+                  <!--<el-input placeholder="如8100" size="mini" v-model="serviceForm.portMap.containerPort"></el-input>-->
+                <!--</el-col>-->
+                <!--<el-col :span="2">TCP</el-col>-->
+              <!--</el-row>-->
+            <!--</el-form-item>-->
+          <!--</transition>-->
           <transition name="more-config">
             <el-form-item label="prestop脚本" v-if="showMoreConfig && !isProductionProfile">
               <el-input v-model="serviceForm.prestopCommand"
@@ -441,6 +453,22 @@
           font-size: 12px;
         }
         .el-form-item {
+          &.build-type {
+            .flex-layout {
+              display: flex;
+              align-items: flex-start;
+              .war-name {
+                padding-left: 10px;
+                flex: 1;
+                min-width: 100px;
+                opacity: 1;
+                transition: opacity .5s;
+                &.hide {
+                  opacity: 0;
+                }
+              }
+            }
+          }
           &.app-name {
             margin-bottom: 8px;
           }
@@ -537,7 +565,6 @@
     created() {
       // profileUtils will be used in template
       this.profileUtils = profileUtils;
-
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (!dataTransfer) {
         this.$router.go(-1);
@@ -557,7 +584,13 @@
         this.imageSelectState.customImage = true;
       }
       this.appLanguageVersion = theData.languageVersion;
+      this.packageTypeList = this.$storeHelper.getPackageTypeListByLanguageAndVersion(
+        this.appLanguage,
+        this.appLanguageVersion,
+      );
+      this.profileInfo = this.$storeHelper.getProfileInfoByID(this.serviceForm.spaceId);
       if (this.type === 'edit') {
+        this.serviceForm.packageInfo.type = theData.packageType;
         this.profileListOfCurrentApp = theData['appInfo']['profileList'];
         this.imageSelectState.customImage = theData.customImage;
         if(theData.customImage){
@@ -582,12 +615,14 @@
         this.serviceForm.healthCheck.http = theData.healthCheck;
         this.serviceForm.initialDelaySeconds = theData.initialDelaySeconds;
         this.serviceForm.expiredDays = theData.remainExpiredDays;
-        if (theData.portsMapping[0].outerPort && theData.portsMapping[0].outerPort !== "") {
-          this.serviceForm.portMap.outerPort = theData.portsMapping[0].outerPort;
-          this.serviceForm.portMap.containerPort = theData.portsMapping[0].containerPort;
-          this.serviceForm.portMap.update = true;
-        }
+        //端口映射暂时隐藏
+        // if (theData.portsMapping[0].outerPort && theData.portsMapping[0].outerPort !== "") {
+        //   this.serviceForm.portMap.outerPort = theData.portsMapping[0].outerPort;
+        //   this.serviceForm.portMap.containerPort = theData.portsMapping[0].containerPort;
+        //   this.serviceForm.portMap.update = true;
+        // }
       } else {
+        this.serviceForm.packageInfo.type = this.packageTypeList[0].type;
         // set default cpu, default memorySizeList will be set in watch
         if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
           let firstItem = this.cpuAndMemoryList[0];
@@ -597,7 +632,6 @@
           this.serviceForm.expiredDays = resContent["defaultExpiredDays"];
         })
       }
-
       this.rules.imageLocation.required = false;
     },
     mounted() {
@@ -608,6 +642,7 @@
     },
     data() {
       return {
+        useBuildName: true,
         environmentKey: '',
         environmentValue: '',
         hostKey: '',
@@ -617,7 +652,7 @@
         type: '',
         dataPassed: {},
         appName: '',
-        profileInfo:  null,
+        profileInfo: null,
         appLanguage: null,
         appLanguageVersion: null,
         versionList: [],
@@ -644,60 +679,60 @@
           environments: [],
           hosts: [],
           instanceCount: 1,
-          expiredDays:90,
+          expiredDays: 90,
           customImage: false,
           imageLocation: '',
           // value of autoImage
           autoImageValue: '',
           // value of customImage
           customImageValue: '',
-          portMap: {
-            protocol: 'TCP',
-            outerPort: '',
-            containerPort: '',
-            _validateErrMsg: '',
-            update: false,
-            get errMsg() {
-              if (this.syntaxErrMsg) {
-                return this.syntaxErrMsg;
-              } else if (this._validateErrMsg) {
-                return this._validateErrMsg;
-              } else {
-                return '';
-              }
-            },
-            get syntaxErrMsg() {
-              // 先检测语法错误，后检测端口号错误
-              let errMsg = '';
-              const numberReg = /^[0-9]+$/;
-              const outerPort = this.outerPort;
-              const containerPort = this.containerPort;
-//              if (outerPort == '') {
-//                errMsg = '请填写访问端口';
-//              } else if (containerPort == '') {
-//                errMsg = '请填写目标端口';
-//              } else {
-              if (containerPort != '') {
-                  if (this.update) {
-                    if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 59999) {
-                    } else {
-                      errMsg = '访问端口只能是40000-59999之间的数字';
-                    }
-                  }
-                if (!errMsg && !numberReg.exec(containerPort)) {
-                  errMsg = '端口只能是数字';
-                }
-              }
-              return errMsg;
-            },
-            set validateErrMsg(value) {
-              this._validateErrMsg = value;
-            }
-          },
+//           portMap: {
+//             protocol: 'TCP',
+//             outerPort: '',
+//             containerPort: '',
+//             _validateErrMsg: '',
+//             update: false,
+//             get errMsg() {
+//               if (this.syntaxErrMsg) {
+//                 return this.syntaxErrMsg;
+//               } else if (this._validateErrMsg) {
+//                 return this._validateErrMsg;
+//               } else {
+//                 return '';
+//               }
+//             },
+//             get syntaxErrMsg() {
+//               // 先检测语法错误，后检测端口号错误
+//               let errMsg = '';
+//               const numberReg = /^[0-9]+$/;
+//               const outerPort = this.outerPort;
+//               const containerPort = this.containerPort;
+// //              if (outerPort == '') {
+// //                errMsg = '请填写访问端口';
+// //              } else if (containerPort == '') {
+// //                errMsg = '请填写目标端口';
+// //              } else {
+//               if (containerPort != '') {
+//                 if (this.update) {
+//                   if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 59999) {
+//                   } else {
+//                     errMsg = '访问端口只能是40000-59999之间的数字';
+//                   }
+//                 }
+//                 if (!errMsg && !numberReg.exec(containerPort)) {
+//                   errMsg = '端口只能是数字';
+//                 }
+//               }
+//               return errMsg;
+//             },
+//             set validateErrMsg(value) {
+//               this._validateErrMsg = value;
+//             }
+//           },
           prestopCommand: '',
           rollingUpdate: true,
           loadBalance: profileUtils.getSupportedLoadBalance()[0],
-          healthCheckType:  this.$storeHelper.defaultHealthCheckTypeDesc,
+          healthCheckType: this.$storeHelper.defaultHealthCheckTypeDesc,
           healthCheck: {
             http: '',
             shell: '',
@@ -705,6 +740,39 @@
           },
           initialDelaySeconds: 120,
           agree: false,
+          packageType: '',
+          packageInfo: {
+            _type: '',
+            _name: '',
+            set type(value) {
+              this._type = value;
+            },
+            get type() {
+              return this._type;
+            },
+            set name(value) {
+              this._name = value;
+            },
+            get name() {
+              if (this._type === 'WAR') {
+                return this._name;
+              } else {
+                return '';
+              }
+            },
+            get needSetName() {
+              return this._type == 'WAR';
+            },
+            get errMsg() {
+              return '';
+              if (this._type === 'WAR' && !this._name) {
+                return '默认与项目名称一致';
+//              return '构建类型为WAR时，必须填写构建包名称';
+              } else {
+                return '';
+              }
+            }
+          },
         },
         showMoreConfig: false,
         // error message for form-item environments
@@ -747,7 +815,8 @@
 
         checkPortMap: null,
         errMsgForHealthCheck: '',
-      };
+        packageTypeList: [],
+      }
     },
     computed: {
       ...mapGetters('user', {
@@ -771,12 +840,8 @@
       },
     },
     watch: {
-      'serviceForm.spaceId': function (profileId) {
-        // update profile info
-        this.profileInfo = this.$storeHelper.getProfileInfoByID(profileId);
-        // request image related info
-        this.requestImageRelatedInfo();
-//      this.showMoreConfig = true;
+      'serviceForm.packageInfo.type': function (type) {
+        this.requestImageRelatedInfo(type);
       },
       /**
        * set memoryID at watcher of serviceForm.cpuID
@@ -820,22 +885,22 @@
         }
       },
 
-      'serviceForm.portMap.outerPort': function (value) {
-        if (this.serviceForm.portMap.syntaxErrMsg || this.serviceForm.portMap.outerPort === this.dataPassed.portsMapping[0].outerPort) {
-          return;
-        }
-        this.checkPortMap({
-          appId: this.serviceForm.appId,
-          spaceId: this.serviceForm.spaceId,
-          outerPort: this.serviceForm.portMap.outerPort
-        }, (err, msg) => {
-          if (err) {
-            this.serviceForm.portMap.validateErrMsg = '';
-          } else {
-            this.serviceForm.portMap.validateErrMsg = msg;
-          }
-        })
-      },
+      // 'serviceForm.portMap.outerPort': function (value) {
+      //   if (this.serviceForm.portMap.syntaxErrMsg || this.serviceForm.portMap.outerPort === this.dataPassed.portsMapping[0].outerPort) {
+      //     return;
+      //   }
+      //   this.checkPortMap({
+      //     appId: this.serviceForm.appId,
+      //     spaceId: this.serviceForm.spaceId,
+      //     outerPort: this.serviceForm.portMap.outerPort
+      //   }, (err, msg) => {
+      //     if (err) {
+      //       this.serviceForm.portMap.validateErrMsg = '';
+      //     } else {
+      //       this.serviceForm.portMap.validateErrMsg = msg;
+      //     }
+      //   })
+      // },
       'serviceForm.healthCheckType': function (type) {
         switch (type) {
           case 'http':
@@ -911,7 +976,7 @@
       },
 
       // get image related info from network
-      async requestImageRelatedInfo() {
+      async requestImageRelatedInfo(type) {
         this.imageInfoFromNet['customImageList'] = [];
         this.imageInfoFromNet['autoImageList'] = [];
         try {
@@ -924,7 +989,7 @@
             appId,
             language: this.appLanguage,
             languageVersion: this.appLanguageVersion,
-            packageType: ''
+            packageType: type,
           }, {
             groupTag,
             appId
@@ -1169,12 +1234,13 @@
                   image: serviceForm.imageLocation,
                   prestopCommand: serviceForm.prestopCommand,
                   expiredDays: expiredDays,
+                  packageType: this.dataPassed.packageType,
                 };
-                payload.portsMapping = [{
-                  protocol: serviceForm.portMap.protocol,
-                  outerPort: serviceForm.portMap.outerPort,
-                  containerPort: serviceForm.portMap.containerPort,
-                }];
+                // payload.portsMapping = [{
+                //   protocol: serviceForm.portMap.protocol,
+                //   outerPort: serviceForm.portMap.outerPort,
+                //   containerPort: serviceForm.portMap.containerPort,
+                // }];
                 payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(serviceForm.healthCheckType);
                 switch (serviceForm.healthCheckType) {
                   case 'http':
@@ -1189,7 +1255,7 @@
                 }
                 if (this.type === 'edit') {
                   payload["id"] = this.dataPassed.id;
-                  payload.portsMapping[0]["id"] = this.dataPassed.portsMapping[0]["id"];
+                  // payload.portsMapping[0]["id"] = this.dataPassed.portsMapping[0]["id"];
                   payload["serviceName"] = this.dataPassed.serviceName;
                 }
                 this.addToWaitingResponseQueue('submit');
@@ -1241,6 +1307,7 @@
           });
         });
       },
+
       resetForm(formName) {
         this.$refs[formName].resetFields();
       },
@@ -1270,6 +1337,7 @@
         this.errMsgForHealthCheck = errMsg;
         return errMsg;
       },
+
       handleCustomImage() {
         if (this.appLanguage.toUpperCase() === "JAVA") {
           return false

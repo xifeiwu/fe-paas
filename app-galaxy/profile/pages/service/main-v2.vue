@@ -181,7 +181,7 @@
           <el-form-item label="健康检查">
             {{applicationConfigDeployment["healthCheck"] ? applicationConfigDeployment["healthCheck"] : "未知"}}
           </el-form-item>
-          <el-form-item label="健康检查等待时间">
+          <el-form-item label="健康检查延迟时间">
             {{applicationConfigDeployment["initialDelaySeconds"] ? applicationConfigDeployment["initialDelaySeconds"] + "s" : "未知"}}
           </el-form-item>
           <el-form-item label="负载均衡">
@@ -228,26 +228,26 @@
               <span>未知</span>
             </div>
           </el-form-item>
-          <el-form-item label="端口映射">
-            <div v-if="applicationConfigDeployment.postMapped">
-              <div class="el-row">
-                <div class="el-col el-col-6" style="font-weight: bold; text-align: center">访问端口</div>
-                <div class="el-col el-col-2" style="min-height:1px"></div>
-                <div class="el-col el-col-6" style="font-weight: bold; text-align: center">目标端口</div>
-                <div class="el-col el-col-2" style="font-weight: bold; text-align: center">协议</div>
-                <div class="el-col el-col-2" style="font-weight: bold; text-align: center"></div>
-              </div>
-              <el-row class="content">
-                <el-col :span="6" style="text-align: center">{{applicationConfigDeployment.postMapped.outerPort}}</el-col>
-                <el-col :span="2" style="text-align: center">&ndash;&gt;</el-col>
-                <el-col :span="6" style="text-align: center">{{applicationConfigDeployment.postMapped.containerPort}}</el-col>
-                <el-col :span="2" style="text-align: center">TCP</el-col>
-              </el-row>
-            </div>
-            <div v-else>
-              <span>未知</span>
-            </div>
-          </el-form-item>
+          <!--<el-form-item label="端口映射">-->
+            <!--<div v-if="applicationConfigDeployment.postMapped">-->
+              <!--<div class="el-row">-->
+                <!--<div class="el-col el-col-6" style="font-weight: bold; text-align: center">访问端口</div>-->
+                <!--<div class="el-col el-col-2" style="min-height:1px"></div>-->
+                <!--<div class="el-col el-col-6" style="font-weight: bold; text-align: center">目标端口</div>-->
+                <!--<div class="el-col el-col-2" style="font-weight: bold; text-align: center">协议</div>-->
+                <!--<div class="el-col el-col-2" style="font-weight: bold; text-align: center"></div>-->
+              <!--</div>-->
+              <!--<el-row class="content">-->
+                <!--<el-col :span="6" style="text-align: center">{{applicationConfigDeployment.postMapped.outerPort}}</el-col>-->
+                <!--<el-col :span="2" style="text-align: center">&ndash;&gt;</el-col>-->
+                <!--<el-col :span="6" style="text-align: center">{{applicationConfigDeployment.postMapped.containerPort}}</el-col>-->
+                <!--<el-col :span="2" style="text-align: center">TCP</el-col>-->
+              <!--</el-row>-->
+            <!--</div>-->
+            <!--<div v-else>-->
+              <!--<span>未知</span>-->
+            <!--</div>-->
+          <!--</el-form-item>-->
         </el-form>
       </div>
     </div>
@@ -341,7 +341,7 @@
     .expand {
       box-sizing: border-box;
       padding: 8px 12px;
-      width: 65%;
+      width: 67%;
       margin: 5px 5px;
       max-width: 900px;
       box-shadow: 0 2px 7px 0 rgba(0,0,0,.18);
@@ -394,6 +394,34 @@
             }
           }
         }
+      }
+    }
+    .dialog-for-log {
+      .el-dialog {
+        width: 95%;
+      }
+      .log-item {
+        /*white-space: pre;*/
+        max-width: 100%;
+        word-wrap: break-word;
+        word-break: break-all;
+        line-height: 1.4;
+      }
+      .info {
+        color: #409EFF;
+        font-weight: bold;
+      }
+      .warning {
+        color: #E6A23C;
+        font-weight: bold;
+      }
+      .error {
+        color: #F56C6C;
+        font-weight: bold;
+      }
+      .success {
+        color: #67C23A;
+        font-weight: bold;
       }
     }
   }
@@ -624,7 +652,6 @@ export default {
       let defaultProfileID = this.currentProfileList[0]['id'];
       const localProfileId = this.serviceConfig ? this.serviceConfig['profileId'] : null;
       // check whether localProfileId exist in currentProfileList
-      console.log(this.currentProfileList);
       defaultProfileID = this.currentProfileList.map(it => {
         if (it && it.id) {
           return it.id

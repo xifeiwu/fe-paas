@@ -58,19 +58,19 @@
           </el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item class="build-type" label="构建类型"  style="height: 30px;"
-                    v-if="language.packageTypeList.length > 0" :error="createAppForm.packageInfo.errMsg">
-        <div class="flex-layout">
-          <div class="type-list">
-            <el-radio-group v-model="createAppForm.packageInfo.type">
-              <el-radio v-for="item in language.packageTypeList" :label="item.type" :key="item.type">
-                {{item.packageType}}
-              </el-radio>
-            </el-radio-group>
-          </div>
-          <div :class="['war-name', createAppForm.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']"><el-input v-model="createAppForm.packageInfo.name" placeholder="默认与项目名称一致"></el-input></div>
-        </div>
-      </el-form-item>
+      <!--<el-form-item class="build-type" label="构建类型"  style="height: 30px;"-->
+                    <!--v-if="language.packageTypeList.length > 0" :error="createAppForm.packageInfo.errMsg">-->
+        <!--<div class="flex-layout">-->
+          <!--<div class="type-list">-->
+            <!--<el-radio-group v-model="createAppForm.packageInfo.type">-->
+              <!--<el-radio v-for="item in language.packageTypeList" :label="item.type" :key="item.type">-->
+                <!--{{item.packageType}}-->
+              <!--</el-radio>-->
+            <!--</el-radio-group>-->
+          <!--</div>-->
+          <!--<div :class="['war-name', createAppForm.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']"><el-input v-model="createAppForm.packageInfo.name" placeholder="默认与项目名称一致"></el-input></div>-->
+        <!--</div>-->
+      <!--</el-form-item>-->
       <el-form-item label="运行环境" prop="profiles" class="profiles" :error="productionProfileTip">
         <el-checkbox-group v-model="createAppForm.profiles" style="display: inline-block;">
           <el-checkbox v-for="item in $storeHelper.profileListOfGroup" :label="item.name" :key="item.name"
@@ -398,7 +398,7 @@ export default {
           // the follow prop is set in watch function
           this.propsUsed.language = false;
           this.propsUsed.languageVersion = false;
-          this.propsUsed.packageType = false;
+          // this.propsUsed.packageType = false;
         }
         this.$storeHelper.dataTransfer = null;
       } else {
@@ -439,7 +439,7 @@ export default {
       propsUsed: {
         language: false,
         languageVersion: false,
-        packageType: false
+        // packageType: false
       },
       createAppForm: {
         groupID: this.$storeHelper.currentGroupID,
@@ -449,38 +449,38 @@ export default {
         projectName: '',
         language: '',
         languageVersion: '',
-        packageInfo: {
-          _type: '',
-          _name: '',
-          set type(value) {
-            this._type = value;
-          },
-          get type() {
-            return this._type;
-          },
-          set name(value) {
-            this._name = value;
-          },
-          get name() {
-            if (this._type === 'WAR') {
-              return this._name;
-            } else {
-              return '';
-            }
-          },
-          get needSetName() {
-            return this._type == 'WAR';
-          },
-          get errMsg() {
-            return '';
-            if (this._type === 'WAR' && !this._name) {
-              return '默认与项目名称一致';
-//              return '构建类型为WAR时，必须填写构建包名称';
-            } else {
-              return '';
-            }
-          }
-        },
+//         packageInfo: {
+//           _type: '',
+//           _name: '',
+//           set type(value) {
+//             this._type = value;
+//           },
+//           get type() {
+//             return this._type;
+//           },
+//           set name(value) {
+//             this._name = value;
+//           },
+//           get name() {
+//             if (this._type === 'WAR') {
+//               return this._name;
+//             } else {
+//               return '';
+//             }
+//           },
+//           get needSetName() {
+//             return this._type == 'WAR';
+//           },
+//           get errMsg() {
+//             return '';
+//             if (this._type === 'WAR' && !this._name) {
+//               return '默认与项目名称一致';
+// //              return '构建类型为WAR时，必须填写构建包名称';
+//             } else {
+//               return '';
+//             }
+//           }
+//         },
         profiles: [],
         healthCheckType:  this.$storeHelper.defaultHealthCheckTypeDesc,
         healthCheck: {
@@ -503,7 +503,7 @@ export default {
       language: {
         list: [],
         versionList: [],
-        packageTypeList: []
+        // packageTypeList: []
       },
 
       showLoading: false,
@@ -635,26 +635,26 @@ export default {
 //      this.createAppForm.packageInfo.type = data['packageType'];
     },
     // 版本改变时，更新包类型
-    onLanguageVersionChange (version) {
-      const versionList = this.language.versionList;
-      this.language.packageTypeList = [];
-      Array.isArray(versionList) && versionList.some(it => {
-        if (version == it.version) {
-          this.language.packageTypeList = it.packageTypeList;
-          return true;
-        } else {
-          return false;
-        }
-      });
-      if (Array.isArray(this.language.packageTypeList) && this.language.packageTypeList.length > 0) {
-        if (this.pageType === 'update' && !this.propsUsed.packageType) {
-          this.createAppForm.packageInfo.type = this.dataPassed.packageType;
-          this.propsUsed.packageType = true;
-        } else {
-          this.createAppForm.packageInfo.type = this.language.packageTypeList[0].type;
-        }
-      }
-    },
+    // onLanguageVersionChange (version) {
+    //   const versionList = this.language.versionList;
+    //   this.language.packageTypeList = [];
+    //   Array.isArray(versionList) && versionList.some(it => {
+    //     if (version == it.version) {
+    //       this.language.packageTypeList = it.packageTypeList;
+    //       return true;
+    //     } else {
+    //       return false;
+    //     }
+    //   });
+    //   if (Array.isArray(this.language.packageTypeList) && this.language.packageTypeList.length > 0) {
+    //     if (this.pageType === 'update' && !this.propsUsed.packageType) {
+    //       this.createAppForm.packageInfo.type = this.dataPassed.packageType;
+    //       this.propsUsed.packageType = true;
+    //     } else {
+    //       this.createAppForm.packageInfo.type = this.language.packageTypeList[0].type;
+    //     }
+    //   }
+    // },
 
     toggleEditScript() {
       if (this.editScript) {
@@ -791,7 +791,7 @@ export default {
               tag: createAppForm.projectName,
               language: createAppForm.language,
               languageVersion: createAppForm.languageVersion,
-              packageType: createAppForm.packageInfo.type,
+//               packageType: createAppForm.packageInfo.type,
 //                spaceList: createAppForm.profiles,
 //                buildName: createAppForm.packageInfo.name,
 //                initialDelaySeconds: createAppForm.initialDelaySeconds,
