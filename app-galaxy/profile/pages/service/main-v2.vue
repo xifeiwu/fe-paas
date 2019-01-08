@@ -193,7 +193,7 @@
             {{applicationConfigDeployment["loadBalance"] ? applicationConfigDeployment["loadBalance"] : "未知"}}
           </el-form-item>
           <el-form-item label="滚动升级">
-            {{applicationConfigDeployment["rollingUpdate"] ? applicationConfigDeployment["rollingUpdate"] : "未知"}}
+            {{applicationConfigDeployment["rollingUpdate"] ? "需要" : "不需要"}}
           </el-form-item>
           <el-form-item label="应用监控">
             {{profileUtils.getMonitorNameById(applicationConfigDeployment["appMonitor"])}}
@@ -1206,9 +1206,9 @@ export default {
             } else {
               this.addToWaitingResponseQueue(action);
               await this.serviceDeploy({
-                id: this.selected.service['id'],
-                appId: this.selectedAppID,
-                spaceId: this.selectedProfileID
+                id: this.serviceInfo.serviceID,
+                appId: this.serviceInfo.appID,
+                spaceId: this.serviceInfo.profileID,
               }, action);
               this.hideWaitingResponse(action);
             }
