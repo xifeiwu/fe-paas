@@ -22,7 +22,7 @@ class StoreHelper extends BaseHelper{
       clusterId: null,
       middlewareId: null,
     };
-    this.clusterList = null;
+    // this.clusterList = null;
   }
 
   set currentGroupID(groupId) {
@@ -646,6 +646,13 @@ class StoreHelper extends BaseHelper{
   logout() {
     super.logout();
     this.$store.dispatch('logout');
+  }
+
+  set clusterList(value) {
+    this.$store.dispatch('app/clusterList', value);
+  }
+  get clusterList() {
+    return this.$store.getters['app/clusterList'];
   }
 
   setClusterList(clusterList) {

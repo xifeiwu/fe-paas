@@ -14,7 +14,9 @@ const state = {
   /* net data */
   globalConfig: null,
   usersAll: null,
-  domainLevelByProfile: null
+  domainLevelByProfile: null,
+
+  clusterList: null
 };
 
 const actions = {
@@ -40,12 +42,19 @@ const actions = {
       });
     }
     return state.domainLevelByProfile;
+  },
+
+  clusterList({commit, state}, clusterList) {
+    commit('CLUSTER_LIST', clusterList);
   }
 };
 
 const mutations = {
   SET_GLOBAL_CONFIG(state, globalConfig) {
     state.globalConfig = globalConfig;
+  },
+  CLUSTER_LIST(state, clusterList) {
+    state.clusterList = clusterList;
   }
 };
 
@@ -56,6 +65,9 @@ const getters = {
   },
   'usersAll': (state, getters) => {
     return state.usersAll;
+  },
+  clusterList(state, getters) {
+    return state.clusterList;
   },
 };
 

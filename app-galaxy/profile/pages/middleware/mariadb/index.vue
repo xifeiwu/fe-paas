@@ -1,17 +1,22 @@
 <template>
   <div id="middleware-mysql">
     <div class="header">
-      <el-button size="mini-extral"
-                 type="primary"
-                 class="flex"
-                 @click="handleButtonClick($event, 'middleware_new_instance')">
-        <span>申请实例</span><i class="paas-icon-level-up"></i>
-      </el-button>
-      <el-button size="mini-extral"
-                 type="primary"
-                 @click="handleButtonClick($event, 'refreshList')">
-        <span>刷新列表</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
-      </el-button>
+      <el-tabs type="border-tab" @tab-click="handleClick" :activeName="firstProfileName">
+        <el-tab-pane v-for="item in clusterList" :label="item.description" :name="item.clusterName"></el-tab-pane>
+      </el-tabs>
+      <div class="operation">
+        <el-button size="mini-extral"
+                   type="primary"
+                   class="flex"
+                   @click="handleButtonClick($event, 'middleware_new_instance')">
+          <span>申请实例</span><i class="paas-icon-level-up"></i>
+        </el-button>
+        <el-button size="mini-extral"
+                   type="primary"
+                   @click="handleButtonClick($event, 'refreshList')">
+          <span>刷新列表</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
+        </el-button>
+      </div>
     </div>
     <div class="list">
       <el-table :data="instanceList"
@@ -153,8 +158,29 @@
   max-width: 1500px;
   background: white;
   .header {
-    padding: 3px 5px;
+    /*display: flex;*/
     font-size: 14px;
+    /*margin-bottom: 5px;*/
+    .el-tabs {
+      /*border-right: 1px solid #dfe4ed;*/
+      &.el-tabs--border-tab {
+        background-color: #f4f5f5;
+        >.el-tabs__header .el-tabs__item {
+          /*background-color: gray;*/
+          color: black;
+        }
+        .el-tabs__content {
+          display: none;
+        }
+      }
+    }
+    .operation {
+      padding: 6px 5px 3px 5px;
+      /*flex: 1;*/
+      /*display: inline-flex;*/
+      /*align-items: center;*/
+      /*border-top: 1px solid #dfe4ed;*/
+    }
   }
   .list {
     .el-table {
@@ -225,11 +251,15 @@
 <script>
   import bytes from 'bytes';
   import commonUtils from 'assets/components/mixins/common-utils';
+
+  const MIDDLEWARE_NAME = 'mariadb';
   module.exports = {
     mixins: [commonUtils],
     async created() {
-      await this.checkBasicData4Middleware();
-      this.requestList();
+      // request for clusterList
+//      await this.checkBasicData4Middleware(null);
+      // will request list at change of profileName
+//      await this.requestList();
     },
     mounted() {
       // update value in next tick
@@ -243,6 +273,9 @@
     },
     data() {
       return {
+        firstProfileName: '',
+        // ['fpdev', 'test', 'beta', 'performance', 'production']
+        profileName: null,
         clusterId: null,
         middlewareId: null,
 
@@ -276,18 +309,37 @@
         }
       }
     },
+    computed: {
+      clusterList() {
+        var results = this.$storeHelper.clusterList;
+        if (!results) {
+          results = [];
+        }
+        results = results.filter(it => it['clusterName']).filter(it => it['clusterName'] != 'production');
+        if (results.length > 0) {
+          this.firstProfileName = results[0]['clusterName'];
+          this.profileName = this.firstProfileName;
+        }
+        return results;
+      }
+    },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
       '$storeHelper.groupInfo.id': function () {
         this.requestList();
+      },
+      'profileName': async function() {
+        await this.checkBasicData4Middleware();
+        await this.requestList();
       }
     },
     methods: {
       // check if all necessary data is get
       async checkBasicData4Middleware() {
-        const profile = 'unProduction';
-        const middlewareName = 'mariadb';
-        await this.$storeHelper.checkBasicData4Middleware(profile, middlewareName);
+        if (!this.profileName) {
+          return;
+        }
+        await this.$storeHelper.checkBasicData4Middleware(this.profileName, MIDDLEWARE_NAME);
 //      console.log(this.$storeHelper.getClusterList());
 //      console.log(this.$storeHelper.currentMiddleware);
         this.clusterId = this.$storeHelper.currentMiddleware['clusterId'];
@@ -593,6 +645,12 @@
           }
           return result;
         });
+      },
+
+      async handleClick(tab, event) {
+        this.profileName = tab.name;
+//        console.log(tab, tabName, event);
+//        console.log(event);
       }
     }
   }

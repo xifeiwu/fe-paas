@@ -16,6 +16,8 @@
 <script>
   module.exports = {
     async created() {
+      // request clusterList at start
+      await this.checkBasicData(null, null);
       this.$storeHelper.checkBasicData4Middleware = this.checkBasicData;
     },
     methods: {
@@ -37,12 +39,12 @@
         });
       },
 
-      // all profile: ['fpdev', 'test', 'beta', 'performance', 'production']
+      // all profileName: ['fpdev', 'test', 'beta', 'performance', 'production']
       // check data: clusterList, middlewareList, middlewareVersionList
-      async checkBasicData (profile, middlewareName) {
+      async checkBasicData (profileName, middlewareName) {
         const currentMiddleware = this.$storeHelper.currentMiddleware;
 
-        var clusterList = this.$storeHelper.getClusterList();
+        var clusterList = this.$storeHelper.clusterList;
         if (!clusterList) {
           clusterList = await this.requestClusterList();
           // check clusterList
@@ -50,23 +52,25 @@
             console.log(`format of clusterList is error!`);
             return;
           }
-          this.$storeHelper.setClusterList(clusterList);
+          this.$storeHelper.clusterList = clusterList;
         }
 
+        if (!profileName) {
+          return;
+        }
         var currentClusterId = null;
         var currentCluster = null;
-        // if !profile, get the first element of clusterList
-        // if profile is 'unProduction', get the first un-production element of clusterList
-        if (!profile) {
-          currentClusterId = clusterList[0]['id'];
-        } else if (profile === 'unProduction') {
-          var unProductionClusterList = clusterList.filter(it => it['clusterName'] != 'production');
-          if (unProductionClusterList.length > 0) {
-            currentCluster = unProductionClusterList[0];
-          }
-        } else {
-          currentCluster = clusterList.find(it => it['clusterName'] === profile);
-        }
+        // if !profileName, get the first element of clusterList
+//        if (!profileName) {
+//          currentClusterId = clusterList[0]['id'];
+//        } else if (profileName === 'unProduction') {
+//          var unProductionClusterList = clusterList.filter(it => it['clusterName'] != 'production');
+//          if (unProductionClusterList.length > 0) {
+//            currentCluster = unProductionClusterList[0];
+//          }
+//        } else {
+          currentCluster = clusterList.find(it => it['clusterName'] === profileName);
+//        }
         if (!currentCluster) {
           console.log(`currentCluster not found!`);
           return;
@@ -81,6 +85,9 @@
         }
 //        console.log(middlewareList);
 
+        if (!middlewareName) {
+          return;
+        }
         // get middlewareId by middlewareName
         var currentMiddlewareId = null;
         middlewareList.some(it => {
