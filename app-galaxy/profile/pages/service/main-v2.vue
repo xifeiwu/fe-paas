@@ -57,7 +57,7 @@
                   :loading="statusOfWaitingResponse('quick_deploy')"
                   @click="handleButtonClick($event, 'quick_deploy')"
                   :class="reason4DisableQuickDeploy() ? 'disabled' : ''">
-            {{statusOfWaitingResponse('quick-deploy') ? '部署中': '重启'}}
+            {{statusOfWaitingResponse('quick_deploy') ? '部署中': '重启'}}
           </el-button>
           <el-button
                   size="mini-extral"
@@ -934,10 +934,10 @@ export default {
       const desc = this.getVersionDescription();
 
       var warningMsg = `您确认要部署${desc}吗?`;
-      if (type == 'quick-deploy') {
+      if (type == 'quick_deploy') {
         warningMsg = `<p>您确认要重启${desc}吗?</p><p style="color: #E6A23C; font-size: 12px;">(重启：采用最近一次部署成功的镜像进行服务的重新启动，跳过代码编译、镜像生成阶段)</p>`;
       }
-      const urlDesc = type == 'quick-deploy' ? this.$net.URL_LIST.service_quick_deploy : this.$net.URL_LIST.service_deploy;
+      const urlDesc = type == 'quick_deploy' ? this.$net.URL_LIST.service_quick_deploy : this.$net.URL_LIST.service_deploy;
       //      await this.warningConfirm(warningMsg);
       await this.$confirm(warningMsg, '提示', {
         confirmButtonText: '确定',
