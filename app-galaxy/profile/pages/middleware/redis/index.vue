@@ -417,7 +417,7 @@
             try {
               const instanceStatus = await this.getInstanceMoreInfo();
 //              console.log(instanceStatus);
-              this.dialog4UpdateMemory.memoryNow = bytes(parseInt(instanceStatus['memoryTotal']));
+              this.dialog4UpdateMemory.memoryNow = instanceStatus['memorySelected'];
               this.dialog4UpdateMemory.memory = parseInt(instanceStatus['memoryTotal']);
               this.action.name = action;
               this.hideWaitingResponse(action);
