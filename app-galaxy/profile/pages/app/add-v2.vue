@@ -540,7 +540,7 @@ export default {
       this.createAppForm.groupID = groupID;
     },
     'createAppForm.language': 'onLanguageTypeChange',
-    'createAppForm.languageVersion': 'onLanguageVersionChange',
+    // 'createAppForm.languageVersion': 'onLanguageVersionChange',
     'createAppForm.lobId': function() {
       let options = {
         lobId:this.createAppForm.lobId,

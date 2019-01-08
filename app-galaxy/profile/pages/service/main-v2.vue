@@ -173,15 +173,20 @@
         <div class="title">实时信息</div>
         <el-form label-position="right" label-width="150px" size="mini">
           <el-form-item label="CPU/内存">
-            {{applicationConfigDeployment["cpu"] == null || applicationConfigDeployment["memory"] == null ? "未知" : applicationConfigDeployment["cpu"] + "/" + applicationConfigDeployment["memory"]}}
+            {{applicationConfigDeployment["cpu"] == null || applicationConfigDeployment["memory"] == null ? "未知" : applicationConfigDeployment["cpu"] + "核 / " + applicationConfigDeployment["memory"]}}
           </el-form-item>
-          <el-form-item label="运行实例数">
+          <el-form-item label="运行实例数/总实例数">
             {{applicationConfigDeployment["status"] == null ? '未知' : applicationConfigDeployment["status"]["Running"] + "/" +applicationConfigDeployment["status"]["Total"]}}
           </el-form-item>
-          <el-form-item label="健康检查">
-            {{applicationConfigDeployment["healthCheck"] ? applicationConfigDeployment["healthCheck"] : "未知"}}
+          <el-form-item label="健康检查类型">
+            {{applicationConfigDeployment["healthCheckType"] ? applicationConfigDeployment["healthCheckType"] : "未知"}}
           </el-form-item>
-          <el-form-item label="健康检查延迟时间">
+          <el-form-item label="健康检查路径">
+            <a v-if="applicationConfigDeployment['healthCheckType'] && applicationConfigDeployment['healthCheckType'].toLowerCase() === 'http'"
+              :href="'http://' + model['intranetDomain'] + applicationConfigDeployment['healthCheck']">{{applicationConfigDeployment['healthCheck']}}</a>
+            <span v-else>{{applicationConfigDeployment['healthCheck'] ? applicationConfigDeployment['healthCheck'] : "未知"}}</span>
+          </el-form-item>
+          <el-form-item label="健康检查延迟时间" v-if="this.$storeHelper.groupVersion !== 'v1'">
             {{applicationConfigDeployment["initialDelaySeconds"] ? applicationConfigDeployment["initialDelaySeconds"] + "s" : "未知"}}
           </el-form-item>
           <el-form-item label="负载均衡">
@@ -191,7 +196,7 @@
             {{applicationConfigDeployment["rollingUpdate"] ? applicationConfigDeployment["rollingUpdate"] : "未知"}}
           </el-form-item>
           <el-form-item label="应用监控">
-            {{applicationConfigDeployment["appMonitor"] ? applicationConfigDeployment["appMonitor"] : "未知"}}
+            {{profileUtils.getMonitorNameById(applicationConfigDeployment["appMonitor"])}}
           </el-form-item>
           <el-form-item label="环境变量配置">
             <div v-if="applicationConfigDeployment.environments && applicationConfigDeployment.environments.length > 0">
@@ -517,10 +522,12 @@
   import {mapGetters} from 'vuex';
   import paasDialogForLog from '../components/dialog4log.vue'
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+  import profileUtils from '../utils/app-props';
   import fa from "../../../../components/element-ui/src/locale/lang/fa";
 export default {
   components: {paasDialogForLog},
   created() {
+    this.profileUtils = profileUtils;
     if (this.$storeHelper.dataTransfer) {
       const dataTransfer = this.$storeHelper.dataTransfer;
       try {

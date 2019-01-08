@@ -572,7 +572,7 @@
       } else {
         this.$storeHelper.dataTransfer = null;
       }
-      // console.log(dataTransfer);
+      console.log(dataTransfer);
       this.type = dataTransfer['type'];
       const theData = dataTransfer.data;
       this.dataPassed = theData;
@@ -1214,7 +1214,6 @@
                 let payload = {
                   appId: serviceForm.appId,
                   spaceId: serviceForm.spaceId,
-                  serviceVersion: serviceForm.serviceVersion,
                   gitLabAddress: serviceForm.gitLabAddress,
                   gitLabBranch: serviceForm.gitLabBranch,
                   mainClass: serviceForm.mainClass,
@@ -1241,6 +1240,18 @@
                 //   outerPort: serviceForm.portMap.outerPort,
                 //   containerPort: serviceForm.portMap.containerPort,
                 // }];
+                if (this.type === 'edit') {
+                  payload["id"] = this.dataPassed.id;
+                  // payload.portsMapping[0]["id"] = this.dataPassed.portsMapping[0]["id"];
+                  payload["serviceName"] = this.dataPassed.serviceName;
+                }
+                if (this.$storeHelper.groupVersion !== 'v1') {
+                  if (this.type === 'edit') {
+                    payload["serviceVersion"] = this.dataPassed.serviceVersion;
+                  } else {
+                    payload["serviceVersion"] = 'default';
+                  }
+                }
                 payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(serviceForm.healthCheckType);
                 switch (serviceForm.healthCheckType) {
                   case 'http':
@@ -1252,11 +1263,6 @@
                   case 'socket':
                     payload.healthCheck = serviceForm.healthCheck.socket;
                     break;
-                }
-                if (this.type === 'edit') {
-                  payload["id"] = this.dataPassed.id;
-                  // payload.portsMapping[0]["id"] = this.dataPassed.portsMapping[0]["id"];
-                  payload["serviceName"] = this.dataPassed.serviceName;
                 }
                 this.addToWaitingResponseQueue('submit');
                 this.showLoading = true;

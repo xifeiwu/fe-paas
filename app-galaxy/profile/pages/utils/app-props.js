@@ -120,7 +120,7 @@ class AppInfoHelper {
         message: '请选择开发语言版本',
       }],
       // 构建类型
-      // buildType: [{
+      // packageType: [{
       //   required: true,
       //   message: '请选择构建类型',
       //   trigger: 'change'
@@ -192,10 +192,6 @@ class AppInfoHelper {
         required: true,
         message: '请选择打镜像方式',
       }],
-      packageType: [{
-        required: true,
-        message: '请选择构建方式'
-      }],
       // 镜像方式
       imageTypeID: [{
         required: true,
@@ -217,7 +213,6 @@ class AppInfoHelper {
           message: '请输入镜像地址',
         }
       ],
-
       cpu: [{
         required: true,
         message: '请选择CPU类型',
