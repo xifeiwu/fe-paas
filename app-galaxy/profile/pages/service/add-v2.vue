@@ -13,7 +13,7 @@
           <el-form-item label="运行环境" class="profile-description">
             {{profileInfo? profileInfo.description: ''}}
           </el-form-item>
-          <el-form-item class="build-type" label="构建类型" v-if="packageTypeList.length > 0" :error="serviceForm.packageInfo.errMsg" prop="packageType">
+          <el-form-item class="build-type" label="构建类型" v-if="packageTypeList.length > 0" :error="serviceForm.packageInfo.errMsg">
             <div class="flex-layout">
               <div class="type-list">
                 <el-radio-group v-model="serviceForm.packageInfo.type">
@@ -590,7 +590,7 @@
       );
       this.profileInfo = this.$storeHelper.getProfileInfoByID(this.serviceForm.spaceId);
       if (this.type === 'edit') {
-        this.serviceForm.packageInfo.type = theData.packageType;
+        this.initPackageInfoType(theData);
         this.profileListOfCurrentApp = theData['appInfo']['profileList'];
         this.imageSelectState.customImage = theData.customImage;
         if(theData.customImage){
@@ -1214,6 +1214,8 @@
                 let payload = {
                   appId: serviceForm.appId,
                   spaceId: serviceForm.spaceId,
+                  orchId: this.dataPassed.orchId,
+                  orchIP: this.dataPassed.orchIP,
                   gitLabAddress: serviceForm.gitLabAddress,
                   gitLabBranch: serviceForm.gitLabBranch,
                   mainClass: serviceForm.mainClass,
@@ -1233,7 +1235,7 @@
                   image: serviceForm.imageLocation,
                   prestopCommand: serviceForm.prestopCommand,
                   expiredDays: expiredDays,
-                  packageType: this.dataPassed.packageType,
+                  packageType: this.serviceForm.packageInfo.type,
                 };
                 // payload.portsMapping = [{
                 //   protocol: serviceForm.portMap.protocol,
@@ -1351,6 +1353,17 @@
           return false
         } else {
           return true
+        }
+      },
+
+      initPackageInfoType(theData) {
+        let item = this.packageTypeList.find(it => {
+          return theData.packageType == it.type;
+        });
+        if (item) {
+          this.serviceForm.packageInfo.type = theData.packageType;
+        } else {
+          this.serviceForm.packageInfo.type = this.packageTypeList[0].type;
         }
       }
     }
