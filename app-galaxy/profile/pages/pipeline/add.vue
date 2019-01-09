@@ -149,9 +149,15 @@
         <div style="height: 60px;"></div>
       </div>
       <div class="footer">
-        <el-button size="mini" type="primary" @click="handleClick($event, 'save')">保存</el-button>
-        <el-button size="mini" type="primary" @click="handleClick($event, 'apply')">应用</el-button>
-        <el-button size="mini" type="primary" @click="handleClick($event, 'back')">返回</el-button>
+        <el-button size="mini" type="primary" @click="handleClick($event, 'save')" v-if="false">保存</el-button>
+        <el-button size="mini" type="primary" @click="handleClick($event, 'enable')" v-if="false">生效</el-button>
+        <el-button size="mini" type="primary" @click="handleClick($event, 'take-effect')">应用</el-button>
+        <el-button size="mini" type="primary" @click="handleClick($event, 'go-to-page-pipeline-records')" class="flex">
+          <span>执行</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
+        </el-button>
+        <el-button size="mini" type="primary" @click="handleClick($event, 'back')" class="flex">
+          <span>返回</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
+        </el-button>
       </div>
     </div>
     <paas-popover-element ref="popover-for-content-show" popperClass="el-popover--small is-dark" title="fdsafdsafd"
@@ -967,6 +973,7 @@
             this.formData[this.currentStage['name']]['selected'] = false;
             break;
           case 'save':
+          case 'take-effect':
 //            console.log(this.formData);
             const basicInfoForm = this.$refs['basic-info-form'];
             const configInfoForm = this.$refs['config-info-form'];
@@ -998,11 +1005,19 @@
                   basicInfoForm.validate(() => {});
                 }
               } else {
-                this.requestUpdate();
+                if ('take-effect' === action) {
+                  await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_take_effect, {
+                    payload: this.formData
+                  });
+                  this.$message.success(`pipeline "${this.formData.pipelineName}" 的配置已生效！`);
+                } else {
+                  this.requestUpdate();
+                }
               }
             });
             break;
-          case 'apply':
+          // TODO: not used
+          case 'enable':
             await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_enable, {
               query: {
                 appId: this.formData.appId
@@ -1012,6 +1027,17 @@
             break;
           case 'back':
             this.$router.go(-1);
+            break;
+          case 'go-to-page-pipeline-records':
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page['profile/pipeline/list'],
+              data: {
+                appId: this.appInfo['appId'],
+                appName: this.appInfo['appName'],
+                pipelineName: this.formData['pipelineName'],
+              }
+            };
+            this.$router.push(this.$net.page['profile/pipeline/records']);
             break;
         }
       },

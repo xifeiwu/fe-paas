@@ -590,6 +590,11 @@ class Net extends NetBase {
         path: '/pipeline/createOrUpdate',
         method: 'post'
       },
+      // 保存（更新）pipeline并生效
+      'pipeline_take_effect': {
+        path: '/pipeline/apply',
+        method: 'post'
+      },
       // 删除pipeline
       'pipeline_delete': {
         path: '/pipeline/delete/{appId}',

@@ -103,8 +103,8 @@
             <el-button
               type="text"
               :class="['flex', 'primary']"
-              @click="handleTRClick($event, 'got-to-page-pipeline-records', scope.$index, scope.row)">
-              <span>执行记录</span><i class="paas-icon-level-up"></i>
+              @click="handleTRClick($event, 'go-to-page-pipeline-records', scope.$index, scope.row)">
+              <span>执行</span><i class="paas-icon-level-up"></i>
             </el-button>
           </template>
         </el-table-column>
@@ -482,7 +482,7 @@
               await this.updatePipelineListByPage(true);
             } catch (err) {}
             break;
-          case 'got-to-page-pipeline-records':
+          case 'go-to-page-pipeline-records':
             if (!row.appId) {
               this.$message.error('未找到appId');
               return;
@@ -491,7 +491,8 @@
               from: this.$net.page['profile/pipeline/list'],
               data: {
                 appId: row['appId'],
-//                appId: 1934,
+                appName: row['appName'],
+                pipelineName: row['pipelineName'],
               }
             };
             this.$router.push(this.$net.page['profile/pipeline/records']);

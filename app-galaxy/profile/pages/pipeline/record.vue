@@ -6,6 +6,12 @@
                    :loading="loadingStatus4Execute"
                    @click="handleClick($event, 'execute')">执行</el-button>
         <el-button size="mini-extral" type="primary" style="margin-right: 5px;" @click="handleClick($event, 'refresh-record-list')">刷新</el-button>
+        <div style="display: inline-block; margin-left: 16px">
+          <span style="font-weight: bold">pipeline名称：</span><span>{{dataPassed.pipelineName}}</span>
+        </div>
+        <div style="display: inline-block; margin-left: 16px">
+          <span style="font-weight: bold">应用名称：</span><span>{{dataPassed.appName}}</span>
+        </div>
         <!--<el-button size="mini-extral" type="primary" style="margin-right: 5px">修改配置</el-button>-->
       </div>
     </div>
@@ -110,8 +116,12 @@
     created() {
       var dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer) {
-        this.relatedAppId = dataTransfer["data"]["appId"];
-        dataTransfer = null;
+        const from = dataTransfer['from'];
+        const data = dataTransfer['data'];
+        this.relatedAppId = data['appId'];
+        this.dataPassed.appName = data['appName'];
+        this.dataPassed.pipelineName = data['pipelineName'];
+        this.$storeHelper.dataTransfer = null;
       } else {
         this.$router.push(this.$net.page['profile/pipeline/list']);
       }
@@ -132,6 +142,10 @@
         lastBuildRecord: null,
         leavePage: false,
         loadingStatus4Execute: false,
+        dataPassed: {
+          appName: '',
+          pipelineName: ''
+        },
 
         relatedAppId: null,
         buildListAll: [],
