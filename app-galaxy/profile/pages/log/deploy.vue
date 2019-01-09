@@ -248,7 +248,7 @@
             start, length,
             appId: selectedAPP.appId,
             spaceId: selectedProfile.id,
-            serviceVersion: selectedService.serviceVersion
+            // serviceVersion: selectedService.serviceVersion
           }
         }).then(resContent => {
           this.totalSize = resContent['total'];

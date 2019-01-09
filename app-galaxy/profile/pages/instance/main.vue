@@ -443,6 +443,7 @@
             payload: {
               appId: appID,
               spaceId: spaceID,
+              // serviceVersion: version,
             }
           });
 //          console.log(resContent);

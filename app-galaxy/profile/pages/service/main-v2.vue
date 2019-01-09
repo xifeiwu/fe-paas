@@ -128,15 +128,15 @@
             {{model["k8s"] === 1 ? 'k8s' : 'mesos'}}
           </el-form-item>
           <el-form-item label="外网域名">
-            <div v-if="model.internetDomainList.length==0">未绑定</div>
-            <div v-if="model.internetDomainList.length==1">
-              <a :href="'http://' + model.internetDomainList[0]" target="_blank">{{model.internetDomainList[0]}}</a>
+            <div v-if="internetDomainList.length==0">未绑定</div>
+            <div v-if="internetDomainList.length==1">
+              <a :href="'http://' + internetDomainList[0]" target="_blank">{{internetDomainList[0]}}</a>
             </div>
-            <div v-if="model.internetDomainList.length>1">
-              <a :href="'http://' + model.internetDomainList[0]" target="_blank">{{model.internetDomainList[0]}}</a>
+            <div v-if="internetDomainList.length>1">
+              <a :href="'http://' + internetDomainList[0]" target="_blank">{{internetDomainList[0]}}</a>
               <el-tooltip slot="trigger" effect="light" placement="top">
                 <div slot="content">
-                  <div v-for="(item, index) in model.internetDomainList" v-if="index!=0">
+                  <div v-for="(item, index) in internetDomainList" v-if="index!=0">
                     <a :href="'http://' + item" target="_blank">{{item}}</a>
                   </div>
                 </div>
@@ -145,8 +145,8 @@
             </div>
           </el-form-item>
           <el-form-item label="内网域名">
-            <a :href="'http://' + model['intranetDomain']" target="_blank"
-               v-if="model['intranetDomain']">{{model['intranetDomain']}}</a>
+            <a :href="'http://' + intranetDomain" target="_blank"
+               v-if="intranetDomain">{{intranetDomain}}</a>
             <span v-else>未绑定</span>
           </el-form-item>
           <el-form-item label="更新时间">
@@ -603,6 +603,8 @@ export default {
       // whether current profile is production
       isProductionProfile: null,
       currentProfileList: [],
+      intranetDomain: null,
+      internetDomainList: [],
       serviceInfo: {
         appID: null,
         profileID: null,
@@ -766,6 +768,8 @@ export default {
             this.serviceInfo.serviceID = this.model.id;
           }
         }
+        this.intranetDomain = content["intranetDomain"];
+        this.internetDomainList = content["internetDomain"];
       })
     },
 
