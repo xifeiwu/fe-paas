@@ -39,7 +39,7 @@
                     type="text"
                     :class="$storeHelper.permission['middleware_instance_update'].disabled ? 'disabled' : 'warning'"
                     :loading="statusOfWaitingResponse('middleware_instance_update') && operation.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_instance_update', scope.$index, scope.row)">变更规则</el-button>
+                    @click="handleTRClick($event, 'middleware_instance_update', scope.$index, scope.row)">变更规格</el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
