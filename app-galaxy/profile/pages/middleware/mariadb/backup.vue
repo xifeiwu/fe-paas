@@ -21,6 +21,15 @@
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_refresh')">
         <span>刷新</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
       </el-button>
+      <el-tooltip slot="trigger" effect="dark" placement="bottom">
+        <div slot="content">
+          <div v-for="(item, index) in HELP_LIST" :key="index">{{item}}</div>
+        </div>
+        <span class="helper-text-tool-tip" style="font-size: 12px">相关提示<i class="el-icon-question" ></i></span>
+      </el-tooltip>
+      <div style="display: inline-block; margin-left: 16px">
+        <span style="font-weight: bold">运行环境：</span><span v-if="clusterInfo">{{clusterInfo.description}}</span>
+      </div>
       <div style="display: inline-block; margin-left: 16px">
         <span style="font-weight: bold">mariadb名称：</span><span v-if="instanceInfo">{{instanceInfo.name}}</span>
       </div>
@@ -153,6 +162,9 @@
   import PaasPopInContainer from 'assets/components/pop-in-container';
   import bytes from 'bytes';
 
+  const HELP_LIST = [
+    '每个实例最多只能备份10份数据'
+  ];
   const STATUS_MAP = {
     Complete: '成功',
     Running: '中',
@@ -162,25 +174,32 @@
     mixins: [commonUtils],
     components: { PaasPopInContainer },
     async created() {
+      this.HELP_LIST = HELP_LIST;
+
+      var goBack = false;
       const dataTransfer = this.$storeHelper.dataTransfer;
-      if (!dataTransfer) {
-        this.$router.go(-1);
-        return;
-      } else {
+      if (dataTransfer) {
+        const data = dataTransfer['data'];
+        switch (dataTransfer.from) {
+          case this.$net.page['profile/middleware/mariadb']:
+            this.clusterInfo = data['clusterInfo'];
+            this.middlewareInfo = data['middlewareInfo'];
+            this.instanceInfo = data['instanceInfo'];
+            break;
+          default:
+            goBack = true;
+            break;
+        }
         this.$storeHelper.dataTransfer = null;
+      } else {
+        this.$router.go(-1);
       }
-      if (dataTransfer.from !== this.$net.page['profile/middleware/mariadb']) {
+
+      if (goBack) {
         this.$router.go(-1);
         return;
       }
 
-      const profile = 'unProduction';
-      const middlewareName = 'mariadb';
-      await this.$storeHelper.checkBasicData4Middleware(profile, middlewareName);
-
-      this.clusterId = this.$storeHelper.currentMiddleware['clusterId'];
-      this.middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
-      this.instanceInfo = dataTransfer['data'];
       setTimeout(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
         this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 8;
@@ -194,8 +213,8 @@
     },
     data() {
       return {
-        clusterId: null,
-        middlewareId: null,
+        clusterInfo: null,
+        middlewareInfo: null,
         instanceInfo: null,
 
         heightOfTable: 500,
@@ -248,8 +267,8 @@
         this.backupList = [];
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_list, {
           payload: {
-            clusterId: this.clusterId,
-            middlewareId: this.middlewareId,
+            clusterId: this.clusterInfo.id,
+            middlewareId: this.middlewareInfo.id,
             name: this.instanceInfo.name,
             namespace: this.$storeHelper.groupInfo.tag
           }
@@ -287,6 +306,10 @@
             }
             break;
           case 'middleware_mariadb_backup_create':
+            if (this.backupList.length > 10) {
+              this.$message.warning('每个实例最多创建10个备份！如需创建新备份，可先删除老备份。');
+              return;
+            }
             try {
               await this.$confirm(`确定要备份mariadb实例 "${this.instanceInfo.name}" 吗？`, '提示', {
                 confirmButtonText: '确定',
@@ -296,8 +319,8 @@
               });
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_create, {
                 payload: {
-                  clusterId: this.clusterId,
-                  middlewareId: this.middlewareId,
+                  clusterId: this.clusterInfo.id,
+                  middlewareId: this.middlewareInfo.id,
                   backupCluster: this.instanceInfo.name,
                   namespace: this.$storeHelper.groupInfo.tag
                 }
@@ -310,6 +333,8 @@
             break;
           case 'middleware_mariadb_backup_delete':
             try {
+//              console.log(this.selectedBackup);
+//              console.log(this.action);
               if (!this.selectedBackup) {
                 this.$message.error('请选择要操作的备份！');
                 return;
@@ -322,10 +347,10 @@
               });
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_delete, {
                 payload: {
-                  clusterId: this.clusterId,
-                  middlewareId: this.middlewareId,
+                  clusterId: this.clusterInfo.id,
+                  middlewareId: this.middlewareInfo.id,
                   backupCluster: this.instanceInfo['name'],
-                  location: this.action.row['location'],
+                  location: this.selectedBackup.location,
                   name: this.selectedBackup.name,
                   namespace: this.$storeHelper.groupInfo.tag
                 }
@@ -354,8 +379,8 @@
               });
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_recover, {
                 payload: {
-                  clusterId: this.clusterId,
-                  middlewareId: this.middlewareId,
+                  clusterId: this.clusterInfo.id,
+                  middlewareId: this.middlewareInfo.id,
                   dataFrom: this.selectedBackup.location,
                   clusterReference: this.instanceInfo.name,
                   namespace: this.$storeHelper.groupInfo.tag
@@ -389,8 +414,8 @@
                 this.recoverList = [];
                 resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_recovery_list, {
                   payload: {
-                    clusterId: this.clusterId,
-                    middlewareId: this.middlewareId,
+                    clusterId: this.clusterInfo.id,
+                    middlewareId: this.middlewareInfo.id,
                     name: this.instanceInfo.name,
                     namespace: this.$storeHelper.groupInfo.tag,
                     location: row.location

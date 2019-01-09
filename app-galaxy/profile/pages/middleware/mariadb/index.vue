@@ -643,7 +643,11 @@
           case 'go-to-page-backup':
             this.$storeHelper.dataTransfer = {
               from: this.$net.page['profile/middleware/mariadb'],
-              data: row
+              data: {
+                clusterInfo: this.clusterInfo,
+                middlewareInfo: this.middlewareInfo,
+                instanceInfo: row
+              }
             };
             this.$router.push(this.$net.page['profile/middleware/mariadb/backup']);
             break;
