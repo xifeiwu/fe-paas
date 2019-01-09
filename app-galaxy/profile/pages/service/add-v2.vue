@@ -580,9 +580,6 @@
       this.serviceForm.spaceId = theData.profileId;
       this.appName = theData.appName;
       this.appLanguage = theData.language;
-      if (this.appLanguage.toUpperCase() !== 'JAVA') {
-        this.imageSelectState.customImage = true;
-      }
       this.appLanguageVersion = theData.languageVersion;
       this.packageTypeList = this.$storeHelper.getPackageTypeListByLanguageAndVersion(
         this.appLanguage,
@@ -633,6 +630,9 @@
         })
       }
       this.rules.imageLocation.required = false;
+      if (this.appLanguage.toUpperCase() !== 'JAVA' && this.$storeHelper.groupVersion !== 'v1') {
+        this.imageSelectState.customImage = true;
+      }
     },
     mounted() {
       this.checkPortMap = this.$net.getDebounce4CheckPortMap();
