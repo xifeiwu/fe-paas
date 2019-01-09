@@ -280,7 +280,7 @@
           record['name'] = it['name'];
           record['formattedStartTime'] = this.$utils.formatDate(record.timeStarted, 'yyyy-MM-dd hh:mm:ss');
           record['status'] = `备份${STATUS_MAP[record['status']]}`;
-          record['size'] = record['size'] ? bytes(record['size']) : '---';
+          record['size'] = record['size'] ? bytes(parseInt(record['size'])) : '---';
           return record;
         }).sort((pre, next) => {
           return (pre['timeStarted'] - next['timeStarted']) * -1;

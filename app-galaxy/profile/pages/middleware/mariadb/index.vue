@@ -30,13 +30,13 @@
         </el-table-column>
         <el-table-column label="创建者" prop="realName" headerAlign="center" align="center" width="80">
         </el-table-column>
-        <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="150"
+        <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="140"
                          sortable="custom">
         </el-table-column>
-        <el-table-column label="更新时间" prop="formattedUpdateTime" headerAlign="center" align="center" width="150"
+        <el-table-column label="更新时间" prop="formattedUpdateTime" headerAlign="center" align="center" width="140"
                          sortable="custom">
         </el-table-column>
-        <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="100">
+        <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="80">
         </el-table-column>
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="150">
           <template slot-scope="scope">
@@ -77,7 +77,7 @@
                     class="primary" type="text"
                     :loading="statusOfWaitingResponse('instance_more_info') && operation.row.id == scope.row.id"
                     @click="handleTRClick($event, 'instance_more_info', scope.$index, scope.row)">
-              <span>服务详情</span>
+              <span>实例详情</span>
               <i :class="{'el-icon-arrow-right': true, 'expand': expandRows.indexOf(scope.row.id) > -1}"></i>
             </el-button>
           </template>
@@ -166,12 +166,13 @@
       &.el-tabs--border-tab {
         background-color: #f4f5f5;
         #tab-fpdev.is-active {
-          border-top-color: #6c757d;
-          color: #6c757d;
+          /*6c757d*/
+          border-top-color: #409EFF;
+          color: #409EFF;
         }
         #tab-test.is-active {
-          border-top-color: #007bff;
-          color: #007bff;
+          border-top-color: #28a745;
+          color: #28a745;
         }
         #tab-performance.is-active {
           border-top-color: #17a2b8;

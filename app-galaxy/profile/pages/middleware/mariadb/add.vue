@@ -2,7 +2,15 @@
   <div id="middleware-mariadb-add"
        v-loading="showLoading"
        :element-loading-text="loadingText">
-    <div class="section-title">申请Mariadb实例</div>
+    <div class="section-title">
+      <span>申请Mariadb实例</span>
+      <el-tooltip slot="trigger" effect="dark" placement="bottom">
+        <div slot="content">
+          <div>数据库密码会由系统自动生成，可在实例详情中查看</div>
+        </div>
+        <i class="paas-icon-fa-question"></i>
+      </el-tooltip>
+    </div>
     <el-form :model="formData" :rules="formRules" size="mini"
              ref="createInstanceForm" label-width="120px">
       <div>
@@ -49,7 +57,7 @@
         <el-form-item label="用户名" prop="userName" class="user-name">
           <el-input v-model="formData.userName" placeholder="英文，数字，下划线，中划线。2-30个字符"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password" class="password">
+        <el-form-item label="密码" prop="password" class="password" v-if="false">
           <el-input v-model="formData.password" placeholder="英文，数字，下划线，中划线。2-30个字符" type="password"></el-input>
         </el-form-item>
         <el-form-item label="确认密码" prop="confirmPassword" class="confirm-password" v-if="false">
@@ -83,13 +91,16 @@
   max-width: 750px;
   box-shadow: 0 2px 15px rgba(0,0,0,0.1);
   .section-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 15px 0px;
     font-size: 18px;
-    text-align: center;
-    margin-bottom: 20px;
     font-weight: bold;
     .paas-icon-fa-question {
-      font-size: 14px;
+      font-size: 15px;
       color: #E6A23C;
+      margin-left: 3px;
       &:hover {
         cursor: pointer;
       }
@@ -111,6 +122,8 @@
   }
   .el-form {
     .title {
+      font-size: 15px;
+      font-weight: 500;
       color: #409EFF;
       margin: 5px 0px 10px 0px;
       padding: 0px 5px;
@@ -321,7 +334,7 @@
                 memoryRequests: formData.memory,
                 storageSize: formData.disk,
                 databaseUser: formData.userName,
-                databasePassword: formData.password,
+//                databasePassword: formData.password,
                 instanceDescribe: formData.comment
               };
 //            console.log(payload);
