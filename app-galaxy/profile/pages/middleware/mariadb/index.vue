@@ -1,7 +1,7 @@
 <template>
   <div id="middleware-mysql">
     <div class="header">
-      <el-tabs type="border-tab" @tab-click="handleClick" :activeName="firstProfileName">
+      <el-tabs type="border-tab" @tab-click="handleClick" :activeName="firstProfileName" :class="[profileName]">
         <el-tab-pane v-for="item in clusterList" :label="item.description" :name="item.clusterName"></el-tab-pane>
       </el-tabs>
       <div class="operation">
@@ -165,9 +165,27 @@
       /*border-right: 1px solid #dfe4ed;*/
       &.el-tabs--border-tab {
         background-color: #f4f5f5;
-        >.el-tabs__header .el-tabs__item {
-          /*background-color: gray;*/
-          color: black;
+        #tab-fpdev.is-active {
+          border-top-color: #6c757d;
+          color: #6c757d;
+        }
+        #tab-test.is-active {
+          border-top-color: #007bff;
+          color: #007bff;
+        }
+        #tab-performance.is-active {
+          border-top-color: #17a2b8;
+          color: #17a2b8;
+        }
+        #tab-beta.is-active {
+          border-top-color: #ffc107;
+          color: #ffc107;
+        }
+
+        >.el-tabs__header {
+          .el-tabs__item {
+            color: black;
+          }
         }
         .el-tabs__content {
           display: none;
@@ -175,7 +193,8 @@
       }
     }
     .operation {
-      padding: 6px 5px 3px 5px;
+      padding: 6px 8px 3px 5px;
+      text-align: right;
       /*flex: 1;*/
       /*display: inline-flex;*/
       /*align-items: center;*/
