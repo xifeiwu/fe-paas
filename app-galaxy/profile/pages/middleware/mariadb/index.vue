@@ -297,6 +297,8 @@
         profileName: null,
         clusterId: null,
         middlewareId: null,
+        clusterInfo: null,
+        middlewareInfo: null,
 
         instanceList: [],
         heightOfTable: '',
@@ -363,6 +365,8 @@
 //      console.log(this.$storeHelper.currentMiddleware);
         this.clusterId = this.$storeHelper.currentMiddleware['clusterId'];
         this.middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
+        this.clusterInfo = this.$storeHelper.getClusterById(this.clusterId);
+        this.middlewareInfo = this.$storeHelper.getMiddlewareById(this.clusterId, this.middlewareId);
       },
 
       onScreenSizeChange(size) {
@@ -412,6 +416,13 @@
       handleButtonClick(evt, action) {
         switch (action) {
           case 'middleware_new_instance':
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page['profile/middleware/mariadb'],
+              data: {
+                clusterInfo: this.clusterInfo,
+                middlewareInfo: this.middlewareInfo,
+              }
+            };
             this.$router.push(this.$net.page['profile/middleware/mariadb/add']);
             break;
           case 'refreshList':

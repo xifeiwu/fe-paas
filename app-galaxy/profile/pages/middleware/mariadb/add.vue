@@ -56,7 +56,7 @@
           <el-input v-model="formData.confirmPassword" placeholder="英文，数字，下划线，中划线。2-30个字符" type="password"></el-input>
         </el-form-item>
         <el-form-item label="备注" prop="comment" class="comment">
-          <el-input v-model="formData.comment" placeholder="备注"
+          <el-input v-model="formData.comment" placeholder="长度小于100个字符"
                     size="mini"
                     type="textarea"
                     :rows="3"></el-input>
@@ -145,21 +145,52 @@
   module.exports = {
     mixins: [commonUtils],
     async created() {
-      const profile = 'unProduction';
-      const middlewareName = 'mariadb';
-      await this.$storeHelper.checkBasicData4Middleware(profile, middlewareName);
+//      const profile = 'unProduction';
+//      const middlewareName = 'mariadb';
+//      await this.$storeHelper.checkBasicData4Middleware(profile, middlewareName);
 //      console.log(this.$storeHelper.getClusterList());
 //      console.log(this.$storeHelper.currentMiddleware);
 
-      this.clusterId = this.$storeHelper.currentMiddleware['clusterId'];
-      this.middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
-      this.middlewareVersionList = this.$storeHelper.getMiddlewareVersionList(this.clusterId, this.middlewareId);
+
+      this.forModify = (this.$route['path'] == this.$net.page['profile/middleware/mariadb/modify']);
+
+      var goBack = false;
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      if (dataTransfer) {
+//        console.log(dataTransfer);
+        const data = dataTransfer['data'];
+        if (this.forModify) {
+          this.clusterInfo = data.clusterInfo;
+          this.middlewareInfo = data.middlewareInfo;
+          this.formData.name = data.name;
+          this.dataPassed.leaveTime = data.leaveTime;
+          this.formData.leaveTime = data.leaveTime;
+          this.formData.comment = data.instanceDescribe;
+          this.$storeHelper.dataTransfer = null;
+        } else {
+          this.clusterInfo = data.clusterInfo;
+          this.middlewareInfo = data.middlewareInfo;
+        }
+      } else {
+        goBack = true;
+      }
+//      console.log(this.clusterInfo);
+//      console.log(this.middlewareInfo);
+
+      if (goBack) {
+        this.$router.push(this.$net.page['profile/middleware/mariadb']);
+        return;
+      }
+
+      // get version list
+      this.middlewareVersionList = this.$storeHelper.getMiddlewareVersionList(this.clusterInfo.id, this.middlewareInfo.id);
+      // set default value for formData
       if (this.middlewareVersionList.length > 0) {
         this.formData.versionId = this.middlewareVersionList[0]['id'];
       }
       this.formData.cpu = this.constants['cpuList'][0];
       this.formData.memory = this.constants['memoryList'][0];
-      console.log(this.middlewareVersionList);
+//      console.log(this.middlewareVersionList);
     },
 
     mounted() {
@@ -167,9 +198,11 @@
     },
     data() {
       return {
-        clusterId: null,
-        middlewareId: null,
+        forModify: false,
+        clusterInfo: null,
+        middlewareInfo: null,
         middlewareVersionList: [],
+
         showLoading: false,
         loadingText: '',
         formData: {
@@ -203,8 +236,27 @@
             }
           }],
           versionId: [{
+            type: 'number',
             required: true,
             message: '请选择实例版本',
+            trigger: 'blur'
+          }],
+          cpu: [{
+            type: 'number',
+            required: true,
+            message: '请选择CPU类型',
+            trigger: 'blur'
+          }],
+          memory: [{
+            type: 'number',
+            required: true,
+            message: '请选择内存大小',
+            trigger: 'blur'
+          }],
+          disk: [{
+            type: 'number',
+            required: true,
+            message: '请选择磁盘大小',
             trigger: 'blur'
           }],
           dbName: [{
@@ -213,21 +265,6 @@
             trigger: 'blur'
           }, {
             validator: utils.generateValidator(true, false, 2, 30, true)
-          }],
-          cpu: [{
-            required: true,
-            message: '请选择CPU类型',
-            trigger: 'blur'
-          }],
-          memory: [{
-            required: true,
-            message: '请选择内存大小',
-            trigger: 'blur'
-          }],
-          disk: [{
-            required: true,
-            message: '请选择磁盘大小',
-            trigger: 'blur'
           }],
           userName: [{
             required: true,
@@ -243,6 +280,15 @@
           }, {
             validator: utils.generateValidator(true, false, 2, 30, true)
           }],
+          comment: [{
+            validator(rule, values, callback) {
+              if (values.length > 100) {
+                callback('长度不能超过100个字符');
+                return;
+              }
+              callback();
+            }
+          }]
         },
 
         constants: {
@@ -259,30 +305,36 @@
       async handleClick(evt, action) {
         switch (action) {
           case 'submit':
-            const formData = this.formData;
-            const payload = {
-              groupId: this.$storeHelper.currentGroupID,
-              namespace: this.$storeHelper.groupInfo.tag,
-              clusterId: this.clusterId,
-              middlewareId: this.middlewareId,
-              name: formData.name,
-              middlewareVersionId: formData.versionId,
-              databaseName: formData.dbName,
-              cpuRequests: formData.cpu,
-              memoryRequests: formData.memory,
-              storageSize: formData.disk,
-              databaseUser: formData.userName,
-              databasePassword: formData.password,
-              instanceDescribe: formData.comment
-            };
+            try {
+              var [valid, errors] = await this.$refs['createInstanceForm'].validate();
+
+              const formData = this.formData;
+              const payload = {
+                groupId: this.$storeHelper.currentGroupID,
+                namespace: this.$storeHelper.groupInfo.tag,
+                clusterId: this.clusterInfo.id,
+                middlewareId: this.middlewareInfo.id,
+                name: formData.name,
+                middlewareVersionId: formData.versionId,
+                databaseName: formData.dbName,
+                cpuRequests: formData.cpu,
+                memoryRequests: formData.memory,
+                storageSize: formData.disk,
+                databaseUser: formData.userName,
+                databasePassword: formData.password,
+                instanceDescribe: formData.comment
+              };
 //            console.log(payload);
-            const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_create, {
-              payload
-            });
+              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_create, {
+                payload
+              });
 //            console.log(resContent);
 
-            this.$message.success(`实例${formData.name}创建成功！`);
-            this.$router.push(this.$net.page['profile/middleware/mariadb']);
+              this.$message.success(`实例${formData.name}创建成功！`);
+              this.$router.push(this.$net.page['profile/middleware/mariadb']);
+            } catch (err) {
+              console.log(err);
+            }
             break;
         }
       }

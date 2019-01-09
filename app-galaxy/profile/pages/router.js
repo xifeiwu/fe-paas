@@ -203,6 +203,10 @@ class Helper {
         name: '申请实例',
         component: MiddlewareMariadbAdd,
       }, {
+        path: 'mariadb/modify',
+        name: '申请实例',
+        component: MiddlewareMariadbAdd,
+      }, {
         path: 'mariadb/backup',
         name: '备份与恢复',
         component: MiddlewareMariadbBackup,
