@@ -14,13 +14,13 @@
         </el-option>
       </el-select>
     </div>
-    <div class="item" v-if="false">
-      <label>版本:</label>
-      <el-select filterable v-model="selectedServiceId" :placeholder="currentServiceList.length > 0 ? '请选择' : '当前运行环境下没有版本！'">
-        <el-option v-for="item in currentServiceList" :key="item.id" :label="item.serviceVersion" :value="item.id">
-        </el-option>
-      </el-select>
-    </div>
+    <!--<div class="item" v-if="false">-->
+      <!--<label>版本:</label>-->
+      <!--<el-select filterable v-model="selectedServiceId" :placeholder="currentServiceList.length > 0 ? '请选择' : '当前运行环境下没有版本！'">-->
+        <!--<el-option v-for="item in currentServiceList" :key="item.id" :label="item.serviceVersion" :value="item.id">-->
+        <!--</el-option>-->
+      <!--</el-select>-->
+    <!--</div>-->
   </div>
 </template>
 
@@ -88,7 +88,7 @@
         currentServiceList: [],
 
         // TODO: not used
-        currentVersionList: [],
+        // currentVersionList: [],
       }
     },
     computed: {
@@ -105,7 +105,7 @@
         if (!appId || !profileId) {
           return;
         }
-//        this.requestServiceList(appId, profileId);
+        this.requestServiceList(appId, profileId);
         this.currentServiceList = [{
           id: this.DEFAULT_SERVICE_ID,
           serviceVersion: 'default'
@@ -245,16 +245,16 @@
           return service;
         };
 
-        const getServiceByVersion = (serviceList, serviceVersion) => {
-          let service = null;
-          serviceList.some(it => {
-            if (it['serviceVersion'] === serviceVersion) {
-              service = it;
-            }
-            return service;
-          });
-          return service;
-        };
+        // const getServiceByVersion = (serviceList, serviceVersion) => {
+        //   let service = null;
+        //   serviceList.some(it => {
+        //     if (it['serviceVersion'] === serviceVersion) {
+        //       service = it;
+        //     }
+        //     return service;
+        //   });
+        //   return service;
+        // };
         this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
           payload: {
             appId: appId,
@@ -277,11 +277,12 @@
                   targetService = getServiceById(currentServiceList, this.customConfig['serviceId']);
                   // customConfig can only use once
                   delete this.customConfig['serviceId'];
-                } else if (this.customConfig.hasOwnProperty('serviceVersion')) {
-                  targetService = getServiceByVersion(currentServiceList, this.customConfig['serviceVersion']);
-                  // customConfig can only use once
-                  delete this.customConfig['serviceVersion'];
                 }
+                // else if (this.customConfig.hasOwnProperty('serviceVersion')) {
+                //   targetService = getServiceByVersion(currentServiceList, this.customConfig['serviceVersion']);
+                  // customConfig can only use once
+                  // delete this.customConfig['serviceVersion'];
+                // }
                 if (targetService) {
                   this.selectedServiceId = targetService.id;
                 } else {
@@ -326,32 +327,32 @@
        * request version list when selectedAppId or selectedProfileId is changed
        * TODO: not used
        */
-      requestVersionList(appId, profileId) {
-        if (!appId || !profileId) {
-          console.log(`appId or profileId can not be empty: ${appId}, ${profileId}`);
-          return;
-        }
-        this.selectedVersion = null;
-        this.$net.getServiceVersion({
-          appId: appId,
-          spaceId: profileId
-        }).then(content => {
-//          console.log(content);
-          if (content.hasOwnProperty('version')) {
-            let version = content.version;
-            if (version && Array.isArray(version) && version.length > 0) {
-              this.currentVersionList = version;
-              this.selectedVersion = version[0];
-            }
-          }
-        }).catch(err => {
-          console.log(err);
-          this.$message({
-            type: 'error',
-            message: '查找服务版本失败！'
-          });
-        });
-      },
+//       requestVersionList(appId, profileId) {
+//         if (!appId || !profileId) {
+//           console.log(`appId or profileId can not be empty: ${appId}, ${profileId}`);
+//           return;
+//         }
+//         this.selectedVersion = null;
+//         this.$net.getServiceVersion({
+//           appId: appId,
+//           spaceId: profileId
+//         }).then(content => {
+// //          console.log(content);
+//           if (content.hasOwnProperty('version')) {
+//             let version = content.version;
+//             if (version && Array.isArray(version) && version.length > 0) {
+//               this.currentVersionList = version;
+//               this.selectedVersion = version[0];
+//             }
+//           }
+//         }).catch(err => {
+//           console.log(err);
+//           this.$message({
+//             type: 'error',
+//             message: '查找服务版本失败！'
+//           });
+//         });
+//       },
     }
   }
 </script>

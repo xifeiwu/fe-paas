@@ -426,7 +426,7 @@
         this.requestInstanceList(
           appInfo.appId,
           profileInfo.id,
-          serviceInfo.serviceVersion
+          // serviceInfo.serviceVersion
         );
       },
       /**
