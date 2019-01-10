@@ -8,8 +8,8 @@
       <div class="operation">
         <el-button size="mini-extral"
                    type="primary"
-                   class="flex"
-                   @click="handleButtonClick($event, 'middleware_new_instance')">
+                   :class="{'flex': true, 'disabled': $storeHelper.permission['middleware_mariadb_instance_create'].disabled}"
+                   @click="handleButtonClick($event, 'middleware_mariadb_instance_create')">
           <span>申请实例</span><i class="paas-icon-level-up"></i>
         </el-button>
         <el-button size="mini-extral"
@@ -470,8 +470,15 @@
       },
 
       handleButtonClick(evt, action) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         switch (action) {
-          case 'middleware_new_instance':
+          case 'middleware_mariadb_instance_create':
             this.$storeHelper.dataTransfer = {
               from: this.$net.page['profile/middleware/mariadb'],
               data: {
@@ -509,7 +516,7 @@
               await this.requestInstanceList();
               this.instanceMoreInfo = await this.getInstanceMoreInfo();
               if (!this.instanceMoreInfo) {
-                return;
+                throw new Error('instanceMoreInfo is null');
               }
               this.expandRows = [this.operation.row.id];
               this.hideWaitingResponse(action);
@@ -595,19 +602,11 @@
           }
         });
 
-        var instance = {
-          dbName: '---',
-          status: '无运行实例',
-          address: '---',
-          port: '---',
-          diskUsage: '---',
-          disk: '---',
-        };
         if (resContent['instances'].length === 0) {
           this.$message.error('无运行实例，请联系管理员！');
           return null;
         }
-        instance = resContent['instances'][0];
+        var instance = resContent['instances'][0];
         instance['name'] = resContent['name'];
         ['name', 'databaseName', 'address', 'port', 'user', 'password', 'status', 'cpu', 'diskUsage', 'disk', 'memory'].forEach(it => {
           if (null == instance[it]) {
@@ -649,10 +648,10 @@
             this.addToWaitingResponseQueue(action);
             try {
               const instanceStatus = await this.getInstanceMoreInfo();
-              if (!this.instanceStatus) {
-                return;
+              if (!instanceStatus) {
+                throw new Error('instanceMoreInfo is null');
               }
-//              console.log(instanceStatus);
+              console.log(instanceStatus);
               this.newProps.cpu = this.constants.cpuList[0];
               if (this.constants.cpuList.indexOf(instanceStatus['cpu']) > -1) {
                 this.newProps.cpu = instanceStatus['cpu'];
@@ -707,7 +706,7 @@
 //              this.expandRows = [];
               this.instanceMoreInfo = await this.getInstanceMoreInfo();
               if (!this.instanceMoreInfo) {
-                return;
+                throw new Error('instanceMoreInfo is null');
               }
             } catch(err) {
               this.hideWaitingResponse(action);
@@ -730,7 +729,7 @@
               this.hideWaitingResponse(action);
               this.instanceMoreInfo = await this.getInstanceMoreInfo();
               if (!this.instanceMoreInfo) {
-                return;
+                throw new Error('instanceMoreInfo is null');
               }
 //              this.expandRows = [];
             } catch(err) {
@@ -742,7 +741,7 @@
             try {
               this.instanceMoreInfo = await this.getInstanceMoreInfo();
               if (!this.instanceMoreInfo) {
-                return;
+                throw new Error('instanceMoreInfo is null');
               }
               setTimeout(() => {
                 this.hideWaitingResponse(action);
@@ -766,7 +765,7 @@
               try {
                 this.instanceMoreInfo = await this.getInstanceMoreInfo();
                 if (!this.instanceMoreInfo) {
-                  return;
+                  throw new Error('instanceMoreInfo is null');
                 }
                 this.expandRows = [key];
                 this.hideWaitingResponse(action);
