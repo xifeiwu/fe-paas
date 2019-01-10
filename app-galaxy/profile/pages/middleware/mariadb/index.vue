@@ -2,7 +2,8 @@
   <div id="middleware-mysql">
     <div class="header">
       <el-tabs type="border-tab" @tab-click="handleClick" :activeName="defaultProfileName" :class="[profileName]">
-        <el-tab-pane v-for="item in unProductionClusterList" :label="item.description" :name="item.clusterName"></el-tab-pane>
+        <el-tab-pane v-for="item in unProductionClusterList" :label="item.description" :name="item.clusterName"
+                     :key="item.clusterName"></el-tab-pane>
       </el-tabs>
       <div class="operation">
         <el-button size="mini-extral"
@@ -104,24 +105,44 @@
             <div class="row-expand">
               <i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('instance_more_info_refresh') ? 'loading':'']"
                  @click="handleTRClick($event, 'instance_more_info_refresh')"></i>
-              <el-form label-position="right" label-width="170px" inline size="mini" class="message-show">
+              <el-form label-position="right" label-width="160px" inline size="mini" class="message-show">
                 <el-form-item label="数据库名称">
                   {{instanceMoreInfo.dbName}}
                 </el-form-item>
                 <el-form-item label="状态">
                   {{instanceMoreInfo.status}}
                 </el-form-item>
-                <el-form-item label="数据库地址:端口">
-                  {{instanceMoreInfo.address+':'+instanceMoreInfo.port}}
+                <el-form-item label="已用/总磁盘空间">
+                  {{instanceMoreInfo.diskUsage + '/' + instanceMoreInfo.diskTotal}}
                 </el-form-item>
                 <el-form-item label="CPU/内存">
                   {{instanceMoreInfo.cpu + '核/' + instanceMoreInfo.memorySize}}
                 </el-form-item>
-                <el-form-item label="已用/总磁盘空间">
-                  {{instanceMoreInfo.diskUsage + '/' + instanceMoreInfo.diskTotal}}
+                <el-form-item label="数据库地址:端口">
+                  <span class="secret">
+                    <span>{{instanceMoreInfo.address}}</span><i
+                          class="paas-icon-copy"
+                          v-clipboard:copy="instanceMoreInfo.address"
+                          v-clipboard:success="handleSuccessCopy"></i>
+                  </span><span>:</span><span class="secret">
+                    <span>{{instanceMoreInfo.port}}</span><i
+                          class="paas-icon-copy"
+                          v-clipboard:copy="instanceMoreInfo.port"
+                          v-clipboard:success="handleSuccessCopy"></i>
+                  </span>
                 </el-form-item>
                 <el-form-item label="用户名/密码">
-                  {{instanceMoreInfo.userName + '/' + instanceMoreInfo.password}}
+                  <span class="secret">
+                    <span>{{instanceMoreInfo.userName}}</span><i
+                          class="paas-icon-copy"
+                          v-clipboard:copy="instanceMoreInfo.userName"
+                          v-clipboard:success="handleSuccessCopy"></i>
+                  </span><span>/</span><span class="secret">
+                    <span>{{instanceMoreInfo.password}}</span><i
+                          class="paas-icon-copy"
+                          v-clipboard:copy="instanceMoreInfo.password"
+                          v-clipboard:success="handleSuccessCopy"></i>
+                  </span>
                 </el-form-item>
               </el-form>
             </div>
@@ -258,13 +279,20 @@
             animation: rotating 1s linear infinite;
           }
         }
+        .paas-icon-copy {
+          margin: 0px 2px;
+          &:hover {
+            color: #409EFF;
+            cursor: pointer;
+          }
+        }
         .el-form {
           .el-form-item {
             box-sizing: border-box;
             width: calc(50% - 2px);
             &.big {
               .el-form-item__content {
-                margin-left: 170px;
+                margin-left: 160px;
               }
             }
             .el-form-item__label {
@@ -375,7 +403,6 @@
         const userConfig = this.$store.getters['user/config'];
         if (userConfig && userConfig.hasOwnProperty('middleware')) {
           const middlewareConfig = userConfig['middleware'];
-          console.log(middlewareConfig);
           this.defaultProfileName = middlewareConfig['profileName'];
         }
         // set first profileName
@@ -778,7 +805,13 @@
         });
 //        console.log(tab, tabName, event);
 //        console.log(event);
-      }
+      },
+      handleSuccessCopy(evt) {
+        this.$storeHelper.globalTip.show({
+          ref: evt.trigger,
+          msg: '复制成功'
+        });
+      },
     }
   }
 </script>
