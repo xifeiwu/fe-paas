@@ -35,7 +35,7 @@
           top: 33px;
         }
         .el-submenu__title {
-          line-height: 32px;
+          line-height: 30px;
           height: 32px;
           padding: 0px 8px;
         }
@@ -44,6 +44,12 @@
   }
 </style>
 <style lang="scss" scoped>
+  @mixin el-menu-item() {
+    font-size: 14px;
+    line-height: 30px;
+    height: 32px;
+    padding: 0px 8px;
+  }
   .paas-header-profile {
     display: inline-block;
     height: 32px;
@@ -51,11 +57,12 @@
       border-bottom-width: 0px;
       padding-right: 30px;
       .el-submenu {
+        .el-menu-item {
+          @include el-menu-item
+        }
       }
       .el-menu-item {
-        line-height: 32px;
-        height: 32px;
-        padding: 0px 8px;
+        @include el-menu-item
       }
     }
   }
