@@ -1,5 +1,5 @@
 <template>
-  <div id="middleware-mysql">
+  <div id="middleware-redis">
     <div class="header">
       <el-button size="mini-extral"
                  type="primary"
@@ -155,7 +155,7 @@
   </div>
 </template>
 <style lang="scss">
-#middleware-mysql {
+#middleware-redis {
   height: 100%;
   display: flex;
   flex-direction: column;

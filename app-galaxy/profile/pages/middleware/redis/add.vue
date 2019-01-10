@@ -1,5 +1,5 @@
 <template>
-  <div id="middleware-mariadb-add"
+  <div id="middleware-redis-add"
        v-loading="showLoading"
        :element-loading-text="loadingText">
     <div class="section-title">{{forModify ? '修改Redis实例配置' : '申请Redis实例'}}</div>
@@ -62,7 +62,7 @@
   </div>
 </template>
 <style lang="scss" scoped>
-#middleware-mariadb-add {
+#middleware-redis-add {
   background: white;
   margin: 10px;
   padding: 10px 30px;

@@ -599,12 +599,16 @@
       },
 
       // 更新权限信息：页面访问权限；按钮点击权限。
+      // at change of: $storeHelper.appInfoListOfGroup, notPermitted, $storeHelper.groupInfo.id
       updatePermissionInfo() {
         this.initPermissionInfo();
         // 当前团队应用数为零，只能进入应用管理和添加应用页面
         const appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup;
 //        console.log('appInfoListOfGroup');
 //        console.log(appInfoListOfGroup);
+        if (!appInfoListOfGroup || !this.notPermitted) {
+          return;
+        }
         if (appInfoListOfGroup.total === 0) {
           this.$router.helper.updateDisabledState({
             pathList: [
