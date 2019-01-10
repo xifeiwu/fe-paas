@@ -214,7 +214,7 @@ class Net extends NetBase {
       '/2.x/openShift/mariaDB', //mariadb中间件
       '/2.x/openShift/redis' //redis中间件
     ];
-    let level2 = [{
+    const level2 = [{
       name: '应用引擎',
       icon: 'paas-icon-app',
       router: '/profile/app-engine',
@@ -225,7 +225,7 @@ class Net extends NetBase {
       router: '/profile/middleware',
       children: []
     }];
-    let level1 = [];
+    const level1 = [];
     origin.menuList.forEach(it => {
       if (pathOfAppEngine.indexOf(it.path) > -1) {
         level2[0].children.push(it);
@@ -235,6 +235,14 @@ class Net extends NetBase {
         level1.push(it)
       }
     });
+
+    // remove item in level2 when the length of item.length == 0
+    for (let i = 0; i < level2.length; i++) {
+      if (level2[i].length === 0) {
+        level2.splice(i, 1);
+      }
+    }
+    // level2
     origin.menuConfig = {
       level1, level2
     };
