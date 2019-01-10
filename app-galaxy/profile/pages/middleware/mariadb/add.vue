@@ -199,7 +199,8 @@
       this.middlewareVersionList = this.$storeHelper.getMiddlewareVersionList(this.clusterInfo.id, this.middlewareInfo.id);
       // set default value for formData
       if (this.middlewareVersionList.length > 0) {
-        this.formData.versionId = this.middlewareVersionList[0]['id'];
+        const firstVersion = this.middlewareVersionList[0];
+        this.formData.versionId = firstVersion.hasOwnProperty('id') ? firstVersion['id'] : '';
       }
       this.formData.cpu = this.constants['cpuList'][0];
       this.formData.memory = this.constants['memoryList'][0];

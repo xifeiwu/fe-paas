@@ -238,7 +238,7 @@ class Net extends NetBase {
 
     // remove item in level2 when the length of item.length == 0
     for (let i = 0; i < level2.length; i++) {
-      if (level2[i].length === 0) {
+      if (level2[i].children.length === 0) {
         level2.splice(i, 1);
       }
     }
@@ -246,7 +246,7 @@ class Net extends NetBase {
     origin.menuConfig = {
       level1, level2
     };
-    console.log(origin);
+    // console.log(origin);
     return origin;
   }
 
