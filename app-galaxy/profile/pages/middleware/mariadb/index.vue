@@ -1,8 +1,8 @@
 <template>
   <div id="middleware-mysql">
     <div class="header">
-      <el-tabs type="border-tab" @tab-click="handleClick" :activeName="firstProfileName" :class="[profileName]">
-        <el-tab-pane v-for="item in clusterList" :label="item.description" :name="item.clusterName"></el-tab-pane>
+      <el-tabs type="border-tab" @tab-click="handleClick" :activeName="defaultProfileName" :class="[profileName]">
+        <el-tab-pane v-for="item in unProductionClusterList" :label="item.description" :name="item.clusterName"></el-tab-pane>
       </el-tabs>
       <div class="operation">
         <el-button size="mini-extral"
@@ -296,6 +296,9 @@
 //      await this.checkBasicData4Middleware(null);
       // will request list at change of profileName
 //      await this.requestInstanceList();
+      if (this.$storeHelper.clusterList) {
+        this.onClusterList(this.$storeHelper.clusterList);
+      }
     },
     mounted() {
       // update value in next tick
@@ -309,7 +312,8 @@
     },
     data() {
       return {
-        firstProfileName: '',
+        unProductionClusterList: [],
+        defaultProfileName: null,
         // ['fpdev', 'test', 'beta', 'performance', 'production']
         profileName: null,
         clusterId: null,
@@ -348,20 +352,9 @@
       }
     },
     computed: {
-      clusterList() {
-        var results = this.$storeHelper.clusterList;
-        if (!results) {
-          results = [];
-        }
-        results = results.filter(it => it['clusterName']).filter(it => it['clusterName'] != 'production');
-        if (results.length > 0) {
-          this.firstProfileName = results[0]['clusterName'];
-          this.profileName = this.firstProfileName;
-        }
-        return results;
-      }
     },
     watch: {
+      '$storeHelper.clusterList': 'onClusterList',
       '$storeHelper.screen.size': 'onScreenSizeChange',
       '$storeHelper.groupInfo.id': function () {
         this.requestInstanceList();
@@ -372,6 +365,25 @@
       }
     },
     methods: {
+      onClusterList(clusterList) {
+        this.unProductionClusterList = clusterList.filter(it => it['clusterName']).filter(it => it['clusterName'] != 'production');
+        if (this.unProductionClusterList.length === 0) {
+          return;
+        }
+
+        // get profileName from localStorage
+        const userConfig = this.$store.getters['user/config'];
+        if (userConfig && userConfig.hasOwnProperty('middleware')) {
+          const middlewareConfig = userConfig['middleware'];
+          console.log(middlewareConfig);
+          this.defaultProfileName = middlewareConfig['profileName'];
+        }
+        // set first profileName
+        if (!this.defaultProfileName) {
+          this.defaultProfileName = this.unProductionClusterList[0]['clusterName'];
+        }
+        this.profileName = this.defaultProfileName;
+      },
       // check if all necessary data is get
       async checkBasicData4Middleware() {
         if (!this.profileName) {
@@ -757,6 +769,13 @@
 
       async handleClick(tab, event) {
         this.profileName = tab.name;
+        // update user/config in vuex
+        this.$store.dispatch('user/config', {
+          page: 'middleware',
+          data: {
+            profileName: this.profileName
+          }
+        });
 //        console.log(tab, tabName, event);
 //        console.log(event);
       }

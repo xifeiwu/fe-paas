@@ -34,6 +34,7 @@ const state = {
     instance: {},
     monitor: {},
     'log/deploy': {},
+    middleware: {}
   }
 };
 
@@ -176,8 +177,10 @@ const mutations = {
       config[page] = {};
     }
     if (page === 'log/deploy') {
+      // config整体覆盖
       config[page] = data;
     } else {
+      // config属性覆盖
       for (let key in data) {
         Vue.set(config[page], key, data[key]);
       }
