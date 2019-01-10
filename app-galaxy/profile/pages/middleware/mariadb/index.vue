@@ -8,7 +8,7 @@
       <div class="operation">
         <el-button size="mini-extral"
                    type="primary"
-                   :class="{'flex': true, 'disabled': $storeHelper.permission['middleware_mariadb_instance_create']}"
+                   :class="{'flex': true, 'disabled': $storeHelper.permission['middleware_mariadb_instance_create'].disabled}"
                    @click="handleButtonClick($event, 'middleware_mariadb_instance_create')">
           <span>申请实例</span><i class="paas-icon-level-up"></i>
         </el-button>

@@ -3,19 +3,19 @@
     <div class="header">
       <el-button size="mini-extral"
                  type="warning"
-                 :class="{'disabled': $storeHelper.permission['middleware_mariadb_backup_create']}"
+                 :class="{'disabled': $storeHelper.permission['middleware_mariadb_backup_create'].disabled}"
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_create')">
         <span>立即备份</span>
       </el-button>
       <el-button size="mini-extral"
                  type="danger"
-                 :class="{'disabled': $storeHelper.permission['middleware_mariadb_backup_delete']}"
+                 :class="{'disabled': $storeHelper.permission['middleware_mariadb_backup_delete'].disabled}"
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_delete')">
         <span>删除</span>
       </el-button>
       <el-button size="mini-extral"
                  type="primary"
-                 :class="{'disabled': $storeHelper.permission['middleware_mariadb_backup_restore']}"
+                 :class="{'disabled': $storeHelper.permission['middleware_mariadb_backup_restore'].disabled}"
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_restore')">
           <span>恢复</span>
       </el-button>
