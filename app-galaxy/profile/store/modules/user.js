@@ -29,6 +29,7 @@ const state = {
   usersInGroup: null,
   // 当前做的所有APP列表
   appInfoListOfGroup: null,
+  permission: null,
   config: {
     service: {},
     instance: {},
@@ -87,6 +88,10 @@ const actions = {
     const usersInGroup = resContent['groupUserList'];
     state.usersInGroup = usersInGroup;
     return usersInGroup;
+  },
+
+  permission({commit, state}, permission) {
+    state.permission = permission;
   },
 
   config({commit, state}, {page, data}) {
@@ -207,6 +212,9 @@ const getters = {
   },
   'usersInGroup': (state, getters) => {
     return state.usersInGroup;
+  },
+  'permission': (state, getters) => {
+    return state.permission;
   },
   'config': (state, getters) => {
     return state.config;

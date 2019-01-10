@@ -12,7 +12,6 @@ class StoreHelper extends BaseHelper{
     this.APP_ID_FOR_NULL = '';
     this.SERVICE_ID_FOR_ALL = -1;
     this.SERVICE_ID_FOR_NULL = '';
-    this._permission = {};
     // popover on click
     this.globalPopover = null;
     this.globalTip = null;
@@ -637,10 +636,10 @@ class StoreHelper extends BaseHelper{
   // }
 
   set permission(value) {
-    this._permission = value;
+    this.$store.dispatch('user/permission', value);
   }
   get permission() {
-    return this._permission;
+    return this.$store.getters['user/permission'];
   }
 
   logout() {

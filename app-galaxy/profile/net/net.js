@@ -492,7 +492,7 @@ class Net extends NetBase {
         method: 'post'
       },
       // 恢复备份
-      'middleware_mariadb_backup_recover': {
+      'middleware_mariadb_backup_restore': {
         path: '/middleware/createMiddlewareMariaDBRestore',
         method: 'post'
       },
@@ -678,6 +678,24 @@ class Net extends NetBase {
       // 待办/工单/部署应用
       '/2.x/order/todoList/deploy': 'work-order_deploy_service',
 
+      /** 中间件相关 */
+      // 创建MariaDB
+      '/2.x/openShift/mariaDB/create': 'middleware_mariadb_instance_create',
+      // 删除MariaDB
+      '/2.x/openShift/mariaDB/delete': 'middleware_mariadb_instance_delete',
+      // 启动MariaDB
+      '/2.x/openShift/mariaDB/start': 'middleware_mariadb_instance_start',
+      // 停止MariaDB
+      '/2.x/openShift/mariaDB/stop': 'middleware_mariadb_instance_stop',
+      // 更新MariaDB
+      '/2.x/openShift/mariaDB/update': 'middleware_mariadb_instance_update',
+      // 创建MariaDB备份
+      '/2.x/openShift/mariaDB/createBackup': 'middleware_mariadb_backup_create',
+      // 删除MariaDB备份
+      '/2.x/openShift/mariaDB/deleteBackup': 'middleware_mariadb_backup_delete',
+      // 恢复MariaDB备份
+      '/2.x/openShift/mariaDB/createRestore': 'middleware_mariadb_backup_restore',
+
       /** 页面相关 */
       // 服务管理
       '/2.x/service': this.page['profile/service'],
@@ -723,7 +741,6 @@ class Net extends NetBase {
       it.hasOwnProperty('permissionType') && delete it.permissionType;
       return it;
     });
-    // console.log(notPermittedList);
 
     // format of item in notPermittedList
     // {
@@ -743,17 +760,14 @@ class Net extends NetBase {
       // check if permission in permissionMap first
       if (permissionMap.hasOwnProperty(it.path)) {
         it.key = permissionMap[it.path];
-        notPermittedList.push(it);
       }
     });
-    // console.log(notPermittedList);
 
     let result = notPermittedList.filter(it => {
       return it.hasOwnProperty('key') && it.key;
     }).map(it => {
       return it['key'];
     });
-
     // console.log(notPermittedList);
     // console.log(result);
     return result;

@@ -321,7 +321,7 @@
       }
     },
     created() {
-      // 初始化权限信息
+      // 初始化权限信息(避免出现'can not read disabled of undefined')
       this.initPermissionInfo();
       // 获取页面相关配置
       Promise.all([
@@ -344,7 +344,6 @@
         // permission
         this.notPermitted = this.$net.parseNotPermittedCommands(resContentList[2]);
         this.$router.helper.addPermission(this.notPermitted);
-//        console.log(this.notPermitted);
         // trigger change of currentGroupId
 //        this.$store.dispatch('user/groupId', this.$storeHelper.currentGroupID);
       }).catch(err => {
@@ -489,7 +488,8 @@
         if (appInfoList) {
           this.updatePermissionInfo();
         }
-      }
+      },
+      'notPermitted': 'updatePermissionInfo'
     },
     methods: {
       // set el-menu profile as active menu of paasHeaderProfile
@@ -568,10 +568,13 @@
         const pageOauth = ['oauth_create_access_key', 'oauth_update_access_config', 'oauth_delete_access_key',
           'oauth_modify_authorize_url_list',
           'oauth_authorize_url_toggle_enable'];
-        const pageMiddleware = ['middleware_instance_update', 'middleware_instance_delete', 'middleware_instance_start',
-          'middleware_instance_stop'];
+        // TODO: not used
+        const pageMiddleware = ['middleware_mariadb_instance_create', 'middleware_mariadb_instance_delete', 'middleware_mariadb_instance_start',
+          'middleware_mariadb_instance_stop', 'middleware_mariadb_instance_update',
+          'middleware_mariadb_backup_create', 'middleware_mariadb_backup_delete', 'middleware_mariadb_backup_restore'
+        ];
         const allPermissionList1 = [...pageApp, ...pageService, ...pageInstance, ...pageDomain, ...pageWorkOrder,
-          ...pageOauth, ...pageMiddleware];
+          ...pageOauth];
         const permissionMap = this.$net.getPermissionMap();
         const allPermissionList = [];
         Object.keys(permissionMap).forEach(it => {
@@ -591,6 +594,7 @@
 //            console.log(it);
 //          }
 //        });
+//        console.log(permission);
         this.$storeHelper.permission = permission;
       },
 

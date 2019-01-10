@@ -3,17 +3,20 @@
     <div class="header">
       <el-button size="mini-extral"
                  type="warning"
+                 :class="{'disabled': $storeHelper.permission['middleware_mariadb_backup_create']}"
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_create')">
         <span>立即备份</span>
       </el-button>
       <el-button size="mini-extral"
                  type="danger"
+                 :class="{'disabled': $storeHelper.permission['middleware_mariadb_backup_delete']}"
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_delete')">
         <span>删除</span>
       </el-button>
       <el-button size="mini-extral"
                  type="primary"
-                 @click="handleButtonClick($event, 'middleware_mariadb_backup_recover')">
+                 :class="{'disabled': $storeHelper.permission['middleware_mariadb_backup_restore']}"
+                 @click="handleButtonClick($event, 'middleware_mariadb_backup_restore')">
           <span>恢复</span>
       </el-button>
       <el-button size="mini-extral"
@@ -295,6 +298,13 @@
 //        console.log(backupName);
       },
       async handleButtonClick(evt, action) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         var resContent = null;
         switch (action) {
           case 'click-on-page':
@@ -361,7 +371,7 @@
               console.log(err);
             }
             break;
-          case 'middleware_mariadb_backup_recover':
+          case 'middleware_mariadb_backup_restore':
             try {
               if (!this.selectedBackup) {
                 this.$message.error('请选择要操作的备份！');
@@ -377,7 +387,7 @@
                 type: 'warning',
                 dangerouslyUseHTMLString: true
               });
-              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_recover, {
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_restore, {
                 payload: {
                   clusterId: this.clusterInfo.id,
                   middlewareId: this.middlewareInfo.id,

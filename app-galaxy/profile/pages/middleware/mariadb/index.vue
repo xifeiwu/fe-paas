@@ -8,7 +8,7 @@
       <div class="operation">
         <el-button size="mini-extral"
                    type="primary"
-                   :class="{'flex': true, 'disabled': $storeHelper.permission['middleware_mariadb_instance_create'].disabled}"
+                   :class="{'flex': true, 'disabled': $storeHelper.permission['middleware_mariadb_instance_create']}"
                    @click="handleButtonClick($event, 'middleware_mariadb_instance_create')">
           <span>申请实例</span><i class="paas-icon-level-up"></i>
         </el-button>
@@ -59,27 +59,27 @@
           <template slot-scope="scope">
             <el-button
                     type="text"
-                    :class="$storeHelper.permission['middleware_instance_update'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_instance_update') && operation.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_instance_update', scope.$index, scope.row)">变更规格</el-button>
+                    :class="$storeHelper.permission['middleware_mariadb_instance_update'].disabled ? 'disabled' : 'warning'"
+                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_update') && operation.row.id == scope.row.id"
+                    @click="handleTRClick($event, 'middleware_mariadb_instance_update', scope.$index, scope.row)">变更规格</el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="$storeHelper.permission['middleware_instance_delete'].disabled ? 'disabled' : 'danger'"
-                    :loading="statusOfWaitingResponse('middleware_instance_delete') && operation.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_instance_delete', scope.$index, scope.row)">删除</el-button>
+                    :class="$storeHelper.permission['middleware_mariadb_instance_delete'].disabled ? 'disabled' : 'danger'"
+                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_delete') && operation.row.id == scope.row.id"
+                    @click="handleTRClick($event, 'middleware_mariadb_instance_delete', scope.$index, scope.row)">删除</el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="$storeHelper.permission['middleware_instance_start'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_instance_start') && operation.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_instance_start', scope.$index, scope.row)">启动</el-button>
+                    :class="$storeHelper.permission['middleware_mariadb_instance_start'].disabled ? 'disabled' : 'warning'"
+                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_start') && operation.row.id == scope.row.id"
+                    @click="handleTRClick($event, 'middleware_mariadb_instance_start', scope.$index, scope.row)">启动</el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="$storeHelper.permission['middleware_instance_stop'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_instance_stop') && operation.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_instance_stop', scope.$index, scope.row)">停止</el-button>
+                    :class="$storeHelper.permission['middleware_mariadb_instance_stop'].disabled ? 'disabled' : 'warning'"
+                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_stop') && operation.row.id == scope.row.id"
+                    @click="handleTRClick($event, 'middleware_mariadb_instance_stop', scope.$index, scope.row)">停止</el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
@@ -151,10 +151,10 @@
       </el-table>
     </div>
 
-    <el-dialog title="更改实例规格" :visible="operation.name == 'middleware_instance_update'"
+    <el-dialog title="更改实例规格" :visible="operation.name == 'middleware_mariadb_instance_update'"
                :close-on-click-modal="false"
                @close="handleDialogButtonClick('close')"
-               class="middleware_instance_update size-500"
+               class="middleware_mariadb_instance_update size-500"
                v-if="operation.name && operation.row"
     >
       <el-form :model="newProps" size="mini" labelWidth="80px">
@@ -176,8 +176,8 @@
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
           <el-button type="primary"
-                     @click="handleDialogButtonClick('middleware_instance_update')"
-                     :loading="statusOfWaitingResponse('middleware_instance_update')">保&nbsp存</el-button>
+                     @click="handleDialogButtonClick('middleware_mariadb_instance_update')"
+                     :loading="statusOfWaitingResponse('middleware_mariadb_instance_update')">保&nbsp存</el-button>
         </div>
         <div class="item">
           <el-button action="profile-dialog/cancel"
@@ -496,7 +496,7 @@
 
       async handleDialogButtonClick(action) {
         switch (action) {
-          case 'middleware_instance_update':
+          case 'middleware_mariadb_instance_update':
             this.addToWaitingResponseQueue(action);
             try {
               const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_update, {
@@ -639,12 +639,19 @@
       },
 
       async handleTRClick(evt, action, index, row) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         // action 'instance_more_info_refresh' does not pass param index and row
         if (row) {
           this.operation.row = row;
         }
         switch (action) {
-          case 'middleware_instance_update':
+          case 'middleware_mariadb_instance_update':
             this.addToWaitingResponseQueue(action);
             try {
               const instanceStatus = await this.getInstanceMoreInfo();
@@ -667,7 +674,7 @@
               this.hideWaitingResponse(action);
             }
             break;
-          case 'middleware_instance_delete':
+          case 'middleware_mariadb_instance_delete':
             this.addToWaitingResponseQueue(action);
             try {
               const warningMsg = `删除mariadb实例 "${row.name}"?`;
@@ -688,7 +695,7 @@
               this.hideWaitingResponse(action);
             }
             break;
-          case 'middleware_instance_start':
+          case 'middleware_mariadb_instance_start':
             this.addToWaitingResponseQueue(action);
             try {
               await this.warningConfirm(`启动mariadb实例 "${row.name}"?`);
@@ -712,7 +719,7 @@
               this.hideWaitingResponse(action);
             }
             break;
-          case 'middleware_instance_stop':
+          case 'middleware_mariadb_instance_stop':
             this.addToWaitingResponseQueue(action);
             try {
               await this.warningConfirm(`停止mariadb实例 "${row.name}"?`);
