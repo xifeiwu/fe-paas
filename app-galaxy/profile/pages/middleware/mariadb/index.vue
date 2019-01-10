@@ -120,12 +120,12 @@
                 </el-form-item>
                 <el-form-item label="数据库地址:端口">
                   <span class="secret">
-                    <span>{{instanceMoreInfo.address}}</span><i
+                    <span>{{instanceMoreInfo.address}}</span><i v-if="instanceMoreInfo.address !== '---'"
                           class="paas-icon-copy"
                           v-clipboard:copy="instanceMoreInfo.address"
                           v-clipboard:success="handleSuccessCopy"></i>
                   </span><span>:</span><span class="secret">
-                    <span>{{instanceMoreInfo.port}}</span><i
+                    <span>{{instanceMoreInfo.port}}</span><i v-if="instanceMoreInfo.port !== '---'"
                           class="paas-icon-copy"
                           v-clipboard:copy="instanceMoreInfo.port"
                           v-clipboard:success="handleSuccessCopy"></i>
@@ -133,12 +133,12 @@
                 </el-form-item>
                 <el-form-item label="用户名/密码">
                   <span class="secret">
-                    <span>{{instanceMoreInfo.userName}}</span><i
+                    <span>{{instanceMoreInfo.userName}}</span><i v-if="instanceMoreInfo.userName !== '---'"
                           class="paas-icon-copy"
                           v-clipboard:copy="instanceMoreInfo.userName"
                           v-clipboard:success="handleSuccessCopy"></i>
                   </span><span>/</span><span class="secret">
-                    <span>{{instanceMoreInfo.password}}</span><i
+                    <span>{{instanceMoreInfo.password}}</span><i v-if="instanceMoreInfo.password !== '---'"
                           class="paas-icon-copy"
                           v-clipboard:copy="instanceMoreInfo.password"
                           v-clipboard:success="handleSuccessCopy"></i>
@@ -508,6 +508,9 @@
               // updateTime is change when by this action
               await this.requestInstanceList();
               this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              if (!this.instanceMoreInfo) {
+                return;
+              }
               this.expandRows = [this.operation.row.id];
               this.hideWaitingResponse(action);
               this.operation.name = null;
@@ -601,12 +604,17 @@
           disk: '---',
         };
         if (resContent['instances'].length === 0) {
-//          this.$message.error('无运行实例，请联系管理员！');
-//          throw new Error('无运行实例！');
-        } else {
-          instance = resContent['instances'][0];
-          instance['name'] = resContent['name'];
+          this.$message.error('无运行实例，请联系管理员！');
+          return null;
         }
+        instance = resContent['instances'][0];
+        instance['name'] = resContent['name'];
+        ['name', 'databaseName', 'address', 'port', 'user', 'password', 'status', 'cpu', 'diskUsage', 'disk', 'memory'].forEach(it => {
+          if (null == instance[it]) {
+            instance[it] = '---';
+          }
+        });
+
         const statusMap = {
           Pending: '启动中',
           Running: '运行中',
@@ -624,8 +632,8 @@
           password: instance['password'],
           status: statusMap.hasOwnProperty(instance['status']) ? statusMap[instance['status']] : instance['status'],
           cpu: instance['cpu'],
-          memory: parseInt(memorySize.substr(0, memorySize.length - 2)),
           memorySize: memorySize,
+          memory: memorySize == '---' ? memorySize : parseInt(memorySize.substr(0, memorySize.length - 2)),
           diskUsage: instance['diskUsage'] != '---' ? bytes(parseInt(instance['diskUsage'])) : '---',
           diskTotal: instance['disk'] != '---' ? bytes(parseInt(instance['disk'])) : '---'
         };
@@ -641,6 +649,9 @@
             this.addToWaitingResponseQueue(action);
             try {
               const instanceStatus = await this.getInstanceMoreInfo();
+              if (!this.instanceStatus) {
+                return;
+              }
 //              console.log(instanceStatus);
               this.newProps.cpu = this.constants.cpuList[0];
               if (this.constants.cpuList.indexOf(instanceStatus['cpu']) > -1) {
@@ -695,6 +706,9 @@
               this.hideWaitingResponse(action);
 //              this.expandRows = [];
               this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              if (!this.instanceMoreInfo) {
+                return;
+              }
             } catch(err) {
               this.hideWaitingResponse(action);
             }
@@ -715,6 +729,9 @@
               this.$message.success(`mariadb实例 "${row.name}" 停止成功！`);
               this.hideWaitingResponse(action);
               this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              if (!this.instanceMoreInfo) {
+                return;
+              }
 //              this.expandRows = [];
             } catch(err) {
               this.hideWaitingResponse(action);
@@ -724,6 +741,9 @@
             this.addToWaitingResponseQueue(action);
             try {
               this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              if (!this.instanceMoreInfo) {
+                return;
+              }
               setTimeout(() => {
                 this.hideWaitingResponse(action);
               }, 1000);
@@ -745,6 +765,9 @@
               this.addToWaitingResponseQueue(action);
               try {
                 this.instanceMoreInfo = await this.getInstanceMoreInfo();
+                if (!this.instanceMoreInfo) {
+                  return;
+                }
                 this.expandRows = [key];
                 this.hideWaitingResponse(action);
               } catch(err) {
