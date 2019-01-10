@@ -436,9 +436,14 @@ class Net extends NetBase {
         path: '/middleware/queryMiddlewareRuntime',
         method: 'post'
       },
-      // 获取更多实例信息
+      // 获取更多实例信息 TODO: not used
       'middleware_middleware_instance_info_detail': {
         path: '/middleware/getMiddlewareStatus',
+        method: 'post'
+      },
+      // 获取实例更多信息
+      'middleware_mariadb_instance_more_info': {
+        path: '/middleware/getMiddlewareMariaDBStatus',
         method: 'post'
       },
       // 修改实例信息（CPU, 内存）

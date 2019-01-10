@@ -30,11 +30,27 @@
         </el-table-column>
         <el-table-column label="创建者" prop="realName" headerAlign="center" align="center" width="80">
         </el-table-column>
-        <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="140"
+        <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="90"
                          sortable="custom">
+          <template slot-scope="scope">
+            <div v-if="Array.isArray(scope.row.formattedCreateTime)">
+              <div v-for="(item, index) in scope.row.formattedCreateTime" :key="index">
+                {{item}}
+              </div>
+            </div>
+            <div v-else>{{scope.row.formattedCreateTime}}</div>
+          </template>
         </el-table-column>
-        <el-table-column label="更新时间" prop="formattedUpdateTime" headerAlign="center" align="center" width="140"
+        <el-table-column label="更新时间" prop="formattedUpdateTime" headerAlign="center" align="center" width="90"
                          sortable="custom">
+          <template slot-scope="scope">
+            <div v-if="Array.isArray(scope.row.formattedUpdateTime)">
+              <div v-for="(item, index) in scope.row.formattedUpdateTime" :key="index">
+                {{item}}
+              </div>
+            </div>
+            <div v-else>{{scope.row.formattedUpdateTime}}</div>
+          </template>
         </el-table-column>
         <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="80">
         </el-table-column>
@@ -89,8 +105,8 @@
               <i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('instance_more_info_refresh') ? 'loading':'']"
                  @click="handleTRClick($event, 'instance_more_info_refresh')"></i>
               <el-form label-position="right" label-width="170px" inline size="mini" class="message-show">
-                <el-form-item label="实例名称">
-                  {{instanceMoreInfo.name}}
+                <el-form-item label="数据库名称">
+                  {{instanceMoreInfo.dbName}}
                 </el-form-item>
                 <el-form-item label="状态">
                   {{instanceMoreInfo.status}}
@@ -279,7 +295,7 @@
       // request for clusterList
 //      await this.checkBasicData4Middleware(null);
       // will request list at change of profileName
-//      await this.requestList();
+//      await this.requestInstanceList();
     },
     mounted() {
       // update value in next tick
@@ -348,11 +364,11 @@
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
       '$storeHelper.groupInfo.id': function () {
-        this.requestList();
+        this.requestInstanceList();
       },
       'profileName': async function() {
         await this.checkBasicData4Middleware();
-        await this.requestList();
+        await this.requestInstanceList();
       }
     },
     methods: {
@@ -385,7 +401,7 @@
       },
 
       // request instance list
-      async requestList() {
+      async requestInstanceList() {
         if (!this.clusterId || !this.middlewareId) {
           await this.checkBasicData4Middleware();
         }
@@ -402,8 +418,8 @@
           }
         });
         instanceList.forEach(it => {
-          it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-          it.formattedUpdateTime = this.$utils.formatDate(it.updateTime, 'yyyy-MM-dd hh:mm:ss');
+          it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
+          it.formattedUpdateTime = this.$utils.formatDate(it.updateTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
           if(!it.instanceDescribe) {
             it.instanceDescribe = '---';
           }
@@ -427,7 +443,7 @@
             this.$router.push(this.$net.page['profile/middleware/mariadb/add']);
             break;
           case 'refreshList':
-            this.requestList();
+            this.requestInstanceList();
             break;
         }
       },
@@ -451,12 +467,13 @@
               });
 //              console.log(resContent);
               // updateTime is change when by this action
-              await this.requestList();
+              await this.requestInstanceList();
               this.instanceMoreInfo = await this.getInstanceMoreInfo();
               this.expandRows = [this.operation.row.id];
               this.hideWaitingResponse(action);
               this.operation.name = null;
             } catch (err) {
+              console.log(err);
               this.hideWaitingResponse(action);
               this.operation.name = null;
             }
@@ -470,7 +487,8 @@
         }
       },
 
-      async getInstanceMoreInfo() {
+      // TODO: not used
+      async getInstanceMoreInfo2() {
         if (!this.clusterId || !this.middlewareId) {
           await this.checkBasicData4Middleware();
         }
@@ -521,6 +539,59 @@
         };
       },
 
+      async getInstanceMoreInfo() {
+        if (!this.clusterId || !this.middlewareId) {
+          await this.checkBasicData4Middleware();
+        }
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_more_info, {
+          payload: {
+            clusterId: this.clusterId,
+            middlewareId: this.middlewareId,
+            middlewareVersionId: 3,
+            namespace: this.$storeHelper.groupInfo.tag,
+            name: this.operation.row.name
+          }
+        });
+
+        var instance = {
+          dbName: '---',
+          status: '无运行实例',
+          address: '---',
+          port: '---',
+          diskUsage: '---',
+          disk: '---',
+        };
+        if (resContent['instances'].length === 0) {
+//          this.$message.error('无运行实例，请联系管理员！');
+//          throw new Error('无运行实例！');
+        } else {
+          instance = resContent['instances'][0];
+          instance['name'] = resContent['name'];
+        }
+        const statusMap = {
+          Pending: '启动中',
+          Running: '运行中',
+          Failed: '启动失败',
+          Deleting: '删除中'
+        };
+//        const cpu = parseInt(spec['resources']['requests']['cpu']);
+        const memorySize = instance['memory'];
+        return {
+          name: instance['name'],
+          dbName: instance['databaseName'],
+          address: instance['address'],
+          port: instance['port'],
+          userName: instance['user'],
+          password: instance['password'],
+          status: statusMap.hasOwnProperty(instance['status']) ? statusMap[instance['status']] : instance['status'],
+          cpu: instance['cpu'],
+          memory: parseInt(memorySize.substr(0, memorySize.length - 2)),
+          memorySize: memorySize,
+          diskUsage: instance['diskUsage'] != '---' ? bytes(parseInt(instance['diskUsage'])) : '---',
+          diskTotal: instance['disk'] != '---' ? bytes(parseInt(instance['disk'])) : '---'
+        };
+      },
+
       async handleTRClick(evt, action, index, row) {
         // action 'instance_more_info_refresh' does not pass param index and row
         if (row) {
@@ -563,7 +634,7 @@
               });
               this.$message.success(`mariadb实例 "${row.name}" 删除成功！`);
               this.hideWaitingResponse(action);
-              this.requestList();
+              this.requestInstanceList();
             } catch(err) {
               this.hideWaitingResponse(action);
             }
@@ -618,6 +689,7 @@
                 this.hideWaitingResponse(action);
               }, 1000);
             } catch(err) {
+              console.log(err);
               setTimeout(() => {
                 this.hideWaitingResponse(action);
               }, 1000);
@@ -637,6 +709,7 @@
                 this.expandRows = [key];
                 this.hideWaitingResponse(action);
               } catch(err) {
+                console.log(err);
                 this.hideWaitingResponse(action);
               }
             }
