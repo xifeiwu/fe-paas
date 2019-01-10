@@ -155,13 +155,13 @@
           <el-form-item label="namespace">
             {{applicationConfigDeployment["namespace"]}}
           </el-form-item>
-          <el-form-item label="label">
+          <el-form-item label="项目名称">
             {{model["serviceName"]}}
           </el-form-item>
           <el-form-item label="开发语言">
             {{model["language"] + "-" + model["languageVersion"]}}
           </el-form-item>
-          <el-form-item label="构建方式">
+          <el-form-item label="构建类型">
             {{model["packageType"] ? model["packageType"] : "未知"}}
           </el-form-item>
           <el-form-item label="服务期限" v-if="!isProductionProfile">

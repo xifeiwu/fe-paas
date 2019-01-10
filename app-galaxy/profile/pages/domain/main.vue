@@ -217,12 +217,13 @@
       </div>
 
       <div v-if="!bindServiceProps.showResponse">
-        <my-version-condition-filter ref="version-selector-in-bind-service-dialog"
+        <paas-service-selector ref="service-selector-in-bind-service-dialog"
                                      :fixedInfo="fixedInfoForVersionCondition"
-                                     :addItemAll="{service: true}"
-                                     @service-condition-changed="handleConditionChangeInDialog"
+                                     :customConfig="dialogCustomConfig"
+                                     @service-selected="handleConditionChangeInDialog"
+                                     v-if="selected.action == 'bind-service'"
         >
-        </my-version-condition-filter>
+        </paas-service-selector>
         <el-form labelWidth="90px" class="selected-domain">
           <el-form-item label="所选外网域名">
             <el-tag
@@ -410,7 +411,7 @@
         }
       }
       &.bind-service {
-        .profile-version-condition-filter {
+        .paas-service-selector {
           text-align: left;
         }
         .el-form.selected-domain {
@@ -675,6 +676,17 @@
     computed: {
       currentGroupID() {
         return this.$storeHelper.currentGroupID;
+      },
+      dialogCustomConfig() {
+        let customConfig = {};
+        if (this.profileInfo) {
+          customConfig["profileId"] = this.profileInfo.id;
+        }
+        if (this.appInfo) {
+          customConfig["appId"] = this.appInfo.appId;
+        }
+        console.log(customConfig);
+        return customConfig;
       }
     },
     watch: {
@@ -688,7 +700,7 @@
       },
       'keyword': function (value) {
         let versionConditionFilter = this.$refs.hasOwnProperty('version-condition-filter')?
-          this.$refs['version-condition-filter'].getSelectedValue() : null;
+          this.$refs['version-condition-filter'].getSelectedInfo() : null;
         if (!versionConditionFilter) {
           return;
         }
@@ -735,8 +747,8 @@
           this.props4CreateDomain.level1InfoList = level1InfoList;
         }
       },
-      onServiceConditionChanged(profileInfo, appInfo, serviceInfo) {
-//        console.log(appInfo, profileInfo, serviceInfo);
+      onServiceConditionChanged(appInfo, profileInfo, serviceInfo) {
+       // console.log(appInfo, profileInfo, serviceInfo);
         this.profileInfo = profileInfo;
         this.appInfo = appInfo;
         this.serviceInfo = serviceInfo;
@@ -917,7 +929,7 @@
               // set default profileName for add-domain-dialog(the same as profile in version-condition-filter)
               this.props4CreateDomain.profileName = this.$storeHelper.profileListOfGroup[0]['name'];
               if (this.$refs.hasOwnProperty('version-condition-filter')) {
-                let selectedProfile = this.$refs['version-condition-filter'].getSelectedValue().selectedProfile;
+                let selectedProfile = this.$refs['version-condition-filter'].getSelectedInfo().selectedProfile;
                 if (selectedProfile && selectedProfile.hasOwnProperty('id')
                   && selectedProfile.id !== this.$storeHelper.PROFILE_ID_FOR_ALL) {
                   this.props4CreateDomain.profileName = selectedProfile['name'];
@@ -1067,13 +1079,13 @@
               this.$message.error('请选择要操作的域名！');
               return;
             }
-            let refKey = 'version-selector-in-bind-service-dialog';
+            let refKey = 'service-selector-in-bind-service-dialog';
             if (!this.$refs.hasOwnProperty(refKey)) {
               this.$message.error('未找到服务信息！');
               return;
             }
-            let selectedValue = this.$refs[refKey].getSelectedValue();
-            if (!selectedValue || !selectedValue['selectedProfile'] || !selectedValue['selectedAPP']) {
+            let selectedValue = this.$refs[refKey].getSelectedInfo();
+            if (!selectedValue || !selectedValue['selectedProfile'] || !selectedValue['selectedApp']) {
               this.$message.error('未找到服务信息！');
               return;
             }
@@ -1082,7 +1094,7 @@
             let options = {
               internetDomainIdList: domainIdList,
               spaceId: selectedValue['selectedProfile'].id,
-              applicationId: selectedValue['selectedAPP']['appId'],
+              applicationId: selectedValue['selectedApp']['appId'],
               // serviceId: ''
             };
             // if (selectedValue['selectedService']
@@ -1218,8 +1230,10 @@
         }
       },
 
-      handleConditionChangeInDialog(profile, app, service) {
-        this.bindServiceProps.bindTipForApp = `所选域名正在绑定"${profile.description}"的"${app.appName}"应用,绑定成功后即可使用外网域名访问应用`;
+      handleConditionChangeInDialog(app, profile, service) {
+        if (profile && app) {
+          this.bindServiceProps.bindTipForApp = `所选域名正在绑定"${profile.description}"的"${app.appName}"应用,绑定成功后即可使用外网域名访问应用`;
+        }
       },
 
       warningConfirm(content) {

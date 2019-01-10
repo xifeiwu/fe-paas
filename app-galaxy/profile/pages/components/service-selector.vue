@@ -9,7 +9,7 @@
     </div>
     <div class="item">
       <label>运行环境:</label>
-      <el-select v-model="selectedProfileId" placeholder="请选择">
+      <el-select v-model="selectedProfileId" placeholder="请选择" :disabled="fixedInfo.type === 'profile'">
         <el-option v-for="item in profileList" :key="item.id" :label="item.description" :value="item.id">
         </el-option>
       </el-select>
@@ -61,7 +61,16 @@
             profile: false
           }
         }
-      }
+      },
+      fixedInfo: {
+        type: Object,
+        default() {
+          return {
+            type: null,
+            id: null,
+          }
+        }
+      },
     },
     data() {
       return {
@@ -165,7 +174,8 @@
         if (this.addItemAll['app'] && this.selectedAppId === this.appItemAll['appId']) {
           selectedApp = this.appItemAll;
         } else {
-          selectedApp = this.$storeHelper.getAppInfoByID(this.selectedAppID);
+          let result = this.$storeHelper.getAppInfoByID(this.selectedAppId);
+          selectedApp = result ? result.app : null;
         }
 
         var selectedProfile = null;

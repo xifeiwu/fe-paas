@@ -13,7 +13,7 @@
           <el-form-item label="运行环境" class="profile-description">
             {{profileInfo? profileInfo.description: ''}}
           </el-form-item>
-          <el-form-item class="build-type" label="构建类型" v-if="packageTypeList.length > 0" :error="serviceForm.packageInfo.errMsg">
+          <el-form-item class="build-type" label="构建类型" v-if="packageTypeList.length > 0 && !(appLanguage.toUpperCase() == 'JAVA' && imageSelectState.customImage)" :error="serviceForm.packageInfo.errMsg">
             <div class="flex-layout">
               <div class="type-list">
                 <el-radio-group v-model="serviceForm.packageInfo.type">
@@ -36,7 +36,7 @@
             <el-select v-model="serviceForm.autoImageValue" filterable
                        :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
               <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
-                         :key="index" :label="item" :value="item">
+                         :key="index" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </el-form-item>
@@ -72,7 +72,7 @@
           </transition>
           <transition name="more-config">
             <el-form-item label="mainClass" prop="mainClass"
-                          v-if="appLanguage.toUpperCase() === 'JAVA' && !imageSelectState.customImage"
+                          v-if="appLanguage.toUpperCase() === 'JAVA' && !imageSelectState.customImage && serviceForm.packageInfo.type.toUpperCase() === 'ZIP'"
                           class="main-class"
             >
               <el-input v-model="serviceForm.mainClass"
@@ -96,7 +96,7 @@
             </el-form-item>
           </transition>
           <el-form-item label="VM_Options" prop="vmOptions" class="vm-options"
-                        v-if="appLanguage.toUpperCase() == 'JAVA'"
+                        v-if="appLanguage.toUpperCase() == 'JAVA' && !imageSelectState.customImage"
           >
             <div>
               <el-input v-model="serviceForm.vmOptions"
@@ -619,12 +619,17 @@
         //   this.serviceForm.portMap.update = true;
         // }
       } else {
+        //Production appMonitor environment is selected by default
+        if (this.profileInfo && this.profileInfo.spaceType === 'PRODUCTION') {
+          this.serviceForm.appMonitor = profileUtils.appMonitorList[1].id;
+        }
         this.serviceForm.packageInfo.type = this.packageTypeList[0].type;
         // set default cpu, default memorySizeList will be set in watch
         if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
           let firstItem = this.cpuAndMemoryList[0];
           this.serviceForm.cpuID = 'cpu' in firstItem ? firstItem.id : '';
         }
+        //set default expiredDays
         this.$net.requestPaasServer(this.$net.URL_LIST.query_default_expired_days).then(resContent => {
           this.serviceForm.expiredDays = resContent["defaultExpiredDays"];
         })
@@ -998,7 +1003,15 @@
           const autoImageList = results['autoImageList'];
 
           this.imageInfoFromNet['customImageList'] = customImageList;
-          this.imageInfoFromNet['autoImageList'] = autoImageList;
+          this.imageInfoFromNet['autoImageList'] = [{
+            label: '无',
+            value: ''
+          }].concat(autoImageList.map(it => {
+            return {
+              label: it,
+              value: it,
+            }
+          }));
 //          console.log(this.imageInfoFromNet);
 //          console.log(this.dataPassed);
 
