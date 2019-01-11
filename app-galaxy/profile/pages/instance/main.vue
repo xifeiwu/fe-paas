@@ -33,6 +33,12 @@
                 headerAlign="left" align="left">
         </el-table-column>
         <el-table-column
+                prop="nodeName"
+                label="运行结点"
+                width="130"
+                headerAlign="left" align="left">
+        </el-table-column>
+        <el-table-column
                 prop="status"
                 label="健康状态"
                 width="120"
@@ -112,8 +118,7 @@
                     >
               <span>驱逐</span>
             </el-button>
-            <div v-if="profileInfo.name !== 'production'"
-                 class="ant-divider"></div>
+            <div class="ant-divider"></div>
             <el-button
                     type="text"
                     :class="[isMesosService ? 'disabled' : 'primary']"

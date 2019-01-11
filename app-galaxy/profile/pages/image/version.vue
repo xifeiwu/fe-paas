@@ -51,6 +51,12 @@
           minWidth="120px">
         </el-table-column>
         <el-table-column
+                prop="survivalDays"
+                label="剩余天数"
+                headerAlign="center" align="center"
+                minWidth="120px">
+        </el-table-column>
+        <el-table-column
                 label="废弃标签"
                 headerAlign="center" align="center"
                 minWidth="100px">
@@ -170,7 +176,7 @@
           it['create_time'] = new Date(it.created).getTime();
           it.created = this.$utils.formatDate(Date.parse(it.created),"yyyy-MM-dd hh:mm:ss");
           it.size = parseInt(it.size / (1024 * 1024)) + "MB";
-          ['gitAddress', 'gitBranch', 'gitCommit', 'imageDescribe'].forEach(key => {
+          ['gitAddress', 'gitBranch', 'gitCommit', 'imageDescribe', 'survivalDays'].forEach(key => {
             if (!it[key]) {
               it[key] = '---';
             }
