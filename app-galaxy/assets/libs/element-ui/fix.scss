@@ -183,9 +183,22 @@
   }
 
   .el-form {
-    &.message-show {
+    &.compact {
+      margin-bottom: 0px;
       .el-form-item {
-        margin-bottom: 5px;
+        margin: 0px;
+        &.el-form-item--mini {
+          margin: 0px;
+        }
+      }
+    }
+    &.message-show {
+      margin-bottom: 5px;
+      .el-form-item {
+        .el-form-item__label, .el-form-item__content {
+          line-height: 120%;
+        }
+        margin: 5px 0px;
       }
     }
     .el-form-item-group {
@@ -259,15 +272,6 @@
         text-align: left;
         word-wrap: break-word;
         word-break: break-all;
-      }
-    }
-    &.message-show {
-      margin-bottom: 5px;
-      .el-form-item {
-        .el-form-item__label, .el-form-item__content {
-          line-height: 120%;
-        }
-        margin: 5px 0px;
       }
     }
   }
