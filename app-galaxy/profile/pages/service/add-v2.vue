@@ -739,7 +739,7 @@
           loadBalance: profileUtils.getSupportedLoadBalance()[0],
           healthCheckType: this.$storeHelper.defaultHealthCheckTypeDesc,
           healthCheck: {
-            http: '',
+            http: '/health',
             shell: '',
             socket: 8080
           },

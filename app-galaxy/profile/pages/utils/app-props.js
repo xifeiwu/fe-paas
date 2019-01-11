@@ -42,6 +42,26 @@ class AppInfoHelper {
           }
         }
       }],
+      //二级域名
+      serviceName: [{
+        required: false,
+      }, {
+        validator(rule, values, callback) {
+          let reg = /^[a-z0-9][a-z0-9\\\\-]{0,48}[a-z0-9]$/;
+          let passed = true;
+          if (!values) {
+            callback();
+          } else if (values.length > 0) {
+            if (!reg.exec(values)) {
+              passed = false;
+              callback('二级域名只能包含小写字母、数字、中划线，且不能以中划线为开头和结尾。长度2-50个字符');
+            }
+          }
+          if (passed) {
+            callback();
+          }
+         }
+      }],
       // 健康检查
       // TODO:not used
       healthCheck: [{

@@ -1050,6 +1050,7 @@ class Net extends NetBase {
         appId: app.id,
         appName: app.appName,
         projectName: app.tag,
+        serviceName: app.serviceName,
         userName: app.userName,
         creator: app.creator,
         createTime,
@@ -1062,7 +1063,7 @@ class Net extends NetBase {
     });
     result.appModelList = result.appList.map(app => {
       var result = {};
-      ['appId', 'appName', 'projectName', 'creator', 'userName', 'createTime', 'language', 'packageType', 'lobId', 'scrumId'].forEach(key => {
+      ['appId', 'appName', 'projectName', 'serviceName', 'creator', 'userName', 'createTime', 'language', 'packageType', 'lobId', 'scrumId'].forEach(key => {
         result[key] = app[key];
       });
       return result;

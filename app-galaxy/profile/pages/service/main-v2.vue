@@ -153,9 +153,12 @@
             {{this.$utils.formatDate(model["updateTime"],"yyyy-MM-dd hh:mm:ss")}}
           </el-form-item>
           <el-form-item label="namespace">
-            {{applicationConfigDeployment["namespace"]}}
+            {{applicationConfigDeployment["namespace"] ? applicationConfigDeployment["namespace"] : "未知"}}
           </el-form-item>
           <el-form-item label="项目名称">
+            {{model["tag"]}}
+          </el-form-item>
+          <el-form-item label="二级域名">
             {{model["serviceName"]}}
           </el-form-item>
           <el-form-item label="开发语言">

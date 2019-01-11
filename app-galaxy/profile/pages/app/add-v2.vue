@@ -21,15 +21,15 @@
         </el-select>
         <span v-else>{{findGroupNameById()}}</span>
       </el-form-item>
-      <el-form-item label="所属ScrumTeam" prop="scrumId" class="scrumTeam" v-if="true">
-        <el-select v-model="createAppForm.scrumId" placeholder="请选择" filterable>
-          <el-option v-for="item in scrumList" :key="item.id" :label="item.scrumName" :value="item.id">
-          </el-option>
-        </el-select>
-      </el-form-item>
       <el-form-item label="所属LOB" prop="lobId" class="lob" v-if="true">
         <el-select v-model="createAppForm.lobId" placeholder="请选择" filterable>
           <el-option v-for="item in lobList" :key="item.id" :label="item.lobName" :value="item.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="所属ScrumTeam" prop="scrumId" class="scrumTeam" v-if="true">
+        <el-select v-model="createAppForm.scrumId" placeholder="请选择" filterable>
+          <el-option v-for="item in scrumList" :key="item.id" :label="item.scrumName" :value="item.id">
           </el-option>
         </el-select>
       </el-form-item>
@@ -40,6 +40,10 @@
         <el-input v-model="createAppForm.projectName"
                   placeholder="输入GitLab里的project名称。只能包含字母、数字、中划线，2-50个字符" v-if="pageType != 'update'"></el-input>
         <span v-else>{{createAppForm.projectName}}</span>
+      </el-form-item>
+      <el-form-item label="二级域名" prop="serviceName">
+        <el-input v-model="createAppForm.serviceName" placeholder="默认与项目名称一致，且强制转换为小写字母" v-if="pageType != 'update'"></el-input>
+        <span v-else>{{createAppForm.serviceName}}</span>
       </el-form-item>
       <el-form-item label="开发语言" prop="language">
         <el-radio-group v-model="createAppForm.language">
@@ -395,6 +399,7 @@ export default {
           this.createAppForm.scrumId = data['scrumId'];
           this.createAppForm.appName = data['appName'];
           this.createAppForm.projectName = data['projectName'];
+          this.createAppForm.serviceName = data['serviceName'];
           // the follow prop is set in watch function
           this.propsUsed.language = false;
           this.propsUsed.languageVersion = false;
@@ -790,10 +795,11 @@ export default {
               lobId: createAppForm.lobId,
               appName: createAppForm.appName,
               tag: createAppForm.projectName,
+              serviceName: createAppForm.serviceName,
               language: createAppForm.language,
               languageVersion: createAppForm.languageVersion,
-//               packageType: createAppForm.packageInfo.type,
-//                spaceList: createAppForm.profiles,
+              spaceList: createAppForm.profiles,
+//                packageType: createAppForm.packageInfo.type,
 //                buildName: createAppForm.packageInfo.name,
 //                initialDelaySeconds: createAppForm.initialDelaySeconds,
 //                volumes: createAppForm.fileLocation,
@@ -802,18 +808,18 @@ export default {
 //                maxAge4Script: createAppForm.maxAge4Script,
 //                loadBalance: createAppForm.loadBalance,
             };
-            payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(createAppForm.healthCheckType);
-            switch (createAppForm.healthCheckType) {
-              case 'http':
-                payload.healthCheck = createAppForm.healthCheck.http;
-                break;
-              case 'shell':
-                payload.healthCheck = createAppForm.healthCheck.shell;
-                break;
-              case 'socket':
-                payload.healthCheck = createAppForm.healthCheck.socket;
-                break;
-            }
+            // payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(createAppForm.healthCheckType);
+            // switch (createAppForm.healthCheckType) {
+            //   case 'http':
+            //     payload.healthCheck = createAppForm.healthCheck.http;
+            //     break;
+            //   case 'shell':
+            //     payload.healthCheck = createAppForm.healthCheck.shell;
+            //     break;
+            //   case 'socket':
+            //     payload.healthCheck = createAppForm.healthCheck.socket;
+            //     break;
+            // }
 //          console.log('payload');
 //          console.log(payload);
             this.addToWaitingResponseQueue('submit');

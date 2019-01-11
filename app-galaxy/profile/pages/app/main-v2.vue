@@ -60,6 +60,11 @@
             <span>{{scope.row.projectName}}</span>
           </template>
         </el-table-column>
+        <el-table-column label="二级域名" prop="serviceName" headerAlign="left" align="left" minWidth="120">
+          <template slot-scope="scope">
+            <span>{{scope.row.serviceName}}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="120">
         </el-table-column>
         <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="160">
@@ -566,7 +571,7 @@
           return;
         }
         const appInfo = this.$storeHelper.getAppInfoByID(row.appId);
-//        console.log(appInfo);
+       // console.log(appInfo);
         if (!appInfo) {
           return;
         } else {
