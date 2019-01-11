@@ -564,6 +564,10 @@
         this.loadingOthers = true;
 //        ['cpu', 'memory', 'network-in', 'network-out', 'disk-read', 'disk-write']
         const serviceInfo = this.$refs['version-selector'].getSelectedValue();
+        //因为组件更新，会连发两个请求，所以需要判断第一个请求的值，不能为空
+        if (!serviceInfo || !serviceInfo.selectedAPP.appName || !serviceInfo.selectedProfile.id || !serviceInfo.selectedService.serviceName) {
+          return;
+        }
         const selectedInstanceIPList = [];
         this.selectedInstanceList.forEach(it => {
           this.instanceList.forEach(instance => {

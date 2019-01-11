@@ -447,6 +447,7 @@ export default {
         lobId: '',
         appName: '',
         projectName: '',
+        serviceName: '',
         language: '',
         languageVersion: '',
 //         packageInfo: {

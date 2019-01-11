@@ -754,6 +754,9 @@ export default {
       this.$net.requestPaasServer(this.$net.URL_LIST.get_service_list_v2, {payload}).then(resContent => {
         if (resContent.hasOwnProperty("applicationConfigDeployment")) {
           this.applicationConfigDeployment = resContent["applicationConfigDeployment"];
+          if (this.applicationConfigDeployment["cpu"] > 100) {
+            this.applicationConfigDeployment["cpu"] = this.applicationConfigDeployment["cpu"]/1000;
+          }
           this.showServiceInfo = true;
         }
       });

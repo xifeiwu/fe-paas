@@ -323,7 +323,7 @@
               ></el-input>
             </el-form-item>
           </transition>
-          <el-form-item label="用户须知" prop="agree" v-if="profileInfo && profileInfo.spaceType === 'PRODUCTION'">
+          <el-form-item label="用户须知" prop="agree" v-if="profileInfo && profileInfo.spaceType.toUpperCase() === 'PRODUCTION'">
             <el-checkbox v-model="serviceForm.agree">
               <span style="display: inline-block;">已知晓：</span>
             </el-checkbox>
@@ -620,7 +620,7 @@
         // }
       } else {
         //Production appMonitor environment is selected by default
-        if (this.profileInfo && this.profileInfo.spaceType === 'PRODUCTION') {
+        if (this.profileInfo && this.profileInfo.spaceType.toUpperCase() !== 'PRODUCTION') {
           this.serviceForm.appMonitor = profileUtils.appMonitorList[1].id;
         }
         this.serviceForm.packageInfo.type = this.packageTypeList[0].type;
@@ -1334,7 +1334,7 @@
       },
 
       showExpiredDays() {
-        return this.profileInfo && this.profileInfo.spaceType !== 'PRODUCTION';
+        return this.profileInfo && this.profileInfo.spaceType.toUpperCase() !== 'PRODUCTION';
       },
 
       getErrMsgForHealthCheck() {
