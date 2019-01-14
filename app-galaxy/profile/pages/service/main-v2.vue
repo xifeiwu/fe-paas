@@ -159,7 +159,7 @@
             {{model["tag"]}}
           </el-form-item>
           <el-form-item label="二级域名">
-            {{model["serviceName"]}}
+            {{selectedApp["serviceName"]}}
           </el-form-item>
           <el-form-item label="开发语言">
             {{model["language"] + "-" + model["languageVersion"]}}
