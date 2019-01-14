@@ -153,7 +153,7 @@
             {{this.$utils.formatDate(model["updateTime"],"yyyy-MM-dd hh:mm:ss")}}
           </el-form-item>
           <el-form-item label="namespace">
-            {{applicationConfigDeployment["namespace"] ? applicationConfigDeployment["namespace"] : "未知"}}
+            {{applicationConfigDeployment.hasOwnProperty("namespace") ? applicationConfigDeployment["namespace"] : "未知"}}
           </el-form-item>
           <el-form-item label="项目名称">
             {{model["tag"]}}
@@ -207,9 +207,9 @@
                 <el-col :span="10" style="font-weight: bold;text-align: center">Key</el-col>
                 <el-col :span="10" style="font-weight: bold;text-align: center">Value</el-col>
               </el-row>
-              <el-row v-for="(item, index) in applicationConfigDeployment.environments" :key="item.key">
+              <el-row v-for="(item, index) in applicationConfigDeployment.environments" :key="item.name">
                 <el-col :span="10" style="text-align: center">
-                  <div class="expand-to-next-line">{{item.key}}</div>
+                  <div class="expand-to-next-line">{{item.name}}</div>
                 </el-col>
                 <el-col :span="10" style="text-align: center">
                   <div class="expand-to-next-line">{{item.value}}</div>
@@ -223,12 +223,12 @@
           <el-form-item label="Host配置">
             <div v-if="applicationConfigDeployment.hosts && applicationConfigDeployment.hosts.length > 0">
               <el-row>
-                <el-col :span="8" style="font-weight: bold; text-align: center">IP</el-col>
-                <el-col :span="8" style="font-weight: bold; text-align: center">域名</el-col>
+                <el-col :span="10" style="font-weight: bold; text-align: center">IP</el-col>
+                <el-col :span="10" style="font-weight: bold; text-align: center">域名</el-col>
               </el-row>
               <el-row v-for="(item, index) in applicationConfigDeployment.hosts" :key="item.key">
-                <el-col :span="8" style="text-align: center">{{item.ip}}</el-col>
-                <el-col :span="8" style="text-align: center">{{item.domain}}</el-col>
+                <el-col :span="10" style="text-align: center">{{item.ip}}</el-col>
+                <el-col :span="10" style="text-align: center">{{item.hostname}}</el-col>
                 <el-col :span="2"></el-col>
               </el-row>
             </div>
@@ -334,6 +334,7 @@
     line-height: 25px;
   }
   #service-main {
+    height: 100%;
     .el-textarea__inner {
       font-size: 14px;
     }
@@ -347,6 +348,7 @@
       }
     }
     .expand {
+      overflow: scroll;
       box-sizing: border-box;
       padding: 8px 12px;
       width: 67%;
@@ -596,7 +598,7 @@ export default {
 //      1. 对于1.x团队的应用，服务管理页面中删除、配置外网域名、复制服务不可用，创建服务不可用。
 //      2. 对于mesos应用，服务管理页面中重启按钮不可用
       resizeListenerForServiceList: () => {},
-      heightOfTable: '',
+      heightOfExpand: '',
       appList: [],
       selectedAppID: null,
       waitingResponse: false,
@@ -615,7 +617,7 @@ export default {
       },
       // used for component MyImageSelector
       queueForWaitingResponse: [],
-      applicationConfigDeployment: null,
+      applicationConfigDeployment: {},
       showServiceInfo: false,
       haveService: false,
       model: null,
@@ -756,10 +758,7 @@ export default {
       };
       this.$net.requestPaasServer(this.$net.URL_LIST.get_service_list_v2, {payload}).then(resContent => {
         if (resContent.hasOwnProperty("applicationConfigDeployment")) {
-          this.applicationConfigDeployment = resContent["applicationConfigDeployment"];
-          if (this.applicationConfigDeployment["cpu"] > 100) {
-            this.applicationConfigDeployment["cpu"] = this.applicationConfigDeployment["cpu"]/1000;
-          }
+          this.applicationConfigDeployment = this.processResponseData(resContent["applicationConfigDeployment"]);
           this.showServiceInfo = true;
         }
       });
@@ -1169,6 +1168,26 @@ export default {
         this.waitingResponse = false;
         this.hideWaitingResponse("update-internet-domain");
       });
+    },
+
+    processResponseData(applicationConfigDeployment) {
+      if (applicationConfigDeployment["cpu"] > 100) {
+        applicationConfigDeployment["cpu"] = applicationConfigDeployment["cpu"]/1000;
+      }
+      let hosts = applicationConfigDeployment["hosts"];
+      let processedHosts = [];
+      if (hosts && Array.isArray(hosts)) {
+        hosts.forEach(it => {
+          it.hostnames.forEach(any => {
+            processedHosts.push({
+              hostname:any,
+              ip:it.ip,
+            })
+          });
+        });
+      }
+      applicationConfigDeployment["hosts"] = processedHosts;
+      return applicationConfigDeployment;
     },
 
     async handleButtonClick(evt,action) {
