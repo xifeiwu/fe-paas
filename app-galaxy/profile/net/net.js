@@ -502,7 +502,7 @@ class Net extends NetBase {
         method: 'post'
       },
       // 删除redis实例
-      'middleware_instance_delete': {
+      'middleware_redis_instance_delete': {
         path: '/middleware/deleteMiddleware',
         method: 'post'
       },
@@ -678,7 +678,7 @@ class Net extends NetBase {
       // 待办/工单/部署应用
       '/2.x/order/todoList/deploy': 'work-order_deploy_service',
 
-      /** 中间件相关 */
+      /** 中间件(mariadb)相关 */
       // 创建MariaDB
       '/2.x/openShift/mariaDB/create': 'middleware_mariadb_instance_create',
       // 删除MariaDB
@@ -695,6 +695,24 @@ class Net extends NetBase {
       '/2.x/openShift/mariaDB/deleteBackup': 'middleware_mariadb_backup_delete',
       // 恢复MariaDB备份
       '/2.x/openShift/mariaDB/createRestore': 'middleware_mariadb_backup_restore',
+
+      /** 中间件(redis)相关 */
+      // 创建redis
+      '/2.x/openShift/redis/create': 'middleware_redis_instance_create',
+      // 删除redis
+      '/2.x/openShift/redis/delete': 'middleware_redis_instance_delete',
+      // 启动redis
+      '/2.x/openShift/redis/start': 'middleware_redis_instance_start',
+      // 停止redis
+      '/2.x/openShift/redis/stop': 'middleware_redis_instance_stop',
+      // 更新redis
+      '/2.x/openShift/redis/update': 'middleware_redis_instance_update',
+      // 创建redis备份
+      '/2.x/openShift/redis/createBackup': 'middleware_redis_backup_create',
+      // 删除redis备份
+      '/2.x/openShift/redis/deleteBackup': 'middleware_redis_backup_delete',
+      // 恢复redis备份
+      '/2.x/openShift/redis/createRestore': 'middleware_redis_backup_restore',
 
       /** 页面相关 */
       // 服务管理

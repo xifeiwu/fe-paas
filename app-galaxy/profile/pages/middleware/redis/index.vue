@@ -56,21 +56,21 @@
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="$storeHelper.permission['middleware_instance_delete'].disabled ? 'disabled' : 'danger'"
-                    :loading="statusOfWaitingResponse('middleware_instance_delete') && action.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_instance_delete', scope.$index, scope.row)">删除</el-button>
+                    :class="$storeHelper.permission['middleware_redis_instance_delete'].disabled ? 'disabled' : 'danger'"
+                    :loading="statusOfWaitingResponse('middleware_redis_instance_delete') && action.row.id == scope.row.id"
+                    @click="handleTRClick($event, 'middleware_redis_instance_delete', scope.$index, scope.row)">删除</el-button>
             <div class="ant-divider"></div>
             <el-button v-if="false"
                     type="text"
-                    :class="$storeHelper.permission['middleware_instance_start'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_instance_start') && action.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_instance_start', scope.$index, scope.row)">启动</el-button>
+                    :class="$storeHelper.permission['middleware_redis_instance_start'].disabled ? 'disabled' : 'warning'"
+                    :loading="statusOfWaitingResponse('middleware_redis_instance_start') && action.row.id == scope.row.id"
+                    @click="handleTRClick($event, 'middleware_redis_instance_start', scope.$index, scope.row)">启动</el-button>
             <div class="ant-divider" v-if="false"></div>
             <el-button v-if="false"
                     type="text"
-                    :class="$storeHelper.permission['middleware_instance_stop'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_instance_stop') && action.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_instance_stop', scope.$index, scope.row)">停止</el-button>
+                    :class="$storeHelper.permission['middleware_redis_instance_stop'].disabled ? 'disabled' : 'warning'"
+                    :loading="statusOfWaitingResponse('middleware_redis_instance_stop') && action.row.id == scope.row.id"
+                    @click="handleTRClick($event, 'middleware_redis_instance_stop', scope.$index, scope.row)">停止</el-button>
             <div class="ant-divider" v-if="false"></div>
             <el-button v-if="false"
                     type="text"
@@ -446,12 +446,12 @@
               console.log(err);
             }
             break;
-          case 'middleware_instance_delete':
+          case 'middleware_redis_instance_delete':
             this.addToWaitingResponseQueue(action);
             try {
               const warningMsg = `删除mariadb实例 "${row.name}"?`;
               await this.warningConfirm(warningMsg);
-              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_instance_delete, {
+              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_redis_instance_delete, {
                 payload: {
                   clusterId: this.clusterId,
                   middlewareId: this.middlewareId,
@@ -467,7 +467,7 @@
               this.hideWaitingResponse(action);
             }
             break;
-          case 'middleware_instance_start':
+          case 'middleware_redis_instance_start':
             this.addToWaitingResponseQueue(action);
             try {
               await this.warningConfirm(`启动mariadb实例 "${row.name}"?`);
@@ -488,7 +488,7 @@
               this.hideWaitingResponse(action);
             }
             break;
-          case 'middleware_instance_stop':
+          case 'middleware_redis_instance_stop':
             this.addToWaitingResponseQueue(action);
             try {
               await this.warningConfirm(`停止mariadb实例 "${row.name}"?`);
