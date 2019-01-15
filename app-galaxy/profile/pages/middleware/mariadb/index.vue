@@ -618,6 +618,7 @@
           Pending: '启动中',
           Running: '运行中',
           Failed: '启动失败',
+          Stopping: '停止中',
           Deleting: '删除中'
         };
 //        const cpu = parseInt(spec['resources']['requests']['cpu']);
