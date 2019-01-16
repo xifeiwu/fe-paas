@@ -288,7 +288,7 @@
           memoryNow: '',
           memory: '',
         },
-        rules: utils.redis.rules
+        rules: utils.redisRules
       }
     },
     watch: {

@@ -29,7 +29,7 @@
       </div>
       <div>
         <div class="title">资源信息</div>
-        <el-form-item label="使用期限" prop="leaveTime">
+        <el-form-item label="有效天数" prop="leaveTime">
           <div style="width: 360px; display: inline-block; margin-left: 5px;">
             <el-slider v-model="formData.leaveTime" :show-tooltip="true" :show-stops="false"
                        :min="10" :max="90" :step="1"></el-slider>
@@ -215,7 +215,7 @@
           memory: 256 * utils.ONE_MILLION,
           comment: '',
         },
-        formRules: utils.redis.rules,
+        formRules: utils.redisRules,
 
       }
     },

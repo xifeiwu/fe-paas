@@ -53,6 +53,11 @@
             <div v-else>{{scope.row.formattedUpdateTime}}</div>
           </template>
         </el-table-column>
+        <el-table-column label="有效天数" prop="remainingDays" headerAlign="center" align="center" width="80">
+          <template slot-scope="scope">
+            <span>{{scope.row.remainingDays}}天</span>
+          </template>
+        </el-table-column>
         <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="80">
         </el-table-column>
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="150">
@@ -452,16 +457,25 @@
         if (!this.middlewareId) {
           return;
         }
-        const instanceList = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_instance_info_basic, {
+        var {resContent, timeStamp} = await this.$net.requestPaasServer(
+          Object.assign(this.$net.URL_LIST.middleware_middleware_instance_info_basic, {
+            withTimeStamp: true
+          }), {
           payload: {
             clusterId: this.clusterId,
             middlewareId: this.middlewareId,
             groupId: this.$storeHelper.currentGroupID
           }
         });
+        const instanceList = resContent;
+        const ONE_DAY = 24 * 3600 * 1000;
         instanceList.forEach(it => {
           it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
           it.formattedUpdateTime = this.$utils.formatDate(it.updateTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
+          it.remainingDays = '---';
+          if (it.hasOwnProperty('expiredTime')) {
+            it.remainingDays = Math.ceil((parseInt(it.expiredTime) - timeStamp) / ONE_DAY);
+          }
           if(!it.instanceDescribe) {
             it.instanceDescribe = '---';
           }

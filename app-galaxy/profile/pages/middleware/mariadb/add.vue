@@ -28,6 +28,13 @@
       </div>
       <div>
         <div class="title">资源信息</div>
+        <el-form-item label="有效天数" prop="remainingDays">
+          <div style="width: 360px; display: inline-block; margin-left: 5px;">
+            <el-slider size="small" v-model="formData.remainingDays" :show-tooltip="true" :show-stops="false"
+                       :min="10" :max="90" :step="1"></el-slider>
+          </div>
+          <div style="display: inline-block; margin-left: 15px;"><span>{{formData.remainingDays}}天</span></div>
+        </el-form-item>
         <el-form-item label="CPU" prop="cpu">
           <el-radio-group v-model="formData.cpu" size="small">
             <el-radio v-for="item in constants.cpuList" :label="item" :key="item">
@@ -44,7 +51,7 @@
         </el-form-item>
         <el-form-item label="磁盘" prop="disk" class="disk">
           <div style="width: 200px; display: inline-block; margin-left: 5px;">
-            <el-slider v-model="formData.disk" :show-tooltip="true" :show-stops="true" :min="1" :max="5" :step="1"></el-slider>
+            <el-slider size="small" v-model="formData.disk" :show-tooltip="true" :show-stops="true" :min="1" :max="5" :step="1"></el-slider>
           </div>
           <div style="display: inline-block; margin-left: 15px;"><span>当前值：</span>{{formData.disk}}G</div>
         </el-form-item>
@@ -153,7 +160,7 @@
 }
 </style>
 <script>
-  import utils from 'assets/libs/element-ui/utils';
+  import utils from '../utils';
   import commonUtils from 'assets/components/mixins/common-utils';
   module.exports = {
     mixins: [commonUtils],
@@ -223,6 +230,7 @@
           name: '',
           versionId: '',
           dbName: '',
+          remainingDays: 30, // 默认生效天数为30天
           cpu: '',
           memory: '',
           disk: 1,
@@ -231,79 +239,7 @@
           confirmPassword: '',
           comment: '',
         },
-        formRules: {
-          name: [{
-            required: true,
-            message: '请输入实例名称',
-            trigger: 'blur'
-          }, {
-            validator: (rule, values, callback) => {
-              const reg = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/;
-              let passed = true;
-              if (!reg.exec(values)) {
-                passed = false;
-                callback('可以包含小写字符数字或中划线，但不能以中划线开始或结尾');
-              }
-              if (passed) {
-                callback();
-              }
-            }
-          }],
-          versionId: [{
-            type: 'number',
-            required: true,
-            message: '请选择实例版本',
-            trigger: 'blur'
-          }],
-          cpu: [{
-            type: 'number',
-            required: true,
-            message: '请选择CPU类型',
-            trigger: 'blur'
-          }],
-          memory: [{
-            type: 'number',
-            required: true,
-            message: '请选择内存大小',
-            trigger: 'blur'
-          }],
-          disk: [{
-            type: 'number',
-            required: true,
-            message: '请选择磁盘大小',
-            trigger: 'blur'
-          }],
-          dbName: [{
-            required: true,
-            message: '请输入数据库名称',
-            trigger: 'blur'
-          }, {
-            validator: utils.generateValidator(true, false, 2, 30, true)
-          }],
-          userName: [{
-            required: true,
-            message: '请输入用户名',
-            trigger: 'blur'
-          }, {
-            validator: utils.generateValidator(true, false, 2, 30, true)
-          }],
-          password: [{
-            required: true,
-            message: '请输入密码',
-            trigger: 'blur'
-          }, {
-            validator: utils.generateValidator(true, false, 2, 30, true)
-          }],
-          comment: [{
-            validator(rule, values, callback) {
-              if (values.length > 100) {
-                callback('长度不能超过100个字符');
-                return;
-              }
-              callback();
-            }
-          }]
-        },
+        formRules: utils.mariadbRules,
 
         constants: {
           cpuList: [1, 2],
@@ -331,6 +267,7 @@
                 name: formData.name,
                 middlewareVersionId: formData.versionId,
                 databaseName: formData.dbName,
+                lifecycle: formData.remainingDays,
                 cpuRequests: formData.cpu,
                 memoryRequests: formData.memory,
                 storageSize: formData.disk,
