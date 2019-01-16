@@ -2816,6 +2816,12 @@ export default {
           break;
         case 'cpuAndMemory':
           this.newProps['cpuID'] = this.selected.model['cpuID'];
+          // update memeorySizeList by cpuId
+          this.cpuAndMemoryList.some(it => {
+            if (it.hasOwnProperty('cpu') && it.id === this.newProps['cpuID']) {
+              this.memeorySizeList = it.memoryList;
+            }
+          });
           this.newProps['memoryID'] = this.selected.model['memoryID'];
           break;
         case 'image':

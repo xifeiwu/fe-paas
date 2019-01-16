@@ -123,6 +123,7 @@
 
     <el-dialog title="更改应用名称" :visible="selected.prop == 'appName'"
                @close="selected.prop = null; waitingResponse=false"
+               class="size-600"
                v-if="selected.app && selected.model"
                :close-on-click-modal="false"
     >
