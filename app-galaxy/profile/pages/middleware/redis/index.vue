@@ -437,7 +437,7 @@
                   middlewareInfo: this.middlewareInfo,
                   name: this.action.row.name,
                   instanceDescribe: this.action.row.instanceDescribe,
-                  leaveTime: this.action.row.leaveTime
+                  remainingDays: this.action.row.leaveTime
 //                  memory: moreInfo['memoryTotal']
                 }
               };

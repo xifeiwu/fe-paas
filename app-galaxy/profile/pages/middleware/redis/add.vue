@@ -29,12 +29,12 @@
       </div>
       <div>
         <div class="title">资源信息</div>
-        <el-form-item label="有效天数" prop="leaveTime">
+        <el-form-item label="剩余有效天数" prop="remainingDays">
           <div style="width: 360px; display: inline-block; margin-left: 5px;">
-            <el-slider v-model="formData.leaveTime" :show-tooltip="true" :show-stops="false"
+            <el-slider v-model="formData.remainingDays" :show-tooltip="true" :show-stops="false"
                        :min="10" :max="90" :step="1"></el-slider>
           </div>
-          <div style="display: inline-block; margin-left: 15px;"><span>{{formData.leaveTime}}天</span></div>
+          <div style="display: inline-block; margin-left: 15px;"><span>{{formData.remainingDays}}天</span></div>
         </el-form-item>
         <el-form-item label="磁盘大小" prop="memory" class="memory" v-if="!forModify">
           <div style="width: 360px; display: inline-block; margin-left: 5px;">
@@ -149,8 +149,8 @@
           this.clusterInfo = data.clusterInfo;
           this.middlewareInfo = data.middlewareInfo;
           this.formData.name = data.name;
-          this.dataPassed.leaveTime = data.leaveTime;
-          this.formData.leaveTime = data.leaveTime;
+          this.dataPassed.remainingDays = data.remainingDays;
+          this.formData.remainingDays = data.remainingDays;
           this.formData.comment = data.instanceDescribe;
           this.$storeHelper.dataTransfer = null;
         } else {
@@ -205,13 +205,13 @@
         showLoading: false,
         loadingText: '',
         dataPassed: {
-          leaveTime: null,
+          remainingDays: null,
         },
         formData: {
           name: '',
           versionId: '',
           clusterId: '',
-          leaveTime: 30,
+          remainingDays: 30,
           memory: 256 * utils.ONE_MILLION,
           comment: '',
         },
@@ -246,7 +246,7 @@
                 middlewareVersionId: formData.versionId,
                 memory: formData.memory / utils.ONE_MILLION,
                 instanceDescribe: formData.comment,
-                lifecycle: formData.leaveTime,
+                lifecycle: formData.remainingDays,
                 isCluster: ''
               });
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_redis_instance_create, {
@@ -263,7 +263,7 @@
             try {
               payload = Object.assign(payload, {
                 instanceDescribe: formData.comment,
-                delayDays: formData.leaveTime,
+                delayDays: formData.remainingDays,
               });
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_redis_update_config, {
                 payload

@@ -7,7 +7,7 @@ class Utils {
       remainingDays: [{
         required: true,
         type: 'number',
-        message: '请选择有效天数',
+        message: '请选择剩余有效天数',
         trigger: 'blur'
       }],
     };
@@ -39,12 +39,6 @@ class Utils {
         required: true,
         type: 'number',
         message: '请选择运行环境',
-        trigger: 'blur'
-      }],
-      leaveTime: [{
-        required: true,
-        type: 'number',
-        message: '请选择试用期限',
         trigger: 'blur'
       }],
       memory: [{
