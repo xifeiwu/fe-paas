@@ -499,6 +499,11 @@ class Net extends NetBase {
         path: '/middleware/updateMiddlewareMariaDB',
         method: 'post'
       },
+      // 修改实例信息（其它基本信息）
+      'middleware_mariadb_instance_update_config': {
+        path: '/middleware/editMiddlewareMariaDB',
+        method: 'post'
+      },
       // 删除mariadb实例
       'middleware_mariadb_instance_delete': {
         path: '/middleware/deleteMiddleware',

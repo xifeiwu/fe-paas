@@ -53,7 +53,7 @@
             <div v-else>{{scope.row.formattedUpdateTime}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="有效天数" prop="remainingDays" headerAlign="center" align="center" width="80">
+        <el-table-column label="剩余有效天数" prop="remainingDays" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
             <span>{{scope.row.remainingDays}}天</span>
           </template>
@@ -67,6 +67,14 @@
                     :class="$storeHelper.permission['middleware_mariadb_instance_update'].disabled ? 'disabled' : 'warning'"
                     :loading="statusOfWaitingResponse('middleware_mariadb_instance_update') && operation.row.id == scope.row.id"
                     @click="handleTRClick($event, 'middleware_mariadb_instance_update', scope.$index, scope.row)">变更规格</el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text"
+                    :class="['warning', 'flex']"
+                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_update') && action.row.id == scope.row.id"
+                    @click="handleTRClick($event, 'middleware_mariadb_instance_update_config', scope.$index, scope.row)">
+              <span>修改配置</span><i class="paas-icon-level-up"></i>
+            </el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
@@ -690,6 +698,26 @@
             } catch (err) {
               console.log(err);
               this.hideWaitingResponse(action);
+            }
+            break;
+          case 'middleware_mariadb_instance_update_config':
+            try {
+//              const moreInfo = await this.getInstanceMoreInfo();
+//              console.log(moreInfo);
+//              console.log(row);
+              this.$storeHelper.dataTransfer = {
+                from: this.$net.page['profile/middleware/mariadb'],
+                data: {
+                  clusterInfo: this.clusterInfo,
+                  middlewareInfo: this.middlewareInfo,
+                  name: this.operation.row.name,
+                  instanceDescribe: this.operation.row.instanceDescribe,
+                  remainingDays: this.operation.row.remainingDays,
+                }
+              };
+              this.$router.push(this.$net.page['profile/middleware/mariadb/modify']);
+            } catch (err) {
+              console.log(err);
             }
             break;
           case 'middleware_mariadb_instance_delete':
