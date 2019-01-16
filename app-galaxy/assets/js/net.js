@@ -83,8 +83,6 @@ class Net {
       'profile/work-order/todo/add': '/profile/work-order/todo/add',
       'profile/work-order/todo/modify': '/profile/work-order/todo/modify',
       'profile/config-server': '/profile/config-server',
-      'profile/image/repo': '/profile/image/repo',
-      'profile/image/repo/version': '/profile/image/repo/version',
       'user/info': '/user/info',
       'user/group': '/user/group',
       'user/message': '/user/message',
@@ -97,6 +95,7 @@ class Net {
       'profile/image/repo/version': '/profile/image/repo/version',
       'profile/middleware/mariadb': '/profile/middleware/mariadb',
       'profile/middleware/mariadb/add': '/profile/middleware/mariadb/add',
+      'profile/middleware/mariadb/modify': '/profile/middleware/mariadb/modify',
       'profile/middleware/mariadb/backup': '/profile/middleware/mariadb/backup',
       'profile/middleware/redis': '/profile/middleware/redis',
       'profile/middleware/redis/add': '/profile/middleware/redis/add',
@@ -378,7 +377,7 @@ class Net {
    * else return {}
    */
 
-  async requestPaasServer({path, method, partial}, options = {}) {
+  async requestPaasServer({path, method, partial = false, withTimeStamp = false}, options = {}) {
     try {
       if (!partial) {
         this.addToRequestingRrlList(path);
@@ -391,7 +390,15 @@ class Net {
       });
       let resData = response.data;
       if (this.isResponseSuccess(resData)) {
-        return resData.content;
+        // add timestamp to result
+        if (withTimeStamp) {
+          return {
+            resContent: resData.content,
+            timeStamp: parseInt(resData.t)
+          }
+        } else {
+          return resData.content;
+        }
       } else {
         // code 555 stands for token is out of date
         if (resData.code === 555) {
