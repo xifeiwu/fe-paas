@@ -151,7 +151,7 @@
 
     <el-dialog title="更改运行环境" :visible="selected.prop == 'profileNames'"
                @close="selected.prop = null; waitingResponse=false"
-               class="change-profile"
+               class="change-profile size-800"
                :close-on-click-modal="false"
                v-if="selected.app && selected.model"
     >
