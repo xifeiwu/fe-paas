@@ -1248,7 +1248,8 @@
                   image: serviceForm.imageLocation,
                   prestopCommand: serviceForm.prestopCommand,
                   expiredDays: expiredDays,
-                  packageType: this.serviceForm.packageInfo.type,
+                  packageType: serviceForm.packageInfo.type,
+                  buildName: serviceForm.packageInfo.name,
                 };
                 // payload.portsMapping = [{
                 //   protocol: serviceForm.portMap.protocol,
@@ -1375,6 +1376,9 @@
         });
         if (item) {
           this.serviceForm.packageInfo.type = theData.packageType;
+          if (theData.packageType.toUpperCase() === 'WAR') {
+            this.serviceForm.packageInfo.name = theData.buildName;
+          }
         } else {
           this.serviceForm.packageInfo.type = this.packageTypeList[0].type;
         }
