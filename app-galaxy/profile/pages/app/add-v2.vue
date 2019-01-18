@@ -554,8 +554,10 @@ export default {
       this.$net.getScrumByLobId(options).then(result => {
         if(Array.isArray(result.scrumList) && result.scrumList.length > 0) {
           this.scrumList = result.scrumList;
-          if (this.pageType === 'add') {
+          if (this.pageType === 'add' || (this.pageType == 'update' && this.createAppForm.lobId != this.dataPassed.lobId)) {
             this.createAppForm.scrumId = this.scrumList[0].id;
+          } else {
+            this.createAppForm.scrumId = this.dataPassed.scrumId;
           }
         }else{
           this.scrumList = [];
@@ -564,7 +566,7 @@ export default {
       });
     },
     'scrumList': function () {
-      if(this.scrumList.length == 0 && this.pageType === 'add'){
+      if(this.scrumList.length == 0){
         this.$message({
           message: '此LOB下无ScrumTeam,不能创建应用,如有疑问,请联系平台管理员!',
           type: 'error',
@@ -591,7 +593,9 @@ export default {
       if (lobInfo) {
         if (lobInfo.hasOwnProperty('scrumList') && Array.isArray(lobInfo['scrumList']) && lobInfo['scrumList'].length > 0) {
           this.scrumList = lobInfo['scrumList'];
-          this.createAppForm.scrumId = this.scrumList[0].id;
+          if (this.page === 'add') {
+            this.createAppForm.scrumId = this.scrumList[0].id;
+          }
         }
         if (lobInfo.hasOwnProperty('lobList') && Array.isArray(lobInfo['lobList']) && lobInfo['lobList'].length > 0) {
           this.lobList = lobInfo['lobList'];
