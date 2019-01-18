@@ -300,7 +300,15 @@ class AppInfoHelper {
             callback();
           }
         }
-      }]
+      }],
+      //war包构建名称
+      [`packageInfo.name`]: [{
+        required: false,
+      },{
+        validator: notRequriedBasicValidator
+      }, {
+        validator: limit256
+      }],
     }
   }
 

@@ -22,7 +22,9 @@
                   </el-radio>
                 </el-radio-group>
               </div>
-              <div :class="['war-name', serviceForm.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']"><el-input v-model="serviceForm.packageInfo.name" placeholder="默认与项目名称一致"></el-input></div>
+              <el-form-item :class="['war-name', serviceForm.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']" prop="packageInfo.name">
+                <el-input v-model="serviceForm.packageInfo.name" placeholder="默认与项目名称一致"></el-input>
+              </el-form-item>
             </div>
           </el-form-item>
           <el-form-item label="镜像方式" prop="customImage" class="custom-image">
@@ -1376,9 +1378,7 @@
         });
         if (item) {
           this.serviceForm.packageInfo.type = theData.packageType;
-          if (theData.packageType.toUpperCase() === 'WAR') {
-            this.serviceForm.packageInfo.name = theData.buildName;
-          }
+          this.serviceForm.packageInfo.name = theData.buildName;
         } else {
           this.serviceForm.packageInfo.type = this.packageTypeList[0].type;
         }
