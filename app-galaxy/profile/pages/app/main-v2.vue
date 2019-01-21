@@ -128,13 +128,15 @@
     <paas-popover-message ref="popover-profile-list" popperClass="el-popover--small is-dark"
                           placement="top">
       <div slot="content">
-        <div v-for="(item, index) in profileStatusList" :key="index">
-          <div style="display: inline-block; font-size: 14px; min-width: 86px; text-align: right; color: blue; cursor: pointer"
-               @click="handleProfileClick($event, item)">{{item.description}}</div>
-          <div style="display: inline-block; min-width: 80px;">
-            <i class="el-icon-loading" v-if="statusOfWaitingResponse('app_show_profile')"></i>
-            <span v-else>{{item.instanceStatus}}</span>
-          </div>
+        <div v-for="(item, index) in profileStatusList" :key="index"
+             @click="handleProfileClick($event, item)"
+             @mouseenter="handleMouseEnter('profile-item', $event)"
+             @mouseleave="handleMouseLeave('profile-item', $event)"
+             style="font-size: 14px; line-height: 18px; cursor: pointer; font-weight: 400"
+             :class="[item.name ? `g-env-${item.name}-color` : '']">
+          <div style="display: inline-block; min-width: 90px; text-align: right; margin-right: 5px;"
+          >{{item.description}}</div>
+          <i class="paas-icon-level-up"></i>
         </div>
       </div>
     </paas-popover-message>
@@ -410,6 +412,7 @@
         return {
           id: it.id,
           description: it.description,
+          name: it.name,
           instanceStatus: ''
         };
       });
@@ -676,6 +679,16 @@
           }
         };
         this.$router.push(this.$net.page['profile/service']);
+      },
+      handleMouseEnter(action, evt) {
+        if (action === 'profile-item') {
+          evt.target.style.fontWeight='800';
+        }
+      },
+      handleMouseLeave(action, evt) {
+        if (action === 'profile-item') {
+          evt.target.style.fontWeight='400';
+        }
       },
 
       // handle checkbox change in dialog

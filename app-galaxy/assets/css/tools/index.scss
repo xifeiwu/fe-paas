@@ -1,0 +1,18 @@
+$g-env-fpdev-color: #409EFF;
+$g-env-test-color: #28a745;
+$g-env-performance-color: #17a2b8;
+$g-env-beta-color: #ffc107;
+$g-env-production-color: #F56C6C;
+
+
+@each $env, $color in (
+        fpdev: $g-env-fpdev-color,
+        test: $g-env-test-color,
+        performance: $g-env-performance-color,
+        beta: $g-env-beta-color,
+        production: $g-env-production-color) {
+  .g-env-#{$env}-color {
+    color: $color
+  }
+}
+

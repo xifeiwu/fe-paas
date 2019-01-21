@@ -88,6 +88,7 @@ class Net extends NetBase {
         path: '/application/delete',
         method: 'post'
       },
+      // TODO: not used
       // 获取应用实例运行状态
       'app_instance_status': {
         partial: true,
