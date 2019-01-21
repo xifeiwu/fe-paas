@@ -71,6 +71,8 @@
     .el-menu {
       margin-top: 15px;
       width: 100%;
+      // override default style of border-right
+      border-right: 0px;
       .el-menu-item {
         position: relative;
         .beta {

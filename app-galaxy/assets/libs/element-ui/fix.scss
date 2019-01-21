@@ -17,6 +17,20 @@
   }
 }
 
+.el-notification {
+  padding: 12px 18px 10px 10px;
+  .el-notification__closeBtn {
+    top: 10px;
+    right: 10px;
+  }
+  .el-notification__group {
+    margin-left: 10px;
+    .el-notification__content {
+      overflow: scroll;
+    }
+  }
+}
+
 .spa {
   .el-checkbox+.el-checkbox {
     margin-left: 20px;
@@ -340,15 +354,6 @@
   .el-textarea__inner {
     font-size: 12px;
     padding: 5px;
-  }
-
-  .el-notification {
-    .el-notification__group {
-      width: 100%;
-      .el-notification__content {
-        overflow: scroll;
-      }
-    }
   }
 
   .pagination-container {
