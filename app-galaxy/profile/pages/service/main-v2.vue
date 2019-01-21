@@ -153,7 +153,7 @@
             {{this.$utils.formatDate(model["updateTime"],"yyyy-MM-dd hh:mm:ss")}}
           </el-form-item>
           <el-form-item label="namespace">
-            {{applicationConfigDeployment.hasOwnProperty("namespace") ? applicationConfigDeployment["namespace"] : "未知"}}
+            {{applicationConfigDeployment && typeof applicationConfigDeployment['namespace'] != 'undefined' ? applicationConfigDeployment["namespace"] : "未知"}}
           </el-form-item>
           <el-form-item label="项目名称">
             {{model["tag"]}}
@@ -176,7 +176,7 @@
         <div class="title">实时信息</div>
         <el-form label-position="right" label-width="150px" size="mini">
           <el-form-item label="CPU/内存">
-            {{applicationConfigDeployment["cpu"] == null || applicationConfigDeployment["memory"] == null ? "未知" : applicationConfigDeployment["cpu"] + "核 / " + applicationConfigDeployment["memory"]}}
+            {{!applicationConfigDeployment || applicationConfigDeployment["cpu"] == null || applicationConfigDeployment["memory"] == null ? "未知" : applicationConfigDeployment["cpu"] + "核 / " + applicationConfigDeployment["memory"]}}
           </el-form-item>
           <el-form-item label="运行实例数/总实例数">
             {{applicationConfigDeployment["status"] == null ? '未知' : applicationConfigDeployment["status"]["Running"] + "/" +applicationConfigDeployment["status"]["Total"]}}
@@ -617,7 +617,7 @@ export default {
       },
       // used for component MyImageSelector
       queueForWaitingResponse: [],
-      applicationConfigDeployment: {},
+      applicationConfigDeployment: null,
       showServiceInfo: false,
       haveService: false,
       model: null,
@@ -1059,10 +1059,10 @@ export default {
     // 是否支持快速部署：1. 是k8s应用，2. 有正在运行的实例
     reason4DisableQuickDeploy() {
       var reason = false;
-      if (this.model) {
+      if (this.model && this.applicationConfigDeployment) {
         if (this.model['k8s'] !== 1) {
           reason = '老mesos应用不支持';
-        } else if (!this.model['containerStatus'].Running || this.model['containerStatus'].Running == 0) {
+        } else if (!this.applicationConfigDeployment['status'] || !this.applicationConfigDeployment['status']['Running'] || this.applicationConfigDeployment['status']['Running'] == 0) {
           reason = '运行实例数为0，不能进行重启操作！';
         }
       }
