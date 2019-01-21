@@ -11,41 +11,23 @@
       </template>
     </svg>
     <table-component
-            :data="[
-              { firstName: 'John', lastName: 'Lennon', instrument: 'Guitar', birthday: '04/10/1940', songs: 72 },
-              { firstName: 'Paul', lastName: 'McCartney', instrument: 'Bass', birthday: '18/06/1942', songs: 70 },
-              { firstName: 'George', lastName: 'Harrison', instrument: 'Guitar', birthday: '25/02/1943', songs: 22 },
-              { firstName: 'Ringo', lastName: 'Starr', instrument: 'Drums', birthday: '07/07/1940', songs: 2 },
-              { firstName: 'John', lastName: 'Lennon', instrument: 'Guitar', birthday: '04/10/1940', songs: 72 },
-              { firstName: 'Paul', lastName: 'McCartney', instrument: 'Bass', birthday: '18/06/1942', songs: 70 },
-              { firstName: 'George', lastName: 'Harrison', instrument: 'Guitar', birthday: '25/02/1943', songs: 22 },
-              { firstName: 'Ringo', lastName: 'Starr', instrument: 'Drums', birthday: '07/07/1940', songs: 2 },
-              ]"
+            :data="topRequest"
             :showFilter="false"
             :activeIndex="activeIndex"
             @row-event="handleRowEvent"
     >
-      <table-column show="firstName" label="First name">
+      <table-column show="firstName" label="请求路径">
         <template slot-scope="scope">
           <span :style="{
               display: 'inline-block',
               padding: ['4px', '4px'],
               backgroundColor: colors[scope.index],
               marginRight: '3px'
-            }"></span><span>{{scope.firstName}}</span>
+            }"></span><span>{{scope.path}}</span>
         </template>
       </table-column>
-      <table-column show="lastName" label="Last name"></table-column>
-      <table-column show="instrument" label="Instrument"></table-column>
-      <table-column show="songs" label="Songs" data-type="numeric"></table-column>
-      <table-column show="birthday" label="Birthday" data-type="date:DD/MM/YYYY"></table-column>
-      <table-column :sortable="false" :filterable="false">
-        <template slot-scope="artist">
-          <a :href="'#' + artist.firstName.toLowerCase()">
-            Edit
-        </a>
-        </template>
-      </table-column>
+      <table-column show="count" label="请求次数"></table-column>
+      <table-column show="formattedPercent" label="请求占比"></table-column>
     </table-component>
   </div>
 </template>
@@ -80,18 +62,26 @@
       TableComponent,
     },
     created() {
-
     },
     mounted() {
 //      this.pieSections = this.getNodes();
+    },
+    props: {
+      topRequest: {
+        type: Array,
+        default: []
+      },
+      total: {
+        type: Number,
+        default: 0,
+      }
     },
     data() {
       return {
         activeIndex: null,
         radius: 100,
         extral: 6,
-//        size: 220, // radius * 2 + 10
-        data: [113, 100, 50, 28, 27],
+        data: [133, 100, 50, 28, 27],
         colors: ['#468966', '#FFF0A5', '#FFB03B', '#B64926', '#8E2800',
           '#d87c7c','#919e8b', '#d7ab82',  '#6e7074','#61a0a8','#efa18d', '#787464', '#cc7e63', '#724e58', '#4b565b',
           '#dd6b66','#759aa0','#e69d87','#8dc1a9','#ea7e53','#eedd78','#73a373','#73b9bc',
@@ -105,13 +95,23 @@
         return this.radius * 2 + this.extral * 2;
       },
       angle() {
-        var total = this.data.reduce((pre, current) => pre + current, 0);
         var result = [];
-        this.data.forEach(it => {
-//          result.push(Math.ceil(360 * it / total));
-          result.push((360 * it / total));
+        if (!this.total) {
+          return result;
+        }
+        result = this.topRequest.map(it => {
+          return 360 * it.percent;
         });
+//        console.log(result);
         return result;
+
+//        var total = this.data.reduce((pre, current) => pre + current, 0);
+//        var result = [];
+//        this.data.forEach(it => {
+//          result.push((360 * it / total));
+//        });
+//        console.log(result);
+//        return result;
       },
       pathList() {
         var startAngle = 0, endAngle = 0;
@@ -133,22 +133,19 @@
           return d;
         });
         return results;
-
       }
     },
     methods: {
       onMouseEnter(evt, item, index) {
-        console.log('mouse-enter');
-        this.activeIndex = index;
-        console.log(evt.target);
+//        console.log('mouse-enter');
+//        console.log(evt.target);
 //        console.log(item, index);
+        this.activeIndex = index;
       },
       onMouseLeave(evt, item, index) {
-        console.log('mouse-leave');
         this.activeIndex = null;
       },
       handleRowEvent(action, $event, row, index) {
-//        console.log(action, $event, row, index);
         switch (action) {
           case 'mouse-enter':
             this.activeIndex = index;

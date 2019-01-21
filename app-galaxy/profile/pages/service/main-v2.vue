@@ -122,7 +122,7 @@
       </div>
     </div>
     <div class="service-info" v-if="haveService" :style="{height: `${heightOfTable}px`}">
-      <div class="text-info">
+      <div class="by-text">
         <div class="section basic">
           <div class="title">基本信息</div>
           <div class="content">
@@ -268,7 +268,14 @@
           </div>
         </div>
       </div>
-      <request-statistic></request-statistic>
+      <div class="by-graphic">
+        <div class="section request-statistic" v-for="(item, index) in requestStatisticList">
+          <div class="title">{{`${item.type === 'internet' ? '外网域名':'内网域名'} "${item.domain}" 请求数据统计`}}</div>
+          <div class="content">
+            <request-statistic :topRequest="item.top" :total="item.total"></request-statistic>
+          </div>
+        </div>
+      </div>
     </div>
     <div v-else class="el-table__empty-text" style="color: #545454">暂无服务相关信息</div>
     <el-dialog title="添加外网域名" :visible="showInternetDomainDialog"
@@ -470,9 +477,11 @@
           background-color: gray;
           color: white;
           text-align: center;
+          font-size: 16px;
+          line-height: 20px;
         }
       }
-      .text-info {
+      .by-text {
         display: flex;
         width: 100%;
         .el-form {
@@ -500,6 +509,14 @@
         }
         .running {
           margin-left: 15px;
+        }
+      }
+      .by-graphic {
+        margin-top: 10px;
+        .request-statistic {
+          .content {
+            margin: 3px 6px;
+          };
         }
       }
       .to-delete {
@@ -621,9 +638,10 @@ export default {
       // used for component MyImageSelector
       queueForWaitingResponse: [],
       runningInfo: null,
+      // 请求次数统计信息
+      requestStatisticList: [],
       showServiceInfo: false,
       haveService: false,
-      requestStatisticList: [],
       model: null,
       deployLogs: [],
       dialogForLogStatus: {
@@ -770,15 +788,84 @@ export default {
       return origin;
     },
 
-    async requestServiceInfo(appID, profileID) {
+    // 获取请求统计数据
+    async getRequestStatistic(appId, profileId, intranetDomain, internetDomainList) {
+      this.requestStatisticList = [];
+      var current = new Date().getTime();
+      var start = current - 3600 * 1000 * 24;
+      const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_info_request_statistic, {
+        payload: {
+          appId: appId,
+          spaceId: profileId,
+          endTime: this.$utils.formatDate(current, 'yyyy-MM-dd hh:mm:ss'),
+          startTime: this.$utils.formatDate(start, 'yyyy-MM-dd hh:mm:ss'),
+          intranetDomain: intranetDomain,
+          internetDomain: internetDomainList
+        }
+      });
+      const parseStatistic = function(type, domain, statistic) {
+        var total = parseInt(statistic['total']);
+        var top = [];
+        var topTotalCount = 0;
+        if (statistic.hasOwnProperty('top')) {
+          top = Object.keys(statistic['top']).map(path => {
+            var count = parseInt(statistic['top'][path]);
+            var percent = count / total;
+            var formattedPercent = percent * 100;
+            formattedPercent = `${formattedPercent.toFixed(2)}%`;
+            topTotalCount += count;
+            return {
+              path, count, percent, formattedPercent
+            }
+          }).sort((pre, next) => {
+            return (pre['count'] - next['count']) * -1;
+          });
+
+          var count = total - topTotalCount;
+          var percent = count / total;
+          var formattedPercent = percent * 100;
+          formattedPercent = `${formattedPercent.toFixed(2)}%`;
+          const others = {
+            path: '其它',
+            count, percent, formattedPercent
+          };
+          top.push(others)
+        }
+        var result = {
+          type, domain, total, top
+        };
+        return result
+      };
+
+      var requestStatisticList = [];
+      if (resContent.hasOwnProperty('intranetDomain')) {
+        Object.keys(resContent['intranetDomain']).forEach(key => {
+          var statistic = resContent['intranetDomain'][key];
+          requestStatisticList.push(parseStatistic('intranet', key, statistic));
+        });
+      }
+      if (resContent.hasOwnProperty('internetDomain')) {
+        Object.keys(resContent['internetDomain']).forEach(key => {
+          var statistic = resContent['internetDomain'][key];
+          requestStatisticList.push(parseStatistic('internet', key, statistic));
+        });
+      }
+
+//      console.log(requestStatisticList);
+//      console.log(JSON.stringify(requestStatisticList));
+      this.requestStatisticList = requestStatisticList;
+//      [{"type":"intranet","domain":"daasone.cif.test","total":149,"top":[{"path":"/css/bootstrap.min.css","count":10,"percent":0.06711409395973154},{"path":"/css/style.css","count":6,"percent":0.040268456375838924},{"path":"/js/jquery.js","count":6,"percent":0.040268456375838924},{"path":"/css/animate.css","count":6,"percent":0.040268456375838924},{"path":"/fonts/fontawesome-webfont.woff2","count":6,"percent":0.040268456375838924},{"path":"/js/bootstrap.min.js","count":6,"percent":0.040268456375838924},{"path":"/js/plugins/validate/messages_zh.min.js","count":4,"percent":0.026845637583892617},{"path":"/js/plugins/layer/layer.min.js","count":4,"percent":0.026845637583892617},{"path":"/js/content.js","count":4,"percent":0.026845637583892617},{"path":"/js/plugins/validate/jquery.validate.min.js","count":4,"percent":0.026845637583892617}]}]
+    },
+
+    async requestServiceInfo(appId, profileId) {
       this.recoveryStatus();
-      if (!appID || !profileID) {
-        console.log('appID or profileID can not be empty');
+      if (!appId || !profileId) {
+        console.log('appId or profileId can not be empty');
         return;
       }
       let payload = {
-        appId: appID,
-        spaceId: profileID
+        appId: appId,
+        spaceId: profileId
       };
       this.$net.requestPaasServer(this.$net.URL_LIST.service_info_running, {payload}).then(resContent => {
         if (resContent.hasOwnProperty("applicationConfigDeployment")) {
@@ -800,59 +887,7 @@ export default {
       this.intranetDomain = basicInfo["intranetDomain"];
       this.internetDomainList = basicInfo["internetDomain"];
 
-
-      var current = new Date().getTime();
-      var start = current - 3600 * 1000 * 24;
-      this.$net.requestPaasServer(this.$net.URL_LIST.service_info_request_statistic, {
-        payload: {
-          appId: appID,
-          spaceId: profileID,
-          endTime: this.$utils.formatDate(current, 'yyyy-MM-dd hh:mm:ss'),
-          startTime: this.$utils.formatDate(start, 'yyyy-MM-dd hh:mm:ss'),
-          intranetDomain: this.intranetDomain,
-          internetDomain: this.internetDomainList
-        }
-      }).then(resContent => {
-        var results = [];
-        if (resContent.hasOwnProperty('intranetDomain')) {
-          for (let key in resContent['intranetDomain']) {
-            var item = resContent['intranetDomain'][key];
-            results.push({
-              domain: key,
-              type: 'intranet',
-              top: item['top'],
-              total: item['total']
-            });
-          }
-        }
-        if (resContent.hasOwnProperty('internetDomain')) {
-          for (let key in resContent['internetDomain']) {
-            var item = resContent['internetDomain'][key];
-            var top = [];
-            if (item.hasOwnProperty('top')) {
-              for (let url in item['top']) {
-                top.push({
-                  url,
-                  count: item['top'][url],
-                  percent: item['top'][url] / item['total']
-                })
-              }
-            }
-            top = top.sort((pre, next) => {
-              return pre.count - next.count;
-            });
-            results.push({
-              domain: key,
-              type: 'internet',
-              top: top,
-              total: item['total']
-            });
-          }
-        }
-        this.requestStatisticList = results;
-        this.requestStatisticList = [{"domain":"xiaofanapp.info.production","type":"intranet","top":{"/index.html":9},"total":9},{"domain":"xiaofanapp.finupgroup.com","type":"internet","top":[{"url":"/xiaofan/appicon/20180615141656.png","count":128,"percent":0.07264472190692395},{"url":"/xiaofan/appicon/20180615142041.png","count":128,"percent":0.07264472190692395},{"url":"/xiaofan/appicon/20180615141953.png","count":129,"percent":0.07321225879682179},{"url":"/xiaofan/appicon/20180619112038.png","count":129,"percent":0.07321225879682179},{"url":"/xiaofan/appicon/20180615141811.png","count":129,"percent":0.07321225879682179},{"url":"/xiaofan/appicon/20180615141822.png","count":130,"percent":0.07377979568671963},{"url":"/xiaofan/appicon/20180615141843.png","count":131,"percent":0.07434733257661748},{"url":"/xiaofan/appicon/20180619112016.png","count":131,"percent":0.07434733257661748},{"url":"/xiaofan/appicon/20180615142027.png","count":131,"percent":0.07434733257661748},{"url":"/xiaofan/appicon/20180619112002.png","count":133,"percent":0.07548240635641316}],"total":1762}]
-        console.log(JSON.stringify(results));
-      })
+      await this.getRequestStatistic(appId, profileId, this.intranetDomain, this.internetDomainList);
     },
 
     // collect all related info for add-service before jump to page service/add
