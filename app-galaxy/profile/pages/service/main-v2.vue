@@ -268,6 +268,7 @@
           </div>
         </div>
       </div>
+      <request-statistic></request-statistic>
     </div>
     <div v-else class="el-table__empty-text" style="color: #545454">暂无服务相关信息</div>
     <el-dialog title="添加外网域名" :visible="showInternetDomainDialog"
@@ -530,8 +531,9 @@
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   import profileUtils from '../utils/app-props';
   import fa from "../../../../components/element-ui/src/locale/lang/fa";
+  import requestStatistic from './request-statistic.vue';
 export default {
-  components: {paasDialogForLog},
+  components: {paasDialogForLog, requestStatistic},
   created() {
     this.profileUtils = profileUtils;
     if (this.$storeHelper.dataTransfer) {
@@ -621,6 +623,7 @@ export default {
       runningInfo: null,
       showServiceInfo: false,
       haveService: false,
+      requestStatisticList: [],
       model: null,
       deployLogs: [],
       dialogForLogStatus: {
@@ -796,6 +799,60 @@ export default {
       }
       this.intranetDomain = basicInfo["intranetDomain"];
       this.internetDomainList = basicInfo["internetDomain"];
+
+
+      var current = new Date().getTime();
+      var start = current - 3600 * 1000 * 24;
+      this.$net.requestPaasServer(this.$net.URL_LIST.service_info_request_statistic, {
+        payload: {
+          appId: appID,
+          spaceId: profileID,
+          endTime: this.$utils.formatDate(current, 'yyyy-MM-dd hh:mm:ss'),
+          startTime: this.$utils.formatDate(start, 'yyyy-MM-dd hh:mm:ss'),
+          intranetDomain: this.intranetDomain,
+          internetDomain: this.internetDomainList
+        }
+      }).then(resContent => {
+        var results = [];
+        if (resContent.hasOwnProperty('intranetDomain')) {
+          for (let key in resContent['intranetDomain']) {
+            var item = resContent['intranetDomain'][key];
+            results.push({
+              domain: key,
+              type: 'intranet',
+              top: item['top'],
+              total: item['total']
+            });
+          }
+        }
+        if (resContent.hasOwnProperty('internetDomain')) {
+          for (let key in resContent['internetDomain']) {
+            var item = resContent['internetDomain'][key];
+            var top = [];
+            if (item.hasOwnProperty('top')) {
+              for (let url in item['top']) {
+                top.push({
+                  url,
+                  count: item['top'][url],
+                  percent: item['top'][url] / item['total']
+                })
+              }
+            }
+            top = top.sort((pre, next) => {
+              return pre.count - next.count;
+            });
+            results.push({
+              domain: key,
+              type: 'internet',
+              top: top,
+              total: item['total']
+            });
+          }
+        }
+        this.requestStatisticList = results;
+        this.requestStatisticList = [{"domain":"xiaofanapp.info.production","type":"intranet","top":{"/index.html":9},"total":9},{"domain":"xiaofanapp.finupgroup.com","type":"internet","top":[{"url":"/xiaofan/appicon/20180615141656.png","count":128,"percent":0.07264472190692395},{"url":"/xiaofan/appicon/20180615142041.png","count":128,"percent":0.07264472190692395},{"url":"/xiaofan/appicon/20180615141953.png","count":129,"percent":0.07321225879682179},{"url":"/xiaofan/appicon/20180619112038.png","count":129,"percent":0.07321225879682179},{"url":"/xiaofan/appicon/20180615141811.png","count":129,"percent":0.07321225879682179},{"url":"/xiaofan/appicon/20180615141822.png","count":130,"percent":0.07377979568671963},{"url":"/xiaofan/appicon/20180615141843.png","count":131,"percent":0.07434733257661748},{"url":"/xiaofan/appicon/20180619112016.png","count":131,"percent":0.07434733257661748},{"url":"/xiaofan/appicon/20180615142027.png","count":131,"percent":0.07434733257661748},{"url":"/xiaofan/appicon/20180619112002.png","count":133,"percent":0.07548240635641316}],"total":1762}]
+        console.log(JSON.stringify(results));
+      })
     },
 
     // collect all related info for add-service before jump to page service/add
