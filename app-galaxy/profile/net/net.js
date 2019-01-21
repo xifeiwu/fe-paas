@@ -102,13 +102,13 @@ class Net extends NetBase {
         path: '/service/createApplicationService',
         method: 'post'
       },
-      // 通过appID和profileID获取服务列表
+      // 获取服务信息（基本信息）
       'service_list_by_app_and_profile': {
         path: '/service/queryByAppIdAndSpaceId',
         method: 'post'
       },
-      // 获取服务列表 V2
-      'get_service_list_v2': {
+      // 获取服务信息（实时运行信息）
+      'service_info_running': {
         path: '/service/getRuntimeAppConfig',
         method: 'post'
       },
