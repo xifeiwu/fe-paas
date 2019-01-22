@@ -13,7 +13,7 @@
           <el-form-item label="运行环境" class="profile-description">
             {{profileInfo? profileInfo.description: ''}}
           </el-form-item>
-          <el-form-item class="build-type" label="构建类型" v-if="packageTypeList.length > 0 && !(appLanguage.toUpperCase() == 'JAVA' && imageSelectState.customImage)" :error="serviceForm.packageInfo.errMsg">
+          <el-form-item class="build-type" label="构建类型" v-if="packageTypeList.length > 0 && appLanguage.toUpperCase() === 'JAVA' && !imageSelectState.customImage" :error="serviceForm.packageInfo.errMsg">
             <div class="flex-layout">
               <div class="type-list">
                 <el-radio-group v-model="serviceForm.packageInfo.type">
@@ -591,7 +591,11 @@
       if (this.type === 'edit') {
         this.initPackageInfoType(theData);
         this.profileListOfCurrentApp = theData['appInfo']['profileList'];
-        this.imageSelectState.customImage = theData.customImage;
+        if (this.$storeHelper.groupVersion == 'v1' && this.appLanguage.toUpperCase() === 'PYTHON') {
+          this.imageSelectState.customImage = true;
+        } else {
+          this.imageSelectState.customImage = theData.customImage;
+        }
         if(theData.customImage){
           // set after requestImageRelatedInfo
         } else {

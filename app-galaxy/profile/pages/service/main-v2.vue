@@ -170,11 +170,11 @@
               <el-form-item label="开发语言">
                 {{model["language"] + "-" + model["languageVersion"]}}
               </el-form-item>
-              <el-form-item label="构建类型">
-                {{model["packageType"] ? model["packageType"] : "未知"}}
+              <el-form-item label="构建类型" v-if="model['language'].toUpperCase() === 'JAVA' && !model['customImage']">
+                {{model["packageType"] ? model["packageType"] : '未知'}}
               </el-form-item>
               <el-form-item label="服务期限" v-if="!isProductionProfile">
-                {{model["remainExpiredDays"] ? model["remainExpiredDays"] + "天": "未配置"}}
+                {{model["remainExpiredDays"] ? (model["remainExpiredDays"] < 0 ? 0 : model["remainExpiredDays"]) + "天": "未配置"}}
               </el-form-item>
             </el-form>
           </div>

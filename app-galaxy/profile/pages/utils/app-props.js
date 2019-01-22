@@ -27,7 +27,7 @@ class AppInfoHelper {
       }, {
         validator(rule, values, callback){
           let passed = true;
-          let reg = /^[A-Za-z0-9][A-Za-z0-9\-]{1,49}[A-Za-z0-9]*$/;
+          let reg = /^[A-Za-z0-9][A-Za-z0-9\-]{0,48}[A-Za-z0-9]$/;
           if (!values) {
             passed = false;
             callback('内容不能为空');
