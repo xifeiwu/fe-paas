@@ -406,7 +406,7 @@ class AppInfoHelper {
       },
       'warning-app-add-profile': {
         text: '',
-        more: '会在该应用的所有运行环境下创建服务'
+        more: '应用创建时默认创建所有运行环境'
       }
     }
   }

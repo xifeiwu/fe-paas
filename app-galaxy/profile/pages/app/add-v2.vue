@@ -82,7 +82,7 @@
             {{item.description}}
           </el-checkbox>
         </el-checkbox-group>
-        <i class="paas-icon-fa-question" style="display: inline-block; margin-left: 10px; color: #b4bccc;"
+        <i class="el-icon-warning" style="display: inline-block; margin-left: 10px; color: #E6A23C;"
            @mouseover="handleClick($event, 'warning-app-add-profile')"></i>
       </el-form-item>
       <div class="el-form-item-group is-required" v-if="false">

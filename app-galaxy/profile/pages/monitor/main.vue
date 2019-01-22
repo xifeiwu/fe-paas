@@ -1085,7 +1085,7 @@
         },
         chartSettingPackage: {
           dimension: ['timestamp'],
-          yAxisName: ['速率'],
+          yAxisName: ['个数'],
           yAxisType: ['value']
         },
         chartSettingGcCount: {
@@ -1095,7 +1095,7 @@
         },
         chartSettingGcTime: {
           dimension: ['timestamp'],
-          yAxisName: ['用时'],
+          yAxisName: ['毫秒'],
           yAxisType: ['value'],
         },
         chartSettings3: {
