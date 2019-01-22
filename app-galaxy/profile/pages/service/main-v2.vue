@@ -121,7 +121,7 @@
         </el-button>
       </div>
     </div>
-    <div class="service-info" v-if="haveService" :style="{height: `${heightOfTable}px`}">
+    <div class="service-info" v-if="haveService" :style="{height: `${heightOfServiceInfo}px`}">
       <div class="by-text">
         <div class="section basic">
           <div class="title">基本信息</div>
@@ -591,7 +591,7 @@ export default {
       let headerNode = this.$el.querySelector(':scope > .header');
       this.resizeListener = () => {
         let headerHeight = headerNode.offsetHeight;
-        this.heightOfTable = this.$el.clientHeight - headerHeight;
+        this.heightOfServiceInfo = this.$el.clientHeight - headerHeight;
       };
       addResizeListener(this.$el, this.resizeListener);
     } catch(err) {
@@ -618,7 +618,7 @@ export default {
 //      1. 对于1.x团队的应用，服务管理页面中删除、配置外网域名、复制服务不可用，创建服务不可用。
 //      2. 对于mesos应用，服务管理页面中重启按钮不可用
       resizeListenerForServiceList: () => {},
-      heightOfExpand: '',
+      heightOfServiceInfo: '',
       appList: [],
       selectedAppID: null,
       waitingResponse: false,
@@ -807,7 +807,7 @@ export default {
         var total = parseInt(statistic['total']);
         var top = [];
         var topTotalCount = 0;
-        if (statistic.hasOwnProperty('top')) {
+        if (total > 0 && statistic.hasOwnProperty('top')) {
           top = Object.keys(statistic['top']).map(path => {
             var count = parseInt(statistic['top'][path]);
             var percent = count / total;

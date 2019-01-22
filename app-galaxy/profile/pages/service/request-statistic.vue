@@ -1,37 +1,42 @@
 <template>
   <div class="request-statistic">
-    <div class="graphic">
-      <svg class="pie" :viewBox="[0, 0, size, size]" :style="{width: `${size}px`, height: `${size}px`}">
-        <template v-for="(item, index) in pathList">
-          <g @mouseenter="onMouseEnter($event, item, index)"
-             @mouseleave="onMouseLeave($event, item, index)"
-             :class="{'is-active': activeIndex === index}"
-          >
-            <path :fill="colors[index]" :d="item"></path>
-          </g>
-        </template>
-      </svg>
-      <div class="total">{{total ? `共请求${total}次`: ''}}</div>
+    <div v-if="total > 0">
+      <div class="graphic">
+        <svg class="pie" :viewBox="[0, 0, size, size]" :style="{width: `${size}px`, height: `${size}px`}">
+          <template v-for="(item, index) in pathList">
+            <g @mouseenter="onMouseEnter($event, item, index)"
+               @mouseleave="onMouseLeave($event, item, index)"
+               :class="{'is-active': activeIndex === index}"
+            >
+              <path :fill="colors[index]" :d="item"></path>
+            </g>
+          </template>
+        </svg>
+        <div class="total">{{total ? `共请求${total}次`: ''}}</div>
+      </div>
+      <table-component
+              :data="topRequest"
+              :showFilter="false"
+              :activeIndex="activeIndex"
+              @row-event="handleRowEvent"
+      >
+        <table-column show="firstName" label="请求路径">
+          <template slot-scope="scope">
+            <span :style="{
+                display: 'inline-block',
+                padding: ['4px', '4px'],
+                backgroundColor: colors[scope.index],
+                marginRight: '3px'
+              }"></span><span>{{scope.path}}</span>
+          </template>
+        </table-column>
+        <table-column show="count" label="请求次数"></table-column>
+        <table-column show="formattedPercent" label="请求占比"></table-column>
+      </table-component>
     </div>
-    <table-component
-            :data="topRequest"
-            :showFilter="false"
-            :activeIndex="activeIndex"
-            @row-event="handleRowEvent"
-    >
-      <table-column show="firstName" label="请求路径">
-        <template slot-scope="scope">
-          <span :style="{
-              display: 'inline-block',
-              padding: ['4px', '4px'],
-              backgroundColor: colors[scope.index],
-              marginRight: '3px'
-            }"></span><span>{{scope.path}}</span>
-        </template>
-      </table-column>
-      <table-column show="count" label="请求次数"></table-column>
-      <table-column show="formattedPercent" label="请求占比"></table-column>
-    </table-component>
+    <div class="empty">
+      该域名请求次数为0
+    </div>
   </div>
 </template>
 <style lang="scss">
@@ -62,6 +67,12 @@
           }
         }
       }
+    }
+    .empty {
+      min-width: 460px;
+      font-size: 14px;
+      line-height: 160px;
+      text-align: center;
     }
   }
 </style>
