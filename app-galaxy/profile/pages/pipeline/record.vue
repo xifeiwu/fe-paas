@@ -3,8 +3,8 @@
     <div class="header">
       <div class="item">
         <el-button size="mini-extral" type="primary" style="margin-right: 5px;"
-                   :loading="loadingStatus4Execute"
-                   @click="handleClick($event, 'execute')">执行</el-button>
+                   :loading="statusOfWaitingResponse('pipeline_build_execute')"
+                   @click="handleClick($event, 'pipeline_build_execute')">执行</el-button>
         <el-button size="mini-extral" type="primary" style="margin-right: 5px;" @click="handleClick($event, 'refresh-record-list')">刷新</el-button>
         <div style="display: inline-block; margin-left: 16px">
           <span style="font-weight: bold">pipeline名称：</span><span>{{dataPassed.pipelineName}}</span>
@@ -76,7 +76,8 @@
             <el-button
               type="text"
               :clase="['flex', 'primary']"
-              @click="handleTRClick($event, 'restart', scope.$index, scope.row)">
+              :loading="statusOfWaitingResponse('pipeline_build_restart') && action.row.buildId == scope.row.buildId"
+              @click="handleTRClick($event, 'pipeline_build_restart', scope.$index, scope.row)">
               <span>重启</span>
             </el-button>
           </template>
@@ -112,7 +113,10 @@
 </style>
 
 <script>
+  import commonUtils from 'assets/components/mixins/common-utils';
+
   export default {
+    mixins: [commonUtils],
     created() {
       var dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer) {
@@ -128,7 +132,8 @@
     },
     async mounted() {
       try {
-        await this.startHeartBeat(4000, this.loopRequestBuildingList);
+//        await this.startHeartBeat(4000, this.loopRequestBuildingList);
+        await this.requestBuildingStatus();
       } catch(err) {
         console.log(err);
       }
@@ -141,7 +146,7 @@
         lastBuildRecord: null,
         lastBuildingRecord: null,
         leavePage: false,
-        loadingStatus4Execute: false,
+        leaveHeartBeat: false,
         dataPassed: {
           appName: '',
           pipelineName: ''
@@ -164,6 +169,11 @@
           UNSTABLE: '不稳定',
           UNKNOWN: '构建中',
           IN_PROGRESS: '构建中',
+        },
+
+        action: {
+          row: null,
+          name: null
         }
       }
     },
@@ -219,12 +229,13 @@
         var result = keys.map(key => {
           return Object.assign(buildMap.hasOwnProperty(key) ? buildMap[key] : {}, buildingMap.hasOwnProperty(key) ? buildingMap[key] : {});
         });
+        this.formatBuildList(result);
 //        console.log(result);
         return result;
       },
 
-      formatBuildList() {
-        this.buildListAll.forEach(it => {
+      formatBuildList(dataList) {
+        dataList.forEach(it => {
           it["formattedExecutionTime"] = this.$utils.formatDate(new Date(it["executionTime"]), "yyyy-MM-dd hh:mm:ss");
           it['formattedDuration'] = this.$utils.formatSeconds(it['duration']);
           it["statusName"] = this.statusMap[it['status']];
@@ -250,11 +261,13 @@
 
         // 如果status == 'UNKNOWN'，说明该record正在构建中，需要通过requestBuildingList获取详细构建信息
         var lastBuildRecord = null;
+        this.lastBuildingRecord = null;
         if (this.buildList.length > 0) {
           lastBuildRecord = this.buildList[0];
         }
         this.buildList.forEach(it => {
           if (('UNKNOWN' === it['status'])) {
+            this.lastBuildingRecord = it;
             lastBuildRecord = it;
           }
         });
@@ -313,11 +326,27 @@
         await this.requestBuildingList();
         this.buildListAll = this.mergeBuildList(this.buildList, this.buildingList);
 //        console.log(this.buildListAll);
-        this.formatBuildList();
+      },
+
+      // 请求buildList和buildingList，直到buildingList的状态不再更新
+      async requestBuildingStatus() {
+        await this.requestBuildList();
+        this.buildListAll = this.mergeBuildList(this.buildList, []);
+        this.leaveHeartBeat = false;
+        await this.startHeartBeat(1000, this.loopUntilBuildingFinish);
+      },
+
+      async loopUntilBuildingFinish() {
+        if (this.lastBuildingRecord) {
+          await this.requestBuildingList();
+          this.buildListAll = this.mergeBuildList(this.buildList, this.buildingList);
+        } else {
+          this.leaveHeartBeat = true;
+        }
       },
 
       async startHeartBeat(milliSeconds, func) {
-        if (this.leavePage) {
+        if (this.leavePage || this.leaveHeartBeat) {
           return;
         }
         try {
@@ -349,22 +378,32 @@
       async handleClick(evt, action) {
         switch (action) {
           case 'refresh-record-list':
-            this.requestBuildList();
+            this.requestBuildingStatus();
+//            this.requestBuildList();
             break;
-          case 'execute':
-            this.loadingStatus4Execute = true;
-            setTimeout(() => {
-              this.loadingStatus4Execute = false;
-            }, 4000);
-            this.executePipeLine();
+          case 'pipeline_build_execute':
+            await this.executePipeLine();
+            this.addToWaitingResponseQueue(action);
+            await new Promise((resolve) => {
+              setTimeout(resolve, 3000);
+            });
+            this.hideWaitingResponse(action);
+            await this.requestBuildingStatus();
             break;
         }
       },
 
       async handleTRClick(evt, action, index, row) {
+        this.action.row = row;
         switch (action) {
-          case 'restart':
-            this.executePipeLine();
+          case 'pipeline_build_restart':
+            await this.executePipeLine();
+            this.addToWaitingResponseQueue(action);
+            await new Promise((resolve) => {
+              setTimeout(resolve, 3000);
+            });
+            this.hideWaitingResponse(action);
+            await this.requestBuildingStatus();
             break;
           case 'stop':
             this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_stop, {
