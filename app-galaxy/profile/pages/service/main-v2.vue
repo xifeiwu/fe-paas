@@ -151,9 +151,19 @@
                 </div>
               </el-form-item>
               <el-form-item label="内网域名">
-                <a :href="'http://' + intranetDomain" target="_blank"
-                   v-if="intranetDomain">{{intranetDomain}}</a>
-                <span v-else>未绑定</span>
+                <el-row v-if="intranetDomain" type="flex" align="middle">
+                  <el-col :span="14"><a :href="'http://' + intranetDomain" target="_blank">{{intranetDomain}}</a></el-col>
+                  <el-tooltip placement="top-start" effect="light" :content="dnsState.office.content">
+                    <el-col :class="dnsState.office.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.office.status ? '#67C23A': '#F56C6C'}"></el-col>
+                  </el-tooltip>
+                  <el-tooltip placement="top-start" effect="light" :content="dnsState.production.content">
+                    <el-col :class="dnsState.production.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.production.status ? '#67C23A': '#F56C6C'}"></el-col>
+                  </el-tooltip>
+                  <el-tooltip placement="top-start" effect="light" :content="dnsState.test.content">
+                    <el-col :class="dnsState.test.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.test.status ? '#67C23A': '#F56C6C'}"></el-col>
+                  </el-tooltip>
+                </el-row>
+                <el-row v-else>未绑定</el-row>
               </el-form-item>
               <el-form-item label="更新时间">
                 {{this.$utils.formatDate(model["updateTime"],"yyyy-MM-dd hh:mm:ss")}}
@@ -208,6 +218,9 @@
               </el-form-item>
               <el-form-item label="应用监控">
                 {{profileUtils.getMonitorNameById(runningInfo["appMonitor"])}}
+              </el-form-item>
+              <el-form-item label="镜像">
+                {{runningInfo["image"] ? runningInfo["image"] : "未知"}}
               </el-form-item>
               <el-form-item label="环境变量配置">
                 <div v-if="runningInfo.environments && runningInfo.environments.length > 0">
@@ -638,6 +651,23 @@ export default {
       // used for component MyImageSelector
       queueForWaitingResponse: [],
       runningInfo: null,
+      dnsState: {
+        office: {
+          status: true,
+          content:  '',
+          value: [],
+        },
+        production: {
+          status: true,
+          content: '',
+          value: [],
+        },
+        test: {
+          status: true,
+          content: '',
+          value: [],
+        },
+      },
       // 请求次数统计信息
       requestStatisticList: [],
       showServiceInfo: false,
@@ -788,6 +818,21 @@ export default {
       return origin;
     },
 
+    processDnsState(dnsState) {
+      let officeStatus = dnsState && dnsState["OFFICE"].length > 0;
+      this.dnsState.office.status = officeStatus;
+      this.dnsState.office.content = officeStatus ? `办公网DNS解析成功` : `办公网DNS解析失败`;
+      this.dnsState.office.value = officeStatus ? dnsState["OFFICE"] : [];
+      let productionStatus = dnsState && dnsState["PRODUCTION"].length > 0;
+      this.dnsState.production.status = productionStatus;
+      this.dnsState.production.content = productionStatus ? `生产环境DNS解析成功` : `生产环境DNS解析失败`;
+      this.dnsState.production.value = productionStatus ? dnsState["PRODUCTION"] : [];
+      let testStatus = dnsState && dnsState["TEST"].length > 0;
+      this.dnsState.test.status = testStatus;
+      this.dnsState.test.content = testStatus ? `测试环境DNS解析成功` : `测试环境DNS解析失败`;
+      this.dnsState.test.value = testStatus ? dnsState["TEST"] : [];
+    },
+
     // 获取请求统计数据
     async getRequestStatistic(appId, profileId, intranetDomain, internetDomainList) {
       this.requestStatisticList = [];
@@ -870,7 +915,7 @@ export default {
       this.$net.requestPaasServer(this.$net.URL_LIST.service_info_running, {payload}).then(resContent => {
         if (resContent.hasOwnProperty("applicationConfigDeployment")) {
           this.runningInfo = this.processResponseData(resContent["applicationConfigDeployment"]);
-          this.showServiceInfo = true;
+          this.processDnsState(resContent["dnsState"]);
         }
       });
       const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {payload});
