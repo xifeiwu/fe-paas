@@ -515,7 +515,7 @@
         margin-top: 10px;
         .request-statistic {
           .content {
-            margin: 3px 6px;
+            /*margin: 3px 6px;*/
           };
         }
       }

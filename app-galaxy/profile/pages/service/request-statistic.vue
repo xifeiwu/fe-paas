@@ -1,15 +1,18 @@
 <template>
   <div class="request-statistic">
-    <svg class="pie" :viewBox="[0, 0, size, size]" :style="{width: `${size}px`, height: `${size}px`}">
-      <template v-for="(item, index) in pathList">
-        <g @mouseenter="onMouseEnter($event, item, index)"
-           @mouseleave="onMouseLeave($event, item, index)"
-           :class="{'is-active': activeIndex === index}"
-        >
-          <path :fill="colors[index]" :d="item"></path>
-        </g>
-      </template>
-    </svg>
+    <div class="graphic">
+      <svg class="pie" :viewBox="[0, 0, size, size]" :style="{width: `${size}px`, height: `${size}px`}">
+        <template v-for="(item, index) in pathList">
+          <g @mouseenter="onMouseEnter($event, item, index)"
+             @mouseleave="onMouseLeave($event, item, index)"
+             :class="{'is-active': activeIndex === index}"
+          >
+            <path :fill="colors[index]" :d="item"></path>
+          </g>
+        </template>
+      </svg>
+      <div class="total">{{total ? `共请求${total}次`: ''}}</div>
+    </div>
     <table-component
             :data="topRequest"
             :showFilter="false"
@@ -34,14 +37,23 @@
 <style lang="scss">
   .request-statistic {
     display: flex;
-    .pie {
-      g.is-active {
-        /*box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);*/
-        stroke: white;
-        stroke-width: 3px;
+    .graphic {
+      .pie {
+        g.is-active {
+          /*box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);*/
+          stroke: white;
+          stroke-width: 3px;
+        }
+      }
+      .total {
+        text-align: center;
+        font-size: 14px;
       }
     }
     .table-component {
+      &__table-wrapper {
+        border-width: 0px;
+      }
       tbody {
         tr {
           font-weight: normal;
@@ -129,7 +141,12 @@
           let x2 = (cx + radius * Math.cos(Math.PI * endAngle / 180));
           let y2 = (cy + radius * Math.sin(Math.PI * endAngle / 180));
 
-          var d = `M${cx},${cy}  L${x1},${y1} A${radius},${radius} 0 0,1 ${x2}, ${y2} z`;
+          var largeArcFlag = 0;
+          if (it > 180) {
+            largeArcFlag = 1;
+          }
+
+          var d = `M${cx},${cy}  L${x1},${y1} A${radius},${radius} 0 ${largeArcFlag},1 ${x2}, ${y2} z`;
           return d;
         });
         return results;
