@@ -220,7 +220,10 @@
                 {{profileUtils.getMonitorNameById(runningInfo["appMonitor"])}}
               </el-form-item>
               <el-form-item label="镜像">
-                {{runningInfo["image"] ? runningInfo["image"] : "未知"}}
+                {{runningInfo["imageTag"] ? runningInfo["imageTag"] : "未知"}}
+                <i class="paas-icon-copy"
+                   v-clipboard:copy="runningInfo['image']"
+                   v-clipboard:success="handleSuccessCopy"></i>
               </el-form-item>
               <el-form-item label="环境变量配置">
                 <div v-if="runningInfo.environments && runningInfo.environments.length > 0">
@@ -1293,6 +1296,13 @@ export default {
           this.props4CreateDomain.prefixName = '';
           break;
       }
+    },
+
+    handleSuccessCopy(evt) {
+      this.$storeHelper.globalTip.show({
+        ref: evt.trigger,
+        msg: '复制成功'
+      });
     },
 
     v1UpdateInternetDomain() {
