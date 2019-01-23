@@ -565,7 +565,7 @@
           }
         }
         .request-statistic {
-          width: 90%;
+          /*width: 90%;*/
           max-width: 900px;
           .content {
             .paas-request-statistic {
@@ -895,73 +895,79 @@ export default {
         })
       }
 
-      var current = new Date().getTime();
-      var start = current - 3600 * 1000 * 24;
-      const resContent = await this.$net.requestPaasServer(Object.assign(
-        this.$net.URL_LIST.service_info_request_statistic,
-        {partial: true}
-      ), {
-        payload: {
-          appId: appId,
-          spaceId: profileId,
-          endTime: this.$utils.formatDate(current, 'yyyy-MM-dd hh:mm:ss'),
-          startTime: this.$utils.formatDate(start, 'yyyy-MM-dd hh:mm:ss'),
-          intranetDomain: intranetDomain,
-          internetDomain: internetDomainList
-        }
-      });
-      const parseStatistic = function(type, domain, statistic) {
-        var total = parseInt(statistic['total']);
-        var top = [];
-        var topTotalCount = 0;
-        if (total > 0 && statistic.hasOwnProperty('top')) {
-          top = Object.keys(statistic['top']).map(path => {
-            var count = parseInt(statistic['top'][path]);
+      try {
+        var current = new Date().getTime();
+        var start = current - 3600 * 1000 * 24;
+        const resContent = await this.$net.requestPaasServer(Object.assign(
+          this.$net.URL_LIST.service_info_request_statistic,
+          {partial: true}
+        ), {
+          payload: {
+            appId: appId,
+            spaceId: profileId,
+            endTime: this.$utils.formatDate(current, 'yyyy-MM-dd hh:mm:ss'),
+            startTime: this.$utils.formatDate(start, 'yyyy-MM-dd hh:mm:ss'),
+            intranetDomain: intranetDomain,
+            internetDomain: internetDomainList
+          }
+        });
+        const parseStatistic = function (type, domain, statistic) {
+          var total = parseInt(statistic['total']);
+          var top = [];
+          var topTotalCount = 0;
+          if (total > 0 && statistic.hasOwnProperty('top')) {
+            top = Object.keys(statistic['top']).map(path => {
+              var count = parseInt(statistic['top'][path]);
+              var percent = count / total;
+              var formattedPercent = percent * 100;
+              formattedPercent = `${formattedPercent.toFixed(2)}%`;
+              topTotalCount += count;
+              return {
+                path, count, percent, formattedPercent
+              }
+            }).sort((pre, next) => {
+              return (pre['count'] - next['count']) * -1;
+            });
+
+            var count = total - topTotalCount;
             var percent = count / total;
             var formattedPercent = percent * 100;
             formattedPercent = `${formattedPercent.toFixed(2)}%`;
-            topTotalCount += count;
-            return {
-              path, count, percent, formattedPercent
-            }
-          }).sort((pre, next) => {
-            return (pre['count'] - next['count']) * -1;
-          });
-
-          var count = total - topTotalCount;
-          var percent = count / total;
-          var formattedPercent = percent * 100;
-          formattedPercent = `${formattedPercent.toFixed(2)}%`;
-          const others = {
-            path: '其它',
-            count, percent, formattedPercent
+            const others = {
+              path: '其它',
+              count, percent, formattedPercent
+            };
+            top.push(others)
+          }
+          var result = {
+            type, domain, total, top, loading: false
           };
-          top.push(others)
-        }
-        var result = {
-          type, domain, total, top, loading: false
+          return result
         };
-        return result
-      };
 
-      var requestStatisticList = [];
-      if (resContent.hasOwnProperty('intranetDomain')) {
-        Object.keys(resContent['intranetDomain']).forEach(key => {
-          var statistic = resContent['intranetDomain'][key];
-          requestStatisticList.push(parseStatistic('intranet', key, statistic));
-        });
-      }
-      if (resContent.hasOwnProperty('internetDomain')) {
-        Object.keys(resContent['internetDomain']).forEach(key => {
-          var statistic = resContent['internetDomain'][key];
-          requestStatisticList.push(parseStatistic('internet', key, statistic));
-        });
-      }
+        var requestStatisticList = [];
+        if (resContent.hasOwnProperty('intranetDomain')) {
+          Object.keys(resContent['intranetDomain']).forEach(key => {
+            var statistic = resContent['intranetDomain'][key];
+            requestStatisticList.push(parseStatistic('intranet', key, statistic));
+          });
+        }
+        if (resContent.hasOwnProperty('internetDomain')) {
+          Object.keys(resContent['internetDomain']).forEach(key => {
+            var statistic = resContent['internetDomain'][key];
+            requestStatisticList.push(parseStatistic('internet', key, statistic));
+          });
+        }
 
 //      console.log(requestStatisticList);
 //      console.log(JSON.stringify(requestStatisticList));
-      this.requestStatisticList = requestStatisticList;
+        this.requestStatisticList = requestStatisticList;
 //      [{"type":"intranet","domain":"daasone.cif.test","total":149,"top":[{"path":"/css/bootstrap.min.css","count":10,"percent":0.06711409395973154},{"path":"/css/style.css","count":6,"percent":0.040268456375838924},{"path":"/js/jquery.js","count":6,"percent":0.040268456375838924},{"path":"/css/animate.css","count":6,"percent":0.040268456375838924},{"path":"/fonts/fontawesome-webfont.woff2","count":6,"percent":0.040268456375838924},{"path":"/js/bootstrap.min.js","count":6,"percent":0.040268456375838924},{"path":"/js/plugins/validate/messages_zh.min.js","count":4,"percent":0.026845637583892617},{"path":"/js/plugins/layer/layer.min.js","count":4,"percent":0.026845637583892617},{"path":"/js/content.js","count":4,"percent":0.026845637583892617},{"path":"/js/plugins/validate/jquery.validate.min.js","count":4,"percent":0.026845637583892617}]}]
+      } catch(err) {
+        this.requestStatisticList.forEach(it => {
+          it.loading = false;
+        });
+      }
     },
 
     async requestServiceInfo(appId, profileId) {

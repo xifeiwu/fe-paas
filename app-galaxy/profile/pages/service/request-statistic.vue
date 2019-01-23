@@ -39,7 +39,7 @@
     </div>
   </div>
 </template>
-<style lang="scss" scoped>
+<style lang="scss">
   .paas-request-statistic {
     .statistic-show {
       width: 100%;
@@ -65,6 +65,10 @@
         }
         tbody {
           tr {
+            td {
+              font-size: 12px;
+              @include expand-to-next-line;
+            }
             font-weight: normal;
             &.is-active {
               background-color: gray;

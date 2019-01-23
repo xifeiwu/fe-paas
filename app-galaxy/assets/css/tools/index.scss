@@ -16,3 +16,12 @@ $g-env-production-color: #F56C6C;
   }
 }
 
+
+@mixin expand-to-next-line() {
+  //display: inline-block;
+  max-width: 100%;
+  word-wrap: break-word;
+  word-break: break-all;
+  line-height: 1.2;
+}
+
