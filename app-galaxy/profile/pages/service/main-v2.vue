@@ -288,7 +288,15 @@
         <div class="section request-statistic" v-for="(item, index) in requestStatisticList">
           <div class="title">{{`${item.type === 'internet' ? '外网域名':'内网域名'} "${item.domain}" 请求数据统计`}}</div>
           <div class="content">
-            <request-statistic :topRequest="item.top" :total="item.total"></request-statistic>
+            <div class="loading" style="height: 240px; " v-if="item.loading">
+              <div class="el-loading-mask" style="">
+                <div class="el-loading-spinner">
+                  <i class="el-icon-loading"></i>
+                  <p class="el-loading-text">网络请求中...</p>
+                </div>
+              </div>
+            </div>
+            <paas-request-statistic :topRequest="item.top" :total="item.total" v-else></paas-request-statistic>
           </div>
         </div>
       </div>
@@ -473,8 +481,8 @@
       padding: 8px;
       border: none;
       border-radius: 2px;
-      /*display: flex;*/
-      /*flex-direction: row;*/
+      display: flex;
+      flex-direction: row;
       /*flex-wrap: nowrap;*/
       .paas-icon {
         margin-left: 2px;
@@ -490,16 +498,20 @@
         box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
         box-shadow: 0 1px 1px rgba(0,0,0,0.15);
         .title {
-          background-color: gray;
-          color: white;
+          background-color: #f5f5f6;
+          color: #666;
+          font-weight: bold;
           text-align: center;
-          font-size: 16px;
-          line-height: 20px;
+          font-size: 14px;
+          line-height: 24px;
         }
       }
       .by-text {
-        display: flex;
-        width: 100%;
+        display: inline-flex;
+        flex-direction: column;
+        /*width: 100%;*/
+        min-width: 420px;
+        margin-right: 15px;
         .el-form {
           .el-form-item {
             .el-form-item__label {
@@ -517,22 +529,53 @@
           }
         }
         .basic, .running {
-          min-width: 460px;
-          height: 100%;
+          width: 100%;
           .content {
             padding: 5px 12px;
           }
         }
         .running {
-          margin-left: 15px;
+          margin-top: 15px;
         }
       }
       .by-graphic {
-        margin-top: 10px;
+        flex: 1;
+        margin-top: 0px;
+        .section {
+          .loading {
+            .el-loading-mask {
+              position: absolute;
+              z-index: 2000;
+              background-color: rgba(255, 255, 255, 0.5);;
+              margin: 0;
+              top: 0;
+              right: 0;
+              bottom: 0;
+              left: 0;
+              transition: opacity .3s;
+            }
+            .el-loading-spinner {
+              top: 50%;
+              margin-top: -21px;
+              width: 100%;
+              height: 100px;
+              text-align: center;
+              position: absolute;
+            }
+          }
+        }
         .request-statistic {
+          width: 90%;
+          max-width: 900px;
           .content {
-            /*margin: 3px 6px;*/
-          };
+            .paas-request-statistic {
+              width: 100%;
+              .content {
+                /*margin: 3px 6px;*/
+              }
+            ;
+            }
+          }
         }
       }
       .to-delete {
@@ -563,10 +606,9 @@
   import paasDialogForLog from '../components/dialog4log.vue'
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   import profileUtils from '../utils/app-props';
-  import fa from "../../../../components/element-ui/src/locale/lang/fa";
-  import requestStatistic from './request-statistic.vue';
+  import paasRequestStatistic from './request-statistic.vue';
 export default {
-  components: {paasDialogForLog, requestStatistic},
+  components: {paasDialogForLog, paasRequestStatistic},
   created() {
     this.profileUtils = profileUtils;
     if (this.$storeHelper.dataTransfer) {
@@ -839,9 +881,26 @@ export default {
     // 获取请求统计数据
     async getRequestStatistic(appId, profileId, intranetDomain, internetDomainList) {
       this.requestStatisticList = [];
+      // set default value for requestStatisticList
+      if (intranetDomain) {
+        this.requestStatisticList.push({
+          type: 'intranet', domain: intranetDomain, loading: true
+        });
+      }
+      if (internetDomainList && Array.isArray(internetDomainList)) {
+        internetDomainList.forEach(it => {
+          this.requestStatisticList.push({
+            type: 'internet', domain: it, loading: true
+          });
+        })
+      }
+
       var current = new Date().getTime();
       var start = current - 3600 * 1000 * 24;
-      const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_info_request_statistic, {
+      const resContent = await this.$net.requestPaasServer(Object.assign(
+        this.$net.URL_LIST.service_info_request_statistic,
+        {partial: true}
+      ), {
         payload: {
           appId: appId,
           spaceId: profileId,
@@ -880,7 +939,7 @@ export default {
           top.push(others)
         }
         var result = {
-          type, domain, total, top
+          type, domain, total, top, loading: false
         };
         return result
       };
@@ -935,7 +994,7 @@ export default {
       this.intranetDomain = basicInfo["intranetDomain"];
       this.internetDomainList = basicInfo["internetDomain"];
 
-      await this.getRequestStatistic(appId, profileId, this.intranetDomain, this.internetDomainList);
+      this.getRequestStatistic(appId, profileId, this.intranetDomain, this.internetDomainList);
     },
 
     // collect all related info for add-service before jump to page service/add

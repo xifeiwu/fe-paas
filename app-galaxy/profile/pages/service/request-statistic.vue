@@ -1,6 +1,6 @@
 <template>
-  <div class="request-statistic">
-    <div v-if="total > 0">
+  <div class="paas-request-statistic">
+    <div class="statistic-show" v-if="total > 0">
       <div class="graphic">
         <svg class="pie" :viewBox="[0, 0, size, size]" :style="{width: `${size}px`, height: `${size}px`}">
           <template v-for="(item, index) in pathList">
@@ -34,36 +34,41 @@
         <table-column show="formattedPercent" label="请求占比"></table-column>
       </table-component>
     </div>
-    <div class="empty">
+    <div class="empty" v-else>
       该域名请求次数为0
     </div>
   </div>
 </template>
-<style lang="scss">
-  .request-statistic {
-    display: flex;
-    .graphic {
-      .pie {
-        g.is-active {
-          /*box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);*/
-          stroke: white;
-          stroke-width: 3px;
+<style lang="scss" scoped>
+  .paas-request-statistic {
+    .statistic-show {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      .graphic {
+        .pie {
+          g.is-active {
+            /*box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);*/
+            stroke: white;
+            stroke-width: 3px;
+          }
+        }
+        .total {
+          text-align: center;
+          font-size: 14px;
         }
       }
-      .total {
-        text-align: center;
-        font-size: 14px;
-      }
-    }
-    .table-component {
-      &__table-wrapper {
-        border-width: 0px;
-      }
-      tbody {
-        tr {
-          font-weight: normal;
-          &.is-active {
-            background-color: gray;
+      .table-component {
+        flex: 1;
+        &__table-wrapper {
+          border-width: 0px;
+        }
+        tbody {
+          tr {
+            font-weight: normal;
+            &.is-active {
+              background-color: gray;
+            }
           }
         }
       }
