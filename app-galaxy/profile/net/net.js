@@ -637,6 +637,10 @@ class Net extends NetBase {
       'pipeline_record_build_history': {
         path: '/pipeline/build/end/log',
         method: 'post'
+      },
+      'pipeline_record_build_history_download': {
+        path: '/pipeline/download/build/log/{appId}',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

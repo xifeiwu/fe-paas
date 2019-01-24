@@ -78,14 +78,14 @@
           <template slot-scope="scope">
             <el-button v-if="scope.row['status'] === 'IN_PROGRESS'"
               type="text"
-              :clase="['flex', 'primary']"
+              :class="['flex', 'danger']"
               @click="handleTRClick($event, 'stop', scope.$index, scope.row)">
               <span>停止</span>
             </el-button>
             <div class="ant-divider" v-if="scope.row['status'] === 'IN_PROGRESS'"></div>
             <el-button
               type="text"
-              :clase="['flex', 'primary']"
+              :class="['flex', 'primary']"
               :loading="statusOfWaitingResponse('pipeline_build_restart') && action.row.buildNumber == scope.row.buildNumber"
               @click="handleTRClick($event, 'pipeline_build_restart', scope.$index, scope.row)">
               <span>重启</span>
@@ -93,7 +93,7 @@
             <div class="ant-divider"></div>
             <el-button
               type="text"
-              :clase="['flex', 'primary']"
+              :class="['flex', 'primary']"
               :loading="statusOfWaitingResponse('pipeline_build_history') && action.row.buildNumber == scope.row.buildNumber"
               @click="handleTRClick($event, 'pipeline_build_history', scope.$index, scope.row)">
               <span>构建日志</span>
@@ -133,6 +133,7 @@
 <script>
   import commonUtils from 'assets/components/mixins/common-utils';
 
+  const MS_BEFORE_GET_RECORD_LIST = 5000;
   export default {
     mixins: [commonUtils],
     created() {
@@ -359,6 +360,9 @@
         this.buildListAll = this.mergeBuildList(this.buildList, []);
         this.leaveHeartBeat = false;
         await this.startHeartBeat(1000, this.loopUntilBuildingFinish);
+        // request again
+        await this.requestBuildList();
+        this.buildListAll = this.mergeBuildList(this.buildList, []);
       },
 
       async loopUntilBuildingFinish() {
@@ -407,29 +411,44 @@
 //            this.requestBuildList();
             break;
           case 'pipeline_build_execute':
-            await this.executePipeLine();
-            this.addToWaitingResponseQueue(action);
-            await new Promise((resolve) => {
-              setTimeout(resolve, 3000);
-            });
-            this.hideWaitingResponse(action);
-            await this.requestBuildingStatus();
+            try {
+              await this.executePipeLine();
+              this.addToWaitingResponseQueue(action);
+              this.$net.addToRequestingRrlList(action);
+              await new Promise((resolve) => {
+                setTimeout(resolve, MS_BEFORE_GET_RECORD_LIST);
+              });
+              this.hideWaitingResponse(action);
+              this.$net.removeFromRequestingRrlList(action);
+              await this.requestBuildingStatus();
+            } catch(err) {
+              this.hideWaitingResponse(action);
+              this.$net.removeFromRequestingRrlList(action);
+            }
             break;
         }
       },
 
       async handleTRClick(evt, action, index, row) {
         this.action.row = row;
+        var resData = null;
         var resContent = null;
         switch (action) {
           case 'pipeline_build_restart':
-            await this.executePipeLine();
-            this.addToWaitingResponseQueue(action);
-            await new Promise((resolve) => {
-              setTimeout(resolve, 3000);
-            });
-            this.hideWaitingResponse(action);
-            await this.requestBuildingStatus();
+            try {
+              await this.executePipeLine();
+              this.addToWaitingResponseQueue(action);
+              this.$net.addToRequestingRrlList(action);
+              await new Promise((resolve) => {
+                setTimeout(resolve, MS_BEFORE_GET_RECORD_LIST);
+              });
+              this.hideWaitingResponse(action);
+              this.$net.removeFromRequestingRrlList(action);
+              await this.requestBuildingStatus();
+            } catch(err) {
+              this.hideWaitingResponse(action);
+              this.$net.removeFromRequestingRrlList(action);
+            }
             break;
           case 'stop':
             this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_stop, {
@@ -442,14 +461,59 @@
             });
             break;
           case 'pipeline_build_history':
-            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_build_history, {
+            resData = await this.$net.requestPaasServer(Object.assign(
+              this.$net.URL_LIST.pipeline_record_build_history,
+              {
+                withCode: true
+              }), {
               payload: {
                 appId: this.relatedAppId,
                 buildNumber: row['buildNumber'],
                 currentBufferSize: 0,
+                // 是否分页查询
+                limit: false
               }
             });
-            console.log(resContent);
+            // 文件太大只能下载到本地
+            if (resData.code === 'FILE_CONTENT_TOO_LARGE') {
+              await this.$confirm(`pipeline "${this.dataPassed.pipelineName}" 第${row['buildNumber']}次的构建日志超过2M，点击"确定"，下载到本地查看。`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+
+              const REQUEST_DESC_DOWNLOAD = this.$net.URL_LIST['pipeline_record_build_history_download'];
+
+              this.$net.addToRequestingRrlList(REQUEST_DESC_DOWNLOAD.path);
+              this.$net.getResponse(REQUEST_DESC_DOWNLOAD, {
+                params: {
+                  appId: this.relatedAppId
+                },
+                query: {
+                  buildNumber: row['buildNumber']
+                }
+              }, {
+                headers: {
+                  token: this.$storeHelper.getUserInfo('token')
+                },
+                responseType: 'blob'
+              }).then(res => {
+//                  console.log(res);
+                const a = document.createElement('a');
+                const blob = new Blob([res.data]);
+                a.href = window.URL.createObjectURL(blob);
+                a.download = `${this.dataPassed.pipelineName}-第${row['buildNumber']}次的构建日志.txt`;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+              }).catch(err => {
+                this.$net.showError(err);
+              }).finally(() => {
+                this.$net.removeFromRequestingRrlList(REQUEST_DESC_DOWNLOAD.path);
+              });
+            }
+
             break;
         }
       }
