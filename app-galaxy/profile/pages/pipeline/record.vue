@@ -102,6 +102,11 @@
         </el-table-column>
       </el-table>
     </div>
+    <paas-dialog-for-log :showStatus="buildLogStatus" ref="dialogForBuildLog">
+      <div slot="content">
+        <div v-for="(item, index) in buildLogStatus.logList" :key="index" class="log-item" v-html="item"></div>
+      </div>
+    </paas-dialog-for-log>
   </div>
 </template>
 
@@ -132,9 +137,11 @@
 
 <script>
   import commonUtils from 'assets/components/mixins/common-utils';
+  import paasDialogForLog from 'assets/components/dialog4log.vue';
 
   const MS_BEFORE_GET_RECORD_LIST = 5000;
   export default {
+    components: {paasDialogForLog},
     mixins: [commonUtils],
     created() {
       var dataTransfer = this.$storeHelper.dataTransfer;
@@ -194,6 +201,11 @@
         action: {
           row: null,
           name: null
+        },
+        buildLogStatus: {
+          title: '日志',
+          visible: false,
+          logList: []
         }
       }
     },
@@ -512,8 +524,14 @@
               }).finally(() => {
                 this.$net.removeFromRequestingRrlList(REQUEST_DESC_DOWNLOAD.path);
               });
+            } else {
+              const resContent = resData.resContent;
+              if (resContent.hasOwnProperty('consoleLog')) {
+                this.buildLogStatus.title = `${this.dataPassed.pipelineName}-第${row['buildNumber']}次的构建日志`;
+                this.buildLogStatus.logList = resContent['consoleLog'].split('\n');
+                this.buildLogStatus.visible = true;
+              }
             }
-
             break;
         }
       }
