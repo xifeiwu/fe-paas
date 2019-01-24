@@ -25,7 +25,7 @@
         <el-button size="mini-extral" type="primary" style="margin-right: 5px" @click="handleClick($event, 'search')">
           <span>刷新</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
         </el-button>
-        <el-button size="mini-extral" class="flex" type="primary" @click="handleClick($event, 'add')">
+        <el-button size="mini" class="flex" type="primary" @click="handleClick($event, 'add')">
           <span>创建pipeline</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
         </el-button>
       </div>

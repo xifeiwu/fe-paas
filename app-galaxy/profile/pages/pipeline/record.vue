@@ -2,15 +2,24 @@
   <div id="record-main">
     <div class="header">
       <div class="item">
-        <el-button size="mini-extral" type="primary" style="margin-right: 5px;"
+        <el-button size="mini" type="primary" style="margin-right: 5px;"
+                   class="flex"
                    :loading="statusOfWaitingResponse('pipeline_build_execute')"
-                   @click="handleClick($event, 'pipeline_build_execute')">执行</el-button>
-        <el-button size="mini-extral" type="primary" style="margin-right: 5px;" @click="handleClick($event, 'refresh-record-list')">刷新</el-button>
-        <div style="display: inline-block; margin-left: 16px">
-          <span style="font-weight: bold">pipeline名称：</span><span>{{dataPassed.pipelineName}}</span>
-        </div>
+                   @click="handleClick($event, 'pipeline_build_execute')">
+          <span>执行</span>
+          <i class="paas-icon-fa-play" style="margin-left: 3px;"></i>
+        </el-button>
+        <el-button size="mini" type="primary" style="margin-right: 5px;"
+                   class="flex"
+                   @click="handleClick($event, 'refresh-record-list')">
+          <span>刷新</span>
+          <i class="el-icon-refresh" style="margin-left: 3px;"></i>
+        </el-button>
         <div style="display: inline-block; margin-left: 16px">
           <span style="font-weight: bold">应用名称：</span><span>{{dataPassed.appName}}</span>
+        </div>
+        <div style="display: inline-block; margin-left: 16px">
+          <span style="font-weight: bold">pipeline名称：</span><span>{{dataPassed.pipelineName}}</span>
         </div>
         <!--<el-button size="mini-extral" type="primary" style="margin-right: 5px">修改配置</el-button>-->
       </div>
@@ -33,7 +42,7 @@
           </template>
         </el-table-column>
         <el-table-column
-                prop="buildId"
+                prop="buildNumber"
                 label="运行"
                 width="80"
                 headerAlign="center"
@@ -73,12 +82,21 @@
               @click="handleTRClick($event, 'stop', scope.$index, scope.row)">
               <span>停止</span>
             </el-button>
+            <div class="ant-divider" v-if="scope.row['status'] === 'IN_PROGRESS'"></div>
             <el-button
               type="text"
               :clase="['flex', 'primary']"
-              :loading="statusOfWaitingResponse('pipeline_build_restart') && action.row.buildId == scope.row.buildId"
+              :loading="statusOfWaitingResponse('pipeline_build_restart') && action.row.buildNumber == scope.row.buildNumber"
               @click="handleTRClick($event, 'pipeline_build_restart', scope.$index, scope.row)">
               <span>重启</span>
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+              type="text"
+              :clase="['flex', 'primary']"
+              :loading="statusOfWaitingResponse('pipeline_build_history') && action.row.buildNumber == scope.row.buildNumber"
+              @click="handleTRClick($event, 'pipeline_build_history', scope.$index, scope.row)">
+              <span>构建日志</span>
             </el-button>
           </template>
         </el-table-column>
@@ -128,6 +146,7 @@
         this.$storeHelper.dataTransfer = null;
       } else {
         this.$router.push(this.$net.page['profile/pipeline/list']);
+        return;
       }
     },
     async mounted() {
@@ -185,14 +204,14 @@
       // merge status of buildList and buildingList
       mergeBuildList(buildList, buildingList) {
 //        {
-//          buildId: "92"
+//          buildNumber: "92"
 //          duration: 76675
 //          executionTime: 1545374195910
 //          message: null
 //          status: "FAILURE"
 //        }
 //        {
-//          buildId: "92"
+//          buildNumber: "92"
 //          durationMillis: "76675"
 //          endTimeMillis: "1545374272616"
 //          listStage: null
@@ -201,7 +220,7 @@
 //        }
         const transfer = (o) => {
           var result = {
-            buildId: o['buildId'],
+            buildNumber: o['buildNumber'],
             duration: parseInt(o['durationMillis']),
             executionTime: parseInt(o['startTimeMillis']),
 //            message: null,
@@ -216,13 +235,13 @@
         };
         const buildMap = {}, buildingMap = {};
         buildList.forEach(it => {
-          buildMap[it['buildId']] = it;
+          buildMap[it['buildNumber']] = it;
         });
         buildingList.forEach(it => {
-          buildingMap[it['buildId']] = transfer(it);
+          buildingMap[it['buildNumber']] = transfer(it);
         });
         const keys = Array.from(new Set(
-          buildList.map(it => it['buildId']).concat(buildingList.map(it => it['buildId']))
+          buildList.map(it => it['buildNumber']).concat(buildingList.map(it => it['buildNumber']))
         )).sort((pre, next) => {
           return (pre - next) * -1;
         });
@@ -251,6 +270,9 @@
        * @returns {Promise.<*|Array>}
        */
       async requestBuildList() {
+        if (!this.relatedAppId) {
+          return;
+        }
         this.buildList = [];
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_build_list, {
           params: {
@@ -278,12 +300,15 @@
       },
 
       async requestBuildingList() {
+        if (!this.relatedAppId) {
+          return;
+        }
         this.buildingList = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_in_building, {
           params: {
             appId: this.relatedAppId
           },
           query: {
-            buildId: this.lastBuildRecord['buildId']
+            buildNumber: this.lastBuildRecord['buildNumber']
           }
         });
         this.lastBuildingRecord = null;
@@ -302,7 +327,7 @@
       async loopRequestBuildingList() {
         const theSameRecord = (one, two) => {
           var theSame = true;
-          ['buildId', 'status'].forEach(key => {
+          ['buildNumber', 'status'].forEach(key => {
             theSame = theSame & (one[key] == two[key])
           });
           return theSame;
@@ -315,7 +340,7 @@
             return it.tag === 'has-build';
           })) {
           needUpdateBuildList = true;
-          if ((this.lastBuildRecord['status'] !== 'UNKNOWN') && (this.buildingList[0]['buildId'] == this.lastBuildRecord['buildId'])) {
+          if ((this.lastBuildRecord['status'] !== 'UNKNOWN') && (this.buildingList[0]['buildNumber'] == this.lastBuildRecord['buildNumber'])) {
             needUpdateBuildList = false;
           }
         }
@@ -395,6 +420,7 @@
 
       async handleTRClick(evt, action, index, row) {
         this.action.row = row;
+        var resContent = null;
         switch (action) {
           case 'pipeline_build_restart':
             await this.executePipeLine();
@@ -411,9 +437,19 @@
                 appId: this.relatedAppId
               },
               query: {
-                buildId: row['buildId']
+                buildNumber: row['buildNumber']
               }
             });
+            break;
+          case 'pipeline_build_history':
+            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_build_history, {
+              payload: {
+                appId: this.relatedAppId,
+                buildNumber: row['buildNumber'],
+                currentBufferSize: 0,
+              }
+            });
+            console.log(resContent);
             break;
         }
       }
