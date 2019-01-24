@@ -465,7 +465,7 @@
         if (!this.middlewareId) {
           return;
         }
-        var {resContent, timeStamp} = await this.$net.requestPaasServer(
+        var {content, timeStamp} = await this.$net.requestPaasServer(
           Object.assign(this.$net.URL_LIST.middleware_middleware_instance_info_basic, {
             withTimeStamp: true
           }), {
@@ -475,7 +475,7 @@
             groupId: this.$storeHelper.currentGroupID
           }
         });
-        const instanceList = resContent;
+        const instanceList = content;
         const ONE_DAY = 24 * 3600 * 1000;
         instanceList.forEach(it => {
           it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
