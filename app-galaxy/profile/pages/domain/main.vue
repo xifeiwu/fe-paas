@@ -19,6 +19,12 @@
         <el-button
                 size="mini-extral"
                 type="primary"
+                @click="handleButtonClick($event, 'refresh')">
+          刷新
+        </el-button>
+        <el-button
+                size="mini-extral"
+                type="primary"
                 :class="{'disabled': $storeHelper.permission['domain_add'].disabled}"
                 :loading="statusOfWaitingResponse('domain_add')"
                 @click="handleButtonClick($event, 'domain_add')">
@@ -37,7 +43,6 @@
                 :class="{'disabled': $storeHelper.permission['domain_unbind_service'].disabled}"
                 @click="handleButtonClick($event, 'domain_unbind_service')">解绑服务
         </el-button>
-
         <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
           <div slot="content">
             <div>1. 已绑定的域名需要先进行解绑，才可绑定新的服务</div>
@@ -748,12 +753,12 @@
         }
       },
       onServiceConditionChanged(appInfo, profileInfo, serviceInfo) {
-       // console.log(appInfo, profileInfo, serviceInfo);
+        // console.log(appInfo, profileInfo, serviceInfo);
         this.profileInfo = profileInfo;
         this.appInfo = appInfo;
         this.serviceInfo = serviceInfo;
         this.keyword = '';
-        this.requestDomainList();
+        this.debounceRequestDomainList();
       },
       // the first page of pagination is 1
       handlePaginationPageChange(page) {
@@ -762,7 +767,7 @@
       },
 
       setDebounce() {
-        this.debounceRequestDomainList = this.$utils.debounce(this.requestDomainList.bind(this), 1000, false);
+        this.debounceRequestDomainList = this.$utils.debounce(this.requestDomainList.bind(this), 500, false);
       },
       /**
        * the place of calling requestDomainList;
@@ -968,6 +973,9 @@
               return;
             }
             this.selected.action = 'unbind-service';
+            break;
+          case 'refresh':
+            this.requestDomainList();
             break;
         }
       },

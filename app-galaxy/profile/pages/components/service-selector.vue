@@ -164,7 +164,7 @@
             }).indexOf(defaultProfileId) > -1) {
             this.selectedProfileId = defaultProfileId;
           } else {
-            this.selectedProfileId = profileListOfGroup.length > 0 ? profileListOfGroup[0]['id'] : this.$storeHelper.PROFILE_ID_FOR_NULL
+            this.selectedProfileId = this.profileList.length > 0 ? this.profileList[0]['id'] : this.$storeHelper.PROFILE_ID_FOR_NULL
           }
         });
       },

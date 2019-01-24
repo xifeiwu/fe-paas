@@ -13,6 +13,12 @@
           <el-form-item label="运行环境" class="profile-description">
             {{profileInfo? profileInfo.description: ''}}
           </el-form-item>
+          <el-form-item label="镜像方式" prop="customImage" class="custom-image">
+            <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="handleCustomImage()">
+              <el-radio :label="false">自动打镜像</el-radio>
+              <el-radio :label="true">自定义镜像</el-radio>
+            </el-radio-group>
+          </el-form-item>
           <el-form-item class="build-type" label="构建类型" v-if="packageTypeList.length > 0 && appLanguage.toUpperCase() === 'JAVA' && !imageSelectState.customImage" :error="serviceForm.packageInfo.errMsg">
             <div class="flex-layout">
               <div class="type-list">
@@ -26,12 +32,6 @@
                 <el-input v-model="serviceForm.packageInfo.name" placeholder="默认与项目名称一致"></el-input>
               </el-form-item>
             </div>
-          </el-form-item>
-          <el-form-item label="镜像方式" prop="customImage" class="custom-image">
-            <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="handleCustomImage()">
-              <el-radio :label="false">自动打镜像</el-radio>
-              <el-radio :label="true">自定义镜像</el-radio>
-            </el-radio-group>
           </el-form-item>
 
           <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-if="!imageSelectState.customImage">

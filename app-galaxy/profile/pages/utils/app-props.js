@@ -16,7 +16,7 @@ class AppInfoHelper {
           message: '请输入应用名称',
           trigger: 'blur'
         }, {
-          validator: utils.generateValidator(true, true, 2, 30, true)
+          validator: utils.generateValidator(true, true, 2, 50, true)
         }
       ],
       // 项目名称
@@ -157,6 +157,18 @@ class AppInfoHelper {
         validator: basicValidator
       }, {
         validator: limit256Required
+      }, {
+        validator(rule, values, callback) {
+          let paased = true;
+          let reg = /^git@[\S]+:([\S]+\/)+[\S]+.git$/;
+          if (!values.match(reg)) {
+            paased = false;
+            callback(`请输入正确的git地址`);
+          }
+          if (paased) {
+            callback();
+          }
+        }
       }],
       // gitlab分支
       gitLabBranch: [{
