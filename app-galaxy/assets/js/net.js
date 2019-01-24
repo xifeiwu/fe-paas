@@ -367,6 +367,9 @@ class Net {
    *
    * @param path
    * @param method
+   * @param partial: not trigger global loading status
+   * @param withTimeStamp
+   * @param withCode
    * @param options: {
    *  query: {key: value},
    *  params: {id}
@@ -377,7 +380,7 @@ class Net {
    * else return {}
    */
 
-  async requestPaasServer({path, method, partial = false, withTimeStamp = false}, options = {}) {
+  async requestPaasServer({path, method, partial = false, withTimeStamp = false, withCode=false}, options = {}) {
     try {
       if (!partial) {
         this.addToRequestingRrlList(path);
@@ -390,12 +393,15 @@ class Net {
       });
       let resData = response.data;
       if (this.isResponseSuccess(resData)) {
-        // add timestamp to result
-        if (withTimeStamp) {
-          return {
-            resContent: resData.content,
-            timeStamp: parseInt(resData.t)
-          }
+        // add more info of response to result
+        const moreInfo = withTimeStamp || withCode;
+        if (moreInfo) {
+          const result = {
+            content: resData.content,
+          };
+          withTimeStamp && (result['timeStamp'] = parseInt(resData.t));
+          withCode && (result['code'] = resData.code);
+          return result
         } else {
           return resData.content;
         }

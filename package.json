@@ -4,7 +4,7 @@
   "author": "xifei.wu",
   "private": true,
   "scripts": {
-    "dev": "NODE_ENV=dev-server webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+    "dev": "npm run pre-build && NODE_ENV=dev-server webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "test": "npm run unit",
     "lint": "eslint --ext .js,.vue src test/unit",
     "build": "npm run pre-build && NODE_ENV=production node build/build.js",
