@@ -983,6 +983,8 @@ export default {
       this.$net.requestPaasServer(this.$net.URL_LIST.service_info_running, {payload}).then(resContent => {
         if (resContent.hasOwnProperty("applicationConfigDeployment")) {
           this.runningInfo = this.processResponseData(resContent["applicationConfigDeployment"]);
+        }
+        if (resContent.hasOwnProperty("dnsState")) {
           this.processDnsState(resContent["dnsState"]);
         }
       });
