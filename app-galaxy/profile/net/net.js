@@ -616,7 +616,7 @@ class Net extends NetBase {
         path: '/pipeline/build/history/list/{appId}',
         method: 'get'
       },
-      // pipeline构建信息（可查询正在构建的信息）
+      // pipeline构建中的信息列表（可查询正在构建的信息）
       'pipeline_in_building': {
         // path: '/pipeline/runsPipeline/{appId}',
         path: '/pipeline/build/running/list/{appId}',
@@ -638,8 +638,14 @@ class Net extends NetBase {
         path: '/pipeline/build/end/log',
         method: 'post'
       },
+      // 下载构建日志
       'pipeline_record_build_history_download': {
         path: '/pipeline/download/build/log/{appId}',
+        method: 'post'
+      },
+      // 获取正在构建中的日志
+      'pipeline_record_building_log': {
+        path: '/pipeline/building/log',
         method: 'post'
       }
     };

@@ -96,7 +96,7 @@
               :class="['flex', 'primary']"
               :loading="statusOfWaitingResponse('pipeline_build_history') && action.row.buildNumber == scope.row.buildNumber"
               @click="handleTRClick($event, 'pipeline_build_history', scope.$index, scope.row)">
-              <span>构建日志</span>
+              <span>查看日志</span>
             </el-button>
           </template>
         </el-table-column>
@@ -140,6 +140,7 @@
   import paasDialogForLog from 'assets/components/dialog4log.vue';
 
   const MS_BEFORE_GET_RECORD_LIST = 5000;
+  const MAX_MS_WAITING_FOR_RECORD_LIST = 10000;
   export default {
     components: {paasDialogForLog},
     mixins: [commonUtils],
@@ -205,6 +206,7 @@
         buildLogStatus: {
           title: '日志',
           visible: false,
+          loading: false,
           logList: []
         }
       }
@@ -277,9 +279,9 @@
         });
       },
 
-      /** 获取构建列表
-       * requestBuildList
+      /** 获取构建列表requestBuildList
        *
+       * 更新全局变量:lastBuildRecord, lastBuildingRecord
        * @returns {Promise.<*|Array>}
        */
       async requestBuildList() {
@@ -370,11 +372,13 @@
       async requestBuildingStatus() {
         await this.requestBuildList();
         this.buildListAll = this.mergeBuildList(this.buildList, []);
-        this.leaveHeartBeat = false;
-        await this.startHeartBeat(1000, this.loopUntilBuildingFinish);
-        // request again
-        await this.requestBuildList();
-        this.buildListAll = this.mergeBuildList(this.buildList, []);
+        if (this.lastBuildingRecord) {
+          this.leaveHeartBeat = false;
+          await this.startHeartBeat(1000, this.loopUntilBuildingFinish);
+          // request again
+          await this.requestBuildList();
+          this.buildListAll = this.mergeBuildList(this.buildList, []);
+        }
       },
 
       async loopUntilBuildingFinish() {
@@ -406,14 +410,86 @@
         }
       },
 
-      // 执行pipeline
-      async executePipeLine() {
-        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_restart, {
-          params: {
-            appId: this.relatedAppId
+      /**
+       *
+       * @param action: 执行或重新执行
+       * @returns {Promise.<void>}
+       */
+      // 执行pipeline并刷新构建列表状态
+      async executePipeLine(action) {
+        try {
+          const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_restart, {
+            params: {
+              appId: this.relatedAppId
+            }
+          });
+          // add loading status
+          this.addToWaitingResponseQueue(action);
+          this.$net.addToRequestingRrlList(action);
+          // requestBuildList until build list is fresh
+          var now = new Date().getTime();
+          const until = now + MAX_MS_WAITING_FOR_RECORD_LIST;
+          do {
+            await new Promise((resolve) => {
+              setTimeout(resolve, 2000);
+            });
+            this.requestBuildList();
+          } while((now < until) && (this.lastBuildingRecord === null));
+
+          // hide loading status
+          this.hideWaitingResponse(action);
+          this.$net.removeFromRequestingRrlList(action);
+          // requestBuildingStatus
+          await this.requestBuildingStatus();
+
+          await this.showBuildingLog();
+        } catch(err) {
+          this.hideWaitingResponse(action);
+          this.$net.removeFromRequestingRrlList(action);
+        }
+      },
+
+      async showBuildingLog() {
+        this.buildingStatus.visible = true;
+        this.buildingStatus.loading = true;
+
+        var buildLogList = [];
+        var hasMoreData = true;
+        var logQueue = [];
+        var nextItem = null;
+        this.buildLogStatus.logList = buildLogList;
+        const tagUpdateLog = setInterval(() => {
+          if (!hasMoreData && logQueue.length === 0) {
+            clearInterval(tagUpdateLog);
+            return;
           }
-        });
-//        console.log(resContent);
+          nextItem = logQueue.shift();
+          if (!nextItem) {
+            return;
+          }
+          buildLogList.push(nextItem);
+          // scroll after render finish
+          this.$nextTick(() => {
+            if (this.$refs.hasOwnProperty('dialogForBuildLog')) {
+              const dialogForDeployLog = this.$refs['dialogForBuildLog'];
+              dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+            }
+          });
+        }, 10);
+
+        do {
+          var resContent = await this.$net.requestPaasServer(Object.assign(this.$net.URL_LIST.pipeline_record_building_log, {
+            partial: true
+          }), {
+            params: {
+              appId: this.relatedAppId
+            },
+            query: {
+              buildNumber: this.action.row['buildNumber']
+            }
+          });
+          console.log(resContent);
+        } while(hasMoreData);
       },
 
       async handleClick(evt, action) {
@@ -423,20 +499,7 @@
 //            this.requestBuildList();
             break;
           case 'pipeline_build_execute':
-            try {
-              await this.executePipeLine();
-              this.addToWaitingResponseQueue(action);
-              this.$net.addToRequestingRrlList(action);
-              await new Promise((resolve) => {
-                setTimeout(resolve, MS_BEFORE_GET_RECORD_LIST);
-              });
-              this.hideWaitingResponse(action);
-              this.$net.removeFromRequestingRrlList(action);
-              await this.requestBuildingStatus();
-            } catch(err) {
-              this.hideWaitingResponse(action);
-              this.$net.removeFromRequestingRrlList(action);
-            }
+            await this.executePipeLine(action);
             break;
         }
       },
@@ -447,20 +510,7 @@
         var resContent = null;
         switch (action) {
           case 'pipeline_build_restart':
-            try {
-              await this.executePipeLine();
-              this.addToWaitingResponseQueue(action);
-              this.$net.addToRequestingRrlList(action);
-              await new Promise((resolve) => {
-                setTimeout(resolve, MS_BEFORE_GET_RECORD_LIST);
-              });
-              this.hideWaitingResponse(action);
-              this.$net.removeFromRequestingRrlList(action);
-              await this.requestBuildingStatus();
-            } catch(err) {
-              this.hideWaitingResponse(action);
-              this.$net.removeFromRequestingRrlList(action);
-            }
+            await this.executePipeLine(action);
             break;
           case 'stop':
             this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_stop, {
@@ -511,7 +561,6 @@
                 },
                 responseType: 'blob'
               }).then(res => {
-//                  console.log(res);
                 const a = document.createElement('a');
                 const blob = new Blob([res.data]);
                 a.href = window.URL.createObjectURL(blob);
@@ -525,7 +574,7 @@
                 this.$net.removeFromRequestingRrlList(REQUEST_DESC_DOWNLOAD.path);
               });
             } else {
-              const resContent = resData.resContent;
+              const resContent = resData.content;
               if (resContent.hasOwnProperty('consoleLog')) {
                 this.buildLogStatus.title = `${this.dataPassed.pipelineName}-第${row['buildNumber']}次的构建日志`;
                 this.buildLogStatus.logList = resContent['consoleLog'].split('\n');

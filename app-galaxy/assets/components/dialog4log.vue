@@ -29,7 +29,7 @@
       background-color: rgba(0, 0, 0, 0.9);
       width: 90%;
       max-width: 1500px;
-      height: 80%;
+      height: 75%;
       text-align: left;
       &.is-fullscreen {
         width: 100%;
@@ -137,6 +137,8 @@
         fullScreen: false,
         dialog: null,
         scrollWrap: null,
+        // 是否滚动到了最底端
+        isScrolledBottom: true,
       }
     },
     methods: {
@@ -182,6 +184,7 @@
           if (target.scrollTop === 0) {
             this.$emit('scrollTop');
           } else if (target.scrollTop + target.clientHeight === target.scrollHeight) {
+            this.isScrolledBottom = target.scrollTop + target.clientHeight === target.scrollHeight;
             this.$emit('scrollBottom');
           }
         }
