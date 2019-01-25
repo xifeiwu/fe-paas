@@ -864,15 +864,15 @@ export default {
     },
 
     processDnsState(dnsState) {
-      let officeStatus = dnsState && dnsState["OFFICE"].length > 0;
+      let officeStatus = dnsState && dnsState.hasOwnProperty("OFFICE") && dnsState["OFFICE"].length > 0;
       this.dnsState.office.status = officeStatus;
       this.dnsState.office.content = officeStatus ? `办公网DNS解析成功` : `办公网DNS解析失败`;
       this.dnsState.office.value = officeStatus ? dnsState["OFFICE"] : [];
-      let productionStatus = dnsState && dnsState["PRODUCTION"].length > 0;
+      let productionStatus = dnsState && dnsState.hasOwnProperty("PRODUCTION") && dnsState["PRODUCTION"].length > 0;
       this.dnsState.production.status = productionStatus;
       this.dnsState.production.content = productionStatus ? `生产环境DNS解析成功` : `生产环境DNS解析失败`;
       this.dnsState.production.value = productionStatus ? dnsState["PRODUCTION"] : [];
-      let testStatus = dnsState && dnsState["TEST"].length > 0;
+      let testStatus = dnsState && dnsState.hasOwnProperty("TEST") && dnsState["TEST"].length > 0;
       this.dnsState.test.status = testStatus;
       this.dnsState.test.content = testStatus ? `测试环境DNS解析成功` : `测试环境DNS解析失败`;
       this.dnsState.test.value = testStatus ? dnsState["TEST"] : [];
