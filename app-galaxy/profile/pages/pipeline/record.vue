@@ -83,20 +83,29 @@
               <span>停止</span>
             </el-button>
             <div class="ant-divider" v-if="scope.row['status'] === 'IN_PROGRESS'"></div>
-            <el-button
+
+            <el-button v-if="scope.row['status'] !== 'IN_PROGRESS'"
               type="text"
               :class="['flex', 'primary']"
               :loading="statusOfWaitingResponse('pipeline_build_restart') && action.row.buildNumber == scope.row.buildNumber"
               @click="handleTRClick($event, 'pipeline_build_restart', scope.$index, scope.row)">
               <span>重启</span>
             </el-button>
-            <div class="ant-divider"></div>
-            <el-button
+            <div class="ant-divider" v-if="scope.row['status'] !== 'IN_PROGRESS'"></div>
+
+            <el-button v-if="scope.row['status'] === 'IN_PROGRESS'"
+                       type="text"
+                       :class="['flex', 'primary']"
+                       :loading="statusOfWaitingResponse('pipeline_building_log') && action.row.buildNumber == scope.row.buildNumber"
+                       @click="handleTRClick($event, 'pipeline_building_log', scope.$index, scope.row)">
+              <span>查看构建中日志</span>
+            </el-button>
+            <el-button v-else
               type="text"
               :class="['flex', 'primary']"
-              :loading="statusOfWaitingResponse('pipeline_build_history') && action.row.buildNumber == scope.row.buildNumber"
-              @click="handleTRClick($event, 'pipeline_build_history', scope.$index, scope.row)">
-              <span>查看日志</span>
+              :loading="statusOfWaitingResponse('pipeline_build_history_log') && action.row.buildNumber == scope.row.buildNumber"
+              @click="handleTRClick($event, 'pipeline_build_history_log', scope.$index, scope.row)">
+              <span>查看历史日志</span>
             </el-button>
           </template>
         </el-table-column>
@@ -168,6 +177,9 @@
     },
     beforeDestroy() {
       this.leavePage = true;
+      this.buildLogStatus.visible = false;
+      this.buildLogStatus.loading = false;
+      this.buildLogStatus.title = '';
     },
     data() {
       return {
@@ -440,18 +452,20 @@
           this.hideWaitingResponse(action);
           this.$net.removeFromRequestingRrlList(action);
           // requestBuildingStatus
-          await this.requestBuildingStatus();
+          this.requestBuildingStatus();
 
-          await this.showBuildingLog();
+          await this.showBuildingLog(this.lastBuildingRecord);
         } catch(err) {
+          console.log(err);
           this.hideWaitingResponse(action);
           this.$net.removeFromRequestingRrlList(action);
         }
       },
 
-      async showBuildingLog() {
-        this.buildingStatus.visible = true;
-        this.buildingStatus.loading = true;
+      async showBuildingLog(lastBuildingRecord) {
+        this.buildLogStatus.visible = true;
+        this.buildLogStatus.loading = true;
+        this.buildLogStatus.title = `${this.dataPassed.pipelineName}-第${lastBuildingRecord['buildNumber']}次的构建日志`;
 
         var buildLogList = [];
         var hasMoreData = true;
@@ -477,19 +491,28 @@
           });
         }, 10);
 
+        var currentBufferSize = 0;
         do {
           var resContent = await this.$net.requestPaasServer(Object.assign(this.$net.URL_LIST.pipeline_record_building_log, {
             partial: true
           }), {
-            params: {
-              appId: this.relatedAppId
-            },
-            query: {
-              buildNumber: this.action.row['buildNumber']
+            payload: {
+              appId: this.relatedAppId,
+              buildNumber: lastBuildingRecord['buildNumber'],
+              consoleLog: 'string',
+              currentBufferSize,
+              limit: true
             }
           });
-          console.log(resContent);
-        } while(hasMoreData);
+          hasMoreData = resContent.hasOwnProperty('hasMoreData') ? resContent['hasMoreData'] : false;
+          currentBufferSize = resContent.hasOwnProperty('currentBufferSize') ? resContent['currentBufferSize'] : 0;
+          await new Promise((resolve) => {
+            setTimeout(resolve, 2000);
+          });
+          if (resContent.hasOwnProperty('consoleLog')) {
+            logQueue = logQueue.concat(resContent['consoleLog'].split('\n'));
+          }
+        } while(hasMoreData && this.buildLogStatus.visible);
       },
 
       async handleClick(evt, action) {
@@ -522,7 +545,12 @@
               }
             });
             break;
-          case 'pipeline_build_history':
+          case 'pipeline_building_log':
+            this.showBuildingLog({
+              buildNumber: row['buildNumber']
+            });
+            break;
+          case 'pipeline_build_history_log':
             resData = await this.$net.requestPaasServer(Object.assign(
               this.$net.URL_LIST.pipeline_record_build_history,
               {
