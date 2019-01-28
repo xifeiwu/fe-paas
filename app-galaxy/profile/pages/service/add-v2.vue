@@ -69,7 +69,7 @@
           <transition name="more-config">
             <el-form-item label="Gitlab分支" prop="gitLabBranch" class="gitlab-branch"
                           v-if="!imageSelectState.customImage">
-              <el-input v-model="serviceForm.gitLabBranch" placeholder="不能超过100个字符，默认为master分支"></el-input>
+              <el-input v-model="serviceForm.gitLabBranch" placeholder="不能超过100个字符"></el-input>
             </el-form-item>
           </transition>
           <transition name="more-config">
@@ -679,7 +679,7 @@
           spaceId: null,
           serviceVersion: '',
           gitLabAddress: '',
-          gitLabBranch: 'master',
+          gitLabBranch: '',
           mainClass: '',
           relativePathOfParentPOM: '',
           appMonitor: profileUtils.defaultAppMonitorId,
@@ -745,7 +745,7 @@
           loadBalance: profileUtils.getSupportedLoadBalance()[0],
           healthCheckType: this.$storeHelper.defaultHealthCheckTypeDesc,
           healthCheck: {
-            http: '/health',
+            http: '',
             shell: '',
             socket: 8080
           },
