@@ -14,12 +14,14 @@
     </div>
     <el-form :model="createAppForm" :rules="rules" size="mini"
              ref="createAppForm" label-width="140px">
-      <el-form-item label="团队" prop="groupID" class="group-list">
-        <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择" filterable v-if="pageType != 'update'">
+      <el-form-item label="团队" prop="groupID" class="group-list" v-if="pageType != 'update'">
+        <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择" filterable>
           <el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">
           </el-option>
         </el-select>
-        <span v-else>{{findGroupNameById()}}</span>
+      </el-form-item>
+      <el-form-item label="团队" class="group-list" v-else>
+        <span>{{findGroupNameById()}}</span>
       </el-form-item>
       <el-form-item label="所属LOB" prop="lobId" class="lob" v-if="true">
         <el-select v-model="createAppForm.lobId" placeholder="请选择" filterable>
@@ -36,11 +38,15 @@
       <el-form-item label="应用名称" prop="appName">
         <el-input v-model="createAppForm.appName" placeholder="中文，英文，数字，下划线，中划线。2-50个字符"></el-input>
       </el-form-item>
-      <el-form-item label="项目名称" prop="projectName">
+
+      <el-form-item label="项目名称" prop="projectName" v-if="pageType != 'update'">
         <el-input v-model="createAppForm.projectName"
-                  placeholder="输入GitLab里的project名称。只能包含字母、数字、中划线，2-50个字符" v-if="pageType != 'update'"></el-input>
-        <span v-else>{{createAppForm.projectName}}</span>
+                  placeholder="输入GitLab里的project名称。只能包含字母、数字、中划线，2-50个字符"></el-input>
       </el-form-item>
+      <el-form-item label="项目名称" prop="projectName" v-else>
+        <span>{{createAppForm.projectName}}</span>
+      </el-form-item>
+
       <el-form-item label="二级域名" prop="serviceName">
         <el-input v-model="createAppForm.serviceName" placeholder="默认与项目名称一致，且强制转换为小写字母" v-if="pageType != 'update'"></el-input>
         <span v-else>{{createAppForm.serviceName}}</span>
@@ -75,7 +81,7 @@
           <!--<div :class="['war-name', createAppForm.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']"><el-input v-model="createAppForm.packageInfo.name" placeholder="默认与项目名称一致"></el-input></div>-->
         <!--</div>-->
       <!--</el-form-item>-->
-      <el-form-item label="运行环境" prop="profiles" class="profiles" :error="productionProfileTip">
+      <el-form-item label="运行环境" class="profiles" :error="productionProfileTip">
         <el-checkbox-group v-model="createAppForm.profiles" style="display: inline-block;">
           <el-checkbox v-for="item in $storeHelper.profileListOfGroup" :label="item.name" :key="item.name"
                        :disabled="true">
