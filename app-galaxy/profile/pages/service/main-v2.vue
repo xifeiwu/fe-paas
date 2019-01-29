@@ -565,8 +565,9 @@
           }
         }
         .request-statistic {
-          /*width: 90%;*/
+          width: 100%;
           max-width: 900px;
+          margin-bottom: 15px;
           .content {
             .paas-request-statistic {
               width: 100%;
