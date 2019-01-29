@@ -34,7 +34,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="应用名称" prop="appName">
-        <el-input v-model="createAppForm.appName" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
+        <el-input v-model="createAppForm.appName" placeholder="中文，英文，数字，下划线，中划线。2-50个字符"></el-input>
       </el-form-item>
       <el-form-item label="项目名称" prop="projectName">
         <el-input v-model="createAppForm.projectName"

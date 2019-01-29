@@ -374,7 +374,7 @@ class AppInfoHelper {
       }
       return target;
     });
-    var result = '未设置';
+    var result = '未知';
     if (target && target.hasOwnProperty('name')) {
       result = target['name'];
     }

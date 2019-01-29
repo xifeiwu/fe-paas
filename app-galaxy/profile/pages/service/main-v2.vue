@@ -214,7 +214,7 @@
                 {{runningInfo["loadBalance"] ? runningInfo["loadBalance"] : "未知"}}
               </el-form-item>
               <el-form-item label="滚动升级">
-                {{runningInfo["rollingUpdate"] ? "需要" : "不需要"}}
+                {{runningInfo["rollingUpdate"] ? "需要" : "未知"}}
               </el-form-item>
               <el-form-item label="应用监控">
                 {{profileUtils.getMonitorNameById(runningInfo["appMonitor"])}}
