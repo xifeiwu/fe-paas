@@ -574,6 +574,7 @@
                 this.configAuthorizeUrlInfo.authorizeUrlList = row.detailList.map(it => {
                   return {
                     id: it.id,
+                    oauthId: it.oauthId,
                     oauth: it.oauth,
                     resource: it.resource,
                     clientId: it['requestClientId'],
@@ -674,7 +675,7 @@
       checkExistBeforeAddAuthorizeUrl() {
         let target = null;
         this.configAuthorizeUrlInfo.authorizeUrlList.some(it => {
-          if (it.id === this.configAuthorizeUrlInfo.authorizeUrlID) {
+          if (it.oauthId === this.configAuthorizeUrlInfo.authorizeUrlID) {
             target = it;
           }
           return target;
