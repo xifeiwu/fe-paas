@@ -65,8 +65,10 @@
         <el-table-column prop="scrumName" label="Scrum"></el-table-column>
         <el-table-column prop="cpuUsage" label="CPU总量"  headerAlign="center" align="center" minWidth="140"
                          sortable="custom"></el-table-column>
+        <el-table-column prop="formattedCpuRatio" label="CPU占比"  headerAlign="center" align="center" minWidth="60"></el-table-column>
         <el-table-column prop="memoryUsage" label="内存总量"  headerAlign="center" align="center" minWidth="140"
                          sortable="custom"></el-table-column>
+        <el-table-column prop="formattedMemoryRatio" label="内存占比"  headerAlign="center" align="center" minWidth="60"></el-table-column>
         <el-table-column
                 prop="operation"
                 headerAlign="center" align="center"
@@ -124,7 +126,9 @@
       >
         <el-table-column prop="appName" label="应用名称" headerAlign="center" align="center" minWidth="200"></el-table-column>
         <el-table-column prop="cpuUsage" label="CPU数" headerAlign="center" align="center" sortable="custom" minWidth="100"></el-table-column>
+        <el-table-column prop="formattedCpuRatio" label="CPU占比"  headerAlign="center" align="center" minWidth="60"></el-table-column>
         <el-table-column prop="memoryUsage" label="内存总量" headerAlign="center" align="center" sortable="custom" minWidth="100"></el-table-column>
+        <el-table-column prop="formattedMemoryRatio" label="内存占比"  headerAlign="center" align="center" minWidth="60"></el-table-column>
       </el-table>
       <div class="pagination-container" v-if="detailInfo.totalSize > detailInfo.pageSize">
         <div class="pagination">
@@ -421,6 +425,8 @@
           }
           it.cpuUsage = null !== it['cpuAmount'] ? `${it['cpuAmount']}核` : '---';
           it.memoryUsage = null !== it['memoryAmount'] ? `${it['memoryAmount']}G` : '---';
+          it.hasOwnProperty('cpuRatio') && (it['formattedCpuRatio'] = `${(it['cpuRatio'] * 100).toFixed(3)}%`)
+          it.hasOwnProperty('memoryRatio') && (it['formattedMemoryRatio'] = `${(it['memoryRatio'] * 100).toFixed(3)}%`)
           return it;
         });
       },
@@ -524,6 +530,8 @@
           if (!it.appName) {
             it.appName = '---';
           }
+          it.hasOwnProperty('cpuRatio') && (it['formattedCpuRatio'] = `${(it['cpuRatio'] * 100).toFixed(3)}%`)
+          it.hasOwnProperty('memoryRatio') && (it['formattedMemoryRatio'] = `${(it['memoryRatio'] * 100).toFixed(3)}%`)
           return it;
         });
         return resContent;
