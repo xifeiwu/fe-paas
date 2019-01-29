@@ -21,7 +21,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="团队" class="group-list" v-else>
-        <span>{{findGroupNameById()}}</span>
+        <span>{{$storeHelper.groupInfo.asLabel}}</span>
       </el-form-item>
       <el-form-item label="所属LOB" prop="lobId" class="lob" v-if="true">
         <el-select v-model="createAppForm.lobId" placeholder="请选择" filterable>
@@ -394,7 +394,11 @@ export default {
         this.pageType = 'add';
         break;
     }
-    if (this.pageType == 'update') {
+    this.forModify = this.$route['path'] == this.$net.page['profile/app/update'];
+
+    var goBack = false;
+
+    if (this.forModify) {
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer) {
         const from = dataTransfer['from'];
@@ -410,12 +414,19 @@ export default {
           this.propsUsed.language = false;
           this.propsUsed.languageVersion = false;
           // this.propsUsed.packageType = false;
+        } else {
+          goBack = true;
         }
         this.$storeHelper.dataTransfer = null;
       } else {
-        this.$router.go(-1);
+        goBack = true;
       }
     }
+    if (goBack) {
+      this.$router.go(-1);
+      return;
+    }
+
     this.onLanguageInfo(this.$storeHelper.languageInfo);
     this.onProfileListOfGroup(this.$storeHelper.profileListOfGroup);
   },
@@ -446,7 +457,7 @@ export default {
       errMsgForHealthCheck: '',
       // 添加应用或修改应用
       pageType: 'add',
-      dataPassed: {},
+      dataPassed: null,
       propsUsed: {
         language: false,
         languageVersion: false,
@@ -613,9 +624,9 @@ export default {
     },
 
     // 处理语言信息
-    onLanguageInfo (languageList) {
+    onLanguageInfo(languageList) {
       if (Array.isArray(languageList) && languageList.length > 0) {
-        if (this.pageType === 'update' && !this.propsUsed.language) {
+        if (this.forModify && !this.propsUsed.language) {
           this.createAppForm.language = this.dataPassed.language.type;
           this.propsUsed.language = true;
         } else {
@@ -873,12 +884,6 @@ export default {
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();
-    },
-    findGroupNameById(){
-      let groupInfo = this.groupList.find(it => {
-        return it.id == this.$storeHelper.currentGroupID;
-      });
-      return groupInfo.asLabel;
     },
   }
 }
