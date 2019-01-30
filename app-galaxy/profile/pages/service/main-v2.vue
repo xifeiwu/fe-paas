@@ -260,26 +260,26 @@
                   <span>未知</span>
                 </div>
               </el-form-item>
-              <!--<el-form-item label="端口映射">-->
-                <!--<div v-if="runningInfo.postMapped">-->
-                  <!--<div class="el-row">-->
-                    <!--<div class="el-col el-col-6" style="font-weight: bold; text-align: center">访问端口</div>-->
-                    <!--<div class="el-col el-col-2" style="min-height:1px"></div>-->
-                    <!--<div class="el-col el-col-6" style="font-weight: bold; text-align: center">目标端口</div>-->
-                    <!--<div class="el-col el-col-2" style="font-weight: bold; text-align: center">协议</div>-->
-                    <!--<div class="el-col el-col-2" style="font-weight: bold; text-align: center"></div>-->
-                  <!--</div>-->
-                  <!--<el-row class="content">-->
-                    <!--<el-col :span="6" style="text-align: center">{{runningInfo.postMapped.outerPort}}</el-col>-->
-                    <!--<el-col :span="2" style="text-align: center">&ndash;&gt;</el-col>-->
-                    <!--<el-col :span="6" style="text-align: center">{{runningInfo.postMapped.containerPort}}</el-col>-->
-                    <!--<el-col :span="2" style="text-align: center">TCP</el-col>-->
-                  <!--</el-row>-->
-                <!--</div>-->
-                <!--<div v-else>-->
-                  <!--<span>未知</span>-->
-                <!--</div>-->
-              <!--</el-form-item>-->
+              <el-form-item label="端口映射">
+                <div v-if="runningInfo.postMapped">
+                  <div class="el-row">
+                    <div class="el-col el-col-6" style="font-weight: bold; text-align: center">访问端口</div>
+                    <div class="el-col el-col-2" style="min-height:1px"></div>
+                    <div class="el-col el-col-6" style="font-weight: bold; text-align: center">目标端口</div>
+                    <div class="el-col el-col-2" style="font-weight: bold; text-align: center">协议</div>
+                    <div class="el-col el-col-2" style="font-weight: bold; text-align: center"></div>
+                  </div>
+                  <el-row class="content">
+                    <el-col :span="6" style="text-align: center">{{runningInfo.postMapped.outerPort}}</el-col>
+                    <el-col :span="2" style="text-align: center">--></el-col>
+                    <el-col :span="6" style="text-align: center">{{runningInfo.postMapped.containerPort}}</el-col>
+                    <el-col :span="2" style="text-align: center">TCP</el-col>
+                  </el-row>
+                </div>
+                <div v-else>
+                  <span>未知</span>
+                </div>
+              </el-form-item>
             </el-form>
           </div>
         </div>

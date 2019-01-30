@@ -285,36 +285,36 @@
               </el-row>
             </el-form-item>
           </transition>
-          <!--<transition name="more-config">-->
-            <!--<el-form-item label="端口映射" class="port-map" v-if="showMoreConfig && !isProductionProfile" :error="serviceForm.portMap.errMsg">-->
-              <!--<div class="el-row title">-->
-                <!--<div class="el-col el-col-6">-->
-                  <!--<span>访问端口</span>-->
-                  <!--<el-tooltip slot="trigger" effect="dark" placement="top">-->
-                    <!--<div slot="content">-->
-                      <!--<div v-if="serviceForm.portMap.update">访问端口的范围在40000~59999之间</div>-->
-                      <!--<div v-if="!serviceForm.portMap.update">访问端口由后端自动生成</div>-->
-                      <!--<div v-if="!serviceForm.portMap.update">服务创建成功后，可以进行修改</div>-->
-                    <!--</div>-->
-                    <!--<span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>-->
-                  <!--</el-tooltip>-->
-                <!--</div>-->
-                <!--<div class="el-col el-col-2" style="min-height:1px"></div>-->
-                <!--<div class="el-col el-col-6">目标端口</div>-->
-                <!--<div class="el-col el-col-2">协议</div>-->
-              <!--</div>-->
-              <!--<el-row class="content">-->
-                <!--<el-col :span="6">-->
-                  <!--<el-input placeholder="如40002" size="mini" :disabled="!this.serviceForm.portMap.update" v-model="serviceForm.portMap.outerPort"></el-input>-->
-                <!--</el-col>-->
-                <!--<el-col :span="2">&ndash;&gt;</el-col>-->
-                <!--<el-col :span="6">-->
-                  <!--<el-input placeholder="如8100" size="mini" v-model="serviceForm.portMap.containerPort"></el-input>-->
-                <!--</el-col>-->
-                <!--<el-col :span="2">TCP</el-col>-->
-              <!--</el-row>-->
-            <!--</el-form-item>-->
-          <!--</transition>-->
+          <transition name="more-config">
+            <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig && !isProductionProfile" :error="serviceForm.portMap.errMsg">
+              <div class="el-row title">
+                <div class="el-col el-col-6">
+                  <span>访问端口</span>
+                  <el-tooltip slot="trigger" effect="dark" placement="top">
+                    <div slot="content">
+                      <div v-if="serviceForm.portMap.update">访问端口的范围在40000~59999之间</div>
+                      <div v-if="!serviceForm.portMap.update">访问端口由后端自动生成</div>
+                      <div v-if="!serviceForm.portMap.update">服务创建成功后，可以进行修改</div>
+                    </div>
+                    <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
+                  </el-tooltip>
+                </div>
+                <div class="el-col el-col-2" style="min-height:1px"></div>
+                <div class="el-col el-col-6">目标端口</div>
+                <div class="el-col el-col-2">协议</div>
+              </div>
+              <el-row class="content">
+                <el-col :span="6">
+                  <el-input placeholder="如40002" size="mini" :disabled="!this.serviceForm.portMap.update" v-model="serviceForm.portMap.outerPort"></el-input>
+                </el-col>
+                <el-col :span="2">--></el-col>
+                <el-col :span="6">
+                  <el-input placeholder="如8100" size="mini" v-model="serviceForm.portMap.containerPort"></el-input>
+                </el-col>
+                <el-col :span="2">TCP</el-col>
+              </el-row>
+            </el-form-item>
+          </transition>
           <transition name="more-config">
             <el-form-item label="prestop脚本" v-if="showMoreConfig && !isProductionProfile">
               <el-input v-model="serviceForm.prestopCommand"
@@ -618,12 +618,11 @@
         this.serviceForm.healthCheck.http = theData.healthCheck;
         this.serviceForm.initialDelaySeconds = theData.initialDelaySeconds;
         this.serviceForm.expiredDays = theData.remainExpiredDays;
-        //端口映射暂时隐藏
-        // if (theData.portsMapping[0].outerPort && theData.portsMapping[0].outerPort !== "") {
-        //   this.serviceForm.portMap.outerPort = theData.portsMapping[0].outerPort;
-        //   this.serviceForm.portMap.containerPort = theData.portsMapping[0].containerPort;
-        //   this.serviceForm.portMap.update = true;
-        // }
+        if (theData.portsMapping[0].outerPort && theData.portsMapping[0].outerPort !== "") {
+          this.serviceForm.portMap.outerPort = theData.portsMapping[0].outerPort;
+          this.serviceForm.portMap.containerPort = theData.portsMapping[0].containerPort;
+          this.serviceForm.portMap.update = true;
+        }
       } else {
         //Production appMonitor environment is selected by default
         if (this.profileInfo && this.profileInfo.spaceType.toUpperCase() !== 'PRODUCTION') {
@@ -697,49 +696,49 @@
           autoImageValue: '',
           // value of customImage
           customImageValue: '',
-//           portMap: {
-//             protocol: 'TCP',
-//             outerPort: '',
-//             containerPort: '',
-//             _validateErrMsg: '',
-//             update: false,
-//             get errMsg() {
-//               if (this.syntaxErrMsg) {
-//                 return this.syntaxErrMsg;
-//               } else if (this._validateErrMsg) {
-//                 return this._validateErrMsg;
-//               } else {
-//                 return '';
-//               }
-//             },
-//             get syntaxErrMsg() {
-//               // 先检测语法错误，后检测端口号错误
-//               let errMsg = '';
-//               const numberReg = /^[0-9]+$/;
-//               const outerPort = this.outerPort;
-//               const containerPort = this.containerPort;
-// //              if (outerPort == '') {
-// //                errMsg = '请填写访问端口';
-// //              } else if (containerPort == '') {
-// //                errMsg = '请填写目标端口';
-// //              } else {
-//               if (containerPort != '') {
-//                 if (this.update) {
-//                   if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 59999) {
-//                   } else {
-//                     errMsg = '访问端口只能是40000-59999之间的数字';
-//                   }
-//                 }
-//                 if (!errMsg && !numberReg.exec(containerPort)) {
-//                   errMsg = '端口只能是数字';
-//                 }
-//               }
-//               return errMsg;
-//             },
-//             set validateErrMsg(value) {
-//               this._validateErrMsg = value;
-//             }
-//           },
+          portMap: {
+            protocol: 'TCP',
+            outerPort: '',
+            containerPort: '',
+            _validateErrMsg: '',
+            update: false,
+            get errMsg() {
+              if (this.syntaxErrMsg) {
+                return this.syntaxErrMsg;
+              } else if (this._validateErrMsg) {
+                return this._validateErrMsg;
+              } else {
+                return '';
+              }
+            },
+            get syntaxErrMsg() {
+              // 先检测语法错误，后检测端口号错误
+              let errMsg = '';
+              const numberReg = /^[0-9]+$/;
+              const outerPort = this.outerPort;
+              const containerPort = this.containerPort;
+//              if (outerPort == '') {
+//                errMsg = '请填写访问端口';
+//              } else if (containerPort == '') {
+//                errMsg = '请填写目标端口';
+//              } else {
+              if (containerPort != '') {
+                if (this.update) {
+                  if (numberReg.exec(outerPort) && outerPort >= 40000 && outerPort <= 59999) {
+                  } else {
+                    errMsg = '访问端口只能是40000-59999之间的数字';
+                  }
+                }
+                if (!errMsg && !numberReg.exec(containerPort)) {
+                  errMsg = '端口只能是数字';
+                }
+              }
+              return errMsg;
+            },
+            set validateErrMsg(value) {
+              this._validateErrMsg = value;
+            }
+          },
           prestopCommand: '',
           rollingUpdate: true,
           loadBalance: profileUtils.getSupportedLoadBalance()[0],
@@ -896,22 +895,22 @@
         }
       },
 
-      // 'serviceForm.portMap.outerPort': function (value) {
-      //   if (this.serviceForm.portMap.syntaxErrMsg || this.serviceForm.portMap.outerPort === this.dataPassed.portsMapping[0].outerPort) {
-      //     return;
-      //   }
-      //   this.checkPortMap({
-      //     appId: this.serviceForm.appId,
-      //     spaceId: this.serviceForm.spaceId,
-      //     outerPort: this.serviceForm.portMap.outerPort
-      //   }, (err, msg) => {
-      //     if (err) {
-      //       this.serviceForm.portMap.validateErrMsg = '';
-      //     } else {
-      //       this.serviceForm.portMap.validateErrMsg = msg;
-      //     }
-      //   })
-      // },
+      'serviceForm.portMap.outerPort': function (value) {
+        if (this.serviceForm.portMap.syntaxErrMsg || this.serviceForm.portMap.outerPort === this.dataPassed.portsMapping[0].outerPort) {
+          return;
+        }
+        this.checkPortMap({
+          appId: this.serviceForm.appId,
+          spaceId: this.serviceForm.spaceId,
+          outerPort: this.serviceForm.portMap.outerPort
+        }, (err, msg) => {
+          if (err) {
+            this.serviceForm.portMap.validateErrMsg = '';
+          } else {
+            this.serviceForm.portMap.validateErrMsg = msg;
+          }
+        })
+      },
       'serviceForm.healthCheckType': function (type) {
         switch (type) {
           case 'http':
@@ -1215,9 +1214,9 @@
             break;
           case 'submit':
             this.$refs['serviceForm'].validate((valid) => {
-              // if (this.serviceForm.portMap.errMsg) {
-              //   valid = false;
-              // }
+              if (this.serviceForm.portMap.errMsg) {
+                valid = false;
+              }
               if (this.getErrMsgForHealthCheck()) {
                 valid = false;
               }
@@ -1257,14 +1256,14 @@
                   packageType: serviceForm.packageInfo.type,
                   buildName: serviceForm.packageInfo.name,
                 };
-                // payload.portsMapping = [{
-                //   protocol: serviceForm.portMap.protocol,
-                //   outerPort: serviceForm.portMap.outerPort,
-                //   containerPort: serviceForm.portMap.containerPort,
-                // }];
+                payload.portsMapping = [{
+                  protocol: serviceForm.portMap.protocol,
+                  outerPort: serviceForm.portMap.outerPort,
+                  containerPort: serviceForm.portMap.containerPort,
+                }];
                 if (this.type === 'edit') {
                   payload["id"] = this.dataPassed.id;
-                  // payload.portsMapping[0]["id"] = this.dataPassed.portsMapping[0]["id"];
+                  payload.portsMapping[0]["id"] = this.dataPassed.portsMapping[0]["id"];
                   payload["serviceName"] = this.dataPassed.serviceName;
                 }
                 if (this.$storeHelper.groupVersion !== 'v1') {
