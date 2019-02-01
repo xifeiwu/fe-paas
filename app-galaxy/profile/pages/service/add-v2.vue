@@ -3,39 +3,42 @@
     <el-scrollbar>
       <div class="sheet">
         <div class="section-title">{{type=='edit'?'修改服务':'创建服务'}}</div>
-        <el-form :model="serviceForm" ref="serviceForm"
+        <el-form :model="formData" ref="formData"
                  :rules="rules" :label-width="appLanguage == 'JAVA' ? '200px' : '140px'" size="mini"
                  v-loading="showLoading"
                  :element-loading-text="loadingText">
-          <el-form-item label="应用名称" class="app-name">
-            {{appName}}
-          </el-form-item>
           <el-form-item label="运行环境" class="profile-description">
             {{profileInfo? profileInfo.description: ''}}
           </el-form-item>
+          <el-form-item label="应用名称" class="app-name">
+            {{formRelated.appInfo ? formRelated.appInfo['appName'] : ''}}
+          </el-form-item>
+          <el-form-item label="语言/版本" class="app-name">
+            {{formRelated.appInfo ? `${formRelated.appInfo.language.name} / ${formRelated.appInfo.language.version}` : ''}}
+          </el-form-item>
           <el-form-item label="镜像方式" prop="customImage" class="custom-image">
-            <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="handleCustomImage()">
+            <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="formRelated.isPythonLanguage">
               <el-radio :label="false">自动打镜像</el-radio>
               <el-radio :label="true">自定义镜像</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item class="build-type" label="构建类型" v-if="packageTypeList.length > 0 && appLanguage.toUpperCase() === 'JAVA' && !imageSelectState.customImage" :error="serviceForm.packageInfo.errMsg">
+          <el-form-item class="build-type" label="构建类型" v-if="formRelated.packageTypeList.length > 0 && formRelated.isJavaLanguage && !imageSelectState.customImage" :error="formData.packageInfo.errMsg">
             <div class="flex-layout">
               <div class="type-list">
-                <el-radio-group v-model="serviceForm.packageInfo.type">
-                  <el-radio v-for="item in packageTypeList" :label="item.type" :key="item.type">
+                <el-radio-group v-model="formData.packageInfo.type">
+                  <el-radio v-for="item in formRelated.packageTypeList" :label="item.type" :key="item.type">
                     {{item.packageType}}
                   </el-radio>
                 </el-radio-group>
               </div>
-              <el-form-item :class="['war-name', serviceForm.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']" prop="packageInfo.name">
-                <el-input v-model="serviceForm.packageInfo.name" placeholder="默认与项目名称一致"></el-input>
+              <el-form-item :class="['war-name', formData.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']" prop="packageInfo.name">
+                <el-input v-model="formData.packageInfo.name" placeholder="默认与项目名称一致"></el-input>
               </el-form-item>
             </div>
           </el-form-item>
 
           <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-if="!imageSelectState.customImage">
-            <el-select v-model="serviceForm.autoImageValue" filterable
+            <el-select v-model="formData.autoImageValue" filterable
                        :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
               <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
                          :key="index" :label="item.label" :value="item.value">
@@ -45,7 +48,7 @@
           <el-form-item label="镜像地址" prop="customImageValue" v-else
                         :class="['custom-image', imageSelectState.customImageType.toLowerCase()+'-image']"
           >
-            <!--<el-select v-model="serviceForm.customImageValue" filterable-->
+            <!--<el-select v-model="formData.customImageValue" filterable-->
             <!--:placeholder="imageInfoFromNet.customImageList.length > 0 ? '请选择' : '无数据'">-->
             <!--<el-option v-for="(item, index) in imageInfoFromNet.customImageList"-->
             <!--:key="index" :label="item" :value="item">-->
@@ -53,7 +56,7 @@
             <!--</el-select>-->
             <el-autocomplete
                     class="inline-input"
-                    v-model="serviceForm.customImageValue"
+                    v-model="formData.customImageValue"
                     :fetch-suggestions="querySearch"
                     placeholder="请输入内容"
                     @select="handleSelect"
@@ -63,45 +66,44 @@
           <transition name="more-config">
             <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress" class="gitlab-address"
                           v-if="!imageSelectState.customImage">
-              <el-input v-model="serviceForm.gitLabAddress" placeholder="请输入项目的gitLab地址，不能超过256个字符"></el-input>
+              <el-input v-model="formData.gitLabAddress" placeholder="请输入项目的gitLab地址，不能超过256个字符"></el-input>
             </el-form-item>
           </transition>
           <transition name="more-config">
             <el-form-item label="Gitlab分支" prop="gitLabBranch" class="gitlab-branch"
                           v-if="!imageSelectState.customImage">
-              <el-input v-model="serviceForm.gitLabBranch" placeholder="不能超过100个字符"></el-input>
+              <el-input v-model="formData.gitLabBranch" placeholder="不能超过100个字符"></el-input>
             </el-form-item>
           </transition>
           <transition name="more-config">
             <el-form-item label="mainClass" prop="mainClass"
-                          v-if="appLanguage.toUpperCase() === 'JAVA' && !imageSelectState.customImage && serviceForm.packageInfo.type.toUpperCase() === 'ZIP'"
+                          v-if="formRelated.isJavaLanguage && !imageSelectState.customImage && formData.packageInfo.type.toUpperCase() === 'ZIP'"
                           class="main-class"
             >
-              <el-input v-model="serviceForm.mainClass"
-                        placeholder=""></el-input>
+              <el-input v-model="formData.mainClass" placeholder=""></el-input>
             </el-form-item>
           </transition>
           <transition name="more-config">
             <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
-                          v-if="appLanguage.toUpperCase() == 'JAVA' && !imageSelectState.customImage"
+                          v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
                           class="relative-path-of-parent-pom"
             >
-              <el-input v-model="serviceForm.relativePathOfParentPOM"
+              <el-input v-model="formData.relativePathOfParentPOM"
                         placeholder="不能超过256个字符"></el-input>
             </el-form-item>
           </transition>
           <transition name="more-config">
             <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
-                          v-if="appLanguage.toUpperCase() == 'JAVA' && !imageSelectState.customImage"
+                          v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
             >
-              <el-input v-model="serviceForm.mavenProfileId" placeholder="不能超过100个字符"></el-input>
+              <el-input v-model="formData.mavenProfileId" placeholder="不能超过100个字符"></el-input>
             </el-form-item>
           </transition>
           <el-form-item label="VM_Options" prop="vmOptions" class="vm-options"
-                        v-if="appLanguage.toUpperCase() == 'JAVA' && !imageSelectState.customImage"
+                        v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
           >
             <div>
-              <el-input v-model="serviceForm.vmOptions"
+              <el-input v-model="formData.vmOptions"
                         size="mini"
                         type="textarea"
                         :rows="4"
@@ -119,7 +121,7 @@
             </div>
           </el-form-item>
           <el-form-item label="滚动升级" prop="rollingUpdate">
-            <el-radio-group v-model="serviceForm.rollingUpdate">
+            <el-radio-group v-model="formData.rollingUpdate">
               <el-radio :label="true">需要</el-radio>
               <el-radio :label="false">不需要</el-radio>
               <span>
@@ -133,7 +135,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="负载均衡" prop="loadBalance">
-            <el-radio-group v-model="serviceForm.loadBalance">
+            <el-radio-group v-model="formData.loadBalance">
               <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
             </el-radio-group>
           </el-form-item>
@@ -142,19 +144,19 @@
             <div class="content" style="margin-left: 140px;">
               <el-form-item :error="errMsgForHealthCheck">
                 <div class="health-check-type" style="height: 64px">
-                  <el-radio-group v-model="serviceForm.healthCheckType">
+                  <el-radio-group v-model="formData.healthCheckType">
                     <el-radio v-for="(item, index) in $storeHelper.healthCheckTypeList" :label="item.desc" :key="item.desc">{{item.label}}</el-radio>
                   </el-radio-group>
                   <div class="input-area">
-                    <div :class="serviceForm.healthCheckType != 'http' ? 'hide': ''">
-                      <el-input v-model="serviceForm.healthCheck.http" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
+                    <div :class="formData.healthCheckType != 'http' ? 'hide': ''">
+                      <el-input v-model="formData.healthCheck.http" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
                     </div>
-                    <div :class="serviceForm.healthCheckType != 'shell' ? 'hide' : ''">
-                      <el-input v-model="serviceForm.healthCheck.shell"placeholder="请填写shell指令"></el-input>
+                    <div :class="formData.healthCheckType != 'shell' ? 'hide' : ''">
+                      <el-input v-model="formData.healthCheck.shell"placeholder="请填写shell指令"></el-input>
                     </div>
-                    <div :class="serviceForm.healthCheckType != 'socket' ? 'hide' : ''">
+                    <div :class="formData.healthCheckType != 'socket' ? 'hide' : ''">
                       <span>端口号：</span>
-                      <el-input-number v-model="serviceForm.healthCheck.socket" :min="0" :max="10000" label="延迟时间"></el-input-number>
+                      <el-input-number v-model="formData.healthCheck.socket" :min="0" :max="10000" label="延迟时间"></el-input-number>
                     </div>
                   </div>
                 </div>
@@ -162,7 +164,7 @@
               <el-form-item>
                 <div class="initial-delay" style="line-height: 28px">
                   <span>延迟时间：</span>
-                  <el-input-number v-model="serviceForm.initialDelaySeconds" :min="30" :max="1800" label="延迟时间"></el-input-number>
+                  <el-input-number v-model="formData.initialDelaySeconds" :min="30" :max="1800" label="延迟时间"></el-input-number>
                   <el-tooltip effect="dark" content="健康检查延迟时间：延迟时间以秒为单位，取值范围在30-1800之间" placement="bottom">
                     <i class="paas-icon-fa-question" style="font-size: 12px; color: #E6A23C"></i>
                   </el-tooltip>
@@ -171,7 +173,7 @@
             </div>
           </div>
           <el-form-item label="应用监控" prop="appMonitor" class="app-monitor" v-if="true">
-            <el-radio-group v-model="serviceForm.appMonitor" size="mini" v-if="profileUtils">
+            <el-radio-group v-model="formData.appMonitor" size="mini" v-if="profileUtils">
               <el-radio v-for="item in profileUtils.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
             </el-radio-group>
             <span style="display: inline; margin-left: 10px; color: #E6A23C; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #E6A23C; border-radius: 4px; word-break: normal"
@@ -179,24 +181,24 @@
             >{{profileUtils['warningList']['warning-app-monitor']['text']}}</span>
           </el-form-item>
           <el-form-item label="CPU" prop="cpuID" class="cpu">
-            <el-radio-group v-model="serviceForm.cpuID" size="mini">
+            <el-radio-group v-model="formData.cpuID" size="mini">
               <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
                 {{item.cpu}}核
               </el-radio-button>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="内存" prop="memoryID" class="memory">
-            <el-radio-group v-model="serviceForm.memoryID" size="mini">
+            <el-radio-group v-model="formData.memoryID" size="mini">
               <el-radio-button v-for="item in memorySizeList" :label="item.id" :key="item.id">
                 {{item.memory}}G
               </el-radio-button>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
-            <el-input-number v-model="serviceForm.instanceCount" :min="1" :max="20" label="描述文字"></el-input-number>
+            <el-input-number v-model="formData.instanceCount" :min="1" :max="20" label="描述文字"></el-input-number>
           </el-form-item>
-          <el-form-item label="过期时间(天)" prop="expiredDays" class="expired-days" v-if="showExpiredDays()">
-            <el-input-number v-model="serviceForm.expiredDays" :min="1"></el-input-number>
+          <el-form-item label="过期时间(天)" prop="expiredDays" class="expired-days" v-if="!formRelated.isProductionProfile">
+            <el-input-number v-model="formData.expiredDays" :min="1"></el-input-number>
             <span>
               <el-tooltip slot="trigger" effect="dark" placement="top">
                 <div slot="content">
@@ -223,7 +225,7 @@
                 </div>
               </div>
               <el-row class="content"
-                      v-for="(item, index) in serviceForm.environments"
+                      v-for="(item, index) in formData.environments"
                       :key="item.key"
               >
                 <el-col :span="11" class="key">{{item.key}}</el-col>
@@ -262,7 +264,7 @@
                 </div>
               </div>
               <el-row class="content"
-                      v-for="(item, index) in serviceForm.hosts"
+                      v-for="(item, index) in formData.hosts"
                       :key="item.key"
               >
                 <el-col :span="11" class="key">{{item.ip}}</el-col>
@@ -286,15 +288,15 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig && !isProductionProfile" :error="serviceForm.portMap.errMsg">
+            <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig && !isProductionProfile" :error="formData.portMap.errMsg">
               <div class="el-row title">
                 <div class="el-col el-col-6">
                   <span>访问端口</span>
                   <el-tooltip slot="trigger" effect="dark" placement="top">
                     <div slot="content">
-                      <div v-if="serviceForm.portMap.update">访问端口的范围在40000~59999之间</div>
-                      <div v-if="!serviceForm.portMap.update">访问端口由后端自动生成</div>
-                      <div v-if="!serviceForm.portMap.update">服务创建成功后，可以进行修改</div>
+                      <div v-if="formData.portMap.update">访问端口的范围在40000~59999之间</div>
+                      <div v-if="!formData.portMap.update">访问端口由后端自动生成</div>
+                      <div v-if="!formData.portMap.update">服务创建成功后，可以进行修改</div>
                     </div>
                     <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
                   </el-tooltip>
@@ -305,11 +307,11 @@
               </div>
               <el-row class="content">
                 <el-col :span="6">
-                  <el-input placeholder="如40002" size="mini" :disabled="!this.serviceForm.portMap.update" v-model="serviceForm.portMap.outerPort"></el-input>
+                  <el-input placeholder="如40002" size="mini" :disabled="!this.formData.portMap.update" v-model="formData.portMap.outerPort"></el-input>
                 </el-col>
                 <el-col :span="2">--></el-col>
                 <el-col :span="6">
-                  <el-input placeholder="如8100" size="mini" v-model="serviceForm.portMap.containerPort"></el-input>
+                  <el-input placeholder="如8100" size="mini" v-model="formData.portMap.containerPort"></el-input>
                 </el-col>
                 <el-col :span="2">TCP</el-col>
               </el-row>
@@ -317,7 +319,7 @@
           </transition>
           <transition name="more-config">
             <el-form-item label="prestop脚本" v-if="showMoreConfig && !isProductionProfile">
-              <el-input v-model="serviceForm.prestopCommand"
+              <el-input v-model="formData.prestopCommand"
                         size="mini"
                         type="textarea"
                         :rows="3"
@@ -325,8 +327,8 @@
               ></el-input>
             </el-form-item>
           </transition>
-          <el-form-item label="用户须知" prop="agree" v-if="profileInfo && profileInfo.spaceType.toUpperCase() === 'PRODUCTION'">
-            <el-checkbox v-model="serviceForm.agree">
+          <el-form-item label="用户须知" prop="agree" v-if="profileInfo && formRelated.isProductionProfile">
+            <el-checkbox v-model="formData.agree">
               <span style="display: inline-block;">已知晓：</span>
             </el-checkbox>
             <div style="display: inline-block; font-size: 12px; line-height: 18px; vertical-align: top;">
@@ -574,21 +576,29 @@
       } else {
         this.$storeHelper.dataTransfer = null;
       }
-      console.log(dataTransfer);
+//      console.log(dataTransfer);
+      var goBack = false;
       this.type = dataTransfer['type'];
+      this.forModify = (this.$route['path'] == this.$net.page['profile/service/edit']);
+
       const theData = dataTransfer.data;
-      this.dataPassed = theData;
-      this.serviceForm.appId = theData.appId;
-      this.serviceForm.spaceId = theData.profileId;
-      this.appName = theData.appName;
-      this.appLanguage = theData.language;
-      this.appLanguageVersion = theData.languageVersion;
-      this.packageTypeList = this.$storeHelper.getPackageTypeListByLanguageAndVersion(
-        this.appLanguage,
-        this.appLanguageVersion,
-      );
-      this.profileInfo = this.$storeHelper.getProfileInfoByID(this.serviceForm.spaceId);
-      if (this.type === 'edit') {
+      this.passedData = theData;
+      this.profileInfo = theData.profileInfo;
+      this.dataPassed.profileInfo = theData.profileInfo;
+      this.formData.spaceId = theData.profileInfo.id;
+
+      this.formRelated.isProductionProfile = (this.dataPassed.profileInfo.spaceType.toUpperCase() === 'PRODUCTION');
+//      this.profileInfo = this.$storeHelper.getProfileInfoByID(this.formData.spaceId);
+      if (this.forModify) {
+        // TODO: fix
+        this.formData.appId = theData.appId;
+        this.appLanguage = theData.language;
+        this.appLanguageVersion = theData.languageVersion;
+//        this.packageTypeList = this.$storeHelper.getPackageTypeListByLanguageAndVersion(
+//          this.appLanguage,
+//          this.appLanguageVersion,
+//        );
+
         this.initPackageInfoType(theData);
         this.profileListOfCurrentApp = theData['appInfo']['profileList'];
         if (this.$storeHelper.groupVersion == 'v1' && this.appLanguage.toUpperCase() === 'PYTHON') {
@@ -601,48 +611,62 @@
         } else {
           // set after requestImageRelatedInfo
         }
-        this.serviceForm.gitLabAddress = theData.gitLabAddress;
-        this.serviceForm.gitLabBranch = theData.gitLabBranch;
-        this.serviceForm.appMonitor = theData.appMonitor;
-        this.serviceForm.mainClass = theData.mainClass;
-        this.serviceForm.relativePathOfParentPOM = theData.relativePath;
-        this.serviceForm.mavenProfileId = theData.mavenProfileId;
-        this.serviceForm.vmOptions = theData.vmOptions;
-        this.serviceForm.instanceCount = theData.instanceNum;
-        this.serviceForm.environments = theData.environments;
-        this.serviceForm.hosts = theData.hosts;
-        this.serviceForm.prestopCommand = theData.prestopCommand;
-        this.serviceForm.cpuID = theData.cpuId;
-        this.serviceForm.memoryID = theData.memoryId;
-        this.serviceForm.rollingUpdate = theData.rollingUpdate;
-        this.serviceForm.healthCheck.http = theData.healthCheck;
-        this.serviceForm.initialDelaySeconds = theData.initialDelaySeconds;
-        this.serviceForm.expiredDays = theData.remainExpiredDays;
+        this.formData.gitLabAddress = theData.gitLabAddress;
+        this.formData.gitLabBranch = theData.gitLabBranch;
+        this.formData.appMonitor = theData.appMonitor;
+        this.formData.mainClass = theData.mainClass;
+        this.formData.relativePathOfParentPOM = theData.relativePath;
+        this.formData.mavenProfileId = theData.mavenProfileId;
+        this.formData.vmOptions = theData.vmOptions;
+        this.formData.instanceCount = theData.instanceNum;
+        this.formData.environments = theData.environments;
+        this.formData.hosts = theData.hosts;
+        this.formData.prestopCommand = theData.prestopCommand;
+        this.formData.cpuID = theData.cpuId;
+        this.formData.memoryID = theData.memoryId;
+        this.formData.rollingUpdate = theData.rollingUpdate;
+        this.formData.healthCheck.http = theData.healthCheck;
+        this.formData.initialDelaySeconds = theData.initialDelaySeconds;
+        this.formData.expiredDays = theData.remainExpiredDays;
         if (theData.portsMapping[0].outerPort && theData.portsMapping[0].outerPort !== "") {
-          this.serviceForm.portMap.outerPort = theData.portsMapping[0].outerPort;
-          this.serviceForm.portMap.containerPort = theData.portsMapping[0].containerPort;
-          this.serviceForm.portMap.update = true;
+          this.formData.portMap.outerPort = theData.portsMapping[0].outerPort;
+          this.formData.portMap.containerPort = theData.portsMapping[0].containerPort;
+          this.formData.portMap.update = true;
         }
       } else {
         //Production appMonitor environment is selected by default
         if (this.profileInfo && this.profileInfo.spaceType.toUpperCase() !== 'PRODUCTION') {
-          this.serviceForm.appMonitor = profileUtils.appMonitorList[1].id;
+          this.formData.appMonitor = profileUtils.appMonitorList[1].id;
         }
-        this.serviceForm.packageInfo.type = this.packageTypeList[0].type;
+        this.dataPassed.appWithoutService = theData.appWithoutService;
+        if (this.dataPassed.appWithoutService.length > 0) {
+          this.formData.appId = this.dataPassed.appWithoutService[0]['appId'];
+        } else {
+          goBack = true;
+        }
+        console.log(this.dataPassed.profileInfo);
+        console.log(this.dataPassed.appWithoutService);
+
+
+//        this.formData.packageInfo.type = this.packageTypeList[0].type;
         // set default cpu, default memorySizeList will be set in watch
         if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
-          let firstItem = this.cpuAndMemoryList[0];
-          this.serviceForm.cpuID = 'cpu' in firstItem ? firstItem.id : '';
+          const firstItem = this.cpuAndMemoryList[0];
+          this.formData.cpuID = 'cpu' in firstItem ? firstItem.id : '';
         }
-        //set default expiredDays
-        this.$net.requestPaasServer(this.$net.URL_LIST.query_default_expired_days).then(resContent => {
-          this.serviceForm.expiredDays = resContent["defaultExpiredDays"];
-        })
+//        //set default expiredDays
+//        this.$net.requestPaasServer(this.$net.URL_LIST.query_default_expired_days).then(resContent => {
+//          this.formData.expiredDays = resContent["defaultExpiredDays"];
+//        });
+      }
+      if (goBack) {
+        this.$router.go(-1);
+        return;
       }
       this.rules.imageLocation.required = false;
-      if (this.appLanguage.toUpperCase() !== 'JAVA' && this.$storeHelper.groupVersion !== 'v1') {
-        this.imageSelectState.customImage = true;
-      }
+//      if (this.appLanguage.toUpperCase() !== 'JAVA' && this.$storeHelper.groupVersion !== 'v1') {
+//        this.imageSelectState.customImage = true;
+//      }
     },
     mounted() {
       this.checkPortMap = this.$net.getDebounce4CheckPortMap();
@@ -660,11 +684,7 @@
         errorMsgForVersion: '',
 
         type: '',
-        dataPassed: {},
-        appName: '',
-        profileInfo: null,
-        appLanguage: null,
-        appLanguageVersion: null,
+        forModify: false,
         versionList: [],
         // （复制服务传递过来的）属性是否已经使用过
         propsUsed: {
@@ -672,8 +692,30 @@
           customImageValue: false,
           autoImageValue: false
         },
+        profileInfo: null,
+        appLanguage: null,
+        appLanguageVersion: null,
+        passedData: {},
+        dataPassed: {
+          appWithoutService: null,
+          profileInfo: null,
+          serviceInfo: null,
+        },
+        formRelated: {
+          appInfo: null,
+          packageTypeList: [],
+          /** 服务相关 */
+          isJavaLanguage: false,
+          // python不支持修改镜像类型
+          isPythonLanguage: false,
+          /** 运行环境相关 */
+          isProductionProfile: false,
+          // 是否展示剩余天数：生产环境不需要展示
+//          showRemainingDays: false,
+        },
+
         profileListOfCurrentApp: [],
-        serviceForm: {
+        formData: {
           appId: null,
           spaceId: null,
           serviceVersion: '',
@@ -689,7 +731,7 @@
           environments: [],
           hosts: [],
           instanceCount: 1,
-          expiredDays: 90,
+          expiredDays: this.$storeHelper.globalConfig['defaultExpiredDays'],
           customImage: false,
           imageLocation: '',
           // value of autoImage
@@ -825,7 +867,6 @@
 
         checkPortMap: null,
         errMsgForHealthCheck: '',
-        packageTypeList: [],
       }
     },
     computed: {
@@ -839,7 +880,7 @@
         return this.$storeHelper.groupInfo;
       },
       isProductionProfile() {
-        return this.$storeHelper.isProductionProfile(this.serviceForm.spaceId);
+        return this.$storeHelper.isProductionProfile(this.formData.spaceId);
       },
       loadBalanceType() {
         if (this.$storeHelper.groupVersion === "v1") {
@@ -850,13 +891,41 @@
       },
     },
     watch: {
-      'serviceForm.packageInfo.type': function (type) {
+      'formData.appId': function (appId) {
+        if (this.forModify) {
+          this.formRelated.appInfo = this.dataPassed.appInfo;
+        } else {
+          this.formRelated.appInfo = this.dataPassed.appWithoutService.find(it => {
+            return it['appId'] === appId;
+          })
+        }
+
+        if (this.formRelated.appInfo) {
+          const appInfo = this.formRelated.appInfo;
+          this.formRelated.isJavaLanguage = appInfo.language.type === 'JAVA';
+          this.formRelated.isPythonLanguage = appInfo.language.type === 'PYTHON';
+
+          this.formRelated.packageTypeList = this.$storeHelper.getPackageTypeListByLanguageAndVersion(
+            appInfo.language.type,
+            appInfo.language.version,
+          );
+        }
+
+        if (this.forModify) {
+
+        } else {
+          this.formData.packageInfo.type = this.formRelated.packageTypeList[0].type;
+        }
+        console.log(this.formRelated.appInfo);
+        console.log(this.formRelated.packageTypeList);
+      },
+      'formData.packageInfo.type': function (type) {
         this.requestImageRelatedInfo(type);
       },
       /**
-       * set memoryID at watcher of serviceForm.cpuID
+       * set memoryID at watcher of formData.cpuID
        */
-      'serviceForm.cpuID': function (value, oldValue) {
+      'formData.cpuID': function (value, oldValue) {
         let cpuID = value;
         let cpuInfo = null;
         if (Array.isArray(this.cpuAndMemoryList)) {
@@ -872,14 +941,14 @@
             return;
           }
           this.memorySizeList = cpuInfo.memoryList;
-          if (this.type === 'edit' && !this.propsUsed.memoryId) {
+          if (this.forModify && !this.propsUsed.memoryId) {
             // check if memoryId existed in memorySizeList
             if (this.memorySizeList.map(it => {
               return it.id
-            }).indexOf(this.dataPassed.memoryId) > -1) {
-              this.serviceForm.memoryID = this.dataPassed.memoryId;
+            }).indexOf(this.passedData.memoryId) > -1) {
+              this.formData.memoryID = this.passedData.memoryId;
             } else {
-              this.serviceForm.memoryID = this.memorySizeList[0]['id'];
+              this.formData.memoryID = this.memorySizeList[0]['id'];
             }
             this.propsUsed.memoryId = true;
           } else {
@@ -887,7 +956,7 @@
             if (Array.isArray(this.memorySizeList)) {
               this.memorySizeList.some(it => {
                 if (it.hasOwnProperty('defaultSelect') && 1 === it.defaultSelect) {
-                  this.serviceForm.memoryID = it.id;
+                  this.formData.memoryID = it.id;
                 }
               })
             }
@@ -895,23 +964,23 @@
         }
       },
 
-      'serviceForm.portMap.outerPort': function (value) {
-        if (this.serviceForm.portMap.syntaxErrMsg || this.serviceForm.portMap.outerPort === this.dataPassed.portsMapping[0].outerPort) {
+      'formData.portMap.outerPort': function (value) {
+        if (this.formData.portMap.syntaxErrMsg || this.formData.portMap.outerPort === this.passedData.portsMapping[0].outerPort) {
           return;
         }
         this.checkPortMap({
-          appId: this.serviceForm.appId,
-          spaceId: this.serviceForm.spaceId,
-          outerPort: this.serviceForm.portMap.outerPort
+          appId: this.formData.appId,
+          spaceId: this.formData.spaceId,
+          outerPort: this.formData.portMap.outerPort
         }, (err, msg) => {
           if (err) {
-            this.serviceForm.portMap.validateErrMsg = '';
+            this.formData.portMap.validateErrMsg = '';
           } else {
-            this.serviceForm.portMap.validateErrMsg = msg;
+            this.formData.portMap.validateErrMsg = msg;
           }
         })
       },
-      'serviceForm.healthCheckType': function (type) {
+      'formData.healthCheckType': function (type) {
         switch (type) {
           case 'http':
 //          this.createAppForm.healthCheck = '';
@@ -991,9 +1060,9 @@
         this.imageInfoFromNet['autoImageList'] = [];
         try {
           const groupTag = this.groupInfo.tag;
-          const appId = this.serviceForm.appId;
-          const profileName = this.profileInfo.name;
-          const projectName = this.appName;
+          const appId = this.formData.appId;
+//          const profileName = this.profileInfo.name;
+//          const projectName = this.appName;
           const results = await this.$net.getImageRelatedInfo({
             groupTag,
             appId,
@@ -1018,34 +1087,34 @@
             }
           }));
 //          console.log(this.imageInfoFromNet);
-//          console.log(this.dataPassed);
+//          console.log(this.passedData);
 
-          // set default value by dataPassed if necessary
-          if (this.dataPassed.hasOwnProperty('customImage')) {
-            if (this.dataPassed.customImage) {
+          // set default value by passedData if necessary
+          if (this.passedData.hasOwnProperty('customImage')) {
+            if (this.passedData.customImage) {
               // 自定义镜像
-              // if (!this.propsUsed.customImageValue && customImageList.indexOf(this.dataPassed.image.location) > -1) {
-              //   this.serviceForm.customImageValue = this.dataPassed.image.location;
+              // if (!this.propsUsed.customImageValue && customImageList.indexOf(this.passedData.image.location) > -1) {
+              //   this.formData.customImageValue = this.passedData.image.location;
               //   this.propsUsed.customImageValue = true;
               // }
               //因为从harbor得到数据不稳定，所以直接赋值，不需要匹配
-              this.serviceForm.customImageValue = this.dataPassed.image.location;
+              this.formData.customImageValue = this.passedData.image.location;
               this.propsUsed.customImageValue = true;
             } else {
               // 自动打镜像
-              // if (!this.propsUsed.autoImageValue && autoImageList.indexOf(this.dataPassed.image.location) > -1) {
-              //   this.serviceForm.autoImageValue = this.dataPassed.image.location;
+              // if (!this.propsUsed.autoImageValue && autoImageList.indexOf(this.passedData.image.location) > -1) {
+              //   this.formData.autoImageValue = this.passedData.image.location;
               //   this.propsUsed.autoImageValue = true;
               // }
-              this.serviceForm.autoImageValue = this.dataPassed.image.location;
+              this.formData.autoImageValue = this.passedData.image.location;
               this.propsUsed.autoImageValue = true;
             }
           }
 
           // not set default value for customImageValue
           if (customImageList.length > 0 && false) {
-            if (customImageList.indexOf(this.serviceForm.customImageValue) === -1) {
-              this.serviceForm.customImageValue = customImageList[0];
+            if (customImageList.indexOf(this.formData.customImageValue) === -1) {
+              this.formData.customImageValue = customImageList[0];
             }
           }
         } catch (err) {
@@ -1061,14 +1130,14 @@
       // TODO: not used
       updateImageSelection() {
         if (!this.imageSelectState.customImage) {
-          this.serviceForm.autoImageValue = '';
+          this.formData.autoImageValue = '';
         } else {
           let imageInfoFromNet = this.imageInfoFromNet;
-          this.serviceForm.customImageValue = '';
+          this.formData.customImageValue = '';
           switch (this.imageSelectState.customImageType) {
             case 'ENV':
               if (imageInfoFromNet.hasOwnProperty('customEnvImageList') && imageInfoFromNet.customEnvImageList.length > 0) {
-                this.serviceForm.customImageValue = this.imageInfoFromNet.customEnvImageList[0].imageName;
+                this.formData.customImageValue = this.imageInfoFromNet.customEnvImageList[0].imageName;
               }
               break;
             case 'PRIVATE':
@@ -1088,7 +1157,7 @@
         }).then(versionList => {
           this.currentPrivateAppVersionList = versionList;
           if (this.currentPrivateAppVersionList.length > 0) {
-//            this.serviceForm.customImageValue = this.currentPrivateAppVersionList[0];
+//            this.formData.customImageValue = this.currentPrivateAppVersionList[0];
           }
         }).catch(err => {
           console.log(err);
@@ -1112,19 +1181,19 @@
               this.$message.error('请输入512位以内的数字、字母、中划线、下划线');
               return;
             }
-            if (this.serviceForm.environments.length >= 10) {
+            if (this.formData.environments.length >= 10) {
               this.$message.error('最多输入10个');
               return;
             }
             let itemWithKey = null;
-            this.serviceForm.environments.some(it => {
+            this.formData.environments.some(it => {
               if (it.key === key) {
                 itemWithKey = it;
               }
               return itemWithKey;
             });
             if (!itemWithKey) {
-              this.serviceForm.environments.push({
+              this.formData.environments.push({
                 key: key,
                 value: value,
               });
@@ -1136,7 +1205,7 @@
             break;
           case 'delete':
             let index = key;
-            this.serviceForm.environments.splice(index, 1);
+            this.formData.environments.splice(index, 1);
             break;
         }
       },
@@ -1159,18 +1228,18 @@
               this.$message.error('域名格式不正确');
               return;
             }
-            if (this.serviceForm.hosts.length >= 10) {
+            if (this.formData.hosts.length >= 10) {
               this.$message.error('最多输入10个');
               return;
             }
             let itemWithIpAndDomain = null;
-            this.serviceForm.hosts.some(it => {
+            this.formData.hosts.some(it => {
               if (it.ip === ip && it.domain === domain) {
                 itemWithIpAndDomain = it;
               }
             });
             if (!itemWithIpAndDomain) {
-              this.serviceForm.hosts.push({
+              this.formData.hosts.push({
                 ip: ip,
                 domain: domain,
               });
@@ -1182,7 +1251,7 @@
             break;
           case 'delete':
             let index = key;
-            this.serviceForm.hosts.splice(index, 1);
+            this.formData.hosts.splice(index, 1);
             break;
         }
       },
@@ -1207,82 +1276,85 @@
             }
             break;
           case 'set-default-vmOptions':
-            this.serviceForm['vmOptions'] = `-server -Xmx2g -Xms2g -Xmn256m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=256m -Xss256k -XX:+UseConcMarkSweepGC -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -XX:+PrintGCTimeStamps -XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses -XX:+PrintGCDetails -XX:+PrintGCDateStamps`;
+            this.formData['vmOptions'] = `-server -Xmx2g -Xms2g -Xmn256m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=256m -Xss256k -XX:+UseConcMarkSweepGC -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -XX:+PrintGCTimeStamps -XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses -XX:+PrintGCDetails -XX:+PrintGCDateStamps`;
             break;
           case 'back':
             this.$router.go(-1);
             break;
           case 'submit':
-            this.$refs['serviceForm'].validate((valid) => {
-              if (this.serviceForm.portMap.errMsg) {
+            this.$refs['formData'].validate((valid) => {
+              if (this.formData.portMap.errMsg) {
                 valid = false;
               }
               if (this.getErrMsgForHealthCheck()) {
                 valid = false;
               }
               if (valid) {
-                this.serviceForm.customImage = this.imageSelectState.customImage;
+                this.formData.customImage = this.imageSelectState.customImage;
                 if (this.imageSelectState.customImage) {
-                  this.serviceForm.imageLocation = this.serviceForm.customImageValue;
+                  this.formData.imageLocation = this.formData.customImageValue;
                 } else {
-                  this.serviceForm.imageLocation = this.serviceForm.autoImageValue;
+                  this.formData.imageLocation = this.formData.autoImageValue;
                 }
-                let expiredDays = this.showExpiredDays() ? this.serviceForm.expiredDays : null;
-                let serviceForm = this.serviceForm;
+                let formData = this.formData;
                 let payload = {
-                  appId: serviceForm.appId,
-                  spaceId: serviceForm.spaceId,
-                  orchId: this.dataPassed.orchId,
-                  orchIP: this.dataPassed.orchIP,
-                  gitLabAddress: serviceForm.gitLabAddress,
-                  gitLabBranch: serviceForm.gitLabBranch,
-                  mainClass: serviceForm.mainClass,
-                  relativePath: serviceForm.relativePathOfParentPOM,
-                  vmOptions: serviceForm.vmOptions,
-                  appMonitor: serviceForm.appMonitor,
-                  mavenProfileId: serviceForm.mavenProfileId,
-                  rollingUpdate: serviceForm.rollingUpdate,
-                  loadBalance: serviceForm.loadBalance,
-                  initialDelaySeconds: serviceForm.initialDelaySeconds,
-                  cpuId: serviceForm.cpuID,
-                  memoryId: serviceForm.memoryID,
-                  environments: serviceForm.environments,
-                  hosts: serviceForm.hosts,
-                  instanceNum: serviceForm.instanceCount,
-                  customImage: serviceForm.customImage,
-                  image: serviceForm.imageLocation,
-                  prestopCommand: serviceForm.prestopCommand,
-                  expiredDays: expiredDays,
-                  packageType: serviceForm.packageInfo.type,
-                  buildName: serviceForm.packageInfo.name,
+                  appId: formData.appId,
+                  spaceId: formData.spaceId,
+                  orchId: this.passedData.orchId,
+                  orchIP: this.passedData.orchIP,
+                  gitLabAddress: formData.gitLabAddress,
+                  gitLabBranch: formData.gitLabBranch,
+                  mainClass: formData.mainClass,
+                  relativePath: formData.relativePathOfParentPOM,
+                  vmOptions: formData.vmOptions,
+                  appMonitor: formData.appMonitor,
+                  mavenProfileId: formData.mavenProfileId,
+                  rollingUpdate: formData.rollingUpdate,
+                  loadBalance: formData.loadBalance,
+                  initialDelaySeconds: formData.initialDelaySeconds,
+                  cpuId: formData.cpuID,
+                  memoryId: formData.memoryID,
+                  environments: formData.environments,
+                  hosts: formData.hosts,
+                  instanceNum: formData.instanceCount,
+                  customImage: formData.customImage,
+                  image: formData.imageLocation,
+                  prestopCommand: formData.prestopCommand,
+                  packageType: formData.packageInfo.type,
+                  buildName: formData.packageInfo.name,
                 };
                 payload.portsMapping = [{
-                  protocol: serviceForm.portMap.protocol,
-                  outerPort: serviceForm.portMap.outerPort,
-                  containerPort: serviceForm.portMap.containerPort,
+                  protocol: formData.portMap.protocol,
+                  outerPort: formData.portMap.outerPort,
+                  containerPort: formData.portMap.containerPort,
                 }];
+                if (this.formRelated.isProductionProfile) {
+                } else {
+                  payload.expiredDays = this.formData.expiredDays;
+                }
+
                 if (this.type === 'edit') {
-                  payload["id"] = this.dataPassed.id;
-                  payload.portsMapping[0]["id"] = this.dataPassed.portsMapping[0]["id"];
-                  payload["serviceName"] = this.dataPassed.serviceName;
+                  payload["id"] = this.passedData.id;
+                  payload.portsMapping[0]["id"] = this.passedData.portsMapping[0]["id"];
+                  payload["serviceName"] = this.passedData.serviceName;
                 }
                 if (this.$storeHelper.groupVersion !== 'v1') {
                   if (this.type === 'edit') {
-                    payload["serviceVersion"] = this.dataPassed.serviceVersion;
+                    payload["serviceVersion"] = this.passedData.serviceVersion;
                   } else {
                     payload["serviceVersion"] = 'default';
                   }
                 }
-                payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(serviceForm.healthCheckType);
-                switch (serviceForm.healthCheckType) {
+                payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(formData.healthCheckType);
+                switch (formData.healthCheckType) {
                   case 'http':
-                    payload.healthCheck = serviceForm.healthCheck.http;
+                    payload.healthCheck = formData.healthCheck.http;
                     break;
                   case 'shell':
-                    payload.healthCheck = serviceForm.healthCheck.shell;
+                    payload.healthCheck = formData.healthCheck.shell;
                     break;
                   case 'socket':
-                    payload.healthCheck = serviceForm.healthCheck.socket;
+                    payload.healthCheck = formData.healthCheck.socket;
                     break;
                 }
                 this.addToWaitingResponseQueue('submit');
@@ -1339,14 +1411,10 @@
         this.$refs[formName].resetFields();
       },
 
-      showExpiredDays() {
-        return this.profileInfo && this.profileInfo.spaceType.toUpperCase() !== 'PRODUCTION';
-      },
-
       getErrMsgForHealthCheck() {
         let errMsg = '';
-        const healthCheck = this.serviceForm.healthCheck;
-        switch (this.serviceForm.healthCheckType) {
+        const healthCheck = this.formData.healthCheck;
+        switch (this.formData.healthCheckType) {
           case 'http':
             const regForHttp = /^\/[A-Za-z0-9_\-\.\/]{1,99}$/;
             if (!regForHttp.exec(healthCheck.http)) {
@@ -1365,25 +1433,15 @@
         return errMsg;
       },
 
-      handleCustomImage() {
-        if (this.appLanguage.toUpperCase() === "JAVA") {
-          return false
-        } else if (this.appLanguage.toUpperCase() === "NODEJS" && this.$storeHelper.groupVersion === "v1") {
-          return false
-        } else {
-          return true
-        }
-      },
-
       initPackageInfoType(theData) {
-        let item = this.packageTypeList.find(it => {
+        let item = this.formRelated.packageTypeList.find(it => {
           return theData.packageType == it.type;
         });
         if (item) {
-          this.serviceForm.packageInfo.type = theData.packageType;
-          this.serviceForm.packageInfo.name = theData.buildName;
+          this.formData.packageInfo.type = theData.packageType;
+          this.formData.packageInfo.name = theData.buildName;
         } else {
-          this.serviceForm.packageInfo.type = this.packageTypeList[0].type;
+          this.formData.packageInfo.type = this.formRelated.packageTypeList[0].type;
         }
       }
     }

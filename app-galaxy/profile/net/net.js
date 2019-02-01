@@ -121,6 +121,7 @@ class Net extends NetBase {
         path: '/getInterfaceAccessCount',
         method: 'post'
       },
+      // TODO: not used
       'query_default_expired_days': {
         path: '/service/queryDefaultExpiredDays',
         method: 'post'
