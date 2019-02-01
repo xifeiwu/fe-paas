@@ -102,6 +102,10 @@ class Net extends NetBase {
         path: '/service/createApplicationService',
         method: 'post'
       },
+      'service_list_by_profile': {
+        path: '/service/queryByDetail',
+        method: 'post'
+      },
       // 获取服务信息（基本信息）
       'service_list_by_app_and_profile': {
         path: '/service/queryByAppIdAndSpaceId',
@@ -1210,10 +1214,17 @@ class Net extends NetBase {
     // 从service中摘取有用信息并封装到特定的数据格式中（部分属性进行了重命名）
     const getServiceModelList = (serviceList) => {
       let modelList = [];
+      const  LANGUAGE_MAP = {
+        'JAVA': 'java',
+        'NODE_JS': 'nodejs',
+        'PYTHON': 'python',
+        'PHP': 'php'
+      };
       Array.isArray(serviceList) && serviceList.forEach(service => {
         const item = {
           /** copy prop */
           language: service.language,
+          languageName: LANGUAGE_MAP[service.language],
           /** used for update prop */
           oneApm: service.oneapm,
           appMonitor: service.appMonitor,
@@ -1236,6 +1247,12 @@ class Net extends NetBase {
           vmOptions: service.vmOptions,
           instanceNum: service.instanceNum,
         };
+
+        ['id', 'appId', 'appName', 'tag', 'serviceName', 'languageVersion', 'languageName', 'remainExpiredDays',
+          'formattedCreateTime'].forEach(prop => {
+          service.hasOwnProperty(prop) && (item[prop] = service[prop]);
+        });
+
         // 更新healthCheck格式
         const healthCheck = {
           _type: '',
@@ -1297,7 +1314,7 @@ class Net extends NetBase {
           }
         };
         // 更新portMap格式
-        if (service.portsMapping.length > 0) {
+        if (service.portsMapping && service.portsMapping.length > 0) {
           portMap.id = service.portsMapping[0].id;
           portMap.protocol = service.portsMapping[0].protocol;
           portMap.outerPort = service.portsMapping[0].outerPort;
@@ -1339,9 +1356,12 @@ class Net extends NetBase {
       return modelList;
     };
 
-    if (resContent.hasOwnProperty('applicationServerList')) {
-      let serviceList = resContent['applicationServerList'];
+    var serviceList = null;
+    resContent.hasOwnProperty('applicationServerList') && (serviceList = resContent['applicationServerList']);
+    !serviceList && resContent.hasOwnProperty('applicationServiceList') && (serviceList = resContent['applicationServiceList']);
+    if (serviceList) {
       Array.isArray(serviceList) && serviceList.forEach(it => {
+        it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
         it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
 
         it.image = {

@@ -203,21 +203,24 @@
       &.el-tabs--border-tab {
         background-color: #f4f5f5;
         #tab-fpdev.is-active {
-          /*6c757d*/
-          border-top-color: #409EFF;
-          color: #409EFF;
+          border-top-color: $g-env-fpdev-color;
+          color: $g-env-fpdev-color;
         }
         #tab-test.is-active {
-          border-top-color: #28a745;
-          color: #28a745;
+          border-top-color: $g-env-test-color;
+          color: $g-env-test-color;
         }
         #tab-performance.is-active {
-          border-top-color: #17a2b8;
-          color: #17a2b8;
+          border-top-color: $g-env-performance-color;
+          color: $g-env-performance-color;
         }
         #tab-beta.is-active {
-          border-top-color: #ffc107;
-          color: #ffc107;
+          border-top-color: $g-env-beta-color;
+          color: $g-env-beta-color;
+        }
+        #tab-production.is-active {
+          border-top-color: $g-env-production-color;
+          color: $g-env-production-color;
         }
 
         >.el-tabs__header {
