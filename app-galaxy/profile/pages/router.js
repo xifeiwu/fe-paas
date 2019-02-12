@@ -103,7 +103,7 @@ class Helper {
       name: '添加服务',
       component: ServiceAdd,
     }, {
-      path: '/profile/service/edit',
+      path: '/profile/service/modify',
       name: '修改服务',
       component: ServiceAdd,
     }, {

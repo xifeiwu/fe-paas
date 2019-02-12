@@ -2,7 +2,7 @@
   <div id="service-add">
     <el-scrollbar>
       <div class="sheet">
-        <div class="section-title">{{type=='edit'?'修改服务':'创建服务'}}</div>
+        <div class="section-title">{{forModify ?'修改服务':'创建服务'}}</div>
         <el-form :model="formData" ref="formData"
                  :rules="rules" :label-width="appLanguage == 'JAVA' ? '200px' : '140px'" size="mini"
                  v-loading="showLoading"
@@ -10,17 +10,18 @@
           <el-form-item label="运行环境" class="profile-description">
             {{profileInfo? profileInfo.description: ''}}
           </el-form-item>
-          <el-form-item label="应用名称" class="app-name">
-            {{formRelated.appInfo ? formRelated.appInfo['appName'] : ''}}
+          <el-form-item label="应用名称" class="app-name" v-if="forModify">
+            {{formRelated.serviceInfo ? formRelated.serviceInfo['appName'] : ''}}
           </el-form-item>
+          <el-form-item label="应用名称" class="app-name" v-else>
+            <el-select v-model="formData.appId" placeholder="请选择" filterable>
+              <el-option v-for="item in dataPassed.appWithoutService" :key="item.appId" :label="item.appName" :value="item.appId">
+              </el-option>
+            </el-select>
+          </el-form-item>
+
           <el-form-item label="语言/版本" class="app-name">
-            {{formRelated.appInfo ? `${formRelated.appInfo.language.name} / ${formRelated.appInfo.language.version}` : ''}}
-          </el-form-item>
-          <el-form-item label="镜像方式" prop="customImage" class="custom-image">
-            <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="formRelated.isPythonLanguage">
-              <el-radio :label="false">自动打镜像</el-radio>
-              <el-radio :label="true">自定义镜像</el-radio>
-            </el-radio-group>
+            {{formRelated.serviceInfo ? `${formRelated.serviceInfo.language.name} / ${formRelated.serviceInfo.language.version}` : ''}}
           </el-form-item>
           <el-form-item class="build-type" label="构建类型" v-if="formRelated.packageTypeList.length > 0 && formRelated.isJavaLanguage && !imageSelectState.customImage" :error="formData.packageInfo.errMsg">
             <div class="flex-layout">
@@ -35,6 +36,12 @@
                 <el-input v-model="formData.packageInfo.name" placeholder="默认与项目名称一致"></el-input>
               </el-form-item>
             </div>
+          </el-form-item>
+          <el-form-item label="镜像方式" prop="customImage" class="custom-image">
+            <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="formRelated.isPythonLanguage">
+              <el-radio :label="false">自动打镜像</el-radio>
+              <el-radio :label="true">自定义镜像</el-radio>
+            </el-radio-group>
           </el-form-item>
 
           <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-if="!imageSelectState.customImage">
@@ -579,59 +586,66 @@
 //      console.log(dataTransfer);
       var goBack = false;
       this.type = dataTransfer['type'];
-      this.forModify = (this.$route['path'] == this.$net.page['profile/service/edit']);
+      this.forModify = (this.$route['path'] == this.$net.page['profile/service/modify']);
 
       const theData = dataTransfer.data;
+      // for compatible
+      // TODO: delete later
       this.passedData = theData;
+      console.log(theData);
       this.profileInfo = theData.profileInfo;
       this.dataPassed.profileInfo = theData.profileInfo;
       this.formData.spaceId = theData.profileInfo.id;
-
       this.formRelated.isProductionProfile = (this.dataPassed.profileInfo.spaceType.toUpperCase() === 'PRODUCTION');
-//      this.profileInfo = this.$storeHelper.getProfileInfoByID(this.formData.spaceId);
       if (this.forModify) {
-        // TODO: fix
-        this.formData.appId = theData.appId;
-        this.appLanguage = theData.language;
-        this.appLanguageVersion = theData.languageVersion;
+        const serviceInfo = theData.serviceInfo;
+        this.dataPassed.serviceInfo = serviceInfo;
+        if (serviceInfo) {
+//          console.log(serviceInfo);
+//          this.formRelated.serviceInfo = serviceInfo;
+          this.formData.appId = serviceInfo.appId;
+          this.appLanguage = serviceInfo.language.type;
+          this.appLanguageVersion = serviceInfo.language.version;
 //        this.packageTypeList = this.$storeHelper.getPackageTypeListByLanguageAndVersion(
 //          this.appLanguage,
 //          this.appLanguageVersion,
 //        );
 
-        this.initPackageInfoType(theData);
-        this.profileListOfCurrentApp = theData['appInfo']['profileList'];
-        if (this.$storeHelper.groupVersion == 'v1' && this.appLanguage.toUpperCase() === 'PYTHON') {
-          this.imageSelectState.customImage = true;
+//          this.profileListOfCurrentApp = serviceInfo['appInfo']['profileList'];
+          if (this.$storeHelper.groupVersion == 'v1' && this.appLanguage.toUpperCase() === 'PYTHON') {
+            this.imageSelectState.customImage = true;
+          } else {
+            this.imageSelectState.customImage = serviceInfo.customImage;
+          }
+          if(serviceInfo.customImage){
+            // set after requestImageRelatedInfo
+          } else {
+            // set after requestImageRelatedInfo
+          }
+          this.formData.gitLabAddress = serviceInfo.gitLabAddress;
+          this.formData.gitLabBranch = serviceInfo.gitLabBranch;
+          this.formData.appMonitor = serviceInfo.appMonitor;
+          this.formData.mainClass = serviceInfo.mainClass;
+          this.formData.relativePathOfParentPOM = serviceInfo.relativePath;
+          this.formData.mavenProfileId = serviceInfo.mavenProfileId;
+          this.formData.vmOptions = serviceInfo.vmOptions;
+          this.formData.instanceCount = serviceInfo.instanceNum;
+          this.formData.environments = serviceInfo.environments;
+          this.formData.hosts = serviceInfo.hosts;
+          this.formData.prestopCommand = serviceInfo.prestopCommand;
+          this.formData.cpuID = serviceInfo.cpuId;
+          this.formData.memoryID = serviceInfo.memoryId;
+          this.formData.rollingUpdate = serviceInfo.rollingUpdate;
+          this.formData.healthCheck.http = serviceInfo.healthCheck.type;
+          this.formData.initialDelaySeconds = serviceInfo.initialDelaySeconds;
+          this.formData.expiredDays = serviceInfo.remainExpiredDays;
+          if (serviceInfo.portMap.outerPort && serviceInfo.portMap.outerPort !== "") {
+            this.formData.portMap.outerPort = serviceInfo.portMap.outerPort;
+            this.formData.portMap.containerPort = serviceInfo.portMap.containerPort;
+            this.formData.portMap.update = true;
+          }
         } else {
-          this.imageSelectState.customImage = theData.customImage;
-        }
-        if(theData.customImage){
-          // set after requestImageRelatedInfo
-        } else {
-          // set after requestImageRelatedInfo
-        }
-        this.formData.gitLabAddress = theData.gitLabAddress;
-        this.formData.gitLabBranch = theData.gitLabBranch;
-        this.formData.appMonitor = theData.appMonitor;
-        this.formData.mainClass = theData.mainClass;
-        this.formData.relativePathOfParentPOM = theData.relativePath;
-        this.formData.mavenProfileId = theData.mavenProfileId;
-        this.formData.vmOptions = theData.vmOptions;
-        this.formData.instanceCount = theData.instanceNum;
-        this.formData.environments = theData.environments;
-        this.formData.hosts = theData.hosts;
-        this.formData.prestopCommand = theData.prestopCommand;
-        this.formData.cpuID = theData.cpuId;
-        this.formData.memoryID = theData.memoryId;
-        this.formData.rollingUpdate = theData.rollingUpdate;
-        this.formData.healthCheck.http = theData.healthCheck;
-        this.formData.initialDelaySeconds = theData.initialDelaySeconds;
-        this.formData.expiredDays = theData.remainExpiredDays;
-        if (theData.portsMapping[0].outerPort && theData.portsMapping[0].outerPort !== "") {
-          this.formData.portMap.outerPort = theData.portsMapping[0].outerPort;
-          this.formData.portMap.containerPort = theData.portsMapping[0].containerPort;
-          this.formData.portMap.update = true;
+          goBack = true;
         }
       } else {
         //Production appMonitor environment is selected by default
@@ -644,9 +658,6 @@
         } else {
           goBack = true;
         }
-        console.log(this.dataPassed.profileInfo);
-        console.log(this.dataPassed.appWithoutService);
-
 
 //        this.formData.packageInfo.type = this.packageTypeList[0].type;
         // set default cpu, default memorySizeList will be set in watch
@@ -702,7 +713,7 @@
           serviceInfo: null,
         },
         formRelated: {
-          appInfo: null,
+          serviceInfo: null,
           packageTypeList: [],
           /** 服务相关 */
           isJavaLanguage: false,
@@ -714,7 +725,7 @@
 //          showRemainingDays: false,
         },
 
-        profileListOfCurrentApp: [],
+//        profileListOfCurrentApp: [],
         formData: {
           appId: null,
           spaceId: null,
@@ -891,33 +902,51 @@
       },
     },
     watch: {
+      // 依赖appId的属性：serviceInfo, isJavaLanguage, isPythonLanguage, packageTypeList, this.formData.packageInfo.type
       'formData.appId': function (appId) {
+        var serviceInfo = null;
         if (this.forModify) {
-          this.formRelated.appInfo = this.dataPassed.appInfo;
+          serviceInfo = this.dataPassed.serviceInfo;
         } else {
-          this.formRelated.appInfo = this.dataPassed.appWithoutService.find(it => {
+          serviceInfo = this.dataPassed.appWithoutService.find(it => {
             return it['appId'] === appId;
           })
         }
+//        console.log(this.dataPassed);
+//        console.log(this.dataPassed.serviceInfo);
 
-        if (this.formRelated.appInfo) {
-          const appInfo = this.formRelated.appInfo;
-          this.formRelated.isJavaLanguage = appInfo.language.type === 'JAVA';
-          this.formRelated.isPythonLanguage = appInfo.language.type === 'PYTHON';
+        if (serviceInfo) {
+          this.formRelated.isJavaLanguage = serviceInfo.language.type === 'JAVA';
+          this.formRelated.isPythonLanguage = serviceInfo.language.type === 'PYTHON';
 
+          // get packageTypeList by languageType and languageVersion
           this.formRelated.packageTypeList = this.$storeHelper.getPackageTypeListByLanguageAndVersion(
-            appInfo.language.type,
-            appInfo.language.version,
+            serviceInfo.language.type,
+            serviceInfo.language.version,
           );
+        } else {
+          console.log('serviceInfo not found!');
+          return;
         }
+        this.formRelated.serviceInfo = serviceInfo;
 
         if (this.forModify) {
-
+          const packageInfo = serviceInfo['packageInfo'];
+          const item = this.formRelated.packageTypeList.find(it => {
+            return packageInfo.type == it.type;
+          });
+          if (item) {
+            this.formData.packageInfo.type = packageInfo.type;
+            this.formData.packageInfo.name = packageInfo.name;
+          } else {
+            this.formData.packageInfo.type = this.formRelated.packageTypeList[0].type;
+          }
         } else {
           this.formData.packageInfo.type = this.formRelated.packageTypeList[0].type;
         }
-        console.log(this.formRelated.appInfo);
-        console.log(this.formRelated.packageTypeList);
+
+//        console.log(this.formRelated.serviceInfo);
+//        console.log(this.formRelated.packageTypeList);
       },
       'formData.packageInfo.type': function (type) {
         this.requestImageRelatedInfo(type);
@@ -983,13 +1012,13 @@
       'formData.healthCheckType': function (type) {
         switch (type) {
           case 'http':
-//          this.createAppForm.healthCheck = '';
+//          this.formData.healthCheck = '';
             break;
           case 'shell':
-//          this.createAppForm.healthCheck = '';
+//          this.formData.healthCheck = '';
             break;
           case 'socket':
-            this.createAppForm.healthCheck.socket = 8080;
+            this.formData.healthCheck.socket = 8080;
             break;
         }
         this.getErrMsgForHealthCheck();
@@ -1432,18 +1461,6 @@
         this.errMsgForHealthCheck = errMsg;
         return errMsg;
       },
-
-      initPackageInfoType(theData) {
-        let item = this.formRelated.packageTypeList.find(it => {
-          return theData.packageType == it.type;
-        });
-        if (item) {
-          this.formData.packageInfo.type = theData.packageType;
-          this.formData.packageInfo.name = theData.buildName;
-        } else {
-          this.formData.packageInfo.type = this.formRelated.packageTypeList[0].type;
-        }
-      }
     }
   }
 </script>

@@ -1075,7 +1075,7 @@ export default {
           type: 'edit',
           data: JSON.parse(JSON.stringify(Object.assign(this.model, infoForAddService.content))),
         };
-        this.$router.push(this.$net.page['profile/service/edit']);
+        this.$router.push(this.$net.page['profile/service/modify']);
       }
     },
 

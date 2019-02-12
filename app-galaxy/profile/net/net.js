@@ -1249,10 +1249,35 @@ class Net extends NetBase {
           instanceNum: service.instanceNum,
         };
 
-        ['id', 'appId', 'appName', 'tag', 'serviceName', 'languageVersion', 'languageName', 'remainExpiredDays',
+        ['id', 'appId', 'appName', 'tag', 'serviceName', 'remainExpiredDays',
           'formattedCreateTime'].forEach(prop => {
           service.hasOwnProperty(prop) && (item[prop] = service[prop]);
         });
+
+
+        const language = {
+          version: service.languageVersion,
+          type: service.language,
+          get name() {
+            var name = '';
+            switch (this.type) {
+              case 'JAVA':
+                name = 'java';
+                break;
+              case 'NODE_JS':
+                name = 'nodejs';
+                break;
+              case 'PYTHON':
+                name = 'python';
+                break;
+              case 'PHP':
+                name = 'php';
+                break;
+            }
+            return name;
+          }
+        };
+        item.language = language;
 
         // 更新healthCheck格式
         const healthCheck = {
