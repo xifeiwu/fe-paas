@@ -506,7 +506,7 @@
         this.routeConfig = this.$router.helper.getConfigByRouterPath(path);
         if (this.routeConfig) {
           // whether show groupList
-          let pageNotShowGroupList = ['/profile/app/add', '/profile/service/add', '/profile/service/modify', '/profile/image/repo/version', '/profile/domain/white-list'];
+          let pageNotShowGroupList = ['/profile/app/add', '/profile/service/add', '/profile/service/modify', '/profile/service/detail', '/profile/image/repo/version', '/profile/domain/white-list'];
           let pageNotShowGroupListReg = /^\/profile\/(work-order\/(todo|list).*|config-server\/*)$/;
           if (pageNotShowGroupList.indexOf(path) > -1 || pageNotShowGroupListReg.exec(path)) {
             this.showGroupList = false;

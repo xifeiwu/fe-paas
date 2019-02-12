@@ -57,13 +57,6 @@
         <el-table-column label="操作" headerAlign="left" align="left" minWidth="180">
           <template slot-scope="scope">
             <el-button
-                    type="text"
-                    :class="['primary', 'flex']"
-                    @click="handleTRClick($event, 'service_edit', scope.$index, scope.row)">
-              <span>修改配置</span><i class="paas-icon-level-up"></i>
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
                     size="small"
                     type="text"
                     :loading="statusOfWaitingResponse('service_deploy') && action.row.appId == scope.row.appId"
@@ -99,6 +92,21 @@
                     @click="handleTRClick($event, 'service_delete', scope.$index, scope.row)"
                     :class="$storeHelper.permission['service_delete'].disabled ? 'disabled' : 'danger'">
               删除
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text"
+                    :class="['primary', 'flex']"
+                    @click="handleTRClick($event, 'service_edit', scope.$index, scope.row)">
+              <span>修改配置</span><i class="paas-icon-level-up"></i>
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    size="small"
+                    type="text"
+                    :class="['flex', 'primary']"
+                    @click="handleTRClick($event, 'go-to-page-service-detail-from-page-service', scope.$index, scope.row)">
+              <span>服务详情</span><i class="paas-icon-level-up"></i>
             </el-button>
             <div class="ant-divider"></div>
             <el-button
@@ -636,6 +644,8 @@
           case 'service_edit':
             this.goToPageServiceModify(row);
             break;
+          case 'go-to-page-service-detail-from-page-service':
+          case 'go-to-work-order-todo-add':
           case 'go-to-page-log-deploy-from-service':
           case 'go-to-instance-list':
           case 'go-page-domain-from-service':
@@ -643,6 +653,8 @@
               appId: row.appId,
               profileId: this.profileInfo.id,
               serviceId: row.id,
+              serviceInfo: row,
+              profileInfo: this.profileInfo
             };
 //            console.log(row);
 //            console.log(data);
@@ -655,6 +667,8 @@
               data
             };
             const PATH_MAP = {
+              'go-to-page-service-detail-from-page-service': this.$net.page['profile/service/detail'],
+              'go-to-work-order-todo-add': this.$net.page['profile/work-order/todo/add'],
               'go-to-page-log-deploy-from-service': this.$net.page['profile/log/deploy'],
               'go-to-instance-list': this.$net.page['profile/instance'],
               'go-page-domain-from-service': this.$net.page['profile/domain']

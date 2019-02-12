@@ -2,7 +2,7 @@ import AppMain from './app/main-v2.vue';
 import AppAdd from './app/add-v2.vue';
 
 // service
-import ServiceMain from './service/main-v2.vue';
+import serviceDetail from './service/detail.vue';
 import ServiceAdd from './service/add-v2.vue';
 import serviceList from './service/list.vue';
 
@@ -106,6 +106,10 @@ class Helper {
       path: '/profile/service/modify',
       name: '修改服务',
       component: ServiceAdd,
+    }, {
+      path: '/profile/service/detail',
+      name: '服务详情',
+      component: serviceDetail
     }, {
       path: '/profile/instance',
       name: '实例列表',

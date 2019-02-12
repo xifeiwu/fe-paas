@@ -68,6 +68,7 @@ class Net {
       'profile/service': '/profile/service',
       'profile/service/add': '/profile/service/add',
       'profile/service/modify': '/profile/service/modify',
+      'profile/service/detail': '/profile/service/detail',
       'profile/instance': '/profile/instance',
       'profile/monitor': '/profile/monitor',
       'profile/domain': '/profile/domain',
