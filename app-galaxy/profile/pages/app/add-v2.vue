@@ -43,7 +43,7 @@
         <el-input v-model="createAppForm.projectName"
                   placeholder="输入GitLab里的project名称。只能包含字母、数字、中划线，2-50个字符"></el-input>
       </el-form-item>
-      <el-form-item label="项目名称" prop="projectName" v-else>
+      <el-form-item label="项目名称" v-else>
         <span>{{createAppForm.projectName}}</span>
       </el-form-item>
 
