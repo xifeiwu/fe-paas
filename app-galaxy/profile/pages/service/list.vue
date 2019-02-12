@@ -135,17 +135,75 @@
             </el-button>
             <div class="ant-divider"></div>
             <el-button
+                    v-if="$storeHelper.groupVersion === 'v2'"
                     size="small"
                     type="text"
-                    v-if="$storeHelper.groupVersion === 'v2'"
                     @click="handleTRClick($event, 'go-page-domain-from-service', scope.$index, scope.row)"
                     :class="$storeHelper.permission['go-page-domain-from-service'].disabled ? 'disabled' : 'primary'">
               <span>配置外网二级域名</span><i class="paas-icon-level-up"></i>
+            </el-button>
+            <el-button
+                    v-if="false"
+                    size="small"
+                    type="text"
+                    @click="handleTRClick($event, 'v1-add-internetDomain', scope.$index, scope.row)"
+                    :class="['primary']">
+              <span>添加外网域名</span>
             </el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
+
+    <!--为v1团队添加外网域名-->
+    <el-dialog title="添加外网域名" :visible="action.name == 'v1-add-internetDomain'"
+               :close-on-click-modal="false"
+               class="internet-domain size-700"
+               @close="action.name = null"
+               v-if="action.name && action.row"
+    >
+      <el-tag type="warning" disable-transitions>
+        <i class="el-icon-warning"></i>
+        <span>老团队只支持添加一个外网域名（如想自助式配置外网域名和IP白名单，请联系Paas团队，进行应用迁移）</span>
+      </el-tag>
+      <el-form size="mini" label-width="120px" ref="changeInternetDomainForm">
+        <el-form-item label="将要添加的域名" :error="props4CreateDomain.errMsgForDomainList">
+          <div v-if="props4CreateDomain.domainToAdd.length > 0">
+            <el-tag class="domain-to-add"
+                    v-for="(item, index) in props4CreateDomain.domainToAdd"
+                    :key="index"
+                    closable
+                    type="success"
+                    size="small"
+                    @close="handleDomainInDialog($event, 'remove', item)"
+            >{{item}}</el-tag>
+          </div>
+          <div v-else>无</div>
+        </el-form-item>
+        <el-form-item label="外网二级域名" :error="props4CreateDomain.errMsgForDomainName">
+          <el-input v-model="props4CreateDomain.prefixName" placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"
+                    style="margin-bottom: 3px;"></el-input>
+          <el-select v-model="props4CreateDomain.subDomain"
+                     :placeholder="(props4CreateDomain.subDomainList && props4CreateDomain.subDomainList.length > 0) ? '请选择':'无数据'">
+            <el-option v-for="(item, index) in props4CreateDomain.subDomainList" :value="item.domainName" :label="item.domainName"
+                       :key="index"></el-option>
+          </el-select>
+          <el-button :class="['add-domain-btn', props4CreateDomain.domainToAdd.length > 0 ? 'disabled': '']"
+                     size="mini-extral" type="primary" @click="handleDomainInDialog($event, 'add')">添加</el-button>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="v1UpdateInternetDomain"
+                     :loading="waitingResponse">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="action.name = null">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
     <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="content">
         <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
@@ -255,6 +313,8 @@
     },
     data() {
       return {
+        // TODO: for change internetDomain, will change later
+        waitingResponse: false,
         heightOfTable: '',
 
         profileName: null,
@@ -284,6 +344,16 @@
           iconExpand: true
         },
 
+        props4CreateDomain: {
+          prefixName: '',
+          subDomain: '',
+          subDomainList: [],
+          domainToAdd: [],
+          // 校验规则：单个元素（语法校验）
+          errMsgForDomainName: '',
+          // 校验规则：域名数组（大于一个小于五个，无域名后缀）
+          errMsgForDomainList: ''
+        },
       }
     },
     methods: {
@@ -764,7 +834,127 @@
               this.hideWaitingResponse(action);
             }
             break;
+          case 'v1-add-internetDomain':
+            // 兼容v1，为v1团队添加外网域名
+//            if (this.model.internetDomainList.length > 0) {
+//              this.$storeHelper.globalPopover.show({
+//                ref: evt.target,
+//                msg: "老团队只支持添加一个外网域名（如想自助式配置外网域名和IP白名单，请联系Paas团队，进行应用迁移）"
+//              });
+//              break;
+//            }
+            const subDomainListByProfile = await this.$store.dispatch('app/getSubDomainByProfile', {
+              net: this.$net,
+              urlDesc: this.$net.URL_LIST.domain_level_1_list_all,
+              payload: {groupId: this.$storeHelper.currentGroupID}
+            });
+//            console.log(subDomainListByProfile);
+            this.props4CreateDomain.domainToAdd = [];
+            this.props4CreateDomain.prefixName = '';
+            this.props4CreateDomain.subDomain = '';
+            this.props4CreateDomain.errMsgForDomainName = '';
+            this.props4CreateDomain.errMsgForDomainList = '';
+            if (subDomainListByProfile.hasOwnProperty(this.profileInfo.name)) {
+              this.props4CreateDomain.subDomainList = subDomainListByProfile[this.profileInfo.name];
+              this.props4CreateDomain.subDomain = this.props4CreateDomain.subDomainList[0]['domainName'];
+            } else {
+              this.props4CreateDomain.subDomainList = [];
+            }
+            break;
         }
+      },
+
+      // TODO: for change internetDomain
+      // some init action for domain props
+      initDomainProps() {
+        this.props4CreateDomain.domainToAdd = [];
+        this.props4CreateDomain.prefixName = '';
+        this.props4CreateDomain.subDomain = '';
+        this.props4CreateDomain.errMsgForDomainName = '';
+        this.props4CreateDomain.errMsgForDomainList = '';
+      },
+
+      handleDomainInDialog(evt, action, domainItem) {
+        const domainToAdd = this.props4CreateDomain.domainToAdd;
+        switch (action) {
+          case 'remove':
+            if (domainToAdd.indexOf(domainItem) > -1) {
+              domainToAdd.splice(domainToAdd.indexOf(domainItem), 1);
+            }
+            break;
+          case 'add':
+            if (this.props4CreateDomain.domainToAdd.length > 0) {
+              this.$storeHelper.globalPopover.show({
+                ref: evt.target,
+                msg: '只支持添加一个外网域名'
+              });
+              return;
+            }
+            this.props4CreateDomain.prefixName = this.props4CreateDomain.prefixName.trim();
+
+            this.props4CreateDomain.errMsgForDomainName = '';
+            this.props4CreateDomain.errMsgForDomainList = '';
+
+            if (this.props4CreateDomain.subDomainList.length === 0) {
+              this.props4CreateDomain.errMsgForDomainName = '当前运行环境，域名后缀列表为空，无法创建。请联系Paas团队。';
+              return;
+            }
+            if (!/^[a-z0-9][a-z0-9\-]{0,62}$/.exec(this.props4CreateDomain.prefixName)) {
+              this.props4CreateDomain.errMsgForDomainName = '可以包含小写字符、数字、中划线，以字符数字开头，长度不超过63位';
+              return;
+            }
+//          if (domainToAdd.length >= 5) {
+//            this.props4CreateDomain.errMsgForDomainList = '每次最多添加五个';
+//            return;
+//          }
+            const domain = this.props4CreateDomain.prefixName + '.' + this.props4CreateDomain.subDomain;
+//          let item = null;
+//          domainToAdd.some(it => {
+//            if (it === domain) {
+//              item = it;
+//            }
+//            return item
+//          });
+//          if (item) {
+//            this.props4CreateDomain.errMsgForDomainName = `域名${domain}已经存在！`
+//            return;
+//          }
+            domainToAdd.push(domain);
+            this.props4CreateDomain.prefixName = '';
+            break;
+        }
+      },
+      v1UpdateInternetDomain() {
+        this.waitingResponse = true;
+        this.addToWaitingResponseQueue("update-internet-domain");
+        if (this.props4CreateDomain.domainToAdd.length === 0) {
+          this.props4CreateDomain.errMsgForDomainList = '至少添加一个域名！';
+          return;
+        }
+        const row = this.action.row;
+        let options = {
+          id: row.id,
+          appId: row.appId,
+          spaceId: this.profileInfo.id,
+        };
+        options['outerDomain'] = this.props4CreateDomain.domainToAdd[0];
+        this.$net.serviceUpdate('internetDomain', options).then(msg => {
+          this.$message({
+            type: 'success',
+            message: msg
+          });
+          // 只在更新成功后关闭弹框
+          this.showInternetDomainDialog = false;
+          this.requestServiceInfo(this.selectedAppID,this.selectedProfileID);
+        }).catch(errMsg => {
+//          this.$net.showError({
+//            title: '修改失败',
+//            message: errMsg
+//          })
+        }).finally(() => {
+          this.waitingResponse = false;
+          this.hideWaitingResponse("update-internet-domain");
+        });
       },
 
       // TODO: not used
