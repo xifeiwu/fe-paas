@@ -153,6 +153,19 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-container" v-if="totalSize > pageSize">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "pageSize"
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange"
+          >
+          </el-pagination>
+        </div>
+      </div>
     </div>
 
     <!--为v1团队添加外网域名-->
@@ -364,7 +377,7 @@
         try {
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
-          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+          this.heightOfTable = this.$el.clientHeight - headerHeight;
         } catch(err) {
         }
       },
@@ -989,8 +1002,9 @@
         });
         const parsedResContent = this.$net.parseServiceList(resContent);
         this.serviceList = parsedResContent['serviceModelList'];
-        this.serviceListByPage = this.serviceList;
         this.totalSize = parsedResContent.total;
+        this.currentPage = 1;
+        this.getServiceListByPage();
 
         this.appIdWithoutService = [];
         if (parsedResContent.hasOwnProperty('tobeInsertList')) {
@@ -998,7 +1012,26 @@
           this.appWithoutService = this.getAppWithoutService();
         }
         console.log(parsedResContent);
-      }
+      },
+
+      /**
+       * 获取详情
+       * 详情信息与列表信息的逻辑的不同：应用数列表是分页请求；应用数详情是完整请求
+       */
+      getServiceListByPage() {
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.pageSize;
+        const length = this.pageSize;
+        const end = start + length;
+        this.serviceListByPage = this.serviceList.slice(start, end);
+      },
+
+      // the first page of pagination is 1
+      handlePaginationPageChange(page) {
+        this.currentPage = page;
+        this.getServiceListByPage({});
+      },
     }
   }
 </script>
