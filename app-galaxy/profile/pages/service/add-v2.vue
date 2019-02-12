@@ -4,7 +4,7 @@
       <div class="sheet">
         <div class="section-title">{{forModify ?'修改服务':'创建服务'}}</div>
         <el-form :model="formData" ref="formData"
-                 :rules="rules" :label-width="appLanguage == 'JAVA' ? '200px' : '140px'" size="mini"
+                 :rules="rules" :label-width="formRelated.isJavaLanguage ? '140px' : '140px'" size="mini"
                  v-loading="showLoading"
                  :element-loading-text="loadingText">
           <el-form-item label="运行环境" class="profile-description">
@@ -603,16 +603,15 @@
         if (serviceInfo) {
 //          console.log(serviceInfo);
 //          this.formRelated.serviceInfo = serviceInfo;
+          this.formRelated.languageInfo = serviceInfo.language;
           this.formData.appId = serviceInfo.appId;
-          this.appLanguage = serviceInfo.language.type;
-          this.appLanguageVersion = serviceInfo.language.version;
 //        this.packageTypeList = this.$storeHelper.getPackageTypeListByLanguageAndVersion(
 //          this.appLanguage,
 //          this.appLanguageVersion,
 //        );
 
 //          this.profileListOfCurrentApp = serviceInfo['appInfo']['profileList'];
-          if (this.$storeHelper.groupVersion == 'v1' && this.appLanguage.toUpperCase() === 'PYTHON') {
+          if (this.$storeHelper.groupVersion == 'v1' && this.formRelated.languageInfo.type.toUpperCase() === 'PYTHON') {
             this.imageSelectState.customImage = true;
           } else {
             this.imageSelectState.customImage = serviceInfo.customImage;
@@ -704,8 +703,6 @@
           autoImageValue: false
         },
         profileInfo: null,
-        appLanguage: null,
-        appLanguageVersion: null,
         passedData: {},
         dataPassed: {
           appWithoutService: null,
@@ -715,6 +712,8 @@
         formRelated: {
           serviceInfo: null,
           packageTypeList: [],
+          /** 语言相关 */
+          languageInfo: null,
           /** 服务相关 */
           isJavaLanguage: false,
           // python不支持修改镜像类型
@@ -942,9 +941,9 @@
             this.formData.packageInfo.type = this.formRelated.packageTypeList[0].type;
           }
         } else {
+          this.formRelated.languageInfo = serviceInfo.language;
           this.formData.packageInfo.type = this.formRelated.packageTypeList[0].type;
         }
-
 //        console.log(this.formRelated.serviceInfo);
 //        console.log(this.formRelated.packageTypeList);
       },
@@ -1095,8 +1094,8 @@
           const results = await this.$net.getImageRelatedInfo({
             groupTag,
             appId,
-            language: this.appLanguage,
-            languageVersion: this.appLanguageVersion,
+            language: this.formRelated.languageInfo.type,
+            languageVersion: this.formRelated.languageInfo.version,
             packageType: type,
           }, {
             groupTag,
