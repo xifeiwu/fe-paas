@@ -89,12 +89,6 @@ class URL extends BaseURL {
         path: '/service/deploy/log',
         method: 'post'
       },
-      // 删除服务
-      'service_delete': {
-        url: API_PATH + '/service/deleteApplicationService',
-        path: '/service/deleteApplicationService',
-        method: 'post'
-      },
       // 停止服务
       'service_stop': {
         url: API_PATH + '/service/stopApplicationService',

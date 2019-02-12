@@ -315,11 +315,11 @@ class StoreHelper extends BaseHelper{
   //   }],
   //   "type": "JAVA"
   // }]
-  getPackageTypeListByLanguageAndVersion(language, version) {
+  getPackageTypeListByLanguageAndVersion(languageType, version) {
     const languageInfo = this.languageInfo;
     let versionList = null;
     languageInfo.some(it => {
-      if (it.languageDesc.toLowerCase() == language.toLowerCase()) {
+      if (it.language == languageType) {
         versionList = it.languageVersionList;
       }
       return versionList;

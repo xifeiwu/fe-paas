@@ -631,6 +631,7 @@
         }
         this.action.name = action;
         this.action.row = row;
+        var resContent = null;
         switch (action) {
           case 'service_edit':
             this.goToPageServiceModify(row);
@@ -690,6 +691,60 @@
                 }, action);
                 this.hideWaitingResponse(action);
               }
+            } catch (err) {
+              console.log(err);
+              this.hideWaitingResponse(action);
+            }
+            break;
+          case 'service_stop':
+            this.addToWaitingResponseQueue(action);
+            var desc = this.getVersionDescription();
+            this.$confirm(`停止将会导致${desc}不可用，但不会删除代码及配置信息，你确定需要这么做吗?`).then(() => {
+              this.$net.serviceStop({
+                id: row.id,
+                appId: row.appId,
+                spaceId: this.profileInfo.id,
+              }).then(msg => {
+                this.hideWaitingResponse(action);
+                this.$message({
+                  type: 'success',
+                  message: msg
+                });
+              }).catch(err => {
+                this.hideWaitingResponse(action);
+                this.$notify({
+                  title: '提示',
+                  message: err,
+                  duration: 0,
+                  onClose: function () {
+                  }
+                });
+                console.log(err);
+              });
+            }).catch(() => {
+              this.hideWaitingResponse(action);
+            });
+            break;
+          case 'service_delete':
+            this.addToWaitingResponseQueue(action);
+            var desc = this.getVersionDescription();
+            try {
+              await this.warningConfirm(`删除服务将会销毁${desc}的代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。`);
+              await this.warningConfirm(`你确认要删除${desc}，并清除该服务的一切数据？`);
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_delete, {
+                payload: {
+                  id: row.id,
+                  appId: row.appId,
+                  spaceId: this.profileInfo.id,
+                }
+              });
+              this.hideWaitingResponse(action);
+              this.$message({
+                type: 'success',
+                message: msg
+              });
+              this.$net.needUpdateAppList = true;
+              this.requestServiceList();
             } catch (err) {
               console.log(err);
               this.hideWaitingResponse(action);

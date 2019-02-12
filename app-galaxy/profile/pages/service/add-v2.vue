@@ -911,9 +911,8 @@
             return it['appId'] === appId;
           })
         }
-//        console.log(this.dataPassed);
-//        console.log(this.dataPassed.serviceInfo);
 
+//        console.log(serviceInfo);
         if (serviceInfo) {
           this.formRelated.isJavaLanguage = serviceInfo.language.type === 'JAVA';
           this.formRelated.isPythonLanguage = serviceInfo.language.type === 'PYTHON';

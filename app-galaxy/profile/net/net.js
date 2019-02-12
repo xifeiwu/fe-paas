@@ -116,6 +116,11 @@ class Net extends NetBase {
         path: '/service/getRuntimeAppConfig',
         method: 'post'
       },
+      // 删除服务
+      'service_delete': {
+        path: '/service/deleteApplicationService',
+        method: 'post'
+      },
       // 获取域名请求相关信息
       'service_info_request_statistic': {
         path: '/getInterfaceAccessCount',
@@ -1503,6 +1508,7 @@ class Net extends NetBase {
     });
   }
 
+  // TODO: not used
   serviceDelete(options) {
     return new Promise((resolve, reject) => {
       axios.post(URL_LIST.service_delete.url, options).then(response => {
