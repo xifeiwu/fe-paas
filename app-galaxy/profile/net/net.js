@@ -1250,6 +1250,8 @@ class Net extends NetBase {
         };
 
         ['id', 'appId', 'appName', 'tag', 'serviceName', 'remainExpiredDays',
+          'containerStatus', // 运行状态：几个实例；几个运行中实例
+          'k8s', // 是否是k8s应用
           'formattedCreateTime'].forEach(prop => {
           service.hasOwnProperty(prop) && (item[prop] = service[prop]);
         });

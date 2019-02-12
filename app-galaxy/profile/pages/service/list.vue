@@ -66,21 +66,21 @@
             <el-button
                     size="small"
                     type="text"
-                    :loading="statusOfWaitingResponse('service_deploy')"
+                    :loading="statusOfWaitingResponse('service_deploy') && action.row.appId == scope.row.appId"
                     v-if="!isProductionProfile"
                     @click="handleTRClick($event, 'service_deploy', scope.$index, scope.row)"
                     :class="$storeHelper.permission['service_deploy'].disabled ? 'disabled' : 'danger'">
-                  {{statusOfWaitingResponse('deploy') ? '部署中': '部署'}}
+                  {{statusOfWaitingResponse('deploy') && action.row.appId == scope.row.appId ? '部署中': '部署'}}
             </el-button>
             <div class="ant-divider"></div>
             <el-button
                     size="small"
                     v-if="!isProductionProfile"
                     type="text"
-                    :loading="statusOfWaitingResponse('quick_deploy')"
+                    :loading="statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId"
                     @click="handleTRClick($event, 'quick_deploy', scope.$index, scope.row)"
-                    :class="reason4DisableQuickDeploy() ? 'disabled' : 'danger'">
-                  {{statusOfWaitingResponse('quick_deploy') ? '部署中': '重启'}}
+                    :class="reason4DisableQuickDeploy(scope.row) ? 'disabled' : 'danger'">
+                  {{statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId ? '重启中': '重启'}}
             </el-button>
             <div class="ant-divider"></div>
             <el-button
@@ -138,6 +138,11 @@
         </el-table-column>
       </el-table>
     </div>
+    <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
+      <div slot="content">
+        <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
+      </div>
+    </paas-dialog-for-log>
   </div>
 </template>
 <style lang="scss">
@@ -204,7 +209,9 @@
 </style>
 <script>
   import commonUtils from 'assets/components/mixins/common-utils';
+  import paasDialogForLog from '../components/dialog4log.vue';
   export default {
+    components: {paasDialogForLog},
     mixins: [commonUtils],
     created() {
     },
@@ -221,6 +228,9 @@
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
       '$storeHelper.profileListOfGroup': 'onProfileList',
+      '$storeHelper.appInfoListOfGroup': function() {
+        this.getAppWithoutService();
+      },
       // changed by el-tab
       profileName(profileName) {
         var target = null;
@@ -244,6 +254,9 @@
         isProductionProfile: false,
         serviceList: [],
         serviceListByPage: [],
+        // 没有服务的appId列表
+        appIdWithoutService: [],
+        // 没有服务的app详情列表
         appWithoutService: [],
 
         totalSize: 0,
@@ -253,7 +266,15 @@
         action: {
           name: null,
           row: null
-        }
+        },
+
+        deployLogs: [],
+        dialogForLogStatus: {
+          visible: false,
+          full: false,
+          showLoading: false,
+          iconExpand: true
+        },
 
       }
     },
@@ -288,6 +309,7 @@
       },
 
       // collect all related info for add-service before jump to page service/add
+      // TODO: not used
       getInfoForAddService() {
         let result = {
           success: false,
@@ -336,11 +358,24 @@
         return result;
       },
 
+      // 获取制定运行环境下没有服务的应用列表（只有没有服务的应用才可以创建服务）
+      getAppWithoutService() {
+        var appWithoutService = [];
+        if (!this.$storeHelper.appInfoListOfGroup) {
+          console.log('未获得应用列表信息');
+        } else {
+          appWithoutService = this.$storeHelper.appInfoListOfGroup['appModelList'].filter(it => {
+            return this.appIdWithoutService.indexOf(it['appId']) > -1;
+          });
+        }
+        return appWithoutService;
+      },
 
       goToPageServiceAdd() {
         const basicInfo = {
           profileInfo: this.profileInfo
         };
+        this.appWithoutService = this.getAppWithoutService();
         this.$storeHelper.dataTransfer = {
           from: this.$net.page['profile/service'],
           data: Object.assign(basicInfo, {
@@ -378,41 +413,215 @@
               serviceInfo: model
             })))
           };
-          console.log(this.appWithoutService);
-          console.log(model);
+//          console.log(model);
           this.$router.push(this.$net.page['profile/service/modify']);
         } else {
 
         }
       },
 
-      // add/modify service
-      // TODO: not used
-      goToPageServiceAdd1(type) {
-        const infoForAddService = this.getInfoForAddService();
-        if (!infoForAddService.success) {
-          this.$message.error(infoForAddService.message);
+      // 是否支持快速部署：1. 是k8s应用，2. 有正在运行的实例
+      reason4DisableQuickDeploy(row) {
+        var reason = false;
+        if (row) {
+          if (row['k8s'] !== 1) {
+            reason = '老mesos应用不支持';
+          } else if (row['containerStatus'] && row['containerStatus']['Running'] == 0) {
+            reason = '运行实例数为0，不能进行重启操作！';
+          }
+        }
+        return reason;
+      },
+
+      getVersionDescription() {
+        if (!this.action.row) {
           return;
         }
-        // 没有服务就是添加，有服务就是修改
-        if (type === 'edit') {
-          this.$storeHelper.dataTransfer = {
-            from: this.$net.page['profile/service'],
-            type: 'edit',
-            data: JSON.parse(JSON.stringify(Object.assign(this.model, infoForAddService.content))),
+        const row = this.action.row;
+        const profileInfo = this.profileInfo;
+        const description = profileInfo && profileInfo.hasOwnProperty('description') ? profileInfo.description : '';
+        const desc = `应用"${row.appName}:${description}"的服务`;
+        return desc;
+      },
+
+      expiredDaysAutoAdd() {
+        if (!this.action.row) {
+          return;
+        }
+        const row = this.action.row;
+
+        if(!this.isProductionProfile){
+          let options = {
+            appId: row.appId,
+            spaceId: this.profileInfo.id,
+            id: row.id,
+            expiredDays: 1,
+            remainExpiredDays: row.remainExpiredDays,
           };
-          this.$router.push(this.$net.page['profile/service/modify']);
+          this.$net.serviceUpdate("expiredDays", options).then(msg => {
+            if(row.remainExpiredDays >= 0) {
+              row.remainExpiredDays += 1;
+            }else{
+              row.remainExpiredDays = 1;
+            }
+          }).catch(errMsg => {
+            console.log(errMsg);
+          })
+        }
+      },
+      // 部署服务
+      async serviceDeploy(payload, type) {
+        // request and show log
+        const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
+        const parseDeployLog = (logs) => {
+          var logObjList = logs ? logs.split('\n').filter(it => {
+            return it;
+          }).map(it => {
+            var logObj = {
+              LOG: '',
+              TYPE: 'DEFAULT'
+            };
+            try {
+              var parsedLog = JSON.parse(it);
+              if (this.$utils.isObject(parsedLog) && parsedLog.hasOwnProperty('TYPE') && parsedLog.hasOwnProperty('LOG')) {
+                logObj = parsedLog;
+              } else {
+                throw new Error('格式不正确');
+              }
+            } catch (err) {
+              logObj['LOG'] = it;
+            }
+            return logObj;
+          }) : [];
+
+          logObjList.forEach(it => {
+            // replace white-space with &nbsp
+            it['LOG'] = it['LOG'].replace(/^( *)(.*)$/, (match, p1, p2) => {
+              return '&nbsp;'.repeat(p1.length) + p2;
+            }).replace(filterReg, (match, p1, p2, offset, string) => {
+              // console.log(match, p1, offset, string);
+              p2 = p2.replace(/(BUILD )*SUCCESS/g, (match, p1, offset, string) => {
+                return `<span class="success">${match}</span>`;
+              });
+              p2 = p2.replace(/BUILD FAILURE/g, (match, p1, offset, string) => {
+                return `<span class="error">${match}</span>`;
+              });
+              let result = '';
+              switch (p1.toUpperCase()) {
+                case 'INFO':
+                  result = `[<span class="info">${p1}</span>]${p2}`;
+                  break;
+                case 'WARNING':
+                  result = `[<span class="warning">${p1}</span>]${p2}`;
+                  break;
+                case 'ERROR':
+                  result = `[<span class="error">${p1}</span>]<span class="error">${p2}</span>`;
+                  break;
+              }
+              return result;
+            })
+          });
+          return logObjList;
+        };
+
+        // recursive function to fetch log from server with options {logName, logPath, offset}
+        const getDeployLog = async (options) => {
+          // stop request deploy log when the window is closed
+          if (!this.dialogForLogStatus.visible) {
+            return Promise.reject('弹框关闭');
+          }
+          const resContent = await this.$net.serviceGetDeployLog(options);
+          if (resContent.hasOwnProperty('Orchestration')) {
+            const orchestration = resContent['Orchestration'];
+            orchestration.logList = parseDeployLog(orchestration.log);
+            return orchestration;
+          } else {
+            throw new Error('格式不正确');
+          }
+        };
+
+        const desc = this.getVersionDescription();
+
+        var warningMsg = `您确认要部署${desc}吗?`;
+        if (type == 'quick_deploy') {
+          warningMsg = `<p>您确认要重启${desc}吗?</p><p style="color: #E6A23C; font-size: 12px;">(重启：采用最近一次部署成功的镜像进行服务的重新启动，跳过代码编译、镜像生成阶段)</p>`;
+        }
+        const urlDesc = type == 'quick_deploy' ? this.$net.URL_LIST.service_quick_deploy : this.$net.URL_LIST.service_deploy;
+        //      await this.warningConfirm(warningMsg);
+        await this.$confirm(warningMsg, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          dangerouslyUseHTMLString: true
+        });
+        const resContent = await this.$net.requestPaasServer(urlDesc, {
+          payload
+        });
+        //每次点击部署,过期时间自动加1
+        this.expiredDaysAutoAdd();
+        if (resContent.hasOwnProperty('orchestration')) {
+          this.deployLogs = [];
+          this.dialogForLogStatus.visible = true;
+          this.dialogForLogStatus.showLoading = true;
+          var orchestration = resContent['orchestration'];
+          var moreData = orchestration && orchestration['moreData'];
+
+          var deployLogQueue = [];
+          var preItem = null, nextItem = null;
+          const tagUpdateDeployLog = setInterval(() => {
+            if (!moreData && deployLogQueue.length === 0) {
+              clearInterval(tagUpdateDeployLog);
+              return;
+            }
+            nextItem = deployLogQueue.shift();
+            if (!nextItem) {
+              return;
+            }
+            if (nextItem['TYPE'] === 'DOWNLOAD' && preItem['TYPE'] === 'DOWNLOAD') {
+              this.deployLogs.pop();
+              this.deployLogs.push(nextItem['LOG']);
+            } else {
+              this.deployLogs.push(nextItem['LOG']);
+            }
+            preItem = nextItem;
+            // scroll after render finish
+            this.$nextTick(() => {
+              if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
+                const dialogForDeployLog = this.$refs['dialogForDeployLog'];
+                dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+              }
+            });
+          }, 10);
+
+          while(moreData) {
+            await new Promise((resolve) => {
+              setTimeout(resolve, 1500);
+            });
+            orchestration = await getDeployLog({
+              logName: orchestration.logName,
+              logPath: orchestration.logPath,
+              offset: null == orchestration.offset ? 0 : orchestration.offset,
+              // 正在部署中的日志
+              logType: 'deployLog'
+            });
+//          console.log(orchestration);
+            if (orchestration && orchestration.hasOwnProperty('logList')) {
+              // stop showLoading when orchestration.log is not null
+              this.dialogForLogStatus.showLoading = false;
+              deployLogQueue = deployLogQueue.concat(orchestration['logList']);
+            }
+            moreData = orchestration && orchestration['moreData'];
+          }
+          return Promise.reject('已拉取所有日志');
         } else {
-          this.$storeHelper.dataTransfer = {
-            from: this.$net.page['profile/service'],
-            type: 'add',
-            data: infoForAddService.content
-          };
-          this.$router.push(this.$net.page['profile/service/add']);
+          return Promise.reject({
+            title: '数据格式错误',
+            message: '未找到orchestration'
+          })
         }
       },
 
-      handleTRClick(evt, action, index, row) {
+      async handleTRClick(evt, action, index, row) {
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
@@ -434,8 +643,8 @@
               profileId: this.profileInfo.id,
               serviceId: row.id,
             };
-            console.log(row);
-            console.log(data);
+//            console.log(row);
+//            console.log(data);
             if (!data.appId || !data.profileId || !data.serviceId) {
               this.$message.error('所需信息不完整！');
               return;
@@ -451,20 +660,42 @@
             };
             this.$router.push(PATH_MAP[action]);
             break;
+          case 'service_deploy':
+            this.addToWaitingResponseQueue(action);
+            try {
+              await this.serviceDeploy({
+                id: row.id,
+                appId: row.appId,
+                spaceId: this.profileInfo.id,
+              }, action);
+            } catch (err) {
+              console.log(err);
+              this.hideWaitingResponse(action);
+            }
+            break;
+          case 'quick_deploy':
+            try {
+              let reason = this.reason4DisableQuickDeploy(row);
+              if (reason) {
+                this.$storeHelper.globalPopover.show({
+                  ref: evt.target,
+                  msg: reason
+                });
+              } else {
+                this.addToWaitingResponseQueue(action);
+                await this.serviceDeploy({
+                  id: row.id,
+                  appId: row.appId,
+                  spaceId: this.profileInfo.id,
+                }, action);
+                this.hideWaitingResponse(action);
+              }
+            } catch (err) {
+              console.log(err);
+              this.hideWaitingResponse(action);
+            }
+            break;
         }
-      },
-
-      // 是否支持快速部署：1. 是k8s应用，2. 有正在运行的实例
-      reason4DisableQuickDeploy() {
-        var reason = false;
-//        if (this.model && this.runningInfo) {
-//          if (this.model['k8s'] !== 1) {
-//            reason = '老mesos应用不支持';
-//          } else if (!this.runningInfo['status'] || !this.runningInfo['status']['Running'] || this.runningInfo['status']['Running'] == 0) {
-//            reason = '运行实例数为0，不能进行重启操作！';
-//          }
-//        }
-        return reason;
       },
 
       // TODO: not used
@@ -502,11 +733,10 @@
         this.serviceListByPage = this.serviceList;
         this.totalSize = parsedResContent.total;
 
-        this.appWithoutService = [];
+        this.appIdWithoutService = [];
         if (parsedResContent.hasOwnProperty('tobeInsertList')) {
-          this.appWithoutService = this.$storeHelper.appInfoListOfGroup['appModelList'].filter(it => {
-            return parsedResContent['tobeInsertList'].indexOf(it['appId']) > -1;
-          });
+          this.appIdWithoutService = parsedResContent['tobeInsertList'];
+          this.appWithoutService = this.getAppWithoutService();
         }
         console.log(parsedResContent);
       }
