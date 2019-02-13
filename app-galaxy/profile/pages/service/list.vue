@@ -43,6 +43,16 @@
         <el-table-column label="应用名称" prop="appName" headerAlign="left" align="left" minWidth="100"></el-table-column>
         <el-table-column label="项目名称" prop="tag" headerAlign="left" align="left" minWidth="100"></el-table-column>
         <el-table-column label="二级域名" prop="serviceName" headerAlign="left" align="left" minWidth="100"></el-table-column>
+        <el-table-column
+                prop="applicationServiceStatus"
+                label="运行实例数/总实例数"
+                width="160"
+                headerAlign="center" align="center"
+        >
+          <template slot-scope="scope">
+            {{scope.row.k8s === 1 ? scope.row.instanceCount : '---' }}
+          </template>
+        </el-table-column>
         <el-table-column label="剩余有效时间" prop="remainExpiredDays" headerAlign="center" align="center" width="100"></el-table-column>
         <el-table-column label="创建日期" prop="formattedCreateTime" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
@@ -836,11 +846,7 @@
                 }
               });
               this.hideWaitingResponse(action);
-              this.$message({
-                type: 'success',
-                message: msg
-              });
-              this.$net.needUpdateAppList = true;
+//              this.$net.needUpdateAppList = true;
               this.requestServiceList();
             } catch (err) {
               console.log(err);

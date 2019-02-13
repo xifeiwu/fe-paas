@@ -1261,6 +1261,12 @@ class Net extends NetBase {
           service.hasOwnProperty(prop) && (item[prop] = service[prop]);
         });
 
+        // props check for service model
+        if (item['containerStatus']) {
+          item.instanceCount = `${item['containerStatus'].Running}/${item['containerStatus'].Total}`;
+        } else {
+          item.instanceCount = '---';
+        }
 
         const language = {
           version: service.languageVersion,
