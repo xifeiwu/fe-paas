@@ -64,7 +64,7 @@
             <div v-else>{{scope.row.formattedCreateTime}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" headerAlign="left" align="left" minWidth="180">
+        <el-table-column label="操作" headerAlign="left" align="left" minWidth="200">
           <template slot-scope="scope">
             <el-button
                     size="small"
@@ -171,7 +171,7 @@
                   layout="prev, pager, next"
                   :page-size = "pageSize"
                   :total="totalSize"
-                  @current-change="handlePaginationPageChange"
+                  @current-change="page => {currentPage = page}"
           >
           </el-pagination>
         </div>
@@ -309,16 +309,18 @@
       this.$nextTick(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
       });
-      // first requestServiceList will be called by change of profileName
-      // this.requestServiceList();
-
-//      if (this.$storeHelper.profileListOfGroup)
+      // NOTICE: getServiceListByPage will be called by change of profileName
+//      this.getServiceListByPage();
     },
     watch: {
-      '$storeHelper.screen.size': 'onScreenSizeChange',
-      '$storeHelper.profileListOfGroup': 'onProfileList',
-      '$storeHelper.appInfoListOfGroup': function() {
-        this.getAppWithoutService();
+      '$storeHelper.currentGroupID': function (value, oldValue) {
+        this.getServiceListByPage({
+          refresh: true,
+          currentPage: 1
+        });
+      },
+      'currentPage': function (page) {
+        this.getServiceListByPage({});
       },
       // changed by el-tab
       profileName(profileName) {
@@ -331,8 +333,16 @@
         if (target) {
           this.profileInfo = target;
         }
-        this.requestServiceList();
-      }
+        this.getServiceListByPage({
+          refresh: true,
+          currentPage: 1
+        });
+      },
+      '$storeHelper.screen.size': 'onScreenSizeChange',
+      '$storeHelper.profileListOfGroup': 'onProfileList',
+      '$storeHelper.appInfoListOfGroup': function() {
+        this.getAppWithoutService();
+      },
     },
     data() {
       return {
@@ -404,7 +414,10 @@
             this.goToPageServiceAdd();
             break;
           case 'refresh-list':
-            this.requestServiceList();
+            this.getServiceListByPage({
+              refresh: true,
+              currentPage: 1
+            });
             break;
         }
       },
@@ -846,8 +859,9 @@
                 }
               });
               this.hideWaitingResponse(action);
-//              this.$net.needUpdateAppList = true;
-              this.requestServiceList();
+              this.getServiceListByPage({
+                refresh: true
+              });
             } catch (err) {
               console.log(err);
               this.hideWaitingResponse(action);
@@ -998,6 +1012,10 @@
         return serviceList.map(transform);
       },
 
+      /**
+       * request service list from server
+       * only called by getServiceListByPage
+       */
       async requestServiceList() {
         this.serviceList = [];
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_profile, {
@@ -1009,34 +1027,39 @@
         const parsedResContent = this.$net.parseServiceList(resContent);
         this.serviceList = parsedResContent['serviceModelList'];
         this.totalSize = parsedResContent.total;
-        this.currentPage = 1;
-        this.getServiceListByPage();
 
         this.appIdWithoutService = [];
         if (parsedResContent.hasOwnProperty('tobeInsertList')) {
           this.appIdWithoutService = parsedResContent['tobeInsertList'];
           this.appWithoutService = this.getAppWithoutService();
         }
-        console.log(parsedResContent);
+//        console.log(parsedResContent);
       },
 
       /**
-       * 获取详情
-       * 详情信息与列表信息的逻辑的不同：应用数列表是分页请求；应用数详情是完整请求
+       * 获取分页的服务列表
+       * @param refresh, request service list from server or not
+       * @param currentPage, set currentPage by code
        */
-      getServiceListByPage() {
-        let page = this.currentPage - 1;
+      async getServiceListByPage({refresh = false, currentPage = null}) {
+        if (refresh) {
+          await this.requestServiceList();
+        }
+        if (currentPage) {
+          this.currentPage = currentPage;
+        }
+        // check currentPage after item delete
+        const maxPageSize = Math.ceil(this.totalSize / this.pageSize);
+        if (this.currentPage > maxPageSize) {
+          this.currentPage = maxPageSize;
+        }
+
+        var page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
         const start = page * this.pageSize;
         const length = this.pageSize;
         const end = start + length;
         this.serviceListByPage = this.serviceList.slice(start, end);
-      },
-
-      // the first page of pagination is 1
-      handlePaginationPageChange(page) {
-        this.currentPage = page;
-        this.getServiceListByPage({});
       },
     }
   }
