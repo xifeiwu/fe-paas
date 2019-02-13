@@ -7,23 +7,24 @@
       </el-tabs>
       <div class="operation">
         <el-button
-                size="mini-extral"
+                size="mini"
                 type="primary"
                 @click="handleButtonClick($event, 'service_create')"
                 :class="{'disabled': $storeHelper.permission['service_create'].disabled && !haveService, 'flex': true}">
           <span>创建服务</span><i class="paas-icon-level-up"></i>
         </el-button>
-        <!--<el-button size="mini-extral"-->
-                   <!--type="primary"-->
-                   <!--:class="{'flex': true, 'disabled': $storeHelper.permission['middleware_mariadb_instance_create'].disabled}"-->
-                   <!--@click="handleButtonClick($event, 'middleware_mariadb_instance_create')">-->
-          <!--<span>申请实例</span><i class="paas-icon-level-up"></i>-->
-        <!--</el-button>-->
-        <el-button size="mini-extral"
+        <el-button size="mini"
                    type="primary"
                    @click="handleButtonClick($event, 'refresh-list')">
           <span>刷新列表</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
         </el-button>
+        <el-input
+                size="mini"
+                style="max-width: 300px"
+                placeholder="按关键字搜索服务"
+                suffix-icon="el-icon-search"
+                v-model="filterKey">
+        </el-input>
       </div>
     </div>
     <div class="list">
@@ -278,12 +279,15 @@
         }
       }
       .operation {
-        padding: 6px 8px 3px 5px;
+        padding: 6px 5px 3px 5px;
         text-align: right;
         /*flex: 1;*/
         /*display: inline-flex;*/
         /*align-items: center;*/
         /*border-top: 1px solid #dfe4ed;*/
+        .el-button, el-input {
+          margin: 0px 5px;
+        }
       }
     }
     > .list {
@@ -322,6 +326,11 @@
       'currentPage': function (page) {
         this.getServiceListByPage({});
       },
+      'filterKey': function () {
+        this.getServiceListByPage({
+          currentPage: 1
+        });
+      },
       // changed by el-tab
       profileName(profileName) {
         var target = null;
@@ -350,6 +359,7 @@
         waitingResponse: false,
         heightOfTable: '',
 
+        filterKey: '',
         profileName: null,
         profileInfo: null,
         isProductionProfile: false,
@@ -1059,7 +1069,22 @@
         const start = page * this.pageSize;
         const length = this.pageSize;
         const end = start + length;
-        this.serviceListByPage = this.serviceList.slice(start, end);
+
+        var filterReg = null;
+        if (this.filterKey) {
+          filterReg = new RegExp(this.filterKey);
+        }
+        const filteredServiceList = this.serviceList.filter(it => {
+          var result = true;
+
+          if (filterReg) {
+            const searchField = `${it.appName}${it.serviceName}${it.tag}`;
+            result = filterReg.exec(searchField);
+          }
+          return result;
+        });
+        this.totalSize = filteredServiceList.total;
+        this.serviceListByPage = filteredServiceList.slice(start, end);
       },
     }
   }
