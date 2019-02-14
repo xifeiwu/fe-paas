@@ -257,11 +257,11 @@ class AppInfoHelper {
         required: true,
         message: '请选择内存大小',
       }],
-      cpuID: [{
+      cpuId: [{
         required: true,
         message: '请选择CPU类型',
       }],
-      memoryID: [{
+      memoryId: [{
         required: true,
         message: '请选择内存大小',
       }],

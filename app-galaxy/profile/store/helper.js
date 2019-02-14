@@ -227,7 +227,7 @@ class StoreHelper extends BaseHelper{
         break;
       }
     }
-    // deal with the case cpuID or memoryID not found
+    // deal with the case cpuId or memoryId not found
     if (model.length != 2 && cpuAndMemoryList.length > 0) {
       model = [];
       let defaultConfig = cpuAndMemoryList[0];
@@ -253,17 +253,17 @@ class StoreHelper extends BaseHelper{
 
   /**
    * get cpu and memory info by id
-   * @param cpuID
-   * @param memoryID
+   * @param cpuId
+   * @param memoryId
    * @returns {Array}
    */
-  getCPUAndMemoryInfoByID(cpuID, memoryID) {
+  getCPUAndMemoryInfoByID(cpuId, memoryId) {
     // let cpuAndMemoryList = this.getMessageForCreateAPP('cpuAndMemoryList');
     const cpuAndMemoryList = this.cpuAndMemoryList;
     let model = [];
     for (let index in cpuAndMemoryList) {
       let item = cpuAndMemoryList[index];
-      if (item.id == cpuID) {
+      if (item.id == cpuId) {
         model.push({
           id: item.id,
           size: item.cpu
@@ -271,7 +271,7 @@ class StoreHelper extends BaseHelper{
         let memoryList = item.memoryList;
         for (let index2 in memoryList) {
           let item = memoryList[index2];
-          if (item.id == memoryID) {
+          if (item.id == memoryId) {
             model.push({
               id: item.id,
               size: item.memory

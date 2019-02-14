@@ -1304,8 +1304,6 @@ class Net extends NetBase {
           appMonitor: service.appMonitor,
           environments: JSON.parse(JSON.stringify(service.environments)),
           hosts: JSON.parse(JSON.stringify(service.hosts)),
-          cpuID: service.cpuInfo.id,
-          memoryID: service.memoryInfo.id,
           prestopCommand: service.prestopCommand,
           // image: JSON.parse(JSON.stringify(service.image))
           customImage: service.image.customImage,
@@ -1334,6 +1332,24 @@ class Net extends NetBase {
           item.instanceCount = `${item['containerStatus'].Running}/${item['containerStatus'].Total}`;
         } else {
           item.instanceCount = '---';
+        }
+
+        // wrap cpuId and cpu to cpuInfo
+        // cpu and memory from server is value, such as 2.0/4096
+        // so get cpu and memory info by cpuAndMemoryInfo.
+        if (service.cpuId && service.memoryId) {
+          item.cpuInfo = {
+            id: service.cpuId,
+            size: service.cpu
+          };
+          item.memoryInfo = {
+            id: service.memoryId,
+            size: service.memory / 1024
+          };
+        } else {
+          const cpuAndMemoryInfo = this.$storeHelper.getCPUAndMemoryInfoBySize(service.cpu, service.memory);
+          item.cpuInfo = cpuAndMemoryInfo[0];
+          item.memoryInfo = cpuAndMemoryInfo[1];
         }
 
         const language = {
@@ -1432,23 +1448,6 @@ class Net extends NetBase {
           typeName: appInfoHelper.getImageNameById(it.customImage),
           location: it.image,
         };
-
-        // cpu and memory from server is value, such as 2.0/4096
-        // so get cpu and memory info by cpuAndMemoryInfo.
-        if (it.cpuId && it.memoryId) {
-          it.cpuInfo = {
-            id: it.cpuId,
-            size: it.cpu
-          };
-          it.memoryInfo = {
-            id: it.memoryId,
-            size: it.memory / 1024
-          };
-        } else {
-          let cpuAndMemoryInfo = this.$storeHelper.getCPUAndMemoryInfoBySize(it.cpu, it.memory);
-          it.cpuInfo = cpuAndMemoryInfo[0];
-          it.memoryInfo = cpuAndMemoryInfo[1];
-        }
 
         if (!it.volume) {
           it.volume = '';

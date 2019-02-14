@@ -187,15 +187,15 @@
                   @mouseenter="handleClick($event, 'warning-app-monitor')"
             >{{profileUtils['warningList']['warning-app-monitor']['text']}}</span>
           </el-form-item>
-          <el-form-item label="CPU" prop="cpuID" class="cpu">
-            <el-radio-group v-model="formData.cpuID" size="mini">
+          <el-form-item label="CPU" prop="cpuId" class="cpu">
+            <el-radio-group v-model="formData.cpuId" size="mini">
               <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
                 {{item.cpu}}核
               </el-radio-button>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="内存" prop="memoryID" class="memory">
-            <el-radio-group v-model="formData.memoryID" size="mini">
+          <el-form-item label="内存" prop="memoryId" class="memory">
+            <el-radio-group v-model="formData.memoryId" size="mini">
               <el-radio-button v-for="item in memorySizeList" :label="item.id" :key="item.id">
                 {{item.memory}}G
               </el-radio-button>
@@ -632,8 +632,8 @@
           this.formData.environments = serviceInfo.environments;
           this.formData.hosts = serviceInfo.hosts;
           this.formData.prestopCommand = serviceInfo.prestopCommand;
-          this.formData.cpuID = serviceInfo.cpuId;
-          this.formData.memoryID = serviceInfo.memoryId;
+          this.formData.cpuId = serviceInfo.cpuInfo.id;
+          this.formData.memoryId = serviceInfo.memoryInfo.id;
           this.formData.rollingUpdate = serviceInfo.rollingUpdate;
           this.formData.healthCheck = serviceInfo.healthCheck;
           this.formData.expiredDays = serviceInfo.remainExpiredDays;
@@ -661,7 +661,7 @@
         // set default cpu, default memorySizeList will be set in watch
         if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
           const firstItem = this.cpuAndMemoryList[0];
-          this.formData.cpuID = 'cpu' in firstItem ? firstItem.id : '';
+          this.formData.cpuId = 'cpu' in firstItem ? firstItem.id : '';
         }
 //        //set default expiredDays
 //        this.$net.requestPaasServer(this.$net.URL_LIST.query_default_expired_days).then(resContent => {
@@ -735,8 +735,8 @@
           appMonitor: profileUtils.defaultAppMonitorId,
           vmOptions: '',
           mavenProfileId: '',
-          cpuID: '',
-          memoryID: '',
+          cpuId: '',
+          memoryId: '',
           environments: [],
           hosts: [],
           instanceCount: 1,
@@ -942,14 +942,14 @@
         this.requestImageRelatedInfo(type);
       },
       /**
-       * set memoryID at watcher of formData.cpuID
+       * set memoryId at watcher of formData.cpuId
        */
-      'formData.cpuID': function (value, oldValue) {
-        let cpuID = value;
+      'formData.cpuId': function (value, oldValue) {
+        let cpuId = value;
         let cpuInfo = null;
         if (Array.isArray(this.cpuAndMemoryList)) {
           this.cpuAndMemoryList.some(it => {
-            if (it.hasOwnProperty('id') && cpuID === it.id) {
+            if (it.hasOwnProperty('id') && cpuId === it.id) {
               cpuInfo = it;
             }
           });
@@ -965,9 +965,9 @@
             if (this.memorySizeList.map(it => {
               return it.id
             }).indexOf(this.passedData.memoryId) > -1) {
-              this.formData.memoryID = this.passedData.memoryId;
+              this.formData.memoryId = this.passedData.memoryId;
             } else {
-              this.formData.memoryID = this.memorySizeList[0]['id'];
+              this.formData.memoryId = this.memorySizeList[0]['id'];
             }
             this.propsUsed.memoryId = true;
           } else {
@@ -975,7 +975,7 @@
             if (Array.isArray(this.memorySizeList)) {
               this.memorySizeList.some(it => {
                 if (it.hasOwnProperty('defaultSelect') && 1 === it.defaultSelect) {
-                  this.formData.memoryID = it.id;
+                  this.formData.memoryId = it.id;
                 }
               })
             }
@@ -1317,8 +1317,8 @@
                   rollingUpdate: formData.rollingUpdate,
                   loadBalance: formData.loadBalance,
                   initialDelaySeconds: formData.initialDelay,
-                  cpuId: formData.cpuID,
-                  memoryId: formData.memoryID,
+                  cpuId: formData.cpuId,
+                  memoryId: formData.memoryId,
                   environments: formData.environments,
                   hosts: formData.hosts,
                   instanceNum: formData.instanceCount,
