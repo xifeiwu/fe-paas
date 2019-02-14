@@ -614,11 +614,11 @@
       // for compatible
       // TODO: delete later
       this.passedData = theData;
-      console.log(theData);
       this.profileInfo = theData.profileInfo;
       this.dataPassed.profileInfo = theData.profileInfo;
       this.formData.spaceId = theData.profileInfo.id;
       this.formRelated.isProductionProfile = (this.dataPassed.profileInfo.spaceType.toUpperCase() === 'PRODUCTION');
+//      console.log(this.dataPassed);
       if (this.forModify) {
         const serviceInfo = theData.serviceInfo;
         this.dataPassed.serviceInfo = serviceInfo;
@@ -1299,6 +1299,18 @@
         }
       },
 
+      // go to page service with dataPassed
+      goToPageService() {
+        this.$storeHelper.dataTransfer = {
+          from: this.$route.path,
+          data: {
+            action: this.dataPassed.from.action,
+            toPage: this.dataPassed.from.page,
+          }
+        };
+        this.$router.push(this.$net.page['profile/service']);
+      },
+
       handleClick(evt, action) {
         if (['warning-app-monitor'].indexOf(action) > -1) {
           if (this.profileUtils['warningList'].hasOwnProperty(action)) {
@@ -1322,7 +1334,7 @@
             this.formData['vmOptions'] = `-server -Xmx2g -Xms2g -Xmn256m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=256m -Xss256k -XX:+UseConcMarkSweepGC -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -XX:+PrintGCTimeStamps -XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses -XX:+PrintGCDetails -XX:+PrintGCDateStamps`;
             break;
           case 'back':
-            this.$router.go(-1);
+            this.goToPageService();
             break;
           case 'submit':
             this.$refs['formData'].validate((valid) => {
@@ -1407,7 +1419,8 @@
                     });
                   }
                   this.$net.needUpdateAppList = true;
-                  this.$router.push(this.$net.page['profile/service']);
+
+                  this.goToPageService();
                 }).catch().finally(() => {
                   this.hideWaitingResponse('submit');
                 });

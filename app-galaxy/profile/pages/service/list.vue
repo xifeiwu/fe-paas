@@ -169,7 +169,7 @@
                     type="text"
                     :loading="statusOfWaitingResponse('service_config_add') && action.row.appId == scope.row.appId"
                     @click="handleTRClick($event, 'service_config_add', scope.$index, scope.row)"
-                    :class="['warning']">
+                    :class="['flex', 'warning']">
               <span>创建服务</span><i class="paas-icon-level-up"></i>
             </el-button>
           </template>
@@ -318,6 +318,19 @@
     components: {paasDialogForLog},
     mixins: [commonUtils],
     created() {
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      if (dataTransfer) {
+//        console.log(dataTransfer);
+        const from = dataTransfer.from;
+        this.dataPassed.from = from;
+        this.dataPassed.data = dataTransfer.data;
+//        if (['profile/service/add', 'profile/service/modify'].map(it => {
+//          return this.$net.page[it];
+//        }).indexOf(from) > -1) {
+//          this.currentPage = dataTransfer.data.toPage;
+//        }
+        this.$storeHelper.dataTransfer = null;
+      }
     },
     mounted() {
       this.onProfileList(this.$storeHelper.profileListOfGroup);
@@ -335,6 +348,11 @@
         });
       },
       'currentPage': function (page) {
+//        console.log(this.$route);
+//        console.log(this.$route.path);
+//        console.log(this.$route.query);
+//        this.$route.query['page'] = page;
+//        location.search = `?page=${page}`;
         this.getServiceListByPage({});
       },
       'filterKey': function () {
@@ -353,9 +371,10 @@
         if (target) {
           this.profileInfo = target;
         }
+        var currentPage = this.getPagePassed();
         this.getServiceListByPage({
           refresh: true,
-          currentPage: 1
+          currentPage
         });
       },
       '$storeHelper.screen.size': 'onScreenSizeChange',
@@ -366,6 +385,10 @@
     },
     data() {
       return {
+        dataPassed: {
+          from: null,
+          data: null
+        },
         // TODO: for change internetDomain, will change later
         waitingResponse: false,
         heightOfTable: '',
@@ -441,6 +464,16 @@
             });
             break;
         }
+      },
+
+      // used dataPassed only once
+      getPagePassed() {
+        var currentPage = 1;
+        if (this.dataPassed.data) {
+          currentPage = this.dataPassed.data.toPage;
+          this.dataPassed.data = null;
+        }
+        return currentPage;
       },
 
       // collect all related info for add-service before jump to page service/add
