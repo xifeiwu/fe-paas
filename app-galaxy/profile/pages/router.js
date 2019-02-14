@@ -104,7 +104,7 @@ class Helper {
       component: ServiceAdd,
     }, {
       path: '/profile/service/modify',
-      name: '修改服务',
+      name: '修改配置',
       component: ServiceAdd,
     }, {
       path: '/profile/service/detail',
