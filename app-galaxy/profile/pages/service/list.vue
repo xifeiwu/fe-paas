@@ -521,13 +521,15 @@
             spaceId: this.profileInfo.id
           }
         });
-        console.log(resContent);
+//        console.log(resContent);
         const parsedContent = this.$net.parseServiceList(resContent);
-        console.log(parsedContent);
+//        console.log(parsedContent);
 
         var model = null;
         if (parsedContent.hasOwnProperty("serviceModelList")) {
-          model = parsedContent["serviceModelList"][0];
+          model = parsedContent["serviceModelList"].find(it => {
+            return it["defaultSelect"] === true;
+          });
         }
 
         if (model) {

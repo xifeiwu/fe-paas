@@ -3,6 +3,7 @@
     <div class="header">
       <div style="display: inline-block"><span style="font-weight: bold">运行环境：</span><span>dataPassed.profileInfo.name</span></div>
       <div style="display: inline-block; margin-left: 5px;"><span style="font-weight: bold">应用名称：</span><span>dataPassed.service.appName</span></div>
+      <el-button style="margin-left: 8px;" size="mini" type="primary" @click="handleClick($event, 'refresh')">刷新</el-button>
     </div>
     <div class="service-info" :style="{height: `${heightOfServiceInfo}px`}">
       <div class="by-text">
@@ -454,11 +455,13 @@
           case this.$net.page['profile/service']:
             this.dataPassed.profileInfo = theData['profileInfo'];
             this.dataPassed.serviceInfo = theData['serviceInfo'];
+            this.dataPassed.profileId = this.dataPassed.profileInfo.id;
+            this.dataPassed.appId = this.dataPassed.serviceInfo.appId;
             this.isProductionProfile = (this.dataPassed.profileInfo.name === 'production');
             break;
         }
         this.$storeHelper.dataTransfer = null;
-        this.requestServiceInfo(this.dataPassed.serviceInfo.appId, this.dataPassed.profileInfo.id)
+        this.requestServiceInfo(this.dataPassed.appId, this.dataPassed.profileId);
       } else {
         goBack = true;
       }
@@ -493,6 +496,8 @@
         resizeListenerForServiceList: () => {},
         heightOfServiceInfo: '',
         dataPassed: {
+          profileId: null,
+          serviceId: null,
           profileInfo: null,
           serviceInfo: null,
         },
@@ -541,6 +546,14 @@
       recoveryStatus() {
         this.runningInfo = null;
         this.model = null;
+      },
+
+      handleClick(evt, action) {
+        switch (action) {
+          case 'refresh':
+            this.requestServiceInfo(this.dataPassed.appId, this.dataPassed.profileId);
+            break;
+        }
       },
 
       processResponseData(origin) {
