@@ -54,7 +54,7 @@
             {{scope.row.k8s === 1 ? scope.row.instanceCount : '---' }}
           </template>
         </el-table-column>
-        <el-table-column label="剩余有效时间" prop="remainExpiredDays" headerAlign="center" align="center" width="100"></el-table-column>
+        <el-table-column label="过期时间(天)" prop="remainExpiredDays" headerAlign="center" align="center" width="100"></el-table-column>
         <el-table-column label="创建日期" prop="formattedCreateTime" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
             <div v-if="Array.isArray(scope.row.formattedCreateTime)">
@@ -521,9 +521,7 @@
             spaceId: this.profileInfo.id
           }
         });
-//        console.log(resContent);
         const parsedContent = this.$net.parseServiceList(resContent);
-//        console.log(parsedContent);
 
         var model = null;
         if (parsedContent.hasOwnProperty("serviceModelList")) {
@@ -532,6 +530,9 @@
           });
         }
 
+//        console.log(resContent);
+//        console.log(parsedContent);
+//        console.log(model);
         if (model) {
           this.$storeHelper.dataTransfer = {
             from: this.$net.page['profile/service'],
@@ -539,7 +540,6 @@
               serviceInfo: model
             })
           };
-//          console.log(model);
           this.$router.push(this.$net.page['profile/service/modify']);
         } else {
 

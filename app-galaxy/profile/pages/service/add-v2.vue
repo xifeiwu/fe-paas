@@ -2,7 +2,7 @@
   <div id="service-add">
     <el-scrollbar>
       <div class="sheet">
-        <div class="section-title">{{forModify ?'修改服务':'创建服务'}}</div>
+        <div class="section-title">{{forModify ?'修改配置':'创建服务'}}</div>
         <el-form :model="formData" ref="formData"
                  :rules="rules" :label-width="formRelated.isJavaLanguage ? '140px' : '140px'" size="mini"
                  v-loading="showLoading"

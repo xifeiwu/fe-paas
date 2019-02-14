@@ -1288,17 +1288,8 @@ class Net extends NetBase {
     // 从service中摘取有用信息并封装到特定的数据格式中（部分属性进行了重命名）
     const getServiceModelList = (serviceList) => {
       let modelList = [];
-      const  LANGUAGE_MAP = {
-        'JAVA': 'java',
-        'NODE_JS': 'nodejs',
-        'PYTHON': 'python',
-        'PHP': 'php'
-      };
       Array.isArray(serviceList) && serviceList.forEach(service => {
         const item = {
-          /** copy prop */
-          language: service.language,
-          languageName: LANGUAGE_MAP[service.language],
           /** used for update prop */
           oneApm: service.oneapm,
           appMonitor: service.appMonitor,
@@ -1320,12 +1311,17 @@ class Net extends NetBase {
           instanceNum: service.instanceNum,
         };
 
-        ['id', 'appId', 'appName', 'tag', 'serviceName', 'remainExpiredDays',
+        /** copy prop */
+        ['id', 'appId', 'appName', 'tag', 'remainExpiredDays',
+          'defaultSelect', // 是否是默认服务
           'containerStatus', // 运行状态：几个实例；几个运行中实例
           'k8s', // 是否是k8s应用
-          'formattedCreateTime'].forEach(prop => {
-          service.hasOwnProperty(prop) && (item[prop] = service[prop]);
+          'serviceName'
+        ].forEach(prop => {
+          service.hasOwnProperty(prop) && (item[prop] = service[prop] ? service[prop] : '---');
         });
+        item.formattedCreateTime = service.createTime ? this.$utils.formatDate(service.createTime, 'yyyy-MM-dd hh:mm:ss').split(' ') : '---';
+
 
         // props check for service model
         if (item['containerStatus']) {
@@ -1440,9 +1436,6 @@ class Net extends NetBase {
     !serviceList && resContent.hasOwnProperty('applicationServiceList') && (serviceList = resContent['applicationServiceList']);
     if (serviceList) {
       Array.isArray(serviceList) && serviceList.forEach(it => {
-        it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
-        it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-
         it.image = {
           customImage: null == it.customImage ? false : it.customImage,
           typeName: appInfoHelper.getImageNameById(it.customImage),
