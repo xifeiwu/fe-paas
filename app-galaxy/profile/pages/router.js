@@ -100,7 +100,7 @@ class Helper {
       component: serviceList,
     }, {
       path: '/profile/service/add',
-      name: '添加服务',
+      name: '创建服务',
       component: ServiceAdd,
     }, {
       path: '/profile/service/modify',

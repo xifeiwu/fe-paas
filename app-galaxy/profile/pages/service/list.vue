@@ -67,100 +67,102 @@
         </el-table-column>
         <el-table-column label="操作" headerAlign="left" align="left" minWidth="200">
           <template slot-scope="scope">
-            <el-button
-                    size="small"
-                    type="text"
-                    :loading="statusOfWaitingResponse('service_deploy') && action.row.appId == scope.row.appId"
-                    v-if="!isProductionProfile"
-                    @click="handleTRClick($event, 'service_deploy', scope.$index, scope.row)"
-                    :class="$storeHelper.permission['service_deploy'].disabled ? 'disabled' : 'danger'">
-                  {{statusOfWaitingResponse('deploy') && action.row.appId == scope.row.appId ? '部署中': '部署'}}
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    size="small"
-                    v-if="!isProductionProfile"
-                    type="text"
-                    :loading="statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId"
-                    @click="handleTRClick($event, 'quick_deploy', scope.$index, scope.row)"
-                    :class="reason4DisableQuickDeploy(scope.row) ? 'disabled' : 'danger'">
-                  {{statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId ? '重启中': '重启'}}
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    size="small"
-                    type="text"
-                    :loading="statusOfWaitingResponse('service_stop')"
-                    @click="handleTRClick($event, 'service_stop', scope.$index, scope.row)"
-                    :class="$storeHelper.permission['service_stop'].disabled ? 'disabled' : 'danger'">
-              停止
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    size="small"
-                    type="text"
-                    :loading="statusOfWaitingResponse('service_delete')"
-                    @click="handleTRClick($event, 'service_delete', scope.$index, scope.row)"
-                    :class="$storeHelper.permission['service_delete'].disabled ? 'disabled' : 'danger'">
-              删除
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    type="text"
-                    :class="['primary', 'flex']"
-                    @click="handleTRClick($event, 'service_edit', scope.$index, scope.row)">
-              <span>修改配置</span><i class="paas-icon-level-up"></i>
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    size="small"
-                    type="text"
-                    :class="['flex', 'primary']"
-                    @click="handleTRClick($event, 'go-to-page-service-detail-from-page-service', scope.$index, scope.row)">
-              <span>服务详情</span><i class="paas-icon-level-up"></i>
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    v-if="isProductionProfile"
-                    size="small"
-                    type="text"
-                    :class="['primary']"
-                    @click="handleTRClick($event,'go-to-work-order-todo-add', scope.$index, scope.row)">
-              <span>申请工单</span><i class="paas-icon-level-up"></i>
-            </el-button>
-            <div v-if="isProductionProfile" class="ant-divider"></div>
-            <el-button
-                    size="small"
-                    type="text"
-                    :class="['flex', 'primary']"
-                    @click="handleTRClick($event, 'go-to-page-log-deploy-from-service', scope.$index, scope.row)">
-              <span>部署日志</span><i class="paas-icon-level-up"></i>
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    size="small"
-                    type="text"
-                    :class="['flex', 'primary']"
-                    @click="handleTRClick($event, 'go-to-instance-list', scope.$index, scope.row)">
-              <span>实例列表</span><i class="paas-icon-level-up"></i>
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    v-if="$storeHelper.groupVersion === 'v2'"
-                    size="small"
-                    type="text"
-                    @click="handleTRClick($event, 'go-page-domain-from-service', scope.$index, scope.row)"
-                    :class="$storeHelper.permission['go-page-domain-from-service'].disabled ? 'disabled' : 'primary'">
-              <span>配置外网二级域名</span><i class="paas-icon-level-up"></i>
-            </el-button>
-            <el-button
-                    v-if="false"
-                    size="small"
-                    type="text"
-                    @click="handleTRClick($event, 'v1-add-internetDomain', scope.$index, scope.row)"
-                    :class="['primary']">
-              <span>添加外网域名</span>
-            </el-button>
+            <div>
+              <el-button
+                      size="small"
+                      type="text"
+                      :loading="statusOfWaitingResponse('service_deploy') && action.row.appId == scope.row.appId"
+                      v-if="!isProductionProfile"
+                      @click="handleTRClick($event, 'service_deploy', scope.$index, scope.row)"
+                      :class="$storeHelper.permission['service_deploy'].disabled ? 'disabled' : 'danger'">
+                    {{statusOfWaitingResponse('deploy') && action.row.appId == scope.row.appId ? '部署中': '部署'}}
+              </el-button>
+              <div class="ant-divider"></div>
+              <el-button
+                      size="small"
+                      v-if="!isProductionProfile"
+                      type="text"
+                      :loading="statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId"
+                      @click="handleTRClick($event, 'quick_deploy', scope.$index, scope.row)"
+                      :class="reason4DisableQuickDeploy(scope.row) ? 'disabled' : 'danger'">
+                    {{statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId ? '重启中': '重启'}}
+              </el-button>
+              <div class="ant-divider"></div>
+              <el-button
+                      size="small"
+                      type="text"
+                      :loading="statusOfWaitingResponse('service_stop')"
+                      @click="handleTRClick($event, 'service_stop', scope.$index, scope.row)"
+                      :class="$storeHelper.permission['service_stop'].disabled ? 'disabled' : 'danger'">
+                停止
+              </el-button>
+              <div class="ant-divider"></div>
+              <el-button
+                      size="small"
+                      type="text"
+                      :loading="statusOfWaitingResponse('service_delete')"
+                      @click="handleTRClick($event, 'service_delete', scope.$index, scope.row)"
+                      :class="$storeHelper.permission['service_delete'].disabled ? 'disabled' : 'danger'">
+                删除
+              </el-button>
+              <div class="ant-divider"></div>
+              <el-button
+                      type="text"
+                      :class="['primary', 'flex']"
+                      @click="handleTRClick($event, 'service_config_modify', scope.$index, scope.row)">
+                <span>修改配置</span><i class="paas-icon-level-up"></i>
+              </el-button>
+              <div class="ant-divider"></div>
+              <el-button
+                      size="small"
+                      type="text"
+                      :class="['flex', 'primary']"
+                      @click="handleTRClick($event, 'go-to-page-service-detail-from-page-service', scope.$index, scope.row)">
+                <span>服务详情</span><i class="paas-icon-level-up"></i>
+              </el-button>
+              <div class="ant-divider"></div>
+              <el-button
+                      v-if="isProductionProfile"
+                      size="small"
+                      type="text"
+                      :class="['primary']"
+                      @click="handleTRClick($event,'go-to-work-order-todo-add', scope.$index, scope.row)">
+                <span>申请工单</span><i class="paas-icon-level-up"></i>
+              </el-button>
+              <div v-if="isProductionProfile" class="ant-divider"></div>
+              <el-button
+                      size="small"
+                      type="text"
+                      :class="['flex', 'primary']"
+                      @click="handleTRClick($event, 'go-to-page-log-deploy-from-service', scope.$index, scope.row)">
+                <span>部署日志</span><i class="paas-icon-level-up"></i>
+              </el-button>
+              <div class="ant-divider"></div>
+              <el-button
+                      size="small"
+                      type="text"
+                      :class="['flex', 'primary']"
+                      @click="handleTRClick($event, 'go-to-instance-list', scope.$index, scope.row)">
+                <span>实例列表</span><i class="paas-icon-level-up"></i>
+              </el-button>
+              <div class="ant-divider"></div>
+              <el-button
+                      v-if="$storeHelper.groupVersion === 'v2'"
+                      size="small"
+                      type="text"
+                      @click="handleTRClick($event, 'go-page-domain-from-service', scope.$index, scope.row)"
+                      :class="$storeHelper.permission['go-page-domain-from-service'].disabled ? 'disabled' : 'primary'">
+                <span>配置外网二级域名</span><i class="paas-icon-level-up"></i>
+              </el-button>
+              <el-button
+                      v-if="false"
+                      size="small"
+                      type="text"
+                      @click="handleTRClick($event, 'v1-add-internetDomain', scope.$index, scope.row)"
+                      :class="['primary']">
+                <span>添加外网域名</span>
+              </el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -421,7 +423,7 @@
       handleButtonClick(evt, action) {
         switch (action) {
           case 'service_create':
-            this.goToPageServiceAdd();
+            this.goToPageServiceAdd('service_create');
             break;
           case 'refresh-list':
             this.getServiceListByPage({
@@ -495,54 +497,51 @@
         return appWithoutService;
       },
 
-      goToPageServiceAdd() {
+      async goToPageServiceAdd(action, row) {
         const basicInfo = {
           profileInfo: this.profileInfo
         };
-        this.appWithoutService = this.getAppWithoutService();
-        this.$storeHelper.dataTransfer = {
-          from: this.$net.page['profile/service'],
-          data: Object.assign(basicInfo, {
-            appWithoutService: this.appWithoutService,
-//            serviceInfo: this.action.row
-          })
-//          data: JSON.parse(JSON.stringify(Object.assign(this.model, infoForAddService.content))),
-        };
-        this.$router.push(this.$net.page['profile/service/add']);
-      },
+        switch (action) {
+          case 'service_create':
+            this.appWithoutService = this.getAppWithoutService();
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page['profile/service'],
+              data: Object.assign(basicInfo, {
+                appWithoutService: this.appWithoutService,
+              })
+            };
+            this.$router.push(this.$net.page['profile/service/add']);
+            break;
+          case 'service_config_modify':
+            const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
+              payload: {
+                appId: row.appId,
+                spaceId: this.profileInfo.id
+              }
+            });
+            const parsedContent = this.$net.parseServiceList(resContent);
 
-      async goToPageServiceModify(row) {
-        const basicInfo = {
-          profileInfo: this.profileInfo
-        };
-        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
-          payload: {
-            appId: row.appId,
-            spaceId: this.profileInfo.id
-          }
-        });
-        const parsedContent = this.$net.parseServiceList(resContent);
-
-        var model = null;
-        if (parsedContent.hasOwnProperty("serviceModelList")) {
-          model = parsedContent["serviceModelList"].find(it => {
-            return it["defaultSelect"] === true;
-          });
-        }
-
-//        console.log(resContent);
-//        console.log(parsedContent);
-//        console.log(model);
-        if (model) {
-          this.$storeHelper.dataTransfer = {
-            from: this.$net.page['profile/service'],
-            data: Object.assign(basicInfo, {
-              serviceInfo: model
-            })
-          };
-          this.$router.push(this.$net.page['profile/service/modify']);
-        } else {
-
+            var model = null;
+            if (parsedContent.hasOwnProperty("serviceModelList")) {
+              model = parsedContent["serviceModelList"].find(it => {
+                return it["defaultSelect"] === true;
+              });
+            }
+//            console.log(resContent);
+//            console.log(parsedContent);
+//            console.log(model);
+            if (model) {
+              this.$storeHelper.dataTransfer = {
+                from: this.$net.page['profile/service'],
+                data: Object.assign(basicInfo, {
+                  serviceInfo: model
+                })
+              };
+              this.$router.push(this.$net.page['profile/service/modify']);
+            } else {
+              return;
+            }
+            break;
         }
       },
 
@@ -759,8 +758,8 @@
         this.action.row = row;
         var resContent = null;
         switch (action) {
-          case 'service_edit':
-            this.goToPageServiceModify(row);
+          case 'service_config_modify':
+            this.goToPageServiceAdd(action, row);
             break;
           case 'go-to-page-service-detail-from-page-service':
           case 'go-to-work-order-todo-add':
@@ -1085,7 +1084,7 @@
           }
           return result;
         });
-        this.totalSize = filteredServiceList.total;
+        this.totalSize = filteredServiceList.length;
         this.serviceListByPage = filteredServiceList.slice(start, end);
       },
     }
