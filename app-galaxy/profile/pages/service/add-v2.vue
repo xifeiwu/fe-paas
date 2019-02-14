@@ -5,15 +5,14 @@
         <div class="section-title">{{forModify ?'修改配置':'创建服务'}}</div>
         <el-form :model="formData" ref="formData"
                  :rules="rules" :label-width="formRelated.isJavaLanguage ? '180px' : '180px'" size="mini"
-                 v-loading="showLoading"
                  :element-loading-text="loadingText">
           <el-form-item label="运行环境" class="profile-description">
             {{profileInfo? profileInfo.description: ''}}
           </el-form-item>
-          <el-form-item label="应用名称" class="app-name" v-if="forModify">
+          <el-form-item label="应用名称" class="app-name max-width-600" v-if="forModify">
             {{formRelated.serviceInfo ? formRelated.serviceInfo['appName'] : ''}}
           </el-form-item>
-          <el-form-item label="应用名称" class="app-name" v-else>
+          <el-form-item label="应用名称" class="app-name max-width-600" v-else>
             <el-select v-model="formData.appId" placeholder="请选择" filterable>
               <el-option v-for="item in dataPassed.appWithoutService" :key="item.appId" :label="item.appName" :value="item.appId">
               </el-option>
@@ -23,7 +22,14 @@
           <el-form-item label="语言/版本" class="app-name">
             {{formRelated.serviceInfo ? `${formRelated.serviceInfo.language.name} / ${formRelated.serviceInfo.language.version}` : ''}}
           </el-form-item>
-          <el-form-item class="build-type" label="构建类型" v-if="formRelated.packageTypeList.length > 0 && formRelated.isJavaLanguage && !imageSelectState.customImage" :error="formData.packageInfo.errMsg">
+          <el-form-item label="镜像方式" prop="customImage" class="custom-image">
+            <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="formRelated.isPythonLanguage">
+              <el-radio :label="false">自动打镜像</el-radio>
+              <el-radio :label="true">自定义镜像</el-radio>
+            </el-radio-group>
+          </el-form-item>
+
+          <el-form-item class="build-type max-width-700" label="构建类型" v-if="formRelated.packageTypeList.length > 0 && formRelated.isJavaLanguage && !imageSelectState.customImage" :error="formData.packageInfo.errMsg">
             <div class="flex-layout">
               <div class="type-list">
                 <el-radio-group v-model="formData.packageInfo.type">
@@ -32,18 +38,11 @@
                   </el-radio>
                 </el-radio-group>
               </div>
-              <el-form-item :class="['war-name', formData.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']" prop="packageInfo.name">
+              <div :class="['war-name', formData.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']" prop="packageInfo.name">
                 <el-input v-model="formData.packageInfo.name" placeholder="默认与项目名称一致"></el-input>
-              </el-form-item>
+              </div>
             </div>
           </el-form-item>
-          <el-form-item label="镜像方式" prop="customImage" class="custom-image">
-            <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="formRelated.isPythonLanguage">
-              <el-radio :label="false">自动打镜像</el-radio>
-              <el-radio :label="true">自定义镜像</el-radio>
-            </el-radio-group>
-          </el-form-item>
-
           <el-form-item label="基础镜像" class="auto-image max-width-700" prop="autoImageValue" v-if="!imageSelectState.customImage">
             <el-select v-model="formData.autoImageValue" filterable
                        :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
@@ -53,7 +52,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="镜像地址" prop="customImageValue" v-else
-                        :class="['custom-image', imageSelectState.customImageType.toLowerCase()+'-image']"
+                        :class="['custom-image', 'max-width-700', imageSelectState.customImageType.toLowerCase()+'-image']"
           >
             <!--<el-select v-model="formData.customImageValue" filterable-->
             <!--:placeholder="imageInfoFromNet.customImageList.length > 0 ? '请选择' : '无数据'">-->
@@ -91,10 +90,11 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
+            <el-form-item prop="relativePathOfParentPOM"
                           v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
                           class="relative-path-of-parent-pom max-width-700"
             >
+              <div slot="label"><span style="font-size: 13px;">Gitlab父级pom.xml相对路径</span></div>
               <el-input v-model="formData.relativePathOfParentPOM"
                         placeholder="不能超过256个字符"></el-input>
             </el-form-item>
@@ -155,13 +155,13 @@
                     <el-radio v-for="(item, index) in $storeHelper.healthCheckTypeList" :label="item.desc" :key="item.desc">{{item.label}}</el-radio>
                   </el-radio-group>
                   <div class="input-area">
-                    <div :class="formData.healthCheck.type != 'http' ? 'hide': ''">
+                    <div v-if="formData.healthCheck.type == 'http'">
                       <el-input v-model="formData.healthCheck.content" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
                     </div>
-                    <div :class="formData.healthCheck.type != 'shell' ? 'hide' : ''">
+                    <div v-if="formData.healthCheck.type == 'shell'">
                       <el-input v-model="formData.healthCheck.content" placeholder="请填写shell指令"></el-input>
                     </div>
-                    <div :class="formData.healthCheck.type != 'socket' ? 'hide' : ''">
+                    <div v-if="formData.healthCheck.type == 'socket'">
                       <span>端口号：</span>
                       <el-input-number v-model="formData.healthCheck.content" :min="0" :max="10000" label="延迟时间"></el-input-number>
                     </div>
@@ -502,6 +502,9 @@
           }
           &.app-name {
             margin-bottom: 8px;
+            .el-select {
+              width: 100%;
+            }
           }
           &.profile-description {
             margin-bottom: 10px;
@@ -881,7 +884,6 @@
         memorySizeList: [],
         rules: profileUtils.rules,
 
-        showLoading: false,
         loadingText: '',
 
         checkPortMap: null,
@@ -1332,7 +1334,7 @@
                   mavenProfileId: formData.mavenProfileId,
                   rollingUpdate: formData.rollingUpdate,
                   loadBalance: formData.loadBalance,
-                  initialDelaySeconds: formData.initialDelay,
+                  initialDelaySeconds: formData.healthCheck.initialDelay,
                   cpuId: formData.cpuId,
                   memoryId: formData.memoryId,
                   environments: formData.environments,
@@ -1369,7 +1371,6 @@
                 payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(formData.healthCheck.type);
                 payload.healthCheck = formData.healthCheck.content;
                 this.addToWaitingResponseQueue('submit');
-                this.showLoading = true;
                 this.loadingText = '正在为您创建服务';
                 this.$net.requestPaasServer(this.$net.URL_LIST.service_create, {
                   payload
@@ -1389,7 +1390,6 @@
                   this.$router.push(this.$net.page['profile/service']);
                 }).catch().finally(() => {
                   this.hideWaitingResponse('submit');
-                  this.showLoading = false;
                 });
               } else {
                 return false;
