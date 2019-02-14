@@ -1,9 +1,9 @@
 <template>
   <div id="service-detail">
-    <div class="header">
-      <div style="display: inline-block"><span style="font-weight: bold">运行环境：</span><span>dataPassed.profileInfo.name</span></div>
-      <div style="display: inline-block; margin-left: 5px;"><span style="font-weight: bold">应用名称：</span><span>dataPassed.service.appName</span></div>
-      <el-button style="margin-left: 8px;" size="mini" type="primary" @click="handleClick($event, 'refresh')">刷新</el-button>
+    <div class="header" v-if="dataPassed.profileInfo && dataPassed.serviceInfo">
+      <div style="display: inline-block"><span style="font-weight: bold">运行环境：</span><span>{{dataPassed.profileInfo.name}}</span></div>
+      <div style="display: inline-block; margin-left: 15px;"><span style="font-weight: bold">应用名称：</span><span>{{dataPassed.serviceInfo.appName}}</span></div>
+      <el-button style="margin-left: 15px;" size="mini" type="primary" @click="handleClick($event, 'refresh')">刷新</el-button>
     </div>
     <div class="service-info" :style="{height: `${heightOfServiceInfo}px`}">
       <div class="by-text">

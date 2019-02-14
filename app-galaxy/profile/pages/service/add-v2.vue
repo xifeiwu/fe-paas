@@ -84,7 +84,7 @@
           <transition name="more-config">
             <el-form-item label="mainClass" prop="mainClass"
                           v-if="formRelated.isJavaLanguage && !imageSelectState.customImage && formData.packageInfo.type.toUpperCase() === 'ZIP'"
-                          class="main-class"
+                          class="main-class max-width-600"
             >
               <el-input v-model="formData.mainClass" placeholder=""></el-input>
             </el-form-item>
