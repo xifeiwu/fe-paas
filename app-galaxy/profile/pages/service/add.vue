@@ -126,15 +126,15 @@
                   @mouseenter="handleClick($event, 'warning-app-monitor')"
             >{{profileUtils['warningList']['warning-app-monitor']['text']}}</span>
           </el-form-item>
-          <el-form-item label="CPU" prop="cpuID" class="cpu">
-            <el-radio-group v-model="serviceForm.cpuID" size="mini">
+          <el-form-item label="CPU" prop="cpuId" class="cpu">
+            <el-radio-group v-model="serviceForm.cpuId" size="mini">
               <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
                 {{item.cpu}}核
             </el-radio-button>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="内存" prop="memoryID" class="memory">
-            <el-radio-group v-model="serviceForm.memoryID" size="mini">
+          <el-form-item label="内存" prop="memoryId" class="memory">
+            <el-radio-group v-model="serviceForm.memoryId" size="mini">
               <el-radio-button v-for="item in memorySizeList" :label="item.id" :key="item.id">
                 {{item.memory}}G
               </el-radio-button>
@@ -528,12 +528,12 @@
         this.serviceForm.environments = theData.environments;
         this.serviceForm.hosts = theData.hosts;
         this.serviceForm.prestopCommand = theData.prestopCommand;
-        this.serviceForm.cpuID = theData.cpuID;
+        this.serviceForm.cpuId = theData.cpuId;
       } else {
         // set default cpu, default memorySizeList will be set in watch
         if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
           let firstItem = this.cpuAndMemoryList[0];
-          this.serviceForm.cpuID = 'cpu' in firstItem ? firstItem.id : '';
+          this.serviceForm.cpuId = 'cpu' in firstItem ? firstItem.id : '';
         }
       }
 
@@ -579,8 +579,8 @@
           appMonitor: profileUtils.defaultAppMonitorId,
           vmOptions: '',
           mavenProfileId: '',
-          cpuID: '',
-          memoryID: '',
+          cpuId: '',
+          memoryId: '',
           environments: [],
           hosts: [],
           instanceCount: 1,
@@ -727,14 +727,14 @@
         })
       },
       /**
-       * set memoryID at watcher of serviceForm.cpuID
+       * set memoryId at watcher of serviceForm.cpuId
        */
-      'serviceForm.cpuID': function (value, oldValue) {
-        let cpuID = value;
+      'serviceForm.cpuId': function (value, oldValue) {
+        let cpuId = value;
         let cpuInfo = null;
         if (Array.isArray(this.cpuAndMemoryList)) {
           this.cpuAndMemoryList.some(it => {
-            if (it.hasOwnProperty('id') && cpuID === it.id) {
+            if (it.hasOwnProperty('id') && cpuId === it.id) {
               cpuInfo = it;
             }
           });
@@ -749,10 +749,10 @@
             // check if memoryId existed in memorySizeList
             if (this.memorySizeList.map(it => {
               return it.id
-            }).indexOf(this.dataPassed.memoryID) > -1) {
-              this.serviceForm.memoryID = this.dataPassed.memoryID;
+            }).indexOf(this.dataPassed.memoryId) > -1) {
+              this.serviceForm.memoryId = this.dataPassed.memoryId;
             } else {
-              this.serviceForm.memoryID = this.memorySizeList[0]['id'];
+              this.serviceForm.memoryId = this.memorySizeList[0]['id'];
             }
             this.propsUsed.memoryId = true;
           } else {
@@ -760,7 +760,7 @@
             if (Array.isArray(this.memorySizeList)) {
               this.memorySizeList.some(it => {
                 if (it.hasOwnProperty('defaultSelect') && 1 === it.defaultSelect) {
-                  this.serviceForm.memoryID = it.id;
+                  this.serviceForm.memoryId = it.id;
                 }
               })
             }
@@ -1101,8 +1101,8 @@
                   vmOptions: serviceForm.vmOptions,
                   appMonitor: serviceForm.appMonitor,
                   mavenProfileId: serviceForm.mavenProfileId,
-                  cpuId: serviceForm.cpuID,
-                  memoryId: serviceForm.memoryID,
+                  cpuId: serviceForm.cpuId,
+                  memoryId: serviceForm.memoryId,
                   environments: serviceForm.environments,
                   hosts: serviceForm.hosts,
                   instanceNum: serviceForm.instanceCount,

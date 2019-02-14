@@ -869,15 +869,15 @@
         更改实例规格为：
       </el-row>
       <el-form :model="newProps" :rules="rules"  size="mini" labelWidth="80px" ref="changeCpuAndMemoryForm">
-        <el-form-item label="CPU" prop="cpuID">
-          <el-radio-group v-model="newProps.cpuID" size="small" @change="handleCPUChange">
+        <el-form-item label="CPU" prop="cpuId">
+          <el-radio-group v-model="newProps.cpuId" size="small" @change="handleCPUChange">
             <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
               {{item.cpu}}核
             </el-radio-button>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="内存" prop="memoryID">
-          <el-radio-group v-model="newProps.memoryID" size="small">
+        <el-form-item label="内存" prop="memoryId">
+          <el-radio-group v-model="newProps.memoryId" size="small">
             <el-radio-button v-for="item in memeorySizeList" :label="item.id" :key="item.id">
               {{item.memory}}G
             </el-radio-button>
@@ -1947,8 +1947,8 @@ export default {
         prestopCommand: '',
         environments: [],
         hosts: [],
-        cpuID: null,
-        memoryID: null,
+        cpuId: null,
+        memoryId: null,
         customImage: 0,
         imageLocation: '',
         rollingUpdate: '',
@@ -2815,14 +2815,14 @@ export default {
           this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
           break;
         case 'cpuAndMemory':
-          this.newProps['cpuID'] = this.selected.model['cpuID'];
+          this.newProps['cpuId'] = this.selected.model['cpuId'];
           // update memeorySizeList by cpuId
           this.cpuAndMemoryList.some(it => {
-            if (it.hasOwnProperty('cpu') && it.id === this.newProps['cpuID']) {
+            if (it.hasOwnProperty('cpu') && it.id === this.newProps['cpuId']) {
               this.memeorySizeList = it.memoryList;
             }
           });
-          this.newProps['memoryID'] = this.selected.model['memoryID'];
+          this.newProps['memoryId'] = this.selected.model['memoryId'];
           break;
         case 'image':
           this.newProps['customImage'] = this.selected.model['customImage'];
@@ -3061,12 +3061,12 @@ export default {
             if (!valid) {
               return;
             }
-            if (!this.newProps.hasOwnProperty('cpuID') || !this.selected.model.hasOwnProperty('cpuID')
-              || !this.newProps.hasOwnProperty('memoryID') || !this.selected.model.hasOwnProperty('memoryID')) {
+            if (!this.newProps.hasOwnProperty('cpuId') || !this.selected.model.hasOwnProperty('cpuId')
+              || !this.newProps.hasOwnProperty('memoryId') || !this.selected.model.hasOwnProperty('memoryId')) {
               return;
             }
-            if ((this.newProps['cpuID'] == this.selected.model['cpuID'])
-              && (this.newProps['memoryID'] == this.selected.model['memoryID'])) {
+            if ((this.newProps['cpuId'] == this.selected.model['cpuId'])
+              && (this.newProps['memoryId'] == this.selected.model['memoryId'])) {
               this.selected.prop = null;
               this.$message({
                 type: 'warning',
@@ -3150,8 +3150,8 @@ export default {
           options['image'] = this.newProps['imageLocation'];
           break;
         case 'cpuAndMemory':
-          options['cpuId'] = this.newProps['cpuID'];
-          options['memoryId'] = this.newProps['memoryID'];
+          options['cpuId'] = this.newProps['cpuId'];
+          options['memoryId'] = this.newProps['memoryId'];
           break;
         case 'expiredDays':
           options['expiredDays'] = this.newProps['expiredDays'];
@@ -3240,11 +3240,11 @@ export default {
           this.selected.service.image.location = imageLocation;
           break;
         case 'cpuAndMemory':
-          let cpuID = this.newProps['cpuID'];
-          let memoryID = this.newProps['memoryID'];
-          this.selected.model['cpuID'] = cpuID;
-          this.selected.model['memoryID'] = memoryID;
-          let cpuAndMemoryInfo = this.$storeHelper.getCPUAndMemoryInfoByID(cpuID, memoryID);
+          let cpuId = this.newProps['cpuId'];
+          let memoryId = this.newProps['memoryId'];
+          this.selected.model['cpuId'] = cpuId;
+          this.selected.model['memoryId'] = memoryId;
+          let cpuAndMemoryInfo = this.$storeHelper.getCPUAndMemoryInfoByID(cpuId, memoryId);
           this.selected.service['cpuInfo'] = cpuAndMemoryInfo[0];
           this.selected.service['memoryInfo'] = cpuAndMemoryInfo[1];
           break;
@@ -3534,7 +3534,7 @@ export default {
               this.memeorySizeList.some(it => {
                 if (it.hasOwnProperty('defaultSelect') && 1 === it.defaultSelect) {
 //                  this.stepForm3.memory = it.memory;
-                  this.newProps['memoryID'] = it.id;
+                  this.newProps['memoryId'] = it.id;
                 }
               })
             }
