@@ -267,63 +267,75 @@ class Net extends NetBase {
       // 获取监控数据-CPU
       'monitor_statistic_cpu': {
         path: '/service/monitorCPUUsage',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       // 获取监控数据-内存
       'monitor_statistic_memory': {
         path: '/service/monitorMemoryUsage',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       // 获取监控数据-磁盘读
       'monitor_statistic_disk_read': {
         path: '/service/monitorFSReadBytes',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       // 获取监控数据-磁盘写
       'monitor_statistic_disk_write': {
         path: '/service/monitorFSWriteBytes',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       // 获取监控数据-网络in
       'monitor_statistic_net_in': {
         path: '/service/monitorNetworkInput',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       // 获取监控数据-网络out
       'monitor_statistic_net_out': {
         path: '/service/monitorNetworkOutput',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       // 获取监控数据-入包量
       // payload: {netWorkPackageDirection: 'receive'}
       'monitor_statistic_package_count_in': {
         path: '/service/monitorNetWork',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       // 获取监控数据-出包量
       // payload: {netWorkPackageDirection: 'transmit'}
       'monitor_statistic_package_count_out': {
         path: '/service/monitorNetWork',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       //获取监控数据-新生代GC次数
       'monitor_statistic_young_gc_count': {
         path: '/service/monitorYoungGcCount',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       //获取监控数据-新生代GC时间
       'monitor_statistic_young_gc_time': {
         path: '/service/monitorYoungGcTime',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       //获取监控数据-老生代GC次数
       'monitor_statistic_old_gc_count': {
         path: '/service/monitorOldGcCount',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       'monitor_statistic_old_gc_time': {
         path: '/service/monitorOldGcTime',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
 
       /**镜像相关*/

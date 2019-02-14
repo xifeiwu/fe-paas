@@ -50,7 +50,7 @@
     </div>
     <div class="chart-list" :style="{height: heightOfChartList + 'px'}">
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['cpu']['expand']}"
-           v-if="chartContainerStatus['cpu'].show">
+           v-if="chartContainerStatus['cpu'].show" v-loading="loadingOthers" element-loading-spinner="el-icon-loading">
         <div class="chart-card">
           <div class="title">
             <span>CPU使用率</span>
@@ -62,12 +62,12 @@
                    v-if="chartData['cpu'] != null"
                    ref="charts-cpu" :data="chartData['cpu']"></ve-line>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
-            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+            <span v-if="!loadingOthers">暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
         </div>
       </div>
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['memory']['expand']}"
-           v-if="chartContainerStatus['memory'].show">
+           v-if="chartContainerStatus['memory'].show" v-loading="loadingOthers" element-loading-spinner="el-icon-loading">
         <div class="chart-card">
           <div class="title">
             <span>内存使用率</span>
@@ -79,13 +79,13 @@
                    v-if="chartData['memory'] != null"
                    ref="charts-memory" :data="chartData['memory']"></ve-line>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
-            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+            <span v-if="!loadingOthers">暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
         </div>
       </div>
 
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['disk-read']['expand']}"
-           v-if="chartContainerStatus['disk-read'].show">
+           v-if="chartContainerStatus['disk-read'].show" v-loading="loadingOthers" element-loading-spinner="el-icon-loading">
         <div class="chart-card">
           <div class="title">
             <span>磁盘-读</span>
@@ -97,13 +97,13 @@
                    v-if="chartData['disk-read'] != null"
                    ref="charts-disk-read" :data="chartData['disk-read']"></ve-line>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
-            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+            <span v-if="loadingOthers">暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
         </div>
       </div>
 
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['disk-write']['expand']}"
-           v-if="chartContainerStatus['disk-write'].show">
+           v-if="chartContainerStatus['disk-write'].show" v-loading="loadingOthers" element-loading-spinner="el-icon-loading">
         <div class="chart-card">
           <div class="title">
             <span>磁盘-写</span>
@@ -115,13 +115,13 @@
                    v-if="chartData['disk-write'] != null"
                    ref="charts-disk-write" :data="chartData['disk-write']"></ve-line>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
-            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+            <span v-if="loadingOthers">暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
         </div>
       </div>
 
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['network-in']['expand']}"
-           v-if="chartContainerStatus['network-in'].show">
+           v-if="chartContainerStatus['network-in'].show" v-loading="loadingOthers" element-loading-spinner="el-icon-loading">
         <div class="chart-card">
           <div class="title">
             <span>网络流量-入</span>
@@ -133,13 +133,13 @@
                    v-if="chartData['network-in'] != null"
                    ref="charts-network-in" :data="chartData['network-in']"></ve-line>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
-            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+            <span v-if="loadingOthers">暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
         </div>
       </div>
 
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['network-out']['expand']}"
-           v-if="chartContainerStatus['network-out'].show">
+           v-if="chartContainerStatus['network-out'].show" v-loading="loadingOthers" element-loading-spinner="el-icon-loading">
         <div class="chart-card">
           <div class="title">
             <span>网络流量-出</span>
@@ -151,7 +151,7 @@
                    v-if="chartData['network-out'] != null"
                    ref="charts-network-out" :data="chartData['network-out']"></ve-line>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
-            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+            <span v-if="loadingOthers">暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
         </div>
       </div>
@@ -159,7 +159,7 @@
 
       <!--new add-->
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['package-count-in']['expand']}"
-                               v-if="chartContainerStatus['package-count-in'].show">
+                               v-if="chartContainerStatus['package-count-in'].show" v-loading="loadingOthers" element-loading-spinner="el-icon-loading">
         <div class="chart-card">
           <div class="title">
             <span>收包速率</span>
@@ -171,13 +171,13 @@
                    v-if="chartData['package-count-in'] != null"
                    ref="charts-package-count-in" :data="chartData['package-count-in']"></ve-line>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
-            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+            <span v-if="loadingOthers">暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
         </div>
       </div>
 
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['package-count-out']['expand']}"
-           v-if="chartContainerStatus['package-count-out'].show">
+           v-if="chartContainerStatus['package-count-out'].show" v-loading="loadingOthers" element-loading-spinner="el-icon-loading">
         <div class="chart-card">
           <div class="title">
             <span>发包速率</span>
@@ -189,12 +189,12 @@
                    v-if="chartData['package-count-out'] != null"
                    ref="charts-package-count-out" :data="chartData['package-count-out']"></ve-line>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
-            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+            <span v-if="loadingOthers">暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
         </div>
       </div>
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['young-gc-count']['expand']}"
-           v-if="chartContainerStatus['young-gc-count'].show">
+           v-if="chartContainerStatus['young-gc-count'].show" v-loading="loadingGc" element-loading-spinner="el-icon-loading">
         <div class="chart-card">
           <div class="title">
             <span>新生代GC次数</span>
@@ -203,16 +203,16 @@
           </div>
           <ve-histogram width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
                    :settings="chartSettingGcCount" :extend="extend"
-                   v-if="chartData['young-gc-count'] != null"
-                   ref="charts-young-gc-count" :data="chartData['young-gc-count']"></ve-histogram>
+                   v-if="gcChartData['young-gc-count'] != null"
+                   ref="charts-young-gc-count" :data="gcChartData['young-gc-count']"></ve-histogram>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
-            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+            <span v-if="!loadingGc">暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
         </div>
       </div>
 
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['young-gc-time']['expand']}"
-           v-if="chartContainerStatus['young-gc-time'].show">
+           v-if="chartContainerStatus['young-gc-time'].show" v-loading="loadingGc" element-loading-spinner="el-icon-loading">
         <div class="chart-card">
           <div class="title">
             <span>新生代GC用时</span>
@@ -221,16 +221,16 @@
           </div>
           <ve-histogram width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
                    :settings="chartSettingGcTime" :extend="extend"
-                   v-if="chartData['young-gc-time'] != null"
-                   ref="charts-young-gc-time" :data="chartData['young-gc-time']"></ve-histogram>
+                   v-if="gcChartData['young-gc-time'] != null"
+                   ref="charts-young-gc-time" :data="gcChartData['young-gc-time']"></ve-histogram>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
-            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+            <span v-if="!loadingGc">暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
         </div>
       </div>
 
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['old-gc-count']['expand']}"
-           v-if="chartContainerStatus['old-gc-count'].show">
+           v-if="chartContainerStatus['old-gc-count'].show" v-loading="loadingGc" element-loading-spinner="el-icon-loading">
         <div class="chart-card">
           <div class="title">
             <span>老年代GC次数</span>
@@ -239,16 +239,16 @@
           </div>
           <ve-histogram width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
                    :settings="chartSettingGcCount" :extend="extend"
-                   v-if="chartData['old-gc-count'] != null"
-                   ref="charts-old-gc-count" :data="chartData['old-gc-count']"></ve-histogram>
+                   v-if="gcChartData['old-gc-count'] != null"
+                   ref="charts-old-gc-count" :data="gcChartData['old-gc-count']"></ve-histogram>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
-            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+            <span v-if="!loadingGc">暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
         </div>
       </div>
 
       <div :class="{'chart-container':true, 'shrink': !chartContainerStatus['old-gc-time']['expand']}"
-           v-if="chartContainerStatus['old-gc-time'].show">
+           v-if="chartContainerStatus['old-gc-time'].show" v-loading="loadingGc" element-loading-spinner="el-icon-loading">
         <div class="chart-card">
           <div class="title">
             <span>老年代GC用时</span>
@@ -257,10 +257,10 @@
           </div>
           <ve-histogram width="100%" :height="chartHeight" :legend-visible="false" :grid="grid" :data-zoom="dataZoom"
                    :settings="chartSettingGcTime" :extend="extend"
-                   v-if="chartData['old-gc-time'] != null"
-                   ref="charts-old-gc" :data="chartData['old-gc-time']"></ve-histogram>
+                   v-if="gcChartData['old-gc-time'] != null"
+                   ref="charts-old-gc" :data="gcChartData['old-gc-time']"></ve-histogram>
           <div class="empty" :style="{'width':'100%', 'height':chartHeight}" v-else>
-            <span>暂无数据，请尝试点击查询按钮刷新数据。</span>
+            <span v-if="!loadingGc">暂无数据，请尝试点击查询按钮刷新数据。</span>
           </div>
         </div>
       </div>
@@ -535,11 +535,17 @@
         const URL_MAP = this.URL_MAP;
         // init value of this.chartData
         Object.keys(URL_MAP).forEach(it => {
-          this.chartData[it] = null;
+          if (it.indexOf("gc") > 0) {
+            this.gcChartData[it] = null;
+          } else {
+            this.chartData[it] = null;
+          }
         });
       },
 
       requestStatisticData() {
+        this.loadingGc = false;
+        this.loadingOthers = false;
         this.resetChartData();
 
         if (this.instanceList.length === 0) {
@@ -554,7 +560,8 @@
           this.$message.warning('请选择监控区间');
           return;
         }
-
+        this.loadingGc = true;
+        this.loadingOthers = true;
 //        ['cpu', 'memory', 'network-in', 'network-out', 'disk-read', 'disk-write']
         const serviceInfo = this.$refs['version-selector'].getSelectedValue();
         const selectedInstanceIPList = [];
@@ -590,16 +597,20 @@
 //        console.log(this.dateTimeRange[0].getTime());
 //        console.log(payload);
 
-        const statisticTypeList = this.selectedStatisticTypeList.filter(it => {
+
+        let statisticTypeList = [];
+        let gcTypeList = [];
+        this.selectedStatisticTypeList.forEach(it => {
           if (this.URL_MAP.hasOwnProperty(it)) {
-            return true;
-          } else {
-            return false;
+            if (it.indexOf("gc") < 0) {
+              statisticTypeList.push(it);
+            } else {
+              gcTypeList.push(it);
+            }
           }
         });
-//        console.log('statisticTypeList');
-//        console.log(statisticTypeList);
-
+        // console.log(statisticTypeList);
+        // console.log(gcTypeList);
         const formatResponseData = (type, data) => {
           var result = data;
           switch (type) {
@@ -720,7 +731,45 @@
 
         // get statistic data
         const statisticData = {};
+        const gcStatisticData = {};
         const chartData = {};
+        const gcChartData = {};
+
+        Promise.all(gcTypeList.map(it => {
+          return this.$net.requestPaasServer(this.URL_MAP[it], {
+            payload: payload
+          });
+        })).then(resContentList => {
+          if (resContentList.length === gcTypeList.length) {
+            gcTypeList.forEach((type, index) => {
+              gcStatisticData[type] = formatResponseData2(type, resContentList[index]);
+            });
+          }
+        }).catch(err => {
+          console.log(err);
+        }).finally(() => {
+          this.loadingGc = false;
+          if (Object.keys(gcStatisticData).length !== gcTypeList.length) {
+            this.$message.error('获取GC数据失败');
+          } else {
+            const columns = ['timestamp'].concat(this.selectedInstanceList);
+            for (let key in gcStatisticData) {
+              gcChartData[key] = {
+                columns,
+                rows: gcStatisticData[key]
+              }
+            }
+
+            setTimeout(() => {
+              gcTypeList.forEach(it => {
+                if (this.$refs[`charts-${it}`]) {
+                  this.$refs[`charts-${it}`].echartsResize();
+                };
+              });
+            });
+          }
+          this.gcChartData = gcChartData;
+        })
 
         Promise.all(statisticTypeList.map(it => {
           var appendParam = {};
@@ -747,6 +796,7 @@
         }).catch(err => {
           console.log(err);
         }).finally(() => {
+          this.loadingOthers = false;
           if (Object.keys(statisticData).length !== statisticTypeList.length) {
             this.$message.error('数据获取失败');
 //            console.log(Object.keys(statisticData).length);
@@ -769,11 +819,9 @@
             });
 //            console.log(statisticData);
 //            console.log(chartData);
-            this.chartData = chartData;
           }
+          this.chartData = chartData;
         });
-
-
 //        this.chartData['cpu'] = {
 //          "columns": ["timestamp", "v100-galaxy-job-console-782795121-4jhp5", "v100-galaxy-job-console-782795121-4jhp6"],
 //          "rows": [{
@@ -876,7 +924,7 @@
           },
         },
 
-        selectedStatisticTypeList: ['cpu', 'memory', 'disk-read', 'disk-write', 'network-in', 'network-out', 'package-count-in', 'package-count-out'].concat(['young-gc-count', 'young-gc-time', 'old-gc-count', 'old-gc-time']),
+        selectedStatisticTypeList: ['cpu', 'memory', 'disk-read', 'disk-write', 'network-in', 'network-out', 'package-count-in', 'package-count-out', 'young-gc-count', 'young-gc-time', 'old-gc-count', 'old-gc-time'],
         statisticTypeList: [{
           type: 'cpu',
           label: 'CPU',
@@ -978,6 +1026,8 @@
             manual: false,
           }
         },
+        loadingGc: false,
+        loadingOthers: false,
         selectAllInstance: false,
         selectedInstanceList: [],
 
@@ -987,6 +1037,7 @@
           'network-in': null,
           'network-out': null,
         },
+        gcChartData: {},
 
         chartHeight: '230px',
         grid: {
