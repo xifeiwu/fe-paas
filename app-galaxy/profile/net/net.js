@@ -1211,6 +1211,74 @@ class Net extends NetBase {
     });
   }
 
+  getObjHealthCheck() {
+    return {
+      _type: '',
+      _content: {
+        http: '',
+        shell: '',
+        socket: '8080',
+      },
+      _initialDelay: 120,
+
+      set type(type) {
+        this._type = type;
+      },
+      get type() {
+        return this._type
+      },
+      set content(value) {
+        if (['http', 'shell', 'socket'].indexOf(this._type) > -1) {
+          this._content[this._type] = value;
+        }
+      },
+      get content() {
+        return this._content[this._type];
+      },
+      get contentDesc() {
+        var _contentDesc = '';
+        switch (this.type) {
+          case 'http':
+            _contentDesc = '路径';
+            break;
+          case 'shell':
+            _contentDesc = '脚本';
+            break;
+          case 'socket':
+            _contentDesc = '端口';
+            break;
+        }
+        return _contentDesc;
+      },
+      // contentCheckErrMsg具有watcher的属性
+      get contentCheckErrMsg() {
+        var errMsg = '';
+        switch (this.type) {
+          case 'http':
+            const regForHttp = /^\/[A-Za-z0-9_\-\.\/]{1,99}$/;
+            if (!regForHttp.exec(this.content)) {
+              errMsg = '以/开头，可以包含字母、数字、下划线、中划线。2-100个字符';
+            }
+            break;
+          case 'shell':
+            if (this.content.trim().length === 0) {
+              errMsg = '健康检查不能为空';
+            }
+            break;
+          case 'socket':
+            break;
+        }
+        return errMsg;
+      },
+      set initialDelay(value) {
+        this._initialDelay = value
+      },
+      get initialDelay() {
+        return this._initialDelay
+      },
+    }
+  }
+
   /**
    * format the response content of service list
    * @param resContent
@@ -1293,51 +1361,7 @@ class Net extends NetBase {
         item.language = language;
 
         // 更新healthCheck格式
-        const healthCheck = {
-          _type: '',
-          _content: {
-            http: '',
-            shell: '',
-            socket: '8080',
-          },
-          _contentDesc: '',
-          _initialDelay: 120,
-
-          set type(type) {
-            this._type = type;
-            switch (type) {
-              case 'http':
-                this._contentDesc = '路径';
-                break;
-              case 'shell':
-                this._contentDesc = '脚本';
-                break;
-              case 'socket':
-                this._contentDesc = '端口';
-                break;
-            }
-          },
-          get type() {
-            return this._type
-          },
-          set content(value) {
-            if (['http', 'shell', 'socket'].indexOf(this._type) > -1) {
-              this._content[this._type] = value;
-            }
-          },
-          get content() {
-            return this._content[this._type];
-          },
-          get contentDesc() {
-            return this._contentDesc;
-          },
-          set initialDelay(type) {
-            this._initialDelay = type
-          },
-          get initialDelay() {
-            return this._initialDelay
-          },
-        };
+        const healthCheck = this.getObjHealthCheck();
         healthCheck.type = this.$storeHelper.getHealthCheckTypeDescByKey(service.healthCheckType);
         healthCheck.content = service.healthCheck;
         healthCheck.initialDelay = service.hasOwnProperty('initialDelaySeconds') ? service['initialDelaySeconds'] : 120;

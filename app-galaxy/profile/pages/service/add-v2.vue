@@ -149,21 +149,21 @@
           <div class="el-form-item-group is-required">
             <div class="label" style="width: 140px;">健康检查</div>
             <div class="content" style="margin-left: 140px;">
-              <el-form-item :error="errMsgForHealthCheck">
+              <el-form-item :error="formData.healthCheck.contentCheckErrMsg">
                 <div class="health-check-type" style="height: 64px">
-                  <el-radio-group v-model="formData.healthCheckType">
+                  <el-radio-group v-model="formData.healthCheck.type">
                     <el-radio v-for="(item, index) in $storeHelper.healthCheckTypeList" :label="item.desc" :key="item.desc">{{item.label}}</el-radio>
                   </el-radio-group>
                   <div class="input-area">
-                    <div :class="formData.healthCheckType != 'http' ? 'hide': ''">
-                      <el-input v-model="formData.healthCheck.http" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
+                    <div :class="formData.healthCheck.type != 'http' ? 'hide': ''">
+                      <el-input v-model="formData.healthCheck.content" placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
                     </div>
-                    <div :class="formData.healthCheckType != 'shell' ? 'hide' : ''">
-                      <el-input v-model="formData.healthCheck.shell"placeholder="请填写shell指令"></el-input>
+                    <div :class="formData.healthCheck.type != 'shell' ? 'hide' : ''">
+                      <el-input v-model="formData.healthCheck.content" placeholder="请填写shell指令"></el-input>
                     </div>
-                    <div :class="formData.healthCheckType != 'socket' ? 'hide' : ''">
+                    <div :class="formData.healthCheck.type != 'socket' ? 'hide' : ''">
                       <span>端口号：</span>
-                      <el-input-number v-model="formData.healthCheck.socket" :min="0" :max="10000" label="延迟时间"></el-input-number>
+                      <el-input-number v-model="formData.healthCheck.content" :min="0" :max="10000" label="延迟时间"></el-input-number>
                     </div>
                   </div>
                 </div>
@@ -171,7 +171,7 @@
               <el-form-item>
                 <div class="initial-delay" style="line-height: 28px">
                   <span>延迟时间：</span>
-                  <el-input-number v-model="formData.initialDelaySeconds" :min="30" :max="1800" label="延迟时间"></el-input-number>
+                  <el-input-number v-model="formData.healthCheck.initialDelay" :min="30" :max="1800" label="延迟时间"></el-input-number>
                   <el-tooltip effect="dark" content="健康检查延迟时间：延迟时间以秒为单位，取值范围在30-1800之间" placement="bottom">
                     <i class="paas-icon-fa-question" style="font-size: 12px; color: #E6A23C"></i>
                   </el-tooltip>
@@ -635,8 +635,7 @@
           this.formData.cpuID = serviceInfo.cpuId;
           this.formData.memoryID = serviceInfo.memoryId;
           this.formData.rollingUpdate = serviceInfo.rollingUpdate;
-          this.formData.healthCheck.http = serviceInfo.healthCheck.type;
-          this.formData.initialDelaySeconds = serviceInfo.initialDelaySeconds;
+          this.formData.healthCheck = serviceInfo.healthCheck;
           this.formData.expiredDays = serviceInfo.remainExpiredDays;
           if (serviceInfo.portMap.outerPort && serviceInfo.portMap.outerPort !== "") {
             this.formData.portMap.outerPort = serviceInfo.portMap.outerPort;
@@ -794,13 +793,7 @@
           prestopCommand: '',
           rollingUpdate: true,
           loadBalance: profileUtils.getSupportedLoadBalance()[0],
-          healthCheckType: this.$storeHelper.defaultHealthCheckTypeDesc,
-          healthCheck: {
-            http: '',
-            shell: '',
-            socket: 8080
-          },
-          initialDelaySeconds: 120,
+          healthCheck: this.$net.getObjHealthCheck(),
           agree: false,
           packageType: '',
           packageInfo: {
@@ -876,7 +869,6 @@
         loadingText: '',
 
         checkPortMap: null,
-        errMsgForHealthCheck: '',
       }
     },
     computed: {
@@ -1006,20 +998,6 @@
             this.formData.portMap.validateErrMsg = msg;
           }
         })
-      },
-      'formData.healthCheckType': function (type) {
-        switch (type) {
-          case 'http':
-//          this.formData.healthCheck = '';
-            break;
-          case 'shell':
-//          this.formData.healthCheck = '';
-            break;
-          case 'socket':
-            this.formData.healthCheck.socket = 8080;
-            break;
-        }
-        this.getErrMsgForHealthCheck();
       },
 //      'imageInfoFromNet': {
 //        immediate: true,
@@ -1313,7 +1291,7 @@
               if (this.formData.portMap.errMsg) {
                 valid = false;
               }
-              if (this.getErrMsgForHealthCheck()) {
+              if (this.formData.healthCheck.contentCheckErrMsg) {
                 valid = false;
               }
               if (valid) {
@@ -1338,7 +1316,7 @@
                   mavenProfileId: formData.mavenProfileId,
                   rollingUpdate: formData.rollingUpdate,
                   loadBalance: formData.loadBalance,
-                  initialDelaySeconds: formData.initialDelaySeconds,
+                  initialDelaySeconds: formData.initialDelay,
                   cpuId: formData.cpuID,
                   memoryId: formData.memoryID,
                   environments: formData.environments,
@@ -1372,18 +1350,8 @@
                     payload["serviceVersion"] = 'default';
                   }
                 }
-                payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(formData.healthCheckType);
-                switch (formData.healthCheckType) {
-                  case 'http':
-                    payload.healthCheck = formData.healthCheck.http;
-                    break;
-                  case 'shell':
-                    payload.healthCheck = formData.healthCheck.shell;
-                    break;
-                  case 'socket':
-                    payload.healthCheck = formData.healthCheck.socket;
-                    break;
-                }
+                payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(formData.healthCheck.type);
+                payload.healthCheck = formData.healthCheck.content;
                 this.addToWaitingResponseQueue('submit');
                 this.showLoading = true;
                 this.loadingText = '正在为您创建服务';
@@ -1414,51 +1382,11 @@
             break;
         }
       },
-      /**
-       * used for two-way choose after success action, howto:
-       * successConfirm(contentToShow).then().catch()
-       * TODO: not used
-       */
-      successConfirm(content) {
-        return new Promise((resolve, reject) => {
-          this.$confirm(content, '提示', {
-            confirmButtonText: '返回服务列表',
-            cancelButtonText: '继续创建',
-            closeOnClickModal: false,
-            type: 'success'
-          }).then(() => {
-            resolve();
-          }).catch(() => {
-            reject()
-          });
-        });
-      },
 
       resetForm(formName) {
         this.$refs[formName].resetFields();
       },
 
-      getErrMsgForHealthCheck() {
-        let errMsg = '';
-        const healthCheck = this.formData.healthCheck;
-        switch (this.formData.healthCheckType) {
-          case 'http':
-            const regForHttp = /^\/[A-Za-z0-9_\-\.\/]{1,99}$/;
-            if (!regForHttp.exec(healthCheck.http)) {
-              errMsg = '以/开头，可以包含字母、数字、下划线、中划线。2-100个字符';
-            }
-            break;
-          case 'shell':
-            if (healthCheck.shell.trim().length === 0) {
-              errMsg = '健康检查不能为空';
-            }
-            break;
-          case 'socket':
-            break;
-        }
-        this.errMsgForHealthCheck = errMsg;
-        return errMsg;
-      },
     }
   }
 </script>

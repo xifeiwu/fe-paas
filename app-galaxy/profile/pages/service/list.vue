@@ -533,9 +533,9 @@
         if (model) {
           this.$storeHelper.dataTransfer = {
             from: this.$net.page['profile/service'],
-            data: JSON.parse(JSON.stringify(Object.assign(basicInfo, {
+            data: Object.assign(basicInfo, {
               serviceInfo: model
-            })))
+            })
           };
 //          console.log(model);
           this.$router.push(this.$net.page['profile/service/modify']);
