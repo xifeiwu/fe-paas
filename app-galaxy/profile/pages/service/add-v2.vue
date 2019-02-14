@@ -4,7 +4,7 @@
       <div class="sheet">
         <div class="section-title">{{forModify ?'修改配置':'创建服务'}}</div>
         <el-form :model="formData" ref="formData"
-                 :rules="rules" :label-width="formRelated.isJavaLanguage ? '140px' : '140px'" size="mini"
+                 :rules="rules" :label-width="formRelated.isJavaLanguage ? '180px' : '180px'" size="mini"
                  v-loading="showLoading"
                  :element-loading-text="loadingText">
           <el-form-item label="运行环境" class="profile-description">
@@ -44,7 +44,7 @@
             </el-radio-group>
           </el-form-item>
 
-          <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-if="!imageSelectState.customImage">
+          <el-form-item label="基础镜像" class="auto-image max-width-700" prop="autoImageValue" v-if="!imageSelectState.customImage">
             <el-select v-model="formData.autoImageValue" filterable
                        :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
               <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
@@ -71,13 +71,13 @@
           </el-form-item>
 
           <transition name="more-config">
-            <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress" class="gitlab-address"
+            <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress" class="gitlab-address max-width-700"
                           v-if="!imageSelectState.customImage">
               <el-input v-model="formData.gitLabAddress" placeholder="请输入项目的gitLab地址，不能超过256个字符"></el-input>
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="Gitlab分支" prop="gitLabBranch" class="gitlab-branch"
+            <el-form-item label="Gitlab分支" prop="gitLabBranch" class="gitlab-branch max-width-700"
                           v-if="!imageSelectState.customImage">
               <el-input v-model="formData.gitLabBranch" placeholder="不能超过100个字符"></el-input>
             </el-form-item>
@@ -93,20 +93,20 @@
           <transition name="more-config">
             <el-form-item label="Gitlab父级pom.xml相对路径" prop="relativePathOfParentPOM"
                           v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
-                          class="relative-path-of-parent-pom"
+                          class="relative-path-of-parent-pom max-width-700"
             >
               <el-input v-model="formData.relativePathOfParentPOM"
                         placeholder="不能超过256个字符"></el-input>
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
+            <el-form-item label="maven profile id" prop="mavenProfileId max-width-700" class="maven-profile-id max-width-700"
                           v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
             >
               <el-input v-model="formData.mavenProfileId" placeholder="不能超过100个字符"></el-input>
             </el-form-item>
           </transition>
-          <el-form-item label="VM_Options" prop="vmOptions" class="vm-options"
+          <el-form-item label="VM_Options" prop="vmOptions" class="vm-options max-width-800"
                         v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
           >
             <div>
@@ -146,9 +146,9 @@
               <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
             </el-radio-group>
           </el-form-item>
-          <div class="el-form-item-group is-required">
-            <div class="label" style="width: 140px;">健康检查</div>
-            <div class="content" style="margin-left: 140px;">
+          <div class="el-form-item-group is-required health-check max-width-700">
+            <div class="label" style="width: 180px;">健康检查</div>
+            <div class="content" style="margin-left: 180px;">
               <el-form-item :error="formData.healthCheck.contentCheckErrMsg">
                 <div class="health-check-type" style="height: 64px">
                   <el-radio-group v-model="formData.healthCheck.type">
@@ -439,12 +439,12 @@
       box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
       margin: 10px;
       padding: 10px 20px 10px 10px;
-      width: 800px;
+      max-width: 900px;
       .section-title {
+        margin: 15px 0px;
         font-size: 18px;
-        text-align: center;
-        margin-bottom: 20px;
         font-weight: bold;
+        text-align: center;
       }
       .section-footer {
         margin: 0px -10px;
@@ -463,7 +463,27 @@
         .paas-icon-fa-question {
           font-size: 12px;
         }
+        .el-form-item-group {
+          &.max-width-600 {
+            max-width: 600px;
+          }
+          &.max-width-700 {
+            max-width: 700px;
+          }
+          &.max-width-800 {
+            max-width: 800px;
+          }
+        }
         .el-form-item {
+          &.max-width-600 {
+            max-width: 600px;
+          }
+          &.max-width-700 {
+            max-width: 700px;
+          }
+          &.max-width-800 {
+            max-width: 800px;
+          }
           &.build-type {
             .flex-layout {
               display: flex;
@@ -487,13 +507,23 @@
             margin-bottom: 10px;
           }
           &.auto-image {
-            max-width: 800px;
             .el-select {
               width: 100%;
             }
           }
+          &.gitlab-address {
+          }
+          &.gitlab-branch {
+          }
+          &.relative-path-of-parent-pom {
+          }
+          &.main-class {
+          }
+          &.maven-profile-id {
+          }
+          &.vm-options {
+          }
           &.custom-image {
-            max-width: 800px;
             .el-autocomplete {
               width: 100%;
             }
@@ -512,21 +542,6 @@
                 box-sizing: border-box;
               }
             }
-          }
-          &.gitlab-address {
-            max-width: 600px;
-          }
-          &.gitlab-branch {
-            max-width: 600px;
-          }
-          &.relative-path-of-parent-pom {
-            max-width: 600px;
-          }
-          &.main-class {
-            max-width: 600px;
-          }
-          &.maven-profile-id {
-            max-width: 600px;
           }
 
           &.environments, &.hosts {
@@ -656,6 +671,7 @@
         } else {
           goBack = true;
         }
+        this.formData.healthCheck.type = this.$storeHelper.defaultHealthCheckTypeDesc;
 
 //        this.formData.packageInfo.type = this.packageTypeList[0].type;
         // set default cpu, default memorySizeList will be set in watch
