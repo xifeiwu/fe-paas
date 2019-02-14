@@ -67,7 +67,7 @@
         </el-table-column>
         <el-table-column label="操作" headerAlign="left" align="left" minWidth="200">
           <template slot-scope="scope">
-            <div>
+            <div v-if="scope.row.id">
               <el-button
                       size="small"
                       type="text"
@@ -163,6 +163,15 @@
                 <span>添加外网域名</span>
               </el-button>
             </div>
+            <el-button
+                    v-else
+                    size="small"
+                    type="text"
+                    :loading="statusOfWaitingResponse('service_config_add') && action.row.appId == scope.row.appId"
+                    @click="handleTRClick($event, 'service_config_add', scope.$index, scope.row)"
+                    :class="['warning']">
+              <span>创建服务</span><i class="paas-icon-level-up"></i>
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -505,9 +514,26 @@
           case 'service_create':
             this.appWithoutService = this.getAppWithoutService();
             this.$storeHelper.dataTransfer = {
-              from: this.$net.page['profile/service'],
+              from: {
+                path: this.$net.page['profile/service'],
+                action,
+                page: this.currentPage
+              },
               data: Object.assign(basicInfo, {
                 appWithoutService: this.appWithoutService,
+              })
+            };
+            this.$router.push(this.$net.page['profile/service/add']);
+            break;
+          case 'service_config_add':
+            this.$storeHelper.dataTransfer = {
+              from: {
+                path: this.$net.page['profile/service'],
+                action,
+                page: this.currentPage
+              },
+              data: Object.assign(basicInfo, {
+                serviceBasicInfo: row
               })
             };
             this.$router.push(this.$net.page['profile/service/add']);
@@ -532,7 +558,11 @@
 //            console.log(model);
             if (model) {
               this.$storeHelper.dataTransfer = {
-                from: this.$net.page['profile/service'],
+                from: {
+                  path: this.$net.page['profile/service'],
+                  action,
+                  page: this.currentPage
+                },
                 data: Object.assign(basicInfo, {
                   serviceInfo: model
                 })
@@ -758,6 +788,9 @@
         this.action.row = row;
         var resContent = null;
         switch (action) {
+          case 'service_config_add':
+            this.goToPageServiceAdd(action, row);
+            break;
           case 'service_config_modify':
             this.goToPageServiceAdd(action, row);
             break;

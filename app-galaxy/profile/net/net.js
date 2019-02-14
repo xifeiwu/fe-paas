@@ -1312,10 +1312,15 @@ class Net extends NetBase {
         };
 
         /** copy prop */
-        ['id', 'appId', 'appName', 'tag', 'remainExpiredDays',
-          'defaultSelect', // 是否是默认服务
+        ['id', 'appId',
           'containerStatus', // 运行状态：几个实例；几个运行中实例
+          'defaultSelect', // 是否是默认服务
           'k8s', // 是否是k8s应用
+        ].forEach(prop => {
+          service.hasOwnProperty(prop) && (item[prop] = service[prop]);
+        });
+        // set value '---' if null
+        ['appName', 'tag', 'remainExpiredDays',
           'serviceName'
         ].forEach(prop => {
           service.hasOwnProperty(prop) && (item[prop] = service[prop] ? service[prop] : '---');

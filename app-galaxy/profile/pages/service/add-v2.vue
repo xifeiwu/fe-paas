@@ -12,6 +12,9 @@
           <el-form-item label="应用名称" class="app-name max-width-600" v-if="forModify">
             {{formRelated.serviceInfo ? formRelated.serviceInfo['appName'] : ''}}
           </el-form-item>
+          <el-form-item label="应用名称" class="app-name max-width-600" v-else-if="dataPassed.from.action === 'service_config_add'">
+            {{dataPassed.serviceBasicInfo ? dataPassed.serviceBasicInfo['appName'] : ''}}
+          </el-form-item>
           <el-form-item label="应用名称" class="app-name max-width-600" v-else>
             <el-select v-model="formData.appId" placeholder="请选择" filterable>
               <el-option v-for="item in dataPassed.appWithoutService" :key="item.appId" :label="item.appName" :value="item.appId">
@@ -606,6 +609,7 @@
       this.type = dataTransfer['type'];
       this.forModify = (this.$route['path'] == this.$net.page['profile/service/modify']);
 
+      this.dataPassed.from = dataTransfer.from;
       const theData = dataTransfer.data;
       // for compatible
       // TODO: delete later
@@ -620,15 +624,10 @@
         this.dataPassed.serviceInfo = serviceInfo;
         if (serviceInfo) {
 //          console.log(serviceInfo);
-//          this.formRelated.serviceInfo = serviceInfo;
+          // NOTICE: the sequence of initialize should not change
           this.formRelated.languageInfo = serviceInfo.language;
           this.formData.appId = serviceInfo.appId;
-//        this.packageTypeList = this.$storeHelper.getPackageTypeListByLanguageAndVersion(
-//          this.appLanguage,
-//          this.appLanguageVersion,
-//        );
 
-//          this.profileListOfCurrentApp = serviceInfo['appInfo']['profileList'];
           if (this.$storeHelper.groupVersion == 'v1' && this.formRelated.languageInfo.type.toUpperCase() === 'PYTHON') {
             this.imageSelectState.customImage = true;
           } else {
@@ -668,13 +667,28 @@
         if (this.profileInfo && this.profileInfo.spaceType.toUpperCase() !== 'PRODUCTION') {
           this.formData.appMonitor = profileUtils.appMonitorList[1].id;
         }
-        this.dataPassed.appWithoutService = theData.appWithoutService;
-        if (this.dataPassed.appWithoutService.length > 0) {
-          this.formData.appId = this.dataPassed.appWithoutService[0]['appId'];
+        // use this.$nextTick for correct performance of this.formData.healthCheck.contentCheckErrMsg used in el-form-item :error
+        this.$nextTick(() => {
+          this.formData.healthCheck.type = this.$storeHelper.defaultHealthCheckTypeDesc;
+          this.formData.healthCheck.content = '';
+        });
+
+        if (this.dataPassed.from.action === 'service_config_add') {
+          if (theData.serviceBasicInfo) {
+            this.dataPassed.serviceBasicInfo = theData.serviceBasicInfo;
+            this.dataPassed.serviceInfo = theData.serviceBasicInfo;
+            this.formData.appId = theData.serviceBasicInfo['appId'];
+          } else {
+            goBack = true;
+          }
         } else {
-          goBack = true;
+          this.dataPassed.appWithoutService = theData.appWithoutService;
+          if (this.dataPassed.appWithoutService.length > 0) {
+            this.formData.appId = this.dataPassed.appWithoutService[0]['appId'];
+          } else {
+            goBack = true;
+          }
         }
-        this.formData.healthCheck.type = this.$storeHelper.defaultHealthCheckTypeDesc;
 
 //        this.formData.packageInfo.type = this.packageTypeList[0].type;
         // set default cpu, default memorySizeList will be set in watch
@@ -723,8 +737,14 @@
         profileInfo: null,
         passedData: {},
         dataPassed: {
+          from: null,
+          // 没有服务的应用列表
           appWithoutService: null,
+          // 运行环境信息
           profileInfo: null,
+          // 服务基本信息
+          serviceBasicInfo: null,
+          // 服务详情
           serviceInfo: null,
         },
         formRelated: {
@@ -914,7 +934,7 @@
       // 依赖appId的属性：serviceInfo, isJavaLanguage, isPythonLanguage, packageTypeList, this.formData.packageInfo.type
       'formData.appId': function (appId) {
         var serviceInfo = null;
-        if (this.forModify) {
+        if (this.forModify || this.dataPassed.from.action === 'service_config_add') {
           serviceInfo = this.dataPassed.serviceInfo;
         } else {
           serviceInfo = this.dataPassed.appWithoutService.find(it => {
@@ -1319,8 +1339,8 @@
                 } else {
                   this.formData.imageLocation = this.formData.autoImageValue;
                 }
-                let formData = this.formData;
-                let payload = {
+                const formData = this.formData;
+                const payload = {
                   appId: formData.appId,
                   spaceId: formData.spaceId,
                   orchId: this.passedData.orchId,
