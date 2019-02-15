@@ -10,7 +10,7 @@
                 size="mini"
                 type="primary"
                 @click="handleButtonClick($event, 'service_create')"
-                :class="{'disabled': $storeHelper.permission['service_create'].disabled && !haveService, 'flex': true}">
+                :class="['flex', $storeHelper.permission['service_create'].disabled ? 'disabled' : '']">
           <span>创建服务</span><i class="paas-icon-level-up"></i>
         </el-button>
         <el-button size="mini"
@@ -41,7 +41,15 @@
             <div v-else>版本未知</div>
           </template>
         </el-table-column>
-        <el-table-column label="应用名称" prop="appName" headerAlign="left" align="left" minWidth="100"></el-table-column>
+        <el-table-column label="应用名称" headerAlign="left" align="left" minWidth="100">
+          <template slot-scope="scope">
+            <span>{{scope.row.appName}}</span>
+            <span v-if="$storeHelper.groupVersion === 'v1'"
+                  style="display: inline; color: #909399; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #909399; border-radius: 4px; word-break: normal"
+                  @mouseenter="handleTRClick($event, 'k8s-tag', scope.$index, scope.row)"
+            >{{scope.row.k8s === 1 ? 'k8s':'mesos'}}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="项目名称" prop="tag" headerAlign="left" align="left" minWidth="100"></el-table-column>
         <el-table-column label="二级域名" prop="serviceName" headerAlign="left" align="left" minWidth="100"></el-table-column>
         <el-table-column
@@ -814,6 +822,13 @@
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
             msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
+        if (action === 'k8s-tag') {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: `这是一个${row.k8s === 1 ? 'k8s':'mesos'}服务`
           });
           return;
         }
