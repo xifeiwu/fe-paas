@@ -102,7 +102,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_stop')"
                       @click="handleTRClick($event, 'service_stop', scope.$index, scope.row)"
-                      :class="$storeHelper.permission['service_stop'].disabled ? 'disabled' : 'danger'">
+                      :class="$storeHelper.permission['service_stop'].disabled || scope.row.containerStatus.Total == 0 ? 'disabled' : 'danger'">
                 停止
               </el-button>
               <div class="ant-divider"></div>
@@ -402,7 +402,7 @@
           this.profileInfo = target;
           this.isProductionProfile = target.spaceType.toUpperCase() === 'PRODUCTION';
         }
-        console.log(this.localPageState);
+//        console.log(this.localPageState);
         var currentPage = 1; // this.getPageStatePassed('currentPage');
         // used only once
         if (this.localPageState.currentPage != 1) {
@@ -901,6 +901,13 @@
         var permission = action;
         if (action == 'service_config_add') {
           permission = 'service_create';
+        }
+        if (action === 'service_stop' && row.containerStatus.Total == 0) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: `当前运行实例数为0，不能进行停止操作`
+          });
+          return;
         }
         if (this.$storeHelper.permission.hasOwnProperty(permission) && this.$storeHelper.permission[permission].disabled) {
           this.$storeHelper.globalPopover.show({
