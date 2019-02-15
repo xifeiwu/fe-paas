@@ -197,13 +197,15 @@ class AppInfoHelper {
         validator(rule, values, callback) {
           let passed = true;
           let reg = /^[^\u4e00-\u9fa5]{0,512}$/;
-          if (!values.match(reg)) {
-            passed = false;
-            callback(`不能包含中文，不能超过512个字符`)
-          }
-          if (values.indexOf("\n") >= 0) {
-            passed =false;
-            callback(`不能回车换行`);
+          if (values) {
+            if (!values.match(reg)) {
+              passed = false;
+              callback(`不能包含中文，不能超过512个字符`)
+            }
+            if (values.indexOf("\n") >= 0) {
+              passed = false;
+              callback(`不能回车换行`);
+            }
           }
           if (passed) {
             callback();

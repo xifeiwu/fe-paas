@@ -652,7 +652,10 @@
           this.formData.cpuId = serviceInfo.cpuInfo.id;
           this.formData.memoryId = serviceInfo.memoryInfo.id;
           this.formData.rollingUpdate = serviceInfo.rollingUpdate;
-          this.formData.healthCheck = serviceInfo.healthCheck;
+          // NOTICE: healthCheck should set after mounted
+          this.$nextTick(() => {
+            this.formData.healthCheck = serviceInfo.healthCheck;
+          });
           this.formData.expiredDays = serviceInfo.remainExpiredDays;
           if (serviceInfo.portMap.outerPort && serviceInfo.portMap.outerPort !== "") {
             this.formData.portMap.outerPort = serviceInfo.portMap.outerPort;

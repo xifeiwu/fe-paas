@@ -177,8 +177,8 @@
                     size="small"
                     type="text"
                     :loading="statusOfWaitingResponse('service_config_add') && action.row.appId == scope.row.appId"
-                    @click="handleTRClick($event, 'service_config_add', scope.$index, scope.row)"
-                    :class="['flex', 'warning']">
+                    :class="['flex', $storeHelper.permission['service_create'].disabled ? 'disabled' : 'warning']"
+                    @click="handleTRClick($event, 'service_config_add', scope.$index, scope.row)">
               <span>创建服务</span><i class="paas-icon-level-up"></i>
             </el-button>
           </template>
@@ -898,10 +898,14 @@
       },
 
       async handleTRClick(evt, action, index, row) {
-        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+        var permission = action;
+        if (action == 'service_config_add') {
+          permission = 'service_create';
+        }
+        if (this.$storeHelper.permission.hasOwnProperty(permission) && this.$storeHelper.permission[permission].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
-            msg: this.$storeHelper.permission[action].reason
+            msg: this.$storeHelper.permission[permission].reason
           });
           return;
         }
