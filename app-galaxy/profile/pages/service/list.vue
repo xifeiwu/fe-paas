@@ -332,12 +332,13 @@
 //        console.log(dataTransfer);
         const from = dataTransfer.from;
         this.dataPassed.from = from;
-        this.dataPassed.data = dataTransfer.data;
-//        if (['profile/service/add', 'profile/service/modify'].map(it => {
-//          return this.$net.page[it];
-//        }).indexOf(from) > -1) {
-//          this.currentPage = dataTransfer.data.toPage;
-//        }
+        /**
+         * dataTransfer.to is used to set profileName and currentPage
+         * this.profileName is set on function mounted
+         * currentPage is get by getPageStatePassed
+         * @type {*}
+         */
+        this.dataPassed.to = dataTransfer.to;
         this.$storeHelper.dataTransfer = null;
       }
     },
@@ -346,6 +347,10 @@
       this.$nextTick(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
       });
+      const profileInfoPassed = this.getPageStatePassed('profileInfo');
+      if (profileInfoPassed) {
+        this.profileName = profileInfoPassed['name'];
+      }
       // NOTICE: getServiceListByPage will be called by change of profileName
 //      this.getServiceListByPage();
     },
@@ -371,6 +376,7 @@
       },
       // changed by el-tab
       profileName(profileName) {
+//        console.log(`change profileName to ${profileName}`);
         var target = null;
         this.$storeHelper.profileListOfGroup.some(it => {
           if (it.name === profileName) {
@@ -381,7 +387,7 @@
           this.profileInfo = target;
           this.isProductionProfile = target.spaceType.toUpperCase() === 'PRODUCTION';
         }
-        var currentPage = this.getPagePassed();
+        var currentPage = this.getPageStatePassed('currentPage');
         this.getServiceListByPage({
           refresh: true,
           currentPage
@@ -397,7 +403,7 @@
       return {
         dataPassed: {
           from: null,
-          data: null
+          to: null
         },
         // TODO: for change internetDomain, will change later
         waitingResponse: false,
@@ -482,15 +488,29 @@
         }
       },
 
-      // used dataPassed only once
-      getPagePassed() {
-        var currentPage = 1;
-        if (this.dataPassed.data) {
-          currentPage = this.dataPassed.data.toPage;
-          this.dataPassed.data = null;
+      // 需要传递到其它页面的本地页面信息
+      getPageStateToTransfer(action) {
+        return {
+          path: this.$net.page['profile/service'],
+          action,
+          page: this.currentPage,
+          profileInfo: this.profileInfo
         }
-        return currentPage;
       },
+      // used prop of  dataPassed.to only once
+      getPageStatePassed(prop) {
+        console.log(this.dataPassed.to);
+        var value = {
+          currentPage: 1,
+          profileInfo: null,
+        }[prop];
+        if (this.dataPassed.to && this.dataPassed.to[prop]) {
+          value = this.dataPassed.to[prop];
+          this.dataPassed.to[prop] = null;
+        }
+        return value;
+      },
+
 
       // collect all related info for add-service before jump to page service/add
       // TODO: not used
@@ -563,11 +583,7 @@
           case 'service_create':
             this.appWithoutService = this.getAppWithoutService();
             this.$storeHelper.dataTransfer = {
-              from: {
-                path: this.$net.page['profile/service'],
-                action,
-                page: this.currentPage
-              },
+              from: this.getPageStateToTransfer(action),
               data: Object.assign(basicInfo, {
                 appWithoutService: this.appWithoutService,
               })
@@ -576,11 +592,7 @@
             break;
           case 'service_config_add':
             this.$storeHelper.dataTransfer = {
-              from: {
-                path: this.$net.page['profile/service'],
-                action,
-                page: this.currentPage
-              },
+              from: this.getPageStateToTransfer(action),
               data: Object.assign(basicInfo, {
                 serviceBasicInfo: row
               })
@@ -610,7 +622,8 @@
                 from: {
                   path: this.$net.page['profile/service'],
                   action,
-                  page: this.currentPage
+                  page: this.currentPage,
+                  profileInfo: this.profileInfo
                 },
                 data: Object.assign(basicInfo, {
                   serviceInfo: model
@@ -868,8 +881,10 @@
               this.$message.error('所需信息不完整！');
               return;
             }
+
             this.$storeHelper.dataTransfer = {
-              from: this.$net.page['profile/service'],
+              from: this.getPageStateToTransfer(action),
+//              from: this.$net.page['profile/service'],
               data
             };
             const PATH_MAP = {

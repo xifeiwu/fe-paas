@@ -1303,9 +1303,10 @@
       goToPageService() {
         this.$storeHelper.dataTransfer = {
           from: this.$route.path,
-          data: {
+          to: {
             action: this.dataPassed.from.action,
-            toPage: this.dataPassed.from.page,
+            currentPage: this.dataPassed.from.page,
+            profileInfo: this.profileInfo
           }
         };
         this.$router.push(this.$net.page['profile/service']);
