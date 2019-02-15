@@ -321,6 +321,7 @@
   }
 </style>
 <script>
+  import {mapGetters} from 'vuex';
   import commonUtils from 'assets/components/mixins/common-utils';
   import paasDialogForLog from '../components/dialog4log.vue';
   export default {
@@ -343,16 +344,24 @@
       }
     },
     mounted() {
+      // NOTICE: getServiceListByPage will be called by change of profileName, which is changed onProfileList,
+      // so this.getServiceListByPage(); is no need
       this.onProfileList(this.$storeHelper.profileListOfGroup);
       this.$nextTick(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
       });
-      const profileInfoPassed = this.getPageStatePassed('profileInfo');
-      if (profileInfoPassed) {
-        this.profileName = profileInfoPassed['name'];
+      if (false) {
+        const profileInfoPassed = this.getPageStatePassed('profileInfo');
+        if (profileInfoPassed) {
+          this.profileName = profileInfoPassed['name'];
+        }
       }
-      // NOTICE: getServiceListByPage will be called by change of profileName
-//      this.getServiceListByPage();
+
+    },
+    computed: {
+      ...mapGetters('user', {
+        'userConfig': 'config'
+      }),
     },
     watch: {
       '$storeHelper.currentGroupID': function (value, oldValue) {
@@ -368,6 +377,12 @@
 //        this.$route.query['page'] = page;
 //        location.search = `?page=${page}`;
         this.getServiceListByPage({});
+        this.$store.dispatch('user/config', {
+          page: 'service',
+          data: {
+            currentPage: page
+          }
+        });
       },
       'filterKey': function () {
         this.getServiceListByPage({
@@ -387,10 +402,22 @@
           this.profileInfo = target;
           this.isProductionProfile = target.spaceType.toUpperCase() === 'PRODUCTION';
         }
-        var currentPage = this.getPageStatePassed('currentPage');
+        console.log(this.localPageState);
+        var currentPage = 1; // this.getPageStatePassed('currentPage');
+        // used only once
+        if (this.localPageState.currentPage != 1) {
+          currentPage = this.localPageState.currentPage;
+          this.localPageState.currentPage = 1;
+        }
         this.getServiceListByPage({
           refresh: true,
           currentPage
+        });
+        this.$store.dispatch('user/config', {
+          page: 'service',
+          data: {
+            profileName
+          }
         });
       },
       '$storeHelper.screen.size': 'onScreenSizeChange',
@@ -423,6 +450,11 @@
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
+        localPageState: {
+          profileName: null,
+          profileInfo: null,
+          currentPage: 1
+        },
 
         action: {
           name: null,
@@ -462,10 +494,18 @@
         }
       },
       onProfileList(profileList) {
-        if (profileList && profileList.length > 0) {
-          this.profileName = profileList[0]['name'];
-          this.profileInfo = profileList[0];
+        if (!Array.isArray(profileList) || profileList.length === 0) {
+          console.log('error: onProfileList');
+          return;
         }
+        // default profileInfo
+        var profileInfo = profileList[0];
+        this.getPageStateLocal(profileList);
+        if (this.localPageState['profileInfo']) {
+          profileInfo = this.localPageState['profileInfo'];
+        }
+        this.profileInfo = profileInfo;
+        this.profileName = profileInfo['name'];
       },
       handleButtonClick(evt, action) {
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
@@ -488,6 +528,7 @@
         }
       },
 
+      // TODO: not used
       // 需要传递到其它页面的本地页面信息
       getPageStateToTransfer(action) {
         return {
@@ -497,9 +538,10 @@
           profileInfo: this.profileInfo
         }
       },
+      // TODO: not used
       // used prop of  dataPassed.to only once
       getPageStatePassed(prop) {
-        console.log(this.dataPassed.to);
+//        console.log(this.dataPassed.to);
         var value = {
           currentPage: 1,
           profileInfo: null,
@@ -510,7 +552,24 @@
         }
         return value;
       },
-
+      // page state from localStorage
+      getPageStateLocal(profileList) {
+        const serviceConfig = this.userConfig['service'];
+        var localProfileInfo = null;
+        if (serviceConfig && serviceConfig.profileName) {
+          localProfileInfo = profileList.find(it => {
+            return it.name == serviceConfig['profileName'];
+          })
+        }
+        if (localProfileInfo) {
+          this.localPageState['profileInfo'] = localProfileInfo;
+          this.localPageState['profileName'] = localProfileInfo['name'];
+        }
+        const currentPage = serviceConfig['currentPage'];
+        if (currentPage) {
+          this.localPageState.currentPage = currentPage;
+        }
+      },
 
       // collect all related info for add-service before jump to page service/add
       // TODO: not used
@@ -883,8 +942,8 @@
             }
 
             this.$storeHelper.dataTransfer = {
-              from: this.getPageStateToTransfer(action),
-//              from: this.$net.page['profile/service'],
+//              from: this.getPageStateToTransfer(action),
+              from: this.$net.page['profile/service'],
               data
             };
             const PATH_MAP = {
