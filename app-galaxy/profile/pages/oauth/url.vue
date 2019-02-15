@@ -696,14 +696,13 @@
               return;
             }
             if (Array.isArray(this.configAuthorizeUrlInfo.authorizeUrlByAccessKey) && this.configAuthorizeUrlInfo.authorizeUrlID) {
-              let item = null;
-              this.configAuthorizeUrlInfo.authorizeUrlByAccessKey.some(it => {
-                if (it.id === this.configAuthorizeUrlInfo.authorizeUrlID) {
-                  item = it;
-                }
-                return item;
+              const item = this.configAuthorizeUrlInfo.authorizeUrlByAccessKey.find(it => {
+                return it.id === this.configAuthorizeUrlInfo.authorizeUrlID
               });
               if (item) {
+                // 返回的已经授权url列表，key键为oauthId
+                // 授权url列表，key键为id
+                item['oauthId'] = item['id'];
                 this.configAuthorizeUrlInfo.authorizeUrlList.push(item);
               }
             }
