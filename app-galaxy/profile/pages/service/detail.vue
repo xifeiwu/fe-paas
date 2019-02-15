@@ -4,18 +4,24 @@
       <div style="display: inline-block"><span style="font-weight: bold">运行环境：</span><span>{{dataPassed.profileInfo.name}}</span></div>
       <div style="display: inline-block; margin-left: 15px;"><span style="font-weight: bold">应用名称：</span><span>{{dataPassed.serviceInfo.appName}}</span></div>
       <el-button style="margin-left: 15px;" size="mini" type="primary" @click="handleClick($event, 'refresh')">刷新</el-button>
+      <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
+        <div slot="content">
+          <div>域名请求数据统计，目前只统计24H内的接口请求数据</div>
+        </div>
+        <span class="helper-text-tool-tip" style="margin-top: 1px">服务详情简介<i class="el-icon-question"></i></span>
+      </el-tooltip>
     </div>
     <div class="service-info" :style="{height: `${heightOfServiceInfo}px`}">
       <div class="by-text">
         <div class="section basic">
           <div class="title">基本信息</div>
-          <div class="content">
+          <div class="content" v-if="serviceInfo">
             <el-form label-position="right" label-width="100px" size="mini">
               <el-form-item label="服务ID">
-                {{model["id"]}}
+                {{serviceInfo["id"]}}
               </el-form-item>
               <el-form-item label="所在集群" v-if="$storeHelper.groupVersion === 'v1'">
-                {{model["k8s"] === 1 ? 'k8s' : 'mesos'}}
+                {{serviceInfo["k8s"] === 1 ? 'k8s' : 'mesos'}}
               </el-form-item>
               <el-form-item label="外网域名">
                 <div v-if="internetDomainList.length==0">未绑定</div>
@@ -50,25 +56,22 @@
                 <el-row v-else>未绑定</el-row>
               </el-form-item>
               <el-form-item label="更新时间">
-                {{this.$utils.formatDate(model["updateTime"],"yyyy-MM-dd hh:mm:ss")}}
-              </el-form-item>
-              <el-form-item label="namespace">
-                {{runningInfo && typeof runningInfo['namespace'] != 'undefined' ? runningInfo["namespace"] : "未知"}}
+                {{this.$utils.formatDate(serviceInfo["updateTime"],"yyyy-MM-dd hh:mm:ss")}}
               </el-form-item>
               <el-form-item label="项目名称">
-                {{model["tag"]}}
+                {{serviceInfo["tag"]}}
               </el-form-item>
               <el-form-item label="二级域名">
                 {{dataPassed.serviceInfo["serviceName"]}}
               </el-form-item>
               <el-form-item label="开发语言">
-                {{model["language"] + "-" + model["languageVersion"]}}
+                {{serviceInfo["language"] + "-" + serviceInfo["languageVersion"]}}
               </el-form-item>
-              <el-form-item label="构建类型" v-if="model['language'].toUpperCase() === 'JAVA' && !model['customImage']">
-                {{model["packageType"] ? model["packageType"] : '未知'}}
+              <el-form-item label="构建类型" v-if="serviceInfo['language'].toUpperCase() === 'JAVA' && !serviceInfo['customImage']">
+                {{serviceInfo["packageType"] ? serviceInfo["packageType"] : '未知'}}
               </el-form-item>
               <el-form-item label="服务期限" v-if="!isProductionProfile">
-                {{model["remainExpiredDays"] ? (model["remainExpiredDays"] < 0 ? 0 : model["remainExpiredDays"]) + "天": "未配置"}}
+                {{serviceInfo["remainExpiredDays"] ? (serviceInfo["remainExpiredDays"] < 0 ? 0 : serviceInfo["remainExpiredDays"]) + "天": "未配置"}}
               </el-form-item>
             </el-form>
           </div>
@@ -88,11 +91,14 @@
               </el-form-item>
               <el-form-item label="健康检查路径">
                 <a v-if="runningInfo['healthCheckType'] && runningInfo['healthCheckType'].toLowerCase() === 'http'"
-                   :href="'http://' + model['intranetDomain'] + runningInfo['healthCheck']">{{runningInfo['healthCheck']}}</a>
+                   :href="'http://' + serviceInfo['intranetDomain'] + runningInfo['healthCheck']">{{runningInfo['healthCheck']}}</a>
                 <span v-else>{{runningInfo['healthCheck'] ? runningInfo['healthCheck'] : "未知"}}</span>
               </el-form-item>
               <el-form-item label="健康检查延迟时间" v-if="this.$storeHelper.groupVersion !== 'v1'">
                 {{runningInfo["initialDelaySeconds"] ? runningInfo["initialDelaySeconds"] + "s" : "未知"}}
+              </el-form-item>
+              <el-form-item label="namespace">
+                {{runningInfo && typeof runningInfo['namespace'] != 'undefined' ? runningInfo["namespace"] : "未知"}}
               </el-form-item>
               <el-form-item label="负载均衡">
                 {{runningInfo["loadBalance"] ? runningInfo["loadBalance"] : "未知"}}
@@ -254,7 +260,7 @@
     }
   }
   #service-detail {
-    background: white;
+    /*background: white;*/
     height: 100%;
     /*max-width: 1500px;*/
     .header {
@@ -330,7 +336,8 @@
         box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
         box-shadow: 0 1px 1px rgba(0,0,0,0.15);
         .title {
-          background-color: #f5f5f6;
+          /*background-color: #f5f5f6;*/
+          border: 1px solid #f5f5f6;
           color: #666;
           font-weight: bold;
           text-align: center;
@@ -449,6 +456,7 @@
       this.recoveryStatus();
       if (this.$storeHelper.dataTransfer) {
         const dataTransfer = this.$storeHelper.dataTransfer;
+//        console.log(dataTransfer);
         const from = dataTransfer['from'];
         const theData = dataTransfer['data'];
         switch (from) {
@@ -525,7 +533,7 @@
         },
         // 请求次数统计信息
         requestStatisticList: [],
-        model: null,
+        serviceInfo: null,
         deployLogs: [],
         props4CreateDomain: {
           prefixName: '',
@@ -545,7 +553,7 @@
     methods: {
       recoveryStatus() {
         this.runningInfo = null;
-        this.model = null;
+        this.serviceInfo = null;
       },
 
       handleClick(evt, action) {
@@ -704,10 +712,11 @@
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {payload});
         const basicInfo = this.$net.parseServiceList(resContent);
         if (basicInfo.hasOwnProperty("applicationServerList")) {
-          this.model = basicInfo["applicationServerList"].find(it => {
+          this.serviceInfo = basicInfo["applicationServerList"].find(it => {
             return it["defaultSelect"] === true;
           });
         }
+//        console.log(this.serviceInfo);
         this.intranetDomain = basicInfo["intranetDomain"];
         this.internetDomainList = basicInfo["internetDomain"];
 
