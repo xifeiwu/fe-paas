@@ -604,7 +604,7 @@
       } else {
         this.$storeHelper.dataTransfer = null;
       }
-//      console.log(dataTransfer);
+     // console.log(dataTransfer);
       var goBack = false;
       this.type = dataTransfer['type'];
       this.forModify = (this.$route['path'] == this.$net.page['profile/service/modify']);
@@ -1002,8 +1002,8 @@
             // check if memoryId existed in memorySizeList
             if (this.memorySizeList.map(it => {
               return it.id
-            }).indexOf(this.passedData.memoryId) > -1) {
-              this.formData.memoryId = this.passedData.memoryId;
+            }).indexOf(this.dataPassed.serviceInfo.memoryId) > -1) {
+              this.formData.memoryId = this.dataPassed.serviceInfo.memoryId;
             } else {
               this.formData.memoryId = this.memorySizeList[0]['id'];
             }
@@ -1022,7 +1022,7 @@
       },
 
       'formData.portMap.outerPort': function (value) {
-        if (this.formData.portMap.syntaxErrMsg || this.formData.portMap.outerPort === this.passedData.portsMapping[0].outerPort) {
+        if (this.formData.portMap.syntaxErrMsg || this.formData.portMap.outerPort === this.dataPassed.serviceInfo.portMap.outerPort) {
           return;
         }
         this.checkPortMap({
@@ -1388,14 +1388,14 @@
                   payload.expiredDays = this.formData.expiredDays;
                 }
 
-                if (this.type === 'edit') {
-                  payload["id"] = this.passedData.id;
-                  payload.portsMapping[0]["id"] = this.passedData.portsMapping[0]["id"];
-                  payload["serviceName"] = this.passedData.serviceName;
+                if (this.forModify) {
+                  payload["id"] = this.dataPassed.serviceInfo.id;
+                  payload.portsMapping[0]["id"] = this.dataPassed.serviceInfo.portMap.id;
+                  payload["serviceName"] = this.dataPassed.serviceInfo.serviceName;
                 }
                 if (this.$storeHelper.groupVersion !== 'v1') {
-                  if (this.type === 'edit') {
-                    payload["serviceVersion"] = this.passedData.serviceVersion;
+                  if (this.forModify) {
+                    payload["serviceVersion"] = this.dataPassed.serviceInfo.serviceVersion;
                   } else {
                     payload["serviceVersion"] = 'default';
                   }
@@ -1407,7 +1407,7 @@
                 this.$net.requestPaasServer(this.$net.URL_LIST.service_create, {
                   payload
                 }).then(resConent => {
-                  if (this.type === 'edit') {
+                  if (this.forModify) {
                     this.$message({
                       type: 'success',
                       message: '服务更新成功！'

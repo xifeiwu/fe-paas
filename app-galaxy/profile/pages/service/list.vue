@@ -62,7 +62,8 @@
             {{scope.row.k8s === 1 ? scope.row.instanceCount : '---' }}
           </template>
         </el-table-column>
-        <el-table-column label="过期时间(天)" prop="remainExpiredDays" headerAlign="center" align="center" width="100"></el-table-column>
+        <el-table-column v-if="!isProductionProfile" label="过期时间(天)" prop="remainExpiredDays" headerAlign="center" align="center" width="100">
+        </el-table-column>
         <el-table-column label="创建日期" prop="formattedCreateTime" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
             <div v-if="Array.isArray(scope.row.formattedCreateTime)">
@@ -378,6 +379,7 @@
         });
         if (target) {
           this.profileInfo = target;
+          this.isProductionProfile = target.spaceType.toUpperCase() === 'PRODUCTION';
         }
         var currentPage = this.getPagePassed();
         this.getServiceListByPage({
@@ -457,10 +459,16 @@
         if (profileList && profileList.length > 0) {
           this.profileName = profileList[0]['name'];
           this.profileInfo = profileList[0];
-          this.isProductionProfile = (this.profileName === 'production');
         }
       },
       handleButtonClick(evt, action) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         switch (action) {
           case 'service_create':
             this.goToPageServiceAdd('service_create');
