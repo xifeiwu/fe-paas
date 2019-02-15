@@ -1320,13 +1320,17 @@ class Net extends NetBase {
           service.hasOwnProperty(prop) && (item[prop] = service[prop]);
         });
         // set value '---' if null
-        ['appName', 'tag', 'remainExpiredDays',
+        ['appName', 'tag',
           'serviceName'
         ].forEach(prop => {
           service.hasOwnProperty(prop) && (item[prop] = service[prop] ? service[prop] : '---');
         });
         item.formattedCreateTime = service.createTime ? this.$utils.formatDate(service.createTime, 'yyyy-MM-dd hh:mm:ss').split(' ') : '---';
-
+        if (service['remainExpiredDays']) {
+          item['remainExpiredDays'] = parseInt(service['remainExpiredDays']) >= 0 ? service['remainExpiredDays'] : 0;
+        } else {
+          item['remainExpiredDays'] = '---';
+        }
 
         // props check for service model
         if (item['containerStatus']) {
