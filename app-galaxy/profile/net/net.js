@@ -1326,7 +1326,7 @@ class Net extends NetBase {
         if (service['remainExpiredDays']) {
           item['remainExpiredDays'] = parseInt(service['remainExpiredDays']) >= 0 ? service['remainExpiredDays'] : 0;
         } else {
-          item['remainExpiredDays'] = '---';
+          item['remainExpiredDays'] = 0;
         }
 
         // props check for service model

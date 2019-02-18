@@ -1003,8 +1003,8 @@
             // check if memoryId existed in memorySizeList
             if (this.memorySizeList.map(it => {
               return it.id
-            }).indexOf(this.dataPassed.serviceInfo.memoryId) > -1) {
-              this.formData.memoryId = this.dataPassed.serviceInfo.memoryId;
+            }).indexOf(this.dataPassed.serviceInfo.memoryInfo.id) > -1) {
+              this.formData.memoryId = this.dataPassed.serviceInfo.memoryInfo.id;
             } else {
               this.formData.memoryId = this.memorySizeList[0]['id'];
             }
@@ -1401,6 +1401,8 @@
                   } else {
                     payload["serviceVersion"] = 'default';
                   }
+                } else {
+                  payload["serviceVersion"] = null;
                 }
                 payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(formData.healthCheck.type);
                 payload.healthCheck = formData.healthCheck.content;
