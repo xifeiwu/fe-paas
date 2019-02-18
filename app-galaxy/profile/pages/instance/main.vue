@@ -144,7 +144,7 @@
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="['flex', $storeHelper.permission['go-to-page-monitor-from-instance'].disabled ? 'disabled' : 'primary']"
+                    :class="['flex', $storeHelper.permission['go-to-page-monitor-from-instance'].disabled || isMesosService ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'go-to-page-monitor-from-instance', scope.$index, scope.row)">
               <span>监控</span><i class="paas-icon-level-up"></i>
             </el-button>
@@ -653,7 +653,8 @@
           });
           return;
         }
-        if (this.isMesosService && ['show-console-log', 'go-to-page-terminal-from-instance', 'instanceStatus', 'instance_replace'].indexOf(action) > -1) {
+        if (this.isMesosService && ['show-console-log', 'go-to-page-terminal-from-instance', 'go-to-page-monitor-from-instance',
+            'instanceStatus', 'instance_replace'].indexOf(action) > -1) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
             msg: '老mesos应用不支持'
