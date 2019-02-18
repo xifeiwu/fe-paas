@@ -1296,9 +1296,6 @@ class Net extends NetBase {
           environments: JSON.parse(JSON.stringify(service.environments)),
           hosts: JSON.parse(JSON.stringify(service.hosts)),
           prestopCommand: service.prestopCommand,
-          // image: JSON.parse(JSON.stringify(service.image))
-          customImage: service.image.customImage,
-          imageLocation: service.image.location,
           rollingUpdate: service.rollingUpdate,
           loadBalance: service.loadBalance,
           gitLabAddress: service.gitLabAddress,
@@ -1312,7 +1309,7 @@ class Net extends NetBase {
         };
 
         /** copy prop */
-        ['id', 'appId',
+        ['id', 'appId', 'orchId', 'orchIp',
           'containerStatus', // 运行状态：几个实例；几个运行中实例
           'defaultSelect', // 是否是默认服务
           'k8s', // 是否是k8s应用
@@ -1338,6 +1335,12 @@ class Net extends NetBase {
         } else {
           item.instanceCount = '---';
         }
+
+        item.image = {
+          customImage: null == service.customImage ? false : service.customImage,
+          typeName: appInfoHelper.getImageNameById(service.customImage),
+          location: service.image,
+        };
 
         // wrap cpuId and cpu to cpuInfo
         // cpu and memory from server is value, such as 2.0/4096
@@ -1445,12 +1448,6 @@ class Net extends NetBase {
     !serviceList && resContent.hasOwnProperty('applicationServiceList') && (serviceList = resContent['applicationServiceList']);
     if (serviceList) {
       Array.isArray(serviceList) && serviceList.forEach(it => {
-        it.image = {
-          customImage: null == it.customImage ? false : it.customImage,
-          typeName: appInfoHelper.getImageNameById(it.customImage),
-          location: it.image,
-        };
-
         if (!it.volume) {
           it.volume = '';
         }
@@ -1462,11 +1459,6 @@ class Net extends NetBase {
           let containerStatus = it['containerStatus'];
           it.applicationServiceStatus = `${containerStatus.Running}/${containerStatus.Total}`;
         }
-        // ['mavenProfileId', 'healthCheck', 'loadBalance', 'relativePath'].forEach(prop => {
-        //   if (it.hasOwnProperty(prop) && !it[prop]) {
-        //     it[prop] = '未设置';
-        //   }
-        // })
         if (!it.hasOwnProperty('internetDomainList')) {
           it['internetDomainList'] = [];
         }

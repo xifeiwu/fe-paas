@@ -604,7 +604,7 @@
       } else {
         this.$storeHelper.dataTransfer = null;
       }
-     // console.log(dataTransfer);
+//      console.log(dataTransfer);
       var goBack = false;
       this.type = dataTransfer['type'];
       this.forModify = (this.$route['path'] == this.$net.page['profile/service/modify']);
@@ -612,8 +612,6 @@
       this.dataPassed.from = dataTransfer.from;
       const theData = dataTransfer.data;
       // for compatible
-      // TODO: delete later
-      this.passedData = theData;
       this.profileInfo = theData.profileInfo;
       this.dataPassed.profileInfo = theData.profileInfo;
       this.formData.spaceId = theData.profileInfo.id;
@@ -631,9 +629,10 @@
           if (this.$storeHelper.groupVersion == 'v1' && this.formRelated.languageInfo.type.toUpperCase() === 'PYTHON') {
             this.imageSelectState.customImage = true;
           } else {
-            this.imageSelectState.customImage = serviceInfo.customImage;
+            this.imageSelectState.customImage = serviceInfo.image.customImage;
           }
-          if(serviceInfo.customImage){
+          // imageLoaction should set in function requestImageRelatedInfo
+          if (serviceInfo.customImage) {
             // set after requestImageRelatedInfo
           } else {
             // set after requestImageRelatedInfo
@@ -738,7 +737,6 @@
           autoImageValue: false
         },
         profileInfo: null,
-        passedData: {},
         dataPassed: {
           from: null,
           // 没有服务的应用列表
@@ -1133,26 +1131,26 @@
             }
           }));
 //          console.log(this.imageInfoFromNet);
-//          console.log(this.passedData);
 
           // set default value by passedData if necessary
-          if (this.passedData.hasOwnProperty('customImage')) {
-            if (this.passedData.customImage) {
+          const serviceInfo = this.dataPassed.serviceInfo;
+          if (serviceInfo.image.hasOwnProperty('customImage')) {
+            if (serviceInfo.image.customImage) {
               // 自定义镜像
-              // if (!this.propsUsed.customImageValue && customImageList.indexOf(this.passedData.image.location) > -1) {
-              //   this.formData.customImageValue = this.passedData.image.location;
+              // if (!this.propsUsed.customImageValue && customImageList.indexOf(serviceInfo.image.location) > -1) {
+              //   this.formData.customImageValue = serviceInfo.image.location;
               //   this.propsUsed.customImageValue = true;
               // }
               //因为从harbor得到数据不稳定，所以直接赋值，不需要匹配
-              this.formData.customImageValue = this.passedData.image.location;
+              this.formData.customImageValue = serviceInfo.image.location;
               this.propsUsed.customImageValue = true;
             } else {
               // 自动打镜像
-              // if (!this.propsUsed.autoImageValue && autoImageList.indexOf(this.passedData.image.location) > -1) {
-              //   this.formData.autoImageValue = this.passedData.image.location;
+              // if (!this.propsUsed.autoImageValue && autoImageList.indexOf(serviceInfo.image.location) > -1) {
+              //   this.formData.autoImageValue = serviceInfo.image.location;
               //   this.propsUsed.autoImageValue = true;
               // }
-              this.formData.autoImageValue = this.passedData.image.location;
+              this.formData.autoImageValue = serviceInfo.image.location;
               this.propsUsed.autoImageValue = true;
             }
           }
@@ -1359,8 +1357,8 @@
                 const payload = {
                   appId: formData.appId,
                   spaceId: formData.spaceId,
-                  orchId: this.passedData.orchId,
-                  orchIP: this.passedData.orchIP,
+                  orchId: this.dataPassed.serviceInfo.orchId,
+                  orchIP: this.dataPassed.serviceInfo.orchIP,
                   gitLabAddress: formData.gitLabAddress,
                   gitLabBranch: formData.gitLabBranch,
                   mainClass: formData.mainClass,
