@@ -621,7 +621,6 @@
         const serviceInfo = theData.serviceInfo;
         this.dataPassed.serviceInfo = serviceInfo;
         if (serviceInfo) {
-//          console.log(serviceInfo);
           // NOTICE: the sequence of initialize should not change
           this.formRelated.languageInfo = serviceInfo.language;
           this.formData.appId = serviceInfo.appId;
@@ -1134,7 +1133,7 @@
 
           // set default value by passedData if necessary
           const serviceInfo = this.dataPassed.serviceInfo;
-          if (serviceInfo.image.hasOwnProperty('customImage')) {
+          if (serviceInfo && serviceInfo.image.hasOwnProperty('customImage')) {
             if (serviceInfo.image.customImage) {
               // 自定义镜像
               // if (!this.propsUsed.customImageValue && customImageList.indexOf(serviceInfo.image.location) > -1) {
