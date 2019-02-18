@@ -19,6 +19,7 @@
               style="width: 100%"
               v-loading="showLoading"
               element-loading-text="加载中"
+              :height="heightOfTable"
       >
         <el-table-column
                 prop="createTime"
@@ -86,10 +87,15 @@
 </template>
 <style lang="scss" scoped>
   #log-deploy {
+    height: calc(100% - 30px);
+    display: flex;
+    flex-direction: column;
     .header {
       padding: 5px;
     }
     .list {
+      flex: 1;
+      position: relative;
       .el-table {
       }
     }
@@ -186,6 +192,12 @@
 //      console.log('this.config4VersionSelector');
 //      console.log(this.config4VersionSelector);
     },
+    mounted() {
+      this.onScreenSizeChange(this.$storeHelper.screen.size);
+    },
+    watch: {
+      '$storeHelper.screen.size': 'onScreenSizeChange',
+    },
     data() {
       return {
         // service config in localStorage
@@ -210,9 +222,23 @@
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
+        heightOfTable: '',
       }
     },
     methods: {
+      onScreenSizeChange(size) {
+        if (!size) {
+          return;
+        }
+        try {
+          // if this.showAppList == false, headerNode will not exist
+          const headerNode = this.$el.querySelector(':scope > .header');
+          const headerHeight = headerNode.offsetHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+        } catch(err) {
+        }
+      },
+
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
         this.deployLogList = [];
         this.deployLogListByPage = [];
