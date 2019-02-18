@@ -78,25 +78,27 @@
           <template slot-scope="scope">
             <div v-if="scope.row.id">
               <el-button
+                      v-if="!isProductionProfile"
                       size="small"
                       type="text"
                       :loading="statusOfWaitingResponse('service_deploy') && action.row.appId == scope.row.appId"
-                      v-if="!isProductionProfile"
                       @click="handleTRClick($event, 'service_deploy', scope.$index, scope.row)"
                       :class="$storeHelper.permission['service_deploy'].disabled ? 'disabled' : 'danger'">
                     {{statusOfWaitingResponse('deploy') && action.row.appId == scope.row.appId ? '部署中': '部署'}}
               </el-button>
-              <div class="ant-divider"></div>
+              <div v-if="!isProductionProfile"
+                   class="ant-divider"></div>
               <el-button
-                      size="small"
                       v-if="!isProductionProfile"
+                      size="small"
                       type="text"
                       :loading="statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'quick_deploy', scope.$index, scope.row)"
                       :class="reason4DisableQuickDeploy(scope.row) ? 'disabled' : 'danger'">
                     {{statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId ? '重启中': '重启'}}
               </el-button>
-              <div class="ant-divider"></div>
+              <div v-if="!isProductionProfile"
+                   class="ant-divider"></div>
               <el-button
                       size="small"
                       type="text"

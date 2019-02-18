@@ -79,13 +79,13 @@
         </el-table-column>
         <el-table-column label="操作" prop="operation" width="300" headerAlign="center" align="center">
           <template slot-scope="scope">
-            <el-button
+            <el-button v-if="false"
                     type="text"
                     :class="['flex', $storeHelper.permission['app_show_profile'].disabled ? 'disabled' : 'primary']"
                     @click="handleTRClick($event, 'app_show_profile', scope.$index, scope.row)">
               <span>运行环境</span><i class="paas-icon-popover" style="margin-left: 3px;"></i>
             </el-button>
-            <div class="ant-divider"></div>
+            <div class="ant-divider" v-if="false"></div>
             <el-button
                     type="text"
                     :class="['flex', $storeHelper.permission['app_change_props'].disabled ? 'disabled' : 'warning']"

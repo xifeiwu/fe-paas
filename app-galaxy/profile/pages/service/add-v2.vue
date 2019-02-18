@@ -46,7 +46,7 @@
               </div>
             </div>
           </el-form-item>
-          <el-form-item label="基础镜像" class="auto-image max-width-700" prop="autoImageValue" v-if="!imageSelectState.customImage">
+          <el-form-item label="基础镜像" class="auto-image max-width-800" prop="autoImageValue" v-if="!imageSelectState.customImage">
             <el-select v-model="formData.autoImageValue" filterable
                        :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
               <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
@@ -55,7 +55,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="镜像地址" prop="customImageValue" v-else
-                        :class="['custom-image', 'max-width-700', imageSelectState.customImageType.toLowerCase()+'-image']"
+                        :class="['custom-image', 'max-width-800', imageSelectState.customImageType.toLowerCase()+'-image']"
           >
             <!--<el-select v-model="formData.customImageValue" filterable-->
             <!--:placeholder="imageInfoFromNet.customImageList.length > 0 ? '请选择' : '无数据'">-->
@@ -298,7 +298,7 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig && !isProductionProfile" :error="formData.portMap.errMsg">
+            <el-form-item label="端口映射" class="port-map" v-if="false && showMoreConfig && !isProductionProfile" :error="formData.portMap.errMsg">
               <div class="el-row title">
                 <div class="el-col el-col-6">
                   <span>访问端口</span>
