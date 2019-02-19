@@ -1306,6 +1306,7 @@ class Net extends NetBase {
           fileLocation: service.fileLocation ? service.fileLocation : [],
           vmOptions: service.vmOptions,
           instanceNum: service.instanceNum,
+          serviceVersion: service.serviceVersion,
         };
 
         /** copy prop */
