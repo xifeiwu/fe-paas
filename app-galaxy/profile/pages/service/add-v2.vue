@@ -1131,26 +1131,28 @@
           }));
 //          console.log(this.imageInfoFromNet);
 
-          // set default value by passedData if necessary
-          const serviceInfo = this.dataPassed.serviceInfo;
-          if (serviceInfo && serviceInfo.image.hasOwnProperty('customImage')) {
-            if (serviceInfo.image.customImage) {
-              // 自定义镜像
-              // if (!this.propsUsed.customImageValue && customImageList.indexOf(serviceInfo.image.location) > -1) {
-              //   this.formData.customImageValue = serviceInfo.image.location;
-              //   this.propsUsed.customImageValue = true;
-              // }
-              //因为从harbor得到数据不稳定，所以直接赋值，不需要匹配
-              this.formData.customImageValue = serviceInfo.image.location;
-              this.propsUsed.customImageValue = true;
-            } else {
-              // 自动打镜像
-              // if (!this.propsUsed.autoImageValue && autoImageList.indexOf(serviceInfo.image.location) > -1) {
-              //   this.formData.autoImageValue = serviceInfo.image.location;
-              //   this.propsUsed.autoImageValue = true;
-              // }
-              this.formData.autoImageValue = serviceInfo.image.location;
-              this.propsUsed.autoImageValue = true;
+          if (this.forModify) {
+            // set default value by passedData if necessary
+            const serviceInfo = this.dataPassed.serviceInfo;
+            if (serviceInfo && serviceInfo.image.hasOwnProperty('customImage')) {
+              if (serviceInfo.image.customImage) {
+                // 自定义镜像
+                // if (!this.propsUsed.customImageValue && customImageList.indexOf(serviceInfo.image.location) > -1) {
+                //   this.formData.customImageValue = serviceInfo.image.location;
+                //   this.propsUsed.customImageValue = true;
+                // }
+                //因为从harbor得到数据不稳定，所以直接赋值，不需要匹配
+                this.formData.customImageValue = serviceInfo.image.location;
+                this.propsUsed.customImageValue = true;
+              } else {
+                // 自动打镜像
+                // if (!this.propsUsed.autoImageValue && autoImageList.indexOf(serviceInfo.image.location) > -1) {
+                //   this.formData.autoImageValue = serviceInfo.image.location;
+                //   this.propsUsed.autoImageValue = true;
+                // }
+                this.formData.autoImageValue = serviceInfo.image.location;
+                this.propsUsed.autoImageValue = true;
+              }
             }
           }
 
@@ -1356,8 +1358,6 @@
                 const payload = {
                   appId: formData.appId,
                   spaceId: formData.spaceId,
-                  orchId: this.dataPassed.serviceInfo.orchId,
-                  orchIP: this.dataPassed.serviceInfo.orchIP,
                   gitLabAddress: formData.gitLabAddress,
                   gitLabBranch: formData.gitLabBranch,
                   mainClass: formData.mainClass,
@@ -1391,6 +1391,8 @@
 
                 if (this.forModify) {
                   payload["id"] = this.dataPassed.serviceInfo.id;
+                  payload["orchId"] = this.dataPassed.serviceInfo.orchId;
+                  payload["orchIP"] = this.dataPassed.serviceInfo.orchIP;
                   payload.portsMapping[0]["id"] = this.dataPassed.serviceInfo.portMap.id;
                   payload["serviceName"] = this.dataPassed.serviceInfo.serviceName;
                 }
