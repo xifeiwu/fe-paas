@@ -43,15 +43,15 @@
               <el-form-item label="内网域名">
                 <el-row v-if="intranetDomain" type="flex" align="middle">
                   <el-col :span="14"><a :href="'http://' + intranetDomain" target="_blank">{{intranetDomain}}</a></el-col>
-                  <el-tooltip placement="top-start" effect="light" :content="dnsState.office.content">
-                    <el-col :class="dnsState.office.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.office.status ? '#67C23A': '#F56C6C'}"></el-col>
-                  </el-tooltip>
-                  <el-tooltip placement="top-start" effect="light" :content="dnsState.production.content">
-                    <el-col :class="dnsState.production.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.production.status ? '#67C23A': '#F56C6C'}"></el-col>
-                  </el-tooltip>
-                  <el-tooltip placement="top-start" effect="light" :content="dnsState.test.content">
-                    <el-col :class="dnsState.test.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.test.status ? '#67C23A': '#F56C6C'}"></el-col>
-                  </el-tooltip>
+                  <!--<el-tooltip placement="top-start" effect="light" :content="dnsState.office.content">-->
+                    <!--<el-col :class="dnsState.office.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.office.status ? '#67C23A': '#F56C6C'}"></el-col>-->
+                  <!--</el-tooltip>-->
+                  <!--<el-tooltip placement="top-start" effect="light" :content="dnsState.production.content">-->
+                    <!--<el-col :class="dnsState.production.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.production.status ? '#67C23A': '#F56C6C'}"></el-col>-->
+                  <!--</el-tooltip>-->
+                  <!--<el-tooltip placement="top-start" effect="light" :content="dnsState.test.content">-->
+                    <!--<el-col :class="dnsState.test.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.test.status ? '#67C23A': '#F56C6C'}"></el-col>-->
+                  <!--</el-tooltip>-->
                 </el-row>
                 <el-row v-else>未绑定</el-row>
               </el-form-item>
