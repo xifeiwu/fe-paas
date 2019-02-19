@@ -320,6 +320,34 @@
       }
 
     }
+    .dialog-for-log {
+      .el-dialog {
+        width: 95%;
+      }
+      .log-item {
+        /*white-space: pre;*/
+        max-width: 100%;
+        word-wrap: break-word;
+        word-break: break-all;
+        line-height: 1.4;
+      }
+      .info {
+        color: #409EFF;
+        font-weight: bold;
+      }
+      .warning {
+        color: #E6A23C;
+        font-weight: bold;
+      }
+      .error {
+        color: #F56C6C;
+        font-weight: bold;
+      }
+      .success {
+        color: #67C23A;
+        font-weight: bold;
+      }
+    }
   }
 </style>
 <script>
