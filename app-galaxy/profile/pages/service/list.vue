@@ -10,7 +10,7 @@
                 size="mini"
                 type="primary"
                 @click="handleButtonClick($event, 'service_create')"
-                :class="['flex', $storeHelper.permission['service_create'].disabled ? 'disabled' : '']">
+                :class="['flex', $storeHelper.permission['service_create'].disabled || this.appIdWithoutService.length === 0 ? 'disabled' : '']">
           <span>创建服务</span><i class="paas-icon-level-up"></i>
         </el-button>
         <el-button size="mini"
@@ -538,6 +538,13 @@
         this.profileName = profileInfo['name'];
       },
       handleButtonClick(evt, action) {
+        if (action === 'service_create' && this.appIdWithoutService.length === 0) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: '当前环境下，没有可以创建的服务'
+          });
+          return;
+        }
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
