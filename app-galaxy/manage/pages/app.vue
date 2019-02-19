@@ -2,22 +2,26 @@
   <div id="manage-app">
     <div class="header">
       <div class="item">
-        <label>LOB:</label>
-        <el-select filterable v-model="search.lobId" placeholder="请选择">
-          <el-option v-for="(item, index) in lobList" :key="item.id" :label="item.lobName" :value="item.id">
-          </el-option>
-        </el-select>
+        <label>
+          <span>LOB:</span>
+          <el-select filterable v-model="search.lobId" placeholder="请选择">
+            <el-option v-for="(item, index) in lobList" :key="item.id" :label="item.lobName" :value="item.id">
+            </el-option>
+          </el-select>
+        </label>
       </div>
       <div class="item">
-        <label>团队名称:</label>
-        <el-select filterable v-model="search.groupId" placeholder="请选择">
-          <el-option v-for="(item, index) in groupList" :key="item.id" :label="item.name" :value="item.id">
-          </el-option>
-        </el-select>
+        <label>
+          <span>团队名称:</span>
+          <el-select filterable v-model="search.groupId" placeholder="请选择">
+            <el-option v-for="(item, index) in groupList" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select>
+        </label>
       </div>
       <div class="item key-word">
         <el-select filterable v-model="search.keyWordType" placeholder="请选择" class="key-word-type">
-          <el-option v-for="(item, index) in keyWordTypeList" :key="item.id" :label="item.name" :value="item.id">
+          <el-option v-for="(item, index) in keyWordTypeList" :key="item.key" :label="item.label" :value="item.key">
           </el-option>
         </el-select>
         <el-input
@@ -38,13 +42,16 @@
               stripe
               :height="heightOfTable"
       >
-        <el-table-column prop="appName" label="应用名称" minWidth="150"></el-table-column>
-        <el-table-column prop="tag" label="项目名称" minWidth="150"></el-table-column>
+        <el-table-column prop="appName" label="应用名称" minWidth="120"></el-table-column>
+        <el-table-column prop="tag" label="项目名称" minWidth="120"></el-table-column>
         <el-table-column label="语言版本" width="100">
           <template slot-scope="scope">
             <span>{{scope.row.language}}</span><span v-if="scope.row.languageVersion">{{scope.row.languageVersion}}</span>
           </template>
         </el-table-column>
+
+        <el-table-column prop="internetDomain" label="外网域名" minWidth="150" align="center"></el-table-column>
+        <el-table-column prop="intranetDomain" label="内网域名" minWidth="100"></el-table-column>
         <el-table-column prop="lobName" label="LOB" width="100"></el-table-column>
         <el-table-column prop="groupName" label="团队名称" width="100"></el-table-column>
         <el-table-column prop="creator" label="创建人" width="80"></el-table-column>
@@ -142,8 +149,11 @@
       background-color: white;
       .item {
         display: inline-block;
-        margin-right: 3px;
+        margin-right: 10px;
         &.key-word {
+          .el-select {
+            margin-right: 2px;
+          }
           display: flex;
           width: 300px;
         }
@@ -177,6 +187,7 @@
         this.heightOfTable = this.$el.clientHeight - headerHeight;
       };
       addResizeListener(this.$el, this.resizeListener);
+      this.search.keyWordType = this.keyWordTypeList[0]['key'];
       this.requestAppStatusList();
 //      console.log(this.$storeHelper.groupListAll);
     },
@@ -191,17 +202,23 @@
         heightOfTable: '',
 
         keyWordTypeList: [{
-          id: 1,
-          name: '应用名称'
+          key: 'appName',
+          label: '应用名称'
         }, {
-          id: 2,
-          name: '项目名称'
+          key: 'tag',
+          label: '项目名称'
+        }, {
+          key: 'internetDomainQueryParam',
+          label: '外网域名'
+        }, {
+          key: 'intranetDomainQueryParam',
+          label: '内网域名'
         }],
         search: {
           lobId: '',
           groupId: '',
           keyword: '',
-          keyWordType: 1,
+          keyWordType: '',
         },
 
         totalSize: 0,
@@ -251,7 +268,7 @@
     },
 
     methods: {
-      requestAppStatusList() {
+      async requestAppStatusList() {
         let page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
         const start = page * this.pageSize;
@@ -267,25 +284,30 @@
         }
         this.search.keyword = this.search.keyword.trim();
         if (this.search.keyword.length > 0) {
-          if (this.search.keyWordType === 1) {
-            payload['appName'] = this.search.keyword;
-          } else {
-            payload['tag'] = this.search.keyword;
-          }
+          payload[this.search.keyWordType] = this.search.keyword;
         }
-        this.$net.requestPaasServer(this.$net.URL_LIST.app_status_list, {
-          payload
-        }).then(resContent => {
+        try {
+          const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.app_status_list, {
+            payload
+          });
           this.totalSize = resContent['totalNum'];
           this.appStatusList = resContent['backStageList'].map(record => {
             record['instanceNumPerProfile'] = record['spaceAndInstanceNum'].map(it => {
               return `${it.description}(${it.instanceNum})`;
             }).join('，');
+            if (record['internetDomainList'].length > 0) {
+              record['internetDomain'] = record['internetDomainList'].join(', ');
+            } else {
+              record['internetDomain'] = '---';
+            }
+            if (!record['intranetDomain']) {
+              record['intranetDomain'] = '---';
+            }
             return record;
           });
-//          console.log(this.appStatusList);
-        }).catch(err => {
-        });
+        } catch(err) {
+          console.log(err);
+        }
       },
 
       // the first page of pagination is 1
