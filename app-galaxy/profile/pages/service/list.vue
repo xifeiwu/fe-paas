@@ -7,6 +7,7 @@
       </el-tabs>
       <div class="operation">
         <el-button
+                v-if="false"
                 size="mini"
                 type="primary"
                 @click="handleButtonClick($event, 'service_create')"
