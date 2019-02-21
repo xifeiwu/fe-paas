@@ -42,25 +42,26 @@
       // all profileName: ['fpdev', 'test', 'beta', 'performance', 'production']
       // check data: clusterList, middlewareList, middlewareVersionList
       async checkBasicData (profileName, middlewareName) {
-        const currentMiddleware = this.$storeHelper.currentMiddleware;
+        try {
+          const currentMiddleware = this.$storeHelper.currentMiddleware;
 
-        var clusterList = this.$storeHelper.clusterList;
-        if (!clusterList) {
-          clusterList = await this.requestClusterList();
-          // check clusterList
-          if (!clusterList || !Array.isArray(clusterList) || clusterList.length === 0) {
-            console.log(`format of clusterList is error!`);
+          var clusterList = this.$storeHelper.clusterList;
+          if (!clusterList) {
+            clusterList = await this.requestClusterList();
+            // check clusterList
+            if (!clusterList || !Array.isArray(clusterList) || clusterList.length === 0) {
+              console.log(`format of clusterList is error!`);
+              return;
+            }
+            this.$storeHelper.clusterList = clusterList;
+          }
+
+          if (!profileName) {
             return;
           }
-          this.$storeHelper.clusterList = clusterList;
-        }
-
-        if (!profileName) {
-          return;
-        }
-        var currentClusterId = null;
-        var currentCluster = null;
-        // if !profileName, get the first element of clusterList
+          var currentClusterId = null;
+          var currentCluster = null;
+          // if !profileName, get the first element of clusterList
 //        if (!profileName) {
 //          currentClusterId = clusterList[0]['id'];
 //        } else if (profileName === 'unProduction') {
@@ -71,40 +72,43 @@
 //        } else {
           currentCluster = clusterList.find(it => it['clusterName'] === profileName);
 //        }
-        if (!currentCluster) {
-          console.log(`currentCluster not found!`);
-          return;
-        }
-        currentClusterId = currentCluster['id'];
-        currentMiddleware['clusterId'] = currentClusterId;
+          if (!currentCluster) {
+            console.log(`currentCluster not found!`);
+            return;
+          }
+          currentClusterId = currentCluster['id'];
+          currentMiddleware['clusterId'] = currentClusterId;
 
-        var middlewareList = this.$storeHelper.getMiddlewareList(currentClusterId);
-        if (!middlewareList) {
-          middlewareList = await this.requestMiddlewareList(currentClusterId);
-          this.$storeHelper.setMiddlewareList(currentClusterId, middlewareList);
-        }
+          var middlewareList = this.$storeHelper.getMiddlewareList(currentClusterId);
+          if (!middlewareList) {
+            middlewareList = await this.requestMiddlewareList(currentClusterId);
+            this.$storeHelper.setMiddlewareList(currentClusterId, middlewareList);
+          }
 //        console.log(middlewareList);
 
-        if (!middlewareName) {
-          return;
-        }
-        // get middlewareId by middlewareName
-        var currentMiddlewareId = null;
-        middlewareList.some(it => {
-          if (it['middlewareName'] === middlewareName) {
-            currentMiddlewareId = it['id'];
+          if (!middlewareName) {
+            return;
           }
-          return currentMiddlewareId;
-        });
-        if (!currentMiddlewareId) {
-          console.log(`error: currentMiddlewareId not found!`);
-        }
-        currentMiddleware['middlewareId'] = currentMiddlewareId;
+          // get middlewareId by middlewareName
+          var currentMiddlewareId = null;
+          middlewareList.some(it => {
+            if (it['middlewareName'] === middlewareName) {
+              currentMiddlewareId = it['id'];
+            }
+            return currentMiddlewareId;
+          });
+          if (!currentMiddlewareId) {
+            console.log(`error: currentMiddlewareId not found!`);
+          }
+          currentMiddleware['middlewareId'] = currentMiddlewareId;
 
-        var middlewareVersionList = this.$storeHelper.getMiddlewareVersionList(currentClusterId, currentMiddlewareId);
-        if (!middlewareVersionList) {
-          middlewareVersionList =  await this.requestMiddlewareVersionList(currentMiddlewareId);
-          this.$storeHelper.setMiddlewareVersionList(currentClusterId, currentMiddlewareId, middlewareVersionList);
+          var middlewareVersionList = this.$storeHelper.getMiddlewareVersionList(currentClusterId, currentMiddlewareId);
+          if (!middlewareVersionList) {
+            middlewareVersionList = await this.requestMiddlewareVersionList(currentMiddlewareId);
+            this.$storeHelper.setMiddlewareVersionList(currentClusterId, currentMiddlewareId, middlewareVersionList);
+          }
+        } catch(err) {
+          console.log(err);
         }
       },
     },

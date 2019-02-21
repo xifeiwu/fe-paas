@@ -121,8 +121,10 @@ class Net extends NetBase {
 
     let menuList = [];
     if (content.hasOwnProperty('menuList') && Array.isArray(content.menuList)) {
+      // 需要忽略的菜单
       const menuPathToIgnore = [
-        '/2.x/openShift/redis', // redis中间件
+        '/2.x/pipeline', // pipeline
+        // '/2.x/openShift/redis', // redis中间件
         '/2.x/backstage'// "后台管理"
       ];
       menuList = content.menuList.map(it => {

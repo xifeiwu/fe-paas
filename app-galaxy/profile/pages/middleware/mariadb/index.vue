@@ -1,7 +1,7 @@
 <template>
   <div id="middleware-mysql">
     <div class="header">
-      <el-tabs type="border-tab" @tab-click="handleClick" :activeName="defaultProfileName" :class="[profileName]">
+      <el-tabs type="border-tab" v-model="profileName" :class="[profileName]">
         <el-tab-pane v-for="item in unProductionClusterList" :label="item.description" :name="item.clusterName"
                      :key="item.clusterName"></el-tab-pane>
       </el-tabs>
@@ -357,7 +357,6 @@
     data() {
       return {
         unProductionClusterList: [],
-        defaultProfileName: null,
         // ['fpdev', 'test', 'beta', 'performance', 'production']
         profileName: null,
         clusterId: null,
@@ -404,6 +403,13 @@
         this.requestInstanceList();
       },
       'profileName': async function() {
+        // update user/config in vuex
+        this.$store.dispatch('user/config', {
+          page: 'middleware',
+          data: {
+            profileName: this.profileName
+          }
+        });
         await this.checkBasicData4Middleware();
         await this.requestInstanceList();
       }
@@ -419,13 +425,12 @@
         const userConfig = this.$store.getters['user/config'];
         if (userConfig && userConfig.hasOwnProperty('middleware')) {
           const middlewareConfig = userConfig['middleware'];
-          this.defaultProfileName = middlewareConfig['profileName'];
+          this.profileName = middlewareConfig['profileName'];
         }
         // set first profileName
-        if (!this.defaultProfileName) {
-          this.defaultProfileName = this.unProductionClusterList[0]['clusterName'];
+        if (!this.profileName) {
+          this.profileName = this.unProductionClusterList[0]['clusterName'];
         }
-        this.profileName = this.defaultProfileName;
       },
       // check if all necessary data is get
       async checkBasicData4Middleware() {
@@ -435,8 +440,13 @@
         await this.$storeHelper.checkBasicData4Middleware(this.profileName, MIDDLEWARE_NAME);
 //      console.log(this.$storeHelper.getClusterList());
 //      console.log(this.$storeHelper.currentMiddleware);
-        this.clusterId = this.$storeHelper.currentMiddleware['clusterId'];
-        this.middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
+        const clusterId = this.$storeHelper.currentMiddleware['clusterId'];
+        const middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
+        if (!clusterId || !middlewareId) {
+          return;
+        }
+        this.clusterId = clusterId;
+        this.middlewareId = middlewareId;
         this.clusterInfo = this.$storeHelper.getClusterById(this.clusterId);
         this.middlewareInfo = this.$storeHelper.getMiddlewareById(this.clusterId, this.middlewareId);
       },
@@ -482,7 +492,7 @@
           it.formattedUpdateTime = this.$utils.formatDate(it.updateTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
           it.remainingDays = '---';
           if (it.hasOwnProperty('expiredTime')) {
-            it.remainingDays = Math.ceil((parseInt(it.expiredTime) - timeStamp) / ONE_DAY);
+            it.remainingDays = Math.floor((parseInt(it.expiredTime) - timeStamp) / ONE_DAY);
           }
           if(!it.instanceDescribe) {
             it.instanceDescribe = '---';
@@ -869,18 +879,6 @@
         });
       },
 
-      async handleClick(tab, event) {
-        this.profileName = tab.name;
-        // update user/config in vuex
-        this.$store.dispatch('user/config', {
-          page: 'middleware',
-          data: {
-            profileName: this.profileName
-          }
-        });
-//        console.log(tab, tabName, event);
-//        console.log(event);
-      },
       handleSuccessCopy(evt) {
         this.$storeHelper.globalTip.show({
           ref: evt.trigger,

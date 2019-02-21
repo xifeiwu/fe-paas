@@ -671,6 +671,8 @@ class StoreHelper extends BaseHelper{
     });
     if (!cluster) {
       console.log(`error: cluster not found`);
+      // console.log(clusterId);
+      // console.log(this.clusterList);
     }
     return cluster;
   }
@@ -713,8 +715,15 @@ class StoreHelper extends BaseHelper{
     }
   }
   getMiddlewareVersionList(clusterId, middlewareId) {
+    var versionList = [];
     var middleware = this.getMiddlewareById(clusterId, middlewareId);
-    return middleware['versionList'];
+    if (middleware && Array.isArray(middleware['versionList'])) {
+      versionList = middleware['versionList'];
+    }
+    if (versionList.length === 0) {
+      console.log(`error: length of versionList is null`);
+    }
+    return versionList;
   }
 }
 
