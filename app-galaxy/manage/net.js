@@ -83,6 +83,26 @@ class Net extends NetBase {
       analyze_visit_list_item_detail: {
         path: '/backstage/queryCallDetail',
         method: 'post'
+      },
+
+      /** 站内信 */
+      // 信息列表
+      message_list: {
+        path: '/message/query/all/list',
+        method: 'get'
+      },
+      // 信息类型列表
+      message_type_list: {
+        path: '/message/query/all/type',
+        method: 'get'
+      },
+      message_create: {
+        path: '/message/add',
+        method: 'post'
+      },
+      message_change_status: {
+        path: '/message/update/release/status/{messageId}',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

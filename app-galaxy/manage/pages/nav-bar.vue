@@ -128,6 +128,10 @@
             name: '应用管理',
             router: '/manage/app',
             icon: 'paas-icon-app'
+          }, {
+            name: '站内信',
+            router: '/manage/message',
+            icon: 'paas-icon-message'
           }],
           level2: [{
             name: '数据统计',
