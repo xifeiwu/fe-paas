@@ -1,17 +1,23 @@
 <template>
   <div id="middleware-redis">
     <div class="header">
-      <el-button size="mini-extral"
-                 type="primary"
-                 class="flex"
-                 @click="handleButtonClick($event, 'middleware_new_instance')">
-        <span>申请实例</span><i class="paas-icon-level-up"></i>
-      </el-button>
-      <el-button size="mini-extral"
-                 type="primary"
-                 @click="handleButtonClick($event, 'refreshList')">
-        <span>刷新列表</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
-      </el-button>
+      <el-tabs type="border-tab" v-model="profileName" :class="[profileName]">
+        <el-tab-pane v-for="item in unProductionClusterList" :label="item.description" :name="item.clusterName"
+                     :key="item.clusterName"></el-tab-pane>
+      </el-tabs>
+      <div class="operation">
+        <el-button size="mini"
+                   type="primary"
+                   :class="{'flex': true, 'disabled': $storeHelper.permission['middleware_redis_instance_create'].disabled}"
+                   @click="handleButtonClick($event, 'middleware_redis_instance_create')">
+          <span>申请实例</span><i class="paas-icon-level-up"></i>
+        </el-button>
+        <el-button size="mini"
+                   type="primary"
+                   @click="handleButtonClick($event, 'refreshList')">
+          <span>刷新列表</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
+        </el-button>
+      </div>
     </div>
     <div class="list">
       <el-table :data="instanceList"
@@ -162,8 +168,45 @@
   max-width: 1500px;
   background: white;
   .header {
-    padding: 3px 5px;
     font-size: 14px;
+    .el-tabs {
+      &.el-tabs--border-tab {
+        background-color: #f4f5f5;
+        #tab-fpdev.is-active {
+          border-top-color: $g-env-fpdev-color;
+          color: $g-env-fpdev-color;
+        }
+        #tab-test.is-active {
+          border-top-color: $g-env-test-color;
+          color: $g-env-test-color;
+        }
+        #tab-performance.is-active {
+          border-top-color: $g-env-performance-color;
+          color: $g-env-performance-color;
+        }
+        #tab-beta.is-active {
+          border-top-color: $g-env-beta-color;
+          color: $g-env-beta-color;
+        }
+        #tab-production.is-active {
+          border-top-color: $g-env-production-color;
+          color: $g-env-production-color;
+        }
+
+        >.el-tabs__header {
+          .el-tabs__item {
+            color: black;
+          }
+        }
+        .el-tabs__content {
+          display: none;
+        }
+      }
+    }
+    .operation {
+      padding: 6px 8px 3px 5px;
+      text-align: right;
+    }
   }
   .list {
     .el-table {
@@ -235,13 +278,18 @@
   import bytes from 'bytes';
   import utils from '../utils';
   import commonUtils from 'assets/components/mixins/common-utils';
+  const MIDDLEWARE_NAME = 'redis';
+
   module.exports = {
     mixins: [commonUtils],
     async created() {
       this.bytes = bytes;
       this.utils = utils;
-      await this.checkBasicData4Middleware();
-      this.requestList();
+//      await this.checkBasicData4Middleware();
+//      this.requestList();
+      if (this.$storeHelper.clusterList) {
+        this.onClusterList(this.$storeHelper.clusterList);
+      }
     },
     mounted() {
       // update value in next tick
@@ -255,6 +303,9 @@
     },
     data() {
       return {
+        unProductionClusterList: [],
+        // ['fpdev', 'test', 'beta', 'performance', 'production']
+        profileName: null,
         clusterId: null,
         middlewareId: null,
         clusterInfo: null,
@@ -292,26 +343,58 @@
       }
     },
     watch: {
+      '$storeHelper.clusterList': 'onClusterList',
       '$storeHelper.screen.size': 'onScreenSizeChange',
       '$storeHelper.groupInfo.id': function () {
         this.requestList();
+      },
+      'profileName': async function() {
+        // update user/config in vuex
+        this.$store.dispatch('user/config', {
+          page: 'middleware',
+          data: {
+            profileName: this.profileName
+          }
+        });
+        await this.checkBasicData4Middleware();
+        await this.requestList();
       }
     },
     methods: {
+      onClusterList(clusterList) {
+        this.unProductionClusterList = clusterList.filter(it => it['clusterName']).filter(it => it['clusterName'] != 'production');
+        if (this.unProductionClusterList.length === 0) {
+          return;
+        }
+
+        // get profileName from localStorage
+        const userConfig = this.$store.getters['user/config'];
+        if (userConfig && userConfig.hasOwnProperty('middleware')) {
+          const middlewareConfig = userConfig['middleware'];
+          this.profileName = middlewareConfig['profileName'];
+        }
+        // set first profileName
+        if (!this.profileName) {
+          this.profileName = this.unProductionClusterList[0]['clusterName'];
+        }
+      },
       // check if all necessary data is get
       async checkBasicData4Middleware() {
-        const profile = 'test';
-        const middlewareName = 'redis';
-        await this.$storeHelper.checkBasicData4Middleware(profile, middlewareName);
-        console.log(this.$storeHelper.getClusterList());
+        if (!this.profileName) {
+          return;
+        }
+        await this.$storeHelper.checkBasicData4Middleware(this.profileName, MIDDLEWARE_NAME);
+//      console.log(this.$storeHelper.getClusterList());
 //      console.log(this.$storeHelper.currentMiddleware);
-        this.clusterId = this.$storeHelper.currentMiddleware['clusterId'];
-        this.middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
+        const clusterId = this.$storeHelper.currentMiddleware['clusterId'];
+        const middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
+        if (!clusterId || !middlewareId) {
+          return;
+        }
+        this.clusterId = clusterId;
+        this.middlewareId = middlewareId;
         this.clusterInfo = this.$storeHelper.getClusterById(this.clusterId);
         this.middlewareInfo = this.$storeHelper.getMiddlewareById(this.clusterId, this.middlewareId);
-//        console.log(this.clusterInfo);
-//        console.log(this.middlewareInfo);
-//        console.log(this.$storeHelper.getClusterList());
       },
 
       onScreenSizeChange(size) {
@@ -363,7 +446,7 @@
 
       handleButtonClick(evt, action) {
         switch (action) {
-          case 'middleware_new_instance':
+          case 'middleware_redis_instance_create':
             this.$storeHelper.dataTransfer = {
               from: this.$net.page['profile/middleware/redis'],
               data: {

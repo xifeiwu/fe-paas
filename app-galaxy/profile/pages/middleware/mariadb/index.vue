@@ -6,13 +6,13 @@
                      :key="item.clusterName"></el-tab-pane>
       </el-tabs>
       <div class="operation">
-        <el-button size="mini-extral"
+        <el-button size="mini"
                    type="primary"
                    :class="{'flex': true, 'disabled': $storeHelper.permission['middleware_mariadb_instance_create'].disabled}"
                    @click="handleButtonClick($event, 'middleware_mariadb_instance_create')">
           <span>申请实例</span><i class="paas-icon-level-up"></i>
         </el-button>
-        <el-button size="mini-extral"
+        <el-button size="mini"
                    type="primary"
                    @click="handleButtonClick($event, 'refreshList')">
           <span>刷新列表</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
@@ -476,7 +476,7 @@
           return;
         }
         var {content, timeStamp} = await this.$net.requestPaasServer(
-          Object.assign(this.$net.URL_LIST.middleware_middleware_instance_info_basic, {
+          Object.assign({}, this.$net.URL_LIST.middleware_middleware_instance_info_basic, {
             withTimeStamp: true
           }), {
           payload: {

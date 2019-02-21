@@ -103,7 +103,7 @@
           currentMiddleware['middlewareId'] = currentMiddlewareId;
 
           var middlewareVersionList = this.$storeHelper.getMiddlewareVersionList(currentClusterId, currentMiddlewareId);
-          if (!middlewareVersionList) {
+          if (middlewareVersionList.length === 0) {
             middlewareVersionList = await this.requestMiddlewareVersionList(currentMiddlewareId);
             this.$storeHelper.setMiddlewareVersionList(currentClusterId, currentMiddlewareId, middlewareVersionList);
           }

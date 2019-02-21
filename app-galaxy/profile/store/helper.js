@@ -721,7 +721,7 @@ class StoreHelper extends BaseHelper{
       versionList = middleware['versionList'];
     }
     if (versionList.length === 0) {
-      console.log(`error: length of versionList is null`);
+      console.log(`error: length of versionList is 0`);
     }
     return versionList;
   }
