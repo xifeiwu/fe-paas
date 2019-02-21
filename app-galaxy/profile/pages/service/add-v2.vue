@@ -222,8 +222,9 @@
             <el-form-item label="环境变量设置" prop="environments" class="environments" :error="formItemMsgForEnvironments"
                           v-if="showMoreConfig">
               <div class="el-row title">
-                <div class="el-col el-col-11 key">Key</div>
-                <div class="el-col el-col-11 value">Value</div>
+                <div class="el-col el-col-7 key">Key</div>
+                <div class="el-col el-col-7 value">Value</div>
+                <div class="el-col el-col-8 remark">备注</div>
                 <div class="el-col el-col-2" style="text-align: center">
                   <el-tooltip slot="trigger" effect="dark" placement="bottom">
                     <div slot="content">
@@ -238,22 +239,26 @@
                       v-for="(item, index) in formData.environments"
                       :key="item.key"
               >
-                <el-col :span="11" class="key">{{item.key}}</el-col>
-                <el-col :span="11" class="value">{{item.value}}</el-col>
+                <el-col :span="7" class="key">{{item.key}}</el-col>
+                <el-col :span="7" class="value">{{item.value}}</el-col>
+                <el-col :span="8" class="remark">{{item.remark}}</el-col>
                 <el-col :span="2" style="text-align: center">
                   <el-button type="warning" round size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
                 </el-col>
               </el-row>
               <el-row class="add-key-value">
-                <el-col :span="11" class="key">
+                <el-col :span="7" class="key">
                   <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
                 </el-col>
-                <el-col :span="11" class="value">
+                <el-col :span="7" class="value">
                   <el-input v-model="environmentValue" placeholder="512位以内的数字、字母、中划线、下划线" size="mini"></el-input>
+                </el-col>
+                <el-col :span="8" class="remark">
+                  <el-input v-model="environmentRemark" size="mini"></el-input>
                 </el-col>
                 <el-col :span="2" style="text-align: center">
                   <el-button type="primary" size="mini-extral" round
-                             @click="handleEnvironment('add', environmentKey, environmentValue)">添加</el-button>
+                             @click="handleEnvironment('add', environmentKey, environmentValue, environmentRemark)">添加</el-button>
                 </el-col>
               </el-row>
             </el-form-item>
@@ -551,14 +556,14 @@
           }
 
           &.environments, &.hosts {
-            .key, .value {
+            .key, .value, .remark {
               text-align: center;
             }
             .el-row.title {
               font-weight: bold;
             }
             .content {
-              .key, .value {
+              .key, .value, .remark {
                 word-wrap: break-word;
                 word-break: break-all;
                 line-height: 1.2;
@@ -569,6 +574,10 @@
                 padding-right: 3px;
               }
               .value {
+                padding-left: 3px;
+                padding-right: 3px;
+              }
+              .remark {
                 padding-left: 3px;
               }
             }
@@ -724,6 +733,7 @@
         useBuildName: true,
         environmentKey: '',
         environmentValue: '',
+        environmentRemark: '',
         hostKey: '',
         hostValue: '',
         errorMsgForVersion: '',
@@ -1215,7 +1225,7 @@
       },
 
       // operation for add or delete environment
-      handleEnvironment(action, key, value) {
+      handleEnvironment(action, key, value, remark) {
         switch (action) {
           case 'add':
             // remove error notification first
@@ -1246,9 +1256,11 @@
               this.formData.environments.push({
                 key: key,
                 value: value,
+                remark: remark,
               });
               this.environmentKey = '';
               this.environmentValue = '';
+              this.environmentRemark = '';
             } else {
               this.formItemMsgForEnvironments = `Key "${itemWithKey.key}" 已经存在，如需更改，请删除后重新添加`;
             }
