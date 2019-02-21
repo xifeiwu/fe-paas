@@ -77,7 +77,7 @@
             <div v-else>{{scope.row.createTime}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" prop="operation" width="300" headerAlign="center" align="center">
+        <el-table-column label="操作" prop="operation" width="180" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button v-if="false"
                     type="text"

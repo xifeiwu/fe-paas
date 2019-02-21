@@ -13,7 +13,7 @@
       </el-popover>
     </div>
     <el-form :model="createAppForm" :rules="rules" size="mini"
-             ref="createAppForm" label-width="140px">
+             ref="createAppForm" label-width="130px">
       <el-form-item label="团队" prop="groupID" class="group-list" v-if="pageType != 'update'">
         <el-select v-model="$storeHelper.currentGroupID" placeholder="请选择" filterable>
           <el-option v-for="item in groupList" :key="item.id" :label="item.asLabel" :value="item.id">
@@ -287,12 +287,13 @@
     margin: 20px;
     padding: 10px 30px;
     width: 80%;
-    max-width: 750px;
+    max-width: 850px;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     .section-title {
+      margin: 15px 0px;
       font-size: 18px;
+      font-weight: bold;
       text-align: center;
-      margin-bottom: 20px;
       font-weight: bold;
       .paas-icon-fa-question {
         font-size: 14px;
@@ -597,9 +598,6 @@ export default {
     /**
      * get profileNameList from profileInfoList
      * @param profileInfoList
-     * 处理规则：
-     * 1. 只有一个生产环境，生产环境必选
-     * 2. 有个一个以上的生产环境，默认不做勾选，在用户提交时校验（有且只能由一个生产环境）
      */
     onProfileListOfGroup: function (profileInfoList) {
       this.createAppForm.profiles = profileInfoList.map(it => {
@@ -737,8 +735,10 @@ export default {
     },
 
     // 有且只能有一个生产环境
+    // fix 2019.2.21: 可以支持多个生产环境
     invalidProductionProfileTip() {
       let messageTip = null;
+      return messageTip;
       let profileInfoList = this.createAppForm.profiles.map(it => {
         return this.$storeHelper.getProfileInfoByName(it);
       });
