@@ -241,11 +241,6 @@ class WorkOrderUtils {
       groupName: resContent['groupName'],
       // 功能列表
       featureList: [],
-      // 应用列表
-      appList: resContent['appVOList'].map(it => {
-        it['serviceVersion'] = '生产环境';
-        return it;
-      }),
       // 第一个应用的信息
       appID: resContent['appVOList'][0]['appId'], // to delete
       appName: resContent['appVOList'][0]['appName'], // to delete
@@ -287,6 +282,17 @@ class WorkOrderUtils {
       // 工单备注
       comment: resContent['remark'],
     };
+    // 应用列表
+    workOrderDetail['appList'] = resContent['appVOList'].map(it => {
+      // for compactable
+      // it['serviceVersion'] = '生产环境';
+      var profileInfo = vueComponent.$storeHelper.getProfileInfoByName(it.spaceName);
+      if (profileInfo) {
+        it['spaceDescription'] = profileInfo['description'];
+      }
+      return it;
+    });
+
     // 功能列表
     const featureNameMap = {
       'DEMAND': '需求',
@@ -348,6 +354,7 @@ class WorkOrderUtils {
   }
 
   /**
+   * TODO: not used
    * 通过工单基本信息获得工单详情
    * @param vueComponent
    * @param workOrder

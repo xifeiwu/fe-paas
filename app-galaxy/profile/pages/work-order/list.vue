@@ -109,7 +109,10 @@
                   <el-table :data="workOrderDetail.appList" class="compact">
                     <el-table-column label="应用名称" prop="appName" headerAlign="center" align="center">
                     </el-table-column>
-                    <el-table-column label="运行环境" prop="serviceVersion" headerAlign="center" align="center">
+                    <el-table-column label="运行环境" headerAlign="center" align="center">
+                      <template slot-scope="scope">
+                        <span>{{scope.row.spaceDescription}}</span>
+                      </template>
                     </el-table-column>
                   </el-table>
                 </el-form-item>

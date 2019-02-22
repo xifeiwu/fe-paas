@@ -21,7 +21,7 @@
         </el-table-column>
         <el-table-column label="运行环境" headerAlign="center" align="center">
           <template slot-scope="scope">
-            <span>生产环境</span>
+            <span>{{scope.row.spaceDescription}}</span>
           </template>
         </el-table-column>
         <el-table-column

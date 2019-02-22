@@ -310,6 +310,7 @@
         }
       },
 
+      // TODO: not used
       getProductionProfile() {
         const profileType = 'PRODUCTION';
         const profileInfo = this.$storeHelper.getProfileInfoByType(profileType);
@@ -328,20 +329,15 @@
           case 'work-order_restart_service':
           case 'work-order_deploy_service':
             this.addToWaitingResponseQueue(action);
-            var profileInfo = this.getProductionProfile();
-            if (!profileInfo || !profileInfo.hasOwnProperty('id')) {
-              this.$message.error('未找到profileID');
+            if (!row.hasOwnProperty('appId') || !row.hasOwnProperty('spaceId')) {
+              this.$message.error('请检查应用名和版本信息是否完整！');
               return;
             }
-            if (!row.serviceVersion || !row.appId) {
-              this.$message.error('信息不完整：请检查应用名和版本是否完整！');
-              return;
-            }
+
             try {
               await this.serviceDeploy({
                 applicationId: row.appId,
-                spaceId: profileInfo.id,
-                serviceVersion: row.serviceVersion,
+                spaceId: row.spaceId,
                 groupId: this.$storeHelper.currentGroupID
               }, action === 'work-order_restart_service' ? 'quick-deploy' : 'deploy');
             } catch (err) {
