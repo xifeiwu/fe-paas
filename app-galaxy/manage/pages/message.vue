@@ -274,6 +274,7 @@
               });
 //              console.log(resContent);
               this.closeDialog();
+              this.requestList();
             } catch (err) {
               console.log(err);
             }
