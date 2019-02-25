@@ -18,7 +18,7 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="运行环境" prop="clusterId" class="cluster-id">
+        <el-form-item label="运行环境" prop="clusterId" class="cluster-id" v-if="false">
           <div v-if="forModify">{{clusterInfo.description}}</div>
           <el-radio-group v-model="formData.clusterId" v-else>
             <el-radio v-for="item in clusterList" :label="item.id" :key="item.id">
