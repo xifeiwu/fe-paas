@@ -48,15 +48,15 @@
           <template slot-scope="scope">
             <el-button
                     type="text"
-                    :class="['warning']"
-                    :loading="statusOfWaitingResponse('middleware_instance_update_memory') && action.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_instance_update_memory', scope.$index, scope.row)">内存扩容</el-button>
+                    :class="[$storeHelper.permission['middleware_redis_instance_update'].disabled ? 'disabled' : 'warning']"
+                    :loading="statusOfWaitingResponse('middleware_redis_instance_update') && action.row.id == scope.row.id"
+                    @click="handleTRClick($event, 'middleware_redis_instance_update', scope.$index, scope.row)">内存扩容</el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="['warning', 'flex']"
-                    :loading="statusOfWaitingResponse('middleware_instance_update_config') && action.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_instance_update_config', scope.$index, scope.row)">
+                    :class="['flex', $storeHelper.permission['middleware_redis_instance_edit'].disabled ? 'disabled' : 'warning']"
+                    :loading="statusOfWaitingResponse('middleware_redis_instance_edit') && action.row.id == scope.row.id"
+                    @click="handleTRClick($event, 'middleware_redis_instance_edit', scope.$index, scope.row)">
               <span>修改配置</span><i class="paas-icon-level-up"></i>
             </el-button>
             <div class="ant-divider"></div>
@@ -128,10 +128,10 @@
       </el-table>
     </div>
 
-    <el-dialog title="内存扩(缩)容" :visible="action.name == 'middleware_instance_update_memory'"
+    <el-dialog title="内存扩(缩)容" :visible="action.name == 'middleware_redis_instance_update'"
                :close-on-click-modal="false"
                @close="handleDialogButtonClick('close')"
-               class="middleware_instance_update_memory size-700"
+               class="middleware_redis_instance_update size-700"
                v-if="action.name && action.row"
     >
       <el-form :model="dialog4UpdateMemory" :rules="rules" size="mini" labelWidth="120px">
@@ -149,8 +149,8 @@
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
           <el-button type="primary"
-                     @click="handleDialogButtonClick('middleware_instance_update_memory')"
-                     :loading="statusOfWaitingResponse('middleware_instance_update_memory')">确定重启</el-button>
+                     @click="handleDialogButtonClick('middleware_redis_instance_update')"
+                     :loading="statusOfWaitingResponse('middleware_redis_instance_update')">确定重启</el-button>
         </div>
         <div class="item">
           <el-button action="profile-dialog/cancel"
@@ -450,6 +450,13 @@
       },
 
       handleButtonClick(evt, action) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         switch (action) {
           case 'middleware_redis_instance_create':
             this.$storeHelper.dataTransfer = {
@@ -495,12 +502,19 @@
       },
 
       async handleTRClick(evt, action, index, row) {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
         // action 'instance_more_info_refresh' does not pass param index and row
         if (row) {
           this.action.row = row;
         }
         switch (action) {
-          case 'middleware_instance_update_memory':
+          case 'middleware_redis_instance_update':
             this.addToWaitingResponseQueue(action);
             try {
               const instanceStatus = await this.getInstanceMoreInfo();
@@ -514,7 +528,7 @@
               this.hideWaitingResponse(action);
             }
             break;
-          case 'middleware_instance_update_config':
+          case 'middleware_redis_instance_edit':
             try {
 //              const moreInfo = await this.getInstanceMoreInfo();
 //              console.log(moreInfo);
@@ -640,7 +654,7 @@
 
       async handleDialogButtonClick(action) {
         switch (action) {
-          case 'middleware_instance_update_memory':
+          case 'middleware_redis_instance_update':
             this.addToWaitingResponseQueue(action);
             try {
               const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_redis_update_memory, {

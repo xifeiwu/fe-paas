@@ -754,12 +754,11 @@ class Net extends NetBase {
       '/2.x/openShift/redis/create': 'middleware_redis_instance_create',
       // 删除redis
       '/2.x/openShift/redis/delete': 'middleware_redis_instance_delete',
-      // 启动redis
-      '/2.x/openShift/redis/start': 'middleware_redis_instance_start',
-      // 停止redis
-      '/2.x/openShift/redis/stop': 'middleware_redis_instance_stop',
-      // 更新redis
+      // 编辑redis(java server端)
+      '/2.x/openShift/redis/edit': 'middleware_redis_instance_edit',
+      // 更新redis(openshift端)
       '/2.x/openShift/redis/update': 'middleware_redis_instance_update',
+
       // 创建redis备份
       '/2.x/openShift/redis/createBackup': 'middleware_redis_backup_create',
       // 删除redis备份
