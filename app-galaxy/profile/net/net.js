@@ -556,7 +556,7 @@ class Net extends NetBase {
       },
       // 删除redis实例
       'middleware_redis_instance_delete': {
-        path: '/middleware/deleteMiddleware',
+        path: '/middleware/deleteMiddlewareRedis',
         method: 'post'
       },
       // redis实例更多信息
