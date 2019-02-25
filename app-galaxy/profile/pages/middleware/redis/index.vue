@@ -39,8 +39,11 @@
         <el-table-column label="更新时间" prop="formattedUpdateTime" headerAlign="center" align="center" width="136"
                          sortable="custom">
         </el-table-column>
-        <el-table-column label="剩余有效天数" prop="formattedExpiredTime" headerAlign="center" align="center" width="136"
+        <el-table-column label="剩余有效天数" prop="remainingDays" headerAlign="center" align="center" width="136"
                          sortable="custom">
+          <template slot-scope="scope">
+            <span>{{(scope.row.remainingDays >= 0) ? scope.row.remainingDays + '天' : '已失效'}}</span>
+          </template>
         </el-table-column>
         <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="120">
         </el-table-column>
@@ -426,19 +429,29 @@
         if (!this.middlewareId) {
           return;
         }
-        const instanceList = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_instance_info_basic, {
-          payload: {
-            clusterId: this.clusterId,
-            middlewareId: this.middlewareId,
-            groupId: this.$storeHelper.currentGroupID
-          }
-        });
-//        console.log(instanceList);
+        var {content, timeStamp} = await this.$net.requestPaasServer(
+          Object.assign({}, this.$net.URL_LIST.middleware_middleware_instance_info_basic, {
+            withTimeStamp: true
+          }), {
+            payload: {
+              clusterId: this.clusterId,
+              middlewareId: this.middlewareId,
+              groupId: this.$storeHelper.currentGroupID
+            }
+          });
+
+        const instanceList = content;
+        const ONE_DAY = 24 * 3600 * 1000;
         instanceList.forEach(it => {
           it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
           it.formattedUpdateTime = this.$utils.formatDate(it.updateTime, 'yyyy-MM-dd hh:mm:ss');
           it.formattedExpiredTime = this.$utils.formatDate(it.expiredTime, 'yyyy-MM-dd');
-          it.leaveTime = (it.expiredTime - it.createTime) / (24 * 3600 * 1000);
+
+          it.remainingDays = '---';
+          if (it.hasOwnProperty('expiredTime')) {
+            it.remainingDays = Math.floor((parseInt(it.expiredTime) - timeStamp) / ONE_DAY);
+          }
+
           if(!it.instanceDescribe) {
             it.instanceDescribe = '---';
           }
@@ -539,7 +552,7 @@
                   middlewareInfo: this.middlewareInfo,
                   name: this.action.row.name,
                   instanceDescribe: this.action.row.instanceDescribe,
-                  remainingDays: this.action.row.leaveTime
+                  remainingDays: this.operation.row.remainingDays < 1 ? 1 : this.operation.row.remainingDays,
 //                  memory: moreInfo['memoryTotal']
                 }
               };

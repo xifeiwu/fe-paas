@@ -55,7 +55,7 @@
         </el-table-column>
         <el-table-column label="剩余有效天数" prop="remainingDays" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
-            <span>{{scope.row.remainingDays}}天</span>
+            <span>{{(scope.row.remainingDays >= 0) ? scope.row.remainingDays + '天' : '已失效'}}</span>
           </template>
         </el-table-column>
         <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="80">
@@ -495,6 +495,7 @@
         instanceList.forEach(it => {
           it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
           it.formattedUpdateTime = this.$utils.formatDate(it.updateTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
+
           it.remainingDays = '---';
           if (it.hasOwnProperty('expiredTime')) {
             it.remainingDays = Math.floor((parseInt(it.expiredTime) - timeStamp) / ONE_DAY);
@@ -727,7 +728,7 @@
                   middlewareInfo: this.middlewareInfo,
                   name: this.operation.row.name,
                   instanceDescribe: this.operation.row.instanceDescribe,
-                  remainingDays: this.operation.row.remainingDays,
+                  remainingDays: this.operation.row.remainingDays < 1 ? 1 : this.operation.row.remainingDays,
                 }
               };
               this.$router.push(this.$net.page['profile/middleware/mariadb/modify']);

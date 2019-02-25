@@ -32,7 +32,7 @@
         <el-form-item label="剩余有效天数" prop="remainingDays">
           <div style="width: 360px; display: inline-block; margin-left: 5px;">
             <el-slider v-model="formData.remainingDays" :show-tooltip="true" :show-stops="false"
-                       :min="10" :max="90" :step="1"></el-slider>
+                       :min="1" :max="90" :step="1"></el-slider>
           </div>
           <div style="display: inline-block; margin-left: 15px;"><span>{{formData.remainingDays}}天</span></div>
         </el-form-item>
