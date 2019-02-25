@@ -403,7 +403,7 @@
       '$storeHelper.groupInfo.id': function () {
         this.requestInstanceList();
       },
-      'profileName': async function() {
+      'profileName': async function(profileName) {
         // value of elTab is set to '0' by default
         if (profileName == '0') {
           return;
