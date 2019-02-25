@@ -290,7 +290,7 @@
       this.bytes = bytes;
       this.utils = utils;
 //      await this.checkBasicData4Middleware();
-//      this.requestList();
+//      this.requestInstanceList();
       if (this.$storeHelper.clusterList) {
         this.onClusterList(this.$storeHelper.clusterList);
       }
@@ -350,7 +350,7 @@
       '$storeHelper.clusterList': 'onClusterList',
       '$storeHelper.screen.size': 'onScreenSizeChange',
       '$storeHelper.groupInfo.id': function () {
-        this.requestList();
+        this.requestInstanceList();
       },
       'profileName': async function(profileName) {
         // value of elTab is set to '0' by default
@@ -365,7 +365,7 @@
           }
         });
         await this.checkBasicData4Middleware();
-        await this.requestList();
+        await this.requestInstanceList();
       }
     },
     methods: {
@@ -420,7 +420,10 @@
       },
 
       // request instance list
-      async requestList() {
+      async requestInstanceList() {
+        if (!this.$storeHelper.currentGroupID) {
+          return;
+        }
         if (!this.clusterId || !this.middlewareId) {
           await this.checkBasicData4Middleware();
         }
@@ -482,7 +485,7 @@
             this.$router.push(this.$net.page['profile/middleware/redis/add']);
             break;
           case 'refreshList':
-            this.requestList();
+            this.requestInstanceList();
             break;
         }
       },
@@ -577,7 +580,7 @@
               });
               this.$message.success(`mariadb实例 "${row.name}" 删除成功！`);
               this.hideWaitingResponse(action);
-              this.requestList();
+              this.requestInstanceList();
             } catch(err) {
               this.hideWaitingResponse(action);
             }
@@ -682,7 +685,7 @@
                 }
               });
               // updateTime is change when by this action
-//              await this.requestList();
+//              await this.requestInstanceList();
               this.instanceMoreInfo = await this.getInstanceMoreInfo();
               this.expandRows = [this.action.row.id];
               this.hideWaitingResponse(action);

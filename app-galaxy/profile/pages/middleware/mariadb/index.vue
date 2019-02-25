@@ -472,6 +472,9 @@
 
       // request instance list
       async requestInstanceList() {
+        if (!this.$storeHelper.currentGroupID) {
+          return;
+        }
         if (!this.clusterId || !this.middlewareId) {
           await this.checkBasicData4Middleware();
         }

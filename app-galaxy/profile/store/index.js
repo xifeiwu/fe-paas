@@ -103,7 +103,7 @@ export default new Vuex.Store({
     paths: ['config',
       'user.groupInfo', 'user.groupList', 'user.profileListOfGroup', 'user.config',
       'app.globalConfig',
-      'app.clusterList',
+      // 'app.clusterList',
       'etc'],
     // filter: (mutation) => {console.log(mutation)}
   })]
