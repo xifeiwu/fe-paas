@@ -128,7 +128,7 @@
     <paas-popover-message ref="popover-profile-list" popperClass="el-popover--small is-dark"
                           placement="top">
       <div slot="content">
-        <div v-for="(item, index) in profileStatusList" :key="index"
+        <div v-for="(item, index) in $storeHelper.profileListOfGroup" :key="index"
              @click="handleProfileClick($event, item)"
              @mouseenter="handleMouseEnter('profile-item', $event)"
              @mouseleave="handleMouseLeave('profile-item', $event)"
@@ -408,14 +408,14 @@
       });
       this.popoverProfileList = this.$refs['popover-profile-list'];
 
-      this.profileStatusList = this.$storeHelper.profileListOfGroup.map(it => {
-        return {
-          id: it.id,
-          description: it.description,
-          name: it.name,
-          instanceStatus: ''
-        };
-      });
+//      this.profileStatusList = this.$storeHelper.profileListOfGroup.map(it => {
+//        return {
+//          id: it.id,
+//          description: it.description,
+//          name: it.name,
+//          instanceStatus: ''
+//        };
+//      });
     },
     beforeDestroy() {
       this.popoverProfileList.doClose();
@@ -424,6 +424,7 @@
     data() {
       return {
         popoverProfileList: null,
+        // TODO: delete later
         profileStatusList: [],
         resizeListener: () => {},
         heightOfTable: '',
