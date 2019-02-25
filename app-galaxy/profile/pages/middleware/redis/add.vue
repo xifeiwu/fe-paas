@@ -36,7 +36,7 @@
           </div>
           <div style="display: inline-block; margin-left: 15px;"><span>{{formData.remainingDays}}天</span></div>
         </el-form-item>
-        <el-form-item label="磁盘大小" prop="memory" class="memory" v-if="!forModify">
+        <el-form-item label="内存大小" prop="memory" class="memory" v-if="!forModify">
           <div style="width: 360px; display: inline-block; margin-left: 5px;">
             <el-slider v-model="formData.memory" :show-tooltip="true" :show-stops="false" :format-tooltip="utils.formatTooltipForMemory"
                        :min="512 * utils.ONE_MILLION" :max="256 * 4 * 5 * utils.ONE_MILLION" :step="256 * utils.ONE_MILLION"></el-slider>

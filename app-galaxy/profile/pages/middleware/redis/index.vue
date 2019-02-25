@@ -39,7 +39,7 @@
         <el-table-column label="更新时间" prop="formattedUpdateTime" headerAlign="center" align="center" width="136"
                          sortable="custom">
         </el-table-column>
-        <el-table-column label="到期时间" prop="formattedExpiredTime" headerAlign="center" align="center" width="136"
+        <el-table-column label="剩余有效天数" prop="formattedExpiredTime" headerAlign="center" align="center" width="136"
                          sortable="custom">
         </el-table-column>
         <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="120">
@@ -238,6 +238,7 @@
           top: 10px;
           right: 10px;
           font-size: 14px;
+          z-index: 10;
           &:hover {
             /*font-size: 16px;*/
             color: #409EFF;

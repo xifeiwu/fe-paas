@@ -285,6 +285,7 @@
           top: 10px;
           right: 10px;
           font-size: 14px;
+          z-index: 10;
           &:hover {
             /*font-size: 16px;*/
             color: #409EFF;
