@@ -41,7 +41,7 @@
 
       // all profileName: ['fpdev', 'test', 'beta', 'performance', 'production']
       // check data: clusterList, middlewareList, middlewareVersionList
-      async checkBasicData (profileName, middlewareName) {
+      async checkBasicData(profileName, middlewareName) {
         try {
           const currentMiddleware = this.$storeHelper.currentMiddleware;
 

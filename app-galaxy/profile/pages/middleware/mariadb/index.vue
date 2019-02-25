@@ -404,6 +404,10 @@
         this.requestInstanceList();
       },
       'profileName': async function() {
+        // value of elTab is set to '0' by default
+        if (profileName == '0') {
+          return;
+        }
         // update user/config in vuex
         this.$store.dispatch('user/config', {
           page: 'middleware',
