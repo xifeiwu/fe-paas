@@ -65,7 +65,7 @@
             <el-button
                     type="text"
                     :class="$storeHelper.permission['middleware_mariadb_instance_update'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_update') && operation.row.id == scope.row.id"
+                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_update') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'middleware_mariadb_instance_update', scope.$index, scope.row)">变更规格</el-button>
             <div class="ant-divider"></div>
             <el-button
@@ -79,25 +79,25 @@
             <el-button
                     type="text"
                     :class="$storeHelper.permission['middleware_mariadb_instance_delete'].disabled ? 'disabled' : 'danger'"
-                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_delete') && operation.row.id == scope.row.id"
+                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_delete') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'middleware_mariadb_instance_delete', scope.$index, scope.row)">删除</el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
                     :class="$storeHelper.permission['middleware_mariadb_instance_start'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_start') && operation.row.id == scope.row.id"
+                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_start') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'middleware_mariadb_instance_start', scope.$index, scope.row)">启动</el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
                     :class="$storeHelper.permission['middleware_mariadb_instance_stop'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_stop') && operation.row.id == scope.row.id"
+                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_stop') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'middleware_mariadb_instance_stop', scope.$index, scope.row)">停止</el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
                     :class="['flex', false ? 'disabled' : 'primary']"
-                    :loading="statusOfWaitingResponse('go-to-page-backup') && operation.row.id == scope.row.id"
+                    :loading="statusOfWaitingResponse('go-to-page-backup') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'go-to-page-backup', scope.$index, scope.row)">
               <span>备份与恢复</span>
               <i class="paas-icon-level-up"></i>
@@ -105,7 +105,7 @@
             <div class="ant-divider"></div>
             <el-button
                     class="primary" type="text"
-                    :loading="statusOfWaitingResponse('instance_more_info') && operation.row.id == scope.row.id"
+                    :loading="statusOfWaitingResponse('instance_more_info') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'instance_more_info', scope.$index, scope.row)">
               <span>实例详情</span>
               <i :class="{'el-icon-arrow-right': true, 'expand': expandRows.indexOf(scope.row.id) > -1}"></i>
@@ -164,11 +164,11 @@
       </el-table>
     </div>
 
-    <el-dialog title="更改实例规格" :visible="operation.name == 'middleware_mariadb_instance_update'"
+    <el-dialog title="更改实例规格" :visible="action.name == 'middleware_mariadb_instance_update'"
                :close-on-click-modal="false"
                @close="handleDialogButtonClick('close')"
                class="middleware_mariadb_instance_update size-500"
-               v-if="operation.name && operation.row"
+               v-if="action.name && action.row"
     >
       <el-form :model="newProps" size="mini" labelWidth="80px">
         <el-form-item label="CPU" prop="cpu">
@@ -376,7 +376,7 @@
         },
         expandRows: [],
         instanceMoreInfo: {},
-        operation: {
+        action: {
           name: '',
           row: null
         },
@@ -554,7 +554,7 @@
                   middlewareVersionId: 3,
                   namespace: this.$storeHelper.groupInfo.tag,
                   replicas: 1,
-                  name: this.operation.row.name,
+                  name: this.action.row.name,
                   cpuRequests: this.newProps.cpu,
                   memoryRequests: this.newProps.memory
                 }
@@ -566,74 +566,22 @@
               if (!this.instanceMoreInfo) {
                 throw new Error('instanceMoreInfo is null');
               }
-              this.expandRows = [this.operation.row.id];
+              this.expandRows = [this.action.row.id];
               this.hideWaitingResponse(action);
-              this.operation.name = null;
+              this.action.name = null;
             } catch (err) {
               console.log(err);
               this.hideWaitingResponse(action);
-              this.operation.name = null;
+              this.action.name = null;
             }
             break;
           case 'close':
-//            console.log(this.operation.name);
+//            console.log(this.action.name);
 //            console.log(this.queueForWaitingResponse);
-            this.hideWaitingResponse(this.operation.name);
-            this.operation.name = null;
+            this.hideWaitingResponse(this.action.name);
+            this.action.name = null;
             break
         }
-      },
-
-      // TODO: not used
-      async getInstanceMoreInfo2() {
-        if (!this.clusterId || !this.middlewareId) {
-          await this.checkBasicData4Middleware();
-        }
-        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_instance_info_detail, {
-          payload: {
-            clusterId: this.clusterId,
-            middlewareId: this.middlewareId,
-            middlewareVersionId: 3,
-            namespace: this.$storeHelper.groupInfo.tag,
-            name: this.operation.row.name
-          }
-        });
-        const cluster = resContent['cluster'];
-        const spec = cluster['spec'];
-        var instance = {
-          status: '无运行实例',
-          address: '---',
-          port: '---',
-          diskUsage: '---',
-          disk: '---',
-        };
-        if (resContent['instances'].length === 0) {
-//          this.$message.error('无运行实例，请联系管理员！');
-//          throw new Error('无运行实例！');
-        } else {
-          instance = resContent['instances'][0];
-        }
-        const statusMap = {
-          Pending: '启动中',
-          Running: '运行中',
-          Failed: '启动失败',
-          Deleting: '删除中'
-        };
-        const cpu = parseInt(spec['resources']['requests']['cpu']);
-        const memorySize = spec['resources']['requests']['memory'];
-        return {
-          name: cluster['metadata']['name'],
-          address: instance['address'],
-          port: instance['port'],
-          userName: spec['user'],
-          password: spec['password'],
-          status: statusMap.hasOwnProperty(instance['status']) ? statusMap[instance['status']] : instance['status'],
-          cpu,
-          memory: parseInt(memorySize.substr(0, memorySize.length - 2)),
-          memorySize,
-          diskUsage: instance['diskUsage'] != '---' ? bytes(parseInt(instance['diskUsage'])) : '---',
-          diskTotal: instance['disk'] != '---' ? bytes(parseInt(instance['disk'])) : '---'
-        };
       },
 
       async getInstanceMoreInfo() {
@@ -646,7 +594,7 @@
             middlewareId: this.middlewareId,
             middlewareVersionId: 3,
             namespace: this.$storeHelper.groupInfo.tag,
-            name: this.operation.row.name
+            name: this.action.row.name
           }
         });
 
@@ -697,7 +645,7 @@
         }
         // action 'instance_more_info_refresh' does not pass param index and row
         if (row) {
-          this.operation.row = row;
+          this.action.row = row;
         }
         switch (action) {
           case 'middleware_mariadb_instance_update':
@@ -716,7 +664,7 @@
               if (this.constants.memoryList.indexOf(instanceStatus['memory']) > -1) {
                 this.newProps.memory = instanceStatus['memory'];
               }
-              this.operation.name = action;
+              this.action.name = action;
               this.hideWaitingResponse(action);
             } catch (err) {
               console.log(err);
@@ -733,9 +681,9 @@
                 data: {
                   clusterInfo: this.clusterInfo,
                   middlewareInfo: this.middlewareInfo,
-                  name: this.operation.row.name,
-                  instanceDescribe: this.operation.row.instanceDescribe,
-                  remainingDays: this.operation.row.remainingDays < 1 ? 1 : this.operation.row.remainingDays,
+                  name: this.action.row.name,
+                  instanceDescribe: this.action.row.instanceDescribe,
+                  remainingDays: this.action.row.remainingDays < 1 ? 1 : this.action.row.remainingDays,
                 }
               };
               this.$router.push(this.$net.page['profile/middleware/mariadb/modify']);
@@ -754,7 +702,7 @@
                   middlewareId: this.middlewareId,
                   middlewareVersionId: 3,
                   namespace: this.$storeHelper.groupInfo.tag,
-                  name: this.operation.row.name,
+                  name: this.action.row.name,
                 }
               });
               this.$message.success(`mariadb实例 "${row.name}" 删除成功！`);
@@ -774,7 +722,7 @@
                   middlewareId: this.middlewareId,
                   middlewareVersionId: 3,
                   namespace: this.$storeHelper.groupInfo.tag,
-                  name: this.operation.row.name,
+                  name: this.action.row.name,
                 }
               });
               this.$message.success(`mariadb实例 "${row.name}" 启动成功！`);
@@ -798,7 +746,7 @@
                   middlewareId: this.middlewareId,
                   middlewareVersionId: 3,
                   namespace: this.$storeHelper.groupInfo.tag,
-                  name: this.operation.row.name,
+                  name: this.action.row.name,
                 }
               });
               this.$message.success(`mariadb实例 "${row.name}" 停止成功！`);
