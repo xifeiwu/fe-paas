@@ -448,7 +448,6 @@
           });
 
         const instanceList = content;
-        const ONE_DAY = 24 * 3600 * 1000;
         instanceList.forEach(it => {
           it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
           it.formattedUpdateTime = this.$utils.formatDate(it.updateTime, 'yyyy-MM-dd hh:mm:ss');
@@ -456,7 +455,7 @@
 
           it.remainingDays = '---';
           if (it.hasOwnProperty('expiredTime')) {
-            it.remainingDays = Math.floor((parseInt(it.expiredTime) - timeStamp) / ONE_DAY);
+            it.remainingDays = this.$utils.getDaysInterval(timeStamp, parseInt(it.expiredTime));
           }
 
           if(!it.instanceDescribe) {
@@ -559,7 +558,7 @@
                   middlewareInfo: this.middlewareInfo,
                   name: this.action.row.name,
                   instanceDescribe: this.action.row.instanceDescribe,
-                  remainingDays: this.operation.row.remainingDays < 1 ? 1 : this.operation.row.remainingDays,
+                  remainingDays: this.action.row.remainingDays < 1 ? 1 : this.action.row.remainingDays,
 //                  memory: moreInfo['memoryTotal']
                 }
               };

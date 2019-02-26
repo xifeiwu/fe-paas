@@ -498,14 +498,13 @@
           }
         });
         const instanceList = content;
-        const ONE_DAY = 24 * 3600 * 1000;
         instanceList.forEach(it => {
           it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
           it.formattedUpdateTime = this.$utils.formatDate(it.updateTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
 
           it.remainingDays = '---';
           if (it.hasOwnProperty('expiredTime')) {
-            it.remainingDays = Math.floor((parseInt(it.expiredTime) - timeStamp) / ONE_DAY);
+            it.remainingDays = this.$utils.getDaysInterval(timeStamp, parseInt(it.expiredTime));
           }
           if(!it.instanceDescribe) {
             it.instanceDescribe = '---';

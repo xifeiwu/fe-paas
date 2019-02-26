@@ -49,9 +49,16 @@ export default class Utils extends BaseUtils {
     result.setHours(0);
     result.setMinutes(0);
     result.setSeconds(0);
+    result.setMilliseconds(0);
     return result.getTime();
   }
   getDate2(dt) {
     return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+  }
+
+  // get day interval for two date
+  getDaysInterval(current, target) {
+    const ONE_DAY = 24 * 3600 * 1000;
+    return parseInt((this.getDate(target) - this.getDate(current)) / ONE_DAY);
   }
 }
