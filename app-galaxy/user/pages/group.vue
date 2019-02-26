@@ -1,30 +1,46 @@
 <template>
   <div id="group-manage">
+    <div class="header">
+      <el-input
+              size="mini"
+              style="max-width: 300px"
+              placeholder="按名称搜索应用"
+              suffix-icon="el-icon-search"
+              v-model="filterKey">
+      </el-input>
+      <el-button size="mini"
+                 type="primary"
+                 @click="handleButtonClick($event, 'refresh-list')">
+        <span>刷新列表</span><i class="el-icon el-icon-refresh" style="margin-left: 8px;"></i>
+      </el-button>
+    </div>
     <div class="group-list">
       <el-table :data="groupListByPage"
                 stripe
                 :height="heightOfTable"
                 :row-key="(row) => {return row.id}"
                 :expand-row-keys="expandRows"
+                @sort-change="sort => {tableSort = sort}"
+                :defaultSort="tableSort"
                 element-loading-text="加载中">
-        <el-table-column label="团队名称" prop="name" headerAlign="center" align="center" minWidth="100">
+        <el-table-column label="团队名称" prop="name" headerAlign="center" align="center" minWidth="100" sortable="custom">
         </el-table-column>
-        <el-table-column label="团队标签" prop="tag" headerAlign="center" align="center" minWidth="80">
+        <el-table-column label="团队标签" prop="tag" headerAlign="center" align="center" width="100">
         </el-table-column>
-        <el-table-column label="所属业务线LOB" prop="lobName" headerAlign="center" align="center" minWidth="100">
+        <el-table-column label="所属业务线LOB" prop="lobName" headerAlign="center" align="center" width="120">
           <template slot-scope="scope">
             <div v-if="scope.row.lobName">{{scope.row.lobName}}</div>
             <div v-else>无</div>
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="100">
+        <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="140" sortable="custom">
           <template slot-scope="scope">
-            <div v-if="Array.isArray(scope.row.createTime)">
-              <div v-for="(item, index) in scope.row.createTime" :key="index">
+            <div v-if="Array.isArray(scope.row.formattedCreateTime)">
+              <div v-for="(item, index) in scope.row.formattedCreateTime" :key="index">
                 {{item}}
                 </div>
             </div>
-            <div v-else>{{scope.row.createTime}}</div>
+            <div v-else>{{scope.row.formattedCreateTime}}</div>
           </template>
         </el-table-column>
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="100">
@@ -99,7 +115,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="showGroupList">
+      <div class="pagination-container" v-if="totalSize > pageSize">
         <div class="pagination">
           <el-pagination
                   :current-page="currentPage"
@@ -107,7 +123,7 @@
                   layout="prev, pager, next"
                   :page-size = "pageSize"
                   :total="totalSize"
-                  @current-change="handlePaginationPageChange"
+                  @current-change="page => {currentPage = page}"
                   v-if="totalSize > pageSize"
           >
           </el-pagination>
@@ -193,10 +209,20 @@
 <style lang="scss" scoped>
   #group-manage {
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    .header {
+      padding: 3px 5px;
+      font-size: 14px;
+    }
     .group-list {
-      height: 100%;
+      flex: 1;
+      /*height: 100%;*/
       position: relative;
       .el-table {
+        td {
+          padding: 3px;
+        }
         tr .row-expand {
           position: relative;
           padding-bottom: 20px;
@@ -218,7 +244,6 @@
         }
         .el-table__row {
           .el-button {
-            margin: 2px 4px;
             &.expand {
               .el-icon-arrow-right {
                 transform: rotate(90deg);
@@ -252,34 +277,28 @@
 <script>
   import commonUtils from 'assets/components/mixins/common-utils';
 
+  const defaultTableSort = {
+    prop: 'formattedCreateTime',
+    order: 'descending',
+  };
   module.exports = {
     mixins: [commonUtils],
     created() {
     },
 
     async mounted() {
-//      this.$net.getLobList();
-      // draw: 1, start: 0, length: 10
-      const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.group_list_by_page, {
-        payload: {},
+      this.getGroupListByPage({
+        refresh: true,
+        currentPage: 1
       });
-      const groupList = resContent['groupList'].map(it => {
-        it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-        if (it.createTime) {
-          it.createTime = it.createTime.split(' ');
-        }
-        return it;
-      });
-      this.groupList = groupList;
-      this.totalSize = this.groupList.length;
-      this.currentPage = 1;
-      this.updateGroupListByPage();
 
       this.onScreenSizeChange(this.$storeHelper.screen.size);
     },
 
     data() {
       return {
+        filterKey: '',
+        tableSort: defaultTableSort,
         groupList: [],
         groupListByPage: [],
         groupListNode: null,
@@ -341,15 +360,42 @@
       }
     },
     watch: {
-      '$storeHelper.screen.size': 'onScreenSizeChange'
+      '$storeHelper.screen.size': 'onScreenSizeChange',
+      currentPage(page) {
+        this.getGroupListByPage({
+          currentPage: page
+        });
+      },
+      filterKey() {
+        this.getGroupListByPage({});
+      },
+      tableSort() {
+        this.getGroupListByPage({});
+      }
     },
 
     methods: {
       onScreenSizeChange(size) {
-        if (size === 0) {
+        if (!size) {
           return;
         }
-        this.heightOfTable = this.$el.clientHeight - 18;
+        try {
+          const headerNode = this.$el.querySelector(':scope > .header');
+          const headerHeight = headerNode.offsetHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+        } catch(err) {
+        }
+      },
+
+      handleButtonClick(evt, action) {
+        switch (action) {
+          case 'refresh-list':
+            this.getGroupListByPage({
+              refresh: true,
+              currentPage: 1
+            });
+            break;
+        }
       },
 
       handleTRButton(action, index, row) {
@@ -557,18 +603,91 @@
         });
       },
 
-      handlePaginationPageChange(page) {
-        this.currentPage = page;
-        this.updateGroupListByPage();
+      async requestGroupList() {
+        // draw: 1, start: 0, length: 10
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.group_list_by_page, {
+          payload: {},
+        });
+        const groupList = resContent['groupList'].map(it => {
+          it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+//          if (it.createTime) {
+//            it.createTime = it.createTime.split(' ');
+//          }
+          return it;
+        });
+        this.groupList = groupList;
+        this.totalSize = this.groupList.length;
+        this.currentPage = 1;
       },
 
-      updateGroupListByPage() {
-        let page = this.currentPage - 1;
+      /**
+       * 获取分页的团队列表
+       * @param refresh, request service list from server or not
+       * @param currentPage, set currentPage by code
+       */
+      async getGroupListByPage({refresh = false, currentPage = null}) {
+        if (refresh) {
+//          this.currentPage = 1;
+          this.tableSort = defaultTableSort;
+          await this.requestGroupList();
+        }
+        if (currentPage) {
+          this.currentPage = currentPage;
+        }
+        // check currentPage after item delete
+        const maxPageSize = Math.ceil(this.totalSize / this.pageSize);
+        if (this.currentPage > maxPageSize) {
+          this.currentPage = maxPageSize;
+        }
+
+        var page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
-        let start = page * this.pageSize;
-        let length = this.pageSize;
-        let end = start + length;
-        this.groupListByPage =  this.groupList.slice(start, end);
+        const start = page * this.pageSize;
+        const length = this.pageSize;
+        const end = start + length;
+
+        var filterReg = null;
+        if (this.filterKey) {
+          filterReg = new RegExp(this.filterKey);
+        }
+        const filteredGroupList = this.groupList.filter(it => {
+          var result = true;
+          if (filterReg) {
+            const searchField = `${it.name}${it.tag}${it.lobName}`;
+            result = filterReg.test(searchField);
+          }
+          return result;
+        });
+
+        // sort
+        const keyMap = {
+          'formattedCreateTime': 'createTime',
+          'name': 'name'
+        };
+        const key = keyMap[this.tableSort.prop];
+        const sortedGroupList = filteredGroupList;
+        if (key) {
+          sortedGroupList.sort((pre, next) => {
+            var result = pre[key] - next[key];
+            if (key === 'name') {
+              result = pre[key].localeCompare(next[key]);
+            }
+            switch (this.tableSort['order']) {
+              case 'ascending':
+                break;
+              case 'descending':
+                result = -1 * result;
+                break;
+              default:
+                result = 0;
+                break;
+            }
+            return result;
+          });
+        }
+
+        this.totalSize = sortedGroupList.length;
+        this.groupListByPage = sortedGroupList.slice(start, end);
       },
 
       handlePaginationPageChangeForMemberList(page) {
