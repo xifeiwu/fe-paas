@@ -106,7 +106,7 @@
       line-height: 24px;
       font-size: 14px;
       color: white;
-
+      z-index: 10;
     }
     .description {
       position: absolute;
