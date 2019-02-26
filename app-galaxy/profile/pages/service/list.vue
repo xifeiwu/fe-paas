@@ -165,13 +165,22 @@
                       :class="$storeHelper.permission['go-page-domain-from-service'].disabled ? 'disabled' : 'primary'">
                 <span>配置外网二级域名</span><i class="paas-icon-level-up"></i>
               </el-button>
+              <div class="ant-divider" v-if="$storeHelper.groupVersion === 'v2'"></div>
               <el-button
                       v-if="false"
                       size="small"
                       type="text"
                       @click="handleTRClick($event, 'v1-add-internetDomain', scope.$index, scope.row)"
                       :class="['primary']">
-                <span>添加外网域名</span>
+                <span>添加外网域名</span><i class="paas-icon-level-up"></i>
+              </el-button>
+              <div class="ant-divider" v-if="false"></div>
+              <el-button
+                      size="small"
+                      type="text"
+                      @click="handleTRClick($event, 'service_config_copy', scope.$index, scope.row)"
+                      :class="['flex', $storeHelper.permission['copy-service'].disabled ? 'disabled' : '']">
+                <span>复制服务</span><i class="paas-icon-level-up"></i>
               </el-button>
             </div>
             <el-button
@@ -771,24 +780,8 @@
             this.$router.push(this.$net.page['profile/service/add']);
             break;
           case 'service_config_modify':
-            const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
-              payload: {
-                appId: row.appId,
-                spaceId: this.profileInfo.id
-              }
-            });
-            const parsedContent = this.$net.parseServiceList(resContent);
-
-            var model = null;
-            if (parsedContent.hasOwnProperty("serviceModelList")) {
-              model = parsedContent["serviceModelList"].find(it => {
-                return it["defaultSelect"] === true;
-              });
-            }
-           // console.log(resContent);
-           // console.log(parsedContent);
-           // console.log(model);
-            if (model) {
+            let model1 = await this.getServiceByAppIdAndSpaceId(row);
+            if (model1) {
               this.$storeHelper.dataTransfer = {
                 from: {
                   path: this.$net.page['profile/service'],
@@ -797,10 +790,44 @@
                   profileInfo: this.profileInfo
                 },
                 data: Object.assign(basicInfo, {
-                  serviceInfo: model
+                  serviceInfo: model1
                 })
               };
               this.$router.push(this.$net.page['profile/service/modify']);
+            } else {
+              return;
+            }
+            break;
+          case 'service_config_copy':
+            let resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_not_exists_in_space, {
+              query: {
+                appId: row.appId,
+              }
+            });
+            let notServiceSpaceList = resContent["notServiceSpaceList"];
+            if (notServiceSpaceList.length == 0 ) {
+              this.$message({
+                showClose: true,
+                message: "该应用在所有环境下都有服务，不能进行复制!",
+                type: "error",
+              });
+              return;
+            }
+            let model2 = await this.getServiceByAppIdAndSpaceId(row);
+            if (model2) {
+              this.$storeHelper.dataTransfer = {
+                from: {
+                  path: this.$net.page['profile/service'],
+                  action,
+                  page: this.currentPage,
+                  profileInfo: this.profileInfo
+                },
+                data: Object.assign(basicInfo, {
+                  serviceInfo: model2,
+                  notServiceSpaceList: notServiceSpaceList,
+                })
+              };
+              this.$router.push(this.$net.page['profile/service/copy']);
             } else {
               return;
             }
@@ -1028,6 +1055,9 @@
         if (action == 'service_config_add') {
           permission = 'service_create';
         }
+        if (action == 'service_config_copy') {
+          permission = 'copy-service'
+        }
         if (action === 'service_stop' && row.containerStatus.Total == 0) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
@@ -1057,6 +1087,9 @@
             this.goToPageServiceAdd(action, row);
             break;
           case 'service_config_modify':
+            this.goToPageServiceAdd(action, row);
+            break;
+          case 'service_config_copy':
             this.goToPageServiceAdd(action, row);
             break;
           case 'go-to-page-service-detail-from-page-service':
@@ -1393,6 +1426,27 @@
         this.totalSize = filteredServiceList.length;
         this.serviceListByPage = filteredServiceList.slice(start, end);
       },
+
+      async getServiceByAppIdAndSpaceId(row) {
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
+          payload: {
+            appId: row.appId,
+            spaceId: this.profileInfo.id
+          }
+        });
+        const parsedContent = this.$net.parseServiceList(resContent);
+
+        let model = null;
+        if (parsedContent.hasOwnProperty("serviceModelList")) {
+          model = parsedContent["serviceModelList"].find(it => {
+            return it["defaultSelect"] === true;
+          });
+        }
+//            console.log(resContent);
+//            console.log(parsedContent);
+//            console.log(model);
+        return model;
+      }
     }
   }
 </script>

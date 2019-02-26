@@ -2,14 +2,20 @@
   <div id="service-add">
     <el-scrollbar>
       <div class="sheet">
-        <div class="section-title">{{forModify ?'修改配置':'创建服务'}}</div>
+        <div class="section-title">{{forModify ?'修改配置' : (forCopy ? '复制服务' : '创建服务')}}</div>
         <el-form :model="formData" ref="formData"
                  :rules="rules" :label-width="formRelated.isJavaLanguage ? '180px' : '180px'" size="mini"
                  :element-loading-text="loadingText">
-          <el-form-item label="运行环境" class="profile-description">
+          <el-form-item label="目标环境" v-if="forCopy">
+            <el-select v-model="formData.spaceId">
+              <el-option v-for="item in profileList" :key="item.id" :label="item.description" :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="运行环境" class="profile-description" v-else>
             {{profileInfo? profileInfo.description: ''}}
           </el-form-item>
-          <el-form-item label="应用名称" class="app-name max-width-600" v-if="forModify">
+          <el-form-item label="应用名称" class="app-name max-width-600" v-if="forModify || forCopy">
             {{formRelated.serviceInfo ? formRelated.serviceInfo['appName'] : ''}}
           </el-form-item>
           <el-form-item label="应用名称" class="app-name max-width-600" v-else-if="dataPassed.from.action === 'service_config_add'">
@@ -303,7 +309,7 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig && !isProductionProfile" :error="formData.portMap.errMsg">
+            <el-form-item label="端口映射" class="port-map" v-if="false && showMoreConfig && !formRelated.isProductionProfile" :error="formData.portMap.errMsg">
               <div class="el-row title">
                 <div class="el-col el-col-6">
                   <span>访问端口</span>
@@ -333,7 +339,7 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="prestop脚本" v-if="showMoreConfig && !isProductionProfile">
+            <el-form-item label="prestop脚本" v-if="showMoreConfig && !formRelated.isProductionProfile">
               <el-input v-model="formData.prestopCommand"
                         size="mini"
                         type="textarea"
@@ -617,11 +623,11 @@
       } else {
         this.$storeHelper.dataTransfer = null;
       }
-//      console.log(dataTransfer);
+     // console.log(dataTransfer);
       var goBack = false;
       this.type = dataTransfer['type'];
       this.forModify = (this.$route['path'] == this.$net.page['profile/service/modify']);
-
+      this.forCopy = (this.$route['path'] == this.$net.page['profile/service/copy']);
       this.dataPassed.from = dataTransfer.from;
       const theData = dataTransfer.data;
       // for compatible
@@ -629,9 +635,8 @@
 //      console.log(this.profileInfo);
       this.dataPassed.profileInfo = theData.profileInfo;
       this.formData.spaceId = theData.profileInfo.id;
-      this.formRelated.isProductionProfile = (this.dataPassed.profileInfo.spaceType.toUpperCase() === 'PRODUCTION');
 //      console.log(this.dataPassed);
-      if (this.forModify) {
+      if (this.forModify || this.forCopy) {
         const serviceInfo = theData.serviceInfo;
         this.dataPassed.serviceInfo = serviceInfo;
         if (serviceInfo) {
@@ -674,6 +679,14 @@
             this.formData.portMap.outerPort = serviceInfo.portMap.outerPort;
             this.formData.portMap.containerPort = serviceInfo.portMap.containerPort;
             this.formData.portMap.update = true;
+          }
+          if (this.forCopy) {
+            this.formData.spaceId = theData.notServiceSpaceList[0];
+            let appInfo = this.$storeHelper.getAppInfoByID(serviceInfo.appId);
+            let profileList = appInfo['app']['profileList'];
+            this.profileList = profileList.filter(it => {
+              return theData.notServiceSpaceList.indexOf(it.id) > -1;
+            });
           }
         } else {
           goBack = true;
@@ -744,6 +757,8 @@
 
         type: '',
         forModify: false,
+        forCopy: false,
+        profileList: [],
         versionList: [],
         // （复制服务传递过来的）属性是否已经使用过
         propsUsed: {
@@ -935,9 +950,6 @@
       groupInfo() {
         return this.$storeHelper.groupInfo;
       },
-      isProductionProfile() {
-        return this.$storeHelper.isProductionProfile(this.formData.spaceId);
-      },
       loadBalanceType() {
         if (this.$storeHelper.groupVersion === "v1") {
           return profileUtils.getAllLoadBalance();
@@ -950,7 +962,7 @@
       // 依赖appId的属性：serviceInfo, isJavaLanguage, isPythonLanguage, packageTypeList, this.formData.packageInfo.type
       'formData.appId': function (appId) {
         var serviceInfo = null;
-        if (this.forModify || this.dataPassed.from.action === 'service_config_add') {
+        if (this.forModify || this.forCopy || this.dataPassed.from.action === 'service_config_add') {
           serviceInfo = this.dataPassed.serviceInfo;
         } else {
           serviceInfo = this.dataPassed.appWithoutService.find(it => {
@@ -977,7 +989,7 @@
         }
         this.formRelated.serviceInfo = serviceInfo;
 
-        if (this.forModify) {
+        if (this.forModify || this.forCopy) {
           const packageInfo = serviceInfo['packageInfo'];
           const item = this.formRelated.packageTypeList.find(it => {
             return packageInfo.type == it.type;
@@ -1017,7 +1029,7 @@
             return;
           }
           this.memorySizeList = cpuInfo.memoryList;
-          if (this.forModify && !this.propsUsed.memoryId) {
+          if ((this.forModify || this.forCopy) && !this.propsUsed.memoryId) {
             // check if memoryId existed in memorySizeList
             if (this.memorySizeList.map(it => {
               return it.id
@@ -1056,6 +1068,9 @@
           }
         })
       },
+      'formData.spaceId': function (spaceId) {
+        this.formRelated.isProductionProfile = this.$storeHelper.isProductionProfile(spaceId);
+      }
 //      'imageInfoFromNet': {
 //        immediate: true,
 //        handler (info) {
@@ -1150,7 +1165,7 @@
           }));
 //          console.log(this.imageInfoFromNet);
 
-          if (this.forModify) {
+          if (this.forModify || this.forCopy) {
             // set default value by passedData if necessary
             const serviceInfo = this.dataPassed.serviceInfo;
             if (serviceInfo && serviceInfo.image.hasOwnProperty('customImage')) {
@@ -1437,6 +1452,11 @@
                     this.$message({
                       type: 'success',
                       message: '服务更新成功，重新部署后才能生效！'
+                    });
+                  } else if (this.forCopy) {
+                    this.$message({
+                      type: 'success',
+                      message: '服务复制成功!'
                     });
                   } else {
                     this.$message({

@@ -112,6 +112,10 @@ class Helper {
       path: '/profile/service/modify',
       name: '修改配置',
       component: ServiceAdd,
+    },{
+      path: '/profile/service/copy',
+      name: '复制服务',
+      component: ServiceAdd,
     }, {
       path: '/profile/service/detail',
       name: '服务详情',

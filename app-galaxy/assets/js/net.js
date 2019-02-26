@@ -68,6 +68,7 @@ class Net {
       'profile/service': '/profile/service',
       'profile/service/add': '/profile/service/add',
       'profile/service/modify': '/profile/service/modify',
+      'profile/service/copy': '/profile/service/copy',
       'profile/service/detail': '/profile/service/detail',
       'profile/pipeline': '/profile/pipeline',
       'profile/pipeline/list': '/profile/pipeline/list',

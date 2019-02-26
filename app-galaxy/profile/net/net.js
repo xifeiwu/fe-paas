@@ -111,6 +111,10 @@ class Net extends NetBase {
         path: '/service/queryByAppIdAndSpaceId',
         method: 'post'
       },
+      'service_not_exists_in_space': {
+        path: '/service/queryNotServiceAppByAppId',
+        method: 'get'
+      },
       // 获取服务信息（实时运行信息）
       'service_info_running': {
         path: '/service/getRuntimeAppConfig',
