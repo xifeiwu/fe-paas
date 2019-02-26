@@ -740,7 +740,7 @@ class Net extends NetBase {
       '/2.x/openShift/mariaDB/start': 'middleware_mariadb_instance_start',
       // 停止MariaDB
       '/2.x/openShift/mariaDB/stop': 'middleware_mariadb_instance_stop',
-      // 更新MariaDB
+      // 更新MariaDB参数
       '/2.x/openShift/mariaDB/update': 'middleware_mariadb_instance_update',
       // 创建MariaDB备份
       '/2.x/openShift/mariaDB/createBackup': 'middleware_mariadb_backup_create',
@@ -748,6 +748,8 @@ class Net extends NetBase {
       '/2.x/openShift/mariaDB/deleteBackup': 'middleware_mariadb_backup_delete',
       // 恢复MariaDB备份
       '/2.x/openShift/mariaDB/createRestore': 'middleware_mariadb_backup_restore',
+      // 修改MariaDB配置
+      '/2.x/openShift/mariaDB/edit': 'middleware_mariadb_instance_update_config',
 
       /** 中间件(redis)相关 */
       // 创建redis

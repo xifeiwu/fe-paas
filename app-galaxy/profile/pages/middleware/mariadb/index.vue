@@ -70,7 +70,7 @@
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="['warning', 'flex']"
+                    :class="$storeHelper.permission['middleware_mariadb_instance_update_config'].disabled ? 'disabled' : 'warning'"
                     :loading="statusOfWaitingResponse('middleware_mariadb_instance_update') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'middleware_mariadb_instance_update_config', scope.$index, scope.row)">
               <span>修改配置</span><i class="paas-icon-level-up"></i>
