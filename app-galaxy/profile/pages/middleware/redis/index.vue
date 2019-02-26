@@ -137,11 +137,11 @@
                class="middleware_redis_instance_update size-700"
                v-if="action.name && action.row"
     >
-      <el-form :model="dialog4UpdateMemory" :rules="rules" size="mini" labelWidth="120px">
+      <el-form :model="dialog4UpdateMemory" :rules="rules" size="mini" labelWidth="140px">
         <el-form-item label="当前内存容量" class="memory">
           {{dialog4UpdateMemory.memoryNow}}
         </el-form-item>
-        <el-form-item label="修改磁盘容量为" prop="memory" class="memory">
+        <el-form-item label="修改内存容量为" prop="memory" class="memory">
           <div style="width: 360px; display: inline-block; margin-left: 5px;">
             <el-slider v-model="dialog4UpdateMemory.memory" :show-tooltip="true" :show-stops="false" :format-tooltip="utils.formatTooltipForMemory"
                        :min="512 * 1048576" :max="256 * 4 * 5 * 1048576" :step="256 * 1048576"></el-slider>
