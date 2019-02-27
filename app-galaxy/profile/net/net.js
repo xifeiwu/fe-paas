@@ -463,6 +463,10 @@ class Net extends NetBase {
         method: 'post',
         partial: false
       },
+      'work_order_cancel': {
+        path: '/workOrderDeploy/endWorkOrderDeployById',
+        method: 'post'
+      },
       /** 中间件相关 */
       // 获取cluster列表
       'middleware_cluster': {

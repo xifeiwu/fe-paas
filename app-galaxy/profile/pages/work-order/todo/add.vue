@@ -131,7 +131,7 @@
     </div>
     <div class="page-footer">
       <div class="item">
-        <el-button size="mini" type="primary" @click="handleButtonClick('add')">提 交</el-button>
+        <el-button size="mini" type="primary" @click="handleButtonClick('submit')">提 交</el-button>
       </div>
       <div class="item" v-if="pageType === 'modify'">
         <el-button size="mini" type="primary" @click="handleButtonClick('remove')">删 除</el-button>
@@ -205,8 +205,7 @@
         text-align: center;
       }
       .el-button {
-        width: 100px;
-        padding: 6px 20px;
+        width: 120px;
       }
     }
     .section {
@@ -509,7 +508,7 @@
 
       async handleButtonClick(action) {
         switch (action) {
-          case 'add':
+          case 'submit':
 //            console.log(this.formData);
 //            console.log(this.$refs['featureForm']);
 //            return;
@@ -626,12 +625,12 @@
                 this.showLoading = false;
                 this.loadingText = '';
               } catch (err) {
+                this.showLoading = false;
+                this.loadingText = '';
                 this.$notify.error({
                   title: `${action}工单失败`,
                   message: msg
                 });
-                this.showLoading = false;
-                this.loadingText = '';
               }
             } else {
               let [basicCheck, featureCheck, appCheck, acceptanceCheck] = results;

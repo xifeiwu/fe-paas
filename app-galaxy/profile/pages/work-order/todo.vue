@@ -5,9 +5,9 @@
         <div class="el-col el-col-6 operation">
           <el-button
                   v-if="!$storeHelper.permission['work-order_create'].hide"
-                  size="mini-extral"
+                  size="mini"
                   type="primary"
-                  :class="{'disabled': $storeHelper.permission['work-order_create'].disabled}"
+                  :class="{'disabled': $storeHelper.permission['work-order_create'].disabled, 'flex': true}"
                   :loading="statusOfWaitingResponse('work-order_create')"
                   @click="handleButtonClick($event, 'work-order_create')">
             <span>申请审批工单</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
@@ -43,11 +43,11 @@
             </el-date-picker>
           </div>
           <el-button
-            size="mini-extral"
+            size="mini"
             type="primary"
             @click="handleButtonClick($event, 'search')">搜索</el-button>
           <el-button
-                  size="mini-extral"
+                  size="mini"
                   type="primary"
                   @click="handleButtonClick($event, 'refresh')">刷新</el-button>
         </el-col>
@@ -71,6 +71,7 @@
         </el-table-column>
         <el-table-column label="操作" minWidth="100" headerAlign="center" align="center">
           <template slot-scope="scope">
+
             <el-button
                     type="text" class="warning"
                     v-if="scope.row.status!=='WORKORDER_APPLY'"
@@ -82,6 +83,12 @@
                     :loading="statusOfWaitingResponse('modify') && operation.rowID == scope.row.id"
                     @click="handleTRButton('modify', scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
             <div class="ant-divider"></div>
+            <el-button
+                    v-if="scope.row.cancelOrder"
+                    type="text" class="danger"
+                    :loading="statusOfWaitingResponse('cancel') && operation.rowID == scope.row.id"
+                    @click="handleTRButton('cancel', scope.$index, scope.row)">撤销工单</el-button>
+            <div class="ant-divider" v-if="scope.row.cancelOrder"></div>
             <el-button
                     type="text" class="primary"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
@@ -479,7 +486,8 @@
         }
         return name;
       },
-      handleTRButton(action, index, row) {
+      async handleTRButton(action, index, row) {
+        var resContent = null;
         // operation.rowID is used to indicate which row is active
         this.operation.rowID = row.id;
         let workOrderBasic = {
@@ -562,6 +570,26 @@
             }).finally(() => {
               this.hideWaitingResponse('modify');
             });
+            break;
+          case 'cancel':
+            this.addToWaitingResponseQueue(action);
+            try {
+              await this.$confirm(`确定要撤销工单${row.name}吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.work_order_cancel, {
+                payload: {
+                  id: row.id
+                }
+              });
+              this.requestWorkOrderList();
+              this.hideWaitingResponse(action);
+            } catch(err) {
+              this.hideWaitingResponse(action);
+            }
             break;
           case 'WAIT_TEST':
           case 'TESTING':
