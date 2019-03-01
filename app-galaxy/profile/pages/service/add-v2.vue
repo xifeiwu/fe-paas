@@ -174,8 +174,8 @@
               <el-form-item>
                 <div class="initial-delay" style="line-height: 28px">
                   <span>延迟时间：</span>
-                  <el-input-number v-model="formData.healthCheck.initialDelay" :min="30" :max="1800" label="延迟时间"></el-input-number>
-                  <el-tooltip effect="dark" content="健康检查延迟时间：延迟时间以秒为单位，取值范围在30-1800之间" placement="bottom">
+                  <el-input-number v-model="formData.healthCheck.initialDelay" :min="30" :max="300" label="延迟时间"></el-input-number>
+                  <el-tooltip effect="dark" content="健康检查延迟时间：延迟时间以秒为单位，取值范围在30-300之间" placement="bottom">
                     <i class="paas-icon-fa-question" style="font-size: 12px; color: #E6A23C"></i>
                   </el-tooltip>
                 </div>

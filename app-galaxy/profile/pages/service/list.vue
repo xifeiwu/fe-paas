@@ -38,8 +38,7 @@
               <use :xlink:href="'#paas-icon-' + scope.row.language.name"></use>
             </svg>
             <div class="language" v-else>{{scope.row.language.name ? scope.row.language.name : '语言名未知'}}</div>
-            <div class="version" v-if="scope.row.language.version">{{scope.row.language.version}}</div>
-            <div v-else>版本未知</div>
+            <div class="version" v-if="">{{scope.row.language.version ? scope.row.language.version : '版本未知'}}</div>
           </template>
         </el-table-column>
         <el-table-column label="应用名称" headerAlign="left" align="left" minWidth="100">
@@ -271,27 +270,31 @@
         &.el-tabs--border-tab {
           background-color: #f4f5f5;
           #tab-fpdev.is-active {
-            border-top-color: $g-env-fpdev-color;
+            border-color: $g-env-fpdev-color;
             color: $g-env-fpdev-color;
           }
           #tab-test.is-active {
-            border-top-color: $g-env-test-color;
+            border-color: $g-env-test-color;
             color: $g-env-test-color;
           }
           #tab-performance.is-active {
-            border-top-color: $g-env-performance-color;
+            border-color: $g-env-performance-color;
             color: $g-env-performance-color;
           }
           #tab-beta.is-active {
-            border-top-color: $g-env-beta-color;
+            border-color: $g-env-beta-color;
             color: $g-env-beta-color;
           }
           #tab-production.is-active {
-            border-top-color: $g-env-production-color;
+            border-color: $g-env-production-color;
+            color: $g-env-production-color;
+          }
+          #tab-staging.is-active {
+            border-color: $g-env-production-color;
             color: $g-env-production-color;
           }
 
-          > .el-tabs__header {
+          >.el-tabs__header {
             .el-tabs__item {
               color: black;
             }
@@ -302,7 +305,7 @@
         }
       }
       .operation {
-        padding: 6px 5px 3px 5px;
+        padding: 3px 5px 3px 5px;
         text-align: right;
         /*flex: 1;*/
         /*display: inline-flex;*/
@@ -317,6 +320,10 @@
       .el-table {
         td {
           padding: 0px 3px;
+        }
+        .version {
+          font-size: 14px;
+          line-height: 16px;
         }
       }
 
