@@ -1443,10 +1443,13 @@ class Net extends NetBase {
           mainClass: service.mainClass,
           relativePath: service.relativePath,
           mavenProfileId: service.mavenProfileId,
-          fileLocation: service.fileLocation ? service.fileLocation : [],
+          // fileLocation: service.fileLocation ? service.fileLocation : [],
           vmOptions: service.vmOptions,
           instanceNum: service.instanceNum,
           serviceVersion: service.serviceVersion,
+          volume:service.volume,
+          subPath:service.subPath,
+          claimName:service.claimName
         };
 
         /** copy prop */
@@ -1591,12 +1594,11 @@ class Net extends NetBase {
     !serviceList && resContent.hasOwnProperty('applicationServiceList') && (serviceList = resContent['applicationServiceList']);
     if (serviceList) {
       Array.isArray(serviceList) && serviceList.forEach(it => {
-        if (!it.volume) {
-          it.volume = '';
-        }
-        it.volume = it.volume.split(',').filter(it => {return it})
-        this.$utils.renameProperty(it, 'volume', 'fileLocation');
-
+        // if (!it.volume) {
+        //   it.volume = '';
+        // }
+        // it.volume = it.volume.split(',').filter(it => {return it})
+        // this.$utils.renameProperty(it, 'volume', 'fileLocation');
         // fix运行实例/总实例数
         if (it.hasOwnProperty('containerStatus') && it['containerStatus']) {
           let containerStatus = it['containerStatus'];

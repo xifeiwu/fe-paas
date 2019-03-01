@@ -348,6 +348,28 @@
               ></el-input>
             </el-form-item>
           </transition>
+          <transition name="more-config">
+            <el-form-item label="volume"
+                          prop="volume"
+                          class="volume max-width-700"
+                          v-if="showMoreConfig && $storeHelper.getUserInfo('role') == '平台管理员'">
+              <el-input v-model="formData.volume" ></el-input>
+            </el-form-item>
+          </transition>
+          <transition name="more-config">
+            <el-form-item label="subPath"
+                          prop="subPath" class="subPath max-width-700"
+                          v-if="showMoreConfig && $storeHelper.getUserInfo('role') == '平台管理员'">
+              <el-input v-model="formData.subPath" ></el-input>
+            </el-form-item>
+          </transition>
+          <transition name="more-config">
+            <el-form-item label="claimName"
+                          prop="claimName" class="claim max-width-700"
+                          v-if="showMoreConfig && $storeHelper.getUserInfo('role') == '平台管理员'">
+              <el-input v-model="formData.claimName" ></el-input>
+            </el-form-item>
+          </transition>
           <el-form-item label="用户须知" prop="agree" v-if="profileInfo && formRelated.isProductionProfile">
             <el-checkbox v-model="formData.agree">
               <span style="display: inline-block;">已知晓：</span>
@@ -669,6 +691,9 @@
           this.formData.cpuId = serviceInfo.cpuInfo.id;
           this.formData.memoryId = serviceInfo.memoryInfo.id;
           this.formData.rollingUpdate = serviceInfo.rollingUpdate;
+          this.formData.volume = serviceInfo.volume;
+          this.formData.subPath = serviceInfo.subPath;
+          this.formData.claimName = serviceInfo.claimName;
           // NOTICE: healthCheck should set after mounted
           this.$nextTick(() => {
             this.formData.healthCheck = serviceInfo.healthCheck;
@@ -818,6 +843,9 @@
           autoImageValue: '',
           // value of customImage
           customImageValue: '',
+          volume:'',
+          subPath:'',
+          claimName:'',
           portMap: {
             protocol: 'TCP',
             outerPort: '',
@@ -1420,6 +1448,9 @@
                   prestopCommand: formData.prestopCommand,
                   packageType: formData.packageInfo.type,
                   buildName: formData.packageInfo.name,
+                  volume: formData.volume,
+                  subPath: formData.subPath,
+                  claimName: formData.claimName
                 };
                 payload.portsMapping = [{
                   protocol: formData.portMap.protocol,
