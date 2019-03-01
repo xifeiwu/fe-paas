@@ -4,7 +4,7 @@
       <el-input
               size="mini"
               style="max-width: 300px"
-              placeholder="按名称搜索应用"
+              placeholder="按关键字搜索团队"
               suffix-icon="el-icon-search"
               v-model="filterKey">
       </el-input>
@@ -304,7 +304,7 @@
         groupListNode: null,
 
         totalSize: 0,
-        pageSize: 10,
+        pageSize: 14,
         currentPage: 1,
         showGroupList: true,
         heightOfTable: '',
