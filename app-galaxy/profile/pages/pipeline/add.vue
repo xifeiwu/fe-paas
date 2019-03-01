@@ -74,15 +74,21 @@
                       <codemirror v-model="formData.autoScript.script" :options="groovyOption"></codemirror>
                     </el-form-item>
                     <!--sonar数据检查-->
-                    <el-form-item label="检查项：" class="sonarCheck" prop="sonarCheck" v-if="stageName === 'sonarCheck'">
+                    <el-form-item label="Sonar关键字：" class="sonarCheck"
+                                  prop="sonarCheck" :multiFields="true"
+                                  v-show="stageName === 'sonarCheck'">
+                      <el-input v-model="formData.sonarCheck.projectKeyWord" style="max-width: 500px"></el-input>
+                    </el-form-item>
+                    <!--sonar数据检查-->
+                    <el-form-item label="检查项：" class="sonarCheck" v-if="stageName === 'sonarCheck'">
                       <div class="sonarCheck-unitTestRatio"><el-checkbox v-model="formData['sonarCheck']['unitTestSelected']"></el-checkbox>
-                        <span>当单元测试覆盖率≥</span>
+                        <span>当单元测试行覆盖率≥</span>
                         <el-input v-model="formData['sonarCheck']['unitTestRatio']"></el-input>
-                        <span>时通过；反之不通过</span></div>
+                        <span>%时通过；反之不通过</span></div>
                       <div class="sonarCheck-codeDebt"><el-checkbox v-model="formData['sonarCheck']['codeDebtSelected']"></el-checkbox>
-                        <span>当技术债数量≤</span>
+                        <span>当技术债时间≤</span>
                         <el-input v-model="formData['sonarCheck']['codeDebt']"></el-input>
-                        <span>时通过；反之不通过</span>
+                        <span>分钟时通过；反之不通过</span>
                       </div>
                     </el-form-item>
                   </el-form>
@@ -320,7 +326,7 @@
                       }
                       &.buildImage {
                         .el-select {
-                          width: 360px;
+                          min-width: 500px;
                         }
                       }
                       &.sonarCheck {
@@ -611,9 +617,10 @@
           },
           // sonar数据检查
           sonarCheck: {
+            projectKeyWord: '',
             codeDebt: '',
-            unitTestRatio: '',
             codeDebtSelected: false,
+            unitTestRatio: '',
             unitTestSelected: false,
             selected: false,
           },
@@ -704,9 +711,14 @@
           },
           sonarCheck: {
             type: 'object',
-            required: false,
+            required: true,
             trigger: ['blur', 'change'],
             fields: {
+              projectKeyWord: [{
+                type: "string",
+                required: true,
+                message: '请填写sonar关键字'
+              }]
               // codeDebt
               // unitTestRatio
             }
@@ -991,7 +1003,7 @@
                 if (firstFields.indexOf('.') > -1) {
                   firstFields = firstFields.split('.')[0];
                 }
-                console.log(firstFields);
+//                console.log(firstFields);
                 // sonar及单元测试，打包，自动化测试
                 const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'autoScript', 'sonarCheck'];
                 if (pipelineStageList.indexOf(firstFields) > -1) {
