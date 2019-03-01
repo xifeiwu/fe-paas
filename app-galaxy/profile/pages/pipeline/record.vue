@@ -114,6 +114,7 @@
     <paas-dialog-for-log :showStatus="buildLogStatus" ref="dialogForBuildLog">
       <div slot="content">
         <div v-for="(item, index) in buildLogStatus.logList" :key="index" class="log-item" v-html="item"></div>
+        <div class="log-item" v-if="buildLogStatus.loading"><i class="el-icon-loading"></i></div>
       </div>
     </paas-dialog-for-log>
   </div>
@@ -350,7 +351,7 @@
         return this.buildingList;
       },
 
-      // 轮询更新构建列表
+      // 轮询更新构建列表，目前没有使用
       async loopRequestBuildingList() {
         const theSameRecord = (one, two) => {
           var theSame = true;
@@ -386,7 +387,7 @@
         this.buildListAll = this.mergeBuildList(this.buildList, []);
         if (this.lastBuildingRecord) {
           this.leaveHeartBeat = false;
-          await this.startHeartBeat(1000, this.loopUntilBuildingFinish);
+          await this.startHeartBeat(2000, this.loopUntilBuildingFinish);
           // request again
           await this.requestBuildList();
           this.buildListAll = this.mergeBuildList(this.buildList, []);
@@ -395,8 +396,12 @@
 
       async loopUntilBuildingFinish() {
         if (this.lastBuildingRecord) {
-          await this.requestBuildingList();
-          this.buildListAll = this.mergeBuildList(this.buildList, this.buildingList);
+          if (this.buildLogStatus.visible) {
+            // 构建日志页面打开时，暂不更新构建列表状态
+          } else {
+            await this.requestBuildingList();
+            this.buildListAll = this.mergeBuildList(this.buildList, this.buildingList);
+          }
         } else {
           this.leaveHeartBeat = true;
         }
@@ -462,16 +467,20 @@
         }
       },
 
+      /**
+       * 展示正在构建中的日志
+       * @param lastBuildingRecord, 值用到了buildNumber属性
+       * @returns {Promise.<void>}
+       */
       async showBuildingLog(lastBuildingRecord) {
         this.buildLogStatus.visible = true;
         this.buildLogStatus.loading = true;
         this.buildLogStatus.title = `${this.dataPassed.pipelineName}-第${lastBuildingRecord['buildNumber']}次的构建日志`;
 
-        var buildLogList = [];
         var hasMoreData = true;
         var logQueue = [];
         var nextItem = null;
-        this.buildLogStatus.logList = buildLogList;
+        const MAX_LINES_COUNT = 5000;
         const tagUpdateLog = setInterval(() => {
           if (!hasMoreData && logQueue.length === 0) {
             clearInterval(tagUpdateLog);
@@ -481,7 +490,11 @@
           if (!nextItem) {
             return;
           }
-          buildLogList.push(nextItem);
+          this.buildLogStatus.logList.push(nextItem);
+          while (this.buildLogStatus.logList.length > MAX_LINES_COUNT) {
+            this.buildLogStatus.logList = this.buildLogStatus.logList.slice(MAX_LINES_COUNT - 1000);
+          }
+
           // scroll after render finish
           this.$nextTick(() => {
             if (this.$refs.hasOwnProperty('dialogForBuildLog')) {
@@ -513,6 +526,7 @@
             logQueue = logQueue.concat(resContent['consoleLog'].split('\n'));
           }
         } while(hasMoreData && this.buildLogStatus.visible);
+        this.buildLogStatus.loading = false;
       },
 
       async handleClick(evt, action) {
