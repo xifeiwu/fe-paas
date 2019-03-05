@@ -106,7 +106,7 @@
             <el-form-item label="maven profile id" prop="mavenProfileId max-width-700" class="maven-profile-id max-width-700"
                           v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
             >
-              <el-input v-model="formData.mavenProfileId" placeholder="不能超过100个字符"></el-input>
+              <el-input v-model="formData.mavenProfileId" :placeholder="`默认值为${profileInfo.nameStr},不能超过100字符`"></el-input>
             </el-form-item>
           </transition>
           <el-form-item label="VM_Options" prop="vmOptions" class="vm-options max-width-800"
@@ -187,7 +187,7 @@
               <el-radio v-for="item in profileUtils.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
             </el-radio-group>
             <span style="display: inline; margin-left: 10px; color: #E6A23C; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #E6A23C; border-radius: 4px; word-break: normal"
-                  @mouseenter="handleClick($event, 'warning-app-monitor')"
+                  @mouseenter="handleClick($event, 'warning-app-monitor')" v-if="false"
             >{{profileUtils['warningList']['warning-app-monitor']['text']}}</span>
           </el-form-item>
           <el-form-item label="CPU" prop="cpuId" class="cpu">
@@ -613,6 +613,7 @@
       const theData = dataTransfer.data;
       // for compatible
       this.profileInfo = theData.profileInfo;
+      console.log(this.profileInfo);
       this.dataPassed.profileInfo = theData.profileInfo;
       this.formData.spaceId = theData.profileInfo.id;
       this.formRelated.isProductionProfile = (this.dataPassed.profileInfo.spaceType.toUpperCase() === 'PRODUCTION');

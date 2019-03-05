@@ -3,6 +3,7 @@ $g-env-test-color: #28a745;
 $g-env-performance-color: #17a2b8;
 $g-env-beta-color: #ffc107;
 $g-env-production-color: #F56C6C;
+$g-env-staging-color: #EF5b9C;
 
 
 @each $env, $color in (

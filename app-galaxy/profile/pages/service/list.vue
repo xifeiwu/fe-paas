@@ -290,8 +290,8 @@
             color: $g-env-production-color;
           }
           #tab-staging.is-active {
-            border-color: $g-env-production-color;
-            color: $g-env-production-color;
+            border-color: $g-env-staging-color;
+            color: $g-env-staging-color;
           }
 
           >.el-tabs__header {
