@@ -428,7 +428,7 @@
     created() {
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer) {
-//        console.log(dataTransfer);
+       // console.log(dataTransfer);
         const from = dataTransfer.from;
         this.dataPassed.from = from;
         /**
@@ -448,11 +448,13 @@
       this.$nextTick(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
       });
-      if (false) {
-        const profileInfoPassed = this.getPageStatePassed('profileInfo');
-        if (profileInfoPassed) {
-          this.profileName = profileInfoPassed['name'];
-        }
+      const profileInfoPassed = this.getPageStatePassed('profileInfo');
+      const appName = this.getPageStatePassed('appName');
+      if (profileInfoPassed) {
+        this.profileName = profileInfoPassed['name'];
+      }
+      if (appName) {
+        this.filterKey = appName;
       }
 
     },
@@ -654,6 +656,7 @@
         var value = {
           currentPage: 1,
           profileInfo: null,
+          appName: null,
         }[prop];
         if (this.dataPassed.to && this.dataPassed.to[prop]) {
           value = this.dataPassed.to[prop];

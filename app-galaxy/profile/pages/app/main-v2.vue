@@ -81,7 +81,7 @@
         </el-table-column>
         <el-table-column label="操作" prop="operation" width="180" headerAlign="center" align="center">
           <template slot-scope="scope">
-            <el-button v-if="false"
+            <el-button
                     type="text"
                     :class="['flex', $storeHelper.permission['app_show_profile'].disabled ? 'disabled' : 'primary']"
                     @click="handleTRClick($event, 'app_show_profile', scope.$index, scope.row)">
@@ -674,11 +674,16 @@
           return;
         }
         const appId = this.selected.model.appId;
+        const appName = this.selected.model.appName;
         const profileId = item['id'];
         this.$storeHelper.dataTransfer = {
           from: this.$net.page['profile/app'],
           data: {
             appId, profileId
+          },
+          to: {
+            'profileInfo': this.$storeHelper.getProfileInfoByID(profileId),
+            'appName': appName,
           }
         };
         this.$router.push(this.$net.page['profile/service']);
