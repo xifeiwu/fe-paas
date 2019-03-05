@@ -421,7 +421,7 @@ class Net {
    * return resData.content if success
    * else return {}
    */
-  async requestPaasServer({path, method, level = 'LEVEL_ERROR', errObj = null, partial = false, withTimeStamp = false, withCode=false}, options = {}) {
+  async requestPaasServer({path, method, level = 'LEVEL_ERROR', errObj = null, partial = false, withTimeStamp = false, withCode=false, withMorePage = false}, options = {}) {
     // 访客只能进入首页
     if (Vue.prototype.$storeHelper.isGuest) {
       window.location.href = this.page['index'];
@@ -440,13 +440,14 @@ class Net {
       const resData = response.data;
       if (this.isResponseSuccess(resData)) {
         // add more info of response to result
-        const moreInfo = withTimeStamp || withCode;
+        const moreInfo = withTimeStamp || withCode || withMorePage;
         if (moreInfo) {
           const result = {
             content: resData.content,
           };
           withTimeStamp && (result['timeStamp'] = parseInt(resData.t));
           withCode && (result['code'] = resData.code);
+          withMorePage && (result['more'] = resData.more);
           return result
         } else {
           return resData.content;

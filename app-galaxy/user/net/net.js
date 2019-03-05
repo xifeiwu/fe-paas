@@ -51,6 +51,14 @@ class Net extends NetBase {
       'message_mark_read': {
         path: '/message/update/status',
         method: 'post'
+      },
+
+      //操作日志相关
+      //获取操作日志
+      'operation_log': {
+        path: '/operation/searchLog',
+        method: 'get',
+        withMorePage: true,
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

@@ -25,11 +25,11 @@ class Router {
         name: '消息中心',
         component: UserMessage,
       },
-      // {
-      //   path: '/operation',
-      //   name: '操作记录',
-      //   component: UserOperaion,
-      // },
+      {
+        path: '/user/operation',
+        name: '操作记录',
+        component: UserOperaion,
+      },
       {
         path: '/user/group',
         name: '团队管理',
