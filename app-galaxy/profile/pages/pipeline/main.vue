@@ -19,7 +19,7 @@
         </label>
       </div>
       <div class="item">
-        <el-input size="mini" placeholder="搜索pipeline" suffix-icon="el-icon-search" class="search" v-model="keyFilter"></el-input>
+        <el-input size="mini" placeholder="搜索Pipeline" suffix-icon="el-icon-search" class="search" v-model="keyFilter"></el-input>
       </div>
       <div class="item">
         <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'search')">
@@ -27,7 +27,7 @@
           <i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
         </el-button>
         <el-button size="mini" class="flex" type="primary" @click="handleClick($event, 'add')">
-          <span>创建pipeline</span>
+          <span>创建Pipeline</span>
           <i class="paas-icon-level-up" style="margin-left: 3px;"></i>
         </el-button>
       </div>
@@ -133,7 +133,7 @@
     >
       <el-tag type="success" disable-transitions style="display: block; text-align: left" size="small">
         <i class="el-icon-warning"></i>
-        <span>请选择将要创建pipeline的应用</span>
+        <span>请选择将要创建Pipeline的应用</span>
       </el-tag>
       <el-form size="mini" :model="dialog4SelectApp" :rules="rules"
                labelWidth="150px" style="margin: 10px 0px 30px 0px;" ref="formInDialog4SelectApp">

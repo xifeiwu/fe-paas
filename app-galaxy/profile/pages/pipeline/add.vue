@@ -18,10 +18,10 @@
               <el-form-item label="目标应用" v-if="appInfo" class="big">
                 {{appInfo.appName}}
               </el-form-item>
-              <el-form-item label="pipeline名称" prop="pipelineName">
+              <el-form-item label="Pipeline名称" prop="pipelineName">
                 <el-input size="mini-extral" v-model="formData.pipelineName"></el-input>
               </el-form-item>
-              <el-form-item label="pipeline描述" prop="pipelineDescription">
+              <el-form-item label="Pipeline描述" prop="pipelineDescription">
                 <el-input size="mini-extral" v-model="formData.pipelineDescription"></el-input>
               </el-form-item>
               <el-form-item label="gitlab仓库" prop="gitLabPath">
@@ -35,7 +35,7 @@
         </div>
         <div class="step step2">
           <div class="title">
-            2. 定义pipeline脚本
+            2. 定义Pipeline脚本
           </div>
           <div class="config">
             <div class="stage-list">
@@ -55,24 +55,6 @@
                                   v-show="stageName === 'testAndSonarScript'">
                       <codemirror v-model="formData.testAndSonarScript.script" :options="groovyOption"></codemirror>
                     </el-form-item>
-                    <!--打包-->
-                    <el-form-item label="打包脚本：" class="mvnPackage-script" prop="mvnPackage" :multiFields="true"
-                                  v-if="stageName === 'mvnPackage'">
-                      <codemirror v-model="formData.mvnPackage.script" :options="groovyOption"></codemirror>
-                    </el-form-item>
-                    <!--制作镜像-->
-                    <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'">
-                      <el-select v-model="formData.buildImage.selectedImage" placeholder="请选择">
-                        <el-option v-for="(item, index) in pipelineInfoFromNet['buildImage']['basicImage']"
-                                   :key="item" :label="item?item:'无'" :value="item">
-                        </el-option>
-                      </el-select>
-                    </el-form-item>
-                    <!--自动化测试-->
-                    <el-form-item label="自动化测试：" class="autoScript" prop="autoScript" :multiFields="true"
-                                  v-if="stageName === 'autoScript'">
-                      <codemirror v-model="formData.autoScript.script" :options="groovyOption"></codemirror>
-                    </el-form-item>
                     <!--sonar数据检查-->
                     <el-form-item label="Sonar关键字：" class="sonarCheck"
                                   prop="sonarCheck" :multiFields="true"
@@ -90,6 +72,24 @@
                         <el-input v-model="formData['sonarCheck']['codeDebt']"></el-input>
                         <span>分钟时通过；反之不通过</span>
                       </div>
+                    </el-form-item>
+                    <!--打包-->
+                    <el-form-item label="打包脚本：" class="mvnPackage-script" prop="mvnPackage" :multiFields="true"
+                                  v-if="stageName === 'mvnPackage'">
+                      <codemirror v-model="formData.mvnPackage.script" :options="groovyOption"></codemirror>
+                    </el-form-item>
+                    <!--制作镜像-->
+                    <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'">
+                      <el-select v-model="formData.buildImage.selectedImage" placeholder="请选择">
+                        <el-option v-for="(item, index) in pipelineInfoFromNet['buildImage']['basicImage']"
+                                   :key="item" :label="item?item:'无'" :value="item">
+                        </el-option>
+                      </el-select>
+                    </el-form-item>
+                    <!--自动化测试-->
+                    <el-form-item label="自动化测试：" class="autoScript" prop="autoScript" :multiFields="true"
+                                  v-if="stageName === 'autoScript'">
+                      <codemirror v-model="formData.autoScript.script" :options="groovyOption"></codemirror>
                     </el-form-item>
                   </el-form>
                   <!--部署到测试环境-->
@@ -112,12 +112,12 @@
                   </div>
                   <div class="stage-change-selection">
                     <span>删除结点 "{{currentStage.description}}"?</span>
-                    <el-button size="mini-extral" type="danger" @click="handleClick($event, 'stage-remove')">确定</el-button>
+                    <el-button size="mini-extral" type="danger" @click="handleClick($event, 'stage-remove')">删除</el-button>
                   </div>
                 </div>
                 <div class="stage-change-selection" :key="stageName" v-else>
                   <span>添加结点 "{{currentStage.description}}"?</span>
-                  <el-button size="mini-extral" type="warning" @click="handleClick($event, 'stage-add')">确定</el-button>
+                  <el-button size="mini-extral" type="primary" @click="handleClick($event, 'stage-add')">添加</el-button>
                 </div>
               </transition>
             </div>
@@ -425,6 +425,9 @@
     'testAndSonarScript': {
       description: 'sonar及单元测试'
     },
+    'sonarCheck': {
+      description: 'Sonar数据检查'
+    },
     'mvnPackage': {
       description: '打包'
     },
@@ -436,9 +439,6 @@
     },
     'autoScript': {
       description: '自动化测试'
-    },
-    'sonarCheck': {
-      description: 'Sonar数据检查'
     },
     'functionValidate': {
       description: '功能测试（人工验证）'
@@ -531,11 +531,11 @@
         'start',  //开始
         'download',  //下载代码
         'testAndSonarScript',  //sonar及单元测试
+        'sonarCheck',  //Sonar数据检查
         'mvnPackage',  //打包
         'buildImage',  //制作镜像
         'deployTestEnv', //部署到测试环境
         'autoScript',  //自动化测试
-        'sonarCheck',  //Sonar数据检查
         'functionValidate',  //功能测试（人工验证）
         'deployBetaEnv',  //部署到联调环境
         'end'
@@ -959,8 +959,24 @@
             break;
           case 'stage-add':
             switch (this.currentStage.name) {
+              case 'buildImage':
+                if (!this.findStageByName('mvnPackage')['selected']) {
+                  stageChangeStatus.success = false;
+                  stageChangeStatus.reason = `制作镜像依赖于打包，必须勾选打包步骤`;
+                }
+                break;
               case 'deployTestEnv':
+                if (!this.findStageByName('buildImage')['selected']) {
+                  stageChangeStatus.success = false;
+                  stageChangeStatus.reason = `部署到测试环境依赖于制作镜像，必须勾选制作镜像步骤`;
+                }
+                break;
               case 'deployBetaEnv':
+                if (!this.findStageByName('buildImage')['selected']) {
+                  stageChangeStatus.success = false;
+                  stageChangeStatus.reason = `部署到联调环境依赖于制作镜像，必须勾选制作镜像步骤`;
+                  break;
+                }
                 if (this.currentStageNetInfo['serviceStatus'] && this.currentStageNetInfo['applicationConfig']) {
                   stageChangeStatus.success = true;
                 } else {
@@ -971,6 +987,7 @@
             }
             if (stageChangeStatus.success) {
               this.currentStage['selected'] = true;
+              console.log(this.currentStage);
               this.updateStageIndex(this.stages);
               this.$message.success(`添加结点 "${this.currentStage['name']}" 成功！`);
               this.formData[this.currentStage['name']]['selected'] = true;
@@ -979,6 +996,21 @@
             }
             break;
           case 'stage-remove':
+            switch (this.currentStage.name) {
+              case 'sonarCheck':
+                this.formData.sonarCheck.codeDebtSelected = false;
+                this.formData.sonarCheck.codeDebt = '';
+                this.formData.sonarCheck.unitTestSelected = false;
+                this.formData.sonarCheck.unitTestRatio = '';
+                break;
+              case 'mvnPackage':
+                this.stages.forEach(it => {
+                  if (['buildImage','deployTestEnv','deployBetaEnv'].indexOf(it['name']) > -1) {
+                    it['selected'] = false;
+                  }
+                });
+                break;
+            }
             this.currentStage['selected'] = false;
             this.updateStageIndex(this.stages);
             this.$message.success(`删除结点 "${this.currentStage['name']}" 成功！`);
@@ -996,8 +1028,8 @@
             // 先用async-validator进行全局验证，找到对应的el-form，然后使用el-form自带的validator进行局部验证
             validator.validate(this.formData, async (errors, fields) => {
               if (errors) {
-//                console.log(errors);
-//                console.log(fields);
+               // console.log(errors);
+               // console.log(fields);
                 var firstFields = errors[0]['field'];
                 // such as autoScript.script
                 if (firstFields.indexOf('.') > -1) {
@@ -1108,6 +1140,11 @@
             }
             break;
         }
+      },
+      findStageByName(stageName) {
+        return this.stages.find(it => {
+          return it['name'] == stageName;
+        })
       }
     }
   }

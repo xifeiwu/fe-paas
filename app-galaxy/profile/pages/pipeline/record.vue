@@ -19,7 +19,7 @@
           <span style="font-weight: bold">应用名称：</span><span>{{dataPassed.appName}}</span>
         </div>
         <div style="display: inline-block; margin-left: 16px">
-          <span style="font-weight: bold">pipeline名称：</span><span>{{dataPassed.pipelineName}}</span>
+          <span style="font-weight: bold">Pipeline名称：</span><span>{{dataPassed.pipelineName}}</span>
         </div>
         <!--<el-button size="mini-extral" type="primary" style="margin-right: 5px">修改配置</el-button>-->
       </div>
@@ -331,6 +331,7 @@
         if (!this.relatedAppId) {
           return;
         }
+        this.lastBuildingRecord = null;
         this.buildingList = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_in_building, {
           params: {
             appId: this.relatedAppId
@@ -339,7 +340,6 @@
             buildNumber: this.lastBuildRecord['buildNumber']
           }
         });
-        this.lastBuildingRecord = null;
         this.buildingList.forEach(it => {
           if (['NOT_EXECUTED', 'IN_PROGRESS'].indexOf(it.status) > -1) {
             this.lastBuildingRecord = it;
@@ -506,24 +506,28 @@
 
         var currentBufferSize = 0;
         do {
-          var resContent = await this.$net.requestPaasServer(Object.assign(this.$net.URL_LIST.pipeline_record_building_log, {
-            partial: true
-          }), {
-            payload: {
-              appId: this.relatedAppId,
-              buildNumber: lastBuildingRecord['buildNumber'],
-              consoleLog: 'string',
-              currentBufferSize,
-              limit: true
+          try {
+            var resContent = await this.$net.requestPaasServer(Object.assign(this.$net.URL_LIST.pipeline_record_building_log, {
+              partial: true
+            }), {
+              payload: {
+                appId: this.relatedAppId,
+                buildNumber: lastBuildingRecord['buildNumber'],
+                consoleLog: 'string',
+                currentBufferSize,
+                limit: true
+              }
+            });
+            hasMoreData = resContent.hasOwnProperty('hasMoreData') ? resContent['hasMoreData'] : false;
+            currentBufferSize = resContent.hasOwnProperty('currentBufferSize') ? resContent['currentBufferSize'] : 0;
+            await new Promise((resolve) => {
+              setTimeout(resolve, 2000);
+            });
+            if (resContent.hasOwnProperty('consoleLog')) {
+              logQueue = logQueue.concat(resContent['consoleLog'].split('\n'));
             }
-          });
-          hasMoreData = resContent.hasOwnProperty('hasMoreData') ? resContent['hasMoreData'] : false;
-          currentBufferSize = resContent.hasOwnProperty('currentBufferSize') ? resContent['currentBufferSize'] : 0;
-          await new Promise((resolve) => {
-            setTimeout(resolve, 2000);
-          });
-          if (resContent.hasOwnProperty('consoleLog')) {
-            logQueue = logQueue.concat(resContent['consoleLog'].split('\n'));
+          } catch (e) {
+            break;
           }
         } while(hasMoreData && this.buildLogStatus.visible);
         this.buildLogStatus.loading = false;

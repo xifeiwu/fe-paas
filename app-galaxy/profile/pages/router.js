@@ -118,7 +118,7 @@ class Helper {
       component: serviceDetail
     }, {
       path: '/profile/pipeline',
-      name: 'pipeline',
+      name: 'Pipeline',
       component: pipeLine,
       redirect: '/profile/pipeline/list',
       children: [{

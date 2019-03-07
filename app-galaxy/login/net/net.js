@@ -147,7 +147,7 @@ class Net extends NetBase {
         return it;
       });
       menuList = menuList.concat({
-        name: 'pipeline',
+        name: 'Pipeline',
         router: '/profile/pipeline',
         icon: 'paas-icon-jenkins'
       })
