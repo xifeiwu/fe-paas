@@ -4,7 +4,7 @@
       <div class="item">
         <label>
           <span style="line-height: 26px">应用名称:</span>
-          <el-select filterable placeholder="请选择" size="mini-extral" v-model="selectedAppId">
+          <el-select filterable placeholder="请选择" size="mini-extral" v-model="selectedAppId" class="select">
             <el-option v-for="(item,index) in appListWithAll" :key="item.appId" :label="item.appName" :value="item.appId">
             </el-option>
           </el-select>
@@ -13,7 +13,7 @@
       <div class="item">
         <label>
           <span style="line-height: 26px">最近一次执行状态:</span>
-          <el-select placeholder="请选择" size="mini-extral" v-model="selectedStatus">
+          <el-select placeholder="请选择" size="mini-extral" v-model="selectedStatus" class="select">
             <el-option v-for="(item,index) in STATUS_LIST" :key="item.index" :label="item.statusName" :value="item.status"></el-option>
           </el-select>
         </label>
@@ -180,6 +180,18 @@
       }
       .el-select {
         width: 180px;
+      }
+    }
+  }
+</style>
+
+<style lang="scss">
+  #pipeline-main {
+    .header {
+      .select {
+        .el-input__inner {
+          font-size: 14px;
+        }
       }
     }
   }
@@ -385,21 +397,21 @@
           const end = start + length;
 
           this.filteredPipelineList = this.pipelineList.filter(it => {
-            return true;
+            // return true;
             if (this.selectedAppId === ID_FOR_ALL) {
               return true;
             } else {
               return this.selectedAppID == it['appId'];
             }
           }).filter(it => {
-            return true;
+            // return true;
             if (this.selectedStatus === ID_FOR_ALL) {
               return true;
             } else {
               return this.selectedStatus == it['lastRunStatus'];
             }
           }).filter(it => {
-            return true;
+            // return true;
             if (this.keyFilter.length === 0) {
               return true
             } else {
