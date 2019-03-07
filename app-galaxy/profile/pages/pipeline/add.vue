@@ -535,7 +535,7 @@
         'mvnPackage',  //打包
         'buildImage',  //制作镜像
         'deployTestEnv', //部署到测试环境
-        'autoScript',  //自动化测试
+        // 'autoScript',  //自动化测试
         'functionValidate',  //功能测试（人工验证）
         'deployBetaEnv',  //部署到联调环境
         'end'
@@ -847,7 +847,7 @@
       // 更加pipeline结点的选择情况，更新formRules
       updateFormDataRules() {
         // fix rules for 'testAndSonarScript', 'mvnPackage', 'autoScript'
-        var pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'autoScript'];//.concat(['sonarCheck']);
+        var pipelineStageList = ['testAndSonarScript', 'mvnPackage'];//.concat(['sonarCheck','autoScript']);
         pipelineStageList.forEach(it => {
           const required = this.formData[it]['selected'];
           this.formDataRules[it]['required'] = required;
