@@ -12,6 +12,10 @@
         <i class="paas-icon-fa-question"></i>
       </el-tooltip>
     </div>
+    <el-tag type="warning">
+      <i class="el-icon-warning"></i>
+      <span>温馨提示：因平台资源受限，目前每个团队能申请的（所有环境累计）：CPU总量≤8核，内存总量≤16G，磁盘总量≤100G；待资源放开后可满足更多资源需求。</span>
+    </el-tag>
     <el-form :model="formData" :rules="formRules" size="mini"
              ref="createInstanceForm" label-width="120px">
       <div>
@@ -99,6 +103,12 @@
   width: 80%;
   max-width: 750px;
   box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+  .el-tag {
+    white-space: normal;
+    height: auto;
+    width: 100%;
+    margin-bottom: 15px;
+  }
   .section-title {
     display: flex;
     justify-content: center;

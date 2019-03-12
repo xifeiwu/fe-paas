@@ -3,6 +3,10 @@
        v-loading="showLoading"
        :element-loading-text="loadingText">
     <div class="section-title">{{forModify ? '修改Redis实例配置' : '申请Redis实例'}}</div>
+    <el-tag type="warning">
+      <i class="el-icon-warning"></i>
+      <span>温馨提示：因平台资源受限，目前每个团队能申请的（所有环境累计）：CPU总量≤8核，内存总量≤16G，磁盘总量≤100G；待资源放开后可满足更多资源需求。</span>
+    </el-tag>
     <el-form :model="formData" :rules="formRules" size="mini"
              ref="createInstanceForm" label-width="120px">
       <div>
@@ -69,6 +73,12 @@
   width: 80%;
   max-width: 750px;
   box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+  .el-tag {
+    white-space: normal;
+    height: auto;
+    width: 100%;
+    margin-bottom: 15px;
+  }
   .section-title {
     font-size: 18px;
     text-align: center;
