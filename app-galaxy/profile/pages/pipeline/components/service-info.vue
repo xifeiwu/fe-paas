@@ -34,7 +34,7 @@
         <div class="expand-to-next-line">{{serviceInfo.mavenProfileId}}</div>
       </el-form-item>
       <el-form-item label="健康检查" class="big">
-        <span>{{serviceInfo.healthCheck}}</span><span>{{serviceInfo.initialDelaySeconds}}</span>
+        <span>{{serviceInfo.healthCheck}}</span>
       </el-form-item>
       <el-form-item label="preStop脚本" class="big">
         <span>{{serviceInfo.prestopCommand}}</span>

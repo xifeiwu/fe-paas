@@ -50,7 +50,8 @@ class Net extends NetBase {
         // pipeline
         '/2.x/pipeline': {
           router: this.page['profile/pipeline'],
-          icon: 'paas-icon-jenkins'
+          icon: 'paas-icon-jenkins',
+          beta: true
         },
         // 实例列表
         '/2.x/instances': {
@@ -128,7 +129,7 @@ class Net extends NetBase {
     if (content.hasOwnProperty('menuList') && Array.isArray(content.menuList)) {
       // 需要忽略的菜单
       const menuPathToIgnore = [
-        '/2.x/pipeline', // pipeline
+        // '/2.x/pipeline', // pipeline
         // '/2.x/openShift/redis', // redis中间件
         '/2.x/backstage'// "后台管理"
       ];
@@ -146,11 +147,6 @@ class Net extends NetBase {
         it.hasOwnProperty('parentId') && delete it.parentId;
         return it;
       });
-      menuList = menuList.concat({
-        name: 'Pipeline',
-        router: '/profile/pipeline',
-        icon: 'paas-icon-jenkins'
-      })
     }
     let notPermitted = [];
     if (content.hasOwnProperty('excludeList') && Array.isArray(content['excludeList'])) {
@@ -216,7 +212,6 @@ class Net extends NetBase {
     const pathOfAppEngine = [
       '/2.x/app', // 应用管理
       '/2.x/service', // 服务管理
-      '/2.x/pipeline', //pipeline
       '/2.x/instances', // 实例列表
       '/2.x/internet', // 外网域名
       '/2.x/logs', // 日志中心
