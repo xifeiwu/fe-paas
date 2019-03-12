@@ -401,7 +401,7 @@
             if (this.selectedAppId === ID_FOR_ALL) {
               return true;
             } else {
-              return this.selectedAppID == it['appId'];
+              return this.selectedAppId == it['appId'];
             }
           }).filter(it => {
             // return true;
@@ -459,6 +459,11 @@
 //                console.log('appModel not found!');
 //                return;
 //              }
+                await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_build_validate,{
+                  params:{
+                    appId: this.dialog4SelectApp.appId,
+                  }
+                });
                 this.$storeHelper.dataTransfer = {
                   from: this.$net.page['profile/pipeline/list'],
                   data: {
@@ -468,6 +473,7 @@
                 this.$router.push(this.$net.page['profile/pipeline/add']);
               }
             } catch(err) {
+              console.log(err);
             }
             break;
         }

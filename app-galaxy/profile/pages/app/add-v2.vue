@@ -608,15 +608,15 @@ export default {
       if (lobInfo) {
         if (lobInfo.hasOwnProperty('scrumList') && Array.isArray(lobInfo['scrumList']) && lobInfo['scrumList'].length > 0) {
           this.scrumList = lobInfo['scrumList'];
-          if (this.page === 'add') {
-            this.createAppForm.scrumId = this.scrumList[0].id;
-          }
+          // if (this.page === 'add') {
+          //   this.createAppForm.scrumId = this.scrumList[0].id;
+          // }
         }
         if (lobInfo.hasOwnProperty('lobList') && Array.isArray(lobInfo['lobList']) && lobInfo['lobList'].length > 0) {
           this.lobList = lobInfo['lobList'];
-          if (this.pageType === 'add') {
-            this.createAppForm.lobId = this.lobList[0].id;
-          }
+          // if (this.pageType === 'add') {
+          //   this.createAppForm.lobId = this.lobList[0].id;
+          // }
         }
       }
     },

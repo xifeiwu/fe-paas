@@ -647,6 +647,11 @@ class Net extends NetBase {
       'pipeline_record_building_log': {
         path: '/pipeline/building/log',
         method: 'post'
+      },
+      // 校验app是否能创建pipeline
+      'pipeline_build_validate': {
+        path: '/pipeline/validate/{appId}',
+        method: 'post',
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
