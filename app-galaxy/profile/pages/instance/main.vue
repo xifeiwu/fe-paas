@@ -247,6 +247,17 @@
       }
     }
   }
+  /*.spa .el-button.el-button--text:hover*/
+  #instance-main {
+    .el-button {
+      &.el-button--text {
+        &:hover {
+          color: #ffd400;
+          font-weight: normal;
+        }
+      }
+    }
+  }
 </style>
 <style lang="scss" scoped>
   #instance-main {
