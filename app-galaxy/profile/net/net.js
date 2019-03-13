@@ -1482,6 +1482,7 @@ class Net extends NetBase {
           protocol: 'TCP',
           outerPort: '',
           containerPort: '',
+          action: '',
           get exist() {
             return this.outerPort && this.containerPort;
           }
@@ -1492,6 +1493,7 @@ class Net extends NetBase {
           portMap.protocol = service.portsMapping[0].protocol;
           portMap.outerPort = service.portsMapping[0].outerPort;
           portMap.containerPort = service.portsMapping[0].containerPort;
+          portMap.action = service.portsMapping[0].action;
         }
         item.portMap = portMap;
 

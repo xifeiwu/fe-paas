@@ -718,9 +718,9 @@
                 return it["defaultSelect"] === true;
               });
             }
-//            console.log(resContent);
-//            console.log(parsedContent);
-//            console.log(model);
+           // console.log(resContent);
+           // console.log(parsedContent);
+           // console.log(model);
             if (model) {
               this.$storeHelper.dataTransfer = {
                 from: {

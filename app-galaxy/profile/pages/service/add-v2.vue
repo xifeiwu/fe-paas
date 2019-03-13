@@ -298,7 +298,7 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="端口映射" class="port-map" v-if="false && showMoreConfig && !isProductionProfile" :error="formData.portMap.errMsg">
+            <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig && !isProductionProfile" :error="formData.portMap.errMsg">
               <div class="el-row title">
                 <div class="el-col el-col-6">
                   <span>访问端口</span>
@@ -656,7 +656,8 @@
             this.formData.healthCheck = serviceInfo.healthCheck;
           });
           this.formData.expiredDays = serviceInfo.remainExpiredDays;
-          if (serviceInfo.portMap.outerPort && serviceInfo.portMap.outerPort !== "") {
+          if (serviceInfo.portMap.outerPort && serviceInfo.portMap.outerPort !== ""
+            && serviceInfo.portMap.action && serviceInfo.portMap.action !== 'del') {
             this.formData.portMap.outerPort = serviceInfo.portMap.outerPort;
             this.formData.portMap.containerPort = serviceInfo.portMap.containerPort;
             this.formData.portMap.update = true;
