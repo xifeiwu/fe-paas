@@ -948,6 +948,9 @@
         if (serviceInfo) {
           this.formRelated.isJavaLanguage = serviceInfo.language.type === 'JAVA';
           this.formRelated.isPythonLanguage = serviceInfo.language.type === 'PYTHON';
+          if (this.formRelated.isPythonLanguage) {
+            this.imageSelectState.customImage = true;
+          }
 
           // get packageTypeList by languageType and languageVersion
           this.formRelated.packageTypeList = this.$storeHelper.getPackageTypeListByLanguageAndVersion(
