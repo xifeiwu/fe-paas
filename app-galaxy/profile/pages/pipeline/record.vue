@@ -111,7 +111,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <paas-dialog-for-log :showStatus="buildLogStatus" ref="dialogForBuildLog">
+    <paas-dialog-for-log :showStatus="buildLogStatus" ref="dialogForBuildLog" @close="handleDialogClose">
       <div slot="content">
         <div v-for="(item, index) in buildLogStatus.logList" :key="index" class="log-item" v-html="item"></div>
         <div class="log-item" v-if="buildLogStatus.loading"><i class="el-icon-loading"></i></div>
@@ -629,6 +629,10 @@
             }
             break;
         }
+      },
+
+      handleDialogClose() {
+        this.buildLogStatus.logList = [];
       }
     }
   }

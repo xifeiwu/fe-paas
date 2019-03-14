@@ -856,13 +856,13 @@
             })
         });
 
-        const validatorForSonarCheck = function(rule, values, callback) {
+        const validatorForUnitTestSelected = function(rule, values, callback) {
           values = parseInt(values.trim());
           var passed = false;
 //          if (!values) {
 //            passed = true;
 //          } else
-          if (/^[0-9]+$/.exec(values) && (values > 0 && values < 100)) {
+          if (/^[0-9]+$/.exec(values) && (values > 0 && values <= 100)) {
             passed = true;
           }
           if (passed) {
@@ -872,20 +872,33 @@
           }
         };
 
+        const validatorForCodeDebtSelected = function (rule, values, callback) {
+          values = parseInt(values.trim());
+          var passed = false;
+          if (/^[0-9]+$/.exec(values) && (values >= 0)) {
+            passed = true;
+          }
+          if (passed)  {
+            callback();
+          } else {
+            callback('请填写大于0的数字');
+          }
+        };
+
         // fix rules for sonarCheck
         // sonarCheck可以不填，如果填写，格式必须正确
         const sonarCheck = this.formData['sonarCheck'];
         const sonarCheckRules = this.formDataRules['sonarCheck']['fields'];
         if (sonarCheck.codeDebtSelected) {
           sonarCheckRules['codeDebt'] = [{
-            validator: validatorForSonarCheck
+            validator: validatorForCodeDebtSelected
           }]
         } else {
           delete sonarCheckRules['codeDebt']
         }
         if (sonarCheck.unitTestSelected) {
           sonarCheckRules['unitTestRatio'] = [{
-            validator: validatorForSonarCheck
+            validator: validatorForUnitTestSelected
           }]
         } else {
           delete sonarCheckRules['unitTestRatio']
@@ -984,6 +997,9 @@
                   stageChangeStatus.reason = `当前应用无"${profileNameMap[this.currentStage.name]}"服务，无法添加结点"${this.currentStage.description}"`;
                 }
                 break;
+              case 'sonarCheck':
+                this.formDataRules.sonarCheck.fields.projectKeyWord[0].required = true;
+                break;
             }
             if (stageChangeStatus.success) {
               this.currentStage['selected'] = true;
@@ -1002,6 +1018,7 @@
                 this.formData.sonarCheck.codeDebt = '';
                 this.formData.sonarCheck.unitTestSelected = false;
                 this.formData.sonarCheck.unitTestRatio = '';
+                this.formDataRules.sonarCheck.fields.projectKeyWord[0].required = false;
                 break;
               case 'mvnPackage':
                 this.stages.forEach(it => {
@@ -1009,6 +1026,18 @@
                     it['selected'] = false;
                   }
                 });
+                this.formData.buildImage.selected = false;
+                this.formData.deployTestEnv.selected = false;
+                this.formData.deployBetaEnv.selected = false;
+                break;
+              case 'buildImage':
+                this.stages.forEach(it => {
+                  if (['deployTestEnv', 'deployBetaEnv'].indexOf(it['name']) > -1) {
+                    it['selected'] = false;
+                  }
+                });
+                this.formData.deployBetaEnv.selected = false;
+                this.formData.deployTestEnv.selected = false;
                 break;
             }
             this.currentStage['selected'] = false;
