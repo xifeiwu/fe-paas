@@ -106,7 +106,7 @@
               <el-form-item label="滚动升级">
                 {{runningInfo["rollingUpdate"] ? "需要" : "未知"}}
               </el-form-item>
-              <el-form-item label="应用监控" v-if="serviceInfo.language === 'JAVA'">
+              <el-form-item label="应用监控" v-if="serviceInfo && serviceInfo.language === 'JAVA'">
                 {{profileUtils.getMonitorNameById(runningInfo["appMonitor"])}}
               </el-form-item>
               <el-form-item label="镜像">
