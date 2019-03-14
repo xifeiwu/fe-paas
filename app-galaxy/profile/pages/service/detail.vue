@@ -106,7 +106,7 @@
               <el-form-item label="滚动升级">
                 {{runningInfo["rollingUpdate"] ? "需要" : "未知"}}
               </el-form-item>
-              <el-form-item label="应用监控">
+              <el-form-item label="应用监控" v-if="serviceInfo.language === 'JAVA'">
                 {{profileUtils.getMonitorNameById(runningInfo["appMonitor"])}}
               </el-form-item>
               <el-form-item label="镜像">
@@ -151,7 +151,7 @@
                 </div>
               </el-form-item>
               <el-form-item label="端口映射">
-                <div v-if="runningInfo.portMapped">
+                <div v-if="runningInfo.portMapped && runningInfo.portMapped.length > 0">
                   <div class="el-row">
                     <div class="el-col el-col-8" style="font-weight: bold; text-align: center">访问端口</div>
                     <div class="el-col el-col-4" style="font-weight: bold; text-align: center; min-height:1px"></div>
@@ -581,6 +581,18 @@
           });
         }
         origin["hosts"] = processedHosts;
+
+        let ports = origin["portMapped"];
+        let processedPorts = [];
+        if (ports && Array.isArray(ports)) {
+          ports.forEach(it => {
+              processedPorts.push({
+                outerPort: it.outerPort,
+                containerPort: it.containerPort,
+              })
+          });
+        }
+        origin["portMapped"] = processedPorts;
         return origin;
       },
 
