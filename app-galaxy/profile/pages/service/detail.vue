@@ -151,7 +151,7 @@
                 </div>
               </el-form-item>
               <el-form-item label="端口映射">
-                <div v-if="serviceInfo.portsMapping">
+                <div v-if="serviceInfo.portsMapping && serviceInfo.portsMapping[0].containerPort && serviceInfo.portsMapping[0].action =='normal'">
                   <div class="el-row">
                     <div class="el-col el-col-8" style="font-weight: bold; text-align: center">访问端口</div>
                     <div class="el-col el-col-4" style="font-weight: bold; text-align: center; min-height:1px"></div>
