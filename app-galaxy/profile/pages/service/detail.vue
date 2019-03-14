@@ -151,7 +151,7 @@
                 </div>
               </el-form-item>
               <el-form-item label="端口映射">
-                <div v-if="serviceInfo.portsMapping && serviceInfo.portsMapping[0].containerPort && serviceInfo.portsMapping[0].action =='normal'">
+                <div v-if="runningInfo.portMapped">
                   <div class="el-row">
                     <div class="el-col el-col-8" style="font-weight: bold; text-align: center">访问端口</div>
                     <div class="el-col el-col-4" style="font-weight: bold; text-align: center; min-height:1px"></div>
@@ -159,7 +159,7 @@
                     <div class="el-col el-col-4" style="font-weight: bold; text-align: center">协议</div>
                     <!--<div class="el-col el-col-2" style="font-weight: bold; text-align: center"></div>-->
                   </div>
-                  <el-row class="content" v-for="port in serviceInfo.portsMapping" :key="port.id">
+                  <el-row class="content" v-for="port in runningInfo.portMapped" :key="port.outerPort">
                     <el-col :span="8" style="text-align: center">{{port.outerPort}}</el-col>
                     <el-col :span="4" style="text-align: center">--></el-col>
                     <el-col :span="8" style="text-align: center">{{port.containerPort}}</el-col>
