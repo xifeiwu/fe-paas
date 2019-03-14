@@ -1417,7 +1417,7 @@
                   if (this.forModify) {
                     this.$message({
                       type: 'success',
-                      message: '服务更新成功！'
+                      message: '服务更新成功，重新部署后才能生效！'
                     });
                   } else {
                     this.$message({
