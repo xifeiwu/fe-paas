@@ -889,6 +889,9 @@
         // sonarCheck可以不填，如果填写，格式必须正确
         const sonarCheck = this.formData['sonarCheck'];
         const sonarCheckRules = this.formDataRules['sonarCheck']['fields'];
+        if (!this.formData.sonarCheck.selected) {
+          sonarCheckRules.projectKeyWord[0].required = false;
+        }
         if (sonarCheck.codeDebtSelected) {
           sonarCheckRules['codeDebt'] = [{
             validator: validatorForCodeDebtSelected
@@ -1050,7 +1053,6 @@
 //            console.log(this.formData);
             const basicInfoForm = this.$refs['basic-info-form'];
             const configInfoForm = this.$refs['config-info-form'];
-
             this.updateFormDataRules();
 //            console.log(this.formDataRules);
             var validator = new AsyncValidator(this.formDataRules);
@@ -1078,6 +1080,12 @@
                   basicInfoForm.validate(() => {});
                 }
               } else {
+                if (this.formData.sonarCheck.selected) {
+                  if (!this.formData.sonarCheck.unitTestSelected && !this.formData.sonarCheck.codeDebtSelected) {
+                    this.$message.error(`若选择Sonar数据检查,则至少要选择一个检查项`);
+                    return;
+                  }
+                }
                 if ('take-effect' === action) {
                   await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_take_effect, {
                     payload: this.formData
