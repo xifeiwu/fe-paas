@@ -232,19 +232,19 @@
         </el-form-item>
         <el-form-item label="等待申请访问的权限" class="target-app-list" v-if="modifyAccessKeyInfo.targetAuthInfoList.length>0">
           <el-row class="title">
-            <el-col :span="6" class="group">团队</el-col>
-            <el-col :span="10" class="app">ClientId</el-col>
-            <el-col :span="10" class="app">权限</el-col>
-            <el-col :span="5" class="status">状态</el-col>
+            <el-col :span="3" class="group">团队</el-col>
+            <el-col :span="7" class="app">ClientId</el-col>
+            <el-col :span="8" class="app">权限</el-col>
+            <el-col :span="3" class="status">状态</el-col>
             <el-col :span="3"></el-col>
           </el-row>
           <el-row class="has-exist"
                   v-for="(item, index) in modifyAccessKeyInfo.targetAuthInfoList"
                   :key="index">
-            <el-col :span="6" class="group">{{item.targetGroupName}}</el-col>
-            <el-col :span="10" class="app">{{item.targetClientId}}</el-col>
-            <el-col :span="10" class="app">{{item.targetOauth}}</el-col>
-            <el-col :span="5" class="app">{{item.status}}</el-col>
+            <el-col :span="3" class="group">{{item.targetGroupName}}</el-col>
+            <el-col :span="7" class="app">{{item.targetClientId}}</el-col>
+            <el-col :span="8" class="app">{{item.targetOauth}}</el-col>
+            <el-col :span="3" class="app">{{item.status}}</el-col>
             <el-col :span="3" style="text-align: right">
               <el-popover
                       width="160"
@@ -256,7 +256,7 @@
                 <p style="color: #fa5555">确定要删除"{{item.targetGroupName}}"团队的"{{item.targetOauth}}"权限吗？</p>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
-                  <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-target-app', index, item)">确定</el-button>
+                  <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-target-oauth', index, item)">确定</el-button>
                 </div>
                 <el-button type="primary" size="mini-extral"
                            round
@@ -302,7 +302,7 @@
                       type="primary"
                       round
                       style="margin-bottom: 3px"
-                      @click="handleDialogButton('add-target-app')">添加
+                      @click="handleDialogButton('add-target-oauth')">添加
               </el-button>
             </el-col>
           </el-row>
@@ -345,21 +345,23 @@
       </el-form>
       <el-form :model="modifyAccessKeyInfo" :rules="rulesForAccessConfig" labelWidth="140px"
                size="mini" ref="modifyAccessKeyInfoForm">
-        <el-form-item label="已申请访问的权限" class="target-app-list" v-if="modifyAccessKeyInfo.requestAuthList.length>0">
+        <el-form-item label="已申请访问的权限" class="target-app-list" v-if="modifyAccessKeyInfo.targetAuthInfoList.length>0">
           <el-row class="title">
-            <el-col :span="8" class="group">团队</el-col>
-            <el-col :span="12" class="app">权限</el-col>
-            <el-col :span="0" class="status">状态</el-col>
-            <el-col :span="4"></el-col>
+            <el-col :span="3" class="group">团队</el-col>
+            <el-col :span="7" class="app">ClientId</el-col>
+            <el-col :span="8" class="app">权限</el-col>
+            <el-col :span="3" class="status">状态</el-col>
+            <el-col :span="3"></el-col>
           </el-row>
           <el-row class="has-exist"
-                  v-for="(item, index) in modifyAccessKeyInfo.requestAuthList"
+                  v-for="(item, index) in modifyAccessKeyInfo.targetAuthInfoList"
                   :key="index"
           >
-            <el-col :span="8" class="group">{{item.targetGroupName}}</el-col>
-            <el-col :span="12" class="app">{{item.targetOauth}}</el-col>
-            <el-col :span="0" class="app">{{item.status}}</el-col>
-            <el-col :span="4" style="text-align: right">
+            <el-col :span="3" class="group">{{item.targetGroupName}}</el-col>
+            <el-col :span="7"  class="app">{{item.targetOauth.substr(0,item.targetOauth.indexOf("."))}}</el-col>
+            <el-col :span="8" class="app">{{item.targetOauth}}</el-col>
+            <el-col :span="3" class="app">{{item.status}}</el-col>
+            <el-col :span="3" style="text-align: right">
               <el-popover
                       width="160"
                       v-model="item.openPopover"
@@ -367,10 +369,10 @@
                       trigger="click"
                       popperClass="el-popover--small"
                       content="复制成功">
-                <p style="color: #fa5555">确定要删除"{{item.targetGroupName}}"下的"{{item.targetApplicationName}}"权限吗？</p>
+                <p style="color: #fa5555">确定要删除"{{item.targetGroupName}}"下的"{{item.targetOauth}}"权限吗？</p>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
-                  <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-target-app', index, item)">确定</el-button>
+                  <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-target-oauth', index, item)">确定</el-button>
                 </div>
                 <el-button type="primary" size="mini-extral"
                            round
@@ -384,16 +386,29 @@
                       style="margin-bottom: 20px"
                       :error="errorMsgForAddTargetApp">
           <el-row>
-            <el-col :span="11" style="padding-right:4px;">
+            <el-col :span="5" style="padding-right:4px;">
               <el-select filterable v-model="modifyAccessKeyInfo.targetGroupID" placeholder="请选择" style="display:block; max-width: 280px;">
                 <el-option v-for="(item, index) in dataForSelectApp.groupListAll" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="11" style="padding-right:4px;">
-              <el-select filterable v-model="modifyAccessKeyInfo.targetAppID"
-                         :placeholder="dataForSelectApp.appList.length==0?'应用列表为空':'请选择'" style="display:block; max-width: 280px;">
-                <el-option v-for="(item, index) in dataForSelectApp.appList" :key="item.appId" :label="item.appName" :value="item.appId">
+            <el-col :span="8" style="padding-right:4px;">
+              <el-select
+                      v-loading="modifyAccessKeyInfo.requestingAppList"
+                      element-loading-spinner="el-icon-loading"
+                      filterable v-model="modifyAccessKeyInfo.targetUaaId"
+                      :placeholder="dataForSelectApp.uaaList.length==0?'列表为空':'请选择'" style="display:block; max-width: 280px;">
+                <el-option v-for="(item, index) in dataForSelectApp.uaaList" :key="item.id" :label="item.clientId" :value="item.id">
+                </el-option>
+              </el-select>
+            </el-col>
+            <el-col :span="7" style="padding-right:4px;">
+              <el-select
+                      v-loading="modifyAccessKeyInfo.loadingOauthList"
+                      element-loading-spinner="el-icon-loading"
+                      filterable v-model="modifyAccessKeyInfo.targetOauthId"
+                      :placeholder="dataForSelectApp.oauthList.length==0?'列表为空':'请选择'" style="display:block; max-width: 280px;">
+                <el-option v-for="(item, index) in dataForSelectApp.oauthList" :key="item.id" :label="item.oauth" :value="item.id">
                 </el-option>
               </el-select>
             </el-col>
@@ -403,7 +418,7 @@
                       type="primary"
                       round
                       style="margin-bottom: 3px"
-                      @click="handleDialogButton('add-target-app')">添加
+                      @click="handleDialogButton('add-target-oauth')">添加
               </el-button>
             </el-col>
           </el-row>
@@ -750,8 +765,6 @@ module.exports = {
     if (!this.targetGroupList || this.targetGroupList.length === 0) {
       this.getTargetGroupList(this.$storeHelper.currentGroupID)
     }
-
-    console.log(this.targetGroupList)
     // adjust element height after resize
     try {
       let header = this.$el.querySelector('.header:first-child');
@@ -830,7 +843,8 @@ module.exports = {
         loadingOauthList: false,
         targetOauthId:null,
         targetAppID: null,
-        targetAppName: ''
+        targetAppName: '',
+        targetAuthInfoList:[]
       },
       rulesForAccessConfig: {
         appID: [{
@@ -977,9 +991,15 @@ module.exports = {
           let getOauthUrl = encodeURI(this.$utils.formatUrl(this.$net.URL_LIST.oauth_get_by_uaa.path, {
             uaaId: target.id
           }));
-          this.$net.requestPaasServer({path:getOauthUrl,method:"get"}).then(resContent => {
-             this.dataForSelectApp.oauthList = resContent;
-             this.modifyAccessKeyInfo.targetOauthId = resContent[0].id;
+          this.$net.requestPaasServer({path:getOauthUrl,method:"get"}).then(content => {
+             console.log(content)
+             if(Array.isArray(content) && content.length > 0){
+               this.dataForSelectApp.oauthList = content;
+               this.modifyAccessKeyInfo.targetOauthId = content[0].id;
+             }else{
+               this.modifyAccessKeyInfo.targetOauthId = null;
+               this.dataForSelectApp.oauthList = [];
+             }
           }).catch(err=>{
              console.error(err)
              this.$message.error('获取应用列表失败！');
@@ -1179,12 +1199,13 @@ module.exports = {
 //            console.log(selectedRow);
             this.modifyAccessKeyInfo.appID = selectedRow.applicationId;
             if (Array.isArray(selectedRow.accessConfigList)) {
-              this.modifyAccessKeyInfo.requestAuthList = selectedRow.accessConfigList.map(it => {
+              this.modifyAccessKeyInfo.targetAuthInfoList = selectedRow.accessConfigList.map(it => {
                 return {
                   status: it.status,
                   targetOauth: it.targetOauth,
                   targetGroupId: it.targetGroupId,
                   targetGroupName: it.targetGroupName,
+                  targetClientId:it.targetClientId,
                   openPopover: false
                 }
               });
@@ -1323,10 +1344,11 @@ module.exports = {
      * trigger by watch: modifyAccessKeyInfo.appID, modifyAccessKeyInfo.targetAppID
      */
     isTargetAppOK() {
+      debugger
       let errMsg = '';
       let modifyAccessKeyInfo = this.modifyAccessKeyInfo;
 
-      if(modifyAccessKeyInfo.targetGroupID === this.$storeHelper.APP_ID_FOR_NULL) {
+      if(modifyAccessKeyInfo.targetGroupID === this.$storeHelper.GROUP_ID_FOR_ALL) {
         errMsg = '未选择团队';
       }
 
@@ -1349,7 +1371,7 @@ module.exports = {
         });
 
         if (isExist) {
-          errMsg = '已绑定该应用，不能重复绑定';
+          errMsg = '已绑定该权限，不能重复绑定';
         }
       }
 
@@ -1470,8 +1492,8 @@ module.exports = {
 
     handlePopoverButton(action, index, item) {
       switch (action) {
-        case 'delete-target-app':
-          this.modifyAccessKeyInfo.targetAppList.splice(index, 1);
+        case 'delete-target-oauth':
+          this.modifyAccessKeyInfo.targetAuthInfoList.splice(index, 1);
           item['openPopover'] = false;
           // update message of errorMsgForAddTargetApp after modifyAccessKeyInfo.targetAppList
           this.isTargetAppOK();
@@ -1507,17 +1529,20 @@ module.exports = {
       switch (action) {
         case 'create-access-key':
 //          console.log(this.modifyAccessKeyInfo);
-          let targetAppList = this.modifyAccessKeyInfo.targetAppList.map((it) => {
+          let targetAuthInfoList = this.modifyAccessKeyInfo.targetAuthInfoList.map((it) => {
             return {
               groupId: it.targetGroupId,
-              applicationId: it.targetApplicationId
+              uaaId: it.targetUaaId,
+              clientId:it.targetClientId,
+              uaaOauthId:it.targetOauthId,
+              oauth:it.targetOauth
             }
           });
           let dataToPost = {
             groupId: this.$storeHelper.currentGroupID,
             outerApp: this.modifyAccessKeyInfo.isExternalApp,
             productEnv: this.modifyAccessKeyInfo.production,
-            applyList: targetAppList
+            applyList: targetAuthInfoList
           };
           if (this.modifyAccessKeyInfo.isExternalApp) {
             dataToPost['outerAppName'] = this.modifyAccessKeyInfo.externalAppName;
@@ -1541,7 +1566,7 @@ module.exports = {
             this.hideWaitingResponse(action);
           });
           break;
-        case 'add-target-app':
+        case 'add-target-oauth':
 //          console.log(this.modifyAccessKeyInfo);
           if (this.isTargetAppOK()) {
             this.modifyAccessKeyInfo.targetAuthInfoList.push({
@@ -1559,7 +1584,7 @@ module.exports = {
         case 'submit-target-app-list':
           // if this.selected.row.accessConfigList.length == 0, go on.
           if (this.selected.row.accessConfigList.length > 0 &&
-            !this.ifAppListChanged(this.selected.row.accessConfigList, this.modifyAccessKeyInfo.targetAppList)) {
+            !this.ifAppListChanged(this.selected.row.accessConfigList, this.modifyAccessKeyInfo.targetAuthInfoList)) {
             this.$message.warning('您没有做修改');
             this.handleDialogClose();
             return;
@@ -1654,10 +1679,13 @@ module.exports = {
           });
           break;
         case 'accessConfigList':
-          let appListToPost = this.modifyAccessKeyInfo.targetAppList.map((it) => {
+          let appListToPost = this.modifyAccessKeyInfo.targetAuthInfoList.map((it) => {
             return {
               groupId: it.targetGroupId,
-              applicationId: it.targetApplicationId
+              uaaId: it.targetUaaId,
+              clientId:it.targetClientId,
+              uaaOauthId:it.targetOauthId,
+              oauth:it.targetOauth
             }
           });
           this.$net.oauthUpdateTargetApp(this.selected.row.id, {
@@ -1691,7 +1719,7 @@ module.exports = {
           break;
         case 'accessConfigList':
 //          let accessConfigList = this.newProps['accessConfigList'];
-          console.log(this.modifyAccessKeyInfo)
+          console.log("lalalala")
           let targetAppList = this.modifyAccessKeyInfo.targetAppList;
           let accessConfigDesc = [];
           if (targetAppList.length > 0) {
