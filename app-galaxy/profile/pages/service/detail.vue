@@ -535,6 +535,40 @@
         internetDomainList: [],
         dateTimeRange: [],
         runningInfo: null,
+        pickerOptions2: {
+          shortcuts: [{
+            text: '最近两小时',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 2);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近四小时',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 4);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近十二小时',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 12);
+              picker.$emit('pick', [start, end]);
+            }
+          }],
+          disabledDate(time) {
+            const getDate = function(dt) {
+              return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+            };
+            const toDate = getDate(time);
+            return toDate > getDate(new Date());
+          },
+        },
         dnsState: {
           office: {
             status: true,
