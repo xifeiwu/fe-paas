@@ -14,7 +14,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/j-api/paas/': {
-        target: 'http://10.10.202.143:30334',
+        target: 'http://0.0.0.0:30334',
         changeOrigin: true,
         logLevel: 'debug',
         pathRewrite: path => path.replace('\/j-api\/paas\/', '\/'),
