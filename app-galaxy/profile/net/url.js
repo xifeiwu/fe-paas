@@ -275,7 +275,6 @@ class URL extends BaseURL {
         path: '/application/authorization/record/{id}/enableOrDisable',
         method: 'patch'
       },
-
       /** 工单相关 */
       // 是否有未处理工单
       'work_order_in_handling': {

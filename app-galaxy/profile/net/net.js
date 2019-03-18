@@ -656,6 +656,16 @@ class Net extends NetBase {
       'pipeline_build_validate': {
         path: '/pipeline/validate/{appId}',
         method: 'post',
+      },
+
+      /** 授权相关 */
+      'uaa_get_by_group':{
+        path: '/application/authorization/list',
+        method: 'post'
+      },
+      'oauth_get_by_uaa':{
+        path: '/application/authorization/{uaaId}/oauth',
+        method: 'get'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
@@ -2208,10 +2218,10 @@ class Net extends NetBase {
         }
       }
       it.production = it.produceEnv;
-      it.accessConfigList = it['requestApplicationInfoVOList'];
+      it.accessConfigList = it['requestUaaAuthoritiesList'];
       if (it.accessConfigList.length > 0) {
         it.accessConfigDesc = it.accessConfigList.map(it => {
-          return `${it.targetGroupName} - ${it.targetApplicationName}，${it.status}`;
+          return `${it.targetGroupName} - ${it.targetOauth}，${it.status}`;
         });
       } else {
         it.accessConfigDesc = [];

@@ -99,7 +99,7 @@
         </el-table-column>
         <el-table-column
           prop="accessConfigDesc"
-          label="申请访问的对方团队-应用，状态"
+          label="申请访问的对方团队-权限，状态"
           min-width="200"
           headerAlign="center" align="center">
           <template slot-scope="scope">
@@ -230,19 +230,20 @@
             <el-radio :label="false">非生产环境</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="已申请访问的应用" class="target-app-list" v-if="modifyAccessKeyInfo.targetAppList.length>0">
+        <el-form-item label="等待申请访问的权限" class="target-app-list" v-if="modifyAccessKeyInfo.targetAuthInfoList.length>0">
           <el-row class="title">
             <el-col :span="6" class="group">团队</el-col>
-            <el-col :span="10" class="app">应用</el-col>
+            <el-col :span="10" class="app">ClientId</el-col>
+            <el-col :span="10" class="app">权限</el-col>
             <el-col :span="5" class="status">状态</el-col>
             <el-col :span="3"></el-col>
           </el-row>
           <el-row class="has-exist"
-                  v-for="(item, index) in modifyAccessKeyInfo.targetAppList"
-                  :key="index"
-          >
+                  v-for="(item, index) in modifyAccessKeyInfo.targetAuthInfoList"
+                  :key="index">
             <el-col :span="6" class="group">{{item.targetGroupName}}</el-col>
-            <el-col :span="10" class="app">{{item.targetApplicationName}}</el-col>
+            <el-col :span="10" class="app">{{item.targetClientId}}</el-col>
+            <el-col :span="10" class="app">{{item.targetOauth}}</el-col>
             <el-col :span="5" class="app">{{item.status}}</el-col>
             <el-col :span="3" style="text-align: right">
               <el-popover
@@ -252,7 +253,7 @@
                       trigger="click"
                       popperClass="el-popover--small"
                       content="复制成功">
-                <p style="color: #fa5555">确定要删除"{{item.targetGroupName}}"下的应用"{{item.targetApplicationName}}"吗？</p>
+                <p style="color: #fa5555">确定要删除"{{item.targetGroupName}}"团队的"{{item.targetOauth}}"权限吗？</p>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
                   <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-target-app', index, item)">确定</el-button>
@@ -265,23 +266,33 @@
             </el-col>
           </el-row>
         </el-form-item>
-        <el-form-item label="申请访问对方应用" prop="accessGroupID" class="add-target-app"
+        <el-form-item label="申请访问权限" prop="accessGroupID" class="add-target-app"
                       style="margin-bottom: 20px"
                       :error="errorMsgForAddTargetApp" v-if="true">
           <el-row>
-            <el-col :span="11" style="padding-right:4px;">
-              <el-select filterable v-model="modifyAccessKeyInfo.targetGroupID" placeholder="请选择" style="display:block; max-width: 280px;">
+            <el-col :span="5" style="padding-right:4px;">
+              <el-select filterable v-model="modifyAccessKeyInfo.targetGroupID" placeholder="请选择" style="display:block; max-width: 200px;">
                 <el-option v-for="(item, index) in dataForSelectApp.groupListAll" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="11" style="padding-right:4px;">
+            <el-col :span="8" style="padding-right:4px;">
               <el-select
                       v-loading="modifyAccessKeyInfo.requestingAppList"
                       element-loading-spinner="el-icon-loading"
-                      filterable v-model="modifyAccessKeyInfo.targetAppID"
-                      :placeholder="dataForSelectApp.appList.length==0?'应用列表为空':'请选择'" style="display:block; max-width: 280px;">
-                <el-option v-for="(item, index) in dataForSelectApp.appList" :key="item.appId" :label="item.appName" :value="item.appId">
+                      filterable v-model="modifyAccessKeyInfo.targetUaaId"
+                      :placeholder="dataForSelectApp.uaaList.length==0?'列表为空':'请选择'" style="display:block; max-width: 280px;">
+                <el-option v-for="(item, index) in dataForSelectApp.uaaList" :key="item.id" :label="item.clientId" :value="item.id">
+                </el-option>
+              </el-select>
+            </el-col>
+            <el-col :span="7" style="padding-right:4px;">
+              <el-select
+                      v-loading="modifyAccessKeyInfo.loadingOauthList"
+                      element-loading-spinner="el-icon-loading"
+                      filterable v-model="modifyAccessKeyInfo.targetOauthId"
+                      :placeholder="dataForSelectApp.oauthList.length==0?'列表为空':'请选择'" style="display:block; max-width: 280px;">
+                <el-option v-for="(item, index) in dataForSelectApp.oauthList" :key="item.id" :label="item.oauth" :value="item.id">
                 </el-option>
               </el-select>
             </el-col>
@@ -334,19 +345,19 @@
       </el-form>
       <el-form :model="modifyAccessKeyInfo" :rules="rulesForAccessConfig" labelWidth="140px"
                size="mini" ref="modifyAccessKeyInfoForm">
-        <el-form-item label="已申请访问的应用" class="target-app-list" v-if="modifyAccessKeyInfo.targetAppList.length>0">
+        <el-form-item label="已申请访问的权限" class="target-app-list" v-if="modifyAccessKeyInfo.requestAuthList.length>0">
           <el-row class="title">
             <el-col :span="8" class="group">团队</el-col>
-            <el-col :span="12" class="app">应用</el-col>
+            <el-col :span="12" class="app">权限</el-col>
             <el-col :span="0" class="status">状态</el-col>
             <el-col :span="4"></el-col>
           </el-row>
           <el-row class="has-exist"
-                  v-for="(item, index) in modifyAccessKeyInfo.targetAppList"
+                  v-for="(item, index) in modifyAccessKeyInfo.requestAuthList"
                   :key="index"
           >
             <el-col :span="8" class="group">{{item.targetGroupName}}</el-col>
-            <el-col :span="12" class="app">{{item.targetApplicationName}}</el-col>
+            <el-col :span="12" class="app">{{item.targetOauth}}</el-col>
             <el-col :span="0" class="app">{{item.status}}</el-col>
             <el-col :span="4" style="text-align: right">
               <el-popover
@@ -356,7 +367,7 @@
                       trigger="click"
                       popperClass="el-popover--small"
                       content="复制成功">
-                <p style="color: #fa5555">确定要删除"{{item.targetGroupName}}"下的应用"{{item.targetApplicationName}}"吗？</p>
+                <p style="color: #fa5555">确定要删除"{{item.targetGroupName}}"下的"{{item.targetApplicationName}}"权限吗？</p>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
                   <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-target-app', index, item)">确定</el-button>
@@ -369,7 +380,7 @@
             </el-col>
           </el-row>
         </el-form-item>
-        <el-form-item label="申请访问对方应用" prop="accessGroupID" class="add-target-app"
+        <el-form-item label="申请访问权限" prop="accessGroupID" class="add-target-app"
                       style="margin-bottom: 20px"
                       :error="errorMsgForAddTargetApp">
           <el-row>
@@ -735,10 +746,12 @@ module.exports = {
     if (updateAccessList) {
       this.requestAccessKeyList();
     }
+
     if (!this.targetGroupList || this.targetGroupList.length === 0) {
       this.getTargetGroupList(this.$storeHelper.currentGroupID)
     }
 
+    console.log(this.targetGroupList)
     // adjust element height after resize
     try {
       let header = this.$el.querySelector('.header:first-child');
@@ -812,6 +825,10 @@ module.exports = {
         targetAppList: [],
         targetGroupID: null,
         targetGroupName: '',
+        requestAuthList: [],
+        targetUaaId: null,
+        loadingOauthList: false,
+        targetOauthId:null,
         targetAppID: null,
         targetAppName: ''
       },
@@ -835,9 +852,11 @@ module.exports = {
       },
       dataForSelectApp: {
         groupListAll: null,
-        appList: []
+        appList: [],
+        uaaList: [],
+        oauthList:[]
       },
-      
+
       updateUrlPermissionInfo: {
         accessKeyId: null,
         accessKey: null,
@@ -883,7 +902,7 @@ module.exports = {
       }
     },
   },
-  
+
   watch: {
     '$storeHelper.currentGroupID': 'getTargetGroupList',
     '$storeHelper.currentGroupID': function () {
@@ -905,21 +924,20 @@ module.exports = {
       }
 
       this.modifyAccessKeyInfo.requestingAppList = true;
-      this.$net.requestPaasServer(this.$net.URL_LIST.app_list_by_group_without_permission, {
-        payload: {groupId: groupID}
+      this.$net.requestPaasServer(this.$net.URL_LIST.uaa_get_by_group, {
+        payload: {groupId: groupID,productEnv:this.modifyAccessKeyInfo.production}
       }).then(resContent => {
         // init default value for appList and modifyAccessKeyInfo.targetAppID
-        this.dataForSelectApp.appList = [];
-        this.modifyAccessKeyInfo.targetAppID = this.$storeHelper.APP_ID_FOR_NULL;
+        this.modifyAccessKeyInfo.targetUaaId = this.$storeHelper.APP_ID_FOR_NULL;
 
-        // update appList and modifyAccessKeyInfo.targetAppID
+        // update uaaList and modifyAccessKeyInfo.targetAppID
         if (Array.isArray(resContent)) {
-          resContent.forEach(it => {
-            it['appId'] = it['id'];
-          });
-          this.dataForSelectApp.appList = resContent;
+          // resContent.forEach(it => {
+          //   it['appId'] = it['id'];
+          // });
+          this.dataForSelectApp.uaaList = resContent;
           if (resContent.length > 0) {
-            this.modifyAccessKeyInfo.targetAppID = resContent[0].appId;
+            this.modifyAccessKeyInfo.targetUaaId = resContent[0].id;
           }
         }
 
@@ -945,24 +963,53 @@ module.exports = {
         this.modifyAccessKeyInfo.requestingAppList = false;
       })
     },
-    'modifyAccessKeyInfo.targetAppID': function (appId) {
-      let appList = this.dataForSelectApp.appList;
-      if (appList && Array.isArray(appList)) {
+    'modifyAccessKeyInfo.targetUaaId': function (uaaId) {
+      this.modifyAccessKeyInfo.loadingOauth = true;
+
+      let uaaList = this.dataForSelectApp.uaaList;
+      if (uaaList && Array.isArray(uaaList)) {
         let target = null;
-        appList.some(it => {
-          target = (it.appId == appId) ? it : null;
+        uaaList.some(it => {
+          target = (it.id == uaaId) ? it : null;
           return target;
         });
-        if (target && target.appId) {
-          this.modifyAccessKeyInfo.targetAppName = target.appName;
+        if (null != target && target.id) {
+          let getOauthUrl = encodeURI(this.$utils.formatUrl(this.$net.URL_LIST.oauth_get_by_uaa.path, {
+            uaaId: target.id
+          }));
+          this.$net.requestPaasServer({path:getOauthUrl,method:"get"}).then(resContent => {
+             this.dataForSelectApp.oauthList = resContent;
+             this.modifyAccessKeyInfo.targetOauthId = resContent[0].id;
+          }).catch(err=>{
+             console.error(err)
+             this.$message.error('获取应用列表失败！');
+          }).finally(()=>{
+            this.modifyAccessKeyInfo.loadingOauth = false;
+          });
+          // set targetClientId
+          this.modifyAccessKeyInfo.targetClientId = target.clientId;
+          console.log(this.modifyAccessKeyInfo.targetClientId);
         } else {
-          this.modifyAccessKeyInfo.targetAppName = '';
+            this.modifyAccessKeyInfo.targetClientId = '';
         }
-      } else {
-        this.modifyAccessKeyInfo.targetAppName = '';
       }
       // if current app is ok?
       this.isTargetAppOK();
+    },
+    'modifyAccessKeyInfo.targetOauthId':function (oauthId) {
+        let oauthList = this.dataForSelectApp.oauthList;
+        if(oauthList && Array.isArray(oauthList)){
+            let target = null;
+            oauthList.some(o=>{
+               target = (o.id=oauthId)?o:null;
+            });
+            if(null != target && target.oauth){
+               this.modifyAccessKeyInfo.targetOauth = target.oauth;
+                console.log(this.modifyAccessKeyInfo.targetOauth);
+            }
+        }else{
+            this.modifyAccessKeyInfo.targetOauth = '';
+        }
     },
     'modifyAccessKeyInfo.appID': function() {
       // if current app is ok?
@@ -1035,11 +1082,13 @@ module.exports = {
       this.modifyAccessKeyInfo.appID = null;
       this.modifyAccessKeyInfo.production = false;
       this.modifyAccessKeyInfo.externalAppName = '';
-      this.modifyAccessKeyInfo.targetAppList = [];
+      this.modifyAccessKeyInfo.targetAuthInfoList = [];
       this.modifyAccessKeyInfo.targetGroupID = null;
-//      this.modifyAccessKeyInfo.targetGroupName = '';
+      this.modifyAccessKeyInfo.targetGroupName = '';
       this.modifyAccessKeyInfo.targetAppID = null;
-//      this.modifyAccessKeyInfo.targetAppName = '';
+      this.modifyAccessKeyInfo.requestAuthList = [];
+      this.modifyAccessKeyInfo.targetAppList = [];
+      this.modifyAccessKeyInfo.targetAppName = '';
     },
 
     handleButtonClick(evt, action) {
@@ -1130,11 +1179,10 @@ module.exports = {
 //            console.log(selectedRow);
             this.modifyAccessKeyInfo.appID = selectedRow.applicationId;
             if (Array.isArray(selectedRow.accessConfigList)) {
-              this.modifyAccessKeyInfo.targetAppList = selectedRow.accessConfigList.map(it => {
+              this.modifyAccessKeyInfo.requestAuthList = selectedRow.accessConfigList.map(it => {
                 return {
                   status: it.status,
-                  targetApplicationId: it.targetApplicationId,
-                  targetApplicationName: it.targetApplicationName,
+                  targetOauth: it.targetOauth,
                   targetGroupId: it.targetGroupId,
                   targetGroupName: it.targetGroupName,
                   openPopover: false
@@ -1278,21 +1326,28 @@ module.exports = {
       let errMsg = '';
       let modifyAccessKeyInfo = this.modifyAccessKeyInfo;
 
-      if (modifyAccessKeyInfo.targetAppID === this.$storeHelper.APP_ID_FOR_NULL) {
-        errMsg = '未选择应用';
+      if(modifyAccessKeyInfo.targetGroupID === this.$storeHelper.APP_ID_FOR_NULL) {
+        errMsg = '未选择团队';
       }
-      if (!errMsg && (modifyAccessKeyInfo.appID === modifyAccessKeyInfo.targetAppID)) {
-        errMsg = '申请访问对方应用不能为当前应用';
+
+      if(modifyAccessKeyInfo.targetUaaId === this.$storeHelper.APP_ID_FOR_NULL){
+        errMsg = '未选择clientId';
+      }
+
+      if(modifyAccessKeyInfo.targetOauthId === this.$storeHelper.APP_ID_FOR_NULL){
+        errMsg = '未选择权限信息';
       }
 
       if (!errMsg) {
         let isExist = false;
-        let hasExisted = this.modifyAccessKeyInfo.targetAppList;
+        let hasExisted = this.modifyAccessKeyInfo.targetAuthInfoList;
         hasExisted.some(it => {
-          isExist = it['targetGroupId'] == this.modifyAccessKeyInfo.targetGroupID &&
-            it['targetApplicationId'] == this.modifyAccessKeyInfo.targetAppID;
+          isExist =  it['targetGroupId'] === this.modifyAccessKeyInfo.targetGroupID
+                  && it['targetUaaId'] === this.modifyAccessKeyInfo.targetUaaId
+                  && it['targetOauthId'] === this.modifyAccessKeyInfo.targetOauthId;
           return isExist;
         });
+
         if (isExist) {
           errMsg = '已绑定该应用，不能重复绑定';
         }
@@ -1412,7 +1467,7 @@ module.exports = {
       }
       return !theSame;
     },
-    
+
     handlePopoverButton(action, index, item) {
       switch (action) {
         case 'delete-target-app':
@@ -1489,12 +1544,14 @@ module.exports = {
         case 'add-target-app':
 //          console.log(this.modifyAccessKeyInfo);
           if (this.isTargetAppOK()) {
-            this.modifyAccessKeyInfo.targetAppList.push({
-              status: '新加',
-              targetApplicationId: this.modifyAccessKeyInfo.targetAppID,
-              targetApplicationName: this.modifyAccessKeyInfo.targetAppName,
+            this.modifyAccessKeyInfo.targetAuthInfoList.push({
+              status: '新申请',
               targetGroupId: this.modifyAccessKeyInfo.targetGroupID,
               targetGroupName: this.modifyAccessKeyInfo.targetGroupName,
+              targetUaaId: this.modifyAccessKeyInfo.targetUaaId,
+              targetClientId: this.modifyAccessKeyInfo.targetClientId,
+              targetOauthId: this.modifyAccessKeyInfo.targetOauthId,
+              targetOauth: this.modifyAccessKeyInfo.targetOauth,
               openPopover: false
             });
           }
@@ -1634,6 +1691,7 @@ module.exports = {
           break;
         case 'accessConfigList':
 //          let accessConfigList = this.newProps['accessConfigList'];
+          console.log(this.modifyAccessKeyInfo)
           let targetAppList = this.modifyAccessKeyInfo.targetAppList;
           let accessConfigDesc = [];
           if (targetAppList.length > 0) {
@@ -1698,6 +1756,7 @@ module.exports = {
         this.showLoading = false;
         cb(true)
       }).catch(err => {
+          console.error(err)
         this.showLoading = false;
         cb(false);
         this.$notify.error({
