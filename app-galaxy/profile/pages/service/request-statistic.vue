@@ -12,7 +12,7 @@
             </g>
           </template>
         </svg>
-        <div class="total">{{total ? `最近一天共请求${total}次`: ''}}</div>
+        <div class="total">{{total ? `共请求${total}次`: ''}}</div>
       </div>
       <table-component
               :data="topRequest"

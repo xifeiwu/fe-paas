@@ -4,7 +4,7 @@
       <div class="selector">
         <div class="item">
           <label>
-            <span>应用名称:</span>
+            <span>应用名称2:</span>
             <el-select filterable v-model="selectedAppID" placeholder="请选择"
                        style="width: 360px;">
               <el-option v-for="(item,index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">
