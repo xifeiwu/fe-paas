@@ -153,6 +153,7 @@
                 this.$emit('menu-click', keyAll);
                 break;
               case 'logout':
+                // 登出步骤：1. 清理本地用户信息；2. 向服务器发送登出请求
                 const logout = () => {
                   this.$message({
                     type: 'success',
@@ -160,16 +161,18 @@
                     duration: 500,
                     onClose: () => {
                       this.$storeHelper.logout();
-                      window.location.pathname = this.$net.page['login'];
+                      const pathName = window.location.pathname;
+                      const encodeURIComponent = it => it;
+                      const queryString = encodeURIComponent(`?to=${pathName}`);
+                      window.location.href = `${this.$net.page['login']}${queryString}`;
                     }
                   });
                 };
-                if (!this.$storeHelper.getUserInfo('token')) {
-                  logout();
-                  return;
-                }
                 if (this.$net && this.$net.URL_LIST && this.$net.URL_LIST['logout']) {
-                  this.$net.requestPaasServer(this.$net.URL_LIST.logout).then(logout).catch(err => {});
+                  // 不论网络请求成功与否，都会调用logout方法
+                  this.$net.requestPaasServer(this.$net.URL_LIST.logout).then(logout).catch(logout);
+                  // 最多等待1.5秒
+                  setTimeout(logout, 1500);
                 } else {
                   this.$emit('menu-click', keyAll);
                 }

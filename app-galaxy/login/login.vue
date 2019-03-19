@@ -277,7 +277,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
         this.pageJump();
       }
       // 清理localstore
-      window && window.localStorage.removeItem('galaxy');
+//      window && window.localStorage.removeItem('galaxy');
 
       let loginForm = document.querySelector('.el-form.login-form');
       let results = [];
@@ -326,7 +326,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
 
       pageJump() {
         // 1. go to profile by default
-        let toPath = this.$net.page['profile'];
+        var toPath = this.$net.page['profile'];
 
         // 2. judge by user role
 //        const role = this.$storeHelper.userInfo['role'];
