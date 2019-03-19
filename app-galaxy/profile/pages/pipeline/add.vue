@@ -79,10 +79,10 @@
                       <codemirror v-model="formData.mvnPackage.script" :options="groovyOption"></codemirror>
                     </el-form-item>
                     <!--制作镜像-->
-                    <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'">
+                    <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'" prop="buildImage" :multiFields="true">
                       <el-select v-model="formData.buildImage.selectedImage" placeholder="请选择">
                         <el-option v-for="(item, index) in pipelineInfoFromNet['buildImage']['basicImage']"
-                                   :key="item" :label="item?item:'无'" :value="item">
+                                   :key="item" :value="item">
                         </el-option>
                       </el-select>
                     </el-form-item>
@@ -504,10 +504,10 @@
           appId: this.formData.appId
         }
       });
-      if (pipelineInfoFromNet.hasOwnProperty('buildImage') && Array.isArray(pipelineInfoFromNet['buildImage']['basicImage'])) {
-        // 可以不选择基础镜像
-        pipelineInfoFromNet['buildImage']['basicImage'].unshift('');
-      }
+      // if (pipelineInfoFromNet.hasOwnProperty('buildImage') && Array.isArray(pipelineInfoFromNet['buildImage']['basicImage'])) {
+      //   // 可以不选择基础镜像
+      //   pipelineInfoFromNet['buildImage']['basicImage'].unshift('');
+      // }
       ['deployTestEnv', 'deployBetaEnv'].forEach(stage => {
         var applicationConfig = null;
         if (pipelineInfoFromNet.hasOwnProperty(stage) && pipelineInfoFromNet[stage]['applicationConfig']) {
@@ -730,6 +730,18 @@
             fields: {
               // noticeEmails
             }
+          },
+          buildImage: {
+            type: 'object',
+            required: true,
+            trigger: ['blur', 'change'],
+            fields: {
+              selectedImage: [{
+                type: 'string',
+                required: true,
+                message: '请选择基础镜像',
+              }]
+            },
           }
         },
         emailProps: {
@@ -1068,7 +1080,7 @@
                 }
 //                console.log(firstFields);
                 // sonar及单元测试，打包，自动化测试
-                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'autoScript', 'sonarCheck'];
+                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'buildImage', 'autoScript', 'sonarCheck'];
                 if (pipelineStageList.indexOf(firstFields) > -1) {
                   this.setActiveStageByName(firstFields);
                   this.$nextTick(() => {

@@ -518,14 +518,14 @@
                 limit: true
               }
             });
-            hasMoreData = resContent.hasOwnProperty('hasMoreData') ? resContent['hasMoreData'] : false;
-            currentBufferSize = resContent.hasOwnProperty('currentBufferSize') ? resContent['currentBufferSize'] : 0;
-            await new Promise((resolve) => {
-              setTimeout(resolve, 2000);
-            });
             if (resContent.hasOwnProperty('consoleLog')) {
               logQueue = logQueue.concat(resContent['consoleLog'].split('\n'));
             }
+            await new Promise((resolve) => {
+              setTimeout(resolve, 2000);
+            });
+            hasMoreData = resContent.hasOwnProperty('hasMoreData') ? resContent['hasMoreData'] : false;
+            currentBufferSize = resContent.hasOwnProperty('currentBufferSize') ? resContent['currentBufferSize'] : 0;
           } catch (e) {
             break;
           }
@@ -625,6 +625,9 @@
                 this.buildLogStatus.title = `${this.dataPassed.pipelineName}-第${row['buildNumber']}次的构建日志`;
                 this.buildLogStatus.logList = resContent['consoleLog'].split('\n');
                 this.buildLogStatus.visible = true;
+                setTimeout(() => {
+                  this.$refs['dialogForBuildLog'].scrollToBottom();
+                },100);
               }
             }
             break;

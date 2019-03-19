@@ -370,6 +370,9 @@
               }
               return it;
             });
+            this.pipelineList.sort((a,b) => {
+              return b.createTime - a.createTime;
+            });
             this.totalSize = this.pipelineList.length;
           }
         } catch(err) {
