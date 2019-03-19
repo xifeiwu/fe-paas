@@ -160,18 +160,17 @@
                     message: '退出成功',
                     duration: 500,
                     onClose: () => {
-                      this.$storeHelper.logout();
-                      const casServer = this.$net.getCasServer();
-                      const pathName = window.location.pathname;
-                      const targetHref = `${this.$net.page['login']}#${pathName}`;
-//                      const targetHref = `${casServer}?service=${location.origin}${this.$net.page['cas-login']}#${pathName}`;
+                      // step 2
+//                      this.$storeHelper.logout();
+                      const targetHref = this.$net.getCasLogoutHref();
                       window.location.href = targetHref;
                     }
                   });
                 };
                 if (this.$net && this.$net.URL_LIST && this.$net.URL_LIST['logout']) {
+                  // step 1
                   // 不论网络请求成功与否，都会调用logout方法
-                  this.$net.requestPaasServer(this.$net.URL_LIST.logout).then(logout).catch(logout);
+//                  this.$net.requestPaasServer(this.$net.URL_LIST.logout).then(logout).catch(logout);
                   // 最多等待1.5秒
                   setTimeout(logout, 1500);
                 } else {

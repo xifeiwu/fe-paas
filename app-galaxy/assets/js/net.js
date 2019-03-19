@@ -419,7 +419,7 @@ class Net {
         // code 555 stands for token is out of date
         if (resData.code === 555) {
           Vue.prototype.$storeHelper.logout();
-          window.location.pathname = Vue.prototype.$net.page['login'];
+          window.location.href = this.getCasLoginUrl();
           return;
         }
 
@@ -544,6 +544,21 @@ class Net {
       casServer = serverMap[NODE_ENV];
     }
     return casServer;
+  }
+  // 获取(CAS)登录的url
+  getCasLoginUrl() {
+    const casServer = this.getCasServer();
+    const pathName = window.location.pathname;
+    // const loginHref = `${this.page['login']}#${pathName}`;
+    const loginHref = `${casServer}/login?service=${location.origin}${this.page['cas-login']}?to=${pathName}`;
+    return loginHref;
+  }
+  // 获取CAS登出的url
+  getCasLogoutHref() {
+    const casServer = this.getCasServer();
+    const loginHref = this.getCasLoginUrl();
+    const logoutHref = `${casServer}/logout?service=${loginHref}`;
+    return logoutHref;
   }
 }
 

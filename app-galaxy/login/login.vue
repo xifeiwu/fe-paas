@@ -1,7 +1,11 @@
 <template>
   <div id="login">
     <img class="finup-cloud" src="/assets/imgs/finup-cloud.png" @click="handleImageClick()">
-    <div class="main">
+    <div class="main" v-if="pathName === 'cas-login'"
+         v-loading="showLoading"
+         element-loading-text="登录中...">
+    </div>
+    <div class="main" v-if="pathName === 'login'">
       <!--the element of writting-code is use for backgroundEffectOfCodeWriter-->
       <div class="writting-code">
           <pre><code class="javascript hljs"></code></pre>
@@ -249,6 +253,8 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
   export default {
     data() {
       return {
+        // login or cas-login
+        pathName: 'login',
         form: {
           userName: '',
           password: '',
@@ -265,7 +271,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       };
     },
     created: function () {
-      this.updateVerifyCode();
+      this.pathName = location.pathname.substr(1);
       const version = '1.2';
       if (this.$storeHelper.version != version) {
 //        this.$storeHelper.version = version
@@ -276,22 +282,25 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       if (this.$storeHelper.getUserInfo('token')) {
         this.pageJump();
       }
-      // 清理localstore
-//      window && window.localStorage.removeItem('galaxy');
-
-      let loginForm = document.querySelector('.el-form.login-form');
-      let results = [];
-      results = results.concat(Array.prototype.slice.call(loginForm.querySelectorAll('input')));
-      results = results.concat(Array.prototype.slice.call(loginForm.querySelectorAll('button')));
-      this.focusableElesInForm = results;
-      setTimeout(() => {
-        this.focusableElesInForm.length > 0 && this.focusableElesInForm[0].focus();
-      }, 1000);
-      // background effect
-//      drawBG2();
-
-      // code-writter effect
-      backgroundEffectOfCodeWriter(this.$el.querySelector('.main .writting-code pre code'));
+      if (this.pathName === 'login') {
+        this.updateVerifyCode();
+        // logic for form focus
+        let loginForm = document.querySelector('.el-form.login-form');
+        let results = [];
+        results = results.concat(Array.prototype.slice.call(loginForm.querySelectorAll('input')));
+        results = results.concat(Array.prototype.slice.call(loginForm.querySelectorAll('button')));
+        this.focusableElesInForm = results;
+        setTimeout(() => {
+          this.focusableElesInForm.length > 0 && this.focusableElesInForm[0].focus();
+        }, 1000);
+        // code-writter effect
+        backgroundEffectOfCodeWriter(this.$el.querySelector('.main .writting-code pre code'));
+      } else if (this.pathName === 'cas-login') {
+        this.showLoading = true;
+        setTimeout(() => {
+          this.pageJump();
+        }, 1000);
+      }
     },
     methods: {
       handleImageClick() {
@@ -335,16 +344,17 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
 //        }
 
         // 3. judge by querystring ?to=/profile
-//        const queryString = window.location.search.replace(/^\?/, '');
-//        const queryObj = this.$utils.parseQueryString(queryString);
-//        if (queryObj.hasOwnProperty('to')) {
-//          toPath = queryObj['to'];
-//        }
-        // 3. judge by hash
-        const hash = location.hash;
-        if (hash) {
-          toPath = hash.substr(1);
+        const queryString = window.location.search.replace(/^\?/, '');
+        const queryObj = this.$utils.parseQueryString(queryString);
+        if (queryObj.hasOwnProperty('to')) {
+          toPath = queryObj['to'];
         }
+        // 3. judge by hash
+//        const hash = location.hash;
+//        if (hash) {
+//          toPath = hash.substr(1);
+//        }
+
 
         window.location.href = toPath;
 //        this.$utils.goToPath(toPath);

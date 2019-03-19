@@ -29,7 +29,8 @@ class AxiosConfig {
 
   logout() {
     Vue.prototype.$storeHelper.logout();
-    window.location.pathname = Vue.prototype.$net.page['login'];
+    window.location.href = Vue.prototype.$net.getCasLoginUrl();
+    // window.location.pathname = Vue.prototype.$net.page['login'];
   }
 
   /**
