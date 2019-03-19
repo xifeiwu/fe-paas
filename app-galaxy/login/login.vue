@@ -341,7 +341,8 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
           toPath = queryObj['to'];
         }
 
-        this.$utils.goToPath(toPath);
+        window.location.href = toPath;
+//        this.$utils.goToPath(toPath);
       },
 
       // on click of login button

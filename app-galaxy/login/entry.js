@@ -3,7 +3,7 @@ import Vue from 'vue';
 import store from './store';
 import StoreHelper from './store/helper';
 
-import netHelper from './net/net';
+import netHelper from './net';
 
 import VueConfig from '../config/vue';
 new VueConfig({

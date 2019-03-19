@@ -1,8 +1,6 @@
 /**
  * Created by xifei.wu on 2017/12/5.
  */
-import Vue from 'vue';
-import axios from 'axios';
 import NetBase from 'assets/js/net';
 // var debug = browserDebug('pass-fe:net');
 
