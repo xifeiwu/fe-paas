@@ -622,7 +622,7 @@
       const theData = dataTransfer.data;
       // for compatible
       this.profileInfo = theData.profileInfo;
-      console.log(this.profileInfo);
+//      console.log(this.profileInfo);
       this.dataPassed.profileInfo = theData.profileInfo;
       this.formData.spaceId = theData.profileInfo.id;
       this.formRelated.isProductionProfile = (this.dataPassed.profileInfo.spaceType.toUpperCase() === 'PRODUCTION');

@@ -76,7 +76,7 @@
         </el-table-column>
         <el-table-column label="操作" headerAlign="left" align="left" minWidth="200">
           <template slot-scope="scope">
-            <div v-if="scope.row.id">
+            <div v-if="scope.row.id" style="line-height: 20px;">
               <el-button
                       v-if="!isProductionProfile"
                       size="small"
