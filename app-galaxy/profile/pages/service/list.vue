@@ -398,6 +398,43 @@
       }
 
     }
+    > .confirm-deploy {
+      .el-dialog {
+        display: inline-block;
+        vertical-align: middle;
+        background-color: #fff;
+        border-radius: 4px;
+        border: 1px solid #e6ebf5;
+        font-size: 18px;
+        box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+        text-align: left;
+        overflow: hidden;
+        backface-visibility: hidden;
+        box-sizing: border-box;
+      }
+      .el-dialog__header {
+        position: relative;
+        padding: 15px 15px 5px;
+        background-color: #fff;
+        .el-dialog__title {
+          padding-left: 0;
+          margin-bottom: 0;
+          font-size: 18px;
+          line-height: 1;
+          color: #2d2f33;
+         }
+      }
+      .el-dialog__body {
+        position: relative;
+        padding: 10px 15px;
+        color: #5a5e66;
+        font-size: 14px;
+      }
+      .el-dialog__footer {
+        border-top: none;
+        margin-top: 0;
+      }
+    }
     .dialog-for-log {
       .el-dialog {
         width: 95%;

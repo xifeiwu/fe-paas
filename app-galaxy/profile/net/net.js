@@ -1515,6 +1515,8 @@ class Net extends NetBase {
           environments: JSON.parse(JSON.stringify(service.environments)),
           hosts: JSON.parse(JSON.stringify(service.hosts)),
           prestopCommand: service.prestopCommand,
+          customImage: service.image.customImage,
+          imageLocation: service.image.location,
           rollingUpdate: service.rollingUpdate,
           loadBalance: service.loadBalance,
           gitLabAddress: service.gitLabAddress,
@@ -1669,11 +1671,18 @@ class Net extends NetBase {
     !serviceList && resContent.hasOwnProperty('applicationServiceList') && (serviceList = resContent['applicationServiceList']);
     if (serviceList) {
       Array.isArray(serviceList) && serviceList.forEach(it => {
-        // if (!it.volume) {
-        //   it.volume = '';
-        // }
-        // it.volume = it.volume.split(',').filter(it => {return it})
-        // this.$utils.renameProperty(it, 'volume', 'fileLocation');
+        it.image = {
+          customImage: null == it.customImage ? false : it.customImage,
+          typeName: appInfoHelper.getImageNameById(it.customImage),
+          location: it.image,
+        };
+
+        if (!it.volume) {
+          it.volume = '';
+        }
+        it.volume = it.volume.split(',').filter(it => {return it})
+        this.$utils.renameProperty(it, 'volume', 'fileLocation');
+
         // fix运行实例/总实例数
         if (it.hasOwnProperty('containerStatus') && it['containerStatus']) {
           let containerStatus = it['containerStatus'];
