@@ -2410,13 +2410,13 @@ class Net extends NetBase {
       axios.get(url).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
-          if (content.hasOwnProperty('targetApplicationList')) {
-            resolve(content['targetApplicationList']);
+          if (content.hasOwnProperty('targetClientIdList')) {
+            resolve(content['targetClientIdList']);
           } else {
-            reject('获取被访问的应用列表失败！');
+            reject('获取被访问的ClientId列表失败！');
           }
         } else {
-          reject('获取被访问的应用列表失败！');
+          reject('获取被访问的ClientId列表失败！');
         }
       }).catch(err => {
         console.log(err);

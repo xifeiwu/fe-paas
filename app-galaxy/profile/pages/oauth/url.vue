@@ -4,11 +4,11 @@
       <el-col :span="0"></el-col>
       <el-col :span="24">
         <div class="item">
-          <label style="float: left; width: 100px; line-height: 26px">被访问的应用：</label>
+          <label style="float: left; width: 100px; line-height: 26px">ClientId：</label>
           <el-select filterable v-model="searchCondition.appID" placeholder="请选择"
                      style="display:block; max-width: 280px; margin-left: 100px;">
-            <el-option v-for="(item, index) in targetAppList"
-                       :key="item.targetApplicationId" :label="item.targetApplicationName" :value="item.targetApplicationId">
+            <el-option v-for="(item, index) in targetClientIdList"
+                       :key="item.targetUaaId" :label="item.targetClientId" :value="item.targetUaaId">
             </el-option>
           </el-select>
         </div>
@@ -38,16 +38,16 @@
               element-loading-text="加载中"
       >
         <el-table-column
-                prop="targetApplicationName"
-                label="被访问的应用"
-                max-width="200"
+                prop="supportClientId"
+                label="被申请的ClientId"
+                max-width="150"
                 headerAlign="center" align="center"
         >
         </el-table-column>
         <el-table-column
                 prop="profileName"
                 label="访问环境"
-                width="120"
+                width="100"
                 headerAlign="center" align="center"
         >
           <template slot-scope="scope">
@@ -57,7 +57,7 @@
         <el-table-column
                 prop="operatorName"
                 label="授权人"
-                width="120"
+                width="100"
                 headerAlign="center" align="center"
         >
         </el-table-column>
@@ -77,40 +77,57 @@
         </el-table-column>
         <el-table-column
                 prop="requestGroupName"
-                label="申请授权的团队 / 应用"
-                headerAlign="center" align="center"
-        >
+                label="申请授权的团队"
+                width="130"
+                headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column
+                prop="requestClientId"
+                label="申请授权的ClientId"
+                width="150"
+                headerAlign="center" align="center">
+        </el-table-column>
+
+        <el-table-column
+                prop="requestGroupName"
+                label="申请授权访问权限"
+                width="200"
+                headerAlign="center" align="center">
           <template slot-scope="scope">
-            <div>
-              <span>{{scope.row.requestGroupName}}</span>
-              <span style="color: #409EFF; font-weight: bold">/</span>
-              <span>{{scope.row.requestApplicationName}}</span>
+            <div v-if="scope.row.authorities != null">{{scope.row.authorities}}</div>
+            <div v-else>
+              <div v-if="scope.row.detailList.length==0">无</div>
+              <div v-if="scope.row.detailList.length<=2">
+                <div v-for="(item, index) in scope.row.detailList">
+                  {{item.oauth}}
+                </div>
+              </div>
+              <div v-else>
+                <div>{{scope.row.detailList[0].oauth}}</div>
+                <div>{{scope.row.detailList[1].oauth}}</div>
+                <el-tooltip slot="trigger" effect="dark" placement="bottom">
+                  <div slot="content">
+                    <div v-for="(item, index) in scope.row.detailList">
+                      {{item.oauth }}
+                    </div>
+                  </div>
+                  <div class="more">详情...</div>
+                </el-tooltip>
+              </div>
             </div>
           </template>
         </el-table-column>
-        <el-table-column
-                prop="requestGroupName"
-                label="授权访问权限"
-                headerAlign="center" align="center"
-        >
+
+        <el-table-column   prop="statusName"
+                           label="状态"
+                           width="80"
+                           headerAlign="center" align="center">
           <template slot-scope="scope">
-            <div v-if="scope.row.detailList.length==0">无</div>
-            <div v-if="scope.row.detailList.length<=2">
-              <div v-for="(item, index) in scope.row.detailList">
-                {{item.oauth}} <span style="color: #409EFF; font-weight: bold">/</span> {{item.resource}}
-              </div>
+            <div v-if="scope.row.status === 'AUTHORIZED' ">
+              <div><span style="color:green">{{scope.row.statusName}}</span></div>
             </div>
             <div v-else>
-              <div>{{scope.row.detailList[0].oauth}} <span style="color: #409EFF; font-weight: bold">/</span> {{scope.row.detailList[0].resource}}</div>
-              <div>{{scope.row.detailList[1].oauth}} <span style="color: #409EFF; font-weight: bold">/</span> {{scope.row.detailList[1].resource}}</div>
-              <el-tooltip slot="trigger" effect="dark" placement="bottom">
-                <div slot="content">
-                  <div v-for="(item, index) in scope.row.detailList">
-                    {{item.oauth }} <span style="color: #409EFF; font-weight: bold">/</span> {{ item.resource}}
-                  </div>
-                </div>
-                <div class="more">详情...</div>
-              </el-tooltip>
+              <div><span style="color:red">{{scope.row.statusName}}</span></div>
             </div>
           </template>
         </el-table-column>
@@ -121,21 +138,19 @@
                 headerAlign="center" align="center"
         >
           <template slot-scope="scope">
-            <el-button
-                    type="text"
-                    :loading="statusOfWaitingResponse('oauth_modify_authorize_url_list') && selected.row.id === scope.row.id"
-                    :class="[$storeHelper.permission['oauth_modify_authorize_url_list'].disabled ? 'disabled': 'warning']"
-                    @click="handleTRClick($event, 'oauth_modify_authorize_url_list', scope.$index, scope.row)">
-              授权配置
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    v-if="scope.row.enabled !== null"
-                    type="text"
-                    :class="[$storeHelper.permission['oauth_authorize_url_toggle_enable'].disabled ? 'disabled': 'primary']"
+            <!--<el-button-->
+                    <!--type="text"-->
+                    <!--:loading="statusOfWaitingResponse('oauth_modify_authorize_url_list') && selected.row.id === scope.row.id"-->
+                    <!--:class="[$storeHelper.permission['oauth_modify_authorize_url_list'].disabled ? 'disabled': 'warning']"-->
+                    <!--@click="handleTRClick($event, 'oauth_modify_authorize_url_list', scope.$index, scope.row)">-->
+              <!--授权配置-->
+            <!--</el-button>-->
+            <!--<div class="ant-divider"></div>-->
+            <el-button v-if="scope.row.status === 'REQUESTED'" type="text"
+                    :class="[$storeHelper.permission['oauth_modify_authorize_url_list'].disabled ? 'disabled': 'primary']"
                     :loading="statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
-                    @click="handleTRClick($event, 'oauth_authorize_url_toggle_enable', scope.$index, scope.row)">
-              {{scope.row.enabled?'禁用':'开启'}}
+                    @click="handleTRClick($event, 'effective_oauth_authorize_record', scope.$index, scope.row)">
+                    通过授权申请
             </el-button>
           </template>
         </el-table-column>
@@ -449,6 +464,7 @@
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
+        targetClientIdList:[]
       }
     },
     computed: {
@@ -508,20 +524,20 @@
         if (!groupID) {
           return;
         }
-        this.$net.oauthGetTargetAppList(groupID).then(appList => {
-          this.targetAppList = appList;
-          this.targetAppList.unshift({
-            targetApplicationId: this.$storeHelper.GROUP_ID_FOR_ALL,
-            targetApplicationName: '全部'
+        this.$net.oauthGetTargetAppList(groupID).then(targetClientIdList => {
+          this.targetClientIdList = targetClientIdList;
+          this.targetClientIdList.unshift({
+            targetUaaId: this.$storeHelper.GROUP_ID_FOR_ALL,
+            targetClientId: '全部'
           });
           this.searchCondition.appID = this.$storeHelper.GROUP_ID_FOR_ALL;
           this.currentPage = 1;
           this.requestAuthorizeUrlList();
         }).catch(err => {
           console.log(err);
-          this.targetAppList = [{
-            targetApplicationId: this.$storeHelper.GROUP_ID_FOR_ALL,
-            targetApplicationName: '全部'
+          this.targetClientIdList = [{
+            targetUaaId: this.$storeHelper.GROUP_ID_FOR_ALL,
+            targetClientId: '全部'
           }];
           this.searchCondition.appID = this.$storeHelper.GROUP_ID_FOR_ALL;
         });
@@ -641,6 +657,40 @@
                 });
               }
             }
+            break;
+            case 'effective_oauth_authorize_record':
+                let errMsg = '';
+                if(null == row.id){
+                    errMsg = '数据错误'
+                }
+                if(row.status != 'REQUESTED'){
+                    errMsg = '当前申请状态非已申请状态'
+                }
+
+                if (!errMsg) {
+                    this.$net.oauthModifyAuthorizeList(this.selected.row.id,{}).then(msg => {
+                        this.updateModelInfo('authorizeUrlList');
+                        this.$message.success(msg);
+                        this.requestAuthorizeUrlList();
+                    }).catch(msg => {
+                        this.selected.operation = null;
+                        this.$notify.error({
+                            title: '授权失败！',
+                            message: msg,
+                            duration: 0,
+                            onClose: function () {
+                            }
+                        });
+                    });
+                }else{
+                    this.$notify.error({
+                        title: '修改失败！',
+                        message: errMsg,
+                        duration: 0,
+                        onClose: function () {
+                        }
+                    });
+                }
             break;
         }
       },
@@ -812,10 +862,10 @@
         page = page >= 0 ? page : 0;
         let start = page * this.pageSize;
         let length = this.pageSize;
-        let targetAppID = this.searchCondition.appID;
+        let supportClientId = this.searchCondition.appID;
         let options = {
           targetGroupId: this.$storeHelper.currentGroupID,
-          targetApplicationId: targetAppID == this.$storeHelper.APP_ID_FOR_ALL ? '' : targetAppID,
+          supportClientId: supportClientId == this.$storeHelper.APP_ID_FOR_ALL ? '' : supportClientId,
           start: start,
           length: length,
         };

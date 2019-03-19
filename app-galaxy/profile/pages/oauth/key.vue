@@ -810,7 +810,7 @@ module.exports = {
 
       rulesForCreateAccessKey: {
         appID: [{
-          required: true,
+          required: false,
           message: '必须选择应用',
         }],
         production: [{
@@ -910,6 +910,7 @@ module.exports = {
     appListOfCurrentGroup() {
       let appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup;
       if (appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')) {
+        appInfoListOfGroup.appList.pop({appId:'',appName:'无'})
         return appInfoListOfGroup.appList;
       } else {
         return [];
@@ -992,7 +993,6 @@ module.exports = {
             uaaId: target.id
           }));
           this.$net.requestPaasServer({path:getOauthUrl,method:"get"}).then(content => {
-             console.log(content)
              if(Array.isArray(content) && content.length > 0){
                this.dataForSelectApp.oauthList = content;
                this.modifyAccessKeyInfo.targetOauthId = content[0].id;
@@ -1008,7 +1008,6 @@ module.exports = {
           });
           // set targetClientId
           this.modifyAccessKeyInfo.targetClientId = target.clientId;
-          console.log(this.modifyAccessKeyInfo.targetClientId);
         } else {
             this.modifyAccessKeyInfo.targetClientId = '';
         }
@@ -1344,7 +1343,6 @@ module.exports = {
      * trigger by watch: modifyAccessKeyInfo.appID, modifyAccessKeyInfo.targetAppID
      */
     isTargetAppOK() {
-      debugger
       let errMsg = '';
       let modifyAccessKeyInfo = this.modifyAccessKeyInfo;
 
@@ -1719,15 +1717,14 @@ module.exports = {
           break;
         case 'accessConfigList':
 //          let accessConfigList = this.newProps['accessConfigList'];
-          console.log("lalalala")
-          let targetAppList = this.modifyAccessKeyInfo.targetAppList;
+          let targetAuthInfoList = this.modifyAccessKeyInfo.targetAuthInfoList;
           let accessConfigDesc = [];
-          if (targetAppList.length > 0) {
-            accessConfigDesc = targetAppList.map(it => {
-              return `${it.targetGroupName} - ${it.targetApplicationName}，${it.status}`;
+          if (targetAuthInfoList.length > 0) {
+            accessConfigDesc = targetAuthInfoList.map(it => {
+              return `${it.targetGroupName} - ${it.targetOauth}，${it.status}`;
             });
           }
-          this.selected.row['accessConfigList'] = JSON.parse(JSON.stringify(targetAppList));
+          this.selected.row['accessConfigList'] = JSON.parse(JSON.stringify(targetAuthInfoList));
           this.selected.row['accessConfigDesc'] = JSON.parse(JSON.stringify(accessConfigDesc));
           if (!this.selected.row.myApp) {
             let app = this.$storeHelper.getAppByID(this.modifyAccessKeyInfo.appID);

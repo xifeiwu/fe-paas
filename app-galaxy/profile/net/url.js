@@ -250,8 +250,8 @@ class URL extends BaseURL {
         path: '/application/authorization/record/query'
       },
       'oauth_get_target_app_list': {
-        url: API_PATH + '/application/authorization/targetGroup/{id}/targetApplication',
-        path: '/application/authorization/targetGroup/{id}/targetApplication'
+        url: API_PATH + '/application/authorization/targetGroup/{id}/targetClientId',
+        path: '/application/authorization/targetGroup/{id}/targetClientId'
       },
       // 修改授权URL
       'oauth_modify_authorize_url_list': {
