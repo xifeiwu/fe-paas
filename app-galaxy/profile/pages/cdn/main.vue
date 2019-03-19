@@ -1,5 +1,5 @@
 <template>
-    <el-container style="height: 100%">
+    <div style="height: 100%">
         <el-aside width="0px" style="height: 100%">
             <div class="pa-3" style="border-right: 1px solid #eee;">
                 <strong>CDN加速服务</strong>
@@ -26,7 +26,7 @@
         <el-main class="pa-0" style="background-color: white; height: 100%;">
             <router-view></router-view>
         </el-main>
-    </el-container>
+    </div>
 </template>
 
 <script>

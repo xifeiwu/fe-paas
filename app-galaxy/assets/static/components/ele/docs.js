@@ -34,11 +34,6 @@ import Col from 'element-ui/packages/col/index.js';
 import Message from 'element-ui/packages/message/index.js';
 import Badge from 'element-ui/packages/badge/index.js';
 import Scrollbar from 'element-ui/packages/scrollbar/index.js';
-import Container from 'element-ui/packages/container/index.js';
-import Header from 'element-ui/packages/header/index.js';
-import Aside from 'element-ui/packages/aside/index.js';
-import Main from 'element-ui/packages/main/index.js';
-import Footer from 'element-ui/packages/footer/index.js';
 import Tree from 'element-ui/packages/tree/index.js';
 import Form from 'element-ui/packages/form/index.js';
 import FormItem from 'element-ui/packages/form-item/index.js';
@@ -77,11 +72,6 @@ const components = [
   Col,
   Badge,
   Scrollbar,
-  Container,
-  Header,
-  Aside,
-  Main,
-  Footer,
   Tree,
   Form,
   FormItem
