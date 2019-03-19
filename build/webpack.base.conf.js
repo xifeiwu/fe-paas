@@ -205,6 +205,9 @@ var baseConfig = {
       'window.browserDebug': [path.resolve(utils.contextPath(), 'assets/libs/debug/browser.js')],
       'browserDebug': [path.resolve(utils.contextPath(), 'assets/libs/debug/browser.js')],
     }),
+    new webpack.DefinePlugin({
+      'NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+    })
   ]),
   node: {
     // prevent webpack from injecting useless setImmediate polyfill because Vue

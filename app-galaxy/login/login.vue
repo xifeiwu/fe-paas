@@ -335,10 +335,15 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
 //        }
 
         // 3. judge by querystring ?to=/profile
-        const queryString = window.location.search.replace(/^\?/, '');
-        const queryObj = this.$utils.parseQueryString(queryString);
-        if (queryObj.hasOwnProperty('to')) {
-          toPath = queryObj['to'];
+//        const queryString = window.location.search.replace(/^\?/, '');
+//        const queryObj = this.$utils.parseQueryString(queryString);
+//        if (queryObj.hasOwnProperty('to')) {
+//          toPath = queryObj['to'];
+//        }
+        // 3. judge by hash
+        const hash = location.hash;
+        if (hash) {
+          toPath = hash.substr(1);
         }
 
         window.location.href = toPath;

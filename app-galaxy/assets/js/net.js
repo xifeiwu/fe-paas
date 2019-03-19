@@ -61,6 +61,7 @@ class Net {
 
     this.page = {
       'login': '/login',
+      'cas-login': '/cas-login',
       'profile': '/profile',
       'profile/app': '/profile/app',
       'profile/app/add': '/profile/app/add',
@@ -532,6 +533,17 @@ class Net {
         }
       });
     });
+  }
+
+  getCasServer() {
+    var casServer = 'http://cas.finupgroup.com/puhui-cas';
+    const serverMap = {
+      production: 'http://cas.info.production/puhui-cas',
+    };
+    if (serverMap.hasOwnProperty(NODE_ENV)) {
+      casServer = serverMap[NODE_ENV];
+    }
+    return casServer;
   }
 }
 

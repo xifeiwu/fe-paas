@@ -161,10 +161,11 @@
                     duration: 500,
                     onClose: () => {
                       this.$storeHelper.logout();
+                      const casServer = this.$net.getCasServer();
                       const pathName = window.location.pathname;
-                      const encodeURIComponent = it => it;
-                      const queryString = encodeURIComponent(`?to=${pathName}`);
-                      window.location.href = `${this.$net.page['login']}${queryString}`;
+                      const targetHref = `${this.$net.page['login']}#${pathName}`;
+//                      const targetHref = `${casServer}?service=${location.origin}${this.$net.page['cas-login']}#${pathName}`;
+                      window.location.href = targetHref;
                     }
                   });
                 };
