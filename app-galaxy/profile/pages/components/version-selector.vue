@@ -14,6 +14,10 @@
         </el-option>
       </el-select>
     </div>
+    <div class="item">
+      <label>运行实例数/总实例数:</label>
+      {{runningInfo === null ? "0 / 0" : runningInfo["status"] == null ? '0 / 0' : runningInfo["status"]["Running"] + " / " +runningInfo["status"]["Total"]}}
+    </div>
     <!--<div class="item" v-if="false">-->
       <!--<label>版本:</label>-->
       <!--<el-select filterable v-model="selectedServiceId" :placeholder="currentServiceList.length > 0 ? '请选择' : '当前运行环境下没有版本！'">-->
@@ -71,6 +75,7 @@
     },
     data() {
       return {
+        runningInfo: null,
         appList: [],
 
         selectedAppId: null,
@@ -114,6 +119,7 @@
         setTimeout(() => {
           this.selectedServiceId = this.DEFAULT_SERVICE_ID;
         });
+        this.requestServiceInfo(appId, profileId);
       },
 
       // update currentService when selectedServiceId is changed
@@ -321,6 +327,24 @@
           selectedProfile: this.selectedProfile,
           selectedService: this.selectedService
         }
+      },
+      async requestServiceInfo(appId, profileId) {
+        if (!appId || !profileId) {
+          console.log('appId or profileId can not be empty');
+          return;
+        }
+        let payload = {
+          appId: appId,
+          spaceId: profileId
+        };
+        this.$net.requestPaasServer(this.$net.URL_LIST.service_info_running, {payload}).then(resContent => {
+          this.runningInfo = null
+          if (resContent.hasOwnProperty("applicationConfigDeployment")) {
+            this.runningInfo = resContent["applicationConfigDeployment"];
+          }
+        }).catch(err => {
+          console.log(err)
+        });
       },
 
       /**

@@ -176,7 +176,26 @@
       </div>
       <div class="by-graphic">
         <div class="section request-statistic" v-for="(item, index) in requestStatisticList">
-          <div class="title">{{`${item.type === 'internet' ? '外网域名':'内网域名'} "${item.domain}" 请求数据统计`}}</div>
+          <div class="title">
+            {{`${item.type === 'internet' ? '外网域名':'内网域名'} "${item.domain}" 请求数据统计`}}
+            <el-date-picker
+                    style="display: inline-block; width: 340px;"
+                    size="mini"
+                    v-model="dateTimeRange"
+                    type="datetimerange"
+                    :picker-options="pickerOptions2"
+                    range-separator="至"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    align="right"
+                    :enableClose="false"
+            >
+            </el-date-picker>
+            <el-button
+                    size="mini-extral"
+                    type="primary"
+                    @click="handleButtonClick('search')">查询</el-button>
+          </div>
           <div class="content">
             <div class="loading" style="height: 240px; " v-if="item.loading">
               <div class="el-loading-mask" style="">
@@ -479,6 +498,7 @@
       }
     },
     mounted() {
+      this.setDefaultDateRange();
       try {
         let headerNode = this.$el.querySelector(':scope > .header');
         this.resizeListener = () => {
@@ -513,7 +533,42 @@
         isProductionProfile: null,
         intranetDomain: null,
         internetDomainList: [],
+        dateTimeRange: [],
         runningInfo: null,
+        pickerOptions2: {
+          shortcuts: [{
+            text: '最近两小时',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 2);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近四小时',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 4);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近十二小时',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 12);
+              picker.$emit('pick', [start, end]);
+            }
+          }],
+          disabledDate(time) {
+            const getDate = function(dt) {
+              return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+            };
+            const toDate = getDate(time);
+            return toDate > getDate(new Date());
+          },
+        },
         dnsState: {
           office: {
             status: true,
@@ -551,6 +606,22 @@
     watch: {
     },
     methods: {
+      // datetime-picker 赋默认值
+      setDefaultDateRange() {
+        const end = new Date();
+        const start = new Date();
+        start.setTime(start.getTime() - 1000 * 60 * 60 * 24);
+        this.dateTimeRange = [start, end];
+      },
+      onDateRangeChange(range) {
+      },
+      handleButtonClick(action) {
+        switch (action) {
+          case 'search':
+            this.requestServiceInfo(this.dataPassed.appId, this.dataPassed.profileId);
+            break;
+        }
+      },
       recoveryStatus() {
         this.runningInfo = null;
         this.serviceInfo = null;
@@ -612,7 +683,7 @@
       },
 
       // 获取请求统计数据
-      async getRequestStatistic(appId, profileId, intranetDomain, internetDomainList) {
+      async getRequestStatistic(appId, profileId, dateTimeRange, intranetDomain, internetDomainList) {
         this.requestStatisticList = [];
         // set default value for requestStatisticList
         if (intranetDomain) {
@@ -631,6 +702,12 @@
         try {
           var current = new Date().getTime();
           var start = current - 3600 * 1000 * 24;
+          var endTime = current
+          var startTime = start
+          if (dateTimeRange) {
+            endTime = dateTimeRange[1]
+            startTime = dateTimeRange[0]
+          }
           const resContent = await this.$net.requestPaasServer(Object.assign(
             this.$net.URL_LIST.service_info_request_statistic,
             {partial: true}
@@ -638,8 +715,8 @@
             payload: {
               appId: appId,
               spaceId: profileId,
-              endTime: this.$utils.formatDate(current, 'yyyy-MM-dd hh:mm:ss'),
-              startTime: this.$utils.formatDate(start, 'yyyy-MM-dd hh:mm:ss'),
+              endTime: this.$utils.formatDate(endTime, 'yyyy-MM-dd hh:mm:ss'),
+              startTime: this.$utils.formatDate(startTime, 'yyyy-MM-dd hh:mm:ss'),
               intranetDomain: intranetDomain,
               internetDomain: internetDomainList
             }
@@ -732,7 +809,7 @@
         this.intranetDomain = basicInfo["intranetDomain"];
         this.internetDomainList = basicInfo["internetDomain"];
 
-        this.getRequestStatistic(appId, profileId, this.intranetDomain, this.internetDomainList);
+        this.getRequestStatistic(appId, profileId, this.dateTimeRange, this.intranetDomain, this.internetDomainList);
       },
 
       handleSuccessCopy(evt) {
