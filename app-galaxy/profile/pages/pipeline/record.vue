@@ -111,7 +111,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <paas-dialog-for-log :showStatus="buildLogStatus" ref="dialogForBuildLog">
+    <paas-dialog-for-log :showStatus="buildLogStatus" ref="dialogForBuildLog" @close="handleDialogClose">
       <div slot="content">
         <div v-for="(item, index) in buildLogStatus.logList" :key="index" class="log-item" v-html="item"></div>
         <div class="log-item" v-if="buildLogStatus.loading"><i class="el-icon-loading"></i></div>
@@ -518,14 +518,14 @@
                 limit: true
               }
             });
-            hasMoreData = resContent.hasOwnProperty('hasMoreData') ? resContent['hasMoreData'] : false;
-            currentBufferSize = resContent.hasOwnProperty('currentBufferSize') ? resContent['currentBufferSize'] : 0;
-            await new Promise((resolve) => {
-              setTimeout(resolve, 2000);
-            });
             if (resContent.hasOwnProperty('consoleLog')) {
               logQueue = logQueue.concat(resContent['consoleLog'].split('\n'));
             }
+            await new Promise((resolve) => {
+              setTimeout(resolve, 2000);
+            });
+            hasMoreData = resContent.hasOwnProperty('hasMoreData') ? resContent['hasMoreData'] : false;
+            currentBufferSize = resContent.hasOwnProperty('currentBufferSize') ? resContent['currentBufferSize'] : 0;
           } catch (e) {
             break;
           }
@@ -625,10 +625,17 @@
                 this.buildLogStatus.title = `${this.dataPassed.pipelineName}-第${row['buildNumber']}次的构建日志`;
                 this.buildLogStatus.logList = resContent['consoleLog'].split('\n');
                 this.buildLogStatus.visible = true;
+                setTimeout(() => {
+                  this.$refs['dialogForBuildLog'].scrollToBottom();
+                },100);
               }
             }
             break;
         }
+      },
+
+      handleDialogClose() {
+        this.buildLogStatus.logList = [];
       }
     }
   }

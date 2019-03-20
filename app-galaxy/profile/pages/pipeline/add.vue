@@ -79,10 +79,10 @@
                       <codemirror v-model="formData.mvnPackage.script" :options="groovyOption"></codemirror>
                     </el-form-item>
                     <!--制作镜像-->
-                    <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'">
+                    <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'" prop="buildImage" :multiFields="true">
                       <el-select v-model="formData.buildImage.selectedImage" placeholder="请选择">
                         <el-option v-for="(item, index) in pipelineInfoFromNet['buildImage']['basicImage']"
-                                   :key="item" :label="item?item:'无'" :value="item">
+                                   :key="item" :value="item">
                         </el-option>
                       </el-select>
                     </el-form-item>
@@ -504,10 +504,10 @@
           appId: this.formData.appId
         }
       });
-      if (pipelineInfoFromNet.hasOwnProperty('buildImage') && Array.isArray(pipelineInfoFromNet['buildImage']['basicImage'])) {
-        // 可以不选择基础镜像
-        pipelineInfoFromNet['buildImage']['basicImage'].unshift('');
-      }
+      // if (pipelineInfoFromNet.hasOwnProperty('buildImage') && Array.isArray(pipelineInfoFromNet['buildImage']['basicImage'])) {
+      //   // 可以不选择基础镜像
+      //   pipelineInfoFromNet['buildImage']['basicImage'].unshift('');
+      // }
       ['deployTestEnv', 'deployBetaEnv'].forEach(stage => {
         var applicationConfig = null;
         if (pipelineInfoFromNet.hasOwnProperty(stage) && pipelineInfoFromNet[stage]['applicationConfig']) {
@@ -730,6 +730,18 @@
             fields: {
               // noticeEmails
             }
+          },
+          buildImage: {
+            type: 'object',
+            required: true,
+            trigger: ['blur', 'change'],
+            fields: {
+              selectedImage: [{
+                type: 'string',
+                required: true,
+                message: '请选择基础镜像',
+              }]
+            },
           }
         },
         emailProps: {
@@ -856,13 +868,13 @@
             })
         });
 
-        const validatorForSonarCheck = function(rule, values, callback) {
+        const validatorForUnitTestSelected = function(rule, values, callback) {
           values = parseInt(values.trim());
           var passed = false;
 //          if (!values) {
 //            passed = true;
 //          } else
-          if (/^[0-9]+$/.exec(values) && (values > 0 && values < 100)) {
+          if (/^[0-9]+$/.exec(values) && (values > 0 && values <= 100)) {
             passed = true;
           }
           if (passed) {
@@ -872,20 +884,36 @@
           }
         };
 
+        const validatorForCodeDebtSelected = function (rule, values, callback) {
+          values = parseInt(values.trim());
+          var passed = false;
+          if (/^[0-9]+$/.exec(values) && (values >= 0)) {
+            passed = true;
+          }
+          if (passed)  {
+            callback();
+          } else {
+            callback('请填写大于0的数字');
+          }
+        };
+
         // fix rules for sonarCheck
         // sonarCheck可以不填，如果填写，格式必须正确
         const sonarCheck = this.formData['sonarCheck'];
         const sonarCheckRules = this.formDataRules['sonarCheck']['fields'];
+        if (!this.formData.sonarCheck.selected) {
+          sonarCheckRules.projectKeyWord[0].required = false;
+        }
         if (sonarCheck.codeDebtSelected) {
           sonarCheckRules['codeDebt'] = [{
-            validator: validatorForSonarCheck
+            validator: validatorForCodeDebtSelected
           }]
         } else {
           delete sonarCheckRules['codeDebt']
         }
         if (sonarCheck.unitTestSelected) {
           sonarCheckRules['unitTestRatio'] = [{
-            validator: validatorForSonarCheck
+            validator: validatorForUnitTestSelected
           }]
         } else {
           delete sonarCheckRules['unitTestRatio']
@@ -984,6 +1012,9 @@
                   stageChangeStatus.reason = `当前应用无"${profileNameMap[this.currentStage.name]}"服务，无法添加结点"${this.currentStage.description}"`;
                 }
                 break;
+              case 'sonarCheck':
+                this.formDataRules.sonarCheck.fields.projectKeyWord[0].required = true;
+                break;
             }
             if (stageChangeStatus.success) {
               this.currentStage['selected'] = true;
@@ -1002,6 +1033,7 @@
                 this.formData.sonarCheck.codeDebt = '';
                 this.formData.sonarCheck.unitTestSelected = false;
                 this.formData.sonarCheck.unitTestRatio = '';
+                this.formDataRules.sonarCheck.fields.projectKeyWord[0].required = false;
                 break;
               case 'mvnPackage':
                 this.stages.forEach(it => {
@@ -1009,6 +1041,18 @@
                     it['selected'] = false;
                   }
                 });
+                this.formData.buildImage.selected = false;
+                this.formData.deployTestEnv.selected = false;
+                this.formData.deployBetaEnv.selected = false;
+                break;
+              case 'buildImage':
+                this.stages.forEach(it => {
+                  if (['deployTestEnv', 'deployBetaEnv'].indexOf(it['name']) > -1) {
+                    it['selected'] = false;
+                  }
+                });
+                this.formData.deployBetaEnv.selected = false;
+                this.formData.deployTestEnv.selected = false;
                 break;
             }
             this.currentStage['selected'] = false;
@@ -1021,7 +1065,6 @@
 //            console.log(this.formData);
             const basicInfoForm = this.$refs['basic-info-form'];
             const configInfoForm = this.$refs['config-info-form'];
-
             this.updateFormDataRules();
 //            console.log(this.formDataRules);
             var validator = new AsyncValidator(this.formDataRules);
@@ -1037,7 +1080,7 @@
                 }
 //                console.log(firstFields);
                 // sonar及单元测试，打包，自动化测试
-                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'autoScript', 'sonarCheck'];
+                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'buildImage', 'autoScript', 'sonarCheck'];
                 if (pipelineStageList.indexOf(firstFields) > -1) {
                   this.setActiveStageByName(firstFields);
                   this.$nextTick(() => {
@@ -1049,6 +1092,12 @@
                   basicInfoForm.validate(() => {});
                 }
               } else {
+                if (this.formData.sonarCheck.selected) {
+                  if (!this.formData.sonarCheck.unitTestSelected && !this.formData.sonarCheck.codeDebtSelected) {
+                    this.$message.error(`若选择Sonar数据检查,则至少要选择一个检查项`);
+                    return;
+                  }
+                }
                 if ('take-effect' === action) {
                   await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_take_effect, {
                     payload: this.formData
