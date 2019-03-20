@@ -14,7 +14,7 @@
         </el-option>
       </el-select>
     </div>
-    <div class="item">
+    <div class="item" v-if="customConfig.showInstance">
       <label>运行实例数/总实例数:</label>
       {{runningInfo === null ? "0 / 0" : runningInfo["status"] == null ? '0 / 0' : runningInfo["status"]["Running"] + " / " +runningInfo["status"]["Total"]}}
     </div>
