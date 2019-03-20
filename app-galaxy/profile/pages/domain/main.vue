@@ -639,6 +639,12 @@
           tip: ''
         },
 
+        // 作为paas-service-selector的定制状态
+        dialogCustomConfig: {
+          appId: null,
+          profileId: null,
+        },
+
         appInfo: null,
         profileInfo: null,
         serviceInfo: null,
@@ -681,17 +687,6 @@
     computed: {
       currentGroupID() {
         return this.$storeHelper.currentGroupID;
-      },
-      dialogCustomConfig() {
-        let customConfig = {};
-        if (this.profileInfo) {
-          customConfig["profileId"] = this.profileInfo.id;
-        }
-        if (this.appInfo) {
-          customConfig["appId"] = this.appInfo.appId;
-        }
-        console.log(customConfig);
-        return customConfig;
       }
     },
     watch: {
@@ -965,6 +960,8 @@
               this.$message.warning('请先选择要操作的域名');
               return;
             }
+            this.dialogCustomConfig.appId = this.appInfo.appId;
+            this.dialogCustomConfig.profileId = this.rowsSelected[0]['spaceId'];
             this.selected.action = 'bind-service';
             break;
           case 'domain_unbind_service':

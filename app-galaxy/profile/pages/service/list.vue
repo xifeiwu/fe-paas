@@ -102,7 +102,7 @@
               <el-button
                       size="small"
                       type="text"
-                      :loading="statusOfWaitingResponse('service_stop')"
+                      :loading="statusOfWaitingResponse('service_stop') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_stop', scope.$index, scope.row)"
                       :class="$storeHelper.permission['service_stop'].disabled || scope.row.containerStatus.Total == 0 ? 'disabled' : 'danger'">
                 停止
@@ -111,7 +111,7 @@
               <el-button
                       size="small"
                       type="text"
-                      :loading="statusOfWaitingResponse('service_delete')"
+                      :loading="statusOfWaitingResponse('service_delete') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_delete', scope.$index, scope.row)"
                       :class="$storeHelper.permission['service_delete'].disabled ? 'disabled' : 'danger'">
                 删除
