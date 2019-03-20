@@ -270,19 +270,19 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
         focusableElesInForm: []
       };
     },
-    created: function () {
+    created () {
       this.pathName = location.pathname.substr(1);
       const version = '1.2';
       if (this.$storeHelper.version != version) {
 //        this.$storeHelper.version = version
       }
     },
-    mounted: function () {
+    async mounted () {
       // jump to destination page when token is found
-      if (this.$storeHelper.getUserInfo('token')) {
-        this.pageJump();
-        return;
-      }
+//      if (this.$storeHelper.getUserInfo('token')) {
+//        this.pageJump();
+//        return;
+//      }
       if (this.pathName === 'paas-login') {
         this.updateVerifyCode();
         // logic for form focus
@@ -305,9 +305,19 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
           return;
         }
         this.showLoading = true;
-        setTimeout(() => {
+        try {
+          const casInfo = await this.$net.requestAssistServer(this.$net.URL_LIST.cas_validate, {
+            payload: {
+              service: `${location.origin}${location.pathname}?to=${queryObj.to}`,
+              ticket: queryObj['ticket']
+            }
+          });
+          console.log(JSON.stringify(casInfo));
           this.pageJump();
-        }, 1000);
+        } catch(err) {
+          console.log(err);
+          this.$message.error('登录失败');
+        }
       }
     },
     methods: {
@@ -342,6 +352,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       },
 
       pageJump() {
+//        return;
         // 1. go to profile by default
         var toPath = this.$net.page['profile'];
 

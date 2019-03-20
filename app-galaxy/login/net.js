@@ -28,7 +28,18 @@ class Net extends NetBase {
       let item = PAAS_URL_LIST[key];
       item.path = this.PAAS_PREFIX + item.path;
     });
-    this.URL_LIST = Object.assign(PAAS_URL_LIST);
+    const ASSIST_URL_LIST = {
+      cas_validate: {
+        path: '/api/cas/service-validate',
+        method: 'post'
+      }
+    };
+    Object.keys(ASSIST_URL_LIST).forEach(key => {
+      let item = ASSIST_URL_LIST[key];
+      item.path = this.ASSIST_PREFIX + item.path;
+    });
+
+    this.URL_LIST = Object.assign(PAAS_URL_LIST, ASSIST_URL_LIST);
   }
 
   parseLoginResponse (content) {

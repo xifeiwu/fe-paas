@@ -401,7 +401,7 @@ class Net {
           token: Vue.prototype.$storeHelper.getUserInfo('token')
         }
       });
-      let resData = response.data;
+      const resData = response.data;
       if (this.isResponseSuccess(resData)) {
         // add more info of response to result
         const moreInfo = withTimeStamp || withCode;
@@ -446,17 +446,31 @@ class Net {
     }
   }
 
-  async requestAssistServer({path, method}, options = {}) {
+  async requestAssistServer({path, method, partial = false, withTimeStamp = false, withCode=false}, options = {}) {
     try {
+      if (!partial) {
+        this.addToRequestingRrlList(path);
+      }
       const response = await this.getResponse({path, method}, options, {
         timeout: 15000,
         headers: {
           token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJmZS1wYWFzIiwiaWF0IjoxNTM1ODE0NzU2LCJleHAiOjE1NjczNTA3NTZ9.Kua5fOfg7KJ5xOU08ImvcWdSfJnZpdHATQ_uwCW1nAI'
         }
       });
-      let resData = response.data;
+      const resData = response.data;
       if (this.isResponseSuccess(resData)) {
-        return resData.content;
+        // add more info of response to result
+        const moreInfo = withTimeStamp || withCode;
+        if (moreInfo) {
+          const result = {
+            content: resData.content,
+          };
+          withTimeStamp && (result['timeStamp'] = parseInt(resData.t));
+          withCode && (result['code'] = resData.code);
+          return result
+        } else {
+          return resData.content;
+        }
       } else {
         const err = {
           code: resData.code,
@@ -476,6 +490,8 @@ class Net {
       }
       this.showError(error);
       return Promise.reject(error);
+    } finally {
+      this.removeFromRequestingRrlList(path);
     }
   }
   /**
