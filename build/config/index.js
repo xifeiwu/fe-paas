@@ -12,27 +12,6 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'assets',
     assetsPublicPath: '/',
-    proxyTable: {
-      '/j-api/paas/': {
-        target: 'http://10.10.202.143:30334',
-        changeOrigin: true,
-        logLevel: 'debug',
-        pathRewrite: path => path.replace('\/j-api\/paas\/', '\/'),
-      },
-      '/n-api/assist': {
-        target: 'http://10.10.80.242:6002',
-        changeOrigin: true,
-        logLevel: 'debug',
-        pathRewrite: path => path.replace('\/n-api\/assist\/', ''),
-      },
-      '/n-api/': {
-        target: 'http://127.0.0.1:6003',
-        changeOrigin: true,
-        logLevel: 'debug',
-        pathRewrite: path => path.replace('\/n-api', ''),
-      },
-    },
-
     // Various Dev Server settings
     host: '0.0.0.0', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined

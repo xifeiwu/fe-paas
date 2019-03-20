@@ -47,7 +47,26 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       ? { warnings: false, errors: true }
       : false,
     publicPath: config.dev.assetsPublicPath,
-    proxy: config.dev.proxyTable,
+    proxy: {
+      '/j-api/paas/': {
+        target: 'http://10.10.202.143:30334',
+        changeOrigin: true,
+        logLevel: 'debug',
+        pathRewrite: path => path.replace('\/j-api\/paas', ''),
+      },
+      '/n-api/assist': {
+        target: 'http://10.10.80.242:6002',
+        changeOrigin: true,
+        logLevel: 'debug',
+        pathRewrite: path => path.replace('\/n-api\/assist', ''),
+      },
+      '/n-api/': {
+        target: 'http://127.0.0.1:6003',
+        changeOrigin: true,
+        logLevel: 'debug',
+        pathRewrite: path => path.replace('\/n-api', ''),
+      },
+    },
     quiet: true, // necessary for FriendlyErrorsPlugin
     watchOptions: {
       poll: config.dev.poll,
