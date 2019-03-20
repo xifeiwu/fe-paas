@@ -1,7 +1,7 @@
 <template>
-  <el-container id="index" direction="vertical">
+  <div class="container" id="index">
     <paas-header @menu-click="handleClickOnPassHeader"></paas-header>
-    <el-main>
+    <div class="main">
       <section class="poster">
         <img src="/assets/imgs/index/poster.png">
         <div class="description">
@@ -106,9 +106,8 @@
           </div>
         </div>
       </section>
-    </el-main>
-    <el-footer height="0px"></el-footer>
-  </el-container>
+    </div>
+  </div>
 </template>
 <style lang="scss" scoped>
 $header-height: 60px;
@@ -116,12 +115,17 @@ $header-background-color: #e7e7e7;
 $aside-width: 180px;
 $menu-font-size: 16px;
 $menu-height: 45px;
-#index.el-container {
+#index.container {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   .pass-header {
     margin-bottom: 10px;
   }
-  .el-main {
+  .main {
+    flex: 1;
+    overflow: auto;
+    box-sizing: border-box;
     padding: 0px;
     section.poster {
       position: relative;
