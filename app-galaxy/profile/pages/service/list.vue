@@ -82,7 +82,7 @@
                       size="small"
                       type="text"
                       :loading="statusOfWaitingResponse('service_deploy') && action.row.appId == scope.row.appId"
-                      @click="handleTRClick($event, 'service_deploy', scope.$index, scope.row)"
+                      @click="confirmDeploy($event, 'service_deploy', scope.$index, scope.row)"
                       :class="$storeHelper.permission['service_deploy'].disabled ? 'disabled' : 'danger'">
                     {{statusOfWaitingResponse('deploy') && action.row.appId == scope.row.appId ? '部署中': '部署'}}
               </el-button>
@@ -250,6 +250,28 @@
         </div>
       </div>
     </el-dialog>
+
+    <el-dialog title="提示" :visible="showConfirmDeployDialog"
+               class="confirm-deploy"
+               width="40%"
+               :close-on-click-modal="false"
+               @close="showConfirmDeployDialog = false"
+    >
+      <div class="el-message-box__status el-icon-warning" style="padding-bottom: 27px;"></div>
+      <div class="el-message-box__message">
+        <p>您确认要部署{{serviceDesc}}吗?</p>
+        <el-checkbox v-model="forceClone">强制清空打包目录（删除所有源代码、包文件等）</el-checkbox>
+      </div>
+
+      <span slot="footer" class="el-message-box__btns">
+        <el-button type="primary"
+                   @click="handleDeployClick()"
+                   :loading="waitingResponse">确&nbsp认</el-button>
+        <el-button action="profile-dialog/cancel"
+                   @click="showConfirmDeployDialog = false">取&nbsp消</el-button>
+      </span>
+    </el-dialog>
+
     <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="content">
         <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
@@ -354,6 +376,43 @@
       .success {
         color: #67C23A;
         font-weight: bold;
+      }
+    }
+    > .confirm-deploy {
+      .el-dialog {
+        display: inline-block;
+        vertical-align: middle;
+        background-color: #fff;
+        border-radius: 4px;
+        border: 1px solid #e6ebf5;
+        font-size: 18px;
+        box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+        text-align: left;
+        overflow: hidden;
+        backface-visibility: hidden;
+        box-sizing: border-box;
+      }
+      .el-dialog__header {
+        position: relative;
+        padding: 15px 15px 5px;
+        background-color: #fff;
+        .el-dialog__title {
+          padding-left: 0;
+          margin-bottom: 0;
+          font-size: 18px;
+          line-height: 1;
+          color: #2d2f33;
+         }
+      }
+      .el-dialog__body {
+        position: relative;
+        padding: 10px 15px;
+        color: #5a5e66;
+        font-size: 14px;
+      }
+      .el-dialog__footer {
+        border-top: none;
+        margin-top: 0;
       }
     }
   }
@@ -495,6 +554,7 @@
         },
 
         action: {
+          evt: null,
           name: null,
           row: null
         },
@@ -517,6 +577,9 @@
           // 校验规则：域名数组（大于一个小于五个，无域名后缀）
           errMsgForDomainList: ''
         },
+        showConfirmDeployDialog: false,
+        forceClone: false,
+        serviceDesc: '',
       }
     },
     methods: {
@@ -861,20 +924,20 @@
           }
         };
 
-        const desc = this.getVersionDescription();
-
-        var warningMsg = `您确认要部署${desc}吗?`;
-        if (type == 'quick_deploy') {
-          warningMsg = `<p>您确认要重启${desc}吗?</p><p style="color: #E6A23C; font-size: 12px;">(重启：采用最近一次部署成功的镜像进行服务的重新启动，跳过代码编译、镜像生成阶段)</p>`;
-        }
-        const urlDesc = type == 'quick_deploy' ? this.$net.URL_LIST.service_quick_deploy : this.$net.URL_LIST.service_deploy;
+        // const desc = this.getVersionDescription();
+        // this.serviceDesc = desc;
+        // var warningMsg = `您确认要部署${desc}吗?`;
+        // if (type == 'quick_deploy') {
+        //   warningMsg = `<p>您确认要重启${desc}吗?</p><p style="color: #E6A23C; font-size: 12px;">(重启：采用最近一次部署成功的镜像进行服务的重新启动，跳过代码编译、镜像生成阶段)</p>`;
+        // }
         //      await this.warningConfirm(warningMsg);
-        await this.$confirm(warningMsg, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-          dangerouslyUseHTMLString: true
-        });
+        // await this.$confirm(warningMsg, '提示', {
+        //   confirmButtonText: '确定',
+        //   cancelButtonText: '取消',
+        //   type: 'warning',
+        //   dangerouslyUseHTMLString: true
+        // });
+        const urlDesc = type == 'quick_deploy' ? this.$net.URL_LIST.service_quick_deploy : this.$net.URL_LIST.service_deploy;
         const resContent = await this.$net.requestPaasServer(urlDesc, {
           payload
         });
@@ -940,6 +1003,19 @@
             message: '未找到orchestration'
           })
         }
+      },
+
+      confirmDeploy(evt, action, index, row) {
+        this.showConfirmDeployDialog = true;
+        this.action.evt = evt;
+        this.action.name = action;
+        this.action.row = row;
+        this.serviceDesc = this.getVersionDescription();
+      },
+
+      handleDeployClick() {
+        this.handleTRClick(this.action.evt, this.action.name, this.action.row.index, this.action.row);
+        this.showConfirmDeployDialog = false;
       },
 
       async handleTRClick(evt, action, index, row) {
@@ -1018,6 +1094,7 @@
                 id: row.id,
                 appId: row.appId,
                 spaceId: this.profileInfo.id,
+                forceClone: this.forceClone,
               }, action);
             } catch (err) {
               console.log(err);

@@ -41,6 +41,12 @@ class URL extends BaseURL {
         method: 'get'
       },
 
+      // 获取团队成员
+      'users_in_group': {
+          url: API_PATH + '/group/users',
+          path: '/group/users',
+          method: 'post'
+      },
       /** 全局相关 */
       // 获取所有用户列表
       'users_all': {

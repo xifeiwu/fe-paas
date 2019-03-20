@@ -67,6 +67,8 @@
         </el-table-column>
         <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="120">
         </el-table-column>
+        <el-table-column label="维护者" prop="maintainer" headerAlign="center" align="center" width="120">
+        </el-table-column>
         <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="160">
           <template slot-scope="scope">
             <div v-if="Array.isArray(scope.row.createTime)">
