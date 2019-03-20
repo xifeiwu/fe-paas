@@ -315,6 +315,7 @@
           appId: data['appId'],
           profileId: data['profileId'],
           serviceId: data['serviceId'],
+          showInstance: true
         };
         this.$storeHelper.dataTransfer = null;
         this.$store.dispatch('user/config', {
@@ -331,6 +332,7 @@
               appId: instanceConfig['appId'],
               profileId: instanceConfig['profileId'],
               serviceId: instanceConfig['serviceId'],
+              showInstance: true
             }
           }
         }
