@@ -281,6 +281,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       // jump to destination page when token is found
       if (this.$storeHelper.getUserInfo('token')) {
         this.pageJump();
+        return;
       }
       if (this.pathName === 'paas-login') {
         this.updateVerifyCode();
@@ -296,6 +297,13 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
         // code-writter effect
         backgroundEffectOfCodeWriter(this.$el.querySelector('.main .writting-code pre code'));
       } else if (this.pathName === 'cas-login') {
+        const queryString = window.location.search.replace(/^\?/, '');
+        const queryObj = this.$utils.parseQueryString(queryString);
+        // check if the url is validate
+        if (!queryObj.hasOwnProperty('ticket')) {
+          window.location.href = this.$net.getCasLoginUrl();
+          return;
+        }
         this.showLoading = true;
         setTimeout(() => {
           this.pageJump();
