@@ -848,7 +848,7 @@ module.exports = {
       },
       rulesForAccessConfig: {
         appID: [{
-          required: true,
+          required: false,
           message: '应用不能为空',
         }],
         production: [{
@@ -993,6 +993,8 @@ module.exports = {
             uaaId: target.id
           }));
           this.$net.requestPaasServer({path:getOauthUrl,method:"get"}).then(content => {
+             debugger
+             console.log(content)
              if(Array.isArray(content) && content.length > 0){
                this.dataForSelectApp.oauthList = content;
                this.modifyAccessKeyInfo.targetOauthId = content[0].id;
@@ -1020,11 +1022,11 @@ module.exports = {
         if(oauthList && Array.isArray(oauthList)){
             let target = null;
             oauthList.some(o=>{
-               target = (o.id=oauthId)?o:null;
+               target = (o.id === oauthId)?o:null;
             });
+
             if(null != target && target.oauth){
-               this.modifyAccessKeyInfo.targetOauth = target.oauth;
-                console.log(this.modifyAccessKeyInfo.targetOauth);
+               this.modifyAccessKeyInfo.targetOauth = target.oauth
             }
         }else{
             this.modifyAccessKeyInfo.targetOauth = '';
