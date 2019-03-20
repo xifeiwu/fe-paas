@@ -23,6 +23,14 @@
       <el-form-item label="团队" class="group-list" v-else>
         <span>{{$storeHelper.groupInfo.asLabel}}</span>
       </el-form-item>
+
+      <el-form-item label="维护者" prop="maintainerId" class="group-list">
+        <el-select v-model="createAppForm.maintainerId" placeholder="请选择" filterable>
+          <el-option v-for="item in groupUsers" :key="item.id" :label="item.realName + ' ( ' + item.jobDescription + ' ) '" :value="item.userId">
+          </el-option>
+        </el-select>
+      </el-form-item>
+
       <el-form-item label="所属LOB" prop="lobId" class="lob" v-if="true">
         <el-select v-model="createAppForm.lobId" placeholder="请选择" filterable>
           <el-option v-for="item in lobList" :key="item.id" :label="item.lobName" :value="item.id">
@@ -411,6 +419,8 @@ export default {
           this.createAppForm.appName = data['appName'];
           this.createAppForm.projectName = data['projectName'];
           this.createAppForm.serviceName = data['serviceName'];
+          this.createAppForm.maintainerId = data['maintainerId'];
+          this.createAppForm.maintainer = data['maintainer'];
           // the follow prop is set in watch function
           this.propsUsed.language = false;
           this.propsUsed.languageVersion = false;
@@ -447,6 +457,17 @@ export default {
     } else {
       this.onLobInfo(this.$storeHelper.lobInfo);
     }
+    this.$net.getUsersInGroup({id: this.$storeHelper.currentGroupID}).then(memberList => {
+      this.groupUsers = memberList;
+      if (!this.forModify) {
+        this.groupUsers.forEach( member => {
+          if (member.jobName.includes("TECH_LEADER")) {
+            this.createAppForm.maintainer = member.realName;
+            this.createAppForm.maintainerId = member.userId;
+          }
+        });
+      }
+    });
   },
   data() {
     return {
@@ -473,6 +494,8 @@ export default {
         serviceName: '',
         language: '',
         languageVersion: '',
+        maintainerId: '',
+        maintainer: '',
 //         packageInfo: {
 //           _type: '',
 //           _name: '',
@@ -529,7 +552,7 @@ export default {
         versionList: [],
         // packageTypeList: []
       },
-
+      groupUsers: [],
       showLoading: false,
       loadingText: '',
     };
@@ -562,6 +585,14 @@ export default {
     '$storeHelper.lobInfo': 'onLobInfo',
     '$storeHelper.currentGroupID': function (groupID) {
       this.createAppForm.groupID = groupID;
+      this.$net.getUsersInGroup({id: groupID}).then(memberList => {
+        console.log(memberList);
+        this.groupUsers = memberList;
+        if (!this.forModify) {
+          this.createAppForm.maintainer = '';
+          this.createAppForm.maintainerId = '';
+        }
+      });
     },
     'createAppForm.language': 'onLanguageTypeChange',
     // 'createAppForm.languageVersion': 'onLanguageVersionChange',
@@ -820,6 +851,7 @@ export default {
               language: createAppForm.language,
               languageVersion: createAppForm.languageVersion,
               spaceList: createAppForm.profiles,
+              maintainerId: createAppForm.maintainerId,
 //                packageType: createAppForm.packageInfo.type,
 //                buildName: createAppForm.packageInfo.name,
 //                initialDelaySeconds: createAppForm.initialDelaySeconds,

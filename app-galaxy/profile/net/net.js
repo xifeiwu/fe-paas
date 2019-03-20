@@ -974,6 +974,45 @@ class Net extends NetBase {
     });
   }
 
+  getUsersInGroup(data) {
+      return new Promise((resolve, reject) => {
+          axios.post(URL_LIST.users_in_group.url, data).then(response => {
+              let content = this.getResponseContent(response);
+              if (content && content.hasOwnProperty('groupUserList')) {
+                  let userList = content['groupUserList'];
+                  // add prop jobs to each user
+                  userList.forEach(user => {
+                      if (user.hasOwnProperty('jobName') && user.hasOwnProperty('jobDescription')) {
+                          let names = user['jobName'].split(',');
+                          let descriptions = user['jobDescription'].split(',');
+                          user.jobNames = names;
+                          user.jobDescriptions = descriptions;
+                          if (names.length === descriptions.length) {
+                              user.jobs = [];
+                              names.forEach((it, index) => {
+                                  user.jobs.push({
+                                      name: it,
+                                      desc: descriptions[index]
+                                  })
+                              });
+                          } else {
+                              console.log('length of name and description is different');
+                          }
+                      } else {
+                          console.log('jobName or jobDescription is not found!');
+                      }
+                  });
+                  resolve(userList);
+              } else {
+                  reject([]);
+              }
+          }).catch(err => {
+              console.log(err);
+              reject(err);
+          })
+      })
+  }
+
   //通过lob获取scrum列表
   getScrumByLobId(options) {
     return new Promise((resolve, reject) => {
@@ -1154,6 +1193,8 @@ class Net extends NetBase {
         serviceName: app.serviceName,
         userName: app.userName,
         creator: app.creator,
+        maintainer: app.maintainer,
+        maintainerId: app.maintainerId,
         createTime,
         language,
         packageType: app.packageType,
@@ -1164,7 +1205,7 @@ class Net extends NetBase {
     });
     result.appModelList = result.appList.map(app => {
       var result = {};
-      ['appId', 'appName', 'projectName', 'serviceName', 'creator', 'userName', 'createTime', 'language', 'packageType', 'lobId', 'scrumId'].forEach(key => {
+      ['appId', 'appName', 'projectName', 'serviceName', 'creator', 'maintainer', 'maintainerId', 'userName', 'createTime', 'language', 'packageType', 'lobId', 'scrumId'].forEach(key => {
         result[key] = app[key];
       });
       return result;
@@ -1381,6 +1422,9 @@ class Net extends NetBase {
           environments: JSON.parse(JSON.stringify(service.environments)),
           hosts: JSON.parse(JSON.stringify(service.hosts)),
           prestopCommand: service.prestopCommand,
+          // image: JSON.parse(JSON.stringify(service.image))
+          customImage: service.image.customImage,
+          imageLocation: service.image.location,
           rollingUpdate: service.rollingUpdate,
           loadBalance: service.loadBalance,
           gitLabAddress: service.gitLabAddress,
@@ -1536,6 +1580,12 @@ class Net extends NetBase {
     !serviceList && resContent.hasOwnProperty('applicationServiceList') && (serviceList = resContent['applicationServiceList']);
     if (serviceList) {
       Array.isArray(serviceList) && serviceList.forEach(it => {
+        it.image = {
+          customImage: null == it.customImage ? false : it.customImage,
+          typeName: appInfoHelper.getImageNameById(it.customImage),
+          location: it.image,
+        };
+
         if (!it.volume) {
           it.volume = '';
         }

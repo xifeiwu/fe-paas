@@ -34,7 +34,7 @@
                     type="text"
                     style="font-size: 14px;"
                     :class="[$storeHelper.permission['work-order_deploy_service'].disabled ? 'disabled' : 'warning']"
-                    @click="handleRowButtonClick($event, 'work-order_deploy_service', scope.$index, scope.row)"
+                    @click="confirmDeploy($event, 'work-order_deploy_service', scope.$index, scope.row)"
             >部署</el-button>
             <el-button v-if="false"
                     type="text"
@@ -92,11 +92,67 @@
     <el-form-item label="工单状态">
       <span>{{workOrderDetail.statusName}}</span>
     </el-form-item>
+
+    <el-dialog title="提示" :visible="showConfirmDeployDialog"
+               width="40%"
+               class="confirm-deploy"
+               :close-on-click-modal="false"
+               @close="showConfirmDeployDialog = false"
+    >
+      <div class="el-message-box__status el-icon-warning" style="padding-bottom: 27px;"></div>
+      <div class="el-message-box__message">
+        <p>您确认要部署吗?</p>
+        <el-checkbox v-model="forceClone">强制清空打包目录（删除所有源代码、包文件等）</el-checkbox>
+      </div>
+      <span slot="footer" class="el-message-box__btns">
+      <el-button type="primary"
+                 @click="handleDeployClick">确&nbsp认</el-button>
+      <el-button action="profile-dialog/cancel"
+                 @click="showConfirmDeployDialog = false">取&nbsp消</el-button>
+    </span>
+    </el-dialog>
   </el-form>
 </template>
 
 <style lang="scss">
   .el-form.work-order-detail {
+    .confirm-deploy {
+      .el-dialog {
+        display: inline-block;
+        vertical-align: middle;
+        background-color: #fff;
+        border-radius: 4px;
+        border: 1px solid #e6ebf5;
+        font-size: 18px;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+        text-align: left;
+        overflow: hidden;
+        backface-visibility: hidden;
+        box-sizing: border-box;
+      }
+      .el-dialog__header {
+        position: relative;
+        padding: 15px 15px 5px;
+        background-color: #fff;
+        .el-dialog__title {
+          padding-left: 0;
+          margin-bottom: 0;
+          font-size: 18px;
+          line-height: 1;
+          color: #2d2f33;
+        }
+      }
+      .el-dialog__body {
+        position: relative;
+        padding: 10px 15px;
+        color: #5a5e66;
+        font-size: 14px;
+      }
+      .el-dialog__footer {
+        border-top: none;
+        margin-top: 0;
+      }
+    }
     .el-table {
       th, td {
         padding: 2px 0px;
@@ -158,13 +214,33 @@
     },
     data() {
       return {
+        forceClone: false,
+        showConfirmDeployDialog: false,
+        action: {
+        evt: null,
+          name: null,
+          row: null
+      },
       }
     },
     methods: {
+      confirmDeploy(evt, action, index, row) {
+        this.showConfirmDeployDialog = true;
+        this.action.evt = evt;
+        this.action.name = action;
+        this.action.row = row;
+      },
+
+      handleDeployClick() {
+        this.handleRowButtonClick(this.action.evt, this.action.name, this.action.row.index, this.action.row);
+        this.showConfirmDeployDialog = false;
+      },
+
       handleRowButtonClick($event, action, index, row) {
         switch (action) {
           case 'work-order_deploy_service':
           case 'work-order_restart_service':
+            row.forceClone = this.forceClone;
             this.$emit('app-deploy', $event, action, index, row);
             break;
         }

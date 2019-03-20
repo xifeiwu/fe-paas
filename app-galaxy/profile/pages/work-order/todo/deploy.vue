@@ -239,12 +239,12 @@
         }
         const urlDesc = type == 'quick-deploy' ? this.$net.URL_LIST.work_order_service_restart : this.$net.URL_LIST.work_order_service_deploy;
 //      await this.warningConfirm(warningMsg);
-        await this.$confirm(warningMsg, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-          dangerouslyUseHTMLString: true
-        });
+//         await this.$confirm(warningMsg, '提示', {
+//           confirmButtonText: '确定',
+//           cancelButtonText: '取消',
+//           type: 'warning',
+//           dangerouslyUseHTMLString: true
+//         });
         const resContent = await this.$net.requestPaasServer(urlDesc, {
           payload
         });
@@ -336,8 +336,10 @@
 
             try {
               await this.serviceDeploy({
+                forceClone: row.forceClone,
                 applicationId: row.appId,
                 spaceId: row.spaceId,
+                serviceVersion: row.serviceVersion,
                 groupId: this.$storeHelper.currentGroupID
               }, action === 'work-order_restart_service' ? 'quick-deploy' : 'deploy');
             } catch (err) {
