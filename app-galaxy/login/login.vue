@@ -301,17 +301,26 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
         const queryObj = this.$utils.parseQueryString(queryString);
         // check if the url is validate
         if (!queryObj.hasOwnProperty('ticket')) {
-          window.location.href = this.$net.getCasLoginUrl();
+          window.location.href = this.$net.getCasLoginUrl(false);
           return;
         }
         this.showLoading = true;
         try {
+          var service = `${location.origin}${location.pathname}`;
+          if (queryObj.hasOwnProperty('to')) {
+            service = `${service}?to=${queryObj.to}`
+          }
           const casInfo = await this.$net.requestAssistServer(this.$net.URL_LIST.cas_validate, {
             payload: {
-              service: `${location.origin}${location.pathname}?to=${queryObj.to}`,
+              service,
               ticket: queryObj['ticket']
             }
           });
+          const serviceResponse = casInfo.json.serviceResponse;
+          if (serviceResponse.hasOwnProperty('authenticationFailure')) {
+            window.location.href = this.$net.getCasLoginUrl(false);
+            return;
+          }
           console.log(JSON.stringify(casInfo));
           this.pageJump();
         } catch(err) {

@@ -562,11 +562,14 @@ class Net {
     return casServer;
   }
   // 获取(CAS)登录的url
-  getCasLoginUrl() {
+  getCasLoginUrl(withPathName = true) {
     const casServer = this.getCasServer();
     const pathName = window.location.pathname;
     // const loginHref = `${this.page['login']}#${pathName}`;
-    const loginHref = `${casServer}/login?service=${location.origin}${this.page['cas-login']}?to=${pathName}`;
+    var loginHref = `${casServer}/login?service=${location.origin}${this.page['cas-login']}`;
+    if (withPathName) {
+      loginHref = `${loginHref}?to=${pathName}`
+    }
     return loginHref;
   }
   // 获取CAS登出的url
