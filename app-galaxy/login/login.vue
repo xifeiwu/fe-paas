@@ -5,7 +5,7 @@
          v-loading="showLoading"
          element-loading-text="登录中...">
     </div>
-    <div class="main" v-if="pathName === 'login'">
+    <div class="main" v-if="pathName === 'paas-login'">
       <!--the element of writting-code is use for backgroundEffectOfCodeWriter-->
       <div class="writting-code">
           <pre><code class="javascript hljs"></code></pre>
@@ -253,8 +253,8 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
   export default {
     data() {
       return {
-        // login or cas-login
-        pathName: 'login',
+        // paas-login or cas-login
+        pathName: 'cas-login',
         form: {
           userName: '',
           password: '',
@@ -282,7 +282,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       if (this.$storeHelper.getUserInfo('token')) {
         this.pageJump();
       }
-      if (this.pathName === 'login') {
+      if (this.pathName === 'paas-login') {
         this.updateVerifyCode();
         // logic for form focus
         let loginForm = document.querySelector('.el-form.login-form');

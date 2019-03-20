@@ -28,7 +28,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         // { from: /.*/, to: path.posix.join(config.dev.assetsPublicPath, 'index.html') },
         { from: /^\/$/, to: '/index.html' },
         { from: /^\/index(\/.*)*$/, to: '/index.html' },
-        { from: /^\/login(\/.*)*$/, to: '/login.html' },
+        { from: /^\/paas-login(\/.*)*$/, to: '/login.html' },
         { from: /^\/cas-login(\/.*)*$/, to: '/login.html' },
         { from: /^\/user(\/.*)*$/, to: '/user.html' },
         { from: /^\/terminal(\/.*)*$/, to: '/terminal.html' },
