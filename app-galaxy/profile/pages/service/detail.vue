@@ -175,26 +175,29 @@
         </div>
       </div>
       <div class="by-graphic">
+        <div class="section request-statistic" >
+          <div class="title">域名请求统计：<el-date-picker
+                style="display: inline-block; width: 340px;"
+                size="mini"
+                v-model="dateTimeRange"
+                type="datetimerange"
+                :picker-options="pickerOptions2"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                align="right"
+                :enableClose="false"
+          >
+          </el-date-picker>
+          <el-button
+                size="mini-extral"
+                type="primary"
+                @click="handleButtonClick('search')">查询</el-button>
+          </div>
+        </div>
         <div class="section request-statistic" v-for="(item, index) in requestStatisticList">
           <div class="title">
-            {{`${item.type === 'internet' ? '外网域名':'内网域名'} "${item.domain}" 请求数据统计`}}
-            <el-date-picker
-                    style="display: inline-block; width: 340px;"
-                    size="mini"
-                    v-model="dateTimeRange"
-                    type="datetimerange"
-                    :picker-options="pickerOptions2"
-                    range-separator="至"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                    align="right"
-                    :enableClose="false"
-            >
-            </el-date-picker>
-            <el-button
-                    size="mini-extral"
-                    type="primary"
-                    @click="handleButtonClick('search')">查询</el-button>
+            {{`${item.type === 'internet' ? '外网域名':'内网域名'}【${item.domain}】`}}
           </div>
           <div class="content">
             <div class="loading" style="height: 240px; " v-if="item.loading">
@@ -618,7 +621,7 @@
       handleButtonClick(action) {
         switch (action) {
           case 'search':
-            this.requestServiceInfo(this.dataPassed.appId, this.dataPassed.profileId);
+            this.getRequestStatistic(this.dataPassed.appId, this.dataPassed.profileId, this.dateTimeRange);
             break;
         }
       },
@@ -683,16 +686,16 @@
       },
 
       // 获取请求统计数据
-      async getRequestStatistic(appId, profileId, dateTimeRange, intranetDomain, internetDomainList) {
+      async getRequestStatistic(appId, profileId, dateTimeRange) {
         this.requestStatisticList = [];
         // set default value for requestStatisticList
-        if (intranetDomain) {
+        if (this.intranetDomain) {
           this.requestStatisticList.push({
-            type: 'intranet', domain: intranetDomain, loading: true
+            type: 'intranet', domain: this.intranetDomain, loading: true
           });
         }
-        if (internetDomainList && Array.isArray(internetDomainList)) {
-          internetDomainList.forEach(it => {
+        if (this.internetDomainList && Array.isArray(this.internetDomainList)) {
+          this.internetDomainList.forEach(it => {
             this.requestStatisticList.push({
               type: 'internet', domain: it, loading: true
             });
@@ -717,8 +720,8 @@
               spaceId: profileId,
               endTime: this.$utils.formatDate(endTime, 'yyyy-MM-dd hh:mm:ss'),
               startTime: this.$utils.formatDate(startTime, 'yyyy-MM-dd hh:mm:ss'),
-              intranetDomain: intranetDomain,
-              internetDomain: internetDomainList
+              intranetDomain: this.intranetDomain,
+              internetDomain: this.internetDomainList
             }
           });
           const parseStatistic = function (type, domain, statistic) {
