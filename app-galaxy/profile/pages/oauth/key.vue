@@ -993,8 +993,6 @@ module.exports = {
             uaaId: target.id
           }));
           this.$net.requestPaasServer({path:getOauthUrl,method:"get"}).then(content => {
-             debugger
-             console.log(content)
              if(Array.isArray(content) && content.length > 0){
                this.dataForSelectApp.oauthList = content;
                this.modifyAccessKeyInfo.targetOauthId = content[0].id;
