@@ -924,19 +924,20 @@
           }
         };
 
-        // const desc = this.getVersionDescription();
-        // this.serviceDesc = desc;
+        const desc = this.getVersionDescription();
+        this.serviceDesc = desc;
         // var warningMsg = `您确认要部署${desc}吗?`;
-        // if (type == 'quick_deploy') {
-        //   warningMsg = `<p>您确认要重启${desc}吗?</p><p style="color: #E6A23C; font-size: 12px;">(重启：采用最近一次部署成功的镜像进行服务的重新启动，跳过代码编译、镜像生成阶段)</p>`;
-        // }
-        //      await this.warningConfirm(warningMsg);
-        // await this.$confirm(warningMsg, '提示', {
-        //   confirmButtonText: '确定',
-        //   cancelButtonText: '取消',
-        //   type: 'warning',
-        //   dangerouslyUseHTMLString: true
-        // });
+        if (type == 'quick_deploy') {
+          let warningMsg = `<p>您确认要重启${desc}吗?</p><p style="color: #E6A23C; font-size: 12px;">(重启：采用最近一次部署成功的镜像进行服务的重新启动，跳过代码编译、镜像生成阶段)</p>`;
+          // await this.warningConfirm(warningMsg);
+          await this.$confirm(warningMsg, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+            dangerouslyUseHTMLString: true
+          });
+        }
+
         const urlDesc = type == 'quick_deploy' ? this.$net.URL_LIST.service_quick_deploy : this.$net.URL_LIST.service_deploy;
         const resContent = await this.$net.requestPaasServer(urlDesc, {
           payload
