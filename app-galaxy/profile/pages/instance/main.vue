@@ -1,9 +1,12 @@
 <template>
   <div id="instance-main">
     <el-row class="header" type="flex" justify="center" align="middle">
-      <el-col :span="20">
+      <el-col :span="14">
         <paas-version-selector :customConfig="config4VersionSelector" ref="version-selector"
                              @version-selected="onVersionSelected"></paas-version-selector>
+      </el-col>
+      <el-col :span="6">
+          <span>运行实例数/总实例数：{{serviceRunningInfo === null ? "0 / 0" : serviceRunningInfo["status"] == null ? '0 / 0' : serviceRunningInfo["status"]["Running"] + " / " +serviceRunningInfo["status"]["Total"]}}</span>
       </el-col>
       <el-col :span="4">
         <el-button v-if="true"
@@ -314,8 +317,7 @@
         this.config4VersionSelector = {
           appId: data['appId'],
           profileId: data['profileId'],
-          serviceId: data['serviceId'],
-          showInstance: true
+          serviceId: data['serviceId']
         };
         this.$storeHelper.dataTransfer = null;
         this.$store.dispatch('user/config', {
@@ -412,13 +414,42 @@
         tableSort: {
           prop: 'cpuUsageInPercent',
           order: 'descending',
-        }
+        },
+
+        serviceRunningInfo: null
       };
     },
     watch: {},
     methods: {
+      // TODO: 获取实例数有没有必要请求整个服务运行相关的所有信息
+      // 获取服务的当前运行信息（用于展示：当前实例数/总实例数）
+      async requestServiceRunningInfo(appId, profileId) {
+        if (!appId || !profileId) {
+          console.log('appId or profileId can not be empty');
+          return;
+        }
+        let payload = {
+          appId: appId,
+          spaceId: profileId
+        };
+        this.$net.requestPaasServer(this.$net.URL_LIST.service_info_running, {payload}).then(resContent => {
+          this.serviceRunningInfo = null
+          if (resContent.hasOwnProperty("applicationConfigDeployment")) {
+            this.serviceRunningInfo = resContent["applicationConfigDeployment"];
+          }
+          if (this.serviceRunningInfo) {
+            this.instanceStatus.instanceCount = this.serviceRunningInfo["status"]["Total"];
+          } else {
+            this.instanceStatus.instanceCount = 0;
+          }
+        }).catch(err => {
+          console.log(err)
+        });
+      },
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
-//                console.log(appInfo, profileInfo, serviceInfo);
+//        console.log(appInfo, profileInfo, serviceInfo);
+        // 获取服务运行时信息
+        this.requestServiceRunningInfo(appInfo.appId, profileInfo.id);
         this.hidePop();
         this.instanceStatus.instanceList = [];
         if (!appInfo || !profileInfo || !serviceInfo) {
@@ -485,7 +516,7 @@
           }
           // sort table by this.tableSort after success request
           this.onSortChangeInTable(this.tableSort);
-          console.log(this.instanceStatus);
+//          console.log(this.instanceStatus);
         } catch(err) {
           console.log(err);
         }
@@ -527,6 +558,7 @@
               serviceInfo.selectedProfile.id,
               serviceInfo.selectedService.serviceVersion
             ];
+            this.requestServiceRunningInfo(serviceInfo.selectedAPP.appId, serviceInfo.selectedProfile.id);
             this.requestInstanceList.apply(this, params);
             break;
           case 'instance_change_count':
