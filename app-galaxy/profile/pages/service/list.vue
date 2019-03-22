@@ -253,7 +253,7 @@
 
     <el-dialog title="提示" :visible="showConfirmDeployDialog"
                class="confirm-deploy"
-               width="40%"
+               width="42%"
                :close-on-click-modal="false"
                @close="showConfirmDeployDialog = false"
     >
@@ -391,6 +391,7 @@
         overflow: hidden;
         backface-visibility: hidden;
         box-sizing: border-box;
+        top: 24vh;
       }
       .el-dialog__header {
         position: relative;
