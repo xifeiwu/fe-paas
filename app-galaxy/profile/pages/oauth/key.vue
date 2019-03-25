@@ -76,19 +76,6 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="myApp"
-          label="我的应用"
-          min-width="160"
-          headerAlign="center" align="center"
-        >
-          <template slot-scope="scope">
-            <div>
-              <span>{{scope.row.myApp ? scope.row.myApp: '未配置'}}</span>
-              <span v-if="scope.row.outerApp" class="outer-app-tag">外</span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column
                 prop="profileName"
                 label="访问环境"
                 width="120"
@@ -358,7 +345,7 @@
                   :key="index"
           >
             <el-col :span="3" class="group">{{item.targetGroupName}}</el-col>
-            <el-col :span="7"  class="app">{{item.targetOauth.substr(0,item.targetOauth.indexOf("."))}}</el-col>
+            <el-col :span="7" class="app">{{item.targetOauth.substr(0,item.targetOauth.indexOf("."))}}</el-col>
             <el-col :span="8" class="app">{{item.targetOauth}}</el-col>
             <el-col :span="3" class="app">{{item.status}}</el-col>
             <el-col :span="3" style="text-align: right">
@@ -1195,8 +1182,7 @@ module.exports = {
         case 'oauth_update_access_config':
           let openDialog = ()=>  {
             let selectedRow = this.selected.row;
-//            console.log(selectedRow);
-            this.modifyAccessKeyInfo.appID = selectedRow.applicationId;
+            this.modifyAccessKeyInfo.production = selectedRow.produceEnv;
             if (Array.isArray(selectedRow.accessConfigList)) {
               this.modifyAccessKeyInfo.targetAuthInfoList = selectedRow.accessConfigList.map(it => {
                 return {
@@ -1209,7 +1195,7 @@ module.exports = {
                 }
               });
             } else {
-              this.modifyAccessKeyInfo.targetAppList = [];
+              this.modifyAccessKeyInfo.targetAuthInfoList = [];
             }
             this.selected.operation = action;
             // remove error tip for button add-access-config
