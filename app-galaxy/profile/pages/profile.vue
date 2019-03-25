@@ -630,7 +630,7 @@
         const groupVersion = this.$storeHelper.groupVersion;
         // 1.x团队不支持：外网域名、审批管理、Access Key、团队管理
         if (groupVersion === 'v1') {
-          this.$message.warning('您当前在1.x团队，部分功能正在迁移。置灰的功能暂时无法使用！');
+          // this.$message.warning('您当前在1.x团队，部分功能正在迁移。置灰的功能暂时无法使用！');
           this.$router.helper.updateDisabledState({
             pathList: [
               this.$net.page['profile/domain'],
