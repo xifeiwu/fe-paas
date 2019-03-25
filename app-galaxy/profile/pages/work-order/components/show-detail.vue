@@ -105,10 +105,10 @@
         <el-checkbox v-model="forceClone">强制清空打包目录（删除所有源代码、包文件等）</el-checkbox>
       </div>
       <span slot="footer" class="el-message-box__btns">
-      <el-button type="primary"
-                 @click="handleDeployClick">确&nbsp认</el-button>
       <el-button action="profile-dialog/cancel"
                  @click="showConfirmDeployDialog = false">取&nbsp消</el-button>
+      <el-button type="primary"
+                 @click="handleDeployClick">确&nbsp认</el-button>
     </span>
     </el-dialog>
   </el-form>

@@ -264,11 +264,11 @@
       </div>
 
       <span slot="footer" class="el-message-box__btns">
+        <el-button action="profile-dialog/cancel"
+                   @click="showConfirmDeployDialog = false">取&nbsp消</el-button>
         <el-button type="primary"
                    @click="handleDeployClick()"
                    :loading="waitingResponse">确&nbsp认</el-button>
-        <el-button action="profile-dialog/cancel"
-                   @click="showConfirmDeployDialog = false">取&nbsp消</el-button>
       </span>
     </el-dialog>
 
@@ -1128,7 +1128,12 @@
           case 'service_stop':
             this.addToWaitingResponseQueue(action);
             var desc = this.getVersionDescription();
-            this.$confirm(`停止将会导致${desc}不可用，但不会删除代码及配置信息，你确定需要这么做吗?`).then(() => {
+            this.$confirm(`停止将会导致${desc}不可用，但不会删除代码及配置信息，你确定需要这么做吗?`, '提示',  {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning',
+              dangerouslyUseHTMLString: true
+            }).then(() => {
               this.$net.serviceStop({
                 id: row.id,
                 appId: row.appId,
