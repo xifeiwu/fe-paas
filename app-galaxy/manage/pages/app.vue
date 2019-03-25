@@ -51,7 +51,7 @@
         </el-table-column>
 
         <el-table-column prop="internetDomain" label="外网域名" minWidth="150" align="center"></el-table-column>
-        <el-table-column prop="intranetDomain" label="内网域名" minWidth="100"></el-table-column>
+        <el-table-column prop="serviceName" label="二级域名" minWidth="100"></el-table-column>
         <el-table-column prop="lobName" label="LOB" width="100"></el-table-column>
         <el-table-column prop="groupName" label="团队名称" width="100"></el-table-column>
         <el-table-column prop="creator" label="创建人" width="80"></el-table-column>
@@ -211,8 +211,8 @@
           key: 'internetDomainQueryParam',
           label: '外网域名'
         }, {
-          key: 'intranetDomainQueryParam',
-          label: '内网域名'
+          key: 'serviceName',
+          label: '二级域名'
         }],
         search: {
           lobId: '',
@@ -300,8 +300,8 @@
             } else {
               record['internetDomain'] = '---';
             }
-            if (!record['intranetDomain']) {
-              record['intranetDomain'] = '---';
+            if (!record['serviceName']) {
+              record['serviceName'] = '---';
             }
             return record;
           });

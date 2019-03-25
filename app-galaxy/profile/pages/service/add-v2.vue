@@ -242,7 +242,7 @@
                 <el-col :span="7" class="key">{{item.key}}</el-col>
                 <el-col :span="7" class="value">{{item.value}}</el-col>
                 <el-col :span="8" class="remark">{{item.remark}}</el-col>
-                <el-col :span="2" style="text-align: center">
+                <el-col :span="2" style="text-align: center" class="delete">
                   <el-button type="warning" round size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
                 </el-col>
               </el-row>
@@ -567,6 +567,10 @@
                 word-wrap: break-word;
                 word-break: break-all;
                 line-height: 1.2;
+              }
+              .delete {
+                flex: none;
+                float: right;
               }
             }
             .el-row.add-key-value {
