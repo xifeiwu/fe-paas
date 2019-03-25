@@ -657,9 +657,11 @@ class Helper {
         return it.path == targetPath;
       });
     }
-    await setTimeout(() => {
+    await new Promise((resolve, reject) => {
+      console.log("chang");
       targetRouterPath.name = rename;
-    });
+      resolve();
+    })
   }
 
   /**

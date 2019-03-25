@@ -195,6 +195,9 @@
 
       async requestBlueOceanStageStepList() {
         this.buildStageStepList = [];
+        if (!this.currentBuildStage) {
+          return ;
+        }
         let params = {
           appId: this.appId,
         };
