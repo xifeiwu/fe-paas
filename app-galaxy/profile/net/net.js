@@ -1469,7 +1469,7 @@ class Net extends NetBase {
         item.image = {
           customImage: null == service.customImage ? false : service.customImage,
           typeName: appInfoHelper.getImageNameById(service.customImage),
-          location: service.image,
+          location: service.image.location,
         };
 
         // wrap cpuId and cpu to cpuInfo
