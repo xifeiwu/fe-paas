@@ -60,6 +60,15 @@
                                   prop="sonarCheck" :multiFields="true"
                                   v-show="stageName === 'sonarCheck'">
                       <el-input v-model="formData.sonarCheck.projectKeyWord" style="max-width: 500px"></el-input>
+                      <el-popover
+                        placement="left-start"
+                        width="50"
+                        trigger="hover">
+                        <div>
+                          <img src="/assets/imgs/profile/pipeline-sonar-tip.png" width="600px" height="400px"/>
+                        </div>
+                        <span slot="reference"><i class="paas-icon-fa-question" style="color: #E6A23C; font-size:12px;"></i></span>
+                      </el-popover>
                     </el-form-item>
                     <!--sonar数据检查-->
                     <el-form-item label="检查项：" class="sonarCheck" v-if="stageName === 'sonarCheck'">
@@ -1020,7 +1029,7 @@
               this.currentStage['selected'] = true;
               console.log(this.currentStage);
               this.updateStageIndex(this.stages);
-              this.$message.success(`添加结点 "${this.currentStage['name']}" 成功！`);
+              // this.$message.success(`添加结点 "${this.currentStage['name']}" 成功！`);
               this.formData[this.currentStage['name']]['selected'] = true;
             } else {
               this.$message.error(stageChangeStatus.reason);
@@ -1057,7 +1066,7 @@
             }
             this.currentStage['selected'] = false;
             this.updateStageIndex(this.stages);
-            this.$message.success(`删除结点 "${this.currentStage['name']}" 成功！`);
+            // this.$message.success(`删除结点 "${this.currentStage['name']}" 成功！`);
             this.formData[this.currentStage['name']]['selected'] = false;
             break;
           case 'save':

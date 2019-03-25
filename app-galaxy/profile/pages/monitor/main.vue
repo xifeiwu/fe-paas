@@ -924,7 +924,7 @@
               return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
             };
             const toDate = getDate(time);
-            return toDate > getDate(new Date());
+            return toDate > getDate(new Date()) || getDate(new Date()) - toDate > 13 * 3600 * 1000 * 24;
           },
         },
 
