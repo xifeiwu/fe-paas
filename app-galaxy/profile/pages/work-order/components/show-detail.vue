@@ -94,7 +94,7 @@
     </el-form-item>
 
     <el-dialog title="提示" :visible="showConfirmDeployDialog"
-               width="40%"
+               width="600px"
                class="confirm-deploy"
                :close-on-click-modal="false"
                @close="showConfirmDeployDialog = false"

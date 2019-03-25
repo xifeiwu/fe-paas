@@ -253,7 +253,7 @@
 
     <el-dialog title="提示" :visible="showConfirmDeployDialog"
                class="confirm-deploy"
-               width="42%"
+               width="600px"
                :close-on-click-modal="false"
                @close="showConfirmDeployDialog = false"
     >
