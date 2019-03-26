@@ -34,9 +34,19 @@
         </el-table-column>
         <el-table-column
                 prop="nodeName"
-                label="运行结点"
-                width="130"
+                label="运行节点"
+                width="170"
                 headerAlign="left" align="left">
+          <template slot-scope="scope">
+            <el-button
+                    type="text"
+                    v-if="true"
+                    :class="['flex']"
+                    @click="handleRowButtonClick($event, 'show_eagleeye', scope.$index, scope.row)"
+            >
+              <span>{{scope.row.nodeName}}</span>
+            </el-button>
+          </template>
         </el-table-column>
         <el-table-column
                 prop="status"
@@ -679,6 +689,24 @@
         let serviceInfo = null;
         let valueOfVersionSelector = null;
         switch (action) {
+          case 'show_eagleeye':
+            var isProductionProfile = null;
+            this.$storeHelper.profileListOfGroup.some(it => {
+              let serviceInfo = this.checkVersionSelector();
+              if (it.name === serviceInfo.selectedProfile) {
+                isProductionProfile = (target.spaceType.toUpperCase() === 'PRODUCTION'
+                                    || target.spaceType.toUpperCase() === 'PRODUCTION-FF');
+              }
+            });
+            var nodeUrl = "/monitor/index.html#/basicResource/machine/cpu?node=" + row.nodeIp;
+            if (isProductionProfile) {
+              console.log("http://apm.finupgroup.com" + nodeUrl)
+              window.open("http://apm.finupgroup.com" + nodeUrl, '_blank');
+            } else {
+              console.log("http://monitor-app-web.godeyes.test" + nodeUrl)
+              window.open("http://monitor-app-web.godeyes.test" + nodeUrl, '_blank');
+            }
+            break;
           case 'instance_replace':
 //            console.log(this.$storeHelper.groupInfo);
 //            console.log(this.profileInfo);
