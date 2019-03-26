@@ -690,16 +690,10 @@
         let valueOfVersionSelector = null;
         switch (action) {
           case 'show_eagleeye':
-            var isProductionProfile = null;
-            this.$storeHelper.profileListOfGroup.some(it => {
-              let serviceInfo = this.checkVersionSelector();
-              if (it.name === serviceInfo.selectedProfile) {
-                isProductionProfile = (target.spaceType.toUpperCase() === 'PRODUCTION'
-                                    || target.spaceType.toUpperCase() === 'PRODUCTION-FF');
-              }
-            });
+            valueOfVersionSelector = this.$refs['version-selector'].getSelectedValue();
+            var profileId = valueOfVersionSelector['selectedProfile'].id;
             var nodeUrl = "/monitor/index.html#/basicResource/machine/cpu?node=" + row.nodeIp;
-            if (isProductionProfile) {
+            if (this.$storeHelper.isProductionProfile(profileId)) {
               console.log("http://apm.finupgroup.com" + nodeUrl)
               window.open("http://apm.finupgroup.com" + nodeUrl, '_blank');
             } else {
