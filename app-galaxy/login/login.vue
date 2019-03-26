@@ -4,6 +4,10 @@
     <div class="main" v-if="pathName === 'cas-login'"
          v-loading="showLoading"
          element-loading-text="登录中...">
+      <div class="login-error" v-if="errMsg">
+        <div style="text-align: center; color: red; font-weight: bold">登录失败：{{errMsg}}</div>
+        <div style="text-align: center; text-decoration: underline"><a :href="$net.getCasLoginUrl(false)">请点击链接跳转到CAS登录页面</a></div>
+      </div>
     </div>
     <div class="main" v-if="pathName === 'paas-login'">
       <!--the element of writting-code is use for backgroundEffectOfCodeWriter-->
@@ -297,36 +301,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
         // code-writter effect
         backgroundEffectOfCodeWriter(this.$el.querySelector('.main .writting-code pre code'));
       } else if (this.pathName === 'cas-login') {
-        const queryString = window.location.search.replace(/^\?/, '');
-        const queryObj = this.$utils.parseQueryString(queryString);
-        // check if the url is validate
-        if (!queryObj.hasOwnProperty('ticket')) {
-          window.location.href = this.$net.getCasLoginUrl(false);
-          return;
-        }
-        this.showLoading = true;
-        try {
-          var service = `${location.origin}${location.pathname}`;
-          if (queryObj.hasOwnProperty('to')) {
-            service = `${service}?to=${queryObj.to}`
-          }
-          const casInfo = await this.$net.requestAssistServer(this.$net.URL_LIST.cas_validate, {
-            payload: {
-              service,
-              ticket: queryObj['ticket']
-            }
-          });
-          const serviceResponse = casInfo.json.serviceResponse;
-          if (serviceResponse.hasOwnProperty('authenticationFailure')) {
-            window.location.href = this.$net.getCasLoginUrl(false);
-            return;
-          }
-          console.log(JSON.stringify(casInfo));
-          this.pageJump();
-        } catch(err) {
-          console.log(err);
-          this.$message.error('登录失败');
-        }
+        this.startCasLogin();
       }
     },
     methods: {
@@ -361,7 +336,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       },
 
       pageJump() {
-//        return;
+        return;
         // 1. go to profile by default
         var toPath = this.$net.page['profile'];
 
@@ -388,61 +363,106 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
 //        this.$utils.goToPath(toPath);
       },
 
+      async requestAndProcessData(payload) {
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.login, {
+          payload
+        });
+        if (!resContent) {
+          return null;
+        }
+        const {userInfo, menuConfig, notPermitted} = this.$net.parseLoginResponseMore(resContent);
+        if (menuConfig) {
+          this.$store.dispatch('saveNavMenu', menuConfig);
+        }
+        // if (notPermitted) {
+        //  this.$storeHelper.setPermission({'profile': notPermitted});
+        //}
+        if (userInfo) {
+          this.$store.dispatch('updateUserInfo', {
+            userName: userInfo.username,
+            realName: userInfo.realName,
+            role: userInfo.role,
+            token: userInfo.token
+          });
+        }
+        return {
+          userInfo,
+          menuConfig
+        }
+      },
+
+      async startCasLogin() {
+        const queryString = window.location.search.replace(/^\?/, '');
+        const queryObj = this.$utils.parseQueryString(queryString);
+        // check if the url is validate
+        this.showLoading = true;
+        try {
+          if (!queryObj.hasOwnProperty('ticket')) {
+            throw new Error('queryString中未找到ticket');
+          }
+          var service = `${location.origin}${location.pathname}`;
+          if (queryObj.hasOwnProperty('to')) {
+            service = `${service}?to=${queryObj.to}`
+          }
+          const casInfo = await this.$net.requestAssistServer(this.$net.URL_LIST.cas_validate, {
+            payload: {
+              service,
+              ticket: queryObj['ticket']
+            }
+          });
+          const serviceResponse = casInfo.json.serviceResponse;
+          if (serviceResponse.hasOwnProperty('authenticationFailure')) {
+            throw new Error('CAS认证失败！');
+          }
+//          console.log(JSON.stringify(casInfo));
+//          console.log(casInfo.xml);
+          const payload = {
+            casLoginInfo: casInfo.xml
+          };
+          const parsedLoginData = await this.requestAndProcessData(payload);
+          if (parsedLoginData && parsedLoginData.hasOwnProperty('userInfo') && parsedLoginData.userInfo.token) {
+            this.pageJump();
+          } else {
+            throw new Error('未获得token');
+          }
+          this.showLoading = false;
+        } catch(err) {
+          console.log(err);
+          this.errMsg = err.message;
+          this.showLoading = false;
+//          this.$message.error(`登录失败：${err.message}`);
+//          window.location.href = this.$net.getCasLoginUrl(false);
+        }
+      },
+
       // on click of login button
-      onSubmit() {
-        if (this.checkData()) {
-          let payload = {
+      async onSubmit() {
+        if (!this.checkData()) {
+          return;
+        }
+        try {
+          this.showLoading = true;
+          const payload = {
             username: this.form.userName,
             password: this.form.password,
             randomCode: this.form.verifyCode,
             verificationCode: this.form.verificationCode,
             freeLogin: this.freeLogin15Days,
           };
-
-          this.showLoading = true;
-          this.$net.getResponse(this.$net.URL_LIST.login, {
-            payload
-          }).then(response => {
-            let content = this.$net.getResponseContent(response);
-            if (content) {
-              const {userInfo, menuConfig, notPermitted} = this.$net.parseLoginResponseMore(content);
-              if (menuConfig) {
-                this.$store.dispatch('saveNavMenu', menuConfig);
-              }
-//              if (notPermitted) {
-//                this.$storeHelper.setPermission({'profile': notPermitted});
-//              }
-              if (!userInfo.hasOwnProperty('token')) {
-                userInfo.token = response.headers.token;
-              }
-              if (userInfo) {
-                this.$store.dispatch('updateUserInfo', {
-                  userName: userInfo.username,
-                  realName: userInfo.realName,
-                  role: userInfo.role,
-                  token: userInfo.token
-                });
-              }
-              if (userInfo.token) {
-                this.pageJump();
-              }
-            } else {
-              let resMsgObj = this.$net.getResponseMsg(response, {
-                errorMsg: '登录失败'
-              });
-              throw new Error(resMsgObj.msg);
-            }
-          }).catch(err => {
-            if (err.hasOwnProperty('msg')) {
-              // status err
-              this.showError(err.msg, true);
-            } else {
-              // network error
-              this.showError(err.message, true);
-            }
-          }).finally(() => {
-            this.showLoading = false;
-          });
+          const parsedLoginData = await this.requestAndProcessData(payload);
+          this.showLoading = false;
+          if (parsedLoginData && parsedLoginData.hasOwnProperty('userInfo') && parsedLoginData.userInfo.token) {
+            this.pageJump();
+          }
+        } catch(err) {
+          if (err.hasOwnProperty('msg')) {
+            // status err
+            this.showError(err.msg, true);
+          } else {
+            // network error
+            this.showError(err.message, true);
+          }
+          this.showLoading = false;
         }
       },
 
