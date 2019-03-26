@@ -1422,9 +1422,6 @@ class Net extends NetBase {
           environments: JSON.parse(JSON.stringify(service.environments)),
           hosts: JSON.parse(JSON.stringify(service.hosts)),
           prestopCommand: service.prestopCommand,
-          // image: JSON.parse(JSON.stringify(service.image))
-          customImage: service.image.customImage,
-          imageLocation: service.image.location,
           rollingUpdate: service.rollingUpdate,
           loadBalance: service.loadBalance,
           gitLabAddress: service.gitLabAddress,
@@ -1469,7 +1466,7 @@ class Net extends NetBase {
         item.image = {
           customImage: null == service.customImage ? false : service.customImage,
           typeName: appInfoHelper.getImageNameById(service.customImage),
-          location: service.image.location,
+          location: service.image,
         };
 
         // wrap cpuId and cpu to cpuInfo
@@ -1580,12 +1577,6 @@ class Net extends NetBase {
     !serviceList && resContent.hasOwnProperty('applicationServiceList') && (serviceList = resContent['applicationServiceList']);
     if (serviceList) {
       Array.isArray(serviceList) && serviceList.forEach(it => {
-        it.image = {
-          customImage: null == it.customImage ? false : it.customImage,
-          typeName: appInfoHelper.getImageNameById(it.customImage),
-          location: it.image,
-        };
-
         if (!it.volume) {
           it.volume = '';
         }
