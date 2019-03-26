@@ -1,7 +1,7 @@
 <template>
   <div id="login">
     <img class="finup-cloud" src="/assets/imgs/finup-cloud.png" @click="handleImageClick()">
-    <div class="main" v-if="pathName === 'cas-login'"
+    <div :class="['main', pathName]" v-if="pathName === 'cas-login'"
          v-loading="showLoading"
          element-loading-text="登录中...">
       <div class="login-error" v-if="errMsg">
@@ -89,6 +89,9 @@
       left: 12px;
     }
     .main {
+      &.cas-login {
+        display: block;
+      }
       .hljs {
         background: white;
       }
@@ -364,7 +367,16 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       },
 
       async requestAndProcessData(payload) {
-        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.login, {
+        const PATH_MAP = {
+          'paas-login': this.$net.URL_LIST.login,
+          'cas-login': this.$net.URL_LIST['cas-login']
+        };
+        const path = PATH_MAP[this.pathName];
+        if (!path) {
+          return;
+        }
+
+        const resContent = await this.$net.requestPaasServer(path, {
           payload
         });
         if (!resContent) {

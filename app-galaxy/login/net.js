@@ -15,6 +15,10 @@ class Net extends NetBase {
       },
       // 登录
       'login': {
+        path: '/paas-login',
+        method: 'post'
+      },
+      'cas-login': {
         path: '/login',
         method: 'post'
       },
