@@ -37,7 +37,7 @@
         </el-table-column>
         <el-table-column
                 prop="nodeName"
-                label="运行结点"
+                label="运行节点"
                 width="130"
                 headerAlign="left" align="left">
         </el-table-column>
