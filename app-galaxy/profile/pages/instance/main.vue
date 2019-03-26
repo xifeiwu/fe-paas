@@ -692,7 +692,8 @@
           case 'show_eagleeye':
             valueOfVersionSelector = this.$refs['version-selector'].getSelectedValue();
             var profileId = valueOfVersionSelector['selectedProfile'].id;
-            var nodeUrl = "/monitor/index.html#/basicResource/machine/cpu?node=" + row.nodeIp;
+            var nodeUrl = "/monitor/index.html#/basicResource/machine/cpu?node=" + row.nodeIp
+                    + "&groupId=" + this.$storeHelper.groupInfo.tag + "&app=" + this.profileInfo.name;
             if (this.$storeHelper.isProductionProfile(profileId)) {
               console.log("http://apm.finupgroup.com" + nodeUrl)
               window.open("http://apm.finupgroup.com" + nodeUrl, '_blank');
