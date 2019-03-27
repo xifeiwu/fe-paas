@@ -373,6 +373,7 @@ class Net {
     }
     return success;
   }
+
   /**
    *
    * @param path
@@ -389,8 +390,12 @@ class Net {
    * return resData.content if success
    * else return {}
    */
-
   async requestPaasServer({path, method, partial = false, withTimeStamp = false, withCode=false}, options = {}) {
+    // 访客只能进入首页
+    if (Vue.prototype.$storeHelper.isGuest) {
+      window.location.href = this.page['index'];
+      return;
+    }
     try {
       if (!partial) {
         this.addToRequestingRrlList(path);
@@ -418,15 +423,10 @@ class Net {
       } else {
         // code 555 stands for token is out of date
         if (resData.code === 555) {
-          if (Vue.prototype.$storeHelper.isGuest) {
-            // go to page index when userRole is 'guest'
-            window.location.href = this.$net.page['index'];
-          } else {
-            const logoutHref = this.getCasLogoutHref();
-            if (logoutHref) {
-              Vue.prototype.$storeHelper.logout();
-              window.location.href = logoutHref;
-            }
+          const logoutHref = this.getCasLogoutHref();
+          if (logoutHref) {
+            Vue.prototype.$storeHelper.logout();
+            window.location.href = logoutHref;
           }
           return;
         }

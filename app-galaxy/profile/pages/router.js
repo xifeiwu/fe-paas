@@ -753,10 +753,10 @@ class Helper {
       });
 
       const userInfo = Vue.prototype.$storeHelper.userInfo;
-      const role = userInfo.role;
+      // const role = userInfo.role;
       // 如果是游客，token无效
-      const isGuest = role === 'guest';
-      const token = isGuest ? '' : userInfo.token;
+      // const isGuest = role === 'guest';
+      const token = userInfo.token;
 
       if (token) {
         const result = pathCheck(to.path);
@@ -771,10 +771,11 @@ class Helper {
           }
         }
       } else {
-        const logoutHref = Vue.prototype.$net.getCasLogoutHref();
-        if (logoutHref) {
-          window.location.href = logoutHref;
-        }
+        // 发生网络请求时，才进行用户角色（权限）（逻辑）认证
+        // const logoutHref = Vue.prototype.$net.getCasLogoutHref();
+        // if (logoutHref) {
+        //   window.location.href = logoutHref;
+        // }
       }
     });
   }

@@ -161,7 +161,7 @@
                     duration: 500,
                     onClose: () => {
                       // step 2
-//                      this.$storeHelper.logout();
+                      this.$storeHelper.logout();
                       const targetHref = this.$net.getCasLogoutHref();
                       window.location.href = targetHref;
                     }
@@ -170,7 +170,7 @@
                 if (this.$net && this.$net.URL_LIST && this.$net.URL_LIST['logout']) {
                   // step 1
                   // 不论网络请求成功与否，都会调用logout方法
-//                  this.$net.requestPaasServer(this.$net.URL_LIST.logout).then(logout).catch(logout);
+                  this.$net.requestPaasServer(this.$net.URL_LIST.logout).then(logout).catch(logout);
                   // 最多等待1.5秒
                   setTimeout(logout, 1500);
                 } else {
