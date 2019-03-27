@@ -21,6 +21,11 @@ export default class StoreHelper {
   get userInfo() {
     return this.$globalStore.getters['user/userInfo'];
   }
+  // 是否是访客
+  get isGuest() {
+    return this.userInfo.role === 'guest';
+  }
+
   // TODO: for compatible
   getUserInfo(key) {
     let value = null;

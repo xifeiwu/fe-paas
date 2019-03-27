@@ -16,13 +16,13 @@
                :defaultActive="defaultActive"
       >
         <el-menu-item index="index">首页</el-menu-item>
-        <el-submenu index="product">
+        <el-submenu index="product" v-if="!isGuestLogin">
           <template slot="title">产品</template>
           <el-menu-item v-for="item in productionList" :key="item.index" :index="item.index" v-if="item.index">{{item.name}}</el-menu-item>
         </el-submenu>
         <el-menu-item index="finup-community" v-show="true">凡普云社区</el-menu-item>
         <el-menu-item index="docs" v-show="true">帮助文档</el-menu-item>
-        <el-menu-item index="profile">控制台</el-menu-item>
+        <el-menu-item index="profile" v-if="!isGuestLogin">控制台</el-menu-item>
       </el-menu>
       <!--<div class="login" @click="handleHeaderMenuClick(null, ['login'])">登录</div>-->
     </el-col>
@@ -108,11 +108,25 @@ $menu-height: 45px;
 
 <script>
   export default {
+    created() {
+    },
     props: {
       defaultActive: {
         type: String,
         default: 'index'
       },
+      userInfo: {
+        type: Object,
+        default(){
+          return {
+          }
+        }
+      }
+    },
+    computed: {
+      isGuestLogin() {
+        return this.userInfo.role && this.userInfo.role === 'guest';
+      }
     },
     data() {
       return {

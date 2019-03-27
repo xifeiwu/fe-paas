@@ -321,6 +321,12 @@
       }
     },
     created() {
+      // 如果是游客，token无效
+      if (this.$storeHelper.isGuest) {
+        window.location.href = this.$net.page['index'];
+        return;
+      }
+
       // 初始化权限信息(避免出现'can not read disabled of undefined')
       this.initPermissionInfo();
       // 获取页面相关配置

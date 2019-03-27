@@ -60,6 +60,7 @@ class Net {
     this.URL_LIST = PAAS_URL_LIST;
 
     this.page = {
+      'index': '/index',
       'login': '/login',
       'cas-login': '/cas-login',
       'profile': '/profile',
@@ -98,7 +99,6 @@ class Net {
       'user/message': '/user/message',
       'docs': '/docs',
       'docs/paas': '/docs/paas',
-      'index': '/index',
       'manage': '/manage',
       'terminal': '/terminal',
       'profile/image/repo': '/profile/image/repo',
@@ -418,8 +418,16 @@ class Net {
       } else {
         // code 555 stands for token is out of date
         if (resData.code === 555) {
-          Vue.prototype.$storeHelper.logout();
-          window.location.href = this.getCasLoginUrl();
+          if (Vue.prototype.$storeHelper.isGuest) {
+            // go to page index when userRole is 'guest'
+            window.location.href = this.$net.page['index'];
+          } else {
+            const logoutHref = this.getCasLogoutHref();
+            if (logoutHref) {
+              Vue.prototype.$storeHelper.logout();
+              window.location.href = logoutHref;
+            }
+          }
           return;
         }
 
@@ -562,7 +570,8 @@ class Net {
     return casServer;
   }
   // 获取(CAS)登录的url
-  getCasLoginUrl(withPathName = true) {
+  getCasLoginHref(withPathName = true) {
+    // return null;
     const casServer = this.getCasServer();
     const pathName = window.location.pathname;
     // const loginHref = `${this.page['login']}#${pathName}`;
@@ -575,8 +584,11 @@ class Net {
   // 获取CAS登出的url
   getCasLogoutHref() {
     const casServer = this.getCasServer();
-    const loginHref = this.getCasLoginUrl();
-    const logoutHref = `${casServer}/logout?service=${loginHref}`;
+    const loginHref = this.getCasLoginHref();
+    var logoutHref = null;
+    if (loginHref) {
+      logoutHref = `${casServer}/logout?service=${loginHref}`;
+    }
     return logoutHref;
   }
 }

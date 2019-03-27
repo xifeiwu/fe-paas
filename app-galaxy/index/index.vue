@@ -1,6 +1,10 @@
 <template>
   <div class="container" id="index">
-    <paas-header @menu-click="handleClickOnPassHeader"></paas-header>
+    <div v-if="userInfo && userInfo.role === 'guest'" class="tip-for-guest">
+      <div>您当前账号的身份为访客。如需访问更多页面，请联系Paas平台开通账号权限。</div>
+      <div style="text-decoration: underline; cursor: pointer; color: #0269c8" @click="handleClick('go-to-cas-login')">我已申请账号，点击跳转到登录页面</div>
+    </div>
+    <paas-header :userInfo="userInfo" @menu-click="handleClickOnPassHeader"></paas-header>
     <div class="main">
       <section class="poster">
         <img src="/assets/imgs/index/poster.png">
@@ -119,6 +123,20 @@ $menu-height: 45px;
   display: flex;
   flex-direction: column;
   height: 100%;
+  .tip-for-guest {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    /*color: #F56C6C;*/
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: rgba(245, 108, 108, 0.8);
+    /*background-color: rgba(144, 147, 153, 0.8);*/
+    padding: 5px;
+    border-radius: 5px;
+  }
   .pass-header {
     margin-bottom: 10px;
   }
@@ -401,6 +419,11 @@ $menu-height: 45px;
         }
       }
     },
+    computed: {
+      userInfo() {
+        return this.$storeHelper.userInfo;
+      }
+    },
     methods: {
       handleClickOnPassHeader(keyPath) {
         switch (keyPath) {
@@ -421,6 +444,13 @@ $menu-height: 45px;
         switch (action) {
           case 'go-to-profile':
             this.$utils.goToPath('/profile');
+            break;
+          case 'go-to-cas-login':
+            this.$storeHelper.logout();
+            const logoutHref = this.$net.getCasLogoutHref();
+            if (logoutHref) {
+              window.location.href = logoutHref;
+            }
             break;
         }
       },

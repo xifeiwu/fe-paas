@@ -752,7 +752,12 @@ class Helper {
         from, to
       });
 
-      let token = Vue.prototype.$storeHelper.getUserInfo('token');
+      const userInfo = Vue.prototype.$storeHelper.userInfo;
+      const role = userInfo.role;
+      // 如果是游客，token无效
+      const isGuest = role === 'guest';
+      const token = isGuest ? '' : userInfo.token;
+
       if (token) {
         const result = pathCheck(to.path);
         if (result.errMsg) {
@@ -766,7 +771,10 @@ class Helper {
           }
         }
       } else {
-        window.location = '/login?to=/profile';
+        const logoutHref = Vue.prototype.$net.getCasLogoutHref();
+        if (logoutHref) {
+          window.location.href = logoutHref;
+        }
       }
     });
   }

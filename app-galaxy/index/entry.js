@@ -1,10 +1,12 @@
 import Vue from 'vue';
 
 import netHelper from './net';
+import StoreHelper from 'assets/js/store/helper';
 
 import VueConfig from '../config/vue';
 new VueConfig({
-  netHelper
+  netHelper,
+  storeHelper: new StoreHelper(),
 });
 
 import APP from './index.vue';

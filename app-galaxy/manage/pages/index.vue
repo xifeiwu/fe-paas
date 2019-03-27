@@ -100,6 +100,13 @@
       }
     },
     created() {
+      const role = this.$storeHelper.userInfo.role;
+      // 如果是游客，token无效
+      const isGuest = role === 'guest';
+      if (isGuest) {
+        window.location.href = this.$net.page['index'];
+        return;
+      }
       this.$net.requestPaasServer(this.$net.URL_LIST.message_unread_count, {}).then(resContent => {
         this.messageCountTip = resContent;
       }).catch(() => {

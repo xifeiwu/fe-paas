@@ -6,7 +6,7 @@
          element-loading-text="登录中...">
       <div class="login-error" v-if="errMsg">
         <div style="text-align: center; color: red; font-weight: bold">登录失败：{{errMsg}}</div>
-        <div style="text-align: center; text-decoration: underline"><a :href="$net.getCasLoginUrl(false)">请点击链接跳转到CAS登录页面</a></div>
+        <div style="text-align: center; text-decoration: underline;"><a :href="$net.getCasLoginHref(false)">请点击链接跳转到CAS登录页面</a></div>
       </div>
     </div>
     <div class="main" v-if="pathName === 'paas-login'">
@@ -339,7 +339,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       },
 
       pageJump() {
-        return;
+//        return;
         // 1. go to profile by default
         var toPath = this.$net.page['profile'];
 
@@ -433,7 +433,12 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
           };
           const parsedLoginData = await this.requestAndProcessData(payload);
           if (parsedLoginData && parsedLoginData.hasOwnProperty('userInfo') && parsedLoginData.userInfo.token) {
-            this.pageJump();
+            // 如果用户是游客，只能进入首页
+            if (parsedLoginData['userInfo'].role === 'guest') {
+              window.location.href = this.$net.page['index'];
+            } else {
+              this.pageJump();
+            }
           } else {
             throw new Error('未获得token');
           }
@@ -443,7 +448,6 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
           this.errMsg = err.message;
           this.showLoading = false;
 //          this.$message.error(`登录失败：${err.message}`);
-//          window.location.href = this.$net.getCasLoginUrl(false);
         }
       },
 
