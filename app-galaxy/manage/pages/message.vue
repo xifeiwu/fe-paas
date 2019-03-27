@@ -63,7 +63,7 @@
     >
       <el-form labelWidth="120px" size="mini" :rules="rulesForMessageCreate" :model="action.data" ref="formForMessageCreate">
         <el-form-item label="标题" prop="title">
-          <el-input v-model="action.data.title"></el-input>
+          <el-input v-model="action.data.title" placeholder="不超过100个字符"></el-input>
         </el-form-item>
         <el-form-item label="消息类型" prop="messageTypeId">
           <el-select filterable v-model="action.data.messageTypeId" placeholder="请选择">
@@ -71,8 +71,8 @@
           </el-option>
         </el-select>
         </el-form-item>
-        <el-form-item label="内容" prop="content">
-          <el-input type="textarea"  :rows="2" v-model="action.data.content"></el-input>
+        <el-form-item label="内容" prop="content" placeholder="不超过255个字符">
+          <el-input type="textarea"  :rows="3" v-model="action.data.content"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
@@ -160,6 +160,14 @@
           title: [{
             required: true,
             message: '请填写标题',
+          }, {
+            validator(rule, values, callback) {
+              if (values.length > 100) {
+                callback('不能超过100个字符')
+              } else {
+                callback();
+              }
+            }
           }],
           messageTypeId: [{
             required: true,
@@ -168,6 +176,14 @@
           content: [{
             required: true,
             message: '请填写消息体',
+          }, {
+            validator(rule, values, callback) {
+              if (values.length > 255) {
+                callback('不能超过255个字符')
+              } else {
+                callback();
+              }
+            }
           }],
         }
       }
