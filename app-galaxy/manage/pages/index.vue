@@ -6,7 +6,7 @@
       <div class="header">
         <div></div>
         <paas-header-profile :showDescriptor="showDescriptor4Header" :userName="userName" backgroundColor="#fafafa"
-                             ref="paasHeaderProfile"
+                             ref="paasHeaderProfile" :messageCountTip="messageCountTip"
                              defaultActive="manage" @menu-click="handleHeaderMenuClick"></paas-header-profile>
       </div>
       <div class="content">
@@ -90,6 +90,8 @@
     components: {paasHeaderProfile, paasNavBar},
     data() {
       return {
+        // 未读消息
+        messageCountTip: 0,
         showDescriptor4Header: {},
         // calc by change of screenChange or collapseMenu
         mainNodeWidth: '',
@@ -98,6 +100,11 @@
       }
     },
     created() {
+      this.$net.requestPaasServer(this.$net.URL_LIST.message_unread_count, {}).then(resContent => {
+        this.messageCountTip = resContent;
+      }).catch(() => {
+        this.messageCountTip = 0;
+      }).finally(() => {});
       Promise.all([
         this.$net.requestPaasServer(this.$net.URL_LIST.lob_list),
         this.$net.requestPaasServer(this.$net.URL_LIST.scrum_list),

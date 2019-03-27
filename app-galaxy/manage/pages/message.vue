@@ -15,10 +15,10 @@
               stripe
               :height="heightOfTable"
       >
-        <el-table-column prop="messageTypeName" label="消息类型" idth="80"></el-table-column>
+        <el-table-column prop="messageTypeName" label="消息类型" width="80"></el-table-column>
         <el-table-column prop="title" label="标题" minWidth="100"></el-table-column>
-        <el-table-column prop="content" label="内容" width="160"></el-table-column>
-        <el-table-column prop="formattedReleaseTime" label="发布时间" width="120"></el-table-column>
+        <el-table-column prop="content" label="内容" minWidth="200"></el-table-column>
+        <el-table-column prop="formattedReleaseTime" label="发布时间" width="160"></el-table-column>
         <el-table-column prop="releaseStatusName" label="状态" width="100"></el-table-column>
         <el-table-column label="操作" width="80">
           <template slot-scope="scope">
@@ -97,7 +97,6 @@
     display: flex;
     flex-direction: column;
     .header {
-      display: flex;
       padding: 3px 5px;
       background-color: white;
       .item {
@@ -299,7 +298,8 @@
                 },
                 'message_withdraw': {
                   action: '撤销',
-                  toStatus: 'NO_RELEASE'
+//                  toStatus: 'NO_RELEASE'
+                  toStatus: 'CANCEL'
                 }
               };
               const desc = `确定要${mapper[action]['action']}消息 "${row.title}" 吗？`;
