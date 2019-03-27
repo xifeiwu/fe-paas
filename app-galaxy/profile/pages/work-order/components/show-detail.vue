@@ -229,6 +229,7 @@
         this.action.evt = evt;
         this.action.name = action;
         this.action.row = row;
+        this.forceClone = false;
       },
 
       handleDeployClick() {

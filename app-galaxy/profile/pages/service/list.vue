@@ -1043,6 +1043,7 @@
         this.action.name = action;
         this.action.row = row;
         this.serviceDesc = this.getVersionDescription();
+        this.forceClone = false;
       },
 
       handleDeployClick() {
