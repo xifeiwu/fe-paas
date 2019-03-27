@@ -309,7 +309,7 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="端口映射" class="port-map" v-if="false && showMoreConfig && !formRelated.isProductionProfile" :error="formData.portMap.errMsg">
+            <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig && !formRelated.isProductionProfile" :error="formData.portMap.errMsg">
               <div class="el-row title">
                 <div class="el-col el-col-6">
                   <span>访问端口</span>
