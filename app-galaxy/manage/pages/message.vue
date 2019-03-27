@@ -10,7 +10,7 @@
     </div>
     <div class="list">
       <el-table
-              :data="messageList"
+              :data="messageListByPage"
               style="width: 100%"
               stripe
               :height="heightOfTable"
@@ -18,12 +18,12 @@
         <el-table-column prop="messageTypeName" label="消息类型" width="80"></el-table-column>
         <el-table-column prop="title" label="标题" minWidth="100"></el-table-column>
         <el-table-column prop="content" label="内容" minWidth="200"></el-table-column>
-        <el-table-column prop="formattedReleaseTime" label="发布时间" width="160"></el-table-column>
-        <el-table-column prop="releaseStatusName" label="状态" width="100"></el-table-column>
+        <el-table-column prop="formattedReleaseTime" label="发布时间" width="200" headerAlign="center" align="center"></el-table-column>
+        <el-table-column prop="releaseStatusName" label="状态" width="80"></el-table-column>
         <el-table-column label="操作" width="80">
           <template slot-scope="scope">
             <el-button
-                    v-if="scope.row.releaseStatus === 'NO_RELEASE'"
+                    v-if="scope.row.releaseStatus === 'NO_RELEASE' || scope.row.releaseStatus === 'CANCEL'"
                     type="text"
                     :class="['flex', 'warning']"
                     @click="handleTRClick($event, 'message_publish', scope.$index, scope.row)">
@@ -40,19 +40,19 @@
           </template>
         </el-table-column>
       </el-table>
-      <!--<div class="pagination-container" v-if="totalSize > pageSize">-->
-        <!--<div class="pagination">-->
-          <!--<el-pagination-->
-                  <!--:current-page="currentPage"-->
-                  <!--size="large"-->
-                  <!--layout="prev, pager, next"-->
-                  <!--:page-size = "pageSize"-->
-                  <!--:total="totalSize"-->
-                  <!--@current-change="handlePaginationPageChange"-->
-          <!--&gt;-->
-          <!--</el-pagination>-->
-        <!--</div>-->
-      <!--</div>-->
+      <div class="pagination-container" v-if="totalSize > pageSize">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size="pageSize"
+                  :total="totalSize"
+                  @current-change="page => {currentPage = page}"
+          >
+          </el-pagination>
+        </div>
+      </div>
     </div>
 
     <el-dialog title="创建站内信" :visible="action.name == 'message_create'"
@@ -135,16 +135,20 @@
       setTimeout(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
       });
-      this.requestList();
+      this.requestMessageListByPage(true);
     },
     beforeDestroy() {
     },
     data() {
       return {
         heightOfTable: '',
+        totalSize: 0,
+        pageSize: 12,
+        currentPage: 1,
 
         messageTypeList: null,
         messageList: [],
+        messageListByPage: [],
 
         action: {
           name: null,
@@ -190,6 +194,9 @@
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
+      currentPage() {
+        this.requestMessageListByPage(false);
+      }
     },
     computed: {
     },
@@ -246,7 +253,7 @@
         return resContent;
       },
 
-      async requestList() {
+      async requestMessageList() {
         const statusMap = {
           RELEASE: '已发布',
           NO_RELEASE: '未发布',
@@ -261,7 +268,22 @@
           }
           return it;
         });
+        this.totalSize = messageList.length;
+        this.currentPage = 1;
         this.messageList = messageList;
+        return messageList;
+      },
+
+      async requestMessageListByPage(refresh = false) {
+        if (refresh) {
+          this.messageList = await this.requestMessageList();
+        }
+        var page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.pageSize;
+        const length = this.pageSize;
+        const end = start + length;
+        this.messageListByPage = this.messageList.slice(start, end);
       },
 
       async handleClick(action) {
@@ -289,13 +311,13 @@
               });
 //              console.log(resContent);
               this.closeDialog();
-              this.requestList();
+              this.requestMessageListByPage(true);
             } catch (err) {
               console.log(err);
             }
             break;
           case 'refresh':
-            this.requestList();
+            this.requestMessageListByPage(true);
             break;
         }
       },
@@ -335,7 +357,7 @@
               });
 //              console.log(resContent);
               this.$message.success(`${mapper[action]['action']}成功！`);
-              this.requestList();
+              this.requestMessageListByPage(true);
             } catch (err) {
               console.log(err);
             }
