@@ -65,9 +65,9 @@
             <span>{{scope.row.serviceName}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="120">
+        <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="100">
         </el-table-column>
-        <el-table-column label="维护者" prop="maintainer" headerAlign="center" align="center" width="120">
+        <el-table-column label="维护者" prop="maintainer" headerAlign="center" align="center" width="100">
         </el-table-column>
         <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="160">
           <template slot-scope="scope">
@@ -79,27 +79,32 @@
             <div v-else>{{scope.row.createTime}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" prop="operation" width="180" headerAlign="center" align="center">
+        <el-table-column label="操作" prop="operation" width="240" headerAlign="center" align="center">
           <template slot-scope="scope">
-            <el-button
+            <el-row>
+              <el-col :span="24">
+                <el-button
                     type="text"
                     :class="['flex', $storeHelper.permission['app_show_profile'].disabled ? 'disabled' : 'primary']"
                     @click="handleTRClick($event, 'app_show_profile', scope.$index, scope.row)">
-              <span>运行环境</span><i class="paas-icon-popover" style="margin-left: 3px;"></i>
-            </el-button>
-            <div class="ant-divider" v-if="false"></div>
-            <el-button
+                  <span>运行环境</span><i class="paas-icon-popover" style="margin-left: 3px;"></i>
+                </el-button>
+                <div class="ant-divider"></div>
+                <el-button
                     type="text"
                     :class="['flex', $storeHelper.permission['app_change_props'].disabled ? 'disabled' : 'warning']"
                     @click="handleTRClick($event, 'app_change_props', scope.$index, scope.row)">
-              <span>修改应用</span><i class="paas-icon-level-up"></i>
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
-              type="text"
-              :class="$storeHelper.permission['app_delete'].disabled ? 'disabled' : 'danger'"
-              :loading="statusOfWaitingResponse('app_delete') && selected.row.appId == scope.row.appId"
-              @click="handleTRClick($event, 'app_delete', scope.$index, scope.row)">删除</el-button>
+                  <span>修改应用</span><i class="paas-icon-level-up"></i>
+                </el-button>
+                <div class="ant-divider"></div>
+                <el-button
+                    type="text"
+                    :class="$storeHelper.permission['app_delete'].disabled ? 'disabled' : 'danger'"
+                    :loading="statusOfWaitingResponse('app_delete') && selected.row.appId == scope.row.appId"
+                    @click="handleTRClick($event, 'app_delete', scope.$index, scope.row)">删除
+                </el-button>
+              </el-col>
+            </el-row>
           </template>
         </el-table-column>
       </el-table>
