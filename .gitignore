@@ -6,3 +6,4 @@ server/logs
 .vscode
 .dockrc
 .npmrc
+app-galaxy/assets/static/components/ele/theme-chalk/
