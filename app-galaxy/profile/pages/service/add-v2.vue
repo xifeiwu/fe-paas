@@ -158,7 +158,7 @@
           <div class="el-form-item-group is-required health-check max-width-700">
             <div class="label" style="width: 180px;">健康检查</div>
             <div class="content" style="margin-left: 180px;">
-              <el-form-item :error="formData.healthCheck.contentCheckErrMsg">
+              <el-form-item :error="isSubmitClicked ? formData.healthCheck.contentCheckErrMsg : ''">
                 <div class="health-check-type" style="height: 64px">
                   <el-radio-group v-model="formData.healthCheck.type">
                     <el-radio v-for="(item, index) in $storeHelper.healthCheckTypeList" :label="item.desc" :key="item.desc">{{item.label}}</el-radio>
@@ -747,6 +747,7 @@
     },
     data() {
       return {
+        isSubmitClicked: false,
         useBuildName: true,
         environmentKey: '',
         environmentValue: '',
@@ -1378,6 +1379,7 @@
             this.goToPageService();
             break;
           case 'submit':
+            this.isSubmitClicked = true;
             this.$refs['formData'].validate((valid) => {
               if (this.formData.portMap.errMsg) {
                 valid = false;
