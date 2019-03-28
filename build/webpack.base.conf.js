@@ -35,6 +35,7 @@ const chunksAndTemplates = (() => {
     'manage': path.resolve(vueBaseDir, 'app-galaxy/manage/entry.js'),
     'user': path.resolve(vueBaseDir, 'app-galaxy/user/entry.js'),
     'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal/entry.js'),
+    'terminal-xterm': path.resolve(vueBaseDir, 'app-galaxy/terminal-xterm/entry.js'),
     'page-not-found': path.resolve(vueBaseDir, 'app-galaxy/assets/components/page-not-found-entry.js'),
   };
   let htmlConfigs = [
@@ -100,6 +101,16 @@ const chunksAndTemplates = (() => {
         "css": []
       },
       "chunks": ["terminal"],
+    },
+    {
+      "filename": "terminal-xterm.html",
+      "title": "凡普云-实例终端",
+      "cdn": {
+        "js": ['/assets/xterm/dist/xterm.js', '/assets/xterm/dist/addons/fit/fit.js',
+          '/assets/xterm/dist/addons/winptyCompat/winptyCompat.js', '/assets/xterm/dist/addons/webLinks/webLinks.js'],
+        "css": ['assets/xterm/dist/xterm.css']
+      },
+      "chunks": ["terminal-xterm"],
     },
     {
       "filename": "page-not-found.html",
