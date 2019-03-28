@@ -34,7 +34,7 @@ const chunksAndTemplates = (() => {
     'profile': path.resolve(vueBaseDir, 'app-galaxy/profile/entry.js'),
     'manage': path.resolve(vueBaseDir, 'app-galaxy/manage/entry.js'),
     'user': path.resolve(vueBaseDir, 'app-galaxy/user/entry.js'),
-    'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal.js'),
+    'terminal': path.resolve(vueBaseDir, 'app-galaxy/terminal/entry.js'),
     'page-not-found': path.resolve(vueBaseDir, 'app-galaxy/assets/components/page-not-found-entry.js'),
   };
   let htmlConfigs = [
