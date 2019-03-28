@@ -11,7 +11,8 @@ $g-env-staging-color: #EF5b9C;
         test: $g-env-test-color,
         performance: $g-env-performance-color,
         beta: $g-env-beta-color,
-        production: $g-env-production-color) {
+        production: $g-env-production-color,
+        staging: $g-env-staging-color) {
   .g-env-#{$env}-color {
     color: $color
   }
