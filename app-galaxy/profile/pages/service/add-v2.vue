@@ -1070,6 +1070,8 @@
       },
       'formData.spaceId': function (spaceId) {
         this.formRelated.isProductionProfile = this.$storeHelper.isProductionProfile(spaceId);
+        // 切换目标环境是清除所有的表单字段校验
+        this.$refs['formData'].resetFields();
       }
 //      'imageInfoFromNet': {
 //        immediate: true,
