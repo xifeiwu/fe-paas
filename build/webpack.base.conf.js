@@ -43,7 +43,7 @@ const chunksAndTemplates = (() => {
       "title": "凡普云-首页",
       "cdn": {
         "js": [],
-        "css": ['/assets/components/ele/theme-chalk/index.css']
+        "css": ['/assets/components/ele/theme-chalk/profile.css']
       },
       "chunks": ["index"],
     },
@@ -52,7 +52,7 @@ const chunksAndTemplates = (() => {
       "title": "凡普云-帮助",
       "cdn": {
         "js": [],
-        "css": ['/assets/components/ele/theme-chalk/index.css']
+        "css": ['/assets/components/ele/theme-chalk/profile.css']
       },
       "chunks": ["docs"],
     },
@@ -61,7 +61,7 @@ const chunksAndTemplates = (() => {
       "title": "凡普云-登录",
       "cdn": {
         "js": [],
-        "css": ['/assets/components/ele/theme-chalk/index.css']
+        "css": ['/assets/components/ele/theme-chalk/profile.css']
       },
       "chunks": ["login"],
     },
@@ -70,7 +70,7 @@ const chunksAndTemplates = (() => {
       "title": "凡普云-控制台",
       "cdn": {
         "js": [],
-        "css": ['/assets/components/ele/theme-chalk/index.css']
+        "css": ['/assets/components/ele/theme-chalk/profile.css']
       },
       "chunks": ["profile"],
     },
@@ -79,7 +79,7 @@ const chunksAndTemplates = (() => {
       "title": "凡普云-管理平台",
       "cdn": {
         "js": [],
-        "css": ['/assets/components/ele/theme-chalk/index.css']
+        "css": ['/assets/components/ele/theme-chalk/profile.css']
       },
       "chunks": ["manage"],
     },
@@ -88,7 +88,7 @@ const chunksAndTemplates = (() => {
       "title": "凡普云-用户中心",
       "cdn": {
         "js": [],
-        "css": ['/assets/components/ele/theme-chalk/index.css']
+        "css": ['/assets/components/ele/theme-chalk/profile.css']
       },
       "chunks": ["user"],
     },
