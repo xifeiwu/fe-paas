@@ -1301,8 +1301,8 @@
             this.formItemMsgForHosts = '';
             let ip = key;
             let domain = value;
-            let ipReg = new RegExp('^([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})$');
-            if (!ip.match(ipReg)) {
+            const ipReg = this.$utils.getReg('ipOnly');
+            if (!ipReg.test(ip)) {
               this.$message.error('ip格式不正确');
               return;
             }

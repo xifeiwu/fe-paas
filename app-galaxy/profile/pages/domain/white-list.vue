@@ -378,7 +378,7 @@
       // 检查IP地址是否正确，返回错误提示。返回null说明没有错误。
       errMsgForIpCheck(ip) {
         let errMsg = null;
-        let ipRegExp = this.$utils.getReg('ip');
+        let ipRegExp = this.$utils.getReg('ipWithMask');
         let result = ipRegExp.exec(ip);
         if (result && result.length === 6) {
           if (result[5]) {
