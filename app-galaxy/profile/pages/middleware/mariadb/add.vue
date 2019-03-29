@@ -22,7 +22,7 @@
         <div class="title">基本信息</div>
         <el-form-item label="实例名称" prop="name" class="name">
           <div v-if="forModify">{{formData.name}}</div>
-          <el-input v-model="formData.name" placeholder="小写字符，数字，中划线，不能以中划线开始或结尾。2-256个字符" v-else></el-input>
+          <el-input v-model="formData.name" placeholder="小写字符，数字，中划线，不能以中划线开始或结尾。2-63个字符" :maxlength=63 v-else></el-input>
         </el-form-item>
         <el-form-item label="mariadb版本" prop="versionId" class="name" v-if="!forModify">
           <el-radio-group v-model="formData.versionId">
