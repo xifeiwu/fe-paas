@@ -305,6 +305,8 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
         backgroundEffectOfCodeWriter(this.$el.querySelector('.main .writting-code pre code'));
       } else if (this.pathName === 'cas-login') {
         this.startCasLogin();
+      } else if (this.pathName === 'login') {
+        window.location.href = this.$net.page['cas-login'];
       }
     },
     methods: {

@@ -63,6 +63,7 @@ class Net {
       'index': '/index',
       'login': '/login',
       'cas-login': '/cas-login',
+      'paas-login': '/paas-login',
       'profile': '/profile',
       'profile/app': '/profile/app',
       'profile/app/add': '/profile/app/add',
