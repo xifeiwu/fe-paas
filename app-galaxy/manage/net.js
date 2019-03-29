@@ -79,6 +79,16 @@ class Net extends NetBase {
         path: '/backstage/downloadCallAmountXls',
         method: 'post'
       },
+	    // k8s群集
+	    query_k8s_cluster: {
+		    path: '/queryCluster',
+		    method: 'get'
+	    },
+	    // 调用次数详情
+	    query_node_list: {
+		    path: '/queryAllNode',
+		    method: 'get'
+	    },
       // 调用次数详情
       analyze_visit_list_item_detail: {
         path: '/backstage/queryCallDetail',

@@ -16,6 +16,9 @@
       <el-menu-item v-for="menu in navMenu.level1" :key="menu.name" :index="menu.router">
         <i :class="menu.icon"></i><span slot="title">{{menu.name}}</span>
       </el-menu-item>
+      <el-menu-item v-for="menu in navMenu.level3" :key="menu.name" :index="menu.router">
+        <i :class="menu.icon"></i><span slot="title">{{menu.name}}</span>
+      </el-menu-item>
       <el-submenu v-for="menu in navMenu.level2" :key="menu.name" :index="menu.router">
         <template slot="title">
           <i v-if="menu.icon" :class="menu.icon"></i><span>{{menu.name}}</span>
@@ -154,6 +157,11 @@
               router: '/manage/analyze/visit',
               icon: 'el-icon-arrow-right',
             }]
+          }],
+          level3: [{
+            name: '集群管理',
+            router: '/manage/node-manage',
+            icon: 'paas-icon-app'
           }]
         }
       }
