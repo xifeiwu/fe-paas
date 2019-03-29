@@ -11,13 +11,10 @@
       <div class="section-config">
         <div class="step step1">
           <div class="title">
-            1. 基本配置
+            <span>1. 基本配置</span><span style="font-size: 14px;">（目标应用：{{appInfo.appName}}）</span>
           </div>
           <div class="config">
             <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" class="clear-fix" ref="basic-info-form">
-              <el-form-item label="目标应用" v-if="appInfo" class="big">
-                {{appInfo.appName}}
-              </el-form-item>
               <el-form-item label="Pipeline名称" prop="pipelineName">
                 <el-input size="mini-extral" v-model="formData.pipelineName"></el-input>
               </el-form-item>
@@ -29,6 +26,18 @@
               </el-form-item>
               <el-form-item label="gitlab分支" prop="gitLabBranch">
                 <el-input size="mini-extral" v-model="formData.gitLabBranch"></el-input>
+              </el-form-item>
+              <el-form-item label="webhook配置" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooksVO">
+                <el-input size="mini-extral" v-model="formData.webHooksVO.webHooksUrl"></el-input>
+              </el-form-item>
+              <el-form-item class="webhook-config-more" labelWidth="100px" label="hook类型：" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooksVO">
+                <el-checkbox-group v-model="formData.webHooksVO.webHooksSelectedEvent">
+                  <el-checkbox v-for="(item, index) in pipelineInfoFromNet.webHooksVO.webHooksEvent" :label="item" :key="item">{{item}}</el-checkbox>
+                </el-checkbox-group>
+                <div style="display: inline-block; margin-left: 30px;">
+                  <span style="font-size: 14px; line-height: 24px; font-weight: bold; vertical-align: middle">是否生效：</span>
+                  <el-checkbox v-model="formData.webHooksVO.selected">生效</el-checkbox>
+                </div>
               </el-form-item>
             </el-form>
           </div>
@@ -284,6 +293,17 @@
               .el-input {
                 max-width: 500px;
               }
+              .el-form-item.webhook-config-more {
+                .el-checkbox + .el-checkbox {
+                  margin-left: 8px;
+                }
+                .el-form-item__label {
+                  padding-right: 5px;
+                }
+                .el-checkbox-group {
+                  display: inline-block;
+                }
+              }
             }
             @mixin expand-inline-form-item() {
               display: block;
@@ -496,6 +516,7 @@
         });
         if (!this.appInfo) {
           goBack = true;
+          this.$message.error('未找到应用相关信息！');
           console.log('appInfo not found');
         }
         this.formData.appId = this.dataPassed.appId;
@@ -566,16 +587,20 @@
      // console.log(stages);
       this.updateStageIndex(stages);
       this.stages = stages;
+      // sync formData by netData
       this.syncFormDataByServerData(this.formData, this.pipelineInfoFromNet);
+//      console.log(this.formData);
       // override appId
       this.formData.appId = this.dataPassed.appId;
 //      console.log(this.formData);
 //      console.log(this.pipelineInfoFromNet);
     },
     mounted() {
-      this.stepNodeList = [].slice.call(this.$el.querySelectorAll('.sheet .nav-steps .step'));
-      this.popperForContentShow = this.$refs['popover-for-content-show'];
-//      console.log(this.stepNodeList);
+      this.$nextTick(() => {
+        this.stepNodeList = [].slice.call(this.$el.querySelectorAll('.sheet .nav-steps .step'));
+        this.popperForContentShow = this.$refs['popover-for-content-show'];
+//        console.log(this.stepNodeList);
+      });
     },
     data() {
       return {
@@ -599,6 +624,11 @@
           pipelineDescription: '',
           gitLabPath: '',
           gitLabBranch: '',
+          webHooksVO: {
+            selected: false,
+            webHooksSelectedEvent: [],
+            webHooksUrl: ''
+          },
           // sonar及单元测试
           testAndSonarScript: {
             script: '',
@@ -852,6 +882,14 @@
           }
         };
         syncObject(formData, netData);
+        this.postTreatFormData(formData, netData);
+      },
+      postTreatFormData(formData, netData) {
+        const formWebHooks = formData.webHooksVO;
+        const netWebHooks = netData.webHooksVO;
+        if (formWebHooks.webHooksSelectedEvent.length === 0 && netWebHooks && netWebHooks.webHooksEvent && netWebHooks.webHooksEvent.length > 0) {
+          formData.webHooksVO.webHooksSelectedEvent.push(netWebHooks.webHooksEvent[0]);
+        }
       },
       // 更新stage列表中每个元素的index值
       updateStageIndex(stage) {
