@@ -535,6 +535,7 @@
     Failed: '失败'
   };
   const MIDDLEWARE_NAME = 'mariadb';
+  const NO_INSTANCES = {'ins': 0, 'replicas': 0};
   module.exports = {
     mixins: [commonUtils],
     async created() {
@@ -780,7 +781,7 @@
               it.mariaStatus.ins = 0;
             }
           } else {
-            it.mariaStatus.ins = 0;
+          	it.mariaStatus = NO_INSTANCES;
           }
         });
         this.instanceList = instanceList;
