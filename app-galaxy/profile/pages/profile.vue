@@ -63,7 +63,7 @@
                              ref="paasHeaderProfile"
                              @menu-click="handleHeaderMenuClick"></paas-header-profile>
       </div>
-      <div v-if="!routeConfig" class="profile content">
+      <div v-if="showPageNotFound" class="profile content">
         <page-not-found :navigateList="navigateList"></page-not-found>
       </div>
       <div class="profile content" v-else>
@@ -304,6 +304,7 @@
         crumbList: [],
         // 用于配置404页面的属性
         routeConfig: null,
+        showPageNotFound: false,
         navigateList: [{
           href: this.$net.page['profile/app'],
           label: '应用引擎'
@@ -511,6 +512,7 @@
         const path = route['path'];
         this.routeConfig = this.$router.helper.getConfigByRouterPath(path);
         if (this.routeConfig) {
+          this.showPageNotFound = false;
           // whether show groupList
           let pageNotShowGroupList = ['/profile/app/add', '/profile/service/add', '/profile/service/copy', '/profile/service/modify', '/profile/service/detail', '/profile/image/repo/version', '/profile/domain/white-list'];
           let pageNotShowGroupListReg = /^\/profile\/(work-order\/(todo|list).*|config-server\/*)$/;
@@ -521,6 +523,11 @@
           }
           // update content of crumb list
           this.updateCrumbList(path);
+        } else {
+          // 延迟2s展示page-not-found页面
+          setTimeout(() => {
+            this.showPageNotFound = true;
+          }, 2000);
         }
       },
 
