@@ -3,7 +3,7 @@
        v-loading="showLoading"
        :element-loading-text="loadingText">
     <div class="section-title">
-      <span>{{forModify ? '修改Mariadb实例配置' : '申请Mariadb实例'}}</span>
+      <span>{{forModify ? '修改MariaDB服务配置' : '申请MariaDB服务'}}</span>
       <el-tooltip slot="trigger" effect="dark" placement="bottom">
         <div slot="content">
           <div>1. 数据库密码会由系统自动生成，可在实例详情中查看</div>
@@ -20,9 +20,16 @@
              ref="createInstanceForm" label-width="120px">
       <div>
         <div class="title">基本信息</div>
-        <el-form-item label="实例名称" prop="name" class="name">
+        <el-form-item label="服务名称" prop="name" class="name">
           <div v-if="forModify">{{formData.name}}</div>
-          <el-input v-model="formData.name" placeholder="小写字符，数字，中划线，不能以中划线开始或结尾。2-63个字符" :maxlength=63 v-else></el-input>
+          <el-input v-model="formData.name" placeholder="小写字符，数字，中划线，不能以中划线开始或结尾。2-256个字符" v-else></el-input>
+        </el-form-item>
+        <el-form-item label="运行环境" prop="clusterId" class="name">
+          <el-radio-group v-model="formData.clusterId">
+            <el-radio v-for="item in clusterList" :label="item.id" :key="item.id">
+              {{item.description}}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="mariadb版本" prop="versionId" class="name" v-if="!forModify">
           <el-radio-group v-model="formData.versionId">
@@ -64,6 +71,12 @@
       </div>
       <div>
         <div class="title">数据库信息</div>
+        <el-form-item label="集群模式" prop="replicas" class="name" v-if="!forModify">
+          <el-radio-group v-model="formData.replicas" size="small">
+            <el-radio :label=1 size="small">单节点模式</el-radio>
+            <el-radio :label=2 size="small" disabled>双主模式</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="数据库名" prop="dbName" class="db-name" v-if="!forModify">
           <el-input v-model="formData.dbName" placeholder="英文，数字，下划线，中划线。2-30个字符"></el-input>
         </el-form-item>
@@ -174,6 +187,7 @@
 <script>
   import utils from '../utils';
   import commonUtils from 'assets/components/mixins/common-utils';
+  import th from "../../../../../components/element-ui/src/locale/lang/th";
   module.exports = {
     mixins: [commonUtils],
     async created() {
@@ -225,6 +239,18 @@
       this.formData.cpu = this.constants['cpuList'][0];
       this.formData.memory = this.constants['memoryList'][0];
 //      console.log(this.middlewareVersionList);
+
+      this.clusterList = this.$storeHelper.getClusterList();
+      var results = this.$storeHelper.getClusterList();
+      if (!results) {
+        this.clusterList = [];
+      } else {
+        this.clusterList = results.filter(it => it['clusterName']).filter(it => it['clusterName'] != 'production');
+        if (this.clusterList.length > 0) {
+          const firstCluster = this.clusterList[0];
+          this.formData.clusterId = firstCluster.hasOwnProperty('id') ? firstCluster['id'] : '';
+        }
+      }
     },
 
     mounted() {
@@ -236,6 +262,7 @@
         clusterInfo: null,
         middlewareInfo: null,
         middlewareVersionList: [],
+        clusterList: [],
 
         showLoading: false,
         loadingText: '',
@@ -257,6 +284,9 @@
           password: '',
           confirmPassword: '',
           comment: '',
+          replicas: 1,
+          clusterId: '',
+          middlewareId: ''
         },
         formRules: utils.mariadbRules,
 
@@ -268,16 +298,45 @@
       }
     },
     watch: {
-
+      'formData.clusterId': 'onSelectClusterList',
     },
     methods: {
+      async onSelectClusterList(clusterId) {
+        var middlewareList = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware, {
+          query: {
+            clusterId
+          }
+        });
+        // var middlewareList = this.$storeHelper.getMiddlewareList(clusterId);
+        var currentMiddleware = [];
+        if (middlewareList) {
+          currentMiddleware = middlewareList.find(it => {
+            return 'mariadb' === it['middlewareName'];
+          });
+        }
+        var middlewareId = currentMiddleware.id;
+        this.formData.middlewareId = currentMiddleware.id;
+        // get version list
+        this.middlewareVersionList = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_version, {
+          query: {
+            middlewareId
+          }
+        });
+        // set default value for formData
+        if (this.middlewareVersionList.length > 0) {
+          const firstVersion = this.middlewareVersionList[0];
+          this.formData.versionId = firstVersion.hasOwnProperty('id') ? firstVersion['id'] : '';
+        } else {
+          this.middlewareVersionList = [];
+        }
+      },
       async handleClick(evt, action) {
         const formData = this.formData;
         var payload = {
           groupId: this.$storeHelper.currentGroupID,
           namespace: this.$storeHelper.groupInfo.tag,
-          clusterId: this.clusterInfo.id,
-          middlewareId: this.middlewareInfo.id,
+          clusterId: formData.clusterId,
+          middlewareId: formData.middlewareId,
           name: formData.name,
         };
         var resContent = null;
@@ -297,6 +356,7 @@
                 storageSize: formData.disk,
                 databaseUser: formData.userName,
 //                databasePassword: formData.password,
+                replicas: formData.replicas,
                 instanceDescribe: formData.comment
               });
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_create, {

@@ -522,6 +522,10 @@ class Net extends NetBase {
         path: '/middleware/queryMiddlewareRuntime',
         method: 'post'
       },
+      'middleware_middleware_instance_info_maria': {
+        path: '/middleware/getMiddlewareMariaDBServer',
+        method: 'post'
+      },
       // 获取更多实例信息 TODO: not used
       'middleware_middleware_instance_info_detail': {
         path: '/middleware/getMiddlewareStatus',
