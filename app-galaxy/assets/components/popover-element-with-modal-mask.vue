@@ -12,7 +12,9 @@
             :id="tooltipId"
     >
       <div class="el-popover__title" v-if="title" v-text="title"></div>
-      <slot name="content"></slot>
+      <div class="content" v-if="contentType === 'html'" v-html="content"></div>
+      <div class="content" v-if="contentType === 'text'">{{ content }}</div>
+      <slot name="content" v-if="contentType === 'node'"></slot>
     </div>
   </transition>
 </template>
@@ -28,8 +30,6 @@
   import { generateId } from 'element-ui/src/utils/util';
 
   export default {
-//    mixins: [Popper],
-
     props: {
       title: String,
       placement: {
@@ -62,11 +62,12 @@
           };
         }
       },
-      trigger: {
-        type: String,
-        default: 'click',
-        validator: value => ['click', 'focus', 'hover', 'manual'].indexOf(value) > -1
+
+      closeOnRandomClick: {
+        type: Boolean,
+        default: false
       },
+      // 延迟多长时间，自动关闭
       closeDelay: {
         type: Number,
         default: 0
@@ -86,8 +87,11 @@
     data() {
       return {
         reference: null,
+        referenceInfo: {
+          zIndex: null
+        },
         content: '',
-        contentType: 'text',
+        contentType: 'node',
         popperStatus: {
           show: false,
           ref:null
@@ -102,37 +106,34 @@
       }
     },
     watch: {
-      'popperStatus.show': function(val) {
-        val ? this.$emit('show') : this.$emit('hide');
+      'popperStatus.show': function(show) {
+        if (show) {
+          this.$emit('show');
+        } else {
+          this.$emit('hide');
+          this.reference.style.zIndex = this.referenceInfo.zIndex;
+          PopupManager.closeModal(this.tooltipId);
+        }
       },
     },
 
     mounted() {
-      if (this.trigger === 'click') {
+      if (this.closeOnRandomClick) {
         on(document, 'click', this.handleDocumentClick);
-      } else if (this.trigger === 'hover') {
-//        on(reference, 'mouseenter', this.handleMouseEnter);
-//        on(popper, 'mouseenter', this.handleMouseEnter);
-//        on(reference, 'mouseleave', this.handleMouseLeave);
-//        on(popper, 'mouseleave', this.handleMouseLeave);
       }
       this.popperElm = this.$el;
     },
 
     methods: {
-      show({ref, msg, type}) {
-//        if (this.reference && this.reference !== ref && this.showPopper) {
-//          this.showPopper = false;
-//          this.popperStatus.show = false;
-//        }
-        if (type && ['text', 'html', 'node'].indexOf(type) > -1) {
-          this.contentType = type;
-        } else {
-          this.contentType = 'text';
+      show({ref, msg, type = 'node'}) {
+        if (['text', 'html'].indexOf(type) > -1) {
+          this.content = msg;
         }
+        this.contentType = type;
+
         this.$nextTick(() => {
           this.reference = ref;
-          this.content = msg;
+          this.referenceInfo.zIndex = window.getComputedStyle(ref)['zIndex'];
           this.popperStatus.show = true;
           this.popperStatus.ref = ref;
           this.createPopper();
@@ -149,23 +150,6 @@
             })
           }
         });
-      },
-      handleDocumentClick(e) {
-        let reference = this.reference;
-        const popper = this.popper || this.$refs.popper;
-        if (!this.$el ||
-          !reference ||
-          this.$el.contains(e.target) ||
-          reference.contains(e.target) ||
-          !popper ||
-          popper.contains(e.target)) return;
-        this.popperStatus.show = false;
-      },
-      handleAfterEnter() {
-        this.$emit('after-enter');
-      },
-      handleAfterLeave() {
-        this.$emit('after-leave');
       },
 
       createPopper() {
@@ -194,10 +178,6 @@
 
         options.placement = this.currentPlacement;
         options.offset = this.offset;
-//         console.log(reference);
-//         console.log(popper);
-        // console.log(options);
-        // console.log(reference.offsetParent);
         this.popperJS = new PopperJS(reference, popper, options);
         this.popperJS.onCreate(_ => {
           this.$emit('created', this);
@@ -207,8 +187,27 @@
         if (typeof options.onUpdate === 'function') {
           this.popperJS.onUpdate(options.onUpdate);
         }
+        PopupManager.openModal(this.tooltipId, PopupManager.nextZIndex(), null);
+        this.reference.style.zIndex = PopupManager.nextZIndex();
         this.popperJS._popper.style.zIndex = PopupManager.nextZIndex();
-//        this.popperElm.addEventListener('click', stop);
+      },
+
+      handleDocumentClick(e) {
+        let reference = this.reference;
+        const popper = this.popper || this.$refs.popper;
+        if (!this.$el ||
+          !reference ||
+          this.$el.contains(e.target) ||
+          reference.contains(e.target) ||
+          !popper ||
+          popper.contains(e.target)) return;
+        this.popperStatus.show = false;
+      },
+      handleAfterEnter() {
+        this.$emit('after-enter');
+      },
+      handleAfterLeave() {
+        this.$emit('after-leave');
       },
 
       updatePopper() {
