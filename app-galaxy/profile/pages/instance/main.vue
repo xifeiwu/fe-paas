@@ -41,14 +41,10 @@
                 width="170"
                 headerAlign="left" align="left">
           <template slot-scope="scope">
-            <el-button
-                    type="text"
-                    v-if="true"
-                    :class="['flex']"
+            <span
+                    :class="['running-node', isProductionProfile ? 'production': 'un-production']"
                     @click="handleRowButtonClick($event, 'show_eagleeye', scope.$index, scope.row)"
-            >
-              <span>{{scope.row.nodeName}}</span>
-            </el-button>
+            >{{scope.row.nodeName}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -286,6 +282,12 @@
     }
     .instance-list {
       position: relative;
+      .running-node {
+        &.production {
+          color: #409EFF;
+          cursor: pointer;
+        }
+      }
       .pop-in-container {
       }
       .el-table {
@@ -367,6 +369,11 @@
     },
     beforeDestroy() {
       removeResizeListener(this.$el, this.resizeListener);
+    },
+    computed: {
+      isProductionProfile() {
+        return this.$storeHelper.isProductionProfile(this.profileInfo.id);
+      }
     },
     data() {
       return {
@@ -721,19 +728,14 @@
           this.hidePop();
         }
         let serviceInfo = null;
-        let valueOfVersionSelector = null;
         switch (action) {
           case 'show_eagleeye':
-            valueOfVersionSelector = this.$refs['version-selector'].getSelectedValue();
-            var profileId = valueOfVersionSelector['selectedProfile'].id;
             var nodeUrl = "/monitor/index.html#/basicResource/machine/cpu?node=" + row.nodeIp
                     + "&groupId=" + this.$storeHelper.groupInfo.tag + "&app=" + row.svcName;
-            if (this.$storeHelper.isProductionProfile(profileId)) {
-              console.log("http://apm.finupgroup.com" + nodeUrl)
+            if (this.isProductionProfile) {
               window.open("http://apm.finupgroup.com" + nodeUrl, '_blank');
             } else {
-              console.log("http://monitor-app-web.godeyes.test" + nodeUrl)
-              window.open("http://monitor-app-web.godeyes.test" + nodeUrl, '_blank');
+              // window.open("http://monitor-app-web.godeyes.test" + nodeUrl, '_blank');
             }
             break;
           case 'instance_replace':

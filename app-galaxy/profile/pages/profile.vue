@@ -526,7 +526,7 @@
         } else {
           // 延迟2s展示page-not-found页面
           setTimeout(() => {
-            this.showPageNotFound = true;
+            this.showPageNotFound = this.$router.helper.getConfigByRouterPath(this.$route['path']) ? false : true;
           }, 2000);
         }
       },
