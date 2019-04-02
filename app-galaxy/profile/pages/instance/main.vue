@@ -728,6 +728,7 @@
           this.hidePop();
         }
         let serviceInfo = null;
+        var valueOfVersionSelector = null;
         switch (action) {
           case 'show_eagleeye':
             var nodeUrl = "/monitor/index.html#/basicResource/machine/cpu?node=" + row.nodeIp

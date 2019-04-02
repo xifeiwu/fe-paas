@@ -286,10 +286,10 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
     },
     async mounted () {
       // jump to destination page when token is found
-//      if (this.$storeHelper.getUserInfo('token')) {
-//        this.pageJump();
-//        return;
-//      }
+      if (this.$storeHelper.getUserInfo('token')) {
+        this.pageJump();
+        return;
+      }
       if (this.pathName === 'paas-login') {
         this.updateVerifyCode();
         // logic for form focus
