@@ -13,6 +13,7 @@ import pipeLine from './pipeline';
 import pipelineAdd from './pipeline/add';
 import pipeLineList from "./pipeline/main"
 import pipeLineRecord from "./pipeline/record"
+import pipelinePlan from './pipeline/plan'
 
 import DomainMain from './domain/main.vue';
 import DomainWhiteList from './domain/white-list.vue';
@@ -145,6 +146,10 @@ class Helper {
         path: 'records',
         name: '执行记录',
         component: pipeLineRecord,
+      }, {
+        path: 'records/plan',
+        name: '执行计划',
+        component: pipelinePlan,
       }]
     },{
       path: '/profile/instance',
@@ -633,6 +638,28 @@ class Helper {
       return it.hasOwnProperty('name');
     });
     return JSON.parse(JSON.stringify(result));
+  }
+
+
+  /**
+   * rename router name in richRouterConfig
+   */
+  async renameRouterName(targetPath, rename , parentPath) {
+    let targetRouterPath = null;
+    if (parent) {
+      targetRouterPath = this.richRouterConfig.find(it => {
+        return it.path == parentPath;
+      }).children.find(it => {
+        return it.path == targetPath;
+      });
+    } else {
+      targetRouterPath = this.richRouterConfig.find(it => {
+        return it.path == targetPath;
+      });
+    }
+    await setTimeout(() => {
+      targetRouterPath.name = rename;
+    });
   }
 
   /**

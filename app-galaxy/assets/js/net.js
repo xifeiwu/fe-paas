@@ -91,6 +91,7 @@ class Net {
       'profile/pipeline/modify': '/profile/pipeline/modify',
       'profile/pipeline/update': '/profile/pipeline/update',
       'profile/pipeline/records': '/profile/pipeline/records',
+      'profile/pipeline/records/plan': '/profile/pipeline/records/plan',
       'profile/instance': '/profile/instance',
       'profile/monitor': '/profile/monitor',
       'profile/domain': '/profile/domain',

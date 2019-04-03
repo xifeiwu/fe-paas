@@ -563,7 +563,7 @@
         }
         return result;
       }).filter(it => it);
-//      console.log(stages);
+     // console.log(stages);
       this.updateStageIndex(stages);
       this.stages = stages;
       this.syncFormDataByServerData(this.formData, this.pipelineInfoFromNet);

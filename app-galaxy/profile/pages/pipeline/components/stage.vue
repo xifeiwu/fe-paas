@@ -5,7 +5,10 @@
          @mouseleave="handleMouseLeave($event)"
          @click="handleClick($event)"
          v-clickoutside="handleClickOutside"
-    >{{item.index ? item.index : ''}}</div>
+    >
+      <i :class="[item.result == 'FAILURE' ?'el-icon-close' : 'el-icon-check']" v-if="item.showIcon"></i>
+      <i v-else>{{item.index ? item.index : ''}}</i>
+    </div>
     <div class="description">{{item.description}}</div>
     <div class="line"></div>
   </div>
@@ -59,7 +62,8 @@
     &.start, &.end {
       width: 70px;
       .node {
-        cursor: not-allowed;
+        /*cursor: not-allowed;*/
+        pointer-events: none;
         border-width: 0px;
         width: 14px;
         height: 14px;
@@ -73,7 +77,8 @@
     &.download, &.download.is-selected.is-active {
       width: 90px;
       .node {
-        cursor: not-allowed;
+        /*cursor: not-allowed;*/
+        pointer-events: none;
         width: 24px;
         height: 24px;
         background-color: #949393;
@@ -135,7 +140,10 @@
             selected: false,
             description: 'unknown',
             active: false,
-            index: 0
+            index: 0,
+            id: null,
+            showIcon: false,
+            result: '',
           }
         }
       }

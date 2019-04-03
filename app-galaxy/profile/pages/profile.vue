@@ -523,7 +523,7 @@
         if (this.routeConfig) {
           this.showPageNotFound = false;
           // whether show groupList
-          let pageNotShowGroupList = ['/profile/app/add', '/profile/service/add', '/profile/service/copy', '/profile/service/modify', '/profile/service/detail', '/profile/image/repo/version', '/profile/domain/white-list'];
+          let pageNotShowGroupList = ['/profile/app/add', '/profile/service/add', '/profile/service/copy', '/profile/service/modify', '/profile/service/detail', '/profile/image/repo/version', '/profile/domain/white-list', '/profile/pipeline/records'];
           let pageNotShowGroupListReg = /^\/profile\/(work-order\/(todo|list).*|config-server\/*)$/;
           if (pageNotShowGroupList.indexOf(path) > -1 || pageNotShowGroupListReg.exec(path)) {
             this.showGroupList = false;

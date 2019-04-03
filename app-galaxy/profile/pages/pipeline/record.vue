@@ -107,6 +107,14 @@
               @click="handleTRClick($event, 'pipeline_build_history_log', scope.$index, scope.row)">
               <span>查看历史日志</span>
             </el-button>
+            <div class="ant-divider" v-if="scope.row['status'] !== 'IN_PROGRESS'"></div>
+
+            <el-button
+              type="text"
+              :class="['flex', 'primary']"
+              @click="handleTRClick($event, 'pipeline_build_plan', scope.$index, scope.row)">
+              <span>查看执行计划</span>
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -641,6 +649,14 @@
                 },100);
               }
             }
+            break;
+          case 'pipeline_build_plan':
+            this.$storeHelper.dataTransfer = {
+              appId: this.relatedAppId,
+              buildNumber: row['buildNumber'],
+            };
+            await this.$router.helper.renameRouterName('records/plan', `${this.dataPassed.pipelineName}<${row.buildNumber}>`, '/profile/pipeline');
+            this.$router.push(this.$net.page['profile/pipeline/records/plan']);
             break;
         }
       },

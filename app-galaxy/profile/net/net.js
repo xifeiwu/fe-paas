@@ -683,6 +683,21 @@ class Net extends NetBase {
       'message_mark_read': {
         path: '/message/update/status',
         method: 'post'
+      },
+      //获取blue ocean stage列表
+      'pipeline_blue_ocean_stage_list': {
+        path: '/pipeline/query/blueOcean/stage/{appId}',
+        method: 'get'
+      },
+      //获取blue ocean stage step 列表
+      'pipeline_blue_ocean_stage_step_list': {
+        path: '/pipeline/query/blueOcean/stage/steps/{appId}',
+        method: 'get'
+      },
+      //获取blue ocean stage step log
+      'pipeline_blue_ocean_stage_step_log': {
+        path: '/pipeline/query/blueOcean/stage/step/log',
+        method: 'get'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
