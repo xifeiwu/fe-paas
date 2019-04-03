@@ -622,26 +622,31 @@
           // sonar及单元测试
           testAndSonarScript: {
             script: '',
+            inputCheck: false,
             selected: false,
           },
           // 打包
           mvnPackage: {
             script: '',
+            inputCheck: false,
             selected: false,
           },
           // 制作镜像
           buildImage: {
             selectedImage: '',
+            inputCheck: false,
             selected: false,
           },
           // 部署到测试环境
           deployTestEnv: {
             env: 'TEST',
+            inputCheck: false,
             selected: false,
           },
           // 自动化测试
           autoScript: {
             script: '',
+//            inputCheck: false,
             selected: false
           },
           // sonar数据检查
@@ -651,6 +656,7 @@
             codeDebtSelected: false,
             unitTestRatio: '',
             unitTestSelected: false,
+            inputCheck: false,
             selected: false,
           },
           // 功能测试（人工验证）
@@ -660,6 +666,7 @@
           // 部署到联调环境
           deployBetaEnv: {
             env: 'BETA',
+            inputCheck: false,
             selected: false,
           },
           // 通知设置
