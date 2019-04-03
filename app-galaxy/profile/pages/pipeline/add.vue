@@ -184,14 +184,6 @@
         </el-button>
       </div>
     </div>
-    <paas-popover-element ref="popover-for-content-show" popperClass="el-popover--small is-dark" title="fdsafdsafd"
-                          placement="bottom" :closeOnLeave="false">
-      <div slot="content">
-        <div class="auto-test" style="width: 800px">
-          <codemirror v-model="script" :options="groovyOption"></codemirror>
-        </div>
-      </div>
-    </paas-popover-element>
   </div>
 </template>
 <style lang="scss">
@@ -426,7 +418,6 @@
 </style>
 <script>
   import AsyncValidator from 'async-validator';
-  import paasPopoverElement from 'assets/components/popover-element';
   import pipelineStage from './components/stage.vue';
 
   import {codemirror} from "vue-codemirror";
@@ -481,7 +472,7 @@
     }
   };
   export default {
-    components: {paasPopoverElement, pipelineStage, codemirror, paasServiceInfo},
+    components: {pipelineStage, codemirror, paasServiceInfo},
     async created() {
       var goBack = false;
       this.pageType = this.$route.path === this.$net.page["profile/pipeline/modify"] ? 'modify' : 'add';
@@ -598,7 +589,6 @@
     mounted() {
       this.$nextTick(() => {
         this.stepNodeList = [].slice.call(this.$el.querySelectorAll('.sheet .nav-steps .step'));
-        this.popperForContentShow = this.$refs['popover-for-content-show'];
 //        console.log(this.stepNodeList);
       });
     },
