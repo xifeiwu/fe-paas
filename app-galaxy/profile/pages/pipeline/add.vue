@@ -27,16 +27,17 @@
               <el-form-item label="gitlab分支" prop="gitLabBranch">
                 <el-input size="mini-extral" v-model="formData.gitLabBranch"></el-input>
               </el-form-item>
-              <el-form-item label="webhook配置" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooksVO">
+              <el-form-item label="webhook配置" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooksVO" class="webhook-config">
                 <el-input size="mini-extral" v-model="formData.webHooksVO.webHooksUrl"></el-input>
-              </el-form-item>
-              <el-form-item class="webhook-config-more" labelWidth="100px" label="hook类型：" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooksVO">
-                <el-checkbox-group v-model="formData.webHooksVO.webHooksSelectedEvent">
-                  <el-checkbox v-for="(item, index) in pipelineInfoFromNet.webHooksVO.webHooksEvent" :label="item" :key="item">{{item}}</el-checkbox>
-                </el-checkbox-group>
-                <div style="display: inline-block; margin-left: 30px;">
-                  <span style="font-size: 14px; line-height: 24px; font-weight: bold; vertical-align: middle">是否生效：</span>
-                  <el-checkbox v-model="formData.webHooksVO.selected">生效</el-checkbox>
+                <div class="webhook-config-more">
+                  <span>hook类型：</span>
+                  <el-checkbox-group v-model="formData.webHooksVO.webHooksSelectedEvent">
+                    <el-checkbox v-for="(item, index) in pipelineInfoFromNet.webHooksVO.webHooksEvent" :label="item" :key="item">{{item}}</el-checkbox>
+                  </el-checkbox-group>
+                  <div style="display: inline-block; margin-left: 30px;">
+                    <span style="font-size: 14px; line-height: 24px; font-weight: bold; vertical-align: middle">是否生效：</span>
+                    <el-checkbox v-model="formData.webHooksVO.selected">生效</el-checkbox>
+                  </div>
                 </div>
               </el-form-item>
             </el-form>
@@ -44,7 +45,7 @@
         </div>
         <div class="step step2">
           <div class="title">
-            2. 定义Pipeline脚本
+            <span>2. 定义Pipeline脚本</span>
           </div>
           <div class="config">
             <div class="stage-list">
@@ -56,6 +57,24 @@
             <div class="config-list" v-if="currentStage">
               <transition name="el-zoom-in-top">
                 <div class="stage-config" v-if="currentStage.selected" :key="stageName">
+                  <!--部署到测试环境-->
+                  <div v-if="stageName === 'deployTestEnv'" class="deployTestEnv">
+                    <div v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
+                      <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
+                    </div>
+                    <div style="color:#E6A23C; text-align: center" v-else>
+                      当前应用无"测试环境"服务
+                    </div>
+                  </div>
+                  <!--部署到联调环境-->
+                  <div v-if="stageName === 'deployBetaEnv'" class="deployBetaEnv">
+                    <div v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
+                      <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
+                    </div>
+                    <div style="color:#E6A23C; text-align: center" v-else>
+                      当前应用无"联调环境"服务
+                    </div>
+                  </div>
                   <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" class="union-form"
                            ref="pipeline-script-form">
                     <!--sonar及单元测试-->
@@ -63,6 +82,10 @@
                                   prop="testAndSonarScript" :multiFields="true"
                                   v-show="stageName === 'testAndSonarScript'">
                       <codemirror v-model="formData.testAndSonarScript.script" :options="groovyOption"></codemirror>
+                    </el-form-item>
+                    <!--sonar及单元测试-->
+                    <el-form-item label="手工确认：" labelWidth="180px" v-show="stageName === 'testAndSonarScript'">
+                      <el-checkbox v-model="formData.testAndSonarScript.inputCheck">需要手工确认</el-checkbox>
                     </el-form-item>
                     <!--sonar数据检查-->
                     <el-form-item label="Sonar关键字：" class="sonarCheck"
@@ -91,10 +114,18 @@
                         <span>分钟时通过；反之不通过</span>
                       </div>
                     </el-form-item>
+                    <!--sonar数据检查-->
+                    <el-form-item label="手工确认：" v-show="stageName === 'sonarCheck'">
+                      <el-checkbox v-model="formData.sonarCheck.inputCheck">需要手工确认</el-checkbox>
+                    </el-form-item>
                     <!--打包-->
                     <el-form-item label="打包脚本：" class="mvnPackage-script" prop="mvnPackage" :multiFields="true"
                                   v-if="stageName === 'mvnPackage'">
                       <codemirror v-model="formData.mvnPackage.script" :options="groovyOption"></codemirror>
+                    </el-form-item>
+                    <!--打包-->
+                    <el-form-item label="手工确认：" v-show="stageName === 'mvnPackage'">
+                      <el-checkbox v-model="formData.mvnPackage.inputCheck">需要手工确认</el-checkbox>
                     </el-form-item>
                     <!--制作镜像-->
                     <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'" prop="buildImage" :multiFields="true">
@@ -104,30 +135,24 @@
                         </el-option>
                       </el-select>
                     </el-form-item>
+                    <!--制作镜像-->
+                    <el-form-item label="手工确认：" v-show="stageName === 'buildImage'">
+                      <el-checkbox v-model="formData.buildImage.inputCheck">需要手工确认</el-checkbox>
+                    </el-form-item>
                     <!--自动化测试-->
                     <el-form-item label="自动化测试：" class="autoScript" prop="autoScript" :multiFields="true"
                                   v-if="stageName === 'autoScript'">
                       <codemirror v-model="formData.autoScript.script" :options="groovyOption"></codemirror>
                     </el-form-item>
+                    <!--部署到测试环境-->
+                    <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployTestEnv'">
+                      <el-checkbox v-model="formData.deployTestEnv.inputCheck">需要手工确认</el-checkbox>
+                    </el-form-item>
+                    <!--部署到联调环境-->
+                    <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployBetaEnv'">
+                      <el-checkbox v-model="formData.deployBetaEnv.inputCheck">需要手工确认</el-checkbox>
+                    </el-form-item>
                   </el-form>
-                  <!--部署到测试环境-->
-                  <div v-if="stageName === 'deployTestEnv'" class="deployTestEnv">
-                    <div v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
-                      <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
-                    </div>
-                    <div style="color:#E6A23C; text-align: center" v-else>
-                      当前应用无"测试环境"服务
-                    </div>
-                  </div>
-                  <!--部署到联调环境-->
-                  <div v-if="stageName === 'deployBetaEnv'" class="deployBetaEnv">
-                    <div v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
-                      <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
-                    </div>
-                    <div style="color:#E6A23C; text-align: center" v-else>
-                      当前应用无"联调环境"服务
-                    </div>
-                  </div>
                   <div class="stage-change-selection">
                     <span>删除结点 "{{currentStage.description}}"?</span>
                     <el-button size="mini-extral" type="danger" @click="handleClick($event, 'stage-remove')">删除</el-button>
@@ -143,7 +168,7 @@
         </div>
         <div class="step step3">
           <div class="title">
-            3. 通知设置
+            <span>3. 通知设置</span>
           </div>
           <div class="config">
             <el-form labelWidth="170px" size="mini" :model="formData" :rules="formDataRules" ref="config-info-form">
@@ -269,10 +294,15 @@
           .title {
             /*margin: 30px 0px 5px -10px;*/
             font-size: 17px;
-            padding: 10px;
-            padding-left: 5px;
             border: none;
             border-top: 1px solid #ddd;
+            padding-bottom: 10px;
+            & > span {
+              border-left: 5px solid #ddd;
+              padding-left: 5px;
+            }
+          }
+          .config {
           }
           &.step1 {
             .title {
@@ -285,15 +315,21 @@
               .el-input {
                 max-width: 500px;
               }
-              .el-form-item.webhook-config-more {
-                .el-checkbox + .el-checkbox {
-                  margin-left: 8px;
-                }
-                .el-form-item__label {
-                  padding-right: 5px;
-                }
-                .el-checkbox-group {
+              .el-form-item.webhook-config {
+                .el-input {
                   display: inline-block;
+                }
+                .webhook-config-more {
+                  display: inline-flex;
+                  .el-checkbox + .el-checkbox {
+                    margin-left: 8px;
+                  }
+                  .el-form-item__label {
+                    padding-right: 5px;
+                  }
+                  .el-checkbox-group {
+                    display: inline-block;
+                  }
                 }
               }
             }
@@ -318,6 +354,9 @@
             }
           }
           &.step2 {
+            .title {
+              padding-bottom: 0px;
+            }
             padding-bottom: 8px;
             .config {
               padding-top: 28px;
@@ -330,6 +369,11 @@
                 margin-top: 20px;
                 margin-right: 10px;
                 .stage-config {
+                  .el-form-item {
+                    .el-form-item__label {
+                      padding-right: 3px;
+                    }
+                  }
                   .el-form.union-form {
                     max-width: 900px;
                     margin: 0px auto;
@@ -396,10 +440,6 @@
                 }
               }
             }
-          }
-          .config {
-            border-left: 5px solid rgba(0, 0, 0, 0.1);
-            padding-left: 5px;
           }
         }
       }
@@ -477,7 +517,9 @@
       var goBack = false;
       this.pageType = this.$route.path === this.$net.page["profile/pipeline/modify"] ? 'modify' : 'add';
 
-      const dataTransfer = this.$storeHelper.dataTransfer;
+//      const dataTransfer = this.$storeHelper.dataTransfer;
+      // TODO: mock data
+      const dataTransfer = {"from":"/profile/pipeline/list","data":{"appId":4594}};
       if (dataTransfer) {
         if (this.pageType === 'modify') {
           switch (dataTransfer.from) {
