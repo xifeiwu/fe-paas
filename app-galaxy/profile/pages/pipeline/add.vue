@@ -85,7 +85,7 @@
                     </el-form-item>
                     <!--sonar及单元测试-->
                     <el-form-item label="手工确认：" labelWidth="180px" v-show="stageName === 'testAndSonarScript'">
-                      <el-checkbox v-model="formData.testAndSonarScript.inputCheck">需要手工确认</el-checkbox>
+                      <el-checkbox v-model="formData.testAndSonarScript.inputChecked">需要手工确认</el-checkbox>
                     </el-form-item>
                     <!--sonar数据检查-->
                     <el-form-item label="Sonar关键字：" class="sonarCheck"
@@ -116,7 +116,7 @@
                     </el-form-item>
                     <!--sonar数据检查-->
                     <el-form-item label="手工确认：" v-show="stageName === 'sonarCheck'">
-                      <el-checkbox v-model="formData.sonarCheck.inputCheck">需要手工确认</el-checkbox>
+                      <el-checkbox v-model="formData.sonarCheck.inputChecked">需要手工确认</el-checkbox>
                     </el-form-item>
                     <!--打包-->
                     <el-form-item label="打包脚本：" class="mvnPackage-script" prop="mvnPackage" :multiFields="true"
@@ -125,7 +125,7 @@
                     </el-form-item>
                     <!--打包-->
                     <el-form-item label="手工确认：" v-show="stageName === 'mvnPackage'">
-                      <el-checkbox v-model="formData.mvnPackage.inputCheck">需要手工确认</el-checkbox>
+                      <el-checkbox v-model="formData.mvnPackage.inputChecked">需要手工确认</el-checkbox>
                     </el-form-item>
                     <!--制作镜像-->
                     <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'" prop="buildImage" :multiFields="true">
@@ -137,7 +137,7 @@
                     </el-form-item>
                     <!--制作镜像-->
                     <el-form-item label="手工确认：" v-show="stageName === 'buildImage'">
-                      <el-checkbox v-model="formData.buildImage.inputCheck">需要手工确认</el-checkbox>
+                      <el-checkbox v-model="formData.buildImage.inputChecked">需要手工确认</el-checkbox>
                     </el-form-item>
                     <!--自动化测试-->
                     <el-form-item label="自动化测试：" class="autoScript" prop="autoScript" :multiFields="true"
@@ -146,11 +146,11 @@
                     </el-form-item>
                     <!--部署到测试环境-->
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployTestEnv'">
-                      <el-checkbox v-model="formData.deployTestEnv.inputCheck">需要手工确认</el-checkbox>
+                      <el-checkbox v-model="formData.deployTestEnv.inputChecked">需要手工确认</el-checkbox>
                     </el-form-item>
                     <!--部署到联调环境-->
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployBetaEnv'">
-                      <el-checkbox v-model="formData.deployBetaEnv.inputCheck">需要手工确认</el-checkbox>
+                      <el-checkbox v-model="formData.deployBetaEnv.inputChecked">需要手工确认</el-checkbox>
                     </el-form-item>
                   </el-form>
                   <div class="stage-change-selection">
@@ -668,7 +668,7 @@
           // sonar及单元测试
           testAndSonarScript: {
             script: '',
-            inputCheck: false,
+            inputChecked: false,
             selected: false,
           },
           // sonar数据检查
@@ -678,31 +678,31 @@
             codeDebtSelected: false,
             unitTestRatio: '',
             unitTestSelected: false,
-            inputCheck: false,
+            inputChecked: false,
             selected: false,
           },
           // 打包
           mvnPackage: {
             script: '',
-            inputCheck: false,
+            inputChecked: false,
             selected: false,
           },
           // 制作镜像
           buildImage: {
             selectedImage: '',
-            inputCheck: false,
+            inputChecked: false,
             selected: false,
           },
           // 部署到测试环境
           deployTestEnv: {
             env: 'TEST',
-            inputCheck: false,
+            inputChecked: false,
             selected: false,
           },
           // 自动化测试
           autoScript: {
             script: '',
-//            inputCheck: false,
+//            inputChecked: false,
             selected: false
           },
           // 功能测试（人工验证）
@@ -712,7 +712,7 @@
           // 部署到联调环境
           deployBetaEnv: {
             env: 'BETA',
-            inputCheck: false,
+            inputChecked: false,
             selected: false,
           },
           // 通知设置
