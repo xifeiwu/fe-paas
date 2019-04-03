@@ -27,15 +27,15 @@
               <el-form-item label="gitlab分支" prop="gitLabBranch">
                 <el-input size="mini-extral" v-model="formData.gitLabBranch"></el-input>
               </el-form-item>
-              <el-form-item label="webhook配置" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooksVO" class="webhook-config">
-                <el-input size="mini-extral" v-model="formData.webHooksVO.webHooksUrl"></el-input>
-                <div class="webhook-config-more">
-                  <span>hook类型：</span>
-                  <el-checkbox-group v-model="formData.webHooksVO.webHooksSelectedEvent">
-                    <el-checkbox v-for="(item, index) in pipelineInfoFromNet.webHooksVO.webHooksEvent" :label="item" :key="item">{{item}}</el-checkbox>
-                  </el-checkbox-group>
-                  <div style="display: inline-block; margin-left: 30px;">
-                    <span style="font-size: 14px; line-height: 24px; font-weight: bold; vertical-align: middle">是否生效：</span>
+              <el-form-item label="webhook配置" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooksVO" class="webhook-config big">
+                <div class="webhook-config-content">
+                  <el-input size="mini-extral" v-model="formData.webHooksVO.webHooksUrl"></el-input>
+                  <div class="more-config">
+                    <span style="font-size: 14px; line-height: 24px; font-weight: bold; vertical-align: middle; margin-left: 20px;">hook类型：</span>
+                    <el-checkbox-group v-model="formData.webHooksVO.webHooksSelectedEvent">
+                      <el-checkbox v-for="(item, index) in pipelineInfoFromNet.webHooksVO.webHooksEvent" :label="item" :key="item">{{item}}</el-checkbox>
+                    </el-checkbox-group>
+                    <span style="font-size: 14px; line-height: 24px; font-weight: bold; vertical-align: middle; margin-left: 20px;">是否生效：</span>
                     <el-checkbox v-model="formData.webHooksVO.selected">生效</el-checkbox>
                   </div>
                 </div>
@@ -297,7 +297,7 @@
             border: none;
             border-top: 1px solid #ddd;
             padding-bottom: 10px;
-            & > span {
+            & > span:first-child {
               border-left: 5px solid #ddd;
               padding-left: 5px;
             }
@@ -316,11 +316,14 @@
                 max-width: 500px;
               }
               .el-form-item.webhook-config {
-                .el-input {
-                  display: inline-block;
-                }
-                .webhook-config-more {
-                  display: inline-flex;
+                .webhook-config-content {
+                  display: flex;
+                  .more-config {
+                    flex: 1;
+                  }
+                  .el-input {
+                    max-width: 500px;
+                  }
                   .el-checkbox + .el-checkbox {
                     margin-left: 8px;
                   }
