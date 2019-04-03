@@ -325,7 +325,7 @@
           <el-table-column
                   label="备份名称"
                   headerAlign="center"
-                  minWidth="120">
+                  minWidth="160">
             <template slot-scope="scope">
               <el-radio :label="scope.row.name"
                         :value="selectedBackupName"
@@ -335,7 +335,7 @@
           <el-table-column
                   prop="description"
                   label="备份描述"
-                  minWidth="200"
+                  minWidth="160"
                   headerAlign="center" align="center">
           </el-table-column>
           <el-table-column
@@ -507,6 +507,18 @@
               .el-form-item__label {
               }
             }
+          }
+        }
+      }
+    }
+  }
+  .el-dialog {
+    .el-dialog__body {
+      .el-table__row {
+        .el-radio {
+          display: flex;
+          .el-radio__label {
+            white-space: normal;
           }
         }
       }

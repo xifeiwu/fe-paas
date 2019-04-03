@@ -24,15 +24,21 @@
           <el-table
                   ref="singleTable"
                   highlight-current-row
-                  @current-change="handleCurrentChangeBackup"
                   :data="backupListFilter"
                   :default-sort = "{prop: 'formattedEndTime', order: 'descending'}"
                   :height="heightOfTable"
           >
             <el-table-column
                     label="备份名称"
-                    prop="name"
-                    minWidth="100">
+                    minWidth="100"
+                    header-align="center">
+              <template slot-scope="scope">
+                <el-radio
+                    :label="scope.row.name"
+                    :value="selectedBackupName"
+                    @input="backupNameChange">
+                </el-radio>
+              </template>
             </el-table-column>
             <el-table-column
                     prop="describe"
@@ -92,13 +98,19 @@
                   :data="recoverListFilter"
                   :height="heightOfTable"
                   highlight-current-row
-                  @current-change="handleCurrentChangeRecover"
                   :default-sort = "{prop: 'formattedEndTime', order: 'descending'}"
           >
             <el-table-column
                     label="恢复名称"
-                    prop="name"
-                    minWidth="100">
+                    minWidth="100"
+                    header-align="center">
+                <template slot-scope="scope">
+                  <el-radio
+                          :label="scope.row.name"
+                          :value="selectedRecoverName"
+                          @input="recoverNameChange">
+                  </el-radio>
+                </template>
             </el-table-column>
             <el-table-column
                     prop="formattedStartTime"
@@ -201,6 +213,14 @@
         transition: transform 0.2s ease-in-out;
         &.rotate {
           transform: rotate(180deg);
+        }
+      }
+      .el-table__row {
+        .el-radio {
+          display: flex;
+          .el-radio__label {
+            white-space: normal;
+          }
         }
       }
     }
@@ -306,7 +326,6 @@
         if (val) {
           this.selectedRowType = "recover";
           this.currentRow = val;
-          this.selectedRecoverName = this.currentRow.name;
           let filterList = this.backupList.filter(it => {
             if (this.currentRow.location === it.location) {
               return true;
@@ -323,7 +342,6 @@
         if (val) {
           this.selectedRowType = "backup";
           this.currentRow = val;
-          this.selectedBackupName = this.currentRow.name;
           let filterList = this.recoverList.filter(it => {
             if (this.currentRow.location === it.location) {
               return true;
@@ -433,6 +451,20 @@
             break;
         }
       },
+      backupNameChange(rowName) {
+        this.selectedBackupName = rowName;
+        let row = this.backupListFilter.find(it => {
+          return it.name === rowName;
+        });
+        this.handleCurrentChangeBackup(row);
+      },
+      recoverNameChange(rowName) {
+        this.selectedRecoverName = rowName;
+        let row = this.recoverList.find(it => {
+          return it.name === rowName;
+        });
+        this.handleCurrentChangeRecover(row);
+      }
     }
   }
 </script>
