@@ -1081,7 +1081,9 @@
                 if (!this.findStageByName('mvnPackage')['selected']) {
                   stageChangeStatus.success = false;
                   stageChangeStatus.reason = `制作镜像依赖于打包，必须勾选打包步骤`;
+                  break;
                 }
+                this.formDataRules.buildImage.fields.selectedImage[0].required = true;
                 break;
               case 'deployTestEnv':
                 if (!this.findStageByName('buildImage')['selected']) {
@@ -1104,6 +1106,12 @@
                 break;
               case 'sonarCheck':
                 this.formDataRules.sonarCheck.fields.projectKeyWord[0].required = true;
+                break;
+              case 'testAndSonarScript':
+                this.formDataRules.testAndSonarScript.fields.script[0].required = true;
+                break;
+              case 'mvnPackage':
+                this.formDataRules.mvnPackage.fields.script[0].required = true;
                 break;
             }
             if (stageChangeStatus.success) {
@@ -1134,6 +1142,7 @@
                 this.formData.buildImage.selected = false;
                 this.formData.deployTestEnv.selected = false;
                 this.formData.deployBetaEnv.selected = false;
+                this.formDataRules.mvnPackage.fields.script[0].required = false;
                 break;
               case 'buildImage':
                 this.stages.forEach(it => {
@@ -1143,12 +1152,16 @@
                 });
                 this.formData.deployBetaEnv.selected = false;
                 this.formData.deployTestEnv.selected = false;
+                this.formDataRules.buildImage.fields.selectedImage[0].required = false;
                 break;
             }
             this.currentStage['selected'] = false;
             this.updateStageIndex(this.stages);
             // this.$message.success(`删除结点 "${this.currentStage['name']}" 成功！`);
             this.formData[this.currentStage['name']]['selected'] = false;
+            break;
+          case 'testAndSonarScript':
+            this.formDataRules.testAndSonarScript.fields.script[0].required = false;
             break;
           case 'save':
           case 'take-effect':
