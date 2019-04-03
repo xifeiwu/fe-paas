@@ -625,6 +625,16 @@
             inputCheck: false,
             selected: false,
           },
+          // sonar数据检查
+          sonarCheck: {
+            projectKeyWord: '',
+            codeDebt: '',
+            codeDebtSelected: false,
+            unitTestRatio: '',
+            unitTestSelected: false,
+            inputCheck: false,
+            selected: false,
+          },
           // 打包
           mvnPackage: {
             script: '',
@@ -648,16 +658,6 @@
             script: '',
 //            inputCheck: false,
             selected: false
-          },
-          // sonar数据检查
-          sonarCheck: {
-            projectKeyWord: '',
-            codeDebt: '',
-            codeDebtSelected: false,
-            unitTestRatio: '',
-            unitTestSelected: false,
-            inputCheck: false,
-            selected: false,
           },
           // 功能测试（人工验证）
           functionValidate: {
