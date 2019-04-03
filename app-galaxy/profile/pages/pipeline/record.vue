@@ -37,7 +37,7 @@
           headerAlign="center"
           align="center">
           <template slot-scope="scope">
-            {{scope.row.statusName}}
+            <span :class="`build-${scope.row.buildNumber}-status`">{{scope.row.statusName}}</span>
             <!--{{scope.row.buildingStatus ? scope.row.buildingStatus : scope.row.statusName}}-->
           </template>
         </el-table-column>
@@ -125,6 +125,12 @@
         <div class="log-item" v-if="buildLogStatus.loading"><i class="el-icon-loading"></i></div>
       </div>
     </paas-dialog-for-log>
+    <paas-popover-element-with-modal-mask ref="popover-for-user-confirm" popperClass="el-popover--small is-dark" title="fdsafdsafd"
+                                          placement="bottom" :closeOnLeave="false">
+      <div slot="content">
+        <div>继续吗?</div><el-button type="primary">yes</el-button><el-button type="danger">no</el-button>
+      </div>
+    </paas-popover-element-with-modal-mask>
   </div>
 </template>
 
@@ -156,11 +162,12 @@
 <script>
   import commonUtils from 'assets/components/mixins/common-utils';
   import paasDialogForLog from 'assets/components/dialog4log.vue';
+  import paasPopoverElementWithModalMask from 'assets/components/popover-element-with-modal-mask';
 
   const MS_BEFORE_GET_RECORD_LIST = 5000;
   const MAX_MS_WAITING_FOR_RECORD_LIST = 10000;
   export default {
-    components: {paasDialogForLog},
+    components: {paasDialogForLog, paasPopoverElementWithModalMask},
     mixins: [commonUtils],
     created() {
       var dataTransfer = this.$storeHelper.dataTransfer;
@@ -178,6 +185,9 @@
     },
     async mounted() {
       try {
+        this.$nextTick(() => {
+          this.popperForUserConfirm = this.$refs['popover-for-user-confirm'];
+        });
 //        await this.startHeartBeat(4000, this.loopRequestBuildingList);
         await this.requestBuildingStatus();
       } catch(err) {
@@ -218,6 +228,7 @@
           UNSTABLE: '不稳定',
           UNKNOWN: '构建中',
           IN_PROGRESS: '构建中',
+          PAUSED_PENDING_INPUT: '等待手动确认'
         },
 
         action: {
@@ -352,7 +363,7 @@
           }
         });
         this.buildingList.forEach(it => {
-          if (['NOT_EXECUTED', 'IN_PROGRESS'].indexOf(it.status) > -1) {
+          if (['NOT_EXECUTED', 'IN_PROGRESS', 'PAUSED_PENDING_INPUT'].indexOf(it.status) > -1) {
             this.lastBuildingRecord = it;
             it.tag = 'building';
           } else {
@@ -405,8 +416,38 @@
         }
       },
 
+//            while (!target.classList.contains('el-button')) {
+//              target = target.parentNode;
+//            }
+
+//            return;
+      updatePopperForUserConfirm() {
+        const lastBuildingRecord = this.lastBuildingRecord;
+        if (lastBuildingRecord.status === 'PAUSED_PENDING_INPUT') {
+          const targetClass = `build-${lastBuildingRecord.buildNumber}-status`;
+          const target = this.$el.querySelector(`.record-list .el-table .${targetClass}`);
+
+//          const popperForUserConfirm = this.$refs['popover-for-user-confirm'];
+//          if (!popperForUserConfirm) {
+//            popperForUserConfirm.show({
+//              ref: target
+//            });
+//          } else {
+//          }
+
+          if (!this.popperForUserConfirm.isShowing()) {
+            this.popperForUserConfirm.show({
+              ref: target
+            });
+          }
+          console.log(targetClass);
+          console.log(target);
+        }
+      },
+
       async loopUntilBuildingFinish() {
         if (this.lastBuildingRecord) {
+          this.updatePopperForUserConfirm();
           if (this.buildLogStatus.visible) {
             // 构建日志页面打开时，暂不更新构建列表状态
           } else {

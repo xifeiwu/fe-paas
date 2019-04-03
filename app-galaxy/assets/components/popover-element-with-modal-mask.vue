@@ -151,6 +151,9 @@
           }
         });
       },
+      isShowing() {
+        return this.popperStatus.show;
+      },
 
       createPopper() {
         if (this.$isServer) return;
