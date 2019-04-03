@@ -7,7 +7,7 @@
          v-clickoutside="handleClickOutside"
     >
       <i :class="[item.result == 'FAILURE' ?'el-icon-close' : 'el-icon-check']" v-if="item.showIcon"></i>
-      <i v-else>{{item.index ? item.index : ''}}</i>
+      <span v-else>{{item.index ? item.index : ''}}</span>
     </div>
     <div class="description">{{item.description}}</div>
     <div class="line"></div>
