@@ -118,7 +118,7 @@
 <script>
   export default {
     mounted() {
-     console.log(this.serviceInfo)
+//     console.log(this.serviceInfo)
     },
     props: {
       serviceInfo: {

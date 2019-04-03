@@ -27,16 +27,16 @@
               <el-form-item label="gitlab分支" prop="gitLabBranch">
                 <el-input size="mini-extral" v-model="formData.gitLabBranch"></el-input>
               </el-form-item>
-              <el-form-item label="webhook配置" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooksVO" class="webhook-config big">
+              <el-form-item label="webhook配置" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooks" class="webhook-config big">
                 <div class="webhook-config-content">
-                  <el-input size="mini-extral" v-model="formData.webHooksVO.webHooksUrl"></el-input>
+                  <el-input size="mini-extral" v-model="formData.webHooks.webHooksUrl"></el-input>
                   <div class="more-config">
                     <span style="font-size: 14px; line-height: 24px; font-weight: bold; vertical-align: middle; margin-left: 20px;">hook类型：</span>
-                    <el-checkbox-group v-model="formData.webHooksVO.webHooksSelectedEvent">
-                      <el-checkbox v-for="(item, index) in pipelineInfoFromNet.webHooksVO.webHooksEvent" :label="item" :key="item">{{item}}</el-checkbox>
+                    <el-checkbox-group v-model="formData.webHooks.webHooksSelectedEvent">
+                      <el-checkbox v-for="(item, index) in pipelineInfoFromNet.webHooks.webHooksEvent" :label="item" :key="item">{{item}}</el-checkbox>
                     </el-checkbox-group>
                     <span style="font-size: 14px; line-height: 24px; font-weight: bold; vertical-align: middle; margin-left: 20px;">是否生效：</span>
-                    <el-checkbox v-model="formData.webHooksVO.selected">生效</el-checkbox>
+                    <el-checkbox v-model="formData.webHooks.selected">生效</el-checkbox>
                   </div>
                 </div>
               </el-form-item>
@@ -303,6 +303,7 @@
             }
           }
           .config {
+            padding-left: 10px;
           }
           &.step1 {
             .title {
@@ -520,9 +521,9 @@
       var goBack = false;
       this.pageType = this.$route.path === this.$net.page["profile/pipeline/modify"] ? 'modify' : 'add';
 
-//      const dataTransfer = this.$storeHelper.dataTransfer;
+      const dataTransfer = this.$storeHelper.dataTransfer;
       // TODO: mock data
-      const dataTransfer = {"from":"/profile/pipeline/list","data":{"appId":4594}};
+//      const dataTransfer = {"from":"/profile/pipeline/list","data":{"appId":4594}};
       if (dataTransfer) {
         if (this.pageType === 'modify') {
           switch (dataTransfer.from) {
@@ -659,7 +660,7 @@
           pipelineDescription: '',
           gitLabPath: '',
           gitLabBranch: '',
-          webHooksVO: {
+          webHooks: {
             selected: false,
             webHooksSelectedEvent: [],
             webHooksUrl: ''
@@ -927,10 +928,10 @@
         this.postTreatFormData(formData, netData);
       },
       postTreatFormData(formData, netData) {
-        const formWebHooks = formData.webHooksVO;
-        const netWebHooks = netData.webHooksVO;
+        const formWebHooks = formData.webHooks;
+        const netWebHooks = netData.webHooks;
         if (formWebHooks.webHooksSelectedEvent.length === 0 && netWebHooks && netWebHooks.webHooksEvent && netWebHooks.webHooksEvent.length > 0) {
-          formData.webHooksVO.webHooksSelectedEvent.push(netWebHooks.webHooksEvent[0]);
+          formData.webHooks.webHooksSelectedEvent.push(netWebHooks.webHooksEvent[0]);
         }
       },
       // 更新stage列表中每个元素的index值
