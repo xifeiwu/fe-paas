@@ -664,6 +664,10 @@ class Net extends NetBase {
         path: '/pipeline/building/log',
         method: 'post'
       },
+      'pipeline_user_input_check': {
+        path: '/pipeline/execute/input',
+        method: 'post'
+      },
       // 校验app是否能创建pipeline
       'pipeline_build_validate': {
         path: '/pipeline/validate/{appId}',

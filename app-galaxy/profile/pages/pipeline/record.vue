@@ -202,6 +202,7 @@
     },
     data() {
       return {
+        heartBeatCount: 0,
         lastBuildRecord: null,
         lastBuildingRecord: null,
         leavePage: false,
@@ -409,45 +410,74 @@
         this.buildListAll = this.mergeBuildList(this.buildList, []);
         if (this.lastBuildingRecord) {
           this.leaveHeartBeat = false;
-          await this.startHeartBeat(2000, this.loopUntilBuildingFinish);
+          var usedTimeUpdateForBuildingRecord = async () => {
+            if (!Array.isArray(this.buildListAll)) {
+              return;
+            }
+            var changed = false;
+            this.buildListAll.forEach((it, index) => {
+              if (it.tag === 'building') {
+                changed = true;
+                it['duration'] += 1000;
+                it['formattedDuration'] = this.$utils.formatSeconds(it['duration']);
+              }
+            });
+            if (changed) {
+              this.buildListAll = this.buildListAll.concat([]);
+            }
+          };
+          usedTimeUpdateForBuildingRecord = usedTimeUpdateForBuildingRecord.bind(this);
+          const loopUntilBuildingFinish = this.loopUntilBuildingFinish.bind(this);
+          loopUntilBuildingFinish.interval = 3;
+          await this.startHeartBeat(1000, [usedTimeUpdateForBuildingRecord, loopUntilBuildingFinish]);
           // request again
           await this.requestBuildList();
           this.buildListAll = this.mergeBuildList(this.buildList, []);
         }
       },
 
-//            while (!target.classList.contains('el-button')) {
-//              target = target.parentNode;
-//            }
+      getUserInputInfo(record) {
+        var result = null;
+        if (record.status !== 'PAUSED_PENDING_INPUT') {
+          return result;
+        }
+        const userInputInfo = record['ciPipelineInputVO'];
+        if (!userInputInfo) {
+          return result;
+        }
+        if (userInputInfo.hasOwnProperty('proceedUrl') &&  userInputInfo.hasOwnProperty('abortUrl')) {
+          result = userInputInfo;
+        }
+        return result;
+      },
 
-//            return;
-      updatePopperForUserConfirm() {
+      async updatePopperForUserConfirm() {
         const lastBuildingRecord = this.lastBuildingRecord;
         if (lastBuildingRecord.status === 'PAUSED_PENDING_INPUT') {
-          const targetClass = `build-${lastBuildingRecord.buildNumber}-status`;
-          const target = this.$el.querySelector(`.record-list .el-table .${targetClass}`);
-
-//          const popperForUserConfirm = this.$refs['popover-for-user-confirm'];
-//          if (!popperForUserConfirm) {
-//            popperForUserConfirm.show({
+          const userInputInfo = this.getUserInputInfo(this.lastBuildingRecord);
+          if (userInputInfo) {
+            await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_user_input_check, {
+              query: {
+                inputUrl: userInputInfo['proceedUrl']
+              }
+            })
+          }
+//          const targetClass = `build-${lastBuildingRecord.buildNumber}-status`;
+//          const target = this.$el.querySelector(`.record-list .el-table .${targetClass}`);
+//
+//          if (!this.popperForUserConfirm.isShowing()) {
+//            this.popperForUserConfirm.show({
 //              ref: target
 //            });
-//          } else {
 //          }
-
-          if (!this.popperForUserConfirm.isShowing()) {
-            this.popperForUserConfirm.show({
-              ref: target
-            });
-          }
-          console.log(targetClass);
-          console.log(target);
+//          console.log(targetClass);
+//          console.log(target);
         }
       },
 
       async loopUntilBuildingFinish() {
         if (this.lastBuildingRecord) {
-          this.updatePopperForUserConfirm();
+          await this.updatePopperForUserConfirm();
           if (this.buildLogStatus.visible) {
             // 构建日志页面打开时，暂不更新构建列表状态
           } else {
@@ -459,23 +489,39 @@
         }
       },
 
-      async startHeartBeat(milliSeconds, func) {
+      /**
+       * 启动心跳
+       * @param, milliSeconds, 心跳时间间隔
+       * @param, funcList, 被执行的方法，需是async方法
+       */
+      async startHeartBeat(milliSeconds, funcList) {
         if (this.leavePage || this.leaveHeartBeat) {
           return;
         }
         try {
-          await func();
+          this.heartBeatCount++;
+          await Promise.all(funcList.map(it => {
+            var result = it;
+            if (it.hasOwnProperty('interval')) {
+              if ((this.heartBeatCount % it.interval) !== 0) {
+                result = async () => {};
+              }
+            }
+            return result;
+          }).map(it => {
+            return it();
+          }));
           await new Promise((resolve) => {
             setTimeout(resolve, milliSeconds);
           });
-          await this.startHeartBeat(milliSeconds, func);
+          await this.startHeartBeat(milliSeconds, funcList);
         } catch(err) {
           console.log(err);
           // ensure startHeartBeat go-on when any error is thrown
           await new Promise((resolve) => {
             setTimeout(resolve, milliSeconds);
           });
-          await this.startHeartBeat(milliSeconds, func);
+          await this.startHeartBeat(milliSeconds, funcList);
         }
       },
 
