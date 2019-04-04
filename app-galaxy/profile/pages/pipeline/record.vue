@@ -476,14 +476,14 @@
         switch (action) {
           case 'go-on':
             await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_user_input_check, {
-              query: {
+              payload: {
                 inputUrl: userInputInfo['proceedUrl']
               }
             });
             break;
           case 'cancel':
             await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_user_input_check, {
-              query: {
+              payload: {
                 inputUrl: userInputInfo['abortUrl']
               }
             });
