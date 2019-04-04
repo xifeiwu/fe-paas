@@ -125,10 +125,15 @@
         <div class="log-item" v-if="buildLogStatus.loading"><i class="el-icon-loading"></i></div>
       </div>
     </paas-dialog-for-log>
-    <paas-popover-element-with-modal-mask ref="popover-for-user-confirm" popperClass="el-popover--small is-dark" title="fdsafdsafd"
+    <paas-popover-element-with-modal-mask ref="popover-for-user-confirm" popperClass="el-popover--small is-dark" title="等待用户确认"
                                           placement="bottom" :closeOnLeave="false">
-      <div slot="content">
-        <div>继续吗?</div><el-button type="primary">yes</el-button><el-button type="danger">no</el-button>
+      <div slot="content" style="font-size: 14px;">
+        <div v-if="userInputInfo">{{userInputInfo.message}}</div>
+        <div v-else>继续吗？</div>
+        <div style="display: flex; justify-content: space-around; margin-top: 8px;">
+          <el-button type="primary" size="mini-extral" @click="handleUserInput('go-on')">确定</el-button>
+          <el-button type="danger" size="mini-extral" @click="handleUserInput('cancel')">取消</el-button>
+        </div>
       </div>
     </paas-popover-element-with-modal-mask>
   </div>
@@ -205,6 +210,8 @@
         heartBeatCount: 0,
         lastBuildRecord: null,
         lastBuildingRecord: null,
+        // 需要用户确认的基本信息
+        userInputInfo: null,
         leavePage: false,
         leaveHeartBeat: false,
         dataPassed: {
@@ -411,6 +418,7 @@
         if (this.lastBuildingRecord) {
           this.leaveHeartBeat = false;
           var usedTimeUpdateForBuildingRecord = async () => {
+            await this.updatePopperForUserConfirm();
             if (!Array.isArray(this.buildListAll)) {
               return;
             }
@@ -436,6 +444,7 @@
         }
       },
 
+      // 获取等待用户确认的基本信息
       getUserInputInfo(record) {
         var result = null;
         if (record.status !== 'PAUSED_PENDING_INPUT') {
@@ -450,34 +459,51 @@
         }
         return result;
       },
+      async handleUserInput(action) {
+        const userInputInfo = this.userInputInfo;
+        if (!userInputInfo) {
+          return;
+        }
+        switch (action) {
+          case 'go-on':
+            await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_user_input_check, {
+              query: {
+                inputUrl: userInputInfo['proceedUrl']
+              }
+            });
+            break;
+          case 'cancel':
+            await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_user_input_check, {
+              query: {
+                inputUrl: userInputInfo['abortUrl']
+              }
+            });
+            break;
+        }
+      },
 
       async updatePopperForUserConfirm() {
         const lastBuildingRecord = this.lastBuildingRecord;
         if (lastBuildingRecord.status === 'PAUSED_PENDING_INPUT') {
           const userInputInfo = this.getUserInputInfo(this.lastBuildingRecord);
-          if (userInputInfo) {
-            await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_user_input_check, {
-              query: {
-                inputUrl: userInputInfo['proceedUrl']
-              }
-            })
+          this.userInputInfo = userInputInfo;
+
+          const targetClass = `build-${lastBuildingRecord.buildNumber}-status`;
+          const target = this.$el.querySelector(`.record-list .el-table .${targetClass}`);
+          if (!this.popperForUserConfirm.isShowing()) {
+            this.popperForUserConfirm.show({
+              ref: target
+            });
           }
-//          const targetClass = `build-${lastBuildingRecord.buildNumber}-status`;
-//          const target = this.$el.querySelector(`.record-list .el-table .${targetClass}`);
-//
-//          if (!this.popperForUserConfirm.isShowing()) {
-//            this.popperForUserConfirm.show({
-//              ref: target
-//            });
-//          }
 //          console.log(targetClass);
 //          console.log(target);
+        } else {
+          this.popperForUserConfirm.doClose();
         }
       },
 
       async loopUntilBuildingFinish() {
         if (this.lastBuildingRecord) {
-          await this.updatePopperForUserConfirm();
           if (this.buildLogStatus.visible) {
             // 构建日志页面打开时，暂不更新构建列表状态
           } else {

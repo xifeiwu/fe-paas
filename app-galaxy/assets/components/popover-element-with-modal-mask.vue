@@ -14,10 +14,21 @@
       <div class="el-popover__title" v-if="title" v-text="title"></div>
       <div class="content" v-if="contentType === 'html'" v-html="content"></div>
       <div class="content" v-if="contentType === 'text'">{{ content }}</div>
-      <slot name="content" v-if="contentType === 'node'"></slot>
+      <slot class="content" name="content" v-if="contentType === 'node'"></slot>
     </div>
   </transition>
 </template>
+<style lang="scss">
+  .paas-popover-element-with-modal-mask {
+    .el-popover__title {
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .content {
+      font-size: 14px;
+    }
+  }
+</style>
 <script>
   import Vue from 'vue';
   import {
@@ -76,7 +87,10 @@
         type: Boolean,
         default: false
       },
-      popperClass: String,
+      popperClass: {
+        type: String,
+        default: 'paas-popover-element-with-modal-mask'
+      },
       width: {},
       transition: {
         type: String,
