@@ -122,7 +122,8 @@
     <paas-dialog-for-log :showStatus="buildLogStatus" ref="dialogForBuildLog" @close="handleDialogClose">
       <div slot="content">
         <div v-for="(item, index) in buildLogStatus.logList" :key="index" class="log-item" v-html="item"></div>
-        <div class="log-item" v-if="buildLogStatus.loading"><i class="el-icon-loading"></i></div>
+        <div class="log-item loading-line" v-if="buildLogStatus.loading"><i class="el-icon-loading item"></i></div>
+        <div class="last-item loading-line" v-else><span class="item"> </span></div>
       </div>
     </paas-dialog-for-log>
     <paas-popover-element-with-modal-mask ref="popover-for-user-confirm" popperClass="el-popover--small is-dark" title="等待用户确认"
@@ -131,8 +132,10 @@
         <div v-if="userInputInfo">{{userInputInfo.message}}</div>
         <div v-else>继续吗？</div>
         <div style="display: flex; justify-content: space-around; margin-top: 8px;">
-          <el-button type="primary" size="mini-extral" @click="handleUserInput('go-on')">确定</el-button>
-          <el-button type="danger" size="mini-extral" @click="handleUserInput('cancel')">取消</el-button>
+          <el-button type="primary" size="mini-extral" :loading="userInputInfo && userInputInfo.action == 'go-on'"
+                     @click="handleUserInput('go-on')">确定</el-button>
+          <el-button type="danger" size="mini-extral" :loading="userInputInfo && userInputInfo.action == 'cancel'"
+                     @click="handleUserInput('cancel')">取消</el-button>
         </div>
       </div>
     </paas-popover-element-with-modal-mask>
@@ -418,7 +421,8 @@
         if (this.lastBuildingRecord) {
           this.leaveHeartBeat = false;
           var usedTimeUpdateForBuildingRecord = async () => {
-            await this.updatePopperForUserConfirm();
+            // 查询是否需要用户确认
+            var confirmStatus = await this.updatePopperForUserConfirm();
             if (!Array.isArray(this.buildListAll)) {
               return;
             }
@@ -433,6 +437,7 @@
             if (changed) {
               this.buildListAll = this.buildListAll.concat([]);
             }
+            return confirmStatus;
           };
           usedTimeUpdateForBuildingRecord = usedTimeUpdateForBuildingRecord.bind(this);
           const loopUntilBuildingFinish = this.loopUntilBuildingFinish.bind(this);
@@ -447,6 +452,9 @@
       // 获取等待用户确认的基本信息
       getUserInputInfo(record) {
         var result = null;
+        if (!record) {
+          return result;
+        }
         if (record.status !== 'PAUSED_PENDING_INPUT') {
           return result;
         }
@@ -464,6 +472,7 @@
         if (!userInputInfo) {
           return;
         }
+        userInputInfo.action = action;
         switch (action) {
           case 'go-on':
             await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_user_input_check, {
@@ -484,12 +493,17 @@
 
       async updatePopperForUserConfirm() {
         const lastBuildingRecord = this.lastBuildingRecord;
-        if (lastBuildingRecord.status === 'PAUSED_PENDING_INPUT') {
+        if (lastBuildingRecord && (lastBuildingRecord.status === 'PAUSED_PENDING_INPUT')) {
           const userInputInfo = this.getUserInputInfo(this.lastBuildingRecord);
           this.userInputInfo = userInputInfo;
 
-          const targetClass = `build-${lastBuildingRecord.buildNumber}-status`;
-          const target = this.$el.querySelector(`.record-list .el-table .${targetClass}`);
+          var targetClass = `build-${lastBuildingRecord.buildNumber}-status`;
+          var target = this.$el.querySelector(`.record-list .el-table .${targetClass}`);
+          if (this.buildLogStatus.visible) {
+            const dialogForDeployLog = this.$refs['dialogForBuildLog'];
+            dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+            target = dialogForDeployLog.$el.querySelector('.loading-line .item');
+          }
           if (!this.popperForUserConfirm.isShowing()) {
             this.popperForUserConfirm.show({
               ref: target
@@ -499,19 +513,21 @@
 //          console.log(target);
         } else {
           this.popperForUserConfirm.doClose();
+          return 'can-quite';
         }
       },
 
       async loopUntilBuildingFinish() {
         if (this.lastBuildingRecord) {
-          if (this.buildLogStatus.visible) {
+          // if (this.buildLogStatus.visible) {
             // 构建日志页面打开时，暂不更新构建列表状态
-          } else {
+          // } else {
             await this.requestBuildingList();
             this.buildListAll = this.mergeBuildList(this.buildList, this.buildingList);
-          }
+          // }
         } else {
-          this.leaveHeartBeat = true;
+          return 'can-quite';
+//          this.leaveHeartBeat = true;
         }
       },
 
@@ -526,7 +542,7 @@
         }
         try {
           this.heartBeatCount++;
-          await Promise.all(funcList.map(it => {
+          var status = await Promise.all(funcList.map(it => {
             var result = it;
             if (it.hasOwnProperty('interval')) {
               if ((this.heartBeatCount % it.interval) !== 0) {
@@ -537,6 +553,13 @@
           }).map(it => {
             return it();
           }));
+//          console.log(status);
+          const canQuite = status.every(it => {
+            return it === 'can-quite';
+          });
+          if (canQuite) {
+            return;
+          }
           await new Promise((resolve) => {
             setTimeout(resolve, milliSeconds);
           });
