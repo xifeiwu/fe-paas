@@ -3,9 +3,8 @@
     <el-row class="operation">
       <el-col :span="2">
         <el-button size="mini"
-                   disabled
                    type="default"
-                   @click="handleButtonClick($event, 'refreshList')">
+                   @click="handleButtonClick($event, 'middleware_mariadb_backup_list')">
           <span>备份列表</span>
         </el-button>
       </el-col>
@@ -18,13 +17,13 @@
           <span>申请服务</span>
         </el-button>
 
-        <el-button size="mini"
-                   disabled
-                   type="primary"
-                   :class="{'flex': true, 'disabled': $storeHelper.permission['middleware_mariadb_instance_create'].disabled}"
-                   @click="handleButtonClick($event, 'middleware_mariadb_instance_create')">
-          <span>数据迁移</span>
-        </el-button>
+        <!--<el-button size="mini"-->
+                   <!--disabled-->
+                   <!--type="primary"-->
+                   <!--:class="{'flex': true, 'disabled': $storeHelper.permission['middleware_mariadb_instance_create'].disabled}"-->
+                   <!--@click="handleButtonClick($event, '')">-->
+          <!--<span>数据迁移</span>-->
+        <!--</el-button>-->
       </el-col>
 
       <el-col :span="3">
@@ -716,8 +715,6 @@
           return;
         }
         await this.$storeHelper.checkBasicData4Middleware(this.profileName, MIDDLEWARE_NAME);
-//      console.log(this.$storeHelper.getClusterList());
-//      console.log(this.$storeHelper.currentMiddleware);
         const clusterId = this.$storeHelper.currentMiddleware['clusterId'];
         const middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
         if (!clusterId || !middlewareId) {
@@ -821,6 +818,16 @@
             };
             this.$router.push(this.$net.page['profile/middleware/mariadb/add']);
             break;
+	        case 'middleware_mariadb_backup_list':
+		        this.$storeHelper.dataTransfer = {
+			        from: this.$net.page['profile/middleware/mariadb'],
+			        data: {
+				        clusterInfo: this.clusterInfo,
+				        middlewareInfo: this.middlewareInfo,
+			        }
+		        };
+		        this.$router.push(this.$net.page['profile/middleware/mariadb/backup-list']);
+		        break;
           case 'refreshList':
             this.requestInstanceList();
             break;
@@ -867,6 +874,7 @@
             //   this.$message.warning('每个实例最多创建10个备份！如需创建新备份，可先删除老备份。');
             //   return;
             // }
+            
             this.addToWaitingResponseQueue(action);
             try {
               await this.$confirm(`确定要备份mariadb服务 "${this.action.row.name}" 吗？`, '提示', {
@@ -875,6 +883,10 @@
                 type: 'warning',
                 dangerouslyUseHTMLString: true
               });
+              let serviceType = '';
+              if (this.action.row.mariaStatus) {
+	              serviceType = this.action.row.mariaStatus.image;
+              }
               await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_create, {
                 payload: {
                   clusterId: this.action.row.clusterId,
@@ -882,6 +894,7 @@
                   backupCluster: this.action.row.name,
                   backupDescribe: this.backupCreate.backupDescribe,
                   groupScope: this.backupCreate.groupScope,
+	                middlewareVersion: serviceType,
                   namespace: this.action.row.namespace
                 }
               });

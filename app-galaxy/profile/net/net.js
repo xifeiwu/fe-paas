@@ -571,6 +571,10 @@ class Net extends NetBase {
         path: '/middleware/queryMiddlewareMariaDBBackup',
         method: 'post'
       },
+	    'middleware_mariadb_backup_list_by_namespace': {
+		    path: '/middleware/queryMiddlewareMariaDBBackupByNamespace',
+		    method: 'post'
+	    },
       // 获取backup恢复历史
       'middleware_mariadb_backup_recovery_list': {
         path: '/middleware/queryMiddlewareMariaDBRestore',

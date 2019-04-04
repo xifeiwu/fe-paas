@@ -52,6 +52,7 @@ import MiddlewareMariadbHistory from './middleware/mariadb/history.vue';
 import middlewareRedis from './middleware/redis/index.vue';
 import middlewareRedisAdd from './middleware/redis/add.vue';
 import middlewareRedisModify from './middleware/redis/add.vue';
+import MiddlewareMariadbBackupList from './middleware/mariadb/backup-list.vue';
 
 // config-server
 import ConfigServerMain from './config-server/main.vue';
@@ -264,6 +265,10 @@ class Helper {
         path: 'mariadb/history',
         name: '操作历史',
         component: MiddlewareMariadbHistory,
+      }, {
+	      path: 'mariadb/backup-list',
+	      name: '备份列表',
+	      component: MiddlewareMariadbBackupList,
       }, {
         path: 'mariadb/backup',
         name: '备份与恢复',

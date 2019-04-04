@@ -292,7 +292,7 @@
 
         constants: {
           cpuList: [1, 2],
-          memoryList: [2, 3, 4]
+          memoryList: [1, 2, 3, 4]
         },
 
       }

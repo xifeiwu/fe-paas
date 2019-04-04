@@ -125,6 +125,7 @@ class Net {
       'profile/middleware/mariadb/add': '/profile/middleware/mariadb/add',
       'profile/middleware/mariadb/modify': '/profile/middleware/mariadb/modify',
       'profile/middleware/mariadb/backup': '/profile/middleware/mariadb/backup',
+	    'profile/middleware/mariadb/backup-list': '/profile/middleware/mariadb/backup-list',
       'profile/middleware/mariadb/history': '/profile/middleware/mariadb/history',
       'profile/middleware/redis': '/profile/middleware/redis',
       'profile/middleware/redis/add': '/profile/middleware/redis/add',
