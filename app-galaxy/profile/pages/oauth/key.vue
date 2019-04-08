@@ -898,7 +898,6 @@
     appListOfCurrentGroup: function () {
       let appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup;
       if (appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')) {
-        debugger
         return [{appId: -1, appName: '无'}].concat(appInfoListOfGroup.appList);
       } else {
         return [];
@@ -1152,10 +1151,14 @@
             this.hideWaitingResponse(action);
             this.modifyAccessKeyInfo.targetGroupID = this.dataForSelectApp.groupListAll[0].id;
             this.modifyAccessKeyInfo.targetGroupName = this.dataForSelectApp.groupListAll[0].name;
-            this.modifyAccessKeyInfo.targetUaaId = this.dataForSelectApp.uaaList[0].id;
-            this.modifyAccessKeyInfo.targetOauthId = this.dataForSelectApp.oauthList[0].id;
-            this.modifyAccessKeyInfo.targetClientId = this.dataForSelectApp.uaaList[0].clientId;
-            this.modifyAccessKeyInfo.targetOauth = this.dataForSelectApp.oauthList[0].oauth;
+            if(this.dataForSelectApp.uaaList.length>0){
+              this.modifyAccessKeyInfo.targetUaaId = this.dataForSelectApp.uaaList[0].id;
+              this.modifyAccessKeyInfo.targetClientId = this.dataForSelectApp.uaaList[0].clientId;
+              if(this.dataForSelectApp.oauthList.length>0){
+                this.modifyAccessKeyInfo.targetOauthId = this.dataForSelectApp.oauthList[0].id;
+                this.modifyAccessKeyInfo.targetOauth = this.dataForSelectApp.oauthList[0].oauth;
+              }
+            }
             this.selected.operation = action;
           }
           break;
@@ -1240,10 +1243,15 @@
             this.hideWaitingResponse(action);
             this.modifyAccessKeyInfo.targetGroupID = this.dataForSelectApp.groupListAll[0].id;
             this.modifyAccessKeyInfo.targetGroupName = this.dataForSelectApp.groupListAll[0].name;
-            this.modifyAccessKeyInfo.targetUaaId = this.dataForSelectApp.uaaList[0].id;
-            this.modifyAccessKeyInfo.targetOauthId = this.dataForSelectApp.oauthList[0].id;
-            this.modifyAccessKeyInfo.targetClientId = this.dataForSelectApp.uaaList[0].clientId;
-            this.modifyAccessKeyInfo.targetOauth = this.dataForSelectApp.oauthList[0].oauth;
+
+            if(this.dataForSelectApp.uaaList.length>0){
+              this.modifyAccessKeyInfo.targetUaaId = this.dataForSelectApp.uaaList[0].id;
+              this.modifyAccessKeyInfo.targetClientId = this.dataForSelectApp.uaaList[0].clientId;
+              if(this.dataForSelectApp.oauthList.length>0){
+                this.modifyAccessKeyInfo.targetOauthId = this.dataForSelectApp.oauthList[0].id;
+                this.modifyAccessKeyInfo.targetOauth = this.dataForSelectApp.oauthList[0].oauth;
+              }
+            }
 
             openDialog();
           }
