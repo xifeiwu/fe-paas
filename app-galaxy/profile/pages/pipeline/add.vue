@@ -11,7 +11,7 @@
       <div class="section-config">
         <div class="step step1">
           <div class="title">
-            <span>1. 基本配置</span><span style="font-size: 14px;">（目标应用：{{appInfo.appName}}）</span>
+            <span>1. 基本配置</span><span style="font-size: 14px;" v-if="appInfo">（目标应用：{{appInfo.appName}}）</span>
           </div>
           <div class="config">
             <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" class="clear-fix" ref="basic-info-form">
@@ -965,7 +965,9 @@
         const validatorForUnitTestSelected = function(rule, values, callback) {
           var passed = false;
           try {
-            values = parseInt(values.trim());
+            if (typeof(values) === 'string' || values instanceof String) {
+              values = parseFloat(values.trim());
+            }
 //          if (!values) {
 //            passed = true;
 //          } else
@@ -984,7 +986,9 @@
         const validatorForCodeDebtSelected = function (rule, values, callback) {
           var passed = false;
           try {
-            values = parseInt(values.trim());
+            if (typeof(values) === 'string' || values instanceof String) {
+              values = parseFloat(values.trim());
+            }
             if (/^[0-9]+$/.exec(values) && (values >= 0)) {
               passed = true;
             }
@@ -1182,8 +1186,8 @@
             // 先用async-validator进行全局验证，找到对应的el-form，然后使用el-form自带的validator进行局部验证
             validator.validate(this.formData, async (errors, fields) => {
               if (errors) {
-               // console.log(errors);
-               // console.log(fields);
+                // console.log(errors);
+                // console.log(fields);
                 var firstFields = errors[0]['field'];
                 // such as autoScript.script
                 if (firstFields.indexOf('.') > -1) {
@@ -1203,9 +1207,10 @@
                   basicInfoForm.validate(() => {});
                 }
               } else {
+                // 若选择Sonar数据检查，则至少要选择一个检查项
                 if (this.formData.sonarCheck.selected) {
                   if (!this.formData.sonarCheck.unitTestSelected && !this.formData.sonarCheck.codeDebtSelected) {
-                    this.$message.error(`若选择Sonar数据检查,则至少要选择一个检查项`);
+                    this.$message.error(`若选择Sonar数据检查，则至少要选择一个检查项`);
                     return;
                   }
                 }
