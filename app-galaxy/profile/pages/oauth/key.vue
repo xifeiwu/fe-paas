@@ -427,7 +427,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="权限配置" :visible="selected.operation == 'oauth_set_permission'"
+    <el-dialog title="资源配置" :visible="selected.operation == 'oauth_set_permission'"
                class="update-url-permission size-800"
                :close-on-click-modal="false"
                @close="handleDialogClose('update-url-permission')"
@@ -731,9 +731,10 @@
 </style>
 
 <script>
-  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+  import {addResizeListener, removeResizeListener} from 'element-ui/src/utils/resize-event';
   import utils from 'assets/libs/element-ui/utils';
-module.exports = {
+
+  module.exports = {
   created() {
 //    console.log(this.appInfoListOfGroup);
   },
@@ -894,10 +895,11 @@ module.exports = {
     groupInfo() {
       return this.$storeHelper.groupInfo;
     },
-    appListOfCurrentGroup() {
+    appListOfCurrentGroup: function () {
       let appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup;
       if (appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')) {
-        return appInfoListOfGroup.appList;
+        debugger
+        return [{appId: -1, appName: '无'}].concat(appInfoListOfGroup.appList);
       } else {
         return [];
       }
@@ -1077,6 +1079,7 @@ module.exports = {
       return this.queueForWaitingResponse.indexOf(action) > -1;
     },
     handleDialogClose(action) {
+      this.refreshAccessKeyList();
       this.selected.operation = null;
       if (action) {
         this.hideWaitingResponse(action);
@@ -1148,10 +1151,11 @@ module.exports = {
           } else {
             this.hideWaitingResponse(action);
             this.modifyAccessKeyInfo.targetGroupID = this.dataForSelectApp.groupListAll[0].id;
-            // set default accessID if necessary
-            if (Array.isArray(this.dataForSelectApp.appList) && this.dataForSelectApp.appList.length > 0) {
-              this.modifyAccessKeyInfo.targetAppID = this.dataForSelectApp.appList[0].appId;
-            }
+            this.modifyAccessKeyInfo.targetGroupName = this.dataForSelectApp.groupListAll[0].name;
+            this.modifyAccessKeyInfo.targetUaaId = this.dataForSelectApp.uaaList[0].id;
+            this.modifyAccessKeyInfo.targetOauthId = this.dataForSelectApp.oauthList[0].id;
+            this.modifyAccessKeyInfo.targetClientId = this.dataForSelectApp.uaaList[0].clientId;
+            this.modifyAccessKeyInfo.targetOauth = this.dataForSelectApp.oauthList[0].oauth;
             this.selected.operation = action;
           }
           break;
@@ -1234,7 +1238,6 @@ module.exports = {
             })
           } else {
             this.hideWaitingResponse(action);
-            debugger
             this.modifyAccessKeyInfo.targetGroupID = this.dataForSelectApp.groupListAll[0].id;
             this.modifyAccessKeyInfo.targetGroupName = this.dataForSelectApp.groupListAll[0].name;
             this.modifyAccessKeyInfo.targetUaaId = this.dataForSelectApp.uaaList[0].id;
@@ -1601,6 +1604,7 @@ module.exports = {
                 resource: newItem.resource,
                 openPopover: false
               });
+              this.refreshAccessKeyList();
               this.updateUrlPermissionInfo.newItem.oauth = '';
               this.updateUrlPermissionInfo.newItem.resource = '';
             }).catch(err => {
