@@ -664,7 +664,6 @@ class Net extends NetBase {
         path: '/pipeline/building/log',
         method: 'post'
       },
-      // pipeline构建中等待用户确认
       'pipeline_user_input_check': {
         path: '/pipeline/execute/input',
         method: 'post'
