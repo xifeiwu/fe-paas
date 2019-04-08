@@ -20,7 +20,7 @@
           </el-select>
         </div>
         <div class="item">
-          <label style="float: left; width: 90px; line-height: 26px">clientId：</label>
+          <label style="float: left; width: 90px; line-height: 26px">ClientId：</label>
           <el-input v-model="searchCondition.accessKey"
                     style="display:block; width: 200px; margin-left: 90px;"></el-input>
         </div>
@@ -36,7 +36,7 @@
                 :class="{'disabled': $storeHelper.permission['oauth_create_access_key'].disabled}"
                 :loading="statusOfWaitingResponse('oauth_create_access_key')"
                 @click="handleButtonClick($event, 'oauth_create_access_key')">
-          创建clientId
+          创建ClientId
         </el-button>
       </el-col>
     </el-row>
@@ -50,7 +50,7 @@
       >
         <el-table-column
           prop="accessKey"
-          label="clientId"
+          label="ClientId"
           width="140"
           headerAlign="center" align="center">
           <template slot-scope="scope">
@@ -150,7 +150,7 @@
                     :class="$storeHelper.permission['oauth_set_permission'].disabled ? 'disabled' : 'warning'"
                     :loading="statusOfWaitingResponse('oauth_set_permission') && selected.row.id === scope.row.id"
                     @click="handleTRClick($event, 'oauth_set_permission', scope.$index, scope.row)">
-              权限配置
+              资源配置
             </el-button>
             <div class="ant-divider"></div>
             <el-button
@@ -440,7 +440,7 @@
         <el-form-item label="访问环境">
           {{selected.row.profileName}}
         </el-form-item>
-        <el-form-item label="所属AccessKey">
+        <el-form-item label="所属ClientId">
           {{selected.row.accessKey}}
         </el-form-item>
       </el-form>
@@ -524,10 +524,10 @@
                v-if="selected.row"
     >
       <el-form :model="newProps" :rules="rulesForNewProps" labelWidth="160px" size="mini" ref="modifySecretForm">
-        <el-form-item label="AccessKey：">
+        <el-form-item label="ClientId：">
           {{selected.row.accessKey}}
         </el-form-item>
-        <el-form-item label="Access Secret：" prop="secret">
+        <el-form-item label="Secret：" prop="secret">
           <el-input v-model="newProps.secret" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
         </el-form-item>
       </el-form>
@@ -982,13 +982,14 @@ module.exports = {
              if(Array.isArray(content) && content.length > 0){
                this.dataForSelectApp.oauthList = content;
                this.modifyAccessKeyInfo.targetOauthId = content[0].id;
+               this.modifyAccessKeyInfo.targetOauth = content[0].oauth;
              }else{
                this.modifyAccessKeyInfo.targetOauthId = null;
                this.dataForSelectApp.oauthList = [];
              }
           }).catch(err=>{
              console.error(err)
-             this.$message.error('获取应用列表失败！');
+             this.$message.error('获取Uaa列表失败！');
           }).finally(()=>{
             this.modifyAccessKeyInfo.loadingOauth = false;
           });
@@ -1233,12 +1234,14 @@ module.exports = {
             })
           } else {
             this.hideWaitingResponse(action);
+            debugger
             this.modifyAccessKeyInfo.targetGroupID = this.dataForSelectApp.groupListAll[0].id;
             this.modifyAccessKeyInfo.targetGroupName = this.dataForSelectApp.groupListAll[0].name;
-            // set default accessID if necessary
-            // if (Array.isArray(this.dataForSelectApp.appList) && this.dataForSelectApp.appList.length > 0) {
-            //   this.modifyAccessKeyInfo.targetAppID = this.dataForSelectApp.appList[0].appId;
-            // }
+            this.modifyAccessKeyInfo.targetUaaId = this.dataForSelectApp.uaaList[0].id;
+            this.modifyAccessKeyInfo.targetOauthId = this.dataForSelectApp.oauthList[0].id;
+            this.modifyAccessKeyInfo.targetClientId = this.dataForSelectApp.uaaList[0].clientId;
+            this.modifyAccessKeyInfo.targetOauth = this.dataForSelectApp.oauthList[0].oauth;
+
             openDialog();
           }
 //          if (this.selected.operation) {

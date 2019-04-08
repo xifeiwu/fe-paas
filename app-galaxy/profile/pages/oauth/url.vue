@@ -4,11 +4,11 @@
       <el-col :span="0"></el-col>
       <el-col :span="24">
         <div class="item">
-          <label style="float: left; width: 100px; line-height: 26px">ClientId：</label>
-          <el-select filterable v-model="searchCondition.appID" placeholder="请选择"
+          <label style="float: left; width: 100px; line-height: 26px">申请ClientId:</label>
+          <el-select filterable v-model="searchCondition.requestUaaId" placeholder="请选择"
                      style="display:block; max-width: 280px; margin-left: 100px;">
-            <el-option v-for="(item, index) in targetClientIdList"
-                       :key="item.targetUaaId" :label="item.targetClientId" :value="item.targetUaaId">
+            <el-option v-for="(item, index) in requestClientIdList"
+                       :key="item.requestUaaId" :label="item.requestClientId" :value="item.requestUaaId">
             </el-option>
           </el-select>
         </div>
@@ -38,12 +38,18 @@
               element-loading-text="加载中"
       >
         <el-table-column
-                prop="supportClientId"
-                label="被申请的ClientId"
-                max-width="150"
-                headerAlign="center" align="center"
-        >
+                prop="requestGroupName"
+                label="申请授权的团队"
+                width="130"
+                headerAlign="center" align="center">
         </el-table-column>
+        <el-table-column
+                prop="requestClientId"
+                label="申请授权的ClientId"
+                width="150"
+                headerAlign="center" align="center">
+        </el-table-column>
+
         <el-table-column
                 prop="profileName"
                 label="访问环境"
@@ -75,23 +81,17 @@
             <div v-else>{{scope.row.authTime}}</div>
           </template>
         </el-table-column>
-        <el-table-column
-                prop="requestGroupName"
-                label="申请授权的团队"
-                width="130"
-                headerAlign="center" align="center">
-        </el-table-column>
-        <el-table-column
-                prop="requestClientId"
-                label="申请授权的ClientId"
-                width="150"
-                headerAlign="center" align="center">
-        </el-table-column>
 
         <el-table-column
+                prop="supportClientId"
+                label="被申请的ClientId"
+                max-width="150"
+                headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column
                 prop="requestGroupName"
-                label="申请授权访问权限"
-                width="200"
+                label="被申请授权访问权限"
+                width="210"
                 headerAlign="center" align="center">
           <template slot-scope="scope">
             <div v-if="scope.row.authorities != null">{{scope.row.authorities}}</div>
@@ -402,7 +402,7 @@
         this.requestAuthorizeUrlList();
       }
 //      if (!this.targetAppList || this.targetAppList.length === 0) {
-      this.getTargetAppList(this.$storeHelper.currentGroupID);
+      this.getRequestClientList(this.$storeHelper.currentGroupID);
 //      }
       // adjust element height after resize
       try {
@@ -433,7 +433,7 @@
         targetAppList: [],
         showLoading: false,
         searchCondition: {
-          appID: null,
+          requestUaaId: null,
           production: null,
         },
         authorizeUrlListByPage: [],
@@ -464,7 +464,7 @@
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
-        targetClientIdList:[]
+        requestClientIdList:[]
       }
     },
     computed: {
@@ -473,8 +473,8 @@
       },
     },
     watch: {
-      '$storeHelper.currentGroupID': 'getTargetAppList',
-      'searchCondition.appID': function() {
+      '$storeHelper.currentGroupID': 'getRequestClientList',
+      'searchCondition.requestUaaId': function() {
         this.currentPage = 1;
         this.requestAuthorizeUrlList()
       },
@@ -520,26 +520,26 @@
        * get has oauthed app list in current Group, which is used for search filter
        */
       // called at: 1. start of page, 2. change of gorupID
-      getTargetAppList (groupID) {
+      getRequestClientList (groupID) {
         if (!groupID) {
           return;
         }
-        this.$net.oauthGetTargetAppList(groupID).then(targetClientIdList => {
-          this.targetClientIdList = targetClientIdList;
-          this.targetClientIdList.unshift({
-            targetUaaId: this.$storeHelper.GROUP_ID_FOR_ALL,
-            targetClientId: '全部'
+        this.$net.oauthGetTargetAppList(groupID).then(requestClientIdList => {
+          this.requestClientIdList = requestClientIdList;
+          this.requestClientIdList.unshift({
+            requestUaaId: this.$storeHelper.GROUP_ID_FOR_ALL,
+            requestClientId: '全部'
           });
-          this.searchCondition.appID = this.$storeHelper.GROUP_ID_FOR_ALL;
+          this.searchCondition.requestUaaId = this.$storeHelper.GROUP_ID_FOR_ALL;
           this.currentPage = 1;
           this.requestAuthorizeUrlList();
         }).catch(err => {
           console.log(err);
-          this.targetClientIdList = [{
+          this.requestClientIdList = [{
             targetUaaId: this.$storeHelper.GROUP_ID_FOR_ALL,
             targetClientId: '全部'
           }];
-          this.searchCondition.appID = this.$storeHelper.GROUP_ID_FOR_ALL;
+          this.searchCondition.requestUaaId = this.$storeHelper.GROUP_ID_FOR_ALL;
         });
       },
 
@@ -855,17 +855,17 @@
           cb = function () {
           };
         }
-        if (null == this.searchCondition.appID) {
+        if (null == this.searchCondition.requestUaaId) {
           return;
         }
         let page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
         let start = page * this.pageSize;
         let length = this.pageSize;
-        let supportClientId = this.searchCondition.appID;
+        let requestUaaId = this.searchCondition.requestUaaId;
         let options = {
           targetGroupId: this.$storeHelper.currentGroupID,
-          supportClientId: supportClientId == this.$storeHelper.APP_ID_FOR_ALL ? '' : supportClientId,
+          requestUaaId: requestUaaId == this.$storeHelper.APP_ID_FOR_ALL ? '' : requestUaaId,
           start: start,
           length: length,
         };

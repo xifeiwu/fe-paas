@@ -2412,8 +2412,8 @@ class Net extends NetBase {
       axios.get(url).then(response => {
         let content = this.getResponseContent(response);
         if (content) {
-          if (content.hasOwnProperty('targetClientIdList')) {
-            resolve(content['targetClientIdList']);
+          if (content.hasOwnProperty('requestClientIdList')) {
+            resolve(content['requestClientIdList']);
           } else {
             reject('获取被访问的ClientId列表失败！');
           }
