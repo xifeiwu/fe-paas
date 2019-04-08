@@ -20,7 +20,7 @@
           </el-select>
         </div>
         <div class="item">
-          <label style="float: left; width: 90px; line-height: 26px">AccessKey：</label>
+          <label style="float: left; width: 90px; line-height: 26px">clientId：</label>
           <el-input v-model="searchCondition.accessKey"
                     style="display:block; width: 200px; margin-left: 90px;"></el-input>
         </div>
@@ -36,7 +36,7 @@
                 :class="{'disabled': $storeHelper.permission['oauth_create_access_key'].disabled}"
                 :loading="statusOfWaitingResponse('oauth_create_access_key')"
                 @click="handleButtonClick($event, 'oauth_create_access_key')">
-          创建AccessKey
+          创建clientId
         </el-button>
       </el-col>
     </el-row>
@@ -50,7 +50,7 @@
       >
         <el-table-column
           prop="accessKey"
-          label="AccessKey"
+          label="clientId"
           width="140"
           headerAlign="center" align="center">
           <template slot-scope="scope">
@@ -63,7 +63,7 @@
         </el-table-column>
         <el-table-column
           prop="secret"
-          label="Access Secret"
+          label="Secret"
           min-width="120"
           headerAlign="center" align="center"
         >
@@ -184,7 +184,7 @@
       </div>
     </div>
 
-    <el-dialog title="创建AccessKey" :visible="selected.operation == 'oauth_create_access_key'"
+    <el-dialog title="创建ClientId" :visible="selected.operation == 'oauth_create_access_key'"
                class="create-access-key size-800"
                :close-on-click-modal="false"
                @close="handleDialogClose('create-access-key')"
@@ -897,7 +897,6 @@ module.exports = {
     appListOfCurrentGroup() {
       let appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup;
       if (appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')) {
-        appInfoListOfGroup.appList.pop({appId:'',appName:'无'})
         return appInfoListOfGroup.appList;
       } else {
         return [];
@@ -1132,6 +1131,7 @@ module.exports = {
                   this.dataForSelectApp.groupListAll = groupList;
                   if (groupList.length > 0) {
                     this.modifyAccessKeyInfo.targetGroupID = groupList[0].id;
+                    this.modifyAccessKeyInfo.targetGroupName = groupList[0].name;
                   }
                   this.hideWaitingResponse(action);
                   // open dialog for submit-access-config
@@ -1218,6 +1218,7 @@ module.exports = {
                   this.dataForSelectApp.groupListAll = groupList;
                   if (groupList.length > 0) {
                     this.modifyAccessKeyInfo.targetGroupID = groupList[0].id;
+                    this.modifyAccessKeyInfo.targetGroupName = groupList[0].name;
                   }
                   this.hideWaitingResponse(action);
                   // open dialog for submit-access-config
@@ -1233,10 +1234,11 @@ module.exports = {
           } else {
             this.hideWaitingResponse(action);
             this.modifyAccessKeyInfo.targetGroupID = this.dataForSelectApp.groupListAll[0].id;
+            this.modifyAccessKeyInfo.targetGroupName = this.dataForSelectApp.groupListAll[0].name;
             // set default accessID if necessary
-            if (Array.isArray(this.dataForSelectApp.appList) && this.dataForSelectApp.appList.length > 0) {
-              this.modifyAccessKeyInfo.targetAppID = this.dataForSelectApp.appList[0].appId;
-            }
+            // if (Array.isArray(this.dataForSelectApp.appList) && this.dataForSelectApp.appList.length > 0) {
+            //   this.modifyAccessKeyInfo.targetAppID = this.dataForSelectApp.appList[0].appId;
+            // }
             openDialog();
           }
 //          if (this.selected.operation) {

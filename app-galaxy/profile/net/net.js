@@ -2183,7 +2183,7 @@ class Net extends NetBase {
         } else {
           let resMsg = this.getResponseMsg2(response, {
             successMsg: '',
-            errorMsg: '获取AccessKey列表失败'
+            errorMsg: '获取clientId列表失败'
           });
           reject(resMsg);
         }

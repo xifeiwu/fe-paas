@@ -191,7 +191,7 @@ class Helper {
       // redirect: 'oauth/key',
       children: [{
         path: 'key',
-        name: 'AccessKey列表',
+        name: 'ClientId列表',
         component: OAuthKey,
         meta: {
           keepAlive: true
