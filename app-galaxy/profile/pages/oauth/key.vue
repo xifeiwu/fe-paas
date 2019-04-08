@@ -86,7 +86,7 @@
         </el-table-column>
         <el-table-column
           prop="accessConfigDesc"
-          label="申请访问的对方团队-权限，状态"
+          label="访问团队-权限，状态"
           min-width="200"
           headerAlign="center" align="center">
           <template slot-scope="scope">
@@ -960,7 +960,7 @@
           this.modifyAccessKeyInfo.targetGroupName = '';
         }
       }).catch(err => {
-        this.$message.error('获取应用列表失败！');
+        this.$message.error('获取团队列表失败！');
       }).finally(() => {
         this.modifyAccessKeyInfo.requestingAppList = false;
       })
@@ -979,8 +979,10 @@
           let getOauthUrl = encodeURI(this.$utils.formatUrl(this.$net.URL_LIST.oauth_get_by_uaa.path, {
             uaaId: target.id
           }));
+          //TODO
           this.$net.requestPaasServer({path:getOauthUrl,method:"get"}).then(content => {
              if(Array.isArray(content) && content.length > 0){
+
                this.dataForSelectApp.oauthList = content;
                this.modifyAccessKeyInfo.targetOauthId = content[0].id;
                this.modifyAccessKeyInfo.targetOauth = content[0].oauth;
@@ -1193,7 +1195,7 @@
             this.modifyAccessKeyInfo.production = selectedRow.produceEnv;
             if (Array.isArray(selectedRow.accessConfigList)) {
               this.modifyAccessKeyInfo.targetAuthInfoList = selectedRow.accessConfigList.map(it => {
-                return {
+                  return {
                   status: it.status,
                   targetOauth: it.targetOauth,
                   targetGroupId: it.targetGroupId,
@@ -1365,8 +1367,8 @@
         let hasExisted = this.modifyAccessKeyInfo.targetAuthInfoList;
         hasExisted.some(it => {
           isExist =  it['targetGroupId'] === this.modifyAccessKeyInfo.targetGroupID
-                  && it['targetUaaId'] === this.modifyAccessKeyInfo.targetUaaId
-                  && it['targetOauthId'] === this.modifyAccessKeyInfo.targetOauthId;
+                  && it['targetClientId'] === this.modifyAccessKeyInfo.targetClientId
+                  && it['targetOauth'] === this.modifyAccessKeyInfo.targetOauth;
           return isExist;
         });
 
