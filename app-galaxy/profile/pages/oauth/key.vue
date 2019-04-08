@@ -920,7 +920,6 @@
       this.requestAccessKeyList();
     },
     'modifyAccessKeyInfo.targetGroupID': function (groupID) {
-//      console.log(groupID);
       if (!groupID) {
         return;
       }
@@ -982,7 +981,6 @@
           //TODO
           this.$net.requestPaasServer({path:getOauthUrl,method:"get"}).then(content => {
              if(Array.isArray(content) && content.length > 0){
-
                this.dataForSelectApp.oauthList = content;
                this.modifyAccessKeyInfo.targetOauthId = content[0].id;
                this.modifyAccessKeyInfo.targetOauth = content[0].oauth;
@@ -1010,7 +1008,8 @@
         if(oauthList && Array.isArray(oauthList)){
             let target = null;
             oauthList.some(o=>{
-               target = (o.id === oauthId)?o:null;
+               target = (o.id == oauthId)?o:null;
+               return target;
             });
 
             if(null != target && target.oauth){
@@ -1569,7 +1568,7 @@
           });
           break;
         case 'add-target-oauth':
-//          console.log(this.modifyAccessKeyInfo);
+
           if (this.isTargetAppOK()) {
             this.modifyAccessKeyInfo.targetAuthInfoList.push({
               status: '新申请',
