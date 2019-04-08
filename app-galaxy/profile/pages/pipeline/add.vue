@@ -958,14 +958,22 @@
             })
         });
 
+        // fix rules for sonarCheck
+        // sonarCheck可以不填，如果填写，格式必须正确，检查项包括：
+        // 1. 单元测试覆盖率
+        // 2. 技术债
         const validatorForUnitTestSelected = function(rule, values, callback) {
-          values = parseInt(values.trim());
           var passed = false;
+          try {
+            values = parseInt(values.trim());
 //          if (!values) {
 //            passed = true;
 //          } else
-          if (/^[0-9]+$/.exec(values) && (values > 0 && values <= 100)) {
-            passed = true;
+            if (/^[0-9]+$/.exec(values) && (values > 0 && values <= 100)) {
+              passed = true;
+            }
+          } catch(err) {
+            passed = false;
           }
           if (passed) {
             callback();
@@ -973,12 +981,15 @@
             callback('请填写0-100之间的数字');
           }
         };
-
         const validatorForCodeDebtSelected = function (rule, values, callback) {
-          values = parseInt(values.trim());
           var passed = false;
-          if (/^[0-9]+$/.exec(values) && (values >= 0)) {
-            passed = true;
+          try {
+            values = parseInt(values.trim());
+            if (/^[0-9]+$/.exec(values) && (values >= 0)) {
+              passed = true;
+            }
+          } catch(err) {
+            passed = false;
           }
           if (passed)  {
             callback();
@@ -986,9 +997,6 @@
             callback('请填写大于0的数字');
           }
         };
-
-        // fix rules for sonarCheck
-        // sonarCheck可以不填，如果填写，格式必须正确
         const sonarCheck = this.formData['sonarCheck'];
         const sonarCheckRules = this.formDataRules['sonarCheck']['fields'];
         if (!this.formData.sonarCheck.selected) {
@@ -1009,6 +1017,7 @@
           delete sonarCheckRules['unitTestRatio']
         }
 
+        // fix rules for noticeConfig
         const validatorForNoticeConfig = function(rule, values, callback) {
           if (!Array.isArray(values)) {
             callback('格式不正确');
@@ -1020,10 +1029,9 @@
           }
           callback();
         };
-
-        // fix rules for noticeConfig
         const noticeConfig = this.formData['noticeConfig'];
         const noticeConfigRules = this.formDataRules['noticeConfig'];
+        // 如果选择了成功(失败)时通知，必须填写邮箱地址（邮箱为数组类型）
         if (noticeConfig.executeFail || noticeConfig.executeSuccess) {
           noticeConfigRules.required = true;
           noticeConfigRules['fields']['noticeEmails'] = [{
