@@ -20,6 +20,7 @@
 <script>
   export default {
     created() {
+      this.getToken();
       // xterm配置自适应大小插件
       Terminal.applyAddon(fit);
       // 这俩插件不知道干嘛的, 用总比不用好
@@ -45,8 +46,31 @@
     computed: {
     },
     methods: {
+      async getToken() {
+//        console.log(this.$storeHelper.globalUserGroupInfo.tag);
+        const groupTag = this.$storeHelper.globalUserGroupInfo.tag;
+        const profileName = 'test';
+        const instanceName = 'jingang-demo-jar-0327-2798430198-zfbcp';
+        const serviceName = 'jingang-demo-jar-0327';
+
+        // k8s-namespace
+        // podNs: profileInfo.name-groupTag
+        // podName: 实例名称
+        // containerName: appInfo.serviceName
+        const resContent = await this.$net.requestAssistServer(this.$net.URL_LIST.get_token, {
+          payload: {
+            podNs:`${profileName}-${groupTag}` ,
+            podName: instanceName,
+            containerName: serviceName
+          }
+        });
+        if (!resContent.token) {
+          return;
+        }
+        this.openTerminal(resContent.token);
+      },
       // 新建终端
-      openTerminal() {
+      openTerminal(token) {
         // 创建终端
         var term = new Terminal();
         term.open(document.getElementById('terminal'));
@@ -62,9 +86,12 @@
         var containerName = document.getElementById("containerName").value
         // 连接websocket
         // ws = new WebSocket("ws://10.10.152.39:30001/api/ws?" + "podNs=" + podNs + "&podName=" + podName + "&containerName=" + containerName );
-        const ws = new WebSocket("wss://k8s-webshell.finupgroup.com:30001/api/ws?" + "podNs=" + podNs + "&podName=" + podName + "&containerName=" + containerName );
+        const ws = new WebSocket(`wss://k8s-webshell.finupgroup.com:30001/api/ws?token=${token}`);
         ws.onopen = function(event) {
           console.log("onopen")
+          var msg = {type: "input", input: '\r'};
+          ws.send(JSON.stringify(msg))
+//          term.write('\r');
         }
         ws.onclose = function(event) {
           console.log("onclose")
