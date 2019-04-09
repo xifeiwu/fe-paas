@@ -309,7 +309,7 @@
     </el-dialog>
 
     <el-dialog title="修改访问配置" :visible="selected.operation == 'oauth_update_access_config'"
-               class="update-target-app size-800"
+               class="update-target-app size-1000"
                :close-on-click-modal="false"
                @close="handleDialogClose('add-access-config-in-dialog')"
                v-if="selected.row"
@@ -337,7 +337,7 @@
             <el-col :span="3" class="group">团队</el-col>
             <el-col :span="7" class="app">ClientId</el-col>
             <el-col :span="8" class="app">权限</el-col>
-            <el-col :span="3" class="status">状态</el-col>
+            <el-col :span="3" class="app">状态</el-col>
             <el-col :span="3"></el-col>
           </el-row>
           <el-row class="has-exist"
@@ -1648,6 +1648,11 @@
               this.requestUpdate(action, prop);
             }
           });
+          break;
+        case 'delete-access-config':
+          debugger
+          console.log(item)
+          item['openPopover'] = true;
           break;
       }
     },
