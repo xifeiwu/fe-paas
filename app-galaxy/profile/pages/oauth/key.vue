@@ -316,7 +316,7 @@
     >
       <el-tag type="warning" disable-transitions>
         <i class="el-icon-warning"></i>
-        <span>如需更换团队，请在页面右上角选择我的团队</span>
+        <span>权限被授权后，请重启服务</span>
       </el-tag>
       <el-form labelWidth="140px" size="mini" class="message-show">
         <el-form-item label="我的团队" v-if="groupInfo">
@@ -931,14 +931,17 @@
         // init default value for appList and modifyAccessKeyInfo.targetAppID
         this.modifyAccessKeyInfo.targetUaaId = this.$storeHelper.APP_ID_FOR_NULL;
 
-        // update uaaList and modifyAccessKeyInfo.targetAppID
+        // update uaaList and modifyAccessKeyInfo.targetUaaId
         if (Array.isArray(resContent)) {
-          // resContent.forEach(it => {
-          //   it['appId'] = it['id'];
-          // });
           this.dataForSelectApp.uaaList = resContent;
           if (resContent.length > 0) {
             this.modifyAccessKeyInfo.targetUaaId = resContent[0].id;
+          }else{
+            this.modifyAccessKeyInfo.targetUaaId = null;
+            this.modifyAccessKeyInfo.targetClientId = null;
+            this.modifyAccessKeyInfo.targetOauthId = null;
+            this.modifyAccessKeyInfo.targetOauth = null;
+            this.dataForSelectApp.oauthList = [];
           }
         }
 
@@ -978,7 +981,7 @@
           let getOauthUrl = encodeURI(this.$utils.formatUrl(this.$net.URL_LIST.oauth_get_by_uaa.path, {
             uaaId: target.id
           }));
-          //TODO
+
           this.$net.requestPaasServer({path:getOauthUrl,method:"get"}).then(content => {
              if(Array.isArray(content) && content.length > 0){
                this.dataForSelectApp.oauthList = content;
@@ -986,6 +989,7 @@
                this.modifyAccessKeyInfo.targetOauth = content[0].oauth;
              }else{
                this.modifyAccessKeyInfo.targetOauthId = null;
+               this.modifyAccessKeyInfo.targetOauth = null;
                this.dataForSelectApp.oauthList = [];
              }
           }).catch(err=>{
@@ -1357,7 +1361,7 @@
         errMsg = '未选择clientId';
       }
 
-      if(modifyAccessKeyInfo.targetOauthId === this.$storeHelper.APP_ID_FOR_NULL){
+      if(modifyAccessKeyInfo.targetOauth === '' || modifyAccessKeyInfo.targetOauth === null){
         errMsg = '未选择权限信息';
       }
 
@@ -1568,7 +1572,6 @@
           });
           break;
         case 'add-target-oauth':
-
           if (this.isTargetAppOK()) {
             this.modifyAccessKeyInfo.targetAuthInfoList.push({
               status: '新申请',
@@ -1650,9 +1653,11 @@
           });
           break;
         case 'delete-access-config':
-          debugger
+          // debugger
           console.log(item)
-          item['openPopover'] = true;
+          if(!item['openPopover']){
+            item['openPopover'] = true;
+          }
           break;
       }
     },
