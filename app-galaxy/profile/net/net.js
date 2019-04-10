@@ -154,12 +154,14 @@ class Net extends NetBase {
       // 获取自动打镜像类型列表
       'auto_image_list': {
         path: '/image/queryBasicImage',
-        method: 'post'
+        method: 'post',
+        level: 'LEVEL_WARNING'
       },
       // 获取自定义镜像列表
       'custom_image_list': {
         path: '/image/query/tag',
-        method: 'post'
+        method: 'post',
+        level: 'LEVEL_WARNING'
       },
 
       // 更改实例数
