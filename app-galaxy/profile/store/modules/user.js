@@ -119,11 +119,13 @@ const actions = {
       // state.appInfoListOfGroup = await net.parseAppList(resContent);
       state.appInfoListOfGroup = await net.parseAppListV2(resContent, state.profileListOfGroup);
     } catch(err) {
-      Vue.prototype.$notify.error({
-        title: '获取应用列表失败，请联系管理员',
-        message: err.message,
-        duration: 8000
-      });
+      console.log(err);
+      // 错误提示已经在requestPaasServer中展示，此处不需重复展示
+      // Vue.prototype.$notify.error({
+      //   title: '获取应用列表失败，请联系管理员',
+      //   message: err.message,
+      //   duration: 8000
+      // });
     }
     return state.appInfoListOfGroup;
   },

@@ -128,7 +128,8 @@ class Net extends NetBase {
       // 获取域名请求相关信息
       'service_info_request_statistic': {
         path: '/getInterfaceAccessCount',
-        method: 'post'
+        method: 'post',
+        level: 'LEVEL_IGNORE'
       },
       // TODO: not used
       'query_default_expired_days': {

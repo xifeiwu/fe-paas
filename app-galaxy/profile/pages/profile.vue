@@ -355,11 +355,12 @@
 //        this.$store.dispatch('user/groupId', this.$storeHelper.currentGroupID);
       }).catch(err => {
         console.log(err);
-        this.$notify.error({
-          title: '配置信息获取失败，请刷新页面重试',
-          message: err.message,
-          duration: 0,
-        });
+        // requestPaasServer已经给出提示，不需重复提示
+//        this.$notify.error({
+//          title: '配置信息获取失败，请刷新页面重试',
+//          message: err.message,
+//          duration: 0,
+//        });
       });
       this.showDescriptor4Header = {
         'manage': this.$storeHelper.getUserInfo('role') && this.$storeHelper.getUserInfo('role') === '平台管理员',

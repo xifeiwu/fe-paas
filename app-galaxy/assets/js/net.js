@@ -1,9 +1,16 @@
 import Vue from 'vue';
 import axios from 'axios';
 import querystring from 'query-string';
+import Utils from './utils';
+
+const utils = new Utils();
 
 class Net {
   constructor() {
+    // 提示（错误、警告）除抖
+    this.debouncedShowError = utils.debounce(this.showError.bind(this), 1000, true);
+    this.debouncedShowWarning = utils.debounce(this.showWarning.bind(this), 1000, true);
+
     this.ASSIST_PREFIX = '/n-api/assist';
     this.CDN_PREFIX = '/n-api';
     // this.DNS_PREFIX = '/n-api';
@@ -324,6 +331,24 @@ class Net {
       duration: 3000
     })
   };
+  /**
+   * show error
+   * @param err: {title, message}
+   */
+  showWarning (err) {
+    if (err instanceof Error) {
+      err = {
+        title: '请求失败',
+        message: err.toString()
+      }
+    }
+    const title = `${err.title}`;
+    Vue.prototype.$notify.warning({
+      title,
+      message: err.message,
+      duration: 3000
+    })
+  };
 
   /**
    * 格式化请求
@@ -379,6 +404,7 @@ class Net {
    *
    * @param path
    * @param method
+   * @param level: LEVEL_ERROR(default), LEVEL_WARNING, LEVEL_IGNORE
    * @param partial: not trigger global loading status
    * @param withTimeStamp
    * @param withCode
@@ -391,7 +417,7 @@ class Net {
    * return resData.content if success
    * else return {}
    */
-  async requestPaasServer({path, method, partial = false, withTimeStamp = false, withCode=false}, options = {}) {
+  async requestPaasServer({path, method, level = 'LEVEL_ERROR', partial = false, withTimeStamp = false, withCode=false}, options = {}) {
     // 访客只能进入首页
     if (Vue.prototype.$storeHelper.isGuest) {
       window.location.href = this.page['index'];
@@ -422,6 +448,7 @@ class Net {
           return resData.content;
         }
       } else {
+        // 请求返回的状态不正确
         // code 555 stands for token is out of date
         if (resData.code === 555) {
           const logoutHref = this.getCasLogoutHref();
@@ -432,24 +459,48 @@ class Net {
           return;
         }
 
+        if (resData.hasOwnProperty('level')) {
+          level = resData['level'];
+        }
         const err = {
           code: resData.code,
           title: '请求失败',
           message: resData.msg
         };
-        this.showError(err);
-        return Promise.reject(err);
+        if (level === 'LEVEL_IGNORE') {
+          return Promise.resolve(err);
+        } else if (level === 'LEVEL_WARNING') {
+          this.showWarning(err);
+          return Promise.reject(err);
+        } else {
+          this.showError(err);
+          return Promise.reject(err);
+        }
       }
     } catch (error) {
-      if (error.hasOwnProperty('title') && error.hasOwnProperty('message')) {
-      } else if (error instanceof Error) {
-        error = {
-          title: '网络请求错误',
+      // 请求过程发生错误（一般是超时）
+      // 请求超时
+      if (level === 'LEVEL_IGNORE') {
+        return Promise.resolve(error);
+      } else if (level === 'LEVEL_WARNING') {
+        this.showWarning({
+          title: '网络请求失败',
           message: `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.toString()}`
-        };
+        });
+      } else {
+        if (error.code === 'ECONNABORTED') {
+          this.debouncedShowError({
+            title: '网络请求失败',
+            message: `网络请求超时，请稍后再试。请求路径：${path.replace(this.PAAS_PREFIX, '')}`
+          });
+        } else {
+          this.showError({
+            title: '网络请求失败',
+            message: `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.toString()}`
+          });
+        }
+        return Promise.reject(error);
       }
-      this.showError(error);
-      return Promise.reject(error);
     } finally {
       this.removeFromRequestingRrlList(path);
     }
