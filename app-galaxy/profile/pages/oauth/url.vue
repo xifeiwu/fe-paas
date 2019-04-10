@@ -126,6 +126,9 @@
             <div v-if="scope.row.status === 'AUTHORIZED' ">
               <div><span style="color:green">{{scope.row.statusName}}</span></div>
             </div>
+            <div v-else-if="scope.row.status === 'REQUESTED'">
+              <div><span style="color:yellowgreen">{{scope.row.statusName}}</span></div>
+            </div>
             <div v-else>
               <div><span style="color:red">{{scope.row.statusName}}</span></div>
             </div>
@@ -668,20 +671,23 @@
                 }
 
                 if (!errMsg) {
-                    this.$net.oauthModifyAuthorizeList(this.selected.row.id,{}).then(msg => {
-                        this.updateModelInfo('authorizeUrlList');
-                        this.$message.success(msg);
-                        this.requestAuthorizeUrlList();
-                    }).catch(msg => {
-                        this.selected.operation = null;
-                        this.$notify.error({
-                            title: '授权失败！',
-                            message: msg,
-                            duration: 0,
-                            onClose: function () {
-                            }
-                        });
-                    });
+                   let content = "您确定要将"+row.authorities+"授权给"+row.requestClientId+"吗"
+                   this.warningConfirm("确认授权",content).then(()=>{
+                     this.$net.oauthModifyAuthorizeList(this.selected.row.id,{}).then(msg => {
+                       this.updateModelInfo('authorizeUrlList');
+                       this.$message.success(msg);
+                       this.requestAuthorizeUrlList();
+                     }).catch(msg => {
+                       this.selected.operation = null;
+                       this.$notify.error({
+                         title: '授权失败！',
+                         message: msg,
+                         duration: 0,
+                         onClose: function () {
+                         }
+                       });
+                     });
+                   });
                 }else{
                     this.$notify.error({
                         title: '修改失败！',
@@ -899,6 +905,20 @@
             }
           });
           cb(false)
+        });
+      },
+
+      warningConfirm(title, content) {
+        return new Promise((resolve, reject) => {
+          this.$confirm(content, title, {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            resolve();
+          }).catch(() => {
+            reject()
+          });
         });
       },
     }
