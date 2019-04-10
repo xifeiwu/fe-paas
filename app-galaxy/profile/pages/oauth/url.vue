@@ -25,7 +25,7 @@
                    type="primary"
                    v-if="true"
                    :loading="statusOfWaitingResponse('search')"
-                   @click="handleButtonClick('search')">搜索
+                   @click="handleButtonClick('search')">刷新
         </el-button>
       </el-col>
     </el-row>

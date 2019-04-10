@@ -432,7 +432,7 @@
         <div class="item">1. 修改授权URL，需要重新部署我的应用，否则不能生效</div>
         <div class="item">2. 所属权限的自定义部分只能包括小写字母；50个字符以内。如，galaxy-WrJhXCOo.abcdef</div>
         <div class="item">3. 资源URL，必须以/开头，路径可以包含字母、数字、*、/、中划线、下划线。多个路径之间以,分割。50个字符以内。如，/a/1-2_3/C,/**/d</div>
-        <div class="item" style="color:red">4. 资源增加完毕后，必须重启服务在能生效</div>
+        <div class="item" style="color:red">4. 资源URL增加/删除完毕后，必须重启服务在能生效</div>
       </div>
       <div slot="footer" class="dialog-footer">
         <div style="text-align: center">
