@@ -39,7 +39,11 @@ class Net extends NetBase {
       item.path = this.ASSIST_PREFIX + item.path;
     });
 
-    this.URL_LIST = Object.assign(PAAS_URL_LIST, ASSIST_URL_LIST);
+    if (this.URL_LIST) {
+      this.URL_LIST = Object.assign(this.URL_LIST, PAAS_URL_LIST, ASSIST_URL_LIST);
+    } else {
+      this.URL_LIST = Object.assign(PAAS_URL_LIST, ASSIST_URL_LIST);
+    }
   }
 }
 

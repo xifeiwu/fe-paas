@@ -55,7 +55,7 @@ class Net extends NetBase {
         path: '/language/queryAllLanguage',
         method: 'get'
       },
-      // 获取用户所在组列表
+      // 获取用户所在组列表（父类中已经存在）
       'user_group_list': {
         path: '/group/queryByUser',
         method: 'get'
@@ -715,8 +715,11 @@ class Net extends NetBase {
       item.path = this.CDN_PREFIX + item.path;
     });
 
+    // 如果父类已经存在URL_LIST，则合并父类中的URL_LIST
     if (this.URL_LIST) {
       this.URL_LIST = Object.assign(this.URL_LIST, PAAS_URL_LIST, CDN_URL_LIST);
+    } else {
+      this.URL_LIST = Object.assign(PAAS_URL_LIST, CDN_URL_LIST);
     }
   }
 
