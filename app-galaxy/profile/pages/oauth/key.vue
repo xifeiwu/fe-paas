@@ -11,9 +11,9 @@
           </el-select>
         </div>
         <div class="item">
-          <label style="float: left; width: 90px; line-height: 26px">ClientId：</label>
+          <label style="float: left; width: 60px; line-height: 26px">ClientId：</label>
           <el-input v-model="searchCondition.accessKey"
-                    style="display:block; width: 200px; margin-left: 90px;"></el-input>
+                    style="display:block; width: 200px; margin-left: 60px;"></el-input>
         </div>
         <el-button size="mini-extral"
                    type="primary"
@@ -587,7 +587,6 @@
       }
       .el-select .el-input__inner {
         height: 26px;
-        padding: 0px 5px;
       }
     }
   }
@@ -1225,7 +1224,7 @@
         case 'oauth_delete_access_key':
           this.addToWaitingResponseQueue(action);
           this.warningConfirm('删除CliendId',
-            `删除ClientId:${row.clientId},将会造成已经授权的配置失效，你确定需要这么做吗？`).then(() => {
+            `删除ClientId：${row.clientId}，将会造成已经授权的配置失效，你确定需要这么做吗？`).then(() => {
             this.$net.oauthDeleteAccessKey(this.selected.row.id).then(msg => {
               this.hideWaitingResponse(action);
               this.$message.success(msg);
