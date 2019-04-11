@@ -1454,9 +1454,9 @@ class Net extends NetBase {
           vmOptions: service.vmOptions,
           instanceNum: service.instanceNum,
           serviceVersion: service.serviceVersion,
-          volume:service.volume,
-          subPath:service.subPath,
-          claimName:service.claimName
+          volume: service.volume,
+          subPath: service.subPath,
+          claimName: service.claimName
         };
 
         /** copy prop */

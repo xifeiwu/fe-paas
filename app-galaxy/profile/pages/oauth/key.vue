@@ -909,7 +909,6 @@
              }
           }).catch(err=>{
              console.error(err)
-             this.$message.error('获取Uaa列表失败！');
           }).finally(()=>{
             this.modifyAccessKeyInfo.loadingOauth = false;
           });
@@ -1071,10 +1070,10 @@
             this.hideWaitingResponse(action);
             this.modifyAccessKeyInfo.targetGroupID = this.dataForSelectApp.groupListAll[0].id;
             this.modifyAccessKeyInfo.targetGroupName = this.dataForSelectApp.groupListAll[0].name;
-            if(this.dataForSelectApp.uaaList.length>0){
+            if(this.dataForSelectApp.uaaList.length > 0){
               this.modifyAccessKeyInfo.targetUaaId = this.dataForSelectApp.uaaList[0].id;
               this.modifyAccessKeyInfo.targetClientId = this.dataForSelectApp.uaaList[0].clientId;
-              if(this.dataForSelectApp.oauthList.length>0){
+              if(this.dataForSelectApp.oauthList.length > 0){
                 this.modifyAccessKeyInfo.targetOauthId = this.dataForSelectApp.oauthList[0].id;
                 this.modifyAccessKeyInfo.targetOauth = this.dataForSelectApp.oauthList[0].oauth;
               }

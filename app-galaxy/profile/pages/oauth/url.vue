@@ -679,13 +679,7 @@
                        this.requestAuthorizeUrlList();
                      }).catch(msg => {
                        this.selected.operation = null;
-                       this.$notify.error({
-                         title: '授权失败！',
-                         message: msg,
-                         duration: 0,
-                         onClose: function () {
-                         }
-                       });
+                       this.$message.success("授权失败");
                      });
                    });
                 }else{
