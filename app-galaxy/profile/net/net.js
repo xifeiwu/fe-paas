@@ -129,7 +129,11 @@ class Net extends NetBase {
       'service_info_request_statistic': {
         path: '/getInterfaceAccessCount',
         method: 'post',
-        level: 'LEVEL_IGNORE'
+        level: 'LEVEL_WARNING',
+        errObj: {
+          title: '请求超时',
+          message: '因访问数量过多/响应数据量过大，请您稍后再试！'
+        }
       },
       // TODO: not used
       'query_default_expired_days': {

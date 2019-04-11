@@ -405,6 +405,10 @@ class Net {
    * @param path
    * @param method
    * @param level: LEVEL_ERROR(default), LEVEL_WARNING, LEVEL_IGNORE
+   * @param errObj: {
+   *   title: String,
+   *   message: String
+   * }
    * @param partial: not trigger global loading status
    * @param withTimeStamp
    * @param withCode
@@ -417,7 +421,7 @@ class Net {
    * return resData.content if success
    * else return {}
    */
-  async requestPaasServer({path, method, level = 'LEVEL_ERROR', partial = false, withTimeStamp = false, withCode=false}, options = {}) {
+  async requestPaasServer({path, method, level = 'LEVEL_ERROR', errObj = null, partial = false, withTimeStamp = false, withCode=false}, options = {}) {
     // 访客只能进入首页
     if (Vue.prototype.$storeHelper.isGuest) {
       window.location.href = this.page['index'];
@@ -462,19 +466,19 @@ class Net {
         if (resData.hasOwnProperty('level')) {
           level = resData['level'];
         }
-        const err = {
+        errObj = errObj ? errObj : {
           code: resData.code,
           title: '请求失败',
           message: resData.msg
         };
         if (level === 'LEVEL_IGNORE') {
-          return Promise.resolve(err);
+          return Promise.resolve(errObj);
         } else if (level === 'LEVEL_WARNING') {
-          this.showWarning(err);
-          return Promise.reject(err);
+          this.showWarning(errObj);
+          return Promise.reject(errObj);
         } else {
-          this.showError(err);
-          return Promise.reject(err);
+          this.showError(errObj);
+          return Promise.reject(errObj);
         }
       }
     } catch (error) {
@@ -483,21 +487,25 @@ class Net {
       if (level === 'LEVEL_IGNORE') {
         return Promise.resolve(error);
       } else if (level === 'LEVEL_WARNING') {
-        this.showWarning({
+        errObj = errObj ? errObj : {
           title: '网络请求失败',
           message: `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.toString()}`
-        });
+        };
+        this.showWarning(errObj);
+        return Promise.reject(error);
       } else {
         if (error.code === 'ECONNABORTED') {
-          this.debouncedShowError({
+          errObj = errObj ? errObj : {
             title: '网络请求失败',
             message: `网络请求超时，请稍后再试。请求路径：${path.replace(this.PAAS_PREFIX, '')}`
-          });
+          };
+          this.debouncedShowError(errObj);
         } else {
-          this.showError({
+          errObj = errObj ? errObj : {
             title: '网络请求失败',
             message: `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.toString()}`
-          });
+          };
+          this.showError(errObj);
         }
         return Promise.reject(error);
       }
