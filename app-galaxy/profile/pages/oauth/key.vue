@@ -3,15 +3,6 @@
     <el-row class="header" type="flex" justify="center" align="middle">
       <el-col :span="20" class="key-selector">
         <div class="item">
-          <label style="float: left; width: 100px; line-height: 26px">访问对方团队：</label>
-          <el-select filterable v-model="searchCondition.groupID" placeholder="请选择"
-                     style="display:block; max-width: 280px; margin-left: 100px;">
-            <el-option v-for="(item, index) in targetGroupList"
-                       :key="item.targetGroupId" :label="item.targetGroupName" :value="item.targetGroupId">
-            </el-option>
-          </el-select>
-        </div>
-        <div class="item">
           <label style="float: left; width: 72px; line-height: 26px">访问环境：</label>
           <el-select v-model="searchCondition.production" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 72px;">
             <el-option :value="null" label="全部"></el-option>
@@ -596,6 +587,7 @@
       }
       .el-select .el-input__inner {
         height: 26px;
+        padding: 0px 5px;
       }
     }
   }
@@ -1231,14 +1223,9 @@
           this.selected.operation = action;
           break;
         case 'oauth_delete_access_key':
-          let appDesc = '';
-//          let row = this.selected.row;
-          if (row.myApp && row.profileName) {
-            appDesc = `应用 “${row.myApp}” 的`;
-          }
           this.addToWaitingResponseQueue(action);
-          this.warningConfirm('删除AccessKey',
-            `删除${appDesc}AccessKey将会造成已经授权的配置失效，你确定需要这么做吗？`).then(() => {
+          this.warningConfirm('删除CliendId',
+            `删除ClientId:${row.clientId},将会造成已经授权的配置失效，你确定需要这么做吗？`).then(() => {
             this.$net.oauthDeleteAccessKey(this.selected.row.id).then(msg => {
               this.hideWaitingResponse(action);
               this.$message.success(msg);
