@@ -151,4 +151,16 @@ export default class Utils extends BaseUtils {
     const ONE_DAY = 24 * 3600 * 1000;
     return parseInt((this.getDate(target) - this.getDate(current)) / ONE_DAY);
   }
+
+  // copy from node module shvl
+  shvlGet (object, path, def) {
+    return (object = (path.split ? path.split('.') : path).reduce(function (obj, p) {
+      return obj && obj[p]
+    }, object)) === undefined ? def : object;
+  }
+  shvlSet  (object, path, val, obj) {
+    return ((path = path.split ? path.split('.') : path).slice(0, -1).reduce(function (obj, p) {
+      return obj[p] = obj[p] || {};
+    }, obj = object)[path.pop()] = val), object;
+  }
 }

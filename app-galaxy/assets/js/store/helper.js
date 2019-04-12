@@ -1,3 +1,4 @@
+import * as shvl from 'shvl';
 import globalStore from './index';
 
 export default class StoreHelper {
@@ -26,7 +27,7 @@ export default class StoreHelper {
     return this.userInfo.role === 'guest';
   }
 
-  // TODO: for compatible
+  // TODO: will be replaced by userInfo
   getUserInfo(key) {
     let value = null;
     if (this.userInfo) {
@@ -134,6 +135,22 @@ export default class StoreHelper {
 
   logout() {
     this.$globalStore.dispatch('logout');
+  }
+
+  /**
+   * get props stored in localStorage of the page
+   * @param page
+   * @param path, in the form of a.b.c. user.groupList
+   * @returns {any}
+   */
+  getPropsFromLocalStorage(page, path) {
+    var pageInfo = null;
+    try {
+      pageInfo = JSON.parse(localStorage.getItem(page));
+    } catch(err) {
+      pageInfo = null;
+    }
+    return shvl.get(pageInfo, path);
   }
 
   get JOB_LIST() {
