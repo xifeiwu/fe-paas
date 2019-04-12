@@ -2,10 +2,18 @@
   <div id="instance-terminal">
     <div class="header" v-if="instanceInfo">
       <div class="instance-info">
-        <div class="item">当前实例: {{instanceInfo.instanceName}}</div>
+        <div class="item">当前实例：{{instanceInfo.instanceName}}</div>
+        <div class="item">操作员：{{instanceInfo.realName}}</div>
       </div>
     </div>
-    <div class="terminal-screen"></div>
+    <div class="content">
+      <div class="section-error" v-if="netError">
+        <div>您暂时无法访问该实例终端：{{netError.message}}</div>
+        <div>请联系paas平台</div>
+        <div><a :href="$net.page['profile']">点击返回控制台页面</a></div>
+      </div>
+      <div class="terminal-screen" v-else></div>
+    </div>
   </div>
 </template>
 
@@ -31,8 +39,29 @@
         justify-content: space-between;
       }
     }
-    .terminal-screen {
+    .content {
       flex: 1;
+      position: relative;
+      .terminal-screen {
+        height: 100%;
+      }
+      .section-error {
+        /*color: #F56C6C;*/
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: inline-block;
+        text-align: center;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        background-color: rgba(245, 108, 108, 0.8);
+        /*background-color: rgba(144, 147, 153, 0.8);*/
+        padding: 5px 10px;
+        border-radius: 5px;
+      }
+
     }
   }
 </style>
@@ -44,6 +73,9 @@
     async mounted() {
       try {
         const results = await this.checkAndGetData();
+        if (results.errMsg) {
+          throw new Error(results.errMsg);
+        }
         this.instanceInfo = results.instanceInfo;
         const wsToken = await this.getToken(results.payload);
 //      console.log(results);
@@ -51,14 +83,17 @@
         this.$nextTick(() => {
           // as this.$el is used in this.openTerminal
           this.openTerminal(wsToken);
+          this.netError = null;
         });
       } catch (err) {
         console.log(err);
+        this.netError = err;
       }
     },
     data() {
       return {
         instanceInfo: null,
+        netError: null,
       }
     },
     computed: {
