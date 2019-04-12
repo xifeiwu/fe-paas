@@ -1,5 +1,6 @@
 <template>
-  <div :class="['stage', item.name, hovering?'is-hover':'', item.active?'is-active':'', item.selected?'is-selected':'un-selected']">
+  <div :class="['stage', item.name, hovering?'is-hover':'', item.active?'is-active':'', item.selected?'is-selected':'un-selected',
+                  item.showLoading ? 'is-loading' : '']">
     <div :class="{'node': true,}"
          @mouseenter="handleMouseEnter($event)"
          @mouseleave="handleMouseLeave($event)"
@@ -7,6 +8,11 @@
          v-clickoutside="handleClickOutside"
     >
       <i :class="[item.result == 'FAILURE' ?'el-icon-close' : 'el-icon-check']" v-if="item.showIcon"></i>
+      <svg width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg" viewPort="0 0 24 24" v-else-if="item.showLoading">
+        <circle r="8" cx="12" cy="12" fill="none" stroke="#D1D3D7" stroke-width="4px" stroke-dashoffset="0"></circle>
+        <circle r="8" cx="12" cy="12" fill="none" stroke="#00A5E0" stroke-width="4px" stroke-dasharray="25 25" transform="matrix(0,-1,1,0,0,24)"></circle>
+        <circle id="bar" r="2" cx="12" cy="12" fill="#00A5E0"></circle>
+      </svg>
       <span v-else>{{item.index ? item.index : ''}}</span>
     </div>
     <div class="description">{{item.description}}</div>
@@ -88,6 +94,25 @@
         font-weight: normal;
       }
     }
+    &.is-loading {
+      .node {
+        background-color: transparent !important;
+      }
+      @keyframes node-loading {
+        0% {
+          r: 2;
+        }
+        50% {
+          r: 4;
+        }
+        100% {
+          r: 2;
+        }
+      }
+      #bar {
+        animation:  node-loading 3s linear infinite;
+      }
+    }
     &:nth-last-of-type(2) {
       width: 80px;
     }
@@ -143,6 +168,7 @@
             index: 0,
             id: null,
             showIcon: false,
+            showLoading: false,
             result: '',
           }
         }

@@ -37,6 +37,19 @@
         </div>
       </div>
     </div>
+    <paas-popover-element-with-modal-mask ref="popover-for-user-confirm" popperClass="el-popover--small is-dark" title="等待用户确认"
+                                          placement="bottom" :closeOnLeave="false">
+      <div slot="content" style="font-size: 14px;">
+        <div v-if="userInputInfo">{{userInputInfo.message}}</div>
+        <div v-else>继续吗？</div>
+        <div style="display: flex; justify-content: space-around; margin-top: 8px;">
+          <el-button type="primary" size="mini-extral" :loading="userInputInfo && userInputInfo.action == 'go-on'"
+                     @click="handleUserInput('go-on')">确定</el-button>
+          <el-button type="danger" size="mini-extral" :loading="userInputInfo && userInputInfo.action == 'cancel'"
+                     @click="handleUserInput('cancel')">取消</el-button>
+        </div>
+      </div>
+    </paas-popover-element-with-modal-mask>
   </div>
 </template>
 
@@ -122,8 +135,9 @@
 <script>
   import pipelineStage from './components/stage.vue';
   import stageStepLog from './components/step-log';
+  import paasPopoverElementWithModalMask from 'assets/components/popover-element-with-modal-mask';
   export default {
-    components: {pipelineStage, stageStepLog},
+    components: {pipelineStage, stageStepLog, paasPopoverElementWithModalMask},
     created() {
       const dataPassed = this.$storeHelper.dataTransfer;
       if (!dataPassed) {
@@ -132,6 +146,9 @@
       this.appId = dataPassed.appId;
       this.buildNumber = dataPassed.buildNumber;
       this.$storeHelper.dataTransfer = null;
+      this.$nextTick(() => {
+        this.popperForUserConfirm = this.$refs['popover-for-user-confirm'];
+      });
       this.requestBlueOceanStageList();
     },
 
@@ -143,6 +160,9 @@
       'currentBuildStage': function () {
         this.requestBlueOceanStageStepList();
       },
+      'lastStage': function () {
+        this.processStageList();
+      }
     },
 
     computed: {
@@ -155,13 +175,18 @@
         buildStageList: [],
         currentBuildStage: null,
         stages: [],
+        lastStage: null,
         buildStageStepList: [],
         currentOpenStepLogList: {},
+        // 需要用户确认的基本信息
+        userInputInfo: null,
+        pipelineBuildingInfo: null,
       }
     },
 
     methods: {
       async requestBlueOceanStageList() {
+        this.stages = [];
         let params = {
           appId: this.appId,
         };
@@ -182,15 +207,73 @@
             selected: true,
             id: it['id'],
             result: it['result'],
-            showIcon: true,
           };
+          if (it.result.toUpperCase() === 'UNKNOWN') {
+            stage["showLoading"] = true;
+          } else {
+            stage["showIcon"] = true;
+          }
           this.stages.push(stage);
         });
-        this.stages = [{active:false, description: '开始', index: null, name: 'start'}].concat(this.stages)
-          .concat({active: false, description: '结束', index: null, name: 'end'});
-        this.stages[1].active = true;
-        this.currentBuildStage = this.findStageById(this.stages[1].id);
-        this.updateStageIndex(this.stages);
+        console.log(this.stages);
+        this.lastStage = resContent.length > 0 ? resContent[resContent.length - 1] : null;
+      },
+
+      async processStageList() {
+        if (this.lastStage["result"].toUpperCase() !== "UNKNOWN") {
+          this.stages = [{active:false, description: '开始', index: null, name: 'start'}].concat(this.stages)
+            .concat({active: false, description: '结束', index: null, name: 'end'});
+          this.stages[1].active = true;
+          this.currentBuildStage = this.findStageById(this.stages[1].id);
+          this.updateStageIndex(this.stages);
+          await this.requestBuildingInfo();
+          this.updatePopperForUserConfirm();
+        } else {
+          this.stages = [{active:false, description: '开始', index: null, name: 'start'}].concat(this.stages);
+          this.stages[this.stages.length - 1].active = true;
+          this.currentBuildStage = this.findStageById(this.stages[this.stages.length - 1].id);
+          this.updateStageIndex(this.stages);
+          await this.requestBuildingInfo();
+          this.updatePopperForUserConfirm();
+          setTimeout(() => {
+            this.requestBlueOceanStageList();
+          },this.getRandomMills());
+        }
+      },
+
+      async updatePopperForUserConfirm() {
+        if (this.pipelineBuildingInfo && (this.pipelineBuildingInfo.status === 'PAUSED_PENDING_INPUT')) {
+          let userInputInfo = this.getUserInputInfo(this.pipelineBuildingInfo);
+          this.userInputInfo = userInputInfo;
+
+          let nodeList = this.$el.querySelectorAll(`#plan-main .pipeline-run-result .stage`);
+          let target = nodeList[nodeList.length - 1];
+          if (!this.popperForUserConfirm.isShowing()) {
+            this.popperForUserConfirm.show({
+              ref: target
+            });
+          }
+        } else {
+          this.popperForUserConfirm.doClose();
+        }
+      },
+
+      getUserInputInfo(record) {
+        let result = null;
+        if (!record) {
+          return result;
+        }
+        if (record.status !== 'PAUSED_PENDING_INPUT') {
+          return result;
+        }
+        const userInputInfo = record['ciPipelineInputVO'];
+        if (!userInputInfo) {
+          return result;
+        }
+        if (userInputInfo.hasOwnProperty('proceedUrl') &&  userInputInfo.hasOwnProperty('abortUrl')) {
+          result = userInputInfo;
+        }
+        return result;
       },
 
       async requestBlueOceanStageStepList() {
@@ -207,6 +290,47 @@
         };
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_blue_ocean_stage_step_list,{params,query});
         this.buildStageStepList = resContent;
+      },
+
+      async requestBuildingInfo() {
+        this.pipelineBuildingInfo = null;
+        const buildingList = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_in_building, {
+          params: {
+            appId: this.appId
+          },
+          query: {
+            buildNumber: this.buildNumber
+          }
+        });
+        buildingList.forEach(it => {
+          if (['NOT_EXECUTED', 'IN_PROGRESS', 'PAUSED_PENDING_INPUT'].indexOf(it.status) > -1) {
+            this.pipelineBuildingInfo = it;
+          }
+        });
+      },
+
+      async handleUserInput(action) {
+        const userInputInfo = this.userInputInfo;
+        if (!userInputInfo) {
+          return;
+        }
+        this.$set(userInputInfo,"action",action);
+        switch (action) {
+          case 'go-on':
+            await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_user_input_check, {
+              query: {
+                inputUrl: userInputInfo['proceedUrl']
+              }
+            });
+            break;
+          case 'cancel':
+            await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_user_input_check, {
+              query: {
+                inputUrl: userInputInfo['abortUrl']
+              }
+            });
+            break;
+        }
       },
 
       // 更新stage列表中每个元素的index值
@@ -259,6 +383,15 @@
           this.$set(this.currentOpenStepLogList, step.id.toString(), '');
         }
       },
+
+      /**
+       * 生成随机毫秒数，在8-15秒之间
+       */
+      getRandomMills() {
+        let max = 15;
+        let min = 8;
+        return (Math.floor(Math.random() * max) % min + min) * 1000;
+      }
     }
   }
 </script>

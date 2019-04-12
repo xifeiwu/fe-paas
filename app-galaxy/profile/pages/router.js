@@ -658,7 +658,6 @@ class Helper {
       });
     }
     await new Promise((resolve, reject) => {
-      console.log("chang");
       targetRouterPath.name = rename;
       resolve();
     })

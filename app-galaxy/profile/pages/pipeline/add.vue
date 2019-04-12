@@ -36,7 +36,7 @@
                       <el-radio v-for="(item, index) in pipelineInfoFromNet.webHooks.webHooksEvent" :label="item" :key="item">{{item}}</el-radio>
                     </el-radio-group>
                     <span style="font-size: 14px; line-height: 24px; font-weight: bold; vertical-align: middle; margin-left: 20px;">是否生效：</span>
-                    <el-checkbox v-model="formData.webHooks.selected">生效</el-checkbox>
+                    <el-checkbox v-model="formData.webHooks.selected"></el-checkbox>
                   </div>
                 </div>
               </el-form-item>
@@ -126,7 +126,7 @@
                     </el-form-item>
                     <!--sonar及单元测试-->
                     <el-form-item label="手工确认：" labelWidth="180px" v-show="stageName === 'testAndSonarScript'">
-                      <el-checkbox v-model="formData.testAndSonarScript.inputChecked">需要手工确认</el-checkbox>
+                      <el-checkbox v-model="formData.testAndSonarScript.inputChecked"></el-checkbox>
                     </el-form-item>
                     <!--sonar数据检查-->
                     <el-form-item label="Sonar关键字：" class="sonarCheck"
@@ -157,7 +157,7 @@
                     </el-form-item>
                     <!--sonar数据检查-->
                     <el-form-item label="手工确认：" v-show="stageName === 'sonarCheck'">
-                      <el-checkbox v-model="formData.sonarCheck.inputChecked">需要手工确认</el-checkbox>
+                      <el-checkbox v-model="formData.sonarCheck.inputChecked"></el-checkbox>
                     </el-form-item>
                     <!--打包-->
                     <el-form-item label="打包脚本：" class="mvnPackage-script" prop="mvnPackage" :multiFields="true"
@@ -166,7 +166,7 @@
                     </el-form-item>
                     <!--打包-->
                     <el-form-item label="手工确认：" v-show="stageName === 'mvnPackage'">
-                      <el-checkbox v-model="formData.mvnPackage.inputChecked">需要手工确认</el-checkbox>
+                      <el-checkbox v-model="formData.mvnPackage.inputChecked"></el-checkbox>
                     </el-form-item>
                     <!--制作镜像-->
                     <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'" prop="buildImage" :multiFields="true">
@@ -178,7 +178,7 @@
                     </el-form-item>
                     <!--制作镜像-->
                     <el-form-item label="手工确认：" v-show="stageName === 'buildImage'">
-                      <el-checkbox v-model="formData.buildImage.inputChecked">需要手工确认</el-checkbox>
+                      <el-checkbox v-model="formData.buildImage.inputChecked"></el-checkbox>
                     </el-form-item>
                     <!--自动化测试-->
                     <el-form-item label="自动化测试：" class="autoScript" prop="autoScript" :multiFields="true"
@@ -187,11 +187,11 @@
                     </el-form-item>
                     <!--部署到测试环境-->
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployTestEnv'">
-                      <el-checkbox v-model="formData.deployTestEnv.inputChecked">需要手工确认</el-checkbox>
+                      <el-checkbox v-model="formData.deployTestEnv.inputChecked"></el-checkbox>
                     </el-form-item>
                     <!--部署到联调环境-->
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployBetaEnv'">
-                      <el-checkbox v-model="formData.deployBetaEnv.inputChecked">需要手工确认</el-checkbox>
+                      <el-checkbox v-model="formData.deployBetaEnv.inputChecked"></el-checkbox>
                     </el-form-item>
                   </el-form>
                   <div class="stage-change-selection">
