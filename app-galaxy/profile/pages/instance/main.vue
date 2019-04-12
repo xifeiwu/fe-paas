@@ -717,6 +717,7 @@
         if (!selectedAPP || !selectedProfile || !selectedService) {
           return result;
         }
+        results['appName'] = selectedAPP['appName'];
         results['serviceName'] = selectedAPP['serviceName'];
         results['profileName'] = selectedProfile['name'];
         results['gid'] = this.$storeHelper.groupInfo.id;

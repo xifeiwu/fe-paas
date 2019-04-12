@@ -1,12 +1,11 @@
 <template>
-  <div id="terminal-xterm">
-    <form>
-      namespace:<input type="text" id="podNs">
-      podName:<input  type="text" id="podName">
-      containerName:<input  type="text" id="containerName">
-      <input id="ssh" type="button" value="ssh">
-    </form>
-    <div id="terminal"></div>
+  <div id="instance-terminal">
+    <div class="header" v-if="instanceInfo">
+      <div class="instance-info">
+        <div class="item">当前实例: {{instanceInfo.instanceName}}</div>
+      </div>
+    </div>
+    <div class="terminal-screen"></div>
   </div>
 </template>
 
@@ -15,111 +14,216 @@
     padding: 0px;
     margin: 0px;
   }
+  #instance-terminal {
+    height: 100%;
+    box-sizing: border-box;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    .header {
+      background: black;
+      color: #5DF504;
+      padding-bottom: 4px;
+      .instance-info {
+        max-width: 1000px;
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+    .terminal-screen {
+      flex: 1;
+    }
+  }
 </style>
 
 <script>
   export default {
     created() {
-      // xterm配置自适应大小插件
-      Terminal.applyAddon(fit);
-      // 这俩插件不知道干嘛的, 用总比不用好
-      Terminal.applyAddon(winptyCompat)
-      Terminal.applyAddon(webLinks)
     },
     async mounted() {
+      const results = await this.checkAndGetData();
+      this.instanceInfo = results.instanceInfo;
+      const wsToken = await this.getToken(results.payload);
+//      console.log(results);
+//      console.log(wsToken);
       this.$nextTick(() => {
-        const container = document.querySelector('#terminal-xterm');
-        // 点击ssh建立websocket连接, 启动xterm终端
-        container.querySelector("#ssh").addEventListener("click", () => {
-          console.log('on click');
-          container.querySelector('#terminal').innerHTML = "";
-          this.openTerminal()
-        })
+        // as this.$el is used in this.openTerminal
+        this.openTerminal(wsToken);
       });
-
-      this.queryObj = this.$utils.parseQueryString(location.search);
-      console.log(location.search);
-      console.log(this.queryObj);
-      const tokenForSocket = await this.getToken();
-      this.openTerminal(tokenForSocket);
-
     },
     data() {
       return {
-        ip: null,
-        queryObj: null
+        instanceInfo: null,
       }
     },
     computed: {
     },
     methods: {
-      async getToken() {
-//        console.log(this.$storeHelper.globalUserGroupInfo.tag);
-        const groupTag = this.$storeHelper.globalUserGroupInfo.tag;
-        const profileName = 'test';
-        const instanceName = 'jingang-demo-jar-0327-2798430198-zfbcp';
-        const serviceName = 'jingang-demo-jar-0327';
+      /**
+       * 获取请求token的相关信息
+       * 属性与k8s属性的对应关系：
+       * podNs: profileInfo.name-groupTag
+       * podName: 实例名称
+       * containerName: appInfo.serviceName
+       * @returns {Promise.<{errMsg: null, data: null}>}
+       */
+      async checkAndGetData() {
+        const results = {
+          errMsg: null,
+          instanceInfo: null,
+          payload: null,
+        };
+        // format of queryString: serviceName=jingang-demo-jar-0327&profileName=test&gid=226&instanceName=jingang-demo-jar-0327-655708812-xjvk0
+        const qsObj = this.$utils.parseQueryString(location.search);
+        const groupList = this.$storeHelper.getPropsFromLocalStorage('profile', 'user.groupList');
 
-        // k8s-namespace
-        // podNs: profileInfo.name-groupTag
-        // podName: 实例名称
-        // containerName: appInfo.serviceName
-        const resContent = await this.$net.requestAssistServer(this.$net.URL_LIST.get_token, {
-          payload: {
-            podNs:`${profileName}-${groupTag}` ,
-            podName: instanceName,
-            containerName: serviceName
+        // check queryString
+        const qsErrMap = {
+          appName: '未找到应用名',
+          serviceName: '未找到容器名',
+          profileName: '未找到运行环境',
+          instanceName: '实例名称',
+          gid: '团队信息'
+        };
+        Object.keys(qsErrMap).every(it => {
+          if (!qsObj.hasOwnProperty(it)) {
+            results.errMsg = qsErrMap[it];
+            return false;
           }
+          return true;
         });
+        if (results.errMsg) {
+          return results;
+        }
+
+        // get groupInfo(groupTag) by qsObj.gid
+        var groupInfo = null;
+        var groupTag = null;
+        if (Array.isArray(groupList) && qsObj.hasOwnProperty('gid')) {
+          groupInfo = groupList.find(it => it.id == qsObj['gid']);
+          groupTag = groupInfo['tag'];
+        }
+        if (!groupTag) {
+          results.errMsg = '未找到团队相关信息';
+          return results;
+        }
+
+        // get and check userInfo
+        const userInfo = this.$storeHelper.userInfo;
+        const userInfoErrMap = {
+          token: 'token检测失败',
+          userName: '用户名检查失败'
+        };
+        Object.keys(userInfoErrMap).every(it => {
+          if (!userInfo.hasOwnProperty(it)) {
+            userInfo.errMsg = userInfoErrMap[it];
+            return false;
+          }
+          return true;
+        });
+        if (results.errMsg) {
+          return results;
+        }
+
+        results.instanceInfo = {
+          groupName: groupInfo.name,
+          appName: qsObj.appName,
+          instanceName: qsObj.instanceName,
+          realName: userInfo.realName,
+          startTime: null
+        };
+        results.payload = {
+          podNs: `${qsObj.profileName}-${groupInfo.tag}`,
+          podName: qsObj.instanceName,
+          containerName: qsObj.serviceName,
+          token: userInfo.token,
+          userName: userInfo.userName
+        };
+        return results;
+      },
+
+      /**
+       * get token from server for websocket connection
+       * @param payload
+       * @returns {Promise.<null>}
+       */
+      async getToken(payload) {
+        const resContent = await this.$net.requestAssistServer(this.$net.URL_LIST.get_token, {payload});
         if (resContent.token) {
           return resContent.token
         } else {
           return null;
         }
       },
+
       // 新建终端
       openTerminal(token) {
+        // xterm配置自适应大小插件
+        Terminal.applyAddon(fit);
+        // 这俩插件不知道干嘛的, 用总比不用好
+        Terminal.applyAddon(winptyCompat);
+        Terminal.applyAddon(webLinks);
         // 创建终端
-        var term = new Terminal();
-        term.open(document.getElementById('terminal'));
+        var term = new Terminal({
+          theme: {
+            foreground: '#ffffff',
+            background: 'black',
+            cursor: '#ffffff',
+            selection: 'rgba(255, 255, 255, 0.3)',
+            black: '#000000',
+            red: '#e06c75',
+            brightRed: '#e06c75',
+            green: '#A4EFA1',
+            brightGreen: '#A4EFA1',
+            brightYellow: '#EDDC96',
+            yellow: '#EDDC96',
+            magenta: '#e39ef7',
+            brightMagenta: '#e39ef7',
+            cyan: '#5fcbd8',
+            brightBlue: '#5fcbd8',
+            brightCyan: '#5fcbd8',
+            blue: '#5fcbd8',
+            white: '#d0d0d0',
+            brightBlack: '#808080',
+            brightWhite: '#ffffff'
+          }
+        });
+        term.open(this.$el.querySelector('.terminal-screen'));
         // 使用fit插件自适应terminal size
         term.fit();
         term.winptyCompatInit();
         term.webLinksInit();
         // 取得输入焦点
         term.focus();
-        // 获取要连接的容器信息
-        var podNs = document.getElementById("podNs").value
-        var podName = document.getElementById("podName").value
-        var containerName = document.getElementById("containerName").value
         // 连接websocket
-        // ws = new WebSocket("ws://10.10.152.39:30001/api/ws?" + "podNs=" + podNs + "&podName=" + podName + "&containerName=" + containerName );
         const ws = new WebSocket(`wss://k8s-webshell.finupgroup.com:30001/api/ws?token=${token}`);
-        ws.onopen = function(event) {
-          console.log("onopen");
+        ws.onopen = function(evt) {
+//          console.log("onopen");
           var msg = {type: "input", input: '\r'};
           ws.send(JSON.stringify(msg))
         };
-        ws.onclose = function(event) {
-          console.log("onclose")
+        ws.onclose = function(evt) {
+//          console.log("onclose")
         };
-        ws.onmessage = function(event) {
+        ws.onmessage = function(evt) {
           // 服务端ssh输出, 写到web shell展示
-          term.write(event.data)
+          term.write(evt.data)
         };
-        ws.onerror = function(event) {
-          console.log("onerror")
+        ws.onerror = function(evt) {
+          console.log("onerror");
+          console.log(evt);
         };
         // 当浏览器窗口变化时, 重新适配终端
         window.addEventListener("resize", function () {
-          term.fit()
+          term.fit();
           // 把web终端的尺寸term.rows和term.cols发给服务端, 通知sshd调整输出宽度
           var msg = {
             type: "resize",
             rows: term.rows,
             cols: term.cols
           };
-          ws.send(JSON.stringify(msg))
+          ws.send(JSON.stringify(msg));
           // console.log(term.rows + "," + term.cols)
         });
         // 当向web终端敲入字符时候的回调
@@ -127,7 +231,7 @@
           // 写给服务端, 由服务端发给container
           var msg = {type: "input", input: input}
           ws.send(JSON.stringify(msg))
-        })
+        });
       }
     }
   }
