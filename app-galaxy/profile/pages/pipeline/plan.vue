@@ -1,5 +1,5 @@
 <template>
-  <div id="plan-main">
+  <div id="plan-main" ref="plan-main">
     <div class="header">
       <div class="pipeline-run-result">
         <pipeline-stage
@@ -20,14 +20,15 @@
       </div>
       <div class="steps">
         <div class="result-item" v-for="item in buildStageStepList">
-          <div class="result-step-header" @click="handleRowOpenOrClose(item)">
+          <div class="result-step-header" @click="handleRowOpenOrClose(item)" :style="{'cursor': item.stepsHref? 'pointer' : 'not-allowed'}">
             <span class="result-item-icon" :style="{'background-color': item.result && item.result == 'SUCCESS' ? '' : '#d54c53'}">
               <i class="el-icon-check" v-if="item.result && item.result == 'SUCCESS'"></i>
               <i class="el-icon-close" v-else></i>
             </span>
             <div class="result-item-title">
               <span :class="['el-icon-arrow-right', 'result-item-expando', {'icon-transform': currentOpenStepLogList && currentOpenStepLogList.hasOwnProperty(item.id.toString())}]"></span>
-              <span class="result-item-label">{{item.displayName}}</span>
+              <span class="result-item-displayDescription" :title="item.displayDescription">{{item.displayDescription}}</span>
+              <span class="result-item-displayName">{{`${item.displayDescription ? '— ' : ''}${item.displayName}`}}</span>
               <span class="result-item-extra-info">{{`${item.durationInMillis / 1000 < 1 ? '<1' : Math.floor(item.durationInMillis / 1000)}s`}}</span>
             </div>
           </div>
@@ -104,7 +105,7 @@
               color: white;
             }
             .result-item-title {
-              width: 100%;
+              width: 97.5%;
               font-size: 14px;
               display: flex;
               align-items: center;
@@ -120,6 +121,17 @@
                 flex: 1;
                 text-align: right;
                 margin-right: 10px;
+              }
+              .result-item-displayName {
+                color: #a4a4a4;
+                white-space: nowrap;
+                margin-left: 10px;
+                margin-right: 10px;
+              }
+              .result-item-displayDescription {
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
               }
             }
           }
@@ -153,7 +165,7 @@
     },
 
     mounted() {
-
+      this.$refs["plan-main"].parentNode.setAttribute("style","background-color:white;");
     },
 
     watch: {
@@ -368,6 +380,9 @@
       },
 
       async handleRowOpenOrClose(step) {
+        if (!step.stepsHref) {
+          return;
+        }
         if (this.currentOpenStepLogList && this.currentOpenStepLogList.hasOwnProperty(step.id.toString())) {
           this.$delete(this.currentOpenStepLogList, step.id.toString());
           return;

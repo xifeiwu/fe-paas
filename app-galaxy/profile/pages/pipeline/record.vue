@@ -44,7 +44,8 @@
           headerAlign="center"
           align="center">
           <template slot-scope="scope">
-            <span :class="`build-${scope.row.buildNumber}-status`">{{scope.row.statusName}}</span>
+            <span :class="[{'success':scope.row.statusName == '成功','failure':scope.row.statusName == '失败',
+            'building':scope.row.statusName == '构建中','suspension':scope.row.statusName == '中止'},`build-${scope.row.buildNumber}-status`]" id="statusName">{{scope.row.statusName}}</span>
             <!--{{scope.row.buildingStatus ? scope.row.buildingStatus : scope.row.statusName}}-->
           </template>
         </el-table-column>
@@ -202,6 +203,26 @@
 <style lang="scss">
   #record-main {
     .header {
+    }
+    .record-list {
+      .el-table {
+        .el-table__row {
+          #statusName {
+            &.success {
+              color: #8cc04f;
+            }
+            &.failure {
+              color: #d54c53;
+            }
+            &.building {
+              color: #409EFF;
+            }
+            &.suspension {
+              color: #949393;
+            }
+          }
+        }
+      }
     }
   }
 </style>
