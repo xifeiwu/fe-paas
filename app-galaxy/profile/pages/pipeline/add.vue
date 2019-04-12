@@ -32,9 +32,9 @@
                   <el-input size="mini-extral" v-model="formData.webHooks.webHooksUrl"></el-input>
                   <div class="more-config">
                     <span style="font-size: 14px; line-height: 24px; font-weight: bold; vertical-align: middle; margin-left: 20px;">hook类型：</span>
-                    <el-checkbox-group v-model="formData.webHooks.webHooksSelectedEvent">
-                      <el-checkbox v-for="(item, index) in pipelineInfoFromNet.webHooks.webHooksEvent" :label="item" :key="item">{{item}}</el-checkbox>
-                    </el-checkbox-group>
+                    <el-radio-group v-model="formData.webHooks.webHooksSelectedEvent">
+                      <el-radio v-for="(item, index) in pipelineInfoFromNet.webHooks.webHooksEvent" :label="item" :key="item">{{item}}</el-radio>
+                    </el-radio-group>
                     <span style="font-size: 14px; line-height: 24px; font-weight: bold; vertical-align: middle; margin-left: 20px;">是否生效：</span>
                     <el-checkbox v-model="formData.webHooks.selected">生效</el-checkbox>
                   </div>
@@ -930,8 +930,17 @@
       postTreatFormData(formData, netData) {
         const formWebHooks = formData.webHooks;
         const netWebHooks = netData.webHooks;
-        if (formWebHooks.webHooksSelectedEvent.length === 0 && netWebHooks && netWebHooks.webHooksEvent && netWebHooks.webHooksEvent.length > 0) {
-          formData.webHooks.webHooksSelectedEvent.push(netWebHooks.webHooksEvent[0]);
+        /** 目前后端传过来的是数组（但前端会当字符串处理） */
+        // 兼容多种触发webhook的方式
+//        if (formWebHooks.webHooksSelectedEvent.length === 0 && netWebHooks && netWebHooks.webHooksEvent && netWebHooks.webHooksEvent.length > 0) {
+//          formData.webHooks.webHooksSelectedEvent.push(netWebHooks.webHooksEvent[0]);
+//        }
+        if (netWebHooks && netWebHooks.webHooksEvent && netWebHooks.webHooksEvent.length > 0) {
+          if (formWebHooks.webHooksSelectedEvent.length === 0) {
+            formData.webHooks.webHooksSelectedEvent = netWebHooks.webHooksEvent[0];
+          } else {
+            formData.webHooks.webHooksSelectedEvent = formData.webHooks.webHooksSelectedEvent[0]
+          }
         }
       },
       // 更新stage列表中每个元素的index值
@@ -1058,6 +1067,10 @@
             type: 'warning',
             dangerouslyUseHTMLString: true
           });
+          // 前端逻辑按照字符串处理，为了兼容以后支持多种webhook，后端使用数组格式
+          if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
+            this.formData.webHooks.webHooksSelectedEvent = [this.formData.webHooks.webHooksSelectedEvent]
+          }
           await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_add_or_update, {
             payload: this.formData
           });
@@ -1137,7 +1150,12 @@
             }
             break;
           case 'stage-remove':
-            switch (this.currentStage.name) {
+            // 结点删除后，取消"手工确认"
+            var currentStageName = this.currentStage.name;
+            if (this.formData[currentStageName] && this.formData[currentStageName].hasOwnProperty('inputChecked')) {
+              this.formData[currentStageName]['inputChecked'] = false;
+            }
+            switch (currentStageName) {
               case 'sonarCheck':
                 this.formData.sonarCheck.codeDebtSelected = false;
                 this.formData.sonarCheck.codeDebt = '';
@@ -1215,6 +1233,10 @@
                   }
                 }
                 if ('take-effect' === action) {
+                  // 前端逻辑按照字符串处理，为了兼容以后支持多种webhook，后端使用数组格式
+                  if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
+                    this.formData.webHooks.webHooksSelectedEvent = [this.formData.webHooks.webHooksSelectedEvent]
+                  }
                   await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_take_effect, {
                     payload: this.formData
                   });
