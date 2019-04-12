@@ -42,15 +42,19 @@
     created() {
     },
     async mounted() {
-      const results = await this.checkAndGetData();
-      this.instanceInfo = results.instanceInfo;
-      const wsToken = await this.getToken(results.payload);
+      try {
+        const results = await this.checkAndGetData();
+        this.instanceInfo = results.instanceInfo;
+        const wsToken = await this.getToken(results.payload);
 //      console.log(results);
 //      console.log(wsToken);
-      this.$nextTick(() => {
-        // as this.$el is used in this.openTerminal
-        this.openTerminal(wsToken);
-      });
+        this.$nextTick(() => {
+          // as this.$el is used in this.openTerminal
+          this.openTerminal(wsToken);
+        });
+      } catch (err) {
+        console.log(err);
+      }
     },
     data() {
       return {

@@ -108,7 +108,7 @@ const chunksAndTemplates = (() => {
       "cdn": {
         "js": ['/assets/xterm/dist/xterm.js', '/assets/xterm/dist/addons/fit/fit.js',
           '/assets/xterm/dist/addons/winptyCompat/winptyCompat.js', '/assets/xterm/dist/addons/webLinks/webLinks.js'],
-        "css": ['assets/xterm/dist/xterm.css']
+        "css": ['assets/xterm/dist/xterm.css', '/assets/components/ele/theme-chalk/profile.css']
       },
       "chunks": ["instance-terminal"],
     },
