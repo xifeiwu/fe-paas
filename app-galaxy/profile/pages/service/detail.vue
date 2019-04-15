@@ -46,9 +46,9 @@
                   <!--<el-tooltip placement="top-start" effect="light" :content="dnsState.office.content">-->
                     <!--<el-col :class="dnsState.office.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.office.status ? '#67C23A': '#F56C6C'}"></el-col>-->
                   <!--</el-tooltip>-->
-                  <!--<el-tooltip placement="top-start" effect="light" :content="dnsState.production.content">-->
-                    <!--<el-col :class="dnsState.production.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.production.status ? '#67C23A': '#F56C6C'}"></el-col>-->
-                  <!--</el-tooltip>-->
+                  <el-tooltip placement="top-start" effect="light" :content="dnsState.production.content">
+                    <el-col :class="dnsState.production.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.production.status ? '#67C23A': '#F56C6C'}"></el-col>
+                  </el-tooltip>
                   <!--<el-tooltip placement="top-start" effect="light" :content="dnsState.test.content">-->
                     <!--<el-col :class="dnsState.test.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.test.status ? '#67C23A': '#F56C6C'}"></el-col>-->
                   <!--</el-tooltip>-->
@@ -677,7 +677,7 @@
         this.dnsState.office.value = officeStatus ? dnsState["OFFICE"] : [];
         let productionStatus = dnsState && dnsState.hasOwnProperty("PRODUCTION") && dnsState["PRODUCTION"].length > 0;
         this.dnsState.production.status = productionStatus;
-        this.dnsState.production.content = productionStatus ? `生产环境DNS解析成功` : `生产环境DNS解析失败`;
+        this.dnsState.production.content = productionStatus ? `DNS解析成功 (` + dnsState['PRODUCTION'] + `)` : `DNS解析失败`;
         this.dnsState.production.value = productionStatus ? dnsState["PRODUCTION"] : [];
         let testStatus = dnsState && dnsState.hasOwnProperty("TEST") && dnsState["TEST"].length > 0;
         this.dnsState.test.status = testStatus;
