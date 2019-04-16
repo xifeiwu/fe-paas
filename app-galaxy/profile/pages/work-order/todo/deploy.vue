@@ -280,7 +280,7 @@
                 dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
               }
             });
-          }, 10);
+          }, 5);
 
           while(moreData) {
             await new Promise((resolve) => {
