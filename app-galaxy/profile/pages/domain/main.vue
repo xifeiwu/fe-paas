@@ -857,7 +857,8 @@
               this.addToWaitingResponseQueue(action);
               this.warningConfirm(`删除外网域名"${row.internetDomain}"，将会同时删除该域名关联的IP白名单，确定吗？`).then(() => {
                 this.$net.removeDomain({
-                  id: row.id
+                  id: row.id,
+                  groupId: this.$storeHelper.currentGroupID
                 }).then(msg => {
                   this.hideWaitingResponse(action);
                   this.$message.success(`成功删除域名"${row['internetDomain']}"`);
@@ -1100,6 +1101,7 @@
               internetDomainIdList: domainIdList,
               spaceId: selectedValue['selectedProfile'].id,
               applicationId: selectedValue['selectedApp']['appId'],
+              groupId: this.$storeHelper.currentGroupID,
               // serviceId: ''
             };
             // if (selectedValue['selectedService']
@@ -1155,7 +1157,8 @@
             }
             this.addToWaitingResponseQueue(action);
             this.$net.domainUnBindService({
-              internetDomainIdList: domainIdList
+              internetDomainIdList: domainIdList,
+              groupId: this.$storeHelper.currentGroupID,
             }).then(content => {
               let domainIDList = Object.keys(content);
               for (let key in content) {
