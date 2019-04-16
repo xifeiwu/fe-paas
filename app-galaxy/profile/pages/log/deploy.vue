@@ -45,11 +45,11 @@
         <el-table-column
                 prop="deployTypeDesc"
                 label="部署类型"
-                headerAlign="center" align="center" width="80"
+                headerAlign="center" align="center" width="120"
         >
         </el-table-column>
         <el-table-column
-                label="操作" width="240">
+                label="操作" width="220">
           <template slot-scope="scope">
             <el-button
                     type="text"
@@ -420,32 +420,61 @@
 
           var deployLogQueue = [];
           var preItem = null, nextItem = null;
-          const tagUpdateDeployLog = setInterval(() => {
-            if (!moreData && deployLogQueue.length === 0) {
-              clearInterval(tagUpdateDeployLog);
-              return;
-            }
-            nextItem = deployLogQueue.shift();
-            if (!nextItem) {
-              return;
-            }
-            if (nextItem['TYPE'] === 'DOWNLOAD' && preItem['TYPE'] === 'DOWNLOAD') {
-              this.deployLogs.pop();
-              this.deployLogs.push(nextItem['LOG']);
-            } else {
-              this.deployLogs.push(nextItem['LOG']);
-            }
-            preItem = nextItem;
-            // scroll after render finish
-            this.$nextTick(() => {
-              if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
-                const dialogForDeployLog = this.$refs['dialogForDeployLog'];
-                dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+          var tagUpdateDeployLog = null;
+          // logType === history: jump all download-record; small time-interval
+          if (payload.logType === 'history') {
+            tagUpdateDeployLog = setInterval(() => {
+              if (!moreData && deployLogQueue.length === 0) {
+                clearInterval(tagUpdateDeployLog);
+                return;
               }
-            });
-          }, 10);
+              while (deployLogQueue.length > 0) {
+                nextItem = deployLogQueue.shift();
+                if (!nextItem) {
+                  return;
+                }
+                if (nextItem['TYPE'] === 'DOWNLOAD' && preItem['TYPE'] === 'DOWNLOAD') {
+                } else {
+                  this.deployLogs.push(nextItem['LOG']);
+                }
+                preItem = nextItem;
+                // scroll after render finish
+                this.$nextTick(() => {
+                  if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
+                    const dialogForDeployLog = this.$refs['dialogForDeployLog'];
+                    dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+                  }
+                });
+              }
+            }, 10);
+          } else {
+            tagUpdateDeployLog = setInterval(() => {
+              if (!moreData && deployLogQueue.length === 0) {
+                clearInterval(tagUpdateDeployLog);
+                return;
+              }
+              nextItem = deployLogQueue.shift();
+              if (!nextItem) {
+                return;
+              }
+              if (nextItem['TYPE'] === 'DOWNLOAD' && preItem['TYPE'] === 'DOWNLOAD') {
+                this.deployLogs.pop();
+                this.deployLogs.push(nextItem['LOG']);
+              } else {
+                this.deployLogs.push(nextItem['LOG']);
+              }
+              preItem = nextItem;
+              // scroll after render finish
+              this.$nextTick(() => {
+                if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
+                  const dialogForDeployLog = this.$refs['dialogForDeployLog'];
+                  dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+                }
+              });
+            }, 10);
+          }
 
-          while(moreData) {
+          while (moreData) {
             orchestration = await getDeployLog({
               logName: orchestration.logName,
               logPath: orchestration.logPath,
