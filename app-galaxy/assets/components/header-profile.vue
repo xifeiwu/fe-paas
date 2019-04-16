@@ -20,6 +20,7 @@
         <template slot="title"><i class="paas-icon-user"></i><span>{{userName}}</span></template>
         <el-menu-item index="info" v-if="show['user/info']"><i class="paas-icon-user"></i><span>用户中心</span></el-menu-item>
         <el-menu-item index="group" v-if="show['user/group']"><i class="paas-icon-group-1"></i><span>团队管理</span></el-menu-item>
+        <el-menu-item index="operation" v-if="show['user/operation']"><i class="paas-icon-log"></i><span>操作记录</span></el-menu-item>
         <el-menu-item index="logout" v-if="show['user/logout']"><i class="paas-icon-logout"></i><span>退出</span></el-menu-item>
       </el-submenu>
     </el-menu>
@@ -117,6 +118,7 @@
           'user/info': false,
           'user/message': true,
           'user/group': true,
+          'user/operation': true,
           'user/logout': true
         }
       }
@@ -150,6 +152,9 @@
                 this.$emit('menu-click', keyAll);
                 break;
               case 'group':
+                this.$emit('menu-click', keyAll);
+                break;
+              case 'operation':
                 this.$emit('menu-click', keyAll);
                 break;
               case 'logout':

@@ -105,6 +105,7 @@ class Net {
       'user/info': '/user/info',
       'user/group': '/user/group',
       'user/message': '/user/message',
+      'user/operation': '/user/operation',
       'docs': '/docs',
       'docs/paas': '/docs/paas',
       'manage': '/manage',

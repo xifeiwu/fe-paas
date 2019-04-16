@@ -3,7 +3,7 @@
     <div class="header">
       <div class="top-tip" style="font-size: 14px">
         <span style="font-weight: bold; font-size: 14px;"><i class="el-icon-warning"></i></span>
-        <span>只提供生产环境操作记录,操作记录的获取可能会有延迟,若要立即获取最近的操作记录,请点击强制刷新.</span>
+        <span>操作记录的获取可能会有延迟，若要立即获取最近的操作记录，请点击强制刷新。</span>
       </div>
       <div class="search-form">
         <el-form :model="form" :inline="true" class="form">
@@ -59,6 +59,16 @@
               stripe="">
         <el-table-column prop="operationNickName" label="操作类型" align="left" width="250px"></el-table-column>
         <el-table-column prop="userRealName" label="操作人" align="center"></el-table-column>
+        <el-table-column prop="status" label="操作状态" align="center">
+          <template slot-scope="scope">
+            {{operationStatus(scope.row.status)}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="env" label="环境" align="center">
+          <template slot-scope="scope">
+            {{scope.row.env ? scope.row.env : "--"}}
+          </template>
+        </el-table-column>
         <el-table-column prop="operationTime" label="时间" align="center"></el-table-column>
       </el-table>
       <div class="pagination-container">
@@ -140,6 +150,8 @@
     mounted() {
     },
     watch: {
+    },
+    computed: {
     },
     data() {
       return {
@@ -270,6 +282,21 @@
         let resData = await this.requestOperationList(force);
         this.ifnotHaveMore = resData.more;
         this.operationLogList = resData.content;
+      },
+
+      operationStatus(status) {
+        switch (status) {
+          case 'SUCC':
+            return "成功";
+          case 'FAIL':
+            return "失败";
+          case 'UNKNOWN':
+            return "未知";
+          case 'EXCEPTION':
+            return "异常";
+          default:
+            break;
+        }
       }
     }
   }
