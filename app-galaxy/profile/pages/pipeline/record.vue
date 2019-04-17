@@ -13,7 +13,7 @@
                    class="flex"
                    :loading="statusOfWaitingResponse('pipeline_confirm_build_param')"
                    @click="handleClick($event, 'pipeline_confirm_build_param')">
-          <span>参数构建</span>
+          <span>带参数执行</span>
           <i class="paas-icon-fa-play" style="margin-left: 3px;"></i>
         </el-button>
         <el-button size="mini" type="primary" style="margin-right: 5px;"
@@ -147,7 +147,7 @@
       </div>
     </paas-popover-element-with-modal-mask>
   
-    <el-dialog title="参数化构建" :visible="action.name == 'dialogAddParamForPipeline'"
+    <el-dialog title="带参数执行" :visible="action.name == 'dialogAddParamForPipeline'"
                :close-on-click-modal="false"
                class="image size-700"
                @close="action.name = null"
@@ -155,7 +155,7 @@
     >
       <el-tag type="success" disable-transitions style="display: block; text-align: left" size="small">
         <i class="el-icon-warning"></i>
-        <span>需要如下参数用于构建项目:</span>
+        <span>需要如下参数用于执行pipeline:</span>
       </el-tag>
       <el-form size="mini" :rules="rules"
                labelWidth="150px" style="margin: 10px 0px 5px 0px;" ref="formInDialogAddParamForPipeline">
@@ -164,9 +164,6 @@
                       :key="item.name"
                       style="margin-bottom: 5px;">
           <el-row :gutter="10" style="margin-bottom: 5px;">
-            <!--<el-col :span="8">-->
-              <!--<el-input size="mini-extral" v-model="buildParam" :disabled="true">{{item.key}}}</el-input>-->
-            <!--</el-col>-->
             <el-col :span="20">
               <el-input size="mini-extral" v-model="item.defaultValue"></el-input>
             </el-col>
@@ -182,10 +179,6 @@
                   <span>{{item.description}}</span>
                 </span>
               </div>
-              <!--<el-tag type="info" disable-transitions  size="small" >-->
-                <!--<i class="el-icon-info"></i>-->
-                <!--<span>{{item.desc}}</span>-->
-              <!--</el-tag>-->
             </el-col>
           </el-row>
           
@@ -701,6 +694,8 @@
 			        },
 			        payload
 		        });
+		        // 带参数执行后马上关闭页面
+		        this.action.name = null;
           } else {
 		        await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_restart, {
 			        params: {
@@ -922,13 +917,17 @@
             this.$router.push(this.$net.page['profile/pipeline/records/plan']);
             break;
 	        case 'pipeline_build_execute_with_param':
+		        let valueReg = /^[A-Za-z0-9_\-\.@]{1,128}$/;
 	        	let param = {};
 	        	this.buildParams.forEach(item => {
+			        if (!valueReg.exec(item.defaultValue)) {
+				        this.$message.error('请输入128位以内的数字、字母、中划线、下划线');
+				        throw new Error('请输入128位以内的数字、字母、中划线、下划线');
+			        }
 	        		param[item.name] = item.defaultValue;
             });
             console.log(param);
 		        await this.executePipeLine(action, param);
-		        this.action.name = null;
 		        break;
         }
       },

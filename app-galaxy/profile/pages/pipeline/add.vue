@@ -45,15 +45,7 @@
                   <el-col :span="7" class="key">名称</el-col>
                   <el-col :span="7" class="value">默认值</el-col>
                   <el-col :span="8" class="remark">描述</el-col>
-                  <el-col :span="2" style="text-align: center">
-                    <!--<el-tooltip slot="trigger" effect="dark" placement="bottom">-->
-                      <!--<div slot="content">-->
-                        <!--<div>容器运行前设置的环境变量。</div>-->
-                        <!--<div>如env中的Name：string（环境变量名称），Value：string（环境变量的值）</div>-->
-                      <!--</div>-->
-                      <!--<span><i class="paas-icon-fa-question" style="color: #E6A23C"></i></span>-->
-                    <!--</el-tooltip>-->
-                  </el-col>
+                  <el-col :span="2" style="text-align: center"></el-col>
                 </el-row>
                 <el-row
                   v-for="(item, index) in formData.defList"
@@ -72,7 +64,7 @@
                     <el-input v-model="paramKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
                   </el-col>
                   <el-col :span="7">
-                    <el-input v-model="paramValue" placeholder="512位以内的数字、字母、中划线、下划线" size="mini"></el-input>
+                    <el-input v-model="paramValue" placeholder="128位以内的数字、字母、中划线、下划线" size="mini"></el-input>
                   </el-col>
                   <el-col :span="8">
                     <el-input v-model="paramRemark" size="mini"></el-input>
@@ -991,13 +983,13 @@
 				    this.formItemMsgForParam = '';
 //            let keyReg = /^[A-Za-z0-9_\-\.@]{1,64}$/;
 				    let keyReg = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
-				    let valueReg = /^[A-Za-z0-9_\-\.@]{1,512}$/;
+				    let valueReg = /^[A-Za-z0-9_\-\.@]{1,128}$/;
 				    if (!keyReg.exec(key)) {
 					    this.$message.error('64位以内的数字、字母、下划线，以字母或下划线开头');
 					    return;
 				    }
 				    if (!valueReg.exec(value)) {
-					    this.$message.error('请输入512位以内的数字、字母、中划线、下划线');
+					    this.$message.error('请输入128位以内的数字、字母、中划线、下划线');
 					    return;
 				    }
 				    
