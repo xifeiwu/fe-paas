@@ -18,7 +18,7 @@
                ref="basicForm"
                :class="{'message-show': pageType === 'modify'}"
                size="mini"
-               label-width="140px">
+               label-width="120px">
         <el-form-item label="申请人">
           {{formData.creatorName}}
         </el-form-item>
@@ -53,7 +53,7 @@
       <el-form :model="formData" :rules="formDataRules"
                ref="applicationForm"
                size="mini"
-               label-width="120px">
+               label-width="100px">
         <el-form-item label="应用名称" prop="appIdList">
           <el-select  v-model="formData.appIdList"
                       filterable multiple
@@ -77,7 +77,7 @@
       <el-form :model="formData" :rules="formDataRules"
                ref="acceptanceForm"
                size="mini"
-               label-width="120px">
+               label-width="100px">
         <el-form-item label="验收人" prop="acceptedUserIdList">
           <el-select filterable v-model="formData.acceptedUserIdList" multiple placeholder="请选择">
             <el-option v-for="item in $storeHelper.usersInGroup" :key="item.userId" :label="item.realName" :value="item.userId">
@@ -187,7 +187,7 @@
     margin-top: 10px;
     margin-left: 15px;
     padding: 10px 20px 10px 20px;
-    width: 800px;
+    width: 860px;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     .page-title {
       display: flex;
@@ -211,8 +211,8 @@
     .section {
       width: 90%;
       .title {
-        border-left: 5px solid #409EFF;
-        border-top: 1px solid #409EFF;
+        font-weight: bold;
+        border-left: 5px solid gray;
         padding-left: 5px;
         margin: 0px 0px 12px -2px;
       }
