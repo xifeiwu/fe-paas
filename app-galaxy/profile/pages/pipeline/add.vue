@@ -711,8 +711,7 @@
 //      console.log(this.formData);
       // override appId
       this.formData.appId = this.dataPassed.appId;
-      this.formData.defList = [];
-     console.log(this.formData.defList);
+     // console.log(this.formData.defList);
 //      console.log(this.formData);
 //      console.log(this.pipelineInfoFromNet);
     },
