@@ -11,6 +11,13 @@
         </el-button>
         <el-button size="mini" type="primary" style="margin-right: 5px;"
                    class="flex"
+                   :loading="statusOfWaitingResponse('pipeline_build_execute_with_param')"
+                   @click="handleClick($event, 'pipeline_build_execute_with_param')">
+          <span>参数构建</span>
+          <i class="paas-icon-fa-play" style="margin-left: 3px;"></i>
+        </el-button>
+        <el-button size="mini" type="primary" style="margin-right: 5px;"
+                   class="flex"
                    @click="handleClick($event, 'refresh-record-list')">
           <span>刷新</span>
           <i class="el-icon-refresh" style="margin-left: 3px;"></i>
@@ -139,6 +146,63 @@
         </div>
       </div>
     </paas-popover-element-with-modal-mask>
+  
+    <el-dialog title="参数化构建" :visible="action.name == 'dialogAddParamForPipeline'"
+               :close-on-click-modal="false"
+               class="image size-700"
+               @close="action.name = null"
+               v-if="action.name"
+    >
+      <el-tag type="success" disable-transitions style="display: block; text-align: left" size="small">
+        <i class="el-icon-warning"></i>
+        <span>需要如下参数用于构建项目:</span>
+      </el-tag>
+      <el-form size="mini" :model="buildParams" :rules="rules"
+               labelWidth="150px" style="margin: 10px 0px 5px 0px;" ref="formInDialogAddParamForPipeline">
+        <el-form-item v-for="(item, index) in buildParams"
+                      :label="item.key"
+                      :key="item.key"
+                      style="margin-bottom: 5px;">
+          <el-row :gutter="10" style="margin-bottom: 5px;">
+            <!--<el-col :span="8">-->
+              <!--<el-input size="mini-extral" v-model="buildParam" :disabled="true">{{item.key}}}</el-input>-->
+            <!--</el-col>-->
+            <el-col :span="20">
+              <el-input size="mini-extral" v-model="item.value"></el-input>
+            </el-col>
+            <el-col :span="4" style="text-align: center">
+            </el-col>
+          </el-row>
+          
+          <el-row :gutter="10">
+            <el-col :span="24">
+              <div>
+                <span class="el-tag--small">
+                  <i class="el-icon-info"></i>
+                  <span>{{item.desc}}</span>
+                </span>
+              </div>
+              <!--<el-tag type="info" disable-transitions  size="small" >-->
+                <!--<i class="el-icon-info"></i>-->
+                <!--<span>{{item.desc}}</span>-->
+              <!--</el-tag>-->
+            </el-col>
+          </el-row>
+          
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleClick($event, 'pipeline_build_execute')"
+                     :loading="statusOfWaitingResponse('pipeline_build_execute')">构&nbsp建</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="action.name = null">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -162,6 +226,16 @@
       }
       .el-select {
         width: 180px;
+      }
+    }
+    
+    .el-dialog {
+      .el-form {
+        .el-form-item {
+          .el-form-item__label {
+            text-align: left;
+          }
+        }
       }
     }
   }
@@ -190,6 +264,18 @@
         this.$router.push(this.$net.page['profile/pipeline/list']);
         return;
       }
+	    this.buildParams = [
+	    	{
+          "key": "111",
+          "value": "222",
+          "desc": "33333",
+        },
+		    {
+			    "key": "qqqqq",
+			    "value": "wwwww",
+			    "desc": "eeeee",
+		    }
+      ];
     },
     async mounted() {
       try {
@@ -226,6 +312,11 @@
         buildListAll: [],
         buildList: [],
         buildingList: [],
+        buildParams: [],
+	      buildParam: '',
+	      paramKey: '',
+	      paramValue: '',
+	      paramRemark: '',
         pipeline: null,
         statusMap: {
           SUCCESS: '成功',
@@ -246,6 +337,14 @@
           row: null,
           name: null
         },
+	      rules: {
+		      appId: {
+			      type: 'number',
+			      required: true,
+			      message: '请选添加构建参数',
+			      trigger: ['blur', 'change']
+		      },
+	      },
         buildLogStatus: {
           title: '日志',
           visible: false,
@@ -693,6 +792,9 @@
           case 'pipeline_build_execute':
             await this.executePipeLine(action);
             break;
+	        case 'pipeline_build_execute_with_param':
+		        this.action.name = 'dialogAddParamForPipeline';
+		        break;
         }
       },
 

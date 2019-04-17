@@ -40,6 +40,55 @@
                   </div>
                 </div>
               </el-form-item>
+              <el-form-item label="构建参数" prop="defList" class="environments big" v-if="showMoreConfig" :error="formItemMsgForParam">
+                <el-row class="title">
+                  <el-col :span="7" class="key">名称</el-col>
+                  <el-col :span="7" class="value">默认值</el-col>
+                  <el-col :span="8" class="remark">描述</el-col>
+                  <el-col :span="2" style="text-align: center">
+                    <!--<el-tooltip slot="trigger" effect="dark" placement="bottom">-->
+                      <!--<div slot="content">-->
+                        <!--<div>容器运行前设置的环境变量。</div>-->
+                        <!--<div>如env中的Name：string（环境变量名称），Value：string（环境变量的值）</div>-->
+                      <!--</div>-->
+                      <!--<span><i class="paas-icon-fa-question" style="color: #E6A23C"></i></span>-->
+                    <!--</el-tooltip>-->
+                  </el-col>
+                </el-row>
+                <el-row
+                  v-for="(item, index) in formData.defList"
+                  :key="item.name"
+                  :gutter="10"
+                >
+                  <el-col :span="7" class="key">{{item.name}}</el-col>
+                  <el-col :span="7" class="value">{{item.defaultValue}}</el-col>
+                  <el-col :span="8" class="remark">{{item.description}}</el-col>
+                  <el-col :span="2" style="text-align: center" class="delete">
+                    <el-button type="warning" round size="mini-extral" @click="handleParameter('delete', index)">删除</el-button>
+                  </el-col>
+                </el-row>
+                <el-row :gutter="10">
+                  <el-col :span="7">
+                    <el-input v-model="paramKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-input v-model="paramValue" placeholder="512位以内的数字、字母、中划线、下划线" size="mini"></el-input>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-input v-model="paramRemark" size="mini"></el-input>
+                  </el-col>
+                  <el-col :span="2" style="text-align: center">
+                    <el-button type="primary" size="mini-extral" round
+                               @click="handleParameter('add', paramKey, paramValue, paramRemark)">添加</el-button>
+                  </el-col>
+                </el-row>
+              </el-form-item>
+              <el-form-item class="expand big">
+                <div class="more" @click="handleClick($event, 'more-config')">
+                  <span v-if="showMoreConfig">收起更多配置</span><span v-else>更多配置</span>
+                  <i :class="showMoreConfig?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
+                </div>
+              </el-form-item>
             </el-form>
           </div>
         </div>
@@ -308,6 +357,8 @@
           &.step1 {
             .title {
               border-top: none;
+              font-size: 14px;
+              padding: 1px;
             }
             .el-form {
               .el-select {
@@ -353,6 +404,37 @@
                 float: left;
                 &.big {
                   @include expand-inline-form-item;
+                }
+              }
+            }
+            .key, .value, .remark {
+              word-wrap: break-word;
+              word-break: break-all;
+            }
+            .delete {
+              flex: none;
+              float: right;
+            }
+            .key {
+              padding-right: 3px;
+            }
+            .value {
+              padding-left: 3px;
+              padding-right: 3px;
+            }
+            .remark {
+              padding-left: 6px;
+            }
+            .expand {
+              margin-bottom: 10px;
+              .el-form-item__content {
+                margin-left: 0px !important;
+                background-color: #F2F6FC;
+                &:hover {
+                  background-color: #EBEEF5;
+                }
+                text-align: center;
+                &.more {
                 }
               }
             }
@@ -629,6 +711,8 @@
 //      console.log(this.formData);
       // override appId
       this.formData.appId = this.dataPassed.appId;
+      this.formData.defList = [];
+     console.log(this.formData.defList);
 //      console.log(this.formData);
 //      console.log(this.pipelineInfoFromNet);
     },
@@ -653,7 +737,13 @@
         currentStage: null,
         // 当前stage（服务端返回）的信息
         currentStageNetInfo: null,
-
+	
+	      showMoreConfig: false,
+        paramKey: '',
+	      paramValue: '',
+	      paramRemark: '',
+	      formItemMsgForParam: '',
+        
         formData: {
           appId: '',
           pipelineName: '',
@@ -665,6 +755,7 @@
             webHooksSelectedEvent: [],
             webHooksUrl: ''
           },
+          defList: [],
           // sonar及单元测试
           testAndSonarScript: {
             script: '',
@@ -894,6 +985,53 @@
 
     },
     methods: {
+	    handleParameter (action, key, value, remark) {
+		    switch (action) {
+			    case 'add':
+				    // remove error notification first
+				    this.formItemMsgForParam = '';
+//            let keyReg = /^[A-Za-z0-9_\-\.@]{1,64}$/;
+				    let keyReg = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
+				    let valueReg = /^[A-Za-z0-9_\-\.@]{1,512}$/;
+				    if (!keyReg.exec(key)) {
+					    this.$message.error('64位以内的数字、字母、下划线，以字母或下划线开头');
+					    return;
+				    }
+				    if (!valueReg.exec(value)) {
+					    this.$message.error('请输入512位以内的数字、字母、中划线、下划线');
+					    return;
+				    }
+				    
+				    if (this.formData.defList.length >= 10) {
+					    this.$message.error('最多输入10个');
+					    return;
+				    }
+				    let itemWithKey = null;
+				    this.formData.defList.some(it => {
+					    if (it.key === key) {
+						    itemWithKey = it;
+					    }
+					    return itemWithKey;
+				    });
+				    if (!itemWithKey) {
+					    this.formData.defList.push({
+						    name: key,
+						    defaultValue: value,
+						    description: remark,
+					    });
+					    this.paramKey = '';
+					    this.paramValue = '';
+					    this.paramRemark = '';
+				    } else {
+					    this.formItemMsgForParam = `Key "${itemWithKey.key}" 已经存在，如需更改，请删除后重新添加`;
+				    }
+				    break;
+			    case 'delete':
+				    let index = key;
+				    this.formData.defList.splice(index, 1);
+				    break;
+		    }
+	    },
       // 根据服务端数据更新formData
       syncFormDataByServerData(formData, netData) {
         // ignore key not need to overwrite
@@ -1090,6 +1228,16 @@
           reason: ''
         };
         switch (action) {
+	        case 'more-config':
+		        this.showMoreConfig = !this.showMoreConfig;
+		        if (this.showMoreConfig) {
+			        // this.scrollBottom();
+              console.log("scrollBottom");
+		        } else {
+			        // this.scrollTop();
+			        console.log("scrollTop");
+		        }
+		        break;
           case 'change-step':
             this.stepNodeList.forEach(it => {
               if (it.contains(target)) {
