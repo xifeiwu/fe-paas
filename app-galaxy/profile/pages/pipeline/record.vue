@@ -11,8 +11,8 @@
         </el-button>
         <el-button size="mini" type="primary" style="margin-right: 5px;"
                    class="flex"
-                   :loading="statusOfWaitingResponse('pipeline_build_execute_with_param')"
-                   @click="handleClick($event, 'pipeline_build_execute_with_param')">
+                   :loading="statusOfWaitingResponse('pipeline_confirm_build_param')"
+                   @click="handleClick($event, 'pipeline_confirm_build_param')">
           <span>参数构建</span>
           <i class="paas-icon-fa-play" style="margin-left: 3px;"></i>
         </el-button>
@@ -157,18 +157,18 @@
         <i class="el-icon-warning"></i>
         <span>需要如下参数用于构建项目:</span>
       </el-tag>
-      <el-form size="mini" :model="buildParams" :rules="rules"
+      <el-form size="mini" :rules="rules"
                labelWidth="150px" style="margin: 10px 0px 5px 0px;" ref="formInDialogAddParamForPipeline">
         <el-form-item v-for="(item, index) in buildParams"
-                      :label="item.key"
-                      :key="item.key"
+                      :label="item.name"
+                      :key="item.name"
                       style="margin-bottom: 5px;">
           <el-row :gutter="10" style="margin-bottom: 5px;">
             <!--<el-col :span="8">-->
               <!--<el-input size="mini-extral" v-model="buildParam" :disabled="true">{{item.key}}}</el-input>-->
             <!--</el-col>-->
             <el-col :span="20">
-              <el-input size="mini-extral" v-model="item.value"></el-input>
+              <el-input size="mini-extral" v-model="item.defaultValue"></el-input>
             </el-col>
             <el-col :span="4" style="text-align: center">
             </el-col>
@@ -179,7 +179,7 @@
               <div>
                 <span class="el-tag--small">
                   <i class="el-icon-info"></i>
-                  <span>{{item.desc}}</span>
+                  <span>{{item.description}}</span>
                 </span>
               </div>
               <!--<el-tag type="info" disable-transitions  size="small" >-->
@@ -194,8 +194,8 @@
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
           <el-button type="primary"
-                     @click="handleClick($event, 'pipeline_build_execute')"
-                     :loading="statusOfWaitingResponse('pipeline_build_execute')">构&nbsp建</el-button>
+                     @click="handleTRClick($event, 'pipeline_build_execute_with_param')"
+                     :loading="statusOfWaitingResponse('pipeline_build_execute_with_param')">构&nbsp建</el-button>
         </div>
         <div class="item">
           <el-button action="profile-dialog/cancel"
@@ -245,6 +245,7 @@
   import commonUtils from 'assets/components/mixins/common-utils';
   import paasDialogForLog from 'assets/components/dialog4log.vue';
   import paasPopoverElementWithModalMask from 'assets/components/popover-element-with-modal-mask';
+  import th from "../../../../components/element-ui/src/locale/lang/th";
 
   const MS_BEFORE_GET_RECORD_LIST = 5000;
   const MAX_MS_WAITING_FOR_RECORD_LIST = 10000;
@@ -361,6 +362,18 @@
     watch: {
     },
     methods: {
+    	// 获取参数化构建的参数
+	    async getBuildParams() {
+		    const pipelineInfoFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_stage_query, {
+			    query: {
+				    appId: this.relatedAppId
+			    }
+		    });
+		    console.log(pipelineInfoFromNet);
+		    this.buildParams = pipelineInfoFromNet['defList'];
+		    console.log(this.buildParams);
+      },
+      
       // merge status of buildList and buildingList
       mergeBuildList(buildList, buildingList) {
 //        {
@@ -679,13 +692,23 @@
        * @returns {Promise.<void>}
        */
       // 执行pipeline并刷新构建列表状态
-      async executePipeLine(action) {
+      async executePipeLine(action, payload) {
         try {
-          const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_restart, {
-            params: {
-              appId: this.relatedAppId
-            }
-          });
+        	if (payload) {
+		        await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_restart, {
+			        params: {
+				        appId: this.relatedAppId
+			        },
+			        payload
+		        });
+          } else {
+		        await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_restart, {
+			        params: {
+				        appId: this.relatedAppId
+			        }
+		        });
+          }
+
           // add loading status
           this.addToWaitingResponseQueue(action);
           this.$net.addToRequestingRrlList(action);
@@ -790,11 +813,13 @@
 //            this.requestBuildList();
             break;
           case 'pipeline_build_execute':
-            await this.executePipeLine(action);
+            await this.executePipeLine(action, null);
             break;
-	        case 'pipeline_build_execute_with_param':
+	        case 'pipeline_confirm_build_param':
 		        this.action.name = 'dialogAddParamForPipeline';
+		        this.getBuildParams();
 		        break;
+
         }
       },
 
@@ -808,7 +833,7 @@
         var resContent = null;
         switch (action) {
           case 'pipeline_build_restart':
-            await this.executePipeLine(action);
+            await this.executePipeLine(action, null);
             break;
           case 'stop':
             this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_stop, {
@@ -896,6 +921,15 @@
             await this.$router.helper.renameRouterName('records/plan', `${this.dataPassed.pipelineName}<${row.buildNumber}>`, '/profile/pipeline');
             this.$router.push(this.$net.page['profile/pipeline/records/plan']);
             break;
+	        case 'pipeline_build_execute_with_param':
+	        	let param = {};
+	        	this.buildParams.forEach(item => {
+	        		param[item.name] = item.defaultValue;
+            });
+            console.log(param);
+		        await this.executePipeLine(action, param);
+		        this.action.name = null;
+		        break;
         }
       },
 
