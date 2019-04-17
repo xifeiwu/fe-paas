@@ -52,12 +52,16 @@ class Net {
         path: '/application/queryByGroupId',
         method: 'post'
       },
-
       // 未读消息条数
       message_unread_count: {
         path: '/message/query/count',
         method: 'post'
       },
+      // 获取发布状态
+      publish_status: {
+        path: '/system/deployed',
+        method: 'get'
+      }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];

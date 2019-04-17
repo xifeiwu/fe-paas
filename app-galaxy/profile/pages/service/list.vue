@@ -83,7 +83,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_deploy') && action.row.appId == scope.row.appId"
                       @click="confirmDeploy($event, 'service_deploy', scope.$index, scope.row)"
-                      :class="$storeHelper.permission['service_deploy'].disabled ? 'disabled' : 'danger'">
+                      :class="$storeHelper.permission['service_deploy'].disabled || publishStatus? 'disabled' : 'danger'">
                     {{statusOfWaitingResponse('deploy') && action.row.appId == scope.row.appId ? '部署中': '部署'}}
               </el-button>
               <div v-if="!isProductionProfile"
@@ -111,7 +111,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_delete') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_delete', scope.$index, scope.row)"
-                      :class="$storeHelper.permission['service_delete'].disabled ? 'disabled' : 'danger'">
+                      :class="$storeHelper.permission['service_delete'].disabled || publishStatus? 'disabled' : 'danger'">
                 删除
               </el-button>
               <div class="ant-divider"></div>
@@ -177,7 +177,7 @@
                       size="small"
                       type="text"
                       @click="handleTRClick($event, 'service_config_copy', scope.$index, scope.row)"
-                      :class="['flex', $storeHelper.permission['copy-service'].disabled ? 'disabled' : '']">
+                      :class="[$storeHelper.permission['copy-service'].disabled || publishStatus? 'disabled' : '', 'flex']">
                 <span>复制服务</span><i class="paas-icon-level-up"></i>
               </el-button>
             </div>
@@ -186,7 +186,7 @@
                     size="small"
                     type="text"
                     :loading="statusOfWaitingResponse('service_config_add') && action.row.appId == scope.row.appId"
-                    :class="['flex', $storeHelper.permission['service_create'].disabled ? 'disabled' : 'warning']"
+                    :class="[$storeHelper.permission['service_create'].disabled || publishStatus? 'disabled' : 'warning','flex']"
                     @click="handleTRClick($event, 'service_config_add', scope.$index, scope.row)">
               <span>创建服务</span><i class="paas-icon-level-up"></i>
             </el-button>
@@ -469,6 +469,9 @@
       ...mapGetters('user', {
         'userConfig': 'config'
       }),
+      publishStatus() {
+        return this.$store.getters['publishStatus'];
+      }
     },
     watch: {
       '$storeHelper.currentGroupID': function (value, oldValue) {
@@ -1039,6 +1042,10 @@
       },
 
       confirmDeploy(evt, action, index, row) {
+        if (this.publishStatus) {
+          this.$storeHelper.popoverWhenPublish(evt.target);
+          return;
+        }
         this.showConfirmDeployDialog = true;
         this.action.evt = evt;
         this.action.name = action;
@@ -1054,6 +1061,10 @@
 
       async handleTRClick(evt, action, index, row) {
         var permission = action;
+        if (['service_config_add','service_config_copy','service_delete','quick_deploy'].indexOf(action) > -1 && this.publishStatus) {
+          this.$storeHelper.popoverWhenPublish(evt.target);
+          return;
+        }
         if (action == 'service_config_add') {
           permission = 'service_create';
         }

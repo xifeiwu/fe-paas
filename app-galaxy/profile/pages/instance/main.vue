@@ -15,7 +15,7 @@
                    @click="handleButtonClick($event, 'refresh')">刷新</el-button>
         <el-button size="mini-extral"
                    type="primary"
-                   :class="{'disabled': $storeHelper.permission['instance_change_count'].disabled}"
+                   :class="{'disabled': $storeHelper.permission['instance_change_count'].disabled || publishStatus}"
                    @click="handleButtonClick($event, 'instance_change_count')">手动伸缩</el-button>
       </el-col>
     </el-row>
@@ -373,6 +373,9 @@
     computed: {
       isProductionProfile() {
         return this.$storeHelper.isProductionProfile(this.profileInfo.id);
+      },
+      publishStatus() {
+        return this.$store.getters['publishStatus'];
       }
     },
     data() {
@@ -556,6 +559,10 @@
       },
 
       handleButtonClick(evt, action) {
+        if (action == 'instance_change_count' && this.publishStatus) {
+          this.$storeHelper.popoverWhenPublish(evt.target);
+          return;
+        }
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,

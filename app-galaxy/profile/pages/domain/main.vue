@@ -25,7 +25,7 @@
         <el-button
                 size="mini-extral"
                 type="primary"
-                :class="{'disabled': $storeHelper.permission['domain_add'].disabled}"
+                :class="{'disabled': $storeHelper.permission['domain_add'].disabled || publishStatus}"
                 :loading="statusOfWaitingResponse('domain_add')"
                 @click="handleButtonClick($event, 'domain_add')">
           申请外网二级域名
@@ -33,14 +33,14 @@
         <el-button
                 size="mini-extral"
                 type="warning"
-                :class="{'disabled': $storeHelper.permission['domain_bind_service'].disabled}"
+                :class="{'disabled': $storeHelper.permission['domain_bind_service'].disabled || publishStatus}"
                 @click="handleButtonClick($event, 'domain_bind_service')"
         >绑定服务
         </el-button>
         <el-button
                 size="mini-extral"
                 type="warning"
-                :class="{'disabled': $storeHelper.permission['domain_unbind_service'].disabled}"
+                :class="{'disabled': $storeHelper.permission['domain_unbind_service'].disabled || publishStatus}"
                 @click="handleButtonClick($event, 'domain_unbind_service')">解绑服务
         </el-button>
         <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
@@ -687,6 +687,9 @@
     computed: {
       currentGroupID() {
         return this.$storeHelper.currentGroupID;
+      },
+      publishStatus() {
+        return this.$store.getters['publishStatus'];
       }
     },
     watch: {
@@ -904,6 +907,10 @@
        * do some init action before dialog popup
        */
       handleButtonClick(evt, action) {
+        if (['domain_add','domain_bind_service','domain_unbind_service'].indexOf(action) > -1 && this.publishStatus) {
+          this.$storeHelper.popoverWhenPublish(evt.target);
+          return;
+        }
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,

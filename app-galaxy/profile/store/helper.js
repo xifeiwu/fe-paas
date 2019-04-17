@@ -665,6 +665,14 @@ class StoreHelper extends BaseHelper{
     return this.$store.getters['app/clusterList'];
   }
 
+  set publishStatus(value) {
+    this.$store.dispatch('setPublishStatus', value);
+  }
+
+  get publishStatus() {
+    return this.$store.getters['publishStatus'];
+  }
+
   setClusterList(clusterList) {
     this.clusterList = clusterList;
   }
@@ -734,6 +742,14 @@ class StoreHelper extends BaseHelper{
       console.log(`error: length of versionList is 0`);
     }
     return versionList;
+  }
+
+  //若是正在发布，则弹出提示
+  popoverWhenPublish(target) {
+    this.globalPopover.show({
+      ref: target,
+      msg: `因云平台正在发布，在此期间不能进行此操作，谢谢您的合作`
+    });
   }
 }
 

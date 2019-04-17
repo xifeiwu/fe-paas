@@ -14,8 +14,17 @@
       <el-menu-item index="manage" v-if="show['manage']"><i class="paas-icon-manage"></i><span>管理后台</span></el-menu-item>
       <el-menu-item index="profile" v-if="show['profile']"><i class="paas-icon-profile"></i><span>控制台</span></el-menu-item>
       <el-menu-item index="docs" v-if="show['docs']"><i class="paas-icon-docs"></i><span>帮助文档</span></el-menu-item>
-      <el-menu-item index="user/message" v-if="show['user/message']"><i class="paas-icon-message"></i><span>消息</span>
-        <span class="badge danger" v-if="messageCountTip > 0">{{messageCountTip}}</span></el-menu-item>
+      <el-popover
+                placement="bottom"
+                width="300"
+                trigger="manual"
+                ref="popover_alert"
+                :title="alertMessage ? alertMessage.title : ''">
+        <div class="content-alert">{{alertMessage ? alertMessage.content : ''}}</div>
+        <el-button type="primary" size="mini" @click="readMessage()">已阅</el-button>
+        <el-menu-item index="user/message" v-if="show['user/message']" slot="reference"><i class="paas-icon-message"></i><span>消息</span>
+          <span class="badge danger" v-if="messageCountTip > 0">{{messageCountTip}}</span></el-menu-item>
+      </el-popover>
       <el-submenu index="user" :withDrawOnMouseLeave="false">
         <template slot="title"><i class="paas-icon-user"></i><span>{{userName}}</span></template>
         <el-menu-item index="info" v-if="show['user/info']"><i class="paas-icon-user"></i><span>用户中心</span></el-menu-item>
@@ -41,6 +50,14 @@
           padding: 0px 8px;
         }
       }
+    }
+  }
+  .el-popover {
+    .el-button {
+      float: right;
+    }
+    .content-alert {
+      margin-bottom: 10px;
     }
   }
 </style>
@@ -94,6 +111,10 @@
         type: Number,
         default: 0
       },
+      alertMessage: {
+        type: Object,
+        default: null
+      },
       backgroundColor: {
         type: String,
         default: 'white'
@@ -108,6 +129,16 @@
     },
     mounted() {
       this.show = Object.assign(this.show, this.showDescriptor);
+    },
+    watch: {
+      "alertMessage": function (alertMessage) {
+        let popoverAlert = this.$refs["popover_alert"];
+        if (!alertMessage) {
+          popoverAlert.doClose();
+        } else {
+          popoverAlert.doShow();
+        }
+      }
     },
     data() {
       return {
@@ -196,6 +227,15 @@
           this.$refs['menu'].activeIndex = index;
         }
       },
+
+      readMessage() {
+        const resContent = this.$net.requestPaasServer(this.$net.URL_LIST.message_mark_read, {
+          query: {
+            messageId: this.alertMessage.id,
+          }
+        });
+        this.$emit('read-message',this.alertMessage.id);
+      }
     }
   }
 </script>

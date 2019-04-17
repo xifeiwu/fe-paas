@@ -670,9 +670,14 @@ class Net extends NetBase {
         path: '/application/authorization/list',
         method: 'post'
       },
-      'oauth_get_by_uaa':{
+      'oauth_get_by_uaa': {
         path: '/application/authorization/{uaaId}/oauth',
         method: 'get'
+      },
+      // 标记消息为已读
+      'message_mark_read': {
+        path: '/message/update/status',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
@@ -2781,6 +2786,30 @@ class Net extends NetBase {
       }).catch(err => {
         console.log(err);
         reject('处理工单失败！');
+      })
+    })
+  }
+
+  //获取后台推送消息
+  getMessage() {
+    return new Promise((resolve, reject) => {
+      axios.post(this.URL_LIST.message_unread_count.path).then(response => {
+        let result = this.getResponseContent2(response);
+        resolve(result);
+      }).catch(err => {
+        console.log(err);
+      })
+    })
+  }
+
+  //获取发布状态
+  getPublishStatus() {
+    return new Promise((resolve, reject) => {
+      axios.get(this.URL_LIST.publish_status.path).then(response => {
+        let result = this.getResponseContent2(response);
+        resolve(result);
+      }).catch(err => {
+        console.log(err);
       })
     })
   }

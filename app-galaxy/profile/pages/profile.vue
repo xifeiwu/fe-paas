@@ -60,8 +60,8 @@
         </div>
         <paas-header-profile :showDescriptor="showDescriptor4Header" class="header-right"
                              :userName="userName" :messageCountTip="messageCountTip" backgroundColor="#fafafa"
-                             ref="paasHeaderProfile"
-                             @menu-click="handleHeaderMenuClick"></paas-header-profile>
+                             ref="paasHeaderProfile" :alertMessage="currentAlertMessage"
+                             @menu-click="handleHeaderMenuClick" @read-message="handleReadMessage"></paas-header-profile>
       </div>
       <div v-if="showPageNotFound" class="profile content">
         <page-not-found :navigateList="navigateList"></page-not-found>
@@ -318,7 +318,10 @@
         showGroupList: true,
         messageCountTip: 0,
 
-        notPermitted: []
+        notPermitted: [],
+
+        alertMessageQueen: [],
+        currentAlertMessage: null,
       }
     },
     created() {
@@ -366,12 +369,8 @@
         'manage': this.$storeHelper.getUserInfo('role') && this.$storeHelper.getUserInfo('role') === '平台管理员',
         'profile': false
       };
-
-      this.$net.requestPaasServer(this.$net.URL_LIST.message_unread_count, {}).then(resContent => {
-        this.messageCountTip = resContent;
-      }).catch(() => {
-        this.messageCountTip = 0;
-      }).finally(() => {});
+      this.requestAndHandleMessage();
+      this.getPublishStatus();
     },
     mounted() {
       this.resizeListener = () => {
@@ -397,6 +396,15 @@
       // set value of globalPopover to $storeHelper.globalPopover
       this.$storeHelper.globalPopover = this.$refs['global-popover-close-on-leave'];
       this.$storeHelper.globalTip = this.$refs['global-popover-close-on-delay'];
+      //这个定时器是用来轮询消息的，看有没有alert类型的消息
+      setInterval(() => {
+        this.requestAndHandleMessage();
+      },1*60*1000);
+
+      //这个定时器是用来轮询后台发布情况的，看是否正在发布
+      setInterval(() => {
+        this.getPublishStatus();
+      },2*60*1000);
     },
     beforeDestroy() {
       removeResizeListener(this.$el, this.resizeListener);
@@ -721,6 +729,39 @@
             break;
         }
       },
+
+      //获取消息数量，以及对alert类型的消息进行弹窗
+      requestAndHandleMessage() {
+        this.$net.getMessage().then(result => {
+          this.alertMessageQueen = [];
+          this.messageCountTip = result.length;
+          result.forEach(it => {
+            if (it.messageType === "ALERT") {
+              this.alertMessageQueen.push(it);
+            }
+          });
+          this.currentAlertMessage = this.alertMessageQueen.pop();
+          // if (!this.currentAlertMessage || !this.alertMessageQueen.find(it => {
+          //       return it.id === this.currentAlertMessage.id;
+          //     })
+          // ) {
+          //   let length = this.alertMessageQueen.length;
+          //   this.currentAlertMessage = length === 0 ? null : this.alertMessageQueen[length - 1];
+          // }
+        });
+      },
+
+      //这个方法是用来确认是否正在发布的，对于正在发布的，禁用创建服务，复制服务，删除服务，创建公网域名，绑定，解除绑定公网域名。禁用所有环境的服务的部署，重启，实例动态伸缩。
+      getPublishStatus() {
+        this.$net.getPublishStatus().then(result => {
+          this.$storeHelper.publishStatus = result && result == "true" ? true : false ;
+        })
+      },
+
+      handleReadMessage(messageId) {
+        this.messageCountTip -= 1;
+        this.currentAlertMessage = this.alertMessageQueen.pop();
+      }
     }
   }
 </script>
