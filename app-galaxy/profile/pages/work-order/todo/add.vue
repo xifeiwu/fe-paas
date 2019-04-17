@@ -267,6 +267,7 @@
           switch (dataTransfer['from']) {
             case this.$net.page['profile/service']:
               this.dataPassed.appIdList = [dataTransfer['data']['appId']];
+              // appStatusList is not passed by default
               this.dataPassed.appStatusList = dataTransfer['data'].hasOwnProperty('appStatusList') ? dataTransfer['data']['appStatusList'] : null;
               break;
             case this.$net.page['profile/work-order/todo']:
@@ -387,7 +388,12 @@
       // 获得生产环境的profileInfo，并将该生产环境下的appIdList加入到profileInfo
       async getProductionProfileList() {
         const productionProfileList = this.$storeHelper.profileListOfGroup.filter(it => {
-          return it.spaceType === 'PRODUCTION';
+          // FinupFriends特殊处理
+          if (this.$storeHelper.groupInfo.tag === 'ff') {
+            return it.spaceType === 'PRODUCTION' && it.name !== 'production';
+          } else {
+            return it.spaceType === 'PRODUCTION';
+          }
         });
 
         var count = 0;
