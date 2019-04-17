@@ -263,10 +263,11 @@
 
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer && dataTransfer.hasOwnProperty('from')) {
+        const data = dataTransfer['data'];
         if (this.pageType === 'add') {
           switch (dataTransfer['from']) {
             case this.$net.page['profile/service']:
-              this.dataPassed.appIdList = [dataTransfer['data']['appId']];
+              this.dataPassed.appIdList = [`${data['appId']}-${data['profileId']}`];
               // appStatusList is not passed by default
               this.dataPassed.appStatusList = dataTransfer['data'].hasOwnProperty('appStatusList') ? dataTransfer['data']['appStatusList'] : null;
               break;
@@ -467,9 +468,11 @@
         // console.log(appModelListOfGroup);
         // console.log(productionProfileList);
         // console.log(productionServiceList);
+        console.log(this.formData.appIdList);
 
         // 更新工单处理状态
         productionServiceList.forEach(it => {
+          const id = it['id'];
           const appId = it['appId'];
           if (appStatusList.hasOwnProperty(it['appId'])) {
             it['workOrder'] = appStatusList[appId];
@@ -477,34 +480,41 @@
           // if el-option for this app can be selected
           let disabled = it.hasOwnProperty('workOrder');
 
-          // if (this.pageType === 'modify') {
+          if (this.pageType === 'modify') {
             // 对于修改工单，如果页面传递过的appIdList中包含当前appId，则为当前工单
-            // if (this.dataPassed.appIdList && this.dataPassed.appIdList.indexOf(appId) > -1) {
-            //   it['workOrder']['name'] = '当前工单';
-            //   disabled = false;
-            // }
-          // }
+            if (this.dataPassed.appIdList && this.dataPassed.appIdList.indexOf(id) > -1) {
+              it['workOrder']['name'] = '当前工单';
+              disabled = false;
+            }
+          }
           it['disabled'] = disabled;
         });
         this.productionServiceList = productionServiceList;
 
-        // append appIdList passed to this.formData.appIdList
-        // if (this.dataPassed.appIdList) {
-        //   var appIdListToAppend = [];
-        //   if (this.pageType === 'modify') {
-        //     var appIdAll = appModelListOfGroup.map(it => it['appId']);
-        //     appIdListToAppend = this.dataPassed.appIdList.filter(it => {
-        //       return appIdAll.indexOf(it) >= -1;
-        //     });
-        //   } else {
-        //     var appIdCanSelect = appModelListOfGroup.filter(it => !it.hasOwnProperty('workOrder')).map(it => it['appId']);
-        //     appIdListToAppend = this.dataPassed.appIdList.filter(it => appIdCanSelect.indexOf(it) > -1);
-        //   }
-        //   this.formData.appIdList = this.formData.appIdList.concat(appIdListToAppend);
-        //   if (appIdListToAppend.length != this.dataPassed.appIdList.length) {
-        //     console.log(`some appId is ignored!`);
-        //   }
-        // }
+        // check append appIdList passed to this.formData.appIdList, make sure the appId append is legal
+        if (this.dataPassed.appIdList) {
+          var appIdListToAppend = [];
+          if (this.pageType === 'modify') {
+            var serviceIdAll = productionServiceList.map(it => it['id']);
+            appIdListToAppend = this.dataPassed.appIdList.filter(it => {
+              return serviceIdAll.indexOf(it) >= -1;
+            });
+          } else {
+            var serviceIdCanSelect = productionServiceList.filter(it => !it.hasOwnProperty('workOrder')).map(it => it['id']);
+            appIdListToAppend = this.dataPassed.appIdList.filter(it => serviceIdCanSelect.indexOf(it) > -1);
+          }
+          this.formData.appIdList = this.formData.appIdList.concat(appIdListToAppend);
+          if (appIdListToAppend.length != this.dataPassed.appIdList.length) {
+            const ignoredService = productionServiceList.find(it => {
+              return this.dataPassed.appIdList.includes(it.id);
+            });
+            if (ignoredService && ignoredService.workOrder) {
+              this.$message.error(`应用 "${ignoredService.appName}" 存在未完成工单："${ignoredService.workOrder.name}"，不能为改应用创建新的工单！`)
+            }
+            console.log(`some appId is ignored!`);
+            // console.log(ignoredService);
+          }
+        }
       },
       // 添加功能描述
       addFeatureComponent() {
