@@ -12,7 +12,7 @@
             <span :class="{'un-read': scope.row.readStatus === 0}">{{scope.row.title}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="消息类型" prop="messageTypeName" headerAlign="center" align="center" minWidth="100">
+        <el-table-column label="消息类型" prop="messageTypeName" headerAlign="center" align="center" minWidth="100" v-if="false">
           <template slot-scope="scope">
             <span :class="{'un-read': scope.row.readStatus === 0}">{{scope.row.messageTypeName}}</span>
           </template>
