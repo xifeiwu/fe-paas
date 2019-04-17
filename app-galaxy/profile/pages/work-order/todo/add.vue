@@ -57,13 +57,12 @@
         <el-form-item label="应用名称" prop="appIdList">
           <el-select  v-model="formData.appIdList"
                       filterable multiple
-                      placeholder="请选择"
-                      v-if="appModelListOfGroup">
-            <el-option v-for="(item, index) in appModelListOfGroup" :disabled="item.disabled"
-                       :key="item.appId" :value="item.appId" :label="item.appName"
+                      placeholder="请选择">
+            <el-option v-for="(item, index) in productionServiceList" :disabled="item.disabled"
+                       :key="item.id" :value="item.id" :label="item.label"
             >
               <div style="display: flex; justify-content: space-between">
-                <span>{{item.appName}}</span>
+                <span><span>{{item.appName}}</span>（<span :class="[`g-env-${item.profileName}-color`]">{{item.profileDescription}}</span>）</span>
                 <span v-if="item.hasOwnProperty('workOrder')"
                       style="color: #E6A23C; font-size: 12px;">(有未完成工单：{{item['workOrder']['name']}})</span>
               </div>
@@ -312,7 +311,7 @@
         return;
       }
 
-      // get appModelListOfGroup
+      // get productionServiceListOfGroup
       this.onCurrentGroupID(this.$storeHelper.currentGroupID);
       this.onAppInfoListOfGroup(this.$storeHelper.appInfoListOfGroup);
     },
@@ -334,7 +333,8 @@
     data() {
       return {
         pageType: 'add',
-        appModelListOfGroup: [],
+        // 生产(预发布)环境服务列表
+        productionServiceList: [],
         showLoading: false,
         loadingText: '',
 //        appStatusList: null,
@@ -383,6 +383,33 @@
         // data should be init at change of group
         this.formData.groupId = this.$storeHelper.currentGroupID;
       },
+
+      // 获得生产环境的profileInfo，并将该生产环境下的appIdList加入到profileInfo
+      async getProductionProfileList() {
+        const productionProfileList = this.$storeHelper.profileListOfGroup.filter(it => {
+          return it.spaceType === 'PRODUCTION';
+        });
+
+        var count = 0;
+        await new Promise((resolve, reject) => {
+          productionProfileList.forEach(async profileInfo => {
+            const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_profile, {
+              payload: {
+                groupId: this.$storeHelper.currentGroupID,
+                spaceId: profileInfo.id
+              }
+            });
+            const appIdList = resContent['applicationServiceList'].filter(it => it.id !== null).map(it => it.appId);
+            profileInfo['appIdList'] = appIdList;
+            count++;
+            if (count === productionProfileList.length) {
+              resolve();
+            }
+          });
+        });
+        return productionProfileList;
+      },
+
       // set defaultAppID(first element in array) for this.formData.appID
       async onAppInfoListOfGroup(value) {
         if (!value) {
@@ -407,8 +434,36 @@
           });
         }
 //        console.log(appStatusList);
-        this.appModelListOfGroup = this.$utils.cloneDeep(this.$storeHelper.appInfoListOfGroup['appModelList']);
-        this.appModelListOfGroup.forEach(it => {
+        const productionServiceList = [];
+        const productionProfileList = await this.getProductionProfileList();
+        const appModelListOfGroup = this.$storeHelper.appInfoListOfGroup['appModelList'].map(it => {
+          return {
+            appId: it.appId,
+            appName: it.appName
+          }
+        });
+        appModelListOfGroup.forEach(app => {
+          productionProfileList.forEach(profile => {
+            if (profile.appIdList.includes(app.appId)) {
+              var item = {
+                appId: app.appId,
+                appName: app.appName,
+                profileId: profile.id,
+                profileName: profile.name,
+                profileDescription: profile.description,
+              };
+              item.id = `${item.appId}-${item.profileId}`;
+              item.label = `${item.appName}（${item.profileDescription}）`;
+              productionServiceList.push(item)
+            }
+          });
+        });
+        // console.log(appModelListOfGroup);
+        // console.log(productionProfileList);
+        // console.log(productionServiceList);
+
+        // 更新工单处理状态
+        productionServiceList.forEach(it => {
           const appId = it['appId'];
           if (appStatusList.hasOwnProperty(it['appId'])) {
             it['workOrder'] = appStatusList[appId];
@@ -416,33 +471,34 @@
           // if el-option for this app can be selected
           let disabled = it.hasOwnProperty('workOrder');
 
-          if (this.pageType === 'modify') {
+          // if (this.pageType === 'modify') {
             // 对于修改工单，如果页面传递过的appIdList中包含当前appId，则为当前工单
-            if (this.dataPassed.appIdList && this.dataPassed.appIdList.indexOf(appId) > -1) {
-              it['workOrder']['name'] = '当前工单';
-              disabled = false;
-            }
-          }
+            // if (this.dataPassed.appIdList && this.dataPassed.appIdList.indexOf(appId) > -1) {
+            //   it['workOrder']['name'] = '当前工单';
+            //   disabled = false;
+            // }
+          // }
           it['disabled'] = disabled;
         });
+        this.productionServiceList = productionServiceList;
 
         // append appIdList passed to this.formData.appIdList
-        if (this.dataPassed.appIdList) {
-          var appIdListToAppend = [];
-          if (this.pageType === 'modify') {
-            var appIdAll = this.appModelListOfGroup.map(it => it['appId']);
-            appIdListToAppend = this.dataPassed.appIdList.filter(it => {
-              return appIdAll.indexOf(it) >= -1;
-            });
-          } else {
-            var appIdCanSelect = this.appModelListOfGroup.filter(it => !it.hasOwnProperty('workOrder')).map(it => it['appId']);
-            appIdListToAppend = this.dataPassed.appIdList.filter(it => appIdCanSelect.indexOf(it) > -1);
-          }
-          this.formData.appIdList = this.formData.appIdList.concat(appIdListToAppend);
-          if (appIdListToAppend.length != this.dataPassed.appIdList.length) {
-            console.log(`some appId is ignored!`);
-          }
-        }
+        // if (this.dataPassed.appIdList) {
+        //   var appIdListToAppend = [];
+        //   if (this.pageType === 'modify') {
+        //     var appIdAll = appModelListOfGroup.map(it => it['appId']);
+        //     appIdListToAppend = this.dataPassed.appIdList.filter(it => {
+        //       return appIdAll.indexOf(it) >= -1;
+        //     });
+        //   } else {
+        //     var appIdCanSelect = appModelListOfGroup.filter(it => !it.hasOwnProperty('workOrder')).map(it => it['appId']);
+        //     appIdListToAppend = this.dataPassed.appIdList.filter(it => appIdCanSelect.indexOf(it) > -1);
+        //   }
+        //   this.formData.appIdList = this.formData.appIdList.concat(appIdListToAppend);
+        //   if (appIdListToAppend.length != this.dataPassed.appIdList.length) {
+        //     console.log(`some appId is ignored!`);
+        //   }
+        // }
       },
       // 添加功能描述
       addFeatureComponent() {
