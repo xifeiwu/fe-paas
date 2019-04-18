@@ -177,6 +177,16 @@ class StoreHelper extends BaseHelper{
     return result;
   }
 
+  // 所有运行环境信息
+  get profileListAll() {
+    let result = [];
+    const globalConfig = this.globalConfig;
+    if (globalConfig && globalConfig.hasOwnProperty('profileList')) {
+      result = globalConfig.profileList;
+    }
+    return result;
+  }
+
   // 创建应用时用到的信息：cpu和内存信息；语言列表
   // getMessageForCreateAPP(prop) {
   //   if (['cpuAndMemorylist', 'LanguageList'].indexOf(prop) > -1) {
@@ -546,9 +556,9 @@ class StoreHelper extends BaseHelper{
   }
   getProfileInfoByName(name) {
     let target = null;
-    let profileListOfGroup = this.profileListOfGroup;
-    if (Array.isArray(profileListOfGroup)) {
-      profileListOfGroup.some(it => {
+    const profileListAll = this.profileListAll;
+    if (Array.isArray(profileListAll)) {
+      profileListAll.some(it => {
         target = it.name === name ? it : null;
         return target
       });

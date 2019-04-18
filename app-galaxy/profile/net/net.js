@@ -1292,7 +1292,8 @@ class Net extends NetBase {
           key, desc, contentDesc,
           label: resContent['healthCheckList'][key]
         };
-      })
+      });
+      resContent['profileList'] = resContent['spaceList'];
     }
     return resContent;
   }
