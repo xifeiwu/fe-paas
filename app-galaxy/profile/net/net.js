@@ -595,6 +595,11 @@ class Net extends NetBase {
         path: '/middleware/editMiddlewareRedis',
         method: 'post'
       },
+      //服务详情中获取中间件的状态信息
+      'middleware_service_relation': {
+        path: '/service/queryServiceRelation',
+        method: 'post'
+      },
 
       /** pipeline相关*/
       // 查询pipieline相关信息

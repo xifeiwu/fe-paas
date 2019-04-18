@@ -174,41 +174,68 @@
           </div>
         </div>
       </div>
-      <div class="by-graphic">
-        <div class="section request-statistic" >
-          <div class="title">域名请求统计：<el-date-picker
-                style="display: inline-block; width: 340px;"
-                size="mini"
-                v-model="dateTimeRange"
-                type="datetimerange"
-                :picker-options="pickerOptions2"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                align="right"
-                :enableClose="false"
-          >
-          </el-date-picker>
-          <el-button
-                size="mini-extral"
-                type="primary"
-                @click="handleButtonClick('search')">查询</el-button>
-          </div>
-        </div>
-        <div class="section request-statistic" v-for="(item, index) in requestStatisticList">
-          <div class="title">
-            {{`${item.type === 'internet' ? '外网域名':'内网域名'}【${item.domain}】`}}
-          </div>
-          <div class="content">
-            <div class="loading" style="height: 240px; " v-if="item.loading">
-              <div class="el-loading-mask" style="">
-                <div class="el-loading-spinner">
-                  <i class="el-icon-loading"></i>
-                  <p class="el-loading-text">网络请求中...</p>
+      <div class="right">
+        <div class="by-middleware">
+          <div class="middleware" v-for="(item,index) in middlewareInfoList">
+            <div class="middleware-title">
+              <span :class="[item.iconClass]" :style="{color: item.iconColor}"></span>
+              <span class="name">{{item.targetType}}</span>
+            </div>
+            <div class="middleware-body">
+              <div class="info-top">
+                <div class="info-top-icon">
+                  <span :class="item.statusIcon" :style="{color: item.statusColor ,fontSize: '50px'}"></span>
+                  <span class="icon-content">{{item.status}}</span>
+                </div>
+                <div class="info-top-content">
+                  <span>{{`IP:${item.targetHost.split(":")[0]}`}}</span>
+                  <span>{{`类型:${item.type}`}}</span>
+                </div>
+                <div class="info-top-content">
+                  <span>{{`端口:${item.targetHost.split(":")[1]}`}}</span>
+                  <span>{{`成功连接数:${item.callCount - item.errorCount}`}}</span>
+                  <span>{{`失败连接数:${item.errorCount}`}}</span>
                 </div>
               </div>
             </div>
-            <paas-request-statistic :topRequest="item.top" :total="item.total" v-else></paas-request-statistic>
+          </div>
+        </div>
+        <div class="by-graphic">
+          <div class="section request-statistic" >
+            <div class="title">域名请求统计：<el-date-picker
+                  style="display: inline-block; width: 340px;"
+                  size="mini"
+                  v-model="dateTimeRange"
+                  type="datetimerange"
+                  :picker-options="pickerOptions2"
+                  range-separator="至"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  align="right"
+                  :enableClose="false"
+            >
+            </el-date-picker>
+            <el-button
+                  size="mini-extral"
+                  type="primary"
+                  @click="handleButtonClick('search')">查询</el-button>
+            </div>
+          </div>
+          <div class="section request-statistic" v-for="(item, index) in requestStatisticList">
+            <div class="title">
+              {{`${item.type === 'internet' ? '外网域名':'内网域名'}【${item.domain}】`}}
+            </div>
+            <div class="content">
+              <div class="loading" style="height: 240px; " v-if="item.loading">
+                <div class="el-loading-mask" style="">
+                  <div class="el-loading-spinner">
+                    <i class="el-icon-loading"></i>
+                    <p class="el-loading-text">网络请求中...</p>
+                  </div>
+                </div>
+              </div>
+              <paas-request-statistic :topRequest="item.top" :total="item.total" v-else></paas-request-statistic>
+            </div>
           </div>
         </div>
       </div>
@@ -355,8 +382,8 @@
       .section {
         display: inline-block;
         background: #fff;
-        box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
-        box-shadow: 0 1px 1px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
         .title {
           /*background-color: #f5f5f6;*/
           border: 1px solid #f5f5f6;
@@ -399,43 +426,91 @@
           margin-top: 15px;
         }
       }
-      .by-graphic {
-        flex: 1;
-        margin-top: 0px;
-        .section {
-          .loading {
-            .el-loading-mask {
-              position: absolute;
-              z-index: 2000;
-              background-color: rgba(255, 255, 255, 0.5);;
-              margin: 0;
-              top: 0;
-              right: 0;
-              bottom: 0;
-              left: 0;
-              transition: opacity .3s;
-            }
-            .el-loading-spinner {
-              top: 50%;
-              margin-top: -21px;
-              width: 100%;
-              height: 100px;
+      .right {
+        .by-middleware {
+          width: 100%;
+          display: flex;
+          flex-wrap: wrap;
+          margin-bottom: 10px;
+          .middleware {
+            background: #fff;
+            width: 48%;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            .middleware-title {
+              border: 1px solid #f5f5f6;
+              color: #666;
+              font-weight: bold;
               text-align: center;
-              position: absolute;
+              font-size: 14px;
+              line-height: 24px;
+            }
+            .middleware-body {
+              width: 100%;
+              .info-top {
+                width:100%;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                font-size: 14px;
+                margin-top: 10px;
+                .info-top-icon {
+                  width:20%;
+                  display: flex;
+                  flex-direction: column;
+                  margin-left:10px;
+                  .icon-content {
+                    margin-top: 3px;
+                    margin-left: 8px;
+                  }
+                }
+                .info-top-content {
+                  width: 40%;
+                  display: flex;
+                  flex-direction: column;
+                  color:#5a5e66;
+                }
+              }
             }
           }
         }
-        .request-statistic {
-          width: 100%;
-          max-width: 900px;
-          margin-bottom: 15px;
-          .content {
-            .paas-request-statistic {
-              width: 100%;
-              .content {
-                /*margin: 3px 6px;*/
+        .by-graphic {
+          flex: 1;
+          margin-top: 0px;
+          .section {
+            .loading {
+              .el-loading-mask {
+                position: absolute;
+                z-index: 2000;
+                background-color: rgba(255, 255, 255, 0.5);;
+                margin: 0;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                transition: opacity .3s;
               }
-            ;
+              .el-loading-spinner {
+                top: 50%;
+                margin-top: -21px;
+                width: 100%;
+                height: 100px;
+                text-align: center;
+                position: absolute;
+              }
+            }
+          }
+          .request-statistic {
+            width: 100%;
+            max-width: 900px;
+            .content {
+              .paas-request-statistic {
+                width: 100%;
+                .content {
+                  /*margin: 3px 6px;*/
+                }
+              ;
+              }
             }
           }
         }
@@ -604,6 +679,7 @@
           errMsgForDomainList: ''
         },
         showInternetDomainDialog: false,
+        middlewareInfoList: [],
       }
     },
     watch: {
@@ -808,11 +884,12 @@
             return it["defaultSelect"] === true;
           });
         }
-//        console.log(this.serviceInfo);
+       // console.log(this.serviceInfo);
         this.intranetDomain = basicInfo["intranetDomain"];
         this.internetDomainList = basicInfo["internetDomain"];
 
         this.getRequestStatistic(appId, profileId, this.dateTimeRange, this.intranetDomain, this.internetDomainList);
+        this.getMiddlewareInfo();
       },
 
       handleSuccessCopy(evt) {
@@ -821,6 +898,51 @@
           msg: '复制成功'
         });
       },
+
+      async getMiddlewareInfo() {
+        this.middlewareInfoList = [];
+        let resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_service_relation, {
+          payload: {
+            serviceName: this.dataPassed.serviceInfo.serviceName,
+            spaceId: this.dataPassed.profileInfo.id,
+          }
+        });
+        this.middlewareInfoList = resContent;
+        this.middlewareInfoList.forEach(it => {
+          switch (it.targetType) {
+            case "Redis":
+              it.iconClass = "paas-icon-redis";
+              it.iconColor = "#CF271D";
+              break;
+            case "MongoDB":
+              it.iconClass = "paas-icon-mongodb";
+              it.iconColor = "#68B145";
+              break;
+            case "Mysql":
+              it.iconClass = "paas-icon-mysql";
+              it.iconColor = "#00758F";
+              break;
+            case "Rabbitmq":
+              it.iconClass = "paas-icon-rabbitmq";
+              it.iconColor = "#FF6700";
+              break;
+          }
+          let percentage = (1 - it.errorCount / it.callCount) * 100;
+          if (percentage > 70) {
+            it.status = "健康";
+            it.statusIcon = "paas-icon-fa-play-circle-o";
+            it.statusColor = "#67C23A";
+          } else if (percentage > 30 && percentage < 70) {
+            it.status = "不健康";
+            it.statusIcon = "paas-icon-fa-play-circle-o";
+            it.statusColor = "#E6A23C";
+          } else {
+            it.status = "失败";
+            it.statusIcon = "fa-pause-circle-o";
+            it.statusColor = "#F56C6C";
+          }
+        })
+      }
     }
   }
 </script>
