@@ -1221,13 +1221,13 @@
         switch (action) {
 	        case 'more-config':
 		        this.showMoreConfig = !this.showMoreConfig;
-		        if (this.showMoreConfig) {
-			        // this.scrollBottom();
-              console.log("scrollBottom");
-		        } else {
-			        // this.scrollTop();
-			        console.log("scrollTop");
-		        }
+		        // if (this.showMoreConfig) {
+			      //   // this.scrollBottom();
+            //   console.log("scrollBottom");
+		        // } else {
+			      //   // this.scrollTop();
+			      //   console.log("scrollTop");
+		        // }
 		        break;
           case 'change-step':
             this.stepNodeList.forEach(it => {

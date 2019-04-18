@@ -258,18 +258,7 @@
         this.$router.push(this.$net.page['profile/pipeline/list']);
         return;
       }
-	    this.buildParams = [
-	    	{
-          "key": "111",
-          "value": "222",
-          "desc": "33333",
-        },
-		    {
-			    "key": "qqqqq",
-			    "value": "wwwww",
-			    "desc": "eeeee",
-		    }
-      ];
+	    this.buildParams = [];
     },
     async mounted() {
       try {
@@ -362,9 +351,13 @@
 				    appId: this.relatedAppId
 			    }
 		    });
-		    console.log(pipelineInfoFromNet);
+		    
 		    this.buildParams = pipelineInfoFromNet['defList'];
-		    console.log(this.buildParams);
+		    if (this.buildParams && this.buildParams.length > 0) {
+		    	return true;
+        } else {
+			    return false;
+        }
       },
       
       // merge status of buildList and buildingList
@@ -811,8 +804,12 @@
             await this.executePipeLine(action, null);
             break;
 	        case 'pipeline_confirm_build_param':
-		        this.action.name = 'dialogAddParamForPipeline';
-		        this.getBuildParams();
+		        const hasParam = await this.getBuildParams();
+		        if (hasParam) {
+			        this.action.name = 'dialogAddParamForPipeline';
+            } else {
+			        this.$message.error('该pipeline没有配置构建参数！');
+            }
 		        break;
 
         }
