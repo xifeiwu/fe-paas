@@ -278,26 +278,25 @@
         } else if (this.pageType === 'modify') {
           switch (dataTransfer['from']) {
             case this.$net.page['profile/work-order/todo']:
-              const detail = dataTransfer['data'];
-              this.formData.groupId = detail['groupId'];
-              this.formData.name = detail['name'];
-              this.formData.creatorName = detail['creatorName'];
-              this.formData.featureList = detail['featureList'];
+              this.formData.groupId = data['groupId'];
+              this.formData.name = data['name'];
+              this.formData.creatorName = data['creatorName'];
+              this.formData.featureList = data['featureList'];
               // dataPassed.appIdList will filtered onAppInfoListOfGroup
-              this.dataPassed.appIdList = detail['appList'].map(it => it['appId']);
-              this.formData.acceptedUserIdList = detail['acceptedUserIdList'];
-              this.formData.notifyUserIdList = detail['notifyUserIdList'];
-              this.formData.mailGroupList = detail['mailGroupList'];
-              this.formData.comment = detail['comment'];
-//              console.log(detail);
+              this.dataPassed.appIdList = data['appList'].map(it => `${it['appId']}-${it['spaceId']}`);
+              this.formData.acceptedUserIdList = data['acceptedUserIdList'];
+              this.formData.notifyUserIdList = data['notifyUserIdList'];
+              this.formData.mailGroupList = data['mailGroupList'];
+              this.formData.comment = data['comment'];
+//              console.log(data);
 //              console.log(this.formData);
 
-              this.dataPassed.workOrderId = detail['id'];
-              this.dataPassed.groupName = detail['groupName'];
-              this.dataPassed.operationList = detail['operationList'];
+              this.dataPassed.workOrderId = data['id'];
+              this.dataPassed.groupName = data['groupName'];
+              this.dataPassed.operationList = data['operationList'];
               // update groupId if necessary
-              if (this.$storeHelper.currentGroupID != detail['groupId']) {
-                this.$storeHelper.currentGroupID = detail['groupId']
+              if (this.$storeHelper.currentGroupID != data['groupId']) {
+                this.$storeHelper.currentGroupID = data['groupId']
               }
               break;
           }
@@ -639,8 +638,9 @@
               });
               // 应用列表
               toPost.workOrderDeployAppList = this.formData.appIdList.map(it => {
+                var [appId, spaceId] = it.split('-');
                 return {
-                  appId: it
+                  appId, spaceId
                 }
               });
               // 验收人
