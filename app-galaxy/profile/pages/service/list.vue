@@ -89,7 +89,6 @@
               <div v-if="!isProductionProfile"
                    class="ant-divider"></div>
               <el-button
-                      v-if="!isProductionProfile"
                       size="small"
                       type="text"
                       :loading="statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId"
@@ -97,8 +96,7 @@
                       :class="reason4DisableQuickDeploy(scope.row) ? 'disabled' : 'danger'">
                     {{statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId ? '重启中': '重启'}}
               </el-button>
-              <div v-if="!isProductionProfile"
-                   class="ant-divider"></div>
+              <div class="ant-divider"></div>
               <el-button
                       size="small"
                       type="text"
@@ -835,7 +833,7 @@
         }
       },
 
-      // 是否支持快速部署：1. 是k8s应用，2. 有正在运行的实例
+      // 是否支持快速部署（重启）：1. 是k8s应用，2. 有正在运行的实例
       reason4DisableQuickDeploy(row) {
         var reason = false;
         if (row) {
@@ -844,6 +842,9 @@
           } else if (row['containerStatus'] && row['containerStatus']['Running'] == 0) {
             reason = '运行实例数为0，不能进行重启操作！';
           }
+        }
+        if (this.isProductionProfile && this.$storeHelper.permission['service_restart_production'].disabled) {
+          reason = '您没有部署生产环境服务的权限';
         }
         return reason;
       },

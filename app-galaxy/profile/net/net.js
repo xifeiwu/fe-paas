@@ -747,10 +747,12 @@ class Net extends NetBase {
       '/2.x/service/create': 'service_create',
       // 切换默认服务版本
       '/2.x/service/update/defaultVersion': 'service_change_default',
-      //  部署服务
+      // 部署服务
       '/2.x/service/deploy': 'service_deploy',
       // 停止服务
       '/2.x/service/stop': 'service_stop',
+      // 重启服务（生产环境）
+      '/2.x/service/restart': 'service_restart_production',
       // 删除服务
       '/2.x/service/delete': 'service_delete',
       // 修改服务信息
