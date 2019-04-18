@@ -2638,7 +2638,8 @@ export default {
             this.$net.serviceStop({
               id: serviceID,
               appId: this.selectedAppID,
-              spaceId: this.selectedProfileID
+              spaceId: this.selectedProfileID,
+              groupId: this.$storeHelper.currentGroupID,
             }).then(msg => {
               this.hideWaitingResponse(action);
               this.$message({

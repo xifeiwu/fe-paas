@@ -203,6 +203,7 @@
           let payload = {
             "applicationRemoteConfigId": this.dirSelected.id,
             "configFileName": this.form.configFileName.trim() + this.form.extName,
+            "groupId": this.$storeHelper.currentGroupID,
           };
           this.$ajax
             .post(this.$url.config_server_file_add.url, payload)
@@ -250,7 +251,8 @@
                 data: {
                   applicationRemoteConfigFileId: this.currentEditFile.id,
                   commitMessage: this.form.commitMessage,
-                  fileContent: this.form.code
+                  fileContent: this.form.code,
+                  groupId: this.$storeHelper.currentGroupID,
                 },
                 // headers: {'Content-Type': 'text/plain'}
               })

@@ -754,7 +754,8 @@
               await this.$net.requestPaasServer(this.$net.URL_LIST.instance_replace, {
                 payload: {
                   namespace: `${this.profileInfo.name}-${this.$storeHelper.groupInfo.tag}`,
-                  name: row.name
+                  name: row.name,
+                  groupId: this.$storeHelper.currentGroupID,
                 }
               });
               this.$message.success('驱逐成功，稍后可点击刷新按钮，更新实例列表。');

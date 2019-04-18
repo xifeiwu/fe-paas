@@ -1176,6 +1176,7 @@
                 id: row.id,
                 appId: row.appId,
                 spaceId: this.profileInfo.id,
+                groupId: this.$storeHelper.currentGroupID,
               }).then(msg => {
                 this.hideWaitingResponse(action);
                 this.$message({

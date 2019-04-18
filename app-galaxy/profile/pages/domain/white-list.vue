@@ -295,6 +295,7 @@
           internetDomainId: '',
           ip: '',
           description: '',
+          groupId: this.$storeHelper.currentGroupID,
         },
         queueForWaitingResponse: [],
         IPList: [],
@@ -472,7 +473,8 @@
               this.$net.updateWhiteIP({
                 internetDomainId: this.domainInfo.id,
                 description: this.selected.row.description,
-                ip: this.selected.row.ip
+                ip: this.selected.row.ip,
+                groupId: this.$storeHelper.currentGroupID,
               }, this.selected.row.id).then(msg => {
                 this.hideWaitingResponse('update');
                 this.$message.success(msg);

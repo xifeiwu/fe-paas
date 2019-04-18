@@ -197,6 +197,7 @@
           'user/info': false,
           'user/group': false,
           'user/message': false,
+          'user/operation': false,
         },
         commandList: [],
         activeSideMenuItem: '/info',

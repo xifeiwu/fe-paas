@@ -1469,6 +1469,7 @@ export default {
               id: this.serviceInfo.serviceID,
               appId: this.serviceInfo.appID,
               spaceId: this.serviceInfo.profileID,
+              groupId: this.$storeHelper.currentGroupID,
             }).then(msg => {
               this.hideWaitingResponse(action);
               this.$message({
