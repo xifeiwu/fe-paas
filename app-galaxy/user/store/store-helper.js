@@ -25,6 +25,10 @@ class StoreHelper extends BaseHelper {
     return this.$store.getters['screen'];
   }
 
+  get groupList() {
+    return this.$store.getters['user/groupList'];
+  }
+
   get operationList() {
     return [
       {

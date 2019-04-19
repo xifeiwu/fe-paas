@@ -3,10 +3,17 @@
     <div class="header">
       <div class="top-tip" style="font-size: 14px">
         <span style="font-weight: bold; font-size: 14px;"><i class="el-icon-warning"></i></span>
-        <span>操作记录的获取可能会有延迟，若要立即获取最近的操作记录，请点击强制刷新。</span>
+        <span>操作记录每隔15分钟更新一次，若需要立即更新请联系PAAS团队。</span>
       </div>
       <div class="search-form">
         <el-form :model="form" :inline="true" class="form">
+          <el-form-item class="el-form-group">
+            <label>团队:</label>
+            <el-select v-model="form.groupId" filterable @change="handleTick('groupChange')">
+              <el-option v-for="(item,index) in groupList" :label="item.asLabel" :key="index" :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item>
             <label>用户名:</label>
             <el-select v-model="form.userId" @change="handleTick('userChange')">
@@ -38,18 +45,12 @@
                     @change="handleTick('timeChange')">
             </el-date-picker>
           </el-form-item>
+          <el-button type="primary" size="mini-extral" @click="handleRefresh('false')">刷新</el-button>
+          <el-button type="danger" size="mini-extral" @click="handleRefresh('true')" v-if="userRefreshPermission">强制刷新</el-button>
+          <el-tooltip content="强制刷新将会强制生成新的索引，可以立即看到最近的操作记录，但可能引起接口超时" v-if="userRefreshPermission">
+          <i class="el-icon-info" style="color: #E6A23C"></i>
+          </el-tooltip>
         </el-form>
-        <el-row style="margin-left: 3px;">
-          <el-col :span="2">
-            <el-button type="primary" size="mini-extral" @click="handleRefresh('false')">刷新</el-button>
-          </el-col>
-          <el-col :span="3">
-            <el-button type="danger" size="mini-extral" @click="handleRefresh('true')">强制刷新</el-button>
-            <el-tooltip content="强制刷新将会强制生成新的索引，可以立即看到最近的操作记录，但可能引起接口超时">
-              <i class="el-icon-info" style="color: #E6A23C"></i>
-            </el-tooltip>
-          </el-col>
-        </el-row>
       </div>
     </div>
     <div class="body">
@@ -71,20 +72,16 @@
         </el-table-column>
         <el-table-column prop="operationTime" label="时间" align="center"></el-table-column>
       </el-table>
-      <div class="pagination-container">
-        <div class="pagination">
-          <el-pagination
-                  size="large"
-                  layout="prev, next"
-                  :page-size = "pageSize"
-                  :current-page = "currentPage"
-                  @current-change="pageChange"
-                  :class="{'prev-disabled': currentPage === 1, 'next-disabled': !ifnotHaveMore}"
-                  v-if="showPagination"
-          >
-          </el-pagination>
-        </div>
-      </div>
+      <el-pagination
+              size="large"
+              layout="prev, next"
+              :page-size = "pageSize"
+              :current-page = "currentPage"
+              @current-change="pageChange"
+              :class="{'prev-disabled': currentPage === 1, 'next-disabled': !ifnotHaveMore}"
+              v-if="showPagination"
+      >
+      </el-pagination>
     </div>
   </div>
 </template>
@@ -104,10 +101,21 @@
     .header {
       .search-form {
         .el-form {
-          height: 45px;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          .el-form-item {
+            margin-bottom: 0;
+          }
+          .el-form-group {
+            .el-input__inner {
+              width: 300px;
+            }
+          }
         }
         .el-select .el-input__inner {
           height: 24px;
+          font-size: 13px;
         }
         .el-range-editor--mini .el-input__inner{
           height: 24px
@@ -115,17 +123,18 @@
         margin-bottom: 15px;
       }
     }
-    .pagination {
-      .prev-disabled {
+    .el-pagination {
+      text-align: center;
+      &.prev-disabled {
         .btn-prev {
           color: #b4bccc;
           cursor: not-allowed;
         }
       }
-      .next-disabled {
+      &.next-disabled {
         .btn-next {
           color: #b4bccc;
-          cursor: not-allowed;
+          pointer-events: none;
         }
       }
     }
@@ -136,37 +145,49 @@
   export default {
     async created() {
       this.groupInfo = this.$storeHelper.globalUserGroupInfo;
+      const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.user_group_list);
+      this.groupList = resContent.groupList.map(it => {
+        it.asLabel = `${it.name} (${it.tag})`;
+        return it;
+      });
       if (this.groupInfo) {
         let groupId = this.groupInfo.id;
-        let memberList = await this.$net.getGroupMembers({id: groupId});
-        this.userList = [{id: -1, userId: -1, userName: 'quanbu', realName: '全部'}].concat(memberList);
-        this.form.userId = this.userList[0].userId;
+        this.form.groupId = this.groupInfo.id;
       }
       this.operationList = this.$storeHelper.operationList;
       this.form.operation = this.operationList[0].operationName;
+      this.userRefreshPermission = this.$storeHelper.getUserInfo('role') == "平台管理员";
       this.setDefaultDateRange();
       this.handleTick();
     },
     mounted() {
     },
     watch: {
+      "form.groupId": async function (groupId) {
+        let memberList = await this.$net.getGroupMembers({id: groupId});
+        this.userList = [{id: -1, userId: -1, userName: 'quanbu', realName: '全部'}].concat(memberList);
+        this.form.userId = this.userList[0].userId;
+      }
     },
     computed: {
     },
     data() {
       return {
+        groupList: [],
         groupInfo: null,
         userList: [],
         operationList: [],
         operationLogList: [],
-        pageSize: 12,
+        pageSize: 2,
         showPagination: false,
         currentPage: 1,
         ifnotHaveMore: false,
+        userRefreshPermission: false,
         form: {
           userId: '',
           dateTimeRange: [],
           operation: '',
+          groupId: '',
         },
         pickerOptions: {
           shortcuts: [{
@@ -228,16 +249,16 @@
         this.form.dateTimeRange = [start, end];
       },
 
-      async requestOperationList(force) {
+      async requestOperationList({action = '',force = false}) {
         let query = {
-          'groupId': this.groupInfo.id,
+          'groupId': this.form.groupId,
           'startTime': this.form.dateTimeRange[0].getTime(),
           'endTime': this.form.dateTimeRange[1].getTime(),
           'page': this.currentPage,
           'size': this.pageSize,
           'force': force,
         };
-        if (this.form.userId != -1) {
+        if (action != 'groupChange' && this.form.userId != -1) {
           query["userId"] = this.form.userId;
         }
         if (this.form.operation !== 'FULL') {
@@ -258,7 +279,7 @@
 
       async handleTick(action) {
         this.setInit();
-        let resData = await this.requestOperationList();
+        let resData = await this.requestOperationList({action:action});
         this.operationLogList = resData.content;
         this.ifnotHaveMore = resData.more;
         this.showPagination = this.ifnotHaveMore;
@@ -272,14 +293,14 @@
 
       async pageChange(page) {
         this.currentPage = page;
-        let resData = await this.requestOperationList();
+        let resData = await this.requestOperationList({});
         this.ifnotHaveMore = resData.more;
         this.operationLogList = resData.content;
       },
 
       async handleRefresh(force) {
         this.currentPage = 1;
-        let resData = await this.requestOperationList(force);
+        let resData = await this.requestOperationList({force:force});
         this.ifnotHaveMore = resData.more;
         this.operationLogList = resData.content;
       },
