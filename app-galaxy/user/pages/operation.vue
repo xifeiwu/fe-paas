@@ -178,7 +178,7 @@
         userList: [],
         operationList: [],
         operationLogList: [],
-        pageSize: 2,
+        pageSize: 12,
         showPagination: false,
         currentPage: 1,
         ifnotHaveMore: false,
