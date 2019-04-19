@@ -116,7 +116,7 @@
                   layout="prev, pager, next"
                   :page-size = "pageSize"
                   :total="totalSize"
-                  @current-change="handlePaginationPageChange"
+                  @current-change="page => {currentPage = page}"
           >
           </el-pagination>
         </div>
@@ -409,20 +409,11 @@
         this.onAppInfoListOfGroup(this.appInfoListOfGroup);
       }
       // update value in next tick
-      setTimeout(() => {
+      this.$nextTick(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
         this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 8;
       });
       this.popoverProfileList = this.$refs['popover-profile-list'];
-
-//      this.profileStatusList = this.$storeHelper.profileListOfGroup.map(it => {
-//        return {
-//          id: it.id,
-//          description: it.description,
-//          name: it.name,
-//          instanceStatus: ''
-//        };
-//      });
     },
     beforeDestroy() {
       this.popoverProfileList.doClose();
@@ -431,8 +422,6 @@
     data() {
       return {
         popoverProfileList: null,
-        // TODO: delete later
-        profileStatusList: [],
         resizeListener: () => {},
         heightOfTable: '',
 
@@ -495,6 +484,12 @@
       },
       'filterKey': function () {
         this.currentPage = 1;
+        this.requestAPPList({});
+      },
+      currentPage() {
+        this.requestAPPList({});
+      },
+      pageSize() {
         this.requestAPPList({});
       }
     },
@@ -624,27 +619,6 @@
             this.onAppListChange();
             break;
           case 'app_show_profile':
-            // this.addToWaitingResponseQueue(action);
-            // this.profileStatusList.forEach(it => {
-            //   it.instanceStatus = '';
-            // });
-            // this.$net.requestPaasServer(this.$net.URL_LIST.app_instance_status, {
-            //   query: {
-            //     applicationId: this.selected.model.appId
-            //   }
-            // }).then(resContent => {
-            //   setTimeout(() => {
-            //     this.profileStatusList.forEach(it => {
-            //       if (resContent.hasOwnProperty(it.id)) {
-            //         it.instanceStatus = resContent[it.id] ? '有运行实例' : '无运行实例';
-            //       } else {
-            //         it.instanceStatus = '无此环境';
-            //       }
-            //     });
-            //   }, 200);
-            // }).finally(() => {
-            //   this.hideWaitingResponse(action);
-            // });
             var target = evt.target;
             while (!target.classList.contains('el-button')) {
               target = target.parentNode;
@@ -654,15 +628,6 @@
               type: 'node'
             });
             break;
-//          case 'app_change_profile':
-//            this.profileChangeStatus.toAdd = [];
-//            this.profileChangeStatus.toDelete = [];
-//            prop = 'profileNames';
-//            this.selected.prop = prop;
-//            this.newProps[prop] = JSON.parse(JSON.stringify(this.selected.model[prop]));
-//            formName = 'change' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
-//            this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate();
-//            break;
 //          case 'app_change_name':
 //            prop = 'appName';
 //            this.selected.prop = prop;
@@ -1003,12 +968,6 @@
             reject()
           });
         });
-      },
-
-      // the first page of pagination is 1
-      handlePaginationPageChange(page) {
-        this.currentPage = page;
-        this.requestAPPList({});
       },
     }
   }

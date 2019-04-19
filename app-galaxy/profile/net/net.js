@@ -1293,7 +1293,9 @@ class Net extends NetBase {
           label: resContent['healthCheckList'][key]
         };
       });
+      // rename spaceList to profileList(prop spaceList should be deleted, or it will be stored in localStorage)
       resContent['profileList'] = resContent['spaceList'];
+      delete resContent['spaceList'];
     }
     return resContent;
   }
