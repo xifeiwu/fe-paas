@@ -908,40 +908,42 @@
           }
         });
         this.middlewareInfoList = resContent;
-        this.middlewareInfoList.forEach(it => {
-          switch (it.targetType) {
-            case "Redis":
-              it.iconClass = "paas-icon-redis";
-              it.iconColor = "#CF271D";
-              break;
-            case "MongoDB":
-              it.iconClass = "paas-icon-mongodb";
-              it.iconColor = "#68B145";
-              break;
-            case "Mysql":
-              it.iconClass = "paas-icon-mysql";
-              it.iconColor = "#00758F";
-              break;
-            case "Rabbitmq":
-              it.iconClass = "paas-icon-rabbitmq";
-              it.iconColor = "#FF6700";
-              break;
-          }
-          let percentage = (1 - it.errorCount / it.callCount) * 100;
-          if (percentage > 70) {
-            it.status = "健康";
-            it.statusIcon = "paas-icon-fa-play-circle-o";
-            it.statusColor = "#67C23A";
-          } else if (percentage > 30 && percentage < 70) {
-            it.status = "不健康";
-            it.statusIcon = "paas-icon-fa-play-circle-o";
-            it.statusColor = "#E6A23C";
-          } else {
-            it.status = "失败";
-            it.statusIcon = "fa-pause-circle-o";
-            it.statusColor = "#F56C6C";
-          }
-        })
+        if (this.middlewareInfoList) {
+	        this.middlewareInfoList.forEach(it => {
+		        switch (it.targetType) {
+			        case "Redis":
+				        it.iconClass = "paas-icon-redis";
+				        it.iconColor = "#CF271D";
+				        break;
+			        case "MongoDB":
+				        it.iconClass = "paas-icon-mongodb";
+				        it.iconColor = "#68B145";
+				        break;
+			        case "Mysql":
+				        it.iconClass = "paas-icon-mysql";
+				        it.iconColor = "#00758F";
+				        break;
+			        case "Rabbitmq":
+				        it.iconClass = "paas-icon-rabbitmq";
+				        it.iconColor = "#FF6700";
+				        break;
+		        }
+		        let percentage = (1 - it.errorCount / it.callCount) * 100;
+		        if (percentage > 70) {
+			        it.status = "健康";
+			        it.statusIcon = "paas-icon-fa-play-circle-o";
+			        it.statusColor = "#67C23A";
+		        } else if (percentage > 30 && percentage < 70) {
+			        it.status = "不健康";
+			        it.statusIcon = "paas-icon-fa-play-circle-o";
+			        it.statusColor = "#E6A23C";
+		        } else {
+			        it.status = "失败";
+			        it.statusIcon = "fa-pause-circle-o";
+			        it.statusColor = "#F56C6C";
+		        }
+	        })
+        }
       }
     }
   }
