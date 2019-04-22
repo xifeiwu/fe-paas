@@ -1276,10 +1276,10 @@
 
       // operation for add or delete environment
       handleEnvironment(action, key, value, remark) {
-        key = key.trim();
-        value = value.trim();
         switch (action) {
           case 'add':
+            key = key.trim();
+            value = value.trim();
             // remove error notification first
             this.formItemMsgForEnvironments = '';
 //            let keyReg = /^[A-Za-z0-9_\-\.@]{1,64}$/;
