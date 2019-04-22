@@ -617,7 +617,6 @@
       // at change of: $storeHelper.appInfoListOfGroup, notPermitted, $storeHelper.groupInfo.id
       updatePermissionInfo() {
         this.initPermissionInfo();
-        // 当前团队应用数为零，只能进入应用管理和添加应用页面
         const appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup;
 //        console.log('appInfoListOfGroup');
 //        console.log(appInfoListOfGroup);
@@ -625,10 +624,25 @@
           return;
         }
         if (appInfoListOfGroup.total === 0) {
+          // 当前团队应用数为零，能进入如下页面
           this.$router.helper.updateDisabledState({
             pathList: [
+              // 应用列表
               this.$net.page['profile/app'],
+              // 添加应用
               this.$net.page['profile/app/add'],
+              // 外网域名
+              new RegExp(`^${this.$utils.escapeRegexp(this.$net.page['profile/domain'])}.*`),
+              // 审批管理
+              new RegExp(`^${this.$utils.escapeRegexp(this.$net.page['profile/work-order'])}.*`),
+              // Access Key管理
+              new RegExp(`^${this.$utils.escapeRegexp(this.$net.page['profile/oauth'])}.*`),
+              // 镜像中心
+              new RegExp(`^${this.$utils.escapeRegexp(this.$net.page['profile/image'])}.*`),
+              // 中间件
+              new RegExp(`^${this.$utils.escapeRegexp(this.$net.page['profile/middleware'])}.*`),
+              // pipeline
+              new RegExp(`^${this.$utils.escapeRegexp(this.$net.page['profile/pipeline'])}.*`),
               // path start with profile/config-server
               new RegExp(`^${this.$utils.escapeRegexp(this.$net.page['profile/config-server'])}.*`)
             ],
