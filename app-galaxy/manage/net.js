@@ -84,6 +84,10 @@ class Net extends NetBase {
 		    path: '/queryCluster',
 		    method: 'get'
 	    },
+	    query_k8s_cluster_detail: {
+		    path: '/queryClusterDetail',
+		    method: 'post'
+	    },
 	    // 调用次数详情
 	    query_node_list: {
 		    path: '/queryAllNode',
@@ -124,6 +128,10 @@ class Net extends NetBase {
     if (this.URL_LIST) {
       this.URL_LIST = Object.assign(this.URL_LIST, PAAS_URL_LIST);
     }
+	
+	  this.page = {
+		  'manage/node-manage': '/manage/node-manage'
+	  };
   }
 
   // called at config/vue

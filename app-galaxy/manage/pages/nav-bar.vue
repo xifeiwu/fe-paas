@@ -16,10 +16,15 @@
       <el-menu-item v-for="menu in navMenu.level1" :key="menu.name" :index="menu.router">
         <i :class="menu.icon"></i><span slot="title">{{menu.name}}</span>
       </el-menu-item>
-      <el-menu-item v-for="menu in navMenu.level3" :key="menu.name" :index="menu.router">
-        <i :class="menu.icon"></i><span slot="title">{{menu.name}}</span>
-      </el-menu-item>
       <el-submenu v-for="menu in navMenu.level2" :key="menu.name" :index="menu.router">
+        <template slot="title">
+          <i v-if="menu.icon" :class="menu.icon"></i><span>{{menu.name}}</span>
+        </template>
+        <el-menu-item v-for="subMenu in menu.children" :key="subMenu.name" :index="subMenu.router">
+          <i v-if="subMenu.icon" :class="subMenu.icon"></i><span>{{subMenu.name}}</span>
+        </el-menu-item>
+      </el-submenu>
+      <el-submenu v-for="menu in navMenu.level3" :key="menu.name" :index="menu.router">
         <template slot="title">
           <i v-if="menu.icon" :class="menu.icon"></i><span>{{menu.name}}</span>
         </template>
@@ -160,8 +165,21 @@
           }],
           level3: [{
             name: '集群管理',
-            router: '/manage/node-manage',
-            icon: 'paas-icon-app'
+            router: '/manage/data',
+            icon: 'paas-icon-cluster',
+	          children: [{
+		          name: '集群概况',
+		          router: '/manage/cluster-dashboard',
+		          icon: 'el-icon-arrow-right',
+	          }, {
+		          name: 'Node列表',
+		          router: '/manage/node-manage',
+		          icon: 'el-icon-arrow-right',
+	          // }, {
+		        //   name: 'PV列表',
+		        //   router: '/manage/node-manage',
+		        //   icon: 'el-icon-arrow-right',
+	          }]
           }]
         }
       }
