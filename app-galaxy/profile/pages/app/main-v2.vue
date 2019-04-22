@@ -411,7 +411,6 @@
       // update value in next tick
       this.$nextTick(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
-        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 8;
       });
       this.popoverProfileList = this.$refs['popover-profile-list'];
     },
@@ -504,6 +503,7 @@
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
           this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+          this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 8;
         } catch(err) {
         }
       },
