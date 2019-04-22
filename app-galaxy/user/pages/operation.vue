@@ -68,7 +68,8 @@
         <el-table-column label="操作详情" align="center" prop="operationContent" width="150px">
           <template slot-scope="scope">
             <el-tooltip effect="dark">
-              <pre slot="content">{{JSON.stringify(scope.row.operationContent, null, 2)}}</pre>
+              <pre slot="content" v-if="scope.row.operationContent && $utils.isObject(scope.row.operationContent)">{{JSON.stringify(scope.row.operationContent, null, 2)}}</pre>
+              <div slot="content" v-else style="width: 500px;overflow: scroll">{{scope.row.operationContent}}</div>
               <span>更多...</span>
             </el-tooltip>
           </template>
@@ -277,12 +278,16 @@
           it["operationNickName"] = this.operationList.find(obj => {
             return obj["operationName"] === it["bundle"];
           })["operationNickName"];
-          it["userRealName"] = this.userList.find(user => {
+          let user = this.userList.find(user => {
             return user["userId"] === it["userId"];
-          })["realName"];
+          });
+          it["userRealName"] = user ? user["realName"] : "--";
           it["operationTime"] = this.$utils.formatDate(it["timestamp"], 'yyyy-MM-dd hh:mm:ss');
-          it["operationContent"] = JSON.parse(it["content"]);
-          console.log(it["operationContent"]);
+          try {
+            it["operationContent"] = it["content"] && it["content"] !== "" ? JSON.parse(it["content"]) : it["content"];
+          } catch (e) {
+            it ["operationContent"] = it["content"];
+          }
         });
         return resData;
       },
