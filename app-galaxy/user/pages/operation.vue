@@ -58,11 +58,19 @@
               :data="operationLogList"
               style="width: 100%;"
               stripe="">
-        <el-table-column prop="operationNickName" label="操作类型" align="left" width="250px"></el-table-column>
+        <el-table-column prop="operationNickName" label="操作类型" align="left"></el-table-column>
         <el-table-column prop="userRealName" label="操作人" align="center"></el-table-column>
         <el-table-column prop="status" label="操作状态" align="center">
           <template slot-scope="scope">
             {{operationStatus(scope.row.status)}}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作详情" align="center" prop="operationContent" width="150px">
+          <template slot-scope="scope">
+            <el-tooltip effect="dark">
+              <pre slot="content">{{JSON.stringify(scope.row.operationContent, null, 2)}}</pre>
+              <span>更多...</span>
+            </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column prop="env" label="环境" align="center">
@@ -273,6 +281,8 @@
             return user["userId"] === it["userId"];
           })["realName"];
           it["operationTime"] = this.$utils.formatDate(it["timestamp"], 'yyyy-MM-dd hh:mm:ss');
+          it["operationContent"] = JSON.parse(it["content"]);
+          console.log(it["operationContent"]);
         });
         return resData;
       },

@@ -211,7 +211,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
-            <el-input-number v-model="formData.instanceCount" :min="1" :max="20" label="描述文字"></el-input-number>
+            <el-input-number v-model="formData.instanceCount" :min="1" label="描述文字"></el-input-number>
           </el-form-item>
           <el-form-item label="过期时间(天)" prop="expiredDays" class="expired-days" v-if="!formRelated.isProductionProfile">
             <el-input-number v-model="formData.expiredDays" :min="1"></el-input-number>
