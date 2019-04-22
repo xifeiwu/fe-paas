@@ -228,10 +228,10 @@
                @close="handleDialogClose('add-access-config-in-dialog')"
                v-if="selected.row"
     >
-      <el-tag type="warning" disable-transitions>
-        <i class="el-icon-warning"></i>
-        <span>权限被授权后，请重启服务</span>
-      </el-tag>
+      <div class="el-tag--danger" style="border-radius: 4px; text-align: left; font-size: 12px; line-height: 16px; padding: 3px 6px;">
+        <div>1. 初次添加的“申请访问权限”需对方团队审批，状态变为“已授权”状态，访问权限才能生效！</div>
+        <div>2. 访问权限授权通过后，注意需要重启服务！</div>
+      </div>
       <el-form labelWidth="140px" size="mini" class="message-show">
         <el-form-item label="我的团队" v-if="groupInfo">
           {{groupInfo.name}}

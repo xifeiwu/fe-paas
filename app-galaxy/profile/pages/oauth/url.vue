@@ -124,7 +124,7 @@
                            headerAlign="center" align="center">
           <template slot-scope="scope">
             <div v-if="scope.row.status === 'AUTHORIZED' ">
-              <div><span style="color:green">{{scope.row.statusName}}</span></div>
+              <div><span style="color:blue">{{scope.row.statusName}}</span></div>
             </div>
             <div v-else-if="scope.row.status === 'REQUESTED'">
               <div><span style="color:yellowgreen">{{scope.row.statusName}}</span></div>
