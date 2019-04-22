@@ -68,8 +68,8 @@
         <el-table-column label="操作详情" align="center" prop="operationContent" width="150px">
           <template slot-scope="scope">
             <el-tooltip effect="dark">
-              <pre slot="content" v-if="scope.row.operationContent && $utils.isObject(scope.row.operationContent)">{{JSON.stringify(scope.row.operationContent, null, 2)}}</pre>
-              <div slot="content" v-else style="width: 500px;overflow: scroll">{{scope.row.operationContent}}</div>
+              <pre slot="content" style="max-width: 800px;overflow: scroll" v-if="scope.row.operationContent && $utils.isObject(scope.row.operationContent)">{{JSON.stringify(scope.row.operationContent, null, 2)}}</pre>
+              <div slot="content" v-else style="max-width: 800px;overflow: scroll">{{scope.row.operationContent}}</div>
               <span>更多...</span>
             </el-tooltip>
           </template>

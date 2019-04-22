@@ -121,16 +121,16 @@ class StoreHelper extends BaseHelper {
         operationNickName: '添加配置中心文件',
       },
       {
-        //修改配置中心目录
+        //修改配置中心文件
         operationName: 'GITLABCONFIGFILEUPDATE',
-        operationNickName: '修改配置中心目录',
+        operationNickName: '修改配置中心文件',
       },
       //工单相关
-      {
-        //线上工单发布
-        operationName: 'WORKORDERDEPLOY',
-        operationNickName: '线上工单发布',
-      }
+      // {
+      //   //线上工单发布
+      //   operationName: 'WORKORDERDEPLOY',
+      //   operationNickName: '线上工单发布',
+      // }
     ]
   }
 }

@@ -227,10 +227,14 @@
         this.$ajax
           .get(this.$url.config_server_file_content.url + '?applicationRemoteConfigFileId=' + val.id)
           .then(res => {
+            if (!res.data.success) {
+              this.$alert(`获取配置文件内容失败，错误原因：${res.data.msg}`);
+              return;
+            }
             this.form.code = res.data.content.fileContent;
             this.showEditor = true;
           })
-          .catch(err => this.$alert('系统错误：获取配置文件内容失败，请联系管理员' + err.message))
+          .catch(err => console.log(err))
           .finally(() => this.$store.commit('etc/SET_LOADING', false))
       },
       saveFile(formName) {

@@ -198,7 +198,10 @@
               groupId: this.form.groupId
             })
             .then(res => {
-              if (!res.data.hasOwnProperty('success')) return this.$alert(res.data.msg);
+              if (!res.data.hasOwnProperty('success')) {
+                this.$alert(res.data.msg);
+                return;
+              }
 
               // 清空表单
               this.resetForm(formName);
