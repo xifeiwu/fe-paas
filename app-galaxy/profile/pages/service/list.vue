@@ -844,7 +844,7 @@
           }
         }
         if (this.isProductionProfile && this.$storeHelper.permission['service_restart_production'].disabled) {
-          reason = '您没有部署生产环境服务的权限';
+          reason = '您无权使用该功能';
         }
         return reason;
       },

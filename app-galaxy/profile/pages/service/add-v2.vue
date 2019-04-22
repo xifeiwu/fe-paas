@@ -257,7 +257,7 @@
                   <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
                 </el-col>
                 <el-col :span="7" class="value">
-                  <el-input v-model="environmentValue" placeholder="512位以内的数字、字母、中划线、下划线" size="mini"></el-input>
+                  <el-input v-model="environmentValue" placeholder="512位以内，不能为空" size="mini"></el-input>
                 </el-col>
                 <el-col :span="8" class="remark">
                   <el-input v-model="environmentRemark" size="mini"></el-input>
@@ -1276,19 +1276,21 @@
 
       // operation for add or delete environment
       handleEnvironment(action, key, value, remark) {
+        key = key.trim();
+        value = value.trim();
         switch (action) {
           case 'add':
             // remove error notification first
             this.formItemMsgForEnvironments = '';
 //            let keyReg = /^[A-Za-z0-9_\-\.@]{1,64}$/;
             let keyReg = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
-            let valueReg = /^[A-Za-z0-9_\-\.@]{1,512}$/;
+            let valueReg = /^.{1,512}$/;
             if (!keyReg.exec(key)) {
-              this.$message.error('64位以内的数字、字母、下划线，以字母或下划线开头');
+              this.$message.error('环境变量的关键字：64位以内的数字、字母、下划线，以字母或下划线开头');
               return;
             }
             if (!valueReg.exec(value)) {
-              this.$message.error('请输入512位以内的数字、字母、中划线、下划线');
+              this.$message.error('环境变量的值：512位以内，不能为空');
               return;
             }
             if (this.formData.environments.length >= 10) {
@@ -1304,9 +1306,9 @@
             });
             if (!itemWithKey) {
               this.formData.environments.push({
-                key: key,
-                value: value,
-                remark: remark,
+                key,
+                value,
+                remark,
               });
               this.environmentKey = '';
               this.environmentValue = '';
