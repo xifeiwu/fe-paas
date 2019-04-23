@@ -115,6 +115,7 @@ class Net {
       'manage': '/manage',
       'terminal': '/terminal',
       'profile/image': '/profile/image',
+      'instance-terminal': '/instance-terminal',
       'profile/image/repo': '/profile/image/repo',
       'profile/image/repo/version': '/profile/image/repo/version',
       'profile/middleware': '/profile/middleware',

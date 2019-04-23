@@ -146,6 +146,12 @@
             <div class="ant-divider"></div>
             <el-button
                     type="text"
+                    :class="['flex', $storeHelper.permission['go-to-page-terminal-from-instance'].disabled || isMesosService ? 'disabled' : 'primary']"
+                    @click="handleRowButtonClick($event, 'go-to-page-instance-terminal-from-instance', scope.$index, scope.row)"
+            >新终端</el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text"
                     :class="['flex', $storeHelper.permission['go-to-log-run-from-instance'].disabled ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'go-to-log-run-from-instance', scope.$index, scope.row)">
               <span>查看运行日志</span><i class="paas-icon-level-up"></i>
@@ -711,6 +717,24 @@
       handleClickOutsideOfInstanceList() {
       },
 
+      // 传递给实例终端页面的参数
+      getInfoForPageInstanceTerminal(instance) {
+        var results = {};
+        var {selectedAPP, selectedProfile, selectedService} = this.$refs['version-selector'].getSelectedValue();
+        if (!selectedAPP || !selectedProfile || !selectedService) {
+          return result;
+        }
+//        results['appName'] = selectedAPP['appName'];
+        results['serviceName'] = selectedAPP['serviceName'];
+        results['profileName'] = selectedProfile['name'];
+        results['gid'] = this.$storeHelper.groupInfo.id;
+        results['instanceName'] = instance.id;
+        if (Object.keys(results)) {
+          return results;
+        } else {
+          return null;
+        }
+      },
       /**
        * handle click event in operation column
        */
@@ -736,6 +760,7 @@
         }
         let serviceInfo = null;
         var valueOfVersionSelector = null;
+        var infoForPageTerminal = null;
         switch (action) {
           case 'show_eagleeye':
             var nodeUrl = "/monitor/index.html#/basicResource/machine/cpu?node=" + row.nodeIp
@@ -792,6 +817,14 @@
               window.open(terminalPath, '_blank');
             } else {
               this.$message.error('组ID或内网IP没有找到');
+            }
+            break;
+          case 'go-to-page-instance-terminal-from-instance':
+            infoForPageTerminal = this.getInfoForPageInstanceTerminal(row);
+            if (infoForPageTerminal) {
+              window.open(`${this.$net.page['instance-terminal']}${this.$utils.objectToQueryString(infoForPageTerminal)}`, '_blank');
+            } else {
+              this.$message.error('所需信息不完整，请刷新页面重试！');
             }
             break;
           case 'go-to-log-run-from-instance':

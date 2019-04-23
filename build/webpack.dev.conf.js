@@ -33,6 +33,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         { from: /^\/cas-login(\/.*)*$/, to: '/login.html' },
         { from: /^\/user(\/.*)*$/, to: '/user.html' },
         { from: /^\/terminal(\/.*)*$/, to: '/terminal.html' },
+        { from: /^\/instance-terminal(\/.*)*$/, to: '/instance-terminal.html' },
         { from: /^\/docs(\/.*)*$/, to: '/docs.html' },
         { from: /^\/profile(\/.*)*$/, to: '/profile.html' },
         { from: /^\/manage(\/.*)*$/, to: '/manage.html' },
