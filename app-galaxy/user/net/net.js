@@ -298,6 +298,23 @@ class Net extends NetBase {
     })
   }
 
+  //获取所有用户
+  getUsersAll() {
+    return new Promise((resolve, reject) => {
+      axios.get(URL_LIST.users_all.url).then(response => {
+        let content = this.getResponseContent(response);
+        if (content && content.hasOwnProperty('userList')) {
+          resolve(content.userList);
+        } else {
+          reject();
+        }
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
 }
 
 export default new Net();

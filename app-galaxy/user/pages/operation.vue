@@ -15,17 +15,17 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <label>用户名:</label>
-            <el-select v-model="form.userId" @change="handleTick('userChange')">
-              <el-option v-for="(item,index) in userList" :label="item.realName" :key="index" :value="item.userId">
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item>
             <label>操作类型:</label>
             <el-select v-model="form.operation" @change="handleTick('operationChange')">
               <el-option v-for="(item,index) in this.$storeHelper.operationList" :label="item.operationNickName" :key="index"
                          :value="item.operationName">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <label>操作人:</label>
+            <el-select v-model="form.userId" @change="handleTick('userChange')">
+              <el-option v-for="(item,index) in memberList" :label="item.realName" :key="index" :value="item.userId">
               </el-option>
             </el-select>
           </el-form-item>
@@ -46,8 +46,8 @@
             </el-date-picker>
           </el-form-item>
           <el-button type="primary" size="mini-extral" @click="handleRefresh('false')">刷新</el-button>
-          <el-button type="danger" size="mini-extral" @click="handleRefresh('true')" v-if="userRefreshPermission">强制刷新</el-button>
-          <el-tooltip content="强制刷新将会强制生成新的索引，可以立即看到最近的操作记录，但可能引起接口超时" v-if="userRefreshPermission">
+          <el-button type="danger" size="mini-extral" @click="handleRefresh('true')" v-if="isAdmin">强制刷新</el-button>
+          <el-tooltip content="强制刷新将会强制生成新的索引，可以立即看到最近的操作记录，但可能引起接口超时" v-if="isAdmin">
           <i class="el-icon-info" style="color: #E6A23C"></i>
           </el-tooltip>
         </el-form>
@@ -59,6 +59,7 @@
               style="width: 100%;"
               stripe="">
         <el-table-column prop="operationNickName" label="操作类型" align="left"></el-table-column>
+        <el-table-column prop="groupName" label="团队" align="center" v-if="form.groupId == -1"></el-table-column>
         <el-table-column prop="userRealName" label="操作人" align="center"></el-table-column>
         <el-table-column prop="status" label="操作状态" align="center">
           <template slot-scope="scope">
@@ -159,24 +160,21 @@
         it.asLabel = `${it.name} (${it.tag})`;
         return it;
       });
-      if (this.groupInfo) {
-        let groupId = this.groupInfo.id;
+      this.isAdmin = this.$storeHelper.getUserInfo('role') == "平台管理员";
+      //如果是平台管理员，有全部选项，且默认选中全部，否则其他用户默认为当前团队
+      if (this.isAdmin) {
+        this.groupList = [{id: -1, asLabel: "全部"}].concat(this.groupList);
+        this.form.groupId = this.groupList[0].id;
+      } else if (this.groupInfo) {
         this.form.groupId = this.groupInfo.id;
       }
       this.operationList = this.$storeHelper.operationList;
       this.form.operation = this.operationList[0].operationName;
-      this.userRefreshPermission = this.$storeHelper.getUserInfo('role') == "平台管理员";
       this.setDefaultDateRange();
-      this.handleTick();
+      this.userList = await this.$net.getUsersAll();
+      this.handleTick("groupChange");
     },
     mounted() {
-    },
-    watch: {
-      "form.groupId": async function (groupId) {
-        let memberList = await this.$net.getGroupMembers({id: groupId});
-        this.userList = [{id: -1, userId: -1, userName: 'quanbu', realName: '全部'}].concat(memberList);
-        this.form.userId = this.userList[0].userId;
-      }
     },
     computed: {
     },
@@ -185,13 +183,14 @@
         groupList: [],
         groupInfo: null,
         userList: [],
+        memberList: [],
         operationList: [],
         operationLogList: [],
         pageSize: 12,
         showPagination: false,
         currentPage: 1,
         ifnotHaveMore: false,
-        userRefreshPermission: false,
+        isAdmin: false,
         form: {
           userId: '',
           dateTimeRange: [],
@@ -260,13 +259,15 @@
 
       async requestOperationList({action = '',force = false}) {
         let query = {
-          'groupId': this.form.groupId,
           'startTime': this.form.dateTimeRange[0].getTime(),
           'endTime': this.form.dateTimeRange[1].getTime(),
           'page': this.currentPage,
           'size': this.pageSize,
           'force': force,
         };
+        if (this.form.groupId != -1) {
+          query["groupId"] = this.form.groupId;
+        }
         if (action != 'groupChange' && this.form.userId != -1) {
           query["userId"] = this.form.userId;
         }
@@ -279,8 +280,11 @@
             return obj["operationName"] === it["bundle"];
           })["operationNickName"];
           let user = this.userList.find(user => {
-            return user["userId"] === it["userId"];
+            return user["id"] === it["userId"];
           });
+          it["groupName"] = this.groupList.find(group => {
+            return group.id === it["groupId"];
+          })["name"];
           it["userRealName"] = user ? user["realName"] : "--";
           it["operationTime"] = this.$utils.formatDate(it["timestamp"], 'yyyy-MM-dd hh:mm:ss');
           try {
@@ -293,6 +297,11 @@
       },
 
       async handleTick(action) {
+        switch (action) {
+          case "groupChange":
+            await this.requestGroupMember(this.form.groupId);
+            break;
+        }
         this.setInit();
         let resData = await this.requestOperationList({action:action});
         this.operationLogList = resData.content;
@@ -333,6 +342,12 @@
           default:
             break;
         }
+      },
+
+      async requestGroupMember(groupId) {
+        let memberList = await this.$net.getGroupMembers({id: groupId});
+        this.memberList = [{id: -1, userId: -1, userName: 'quanbu', realName: '全部'}].concat(memberList);
+        this.form.userId = this.memberList[0].userId;
       }
     }
   }

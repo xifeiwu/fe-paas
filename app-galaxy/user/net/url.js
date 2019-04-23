@@ -49,7 +49,13 @@ class URL extends BaseURL {
       'group_remove_member': {
         url: API_PATH + '/group/user/delete',
         path: '/group/user/delete'
-      }
+      },
+      // 获取所有用户列表
+      'users_all': {
+        url: API_PATH + '/user/queryUserList',
+        path: '/user/queryUserList',
+        method: 'get'
+      },
     };
   }
 
