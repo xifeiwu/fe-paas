@@ -148,7 +148,7 @@
                     type="text"
                     :class="['flex', $storeHelper.permission['go-to-page-terminal-from-instance'].disabled || isMesosService ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'go-to-page-instance-terminal-from-instance', scope.$index, scope.row)"
-            >实例终端</el-button>
+            >新终端</el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
@@ -717,7 +717,7 @@
         if (!selectedAPP || !selectedProfile || !selectedService) {
           return result;
         }
-        results['appName'] = selectedAPP['appName'];
+//        results['appName'] = selectedAPP['appName'];
         results['serviceName'] = selectedAPP['serviceName'];
         results['profileName'] = selectedProfile['name'];
         results['gid'] = this.$storeHelper.groupInfo.id;

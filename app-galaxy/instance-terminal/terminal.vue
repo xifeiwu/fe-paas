@@ -10,7 +10,7 @@
       <div class="section-error" v-if="netError">
         <div>您暂时无法访问该实例终端：{{netError.message}}</div>
         <div>请联系paas平台</div>
-        <div><a :href="$net.page['profile']">点击返回控制台页面</a></div>
+        <div><a :href="$net.page['profile']">点击跳转控制台（登陆）页面</a></div>
       </div>
       <div class="terminal-screen" v-else></div>
     </div>
@@ -25,13 +25,13 @@
   #instance-terminal {
     height: 100%;
     box-sizing: border-box;
-    padding: 5px;
+    padding: 0px;
     display: flex;
     flex-direction: column;
     .header {
       background: black;
       color: #5DF504;
-      padding-bottom: 4px;
+      padding-bottom: 4px 4px;
       .instance-info {
         max-width: 1000px;
         font-size: 12px;
@@ -42,6 +42,7 @@
     .content {
       flex: 1;
       position: relative;
+      background: black;
       .terminal-screen {
         height: 100%;
       }
@@ -119,7 +120,7 @@
 
         // check queryString
         const qsErrMap = {
-          appName: '未找到应用名',
+//          appName: '未找到应用名',
           serviceName: '未找到容器名',
           profileName: '未找到运行环境',
           instanceName: '实例名称',
@@ -141,10 +142,10 @@
         var groupTag = null;
         if (Array.isArray(groupList) && qsObj.hasOwnProperty('gid')) {
           groupInfo = groupList.find(it => it.id == qsObj['gid']);
-          groupTag = groupInfo['tag'];
+          groupTag = groupInfo && groupInfo['tag'];
         }
         if (!groupTag) {
-          results.errMsg = '未找到团队相关信息';
+          results.errMsg = '未找到团队相关信息，请重新登陆';
           return results;
         }
 
