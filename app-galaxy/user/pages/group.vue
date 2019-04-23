@@ -76,6 +76,8 @@
                 </el-table-column>
                 <el-table-column label="岗位" prop="jobDescription" headerAlign="center" align="center">
                 </el-table-column>
+                <el-table-column label="角色" prop="role" headerAlign="center" align="center">
+                </el-table-column>
                 <el-table-column label="操作" prop="operation" headerAlign="center" align="center" width="180">
                   <template slot-scope="scope">
                     <el-button
