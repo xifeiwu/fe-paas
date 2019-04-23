@@ -148,7 +148,7 @@
                     type="text"
                     :class="['flex', $storeHelper.permission['go-to-page-terminal-from-instance'].disabled || isMesosService ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'go-to-page-instance-terminal-from-instance', scope.$index, scope.row)"
-            >新终端</el-button>
+            ><span class="new-terminal"><span>新终端</span><span class="beta">(beta)</span></span></el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
@@ -292,6 +292,21 @@
         &.production {
           color: #409EFF;
           cursor: pointer;
+        }
+      }
+
+      .new-terminal {
+        position: relative;
+      }
+      .beta {
+        display: inline-block;
+        color: #EF9C69;
+        font-size: 12px;
+        line-height: 12px;
+        border-radius: 4px;
+        word-break: normal;
+        &:hover {
+          color: red;
         }
       }
       .pop-in-container {
@@ -718,7 +733,7 @@
           return result;
         }
 //        results['appName'] = selectedAPP['appName'];
-        results['serviceName'] = selectedAPP['serviceName'];
+        results['serviceName'] = selectedService['serviceName'];
         results['profileName'] = selectedProfile['name'];
         results['gid'] = this.$storeHelper.groupInfo.id;
         results['instanceName'] = instance.id;
