@@ -99,7 +99,7 @@
                 <div class="ant-divider"></div>
                 <el-button
                     type="text"
-                    :class="$storeHelper.permission['app_delete'].disabled ? 'disabled' : 'danger'"
+                    :class="$storeHelper.permission['app_delete'].disabled || publishStatus? 'disabled' : 'danger'"
                     :loading="statusOfWaitingResponse('app_delete') && selected.row.appId == scope.row.appId"
                     @click="handleTRClick($event, 'app_delete', scope.$index, scope.row)">删除
                 </el-button>
@@ -469,6 +469,9 @@
       }),
       needFilter() {
         return this.filterMyApp || (this.filterKey.length > 0);
+      },
+      publishStatus() {
+        return this.$store.getters['publishStatus'];
       }
     },
     watch: {
@@ -569,6 +572,10 @@
        * handle click event in the operation-column
        */
       async handleTRClick(evt, action, index, row) {
+        if (this.publishStatus && action == "app_delete") {
+          this.$storeHelper.popoverWhenPublish(evt.target);
+          return;
+        }
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,

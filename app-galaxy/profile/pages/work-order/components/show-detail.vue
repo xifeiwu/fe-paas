@@ -33,7 +33,7 @@
             <el-button
                     type="text"
                     style="font-size: 14px;"
-                    :class="[$storeHelper.permission['work-order_deploy_service'].disabled ? 'disabled' : 'warning']"
+                    :class="[$storeHelper.permission['work-order_deploy_service'].disabled || publishStatus? 'disabled' : 'warning']"
                     @click="confirmDeploy($event, 'work-order_deploy_service', scope.$index, scope.row)"
             >部署</el-button>
             <el-button v-if="false"
@@ -201,6 +201,11 @@
     },
     mounted() {
     },
+    computed: {
+      publishStatus() {
+        return this.$store.getters['publishStatus'];
+      }
+    },
     props: {
       workOrderDetail: Object,
       showTestLog: {
@@ -225,6 +230,10 @@
     },
     methods: {
       confirmDeploy(evt, action, index, row) {
+        if (this.publishStatus && action == "work-order_deploy_service") {
+          this.$storeHelper.popoverWhenPublish(evt.target);
+          return;
+        }
         this.showConfirmDeployDialog = true;
         this.action.evt = evt;
         this.action.name = action;

@@ -39,6 +39,7 @@
 <style lang="scss">
   $header-height: 32px;
   .paas-header-profile {
+    min-width: 400px;
     .el-menu.horizontal-menu {
       .el-submenu {
         & > .el-menu {

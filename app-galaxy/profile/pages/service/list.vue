@@ -93,7 +93,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'quick_deploy', scope.$index, scope.row)"
-                      :class="reason4DisableQuickDeploy(scope.row) ? 'disabled' : 'danger'">
+                      :class="reason4DisableQuickDeploy(scope.row) || publishStatus? 'disabled' : 'danger'">
                     {{statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId ? '重启中': '重启'}}
               </el-button>
               <div class="ant-divider"></div>
@@ -102,7 +102,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_stop') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_stop', scope.$index, scope.row)"
-                      :class="$storeHelper.permission['service_stop'].disabled || scope.row.containerStatus.Total == 0 ? 'disabled' : 'danger'">
+                      :class="$storeHelper.permission['service_stop'].disabled || scope.row.containerStatus.Total == 0 || publishStatus? 'disabled' : 'danger'">
                 停止
               </el-button>
               <div class="ant-divider"></div>
@@ -117,7 +117,7 @@
               <div class="ant-divider"></div>
               <el-button
                       type="text"
-                      :class="['primary', 'flex']"
+                      :class="[publishStatus ? 'disabled' : 'primary','flex']"
                       @click="handleTRClick($event, 'service_config_modify', scope.$index, scope.row)">
                 <span>修改配置</span><i class="paas-icon-level-up"></i>
               </el-button>
@@ -1061,7 +1061,7 @@
 
       async handleTRClick(evt, action, index, row) {
         var permission = action;
-        if (['service_config_add','service_config_copy','service_delete','quick_deploy'].indexOf(action) > -1 && this.publishStatus) {
+        if (['service_config_add','service_config_copy','service_delete','quick_deploy','service_config_modify','service_stop'].indexOf(action) > -1 && this.publishStatus) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }

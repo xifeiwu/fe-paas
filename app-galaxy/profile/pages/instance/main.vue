@@ -124,7 +124,7 @@
             <el-button
                     type="text"
                     v-if="true"
-                    :class="['flex', $storeHelper.permission['instance_replace'].disabled || isMesosService ? 'disabled' : 'primary']"
+                    :class="['flex', $storeHelper.permission['instance_replace'].disabled || isMesosService || publishStatus? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'instance_replace', scope.$index, scope.row)"
                     >
               <span>驱逐</span>
@@ -754,6 +754,10 @@
        * handle click event in operation column
        */
       async handleRowButtonClick(evt, action, index, row) {
+        if (this.publishStatus && action == "instance_replace") {
+          this.$storeHelper.popoverWhenPublish(evt.target);
+          return;
+        }
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,

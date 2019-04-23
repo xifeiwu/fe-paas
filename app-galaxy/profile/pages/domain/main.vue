@@ -103,21 +103,21 @@
           <template slot-scope="scope">
             <el-button
                     type="text"
-                    :class="$storeHelper.permission['domain_secure_check'].disabled ? 'disabled' : 'warning'"
+                    :class="$storeHelper.permission['domain_secure_check'].disabled || publishStatus? 'disabled' : 'warning'"
                     @click="handleRowButtonClick($event, 'domain_secure_check', scope.$index, scope.row)">
               安全审核
             </el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="$storeHelper.permission['domain_remove'].disabled ? 'disabled' : 'danger'"
+                    :class="$storeHelper.permission['domain_remove'].disabled || publishStatus? 'disabled' : 'danger'"
                     :loading="statusOfWaitingResponse('domain_remove') && selected.row.id === scope.row.id"
                     @click="handleRowButtonClick($event, 'domain_remove', scope.$index, scope.row)">删除
             </el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="['flex', $storeHelper.permission['domain_bind_white_list'].disabled ? 'disabled' : 'primary']"
+                    :class="['flex', $storeHelper.permission['domain_bind_white_list'].disabled || publishStatus? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'domain_bind_white_list', scope.$index, scope.row)">
               <span>关联IP白名单</span><i class="paas-icon-level-up"></i>
             </el-button>
@@ -834,6 +834,10 @@
 
       // handle the button in operation column of table
       handleRowButtonClick(evt, action, index, row) {
+        if (this.publishStatus && ["domain_secure_check","domain_remove","domain_bind_white_list"].indexOf(action) > -1) {
+          this.$storeHelper.popoverWhenPublish(evt.target);
+          return;
+        }
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,

@@ -73,26 +73,27 @@
           <template slot-scope="scope">
 
             <el-button
-                    type="text" class="warning"
+                    type="text"
                     v-if="scope.row.status!=='WORKORDER_APPLY'"
+                    :class="publishStatus && scope.row.status == 'DEPLOYING'? 'disabled' : 'warning'"
                     :loading="statusOfWaitingResponse(scope.row.status) && operation.rowID == scope.row.id"
-                    @click="handleTRButton(scope.row.status, scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
+                    @click="handleTRButton($event,scope.row.status, scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
             <el-button
                     type="text" class="warning"
                     v-if="scope.row.status==='WORKORDER_APPLY'"
                     :loading="statusOfWaitingResponse('modify') && operation.rowID == scope.row.id"
-                    @click="handleTRButton('modify', scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
+                    @click="handleTRButton($event,'modify', scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
             <div class="ant-divider"></div>
             <el-button
                     v-if="scope.row.cancelOrder"
                     type="text" class="danger"
                     :loading="statusOfWaitingResponse('cancel') && operation.rowID == scope.row.id"
-                    @click="handleTRButton('cancel', scope.$index, scope.row)">撤销工单</el-button>
+                    @click="handleTRButton($event,'cancel', scope.$index, scope.row)">撤销工单</el-button>
             <div class="ant-divider" v-if="scope.row.cancelOrder"></div>
             <el-button
                     type="text" class="primary"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
-                    @click="handleTRButton('detail', scope.$index, scope.row)"
+                    @click="handleTRButton($event,'detail', scope.$index, scope.row)"
                     :loading="statusOfWaitingResponse('detail') && operation.rowID == scope.row.id">
               <span>详情</span><i class="el-icon-arrow-right"></i>
             </el-button>
@@ -415,6 +416,9 @@
         let result = this.workOrderList.slice(start, end);
         return result
       },
+      publishStatus() {
+        return this.$store.getters['publishStatus'];
+      }
     },
     methods: {
       setDateRange() {
@@ -486,7 +490,11 @@
         }
         return name;
       },
-      async handleTRButton(action, index, row) {
+      async handleTRButton(evt,action, index, row) {
+        if (this.publishStatus && action == "DEPLOYING") {
+          this.$storeHelper.popoverWhenPublish(evt.target);
+          return;
+        }
         var resContent = null;
         // operation.rowID is used to indicate which row is active
         this.operation.rowID = row.id;

@@ -3,7 +3,7 @@
     <div class="header">
       <div class="item">
         <el-button size="mini" type="primary" style="margin-right: 5px;"
-                   class="flex"
+                   :class="['flex',publishStatus ? 'disabled' : '']"
                    :loading="statusOfWaitingResponse('pipeline_build_execute')"
                    @click="handleClick($event, 'pipeline_build_execute')">
           <span>执行</span>
@@ -86,7 +86,7 @@
 
             <el-button v-if="scope.row['status'] !== 'IN_PROGRESS'"
               type="text"
-              :class="['flex', 'primary']"
+              :class="['flex', publishStatus ? 'disabled' : 'primary']"
               :loading="statusOfWaitingResponse('pipeline_build_restart') && action.row.buildNumber == scope.row.buildNumber"
               @click="handleTRClick($event, 'pipeline_build_restart', scope.$index, scope.row)">
               <span>重启</span>
@@ -225,6 +225,9 @@
       }
     },
     computed: {
+      publishStatus() {
+        return this.$store.getters['publishStatus'];
+      }
     },
     watch: {
     },
@@ -534,6 +537,10 @@
       },
 
       async handleClick(evt, action) {
+        if (this.publishStatus && action == "pipeline_build_execute") {
+          this.$storeHelper.popoverWhenPublish(evt.target);
+          return;
+        }
         switch (action) {
           case 'refresh-record-list':
             this.requestBuildingStatus();
@@ -546,6 +553,10 @@
       },
 
       async handleTRClick(evt, action, index, row) {
+        if (this.publishStatus && action == "pipeline_build_restart") {
+          this.$storeHelper.popoverWhenPublish(evt.target);
+          return;
+        }
         this.action.row = row;
         var resData = null;
         var resContent = null;
