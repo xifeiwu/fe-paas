@@ -106,9 +106,9 @@ const chunksAndTemplates = (() => {
       "filename": "instance-terminal.html",
       "title": "凡普云-实例终端",
       "cdn": {
-        "js": ['/assets/xterm-dist/xterm.js', '/assets/xterm-dist/addons/fit/fit.js',
-          '/assets/xterm-dist/addons/winptyCompat/winptyCompat.js', '/assets/xterm-dist/addons/webLinks/webLinks.js'],
-        "css": ['assets/xterm-dist/xterm.css', '/assets/components/ele/theme-chalk/profile.css']
+        "js": ['/assets/libs/xterm-dist/xterm.js', '/assets/libs/xterm-dist/addons/fit/fit.js',
+          '/assets/libs/xterm-dist/addons/winptyCompat/winptyCompat.js', '/assets/libs/xterm-dist/addons/webLinks/webLinks.js'],
+        "css": ['/assets/libs/xterm-dist/xterm.css', '/assets/components/ele/theme-chalk/profile.css']
       },
       "chunks": ["instance-terminal"],
     },
