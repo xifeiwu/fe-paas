@@ -85,7 +85,6 @@ class Net extends NetBase {
         '/2.x/apm': {
           router: this.page['profile/monitor'],
           icon: 'paas-icon-charts',
-          beta: true
         },
         // Access Key管理
         '/2.x/keys': {
@@ -108,7 +107,6 @@ class Net extends NetBase {
         '/2.x/images': {
           router: this.page['profile/image/repo'],
           icon: 'paas-icon-image',
-          beta: true
         },
         // mariadb中间件
         '/2.x/openShift/mariaDB': {
