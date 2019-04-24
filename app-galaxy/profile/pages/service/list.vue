@@ -1046,6 +1046,14 @@
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
+        var permission = action;
+        if (this.$storeHelper.permission.hasOwnProperty(permission) && this.$storeHelper.permission[permission].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[permission].reason
+          });
+          return;
+        }
         this.showConfirmDeployDialog = true;
         this.action.evt = evt;
         this.action.name = action;
