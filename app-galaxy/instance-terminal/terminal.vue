@@ -78,12 +78,14 @@
           throw new Error(results.errMsg);
         }
         this.instanceInfo = results.instanceInfo;
-        const wsToken = await this.getToken(results.payload);
-//      console.log(results);
-//      console.log(wsToken);
+        const assistInfo = await this.requestAssist(results.payload);
+        // console.log(assistInfo);
+        if (!assistInfo) {
+          return;
+        }
         this.$nextTick(() => {
           // as this.$el is used in this.openTerminal
-          this.openTerminal(wsToken);
+          this.openTerminal(assistInfo);
           this.netError = null;
         });
       } catch (err) {
@@ -117,6 +119,24 @@
         // format of queryString: serviceName=jingang-demo-jar-0327&profileName=test&gid=226&instanceName=jingang-demo-jar-0327-655708812-xjvk0
         const qsObj = this.$utils.parseQueryString(location.search);
         const groupList = this.$storeHelper.getPropsFromLocalStorage('profile', 'user.groupList');
+        const profileList = this.$storeHelper.getPropsFromLocalStorage('profile', 'app.globalConfig.profileList');
+
+        // get and check userInfo
+        const userInfo = this.$storeHelper.userInfo;
+        const userInfoErrMap = {
+          token: 'token失效，请重新登陆',
+          userName: 'token失效，请重新登陆'
+        };
+        Object.keys(userInfoErrMap).every(it => {
+          if (!userInfo.hasOwnProperty(it)) {
+            userInfo.errMsg = userInfoErrMap[it];
+            return false;
+          }
+          return true;
+        });
+        if (results.errMsg) {
+          return results;
+        }
 
         // check queryString
         const qsErrMap = {
@@ -124,7 +144,8 @@
           serviceName: '未找到容器名',
           profileName: '未找到运行环境',
           instanceName: '实例名称',
-          gid: '团队信息'
+          gid: '团队信息',
+          profileId: '运行环境',
         };
         Object.keys(qsErrMap).every(it => {
           if (!qsObj.hasOwnProperty(it)) {
@@ -140,7 +161,7 @@
         // get groupInfo(groupTag) by qsObj.gid
         var groupInfo = null;
         var groupTag = null;
-        if (Array.isArray(groupList) && qsObj.hasOwnProperty('gid')) {
+        if (Array.isArray(groupList)) {
           groupInfo = groupList.find(it => it.id == qsObj['gid']);
           groupTag = groupInfo && groupInfo['tag'];
         }
@@ -148,21 +169,12 @@
           results.errMsg = '未找到团队相关信息，请重新登陆';
           return results;
         }
-
-        // get and check userInfo
-        const userInfo = this.$storeHelper.userInfo;
-        const userInfoErrMap = {
-          token: 'token检测失败',
-          userName: '用户名检查失败'
-        };
-        Object.keys(userInfoErrMap).every(it => {
-          if (!userInfo.hasOwnProperty(it)) {
-            userInfo.errMsg = userInfoErrMap[it];
-            return false;
-          }
-          return true;
-        });
-        if (results.errMsg) {
+        var profileInfo = null;
+        if (Array.isArray(profileList)) {
+          profileInfo = profileList.find(it => it.id == qsObj.profileId)
+        }
+        if (!profileInfo) {
+          results.errMsg = '未找到运行环境相关信息，请重新登陆';
           return results;
         }
 
@@ -178,7 +190,9 @@
           podName: qsObj.instanceName,
           containerName: qsObj.serviceName,
           token: userInfo.token,
-          userName: userInfo.userName
+          userName: userInfo.userName,
+          profileType: profileInfo.spaceType,
+          profileName: profileInfo.name
         };
         return results;
       },
@@ -188,17 +202,17 @@
        * @param payload
        * @returns {Promise.<null>}
        */
-      async getToken(payload) {
+      async requestAssist(payload) {
         const resContent = await this.$net.requestAssistServer(this.$net.URL_LIST.get_token, {payload});
-        if (resContent.token) {
-          return resContent.token
+        if (resContent.token && resContent.host && resContent.port) {
+          return resContent
         } else {
           return null;
         }
       },
 
       // 新建终端
-      openTerminal(token) {
+      openTerminal(assistInfo) {
         // xterm配置自适应大小插件
         Terminal.applyAddon(fit);
         // 这俩插件不知道干嘛的, 用总比不用好
@@ -237,7 +251,7 @@
         // 取得输入焦点
         term.focus();
         // 连接websocket
-        const ws = new WebSocket(`wss://k8s-webshell.finupgroup.com:30001/api/ws?token=${token}`);
+        const ws = new WebSocket(`wss://${assistInfo.host}:${assistInfo.port}/api/ws?token=${assistInfo.token}`);
         ws.onopen = function(evt) {
 //          console.log("onopen");
           var msg = {type: "input", input: '\r'};

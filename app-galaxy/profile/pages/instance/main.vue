@@ -743,6 +743,7 @@
         results['serviceName'] = selectedService['serviceName'];
         results['profileName'] = selectedProfile['name'];
         results['gid'] = this.$storeHelper.groupInfo.id;
+        results['profileId'] = selectedProfile.id;
         results['instanceName'] = instance.id;
         if (Object.keys(results)) {
           return results;
