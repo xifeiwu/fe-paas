@@ -165,7 +165,7 @@
           }],
           level3: [{
             name: '集群管理',
-            router: '/manage/data',
+            router: '/manage/cluster-dashboard',
             icon: 'paas-icon-cluster',
 	          children: [{
 		          name: '集群概况',
