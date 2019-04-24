@@ -117,8 +117,8 @@
               <div class="ant-divider"></div>
               <el-button
                       type="text"
-                      :class="[publishStatus ? 'disabled' : 'primary','flex']"
-                      @click="handleTRClick($event, 'service_config_modify', scope.$index, scope.row)">
+                      :class="['flex', $storeHelper.permission['service_update'].disabled || publishStatus ? 'disabled' : 'primary']"
+                      @click="handleTRClick($event, 'service_update', scope.$index, scope.row)">
                 <span>修改配置</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div class="ant-divider"></div>
@@ -780,7 +780,7 @@
             };
             this.$router.push(this.$net.page['profile/service/add']);
             break;
-          case 'service_config_modify':
+          case 'service_update':
             let model1 = await this.getServiceByAppIdAndSpaceId(row);
             if (model1) {
               this.$storeHelper.dataTransfer = {
@@ -1065,9 +1065,11 @@
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
+        // 创建服务
         if (action == 'service_config_add') {
           permission = 'service_create';
         }
+        // 修改服务
         if (action == 'service_config_copy') {
           permission = 'copy-service'
         }
@@ -1099,7 +1101,7 @@
           case 'service_config_add':
             this.goToPageServiceAdd(action, row);
             break;
-          case 'service_config_modify':
+          case 'service_update':
             this.goToPageServiceAdd(action, row);
             break;
           case 'service_config_copy':

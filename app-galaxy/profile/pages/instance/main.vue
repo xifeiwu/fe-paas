@@ -754,14 +754,18 @@
        * handle click event in operation column
        */
       async handleRowButtonClick(evt, action, index, row) {
-        if (this.publishStatus && action == "instance_replace") {
+        var permission = action;
+        if (action === 'go-to-page-instance-terminal-from-instance') {
+          permission = 'go-to-page-terminal-from-instance';
+        }
+        if (this.publishStatus && permission == "instance_replace") {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
-        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+        if (this.$storeHelper.permission.hasOwnProperty(permission) && this.$storeHelper.permission[permission].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
-            msg: this.$storeHelper.permission[action].reason
+            msg: this.$storeHelper.permission[permission].reason
           });
           return;
         }

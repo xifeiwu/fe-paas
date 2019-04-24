@@ -152,7 +152,7 @@
             <el-button v-if="scope.row.status === 'REQUESTED'" type="text"
                     :class="[$storeHelper.permission['oauth_modify_authorize_url_list'].disabled ? 'disabled': 'primary']"
                     :loading="statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
-                    @click="handleTRClick($event, 'effective_oauth_authorize_record', scope.$index, scope.row)">
+                    @click="handleTRClick($event, 'oauth_modify_authorize_url_list', scope.$index, scope.row)">
                     通过授权申请
             </el-button>
           </template>
@@ -173,7 +173,7 @@
       </div>
     </div>
 
-    <el-dialog title="修改授权配置" :visible="selected.operation == 'oauth_modify_authorize_url_list'"
+    <el-dialog title="修改授权配置" :visible="selected.operation == 'oauth_modify_authorize_url_list' && false"
                class="config-authorize-url size-800"
                :close-on-click-modal="false"
                @close="selected.operation = null"
@@ -581,7 +581,8 @@
       }
         this.selected.row = row;
         switch (action) {
-          case 'oauth_modify_authorize_url_list':
+          // TODO: not used
+          case 'oauth_modify_authorize_url_list_2':
 //            console.log(row);
             // reset error tip
             if (!row.hasOwnProperty('targetApplicationId') || !row.hasOwnProperty('produceEnv')) {
@@ -661,7 +662,7 @@
               }
             }
             break;
-            case 'effective_oauth_authorize_record':
+            case 'oauth_modify_authorize_url_list':
                 let errMsg = '';
                 if(null == row.id){
                     errMsg = '数据错误'
