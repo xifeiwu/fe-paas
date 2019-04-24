@@ -1069,7 +1069,7 @@
 
       async handleTRClick(evt, action, index, row) {
         var permission = action;
-        if (['service_config_add','service_config_copy','service_delete','quick_deploy','service_config_modify','service_stop'].indexOf(action) > -1 && this.publishStatus) {
+        if (['service_config_add','service_config_copy','service_delete','quick_deploy','service_config_modify','service_stop','service_update'].indexOf(action) > -1 && this.publishStatus) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
