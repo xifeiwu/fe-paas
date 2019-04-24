@@ -39,8 +39,8 @@
 <style lang="scss">
   $header-height: 32px;
   .paas-header-profile {
-    min-width: 400px;
     .el-menu.horizontal-menu {
+      display: flex;
       .el-submenu {
         & > .el-menu {
           top: 33px;
