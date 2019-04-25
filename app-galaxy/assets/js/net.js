@@ -630,10 +630,14 @@ class Net {
 
   getCasServer() {
     var casServer = 'http://cas.finupgroup.com/puhui-cas';
+    if ([location.host, location.hostname].includes('cloud.renmaitech.com')) {
+      casServer = 'https://cas.renmaitech.com/puhui-cas';
+    }
     const serverMap = {
       // 校验ticket才用域名cas.info.production
       // production: 'http://cas.info.production/puhui-cas',
     };
+
     if (serverMap.hasOwnProperty(NODE_ENV)) {
       casServer = serverMap[NODE_ENV];
     }

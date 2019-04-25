@@ -10,7 +10,7 @@
         <img src="/assets/imgs/index/poster.png">
         <div class="description">
           <div class="content">
-            <div class="line1">为凡普业务研发</div>
+            <div class="line1"></div>
             <div class="line2">提供可靠、弹性、易用的企业级云计算服务平台</div>
             <div class="line3" v-if="false">敬请期待</div>
           </div>
@@ -92,7 +92,7 @@
                   @click="handleFooterClick(item)">{{item.label}}</li>
             </ul>
           </div>
-          <div class="col">
+          <div class="col" v-if="false">
             <div class="title">{{footer.helper.title}}</div>
             <ul>
               <li v-for="(item, key) in footer.helper.items"
@@ -298,7 +298,7 @@ $menu-height: 45px;
       height: 200px;
       padding-top: 40px;
       .row {
-        width: 400px;
+        width: 280px;
         display: flex;
         margin: 0px auto;
         justify-content: space-between;
@@ -409,7 +409,7 @@ $menu-height: 45px;
             }]
           },
           about: {
-            title: '关于凡普云',
+            title: '关于',
             items: [{
               label: '平台架构'
             }, {

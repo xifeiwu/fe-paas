@@ -2,6 +2,14 @@
 
 前端项目。通过webpack预处理vue, scss, js等模块，输出静态h5文件（html, css, js)
 
+线上的两个域名
+http://www.finupcloud.com/
+http://cloud.renmaitech.com/
+
+cas认证的两个域名
+https://cas.renmaitech.com/puhui-cas/login
+https://cas.finupgroup.com/puhui-cas/login
+
 ### 如何运行
 
 **平台配置**

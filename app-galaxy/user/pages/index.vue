@@ -13,7 +13,7 @@
           <div class="user-info">
             <div class="bg" style="background-image: url(/assets/imgs/iceland-small.png);"></div>
             <div class="info">
-              <img src="/assets/imgs/finup-logo.png">
+              <img src="/assets/imgs/coder.jpg">
               <p class="user-name">{{userName}}</p>
               <p class="user-role">用户角色：{{userRole}}</p>
             </div>
