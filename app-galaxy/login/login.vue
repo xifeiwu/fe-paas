@@ -25,7 +25,7 @@
                  @focus.native.capture="handleFocusOnForm"
         >
           <el-form-item labelWidth="0px">
-            <div class="login-title">登录凡普云</div>
+            <div class="login-title">登录金融云</div>
           </el-form-item>
           <el-form-item labelWidth="0px" v-if="errMsg">
             <el-alert

@@ -41,7 +41,7 @@ const chunksAndTemplates = (() => {
   let htmlConfigs = [
     {
       "filename": "index.html",
-      "title": "凡普云-首页",
+      "title": "金融云-首页",
       "cdn": {
         "js": [],
         "css": ['/assets/components/ele/theme-chalk/profile.css']
@@ -50,7 +50,7 @@ const chunksAndTemplates = (() => {
     },
     {
       "filename": "docs.html",
-      "title": "凡普云-帮助",
+      "title": "金融云-帮助",
       "cdn": {
         "js": [],
         "css": ['/assets/components/ele/theme-chalk/profile.css']
@@ -59,7 +59,7 @@ const chunksAndTemplates = (() => {
     },
     {
       "filename": "login.html",
-      "title": "凡普云-登录",
+      "title": "金融云-登录",
       "cdn": {
         "js": [],
         "css": ['/assets/components/ele/theme-chalk/profile.css']
@@ -68,7 +68,7 @@ const chunksAndTemplates = (() => {
     },
     {
       "filename": "profile.html",
-      "title": "凡普云-控制台",
+      "title": "金融云-控制台",
       "cdn": {
         "js": [],
         "css": ['/assets/components/ele/theme-chalk/profile.css']
@@ -77,7 +77,7 @@ const chunksAndTemplates = (() => {
     },
     {
       "filename": "manage.html",
-      "title": "凡普云-管理平台",
+      "title": "金融云-管理平台",
       "cdn": {
         "js": [],
         "css": ['/assets/components/ele/theme-chalk/profile.css']
@@ -86,7 +86,7 @@ const chunksAndTemplates = (() => {
     },
     {
       "filename": "user.html",
-      "title": "凡普云-用户中心",
+      "title": "金融云-用户中心",
       "cdn": {
         "js": [],
         "css": ['/assets/components/ele/theme-chalk/profile.css']
@@ -95,7 +95,7 @@ const chunksAndTemplates = (() => {
     },
     {
       "filename": "terminal.html",
-      "title": "凡普云-实例终端",
+      "title": "金融云-实例终端",
       "cdn": {
         "js": ['/assets/libs/gateone.js'],
         "css": []
@@ -104,7 +104,7 @@ const chunksAndTemplates = (() => {
     },
     {
       "filename": "instance-terminal.html",
-      "title": "凡普云-实例终端",
+      "title": "金融云-实例终端",
       "cdn": {
         "js": ['/assets/libs/xterm-dist/xterm.js', '/assets/libs/xterm-dist/addons/fit/fit.js',
           '/assets/libs/xterm-dist/addons/winptyCompat/winptyCompat.js', '/assets/libs/xterm-dist/addons/webLinks/webLinks.js'],
@@ -114,7 +114,7 @@ const chunksAndTemplates = (() => {
     },
     {
       "filename": "page-not-found.html",
-      "title": "凡普云-页面未找到",
+      "title": "金融云-页面未找到",
       "cdn": {
         "css": []
       },

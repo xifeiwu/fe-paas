@@ -11,9 +11,9 @@
       <div class="container">
         <div class="left">
           <div class="user-info">
-            <div class="bg" style="background-image: url(/assets/imgs/iceland-small.png);"></div>
+            <div class="bg" style="background-image: url(/assets/imgs/coding.jpeg);"></div>
             <div class="info">
-              <img src="/assets/imgs/coder.jpg">
+              <img src="/assets/imgs/coder.jpg" v-if="false">
               <p class="user-name">{{userName}}</p>
               <p class="user-role">用户角色：{{userRole}}</p>
             </div>
@@ -114,8 +114,9 @@
               background-size: cover;
             }
             .info {
-              padding: 16px;
+              padding-bottom: 36px;
               img {
+                display: none;
                 max-width: 100px;
                 margin-top: -70px;
                 margin-bottom: 5px;
@@ -128,8 +129,19 @@
                 margin-bottom: 3px;
               }
               .user-name {
+                display: inline-block;
+                margin-top: -45px;
+                margin-bottom: 15px;
+                border: 3px solid white;
+                border-radius: 100%;
+                box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
                 font-size: 18px;
                 font-weight: bold;
+                width: 90px;
+                height: 90px;
+                line-height: 90px;
+                background-color: white;
+                color: green;
               }
               .user-role {
                 font-size: 14px;

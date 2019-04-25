@@ -2,7 +2,7 @@
   <div id="user-info">
     <div class="container">
       <div class="production">
-        <div class="title">凡普云产品</div>
+        <div class="title">金融云产品</div>
         <div class="list">
           <div class="item" v-for="(item, index) in productList" :key="index"
                @click="handleProductClick(item)"

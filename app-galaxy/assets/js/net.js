@@ -631,7 +631,7 @@ class Net {
   getCasServer() {
     var casServer = 'http://cas.finupgroup.com/puhui-cas';
     if ([location.host, location.hostname].includes('cloud.renmaitech.com')) {
-      casServer = 'https://cas.renmaitech.com/puhui-cas';
+      casServer = 'http://cas.renmaitech.com/puhui-cas';
     }
     const serverMap = {
       // 校验ticket才用域名cas.info.production

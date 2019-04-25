@@ -69,7 +69,7 @@
     }
 
     .el-menu {
-      margin-top: 15px;
+      margin-top: 5px;
       width: 100%;
       // override default style of border-right
       border-right: 0px;
