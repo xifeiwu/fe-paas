@@ -278,6 +278,7 @@
           case 'user/group':
           case 'user/message':
           case 'user/info':
+          case 'user/operation':
           case 'profile':
             window.open(this.$net.page[keyPath], '_blank');
             break;
