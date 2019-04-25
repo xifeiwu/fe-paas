@@ -20,7 +20,7 @@
         <el-table-column prop="content" label="内容" minWidth="200"></el-table-column>
         <el-table-column prop="formattedReleaseTime" label="发布时间" width="200" headerAlign="center" align="center"></el-table-column>
         <el-table-column prop="releaseStatusName" label="状态" width="80"></el-table-column>
-        <el-table-column label="操作" width="80">
+        <el-table-column label="操作" width="160" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
                     v-if="scope.row.releaseStatus === 'NO_RELEASE' || scope.row.releaseStatus === 'CANCEL'"
@@ -28,6 +28,13 @@
                     :class="['flex', 'warning']"
                     @click="handleTRClick($event, 'message_publish', scope.$index, scope.row)">
               <span>发布</span>
+            </el-button>
+            <el-button
+                v-if="scope.row.releaseStatus === 'NO_RELEASE' || scope.row.releaseStatus === 'CANCEL'"
+                type="text"
+                :class="['flex', 'warning']"
+                @click="handleTRClick($event, 'message_modify', scope.$index, scope.row)">
+              <span>修改</span>
             </el-button>
             <el-button
                     v-if="scope.row.releaseStatus === 'RELEASE'"
@@ -55,8 +62,9 @@
       </div>
     </div>
 
-    <el-dialog title="创建站内信" :visible="action.name == 'message_create'"
-               v-if="action.name == 'message_create'"
+    <el-dialog :title="action.name == 'message_create'?'创建站内信':'修改站内信'"
+               :visible="action.name == 'message_create' || action.name == 'message_modify'"
+               v-if="action.name == 'message_create' || action.name == 'message_modify'"
                @close="closeDialog"
                class="size-700"
                :close-on-click-modal="false"
@@ -324,6 +332,7 @@
 
       async handleTRClick(evt, action, index, row) {
         var resContent = null;
+        var dialogData = null;
         this.action.row = row;
         switch (action) {
           case 'message_publish':
@@ -362,6 +371,26 @@
               console.log(err);
             }
 
+            break;
+          case 'message_modify':
+            try {
+              if (!this.messageTypeList) {
+                this.messageTypeList = await this.getMessageTypeList();
+              }
+              dialogData = await this.openDialog(action, {title: row.title,messageTypeId:row.messageTypeId,messageId: row.id,content: row.content});
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.message_modify, {
+                payload: {
+                  title: dialogData['title'],
+                  messageTypeId: dialogData['messageTypeId'],
+                  content: dialogData['content'],
+                  messageId: dialogData['messageId']
+                }
+              });
+              this.closeDialog();
+              this.requestMessageListByPage(true);
+            } catch (err) {
+              console.log(err);
+            }
             break;
         }
       },
