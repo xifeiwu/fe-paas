@@ -2793,18 +2793,6 @@ class Net extends NetBase {
     })
   }
 
-  //获取后台推送消息
-  getMessage() {
-    return new Promise((resolve, reject) => {
-      axios.post(this.URL_LIST.message_unread_count.path).then(response => {
-        let result = this.getResponseContent2(response);
-        resolve(result);
-      }).catch(err => {
-        console.log(err);
-      })
-    })
-  }
-
   //获取发布状态
   getPublishStatus() {
     return new Promise((resolve, reject) => {

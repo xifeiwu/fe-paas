@@ -55,7 +55,8 @@ class Net {
       // 未读消息条数
       message_unread_count: {
         path: '/message/query/count',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       // 获取发布状态
       publish_status: {

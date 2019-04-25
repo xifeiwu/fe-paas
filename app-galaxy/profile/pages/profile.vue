@@ -731,24 +731,23 @@
       },
 
       //获取消息数量，以及对alert类型的消息进行弹窗
-      requestAndHandleMessage() {
-        this.$net.getMessage().then(result => {
-          this.alertMessageQueen = [];
-          this.messageCountTip = result.length;
-          result.forEach(it => {
-            if (it.messageType === "ALERT") {
-              this.alertMessageQueen.push(it);
-            }
-          });
-          this.currentAlertMessage = this.alertMessageQueen.pop();
-          // if (!this.currentAlertMessage || !this.alertMessageQueen.find(it => {
-          //       return it.id === this.currentAlertMessage.id;
-          //     })
-          // ) {
-          //   let length = this.alertMessageQueen.length;
-          //   this.currentAlertMessage = length === 0 ? null : this.alertMessageQueen[length - 1];
-          // }
+      async requestAndHandleMessage() {
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.message_unread_count);
+        this.alertMessageQueen = [];
+        this.messageCountTip = resContent.length;
+        resContent.forEach(it => {
+          if (it.messageType === "ALERT") {
+            this.alertMessageQueen.push(it);
+          }
         });
+        this.currentAlertMessage = this.alertMessageQueen.pop();
+        // if (!this.currentAlertMessage || !this.alertMessageQueen.find(it => {
+        //       return it.id === this.currentAlertMessage.id;
+        //     })
+        // ) {
+        //   let length = this.alertMessageQueen.length;
+        //   this.currentAlertMessage = length === 0 ? null : this.alertMessageQueen[length - 1];
+        // }
       },
 
       //这个方法是用来确认是否正在发布的，对于正在发布的，禁用创建服务，复制服务，删除服务，创建公网域名，绑定，解除绑定公网域名。禁用所有环境的服务的部署，重启，实例动态伸缩。

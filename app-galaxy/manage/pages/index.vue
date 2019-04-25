@@ -108,7 +108,7 @@
         return;
       }
       this.$net.requestPaasServer(this.$net.URL_LIST.message_unread_count, {}).then(resContent => {
-        this.messageCountTip = resContent;
+        this.messageCountTip = resContent.length;
       }).catch(() => {
         this.messageCountTip = 0;
       }).finally(() => {});
