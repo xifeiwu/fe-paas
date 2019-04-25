@@ -446,6 +446,7 @@
           width: 100%;
           margin-bottom: 15px;
           background-color: #fff;
+          border-bottom: 1px solid white;
           .middleware-title {
             border: 1px solid #f5f5f6;
             color: #666;
@@ -474,7 +475,11 @@
             }
           }
           .middleware-footer {
-            background-color: #E6A23C;
+            background-color: rgba(235,158,5,.1);
+            border: 1px solid rgba(235,158,5,.2);
+            color: #eb9e05;
+            margin: 6px;
+            border-radius: 2%;
             font-size: 12px;
           }
         }
