@@ -175,29 +175,30 @@
         </div>
       </div>
       <div class="right">
-        <div class="by-middleware">
-          <div class="middleware" v-for="(item,index) in middlewareInfoList">
-            <div class="middleware-title">
-              <span :class="[item.iconClass]" :style="{color: item.iconColor}"></span>
-              <span class="name">{{item.targetType}}</span>
+        <div class="by-middleware" v-if="middlewareInfoList.length > 0">
+          <div class="middleware-title">
+            {{`数据库及中间件信息`}}
+          </div>
+          <div class="middleware-body">
+            <div class="middleware" v-for="(item,index) in middlewareInfoList" :style="{'order': item.order}">
+              <el-popover placement="bottom" trigger="hover" popper-class="el-tooltip__popper is-dark middleware-detail">
+                <el-form label-position="right" :data="item" size="mini" label-width="100px">
+                  <el-form-item label="名称: ">{{item.targetType}}</el-form-item>
+                  <el-form-item label="类型：">{{item.type}}</el-form-item>
+                  <el-form-item label="IP：">{{item.targetHost.split(":")[0]}}</el-form-item>
+                  <el-form-item label="端口：">{{item.targetHost.split(":")[1]}}</el-form-item>
+                  <el-form-item label="状态: ">{{item.status}}</el-form-item>
+                  <el-form-item label="成功连接数：">{{item.callCount - item.errorCount}}</el-form-item>
+                  <el-form-item label="失败连接数：">{{item.errorCount}}</el-form-item>
+                </el-form>
+                <span :class="[item.iconClass]" :style="{color: item.iconColor}" slot="reference"></span>
+              </el-popover>
+              <span :class="[item.statusIcon,'status']" :style="{color: item.statusColor}"></span>
             </div>
-            <div class="middleware-body">
-              <div class="info-top">
-                <div class="info-top-icon">
-                  <span :class="item.statusIcon" :style="{color: item.statusColor ,fontSize: '50px'}"></span>
-                  <span class="icon-content">{{item.status}}</span>
-                </div>
-                <div class="info-top-content">
-                  <span>{{`IP:${item.targetHost.split(":")[0]}`}}</span>
-                  <span>{{`类型:${item.type}`}}</span>
-                </div>
-                <div class="info-top-content">
-                  <span>{{`端口:${item.targetHost.split(":")[1]}`}}</span>
-                  <span>{{`成功连接数:${item.callCount - item.errorCount}`}}</span>
-                  <span>{{`失败连接数:${item.errorCount}`}}</span>
-                </div>
-              </div>
-            </div>
+          </div>
+          <div class="middleware-footer">
+            <span class="el-icon-info"></span>
+            <span>中间件连接状态的计算公式为：（成功连接数/总连接数) * 100；若该值大于70%，则为健康状态，小于70%大于30%为不健康状态，小于30%为不可用状态。绿色图标为健康状态，黄色为不健康状态，红色为不可用状态</span>
           </div>
         </div>
         <div class="by-graphic">
@@ -245,6 +246,20 @@
 </template>
 
 <style lang="scss">
+  .el-popover.middleware-detail {
+    .el-form {
+      .el-form-item {
+        margin-bottom: 0;
+        .el-form-item__label {
+          font-size: 12px;
+          color: #fff;
+        }
+      }
+      .el-form-item__content {
+        font-size: 12px;
+      }
+    }
+  }
   .fix-form-item-label {
     line-height: 25px;
     padding-right: 4px;
@@ -429,49 +444,38 @@
       .right {
         .by-middleware {
           width: 100%;
-          display: flex;
-          flex-wrap: wrap;
-          margin-bottom: 10px;
-          .middleware {
-            background: #fff;
-            width: 48%;
-            margin-right: 10px;
-            margin-bottom: 10px;
-            .middleware-title {
-              border: 1px solid #f5f5f6;
-              color: #666;
-              font-weight: bold;
-              text-align: center;
-              font-size: 14px;
-              line-height: 24px;
-            }
-            .middleware-body {
-              width: 100%;
-              .info-top {
-                width:100%;
-                display: flex;
-                flex-direction: row;
-                flex-wrap: nowrap;
-                font-size: 14px;
-                margin-top: 10px;
-                .info-top-icon {
-                  width:20%;
-                  display: flex;
-                  flex-direction: column;
-                  margin-left:10px;
-                  .icon-content {
-                    margin-top: 3px;
-                    margin-left: 8px;
-                  }
-                }
-                .info-top-content {
-                  width: 40%;
-                  display: flex;
-                  flex-direction: column;
-                  color:#5a5e66;
-                }
+          margin-bottom: 15px;
+          background-color: #fff;
+          .middleware-title {
+            border: 1px solid #f5f5f6;
+            color: #666;
+            font-weight: bold;
+            text-align: center;
+            font-size: 14px;
+            line-height: 24px;
+          }
+          .middleware-body {
+            display: flex;
+            flex-wrap: wrap;
+            padding:20px 35px;
+            .middleware {
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              &:hover {
+                cursor: pointer;
+              }
+              margin-right: 10px;
+              font-size: 30px;
+              .status {
+                font-size: 12px;
+                text-align: center;
               }
             }
+          }
+          .middleware-footer {
+            background-color: #E6A23C;
+            font-size: 12px;
           }
         }
         .by-graphic {
@@ -914,32 +918,45 @@
 			        case "Redis":
 				        it.iconClass = "paas-icon-redis";
 				        it.iconColor = "#CF271D";
+				        it.order = 1;
 				        break;
 			        case "MongoDB":
 				        it.iconClass = "paas-icon-mongodb";
 				        it.iconColor = "#68B145";
+				        it.order = 4;
 				        break;
 			        case "Mysql":
 				        it.iconClass = "paas-icon-mysql";
 				        it.iconColor = "#00758F";
+				        it.order = 3;
 				        break;
-			        case "Rabbitmq":
+              case "Rabbitmq":
 				        it.iconClass = "paas-icon-rabbitmq";
 				        it.iconColor = "#FF6700";
+				        it.order = 5;
 				        break;
+              case "PostgreSQL":
+                it.iconClass = "paas-icon-postgresql";
+                it.iconColor = "#316690";
+                it.order = 2;
+                break;
+              default:
+                it.iconClass = "paas-icon-default-middleware";
+                it.iconColor = "#CCCCCC";
+                it.order = 6;
 		        }
 		        let percentage = (1 - it.errorCount / it.callCount) * 100;
 		        if (percentage > 70) {
 			        it.status = "健康";
-			        it.statusIcon = "paas-icon-fa-play-circle-o";
+			        it.statusIcon = "el-icon-circle-check";
 			        it.statusColor = "#67C23A";
 		        } else if (percentage > 30 && percentage < 70) {
 			        it.status = "不健康";
-			        it.statusIcon = "paas-icon-fa-play-circle-o";
+			        it.statusIcon = "el-icon-remove";
 			        it.statusColor = "#E6A23C";
 		        } else {
-			        it.status = "失败";
-			        it.statusIcon = "fa-pause-circle-o";
+			        it.status = "不可用";
+			        it.statusIcon = "el-icon-circle-close";
 			        it.statusColor = "#F56C6C";
 		        }
 	        })
