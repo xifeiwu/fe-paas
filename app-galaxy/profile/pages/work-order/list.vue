@@ -566,12 +566,17 @@
                 this.$storeHelper.currentGroupID = detail.groupId;
               }
               this.hideWaitingResponse(action);
-              let productionProfile = this.$storeHelper.getProductionProfile();
+              var profileId = this.$storeHelper.getProductionProfile()['id'];
+              try {
+                profileId = detail.appList[0]['spaceId'];
+              } catch (err) {
+                console.log(err);
+              }
               this.$storeHelper.dataTransfer = {
                 from: this.$net.page['profile/work-order/list'],
                 data: {
                   appId: detail.appID,
-                  profileId: productionProfile ? productionProfile.id:null,
+                  profileId: profileId,
                   serviceVersion: detail.serviceVersion
                 }
               };

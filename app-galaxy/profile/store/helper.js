@@ -534,7 +534,7 @@ class StoreHelper extends BaseHelper{
   getProfileInfoByID(id) {
     let target = null;
     try {
-      this.profileListOfGroup.some(it => {
+      this.profileListAll.some(it => {
         target = it.id === id ? it : null;
         return target
       });
@@ -545,7 +545,7 @@ class StoreHelper extends BaseHelper{
   }
   getProfileInfoByType(type) {
     let target = null;
-    this.profileListOfGroup.some(it => {
+    this.profileListAll.some(it => {
       target = it.spaceType === type ? it : null;
       return target
     });
