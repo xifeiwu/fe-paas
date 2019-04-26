@@ -276,16 +276,18 @@
         }
         let resData = await this.$net.requestPaasServer(this.$net.URL_LIST.operation_log,{query});
         resData.content.forEach(it => {
-          it["operationNickName"] = this.operationList.find(obj => {
+          let operation = this.operationList.find(obj => {
             return obj["operationName"] === it["bundle"];
-          })["operationNickName"];
+          });
+          it["operationNickName"] = operation ? operation["operationNickName"] : '--';
           let user = this.userList.find(user => {
             return user["id"] === it["userId"];
           });
-          it["groupName"] = this.groupList.find(group => {
-            return group.id === it["groupId"];
-          })["name"];
           it["userRealName"] = user ? user["realName"] : "--";
+          let group = this.groupList.find(group => {
+            return group.id === it["groupId"];
+          });
+          it["groupName"] = group ? group["name"] : "--";
           it["operationTime"] = this.$utils.formatDate(it["timestamp"], 'yyyy-MM-dd hh:mm:ss');
           try {
             it["operationContent"] = it["content"] && it["content"] !== "" ? JSON.parse(it["content"]) : it["content"];
@@ -316,6 +318,8 @@
       },
 
       async pageChange(page) {
+        this.operationLogList = [];
+        this.totalSize = 0;
         this.currentPage = page;
         let resData = await this.requestOperationList({});
         this.ifnotHaveMore = resData.more;
@@ -323,7 +327,7 @@
       },
 
       async handleRefresh(force) {
-        this.currentPage = 1;
+        this.setInit();
         let resData = await this.requestOperationList({force:force});
         this.ifnotHaveMore = resData.more;
         this.operationLogList = resData.content;
