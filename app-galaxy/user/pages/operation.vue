@@ -3,7 +3,7 @@
     <div class="header">
       <div class="top-tip" style="font-size: 14px">
         <span style="font-weight: bold; font-size: 14px;"><i class="el-icon-warning"></i></span>
-        <span>操作记录每隔15分钟更新一次，若需要立即更新请联系PAAS团队。</span>
+        <span>操作记录每隔15分钟更新一次，若需要立即更新请联系PAAS团队。操作状态不涉及业务逻辑上的成功失败，仅代表操作动作正确完成或失败</span>
       </div>
       <div class="search-form">
         <el-form :model="form" :inline="true" class="form">
