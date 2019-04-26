@@ -502,7 +502,7 @@
               serviceVersion: selectedService.serviceVersion
             }
           });
-          this.instanceList = resContent['instanceList'];
+          this.instanceList = resContent.hasOwnProperty('instanceList') ? resContent['instanceList'] : [];
           const instanceIdList = this.instanceList.map(it => {
             return it['id'];
           });
