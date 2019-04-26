@@ -1410,9 +1410,9 @@
             break;
           case 'submit':
             this.isSubmitClicked = true;
-            this.formData.customImageValue = this.formData.customImageValue.trim();
-            this.formData.autoImageValue = this.formData.autoImageValue.trim();
-            this.formData.mavenProfileId = this.formData.mavenProfileId.trim();
+            this.formData.customImageValue = this.$utils.isString(this.formData.customImageValue) && this.formData.customImageValue.trim();
+            this.formData.autoImageValue = this.$utils.isString(this.formData.autoImageValue) && this.formData.autoImageValue.trim();
+            this.formData.mavenProfileId = this.$utils.isString(this.formData.mavenProfileId) && this.formData.mavenProfileId.trim();
             this.$refs['formData'].validate((valid) => {
               if (this.formData.portMap.errMsg) {
                 valid = false;
