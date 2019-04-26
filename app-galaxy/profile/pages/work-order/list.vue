@@ -566,8 +566,10 @@
                 this.$storeHelper.currentGroupID = detail.groupId;
               }
               this.hideWaitingResponse(action);
+              var appId = detail.appID;
               var profileId = this.$storeHelper.getProductionProfile()['id'];
               try {
+                appId = detail.appList[0]['appId'];
                 profileId = detail.appList[0]['spaceId'];
               } catch (err) {
                 console.log(err);
@@ -575,7 +577,7 @@
               this.$storeHelper.dataTransfer = {
                 from: this.$net.page['profile/work-order/list'],
                 data: {
-                  appId: detail.appID,
+                  appId,
                   profileId: profileId,
                   serviceVersion: detail.serviceVersion
                 }
