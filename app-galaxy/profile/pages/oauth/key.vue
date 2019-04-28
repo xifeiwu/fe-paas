@@ -13,7 +13,8 @@
         <div class="item">
           <label style="float: left; width: 60px; line-height: 26px">ClientId：</label>
           <el-input v-model="searchCondition.accessKey"
-                    style="display:block; width: 200px; margin-left: 60px;"></el-input>
+                    style="display:block; width: 200px; margin-left: 60px;"
+                    @keyup.enter.native="handleButtonClick($event, 'search')"></el-input>
         </div>
         <el-button size="mini-extral"
                    type="primary"

@@ -21,6 +21,16 @@
             <el-option :value="false" label="非生产环境"></el-option>
           </el-select>
         </div>
+        <div class="item">
+          <label style="float: left; width: 72px; line-height: 26px">申请状态：</label>
+          <el-select v-model="searchCondition.status" placeholder="请选择"
+                     style="display:block; max-width: 200px; margin-left: 72px;">
+            <el-option :value="null" label="全部"></el-option>
+            <el-option value="REQUESTED" label="申请中"></el-option>
+            <el-option value="AUTHORIZED" label="已授权"></el-option>
+            <el-option value="INVALIDATED" label="已失效"></el-option>
+          </el-select>
+        </div>
         <el-button size="mini-extral"
                    type="primary"
                    v-if="true"
@@ -448,6 +458,7 @@
         searchCondition: {
           requestUaaId: null,
           production: null,
+          status: "REQUESTED"
         },
         authorizeUrlListByPage: [],
 
@@ -492,6 +503,10 @@
         this.requestAuthorizeUrlList()
       },
       'searchCondition.production': function() {
+        this.currentPage = 1;
+        this.requestAuthorizeUrlList()
+      },
+      'searchCondition.status': function() {
         this.currentPage = 1;
         this.requestAuthorizeUrlList()
       },
@@ -883,6 +898,9 @@
         // productEnv will not add to options if production=null(访问环境=全部)
         if (null !== this.searchCondition.production) {
           options.productEnv = this.searchCondition.production;
+        }
+        if (null !== this.searchCondition.status) {
+          options.status = this.searchCondition.status;
         }
         this.showLoading = true;
 //      {
