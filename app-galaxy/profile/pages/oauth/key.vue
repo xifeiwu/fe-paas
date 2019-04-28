@@ -1617,7 +1617,11 @@
           }).then(msg => {
             this.hideWaitingResponse(action + '-in-dialog');
             this.selected.operation = null;
-            this.$message.success(msg);
+            this.$message({
+              duration: 10000,
+              message: msg,
+              type: 'success'
+            });
             this.updateModelInfo(prop);
           }).catch(msg => {
             this.hideWaitingResponse(action + '-in-dialog');

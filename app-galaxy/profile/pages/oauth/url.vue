@@ -68,6 +68,16 @@
         >
         </el-table-column>
         <el-table-column
+            label="申请时间"
+            prop="formattedCreateTime"
+            width="80"
+            headerAlign="center" align="center">
+          <template slot-scope="scope">
+            {{scope.row.formattedCreateTimeYMD}}<br/>
+            {{scope.row.formattedCreateTimeHMS}}
+          </template>
+        </el-table-column>
+        <el-table-column
                 label="授权时间"
                 prop="authTime"
                 width="120"
@@ -885,7 +895,15 @@
 //      }
         this.$net.oauthGetAuthorizeUrlList(options).then(content => {
           if (content.hasOwnProperty('authRecordList')) {
-            this.authorizeUrlListByPage = content['authRecordList'];
+
+            this.authorizeUrlListByPage = content['authRecordList'].map(it => {
+              const authorizeUrl = it;
+              authorizeUrl['formattedCreateTime'] = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              authorizeUrl['formattedCreateTimeYMD'] = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd');
+              authorizeUrl['formattedCreateTimeHMS'] = this.$utils.formatDate(it.createTime, 'hh:mm:ss');
+              return authorizeUrl;
+            });
+
             this.totalSize = content.total;
           }
           this.showLoading = false;
