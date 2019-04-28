@@ -136,6 +136,11 @@ class Net extends NetBase {
           message: '因访问数量过多/响应数据量过大，请您稍后再试！'
         }
       },
+      //获取topN的异常信息
+      'service_detail_topNException': {
+        path: '/api/v1/app/excption/top',
+        method: 'post',
+      },
       // TODO: not used
       'query_default_expired_days': {
         path: '/service/queryDefaultExpiredDays',

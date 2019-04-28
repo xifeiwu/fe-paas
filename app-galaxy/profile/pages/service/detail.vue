@@ -4,6 +4,7 @@
       <div style="display: inline-block"><span style="font-weight: bold">运行环境：</span><span>{{dataPassed.profileInfo.name}}</span></div>
       <div style="display: inline-block; margin-left: 15px;"><span style="font-weight: bold">应用名称：</span><span>{{dataPassed.serviceInfo.appName}}</span></div>
       <el-button style="margin-left: 15px;" size="mini" type="primary" @click="handleClick($event, 'refresh')">刷新</el-button>
+      <el-button style="margin-left: 15px;" size="mini" type="primary" @click="handleClick($event, 'show_topN_error_dialog')">查看错误排行榜</el-button>
       <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
         <div slot="content">
           <div>域名请求数据统计，目前只统计24H内的接口请求数据</div>
@@ -241,7 +242,37 @@
         </div>
       </div>
     </div>
-    <!--<div v-else class="el-table__empty-text" style="color: #545454">暂无服务相关信息</div>-->
+    <el-dialog
+            title="异常信息"
+            :visible="topNException.showTopNErrorDialog"
+            width="50%"
+            @close="handleExceptionDialogClose"
+            :close-on-click-modal="false">
+      <div style="text-align: left;">起始时间段：<el-date-picker
+              size="mini"
+              v-model="topNException.dateTimeRange"
+              type="datetimerange"
+              :picker-options="pickerOptions2"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              :enableClose="false">
+      </el-date-picker>
+        <el-button
+                size="mini-extral"
+                type="primary" @click="requestTopNException">查询</el-button>
+        <span style="float: right;">错误总数：{{topNException.count}}</span>
+      </div>
+      <div style="margin-top: 20px;">
+        <el-table
+                :data="topNException.topNExceptionList"
+                v-loading="topNException.loadingStatus"
+                element-loading-spinner="el-icon-loading">
+          <el-table-column prop="exName" label="异常名称" align="left"></el-table-column>
+          <el-table-column prop="exCount" label="异常数" align="center" width="240px"></el-table-column>
+        </el-table>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -689,6 +720,13 @@
         },
         showInternetDomainDialog: false,
         middlewareInfoList: [],
+        topNException: {
+          showTopNErrorDialog: false,
+          topNExceptionList: [],
+          loadingStatus: false,
+          dateTimeRange: [],
+          count: 0,
+        }
       }
     },
     watch: {
@@ -700,6 +738,7 @@
         const start = new Date();
         start.setTime(start.getTime() - 1000 * 60 * 60 * 24);
         this.dateTimeRange = [start, end];
+        this.topNException.dateTimeRange = [start, end];
       },
       onDateRangeChange(range) {
       },
@@ -719,6 +758,10 @@
         switch (action) {
           case 'refresh':
             this.requestServiceInfo(this.dataPassed.appId, this.dataPassed.profileId);
+            break;
+          case 'show_topN_error_dialog':
+            this.topNException.showTopNErrorDialog = true;
+            this.requestTopNException();
             break;
         }
       },
@@ -966,6 +1009,37 @@
 		        }
 	        })
         }
+      },
+
+      async requestTopNException() {
+        this.topNException.loadingStatus = true;
+        this.topNException.topNExceptionList = [];
+        this.topNException.count = 0;
+        let payload = {
+          "endDate": this.topNException.dateTimeRange[1].getTime(),
+          "fromDate": this.topNException.dateTimeRange[0].getTime(),
+          "number": 10,
+          "serviceName": this.dataPassed.serviceInfo.serviceName
+        };
+        try {
+          const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_detail_topNException, {payload});
+          if (resContent) {
+            resContent.forEach(it => {
+              this.topNException.count += it.exCount;
+            });
+            this.topNException.topNExceptionList = resContent;
+          }
+        } catch (e) {
+          console.log(e)
+        } finally {
+          this.topNException.loadingStatus = false;
+        }
+      },
+
+      handleExceptionDialogClose() {
+        this.topNException.showTopNErrorDialog = false;
+        this.topNException.loadingStatus = false;
+        this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.service_detail_topNException.path);
       }
     }
   }
