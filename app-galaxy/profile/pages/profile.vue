@@ -292,8 +292,10 @@
   import paasNavBar from './components/nav-bar.vue';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   import paasPopoverMessage from 'assets/components/popover-message';
+  import markdown from 'assets/components/markdown/markdown.js';
 
   export default {
+    mixins: [markdown],
     components: {PageNotFound, paasHeaderProfile, paasNavBar, paasPopoverMessage},
     data() {
       return {
@@ -405,6 +407,19 @@
       setInterval(() => {
         this.getPublishStatus();
       },2*60*1000);
+
+      this.$render(`# 一级标题 #
+一级标题
+====
+## 二级标题 ##
+二级标题
+----
+### 三级标题 ###
+#### 四级标题 ####
+##### 五级标题 #####
+###### 六级标题 ######`, result => {
+  console.log(result);
+})
     },
     beforeDestroy() {
       removeResizeListener(this.$el, this.resizeListener);
