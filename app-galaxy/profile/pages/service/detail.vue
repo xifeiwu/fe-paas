@@ -180,27 +180,55 @@
           <div class="middleware-title">
             {{`数据库及中间件信息`}}
           </div>
-          <div class="middleware-body">
-            <div class="middleware" v-for="(item,index) in middlewareInfoList" :style="{'order': item.order}">
-              <el-popover placement="bottom" trigger="hover" popper-class="el-tooltip__popper is-dark middleware-detail">
-                <el-form label-position="right" :data="item" size="mini" label-width="100px">
-                  <el-form-item label="名称: ">{{item.targetType}}</el-form-item>
-                  <el-form-item label="类型：">{{item.type}}</el-form-item>
-                  <el-form-item label="IP：">{{item.targetHost.split(":")[0]}}</el-form-item>
-                  <el-form-item label="端口：">{{item.targetHost.split(":")[1]}}</el-form-item>
-                  <el-form-item label="状态: ">{{item.status}}</el-form-item>
-                  <el-form-item label="成功连接数：">{{item.callCount - item.errorCount}}</el-form-item>
-                  <el-form-item label="失败连接数：">{{item.errorCount}}</el-form-item>
-                </el-form>
-                <span :class="[item.iconClass]" :style="{color: item.iconColor}" slot="reference"></span>
-              </el-popover>
-              <span :class="[item.statusIcon,'status']" :style="{color: item.statusColor}"></span>
-            </div>
-          </div>
-          <div class="middleware-footer">
+          <div class="middleware-tip">
             <span class="el-icon-info"></span>
             <span>中间件连接状态的计算公式为：（成功连接数/总连接数) * 100；若该值大于70%，则为健康状态，小于70%大于30%为不健康状态，小于30%为不可用状态。绿色图标为健康状态，黄色为不健康状态，红色为不可用状态</span>
           </div>
+          <div class="middleware-table">
+            <el-table :data="middlewareInfoList"
+                      style="width: 99%;"
+                      max-height="280">
+              <el-table-column label="中间件名称" align="center" style="background-color: #E6A23C">
+                <template slot-scope="scope">
+                  <div style="display: flex;flex-direction: column;align-items: center">
+                    <div style="display: inline-block">
+                      <span :class="scope.row.statusIcon" :style="{color: scope.row.statusColor}"></span>
+                      <span :class="scope.row.iconClass" :style="{color: scope.row.iconColor, 'font-size': '25px'}"></span>
+                    </div>
+                    <span style="font-size: 12px">{{scope.row.targetType}}</span>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="状态" prop="status" align="center"></el-table-column>
+              <el-table-column label="IP/域名:端口" align="center">
+                <template slot-scope="scope">
+                  {{`${scope.row.targetHost.split(":")[0]} : ${scope.row.targetHost.split(":")[1]}`}}
+                </template>
+              </el-table-column>
+              <el-table-column label="成功/失败连接数" align="center">
+                <template slot-scope="scope">
+                  {{`${scope.row.callCount - scope.row.errorCount} / ${scope.row.errorCount}`}}
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <!--<div class="middleware-body">-->
+            <!--<div class="middleware" v-for="(item,index) in middlewareInfoList" :style="{'order': item.order}">-->
+              <!--<el-popover placement="bottom" trigger="hover" popper-class="el-tooltip__popper is-dark middleware-detail">-->
+                <!--<el-form label-position="right" :data="item" size="mini" label-width="100px">-->
+                  <!--<el-form-item label="名称: ">{{item.targetType}}</el-form-item>-->
+                  <!--<el-form-item label="类型：">{{item.type}}</el-form-item>-->
+                  <!--<el-form-item label="IP：">{{item.targetHost.split(":")[0]}}</el-form-item>-->
+                  <!--<el-form-item label="端口：">{{item.targetHost.split(":")[1]}}</el-form-item>-->
+                  <!--<el-form-item label="状态: ">{{item.status}}</el-form-item>-->
+                  <!--<el-form-item label="成功连接数：">{{item.callCount - item.errorCount}}</el-form-item>-->
+                  <!--<el-form-item label="失败连接数：">{{item.errorCount}}</el-form-item>-->
+                <!--</el-form>-->
+                <!--<span :class="[item.iconClass]" :style="{color: item.iconColor}" slot="reference"></span>-->
+              <!--</el-popover>-->
+              <!--<span :class="[item.statusIcon,'status']" :style="{color: item.statusColor}"></span>-->
+            <!--</div>-->
+          <!--</div>-->
         </div>
         <div class="by-graphic">
           <div class="section request-statistic" >
@@ -505,13 +533,24 @@
               }
             }
           }
-          .middleware-footer {
+          .middleware-tip {
             background-color: rgba(235,158,5,.1);
             border: 1px solid rgba(235,158,5,.2);
             color: #eb9e05;
             margin: 6px;
             border-radius: 2%;
             font-size: 12px;
+          }
+          .middleware-table {
+            .el-table {
+              .el-table__body {
+                .el-table__row {
+                  .cell {
+                    line-height: 15px;
+                  }
+                }
+              }
+            }
           }
         }
         .by-graphic {
