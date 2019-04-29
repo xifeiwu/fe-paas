@@ -717,6 +717,7 @@
           goBack = true;
         }
       } else {
+        this.imageSelectState.customImage = false;
         //Production appMonitor environment is selected by default
         if (this.profileInfo && this.profileInfo.spaceType.toUpperCase() !== 'PRODUCTION') {
           this.formData.appMonitor = profileUtils.appMonitorList[1].id;
@@ -948,8 +949,8 @@
 //          privateAppList: [],
         },
         imageSelectState: {
-          // custom image or not
-          customImage: false,
+          // custom image or not，注意customImage的变化，会触发requestImageRelatedInfo，故默认设置为null
+          customImage: null,
           // value of autoImage
           autoImageValue: '',
           // value of customImage
@@ -1036,8 +1037,15 @@
 //        console.log(this.formRelated.serviceInfo);
 //        console.log(this.formRelated.packageTypeList);
       },
+      'imageSelectState.customImage': function(customImage) {
+        if (customImage === true) {
+          this.requestImageRelatedInfo(true);
+        } else if (customImage === false) {
+          this.requestImageRelatedInfo(false);
+        }
+      },
       'formData.packageInfo.type': function (type) {
-        this.requestImageRelatedInfo(type);
+        this.requestImageRelatedInfo(false, type);
       },
       /**
        * set memoryId at watcher of formData.cpuId
@@ -1162,39 +1170,58 @@
         console.log(item);
       },
 
-      // get image related info from network
-      async requestImageRelatedInfo(type) {
-        this.imageInfoFromNet['customImageList'] = [];
-        this.imageInfoFromNet['autoImageList'] = [];
+      /**
+       * get image related info from network
+       * @param {customImage} customImage = this.imageSelectState.customImage
+       * @param {packageType} packageType for autoImage
+       */
+      async requestImageRelatedInfo(customImage, packageType) {
+        if (!packageType) {
+          packageType = this.formData.packageInfo.type;
+        }
         try {
           const groupTag = this.groupInfo.tag;
           const appId = this.formData.appId;
-//          const profileName = this.profileInfo.name;
-//          const projectName = this.appName;
-          const results = await this.$net.getImageRelatedInfo({
-            groupTag,
-            appId,
-            language: this.formRelated.languageInfo.type,
-            languageVersion: this.formRelated.languageInfo.version,
-            packageType: type,
-          }, {
-            groupTag,
-            appId
-          });
-          const customImageList = results['customImageList'];
-          const autoImageList = results['autoImageList'];
 
-          this.imageInfoFromNet['customImageList'] = customImageList;
-          this.imageInfoFromNet['autoImageList'] = [{
-            label: '无',
-            value: ''
-          }].concat(autoImageList.map(it => {
-            return {
-              label: it,
-              value: it,
+          var payload = {};
+          var resContent = null;
+          var imageList = [];
+          if (customImage) {
+            this.imageInfoFromNet['customImageList'] = [];
+            payload = {
+              groupTag,
+              appId
+            };
+            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.custom_image_list, {
+              payload
+            });
+            imageList = resContent;
+            this.imageInfoFromNet['customImageList'] = resContent;
+          } else {
+            if (!packageType) {
+              return;
             }
-          }));
-//          console.log(this.imageInfoFromNet);
+            this.imageInfoFromNet['autoImageList'] = [];
+            payload = {
+              groupTag,
+              appId,
+              language: this.formRelated.languageInfo.type,
+              languageVersion: this.formRelated.languageInfo.version,
+              packageType: packageType,
+            }
+            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.auto_image_list, {
+              payload
+            });
+            this.imageInfoFromNet['autoImageList'] = [{
+              label: '无',
+              value: ''
+            }].concat(resContent['basicImage'].map(it => {
+              return {
+                label: it,
+                value: it,
+              }
+            }));
+          }
 
           if (this.forModify || this.forCopy) {
             // set default value by passedData if necessary
@@ -1222,6 +1249,7 @@
           }
 
           // not set default value for customImageValue
+          var customImageList = this.imageInfoFromNet['customImageList'];
           if (customImageList.length > 0 && false) {
             if (customImageList.indexOf(this.formData.customImageValue) === -1) {
               this.formData.customImageValue = customImageList[0];
@@ -1229,11 +1257,7 @@
           }
         } catch (err) {
           console.log(err);
-          this.$notify.error({
-            title: '获取镜像信息失败，请联系管理员',
-            message: err.message,
-            duration: 8000
-          });
+          this.$message.error(err.message);
         }
       },
       // set default image at the change of custom-image's type

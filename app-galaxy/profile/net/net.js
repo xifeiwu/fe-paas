@@ -1829,6 +1829,7 @@ class Net extends NetBase {
   }
 
   /**
+   * TODO: not used
    * 获取镜像列表相关信息
    * 1. autoImageList， 自动打镜像列表
    * 2. customEnvImageList, 自定义镜像-环境镜像列表
