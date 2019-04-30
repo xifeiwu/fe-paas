@@ -180,11 +180,6 @@
                     <el-form-item label="手工确认：" v-show="stageName === 'buildImage'">
                       <el-checkbox v-model="formData.buildImage.inputChecked"></el-checkbox>
                     </el-form-item>
-                    <!--自动化测试-->
-                    <el-form-item label="自动化测试：" class="autoScript" prop="autoScript" :multiFields="true"
-                                  v-if="stageName === 'autoScript'">
-                      <codemirror v-model="formData.autoScript.script" :options="groovyOption"></codemirror>
-                    </el-form-item>
                     <!--部署到测试环境-->
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployTestEnv'">
                       <el-checkbox v-model="formData.deployTestEnv.inputChecked"></el-checkbox>
@@ -192,6 +187,43 @@
                     <!--部署到联调环境-->
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployBetaEnv'">
                       <el-checkbox v-model="formData.deployBetaEnv.inputChecked"></el-checkbox>
+                    </el-form-item>
+                    <!--自动化测试-->
+                    <el-form-item label="gitlab分支：" labelWidth="160px" prop="ciPipelineAutoTestVO.gitLabBranch"
+                                    v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabBranch"></el-input>
+                    </el-form-item>
+                    <el-form-item label="gitlab路径：" labelWidth="160px" prop="ciPipelineAutoTestVO.gitLabPath"
+                                  v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabPath"></el-input>
+                    </el-form-item>
+                    <el-form-item label="自动化测试报告目录：" labelWidth="160px" prop="ciPipelineAutoTestVO.itTestReportAddress"
+                                  v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.itTestReportAddress"></el-input>
+                    </el-form-item>
+                    <el-form-item label="Gitlab父级pom.xml相对路径：" labelWidth="220px"
+                      v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.relativePath"></el-input>
+                    </el-form-item>
+                    <el-form-item label="脚本名称：" labelWidth="160px" prop="ciPipelineAutoTestVO.script"
+                      v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.script"></el-input>
+                    </el-form-item>
+                    <!-- <el-form-item label="自动化测试：" class="ciPipelineAutoTestVO" prop="ciPipelineAutoTestVO" :multiFields="true"
+                                  v-if="stageName === 'ciPipelineAutoTestVO'">
+                      <codemirror v-model="formData.ciPipelineAutoTestVO.script" :options="groovyOption"></codemirror>
+                    </el-form-item> -->
+                    <el-form-item label="手工确认：" v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-checkbox v-model="formData.ciPipelineAutoTestVO.inputChecked"></el-checkbox>
+                    </el-form-item>
+
+                    <!--上传测试报告-->
+                    <el-form-item label="脚本名称：" labelWidth="160px" prop="uploadUnitTestReportAndAutoTestReport.script"
+                                  v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
+                      <el-input size="mini-extral" v-model="formData.uploadUnitTestReportAndAutoTestReport.script"></el-input>
+                    </el-form-item>
+                    <el-form-item label="手工确认：" v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
+                      <el-checkbox v-model="formData.uploadUnitTestReportAndAutoTestReport.inputChecked"></el-checkbox>
                     </el-form-item>
                   </el-form>
                   <div class="stage-change-selection">
@@ -462,7 +494,7 @@
                       }
                     }
                     .el-form-item {
-                      &.testAndSonarScript, &.mvnPackage-script, &.autoScript {
+                      &.testAndSonarScript, &.mvnPackage-script, &.ciPipelineAutoTestVO {
                         .el-form-item__content {
                           line-height: 100%;
                         }
@@ -535,7 +567,7 @@
   }
 </style>
 <script>
-  import AsyncValidator from 'async-validator';
+//  import AsyncValidator from 'async-validator';
   import pipelineStage from './components/stage.vue';
 
   import {codemirror} from "vue-codemirror";
@@ -575,8 +607,11 @@
     'deployTestEnv': {
       description: '部署到测试环境'
     },
-    'autoScript': {
+    'ciPipelineAutoTestVO': {
       description: '自动化测试'
+    },
+    'uploadUnitTestReportAndAutoTestReport': {
+      description: '上传测试报告'
     },
     'functionValidate': {
       description: '功能测试（人工验证）'
@@ -676,16 +711,22 @@
         'mvnPackage',  //打包
         'buildImage',  //制作镜像
         'deployTestEnv', //部署到测试环境
-        // 'autoScript',  //自动化测试
         'functionValidate',  //功能测试（人工验证）
         'deployBetaEnv',  //部署到联调环境
+        'ciPipelineAutoTestVO',  //自动化测试
+        'uploadUnitTestReportAndAutoTestReport', // 上传测试报告
         'end'
       ].map(key => {
         var result = null;
         if (['start', 'download', 'end'].indexOf(key) > -1) {
           result = Object.assign({name: key}, commonProp, STAGE_NAME_MAP[key]);
         } else {
-          if (pipelineInfoFromNet.hasOwnProperty(key) && pipelineInfoFromNet[key]) {
+          if (pipelineInfoFromNet.hasOwnProperty(key)) {
+            // 如果从服务端返回的该节点数据为null, selected设为false
+            if (!pipelineInfoFromNet[key]) {
+              pipelineInfoFromNet[key] = {};
+              pipelineInfoFromNet[key]['selected'] = false;
+            }
             result = Object.assign({
               'selected': pipelineInfoFromNet[key]['selected']
             }, commonProp, {name: key}, STAGE_NAME_MAP[key]);
@@ -695,8 +736,8 @@
         }
         return result;
       }).filter(it => it);
-     // console.log(stages);
       this.updateStageIndex(stages);
+//      console.log(stages);
       this.stages = stages;
       // sync formData by netData
       this.syncFormDataByServerData(this.formData, this.pipelineInfoFromNet);
@@ -781,12 +822,6 @@
             inputChecked: false,
             selected: false,
           },
-          // 自动化测试
-          autoScript: {
-            script: '',
-//            inputChecked: false,
-            selected: false
-          },
           // 功能测试（人工验证）
           functionValidate: {
             selected: false,
@@ -796,6 +831,21 @@
             env: 'BETA',
             inputChecked: false,
             selected: false,
+          },
+          // 自动化测试
+          ciPipelineAutoTestVO: {
+            gitLabBranch: '', // gitlab分支 ,
+            gitLabPath: '', // gitlab路径 SSH ,
+            inputChecked: '', // 是否需要手工确认 ,
+            itTestReportAddress: '', // 自动化测试报告目录[相对地址即可] ,
+            relativePath: '', // Gitlab父级pom.xml相对路径 ,
+            script: '', // 脚本名称 ,
+            selected: '', //节点是否选中
+          },
+          uploadUnitTestReportAndAutoTestReport: {
+            script: '', // 脚本名称 ,
+            inputChecked: '', // 是否需要手工确认 ,
+            selected: '', //节点是否选中
           },
           // 通知设置
           noticeConfig: {
@@ -845,6 +895,7 @@
               script: [{
                 type: "string",
                 required: true,
+                requiredOrigin: true,
                 message: '请填写sonar及单元测试脚本'
               }]
             }
@@ -857,19 +908,59 @@
               script: [{
                 type: "string",
                 required: true,
+                requiredOrigin: true,
                 message: '请填写打包脚本'
               }]
             }
           },
-          autoScript: {
+          ciPipelineAutoTestVO: {
             type: 'object',
-            required: true,
-            trigger: ['blur', 'change'],
+            fields: {
+              gitLabBranch: [{
+                type: "string",
+                required: true,
+                trigger: ['blur', 'change'],
+                requiredOrigin: true,
+                message: '请填写gitlab分支'
+              }],
+              gitLabPath: [{
+                type: "string",
+                required: true,
+                requiredOrigin: true,
+                trigger: ['blur', 'change'],
+                message: '请填写ssh格式的gitlab路径'
+              }],
+              relativePath: [{
+                type: "string",
+                required: false,
+                requiredOrigin: false,
+                message: '请填写ssh格式的gitlab路径'
+              }],
+              itTestReportAddress: [{
+                type: "string",
+                required: true,
+                trigger: ['blur', 'change'],
+                requiredOrigin: true,
+                message: '请填写自动化测试报告目录[相对地址即可] '
+              }],
+              script: [{
+                type: "string",
+                required: true,
+                trigger: ['blur', 'change'],
+                requiredOrigin: true,
+                message: '请填写脚本名称'
+              }]
+            }
+          },
+          uploadUnitTestReportAndAutoTestReport: {
+            type: 'object',
             fields: {
               script: [{
                 type: "string",
                 required: true,
-                message: '请填写自动化测试脚本'
+                trigger: ['blur', 'change'],
+                requiredOrigin: true,
+                message: '请填写脚本名称'
               }]
             }
           },
@@ -881,6 +972,7 @@
               projectKeyWord: [{
                 type: "string",
                 required: true,
+                requiredOrigin: true,
                 message: '请填写sonar关键字'
               }]
               // codeDebt
@@ -1084,16 +1176,18 @@
         });
       },
 
-      // 更加pipeline结点的选择情况，更新formRules
+      // 根据pipeline结点的选择情况，更新formRules
       updateFormDataRules() {
-        // fix rules for 'testAndSonarScript', 'mvnPackage', 'autoScript'
-        var pipelineStageList = ['testAndSonarScript', 'mvnPackage'];//.concat(['sonarCheck','autoScript']);
+        // fix rules for 'testAndSonarScript', 'mvnPackage', 'autoSciPipelineAutoTestVOcript'
+        var pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'ciPipelineAutoTestVO', 'uploadUnitTestReportAndAutoTestReport'];//.concat(['sonarCheck']);
         pipelineStageList.forEach(it => {
           const required = this.formData[it]['selected'];
           this.formDataRules[it]['required'] = required;
-            this.formDataRules[it]['fields']['script'].forEach(rule => {
-              rule['required'] = required;
-            })
+          Object.keys(this.formDataRules[it]['fields']).forEach(key => {
+            this.formDataRules[it]['fields'][key].forEach(it => {
+              it['required'] = required ? it['requiredOrigin'] : required;
+            });
+          })
         });
 
         // fix rules for sonarCheck
@@ -1280,7 +1374,7 @@
             }
             if (stageChangeStatus.success) {
               this.currentStage['selected'] = true;
-              console.log(this.currentStage);
+//              console.log(this.currentStage);
               this.updateStageIndex(this.stages);
               // this.$message.success(`添加结点 "${this.currentStage['name']}" 成功！`);
               this.formData[this.currentStage['name']]['selected'] = true;
@@ -1338,54 +1432,57 @@
             const basicInfoForm = this.$refs['basic-info-form'];
             const configInfoForm = this.$refs['config-info-form'];
             this.updateFormDataRules();
-//            console.log(this.formDataRules);
-            var validator = new AsyncValidator(this.formDataRules);
-            // 先用async-validator进行全局验证，找到对应的el-form，然后使用el-form自带的validator进行局部验证
-            validator.validate(this.formData, async (errors, fields) => {
-              if (errors) {
-                // console.log(errors);
-                // console.log(fields);
-                var firstFields = errors[0]['field'];
-                // such as autoScript.script
+
+            var validate = true;
+            try {
+              validate = await basicInfoForm.validate();
+              if (this.$refs['pipeline-script-form']) {
+                validate = await this.$refs['pipeline-script-form'].validate();
+              }
+              validate = await configInfoForm.validate();
+              // 若选择Sonar数据检查，则至少要选择一个检查项
+              if (this.formData.sonarCheck.selected) {
+                if (!this.formData.sonarCheck.unitTestSelected && !this.formData.sonarCheck.codeDebtSelected) {
+                  this.$message.error(`若选择Sonar数据检查，则至少要选择一个检查项`);
+                  return;
+                }
+              }
+              if ('take-effect' === action) {
+                // 前端逻辑按照字符串处理，为了兼容以后支持多种webhook，后端使用数组格式
+                if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
+                  this.formData.webHooks.webHooksSelectedEvent = [this.formData.webHooks.webHooksSelectedEvent]
+                }
+                await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_take_effect, {
+                  payload: this.formData
+                });
+                this.$message.success(`pipeline "${this.formData.pipelineName}" 的配置已生效！`);
+                this.$router.go(-1);
+              } else {
+                this.requestUpdate();
+              }
+//              console.log(validate);
+            } catch (err) {
+//              console.log(err);
+              if (Array.isArray(err) && err.length > 1) {
+                var firstError = err[1];
+                var firstFields = firstError[0]['field'];
+                // such as ciPipelineAutoTestVO.script
                 if (firstFields.indexOf('.') > -1) {
                   firstFields = firstFields.split('.')[0];
                 }
-//                console.log(firstFields);
-                // sonar及单元测试，打包，自动化测试
-                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'buildImage', 'autoScript', 'sonarCheck'];
+                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'buildImage', 'ciPipelineAutoTestVO',
+                  'uploadUnitTestReportAndAutoTestReport', 'sonarCheck'];
                 if (pipelineStageList.indexOf(firstFields) > -1) {
                   this.setActiveStageByName(firstFields);
+                  // validate again to make sure show error message
                   this.$nextTick(() => {
                     this.$refs['pipeline-script-form'].validate(() => {});
                   });
-                } else if (firstFields === 'noticeConfig') {
-                  configInfoForm.validate(() => {});
-                } else {
-                  basicInfoForm.validate(() => {});
                 }
               } else {
-                // 若选择Sonar数据检查，则至少要选择一个检查项
-                if (this.formData.sonarCheck.selected) {
-                  if (!this.formData.sonarCheck.unitTestSelected && !this.formData.sonarCheck.codeDebtSelected) {
-                    this.$message.error(`若选择Sonar数据检查，则至少要选择一个检查项`);
-                    return;
-                  }
-                }
-                if ('take-effect' === action) {
-                  // 前端逻辑按照字符串处理，为了兼容以后支持多种webhook，后端使用数组格式
-                  if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
-                    this.formData.webHooks.webHooksSelectedEvent = [this.formData.webHooks.webHooksSelectedEvent]
-                  }
-                  await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_take_effect, {
-                    payload: this.formData
-                  });
-                  this.$message.success(`pipeline "${this.formData.pipelineName}" 的配置已生效！`);
-                  this.$router.go(-1);
-                } else {
-                  this.requestUpdate();
-                }
+                console.log(err);
               }
-            });
+            }
             break;
           // TODO: not used
           case 'enable':
