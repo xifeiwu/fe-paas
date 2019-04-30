@@ -674,7 +674,10 @@ class Net extends NetBase {
         path: '/pipeline/validate/{appId}',
         method: 'post',
       },
-
+      'pipeline_service_info_update': {
+        path: '/pipeline/latest/application/config/{appId}',
+        method: 'get'
+      },
       /** 授权相关 */
       'uaa_get_by_group':{
         path: '/application/authorization/list',

@@ -100,7 +100,9 @@
                 <div class="stage-config" v-if="currentStage.selected" :key="stageName">
                   <!--部署到测试环境-->
                   <div v-if="stageName === 'deployTestEnv'" class="deployTestEnv">
-                    <div v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
+                    <div class="service-info-container" v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
+                      <i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('refresh_service_info') ? 'loading':'']"
+                         @click="handleClick($event, 'refresh_test_service_info')"></i>
                       <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
                     </div>
                     <div style="color:#E6A23C; text-align: center" v-else>
@@ -109,7 +111,9 @@
                   </div>
                   <!--部署到联调环境-->
                   <div v-if="stageName === 'deployBetaEnv'" class="deployBetaEnv">
-                    <div v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
+                    <div class="service-info-container" v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
+                      <i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('refresh_service_info') ? 'loading':'']"
+                         @click="handleClick($event, 'refresh_beta_service_info')"></i>
                       <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
                     </div>
                     <div style="color:#E6A23C; text-align: center" v-else>
@@ -385,6 +389,9 @@
             padding-left: 10px;
           }
           &.step1 {
+            .title {
+              border-top-width: 0px;
+            }
             .el-form {
               .el-select {
                 width: 500px;
@@ -519,10 +526,27 @@
                   }
                   .deployTestEnv, .deployBetaEnv {
                     font-size: 14px;
-                    .paas-service-info {
+                    .service-info-container {
+                      position: relative;
                       display: block;
                       width: 760px;
                       margin: 0px auto;
+                      .el-icon-refresh {
+                        position: absolute;
+                        top: 0px;
+                        right: 0px;
+                        font-size: 16px;
+                        z-index: 10;
+                        &:hover {
+                          /*font-size: 16px;*/
+                          color: #409EFF;
+                          cursor: pointer;
+                        }
+                        &.loading {
+                          pointer-events: none;
+                          animation: rotating 1s linear infinite;
+                        }
+                      }
                     }
                   }
                 }
@@ -582,6 +606,7 @@
   // require active-line.js
   import "codemirror/addon/selection/active-line.js";
   import paasServiceInfo from './components/service-info.vue';
+  import commonUtils from 'assets/components/mixins/common-utils';
 
   const STAGE_NAME_MAP = {
     'start': {
@@ -626,6 +651,7 @@
     }
   };
   export default {
+    mixins: [commonUtils],
     components: {pipelineStage, codemirror, paasServiceInfo},
     async created() {
       var goBack = false;
@@ -752,7 +778,6 @@
     mounted() {
       this.$nextTick(() => {
         this.stepNodeList = [].slice.call(this.$el.querySelectorAll('.sheet .nav-steps .step'));
-//        console.log(this.stepNodeList);
       });
     },
     data() {
@@ -1325,6 +1350,7 @@
           success: true,
           reason: ''
         };
+        var resContent = null;
         switch (action) {
 	        case 'more-config':
 		        this.showMoreConfig = !this.showMoreConfig;
@@ -1344,7 +1370,6 @@
                 it.classList.remove('active');
               }
             });
-//            console.log(evt.target);
             break;
           case 'stage-add':
             switch (this.currentStage.name) {
@@ -1519,6 +1544,34 @@
               }
             };
             this.$router.push(this.$net.page['profile/pipeline/records']);
+            break;
+          case 'refresh_test_service_info':
+          case 'refresh_beta_service_info':
+            var serviceInfo = {
+              refresh_test_service_info: {
+                spaceName: 'test',
+                stageName: 'deployTestEnv'
+              },
+              refresh_beta_service_info: {
+                spaceName: 'beta',
+                stageName: 'deployBetaEnv'
+              }
+            }[action];
+            this.addToWaitingResponseQueue('refresh_service_info');
+            try {
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_service_info_update, {
+                params: {
+                  appId: this.formData.appId
+                },
+                query: {
+                  spaceName: serviceInfo['spaceName']
+                }
+              });
+              this.pipelineInfoFromNet[serviceInfo.stageName]['applicationConfig'] = resContent;
+              this.hideWaitingResponse('refresh_service_info');
+            } catch (err) {
+              this.hideWaitingResponse('refresh_service_info');
+            }
             break;
         }
       },
