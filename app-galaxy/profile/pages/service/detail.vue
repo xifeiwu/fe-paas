@@ -506,6 +506,7 @@
           margin-bottom: 15px;
           background-color: #fff;
           border-bottom: 1px solid white;
+          box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
           .middleware-title {
             border: 1px solid #f5f5f6;
             color: #666;
