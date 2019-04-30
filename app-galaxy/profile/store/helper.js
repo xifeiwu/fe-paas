@@ -1,5 +1,6 @@
 import BaseHelper from 'assets/js/store/helper';
 import store from './index';
+import * as shvl from 'shvl';
 
 class StoreHelper extends BaseHelper{
   constructor() {
@@ -46,6 +47,15 @@ class StoreHelper extends BaseHelper{
 
   get userConfig() {
     return this.$store.getters['user/config'];
+  }
+  getUserConfig(props) {
+    return shvl.get(this.userConfig, props);
+  }
+  setUserConfig(page, data) {
+    this.$store.dispatch('user/config', {
+      page,
+      data
+    });
   }
 
   get lobInfo() {
@@ -535,7 +545,7 @@ class StoreHelper extends BaseHelper{
     let target = null;
     try {
       this.profileListAll.some(it => {
-        target = it.id === id ? it : null;
+        target = it.id == id ? it : null;
         return target
       });
     } catch(err) {

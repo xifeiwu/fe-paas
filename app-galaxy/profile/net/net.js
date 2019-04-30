@@ -102,11 +102,12 @@ class Net extends NetBase {
         path: '/service/createApplicationService',
         method: 'post'
       },
+      // 获取服务基本信息列表（k8s运行时）
       'service_list_by_profile': {
         path: '/service/queryByDetail',
         method: 'post'
       },
-      // 获取服务信息（基本信息）
+      // 获取服务信息（基本信息）（数据库）
       'service_list_by_app_and_profile': {
         path: '/service/queryByAppIdAndSpaceId',
         method: 'post'
