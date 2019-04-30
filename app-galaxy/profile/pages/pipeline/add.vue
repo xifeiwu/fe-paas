@@ -182,20 +182,26 @@
                     </el-form-item>
                     <!--部署到测试环境-->
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployTestEnv'">
-                      <el-checkbox v-model="formData.deployTestEnv.inputChecked"></el-checkbox>
+                      <div style="display: flex; justify-content: space-between">
+                        <el-checkbox v-model="formData.deployTestEnv.inputChecked"></el-checkbox>
+                        <span style="color: blue; text-decoration: underline; cursor: pointer" @click="pageJump('test')">点击跳转到修改测试环境服务配置页面<i class="paas-icon-level-up"></i></span>
+                      </div>
                     </el-form-item>
                     <!--部署到联调环境-->
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployBetaEnv'">
-                      <el-checkbox v-model="formData.deployBetaEnv.inputChecked"></el-checkbox>
+                      <div>
+                        <el-checkbox v-model="formData.deployBetaEnv.inputChecked"></el-checkbox>
+                        <span style="color: blue; text-decoration: underline; cursor: pointer" @click="pageJump('beta')">点击跳转到修改联调环境服务配置页面<i class="paas-icon-level-up"></i></span>
+                      </div>
                     </el-form-item>
                     <!--自动化测试-->
-                    <el-form-item label="gitlab分支：" labelWidth="160px" prop="ciPipelineAutoTestVO.gitLabBranch"
-                                    v-show="stageName === 'ciPipelineAutoTestVO'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabBranch"></el-input>
-                    </el-form-item>
                     <el-form-item label="gitlab路径：" labelWidth="160px" prop="ciPipelineAutoTestVO.gitLabPath"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabPath"></el-input>
+                    </el-form-item>
+                    <el-form-item label="gitlab分支：" labelWidth="160px" prop="ciPipelineAutoTestVO.gitLabBranch"
+                                    v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabBranch"></el-input>
                     </el-form-item>
                     <el-form-item label="自动化测试报告目录：" labelWidth="160px" prop="ciPipelineAutoTestVO.itTestReportAddress"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
@@ -379,11 +385,6 @@
             padding-left: 10px;
           }
           &.step1 {
-            .title {
-              border-top: none;
-              font-size: 14px;
-              padding: 1px;
-            }
             .el-form {
               .el-select {
                 width: 500px;
@@ -469,7 +470,7 @@
             }
             padding-bottom: 8px;
             .config {
-              padding-top: 28px;
+              padding-top: 12px;
               .stage-list {
                 /*padding-left: 28px;*/
                 text-align: center;
@@ -1068,6 +1069,18 @@
 
     },
     methods: {
+      pageJump(profileName) {
+        const profileInfo = this.$storeHelper.getProfileInfoByName(profileName);
+        const appId = this.formData.appId;
+        const profileId = profileInfo ? profileInfo['id'] : null;
+        if (appId && profileId) {
+          window.open(`${location.origin}${this.$net.page['profile/service/modify']}${this.$utils.objectToQueryString({appId, profileId})}`, '_blank');
+        } else {
+          console.log(`appId or profileId not found`);
+        }
+//        console.log(profile);
+//        console.log(profileInfo);
+      },
 	    handleParameter (action, key, value, remark) {
 		    switch (action) {
 			    case 'add':
