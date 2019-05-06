@@ -707,7 +707,7 @@
         if (!versionConditionFilter) {
           return;
         }
-        this.appInfo = versionConditionFilter.selectedAPP;
+        this.appInfo = versionConditionFilter.selectedApp;
         this.profileInfo = versionConditionFilter.selectedProfile;
         this.serviceInfo = versionConditionFilter.selectedService;
         this.currentPage = 1;

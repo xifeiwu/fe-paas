@@ -188,12 +188,16 @@
           id: 10,
           serviceVersion: 'default'
         };
-        return {selectedApp, selectedProfile, selectedService};
+        return this.$utils.cloneDeep({selectedApp, selectedProfile, selectedService});
       },
 
       serviceSelected() {
         const selectedInfo = this.getSelectedInfo();
-        this.$emit('service-selected', selectedInfo.selectedApp, selectedInfo.selectedProfile, selectedInfo.selectedService);
+        this.$emit('service-selected',
+          this.$utils.cloneDeep(selectedInfo.selectedApp),
+          this.$utils.cloneDeep(selectedInfo.selectedProfile),
+          this.$utils.cloneDeep(selectedInfo.selectedService)
+        );
       },
     }
   }
