@@ -403,6 +403,7 @@
             buildNumber: o['buildNumber'],
             // do not sync duration by buildingList
             // duration: parseInt(o['durationMillis']),
+            durationMillis: parseInt(o['durationMillis']),
             executionTime: parseInt(o['startTimeMillis']),
 //            message: null,
             status: o['status'],
@@ -427,6 +428,14 @@
           return (pre - next) * -1;
         });
         var result = keys.map(key => {
+          // 首次获得构建中列表时，更新构建列表时间
+          try {
+            if (buildMap.hasOwnProperty(key) && buildingMap.hasOwnProperty(key) && buildMap[key]['duration'] === 0) {
+              buildMap[key]['duration'] = parseInt(buildingMap[key]['durationMillis']);
+            }
+          } catch(err) {
+            console.log(err);
+          }
           return Object.assign(buildMap.hasOwnProperty(key) ? buildMap[key] : {}, buildingMap.hasOwnProperty(key) ? buildingMap[key] : {});
         });
         this.formatBuildList(result);
@@ -534,7 +543,10 @@
 //        console.log(this.buildListAll);
       },
 
-      // 请求buildList和buildingList，直到buildingList的状态不再更新
+      /**
+       * 请求buildList和buildingList，直到buildingList的状态不再更新
+       * 被调用的地方：页面mounted；刷新；执行
+       */
       async requestBuildingStatus() {
         await this.requestBuildList();
         this.buildListAll = this.mergeBuildList(this.buildList, []);
