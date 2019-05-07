@@ -401,7 +401,8 @@
         const transfer = (o) => {
           var result = {
             buildNumber: o['buildNumber'],
-            duration: parseInt(o['durationMillis']),
+            // do not sync duration by buildingList
+            // duration: parseInt(o['durationMillis']),
             executionTime: parseInt(o['startTimeMillis']),
 //            message: null,
             status: o['status'],
