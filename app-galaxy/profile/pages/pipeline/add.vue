@@ -199,15 +199,15 @@
                       </div>
                     </el-form-item>
                     <!--自动化测试-->
-                    <el-form-item label="gitlab路径：" labelWidth="160px" prop="ciPipelineAutoTestVO.gitLabPath"
+                    <el-form-item label="gitlab路径：" labelWidth="220px" prop="ciPipelineAutoTestVO.gitLabPath"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabPath"></el-input>
                     </el-form-item>
-                    <el-form-item label="gitlab分支：" labelWidth="160px" prop="ciPipelineAutoTestVO.gitLabBranch"
+                    <el-form-item label="gitlab分支：" labelWidth="220px" prop="ciPipelineAutoTestVO.gitLabBranch"
                                     v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabBranch"></el-input>
                     </el-form-item>
-                    <el-form-item label="自动化测试报告目录：" labelWidth="160px" prop="ciPipelineAutoTestVO.itTestReportAddress"
+                    <el-form-item label="自动化测试报告目录：" labelWidth="220px" prop="ciPipelineAutoTestVO.itTestReportAddress"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.itTestReportAddress"></el-input>
                     </el-form-item>
@@ -215,7 +215,7 @@
                       v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.relativePath"></el-input>
                     </el-form-item>
-                    <el-form-item label="脚本名称：" labelWidth="160px" prop="ciPipelineAutoTestVO.script"
+                    <el-form-item label="脚本：" labelWidth="220px" prop="ciPipelineAutoTestVO.script"
                       v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.script"></el-input>
                     </el-form-item>
@@ -223,13 +223,13 @@
                                   v-if="stageName === 'ciPipelineAutoTestVO'">
                       <codemirror v-model="formData.ciPipelineAutoTestVO.script" :options="groovyOption"></codemirror>
                     </el-form-item> -->
-                    <el-form-item label="手工确认：" v-show="stageName === 'ciPipelineAutoTestVO'">
+                    <el-form-item label="手工确认：" labelWidth="220px" v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-checkbox v-model="formData.ciPipelineAutoTestVO.inputChecked"></el-checkbox>
                     </el-form-item>
 
                     <!--上传测试报告-->
-                    <el-form-item label="脚本名称：" labelWidth="160px" prop="uploadUnitTestReportAndAutoTestReport.script"
-                                  v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
+                    <el-form-item label="脚本：" labelWidth="160px" prop="uploadUnitTestReportAndAutoTestReport.script"
+                                  v-show="stageName === 'uploadUnitTestReportAndAutoTestReport' && false">
                       <el-input size="mini-extral" v-model="formData.uploadUnitTestReportAndAutoTestReport.script"></el-input>
                     </el-form-item>
                     <el-form-item label="手工确认：" v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
@@ -489,7 +489,7 @@
                 .stage-config {
                   .el-form-item {
                     .el-form-item__label {
-                      padding-right: 3px;
+                      padding-right: 6px;
                     }
                   }
                   .el-form.union-form {
@@ -534,8 +534,8 @@
                       .el-icon-refresh {
                         position: absolute;
                         top: 0px;
-                        right: 0px;
-                        font-size: 16px;
+                        right: 20px;
+                        font-size: 20px;
                         z-index: 10;
                         &:hover {
                           /*font-size: 16px;*/
@@ -983,7 +983,7 @@
             fields: {
               script: [{
                 type: "string",
-                required: true,
+                required: false,
                 trigger: ['blur', 'change'],
                 requiredOrigin: true,
                 message: '请填写脚本名称'
@@ -1559,7 +1559,7 @@
             }[action];
             this.addToWaitingResponseQueue('refresh_service_info');
             try {
-              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_service_info_update, {
+              var applicationConfig = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_service_info_update, {
                 params: {
                   appId: this.formData.appId
                 },
@@ -1567,7 +1567,28 @@
                   spaceName: serviceInfo['spaceName']
                 }
               });
-              this.pipelineInfoFromNet[serviceInfo.stageName]['applicationConfig'] = resContent;
+
+              // update pipelineInfoFromNet['buildImage']['basicImage'](autoImageList) if necessary
+              if (['language', 'languageVersion', 'packageType'].some(key => {
+                return this.pipelineInfoFromNet[serviceInfo.stageName]['applicationConfig'][key] != applicationConfig[key];
+              })) {
+                resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.auto_image_list, {
+                  payload: {
+                    groupTag: this.$storeHelper.groupInfo.tag,
+                    appId: this.formData.appId,
+                    language: applicationConfig.language,
+                    languageVersion: applicationConfig.languageVersion,
+                    packageType: applicationConfig.packageType,
+                  }
+                });
+                this.pipelineInfoFromNet['buildImage']['basicImage'] = resContent['basicImage'];
+                if (this.pipelineInfoFromNet['buildImage']['basicImage'].length > 0) {
+                  this.pipelineInfoFromNet['buildImage']['selectedImage'] = this.pipelineInfoFromNet['buildImage']['basicImage'][0];
+                }
+              } else {
+              }
+              this.pipelineInfoFromNet[serviceInfo.stageName]['applicationConfig'] = applicationConfig;
+
               this.hideWaitingResponse('refresh_service_info');
             } catch (err) {
               this.hideWaitingResponse('refresh_service_info');

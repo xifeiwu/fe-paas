@@ -45,8 +45,8 @@
       <el-form-item label="preStop脚本" class="big">
         <span>{{serviceInfo.prestopCommand}}</span>
       </el-form-item>
-      <el-form-item label="VM_Options" class="big" v-if="serviceInfo.language==='JAVA'">
-        <span class="expand-to-next-line">{{serviceInfo.vmOptions}}</span>
+      <el-form-item label="VM_Options" class="big vm-options" v-if="serviceInfo.language==='JAVA'">
+        {{serviceInfo.vmOptions}}
       </el-form-item>
       <el-form-item label="Host配置" class="big" v-if="false">
         <div v-if="serviceInfo.hosts && serviceInfo.hosts.length > 0">
