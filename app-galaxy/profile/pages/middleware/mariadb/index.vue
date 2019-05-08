@@ -849,6 +849,8 @@
             try {
               const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_update, {
                 payload: {
+                  groupId: this.$storeHelper.currentGroupID,
+                  id: this.action.row.id,
                   clusterId: this.clusterId,
                   middlewareId: this.middlewareId,
                   middlewareVersionId: 3,
@@ -1121,6 +1123,8 @@
               await this.warningConfirm(warningMsg);
               const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_instance_delete, {
                 payload: {
+                  id: row.id,
+                  groupId: this.$storeHelper.currentGroupID,
                   clusterId: this.clusterId,
                   middlewareId: this.middlewareId,
                   middlewareVersionId: 3,

@@ -109,6 +109,11 @@ class StoreHelper extends BaseHelper {
         operationName: 'INTERNETDOMAINWHITEIPUPDATE',
         operationNickName: '关联IP白名单-修改',
       },
+      {
+        //外网域名安全审核
+        operationName: 'INTERNETDOMAINSECURITYCHECK',
+        operationNickName: '外网域名安全审核',
+      },
       //配置中心相关
       {
         //添加配置中心目录
@@ -131,6 +136,32 @@ class StoreHelper extends BaseHelper {
       //   operationName: 'WORKORDERDEPLOY',
       //   operationNickName: '线上工单发布',
       // }
+      //中间件相关
+      {
+        //创建mariaDB
+        operationName: 'CREATEMIDDLEWAREFORMARIADB',
+        operationNickName: '创建mariaDB'
+      },
+      {
+        //删除中间件
+        operationName: 'DELETEMIDDLEWARE',
+        operationNickName: '删除中间件'
+      },
+      {
+        //更新mariaDB
+        operationName: 'UPDATEMIDDLEWAREMARIADB',
+        operationNickName: '更新mariaDB'
+      },
+      {
+        //创建中间件redis
+        operationName: 'CREATEMIDDLEWAREFORREDIS',
+        operationNickName: '创建redis'
+      },
+      {
+        //更新redis
+        operationName: 'UPDATEMIDDLEWAREREDIS',
+        operationNickName: '更新redis'
+      }
     ]
   }
 }
