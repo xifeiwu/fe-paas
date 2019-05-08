@@ -7,15 +7,16 @@
         <label>实例名称:</label>
         <el-input
                 v-model="searchForm.instanceName"
+                size="mini" style="display: inline-block; width: 160px;" placeholder="默认所有实例"></el-input>
+      </div>
+
+      <div class="item">
+        <label>关键字:</label>
+        <el-input
+                v-model="searchForm.keyword"
                 size="mini" style="display: inline-block; width: 160px;"></el-input>
       </div>
-      <div class="item">
-        <label>日志级别:</label>
-        <el-select v-model="searchForm.logLevel">
-          <el-option v-for="(item, index) in logLevelList" :key="index" :label="item" :value="item">
-          </el-option>
-        </el-select>
-      </div>
+
       <div class="item">
         <label>时间:</label>
         <el-date-picker
@@ -32,12 +33,18 @@
         >
         </el-date-picker>
       </div>
+
       <div class="item">
-        <label>关键字:</label>
-        <el-input
-                v-model="searchForm.keyword"
-                size="mini" style="display: inline-block; width: 160px;"></el-input>
+        <label>日志级别:</label>
+        <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
+        <el-checkbox-group
+                style="display: inline-block; width: 450px;"
+                v-model="searchForm.logLevel"  @change="handleCheckedCitiesChange">
+          <el-checkbox v-for="(item, index) in logLevelList" :key="index" :label="item" :value="item">
+          </el-checkbox>
+        </el-checkbox-group>
       </div>
+
       <el-button
               size="mini-extral"
               type="primary"
@@ -281,11 +288,12 @@
           spaceId: '',
           serviceVersion: '',
           instanceName: '',
-          logLevel: 'INFO',
+          logLevel: ['INFO'],
           dateTimeRange: [],
           keyword: '',
         },
-
+        checkAll: false,
+        isIndeterminate: true,
         DEFAULT_LEVEL: 'INFO',
         logLevelList: ['DEBUG', 'INFO', 'WARN', 'ERROR'],
 //        defaultTime: start.getTime() - 3600 * 1000 * 24 * 7,
@@ -448,7 +456,8 @@
           spaceId: this.searchForm.spaceId,
           serviceVersion: this.searchForm.serviceVersion,
           podName: this.searchForm.instanceName,
-          logLevel: this.searchForm.logLevel,
+          // logLevel: this.searchForm.logLevel,
+          logLevels: this.searchForm.logLevel,
           startTime: dateRange[0],
           endTime: dateRange[1],
           keyword: this.searchForm.keyword,
@@ -467,7 +476,19 @@
           this.showLoading = false;
           this.dialogStatus.showLoading = false;
         });
-      }
+      },
+
+
+        handleCheckAllChange(val) {
+            this.searchForm.logLevel = val ? this.logLevelList : [];
+            this.isIndeterminate = false;
+        },
+        handleCheckedCitiesChange(value) {
+            let checkedCount = value.length;
+            this.checkAll = checkedCount === this.logLevelList.length;
+            this.isIndeterminate = checkedCount > 0 && checkedCount < this.logLevelList.length;
+
+        }
     }
   }
 </script>
