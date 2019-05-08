@@ -429,6 +429,11 @@ class Net extends NetBase {
         path: '/workOrderDeploy/getWorkOrderDeployList',
         method: 'post'
       },
+	    // 工单列表下载
+	    'work_order_download': {
+		    path: '/workOrderDeploy/downloadWorkOrderDeployList',
+		    method: 'post'
+	    },
       // 创建工单
       'work_order_create': {
         path: '/workOrderDeploy/applyWordOrderDeploy',

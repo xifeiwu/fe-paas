@@ -44,6 +44,11 @@
                 size="mini-extral"
                 type="primary"
                 @click="handleButtonClick('refresh')">刷新</el-button>
+        <el-button
+            size="mini-extral"
+            type="primary"
+            @click="handleButtonClick('download')">下载工单
+        </el-button>
       </el-row>
     </div>
     <div class="work-order-list">
@@ -478,6 +483,10 @@
           case 'linker':
             this.$router.push(params.path);
             break;
+          case 'download':
+            this.currentPage = 1;
+            this.downloadWorkOrderList();
+            break;
         }
       },
       handleTRClick(evt, action, index, row) {
@@ -640,6 +649,72 @@
           it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
         });
         this.totalSize = resContent['workOrderDeployList'].length;
+      },
+
+      async downloadWorkOrderList() {
+        let payload = {
+          name: '',
+          creatorName: '',
+          status: '',
+          startTime: '',
+          endTime: ''
+        };
+        if (this.searchForm.workOrderName) {
+          payload.name = this.searchForm.workOrderName.trim();
+        }
+        if (this.searchForm.creator) {
+          payload.creatorName = this.searchForm.creator.trim();
+        }
+        if (this.searchForm.status) {
+          if (this.searchForm.status == 'STATUS_ALL') {
+            delete payload.status;
+          } else {
+            payload.status = this.searchForm.status;
+          }
+        } else {
+          delete payload.status;
+        }
+        if (this.searchForm.dateRange) {
+          let dateRange = this.searchForm.dateRange.map(it => {
+            let v = this.$utils.formatDate(it, 'yyyy-MM-dd')
+            return v;
+          });
+          payload.startTime = dateRange[0] + ' 00:00:00';
+          payload.endTime = dateRange[1] + ' 23:59:59';
+        } else {
+          payload.startTime = '';
+          payload.endTime = '';
+        }
+
+        await this.$confirm("仅支持审批状态为'结束'的工单，可根据工单名称、申请人和申请时间筛选！", '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          dangerouslyUseHTMLString: true
+        });
+
+        this.$net.addToRequestingRrlList(this.$net.URL_LIST.work_order_download.path);
+        this.$net.getResponse(this.$net.URL_LIST.work_order_download, {
+          payload
+        }, {
+          timeout: 600000,
+          headers: {
+            token: this.$storeHelper.getUserInfo('token')
+          },
+          responseType: 'blob'
+        }).then(res => {
+          const a = document.createElement('a');
+          const blob = new Blob([res.data]);
+          a.href = window.URL.createObjectURL(blob);
+          a.download = `结束工单列表-${payload.endTime}.xls`;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+        }).catch(err => {
+          this.$net.showError(err);
+        }).finally(() => {
+          this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.work_order_download.path);
+        });
       }
     }
   }
