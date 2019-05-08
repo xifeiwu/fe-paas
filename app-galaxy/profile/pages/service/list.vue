@@ -85,7 +85,7 @@
                       size="small"
                       type="text"
                       :loading="statusOfWaitingResponse('service_deploy') && action.row.appId == scope.row.appId"
-                      @click="confirmDeploy($event, 'service_deploy', scope.$index, scope.row)"
+                      @click="handleTRClick($event, 'service_deploy', scope.$index, scope.row)"
                       :class="$storeHelper.permission['service_deploy'].disabled || publishStatus? 'disabled' : 'danger'">
                     {{statusOfWaitingResponse('deploy') && action.row.appId == scope.row.appId ? '部署中': '部署'}}
               </el-button>
@@ -261,23 +261,23 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="提示" :visible="showConfirmDeployDialog"
+    <el-dialog title="提示" :visible="actionNew.name == 'service_deploy'"
+               v-if="actionNew.name"
                class="confirm-deploy"
                width="600px"
                :close-on-click-modal="false"
-               @close="showConfirmDeployDialog = false"
+               @close="closeDialog"
     >
       <div class="el-message-box__status el-icon-warning" style="padding-bottom: 27px;"></div>
       <div class="el-message-box__message">
-        <p>您确认要部署{{serviceDesc}}吗?</p>
-        <el-checkbox v-model="forceClone">强制清空打包目录（删除所有源代码、包文件等）</el-checkbox>
+        <p>您确认要部署{{actionNew.data.serviceDesc}}吗?</p>
+        <el-checkbox v-model="actionNew.data.forceClone">强制清空打包目录（删除所有源代码、包文件等）</el-checkbox>
       </div>
 
       <span slot="footer" class="el-message-box__btns">
-        <el-button action="profile-dialog/cancel"
-                   @click="showConfirmDeployDialog = false">取&nbsp消</el-button>
+        <el-button @click="closeDialog">取&nbsp消</el-button>
         <el-button type="primary"
-                   @click="handleDeployClick()"
+                   @click="handleDialogEvent($event, actionNew.name)"
                    :loading="waitingResponse">确&nbsp认</el-button>
       </span>
     </el-dialog>
@@ -572,6 +572,15 @@
           name: null,
           row: null
         },
+        actionNew: {
+          name: null,
+          promise: {
+            resolve: () => {},
+            reject: () => {},
+          },
+          dataOrigin: null,
+          data: null
+        },
 
         deployLogs: [],
         dialogForLogStatus: {
@@ -638,6 +647,34 @@
 
         this.profileInfo = profileInfo;
         this.profileName = profileInfo['name'];
+      },
+
+      openDialog(name, data) {
+        this.actionNew.dataOrigin = data;
+        this.actionNew.data = this.$utils.cloneDeep(data);
+        this.actionNew.name = name;
+        // console.log(this.actionNew);
+
+        return new Promise((resolve, reject) => {
+          this.actionNew.promise.resolve = resolve;
+          this.actionNew.promise.reject = reject;
+        });
+      },
+      closeDialog() {
+        this.actionNew.name = null;
+        this.actionNew.promise.reject('cancel');
+      },
+      async handleDialogEvent(evt, action) {
+//        console.log(evt, action);
+        try {
+          switch (action) {
+            case 'service_deploy':
+                this.actionNew.promise.resolve(this.actionNew.data);
+              break;
+          }
+        } catch(err) {
+          console.log(err);
+        }
       },
 
       handleButtonClick(evt, action) {
@@ -974,35 +1011,10 @@
         }
       },
 
-      confirmDeploy(evt, action, index, row) {
-        if (this.publishStatus) {
-          this.$storeHelper.popoverWhenPublish(evt.target);
-          return;
-        }
-        var permission = action;
-        if (this.$storeHelper.permission.hasOwnProperty(permission) && this.$storeHelper.permission[permission].disabled) {
-          this.$storeHelper.globalPopover.show({
-            ref: evt.target,
-            msg: this.$storeHelper.permission[permission].reason
-          });
-          return;
-        }
-        this.showConfirmDeployDialog = true;
-        this.action.evt = evt;
-        this.action.name = action;
-        this.action.row = row;
-        this.serviceDesc = this.getVersionDescription();
-        this.forceClone = false;
-      },
-
-      handleDeployClick() {
-        this.handleTRClick(this.action.evt, this.action.name, this.action.row.index, this.action.row);
-        this.showConfirmDeployDialog = false;
-      },
-
       async handleTRClick(evt, action, index, row) {
         var permission = action;
-        if (['service_config_add','service_config_copy','service_delete','quick_deploy','service_config_modify','service_stop','service_update'].indexOf(action) > -1 && this.publishStatus) {
+        if (['service_config_add','service_config_copy','service_delete', 'service_deploy',
+            'quick_deploy','service_config_modify','service_stop','service_update'].indexOf(action) > -1 && this.publishStatus) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
@@ -1081,17 +1093,24 @@
             };
             this.$router.push(PATH_MAP[action]);
             break;
+          // 部署服务。弹框有checkbox提示：强制清空打包目录（删除所有源代码、包文件等）
           case 'service_deploy':
             this.addToWaitingResponseQueue(action);
             try {
+              await this.openDialog(action, {
+                serviceDesc: this.getVersionDescription(),
+                forceClone: false
+              });
+              this.closeDialog();
               await this.serviceDeploy({
                 id: row.id,
                 appId: row.appId,
                 spaceId: this.profileInfo.id,
-                forceClone: this.forceClone,
+                forceClone: this.actionNew.forceClone,
               }, action);
             } catch (err) {
               console.log(err);
+              this.closeDialog();
               this.hideWaitingResponse(action);
             }
             break;
