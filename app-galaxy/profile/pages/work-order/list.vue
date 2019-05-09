@@ -47,7 +47,8 @@
         <el-button
             size="mini-extral"
             type="primary"
-            @click="handleButtonClick('download')">下载工单
+            :class="[$storeHelper.permission['work-order_download'].disabled ? 'disabled' : 'warning']"
+            @click="handleButtonClick('work-order_download', '', $event)">下载工单
         </el-button>
       </el-row>
     </div>
@@ -469,7 +470,7 @@
         start.setTime(start.getTime() - 1000 * 3600 * 24 * 30);
         this.searchForm.dateRange = [start, end];
       },
-      handleButtonClick(action, params) {
+      handleButtonClick(action, params, evt) {
         switch (action) {
           case 'search':
 //            console.log(this.searchForm);
@@ -483,7 +484,14 @@
           case 'linker':
             this.$router.push(params.path);
             break;
-          case 'download':
+          case 'work-order_download':
+            if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+              this.$storeHelper.globalPopover.show({
+                ref: evt.target,
+                msg: this.$storeHelper.permission[action].reason
+              });
+              return;
+            }
             this.currentPage = 1;
             this.downloadWorkOrderList();
             break;
@@ -686,6 +694,18 @@
           payload.endTime = '';
         }
 
+        let startTimestamp = new Date(payload.startTime);
+        let endTimestamp = new Date(payload.endTime);
+        let iDays = parseInt(Math.abs(endTimestamp.getTime() - startTimestamp.getTime()) /1000/60/60/24);
+        // 工单下载暂时仅支持3个月之内
+        if (iDays > 92 || iDays < 0) {
+          this.$message({
+            duration: 5000,
+            type: 'warning',
+            message: '下载仅支持申请时间在3个月之内的工单！'
+          });
+          return;
+        }
         await this.$confirm("仅支持审批状态为'结束'的工单，可根据工单名称、申请人和申请时间筛选！", '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
