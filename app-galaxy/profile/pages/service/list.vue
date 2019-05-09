@@ -261,10 +261,9 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="提示" :visible="actionNew.name == 'service_deploy'"
+    <el-dialog title="部署服务" :visible="actionNew.name == 'service_deploy'"
                v-if="actionNew.name"
-               class="confirm-deploy"
-               width="600px"
+               class="confirm-dialog size-600"
                :close-on-click-modal="false"
                @close="closeDialog"
     >
@@ -274,6 +273,25 @@
         <el-checkbox v-model="actionNew.data.forceClone">强制清空打包目录（删除所有源代码、包文件等）</el-checkbox>
       </div>
 
+      <span slot="footer" class="el-message-box__btns">
+        <el-button @click="closeDialog">取&nbsp消</el-button>
+        <el-button type="primary"
+                   @click="handleDialogEvent($event, actionNew.name)"
+                   :loading="waitingResponse">确&nbsp认</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog title="actionNew.data.title" :visible="['quick_deploy', 'service_stop', 'service_delete'].indexOf(actionNew.name) > -1"
+               v-if="actionNew.name"
+               class="confirm-dialog size-600"
+               :close-on-click-modal="false"
+               @close="closeDialog"
+    >
+      <div class="el-message-box__status el-icon-warning" style="padding-bottom: 27px;"></div>
+      <div class="el-message-box__message">
+        <div v-html="actionNew.data.tip"></div>
+        <el-input v-model="actionNew.data.confirm"></el-input>
+      </div>
       <span slot="footer" class="el-message-box__btns">
         <el-button @click="closeDialog">取&nbsp消</el-button>
         <el-button type="primary"
@@ -388,7 +406,7 @@
         font-weight: bold;
       }
     }
-    > .confirm-deploy {
+    > .confirm-dialog {
       .el-dialog {
         display: inline-block;
         vertical-align: middle;
@@ -420,6 +438,13 @@
         padding: 10px 15px;
         color: #5a5e66;
         font-size: 14px;
+      }
+      .service-name {
+        padding: 2px 4px;
+        font-size: 90%;
+        color: #c0341d;
+        background-color: #fcedea;
+        border-radius: 3px;
       }
       .el-dialog__footer {
         border-top: none;
@@ -573,6 +598,7 @@
           row: null
         },
         actionNew: {
+          row: null,
           name: null,
           promise: {
             resolve: () => {},
@@ -600,9 +626,6 @@
           // 校验规则：域名数组（大于一个小于五个，无域名后缀）
           errMsgForDomainList: ''
         },
-        showConfirmDeployDialog: false,
-        forceClone: false,
-        serviceDesc: '',
       }
     },
     methods: {
@@ -930,7 +953,6 @@
         };
 
         const desc = this.getVersionDescription();
-        this.serviceDesc = desc;
         // var warningMsg = `您确认要部署${desc}吗?`;
         if (type == 'quick_deploy') {
           let warningMsg = `<p>您确认要重启${desc}吗?</p><p style="color: #E6A23C; font-size: 12px;">(重启：采用最近一次部署成功的镜像进行服务的重新启动，跳过代码编译、镜像生成阶段)</p>`;
@@ -1011,6 +1033,22 @@
         }
       },
 
+      getDesc4ProductionConfirmDialog(action) {
+        if (!['quick_deploy', 'service_stop', 'service_delete'].includes(action)) {
+          return null;
+        }
+        const serviceDesc = this.getVersionDescription();
+        const descMap = {
+          service_delete: {
+            title: '删除服务',
+            tip: `<div>
+<span>您确定要删除服务</span><span class="service-name">${serviceDesc}</span><span>" 吗？</span>
+</div>
+<div>删除服务将会销毁代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。</div>
+<div>请在下面输入${serviceDesc}，确认删除改服务</div>`,
+          }
+        };
+      },
       async handleTRClick(evt, action, index, row) {
         var permission = action;
         if (['service_config_add','service_config_copy','service_delete', 'service_deploy',
@@ -1049,6 +1087,7 @@
         }
         this.action.name = action;
         this.action.row = row;
+        this.actionNew.row = row;
         var resContent = null;
         switch (action) {
           case 'service_config_add':
@@ -1175,8 +1214,17 @@
             this.addToWaitingResponseQueue(action);
             var desc = this.getVersionDescription();
             try {
-              await this.warningConfirm(`删除服务将会销毁${desc}的代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。`);
-              await this.warningConfirm(`你确认要删除${desc}，并清除该服务的一切数据？`);
+              if (this.profileInfo.spaceType === 'PRODUCTION') {
+                await this.openDialog(
+                  action,
+                  Object.assign(this.getDesc4ProductionConfirmDialog(action), {
+                  })
+                );
+                this.closeDialog();
+              } else {
+                await this.warningConfirm(`删除服务将会销毁${desc}的代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。`);
+                await this.warningConfirm(`你确认要删除${desc}，并清除该服务的一切数据？`);
+              }
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_delete, {
                 payload: {
                   id: row.id,
@@ -1190,6 +1238,7 @@
               });
             } catch (err) {
               console.log(err);
+              this.closeDialog();
               this.hideWaitingResponse(action);
             }
             break;
