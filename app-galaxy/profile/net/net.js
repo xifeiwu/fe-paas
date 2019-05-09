@@ -845,7 +845,7 @@ class Net extends NetBase {
       '/2.x/order/todoList/apply': 'work-order_create',
       // 待办/工单/部署应用
       '/2.x/order/todoList/deploy': 'work-order_deploy_service',
-      '/2.x/order/todoList/download': 'work-order_download',
+      '/2.x/order/list/download': 'work-order_download',
 
       /** 中间件(mariadb)相关 */
       // 创建MariaDB
