@@ -29,13 +29,13 @@
               </el-form-item>
               <el-form-item label="webhook配置" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooks" class="webhook-config big">
                 <div class="webhook-config-content">
-                  <el-input size="mini-extral" v-model="formData.webHooks.webHooksUrl"></el-input>
+                  <span>{{formData.webHooks.webHooksUrl}}</span>
                   <div class="more-config">
-                    <span style="font-size: 14px; line-height: 24px; font-weight: bold; vertical-align: middle; margin-left: 20px;">hook类型：</span>
+                    <span style="color: black; font-weight: bold; font-size: 14px; line-height: 24px; vertical-align: middle; margin-left: 20px;">hook类型：</span>
                     <el-radio-group v-model="formData.webHooks.webHooksSelectedEvent">
                       <el-radio v-for="(item, index) in pipelineInfoFromNet.webHooks.webHooksEvent" :label="item" :key="item">{{item}}</el-radio>
                     </el-radio-group>
-                    <span style="font-size: 14px; line-height: 24px; font-weight: bold; vertical-align: middle; margin-left: 20px;">是否生效：</span>
+                    <span style="color: black; font-weight: bold; font-size: 14px; line-height: 24px; vertical-align: middle; margin-left: 20px;">是否生效：</span>
                     <el-checkbox v-model="formData.webHooks.selected"></el-checkbox>
                   </div>
                 </div>
