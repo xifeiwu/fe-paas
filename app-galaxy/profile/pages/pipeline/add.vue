@@ -281,10 +281,10 @@
         <div style="height: 60px;"></div>
       </div>
       <div class="footer">
-        <el-button size="mini" type="primary" @click="handleClick($event, 'save')" v-if="false">保存</el-button>
-        <el-button size="mini" type="primary" @click="handleClick($event, 'enable')" v-if="false">生效</el-button>
-        <el-button size="mini" type="primary" @click="handleClick($event, 'take-effect')">保存</el-button>
-        <el-button size="mini" type="primary" @click="handleClick($event, 'go-to-page-pipeline-records')" class="flex" v-if="false">
+        <el-button size="small" type="primary" @click="handleClick($event, 'save')" v-if="false">保存</el-button>
+        <el-button size="small" type="primary" @click="handleClick($event, 'enable')" v-if="false">生效</el-button>
+        <el-button size="small" type="primary" @click="handleClick($event, 'take-effect')">保存</el-button>
+        <el-button size="small" type="primary" @click="handleClick($event, 'go-to-page-pipeline-records')" class="flex" v-if="false">
           <span>执行</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
         </el-button>
         <el-button size="mini" type="primary" @click="handleClick($event, 'back')" class="flex">
@@ -985,7 +985,7 @@
                 type: "string",
                 required: false,
                 trigger: ['blur', 'change'],
-                requiredOrigin: true,
+                requiredOrigin: false,
                 message: '请填写脚本名称'
               }]
             }

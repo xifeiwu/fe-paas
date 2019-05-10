@@ -548,8 +548,12 @@
        * 被调用的地方：页面mounted；刷新；执行
        */
       async requestBuildingStatus() {
+        // 先请求一次，看是否有正在构建中的记录
         await this.requestBuildList();
         this.buildListAll = this.mergeBuildList(this.buildList, []);
+        // 如果有正在构建中的记录，则：
+        // loopUntilBuildingFinish（不断轮询知道构建结束）；
+        // usedTimeUpdateForBuildingRecord（更新构建中记录列表中，每个构建记录的执行时间）
         if (this.lastBuildingRecord) {
           this.leaveHeartBeat = false;
           var usedTimeUpdateForBuildingRecord = async () => {
