@@ -220,19 +220,18 @@
             id: it['id'],
             result: it['result'],
           };
-          if (it.result.toUpperCase() === 'UNKNOWN') {
+          if (it.result && it.result.toUpperCase() === 'UNKNOWN') {
             stage["showLoading"] = true;
           } else {
             stage["showIcon"] = true;
           }
           this.stages.push(stage);
         });
-        console.log(this.stages);
         this.lastStage = resContent.length > 0 ? resContent[resContent.length - 1] : null;
       },
 
       async processStageList() {
-        if (this.lastStage["result"].toUpperCase() !== "UNKNOWN") {
+        if (this.lastStage["result"] && this.lastStage["result"].toUpperCase() !== "UNKNOWN") {
           this.stages = [{active:false, description: '开始', index: null, name: 'start'}].concat(this.stages)
             .concat({active: false, description: '结束', index: null, name: 'end'});
           this.stages[1].active = true;

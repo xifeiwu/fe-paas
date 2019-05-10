@@ -148,7 +148,7 @@ class Helper {
         component: pipeLineRecord,
       }, {
         path: 'records/plan',
-        name: '执行计划',
+        name: '执行进度',
         component: pipelinePlan,
       }]
     },{

@@ -121,7 +121,7 @@
               type="text"
               :class="['flex', 'primary']"
               @click="handleTRClick($event, 'pipeline_build_plan', scope.$index, scope.row)">
-              <span>查看执行计划</span>
+              <span>查看执行进度</span>
             </el-button>
           </template>
         </el-table-column>
