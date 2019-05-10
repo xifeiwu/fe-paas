@@ -101,8 +101,8 @@
                   <!--部署到测试环境-->
                   <div v-if="stageName === 'deployTestEnv'" class="deployTestEnv">
                     <div class="service-info-container" v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
-                      <i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('refresh_service_info') ? 'loading':'']"
-                         @click="handleClick($event, 'refresh_test_service_info')"></i>
+                      <!--<i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('refresh_service_info') ? 'loading':'']"-->
+                         <!--@click="handleClick($event, 'refresh_test_service_info')"></i>-->
                       <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
                     </div>
                     <div style="color:#E6A23C; text-align: center" v-else>
@@ -112,8 +112,8 @@
                   <!--部署到联调环境-->
                   <div v-if="stageName === 'deployBetaEnv'" class="deployBetaEnv">
                     <div class="service-info-container" v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
-                      <i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('refresh_service_info') ? 'loading':'']"
-                         @click="handleClick($event, 'refresh_beta_service_info')"></i>
+                      <!--<i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('refresh_service_info') ? 'loading':'']"-->
+                         <!--@click="handleClick($event, 'refresh_beta_service_info')"></i>-->
                       <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
                     </div>
                     <div style="color:#E6A23C; text-align: center" v-else>
@@ -188,14 +188,20 @@
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployTestEnv'">
                       <div style="display: flex; justify-content: space-between">
                         <el-checkbox v-model="formData.deployTestEnv.inputChecked"></el-checkbox>
-                        <span style="color: blue; text-decoration: underline; cursor: pointer" @click="pageJump('test')">点击跳转到修改测试环境服务配置页面<i class="paas-icon-level-up"></i></span>
+                        <div>
+                          <el-button size="mini" type="primary" @click="handleClick($event, 'refresh_test_service_info')">同步环境配置</el-button>
+                          <span style="color: blue; text-decoration: underline; cursor: pointer" @click="pageJump('test')">点击跳转到修改测试环境服务配置页面<i class="paas-icon-level-up"></i></span>
+                        </div>
                       </div>
                     </el-form-item>
                     <!--部署到联调环境-->
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployBetaEnv'">
-                      <div>
+                      <div style="display: flex; justify-content: space-between">
                         <el-checkbox v-model="formData.deployBetaEnv.inputChecked"></el-checkbox>
-                        <span style="color: blue; text-decoration: underline; cursor: pointer" @click="pageJump('beta')">点击跳转到修改联调环境服务配置页面<i class="paas-icon-level-up"></i></span>
+                        <div>
+                          <el-button size="mini" type="primary" @click="handleClick($event, 'refresh_beta_service_info')">同步环境配置</el-button>
+                          <span style="color: blue; text-decoration: underline; cursor: pointer" @click="pageJump('beta')">点击跳转到修改联调环境服务配置页面<i class="paas-icon-level-up"></i></span>
+                        </div>
                       </div>
                     </el-form-item>
                     <!--自动化测试-->
@@ -531,6 +537,7 @@
                       display: block;
                       width: 760px;
                       margin: 0px auto;
+                      /*not used*/
                       .el-icon-refresh {
                         position: absolute;
                         top: 0px;
