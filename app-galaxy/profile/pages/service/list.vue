@@ -281,16 +281,19 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="actionNew.data.title" :visible="['quick_deploy', 'service_stop', 'service_delete'].indexOf(actionNew.name) > -1"
+    <!--not used-->
+    <el-dialog :title="actionNew.data.title" :visible="['quick_deploy', 'service_stop', 'service_delete'].indexOf(actionNew.name) > -1"
                v-if="actionNew.name"
-               class="confirm-dialog size-600"
+               class="confirm-dialog size-700"
                :close-on-click-modal="false"
                @close="closeDialog"
     >
-      <div class="el-message-box__status el-icon-warning" style="padding-bottom: 27px;"></div>
-      <div class="el-message-box__message">
-        <div v-html="actionNew.data.tip"></div>
-        <el-input v-model="actionNew.data.confirm"></el-input>
+      <div class="content">
+        <i class="el-icon-warning left"></i>
+        <div class="right">
+          <div v-html="actionNew.data.tip"></div>
+          <el-input v-model="actionNew.data.confirm"></el-input>
+        </div>
       </div>
       <span slot="footer" class="el-message-box__btns">
         <el-button @click="closeDialog">取&nbsp消</el-button>
@@ -408,12 +411,8 @@
     }
     > .confirm-dialog {
       .el-dialog {
-        display: inline-block;
-        vertical-align: middle;
-        background-color: #fff;
         border-radius: 4px;
         border: 1px solid #e6ebf5;
-        font-size: 18px;
         box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
         text-align: left;
         overflow: hidden;
@@ -597,6 +596,7 @@
           name: null,
           row: null
         },
+        // actionNew will replace action
         actionNew: {
           row: null,
           name: null,
@@ -1033,21 +1033,62 @@
         }
       },
 
-      getDesc4ProductionConfirmDialog(action) {
+      getInfoForMsgBox(action) {
         if (!['quick_deploy', 'service_stop', 'service_delete'].includes(action)) {
           return null;
         }
-        const serviceDesc = this.getVersionDescription();
+        if (!this.actionNew.row) {
+          return;
+        }
+        const h = this.$createElement;
+        const row = this.action.row;
+        const profileInfo = this.profileInfo;
+        const description = profileInfo && profileInfo.hasOwnProperty('description') ? profileInfo.description : '';
+        const service = `${row.appName}:${description}`;
+        const serviceNameStyle = {
+          padding: ['1px', '2px'],
+          fontSize: '90%',
+          color: '#c0341d',
+          backgroundColor: '#fcedea',
+          borderRadius: '3px'
+        };
         const descMap = {
           service_delete: {
+            serviceName: service,
             title: '删除服务',
-            tip: `<div>
-<span>您确定要删除服务</span><span class="service-name">${serviceDesc}</span><span>" 吗？</span>
-</div>
-<div>删除服务将会销毁代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。</div>
-<div>请在下面输入${serviceDesc}，确认删除改服务</div>`,
+            vNodes: [
+              h('div',
+                {
+                  style: {
+                    fontSize: '13px',
+                  }
+                },
+                [
+                  h('div', null, [
+                    '您确定要删除服务"',
+                    h('span', {
+                        style: serviceNameStyle
+                      },
+                      service
+                    ),
+                    '"吗？'
+                  ]),
+                  h('div', null, '删除服务将会销毁代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。'),
+                  h('div', null, [
+                    '请在下面输入框中输入服务名称"',
+                    h('span', {
+                        style: serviceNameStyle
+                      },
+                      service
+                    ),
+                    '"确认删除该服务'
+                  ]),
+                ]
+              ),
+            ]
           }
         };
+        return descMap[action];
       },
       async handleTRClick(evt, action, index, row) {
         var permission = action;
@@ -1089,6 +1130,7 @@
         this.action.row = row;
         this.actionNew.row = row;
         var resContent = null;
+        var obj = null;
         switch (action) {
           case 'service_config_add':
             this.goToPageServiceAdd(action, row);
@@ -1215,12 +1257,36 @@
             var desc = this.getVersionDescription();
             try {
               if (this.profileInfo.spaceType === 'PRODUCTION') {
-                await this.openDialog(
-                  action,
-                  Object.assign(this.getDesc4ProductionConfirmDialog(action), {
-                  })
-                );
-                this.closeDialog();
+                this.actionNew.data = '';
+                obj = this.getInfoForMsgBox(action);
+                await this.$msgbox({
+                  title: obj.title,
+                  message: this.$createElement('div', null, obj.vNodes),
+                  showCancelButton: true,
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  $type: 'prompt',
+                  showInput: true,
+                  inputPlaceholder: '输入红色背景的文本',
+                  inputValidator: (inputValue) => {
+                    if (inputValue !== obj.serviceName) {
+                      return '服务名称填写不正确';
+                    } else {
+                      return true;
+                    }
+                  },
+                  beforeClose(action, component, done) {
+                    if (action === 'confirm') {
+                      component.confirmButtonLoading = true;
+                      setTimeout(() => {
+                        component.confirmButtonLoading = false;
+                        done();
+                      }, 1500);
+                    } else {
+                      done();
+                    }
+                  }
+                });
               } else {
                 await this.warningConfirm(`删除服务将会销毁${desc}的代码和配置信息，同时自动解绑外网二级域名，删除后服务数据不可恢复。`);
                 await this.warningConfirm(`你确认要删除${desc}，并清除该服务的一切数据？`);
