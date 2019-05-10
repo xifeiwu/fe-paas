@@ -211,11 +211,11 @@
             <el-input-number v-model="formData.instanceCount" :min="1" label="描述文字"></el-input-number>
           </el-form-item>
           <el-form-item label="过期时间(天)" prop="expiredDays" class="expired-days" v-if="!formRelated.isProductionProfile">
-            <el-input-number v-model="formData.expiredDays" :min="1"></el-input-number>
+            <el-input-number v-model="formData.expiredDays" :min="1" :max="365"></el-input-number>
             <span>
               <el-tooltip slot="trigger" effect="dark" placement="top">
                 <div slot="content">
-                  <div>服务的实例将在指定时间后被删除</div>
+                  <div>服务的实例将在指定时间后被删除，最大值为一年</div>
                 </div>
                 <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
               </el-tooltip>

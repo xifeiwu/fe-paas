@@ -62,7 +62,10 @@
             {{scope.row.k8s === 1 ? scope.row.instanceCount : '---' }}
           </template>
         </el-table-column>
-        <el-table-column v-if="!isProductionProfile" label="过期时间(天)" prop="remainExpiredDays" headerAlign="center" align="center" width="100">
+        <el-table-column v-if="!isProductionProfile" label="过期时间(天)" headerAlign="center" align="center" width="100">
+          <template slot-scope="scope">
+            {{scope.row.remainExpiredDays < 0 ? 0 : scope.row.remainExpiredDays}}
+          </template>
         </el-table-column>
         <el-table-column label="创建日期" prop="formattedCreateTime" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
@@ -766,9 +769,9 @@
             remainExpiredDays: row.remainExpiredDays,
           };
           this.$net.serviceUpdate("expiredDays", options).then(msg => {
-            if(row.remainExpiredDays >= 0) {
+            if(row.remainExpiredDays >= 0 && row.remainExpiredDays < 365) {
               row.remainExpiredDays += 1;
-            }else{
+            }else if (row.remainExpiredDays < 0){
               row.remainExpiredDays = 1;
             }
           }).catch(errMsg => {
