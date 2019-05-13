@@ -438,9 +438,22 @@
     created() {
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer) {
-       // console.log(dataTransfer);
         const from = dataTransfer.from;
-        this.dataPassed.from = from;
+        const data = dataTransfer.data;
+        switch (from) {
+          case this.$net.page['profile/app']:
+            if (['appName', 'profileName'].every(prop => {
+              return this.$utils.propExists(data, prop);
+              })) {
+              this.dataPassed.from = from;
+              this.dataPassed.data = data;
+            }
+            if (this.dataPassed.data['appName']) {
+              this.filterKey = this.dataPassed.data['appName'];
+              this.dataPassed.data['appName'] = null;
+            }
+            break;
+        }
         this.$storeHelper.dataTransfer = null;
       }
     },
@@ -451,13 +464,6 @@
       this.$nextTick(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
       });
-//      const profileInfoPassed = this.getPageStatePassed('profileInfo');
-//      if (profileInfoPassed) {
-//        this.profileName = profileInfoPassed['name'];
-//      }
-//      if (appName) {
-//        this.filterKey = appName;
-//      }
     },
     computed: {
 //      ...mapGetters('user', {
@@ -523,7 +529,7 @@
       return {
         dataPassed: {
           from: null,
-          to: null
+          data: null
         },
         // TODO: for change internetDomain, will change later
         waitingResponse: false,
@@ -591,8 +597,19 @@
           return;
         }
         var profileInfo = profileList[0];
+
         const localProfileName = this.$storeHelper.getUserConfig('service.profileName');
-        profileInfo = profileList.find(it => it.name == localProfileName);
+        const localProfileInfo = profileList.find(it => it.name == localProfileName);
+        if (localProfileInfo) {
+          profileInfo = localProfileInfo;
+        }
+
+        if (this.dataPassed.data && this.dataPassed.data.profileId) {
+          const profileInfoPassed =  profileList.find(it => it.id == this.dataPassed.data.profileId);
+          if (profileInfoPassed) {
+            profileInfo = profileInfoPassed;
+          }
+        }
 
         this.profileInfo = profileInfo;
         this.profileName = profileInfo['name'];

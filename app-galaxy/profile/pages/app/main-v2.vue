@@ -656,11 +656,8 @@
         this.$storeHelper.dataTransfer = {
           from: this.$net.page['profile/app'],
           data: {
-            appId, profileId
-          },
-          to: {
-            'profileInfo': this.$storeHelper.getProfileInfoByID(profileId),
-            'appName': appName,
+            appName,
+            profileId
           }
         };
         this.$router.push(this.$net.page['profile/service']);
