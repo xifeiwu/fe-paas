@@ -259,7 +259,6 @@
   import commonUtils from 'assets/components/mixins/common-utils';
   import paasDialogForLog from 'assets/components/dialog4log.vue';
   import paasPopoverElementWithModalMask from 'assets/components/popover-element-with-modal-mask';
-  import th from "../../../../components/element-ui/src/locale/lang/th";
 
   const MS_BEFORE_GET_RECORD_LIST = 5000;
   const MAX_MS_WAITING_FOR_RECORD_LIST = 10000;
@@ -488,6 +487,9 @@
         return this.buildList;
       },
 
+      /**
+       * TODO: 目前只能有一个pipeline处于构建状态（当这个假定改变时，lastBuildingRecord需要重新考虑）。
+       */
       async requestBuildingList() {
         if (!this.relatedAppId) {
           return;
@@ -551,7 +553,7 @@
         await this.requestBuildList();
         this.buildListAll = this.mergeBuildList(this.buildList, []);
         // 如果有正在构建中的记录，则：
-        // loopUntilBuildingFinish（不断轮询知道构建结束）；
+        // loopUntilBuildingFinish（不断轮询直到构建结束）；
         // usedTimeUpdateForBuildingRecord（更新构建中记录列表中，每个构建记录的执行时间）
         if (this.lastBuildingRecord) {
           var usedTimeUpdateForBuildingRecord = async () => {
@@ -747,6 +749,7 @@
           var now = new Date().getTime();
           const until = now + MAX_MS_WAITING_FOR_RECORD_LIST;
           do {
+            now = new Date().getTime();
             await new Promise((resolve) => {
               setTimeout(resolve, 2000);
             });
@@ -759,7 +762,8 @@
           // requestBuildingStatus
           this.requestBuildingStatus();
 
-          await this.showBuildingLog(this.lastBuildingRecord);
+          // NOTICE: 某些构建直接进入FAILURE状态，不会被赋值给lastBuildingRecord
+          await this.showBuildingLog(this.lastBuildingRecord ? this.lastBuildingRecord : this.lastBuildRecord);
         } catch(err) {
           console.log(err);
           this.hideWaitingResponse(action);
@@ -773,6 +777,10 @@
        * @returns {Promise.<void>}
        */
       async showBuildingLog(lastBuildingRecord) {
+        if (!lastBuildingRecord) {
+          console.log(`lastBuildingRecord not found`);
+          return;
+        }
         this.buildLogStatus.visible = true;
         this.buildLogStatus.loading = true;
         this.buildLogStatus.title = `${this.dataPassed.pipelineName}-第${lastBuildingRecord['buildNumber']}次的构建日志`;
@@ -942,6 +950,7 @@
                 this.buildLogStatus.title = `${this.dataPassed.pipelineName}-第${row['buildNumber']}次的构建日志`;
                 this.buildLogStatus.logList = resContent['consoleLog'].split('\n');
                 this.buildLogStatus.visible = true;
+                this.buildLogStatus.loading = false;
                 setTimeout(() => {
                   this.$refs['dialogForBuildLog'].scrollToBottom();
                 },100);
@@ -966,7 +975,7 @@
 			        }
 	        		param[item.name] = item.defaultValue;
             });
-            console.log(param);
+//            console.log(param);
 		        await this.executePipeLine(action, param);
 		        break;
         }
