@@ -126,6 +126,11 @@ class Net extends NetBase {
         path: '/service/deleteApplicationService',
         method: 'post'
       },
+      // 停止服务
+      'service_stop': {
+        path: '/service/stopApplicationService',
+        method: 'post'
+      },
       // 获取域名请求相关信息
       'service_info_request_statistic': {
         path: '/getInterfaceAccessCount',
@@ -1752,22 +1757,6 @@ class Net extends NetBase {
       }).catch(err => {
         console.log(err);
         reject(JSON.stringify(err));
-      })
-    });
-  }
-
-  // stop service
-  serviceStop(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.service_stop.url, options).then(response => {
-        let result = this.getResponseMsg(response);
-        if (result.success) {
-          resolve(result.msg);
-        } else {
-          reject(result.msg);
-        }
-      }).catch(err => {
-        console.log(err);
       })
     });
   }

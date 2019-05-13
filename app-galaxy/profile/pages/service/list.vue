@@ -1060,7 +1060,7 @@
               h('div',
                 {
                   style: {
-                    fontSize: '13px',
+                    fontSize: '14px',
                   }
                 },
                 [
@@ -1082,6 +1082,74 @@
                       service
                     ),
                     '"确认删除该服务'
+                  ]),
+                ]
+              ),
+            ]
+          },
+          service_stop: {
+            serviceName: service,
+            title: '停止服务',
+            vNodes: [
+              h('div',
+                {
+                  style: {
+                    fontSize: '14px',
+                  }
+                },
+                [
+                  h('div', null, [
+                    '您确定要停止服务"',
+                    h('span', {
+                        style: serviceNameStyle
+                      },
+                      service
+                    ),
+                    '"吗？'
+                  ]),
+                  h('div', null, '停止服务会导致服务不可用，但不会删除代码及配置信息。'),
+                  h('div', null, [
+                    '请在下面输入框中输入服务名称"',
+                    h('span', {
+                        style: serviceNameStyle
+                      },
+                      service
+                    ),
+                    '"确认停止该服务'
+                  ]),
+                ]
+              ),
+            ]
+          },
+          quick_deploy: {
+            serviceName: service,
+            title: '重启服务',
+            vNodes: [
+              h('div',
+                {
+                  style: {
+                    fontSize: '14px',
+                  }
+                },
+                [
+                  h('div', null, [
+                    '您确定要重启服务"',
+                    h('span', {
+                        style: serviceNameStyle
+                      },
+                      service
+                    ),
+                    '"吗？'
+                  ]),
+                  h('div', null, '重启服务会采用最近一次部署成功的镜像进行服务的重新启动，跳过代码编译、镜像生成阶段。'),
+                  h('div', null, [
+                    '请在下面输入框中输入服务名称"',
+                    h('span', {
+                        style: serviceNameStyle
+                      },
+                      service
+                    ),
+                    '"确认重启该服务'
                   ]),
                 ]
               ),
@@ -1220,37 +1288,62 @@
           case 'service_stop':
             this.addToWaitingResponseQueue(action);
             var desc = this.getVersionDescription();
-            this.$confirm(`停止将会导致${desc}不可用，但不会删除代码及配置信息，你确定需要这么做吗?`, '提示',  {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning',
-              dangerouslyUseHTMLString: true
-            }).then(() => {
-              this.$net.serviceStop({
-                id: row.id,
-                appId: row.appId,
-                spaceId: this.profileInfo.id,
-                groupId: this.$storeHelper.currentGroupID,
-              }).then(msg => {
-                this.hideWaitingResponse(action);
-                this.$message({
-                  type: 'success',
-                  message: msg
-                });
-              }).catch(err => {
-                this.hideWaitingResponse(action);
-                this.$notify({
-                  title: '提示',
-                  message: err,
-                  duration: 0,
-                  onClose: function () {
+            try {
+              if (this.profileInfo.spaceType === 'PRODUCTION') {
+                this.actionNew.data = '';
+                obj = this.getInfoForMsgBox(action);
+                await this.$msgbox({
+                  title: obj.title,
+                  message: this.$createElement('div', null, obj.vNodes),
+                  showCancelButton: true,
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  $type: 'prompt',
+                  showInput: true,
+                  inputPlaceholder: '输入红色背景的文本',
+                  inputValidator: (inputValue) => {
+                    if (inputValue !== obj.serviceName) {
+                      return '服务名称填写不正确';
+                    } else {
+                      return true;
+                    }
+                  },
+                  beforeClose(action, component, done) {
+                    if (action === 'confirm') {
+                      component.confirmButtonLoading = true;
+                      setTimeout(() => {
+                        component.confirmButtonLoading = false;
+                        done();
+                      }, 1500);
+                    } else {
+                      done();
+                    }
                   }
                 });
-                console.log(err);
+              } else {
+                await this.$confirm(`停止将会导致${desc}不可用，但不会删除代码及配置信息，你确定需要这么做吗?`, '提示', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  type: 'warning',
+                  dangerouslyUseHTMLString: true
+                });
+              }
+              await this.$net.requestPaasServer(this.$net.URL_LIST.service_stop, {
+                payload: {
+                  id: row.id,
+                  appId: row.appId,
+                  spaceId: this.profileInfo.id,
+                  groupId: this.$storeHelper.currentGroupID,
+                }
               });
-            }).catch(() => {
               this.hideWaitingResponse(action);
-            });
+              this.getServiceListByPage({
+                refresh: true
+              });
+            } catch (err) {
+              this.hideWaitingResponse(action);
+              console.log(err);
+            }
             break;
           case 'service_delete':
             this.addToWaitingResponseQueue(action);

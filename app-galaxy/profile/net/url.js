@@ -95,11 +95,6 @@ class URL extends BaseURL {
         path: '/service/deploy/log',
         method: 'post'
       },
-      // 停止服务
-      'service_stop': {
-        url: API_PATH + '/service/stopApplicationService',
-        path: '/service/stopApplicationService'
-      },
       // TODO: not used
       // 自定义镜像-环境镜像
       'custom_image_env_list': {
