@@ -7,7 +7,7 @@
                 :key="index"
                 @stage-mouse-event="handleMouseEvent"
                 @stage-click-event="handleStageClick"
-                :class="item.result == 'FAILURE' ? 'error' : ''"></pipeline-stage>
+                :class="item.result == 'FAILURE' || item.result == 'NOT_BUILT'? 'error' : ''"></pipeline-stage>
       </div>
     </div>
     <div class="body" v-if="currentBuildStage">
