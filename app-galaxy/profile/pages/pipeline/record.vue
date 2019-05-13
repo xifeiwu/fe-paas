@@ -286,7 +286,6 @@
         this.$nextTick(() => {
           this.popperForUserConfirm = this.$refs['popover-for-user-confirm'];
         });
-//        await this.startHeartBeat(4000, this.loopRequestBuildingList);
         await this.requestBuildingStatus();
       } catch(err) {
         console.log(err);
@@ -306,7 +305,7 @@
         // 需要用户确认的基本信息
         userInputInfo: null,
         leavePage: false,
-        leaveHeartBeat: false,
+        heartBeatStatus: {},
         dataPassed: {
           appName: '',
           pipelineName: ''
@@ -555,7 +554,6 @@
         // loopUntilBuildingFinish（不断轮询知道构建结束）；
         // usedTimeUpdateForBuildingRecord（更新构建中记录列表中，每个构建记录的执行时间）
         if (this.lastBuildingRecord) {
-          this.leaveHeartBeat = false;
           var usedTimeUpdateForBuildingRecord = async () => {
             // 查询是否需要用户确认
             var confirmStatus = await this.updatePopperForUserConfirm();
@@ -575,10 +573,16 @@
             }
             return confirmStatus;
           };
+          // clear all heartBeat
+          for(let key in this.heartBeatStatus) {
+            this.heartBeatStatus[key] = false;
+          }
+          const timeStamp = Date.now();
+          this.heartBeatStatus[timeStamp] = true;
           usedTimeUpdateForBuildingRecord = usedTimeUpdateForBuildingRecord.bind(this);
           const loopUntilBuildingFinish = this.loopUntilBuildingFinish.bind(this);
           loopUntilBuildingFinish.interval = 3;
-          await this.startHeartBeat(1000, [usedTimeUpdateForBuildingRecord, loopUntilBuildingFinish]);
+          await this.startHeartBeat(1000, [usedTimeUpdateForBuildingRecord, loopUntilBuildingFinish], timeStamp);
           // request again
           await this.requestBuildList();
           this.buildListAll = this.mergeBuildList(this.buildList, []);
@@ -665,7 +669,6 @@
           // }
         } else {
           return 'can-quite';
-//          this.leaveHeartBeat = true;
         }
       },
 
@@ -674,8 +677,8 @@
        * @param, milliSeconds, 心跳时间间隔
        * @param, funcList, 被执行的方法，需是async方法
        */
-      async startHeartBeat(milliSeconds, funcList) {
-        if (this.leavePage || this.leaveHeartBeat) {
+      async startHeartBeat(milliSeconds, funcList, id) {
+        if (this.leavePage || !this.heartBeatStatus[id]) {
           return;
         }
         try {
@@ -701,14 +704,14 @@
           await new Promise((resolve) => {
             setTimeout(resolve, milliSeconds);
           });
-          await this.startHeartBeat(milliSeconds, funcList);
+          await this.startHeartBeat(milliSeconds, funcList, id);
         } catch(err) {
           console.log(err);
           // ensure startHeartBeat go-on when any error is thrown
           await new Promise((resolve) => {
             setTimeout(resolve, milliSeconds);
           });
-          await this.startHeartBeat(milliSeconds, funcList);
+          await this.startHeartBeat(milliSeconds, funcList, id);
         }
       },
 
