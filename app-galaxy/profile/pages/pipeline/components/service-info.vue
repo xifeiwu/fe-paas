@@ -11,11 +11,8 @@
       <el-form-item label="滚动升级">
         <span>{{serviceInfo.rollingUpdate? '需要' : '不需要'}}</span>
       </el-form-item>
-      <el-form-item label="构建名称" v-if="serviceInfo.packageType == 'WAR'">
-        {{serviceInfo.buildName}}
-      </el-form-item>
-      <el-form-item label="mainClass" v-if="serviceInfo.packageType == 'ZIP'">
-        {{serviceInfo.mainClass ? serviceInfo.mainClass : '---'}}
+      <el-form-item label="剩余过期时间">
+        <span>{{serviceInfo.expiredDays}}</span>
       </el-form-item>
       <el-form-item label="负载均衡">
         {{serviceInfo.loadBalance}}
@@ -29,8 +26,11 @@
       <el-form-item label="应用监控" v-if="!serviceInfo.customImage">
         <span>{{$storeHelper.getMonitorNameById(serviceInfo.appMonitor)}}</span>
       </el-form-item>
-      <el-form-item label="剩余过期时间">
-        <span>{{serviceInfo.expiredDays}}</span>
+      <el-form-item label="构建名称" class="big" v-if="serviceInfo.packageType == 'WAR'">
+        {{serviceInfo.buildName}}
+      </el-form-item>
+      <el-form-item label="mainClass" class="big" v-if="serviceInfo.packageType == 'ZIP'">
+        {{serviceInfo.mainClass ? serviceInfo.mainClass : '---'}}
       </el-form-item>
       <el-form-item label="镜像方式" class="big">
         <span>{{serviceInfo.customImage ? '自定义镜像':'自动打镜像'}}</span>
