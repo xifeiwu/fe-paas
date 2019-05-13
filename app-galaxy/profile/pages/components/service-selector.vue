@@ -2,7 +2,7 @@
   <div class="paas-service-selector">
     <div class="item">
       <label>应用名称:</label>
-      <el-select filterable v-model="selectedAppId" placeholder="请选择">
+      <el-select class="app-name" filterable v-model="selectedAppId" placeholder="请选择">
         <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">
         </el-option>
       </el-select>
@@ -30,6 +30,9 @@
     .item {
       display: inline-block;
       margin-right: 3px;
+      .el-select.app-name {
+        min-width: 260px;
+      }
     }
   }
 </style>

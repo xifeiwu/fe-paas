@@ -58,17 +58,17 @@
               :data="currentDomainList"
               style="width: 100%"
               :height="heightOfTable"
-              v-loading="showLoading"
               element-loading-text="加载中"
-              @selection-change="handleSelectionChangeInTable"
       >
-        <el-table-column
-                type="selection"
-                width="36">
-        </el-table-column>
         <el-table-column
                 prop="internetDomain"
                 label="外网二级域名">
+            <template slot-scope="scope">
+              <el-radio :label="scope.row.id"
+                        :value="selectedId"
+                        :style="{marginLeft: '3px'}"
+                        @input="changeDefaultVersion(scope.row)">{{scope.row.internetDomain}}</el-radio>
+            </template>
         </el-table-column>
         <el-table-column
                 prop="profileDesc"
@@ -124,7 +124,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="totalSize > pageSize" :class="{'disable': showLoading}">
+      <div class="pagination-container" v-if="totalSize > pageSize">
         <div class="pagination">
           <el-pagination
                   :current-page="currentPage"
@@ -601,8 +601,8 @@
         localServiceConfig: null,
 
         currentDomainList: [],
+        selectedId: null,
         rowsSelected: [],
-        showLoading: false,
         queueForWaitingResponse: [],
         selected: {
           action: '',
@@ -773,12 +773,11 @@
        * 2. callback of successful delete domain
        * 3. callback of successful add domain
        */
-      requestDomainList() {
+      async requestDomainList() {
         let page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
         let start = page * this.pageSize;
         let length = this.pageSize;
-        this.showLoading = true;
 
         let profileID = '';
         if (this.profileInfo && this.profileInfo.hasOwnProperty('id')
@@ -789,47 +788,38 @@
         if (this.appInfo && this.appInfo.hasOwnProperty('appId') && this.appInfo.appId != this.$storeHelper.APP_ID_FOR_ALL) {
           appID = this.appInfo.appId;
         }
-        // let serviceID = '';
-        // if (this.serviceInfo && this.serviceInfo.hasOwnProperty('id')
-        //   && this.serviceInfo.id != this.$storeHelper.SERVICE_ID_FOR_ALL) {
-        //   serviceID = this.serviceInfo.id;
-        // }
-        let requestOptions = {
+        const payload = {
           groupId: this.$storeHelper.currentGroupID,
           spaceId: profileID,
           applicationId: appID,
-          // serviceId: serviceID,
           start: start,
           length: length,
           keyword: this.keyword
         };
-        this.$net.getDomainList(requestOptions).then(content => {
-          if (content.hasOwnProperty('total')) {
-            this.totalSize = content['total'];
-          }
-          if (content.hasOwnProperty('internetDomainList')) {
-            this.currentDomainList = content['internetDomainList'].map(it => {
-              if (it.hasOwnProperty('spaceId')) {
-                let profileInfo = this.$storeHelper.getProfileInfoByID(it.spaceId);
-                if (profileInfo.hasOwnProperty('description')) {
-                  it.profileDesc = profileInfo.description;
-                }
-              }
-              return it;
-            })
-          }
-
-          this.showLoading = false;
-        }).catch(err => {
-          this.$notify.error({
-            title: err.title,
-            message: err.msg,
-            duration: 0,
-            onClose: function () {
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.domain_list, {
+          payload
+        });
+        if (!['internetDomainList', 'total'].every(prop => {
+          return this.$utils.propExists(resContent, prop)
+          })) {
+          console.log(`internetDomainList or total not exist in resContent`);
+          return;
+        }
+        this.totalSize = resContent['total'];
+        this.currentDomainList = resContent['internetDomainList'].map(it => {
+          if (it.hasOwnProperty('spaceId')) {
+            let profileInfo = this.$storeHelper.getProfileInfoByID(it.spaceId);
+            if (profileInfo.hasOwnProperty('description')) {
+              it.profileDesc = profileInfo.description;
             }
-          });
-          this.showLoading = false;
-        })
+          }
+          return it;
+        });
+        if (this.currentDomainList.length > 0) {
+          const firstRow = this.currentDomainList[0];
+          this.rowsSelected = [firstRow];
+          this.selectedId = firstRow['id'];
+        }
       },
 
       // handle the button in operation column of table
@@ -891,8 +881,9 @@
         }
       },
       // handle the checkbox in table for domain-list
-      handleSelectionChangeInTable(val) {
-        this.rowsSelected = val;
+      changeDefaultVersion(row) {
+        this.rowsSelected = [row];
+        this.selectedId = row['id'];
       },
 
       // some init action for domain props
@@ -963,10 +954,6 @@
             });
             break;
           case 'domain_bind_service':
-            if (this.profileInfo.id === this.$storeHelper.PROFILE_ID_FOR_ALL) {
-              this.$message.warning('运行环境为"全部"的情况下，不能进行绑定服务操作。请先将运行环境切换为其它运行环境！');
-              return;
-            }
             this.bindServiceProps.showResponse = false;
             if (this.rowsSelected.length == 0) {
               this.$message.warning('请先选择要操作的域名');

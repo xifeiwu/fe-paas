@@ -134,11 +134,6 @@ class URL extends BaseURL {
         url: API_PATH + '/domain/record/delete',
         path: '/domain/record/delete'
       },
-      // 外网域名列表
-      'domain_list': {
-        url: API_PATH + '/domain/queryByPage',
-        path: '/domain/queryByPage'
-      },
       // 绑定服务
       'domain_bind_service': {
         url: API_PATH + '/domain/bind',

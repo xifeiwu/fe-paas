@@ -314,6 +314,13 @@ class Net extends NetBase {
         method: 'post'
       },
 
+      /** 域名相关 */
+      // 外网域名列表
+      'domain_list': {
+        path: '/domain/queryByPage',
+        method: 'post'
+      },
+
       /** 日志相关 */
       // 获取部署日志列表
       'log_deploy_list': {
@@ -1948,39 +1955,7 @@ class Net extends NetBase {
       })
     })
   }
-  // 获取域名列表
-  getDomainList(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.domain_list.url, options).then(response => {
-        let resContent = this.getResponseContent(response);
-        if (resContent) {
-          if (resContent.hasOwnProperty('internetDomainList')) {
-            let domainList = resContent['internetDomainList'];
-            domainList.forEach(it => {
-              it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-            });
-            resolve(resContent);
-          } else {
-            reject({
-              title: '数据格式不正确',
-              msg: '未找到internetDomainList'
-            })
-          }
-        } else {
-          let resMsg = this.getResponseMsg(response, {
-            successMsg: '',
-            errorMsg: '获取外网域名列表失败'
-          });
-          reject(resMsg);
-        }
-      }).catch(err => {
-        reject({
-          title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.domain_list.path}；${err.toString()}`
-        });
-      })
-    })
-  }
+  
   // 为域名绑定服务
   domainBindService(options) {
     return new Promise((resolve, reject) => {
