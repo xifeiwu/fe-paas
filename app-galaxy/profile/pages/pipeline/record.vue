@@ -636,9 +636,11 @@
           var targetClass = `build-${lastBuildingRecord.buildNumber}-status`;
           var target = this.$el.querySelector(`.record-list .el-table .${targetClass}`);
           if (this.buildLogStatus.visible) {
-            const dialogForDeployLog = this.$refs['dialogForBuildLog'];
-            dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
-            target = dialogForDeployLog.$el.querySelector('.loading-line .item');
+            if (this.$refs.hasOwnProperty('dialogForBuildLog')) {
+              const dialogForDeployLog = this.$refs['dialogForBuildLog'];
+              dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+              target = dialogForDeployLog.$el.querySelector('.loading-line .item');
+            }
           }
           if (!this.popperForUserConfirm.isShowing()) {
             this.popperForUserConfirm.show({
