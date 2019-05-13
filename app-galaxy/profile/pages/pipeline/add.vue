@@ -97,7 +97,8 @@
             </div>
             <div class="config-list" v-if="currentStage">
               <transition name="el-zoom-in-top">
-                <div class="stage-config" v-if="currentStage.selected" :key="stageName">
+                <div class="stage-config" v-if="currentStage.selected">
+                  <!--:key="stageName"-->
                   <!--部署到测试环境-->
                   <div v-if="stageName === 'deployTestEnv'" class="deployTestEnv">
                     <div class="service-info-container" v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
@@ -165,7 +166,7 @@
                     </el-form-item>
                     <!--打包-->
                     <el-form-item label="打包脚本：" class="mvnPackage-script" prop="mvnPackage" :multiFields="true"
-                                  v-if="stageName === 'mvnPackage'">
+                                  v-show="stageName === 'mvnPackage'">
                       <codemirror v-model="formData.mvnPackage.script" :options="groovyOption"></codemirror>
                     </el-form-item>
                     <!--打包-->
@@ -253,7 +254,8 @@
                     <el-button size="mini-extral" type="danger" @click="handleClick($event, 'stage-remove')">删除</el-button>
                   </div>
                 </div>
-                <div class="stage-change-selection" :key="stageName" v-else>
+                <div class="stage-change-selection" v-else>
+                  <!--:key="stageName"-->
                   <span>添加结点 "{{currentStage.description}}"?</span>
                   <el-button size="mini-extral" type="primary" @click="handleClick($event, 'stage-add')">添加</el-button>
                 </div>

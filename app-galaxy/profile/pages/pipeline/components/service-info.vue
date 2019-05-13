@@ -32,7 +32,7 @@
       <el-form-item label="mainClass" class="big" v-if="serviceInfo.packageType == 'ZIP'">
         {{serviceInfo.mainClass ? serviceInfo.mainClass : '---'}}
       </el-form-item>
-      <el-form-item label="镜像方式" class="big">
+      <el-form-item label="镜像方式" class="big" v-if="false">
         <span>{{serviceInfo.customImage ? '自定义镜像':'自动打镜像'}}</span>
         <span>{{serviceInfo.image}}</span>
       </el-form-item>
