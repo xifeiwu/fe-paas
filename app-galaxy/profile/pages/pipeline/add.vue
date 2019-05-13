@@ -126,7 +126,7 @@
                     <!--sonar及单元测试-->
                     <el-form-item label="Sonar及单元测试脚本：" labelWidth="180px" class="testAndSonarScript"
                                   prop="testAndSonarScript" :multiFields="true"
-                                  v-show="stageName === 'testAndSonarScript'">
+                                  v-if="stageName === 'testAndSonarScript'">
                       <codemirror v-model="formData.testAndSonarScript.script" :options="groovyOption"></codemirror>
                     </el-form-item>
                     <!--sonar及单元测试-->
@@ -166,7 +166,7 @@
                     </el-form-item>
                     <!--打包-->
                     <el-form-item label="打包脚本：" class="mvnPackage-script" prop="mvnPackage" :multiFields="true"
-                                  v-show="stageName === 'mvnPackage'">
+                                  v-if="stageName === 'mvnPackage'">
                       <codemirror v-model="formData.mvnPackage.script" :options="groovyOption"></codemirror>
                     </el-form-item>
                     <!--打包-->
