@@ -953,17 +953,6 @@
         };
 
         const desc = this.getVersionDescription();
-        // var warningMsg = `您确认要部署${desc}吗?`;
-        if (type == 'quick_deploy') {
-          let warningMsg = `<p>您确认要重启${desc}吗?</p><p style="color: #E6A23C; font-size: 12px;">(重启：采用最近一次部署成功的镜像进行服务的重新启动，跳过代码编译、镜像生成阶段)</p>`;
-          // await this.warningConfirm(warningMsg);
-          await this.$confirm(warningMsg, '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning',
-            dangerouslyUseHTMLString: true
-          });
-        }
 
         const urlDesc = type == 'quick_deploy' ? this.$net.URL_LIST.service_quick_deploy : this.$net.URL_LIST.service_deploy;
         const resContent = await this.$net.requestPaasServer(urlDesc, {
@@ -1271,15 +1260,60 @@
                   ref: evt.target,
                   msg: reason
                 });
-              } else {
-                this.addToWaitingResponseQueue(action);
-                await this.serviceDeploy({
-                  id: row.id,
-                  appId: row.appId,
-                  spaceId: this.profileInfo.id,
-                }, action);
-                this.hideWaitingResponse(action);
+                return;
               }
+
+              this.addToWaitingResponseQueue(action);
+
+              obj = this.getInfoForMsgBox(action);
+              if (this.profileInfo.spaceType === 'PRODUCTION') {
+                this.actionNew.data = '';
+                await this.$msgbox({
+                  title: obj.title,
+                  message: this.$createElement('div', null, obj.vNodes),
+                  showCancelButton: true,
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  $type: 'prompt',
+                  showInput: true,
+                  inputPlaceholder: '输入红色背景的文本',
+                  inputValidator: (inputValue) => {
+                    if (inputValue !== obj.serviceName) {
+                      return '服务名称填写不正确';
+                    } else {
+                      return true;
+                    }
+                  },
+                  beforeClose(action, component, done) {
+                    if (action === 'confirm') {
+                      component.confirmButtonLoading = true;
+                      setTimeout(() => {
+                        component.confirmButtonLoading = false;
+                        done();
+                      }, 1500);
+                    } else {
+                      done();
+                    }
+                  }
+                });
+              } else {
+                await this.$confirm(
+                  `<p>您确认要重启服务 "${obj.serviceName}" 吗?</p><p style="color: #E6A23C; font-size: 12px;">(重启：采用最近一次部署成功的镜像进行服务的重新启动，跳过代码编译、镜像生成阶段)</p>`,
+                  '提示',
+                  {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                    dangerouslyUseHTMLString: true
+                  }
+                );
+              }
+              await this.serviceDeploy({
+                id: row.id,
+                appId: row.appId,
+                spaceId: this.profileInfo.id,
+              }, action);
+              this.hideWaitingResponse(action);
             } catch (err) {
               console.log(err);
               this.hideWaitingResponse(action);
