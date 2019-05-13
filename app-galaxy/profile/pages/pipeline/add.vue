@@ -189,8 +189,11 @@
                       <div style="display: flex; justify-content: space-between">
                         <el-checkbox v-model="formData.deployTestEnv.inputChecked"></el-checkbox>
                         <div>
-                          <el-button size="mini" type="primary" @click="handleClick($event, 'refresh_test_service_info')">同步环境配置</el-button>
-                          <span style="color: blue; text-decoration: underline; cursor: pointer" @click="pageJump('test')">点击跳转到修改测试环境服务配置页面<i class="paas-icon-level-up"></i></span>
+                          <el-button size="mini" type="primary" @click="handleClick($event, 'refresh_test_service_info')">
+                            <span>同步环境配置</span>
+                            <i class="el-icon-refresh"></i>
+                          </el-button>
+                          <span style="color: blue; text-decoration: underline; cursor: pointer; margin-left: 5px" @click="pageJump('test')">点击跳转到修改测试环境服务配置页面<i class="paas-icon-level-up"></i></span>
                         </div>
                       </div>
                     </el-form-item>
@@ -199,8 +202,11 @@
                       <div style="display: flex; justify-content: space-between">
                         <el-checkbox v-model="formData.deployBetaEnv.inputChecked"></el-checkbox>
                         <div>
-                          <el-button size="mini" type="primary" @click="handleClick($event, 'refresh_beta_service_info')">同步环境配置</el-button>
-                          <span style="color: blue; text-decoration: underline; cursor: pointer" @click="pageJump('beta')">点击跳转到修改联调环境服务配置页面<i class="paas-icon-level-up"></i></span>
+                          <el-button size="mini" type="primary" @click="handleClick($event, 'refresh_beta_service_info')">
+                            <span>同步环境配置</span>
+                            <i class="el-icon-refresh"></i>
+                          </el-button>
+                          <span style="color: blue; text-decoration: underline; cursor: pointer; margin-left: 5px" @click="pageJump('beta')">点击跳转到修改联调环境服务配置页面<i class="paas-icon-level-up"></i></span>
                         </div>
                       </div>
                     </el-form-item>
@@ -293,7 +299,7 @@
         <el-button size="small" type="primary" @click="handleClick($event, 'go-to-page-pipeline-records')" class="flex" v-if="false">
           <span>执行</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
         </el-button>
-        <el-button size="mini" type="primary" @click="handleClick($event, 'back')" class="flex">
+        <el-button size="small" type="primary" @click="handleClick($event, 'back')" class="flex">
           <span>返回</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
         </el-button>
       </div>
@@ -722,13 +728,6 @@
         var applicationConfig = null;
         if (pipelineInfoFromNet.hasOwnProperty(stage) && pipelineInfoFromNet[stage]['applicationConfig']) {
           applicationConfig = pipelineInfoFromNet[stage]['applicationConfig'];
-        }
-        if(applicationConfig) {
-          for (let key in applicationConfig) {
-            if (null === applicationConfig[key]) {
-              applicationConfig[key] = '---';
-            }
-          }
         }
       });
       this.pipelineInfoFromNet = pipelineInfoFromNet;

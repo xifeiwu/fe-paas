@@ -118,7 +118,12 @@
 <script>
   export default {
     mounted() {
-//     console.log(this.serviceInfo)
+      const defaultValue = '---';
+      ['mavenProfileId', 'prestopCommand', 'vmOptions', 'healthCheck', 'expiredDays'].forEach(key => {
+        if (!this.serviceInfo[key]) {
+          this.serviceInfo[key] = defaultValue;
+        }
+      });
     },
     props: {
       serviceInfo: {
