@@ -824,6 +824,7 @@
             webHooksSelectedEvent: [],
             webHooksUrl: ''
           },
+          // 自定义参数构建
           defList: [],
           // sonar及单元测试
           testAndSonarScript: {
@@ -1132,8 +1133,8 @@
 					    return;
 				    }
 				    
-				    if (this.formData.defList.length >= 10) {
-					    this.$message.error('最多输入10个');
+				    if (this.formData.defList.length >= 5) {
+					    this.$message.error('最多输入5个');
 					    return;
 				    }
 				    let itemWithKey = null;
