@@ -146,7 +146,7 @@ const mutations = {
     if (toGroupId) {
       if (state.groupList && Array.isArray(state.groupList)) {
         state.groupList.some(it => {
-          target = it.id === toGroupId ? it : null;
+          target = it.id == toGroupId ? it : null;
           return target
         });
         if (!target && state.groupList.length > 0) {
