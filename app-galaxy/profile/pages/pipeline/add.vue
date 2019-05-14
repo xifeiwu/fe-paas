@@ -135,7 +135,7 @@
                     </el-form-item>
                     <!--sonar数据检查-->
                     <el-form-item label="Sonar关键字：" class="sonarCheck"
-                                  prop="sonarCheck" :multiFields="true"
+                                  prop="sonarCheck.projectKeyWord"
                                   v-show="stageName === 'sonarCheck'">
                       <el-input v-model="formData.sonarCheck.projectKeyWord" style="max-width: 500px"></el-input>
                       <el-popover
@@ -149,14 +149,17 @@
                       </el-popover>
                     </el-form-item>
                     <!--sonar数据检查-->
-                    <el-form-item label="检查项：" class="sonarCheck" v-if="stageName === 'sonarCheck'">
+                    <el-form-item label="检查项：" class="sonarCheck" v-if="stageName === 'sonarCheck'" prop="sonarCheck.unitTestRatio">
                       <div class="sonarCheck-unitTestRatio"><el-checkbox v-model="formData['sonarCheck']['unitTestSelected']"></el-checkbox>
                         <span>当单元测试行覆盖率≥</span>
-                        <el-input v-model="formData['sonarCheck']['unitTestRatio']"></el-input>
-                        <span>%时通过；反之不通过</span></div>
+                        <el-input v-model="formData.sonarCheck.unitTestRatio"></el-input>
+                        <span>%时通过；反之不通过</span>
+                      </div>
+                    </el-form-item>
+                    <el-form-item class="sonarCheck" v-if="stageName === 'sonarCheck'" prop="sonarCheck.codeDebt">
                       <div class="sonarCheck-codeDebt"><el-checkbox v-model="formData['sonarCheck']['codeDebtSelected']"></el-checkbox>
                         <span>当技术债时间≤</span>
-                        <el-input v-model="formData['sonarCheck']['codeDebt']"></el-input>
+                        <el-input v-model="formData.sonarCheck.codeDebt"></el-input>
                         <span>分钟时通过；反之不通过</span>
                       </div>
                     </el-form-item>
@@ -1000,8 +1003,6 @@
           },
           sonarCheck: {
             type: 'object',
-            required: true,
-            trigger: ['blur', 'change'],
             fields: {
               projectKeyWord: [{
                 type: "string",
