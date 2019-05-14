@@ -1396,6 +1396,7 @@
           if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
             this.formData.webHooks.webHooksSelectedEvent = [this.formData.webHooks.webHooksSelectedEvent]
           }
+          this.formData.groupId = this.$storeHelper.currentGroupID;
           await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_add_or_update, {
             payload: this.formData
           });
@@ -1554,6 +1555,7 @@
                 if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
                   this.formData.webHooks.webHooksSelectedEvent = [this.formData.webHooks.webHooksSelectedEvent]
                 }
+                this.formData.groupId = this.$storeHelper.currentGroupID;
                 await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_take_effect, {
                   payload: this.formData
                 });

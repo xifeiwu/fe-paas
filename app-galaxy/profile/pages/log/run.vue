@@ -502,6 +502,7 @@
         this.$net.getHistoryRunLog({
           appId: this.searchForm.appId,
           spaceId: this.searchForm.spaceId,
+          groupId: this.$storeHelper.currentGroupID,
           serviceVersion: this.searchForm.serviceVersion,
           podName: this.searchForm.instanceName,
           // logLevel: this.searchForm.logLevel,

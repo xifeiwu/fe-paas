@@ -464,6 +464,7 @@
              // console.log(dialogData);
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.message_create, {
                 payload: {
+                  groupId: this.$storeHelper.globalUserGroupInfo.id,
                   title: dialogData['title'],
                   messageTypeId: dialogData['messageTypeId'],
                   content: dialogData['content'],
@@ -520,7 +521,8 @@
                   messageId: row.id
                 },
                 query: {
-                  releaseStatus: mapper[action]['toStatus']
+                  releaseStatus: mapper[action]['toStatus'],
+                  groupId: this.$storeHelper.globalUserGroupInfo.id,
                 }
               });
 //              console.log(resContent);

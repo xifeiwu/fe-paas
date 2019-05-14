@@ -2342,10 +2342,10 @@ class Net extends NetBase {
   }
 
   //删除access key
-  oauthDeleteAccessKey(id) {
+  oauthDeleteAccessKey(id, param) {
     return new Promise((resolve, reject) => {
       let url = this.$utils.formatUrl(URL_LIST.oauth_delete_access_key.url, {id});
-      axios[URL_LIST.oauth_delete_access_key.method](url).then(response => {
+      axios[URL_LIST.oauth_delete_access_key.method](url,{params:param}).then(response => {
         let resMsg = this.getResponseMsg(response);
         if (resMsg.success) {
           resolve(resMsg.msg);
