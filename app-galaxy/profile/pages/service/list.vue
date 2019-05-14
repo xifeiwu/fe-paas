@@ -436,6 +436,21 @@
     components: {paasDialogForLog},
     mixins: [commonUtils],
     created() {
+      let appName = this.$route.query.appName;
+      if( null!=appName && ''!=appName && undefined != appName){
+        this.filterKey = appName;
+      }
+
+      let groupId = this.$route.query.groupId;
+      if(null!= groupId && ''!=groupId){
+        this.$storeHelper.groupInfo.id = groupId;
+      }
+
+      let profileName = this.$route.query.profileName;
+      if(null!= profileName && ''!=profileName && undefined != profileName){
+        this.profileName = profileName;
+      }
+
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer) {
         const from = dataTransfer.from;

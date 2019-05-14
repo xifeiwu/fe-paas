@@ -55,7 +55,14 @@
         <el-table-column prop="lobName" label="LOB" width="100"></el-table-column>
         <el-table-column prop="groupName" label="团队名称" width="100"></el-table-column>
         <el-table-column prop="creator" label="创建人" width="80"></el-table-column>
-        <el-table-column prop="instanceNumPerProfile" label="运行环境（配置实例数）" minWidth="250"></el-table-column>
+        <el-table-column prop="instanceNumPerProfile" label="运行环境（配置实例数）" minWidth="250" >
+          <template slot-scope="scope">
+            <span :class="['to-service-url']" v-for="item in scope.row.instanceNumPerProfile"
+                  @click="handleRowButtonClick('show_service_page', scope.$index, scope.row, item.spaceName)">
+                  {{item.description}}&nbsp;
+            </span>
+          </template>
+        </el-table-column>
         <!--<el-table-column-->
                 <!--prop="operation"-->
                 <!--label="操作"-->
@@ -135,6 +142,10 @@
           height: 24px;
         }
       }
+    }
+    .to-service-url{
+      color: #409EFF;
+      cursor: pointer;
     }
   }
 </style>
@@ -293,8 +304,8 @@
           this.totalSize = resContent['totalNum'];
           this.appStatusList = resContent['backStageList'].map(record => {
             record['instanceNumPerProfile'] = record['spaceAndInstanceNum'].map(it => {
-              return `${it.description}(${it.instanceNum})`;
-            }).join('，');
+              return {"spaceName":it.spaceName,"description":it.description+'('+it.instanceNum+')'};
+            });
             if (record['internetDomainList'].length > 0) {
               record['internetDomain'] = record['internetDomainList'].join(', ');
             } else {
@@ -323,7 +334,7 @@
             break;
         }
       },
-      handleRowButtonClick(action, index, row) {
+      handleRowButtonClick(action, index, row, data) {
         this.action.row = row;
         switch (action) {
           case 'app-transfer':
@@ -335,6 +346,11 @@
               }
             }
             this.action.name = 'app-transfer';
+            break;
+          case 'show_service_page':
+            let groupId = row.groupId;
+            let appName = row.appName;
+            window.open(this.$net.page["profile/service"]+"?appName="+appName+"&profileName="+data+"&groupId="+groupId, '_blank');
             break;
         }
       },
