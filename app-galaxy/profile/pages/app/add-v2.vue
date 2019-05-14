@@ -412,21 +412,25 @@ export default {
       if (dataTransfer) {
         const from = dataTransfer['from'];
         const data = dataTransfer['data'];
-        if (from === this.$net.page['profile/app']) {
-          this.dataPassed = data;
-          this.createAppForm.lobId = data['lobId'];
-          this.createAppForm.scrumId = data['scrumId'];
-          this.createAppForm.appName = data['appName'];
-          this.createAppForm.projectName = data['projectName'];
-          this.createAppForm.serviceName = data['serviceName'];
-          this.createAppForm.maintainerId = data['maintainerId'];
-          this.createAppForm.maintainer = data['maintainer'];
-          // the follow prop is set in watch function
-          this.propsUsed.language = false;
-          this.propsUsed.languageVersion = false;
-          // this.propsUsed.packageType = false;
-        } else {
-          goBack = true;
+        switch (from) {
+          case this.$net.page['profile/app']:
+          case this.$net.page['profile/service']:
+            this.dataPassed = data;
+            this.createAppForm.lobId = data['lobId'];
+            this.createAppForm.scrumId = data['scrumId'];
+            this.createAppForm.appName = data['appName'];
+            this.createAppForm.projectName = data['projectName'];
+            this.createAppForm.serviceName = data['serviceName'];
+            this.createAppForm.maintainerId = data['maintainerId'];
+            this.createAppForm.maintainer = data['maintainer'];
+            // the follow prop is set in watch function
+            this.propsUsed.language = false;
+            this.propsUsed.languageVersion = false;
+            // this.propsUsed.packageType = false;
+            break;
+          default:
+            goBack = true;
+            break;
         }
         this.$storeHelper.dataTransfer = null;
       } else {

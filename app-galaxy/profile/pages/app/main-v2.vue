@@ -403,6 +403,16 @@
         });
         this.$net.needUpdateAppList = false;
       }
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      if (dataTransfer) {
+        const from = dataTransfer.from;
+        switch (from) {
+          case this.$net.page['profile/service']:
+            this.filterKey = dataTransfer.data.appName;
+            break;
+        }
+        this.$storeHelper.dataTransfer = null;
+      }
     },
     mounted() {
       if (this.appInfoListOfGroup) {

@@ -43,7 +43,7 @@
         </el-table-column>
         <el-table-column label="应用名称" headerAlign="left" align="left" minWidth="100">
           <template slot-scope="scope">
-            <span>{{scope.row.appName}}</span>
+            <span style="color: #409EFF; cursor: pointer" @click="handleTRClick($event, 'go_to_page_app_list', scope.$index, scope.row)">{{scope.row.appName}}</span>
             <span v-if="$storeHelper.groupVersion === 'v1'"
                   style="display: inline; color: #909399; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #909399; border-radius: 4px; word-break: normal"
                   @mouseenter="handleTRClick($event, 'k8s-tag', scope.$index, scope.row)"
@@ -881,6 +881,7 @@
           })
         }
       },
+
       // 部署服务
       async serviceDeploy(payload, type) {
         // request and show log
@@ -952,12 +953,28 @@
           }
         };
 
-        const desc = this.getVersionDescription();
-
         const urlDesc = type == 'quick_deploy' ? this.$net.URL_LIST.service_quick_deploy : this.$net.URL_LIST.service_deploy;
         const resContent = await this.$net.requestPaasServer(urlDesc, {
           payload
         });
+        // 如果应用没有填写：应用维护者、LOB、Scrum，则不能进行部署、重启
+        if (resContent === 'SVR_APP_HAS_NO_MAINTAIN_INFO') {
+          await this.$confirm(
+            '需先完善应用维护者、LOB、Scrum信息，才能进行后续操作。点击确定进入修改应用页面。',
+            '提示',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning',
+            }
+          );
+          this.$storeHelper.dataTransfer = {
+            from: this.$net.page['profile/service'],
+            data: this.$storeHelper.getAppInfoByID(payload.appId)['model']
+          };
+          this.$router.push(this.$net.page['profile/app/update']);
+          return Promise.reject('SVR_APP_HAS_NO_MAINTAIN_INFO');
+        }
         //每次点击部署,过期时间自动加1
         this.expiredDaysAutoAdd();
         if (resContent.hasOwnProperty('orchestration')) {
@@ -1189,6 +1206,15 @@
         var resContent = null;
         var obj = null;
         switch (action) {
+          case 'go_to_page_app_list':
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page['profile/service'],
+              data: {
+                appName: row.appName
+              }
+            };
+            this.$router.push(this.$net.page['profile/app']);
+            break;
           case 'service_config_add':
             this.goToPageServiceAdd(action, row);
             break;
