@@ -33,6 +33,7 @@
       <el-table :data="nodeListByPage"
                 :row-key="getRowKeys"
                 stripe
+                v-loading="loading"
                 :height="heightOfTable">
         <el-table-column label="节点名称" prop="nodeName" headerAlign="center" align="center" minWidth="80">
         </el-table-column>
@@ -51,12 +52,12 @@
             
           </template>
         </el-table-column>
-        <el-table-column label="CPU(已用/总共)" prop="cpuTotal" headerAlign="center" align="center" width="160" sortable>
+        <el-table-column label="CPU(已用/总共)" prop="cpuUsed" headerAlign="center" align="center" width="160" sortable>
           <template slot-scope="scope">
             <span>{{scope.row.cpuUsed + '核 / ' + scope.row.cpuTotal + '核'}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="内存(已用/总共)" prop="memoryTotal" headerAlign="center" align="center" width="160" sortable>
+        <el-table-column label="内存(已用/总共)" prop="memoryUsed" headerAlign="center" align="center" width="160" sortable>
           <template slot-scope="scope">
             <span>{{scope.row.memoryUsed + 'G / ' + scope.row.memoryTotal + 'G'}}</span>
           </template>
@@ -210,205 +211,213 @@
   }
 </style>
 <script>
-	import bytes from 'bytes';
-	// import utils from '../utils';
-	import commonUtils from 'assets/components/mixins/common-utils';
-	
-	
-	export default {
-		mixins: [commonUtils],
-		async created() {
-			this.bytes = bytes;
-   
-			await this.requestK8sClusterList();
-			this.currentK8sNode = this.k8sClusterList[0].name;
-			await this.computedNodeList(true);
-		},
-		mounted() {
-			// update value in next tick
-			setTimeout(() => {
-				this.onScreenSizeChange(this.$storeHelper.screen.size);
-				this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 5;
-			});
+  import bytes from 'bytes';
+  // import utils from '../utils';
+  import commonUtils from 'assets/components/mixins/common-utils';
 
-		},
-    computed: {
-		},
-		data() {
-			return {
-				
-				k8sClusterList: [],
-				currentK8sNode: '',
-				statusList: [
-					{
-						key: 'all',
+
+  export default {
+    mixins: [commonUtils],
+    async created() {
+      this.bytes = bytes;
+
+      await this.requestK8sClusterList();
+      this.currentK8sNode = this.k8sClusterList[0].name;
+      await this.computedNodeList(true);
+    },
+    mounted() {
+      // update value in next tick
+      setTimeout(() => {
+        this.onScreenSizeChange(this.$storeHelper.screen.size);
+        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 5;
+      });
+
+    },
+    computed: {},
+    data() {
+      return {
+
+        k8sClusterList: [],
+        currentK8sNode: '',
+        statusList: [
+          {
+            key: 'all',
             status: '全部'
-          } , {
-						key: 'ready',
-						status: 'running'
-					} , {
-						key: 'notReady',
-						status: 'stopping'
+          }, {
+            key: 'ready',
+            status: 'running'
+          }, {
+            key: 'notReady',
+            status: 'stopping'
           }
         ],
-				runningStatus: 'all',
-				keyword: '',
-    
-				heightOfTable: '',
-        
+        runningStatus: 'all',
+        keyword: '',
+
+        heightOfTable: '',
+        loading: false,
         nodeList: [],
-				nodeListFilter: [],
-				nodeListByPage: [],
-    
-				getRowKeys: function (row) {
-					return row.id;
-				},
-    
-				totalSize: 0,
-				pageSize: 10,
-				currentPage: 1,
-    
-			}
-		},
-		watch: {
-			'$storeHelper.screen.size': 'onScreenSizeChange',
-			'currentK8sNode': async function(currentK8sNode) {
-				// value of elTab is set to '0' by default
-				if (currentK8sNode == '0') {
-					return;
-				}
-				await this.requestNodeList();
-			},
+        nodeListFilter: [],
+        nodeListByPage: [],
+
+        getRowKeys: function (row) {
+          return row.id;
+        },
+
+        totalSize: 0,
+        pageSize: 10,
+        currentPage: 1,
+
+      }
+    },
+    watch: {
+      '$storeHelper.screen.size': 'onScreenSizeChange',
+      'currentK8sNode': async function (currentK8sNode) {
+        // value of elTab is set to '0' by default
+        if (currentK8sNode == '0') {
+          return;
+        }
+        await this.requestNodeList();
+      },
       'keyword': function () {
-	      this.computedNodeList();
+        this.computedNodeList();
       },
       'runningStatus': function () {
-	      this.computedNodeList();
+        this.computedNodeList();
       },
-		},
-		methods: {
-			
-			// check if all necessary data is get
-			async computedNodeList(refresh) {
-				if (refresh || !this.nodeList) {
-					await this.requestNodeList();
-				}
-				// update pageSize by screen size
-				this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 5;
-				var page = this.currentPage - 1;
-				page = page >= 0 ? page : 0;
-				const start = page * this.pageSize;
-				const length = this.pageSize;
-				const end = start + length;
-				
-				this.nodeListFilter = this.nodeList;
-				if (this.keyword) {
-					const filterReg = new RegExp(this.keyword);
-					this.nodeListFilter = this.nodeList.filter(it => {
-						return filterReg.exec(it['nodeName']);
-					});
-				}
-				
-				if (this.runningStatus && 'all' !== this.runningStatus) {
-					this.nodeListFilter = this.nodeList.filter(it => {
-						return this.runningStatus === it['status'];
-					});
+    },
+    methods: {
+
+      // check if all necessary data is get
+      async computedNodeList(refresh) {
+        if (refresh || !this.nodeList) {
+          await this.requestNodeList();
         }
-				this.totalSize = this.nodeListFilter.length;
-				this.nodeListByPage = this.nodeListFilter.slice(start, end);
-			},
-   
-			// request node list
-			async requestK8sClusterList() {
-				
-				const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.query_k8s_cluster);
-				const clusterList = resContent.map(it => {
-					if (it.createTime) {
-						it['createTime'] = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-					} else {
-						it['createTime'] = '---';
-					}
-					return it;
-				});
-    
-				this.k8sClusterList = clusterList;
-			},
-   
-			onScreenSizeChange(size) {
-//        console.log(this.$storeHelper.screen);
-				if (!size) {
-					return;
-				}
-				try {
-					const headerNode = this.$el.querySelector(':scope > .header');
-					const headerHeight = headerNode.offsetHeight;
-					this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
-				} catch(err) {
-				}
-			},
-			
-			// request node list
-			async requestNodeList() {
-				const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.query_node_list, {
-					query: {
-						clusterName: this.currentK8sNode
-					}
-        });
-        
-				resContent.map(it => {
-					it['createTimeYMD'] = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd');
-					it['createTimeHMS'] = this.$utils.formatDate(it.createTime, 'hh:mm:ss');
-					it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-		
-					it["os"] = it["osImage"];
-					it["internalIP"] = it["internalIP"];
-					if (it["nodeStatus"]) {
-						it["status"] = 'ready';
+        // update pageSize by screen size
+        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 5;
+        var page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.pageSize;
+        const length = this.pageSize;
+        const end = start + length;
+
+        this.nodeListFilter = this.nodeList;
+        if (this.keyword) {
+          const filterReg = new RegExp(this.keyword);
+          this.nodeListFilter = this.nodeList.filter(it => {
+            return filterReg.exec(it['nodeName']);
+          });
+        }
+
+        if (this.runningStatus && 'all' !== this.runningStatus) {
+          this.nodeListFilter = this.nodeList.filter(it => {
+            return this.runningStatus === it['status'];
+          });
+        }
+        this.totalSize = this.nodeListFilter.length;
+        this.nodeListByPage = this.nodeListFilter.slice(start, end);
+      },
+
+      // request node list
+      async requestK8sClusterList() {
+
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.query_k8s_cluster);
+        const clusterList = resContent.map(it => {
+          if (it.createTime) {
+            it['createTime'] = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
           } else {
-						it["status"] = 'notReady'
+            it['createTime'] = '---';
           }
-          
-					it.cpuDisplay = it.cpuUsed + '/' + it.cpuTotal;
-					
-					it['cpuUsed'] = parseInt(it.cpuUsage) / 1000;
-					it['cpuTotal'] = parseInt(it.cpuTotal) / 1000;
-     
-					it['memoryUsed'] = parseFloat(it.memoryUsage / 1024).toFixed(2);
-          it['memoryTotal'] = parseFloat(it.memoryTotal / 1024).toFixed(2);
-					
-				});
-				this.totalSize = parseInt(resContent.length);
-				
-				this.nodeList = resContent;
-				// this.computedNodeList();
+          return it;
+        });
+
+        this.k8sClusterList = clusterList;
+      },
+
+      onScreenSizeChange(size) {
+//        console.log(this.$storeHelper.screen);
+        if (!size) {
+          return;
+        }
+        try {
+          const headerNode = this.$el.querySelector(':scope > .header');
+          const headerHeight = headerNode.offsetHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+        } catch (err) {
+        }
+      },
+
+      // request node list
+      async requestNodeList() {
+        this.loading = true;
+        await this.$net.getResponse(this.$net.URL_LIST.query_node_list, {
+          query: {
+            clusterName: this.currentK8sNode
+          }
+        }).then(res => {
+          if (!res.data.content) {
+            return;
+          }
+          const resp = res.data.content;
+          resp.map(it => {
+            it['createTimeYMD'] = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd');
+            it['createTimeHMS'] = this.$utils.formatDate(it.createTime, 'hh:mm:ss');
+            it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+
+            it["os"] = it["osImage"];
+            it["internalIP"] = it["internalIP"];
+            if (it["nodeStatus"]) {
+              it["status"] = 'ready';
+            } else {
+              it["status"] = 'notReady'
+            }
+
+            it.cpuDisplay = it.cpuUsed + '/' + it.cpuTotal;
+
+            it['cpuUsed'] = parseInt(it.cpuUsage) / 1000;
+            it['cpuTotal'] = parseInt(it.cpuTotal) / 1000;
+
+            it['memoryUsed'] = parseFloat(it.memoryUsage / 1024).toFixed(2);
+            it['memoryTotal'] = parseFloat(it.memoryTotal / 1024).toFixed(2);
+          });
+
+          this.totalSize = parseInt(resp.length);
+          this.nodeList = resp;
+        }).catch(err => {
+          console.log(err);
+        }).finally(() => {
+          this.loading = false;
+        });
+
+        // this.computedNodeList();
 //        console.log(this.nodeList);
-			},
-			
-			async handleButtonClick(evt, action) {
-				
-				switch (action) {
-					
-					case 'refreshList':
-						this.addToWaitingResponseQueue(action);
-						try {
-							await this.computedNodeList(true);
-							setTimeout(() => {
-								this.hideWaitingResponse(action);
-							}, 1000);
-						} catch(err) {
-							setTimeout(() => {
-								this.hideWaitingResponse(action);
-							}, 1000);
-						}
-						break;
-				}
-			},
-   
-			handlePaginationPageChange(page) {
-				this.currentPage = page;
-				this.computedNodeList();
-			},
-   
-		}
-	}
+      },
+
+      async handleButtonClick(evt, action) {
+
+        switch (action) {
+
+          case 'refreshList':
+            this.addToWaitingResponseQueue(action);
+            try {
+              await this.computedNodeList(true);
+              setTimeout(() => {
+                this.hideWaitingResponse(action);
+              }, 1000);
+            } catch (err) {
+              setTimeout(() => {
+                this.hideWaitingResponse(action);
+              }, 1000);
+            }
+            break;
+        }
+      },
+
+      handlePaginationPageChange(page) {
+        this.currentPage = page;
+        this.computedNodeList();
+      },
+
+    }
+  }
 </script>
