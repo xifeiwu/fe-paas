@@ -192,7 +192,7 @@
           return;
         }
         this.selectedAPP = appInfo['app'];
-        this.currentProfileList = this.selectedAPP['profileList'];
+        this.currentProfileList = this.$storeHelper.profileListOfGroup;
 
         if (!Array.isArray(this.currentProfileList) || this.currentProfileList.length === 0) {
           // changeVersion even the length of profileList is zero
@@ -204,22 +204,27 @@
         // if value of selectedProfileId is null(at the beginning of this page),
         // set default profileId as follows:
         // 1. customConfig.profileId if customConfig is not null
-        // 2. first element of profileList in selectedApp
-        var defaultProfileId = this.currentProfileList[0]['id'];
+        // 2. currentProfileId
+        // 3. first element of profileList in selectedApp
+        var toProfileId = this.currentProfileList[0]['id'];
+        if (this.selectedProfileId) {
+          toProfileId = this.selectedProfileId;
+        }
         // custom profileId
         var customProfileId = null;
         if (this.customConfig && this.customConfig.hasOwnProperty('profileId')) {
           customProfileId = this.customConfig['profileId'];
           // customConfig can only use once
           delete this.customConfig['profileId'];
+          if (this.currentProfileList.find(it => it.id == customProfileId)) {
+            toProfileId = customProfileId;
+          }
         }
-        defaultProfileId = this.currentProfileList.map(it => {
-          return it.id;
-        }).indexOf(customProfileId) > -1 ? customProfileId : defaultProfileId;
 
+        // splash to trigger watch event of this.selectedProfileId
         this.selectedProfileId = null;
         setTimeout(() => {
-          this.selectedProfileId = defaultProfileId;
+          this.selectedProfileId = toProfileId;
         });
       },
 
