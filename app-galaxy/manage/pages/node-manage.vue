@@ -354,6 +354,8 @@
           query: {
             clusterName: this.currentK8sNode
           }
+        }, {
+          timeout: 600000
         }).then(res => {
           if (!res.data.content) {
             return;
