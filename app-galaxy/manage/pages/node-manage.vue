@@ -355,6 +355,9 @@
             clusterName: this.currentK8sNode
           }
         }, {
+          headers: {
+            token: this.$storeHelper.getUserInfo('token')
+          },
           timeout: 600000
         }).then(res => {
           if (!res.data.content) {

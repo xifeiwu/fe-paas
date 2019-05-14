@@ -175,6 +175,9 @@
       async requestK8sClusterDetailList() {
         this.loading = true;
         await this.$net.getResponse(this.$net.URL_LIST.query_k8s_cluster_detail, {}, {
+          headers: {
+            token: this.$storeHelper.getUserInfo('token')
+          },
           timeout: 600000
         }).then(res => {
           if (!res.data.content) {
