@@ -51,7 +51,7 @@
           </template>
         </el-table-column>
         <el-table-column label="项目名称" prop="tag" headerAlign="left" align="left" minWidth="100"></el-table-column>
-        <el-table-column label="二级域名" prop="serviceName" headerAlign="left" align="left" minWidth="100"></el-table-column>
+        <el-table-column label="二级域名(serviceName)" prop="serviceName" headerAlign="left" align="left" minWidth="120"></el-table-column>
         <el-table-column
                 prop="applicationServiceStatus"
                 label="运行实例数/总实例数"
@@ -77,7 +77,7 @@
             <div v-else>{{scope.row.formattedCreateTime}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" headerAlign="left" align="left" minWidth="200">
+        <el-table-column label="操作" headerAlign="left" align="left" minWidth="180">
           <template slot-scope="scope">
             <div v-if="scope.row.id" style="line-height: 20px;">
               <el-button
