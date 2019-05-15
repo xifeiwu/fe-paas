@@ -30,21 +30,24 @@
           >
             <el-table-column
                     label="备份名称"
-                    minWidth="100"
+                    minWidth="220"
                     header-align="center">
               <template slot-scope="scope">
+                <strong>
                 <el-radio
                     :label="scope.row.name"
                     :value="selectedBackupName"
                     @input="backupNameChange">
                 </el-radio>
+                </strong>
+                <small>描述：scope.row.describe</small>
               </template>
             </el-table-column>
-            <el-table-column
-                    prop="describe"
-                    label="备份描述"
-                    width="120">
-            </el-table-column>
+            <!--<el-table-column-->
+                    <!--prop="describe"-->
+                    <!--label="备份描述"-->
+                    <!--width="120">-->
+            <!--</el-table-column>-->
             <el-table-column
                     prop="formattedStartTime"
                     label="操作时间"
