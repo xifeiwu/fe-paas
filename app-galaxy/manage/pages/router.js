@@ -4,6 +4,8 @@ import analyzeAppDeploy from './analyze/app-deploy.vue';
 import analyzeResources from './analyze/resources.vue';
 import analyzeVisit from './analyze/visit.vue';
 import message from './message.vue';
+import nodeManage from './node-manage.vue';
+import clusterDashboard from './cluster-dashboard.vue';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
@@ -31,6 +33,12 @@ var Router = function () {
   }, {
     path: '/manage/analyze/resources',
     component: analyzeResources
+  }, {
+    path: '/manage/node-manage',
+    component: nodeManage
+  }, {
+	  path: '/manage/cluster-dashboard',
+	  component: clusterDashboard
   }, {
     path: '/manage/analyze/visit',
     component: analyzeVisit
