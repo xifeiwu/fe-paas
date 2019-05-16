@@ -1002,28 +1002,28 @@
         this.middlewareInfoList = resContent;
         if (this.middlewareInfoList) {
 	        this.middlewareInfoList.forEach(it => {
-		        switch (it.targetType) {
-			        case "Redis":
+		        switch (it.targetType.toLowerCase()) {
+			        case "redis":
 				        it.iconClass = "paas-icon-redis";
 				        it.iconColor = "#CF271D";
 				        it.order = 1;
 				        break;
-			        case "MongoDB":
+			        case "mongodb":
 				        it.iconClass = "paas-icon-mongodb";
 				        it.iconColor = "#68B145";
 				        it.order = 4;
 				        break;
-			        case "Mysql":
+			        case "mysql":
 				        it.iconClass = "paas-icon-mysql";
 				        it.iconColor = "#00758F";
 				        it.order = 3;
 				        break;
-              case "Rabbitmq":
+              case "rabbitmq":
 				        it.iconClass = "paas-icon-rabbitmq";
 				        it.iconColor = "#FF6700";
 				        it.order = 5;
 				        break;
-              case "PostgreSQL":
+              case "postgresql":
                 it.iconClass = "paas-icon-postgresql";
                 it.iconColor = "#316690";
                 it.order = 2;
