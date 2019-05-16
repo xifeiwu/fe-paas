@@ -43,7 +43,7 @@
         </el-table-column>
         <el-table-column label="应用名称" headerAlign="left" align="left" minWidth="100">
           <template slot-scope="scope">
-            <span style="color: #409EFF; cursor: pointer" @click="handleTRClick($event, 'go_to_page_app_list', scope.$index, scope.row)">{{scope.row.appName}}</span>
+            <span class="link" @click="handleTRClick($event, 'go_to_page_app_list', scope.$index, scope.row)">{{scope.row.appName}}</span>
             <span v-if="$storeHelper.groupVersion === 'v1'"
                   style="display: inline; color: #909399; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #909399; border-radius: 4px; word-break: normal"
                   @mouseenter="handleTRClick($event, 'k8s-tag', scope.$index, scope.row)"
@@ -51,7 +51,14 @@
           </template>
         </el-table-column>
         <el-table-column label="项目名称" prop="tag" headerAlign="left" align="left" minWidth="100"></el-table-column>
-        <el-table-column label="二级域名(serviceName)" prop="serviceName" headerAlign="left" align="left" minWidth="120"></el-table-column>
+        <el-table-column label="内网域名" headerAlign="left" align="left" minWidth="100">
+          <template slot-scope="scope">
+            <span class="link" @click="handleTRClick($event, 'go_to_intranet_domain', scope.$index, scope.row)">{{scope.row.intranetDomain}}</span>
+            <i class="paas-icon-copy"
+               v-clipboard:copy="scope.row.intranetDomain"
+               v-clipboard:success="handleSuccessCopy"></i>
+          </template>
+        </el-table-column>
         <el-table-column
                 prop="applicationServiceStatus"
                 label="运行实例数/总实例数"
@@ -377,6 +384,13 @@
         .version {
           font-size: 14px;
           line-height: 16px;
+        }
+        .link {
+          &:hover {
+            color: #409EFF;
+            cursor: pointer;
+            text-decoration: underline;
+          }
         }
       }
 
@@ -1164,6 +1178,12 @@
         };
         return descMap[action];
       },
+      handleSuccessCopy(evt) {
+        this.$storeHelper.globalTip.show({
+          ref: evt.trigger,
+          msg: '复制成功'
+        });
+      },
       async handleTRClick(evt, action, index, row) {
         var permission = action;
         if (['service_config_add','service_config_copy','service_delete', 'service_deploy',
@@ -1214,6 +1234,9 @@
               }
             };
             this.$router.push(this.$net.page['profile/app']);
+            break;
+          case 'go_to_intranet_domain':
+            window.open(row.intranetDomain, '_blank');
             break;
           case 'service_config_add':
             this.goToPageServiceAdd(action, row);
@@ -1598,6 +1621,9 @@
         });
         const parsedResContent = this.$net.parseServiceList(resContent);
         this.serviceList = parsedResContent['serviceModelList'];
+        this.serviceList.forEach(it => {
+          it.intranetDomain = `http://${it.serviceName}.${this.$storeHelper.groupInfo.tag}.${this.profileInfo.name}`;
+        });
         this.totalSize = parsedResContent.total;
 
         this.appIdWithoutService = [];
