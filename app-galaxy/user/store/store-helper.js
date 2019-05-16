@@ -195,6 +195,7 @@ class StoreHelper extends BaseHelper {
         operationName: 'GROUPUPDATEJOB',
         operationNickName: '修改岗位'
       },
+      //站内信
       {
         operationName: 'MESSAGEADD',
         operationNickName: '创建站内信'

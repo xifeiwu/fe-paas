@@ -14,10 +14,10 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item>
+          <el-form-item class="el-form-operation-type">
             <label>操作类型:</label>
-            <el-select v-model="form.operation" @change="handleTick('operationChange')">
-              <el-option v-for="(item,index) in this.$storeHelper.operationList" :label="item.operationNickName" :key="index"
+            <el-select v-model="form.operation" @change="handleTick('operationChange')" filterable>
+              <el-option v-for="(item,index) in this.$storeHelper.operationList" :label="`${item.operationNickName}   (${item.operationName})`" :key="index"
                          :value="item.operationName">
               </el-option>
             </el-select>
@@ -73,6 +73,12 @@
               <div slot="content" v-else style="max-width: 500px;overflow: scroll;max-height: 500px;">{{scope.row.operationContent}}</div>
               <span style="color:#409EFF;">更多...</span>
             </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="applicationName" label="应用名称" align="center"></el-table-column>
+        <el-table-column label="服务名称" align="center">
+          <template slot-scope="scope">
+            {{scope.row.serviceName || scope.row.serviceName != "" ? scope.row.serviceName: "---"}}
           </template>
         </el-table-column>
         <el-table-column prop="env" label="环境" align="center">
