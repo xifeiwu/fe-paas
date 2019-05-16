@@ -21,6 +21,16 @@
             <el-option :value="false" label="非生产环境"></el-option>
           </el-select>
         </div>
+        <div class="item">
+          <label style="float: left; width: 72px; line-height: 26px">申请状态：</label>
+          <el-select v-model="searchCondition.status" placeholder="请选择"
+                     style="display:block; max-width: 200px; margin-left: 72px;">
+            <el-option :value="null" label="全部"></el-option>
+            <el-option value="REQUESTED" label="申请中"></el-option>
+            <el-option value="AUTHORIZED" label="已授权"></el-option>
+            <el-option value="INVALIDATED" label="已失效"></el-option>
+          </el-select>
+        </div>
         <el-button size="mini-extral"
                    type="primary"
                    v-if="true"
@@ -66,6 +76,16 @@
                 width="100"
                 headerAlign="center" align="center"
         >
+        </el-table-column>
+        <el-table-column
+            label="申请时间"
+            prop="formattedCreateTime"
+            width="80"
+            headerAlign="center" align="center">
+          <template slot-scope="scope">
+            {{scope.row.formattedCreateTimeYMD}}<br/>
+            {{scope.row.formattedCreateTimeHMS}}
+          </template>
         </el-table-column>
         <el-table-column
                 label="授权时间"
@@ -438,6 +458,7 @@
         searchCondition: {
           requestUaaId: null,
           production: null,
+          status: "REQUESTED"
         },
         authorizeUrlListByPage: [],
 
@@ -482,6 +503,10 @@
         this.requestAuthorizeUrlList()
       },
       'searchCondition.production': function() {
+        this.currentPage = 1;
+        this.requestAuthorizeUrlList()
+      },
+      'searchCondition.status': function() {
         this.currentPage = 1;
         this.requestAuthorizeUrlList()
       },
@@ -874,6 +899,9 @@
         if (null !== this.searchCondition.production) {
           options.productEnv = this.searchCondition.production;
         }
+        if (null !== this.searchCondition.status) {
+          options.status = this.searchCondition.status;
+        }
         this.showLoading = true;
 //      {
 //        "targetApplicationName": "被访问的应用",
@@ -885,7 +913,15 @@
 //      }
         this.$net.oauthGetAuthorizeUrlList(options).then(content => {
           if (content.hasOwnProperty('authRecordList')) {
-            this.authorizeUrlListByPage = content['authRecordList'];
+
+            this.authorizeUrlListByPage = content['authRecordList'].map(it => {
+              const authorizeUrl = it;
+              authorizeUrl['formattedCreateTime'] = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              authorizeUrl['formattedCreateTimeYMD'] = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd');
+              authorizeUrl['formattedCreateTimeHMS'] = this.$utils.formatDate(it.createTime, 'hh:mm:ss');
+              return authorizeUrl;
+            });
+
             this.totalSize = content.total;
           }
           this.showLoading = false;
