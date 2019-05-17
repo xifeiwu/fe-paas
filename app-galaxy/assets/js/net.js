@@ -127,7 +127,8 @@ class Net {
       'profile/middleware/mariadb/backup': '/profile/middleware/mariadb/backup',
       'profile/middleware/redis': '/profile/middleware/redis',
       'profile/middleware/redis/add': '/profile/middleware/redis/add',
-      'profile/middleware/redis/modify': '/profile/middleware/redis/modify'
+      'profile/middleware/redis/modify': '/profile/middleware/redis/modify',
+      'manage/node-manage': '/manage/node-manage'
     };
 
     this.vm = new Vue({

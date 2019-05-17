@@ -79,20 +79,20 @@ class Net extends NetBase {
         path: '/backstage/downloadCallAmountXls',
         method: 'post'
       },
-	    // k8s群集
-	    query_k8s_cluster: {
-		    path: '/queryCluster',
-		    method: 'get'
-	    },
-	    query_k8s_cluster_detail: {
-		    path: '/queryClusterDetail',
-		    method: 'post'
-	    },
-	    // 调用次数详情
-	    query_node_list: {
-		    path: '/queryAllNode',
-		    method: 'get'
-	    },
+      // k8s群集
+      query_k8s_cluster: {
+        path: '/queryCluster',
+        method: 'get'
+      },
+      query_k8s_cluster_detail: {
+        path: '/queryClusterDetail',
+        method: 'post'
+      },
+      // 调用次数详情
+      query_node_list: {
+        path: '/queryAllNode',
+        method: 'get'
+      },
       // 调用次数详情
       analyze_visit_list_item_detail: {
         path: '/backstage/queryCallDetail',
@@ -128,10 +128,7 @@ class Net extends NetBase {
     if (this.URL_LIST) {
       this.URL_LIST = Object.assign(this.URL_LIST, PAAS_URL_LIST);
     }
-	
-	  this.page = {
-		  'manage/node-manage': '/manage/node-manage'
-	  };
+
   }
 
   // called at config/vue

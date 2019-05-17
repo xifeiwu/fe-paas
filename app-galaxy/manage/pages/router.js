@@ -37,8 +37,8 @@ var Router = function () {
     path: '/manage/node-manage',
     component: nodeManage
   }, {
-	  path: '/manage/cluster-dashboard',
-	  component: clusterDashboard
+    path: '/manage/cluster-dashboard',
+    component: clusterDashboard
   }, {
     path: '/manage/analyze/visit',
     component: analyzeVisit

@@ -167,19 +167,19 @@
             name: '集群管理',
             router: '/manage/cluster-dashboard',
             icon: 'paas-icon-cluster',
-	          children: [{
-		          name: '集群概况',
-		          router: '/manage/cluster-dashboard',
-		          icon: 'el-icon-arrow-right',
-	          }, {
-		          name: 'Node列表',
-		          router: '/manage/node-manage',
-		          icon: 'el-icon-arrow-right',
-	          // }, {
-		        //   name: 'PV列表',
-		        //   router: '/manage/node-manage',
-		        //   icon: 'el-icon-arrow-right',
-	          }]
+            children: [{
+              name: '集群概况',
+              router: '/manage/cluster-dashboard',
+              icon: 'el-icon-arrow-right',
+            }, {
+              name: 'Node列表',
+              router: '/manage/node-manage',
+              icon: 'el-icon-arrow-right',
+              // }, {
+              //   name: 'PV列表',
+              //   router: '/manage/node-manage',
+              //   icon: 'el-icon-arrow-right',
+            }]
           }]
         }
       }
