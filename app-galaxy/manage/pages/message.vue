@@ -7,7 +7,7 @@
           <el-button type="primary" size="mini" @click="handleClick('refresh')">刷新</el-button>
         </el-col>
 
-        <el-col :span="5" class="item">
+        <el-col :span="6" class="item">
           <span>消息类型：</span>
           <el-select v-model="messageTypeSelect" placeholder="请选择">
             <el-option value="ALL" label="全部"></el-option>
@@ -17,7 +17,7 @@
           </el-select>
         </el-col>
 
-        <el-col :span="5" class="item">
+        <el-col :span="6" class="item">
           <span>接收团队：</span>
           <el-select filterable v-model="groupIdSelect" placeholder="请选择">
             <el-option v-for="(item, index) in groupList" :key="item.id" :label="item.name" :value="item.id">
@@ -37,6 +37,7 @@
         <el-table-column prop="messageTypeName" label="消息类型" width="80"></el-table-column>
         <el-table-column prop="title" label="标题" minWidth="100"></el-table-column>
         <el-table-column prop="content" label="内容" minWidth="200"></el-table-column>
+        <el-table-column prop="groupName" label="接收团队" minWidth="100"></el-table-column>
         <el-table-column prop="formattedReleaseTime" label="发布时间" width="200" headerAlign="center" align="center"></el-table-column>
         <el-table-column prop="releaseStatusName" label="状态" width="80"></el-table-column>
         <el-table-column label="操作" width="80">
@@ -324,6 +325,11 @@
           if (!it.groupId) {
             it['groupId'] = '';
           }
+
+          if (!it.groupName) {
+            it['groupName'] = '全部';
+          }
+
           return it;
         });
         this.totalSize = messageList.length;
