@@ -37,7 +37,7 @@
         <el-table-column prop="messageTypeName" label="消息类型" width="80"></el-table-column>
         <el-table-column prop="title" label="标题" minWidth="100"></el-table-column>
         <el-table-column prop="content" label="内容" minWidth="200"></el-table-column>
-        <el-table-column prop="groupName" label="接收团队" minWidth="100"></el-table-column>
+        <el-table-column prop="groupName" label="接收团队" minWidth="100" headerAlign="center" align="center"></el-table-column>
         <el-table-column prop="formattedReleaseTime" label="发布时间" width="200" headerAlign="center" align="center"></el-table-column>
         <el-table-column prop="releaseStatusName" label="状态" width="80"></el-table-column>
         <el-table-column label="操作" width="80">
