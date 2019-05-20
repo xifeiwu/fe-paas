@@ -223,7 +223,7 @@
                                     v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabBranch"></el-input>
                     </el-form-item>
-                    <el-form-item label="自动化测试报告目录：" labelWidth="220px" prop="ciPipelineAutoTestVO.itTestReportAddress"
+                    <el-form-item label="自动化测试报告路径：" labelWidth="220px" prop="ciPipelineAutoTestVO.itTestReportAddress"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.itTestReportAddress"></el-input>
                     </el-form-item>
