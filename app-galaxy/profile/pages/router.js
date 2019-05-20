@@ -356,6 +356,7 @@ class Helper {
     // console.log(this.$storeHelper.notPermitted);
     // this.startRouteFilter()
     this.pathList = [];
+    this.preRouter = null;
   }
   /**
    * traverse router config tree to add routerPath to all component:
@@ -790,6 +791,8 @@ class Helper {
         const result = pathCheck(to.path);
         if (result.errMsg) {
           Vue.prototype.$message.warning(result.errMsg);
+        } else {
+          this.preRouter = from;
         }
         if (result.jumpTo) {
           if (result.jumpTo == to.path) {

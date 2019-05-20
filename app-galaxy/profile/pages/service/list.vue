@@ -436,13 +436,22 @@
     components: {paasDialogForLog},
     mixins: [commonUtils],
     created() {
+      // some logic by the preview route, such as use filterKey in localStorage if pre page is profile/service/modify
+      const preRouter = this.$router.helper.preRouter;
+      if (preRouter && preRouter.path) {
+        switch (preRouter.path) {
+          case this.$net.page['profile/service/modify']:
+            this.filterKey = this.$storeHelper.getUserConfig('service.filterKey');
+            break;
+        }
+      }
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer) {
         const from = dataTransfer.from;
         const data = dataTransfer.data;
         switch (from) {
           case this.$net.page['profile/app']:
-            if (['appName', 'profileName'].every(prop => {
+            if (['appName', 'profileId'].every(prop => {
               return this.$utils.propExists(data, prop);
               })) {
               this.dataPassed.from = from;
@@ -487,9 +496,12 @@
           currentPage: page
         });
       },
-      'filterKey': function () {
+      'filterKey': function (value) {
         this.getServiceListByPage({
           currentPage: 1
+        });
+        this.$storeHelper.setUserConfig('service', {
+          filterKey: value
         });
       },
       // changed by el-tab
