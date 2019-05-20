@@ -310,7 +310,7 @@
         }
 
         if (this.runningStatus && 'all' !== this.runningStatus) {
-          this.nodeListFilter = this.nodeList.filter(it => {
+          this.nodeListFilter = this.nodeListFilter.filter(it => {
             return this.runningStatus === it['status'];
           });
         }
