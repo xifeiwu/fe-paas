@@ -1468,8 +1468,8 @@
           this.$net.oAuthCreateAccessKey(dataToPost).then(content => {
             this.handleDialogClose();
             this.$message({
-              duration: 10000,
-              message: "Access key " + content.secret + " 创建成功！如您需要申请了其他团队的权限，请及时联系您想访问的团队来给您的clientId授权，并在两天内完成授权，逾期将是视为失效，需重新申请!",
+              duration: 6000,
+              message: "Access key（" + content.client_id + "）创建成功！如您需要申请了其他团队的权限，请及时联系您想访问的团队来给您的ClientId授权，并在两天内完成授权，逾期将是视为失效，需重新申请!",
               type: 'success'
             });
             this.refreshAccessKeyList();
@@ -1623,7 +1623,7 @@
             this.hideWaitingResponse(action + '-in-dialog');
             this.selected.operation = null;
             this.$message({
-              duration: 10000,
+              duration: 6000,
               message: msg,
               type: 'success'
             });
