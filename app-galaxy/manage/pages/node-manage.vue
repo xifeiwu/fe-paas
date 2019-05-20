@@ -222,7 +222,22 @@
       this.bytes = bytes;
 
       await this.requestK8sClusterList();
-      this.currentK8sNode = this.k8sClusterList[0].name;
+
+      if (this.$storeHelper.dataTransfer) {
+        const dataTransfer = this.$storeHelper.dataTransfer;
+        // console.log(dataTransfer);
+        // const from = dataTransfer['from'];
+        const theData = dataTransfer['data'];
+        // console.log(from);
+        // console.log(theData);
+        this.dataPassed = theData['clusterInfo'];
+
+        this.currentK8sNode = this.dataPassed.clusterName;
+        this.$storeHelper.dataTransfer = null;
+      } else {
+        this.currentK8sNode = this.k8sClusterList[0].name;
+      }
+
       await this.computedNodeList(true);
     },
     mounted() {
@@ -239,6 +254,7 @@
 
         k8sClusterList: [],
         currentK8sNode: '',
+        dataPassed: null,
         statusList: [
           {
             key: 'all',

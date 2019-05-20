@@ -30,7 +30,7 @@
           <template slot-scope="scope">
             <ul>
               <li style="display: inline-block; padding-left: 5px; padding-right: 5px;">
-                <a href="#" @click="handleButtonClick($event, 'gotoNodeManage')">按node分类</a>
+                <a href="#" @click="handleButtonClick($event, 'gotoNodeManage', scope.$index, scope.row)">按node分类</a>
               </li>
               <!--<li style="display: inline-block; padding-left: 5px; padding-right: 5px;">-->
               <!--<a href="#">按PV分类</a>-->
@@ -215,11 +215,21 @@
         }
       },
 
-      async handleButtonClick(evt, action) {
+      async handleButtonClick(evt, action, index, row) {
 
         switch (action) {
           case 'gotoNodeManage':
             // console.log(action);
+            this.$storeHelper.dataTransfer = {
+              from: {
+                path: this.$net.page['manage/node-manage'],
+                action
+              },
+              data: {
+                clusterInfo: row
+              }
+            };
+
             this.$router.push(this.$net.page['manage/node-manage']);
             break;
           // case 'refreshList':
