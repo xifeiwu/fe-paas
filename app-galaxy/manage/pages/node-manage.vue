@@ -52,14 +52,14 @@
             
           </template>
         </el-table-column>
-        <el-table-column label="CPU(已用/总共)" prop="cpuUsed" headerAlign="center" align="center" width="160" sortable>
+        <el-table-column label="CPU(已用/总共)" prop="cpuUsage" headerAlign="center" align="center" width="200" sortable>
           <template slot-scope="scope">
-            <span>{{scope.row.cpuUsed + '核 / ' + scope.row.cpuTotal + '核'}}</span>
+            <span>{{scope.row.cpuUsed + '核 / ' + scope.row.cpuTotal + '核（' + scope.row.cpuUsage + '%）' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="内存(已用/总共)" prop="memoryUsed" headerAlign="center" align="center" width="160" sortable>
+        <el-table-column label="内存(已用/总共)" prop="memoryUsage" headerAlign="center" align="center" width="200" sortable>
           <template slot-scope="scope">
-            <span>{{scope.row.memoryUsed + 'G / ' + scope.row.memoryTotal + 'G'}}</span>
+            <span>{{scope.row.memoryUsed + 'G / ' + scope.row.memoryTotal + 'G（' + scope.row.memoryUsage + '%）' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="外网IP" prop="internalIP" headerAlign="center" align="center" width="100">
@@ -397,9 +397,11 @@
 
             it['cpuUsed'] = parseInt(it.cpuUsage) / 1000;
             it['cpuTotal'] = parseInt(it.cpuTotal) / 1000;
+            it['cpuUsage'] =  parseFloat(it['cpuUsed'] / it['cpuTotal'] * 100).toFixed(1);
 
             it['memoryUsed'] = parseFloat(it.memoryUsage / 1024).toFixed(2);
             it['memoryTotal'] = parseFloat(it.memoryTotal / 1024).toFixed(2);
+            it['memoryUsage'] =  parseFloat(parseInt(it.memoryUsed) / parseInt(it.memoryTotal) * 100).toFixed(1);
           });
 
           this.totalSize = parseInt(resp.length);
