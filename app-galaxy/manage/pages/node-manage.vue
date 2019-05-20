@@ -45,7 +45,7 @@
                 v-for="(item, index) in scope.row.labels"
                 :key="index"
             >
-              <el-col :span="11" style="text-align: left;font-size: small;">{{index}}</el-col>
+              <el-col :span="11" style="text-align: right;font-size: small;">{{index}}</el-col>
               <el-col :span="1" style="text-align: center">:</el-col>
               <el-col :span="12" style="text-align: left;font-size: small;">{{item}}</el-col>
             </el-row>
@@ -245,10 +245,10 @@
             status: '全部'
           }, {
             key: 'ready',
-            status: 'running'
+            status: 'ready'
           }, {
             key: 'notReady',
-            status: 'stopping'
+            status: 'notReady'
           }
         ],
         runningStatus: 'all',
