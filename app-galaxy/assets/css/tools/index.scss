@@ -18,7 +18,8 @@ $g-env-staging-color: #EF5b9C;
   }
 }
 
-$--md-fade-transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1) 100ms, opacity 300ms cubic-bezier(0.23, 1, 0.32, 1) 100ms !default;
+$--md-fade-transition-leave: transform 300ms cubic-bezier(0.23, 1, 0.32, 1) 100ms, opacity 300ms cubic-bezier(0.23, 1, 0.32, 1) 100ms !default;
+$--md-fade-transition-enter: transform 300ms cubic-bezier(0.23, 1, 0.32, 1) 400ms, opacity 300ms cubic-bezier(0.23, 1, 0.32, 1) 400ms !default;
 @mixin expand-to-next-line() {
   //display: inline-block;
   max-width: 100%;
@@ -30,16 +31,19 @@ $--md-fade-transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1) 100ms, opa
 .global-zoom-in-right-1-enter-active {
   opacity: 1;
   transform: translateX(0);
-  transition: $--md-fade-transition;
   transform-origin: left;
+  transition: $--md-fade-transition-enter;
 }
 .global-zoom-in-right-1-enter {
   transform: translateX(120%);
-  /*opacity: 0;*/
+  opacity: 0;
 }
 .global-zoom-in-right-1-leave {
   opacity: 0;
-  display: none;
+  transform: scale(1, 1);
 }
 .global-zoom-in-right-1-leave-active {
+  //opacity: 0;
+  transform: scale(0, 0);
+  transition: $--md-fade-transition-leave;
 }

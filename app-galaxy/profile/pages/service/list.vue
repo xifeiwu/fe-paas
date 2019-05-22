@@ -334,10 +334,10 @@
           </el-breadcrumb-item>
         </el-breadcrumb>
       </div>
-      <div class="content" style="overflow: hidden">
+      <div class="content" style="overflow: hidden; position: relative">
         <transition-group name="global-zoom-in-right-1">
           <custom-table-component
-                  :data="actionNew.data.workOrderList"
+                  :data="rollingUpStatus.workOrderList"
                   :showFilter="false"
                   :key="rollingUpStatus.pageList[0]['key']"
                   v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[0]['key']"
@@ -359,23 +359,31 @@
             </custom-table-column>
           </custom-table-component>
           <custom-table-component
-                  :data="actionNew.data.workOrderList"
+                  :data="rollingUpStatus.deployHistoryList"
                   :showFilter="false"
                   :key="rollingUpStatus.pageList[1]['key']"
                   v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[1]['key']"
           >
-            <custom-table-column show="name" label="审批工单名称"></custom-table-column>
-            <custom-table-column show="user" label="申请人"></custom-table-column>
-            <custom-table-column show="time" label="申请时间"></custom-table-column>
+            <custom-table-column show="time" label="部署时间"></custom-table-column>
+            <custom-table-column show="user" label="部署人"></custom-table-column>
+            <custom-table-column show="image" label="部署镜像"></custom-table-column>
             <custom-table-column show="operation" label="操作">
               <template slot-scope="scope">
                 <el-button
                         size="small"
                         type="text"
-                        :loading="statusOfWaitingResponse('go-to-page-deploy-history') && rollingUpStatus.workOrderSelected.id == scope.row.id"
-                        @click="handleDialogRollingUp($event, 'go-to-page-deploy-history', scope.row, scope.$index)"
+                        :loading="statusOfWaitingResponse('go-to-page-deploy-log') && rollingUpStatus.deployHistorySelected.id == scope.row.id"
+                        @click="handleDialogRollingUp($event, 'go-to-page-deploy-log', scope.row, scope.$index)"
                         :class="'primary'">
-                  查看工单部署历史
+                  查看工单部署日志
+                </el-button>
+                <el-button
+                        size="small"
+                        type="text"
+                        :loading="statusOfWaitingResponse('deploy-image') && rollingUpStatus.deployHistorySelected.id == scope.row.id"
+                        @click="handleDialogRollingUp($event, 'deploy-image', scope.row, scope.$index)"
+                        :class="'primary'">
+                  部署镜像
                 </el-button>
               </template>
             </custom-table-column>
@@ -788,11 +796,14 @@
             time: '2019-04-23',
           }],
 
+          deployHistorySelected: {},
           deployHistoryList: [{
+            id: 0,
             time: '2019-04-23',
             user: '吴西飞',
             image: 'harbor/finupgroup.com/onetran/uaa:staging',
           }, {
+            id: 1,
             time: '2019-04-23',
             user: '吴西飞',
             image: 'harbor/finupgroup.com/onetran/uaa:production',
@@ -913,6 +924,10 @@
           case 'go-to-page-deploy-history':
             this.rollingUpStatus.workOrderSelected = data;
             this.handleDialogRollingUp(evt, 'breadcrumb-click', this.rollingUpStatus.pageList.find(it => it.key === 'deploy-history'));
+            break;
+          case 'go-to-page-deploy-log':
+            this.rollingUpStatus.deployHistorySelected = data;
+            this.handleDialogRollingUp(evt, 'breadcrumb-click', this.rollingUpStatus.pageList.find(it => it.key === 'deploy-log'));
             break;
         }
       },
