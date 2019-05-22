@@ -4,7 +4,7 @@
       <div style="display: inline-block"><span style="font-weight: bold">运行环境：</span><span>{{dataPassed.profileInfo.name}}</span></div>
       <div style="display: inline-block; margin-left: 15px;"><span style="font-weight: bold">应用名称：</span><span>{{dataPassed.serviceInfo.appName}}</span></div>
       <el-button style="margin-left: 15px;" size="mini" type="primary" @click="handleClick($event, 'refresh')">刷新</el-button>
-      <el-button style="margin-left: 15px;" size="mini" type="primary" @click="handleClick($event, 'show_topN_error_dialog')">查看错误排行榜</el-button>
+      <el-button style="margin-left: 15px;" size="mini" type="primary" @click="handleClick($event, 'show_topN_error_dialog')" v-if="false">查看错误排行榜</el-button>
       <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
         <div slot="content">
           <div>域名请求数据统计，目前只统计24H内的接口请求数据</div>
@@ -176,15 +176,23 @@
         </div>
       </div>
       <div class="right">
-        <div class="by-middleware" v-if="middlewareInfoList.length > 0">
+        <div class="by-middleware">
           <div class="middleware-title">
             {{`数据库及中间件信息`}}
           </div>
           <div class="middleware-tip">
             <span class="el-icon-info"></span>
-            <span>中间件连接状态的计算公式为：（成功连接数/总连接数) * 100；若该值大于70%，则为健康状态，小于70%大于30%为不健康状态，小于30%为不可用状态。绿色图标为健康状态，黄色为不健康状态，红色为不可用状态</span>
+            <span>中间件连接状态的计算公式为：（成功连接数/总连接数) * 100；若该值大于70%，则为健康状态，小于70%大于30%为不健康状态，小于30%为不可用状态。绿色图标为健康状态，黄色为不健康状态，红色为不可用状态。默认查询最近1天的数据库及中间件连接情况</span>
           </div>
-          <div class="middleware-table">
+          <div class="loading" style="height: 240px; " v-if="middlewareLoading">
+            <div class="el-loading-mask" style="">
+              <div class="el-loading-spinner">
+                <i class="el-icon-loading"></i>
+                <p class="el-loading-text">网络请求中...</p>
+              </div>
+            </div>
+          </div>
+          <div class="middleware-table" v-else>
             <el-table :data="middlewareInfoList"
                       style="width: 99%;"
                       max-height="280">
@@ -503,6 +511,7 @@
       .right {
         .by-middleware {
           width: 100%;
+          max-width: 900px;
           margin-bottom: 15px;
           background-color: #fff;
           border-bottom: 1px solid white;
@@ -760,6 +769,7 @@
         },
         showInternetDomainDialog: false,
         middlewareInfoList: [],
+        middlewareLoading: true,
         topNException: {
           showTopNErrorDialog: false,
           topNExceptionList: [],
@@ -992,62 +1002,68 @@
       },
 
       async getMiddlewareInfo() {
-        this.middlewareInfoList = [];
-        let resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_service_relation, {
-          payload: {
-            serviceName: this.dataPassed.serviceInfo.serviceName,
-            spaceId: this.dataPassed.profileInfo.id,
+        try {
+          this.middlewareInfoList = [];
+          this.middlewareLoading = true;
+          let resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_service_relation, {
+            payload: {
+              serviceName: this.dataPassed.serviceInfo.serviceName,
+              spaceId: this.dataPassed.profileInfo.id,
+            }
+          });
+          this.middlewareInfoList = resContent;
+          if (this.middlewareInfoList) {
+            this.middlewareInfoList.forEach(it => {
+              switch (it.targetType.toLowerCase()) {
+                case "redis":
+                  it.iconClass = "paas-icon-redis";
+                  it.iconColor = "#CF271D";
+                  it.order = 1;
+                  break;
+                case "mongodb":
+                  it.iconClass = "paas-icon-mongodb";
+                  it.iconColor = "#68B145";
+                  it.order = 4;
+                  break;
+                case "mysql":
+                  it.iconClass = "paas-icon-mysql";
+                  it.iconColor = "#00758F";
+                  it.order = 3;
+                  break;
+                case "rabbitmq":
+                  it.iconClass = "paas-icon-rabbitmq";
+                  it.iconColor = "#FF6700";
+                  it.order = 5;
+                  break;
+                case "postgresql":
+                  it.iconClass = "paas-icon-postgresql";
+                  it.iconColor = "#316690";
+                  it.order = 2;
+                  break;
+                default:
+                  it.iconClass = "paas-icon-default-middleware";
+                  it.iconColor = "#CCCCCC";
+                  it.order = 6;
+              }
+              let percentage = (1 - it.errorCount / it.callCount) * 100;
+              if (percentage > 70) {
+                it.status = "健康";
+                it.statusIcon = "el-icon-circle-check";
+                it.statusColor = "#67C23A";
+              } else if (percentage > 30 && percentage < 70) {
+                it.status = "不健康";
+                it.statusIcon = "el-icon-remove";
+                it.statusColor = "#E6A23C";
+              } else {
+                it.status = "不可用";
+                it.statusIcon = "el-icon-circle-close";
+                it.statusColor = "#F56C6C";
+              }
+            })
           }
-        });
-        this.middlewareInfoList = resContent;
-        if (this.middlewareInfoList) {
-	        this.middlewareInfoList.forEach(it => {
-		        switch (it.targetType.toLowerCase()) {
-			        case "redis":
-				        it.iconClass = "paas-icon-redis";
-				        it.iconColor = "#CF271D";
-				        it.order = 1;
-				        break;
-			        case "mongodb":
-				        it.iconClass = "paas-icon-mongodb";
-				        it.iconColor = "#68B145";
-				        it.order = 4;
-				        break;
-			        case "mysql":
-				        it.iconClass = "paas-icon-mysql";
-				        it.iconColor = "#00758F";
-				        it.order = 3;
-				        break;
-              case "rabbitmq":
-				        it.iconClass = "paas-icon-rabbitmq";
-				        it.iconColor = "#FF6700";
-				        it.order = 5;
-				        break;
-              case "postgresql":
-                it.iconClass = "paas-icon-postgresql";
-                it.iconColor = "#316690";
-                it.order = 2;
-                break;
-              default:
-                it.iconClass = "paas-icon-default-middleware";
-                it.iconColor = "#CCCCCC";
-                it.order = 6;
-		        }
-		        let percentage = (1 - it.errorCount / it.callCount) * 100;
-		        if (percentage > 70) {
-			        it.status = "健康";
-			        it.statusIcon = "el-icon-circle-check";
-			        it.statusColor = "#67C23A";
-		        } else if (percentage > 30 && percentage < 70) {
-			        it.status = "不健康";
-			        it.statusIcon = "el-icon-remove";
-			        it.statusColor = "#E6A23C";
-		        } else {
-			        it.status = "不可用";
-			        it.statusIcon = "el-icon-circle-close";
-			        it.statusColor = "#F56C6C";
-		        }
-	        })
+        } catch (e) {
+        } finally {
+          this.middlewareLoading = false;
         }
       },
 

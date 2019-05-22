@@ -603,7 +603,13 @@ class Net extends NetBase {
       //服务详情中获取中间件的状态信息
       'middleware_service_relation': {
         path: '/service/queryServiceRelation',
-        method: 'post'
+        method: 'post',
+        partial: true,
+        level: 'LEVEL_WARNING',
+        errObj: {
+          title: '请求超时',
+          message: '因访问数量过多/响应数据量过大，请您稍后再试！'
+        }
       },
 
       /** pipeline相关*/
