@@ -327,6 +327,27 @@ class AppInfoHelper {
       }, {
         validator: limit256
       }],
+
+      terminationGracePeriodSeconds:[
+        {required: false,
+         validator(rule,values,callback){
+           let passed = true;
+           if(values){
+             const numberReg = /^[0-9]+$/;
+             if (!numberReg.exec(values)) {
+               passed = false;
+               callback('只能是数字');
+             }else if(values > 300 || values < 10) {
+               passed = false;
+               callback('请设置10-300之间的整数');
+             }
+           }
+
+           if(passed){
+             callback();
+           }
+         }
+        }],
     }
   }
 
