@@ -18,7 +18,7 @@ $g-env-staging-color: #EF5b9C;
   }
 }
 
-
+$--md-fade-transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1) 100ms, opacity 300ms cubic-bezier(0.23, 1, 0.32, 1) 100ms !default;
 @mixin expand-to-next-line() {
   //display: inline-block;
   max-width: 100%;
@@ -27,3 +27,19 @@ $g-env-staging-color: #EF5b9C;
   line-height: 1.2;
 }
 
+.global-zoom-in-right-1-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: $--md-fade-transition;
+  transform-origin: left;
+}
+.global-zoom-in-right-1-enter {
+  transform: translateX(120%);
+  /*opacity: 0;*/
+}
+.global-zoom-in-right-1-leave {
+  opacity: 0;
+  display: none;
+}
+.global-zoom-in-right-1-leave-active {
+}

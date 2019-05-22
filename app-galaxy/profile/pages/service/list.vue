@@ -110,6 +110,15 @@
               <el-button
                       size="small"
                       type="text"
+                      :loading="statusOfWaitingResponse('rolling_up') && action.row.appId == scope.row.appId"
+                      @click="handleTRClick($event, 'rolling_up', scope.$index, scope.row)"
+                      :class="'danger'">
+                {{'回滚'}}
+              </el-button>
+              <div class="ant-divider"></div>
+              <el-button
+                      size="small"
+                      type="text"
                       :loading="statusOfWaitingResponse('service_stop') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_stop', scope.$index, scope.row)"
                       :class="$storeHelper.permission['service_stop'].disabled || scope.row.containerStatus.Total == 0 || publishStatus? 'disabled' : 'danger'">
@@ -269,7 +278,7 @@
     </el-dialog>
 
     <el-dialog title="部署服务" :visible="actionNew.name == 'service_deploy'"
-               v-if="actionNew.name"
+               v-if="actionNew.name && actionNew.name == 'service_deploy'"
                class="confirm-dialog size-600"
                :close-on-click-modal="false"
                @close="closeDialog"
@@ -290,7 +299,7 @@
 
     <!--not used-->
     <el-dialog :title="actionNew.data.title" :visible="['quick_deploy', 'service_stop', 'service_delete'].indexOf(actionNew.name) > -1"
-               v-if="actionNew.name"
+               v-if="actionNew.name && false"
                class="confirm-dialog size-700"
                :close-on-click-modal="false"
                @close="closeDialog"
@@ -310,6 +319,71 @@
       </span>
     </el-dialog>
 
+
+    <el-dialog title="镜像回滚" :visible="actionNew.name == 'rolling_up'"
+               v-if="actionNew.name"
+               class="rolling_up"
+               :close-on-click-modal="false"
+               @close="closeDialog"
+               top="80px"
+    >
+      <div class="assist">
+        <el-breadcrumb separator="/">
+          <el-breadcrumb-item v-for="item in rollingUpStatus.breadcrumbList">
+            <span @click="handleDialogRollingUp($event, 'breadcrumb-click', item)">{{item.name}}</span>
+          </el-breadcrumb-item>
+        </el-breadcrumb>
+      </div>
+      <div class="content" style="overflow: hidden">
+        <transition-group name="global-zoom-in-right-1">
+          <custom-table-component
+                  :data="actionNew.data.workOrderList"
+                  :showFilter="false"
+                  :key="rollingUpStatus.pageList[0]['key']"
+                  v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[0]['key']"
+          >
+            <custom-table-column show="name" label="审批工单名称"></custom-table-column>
+            <custom-table-column show="user" label="申请人"></custom-table-column>
+            <custom-table-column show="time" label="申请时间"></custom-table-column>
+            <custom-table-column show="operation" label="操作">
+              <template slot-scope="scope">
+                <el-button
+                        size="small"
+                        type="text"
+                        :loading="statusOfWaitingResponse('go-to-page-deploy-history') && rollingUpStatus.workOrderSelected.id == scope.row.id"
+                        @click="handleDialogRollingUp($event, 'go-to-page-deploy-history', scope.row, scope.$index)"
+                        :class="'primary'">
+                  查看工单部署历史
+                </el-button>
+              </template>
+            </custom-table-column>
+          </custom-table-component>
+          <custom-table-component
+                  :data="actionNew.data.workOrderList"
+                  :showFilter="false"
+                  :key="rollingUpStatus.pageList[1]['key']"
+                  v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[1]['key']"
+          >
+            <custom-table-column show="name" label="审批工单名称"></custom-table-column>
+            <custom-table-column show="user" label="申请人"></custom-table-column>
+            <custom-table-column show="time" label="申请时间"></custom-table-column>
+            <custom-table-column show="operation" label="操作">
+              <template slot-scope="scope">
+                <el-button
+                        size="small"
+                        type="text"
+                        :loading="statusOfWaitingResponse('go-to-page-deploy-history') && rollingUpStatus.workOrderSelected.id == scope.row.id"
+                        @click="handleDialogRollingUp($event, 'go-to-page-deploy-history', scope.row, scope.$index)"
+                        :class="'primary'">
+                  查看工单部署历史
+                </el-button>
+              </template>
+            </custom-table-column>
+          </custom-table-component>
+        </transition-group>
+      </div>
+    </el-dialog>
+
     <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="content">
         <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
@@ -324,6 +398,26 @@
     flex-direction: column;
     max-width: 1500px;
     background: white;
+
+    .el-dialog__wrapper.rolling_up {
+      .el-dialog {
+        width: 95%;
+        max-width: 1500px;
+        height: 70%;
+        .el-dialog__header {
+          padding: 3px 8px;
+          .el-dialog__title {
+            font-size: 14px;
+          }
+          button {
+            top: 6px;
+          }
+        }
+        .el-dialog__body {
+          padding: 0px;
+        }
+      }
+    }
     > .header {
       .el-tabs {
         /*border-right: 1px solid #dfe4ed;*/
@@ -510,8 +604,13 @@
   import {mapGetters} from 'vuex';
   import commonUtils from 'assets/components/mixins/common-utils';
   import paasDialogForLog from '../components/dialog4log.vue';
+  import { TableColumn, TableComponent } from '$components/custom/simple-table';
   export default {
-    components: {paasDialogForLog},
+    components: {
+      paasDialogForLog,
+      CustomTableColumn: TableColumn,
+      CustomTableComponent: TableComponent,
+    },
     mixins: [commonUtils],
     created() {
       // some logic by the preview route, such as use filterKey in localStorage if pre page is profile/service/modify
@@ -661,6 +760,44 @@
           dataOrigin: null,
           data: null
         },
+        // status for dialog rolling_up
+        rollingUpStatus: {
+          currentPageKey: null,
+          breadcrumbList: [],
+          pageList: [{
+            key: 'work-order',
+            name: '工单列表'
+          }, {
+            key: 'deploy-history',
+            name: '部署历史'
+          }, {
+            key: 'deploy-log',
+            name: '部署日志'
+          }],
+
+          workOrderSelected: {},
+          workOrderList: [{
+            id: 0,
+            name: '部署测试',
+            user: '常帅',
+            time: '2019-04-23',
+          }, {
+            id: 1,
+            name: '部署测试',
+            user: '常帅',
+            time: '2019-04-23',
+          }],
+
+          deployHistoryList: [{
+            time: '2019-04-23',
+            user: '吴西飞',
+            image: 'harbor/finupgroup.com/onetran/uaa:staging',
+          }, {
+            time: '2019-04-23',
+            user: '吴西飞',
+            image: 'harbor/finupgroup.com/onetran/uaa:production',
+          }]
+        },
 
         deployLogs: [],
         dialogForLogStatus: {
@@ -735,8 +872,10 @@
       },
 
       openDialog(name, data) {
-        this.actionNew.dataOrigin = data;
-        this.actionNew.data = this.$utils.cloneDeep(data);
+        if (data) {
+          this.actionNew.dataOrigin = data;
+          this.actionNew.data = this.$utils.cloneDeep(data);
+        }
         this.actionNew.name = name;
         // console.log(this.actionNew);
 
@@ -749,7 +888,7 @@
         this.actionNew.name = null;
         this.actionNew.promise.reject('cancel');
       },
-      async handleDialogEvent(evt, action) {
+      async handleDialogEvent(evt, action, data) {
 //        console.log(evt, action);
         try {
           switch (action) {
@@ -759,6 +898,22 @@
           }
         } catch(err) {
           console.log(err);
+        }
+      },
+      async handleDialogRollingUp(evt, action, data) {
+        switch (action) {
+          case 'breadcrumb-click':
+            this.rollingUpStatus.breadcrumbList = [];
+            this.rollingUpStatus.pageList.some(it => {
+              this.rollingUpStatus.breadcrumbList.push(it);
+              return it === data;
+            });
+            this.rollingUpStatus.currentPageKey = data['key'];
+            break;
+          case 'go-to-page-deploy-history':
+            this.rollingUpStatus.workOrderSelected = data;
+            this.handleDialogRollingUp(evt, 'breadcrumb-click', this.rollingUpStatus.pageList.find(it => it.key === 'deploy-history'));
+            break;
         }
       },
 
@@ -1444,6 +1599,22 @@
             } catch (err) {
               console.log(err);
             } finally {
+              this.hideWaitingResponse(action);
+            }
+            break;
+          case 'rolling_up':
+            this.addToWaitingResponseQueue(action);
+            try {
+              this.handleDialogRollingUp(null, 'breadcrumb-click', this.rollingUpStatus.pageList[0]);
+              await this.openDialog(action, {
+                deployHistoryList: [],
+                deployLog: []
+              });
+//              this.closeDialog();
+              this.hideWaitingResponse(action);
+            } catch (err) {
+              console.log(err);
+              this.closeDialog();
               this.hideWaitingResponse(action);
             }
             break;
