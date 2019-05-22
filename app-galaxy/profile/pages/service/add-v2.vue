@@ -30,7 +30,7 @@
           </el-form-item>
           <el-form-item label="镜像方式" prop="customImage" class="custom-image">
             <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="formRelated.isPythonLanguage">
-              <el-radio :label="false">自动打镜像</el-radio>
+              <el-radio :label="false">平台构建镜像</el-radio>
               <el-radio :label="true">自定义镜像</el-radio>
             </el-radio-group>
           </el-form-item>
@@ -51,9 +51,12 @@
           </el-form-item>
           <el-form-item label="基础镜像" class="auto-image max-width-800" prop="autoImageValue" v-if="!imageSelectState.customImage">
             <el-select v-model="formData.autoImageValue" filterable
-                       :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
+                       :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'" popper-class="select-high">
               <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
                          :key="index" :label="item.label" :value="item.value">
+                <strong style="float: left;font-size: 16px">{{ item.label }}</strong>
+                <br/>
+                <p style="float: left; color: #8492a6; font-size: 13px">{{ item.desc }}</p>
               </el-option>
             </el-select>
           </el-form-item>
@@ -416,6 +419,12 @@
 </template>
 
 <style lang="scss">
+  .select-high {
+    .el-select-dropdown__item {
+      height: 58px;
+      line-height: 28px;
+    }
+  }
   #service-add {
     .el-scrollbar {
       height: 100%;
@@ -1250,19 +1259,18 @@
               language: this.formRelated.languageInfo.type,
               languageVersion: this.formRelated.languageInfo.version,
               packageType: packageType,
-            }
+            };
             resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.auto_image_list, {
               payload
             });
-            this.imageInfoFromNet['autoImageList'] = [{
-              label: '无',
-              value: ''
-            }].concat(resContent['basicImage'].map(it => {
+            console.log(resContent);
+            this.imageInfoFromNet['autoImageList'] = resContent['basicImage'].map(it => {
               return {
-                label: it,
-                value: it,
+                label: it.name,
+                value: it.name,
+                desc: it.desc
               }
-            }));
+            });
           }
 
           if (this.forModify || this.forCopy) {
@@ -1288,6 +1296,8 @@
                 this.propsUsed.autoImageValue = true;
               }
             }
+          } else if (this.imageInfoFromNet.autoImageList[0]) {
+            this.formData.autoImageValue = this.imageInfoFromNet.autoImageList[0].label;
           }
 
           // not set default value for customImageValue
