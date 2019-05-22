@@ -1011,6 +1011,9 @@
               spaceId: this.dataPassed.profileInfo.id,
             }
           });
+          if (resContent.hasOwnProperty("type") && resContent.type === 'error') {
+            return;
+          }
           this.middlewareInfoList = resContent;
           if (this.middlewareInfoList) {
             this.middlewareInfoList.forEach(it => {

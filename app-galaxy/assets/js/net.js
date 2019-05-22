@@ -481,7 +481,8 @@ class Net {
         errObj = errObj ? errObj : {
           code: resData.code,
           title: '请求失败',
-          message: resData.msg
+          message: resData.msg,
+          type: 'error'
         };
         if (level === 'LEVEL_IGNORE') {
           return Promise.resolve(errObj);
