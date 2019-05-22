@@ -336,12 +336,27 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="prestop脚本" v-if="showMoreConfig && !formRelated.isProductionProfile">
+            <el-form-item label="服务停止期限" prop="terminationGracePeriodSeconds"
+                          v-if="showMoreConfig" class="terminationGracePeriodSeconds max-width-700">
+              <el-input v-model="formData.terminationGracePeriodSeconds"  placeholder="10-300之间的整数，单位：秒" style="width: 90%"></el-input>
+              <span>
+                <el-tooltip slot="trigger" effect="dark" placement="top">
+                    <div slot="content">
+                      <div>从触发容器删除请求完成删除的时间，这是一种容器钩子，在该钩子对应的 hook handler 完成后不论执行的结果如何，
+                        Docker daemon 会发送一个 SGTERN 信号量给 Docker daemon 来删除该容器，默认60秒</div>
+                    </div>
+                    <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
+                </el-tooltip>
+               </span>
+            </el-form-item>
+          </transition>
+          <transition name="more-config">
+            <el-form-item label="prestop脚本" v-if="showMoreConfig">
               <el-input v-model="formData.prestopCommand"
                         size="mini"
                         type="textarea"
                         :rows="3"
-                        placeholder="例如：shell & sleep 30 //30为变量，0-120之间的整数"
+                        placeholder="例如：shell "
               ></el-input>
             </el-form-item>
           </transition>
@@ -688,6 +703,7 @@
           this.formData.environments = serviceInfo.environments;
           this.formData.hosts = serviceInfo.hosts;
           this.formData.prestopCommand = serviceInfo.prestopCommand;
+          this.formData.terminationGracePeriodSeconds = serviceInfo.terminationGracePeriodSeconds;
           this.formData.cpuId = serviceInfo.cpuInfo.id;
           this.formData.memoryId = serviceInfo.memoryInfo.id;
           this.formData.rollingUpdate = serviceInfo.rollingUpdate;
@@ -891,6 +907,7 @@
             }
           },
           prestopCommand: '',
+          terminationGracePeriodSeconds:'',
           rollingUpdate: true,
           loadBalance: profileUtils.getSupportedLoadBalance()[0],
           healthCheck: this.$net.getObjHealthCheck(),
@@ -1122,7 +1139,7 @@
 //          this.updateImageSelection();
 //        }
 //      },
-//      'imageSelectState.currentPrivateApp': 'requestPrivateImageLocation'
+//      'imzageSelectState.currentPrivateApp': 'requestPrivateImageLocation'
     },
     methods: {
       async getDataByQueryString() {
@@ -1495,6 +1512,7 @@
                   customImage: formData.customImage,
                   image: formData.imageLocation,
                   prestopCommand: formData.prestopCommand,
+                  terminationGracePeriodSeconds:formData.terminationGracePeriodSeconds,
                   packageType: formData.packageInfo.type,
                   buildName: formData.packageInfo.name,
                   volume: formData.volume,
