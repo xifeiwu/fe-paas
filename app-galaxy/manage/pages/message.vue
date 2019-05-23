@@ -348,15 +348,12 @@
 
       async filterMessageListByPage() {
 
+        this.messageListFilter = this.messageList;
         if (this.messageTypeSelect !== 'ALL') {
           this.messageListFilter = this.messageList.filter(it => it['messageType'] === this.messageTypeSelect);
-        } else {
-          this.messageListFilter = this.messageList;
         }
 
-        if (this.groupIdSelect === null) {
-          this.messageListFilter = this.messageListFilter;
-        } else {
+        if (this.groupIdSelect !== null) {
           this.messageListFilter = this.messageListFilter.filter(it => it['groupId'] === this.groupIdSelect);
         }
 
@@ -375,6 +372,17 @@
       async requestMessageListByPage(refresh = false) {
         if (refresh) {
           this.messageList = await this.requestMessageList();
+          this.messageTypeSelect = "ALL";
+          this.groupIdSelect = '';
+        }
+
+        this.messageListFilter = this.messageList;
+        if (this.messageTypeSelect !== 'ALL') {
+          this.messageListFilter = this.messageList.filter(it => it['messageType'] === this.messageTypeSelect);
+        }
+
+        if (this.groupIdSelect !== null) {
+          this.messageListFilter = this.messageListFilter.filter(it => it['groupId'] === this.groupIdSelect);
         }
 
         let page = this.currentPage - 1;
@@ -382,7 +390,7 @@
         const start = page * this.pageSize;
         const length = this.pageSize;
         const end = start + length;
-        this.messageListByPage = this.messageList.slice(start, end);
+        this.messageListByPage = this.messageListFilter.slice(start, end);
       },
 
       async handleClick(action) {
