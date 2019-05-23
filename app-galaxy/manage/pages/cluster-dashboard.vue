@@ -16,12 +16,12 @@
                 :height="heightOfTable">
         <el-table-column label="集群名称" prop="clusterDescription" headerAlign="center" align="center" minWidth="80">
         </el-table-column>
-        <el-table-column label="CPU(已用/总共)" prop="cpuUsed" headerAlign="center" align="center" width="250" sortable>
+        <el-table-column label="CPU(已用/总共)" prop="cpuUsed" headerAlign="center" align="center" width="250" >
           <template slot-scope="scope">
             <span>{{scope.row.cpuUsed + '核 / ' + scope.row.cpuTotal + '核'}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="内存(已用/总共)" prop="memoryUsed" headerAlign="center" align="center" width="250" sortable>
+        <el-table-column label="内存(已用/总共)" prop="memoryUsed" headerAlign="center" align="center" width="250" >
           <template slot-scope="scope">
             <span>{{scope.row.memoryUsed + 'G / ' + scope.row.memoryTotal + 'G'}}</span>
           </template>

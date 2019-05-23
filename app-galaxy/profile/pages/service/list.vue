@@ -464,6 +464,11 @@
             break;
         }
         this.$storeHelper.dataTransfer = null;
+      } else {
+        const qsObj = this.$utils.parseQueryString(location.search);
+        qsObj.hasOwnProperty('groupId') && (this.$storeHelper.currentGroupID = qsObj['groupId']);
+        qsObj.hasOwnProperty('appName') && (this.filterKey = qsObj['appName']);
+        qsObj.hasOwnProperty('profileName') && (this.dataPassed.data['profileName'] = qsObj['profileName']);
       }
     },
     mounted() {
@@ -541,7 +546,7 @@
       return {
         dataPassed: {
           from: null,
-          data: null
+          data: {}
         },
         // TODO: for change internetDomain, will change later
         waitingResponse: false,
@@ -616,10 +621,18 @@
           profileInfo = localProfileInfo;
         }
 
-        if (this.dataPassed.data && this.dataPassed.data.profileId) {
-          const profileInfoPassed =  profileList.find(it => it.id == this.dataPassed.data.profileId);
+        var profileInfoPassed = null;
+        if (this.dataPassed.data.profileId) {
+          profileInfoPassed = profileList.find(it => it.id == this.dataPassed.data.profileId);
           if (profileInfoPassed) {
             profileInfo = profileInfoPassed;
+            this.dataPassed.data.profileId = null;
+          }
+        } else if (this.dataPassed.data.profileName) {
+          profileInfoPassed = profileList.find(it => it.name == this.dataPassed.data.profileName);
+          if (profileInfoPassed) {
+            profileInfo = profileInfoPassed;
+            this.dataPassed.data.profileName = null;
           }
         }
 

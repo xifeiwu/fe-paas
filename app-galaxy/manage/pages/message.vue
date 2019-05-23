@@ -1,12 +1,31 @@
 <template>
   <div id="manage-message">
     <div class="header">
-      <div class="item">
-        <el-button type="primary" size="mini" @click="handleClick('message_create')">创建站内信</el-button>
-      </div>
-      <div class="item">
-        <el-button type="primary" size="mini" @click="handleClick('refresh')">刷新</el-button>
-      </div>
+      <el-row :gutter="20">
+        <el-col :span="4" class="item">
+          <el-button type="primary" size="mini" @click="handleClick('message_create')">创建站内信</el-button>
+          <el-button type="primary" size="mini" @click="handleClick('refresh')">刷新</el-button>
+        </el-col>
+
+        <el-col :span="6" class="item">
+          <span>消息类型：</span>
+          <el-select v-model="messageTypeSelect" placeholder="请选择">
+            <el-option value="ALL" label="全部"></el-option>
+            <el-option value="PRODUCT_ANNOUNCEMENT" label="产品公告"></el-option>
+            <el-option value="PLATEFORM_ANNOUNCEMENT" label="平台公告"></el-option>
+            <el-option value="ALERT" label="弹窗消息"></el-option>
+          </el-select>
+        </el-col>
+
+        <el-col :span="6" class="item">
+          <span>接收团队：</span>
+          <el-select filterable v-model="groupIdSelect" placeholder="请选择">
+            <el-option v-for="(item, index) in groupList" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select>
+        </el-col>
+
+      </el-row>
     </div>
     <div class="list">
       <el-table
@@ -18,9 +37,10 @@
         <el-table-column prop="messageTypeName" label="消息类型" width="80"></el-table-column>
         <el-table-column prop="title" label="标题" minWidth="100"></el-table-column>
         <el-table-column prop="content" label="内容" minWidth="200"></el-table-column>
+        <el-table-column prop="groupName" label="接收团队" minWidth="100" headerAlign="center" align="center"></el-table-column>
         <el-table-column prop="formattedReleaseTime" label="发布时间" width="200" headerAlign="center" align="center"></el-table-column>
         <el-table-column prop="releaseStatusName" label="状态" width="80"></el-table-column>
-        <el-table-column label="操作" width="80">
+        <el-table-column label="操作" width="160" headerAlign="center" align="center">
           <template slot-scope="scope">
             <el-button
                     v-if="scope.row.releaseStatus === 'NO_RELEASE' || scope.row.releaseStatus === 'CANCEL'"
@@ -28,6 +48,13 @@
                     :class="['flex', 'warning']"
                     @click="handleTRClick($event, 'message_publish', scope.$index, scope.row)">
               <span>发布</span>
+            </el-button>
+            <el-button
+                v-if="scope.row.releaseStatus === 'NO_RELEASE' || scope.row.releaseStatus === 'CANCEL'"
+                type="text"
+                :class="['flex', 'warning']"
+                @click="handleTRClick($event, 'message_modify', scope.$index, scope.row)">
+              <span>修改</span>
             </el-button>
             <el-button
                     v-if="scope.row.releaseStatus === 'RELEASE'"
@@ -55,8 +82,9 @@
       </div>
     </div>
 
-    <el-dialog title="创建站内信" :visible="action.name == 'message_create'"
-               v-if="action.name == 'message_create'"
+    <el-dialog :title="action.name == 'message_create'?'创建站内信':'修改站内信'"
+               :visible="action.name == 'message_create' || action.name == 'message_modify'"
+               v-if="action.name == 'message_create' || action.name == 'message_modify'"
                @close="closeDialog"
                class="size-700"
                :close-on-click-modal="false"
@@ -90,7 +118,7 @@
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss" >
   #manage-message {
     height: 100%;
     background-color: white;
@@ -102,17 +130,32 @@
       .item {
         display: inline-block;
         margin-right: 3px;
-        &.key-word {
-          display: flex;
-          width: 300px;
+        span {
+          font-size: 14px;
         }
         .el-select {
-          max-width: 190px;
-          &.key-word-type {
-            max-width: 100px;
+          input {
+            height: 24px;
           }
+          max-width: 190px;
         }
       }
+    }
+    .list {
+      flex: 1;
+      position: relative;
+    }
+  }
+</style>
+<style lang="scss" scoped>
+  #manage-message {
+    height: 100%;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    .header {
+      padding: 3px 5px;
+      background-color: white;
     }
     .list {
       flex: 1;
@@ -129,6 +172,11 @@
     components: {},
     mixins: [commonUtils],
     created() {
+      const messageType = {
+        PRODUCT_ANNOUNCEMENT: '产品公告',
+        PLATEFORM_ANNOUNCEMENT: '平台公告',
+        ALERT: '弹窗消息'
+      };
     },
     mounted() {
       // update value in next tick
@@ -146,9 +194,12 @@
         pageSize: 12,
         currentPage: 1,
 
+        messageTypeSelect: "ALL",
         messageTypeList: null,
         messageList: [],
         messageListByPage: [],
+        messageListFilter: [],
+        groupIdSelect: '',
 
         action: {
           name: null,
@@ -193,12 +244,25 @@
       }
     },
     watch: {
+      'messageTypeSelect': function () {
+        this.filterMessageListByPage();
+      },
+      'groupIdSelect': function () {
+        this.filterMessageListByPage();
+      },
       '$storeHelper.screen.size': 'onScreenSizeChange',
       currentPage() {
         this.requestMessageListByPage(false);
       }
     },
     computed: {
+      groupList() {
+        if (this.$storeHelper.groupListAll) {
+          return [{id: '', name: '全部'}].concat(this.$storeHelper.groupListAll);
+        } else {
+          return [];
+        }
+      },
     },
 
     methods: {
@@ -266,6 +330,14 @@
           } else {
             it['formattedReleaseTime'] = '---';
           }
+          if (!it.groupId) {
+            it['groupId'] = '';
+          }
+
+          if (!it.groupName) {
+            it['groupName'] = '全部';
+          }
+
           return it;
         });
         this.totalSize = messageList.length;
@@ -274,11 +346,38 @@
         return messageList;
       },
 
+      async filterMessageListByPage() {
+
+        if (this.messageTypeSelect !== 'ALL') {
+          this.messageListFilter = this.messageList.filter(it => it['messageType'] === this.messageTypeSelect);
+        } else {
+          this.messageListFilter = this.messageList;
+        }
+
+        if (this.groupIdSelect === null) {
+          this.messageListFilter = this.messageListFilter;
+        } else {
+          this.messageListFilter = this.messageListFilter.filter(it => it['groupId'] === this.groupIdSelect);
+        }
+
+        this.totalSize = this.messageListFilter.length;
+        this.pageSize = 12;
+        this.currentPage = 1;
+
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.pageSize;
+        const length = this.pageSize;
+        const end = start + length;
+        this.messageListByPage = this.messageListFilter.slice(start, end);
+      },
+
       async requestMessageListByPage(refresh = false) {
         if (refresh) {
           this.messageList = await this.requestMessageList();
         }
-        var page = this.currentPage - 1;
+
+        let page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
         const start = page * this.pageSize;
         const length = this.pageSize;
@@ -324,6 +423,7 @@
 
       async handleTRClick(evt, action, index, row) {
         var resContent = null;
+        var dialogData = null;
         this.action.row = row;
         switch (action) {
           case 'message_publish':
@@ -362,6 +462,26 @@
               console.log(err);
             }
 
+            break;
+          case 'message_modify':
+            try {
+              if (!this.messageTypeList) {
+                this.messageTypeList = await this.getMessageTypeList();
+              }
+              dialogData = await this.openDialog(action, {title: row.title,messageTypeId:row.messageTypeId,messageId: row.id,content: row.content});
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.message_modify, {
+                payload: {
+                  title: dialogData['title'],
+                  messageTypeId: dialogData['messageTypeId'],
+                  content: dialogData['content'],
+                  messageId: dialogData['messageId']
+                }
+              });
+              this.closeDialog();
+              this.requestMessageListByPage(true);
+            } catch (err) {
+              console.log(err);
+            }
             break;
         }
       },

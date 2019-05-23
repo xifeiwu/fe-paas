@@ -4,6 +4,7 @@
       <div style="display: inline-block"><span style="font-weight: bold">运行环境：</span><span>{{dataPassed.profileInfo.name}}</span></div>
       <div style="display: inline-block; margin-left: 15px;"><span style="font-weight: bold">应用名称：</span><span>{{dataPassed.serviceInfo.appName}}</span></div>
       <el-button style="margin-left: 15px;" size="mini" type="primary" @click="handleClick($event, 'refresh')">刷新</el-button>
+      <el-button style="margin-left: 15px;" size="mini" type="primary" @click="handleClick($event, 'show_topN_error_dialog')" v-if="false">查看错误排行榜</el-button>
       <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
         <div slot="content">
           <div>域名请求数据统计，目前只统计24H内的接口请求数据</div>
@@ -174,50 +175,158 @@
           </div>
         </div>
       </div>
-      <div class="by-graphic">
-        <div class="section request-statistic" >
-          <div class="title">域名请求统计：<el-date-picker
-                style="display: inline-block; width: 340px;"
-                size="mini"
-                v-model="dateTimeRange"
-                type="datetimerange"
-                :picker-options="pickerOptions2"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                align="right"
-                :enableClose="false"
-          >
-          </el-date-picker>
-          <el-button
-                size="mini-extral"
-                type="primary"
-                @click="handleButtonClick('search')">查询</el-button>
+      <div class="right">
+        <div class="by-middleware">
+          <div class="middleware-title">
+            {{`数据库及中间件信息`}}
           </div>
-        </div>
-        <div class="section request-statistic" v-for="(item, index) in requestStatisticList">
-          <div class="title">
-            {{`${item.type === 'internet' ? '外网域名':'内网域名'}【${item.domain}】`}}
+          <div class="middleware-tip">
+            <span class="el-icon-info"></span>
+            <span>中间件连接状态的计算公式为：（成功连接数/总连接数) * 100；若该值大于70%，则为健康状态，小于70%大于30%为不健康状态，小于30%为不可用状态。绿色图标为健康状态，黄色为不健康状态，红色为不可用状态。默认查询最近1天的数据库及中间件连接情况</span>
           </div>
-          <div class="content">
-            <div class="loading" style="height: 240px; " v-if="item.loading">
-              <div class="el-loading-mask" style="">
-                <div class="el-loading-spinner">
-                  <i class="el-icon-loading"></i>
-                  <p class="el-loading-text">网络请求中...</p>
-                </div>
+          <div class="loading" style="height: 240px; " v-if="middlewareLoading">
+            <div class="el-loading-mask" style="">
+              <div class="el-loading-spinner">
+                <i class="el-icon-loading"></i>
+                <p class="el-loading-text">网络请求中...</p>
               </div>
             </div>
-            <paas-request-statistic :topRequest="item.top" :total="item.total" v-else></paas-request-statistic>
+          </div>
+          <div class="middleware-table" v-else>
+            <el-table :data="middlewareInfoList"
+                      style="width: 99%;"
+                      max-height="280">
+              <el-table-column label="中间件名称" align="center" style="background-color: #E6A23C">
+                <template slot-scope="scope">
+                  <div style="display: flex;flex-direction: column;align-items: center">
+                    <div style="display: inline-block">
+                      <span :class="scope.row.statusIcon" :style="{color: scope.row.statusColor}"></span>
+                      <span :class="scope.row.iconClass" :style="{color: scope.row.iconColor, 'font-size': '25px'}"></span>
+                    </div>
+                    <span style="font-size: 12px">{{scope.row.targetType}}</span>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="状态" prop="status" align="center"></el-table-column>
+              <el-table-column label="IP/域名:端口" align="center">
+                <template slot-scope="scope">
+                  {{`${scope.row.targetHost.split(":")[0]} : ${scope.row.targetHost.split(":")[1]}`}}
+                </template>
+              </el-table-column>
+              <el-table-column label="成功/失败连接数" align="center">
+                <template slot-scope="scope">
+                  {{`${scope.row.callCount - scope.row.errorCount} / ${scope.row.errorCount}`}}
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <!--<div class="middleware-body">-->
+            <!--<div class="middleware" v-for="(item,index) in middlewareInfoList" :style="{'order': item.order}">-->
+              <!--<el-popover placement="bottom" trigger="hover" popper-class="el-tooltip__popper is-dark middleware-detail">-->
+                <!--<el-form label-position="right" :data="item" size="mini" label-width="100px">-->
+                  <!--<el-form-item label="名称: ">{{item.targetType}}</el-form-item>-->
+                  <!--<el-form-item label="类型：">{{item.type}}</el-form-item>-->
+                  <!--<el-form-item label="IP：">{{item.targetHost.split(":")[0]}}</el-form-item>-->
+                  <!--<el-form-item label="端口：">{{item.targetHost.split(":")[1]}}</el-form-item>-->
+                  <!--<el-form-item label="状态: ">{{item.status}}</el-form-item>-->
+                  <!--<el-form-item label="成功连接数：">{{item.callCount - item.errorCount}}</el-form-item>-->
+                  <!--<el-form-item label="失败连接数：">{{item.errorCount}}</el-form-item>-->
+                <!--</el-form>-->
+                <!--<span :class="[item.iconClass]" :style="{color: item.iconColor}" slot="reference"></span>-->
+              <!--</el-popover>-->
+              <!--<span :class="[item.statusIcon,'status']" :style="{color: item.statusColor}"></span>-->
+            <!--</div>-->
+          <!--</div>-->
+        </div>
+        <div class="by-graphic">
+          <div class="section request-statistic" >
+            <div class="title">域名请求统计：<el-date-picker
+                  style="display: inline-block; width: 340px;"
+                  size="mini"
+                  v-model="dateTimeRange"
+                  type="datetimerange"
+                  :picker-options="pickerOptions2"
+                  range-separator="至"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  align="right"
+                  :enableClose="false"
+            >
+            </el-date-picker>
+            <el-button
+                  size="mini-extral"
+                  type="primary"
+                  @click="handleButtonClick('search')">查询</el-button>
+            </div>
+          </div>
+          <div class="section request-statistic" v-for="(item, index) in requestStatisticList">
+            <div class="title">
+              {{`${item.type === 'internet' ? '外网域名':'内网域名'}【${item.domain}】`}}
+            </div>
+            <div class="content">
+              <div class="loading" style="height: 240px; " v-if="item.loading">
+                <div class="el-loading-mask" style="">
+                  <div class="el-loading-spinner">
+                    <i class="el-icon-loading"></i>
+                    <p class="el-loading-text">网络请求中...</p>
+                  </div>
+                </div>
+              </div>
+              <paas-request-statistic :topRequest="item.top" :total="item.total" v-else></paas-request-statistic>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <!--<div v-else class="el-table__empty-text" style="color: #545454">暂无服务相关信息</div>-->
+    <el-dialog
+            title="异常信息"
+            :visible="topNException.showTopNErrorDialog"
+            width="50%"
+            @close="handleExceptionDialogClose"
+            :close-on-click-modal="false">
+      <div style="text-align: left;">起始时间段：<el-date-picker
+              size="mini"
+              v-model="topNException.dateTimeRange"
+              type="datetimerange"
+              :picker-options="pickerOptions2"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              :enableClose="false">
+      </el-date-picker>
+        <el-button
+                size="mini-extral"
+                type="primary" @click="requestTopNException">查询</el-button>
+        <span style="float: right;">错误总数：{{topNException.count}}</span>
+      </div>
+      <div style="margin-top: 20px;">
+        <el-table
+                :data="topNException.topNExceptionList"
+                v-loading="topNException.loadingStatus"
+                element-loading-spinner="el-icon-loading">
+          <el-table-column prop="exName" label="异常名称" align="left"></el-table-column>
+          <el-table-column prop="exCount" label="异常数" align="center" width="240px"></el-table-column>
+        </el-table>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <style lang="scss">
+  .el-popover.middleware-detail {
+    .el-form {
+      .el-form-item {
+        margin-bottom: 0;
+        .el-form-item__label {
+          font-size: 12px;
+          color: #fff;
+        }
+      }
+      .el-form-item__content {
+        font-size: 12px;
+      }
+    }
+  }
   .fix-form-item-label {
     line-height: 25px;
     padding-right: 4px;
@@ -355,8 +464,8 @@
       .section {
         display: inline-block;
         background: #fff;
-        box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
-        box-shadow: 0 1px 1px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
         .title {
           /*background-color: #f5f5f6;*/
           border: 1px solid #f5f5f6;
@@ -399,43 +508,98 @@
           margin-top: 15px;
         }
       }
-      .by-graphic {
-        flex: 1;
-        margin-top: 0px;
-        .section {
-          .loading {
-            .el-loading-mask {
-              position: absolute;
-              z-index: 2000;
-              background-color: rgba(255, 255, 255, 0.5);;
-              margin: 0;
-              top: 0;
-              right: 0;
-              bottom: 0;
-              left: 0;
-              transition: opacity .3s;
-            }
-            .el-loading-spinner {
-              top: 50%;
-              margin-top: -21px;
-              width: 100%;
-              height: 100px;
-              text-align: center;
-              position: absolute;
-            }
-          }
-        }
-        .request-statistic {
+      .right {
+        .by-middleware {
           width: 100%;
           max-width: 900px;
           margin-bottom: 15px;
-          .content {
-            .paas-request-statistic {
-              width: 100%;
-              .content {
-                /*margin: 3px 6px;*/
+          background-color: #fff;
+          border-bottom: 1px solid white;
+          box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+          .middleware-title {
+            border: 1px solid #f5f5f6;
+            color: #666;
+            font-weight: bold;
+            text-align: center;
+            font-size: 14px;
+            line-height: 24px;
+          }
+          .middleware-body {
+            display: flex;
+            flex-wrap: wrap;
+            padding:20px 35px;
+            .middleware {
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              &:hover {
+                cursor: pointer;
               }
-            ;
+              margin-right: 10px;
+              font-size: 30px;
+              .status {
+                font-size: 12px;
+                text-align: center;
+              }
+            }
+          }
+          .middleware-tip {
+            background-color: rgba(235,158,5,.1);
+            border: 1px solid rgba(235,158,5,.2);
+            color: #eb9e05;
+            margin: 6px;
+            border-radius: 2%;
+            font-size: 12px;
+          }
+          .middleware-table {
+            .el-table {
+              .el-table__body {
+                .el-table__row {
+                  .cell {
+                    line-height: 15px;
+                  }
+                }
+              }
+            }
+          }
+        }
+        .by-graphic {
+          flex: 1;
+          margin-top: 0px;
+          .section {
+            .loading {
+              .el-loading-mask {
+                position: absolute;
+                z-index: 2000;
+                background-color: rgba(255, 255, 255, 0.5);;
+                margin: 0;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                transition: opacity .3s;
+              }
+              .el-loading-spinner {
+                top: 50%;
+                margin-top: -21px;
+                width: 100%;
+                height: 100px;
+                text-align: center;
+                position: absolute;
+              }
+            }
+          }
+          .request-statistic {
+            width: 100%;
+            max-width: 900px;
+            .content {
+              .paas-request-statistic {
+                width: 100%;
+                .content {
+                  /*margin: 3px 6px;*/
+                }
+              ;
+              }
             }
           }
         }
@@ -604,6 +768,15 @@
           errMsgForDomainList: ''
         },
         showInternetDomainDialog: false,
+        middlewareInfoList: [],
+        middlewareLoading: true,
+        topNException: {
+          showTopNErrorDialog: false,
+          topNExceptionList: [],
+          loadingStatus: false,
+          dateTimeRange: [],
+          count: 0,
+        }
       }
     },
     watch: {
@@ -615,6 +788,7 @@
         const start = new Date();
         start.setTime(start.getTime() - 1000 * 60 * 60 * 24);
         this.dateTimeRange = [start, end];
+        this.topNException.dateTimeRange = [start, end];
       },
       onDateRangeChange(range) {
       },
@@ -634,6 +808,10 @@
         switch (action) {
           case 'refresh':
             this.requestServiceInfo(this.dataPassed.appId, this.dataPassed.profileId);
+            break;
+          case 'show_topN_error_dialog':
+            this.topNException.showTopNErrorDialog = true;
+            this.requestTopNException();
             break;
         }
       },
@@ -808,11 +986,12 @@
             return it["defaultSelect"] === true;
           });
         }
-//        console.log(this.serviceInfo);
+       // console.log(this.serviceInfo);
         this.intranetDomain = basicInfo["intranetDomain"];
         this.internetDomainList = basicInfo["internetDomain"];
 
         this.getRequestStatistic(appId, profileId, this.dateTimeRange, this.intranetDomain, this.internetDomainList);
+        this.getMiddlewareInfo();
       },
 
       handleSuccessCopy(evt) {
@@ -821,6 +1000,106 @@
           msg: '复制成功'
         });
       },
+
+      async getMiddlewareInfo() {
+        try {
+          this.middlewareInfoList = [];
+          this.middlewareLoading = true;
+          let resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_service_relation, {
+            payload: {
+              serviceName: this.dataPassed.serviceInfo.serviceName,
+              spaceId: this.dataPassed.profileInfo.id,
+            }
+          });
+          if (resContent.hasOwnProperty("type") && resContent.type === 'error') {
+            return;
+          }
+          this.middlewareInfoList = resContent;
+          if (this.middlewareInfoList) {
+            this.middlewareInfoList.forEach(it => {
+              switch (it.targetType.toLowerCase()) {
+                case "redis":
+                  it.iconClass = "paas-icon-redis";
+                  it.iconColor = "#CF271D";
+                  it.order = 1;
+                  break;
+                case "mongodb":
+                  it.iconClass = "paas-icon-mongodb";
+                  it.iconColor = "#68B145";
+                  it.order = 4;
+                  break;
+                case "mysql":
+                  it.iconClass = "paas-icon-mysql";
+                  it.iconColor = "#00758F";
+                  it.order = 3;
+                  break;
+                case "rabbitmq":
+                  it.iconClass = "paas-icon-rabbitmq";
+                  it.iconColor = "#FF6700";
+                  it.order = 5;
+                  break;
+                case "postgresql":
+                  it.iconClass = "paas-icon-postgresql";
+                  it.iconColor = "#316690";
+                  it.order = 2;
+                  break;
+                default:
+                  it.iconClass = "paas-icon-default-middleware";
+                  it.iconColor = "#CCCCCC";
+                  it.order = 6;
+              }
+              let percentage = (1 - it.errorCount / it.callCount) * 100;
+              if (percentage > 70) {
+                it.status = "健康";
+                it.statusIcon = "el-icon-circle-check";
+                it.statusColor = "#67C23A";
+              } else if (percentage > 30 && percentage < 70) {
+                it.status = "不健康";
+                it.statusIcon = "el-icon-remove";
+                it.statusColor = "#E6A23C";
+              } else {
+                it.status = "不可用";
+                it.statusIcon = "el-icon-circle-close";
+                it.statusColor = "#F56C6C";
+              }
+            })
+          }
+        } catch (e) {
+        } finally {
+          this.middlewareLoading = false;
+        }
+      },
+
+      async requestTopNException() {
+        this.topNException.loadingStatus = true;
+        this.topNException.topNExceptionList = [];
+        this.topNException.count = 0;
+        let payload = {
+          "endDate": this.topNException.dateTimeRange[1].getTime(),
+          "fromDate": this.topNException.dateTimeRange[0].getTime(),
+          "number": 10,
+          "serviceName": this.dataPassed.serviceInfo.serviceName
+        };
+        try {
+          const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_detail_topNException, {payload});
+          if (resContent) {
+            resContent.forEach(it => {
+              this.topNException.count += it.exCount;
+            });
+            this.topNException.topNExceptionList = resContent;
+          }
+        } catch (e) {
+          console.log(e)
+        } finally {
+          this.topNException.loadingStatus = false;
+        }
+      },
+
+      handleExceptionDialogClose() {
+        this.topNException.showTopNErrorDialog = false;
+        this.topNException.loadingStatus = false;
+        this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.service_detail_topNException.path);
+      }
     }
   }
 </script>

@@ -114,6 +114,10 @@ class Net extends NetBase {
         path: '/message/add',
         method: 'post'
       },
+      message_modify: {
+        path: '/message/modify',
+        method: 'post'
+      },
       message_change_status: {
         path: '/message/update/release/status/{messageId}',
         method: 'post'

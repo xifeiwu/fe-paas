@@ -136,6 +136,11 @@ class Net extends NetBase {
           message: '因访问数量过多/响应数据量过大，请您稍后再试！'
         }
       },
+      //获取topN的异常信息
+      'service_detail_topNException': {
+        path: '/api/v1/app/excption/top',
+        method: 'post',
+      },
       // TODO: not used
       'query_default_expired_days': {
         path: '/service/queryDefaultExpiredDays',
@@ -594,6 +599,18 @@ class Net extends NetBase {
       'middleware_redis_update_config': {
         path: '/middleware/editMiddlewareRedis',
         method: 'post'
+      },
+      //服务详情中获取中间件的状态信息
+      'middleware_service_relation': {
+        path: '/service/queryServiceRelation',
+        method: 'post',
+        partial: true,
+        level: 'LEVEL_WARNING',
+        errObj: {
+          title: '请求超时',
+          message: '因访问数量过多/响应数据量过大，请您稍后再试！',
+          type: 'error'
+        }
       },
 
       /** pipeline相关*/
