@@ -68,6 +68,12 @@
                 label="内网IP"
                 width="90"
                 headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <span
+                    :class="['running-node', isProductionProfile ? 'production': 'un-production']"
+                    @click="handleRowButtonClick($event, 'show_intranet', scope.$index, scope.row)"
+            >{{scope.row.intranetIP}}</span>
+          </template>
         </el-table-column>
         <el-table-column
               label="使用内存/总内存"
@@ -787,6 +793,13 @@
         var valueOfVersionSelector = null;
         var infoForPageTerminal = null;
         switch (action) {
+          case 'show_intranet':
+            var nodeUrl = "/app/instance/detail/memory?app=" + row.appServiceName
+                    + "&instance=" + row.intranetIP + "&groupId=" + this.$storeHelper.groupInfo.tag + "&groupName=" + this.$storeHelper.groupInfo.name;
+            if (this.isProductionProfile) {
+              window.open("http://apm.finupgroup.com" + nodeUrl, '_blank');
+            }
+            break;
           case 'show_eagleeye':
             var nodeUrl = "/monitor/index.html#/basicResource/machine/cpu?node=" + row.nodeIp
                     + "&groupId=" + this.$storeHelper.groupInfo.tag + "&app=" + row.svcName;
