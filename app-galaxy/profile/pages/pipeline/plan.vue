@@ -7,10 +7,10 @@
                 :key="index"
                 @stage-mouse-event="handleMouseEvent"
                 @stage-click-event="handleStageClick"
-                :class="item.result == 'FAILURE' || item.result == 'NOT_BUILT'? 'error' : ''"></pipeline-stage>
+                :class="item.result == 'FAILURE' || item.result == 'NOT_BUILT' || item.result == 'ABORTED'? 'error' : ''"></pipeline-stage>
       </div>
     </div>
-    <div class="body" v-if="currentBuildStage">
+    <div class="body" v-if="currentBuildStage" ref="plan-body">
       <div class="log-header">
         <div>
           <span>{{currentBuildStage.displayName}}</span>
@@ -19,10 +19,11 @@
         </div>
       </div>
       <div class="steps">
-        <div class="result-item" v-for="item in buildStageStepList">
+        <div class="result-item" v-for="(item,index) in buildStageStepList" :key="index">
           <div class="result-step-header" @click="handleRowOpenOrClose(item)" :style="{'cursor': item.stepsHref? 'pointer' : 'not-allowed'}">
-            <span class="result-item-icon" :style="{'background-color': item.result && item.result == 'SUCCESS' ? '' : '#d54c53'}">
+            <span class="result-item-icon" :style="{'background-color': getResultItemBackgroundColor(item)}">
               <i class="el-icon-check" v-if="item.result && item.result == 'SUCCESS'"></i>
+              <div class="load" v-else-if="item.result && (item.state == 'RUNNING' || item.state == 'PAUSED')"></div>
               <i class="el-icon-close" v-else></i>
             </span>
             <div class="result-item-title">
@@ -33,7 +34,7 @@
             </div>
           </div>
           <div class="result-step-log" v-show="currentOpenStepLogList && currentOpenStepLogList.hasOwnProperty(item.id.toString())">
-            <stage-step-log :logs="currentOpenStepLogList[item.id.toString()]"></stage-step-log>
+            <stage-step-log :ref="`stage-step-log`" :id="item.id.toString()"></stage-step-log>
           </div>
         </div>
       </div>
@@ -59,6 +60,7 @@
     background-color: white;
     height: 100%;
     max-width: 1500px;
+    overflow: auto;
     .header {
       height: 30%;
       margin-left: 45px;
@@ -103,6 +105,19 @@
               background: #8cc04f;
               text-align: center;
               color: white;
+              .load {
+                display: inline-block;
+                width: 27px;
+                height: 27px;
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid #0dc5c1;
+                border-radius: 50%;
+                animation: loading 1.2s infinite linear;
+              }
+              @keyframes loading {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+              }
             }
             .result-item-title {
               width: 97.5%;
@@ -265,6 +280,7 @@
           this.updatePopperForUserConfirm();
           setTimeout(() => {
             this.requestBlueOceanStageList();
+            // this.refreshLogForStep()
           },this.getRandomMills());
         }
       },
@@ -322,6 +338,7 @@
         };
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_blue_ocean_stage_step_list,{params,query});
         this.buildStageStepList = resContent;
+        this.refreshLogForStep();
       },
 
       async requestBuildingInfo() {
@@ -399,6 +416,14 @@
         })
       },
 
+      getStageStepLog(stepId) {
+        var target = null;
+        if (this.$refs.hasOwnProperty('stage-step-log')) {
+          target = this.$refs['stage-step-log'].find(it => it.id == stepId);
+        }
+        return target;
+      },
+
       async handleRowOpenOrClose(step) {
         if (!step.stepsHref) {
           return;
@@ -412,10 +437,32 @@
           'stepId': step.id
         };
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_blue_ocean_stage_step_log, {query});
-        if (resContent) {
-          this.$set(this.currentOpenStepLogList, step.id.toString(), resContent.split('\r\n'));
-        } else {
-          this.$set(this.currentOpenStepLogList, step.id.toString(), '');
+        let stageStepRef = this.getStageStepLog(step.id.toString());
+        if (resContent && stageStepRef) {
+          this.$set(this.currentOpenStepLogList, step.id.toString());
+          stageStepRef.setLogList(resContent.split(`\r\n`));
+        }
+      },
+
+      async refreshLogForStep() {
+        if(this.currentOpenStepLogList && Object.keys(this.currentOpenStepLogList).length > 0) {
+          let step = null;
+          let key = Object.keys(this.currentOpenStepLogList).filter(it => {
+            return this.buildStageStepList.find(item => {
+              if (item.state == 'RUNNING' || item.state == 'PAUSED') {
+                step = item;
+              }
+              return item.id == Number.parseInt(it) && step
+            })
+          });
+          if (key.length > 0) {
+            this.handleRowOpenOrClose(step);
+            this.handleRowOpenOrClose(step);
+            let element = this.$refs["plan-body"];
+            console.log(element.scrollHeight);
+            console.log(element.clientHeight);
+            element.scrollTop = element.scrollHeight - element.clientHeight;
+          }
         }
       },
 
@@ -426,6 +473,16 @@
         let max = 15;
         let min = 8;
         return (Math.floor(Math.random() * max) % min + min) * 1000;
+      },
+
+      getResultItemBackgroundColor(item) {
+        if (item.result == 'SUCCESS') {
+          return '';
+        } else if (item.state == "RUNNING" || item.state == "PAUSED") {
+          return '#1D7DCF';
+        } else {
+          return '#d54c53';
+        }
       }
     }
   }

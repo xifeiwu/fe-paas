@@ -770,7 +770,8 @@ class Net extends NetBase {
       //获取blue ocean stage列表
       'pipeline_blue_ocean_stage_list': {
         path: '/pipeline/query/blueOcean/stage/{appId}',
-        method: 'get'
+        method: 'get',
+        partial: true,
       },
       //获取blue ocean stage step 列表
       'pipeline_blue_ocean_stage_step_list': {

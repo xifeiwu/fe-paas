@@ -1,7 +1,7 @@
 <template>
   <div class="step-log">
     <div class="logs">
-      <pre v-for="(item,index) in logs">
+      <pre v-for="(item,index) in logList" :key="index">
         <span class="line-number">{{index+1}}</span>
         <span class="line-text">{{item}}</span>
       </pre>
@@ -57,8 +57,20 @@
 
     },
     props: {
-      logs: {
-        type: Array,
+      id: null,
+    },
+    data() {
+      return {
+        logList: []
+      }
+    },
+    watch: {
+      logList: function (logList) {
+      }
+    },
+    methods: {
+      setLogList(param) {
+        this.logList = param;
       }
     }
   }
