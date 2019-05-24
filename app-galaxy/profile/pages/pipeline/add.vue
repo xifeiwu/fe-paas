@@ -223,7 +223,7 @@
                                     v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabBranch"></el-input>
                     </el-form-item>
-                    <el-form-item label="自动化测试报告路径：" labelWidth="220px" prop="ciPipelineAutoTestVO.itTestReportAddress"
+                    <el-form-item label="自动化覆盖率报告路径：" labelWidth="220px" prop="ciPipelineAutoTestVO.itTestReportAddress"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.itTestReportAddress"></el-input>
                     </el-form-item>
@@ -875,7 +875,7 @@
             gitLabBranch: '', // gitlab分支 ,
             gitLabPath: '', // gitlab路径 SSH ,
             inputChecked: '', // 是否需要手工确认 ,
-            itTestReportAddress: '', // 自动化测试报告目录[相对地址即可] ,
+            itTestReportAddress: '', // 自动化覆盖率报告目录[相对地址即可] ,
             relativePath: '', // Gitlab父级pom.xml相对路径 ,
             script: '', // 脚本名称 ,
             selected: '', //节点是否选中
@@ -979,7 +979,7 @@
                 required: true,
                 trigger: ['blur', 'change'],
                 requiredOrigin: true,
-                message: '请填写自动化测试报告目录[相对地址即可] '
+                message: '请填写自动化覆盖率报告路径[相对地址即可] '
               }],
               script: [{
                 type: "string",
