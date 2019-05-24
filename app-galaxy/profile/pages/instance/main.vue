@@ -794,7 +794,7 @@
         var infoForPageTerminal = null;
         switch (action) {
           case 'show_intranet':
-            var nodeUrl = "/app/instance/detail/memory?app=" + row.appServiceName
+            var nodeUrl = "/monitor/index.html#/app/instance/detail/memory?app=" + row.appServiceName
                     + "&instance=" + row.intranetIP + "&groupId=" + this.$storeHelper.groupInfo.tag + "&groupName=" + this.$storeHelper.groupInfo.name;
             if (this.isProductionProfile) {
               window.open("http://apm.finupgroup.com" + nodeUrl, '_blank');
