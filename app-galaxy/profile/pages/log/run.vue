@@ -34,11 +34,11 @@
         </el-date-picker>
       </div>
 
-      <div class="item">
+      <div class="item" style="width: 450px;padding-left: 30px;">
         <label>日志级别:</label>
         <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
         <el-checkbox-group
-                style="display: inline-block; width: 450px;"
+                style="display: inline-block; width: 300px;text-align: center;"
                 v-model="searchForm.logLevel"  @change="handleCheckedCitiesChange">
           <el-checkbox v-for="(item, index) in logLevelList" :key="index" :label="item" :value="item">
           </el-checkbox>
@@ -295,7 +295,7 @@
         checkAll: false,
         isIndeterminate: true,
         DEFAULT_LEVEL: 'INFO',
-        logLevelList: ['DEBUG', 'INFO', 'WARN', 'ERROR'],
+        logLevelList: ['INFO', 'WARN', 'ERROR'],
 //        defaultTime: start.getTime() - 3600 * 1000 * 24 * 7,
         pickerOptions2: {
           shortcuts: [{
