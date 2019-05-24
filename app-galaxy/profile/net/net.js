@@ -102,11 +102,12 @@ class Net extends NetBase {
         path: '/service/createApplicationService',
         method: 'post'
       },
+      // 获取服务基本信息列表（k8s运行时）
       'service_list_by_profile': {
         path: '/service/queryByDetail',
         method: 'post'
       },
-      // 获取服务信息（基本信息）
+      // 获取服务信息（基本信息）（数据库）
       'service_list_by_app_and_profile': {
         path: '/service/queryByAppIdAndSpaceId',
         method: 'post'
@@ -664,12 +665,19 @@ class Net extends NetBase {
         path: '/pipeline/building/log',
         method: 'post'
       },
+      'pipeline_user_input_check': {
+        path: '/pipeline/execute/input',
+        method: 'post'
+      },
       // 校验app是否能创建pipeline
       'pipeline_build_validate': {
         path: '/pipeline/validate/{appId}',
         method: 'post',
       },
-
+      'pipeline_service_info_update': {
+        path: '/pipeline/latest/application/config/{appId}',
+        method: 'get'
+      },
       /** 授权相关 */
       'uaa_get_by_group':{
         path: '/application/authorization/list',
@@ -683,6 +691,22 @@ class Net extends NetBase {
       'message_mark_read': {
         path: '/message/update/status',
         method: 'post'
+      },
+      //获取blue ocean stage列表
+      'pipeline_blue_ocean_stage_list': {
+        path: '/pipeline/query/blueOcean/stage/{appId}',
+        method: 'get'
+      },
+      //获取blue ocean stage step 列表
+      'pipeline_blue_ocean_stage_step_list': {
+        path: '/pipeline/query/blueOcean/stage/steps/{appId}',
+        method: 'get',
+        partial: true,
+      },
+      //获取blue ocean stage step log
+      'pipeline_blue_ocean_stage_step_log': {
+        path: '/pipeline/query/blueOcean/stage/step/log',
+        method: 'get'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
@@ -1493,11 +1517,7 @@ class Net extends NetBase {
           service.hasOwnProperty(prop) && (item[prop] = service[prop] ? service[prop] : '---');
         });
         item.formattedCreateTime = service.createTime ? this.$utils.formatDate(service.createTime, 'yyyy-MM-dd hh:mm:ss').split(' ') : '---';
-        if (service['remainExpiredDays']) {
-          item['remainExpiredDays'] = parseInt(service['remainExpiredDays']) >= 0 ? service['remainExpiredDays'] : 0;
-        } else {
-          item['remainExpiredDays'] = 0;
-        }
+        item['remainExpiredDays'] = service['remainExpiredDays']  ? parseInt(service['remainExpiredDays']) : 0;
 
         // props check for service model
         if (item['containerStatus']) {
@@ -1810,6 +1830,7 @@ class Net extends NetBase {
   }
 
   /**
+   * TODO: not used
    * 获取镜像列表相关信息
    * 1. autoImageList， 自动打镜像列表
    * 2. customEnvImageList, 自定义镜像-环境镜像列表

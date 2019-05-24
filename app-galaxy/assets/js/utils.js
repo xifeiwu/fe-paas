@@ -163,4 +163,15 @@ export default class Utils extends BaseUtils {
       return obj[p] = obj[p] || {};
     }, obj = object)[path.pop()] = val), object;
   }
+
+  /**
+   * check if path exist in obj
+   * @param {obj}, object
+   * @param {path}, a.b.c
+   */
+  propExists(obj, path) {
+    return !!path.split('.').reduce((obj, prop) => {
+      return obj && obj[prop] ? obj[prop] : undefined;
+    }, obj)
+  }
 }

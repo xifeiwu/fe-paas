@@ -11,13 +11,10 @@
       <div class="section-config">
         <div class="step step1">
           <div class="title">
-            1. 基本配置
+            <span>1. 基本配置</span><span style="font-size: 14px;" v-if="appInfo">（目标应用：{{appInfo.appName}}）</span>
           </div>
           <div class="config">
             <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" class="clear-fix" ref="basic-info-form">
-              <el-form-item label="目标应用" v-if="appInfo" class="big">
-                {{appInfo.appName}}
-              </el-form-item>
               <el-form-item label="Pipeline名称" prop="pipelineName">
                 <el-input size="mini-extral" v-model="formData.pipelineName"></el-input>
               </el-form-item>
@@ -30,12 +27,66 @@
               <el-form-item label="gitlab分支" prop="gitLabBranch">
                 <el-input size="mini-extral" v-model="formData.gitLabBranch"></el-input>
               </el-form-item>
+              <el-form-item label="webhook配置" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooks" class="webhook-config big">
+                <div class="webhook-config-content">
+                  <span>{{formData.webHooks.webHooksUrl}}</span>
+                  <div class="more-config">
+                    <span style="color: black; font-weight: bold; font-size: 14px; line-height: 24px; vertical-align: middle; margin-left: 20px;">hook类型：</span>
+                    <el-radio-group v-model="formData.webHooks.webHooksSelectedEvent">
+                      <el-radio v-for="(item, index) in pipelineInfoFromNet.webHooks.webHooksEvent" :label="item" :key="item">{{item}}</el-radio>
+                    </el-radio-group>
+                    <span style="color: black; font-weight: bold; font-size: 14px; line-height: 24px; vertical-align: middle; margin-left: 20px;">是否生效：</span>
+                    <el-checkbox v-model="formData.webHooks.selected"></el-checkbox>
+                  </div>
+                </div>
+              </el-form-item>
+              <el-form-item label="构建参数" prop="defList" class="environments big" v-if="showMoreConfig" :error="formItemMsgForParam">
+                <el-row class="title">
+                  <el-col :span="7" class="key">名称</el-col>
+                  <el-col :span="7" class="value">默认值</el-col>
+                  <el-col :span="8" class="remark">描述</el-col>
+                  <el-col :span="2" style="text-align: center"></el-col>
+                </el-row>
+                <el-row
+                  v-for="(item, index) in formData.defList"
+                  :key="item.name"
+                  :gutter="10"
+                >
+                  <el-col :span="7" class="key">{{item.name}}</el-col>
+                  <el-col :span="7" class="value">{{item.defaultValue}}</el-col>
+                  <el-col :span="8" class="remark">{{item.description}}</el-col>
+                  <el-col :span="2" style="text-align: center" class="delete">
+                    <el-button type="warning" round size="mini-extral" @click="handleParameter('delete', index)">删除</el-button>
+                  </el-col>
+                </el-row>
+                <el-row :gutter="10">
+                  <el-col :span="7">
+                    <el-input v-model="paramKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-input v-model="paramValue" placeholder="128位以内的数字、字母、中划线、下划线" size="mini"></el-input>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-input v-model="paramRemark" size="mini"></el-input>
+                  </el-col>
+                  <el-col :span="2" style="text-align: center">
+                    <el-button type="primary" size="mini-extral" round
+                               @click="handleParameter('add', paramKey, paramValue, paramRemark)">添加</el-button>
+                  </el-col>
+                </el-row>
+              </el-form-item>
+              <el-form-item class="expand big">
+                <div class="more" @click="handleClick($event, 'more-config')">
+                  <span v-if="showMoreConfig">收起更多配置</span><span v-else>更多配置</span>
+                  <i :class="showMoreConfig?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
+                </div>
+              </el-form-item>
             </el-form>
           </div>
         </div>
         <div class="step step2">
           <div class="title">
-            2. 定义Pipeline脚本
+            <span>2. 定义Pipeline脚本</span>
           </div>
           <div class="config">
             <div class="stage-list">
@@ -46,18 +97,45 @@
             </div>
             <div class="config-list" v-if="currentStage">
               <transition name="el-zoom-in-top">
-                <div class="stage-config" v-if="currentStage.selected" :key="stageName">
+                <div class="stage-config" v-if="currentStage.selected">
+                  <!--:key="stageName"-->
+                  <!--部署到测试环境-->
+                  <div v-if="stageName === 'deployTestEnv'" class="deployTestEnv">
+                    <div class="service-info-container" v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
+                      <!--<i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('refresh_service_info') ? 'loading':'']"-->
+                         <!--@click="handleClick($event, 'refresh_test_service_info')"></i>-->
+                      <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
+                    </div>
+                    <div style="color:#E6A23C; text-align: center" v-else>
+                      当前应用无"测试环境"服务
+                    </div>
+                  </div>
+                  <!--部署到联调环境-->
+                  <div v-if="stageName === 'deployBetaEnv'" class="deployBetaEnv">
+                    <div class="service-info-container" v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
+                      <!--<i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('refresh_service_info') ? 'loading':'']"-->
+                         <!--@click="handleClick($event, 'refresh_beta_service_info')"></i>-->
+                      <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
+                    </div>
+                    <div style="color:#E6A23C; text-align: center" v-else>
+                      当前应用无"联调环境"服务
+                    </div>
+                  </div>
                   <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" class="union-form"
                            ref="pipeline-script-form">
                     <!--sonar及单元测试-->
                     <el-form-item label="Sonar及单元测试脚本：" labelWidth="180px" class="testAndSonarScript"
                                   prop="testAndSonarScript" :multiFields="true"
-                                  v-show="stageName === 'testAndSonarScript'">
+                                  v-if="stageName === 'testAndSonarScript'">
                       <codemirror v-model="formData.testAndSonarScript.script" :options="groovyOption"></codemirror>
+                    </el-form-item>
+                    <!--sonar及单元测试-->
+                    <el-form-item label="手工确认：" labelWidth="180px" v-show="stageName === 'testAndSonarScript'">
+                      <el-checkbox v-model="formData.testAndSonarScript.inputChecked"></el-checkbox>
                     </el-form-item>
                     <!--sonar数据检查-->
                     <el-form-item label="Sonar关键字：" class="sonarCheck"
-                                  prop="sonarCheck" :multiFields="true"
+                                  prop="sonarCheck.projectKeyWord"
                                   v-show="stageName === 'sonarCheck'">
                       <el-input v-model="formData.sonarCheck.projectKeyWord" style="max-width: 500px"></el-input>
                       <el-popover
@@ -71,21 +149,32 @@
                       </el-popover>
                     </el-form-item>
                     <!--sonar数据检查-->
-                    <el-form-item label="检查项：" class="sonarCheck" v-if="stageName === 'sonarCheck'">
+                    <el-form-item label="检查项：" class="sonarCheck" v-if="stageName === 'sonarCheck'" prop="sonarCheck.unitTestRatio">
                       <div class="sonarCheck-unitTestRatio"><el-checkbox v-model="formData['sonarCheck']['unitTestSelected']"></el-checkbox>
                         <span>当单元测试行覆盖率≥</span>
-                        <el-input v-model="formData['sonarCheck']['unitTestRatio']"></el-input>
-                        <span>%时通过；反之不通过</span></div>
+                        <el-input v-model="formData.sonarCheck.unitTestRatio"></el-input>
+                        <span>%时通过；反之不通过</span>
+                      </div>
+                    </el-form-item>
+                    <el-form-item class="sonarCheck" v-if="stageName === 'sonarCheck'" prop="sonarCheck.codeDebt">
                       <div class="sonarCheck-codeDebt"><el-checkbox v-model="formData['sonarCheck']['codeDebtSelected']"></el-checkbox>
                         <span>当技术债时间≤</span>
-                        <el-input v-model="formData['sonarCheck']['codeDebt']"></el-input>
+                        <el-input v-model="formData.sonarCheck.codeDebt"></el-input>
                         <span>分钟时通过；反之不通过</span>
                       </div>
+                    </el-form-item>
+                    <!--sonar数据检查-->
+                    <el-form-item label="手工确认：" v-show="stageName === 'sonarCheck'">
+                      <el-checkbox v-model="formData.sonarCheck.inputChecked"></el-checkbox>
                     </el-form-item>
                     <!--打包-->
                     <el-form-item label="打包脚本：" class="mvnPackage-script" prop="mvnPackage" :multiFields="true"
                                   v-if="stageName === 'mvnPackage'">
                       <codemirror v-model="formData.mvnPackage.script" :options="groovyOption"></codemirror>
+                    </el-form-item>
+                    <!--打包-->
+                    <el-form-item label="手工确认：" v-show="stageName === 'mvnPackage'">
+                      <el-checkbox v-model="formData.mvnPackage.inputChecked"></el-checkbox>
                     </el-form-item>
                     <!--制作镜像-->
                     <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'" prop="buildImage" :multiFields="true">
@@ -95,36 +184,81 @@
                         </el-option>
                       </el-select>
                     </el-form-item>
+                    <!--制作镜像-->
+                    <el-form-item label="手工确认：" v-show="stageName === 'buildImage'">
+                      <el-checkbox v-model="formData.buildImage.inputChecked"></el-checkbox>
+                    </el-form-item>
+                    <!--部署到测试环境-->
+                    <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployTestEnv'">
+                      <div style="display: flex; justify-content: space-between">
+                        <el-checkbox v-model="formData.deployTestEnv.inputChecked"></el-checkbox>
+                        <div>
+                          <el-button size="mini" type="primary" @click="handleClick($event, 'refresh_test_service_info')">
+                            <span>同步环境配置</span>
+                            <i class="el-icon-refresh"></i>
+                          </el-button>
+                          <span style="color: blue; text-decoration: underline; cursor: pointer; margin-left: 5px" @click="pageJump('test')">点击跳转到修改测试环境服务配置页面<i class="paas-icon-level-up"></i></span>
+                        </div>
+                      </div>
+                    </el-form-item>
+                    <!--部署到联调环境-->
+                    <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployBetaEnv'">
+                      <div style="display: flex; justify-content: space-between">
+                        <el-checkbox v-model="formData.deployBetaEnv.inputChecked"></el-checkbox>
+                        <div>
+                          <el-button size="mini" type="primary" @click="handleClick($event, 'refresh_beta_service_info')">
+                            <span>同步环境配置</span>
+                            <i class="el-icon-refresh"></i>
+                          </el-button>
+                          <span style="color: blue; text-decoration: underline; cursor: pointer; margin-left: 5px" @click="pageJump('beta')">点击跳转到修改联调环境服务配置页面<i class="paas-icon-level-up"></i></span>
+                        </div>
+                      </div>
+                    </el-form-item>
                     <!--自动化测试-->
-                    <el-form-item label="自动化测试：" class="autoScript" prop="autoScript" :multiFields="true"
-                                  v-if="stageName === 'autoScript'">
-                      <codemirror v-model="formData.autoScript.script" :options="groovyOption"></codemirror>
+                    <el-form-item label="gitlab路径：" labelWidth="220px" prop="ciPipelineAutoTestVO.gitLabPath"
+                                  v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabPath"></el-input>
+                    </el-form-item>
+                    <el-form-item label="gitlab分支：" labelWidth="220px" prop="ciPipelineAutoTestVO.gitLabBranch"
+                                    v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabBranch"></el-input>
+                    </el-form-item>
+                    <el-form-item label="自动化测试报告路径：" labelWidth="220px" prop="ciPipelineAutoTestVO.itTestReportAddress"
+                                  v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.itTestReportAddress"></el-input>
+                    </el-form-item>
+                    <el-form-item label="Gitlab父级pom.xml相对路径：" labelWidth="220px"
+                      v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.relativePath"></el-input>
+                    </el-form-item>
+                    <el-form-item label="脚本：" labelWidth="220px" prop="ciPipelineAutoTestVO.script"
+                      v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.script"></el-input>
+                    </el-form-item>
+                    <!-- <el-form-item label="自动化测试：" class="ciPipelineAutoTestVO" prop="ciPipelineAutoTestVO" :multiFields="true"
+                                  v-if="stageName === 'ciPipelineAutoTestVO'">
+                      <codemirror v-model="formData.ciPipelineAutoTestVO.script" :options="groovyOption"></codemirror>
+                    </el-form-item> -->
+                    <el-form-item label="手工确认：" labelWidth="220px" v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-checkbox v-model="formData.ciPipelineAutoTestVO.inputChecked"></el-checkbox>
+                    </el-form-item>
+
+                    <!--上传测试报告-->
+                    <el-form-item label="脚本：" labelWidth="160px" prop="uploadUnitTestReportAndAutoTestReport.script"
+                                  v-show="stageName === 'uploadUnitTestReportAndAutoTestReport' && false">
+                      <el-input size="mini-extral" v-model="formData.uploadUnitTestReportAndAutoTestReport.script"></el-input>
+                    </el-form-item>
+                    <el-form-item label="手工确认：" v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
+                      <el-checkbox v-model="formData.uploadUnitTestReportAndAutoTestReport.inputChecked"></el-checkbox>
                     </el-form-item>
                   </el-form>
-                  <!--部署到测试环境-->
-                  <div v-if="stageName === 'deployTestEnv'" class="deployTestEnv">
-                    <div v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
-                      <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
-                    </div>
-                    <div style="color:#E6A23C; text-align: center" v-else>
-                      当前应用无"测试环境"服务
-                    </div>
-                  </div>
-                  <!--部署到联调环境-->
-                  <div v-if="stageName === 'deployBetaEnv'" class="deployBetaEnv">
-                    <div v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
-                      <paas-service-info :serviceInfo="currentStageNetInfo['applicationConfig']"></paas-service-info>
-                    </div>
-                    <div style="color:#E6A23C; text-align: center" v-else>
-                      当前应用无"联调环境"服务
-                    </div>
-                  </div>
                   <div class="stage-change-selection">
                     <span>删除结点 "{{currentStage.description}}"?</span>
                     <el-button size="mini-extral" type="danger" @click="handleClick($event, 'stage-remove')">删除</el-button>
                   </div>
                 </div>
-                <div class="stage-change-selection" :key="stageName" v-else>
+                <div class="stage-change-selection" v-else>
+                  <!--:key="stageName"-->
                   <span>添加结点 "{{currentStage.description}}"?</span>
                   <el-button size="mini-extral" type="primary" @click="handleClick($event, 'stage-add')">添加</el-button>
                 </div>
@@ -134,7 +268,7 @@
         </div>
         <div class="step step3">
           <div class="title">
-            3. 通知设置
+            <span>3. 通知设置</span>
           </div>
           <div class="config">
             <el-form labelWidth="170px" size="mini" :model="formData" :rules="formDataRules" ref="config-info-form">
@@ -164,25 +298,17 @@
         <div style="height: 60px;"></div>
       </div>
       <div class="footer">
-        <el-button size="mini" type="primary" @click="handleClick($event, 'save')" v-if="false">保存</el-button>
-        <el-button size="mini" type="primary" @click="handleClick($event, 'enable')" v-if="false">生效</el-button>
-        <el-button size="mini" type="primary" @click="handleClick($event, 'take-effect')">保存</el-button>
-        <el-button size="mini" type="primary" @click="handleClick($event, 'go-to-page-pipeline-records')" class="flex" v-if="false">
+        <el-button size="small" type="primary" @click="handleClick($event, 'save')" v-if="false">保存</el-button>
+        <el-button size="small" type="primary" @click="handleClick($event, 'enable')" v-if="false">生效</el-button>
+        <el-button size="small" type="primary" @click="handleClick($event, 'take-effect')">保存</el-button>
+        <el-button size="small" type="primary" @click="handleClick($event, 'go-to-page-pipeline-records')" class="flex" v-if="false">
           <span>执行</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
         </el-button>
-        <el-button size="mini" type="primary" @click="handleClick($event, 'back')" class="flex">
+        <el-button size="small" type="primary" @click="handleClick($event, 'back')" class="flex">
           <span>返回</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
         </el-button>
       </div>
     </div>
-    <paas-popover-element ref="popover-for-content-show" popperClass="el-popover--small is-dark" title="fdsafdsafd"
-                          placement="bottom" :closeOnLeave="false">
-      <div slot="content">
-        <div class="auto-test" style="width: 800px">
-          <codemirror v-model="script" :options="groovyOption"></codemirror>
-        </div>
-      </div>
-    </paas-popover-element>
   </div>
 </template>
 <style lang="scss">
@@ -268,14 +394,20 @@
           .title {
             /*margin: 30px 0px 5px -10px;*/
             font-size: 17px;
-            padding: 10px;
-            padding-left: 5px;
             border: none;
             border-top: 1px solid #ddd;
+            padding-bottom: 10px;
+            & > span:first-child {
+              border-left: 5px solid #ddd;
+              padding-left: 5px;
+            }
+          }
+          .config {
+            padding-left: 10px;
           }
           &.step1 {
             .title {
-              border-top: none;
+              border-top-width: 0px;
             }
             .el-form {
               .el-select {
@@ -283,6 +415,26 @@
               }
               .el-input {
                 max-width: 500px;
+              }
+              .el-form-item.webhook-config {
+                .webhook-config-content {
+                  display: flex;
+                  .more-config {
+                    flex: 1;
+                  }
+                  .el-input {
+                    max-width: 500px;
+                  }
+                  .el-checkbox + .el-checkbox {
+                    margin-left: 8px;
+                  }
+                  .el-form-item__label {
+                    padding-right: 5px;
+                  }
+                  .el-checkbox-group {
+                    display: inline-block;
+                  }
+                }
               }
             }
             @mixin expand-inline-form-item() {
@@ -304,11 +456,45 @@
                 }
               }
             }
+            .key, .value, .remark {
+              word-wrap: break-word;
+              word-break: break-all;
+            }
+            .delete {
+              flex: none;
+              float: right;
+            }
+            .key {
+              padding-right: 3px;
+            }
+            .value {
+              padding-left: 3px;
+              padding-right: 3px;
+            }
+            .remark {
+              padding-left: 6px;
+            }
+            .expand {
+              margin-bottom: 10px;
+              .el-form-item__content {
+                margin-left: 0px !important;
+                background-color: #F2F6FC;
+                &:hover {
+                  background-color: #EBEEF5;
+                }
+                text-align: center;
+                &.more {
+                }
+              }
+            }
           }
           &.step2 {
+            .title {
+              padding-bottom: 0px;
+            }
             padding-bottom: 8px;
             .config {
-              padding-top: 28px;
+              padding-top: 12px;
               .stage-list {
                 /*padding-left: 28px;*/
                 text-align: center;
@@ -318,6 +504,11 @@
                 margin-top: 20px;
                 margin-right: 10px;
                 .stage-config {
+                  .el-form-item {
+                    .el-form-item__label {
+                      padding-right: 6px;
+                    }
+                  }
                   .el-form.union-form {
                     max-width: 900px;
                     margin: 0px auto;
@@ -328,7 +519,7 @@
                       }
                     }
                     .el-form-item {
-                      &.testAndSonarScript, &.mvnPackage-script, &.autoScript {
+                      &.testAndSonarScript, &.mvnPackage-script, &.ciPipelineAutoTestVO {
                         .el-form-item__content {
                           line-height: 100%;
                         }
@@ -352,10 +543,28 @@
                   }
                   .deployTestEnv, .deployBetaEnv {
                     font-size: 14px;
-                    .paas-service-info {
+                    .service-info-container {
+                      position: relative;
                       display: block;
                       width: 760px;
                       margin: 0px auto;
+                      /*not used*/
+                      .el-icon-refresh {
+                        position: absolute;
+                        top: 0px;
+                        right: 20px;
+                        font-size: 20px;
+                        z-index: 10;
+                        &:hover {
+                          /*font-size: 16px;*/
+                          color: #409EFF;
+                          cursor: pointer;
+                        }
+                        &.loading {
+                          pointer-events: none;
+                          animation: rotating 1s linear infinite;
+                        }
+                      }
                     }
                   }
                 }
@@ -385,10 +594,6 @@
               }
             }
           }
-          .config {
-            border-left: 5px solid rgba(0, 0, 0, 0.1);
-            padding-left: 5px;
-          }
         }
       }
       .footer {
@@ -405,8 +610,7 @@
   }
 </style>
 <script>
-  import AsyncValidator from 'async-validator';
-  import paasPopoverElement from 'assets/components/popover-element';
+//  import AsyncValidator from 'async-validator';
   import pipelineStage from './components/stage.vue';
 
   import {codemirror} from "vue-codemirror";
@@ -420,6 +624,7 @@
   // require active-line.js
   import "codemirror/addon/selection/active-line.js";
   import paasServiceInfo from './components/service-info.vue';
+  import commonUtils from 'assets/components/mixins/common-utils';
 
   const STAGE_NAME_MAP = {
     'start': {
@@ -446,8 +651,11 @@
     'deployTestEnv': {
       description: '部署到测试环境'
     },
-    'autoScript': {
+    'ciPipelineAutoTestVO': {
       description: '自动化测试'
+    },
+    'uploadUnitTestReportAndAutoTestReport': {
+      description: '上传测试报告'
     },
     'functionValidate': {
       description: '功能测试（人工验证）'
@@ -461,12 +669,15 @@
     }
   };
   export default {
-    components: {paasPopoverElement, pipelineStage, codemirror, paasServiceInfo},
+    mixins: [commonUtils],
+    components: {pipelineStage, codemirror, paasServiceInfo},
     async created() {
       var goBack = false;
       this.pageType = this.$route.path === this.$net.page["profile/pipeline/modify"] ? 'modify' : 'add';
 
       const dataTransfer = this.$storeHelper.dataTransfer;
+      // TODO: mock data
+//      const dataTransfer = {"from":"/profile/pipeline/list","data":{"appId":4594}};
       if (dataTransfer) {
         if (this.pageType === 'modify') {
           switch (dataTransfer.from) {
@@ -496,6 +707,7 @@
         });
         if (!this.appInfo) {
           goBack = true;
+          this.$message.error('未找到应用相关信息！');
           console.log('appInfo not found');
         }
         this.formData.appId = this.dataPassed.appId;
@@ -522,13 +734,6 @@
         if (pipelineInfoFromNet.hasOwnProperty(stage) && pipelineInfoFromNet[stage]['applicationConfig']) {
           applicationConfig = pipelineInfoFromNet[stage]['applicationConfig'];
         }
-        if(applicationConfig) {
-          for (let key in applicationConfig) {
-            if (null === applicationConfig[key]) {
-              applicationConfig[key] = '---';
-            }
-          }
-        }
       });
       this.pipelineInfoFromNet = pipelineInfoFromNet;
 //      pipelineInfoFromNet
@@ -544,16 +749,22 @@
         'mvnPackage',  //打包
         'buildImage',  //制作镜像
         'deployTestEnv', //部署到测试环境
-        // 'autoScript',  //自动化测试
         'functionValidate',  //功能测试（人工验证）
         'deployBetaEnv',  //部署到联调环境
+        'ciPipelineAutoTestVO',  //自动化测试
+        'uploadUnitTestReportAndAutoTestReport', // 上传测试报告
         'end'
       ].map(key => {
         var result = null;
         if (['start', 'download', 'end'].indexOf(key) > -1) {
           result = Object.assign({name: key}, commonProp, STAGE_NAME_MAP[key]);
         } else {
-          if (pipelineInfoFromNet.hasOwnProperty(key) && pipelineInfoFromNet[key]) {
+          if (pipelineInfoFromNet.hasOwnProperty(key)) {
+            // 如果从服务端返回的该节点数据为null, selected设为false
+            if (!pipelineInfoFromNet[key]) {
+              pipelineInfoFromNet[key] = {};
+              pipelineInfoFromNet[key]['selected'] = false;
+            }
             result = Object.assign({
               'selected': pipelineInfoFromNet[key]['selected']
             }, commonProp, {name: key}, STAGE_NAME_MAP[key]);
@@ -563,19 +774,22 @@
         }
         return result;
       }).filter(it => it);
-//      console.log(stages);
       this.updateStageIndex(stages);
+//      console.log(stages);
       this.stages = stages;
+      // sync formData by netData
       this.syncFormDataByServerData(this.formData, this.pipelineInfoFromNet);
+//      console.log(this.formData);
       // override appId
       this.formData.appId = this.dataPassed.appId;
+     // console.log(this.formData.defList);
 //      console.log(this.formData);
 //      console.log(this.pipelineInfoFromNet);
     },
     mounted() {
-      this.stepNodeList = [].slice.call(this.$el.querySelectorAll('.sheet .nav-steps .step'));
-      this.popperForContentShow = this.$refs['popover-for-content-show'];
-//      console.log(this.stepNodeList);
+      this.$nextTick(() => {
+        this.stepNodeList = [].slice.call(this.$el.querySelectorAll('.sheet .nav-steps .step'));
+      });
     },
     data() {
       return {
@@ -592,37 +806,31 @@
         currentStage: null,
         // 当前stage（服务端返回）的信息
         currentStageNetInfo: null,
-
+	
+	      showMoreConfig: false,
+        paramKey: '',
+	      paramValue: '',
+	      paramRemark: '',
+	      formItemMsgForParam: '',
+        
         formData: {
           appId: '',
           pipelineName: '',
           pipelineDescription: '',
           gitLabPath: '',
           gitLabBranch: '',
+          webHooks: {
+            selected: false,
+            webHooksSelectedEvent: [],
+            webHooksUrl: ''
+          },
+          // 自定义参数构建
+          defList: [],
           // sonar及单元测试
           testAndSonarScript: {
             script: '',
+            inputChecked: false,
             selected: false,
-          },
-          // 打包
-          mvnPackage: {
-            script: '',
-            selected: false,
-          },
-          // 制作镜像
-          buildImage: {
-            selectedImage: '',
-            selected: false,
-          },
-          // 部署到测试环境
-          deployTestEnv: {
-            env: 'TEST',
-            selected: false,
-          },
-          // 自动化测试
-          autoScript: {
-            script: '',
-            selected: false
           },
           // sonar数据检查
           sonarCheck: {
@@ -631,6 +839,25 @@
             codeDebtSelected: false,
             unitTestRatio: '',
             unitTestSelected: false,
+            inputChecked: false,
+            selected: false,
+          },
+          // 打包
+          mvnPackage: {
+            script: '',
+            inputChecked: false,
+            selected: false,
+          },
+          // 制作镜像
+          buildImage: {
+            selectedImage: '',
+            inputChecked: false,
+            selected: false,
+          },
+          // 部署到测试环境
+          deployTestEnv: {
+            env: 'TEST',
+            inputChecked: false,
             selected: false,
           },
           // 功能测试（人工验证）
@@ -640,7 +867,23 @@
           // 部署到联调环境
           deployBetaEnv: {
             env: 'BETA',
+            inputChecked: false,
             selected: false,
+          },
+          // 自动化测试
+          ciPipelineAutoTestVO: {
+            gitLabBranch: '', // gitlab分支 ,
+            gitLabPath: '', // gitlab路径 SSH ,
+            inputChecked: '', // 是否需要手工确认 ,
+            itTestReportAddress: '', // 自动化测试报告目录[相对地址即可] ,
+            relativePath: '', // Gitlab父级pom.xml相对路径 ,
+            script: '', // 脚本名称 ,
+            selected: '', //节点是否选中
+          },
+          uploadUnitTestReportAndAutoTestReport: {
+            script: '', // 脚本名称 ,
+            inputChecked: '', // 是否需要手工确认 ,
+            selected: '', //节点是否选中
           },
           // 通知设置
           noticeConfig: {
@@ -690,6 +933,7 @@
               script: [{
                 type: "string",
                 required: true,
+                requiredOrigin: true,
                 message: '请填写sonar及单元测试脚本'
               }]
             }
@@ -702,30 +946,69 @@
               script: [{
                 type: "string",
                 required: true,
+                requiredOrigin: true,
                 message: '请填写打包脚本'
               }]
             }
           },
-          autoScript: {
+          ciPipelineAutoTestVO: {
             type: 'object',
-            required: true,
-            trigger: ['blur', 'change'],
             fields: {
+              gitLabBranch: [{
+                type: "string",
+                required: true,
+                trigger: ['blur', 'change'],
+                requiredOrigin: true,
+                message: '请填写gitlab分支'
+              }],
+              gitLabPath: [{
+                type: "string",
+                required: true,
+                requiredOrigin: true,
+                trigger: ['blur', 'change'],
+                message: '请填写ssh格式的gitlab路径'
+              }],
+              relativePath: [{
+                type: "string",
+                required: false,
+                requiredOrigin: false,
+                message: '请填写ssh格式的gitlab路径'
+              }],
+              itTestReportAddress: [{
+                type: "string",
+                required: true,
+                trigger: ['blur', 'change'],
+                requiredOrigin: true,
+                message: '请填写自动化测试报告目录[相对地址即可] '
+              }],
               script: [{
                 type: "string",
                 required: true,
-                message: '请填写自动化测试脚本'
+                trigger: ['blur', 'change'],
+                requiredOrigin: true,
+                message: '请填写脚本名称'
+              }]
+            }
+          },
+          uploadUnitTestReportAndAutoTestReport: {
+            type: 'object',
+            fields: {
+              script: [{
+                type: "string",
+                required: false,
+                trigger: ['blur', 'change'],
+                requiredOrigin: false,
+                message: '请填写脚本名称'
               }]
             }
           },
           sonarCheck: {
             type: 'object',
-            required: true,
-            trigger: ['blur', 'change'],
             fields: {
               projectKeyWord: [{
                 type: "string",
                 required: true,
+                requiredOrigin: true,
                 message: '请填写sonar关键字'
               }]
               // codeDebt
@@ -821,6 +1104,65 @@
 
     },
     methods: {
+      pageJump(profileName) {
+        const profileInfo = this.$storeHelper.getProfileInfoByName(profileName);
+        const appId = this.formData.appId;
+        const profileId = profileInfo ? profileInfo['id'] : null;
+        if (appId && profileId) {
+          window.open(`${location.origin}${this.$net.page['profile/service/modify']}${this.$utils.objectToQueryString({appId, profileId})}`, '_blank');
+        } else {
+          console.log(`appId or profileId not found`);
+        }
+//        console.log(profile);
+//        console.log(profileInfo);
+      },
+	    handleParameter (action, key, value, remark) {
+		    switch (action) {
+			    case 'add':
+				    // remove error notification first
+				    this.formItemMsgForParam = '';
+//            let keyReg = /^[A-Za-z0-9_\-\.@]{1,64}$/;
+				    let keyReg = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
+				    let valueReg = /^[A-Za-z0-9_\-\.@]{1,128}$/;
+				    if (!keyReg.exec(key)) {
+					    this.$message.error('64位以内的数字、字母、下划线，以字母或下划线开头');
+					    return;
+				    }
+				    if (!valueReg.exec(value)) {
+					    this.$message.error('请输入128位以内的数字、字母、中划线、下划线');
+					    return;
+				    }
+				    
+				    if (this.formData.defList.length >= 5) {
+					    this.$message.error('最多输入5个');
+					    return;
+				    }
+				    let itemWithKey = null;
+				    this.formData.defList.some(it => {
+					    if (it.key === key) {
+						    itemWithKey = it;
+					    }
+					    return itemWithKey;
+				    });
+				    if (!itemWithKey) {
+					    this.formData.defList.push({
+						    name: key,
+						    defaultValue: value,
+						    description: remark,
+					    });
+					    this.paramKey = '';
+					    this.paramValue = '';
+					    this.paramRemark = '';
+				    } else {
+					    this.formItemMsgForParam = `Key "${itemWithKey.key}" 已经存在，如需更改，请删除后重新添加`;
+				    }
+				    break;
+			    case 'delete':
+				    let index = key;
+				    this.formData.defList.splice(index, 1);
+				    break;
+		    }
+	    },
       // 根据服务端数据更新formData
       syncFormDataByServerData(formData, netData) {
         // ignore key not need to overwrite
@@ -852,6 +1194,23 @@
           }
         };
         syncObject(formData, netData);
+        this.postTreatFormData(formData, netData);
+      },
+      postTreatFormData(formData, netData) {
+        const formWebHooks = formData.webHooks;
+        const netWebHooks = netData.webHooks;
+        /** 目前后端传过来的是数组（但前端会当字符串处理） */
+        // 兼容多种触发webhook的方式
+//        if (formWebHooks.webHooksSelectedEvent.length === 0 && netWebHooks && netWebHooks.webHooksEvent && netWebHooks.webHooksEvent.length > 0) {
+//          formData.webHooks.webHooksSelectedEvent.push(netWebHooks.webHooksEvent[0]);
+//        }
+        if (netWebHooks && netWebHooks.webHooksEvent && netWebHooks.webHooksEvent.length > 0) {
+          if (formWebHooks.webHooksSelectedEvent.length === 0) {
+            formData.webHooks.webHooksSelectedEvent = netWebHooks.webHooksEvent[0];
+          } else {
+            formData.webHooks.webHooksSelectedEvent = formData.webHooks.webHooksSelectedEvent[0]
+          }
+        }
       },
       // 更新stage列表中每个元素的index值
       updateStageIndex(stage) {
@@ -865,26 +1224,38 @@
         });
       },
 
-      // 更加pipeline结点的选择情况，更新formRules
+      // 根据pipeline结点的选择情况，更新formRules
       updateFormDataRules() {
-        // fix rules for 'testAndSonarScript', 'mvnPackage', 'autoScript'
-        var pipelineStageList = ['testAndSonarScript', 'mvnPackage'];//.concat(['sonarCheck','autoScript']);
+        // fix rules for 'testAndSonarScript', 'mvnPackage', 'autoSciPipelineAutoTestVOcript'
+        var pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'ciPipelineAutoTestVO', 'uploadUnitTestReportAndAutoTestReport'];//.concat(['sonarCheck']);
         pipelineStageList.forEach(it => {
           const required = this.formData[it]['selected'];
           this.formDataRules[it]['required'] = required;
-            this.formDataRules[it]['fields']['script'].forEach(rule => {
-              rule['required'] = required;
-            })
+          Object.keys(this.formDataRules[it]['fields']).forEach(key => {
+            this.formDataRules[it]['fields'][key].forEach(it => {
+              it['required'] = required ? it['requiredOrigin'] : required;
+            });
+          })
         });
 
+        // fix rules for sonarCheck
+        // sonarCheck可以不填，如果填写，格式必须正确，检查项包括：
+        // 1. 单元测试覆盖率
+        // 2. 技术债
         const validatorForUnitTestSelected = function(rule, values, callback) {
-          values = parseInt(values.trim());
           var passed = false;
+          try {
+            if (typeof(values) === 'string' || values instanceof String) {
+              values = parseFloat(values.trim());
+            }
 //          if (!values) {
 //            passed = true;
 //          } else
-          if (/^[0-9]+$/.exec(values) && (values > 0 && values <= 100)) {
-            passed = true;
+            if (/^[0-9]+$/.exec(values) && (values > 0 && values <= 100)) {
+              passed = true;
+            }
+          } catch(err) {
+            passed = false;
           }
           if (passed) {
             callback();
@@ -892,12 +1263,17 @@
             callback('请填写0-100之间的数字');
           }
         };
-
         const validatorForCodeDebtSelected = function (rule, values, callback) {
-          values = parseInt(values.trim());
           var passed = false;
-          if (/^[0-9]+$/.exec(values) && (values >= 0)) {
-            passed = true;
+          try {
+            if (typeof(values) === 'string' || values instanceof String) {
+              values = parseFloat(values.trim());
+            }
+            if (/^[0-9]+$/.exec(values) && (values >= 0)) {
+              passed = true;
+            }
+          } catch(err) {
+            passed = false;
           }
           if (passed)  {
             callback();
@@ -905,9 +1281,6 @@
             callback('请填写大于0的数字');
           }
         };
-
-        // fix rules for sonarCheck
-        // sonarCheck可以不填，如果填写，格式必须正确
         const sonarCheck = this.formData['sonarCheck'];
         const sonarCheckRules = this.formDataRules['sonarCheck']['fields'];
         if (!this.formData.sonarCheck.selected) {
@@ -928,6 +1301,7 @@
           delete sonarCheckRules['unitTestRatio']
         }
 
+        // fix rules for noticeConfig
         const validatorForNoticeConfig = function(rule, values, callback) {
           if (!Array.isArray(values)) {
             callback('格式不正确');
@@ -939,10 +1313,9 @@
           }
           callback();
         };
-
-        // fix rules for noticeConfig
         const noticeConfig = this.formData['noticeConfig'];
         const noticeConfigRules = this.formDataRules['noticeConfig'];
+        // 如果选择了成功(失败)时通知，必须填写邮箱地址（邮箱为数组类型）
         if (noticeConfig.executeFail || noticeConfig.executeSuccess) {
           noticeConfigRules.required = true;
           noticeConfigRules['fields']['noticeEmails'] = [{
@@ -965,6 +1338,10 @@
             type: 'warning',
             dangerouslyUseHTMLString: true
           });
+          // 前端逻辑按照字符串处理，为了兼容以后支持多种webhook，后端使用数组格式
+          if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
+            this.formData.webHooks.webHooksSelectedEvent = [this.formData.webHooks.webHooksSelectedEvent]
+          }
           await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_add_or_update, {
             payload: this.formData
           });
@@ -983,7 +1360,18 @@
           success: true,
           reason: ''
         };
+        var resContent = null;
         switch (action) {
+	        case 'more-config':
+		        this.showMoreConfig = !this.showMoreConfig;
+		        // if (this.showMoreConfig) {
+			      //   // this.scrollBottom();
+            //   console.log("scrollBottom");
+		        // } else {
+			      //   // this.scrollTop();
+			      //   console.log("scrollTop");
+		        // }
+		        break;
           case 'change-step':
             this.stepNodeList.forEach(it => {
               if (it.contains(target)) {
@@ -992,7 +1380,6 @@
                 it.classList.remove('active');
               }
             });
-//            console.log(evt.target);
             break;
           case 'stage-add':
             switch (this.currentStage.name) {
@@ -1000,7 +1387,9 @@
                 if (!this.findStageByName('mvnPackage')['selected']) {
                   stageChangeStatus.success = false;
                   stageChangeStatus.reason = `制作镜像依赖于打包，必须勾选打包步骤`;
+                  break;
                 }
+                this.formDataRules.buildImage.fields.selectedImage[0].required = true;
                 break;
               case 'deployTestEnv':
                 if (!this.findStageByName('buildImage')['selected']) {
@@ -1024,10 +1413,16 @@
               case 'sonarCheck':
                 this.formDataRules.sonarCheck.fields.projectKeyWord[0].required = true;
                 break;
+              case 'testAndSonarScript':
+                this.formDataRules.testAndSonarScript.fields.script[0].required = true;
+                break;
+              case 'mvnPackage':
+                this.formDataRules.mvnPackage.fields.script[0].required = true;
+                break;
             }
             if (stageChangeStatus.success) {
               this.currentStage['selected'] = true;
-              console.log(this.currentStage);
+//              console.log(this.currentStage);
               this.updateStageIndex(this.stages);
               // this.$message.success(`添加结点 "${this.currentStage['name']}" 成功！`);
               this.formData[this.currentStage['name']]['selected'] = true;
@@ -1036,7 +1431,12 @@
             }
             break;
           case 'stage-remove':
-            switch (this.currentStage.name) {
+            // 结点删除后，取消"手工确认"
+            var currentStageName = this.currentStage.name;
+            if (this.formData[currentStageName] && this.formData[currentStageName].hasOwnProperty('inputChecked')) {
+              this.formData[currentStageName]['inputChecked'] = false;
+            }
+            switch (currentStageName) {
               case 'sonarCheck':
                 this.formData.sonarCheck.codeDebtSelected = false;
                 this.formData.sonarCheck.codeDebt = '';
@@ -1053,6 +1453,7 @@
                 this.formData.buildImage.selected = false;
                 this.formData.deployTestEnv.selected = false;
                 this.formData.deployBetaEnv.selected = false;
+                this.formDataRules.mvnPackage.fields.script[0].required = false;
                 break;
               case 'buildImage':
                 this.stages.forEach(it => {
@@ -1062,6 +1463,7 @@
                 });
                 this.formData.deployBetaEnv.selected = false;
                 this.formData.deployTestEnv.selected = false;
+                this.formDataRules.buildImage.fields.selectedImage[0].required = false;
                 break;
             }
             this.currentStage['selected'] = false;
@@ -1069,55 +1471,66 @@
             // this.$message.success(`删除结点 "${this.currentStage['name']}" 成功！`);
             this.formData[this.currentStage['name']]['selected'] = false;
             break;
+          case 'testAndSonarScript':
+            this.formDataRules.testAndSonarScript.fields.script[0].required = false;
+            break;
           case 'save':
           case 'take-effect':
 //            console.log(this.formData);
             const basicInfoForm = this.$refs['basic-info-form'];
             const configInfoForm = this.$refs['config-info-form'];
             this.updateFormDataRules();
-//            console.log(this.formDataRules);
-            var validator = new AsyncValidator(this.formDataRules);
-            // 先用async-validator进行全局验证，找到对应的el-form，然后使用el-form自带的validator进行局部验证
-            validator.validate(this.formData, async (errors, fields) => {
-              if (errors) {
-               // console.log(errors);
-               // console.log(fields);
-                var firstFields = errors[0]['field'];
-                // such as autoScript.script
+
+            var validate = true;
+            try {
+              validate = await basicInfoForm.validate();
+              if (this.$refs['pipeline-script-form']) {
+                validate = await this.$refs['pipeline-script-form'].validate();
+              }
+              validate = await configInfoForm.validate();
+              // 若选择Sonar数据检查，则至少要选择一个检查项
+              if (this.formData.sonarCheck.selected) {
+                if (!this.formData.sonarCheck.unitTestSelected && !this.formData.sonarCheck.codeDebtSelected) {
+                  this.$message.error(`若选择Sonar数据检查，则至少要选择一个检查项`);
+                  return;
+                }
+              }
+              if ('take-effect' === action) {
+                // 前端逻辑按照字符串处理，为了兼容以后支持多种webhook，后端使用数组格式
+                if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
+                  this.formData.webHooks.webHooksSelectedEvent = [this.formData.webHooks.webHooksSelectedEvent]
+                }
+                await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_take_effect, {
+                  payload: this.formData
+                });
+                this.$message.success(`pipeline "${this.formData.pipelineName}" 的配置已生效！`);
+                this.$router.go(-1);
+              } else {
+                this.requestUpdate();
+              }
+//              console.log(validate);
+            } catch (err) {
+//              console.log(err);
+              if (Array.isArray(err) && err.length > 1) {
+                var firstError = err[1];
+                var firstFields = firstError[0]['field'];
+                // such as ciPipelineAutoTestVO.script
                 if (firstFields.indexOf('.') > -1) {
                   firstFields = firstFields.split('.')[0];
                 }
-//                console.log(firstFields);
-                // sonar及单元测试，打包，自动化测试
-                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'buildImage', 'autoScript', 'sonarCheck'];
+                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'buildImage', 'ciPipelineAutoTestVO',
+                  'uploadUnitTestReportAndAutoTestReport', 'sonarCheck'];
                 if (pipelineStageList.indexOf(firstFields) > -1) {
                   this.setActiveStageByName(firstFields);
+                  // validate again to make sure show error message
                   this.$nextTick(() => {
                     this.$refs['pipeline-script-form'].validate(() => {});
                   });
-                } else if (firstFields === 'noticeConfig') {
-                  configInfoForm.validate(() => {});
-                } else {
-                  basicInfoForm.validate(() => {});
                 }
               } else {
-                if (this.formData.sonarCheck.selected) {
-                  if (!this.formData.sonarCheck.unitTestSelected && !this.formData.sonarCheck.codeDebtSelected) {
-                    this.$message.error(`若选择Sonar数据检查,则至少要选择一个检查项`);
-                    return;
-                  }
-                }
-                if ('take-effect' === action) {
-                  await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_take_effect, {
-                    payload: this.formData
-                  });
-                  this.$message.success(`pipeline "${this.formData.pipelineName}" 的配置已生效！`);
-                  this.$router.go(-1);
-                } else {
-                  this.requestUpdate();
-                }
+                console.log(err);
               }
-            });
+            }
             break;
           // TODO: not used
           case 'enable':
@@ -1141,6 +1554,55 @@
               }
             };
             this.$router.push(this.$net.page['profile/pipeline/records']);
+            break;
+          case 'refresh_test_service_info':
+          case 'refresh_beta_service_info':
+            var serviceInfo = {
+              refresh_test_service_info: {
+                spaceName: 'test',
+                stageName: 'deployTestEnv'
+              },
+              refresh_beta_service_info: {
+                spaceName: 'beta',
+                stageName: 'deployBetaEnv'
+              }
+            }[action];
+            this.addToWaitingResponseQueue('refresh_service_info');
+            try {
+              var applicationConfig = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_service_info_update, {
+                params: {
+                  appId: this.formData.appId
+                },
+                query: {
+                  spaceName: serviceInfo['spaceName']
+                }
+              });
+
+              // update pipelineInfoFromNet['buildImage']['basicImage'](autoImageList) if necessary
+              if (['language', 'languageVersion', 'packageType'].some(key => {
+                return this.pipelineInfoFromNet[serviceInfo.stageName]['applicationConfig'][key] != applicationConfig[key];
+              })) {
+                resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.auto_image_list, {
+                  payload: {
+                    groupTag: this.$storeHelper.groupInfo.tag,
+                    appId: this.formData.appId,
+                    language: applicationConfig.language,
+                    languageVersion: applicationConfig.languageVersion,
+                    packageType: applicationConfig.packageType,
+                  }
+                });
+                this.pipelineInfoFromNet['buildImage']['basicImage'] = resContent['basicImage'];
+                if (this.pipelineInfoFromNet['buildImage']['basicImage'].length > 0) {
+                  this.pipelineInfoFromNet['buildImage']['selectedImage'] = this.pipelineInfoFromNet['buildImage']['basicImage'][0];
+                }
+              } else {
+              }
+              this.pipelineInfoFromNet[serviceInfo.stageName]['applicationConfig'] = applicationConfig;
+
+              this.hideWaitingResponse('refresh_service_info');
+            } catch (err) {
+              this.hideWaitingResponse('refresh_service_info');
+            }
             break;
         }
       },

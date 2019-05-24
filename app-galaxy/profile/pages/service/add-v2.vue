@@ -15,13 +15,10 @@
           <el-form-item label="运行环境" class="profile-description" v-else>
             {{profileInfo? profileInfo.description: ''}}
           </el-form-item>
-          <el-form-item label="应用名称" class="app-name max-width-600" v-if="forModify || forCopy">
+          <el-form-item label="应用名称" class="app-name max-width-600">
             {{formRelated.serviceInfo ? formRelated.serviceInfo['appName'] : ''}}
           </el-form-item>
-          <el-form-item label="应用名称" class="app-name max-width-600" v-else-if="dataPassed.from.action === 'service_config_add'">
-            {{dataPassed.serviceBasicInfo ? dataPassed.serviceBasicInfo['appName'] : ''}}
-          </el-form-item>
-          <el-form-item label="应用名称" class="app-name max-width-600" v-else>
+          <el-form-item label="应用名称" class="app-name max-width-600" v-if="false">
             <el-select v-model="formData.appId" placeholder="请选择" filterable>
               <el-option v-for="item in dataPassed.appWithoutService" :key="item.appId" :label="item.appName" :value="item.appId">
               </el-option>
@@ -214,11 +211,11 @@
             <el-input-number v-model="formData.instanceCount" :min="1" label="描述文字"></el-input-number>
           </el-form-item>
           <el-form-item label="过期时间(天)" prop="expiredDays" class="expired-days" v-if="!formRelated.isProductionProfile">
-            <el-input-number v-model="formData.expiredDays" :min="1"></el-input-number>
+            <el-input-number v-model="formData.expiredDays" :min="1" :max="365"></el-input-number>
             <span>
               <el-tooltip slot="trigger" effect="dark" placement="top">
                 <div slot="content">
-                  <div>服务的实例将在指定时间后被删除</div>
+                  <div>服务的实例将在指定时间后被删除，最大值为一年</div>
                 </div>
                 <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
               </el-tooltip>
@@ -635,10 +632,13 @@
   import commonUtils from 'assets/components/mixins/common-utils';
   export default {
     mixins: [commonUtils],
-    created() {
+    async created() {
       // profileUtils will be used in template
       this.profileUtils = profileUtils;
-      const dataTransfer = this.$storeHelper.dataTransfer;
+      var dataTransfer = this.$storeHelper.dataTransfer;
+      if (!dataTransfer) {
+        dataTransfer = await this.getDataByQueryString();
+      }
       if (!dataTransfer) {
         this.$router.go(-1);
         return;
@@ -717,6 +717,7 @@
           goBack = true;
         }
       } else {
+        this.imageSelectState.customImage = false;
         //Production appMonitor environment is selected by default
         if (this.profileInfo && this.profileInfo.spaceType.toUpperCase() !== 'PRODUCTION') {
           this.formData.appMonitor = profileUtils.appMonitorList[1].id;
@@ -948,8 +949,8 @@
 //          privateAppList: [],
         },
         imageSelectState: {
-          // custom image or not
-          customImage: false,
+          // custom image or not，注意customImage的变化，会触发requestImageRelatedInfo，故默认设置为null
+          customImage: null,
           // value of autoImage
           autoImageValue: '',
           // value of customImage
@@ -990,14 +991,8 @@
     watch: {
       // 依赖appId的属性：serviceInfo, isJavaLanguage, isPythonLanguage, packageTypeList, this.formData.packageInfo.type
       'formData.appId': function (appId) {
-        var serviceInfo = null;
-        if (this.forModify || this.forCopy || this.dataPassed.from.action === 'service_config_add') {
-          serviceInfo = this.dataPassed.serviceInfo;
-        } else {
-          serviceInfo = this.dataPassed.appWithoutService.find(it => {
-            return it['appId'] === appId;
-          })
-        }
+        // 不论来自哪个页面，serviceInfo都会被带过来
+        var serviceInfo = this.dataPassed.serviceInfo;
 
 //        console.log(serviceInfo);
         if (serviceInfo) {
@@ -1036,8 +1031,15 @@
 //        console.log(this.formRelated.serviceInfo);
 //        console.log(this.formRelated.packageTypeList);
       },
+      'imageSelectState.customImage': function(customImage) {
+        if (customImage === true) {
+          this.requestImageRelatedInfo(true);
+        } else if (customImage === false) {
+          this.requestImageRelatedInfo(false);
+        }
+      },
       'formData.packageInfo.type': function (type) {
-        this.requestImageRelatedInfo(type);
+        this.requestImageRelatedInfo(false, type);
       },
       /**
        * set memoryId at watcher of formData.cpuId
@@ -1123,6 +1125,37 @@
 //      'imageSelectState.currentPrivateApp': 'requestPrivateImageLocation'
     },
     methods: {
+      async getDataByQueryString() {
+        var results = null;
+        if (!location.search) {
+          return results;
+        }
+        const qsObj = this.$utils.parseQueryString(location.search);
+        if (!qsObj || !qsObj.hasOwnProperty('appId') || !qsObj.hasOwnProperty('profileId')) {
+          return results;
+        }
+        if (!qsObj['appId'] || !qsObj['profileId']) {
+          return results;
+        }
+        const profileInfo = this.$storeHelper.getProfileInfoByID(qsObj['profileId']);
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
+          payload: {
+            appId: qsObj['appId'],
+            spaceId: qsObj['profileId']
+          }
+        });
+        const parsedContent = this.$net.parseServiceList(resContent);
+        if (Array.isArray(parsedContent['serviceModelList']) && parsedContent['serviceModelList'].length > 0 && profileInfo) {
+          results = {
+            from: '_blank',
+            data: {
+              profileInfo,
+              serviceInfo: parsedContent['serviceModelList'][0]
+            }
+          }
+        }
+        return results;
+      },
       scrollTop() {
         setTimeout(() => {
           this.$scrollWrapper.scrollTop = 0;
@@ -1162,39 +1195,58 @@
         console.log(item);
       },
 
-      // get image related info from network
-      async requestImageRelatedInfo(type) {
-        this.imageInfoFromNet['customImageList'] = [];
-        this.imageInfoFromNet['autoImageList'] = [];
+      /**
+       * get image related info from network
+       * @param {customImage} customImage = this.imageSelectState.customImage
+       * @param {packageType} packageType for autoImage
+       */
+      async requestImageRelatedInfo(customImage, packageType) {
+        if (!packageType) {
+          packageType = this.formData.packageInfo.type;
+        }
         try {
           const groupTag = this.groupInfo.tag;
           const appId = this.formData.appId;
-//          const profileName = this.profileInfo.name;
-//          const projectName = this.appName;
-          const results = await this.$net.getImageRelatedInfo({
-            groupTag,
-            appId,
-            language: this.formRelated.languageInfo.type,
-            languageVersion: this.formRelated.languageInfo.version,
-            packageType: type,
-          }, {
-            groupTag,
-            appId
-          });
-          const customImageList = results['customImageList'];
-          const autoImageList = results['autoImageList'];
 
-          this.imageInfoFromNet['customImageList'] = customImageList;
-          this.imageInfoFromNet['autoImageList'] = [{
-            label: '无',
-            value: ''
-          }].concat(autoImageList.map(it => {
-            return {
-              label: it,
-              value: it,
+          var payload = {};
+          var resContent = null;
+          var imageList = [];
+          if (customImage) {
+            this.imageInfoFromNet['customImageList'] = [];
+            payload = {
+              groupTag,
+              appId
+            };
+            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.custom_image_list, {
+              payload
+            });
+            imageList = resContent;
+            this.imageInfoFromNet['customImageList'] = resContent;
+          } else {
+            if (!packageType) {
+              return;
             }
-          }));
-//          console.log(this.imageInfoFromNet);
+            this.imageInfoFromNet['autoImageList'] = [];
+            payload = {
+              groupTag,
+              appId,
+              language: this.formRelated.languageInfo.type,
+              languageVersion: this.formRelated.languageInfo.version,
+              packageType: packageType,
+            }
+            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.auto_image_list, {
+              payload
+            });
+            this.imageInfoFromNet['autoImageList'] = [{
+              label: '无',
+              value: ''
+            }].concat(resContent['basicImage'].map(it => {
+              return {
+                label: it,
+                value: it,
+              }
+            }));
+          }
 
           if (this.forModify || this.forCopy) {
             // set default value by passedData if necessary
@@ -1222,6 +1274,7 @@
           }
 
           // not set default value for customImageValue
+          var customImageList = this.imageInfoFromNet['customImageList'];
           if (customImageList.length > 0 && false) {
             if (customImageList.indexOf(this.formData.customImageValue) === -1) {
               this.formData.customImageValue = customImageList[0];
@@ -1229,11 +1282,7 @@
           }
         } catch (err) {
           console.log(err);
-          this.$notify.error({
-            title: '获取镜像信息失败，请联系管理员',
-            message: err.message,
-            duration: 8000
-          });
+          this.$message.error(err.message);
         }
       },
       // set default image at the change of custom-image's type
@@ -1374,11 +1423,6 @@
       goToPageService() {
         this.$storeHelper.dataTransfer = {
           from: this.$route.path,
-          to: {
-            action: this.dataPassed.from.action,
-            currentPage: this.dataPassed.from.page,
-            profileInfo: this.profileInfo
-          }
         };
         this.$router.push(this.$net.page['profile/service']);
       },

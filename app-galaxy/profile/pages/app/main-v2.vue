@@ -60,7 +60,7 @@
             <span>{{scope.row.projectName}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="二级域名" prop="serviceName" headerAlign="left" align="left" minWidth="120">
+        <el-table-column label="二级域名(serviceName)" prop="serviceName" headerAlign="left" align="left" minWidth="120">
           <template slot-scope="scope">
             <span>{{scope.row.serviceName}}</span>
           </template>
@@ -656,11 +656,8 @@
         this.$storeHelper.dataTransfer = {
           from: this.$net.page['profile/app'],
           data: {
-            appId, profileId
-          },
-          to: {
-            'profileInfo': this.$storeHelper.getProfileInfoByID(profileId),
-            'appName': appName,
+            appName,
+            profileId
           }
         };
         this.$router.push(this.$net.page['profile/service']);

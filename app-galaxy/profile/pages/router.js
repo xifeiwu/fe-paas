@@ -13,6 +13,7 @@ import pipeLine from './pipeline';
 import pipelineAdd from './pipeline/add';
 import pipeLineList from "./pipeline/main"
 import pipeLineRecord from "./pipeline/record"
+import pipelinePlan from './pipeline/plan'
 
 import DomainMain from './domain/main.vue';
 import DomainWhiteList from './domain/white-list.vue';
@@ -145,6 +146,10 @@ class Helper {
         path: 'records',
         name: '执行记录',
         component: pipeLineRecord,
+      }, {
+        path: 'records/plan',
+        name: '执行进度',
+        component: pipelinePlan,
       }]
     },{
       path: '/profile/instance',
@@ -351,6 +356,7 @@ class Helper {
     // console.log(this.$storeHelper.notPermitted);
     // this.startRouteFilter()
     this.pathList = [];
+    this.preRouter = null;
   }
   /**
    * traverse router config tree to add routerPath to all component:
@@ -635,6 +641,29 @@ class Helper {
     return JSON.parse(JSON.stringify(result));
   }
 
+
+  /**
+   * rename router name in richRouterConfig
+   */
+  async renameRouterName(targetPath, rename , parentPath) {
+    let targetRouterPath = null;
+    if (parent) {
+      targetRouterPath = this.richRouterConfig.find(it => {
+        return it.path == parentPath;
+      }).children.find(it => {
+        return it.path == targetPath;
+      });
+    } else {
+      targetRouterPath = this.richRouterConfig.find(it => {
+        return it.path == targetPath;
+      });
+    }
+    await new Promise((resolve, reject) => {
+      targetRouterPath.name = rename;
+      resolve();
+    })
+  }
+
   /**
    * do some action before route change
    */
@@ -762,6 +791,8 @@ class Helper {
         const result = pathCheck(to.path);
         if (result.errMsg) {
           Vue.prototype.$message.warning(result.errMsg);
+        } else {
+          this.preRouter = from;
         }
         if (result.jumpTo) {
           if (result.jumpTo == to.path) {

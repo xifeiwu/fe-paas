@@ -91,6 +91,7 @@ class Net {
       'profile/pipeline/modify': '/profile/pipeline/modify',
       'profile/pipeline/update': '/profile/pipeline/update',
       'profile/pipeline/records': '/profile/pipeline/records',
+      'profile/pipeline/records/plan': '/profile/pipeline/records/plan',
       'profile/instance': '/profile/instance',
       'profile/monitor': '/profile/monitor',
       'profile/domain': '/profile/domain',
@@ -126,7 +127,8 @@ class Net {
       'profile/middleware/mariadb/backup': '/profile/middleware/mariadb/backup',
       'profile/middleware/redis': '/profile/middleware/redis',
       'profile/middleware/redis/add': '/profile/middleware/redis/add',
-      'profile/middleware/redis/modify': '/profile/middleware/redis/modify'
+      'profile/middleware/redis/modify': '/profile/middleware/redis/modify',
+      'manage/node-manage': '/manage/node-manage'
     };
 
     this.vm = new Vue({

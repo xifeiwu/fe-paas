@@ -24,6 +24,14 @@
           <i v-if="subMenu.icon" :class="subMenu.icon"></i><span>{{subMenu.name}}</span>
         </el-menu-item>
       </el-submenu>
+      <el-submenu v-for="menu in navMenu.level3" :key="menu.name" :index="menu.router">
+        <template slot="title">
+          <i v-if="menu.icon" :class="menu.icon"></i><span>{{menu.name}}</span>
+        </template>
+        <el-menu-item v-for="subMenu in menu.children" :key="subMenu.name" :index="subMenu.router">
+          <i v-if="subMenu.icon" :class="subMenu.icon"></i><span>{{subMenu.name}}</span>
+        </el-menu-item>
+      </el-submenu>
     </el-menu>
     <div :class="{'toggle': true, collapse: collapseMenu}">
       <i :class="{'paas-icon-double-arrow-right': true, collapse: collapseMenu}" @click="toggleMenu"></i>
@@ -153,6 +161,24 @@
               name: '调用量',
               router: '/manage/analyze/visit',
               icon: 'el-icon-arrow-right',
+            }]
+          }],
+          level3: [{
+            name: '集群管理',
+            router: '/manage/cluster-dashboard',
+            icon: 'paas-icon-cluster',
+            children: [{
+              name: '集群概况',
+              router: '/manage/cluster-dashboard',
+              icon: 'el-icon-arrow-right',
+            }, {
+              name: 'Node列表',
+              router: '/manage/node-manage',
+              icon: 'el-icon-arrow-right',
+              // }, {
+              //   name: 'PV列表',
+              //   router: '/manage/node-manage',
+              //   icon: 'el-icon-arrow-right',
             }]
           }]
         }

@@ -13,7 +13,8 @@
         <div class="item">
           <label style="float: left; width: 60px; line-height: 26px">ClientId：</label>
           <el-input v-model="searchCondition.accessKey"
-                    style="display:block; width: 200px; margin-left: 60px;"></el-input>
+                    style="display:block; width: 200px; margin-left: 60px;"
+                    @keyup.enter.native="handleButtonClick($event, 'search')"></el-input>
         </div>
         <el-button size="mini-extral"
                    type="primary"
@@ -1466,7 +1467,11 @@
           this.addToWaitingResponseQueue(action);
           this.$net.oAuthCreateAccessKey(dataToPost).then(content => {
             this.handleDialogClose();
-            this.$message.success(`Access key ${content.secret} 创建成功！`);
+            this.$message({
+              duration: 6000,
+              message: "ClientId（" + content.client_id + "）创建成功！如您需要申请了其他团队的权限，请及时联系您想访问的团队来给您的ClientId授权，并在三天内完成授权，逾期将是视为失效，需重新申请!",
+              type: 'success'
+            });
             this.refreshAccessKeyList();
           }).catch(msg => {
             this.$notify.error({
@@ -1617,7 +1622,11 @@
           }).then(msg => {
             this.hideWaitingResponse(action + '-in-dialog');
             this.selected.operation = null;
-            this.$message.success(msg);
+            this.$message({
+              duration: 6000,
+              message: msg,
+              type: 'success'
+            });
             this.updateModelInfo(prop);
           }).catch(msg => {
             this.hideWaitingResponse(action + '-in-dialog');

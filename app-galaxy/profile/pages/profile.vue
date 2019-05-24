@@ -292,8 +292,10 @@
   import paasNavBar from './components/nav-bar.vue';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   import paasPopoverMessage from 'assets/components/popover-message';
+  import markdown from 'assets/components/markdown/markdown.js';
 
   export default {
+    mixins: [markdown],
     components: {PageNotFound, paasHeaderProfile, paasNavBar, paasPopoverMessage},
     data() {
       return {
@@ -405,6 +407,19 @@
       setInterval(() => {
         this.getPublishStatus();
       },2*60*1000);
+
+      this.$render(`# 一级标题 #
+一级标题
+====
+## 二级标题 ##
+二级标题
+----
+### 三级标题 ###
+#### 四级标题 ####
+##### 五级标题 #####
+###### 六级标题 ######`, result => {
+  console.log(result);
+})
     },
     beforeDestroy() {
       removeResizeListener(this.$el, this.resizeListener);
@@ -523,9 +538,14 @@
         if (this.routeConfig) {
           this.showPageNotFound = false;
           // whether show groupList
-          let pageNotShowGroupList = ['/profile/app/add', '/profile/service/add', '/profile/service/copy', '/profile/service/modify', '/profile/service/detail', '/profile/image/repo/version', '/profile/domain/white-list'];
-          let pageNotShowGroupListReg = /^\/profile\/(work-order\/(todo|list).*|config-server\/*)$/;
-          if (pageNotShowGroupList.indexOf(path) > -1 || pageNotShowGroupListReg.exec(path)) {
+          const pageNotShowGroupList = ['/profile/app/add', '/profile/service/add', '/profile/service/copy',
+            '/profile/service/modify', '/profile/service/detail', '/profile/image/repo/version',
+            '/profile/domain/white-list', '/profile/pipeline/records'];
+          const pageNotShowGroupListRegList = [
+            /^\/profile\/(work-order\/(todo|list).*|config-server\/*)$/,
+            /^\/profile\/pipeline\/(add|modify).*/
+          ];
+          if (pageNotShowGroupList.indexOf(path) > -1 || pageNotShowGroupListRegList.find(reg => reg.exec(path))) {
             this.showGroupList = false;
           } else {
             this.showGroupList = true;

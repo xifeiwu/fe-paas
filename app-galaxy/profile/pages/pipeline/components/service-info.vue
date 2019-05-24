@@ -11,11 +11,8 @@
       <el-form-item label="滚动升级">
         <span>{{serviceInfo.rollingUpdate? '需要' : '不需要'}}</span>
       </el-form-item>
-      <el-form-item label="构建名称" v-if="serviceInfo.packageType == 'WAR'">
-        {{serviceInfo.buildName}}
-      </el-form-item>
-      <el-form-item label="mainClass" v-if="serviceInfo.packageType == 'ZIP'">
-        {{serviceInfo.mainClass ? serviceInfo.mainClass : '---'}}
+      <el-form-item label="剩余过期时间">
+        <span>{{serviceInfo.expiredDays}}</span>
       </el-form-item>
       <el-form-item label="负载均衡">
         {{serviceInfo.loadBalance}}
@@ -29,10 +26,13 @@
       <el-form-item label="应用监控" v-if="!serviceInfo.customImage">
         <span>{{$storeHelper.getMonitorNameById(serviceInfo.appMonitor)}}</span>
       </el-form-item>
-      <el-form-item label="剩余过期时间">
-        <span>{{serviceInfo.expiredDays}}</span>
+      <el-form-item label="构建名称" class="big" v-if="serviceInfo.packageType == 'WAR'">
+        {{serviceInfo.buildName}}
       </el-form-item>
-      <el-form-item label="镜像方式" class="big">
+      <el-form-item label="mainClass" class="big" v-if="serviceInfo.packageType == 'ZIP'">
+        {{serviceInfo.mainClass ? serviceInfo.mainClass : '---'}}
+      </el-form-item>
+      <el-form-item label="镜像方式" class="big" v-if="false">
         <span>{{serviceInfo.customImage ? '自定义镜像':'自动打镜像'}}</span>
         <span>{{serviceInfo.image}}</span>
       </el-form-item>
@@ -45,8 +45,8 @@
       <el-form-item label="preStop脚本" class="big">
         <span>{{serviceInfo.prestopCommand}}</span>
       </el-form-item>
-      <el-form-item label="VM_Options" class="big" v-if="serviceInfo.language==='JAVA'">
-        <span class="expand-to-next-line">{{serviceInfo.vmOptions}}</span>
+      <el-form-item label="VM_Options" class="big vm-options" v-if="serviceInfo.language==='JAVA'">
+        {{serviceInfo.vmOptions}}
       </el-form-item>
       <el-form-item label="Host配置" class="big" v-if="false">
         <div v-if="serviceInfo.hosts && serviceInfo.hosts.length > 0">
@@ -118,7 +118,12 @@
 <script>
   export default {
     mounted() {
-     console.log(this.serviceInfo)
+      const defaultValue = '---';
+      ['mavenProfileId', 'prestopCommand', 'vmOptions', 'healthCheck', 'expiredDays'].forEach(key => {
+        if (!this.serviceInfo[key]) {
+          this.serviceInfo[key] = defaultValue;
+        }
+      });
     },
     props: {
       serviceInfo: {

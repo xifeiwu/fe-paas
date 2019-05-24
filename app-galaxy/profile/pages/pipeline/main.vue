@@ -59,6 +59,10 @@
                 width="150"
                 headerAlign="center"
                 align="center">
+          <template slot-scope="scope">
+            <span :class="[{'success':scope.row.lastRunStatusName == '成功','failure':scope.row.lastRunStatusName == '失败',
+            'building':scope.row.lastRunStatusName == '构建中','suspension':scope.row.lastRunStatusName == '中止'}]" id="lastRunStatusName">{{scope.row.lastRunStatusName}}</span>
+          </template>
         </el-table-column>
         <el-table-column
                 prop="creator"
@@ -191,6 +195,26 @@
       .select {
         .el-input__inner {
           font-size: 14px;
+        }
+      }
+    }
+    .pipeline-list {
+      .el-table {
+        .el-table__row {
+          #lastRunStatusName {
+            &.success {
+              color: #8cc04f;
+            }
+            &.failure {
+              color: #d54c53;
+            }
+            &.building {
+              color: #409EFF;
+            }
+            &.suspension {
+              color: #949393;
+            }
+          }
         }
       }
     }

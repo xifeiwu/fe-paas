@@ -51,7 +51,7 @@
           </template>
         </el-table-column>
         <el-table-column label="项目名称" prop="tag" headerAlign="left" align="left" minWidth="100"></el-table-column>
-        <el-table-column label="二级域名" prop="serviceName" headerAlign="left" align="left" minWidth="100"></el-table-column>
+        <el-table-column label="二级域名(serviceName)" prop="serviceName" headerAlign="left" align="left" minWidth="120"></el-table-column>
         <el-table-column
                 prop="applicationServiceStatus"
                 label="运行实例数/总实例数"
@@ -62,7 +62,10 @@
             {{scope.row.k8s === 1 ? scope.row.instanceCount : '---' }}
           </template>
         </el-table-column>
-        <el-table-column v-if="!isProductionProfile" label="过期时间(天)" prop="remainExpiredDays" headerAlign="center" align="center" width="100">
+        <el-table-column v-if="!isProductionProfile" label="过期时间(天)" headerAlign="center" align="center" width="100">
+          <template slot-scope="scope">
+            {{scope.row.remainExpiredDays < 0 ? 0 : scope.row.remainExpiredDays}}
+          </template>
         </el-table-column>
         <el-table-column label="创建日期" prop="formattedCreateTime" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
@@ -74,7 +77,7 @@
             <div v-else>{{scope.row.formattedCreateTime}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" headerAlign="left" align="left" minWidth="200">
+        <el-table-column label="操作" headerAlign="left" align="left" minWidth="180">
           <template slot-scope="scope">
             <div v-if="scope.row.id" style="line-height: 20px;">
               <el-button
@@ -433,18 +436,33 @@
     components: {paasDialogForLog},
     mixins: [commonUtils],
     created() {
+      // some logic by the preview route, such as use filterKey in localStorage if pre page is profile/service/modify
+      const preRouter = this.$router.helper.preRouter;
+      if (preRouter && preRouter.path) {
+        switch (preRouter.path) {
+          case this.$net.page['profile/service/modify']:
+            this.filterKey = this.$storeHelper.getUserConfig('service.filterKey');
+            break;
+        }
+      }
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer) {
-       // console.log(dataTransfer);
         const from = dataTransfer.from;
-        this.dataPassed.from = from;
-        /**
-         * dataTransfer.to is used to set profileName and currentPage
-         * this.profileName is set on function mounted
-         * currentPage is get by getPageStatePassed
-         * @type {*}
-         */
-        this.dataPassed.to = dataTransfer.to;
+        const data = dataTransfer.data;
+        switch (from) {
+          case this.$net.page['profile/app']:
+            if (['appName', 'profileId'].every(prop => {
+              return this.$utils.propExists(data, prop);
+              })) {
+              this.dataPassed.from = from;
+              this.dataPassed.data = data;
+            }
+            if (this.dataPassed.data['appName']) {
+              this.filterKey = this.dataPassed.data['appName'];
+              this.dataPassed.data['appName'] = null;
+            }
+            break;
+        }
         this.$storeHelper.dataTransfer = null;
       }
     },
@@ -455,79 +473,62 @@
       this.$nextTick(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
       });
-      const profileInfoPassed = this.getPageStatePassed('profileInfo');
-      const appName = this.getPageStatePassed('appName');
-      if (profileInfoPassed) {
-        this.profileName = profileInfoPassed['name'];
-      }
-      if (appName) {
-        this.filterKey = appName;
-      }
-
     },
     computed: {
-      ...mapGetters('user', {
-        'userConfig': 'config'
-      }),
+//      ...mapGetters('user', {
+//        'userConfig': 'config'
+//      }),
       publishStatus() {
         return this.$store.getters['publishStatus'];
       }
     },
     watch: {
       '$storeHelper.currentGroupID': function (value, oldValue) {
+        this.currentPage = 1;
         this.getServiceListByPage({
           refresh: true,
           currentPage: 1
         });
       },
       'currentPage': function (page) {
-//        console.log(this.$route);
-//        console.log(this.$route.path);
-//        console.log(this.$route.query);
-//        this.$route.query['page'] = page;
-//        location.search = `?page=${page}`;
         this.getServiceListByPage({});
-        this.$store.dispatch('user/config', {
-          page: 'service',
-          data: {
-            currentPage: page
-          }
+        this.$storeHelper.setUserConfig('service', {
+          currentPage: page
         });
       },
-      'filterKey': function () {
+      'filterKey': function (value) {
         this.getServiceListByPage({
           currentPage: 1
+        });
+        this.$storeHelper.setUserConfig('service', {
+          filterKey: value
         });
       },
       // changed by el-tab
       profileName(profileName) {
 //        console.log(`change profileName to ${profileName}`);
-        var target = null;
-        this.$storeHelper.profileListOfGroup.some(it => {
-          if (it.name === profileName) {
-            target = it;
-          }
-        });
+        const target = this.$storeHelper.profileListOfGroup.find(it => it.name === profileName);
         if (target) {
           this.profileInfo = target;
           this.isProductionProfile = target.spaceType.toUpperCase() === 'PRODUCTION';
+        } else {
+          console.log(`${profileName} not exist`);
         }
-//        console.log(this.localPageState);
-        var currentPage = 1; // this.getPageStatePassed('currentPage');
-        // used only once
-        if (this.localPageState.currentPage != 1) {
-          currentPage = this.localPageState.currentPage;
-          this.localPageState.currentPage = 1;
+        var currentPage = 1;
+        const localCurrentPage = this.$storeHelper.getUserConfig('service.currentPage');
+        if (localCurrentPage) {
+          currentPage = parseInt(localCurrentPage);
         }
+        if (!this.$utils.isNumber(currentPage)) {
+          currentPage = 1;
+        }
+        this.currentPage = currentPage;
         this.getServiceListByPage({
           refresh: true,
           currentPage
         });
-        this.$store.dispatch('user/config', {
-          page: 'service',
-          data: {
-            profileName
-          }
+        this.$storeHelper.setUserConfig('service', {
+          profileName
         });
       },
       '$storeHelper.screen.size': 'onScreenSizeChange',
@@ -540,7 +541,7 @@
       return {
         dataPassed: {
           from: null,
-          to: null
+          data: null
         },
         // TODO: for change internetDomain, will change later
         waitingResponse: false,
@@ -560,11 +561,6 @@
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
-        localPageState: {
-          profileName: null,
-          profileInfo: null,
-          currentPage: 1
-        },
 
         action: {
           evt: null,
@@ -612,15 +608,25 @@
           console.log('error: onProfileList');
           return;
         }
-        // default profileInfo
         var profileInfo = profileList[0];
-        this.getPageStateLocal(profileList);
-        if (this.localPageState['profileInfo']) {
-          profileInfo = this.localPageState['profileInfo'];
+
+        const localProfileName = this.$storeHelper.getUserConfig('service.profileName');
+        const localProfileInfo = profileList.find(it => it.name == localProfileName);
+        if (localProfileInfo) {
+          profileInfo = localProfileInfo;
         }
+
+        if (this.dataPassed.data && this.dataPassed.data.profileId) {
+          const profileInfoPassed =  profileList.find(it => it.id == this.dataPassed.data.profileId);
+          if (profileInfoPassed) {
+            profileInfo = profileInfoPassed;
+          }
+        }
+
         this.profileInfo = profileInfo;
         this.profileName = profileInfo['name'];
       },
+
       handleButtonClick(evt, action) {
         if (action === 'service_create' && this.appIdWithoutService.length === 0) {
           this.$storeHelper.globalPopover.show({
@@ -655,92 +661,7 @@
         return {
           path: this.$net.page['profile/service'],
           action,
-          page: this.currentPage,
-          profileInfo: this.profileInfo
         }
-      },
-      // TODO: not used
-      // used prop of  dataPassed.to only once
-      getPageStatePassed(prop) {
-//        console.log(this.dataPassed.to);
-        var value = {
-          currentPage: 1,
-          profileInfo: null,
-          appName: null,
-        }[prop];
-        if (this.dataPassed.to && this.dataPassed.to[prop]) {
-          value = this.dataPassed.to[prop];
-          this.dataPassed.to[prop] = null;
-        }
-        return value;
-      },
-      // page state from localStorage
-      getPageStateLocal(profileList) {
-        const serviceConfig = this.userConfig['service'];
-        var localProfileInfo = null;
-        if (serviceConfig && serviceConfig.profileName) {
-          localProfileInfo = profileList.find(it => {
-            return it.name == serviceConfig['profileName'];
-          })
-        }
-        if (localProfileInfo) {
-          this.localPageState['profileInfo'] = localProfileInfo;
-          this.localPageState['profileName'] = localProfileInfo['name'];
-        }
-        const currentPage = serviceConfig['currentPage'];
-        if (currentPage) {
-          this.localPageState.currentPage = currentPage;
-        }
-      },
-
-      // collect all related info for add-service before jump to page service/add
-      // TODO: not used
-      getInfoForAddService() {
-        let result = {
-          success: false,
-          message: '',
-          content: null,
-        };
-        // check group info
-        let groupInfo = this.$storeHelper.groupInfo;
-        if (!groupInfo) {
-          result.message = '未找到团队相关信息！';
-          return result;
-        }
-        // app info
-        let appInfo = this.$storeHelper.getAppByID(this.selectedAppID);
-        let appName = null;
-        let language = null;
-        let languageVersion = null;
-        if (appInfo && appInfo.hasOwnProperty('appName') && appInfo.hasOwnProperty('language')) {
-          appName = appInfo.appName;
-          language = appInfo.language.name;
-          languageVersion = appInfo.language.version;
-        } else {
-          result.message = '未找到应用相关信息！';
-          return result;
-        }
-
-        if (!this.selectedProfileID) {
-          result.message = '未找到运行环境相关信息';
-          return;
-        }
-
-        if (appName && language && languageVersion && null !== this.selectedProfileID) {
-          result.success = true;
-          result.content = {
-            appInfo,
-            appName,
-            language,
-            languageVersion,
-            groupTag: groupInfo['tag'],
-            appId: this.selectedAppID,
-            profileId: this.selectedProfileID,
-          }
-        } else {
-          console.log('error: infoForAddService');
-        }
-        return result;
       },
 
       // 获取制定运行环境下没有服务的应用列表（只有没有服务的应用才可以创建服务）
@@ -775,6 +696,7 @@
             this.$storeHelper.dataTransfer = {
               from: this.getPageStateToTransfer(action),
               data: Object.assign(basicInfo, {
+                // TODO: 使用的是运行时信息，可能需要修改为数据库信息
                 serviceBasicInfo: row
               })
             };
@@ -787,8 +709,6 @@
                 from: {
                   path: this.$net.page['profile/service'],
                   action,
-                  page: this.currentPage,
-                  profileInfo: this.profileInfo
                 },
                 data: Object.assign(basicInfo, {
                   serviceInfo: model1
@@ -878,9 +798,9 @@
             remainExpiredDays: row.remainExpiredDays,
           };
           this.$net.serviceUpdate("expiredDays", options).then(msg => {
-            if(row.remainExpiredDays >= 0) {
+            if(row.remainExpiredDays >= 0 && row.remainExpiredDays < 365) {
               row.remainExpiredDays += 1;
-            }else{
+            }else if (row.remainExpiredDays < 0){
               row.remainExpiredDays = 1;
             }
           }).catch(errMsg => {
@@ -1364,28 +1284,6 @@
         });
       },
 
-      // TODO: not used
-      parseServiceList(serviceList) {
-        const  LANGUAGE_MAP = {
-          'JAVA': 'java',
-          'NODE_JS': 'nodejs',
-          'PYTHON': 'python',
-          'PHP': 'php'
-        };
-        const transform = it => {
-          var result = {};
-          ['language', 'languageVersion', 'serviceName', 'remainExpiredDays'].forEach(prop => {
-            result[prop] = it[prop];
-          });
-          result = Object.assign(result, {
-            formattedCreateTime: this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss').split(' '),
-            languageLogo: LANGUAGE_MAP[it.language],
-          });
-          return result;
-        };
-        return serviceList.map(transform);
-      },
-
       /**
        * request service list from server
        * only called by getServiceListByPage
@@ -1407,6 +1305,7 @@
           this.appIdWithoutService = parsedResContent['tobeInsertList'];
           this.appWithoutService = this.getAppWithoutService();
         }
+//        console.log(resContent);
 //        console.log(parsedResContent);
       },
 
