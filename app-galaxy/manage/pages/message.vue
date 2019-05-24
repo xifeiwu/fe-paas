@@ -485,6 +485,10 @@
                   messageId: dialogData['messageId']
                 }
               });
+              this.$message({
+                type: 'success',
+                message: '修改消息成功！'
+              });
               this.closeDialog();
               this.requestMessageListByPage(true);
             } catch (err) {
