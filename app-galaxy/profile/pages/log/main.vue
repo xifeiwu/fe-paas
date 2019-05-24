@@ -2,9 +2,10 @@
   <div id="log">
 
     <div class="more-logs">
-      <span>查询日志需要先进行</span>
-      <a href="http://wiki.puhuitech.cn/pages/viewpage.action?pageId=25595492" target="_blank">[日志标准化]</a>
-      <span>   更多运行日志请访问：</span>
+      <span>查询日志需要先进行[</span>
+      <a href="http://wiki.puhuitech.cn/pages/viewpage.action?pageId=25595492" target="_blank">日志标准化</a>
+      <span>]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      <span>更多运行日志请访问：</span>
       <a href="http://log.finupgroup.com" target="_blank">生产环境GrayLog</a>
       <span>，</span>
       <a href="http://nplog.finupgroup.com:9000" target="_blank">非生产环境GrayLog</a>
