@@ -378,6 +378,9 @@
     }
     > .list {
       .el-table {
+        .cell {
+          line-height: 18px;
+        }
         td {
           padding: 0px 3px;
         }
@@ -386,8 +389,8 @@
           line-height: 16px;
         }
         .link {
+          color: #409EFF;
           &:hover {
-            color: #409EFF;
             cursor: pointer;
             text-decoration: underline;
           }

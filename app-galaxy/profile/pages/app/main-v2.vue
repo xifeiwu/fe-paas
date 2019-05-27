@@ -25,7 +25,7 @@
           </el-checkbox>
           <el-input
                   size="mini"
-                  style="max-width: 200px"
+                  style="max-width: 360px"
                   placeholder="按名称搜索应用"
                   suffix-icon="el-icon-search"
                   v-model="filterKey">
