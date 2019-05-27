@@ -415,10 +415,11 @@
                 type: 'success',
                 message: '创建消息成功！'
               });
-              this.closeDialog();
               this.requestMessageListByPage(true);
             } catch (err) {
               console.log(err);
+            } finally {
+              this.closeDialog();
             }
             break;
           case 'refresh':
@@ -487,10 +488,11 @@
                 type: 'success',
                 message: '修改消息成功！'
               });
-              this.closeDialog();
               this.requestMessageListByPage(true);
             } catch (err) {
               console.log(err);
+            } finally {
+              this.closeDialog();
             }
             break;
         }
