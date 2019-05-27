@@ -62,7 +62,7 @@
             <span>{{scope.row.memoryUsed + 'G / ' + scope.row.memoryTotal + 'G（' + scope.row.memoryPercent + '%）' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="外网IP" prop="internalIP" headerAlign="center" align="center" width="100">
+        <el-table-column label="内网IP" prop="internalIP" headerAlign="center" align="center" width="100">
         </el-table-column>
         <el-table-column label="操作系统" prop="os" headerAlign="center" align="center" width="120">
         </el-table-column>
