@@ -411,6 +411,10 @@
                 }
               });
 //              console.log(resContent);
+              this.$message({
+                type: 'success',
+                message: '创建消息成功！'
+              });
               this.closeDialog();
               this.requestMessageListByPage(true);
             } catch (err) {
