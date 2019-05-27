@@ -125,7 +125,7 @@ $menu-height: 45px;
     },
     computed: {
       isGuestLogin() {
-        return this.userInfo.role && this.userInfo.role === '普通成员';
+        return this.userInfo.role && this.userInfo.role === 'guest';
       }
     },
     data() {

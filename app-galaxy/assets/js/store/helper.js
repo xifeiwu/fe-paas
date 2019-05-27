@@ -24,7 +24,7 @@ export default class StoreHelper {
   }
   // 是否是访客
   get isGuest() {
-    return this.userInfo.role === '普通成员';
+    return this.userInfo.role === 'guest';
   }
 
   // TODO: will be replaced by userInfo

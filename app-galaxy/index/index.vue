@@ -1,9 +1,8 @@
 <template>
   <div class="container" id="index">
-    <div v-if="userInfo && userInfo.role === '普通成员'" class="tip-for-guest">
-      <div>您当前账号角色为普通成员，不属于任何团队。需让您所在的PaaS团队管理员邀请您加入团队，才能看到该团队的应用及服务。</div>
-      <div>如有更多疑问，请联系Paas平台。</div>
-      <div style="text-decoration: underline; cursor: pointer; color: #0269c8" @click="handleClick('go-to-cas-login')">我已加入某个团队，点击跳转到登录页面</div>
+    <div v-if="userInfo && userInfo.role === 'guest'" class="tip-for-guest">
+      <div>您当前账号的身份为访客。如需访问更多页面，请联系Paas平台开通账号权限。</div>
+      <div style="text-decoration: underline; cursor: pointer; color: #0269c8" @click="handleClick('go-to-cas-login')">我已申请账号，点击跳转到登录页面</div>
     </div>
     <paas-header :userInfo="userInfo" @menu-click="handleClickOnPassHeader"></paas-header>
     <div class="main">
@@ -131,7 +130,7 @@ $menu-height: 45px;
     z-index: 10;
     /*color: #F56C6C;*/
     color: white;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: bold;
     background-color: rgba(245, 108, 108, 0.8);
     /*background-color: rgba(144, 147, 153, 0.8);*/
