@@ -76,7 +76,7 @@
                 label="运行环境">
         </el-table-column>
         <el-table-column
-                prop="createTime"
+                prop="formattedCreateTime"
                 label="创建时间"
                 width="180">
         </el-table-column>
@@ -546,7 +546,6 @@
 
 <script>
   import paasServiceSelector from '../components/service-selector.vue';
-  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   export default {
     components: {paasServiceSelector},
     created() {
@@ -576,18 +575,11 @@
       this.setDebounce();
       this.keyword = '';
       // adjust element height after resize
-      try {
-        let headerNode = this.$el.querySelector(':scope > .header');
-        this.resizeListener = () => {
-          let headerHeight = headerNode.offsetHeight;
-          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
-        };
-        addResizeListener(this.$el, this.resizeListener);
-      } catch(err) {
-      }
+      this.$nextTick(() => {
+        this.onScreenSizeChange(this.$storeHelper.screen.size);
+      });
     },
     beforeDestroy() {
-      removeResizeListener(this.$el, this.resizeListener);
     },
     data() {
       return {
@@ -595,7 +587,7 @@
         heightOfTable: '',
 
         totalSize: 0,
-        pageSize: 10,
+        pageSize: 12,
         currentPage: 1,
 
         localServiceConfig: null,
@@ -718,8 +710,20 @@
           this.secureCheckProps.tip = '';
         }
       },
+      '$storeHelper.screen.size': 'onScreenSizeChange',
     },
     methods: {
+      onScreenSizeChange(size) {
+        if (!size) {
+          return;
+        }
+        try {
+          const headerNode = this.$el.querySelector(':scope > .header');
+          const headerHeight = headerNode.offsetHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight;
+        } catch(err) {
+        }
+      },
       // helper for loading action of el-button
       addToWaitingResponseQueue(action) {
         if (this.queueForWaitingResponse.indexOf(action) === -1) {
@@ -799,13 +803,6 @@
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.domain_list, {
           payload
         });
-        ['internetDomainList', 'total'].forEach(prop => {
-          console.log(prop);
-          console.log(this.$utils.propExists(resContent, prop));
-        });
-        console.log(['internetDomainList', 'total'].every(prop => {
-          return this.$utils.propExists(resContent, prop)
-        }));
         if (!['internetDomainList', 'total'].every(prop => {
           return this.$utils.propExists(resContent, prop)
           })) {
@@ -819,6 +816,7 @@
             if (profileInfo.hasOwnProperty('description')) {
               it.profileDesc = profileInfo.description;
             }
+            it['formattedCreateTime'] = this.$utils.formatDate(it['createTime'], 'yyyy-MM-dd hh:mm:ss');
           }
           return it;
         });
