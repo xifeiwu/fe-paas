@@ -799,6 +799,13 @@
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.domain_list, {
           payload
         });
+        ['internetDomainList', 'total'].forEach(prop => {
+          console.log(prop);
+          console.log(this.$utils.propExists(resContent, prop));
+        });
+        console.log(['internetDomainList', 'total'].every(prop => {
+          return this.$utils.propExists(resContent, prop)
+        }));
         if (!['internetDomainList', 'total'].every(prop => {
           return this.$utils.propExists(resContent, prop)
           })) {
