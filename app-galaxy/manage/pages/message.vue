@@ -172,11 +172,6 @@
     components: {},
     mixins: [commonUtils],
     created() {
-      const messageType = {
-        PRODUCT_ANNOUNCEMENT: '产品公告',
-        PLATEFORM_ANNOUNCEMENT: '平台公告',
-        ALERT: '弹窗消息'
-      };
     },
     mounted() {
       // update value in next tick
@@ -258,7 +253,7 @@
     computed: {
       groupList() {
         if (this.$storeHelper.groupListAll) {
-          return [{id: '', name: '全部'}].concat(this.$storeHelper.groupListAll);
+          return [{id: '', name: '全部'}, {id: -1, name: '--所有团队--'}].concat(this.$storeHelper.groupListAll);
         } else {
           return [];
         }
@@ -331,11 +326,11 @@
             it['formattedReleaseTime'] = '---';
           }
           if (!it.groupId) {
-            it['groupId'] = '';
+            it['groupId'] = -1;
           }
 
           if (!it.groupName) {
-            it['groupName'] = '全部';
+            it['groupName'] = '所有团队';
           }
 
           return it;
@@ -347,13 +342,12 @@
       },
 
       async filterMessageListByPage() {
-
         this.messageListFilter = this.messageList;
         if (this.messageTypeSelect !== 'ALL') {
           this.messageListFilter = this.messageList.filter(it => it['messageType'] === this.messageTypeSelect);
         }
 
-        if (this.groupIdSelect !== null) {
+        if (this.groupIdSelect !== '') {
           this.messageListFilter = this.messageListFilter.filter(it => it['groupId'] === this.groupIdSelect);
         }
 
@@ -381,7 +375,7 @@
           this.messageListFilter = this.messageList.filter(it => it['messageType'] === this.messageTypeSelect);
         }
 
-        if (this.groupIdSelect !== null) {
+        if (this.groupIdSelect !== '') {
           this.messageListFilter = this.messageListFilter.filter(it => it['groupId'] === this.groupIdSelect);
         }
 
