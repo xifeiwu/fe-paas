@@ -481,6 +481,21 @@ class StoreHelper extends BaseHelper{
     return result;
   }
 
+  getAppModelById(appId) {
+    let result = null;
+    if (this.APP_ID_FOR_ALL === appId) {
+      result = {
+        appId: this.APP_ID_FOR_ALL
+      };
+    } else {
+      let appInfo = this.getAppInfoByID(appId);
+      if (appInfo) {
+        result = appInfo['model'];
+      }
+    }
+    return result;
+  }
+
   /** get app list by profileID
    * @param profileInfoID, if null return all, else filter by id
    * @returns {*}

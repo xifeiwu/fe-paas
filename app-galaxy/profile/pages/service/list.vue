@@ -482,6 +482,7 @@
       if (preRouter && preRouter.path) {
         switch (preRouter.path) {
           case this.$net.page['profile/service/modify']:
+          case this.$net.page['profile/app/update']:
             this.filterKey = this.$storeHelper.getUserConfig('service.filterKey');
             break;
         }
@@ -974,7 +975,7 @@
         const resContent = await this.$net.requestPaasServer(urlDesc, {
           payload
         });
-        // 如果应用没有填写：应用维护者、LOB、Scrum，则不能进行部署、重启
+        // 如果应用没有填写：应用维护者、LOB、Scrum，则不能进行部署、重启（TODO: 这是第二层拦截，第一层拦截如果稳定了，可以删除该逻辑）
         if (resContent === 'SVR_APP_HAS_NO_MAINTAIN_INFO') {
           await this.$confirm(
             '需先完善应用维护者、LOB、Scrum信息，才能进行后续操作。点击确定进入修改应用页面。',
@@ -1187,6 +1188,29 @@
           msg: '复制成功'
         });
       },
+
+      // 如果应用没有填写：应用维护者、LOB、Scrum，则不能进行部署、重启
+      async checkAppInfo(row) {
+        var appInfo = this.$storeHelper.getAppModelById(row.appId);
+        if (appInfo.lobId != null && appInfo.scrumId != null && appInfo.maintainerId != null) {
+          return;
+        }
+        await this.$confirm(
+          '需先完善应用的维护者、LOB、Scrum信息，才能进行后续操作。点击确定进入修改应用页面。',
+          '提示',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
+        );
+        this.$storeHelper.dataTransfer = {
+          from: this.$net.page['profile/service'],
+          data: appInfo
+        };
+        this.$router.push(this.$net.page['profile/app/update']);
+        return Promise.reject('请填写应用信息：维护者、LOB、Scrum');
+      },
       async handleTRClick(evt, action, index, row) {
         var permission = action;
         if (['service_config_add','service_config_copy','service_delete', 'service_deploy',
@@ -1245,7 +1269,12 @@
             this.goToPageServiceAdd(action, row);
             break;
           case 'service_update':
-            this.goToPageServiceAdd(action, row);
+            try {
+              await this.checkAppInfo(row);
+              this.goToPageServiceAdd(action, row);
+            } catch (err) {
+              console.log(err);
+            }
             break;
           case 'service_config_copy':
             this.goToPageServiceAdd(action, row);
@@ -1285,13 +1314,13 @@
             break;
           // 部署服务。弹框有checkbox提示：强制清空打包目录（删除所有源代码、包文件等）
           case 'service_deploy':
-            this.addToWaitingResponseQueue(action);
             try {
+              this.addToWaitingResponseQueue(action);
+              await this.checkAppInfo(row);
               await this.openDialog(action, {
                 serviceDesc: this.getVersionDescription(),
                 forceClone: false
               });
-              this.closeDialog();
               await this.serviceDeploy({
                 id: row.id,
                 appId: row.appId,
@@ -1300,6 +1329,7 @@
               }, action);
             } catch (err) {
               console.log(err);
+            } finally {
               this.closeDialog();
               this.hideWaitingResponse(action);
             }
@@ -1314,6 +1344,7 @@
                 });
                 return;
               }
+              await this.checkAppInfo(row);
 
               this.addToWaitingResponseQueue(action);
 
@@ -1365,9 +1396,9 @@
                 appId: row.appId,
                 spaceId: this.profileInfo.id,
               }, action);
-              this.hideWaitingResponse(action);
             } catch (err) {
               console.log(err);
+            } finally {
               this.hideWaitingResponse(action);
             }
             break;

@@ -856,27 +856,7 @@ export default {
               languageVersion: createAppForm.languageVersion,
               spaceList: createAppForm.profiles,
               maintainerId: createAppForm.maintainerId,
-//                packageType: createAppForm.packageInfo.type,
-//                buildName: createAppForm.packageInfo.name,
-//                initialDelaySeconds: createAppForm.initialDelaySeconds,
-//                volumes: createAppForm.fileLocation,
-//                rollingUpdate: createAppForm.rollingUpdate,
-//                script4RollingUpdate: createAppForm.script4RollingUpdate,
-//                maxAge4Script: createAppForm.maxAge4Script,
-//                loadBalance: createAppForm.loadBalance,
             };
-            // payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(createAppForm.healthCheckType);
-            // switch (createAppForm.healthCheckType) {
-            //   case 'http':
-            //     payload.healthCheck = createAppForm.healthCheck.http;
-            //     break;
-            //   case 'shell':
-            //     payload.healthCheck = createAppForm.healthCheck.shell;
-            //     break;
-            //   case 'socket':
-            //     payload.healthCheck = createAppForm.healthCheck.socket;
-            //     break;
-            // }
 //          console.log('payload');
 //          console.log(payload);
             this.addToWaitingResponseQueue('submit');
@@ -902,12 +882,12 @@ export default {
             this.$net.requestPaasServer(destUrl, {
               payload
             }).then(resContent => {
-              // update appInfoList after create app success
               this.$net.needUpdateAppList = true;
               this.$message({
                 type: 'success',
                 message: successTip
               });
+              // update appInfoList after createApp success in page profile/app
               this.$router.push(this.$net.page['profile/app']);
             }).catch((err) => {
             }).finally(() => {
