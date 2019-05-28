@@ -1,25 +1,50 @@
 <template>
   <div id="middleware-mysql">
-    <div class="header">
-      <el-tabs type="border-tab" v-model="profileName" :class="[profileName]">
-        <el-tab-pane v-for="item in unProductionClusterList" :label="item.description" :name="item.clusterName"
-                     :key="item.clusterName"></el-tab-pane>
-      </el-tabs>
-      <div class="operation">
+    <el-row class="operation">
+      <el-col :span="2">
+        <el-button size="mini"
+                   type="default"
+                   @click="handleButtonClick($event, 'middleware_mariadb_backup_list')">
+          <span>备份列表</span>
+        </el-button>
+      </el-col>
+
+      <el-col :span="19">
         <el-button size="mini"
                    type="primary"
                    :class="{'flex': true, 'disabled': $storeHelper.permission['middleware_mariadb_instance_create'].disabled}"
                    @click="handleButtonClick($event, 'middleware_mariadb_instance_create')">
-          <span>申请实例</span><i class="paas-icon-level-up"></i>
+          <span>申请服务</span>
         </el-button>
+
+        <!--<el-button size="mini"-->
+                   <!--disabled-->
+                   <!--type="primary"-->
+                   <!--:class="{'flex': true, 'disabled': $storeHelper.permission['middleware_mariadb_instance_create'].disabled}"-->
+                   <!--@click="handleButtonClick($event, '')">-->
+          <!--<span>数据迁移</span>-->
+        <!--</el-button>-->
+      </el-col>
+
+      <el-col :span="3">
         <el-button size="mini"
                    type="primary"
+                   style="float: right;"
                    @click="handleButtonClick($event, 'refreshList')">
-          <span>刷新列表</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
+          <span>&nbsp;&nbsp;&nbsp;&nbsp;刷新&nbsp;&nbsp;&nbsp;&nbsp;</span>
         </el-button>
-      </div>
-    </div>
-    <div class="list">
+
+      </el-col>
+    </el-row>
+
+    <el-row class="header">
+      <el-tabs type="border-tab" v-model="profileName" :class="[profileName]">
+        <el-tab-pane v-for="item in unProductionClusterList" :label="item.description" :name="item.clusterName"
+                     :key="item.clusterName"></el-tab-pane>
+      </el-tabs>
+
+    </el-row>
+    <el-row class="list">
       <el-table :data="instanceList"
                 :row-key="getRowKeys"
                 :expand-row-keys="expandRows"
@@ -27,7 +52,12 @@
                 :defaultSort="tableSort"
                 stripe
                 :height="heightOfTable">
-        <el-table-column label="mariadb名称" prop="name" headerAlign="center" align="center" width="150">
+        <el-table-column label="服务名称" prop="name" headerAlign="center" align="center" width="150">
+        </el-table-column>
+        <el-table-column label="运行实例" prop="mariaStatus" headerAlign="center" align="center" width="150">
+          <template slot-scope="scope">
+            <span>{{ scope.row.mariaStatus.ins + " / " + scope.row.mariaStatus.replicas }}</span>
+          </template>
         </el-table-column>
         <el-table-column label="创建者" prop="realName" headerAlign="center" align="center" width="80">
         </el-table-column>
@@ -58,111 +88,160 @@
             <span>{{(scope.row.remainingDays >= 0) ? scope.row.remainingDays + '天' : '已失效'}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="备注" prop="instanceDescribe" headerAlign="center" align="center" minWidth="80">
+        <el-table-column label="运行状态" headerAlign="center" align="center" minWidth="80">
+          <template slot-scope="scope">
+            <span>{{scope.row.mariaStatus.status}}</span>
+          </template>
         </el-table-column>
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="150">
           <template slot-scope="scope">
-            <el-button
-                    type="text"
-                    :class="$storeHelper.permission['middleware_mariadb_instance_update'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_update') && action.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_mariadb_instance_update', scope.$index, scope.row)">变更规格</el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    type="text"
-                    :class="$storeHelper.permission['middleware_mariadb_instance_update_config'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_update') && action.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_mariadb_instance_update_config', scope.$index, scope.row)">
-              <span>修改配置</span><i class="paas-icon-level-up"></i>
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    type="text"
-                    :class="$storeHelper.permission['middleware_mariadb_instance_delete'].disabled ? 'disabled' : 'danger'"
-                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_delete') && action.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_mariadb_instance_delete', scope.$index, scope.row)">删除</el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    type="text"
-                    :class="$storeHelper.permission['middleware_mariadb_instance_start'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_start') && action.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_mariadb_instance_start', scope.$index, scope.row)">启动</el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    type="text"
-                    :class="$storeHelper.permission['middleware_mariadb_instance_stop'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('middleware_mariadb_instance_stop') && action.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'middleware_mariadb_instance_stop', scope.$index, scope.row)">停止</el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    type="text"
-                    :class="['flex', false ? 'disabled' : 'primary']"
-                    :loading="statusOfWaitingResponse('go-to-page-backup') && action.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'go-to-page-backup', scope.$index, scope.row)">
-              <span>备份与恢复</span>
-              <i class="paas-icon-level-up"></i>
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
-                    class="primary" type="text"
-                    :loading="statusOfWaitingResponse('instance_more_info') && action.row.id == scope.row.id"
-                    @click="handleTRClick($event, 'instance_more_info', scope.$index, scope.row)">
-              <span>实例详情</span>
-              <i :class="{'el-icon-arrow-right': true, 'expand': expandRows.indexOf(scope.row.id) > -1}"></i>
-            </el-button>
+            <el-row>
+              <el-col :span="24">
+                <el-button
+                        type="text"
+                        :class="$storeHelper.permission['middleware_mariadb_instance_update'].disabled ? 'disabled' : 'warning'"
+                        :loading="statusOfWaitingResponse('middleware_mariadb_instance_update') && action.row.id == scope.row.id"
+                        @click="handleTRClick($event, 'middleware_mariadb_instance_update', scope.$index, scope.row)">变更规格</el-button>
+                <div class="ant-divider"></div>
+                <el-button
+                        type="text"
+                        :class="$storeHelper.permission['middleware_mariadb_instance_update_config'].disabled ? 'disabled' : 'warning'"
+                        :loading="statusOfWaitingResponse('middleware_mariadb_instance_update_config') && action.row.id == scope.row.id"
+                        @click="handleTRClick($event, 'middleware_mariadb_instance_update_config', scope.$index, scope.row)">
+                  <span>修改配置</span><i class="paas-icon-level-up"></i>
+                </el-button>
+                <div class="ant-divider"></div>
+                <el-button
+                        type="text"
+                        :class="$storeHelper.permission['middleware_mariadb_instance_delete'].disabled ? 'disabled' : 'danger'"
+                        :loading="statusOfWaitingResponse('middleware_mariadb_instance_delete') && action.row.id == scope.row.id"
+                        @click="handleTRClick($event, 'middleware_mariadb_instance_delete', scope.$index, scope.row)">删除</el-button>
+                <div class="ant-divider"></div>
+                <el-button
+                        type="text"
+                        :class="$storeHelper.permission['middleware_mariadb_instance_start'].disabled ? 'disabled' : 'warning'"
+                        :loading="statusOfWaitingResponse('middleware_mariadb_instance_start') && action.row.id == scope.row.id"
+                        @click="handleTRClick($event, 'middleware_mariadb_instance_start', scope.$index, scope.row)">启动</el-button>
+                <div class="ant-divider"></div>
+                <el-button
+                        type="text"
+                        :class="$storeHelper.permission['middleware_mariadb_instance_stop'].disabled ? 'disabled' : 'warning'"
+                        :loading="statusOfWaitingResponse('middleware_mariadb_instance_stop') && action.row.id == scope.row.id"
+                        @click="handleTRClick($event, 'middleware_mariadb_instance_stop', scope.$index, scope.row)">停止</el-button>
+                <div class="ant-divider"></div>
+              </el-col>
+              <el-col :span="24">
+                <el-button
+                        type="text"
+                        :class="['flex', false ? 'disabled' : 'primary']"
+                        :loading="statusOfWaitingResponse('middleware_mariadb_backup_create') && action.row.id == scope.row.id"
+                        @click="handleTRClick($event, 'middleware_mariadb_backup_create', scope.$index, scope.row)">
+                  <span>备份</span>
+
+                </el-button>
+                <div class="ant-divider"></div>
+                <el-button
+                        type="text"
+                        :class="['flex', false ? 'disabled' : 'primary']"
+                        :loading="statusOfWaitingResponse('middleware_mariadb_restore_create') && action.row.id == scope.row.id"
+                        @click="handleTRClick($event, 'middleware_mariadb_restore_create', scope.$index, scope.row)">
+                  <span>恢复</span>
+                </el-button>
+                <div class="ant-divider"></div>
+                <el-button
+                        type="text"
+                        disabled
+                        :loading="statusOfWaitingResponse('') && action.row.id == scope.row.id"
+                        @click="handleTRClick($event, '', scope.$index, scope.row)">
+                  <span>实例列表</span>
+                </el-button>
+                <div class="ant-divider"></div>
+                <el-button
+                        type="text"
+                        :loading="statusOfWaitingResponse('go-to-page-history') && action.row.id == scope.row.id"
+                        @click="handleTRClick($event, 'go-to-page-history', scope.$index, scope.row)">
+                  <span>操作历史</span>
+                </el-button>
+                <div class="ant-divider"></div>
+                <el-button
+                        class="primary" type="text"
+                        :loading="statusOfWaitingResponse('instance_more_info') && action.row.id == scope.row.id"
+                        @click="handleTRClick($event, 'instance_more_info', scope.$index, scope.row)">
+                  <span>服务配置</span>
+                  <i :class="{'el-icon-arrow-right': true, 'expand': expandRows.indexOf(scope.row.id) > -1}"></i>
+                </el-button>
+                <!--<el-button type="text" -->
+                           <!--:class="['flex', false ? 'disabled' : 'primary']" -->
+                           <!--:loading="statusOfWaitingResponse('go-to-page-backup') && action.row.id == scope.row.id" -->
+                           <!--@click="handleTRClick($event, 'go-to-page-backup', scope.$index, scope.row)">-->
+                  <!--<span>原有恢复列表</span>-->
+                <!--</el-button>-->
+              </el-col>
+            </el-row>
           </template>
         </el-table-column>
         <el-table-column type="expand"
                          width="0">
           <template slot-scope="scope">
             <div class="row-expand">
-              <i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('instance_more_info_refresh') ? 'loading':'']"
-                 @click="handleTRClick($event, 'instance_more_info_refresh')"></i>
+              <!--<i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('instance_more_info_refresh') ? 'loading':'']"-->
+                 <!--@click="handleTRClick($event, 'instance_more_info_refresh')"></i>-->
               <el-form label-position="right" label-width="160px" inline size="mini" class="message-show">
-                <el-form-item label="数据库名称">
-                  {{instanceMoreInfo.dbName}}
-                </el-form-item>
-                <el-form-item label="状态">
-                  {{instanceMoreInfo.status}}
-                </el-form-item>
-                <el-form-item label="已用/总磁盘空间">
-                  {{instanceMoreInfo.diskUsage + '/' + instanceMoreInfo.diskTotal}}
-                </el-form-item>
-                <el-form-item label="CPU/内存">
-                  {{instanceMoreInfo.cpu + '核/' + instanceMoreInfo.memorySize}}
-                </el-form-item>
-                <el-form-item label="数据库地址:端口">
+                <el-form-item label="服务地址:">
                   <span class="secret">
                     <span>{{instanceMoreInfo.address}}</span><i v-if="instanceMoreInfo.address !== '---'"
-                          class="paas-icon-copy"
-                          v-clipboard:copy="instanceMoreInfo.address"
-                          v-clipboard:success="handleSuccessCopy"></i>
+                                                                class="paas-icon-copy"
+                                                                v-clipboard:copy="instanceMoreInfo.address"
+                                                                v-clipboard:success="handleSuccessCopy"></i>
                   </span><span>:</span><span class="secret">
                     <span>{{instanceMoreInfo.port}}</span><i v-if="instanceMoreInfo.port !== '---'"
-                          class="paas-icon-copy"
-                          v-clipboard:copy="instanceMoreInfo.port"
-                          v-clipboard:success="handleSuccessCopy"></i>
+                                                             class="paas-icon-copy"
+                                                             v-clipboard:copy="instanceMoreInfo.port"
+                                                             v-clipboard:success="handleSuccessCopy"></i>
                   </span>
                 </el-form-item>
-                <el-form-item label="用户名/密码">
+                <el-form-item label="服务类型:">
+                  {{scope.row.mariaStatus.image}}
+                </el-form-item>
+                <el-form-item label="数据库名称:">
+                  {{instanceMoreInfo.databaseName}}
+                </el-form-item>
+                <el-form-item label="实例状态:">
+                  {{instanceMoreInfo.status}}
+                </el-form-item>
+                <el-form-item label="CPU/内存:">
+                  {{instanceMoreInfo.cpu + '核/' + instanceMoreInfo.memory + 'G'}}
+                </el-form-item>
+                <el-form-item label="已用/总磁盘空间:">
+                  {{instanceMoreInfo.diskUsage + '/' + instanceMoreInfo.disk}}
+                </el-form-item>
+                <el-form-item label="用户名:">
                   <span class="secret">
-                    <span>{{instanceMoreInfo.userName}}</span><i v-if="instanceMoreInfo.userName !== '---'"
-                          class="paas-icon-copy"
-                          v-clipboard:copy="instanceMoreInfo.userName"
-                          v-clipboard:success="handleSuccessCopy"></i>
-                  </span><span>/</span><span class="secret">
-                    <span>{{instanceMoreInfo.password}}</span><i v-if="instanceMoreInfo.password !== '---'"
-                          class="paas-icon-copy"
-                          v-clipboard:copy="instanceMoreInfo.password"
-                          v-clipboard:success="handleSuccessCopy"></i>
+                    <span>{{instanceMoreInfo.userName}}</span>
+                    <i v-if="instanceMoreInfo.userName !== '---'"
+                      class="paas-icon-copy"
+                      v-clipboard:copy="instanceMoreInfo.userName"
+                      v-clipboard:success="handleSuccessCopy"></i>
                   </span>
+                </el-form-item>
+                <el-form-item label="密码:">
+                  <span class="secret">
+                    <span>{{instanceMoreInfo.password}}</span>
+                    <i v-if="instanceMoreInfo.password !== '---'"
+                     class="paas-icon-copy"
+                     v-clipboard:copy="instanceMoreInfo.password"
+                     v-clipboard:success="handleSuccessCopy"></i>
+                  </span>
+                </el-form-item>
+                <el-form-item label="备注:">
+                  {{scope.row.instanceDescribe}}
                 </el-form-item>
               </el-form>
             </div>
           </template>
         </el-table-column>
       </el-table>
-    </div>
+    </el-row>
 
     <el-dialog title="更改实例规格" :visible="action.name == 'middleware_mariadb_instance_update'"
                :close-on-click-modal="false"
@@ -198,6 +277,107 @@
         </div>
       </div>
     </el-dialog>
+
+    <el-dialog title="创建备份" :visible="action.name == 'middleware_mariadb_backup_create'"
+               width="30%"
+               :close-on-click-modal="false"
+               @close="handleDialogButtonClick('close')"
+               v-if="action.name && action.row"
+    >
+      <el-form :model="backupCreate" size="mini" >
+        <el-form-item label="备份描述:" prop="backupDescribe" label-width='120px' >
+          <el-col :span="18">
+            <el-input v-model="backupCreate.backupDescribe" size="mini" type="textarea" :maxlength='63'></el-input>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="可恢复范围:" prop="groupScope" label-width='120px'>
+          <el-radio-group v-model="backupCreate.groupScope" label=false size="mini">
+            <el-radio label='onlyGroup' size="small">仅团队内</el-radio>
+            <el-radio label='groupScope' size="small">所有与团队</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleDialogButtonClick('middleware_mariadb_backup_create')"
+                     :loading="statusOfWaitingResponse('middleware_mariadb_backup_create')">备&nbsp份</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="handleDialogButtonClick('close')">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="请选择备份进行恢复" :visible="action.name == 'middleware_mariadb_restore_create'"
+               width="50%"
+               :close-on-click-modal="false"
+               @close="handleDialogButtonClick('close')"
+               v-if="action.name && action.row"
+    >
+      <div class="main">
+        <el-table
+                :data="backupList"
+                style="width: 100%"
+        >
+          <el-table-column
+                  label="备份名称"
+                  headerAlign="center"
+                  minWidth="160">
+            <template slot-scope="scope">
+              <el-radio :label="scope.row.name"
+                        :value="selectedBackupName"
+                        @input="changeDefaultBackup"></el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column
+                  prop="description"
+                  label="备份描述"
+                  minWidth="160"
+                  headerAlign="center" align="center">
+          </el-table-column>
+          <el-table-column
+                  prop="operator"
+                  label="创建者"
+                  width="100"
+                  headerAlign="center" align="center">
+          </el-table-column>
+          <el-table-column
+                  prop="formattedStartTime"
+                  label="备份时间"
+                  width="160"
+                  headerAlign="center" align="center">
+          </el-table-column>
+          <el-table-column
+                  prop="size"
+                  label="备份大小"
+                  width="100"
+                  headerAlign="center" align="center">
+          </el-table-column>
+          <!--<el-table-column-->
+                  <!--prop="status"-->
+                  <!--label="状态"-->
+                  <!--width="100"-->
+                  <!--headerAlign="center" align="center">-->
+          <!--</el-table-column>-->
+        </el-table>
+
+      </div>
+
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary"
+                     @click="handleDialogButtonClick('middleware_mariadb_restore_create')"
+                     :loading="statusOfWaitingResponse('middleware_mariadb_restore_create')">恢&nbsp复</el-button>
+        </div>
+        <div class="item">
+          <el-button action="profile-dialog/cancel"
+                     @click="handleDialogButtonClick('close')">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 <style lang="scss">
@@ -206,8 +386,15 @@
   display: flex;
   flex-direction: column;
   max-width: 1500px;
-  background: white;
+  .operation {
+    padding: 16px 8px 24px 0px;
+    /*text-align: right;*/
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
   .header {
+    background: white;
     /*display: flex;*/
     font-size: 14px;
     /*margin-bottom: 5px;*/
@@ -250,16 +437,9 @@
         }
       }
     }
-    .operation {
-      padding: 6px 8px 3px 5px;
-      text-align: right;
-      /*flex: 1;*/
-      /*display: inline-flex;*/
-      /*align-items: center;*/
-      /*border-top: 1px solid #dfe4ed;*/
-    }
   }
   .list {
+    background: white;
     .el-table {
       .el-table__row {
         .el-button {
@@ -331,13 +511,42 @@
       }
     }
   }
+  .el-dialog {
+    .el-dialog__body {
+      .el-table__row {
+        .el-radio {
+          display: flex;
+          .el-radio__label {
+            white-space: normal;
+          }
+        }
+      }
+    }
+  }
+  > .main {
+    position: relative;
+    .el-table {
+      .el-icon-arrow-right {
+        transition: transform 0.2s ease-in-out;
+        &.rotate {
+          transform: rotate(180deg);
+        }
+      }
+    }
+  }
 }
 </style>
 <script>
   import bytes from 'bytes';
   import commonUtils from 'assets/components/mixins/common-utils';
-
+  import th from "../../../../../components/element-ui/src/locale/lang/th";
+  const STATUS_MAP = {
+    Complete: '成功',
+    Running: '中',
+    Failed: '失败'
+  };
   const MIDDLEWARE_NAME = 'mariadb';
+  const NO_INSTANCES = {'ins': 0, 'replicas': 0};
   module.exports = {
     mixins: [commonUtils],
     async created() {
@@ -393,6 +602,17 @@
         pageSize: 10,
         currentPage: 1,
 
+        backupCreate: {
+          backupDescribe: '',
+          groupScope: 'onlyGroup',
+        },
+        backupList: [],
+        selectedBackupName: null,
+        backupRestore: {
+          dataFrom: '',
+          clusterReference: '',
+        },
+
         tableSort: {
           prop: 'formattedCreateTime',
           order: 'descending',
@@ -400,6 +620,15 @@
       }
     },
     computed: {
+      selectedBackup() {
+        var result = null;
+        this.backupList.some(it => {
+          if (it.name == this.selectedBackupName) {
+            result = it;
+          }
+        });
+        return result;
+      }
     },
     watch: {
       '$storeHelper.clusterList': 'onClusterList',
@@ -441,14 +670,51 @@
           this.profileName = this.unProductionClusterList[0]['clusterName'];
         }
       },
+      async requestBackupList() {
+        this.backupList = [];
+        var middlewareService = this.action.row;
+        // console.log(row);
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_list, {
+          payload: {
+            clusterId: this.clusterInfo.id,
+            middlewareId: this.middlewareInfo.id,
+            name: middlewareService.name,
+            namespace: this.$storeHelper.groupInfo.tag
+          }
+        });
+        this.backupList = resContent['data'].filter(it => {
+          return it['records'] && it['records'].length > 0;
+        }).map(it => {
+          const record = it['records'][0];
+          record['name'] = it['name'];
+          record['description'] = it['describe'];
+          if (it['operatorRealName'] === null && it['operator'] === null) {
+            record['operator'] = '---';
+          } else {
+            record['operator'] = it['operatorRealName'] ? it['operatorRealName'] : it['operator'];
+          }
+          record['formattedStartTime'] = this.$utils.formatDate(record.timeStarted, 'yyyy-MM-dd hh:mm:ss');
+          record['status'] = `备份${STATUS_MAP[record['status']]}`;
+          record['size'] = record['size'] ? bytes(parseInt(record['size'])) : '---';
+          return record;
+        }).sort((pre, next) => {
+          return (pre['timeStarted'] - next['timeStarted']) * -1;
+        });
+        if (this.backupList.length > 0) {
+          this.selectedBackupName = this.backupList[0]['name'];
+        }
+       // console.log(this.backupList);
+      },
+      changeDefaultBackup(backupName) {
+        this.selectedBackupName = backupName;
+       // console.log(backupName);
+      },
       // check if all necessary data is get
       async checkBasicData4Middleware() {
         if (!this.profileName) {
           return;
         }
         await this.$storeHelper.checkBasicData4Middleware(this.profileName, MIDDLEWARE_NAME);
-//      console.log(this.$storeHelper.getClusterList());
-//      console.log(this.$storeHelper.currentMiddleware);
         const clusterId = this.$storeHelper.currentMiddleware['clusterId'];
         const middlewareId = this.$storeHelper.currentMiddleware['middlewareId'];
         if (!clusterId || !middlewareId) {
@@ -488,7 +754,7 @@
           return;
         }
         var {content, timeStamp} = await this.$net.requestPaasServer(
-          Object.assign({}, this.$net.URL_LIST.middleware_middleware_instance_info_basic, {
+          Object.assign({}, this.$net.URL_LIST.middleware_middleware_instance_info_maria, {
             withTimeStamp: true
           }), {
           payload: {
@@ -508,6 +774,23 @@
           }
           if(!it.instanceDescribe) {
             it.instanceDescribe = '---';
+          }
+
+          if (it.mariaStatus && it.mariaStatus.instances) {
+            let ins = it.mariaStatus.instances;
+            if (ins && ins.length > 0) {
+              let num = 0;
+              for (var i in ins){
+                if (ins[i].status === 'Running') {
+                  num++;
+                }
+              }
+              it.mariaStatus.ins = num;
+            } else {
+              it.mariaStatus.ins = 0;
+            }
+          } else {
+          	it.mariaStatus = NO_INSTANCES;
           }
         });
         this.instanceList = instanceList;
@@ -535,6 +818,16 @@
             };
             this.$router.push(this.$net.page['profile/middleware/mariadb/add']);
             break;
+	        case 'middleware_mariadb_backup_list':
+		        this.$storeHelper.dataTransfer = {
+			        from: this.$net.page['profile/middleware/mariadb'],
+			        data: {
+				        clusterInfo: this.clusterInfo,
+				        middlewareInfo: this.middlewareInfo,
+			        }
+		        };
+		        this.$router.push(this.$net.page['profile/middleware/mariadb/backup-list']);
+		        break;
           case 'refreshList':
             this.requestInstanceList();
             break;
@@ -561,7 +854,8 @@
 //              console.log(resContent);
               // updateTime is change when by this action
               await this.requestInstanceList();
-              this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              // this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              this.instanceMoreInfo = this.checkInstanceInfo(row.mariaStatus);
               if (!this.instanceMoreInfo) {
                 throw new Error('instanceMoreInfo is null');
               }
@@ -573,6 +867,77 @@
               this.hideWaitingResponse(action);
               this.action.name = null;
             }
+            break;
+          case 'middleware_mariadb_backup_create':
+
+            // if (this.backupList.length > 10) {
+            //   this.$message.warning('每个实例最多创建10个备份！如需创建新备份，可先删除老备份。');
+            //   return;
+            // }
+            
+            this.addToWaitingResponseQueue(action);
+            try {
+              await this.$confirm(`确定要备份mariadb服务 "${this.action.row.name}" 吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              let serviceType = '';
+              if (this.action.row.mariaStatus) {
+	              serviceType = this.action.row.mariaStatus.image;
+              }
+              await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_create, {
+                payload: {
+                  clusterId: this.action.row.clusterId,
+                  middlewareId: this.action.row.middlewareId,
+                  backupCluster: this.action.row.name,
+                  backupDescribe: this.backupCreate.backupDescribe,
+                  groupScope: this.backupCreate.groupScope,
+	                middlewareVersion: serviceType,
+                  namespace: this.action.row.namespace
+                }
+              });
+              this.$message.success(`已提交创建备份申请，请稍后刷新备份列表查看备份记录`);
+              this.hideWaitingResponse(action);
+              this.action.name = null;
+              this.backupCreate.backupDescribe = '';
+            } catch (err) {
+              console.log(err);
+              this.hideWaitingResponse(action);
+              this.action.name = null;
+            }
+            break;
+          case 'middleware_mariadb_restore_create':
+            try {
+              if (!this.selectedBackup) {
+                this.$message.error('请选择要操作的备份！');
+                return;
+              }
+              if (!this.selectedBackup.location) {
+                this.$message.error('未找到备份地址！');
+                return;
+              }
+              await this.$confirm(`确定要恢复备份 "${this.selectedBackup.name}" 吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_restore, {
+                payload: {
+                  clusterId: this.action.row.clusterId,
+                  middlewareId: this.action.row.middlewareId,
+                  dataFrom: this.selectedBackup.location,
+                  clusterReference: this.action.row.name,
+                  namespace: this.$storeHelper.groupInfo.tag
+                }
+              });
+              this.$message.success(`已提交恢复备份 "${this.selectedBackup.name}" ，稍后可在恢复历史中查看`);
+            } catch (err) {
+              console.log(err);
+            }
+            this.action.name = null;
             break;
           case 'close':
 //            console.log(this.action.name);
@@ -613,7 +978,7 @@
           Pending: '启动中',
           Running: '运行中',
           Failed: '启动失败',
-          Stopping: '停止',
+          Stopping: '停止中',
           Deleting: '删除中'
         };
 //        const cpu = parseInt(spec['resources']['requests']['cpu']);
@@ -634,6 +999,45 @@
         };
       },
 
+      checkInstanceInfo(resContent) {
+
+        if (resContent['instances'].length === 0) {
+          this.$message.error('无运行实例，请联系管理员！');
+          return null;
+        }
+        var instance = resContent['instances'][0];
+        instance['name'] = resContent['name'];
+        ['name', 'databaseName', 'address', 'port', 'user', 'password', 'status', 'cpu', 'diskUsage', 'disk', 'memory'].forEach(it => {
+          if (null == instance[it]) {
+            instance[it] = '---';
+          }
+        });
+
+        const statusMap = {
+          Pending: '启动中',
+          Running: '运行中',
+          Failed: '启动失败',
+          Stopping: '停止中',
+          Deleting: '删除中'
+        };
+
+        const memorySize = instance['memory'];
+        return {
+          name: instance['name'],
+          databaseName: instance['databaseName'],
+          address: instance['address'],
+          port: instance['port'],
+          userName: instance['user'],
+          password: instance['password'],
+          status: statusMap.hasOwnProperty(instance['status']) ? statusMap[instance['status']] : instance['status'],
+          cpu: instance['cpu'],
+          memorySize: memorySize,
+          memory: memorySize == '---' ? memorySize : parseInt(memorySize.substr(0, memorySize.length - 2)),
+          diskUsage: instance['diskUsage'] != '---' ? bytes(parseInt(instance['diskUsage'])) : '---',
+          disk: instance['disk'] != '---' ? bytes(parseInt(instance['disk'])) : '---'
+        };
+      },
+
       async handleTRClick(evt, action, index, row) {
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
@@ -650,11 +1054,11 @@
           case 'middleware_mariadb_instance_update':
             this.addToWaitingResponseQueue(action);
             try {
-              const instanceStatus = await this.getInstanceMoreInfo();
+              // const instanceStatus = await this.getInstanceMoreInfo();
+              const instanceStatus= this.checkInstanceInfo(row.mariaStatus);
               if (!instanceStatus) {
                 throw new Error('instanceMoreInfo is null');
               }
-              console.log(instanceStatus);
               this.newProps.cpu = this.constants.cpuList[0];
               if (this.constants.cpuList.indexOf(instanceStatus['cpu']) > -1) {
                 this.newProps.cpu = instanceStatus['cpu'];
@@ -727,7 +1131,8 @@
               this.$message.success(`mariadb实例 "${row.name}" 启动成功！`);
               this.hideWaitingResponse(action);
 //              this.expandRows = [];
-              this.instanceMoreInfo = await this.getInstanceMoreInfo();
+//               this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              this.instanceMoreInfo = this.checkInstanceInfo(row.mariaStatus);
               if (!this.instanceMoreInfo) {
                 throw new Error('instanceMoreInfo is null');
               }
@@ -750,7 +1155,8 @@
               });
               this.$message.success(`mariadb实例 "${row.name}" 停止成功！`);
               this.hideWaitingResponse(action);
-              this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              // this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              this.instanceMoreInfo = this.checkInstanceInfo(row.mariaStatus);
               if (!this.instanceMoreInfo) {
                 throw new Error('instanceMoreInfo is null');
               }
@@ -762,7 +1168,8 @@
           case 'instance_more_info_refresh':
             this.addToWaitingResponseQueue(action);
             try {
-              this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              // this.instanceMoreInfo = await this.getInstanceMoreInfo();
+              this.instanceMoreInfo = this.checkInstanceInfo(row.mariaStatus);
               if (!this.instanceMoreInfo) {
                 throw new Error('instanceMoreInfo is null');
               }
@@ -784,17 +1191,18 @@
             if (this.expandRows.indexOf(key) > -1) {
               this.expandRows.splice(this.expandRows.indexOf(key), 1);
             } else {
-              this.addToWaitingResponseQueue(action);
+              // this.addToWaitingResponseQueue(action);
               try {
-                this.instanceMoreInfo = await this.getInstanceMoreInfo();
+                // this.instanceMoreInfo = await this.getInstanceMoreInfo();
+                this.instanceMoreInfo = this.checkInstanceInfo(row.mariaStatus);
                 if (!this.instanceMoreInfo) {
                   throw new Error('instanceMoreInfo is null');
                 }
                 this.expandRows = [key];
-                this.hideWaitingResponse(action);
+                // this.hideWaitingResponse(action);
               } catch(err) {
                 console.log(err);
-                this.hideWaitingResponse(action);
+                // this.hideWaitingResponse(action);
               }
             }
             break;
@@ -808,6 +1216,31 @@
               }
             };
             this.$router.push(this.$net.page['profile/middleware/mariadb/backup']);
+            break;
+          case 'go-to-page-history':
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page['profile/middleware/mariadb'],
+              data: {
+                clusterInfo: this.clusterInfo,
+                middlewareInfo: this.middlewareInfo,
+                instanceInfo: row
+              }
+            };
+            this.$router.push(this.$net.page['profile/middleware/mariadb/history']);
+            break;
+          case 'middleware_mariadb_backup_create':
+            this.action.name = action;
+            break;
+          case 'middleware_mariadb_restore_create':
+            this.action.name = action;
+            try {
+              await this.requestBackupList();
+            } catch(err) {
+              console.log(err);
+            }
+            break;
+          default:
+            // console.log(action);
             break;
         }
       },

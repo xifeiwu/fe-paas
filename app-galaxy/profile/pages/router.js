@@ -48,9 +48,11 @@ import Middleware from './middleware/main.vue';
 import MiddlewareMariadb from './middleware/mariadb/index.vue';
 import MiddlewareMariadbAdd from './middleware/mariadb/add.vue';
 import MiddlewareMariadbBackup from './middleware/mariadb/backup.vue';
+import MiddlewareMariadbHistory from './middleware/mariadb/history.vue';
 import middlewareRedis from './middleware/redis/index.vue';
 import middlewareRedisAdd from './middleware/redis/add.vue';
 import middlewareRedisModify from './middleware/redis/add.vue';
+import MiddlewareMariadbBackupList from './middleware/mariadb/backup-list.vue';
 
 // config-server
 import ConfigServerMain from './config-server/main.vue';
@@ -249,16 +251,24 @@ class Helper {
       component: Middleware,
       children: [{
         path: 'mariadb',
-        name: 'mariadb实例',
+        name: 'Mariadb服务',
         component: MiddlewareMariadb,
       }, {
         path: 'mariadb/add',
-        name: '申请实例',
+        name: '申请MariaDB服务',
         component: MiddlewareMariadbAdd,
       }, {
         path: 'mariadb/modify',
-        name: '申请实例',
+        name: '修改MariaDB服务',
         component: MiddlewareMariadbAdd,
+      }, {
+        path: 'mariadb/history',
+        name: '操作历史',
+        component: MiddlewareMariadbHistory,
+      }, {
+	      path: 'mariadb/backup-list',
+	      name: '备份列表',
+	      component: MiddlewareMariadbBackupList,
       }, {
         path: 'mariadb/backup',
         name: '备份与恢复',
