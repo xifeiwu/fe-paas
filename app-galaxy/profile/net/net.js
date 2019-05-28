@@ -174,7 +174,7 @@ class Net extends NetBase {
       },
       // 获取自定义镜像列表
       'custom_image_list': {
-        path: '/image/query/tag',
+        path: '/image/queryLastTenByAppIdAndSpaceId',
         method: 'post',
         level: 'LEVEL_WARNING'
       },

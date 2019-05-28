@@ -1224,6 +1224,7 @@
         try {
           const groupTag = this.groupInfo.tag;
           const appId = this.formData.appId;
+          const spaceId = this.formData.spaceId;
 
           var payload = {};
           var resContent = null;
@@ -1232,7 +1233,8 @@
             this.imageInfoFromNet['customImageList'] = [];
             payload = {
               groupTag,
-              appId
+              appId,
+              spaceId
             };
             resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.custom_image_list, {
               payload
