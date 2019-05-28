@@ -287,7 +287,7 @@
       <el-form :model="backupCreate" size="mini" >
         <el-form-item label="备份描述:" prop="backupDescribe" label-width='120px' >
           <el-col :span="18">
-            <el-input v-model="backupCreate.backupDescribe" size="mini" type="textarea" :maxlength='64'></el-input>
+            <el-input v-model="backupCreate.backupDescribe" size="mini" type="textarea" :maxlength='63'></el-input>
           </el-col>
         </el-form-item>
         <el-form-item label="可恢复范围:" prop="groupScope" label-width='120px'>

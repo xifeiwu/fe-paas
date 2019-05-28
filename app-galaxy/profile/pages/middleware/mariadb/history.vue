@@ -40,7 +40,7 @@
                     @input="backupNameChange">
                 </el-radio>
                 </strong>
-                <small>描述：scope.row.describe</small>
+                <small>描述：{{scope.row.describe}}</small>
               </template>
             </el-table-column>
             <!--<el-table-column-->
