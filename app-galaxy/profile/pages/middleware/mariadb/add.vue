@@ -25,7 +25,7 @@
           <el-input v-model="formData.name" placeholder="小写字符，数字，中划线，不能以中划线开始或结尾。2-256个字符" v-else></el-input>
         </el-form-item>
         <el-form-item label="运行环境" prop="clusterId" class="name">
-          <el-radio-group v-model="formData.clusterId">
+          <el-radio-group v-model="formData.clusterId" :disabled="forModify">
             <el-radio v-for="item in clusterList" :label="item.id" :key="item.id">
               {{item.description}}
             </el-radio>
