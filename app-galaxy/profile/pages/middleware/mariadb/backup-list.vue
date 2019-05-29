@@ -35,7 +35,9 @@
     <el-table :data="backupListByPage"
               stripe
               :height="heightOfTable">
-      <el-table-column label="备份名称" prop="backupName" headerAlign="center" align="center" width="250">
+      <el-table-column label="备份名称" prop="backupName" headerAlign="center" align="center" minWidth="220" width="250">
+      </el-table-column>
+      <el-table-column label="备份描述" prop="describe" headerAlign="center" align="center" width="220">
       </el-table-column>
       <el-table-column label="所属服务" prop="serviceName" headerAlign="center" align="center" width="180">
       </el-table-column>
