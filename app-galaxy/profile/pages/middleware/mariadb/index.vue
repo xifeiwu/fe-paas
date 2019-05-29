@@ -791,6 +791,9 @@
             } else {
               it.mariaStatus.ins = 0;
             }
+            if (it.mariaStatus.status === '运行失败') {
+              it.mariaStatus.status = it.mariaStatus.status + "(" + it.mariaStatus.instances[0].conditionsMessage + ")";
+            }
           } else {
           	it.mariaStatus = NO_INSTANCES;
           }
