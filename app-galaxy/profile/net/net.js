@@ -180,7 +180,11 @@ class Net extends NetBase {
       },
       // 根据服务id获得最近（10次）部署工单
       'lastest_work_order_by_service': {
-        path: '/workOrderDeploy/last10/workorder/{applicationConfigId}',
+        path: '/workOrderDeploy/last10/workorder/{serviceId}',
+        method: 'get'
+      },
+      'latest_deploy_log_by_work_order': {
+        path: '/deployLog/10/{workOrderId}/{serviceId}',
         method: 'get'
       },
 

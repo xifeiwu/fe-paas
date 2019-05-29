@@ -329,8 +329,8 @@
     >
       <div class="assist">
         <i class="paas-icon-fa-home"></i>
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item v-for="item in rollingUpStatus.breadcrumbList">
+        <el-breadcrumb separator-class="el-icon-arrow-right">
+          <el-breadcrumb-item v-for="(item, index) in rollingUpStatus.breadcrumbList" :key="index">
             <span @click="handleDialogRollingUp($event, 'breadcrumb-click', item)">{{item.name}}</span>
           </el-breadcrumb-item>
         </el-breadcrumb>
@@ -351,8 +351,8 @@
                 <el-button
                         size="small"
                         type="text"
-                        :loading="statusOfWaitingResponse('go-to-page-deploy-history') && rollingUpStatus.workOrderSelected.id == scope.row.id"
-                        @click="handleDialogRollingUp($event, 'go-to-page-deploy-history', scope.row, scope.$index)"
+                        :loading="statusOfWaitingResponse('go-to-page-deploy-history') && rollingUpStatus.workOrderSelected.id == scope.id"
+                        @click="handleDialogRollingUp($event, 'go-to-page-deploy-history', scope)"
                         :class="'primary'">
                   查看工单部署历史
                 </el-button>
@@ -365,24 +365,24 @@
                   :key="rollingUpStatus.pageList[1]['key']"
                   v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[1]['key']"
           >
-            <custom-table-column show="time" label="部署时间"></custom-table-column>
-            <custom-table-column show="user" label="部署人"></custom-table-column>
-            <custom-table-column show="image" label="部署镜像"></custom-table-column>
+            <custom-table-column show="formattedCreateTime" label="部署时间"></custom-table-column>
+            <custom-table-column show="userName" label="部署人"></custom-table-column>
+            <custom-table-column show="fullImage" label="部署镜像"></custom-table-column>
             <custom-table-column show="operation" label="操作">
               <template slot-scope="scope">
                 <el-button
                         size="small"
                         type="text"
-                        :loading="statusOfWaitingResponse('go-to-page-deploy-log') && rollingUpStatus.deployHistorySelected.id == scope.row.id"
-                        @click="handleDialogRollingUp($event, 'go-to-page-deploy-log', scope.row, scope.$index)"
+                        :loading="statusOfWaitingResponse('go-to-page-deploy-log') && rollingUpStatus.deployHistorySelected.id == scope.id"
+                        @click="handleDialogRollingUp($event, 'go-to-page-deploy-log', scope)"
                         :class="'primary'">
-                  查看工单部署日志
+                  查看部署日志
                 </el-button>
                 <el-button
                         size="small"
                         type="text"
-                        :loading="statusOfWaitingResponse('deploy-image') && rollingUpStatus.deployHistorySelected.id == scope.row.id"
-                        @click="handleDialogRollingUp($event, 'deploy-image', scope.row, scope.$index)"
+                        :loading="statusOfWaitingResponse('deploy-image') && rollingUpStatus.deployHistorySelected.id == scope.id"
+                        @click="handleDialogRollingUp($event, 'deploy-image', scope)"
                         :class="'primary'">
                   部署镜像
                 </el-button>
@@ -933,6 +933,7 @@
 
       // action handler for dialog rolling_up related
       async handleDialogRollingUp(evt, action, data) {
+        var resContent = null
         switch (action) {
           case 'breadcrumb-click':
             this.rollingUpStatus.breadcrumbList = [];
@@ -943,6 +944,19 @@
             this.rollingUpStatus.currentPageKey = data['key'];
             break;
           case 'go-to-page-deploy-history':
+            // 工单部署日志
+            this.rollingUpStatus.deployHistoryList = [];
+            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.latest_deploy_log_by_work_order, {
+              params: {
+                serviceId: this.actionNew.row.id,
+                workOrderId: data.workOrderDeployId
+              }
+            });
+            this.rollingUpStatus.deployHistoryList = resContent.map(it => {
+              it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+              it.userName = it.userId;
+              return it;
+            });
             this.rollingUpStatus.workOrderSelected = data;
             this.handleDialogRollingUp(evt, 'breadcrumb-click', this.rollingUpStatus.pageList.find(it => it.key === 'deploy-history'));
             break;
@@ -1644,7 +1658,7 @@
               this.rollingUpStatus.workOrderList = [];
                 resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.lastest_work_order_by_service, {
                 params: {
-                  applicationConfigId: row.id
+                  serviceId: row.id
                 }
               });
               this.rollingUpStatus.workOrderList = resContent.map(it => {
