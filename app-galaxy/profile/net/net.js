@@ -583,7 +583,8 @@ class Net extends NetBase {
       // 创建备份
       'middleware_mariadb_backup_create': {
         path: '/middleware/createMiddlewareMariaDBBackup',
-        method: 'post'
+        method: 'post',
+        level: 'LEVEL_IGNORE'
       },
       // 删除备份
       'middleware_mariadb_backup_delete': {

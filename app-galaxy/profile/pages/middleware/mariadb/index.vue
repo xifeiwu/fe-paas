@@ -889,7 +889,7 @@
               if (this.action.row.mariaStatus) {
 	              serviceType = this.action.row.mariaStatus.image;
               }
-              await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_create, {
+              let resp = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_create, {
                 payload: {
                   clusterId: this.action.row.clusterId,
                   middlewareId: this.action.row.middlewareId,
@@ -900,12 +900,20 @@
                   namespace: this.action.row.namespace
                 }
               });
-              this.$message.success(`已提交创建备份申请，请稍后刷新备份列表查看备份记录`);
-              this.hideWaitingResponse(action);
-              this.action.name = null;
-              this.backupCreate.backupDescribe = '';
+              console.log(resp);
+              if (resp.type === 'error') {
+                this.$message.warning(resp.message);
+                this.hideWaitingResponse(action);
+                this.action.name = null;
+              } else {
+                this.$message.success(`已提交创建备份申请，请稍后刷新备份列表查看备份记录`);
+                this.hideWaitingResponse(action);
+                this.action.name = null;
+                this.backupCreate.backupDescribe = '';
+              }
             } catch (err) {
               console.log(err);
+              this.$message.warning(err.code);
               this.hideWaitingResponse(action);
               this.action.name = null;
             }
@@ -926,7 +934,7 @@
                 type: 'warning',
                 dangerouslyUseHTMLString: true
               });
-              await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_restore, {
+              let resp = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_backup_restore, {
                 payload: {
                   clusterId: this.action.row.clusterId,
                   middlewareId: this.action.row.middlewareId,
@@ -935,7 +943,11 @@
                   namespace: this.$storeHelper.groupInfo.tag
                 }
               });
-              this.$message.success(`已提交恢复备份 "${this.selectedBackup.name}" ，稍后可在恢复历史中查看`);
+              if (resp.type === 'error') {
+                this.$message.warning(resp.message);
+              } else {
+                this.$message.success(`已提交恢复备份 "${this.selectedBackup.name}" ，稍后可在恢复历史中查看`);
+              }
             } catch (err) {
               console.log(err);
             }
