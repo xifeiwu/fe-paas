@@ -1358,11 +1358,12 @@
                 serviceDesc: this.getVersionDescription(),
                 forceClone: false
               });
+              this.closeDialog();
               await this.serviceDeploy({
                 id: row.id,
                 appId: row.appId,
                 spaceId: this.profileInfo.id,
-                forceClone: this.actionNew.forceClone,
+                forceClone: this.actionNew.data.forceClone,
               }, action);
             } catch (err) {
               console.log(err);
