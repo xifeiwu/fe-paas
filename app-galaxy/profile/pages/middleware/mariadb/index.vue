@@ -1194,6 +1194,7 @@
               setTimeout(() => {
                 this.hideWaitingResponse(action);
               }, 1000);
+              this.expandRows = [];
             } catch(err) {
               console.log(err);
               setTimeout(() => {
