@@ -328,6 +328,7 @@
                top="80px"
     >
       <div class="assist">
+        <i class="paas-icon-fa-home"></i>
         <el-breadcrumb separator="/">
           <el-breadcrumb-item v-for="item in rollingUpStatus.breadcrumbList">
             <span @click="handleDialogRollingUp($event, 'breadcrumb-click', item)">{{item.name}}</span>
@@ -342,9 +343,9 @@
                   :key="rollingUpStatus.pageList[0]['key']"
                   v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[0]['key']"
           >
-            <custom-table-column show="name" label="审批工单名称"></custom-table-column>
-            <custom-table-column show="user" label="申请人"></custom-table-column>
-            <custom-table-column show="time" label="申请时间"></custom-table-column>
+            <custom-table-column show="workOrderDeployName" label="审批工单名称"></custom-table-column>
+            <custom-table-column show="creatorName" label="申请人"></custom-table-column>
+            <custom-table-column show="formattedCreateTime" label="申请时间"></custom-table-column>
             <custom-table-column show="operation" label="操作">
               <template slot-scope="scope">
                 <el-button
@@ -414,6 +415,7 @@
         height: 70%;
         .el-dialog__header {
           padding: 3px 8px;
+          margin-bottom: 0px;
           .el-dialog__title {
             font-size: 14px;
           }
@@ -423,6 +425,33 @@
         }
         .el-dialog__body {
           padding: 0px;
+        }
+      }
+
+      .assist {
+        text-align: left;
+        .paas-icon-fa-home {
+          line-height: 24px;
+          margin: 0px 2px;
+        }
+        .el-breadcrumb {
+          font-size: 14px;
+          line-height: 24px;
+          display: inline-block;
+          .el-breadcrumb__item {
+            .el-breadcrumb__separator {
+              margin: 0px;
+            }
+            .el-breadcrumb__inner, .el-breadcrumb__inner a {
+              font-weight: normal;
+              color: #409EFF
+            }
+            &:last-child {
+              .el-breadcrumb__inner, .el-breadcrumb__inner a {
+                color: #5a5e66;
+              }
+            }
+          }
         }
       }
     }
@@ -784,17 +813,7 @@
           }],
 
           workOrderSelected: {},
-          workOrderList: [{
-            id: 0,
-            name: '部署测试',
-            user: '常帅',
-            time: '2019-04-23',
-          }, {
-            id: 1,
-            name: '部署测试',
-            user: '常帅',
-            time: '2019-04-23',
-          }],
+          workOrderList: [],
 
           deployHistorySelected: {},
           deployHistoryList: [{
@@ -911,6 +930,8 @@
           console.log(err);
         }
       },
+
+      // action handler for dialog rolling_up related
       async handleDialogRollingUp(evt, action, data) {
         switch (action) {
           case 'breadcrumb-click':
@@ -1618,8 +1639,19 @@
             }
             break;
           case 'rolling_up':
-            this.addToWaitingResponseQueue(action);
             try {
+              this.addToWaitingResponseQueue(action);
+              this.rollingUpStatus.workOrderList = [];
+                resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.lastest_work_order_by_service, {
+                params: {
+                  applicationConfigId: row.id
+                }
+              });
+              this.rollingUpStatus.workOrderList = resContent.map(it => {
+                it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+                return it;
+              });
+//              console.log(this.rollingUpStatus.workOrderList);
               this.handleDialogRollingUp(null, 'breadcrumb-click', this.rollingUpStatus.pageList[0]);
               await this.openDialog(action, {
                 deployHistoryList: [],

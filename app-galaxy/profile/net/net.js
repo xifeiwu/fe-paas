@@ -178,6 +178,11 @@ class Net extends NetBase {
         method: 'post',
         level: 'LEVEL_WARNING'
       },
+      // 根据服务id获得最近（10次）部署工单
+      'lastest_work_order_by_service': {
+        path: '/workOrderDeploy/last10/workorder/{applicationConfigId}',
+        method: 'get'
+      },
 
       // 更改实例数
       'service_update_instance_num': {
