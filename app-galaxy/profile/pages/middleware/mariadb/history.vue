@@ -117,7 +117,7 @@
             </el-table-column>
             <el-table-column
                     prop="formattedStartTime"
-                    label="开始时间"
+                    label="操作时间"
                     width="100"
                     sortable
                     headerAlign="center" align="center">
@@ -417,7 +417,7 @@
               const record = it['records'][0];
               record['name'] = it['name'];
               record['operatorRealName'] = it['operatorRealName'];
-              record['status'] = `还原${STATUS_MAP[record['status']]}`;
+              record['status'] = `恢复${STATUS_MAP[record['status']]}`;
               record['formattedStartTime'] = this.$utils.formatDate(record.timeStarted, 'yyyy-MM-dd hh:mm:ss');
               record['formattedStartTimeYMD'] = this.$utils.formatDate(record.timeStarted, 'yyyy-MM-dd');
               record['formattedStartTimeHMS'] = this.$utils.formatDate(record.timeStarted, 'hh:mm:ss');
