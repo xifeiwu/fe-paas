@@ -775,7 +775,7 @@
             it.remainingDays = this.$utils.getDaysInterval(timeStamp, parseInt(it.expiredTime));
           }
           if(!it.instanceDescribe) {
-            it.instanceDescribe = '---';
+            it.instanceDescribe = '';
           }
 
           if (it.mariaStatus && it.mariaStatus.instances) {

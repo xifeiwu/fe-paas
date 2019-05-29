@@ -459,7 +459,7 @@
           }
 
           if(!it.instanceDescribe) {
-            it.instanceDescribe = '---';
+            it.instanceDescribe = '';
           }
         });
         this.instanceList = instanceList;
