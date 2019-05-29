@@ -826,7 +826,14 @@
             time: '2019-04-23',
             user: '吴西飞',
             image: 'harbor/finupgroup.com/onetran/uaa:production',
-          }]
+          }],
+
+          deployLogStatus: {
+            visible: false,
+            full: false,
+            showLoading: false,
+            iconExpand: true
+          }
         },
 
         deployLogs: [],
@@ -961,8 +968,19 @@
             this.handleDialogRollingUp(evt, 'breadcrumb-click', this.rollingUpStatus.pageList.find(it => it.key === 'deploy-history'));
             break;
           case 'go-to-page-deploy-log':
-            this.rollingUpStatus.deployHistorySelected = data;
-            this.handleDialogRollingUp(evt, 'breadcrumb-click', this.rollingUpStatus.pageList.find(it => it.key === 'deploy-log'));
+            try {
+              this.rollingUpStatus.deployHistorySelected = data;
+              console.log(data);
+              this.serviceDeploy({
+                logName: data.logName,
+                logPath: data.logPath,
+                logType: "history",
+                offset: 0
+              }, 'get_deploy_history');
+              this.handleDialogRollingUp(evt, 'breadcrumb-click', this.rollingUpStatus.pageList.find(it => it.key === 'deploy-log'));
+            } catch (err) {
+              console.log(err);
+            }
             break;
         }
       },
@@ -1150,7 +1168,7 @@
       },
 
       // 部署服务
-      async serviceDeploy(payload, type) {
+      async serviceDeploy(payload, action) {
         // request and show log
         const filterReg = /^ *\[( *(?:INFO|WARNING|ERROR) *)\](.*)$/;
         const parseDeployLog = (logs) => {
@@ -1207,7 +1225,7 @@
         // recursive function to fetch log from server with options {logName, logPath, offset}
         const getDeployLog = async (options) => {
           // stop request deploy log when the window is closed
-          if (!this.dialogForLogStatus.visible) {
+          if (!dialogStatus.visible) {
             return Promise.reject('弹框关闭');
           }
           const resContent = await this.$net.serviceGetDeployLog(options);
@@ -1220,10 +1238,42 @@
           }
         };
 
-        const urlDesc = type == 'quick_deploy' ? this.$net.URL_LIST.service_quick_deploy : this.$net.URL_LIST.service_deploy;
-        const resContent = await this.$net.requestPaasServer(urlDesc, {
-          payload
-        });
+        var resContent = null;
+        var dialogStatus = {
+          visible: false,
+          full: false,
+          showLoading: false,
+          iconExpand: true
+        };
+        switch (action) {
+          case 'service_deploy':
+            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_deploy, {
+              payload
+            });
+            dialogStatus = this.dialogForLogStatus;
+            //每次点击部署,过期时间自动加1
+            this.expiredDaysAutoAdd();
+            break;
+          case 'quick_deploy':
+            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_quick_deploy, {
+              payload
+            });
+            dialogStatus = this.dialogForLogStatus;
+            //每次点击部署,过期时间自动加1
+            this.expiredDaysAutoAdd();
+            break;
+          case 'get_deploy_history':
+            resContent = {
+              orchestration: {
+                logName: payload.logName,
+                logPath: payload.logPath,
+                offset: 0,
+                moreData: true
+              }
+            };
+            dialogStatus = this.rollingUpStatus.deployLogStatus;
+            break;
+        }
         // 如果应用没有填写：应用维护者、LOB、Scrum，则不能进行部署、重启（TODO: 这是第二层拦截，第一层拦截如果稳定了，可以删除该逻辑）
         if (resContent === 'SVR_APP_HAS_NO_MAINTAIN_INFO') {
           await this.$confirm(
@@ -1242,41 +1292,69 @@
           this.$router.push(this.$net.page['profile/app/update']);
           return Promise.reject('SVR_APP_HAS_NO_MAINTAIN_INFO');
         }
-        //每次点击部署,过期时间自动加1
-        this.expiredDaysAutoAdd();
         if (resContent.hasOwnProperty('orchestration')) {
           this.deployLogs = [];
-          this.dialogForLogStatus.visible = true;
-          this.dialogForLogStatus.showLoading = true;
+          dialogStatus.visible = true;
+          dialogStatus.showLoading = true;
           var orchestration = resContent['orchestration'];
           var moreData = orchestration && orchestration['moreData'];
 
           var deployLogQueue = [];
           var preItem = null, nextItem = null;
-          const tagUpdateDeployLog = setInterval(() => {
-            if (!moreData && deployLogQueue.length === 0) {
-              clearInterval(tagUpdateDeployLog);
-              return;
-            }
-            nextItem = deployLogQueue.shift();
-            if (!nextItem) {
-              return;
-            }
-            if (nextItem['TYPE'] === 'DOWNLOAD' && preItem['TYPE'] === 'DOWNLOAD') {
-              this.deployLogs.pop();
-              this.deployLogs.push(nextItem['LOG']);
-            } else {
-              this.deployLogs.push(nextItem['LOG']);
-            }
-            preItem = nextItem;
-            // scroll after render finish
-            this.$nextTick(() => {
-              if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
-                const dialogForDeployLog = this.$refs['dialogForDeployLog'];
-                dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+          var tagUpdateDeployLog = null;
+          // logType === history: jump all download-record; small time-interval
+          if (action === 'get_deploy_history') {
+            tagUpdateDeployLog = setInterval(() => {
+              if (!moreData && deployLogQueue.length === 0) {
+                clearInterval(tagUpdateDeployLog);
+                return;
               }
-            });
-          }, 5);
+              while (deployLogQueue.length > 0) {
+                nextItem = deployLogQueue.shift();
+                if (!nextItem) {
+                  return;
+                }
+                if (nextItem['TYPE'] === 'DOWNLOAD' && preItem['TYPE'] === 'DOWNLOAD') {
+                } else {
+                  this.deployLogs.push(nextItem['LOG']);
+                  // console.log(this.deployLogs);
+                }
+                preItem = nextItem;
+                // scroll after render finish
+                this.$nextTick(() => {
+                  if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
+                    const dialogForDeployLog = this.$refs['dialogForDeployLog'];
+                    dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+                  }
+                });
+              }
+            }, 10);
+          } else {
+            tagUpdateDeployLog = setInterval(() => {
+              if (!moreData && deployLogQueue.length === 0) {
+                clearInterval(tagUpdateDeployLog);
+                return;
+              }
+              nextItem = deployLogQueue.shift();
+              if (!nextItem) {
+                return;
+              }
+              if (nextItem['TYPE'] === 'DOWNLOAD' && preItem['TYPE'] === 'DOWNLOAD') {
+                this.deployLogs.pop();
+                this.deployLogs.push(nextItem['LOG']);
+              } else {
+                this.deployLogs.push(nextItem['LOG']);
+              }
+              preItem = nextItem;
+              // scroll after render finish
+              this.$nextTick(() => {
+                if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
+                  const dialogForDeployLog = this.$refs['dialogForDeployLog'];
+                  dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+                }
+              });
+            }, 5);
+          }
 
           while(moreData) {
             await new Promise((resolve) => {
@@ -1287,12 +1365,12 @@
               logPath: orchestration.logPath,
               offset: null == orchestration.offset ? 0 : orchestration.offset,
               // 正在部署中的日志
-              logType: 'deployLog'
+              logType: payload.logType
             });
-//          console.log(orchestration);
+            // console.log(orchestration);
             if (orchestration && orchestration.hasOwnProperty('logList')) {
               // stop showLoading when orchestration.log is not null
-              this.dialogForLogStatus.showLoading = false;
+              dialogStatus.showLoading = false;
               deployLogQueue = deployLogQueue.concat(orchestration['logList']);
             }
             moreData = orchestration && orchestration['moreData'];
@@ -1576,6 +1654,7 @@
                 appId: row.appId,
                 spaceId: this.profileInfo.id,
                 forceClone: this.actionNew.data.forceClone,
+                logType: 'deployLog'
               }, action);
             } catch (err) {
               console.log(err);
@@ -1645,6 +1724,7 @@
                 id: row.id,
                 appId: row.appId,
                 spaceId: this.profileInfo.id,
+                logType: 'deployLog'
               }, action);
             } catch (err) {
               console.log(err);
