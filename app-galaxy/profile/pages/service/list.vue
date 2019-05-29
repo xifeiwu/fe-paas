@@ -522,7 +522,12 @@
           case this.$net.page['profile/app/update']:
             this.filterKey = this.$storeHelper.getUserConfig('service.filterKey');
             break;
+          default:
+            this.onFilterKey(this.filterKey);
+            break;
         }
+      } else {
+        this.onFilterKey(this.filterKey);
       }
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer) {
@@ -573,6 +578,7 @@
           refresh: true,
           currentPage: 1
         });
+        this.filterKey = '';
       },
       'currentPage': function (page) {
         this.getServiceListByPage({});
@@ -580,14 +586,7 @@
           currentPage: page
         });
       },
-      'filterKey': function (value) {
-        this.getServiceListByPage({
-          currentPage: 1
-        });
-        this.$storeHelper.setUserConfig('service', {
-          filterKey: value
-        });
-      },
+      'filterKey': 'onFilterKey',
       // changed by el-tab
       profileName(profileName) {
 //        console.log(`change profileName to ${profileName}`);
@@ -694,6 +693,14 @@
           this.heightOfTable = this.$el.clientHeight - headerHeight;
         } catch(err) {
         }
+      },
+      onFilterKey (value) {
+        this.getServiceListByPage({
+          currentPage: 1
+        });
+        this.$storeHelper.setUserConfig('service', {
+          filterKey: value
+        });
       },
       onProfileList(profileList) {
         if (!Array.isArray(profileList) || profileList.length === 0) {
