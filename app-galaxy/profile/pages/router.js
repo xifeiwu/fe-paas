@@ -275,7 +275,7 @@ class Helper {
         component: MiddlewareMariadbBackup,
       }, {
         path: 'redis',
-        name: 'redis实例',
+        name: 'Redis实例',
         component: middlewareRedis
       }, {
         path: 'redis/add',

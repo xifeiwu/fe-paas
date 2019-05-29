@@ -112,14 +112,14 @@ class Net extends NetBase {
         '/2.x/openShift/mariaDB': {
           router: this.page['profile/middleware/mariadb'],
           icon: 'paas-icon-mysql',
-          name: 'mariadb(非生产)',
+          name: 'Mariadb(非生产)',
           beta: true
         },
         // redis中间件
         '/2.x/openShift/redis': {
           router: this.page['profile/middleware/redis'],
           icon: 'paas-icon-redis',
-          name: 'redis',
+          name: 'Redis',
           beta: true
         },
         // 管理后台

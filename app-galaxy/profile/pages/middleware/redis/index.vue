@@ -29,7 +29,7 @@
                 :height="heightOfTable">
         <el-table-column label="实例ID" prop="id" headerAlign="center" align="center" width="60">
         </el-table-column>
-        <el-table-column label="redis名称" prop="name" headerAlign="center" align="center" minWidth="120">
+        <el-table-column label="Redis名称" prop="name" headerAlign="center" align="center" minWidth="120">
         </el-table-column>
         <el-table-column label="创建者" prop="realName" headerAlign="center" align="center" width="80">
         </el-table-column>

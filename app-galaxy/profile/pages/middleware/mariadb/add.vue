@@ -31,7 +31,7 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="mariadb版本" prop="versionId" class="name" v-if="!forModify">
+        <el-form-item label="Mariadb版本" prop="versionId" class="name" v-if="!forModify">
           <el-radio-group v-model="formData.versionId">
             <el-radio v-for="item in middlewareVersionList" :label="item.id" :key="item.id">
               {{item.middlewareVersion}}

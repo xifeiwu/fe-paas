@@ -34,6 +34,7 @@
     
     <el-table :data="backupListByPage"
               stripe
+              :default-sort = "{prop: 'formattedStartTime', order: 'descending'}"
               :height="heightOfTable">
       <el-table-column label="备份名称" prop="backupName" headerAlign="center" align="center" minWidth="220" width="250">
       </el-table-column>
@@ -209,9 +210,11 @@
 		    } catch(err) {
 		    }
 	    },
-     
-	    onSelectEnv() {
-	    	this.updateBackupListByPage();
+
+      onSelectEnv() {
+        this.totalSize = this.backupList.length;
+        this.currentPage = 1;
+        this.updateBackupListByPage();
       },
 	
 	    async updateBackupListByPage(refresh) {

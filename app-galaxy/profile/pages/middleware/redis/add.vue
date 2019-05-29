@@ -15,7 +15,7 @@
           <div v-if="forModify">{{formData.name}}</div>
           <el-input v-model="formData.name" placeholder="小写字符，数字，中划线，不能以中划线开始或结尾。不能超过63个字符" :maxlength=63 v-else></el-input>
         </el-form-item>
-        <el-form-item label="redis版本" prop="versionId" class="name">
+        <el-form-item label="Redis版本" prop="versionId" class="name">
           <el-radio-group v-model="formData.versionId">
             <el-radio v-for="item in middlewareVersionList" :label="item.id" :key="item.id">
               {{item.middlewareVersion}}
