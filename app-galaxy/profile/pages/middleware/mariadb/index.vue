@@ -292,12 +292,12 @@
             <el-input v-model="backupCreate.backupDescribe" size="mini" type="textarea" :maxlength='63'></el-input>
           </el-col>
         </el-form-item>
-        <el-form-item label="可恢复范围:" prop="groupScope" label-width='120px'>
-          <el-radio-group v-model="backupCreate.groupScope" label=false size="mini">
-            <el-radio label='onlyGroup' size="small">仅团队内</el-radio>
-            <el-radio label='groupScope' size="small">所有与团队</el-radio>
-          </el-radio-group>
-        </el-form-item>
+        <!--<el-form-item label="可恢复范围:" prop="groupScope" label-width='120px'>-->
+          <!--<el-radio-group v-model="backupCreate.groupScope" label=false size="mini">-->
+            <!--<el-radio label='onlyGroup' size="small">仅团队内</el-radio>-->
+            <!--<el-radio label='groupScope' size="small">所有与团队</el-radio>-->
+          <!--</el-radio-group>-->
+        <!--</el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
