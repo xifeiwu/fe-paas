@@ -44,7 +44,7 @@
       <el-table-column label="备份环境" prop="backupSpace" headerAlign="center" align="center" minWidth="100">
       </el-table-column>
       <el-table-column label="备份时间" prop="formattedStartTime" headerAlign="center" align="center" width="100"
-                       sortable="custom">
+                       sortable>
         <template slot-scope="scope">
           {{scope.row.formattedStartTimeYMD}}<br/>
           {{scope.row.formattedStartTimeHMS}}
