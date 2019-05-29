@@ -643,6 +643,7 @@
         if (profileName == '0') {
           return;
         }
+        this.expandRows = [];
         // update user/config in vuex
         this.$store.dispatch('user/config', {
           page: 'middleware',
