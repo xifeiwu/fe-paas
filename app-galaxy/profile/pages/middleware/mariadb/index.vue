@@ -150,14 +150,14 @@
                   <span>恢复</span>
                 </el-button>
                 <div class="ant-divider"></div>
-                <el-button
-                        type="text"
-                        disabled
-                        :loading="statusOfWaitingResponse('') && action.row.id == scope.row.id"
-                        @click="handleTRClick($event, '', scope.$index, scope.row)">
-                  <span>实例列表</span>
-                </el-button>
-                <div class="ant-divider"></div>
+                <!--<el-button-->
+                        <!--type="text"-->
+                        <!--disabled-->
+                        <!--:loading="statusOfWaitingResponse('') && action.row.id == scope.row.id"-->
+                        <!--@click="handleTRClick($event, '', scope.$index, scope.row)">-->
+                  <!--<span>实例列表</span>-->
+                <!--</el-button>-->
+                <!--<div class="ant-divider"></div>-->
                 <el-button
                         type="text"
                         :loading="statusOfWaitingResponse('go-to-page-history') && action.row.id == scope.row.id"
