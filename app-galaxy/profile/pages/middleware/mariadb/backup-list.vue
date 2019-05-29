@@ -272,6 +272,8 @@
 		    });
 		    // this.backupListFilter = this.backupList;
 		    console.log(this.backupList);
+        this.totalSize = this.backupList.length;
+        this.currentPage = 1;
 	    },
       
       async handleClick(evt, action, index, row) {
