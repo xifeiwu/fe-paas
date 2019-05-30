@@ -14,11 +14,17 @@
               </el-option>
             </el-select>
           </el-form-item>
+          <el-form-item class="el-form-operation-module">
+            <label>功能模块:</label>
+            <el-select v-model="form.moduleName" @change="handleTick('moduleNameChange')">
+              <el-option v-for="(item,index) in operationModuleList" :label="item.description" :key="index" :value="item.code">
+              </el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item class="el-form-operation-type">
             <label>操作类型:</label>
-            <el-select v-model="form.operation" @change="handleTick('operationChange')" filterable>
-              <el-option v-for="(item,index) in this.$storeHelper.operationList" :label="`${item.operationNickName}   (${item.operationName})`" :key="index"
-                         :value="item.operationName">
+            <el-select v-model="form.operationType" @change="handleTick('operationTypeChange')" filterable>
+              <el-option v-for="(item,index) in operationTypeList" :label="item.description" :key="index" :value="item.code">
               </el-option>
             </el-select>
           </el-form-item>
@@ -45,6 +51,11 @@
                     @change="handleTick('timeChange')">
             </el-date-picker>
           </el-form-item>
+          <el-form-item class="el-form-keyword" v-if="false">
+            <label>关键字:</label>
+            <el-input placeholder="可按应用名称搜索" v-model="searchValue"></el-input>
+            <el-button size="mini-extral" type="primary" @click="handleTick('search')" @keyup.enter.native="handleTick('search')">搜索</el-button>
+          </el-form-item>
           <el-button type="primary" size="mini-extral" @click="handleRefresh('false')">刷新</el-button>
           <el-button type="danger" size="mini-extral" @click="handleRefresh('true')" v-if="isAdmin">强制刷新</el-button>
           <el-tooltip content="强制刷新将会强制生成新的索引，可以立即看到最近的操作记录，但可能引起接口超时" v-if="isAdmin">
@@ -58,8 +69,20 @@
               :data="operationLogList"
               style="width: 100%;"
               stripe="">
-        <el-table-column prop="operationNickName" label="操作类型" align="left"></el-table-column>
-        <el-table-column prop="groupName" label="团队" align="center" v-if="form.groupId == -1"></el-table-column>
+        <el-table-column prop="groupName" label="团队" align="center"></el-table-column>
+        <el-table-column prop="applicationName" label="应用名称" align="center"></el-table-column>
+        <el-table-column label="服务名称" align="center">
+          <template slot-scope="scope">
+            {{scope.row.serviceName || scope.row.serviceName != "" ? scope.row.serviceName: "---"}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="env" label="环境" align="center">
+          <template slot-scope="scope">
+            {{scope.row.env ? scope.row.env : "--"}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="moduleDescription" label="功能模块" align="left"></el-table-column>
+        <el-table-column prop="bundleName" label="操作类型" align="left"></el-table-column>
         <el-table-column prop="userRealName" label="操作人" align="center"></el-table-column>
         <el-table-column prop="status" label="操作状态" align="center">
           <template slot-scope="scope">
@@ -73,17 +96,6 @@
               <div slot="content" v-else style="max-width: 500px;overflow: scroll;max-height: 500px;">{{scope.row.operationContent}}</div>
               <span style="color:#409EFF;">更多...</span>
             </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column prop="applicationName" label="应用名称" align="center"></el-table-column>
-        <el-table-column label="服务名称" align="center">
-          <template slot-scope="scope">
-            {{scope.row.serviceName || scope.row.serviceName != "" ? scope.row.serviceName: "---"}}
-          </template>
-        </el-table-column>
-        <el-table-column prop="env" label="环境" align="center">
-          <template slot-scope="scope">
-            {{scope.row.env ? scope.row.env : "--"}}
           </template>
         </el-table-column>
         <el-table-column prop="operationTime" label="时间" align="center"></el-table-column>
@@ -126,6 +138,24 @@
           .el-form-group {
             .el-input__inner {
               width: 300px;
+            }
+          }
+          .el-form-keyword {
+            min-width: 340px;
+            .el-form-item__content {
+              display: flex;
+              align-items: center;
+              label {
+                min-width: 50px;
+              }
+              .el-input__inner {
+                height: 28px;
+                font-size: 13px;
+              }
+              .el-button {
+                height: 24px;
+                margin-left: 10px;
+              }
             }
           }
         }
@@ -174,11 +204,17 @@
       } else if (this.groupInfo) {
         this.form.groupId = this.groupInfo.id;
       }
-      this.operationList = this.$storeHelper.operationList;
-      this.form.operation = this.operationList[0].operationName;
       this.setDefaultDateRange();
       this.userList = await this.$net.getUsersAll();
       this.handleTick("groupChange");
+      let operationModuleList = await this.requestOperationModule();
+      if (operationModuleList) {
+        operationModuleList = [{description: "全部", code: "FULL", operationLogTypeVOList:[{description: "全部", code: "FULL"}]}].concat(operationModuleList);
+        this.operationModuleList = operationModuleList;
+        this.operationTypeList = this.operationModuleList[0].operationLogTypeVOList;
+        this.form.moduleName = this.operationModuleList[0].code;
+        this.form.operationType = this.operationTypeList[0].code;
+      }
     },
     mounted() {
     },
@@ -190,17 +226,20 @@
         groupInfo: null,
         userList: [],
         memberList: [],
-        operationList: [],
+        operationModuleList: [],
+        operationTypeList: [],
         operationLogList: [],
         pageSize: 12,
         showPagination: false,
         currentPage: 1,
         ifnotHaveMore: false,
         isAdmin: false,
+        searchValue: "",
         form: {
           userId: '',
           dateTimeRange: [],
-          operation: '',
+          operationType: '',
+          moduleName: '',
           groupId: '',
         },
         pickerOptions: {
@@ -264,7 +303,7 @@
       },
 
       async requestOperationList({action = '',force = false}) {
-        let query = {
+        let payload = {
           'startTime': this.form.dateTimeRange[0].getTime(),
           'endTime': this.form.dateTimeRange[1].getTime(),
           'page': this.currentPage,
@@ -272,20 +311,17 @@
           'force': force,
         };
         if (this.form.groupId != -1) {
-          query["groupId"] = this.form.groupId;
+          payload["groupId"] = this.form.groupId;
         }
         if (action != 'groupChange' && this.form.userId != -1) {
-          query["userId"] = this.form.userId;
+          payload["userId"] = this.form.userId;
         }
-        if (this.form.operation !== 'FULL') {
-          query["bundle"] = this.form.operation;
+        if (this.form.moduleName !== 'FULL') {
+          payload["moduleName"] = this.form.moduleName;
+          payload["bundle"] = this.form.operationType;
         }
-        let resData = await this.$net.requestPaasServer(this.$net.URL_LIST.operation_log,{query});
+        let resData = await this.$net.requestPaasServer(this.$net.URL_LIST.operation_log,{payload});
         resData.content.forEach(it => {
-          let operation = this.operationList.find(obj => {
-            return obj["operationName"] === it["bundle"];
-          });
-          it["operationNickName"] = operation ? operation["operationNickName"] : '--';
           let user = this.userList.find(user => {
             return user["id"] === it["userId"];
           });
@@ -308,6 +344,16 @@
         switch (action) {
           case "groupChange":
             await this.requestGroupMember(this.form.groupId);
+            break;
+          case "moduleNameChange":
+            this.operationTypeList = [];
+            let result = this.operationModuleList.find(it => {
+              return it.code === this.form.moduleName;
+            });
+            if (result) {
+              this.operationTypeList = result.operationLogTypeVOList;
+              this.form.operationType = this.operationTypeList[0].code;
+            }
             break;
         }
         this.setInit();
@@ -358,7 +404,15 @@
         let memberList = await this.$net.getGroupMembers({id: groupId});
         this.memberList = [{id: -1, userId: -1, userName: 'quanbu', realName: '全部'}].concat(memberList);
         this.form.userId = this.memberList[0].userId;
-      }
+      },
+
+      async requestOperationModule() {
+        this.operationModuleList = [];
+        let query = {
+          moduleName: ""
+        };
+         return await this.$net.requestPaasServer(this.$net.URL_LIST.operation_module, {query});
+      },
     }
   }
 </script>
