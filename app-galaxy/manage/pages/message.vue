@@ -37,7 +37,13 @@
         <el-table-column prop="messageTypeName" label="消息类型" width="80"></el-table-column>
         <el-table-column prop="title" label="标题" minWidth="100"></el-table-column>
         <el-table-column prop="content" label="内容" minWidth="200"></el-table-column>
-        <el-table-column prop="groupName" label="接收团队" minWidth="100" headerAlign="center" align="center"></el-table-column>
+        <el-table-column label="接收团队" minWidth="100" headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <div class="group-name-div">
+              <span v-for="(item,index) in scope.row.messageGroupList" class="group-name-span">{{item.name}}</span>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="formattedReleaseTime" label="发布时间" width="200" headerAlign="center" align="center"></el-table-column>
         <el-table-column prop="releaseStatusName" label="状态" width="80"></el-table-column>
         <el-table-column label="操作" width="160" headerAlign="center" align="center">
@@ -99,6 +105,12 @@
           </el-option>
         </el-select>
         </el-form-item>
+        <el-form-item label="接受团队" prop="groupIdList" class="receive-group">
+          <el-select filterable v-model="action.data.groupIdList" placeholder="请选择" multiple>
+            <el-option v-for="(item,index) in groupListWithoutAll" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="内容" prop="content" placeholder="不超过800个字符">
           <el-input type="textarea"  :rows="3" v-model="action.data.content"></el-input>
         </el-form-item>
@@ -144,6 +156,34 @@
     .list {
       flex: 1;
       position: relative;
+      .el-table__body-wrapper {
+        .el-table__body {
+          .el-table__row {
+            .group-name-div {
+              .group-name-span {
+                box-sizing: border-box;
+                border-color: transparent;
+                margin: 2px 0 2px 6px;
+                background-color: #f0f2f5;
+                color: #909399;
+                line-height: 22px;
+                font-size: 13px;
+              }
+            }
+          }
+        }
+      }
+    }
+    .el-dialog {
+      .el-dialog__body {
+        .el-form-item {
+          &.receive-group .el-form-item__content {
+            .el-select {
+              width: 100%;
+            }
+          }
+        }
+      }
     }
   }
 </style>
@@ -235,6 +275,18 @@
               }
             }
           }],
+          groupIdList: [{
+            required: true,
+            message: '请选择接受团队',
+          }, {
+            validator(rule, values, callback) {
+              if (values.length > 1 && values.indexOf(-1) > -1) {
+                callback("若选择“所有团队”，则不能选择其他团队");
+              } else {
+                callback();
+              }
+            }
+          }]
         }
       }
     },
@@ -258,6 +310,13 @@
           return [];
         }
       },
+      groupListWithoutAll() {
+        if (this.$storeHelper.groupListAll) {
+          return [{id: -1, name: '--所有团队--'}].concat(this.$storeHelper.groupListAll);
+        } else {
+          return [];
+        }
+      }
     },
 
     methods: {
@@ -325,14 +384,9 @@
           } else {
             it['formattedReleaseTime'] = '---';
           }
-          if (!it.groupId) {
-            it['groupId'] = -1;
+          if (it["messageGroupList"].length === 0) {
+            it["messageGroupList"].push({id: -1, name: "--所有团队--"});
           }
-
-          if (!it.groupName) {
-            it['groupName'] = '所有团队';
-          }
-
           return it;
         });
         this.totalSize = messageList.length;
@@ -348,7 +402,11 @@
         }
 
         if (this.groupIdSelect !== '') {
-          this.messageListFilter = this.messageListFilter.filter(it => it['groupId'] === this.groupIdSelect);
+          this.messageListFilter = this.messageListFilter.filter(it => {
+            return it["messageGroupList"].find(group => {
+              return group.id === this.groupIdSelect;
+            })
+          });
         }
 
         this.totalSize = this.messageListFilter.length;
@@ -400,14 +458,17 @@
               dialogData = await this.openDialog(action, {
                 title: '',
                 messageTypeId: this.messageTypeList[0]['id'],
-                content: ''
+                content: '',
+                groupIdList: [],
               });
-//              console.log(dialogData);
+             // console.log(dialogData);
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.message_create, {
                 payload: {
                   title: dialogData['title'],
                   messageTypeId: dialogData['messageTypeId'],
                   content: dialogData['content'],
+                  groupIdList: dialogData["groupIdList"].indexOf(-1) > -1 ? [] : dialogData["groupIdList"],
+                  immediateRelease: false,
                 }
               });
 //              console.log(resContent);
@@ -475,13 +536,24 @@
               if (!this.messageTypeList) {
                 this.messageTypeList = await this.getMessageTypeList();
               }
-              dialogData = await this.openDialog(action, {title: row.title,messageTypeId:row.messageTypeId,messageId: row.id,content: row.content});
+              let groupIdList = [];
+              row["messageGroupList"].forEach(it => {
+                groupIdList.push(it.id);
+              });
+              dialogData = await this.openDialog(action, {
+                  title: row.title,
+                  messageTypeId:row.messageTypeId,
+                  messageId: row.id,
+                  content: row.content,
+                  groupIdList: groupIdList,
+                });
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.message_modify, {
                 payload: {
                   title: dialogData['title'],
                   messageTypeId: dialogData['messageTypeId'],
                   content: dialogData['content'],
-                  messageId: dialogData['messageId']
+                  messageId: dialogData['messageId'],
+                  groupIdList: dialogData["groupIdList"].indexOf(-1) > -1 ? [] : dialogData["groupIdList"],
                 }
               });
               this.$message({
