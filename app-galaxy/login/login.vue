@@ -496,24 +496,34 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
           this.updateVerifyCode();
         }
       },
-      updateVerifyCode() {
+      async updateVerifyCode() {
         let verifyImageURL = this.$net.URL_LIST.get_verify_code.path + '?t=' + new Date().getTime();
-        this.$ajax.get(verifyImageURL, {
-          responseType: 'arraybuffer',
-          timeout: 6000
-        }).then(response => {
-          let base64 = new Buffer(response.data, 'binary').toString('base64');
-          let mimeType = response.headers['content-type'];
-          this.verifyImageData = "data:" + mimeType + ";base64," + base64;
+        try {
+          const response = await this.$ajax.get(verifyImageURL, {
+            responseType: 'blob',
+            timeout: 6000
+          });
+          const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(response.data);
+            reader.onload = function() {
+              var result = reader.result;
+              resolve(result);
+            };
+            reader.onerror = function(e) {
+              reject(e)
+            };
+          });
+          this.verifyImageData = base64;
           this.form.verificationCode = response.headers['verification-code'];
           // hide error if current error is errMsgForVerifyCode
           if (this.errMsg === this.errMsgForVerifyCode) {
             this.showError('', false);
           }
-        }).catch(err => {
-          this.showError(this.errMsgForVerifyCode, false);
+        } catch(err) {
           console.log(err);
-        });
+          this.showError(this.errMsgForVerifyCode, false);
+        }
       },
 
       // check data before submit
