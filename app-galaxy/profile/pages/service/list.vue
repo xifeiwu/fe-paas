@@ -389,6 +389,10 @@
               </template>
             </custom-table-column>
           </custom-table-component>
+          <div class="deploy-log" :key="rollingUpStatus.pageList[2]['key']" style=""
+               v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[2]['key']">
+            <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
+          </div>
         </transition-group>
       </div>
     </el-dialog>
@@ -424,7 +428,28 @@
           }
         }
         .el-dialog__body {
+          height: calc(100% - 30px);
           padding: 0px;
+          .content {
+            height: calc(100% - 26px);
+            & > span {
+              display: block;
+              height: 100%;
+              overflow: scroll;
+            }
+            .deploy-log {
+              min-height: 100%;
+              background-color: rgba(0, 0, 0, 0.9);
+              text-align: left;
+              padding: 0px 2px;
+              .log-item {
+                max-width: 100%;
+                word-wrap: break-word;
+                word-break: break-all;
+                line-height: 1.4;
+              }
+            }
+          }
         }
       }
 
@@ -968,9 +993,9 @@
             this.handleDialogRollingUp(evt, 'breadcrumb-click', this.rollingUpStatus.pageList.find(it => it.key === 'deploy-history'));
             break;
           case 'go-to-page-deploy-log':
+            // 去部署日志页面
             try {
               this.rollingUpStatus.deployHistorySelected = data;
-              console.log(data);
               this.serviceDeploy({
                 logName: data.logName,
                 logPath: data.logPath,
@@ -1317,7 +1342,6 @@
                 if (nextItem['TYPE'] === 'DOWNLOAD' && preItem['TYPE'] === 'DOWNLOAD') {
                 } else {
                   this.deployLogs.push(nextItem['LOG']);
-                  // console.log(this.deployLogs);
                 }
                 preItem = nextItem;
                 // scroll after render finish
