@@ -637,6 +637,7 @@
       '$storeHelper.screen.size': 'onScreenSizeChange',
       '$storeHelper.groupInfo.id': function () {
         this.requestInstanceList();
+        this.expandRows = [];
       },
       'profileName': async function(profileName) {
         // value of elTab is set to '0' by default
@@ -835,6 +836,7 @@
 		        this.$router.push(this.$net.page['profile/middleware/mariadb/backup-list']);
 		        break;
           case 'refreshList':
+            this.expandRows = [];
             this.requestInstanceList();
             break;
         }

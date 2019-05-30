@@ -355,12 +355,14 @@
       '$storeHelper.screen.size': 'onScreenSizeChange',
       '$storeHelper.groupInfo.id': function () {
         this.requestInstanceList();
+        this.expandRows = [];
       },
       'profileName': async function(profileName) {
         // value of elTab is set to '0' by default
         if (profileName == '0') {
           return;
         }
+        this.expandRows = [];
         // update user/config in vuex
         this.$store.dispatch('user/config', {
           page: 'middleware',
@@ -488,6 +490,7 @@
             this.$router.push(this.$net.page['profile/middleware/redis/add']);
             break;
           case 'refreshList':
+            this.expandRows = [];
             this.requestInstanceList();
             break;
         }
@@ -641,6 +644,8 @@
               setTimeout(() => {
                 this.hideWaitingResponse(action);
               }, 1000);
+            } finally {
+              this.expandRows = [];
             }
             break;
           case 'instance_more_info':
