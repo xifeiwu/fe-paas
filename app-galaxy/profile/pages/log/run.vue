@@ -1,25 +1,51 @@
 <template>
   <div id="log-run">
     <div class="header">
-      <paas-version-selector :customConfig="config4VersionSelector"
-                           @version-selected="onVersionSelected"></paas-version-selector>
-      <div class="item">
-        <label>实例名称:</label>
-        <el-input
+      <el-row>
+        <el-col :span="20">
+          <paas-version-selector :customConfig="config4VersionSelector"
+                                 @version-selected="onVersionSelected"
+                                 v-if="searchForm.queryType=='default'"></paas-version-selector>
+          <div class="item" v-if="searchForm.queryType=='default'">
+            <label>实例名称:</label>
+            <el-input
                 v-model="searchForm.instanceName"
-                size="mini" style="display: inline-block; width: 160px;" placeholder="默认所有实例"></el-input>
-      </div>
+                size="mini" style="display: inline-block; width: 160px;"></el-input>
+          </div>
 
-      <div class="item">
-        <label>关键字:</label>
-        <el-input
+          <div class="item" v-if="searchForm.queryType=='default'">
+            <label>关键字:</label>
+            <el-input
                 v-model="searchForm.keyword"
                 size="mini" style="display: inline-block; width: 160px;"></el-input>
-      </div>
+          </div>
 
-      <div class="item">
-        <label>时间:</label>
-        <el-date-picker
+          <div class="item" v-if="searchForm.queryType=='all'">
+            <label>Lucene语句:</label>
+            <el-input
+                v-model="searchForm.queryString" :maxlength='200'
+                size="mini" style="display: inline-block; width: 650px;"></el-input>
+          </div>
+        </el-col>
+
+        <el-col :span="4">
+          <div class="my-switch">
+            <el-switch
+                v-model="searchForm.queryType"
+                active-text="Lucene查询"
+                inactive-text=""
+                active-value="all"
+                inactive-value="default">
+            </el-switch>
+          </div>
+        </el-col>
+
+      </el-row>
+      <el-row >
+        <el-col>
+          <div class="item">
+            <label>时间:</label>
+            <el-date-picker
                 style="display: inline-block; width: 360px;"
                 size="mini"
                 v-model="searchForm.dateTimeRange"
@@ -30,30 +56,36 @@
                 end-placeholder="结束日期"
                 align="right"
                 :enableClose="false"
-        >
-        </el-date-picker>
-      </div>
+            >
+            </el-date-picker>
+          </div>
 
-      <div class="item" style="width: 450px;padding-left: 30px;">
-        <label>日志级别:</label>
-        <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
-        <el-checkbox-group
+          <div class="item" style="width: 450px;padding-left: 30px;"
+               v-if="searchForm.queryType=='default'">
+            <label>日志级别:</label>
+            <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
+            <el-checkbox-group
                 style="display: inline-block; width: 300px;text-align: center;"
                 v-model="searchForm.logLevel"  @change="handleCheckedCitiesChange">
-          <el-checkbox v-for="(item, index) in logLevelList" :key="index" :label="item" :value="item">
-          </el-checkbox>
-        </el-checkbox-group>
-      </div>
-
-      <el-button
+              <el-checkbox v-for="(item, index) in logLevelList" :key="index" :label="item" :value="item">
+              </el-checkbox>
+            </el-checkbox-group>
+          </div>
+          <el-button
+              style="margin-bottom: 4px;"
               size="mini-extral"
               type="primary"
               @click="handleButtonClick('search')">查询</el-button>
-      <el-button
+          <el-button
+              style="margin-bottom: 4px;"
               size="mini-extral"
               type="primary"
               @click="handleButtonClick('refresh')">刷新</el-button>
+        </el-col>
+      </el-row>
+
     </div>
+
     <div class="section-log"
          v-loading="showLoading"
          element-loading-text="加载中"
@@ -111,6 +143,12 @@
           color: #409EFF;
         }
       }
+    }
+    .my-switch {
+      margin-top: 10px;
+      display: inline-block;
+      /*text-align: right;*/
+      float: right;
     }
   }
 </style>
@@ -291,6 +329,8 @@
           logLevel: ['INFO'],
           dateTimeRange: [],
           keyword: '',
+          queryType: 'default',
+          queryString: '',
         },
         checkAll: false,
         isIndeterminate: true,
@@ -461,6 +501,8 @@
           startTime: dateRange[0],
           endTime: dateRange[1],
           keyword: this.searchForm.keyword,
+          queryType: this.searchForm.queryType,
+          queryString: this.searchForm.queryString,
           page: this.requestPage,
           size: this.requestSize
         }).then(logs => {
