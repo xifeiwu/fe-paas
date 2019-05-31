@@ -1524,6 +1524,7 @@ class Net extends NetBase {
           environments: JSON.parse(JSON.stringify(service.environments)),
           hosts: JSON.parse(JSON.stringify(service.hosts)),
           prestopCommand: service.prestopCommand,
+          terminationGracePeriodSeconds:service.terminationGracePeriodSeconds,
           rollingUpdate: service.rollingUpdate,
           loadBalance: service.loadBalance,
           gitLabAddress: service.gitLabAddress,
