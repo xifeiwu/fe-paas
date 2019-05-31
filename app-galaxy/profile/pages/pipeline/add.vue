@@ -178,9 +178,12 @@
                     </el-form-item>
                     <!--制作镜像-->
                     <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'" prop="buildImage" :multiFields="true">
-                      <el-select v-model="formData.buildImage.selectedImage" placeholder="请选择">
+                      <el-select v-model="formData.buildImage.selectedImage" placeholder="请选择" popper-class="select-high">
                         <el-option v-for="(item, index) in pipelineInfoFromNet['buildImage']['basicImage']"
-                                   :key="item" :value="item">
+                                   :key="item.name" :value="item.name">
+                          <strong style="float: left;font-size: 16px">{{ item.name }}</strong>
+                          <br/>
+                          <p style="float: left; color: #8492a6; font-size: 13px">{{ item.desc }}</p>
                         </el-option>
                       </el-select>
                     </el-form-item>
@@ -328,6 +331,12 @@
   $--md-fade-transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1) 100ms, opacity 300ms cubic-bezier(0.23, 1, 0.32, 1) 100ms !default;
   $--border-transition-base: border-color .2s cubic-bezier(.645,.045,.355,1) !default;
   $--color-transition-base: color .2s cubic-bezier(.645,.045,.355,1) !default;
+  .select-high{
+    .el-select-dropdown__item {
+      height: 58px;
+      line-height: 28px;
+    }
+  }
   #pipeline-add {
     .el-zoom-in-top-enter-active {
       opacity: 1;

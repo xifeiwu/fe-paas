@@ -359,7 +359,7 @@ class AppInfoHelper {
     if (id) {
       name = '自定义镜像';
     } else {
-      name = '自动打镜像';
+      name = '平台构建镜像';
     }
     return name;
   }
@@ -367,7 +367,7 @@ class AppInfoHelper {
   getImageInfo() {
     return [{
       id: false,
-      name: '自动打镜像'
+      name: '平台构建镜像'
     }, {
       id: true,
       name: '自定义镜像'
