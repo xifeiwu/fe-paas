@@ -698,14 +698,14 @@
         let endTimestamp = new Date(payload.endTime);
         let iDays = parseInt(Math.abs(endTimestamp.getTime() - startTimestamp.getTime()) /1000/60/60/24);
         // 工单下载暂时仅支持3个月之内
-        if (iDays > 92 || iDays < 0) {
-          this.$message({
-            duration: 5000,
-            type: 'warning',
-            message: '下载仅支持申请时间在3个月之内的工单！'
-          });
-          return;
-        }
+        // if (iDays > 92 || iDays < 0) {
+        //   this.$message({
+        //     duration: 5000,
+        //     type: 'warning',
+        //     message: '下载仅支持申请时间在3个月之内的工单！'
+        //   });
+        //   return;
+        // }
         await this.$confirm('<div>1）只下载审批状态为“结束”的工单，可根据工单名称、申请人和申请时间筛选；</div>' +
           '<div>2）工单下载会十分耗费服务器性能，请尽量选择在非高峰期操作；</div>' +
           '<div>3）目前单次下载仅支持3个月内时间跨度的工单。</div>', '提示', {
