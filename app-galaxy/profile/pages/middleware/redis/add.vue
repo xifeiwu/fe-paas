@@ -15,18 +15,18 @@
           <div v-if="forModify">{{formData.name}}</div>
           <el-input v-model="formData.name" placeholder="小写字符，数字，中划线，不能以中划线开始或结尾。不能超过63个字符" :maxlength=63 v-else></el-input>
         </el-form-item>
-        <el-form-item label="Redis版本" prop="versionId" class="name">
-          <el-radio-group v-model="formData.versionId" :disabled="forModify">
-            <el-radio v-for="item in middlewareVersionList" :label="item.id" :key="item.id">
-              {{item.middlewareVersion}}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="运行环境" prop="clusterId" class="cluster-id" v-if="false">
+        <el-form-item label="运行环境" prop="clusterId" class="cluster-id">
           <div v-if="forModify">{{clusterInfo.description}}</div>
           <el-radio-group v-model="formData.clusterId" v-else>
             <el-radio v-for="item in clusterList" :label="item.id" :key="item.id">
               {{item.description}}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="Redis版本" prop="versionId" class="name">
+          <el-radio-group v-model="formData.versionId" :disabled="forModify">
+            <el-radio v-for="item in middlewareVersionList" :label="item.id" :key="item.id">
+              {{item.middlewareVersion}}
             </el-radio>
           </el-radio-group>
         </el-form-item>
@@ -230,9 +230,38 @@
       }
     },
     watch: {
-
+      'formData.clusterId': 'onSelectClusterList',
     },
     methods: {
+      async onSelectClusterList(clusterId) {
+        var middlewareList = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware, {
+          query: {
+            clusterId
+          }
+        });
+        console.log(middlewareList);
+        var currentMiddleware = [];
+        if (middlewareList) {
+          currentMiddleware = middlewareList.find(it => {
+            return 'redis' === it['middlewareName'];
+          });
+        }
+        var middlewareId = currentMiddleware.id;
+        this.formData.middlewareId = currentMiddleware.id;
+        // get version list
+        this.middlewareVersionList = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_version, {
+          query: {
+            middlewareId
+          }
+        });
+        // set default value for formData
+        if (this.middlewareVersionList.length > 0) {
+          const firstVersion = this.middlewareVersionList[0];
+          this.formData.versionId = firstVersion.hasOwnProperty('id') ? firstVersion['id'] : '';
+        } else {
+          this.middlewareVersionList = [];
+        }
+      },
       async handleClick(evt, action) {
         const formData = this.formData;
         var payload = {
@@ -254,6 +283,7 @@
             try {
               payload = Object.assign(payload, {
                 middlewareVersionId: formData.versionId,
+                clusterId: formData.clusterId,
                 memory: formData.memory / utils.ONE_MILLION,
                 instanceDescribe: formData.comment,
                 lifecycle: formData.remainingDays,

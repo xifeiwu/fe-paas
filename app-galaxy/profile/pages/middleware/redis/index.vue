@@ -660,8 +660,6 @@
               setTimeout(() => {
                 this.hideWaitingResponse(action);
               }, 1000);
-            } finally {
-              this.expandRows = [];
             }
             break;
           case 'instance_more_info':
