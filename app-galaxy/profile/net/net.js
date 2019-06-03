@@ -183,9 +183,15 @@ class Net extends NetBase {
         path: '/workOrderDeploy/last10/workorder/{serviceId}',
         method: 'get'
       },
+      // 获取工单的部署列表
       'latest_deploy_log_by_work_order': {
         path: '/deployLog/10/{workOrderId}/{serviceId}',
         method: 'get'
+      },
+      // 镜像回滚
+      'image_rollback': {
+        path: '/service/rollback',
+        method: 'post'
       },
 
       // 更改实例数

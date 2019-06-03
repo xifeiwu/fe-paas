@@ -338,6 +338,7 @@
       <div class="content" style="overflow: hidden; position: relative">
         <transition-group name="global-zoom-in-right-1">
           <custom-table-component
+                  style="height: 100%;"
                   :data="rollingUpStatus.workOrderList"
                   :showFilter="false"
                   :key="rollingUpStatus.pageList[0]['key']"
@@ -360,6 +361,7 @@
             </custom-table-column>
           </custom-table-component>
           <custom-table-component
+                  style="height: 100%;"
                   :data="rollingUpStatus.deployHistoryList"
                   :showFilter="false"
                   :key="rollingUpStatus.pageList[1]['key']"
@@ -1006,6 +1008,18 @@
             } catch (err) {
               console.log(err);
             }
+            break;
+          case 'deploy-image':
+            console.log(data);
+            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.image_rollback, {
+              payload: {
+                image: data.fullImage,
+                id: this.actionNew.row.id,
+                appId: this.actionNew.row.appId,
+                spaceId: this.profileInfo.id
+              }
+            });
+            console.log(resContent);
             break;
         }
       },
