@@ -354,13 +354,10 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="prestop脚本" v-if="showMoreConfig" prop="preStopExec">
+            <el-form-item label="prestop脚本" v-if="showMoreConfig" prop="preStopExec"
+                          class="preStopExec max-wide-700">
               <el-input v-model="formData.prestopCommand"
-                        size="mini"
-                        type="textarea"
-                        :rows="3"
-                        placeholder="例如：echo hello world  "
-              ></el-input>
+                        placeholder="例如：echo hello world !"></el-input>
             </el-form-item>
           </transition>
           <transition name="more-config">
