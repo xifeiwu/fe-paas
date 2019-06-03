@@ -113,10 +113,26 @@
                   {{instanceMoreInfo.status}}
                 </el-form-item>
                 <el-form-item label="redis地址:端口">
-                  {{instanceMoreInfo.redisAddr + ':' + instanceMoreInfo.redisPort}}
+
+                  <span class="secret">
+                    <span>{{instanceMoreInfo.redisAddr}}</span><i v-if="instanceMoreInfo.redisAddr"
+                                                                class="paas-icon-copy"
+                                                                v-clipboard:copy="instanceMoreInfo.redisAddr"
+                                                                v-clipboard:success="handleSuccessCopy"></i>
+                  </span><span>:</span><span class="secret">
+                    <span>{{instanceMoreInfo.redisPort}}</span><i v-if="instanceMoreInfo.redisPort"
+                                                             class="paas-icon-copy"
+                                                             v-clipboard:copy="instanceMoreInfo.redisPort"
+                                                             v-clipboard:success="handleSuccessCopy"></i>
+                  </span>
                 </el-form-item>
                 <el-form-item label="密码">
-                  {{instanceMoreInfo.password}}
+                  <span class="secret">
+                    <span>{{instanceMoreInfo.password}}</span><i v-if="instanceMoreInfo.password"
+                                                                  class="paas-icon-copy"
+                                                                  v-clipboard:copy="instanceMoreInfo.password"
+                                                                  v-clipboard:success="handleSuccessCopy"></i>
+                  </span>
                 </el-form-item>
                 <el-form-item label="已用内存/总内存">
                   {{instanceMoreInfo.memoryUsed + " / " + instanceMoreInfo.memorySelected}}
@@ -736,6 +752,13 @@
               break;
           }
           return result;
+        });
+      },
+
+      handleSuccessCopy(evt) {
+        this.$storeHelper.globalTip.show({
+          ref: evt.trigger,
+          msg: '复制成功'
         });
       }
     }
