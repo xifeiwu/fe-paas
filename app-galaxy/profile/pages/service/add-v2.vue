@@ -51,12 +51,13 @@
           </el-form-item>
           <el-form-item label="基础镜像" class="auto-image max-width-800" prop="autoImageValue" v-if="!imageSelectState.customImage">
             <el-select v-model="formData.autoImageValue" filterable
-                       :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'" popper-class="select-high">
+                       :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
               <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
                          :key="index" :label="item.label" :value="item.value">
-                <strong style="float: left;font-size: 16px">{{ item.label }}</strong>
-                <br/>
-                <p style="float: left; color: #8492a6; font-size: 13px">{{ item.desc }}</p>
+                <div style="margin: 3px 0px">
+                  <div style="font-size: 14px; font-weight: bold; line-height: 20px;">{{ item.label }}</div>
+                  <div style="color: gray; font-size: 12px; line-height: 14px;">{{ item.desc }}</div>
+                </div>
               </el-option>
             </el-select>
           </el-form-item>
@@ -415,12 +416,6 @@
 </template>
 
 <style lang="scss">
-  .select-high {
-    .el-select-dropdown__item {
-      height: 58px;
-      line-height: 28px;
-    }
-  }
   #service-add {
     .el-scrollbar {
       height: 100%;
@@ -1259,7 +1254,6 @@
             resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.auto_image_list, {
               payload
             });
-            console.log(resContent);
             this.imageInfoFromNet['autoImageList'] = resContent['basicImage'].map(it => {
               return {
                 label: it.name,
