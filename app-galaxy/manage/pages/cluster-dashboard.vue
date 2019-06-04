@@ -16,14 +16,24 @@
                 :height="heightOfTable">
         <el-table-column label="集群名称" prop="clusterDescription" headerAlign="center" align="center" minWidth="80">
         </el-table-column>
-        <el-table-column label="CPU(已用/总共)" prop="cpuUsed" headerAlign="center" align="center" width="250" >
+        <el-table-column label="CPU(Request/总共)" headerAlign="center" align="center" width="200" >
           <template slot-scope="scope">
-            <span>{{scope.row.cpuUsed + '核 / ' + scope.row.cpuTotal + '核'}}</span>
+            <span>{{scope.row.cpuRequest + '核 / ' + scope.row.cpuTotal + '核'}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="内存(已用/总共)" prop="memoryUsed" headerAlign="center" align="center" width="250" >
+        <el-table-column label="内存(Request/总共)" headerAlign="center" align="center" width="200" >
           <template slot-scope="scope">
-            <span>{{scope.row.memoryUsed + 'G / ' + scope.row.memoryTotal + 'G'}}</span>
+            <span>{{scope.row.memoryRequest + 'G / ' + scope.row.memoryTotal + 'G'}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="CPU(Limit/总共)" headerAlign="center" align="center" width="200" >
+          <template slot-scope="scope">
+            <span>{{scope.row.cpuLimit + '核 / ' + scope.row.cpuTotal + '核'}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="CPU(Limit/总共)" headerAlign="center" align="center" width="200" >
+          <template slot-scope="scope">
+            <span>{{scope.row.cpuLimit + 'G / ' + scope.row.memoryTotal + 'G'}}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" prop="" headerAlign="center" align="center" width="300">
@@ -185,11 +195,12 @@
           }
           const resp = res.data.content;
           const clusterList = resp.map(it => {
-            it['cpuUsed'] = parseInt(it.cpuUsed) / 1000;
+            it['cpuRequest'] = parseInt(it.cpuRequest) / 1000;
             it['cpuTotal'] = parseInt(it.cpuTotal) / 1000;
-
-            it['memoryUsed'] = parseFloat(it.memoryUsed / 1024).toFixed(2);
+            it['memoryRequest'] = parseFloat(it.memoryRequest / 1024).toFixed(2);
             it['memoryTotal'] = parseFloat(it.memoryTotal / 1024).toFixed(2);
+            it['cpuLimit'] = parseInt(it.cpuLimit) / 1000;
+            it["memoryLimit"] = parseInt(it.memoryLimit / 1024).toFixed(2);
             return it;
           });
 

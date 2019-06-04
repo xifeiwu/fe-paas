@@ -34,7 +34,8 @@
                 :row-key="getRowKeys"
                 stripe
                 v-loading="loading"
-                :height="heightOfTable">
+                :height="heightOfTable"
+                :default-sort="{prop: 'cpuRequest', order: 'descending'}">
         <el-table-column label="节点名称" prop="nodeName" headerAlign="center" align="center" minWidth="80">
         </el-table-column>
         <el-table-column label="状态" prop="status" headerAlign="center" align="center" width="100">
@@ -52,22 +53,39 @@
             
           </template>
         </el-table-column>
-        <el-table-column label="CPU(已用/总共)" prop="cpuPercent" headerAlign="center" align="center" width="200" sortable>
+        <el-table-column label="CPU(Request/总共)" headerAlign="center" align="center" prop="cpuRequest" :sortable="true"
+                         @sort-method="sort" min-width="200px">
           <template slot-scope="scope">
-            <span>{{scope.row.cpuUsed + '核 / ' + scope.row.cpuTotal + '核（' + scope.row.cpuPercent + '%）' }}</span>
+            <span>{{scope.row.cpuRequest + '核 / ' + scope.row.cpuTotal + '核（' + scope.row.cpuRequestPercent + '%）' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="内存(已用/总共)" prop="memoryPercent" headerAlign="center" align="center" width="200" sortable>
+        <el-table-column label="内存(Request/总共)" headerAlign="center" align="center" :sortable="true" prop="memoryRequest"
+                         min-width="190px" @sort-method="sort">
           <template slot-scope="scope">
-            <span>{{scope.row.memoryUsed + 'G / ' + scope.row.memoryTotal + 'G（' + scope.row.memoryPercent + '%）' }}</span>
+            <span>{{scope.row.memoryRequest + 'G / ' + scope.row.memoryTotal + 'G（' + scope.row.memoryRequestPercent + '%）' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="内网IP" prop="internalIP" headerAlign="center" align="center" width="100">
+        <el-table-column label="CPU(Limit/总共)" headerAlign="center" align="center" :sortable="true" min-width="180px"
+                         prop="cpuLimit" @sort-method="sort">
+          <template slot-scope="scope">
+            <span>{{`${scope.row.cpuLimit}核 / ${scope.row.cpuTotal}核 (${scope.row.cpuLimitPercent}%)`}}</span>
+          </template>
         </el-table-column>
-        <el-table-column label="操作系统" prop="os" headerAlign="center" align="center" width="120">
+        <el-table-column label="内存(Limit/总共)" headerAlign="center" align="center" sortable min-width="180px" prop="memoryLimit"
+                         :sortable="true" @sort-method="sort">
+          <template slot-scope="scope">
+            <span>{{`${scope.row.memoryLimit}G / ${scope.row.memoryTotal}G (${scope.row.memoryLimitPercent}%)`}}</span>
+          </template>
         </el-table-column>
-        <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="120"
-                         sortable>
+        <el-table-column label="内网IP" headerAlign="center" align="center" min-width="150px">
+          <template slot-scope="scope">
+            <a :href="`http://apm.finupgroup.com/monitor/index.html#/basicResource/machine/cpu?node=${scope.row.internalIP}`" target="_blank">
+              {{scope.row.internalIP}}</a>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作系统" prop="os" headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" :sortable="true" @sort-method="sort">
           <template slot-scope="scope">
             {{scope.row.createTimeYMD}}<br/>
             {{scope.row.createTimeHMS}}
@@ -365,6 +383,7 @@
 
       // request node list
       async requestNodeList() {
+        this.nodeList = [];
         this.loading = true;
         await this.$net.getResponse(this.$net.URL_LIST.query_node_list, {
           query: {
@@ -392,16 +411,19 @@
             } else {
               it["status"] = 'notReady'
             }
-
-            it.cpuDisplay = it.cpuUsed + '/' + it.cpuTotal;
-
-            it['cpuUsed'] = parseInt(it.cpuUsage) / 1000;
+            it['cpuRequest'] = parseInt(it.cpuRequest) / 1000;
             it['cpuTotal'] = parseInt(it.cpuTotal) / 1000;
-            it['cpuPercent'] =  parseFloat(it['cpuUsed'] / it['cpuTotal'] * 100).toFixed(1);
+            it['cpuRequestPercent'] =  parseFloat(it['cpuRequest'] / it['cpuTotal'] * 100).toFixed(1);
 
-            it['memoryUsed'] = parseFloat(it.memoryUsage / 1024).toFixed(2);
+            it['memoryRequest'] = parseFloat(it.memoryRequest / 1024).toFixed(2);
             it['memoryTotal'] = parseFloat(it.memoryTotal / 1024).toFixed(2);
-            it['memoryPercent'] =  parseFloat(it['memoryUsed'] / it['memoryTotal'] * 100).toFixed(1);
+            it['memoryRequestPercent'] =  parseFloat(it['memoryRequest'] / it['memoryTotal'] * 100).toFixed(1);
+
+            it["cpuLimit"] = parseInt(it.cpuLimit) / 1000;
+            it["cpuLimitPercent"] = parseFloat(it['cpuLimit'] / it["cpuTotal"] * 100).toFixed(1);
+
+            it["memoryLimit"] = parseFloat(it.memoryLimit / 1024).toFixed(2);
+            it["memoryLimitPercent"] = parseFloat(it["memoryLimit"] / it["memoryTotal"] * 100).toFixed(1);
           });
 
           this.totalSize = parseInt(resp.length);
@@ -440,6 +462,10 @@
         this.currentPage = page;
         this.computedNodeList();
       },
+
+      sort(a, b) {
+        return a < b;
+      }
 
     }
   }
