@@ -532,15 +532,15 @@
         term.focus();
         // 连接websocket
         const ws = new WebSocket(`wss://${assistInfo.host}:${assistInfo.port}/api/ws?token=${assistInfo.token}`);
-        ws.onopen = function(evt) {
+        ws.onopen = (evt) => {
 //          console.log("onopen");
           var msg = {type: "input", input: '\r'};
           ws.send(JSON.stringify(msg))
         };
-        ws.onclose = function(evt) {
+        ws.onclose = (evt) => {
 //          console.log("onclose")
         };
-        ws.onmessage = function(evt) {
+        ws.onmessage = (evt) => {
           // 服务端ssh输出, 写到web shell展示
           const data = event.data;
           if (data instanceof ArrayBuffer || data instanceof Blob) {
@@ -554,12 +554,12 @@
             term.write(data);
           }
         };
-        ws.onerror = function(evt) {
+        ws.onerror = (evt) => {
           console.log("onerror");
           console.log(evt);
         };
         // 当浏览器窗口变化时, 重新适配终端
-        window.addEventListener("resize", function () {
+        window.addEventListener("resize", () => {
           term.fit();
           // 把web终端的尺寸term.rows和term.cols发给服务端, 通知sshd调整输出宽度
           var msg = {
@@ -568,10 +568,9 @@
             cols: term.cols
           };
           ws.send(JSON.stringify(msg));
-          // console.log(term.rows + "," + term.cols)
         });
         // 当向web终端敲入字符时候的回调
-        term.on('data', function(input) {
+        term.on('data', (input) => {
           // 写给服务端, 由服务端发给container
           var msg = {type: "input", input: input}
           ws.send(JSON.stringify(msg))
