@@ -3,9 +3,10 @@
     <div class="header">
       <el-row>
         <el-col :span="20">
-          <paas-version-selector :customConfig="config4VersionSelector"
-                                 @version-selected="onVersionSelected"
-                                 v-if="searchForm.queryType=='default'"></paas-version-selector>
+          <div class="item" v-if="searchForm.queryType=='default'">
+            <paas-version-selector :customConfig="config4VersionSelector"
+                                   @version-selected="onVersionSelected"></paas-version-selector>
+          </div>
           <div class="item" v-if="searchForm.queryType=='default'">
             <label>实例名称:</label>
             <el-input
@@ -37,6 +38,12 @@
                 active-value="all"
                 inactive-value="default">
             </el-switch>
+            <el-tooltip slot="trigger" effect="light" placement="bottom">
+              <div slot="content">
+                <div>具体拼写语法请参考[<a href="http://docs.graylog.org/en/2.5/pages/queries.html" target="_blank">Graylog帮助</a>]</div>
+              </div>
+              <span><i class="paas-icon-fa-question" style="color: #E6A23C; font-size:12px;"></i></span>
+            </el-tooltip>
           </div>
         </el-col>
 
@@ -462,7 +469,7 @@
        * 5. onVersionSelected, as may be serviceVersion is not ready at start.
        */
       requestLog() {
-        if (!this.searchForm.serviceVersion) {
+        if (this.searchForm.queryType === 'default' && !this.searchForm.serviceVersion) {
           this.$message.error('服务版本未找到');
           return;
         }
@@ -487,7 +494,8 @@
           this.dialogStatus.showLoading = false;
           this.showLoading = true;
         }
-        if ('' == this.searchForm.appId || '' == this.searchForm.spaceId || '' == this.searchForm.serviceVersion) {
+        if (this.searchForm.queryType === 'default' &&
+          ('' == this.searchForm.appId || '' == this.searchForm.spaceId || '' == this.searchForm.serviceVersion)) {
           console.log('seviceVersion not ready');
           return;
         }
