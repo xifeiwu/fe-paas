@@ -532,10 +532,21 @@
         term.focus();
         // 连接websocket
         const ws = new WebSocket(`wss://${assistInfo.host}:${assistInfo.port}/api/ws?token=${assistInfo.token}`);
+        const onResize = () => {
+            term.fit();
+            // 把web终端的尺寸term.rows和term.cols发给服务端, 通知sshd调整输出宽度
+            var msg = {
+              type: "resize",
+              rows: term.rows,
+              cols: term.cols
+            };
+            ws.send(JSON.stringify(msg));
+        };
         ws.onopen = (evt) => {
 //          console.log("onopen");
+          onResize();
           var msg = {type: "input", input: '\r'};
-          ws.send(JSON.stringify(msg))
+          ws.send(JSON.stringify(msg));
         };
         ws.onclose = (evt) => {
 //          console.log("onclose")
@@ -555,20 +566,11 @@
           }
         };
         ws.onerror = (evt) => {
-          console.log("onerror");
+//          console.log("onerror");
           console.log(evt);
         };
         // 当浏览器窗口变化时, 重新适配终端
-        window.addEventListener("resize", () => {
-          term.fit();
-          // 把web终端的尺寸term.rows和term.cols发给服务端, 通知sshd调整输出宽度
-          var msg = {
-            type: "resize",
-            rows: term.rows,
-            cols: term.cols
-          };
-          ws.send(JSON.stringify(msg));
-        });
+        window.addEventListener("resize", onResize);
         // 当向web终端敲入字符时候的回调
         term.on('data', (input) => {
           // 写给服务端, 由服务端发给container
