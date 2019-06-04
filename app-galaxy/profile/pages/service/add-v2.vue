@@ -55,7 +55,7 @@
               <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
                          :key="index" :label="item.label" :value="item.value">
                 <div style="margin: 3px 0px">
-                  <div style="font-size: 14px; font-weight: bold; line-height: 20px;">{{ item.label }}</div>
+                  <div style="font-size: 15px; font-weight: bold; line-height: 20px;">{{ item.label }}</div>
                   <div style="color: gray; font-size: 12px; line-height: 14px;">{{ item.desc }}</div>
                 </div>
               </el-option>
@@ -1263,11 +1263,12 @@
             });
           }
 
+          // override default value by serviceInfo passed
           if (this.forModify || this.forCopy) {
             // set default value by passedData if necessary
             const serviceInfo = this.dataPassed.serviceInfo;
-            if (serviceInfo && serviceInfo.image.hasOwnProperty('customImage')) {
-              if (serviceInfo.image.customImage) {
+            if (serviceInfo && serviceInfo.image.hasOwnProperty('customImage') && serviceInfo.image.customImage != 'has-used') {
+              if (serviceInfo.image.customImage === true) {
                 // 自定义镜像
                 // if (!this.propsUsed.customImageValue && customImageList.indexOf(serviceInfo.image.location) > -1) {
                 //   this.formData.customImageValue = serviceInfo.image.location;
@@ -1276,7 +1277,7 @@
                 //因为从harbor得到数据不稳定，所以直接赋值，不需要匹配
                 this.formData.customImageValue = serviceInfo.image.location;
                 this.propsUsed.customImageValue = true;
-              } else {
+              } else if (serviceInfo.image.customImage === false) {
                 // 自动打镜像
                 // if (!this.propsUsed.autoImageValue && autoImageList.indexOf(serviceInfo.image.location) > -1) {
                 //   this.formData.autoImageValue = serviceInfo.image.location;
@@ -1285,8 +1286,13 @@
                 this.formData.autoImageValue = serviceInfo.image.location;
                 this.propsUsed.autoImageValue = true;
               }
+              // serviceInfo.image passed used only once
+              serviceInfo.image.customImage = 'has-used';
             }
-          } else if (this.imageInfoFromNet.autoImageList[0]) {
+          }
+
+          // set default value for this.formData.autoImageValue
+          if (!this.imageSelectState.customImage &&  !this.imageInfoFromNet.autoImageList.find(it => this.formData.autoImageValue === it.label)) {
             this.formData.autoImageValue = this.imageInfoFromNet.autoImageList[0].label;
           }
 
