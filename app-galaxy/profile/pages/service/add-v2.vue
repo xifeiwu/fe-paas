@@ -346,7 +346,7 @@
               <span>
                 <el-tooltip slot="trigger" effect="dark" placement="top">
                     <div slot="content">
-                      <div>从触发容器删除请求【到】完成删除的【宽限】时间，这是一种容器钩子，在该钩子对应的 hook handler 完成后不论执行的结果如何， Docker daemon 会发送一个 SIGTERN 信号量给 Docker daemon 来删除该容器，默认60秒</div>
+                      <div>从触发容器删除请求到完成删除的宽限时间，这是一种容器钩子，在该钩子对应的 hook handler 完成后不论执行的结果如何， Docker daemon 会发送一个 SIGTERN 信号量给 Docker daemon 来删除该容器，默认60秒</div>
                     </div>
                     <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
                 </el-tooltip>
