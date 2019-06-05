@@ -859,10 +859,52 @@
             break;
           case 'go-to-page-instance-terminal-from-instance':
             infoForPageTerminal = this.getInfoForPageInstanceTerminal(row);
-            if (infoForPageTerminal) {
-              window.open(`${this.$net.page['instance-terminal']}${this.$utils.objectToQueryString(infoForPageTerminal)}`, '_blank');
-            } else {
+            if (!infoForPageTerminal) {
               this.$message.error('所需信息不完整，请刷新页面重试！');
+            }
+            const h = this.$createElement;
+            try {
+              if (this.profileInfo.spaceType === 'PRODUCTION') {
+                await this.$msgbox({
+                  title: '提示',
+                  message: h('div', null, ['1）在生产环境终端的操作均会记录操作日志，请勿进行危险、不安全或不合规的操作。',
+                    '2）严禁使用比较耗费性能的命令（如：dd命令、cat大日志文件等），否则容易造成容器崩溃重启。',
+                    '3）查看大日志文件，推荐使用less、tail或more查看。'].map(it => {
+                    return h('div', null, it);
+                  }).concat(h('div', null, [
+                    h('span', null, '请在下面输入框中输入文本"'),
+                    h('span', {class: ['badge', 'danger']}, '已知晓'),
+                    h('span', null, '"，点击确定后进入终端页面。'),
+                  ]))),
+                  showCancelButton: true,
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  $type: 'prompt',
+                  showInput: true,
+                  inputPlaceholder: '输入红色背景的文本',
+                  inputValidator: (inputValue) => {
+                    if (inputValue !== '已知晓') {
+                      return '请输入"已知晓"';
+                    } else {
+                      return true;
+                    }
+                  },
+                  beforeClose(action, component, done) {
+                    if (action === 'confirm') {
+                      component.confirmButtonLoading = true;
+                      setTimeout(() => {
+                        component.confirmButtonLoading = false;
+                        done();
+                      }, 800);
+                    } else {
+                      done();
+                    }
+                  }
+                });
+              }
+              window.open(`${this.$net.page['instance-terminal']}${this.$utils.objectToQueryString(infoForPageTerminal)}`, '_blank');
+            } catch(err) {
+              console.log(err);
             }
             break;
           case 'go-to-log-run-from-instance':
