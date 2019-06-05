@@ -341,6 +341,11 @@
     .el-range-input {
       width: 36%;
     }
+    &.disable-close {
+      .el-range-input {
+        width: 40%;
+      }
+    }
   }
 
   /*fix the style of el-select when filterable property is used*/

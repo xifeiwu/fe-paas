@@ -4,15 +4,15 @@
       <div class="item">
         <el-checkbox v-model="searchForm.onlyUndone">未完成工单</el-checkbox>
         <label>审批状态:</label>
-        <el-select v-model="searchForm.status" size="mini" placeholder="请选择" multiple>
+        <el-select v-model="searchForm.status" size="mini" placeholder="请选择">
           <el-option v-for="item in statusList" :key="item.id" :label="item.name" :value="item.id">
           </el-option>
         </el-select>
       </div>
       <div class="item">
         <label>申请时间:</label>
-        <el-date-picker style="display: inline-block; width: 240px;"
-                        class="custom"
+        <el-date-picker style="display: inline-block; width: 220px;"
+                        class="custom disable-close"
                         v-model="searchForm.dateRange"
                         type="daterange"
                         size="mini"
@@ -21,32 +21,30 @@
                         range-separator="至"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期"
+                        :enableClose="false"
                         :picker-options="datePickerOptions">
         </el-date-picker>
       </div>
       <div class="item">
         <label>关键字:</label>
         <el-input v-model="searchForm.filterKey"
-                size="mini" style="display: inline-block; width: 320px;">
+                size="mini" style="display: inline-block; width: 300px;">
           <i :class="searchForm.filterKey && searchForm.filterKey.length > 0 ? 'paas-icon-close' : 'el-icon-search'"
              slot="suffix" style="line-height: 26px;"
              @click="evt => evt.target.classList.contains('paas-icon-close') ? searchForm.filterKey = '' : ''"></i>
         </el-input>
       </div>
-      <el-button
-              size="mini-extral"
-              type="primary"
-              @click="handleButtonClick('search')">搜索</el-button>
-      <el-button
-              size="mini-extral"
-              type="primary"
-              @click="handleButtonClick('refresh')">刷新</el-button>
-      <el-button
-          size="mini-extral"
-          type="primary"
-          :class="[$storeHelper.permission['work-order_download'].disabled ? 'disabled' : 'warning']"
-          @click="handleButtonClick('work-order_download', '', $event)">下载工单
-      </el-button>
+      <div class="item">
+        <el-button size="mini-extral" type="primary"
+                @click="handleButtonClick('refresh')">刷新</el-button>
+        <el-button
+            size="mini-extral" style="margin-left: 3px;"
+            plain type="primary"
+            :class="[$storeHelper.permission['work-order_download'].disabled ? 'disabled' : 'warning']"
+            @click="handleButtonClick('work-order_download', '', $event)">
+          <i class="el-icon-download"></i><span>下载工单</span>
+        </el-button>
+      </div>
     </div>
     <div class="work-order-list">
       <el-table :data="workOrderListByPage"
@@ -310,10 +308,11 @@
           // workOrderName, creator通过filterKey进行假搜索
           workOrderName: '',
           creator: '',
+          // status不再向后端发送
+          status: [],
 
           filterKey: '',
           onlyUndone: true,
-          status: 'STATUS_ALL',
           dateRange: '',
         },
         queueForWaitingResponse: [],
@@ -358,10 +357,7 @@
         pageSize: 10,
         currentPage: 1,
 
-        statusList: [{
-          id: 'STATUS_ALL',
-          name: '全部'
-        }, {
+        statusUnDone: [{
           id: 'WORKORDER_APPLY',
           name: '工单申请'
         }, {
@@ -382,13 +378,17 @@
         }, {
           id: 'ACCEPTANCEING',
           name: '验收受理中'
-        }, {
+        },
+//          {
+//          id: 'STATUS_ALL',
+//          name: '全部'
+//        }
+        ],
+        statusDone: [{
           id: 'END',
           name: '结束'
         }],
-        statusUnDone: [
-
-        ],
+        statusList: [],
         datePickerOptions: {
           shortcuts: [{
             text: '最近一周',
@@ -429,7 +429,21 @@
     watch: {
       'searchForm.dateRange': function (value) {
         this.requestWorkOrderList();
-      }
+      },
+      'searchForm.onlyUndone': {
+        immediate: true,
+        handler(onlyUndone) {
+          if (onlyUndone) {
+            this.statusList = this.statusUnDone;
+            this.searchForm.status = this.statusList.map(it => it.id);
+          } else {
+            this.statusList = this.statusUnDone.concat(this.statusDone);
+          }
+        }
+      },
+      'searchForm.status': function (statusList) {
+        console.log(statusList);
+      },
     },
     computed: {
       workOrderListByPage() {
@@ -467,10 +481,6 @@
       },
       handleButtonClick(action, params, evt) {
         switch (action) {
-          case 'search':
-            this.currentPage = 1;
-            this.requestWorkOrderList();
-            break;
           case 'refresh':
             this.currentPage = 1;
             this.setDateRange();
