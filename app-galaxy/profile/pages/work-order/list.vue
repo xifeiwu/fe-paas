@@ -1,56 +1,52 @@
 <template>
   <div id="work-order-list">
     <div class="header">
-      <el-row class="operation">
-        <div class="item">
-          <label>审批工单名称</label>
-          <el-input
-                  v-model="searchForm.workOrderName"
-                  size="mini" style="display: inline-block; width: 160px;"></el-input>
-        </div>
-        <div class="item">
-          <label>申请人</label>
-          <el-input
-                  v-model="searchForm.creator"
-                  size="mini" style="display: inline-block; width: 160px;"></el-input>
-        </div>
-        <div class="item">
-          <label>审批状态</label>
-          <el-select v-model="searchForm.status" placeholder="请选择" multiple>
-            <el-option v-for="item in statusList" :key="item.id" :label="item.name" :value="item.id">
-            </el-option>
-          </el-select>
-        </div>
-        <div class="item">
-          <label>申请时间</label>
-          <el-date-picker style="display: inline-block; width: 240px;"
-                          class="custom"
-                          v-model="searchForm.dateRange"
-                          type="daterange"
-                          size="mini"
-                          align="right"
-                          unlink-panels
-                          range-separator="至"
-                          start-placeholder="开始日期"
-                          end-placeholder="结束日期"
-                          :picker-options="datePickerOptions">
-          </el-date-picker>
-        </div>
-        <el-button
-                size="mini-extral"
-                type="primary"
-                @click="handleButtonClick('search')">搜索</el-button>
-        <el-button
-                size="mini-extral"
-                type="primary"
-                @click="handleButtonClick('refresh')">刷新</el-button>
-        <el-button
-            size="mini-extral"
-            type="primary"
-            :class="[$storeHelper.permission['work-order_download'].disabled ? 'disabled' : 'warning']"
-            @click="handleButtonClick('work-order_download', '', $event)">下载工单
-        </el-button>
-      </el-row>
+      <div class="item">
+        <el-checkbox v-model="searchForm.onlyUndone">未完成工单</el-checkbox>
+        <label>审批状态:</label>
+        <el-select v-model="searchForm.status" size="mini" placeholder="请选择" multiple>
+          <el-option v-for="item in statusList" :key="item.id" :label="item.name" :value="item.id">
+          </el-option>
+        </el-select>
+      </div>
+      <div class="item">
+        <label>申请时间:</label>
+        <el-date-picker style="display: inline-block; width: 240px;"
+                        class="custom"
+                        v-model="searchForm.dateRange"
+                        type="daterange"
+                        size="mini"
+                        align="right"
+                        unlink-panels
+                        range-separator="至"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                        :picker-options="datePickerOptions">
+        </el-date-picker>
+      </div>
+      <div class="item">
+        <label>关键字:</label>
+        <el-input v-model="searchForm.filterKey"
+                size="mini" style="display: inline-block; width: 320px;">
+          <i :class="searchForm.filterKey && searchForm.filterKey.length > 0 ? 'paas-icon-close' : 'el-icon-search'"
+             slot="suffix" style="line-height: 26px;"
+             @click="evt => evt.target.classList.contains('paas-icon-close') ? searchForm.filterKey = '' : ''"></i>
+        </el-input>
+      </div>
+      <el-button
+              size="mini-extral"
+              type="primary"
+              @click="handleButtonClick('search')">搜索</el-button>
+      <el-button
+              size="mini-extral"
+              type="primary"
+              @click="handleButtonClick('refresh')">刷新</el-button>
+      <el-button
+          size="mini-extral"
+          type="primary"
+          :class="[$storeHelper.permission['work-order_download'].disabled ? 'disabled' : 'warning']"
+          @click="handleButtonClick('work-order_download', '', $event)">下载工单
+      </el-button>
     </div>
     <div class="work-order-list">
       <el-table :data="workOrderListByPage"
@@ -245,19 +241,19 @@
     .header {
       padding: 5px;
       font-size: 14px;
-      text-align: center;
-      .el-row.operation {
+      .item {
         display: inline-block;
-        .item {
-          display: inline-block;
-          label {
-            /*color: #409EFF*/
+        margin-right: 6px;
+        label {
+          color: black;
+          font-weight: bold;
+        }
+        .paas-icon-close {
+          &:hover {
             color: black;
+            cursor: pointer;
           }
         }
-      }
-      .el-select .el-input__inner {
-        height: 26px;
       }
     }
     /*not used*/
@@ -311,8 +307,12 @@
         heightOfWorkOrderList: '',
 
         searchForm: {
+          // workOrderName, creator通过filterKey进行假搜索
           workOrderName: '',
           creator: '',
+
+          filterKey: '',
+          onlyUndone: true,
           status: 'STATUS_ALL',
           dateRange: '',
         },
@@ -468,7 +468,6 @@
       handleButtonClick(action, params, evt) {
         switch (action) {
           case 'search':
-//            console.log(this.searchForm);
             this.currentPage = 1;
             this.requestWorkOrderList();
             break;
@@ -612,10 +611,13 @@
        */
       async requestWorkOrderList() {
         let options = {
+          // 工单名称
           name: '',
+          // 申请人
           creatorName: '',
-          startTime: '',
+          // 审批状态
           // status: '',
+          startTime: '',
           endTime: ''
         };
         if (this.searchForm.workOrderName) {
