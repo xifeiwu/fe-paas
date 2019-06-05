@@ -517,6 +517,11 @@ class Net extends NetBase {
         path: '/middleware/queryMiddlewareVersion',
         method: 'get'
       },
+      // 获取配额信息
+      'middleware_middleware_quota': {
+        path: '/middleware/getOpenShiftQuota',
+        method: 'post'
+      },
       // 获取实例列表
       'middleware_middleware_instance_info_basic': {
         path: '/middleware/queryMiddlewareRuntime',

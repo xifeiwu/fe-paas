@@ -9,7 +9,7 @@
         </el-button>
       </el-col>
 
-      <el-col :span="19">
+      <el-col :span="2">
         <el-button size="mini"
                    type="primary"
                    :class="{'flex': true, 'disabled': $storeHelper.permission['middleware_mariadb_instance_create'].disabled}"
@@ -24,6 +24,13 @@
                    <!--@click="handleButtonClick($event, '')">-->
           <!--<span>数据迁移</span>-->
         <!--</el-button>-->
+      </el-col>
+
+      <el-col :span="17">
+        <el-tag type="success" v-if="hasQuota">
+          <i class="el-icon-info"></i>
+          <span>配额提示：该团队总配额（所有中间件、环境累计）：CPU {{resourceQuota.quotaCpuUsed}}核 / {{resourceQuota.quotaCpuTotal}}核；内存 {{resourceQuota.quotaMemoryUsed}} / {{resourceQuota.quotaMemoryTotal}}GB；磁盘 {{resourceQuota.quotaStorageUsed}} / {{resourceQuota.quotaStorageTotal}}GB；</span>
+        </el-tag>
       </el-col>
 
       <el-col :span="3">
@@ -552,13 +559,14 @@
   module.exports = {
     mixins: [commonUtils],
     async created() {
-      // request for clusterList
-//      await this.checkBasicData4Middleware(null);
-      // will request list at change of profileName
-//      await this.requestInstanceList();
       if (this.$storeHelper.clusterList) {
         this.onClusterList(this.$storeHelper.clusterList);
       }
+      // request for clusterList
+      // await this.checkBasicData4Middleware(null);
+      // will request list at change of profileName
+      // await this.requestInstanceList();
+
     },
     mounted() {
       // update value in next tick
@@ -568,7 +576,8 @@
 //        if (this.appInfoListOfGroup) {
 //          this.onAppInfoListOfGroup(this.appInfoListOfGroup);
 //        }
-      });
+        this.requestQuotaOfGroup();
+      }, 1000);
     },
     data() {
       return {
@@ -615,6 +624,9 @@
           clusterReference: '',
         },
 
+        resourceQuota: {},
+        hasQuota: false,
+
         tableSort: {
           prop: 'formattedCreateTime',
           order: 'descending',
@@ -637,6 +649,7 @@
       '$storeHelper.screen.size': 'onScreenSizeChange',
       '$storeHelper.groupInfo.id': function () {
         this.requestInstanceList();
+        this.requestQuotaOfGroup();
         this.expandRows = [];
       },
       'profileName': async function(profileName) {
@@ -673,6 +686,35 @@
         if (!this.profileName) {
           this.profileName = this.unProductionClusterList[0]['clusterName'];
         }
+      },
+      async requestQuotaOfGroup() {
+
+        this.resourceQuota = {};
+        this.hasQuota = false;
+        await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_quota, {
+          payload: {
+            clusterId: this.clusterInfo.id,
+            namespace: this.$storeHelper.groupInfo.tag
+          }
+        }).then(resContent => {
+          if (resContent.type && resContent.type === 'error') {
+            return;
+          }
+          this.resourceQuota['quotaCpuTotal'] = resContent['cpuTotal'];
+          this.resourceQuota['quotaCpuUsed'] = parseFloat(resContent['cpuUsed'] / 1024).toFixed(2);
+          this.resourceQuota['quotaMemoryTotal'] = resContent['memoryTotal'];
+          this.resourceQuota['quotaMemoryUsed'] = bytes(parseInt(resContent['memoryUsed']));
+          this.resourceQuota['namespace'] = resContent['namespace'];
+          this.resourceQuota['quotaStorageTotal'] = resContent['storageTotal'];
+          this.resourceQuota['quotaStorageUsed'] = bytes(parseInt(resContent['storageUsed']));
+          this.hasQuota = true;
+          // console.log(this.resourceQuota);
+        }).catch((err) => {
+          console.log(err);
+          this.hasQuota = false;
+        });
+
+
       },
       async requestBackupList() {
         this.backupList = [];
@@ -906,7 +948,7 @@
                   namespace: this.action.row.namespace
                 }
               });
-              console.log(resp);
+              // console.log(resp);
               if (resp.type === 'error') {
                 this.$message.warning(resp.message);
                 this.hideWaitingResponse(action);
