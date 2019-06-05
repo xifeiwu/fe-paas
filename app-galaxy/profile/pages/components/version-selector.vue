@@ -1,15 +1,15 @@
 <template>
   <div class="paas-version-selector">
-    <div class="item">
+    <div class="item app-list">
       <label>应用名称:</label>
-      <el-select filterable v-model="selectedAppId" placeholder="请选择">
+      <el-select filterable v-model="selectedAppId" size="mini-extral" placeholder="请选择">
         <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">
         </el-option>
       </el-select>
     </div>
     <div class="item">
       <label>运行环境:</label>
-      <el-select v-model="selectedProfileId" placeholder="请选择">
+      <el-select v-model="selectedProfileId" size="mini-extral" placeholder="请选择">
         <el-option v-for="item in currentProfileList" :key="item.id" :label="item.description" :value="item.id">
         </el-option>
       </el-select>
@@ -24,19 +24,20 @@
   </div>
 </template>
 
-<style lang="scss">
-  .paas-version-selector {
-    .el-select .el-input__inner {
-      height: 24px;
-    }
-  }
-</style>
 <style lang="scss" scoped>
   .paas-version-selector {
     font-size: 14px;
     .item {
       display: inline-block;
       margin-right: 3px;
+      label {
+        font-weight: bold;
+      }
+      &.app-list {
+        .el-select {
+          min-width: 260px;
+        }
+      }
     }
   }
 </style>
