@@ -16,7 +16,7 @@
         </div>
         <div class="item">
           <label>审批状态</label>
-          <el-select v-model="searchForm.status" placeholder="请选择">
+          <el-select v-model="searchForm.status" placeholder="请选择" multiple>
             <el-option v-for="item in statusList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
@@ -68,7 +68,7 @@
         </el-table-column>
         <el-table-column label="团队" prop="groupName" minWidth="160" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="操作" headerAlign="center" align="center" minWidth="80">
+        <el-table-column label="操作" headerAlign="center" align="center" minWidth="100">
           <template slot-scope="scope">
             <el-button
                     type="text"
@@ -370,15 +370,7 @@
         }, {
           id: 'TESTING',
           name: '测试受理中'
-        },
-//          {
-//          id: 'WAIT_DBA',
-//          name: '等待DBA处理'
-//        }, {
-//          id: 'DBAING',
-//          name: 'DBA受理中'
-//        },
-          {
+        }, {
           id: 'WAIT_DEPLOY',
           name: '等待部署'
         }, {
@@ -394,6 +386,9 @@
           id: 'END',
           name: '结束'
         }],
+        statusUnDone: [
+
+        ],
         datePickerOptions: {
           shortcuts: [{
             text: '最近一周',
@@ -619,8 +614,8 @@
         let options = {
           name: '',
           creatorName: '',
-          status: '',
           startTime: '',
+          // status: '',
           endTime: ''
         };
         if (this.searchForm.workOrderName) {
@@ -628,15 +623,6 @@
         }
         if (this.searchForm.creator) {
           options.creatorName = this.searchForm.creator.trim();
-        }
-        if (this.searchForm.status) {
-          if (this.searchForm.status == 'STATUS_ALL') {
-            delete options.status;
-          } else {
-            options.status = this.searchForm.status;
-          }
-        } else {
-          delete options.status;
         }
         if (this.searchForm.dateRange) {
           let dateRange = this.searchForm.dateRange.map(it => {
