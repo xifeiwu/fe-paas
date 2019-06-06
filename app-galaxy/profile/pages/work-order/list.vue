@@ -4,10 +4,10 @@
       <div class="item">
         <el-checkbox v-model="searchForm.onlyUndone">未完成工单</el-checkbox>
         <label>审批状态:</label>
-        <el-select v-model="searchForm.status" size="mini" placeholder="请选择">
+        <el-select-custom v-model="searchForm.status" size="mini" filterable multiple placeholder="请选择">
           <el-option v-for="item in statusList" :key="item.id" :label="item.name" :value="item.id">
           </el-option>
-        </el-select>
+        </el-select-custom>
       </div>
       <div class="item">
         <label>申请时间:</label>
@@ -28,7 +28,7 @@
       <div class="item">
         <label>关键字:</label>
         <el-input v-model="searchForm.filterKey"
-                size="mini" style="display: inline-block; width: 300px;">
+                size="mini" style="display: inline-block; width: 240px;">
           <i :class="searchForm.filterKey && searchForm.filterKey.length > 0 ? 'paas-icon-close' : 'el-icon-search'"
              slot="suffix" style="line-height: 26px;"
              @click="evt => evt.target.classList.contains('paas-icon-close') ? searchForm.filterKey = '' : ''"></i>
@@ -559,21 +559,10 @@
               this.operation.name = action;
             });
             return;
-//            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, workOrderBasic).then(detail => {
-//              this.hideWaitingResponse('detail');
-//              this.workOrderDetail = detail;
-//              console.log(JSON.stringify(detail));
-//              this.operation.name = action;
-//              updateExpandRows();
-//            }).catch(err => {
-//              this.hideWaitingResponse('detail');
-//              this.operation.name = action;
-//            });
             break;
           case 'go-to-page-log-deploy-from-work-order-list':
             this.addToWaitingResponseQueue(action);
             WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
-//            WorkerOrderPropUtils.getWorkOrderDetailByBasic(this, row).then(detail => {
               // 平台管理员不受限制
               if (this.$storeHelper.getUserInfo('role') !== '平台管理员') {
                 // NOTICE: set groupID when
@@ -655,6 +644,9 @@
           it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
         });
         this.totalSize = resContent['workOrderDeployList'].length;
+      },
+      async updateWorkOrderListByPage() {
+
       },
 
       async downloadWorkOrderList() {

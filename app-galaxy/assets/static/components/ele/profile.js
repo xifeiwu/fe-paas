@@ -38,6 +38,7 @@ import RadioButton from 'element-ui/packages/radio-button/index.js';
 import Row from 'element-ui/packages/row/index.js';
 import Scrollbar from 'element-ui/packages/scrollbar/index.js';
 import Select from 'element-ui/packages/select/index.js';
+import SelectCustom from 'element-ui/packages/select-custom/index.js';
 import Slider from 'element-ui/packages/slider/index.js';
 import Step from 'element-ui/packages/step/index.js';
 import Steps from 'element-ui/packages/steps/index.js';
@@ -91,6 +92,7 @@ const components = [
   Row,
   Scrollbar,
   Select,
+  SelectCustom,
   Slider,
   Step,
   Steps,
@@ -183,6 +185,7 @@ module.exports = {
   Row,
   Scrollbar,
   Select,
+  SelectCustom,
   Slider,
   Step,
   Steps,

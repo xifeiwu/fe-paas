@@ -51,6 +51,7 @@
   "row": "element-ui/packages/row/index.js",
   "scrollbar": "element-ui/packages/scrollbar/index.js",
   "select": "element-ui/packages/select/index.js",
+  "select-custom": "element-ui/packages/select-custom/index.js",
   "slider": "element-ui/packages/slider/index.js",
   // "spinner": "element-ui/packages/spinner/index.js",
   "step": "element-ui/packages/step/index.js",
