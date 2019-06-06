@@ -27,7 +27,7 @@
       </div>
       <div class="item">
         <label>关键字:</label>
-        <el-input v-model="searchForm.filterKey"
+        <el-input v-model="searchForm.filterKey" placeholder="包括审批工单名称、申请人、团队"
                 size="mini" style="display: inline-block; width: 240px;">
           <i :class="searchForm.filterKey && searchForm.filterKey.length > 0 ? 'paas-icon-close' : 'el-icon-search'"
              slot="suffix" style="line-height: 26px;"
@@ -58,7 +58,7 @@
         </el-table-column>
         <el-table-column label="状态" prop="statusName" width="100" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="申请时间" prop="createTime" width="140" headerAlign="center" align="center">
+        <el-table-column label="申请时间" prop="formattedCreateTime" width="140" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="团队" prop="groupName" minWidth="160" headerAlign="center" align="center">
         </el-table-column>
@@ -318,6 +318,7 @@
         queueForWaitingResponse: [],
 
         workOrderList: [],
+        workOrderListByPage: [],
         getRowKeys: function (row) {
           return row.id;
         },
@@ -428,7 +429,7 @@
     },
     watch: {
       'searchForm.dateRange': function (value) {
-        this.requestWorkOrderList();
+        this.updateWorkOrderListByPage(true);
       },
       'searchForm.onlyUndone': {
         immediate: true,
@@ -442,19 +443,16 @@
         }
       },
       'searchForm.status': function (statusList) {
-        console.log(statusList);
+        this.updateWorkOrderListByPage();
+      },
+      'searchForm.filterKey': function () {
+        this.updateWorkOrderListByPage();
+      },
+      'currentPage': function () {
+        this.updateWorkOrderListByPage();
       },
     },
     computed: {
-      workOrderListByPage() {
-        let page = this.currentPage - 1;
-        page = page >= 0 ? page : 0;
-        let start = page * this.pageSize;
-        let length = this.pageSize;
-        let end = start + length;
-        let result = this.workOrderList.slice(start, end);
-        return result
-      },
     },
     methods: {
       // helper for loading action of el-button
@@ -483,6 +481,7 @@
         switch (action) {
           case 'refresh':
             this.currentPage = 1;
+            // updateWorkOrderListByPage will be triggered by change of dataRange
             this.setDateRange();
             break;
           case 'linker':
@@ -640,13 +639,30 @@
           payload: options
         });
         this.workOrderList = resContent['workOrderDeployList'];
-        this.workOrderList.forEach(it => {
-          it.createTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-        });
-        this.totalSize = resContent['workOrderDeployList'].length;
       },
-      async updateWorkOrderListByPage() {
 
+      async updateWorkOrderListByPage(refresh = false) {
+        if (refresh) {
+          await this.requestWorkOrderList();
+        }
+        this.workOrderListByPage = [];
+
+        const filteredList = this.workOrderList.filter(it => {
+          return this.searchForm.status.indexOf(it.status) > -1;
+        }).filter(it => {
+          return new RegExp(this.searchForm.filterKey).exec(['name', 'creatorName', 'groupName'].map(key => it[key]).join(''));
+        });
+        this.totalSize = filteredList.length;
+
+        var page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        var start = page * this.pageSize;
+        var length = this.pageSize;
+        var end = start + length;
+        this.workOrderListByPage = filteredList.slice(start, end).map(it => {
+          it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+          return it;
+        });
       },
 
       async downloadWorkOrderList() {
