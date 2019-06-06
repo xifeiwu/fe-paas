@@ -154,7 +154,6 @@
                     type="text"
                     :class="['flex', $storeHelper.permission['go-to-page-terminal-from-instance'].disabled || isMesosService ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'go-to-page-instance-terminal-from-instance', scope.$index, scope.row)"
-                    v-if="$storeHelper.userInfo.role == '平台管理员'"
             ><span class="new-terminal"><span>新终端</span><span class="beta">(beta)</span></span></el-button>
             <div class="ant-divider"></div>
             <el-button
