@@ -99,7 +99,7 @@
           </el-option>
         </el-select>
         </el-form-item>
-        <el-form-item label="内容" prop="content" placeholder="不超过255个字符">
+        <el-form-item label="内容" prop="content" placeholder="不超过800个字符">
           <el-input type="textarea"  :rows="3" v-model="action.data.content"></el-input>
         </el-form-item>
       </el-form>
@@ -228,8 +228,8 @@
             message: '请填写消息体',
           }, {
             validator(rule, values, callback) {
-              if (values.length > 255) {
-                callback('不能超过255个字符')
+              if (values.length > 800) {
+                callback('不能超过800个字符')
               } else {
                 callback();
               }
