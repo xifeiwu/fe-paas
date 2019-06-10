@@ -5,7 +5,8 @@
     <div class="section-title">{{forModify ? '修改Redis实例配置' : '申请Redis实例'}}</div>
     <el-tag type="warning">
       <i class="el-icon-warning"></i>
-      <span>温馨提示：因平台资源受限，目前每个团队能申请的（所有环境累计）：CPU总量≤8核，内存总量≤16G，磁盘总量≤100G；待资源放开后可满足更多资源需求。</span>
+      <span v-if="hasQuota">温馨提示：因平台资源受限，目前每个团队能申请的（所有环境累计）：CPU总量≤{{resourceQuota.quotaCpuTotal}}核，内存总量≤{{resourceQuota.quotaMemoryTotal}}G，磁盘总量≤{{resourceQuota.quotaStorageTotal}}GB；如需更多资源请联系PaaS平台。</span>
+      <span v-else>温馨提示：因平台资源受限，目前每个团队能申请的（所有环境累计）：CPU总量≤8核，内存总量≤16G，磁盘总量≤100G；如需更多资源请联系PaaS平台。</span>
     </el-tag>
     <el-form :model="formData" :rules="formRules" size="mini"
              ref="createInstanceForm" label-width="120px">
@@ -188,6 +189,8 @@
       if (this.middlewareVersionList.length > 0) {
         this.formData.versionId = this.middlewareVersionList[0]['id'];
       }
+
+      this.requestQuotaOfGroup();
     },
 
     mounted() {
@@ -226,7 +229,8 @@
           comment: '',
         },
         formRules: utils.redisRules,
-
+        resourceQuota: {},
+        hasQuota: false,
       }
     },
     watch: {
@@ -261,6 +265,33 @@
         } else {
           this.middlewareVersionList = [];
         }
+      },
+      async requestQuotaOfGroup() {
+
+        this.resourceQuota = {};
+        this.hasQuota = false;
+        await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_quota, {
+          payload: {
+            clusterId: this.clusterInfo.id,
+            namespace: this.$storeHelper.groupInfo.tag
+          }
+        }).then(resContent => {
+          if (resContent.type && resContent.type === 'error') {
+            return;
+          }
+          this.resourceQuota['quotaCpuTotal'] = resContent['cpuTotal'];
+          this.resourceQuota['quotaCpuUsed'] = parseFloat(resContent['cpuUsed'] / 1024).toFixed(2);
+          this.resourceQuota['quotaMemoryTotal'] = resContent['memoryTotal'];
+          this.resourceQuota['quotaMemoryUsed'] = bytes(parseInt(resContent['memoryUsed']));
+          this.resourceQuota['namespace'] = resContent['namespace'];
+          this.resourceQuota['quotaStorageTotal'] = resContent['storageTotal'];
+          this.resourceQuota['quotaStorageUsed'] = bytes(parseInt(resContent['storageUsed']));
+          this.hasQuota = true;
+          // console.log(this.resourceQuota);
+        }).catch((err) => {
+          console.log(err);
+          this.hasQuota = false;
+        });
       },
       async handleClick(evt, action) {
         const formData = this.formData;
