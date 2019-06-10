@@ -446,7 +446,12 @@
         this.updateWorkOrderListByPage();
       },
       'searchForm.filterKey': function () {
-        this.updateWorkOrderListByPage();
+        if (this.currentPage > 1) {
+          // update workOrderListByPage by change of currentPage
+          this.currentPage = 1;
+        } else {
+          this.updateWorkOrderListByPage();
+        }
       },
       'currentPage': function () {
         this.updateWorkOrderListByPage();
