@@ -341,7 +341,7 @@
                 spaceId: row.spaceId,
                 serviceVersion: row.serviceVersion,
                 groupId: this.$storeHelper.currentGroupID,
-                workOrderDeployId:row.id
+                workOrderDeployId:this.workOrderDetail.id
               }, action === 'work-order_restart_service' ? 'quick-deploy' : 'deploy');
             } catch (err) {
               console.log(err);
