@@ -92,6 +92,7 @@
         <el-table-column
                 label="创建时间"
                 prop="formattedCreateTime"
+                sortable="custom"
                 width="90"
                 headerAlign="center" align="center">
           <template slot-scope="scope">
@@ -106,6 +107,7 @@
         <el-table-column
                 label="k8s重启时间"
                 prop="formattedStartTime"
+                sortable="custom"
                 width="100"
                 headerAlign="center" align="center"
                 v-if="!isMesosService">
@@ -958,7 +960,9 @@
         this.tableSort = tableSort;
         const keyMap = {
           'cpuUsageInPercent': 'cpuUsage',
-          'memoryStatus': 'memoryUsageBytes'
+          'memoryStatus': 'memoryUsageBytes',
+          'formattedCreateTime': 'createTime',
+          'formattedStartTime': 'startTime'
         };
         const key = keyMap[this.tableSort.prop];
         if (!key) {

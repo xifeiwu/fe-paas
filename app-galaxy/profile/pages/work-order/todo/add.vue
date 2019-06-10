@@ -98,13 +98,14 @@
                   type="success"
                   @close="handleMailGroup('remove', tag)"
           >{{tag}}</el-tag>
-          <el-input v-model="mailGroup" placeholder="请填写">
-            <template slot="append">
-              <div class="add-mail-group-btn" @click="handleMailGroup('add', mailGroup)">
-                <span>添加</span>
-              </div>
-            </template>
-          </el-input>
+          <div class="content">
+            <el-autocomplete
+                    v-model="mailGroup"
+                    :fetch-suggestions="querySearch"
+                    placeholder="请输入内容"
+                    @select="handleSelect"
+            ></el-autocomplete>
+          </div>
         </el-form-item>
         <el-form-item label="工单备注" prop="comment">
           <el-input v-model="formData.comment"
@@ -168,15 +169,12 @@
     }
     .el-form-item {
       &.mail-group {
-        .add-mail-group-btn {
-          cursor: pointer;
-          color: #E6A23C;
-          padding: 0px 8px;
-          font-weight: bold;
-          &:hover {
-            /*color: #E68C0F;*/
-            color: #F4B805;
-          }
+        .el-autocomplete {
+          width: 100%;
+        }
+        .el-tag {
+          margin-right: 3px;
+          margin-bottom: 2px;
         }
       }
     }
@@ -383,6 +381,24 @@
         this.$store.dispatch('user/usersInGroup');
         // data should be init at change of group
         this.formData.groupId = this.$storeHelper.currentGroupID;
+      },
+
+      querySearch(qs, cb) {
+        var result = []
+        if (qs) {
+          result = ['@finupgroup.com', '@renmai.com', '@iqianjin.com'].map(suffix => {
+            return {
+              value: `${qs}${suffix}`
+            }
+          });
+        }
+        cb(result);
+      },
+      handleSelect(item) {
+        if (item && item.value) {
+          this.handleMailGroup('add', item.value);
+          this.mailGroup = '';
+        }
       },
 
       // 获得生产环境的profileInfo，并将该生产环境下的appIdList加入到profileInfo
