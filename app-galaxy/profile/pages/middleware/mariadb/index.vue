@@ -897,8 +897,8 @@
                   namespace: this.$storeHelper.groupInfo.tag,
                   replicas: 1,
                   name: this.action.row.name,
-                  cpuRequests: this.newProps.cpu,
-                  memoryRequests: this.newProps.memory
+                  cpu: this.newProps.cpu,
+                  memory: this.newProps.memory
                 }
               });
 //              console.log(resContent);
