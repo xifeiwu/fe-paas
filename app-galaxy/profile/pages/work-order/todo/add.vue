@@ -385,12 +385,21 @@
 
       querySearch(qs, cb) {
         var result = []
-        if (qs) {
+        if (!qs) {
+          cb(result);
+          return;
+        }
+
+        if (qs.indexOf('@') === -1) {
           result = ['@finupgroup.com', '@renmai.com', '@iqianjin.com'].map(suffix => {
             return {
               value: `${qs}${suffix}`
             }
           });
+        } else {
+          result = [{
+            value: qs
+          }]
         }
         cb(result);
       },

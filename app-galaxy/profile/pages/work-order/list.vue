@@ -645,6 +645,7 @@
 
       async updateWorkOrderListByPage(refresh = false) {
         if (refresh) {
+          this.expandRows = [];
           await this.requestWorkOrderList();
         }
         this.workOrderListByPage = [];
