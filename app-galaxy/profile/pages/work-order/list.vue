@@ -671,7 +671,7 @@
         let payload = {
           name: '',
           creatorName: '',
-          status: '',
+//          status: '',
           startTime: '',
           endTime: ''
         };
@@ -680,15 +680,6 @@
         }
         if (this.searchForm.creator) {
           payload.creatorName = this.searchForm.creator.trim();
-        }
-        if (this.searchForm.status) {
-          if (this.searchForm.status == 'STATUS_ALL') {
-            delete payload.status;
-          } else {
-            payload.status = this.searchForm.status;
-          }
-        } else {
-          delete payload.status;
         }
         if (this.searchForm.dateRange) {
           let dateRange = this.searchForm.dateRange.map(it => {
