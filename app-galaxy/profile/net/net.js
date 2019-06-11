@@ -1448,6 +1448,9 @@ class Net extends NetBase {
         socket: '8080',
       },
       _initialDelay: 120,
+      _periodSeconds: 5,
+      _failureThreshold: 5,
+      _timeoutSeconds: 10,
 
       set type(type) {
         this._type = type;
@@ -1504,6 +1507,24 @@ class Net extends NetBase {
       get initialDelay() {
         return this._initialDelay
       },
+      set timeoutSeconds(value) {
+        this._timeoutSeconds = value
+      },
+      get timeoutSeconds() {
+        return this._timeoutSeconds
+      },
+      set failureThreshold(value) {
+        this._failureThreshold = value
+      },
+      get failureThreshold() {
+        return this._failureThreshold
+      },
+      set periodSeconds(value) {
+        this._periodSeconds = value
+      },
+      get periodSeconds() {
+        return this._periodSeconds
+      }
     }
   }
 
@@ -1618,6 +1639,9 @@ class Net extends NetBase {
         healthCheck.type = this.$storeHelper.getHealthCheckTypeDescByKey(service.healthCheckType);
         healthCheck.content = service.healthCheck;
         healthCheck.initialDelay = service.hasOwnProperty('initialDelaySeconds') ? service['initialDelaySeconds'] : 120;
+        healthCheck.periodSeconds = service.hasOwnProperty('periodSeconds') ? service['periodSeconds'] : 5;
+        healthCheck.failureThreshold = service.hasOwnProperty('failureThreshold') ? service['failureThreshold'] : 5;
+        healthCheck.timeoutSeconds = service.hasOwnProperty('timeoutSeconds') ? service['timeoutSeconds'] : 10;
         item.healthCheck = healthCheck;
 
         const portMap = {
