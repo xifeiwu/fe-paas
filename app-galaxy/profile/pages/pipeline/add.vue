@@ -25,7 +25,7 @@
                 <el-input size="mini-extral" v-model="formData.gitLabPath"></el-input>
               </el-form-item>
               <el-form-item label="gitlab分支" prop="gitLabBranch">
-                <el-input size="mini-extral" v-model="formData.gitLabBranch"></el-input>
+                <el-input size="mini-extral" v-model="formData.gitLabBranch" placeholder="请输入项目的gitLab分支，支持正表达式"></el-input>
               </el-form-item>
               <el-form-item label="webhook配置" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooks" class="webhook-config big">
                 <div class="webhook-config-content">
