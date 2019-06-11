@@ -2,6 +2,8 @@ node_modules
 dist/
 .sass-cache
 .idea
+*.iml
+yarn-error.log
 server/logs
 .vscode
 .dockrc
