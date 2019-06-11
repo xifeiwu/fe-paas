@@ -108,6 +108,7 @@
               </el-button>
               <div class="ant-divider"></div>
               <el-button
+                      v-if="isProductionProfile"
                       size="small"
                       type="text"
                       :loading="statusOfWaitingResponse('rolling_up') && action.row.appId == scope.row.appId"
@@ -115,7 +116,8 @@
                       :class="'danger'">
                 {{'回滚'}}
               </el-button>
-              <div class="ant-divider"></div>
+              <div class="ant-divider"
+                   v-if="isProductionProfile"></div>
               <el-button
                       size="small"
                       type="text"
@@ -340,7 +342,7 @@
           <div class="work-order-list" style="height: 100%;"
                :key="rollingUpStatus.pageList[0]['key']"
                v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[0]['key']">
-            <div style="text-align: left; font-size: 12px; line-height: 24px; padding-left: 8px; color: #67C23A; font-weight: bold">应用名称：{{actionNew.row.appName}}</div>
+            <div class="stage-desc">应用名称：{{actionNew.row.appName}}</div>
             <custom-table-component
                     :data="rollingUpStatus.workOrderList"
                     :showFilter="false"
@@ -365,7 +367,7 @@
           <div class="deploy-history-list" style="height: 100%;"
                :key="rollingUpStatus.pageList[1]['key']"
                v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[1]['key']">
-            <div style="text-align: left; font-size: 12px; line-height: 24px; padding-left: 8px; color: #67C23A; font-weight: bold">工单名称：{{rollingUpStatus.workOrderSelected.workOrderDeployName}}</div>
+            <div class="stage-desc">工单名称：{{rollingUpStatus.workOrderSelected.workOrderDeployName}}</div>
             <custom-table-component
                     :data="rollingUpStatus.deployHistoryList"
                     :showFilter="false"
@@ -380,9 +382,10 @@
                           type="text"
                           :loading="statusOfWaitingResponse('go-to-page-deploy-log') && rollingUpStatus.deployHistorySelected.id == scope.id"
                           @click="handleDialogRollingUp($event, 'go-to-page-deploy-log', scope)"
-                          :class="'primary'">
+                          :class="'primary flex'">
                     <span>查看部署日志</span><i class="paas-icon-level-up"></i>
                   </el-button>
+                  <div class="ant-divider"></div>
                   <el-button
                           size="small"
                           type="text"
@@ -395,9 +398,15 @@
               </custom-table-column>
             </custom-table-component>
           </div>
-          <div class="deploy-log" :key="rollingUpStatus.pageList[2]['key']" style=""
+          <div :key="rollingUpStatus.pageList[2]['key']" style="height: 100%; display: flex; flex-direction: column"
                v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[2]['key']">
-            <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
+            <div class="stage-desc">工单 "{{rollingUpStatus.workOrderSelected.workOrderDeployName}}" 在 "{{rollingUpStatus.deployHistorySelected.formattedCreateTime}}" 时的部署日志</div>
+            <div class="deploy-log" style="flex: 1;" v-if="deployLogs && deployLogs.length > 0">
+              <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
+            </div>
+            <div class="deploy-log" style="flex: 1;" v-else>
+              <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 12px; color: white">加载中...</div>
+            </div>
           </div>
         </transition-group>
       </div>
@@ -411,6 +420,33 @@
   </div>
 </template>
 <style lang="scss">
+  @mixin log-item() {
+    .log-item {
+      /*white-space: pre;*/
+      max-width: 100%;
+      word-wrap: break-word;
+      word-break: break-all;
+      line-height: 1.4;
+      font-size: 12px;
+      color: white;
+      .info {
+        color: #409EFF;
+        font-weight: bold;
+      }
+      .warning {
+        color: #E6A23C;
+        font-weight: bold;
+      }
+      .error {
+        color: #F56C6C;
+        font-weight: bold;
+      }
+      .success {
+        color: #67C23A;
+        font-weight: bold;
+      }
+    }
+  }
   #service-list {
     height: 100%;
     display: flex;
@@ -435,22 +471,26 @@
           padding: 0px;
           .content {
             height: calc(100% - 26px);
+            .stage-desc {
+              text-align: left;
+              font-size: 12px;
+              line-height: 24px;
+              padding-left: 8px;
+              color: #67C23A;
+              font-weight: bold
+            }
             & > span {
               display: block;
               height: 100%;
               overflow: scroll;
             }
             .deploy-log {
-              min-height: 100%;
+              flex: 1;
               background-color: rgba(0, 0, 0, 0.9);
               text-align: left;
               padding: 0px 2px;
-              .log-item {
-                max-width: 100%;
-                word-wrap: break-word;
-                word-break: break-all;
-                line-height: 1.4;
-              }
+              overflow: scroll;
+              @include log-item;
             }
           }
         }
@@ -598,29 +638,7 @@
       .el-dialog {
         width: 95%;
       }
-      .log-item {
-        /*white-space: pre;*/
-        max-width: 100%;
-        word-wrap: break-word;
-        word-break: break-all;
-        line-height: 1.4;
-      }
-      .info {
-        color: #409EFF;
-        font-weight: bold;
-      }
-      .warning {
-        color: #E6A23C;
-        font-weight: bold;
-      }
-      .error {
-        color: #F56C6C;
-        font-weight: bold;
-      }
-      .success {
-        color: #67C23A;
-        font-weight: bold;
-      }
+      @include log-item;
     }
     > .confirm-dialog {
       .el-dialog {
@@ -999,13 +1017,13 @@
             // 去部署日志页面
             try {
               this.rollingUpStatus.deployHistorySelected = data;
-              this.serviceDeploy({
+              this.handleDialogRollingUp(evt, 'breadcrumb-click', this.rollingUpStatus.pageList.find(it => it.key === 'deploy-log'));
+              await this.serviceDeploy({
                 logName: data.logName,
                 logPath: data.logPath,
                 logType: "history",
                 offset: 0
               }, 'get_deploy_history');
-              this.handleDialogRollingUp(evt, 'breadcrumb-click', this.rollingUpStatus.pageList.find(it => it.key === 'deploy-log'));
             } catch (err) {
               console.log(err);
             }
@@ -1741,7 +1759,7 @@
                       setTimeout(() => {
                         component.confirmButtonLoading = false;
                         done();
-                      }, 1500);
+                      }, 500);
                     } else {
                       done();
                     }
@@ -1827,7 +1845,7 @@
                       setTimeout(() => {
                         component.confirmButtonLoading = false;
                         done();
-                      }, 1500);
+                      }, 500);
                     } else {
                       done();
                     }
@@ -1887,7 +1905,7 @@
                       setTimeout(() => {
                         component.confirmButtonLoading = false;
                         done();
-                      }, 1500);
+                      }, 500);
                     } else {
                       done();
                     }
