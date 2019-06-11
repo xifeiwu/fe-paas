@@ -336,61 +336,65 @@
         </el-breadcrumb>
       </div>
       <div class="content" style="overflow: hidden; position: relative">
-        <transition-group name="global-zoom-in-right-1">
-          <custom-table-component
-                  style="height: 100%;"
-                  :data="rollingUpStatus.workOrderList"
-                  :showFilter="false"
-                  :key="rollingUpStatus.pageList[0]['key']"
-                  v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[0]['key']"
-          >
-            <custom-table-column show="workOrderDeployName" label="审批工单名称"></custom-table-column>
-            <custom-table-column show="creatorName" label="申请人"></custom-table-column>
-            <custom-table-column show="formattedCreateTime" label="申请时间"></custom-table-column>
-            <custom-table-column show="operation" label="操作">
-              <template slot-scope="scope">
-                <el-button
-                        size="small"
-                        type="text"
-                        :loading="statusOfWaitingResponse('go-to-page-deploy-history') && rollingUpStatus.workOrderSelected.id == scope.id"
-                        @click="handleDialogRollingUp($event, 'go-to-page-deploy-history', scope)"
-                        :class="'primary'">
-                  查看工单部署历史
-                </el-button>
-              </template>
-            </custom-table-column>
-          </custom-table-component>
-          <custom-table-component
-                  style="height: 100%;"
-                  :data="rollingUpStatus.deployHistoryList"
-                  :showFilter="false"
-                  :key="rollingUpStatus.pageList[1]['key']"
-                  v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[1]['key']"
-          >
-            <custom-table-column show="formattedCreateTime" label="部署时间"></custom-table-column>
-            <custom-table-column show="userName" label="部署人"></custom-table-column>
-            <custom-table-column show="fullImage" label="部署镜像"></custom-table-column>
-            <custom-table-column show="operation" label="操作">
-              <template slot-scope="scope">
-                <el-button
-                        size="small"
-                        type="text"
-                        :loading="statusOfWaitingResponse('go-to-page-deploy-log') && rollingUpStatus.deployHistorySelected.id == scope.id"
-                        @click="handleDialogRollingUp($event, 'go-to-page-deploy-log', scope)"
-                        :class="'primary'">
-                  查看部署日志
-                </el-button>
-                <el-button
-                        size="small"
-                        type="text"
-                        :loading="statusOfWaitingResponse('deploy-image') && rollingUpStatus.deployHistorySelected.id == scope.id"
-                        @click="handleDialogRollingUp($event, 'deploy-image', scope)"
-                        :class="'primary'">
-                  部署镜像
-                </el-button>
-              </template>
-            </custom-table-column>
-          </custom-table-component>
+        <transition-group name="global-fade-1">
+          <div class="work-order-list" style="height: 100%;"
+               :key="rollingUpStatus.pageList[0]['key']"
+               v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[0]['key']">
+            <div style="text-align: left; font-size: 12px; line-height: 24px; padding-left: 8px; color: #67C23A; font-weight: bold">应用名称：{{actionNew.row.appName}}</div>
+            <custom-table-component
+                    :data="rollingUpStatus.workOrderList"
+                    :showFilter="false"
+            >
+              <custom-table-column show="workOrderDeployName" label="审批工单名称"></custom-table-column>
+              <custom-table-column show="creatorName" label="申请人"></custom-table-column>
+              <custom-table-column show="formattedCreateTime" label="申请时间"></custom-table-column>
+              <custom-table-column show="operation" label="操作">
+                <template slot-scope="scope">
+                  <el-button
+                          size="small"
+                          type="text"
+                          :loading="statusOfWaitingResponse('go-to-page-deploy-history') && rollingUpStatus.workOrderSelected.id == scope.id"
+                          @click="handleDialogRollingUp($event, 'go-to-page-deploy-history', scope)"
+                          :class="'primary flex'">
+                    <span>查看工单部署历史</span><i class="paas-icon-level-up"></i>
+                  </el-button>
+                </template>
+              </custom-table-column>
+            </custom-table-component>
+          </div>
+          <div class="deploy-history-list" style="height: 100%;"
+               :key="rollingUpStatus.pageList[1]['key']"
+               v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[1]['key']">
+            <div style="text-align: left; font-size: 12px; line-height: 24px; padding-left: 8px; color: #67C23A; font-weight: bold">工单名称：{{rollingUpStatus.workOrderSelected.workOrderDeployName}}</div>
+            <custom-table-component
+                    :data="rollingUpStatus.deployHistoryList"
+                    :showFilter="false"
+            >
+              <custom-table-column show="formattedCreateTime" label="部署时间"></custom-table-column>
+              <custom-table-column show="userName" label="部署人"></custom-table-column>
+              <custom-table-column show="fullImage" label="部署镜像"></custom-table-column>
+              <custom-table-column show="operation" label="操作">
+                <template slot-scope="scope">
+                  <el-button
+                          size="small"
+                          type="text"
+                          :loading="statusOfWaitingResponse('go-to-page-deploy-log') && rollingUpStatus.deployHistorySelected.id == scope.id"
+                          @click="handleDialogRollingUp($event, 'go-to-page-deploy-log', scope)"
+                          :class="'primary'">
+                    <span>查看部署日志</span><i class="paas-icon-level-up"></i>
+                  </el-button>
+                  <el-button
+                          size="small"
+                          type="text"
+                          :loading="statusOfWaitingResponse('deploy-image') && rollingUpStatus.deployHistorySelected.id == scope.id"
+                          @click="handleDialogRollingUp($event, 'deploy-image', scope)"
+                          :class="'primary'">
+                    部署镜像
+                  </el-button>
+                </template>
+              </custom-table-column>
+            </custom-table-component>
+          </div>
           <div class="deploy-log" :key="rollingUpStatus.pageList[2]['key']" style=""
                v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[2]['key']">
             <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
@@ -422,9 +426,6 @@
         .el-dialog__header {
           padding: 3px 8px;
           margin-bottom: 0px;
-          .el-dialog__title {
-            font-size: 14px;
-          }
           button {
             top: 6px;
           }
