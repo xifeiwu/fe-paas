@@ -2,7 +2,7 @@
   <div id="work-order-list">
     <div class="header">
       <div class="item">
-        <el-checkbox v-model="searchForm.onlyUndone">未完成工单</el-checkbox>
+        <el-checkbox v-model="searchForm.onlyUndone" v-if="false">未完成工单</el-checkbox>
         <label>审批状态:</label>
         <el-select-custom v-model="searchForm.status" size="mini" filterable multiple placeholder="请选择">
           <el-option v-for="item in statusList" :key="item.id" :label="item.name" :value="item.id">
@@ -313,7 +313,7 @@
           status: [],
 
           filterKey: '',
-          onlyUndone: true,
+          onlyUndone: false,
           dateRange: '',
         },
         queueForWaitingResponse: [],
@@ -436,6 +436,7 @@
             this.searchForm.status = this.statusList.map(it => it.id);
           } else {
             this.statusList = this.statusUnDone.concat(this.statusDone);
+            this.searchForm.status = this.statusUnDone.map(it => it.id);
           }
         }
       },

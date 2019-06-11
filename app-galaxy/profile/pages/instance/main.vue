@@ -93,7 +93,7 @@
                 label="创建时间"
                 prop="formattedCreateTime"
                 sortable="custom"
-                width="90"
+                width="100"
                 headerAlign="center" align="center">
           <template slot-scope="scope">
             <div v-if="Array.isArray(scope.row.formattedCreateTime)">
@@ -108,7 +108,7 @@
                 label="k8s重启时间"
                 prop="formattedStartTime"
                 sortable="custom"
-                width="100"
+                width="120"
                 headerAlign="center" align="center"
                 v-if="!isMesosService">
           <template slot-scope="scope">

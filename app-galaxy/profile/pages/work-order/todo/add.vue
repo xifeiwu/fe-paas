@@ -390,17 +390,26 @@
           return;
         }
 
-        if (qs.indexOf('@') === -1) {
-          result = ['@finupgroup.com', '@renmai.com', '@iqianjin.com'].map(suffix => {
+        var [user, suffix] = qs.split('@');
+
+        var suffixList = ['finupgroup.com', 'renmai.com', 'iqianjin.com'].filter(it => {
+          if (!suffix) {
+            return true;
+          }
+          return it.startsWith(suffix)
+        });
+        if (suffixList.length > 0) {
+          result = suffixList.map(it => {
             return {
-              value: `${qs}${suffix}`
-            }
+              value:`${user}@${it}`
+            };
           });
         } else {
           result = [{
             value: qs
           }]
         }
+
         cb(result);
       },
       handleSelect(item) {
@@ -492,7 +501,7 @@
         // console.log(appModelListOfGroup);
         // console.log(productionProfileList);
         // console.log(productionServiceList);
-        console.log(this.formData.appIdList);
+        // console.log(this.formData.appIdList);
 
         // 更新工单处理状态
         productionServiceList.forEach(it => {

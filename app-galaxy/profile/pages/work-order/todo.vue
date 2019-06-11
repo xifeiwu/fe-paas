@@ -15,7 +15,7 @@
           <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
             <div slot="content">
               <div>1. 如果一个应用下有正在处理的工单，则不可以提交新的工单</div>
-              <div>2. 如果工单超过三个小时没有更新状态，则会被系统更改为结束</div>
+              <div>2. 如果工单处于“部署受理中”状态并超过三个小时没有更新状态，则会被系统自动更改为结束</div>
             </div>
             <span class="helper-text-tool-tip">工单处理逻辑<i class="el-icon-question"></i></span>
           </el-tooltip>
