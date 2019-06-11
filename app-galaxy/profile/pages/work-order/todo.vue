@@ -29,8 +29,8 @@
           </div>
           <div class="item">
             <label style="width: 72px; line-height: 26px; color: black">申请时间：</label>
-            <el-date-picker style="display: inline-block; width: 240px;"
-                class="custom"
+            <el-date-picker style="display: inline-block; width: 220px;"
+                class="custom disable-close"
                 v-model="searchForm.dateRange"
                 type="daterange"
                 size="mini"
@@ -39,6 +39,7 @@
                 range-separator="至"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
+                :enableClose="false"
                 :picker-options="datePickerOptions">
             </el-date-picker>
           </div>
@@ -105,7 +106,7 @@
         >
           <template slot-scope="scope">
             <div class="row-expand">
-              <el-form labelWidth="120px" size="mini">
+              <el-form labelWidth="104px" size="mini" class="message-show">
                 <el-form-item label="审批工单名称">
                   <div class="expand-to-next-line">{{workOrderDetail.name}}</div>
                 </el-form-item>
@@ -134,7 +135,7 @@
                     </el-table-column>
                   </el-table>
                 </el-form-item>
-                <el-form-item label="待办人">{{workOrderDetail.userToDo}}</el-form-item>
+                <el-form-item label="待办人"><span style="font-weight: bold; color: red">{{workOrderDetail.userToDo}}</span></el-form-item>
                 <el-form-item label="验收人">
                   <el-table :data="workOrderDetail.acceptedUserList" class="compact">
                     <el-table-column label="验收人" prop="userName" headerAlign="center" align="center">
@@ -250,11 +251,13 @@
           .row-expand {
             background-color: #fff;
             box-sizing: border-box;
-            padding: 12px 8px;
-            width: 85%;
-            margin: 0px auto;
-            max-width: 750px;
-            box-shadow: 0 0 2px 0 rgba(64,158,255, .6);
+            padding: 4px 6px;
+            margin: 3px auto 5px;
+            width: 80%;
+            max-width: 900px;
+            /*box-shadow: 0 0 2px 0 rgba(64,158,255, .6);*/
+            /*border: 1px solid #dfe1e5;*/
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
             .el-form {
               margin: 0px auto;
               .el-table {
@@ -264,7 +267,6 @@
                 }
               }
               .el-form-item {
-                margin-bottom: 6px;
                 &.notify-user-list, &.mail-group-list{
                   .el-form-item__content {
                     span::after {
@@ -424,7 +426,7 @@
       setDateRange() {
         const end = new Date();
         const start = new Date();
-        start.setTime(start.getTime() - 1000 * 3600 * 24 * 30);
+        start.setTime(start.getTime() - 1000 * 3600 * 24 * 60);
         this.searchForm.dateRange = [start, end];
       },
       async handleButtonClick(evt, action) {
