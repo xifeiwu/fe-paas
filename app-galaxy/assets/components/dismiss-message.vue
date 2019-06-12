@@ -11,6 +11,8 @@
     background-color: #e6a23c;
     color: black;
     font-size: 12px;
+    line-height: 1.5;
+    text-align: left;
     overflow: hidden;
     &.hide {
       height: 0px;
