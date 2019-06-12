@@ -168,9 +168,9 @@
           </el-select>
         </el-form-item>
         <el-form-item label="将要添加的域名" class="has-existed" :error="props4CreateDomain.errMsgForDomainToAdd">
-          <div v-if="props4CreateDomain.domainToAdd.length > 0">
+          <div v-if="props4CreateDomain.domainListToAdd.length > 0">
             <el-tag
-                    v-for="(item, index) in props4CreateDomain.domainToAdd"
+                    v-for="(item, index) in props4CreateDomain.domainListToAdd"
                     :key="index"
                     closable
                     type="success"
@@ -607,8 +607,8 @@
           profile: null,
           profileName: null,
           level1InfoList: [],
-          // item in domainToAdd: {domain, profileId}
-          domainToAdd: [],
+          // item in domainListToAdd: {domain, profileId}
+          domainListToAdd: [],
           showResponse: false,
           serverResponse: {},
           level1Name: '',
@@ -894,7 +894,7 @@
       // some init action for domain props
       initDomainProps() {
         this.props4CreateDomain.level1InfoList = [];
-        this.props4CreateDomain.domainToAdd = [];
+        this.props4CreateDomain.domainListToAdd = [];
         this.props4CreateDomain.level2Name = '';
         this.props4CreateDomain.level1Name = '';
         this.props4CreateDomain.showResponse = false;
@@ -906,7 +906,7 @@
       /**
        * do some init action before dialog popup
        */
-      handleButtonClick(evt, action) {
+      async handleButtonClick(evt, action) {
         if (['domain_add','domain_bind_service','domain_unbind_service'].indexOf(action) > -1 && this.publishStatus) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
@@ -927,11 +927,12 @@
             this.addToWaitingResponseQueue(action);
 
             this.initDomainProps();
-            this.$store.dispatch('app/getSubDomainByProfile', {
-              net: this.$net,
-              urlDesc: this.$net.URL_LIST.domain_level_1_list_all,
-              payload: {groupId: this.$storeHelper.currentGroupID}
-            }).then(domainMap => {
+            try {
+              const domainMap = await this.$store.dispatch('app/getSubDomainByProfile', {
+                net: this.$net,
+                urlDesc: this.$net.URL_LIST.domain_level_1_list_all,
+                payload: {groupId: this.$storeHelper.currentGroupID}
+              });
               this.props4CreateDomain.level1InfoListByProfile = domainMap;
 
               // set default profileName for add-domain-dialog(the same as profile in version-condition-filter)
@@ -945,18 +946,12 @@
               }
 
               this.onProfileChangeInCreateDomainDialog(this.props4CreateDomain.profileName);
-              this.hideWaitingResponse(action);
               this.selected.action = 'add-domain';
-            }).catch(err => {
-              this.$notify.error({
-                title: err.title,
-                message: err.msg,
-                duration: 0,
-                onClose: function () {
-                }
-              });
+            } catch(err) {
+              console.log(err);
+            } finally {
               this.hideWaitingResponse(action);
-            });
+            }
             break;
           case 'domain_bind_service':
             this.bindServiceProps.showResponse = false;
@@ -984,14 +979,14 @@
       /**
        * action for add or remove domain
        * @param action
-       * @param domainItem: domain item in this.props4CreateDomain.domainToAdd(for remove)
+       * @param domainItem: domain item in this.props4CreateDomain.domainListToAdd(for remove)
        */
       handleDomainInDialog(action, domainItem) {
-        let domainToAdd = this.props4CreateDomain.domainToAdd;
+        let domainListToAdd = this.props4CreateDomain.domainListToAdd;
         switch (action) {
           case 'remove':
-            if (domainToAdd.indexOf(domainItem) > -1) {
-              domainToAdd.splice(domainToAdd.indexOf(domainItem), 1);
+            if (domainListToAdd.indexOf(domainItem) > -1) {
+              domainListToAdd.splice(domainListToAdd.indexOf(domainItem), 1);
             }
             break;
           case 'add':
@@ -1003,13 +998,13 @@
               this.props4CreateDomain.errMsgForLevel2Name = '可以包含小写字符、数字、中划线，以字符数字开头，长度不超过63位';
               return;
             }
-            if (domainToAdd.length >= 5) {
+            if (domainListToAdd.length >= 5) {
               this.props4CreateDomain.errMsgForDomainToAdd = '每次最多添加五个';
               return;
             }
             let domain = this.props4CreateDomain.level2Name + '.' + this.props4CreateDomain.level1Name;
             let item = null;
-            domainToAdd.some(it => {
+            domainListToAdd.some(it => {
               if (it.domain === domain) {
                 item = it;
               }
@@ -1019,7 +1014,7 @@
               this.props4CreateDomain.errMsgForLevel2Name = `域名${domain}已经存在！`
               return;
             }
-            domainToAdd.push({
+            domainListToAdd.push({
               domain: domain,
               profileId: this.props4CreateDomain.profile['id']
             });
@@ -1036,24 +1031,24 @@
         let domainIdList = null;
         switch (action) {
           case 'add-domain-in-dialog':
-//            console.log(this.props4CreateDomain.domainToAdd);
+//            console.log(this.props4CreateDomain.domainListToAdd);
 //            console.log(internetDomainList);
+            if (this.props4CreateDomain.domainListToAdd.length === 0) {
+              this.props4CreateDomain.errMsgForDomainToAdd = '至少添加一个域名！';
+              return;
+            }
+            if (this.props4CreateDomain.domainListToAdd.length > 5) {
+              this.props4CreateDomain.errMsgForDomainToAdd = '每次最多添加五个！';
+              return;
+            }
             let internetDomainList = {};
-            this.props4CreateDomain.domainToAdd.forEach(it => {
+            this.props4CreateDomain.domainListToAdd.forEach(it => {
               let profileId = it['profileId'];
               if (!internetDomainList.hasOwnProperty(profileId)) {
                 internetDomainList[profileId] = [];
               }
               internetDomainList[profileId].push(it.domain);
             });
-            if (this.props4CreateDomain.domainToAdd.length === 0) {
-              this.props4CreateDomain.errMsgForDomainToAdd = '至少添加一个域名！';
-              return;
-            }
-            if (this.props4CreateDomain.domainToAdd.length > 5) {
-              this.props4CreateDomain.errMsgForDomainToAdd = '每次最多添加五个！';
-              return;
-            }
             this.addToWaitingResponseQueue(action);
             this.$net.createDomain({
               "groupId": this.$storeHelper.currentGroupID,

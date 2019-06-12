@@ -35,6 +35,7 @@ const actions = {
       });
     }
   },
+
   async getSubDomainByProfile({commit, state}, {net, urlDesc, payload}) {
     if (!state.domainLevelByProfile) {
       state.domainLevelByProfile = await net.requestPaasServer(urlDesc, {
