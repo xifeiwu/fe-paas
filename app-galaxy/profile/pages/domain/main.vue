@@ -140,7 +140,7 @@
     </div>
 
     <el-dialog :title="props4CreateDomain.showResponse?'创建外网域名结果':'申请外网二级域名'" :visible="selected.action == 'add-domain'"
-               :class="{'add-domain': true, 'size-700': true, 'show-response': props4CreateDomain.showResponse}"
+               :class="{'add-domain': true, 'size-750': true, 'show-response': props4CreateDomain.showResponse}"
                :close-on-click-modal="false"
                @close="handleClickInDialog('close-domain-in-dialog')"
     >
@@ -169,14 +169,16 @@
         </el-form-item>
         <el-form-item label="将要添加的域名" class="has-existed" :error="props4CreateDomain.errMsgForDomainToAdd">
           <div v-if="props4CreateDomain.domainListToAdd.length > 0">
-            <el-tag
-                    v-for="(item, index) in props4CreateDomain.domainListToAdd"
-                    :key="index"
-                    closable
-                    type="success"
-                    size="small"
-                    @close="handleDomainInDialog('remove', item)"
-            >{{item.domain}}</el-tag>
+            <div style="display: flex; font-weight: bold; color: #5a5e66">
+              <div style="flex: 1">外网域名</div>
+              <div style="width: 200px;">全网访问</div>
+              <div style="width: 30px;"></div>
+            </div>
+            <div style="display: flex;" v-for="(item, index) in props4CreateDomain.domainListToAdd">
+              <div style="flex: 1">{{item.domain}}</div>
+              <el-checkbox style="width: 200px;" v-model="item.noWhiteList">开启</el-checkbox>
+              <i class="paas-icon-close" @click="handleDomainInDialog('remove', item)"></i>
+            </div>
           </div>
           <div v-else>无</div>
         </el-form-item>
@@ -186,6 +188,7 @@
             <el-option v-for="(item, index) in props4CreateDomain.level1InfoList" :value="item.domainName" :label="item.domainName"
                        :key="index"></el-option>
           </el-select>
+          <el-checkbox v-model="props4CreateDomain.noWhiteList" style="margin-left: 100px;">开启全网访问</el-checkbox>
           <el-button class="add-domain-btn" size="mini-extral" type="primary" @click="handleDomainInDialog('add')">添加</el-button>
         </el-form-item>
       </el-form>
@@ -414,6 +417,14 @@
             }
           }
         }
+        .paas-icon-close {
+          color: #aaa;
+          line-height: 24px;
+          width: 30px;
+          &:hover {
+            color: gray;
+          }
+        }
       }
       &.bind-service {
         .paas-service-selector {
@@ -611,8 +622,12 @@
           domainListToAdd: [],
           showResponse: false,
           serverResponse: {},
+          // 域名后缀
           level1Name: '',
+          // 自定义域名
           level2Name: '',
+          // 全网访问
+          noWhiteList: false,
           errMsgForLevel2Name: '',
           errMsgForDomainToAdd: '',
         },
@@ -896,6 +911,7 @@
         this.props4CreateDomain.level1InfoList = [];
         this.props4CreateDomain.domainListToAdd = [];
         this.props4CreateDomain.level2Name = '';
+        this.props4CreateDomain.noWhiteList = false;
         this.props4CreateDomain.level1Name = '';
         this.props4CreateDomain.showResponse = false;
         //clear error message tip
@@ -1004,19 +1020,13 @@
               return;
             }
             let domain = this.props4CreateDomain.level2Name + '.' + this.props4CreateDomain.level1Name;
-            let item = null;
-            domainListToAdd.some(it => {
-              if (it.domain === domain) {
-                item = it;
-              }
-              return item
-            });
-            if (item) {
+            if (domainListToAdd.find(it => it.domain === domain)) {
               this.props4CreateDomain.errMsgForLevel2Name = `域名${domain}已经存在！`
               return;
             }
             domainListToAdd.push({
               domain: domain,
+              noWhiteList: this.props4CreateDomain.noWhiteList,
               profileId: this.props4CreateDomain.profile['id']
             });
             this.props4CreateDomain.level2Name = '';
