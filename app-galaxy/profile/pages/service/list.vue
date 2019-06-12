@@ -350,6 +350,7 @@
               <custom-table-column show="workOrderDeployName" label="审批工单名称"></custom-table-column>
               <custom-table-column show="creatorName" label="申请人"></custom-table-column>
               <custom-table-column show="formattedCreateTime" label="申请时间"></custom-table-column>
+              <custom-table-column show="workOrderStatusDesc" label="状态"></custom-table-column>
               <custom-table-column show="operation" label="操作">
                 <template slot-scope="scope">
                   <el-button
