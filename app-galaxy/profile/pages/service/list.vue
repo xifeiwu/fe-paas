@@ -389,8 +389,8 @@
                   <el-button
                           size="small"
                           type="text"
-                          :loading="statusOfWaitingResponse('deploy-image') && rollingUpStatus.deployHistorySelected.id == scope.id"
-                          @click="handleDialogRollingUp($event, 'deploy-image', scope)"
+                          :loading="statusOfWaitingResponse('deploy-image-confirm') && rollingUpStatus.deployHistorySelected.id == scope.id"
+                          @click="handleDialogRollingUp($event, 'deploy-image-confirm', scope)"
                           :class="'primary'">
                     部署镜像
                   </el-button>
@@ -411,8 +411,25 @@
         </transition-group>
       </div>
     </el-dialog>
+    <paas-popover-message ref="rolling-up-image-confirm" popperClass="el-popover--small is-dark"
+                          placement="left">
+      <div slot="content">
+        <div style="font-size: 14px;">您确定要部署当前镜像吗？</div>
+        <div style="display: flex; justify-content: space-around; margin-top: 8px;">
+          <el-button type="danger" size="mini-extral"
+                     @click="$refs['rolling-up-image-confirm'] && $refs['rolling-up-image-confirm'].doClose()">取消</el-button>
+          <el-button type="primary" size="mini-extral" :loading="statusOfWaitingResponse('rolling-up-deploy-image')"
+                     @click="handleDialogRollingUp($event, 'rolling-up-deploy-image')">确定</el-button>
+        </div>
+      </div>
+    </paas-popover-message>
 
-    <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
+    <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialog-4-deploy-log">
+      <div slot="content">
+        <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
+      </div>
+    </paas-dialog-for-log>
+    <paas-dialog-for-log title="镜像回滚日志" :showStatus="rollingUpStatus.deployLogStatus" ref="dialog-4-rolling-up-image">
       <div slot="content">
         <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
       </div>
@@ -688,11 +705,13 @@
   import commonUtils from 'assets/components/mixins/common-utils';
   import paasDialogForLog from '../components/dialog4log.vue';
   import { TableColumn, TableComponent } from '$components/custom/simple-table';
+  import paasPopoverMessage from 'assets/components/popover-message';
   export default {
     components: {
       paasDialogForLog,
       CustomTableColumn: TableColumn,
       CustomTableComponent: TableComponent,
+      paasPopoverMessage
     },
     mixins: [commonUtils],
     created() {
@@ -744,6 +763,12 @@
       this.$nextTick(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
       });
+    },
+    beforeDestroy() {
+      if (this.$refs['rolling-up-image-confirm']) {
+        this.$refs['rolling-up-image-confirm'].doClose();
+        this.$refs['rolling-up-image-confirm'].doDestroy();
+      }
     },
     computed: {
 //      ...mapGetters('user', {
@@ -862,17 +887,7 @@
           workOrderList: [],
 
           deployHistorySelected: {},
-          deployHistoryList: [{
-            id: 0,
-            time: '2019-04-23',
-            user: '吴西飞',
-            image: 'harbor/finupgroup.com/onetran/uaa:staging',
-          }, {
-            id: 1,
-            time: '2019-04-23',
-            user: '吴西飞',
-            image: 'harbor/finupgroup.com/onetran/uaa:production',
-          }],
+          deployHistoryList: [],
 
           deployLogStatus: {
             visible: false,
@@ -1028,17 +1043,48 @@
               console.log(err);
             }
             break;
-          case 'deploy-image':
-            console.log(data);
-            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.image_rollback, {
-              payload: {
-                image: data.fullImage,
-                id: this.actionNew.row.id,
-                appId: this.actionNew.row.appId,
-                spaceId: this.profileInfo.id
+          case 'deploy-image-confirm':
+            if (this.$refs['rolling-up-image-confirm']) {
+              this.$refs['rolling-up-image-confirm'].show({
+                ref: evt.target,
+                type: 'node'
+              });
+            }
+            this.rollingUpStatus.deployHistorySelected = data;
+            break;
+          case 'rolling-up-deploy-image':
+            // 回滚镜像
+            this.addToWaitingResponseQueue(action);
+            try {
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.image_rollback, {
+                payload: {
+                  image: this.rollingUpStatus.deployHistorySelected.fullImage,
+                  id: this.actionNew.row.id,
+                  appId: this.actionNew.row.appId,
+                  spaceId: this.profileInfo.id
+                }
+              });
+              if ([
+                  'orchestration.logName',
+                  'orchestration.logPath',
+                ].every(prop => {
+                  return this.$utils.propExists(resContent, prop);
+                })
+              ) {
+                this.closeDialog();
+                await this.serviceDeploy({
+                  logName: resContent.orchestration.logName,
+                  logPath: resContent.orchestration.logPath,
+                  offset: 0
+                }, 'get_rolling_up_image_log');
+              } else {
+                console.log('信息不完整');
               }
-            });
-            console.log(resContent);
+              this.hideWaitingResponse(action);
+            } catch(err) {
+              console.log(err);
+              this.hideWaitingResponse(action);
+            }
             break;
         }
       },
@@ -1303,12 +1349,14 @@
           showLoading: false,
           iconExpand: true
         };
+        var dialogRef = null;
         switch (action) {
           case 'service_deploy':
             resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_deploy, {
               payload
             });
             dialogStatus = this.dialogForLogStatus;
+            dialogRef = 'dialog-4-deploy-log';
             //每次点击部署,过期时间自动加1
             this.expiredDaysAutoAdd();
             break;
@@ -1317,6 +1365,7 @@
               payload
             });
             dialogStatus = this.dialogForLogStatus;
+            dialogRef = 'dialog-4-deploy-log';
             //每次点击部署,过期时间自动加1
             this.expiredDaysAutoAdd();
             break;
@@ -1329,7 +1378,19 @@
                 moreData: true
               }
             };
+//            dialogStatus = this.rollingUpStatus.deployLogStatus;
+            break;
+          case 'get_rolling_up_image_log':
+            resContent = {
+              orchestration: {
+                logName: payload.logName,
+                logPath: payload.logPath,
+                offset: 0,
+                moreData: true
+              }
+            };
             dialogStatus = this.rollingUpStatus.deployLogStatus;
+            dialogRef = 'dialog-4-rolling-up-image';
             break;
         }
         // 如果应用没有填写：应用维护者、LOB、Scrum，则不能进行部署、重启（TODO: 这是第二层拦截，第一层拦截如果稳定了，可以删除该逻辑）
@@ -1379,8 +1440,8 @@
                 preItem = nextItem;
                 // scroll after render finish
                 this.$nextTick(() => {
-                  if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
-                    const dialogForDeployLog = this.$refs['dialogForDeployLog'];
+                  if (dialogRef && this.$refs.hasOwnProperty(dialogRef)) {
+                    const dialogForDeployLog = this.$refs[dialogRef];
                     dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
                   }
                 });
@@ -1405,8 +1466,8 @@
               preItem = nextItem;
               // scroll after render finish
               this.$nextTick(() => {
-                if (this.$refs.hasOwnProperty('dialogForDeployLog')) {
-                  const dialogForDeployLog = this.$refs['dialogForDeployLog'];
+                if (dialogRef && this.$refs.hasOwnProperty(dialogRef)) {
+                  const dialogForDeployLog = this.$refs[dialogRef];
                   dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
                 }
               });
