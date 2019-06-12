@@ -1026,6 +1026,8 @@
               it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
               it.userName = it.userId;
               return it;
+            }).sort((pre, next) => {
+              return (pre.createTime - next.createTime) * -1;
             });
             this.rollingUpStatus.workOrderSelected = data;
             this.handleDialogRollingUp(evt, 'breadcrumb-click', this.rollingUpStatus.pageList.find(it => it.key === 'deploy-history'));
