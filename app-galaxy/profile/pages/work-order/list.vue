@@ -1,6 +1,9 @@
 <template>
   <div id="work-order-list">
     <div class="header">
+      <paas-dismiss-message @resize="onScreenSizeChange"
+                            style="margin-left: -5px; margin-top: -5px; margin-right: -5px;"
+              :msgList="['默认只查询非结束状态的工单，如需查看已结束的工单，请在审批状态下拉列表中选择“结束”选项']"></paas-dismiss-message>
       <div class="item">
         <el-checkbox v-model="searchForm.onlyUndone" v-if="false">未完成工单</el-checkbox>
         <label>审批状态:</label>
@@ -49,7 +52,7 @@
     <div class="work-order-list">
       <el-table :data="workOrderListByPage"
                 stripe
-                :height="heightOfWorkOrderList"
+                :height="heightOfTable"
                 :row-key="getRowKeys"
                 :expand-row-keys="expandRows">
         <el-table-column label="审批工单名称" prop="name" minWidth="160" headerAlign="center" align="center">
@@ -276,34 +279,23 @@
 
 <script>
   import WorkerOrderPropUtils from './utils/work-order-props';
-  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
+  import paasDismissMessage from 'assets/components/dismiss-message.vue';
   export default {
+    components: {paasDismissMessage},
     created() {
     },
     mounted() {
       this.setDateRange();
-      // adjust element height after resize
-      try {
-        let header = this.$el.querySelector('.header:first-child');
-        let workOrderList = this.$el.querySelector('.work-order-list');
-        this.resizeListener = (evt) => {
-          let height = this.$el.clientHeight;
-          let heightOfHeader = header.offsetHeight;
-          let heightOfContent = height - heightOfHeader;
-          workOrderList.style.height = heightOfContent + 'px';
-          this.heightOfWorkOrderList = height - heightOfHeader - 20;
-        };
-        addResizeListener(this.$el, this.resizeListener)
-      } catch(err) {
-      }
+      // update value in next tick
+      this.$nextTick(() => {
+        this.onScreenSizeChange(this.$storeHelper.screen.size);
+      });
     },
     beforeDestroy() {
-      removeResizeListener(this.$el, this.resizeListener);
     },
     data() {
       return {
-        resizeListener: () => {},
-        heightOfWorkOrderList: '',
+        heightOfTable: '',
 
         searchForm: {
           // workOrderName, creator通过filterKey进行假搜索
@@ -425,6 +417,7 @@
       }
     },
     watch: {
+      '$storeHelper.screen.size': 'onScreenSizeChange',
       'searchForm.dateRange': function (value) {
         this.updateWorkOrderListByPage(true);
       },
@@ -458,6 +451,18 @@
     computed: {
     },
     methods: {
+      onScreenSizeChange(size) {
+        if (!size) {
+          size = this.$storeHelper.screen.size;
+        }
+        try {
+          // if this.showAppList == false, headerNode will not exist
+          const headerNode = this.$el.querySelector(':scope > .header');
+          const headerHeight = headerNode.offsetHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight;
+        } catch(err) {
+        }
+      },
       // helper for loading action of el-button
       addToWaitingResponseQueue(action) {
         if (this.queueForWaitingResponse.indexOf(action) === -1) {
