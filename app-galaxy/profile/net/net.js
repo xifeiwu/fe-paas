@@ -853,6 +853,8 @@ class Net extends NetBase {
       '/2.x/service/bindingInternetDomain': 'go-page-domain-from-service',
       // 服务管理 -> 日志/部署日志
       '/2.x/service/search/deployLog': 'go-to-page-log-deploy-from-service',
+      // 镜像回滚
+      '/2.x/service/rollback': 'image_rollback',
 
       /** 实例相关 */
       // 手动伸缩

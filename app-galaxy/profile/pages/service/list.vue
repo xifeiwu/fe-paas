@@ -111,9 +111,9 @@
                       v-if="isProductionProfile"
                       size="small"
                       type="text"
-                      :loading="statusOfWaitingResponse('rolling_up') && action.row.appId == scope.row.appId"
-                      @click="handleTRClick($event, 'rolling_up', scope.$index, scope.row)"
-                      :class="'danger'">
+                      :loading="statusOfWaitingResponse('image_rollback') && action.row.appId == scope.row.appId"
+                      @click="handleTRClick($event, 'image_rollback', scope.$index, scope.row)"
+                      :class="$storeHelper.permission['image_rollback'].disabled || publishStatus? 'disabled' : 'danger'">
                 {{'回滚'}}
               </el-button>
               <div class="ant-divider"
@@ -322,9 +322,9 @@
     </el-dialog>
 
 
-    <el-dialog title="镜像回滚" :visible="actionNew.name == 'rolling_up'"
+    <el-dialog title="镜像回滚" :visible="actionNew.name == 'image_rollback'"
                v-if="actionNew.name"
-               class="rolling_up"
+               class="image_rollback"
                :close-on-click-modal="false"
                @close="closeDialog"
                top="80px"
@@ -473,7 +473,7 @@
     max-width: 1500px;
     background: white;
 
-    .el-dialog__wrapper.rolling_up {
+    .el-dialog__wrapper.image_rollback {
       .el-dialog {
         width: 95%;
         max-width: 1500px;
@@ -870,7 +870,7 @@
           dataOrigin: null,
           data: null
         },
-        // status for dialog rolling_up
+        // status for dialog image_rollback
         rollingUpStatus: {
           currentPageKey: null,
           breadcrumbList: [],
@@ -1001,7 +1001,7 @@
         }
       },
 
-      // action handler for dialog rolling_up related
+      // action handler for dialog image_rollback related
       async handleDialogRollingUp(evt, action, data) {
         var resContent = null
         switch (action) {
@@ -1080,7 +1080,7 @@
                   logName: resContent.orchestration.logName,
                   logPath: resContent.orchestration.logPath,
                   offset: 0
-                }, 'get_rolling_up_image_log');
+                }, 'get_image_rollback_log');
               } else {
                 console.log('信息不完整');
               }
@@ -1384,7 +1384,7 @@
             };
 //            dialogStatus = this.rollingUpStatus.deployLogStatus;
             break;
-          case 'get_rolling_up_image_log':
+          case 'get_image_rollback_log':
             resContent = {
               orchestration: {
                 logName: payload.logName,
@@ -1662,7 +1662,7 @@
       },
       async handleTRClick(evt, action, index, row) {
         var permission = action;
-        if (['service_config_add','service_config_copy','service_delete', 'service_deploy',
+        if (['service_config_add','service_config_copy','service_delete', 'service_deploy', 'image_rollback',
             'quick_deploy','service_config_modify','service_stop','service_update'].indexOf(action) > -1 && this.publishStatus) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
@@ -1854,7 +1854,7 @@
               this.hideWaitingResponse(action);
             }
             break;
-          case 'rolling_up':
+          case 'image_rollback':
             try {
               this.addToWaitingResponseQueue(action);
               this.rollingUpStatus.workOrderList = [];
