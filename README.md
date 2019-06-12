@@ -31,6 +31,14 @@ https://cas.finupgroup.com/puhui-cas/login
 5. 本地运行：npm run dev
 ```
 
+**生产部署**
+
+```
+yarn && git submodule init && git submodule update
+npm run build
+// 存放生成文件的目录：deploy/fe-paas/dist
+```
+
 生成静态文件：npm run build:dev（针对dev环境）, npm run build:test（针对测试环境）
 
 ### 项目结构（针对 版本v2.0.0）
