@@ -279,7 +279,7 @@
                 <el-checkbox v-model="formData.noticeConfig.executeSuccess">每次Pipeline执行成功时通知</el-checkbox>
                 <el-checkbox v-model="formData.noticeConfig.executeFail">每次Pipeline执行失败时通知</el-checkbox>
               </el-form-item>
-              <el-form-item label="通知接受人：" prop="noticeConfig" :multiFields="true" :error="emailProps.errMsg">
+              <el-form-item label="通知接收人：" prop="noticeConfig" :multiFields="true" :error="emailProps.errMsg">
                 <div class="notice-email-list">
                   <el-tag
                           v-for="(item, index) in formData.noticeConfig.noticeEmails"
@@ -291,8 +291,12 @@
                   >{{item}}</el-tag>
                 </div>
                 <div class="notice-email-add">
-                  <el-input v-model="emailProps.emailToAdd" placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"></el-input>
-                  <el-button size="mini-extral" type="primary" @click="handleEmail($event, 'add')">添加</el-button>
+                  <el-autocomplete
+                          v-model="emailProps.emailToAdd"
+                          :fetch-suggestions="querySearch"
+                          placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"
+                          @select="handleSelect"
+                  ></el-autocomplete>
                 </div>
               </el-form-item>
             </el-form>
@@ -798,6 +802,11 @@
     mounted() {
       this.$nextTick(() => {
         this.stepNodeList = [].slice.call(this.$el.querySelectorAll('.sheet .nav-steps .step'));
+        const step3Form = this.$el.querySelector('.step.step3 .config form');
+        // preventDefault event submit for form in step3, why submit event is not triggered in other forms?
+        step3Form.onsubmit = evt => {
+          evt.preventDefault();
+        };
       });
     },
     data() {
@@ -1233,6 +1242,42 @@
         });
       },
 
+      // for el-autocomplete
+      querySearch(qs, cb) {
+        var result = []
+        if (!qs) {
+          cb(result);
+          return;
+        }
+
+        var [user, suffix] = qs.split('@');
+
+        var suffixList = ['finupgroup.com', 'renmai.com', 'iqianjin.com'].filter(it => {
+          if (!suffix) {
+            return true;
+          }
+          return it.startsWith(suffix)
+        });
+        if (suffixList.length > 0) {
+          result = suffixList.map(it => {
+            return {
+              value:`${user}@${it}`
+            };
+          });
+        } else {
+          result = [{
+            value: qs
+          }]
+        }
+
+        cb(result);
+      },
+      handleSelect(item) {
+        if (item && item.value) {
+          this.handleEmail(null, 'add', item.value);
+        }
+      },
+
       // 根据pipeline结点的选择情况，更新formRules
       updateFormDataRules() {
         // fix rules for 'testAndSonarScript', 'mvnPackage', 'autoSciPipelineAutoTestVOcript'
@@ -1649,10 +1694,9 @@
       },
       handleEmail(evt, action, item) {
         const emailList = this.formData.noticeConfig.noticeEmails;
-        const emailToAdd = this.emailProps.emailToAdd;
-//        console.log(action, item, emailToAdd);
         switch (action) {
           case 'add':
+            var emailToAdd = item;
             if (!this.$utils.getReg('mail').exec(emailToAdd)) {
               this.emailProps.errMsg = '邮件格式不正确';
               return;
