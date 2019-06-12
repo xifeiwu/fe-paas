@@ -556,6 +556,16 @@ class Net extends NetBase {
         path: '/middleware/updateMiddlewareMariaDB',
         method: 'post'
       },
+      // 获取mairadb的my.cnf
+      'middleware_mariadb_get_my_cnf': {
+        path: '/middleware/getMariaMyCnf',
+        method: 'post'
+      },
+      // 修改mairadb的my.cnf
+      'middleware_mariadb_update_my_cnf': {
+        path: '/middleware/updateMariaMyCnf',
+        method: 'post'
+      },
       // 修改实例信息（其它基本信息）
       'middleware_mariadb_instance_update_config': {
         path: '/middleware/editMiddlewareMariaDB',

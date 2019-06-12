@@ -165,6 +165,13 @@
                   <span>操作历史</span>
                 </el-button>
                 <div class="ant-divider"></div>
+                <!--<el-button type="text"-->
+                           <!--:class="['flex', false ? 'disabled' : 'primary']"-->
+                           <!--:loading="statusOfWaitingResponse('update-cnf')"-->
+                           <!--@click="openMyCnfEditor(scope.row)">-->
+                  <!--<span>修改cnf文件</span>-->
+                <!--</el-button>-->
+                <!--<div class="ant-divider"></div>-->
                 <el-button
                         class="primary" type="text"
                         :loading="statusOfWaitingResponse('instance_more_info') && action.row.id == scope.row.id"
@@ -541,7 +548,7 @@
 <script>
   import bytes from 'bytes';
   import commonUtils from 'assets/components/mixins/common-utils';
-  import th from "../../../../../components/element-ui/src/locale/lang/th";
+
   const STATUS_MAP = {
     Complete: '成功',
     Running: '中',
