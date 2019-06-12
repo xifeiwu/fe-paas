@@ -376,6 +376,7 @@
               <custom-table-column show="formattedCreateTime" label="部署时间"></custom-table-column>
               <custom-table-column show="userName" label="部署人"></custom-table-column>
               <custom-table-column show="fullImage" label="部署镜像"></custom-table-column>
+              <custom-table-column show="deployTypeDesc" label="部署类型"></custom-table-column>
               <custom-table-column show="operation" label="操作">
                 <template slot-scope="scope">
                   <el-button
