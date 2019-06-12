@@ -45,7 +45,9 @@
           align="center">
           <template slot-scope="scope">
             <span :class="[{'success':scope.row.statusName == '成功','failure':scope.row.statusName == '失败',
-            'building':scope.row.statusName == '构建中','suspension':scope.row.statusName == '中止'},`build-${scope.row.buildNumber}-status`]" id="statusName">{{scope.row.statusName}}</span>
+             'building':scope.row.statusName == '构建中','suspension':scope.row.statusName == '中止', 'pause-pending':scope.row.status == 'PAUSED_PENDING_INPUT'},`build-${scope.row.buildNumber}-status`]"
+              id="statusName" @click="handlePendingInput(scope.row)">{{scope.row.statusName}}</span>
+            <span v-if="scope.row.status == 'PAUSED_PENDING_INPUT'"><i class="paas-icon-pointer-left"></i></span>
             <!--{{scope.row.buildingStatus ? scope.row.buildingStatus : scope.row.statusName}}-->
           </template>
         </el-table-column>
@@ -133,6 +135,10 @@
     <paas-dialog-for-log :showStatus="buildLogStatus" ref="dialogForBuildLog" @close="handleDialogClose">
       <div slot="content">
         <div v-for="(item, index) in buildLogStatus.logList" :key="index" class="log-item" v-html="item"></div>
+        <div v-if="lastBuildingRecord && this.lastBuildingRecord['status'] === 'PAUSED_PENDING_INPUT'">
+          <button type="button" class="el-button el-button--text" @click="handleLogPendingInput"><span>等待手动确认</span></button>
+          <span><i class="paas-icon-pointer-left"></i></span>
+        </div>
         <div class="log-item loading-line" v-if="buildLogStatus.loading"><i class="el-icon-loading item"></i></div>
         <div class="last-item loading-line" v-else><span class="item"> </span></div>
       </div>
@@ -144,9 +150,9 @@
         <div v-else>继续吗？</div>
         <div style="display: flex; justify-content: space-around; margin-top: 8px;">
           <el-button type="primary" size="mini-extral" :loading="userInputInfo && userInputInfo.action == 'go-on'"
-                     @click="handleUserInput('go-on')">确定</el-button>
+                     @click="handleUserInput('go-on')">同意</el-button>
           <el-button type="danger" size="mini-extral" :loading="userInputInfo && userInputInfo.action == 'cancel'"
-                     @click="handleUserInput('cancel')">取消</el-button>
+                     @click="handleUserInput('cancel')">中止</el-button>
         </div>
       </div>
     </paas-popover-element-with-modal-mask>
@@ -222,6 +228,12 @@
             }
             &.suspension {
               color: #949393;
+            }
+            &.pause-pending {
+              color: #409EFF;
+              &:hover {
+                cursor: pointer;
+              }
             }
           }
         }
@@ -452,7 +464,7 @@
           return Object.assign(buildMap.hasOwnProperty(key) ? buildMap[key] : {}, buildingMap.hasOwnProperty(key) ? buildingMap[key] : {});
         });
         this.formatBuildList(result);
-//        console.log(result);
+       // console.log(result);
         return result;
       },
 
@@ -661,20 +673,12 @@
             userInputInfo.action = (this.userInputInfo && this.userInputInfo.action) ? this.userInputInfo.action : null;
           }
           this.userInputInfo = userInputInfo;
-
-          var targetClass = `build-${lastBuildingRecord.buildNumber}-status`;
-          var target = this.$el.querySelector(`.record-list .el-table .${targetClass}`);
           if (this.buildLogStatus.visible) {
             if (this.$refs.hasOwnProperty('dialogForBuildLog')) {
               const dialogForDeployLog = this.$refs['dialogForBuildLog'];
               dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
-              target = dialogForDeployLog.$el.querySelector('.loading-line .item');
+              let target = dialogForDeployLog.$el.querySelector('.loading-line .item');
             }
-          }
-          if (!this.popperForUserConfirm.isShowing()) {
-            this.popperForUserConfirm.show({
-              ref: target
-            });
           }
 //          console.log(targetClass);
 //          console.log(target);
@@ -1019,6 +1023,30 @@
 
       handleDialogClose() {
         this.buildLogStatus.logList = [];
+      },
+
+      handlePendingInput(row) {
+        if(row.status !== 'PAUSED_PENDING_INPUT') {
+          return;
+        }
+        var targetClass = `build-${this.lastBuildingRecord.buildNumber}-status`;
+        var target = this.$el.querySelector(`.record-list .el-table .${targetClass}`);
+        if (!this.popperForUserConfirm.isShowing()) {
+          this.popperForUserConfirm.show({
+            ref: target
+          });
+        }
+      },
+
+      handleLogPendingInput() {
+        const dialogForDeployLog = this.$refs['dialogForBuildLog'];
+        dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+        let target = dialogForDeployLog.$el.querySelector('.loading-line .item');
+        if (!this.popperForUserConfirm.isShowing()) {
+          this.popperForUserConfirm.show({
+            ref: target
+          });
+        }
       }
     }
   }

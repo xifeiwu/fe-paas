@@ -40,7 +40,7 @@
       </div>
     </div>
     <paas-popover-element-with-modal-mask ref="popover-for-user-confirm" popperClass="el-popover--small is-dark" title="等待用户确认"
-                                          placement="bottom" :closeOnLeave="false">
+                                          placement="bottom" :closeOnLeave="false" :showModal="false">
       <div slot="content" style="font-size: 14px;">
         <div v-if="userInputInfo">{{userInputInfo.message}}</div>
         <div v-else>继续吗？</div>

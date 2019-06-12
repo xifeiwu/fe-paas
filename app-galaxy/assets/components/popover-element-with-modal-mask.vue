@@ -11,7 +11,13 @@
             :style="{ width: width + 'px' }"
             :id="tooltipId"
     >
-      <div class="el-popover__title" v-if="title" v-text="title"></div>
+      <div class="popover_header">
+        <span class="popover_title" v-if="title" v-text="title"></span>
+        <button class="popover-close-button" type="button" @click="doClose">
+          <i class="el-dialog__close el-icon el-icon-close"></i>
+        </button>
+      </div>
+      <!--<div class="el-popover__title" v-if="title" v-text="title"></div>-->
       <div class="content" v-if="contentType === 'html'" v-html="content"></div>
       <div class="content" v-if="contentType === 'text'">{{ content }}</div>
       <slot class="content" name="content" v-if="contentType === 'node'"></slot>
@@ -20,12 +26,30 @@
 </template>
 <style lang="scss">
   .paas-popover-element-with-modal-mask {
-    .el-popover__title {
-      font-size: 14px;
-      font-weight: bold;
-    }
     .content {
       font-size: 14px;
+    }
+  }
+  .popover_header {
+    margin-bottom: 12px;
+    .popover_title {
+      font-weight: bold;
+      color: #2d2f33;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .popover-close-button {
+      position: absolute;
+      right: 5px;
+      padding: 0;
+      background: 0 0;
+      border: none;
+      outline: 0;
+      cursor: pointer;
+      font-size: 16px;
+      &:hover {
+        color: #63afff;
+      }
     }
   }
 </style>
@@ -95,6 +119,10 @@
       transition: {
         type: String,
         default: 'fade-in-linear'
+      },
+      showModal: {
+        type: Boolean,
+        default: true
       }
     },
 
@@ -126,7 +154,9 @@
         } else {
           this.$emit('hide');
           this.reference.style.zIndex = this.referenceInfo.zIndex;
-          PopupManager.closeModal(this.tooltipId);
+          if (this.showModal) {
+            PopupManager.closeModal(this.tooltipId);
+          }
         }
       },
     },
@@ -204,9 +234,11 @@
         if (typeof options.onUpdate === 'function') {
           this.popperJS.onUpdate(options.onUpdate);
         }
-        PopupManager.openModal(this.tooltipId, PopupManager.nextZIndex(), null);
-        this.reference.style.zIndex = PopupManager.nextZIndex();
-        this.popperJS._popper.style.zIndex = PopupManager.nextZIndex();
+        if (this.showModal) {
+          PopupManager.openModal(this.tooltipId, PopupManager.nextZIndex(), null);
+          this.reference.style.zIndex = PopupManager.nextZIndex();
+          this.popperJS._popper.style.zIndex = PopupManager.nextZIndex();
+        }
       },
 
       handleDocumentClick(e) {
