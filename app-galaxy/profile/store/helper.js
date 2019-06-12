@@ -678,6 +678,17 @@ class StoreHelper extends BaseHelper{
     return this.$store.getters['user/permission'];
   }
 
+  actionToPermission(action) {
+    const actionMap = {
+      domain_add_open_dialog: 'domain_add'
+    };
+    return actionMap.hasOwnProperty(action) ? actionMap[action] : action
+  }
+  actionDisabled(action) {
+    const permission = this.actionToPermission(action);
+    return this.permission[permission].disabled;
+  }
+
   logout() {
     super.logout();
     this.$store.dispatch('logout');

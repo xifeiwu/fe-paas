@@ -883,7 +883,7 @@ class Net extends NetBase {
       '/2.x/internet/binging': 'domain_bind_service',
       // 解绑服务
       '/2.x/internet/unbind': 'domain_unbind_service',
-      // 安全审核
+      // 外网域名安全审核
       '/2.x/internet/update': 'domain_secure_check',
       // 删除域名
       '/2.x/internet/delete': 'domain_remove',
@@ -898,11 +898,6 @@ class Net extends NetBase {
       '/2.x/service/update': 'service_update',
       // 查看实例监控
       '/2.x/instances/apm': 'instance_monitor',
-      '/2.x/internet/create': 'domain_add',
-      // 删除域名
-      '/2.x/internet/delete': 'domain_remove',
-      // 外网域名安全审核
-      '/2.x/internet/update': 'domain_secure_check',
 
       /** oauth / accessKey相关 */
       // 创建accessKey
@@ -1000,6 +995,7 @@ class Net extends NetBase {
       '/2.x/config/server': this.page['profile/config-server']
     };
   }
+
   /**
    * 解析用户权限
    * @param resContent

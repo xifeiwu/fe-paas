@@ -25,9 +25,9 @@
         <el-button
                 size="mini-extral"
                 type="primary"
-                :class="{'disabled': $storeHelper.permission['domain_add'].disabled || publishStatus}"
-                :loading="statusOfWaitingResponse('domain_add')"
-                @click="handleButtonClick($event, 'domain_add')">
+                :class="{'disabled': $storeHelper.actionDisabled('domain_add_open_dialog') || publishStatus}"
+                :loading="statusOfWaitingResponse('domain_add_open_dialog')"
+                @click="handleButtonClick($event, 'domain_add_open_dialog')">
           申请外网二级域名
         </el-button>
         <el-button
@@ -907,19 +907,20 @@
        * do some init action before dialog popup
        */
       async handleButtonClick(evt, action) {
-        if (['domain_add','domain_bind_service','domain_unbind_service'].indexOf(action) > -1 && this.publishStatus) {
+        const permission = this.$storeHelper.actionToPermission(action);
+        if (['domain_add','domain_bind_service','domain_unbind_service'].indexOf(permission) > -1 && this.publishStatus) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
-        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+        if (this.$storeHelper.actionDisabled(action)) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
-            msg: this.$storeHelper.permission[action].reason
+            msg: this.$storeHelper.permission[permission].reason
           });
           return;
         }
         switch (action) {
-          case 'domain_add':
+          case 'domain_add_open_dialog':
             if (!this.profileInfo) {
               this.$message.error('获取运行环境信息失败！');
               return;
