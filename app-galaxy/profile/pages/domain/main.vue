@@ -161,13 +161,13 @@
 
       <el-form :model="props4CreateDomain" :rules="rules" size="mini" v-if="!props4CreateDomain.showResponse"
                label-width="120px" ref="newDomainForm">
-        <el-form-item label="运行环境">
+        <el-form-item label="运行环境" class="message-show">
           <el-select v-model="props4CreateDomain.profileName" placeholder="请选择">
             <el-option v-for="item in $storeHelper.profileListOfGroup" :key="item.name" :label="item.description" :value="item.name">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="将要添加的域名" class="has-existed" :error="props4CreateDomain.errMsgForDomainToAdd">
+        <el-form-item label="将要添加的域名" class="has-existed message-show" :error="props4CreateDomain.errMsgForDomainToAdd">
           <div v-if="props4CreateDomain.domainListToAdd.length > 0">
             <div style="display: flex; font-weight: bold; color: #5a5e66">
               <div style="flex: 1">外网域名</div>
@@ -184,12 +184,16 @@
         </el-form-item>
         <el-form-item label="外网二级域名" :error="props4CreateDomain.errMsgForLevel2Name">
           <el-input v-model="props4CreateDomain.level2Name" placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"></el-input>
-          <el-select v-model="props4CreateDomain.level1Name">
-            <el-option v-for="(item, index) in props4CreateDomain.level1InfoList" :value="item.domainName" :label="item.domainName"
-                       :key="index"></el-option>
-          </el-select>
-          <el-checkbox v-model="props4CreateDomain.noWhiteList" style="margin-left: 100px;">开启全网访问</el-checkbox>
-          <el-button class="add-domain-btn" size="mini-extral" type="primary" @click="handleDomainInDialog('add')">添加</el-button>
+          <div style="display: flex">
+            <el-select v-model="props4CreateDomain.level1Name" style="flex: 1;">
+              <el-option v-for="(item, index) in props4CreateDomain.level1InfoList" :value="item.domainName" :label="item.domainName"
+                         :key="index"></el-option>
+            </el-select>
+            <div style="width: 230px;">
+              <el-checkbox v-model="props4CreateDomain.noWhiteList" style="margin-left: 100px;">开启全网访问</el-checkbox>
+              <el-button class="add-domain-btn" size="mini-extral" type="primary" @click="handleDomainInDialog('add')">添加</el-button>
+            </div>
+          </div>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex" v-if="!props4CreateDomain.showResponse">
