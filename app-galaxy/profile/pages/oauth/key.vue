@@ -1225,7 +1225,7 @@
           this.addToWaitingResponseQueue(action);
           this.warningConfirm('删除CliendId',
             `删除ClientId：${row.clientId}，将会造成已经授权的配置失效，你确定需要这么做吗？`).then(() => {
-            this.$net.oauthDeleteAccessKey(this.selected.row.id).then(msg => {
+            this.$net.oauthDeleteAccessKey(this.selected.row.id,{groupId: this.$storeHelper.currentGroupID}).then(msg => {
               this.hideWaitingResponse(action);
               this.$message.success(msg);
               this.requestAccessKeyList();
@@ -1520,7 +1520,8 @@
             this.$net.oauthAddUrlPermission({
               accessKeyId: this.updateUrlPermissionInfo.accessKeyId,
               oauth: newItem.oauth,
-              oauthUrl: newItem.resource
+              oauthUrl: newItem.resource,
+              groupId: this.$storeHelper.currentGroupID,
             }).then(content => {
               this.hideWaitingResponse(action);
               this.$message.success(`权限${newItem.oauth}添加成功`);
@@ -1586,7 +1587,8 @@
       switch (prop) {
         case 'secret':
           this.$net.oauthUpdateSecret(this.selected.row.id, {
-            secret: this.newProps[prop]
+            secret: this.newProps[prop],
+            groupId: this.$storeHelper.currentGroupID,
           }).then(msg => {
             this.hideWaitingResponse(action + '-in-dialog');
             this.selected.operation = null;

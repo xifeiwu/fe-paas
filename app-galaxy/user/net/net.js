@@ -57,8 +57,13 @@ class Net extends NetBase {
       //获取操作日志
       'operation_log': {
         path: '/operation/searchLog',
-        method: 'get',
+        method: 'post',
         withMorePage: true,
+      },
+      //获取操作模块
+      'operation_module': {
+        path: '/operation/get/module/type',
+        method: 'get'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

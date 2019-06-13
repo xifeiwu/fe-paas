@@ -699,7 +699,7 @@
                 if (!errMsg) {
                    let content = "您确定要将"+row.authorities+"授权给"+row.requestClientId+"吗"
                    this.warningConfirm("确认授权",content).then(()=>{
-                     this.$net.oauthModifyAuthorizeList(this.selected.row.id,{}).then(msg => {
+                     this.$net.oauthModifyAuthorizeList(this.selected.row.id,{groupId: this.$storeHelper.currentGroupID}).then(msg => {
                        this.updateModelInfo('authorizeUrlList');
                        this.$message.success(msg);
                        this.requestAuthorizeUrlList();

@@ -730,6 +730,9 @@
 			        params: {
 				        appId: this.relatedAppId
 			        },
+              query: {
+			          groupId: this.$storeHelper.currentGroupID
+              },
 			        payload
 		        });
 		        // 带参数执行后马上关闭页面
@@ -738,7 +741,10 @@
 		        await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_restart, {
 			        params: {
 				        appId: this.relatedAppId
-			        }
+			        },
+              query: {
+                groupId: this.$storeHelper.currentGroupID
+              }
 		        });
           }
 

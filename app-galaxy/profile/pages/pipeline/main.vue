@@ -530,6 +530,9 @@
               await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_delete, {
                 params: {
                   appId: row.appId
+                },
+                payload: {
+                  groupId: this.$storeHelper.currentGroupID,
                 }
               });
               this.$message.success(`pipeline "${row.pipelineName}" 已删除！`);

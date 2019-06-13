@@ -1210,7 +1210,8 @@
               payload: {
                 id: this.selected.row.id,
                 status: this.secureCheckProps.passed ? 'EFFECTIVE' : 'NOT_EFFECTIVE',
-                reason: this.secureCheckProps.reason
+                reason: this.secureCheckProps.reason,
+                groupId: this.$storeHelper.currentGroupID,
               }
             }).then(() => {
               this.$message.success('提交成功');
