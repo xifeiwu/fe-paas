@@ -90,20 +90,24 @@
           </el-select>
         </el-form-item>
         <el-form-item label="邮件组" prop="mailGroupList" class="mail-group">
-          <el-tag
-                  v-for="tag in formData.mailGroupList"
-                  size="small"
-                  :key="tag"
-                  closable
-                  type="success"
-                  @close="handleMailGroup('remove', tag)"
-          >{{tag}}</el-tag>
+          <div v-if="formData.mailGroupList.length > 0">
+            <el-tag
+                    v-for="tag in formData.mailGroupList"
+                    size="small"
+                    :key="tag"
+                    closable
+                    type="success"
+                    @close="handleMailGroup('remove', tag)"
+            >{{tag}}</el-tag>
+          </div>
+          <div v-else style="height: 27px">空</div>
           <div class="content">
             <el-autocomplete
                     v-model="mailGroup"
                     :fetch-suggestions="querySearch"
                     placeholder="请输入内容"
                     @select="handleSelect"
+                    @keydown.native.enter.prevent="handleSelect"
             ></el-autocomplete>
           </div>
         </el-form-item>
@@ -413,9 +417,9 @@
         cb(result);
       },
       handleSelect(item) {
-        if (item && item.value) {
-          this.handleMailGroup('add', item.value);
-          this.mailGroup = '';
+        var value = item instanceof KeyboardEvent ? this.mailGroup : (item && item.value ? item.value : '')
+        if (value) {
+          this.handleMailGroup('add', value);
         }
       },
 
