@@ -73,17 +73,20 @@
         <el-table-column
                 prop="profileDesc"
                 width="100"
+                headerAlign="center" align="center"
                 label="运行环境">
         </el-table-column>
         <el-table-column
                 prop="formattedCreateTime"
+                headerAlign="center" align="center"
                 label="创建时间"
-                width="180">
+                width="140">
         </el-table-column>
         <el-table-column
                 prop="creatorName"
                 label="创建人"
-                width="120">
+                headerAlign="center" align="center"
+                width="80">
         </el-table-column>
         <el-table-column
                 prop="status"
@@ -98,7 +101,7 @@
         <el-table-column
                 prop="operation"
                 label="操作"
-                width="260"
+                width="220"
         >
           <template slot-scope="scope">
             <el-button
@@ -184,13 +187,13 @@
         </el-form-item>
         <el-form-item label="外网二级域名" :error="props4CreateDomain.errMsgForLevel2Name">
           <el-input v-model="props4CreateDomain.level2Name" placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"></el-input>
-          <div style="display: flex">
-            <el-select v-model="props4CreateDomain.level1Name" style="flex: 1;">
+          <div style="display: flex; justify-content: space-between">
+            <el-select v-model="props4CreateDomain.level1Name" style="width: 200px;">
               <el-option v-for="(item, index) in props4CreateDomain.level1InfoList" :value="item.domainName" :label="item.domainName"
                          :key="index"></el-option>
             </el-select>
             <div style="width: 230px;">
-              <el-checkbox v-model="props4CreateDomain.noWhiteList" style="margin-left: 100px;">开启全网访问</el-checkbox>
+              <el-checkbox v-model="props4CreateDomain.noWhiteList" style="">开启全网访问</el-checkbox>
               <el-button class="add-domain-btn" size="mini-extral" type="primary" @click="handleDomainInDialog('add')">添加</el-button>
             </div>
           </div>
@@ -317,13 +320,16 @@
                @close="selected.action = null"
     >
       <el-form labelWidth="120px" size="mini">
-        <el-form-item label="审核意见：" class="custom-image">
+        <el-form-item v-if="selected.row" label="域名状态">
+          该域名{{selected.row.openAllInternet?'正在':'未'}}申请全网访问
+        </el-form-item>
+        <el-form-item label="审核意见" class="custom-image">
           <el-radio-group v-model="secureCheckProps.passed" size="mini" class="passed">
             <el-radio :label="true">审核通过</el-radio>
             <el-radio :label="false">审核不通过</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="不通过理由：" :error="secureCheckProps.tip" class="reason"
+        <el-form-item label="不通过理由" :error="secureCheckProps.tip" class="reason"
         >
           <el-input v-model="secureCheckProps.reason"
                     type="textarea"
@@ -355,7 +361,10 @@
         <el-form-item label="不通过原因：" class="reason" v-if="selected.row && selected.row.reason">
           {{selected.row.reason}}
         </el-form-item>
-        <el-form-item label="安全审核人：" class="tip">李斌（NBSP-安全组），15600693326</el-form-item>
+        <el-form-item label="安全审核人：">李斌（NBSP-安全组），15600693326</el-form-item>
+        <el-form-item label="申请全网访问" v-if="selected.row">
+          <el-checkbox v-model="selected.row.openAllInternet">开启</el-checkbox>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
@@ -1042,12 +1051,12 @@
        * action in popup dialog on the press of button-ok
        * @param action
        */
-      handleClickInDialog(action) {
+      async handleClickInDialog(action) {
         let domainIdList = null;
         switch (action) {
           case 'add-domain-in-dialog':
-//            console.log(this.props4CreateDomain.domainListToAdd);
-//            console.log(internetDomainList);
+            // console.log(this.props4CreateDomain.domainListToAdd);
+            // console.log(internetDomainList);
             if (this.props4CreateDomain.domainListToAdd.length === 0) {
               this.props4CreateDomain.errMsgForDomainToAdd = '至少添加一个域名！';
               return;
@@ -1056,18 +1065,16 @@
               this.props4CreateDomain.errMsgForDomainToAdd = '每次最多添加五个！';
               return;
             }
-            let internetDomainList = {};
-            this.props4CreateDomain.domainListToAdd.forEach(it => {
-              let profileId = it['profileId'];
-              if (!internetDomainList.hasOwnProperty(profileId)) {
-                internetDomainList[profileId] = [];
-              }
-              internetDomainList[profileId].push(it.domain);
-            });
             this.addToWaitingResponseQueue(action);
             this.$net.createDomain({
               "groupId": this.$storeHelper.currentGroupID,
-              internetDomainList
+              internetDomainOperateVOList: this.props4CreateDomain.domainListToAdd.map(it => {
+                return {
+                  domainName: it.domain,
+                  openAllInternet: it.noWhiteList,
+                  spaceId: it.profileId
+                }
+              })
             }).then(content => {
               this.props4CreateDomain.serverResponse = content;
               this.props4CreateDomain.showResponse = true;
@@ -1239,7 +1246,8 @@
               payload: {
                 id: this.selected.row.id,
                 status: 'APPLY',
-                reason: '重新申请'
+                reason: '重新申请',
+                openAllInternet: this.selected.row.openAllInternet
               }
             }).then(() => {
               this.$message.success('提交成功');

@@ -686,7 +686,7 @@ class StoreHelper extends BaseHelper{
   }
   actionDisabled(action) {
     const permission = this.actionToPermission(action);
-    return this.permission[permission].disabled;
+    return permission && this.permission[permission].disabled;
   }
 
   logout() {
