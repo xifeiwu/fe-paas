@@ -284,6 +284,7 @@
               payload = Object.assign(payload, {
                 middlewareVersionId: formData.versionId,
                 clusterId: formData.clusterId,
+                middlewareId: formData.middlewareId,
                 memory: formData.memory / utils.ONE_MILLION,
                 instanceDescribe: formData.comment,
                 lifecycle: formData.remainingDays,
