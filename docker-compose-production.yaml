@@ -14,11 +14,7 @@ services:
     build:
       context: .
     image: harbor.finupgroup.com/galaxy/spa-server:v1.0
-    restart_policy:
-      condition: on-failure
-      delay: 5s
-      max_attempts: 3
-      window: 120s
+    restart: on-failure
     ports:
       - "6001:6001"
     environment:
