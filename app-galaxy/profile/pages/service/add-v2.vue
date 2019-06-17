@@ -336,6 +336,14 @@
                   <el-input placeholder="如8100" size="mini" v-model="formData.portMap.containerPort"></el-input>
                 </el-col>
                 <el-col :span="2">TCP</el-col>
+                <div class="el-col el-col-2">
+                  <el-tooltip slot="trigger" effect="dark" placement="top">
+                    <div slot="content">
+                      <div>端口映射的内网访问域名为：common.portmap.{{profileInfo.name}}</div>
+                    </div>
+                    <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
+                  </el-tooltip>
+                </div>
               </el-row>
             </el-form-item>
           </transition>

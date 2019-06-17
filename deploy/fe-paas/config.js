@@ -64,6 +64,12 @@ class Config {
         paasServer = 'http://10.10.202.143:30334';
         break;
     }
+    if (process.env.PAAS_SERVER) {
+      paasServer = process.env.PAAS_SERVER;
+    }
+    if (process.env.ASSIST_SERVER) {
+      assistServer = process.env.ASSIST_SERVER;
+    }
     return {
       '/j-api/paas/': {
         target: paasServer,
