@@ -20,4 +20,8 @@ docker-compose -f docker-compose-test.yaml up -d spa-server
 
 4. 停止
 
+docker-compose -f docker-compose-test.yaml down
+
 docker-compose -f docker-compose-test.yaml stop spa-server
+
+docker container stop 9aad52b14017(不建议)
