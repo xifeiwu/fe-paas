@@ -103,6 +103,7 @@
           <div v-else style="height: 27px">空</div>
           <div class="content">
             <el-autocomplete
+                    ref="email-selector"
                     v-model="mailGroup"
                     :fetch-suggestions="querySearch"
                     placeholder="请输入内容"
@@ -611,6 +612,9 @@
             }
             mailGroupList.push(mailGroup);
             this.mailGroup = '';
+            this.$nextTick(() => {
+              this.$refs['email-selector'] && (this.$refs['email-selector'].suggestions = []);
+            });
             break;
         }
       },

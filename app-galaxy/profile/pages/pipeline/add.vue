@@ -280,7 +280,7 @@
                 <el-checkbox v-model="formData.noticeConfig.executeFail">每次Pipeline执行失败时通知</el-checkbox>
               </el-form-item>
               <el-form-item label="通知接收人：" prop="noticeConfig" :multiFields="true" :error="emailProps.errMsg">
-                <div class="notice-email-list">
+                <div class="notice-email-list" v-if="formData.noticeConfig && formData.noticeConfig.noticeEmails.length > 0">
                   <el-tag
                           v-for="(item, index) in formData.noticeConfig.noticeEmails"
                           :key="index"
@@ -290,12 +290,14 @@
                           @close="handleEmail($event, 'remove', item)"
                   >{{item}}</el-tag>
                 </div>
+                <div v-else style="height: 27px">空</div>
                 <div class="notice-email-add">
-                  <el-autocomplete
+                  <el-autocomplete ref="email-selector"
                           v-model="emailProps.emailToAdd"
                           :fetch-suggestions="querySearch"
                           placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"
                           @select="handleSelect"
+                          @keydown.native.enter.prevent="handleSelect"
                   ></el-autocomplete>
                 </div>
               </el-form-item>
@@ -1273,8 +1275,9 @@
         cb(result);
       },
       handleSelect(item) {
-        if (item && item.value) {
-          this.handleEmail(null, 'add', item.value);
+        var value = item instanceof KeyboardEvent ? this.emailProps.emailToAdd : (item && item.value ? item.value : '');
+        if (value) {
+          this.handleEmail(null, 'add', value);
         }
       },
 
@@ -1709,6 +1712,9 @@
             }
             emailList.push(emailToAdd);
             this.emailProps.emailToAdd = '';
+            this.$nextTick(() => {
+              this.$refs['email-selector'] && (this.$refs['email-selector'].suggestions = []);
+            });
             break;
           case 'remove':
             if (emailList.indexOf(item) > -1) {
