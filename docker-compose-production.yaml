@@ -17,6 +17,8 @@ services:
     restart: on-failure
     ports:
       - "6001:6001"
+    networks:
+      - spa_net
     environment:
       - NODE_ENV=production
       - PORT=6001
@@ -27,8 +29,9 @@ services:
     volumes:
       - /data/paas-fe/logs/spa-server:/data/logs
 
-
-
-
-
-
+networks:
+  spa_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.29.2.0/24"
