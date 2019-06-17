@@ -16,6 +16,8 @@ services:
     image: harbor.finupgroup.com/galaxy/spa-server:v1.0
     ports:
       - "6001:6001"
+    networks:
+      - spa_net
     environment:
       - NODE_ENV=test
       - PORT=6001
@@ -27,7 +29,12 @@ services:
       - /data/paas-fe/logs/spa-server:/data/logs
 
 
-
+networks:
+  spa_net:
+    ipam:   
+      driver: default 
+      config: 
+        - subnet: "172.29.2.0/24"
 
 
 
