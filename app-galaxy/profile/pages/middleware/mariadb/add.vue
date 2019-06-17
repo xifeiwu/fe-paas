@@ -489,7 +489,7 @@
           this.$message.success("配置文件修改成功！");
         }).catch(err => {
             console.log(err);
-          this.$message.error(`域名${this.domain}已被占用`);
+          this.$message.error("配置文件保存失败，请联系云平台！");
         }).finally(() => {
           this.saveMyCnfLoading = false;
           this.showMyCnfEditor = false;
