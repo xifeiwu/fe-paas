@@ -50,11 +50,11 @@ class Config {
       case 'production':
         paasServer = 'http://galaxy-web-server.galaxy.production';
         // paasServer = 'http://172.31.160.106:30334';
-        assistServer = 'http://172.31.160.87:6002';
+        assistServer = 'http://172.31.160.103:6002';
         break;
       case 'production_gray':
         paasServer = 'http://172.31.160.103:30334';
-        assistServer = 'http://172.31.160.87:6002';
+        assistServer = 'http://172.31.160.103:6002';
         break;
       case 'test':
         paasServer = 'http://10.10.202.143:30334';
@@ -65,7 +65,7 @@ class Config {
       case 'local':
         paasServer = 'http://10.10.58.126:30334';
         paasServer = 'http://10.10.202.143:30334';
-        assistServer = 'http://127.0.0.1:6002';
+        // assistServer = 'http://127.0.0.1:6002';
         break;
     }
     if (process.env.PAAS_SERVER) {
