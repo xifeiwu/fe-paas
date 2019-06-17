@@ -27,7 +27,7 @@ services:
       - LOG_FILE_NAME=spa-server.paas
 
     volumes:
-      - /data/paas-fe/logs/spa-server:/data/logs
+      - /data/paas-fe/logs:/data/logs
 
 networks:
   spa_net:

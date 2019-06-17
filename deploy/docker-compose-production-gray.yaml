@@ -1,0 +1,37 @@
+version: "3"
+services:
+  node-build:
+    image: node:8.16.0-alpine
+    volumes:
+      - ./:/data/fe-paas
+    working_dir: /data/fe-paas
+    entrypoint: |
+      /bin/sh -c "yarn \
+      && npm run build \
+      && cd deploy/fe-paas 
+      && npm install"
+  spa-server:
+    build:
+      context: .
+    image: harbor.finupgroup.com/galaxy/spa-server:v1.0
+    restart: on-failure
+    ports:
+      - "6001:6001"
+    networks:
+      - spa_net
+    environment:
+      - NODE_ENV=production_gray
+      - PORT=6001
+      - LOG_DIR=/data/logs
+      - DEBUG=spa-server
+      - LOG_FILE_NAME=spa-server.paas
+
+    volumes:
+      - /data/paas-fe/logs:/data/logs
+
+networks:
+  spa_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.29.2.0/24"
