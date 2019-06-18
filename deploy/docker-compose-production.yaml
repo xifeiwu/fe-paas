@@ -13,7 +13,7 @@ services:
   spa-server:
     build:
       context: .
-    image: harbor.finupgroup.com/galaxy/spa-server:v1.0
+    image: harbor.finupgroup.com/galaxy/fe-paas:latest
     restart: on-failure
     ports:
       - "6001:6001"
@@ -22,12 +22,12 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=6001
-      - LOG_DIR=/data/logs
+      - LOG_DIR=/data/fe-paas/logs
       - DEBUG=spa-server
       - LOG_FILE_NAME=spa-server.paas
 
     volumes:
-      - /data/paas-fe/logs:/data/logs
+      - /data/paas-fe/logs:/data/fe-paas/logs
 
 networks:
   spa_net:

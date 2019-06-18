@@ -21,7 +21,7 @@ services:
     environment:
       - NODE_ENV=test
       - PORT=6001
-      - LOG_DIR=/data/logs
+      - LOG_DIR=/data/fe-paas/logs
       - DEBUG=spa-server
       - LOG_FILE_NAME=spa-server.paas
 
