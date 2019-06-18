@@ -64,11 +64,13 @@
           align="center">
         </el-table-column>
         <el-table-column
-          prop="formattedDuration"
           label="持续时间"
           width="160"
           headerAlign="center"
           align="center">
+          <template slot-scope="scope">
+            {{scope.row.formattedDuration ? scope.row.formattedDuration : '--'}}
+          </template>
         </el-table-column>
         <el-table-column
           prop="message"
@@ -563,6 +565,7 @@
               return;
             }
             var changed = false;
+            // console.log(this.buildListAll);
             this.buildListAll.forEach((it, index) => {
               if (it.tag === 'building') {
                 changed = true;
@@ -583,7 +586,7 @@
           this.heartBeatStatus[timeStamp] = true;
           usedTimeUpdateForBuildingRecord = usedTimeUpdateForBuildingRecord.bind(this);
           const loopUntilBuildingFinish = this.loopUntilBuildingFinish.bind(this);
-          loopUntilBuildingFinish.interval = 3;
+          loopUntilBuildingFinish.interval = 2;
           await this.startHeartBeat(1000, [usedTimeUpdateForBuildingRecord, loopUntilBuildingFinish], timeStamp);
           // request again
           await this.requestBuildList();
