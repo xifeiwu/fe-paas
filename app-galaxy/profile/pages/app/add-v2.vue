@@ -24,8 +24,8 @@
         <span>{{$storeHelper.groupInfo.asLabel}}</span>
       </el-form-item>
 
-      <el-form-item label="维护者" prop="maintainerId" class="group-list">
-        <el-select v-model="createAppForm.maintainerId" placeholder="请选择" filterable>
+      <el-form-item label="维护者" class="group-list" style="width: 340px">
+        <el-select v-model="createAppForm.maintainerIdList" multiple :multiple-limit="5" placeholder="请选择" filterable>
           <el-option v-for="item in groupUsers" :key="item.id" :label="item.realName + ' ( ' + item.jobDescription + ' ) '" :value="item.userId">
           </el-option>
         </el-select>
@@ -332,7 +332,7 @@
         }
         &.group-list {
           .el-select {
-            width: 240px;
+            width: 550px;
           }
         }
         &.profiles {
@@ -422,6 +422,8 @@ export default {
             this.createAppForm.projectName = data['projectName'];
             this.createAppForm.serviceName = data['serviceName'];
             this.createAppForm.maintainerId = data['maintainerId'];
+            let maintainerList = data['maintainerList'];
+            this.createAppForm.maintainerIdList = maintainerList.map(it => it.id);
             this.createAppForm.maintainer = data['maintainer'];
             // the follow prop is set in watch function
             this.propsUsed.language = false;
@@ -500,6 +502,7 @@ export default {
         languageVersion: '',
         maintainerId: '',
         maintainer: '',
+        maintainerIdList: [],
 //         packageInfo: {
 //           _type: '',
 //           _name: '',
@@ -856,6 +859,7 @@ export default {
               languageVersion: createAppForm.languageVersion,
               spaceList: createAppForm.profiles,
               maintainerId: createAppForm.maintainerId,
+              maintainerIdList: createAppForm.maintainerIdList,
             };
 //          console.log('payload');
 //          console.log(payload);

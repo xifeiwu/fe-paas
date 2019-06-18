@@ -67,7 +67,26 @@
         </el-table-column>
         <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="100">
         </el-table-column>
-        <el-table-column label="维护者" prop="maintainer" headerAlign="center" align="center" width="100">
+        <el-table-column label="维护者" prop="maintainerList" headerAlign="center" align="center" width="120">
+          <template slot-scope="scope">
+            <div v-if="Array.isArray(scope.row.maintainerList) && scope.row.maintainerList.length > 1">
+              <span>
+                {{scope.row.maintainerList[0]['realName']}}
+              </span>
+              <el-tooltip slot="trigger" effect="dark" placement="right">
+                <div slot="content">
+                  <div v-for="(item, index) in scope.row.maintainerList">
+                    {{item.realName}}
+                  </div>
+                </div>
+                <span class="more">...</span>
+              </el-tooltip>
+            </div>
+            <div v-else-if="Array.isArray(scope.row.maintainerList) && scope.row.maintainerList.length === 1">
+              {{scope.row.maintainerList[0]['realName']}}
+            </div>
+
+          </template>
         </el-table-column>
         <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="160">
           <template slot-scope="scope">
