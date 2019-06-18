@@ -124,6 +124,7 @@
               :class="['flex', 'primary']"
               @click="handleTRClick($event, 'pipeline_build_plan', scope.$index, scope.row)">
               <span>查看执行进度</span>
+              <i class="paas-icon-level-up" style="margin-left: 3px;"></i>
             </el-button>
           </template>
         </el-table-column>
@@ -268,15 +269,27 @@
     components: {paasDialogForLog, paasPopoverElementWithModalMask},
     mixins: [commonUtils],
     created() {
+      var goBack = false;
       var dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer) {
         const from = dataTransfer['from'];
         const data = dataTransfer['data'];
-        this.relatedAppId = data['appId'];
-        this.dataPassed.appName = data['appName'];
-        this.dataPassed.pipelineName = data['pipelineName'];
-        this.$storeHelper.dataTransfer = null;
+        switch (from) {
+          case this.$net.page['profile/pipeline/list']:
+          case this.$net.page['profile/pipeline/records/plan']:
+            this.relatedAppId = data['appId'];
+            this.dataPassed.appName = data['appName'];
+            this.dataPassed.pipelineName = data['pipelineName'];
+            this.$storeHelper.dataTransfer = null;
+            break;
+          default:
+            goBack = true;
+            break;
+        }
       } else {
+        goBack = true;
+      }
+      if (goBack) {
         this.$router.push(this.$net.page['profile/pipeline/list']);
         return;
       }
@@ -972,8 +985,13 @@
             break;
           case 'pipeline_build_plan':
             this.$storeHelper.dataTransfer = {
-              appId: this.relatedAppId,
-              buildNumber: row['buildNumber'],
+              from: this.$net.page['profile/pipeline/records'],
+              data: {
+                appId: this.relatedAppId,
+                buildNumber: row['buildNumber'],
+                appName: this.dataPassed.appName,
+                pipelineName: this.dataPassed.pipelineName
+              }
             };
             await this.$router.helper.renameRouterName('records/plan', `${this.dataPassed.pipelineName}<${row.buildNumber}>`, '/profile/pipeline');
             this.$router.push(this.$net.page['profile/pipeline/records/plan']);

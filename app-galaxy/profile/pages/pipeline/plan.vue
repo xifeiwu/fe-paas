@@ -151,13 +151,30 @@
   export default {
     components: {pipelineStage, stageStepLog, paasPopoverElementWithModalMask},
     created() {
-      const dataPassed = this.$storeHelper.dataTransfer;
-      if (!dataPassed) {
-        this.$router.push(this.$net.page['profile/pipeline/list']);
+      var goBack = false;
+      const dataTransfer = this.$storeHelper.dataTransfer;
+      if (dataTransfer) {
+        const from = dataTransfer['from'];
+        if (from === this.$net.page['profile/pipeline/records']) {
+          const data = dataTransfer['data'];
+          this.appId = data.appId;
+          this.buildNumber = data.buildNumber;
+          // for jump back to profile/pipeline/records
+          this.$storeHelper.dataTransfer = {
+            from: this.$net.page['profile/pipeline/records/plan'],
+            data
+          };
+        } else {
+          goBack = true;
+        }
+      } else {
+        goBack = true;
       }
-      this.appId = dataPassed.appId;
-      this.buildNumber = dataPassed.buildNumber;
-      this.$storeHelper.dataTransfer = null;
+      if (goBack) {
+        this.$router.push(this.$net.page['profile/pipeline/list']);
+        return;
+      }
+
       this.$nextTick(() => {
         this.popperForUserConfirm = this.$refs['popover-for-user-confirm'];
       });
