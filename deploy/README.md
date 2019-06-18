@@ -40,7 +40,7 @@ cd deploy
 
 生产灰度：docker-compose -f docker-compose-production-gray.yaml up -d fe-paas
 生产：docker-compose -f docker-compose-production.yaml up -d fe-paas
-测试：docker-compose -f docker-compose-production.yaml up -d fe-paas
+测试：docker-compose -f docker-compose-test.yaml up -d fe-paas
 本地：docker-compose -f docker-compose-local.yaml up -d fe-paas
 
 

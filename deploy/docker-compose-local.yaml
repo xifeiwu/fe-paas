@@ -26,7 +26,7 @@ services:
       - LOG_FILE_NAME=fe-paas
 
     volumes:
-      - .:/data/fe-paas/logs
+      - ./logs:/data/fe-paas/logs
 
 
 networks:

@@ -10,7 +10,7 @@ services:
       && npm run build \
       && cd deploy/fe-paas 
       && npm install"
-  spa-server:
+  fe-paas:
     build:
       context: .
     image: harbor.finupgroup.com/galaxy/fe-paas:latest
@@ -23,11 +23,11 @@ services:
       - NODE_ENV=production_gray
       - PORT=6001
       - LOG_DIR=/data/fe-paas/logs
-      - DEBUG=spa-server
-      - LOG_FILE_NAME=spa-server.paas
+      - DEBUG=fe-paas
+      - LOG_FILE_NAME=fe-paas
 
     volumes:
-      - /data/paas-fe/logs:/data/fe-paas/logs
+      - ./logs:/data/fe-paas/logs
 
 networks:
   spa_net:
