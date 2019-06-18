@@ -30,6 +30,10 @@
           <span>创建Pipeline</span>
           <i class="paas-icon-level-up" style="margin-left: 3px;"></i>
         </el-button>
+        <div style="display: inline-flex; align-items: center; margin-left: 8px; color: #409EFF">
+          <a href="http://wiki.puhuitech.cn/pages/viewpage.action?pageId=38576221" target="_blank" style="color: #409EFF">操作指导</a>
+          <i class="paas-icon-level-up"></i>
+        </div>
       </div>
     </div>
     <div class="pipeline-list">
