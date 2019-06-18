@@ -1,4 +1,5 @@
-FROM harbor.finupgroup.com/nchannel/node:alinode
-COPY . /data/fe-paas/
-WORKDIR /data/fe-paas/
+FROM node:8.16.0-alpine
+COPY . /data/fe-paas
+RUN mkdir /data/fe-paas/logs
+WORKDIR /data/fe-paas
 CMD ["sh", "run.sh"]
