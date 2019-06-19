@@ -433,8 +433,9 @@ class Net {
    * @returns {Promise}
    * return resData.content if success
    * else return {}
+   * TODO: remove withMorePage
    */
-  async requestPaasServer({path, method, level = 'LEVEL_ERROR', errObj = null, partial = false, withTimeStamp = false, withCode=false, withMorePage = false}, options = {}) {
+  async requestPaasServer({path, method, timeout = 15000, level = 'LEVEL_ERROR', errObj = null, partial = false, withTimeStamp = false, withCode=false, withMorePage = false}, options = {}) {
     // 访客只能进入首页
     if (Vue.prototype.$storeHelper.isGuest) {
       window.location.href = this.page['index'];
@@ -445,7 +446,7 @@ class Net {
         this.addToRequestingRrlList(path);
       }
       const response = await this.getResponse({path, method}, options, {
-        timeout: 15000,
+        timeout,
         headers: {
           token: Vue.prototype.$storeHelper.getUserInfo('token')
         }

@@ -711,7 +711,8 @@ class Net extends NetBase {
       // 下载构建日志
       'pipeline_record_build_history_download': {
         path: '/pipeline/download/build/log/{appId}',
-        method: 'post'
+        method: 'post',
+        timeout: 0
       },
       // 获取正在构建中的日志
       'pipeline_record_building_log': {

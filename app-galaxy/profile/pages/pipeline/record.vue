@@ -956,6 +956,7 @@
                 headers: {
                   token: this.$storeHelper.getUserInfo('token')
                 },
+                timeout: 0,
                 responseType: 'blob'
               }).then(res => {
                 const a = document.createElement('a');
