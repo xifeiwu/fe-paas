@@ -49,12 +49,11 @@ class Config {
     switch (process.env.NODE_ENV) {
       case 'production':
         paasServer = 'http://galaxy-web-server.galaxy.production';
-        // paasServer = 'http://172.31.160.106:30334';
-        assistServer = 'http://172.31.160.103:6002';
+        assistServer = 'http://172.31.160.106:6002';
         break;
       case 'production_gray':
         paasServer = 'http://172.31.160.103:30334';
-        assistServer = 'http://172.31.160.103:6002';
+        assistServer = 'http://172.31.160.106:6002';
         break;
       case 'test':
         paasServer = 'http://10.10.202.143:30334';
