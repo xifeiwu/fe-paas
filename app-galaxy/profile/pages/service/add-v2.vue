@@ -339,7 +339,7 @@
                 <div class="el-col el-col-2">
                   <el-tooltip slot="trigger" effect="dark" placement="top">
                     <div slot="content">
-                      <div>端口映射的内网访问域名为：common.portmap.{{profileInfo.name}}</div>
+                      <div>端口映射的内网访问域名为：galaxy.autotest.beta</div>
                     </div>
                     <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
                   </el-tooltip>
