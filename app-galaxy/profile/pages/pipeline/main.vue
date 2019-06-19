@@ -30,10 +30,15 @@
           <span>创建Pipeline</span>
           <i class="paas-icon-level-up" style="margin-left: 3px;"></i>
         </el-button>
+        <span style="line-height: 26px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;操作指导：</span>
         <div style="display: inline-flex; align-items: center; margin-left: 8px; color: #409EFF">
-          <a href="http://wiki.puhuitech.cn/pages/viewpage.action?pageId=38576221" target="_blank" style="color: #409EFF">操作指导</a>
-          <i class="paas-icon-level-up"></i>
+          <a href="http://wiki.puhuitech.cn/pages/viewpage.action?pageId=38576221" target="_blank" style="color: #409EFF">参见wiki</a>
+          <!--<i class="paas-icon-level-up"></i>-->
+          <span style="line-height: 26px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <a href="http://sonar.puhuitech.cn" target="_blank" style="color: #409EFF">跳转Sonar</a>
         </div>
+
+
       </div>
     </div>
     <div class="pipeline-list">
