@@ -234,6 +234,10 @@
                       v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.relativePath"></el-input>
                     </el-form-item>
+                    <el-form-item label="jacoco includes：" labelWidth="220px"
+                                  v-show="stageName === 'ciPipelineAutoTestVO'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.includes"></el-input>
+                    </el-form-item>
                     <el-form-item label="脚本：" labelWidth="220px" prop="ciPipelineAutoTestVO.script"
                       v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.script"></el-input>
@@ -898,6 +902,7 @@
             itTestReportAddress: '', // 自动化覆盖率报告目录[相对地址即可] ,
             relativePath: '', // Gitlab父级pom.xml相对路径 ,
             script: '', // 脚本名称 ,
+            includes: '',
             selected: '', //节点是否选中
           },
           uploadUnitTestReportAndAutoTestReport: {
