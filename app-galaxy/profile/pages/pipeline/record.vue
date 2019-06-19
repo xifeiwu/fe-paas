@@ -631,9 +631,9 @@
           return;
         }
         // 短时间内两次点击会触发后台错误，避免短时双击
-        if (['go-on', 'cancel'].indexOf(userInputInfo.action) > -1) {
-          return;
-        }
+//        if (['go-on', 'cancel'].indexOf(userInputInfo.action) > -1) {
+//          return;
+//        }
         userInputInfo.action = action;
         switch (action) {
           case 'go-on':
@@ -657,6 +657,9 @@
         const lastBuildingRecord = this.lastBuildingRecord;
         if (lastBuildingRecord && (lastBuildingRecord.status === 'PAUSED_PENDING_INPUT')) {
           const userInputInfo = this.getUserInputInfo(this.lastBuildingRecord);
+          if (userInputInfo) {
+            userInputInfo.action = (this.userInputInfo && this.userInputInfo.action) ? this.userInputInfo.action : null;
+          }
           this.userInputInfo = userInputInfo;
 
           var targetClass = `build-${lastBuildingRecord.buildNumber}-status`;
@@ -677,6 +680,7 @@
 //          console.log(target);
         } else {
           this.popperForUserConfirm.doClose();
+          this.userInputInfo = null;
           return 'can-quite';
         }
       },

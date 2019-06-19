@@ -272,6 +272,9 @@
       async updatePopperForUserConfirm() {
         if (this.pipelineBuildingInfo && (this.pipelineBuildingInfo.status === 'PAUSED_PENDING_INPUT')) {
           let userInputInfo = this.getUserInputInfo(this.pipelineBuildingInfo);
+          if (userInputInfo) {
+            userInputInfo.action = (this.userInputInfo && this.userInputInfo.action) ? this.userInputInfo.action : null;
+          }
           this.userInputInfo = userInputInfo;
 
           let nodeList = this.$el.querySelectorAll(`#plan-main .pipeline-run-result .stage`);
@@ -282,6 +285,7 @@
             });
           }
         } else {
+          this.userInputInfo = null;
           this.popperForUserConfirm.doClose();
         }
       },
