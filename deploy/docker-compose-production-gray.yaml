@@ -11,6 +11,7 @@ services:
       && cd deploy/fe-paas 
       && npm install"
   fe-paas:
+    container_name: fe-paas.production-gray
     build:
       context: .
     image: harbor.finupgroup.com/galaxy/fe-paas:latest
