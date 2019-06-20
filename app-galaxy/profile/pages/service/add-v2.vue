@@ -100,13 +100,19 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item prop="relativePathOfParentPOM"
+            <el-form-item label="项目根目录" prop="relativePathOfParentPOM"
                           v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
-                          class="relative-path-of-parent-pom max-width-700"
-            >
-              <div slot="label"><span style="font-size: 13px;">Gitlab父级pom.xml相对路径</span></div>
+                          class="relative-path-of-parent-pom max-width-700">
               <el-input v-model="formData.relativePathOfParentPOM"
-                        placeholder="不能超过256个字符"></el-input>
+                        placeholder="不能超过256个字符" style="width: 90%" ></el-input>
+              <span>
+                <el-tooltip slot="trigger" effect="dark" placement="top">
+                    <div slot="content">
+                      <div>原gitlab相对路径</div>
+                    </div>
+                    <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
+                </el-tooltip>
+               </span>
             </el-form-item>
           </transition>
           <transition name="more-config">
