@@ -187,6 +187,33 @@
                   </el-tooltip>
                 </div>
               </el-form-item>
+              <el-form-item>
+                <div class="period-seconds" style="line-height: 28px">
+                    <span>间隔时间：</span>
+                    <el-input-number v-model="formData.healthCheck.periodSeconds" :min="1" :max="10" label="间隔时间"></el-input-number>
+                    <el-tooltip effect="dark" content="健康检查间隔时间：间隔时间以秒为单位，取值范围在1-10之间" placement="bottom">
+                        <i class="paas-icon-fa-question" style="font-size: 12px; color: #E6A23C"></i>
+                    </el-tooltip>
+                </div>
+              </el-form-item>
+              <el-form-item>
+                <div class="failure-threshold" style="line-height: 28px">
+                    <span>不健康阈值：</span>
+                    <el-input-number v-model="formData.healthCheck.failureThreshold" :min="1" :max="10" label="不健康阈值"></el-input-number>
+                    <el-tooltip effect="dark" content="健康检查不健康阈值：取值范围在1-10之间" placement="bottom">
+                        <i class="paas-icon-fa-question" style="font-size: 12px; color: #E6A23C"></i>
+                    </el-tooltip>
+                </div>
+              </el-form-item>
+              <el-form-item>
+                <div class="timeout-seconds" style="line-height: 28px">
+                    <span>响应超时：</span>
+                    <el-input-number v-model="formData.healthCheck.timeoutSeconds" :min="10" :max="120" label="响应超时"></el-input-number>
+                    <el-tooltip effect="dark" content="健康检查响应超时：响应超时以秒为单位，取值范围在10-120之间" placement="bottom">
+                        <i class="paas-icon-fa-question" style="font-size: 12px; color: #E6A23C"></i>
+                    </el-tooltip>
+                </div>
+              </el-form-item>
             </div>
           </div>
           <el-form-item label="应用监控" prop="appMonitor" class="app-monitor" v-if="formRelated.isJavaLanguage">
@@ -1520,6 +1547,9 @@
                   rollingUpdate: formData.rollingUpdate,
                   loadBalance: formData.loadBalance,
                   initialDelaySeconds: formData.healthCheck.initialDelay,
+                  periodSeconds: formData.healthCheck.periodSeconds,
+                  failureThreshold: formData.healthCheck.failureThreshold,
+                  timeoutSeconds: formData.healthCheck.timeoutSeconds,
                   cpuId: formData.cpuId,
                   memoryId: formData.memoryId,
                   environments: formData.environments,
