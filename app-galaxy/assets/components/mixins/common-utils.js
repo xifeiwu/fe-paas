@@ -2,9 +2,33 @@ export default {
   data() {
     return {
       queueForWaitingResponse: [],
+      action: {
+        name: null,
+        promise: {
+          resolve: () => {},
+          reject: () => {},
+        },
+        dataOrigin: null,
+        data: null
+      },
     }
   },
   methods: {
+    openDialog(name, data) {
+      this.action.dataOrigin = data;
+      this.action.data = this.$utils.cloneDeep(data);
+      this.action.name = name;
+
+      return new Promise((resolve, reject) => {
+        this.action.promise.resolve = resolve;
+        this.action.promise.reject = reject;
+      });
+    },
+    closeDialog() {
+      this.action.name = null;
+      this.action.promise.reject('cancel');
+    },
+
     // helper for loading action of el-button
     addToWaitingResponseQueue(action) {
       if (this.queueForWaitingResponse.indexOf(action) === -1) {

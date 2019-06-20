@@ -64,6 +64,11 @@ class Net extends NetBase {
       'operation_module': {
         path: '/operation/get/module/type',
         method: 'get'
+      },
+      // 反馈建议
+      'feedback': {
+        path: '/suggestion',
+        method: 'post'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
