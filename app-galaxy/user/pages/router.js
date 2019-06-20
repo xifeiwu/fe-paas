@@ -6,6 +6,7 @@ import UserInfo from './info.vue';
 import UserMessage from './message.vue';
 import UserOperaion from './operation.vue';
 import ManageGroup from './group.vue';
+import Feedback from './feedback.vue';
 import k8sWarning from './k8s-warning.vue';
 
 class Router {
@@ -34,6 +35,11 @@ class Router {
         path: '/user/group',
         name: '团队管理',
         component: ManageGroup
+      },
+      {
+        path: '/user/feedback',
+        name: '反馈建议',
+        component: Feedback
       },
       // {
       //   path: '/user/k8s',
