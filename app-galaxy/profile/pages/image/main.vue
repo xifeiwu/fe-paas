@@ -130,7 +130,8 @@
         this.imageRepoList = [];
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.image_repo_list_by_group, {
           payload: {
-            groupTag: this.$storeHelper.groupInfo.tag
+            groupTag: this.$storeHelper.groupInfo.tag,
+            groupId: this.$storeHelper.currentGroupID,
           }
         });
         const imageRepoList = resContent.body.map(it => {

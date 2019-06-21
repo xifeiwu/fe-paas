@@ -1065,7 +1065,8 @@
                   image: this.rollingUpStatus.deployHistorySelected.fullImage,
                   id: this.actionNew.row.id,
                   appId: this.actionNew.row.appId,
-                  spaceId: this.profileInfo.id
+                  spaceId: this.profileInfo.id,
+                  groupId: this.$storeHelper.currentGroupID,
                 }
               });
               if ([

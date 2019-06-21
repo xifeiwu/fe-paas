@@ -70,7 +70,11 @@
               style="width: 100%;"
               stripe="">
         <el-table-column prop="groupName" label="团队" align="center"></el-table-column>
-        <el-table-column prop="applicationName" label="应用名称" align="center"></el-table-column>
+        <el-table-column prop="applicationName" label="应用名称" align="center">
+          <template slot-scope="scope">
+            {{scope.row.applicationName || scope.row.applicationName != "" ? scope.row.applicationName: "---"}}
+          </template>
+        </el-table-column>
         <el-table-column label="服务名称" align="center">
           <template slot-scope="scope">
             {{scope.row.serviceName || scope.row.serviceName != "" ? scope.row.serviceName: "---"}}

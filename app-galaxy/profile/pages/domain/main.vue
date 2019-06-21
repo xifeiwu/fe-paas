@@ -1162,6 +1162,7 @@
             this.$net.domainUnBindService({
               internetDomainIdList: domainIdList,
               groupId: this.$storeHelper.currentGroupID,
+              spaceId: this.rowsSelected.spaceId,
             }).then(content => {
               let domainIDList = Object.keys(content);
               for (let key in content) {

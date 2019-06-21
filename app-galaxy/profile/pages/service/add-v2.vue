@@ -1599,7 +1599,8 @@
                 payload.healthCheck = formData.healthCheck.content;
                 this.addToWaitingResponseQueue('submit');
                 this.loadingText = '正在为您创建服务';
-                this.$net.requestPaasServer(this.$net.URL_LIST.service_create, {
+                let url = this.forModify ? this.$net.URL_LIST.service_update : this.$net.URL_LIST.service_create;
+                this.$net.requestPaasServer(url, {
                   payload
                 }).then(resConent => {
                   if (this.forModify) {

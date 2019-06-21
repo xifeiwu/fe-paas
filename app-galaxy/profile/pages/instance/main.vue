@@ -822,11 +822,18 @@
                 type: 'warning',
                 dangerouslyUseHTMLString: true
               });
+              let serviceInfo = this.checkVersionSelector();
+              if (!serviceInfo) {
+                return;
+              }
               await this.$net.requestPaasServer(this.$net.URL_LIST.instance_replace, {
                 payload: {
                   namespace: `${this.profileInfo.name}-${this.$storeHelper.groupInfo.tag}`,
                   name: row.name,
                   groupId: this.$storeHelper.currentGroupID,
+                  appId: serviceInfo.selectedAPP.appId,
+                  spaceId: serviceInfo.selectedProfile.id,
+                  serviceId: serviceInfo.selectedService.id,
                 }
               });
               this.$message.success('驱逐成功，稍后可点击刷新按钮，更新实例列表。');
