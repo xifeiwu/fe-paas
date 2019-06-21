@@ -66,9 +66,21 @@ class Net extends NetBase {
         method: 'get'
       },
       // 反馈建议
-      'feedback': {
+      'feedback_create': {
         path: '/suggestion',
         method: 'post'
+      },
+      // 历史反馈列表
+      'feedback_list': {
+        path: '/suggestions',
+        // path: '/user/{userId}/suggestions',
+        // path: '/suggestion/list',
+        method: 'get'
+      },
+      // 得到feedback中的图片
+      'feedback_get_picture': {
+        path: '/suggestion/{feedbackId}/picture',
+        method: 'get'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {

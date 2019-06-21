@@ -6,9 +6,60 @@
                  @click="handleButtonClick($event, 'feedback_create')">
         <span>提交建议</span>
       </el-button>
+      <el-button size="mini"
+                 type="primary"
+                 @click="handleButtonClick($event, 'feedback_list_refresh')">
+        <span>刷新列表</span>
+      </el-button>
     </div>
-    <div class="feedback-list">feedback list</div>
-
+    <div class="feedback-list">
+      <el-table :data="feedbackListByPage"
+                stripe
+                :height="heightOfTable">
+        <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="100">
+          <template slot-scope="scope">
+            <div v-if="Array.isArray(scope.row.formattedCreateTime)">
+              <div v-for="(item, index) in scope.row.formattedCreateTime" :key="index">
+                {{item}}
+              </div>
+            </div>
+            <div v-else>{{scope.row.formattedCreateTime}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="标题" prop="title" headerAlign="center" align="center" minWidth="80">
+        </el-table-column>
+        <el-table-column label="问题描述" prop="issue" headerAlign="center" align="center" minWidth="100">
+        </el-table-column>
+        <el-table-column label="解决方案" prop="suggestion" headerAlign="center" align="center" minWidth="100">
+        </el-table-column>
+        <el-table-column label="附件" headerAlign="center" align="center" minWidth="80">
+          <template slot-scope="scope">
+            <span class="picture-navigate" @click="handleTRClick($event, 'picture-navigate', scope.row)">{{scope.row.pictureName ? scope.row.pictureName: '无'}}</span>
+            <!--<el-button-->
+                    <!--type="text" class="primary"-->
+                    <!--@click="handleTRButton('show-content', scope.$index, scope.row)"-->
+                    <!--:class="{'expand': expandRows.indexOf(scope.row.id) > -1}"-->
+                    <!--:loading="statusOfWaitingResponse('show-content') && operation.group.id == scope.row.id">-->
+              <!--<span>详情</span>-->
+              <!--<i class="el-icon-arrow-right"></i>-->
+            <!--</el-button>-->
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagination-container" v-if="totalSize > pageSize">
+        <div class="pagination">
+          <el-pagination
+                  :current-page="currentPage"
+                  size="large"
+                  layout="prev, pager, next"
+                  :page-size = "pageSize"
+                  :total="totalSize"
+                  @current-change="handlePaginationPageChange"
+          >
+          </el-pagination>
+        </div>
+      </div>
+    </div>
 
     <el-dialog title="创建反馈建议"
                :visible="action.name == 'feedback_create'"
@@ -48,24 +99,44 @@
         </div>
       </div>
     </el-dialog>
+    <paas-show-with-modal ref="paas-show-with-modal">
+    </paas-show-with-modal>
   </div>
 </template>
 <style lang="scss" scoped>
   #user-feedback {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    & > .header {
+      padding: 3px 5px;
+    }
+    .feedback-list {
+      flex: 1;
+      position: relative;
+    }
   }
 </style>
 <script>
   import commonUtils from 'assets/components/mixins/common-utils';
+  import PaasShowWithModal from 'assets/components/show-with-modal';
   export default {
+    components: {PaasShowWithModal},
     mixins: [commonUtils],
     created() {
     },
     mounted() {
       this.onScreenSizeChange(this.$storeHelper.screen.size);
+      this.updateFeedbackListByPage(true);
+      console.log(this.$refs);
     },
     data() {
       return {
         heightOfTable: '',
+        totalSize: 0,
+        pageSize: 12,
+        currentPage: 1,
+
         rulesForCreate: {
           title: [{
             required: true,
@@ -100,7 +171,10 @@
               }
             }
           }],
-        }
+        },
+
+        feedbackListByPage: [],
+        feedbackList: []
       }
     },
     watch: {
@@ -116,7 +190,7 @@
         try {
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
-          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 10;
         } catch(err) {
         }
       },
@@ -137,10 +211,31 @@
         } catch(err) {
         }
       },
+
+      async getFeedbackList() {
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.feedback_list);
+        console.log(resContent);
+        this.feedbackList = resContent;
+      },
+      async updateFeedbackListByPage(refresh) {
+        if (refresh) {
+          await this.getFeedbackList();
+        }
+        this.feedbackListByPage = this.feedbackList;
+        this.feedbackListByPage.forEach(it => {
+          if (it['createTime']) {
+            it['formattedCreateTime'] = this.$utils.formatDate(it['createTime'], 'yyyy-MM-dd hh:mm:ss').split(' ');;
+          }
+        })
+      },
+
       async handleButtonClick(evt, action) {
         var payload = {};
         var resContent = null;
         switch (action) {
+          case 'feedback_list_refresh':
+            this.updateFeedbackListByPage(true);
+            break;
           case 'feedback_create':
             try {
               payload = await this.openDialog(action, {
@@ -160,12 +255,48 @@
                 path: 'http://172.16.112.199:3000/api/post/bin',
                 method: 'post'
               };
-              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.feedback, {
-                payload: formData
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.feedback_create, {
+                payload: formData,
               });
+              this.closeDialog();
+              this.handleButtonClick(evt, 'feedback_list_refresh');
             } catch(err) {
 //              console.log()
             }
+            break;
+        }
+      },
+      async handleTRClick(evt, action, row) {
+        switch (action) {
+          case 'picture-navigate':
+            const response = await this.$net.getResponse(this.$net.URL_LIST.feedback_get_picture, {
+              params: {
+                feedbackId: row.id
+              }
+            }, {
+              timeout: 600000,
+              headers: {
+                token: this.$storeHelper.getUserInfo('token')
+              },
+              responseType: 'blob'
+            });
+            const base64 = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.readAsDataURL(response.data);
+              reader.onload = function() {
+                var result = reader.result;
+                resolve(result);
+              };
+              reader.onerror = function(e) {
+                reject(e)
+              };
+            });
+
+            this.$refs['paas-show-with-modal'] && this.$refs['paas-show-with-modal'].show(this.$createElement('img', {
+              attrs: {
+                src: base64
+              }
+            }));
             break;
         }
       }
