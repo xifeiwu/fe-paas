@@ -851,6 +851,7 @@
           serviceVersion: '',
           gitLabAddress: '',
           gitLabBranch: '',
+          // 只有zip包需要填mainClass，且必须要填
           mainClass: '',
           relativePathOfParentPOM: '',
           appMonitor: profileUtils.defaultAppMonitorId,
@@ -1063,8 +1064,12 @@
           this.requestImageRelatedInfo(false);
         }
       },
-      'formData.packageInfo.type': function (type) {
-        this.requestImageRelatedInfo(false, type);
+      'formData.packageInfo.type': {
+        immediate: false,
+        handler(type) {
+          this.updateMainClassRequiredByPackageType(type);
+          this.requestImageRelatedInfo(false, type);
+        }
       },
       /**
        * set memoryId at watcher of formData.cpuId
@@ -1150,6 +1155,19 @@
 //      'imzageSelectState.currentPrivateApp': 'requestPrivateImageLocation'
     },
     methods: {
+      updateMainClassRequiredByPackageType(type) {
+        // 对于ZIP打包，把输入项“mainClass”设为必输项
+        try {
+          if (type === 'ZIP') {
+            this.rules['mainClass'][0].required = true;
+          } else {
+            this.rules['mainClass'][0].required = false;
+          }
+        } catch (err) {
+          this.rules['mainClass'][0].required = false;
+        }
+        console.log(this.rules.mainClass);
+      },
       async getDataByQueryString() {
         var results = null;
         if (!location.search) {
