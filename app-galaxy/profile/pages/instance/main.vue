@@ -32,13 +32,13 @@
         <el-table-column
                 prop="id"
                 label="实例名称"
-                width="200"
+                minWidth="100"
                 headerAlign="left" align="left">
         </el-table-column>
         <el-table-column
                 prop="nodeName"
                 label="运行节点"
-                width="170"
+                minWidth="70"
                 headerAlign="left" align="left">
           <template slot-scope="scope">
             <span
@@ -50,7 +50,7 @@
         <el-table-column
                 prop="status"
                 label="健康状态"
-                width="120"
+                width="110"
                 headerAlign="center" align="center"
         >
         <template slot-scope="scope">
@@ -78,14 +78,14 @@
         <el-table-column
               label="使用内存/总内存"
               prop="memoryStatus"
-              width="160"
+              width="150"
               sortable="custom"
               headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
                 prop="cpuUsageInPercent"
                 label="CPU使用率"
-                width="120"
+                width="110"
                 sortable="custom"
                 headerAlign="center" align="center">
         </el-table-column>
@@ -108,7 +108,7 @@
                 label="k8s重启时间"
                 prop="formattedStartTime"
                 sortable="custom"
-                width="120"
+                width="110"
                 headerAlign="center" align="center"
                 v-if="!isMesosService">
           <template slot-scope="scope">
@@ -127,7 +127,7 @@
                 headerAlign="center" align="center"
                 v-if="!isMesosService">
         </el-table-column>
-        <el-table-column label="操作" prop="operation" headerAlign="center" align="center">
+        <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="100">
           <template slot-scope="scope">
             <el-button
                     type="text"
