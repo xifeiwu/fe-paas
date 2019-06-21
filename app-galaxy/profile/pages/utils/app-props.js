@@ -179,6 +179,10 @@ class AppInfoHelper {
       }, {
         validator: limit100Required
       }],
+      mainClass: [{
+        required: true,
+        message: '构建类型为zip包时，必须填写mainClass',
+      }],
       // Gitlab父级pom.xml相对路径
       relativePathOfParentPOM: [{
         required: false,

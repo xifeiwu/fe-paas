@@ -43,15 +43,17 @@ class Config {
   }
 
   getProxyTable() {
-    var cdnServer = 'http://10.10.80.242:6002';
     var paasServer = 'http://10.10.58.126:30334';
+    var assistServer = 'http://10.10.80.242:6002';
+    var cdnServer = 'http://10.10.80.242:6002';
     switch (process.env.NODE_ENV) {
       case 'production':
         paasServer = 'http://galaxy-web-server.galaxy.production';
-        // paasServer = 'http://172.31.160.106:30334';
+        assistServer = 'http://172.31.160.106:6002';
         break;
       case 'production_gray':
         paasServer = 'http://172.31.160.103:30334';
+        assistServer = 'http://172.31.160.106:6002';
         break;
       case 'test':
         paasServer = 'http://10.10.202.143:30334';
@@ -60,8 +62,9 @@ class Config {
         paasServer = 'http://10.10.58.126:30334';
         break;
       case 'local':
-        cdnServer = 'http://127.0.0.1:6002';
+        paasServer = 'http://10.10.58.126:30334';
         paasServer = 'http://10.10.202.143:30334';
+        // assistServer = 'http://127.0.0.1:6002';
         break;
     }
     if (process.env.PAAS_SERVER) {
@@ -75,13 +78,14 @@ class Config {
         target: paasServer,
         changeOrigin: true,
         logLevel: 'debug',
-        pathRewrite: path => path.replace('\/j-api\/paas\/', '\/'),
+        // pathRewrite: path => path.replace('\/j-api\/paas', '/api'),
+        pathRewrite: path => path.replace('\/j-api\/paas', ''),
       },
       '/n-api/assist': {
-        target: 'http://10.10.80.242:6002',
+        target: assistServer,
         changeOrigin: true,
         logLevel: 'debug',
-        pathRewrite: path => path.replace('\/n-api\/assist\/', ''),
+        pathRewrite: path => path.replace('\/n-api\/assist', ''),
       },
       '/n-api/': {
         target: cdnServer,
@@ -128,8 +132,11 @@ class Config {
         { from: /^\/$/, to: '/index.html' },
         { from: /^\/index(\/.*)*$/, to: '/index.html' },
         { from: /^\/login(\/.*)*$/, to: '/login.html' },
+        { from: /^\/paas-login(\/.*)*$/, to: '/login.html' },
+        { from: /^\/cas-login(\/.*)*$/, to: '/login.html' },
         { from: /^\/user(\/.*)*$/, to: '/user.html' },
         { from: /^\/terminal(\/.*)*$/, to: '/terminal.html' },
+        { from: /^\/instance-terminal(\/.*)*$/, to: '/instance-terminal.html' },
         { from: /^\/docs(\/.*)*$/, to: '/docs.html' },
         { from: /^\/profile(\/.*)*$/, to: '/profile.html' },
         { from: /^\/manage(\/.*)*$/, to: '/manage.html' },
@@ -152,4 +159,3 @@ module.exports = {
   // 代理配置
   proxyTable: config.getProxyTable()
 };
-
