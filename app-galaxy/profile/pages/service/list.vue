@@ -23,8 +23,10 @@
                 size="mini"
                 style="max-width: 300px"
                 placeholder="按关键字搜索服务"
-                suffix-icon="el-icon-search"
                 v-model="filterKey">
+          <i :class="filterKey && filterKey.length > 0 ? 'paas-icon-close' : 'el-icon-search'"
+             slot="suffix" style="line-height: 26px;"
+             @click="evt => evt.target.classList.contains('paas-icon-close') ? filterKey = '' : ''"></i>
         </el-input>
       </div>
     </div>
@@ -754,7 +756,7 @@
       } else {
         const qsObj = this.$utils.parseQueryString(location.search);
         qsObj.hasOwnProperty('groupId') && (this.$storeHelper.currentGroupID = qsObj['groupId']);
-        qsObj.hasOwnProperty('appName') && (this.filterKey = qsObj['appName']);
+        qsObj.hasOwnProperty('appName') && (this.dataPassed.data['appName'] = qsObj['appName']);
         qsObj.hasOwnProperty('profileName') && (this.dataPassed.data['profileName'] = qsObj['profileName']);
       }
     },
@@ -787,7 +789,13 @@
           refresh: true,
           currentPage: 1
         });
-        this.filterKey = '';
+        // dataPassed.data同时包含groupId和appName属性时，appName需要再groupId生效之后生效
+        if (this.dataPassed.data['appName']) {
+          this.filterKey = this.dataPassed.data['appName'];
+          this.dataPassed.data['appName'] = null;
+        } else {
+          this.filterKey = '';
+        }
       },
       'currentPage': function (page) {
         this.getServiceListByPage({});
