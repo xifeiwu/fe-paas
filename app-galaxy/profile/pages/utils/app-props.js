@@ -299,9 +299,13 @@ class AppInfoHelper {
         required: true,
         message: '请输入超时时间',
       }],
-      maintainerId: [{
+      // maintainerId: [{
+      //   required: true,
+      //   message: '请选择该应用的维护人员',
+      // }],
+      maintainerIdList: [{
         required: true,
-        message: '请选择该应用的维护人员',
+        message: '请选择该应用的维护者',
       }],
       portMap: [{
         required: false,
