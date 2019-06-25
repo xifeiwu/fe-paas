@@ -34,27 +34,19 @@
         </el-table-column>
         <el-table-column label="附件" headerAlign="center" align="center" minWidth="80">
           <template slot-scope="scope">
-            <span class="picture-navigate" @click="handleTRClick($event, 'picture-navigate', scope.row)">{{scope.row.pictureName ? scope.row.pictureName: '无'}}</span>
-            <!--<el-button-->
-                    <!--type="text" class="primary"-->
-                    <!--@click="handleTRButton('show-content', scope.$index, scope.row)"-->
-                    <!--:class="{'expand': expandRows.indexOf(scope.row.id) > -1}"-->
-                    <!--:loading="statusOfWaitingResponse('show-content') && operation.group.id == scope.row.id">-->
-              <!--<span>详情</span>-->
-              <!--<i class="el-icon-arrow-right"></i>-->
-            <!--</el-button>-->
+            <span :class="{'picture-navigate': true, 'has-picture': !!scope.row.pictureName}" @click="handleTRClick($event, 'picture-navigate', scope.row)">{{scope.row.pictureName ? scope.row.pictureName: '---'}}</span>
           </template>
         </el-table-column>
       </el-table>
       <div class="pagination-container" v-if="totalSize > pageSize">
         <div class="pagination">
           <el-pagination
-                  :current-page="currentPage"
-                  size="large"
-                  layout="prev, pager, next"
-                  :page-size = "pageSize"
-                  :total="totalSize"
-                  @current-change="handlePaginationPageChange"
+            :current-page="currentPage"
+            size="large"
+            layout="prev, pager, next"
+            :page-size = "pageSize"
+            :total="totalSize"
+            @current-change="page => {currentPage = page}"
           >
           </el-pagination>
         </div>
@@ -114,6 +106,16 @@
     .feedback-list {
       flex: 1;
       position: relative;
+      .el-table {
+        .picture-navigate {
+          &.has-picture {
+            color: #409EFF;
+            &:hover {
+              cursor: pointer;
+            }
+          }
+        }
+      }
     }
   }
 </style>
@@ -134,7 +136,7 @@
       return {
         heightOfTable: '',
         totalSize: 0,
-        pageSize: 12,
+        pageSize: 10,
         currentPage: 1,
 
         rulesForCreate: {
@@ -179,6 +181,9 @@
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
+      currentPage() {
+        this.updateFeedbackListByPage();
+      }
     },
     computed: {
     },
@@ -214,17 +219,24 @@
 
       async getFeedbackList() {
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.feedback_list);
-        console.log(resContent);
         this.feedbackList = resContent;
       },
-      async updateFeedbackListByPage(refresh) {
+      async updateFeedbackListByPage(refresh = false) {
         if (refresh) {
           await this.getFeedbackList();
         }
-        this.feedbackListByPage = this.feedbackList;
+        const filteredList = this.feedbackList;
+        this.totalSize = filteredList.length;
+
+        var page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.pageSize;
+        const length = this.pageSize;
+        const end = start + length;
+        this.feedbackListByPage = filteredList.slice(start, end);
         this.feedbackListByPage.forEach(it => {
           if (it['createTime']) {
-            it['formattedCreateTime'] = this.$utils.formatDate(it['createTime'], 'yyyy-MM-dd hh:mm:ss').split(' ');;
+            it['formattedCreateTime'] = this.$utils.formatDate(it['createTime'], 'yyyy-MM-dd hh:mm:ss').split(' ');
           }
         })
       },
@@ -258,10 +270,10 @@
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.feedback_create, {
                 payload: formData,
               });
-              this.closeDialog();
               this.handleButtonClick(evt, 'feedback_list_refresh');
             } catch(err) {
-//              console.log()
+            } finally {
+              this.closeDialog();
             }
             break;
         }
@@ -269,34 +281,43 @@
       async handleTRClick(evt, action, row) {
         switch (action) {
           case 'picture-navigate':
-            const response = await this.$net.getResponse(this.$net.URL_LIST.feedback_get_picture, {
-              params: {
-                feedbackId: row.id
-              }
-            }, {
-              timeout: 600000,
-              headers: {
-                token: this.$storeHelper.getUserInfo('token')
-              },
-              responseType: 'blob'
-            });
-            const base64 = await new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.readAsDataURL(response.data);
-              reader.onload = function() {
-                var result = reader.result;
-                resolve(result);
-              };
-              reader.onerror = function(e) {
-                reject(e)
-              };
-            });
+            if (!row.pictureName) {
+              return;
+            }
+            this.$net.addToRequestingRrlList(this.$net.URL_LIST.feedback_get_picture.path);
+            try {
+              const response = await this.$net.getResponse(this.$net.URL_LIST.feedback_get_picture, {
+                params: {
+                  feedbackId: row.id
+                }
+              }, {
+                timeout: 600000,
+                headers: {
+                  token: this.$storeHelper.getUserInfo('token')
+                },
+                responseType: 'blob'
+              });
+              const base64 = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(response.data);
+                reader.onload = function () {
+                  var result = reader.result;
+                  resolve(result);
+                };
+                reader.onerror = function (e) {
+                  reject(e)
+                };
+              });
 
-            this.$refs['paas-show-with-modal'] && this.$refs['paas-show-with-modal'].show(this.$createElement('img', {
-              attrs: {
-                src: base64
-              }
-            }));
+              this.$refs['paas-show-with-modal'] && this.$refs['paas-show-with-modal'].show(this.$createElement('img', {
+                attrs: {
+                  src: base64
+                }
+              }));
+            } catch(err) {
+            } finally {
+              this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.feedback_get_picture.path);
+            }
             break;
         }
       }

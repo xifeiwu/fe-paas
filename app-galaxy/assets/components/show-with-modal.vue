@@ -32,11 +32,12 @@
       position: relative;
       .paas-icon-close {
         position: absolute;
-        right: 0px;
-        top: 0px;
+        right: -20px;
+        top: -20px;
         font-size: 24px;
-        colro: #b4bccc;
-        :hover {
+        color: #b4bccc;
+        cursor: pointer;
+        &:hover {
           color: black;
         }
       }
