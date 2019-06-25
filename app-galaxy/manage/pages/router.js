@@ -4,6 +4,7 @@ import analyzeAppDeploy from './analyze/app-deploy.vue';
 import analyzeResources from './analyze/resources.vue';
 import analyzeVisit from './analyze/visit.vue';
 import message from './message.vue';
+import feedback from './feedback.vue';
 import nodeManage from './node-manage.vue';
 import clusterDashboard from './cluster-dashboard.vue';
 
@@ -25,6 +26,12 @@ var Router = function () {
     path: '/manage/app',
     component: appMain
   }, {
+    path: '/manage/message',
+    component: message
+  }, {
+    path: '/manage/feedback',
+    component: feedback
+  }, {
     path: '/manage/analyze/app-count',
     component: analyzeAppCount
   }, {
@@ -42,9 +49,6 @@ var Router = function () {
   }, {
     path: '/manage/analyze/visit',
     component: analyzeVisit
-  }, {
-    path: '/manage/message',
-    component: message
   }];
 
   this.addRoutePath(null, this.richRouterConfig);

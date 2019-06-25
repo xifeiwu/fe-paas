@@ -140,6 +140,10 @@
             name: '站内信',
             router: '/manage/message',
             icon: 'paas-icon-message'
+          }, {
+            name: '用户反馈',
+            router: '/manage/feedback',
+            icon: 'paas-icon-feedback'
           }],
           level2: [{
             name: '数据统计',

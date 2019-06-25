@@ -121,6 +121,17 @@ class Net extends NetBase {
       message_change_status: {
         path: '/message/update/release/status/{messageId}',
         method: 'post'
+      },
+
+      /** 用户反馈*/
+      feedback_list: {
+        path: '/suggestion/list',
+        method: 'post'
+      },
+      // 得到feedback中的图片
+      'feedback_get_picture': {
+        path: '/suggestion/{feedbackId}/picture',
+        method: 'get'
       }
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
