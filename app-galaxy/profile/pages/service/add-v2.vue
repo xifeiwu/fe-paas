@@ -104,11 +104,11 @@
                           v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
                           class="relative-path-of-parent-pom max-width-700">
               <el-input v-model="formData.relativePathOfParentPOM"
-                        placeholder="不能超过256个字符" style="width: 90%" ></el-input>
+                        placeholder="原“Gitlab父级pom.xml相对路径”字段，不能超过256个字符" style="width: 90%" ></el-input>
               <span>
                 <el-tooltip slot="trigger" effect="dark" placement="top">
                     <div slot="content">
-                      <div>原gitlab相对路径</div>
+                      <div>原“Gitlab父级pom.xml相对路径”字段，用于非标准目录结构项目，填写项目根目录的相对路径，以便后续 mvn 打包使用</div>
                     </div>
                     <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
                 </el-tooltip>
