@@ -1032,13 +1032,15 @@
               this.props4CreateDomain.errMsgForDomainToAdd = '每次最多添加五个';
               return;
             }
-            let domain = this.props4CreateDomain.level2Name + '.' + this.props4CreateDomain.level1Name;
+            let domain = this.props4CreateDomain.level2Name + '-' + this.props4CreateDomain.level1Name;
             if (domainListToAdd.find(it => it.domain === domain)) {
               this.props4CreateDomain.errMsgForLevel2Name = `域名${domain}已经存在！`
               return;
             }
             domainListToAdd.push({
               domain: domain,
+              customSubDomain: this.props4CreateDomain.level2Name,
+              customDomain: this.props4CreateDomain.level1Name,
               noWhiteList: this.props4CreateDomain.noWhiteList,
               profileId: this.props4CreateDomain.profile['id']
             });
@@ -1071,6 +1073,8 @@
               internetDomainOperateVOList: this.props4CreateDomain.domainListToAdd.map(it => {
                 return {
                   domainName: it.domain,
+                  customSubDomain: it.customSubDomain,
+                  customDomain: it.customDomain,
                   openAllInternet: it.noWhiteList,
                   spaceId: it.profileId
                 }
