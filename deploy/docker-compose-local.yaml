@@ -33,7 +33,6 @@ services:
 networks:
   spa_net:
     ipam:
-      driver: default
       config:
         - subnet: "172.29.2.0/24"
 
