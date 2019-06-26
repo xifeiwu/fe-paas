@@ -2,12 +2,12 @@
 
 backup:
 
-rm fe-paas.tar.gz && tar -zcvf fe-paas.tar.gz fe-paas/
+rm fe-paas.dist.tar.gz && tar -zcvf fe-paas.dist.tar.gz fe-paas/dist
 
 recovery:
 
-rm fe-paas.tar.gz && wget http://172.31.160.87:1024/fe-paas.tar.gz
-tar -zxvf fe-paas.tar.gz
+rm fe-paas.dist.tar.gz && wget http://172.31.160.103:3000/fe-paas.dist.tar.gz
+tar -zxvf fe-paas.dist.tar.gz
 
 
 ### docker打包及发版步骤
