@@ -188,7 +188,7 @@
                 <div class="initial-delay" style="line-height: 28px">
                   <span>延迟时间：</span>
                   <el-input-number v-model="formData.healthCheck.initialDelay" :min="30" :max="300" label="延迟时间"></el-input-number>
-                  <el-tooltip effect="dark" content="健康检查延迟时间：延迟时间以秒为单位，取值范围在30-300之间" placement="bottom">
+                  <el-tooltip effect="dark" content="单位秒。指实例启动后，多久开始探测。例如，启动延时设置为5，那么健康检查将在实例启动5秒后开始。默认值为120，范围30-300" placement="bottom">
                     <i class="paas-icon-fa-question" style="font-size: 12px; color: #E6A23C"></i>
                   </el-tooltip>
                 </div>
@@ -197,7 +197,7 @@
                 <div class="period-seconds" style="line-height: 28px">
                     <span>间隔时间：</span>
                     <el-input-number v-model="formData.healthCheck.periodSeconds" :min="1" :max="10" label="间隔时间"></el-input-number>
-                    <el-tooltip effect="dark" content="健康检查间隔时间：间隔时间以秒为单位，取值范围在1-10之间" placement="bottom">
+                    <el-tooltip effect="dark" content="单位秒。指健康检查的频率。例如，间隔时间设置成10，那么集群会每隔10s检查一次。默认值为5，范围1-10" placement="bottom">
                         <i class="paas-icon-fa-question" style="font-size: 12px; color: #E6A23C"></i>
                     </el-tooltip>
                 </div>
@@ -206,7 +206,7 @@
                 <div class="failure-threshold" style="line-height: 28px">
                     <span>不健康阈值：</span>
                     <el-input-number v-model="formData.healthCheck.failureThreshold" :min="1" :max="10" label="不健康阈值"></el-input-number>
-                    <el-tooltip effect="dark" content="健康检查不健康阈值：取值范围在1-10之间" placement="bottom">
+                    <el-tooltip effect="dark" content="单位次。该参数指健康检查连续失败多少次后，才判定实例是不健康的。例如不健康阈值设置成 3，只有满足连续 3 次都探测失败了，才认为容器是不健康的。默认值为5，范围1-10" placement="bottom">
                         <i class="paas-icon-fa-question" style="font-size: 12px; color: #E6A23C"></i>
                     </el-tooltip>
                 </div>
@@ -215,7 +215,7 @@
                 <div class="timeout-seconds" style="line-height: 28px">
                     <span>响应超时：</span>
                     <el-input-number v-model="formData.healthCheck.timeoutSeconds" :min="10" :max="120" label="响应超时"></el-input-number>
-                    <el-tooltip effect="dark" content="健康检查响应超时：响应超时以秒为单位，取值范围在10-120之间" placement="bottom">
+                    <el-tooltip effect="dark" content="单位秒。指健康探测的超时时间。在这里是HTTP 请求响应超时时间。默认值为10，范围10-120" placement="bottom">
                         <i class="paas-icon-fa-question" style="font-size: 12px; color: #E6A23C"></i>
                     </el-tooltip>
                 </div>
