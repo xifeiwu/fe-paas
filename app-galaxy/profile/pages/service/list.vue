@@ -1650,7 +1650,8 @@
       // 如果应用没有填写：应用维护者、LOB、Scrum，则不能进行部署、重启
       async checkAppInfo(row) {
         var appInfo = this.$storeHelper.getAppModelById(row.appId);
-        if (appInfo.lobId != null && appInfo.scrumId != null && appInfo.maintainerId != null) {
+        if (appInfo.lobId != null && appInfo.scrumId != null && appInfo.maintainerList != null
+          && Array.isArray(appInfo.maintainerList) && appInfo.maintainerList.length > 0) {
           return;
         }
         await this.$confirm(
