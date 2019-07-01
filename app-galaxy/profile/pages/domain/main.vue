@@ -170,7 +170,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="将要添加的域名" class="has-existed message-show" :error="props4CreateDomain.errMsgForDomainToAdd">
+        <el-form-item label="将要添加的域名" class="has-existed" :error="props4CreateDomain.errMsgForDomainToAdd">
           <div v-if="props4CreateDomain.domainListToAdd.length > 0">
             <div style="display: flex; font-weight: bold; color: #5a5e66">
               <div style="flex: 1">外网域名</div>
@@ -186,15 +186,19 @@
           <div v-else>无</div>
         </el-form-item>
         <el-form-item label="外网二级域名" :error="props4CreateDomain.errMsgForLevel2Name">
-          <el-input v-model="props4CreateDomain.level2Name" placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位"></el-input>
-          <div style="display: flex; justify-content: space-between">
-            <el-select v-model="props4CreateDomain.level1Name" style="width: 200px;">
+          <div style="display: flex">
+            <el-input v-model="props4CreateDomain.level2Name" size="mini"
+                      placeholder="小写字符、数字、中划线，以字符数字开头，长度不超过63位" style="width: calc(100% - 235px); margin-right: 5px;"></el-input>
+            <el-select v-model="props4CreateDomain.level1Name" style="width: 230px;">
               <el-option v-for="(item, index) in props4CreateDomain.level1InfoList" :value="item.domainName" :label="item.domainName"
                          :key="index"></el-option>
             </el-select>
-            <div style="width: 230px;">
+          </div>
+          <div style="display: flex; margin-top: 3px;">
+            <div style="width: calc(100% - 235px); margin-right: 5px;"></div>
+            <div style="width: 230px; display: flex; justify-content: space-between">
               <el-checkbox v-model="props4CreateDomain.noWhiteList" style="">开启全网访问</el-checkbox>
-              <el-button class="add-domain-btn" size="mini-extral" type="primary" @click="handleDomainInDialog('add')">添加</el-button>
+              <el-button class="add-domain-btn" size="mini" type="primary" @click="handleDomainInDialog('add')">添加</el-button>
             </div>
           </div>
         </el-form-item>
