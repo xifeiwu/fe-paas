@@ -1016,6 +1016,9 @@
        * @param domainItem: domain item in this.props4CreateDomain.domainListToAdd(for remove)
        */
       handleDomainInDialog(action, domainItem) {
+        console.log(action);
+        console.log(domainItem);
+        console.log(this.props4CreateDomain.profileName);
         let domainListToAdd = this.props4CreateDomain.domainListToAdd;
         switch (action) {
           case 'remove':
@@ -1036,7 +1039,13 @@
               this.props4CreateDomain.errMsgForDomainToAdd = '每次最多添加五个';
               return;
             }
-            let domain = this.props4CreateDomain.level2Name + '-' + this.props4CreateDomain.level1Name;
+            let domain;
+            if ('production' === this.props4CreateDomain.profileName) {
+              domain = this.props4CreateDomain.level2Name + '.' + this.props4CreateDomain.level1Name;
+            } else {
+              domain = this.props4CreateDomain.level2Name + '-' + this.props4CreateDomain.level1Name;
+            }
+
             if (domainListToAdd.find(it => it.domain === domain)) {
               this.props4CreateDomain.errMsgForLevel2Name = `域名${domain}已经存在！`
               return;
