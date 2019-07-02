@@ -398,28 +398,17 @@
       // set value of globalPopover to $storeHelper.globalPopover
       this.$storeHelper.globalPopover = this.$refs['global-popover-close-on-leave'];
       this.$storeHelper.globalTip = this.$refs['global-popover-close-on-delay'];
+
       //这个定时器是用来轮询消息的，看有没有alert类型的消息
-      setInterval(() => {
-        this.requestAndHandleMessage();
-      },1*60*1000);
-
+      this.requestAndHandleMessage();
       //这个定时器是用来轮询后台发布情况的，看是否正在发布
+      this.getPublishStatus();
       setInterval(() => {
+        //这个定时器是用来轮询消息的，看有没有alert类型的消息
+        this.requestAndHandleMessage();
+        //这个定时器是用来轮询后台发布情况的，看是否正在发布
         this.getPublishStatus();
-      },2*60*1000);
-
-      this.$render(`# 一级标题 #
-一级标题
-====
-## 二级标题 ##
-二级标题
-----
-### 三级标题 ###
-#### 四级标题 ####
-##### 五级标题 #####
-###### 六级标题 ######`, result => {
-  console.log(result);
-})
+      }, 1.5 * 60 * 1000);
     },
     beforeDestroy() {
       removeResizeListener(this.$el, this.resizeListener);
@@ -758,6 +747,11 @@
         this.messageCountTip = resContent.length;
         resContent.forEach(it => {
           if (it.messageType === "ALERT") {
+            try {
+              it.htmlContent = this.$render(it.content);
+            } catch (err) {
+              it.htmlContent = '';
+            }
             this.alertMessageQueen.push(it);
           }
         });

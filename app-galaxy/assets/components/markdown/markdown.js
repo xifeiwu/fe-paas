@@ -92,7 +92,11 @@ export default {
   methods: {
     $render(src, func) {
       var res = markdown.render(src);
-      func(res);
+      if (func) {
+        func(res);
+      } else {
+        return res;
+      }
     }
   },
   watch: {

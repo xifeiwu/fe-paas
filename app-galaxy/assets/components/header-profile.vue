@@ -16,11 +16,11 @@
       <el-menu-item index="docs" v-if="show['docs'] && false"><i class="paas-icon-docs"></i><span>帮助文档</span></el-menu-item>
       <el-popover
                 placement="bottom"
-                width="300"
+                width="500"
                 trigger="manual"
                 ref="popover_alert"
                 :title="alertMessage ? alertMessage.title : ''">
-        <div class="content-alert">{{alertMessage ? alertMessage.content : ''}}</div>
+        <div class="content-alert" v-html="alertMessage ? alertMessage.htmlContent : ''"></div>
         <el-button type="primary" size="mini" @click="readMessage()">已阅</el-button>
         <el-menu-item index="user/message" v-if="show['user/message']" slot="reference"><i class="paas-icon-message"></i><span>消息</span>
           <span class="badge danger" v-if="messageCountTip > 0">{{messageCountTip}}</span></el-menu-item>
