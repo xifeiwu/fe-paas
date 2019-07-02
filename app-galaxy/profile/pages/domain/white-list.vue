@@ -304,6 +304,7 @@
             dangerouslyUseHTMLString: true
           });
         } catch(err) {
+          return;
         }
         switch (action) {
           case 'add':
