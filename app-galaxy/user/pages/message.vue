@@ -37,8 +37,7 @@
         <el-table-column type="expand"
                          width="0">
           <template slot-scope="scope">
-            <div class="row-expand">
-              {{operation.row.content}}
+            <div class="row-expand" v-html="operation.row.htmlContent">
             </div>
           </template>
         </el-table-column>
@@ -127,10 +126,11 @@
 
 <script>
   import commonUtils from 'assets/components/mixins/common-utils';
-  module.exports = {
-    mixins: [commonUtils],
-    created() {
+  import markdown from 'assets/components/markdown/markdown.js';
 
+  export default {
+    mixins: [markdown, commonUtils],
+    created() {
     },
     async mounted() {
       this.onScreenSizeChange(this.$storeHelper.screen.size);
@@ -169,6 +169,11 @@
         const messageList = resContent['data'].map(it => {
           it.id = it.messageId;
           it.releaseTime = this.$utils.formatDate(it.releaseTime, 'yyyy-MM-dd hh:mm:ss');
+          try {
+            it.htmlContent = this.$render(it.content);
+          } catch (err) {
+            it.htmlContent = '';
+          }
           return it;
         });
         this.messageList = messageList;

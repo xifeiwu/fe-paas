@@ -1,31 +1,28 @@
 <template>
   <div id="manage-message">
     <div class="header">
-      <el-row :gutter="20">
-        <el-col :span="4" class="item">
-          <el-button type="primary" size="mini" @click="handleClick('message_create')">创建站内信</el-button>
-          <el-button type="primary" size="mini" @click="handleClick('refresh')">刷新</el-button>
-        </el-col>
+      <div class="item">
+        <el-button type="primary" size="mini" @click="handleClick('message_create')">创建站内信</el-button>
+        <el-button type="primary" size="mini" @click="handleClick('refresh')">刷新</el-button>
+      </div>
 
-        <el-col :span="6" class="item">
-          <span>消息类型：</span>
-          <el-select v-model="messageTypeSelect" placeholder="请选择">
-            <el-option value="ALL" label="全部"></el-option>
-            <el-option value="PRODUCT_ANNOUNCEMENT" label="产品公告"></el-option>
-            <el-option value="PLATEFORM_ANNOUNCEMENT" label="平台公告"></el-option>
-            <el-option value="ALERT" label="弹窗消息"></el-option>
-          </el-select>
-        </el-col>
+      <label class="item">
+        <span style="font-weight: bold">消息类型:</span>
+        <el-select v-model="messageTypeSelect" placeholder="请选择">
+          <el-option value="ALL" label="全部"></el-option>
+          <el-option value="PRODUCT_ANNOUNCEMENT" label="产品公告"></el-option>
+          <el-option value="PLATEFORM_ANNOUNCEMENT" label="平台公告"></el-option>
+          <el-option value="ALERT" label="弹窗消息"></el-option>
+        </el-select>
+      </label>
 
-        <el-col :span="6" class="item">
-          <span>接收团队：</span>
-          <el-select filterable v-model="groupIdSelect" placeholder="请选择">
-            <el-option v-for="(item, index) in groupList" :key="item.id" :label="item.name" :value="item.id">
-            </el-option>
-          </el-select>
-        </el-col>
-
-      </el-row>
+      <label class="item">
+        <span style="font-weight: bold">接收团队:</span>
+        <el-select filterable v-model="groupIdSelect" placeholder="请选择">
+          <el-option v-for="(item, index) in groupList" :key="item.id" :label="item.name" :value="item.id">
+          </el-option>
+        </el-select>
+      </label>
     </div>
     <div class="list">
       <el-table
@@ -36,7 +33,13 @@
       >
         <el-table-column prop="messageTypeName" label="消息类型" width="80"></el-table-column>
         <el-table-column prop="title" label="标题" minWidth="100"></el-table-column>
-        <el-table-column prop="content" label="内容" minWidth="200"></el-table-column>
+        <el-table-column prop="content" label="内容" minWidth="200">
+          <!--<template slot-scope="scope">-->
+            <!--<el-scrollbar style="max-height: 300px;">-->
+              <!--<div v-html="scope.row.htmlContent"></div>-->
+            <!--</el-scrollbar>-->
+          <!--</template>-->
+        </el-table-column>
         <el-table-column label="接收团队" minWidth="100" headerAlign="center" align="center">
           <template slot-scope="scope">
             <div class="group-name-div">
@@ -139,9 +142,11 @@
     .header {
       padding: 3px 5px;
       background-color: white;
+      display: flex;
+      align-items: center;
       .item {
         display: inline-block;
-        margin-right: 3px;
+        margin-right: 20px;
         span {
           font-size: 14px;
         }
@@ -207,10 +212,9 @@
 <script>
   import {mapState} from "vuex";
   import commonUtils from 'assets/components/mixins/common-utils';
-
+  import markdown from 'assets/components/markdown/markdown.js';
   export default {
-    components: {},
-    mixins: [commonUtils],
+    mixins: [markdown, commonUtils],
     created() {
     },
     mounted() {
@@ -428,21 +432,29 @@
           this.groupIdSelect = '';
         }
 
-        this.messageListFilter = this.messageList;
+        var filteredMessageList = this.messageList;
         if (this.messageTypeSelect !== 'ALL') {
-          this.messageListFilter = this.messageList.filter(it => it['messageType'] === this.messageTypeSelect);
+          filteredMessageList = this.messageList.filter(it => it['messageType'] === this.messageTypeSelect);
         }
 
         if (this.groupIdSelect !== '') {
-          this.messageListFilter = this.messageListFilter.filter(it => it['groupId'] === this.groupIdSelect);
+          filteredMessageList = filteredMessageList.filter(it => it['groupId'] === this.groupIdSelect);
         }
+
+        filteredMessageList.forEach(it => {
+          try {
+            it.htmlContent = this.$render(it.content);
+          } catch (err) {
+            it.htmlContent = '';
+          }
+        });
 
         let page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
         const start = page * this.pageSize;
         const length = this.pageSize;
         const end = start + length;
-        this.messageListByPage = this.messageListFilter.slice(start, end);
+        this.messageListByPage = filteredMessageList.slice(start, end);
       },
 
       async handleClick(action) {
