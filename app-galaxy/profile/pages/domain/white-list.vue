@@ -105,21 +105,22 @@
           <template slot-scope="scope">
             <el-button
                     v-if="selected.row && selected.row.id == scope.row.id && selected.operation == 'modify'"
-                    size="mini-extral"
-                    type="warning"
-                    round
+                    size="small"
+                    type="text"
+                    class="warning"
                     :loading = "statusOfWaitingResponse('update')"
-                    @click="handleRowButtonClick('update', scope.$index, scope.row)">更新</el-button><!--
-         --><el-button
-                    size="mini-extral"
-                    type="warning"
-                    round
+                    @click="handleRowButtonClick('update', scope.$index, scope.row)">更新</el-button>
+            <el-button
+                    size="small"
+                    type="text"
+                    class="warning"
                     v-else
-                    @click="handleRowButtonClick('modify', scope.$index, scope.row)">修改</el-button><!--
-         --><el-button
-                    size="mini-extral"
-                    type="danger"
-                    round
+                    @click="handleRowButtonClick('modify', scope.$index, scope.row)">修改</el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    size="small"
+                    type="text"
+                    class="danger"
                     :loading = "statusOfWaitingResponse('delete') && selected.row.id === scope.row.id"
                     @click="handleRowButtonClick('delete', scope.$index, scope.row)">删除</el-button>
           </template>
