@@ -117,7 +117,7 @@
               @click="handleTRClick($event, 'pipeline_build_history_log', scope.$index, scope.row)">
               <span>查看历史日志</span>
             </el-button>
-            <div class="ant-divider" v-if="scope.row['status'] !== 'IN_PROGRESS'"></div>
+            <div class="ant-divider"></div>
 
             <el-button
               type="text"
