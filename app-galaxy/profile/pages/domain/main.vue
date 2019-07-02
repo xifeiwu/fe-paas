@@ -62,7 +62,8 @@
       >
         <el-table-column
                 prop="internetDomain"
-                label="外网二级域名">
+                label="外网二级域名"
+                minWidth="200">
             <template slot-scope="scope">
               <el-radio :label="scope.row.id"
                         :value="selectedId"
@@ -86,16 +87,27 @@
                 prop="creatorName"
                 label="创建人"
                 headerAlign="center" align="center"
-                width="80">
+                width="100">
         </el-table-column>
         <el-table-column
                 prop="status"
-                label="状态"
+                label="域名状态"
+                minWidth="180"
         >
           <template slot-scope="scope">
             <span>{{scope.row.status}}</span>
             <span v-if="scope.row.reason" style="color: #00f; cursor: pointer"
                   @click="handleRowButtonClick($event, 're-secure-check-in-dialog', scope.$index, scope.row)">原因</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+                prop="status"
+                label="全网访问状态"
+                headerAlign="center" align="center"
+                width="120"
+        >
+          <template slot-scope="scope">
+            <span>{{scope.row.notHaveIPWhiteList ? '已开启' : '未开启'}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -801,7 +813,7 @@
       },
 
       setDebounce() {
-        this.debounceRequestDomainList = this.$utils.debounce(this.requestDomainList.bind(this), 500, false);
+        this.debounceRequestDomainList = this.$utils.debounce(this.requestDomainList.bind(this), 500, true);
       },
       /**
        * the place of calling requestDomainList;
