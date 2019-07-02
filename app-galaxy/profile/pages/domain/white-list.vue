@@ -1,16 +1,19 @@
 <template>
   <div id="domain-white-list">
     <div class="header">
-      <div class="domain-name" style="padding: 6px 0px;">
-        <div style="font-weight: bold; display: inline-block; margin-right: 30px;">
-          <span>外网二级域名：</span><span>{{domainInfo.domainName}}</span>
+      <div class="domain-name">
+        <div style="font-weight: bold; display: inline-block; margin-right: 30px; font-size: 14px;">
+          <span>当前外网二级域名：</span><span>{{domainInfo.domainName}}</span>
         </div>
-        <el-checkbox v-model="allNetWorkAccessAble" @change="toggleAllNetWorkAccessAble">
-          <span style="display: inline-block;">一键开启全网访问（默认已开通各职场IP白名单）</span>
-        </el-checkbox>
+        <!--<el-checkbox v-model="allNetWorkAccessAble" @change="toggleAllNetWorkAccessAble">-->
+          <!--<span style="display: inline-block;">一键开启全网访问（默认已开通各职场IP白名单）</span>-->
+        <!--</el-checkbox>-->
       </div>
-      <el-row class="upload-area" type="flex" v-if="!allNetWorkAccessAble">
-        <el-col :span="8" class="upload">
+      <div class="bundle-operation" v-if="true" style="display: flex;">
+        <div class="upload-area">
+          <el-button type="info" size="mini" round class="flex">
+            <a :href="$url.domain_download_white_ip_list_template.url" style="color: white"><i class="el-icon-download"></i><span>下载模板</span></a>
+          </el-button>
           <el-upload
                   class="upload-file"
                   ref="upload"
@@ -26,42 +29,38 @@
                   accept=".xls, .xlsx"
                   @onUploadFiles="onUploadFiles"
           >
-            <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>
+            <el-button slot="trigger" type="primary" size="mini">选取文件</el-button>
             <el-tooltip class="item" effect="dark"
-                        content="只能上传以.xls或.xlsx为后缀的excel文件" placement="top-start">
-              <el-button style="margin-left: 5px;" type="success" size="mini-extral"
+                        content="只能上传以.xls或.xlsx为后缀的excel文件" placement="bottom">
+              <el-button style="margin-left: 5px;" type="success" size="mini"
                          @click="handleSubmitUpload"><span>上传到服务器</span></el-button>
             </el-tooltip>
           </el-upload>
-        </el-col>
-        <el-col :span="16" class="download">
-          <el-tag type="success" disable-transitions>
+          <el-tag type="success" disable-transitions style="line-height: 18px; height: 20px;">
             <i class="el-icon-warning"></i>
             <span>IP地址超过10个建议下载模板，填写完成后导入文本操作</span>
           </el-tag>
-          <el-button type="info" size="mini-extral" round>
-            <a :href="$url.domain_download_white_ip_list_template.url"><i class="el-icon-download"></i><span>下载模板</span></a>
-          </el-button>
-        </el-col>
-      </el-row>
-      <el-row class="add-ip">
-        <el-col :span="3">
-          添加白名单
-        </el-col>
-        <el-col :span="6">
-          <el-input placeholder="IP地址" v-model="itemToAdd.ip"></el-input>
-        </el-col>
-        <el-col :span="12">
-          <el-input placeholder="说明" v-model="itemToAdd.description"></el-input>
-        </el-col>
-        <el-col :span="3">
-          <el-button
-                  size="mini-extral"
-                  type="warning"
-                  :loading = "statusOfWaitingResponse('add')"
-                  @click="handleRowButtonClick('add')">保存</el-button>
-        </el-col>
-      </el-row>
+        </div>
+      </div>
+      <div class="add-ip" style="display: flex; align-items: center">
+        <el-input size="mini-extral" placeholder="IP地址" v-model="itemToAdd.ip" style="max-width: 200px; margin-right: 5px;"></el-input>
+        <el-input size="mini-extral" placeholder="说明" v-model="itemToAdd.description" style="max-width: 500px; margin-right: 5px;"></el-input>
+        <el-button
+                size="mini"
+                type="warning"
+                :loading = "statusOfWaitingResponse('add')"
+                @click="handleRowButtonClick('add')">添加</el-button>
+        <el-button
+                size="mini"
+                type="primary"
+                :loading = "statusOfWaitingResponse('add')"
+                @click="toggleCompanyWhiteList('add')">一键添加职场白名单</el-button>
+        <el-button
+                size="mini"
+                type="primary"
+                :loading = "statusOfWaitingResponse('add')"
+                @click="toggleCompanyWhiteList('remove')">一键删除职场白名单</el-button>
+      </div>
     </div>
 
     <div class="white-ip-list">
@@ -147,96 +146,56 @@
   #domain-white-list {
     background: white;
     height: 100%;
-    /*margin:0px 6px;*/
     max-width: 1200px;
     height: 100%;
     display: flex;
     flex-direction: column;
     .header {
+      padding: 3px 5px 0px 5px;
       .domain-name {
-        padding: 0px 5px;
+        margin-bottom: 3px;
       }
       .upload-area {
         font-size: 14px;
-        border: 1px solid lavenderblush;
+        padding-right: 8px;
+        border-right: 1px solid gainsboro;
         margin-bottom: 3px;
-        padding: 6px;
-        .el-col {
-          &.download {
-            text-align: center;
-            .el-tag {
-              line-height: 26px;
-              height: 28px;
-            }
-            .el-button {
-              vertical-align: middle;
-              padding: 2px 8px;
-              margin-left: 10px;
-              a {
-                font-size: 12px;
-                line-height: 16px;
-                color: white;
-                span, i {
-                  vertical-align: middle;
-                  margin: 0px;
-                }
+        .upload-file {
+          display: inline-block;
+          .el-upload-list {
+            .el-upload-list__item {
+              margin-top: 0px;
+              &:first-child {
+                margin-top: 3px;
               }
-            }
-          }
-          &.upload {
-            text-align: center;
-            border-right: 1px solid gainsboro;
-            .upload-file {
-              display: inline-block;
-              .el-upload-list {
-                .el-upload-list__item {
-                  margin-top: 0px;
-                  &:first-child {
-                    margin-top: 3px;
-                  }
-                  .el-upload-list__item-name {
-                    color: #409EFF;
-                    font-size: 12px;
-                    line-height: 1.5;
-                  }
-                }
+              .el-upload-list__item-name {
+                color: #409EFF;
+                font-size: 12px;
+                line-height: 1.5;
               }
             }
           }
         }
       }
-      .add-ip.el-row {
-        width: 80%;
-        margin: 3px auto;
-        line-height: 30px;
-        .el-col {
-          padding: 0px 3px;
-          vertical-align: middle;
-          &:first-child {
-            text-align: right;
-          }
-        }
-        font-size: 14px;
-        .el-input {
-          .el-input__inner {
-            height: 28px;
-          }
-        }
+      .add-ip {
+        margin-bottom: 3px;
       }
     }
     .white-ip-list {
       position: relative;
       flex: 1;
       .el-table {
-        tr {
-          height: 32px;
-        }
-        td {
-          padding: 0px;
-          .cell {
+        tbody {
+          tr {
+            height: 32px;
+          }
+          td {
             padding: 0px;
-            .content {
-              padding: 0px 10px;
+            .cell {
+              padding: 0px;
+              .content {
+                padding: 0px 10px;
+              }
             }
           }
         }
@@ -267,7 +226,7 @@
       } else {
         this.$router.go(-1);
       }
-      this.allNetWorkAccessAble = this.domainInfo['notHaveIPWhiteList'];
+      // this.allNetWorkAccessAble = this.domainInfo['notHaveIPWhiteList'];
 
       let headerNode = this.$el.querySelector(':scope > .header');
       this.resizeListener = () => {
@@ -304,14 +263,9 @@
           row: null,
           operation: null,
         },
-        // 全网访问
-        allNetWorkAccessAble: null,
       }
     },
     watch: {
-      // action will not trigger at first change of domainInfo.notHaveIPWhiteList
-      'allNetWorkAccessAble': async function (value, oldValue) {
-      }
     },
     methods: {
       addToWaitingResponseQueue(action) {
@@ -334,45 +288,52 @@
         this.requestWhiteIPList();
       },
 
-      async toggleAllNetWorkAccessAble(value) {
-        let domainID = this.domainInfo['id'];
-        if (!domainID) {
+      async toggleCompanyWhiteList(action) {
+        let domainId = this.domainInfo['id'];
+        if (!domainId) {
+          console.log(`domainId not found`)
           return;
         }
-        if (value === true) {
-          try {
-            await this.$confirm('你确定需要开启全网访问吗？', '提示', {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning',
-              dangerouslyUseHTMLString: true
-            });
-            const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.domain_delete_all_white_ip, {
-              query: {
-                internetDomainId: domainID
-              }
-            });
-            this.$message.success('开启"一键开启全网访问"成功！');
-            this.$storeHelper.dataTransfer = this.domainInfo;
-            this.currentPage = 1;
-            this.requestWhiteIPList();
-          } catch (err) {
-            this.allNetWorkAccessAble = false;
-            this.$message.warning('未开启"一键开启全网访问"');
-          }
-        } else {
-//          this.$net.domainAddOfficeWhiteIP(domainID)
-          this.$net.requestPaasServer(this.$net.URL_LIST.domain_add_office_ip_list, {
-            query: {
-              internetDomainId: domainID
-            }
-          }).then(resContent => {
-            this.$message.success('关闭"一键开启全网访问"成功！');
-            this.$storeHelper.dataTransfer = this.domainInfo;
-            this.currentPage = 1;
-            this.requestWhiteIPList();
-          }).catch(err => {
+        const actionName = action === 'add' ? '添加' : '删除';
+        try {
+          await this.$confirm(`你确定要${actionName}所有职场白名单吗？`, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+            dangerouslyUseHTMLString: true
           });
+        } catch(err) {
+        }
+        switch (action) {
+          case 'add':
+            try {
+              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.domain_add_office_ip_list, {
+                query: {
+                  internetDomainId: domainId
+                }
+              });
+              this.$message.success(`已${actionName}所有职场白名单！`);
+              // this.$storeHelper.dataTransfer = this.domainInfo;
+              this.currentPage = 1;
+              this.requestWhiteIPList();
+            } catch (err) {
+              this.$message.error('${actionName}所有职场白名单失败！');
+            }
+            break;
+          case 'remove':
+            this.$net.requestPaasServer(this.$net.URL_LIST.domain_delete_all_white_ip, {
+              query: {
+                internetDomainId: domainId
+              }
+            }).then(resContent => {
+              this.$message.success(`已${actionName}所有职场白名单！`);
+              // this.$storeHelper.dataTransfer = this.domainInfo;
+              this.currentPage = 1;
+              this.requestWhiteIPList();
+            }).catch(err => {
+              this.$message.error('${actionName}所有职场白名单失败！');
+            });
+            break;
         }
       },
 
@@ -551,13 +512,11 @@
         page = page >= 0 ? page : 0;
         let start = page * this.pageSize;
         let length = this.pageSize;
-        this.showLoading = true;
         this.$net.getWhiteIPList({
           internetDomainId: this.domainInfo.id,
           start: start,
           length: length,
         }).then(content => {
-          this.showLoading = false;
           if (content.hasOwnProperty('whiteList')) {
             if (content.hasOwnProperty('total')) {
               this.totalSize = content['total'];
@@ -568,7 +527,6 @@
             });
           }
         }).catch(err => {
-          this.showLoading = false;
           this.IPList = [];
         })
       },
