@@ -6,9 +6,11 @@
     <div class="paas-show-with-modal"
          v-show="status.show"
          :id="tooltipId">
-      <div class="content">
-        <i class="paas-icon-close" @click="hide"></i>
-        <slot></slot>
+      <div class="container">
+        <i class="paas-icon-close" @click="hide" v-if="false"></i>
+        <div class="content">
+          <slot></slot>
+        </div>
       </div>
     </div>
   </transition>
@@ -24,12 +26,13 @@
     justify-content: space-around;
     align-items: center;
     background: rgba(255,255,255,.9);
-    .content {
-      max-height: 80%;
-      max-width: 80%;
+    .container {
+      max-height: 90%;
+      max-width: 90%;
       min-height: 100px;
       min-width: 100px;
       position: relative;
+      overflow: scroll;
       .paas-icon-close {
         position: absolute;
         right: -20px;
