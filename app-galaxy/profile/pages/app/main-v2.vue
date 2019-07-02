@@ -48,19 +48,19 @@
             <div v-else>版本未知</div>
           </template>
         </el-table-column>
-        <el-table-column label="应用名称" prop="appName" headerAlign="left" align="left" minWidth="120">
+        <el-table-column label="应用名称" prop="appName" headerAlign="left" align="left" minWidth="100">
           <template slot-scope="scope">
             <span>{{scope.row.appName}}</span>
             <i v-if="!$storeHelper.permission['app_change_name'].hide && false"
                     class="el-icon-edit" @click="handleTRClick($event, 'app_change_name', scope.$index, scope.row)"></i>
           </template>
         </el-table-column>
-        <el-table-column label="项目名称" prop="projectName" headerAlign="left" align="left" minWidth="120">
+        <el-table-column label="项目名称" prop="projectName" headerAlign="left" align="left" minWidth="100">
           <template slot-scope="scope">
             <span>{{scope.row.projectName}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="二级域名(serviceName)" prop="serviceName" headerAlign="left" align="left" minWidth="120">
+        <el-table-column label="二级域名(serviceName)" prop="serviceName" headerAlign="left" align="left" minWidth="100">
           <template slot-scope="scope">
             <span>{{scope.row.serviceName}}</span>
           </template>
@@ -96,6 +96,21 @@
               </div>
             </div>
             <div v-else>{{scope.row.createTime}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="应用说明" prop="description" headerAlign="center" align="center" width="60">
+          <template slot-scope="scope">
+            <div v-if="scope.row.description">
+              <el-tooltip slot="trigger" effect="dark" placement="right">
+                <div slot="content">
+                  <span>{{scope.row.description}}</span>
+                </div>
+                <span class="more">...</span>
+              </el-tooltip>
+            </div>
+            <div v-else>
+              <span>无</span>
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="操作" prop="operation" width="240" headerAlign="center" align="center">
@@ -613,7 +628,6 @@
           return;
         }
         const appInfo = this.$storeHelper.getAppInfoByID(row.appId);
-       // console.log(appInfo);
         if (!appInfo) {
           return;
         } else {
@@ -628,6 +642,7 @@
               from: this.$net.page['profile/app'],
               data: this.selected.model
             };
+
             this.$router.push(this.$net.page['profile/app/update']);
             break;
           case 'app_delete':

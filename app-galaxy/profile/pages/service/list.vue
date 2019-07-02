@@ -90,6 +90,15 @@
           <template slot-scope="scope">
             <div v-if="scope.row.id" style="line-height: 20px;">
               <el-button
+                      v-if="isProductionProfile"
+                      size="small"
+                      type="text"
+                      :class="['danger']"
+                      @click="handleTRClick($event,'go-to-work-order-todo-add', scope.$index, scope.row)">
+                <span>申请工单</span><i class="paas-icon-level-up"></i>
+              </el-button>
+              <div v-if="isProductionProfile" class="ant-divider"></div>
+              <el-button
                       v-if="!isProductionProfile"
                       size="small"
                       type="text"
@@ -153,15 +162,6 @@
                 <span>服务详情</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div class="ant-divider"></div>
-              <el-button
-                      v-if="isProductionProfile"
-                      size="small"
-                      type="text"
-                      :class="['primary']"
-                      @click="handleTRClick($event,'go-to-work-order-todo-add', scope.$index, scope.row)">
-                <span>申请工单</span><i class="paas-icon-level-up"></i>
-              </el-button>
-              <div v-if="isProductionProfile" class="ant-divider"></div>
               <el-button
                       size="small"
                       type="text"

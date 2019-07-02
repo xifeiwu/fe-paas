@@ -1323,12 +1323,13 @@ class Net extends NetBase {
         packageType: app.packageType,
         profileList: profileListOfGroup,
         lobId: app.lobId,
-        scrumId: app.scrumId
+        scrumId: app.scrumId,
+        description:app.description
       }
     });
     result.appModelList = result.appList.map(app => {
       var result = {};
-      ['appId', 'appName', 'projectName', 'serviceName', 'creator', 'maintainer', 'maintainerId', 'maintainerList', 'userName', 'createTime', 'language', 'packageType', 'lobId', 'scrumId'].forEach(key => {
+      ['appId', 'appName', 'projectName', 'serviceName', 'creator', 'maintainer', 'maintainerId', 'maintainerList', 'userName', 'createTime', 'language', 'packageType', 'lobId', 'scrumId','description'].forEach(key => {
         result[key] = app[key];
       });
       return result;
