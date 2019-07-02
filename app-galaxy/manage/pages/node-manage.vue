@@ -54,25 +54,25 @@
           </template>
         </el-table-column>
         <el-table-column label="CPU(Request/总共)" headerAlign="center" align="center" prop="cpuRequest" :sortable="true"
-                         @sort-method="sort" min-width="200px">
+                         :sort-by="cpuRequest" min-width="200px">
           <template slot-scope="scope">
             <span>{{scope.row.cpuRequest + '核 / ' + scope.row.cpuTotal + '核（' + scope.row.cpuRequestPercent + '%）' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="内存(Request/总共)" headerAlign="center" align="center" :sortable="true" prop="memoryRequest"
-                         min-width="190px" @sort-method="sort">
+                         min-width="190px" :sort-by="memoryRequest">
           <template slot-scope="scope">
             <span>{{scope.row.memoryRequest + 'G / ' + scope.row.memoryTotal + 'G（' + scope.row.memoryRequestPercent + '%）' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="CPU(Limit/总共)" headerAlign="center" align="center" :sortable="true" min-width="180px"
-                         prop="cpuLimit" @sort-method="sort">
+                         prop="cpuLimit" :sort-by="cpuLimit">
           <template slot-scope="scope">
             <span>{{`${scope.row.cpuLimit}核 / ${scope.row.cpuTotal}核 (${scope.row.cpuLimitPercent}%)`}}</span>
           </template>
         </el-table-column>
         <el-table-column label="内存(Limit/总共)" headerAlign="center" align="center" sortable min-width="180px" prop="memoryLimit"
-                         :sortable="true" @sort-method="sort">
+                         :sortable="true" :sort-by="memoryLimit">
           <template slot-scope="scope">
             <span>{{`${scope.row.memoryLimit}G / ${scope.row.memoryTotal}G (${scope.row.memoryLimitPercent}%)`}}</span>
           </template>
@@ -415,14 +415,14 @@
             it['cpuTotal'] = parseInt(it.cpuTotal) / 1000;
             it['cpuRequestPercent'] =  parseFloat(it['cpuRequest'] / it['cpuTotal'] * 100).toFixed(1);
 
-            it['memoryRequest'] = parseFloat(it.memoryRequest / 1024).toFixed(2);
+            it['memoryRequest'] = parseFloat((it.memoryRequest / 1024).toFixed(2));
             it['memoryTotal'] = parseFloat(it.memoryTotal / 1024).toFixed(2);
             it['memoryRequestPercent'] =  parseFloat(it['memoryRequest'] / it['memoryTotal'] * 100).toFixed(1);
 
             it["cpuLimit"] = parseInt(it.cpuLimit) / 1000;
             it["cpuLimitPercent"] = parseFloat(it['cpuLimit'] / it["cpuTotal"] * 100).toFixed(1);
 
-            it["memoryLimit"] = parseFloat(it.memoryLimit / 1024).toFixed(2);
+            it["memoryLimit"] = parseFloat((it.memoryLimit / 1024).toFixed(2));
             it["memoryLimitPercent"] = parseFloat(it["memoryLimit"] / it["memoryTotal"] * 100).toFixed(1);
           });
 
@@ -462,10 +462,6 @@
         this.currentPage = page;
         this.computedNodeList();
       },
-
-      sort(a, b) {
-        return a < b;
-      }
 
     }
   }

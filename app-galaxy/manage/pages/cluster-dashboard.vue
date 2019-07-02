@@ -31,7 +31,7 @@
             <span>{{scope.row.cpuLimit + '核 / ' + scope.row.cpuTotal + '核'}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="CPU(Limit/总共)" headerAlign="center" align="center" width="200" >
+        <el-table-column label="内存(Limit/总共)" headerAlign="center" align="center" width="200" >
           <template slot-scope="scope">
             <span>{{scope.row.cpuLimit + 'G / ' + scope.row.memoryTotal + 'G'}}</span>
           </template>
