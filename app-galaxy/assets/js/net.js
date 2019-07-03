@@ -110,6 +110,7 @@ class Net {
       'profile/config-server': '/profile/config-server',
       'user/info': '/user/info',
       'user/group': '/user/group',
+      'user/feedback': '/user/feedback',
       'user/message': '/user/message',
       'user/operation': '/user/operation',
       'docs': '/docs',

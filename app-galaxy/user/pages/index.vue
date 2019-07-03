@@ -208,6 +208,7 @@
           'manage': this.$storeHelper.getUserInfo('role') && this.$storeHelper.getUserInfo('role') === '平台管理员',
           'user/info': false,
           'user/group': false,
+          'user/feedback': false,
           'user/message': false,
           'user/operation': false,
         },

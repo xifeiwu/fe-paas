@@ -369,7 +369,8 @@
       });
       this.showDescriptor4Header = {
         'manage': this.$storeHelper.getUserInfo('role') && this.$storeHelper.getUserInfo('role') === '平台管理员',
-        'profile': false
+        'profile': false,
+        'user/feedback': true
       };
       this.requestAndHandleMessage();
       this.getPublishStatus();
@@ -725,6 +726,7 @@
         switch (keyPath) {
           case 'user/group':
           case 'user/info':
+          case 'user/feedback':
           case 'user/message':
           case 'user/operation':
           case 'manage':
