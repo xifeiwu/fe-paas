@@ -236,7 +236,9 @@
         const start = page * this.pageSize;
         const length = this.pageSize;
         const end = start + length;
-        this.feedbackListByPage = filteredList.slice(start, end);
+        this.feedbackListByPage = filteredList.slice(start, end).sort((pre, next) => {
+          return (pre.createTime - next.createTime) * -1;
+        });
         this.feedbackListByPage.forEach(it => {
           if (it['createTime']) {
             it['formattedCreateTime'] = this.$utils.formatDate(it['createTime'], 'yyyy-MM-dd hh:mm:ss').split(' ');
