@@ -420,13 +420,15 @@
             this.selected.row = JSON.parse(JSON.stringify(row));
             break;
           case 'update':
-            if (this.$utils.theSame(this.selected.row, row)) {
-              this.$message({
-                type: 'warning',
-                message: '您没有做修改'
-              });
-              this.selected.operation = null;
-            } else {
+            try {
+              if (this.$utils.theSame(this.selected.row, row)) {
+                this.$message({
+                  type: 'warning',
+                  message: '您没有做修改'
+                });
+                this.selected.operation = null;
+                return;
+              }
               let description = this.selected.row.description;
               if (this.errMsgForIpCheck(this.selected.row.ip)) {
                 this.$message.error(this.errMsgForIpCheck(this.selected.row.ip));
@@ -437,29 +439,31 @@
                 return;
               }
               this.addToWaitingResponseQueue('update');
-              this.$net.updateWhiteIP({
-                internetDomainId: this.domainInfo.id,
-                description: this.selected.row.description,
-                ip: this.selected.row.ip,
-                groupId: this.$storeHelper.currentGroupID,
-              }, this.selected.row.id).then(msg => {
-                this.hideWaitingResponse('update');
-                this.$message.success(msg);
-//                this.IPList[this.selected.index] = JSON.parse(JSON.stringify(this.selected.row));
-                this.IPList.some(it => {
-                  if (it.id === this.selected.row.id) {
-                    it.ip = this.selected.row.ip;
-                    it.description = this.selected.row.description;
-                    return true;
-                  }
-                  return false;
-                });
-                this.selected.operation = null;
-              }).catch(msg => {
-                this.hideWaitingResponse('update');
-                this.$message.error(msg);
-                this.selected.operation = null;
+              await this.$net.requestPaasServer(this.$net.URL_LIST.domain_update_white_ip, {
+                params: {
+                  id: row.id
+                },
+                payload: {
+                  internetDomainId: this.domainInfo.id,
+                  description: this.selected.row.description,
+                  ip: this.selected.row.ip,
+                  groupId: this.$storeHelper.currentGroupID,
+                }
               });
+              this.$message.success('修改成功！');
+              this.IPList.some(it => {
+                if (it.id === this.selected.row.id) {
+                  it.ip = this.selected.row.ip;
+                  it.description = this.selected.row.description;
+                  return true;
+                }
+                return false;
+              });
+            } catch (err) {
+              console.log(err);
+            } finally {
+              this.hideWaitingResponse('update');
+              this.selected.operation = null;
             }
             break;
           case 'delete':
@@ -472,7 +476,6 @@
               });
               this.selected.row = JSON.parse(JSON.stringify(row));
               this.addToWaitingResponseQueue('delete');
-              console.log(this.$net.URL_LIST.domain_delete_white_ip);
               await this.$net.requestPaasServer(this.$net.URL_LIST.domain_delete_white_ip, {
                 params: {
                   id: row.id
@@ -492,7 +495,6 @@
         }
       },
       handleInputConfirm(index, row) {
-        console.log('blur');
       },
       handleClickOutsideTable() {
         this.selected.operation = '';
