@@ -175,4 +175,13 @@ export default class Utils extends BaseUtils {
     }, obj);
     return value !== undefined;
   }
+
+  // 等待ms毫秒
+  async waitMilliSeconds(ms) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve();
+      }, ms);
+    });
+  }
 }

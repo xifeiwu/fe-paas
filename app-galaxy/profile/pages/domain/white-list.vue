@@ -289,6 +289,7 @@
         this.requestWhiteIPList();
       },
 
+      // 一键添加（删除）职场白名单
       async toggleCompanyWhiteList(action) {
         let domainId = this.domainInfo['id'];
         if (!domainId) {
@@ -314,7 +315,7 @@
                   internetDomainId: domainId
                 }
               });
-              this.$message.success(`已${actionName}所有职场白名单！`);
+              this.$message.warning(resContent);
               // this.$storeHelper.dataTransfer = this.domainInfo;
               this.currentPage = 1;
               this.requestWhiteIPList();
@@ -323,18 +324,21 @@
             }
             break;
           case 'remove':
-            this.$net.requestPaasServer(this.$net.URL_LIST.domain_delete_all_white_ip, {
-              query: {
-                internetDomainId: domainId
-              }
-            }).then(resContent => {
+            try {
+              await this.$net.requestPaasServer(this.$net.URL_LIST.domain_delete_all_white_ip, {
+                query: {
+                  internetDomainId: domainId
+                }
+              });
               this.$message.success(`已${actionName}所有职场白名单！`);
-              // this.$storeHelper.dataTransfer = this.domainInfo;
               this.currentPage = 1;
+              // 等待一秒后在请求白名单列表
+              await this.$utils.waitMilliSeconds(1000);
               this.requestWhiteIPList();
-            }).catch(err => {
+            } catch (err) {
               this.$message.error('${actionName}所有职场白名单失败！');
-            });
+            }
+
             break;
         }
       },
@@ -361,7 +365,7 @@
         return errMsg;
       },
 
-      handleRowButtonClick(action, index, row) {
+      async handleRowButtonClick(action, index, row) {
         switch (action) {
           case 'add':
             const ifHasExist = (toAdd) => {
@@ -459,20 +463,31 @@
             }
             break;
           case 'delete':
-            this.selected.row = JSON.parse(JSON.stringify(row));
-            this.addToWaitingResponseQueue('delete');
-            this.$net.deleteWhiteIP(row.id).then(msg => {
+            try {
+              await this.$confirm(`确定要从白名单列表中删除IP ${row.ip} 吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              this.selected.row = JSON.parse(JSON.stringify(row));
+              this.addToWaitingResponseQueue('delete');
+              console.log(this.$net.URL_LIST.domain_delete_white_ip);
+              await this.$net.requestPaasServer(this.$net.URL_LIST.domain_delete_white_ip, {
+                params: {
+                  id: row.id
+                }
+              });
               this.hideWaitingResponse('delete');
-              this.$message.success(msg);
-//              this.IPList.splice(this.selected.index, 1);
+              this.$message.success('删除成功！');
               this.requestWhiteIPList();
               this.selected.operation = null;
+            } catch(err) {
+              return;
+            } finally {
               this.hideWaitingResponse('delete');
-            }).catch(msg => {
-              this.hideWaitingResponse('delete');
-              this.$message.error(msg);
               this.selected.operation = null;
-            });
+            }
             break;
         }
       },
@@ -509,28 +524,27 @@
        * 2. delete white ip, add white ip
        * 3. after upload excel file success or error
        */
-      requestWhiteIPList() {
+      async requestWhiteIPList() {
         let page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
         let start = page * this.pageSize;
         let length = this.pageSize;
-        this.$net.getWhiteIPList({
-          internetDomainId: this.domainInfo.id,
-          start: start,
-          length: length,
-        }).then(content => {
-          if (content.hasOwnProperty('whiteList')) {
-            if (content.hasOwnProperty('total')) {
-              this.totalSize = content['total'];
+        try {
+          const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.domain_white_ip_list, {
+            payload: {
+              internetDomainId: this.domainInfo.id,
+              start: start,
+              length: length,
             }
-            this.IPList = content['whiteList'].map((it, index) => {
-              it.index = start + index + 1;
-              return it;
-            });
-          }
-        }).catch(err => {
+          });
+          this.totalSize = resContent['total'];
+          this.IPList = resContent['whiteList'].map((it, index) => {
+            it.index = start + index + 1;
+            return it;
+          });
+        } catch (err) {
           this.IPList = [];
-        })
+        }
       },
 
       /* functions used for upload file */

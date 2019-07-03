@@ -460,6 +460,22 @@ class Net extends NetBase {
         path: '/domain/whiteList/addOffice',
         method: 'post'
       },
+      // 修改白名单
+      'domain_update_white_ip': {
+        path: '/domain/whiteList/{id}/update',
+        method: 'put'
+      },
+      // 修改白名单
+      'domain_delete_white_ip': {
+        path: '/domain/whiteList/{id}/delete',
+        method: 'delete'
+      },
+      // 获取白名单列表
+      'domain_white_ip_list': {
+        path: '/domain/whiteList/query',
+        method: 'post'
+      },
+
       /**工单相关*/
       // 工单列表
       'work_order_list': {
@@ -2062,9 +2078,9 @@ class Net extends NetBase {
       })
     });
   }
-  // 修改IP
+  // // 修改IP
   updateWhiteIP(options, whiteIPID) {
-    let url = URL_LIST.domain_update_white_ip.url + whiteIPID + '/update';
+    let url = this.URL_LIST.domain_update_white_ip.url + whiteIPID + '/update';
     return new Promise((resolve, reject) => {
       axios.put(url, options).then(response => {
         let responseMsg = this.getResponseMsg(response);
@@ -2082,26 +2098,7 @@ class Net extends NetBase {
       })
     });
   }
-  // 删除IP
-  deleteWhiteIP(whiteIPID) {
-    let url = URL_LIST.domain_update_white_ip.url + whiteIPID + '/delete';
-    return new Promise((resolve, reject) => {
-      axios.delete(url).then(response => {
-        let responseMsg = this.getResponseMsg(response);
-        if (responseMsg.success) {
-          if (!responseMsg.msg) {
-            responseMsg.msg = '删除成功！';
-          }
-          resolve(responseMsg.msg);
-        } else {
-          reject(responseMsg.msg);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject('删除IP失败！');
-      })
-    });
-  }
+
   // 删除所有白名单
   // domainDeleteAllWhiteIP(id) {
   //   let url = this.$utils.formatUrl(URL_LIST.domain_delete_all_white_ip.url, {id});
@@ -2146,23 +2143,7 @@ class Net extends NetBase {
   //     })
   //   })
   // }
-  // 获取白名单列表
-  getWhiteIPList(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.domain_white_ip_list.url, options).then(response => {
-        let content = this.getResponseContent(response);
-        if (content) {
-          resolve(content);
-          this.showLog('getWhiteIPList', content);
-        } else {
-          reject(null);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject('获取白名单列表');
-      })
-    });
-  }
+
   //下载白名单模板
   downloadTemplateForWhiteIP() {
     return new Promise((resolve, reject) => {

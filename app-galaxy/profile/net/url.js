@@ -149,20 +149,10 @@ class URL extends BaseURL {
         url: API_PATH + '/domain/whiteList/add',
         path: '/domain/whiteList/add'
       },
-      // 修改白名单
-      'domain_update_white_ip': {
-        url: API_PATH + '/domain/whiteList/',
-        path: '/domain/whiteList/'
-      },
       // 删除白名单
       'domain_delete_white_ip': {
         url: API_PATH + '/domain/whiteList/',
         path: '/domain/whiteList/'
-      },
-      // 获取白名单列表
-      'domain_white_ip_list': {
-        url: API_PATH + '/domain/whiteList/query',
-        path: '/domain/whiteList/query'
       },
       // 下载白名单模板（从java服务器）
       'domain_download_white_ip_list_template': {
