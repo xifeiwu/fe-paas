@@ -332,6 +332,8 @@
         }
         const filteredList = this.feedbackList.filter(it => {
           return new RegExp(this.searchForm.filterKey).exec(['title', 'realName'].map(key => it[key]).join(''));
+        }).sort((pre, next) => {
+          return (pre.createTime - next.createTime) * -1;
         });
         this.totalSize = filteredList.length;
 
