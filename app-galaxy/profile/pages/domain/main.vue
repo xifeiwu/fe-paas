@@ -17,13 +17,13 @@
       </div>
       <div class="row operation">
         <el-button
-                size="mini-extral"
+                size="mini"
                 type="primary"
                 @click="handleButtonClick($event, 'refresh')">
           刷新
         </el-button>
         <el-button
-                size="mini-extral"
+                size="mini"
                 type="primary"
                 :class="{'disabled': $storeHelper.actionDisabled('domain_add_open_dialog') || publishStatus}"
                 :loading="statusOfWaitingResponse('domain_add_open_dialog')"
@@ -31,14 +31,14 @@
           申请外网二级域名
         </el-button>
         <el-button
-                size="mini-extral"
+                size="mini"
                 type="warning"
                 :class="{'disabled': $storeHelper.permission['domain_bind_service'].disabled || publishStatus}"
                 @click="handleButtonClick($event, 'domain_bind_service')"
         >绑定服务
         </el-button>
         <el-button
-                size="mini-extral"
+                size="mini"
                 type="warning"
                 :class="{'disabled': $storeHelper.permission['domain_unbind_service'].disabled || publishStatus}"
                 @click="handleButtonClick($event, 'domain_unbind_service')">解绑服务
@@ -68,7 +68,11 @@
               <el-radio :label="scope.row.id"
                         :value="selectedId"
                         :style="{marginLeft: '3px'}"
-                        @input="changeDefaultVersion(scope.row)">{{scope.row.internetDomain}}</el-radio>
+                        @input="changeDefaultVersion(scope.row)">{{''}}</el-radio>
+              <span>{{scope.row.internetDomain}}</span>
+              <i class="paas-icon-copy"
+                 v-clipboard:copy="scope.row.internetDomain"
+                 v-clipboard:success="handleSuccessCopy"></i>
             </template>
         </el-table-column>
         <el-table-column
@@ -1294,6 +1298,12 @@
         if (profile && app) {
           this.bindServiceProps.bindTipForApp = `所选域名正在绑定"${profile.description}"的"${app.appName}"应用,绑定成功后即可使用外网域名访问应用`;
         }
+      },
+      handleSuccessCopy(evt) {
+        this.$storeHelper.globalTip.show({
+          ref: evt.trigger,
+          msg: '复制成功'
+        });
       },
 
       warningConfirm(content) {
