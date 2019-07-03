@@ -99,7 +99,7 @@
                 minWidth="180"
         >
           <template slot-scope="scope">
-            <span>{{scope.row.status}}</span>
+            <span>{{scope.row.statusDescription}}</span>
             <span v-if="scope.row.reason" style="color: #00f; cursor: pointer"
                   @click="handleRowButtonClick($event, 're-secure-check-in-dialog', scope.$index, scope.row)">原因</span>
           </template>
@@ -111,7 +111,7 @@
                 width="120"
         >
           <template slot-scope="scope">
-            <span>{{scope.row.notHaveIPWhiteList ? '已开启' : '未开启'}}</span>
+            <span>{{scope.row.accessStatus}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -866,6 +866,7 @@
             }
             it['formattedCreateTime'] = this.$utils.formatDate(it['createTime'], 'yyyy-MM-dd hh:mm:ss');
           }
+          it['accessStatus'] = (it['status'] === 'EFFECTIVE' ? it['notHaveIPWhiteList'] : it['openAllInternet']) ? '已开启' : '未开启';
           return it;
         });
         if (this.currentDomainList.length > 0) {
