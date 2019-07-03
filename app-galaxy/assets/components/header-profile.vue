@@ -20,7 +20,9 @@
                 trigger="manual"
                 ref="popover_alert"
                 :title="alertMessage ? alertMessage.title : ''">
-        <div class="content-alert" v-html="alertMessage ? alertMessage.htmlContent : ''"></div>
+        <el-scrollbar style="height: 400px; margin: 0px -5px;">
+          <div class="content-alert markdown-body" v-html="alertMessage ? alertMessage.htmlContent : ''"></div>
+        </el-scrollbar>
         <el-button type="primary" size="mini" @click="readMessage()">已阅</el-button>
         <el-menu-item index="user/message" v-if="show['user/message']" slot="reference"><i class="paas-icon-message"></i><span>消息</span>
           <span class="badge danger" v-if="messageCountTip > 0">{{messageCountTip}}</span></el-menu-item>

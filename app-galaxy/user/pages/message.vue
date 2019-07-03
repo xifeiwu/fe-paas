@@ -37,7 +37,7 @@
         <el-table-column type="expand"
                          width="0">
           <template slot-scope="scope">
-            <div class="row-expand" v-html="operation.row.htmlContent">
+            <div class="row-expand markdown-body" v-html="operation.row.htmlContent">
             </div>
           </template>
         </el-table-column>
@@ -67,11 +67,7 @@
           tr {
             color: darkgrey;
             .row-expand {
-              color: #545454;
-              background-color: #fafafa;
               font-size: 13px;
-              line-height: 150%;
-              text-indent: 2em;
               padding: 5px;
             }
           }

@@ -51,20 +51,20 @@
         <el-table-column prop="releaseStatusName" label="状态" width="80"></el-table-column>
         <el-table-column label="操作" width="160" headerAlign="center" align="center">
           <template slot-scope="scope">
-            <el-button
-                    v-if="scope.row.releaseStatus === 'NO_RELEASE' || scope.row.releaseStatus === 'CANCEL'"
-                    type="text"
-                    :class="['flex', 'warning']"
-                    @click="handleTRClick($event, 'message_publish', scope.$index, scope.row)">
+            <el-button v-if="scope.row.releaseStatus === 'NO_RELEASE' || scope.row.releaseStatus === 'CANCEL'"
+                       type="text"
+                       :class="['flex', 'warning']"
+                       @click="handleTRClick($event, 'message_publish', scope.$index, scope.row)">
               <span>发布</span>
             </el-button>
-            <el-button
-                v-if="scope.row.releaseStatus === 'NO_RELEASE' || scope.row.releaseStatus === 'CANCEL'"
-                type="text"
-                :class="['flex', 'warning']"
-                @click="handleTRClick($event, 'message_modify', scope.$index, scope.row)">
+            <div class="ant-divider" v-if="scope.row.releaseStatus === 'NO_RELEASE' || scope.row.releaseStatus === 'CANCEL'"></div>
+            <el-button v-if="scope.row.releaseStatus === 'NO_RELEASE' || scope.row.releaseStatus === 'CANCEL'"
+                       type="text"
+                       :class="['flex', 'warning']"
+                       @click="handleTRClick($event, 'message_modify', scope.$index, scope.row)">
               <span>修改</span>
             </el-button>
+            <div class="ant-divider" v-if="scope.row.releaseStatus === 'NO_RELEASE' || scope.row.releaseStatus === 'CANCEL'"></div>
             <el-button
                     v-if="scope.row.releaseStatus === 'RELEASE'"
                     type="text"
@@ -72,7 +72,13 @@
                     @click="handleTRClick($event, 'message_withdraw', scope.$index, scope.row)">
               <span>撤销</span>
             </el-button>
-
+            <div class="ant-divider" v-if="scope.row.releaseStatus === 'RELEASE'"></div>
+            <el-button
+                    type="text"
+                    :class="['flex', 'primary']"
+                    @click="handleTRClick($event, 'html_preview', scope.$index, scope.row)">
+              <span>预览</span>
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -95,10 +101,10 @@
                :visible="action.name == 'message_create' || action.name == 'message_modify'"
                v-if="action.name == 'message_create' || action.name == 'message_modify'"
                @close="closeDialog"
-               class="size-700"
+               class="size-900"
                :close-on-click-modal="false"
     >
-      <el-form labelWidth="120px" size="mini" :rules="rulesForMessageCreate" :model="action.data" ref="formForMessageCreate">
+      <el-form labelWidth="100px" size="mini" :rules="rulesForMessageCreate" :model="action.data" ref="formForMessageCreate">
         <el-form-item label="标题" prop="title">
           <el-input v-model="action.data.title" placeholder="不超过100个字符"></el-input>
         </el-form-item>
@@ -115,7 +121,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="内容" prop="content" placeholder="不超过800个字符">
-          <el-input type="textarea"  :rows="3" v-model="action.data.content"></el-input>
+          <el-input type="textarea"  :rows="8" v-model="action.data.content"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
@@ -128,6 +134,18 @@
           <el-button @click="closeDialog">取&nbsp消</el-button>
         </div>
       </div>
+    </el-dialog>
+
+    <el-dialog title="预览"
+               v-if="action.name === 'html_preview'"
+               :visible="action.name === 'html_preview'"
+               @close="closeDialog"
+               class="size-900 html-preview"
+               :close-on-click-modal="false"
+    >
+      <el-scrollbar style="height: 560px;">
+        <div v-html="action.data" class="markdown-body" style="text-align: left"></div>
+      </el-scrollbar>
     </el-dialog>
 
   </div>
@@ -176,6 +194,13 @@
               }
             }
           }
+        }
+      }
+    }
+    .el-dialog__wrapper {
+      &.html-preview {
+        .el-dialog__body {
+          padding: 0px 3px;
         }
       }
     }
@@ -230,7 +255,7 @@
       return {
         heightOfTable: '',
         totalSize: 0,
-        pageSize: 12,
+        pageSize: 10,
         currentPage: 1,
 
         messageTypeSelect: "ALL",
@@ -580,6 +605,9 @@
             } finally {
               this.closeDialog();
             }
+            break;
+          case 'html_preview':
+            dialogData = await this.openDialog(action, this.$render(row.content));
             break;
         }
       },
