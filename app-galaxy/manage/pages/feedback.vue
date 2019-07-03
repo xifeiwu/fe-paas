@@ -316,11 +316,12 @@
         var [startTime, endTime] = this.searchForm.dateRange;
         startTime = startTime.getTime();
         endTime = endTime.getTime();
+
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.feedback_list, {
           payload: {
             title: '',
-            startTime,
-            endTime
+            startTime: this.$utils.getDate(startTime),
+            endTime: this.$utils.getDate(endTime) + 24 * 3600 * 1000
           }
         });
         this.feedbackList = resContent;

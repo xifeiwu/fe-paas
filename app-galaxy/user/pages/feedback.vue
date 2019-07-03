@@ -57,7 +57,7 @@
                :visible="action.name == 'feedback_create'"
                v-if="action.name == 'feedback_create'"
                @close="closeDialog"
-               class="size-700"
+               class="size-800"
                :close-on-click-modal="false"
     >
       <el-form labelWidth="100px" size="mini" :rules="rulesForCreate" :model="action.data" ref="formForCreate">
@@ -65,10 +65,10 @@
           <el-input v-model="action.data.title" placeholder="不超过100个字符"></el-input>
         </el-form-item>
         <el-form-item label="问题描述" prop="issue">
-          <el-input type="textarea"  :rows="3" v-model="action.data.issue" placeholder="不超过512个字符"></el-input>
+          <el-input type="textarea"  :rows="5" v-model="action.data.issue" placeholder="不超过512个字符"></el-input>
         </el-form-item>
         <el-form-item label="建议方案" prop="suggestion">
-          <el-input type="textarea"  :rows="3" v-model="action.data.suggestion" placeholder="不超过512个字符"></el-input>
+          <el-input type="textarea"  :rows="5" v-model="action.data.suggestion" placeholder="不超过512个字符"></el-input>
         </el-form-item>
         <el-form-item label="附件">
           <!--<label style="position: relative;">-->
@@ -76,8 +76,11 @@
             <!--<input class="button" type="file" name="fileList" title="上传文件" style="width: 0px; height: 0px; position: absolute; left: -9999px"-->
                    <!--@change.native="evt => console.log(evt.target.files)">-->
           <!--</label>-->
-          <input class="button" type="file" title="上传文件" value="上传文件" :multiple="false"
+          <input class="button" type="file" title="上传文件" value="上传文件" :multiple="false" accept=".jpg, .jpeg, .png, .gif"
                  @change="handleInputChange($event)">
+          <el-tooltip effect="dark" content="支持.jpg, .jpeg, .png, .gif图片格式" placement="bottom">
+            <i class="paas-icon-fa-question" style="font-size: 12px; color: #E6A23C"></i>
+          </el-tooltip>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
