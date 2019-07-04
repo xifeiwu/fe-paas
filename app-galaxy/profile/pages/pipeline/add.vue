@@ -215,6 +215,37 @@
                         </div>
                       </div>
                     </el-form-item>
+
+                    <!--自动化测试-start-->
+                    <el-form-item label="gitlab路径：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.gitLabPath"
+                                  v-show="stageName === 'ciPipelineAutoTestVOTest'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.gitLabPath"></el-input>
+                    </el-form-item>
+                    <el-form-item label="gitlab分支：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.gitLabBranch"
+                                  v-show="stageName === 'ciPipelineAutoTestVOTest'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.gitLabBranch"></el-input>
+                    </el-form-item>
+                    <el-form-item label="自动化覆盖率报告路径：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.itTestReportAddress"
+                                  v-show="stageName === 'ciPipelineAutoTestVOTest'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.itTestReportAddress"></el-input>
+                    </el-form-item>
+                    <el-form-item label="Gitlab父级pom.xml相对路径：" labelWidth="220px"
+                                  v-show="stageName === 'ciPipelineAutoTestVOTest'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.relativePath"></el-input>
+                    </el-form-item>
+                    <el-form-item label="jacoco includes：" labelWidth="220px"
+                                  v-show="stageName === 'ciPipelineAutoTestVOTest'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.includes"></el-input>
+                    </el-form-item>
+                    <el-form-item label="脚本：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.script"
+                                  v-show="stageName === 'ciPipelineAutoTestVOTest'">
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.script"></el-input>
+                    </el-form-item>
+                    <el-form-item label="手工确认：" labelWidth="220px" v-show="stageName === 'ciPipelineAutoTestVOTest'">
+                      <el-checkbox v-model="formData.ciPipelineAutoTestVOTest.inputChecked"></el-checkbox>
+                    </el-form-item>
+                    <!--自动化测试-end-->
+
                     <!--部署到联调环境-->
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployBetaEnv'">
                       <div style="display: flex; justify-content: space-between">
@@ -228,7 +259,7 @@
                         </div>
                       </div>
                     </el-form-item>
-                    <!--自动化测试-->
+                    <!--自动化测试-start-->
                     <el-form-item label="gitlab_ssh地址：" labelWidth="220px" prop="ciPipelineAutoTestVO.gitLabPath"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabPath"></el-input>
@@ -260,6 +291,7 @@
                     <el-form-item label="手工确认：" labelWidth="220px" v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-checkbox v-model="formData.ciPipelineAutoTestVO.inputChecked"></el-checkbox>
                     </el-form-item>
+                    <!--自动化测试-end-->
 
                     <!--上传测试报告-->
                     <el-form-item v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
@@ -566,7 +598,7 @@
                       }
                     }
                     .el-form-item {
-                      &.testAndSonarScript, &.mvnPackage-script, &.ciPipelineAutoTestVO {
+                      &.testAndSonarScript, &.mvnPackage-script, &.ciPipelineAutoTestVO, &.ciPipelineAutoTestVOTest {
                         .el-form-item__content {
                           line-height: 100%;
                         }
@@ -699,8 +731,8 @@
     'deployTestEnv': {
       description: '部署到测试环境'
     },
-    'ciPipelineAutoTestVO': {
-      description: '自动化测试'
+    'ciPipelineAutoTestVOTest': {
+      description: ['自动化测试', '(测试环境)']
     },
     'uploadUnitTestReportAndAutoTestReport': {
       description: '上传测试报告'
@@ -710,6 +742,9 @@
     },
     'deployBetaEnv': {
       description: '部署到联调环境'
+    },
+    'ciPipelineAutoTestVO': {
+      description: ['自动化测试', '(联调环境)']
     },
     'end': {
       description: 'end',
@@ -797,9 +832,10 @@
         'mvnPackage',  //打包
         'buildImage',  //制作镜像
         'deployTestEnv', //部署到测试环境
+        'ciPipelineAutoTestVOTest',  //自动化测试（测试环境）
         'functionValidate',  //功能测试（人工验证）
         'deployBetaEnv',  //部署到联调环境
-        'ciPipelineAutoTestVO',  //自动化测试
+        'ciPipelineAutoTestVO',  //自动化测试（联调环境）
         'uploadUnitTestReportAndAutoTestReport', // 上传测试报告
         'end'
       ].map(key => {
@@ -914,6 +950,17 @@
             inputChecked: false,
             selected: false,
           },
+          // 自动化测试（测试环境）
+          ciPipelineAutoTestVOTest: {
+            gitLabBranch: '', // gitlab分支 ,
+            gitLabPath: '', // gitlab路径 SSH ,
+            inputChecked: '', // 是否需要手工确认 ,
+            itTestReportAddress: '', // 自动化覆盖率报告目录[相对地址即可] ,
+            relativePath: '', // Gitlab父级pom.xml相对路径 ,
+            script: '', // 脚本名称 ,
+            includes: '',
+            selected: '', //节点是否选中
+          },
           // 功能测试（人工验证）
           functionValidate: {
             selected: false,
@@ -924,7 +971,7 @@
             inputChecked: false,
             selected: false,
           },
-          // 自动化测试
+          // 自动化测试（联调环境）
           ciPipelineAutoTestVO: {
             gitLabBranch: '', // gitlab分支 ,
             gitLabPath: '', // gitlab路径 SSH ,
@@ -1003,6 +1050,45 @@
                 required: true,
                 requiredOrigin: true,
                 message: '请填写打包脚本'
+              }]
+            }
+          },
+          ciPipelineAutoTestVOTest: {
+            type: 'object',
+            fields: {
+              gitLabBranch: [{
+                type: "string",
+                required: true,
+                trigger: ['blur', 'change'],
+                requiredOrigin: true,
+                message: '请填写gitlab分支'
+              }],
+              gitLabPath: [{
+                type: "string",
+                required: true,
+                requiredOrigin: true,
+                trigger: ['blur', 'change'],
+                message: '请填写ssh格式的gitlab路径'
+              }],
+              relativePath: [{
+                type: "string",
+                required: false,
+                requiredOrigin: false,
+                message: '请填写ssh格式的gitlab路径'
+              }],
+              itTestReportAddress: [{
+                type: "string",
+                required: true,
+                trigger: ['blur', 'change'],
+                requiredOrigin: true,
+                message: '请填写自动化覆盖率报告路径[相对地址即可] '
+              }],
+              script: [{
+                type: "string",
+                required: true,
+                trigger: ['blur', 'change'],
+                requiredOrigin: true,
+                message: '请填写脚本名称'
               }]
             }
           },
@@ -1281,7 +1367,7 @@
       // 根据pipeline结点的选择情况，更新formRules
       updateFormDataRules() {
         // fix rules for 'testAndSonarScript', 'mvnPackage', 'autoSciPipelineAutoTestVOcript'
-        var pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'ciPipelineAutoTestVO', 'uploadUnitTestReportAndAutoTestReport'];//.concat(['sonarCheck']);
+        var pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'ciPipelineAutoTestVO',  'ciPipelineAutoTestVOTest', 'uploadUnitTestReportAndAutoTestReport'];//.concat(['sonarCheck']);
         pipelineStageList.forEach(it => {
           const required = this.formData[it]['selected'];
           this.formDataRules[it]['required'] = required;
@@ -1574,7 +1660,7 @@
                 if (firstFields.indexOf('.') > -1) {
                   firstFields = firstFields.split('.')[0];
                 }
-                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'buildImage', 'ciPipelineAutoTestVO',
+                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'buildImage', 'ciPipelineAutoTestVO', 'ciPipelineAutoTestVOTest',
                   'uploadUnitTestReportAndAutoTestReport', 'sonarCheck'];
                 if (pipelineStageList.indexOf(firstFields) > -1) {
                   this.setActiveStageByName(firstFields);

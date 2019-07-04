@@ -15,7 +15,12 @@
       </svg>
       <span v-else>{{item.index ? item.index : ''}}</span>
     </div>
-    <div class="description">{{item.description}}</div>
+    <div class="description">
+      <div  v-if="Array.isArray(item.description)">
+        <div v-for="(line, index) in item.description" :key="index">{{line}}</div>
+      </div>
+      <span v-else>{{item.description}}</span>
+    </div>
     <div class="line"></div>
   </div>
 </template>
