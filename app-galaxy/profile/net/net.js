@@ -1595,7 +1595,8 @@ class Net extends NetBase {
           serviceVersion: service.serviceVersion,
           volume: service.volume,
           subPath: service.subPath,
-          claimName: service.claimName
+          claimName: service.claimName,
+          enableJacoco: !!service.enableJacoco
         };
 
         /** copy prop */
