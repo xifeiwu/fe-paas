@@ -28,15 +28,25 @@
                 <el-input size="mini-extral" v-model="formData.gitLabBranch" placeholder="请输入项目的gitLab分支，支持正表达式"></el-input>
               </el-form-item>
               <el-form-item label="webhook配置" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooks" class="webhook-config big">
-                <div class="webhook-config-content">
-                  <span>{{formData.webHooks.webHooksUrl}}</span>
-                  <div class="more-config">
-                    <span style="color: black; font-weight: bold; font-size: 14px; line-height: 24px; vertical-align: middle; margin-left: 20px;">hook类型：</span>
-                    <el-radio-group v-model="formData.webHooks.webHooksSelectedEvent">
+                <div  class="webhook-config-content">
+                  <div class="item">
+                    <span>{{formData.webHooks.webHooksUrl}}</span>
+                  </div>
+                  <div class="item">
+                    <label>hook类型</label>
+                    <el-radio-group v-model="formData.webHooks.webHooksSelectedEvent" :disabled="!formData.webHooks.selected">
                       <el-radio v-for="(item, index) in pipelineInfoFromNet.webHooks.webHooksEvent" :label="item" :key="item">{{item}}</el-radio>
                     </el-radio-group>
-                    <span style="color: black; font-weight: bold; font-size: 14px; line-height: 24px; vertical-align: middle; margin-left: 20px;">是否生效：</span>
-                    <el-checkbox v-model="formData.webHooks.selected"></el-checkbox>
+                  </div>
+                  <div class="item">
+                    <label>目标分支</label>
+                    <el-input size="mini" style="width: 160px;" :disabled="!formData.webHooks.selected"></el-input>
+                  </div>
+                  <div class="item">
+                    <label>是否生效</label>
+                    <el-switch v-model="formData.webHooks.selected"
+                               active-color="#13ce66"
+                               inactive-color="#ff4949"></el-switch>
                   </div>
                 </div>
               </el-form-item>
@@ -251,7 +261,7 @@
                     </el-form-item>
 
                     <!--上传测试报告-->
-                    <el-form-item>
+                    <el-form-item v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
                       <div style="color: #eb9e05; font-size: 12px">
                         <i class="el-icon-warning"></i>
                         <span>可在sonar中查看测试报告</span>
@@ -444,11 +454,22 @@
               .el-form-item.webhook-config {
                 .webhook-config-content {
                   display: flex;
-                  .more-config {
-                    flex: 1;
+                  align-items: center;
+                  .item {
+                    margin-left: 12px;
+                    & > label {
+                      color: black;
+                      font-weight: bold;
+                      font-size: 14px;
+                      line-height: 24px;
+                      vertical-align: middle;
+                    }
                   }
                   .el-input {
                     max-width: 500px;
+                  }
+                  .el-radio + .el-radio {
+                    margin-left: 8px;
                   }
                   .el-checkbox + .el-checkbox {
                     margin-left: 8px;
