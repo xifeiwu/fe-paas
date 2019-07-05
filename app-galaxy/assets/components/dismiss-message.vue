@@ -12,10 +12,13 @@
     flex-direction: row;
     & > .content {
       flex: 1;
-      padding: 0px 3px;
+      margin-top: 3px;
+      padding-left: 8px;
       background-color: #e6a23c;
-      color: black;
+      background-color: #eee;
+      color: #eb9e05;
       font-size: 12px;
+      font-weight: bold;
       line-height: 1.5;
       text-align: left;
     }

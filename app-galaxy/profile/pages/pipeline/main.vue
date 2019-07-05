@@ -39,8 +39,16 @@
             <a href="http://sonar.puhuitech.cn" target="_blank" style="color: #409EFF">跳转Sonar首页</a>
             <i class="paas-icon-level-up"></i>
           </span>
+          <div class="toggle-warning">
+            <i class="paas-icon-double-arrow-right" style="transform: rotate(270deg); " v-if="showWarning" @click="showWarning = false"></i>
+            <i class="paas-icon-fa-question" v-if="!showWarning" @click="showWarning = true"></i>
+          </div>
         </div>
       </div>
+      <paas-dismiss-message :active="showWarning"
+                            @status-change="active => {this.showWarning = active; onScreenSizeChange()}"
+                            style="margin-left: -5px; margin-right: -5px;"
+                            :msgList="['目前pipeline只支持Java语言的“平台构建镜像”方式，不支持自定义镜像']"></paas-dismiss-message>
     </div>
     <div class="pipeline-list">
       <el-table
@@ -195,6 +203,12 @@
       .el-select {
         width: 180px;
       }
+      .toggle-warning {
+        display: inline-block;
+        line-height: 24px;
+        margin-left: 12px;
+        color: #eb9e05;
+      }
     }
   }
 </style>
@@ -233,6 +247,7 @@
 
 <script>
   import {mapGetters} from 'vuex';
+  import paasDismissMessage from 'assets/components/dismiss-message.vue';
 
   const STATUS_LIST = [{
     status: '',
@@ -268,6 +283,7 @@
   const ID_FOR_ALL = '';
   
   export default {
+    components: {paasDismissMessage},
     created() {
       this.STATUS_LIST = STATUS_LIST;
     },
@@ -278,6 +294,8 @@
     },
     data() {
       return {
+        showWarning: true,
+
         selectedAppId: '',
         selectedStatus: '',
         keyFilter: '',
@@ -332,10 +350,9 @@
       },
     },
     methods: {
-
       onScreenSizeChange(size) {
         if (!size) {
-          return;
+          size = this.$storeHelper.screen.size;
         }
         try {
           const headerNode = this.$el.querySelector(':scope > .header');

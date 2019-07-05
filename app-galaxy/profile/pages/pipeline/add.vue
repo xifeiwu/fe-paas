@@ -21,7 +21,7 @@
               <el-form-item label="Pipeline描述" prop="pipelineDescription">
                 <el-input size="mini-extral" v-model="formData.pipelineDescription"></el-input>
               </el-form-item>
-              <el-form-item label="gitlab仓库" prop="gitLabPath">
+              <el-form-item label="gitlab_ssh地址" prop="gitLabPath">
                 <el-input size="mini-extral" v-model="formData.gitLabPath"></el-input>
               </el-form-item>
               <el-form-item label="gitlab分支" prop="gitLabBranch">
@@ -218,7 +218,7 @@
                       </div>
                     </el-form-item>
                     <!--自动化测试-->
-                    <el-form-item label="gitlab路径：" labelWidth="220px" prop="ciPipelineAutoTestVO.gitLabPath"
+                    <el-form-item label="gitlab_ssh地址：" labelWidth="220px" prop="ciPipelineAutoTestVO.gitLabPath"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabPath"></el-input>
                     </el-form-item>
@@ -251,6 +251,12 @@
                     </el-form-item>
 
                     <!--上传测试报告-->
+                    <el-form-item>
+                      <div style="color: #eb9e05; font-size: 12px">
+                        <i class="el-icon-warning"></i>
+                        <span>可在sonar中查看测试报告</span>
+                      </div>
+                    </el-form-item>
                     <el-form-item label="脚本：" labelWidth="160px" prop="uploadUnitTestReportAndAutoTestReport.script"
                                   v-show="stageName === 'uploadUnitTestReportAndAutoTestReport' && false">
                       <el-input size="mini-extral" v-model="formData.uploadUnitTestReportAndAutoTestReport.script"></el-input>
@@ -397,7 +403,7 @@
       }
       .section-config {
         border: 1px solid #cccccc;
-        padding: 10px;
+        padding: 10px 4px;
         /*background: #f9f9f9;*/
         background-color: white;
         box-sizing: border-box;
