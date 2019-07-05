@@ -1116,6 +1116,8 @@
           // 如果开启jacoco，则端口映射的目标端口只能为8144
           if (useJacoco) {
             this.formData.portMap.containerPort = 8144;
+          } else {
+            this.formData.portMap.containerPort = '';
           }
         }
       },
