@@ -1,9 +1,6 @@
 <template>
   <div id="work-order-list">
     <div class="header">
-      <paas-dismiss-message @resize="onScreenSizeChange"
-                            style="margin-left: -5px; margin-top: -5px; margin-right: -5px;"
-              :msgList="['默认只查询非结束状态的工单，如需查看已结束的工单，请在审批状态下拉列表中选择“结束”选项']"></paas-dismiss-message>
       <div class="item">
         <el-checkbox v-model="searchForm.onlyUndone" v-if="false">未完成工单</el-checkbox>
         <label>审批状态:</label>
@@ -47,7 +44,15 @@
             @click="handleButtonClick('work-order_download', '', $event)">
           <i class="el-icon-download"></i><span>下载工单</span>
         </el-button>
+        <div class="toggle-warning">
+          <i class="paas-icon-double-arrow-right" style="transform: rotate(270deg); " v-if="showWarning" @click="showWarning = false"></i>
+          <i class="paas-icon-fa-question" v-if="!showWarning" @click="showWarning = true"></i>
+        </div>
       </div>
+      <paas-dismiss-message :active="showWarning"
+                            @status-change="active => {this.showWarning = active; onScreenSizeChange()}"
+                            style="margin-left: -5px; margin-right: -5px;"
+                            :msgList="['默认只查询非结束状态的工单，如需查看已结束的工单，请在审批状态下拉列表中选择“结束”选项']"></paas-dismiss-message>
     </div>
     <div class="work-order-list">
       <el-table :data="workOrderListByPage"
@@ -257,6 +262,12 @@
           }
         }
       }
+      .toggle-warning {
+        display: inline-block;
+        line-height: 24px;
+        margin-left: 12px;
+        color: #eb9e05;
+      }
     }
     /*not used*/
     .el-dialog {
@@ -296,6 +307,7 @@
     data() {
       return {
         heightOfTable: '',
+        showWarning: true,
 
         searchForm: {
           // workOrderName, creator通过filterKey进行假搜索

@@ -30,16 +30,16 @@
           <span>创建Pipeline</span>
           <i class="paas-icon-level-up" style="margin-left: 3px;"></i>
         </el-button>
-        <span style="line-height: 26px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-        <div style="display: inline-flex; align-items: center; margin-left: 8px; color: #409EFF">
-          <a href="http://wiki.puhuitech.cn/pages/viewpage.action?pageId=38576221" target="_blank" style="color: #409EFF">操作指导</a>
-          <i class="paas-icon-level-up"></i>
-          <span style="line-height: 26px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-          <a href="http://sonar.puhuitech.cn" target="_blank" style="color: #409EFF">跳转Sonar首页</a>
-          <i class="paas-icon-level-up"></i>
+        <div style="display: inline-flex; align-items: center; margin-left: 10px; color: #409EFF">
+          <span style="margin-left: 10px;">
+            <a href="http://wiki.puhuitech.cn/pages/viewpage.action?pageId=38576221" target="_blank" style="color: #409EFF">操作指导</a>
+            <i class="paas-icon-level-up"></i>
+          </span>
+          <span style="margin-left: 12px;">
+            <a href="http://sonar.puhuitech.cn" target="_blank" style="color: #409EFF">跳转Sonar首页</a>
+            <i class="paas-icon-level-up"></i>
+          </span>
         </div>
-
-
       </div>
     </div>
     <div class="pipeline-list">
