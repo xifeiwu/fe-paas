@@ -300,6 +300,12 @@
                         <span>此节点用于同时上传前面"sonar及单元测试"节点生成的单测覆盖率报告以及"自动化测试"节点生成的集成覆盖率报告，上传成功后，可在 Sonar 中查看覆盖率及 Sonar 检查报告</span>
                       </div>
                     </el-form-item>
+                    <el-form-item label="自动化覆盖率报告读取节点：" labelWidth="200px">
+                      <el-radio-group v-model="formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode">
+                        <el-radio v-for="(item, index) in [{name: 'test', description: '测试环境'}, {name: 'beta', description: '联调环境'}]"
+                                  :label="item.name" :key="index">{{item.description}}</el-radio>
+                      </el-radio-group>
+                    </el-form-item>
                     <el-form-item label="脚本：" labelWidth="160px" prop="uploadUnitTestReportAndAutoTestReport.script"
                                   v-show="stageName === 'uploadUnitTestReportAndAutoTestReport' && false">
                       <el-input size="mini-extral" v-model="formData.uploadUnitTestReportAndAutoTestReport.script"></el-input>
@@ -984,6 +990,7 @@
           },
           uploadUnitTestReportAndAutoTestReport: {
             script: '', // 脚本名称 ,
+            uploadAutoTestReportNode: 'test',
             inputChecked: '', // 是否需要手工确认 ,
             selected: '', //节点是否选中
           },
