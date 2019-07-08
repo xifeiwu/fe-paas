@@ -19,7 +19,7 @@
         </label>
       </div>
       <div class="item">
-        <el-input size="mini" placeholder="搜索Pipeline" suffix-icon="el-icon-search" class="search" v-model="keyFilter"></el-input>
+        <el-input size="mini-extral" placeholder="搜索Pipeline" suffix-icon="el-icon-search" class="search" v-model="keyFilter"></el-input>
       </div>
       <div class="item">
         <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'search')">

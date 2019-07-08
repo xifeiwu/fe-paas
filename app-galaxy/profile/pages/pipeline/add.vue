@@ -40,7 +40,8 @@
                   </div>
                   <div class="item">
                     <label>目标分支</label>
-                    <el-input size="mini" style="width: 160px;" :disabled="!formData.webHooks.selected"></el-input>
+                    <el-input size="mini" style="width: 160px;" placeholder="支持正则表达式"
+                              v-model="formData.webHooks.hookBranch" :disabled="!formData.webHooks.selected"></el-input>
                   </div>
                   <div class="item">
                     <label>是否生效</label>
@@ -873,6 +874,7 @@
           webHooks: {
             selected: false,
             webHooksSelectedEvent: [],
+            hookBranch: '',
             webHooksUrl: ''
           },
           // 自定义参数构建
@@ -1104,44 +1106,6 @@
           readOnly: false,
           viewportMargin: 10
         },
-        script: `stage ('制作镜像(Image)') {
-   if ('false' == customImage) {
-       if ('JAR'== packageType) {
-           sh 'docker login -u ' + harborUser + ' -p ' + harborPassword + ' ' + harborAddress
-           sh 'mkdir agent'
-           dir('agent') {
-               checkout([
-                   $class: 'GitSCM',
-                   branches: [[name: '*/production']],
-                   doGenerateSubmoduleConfigurations: false,
-                   extensions: [],
-                   submoduleCfg: [],
-                   userRemoteConfigs: [
-                       [credentialsId: credentialsId,
-                       url: eagleeyeGitAddr]
-                   ]
-               ])
-           }//dir
-           writeFile file: serviceName + '/Dockerfile.' + fullImage, text: '''
-               FROM ''' + basicImageEagleEye + '''
-               ADD ''' + serviceName + '''/target/ /data/''' + serviceName + '''/
-               RUN mkdir -p /data/agent/godeyes
-               RUN mkdir -p /data/agent/godeyes/plugins
-               COPY agent/agent-package/monitor-agent-core-1.0.2.jar /data/agent/godeyes/godeyes-agent-SNAPSHOT.jar
-               COPY agent/agent-package/plugins /data/agent/godeyes/plugins
-               CMD ['/data/run_all.sh']'''
-           sh 'docker build -f ' + serviceName + '/Dockerfile.' + fullImage + ' -t ' + fullImage + ' .'
-           sh 'docker push ' + fullImage
-           sh 'docker rmi ' + fullImage
-       } else if ('ZIP' == packageType) {
-           //zip build
-       } else if ('WAR' == packageType) {
-           //war build
-       }
-   } else {
-       //build image nothing
-   }
-}//image`
       }
     },
     watch: {
