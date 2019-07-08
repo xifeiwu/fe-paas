@@ -171,6 +171,15 @@
                   <span>未知</span>
                 </div>
               </el-form-item>
+              <el-form-item label="Git地址">
+                {{runningInfo["gitAddress"] ? runningInfo["gitAddress"] : "未知"}}
+              </el-form-item>
+              <el-form-item label="Git分支">
+                {{runningInfo["gitBranch"] ? runningInfo["gitBranch"] : "未知"}}
+              </el-form-item>
+              <el-form-item label="Git Commit">
+                {{runningInfo["gitCommitId"] ? runningInfo["gitCommitId"] : "未知"}}
+              </el-form-item>
             </el-form>
           </div>
         </div>
@@ -969,7 +978,9 @@
         }
         let payload = {
           appId: appId,
-          spaceId: profileId
+          spaceId: profileId,
+          groupTag: this.$storeHelper.groupInfo.tag,
+          buildName: this.dataPassed.serviceInfo.tag
         };
         this.$net.requestPaasServer(this.$net.URL_LIST.service_info_running, {payload}).then(resContent => {
           if (resContent.hasOwnProperty("applicationConfigDeployment")) {
