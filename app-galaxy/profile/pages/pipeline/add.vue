@@ -89,6 +89,11 @@
                   </el-col>
                 </el-row>
               </el-form-item>
+              <el-form-item label="保留本次构建记录" labelWidth="200px" v-if="showMoreConfig && this.$storeHelper.getUserInfo('role') == '平台管理员'" >
+                <el-switch v-model="formData.saveLastBuild"
+                           active-color="#13ce66"
+                           inactive-color="#ff4949"></el-switch>
+              </el-form-item>
               <el-form-item class="expand big">
                 <div class="more" @click="handleClick($event, 'more-config')">
                   <span v-if="showMoreConfig">收起更多配置</span><span v-else>更多配置</span>
@@ -933,6 +938,8 @@
             hookBranch: '',
             webHooksUrl: ''
           },
+          // 保留最后一次构建记录
+          saveLastBuild: false,
           // 自定义参数构建
           defList: [],
           // sonar及单元测试
