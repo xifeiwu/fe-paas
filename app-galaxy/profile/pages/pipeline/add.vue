@@ -137,7 +137,7 @@
                     <!--sonar及单元测试-->
                     <el-form-item label="Sonar及单元测试脚本：" labelWidth="180px" class="testAndSonarScript"
                                   prop="testAndSonarScript" :multiFields="true"
-                                  v-if="stageName === 'testAndSonarScript'">
+                                  v-show="stageName === 'testAndSonarScript'">
                       <codemirror v-model="formData.testAndSonarScript.script" :options="groovyOption"></codemirror>
                     </el-form-item>
                     <!--sonar及单元测试-->
@@ -160,14 +160,14 @@
                       </el-popover>
                     </el-form-item>
                     <!--sonar数据检查-->
-                    <el-form-item label="检查项：" class="sonarCheck" v-if="stageName === 'sonarCheck'" prop="sonarCheck.unitTestRatio">
+                    <el-form-item label="检查项：" class="sonarCheck" v-show="stageName === 'sonarCheck'" prop="sonarCheck.unitTestRatio">
                       <div class="sonarCheck-unitTestRatio"><el-checkbox v-model="formData['sonarCheck']['unitTestSelected']"></el-checkbox>
                         <span>当单元测试行覆盖率≥</span>
                         <el-input v-model="formData.sonarCheck.unitTestRatio"></el-input>
                         <span>%时通过；反之不通过</span>
                       </div>
                     </el-form-item>
-                    <el-form-item class="sonarCheck" v-if="stageName === 'sonarCheck'" prop="sonarCheck.codeDebt">
+                    <el-form-item class="sonarCheck" v-show="stageName === 'sonarCheck'" prop="sonarCheck.codeDebt">
                       <div class="sonarCheck-codeDebt"><el-checkbox v-model="formData['sonarCheck']['codeDebtSelected']"></el-checkbox>
                         <span>当技术债时间≤</span>
                         <el-input v-model="formData.sonarCheck.codeDebt"></el-input>
@@ -180,7 +180,7 @@
                     </el-form-item>
                     <!--打包-->
                     <el-form-item label="打包脚本：" class="mvnPackage-script" prop="mvnPackage" :multiFields="true"
-                                  v-if="stageName === 'mvnPackage'">
+                                  v-show="stageName === 'mvnPackage'">
                       <codemirror v-model="formData.mvnPackage.script" :options="groovyOption"></codemirror>
                     </el-form-item>
                     <!--打包-->
@@ -188,7 +188,7 @@
                       <el-checkbox v-model="formData.mvnPackage.inputChecked"></el-checkbox>
                     </el-form-item>
                     <!--制作镜像-->
-                    <el-form-item label="基础镜像：" class="buildImage" v-if="stageName === 'buildImage'" prop="buildImage" :multiFields="true">
+                    <el-form-item label="基础镜像：" class="buildImage" v-show="stageName === 'buildImage'" prop="buildImage" :multiFields="true">
                       <el-select v-model="formData.buildImage.selectedImage" placeholder="请选择" popper-class="select-high">
                         <el-option v-for="(item, index) in pipelineInfoFromNet['buildImage']['basicImage']"
                                    :key="item.name" :value="item.name">
@@ -254,7 +254,7 @@
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.script"></el-input>
                     </el-form-item>
                     <!-- <el-form-item label="自动化测试：" class="ciPipelineAutoTestVO" prop="ciPipelineAutoTestVO" :multiFields="true"
-                                  v-if="stageName === 'ciPipelineAutoTestVO'">
+                                  v-show="stageName === 'ciPipelineAutoTestVO'">
                       <codemirror v-model="formData.ciPipelineAutoTestVO.script" :options="groovyOption"></codemirror>
                     </el-form-item> -->
                     <el-form-item label="手工确认：" labelWidth="220px" v-show="stageName === 'ciPipelineAutoTestVO'">
@@ -1563,9 +1563,9 @@
               } else {
                 this.requestUpdate();
               }
-//              console.log(validate);
+              // console.log(`validate: ${validate}`);
             } catch (err) {
-//              console.log(err);
+              // console.log(err);
               if (Array.isArray(err) && err.length > 1) {
                 var firstError = err[1];
                 var firstFields = firstError[0]['field'];
