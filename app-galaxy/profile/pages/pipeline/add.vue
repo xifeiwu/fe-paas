@@ -175,20 +175,32 @@
                       </el-popover>
                     </el-form-item>
                     <!--sonar数据检查-->
-                    <el-form-item label="检查项：" class="sonarCheck" v-show="stageName === 'sonarCheck'" prop="sonarCheck.unitTestRatio">
-                      <div class="sonarCheck-unitTestRatio"><el-checkbox v-model="formData['sonarCheck']['unitTestSelected']"></el-checkbox>
-                        <span>当单元测试行覆盖率≥</span>
-                        <el-input v-model="formData.sonarCheck.unitTestRatio" size="mini-extral" style="max-width: 60px;"></el-input>
-                        <span>%时通过；反之不通过</span>
+                    <div class="el-form-item el-form-item--mini sonarCheck" v-show="stageName === 'sonarCheck'">
+                      <div class="el-form-item__label" style="width: 120px; float: left">
+                        <span>检查项：</span>
                       </div>
-                    </el-form-item>
-                    <el-form-item class="sonarCheck" v-show="stageName === 'sonarCheck'" prop="sonarCheck.codeDebt">
-                      <div class="sonarCheck-codeDebt"><el-checkbox v-model="formData['sonarCheck']['codeDebtSelected']"></el-checkbox>
-                        <span>当技术债时间≤</span>
-                        <el-input v-model="formData.sonarCheck.codeDebt" size="mini-extral" style="max-width: 60px;"></el-input>
-                        <span>分钟时通过；反之不通过</span>
+                      <div class="el-form-item__content">
+                        <div class="message-tip">当</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheck.unitTestRatio">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheck']['unitTestSelected']"></el-checkbox>
+                            <span>单元测试行覆盖率≥</span>
+                            <el-input v-model="formData.sonarCheck.unitTestRatio" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>%</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheck.codeDebt">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheck']['codeDebtSelected']"></el-checkbox>
+                            <span>技术债时间≤</span>
+                            <el-input v-model="formData.sonarCheck.codeDebt" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>分钟</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">时通过，反之不通过</div>
                       </div>
-                    </el-form-item>
+                    </div>
                     <!--sonar数据检查-->
                     <el-form-item label="手工确认：" v-show="stageName === 'sonarCheck'">
                       <el-checkbox v-model="formData.sonarCheck.inputChecked"></el-checkbox>
@@ -635,9 +647,14 @@
                         }
                       }
                       &.sonarCheck {
+                        .el-form-item {
+                          display: inline-block;
+                        }
+                        .message-tip {
+                          display: inline-block;
+                          margin-bottom: 14px;
+                        }
                         .sonarCheck-unitTestRatio, .sonarCheck-codeDebt {
-                          .el-input {
-                          }
                         }
                         .sonarCheck-unitTestRatio {
                         }
