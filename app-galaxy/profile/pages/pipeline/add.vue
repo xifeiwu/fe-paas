@@ -163,14 +163,14 @@
                     <el-form-item label="检查项：" class="sonarCheck" v-show="stageName === 'sonarCheck'" prop="sonarCheck.unitTestRatio">
                       <div class="sonarCheck-unitTestRatio"><el-checkbox v-model="formData['sonarCheck']['unitTestSelected']"></el-checkbox>
                         <span>当单元测试行覆盖率≥</span>
-                        <el-input v-model="formData.sonarCheck.unitTestRatio"></el-input>
+                        <el-input v-model="formData.sonarCheck.unitTestRatio" size="mini-extral" style="max-width: 60px;"></el-input>
                         <span>%时通过；反之不通过</span>
                       </div>
                     </el-form-item>
                     <el-form-item class="sonarCheck" v-show="stageName === 'sonarCheck'" prop="sonarCheck.codeDebt">
                       <div class="sonarCheck-codeDebt"><el-checkbox v-model="formData['sonarCheck']['codeDebtSelected']"></el-checkbox>
                         <span>当技术债时间≤</span>
-                        <el-input v-model="formData.sonarCheck.codeDebt"></el-input>
+                        <el-input v-model="formData.sonarCheck.codeDebt" size="mini-extral" style="max-width: 60px;"></el-input>
                         <span>分钟时通过；反之不通过</span>
                       </div>
                     </el-form-item>
@@ -315,7 +315,7 @@
                     </el-form-item>
                   </el-form>
                   <div class="stage-change-selection">
-                    <span>删除结点 "{{currentStage.description}}"?</span>
+                    <span>删除结点 "{{Array.isArray(currentStage.description) ? currentStage.description.join('') : currentStage.description}}"?</span>
                     <el-button size="mini-extral" type="danger" @click="handleClick($event, 'stage-remove')">删除</el-button>
                   </div>
                 </div>
@@ -617,11 +617,9 @@
                       &.sonarCheck {
                         .sonarCheck-unitTestRatio, .sonarCheck-codeDebt {
                           .el-input {
-                            max-width: 120px;
                           }
                         }
                         .sonarCheck-unitTestRatio {
-                          margin-bottom: 3px;
                         }
                       }
                     }
