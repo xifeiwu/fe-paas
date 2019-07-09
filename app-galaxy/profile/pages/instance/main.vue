@@ -844,6 +844,13 @@
             }
             break;
           case 'go-to-page-terminal-from-instance':
+            if(row.status != '运行中'){
+              this.$storeHelper.globalPopover.show({
+                ref: evt.target,
+                msg: '非运行中的实例不能打开终端'
+              });
+               return;
+            }
             serviceInfo = this.$refs['version-selector'].getSelectedValue()[
               'selectedService'
             ];
@@ -866,6 +873,13 @@
             }
             break;
           case 'go-to-page-instance-terminal-from-instance':
+            if(row.status != '运行中'){
+              this.$storeHelper.globalPopover.show({
+                ref: evt.target,
+                msg: '非运行中的实例不能打开终端'
+              });
+              return;
+            }
             infoForPageTerminal = this.getInfoForPageInstanceTerminal(row);
             if (!infoForPageTerminal) {
               this.$message.error('所需信息不完整，请刷新页面重试！');
