@@ -203,6 +203,14 @@
                       :class="[$storeHelper.permission['copy-service'].disabled || publishStatus? 'disabled' : '', 'flex']">
                 <span>复制服务</span><i class="paas-icon-level-up"></i>
               </el-button>
+              <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
+              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
+                  size="small"
+                  type="text"
+                  @click="handleTRClick($event, 'update_affinity', scope.$index, scope.row)"
+                  :class="reason4DisableQuickDeploy(scope.row) || publishStatus? 'disabled' : 'danger'">
+                <span>亲和性设置</span><i class="paas-icon-level-up"></i>
+              </el-button>
             </div>
             <el-button
                     v-else
@@ -298,6 +306,22 @@
         <el-button type="primary"
                    @click="handleDialogEvent($event, actionNew.name)"
                    :loading="waitingResponse">确&nbsp认</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog title="亲和性配置错误信息" :visible.sync="affinityEditError"
+               class="confirm-dialog size-1000"
+               :close-on-click-modal="false"
+               @close="closeDialog"
+    >
+      <div class="el-message-box__message">
+        <el-scrollbar style="height: 500px; margin: 0px -5px;">
+          <div>{{affinityDescribeError}}}</div>
+        </el-scrollbar>
+      </div>
+
+      <span slot="footer" class="el-message-box__btns">
+        <el-button type="primary" @click="affinityEditError = false">确&nbsp认</el-button>
       </span>
     </el-dialog>
 
@@ -438,6 +462,30 @@
         <div v-for="(item,index) in deployLogs" :key="index" class="log-item" v-html="item"></div>
       </div>
     </paas-dialog-for-log>
+
+    <el-dialog :visible.sync="hasAffinity" top="30px" width="80%" :fullscreen="false"
+               v-loading="saveNodeAffinityLoading"
+               element-loading-text="正在保存"
+               element-loading-spinner="el-icon-loading"
+               element-loading-background="rgba(0, 0, 0, 0.8)"
+    >
+      <div class="py-3" style="width: 80%; text-align: left;">
+        <h4>
+            <span style="color: red;">
+            亲和性配置
+            </span>
+        </h4>
+      </div>
+      <div class="__editor">
+        <codemirror v-model="configOfNodeAffinity" :options="editorNodeAffinityOptions"></codemirror>
+      </div>
+
+      <div slot="footer" class="pa-3" style="text-align: center">
+        <el-button type="success" size="medium" @click="saveNodeAffinity()">&emsp;保 存 修 改&emsp;
+        </el-button>
+        <el-button type="danger" size="medium" @click="hasAffinity = false">&emsp;取 消 修 改&emsp;</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <style lang="scss">
@@ -710,8 +758,21 @@
   import paasDialogForLog from '../components/dialog4log.vue';
   import { TableColumn, TableComponent } from '$components/custom/simple-table';
   import paasPopoverMessage from 'assets/components/popover-message';
+
+  import {codemirror} from "vue-codemirror";
+  import "codemirror/lib/codemirror.css";
+
+  // language
+  import "codemirror/mode/properties/properties.js";
+  import "codemirror/mode/yaml/yaml.js";
+  // theme
+  import "codemirror/theme/monokai.css";
+  // require active-line.js
+  import "codemirror/addon/selection/active-line.js";
+
   export default {
     components: {
+      codemirror,
       paasDialogForLog,
       CustomTableColumn: TableColumn,
       CustomTableComponent: TableComponent,
@@ -806,7 +867,7 @@
       'filterKey': 'onFilterKey',
       // changed by el-tab
       profileName(profileName) {
-//        console.log(`change profileName to ${profileName}`);
+       // console.log(`change profileName to ${profileName}`);
         const target = this.$storeHelper.profileListOfGroup.find(it => it.name === profileName);
         if (target) {
           this.profileInfo = target;
@@ -924,6 +985,21 @@
           errMsgForDomainName: '',
           // 校验规则：域名数组（大于一个小于五个，无域名后缀）
           errMsgForDomainList: ''
+        },
+        hasAffinity: false,
+        affinityEditError: false,
+        affinityDescribeError: "",
+        configOfNodeAffinity: "",
+        saveNodeAffinityLoading: '',
+        editorNodeAffinityOptions: {
+          tabSize: 4,
+          styleActiveLine: true,
+          lineNumbers: true,
+          line: true,
+          mode: "text/x-properties",
+          theme: "monokai",
+          readOnly: false,
+          viewportMargin: 10
         },
       }
     },
@@ -1670,6 +1746,37 @@
         this.$router.push(this.$net.page['profile/app/update']);
         return Promise.reject('请填写应用信息：维护者、LOB、Scrum');
       },
+
+      async saveNodeAffinity() {
+        this.saveNodeAffinityLoading = true;
+
+        // await this.$net.requestPaasServer(this.$net.URL_LIST.update_affinity_config, {
+        await this.$net.getResponse(this.$net.URL_LIST.update_affinity_config, {
+          payload: {
+            spaceId: this.profileInfo.id,
+            groupId: this.$storeHelper.groupInfo.id,
+            namespace: this.$storeHelper.groupInfo.tag,
+            affinityContent: this.configOfNodeAffinity,
+            configServiceName: this.action.row.serviceName
+          }
+        }).then(response => {
+          const resData = response.data;
+          if (resData.code && "ERR_UPDATE_AFFINITY_FORMAT_FAILED" === resData.code) {
+            // this.$message.warning(resData.msg);
+            this.affinityDescribeError = resData.msg;
+            this.affinityEditError = true;
+          } else {
+            this.$message.success("修改亲和性配置成功！");
+            this.hasAffinity = false;
+          }
+        }).catch(err => {
+          // console.log(err);
+          this.$message.error("保存配置失败，请联系云平台！");
+        }).finally(() => {
+          this.saveNodeAffinityLoading = false;
+        });
+      },
+
       async handleTRClick(evt, action, index, row) {
         var permission = action;
         if (['service_config_add','service_config_copy','service_delete', 'service_deploy', 'image_rollback',
@@ -1685,6 +1792,11 @@
         if (action == 'service_config_copy') {
           permission = 'copy-service'
         }
+        // 修改Node亲和性
+        if (action == 'update_affinity') {
+          permission = 'update_affinity'
+        }
+
         if (action === 'service_stop' && row.containerStatus.Total == 0) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
@@ -1692,6 +1804,15 @@
           });
           return;
         }
+
+        if (action === 'update_affinity' && row.containerStatus.Total == 0) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: `当前运行实例数为0，不能修改亲和性`
+          });
+          return;
+        }
+
         if (this.$storeHelper.permission.hasOwnProperty(permission) && this.$storeHelper.permission[permission].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
@@ -2034,6 +2155,27 @@
               this.props4CreateDomain.subDomainList = [];
             }
             break;
+          case 'update_affinity':
+            // console.log(this.action.row);
+            await this.$net.requestPaasServer(this.$net.URL_LIST.get_affinity_config, {
+              payload: {
+                spaceId: this.profileInfo.id,
+                groupId: this.$storeHelper.groupInfo.id,
+                namespace: this.$storeHelper.groupInfo.tag,
+                configServiceName: this.action.row.serviceName
+              }
+            }).then(resp =>{
+              if (resp) {
+                this.configOfNodeAffinity = resp;
+              } else {
+                this.configOfNodeAffinity = "";
+              }
+              this.hasAffinity = true;
+            }).catch(error => {
+              console.log(error);
+            }).finally(()=> {
+            });
+            break;
         }
       },
 
@@ -2222,3 +2364,13 @@
     }
   }
 </script>
+
+<style lang="scss">
+  .__editor {
+    text-align: left;
+    min-height: 400px;
+    .CodeMirror {
+      min-height: 480px;
+    }
+  }
+</style>
