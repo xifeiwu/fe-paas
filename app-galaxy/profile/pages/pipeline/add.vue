@@ -52,7 +52,7 @@
                 </div>
               </el-form-item>
               <el-form-item label="构建参数" prop="defList" class="environments big" v-if="showMoreConfig" :error="formItemMsgForParam">
-                <el-row class="title">
+                <el-row class="title" style="font-size: 14px;">
                   <el-col :span="7" class="key">名称</el-col>
                   <el-col :span="7" class="value">默认值</el-col>
                   <el-col :span="8" class="remark">描述</el-col>
@@ -300,7 +300,7 @@
                         <span>此节点用于同时上传前面"sonar及单元测试"节点生成的单测覆盖率报告以及"自动化测试"节点生成的集成覆盖率报告，上传成功后，可在 Sonar 中查看覆盖率及 Sonar 检查报告</span>
                       </div>
                     </el-form-item>
-                    <el-form-item label="自动化覆盖率报告读取节点：" labelWidth="200px">
+                    <el-form-item label="自动化覆盖率报告读取节点：" labelWidth="200px" v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
                       <el-radio-group v-model="formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode">
                         <el-radio v-for="(item, index) in [{name: 'test', description: '测试环境'}, {name: 'beta', description: '联调环境'}]"
                                   :label="item.name" :key="index">{{item.description}}</el-radio>
