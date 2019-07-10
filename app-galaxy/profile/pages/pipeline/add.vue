@@ -138,7 +138,7 @@
                     <el-form-item label="Sonar及单元测试脚本：" labelWidth="180px" class="testAndSonarScript"
                                   prop="testAndSonarScript" :multiFields="true"
                                   v-show="stageName === 'testAndSonarScript'">
-                      <codemirror v-model="formData.testAndSonarScript.script" :options="groovyOption"></codemirror>
+                      <codemirror v-model="formData.testAndSonarScript.script" :options="groovyOption" ref="codemirror-sonar-and-unit-test"></codemirror>
                     </el-form-item>
                     <!--sonar及单元测试-->
                     <el-form-item label="手工确认：" labelWidth="180px" v-show="stageName === 'testAndSonarScript'">
@@ -181,7 +181,7 @@
                     <!--打包-->
                     <el-form-item label="打包脚本：" class="mvnPackage-script" prop="mvnPackage" :multiFields="true"
                                   v-show="stageName === 'mvnPackage'">
-                      <codemirror v-model="formData.mvnPackage.script" :options="groovyOption"></codemirror>
+                      <codemirror v-model="formData.mvnPackage.script" :options="groovyOption" ref="codemirror-mvn-package"></codemirror>
                     </el-form-item>
                     <!--打包-->
                     <el-form-item label="手工确认：" v-show="stageName === 'mvnPackage'">
@@ -670,6 +670,7 @@
   import "codemirror/theme/abcdef.css";
   // require active-line.js
   import "codemirror/addon/selection/active-line.js";
+  // import "codemirror/addon/display/autorefresh";
   import paasServiceInfo from './components/service-info.vue';
   import commonUtils from 'assets/components/mixins/common-utils';
 
@@ -1671,7 +1672,14 @@
         if (['start', 'download', 'end'].indexOf(stage.name) > -1) {
           return;
         }
-//        console.log(stage);
+        // console.log(stage);
+        for (let key in this.$refs) {
+          if (key.startsWith('codemirror-') && this.$utils.isFunction(this.$refs[key].refresh)) {
+            setTimeout(() => {
+              this.$refs[key].refresh();
+            }, 20);
+          }
+        }
         this.currentStage = stage;
         this.stageName = stage.name;
         this.currentStageNetInfo = this.pipelineInfoFromNet[stage.name];
