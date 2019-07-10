@@ -49,7 +49,7 @@
           <i class="paas-icon-fa-question" v-if="!showWarning" @click="showWarning = true"></i>
         </div>
       </div>
-      <paas-dismiss-message :active="showWarning"
+      <paas-dismiss-message :toExpand="showWarning"
                             @status-change="active => {this.showWarning = active; onScreenSizeChange()}"
                             style="margin-left: -5px; margin-right: -5px;"
                             :msgList="['默认只查询非结束状态的工单，如需查看已结束的工单，请在审批状态下拉列表中选择“结束”选项']"></paas-dismiss-message>

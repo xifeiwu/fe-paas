@@ -1,10 +1,11 @@
 <template>
-  <div :class="['paas-dismiss-message', expanded ? 'expanded' : 'shrinked']">
-    <custom-slide-up-down :active="slideActive" :duration="duration" class="content">
+  <div :class="{'paas-dismiss-message': true, 'expand': toExpand || expanding || expanded}">
+    <custom-slide-up-down :active="expanding" :duration="duration" class="content"
+                          @open-end="handleClick('open-end')" @close-end="handleClick('close-end')">
       <div v-for="item in msgList">{{item}}</div>
     </custom-slide-up-down>
-    <i class="paas-icon-double-arrow-right" style="transform: rotate(270deg)" @click="handleClick('shrink')"></i>
-    <i class="paas-icon-fa-question" @click="handleClick('expand')"></i>
+    <i v-if="false" lass="paas-icon-double-arrow-right" style="transform: rotate(270deg)" @click="handleClick('shrink')"></i>
+    <i v-if="false" class="paas-icon-fa-question" @click="handleClick('expand')"></i>
   </div>
 </template>
 <style lang="scss" scoped="">
@@ -30,21 +31,13 @@
       color: #eee;
     }
 
-    &.expanded {
+    &.expand {
       display: flex;
       /*& > i.paas-icon-double-arrow-right {*/
         /*display: inline-block;*/
       /*}*/
     }
-    &.shrinked {
-      /*display: inline-block;*/
-      .content {
-        display: none;
-      }
-      /*& > i.paas-icon-fa-question {*/
-        /*display: inline-block;*/
-      /*}*/
-    }
+    display: none;
   }
 </style>
 
@@ -53,7 +46,7 @@
     created() {
     },
     mounted() {
-      this.active ? this.expand() : this.shrink();
+      this.toExpand ? this.expand() : this.shrink();
     },
     props: {
       msgList: {
@@ -64,8 +57,8 @@
         type: Number,
         default: 10
       },
-      // 是否展示
-      active: {
+      // 开始展示动画
+      toExpand: {
         type: Boolean,
         default: true
       }
@@ -74,25 +67,22 @@
       return {
         intervalTag: null,
         showTimeCount: 0,
-        // 组件是否展开
-        expanded: null,
-        // 是否展示slide
-        slideActive: null,
+        // 动画进行中
+        expanding: null,
+        // 是否展示完成(is changed after transitionEnd)
+        expanded: false,
         // slide动画时间
         duration: 500,
       }
     },
     watch: {
-      active(active) {
-        if (active) {
+      toExpand(v) {
+        if (v) {
           this.expand();
         } else {
           this.shrink();
         }
       },
-      expanded(expand) {
-        this.$emit('status-change', expand);
-      }
     },
     methods: {
       clearInterval() {
@@ -103,8 +93,7 @@
         }
       },
       expand() {
-        this.expanded = true;
-        this.slideActive = true;
+        this.expanding = true;
         this.clearInterval();
         this.intervalTag = setInterval(() => {
           this.showTimeCount++;
@@ -114,19 +103,24 @@
         }, 1000);
       },
       shrink() {
-        this.slideActive = false;
+        this.expanding = false;
         this.clearInterval();
-        setTimeout(() => {
-          this.expanded = false;
-        }, this.duration);
       },
       handleClick(action) {
         switch (action) {
-          case 'expand':
-            this.expand();
+//          case 'expand':
+//            this.expand();
+//            break;
+//          case 'shrink':
+//            this.shrink();
+//            break;
+          case 'open-end':
+            this.expanded = true;
+            this.$emit('status-change', true);
             break;
-          case 'shrink':
-            this.shrink();
+          case 'close-end':
+            this.expanded = false;
+            this.$emit('status-change', false);
             break;
         }
       }
