@@ -333,6 +333,11 @@ class Net extends NetBase {
         method: 'post'
       },
 
+      'instance_info': {
+        path: '/instance?id={id}&appId={appId}&spaceId={spaceId}',
+        method: 'get'
+      },
+
       /** 域名相关 */
       // 外网域名列表
       'domain_list': {

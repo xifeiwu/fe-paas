@@ -851,6 +851,25 @@
               });
                return;
             }
+
+            let serviceInfo = this.checkVersionSelector();
+            if(!serviceInfo){
+              return;
+            }
+            let status = await this.$net.requestPaasServer(this.$net.URL_LIST.instance_info, {
+                  params: {
+                      appId: serviceInfo.selectedAPP.appId,
+                      id:row.id,
+                      spaceId:serviceInfo.selectedProfile.id
+                  }
+              });
+            if('Running'!=status){
+                this.$storeHelper.globalPopover.show({
+                    ref: evt.target,
+                    msg: '非运行中的实例不能打开终端'
+                });
+                return
+            }
             serviceInfo = this.$refs['version-selector'].getSelectedValue()[
               'selectedService'
             ];
