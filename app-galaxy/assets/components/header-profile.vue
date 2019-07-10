@@ -21,7 +21,7 @@
                 trigger="manual"
                 ref="popover_alert"
                 :title="alertMessage ? alertMessage.title : ''">
-        <el-scrollbar style="height: 400px; margin: 0px -5px;">
+        <el-scrollbar style="height: 200px; margin: 0px -5px;">
           <div class="content-alert markdown-body" v-html="alertMessage ? alertMessage.htmlContent : ''"></div>
         </el-scrollbar>
         <el-button type="primary" size="mini" @click="readMessage()">已阅</el-button>
