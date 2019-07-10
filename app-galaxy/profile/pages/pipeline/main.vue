@@ -141,7 +141,7 @@
             layout="prev,pager,next"
             :pageSize="pageSize"
             :total="totalSize"
-            @current-change="handlePaginationPageChange">
+            @current-change="page => currentPage = page">
           </el-pagination>
         </div>
       </div>
@@ -307,7 +307,7 @@
         filteredPipelineListByPage: [],
 
         totalSize: 0,
-        pageSize: 12,
+        pageSize: 10,
         currentPage: 1,
         heightOfTable: '',
 
@@ -339,14 +339,17 @@
     },
     watch: {
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
+      currentPage() {
+        this.updatePipelineListByPage();
+      },
       'selectedAppId': function () {
-        this.updatePipelineListByPage(false);
+        this.updatePipelineListByPage();
       },
       'selectedStatus': function () {
-        this.updatePipelineListByPage(false);
+        this.updatePipelineListByPage();
       },
       'keyFilter': function () {
-        this.updatePipelineListByPage(false);
+        this.updatePipelineListByPage();
       },
     },
     methods: {
@@ -357,8 +360,9 @@
         try {
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
+          // console.log(`headerHeight: ${headerHeight}`);
           this.heightOfTable = this.$el.clientHeight - headerHeight;
-          this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
+          // this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
         } catch(err) {
         }
       },
@@ -440,19 +444,11 @@
        * @param search
        * @returns {Promise.<void>}
        */
-      async updatePipelineListByPage(refresh) {
+      async updatePipelineListByPage(refresh = false) {
         if (refresh) {
           await this.requestPipelineList();
         }
         try {
-          this.currentPage = 1;
-          this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
-          let page = this.currentPage - 1;
-          page = page >= 0 ? page : 0;
-          const start = page * this.pageSize;
-          const length = this.pageSize;
-          const end = start + length;
-
           this.filteredPipelineList = this.pipelineList.filter(it => {
             // return true;
             if (this.selectedAppId === ID_FOR_ALL) {
@@ -477,6 +473,18 @@
             }
           });
           this.totalSize = this.filteredPipelineList.length;
+
+          // adjust currentPage for the change of totalSize
+          const totalPage = Math.ceil(this.totalSize / this.pageSize);
+          if (this.currentPage > totalPage) {
+            this.currentPage = totalPage;
+          }
+
+          var page = this.currentPage - 1;
+          page = page >= 0 ? page : 0;
+          const start = page * this.pageSize;
+          const length = this.pageSize;
+          const end = start + length;
           this.filteredPipelineListByPage = this.filteredPipelineList.slice(start, end);
 //          console.log(this.filteredPipelineListByPage);
         } catch(err) {
@@ -597,11 +605,6 @@
             break;
         }
       },
-
-      handlePaginationPageChange(page){
-        this.currentPage = page;
-        this.updatePipelineListByPage(false);
-      }
     }
   }
 </script>
