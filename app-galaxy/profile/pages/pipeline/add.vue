@@ -241,7 +241,7 @@
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.itTestReportAddress"></el-input>
                     </el-form-item>
-                    <el-form-item label="Gitlab父级pom.xml相对路径：" labelWidth="220px"
+                    <el-form-item label="项目根目录：" labelWidth="220px"
                       v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.relativePath"></el-input>
                     </el-form-item>
@@ -929,7 +929,7 @@
             gitLabPath: '', // gitlab路径 SSH ,
             inputChecked: '', // 是否需要手工确认 ,
             itTestReportAddress: '', // 自动化覆盖率报告目录[相对地址即可] ,
-            relativePath: '', // Gitlab父级pom.xml相对路径 ,
+            relativePath: '', // 项目根目录 ,
             script: '', // 脚本名称 ,
             includes: '',
             selected: '', //节点是否选中
