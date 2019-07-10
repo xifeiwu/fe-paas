@@ -114,7 +114,7 @@
           </el-option>
         </el-select>
         </el-form-item>
-        <el-form-item label="接受团队" prop="groupIdList" class="receive-group">
+        <el-form-item label="接收团队" prop="groupIdList" class="receive-group">
           <el-select filterable v-model="action.data.groupIdList" placeholder="请选择" multiple>
             <el-option v-for="(item,index) in groupListWithoutAll" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
@@ -306,7 +306,7 @@
           }],
           groupIdList: [{
             required: true,
-            message: '请选择接受团队',
+            message: '请选择接收团队',
           }, {
             validator(rule, values, callback) {
               if (values.length > 1 && values.indexOf(-1) > -1) {

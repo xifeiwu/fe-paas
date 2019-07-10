@@ -265,7 +265,7 @@
                     <el-form-item v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
                       <div style="color: #eb9e05; font-size: 12px">
                         <i class="el-icon-warning"></i>
-                        <span>可在sonar中查看测试报告</span>
+                        <span>此节点用于同时上传前面"sonar及单元测试"节点生成的单测覆盖率报告以及"自动化测试"节点生成的集成覆盖率报告，上传成功后，可在 Sonar 中查看覆盖率及 Sonar 检查报告</span>
                       </div>
                     </el-form-item>
                     <el-form-item label="脚本：" labelWidth="160px" prop="uploadUnitTestReportAndAutoTestReport.script"
