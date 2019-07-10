@@ -46,9 +46,9 @@
         <div v-else>继续吗？</div>
         <div style="display: flex; justify-content: space-around; margin-top: 8px;">
           <el-button type="primary" size="mini-extral" :loading="userInputInfo && userInputInfo.action == 'go-on'"
-                     @click="handleUserInput('go-on')">确定</el-button>
+                     @click="handleUserInput('go-on')">同意</el-button>
           <el-button type="danger" size="mini-extral" :loading="userInputInfo && userInputInfo.action == 'cancel'"
-                     @click="handleUserInput('cancel')">取消</el-button>
+                     @click="handleUserInput('cancel')">中止</el-button>
         </div>
       </div>
     </paas-popover-element-with-modal-mask>
@@ -363,7 +363,11 @@
         if (!userInputInfo) {
           return;
         }
-        this.$set(userInputInfo,"action",action);
+        // 短时间内两次点击会触发后台错误，避免短时双击
+        if (['go-on', 'cancel'].indexOf(userInputInfo.action) > -1) {
+          return;
+        }
+        userInputInfo.action = action;
         switch (action) {
           case 'go-on':
             await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_user_input_check, {

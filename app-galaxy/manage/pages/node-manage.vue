@@ -35,7 +35,8 @@
                 stripe
                 v-loading="loading"
                 :height="heightOfTable"
-                :default-sort="{prop: 'cpuRequest', order: 'descending'}">
+                :default-sort="tableSort"
+                @sort-change="onSortChange">
         <el-table-column label="节点名称" prop="nodeName" headerAlign="center" align="center" minWidth="80">
         </el-table-column>
         <el-table-column label="状态" prop="status" headerAlign="center" align="center" width="100">
@@ -53,26 +54,26 @@
             
           </template>
         </el-table-column>
-        <el-table-column label="CPU(Request/总共)" headerAlign="center" align="center" prop="cpuRequest" :sortable="true"
-                         :sort-by="cpuRequest" min-width="200px">
+        <el-table-column label="CPU(Request/总共)" headerAlign="center" align="center" prop="cpuRequest" sortable="custom"
+                         min-width="200px">
           <template slot-scope="scope">
             <span>{{scope.row.cpuRequest + '核 / ' + scope.row.cpuTotal + '核（' + scope.row.cpuRequestPercent + '%）' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="内存(Request/总共)" headerAlign="center" align="center" :sortable="true" prop="memoryRequest"
-                         min-width="190px" :sort-by="memoryRequest">
+        <el-table-column label="内存(Request/总共)" headerAlign="center" align="center" sortable="custom" prop="memoryRequest"
+                         min-width="190px">
           <template slot-scope="scope">
             <span>{{scope.row.memoryRequest + 'G / ' + scope.row.memoryTotal + 'G（' + scope.row.memoryRequestPercent + '%）' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="CPU(Limit/总共)" headerAlign="center" align="center" :sortable="true" min-width="180px"
-                         prop="cpuLimit" :sort-by="cpuLimit">
+        <el-table-column label="CPU(Limit/总共)" headerAlign="center" align="center" sortable="custom" min-width="180px"
+                         prop="cpuLimit">
           <template slot-scope="scope">
             <span>{{`${scope.row.cpuLimit}核 / ${scope.row.cpuTotal}核 (${scope.row.cpuLimitPercent}%)`}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="内存(Limit/总共)" headerAlign="center" align="center" sortable min-width="180px" prop="memoryLimit"
-                         :sortable="true" :sort-by="memoryLimit">
+        <el-table-column label="内存(Limit/总共)" headerAlign="center" align="center" sortable="custom" min-width="180px" prop="memoryLimit"
+                         :sortable="true">
           <template slot-scope="scope">
             <span>{{`${scope.row.memoryLimit}G / ${scope.row.memoryTotal}G (${scope.row.memoryLimitPercent}%)`}}</span>
           </template>
@@ -85,7 +86,7 @@
         </el-table-column>
         <el-table-column label="操作系统" prop="os" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" :sortable="true" @sort-method="sort">
+        <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" :sortable="true">
           <template slot-scope="scope">
             {{scope.row.createTimeYMD}}<br/>
             {{scope.row.createTimeHMS}}
@@ -301,7 +302,7 @@
         totalSize: 0,
         pageSize: 10,
         currentPage: 1,
-
+        tableSort: {prop: 'cpuRequest', order: 'descending'},
       }
     },
     watch: {
@@ -328,7 +329,7 @@
           await this.requestNodeList();
         }
         // update pageSize by screen size
-        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 5;
+        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 2;
         var page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
         const start = page * this.pageSize;
@@ -350,6 +351,7 @@
         }
         this.totalSize = this.nodeListFilter.length;
         this.nodeListByPage = this.nodeListFilter.slice(start, end);
+        this.onSortChange({prop: 'cpuRequest', order: 'descending'});
       },
 
       // request node list
@@ -462,6 +464,27 @@
         this.currentPage = page;
         this.computedNodeList();
       },
+
+      onSortChange(tableSort) {
+        console.log(tableSort);
+        this.tableSort = tableSort;
+        let sortKey = this.tableSort.prop;
+        let sortOrder = this.tableSort.order;
+        this.nodeListByPage.sort((pre, next) => {
+          let result = pre[sortKey] - next[sortKey];
+          switch (sortOrder) {
+            case "ascending":
+              break;
+            case "descending":
+              result = -1 * result;
+              break;
+            default:
+              result = 0;
+              break;
+          }
+          return result;
+        })
+      }
 
     }
   }

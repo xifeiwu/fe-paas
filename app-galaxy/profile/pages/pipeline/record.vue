@@ -643,9 +643,9 @@
           return;
         }
         // 短时间内两次点击会触发后台错误，避免短时双击
-//        if (['go-on', 'cancel'].indexOf(userInputInfo.action) > -1) {
-//          return;
-//        }
+       if (['go-on', 'cancel'].indexOf(userInputInfo.action) > -1) {
+         return;
+       }
         userInputInfo.action = action;
         switch (action) {
           case 'go-on':
