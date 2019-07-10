@@ -1829,7 +1829,7 @@ podAntiAffinity:
       async handleTRClick(evt, action, index, row) {
         var permission = action;
         if (['service_config_add','service_config_copy','service_delete', 'service_deploy', 'image_rollback',
-            'quick_deploy','service_config_modify','service_stop','service_update'].indexOf(action) > -1 && this.publishStatus) {
+            'quick_deploy','service_config_modify','service_stop','service_update', 'update_affinity'].indexOf(action) > -1 && this.publishStatus) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
