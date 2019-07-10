@@ -9,8 +9,6 @@ import Utils from 'assets/js/utils';
 
 import '$assets/css/fix-style.scss';
 import 'assets/css/common.scss';
-import '$assets/css/markdown-github.css';
-import '$assets/css/highlight.scss';
 
 
 /**
