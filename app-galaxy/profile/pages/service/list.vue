@@ -470,12 +470,61 @@
                element-loading-background="rgba(0, 0, 0, 0.8)"
     >
       <div class="py-3" style="width: 80%; text-align: left;">
-        <h4>
-            <span style="color: red;">
-            亲和性配置
-            </span>
+        <h4 style="display: inline;">
+          <span style="color: red;">
+          亲和性配置
+          </span>
         </h4>
+        <span>
+          <el-tooltip slot="trigger" effect="dark" placement="right">
+            <div slot="content">
+              <pre>
+模板样例如下：
+---
+nodeAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+    - matchExpressions:
+      - key: kubernetes.io/e2e-az-name
+        operator: In
+        values:
+        - e2e-az1
+        - e2e-az2
+  preferredDuringSchedulingIgnoredDuringExecution:
+  - weight: 1
+    preference:
+      matchExpressions:
+      - key: another-node-label-key
+        operator: In
+        values:
+        - another-node-label-value
+podAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+  - labelSelector:
+      matchExpressions:
+      - key: security
+        operator: In
+        values:
+        - S1
+    topologyKey: failure-domain.beta.kubernetes.io/zone
+podAntiAffinity:
+  preferredDuringSchedulingIgnoredDuringExecution:
+  - weight: 100
+    podAffinityTerm:
+      labelSelector:
+        matchExpressions:
+        - key: security
+          operator: In
+          values:
+          - S2
+      topologyKey: kubernetes.io/hostname
+              </pre>
+            </div>
+            <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
+          </el-tooltip>
+        </span>
       </div>
+
       <div class="__editor">
         <codemirror v-model="configOfNodeAffinity" :options="editorNodeAffinityOptions"></codemirror>
       </div>
