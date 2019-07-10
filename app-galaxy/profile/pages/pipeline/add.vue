@@ -1674,11 +1674,9 @@
         }
         // console.log(stage);
         for (let key in this.$refs) {
-          if (key.startsWith('codemirror-') && this.$utils.isFunction(this.$refs[key].refresh)) {
-            setTimeout(() => {
-              this.$refs[key].refresh();
-            }, 20);
-          }
+          setTimeout(() => {
+            key.startsWith('codemirror-') && this.$refs[key] && this.$utils.isFunction(this.$refs[key].refresh) && this.$refs[key].refresh();
+          }, 20);
         }
         this.currentStage = stage;
         this.stageName = stage.name;
