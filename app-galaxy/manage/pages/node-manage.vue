@@ -329,7 +329,7 @@
           await this.requestNodeList();
         }
         // update pageSize by screen size
-        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 2;
+        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 5;
         var page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
         const start = page * this.pageSize;
