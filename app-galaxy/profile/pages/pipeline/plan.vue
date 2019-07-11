@@ -45,10 +45,8 @@
         <div v-if="userInputInfo">{{userInputInfo.message}}</div>
         <div v-else>继续吗？</div>
         <div style="display: flex; justify-content: space-around; margin-top: 8px;">
-          <el-button type="primary" size="mini-extral" :loading="userInputInfo && userInputInfo.action == 'go-on'"
-                     @click="handleUserInput('go-on')">同意</el-button>
-          <el-button type="danger" size="mini-extral" :loading="userInputInfo && userInputInfo.action == 'cancel'"
-                     @click="handleUserInput('cancel')">中止</el-button>
+          <el-button type="primary" size="mini-extral" @click="handleUserInput('go-on')">同意</el-button>
+          <el-button type="danger" size="mini-extral" @click="handleUserInput('cancel')">中止</el-button>
         </div>
       </div>
     </paas-popover-element-with-modal-mask>
@@ -289,12 +287,7 @@
 
       async updatePopperForUserConfirm() {
         if (this.pipelineBuildingInfo && (this.pipelineBuildingInfo.status === 'PAUSED_PENDING_INPUT')) {
-          let userInputInfo = this.getUserInputInfo(this.pipelineBuildingInfo);
-          if (userInputInfo) {
-            userInputInfo.action = (this.userInputInfo && this.userInputInfo.action) ? this.userInputInfo.action : null;
-          }
-          this.userInputInfo = userInputInfo;
-
+          this.userInputInfo = this.getUserInputInfo(this.pipelineBuildingInfo);
           let nodeList = this.$el.querySelectorAll(`#plan-main .pipeline-run-result .stage`);
           let target = nodeList[nodeList.length - 1];
           if (!this.popperForUserConfirm.isShowing()) {
@@ -386,6 +379,7 @@
             });
             break;
         }
+        this.popperForUserConfirm.doClose();
       },
 
       // 更新stage列表中每个元素的index值
