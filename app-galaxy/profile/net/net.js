@@ -165,6 +165,16 @@ class Net extends NetBase {
         path: '/service/quickDeployApplicationService',
         method: 'post'
       },
+      // 获取亲和性配置
+      'get_affinity_config': {
+        path: '/service/getAffinityConfig',
+        method: 'post'
+      },
+      // 修改亲和性配置
+      'update_affinity_config': {
+        path: '/service/updateAffinityConfig',
+        method: 'post'
+      },
       // 检测服务端口映射
       'service_port_map_check': {
         path: '/service/checkPortMapping',
@@ -878,6 +888,10 @@ class Net extends NetBase {
       '/2.x/service/search/deployLog': 'go-to-page-log-deploy-from-service',
       // 镜像回滚
       '/2.x/service/rollback': 'image_rollback',
+      // 获取亲和性配置
+      '/2.x/service/getAffinity': 'get_affinity',
+      // 修改亲和性配置
+      '/2.x/service/updateAffinity': 'update_affinity',
 
       /** 实例相关 */
       // 手动伸缩
