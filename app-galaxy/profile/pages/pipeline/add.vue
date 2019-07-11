@@ -176,10 +176,10 @@
                     </el-form-item>
                     <!--sonar数据检查-->
                     <div class="el-form-item el-form-item--mini sonarCheck" v-show="stageName === 'sonarCheck'">
-                      <div class="el-form-item__label" style="width: 120px; float: left">
+                      <div class="el-form-item__label" style="width: 120px; float: left; z-index: 11">
                         <span>检查项：</span>
                       </div>
-                      <div class="el-form-item__content">
+                      <div class="el-form-item__content" style="margin-left: 120px;">
                         <div class="message-tip">当</div>
                         <el-form-item label="" labelWidth="0px" prop="sonarCheck.unitTestRatio">
                           <div>
@@ -190,6 +190,70 @@
                           </div>
                         </el-form-item>
                         <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheck.branchCoverage">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheck']['branchCoverageSelected']"></el-checkbox>
+                            <span>单元测试条件覆盖率≥</span>
+                            <el-input v-model="formData.sonarCheck.branchCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>%</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheck.itCoverage">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheck']['itCoverageSelected']"></el-checkbox>
+                            <span>集成测试行覆盖率≥</span>
+                            <el-input v-model="formData.sonarCheck.itCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>%</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheck.itBranchCoverage">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheck']['itBranchCoverageSelected']"></el-checkbox>
+                            <span>集成测试条件覆盖率≥</span>
+                            <el-input v-model="formData.sonarCheck.itBranchCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>%</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheck.blockerViolations">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheck']['blockerViolationsSelected']"></el-checkbox>
+                            <span>阻断问题数量≤</span>
+                            <el-input v-model="formData.sonarCheck.blockerViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>个</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheck.criticalViolations">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheck']['criticalViolationsSelected']"></el-checkbox>
+                            <span>严重问题数量≤</span>
+                            <el-input v-model="formData.sonarCheck.criticalViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>个</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheck.majorViolations">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheck']['majorViolationsSelected']"></el-checkbox>
+                            <span>主要问题数量≤</span>
+                            <el-input v-model="formData.sonarCheck.majorViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>个</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheck.minorViolations">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheck']['minorViolationsSelected']"></el-checkbox>
+                            <span>次要问题数量≤</span>
+                            <el-input v-model="formData.sonarCheck.minorViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>个</span>
+                          </div>
+                        </el-form-item>
+
+                        <div class="message-tip">，且</div>
                         <el-form-item label="" labelWidth="0px" prop="sonarCheck.codeDebt">
                           <div>
                             <el-checkbox v-model="formData['sonarCheck']['codeDebtSelected']"></el-checkbox>
@@ -198,7 +262,7 @@
                             <span>分钟</span>
                           </div>
                         </el-form-item>
-                        <div class="message-tip">时通过，反之不通过</div>
+                        <div class="message-tip" style="line-height: 28px;">时通过，反之不通过。</div>
                       </div>
                     </div>
                     <!--sonar数据检查-->
@@ -969,13 +1033,36 @@
           },
           // sonar数据检查
           sonarCheck: {
+            selected: false,
+            inputChecked: false,
             projectKeyWord: '',
-            codeDebt: '',
-            codeDebtSelected: false,
+            // 单元测试覆盖率
             unitTestRatio: '',
             unitTestSelected: false,
-            inputChecked: false,
-            selected: false,
+            // 单元测试条件覆盖率
+            branchCoverageSelected: false,
+            branchCoverage: '',
+            // 集成测试行覆盖率
+            itCoverage: '',
+            itCoverageSelected: false,
+            // 集成测试条件覆盖率
+            itBranchCoverageSelected: false,
+            itBranchCoverage: '',
+            // 阻断问题数量
+            blockerViolations: '',
+            blockerViolationsSelected: false,
+            // 严重问题数量
+            criticalViolations: '',
+            criticalViolationsSelected: false,
+            // 主要问题数量
+            majorViolations: '',
+            majorViolationsSelected: false,
+            // 次要问题数量
+            minorViolations: '',
+            minorViolationsSelected: false,
+            // 技术债时间
+            codeDebt: '',
+            codeDebtSelected: false,
           },
           // 打包
           mvnPackage: {
@@ -1291,6 +1378,60 @@
         if (this.emailProps.errMsg && this.$utils.getReg('mail').exec(value)) {
           this.emailProps.errMsg = '';
         }
+      },
+      'formData.sonarCheck.unitTestRatio' : function() {
+        this.updateSonarCheckQuota('updateCheckedByValue')
+      },
+      'formData.sonarCheck.branchCoverage' : function() {
+        this.updateSonarCheckQuota('updateCheckedByValue')
+      },
+      'formData.sonarCheck.itCoverage' : function() {
+        this.updateSonarCheckQuota('updateCheckedByValue')
+      },
+      'formData.sonarCheck.itBranchCoverage' : function() {
+        this.updateSonarCheckQuota('updateCheckedByValue')
+      },
+      'formData.sonarCheck.blockerViolations' : function() {
+        this.updateSonarCheckQuota('updateCheckedByValue')
+      },
+      'formData.sonarCheck.criticalViolations' : function() {
+        this.updateSonarCheckQuota('updateCheckedByValue')
+      },
+      'formData.sonarCheck.majorViolations' : function() {
+        this.updateSonarCheckQuota('updateCheckedByValue')
+      },
+      'formData.sonarCheck.minorViolations' : function() {
+        this.updateSonarCheckQuota('updateCheckedByValue')
+      },
+      'formData.sonarCheck.codeDebt' : function() {
+        this.updateSonarCheckQuota('updateCheckedByValue')
+      },
+      'formData.sonarCheck.unitTestSelected' : function() {
+        this.updateSonarCheckQuota('updateValueByChecked')
+      },
+      'formData.sonarCheck.branchCoverageSelected' : function() {
+        this.updateSonarCheckQuota('updateValueByChecked')
+      },
+      'formData.sonarCheck.itCoverageSelected' : function() {
+        this.updateSonarCheckQuota('updateValueByChecked')
+      },
+      'formData.sonarCheck.itBranchCoverageSelected' : function() {
+        this.updateSonarCheckQuota('updateValueByChecked')
+      },
+      'formData.sonarCheck.blockerViolationsSelected' : function() {
+        this.updateSonarCheckQuota('updateValueByChecked')
+      },
+      'formData.sonarCheck.criticalViolationsSelected' : function() {
+        this.updateSonarCheckQuota('updateValueByChecked')
+      },
+      'formData.sonarCheck.majorViolationsSelected' : function() {
+        this.updateSonarCheckQuota('updateValueByChecked')
+      },
+      'formData.sonarCheck.minorViolationsSelected' : function() {
+        this.updateSonarCheckQuota('updateValueByChecked')
+      },
+      'formData.sonarCheck.codeDebtSelected' : function() {
+        this.updateSonarCheckQuota('updateValueByChecked')
       }
     },
     computed: {
@@ -1415,6 +1556,43 @@
           } else {
             formData.webHooks.webHooksSelectedEvent = formData.webHooks.webHooksSelectedEvent[0]
           }
+        }
+        this.updateSonarCheckQuota('updateValueByChecked');
+      },
+      updateSonarCheckQuota(action) {
+        const sonarCheck = this.formData.sonarCheck;
+        const updateValueByChecked = () => {
+          !sonarCheck.unitTestSelected && (sonarCheck.unitTestRatio = '');
+          !sonarCheck.branchCoverageSelected && (sonarCheck.branchCoverage = '');
+          !sonarCheck.itCoverage && (sonarCheck.itCoverageSelected = '');
+          !sonarCheck.itBranchCoverageSelected && (sonarCheck.itBranchCoverage = '');
+          !sonarCheck.blockerViolationsSelected && (sonarCheck.blockerViolations = '');
+          !sonarCheck.criticalViolationsSelected && (sonarCheck.criticalViolations = '');
+          !sonarCheck.majorViolationsSelected && (sonarCheck.majorViolations = '');
+          !sonarCheck.minorViolationsSelected && (sonarCheck.minorViolations = '');
+          !sonarCheck.codeDebtSelected && (sonarCheck.codeDebt = '');
+        };
+        const updateCheckedByValue = () => {
+          sonarCheck.unitTestSelected = String(sonarCheck.unitTestRatio).trim() !== '';
+          sonarCheck.branchCoverageSelected = String(sonarCheck.branchCoverage).trim() !== '';
+          sonarCheck.itCoverageSelected = String(sonarCheck.itCoverage).trim() !== '';
+          sonarCheck.itBranchCoverageSelected = String(sonarCheck.itBranchCoverage).trim() !== '';
+          sonarCheck.blockerViolationsSelected = String(sonarCheck.blockerViolations).trim() !== '';
+          sonarCheck.criticalViolationsSelected = String(sonarCheck.criticalViolations).trim() !== '';
+          sonarCheck.majorViolationsSelected = String(sonarCheck.majorViolations).trim() !== '';
+          sonarCheck.minorViolationsSelected = String(sonarCheck.minorViolations).trim() !== '';
+          sonarCheck.codeDebtSelected = String(sonarCheck.codeDebt).trim() !== '';
+        };
+        switch (action) {
+          case 'updateValueByChecked':
+            updateValueByChecked();
+            break;
+          case 'updateCheckedByValue':
+            updateCheckedByValue();
+            break;
+          default:
+            console.log(`action ${action} not found!`);
+            break;
         }
       },
       // 更新stage列表中每个元素的index值
