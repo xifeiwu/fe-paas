@@ -134,6 +134,10 @@
                   </div>
                   <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" class="union-form"
                            ref="pipeline-script-form">
+                    <!--utExecutedPath-->
+                    <el-form-item label="执行脚本的相对目录：" labelWidth="180px">
+                      <el-input v-model="formData.testAndSonarScript.utExecutedPath" style="max-width: 500px"></el-input>
+                    </el-form-item>
                     <!--sonar及单元测试-->
                     <el-form-item label="Sonar及单元测试脚本：" labelWidth="180px" class="testAndSonarScript"
                                   prop="testAndSonarScript" :multiFields="true"
@@ -925,6 +929,8 @@
             script: '',
             inputChecked: false,
             selected: false,
+            // 执行脚本的相对目录
+            utExecutedPath: ''
           },
           // sonar数据检查
           sonarCheck: {
