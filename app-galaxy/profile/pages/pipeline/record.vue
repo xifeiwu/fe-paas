@@ -44,11 +44,10 @@
           headerAlign="center"
           align="center">
           <template slot-scope="scope">
-            <span :class="[{'success':scope.row.statusName == '成功','failure':scope.row.statusName == '失败',
+            <span :class="[{'success':scope.row.statusName == '成功','failure':scope.row.statusName == '失败', 'statusName': true,
              'building':scope.row.statusName == '构建中','suspension':scope.row.statusName == '中止', 'pause-pending':scope.row.status == 'PAUSED_PENDING_INPUT'},`build-${scope.row.buildNumber}-status`]"
-              id="statusName" @click="handlePendingInput(scope.row)">{{scope.row.statusName}}</span>
+              @click="handlePendingInput('open', scope.row)">{{scope.row.statusName}}</span>
             <span v-if="scope.row.status == 'PAUSED_PENDING_INPUT'"><i class="paas-icon-pointer-left"></i></span>
-            <!--{{scope.row.buildingStatus ? scope.row.buildingStatus : scope.row.statusName}}-->
           </template>
         </el-table-column>
         <el-table-column
@@ -105,7 +104,7 @@
             </el-button>
             <div class="ant-divider" v-if="scope.row['status'] !== 'IN_PROGRESS'"></div>
 
-            <el-button v-if="scope.row['status'] === 'IN_PROGRESS'"
+            <el-button v-if="['IN_PROGRESS', 'PAUSED_PENDING_INPUT'].indexOf(scope.row['status']) > -1"
                        type="text"
                        :class="['flex', 'primary']"
                        :loading="statusOfWaitingResponse('pipeline_building_log') && action.row.buildNumber == scope.row.buildNumber"
@@ -135,19 +134,15 @@
     <paas-dialog-for-log :showStatus="buildLogStatus" ref="dialogForBuildLog" @close="handleDialogClose">
       <div slot="content">
         <div v-for="(item, index) in buildLogStatus.logList" :key="index" class="log-item" v-html="item"></div>
-        <div v-if="lastBuildingRecord && this.lastBuildingRecord['status'] === 'PAUSED_PENDING_INPUT'">
-          <button type="button" class="el-button el-button--text" @click="handleLogPendingInput"><span>等待手动确认</span></button>
-          <span><i class="paas-icon-pointer-left"></i></span>
-        </div>
         <div class="log-item loading-line" v-if="buildLogStatus.loading"><i class="el-icon-loading item"></i></div>
-        <div class="last-item loading-line" v-else><span class="item"> </span></div>
+        <div class="last-item loading-line" v-else><span class="item">&nbsp</span></div>
       </div>
     </paas-dialog-for-log>
     <paas-popover-element-with-modal-mask ref="popover-for-user-confirm" popperClass="el-popover--small is-dark" title="等待用户确认"
-                                          placement="bottom" :closeOnLeave="false">
-      <div slot="content" style="font-size: 14px;">
-        <div v-if="userInputInfo">{{userInputInfo.message}}</div>
-        <div v-else>继续吗？</div>
+                                          placement="bottom" :closeOnLeave="false" @close="trigger => showPopperForUserConfirm = false">
+      <div slot="content" style="font-size: 14px;" v-if="userInputInfo">
+        <div>{{userInputInfo.message}}</div>
+        <div>继续吗？</div>
         <div style="display: flex; justify-content: space-around; margin-top: 8px;">
           <el-button type="primary" size="mini-extral" :loading="userInputInfo && userInputInfo.action == 'go-on'"
                      @click="handleUserInput('go-on')">同意</el-button>
@@ -216,7 +211,7 @@
     .record-list {
       .el-table {
         .el-table__row {
-          #statusName {
+          .statusName {
             &.success {
               color: #8cc04f;
             }
@@ -379,7 +374,8 @@
           visible: false,
           loading: false,
           logList: []
-        }
+        },
+        showPopperForUserConfirm: true
       }
     },
     computed: {
@@ -388,6 +384,17 @@
       }
     },
     watch: {
+      'buildLogStatus.visible': function (v) {
+        // showPopperForUserConfirm on open of dialog-BuildingLog
+        // timeout is set to make sure popper after dialog is updated
+        setTimeout(() => {
+          this.showPopperForUserConfirm = v;
+        }, 500);
+      },
+      // updatePopperForUserConfirm on change of showPopperForUserConfirm
+      showPopperForUserConfirm() {
+        this.updatePopperForUserConfirm()
+      }
     },
     methods: {
     	// 获取参数化构建的参数
@@ -619,24 +626,6 @@
         }
       },
 
-      // 获取等待用户确认的基本信息
-      getUserInputInfo(record) {
-        var result = null;
-        if (!record) {
-          return result;
-        }
-        if (record.status !== 'PAUSED_PENDING_INPUT') {
-          return result;
-        }
-        const userInputInfo = record['ciPipelineInputVO'];
-        if (!userInputInfo) {
-          return result;
-        }
-        if (userInputInfo.hasOwnProperty('proceedUrl') &&  userInputInfo.hasOwnProperty('abortUrl')) {
-          result = userInputInfo;
-        }
-        return result;
-      },
       async handleUserInput(action) {
         const userInputInfo = this.userInputInfo;
         if (!userInputInfo) {
@@ -665,6 +654,25 @@
         }
       },
 
+      // 获取等待用户确认的基本信息，only used by updatePopperForUserConfirm
+      getUserInputInfo(record) {
+        var result = null;
+        if (!record) {
+          return result;
+        }
+        if (record.status !== 'PAUSED_PENDING_INPUT') {
+          return result;
+        }
+        const userInputInfo = record['ciPipelineInputVO'];
+        if (!userInputInfo) {
+          return result;
+        }
+        if (userInputInfo.hasOwnProperty('proceedUrl') &&  userInputInfo.hasOwnProperty('abortUrl')) {
+          result = userInputInfo;
+        }
+        return result;
+      },
+      // 通过不断轮询，更新popover的状态
       async updatePopperForUserConfirm() {
         const lastBuildingRecord = this.lastBuildingRecord;
         if (lastBuildingRecord && (lastBuildingRecord.status === 'PAUSED_PENDING_INPUT')) {
@@ -673,19 +681,45 @@
             userInputInfo.action = (this.userInputInfo && this.userInputInfo.action) ? this.userInputInfo.action : null;
           }
           this.userInputInfo = userInputInfo;
+          var targetClass = `build-${lastBuildingRecord.buildNumber}-status`;
+          var target = this.$el.querySelector(`.record-list .el-table .${targetClass}`);
           if (this.buildLogStatus.visible) {
             if (this.$refs.hasOwnProperty('dialogForBuildLog')) {
               const dialogForDeployLog = this.$refs['dialogForBuildLog'];
               dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
-              let target = dialogForDeployLog.$el.querySelector('.loading-line .item');
+              target = dialogForDeployLog.$el.querySelector('.loading-line .item');
             }
           }
-//          console.log(targetClass);
-//          console.log(target);
+          // console.log(this.showPopperForUserConfirm);
+          // console.log(targetClass);
+          // console.log(target);
+          if (this.showPopperForUserConfirm) {
+            if (!this.popperForUserConfirm.isShowing() || this.popperForUserConfirm.reference != target) {
+              this.popperForUserConfirm.show({
+                ref: target
+              });
+            }
+          } else {
+            this.popperForUserConfirm.doClose();
+            this.userInputInfo = null;
+          }
         } else {
           this.popperForUserConfirm.doClose();
           this.userInputInfo = null;
           return 'can-quite';
+        }
+      },
+
+      handlePendingInput(action, data) {
+        if(data.status !== 'PAUSED_PENDING_INPUT') {
+          return;
+        }
+        switch (action) {
+          case 'open':
+            this.showPopperForUserConfirm = true;
+            break;
+          case 'close':
+            break;
         }
       },
 
@@ -844,7 +878,7 @@
               dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
             }
           });
-        }, 10);
+        }, 1);
 
         var currentBufferSize = 0;
         do {
@@ -1024,30 +1058,6 @@
       handleDialogClose() {
         this.buildLogStatus.logList = [];
       },
-
-      handlePendingInput(row) {
-        if(row.status !== 'PAUSED_PENDING_INPUT') {
-          return;
-        }
-        var targetClass = `build-${this.lastBuildingRecord.buildNumber}-status`;
-        var target = this.$el.querySelector(`.record-list .el-table .${targetClass}`);
-        if (!this.popperForUserConfirm.isShowing()) {
-          this.popperForUserConfirm.show({
-            ref: target
-          });
-        }
-      },
-
-      handleLogPendingInput() {
-        const dialogForDeployLog = this.$refs['dialogForBuildLog'];
-        dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
-        let target = dialogForDeployLog.$el.querySelector('.loading-line .item');
-        if (!this.popperForUserConfirm.isShowing()) {
-          this.popperForUserConfirm.show({
-            ref: target
-          });
-        }
-      }
     }
   }
 </script>
