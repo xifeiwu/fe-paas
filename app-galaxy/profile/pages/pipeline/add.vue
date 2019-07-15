@@ -28,7 +28,7 @@
                 <el-input size="mini-extral" v-model="formData.gitLabBranch" placeholder="请输入项目的gitLab分支，支持正表达式"></el-input>
               </el-form-item>
               <el-form-item label="webhook配置" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooks" class="webhook-config big">
-                <div  class="webhook-config-content">
+                <div class="webhook-config-content" :style="{color: formData.webHooks.selected ? 'inherit':'#b4bccc'}">
                   <div class="item">
                     <span>{{formData.webHooks.webHooksUrl}}</span>
                   </div>
@@ -135,7 +135,7 @@
                   <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" class="union-form"
                            ref="pipeline-script-form">
                     <!--utExecutedPath-->
-                    <el-form-item label="执行脚本的相对目录：" labelWidth="180px">
+                    <el-form-item label="执行脚本的相对目录：" labelWidth="180px" v-show="stageName === 'testAndSonarScript'">
                       <el-input v-model="formData.testAndSonarScript.utExecutedPath" style="max-width: 500px"></el-input>
                     </el-form-item>
                     <!--sonar及单元测试-->
