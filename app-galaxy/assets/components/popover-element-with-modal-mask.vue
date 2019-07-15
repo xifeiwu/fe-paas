@@ -13,9 +13,7 @@
     >
       <div class="popover_header">
         <span class="popover_title" v-if="title" v-text="title"></span>
-        <button class="popover-close-button" type="button" @click="doClose">
-          <i class="el-dialog__close el-icon el-icon-close"></i>
-        </button>
+        <i class="popover-close-button el-dialog__close el-icon el-icon-close" @click="doClose('manual')"></i>
       </div>
       <!--<div class="el-popover__title" v-if="title" v-text="title"></div>-->
       <div class="content" v-if="contentType === 'html'" v-html="content"></div>
@@ -119,10 +117,6 @@
       transition: {
         type: String,
         default: 'fade-in-linear'
-      },
-      showModal: {
-        type: Boolean,
-        default: true
       }
     },
 
@@ -153,10 +147,8 @@
           this.$emit('show');
         } else {
           this.$emit('hide');
-          this.reference.style.zIndex = this.referenceInfo.zIndex;
-          if (this.showModal) {
-            PopupManager.closeModal(this.tooltipId);
-          }
+          this.reference && (this.reference.style.zIndex = this.referenceInfo.zIndex);
+          PopupManager.closeModal(this.tooltipId);
         }
       },
     },
@@ -170,6 +162,10 @@
 
     methods: {
       show({ref, msg, type = 'node'}) {
+        if (!ref) {
+          this.doClose('REF_NOT_FOUND');
+          return;
+        }
         if (['text', 'html'].indexOf(type) > -1) {
           this.content = msg;
         }
@@ -190,7 +186,7 @@
           }
           if (this.closeOnLeave) {
             once(ref, 'mouseleave', () => {
-              this.doClose();
+              this.doClose('mouseleave');
             })
           }
         });
@@ -234,11 +230,9 @@
         if (typeof options.onUpdate === 'function') {
           this.popperJS.onUpdate(options.onUpdate);
         }
-        if (this.showModal) {
-          PopupManager.openModal(this.tooltipId, PopupManager.nextZIndex(), null);
-          this.reference.style.zIndex = PopupManager.nextZIndex();
-          this.popperJS._popper.style.zIndex = PopupManager.nextZIndex();
-        }
+        PopupManager.openModal(this.tooltipId, PopupManager.nextZIndex(), null);
+        this.reference.style.zIndex = PopupManager.nextZIndex();
+        this.popperJS._popper.style.zIndex = PopupManager.nextZIndex();
       },
 
       handleDocumentClick(e) {
@@ -307,9 +301,10 @@
       },
 
       // hide realated node
-      doClose() {
+      doClose(trigger) {
         this.popperStatus.show = false;
-//        this.doDestroy();
+        this.reference = null;
+        this.$emit('close', trigger);
       },
 
       // remove realated node

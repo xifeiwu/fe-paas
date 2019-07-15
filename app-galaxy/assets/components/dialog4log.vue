@@ -191,9 +191,15 @@
       },
 
       scrollToTop() {
+        if (!this.scrollWrap) {
+          return;
+        }
         this.scrollWrap.scrollTop = 0;
       },
       scrollToBottom() {
+        if (!this.scrollWrap) {
+          return;
+        }
         this.scrollWrap.scrollTop = this.scrollWrap.scrollHeight - this.scrollWrap.clientHeight;
       }
     }
