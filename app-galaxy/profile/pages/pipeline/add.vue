@@ -152,7 +152,8 @@
                     <el-form-item label="Sonar关键字：" class="sonarCheck"
                                   prop="sonarCheck.projectKeyWord"
                                   v-show="stageName === 'sonarCheck'">
-                      <el-input v-model="formData.sonarCheck.projectKeyWord" style="max-width: 500px"></el-input>
+                      <el-input v-model="formData.sonarCheck.projectKeyWord" style="max-width: 500px"
+                                type="textarea" :rows="5"></el-input>
                       <el-popover
                         placement="left-start"
                         width="50"
