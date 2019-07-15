@@ -325,7 +325,7 @@
                 </div>
                 <div class="stage-change-selection" v-else>
                   <!--:key="stageName"-->
-                  <span>添加结点 "{{currentStage.description}}"?</span>
+                  <span>添加结点 "{{Array.isArray(currentStage.description) ? currentStage.description.join('') : currentStage.description}}"?</span>
                   <el-button size="mini-extral" type="primary" @click="handleClick($event, 'stage-add')">添加</el-button>
                 </div>
               </transition>
