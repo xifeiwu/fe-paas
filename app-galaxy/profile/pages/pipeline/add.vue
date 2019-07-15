@@ -222,7 +222,7 @@
                     </el-form-item>
 
                     <!--自动化测试-start-->
-                    <el-form-item label="gitlab路径：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.gitLabPath"
+                    <el-form-item label="gitlab_ssh地址：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.gitLabPath"
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.gitLabPath"></el-input>
                     </el-form-item>
@@ -234,7 +234,7 @@
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.itTestReportAddress"></el-input>
                     </el-form-item>
-                    <el-form-item label="Gitlab父级pom.xml相对路径：" labelWidth="220px"
+                    <el-form-item label="项目根目录：" labelWidth="220px"
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.relativePath"></el-input>
                     </el-form-item>
