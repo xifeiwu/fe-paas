@@ -374,7 +374,7 @@
         <el-button size="small" type="primary" @click="handleClick($event, 'save')" v-if="false">保存</el-button>
         <el-button size="small" type="primary" @click="handleClick($event, 'enable')" v-if="false">生效</el-button>
         <el-button size="small" type="primary" @click="handleClick($event, 'take-effect')">保存</el-button>
-        <el-button size="small" type="primary" @click="handleClick($event, 'go-to-page-pipeline-records')" class="flex" v-if="false">
+        <el-button size="small" type="primary" @click="handleClick($event, 'save-and-go-to-page-pipeline-records')" class="flex" v-if="true">
           <span>保存并跳转到执行页面</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
         </el-button>
         <el-button size="small" type="primary" @click="handleClick($event, 'back')" class="flex">
@@ -1481,27 +1481,6 @@
 //        console.log(this.formDataRules);
       },
 
-      // 请求更新
-      async requestUpdate() {
-        try {
-          await this.$confirm('保存pipeline配置？', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning',
-            dangerouslyUseHTMLString: true
-          });
-          // 前端逻辑按照字符串处理，为了兼容以后支持多种webhook，后端使用数组格式
-          if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
-            this.formData.webHooks.webHooksSelectedEvent = [this.formData.webHooks.webHooksSelectedEvent]
-          }
-          this.formData.groupId = this.$storeHelper.currentGroupID;
-          await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_add_or_update, {
-            payload: this.formData
-          });
-          this.$message.success(`"${this.formData.pipelineName}"配置已更新！`);
-        } catch (err) {}
-      },
-
       // 处理按钮click事件
       async handleClick(evt, action) {
         const target = evt.target;
@@ -1648,19 +1627,17 @@
                   return;
                 }
               }
+              // 前端逻辑按照字符串处理，为了兼容以后支持多种webhook，后端使用数组格式
+              if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
+                this.formData.webHooks.webHooksSelectedEvent = [this.formData.webHooks.webHooksSelectedEvent]
+              }
+              this.formData.groupId = this.$storeHelper.currentGroupID;
+              await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_take_effect, {
+                payload: this.formData
+              });
+              this.$message.success(`pipeline "${this.formData.pipelineName}" 的配置已生效！`);
               if ('take-effect' === action) {
-                // 前端逻辑按照字符串处理，为了兼容以后支持多种webhook，后端使用数组格式
-                if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
-                  this.formData.webHooks.webHooksSelectedEvent = [this.formData.webHooks.webHooksSelectedEvent]
-                }
-                this.formData.groupId = this.$storeHelper.currentGroupID;
-                await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_take_effect, {
-                  payload: this.formData
-                });
-                this.$message.success(`pipeline "${this.formData.pipelineName}" 的配置已生效！`);
                 this.$router.go(-1);
-              } else {
-                this.requestUpdate();
               }
               // console.log(`validate: ${validate}`);
             } catch (err) {
@@ -1698,9 +1675,10 @@
           case 'back':
             this.$router.go(-1);
             break;
-          case 'go-to-page-pipeline-records':
+          case 'save-and-go-to-page-pipeline-records':
+            await this.handleClick(evt, 'save');
             this.$storeHelper.dataTransfer = {
-              from: this.$net.page['profile/pipeline/list'],
+              from: this.$net.page['profile/pipeline/add'],
               data: {
                 appId: this.appInfo['appId'],
                 appName: this.appInfo['appName'],

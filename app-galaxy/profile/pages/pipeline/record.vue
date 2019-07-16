@@ -287,6 +287,8 @@
         switch (from) {
           case this.$net.page['profile/pipeline/list']:
           case this.$net.page['profile/pipeline/records/plan']:
+          case this.$net.page['profile/pipeline/add']:
+          case this.$net.page['profile/pipeline/modify']:
             this.relatedAppId = data['appId'];
             this.dataPassed.appName = data['appName'];
             this.dataPassed.pipelineName = data['pipelineName'];
@@ -300,6 +302,7 @@
         goBack = true;
       }
       if (goBack) {
+        console.log(`goBack from page ${this.$net.page['profile/pipeline/records']}`);
         this.$router.push(this.$net.page['profile/pipeline/list']);
         return;
       }
