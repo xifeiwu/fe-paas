@@ -136,7 +136,9 @@
                            ref="pipeline-script-form">
                     <!--utExecutedPath-->
                     <el-form-item label="执行脚本的相对目录：" labelWidth="180px" v-show="stageName === 'testAndSonarScript'">
-                      <el-input v-model="formData.testAndSonarScript.utExecutedPath" style="max-width: 500px"></el-input>
+                      <el-input v-model="formData.testAndSonarScript.utExecutedPath" style="max-width: 500px">
+                        <template slot="prepend" v-if="formRelated.testAndSonarScript.scriptPrefix">{{formRelated.testAndSonarScript.scriptPrefix}}</template>
+                      </el-input>
                     </el-form-item>
                     <!--sonar及单元测试-->
                     <el-form-item label="Sonar及单元测试脚本：" labelWidth="180px" class="testAndSonarScript"
@@ -1009,6 +1011,11 @@
             noticeEmails: []
           }
         },
+        formRelated: {
+          testAndSonarScript: {
+            scriptPrefix: ''
+          }
+        },
         formDataRules: {
           appId: {
             type: "number",
@@ -1309,6 +1316,18 @@
           }
         };
         syncObject(formData, netData);
+
+        var prefix = [];
+        if (netData.gitLabPath) {
+          let result = /\/(.*)\.git *$/.exec(netData.gitLabPath);
+          if (result.length === 2) {
+            prefix.push(result[1])
+          }
+        }
+        netData.relativePath && prefix.push(netData.relativePath)
+        prefix.push('');
+        this.formRelated.testAndSonarScript.scriptPrefix =  prefix.join('/');
+
         this.postTreatFormData(formData, netData);
       },
       postTreatFormData(formData, netData) {
