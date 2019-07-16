@@ -107,8 +107,8 @@
                               :key="index"></pipeline-stage>
             </div>
             <div class="config-list" v-if="currentStage">
-              <transition name="el-zoom-in-top">
-                <div class="stage-config" v-if="currentStage.selected">
+              <!--<transition name="el-zoom-in-top">-->
+                <div class="stage-config" v-show="currentStage.selected">
                   <!--:key="stageName"-->
                   <!--部署到测试环境-->
                   <div v-if="stageName === 'deployTestEnv'" class="deployTestEnv">
@@ -221,7 +221,7 @@
                       </div>
                     </el-form-item>
 
-                    <!--自动化测试-start-->
+                    <!--自动化测试-测试环境-start-->
                     <el-form-item label="gitlab_ssh地址：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.gitLabPath"
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.gitLabPath"></el-input>
@@ -264,7 +264,7 @@
                         </div>
                       </div>
                     </el-form-item>
-                    <!--自动化测试-start-->
+                    <!--自动化测试-联调环境-start-->
                     <el-form-item label="gitlab_ssh地址：" labelWidth="220px" prop="ciPipelineAutoTestVO.gitLabPath"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabPath"></el-input>
@@ -324,12 +324,12 @@
                     <el-button size="mini-extral" type="danger" @click="handleClick($event, 'stage-remove')">删除</el-button>
                   </div>
                 </div>
-                <div class="stage-change-selection" v-else>
+                <div class="stage-change-selection" v-show="!currentStage.selected">
                   <!--:key="stageName"-->
                   <span>添加结点 "{{Array.isArray(currentStage.description) ? currentStage.description.join('') : currentStage.description}}"?</span>
                   <el-button size="mini-extral" type="primary" @click="handleClick($event, 'stage-add')">添加</el-button>
                 </div>
-              </transition>
+              <!--</transition>-->
             </div>
           </div>
         </div>
@@ -1379,7 +1379,8 @@
       // 根据pipeline结点的选择情况，更新formRules
       updateFormDataRules() {
         // fix rules for 'testAndSonarScript', 'mvnPackage', 'autoSciPipelineAutoTestVOcript'
-        var pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'ciPipelineAutoTestVO',  'ciPipelineAutoTestVOTest', 'uploadUnitTestReportAndAutoTestReport'];//.concat(['sonarCheck']);
+        var pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'ciPipelineAutoTestVO',  'ciPipelineAutoTestVOTest',
+          'uploadUnitTestReportAndAutoTestReport'];//.concat(['sonarCheck']);
         pipelineStageList.forEach(it => {
           const required = this.formData[it]['selected'];
           this.formDataRules[it]['required'] = required;
@@ -1478,7 +1479,8 @@
           delete noticeConfigRules['fields']['noticeEmails']
         }
 
-//        console.log(this.formDataRules);
+        // console.log(this.formData.ciPipelineAutoTestVOTest);
+        // console.log(this.formDataRules.ciPipelineAutoTestVOTest);
       },
 
       // 处理按钮click事件
@@ -1762,6 +1764,7 @@
             it.active = false;
           }
         });
+        // console.log(this.currentStage);
       },
       // 通过name属性设置stage.active
       setActiveStageByName(name) {
