@@ -134,7 +134,10 @@
     <paas-dialog-for-log :showStatus="buildLogStatus" ref="dialogForBuildLog" @close="handleDialogClose">
       <div slot="content">
         <div v-for="(item, index) in buildLogStatus.logList" :key="index" class="log-item" v-html="item"></div>
-        <div class="log-item loading-line" v-if="buildLogStatus.loading"><i class="el-icon-loading item"></i></div>
+        <div class="log-item loading-line" v-if="buildLogStatus.loading">
+          <i class="el-icon-loading item"></i>
+          <span v-if="action.row && action.row.status == 'PAUSED_PENDING_INPUT'" @click="handlePendingInput('open', action.row)">{{action.row.statusName}}<i class="paas-icon-pointer-left"></i></span>
+        </div>
         <div class="last-item loading-line" v-else><span class="item">&nbsp</span></div>
       </div>
     </paas-dialog-for-log>
@@ -208,6 +211,12 @@
   #record-main {
     .header {
     }
+    &.pause-pending {
+      color: #409EFF;
+      &:hover {
+        cursor: pointer;
+      }
+    }
     .record-list {
       .el-table {
         .el-table__row {
@@ -223,12 +232,6 @@
             }
             &.suspension {
               color: #949393;
-            }
-            &.pause-pending {
-              color: #409EFF;
-              &:hover {
-                cursor: pointer;
-              }
             }
           }
         }

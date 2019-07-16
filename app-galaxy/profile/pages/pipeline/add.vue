@@ -375,7 +375,7 @@
         <el-button size="small" type="primary" @click="handleClick($event, 'enable')" v-if="false">生效</el-button>
         <el-button size="small" type="primary" @click="handleClick($event, 'take-effect')">保存</el-button>
         <el-button size="small" type="primary" @click="handleClick($event, 'go-to-page-pipeline-records')" class="flex" v-if="false">
-          <span>执行</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
+          <span>保存并跳转到执行页面</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
         </el-button>
         <el-button size="small" type="primary" @click="handleClick($event, 'back')" class="flex">
           <span>返回</span><i class="paas-icon-level-up" style="margin-left: 3px;"></i>
