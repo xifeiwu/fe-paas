@@ -170,9 +170,18 @@ class Net extends NetBase {
         path: '/service/getAffinityConfig',
         method: 'post'
       },
+      // 获取亲和性k8s信息
+      'get_resource_information_by_k8s': {
+        path: '/service/getResourceInformationByK8S',
+        method: 'post'
+      },
       // 修改亲和性配置
       'update_affinity_config': {
         path: '/service/updateAffinityConfig',
+        method: 'post'
+      },
+      'update_affinity_sync_k8s': {
+        path: '/service/updateAffinitySyncK8S',
         method: 'post'
       },
       // 检测服务端口映射

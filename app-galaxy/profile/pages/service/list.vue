@@ -209,7 +209,15 @@
                   type="text"
                   @click="handleTRClick($event, 'update_affinity', scope.$index, scope.row)"
                   :class="reason4DisableQuickDeploy(scope.row) || publishStatus? 'disabled' : 'danger'">
-                <span>亲和性设置</span><i class="paas-icon-level-up"></i>
+                <span>亲和性配置</span><i class="paas-icon-level-up"></i>
+              </el-button>
+              <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
+              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
+                         size="small"
+                         type="text"
+                         @click="handleTRClick($event, 'show_info_with_k8s', scope.$index, scope.row)"
+                         :class="reason4DisableQuickDeploy(scope.row) || publishStatus? 'disabled' : 'danger'">
+                <span>K8S实时信息展示</span><i class="paas-icon-level-up"></i>
               </el-button>
             </div>
             <el-button
@@ -464,7 +472,7 @@
     </paas-dialog-for-log>
 
     <el-dialog :visible.sync="hasAffinity" top="30px" width="80%" :fullscreen="false"
-               v-loading="saveNodeAffinityLoading"
+               v-loading="saveAffinityLoading"
                element-loading-text="正在保存"
                element-loading-spinner="el-icon-loading"
                element-loading-background="rgba(0, 0, 0, 0.8)"
@@ -526,13 +534,35 @@ podAntiAffinity:
       </div>
 
       <div class="__editor">
-        <codemirror v-model="configOfNodeAffinity" :options="editorNodeAffinityOptions"></codemirror>
+        <codemirror v-model="configOfAffinity" :options="editorAffinityOptions"></codemirror>
       </div>
 
       <div slot="footer" class="pa-3" style="text-align: center">
-        <el-button type="success" size="medium" @click="saveNodeAffinity()">&emsp;保 存 修 改&emsp;
-        </el-button>
+        <el-button type="success" size="medium" @click="saveAffinityConfig(false)">&emsp;保 存 配 置&emsp;</el-button>
+        <el-button type="success" size="medium" @click="saveAffinityConfig(true)">&emsp;保 存 并 生 效&emsp;</el-button>
         <el-button type="danger" size="medium" @click="hasAffinity = false">&emsp;取 消 修 改&emsp;</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog :visible.sync="hasK8sResourceInfo" top="30px" width="80%" :fullscreen="false"
+               element-loading-text="正在保存"
+               element-loading-spinner="el-icon-loading"
+               element-loading-background="rgba(0, 0, 0, 0.8)"
+    >
+      <div class="py-3" style="width: 80%; text-align: left;">
+        <h4 style="display: inline;">
+          <span style="color: red;">
+          K8S实时信息展示
+          </span>
+        </h4>
+      </div>
+
+      <div class="__editor">
+        <codemirror v-model="configOfK8sResource" :options="showK8sResourceOptions"></codemirror>
+      </div>
+
+      <div slot="footer" class="pa-3" style="text-align: center">
+        <el-button type="danger" size="medium" @click="hasK8sResourceInfo = false">&emsp;关 闭&emsp;</el-button>
       </div>
     </el-dialog>
   </div>
@@ -1035,12 +1065,24 @@ podAntiAffinity:
           // 校验规则：域名数组（大于一个小于五个，无域名后缀）
           errMsgForDomainList: ''
         },
+        hasK8sResourceInfo: false,
+        configOfK8sResource: "",
+        showK8sResourceOptions: {
+          tabSize: 4,
+          styleActiveLine: true,
+          lineNumbers: true,
+          line: true,
+          mode: "text/x-properties",
+          theme: "monokai",
+          readOnly: true,
+          viewportMargin: 10
+        },
         hasAffinity: false,
         affinityEditError: false,
         affinityDescribeError: "",
-        configOfNodeAffinity: "",
-        saveNodeAffinityLoading: '',
-        editorNodeAffinityOptions: {
+        configOfAffinity: "",
+        saveAffinityLoading: '',
+        editorAffinityOptions: {
           tabSize: 4,
           styleActiveLine: true,
           lineNumbers: true,
@@ -1796,16 +1838,33 @@ podAntiAffinity:
         return Promise.reject('请填写应用信息：维护者、LOB、Scrum');
       },
 
-      async saveNodeAffinity() {
-        this.saveNodeAffinityLoading = true;
+      async saveAffinityConfig(enforce) {
+        let confirmInfo = "点击保存配置时，只保存yaml数据配置，当点击部署或重启时才生效！";
+        let url = this.$net.URL_LIST.update_affinity_config;
+        if (enforce) {
+          confirmInfo = "点击保存并生效时，保存yaml数据配置的同时，立即生效该配置！";
+          url = this.$net.URL_LIST.update_affinity_sync_k8s;
+        }
 
+        await this.$confirm(
+          confirmInfo,
+          '提示',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
+        );
+
+        this.saveAffinityLoading = true;
         // await this.$net.requestPaasServer(this.$net.URL_LIST.update_affinity_config, {
-        await this.$net.getResponse(this.$net.URL_LIST.update_affinity_config, {
+        await this.$net.getResponse(url, {
           payload: {
             spaceId: this.profileInfo.id,
             groupId: this.$storeHelper.groupInfo.id,
             namespace: this.$storeHelper.groupInfo.tag,
-            affinityContent: this.configOfNodeAffinity,
+            appConfigId: this.action.row.id,
+            affinityContent: this.configOfAffinity,
             configServiceName: this.action.row.serviceName
           }
         }).then(response => {
@@ -1822,7 +1881,7 @@ podAntiAffinity:
           // console.log(err);
           this.$message.error("保存配置失败，请联系云平台！");
         }).finally(() => {
-          this.saveNodeAffinityLoading = false;
+          this.saveAffinityLoading = false;
         });
       },
 
@@ -2211,15 +2270,38 @@ podAntiAffinity:
                 spaceId: this.profileInfo.id,
                 groupId: this.$storeHelper.groupInfo.id,
                 namespace: this.$storeHelper.groupInfo.tag,
+                appConfigId: this.action.row.id,
                 configServiceName: this.action.row.serviceName
               }
             }).then(resp =>{
               if (resp) {
-                this.configOfNodeAffinity = resp;
+                this.configOfAffinity = resp;
               } else {
-                this.configOfNodeAffinity = "";
+                this.configOfAffinity = "";
               }
               this.hasAffinity = true;
+            }).catch(error => {
+              console.log(error);
+            }).finally(()=> {
+            });
+            break;
+          case 'show_info_with_k8s':
+            // console.log(this.action.row);
+            await this.$net.requestPaasServer(this.$net.URL_LIST.get_resource_information_by_k8s, {
+              payload: {
+                spaceId: this.profileInfo.id,
+                groupId: this.$storeHelper.groupInfo.id,
+                namespace: this.$storeHelper.groupInfo.tag,
+                appConfigId: this.action.row.id,
+                configServiceName: this.action.row.serviceName
+              }
+            }).then(resp =>{
+              if (resp) {
+                this.configOfK8sResource = resp;
+              } else {
+                this.configOfK8sResource = "";
+              }
+              this.hasK8sResourceInfo = true;
             }).catch(error => {
               console.log(error);
             }).finally(()=> {
