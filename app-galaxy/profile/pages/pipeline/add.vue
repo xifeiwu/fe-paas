@@ -312,7 +312,7 @@
                       </el-radio-group>
                     </el-form-item>
                     <el-form-item label="脚本：" labelWidth="160px" prop="uploadUnitTestReportAndAutoTestReport.script"
-                                  v-show="stageName === 'uploadUnitTestReportAndAutoTestReport' && false">
+                                  v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
                       <el-input size="mini-extral" v-model="formData.uploadUnitTestReportAndAutoTestReport.script"></el-input>
                     </el-form-item>
                     <el-form-item label="手工确认：" v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
