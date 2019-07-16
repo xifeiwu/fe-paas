@@ -136,7 +136,9 @@
         <div v-for="(item, index) in buildLogStatus.logList" :key="index" class="log-item" v-html="item"></div>
         <div class="log-item loading-line" v-if="buildLogStatus.loading">
           <i class="el-icon-loading item"></i>
-          <span v-if="action.row && action.row.status == 'PAUSED_PENDING_INPUT'" @click="handlePendingInput('open', action.row)">{{action.row.statusName}}<i class="paas-icon-pointer-left"></i></span>
+          <span v-if="action.row && action.row.status == 'PAUSED_PENDING_INPUT'" @click="handlePendingInput('open', action.row)" style="color: #409EFF">
+            {{action.row.statusName}}<i class="paas-icon-pointer-left"></i>
+          </span>
         </div>
         <div class="last-item loading-line" v-else><span class="item">&nbsp</span></div>
       </div>
@@ -211,7 +213,7 @@
   #record-main {
     .header {
     }
-    &.pause-pending {
+    .pause-pending {
       color: #409EFF;
       &:hover {
         cursor: pointer;
@@ -632,6 +634,10 @@
         }
       },
 
+      getBuildRecordByBuildNumber(buildNumber) {
+        return this.buildListAll && this.buildListAll.find(item => item.buildNumber == buildNumber)
+      },
+
       async handleUserInput(action) {
         const userInputInfo = this.userInputInfo;
         if (!userInputInfo) {
@@ -681,6 +687,10 @@
       // 通过不断轮询，更新popover的状态
       async updatePopperForUserConfirm() {
         const lastBuildingRecord = this.lastBuildingRecord;
+        // update action.row by buildNumber
+        if (this.action.row && this.action.row.hasOwnProperty('buildNumber')) {
+          this.action.row = this.getBuildRecordByBuildNumber(this.action.row.buildNumber);
+        }
         if (lastBuildingRecord && (lastBuildingRecord.status === 'PAUSED_PENDING_INPUT')) {
           const userInputInfo = this.getUserInputInfo(this.lastBuildingRecord);
           if (userInputInfo) {
@@ -855,6 +865,8 @@
           console.log(`lastBuildingRecord not found`);
           return;
         }
+        // set the build in openedDialog as active row
+        this.action.row = lastBuildingRecord;
         this.buildLogStatus.visible = true;
         this.buildLogStatus.loading = true;
         this.buildLogStatus.title = `${this.dataPassed.pipelineName}-第${lastBuildingRecord['buildNumber']}次的构建日志`;
@@ -884,7 +896,7 @@
               dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
             }
           });
-        }, 1);
+        });
 
         var currentBufferSize = 0;
         do {
@@ -963,9 +975,7 @@
             });
             break;
           case 'pipeline_building_log':
-            this.showBuildingLog({
-              buildNumber: row['buildNumber']
-            });
+            this.showBuildingLog(row);
             break;
           case 'pipeline_build_history_log':
             resData = await this.$net.requestPaasServer(Object.assign(
