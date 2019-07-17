@@ -216,7 +216,7 @@
                          size="small"
                          type="text"
                          @click="handleTRClick($event, 'show_info_with_k8s', scope.$index, scope.row)"
-                         :class="reason4DisableQuickDeploy(scope.row) || publishStatus? 'disabled' : 'danger'">
+                         :class="['primary']">
                 <span>K8S实时信息展示</span><i class="paas-icon-level-up"></i>
               </el-button>
             </div>
