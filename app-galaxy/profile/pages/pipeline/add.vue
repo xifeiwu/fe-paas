@@ -304,10 +304,10 @@
                     <el-form-item v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
                       <div style="color: #eb9e05; font-size: 12px; line-height: 16px; text-align: left">
                         <i class="el-icon-warning"></i>
-                        <span>此节点用于同时上传前面"sonar及单元测试"节点生成的单测覆盖率报告以及"自动化测试"节点生成的集成覆盖率报告，上传成功后，可在 Sonar 中查看覆盖率及 Sonar 检查报告</span>
+                        <span>此结点用于同时上传前面"sonar及单元测试"结点生成的单测覆盖率报告以及"自动化测试"结点生成的集成覆盖率报告，上传成功后，可在 Sonar 中查看覆盖率及 Sonar 检查报告</span>
                       </div>
                     </el-form-item>
-                    <el-form-item label="自动化覆盖率报告读取节点：" labelWidth="200px" v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
+                    <el-form-item label="自动化覆盖率报告读取结点：" labelWidth="200px" v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
                       <el-radio-group v-model="formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode">
                         <el-radio v-for="(item, index) in [{name: 'test', description: '测试环境'}, {name: 'beta', description: '联调环境'}]"
                                   :label="item.name" :key="index">{{item.description}}</el-radio>
@@ -855,7 +855,7 @@
           result = Object.assign({name: key}, commonProp, STAGE_NAME_MAP[key]);
         } else {
           if (pipelineInfoFromNet.hasOwnProperty(key)) {
-            // 如果从服务端返回的该节点数据为null, selected设为false
+            // 如果从服务端返回的该结点数据为null, selected设为false
             if (!pipelineInfoFromNet[key]) {
               pipelineInfoFromNet[key] = {};
               pipelineInfoFromNet[key]['selected'] = false;
@@ -972,7 +972,7 @@
             relativePath: '', // Gitlab父级pom.xml相对路径 ,
             script: '', // 脚本名称 ,
             includes: '',
-            selected: '', //节点是否选中
+            selected: '', //结点是否选中
           },
           // 功能测试（人工验证）
           functionValidate: {
@@ -993,13 +993,13 @@
             relativePath: '', // 项目根目录 ,
             script: '', // 脚本名称 ,
             includes: '',
-            selected: '', //节点是否选中
+            selected: '', //结点是否选中
           },
           uploadUnitTestReportAndAutoTestReport: {
             script: '', // 脚本名称 ,
-            uploadAutoTestReportNode: 'test',
+            uploadAutoTestReportNode: '',
             inputChecked: '', // 是否需要手工确认 ,
-            selected: '', //节点是否选中
+            selected: '', //结点是否选中
           },
           // 通知设置
           noticeConfig: {
