@@ -1319,12 +1319,12 @@
 
         var prefix = [];
         if (netData.gitLabPath) {
-          let result = /\/(.*)\.git *$/.exec(netData.gitLabPath);
+          let result = /\/([^\/]*)\.git *$/.exec(netData.gitLabPath);
           if (result.length === 2) {
             prefix.push(result[1])
           }
         }
-        netData.relativePath && prefix.push(netData.relativePath)
+        netData.relativePath && prefix.push(/^[ \/]*(.*?)[ \/]*$/.exec(netData.relativePath)[1])
         prefix.push('');
         this.formRelated.testAndSonarScript.scriptPrefix =  prefix.join('/');
 
