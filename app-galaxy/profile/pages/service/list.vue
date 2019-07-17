@@ -318,6 +318,7 @@
     </el-dialog>
 
     <el-dialog title="亲和性配置错误信息" :visible.sync="affinityEditError"
+               top="-10vh"
                v-if="affinityEditError"
                class="confirm-dialog size-1000"
                :close-on-click-modal="false"
