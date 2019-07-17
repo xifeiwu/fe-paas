@@ -67,6 +67,14 @@
             </el-date-picker>
           </div>
 
+          <div class="item" v-if="searchForm.queryType=='all'">
+            <label>运行环境:</label>
+            <el-select v-model="searchForm.spaceId" size="mini-extral" placeholder="请选择">
+              <el-option v-for="item in $storeHelper.profileListOfGroup" :key="item.id" :label="item.description" :value="item.id">
+              </el-option>
+            </el-select>
+          </div>
+
           <div class="item" style="width: 450px;padding-left: 30px;"
                v-if="searchForm.queryType=='default'">
             <label>日志级别:</label>
