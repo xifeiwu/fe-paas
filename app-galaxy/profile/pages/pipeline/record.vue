@@ -873,29 +873,31 @@
 
         var hasMoreData = true;
         var logQueue = [];
-        var nextItem = null;
+        var nextItems = [];
         const MAX_LINES_COUNT = 5000;
         const tagUpdateLog = setInterval(() => {
           if (!hasMoreData && logQueue.length === 0) {
             clearInterval(tagUpdateLog);
             return;
           }
-          nextItem = logQueue.shift();
-          if (!nextItem) {
+          let size = (Math.ceil(logQueue.length / 20) > 2) ? Math.ceil(logQueue.length / 20) : 2;
+          nextItems = logQueue.slice(0, size);
+          logQueue = logQueue.slice(size);
+          if (nextItems.length === 0) {
             return;
           }
-          this.buildLogStatus.logList.push(nextItem);
+          Array.prototype.push.apply(this.buildLogStatus.logList, nextItems);
           while (this.buildLogStatus.logList.length > MAX_LINES_COUNT) {
             this.buildLogStatus.logList = this.buildLogStatus.logList.slice(MAX_LINES_COUNT - 1000);
           }
 
           // scroll after render finish
-          this.$nextTick(() => {
+          setTimeout(() => {
             if (this.$refs.hasOwnProperty('dialogForBuildLog')) {
               const dialogForDeployLog = this.$refs['dialogForBuildLog'];
               dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
             }
-          });
+          }, 500);
         });
 
         var currentBufferSize = 0;
@@ -924,6 +926,13 @@
             break;
           }
         } while(hasMoreData && this.buildLogStatus.visible);
+        // scroll after render finish
+        setTimeout(() => {
+          if (this.$refs.hasOwnProperty('dialogForBuildLog')) {
+            const dialogForDeployLog = this.$refs['dialogForBuildLog'];
+            dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+          }
+        }, 200);
         this.buildLogStatus.loading = false;
       },
 
