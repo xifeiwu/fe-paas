@@ -1840,7 +1840,7 @@ podAntiAffinity:
       },
 
       async saveAffinityConfig(enforce) {
-        let confirmInfo = "点击保存配置时，只保存yaml数据配置，后面当点击部署或重启时才生效！";
+        let confirmInfo = "点击“保存配置”时，只保存yaml数据配置，后面当点击部署或重启时才生效！";
         let url = this.$net.URL_LIST.update_affinity_config;
         if (enforce) {
           confirmInfo = "点击“保存并生效”时，保存yaml数据配置的同时，会立即生效该配置，满足亲和性条件时将造成实例重启！";
