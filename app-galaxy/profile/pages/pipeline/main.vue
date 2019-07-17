@@ -48,7 +48,7 @@
       <paas-dismiss-message :toExpand="showWarning"
                             @status-change="active => {this.showWarning = active; onScreenSizeChange()}"
                             style="margin-left: -5px; margin-right: -5px;"
-                            :msgList="['目前pipeline只支持Java语言的“平台构建镜像”方式，不支持自定义镜像']"></paas-dismiss-message>
+                            :msgList="['目前pipeline只支持Java语言的“平台构建镜像”方式，不支持自定义镜像；Pipeline的基本配置默认取自对应应用的测试环境配置。']"></paas-dismiss-message>
     </div>
     <div class="pipeline-list">
       <el-table
