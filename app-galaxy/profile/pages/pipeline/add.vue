@@ -302,7 +302,7 @@
 
                     <!--上传测试报告-->
                     <el-form-item v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
-                      <div style="color: #eb9e05; font-size: 12px">
+                      <div style="color: #eb9e05; font-size: 12px; line-height: 16px; text-align: left">
                         <i class="el-icon-warning"></i>
                         <span>此节点用于同时上传前面"sonar及单元测试"节点生成的单测覆盖率报告以及"自动化测试"节点生成的集成覆盖率报告，上传成功后，可在 Sonar 中查看覆盖率及 Sonar 检查报告</span>
                       </div>
@@ -1155,10 +1155,10 @@
             fields: {
               script: [{
                 type: "string",
-                required: false,
+                required: true,
                 trigger: ['blur', 'change'],
-                requiredOrigin: false,
-                message: '请填写脚本名称'
+                requiredOrigin: true,
+                message: '脚本为必输项'
               }]
             }
           },
