@@ -51,6 +51,9 @@
                   </div>
                 </div>
               </el-form-item>
+              <el-form-item label="项目根目录">
+                <span>{{pipelineInfoFromNet.relativePath ? pipelineInfoFromNet.relativePath : '---'}}</span>
+              </el-form-item>
               <el-form-item label="构建参数" prop="defList" class="environments big" v-if="showMoreConfig" :error="formItemMsgForParam">
                 <el-row class="title" style="font-size: 14px;">
                   <el-col :span="7" class="key">名称</el-col>
@@ -719,6 +722,7 @@
   // import "codemirror/addon/display/autorefresh";
   import paasServiceInfo from './components/service-info.vue';
   import commonUtils from 'assets/components/mixins/common-utils';
+import ElFormItem from "../../../../components/element-ui/packages/form/src/form-item";
 
   const STAGE_NAME_MAP = {
     'start': {
@@ -767,7 +771,7 @@
   };
   export default {
     mixins: [commonUtils],
-    components: {pipelineStage, codemirror, paasServiceInfo},
+    components: {ElFormItem, pipelineStage, codemirror, paasServiceInfo},
     async created() {
       var goBack = false;
       this.pageType = this.$route.path === this.$net.page["profile/pipeline/modify"] ? 'modify' : 'add';
