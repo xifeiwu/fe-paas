@@ -51,7 +51,7 @@
                   </div>
                 </div>
               </el-form-item>
-              <el-form-item label="项目根目录">
+              <el-form-item label="项目根目录" v-if="pipelineInfoFromNet">
                 <span>{{pipelineInfoFromNet.relativePath ? pipelineInfoFromNet.relativePath : '---'}}</span>
               </el-form-item>
               <el-form-item label="构建参数" prop="defList" class="environments big" v-if="showMoreConfig" :error="formItemMsgForParam">
