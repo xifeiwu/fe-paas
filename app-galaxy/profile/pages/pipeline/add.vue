@@ -323,13 +323,13 @@
                   </el-form>
                   <div class="stage-change-selection">
                     <span>删除结点 "{{Array.isArray(currentStage.description) ? currentStage.description.join('') : currentStage.description}}"?</span>
-                    <el-button size="mini-extral" type="danger" @click="handleClick($event, 'stage-remove')">删除</el-button>
+                    <el-button size="mini-extral" type="danger" @click="handleStageActiveChange($event, 'stage-remove')">删除</el-button>
                   </div>
                 </div>
                 <div class="stage-change-selection" v-show="!currentStage.selected">
                   <!--:key="stageName"-->
                   <span>添加结点 "{{Array.isArray(currentStage.description) ? currentStage.description.join('') : currentStage.description}}"?</span>
-                  <el-button size="mini-extral" type="primary" @click="handleClick($event, 'stage-add')">添加</el-button>
+                  <el-button size="mini-extral" type="primary" @click="handleStageActiveChange($event, 'stage-add')">添加</el-button>
                 </div>
               <!--</transition>-->
             </div>
@@ -1457,20 +1457,25 @@
         const sonarCheckRules = this.formDataRules['sonarCheck']['fields'];
         if (!this.formData.sonarCheck.selected) {
           sonarCheckRules.projectKeyWord[0].required = false;
-        }
-        if (sonarCheck.codeDebtSelected) {
-          sonarCheckRules['codeDebt'] = [{
-            validator: validatorForCodeDebtSelected
-          }]
+          ['codeDebt', 'unitTestRatio'].forEach(key => {
+            delete sonarCheckRules[key];
+          })
         } else {
-          delete sonarCheckRules['codeDebt']
-        }
-        if (sonarCheck.unitTestSelected) {
-          sonarCheckRules['unitTestRatio'] = [{
-            validator: validatorForUnitTestSelected
-          }]
-        } else {
-          delete sonarCheckRules['unitTestRatio']
+          sonarCheckRules.projectKeyWord[0].required = true;
+          let keyMap = {
+            'codeDebt': 'codeDebtSelected',
+            'unitTestRatio': 'unitTestSelected'
+          };
+          for (let key in keyMap) {
+            let value = keyMap[key];
+            if (sonarCheck[value]) {
+              sonarCheckRules[key] = [{
+                validator: validatorForCodeDebtSelected
+              }];
+            } else {
+              delete sonarCheckRules[key];
+            }
+          }
         }
 
         // fix rules for noticeConfig
@@ -1509,10 +1514,6 @@
           deployTestEnv: '测试环境',
           deployBetaEnv: '联调环境',
         };
-        var stageChangeStatus = {
-          success: true,
-          reason: ''
-        };
         var resContent = null;
         switch (action) {
 	        case 'more-config':
@@ -1533,96 +1534,6 @@
                 it.classList.remove('active');
               }
             });
-            break;
-          case 'stage-add':
-            switch (this.currentStage.name) {
-              case 'buildImage':
-                if (!this.findStageByName('mvnPackage')['selected']) {
-                  stageChangeStatus.success = false;
-                  stageChangeStatus.reason = `制作镜像依赖于打包，必须勾选打包步骤`;
-                  break;
-                }
-                this.formDataRules.buildImage.fields.selectedImage[0].required = true;
-                break;
-              case 'deployTestEnv':
-                if (!this.findStageByName('buildImage')['selected']) {
-                  stageChangeStatus.success = false;
-                  stageChangeStatus.reason = `部署到[test]环境依赖于制作镜像，必须勾选制作镜像步骤`;
-                }
-                break;
-              case 'deployBetaEnv':
-                if (!this.findStageByName('buildImage')['selected']) {
-                  stageChangeStatus.success = false;
-                  stageChangeStatus.reason = `部署到[beta]环境依赖于制作镜像，必须勾选制作镜像步骤`;
-                  break;
-                }
-                if (this.currentStageNetInfo['serviceStatus'] && this.currentStageNetInfo['applicationConfig']) {
-                  stageChangeStatus.success = true;
-                } else {
-                  stageChangeStatus.success = false;
-                  stageChangeStatus.reason = `当前应用无"${profileNameMap[this.currentStage.name]}"服务，无法添加结点"${this.currentStage.description}"`;
-                }
-                break;
-              case 'sonarCheck':
-                this.formDataRules.sonarCheck.fields.projectKeyWord[0].required = true;
-                break;
-              case 'testAndSonarScript':
-                this.formDataRules.testAndSonarScript.fields.script[0].required = true;
-                break;
-              case 'mvnPackage':
-                this.formDataRules.mvnPackage.fields.script[0].required = true;
-                break;
-            }
-            if (stageChangeStatus.success) {
-              this.currentStage['selected'] = true;
-//              console.log(this.currentStage);
-              this.updateStageIndex(this.stages);
-              // this.$message.success(`添加结点 "${this.currentStage['name']}" 成功！`);
-              this.formData[this.currentStage['name']]['selected'] = true;
-            } else {
-              this.$message.error(stageChangeStatus.reason);
-            }
-            break;
-          case 'stage-remove':
-            // 结点删除后，取消"手工确认"
-            var currentStageName = this.currentStage.name;
-            if (this.formData[currentStageName] && this.formData[currentStageName].hasOwnProperty('inputChecked')) {
-              this.formData[currentStageName]['inputChecked'] = false;
-            }
-            switch (currentStageName) {
-              case 'sonarCheck':
-                this.formData.sonarCheck.codeDebtSelected = false;
-                this.formData.sonarCheck.codeDebt = '';
-                this.formData.sonarCheck.unitTestSelected = false;
-                this.formData.sonarCheck.unitTestRatio = '';
-                this.formDataRules.sonarCheck.fields.projectKeyWord[0].required = false;
-                break;
-              case 'mvnPackage':
-                this.stages.forEach(it => {
-                  if (['buildImage','deployTestEnv','deployBetaEnv'].indexOf(it['name']) > -1) {
-                    it['selected'] = false;
-                  }
-                });
-                this.formData.buildImage.selected = false;
-                this.formData.deployTestEnv.selected = false;
-                this.formData.deployBetaEnv.selected = false;
-                this.formDataRules.mvnPackage.fields.script[0].required = false;
-                break;
-              case 'buildImage':
-                this.stages.forEach(it => {
-                  if (['deployTestEnv', 'deployBetaEnv'].indexOf(it['name']) > -1) {
-                    it['selected'] = false;
-                  }
-                });
-                this.formData.deployBetaEnv.selected = false;
-                this.formData.deployTestEnv.selected = false;
-                this.formDataRules.buildImage.fields.selectedImage[0].required = false;
-                break;
-            }
-            this.currentStage['selected'] = false;
-            this.updateStageIndex(this.stages);
-            // this.$message.success(`删除结点 "${this.currentStage['name']}" 成功！`);
-            this.formData[this.currentStage['name']]['selected'] = false;
             break;
           case 'testAndSonarScript':
             this.formDataRules.testAndSonarScript.fields.script[0].required = false;
@@ -1761,6 +1672,7 @@
       },
       handleMouseEvent(action, evt, stage) {
       },
+      // 处理stage点击
       handleStageClick(evt, stage) {
         if (this.stageName === stage.name) {
           return;
@@ -1785,6 +1697,116 @@
         });
         // console.log(this.currentStage);
       },
+
+      // 处理stage的添加/删除
+      // "打包"结点删除后，"制作镜像"将会删除结点
+      // "制作镜像"结点删除后，"部署到[test]环境"/"部署到[beta]环境"结点会被删除
+      // "部署到[test]环境"删除后，"自动化测试[test]"结点将会删除
+      // "部署到[beta]环境"删除后，"自动化测试[beta]"结点将会删除
+      // "自动化测试[test]"结点 和 "自动化测试[beta]"结点 都删除后，"上传测试报告"结点将会删除
+      // "上传测试报告"结点的属性"自动化覆盖率报告读取结点"的默认值：
+      //   新建pipeline时：如果"自动化测试[test]"结点 或 "自动化测试[beta]"结点只有一个被选中，则为选中结点对应的环境(test/beta)；如果两个结点都选中，默认选择test结点。
+      //   修改pipeline时：？
+      handleStageActiveChange(evt, action, currentStageName) {
+        var stageChangeStatus = {
+          success: true,
+          reason: ''
+        };
+        currentStageName = currentStageName ? currentStageName : this.currentStage.name;
+        switch (action) {
+          case 'stage-add':
+            switch (currentStageName) {
+              case 'buildImage':
+                if (!this.findStageByName('mvnPackage')['selected']) {
+                  stageChangeStatus.success = false;
+                  stageChangeStatus.reason = `制作镜像依赖于打包，必须勾选打包步骤`;
+                  break;
+                }
+                this.formDataRules.buildImage.fields.selectedImage[0].required = true;
+                break;
+              case 'deployTestEnv':
+                if (!this.findStageByName('buildImage')['selected']) {
+                  stageChangeStatus.success = false;
+                  stageChangeStatus.reason = `部署到[test]环境依赖于制作镜像，必须勾选制作镜像步骤`;
+                }
+                break;
+              case 'deployBetaEnv':
+                if (!this.findStageByName('buildImage')['selected']) {
+                  stageChangeStatus.success = false;
+                  stageChangeStatus.reason = `部署到[beta]环境依赖于制作镜像，必须勾选制作镜像步骤`;
+                  break;
+                }
+                if (this.currentStageNetInfo['serviceStatus'] && this.currentStageNetInfo['applicationConfig']) {
+                  stageChangeStatus.success = true;
+                } else {
+                  stageChangeStatus.success = false;
+                  stageChangeStatus.reason = `当前应用无"${profileNameMap[currentStageName]}"服务，无法添加结点"${this.currentStage.description}"`;
+                }
+                break;
+              case 'sonarCheck':
+                this.formDataRules.sonarCheck.fields.projectKeyWord[0].required = true;
+                break;
+              case 'testAndSonarScript':
+                this.formDataRules.testAndSonarScript.fields.script[0].required = true;
+                break;
+              case 'mvnPackage':
+                this.formDataRules.mvnPackage.fields.script[0].required = true;
+                break;
+            }
+            if (stageChangeStatus.success) {
+              this.currentStage['selected'] = true;
+//              console.log(this.currentStage);
+              this.updateStageIndex(this.stages);
+              // this.$message.success(`添加结点 "${this.currentStage['name']}" 成功！`);
+              this.formData[this.currentStage['name']]['selected'] = true;
+            } else {
+              this.$message.error(stageChangeStatus.reason);
+            }
+            break;
+          case 'stage-remove':
+            // 结点删除后，取消"手工确认"
+            if (this.formData[currentStageName] && this.formData[currentStageName].hasOwnProperty('inputChecked')) {
+              this.formData[currentStageName]['inputChecked'] = false;
+            }
+            switch (currentStageName) {
+//              case 'sonarCheck':
+//                this.formData.sonarCheck.codeDebtSelected = false;
+//                this.formData.sonarCheck.codeDebt = '';
+//                this.formData.sonarCheck.unitTestSelected = false;
+//                this.formData.sonarCheck.unitTestRatio = '';
+//                this.formDataRules.sonarCheck.fields.projectKeyWord[0].required = false;
+//                break;
+              case 'mvnPackage':
+                // "打包"结点删除后，删除"制作镜像"结点
+                this.stages.filter(it => ['buildImage'].indexOf(it['name']) > -1).forEach(it => it['selected'] = false);
+                this.formData.buildImage.selected = false;
+                this.handleStageActiveChange(evt, 'stage-remove', 'buildImage');
+                break;
+              case 'buildImage':
+                // "制作镜像"结点删除后，"部署到[test]环境"/"部署到[beta]环境"结点会被删除
+                this.stages.filter(it => ['deployTestEnv', 'deployBetaEnv'].indexOf(it['name']) > -1).forEach(it => it['selected'] = false);
+                this.formData.deployBetaEnv.selected = false;
+                this.formData.deployTestEnv.selected = false;
+                break;
+              case 'deployTestEnv':
+                // "部署到[test]环境"删除后，"自动化测试[test]"结点将会删除
+                this.stages.filter(it => ['ciPipelineAutoTestVOTest'].indexOf(it['name']) > -1).forEach(it => it['selected'] = false);
+                this.formData.ciPipelineAutoTestVOTest.selected = false;
+                break;
+              case 'deployBetatEnv':
+                // "部署到[beta]环境"删除后，"自动化测试[beta]"结点将会删除
+                this.stages.filter(it => ['ciPipelineAutoTestVO'].indexOf(it['name']) > -1).forEach(it => it['selected'] = false);
+                this.formData.ciPipelineAutoTestVO.selected = false;
+                break;
+            }
+            this.currentStage['selected'] = false;
+            this.updateStageIndex(this.stages);
+            // this.$message.success(`删除结点 "${this.currentStage['name']}" 成功！`);
+            this.formData[this.currentStage['name']]['selected'] = false;
+            break;
+        }
+      },
+
       // 通过name属性设置stage.active
       setActiveStageByName(name) {
         this.stages.forEach(it => {
