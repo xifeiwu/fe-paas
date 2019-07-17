@@ -110,7 +110,7 @@
               <!--<transition name="el-zoom-in-top">-->
                 <div class="stage-config" v-show="currentStage.selected">
                   <!--:key="stageName"-->
-                  <!--部署到测试环境-->
+                  <!--部署到[test]环境-->
                   <div v-if="stageName === 'deployTestEnv'" class="deployTestEnv">
                     <div class="service-info-container" v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
                       <!--<i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('refresh_service_info') ? 'loading':'']"-->
@@ -121,7 +121,7 @@
                       当前应用无"测试环境"服务
                     </div>
                   </div>
-                  <!--部署到联调环境-->
+                  <!--部署到[beta]环境-->
                   <div v-if="stageName === 'deployBetaEnv'" class="deployBetaEnv">
                     <div class="service-info-container" v-if="currentStageNetInfo['serviceStatus'] && currentStageNetInfo['applicationConfig']">
                       <!--<i :class="['el-icon', 'el-icon-refresh',  statusOfWaitingResponse('refresh_service_info') ? 'loading':'']"-->
@@ -209,7 +209,7 @@
                     <el-form-item label="手工确认：" v-show="stageName === 'buildImage'">
                       <el-checkbox v-model="formData.buildImage.inputChecked"></el-checkbox>
                     </el-form-item>
-                    <!--部署到测试环境-->
+                    <!--部署到[test]环境-->
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployTestEnv'">
                       <div style="display: flex; justify-content: space-between">
                         <el-checkbox v-model="formData.deployTestEnv.inputChecked"></el-checkbox>
@@ -223,7 +223,7 @@
                       </div>
                     </el-form-item>
 
-                    <!--自动化测试-测试环境-start-->
+                    <!--自动化测试[test]-start-->
                     <el-form-item label="gitlab_ssh地址：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.gitLabPath"
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.gitLabPath"></el-input>
@@ -251,9 +251,9 @@
                     <el-form-item label="手工确认：" labelWidth="220px" v-show="stageName === 'ciPipelineAutoTestVOTest'">
                       <el-checkbox v-model="formData.ciPipelineAutoTestVOTest.inputChecked"></el-checkbox>
                     </el-form-item>
-                    <!--自动化测试-end-->
+                    <!--自动化测试[test]-end-->
 
-                    <!--部署到联调环境-->
+                    <!--部署到[beta]环境-->
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployBetaEnv'">
                       <div style="display: flex; justify-content: space-between">
                         <el-checkbox v-model="formData.deployBetaEnv.inputChecked"></el-checkbox>
@@ -266,7 +266,7 @@
                         </div>
                       </div>
                     </el-form-item>
-                    <!--自动化测试-联调环境-start-->
+                    <!--自动化测试[beta]-start-->
                     <el-form-item label="gitlab_ssh地址：" labelWidth="220px" prop="ciPipelineAutoTestVO.gitLabPath"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabPath"></el-input>
@@ -298,7 +298,7 @@
                     <el-form-item label="手工确认：" labelWidth="220px" v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-checkbox v-model="formData.ciPipelineAutoTestVO.inputChecked"></el-checkbox>
                     </el-form-item>
-                    <!--自动化测试-end-->
+                    <!--自动化测试[beta]-end-->
 
                     <!--上传测试报告-->
                     <el-form-item v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
@@ -740,10 +740,10 @@
       description: '制作镜像'
     },
     'deployTestEnv': {
-      description: '部署到测试环境'
+      description: '部署到[test]环境'
     },
     'ciPipelineAutoTestVOTest': {
-      description: ['自动化测试', '(测试环境)']
+      description: ['自动化测试[test]']
     },
     'uploadUnitTestReportAndAutoTestReport': {
       description: '上传测试报告'
@@ -752,10 +752,10 @@
       description: '功能测试（人工验证）'
     },
     'deployBetaEnv': {
-      description: '部署到联调环境'
+      description: '部署到[beta]环境'
     },
     'ciPipelineAutoTestVO': {
-      description: ['自动化测试', '(联调环境)']
+      description: ['自动化测试[beta]']
     },
     'end': {
       description: 'end',
@@ -842,11 +842,11 @@
         'sonarCheck',  //Sonar数据检查
         'mvnPackage',  //打包
         'buildImage',  //制作镜像
-        'deployTestEnv', //部署到测试环境
-        'ciPipelineAutoTestVOTest',  //自动化测试（测试环境）
+        'deployTestEnv', //部署到[test]环境
+        'ciPipelineAutoTestVOTest',  //自动化测试[test]
         'functionValidate',  //功能测试（人工验证）
-        'deployBetaEnv',  //部署到联调环境
-        'ciPipelineAutoTestVO',  //自动化测试（联调环境）
+        'deployBetaEnv',  //部署到[beta]环境
+        'ciPipelineAutoTestVO',  //自动化测试[beta]
         'uploadUnitTestReportAndAutoTestReport', // 上传测试报告
         'end'
       ].map(key => {
@@ -957,13 +957,13 @@
             inputChecked: false,
             selected: false,
           },
-          // 部署到测试环境
+          // 部署到[test]环境
           deployTestEnv: {
             env: 'TEST',
             inputChecked: false,
             selected: false,
           },
-          // 自动化测试（测试环境）
+          // 自动化测试[test]
           ciPipelineAutoTestVOTest: {
             gitLabBranch: '', // gitlab分支 ,
             gitLabPath: '', // gitlab路径 SSH ,
@@ -978,13 +978,13 @@
           functionValidate: {
             selected: false,
           },
-          // 部署到联调环境
+          // 部署到[beta]环境
           deployBetaEnv: {
             env: 'BETA',
             inputChecked: false,
             selected: false,
           },
-          // 自动化测试（联调环境）
+          // 自动化测试[beta]
           ciPipelineAutoTestVO: {
             gitLabBranch: '', // gitlab分支 ,
             gitLabPath: '', // gitlab路径 SSH ,
@@ -1547,13 +1547,13 @@
               case 'deployTestEnv':
                 if (!this.findStageByName('buildImage')['selected']) {
                   stageChangeStatus.success = false;
-                  stageChangeStatus.reason = `部署到测试环境依赖于制作镜像，必须勾选制作镜像步骤`;
+                  stageChangeStatus.reason = `部署到[test]环境依赖于制作镜像，必须勾选制作镜像步骤`;
                 }
                 break;
               case 'deployBetaEnv':
                 if (!this.findStageByName('buildImage')['selected']) {
                   stageChangeStatus.success = false;
-                  stageChangeStatus.reason = `部署到联调环境依赖于制作镜像，必须勾选制作镜像步骤`;
+                  stageChangeStatus.reason = `部署到[beta]环境依赖于制作镜像，必须勾选制作镜像步骤`;
                   break;
                 }
                 if (this.currentStageNetInfo['serviceStatus'] && this.currentStageNetInfo['applicationConfig']) {
