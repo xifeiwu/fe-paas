@@ -24,7 +24,9 @@
 </template>
 <style lang="scss">
   .el-dialog__wrapper.dialog-for-log {
-    font-family: "微软雅黑", 'Microsoft Yahei','HelveticaNeue',sans-serif;
+    /*font-family: "微软雅黑", 'Microsoft Yahei','HelveticaNeue',sans-serif;*/
+    font-family: Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
     .el-dialog.dialog-for-log {
       background-color: rgba(0, 0, 0, 0.9);
       width: 90%;
@@ -84,7 +86,7 @@
         overflow: scroll;
         .el-scrollbar {
           height: 100%;
-          font-size: 12px;
+          font-size: 13px;
           line-height: 16px;
           &__thumb {
             background-color: #409EFF;
