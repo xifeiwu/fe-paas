@@ -3,6 +3,7 @@
     <div class="header" v-if="instanceInfo">
       <div class="instance-info">
         <div class="item">当前实例：{{instanceInfo.instanceName}}</div>
+        <div class="item">实例IP：{{instanceInfo.intranetIP}}</div>
         <div class="item">操作员：{{instanceInfo.realName}}</div>
       </div>
     </div>
@@ -187,6 +188,7 @@
           appName: qsObj.appName,
           instanceName: qsObj.instanceName,
           realName: userInfo.realName,
+          intranetIP: qsObj.intranetIP,
           startTime: null
         };
         results.payload = {

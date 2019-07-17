@@ -34,6 +34,12 @@
                 label="实例名称"
                 minWidth="100"
                 headerAlign="left" align="left">
+          <template slot-scope="scope">
+            <span class="link">{{scope.row.id}}</span>
+            <i class="paas-icon-copy"
+               v-clipboard:copy="scope.row.id"
+               v-clipboard:success="handleSuccessCopy"></i>
+          </template>
         </el-table-column>
         <el-table-column
                 prop="nodeName"
@@ -73,6 +79,9 @@
                     :class="['running-node', isProductionProfile ? 'production': 'un-production']"
                     @click="handleRowButtonClick($event, 'show_intranet', scope.$index, scope.row)"
             >{{scope.row.intranetIP}}</span>
+            <i class="paas-icon-copy"
+               v-clipboard:copy="scope.row.intranetIP"
+               v-clipboard:success="handleSuccessCopy"></i>
           </template>
         </el-table-column>
         <el-table-column
@@ -497,6 +506,12 @@
     watch: {
     },
     methods: {
+      handleSuccessCopy(evt) {
+        this.$storeHelper.globalTip.show({
+          ref: evt.trigger,
+          msg: '复制成功'
+        });
+      },
       // TODO: 获取实例数有没有必要请求整个服务运行相关的所有信息
       // 获取服务的当前运行信息（用于展示：当前实例数/总实例数）
       async requestServiceRunningInfo(appId, profileId) {
@@ -743,7 +758,8 @@
           profileName: profile['name'],
           gid: group.id,
           profileId: profile.id,
-          instanceName: instance.id
+          instanceName: instance.id,
+          intranetIP: instance.intranetIP
         }
       },
       /**
