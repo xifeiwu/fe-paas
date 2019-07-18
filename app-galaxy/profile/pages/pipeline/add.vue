@@ -239,7 +239,7 @@
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.itTestReportAddress"></el-input>
                     </el-form-item>
-                    <el-form-item label="项目根目录：" labelWidth="220px" prop="ciPipelineAutoTestVO.relativePath"
+                    <el-form-item label="项目根目录：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.relativePath"
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.relativePath"
                                 placeholder="不能超过256个字符，不能以/开头"></el-input>
@@ -1557,10 +1557,6 @@
       // 处理按钮click事件
       async handleClick(evt, action) {
         const target = evt.target;
-        const profileNameMap = {
-          deployTestEnv: '测试环境',
-          deployBetaEnv: '联调环境',
-        };
         var resContent = null;
         switch (action) {
 	        case 'more-config':
@@ -1763,6 +1759,10 @@
       //   新建pipeline时：如果"自动化测试[test]"结点 或 "自动化测试[beta]"结点只有一个被选中，则为选中结点对应的环境(test/beta)；如果两个结点都选中，默认选择test结点。
       //   修改pipeline时：同新建pipeline时
       handleStageActiveChange(evt, action, currentStageName) {
+        const profileNameMap = {
+          deployTestEnv: '测试环境',
+          deployBetaEnv: '联调环境',
+        };
         var stageChangeStatus = {
           success: true,
           reason: ''
