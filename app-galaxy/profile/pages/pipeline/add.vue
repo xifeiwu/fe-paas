@@ -1616,6 +1616,7 @@
               if ('take-effect' === action) {
                 this.$router.go(-1);
               }
+              return Promise.resolve();
               // console.log(`validate: ${validate}`);
             } catch (err) {
               // console.log(err);
@@ -1632,12 +1633,13 @@
                   this.setActiveStageByName(firstFields);
                   // validate again to make sure show error message
                   this.$nextTick(() => {
-                    this.$refs['pipeline-script-form'].validate(() => {});
+                    this.$refs.hasOwnProperty('pipeline-script-form') && this.$refs['pipeline-script-form'].validate(() => {});
                   });
                 }
               } else {
                 console.log(err);
               }
+              return Promise.reject();
             }
             break;
           // TODO: not used
@@ -1653,16 +1655,18 @@
             this.$router.go(-1);
             break;
           case 'save-and-go-to-page-pipeline-records':
-            await this.handleClick(evt, 'save');
-            this.$storeHelper.dataTransfer = {
-              from: this.$net.page['profile/pipeline/add'],
-              data: {
-                appId: this.appInfo['appId'],
-                appName: this.appInfo['appName'],
-                pipelineName: this.formData['pipelineName'],
-              }
-            };
-            this.$router.push(this.$net.page['profile/pipeline/records']);
+            try {
+              await this.handleClick(evt, 'save');
+              this.$storeHelper.dataTransfer = {
+                from: this.$net.page['profile/pipeline/add'],
+                data: {
+                  appId: this.appInfo['appId'],
+                  appName: this.appInfo['appName'],
+                  pipelineName: this.formData['pipelineName'],
+                }
+              };
+              this.$router.push(this.$net.page['profile/pipeline/records']);
+            } catch(err) {}
             break;
           case 'refresh_test_service_info':
           case 'refresh_beta_service_info':

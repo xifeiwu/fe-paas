@@ -883,7 +883,7 @@
             clearInterval(tagUpdateLog);
             return;
           }
-          let size = (Math.ceil(logQueue.length / 20) > 2) ? Math.ceil(logQueue.length / 20) : 2;
+          let size = (Math.ceil(logQueue.length / 1000) > 2) ? Math.ceil(logQueue.length / 1000) : 2;
           nextItems = logQueue.slice(0, size);
           logQueue = logQueue.slice(size);
           if (nextItems.length === 0) {
@@ -895,12 +895,14 @@
           }
 
           // scroll after render finish
-          setTimeout(() => {
+          this.$nextTick(() => {
             if (this.$refs.hasOwnProperty('dialogForBuildLog')) {
               const dialogForDeployLog = this.$refs['dialogForBuildLog'];
-              dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+//              if (dialogForDeployLog.isScrolledBottom) {
+                dialogForDeployLog.scrollToBottom();
+//              }
             }
-          }, 500);
+          });
         });
 
         var currentBufferSize = 0;
@@ -933,9 +935,9 @@
         setTimeout(() => {
           if (this.$refs.hasOwnProperty('dialogForBuildLog')) {
             const dialogForDeployLog = this.$refs['dialogForBuildLog'];
-            dialogForDeployLog.isScrolledBottom && dialogForDeployLog.scrollToBottom();
+            dialogForDeployLog.scrollToBottom();
           }
-        }, 200);
+        }, 20);
         this.buildLogStatus.loading = false;
       },
 

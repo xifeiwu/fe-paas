@@ -185,9 +185,11 @@
         if (target) {
           if (target.scrollTop === 0) {
             this.$emit('scrollTop');
-          } else if (target.scrollTop + target.clientHeight === target.scrollHeight) {
+          } else {
             this.isScrolledBottom = target.scrollTop + target.clientHeight === target.scrollHeight;
-            this.$emit('scrollBottom');
+            if (this.isScrolledBottom) {
+              this.$emit('scrollBottom');
+            }
           }
         }
       },
