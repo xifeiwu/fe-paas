@@ -644,9 +644,9 @@
           return;
         }
         // 短时间内两次点击会触发后台错误，避免短时双击
-       if (['go-on', 'cancel'].indexOf(userInputInfo.action) > -1) {
-         return;
-       }
+        if (['go-on', 'cancel'].indexOf(userInputInfo.action) > -1) {
+          return;
+        }
         userInputInfo.action = action;
         switch (action) {
           case 'go-on':
@@ -664,6 +664,7 @@
             });
             break;
         }
+        this.updatePopperForUserConfirm();
       },
 
       // 获取等待用户确认的基本信息，only used by updatePopperForUserConfirm
@@ -684,7 +685,9 @@
         }
         return result;
       },
+
       // 通过不断轮询，更新popover的状态
+      // 1. showPopperForUserConfirm修改；2. handleUserInput
       async updatePopperForUserConfirm() {
         const lastBuildingRecord = this.lastBuildingRecord;
         // update action.row by buildNumber
@@ -709,7 +712,7 @@
           // console.log(this.showPopperForUserConfirm);
           // console.log(targetClass);
           // console.log(target);
-          if (this.showPopperForUserConfirm) {
+          if (this.showPopperForUserConfirm && (userInputInfo && userInputInfo.action == null)) {
             if (!this.popperForUserConfirm.isShowing() || this.popperForUserConfirm.reference != target) {
               this.popperForUserConfirm.show({
                 ref: target
