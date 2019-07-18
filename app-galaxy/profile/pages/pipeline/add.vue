@@ -239,9 +239,10 @@
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.itTestReportAddress"></el-input>
                     </el-form-item>
-                    <el-form-item label="项目根目录：" labelWidth="220px"
+                    <el-form-item label="项目根目录：" labelWidth="220px" prop="ciPipelineAutoTestVO.relativePath"
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.relativePath"></el-input>
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.relativePath"
+                                placeholder="不能超过256个字符，不能以/开头"></el-input>
                     </el-form-item>
                     <el-form-item label="jacoco includes：" labelWidth="220px"
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
@@ -282,9 +283,10 @@
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
                       <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.itTestReportAddress"></el-input>
                     </el-form-item>
-                    <el-form-item label="项目根目录：" labelWidth="220px"
+                    <el-form-item label="项目根目录：" labelWidth="220px" prop="ciPipelineAutoTestVO.relativePath"
                       v-show="stageName === 'ciPipelineAutoTestVO'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.relativePath"></el-input>
+                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.relativePath"
+                                placeholder="不能超过256个字符，不能以/开头"></el-input>
                     </el-form-item>
                     <el-form-item label="jacoco includes：" labelWidth="220px"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
@@ -722,7 +724,6 @@
   // import "codemirror/addon/display/autorefresh";
   import paasServiceInfo from './components/service-info.vue';
   import commonUtils from 'assets/components/mixins/common-utils';
-import ElFormItem from "../../../../components/element-ui/packages/form/src/form-item";
 
   const STAGE_NAME_MAP = {
     'start': {
@@ -771,7 +772,7 @@ import ElFormItem from "../../../../components/element-ui/packages/form/src/form
   };
   export default {
     mixins: [commonUtils],
-    components: {ElFormItem, pipelineStage, codemirror, paasServiceInfo},
+    components: {pipelineStage, codemirror, paasServiceInfo},
     async created() {
       var goBack = false;
       this.pageType = this.$route.path === this.$net.page["profile/pipeline/modify"] ? 'modify' : 'add';
@@ -1101,6 +1102,21 @@ import ElFormItem from "../../../../components/element-ui/packages/form/src/form
                 required: false,
                 requiredOrigin: false,
                 message: '请填写ssh格式的gitlab路径'
+              }, {
+                validator: this.$utils.generateCountValidator(false, 0, 256)
+              }, {
+                validator(rule, values, callback) {
+                  values = values.trim();
+                  if (!values) {
+                    callback();
+                  } else {
+                    if (values.startsWith('/')) {
+                      callback('不能以/开头');
+                    } else {
+                      callback();
+                    }
+                  }
+                }
               }],
               itTestReportAddress: [{
                 type: "string",
@@ -1139,7 +1155,24 @@ import ElFormItem from "../../../../components/element-ui/packages/form/src/form
                 type: "string",
                 required: false,
                 requiredOrigin: false,
-                message: '请填写ssh格式的gitlab路径'
+              }, {
+                trigger: ['blur', 'change'],
+                validator: this.$utils.generateCountValidator(false, 0, 256)
+              }, {
+                trigger: ['blur', 'change'],
+                validator(rule, values, callback) {
+                  console.log(values);
+                  values = values.trim();
+                  if (!values) {
+                    callback();
+                  } else {
+                    if (values.startsWith('/')) {
+                      callback('不能以/开头');
+                    } else {
+                      callback();
+                    }
+                  }
+                }
               }],
               itTestReportAddress: [{
                 type: "string",
@@ -1517,8 +1550,8 @@ import ElFormItem from "../../../../components/element-ui/packages/form/src/form
           delete noticeConfigRules['fields']['noticeEmails']
         }
 
-        // console.log(this.formData.ciPipelineAutoTestVOTest);
-        // console.log(this.formDataRules.ciPipelineAutoTestVOTest);
+        // console.log(this.formData.ciPipelineAutoTestVO);
+        // console.log(this.formDataRules.ciPipelineAutoTestVO);
       },
 
       // 处理按钮click事件
@@ -1561,6 +1594,9 @@ import ElFormItem from "../../../../components/element-ui/packages/form/src/form
 
             var validate = true;
             try {
+              this.formData.groupId = this.$storeHelper.currentGroupID;
+              this.formData.ciPipelineAutoTestVO.relativePath = this.formData.ciPipelineAutoTestVO.relativePath.trim();
+              this.formData.ciPipelineAutoTestVOTest.relativePath = this.formData.ciPipelineAutoTestVOTest.relativePath.trim();
               validate = await basicInfoForm.validate();
               if (this.$refs['pipeline-script-form']) {
                 validate = await this.$refs['pipeline-script-form'].validate();
@@ -1577,7 +1613,6 @@ import ElFormItem from "../../../../components/element-ui/packages/form/src/form
               if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
                 this.formData.webHooks.webHooksSelectedEvent = [this.formData.webHooks.webHooksSelectedEvent]
               }
-              this.formData.groupId = this.$storeHelper.currentGroupID;
               await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_take_effect, {
                 payload: this.formData
               });

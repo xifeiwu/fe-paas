@@ -190,6 +190,19 @@ class AppInfoHelper {
         validator: notRequriedBasicValidator
       }, {
         validator: limit256
+      }, {
+        validator(rule, values, callback) {
+          values = values.trim();
+          if (!values) {
+            callback();
+          } else {
+            if (values.startsWith('/')) {
+              callback('不能以/开头');
+            } else {
+              callback();
+            }
+          }
+        }
       }],
       appMonitor: [{
         required: true

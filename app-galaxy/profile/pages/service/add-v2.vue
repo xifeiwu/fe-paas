@@ -104,7 +104,7 @@
                           v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
                           class="relative-path-of-parent-pom max-width-700">
               <el-input v-model="formData.relativePathOfParentPOM"
-                        placeholder="原“Gitlab父级pom.xml相对路径”字段，不能超过256个字符" style="width: 90%" ></el-input>
+                        placeholder="原“Gitlab父级pom.xml相对路径”字段，不能超过256个字符，不能以/开头" style="width: 90%" ></el-input>
               <span>
                 <el-tooltip slot="trigger" effect="dark" placement="top">
                     <div slot="content">
