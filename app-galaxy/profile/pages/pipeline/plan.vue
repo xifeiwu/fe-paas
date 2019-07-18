@@ -259,7 +259,9 @@
           }
           this.stages.push(stage);
         });
-        this.lastStage = resContent.length > 0 ? resContent[resContent.length - 1] : null;
+        this.lastStage = resContent.find(i => {
+          return i.id == this.stages[this.stages.length - 1].id;
+        })
       },
 
       async processStageList() {
