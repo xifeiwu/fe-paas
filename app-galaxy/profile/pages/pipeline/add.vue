@@ -1730,12 +1730,7 @@
         if (['start', 'download', 'end'].indexOf(stage.name) > -1) {
           return;
         }
-        // console.log(stage);
-        for (let key in this.$refs) {
-          setTimeout(() => {
-            key.startsWith('codemirror-') && this.$refs[key] && this.$utils.isFunction(this.$refs[key].refresh) && this.$refs[key].refresh();
-          }, 20);
-        }
+        this.onStageClickOrChange();
         this.currentStage = stage;
         this.stageName = stage.name;
         this.currentStageNetInfo = this.pipelineInfoFromNet[stage.name];
@@ -1745,6 +1740,15 @@
           }
         });
         // console.log(this.currentStage);
+      },
+      onStageClickOrChange() {
+        // console.log(stage);
+        for (let key in this.$refs) {
+          setTimeout(() => {
+            key.startsWith('codemirror-') && this.$refs[key] && this.$utils.isFunction(this.$refs[key].refresh) && this.$refs[key].refresh();
+          }, 20);
+        }
+        this.updateFormDataRules();
       },
 
       // 处理stage的添加/删除
@@ -1887,11 +1891,11 @@
                 break;
             }
             this.updateStageIndex(this.stages);
-            // updateFormDataRules at active of Stage
-            this.updateFormDataRules();
             // this.$message.success(`删除结点 "${this.currentStage['name']}" 成功！`);
             break;
         }
+        // updateFormDataRules at active of Stage
+        this.onStageClickOrChange();
       },
 
       // 通过name属性设置stage.active
