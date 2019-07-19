@@ -160,6 +160,12 @@
             <div class="ant-divider"></div>
             <el-button
                     type="text"
+                    :class="['flex', $storeHelper.actionDisabled('instance-status-jvm') || isMesosService ? 'disabled' : 'primary']"
+                    @click="handleRowButtonClick($event, 'instance-status-jvm', scope.$index, scope.row)"
+            ><span class="new-terminal"><span>jvm快照</span><span class="beta"></span></span></el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text"
                     :class="['flex', $storeHelper.permission['go-to-log-run-from-instance'].disabled ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'go-to-log-run-from-instance', scope.$index, scope.row)">
               <span>查看运行日志</span><i class="paas-icon-level-up"></i>
@@ -740,23 +746,30 @@
       handleClickOutsideOfInstanceList() {
       },
 
-      // 传递给实例终端页面的参数
-      getInfoForPageInstanceTerminal(instance) {
-        var results = {};
+      // 获得当前实例相关信息
+      getInstanceRelatedInfo(instance) {
+        var results = null;
         var {selectedAPP, selectedProfile, selectedService} = this.$refs['version-selector'].getSelectedValue();
         if (!selectedAPP || !selectedProfile || !selectedService) {
-          return result;
-        }
-//        results['appName'] = selectedAPP['appName'];
-        results['serviceName'] = selectedService['serviceName'];
-        results['profileName'] = selectedProfile['name'];
-        results['gid'] = this.$storeHelper.groupInfo.id;
-        results['profileId'] = selectedProfile.id;
-        results['instanceName'] = instance.id;
-        if (Object.keys(results)) {
           return results;
-        } else {
-          return null;
+        }
+        return {
+          group: this.$storeHelper.groupInfo,
+          app: selectedAPP,
+          service: selectedService,
+          profile: selectedProfile,
+          instance
+        }
+      },
+      // 传递给实例终端页面的参数
+      getInfoForPageInstanceTerminal(instance) {
+        var {app, service, profile, group, instance} = this.getInstanceRelatedInfo(instance);
+        return {
+          serviceName: service['serviceName'],
+          profileName: profile['name'],
+          gid: group.id,
+          profileId: profile.id,
+          instanceName: instance.id
         }
       },
       /**
@@ -948,6 +961,14 @@
               console.log(err);
             }
             break;
+          case 'instance-status-jvm':
+            this.openTerminal({
+              profileName: this.profileInfo.name,
+              instanceName: row.id,
+              groupTag: this.$storeHelper.groupInfo.tag,
+//              serviceName, userToken, profileType
+            });
+            break;
           case 'go-to-log-run-from-instance':
             valueOfVersionSelector = this.$refs['version-selector'].getSelectedValue();
             this.$storeHelper.dataTransfer = {
@@ -990,6 +1011,21 @@
         }
       },
 
+      openTerminal({profileName, instanceName, groupTag, serviceName, userToken, profileType}) {
+        if (!profileName || !instanceName || !groupTag || !serviceName || !userToken || !profileType) {
+          console.log('params is not correct');
+          return;
+        }
+        const payload = {
+          podNs: `${profileName}-${groupTag}`,
+          podName: instanceName,
+          containerName: serviceName,
+          token: userToken,
+          userName: userName,
+          profileType: profileType,
+          profileName: profileName
+        };
+      },
       // 对齐，填充空白信息
       formatColumn (text, width) {
         let space = '#'.repeat(width);
