@@ -205,7 +205,7 @@
        * @returns {Promise.<null>}
        */
       async requestAssist(payload) {
-        const resContent = await this.$net.requestAssistServer(this.$net.URL_LIST.get_token, {payload});
+        const resContent = await this.$net.requestAssistServer(this.$net.URL_LIST_ASSIST.get_websocket_token, {payload});
         if (resContent.token && resContent.host && resContent.port) {
           return resContent
         } else {

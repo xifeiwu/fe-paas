@@ -3,7 +3,7 @@ import NetBase from 'assets/js/net';
 class Net extends NetBase {
   constructor() {
     super();
-    const PAAS_URL_LIST = {
+    const URL_LIST_PAAS = {
       // 获取验证码
       'get_verify_code': {
         path: '/createRandomImage',
@@ -24,26 +24,18 @@ class Net extends NetBase {
         method: 'get'
       }
     };
-    Object.keys(PAAS_URL_LIST).forEach(key => {
-      let item = PAAS_URL_LIST[key];
+    Object.keys(URL_LIST_PAAS).forEach(key => {
+      let item = URL_LIST_PAAS[key];
       item.path = this.PAAS_PREFIX + item.path;
     });
-    const ASSIST_URL_LIST = {
-      get_token: {
-        path: '/api/paas/terminal/get-token',
-        method: 'post'
-      }
+    const URL_LIST_ASSIST = {
     };
-    Object.keys(ASSIST_URL_LIST).forEach(key => {
-      let item = ASSIST_URL_LIST[key];
+    Object.keys(URL_LIST_ASSIST).forEach(key => {
+      let item = URL_LIST_ASSIST[key];
       item.path = this.ASSIST_PREFIX + item.path;
     });
-
-    if (this.URL_LIST) {
-      this.URL_LIST = Object.assign(this.URL_LIST, PAAS_URL_LIST, ASSIST_URL_LIST);
-    } else {
-      this.URL_LIST = Object.assign(PAAS_URL_LIST, ASSIST_URL_LIST);
-    }
+    this.URL_LIST = this.URL_LIST ? Object.assign(this.URL_LIST, URL_LIST_PAAS) : URL_LIST_PAAS;
+    this.URL_LIST_ASSIST = this.URL_LIST_ASSIST ? Object.assign(this.URL_LIST_ASSIST, URL_LIST_ASSIST) : URL_LIST_ASSIST;
   }
 }
 

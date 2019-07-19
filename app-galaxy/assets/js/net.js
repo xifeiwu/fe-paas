@@ -68,8 +68,19 @@ class Net {
       let item = PAAS_URL_LIST[key];
       item.path = this.PAAS_PREFIX + item.path;
     });
-
     this.URL_LIST = PAAS_URL_LIST;
+
+    const URL_LIST_ASSIST = {
+      get_websocket_token: {
+        path: '/api/paas/terminal/get-token',
+        method: 'post'
+      }
+    };
+    Object.keys(URL_LIST_ASSIST).forEach(key => {
+      let item = URL_LIST_ASSIST[key];
+      item.path = this.ASSIST_PREFIX + item.path;
+    });
+    this.URL_LIST_ASSIST = URL_LIST_ASSIST;
 
     this.page = {
       'index': '/index',
