@@ -548,7 +548,7 @@
 <script>
   import bytes from 'bytes';
   import commonUtils from 'assets/components/mixins/common-utils';
-  import th from "../../../../../components/element-ui/src/locale/lang/th";
+
   const STATUS_MAP = {
     Complete: '成功',
     Running: '中',

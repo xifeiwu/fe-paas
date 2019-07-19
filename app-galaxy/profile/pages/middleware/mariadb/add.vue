@@ -90,6 +90,10 @@
         <el-form-item label="确认密码" prop="confirmPassword" class="confirm-password" v-if="false">
           <el-input v-model="formData.confirmPassword" placeholder="英文，数字，下划线，中划线。2-30个字符" type="password"></el-input>
         </el-form-item>
+        <el-form-item label="配置文件" v-if="forModify">
+          <el-button type="primary" icon="el-icon-edit-outline" @click="openMyCnfEditor('master.cnf')" plain>master.cnf</el-button>
+          <!--<el-button type="primary" icon="el-icon-edit-outline" @click="openMyCnfEditor('slave.cnf')" plain>slave.cnf</el-button>-->
+        </el-form-item>
         <el-form-item label="备注" prop="comment" class="comment">
           <el-input v-model="formData.comment" placeholder="长度小于100个字符"
                     size="mini"
@@ -107,6 +111,34 @@
         <el-button type="primary" size="mini" @click="$router.go(-1)">关闭</el-button>
       </div>
     </div>
+
+    <el-dialog :visible.sync="showMyCnfEditor" top="30px" width="80%" :fullscreen="false"
+               v-loading="saveMyCnfLoading"
+               element-loading-text="正在保存"
+               element-loading-spinner="el-icon-loading"
+               element-loading-background="rgba(0, 0, 0, 0.8)"
+    >
+      <div class="py-3" style="width: 80%; text-align: left;">
+        <h4>
+            <span style="color: red;">
+            MariaDB的my.cnf
+            </span>
+        </h4>
+      </div>
+      <div class="__editor" v-if="myCnfType==='master.cnf'">
+        <codemirror v-model="myCnfMaster" :options="editorMyCnfOptions"></codemirror>
+      </div>
+      <!--<div class="__editor" v-if="myCnfType==='slave.cnf'">-->
+        <!--<codemirror v-model="myCnfSlave" :options="editorMyCnfOptions"></codemirror>-->
+      <!--</div>-->
+
+      <div slot="footer" class="pa-3" style="text-align: center">
+        <el-button type="success" size="medium" @click="saveMyCnf()">&emsp;保 存 修 改&emsp;
+        </el-button>
+        <el-button type="danger" size="medium" @click="showMyCnfEditor = false">&emsp;取 消 修 改&emsp;</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 <style lang="scss" scoped>
@@ -189,7 +221,17 @@
   import utils from '../utils';
   import bytes from 'bytes';
   import commonUtils from 'assets/components/mixins/common-utils';
-  import th from "../../../../../components/element-ui/src/locale/lang/th";
+  import {codemirror} from "vue-codemirror";
+  import "codemirror/lib/codemirror.css";
+
+  // language
+  import "codemirror/mode/properties/properties.js";
+  import "codemirror/mode/yaml/yaml.js";
+  // theme
+  import "codemirror/theme/monokai.css";
+  // require active-line.js
+  import "codemirror/addon/selection/active-line.js";
+
   module.exports = {
     mixins: [commonUtils],
     async created() {
@@ -260,6 +302,9 @@
     mounted() {
 
     },
+    components: {
+      codemirror
+    },
     data() {
       return {
         forModify: false,
@@ -293,6 +338,23 @@
           middlewareId: ''
         },
         formRules: utils.mariadbRules,
+
+        myCnfMaster: '',
+        myCnfSlave: '',
+        myCnfType: '',
+        showMyCnfEditor: false,
+        saveMyCnfLoading: false,
+        currentEditMyCnf: [],
+        editorMyCnfOptions: {
+          tabSize: 4,
+          styleActiveLine: true,
+          lineNumbers: true,
+          line: true,
+          mode: "text/x-properties",
+          theme: "monokai",
+          readOnly: false,
+          viewportMargin: 10
+        },
 
         constants: {
           cpuList: [1, 2],
@@ -417,7 +479,64 @@
             }
             break;
         }
-      }
+      },
+
+      async openMyCnfEditor(val) {
+        this.myCnfType = val;
+
+        var resp = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_get_my_cnf, {
+          payload: {
+            clusterId: this.clusterInfo.id,
+            namespace: this.$storeHelper.groupInfo.tag,
+            name: this.formData.name
+          }
+        });
+
+        if ('master.cnf' === this.myCnfType) {
+          this.myCnfMaster = resp.data['master.cnf'];
+        }
+
+        if ('slave.cnf' === this.myCnfType) {
+          this.myCnfSlave = resp.data['slave.cnf'];
+        }
+
+        this.showMyCnfEditor = true;
+      },
+
+      async saveMyCnf() {
+        this.saveMyCnfLoading = true;
+
+        await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_mariadb_update_my_cnf, {
+          payload: {
+            clusterId: this.clusterInfo.id,
+            namespace: this.$storeHelper.groupInfo.tag,
+            myCnfList: {
+              "master.cnf": this.myCnfMaster,
+              "slave.cnf": this.myCnfSlave
+            },
+            name: this.formData.name
+          }
+        }).then(resp => {
+          console.log(resp);
+          this.$message.success("配置文件修改成功！");
+        }).catch(err => {
+            console.log(err);
+          this.$message.error("配置文件保存失败，请联系云平台！");
+        }).finally(() => {
+          this.saveMyCnfLoading = false;
+          this.showMyCnfEditor = false;
+        });
+      },
     }
   }
 </script>
+
+<style lang="scss">
+  .__editor {
+    text-align: left;
+    min-height: 400px;
+    .CodeMirror {
+      min-height: 480px;
+    }
+  }
+</style>
