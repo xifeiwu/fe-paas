@@ -86,12 +86,6 @@
                     @click="handleTRButton($event,'modify', scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
             <div class="ant-divider"></div>
             <el-button
-                    v-if="scope.row.cancelOrder"
-                    type="text" class="danger"
-                    :loading="statusOfWaitingResponse('cancel') && operation.rowID == scope.row.id"
-                    @click="handleTRButton($event,'cancel', scope.$index, scope.row)">撤销工单</el-button>
-            <div class="ant-divider" v-if="scope.row.cancelOrder"></div>
-            <el-button
                     type="text" class="primary"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     @click="handleTRButton($event,'detail', scope.$index, scope.row)"

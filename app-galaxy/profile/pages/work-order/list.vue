@@ -81,6 +81,12 @@
             </el-button>
             <div class="ant-divider"></div>
             <el-button
+                    v-if="scope.row.status != 'END'"
+                    type="text" class="danger"
+                    :loading="statusOfWaitingResponse('cancel') && operation.rowID == scope.row.id"
+                    @click="handleTRClick($event,'cancel', scope.$index, scope.row)">撤销工单</el-button>
+            <div class="ant-divider" v-if="scope.row.status != 'END'"></div>
+            <el-button
                     type="text" class="primary"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     @click="handleTRClick($event, 'detail', scope.$index, scope.row)"
@@ -520,7 +526,7 @@
             break;
         }
       },
-      handleTRClick(evt, action, index, row) {
+      async handleTRClick(evt, action, index, row) {
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
@@ -615,6 +621,26 @@
             }).catch(err => {
               this.hideWaitingResponse(action);
             });
+            break;
+          case 'cancel':
+            this.addToWaitingResponseQueue(action);
+            try {
+              await this.$confirm(`确定要撤销工单"${row.name}"吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.work_order_cancel, {
+                payload: {
+                  id: row.id
+                }
+              });
+              this.requestWorkOrderList();
+              this.hideWaitingResponse(action);
+            } catch(err) {
+              this.hideWaitingResponse(action);
+            }
             break;
         }
       },

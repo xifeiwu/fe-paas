@@ -99,6 +99,16 @@
         <i class="el-icon-warning" style="display: inline-block; margin-left: 10px; color: #E6A23C;"
            @mouseover="handleClick($event, 'warning-app-add-profile')"></i>
       </el-form-item>
+
+      <el-form-item label="说明" prop="description">
+        <el-input v-model="createAppForm.description"
+                  size="mini"
+                  type="textarea"
+                  :rows="4"
+                  placeholder="不能超过200个字符"
+        ></el-input>
+      </el-form-item>
+
       <div class="el-form-item-group is-required" v-if="false">
         <div class="label" style="width: 140px;">健康检查配置</div>
         <div class="content" style="margin-left: 140px;">
@@ -429,6 +439,8 @@ export default {
             this.propsUsed.language = false;
             this.propsUsed.languageVersion = false;
             // this.propsUsed.packageType = false;
+            console.log(data)
+            this.createAppForm.description = data['description'];
             break;
           default:
             goBack = true;
@@ -549,6 +561,7 @@ export default {
         maxAge4Script: '30',
         loadBalance: profileUtils.getSupportedLoadBalance()[0],
         agree: false,
+        description:'',
       },
       productionProfileTip: '',
       editScript: true,
@@ -562,6 +575,7 @@ export default {
       groupUsers: [],
       showLoading: false,
       loadingText: '',
+      description:'',
     };
   },
   computed: {
@@ -860,6 +874,7 @@ export default {
               spaceList: createAppForm.profiles,
               maintainerId: createAppForm.maintainerId,
               maintainerIdList: createAppForm.maintainerIdList,
+              description: createAppForm.description
             };
 //          console.log('payload');
 //          console.log(payload);
