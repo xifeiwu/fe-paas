@@ -343,6 +343,7 @@
   } from "element-ui/src/utils/resize-event";
   import paasDialogForLog from "../components/dialog4log.vue";
   import commonUtils from 'assets/components/mixins/common-utils';
+  import XtermHelper from 'assets/libs/xterm-helper.js';
 
   export default {
     directives: { Clickoutside },
@@ -386,6 +387,7 @@
           }
         }
       }
+      this.xtermHelper = new XtermHelper();
     },
     mounted() {
       // adjust element height after resize
@@ -962,12 +964,7 @@
             }
             break;
           case 'instance-status-jvm':
-            this.openTerminal({
-              profileName: this.profileInfo.name,
-              instanceName: row.id,
-              groupTag: this.$storeHelper.groupInfo.tag,
-//              serviceName, userToken, profileType
-            });
+            this.openTerminal(row);
             break;
           case 'go-to-log-run-from-instance':
             valueOfVersionSelector = this.$refs['version-selector'].getSelectedValue();
@@ -1011,20 +1008,20 @@
         }
       },
 
-      openTerminal({profileName, instanceName, groupTag, serviceName, userToken, profileType}) {
-        if (!profileName || !instanceName || !groupTag || !serviceName || !userToken || !profileType) {
-          console.log('params is not correct');
-          return;
-        }
+      async openTerminal(instance) {
+        const {group, app, service, profile} = this.getInstanceRelatedInfo(instance);
         const payload = {
-          podNs: `${profileName}-${groupTag}`,
-          podName: instanceName,
-          containerName: serviceName,
-          token: userToken,
-          userName: userName,
-          profileType: profileType,
-          profileName: profileName
+          podNs: `${profile.name}-${group.tag}`,
+          podName: instance.id,
+          containerName: service.serviceName,
+          token: this.$storeHelper.userInfo.token,
+          userName: this.$storeHelper.userInfo.userName,
+          profileType: profile.spaceType,
+          profileName: profile.name
         };
+        const resContent = await this.$net.requestAssistServer(this.$net.URL_LIST_ASSIST.get_websocket_token, {payload})
+        console.log(resContent);
+        this.xtermHelper.openTerminal(resContent, document.body, ['sh arthas_start.sh', 'jvm', 'exit'].join('\n'));
       },
       // 对齐，填充空白信息
       formatColumn (text, width) {
