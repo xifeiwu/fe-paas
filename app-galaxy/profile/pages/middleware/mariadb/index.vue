@@ -606,7 +606,7 @@
         },
         constants: {
           cpuList: [1, 2],
-          memoryList: [2, 3, 4]
+          memoryList: [1, 2, 3, 4]
         },
 
         totalSize: 0,
@@ -880,6 +880,7 @@
           case 'refreshList':
             this.expandRows = [];
             this.requestInstanceList();
+            this.requestQuotaOfGroup();
             break;
         }
       },
@@ -1094,7 +1095,7 @@
           userName: instance['user'],
           password: instance['password'],
           status: statusMap.hasOwnProperty(instance['status']) ? statusMap[instance['status']] : instance['status'],
-          cpu: instance['cpu'],
+          cpu: parseInt(instance['cpu']),
           memorySize: memorySize,
           memory: memorySize == '---' ? memorySize : parseInt(memorySize.substr(0, memorySize.length - 2)),
           diskUsage: instance['diskUsage'] != '---' ? bytes(parseInt(instance['diskUsage'])) : '---',
