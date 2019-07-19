@@ -10,10 +10,17 @@ import InstanceMain from './instance/main.vue';
 
 //pipeline
 import pipeLine from './pipeline';
-import pipelineAdd from './pipeline/add';
+
+// import pipelineAdd from './pipeline/add';
 import pipeLineList from "./pipeline/main"
-import pipeLineRecord from "./pipeline/record"
+// import pipeLineRecord from "./pipeline/record"
 import pipelinePlan from './pipeline/plan'
+const [pipelineAdd, pipeLineRecord] = ['./pipeline/add', './pipeline/record'].map(file => {
+  return () => import(
+    /* webpackChunkName: "chunk-[request][index]" */
+    /* webpackMode: "lazy" */
+    `${file}`)
+});
 
 import DomainMain from './domain/main.vue';
 import DomainWhiteList from './domain/white-list.vue';
