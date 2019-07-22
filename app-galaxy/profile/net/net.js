@@ -715,6 +715,11 @@ class Net extends NetBase {
         path: '/pipeline/query',
         method: 'get'
       },
+      //查询构建参数
+      'pipeline_query_build_param': {
+        path: '/pipeline/queryBuildParam',
+        method: 'get'
+      },
       // 创建或更新pipeline
       'pipeline_add_or_update': {
         path: '/pipeline/createOrUpdate',

@@ -410,13 +410,13 @@
     methods: {
     	// 获取参数化构建的参数
 	    async getBuildParams() {
-		    const pipelineInfoFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_stage_query, {
+		    const defList = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_query_build_param, {
 			    query: {
 				    appId: this.relatedAppId
 			    }
 		    });
 		    
-		    this.buildParams = pipelineInfoFromNet['defList'];
+		    this.buildParams = defList;
 		    if (this.buildParams && this.buildParams.length > 0) {
 		    	return true;
         } else {
