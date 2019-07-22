@@ -1,25 +1,34 @@
 <template>
   <div id="middleware-redis">
-    <div class="header">
-      <el-tabs type="border-tab" v-model="profileName" :class="[profileName]">
-        <el-tab-pane v-for="item in unProductionClusterList" :label="item.description" :name="item.clusterName"
-                     :key="item.clusterName"></el-tab-pane>
-      </el-tabs>
-      <div class="operation">
+    <el-row class="operation">
+      <el-col :span="2">
         <el-button size="mini"
                    type="primary"
                    :class="{'flex': true, 'disabled': $storeHelper.permission['middleware_redis_instance_create'].disabled}"
                    @click="handleButtonClick($event, 'middleware_redis_instance_create')">
           <span>申请实例</span><i class="paas-icon-level-up"></i>
         </el-button>
+      </el-col>
+
+      <el-col :span="20"></el-col>
+
+      <el-col :span="2">
         <el-button size="mini"
                    type="primary"
                    @click="handleButtonClick($event, 'refreshList')">
-          <span>刷新列表</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
+          <span>&nbsp;&nbsp;&nbsp;&nbsp;刷新&nbsp;&nbsp;&nbsp;&nbsp;</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
         </el-button>
-      </div>
-    </div>
-    <div class="list">
+      </el-col>
+    </el-row>
+
+    <el-row class="header">
+      <el-tabs type="border-tab" v-model="profileName" :class="[profileName]">
+        <el-tab-pane v-for="item in unProductionClusterList" :label="item.description" :name="item.clusterName"
+                     :key="item.clusterName"></el-tab-pane>
+      </el-tabs>
+    </el-row>
+
+    <el-row class="list">
       <el-table :data="instanceList"
                 :row-key="getRowKeys"
                 :expand-row-keys="expandRows"
@@ -145,7 +154,7 @@
           </template>
         </el-table-column>
       </el-table>
-    </div>
+    </el-row>
 
     <el-dialog title="内存扩(缩)容" :visible="action.name == 'middleware_redis_instance_update'"
                :close-on-click-modal="false"
@@ -185,8 +194,16 @@
   display: flex;
   flex-direction: column;
   max-width: 1500px;
-  background: white;
+  .operation {
+    /*padding: 6px 8px 3px 5px;*/
+    padding: 16px 8px 24px 0px;
+    /*text-align: right;*/
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
   .header {
+    background: white;
     font-size: 14px;
     .el-tabs {
       &.el-tabs--border-tab {
@@ -226,12 +243,10 @@
         }
       }
     }
-    .operation {
-      padding: 6px 8px 3px 5px;
-      text-align: right;
-    }
+
   }
   .list {
+    background: white;
     .el-table {
       .el-table__row {
         .el-button {
