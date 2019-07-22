@@ -625,19 +625,24 @@
           case 'cancel':
             this.addToWaitingResponseQueue(action);
             try {
-              await this.$confirm(`确定要撤销工单"${row.name}"吗？`, '提示', {
+               await this.$confirm(`确定要撤销工单"${row.name}"吗？`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning',
                 dangerouslyUseHTMLString: true
               });
-              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.work_order_cancel, {
+              await this.$net.requestPaasServer(this.$net.URL_LIST.work_order_cancel, {
                 payload: {
                   id: row.id
                 }
+              }).then(resContent=>{
+                this.$message({
+                  type: 'success',
+                  message: '撤销成功'
+                });
+                this.setDateRange();
+                this.hideWaitingResponse(action);
               });
-              this.requestWorkOrderList();
-              this.hideWaitingResponse(action);
             } catch(err) {
               this.hideWaitingResponse(action);
             }
