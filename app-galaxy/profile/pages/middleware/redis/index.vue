@@ -525,12 +525,12 @@
             name: this.action.row.name
           }
         });
-        ['redisAddr', 'redisPort', 'memoryUsed', 'memoryTotal', 'storageUsed', 'storageTotal'].forEach(key => {
+        ['redisAddr', 'redisPort', 'memoryUsed', 'memoryTotal', 'storageUsed', 'storageTotal', 'memorySelected'].forEach(key => {
           if (resContent.hasOwnProperty(key) && null == resContent[key]) {
             resContent[key] = '---';
           }
         });
-        ['memoryUsed', 'memoryTotal', 'storageUsed', 'storageTotal'].forEach(it => {
+        ['memoryUsed', 'memoryTotal', 'storageUsed', 'storageTotal', 'memorySelected'].forEach(it => {
             if (resContent.hasOwnProperty(it) && '---' !== resContent[it]) {
                 resContent[it] = bytes(parseInt(resContent[it]));
             }
