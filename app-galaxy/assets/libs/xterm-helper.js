@@ -6,12 +6,15 @@
 
 import Utils from '../js/utils';
 import Utf8Convert from './utf8-chunks-converter.js';
+import EventEmitter from '$assets/libs/eventemitter3';
 
-export default class XtermHelper {
+export default class XtermHelper extends EventEmitter{
   constructor() {
+    super();
     this.utils = new Utils();
     this.convertHelper = new Utf8Convert();
     this.hasLoadXterm = false;
+    this.ws = null;
   }
 
   async loadXterm() {
@@ -42,7 +45,8 @@ export default class XtermHelper {
     }
   }
 
-  getTerminal(target) {
+  async getTerminal(target) {
+    await this.loadXterm();
     var term = new Terminal({
       theme: {
         foreground: '#ffffff',
@@ -74,73 +78,100 @@ export default class XtermHelper {
     term.webLinksInit();
     // 取得输入焦点
     term.focus();
+
+    term.onScreenResize = () => {
+      term.fit();
+      // 把web终端的尺寸term.rows和term.cols发给服务端, 通知sshd调整输出宽度
+      var msg = {
+        type: "resize",
+        rows: term.rows,
+        cols: term.cols
+      };
+      term.emit('rich-data', msg);
+    };
+    // 当浏览器窗口变化时, 重新适配终端
+    window.addEventListener("resize", term.onScreenResize);
+
+    // 当向web终端敲入字符时候的回调
+    term.on('data', (input) => {
+      // 写给服务端, 由服务端发给container
+      term.emit('rich-data', {
+        type: "input",
+        input: input
+      });
+    });
     return term;
   }
-  // 新建终端
-  async openTerminal(assistInfo, target, saySomething) {
-    await this.loadXterm();
-    // 创建终端
-    var term = null;
-    if (target) {
-      term = this.getTerminal(target);
-    }
 
+  closeTerminal(term) {
+    if (!term) {
+      return;
+    }
+    if (!term.onScreenResize) {
+      window.removeEventListener('resize', term.onScreenResize);
+    }
+    term.destroy();
+  }
+
+  async getWebSocket(assistInfo) {
+    if (this.ws) {
+      return this.ws;
+    }
     // 连接websocket
     const ws = new WebSocket(`wss://${assistInfo.host}:${assistInfo.port}/api/ws?token=${assistInfo.token}`);
-    ws.onopen = (evt) => {
-      console.log("onopen");
-      // term && onResize();
-      var msg = {type: "input", input: '\r'};
-      ws.send(JSON.stringify(msg));
-      if (saySomething) {
-        setTimeout(() => {
-          var msg = {type: "input", input: saySomething}
-          ws.send(JSON.stringify(msg));
-        }, 200);
-      }
-    };
-    ws.onclose = (evt) => {
-      console.log("onclose")
-    };
-    ws.onmessage = (evt) => {
+    return new Promise((resolve, reject) => {
+      ws.onopen = (evt) => {
+        this.emit('open', evt);
+        this.ws = ws;
+        ws.onmessage = evt => this.emit('message', evt.data);
+        resolve(ws);
+      };
+      ws.onclose = (evt) => {
+        // console.log("onclose")
+        this.ws = null;
+        this.emit('close', evt);
+        reject(evt);
+      };
+      ws.onerror = (evt) => {
+        // console.log("onerror");
+        // console.log(evt);
+        this.ws = null;
+        this.emit('error', evt);
+        reject(evt);
+      };
+    });
+  }
+
+  async connectToXterm(assistInfo, target, sayHello) {
+    const xterm = await this.getTerminal(target);
+    const ws = await this.getWebSocket(assistInfo);
+
+    // var msg = {type: "input", input: '\r'};
+    // ws.send(JSON.stringify(msg));
+    xterm.onScreenResize();
+    xterm.on('rich-data', obj => {
+      ws.send(JSON.stringify(obj));
+    });
+    if (sayHello) {
+      setTimeout(() => {
+        var msg = {type: "input", input: sayHello}
+        ws.send(JSON.stringify(msg));
+      }, 200);
+    }
+
+    this.on('message', data => {
       // 服务端ssh输出, 写到web shell展示
-      const data = event.data;
       if (data instanceof ArrayBuffer || data instanceof Blob) {
         this.convertHelper.convert(data, (err, str) => {
           if (err) {
             console.log(err);
           }
-          console.log(str);
-          term && term.write(str);
+          // console.log(str);
+          xterm.write(str);
         })
       } else {
-        term && term.write(data);
+        xterm.write(data);
       }
-    };
-    ws.onerror = (evt) => {
-      console.log("onerror");
-      console.log(evt);
-    };
-
-    if (term) {
-      const onResize = () => {
-        term.fit();
-        // 把web终端的尺寸term.rows和term.cols发给服务端, 通知sshd调整输出宽度
-        var msg = {
-          type: "resize",
-          rows: term.rows,
-          cols: term.cols
-        };
-        ws.send(JSON.stringify(msg));
-      };
-      // 当向web终端敲入字符时候的回调
-      term.on('data', (input) => {
-        // 写给服务端, 由服务端发给container
-        var msg = {type: "input", input: input}
-        ws.send(JSON.stringify(msg));
-      });
-      // 当浏览器窗口变化时, 重新适配终端
-      window.addEventListener("resize", onResize);
-    }
+    });
   }
 }
