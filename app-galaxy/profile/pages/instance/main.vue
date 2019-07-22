@@ -217,18 +217,22 @@
         </el-row>
       </div>
     </el-dialog>
-    <paas-dialog-for-log :showStatus="statusForDialogInstanceLog" @refresh='updateInstanceStatusList(false)'
-                         class="dialog-instance-log" title="实例状态" @close="handleDialogButtonClick('close-dialog-for-instance-log')">
+    <paas-dialog-for-log-new :showStatus="statusForDialogInstanceLog" class="dialog-instance-log"
+                             @close="handleDialogButtonClick('close-dialog-for-instance-log')">
+      <div slot="icons" class="icons slot">
+        <i :class="['paas-icon', 'el-icon-refresh', statusForDialogInstanceLog.loading ? 'loading' : '']"
+           @click="updateInstanceStatusList(false)"></i>
+      </div>
       <div slot="content">
         <div class="log-title">
           <p v-html="formatColumn('Firstseen',25) + formatColumn('Lastseen',25) + formatColumn('Type',10) + formatColumn('Reason',25) + formatColumn('Message',40)"></p>
           <p>{{'-'.repeat(120)}}</p>
         </div>
         <div v-for="(item,index) in instanceStatusList" :key="index">
-          <p v-html="item" class="log pb-2"></p>
+          <p v-html="item" class="log-item pb-2"></p>
         </div>
       </div>
-    </paas-dialog-for-log>
+    </paas-dialog-for-log-new>
 
     <paas-dialog-for-log :showStatus="dialogStatusForConsoleLog"  @refresh='updateConsoleLog(false)'
                          class="dialog-console-log"
@@ -251,15 +255,13 @@
     }
     &.dialog-for-log {
       &.dialog-instance-log {
-        .el-dialog {
-          width: 95% !important;
+        .el-icon-refresh {
+          &.loading {
+            transition: transform 0.6s ease-in-out;
+            transform: rotate(180deg);
+          }
         }
-        .log-title,
-        .log {
-          color: white;
-          font-size: 14px;
-          font-family: "Courier New", Courier, monospace;
-          line-height: 100%;
+        .el-dialog {
         }
       }
       &.dialog-console-log {
@@ -342,13 +344,14 @@
     removeResizeListener
   } from "element-ui/src/utils/resize-event";
   import paasDialogForLog from "../components/dialog4log.vue";
+  import paasDialogForLogNew from "assets/components/dialog4log.vue";
   import commonUtils from 'assets/components/mixins/common-utils';
   import XtermHelper from 'assets/libs/xterm-helper.js';
 
   export default {
     directives: { Clickoutside },
     mixins: [commonUtils],
-    components: { PaasVersionSelector, paasDialogForLog, PaasPopInContainer },
+    components: { PaasVersionSelector, paasDialogForLog, PaasPopInContainer, paasDialogForLogNew},
 
     /**
      * the sequence of create and mount in parent and child element is:
@@ -450,11 +453,9 @@
           error: ''
         },
         statusForDialogInstanceLog: {
+          title: '实例状态',
           visible: false,
-          full: false,
-          showLoading: false,
-          iconRefresh: true,
-          iconExpand: true,
+          loading: false
         },
         instanceStatusList: [],
         dialogStatusForConsoleLog: {
@@ -684,7 +685,7 @@
           spaceId: service.selectedProfile.id,
           kindName: this.action.row['id']
         };
-        this.statusForDialogInstanceLog.showLoading = true;
+        this.statusForDialogInstanceLog.loading = true;
 
         this.$net.requestPaasServer(this.$net.URL_LIST.instance_status, {
           payload
@@ -709,7 +710,9 @@
           }
         }).catch(err => {
         }).finally(() => {
-          this.statusForDialogInstanceLog.showLoading = false;
+          setTimeout(() => {
+            this.statusForDialogInstanceLog.loading = false;
+          }, 500);
         });
       },
 

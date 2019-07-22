@@ -590,7 +590,6 @@ podAntiAffinity:
       .el-dialog {
         width: 95%;
         max-width: 1500px;
-        height: 70%;
         .el-dialog__header {
           padding: 3px 8px;
           margin-bottom: 0px;

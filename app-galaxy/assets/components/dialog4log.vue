@@ -11,13 +11,18 @@
   >
     <div slot="title" class="dialog-title">
       <span class="title">{{showStatus.title}}</span>
-      <div class="icon-list">
-        <slot name="icons"></slot>
+      <slot name="icons"></slot>
+      <!--class="icons slot"-->
+      <div class="icons fixed">
         <i :class="['paas-icon', fullScreen ? 'paas-icon-screen-shrink':'paas-icon-screen-expand']"
            @click="handleIconClick('expand-or-shrink')"></i>
+        <i class="el-icon el-icon-close" @click="handleIconClick('close')"></i>
       </div>
     </div>
-    <el-scrollbar>
+    <el-scrollbar v-loading="showStatus.loading"
+                  element-loading-text="加载中"
+                  element-loading-spinner="el-icon-loading"
+                  element-loading-background="rgba(0, 0, 0, 0.1)">
       <slot name="content"></slot>
     </el-scrollbar>
   </el-dialog>
@@ -30,7 +35,7 @@
     -webkit-font-smoothing: antialiased;
     .el-dialog.dialog-for-log {
       background-color: rgba(0, 0, 0, 0.9);
-      width: 90%;
+      width: 95%;
       max-width: 1500px;
       height: 75%;
       text-align: left;
@@ -53,19 +58,29 @@
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-right: 28px;
+          /*margin-right: 28px;*/
           font-size: 14px;
           .title {
+            flex: 1;
             color: white;
             font-weight: bold;
             margin-left: 10px;
           }
-          .icon-list {
+          .icons {
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            &.fixed {
+              margin-right: 5px;
+            }
             > i {
+              color: white;
               margin: 0px 2px;
               display: inline-block;
               color: #878d99;
+              font-size: 14px;
               line-height: 100%;
+              height: 14px;
               font-weight: normal;
               cursor: pointer;
               &:hover {
@@ -74,9 +89,8 @@
             }
           }
         }
-        .el-dialog__headerbtn {
-          top: 6px;
-          right: 6px;
+        > .el-dialog__headerbtn {
+          display: none;
         }
       }
       .el-dialog__body {
@@ -135,12 +149,9 @@
           return {
             title: '日志',
             visible: false,
+            loading: false
           };
         }
-      },
-      visible: {
-        type: Boolean,
-        default: false
       }
     },
     watch: {

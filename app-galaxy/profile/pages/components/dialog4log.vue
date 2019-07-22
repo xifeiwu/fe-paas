@@ -40,9 +40,9 @@
       }
       .el-dialog {
         background-color: rgba(0, 0, 0, 0.9);
-        width: 80%;
+        width: 95%;
         max-width: 1500px;
-        height: 70%;
+        height: 75%;
         text-align: left;
         .el-dialog__header {
           padding: 6px;
