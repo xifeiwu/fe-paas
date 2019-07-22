@@ -106,9 +106,8 @@ const chunksAndTemplates = (() => {
       "filename": "instance-terminal.html",
       "title": "金融云-实例终端",
       "cdn": {
-        "js": ['/assets/libs/xterm-dist/xterm.js', '/assets/libs/xterm-dist/addons/fit/fit.js',
-          '/assets/libs/xterm-dist/addons/winptyCompat/winptyCompat.js', '/assets/libs/xterm-dist/addons/webLinks/webLinks.js'],
-        "css": ['/assets/libs/xterm-dist/xterm.css', '/assets/components/ele/theme-chalk/profile.css']
+        "js": [],
+        "css": ['/assets/components/ele/theme-chalk/profile.css']
       },
       "chunks": ["instance-terminal"],
     },

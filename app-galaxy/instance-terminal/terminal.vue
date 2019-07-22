@@ -68,10 +68,11 @@
 </style>
 
 <script>
-  import Utf8Convert from 'assets/libs/utf8-chunks-converter.js';
+  import XtermHelper from 'assets/libs/xterm-helper.js';
   export default {
     created() {
-      this.convertHelper = new Utf8Convert();
+      this.xtermHelper = new XtermHelper();
+      this.xtermHelper.on('open', () => console.log('opened!'));
     },
     async mounted() {
       try {
@@ -85,11 +86,12 @@
         if (!assistInfo) {
           return;
         }
-        this.$nextTick(() => {
-          // as this.$el is used in this.openTerminal
-          this.openTerminal(assistInfo);
-          this.netError = null;
+        // as this.$el is used in this.openTerminal, wait for nextTick
+        await new Promise(resolve => {
+          this.$nextTick(resolve);
         });
+        await this.xtermHelper.connectToXterm(assistInfo, this.$el.querySelector('.terminal-screen'), '\r');
+        this.netError = null;
       } catch (err) {
         console.log(err);
         this.netError = err;
@@ -211,94 +213,6 @@
         } else {
           return null;
         }
-      },
-
-      // 新建终端
-      openTerminal(assistInfo) {
-        // xterm配置自适应大小插件
-        Terminal.applyAddon(fit);
-        // 这俩插件不知道干嘛的, 用总比不用好
-        Terminal.applyAddon(winptyCompat);
-        Terminal.applyAddon(webLinks);
-        // 创建终端
-        var term = new Terminal({
-          theme: {
-            foreground: '#ffffff',
-            background: 'black',
-            cursor: '#ffffff',
-            selection: 'rgba(255, 255, 255, 0.3)',
-            black: '#000000',
-            red: '#e06c75',
-            brightRed: '#e06c75',
-            green: '#A4EFA1',
-            brightGreen: '#A4EFA1',
-            brightYellow: '#EDDC96',
-            yellow: '#EDDC96',
-            magenta: '#e39ef7',
-            brightMagenta: '#e39ef7',
-            cyan: '#5fcbd8',
-            brightBlue: '#5fcbd8',
-            brightCyan: '#5fcbd8',
-            blue: '#5fcbd8',
-            white: '#d0d0d0',
-            brightBlack: '#808080',
-            brightWhite: '#ffffff'
-          }
-        });
-        term.open(this.$el.querySelector('.terminal-screen'));
-        // 使用fit插件自适应terminal size
-        term.fit();
-        term.winptyCompatInit();
-        term.webLinksInit();
-        // 取得输入焦点
-        term.focus();
-        // 连接websocket
-        const ws = new WebSocket(`wss://${assistInfo.host}:${assistInfo.port}/api/ws?token=${assistInfo.token}`);
-        const onResize = () => {
-            term.fit();
-            // 把web终端的尺寸term.rows和term.cols发给服务端, 通知sshd调整输出宽度
-            var msg = {
-              type: "resize",
-              rows: term.rows,
-              cols: term.cols
-            };
-            ws.send(JSON.stringify(msg));
-        };
-        ws.onopen = (evt) => {
-//          console.log("onopen");
-          onResize();
-          var msg = {type: "input", input: '\r'};
-          ws.send(JSON.stringify(msg));
-        };
-        ws.onclose = (evt) => {
-//          console.log("onclose")
-        };
-        ws.onmessage = (evt) => {
-          // 服务端ssh输出, 写到web shell展示
-          const data = event.data;
-          if (data instanceof ArrayBuffer || data instanceof Blob) {
-            this.convertHelper.convert(data, (err, str) => {
-              if (err) {
-                console.log(err);
-              }
-              term.write(str);
-            })
-          } else {
-            term.write(data);
-          }
-        };
-        ws.onerror = (evt) => {
-//          console.log("onerror");
-          console.log(evt);
-        };
-        // 当浏览器窗口变化时, 重新适配终端
-        window.addEventListener("resize", onResize);
-        // 当向web终端敲入字符时候的回调
-        term.on('data', (input) => {
-          // 写给服务端, 由服务端发给container
-          var msg = {type: "input", input: input}
-          ws.send(JSON.stringify(msg))
-        });
       }
     }
   }
