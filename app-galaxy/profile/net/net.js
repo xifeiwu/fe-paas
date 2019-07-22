@@ -556,6 +556,7 @@ class Net extends NetBase {
         method: 'post',
         partial: false
       },
+      // 强制撤销工单
       'work_order_cancel': {
         path: '/workOrderDeploy/endWorkOrderDeployById',
         method: 'post'
@@ -986,6 +987,7 @@ class Net extends NetBase {
       // 待办/工单/部署应用
       '/2.x/order/todoList/deploy': 'work-order_deploy_service',
       '/2.x/order/list/download': 'work-order_download',
+      '/2.x/order/todoList/end':'work-order_end',
 
       /** 中间件(mariadb)相关 */
       // 创建MariaDB
