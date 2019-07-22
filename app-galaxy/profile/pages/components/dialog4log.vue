@@ -27,7 +27,8 @@
 </template>
 <style lang="scss">
   .spa .el-dialog__wrapper {
-    font-family: "微软雅黑", 'Microsoft Yahei','HelveticaNeue',sans-serif;
+    /*font-family: "微软雅黑", 'Microsoft Yahei','HelveticaNeue',sans-serif;*/
+    font-family: Consolas, Menlo, Courier, monospace;
     &.dialog-for-log {
       @keyframes rotating {
         0% {
@@ -114,9 +115,27 @@
               .log-item {
                 word-wrap: break-word;
                 word-break: break-all;
-                font-size: 12px;
+                font-size: 14px;
                 line-height: 16px;
               }
+            }
+          }
+          .log-item {
+            .info {
+              color: #409EFF;
+              font-weight: bold;
+            }
+            .warning {
+              color: #E6A23C;
+              font-weight: bold;
+            }
+            .error {
+              color: #F56C6C;
+              font-weight: bold;
+            }
+            .success {
+              color: #67C23A;
+              font-weight: bold;
             }
           }
         }
@@ -128,7 +147,7 @@
       .log-item {
         word-wrap: break-word;
         word-break: break-all;
-        font-size: 12px;
+        font-size: 14px;
         line-height: 16px;
         .time {
           color: #FFFF00;
@@ -147,6 +166,7 @@
   }
 </style>
 <script>
+  // TODO: this component will be replaced by assets/components/dialog4log.ue
   export default {
     created() {
     },

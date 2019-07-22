@@ -576,25 +576,6 @@ podAntiAffinity:
       max-width: 100%;
       word-wrap: break-word;
       word-break: break-all;
-      line-height: 1.4;
-      font-size: 12px;
-      color: white;
-      .info {
-        color: #409EFF;
-        font-weight: bold;
-      }
-      .warning {
-        color: #E6A23C;
-        font-weight: bold;
-      }
-      .error {
-        color: #F56C6C;
-        font-weight: bold;
-      }
-      .success {
-        color: #67C23A;
-        font-weight: bold;
-      }
     }
   }
   #service-list {

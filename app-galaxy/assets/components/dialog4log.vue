@@ -25,7 +25,8 @@
 <style lang="scss">
   .el-dialog__wrapper.dialog-for-log {
     /*font-family: "微软雅黑", 'Microsoft Yahei','HelveticaNeue',sans-serif;*/
-    font-family: Helvetica, Arial, sans-serif;
+    /*font-family: Helvetica, Arial, sans-serif;*/
+    font-family: Consolas, Menlo, Courier, monospace;
     -webkit-font-smoothing: antialiased;
     .el-dialog.dialog-for-log {
       background-color: rgba(0, 0, 0, 0.9);
@@ -86,7 +87,7 @@
         overflow: scroll;
         .el-scrollbar {
           height: 100%;
-          font-size: 13px;
+          font-size: 14px;
           line-height: 16px;
           &__thumb {
             background-color: #409EFF;
@@ -95,6 +96,24 @@
           &__view {
             color: lightgray;
             padding: 5px;
+          }
+        }
+        .log-item {
+          .info {
+            color: #409EFF;
+            font-weight: bold;
+          }
+          .warning {
+            color: #E6A23C;
+            font-weight: bold;
+          }
+          .error {
+            color: #F56C6C;
+            font-weight: bold;
+          }
+          .success {
+            color: #67C23A;
+            font-weight: bold;
           }
         }
       }

@@ -339,7 +339,8 @@ class Net extends NetBase {
       // 获取k8s实例状态
       'instance_status': {
         path: '/event/pod/info',
-        method: 'post'
+        method: 'post',
+        partial: true
       },
       // 驱逐实例
       'instance_replace': {

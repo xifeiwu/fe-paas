@@ -1021,7 +1021,7 @@
         };
         const resContent = await this.$net.requestAssistServer(this.$net.URL_LIST_ASSIST.get_websocket_token, {payload})
         console.log(resContent);
-        this.xtermHelper.openTerminal(resContent, document.body, ['sh arthas_start.sh', 'jvm', 'exit'].join('\n'));
+        this.xtermHelper.connectToXterm(resContent, document.body, ['sh arthas_start.sh', 'jvm', 'exit'].join('\n'));
       },
       // 对齐，填充空白信息
       formatColumn (text, width) {
