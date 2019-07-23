@@ -126,16 +126,14 @@
                 <div class="ant-divider"></div>
                 <el-button
                         type="text"
-                        :class="$storeHelper.permission['middleware_mariadb_instance_start'].disabled ? 'disabled' : 'warning'"
+                        :class="'warning'"
                         :loading="statusOfWaitingResponse('middleware_mariadb_instance_start') && action.row.id == scope.row.id"
-                        v-if="scope.row.mariaStatus.status != '运行中'"
                         @click="handleTRClick($event, 'middleware_mariadb_instance_start', scope.$index, scope.row)">启动</el-button>
-                <div class="ant-divider" v-if="scope.row.mariaStatus.status != '运行中'"></div>
+                <div class="ant-divider"></div>
                 <el-button
                         type="text"
-                        :class="$storeHelper.permission['middleware_mariadb_instance_stop'].disabled ? 'disabled' : 'warning'"
+                        :class="'danger'"
                         :loading="statusOfWaitingResponse('middleware_mariadb_instance_stop') && action.row.id == scope.row.id"
-                        v-if="scope.row.mariaStatus.status == '运行中'"
                         @click="handleTRClick($event, 'middleware_mariadb_instance_stop', scope.$index, scope.row)">停止</el-button>
                 <div class="ant-divider" v-if="scope.row.mariaStatus.status == '运行中'"></div>
               </el-col>

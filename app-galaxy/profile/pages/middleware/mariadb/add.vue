@@ -125,6 +125,10 @@
             </span>
         </h4>
       </div>
+      <el-tag type="warning" style="text-align: left">
+        <i class="el-icon-info"></i>
+        <span>提示：修改配置文件后，请手动重启数据库，才可使修改的配置文件生效！</span>
+      </el-tag>
       <div class="__editor" v-if="myCnfType==='master.cnf'">
         <codemirror v-model="myCnfMaster" :options="editorMyCnfOptions"></codemirror>
       </div>
