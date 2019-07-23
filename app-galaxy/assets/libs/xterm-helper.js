@@ -14,7 +14,8 @@ export default class XtermHelper extends EventEmitter{
     this.utils = new Utils();
     this.convertHelper = new Utf8Convert();
     this.hasLoadXterm = false;
-    this.ws = null;
+    this.xterm = null;
+    this.websocket = null;
   }
 
   async loadXterm() {
@@ -103,39 +104,22 @@ export default class XtermHelper extends EventEmitter{
     return term;
   }
 
-  closeTerminal(term) {
-    if (!term) {
-      return;
-    }
-    if (!term.onScreenResize) {
-      window.removeEventListener('resize', term.onScreenResize);
-    }
-    term.destroy();
-  }
-
   async getWebSocket(assistInfo) {
-    if (this.ws) {
-      return this.ws;
-    }
     // 连接websocket
     const ws = new WebSocket(`wss://${assistInfo.host}:${assistInfo.port}/api/ws?token=${assistInfo.token}`);
     return new Promise((resolve, reject) => {
       ws.onopen = (evt) => {
         this.emit('open', evt);
-        this.ws = ws;
-        ws.onmessage = evt => this.emit('message', evt.data);
         resolve(ws);
       };
       ws.onclose = (evt) => {
         // console.log("onclose")
-        this.ws = null;
         this.emit('close', evt);
         reject(evt);
       };
       ws.onerror = (evt) => {
         // console.log("onerror");
         // console.log(evt);
-        this.ws = null;
         this.emit('error', evt);
         reject(evt);
       };
@@ -145,6 +129,8 @@ export default class XtermHelper extends EventEmitter{
   async connectToXterm(assistInfo, target, sayHello) {
     const xterm = await this.getTerminal(target);
     const ws = await this.getWebSocket(assistInfo);
+    this.xterm = xterm;
+    this.websocket = ws;
 
     // var msg = {type: "input", input: '\r'};
     // ws.send(JSON.stringify(msg));
@@ -159,7 +145,8 @@ export default class XtermHelper extends EventEmitter{
       }, 200);
     }
 
-    this.on('message', data => {
+    ws.onmessage = evt => {
+      const data = evt.data;
       // 服务端ssh输出, 写到web shell展示
       if (data instanceof ArrayBuffer || data instanceof Blob) {
         this.convertHelper.convert(data, (err, str) => {
@@ -172,6 +159,20 @@ export default class XtermHelper extends EventEmitter{
       } else {
         xterm.write(data);
       }
-    });
+    };
+  }
+
+  close() {
+    if (this.websocket) {
+      this.websocket.close();
+      this.websocket = null;
+    }
+    if (this.xterm) {
+      if (this.xterm.onScreenResize) {
+        window.removeEventListener('resize', this.xterm.onScreenResize);
+      }
+      this.xterm.destroy();
+      this.xterm = null;
+    }
   }
 }

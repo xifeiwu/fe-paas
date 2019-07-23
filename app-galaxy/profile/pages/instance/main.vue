@@ -58,7 +58,7 @@
             <span>{{scope.row.status ? scope.row.status : ''}}</span>
             <span :style="{border: !isMesosService ? '1px solid #409EFF' : '1px solid #b4bccc', color: !isMesosService ? '#409EFF':'#b4bccc',
              'font-size': '12px', cursor: 'pointer', padding: '1px','border-radius': '4px'}"
-                  @click="handleRowButtonClick($event, 'instanceStatus',scope.$index,scope.row)"
+                  @click="handleRowButtonClick($event, 'instance-status-container',scope.$index,scope.row)"
             >详情</span>
           </div>
         </template>
@@ -217,19 +217,24 @@
         </el-row>
       </div>
     </el-dialog>
-    <paas-dialog-for-log-new :showStatus="statusForDialogInstanceLog" class="dialog-instance-log"
-                             @close="handleDialogButtonClick('close-dialog-for-instance-log')">
+    <paas-dialog-for-log-new :showStatus="showStatusForDialogInstanceStatus" class="dialog-instance-status" ref="dialog-instance-status"
+                             @module-change="handleStatusModuleChange"
+                             @close="handleStatusModuleChange('close-dialog-for-instance-status')">
       <div slot="icons" class="icons slot">
-        <i :class="['paas-icon', 'el-icon-refresh', statusForDialogInstanceLog.loading ? 'loading' : '']"
-           @click="updateInstanceStatusList(false)"></i>
+        <i :class="['paas-icon', 'el-icon-refresh', showStatusForDialogInstanceStatus.loading ? 'loading' : '']"
+           @click="updateContainerStatus(false)"></i>
       </div>
       <div slot="content">
-        <div class="log-title">
-          <p v-html="formatColumn('Firstseen',25) + formatColumn('Lastseen',25) + formatColumn('Type',10) + formatColumn('Reason',25) + formatColumn('Message',40)"></p>
-          <p>{{'-'.repeat(120)}}</p>
+        <div v-show="showStatusForDialogInstanceStatus.currentModule == 'instance-status-container'">
+          <div class="log-title">
+            <p v-html="formatColumn('Firstseen',25) + formatColumn('Lastseen',25) + formatColumn('Type',10) + formatColumn('Reason',25) + formatColumn('Message',40)"></p>
+            <p>{{'-'.repeat(120)}}</p>
+          </div>
+          <div v-for="(item,index) in instanceStatusList" :key="index">
+            <p v-html="item" class="log-item pb-2"></p>
+          </div>
         </div>
-        <div v-for="(item,index) in instanceStatusList" :key="index">
-          <p v-html="item" class="log-item pb-2"></p>
+        <div v-show="showStatusForDialogInstanceStatus.currentModule == 'instance-status-jvm'" class="module instance-status-jvm" style="height: 100%">
         </div>
       </div>
     </paas-dialog-for-log-new>
@@ -254,7 +259,7 @@
       }
     }
     &.dialog-for-log {
-      &.dialog-instance-log {
+      &.dialog-instance-status {
         .el-icon-refresh {
           &.loading {
             transition: transform 0.6s ease-in-out;
@@ -344,7 +349,7 @@
     removeResizeListener
   } from "element-ui/src/utils/resize-event";
   import paasDialogForLog from "../components/dialog4log.vue";
-  import paasDialogForLogNew from "assets/components/dialog4log.vue";
+  import paasDialogForLogNew from "assets/components/dialog-multipart.vue";
   import commonUtils from 'assets/components/mixins/common-utils';
   import XtermHelper from 'assets/libs/xterm-helper.js';
 
@@ -390,7 +395,7 @@
           }
         }
       }
-      this.xtermHelper = new XtermHelper();
+      this.xtermHelper = null;
     },
     mounted() {
       // adjust element height after resize
@@ -452,10 +457,22 @@
           newCount: null,
           error: ''
         },
-        statusForDialogInstanceLog: {
+
+        showStatusForDialogInstanceStatus: {
           title: '实例状态',
           visible: false,
-          loading: false
+          loading: false,
+          currentModule: null,
+          moduleList: [{
+            key: 'instance-status-container',
+            label: '实例状态'
+          }, {
+            key: 'instance-status-jvm',
+            label: 'jvm状态'
+          }]
+        },
+        statesForDialogInstanceStatus: {
+          requestContainerTag: null,
         },
         instanceStatusList: [],
         dialogStatusForConsoleLog: {
@@ -477,7 +494,8 @@
         serviceRunningInfo: null
       };
     },
-    watch: {},
+    watch: {
+    },
     methods: {
       // TODO: 获取实例数有没有必要请求整个服务运行相关的所有信息
       // 获取服务的当前运行信息（用于展示：当前实例数/总实例数）
@@ -664,56 +682,7 @@
 //              }, 5000);
             });
             break;
-          case 'close-dialog-for-instance-log':
-            this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.instance_status.path);
-            break;
         }
-      },
-
-      /**
-       * 更新实例状态信息。
-       * @param goOn, 手动更新还是自动更新
-       */
-      updateInstanceStatusList(goOn) {
-        if (!this.statusForDialogInstanceLog.visible) {
-          this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.instance_status.path);
-          return;
-        }
-        let service = this.checkVersionSelector();
-        const payload = {
-          applicationId: service.selectedAPP.appId,
-          spaceId: service.selectedProfile.id,
-          kindName: this.action.row['id']
-        };
-        this.statusForDialogInstanceLog.loading = true;
-
-        this.$net.requestPaasServer(this.$net.URL_LIST.instance_status, {
-          payload
-        }).then(resContent => {
-          this.instanceStatusList = resContent.map(item => {
-            item.firstTimestamp = this.$utils.formatDate(item.firstTimestamp, 'yyyy-MM-dd hh:mm:ss');
-            item.lastTimestamp = this.$utils.formatDate(item.lastTimestamp, 'yyyy-MM-dd hh:mm:ss');
-            return (
-              `<i style='color: aqua;'>` +
-              this.formatColumn(item.firstTimestamp, 25) +
-              this.formatColumn(item.lastTimestamp, 25) +
-              this.formatColumn(item.type, 10) +
-              this.formatColumn(item.reason, 25) +
-              '</i>' +
-              item.message
-            );
-          });
-          if (goOn) {
-            setTimeout(() => {
-              this.updateInstanceStatusList(true);
-            }, 6000);
-          }
-        }).catch(err => {
-        }).finally(() => {
-          setTimeout(() => {
-            this.statusForDialogInstanceLog.loading = false;
-          }, 500);
-        });
       },
 
       /**
@@ -966,9 +935,6 @@
               console.log(err);
             }
             break;
-          case 'instance-status-jvm':
-            this.openTerminal(row);
-            break;
           case 'go-to-log-run-from-instance':
             valueOfVersionSelector = this.$refs['version-selector'].getSelectedValue();
             this.$storeHelper.dataTransfer = {
@@ -1000,9 +966,13 @@
             this.titleForPop = `实例${this.action.row['id']}`;
             this.togglePop();
             break;
-          case 'instanceStatus':
-            this.statusForDialogInstanceLog.visible = true;
-            this.updateInstanceStatusList(true);
+          case 'instance-status-container':
+            this.showStatusForDialogInstanceStatus.visible = true;
+            this.showStatusForDialogInstanceStatus.currentModule = action;
+            break;
+          case 'instance-status-jvm':
+            this.showStatusForDialogInstanceStatus.visible = true;
+            this.showStatusForDialogInstanceStatus.currentModule = action;
             break;
           case 'show-console-log':
             this.dialogStatusForConsoleLog.visible = true;
@@ -1011,7 +981,80 @@
         }
       },
 
-      async openTerminal(instance) {
+      async handleStatusModuleChange(currentModule) {
+        // console.log(`currentModule: ${currentModule}`);
+        if (currentModule !== 'instance-status-container') {
+          clearInterval(this.statesForDialogInstanceStatus.requestContainerTag);
+        }
+        if (currentModule !== 'instance-status-jvm') {
+          this.terminalClose();
+        }
+        switch (currentModule) {
+          case 'instance-status-container':
+            this.updateContainerStatus(true);
+            this.statesForDialogInstanceStatus.requestContainerTag = setInterval(() => {
+              this.updateContainerStatus();
+            }, 6000);
+            break;
+          case 'instance-status-jvm':
+            try {
+              var target = this.$refs['dialog-instance-status'].$el.querySelector('.module.instance-status-jvm');
+              this.terminalOpen(this.action.row, target);
+            } catch (err) {
+              console.log(err);
+            }
+            break;
+          case 'close-dialog-for-instance-status':
+            this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.instance_status.path);
+            break;
+        }
+      },
+
+      /**
+       * 更新实例状态信息。
+       * @param goOn, 手动更新还是自动更新
+       */
+      updateContainerStatus(goOn) {
+        if (!this.showStatusForDialogInstanceStatus.visible) {
+          this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.instance_status.path);
+          return;
+        }
+        let service = this.checkVersionSelector();
+        const payload = {
+          applicationId: service.selectedAPP.appId,
+          spaceId: service.selectedProfile.id,
+          kindName: this.action.row['id']
+        };
+        this.showStatusForDialogInstanceStatus.loading = true;
+
+        this.$net.requestPaasServer(this.$net.URL_LIST.instance_status, {
+          payload
+        }).then(resContent => {
+          this.instanceStatusList = resContent.map(item => {
+            item.firstTimestamp = this.$utils.formatDate(item.firstTimestamp, 'yyyy-MM-dd hh:mm:ss');
+            item.lastTimestamp = this.$utils.formatDate(item.lastTimestamp, 'yyyy-MM-dd hh:mm:ss');
+            return (
+              `<i style='color: aqua;'>` +
+              this.formatColumn(item.firstTimestamp, 25) +
+              this.formatColumn(item.lastTimestamp, 25) +
+              this.formatColumn(item.type, 10) +
+              this.formatColumn(item.reason, 25) +
+              '</i>' +
+              item.message
+            );
+          });
+        }).catch(err => {
+        }).finally(() => {
+          setTimeout(() => {
+            this.showStatusForDialogInstanceStatus.loading = false;
+          }, 500);
+        });
+      },
+
+      async terminalOpen(instance,  target) {
+        if (!this.xtermHelper) {
+          this.xtermHelper = new XtermHelper();
+        }
         const {group, app, service, profile} = this.getInstanceRelatedInfo(instance);
         const payload = {
           podNs: `${profile.name}-${group.tag}`,
@@ -1023,9 +1066,16 @@
           profileName: profile.name
         };
         const resContent = await this.$net.requestAssistServer(this.$net.URL_LIST_ASSIST.get_websocket_token, {payload})
-        console.log(resContent);
-        this.xtermHelper.connectToXterm(resContent, document.body, ['sh arthas_start.sh', 'jvm', 'exit'].join('\n'));
+        // console.log(resContent);
+        this.xtermHelper.connectToXterm(resContent, target, ['sh arthas_start.sh', 'jvm', 'exit'].join('\n'));
       },
+      terminalClose() {
+        if (!this.xtermHelper) {
+          return;
+        }
+        this.xtermHelper.close();
+      },
+
       // 对齐，填充空白信息
       formatColumn (text, width) {
         let space = '#'.repeat(width);
