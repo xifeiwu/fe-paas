@@ -492,12 +492,17 @@
           }
         });
 
-        if ('master.cnf' === this.myCnfType) {
-          this.myCnfMaster = resp.data['master.cnf'];
-        }
+        if (resp.data) {
+          if ('master.cnf' === this.myCnfType) {
+            this.myCnfMaster = resp.data['master.cnf'];
+          }
 
-        if ('slave.cnf' === this.myCnfType) {
-          this.myCnfSlave = resp.data['slave.cnf'];
+          if ('slave.cnf' === this.myCnfType) {
+            this.myCnfSlave = resp.data['slave.cnf'];
+          }
+        } else {
+          this.myCnfMaster = "";
+          this.myCnfSlave = "";
         }
 
         this.showMyCnfEditor = true;
