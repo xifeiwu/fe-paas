@@ -234,7 +234,7 @@
             <p v-html="item" class="log-item pb-2"></p>
           </div>
         </div>
-        <div v-show="showStatusForDialogInstanceStatus.currentModule == 'instance-status-jvm'" class="module instance-status-jvm" style="height: 100%">
+        <div v-show="showStatusForDialogInstanceStatus.currentModule == 'instance-status-jvm'" class="module instance-status-jvm">
         </div>
       </div>
     </paas-dialog-for-log-new>
@@ -997,12 +997,16 @@
             }, 6000);
             break;
           case 'instance-status-jvm':
-            try {
-              var target = this.$refs['dialog-instance-status'].$el.querySelector('.module.instance-status-jvm');
-              this.terminalOpen(this.action.row, target);
-            } catch (err) {
-              console.log(err);
-            }
+            this.$nextTick(() => {
+              try {
+                let scrollBar = this.$refs['dialog-instance-status'].$el.querySelector('.el-scrollbar'); //  .el-scrollbar__view
+                let target = this.$refs['dialog-instance-status'].$el.querySelector('.module.instance-status-jvm');
+                target.style.height = `${scrollBar.clientHeight}px`;
+                this.terminalOpen(this.action.row, target);
+              } catch (err) {
+                console.log(err);
+              }
+            });
             break;
           case 'close-dialog-for-instance-status':
             this.$net.removeFromRequestingRrlList(this.$net.URL_LIST.instance_status.path);
@@ -1067,7 +1071,7 @@
         };
         const resContent = await this.$net.requestAssistServer(this.$net.URL_LIST_ASSIST.get_websocket_token, {payload})
         // console.log(resContent);
-        this.xtermHelper.connectToXterm(resContent, target, ['sh arthas_start.sh', 'jvm', 'exit'].join('\n'));
+        this.xtermHelper.connectToXterm(resContent, target, ['sh arthas_start.sh', 'jvm', 'exit', 'exit', 'exit', ''].join('\n'));
       },
       terminalClose() {
         if (!this.xtermHelper) {
