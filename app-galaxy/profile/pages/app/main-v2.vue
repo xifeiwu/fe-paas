@@ -102,7 +102,7 @@
           <template slot-scope="scope">
             <div v-if="scope.row.description">
               <el-tooltip slot="trigger" effect="dark" placement="right">
-                <div slot="content">
+                <div slot="content" style="width: 200px;">
                   <span>{{scope.row.description}}</span>
                 </div>
                 <span class="more">...</span>

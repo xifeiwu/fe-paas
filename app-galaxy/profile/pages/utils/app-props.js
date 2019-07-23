@@ -369,6 +369,9 @@ class AppInfoHelper {
            }
          }
         }],
+      description:[
+          {validator: utils.generateCountValidator(false, 0, 200)}
+      ],
     }
   }
 
