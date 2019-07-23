@@ -576,6 +576,9 @@
 //        if (this.appInfoListOfGroup) {
 //          this.onAppInfoListOfGroup(this.appInfoListOfGroup);
 //        }
+      });
+
+      setTimeout(() => {
         this.requestQuotaOfGroup();
       }, 1000);
     },

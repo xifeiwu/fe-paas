@@ -10,7 +10,13 @@
         </el-button>
       </el-col>
 
-      <el-col :span="20"></el-col>
+      <el-col :span="3"></el-col>
+      <el-col :span="17">
+        <el-tag type="success" v-if="hasQuota">
+          <i class="el-icon-info"></i>
+          <span>配额提示：该团队总配额（所有中间件、环境累计）：CPU {{resourceQuota.quotaCpuUsed}}核 / {{resourceQuota.quotaCpuTotal}}核；内存 {{resourceQuota.quotaMemoryUsed}} / {{resourceQuota.quotaMemoryTotal}}GB；磁盘 {{resourceQuota.quotaStorageUsed}} / {{resourceQuota.quotaStorageTotal}}GB；</span>
+        </el-tag>
+      </el-col>
 
       <el-col :span="2">
         <el-button size="mini"
@@ -339,6 +345,9 @@
 //          this.onAppInfoListOfGroup(this.appInfoListOfGroup);
 //        }
       });
+      setTimeout(() => {
+        this.requestQuotaOfGroup();
+      }, 1000);
     },
     data() {
       return {
@@ -378,6 +387,8 @@
           memoryNow: '',
           memory: '',
         },
+        resourceQuota: {},
+        hasQuota: false,
         rules: utils.redisRules
       }
     },
@@ -385,6 +396,7 @@
       '$storeHelper.clusterList': 'onClusterList',
       '$storeHelper.screen.size': 'onScreenSizeChange',
       '$storeHelper.groupInfo.id': function () {
+        this.requestQuotaOfGroup();
         this.requestInstanceList();
         this.expandRows = [];
       },
@@ -422,6 +434,32 @@
         if (!this.profileName) {
           this.profileName = this.unProductionClusterList[0]['clusterName'];
         }
+      },
+      async requestQuotaOfGroup() {
+        this.resourceQuota = {};
+        this.hasQuota = false;
+        await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_middleware_quota, {
+          payload: {
+            clusterId: this.clusterInfo.id,
+            namespace: this.$storeHelper.groupInfo.tag
+          }
+        }).then(resContent => {
+          if (resContent.type && resContent.type === 'error') {
+            return;
+          }
+          this.resourceQuota['quotaCpuTotal'] = resContent['cpuTotal'];
+          this.resourceQuota['quotaCpuUsed'] = parseFloat(resContent['cpuUsed'] / 1024).toFixed(2);
+          this.resourceQuota['quotaMemoryTotal'] = resContent['memoryTotal'];
+          this.resourceQuota['quotaMemoryUsed'] = bytes(parseInt(resContent['memoryUsed']));
+          this.resourceQuota['namespace'] = resContent['namespace'];
+          this.resourceQuota['quotaStorageTotal'] = resContent['storageTotal'];
+          this.resourceQuota['quotaStorageUsed'] = bytes(parseInt(resContent['storageUsed']));
+          this.hasQuota = true;
+          // console.log(this.resourceQuota);
+        }).catch((err) => {
+          console.log(err);
+          this.hasQuota = false;
+        });
       },
       // check if all necessary data is get
       async checkBasicData4Middleware() {
@@ -521,6 +559,7 @@
             this.$router.push(this.$net.page['profile/middleware/redis/add']);
             break;
           case 'refreshList':
+            this.requestQuotaOfGroup();
             this.expandRows = [];
             this.requestInstanceList();
             break;
