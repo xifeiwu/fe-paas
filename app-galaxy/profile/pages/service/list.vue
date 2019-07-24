@@ -598,6 +598,7 @@ podAntiAffinity:
     }
   }
   #service-list {
+    position: relative;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -726,6 +727,7 @@ podAntiAffinity:
       }
     }
     > .list {
+      flex: 1;
       .el-table {
         .cell {
           line-height: 18px;
@@ -1104,7 +1106,7 @@ podAntiAffinity:
         try {
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
-          this.heightOfTable = this.$el.clientHeight - headerHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 24;
         } catch(err) {
         }
       },
