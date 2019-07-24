@@ -133,6 +133,8 @@
     </div>
     <paas-dialog-for-log :showStatus="buildLogStatus" ref="dialogForBuildLog" @close="handleDialogClose">
       <div slot="content">
+        <div v-if="buildLogStatus.hasMoreData" style="text-align: center; color: #409EFF; cursor: pointer"
+             @click="handleDialogClick($event, 'pipeline_build_history_log_download')">点击下载更多日志</div>
         <div v-for="(item, index) in buildLogStatus.logList" :key="index" class="log-item" v-html="item"></div>
         <div class="log-item loading-line" v-if="buildLogStatus.loading">
           <i class="el-icon-loading item"></i>
@@ -381,7 +383,8 @@
           title: '日志',
           visible: false,
           loading: false,
-          logList: []
+          logList: [],
+          hasMoreData: false
         },
         showPopperForUserConfirm: true
       }
@@ -992,11 +995,7 @@
             this.showBuildingLog(row);
             break;
           case 'pipeline_build_history_log':
-            resData = await this.$net.requestPaasServer(Object.assign(
-              this.$net.URL_LIST.pipeline_record_build_history,
-              {
-                withCode: true
-              }), {
+            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_record_build_history, {
               payload: {
                 appId: this.relatedAppId,
                 buildNumber: row['buildNumber'],
@@ -1005,55 +1004,31 @@
                 limit: false
               }
             });
-            // 文件太大只能下载到本地
-            if (resData.code === 'FILE_CONTENT_TOO_LARGE') {
-              await this.$confirm(`pipeline "${this.dataPassed.pipelineName}" 第${row['buildNumber']}次的构建日志超过2M，点击"确定"，下载到本地查看。`, '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning',
-                dangerouslyUseHTMLString: true
+            if (resContent.hasOwnProperty('consoleLog') && resContent.hasOwnProperty('hasMoreData')) {
+              this.buildLogStatus.title = `${this.dataPassed.pipelineName}-第${row['buildNumber']}次的构建日志`;
+              this.buildLogStatus.logList = resContent['consoleLog'].split('\n').map(line => {
+                return line.replace(/([ \t]*)(.*)/g, (match, p1, p2) => {
+                  let length = 0;
+                  if (p1) {
+                    p1.split('').reduce((pre, next) => {
+                      if (next === '\t') {
+                        length += 4;
+                      } else {
+                        length += 1;
+                      }
+                    }, length);
+                  }
+                  return '&nbsp;'.repeat(length) + p2;
+                });
               });
-
-              const REQUEST_DESC_DOWNLOAD = this.$net.URL_LIST['pipeline_record_build_history_download'];
-
-              this.$net.addToRequestingRrlList(REQUEST_DESC_DOWNLOAD.path);
-              this.$net.getResponse(REQUEST_DESC_DOWNLOAD, {
-                params: {
-                  appId: this.relatedAppId
-                },
-                query: {
-                  buildNumber: row['buildNumber']
-                }
-              }, {
-                headers: {
-                  token: this.$storeHelper.getUserInfo('token')
-                },
-                timeout: 0,
-                responseType: 'blob'
-              }).then(res => {
-                const a = document.createElement('a');
-                const blob = new Blob([res.data]);
-                a.href = window.URL.createObjectURL(blob);
-                a.download = `${this.dataPassed.pipelineName}-第${row['buildNumber']}次的构建日志.txt`;
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-              }).catch(err => {
-                this.$net.showError(err);
-              }).finally(() => {
-                this.$net.removeFromRequestingRrlList(REQUEST_DESC_DOWNLOAD.path);
-              });
+              this.buildLogStatus.hasMoreData = resContent.hasMoreData;
+              this.buildLogStatus.visible = true;
+              this.buildLogStatus.loading = false;
+              setTimeout(() => {
+                this.$refs['dialogForBuildLog'].scrollToBottom();
+              },100);
             } else {
-              const resContent = resData.content;
-              if (resContent.hasOwnProperty('consoleLog')) {
-                this.buildLogStatus.title = `${this.dataPassed.pipelineName}-第${row['buildNumber']}次的构建日志`;
-                this.buildLogStatus.logList = resContent['consoleLog'].split('\n');
-                this.buildLogStatus.visible = true;
-                this.buildLogStatus.loading = false;
-                setTimeout(() => {
-                  this.$refs['dialogForBuildLog'].scrollToBottom();
-                },100);
-              }
+              this.$message.error('数据格式不正确！');
             }
             break;
           case 'pipeline_build_plan':
@@ -1085,7 +1060,56 @@
         }
       },
 
+      async handleDialogClick(evt, action) {
+        switch (action) {
+          case 'pipeline_build_history_log_download':
+            this.handleDialogClose();
+            // 文件太大只能下载到本地
+            await this.$confirm(`pipeline "${this.dataPassed.pipelineName}" 第${this.action.row['buildNumber']}次的构建日志过大，点击"确定"，下载到本地查看。`, '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning',
+              dangerouslyUseHTMLString: true
+            });
+
+            const REQUEST_DESC_DOWNLOAD = this.$net.URL_LIST['pipeline_record_build_history_download'];
+
+            this.$net.addToRequestingRrlList(REQUEST_DESC_DOWNLOAD.path);
+            this.$net.getResponse(REQUEST_DESC_DOWNLOAD, {
+              params: {
+                appId: this.relatedAppId
+              },
+              query: {
+                buildNumber: this.action.row['buildNumber']
+              }
+            }, {
+              headers: {
+                token: this.$storeHelper.getUserInfo('token')
+              },
+              timeout: 0,
+              responseType: 'blob'
+            }).then(res => {
+              const a = document.createElement('a');
+              const blob = new Blob([res.data]);
+              a.href = window.URL.createObjectURL(blob);
+              a.download = `${this.dataPassed.pipelineName}-第${this.action.row['buildNumber']}次的构建日志.txt`;
+              a.style.display = 'none';
+              document.body.appendChild(a);
+              a.click();
+            }).catch(err => {
+              this.$net.showError(err);
+            }).finally(() => {
+              this.$net.removeFromRequestingRrlList(REQUEST_DESC_DOWNLOAD.path);
+            });
+            break;
+        }
+      },
+
       handleDialogClose() {
+        this.buildLogStatus.visible = false;
+        this.buildLogStatus.loading = false;
+        this.buildLogStatus.hasMoreData = false;
+        this.buildLogStatus.title = '';
         this.buildLogStatus.logList = [];
       },
     }
