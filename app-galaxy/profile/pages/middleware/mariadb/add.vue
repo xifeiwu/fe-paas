@@ -298,7 +298,7 @@
         this.clusterList = results.filter(it => it['clusterName']).filter(it => it['clusterName'] != 'production');
         if (this.clusterList.length > 0) {
           const firstCluster = this.clusterList.filter(it => it['clusterName'] == this.profileName);
-          this.formData.clusterId = firstCluster.hasOwnProperty('id') ? firstCluster['id'] : '';
+          this.formData.clusterId = firstCluster[0].hasOwnProperty('id') ? firstCluster[0].id : '';
         }
       }
 
@@ -529,7 +529,7 @@
             name: this.formData.name
           }
         }).then(resp => {
-          console.log(resp);
+          // console.log(resp);
           this.$message.success("配置文件修改成功！");
         }).catch(err => {
             console.log(err);
