@@ -862,6 +862,7 @@
             this.$storeHelper.dataTransfer = {
               from: this.$net.page['profile/middleware/mariadb'],
               data: {
+                profileName: this.profileName,
                 clusterInfo: this.clusterInfo,
                 middlewareInfo: this.middlewareInfo,
               }

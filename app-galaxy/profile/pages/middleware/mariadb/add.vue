@@ -255,6 +255,7 @@
         const data = dataTransfer['data'];
         if (this.forModify) {
           this.clusterInfo = data.clusterInfo;
+          this.profileName = data.profileName;
           this.middlewareInfo = data.middlewareInfo;
           this.formData.name = data.name;
           this.dataPassed.name = data.name;
@@ -264,6 +265,7 @@
           this.$storeHelper.dataTransfer = null;
         } else {
           this.clusterInfo = data.clusterInfo;
+          this.profileName = data.profileName;
           this.middlewareInfo = data.middlewareInfo;
         }
       } else {
@@ -295,7 +297,7 @@
       } else {
         this.clusterList = results.filter(it => it['clusterName']).filter(it => it['clusterName'] != 'production');
         if (this.clusterList.length > 0) {
-          const firstCluster = this.clusterList[0];
+          const firstCluster = this.clusterList.filter(it => it['clusterName'] == this.profileName);
           this.formData.clusterId = firstCluster.hasOwnProperty('id') ? firstCluster['id'] : '';
         }
       }
@@ -315,6 +317,7 @@
         clusterInfo: null,
         middlewareInfo: null,
         middlewareVersionList: [],
+        profileName: '',
         clusterList: [],
 
         showLoading: false,
