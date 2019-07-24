@@ -101,12 +101,22 @@
         <el-table-column label="应用说明" prop="description" headerAlign="center" align="center" width="60">
           <template slot-scope="scope">
             <div v-if="scope.row.description">
-              <el-tooltip slot="trigger" effect="dark" placement="right">
-                <div slot="content" style="width: 200px;">
-                  <span>{{scope.row.description}}</span>
-                </div>
-                <span class="more">...</span>
-              </el-tooltip>
+              <div v-if="scope.row.description.length <20">
+                <el-tooltip slot="trigger" effect="dark" placement="right">
+                  <div slot="content">
+                    <span>{{scope.row.description}}</span>
+                  </div>
+                  <span class="more">...</span>
+                </el-tooltip>
+              </div>
+              <div v-else>
+                <el-tooltip slot="trigger" effect="dark" placement="right">
+                  <div slot="content" style="width: 100px;">
+                    <span>{{scope.row.description.substring(0,21) + "..."}}</span>
+                  </div>
+                  <span class="more">...</span>
+                </el-tooltip>
+              </div>
             </div>
             <div v-else>
               <span>无</span>
