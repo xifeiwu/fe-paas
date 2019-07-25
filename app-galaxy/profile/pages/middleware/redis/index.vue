@@ -676,7 +676,7 @@
                   name: this.action.row.name,
                 }
               });
-              this.$message.success(`mariadb实例 "${row.name}" 正在启动中……`);
+              this.$message.success(`redis实例 "${row.name}" 正在启动中……`);
               this.hideWaitingResponse(action);
 //              this.expandRows = [];
               this.instanceMoreInfo = await this.getInstanceMoreInfo();
@@ -697,7 +697,7 @@
                   name: this.action.row.name,
                 }
               });
-              this.$message.success(`mariadb实例 "${row.name}" 正在停止中……`);
+              this.$message.success(`redis实例 "${row.name}" 正在停止中……`);
               this.hideWaitingResponse(action);
               this.instanceMoreInfo = await this.getInstanceMoreInfo();
 //              this.expandRows = [];

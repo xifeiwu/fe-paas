@@ -1198,7 +1198,7 @@
                   name: this.action.row.name,
                 }
               });
-              this.$message.success(`mariadb实例 "${row.name}" 启动成功！`);
+              this.$message.success(`mariadb实例 "${row.name}" 正在启动中……`);
               this.hideWaitingResponse(action);
 //              this.expandRows = [];
 //               this.instanceMoreInfo = await this.getInstanceMoreInfo();
@@ -1223,7 +1223,7 @@
                   name: this.action.row.name,
                 }
               });
-              this.$message.success(`mariadb实例 "${row.name}" 停止成功！`);
+              this.$message.success(`mariadb实例 "${row.name}" 正在停止中……`);
               this.hideWaitingResponse(action);
               // this.instanceMoreInfo = await this.getInstanceMoreInfo();
               this.instanceMoreInfo = this.checkInstanceInfo(row.mariaStatus);
