@@ -1151,6 +1151,7 @@
                 data: {
                   clusterInfo: this.clusterInfo,
                   middlewareInfo: this.middlewareInfo,
+                  profileName: this.profileName,
                   name: this.action.row.name,
                   instanceDescribe: this.action.row.instanceDescribe,
                   remainingDays: this.action.row.remainingDays < 1 ? 1 : this.action.row.remainingDays,
