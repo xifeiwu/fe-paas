@@ -243,7 +243,7 @@
             clusterId
           }
         });
-        console.log(middlewareList);
+        // console.log(middlewareList);
         var currentMiddleware = [];
         if (middlewareList) {
           currentMiddleware = middlewareList.find(it => {
