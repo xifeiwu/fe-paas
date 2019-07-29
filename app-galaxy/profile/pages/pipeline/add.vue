@@ -1559,12 +1559,14 @@
         }
         this.updateSonarCheckQuota('updateValueByChecked');
       },
+
+      // 自动更新sonarCheck相关属性
       updateSonarCheckQuota(action) {
         const sonarCheck = this.formData.sonarCheck;
         const updateValueByChecked = () => {
           !sonarCheck.unitTestSelected && (sonarCheck.unitTestRatio = '');
           !sonarCheck.branchCoverageSelected && (sonarCheck.branchCoverage = '');
-          !sonarCheck.itCoverage && (sonarCheck.itCoverageSelected = '');
+          !sonarCheck.itCoverageSelected && (sonarCheck.itCoverage = '');
           !sonarCheck.itBranchCoverageSelected && (sonarCheck.itBranchCoverage = '');
           !sonarCheck.blockerViolationsSelected && (sonarCheck.blockerViolations = '');
           !sonarCheck.criticalViolationsSelected && (sonarCheck.criticalViolations = '');
@@ -1594,6 +1596,9 @@
             console.log(`action ${action} not found!`);
             break;
         }
+        try {
+          this.checkValidate();
+        } catch (err) {}
       },
       // 更新stage列表中每个元素的index值
       updateStageIndex(stage) {
@@ -1702,18 +1707,27 @@
             callback('请填写大于0的数字');
           }
         };
+        // sonar数据检测校验规则
         const sonarCheck = this.formData['sonarCheck'];
         const sonarCheckRules = this.formDataRules['sonarCheck']['fields'];
         if (!this.formData.sonarCheck.selected) {
           sonarCheckRules.projectKeyWord[0].required = false;
-          ['codeDebt', 'unitTestRatio'].forEach(key => {
+          ['unitTestRatio', 'branchCoverage', 'itCoverage', 'itBranchCoverage', 'blockerViolations', 'criticalViolations',
+            'majorViolations', 'minorViolations', 'codeDebt'].forEach(key => {
             delete sonarCheckRules[key];
           })
         } else {
           sonarCheckRules.projectKeyWord[0].required = true;
           let keyMap = {
-            'codeDebt': 'codeDebtSelected',
-            'unitTestRatio': 'unitTestSelected'
+            'unitTestRatio': 'unitTestSelected',
+            'branchCoverage': 'branchCoverageSelected',
+            'itCoverage': 'itCoverageSelected',
+            'itBranchCoverage': 'itBranchCoverageSelected',
+            'blockerViolations': 'blockerViolationsSelected',
+            'criticalViolations': 'criticalViolationsSelected',
+            'majorViolations': 'majorViolationsSelected',
+            'minorViolations': 'minorViolationsSelected',
+            'codeDebt': 'codeDebtSelected'
           };
           for (let key in keyMap) {
             let value = keyMap[key];
@@ -1751,9 +1765,25 @@
           noticeConfigRules.required = false;
           delete noticeConfigRules['fields']['noticeEmails']
         }
-
         // console.log(this.formData.ciPipelineAutoTestVO);
         // console.log(this.formDataRules.ciPipelineAutoTestVO);
+      },
+
+      async checkValidate() {
+        this.updateFormDataRules();
+        const basicInfoForm = this.$refs['basic-info-form'];
+        const configInfoForm = this.$refs['config-info-form'];
+        var validate = true;
+        try {
+          validate = await basicInfoForm.validate();
+          if (this.$refs['pipeline-script-form']) {
+            validate = await this.$refs['pipeline-script-form'].validate();
+          }
+          validate = await configInfoForm.validate();
+          return Promise.resolve(validate);
+        } catch (err) {
+          return Promise.reject(err);
+        }
       },
 
       // 处理按钮click事件
@@ -1785,21 +1815,12 @@
             break;
           case 'save':
           case 'take-effect':
-//            console.log(this.formData);
-            const basicInfoForm = this.$refs['basic-info-form'];
-            const configInfoForm = this.$refs['config-info-form'];
-            this.updateFormDataRules();
-
-            var validate = true;
+            // console.log(this.formData);
             try {
+              await this.checkValidate();
               this.formData.groupId = this.$storeHelper.currentGroupID;
               this.formData.ciPipelineAutoTestVO.relativePath = this.formData.ciPipelineAutoTestVO.relativePath.trim();
               this.formData.ciPipelineAutoTestVOTest.relativePath = this.formData.ciPipelineAutoTestVOTest.relativePath.trim();
-              validate = await basicInfoForm.validate();
-              if (this.$refs['pipeline-script-form']) {
-                validate = await this.$refs['pipeline-script-form'].validate();
-              }
-              validate = await configInfoForm.validate();
               // 若选择Sonar数据检查，则至少要选择一个检查项
               if (this.formData.sonarCheck.selected) {
                 if (!this.formData.sonarCheck.unitTestSelected && !this.formData.sonarCheck.codeDebtSelected) {
