@@ -630,9 +630,9 @@
                     margin: 0px -2px 0px -10px;
                     font-size: 12px;
                     line-height: 20px;
-                    background-color: #aaa;
+                    background-color: #eee;
                     &:hover {
-                      background-color: gray;
+                      background-color: #ccc;
                       cursor: pointer;
                     }
                   }
@@ -1280,7 +1280,6 @@
               }, {
                 trigger: ['blur', 'change'],
                 validator(rule, values, callback) {
-                  console.log(values);
                   values = values.trim();
                   if (!values) {
                     callback();
@@ -1676,28 +1675,25 @@
         // sonarCheck可以不填，如果填写，格式必须正确，检查项包括：
         // 1. 单元测试覆盖率
         // 2. 技术债
-        const validatorForUnitTestSelected = function(rule, values, callback) {
+        const moreThanPercent = (rule, values, callback) => {
           var passed = false;
           try {
             if (typeof(values) === 'string' || values instanceof String) {
               values = parseFloat(values.trim());
             }
-//          if (!values) {
-//            passed = true;
-//          } else
-            if (/^[0-9]+$/.exec(values) && (values > 0 && values <= 100)) {
+            if (/^[0-9]+$/.exec(values) && values > 0 && values <= 100) {
               passed = true;
             }
           } catch(err) {
             passed = false;
           }
-          if (passed) {
+          if (passed)  {
             callback();
           } else {
-            callback('请填写0-100之间的数字');
+            callback('请填写大于0小于等于100的整数');
           }
         };
-        const validatorForCodeDebtSelected = function (rule, values, callback) {
+        const integerMoreThanOrEqualZero = (rule, values, callback) => {
           var passed = false;
           try {
             if (typeof(values) === 'string' || values instanceof String) {
@@ -1712,11 +1708,11 @@
           if (passed)  {
             callback();
           } else {
-            callback('请填写大于0的整数');
+            callback('请填写大于等于0的整数');
           }
         };
-        // moreThanPercent: >0, <100
-        // lessThanPercent: <=0,
+        // moreThanPercent(大于%多少): >0, <=100
+        // integerMoreThanOrEqualZero(大于等于0的整数): >=0
         // sonar数据检测校验规则:
         const sonarCheck = this.formData['sonarCheck'];
         const sonarCheckRules = this.formDataRules['sonarCheck']['fields'];
@@ -1739,11 +1735,22 @@
             'minorViolations': 'minorViolationsSelected',
             'codeDebt': 'codeDebtSelected'
           };
+          let rulesMap = {
+            'unitTestRatio': moreThanPercent,
+            'branchCoverage': moreThanPercent,
+            'itLineCoverage': moreThanPercent,
+            'itBranchCoverage': moreThanPercent,
+            'blockerViolations': integerMoreThanOrEqualZero,
+            'criticalViolations': integerMoreThanOrEqualZero,
+            'majorViolations': integerMoreThanOrEqualZero,
+            'minorViolations': integerMoreThanOrEqualZero,
+            'codeDebt': integerMoreThanOrEqualZero
+          };
           for (let key in keyMap) {
             let value = keyMap[key];
             if (sonarCheck[value]) {
               sonarCheckRules[key] = [{
-                validator: validatorForCodeDebtSelected
+                validator: rulesMap[key]
               }];
             } else {
               delete sonarCheckRules[key];
