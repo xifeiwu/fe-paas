@@ -23,12 +23,13 @@
             <span>我的应用</span>
             <span>(共{{myAppCount}}个)</span>
           </el-checkbox>
-          <el-input
-                  size="mini"
-                  style="max-width: 360px"
-                  placeholder="按名称搜索应用"
-                  suffix-icon="el-icon-search"
-                  v-model="filterKey">
+          <el-input size="mini-extral" placeholder="按名称搜索应用" class="search"
+                    style="max-width: 360px;"
+                    v-model="filterKey">
+            <i slot="prefix" class="el-icon-search"></i>
+            <i :class="filterKey && filterKey.length > 0 ? 'paas-icon-close' : ''"
+               slot="suffix"
+               @click="evt => filterKey=''"></i>
           </el-input>
         </el-col>
       </el-row>
@@ -452,6 +453,7 @@
         const from = dataTransfer.from;
         switch (from) {
           case this.$net.page['profile/service']:
+          case this.$net.page['profile/pipeline/list']:
             this.filterKey = dataTransfer.data.appName;
             break;
         }

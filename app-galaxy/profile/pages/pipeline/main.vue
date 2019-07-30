@@ -75,8 +75,11 @@
                 prop="appName"
                 label="应用名称"
                 minWidth="100"
-                headerAlign="center"
-                align="center">
+                headerAlign="left"
+                align="left">
+          <template slot-scope="scope">
+            <span class="link" @click="handleTRClick($event, 'go_to_page_app_list', scope.$index, scope.row)">{{scope.row.appName}}</span>
+          </template>
         </el-table-column>
         <el-table-column
                 prop="lastRunStatusName"
@@ -224,6 +227,13 @@
   #pipeline-main {
     .pipeline-list {
       .el-table {
+        .link {
+          color: #409EFF;
+          &:hover {
+            cursor: pointer;
+            text-decoration: underline;
+          }
+        }
         .el-table__row {
           #lastRunStatusName {
             &.success {
@@ -610,6 +620,15 @@
             };
             this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']]['filterKey'] = `${row['pipelineName']}${row['appName']}`;
             this.$router.push(this.$net.page['profile/pipeline/modify']);
+            break;
+          case 'go_to_page_app_list':
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page['profile/pipeline/list'],
+              data: {
+                appName: row.appName
+              }
+            };
+            this.$router.push(this.$net.page['profile/app']);
             break;
         }
       },
