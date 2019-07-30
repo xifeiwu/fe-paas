@@ -702,7 +702,7 @@
             return;
           }
           this.resourceQuota['quotaCpuTotal'] = resContent['cpuTotal'];
-          this.resourceQuota['quotaCpuUsed'] = parseFloat(resContent['cpuUsed'] / 1024).toFixed(2);
+          this.resourceQuota['quotaCpuUsed'] = parseFloat(resContent['cpuUsed'] / 1000).toFixed(2);
           this.resourceQuota['quotaMemoryTotal'] = resContent['memoryTotal'];
           this.resourceQuota['quotaMemoryUsed'] = bytes(parseInt(resContent['memoryUsed']));
           this.resourceQuota['namespace'] = resContent['namespace'];
