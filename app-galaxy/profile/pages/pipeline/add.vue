@@ -199,11 +199,11 @@
                           </div>
                         </el-form-item>
                         <div class="message-tip">，且</div>
-                        <el-form-item label="" labelWidth="0px" prop="sonarCheck.itCoverage">
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheck.itLineCoverage">
                           <div>
-                            <el-checkbox v-model="formData['sonarCheck']['itCoverageSelected']"></el-checkbox>
+                            <el-checkbox v-model="formData['sonarCheck']['itLineCoverageSelected']"></el-checkbox>
                             <span>集成测试行覆盖率≥</span>
-                            <el-input v-model="formData.sonarCheck.itCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheck.itLineCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
                             <span>%</span>
                           </div>
                         </el-form-item>
@@ -1043,8 +1043,8 @@
             branchCoverageSelected: false,
             branchCoverage: '',
             // 集成测试行覆盖率
-            itCoverage: '',
-            itCoverageSelected: false,
+            itLineCoverage: '',
+            itLineCoverageSelected: false,
             // 集成测试条件覆盖率
             itBranchCoverageSelected: false,
             itBranchCoverage: '',
@@ -1385,7 +1385,7 @@
       'formData.sonarCheck.branchCoverage' : function() {
         this.updateSonarCheckQuota('updateCheckedByValue')
       },
-      'formData.sonarCheck.itCoverage' : function() {
+      'formData.sonarCheck.itLineCoverage' : function() {
         this.updateSonarCheckQuota('updateCheckedByValue')
       },
       'formData.sonarCheck.itBranchCoverage' : function() {
@@ -1412,7 +1412,7 @@
       'formData.sonarCheck.branchCoverageSelected' : function() {
         this.updateSonarCheckQuota('updateValueByChecked')
       },
-      'formData.sonarCheck.itCoverageSelected' : function() {
+      'formData.sonarCheck.itLineCoverageSelected' : function() {
         this.updateSonarCheckQuota('updateValueByChecked')
       },
       'formData.sonarCheck.itBranchCoverageSelected' : function() {
@@ -1566,7 +1566,7 @@
         const updateValueByChecked = () => {
           !sonarCheck.unitTestSelected && (sonarCheck.unitTestRatio = '');
           !sonarCheck.branchCoverageSelected && (sonarCheck.branchCoverage = '');
-          !sonarCheck.itCoverageSelected && (sonarCheck.itCoverage = '');
+          !sonarCheck.itLineCoverageSelected && (sonarCheck.itLineCoverage = '');
           !sonarCheck.itBranchCoverageSelected && (sonarCheck.itBranchCoverage = '');
           !sonarCheck.blockerViolationsSelected && (sonarCheck.blockerViolations = '');
           !sonarCheck.criticalViolationsSelected && (sonarCheck.criticalViolations = '');
@@ -1577,7 +1577,7 @@
         const updateCheckedByValue = () => {
           sonarCheck.unitTestSelected = String(sonarCheck.unitTestRatio).trim() !== '';
           sonarCheck.branchCoverageSelected = String(sonarCheck.branchCoverage).trim() !== '';
-          sonarCheck.itCoverageSelected = String(sonarCheck.itCoverage).trim() !== '';
+          sonarCheck.itLineCoverageSelected = String(sonarCheck.itLineCoverage).trim() !== '';
           sonarCheck.itBranchCoverageSelected = String(sonarCheck.itBranchCoverage).trim() !== '';
           sonarCheck.blockerViolationsSelected = String(sonarCheck.blockerViolations).trim() !== '';
           sonarCheck.criticalViolationsSelected = String(sonarCheck.criticalViolations).trim() !== '';
@@ -1712,7 +1712,7 @@
         const sonarCheckRules = this.formDataRules['sonarCheck']['fields'];
         if (!this.formData.sonarCheck.selected) {
           sonarCheckRules.projectKeyWord[0].required = false;
-          ['unitTestRatio', 'branchCoverage', 'itCoverage', 'itBranchCoverage', 'blockerViolations', 'criticalViolations',
+          ['unitTestRatio', 'branchCoverage', 'itLineCoverage', 'itBranchCoverage', 'blockerViolations', 'criticalViolations',
             'majorViolations', 'minorViolations', 'codeDebt'].forEach(key => {
             delete sonarCheckRules[key];
           })
@@ -1721,7 +1721,7 @@
           let keyMap = {
             'unitTestRatio': 'unitTestSelected',
             'branchCoverage': 'branchCoverageSelected',
-            'itCoverage': 'itCoverageSelected',
+            'itLineCoverage': 'itLineCoverageSelected',
             'itBranchCoverage': 'itBranchCoverageSelected',
             'blockerViolations': 'blockerViolationsSelected',
             'criticalViolations': 'criticalViolationsSelected',
