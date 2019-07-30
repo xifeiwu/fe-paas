@@ -1704,7 +1704,7 @@
           if (passed)  {
             callback();
           } else {
-            callback('请填写大于0的数字');
+            callback('请填写大于0的整数');
           }
         };
         // sonar数据检测校验规则

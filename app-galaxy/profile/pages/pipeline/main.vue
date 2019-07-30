@@ -1,9 +1,9 @@
 <template>
   <div id="pipeline-main">
     <div class="header">
-      <div class="item">
+      <div class="item" v-if="false">
         <label>
-          <span style="line-height: 26px">应用名称:</span>
+          <span style="line-height: 24px">应用名称:</span>
           <el-select filterable placeholder="请选择" size="mini-extral" v-model="selectedAppId" class="select">
             <el-option v-for="(item,index) in appListWithAll" :key="item.appId" :label="item.appName" :value="item.appId">
             </el-option>
@@ -11,15 +11,22 @@
         </label>
       </div>
       <div class="item">
+        <el-input size="mini-extral" placeholder="关键字包括Pipeline名称和应用名称" class="search"
+                  style="min-width: 360px;"
+                  v-model="keyFilter">
+          <i slot="prefix" class="el-icon-search"></i>
+          <i :class="keyFilter && keyFilter.length > 0 ? 'paas-icon-close' : ''"
+             slot="suffix"
+             @click="evt => keyFilter=''"></i>
+        </el-input>
+      </div>
+      <div class="item">
         <label>
-          <span style="line-height: 26px">最近一次执行状态:</span>
+          <span style="line-height: 24px">最近一次执行状态:</span>
           <el-select placeholder="请选择" size="mini-extral" v-model="selectedStatus" class="select">
             <el-option v-for="(item,index) in STATUS_LIST" :key="item.index" :label="item.statusName" :value="item.status"></el-option>
           </el-select>
         </label>
-      </div>
-      <div class="item">
-        <el-input size="mini-extral" placeholder="搜索Pipeline" suffix-icon="el-icon-search" class="search" v-model="keyFilter"></el-input>
       </div>
       <div class="item">
         <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'search')">
@@ -215,13 +222,6 @@
 
 <style lang="scss">
   #pipeline-main {
-    .header {
-      .select {
-        .el-input__inner {
-          font-size: 14px;
-        }
-      }
-    }
     .pipeline-list {
       .el-table {
         .el-table__row {
@@ -288,16 +288,17 @@
       this.STATUS_LIST = STATUS_LIST;
     },
     mounted() {
-      this.onAppInfoListOfGroup(this.appInfoListOfGroup);
-//      this.updatePipelineListByPage(true);
+      // this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+      this.initSelectedStatus();
+      this.updatePipelineListByPage(true);
       this.onScreenSizeChange(this.$storeHelper.screen.size);
     },
     data() {
       return {
         showWarning: true,
 
-        selectedAppId: '',
-        selectedStatus: '',
+        selectedAppId: ID_FOR_ALL,
+        selectedStatus: ID_FOR_ALL,
         keyFilter: '',
         appListWithAll: [],
 
@@ -369,8 +370,10 @@
 
       /**
        * 触发：初始页面；切换团队
+       * TODO: not used
        */
       onAppInfoListOfGroup(appInfoListOfGroup) {
+        return;
         if (!appInfoListOfGroup) {
           return;
         }
@@ -396,18 +399,16 @@
       async requestPipelineList() {
         this.pipelineList = [];
         this.totalSize = this.pipelineList.length;
-        const selectedApp = this.appListWithAll.find(it => {
-          return it['appId'] === this.selectedAppId;
-        });
-        if (!selectedApp) {
-          console.log('selectedApp is not found!');
-//          console.log(this.appListWithAll);
-//          console.log(this.selectedAppID);
-          return;
-        }
+//        const selectedApp = this.appListWithAll.find(it => {
+//          return it['appId'] === this.selectedAppId;
+//        });
+//        if (!selectedApp) {
+//          console.log('selectedApp is not found!');
+//          return;
+//        }
         const payload = {
           groupTag: this.$storeHelper.groupInfo.tag,
-          serviceName: selectedApp.serviceName,
+          serviceName: '',
         };
         try {
           const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_list, {
@@ -449,8 +450,9 @@
           await this.requestPipelineList();
         }
         try {
+          const filterReg = new RegExp(this.keyFilter);
           this.filteredPipelineList = this.pipelineList.filter(it => {
-            // return true;
+             return true;
             if (this.selectedAppId === ID_FOR_ALL) {
               return true;
             } else {
@@ -468,8 +470,7 @@
             if (this.keyFilter.length === 0) {
               return true
             } else {
-              const filterReg = new RegExp(this.keyFilter);
-              return filterReg.exec(it['pipelineName']);
+              return `${it['pipelineName']}${it['appName']}`.match(filterReg);
             }
           });
           this.totalSize = this.filteredPipelineList.length;
