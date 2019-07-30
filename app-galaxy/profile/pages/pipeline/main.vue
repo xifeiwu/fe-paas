@@ -296,25 +296,37 @@
     components: {paasDismissMessage},
     created() {
       this.STATUS_LIST = STATUS_LIST;
+      var hasRequestList = false
       const preRouter = this.$router.helper.preRouter;
       if (preRouter && preRouter.path) {
         switch (preRouter.path) {
           case this.$net.page['profile/pipeline/records']:
           case this.$net.page['profile/pipeline/modify']:
-            var filterKey = this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']]['filterKey'];
-            if (filterKey) {
+            if (this.getState('filterKey')) {
               this.filterKey = filterKey;
-              delete this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']]['filterKey'];
+              this.delState('filterKey');
+            }
+            if (this.getState('currentPage')) {
+              this.updatePipelineListByPage({
+                refresh: true,
+                currentPage: parseInt(this.getState('currentPage'))
+              });
+              this.delState('currentPage');
+              hasRequestList = true;
             }
             break;
           default:
             break;
         }
       }
+      if (!hasRequestList) {
+        this.updatePipelineListByPage({
+          refresh: true
+        });
+      }
     },
     mounted() {
       // this.onAppInfoListOfGroup(this.appInfoListOfGroup);
-      this.updatePipelineListByPage(true);
       this.onScreenSizeChange(this.$storeHelper.screen.size);
     },
     data() {
@@ -365,16 +377,16 @@
     watch: {
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
       currentPage() {
-        this.updatePipelineListByPage();
+        this.updatePipelineListByPage({});
       },
       'selectedAppId': function () {
-        this.updatePipelineListByPage();
+        this.updatePipelineListByPage({});
       },
       'selectedStatus': function () {
-        this.updatePipelineListByPage();
+        this.updatePipelineListByPage({});
       },
-      'filterKey': function () {
-        this.updatePipelineListByPage();
+      'filterKey': function (filterKey) {
+        this.updatePipelineListByPage({});
       },
     },
     methods: {
@@ -392,6 +404,19 @@
         }
       },
 
+      saveState() {
+        this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']]['currentPage'] = this.currentPage;
+        this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']]['filterKey'] = this.filterKey;
+      },
+      getState(state) {
+        return this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']][state];
+      },
+      delState(state) {
+        if (this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']].hasOwnProperty(state)) {
+          delete this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']][state];
+        }
+      },
+
       /**
        * 触发：初始页面；切换团队
        */
@@ -404,7 +429,9 @@
           this.appListWithAll = [{appId:'', appName:'全部', serviceName:''}].concat(appInfoListOfGroup['appList']);
           // this.selectedAppId = this.appListWithAll[0]['appId'];
           this.initSelectedStatus();
-          this.updatePipelineListByPage(true);
+          this.updatePipelineListByPage({
+            refresh: true,
+          });
         }
       },
 
@@ -467,7 +494,7 @@
        * @param search
        * @returns {Promise.<void>}
        */
-      async updatePipelineListByPage(refresh = false) {
+      async updatePipelineListByPage({refresh = false, currentPage}) {
         if (refresh) {
           await this.requestPipelineList();
         }
@@ -497,10 +524,15 @@
           });
           this.totalSize = this.filteredPipelineList.length;
 
+          if (currentPage) {
+            this.currentPage = currentPage;
+          }
+          // console.log(this.currentPage);
           // adjust currentPage for the change of totalSize
           const totalPage = Math.ceil(this.totalSize / this.pageSize);
           if (this.currentPage > totalPage) {
             this.currentPage = totalPage;
+            return;
           }
 
           var page = this.currentPage - 1;
@@ -518,7 +550,9 @@
       handleClick(evt, action) {
         switch (action) {
           case 'search':
-            this.updatePipelineListByPage(true);
+            this.updatePipelineListByPage({
+              refresh: true
+            });
             break;
           case 'add':
             const appHasPipeLine = this.pipelineList.filter(it => it['appId']).map(it => it['appId']);
@@ -587,7 +621,9 @@
                 }
               });
               this.$message.success(`pipeline "${row.pipelineName}" 已删除！`);
-              await this.updatePipelineListByPage(true);
+              await this.updatePipelineListByPage({
+                refresh: true
+              });
             } catch (err) {}
             break;
           case 'go-to-page-pipeline-records':
@@ -603,7 +639,6 @@
                 pipelineName: row['pipelineName'],
               }
             };
-            this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']]['filterKey'] = `${row['pipelineName']}${row['appName']}`;
             this.$router.push(this.$net.page['profile/pipeline/records']);
             break;
           case 'go-to-page-pipeline-update':
@@ -618,7 +653,7 @@
 //                appId: 1934,
               }
             };
-            this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']]['filterKey'] = `${row['pipelineName']}${row['appName']}`;
+            this.saveState();
             this.$router.push(this.$net.page['profile/pipeline/modify']);
             break;
           case 'go_to_page_app_list':
@@ -628,6 +663,7 @@
                 appName: row.appName
               }
             };
+            this.saveState();
             this.$router.push(this.$net.page['profile/app']);
             break;
         }
