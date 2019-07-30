@@ -1,11 +1,18 @@
 import * as shvl from 'shvl';
 import globalStore from './index';
+import Net from '../net';
+const net = new Net();
 
 export default class StoreHelper {
   constructor(store) {
     this.$globalStore = globalStore;
     this.$store = store;
     this._dataTransfer = null;
+    this.globalStatus = {};
+    for (let key in net.page) {
+      let value = net.page[key];
+      this.globalStatus[value] = {};
+    }
   }
 
   get version() {

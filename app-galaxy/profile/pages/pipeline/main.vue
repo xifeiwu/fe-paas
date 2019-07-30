@@ -13,11 +13,11 @@
       <div class="item">
         <el-input size="mini-extral" placeholder="关键字包括Pipeline名称和应用名称" class="search"
                   style="min-width: 360px;"
-                  v-model="keyFilter">
+                  v-model="filterKey">
           <i slot="prefix" class="el-icon-search"></i>
-          <i :class="keyFilter && keyFilter.length > 0 ? 'paas-icon-close' : ''"
+          <i :class="filterKey && filterKey.length > 0 ? 'paas-icon-close' : ''"
              slot="suffix"
-             @click="evt => keyFilter=''"></i>
+             @click="evt => filterKey=''"></i>
         </el-input>
       </div>
       <div class="item">
@@ -286,10 +286,24 @@
     components: {paasDismissMessage},
     created() {
       this.STATUS_LIST = STATUS_LIST;
+      const preRouter = this.$router.helper.preRouter;
+      if (preRouter && preRouter.path) {
+        switch (preRouter.path) {
+          case this.$net.page['profile/pipeline/records']:
+          case this.$net.page['profile/pipeline/modify']:
+            var filterKey = this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']]['filterKey'];
+            if (filterKey) {
+              this.filterKey = filterKey;
+              delete this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']]['filterKey'];
+            }
+            break;
+          default:
+            break;
+        }
+      }
     },
     mounted() {
       // this.onAppInfoListOfGroup(this.appInfoListOfGroup);
-      this.initSelectedStatus();
       this.updatePipelineListByPage(true);
       this.onScreenSizeChange(this.$storeHelper.screen.size);
     },
@@ -299,7 +313,7 @@
 
         selectedAppId: ID_FOR_ALL,
         selectedStatus: ID_FOR_ALL,
-        keyFilter: '',
+        filterKey: '',
         appListWithAll: [],
 
         // pipeline data related
@@ -349,7 +363,7 @@
       'selectedStatus': function () {
         this.updatePipelineListByPage();
       },
-      'keyFilter': function () {
+      'filterKey': function () {
         this.updatePipelineListByPage();
       },
     },
@@ -370,17 +384,15 @@
 
       /**
        * 触发：初始页面；切换团队
-       * TODO: not used
        */
       onAppInfoListOfGroup(appInfoListOfGroup) {
-        return;
         if (!appInfoListOfGroup) {
           return;
         }
         this.appListWithAll = [];
         if (appInfoListOfGroup.hasOwnProperty('appList')) {
           this.appListWithAll = [{appId:'', appName:'全部', serviceName:''}].concat(appInfoListOfGroup['appList']);
-          this.selectedAppId = this.appListWithAll[0]['appId'];
+          // this.selectedAppId = this.appListWithAll[0]['appId'];
           this.initSelectedStatus();
           this.updatePipelineListByPage(true);
         }
@@ -392,7 +404,7 @@
       initSelectedStatus() {
         this.selectedAppId = ID_FOR_ALL;
         this.selectedStatus = ID_FOR_ALL;
-        this.keyFilter = '';
+        this.filterKey = '';
       },
 
       //获取pipeline列表
@@ -450,7 +462,7 @@
           await this.requestPipelineList();
         }
         try {
-          const filterReg = new RegExp(this.keyFilter);
+          const filterReg = new RegExp(this.filterKey);
           this.filteredPipelineList = this.pipelineList.filter(it => {
              return true;
             if (this.selectedAppId === ID_FOR_ALL) {
@@ -467,7 +479,7 @@
             }
           }).filter(it => {
             // return true;
-            if (this.keyFilter.length === 0) {
+            if (this.filterKey.length === 0) {
               return true
             } else {
               return `${it['pipelineName']}${it['appName']}`.match(filterReg);
@@ -518,13 +530,6 @@
             try {
               var [valid, errors] = await this.$refs['formInDialog4SelectApp'].validate();
               if (valid) {
-//              var appModel = this.$storeHelper.appInfoListOfGroup['appModelList'].find(it => {
-//                return it.appId == this.dialog4SelectApp.appId;
-//              });
-//              if (!appModel) {
-//                console.log('appModel not found!');
-//                return;
-//              }
                 await this.$net.requestPaasServer(this.$net.URL_LIST.pipeline_build_validate,{
                   params:{
                     appId: this.dialog4SelectApp.appId,
@@ -588,6 +593,7 @@
                 pipelineName: row['pipelineName'],
               }
             };
+            this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']]['filterKey'] = `${row['pipelineName']}${row['appName']}`;
             this.$router.push(this.$net.page['profile/pipeline/records']);
             break;
           case 'go-to-page-pipeline-update':
@@ -602,6 +608,7 @@
 //                appId: 1934,
               }
             };
+            this.$storeHelper.globalStatus[this.$net.page['profile/pipeline/list']]['filterKey'] = `${row['pipelineName']}${row['appName']}`;
             this.$router.push(this.$net.page['profile/pipeline/modify']);
             break;
         }
