@@ -57,25 +57,29 @@
         <el-table-column label="CPU(Request/总共)" headerAlign="center" align="center" prop="cpuRequest" sortable="custom"
                          min-width="200px">
           <template slot-scope="scope">
-            <span>{{scope.row.cpuRequest + '核 / ' + scope.row.cpuTotal + '核（' + scope.row.cpuRequestPercent + '%）' }}</span>
+            <span v-if="resourceComputing">正在计算中...</span>
+            <span v-else>{{scope.row.cpuRequest + '核 / ' + scope.row.cpuTotal + '核（' + scope.row.cpuRequestPercent + '%）' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="内存(Request/总共)" headerAlign="center" align="center" sortable="custom" prop="memoryRequest"
                          min-width="190px">
           <template slot-scope="scope">
-            <span>{{scope.row.memoryRequest + 'G / ' + scope.row.memoryTotal + 'G（' + scope.row.memoryRequestPercent + '%）' }}</span>
+            <span v-if="resourceComputing">正在计算中...</span>
+            <span v-else>{{scope.row.memoryRequest + 'G / ' + scope.row.memoryTotal + 'G（' + scope.row.memoryRequestPercent + '%）' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="CPU(Limit/总共)" headerAlign="center" align="center" sortable="custom" min-width="180px"
                          prop="cpuLimit">
           <template slot-scope="scope">
-            <span>{{`${scope.row.cpuLimit}核 / ${scope.row.cpuTotal}核 (${scope.row.cpuLimitPercent}%)`}}</span>
+            <span v-if="resourceComputing">正在计算中...</span>
+            <span v-else>{{`${scope.row.cpuLimit}核 / ${scope.row.cpuTotal}核 (${scope.row.cpuLimitPercent}%)`}}</span>
           </template>
         </el-table-column>
         <el-table-column label="内存(Limit/总共)" headerAlign="center" align="center" sortable="custom" min-width="180px" prop="memoryLimit"
                          :sortable="true">
           <template slot-scope="scope">
-            <span>{{`${scope.row.memoryLimit}G / ${scope.row.memoryTotal}G (${scope.row.memoryLimitPercent}%)`}}</span>
+            <span v-if="resourceComputing">正在计算中...</span>
+            <span v-else>{{`${scope.row.memoryLimit}G / ${scope.row.memoryTotal}G (${scope.row.memoryLimitPercent}%)`}}</span>
           </template>
         </el-table-column>
         <el-table-column label="内网IP" headerAlign="center" align="center" min-width="150px">
@@ -294,6 +298,7 @@
         nodeList: [],
         nodeListFilter: [],
         nodeListByPage: [],
+        resourceComputing: true,
 
         getRowKeys: function (row) {
           return row.id;
@@ -351,7 +356,68 @@
         }
         this.totalSize = this.nodeListFilter.length;
         this.nodeListByPage = this.nodeListFilter.slice(start, end);
+        // console.log(this.nodeListByPage);
+        // 分页后，根据分页的节点列表计算CPU和内存使用情况
+        this.queryNodeResouceUsage();
         this.onSortChange({prop: 'cpuRequest', order: 'descending'});
+      },
+      queryNodeResouceUsage() {
+        this.resourceComputing = true;
+        let nodeListByPage = this.nodeListByPage.map(it => {
+          return it.nodeName;
+        });
+        // console.log(nodeListByPage);
+        this.$net.requestPaasServer(this.$net.URL_LIST.query_node_resource, {
+          payload: {
+            clusterName: this.currentK8sNode,
+            nodeNameList: nodeListByPage
+          }
+        }).then(resp => {
+          if (resp) {
+            resp.map(it => {
+              it['createTimeYMD'] = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd');
+              it['createTimeHMS'] = this.$utils.formatDate(it.createTime, 'hh:mm:ss');
+              it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+
+              it["os"] = it["osImage"];
+              it["internalIP"] = it["internalIP"];
+              if (it["nodeStatus"]) {
+                it["status"] = 'ready';
+              } else {
+                it["status"] = 'notReady'
+              }
+              it['cpuRequest'] = parseInt(it.cpuRequest) / 1000;
+              it['cpuTotal'] = parseInt(it.cpuTotal) / 1000;
+              it['cpuRequestPercent'] =  parseFloat(it['cpuRequest'] / it['cpuTotal'] * 100).toFixed(1);
+
+              it['memoryRequest'] = parseFloat((it.memoryRequest / 1024).toFixed(2));
+              it['memoryTotal'] = parseFloat(it.memoryTotal / 1024).toFixed(2);
+              it['memoryRequestPercent'] =  parseFloat(it['memoryRequest'] / it['memoryTotal'] * 100).toFixed(1);
+
+              it["cpuLimit"] = parseInt(it.cpuLimit) / 1000;
+              it["cpuLimitPercent"] = parseFloat(it['cpuLimit'] / it["cpuTotal"] * 100).toFixed(1);
+
+              it["memoryLimit"] = parseFloat((it.memoryLimit / 1024).toFixed(2));
+              it["memoryLimitPercent"] = parseFloat(it["memoryLimit"] / it["memoryTotal"] * 100).toFixed(1);
+
+            });
+
+            let nl = [];
+            this.nodeListByPage.map(srcList => {
+              resp.forEach(newList => {
+                if (srcList['nodeName'] === newList['nodeName']) {
+                  nl.push(newList);
+                }
+              });
+            this.nodeListByPage = nl;
+            });
+            this.resourceComputing = false;
+            // console.log(resp);
+          } else {
+            this.resourceComputing = true;
+            // console.log("get failed!");
+          }
+        });
       },
 
       // request node list
@@ -413,19 +479,20 @@
             } else {
               it["status"] = 'notReady'
             }
-            it['cpuRequest'] = parseInt(it.cpuRequest) / 1000;
-            it['cpuTotal'] = parseInt(it.cpuTotal) / 1000;
-            it['cpuRequestPercent'] =  parseFloat(it['cpuRequest'] / it['cpuTotal'] * 100).toFixed(1);
 
-            it['memoryRequest'] = parseFloat((it.memoryRequest / 1024).toFixed(2));
-            it['memoryTotal'] = parseFloat(it.memoryTotal / 1024).toFixed(2);
-            it['memoryRequestPercent'] =  parseFloat(it['memoryRequest'] / it['memoryTotal'] * 100).toFixed(1);
+            it['cpuRequest'] = '';
+            it['cpuTotal'] = '';
+            it['cpuRequestPercent'] =  '';
 
-            it["cpuLimit"] = parseInt(it.cpuLimit) / 1000;
-            it["cpuLimitPercent"] = parseFloat(it['cpuLimit'] / it["cpuTotal"] * 100).toFixed(1);
+            it['memoryRequest'] = '';
+            it['memoryTotal'] = '';
+            it['memoryRequestPercent'] =  '';
 
-            it["memoryLimit"] = parseFloat((it.memoryLimit / 1024).toFixed(2));
-            it["memoryLimitPercent"] = parseFloat(it["memoryLimit"] / it["memoryTotal"] * 100).toFixed(1);
+            it["cpuLimit"] = '';
+            it["cpuLimitPercent"] = '';
+
+            it["memoryLimit"] = '';
+            it["memoryLimitPercent"] = '';
           });
 
           this.totalSize = parseInt(resp.length);
@@ -466,7 +533,7 @@
       },
 
       onSortChange(tableSort) {
-        console.log(tableSort);
+        // console.log(tableSort);
         this.tableSort = tableSort;
         let sortKey = this.tableSort.prop;
         let sortOrder = this.tableSort.order;

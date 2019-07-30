@@ -93,6 +93,11 @@ class Net extends NetBase {
         path: '/queryAllNode',
         method: 'get'
       },
+      query_node_resource: {
+        path: '/queryNodeResouceUsage',
+        partial: true,
+        method: 'post'
+      },
       // 调用次数详情
       analyze_visit_list_item_detail: {
         path: '/backstage/queryCallDetail',
