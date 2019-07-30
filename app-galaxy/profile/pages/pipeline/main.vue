@@ -303,7 +303,7 @@
           case this.$net.page['profile/pipeline/records']:
           case this.$net.page['profile/pipeline/modify']:
             if (this.getState('filterKey')) {
-              this.filterKey = filterKey;
+              this.filterKey = this.getState('filterKey');
               this.delState('filterKey');
             }
             if (this.getState('currentPage')) {
@@ -397,7 +397,6 @@
         try {
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
-          // console.log(`headerHeight: ${headerHeight}`);
           this.heightOfTable = this.$el.clientHeight - headerHeight;
           // this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
         } catch(err) {
@@ -639,6 +638,7 @@
                 pipelineName: row['pipelineName'],
               }
             };
+            this.saveState();
             this.$router.push(this.$net.page['profile/pipeline/records']);
             break;
           case 'go-to-page-pipeline-update':
@@ -663,7 +663,6 @@
                 appName: row.appName
               }
             };
-            this.saveState();
             this.$router.push(this.$net.page['profile/app']);
             break;
         }
