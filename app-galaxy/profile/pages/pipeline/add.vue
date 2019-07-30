@@ -54,48 +54,51 @@
               <el-form-item label="项目根目录" v-if="pipelineInfoFromNet">
                 <span>{{pipelineInfoFromNet.relativePath ? pipelineInfoFromNet.relativePath : '---'}}</span>
               </el-form-item>
-              <el-form-item label="构建参数" prop="defList" class="environments big" v-if="showMoreConfig" :error="formItemMsgForParam">
-                <el-row class="title" style="font-size: 14px;">
-                  <el-col :span="7" class="key">名称</el-col>
-                  <el-col :span="7" class="value">默认值</el-col>
-                  <el-col :span="8" class="remark">描述</el-col>
-                  <el-col :span="2" style="text-align: center"></el-col>
-                </el-row>
-                <el-row
-                  v-for="(item, index) in formData.defList"
-                  :key="item.name"
-                  :gutter="10"
-                >
-                  <el-col :span="7" class="key">{{item.name}}</el-col>
-                  <el-col :span="7" class="value">{{item.defaultValue}}</el-col>
-                  <el-col :span="8" class="remark">{{item.description}}</el-col>
-                  <el-col :span="2" style="text-align: center" class="delete">
-                    <el-button type="warning" round size="mini-extral" @click="handleParameter('delete', index)">删除</el-button>
-                  </el-col>
-                </el-row>
-                <el-row :gutter="10">
-                  <el-col :span="7">
-                    <el-input v-model="paramKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
-                  </el-col>
-                  <el-col :span="7">
-                    <el-input v-model="paramValue" placeholder="128位以内的数字、字母、中划线、下划线" size="mini"></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input v-model="paramRemark" size="mini"></el-input>
-                  </el-col>
-                  <el-col :span="2" style="text-align: center">
-                    <el-button type="primary" size="mini-extral" round
-                               @click="handleParameter('add', paramKey, paramValue, paramRemark)">添加</el-button>
-                  </el-col>
-                </el-row>
-              </el-form-item>
-              <el-form-item label="保留本次构建记录" labelWidth="200px" v-if="showMoreConfig && this.$storeHelper.getUserInfo('role') == '平台管理员'" >
-                <el-switch v-model="formData.saveLastBuild"
-                           active-color="#13ce66"
-                           inactive-color="#ff4949"></el-switch>
-              </el-form-item>
+
+              <custom-slide-up-down :active="showMoreConfig" :duration="500" class="more-config" style="float: left; width: 100%">
+                <el-form-item label="构建参数" prop="defList" class="environments big" :error="formItemMsgForParam" style="float: none">
+                  <el-row class="title" style="font-size: 14px;">
+                    <el-col :span="7" class="key">名称</el-col>
+                    <el-col :span="7" class="value">默认值</el-col>
+                    <el-col :span="8" class="remark">描述</el-col>
+                    <el-col :span="2" style="text-align: center"></el-col>
+                  </el-row>
+                  <el-row
+                          v-for="(item, index) in formData.defList"
+                          :key="item.name"
+                          :gutter="10"
+                  >
+                    <el-col :span="7" class="key">{{item.name}}</el-col>
+                    <el-col :span="7" class="value">{{item.defaultValue}}</el-col>
+                    <el-col :span="8" class="remark">{{item.description}}</el-col>
+                    <el-col :span="2" style="text-align: center" class="delete">
+                      <el-button type="warning" round size="mini-extral" @click="handleParameter('delete', index)">删除</el-button>
+                    </el-col>
+                  </el-row>
+                  <el-row :gutter="10">
+                    <el-col :span="7">
+                      <el-input v-model="paramKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
+                    </el-col>
+                    <el-col :span="7">
+                      <el-input v-model="paramValue" placeholder="128位以内的数字、字母、中划线、下划线" size="mini"></el-input>
+                    </el-col>
+                    <el-col :span="8">
+                      <el-input v-model="paramRemark" size="mini"></el-input>
+                    </el-col>
+                    <el-col :span="2" style="text-align: center">
+                      <el-button type="primary" size="mini-extral" round
+                                 @click="handleParameter('add', paramKey, paramValue, paramRemark)">添加</el-button>
+                    </el-col>
+                  </el-row>
+                </el-form-item>
+                <el-form-item label="保留本次构建记录" labelWidth="140px" v-if="this.$storeHelper.getUserInfo('role') == '平台管理员'" style="float: none">
+                  <el-switch v-model="formData.saveLastBuild"
+                             active-color="#13ce66"
+                             inactive-color="#ff4949"></el-switch>
+                </el-form-item>
+              </custom-slide-up-down>
               <el-form-item class="expand big">
-                <div class="more" @click="handleClick($event, 'more-config')">
+                <div class="more" style="" @click="handleClick($event, 'more-config')">
                   <span v-if="showMoreConfig">收起更多配置</span><span v-else>更多配置</span>
                   <i :class="showMoreConfig?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
                 </div>
@@ -617,6 +620,24 @@
                   }
                 }
               }
+              .el-form-item.expand {
+                margin-bottom: 10px;
+                .el-form-item__content {
+                  margin-left: 0px !important;
+                  line-height: 20px;
+                  text-align: center;
+                  .more {
+                    margin: 0px -2px 0px -10px;
+                    font-size: 12px;
+                    line-height: 20px;
+                    background-color: #aaa;
+                    &:hover {
+                      background-color: gray;
+                      cursor: pointer;
+                    }
+                  }
+                }
+              }
             }
             @mixin expand-inline-form-item() {
               display: block;
@@ -654,19 +675,6 @@
             }
             .remark {
               padding-left: 6px;
-            }
-            .expand {
-              margin-bottom: 10px;
-              .el-form-item__content {
-                margin-left: 0px !important;
-                background-color: #F2F6FC;
-                &:hover {
-                  background-color: #EBEEF5;
-                }
-                text-align: center;
-                &.more {
-                }
-              }
             }
           }
           &.step2 {
@@ -1707,7 +1715,9 @@
             callback('请填写大于0的整数');
           }
         };
-        // sonar数据检测校验规则
+        // moreThanPercent: >0, <100
+        // lessThanPercent: <=0,
+        // sonar数据检测校验规则:
         const sonarCheck = this.formData['sonarCheck'];
         const sonarCheckRules = this.formDataRules['sonarCheck']['fields'];
         if (!this.formData.sonarCheck.selected) {
