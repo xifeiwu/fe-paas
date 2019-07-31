@@ -1429,32 +1429,6 @@ podAntiAffinity:
         return desc;
       },
 
-      expiredDaysAutoAdd() {
-        if (!this.action.row) {
-          return;
-        }
-        const row = this.action.row;
-
-        if(!this.isProductionProfile){
-          let options = {
-            appId: row.appId,
-            spaceId: this.profileInfo.id,
-            id: row.id,
-            expiredDays: 1,
-            remainExpiredDays: row.remainExpiredDays,
-          };
-          this.$net.serviceUpdate("expiredDays", options).then(msg => {
-            if(row.remainExpiredDays >= 0 && row.remainExpiredDays < 365) {
-              row.remainExpiredDays += 1;
-            }else if (row.remainExpiredDays < 0){
-              row.remainExpiredDays = 1;
-            }
-          }).catch(errMsg => {
-            console.log(errMsg);
-          })
-        }
-      },
-
       // 部署服务
       async serviceDeploy(payload, action) {
         // request and show log
@@ -1541,8 +1515,6 @@ podAntiAffinity:
             });
             dialogStatus = this.dialogForLogStatus;
             dialogRef = 'dialog-4-deploy-log';
-            //每次点击部署,过期时间自动加1
-            this.expiredDaysAutoAdd();
             break;
           case 'quick_deploy':
             resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_quick_deploy, {
@@ -1550,8 +1522,6 @@ podAntiAffinity:
             });
             dialogStatus = this.dialogForLogStatus;
             dialogRef = 'dialog-4-deploy-log';
-            //每次点击部署,过期时间自动加1
-            this.expiredDaysAutoAdd();
             break;
           case 'get_deploy_history':
             resContent = {
@@ -2019,7 +1989,9 @@ podAntiAffinity:
                 appId: row.appId,
                 spaceId: this.profileInfo.id,
                 forceClone: this.actionNew.data.forceClone,
-                logType: 'deployLog'
+                logType: 'deployLog',
+                expiredDays: 1,
+                remainExpiredDays: row.remainExpiredDays,
               }, action);
             } catch (err) {
               console.log(err);
@@ -2089,7 +2061,9 @@ podAntiAffinity:
                 id: row.id,
                 appId: row.appId,
                 spaceId: this.profileInfo.id,
-                logType: 'deployLog'
+                logType: 'deployLog',
+                expiredDays: 1,
+                remainExpiredDays: row.remainExpiredDays,
               }, action);
             } catch (err) {
               console.log(err);

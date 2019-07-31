@@ -75,7 +75,7 @@
             {{scope.row.applicationName || scope.row.applicationName != "" ? scope.row.applicationName: "---"}}
           </template>
         </el-table-column>
-        <el-table-column label="服务名称" align="center">
+        <el-table-column label="服务名称(serviceName)" align="center">
           <template slot-scope="scope">
             {{scope.row.serviceName || scope.row.serviceName != "" ? scope.row.serviceName: "---"}}
           </template>
