@@ -1950,7 +1950,7 @@
         const updateStageSonarCheck = (sonarCheckName) => {
           const sonarCheck = this.formData[sonarCheckName];
           const sonarCheckRules = this.formDataRules[sonarCheckName]['fields'];
-          if (!this.formData.sonarCheck.selected) {
+          if (!sonarCheck.selected) {
             sonarCheckRules.projectKeyWord[0].required = false;
             ['unitTestRatio', 'branchCoverage', 'itLineCoverage', 'itBranchCoverage', 'blockerViolations', 'criticalViolations',
               'majorViolations', 'minorViolations', 'codeDebt'].forEach(key => {

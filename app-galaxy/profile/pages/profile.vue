@@ -438,7 +438,7 @@
       },
       groupListByVersion() {
         var result = [{
-          label: '== pass2.x新团队 ==',
+          // label: '== pass2.x新团队 ==',
           class: 'v2',
           groupList: []
         }, {
