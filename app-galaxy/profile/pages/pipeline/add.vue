@@ -589,51 +589,53 @@
               .el-input {
                 max-width: 500px;
               }
-              .el-form-item.webhook-config {
-                .webhook-config-content {
-                  display: flex;
-                  align-items: center;
-                  .item {
-                    margin-left: 12px;
-                    & > label {
-                      color: black;
-                      font-weight: bold;
-                      font-size: 14px;
-                      line-height: 24px;
-                      vertical-align: middle;
+              .el-form-item {
+                &.webhook-config {
+                  .webhook-config-content {
+                    display: flex;
+                    align-items: center;
+                    .item {
+                      margin-left: 12px;
+                      & > label {
+                        color: black;
+                        font-weight: bold;
+                        font-size: 14px;
+                        line-height: 24px;
+                        vertical-align: middle;
+                      }
+                    }
+                    .el-input {
+                      max-width: 500px;
+                    }
+                    .el-radio + .el-radio {
+                      margin-left: 8px;
+                    }
+                    .el-checkbox + .el-checkbox {
+                      margin-left: 8px;
+                    }
+                    .el-form-item__label {
+                      padding-right: 5px;
+                    }
+                    .el-checkbox-group {
+                      display: inline-block;
                     }
                   }
-                  .el-input {
-                    max-width: 500px;
-                  }
-                  .el-radio + .el-radio {
-                    margin-left: 8px;
-                  }
-                  .el-checkbox + .el-checkbox {
-                    margin-left: 8px;
-                  }
-                  .el-form-item__label {
-                    padding-right: 5px;
-                  }
-                  .el-checkbox-group {
-                    display: inline-block;
-                  }
                 }
-              }
-              .el-form-item.expand {
-                margin-bottom: 10px;
-                .el-form-item__content {
-                  margin-left: 0px !important;
-                  line-height: 20px;
-                  text-align: center;
-                  .more {
-                    margin: 0px -2px 0px -10px;
-                    font-size: 12px;
+                &.expand {
+                  margin-bottom: 0px;
+                  .el-form-item__content {
+                    margin-left: 0px !important;
                     line-height: 20px;
-                    background-color: #eee;
-                    &:hover {
-                      background-color: #ccc;
-                      cursor: pointer;
+                    text-align: center;
+                    .more {
+                      margin: 0px -2px 0px -10px;
+                      font-size: 12px;
+                      line-height: 20px;
+                      background-color: #eee;
+                      &:hover {
+                        background-color: #ddd;
+                        cursor: pointer;
+                      }
                     }
                   }
                 }
