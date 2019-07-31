@@ -413,6 +413,21 @@
                     </el-form-item>
 
                     <!--sonar数据检查3-->
+                    <el-form-item label="Sonar关键字：" class="sonarCheckAutoTestScript"
+                                  prop="sonarCheckAutoTestScript.projectKeyWord"
+                                  v-show="stageName === 'sonarCheckAutoTestScript'">
+                      <el-input v-model="formData.sonarCheckAutoTestScript.projectKeyWord" style="max-width: 500px"
+                                type="textarea" :rows="5"></el-input>
+                      <el-popover
+                              placement="left-start"
+                              width="50"
+                              trigger="hover">
+                        <div>
+                          <img src="/assets/imgs/profile/pipeline-sonar-tip.png" width="600px" height="400px"/>
+                        </div>
+                        <span slot="reference"><i class="paas-icon-fa-question" style="color: #E6A23C; font-size:12px;"></i></span>
+                      </el-popover>
+                    </el-form-item>
                     <div class="el-form-item el-form-item--mini sonarCheckAutoTestScript" v-show="stageName === 'sonarCheckAutoTestScript'">
                       <div class="el-form-item__label" style="width: 120px; float: left; z-index: 11">
                         <span>检查项：</span>
