@@ -344,10 +344,10 @@
                 <el-radio-group v-model="formData.enableJacoco">
                   <el-radio :label="true">需要</el-radio>
                   <el-radio :label="false">不需要</el-radio>
-                  <div style="display: inline-block;">
+                  <div style="display: inline-block; margin-left: 6px;">
                     <el-tooltip slot="trigger" effect="dark" placement="top">
                       <div slot="content">
-                        <div>如果开启jacoco，则端口映射的目标端口固定为：8144</div>
+                        <div>如果开启jacoco，则端口映射的目标端口固定为：8144，Pipeline启动的实例数量强制设为1</div>
                       </div>
                       <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
                     </el-tooltip>
