@@ -389,7 +389,7 @@
                     </el-form-item>
                     <!--自动化测试[beta]-end-->
 
-                    <!--上传测试报告-->
+                    <!--上传覆盖率数据-->
                     <el-form-item v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'" labelWidth="0px" class="message-show">
                       <div style="color: #eb9e05; font-size: 12px; line-height: 16px; text-align: left; padding: 0px 60px;">
                         <i class="el-icon-warning"></i>
@@ -848,7 +848,7 @@
       description: ['自动化测试[test]']
     },
     'uploadUnitTestReportAndAutoTestReport': {
-      description: '上传测试报告'
+      description: '上传覆盖率数据'
     },
     'functionValidate': {
       description: '功能测试（人工验证）'
@@ -949,7 +949,7 @@
         'functionValidate',  //功能测试（人工验证）
         'deployBetaEnv',  //部署到[beta]环境
         'ciPipelineAutoTestVO',  //自动化测试[beta]
-        'uploadUnitTestReportAndAutoTestReport', // 上传测试报告
+        'uploadUnitTestReportAndAutoTestReport', // 上传覆盖率数据
         'end'
       ].map(key => {
         var result = null;
@@ -1998,12 +1998,12 @@
       // "制作镜像"结点删除后，"部署到[test]环境"/"部署到[beta]环境"结点会被删除
       // "部署到[test]环境"删除后，"自动化测试[test]"结点将会删除
       // "部署到[beta]环境"删除后，"自动化测试[beta]"结点将会删除
-      // "自动化测试[test]"结点 和 "自动化测试[beta]"结点 都删除后，"上传测试报告"结点将会删除
+      // "自动化测试[test]"结点 和 "自动化测试[beta]"结点 都删除后，"上传覆盖率数据"结点将会删除
 
       // 添加逻辑：
-      // "自动化测试[test]"或 "自动化测试[beta]"结点添加后，才可以添加"上传测试报告"结点
+      // "自动化测试[test]"或 "自动化测试[beta]"结点添加后，才可以添加"上传覆盖率数据"结点
 
-      // "上传测试报告"结点的属性"自动化覆盖率报告读取结点"的默认值：
+      // "上传覆盖率数据"结点的属性"自动化覆盖率报告读取结点"的默认值：
       //   新建pipeline时：如果"自动化测试[test]"结点 或 "自动化测试[beta]"结点只有一个被选中，则为选中结点对应的环境(test/beta)；如果两个结点都选中，默认选择test结点。
       //   修改pipeline时：同新建pipeline时
       handleStageActiveChange(evt, action, currentStageName) {
@@ -2056,10 +2056,10 @@
                 this.formDataRules.mvnPackage.fields.script[0].required = true;
                 break;
               case 'uploadUnitTestReportAndAutoTestReport':
-                // "自动化测试[test]"或 "自动化测试[beta]"结点添加后，才可以添加"上传测试报告"结点
+                // "自动化测试[test]"或 "自动化测试[beta]"结点添加后，才可以添加"上传覆盖率数据"结点
                 if (!this.formData.ciPipelineAutoTestVO.selected && !this.formData.ciPipelineAutoTestVOTest.selected) {
                   stageChangeStatus.success = false;
-                  stageChangeStatus.reason = `"自动化测试[test]"或 "自动化测试[beta]"结点添加后，才可以添加"上传测试报告"结点`;
+                  stageChangeStatus.reason = `"自动化测试[test]"或 "自动化测试[beta]"结点添加后，才可以添加"上传覆盖率数据"结点`;
                 }
                 break;
               case 'ciPipelineAutoTestVOTest':
@@ -2123,7 +2123,7 @@
                 if (currentStageName === 'ciPipelineAutoTestVOTest' && this.formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode === 'test') {
                   this.formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode = '';
                 }
-                // "自动化测试[test]"结点 和 "自动化测试[beta]"结点 都删除后，"上传测试报告"结点将会删除
+                // "自动化测试[test]"结点 和 "自动化测试[beta]"结点 都删除后，"上传覆盖率数据"结点将会删除
                 if (!this.formData.ciPipelineAutoTestVO.selected && !this.formData.ciPipelineAutoTestVOTest.selected) {
                   this.stages.filter(it => ['uploadUnitTestReportAndAutoTestReport'].indexOf(it['name']) > -1).forEach(it => it['selected'] = false);
                   this.formData.uploadUnitTestReportAndAutoTestReport.selected = false;
