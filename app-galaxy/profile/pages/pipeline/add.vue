@@ -2077,12 +2077,13 @@
               this.formData.ciPipelineAutoTestVOTest.relativePath = this.formData.ciPipelineAutoTestVOTest.relativePath.trim();
               // 若选择Sonar数据检查，则至少要选择一个检查项
               if (this.formData.sonarCheck.selected && !this.isSonarCheckSelected('sonarCheck')) {
+//                throw
                 this.$message.error(`若选择Sonar数据检查，则至少要选择一个检查项`);
-                return;
+                throw [false, [{field: 'sonarCheck.*'}]];
               }
               if (this.formData.sonarCheckAutoTestScript.selected && !this.isSonarCheckSelected('sonarCheckAutoTestScript')) {
                 this.$message.error(`若选择Sonar数据检查，则至少要选择一个检查项`);
-                return;
+                throw [false, [{field: 'sonarCheckAutoTestScript.*'}]];
               }
               // 前端逻辑按照字符串处理，为了兼容以后支持多种webhook，后端使用数组格式
               if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
@@ -2107,7 +2108,7 @@
                   firstFields = firstFields.split('.')[0];
                 }
                 const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'buildImage', 'ciPipelineAutoTestVO', 'ciPipelineAutoTestVOTest',
-                  'uploadUnitTestReportAndAutoTestReport', 'sonarCheck'];
+                  'uploadUnitTestReportAndAutoTestReport', 'sonarCheck', 'sonarCheckAutoTestScript'];
                 if (pipelineStageList.indexOf(firstFields) > -1) {
                   this.setActiveStageByName(firstFields);
                   // validate again to make sure show error message
