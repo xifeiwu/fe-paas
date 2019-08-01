@@ -54,6 +54,17 @@
             
           </template>
         </el-table-column>
+        <el-table-column label="内网IP" headerAlign="center" align="center" min-width="150px">
+          <template slot-scope="scope">
+            <a :href="`http://apm.finupgroup.com/monitor/index.html#/basicResource/machine/cpu?node=${scope.row.internalIP}`" target="_blank">
+              {{scope.row.internalIP}}</a>
+          </template>
+        </el-table-column>
+        <el-table-column label="节点配置" headerAlign="center" align="center" min-width="150px">
+          <template slot-scope="scope">
+            <span class="link" @click="handleTRClick($event, 'get_node_taint', scope.$index, scope.row)">节点配置</span>
+          </template>
+        </el-table-column>
         <el-table-column label="CPU(Request/总共)" headerAlign="center" align="center" prop="cpuRequest" sortable="custom"
                          min-width="200px">
           <template slot-scope="scope">
@@ -82,12 +93,7 @@
             <span v-else>{{`${scope.row.memoryLimit}G / ${scope.row.memoryTotal}G (${scope.row.memoryLimitPercent}%)`}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="内网IP" headerAlign="center" align="center" min-width="150px">
-          <template slot-scope="scope">
-            <a :href="`http://apm.finupgroup.com/monitor/index.html#/basicResource/machine/cpu?node=${scope.row.internalIP}`" target="_blank">
-              {{scope.row.internalIP}}</a>
-          </template>
-        </el-table-column>
+
         <el-table-column label="操作系统" prop="os" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" :sortable="true">
@@ -112,6 +118,49 @@
         </div>
       </div>
     </div>
+
+    <el-dialog :visible.sync="hasTaints" top="30px" width="80%" :fullscreen="false"
+               v-loading="saveTaintsLoading"
+               element-loading-text="正在保存"
+               element-loading-spinner="el-icon-loading"
+               element-loading-background="rgba(0, 0, 0, 0.8)"
+    >
+      <div class="py-3" style="width: 80%; text-align: left;">
+        <h4 style="display: inline;">
+          <span style="color: red;">
+          Node配置（spec配置）
+          </span>
+        </h4>
+        <span>
+          <el-tooltip slot="trigger" effect="dark" placement="right">
+            <div slot="content">
+              <pre>
+污点配置模板样例如下：（taints）
+---
+externalID: "dev-k8s-node-87-63"
+taints:
+- effect: "NoSchedule"
+  key: "test1"
+  value: "26"
+- effect: "NoSchedule"
+  key: "test2"
+  value: "16"
+              </pre>
+            </div>
+            <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
+          </el-tooltip>
+        </span>
+      </div>
+
+      <div class="__editor">
+        <codemirror v-model="configOfTaints" :options="editorTaintsOptions"></codemirror>
+      </div>
+
+      <div slot="footer" class="pa-3" style="text-align: center">
+        <el-button type="success" size="medium" @click="saveTaintsConfig(true)">&emsp;保 存 并 生 效&emsp;</el-button>
+        <el-button type="danger" size="medium" @click="hasTaints = false">&emsp;取 消 修 改&emsp;</el-button>
+      </div>
+    </el-dialog>
   </div>
 
 </template>
@@ -148,6 +197,7 @@
           .el-tabs__content {
             display: none;
           }
+
         }
       }
       .operation {
@@ -230,6 +280,13 @@
           }
         }
       }
+      .link {
+        color: #409EFF;
+        &:hover {
+          cursor: pointer;
+          text-decoration: underline;
+        }
+      }
     }
   }
 </style>
@@ -237,9 +294,21 @@
   import bytes from 'bytes';
   // import utils from '../utils';
   import commonUtils from 'assets/components/mixins/common-utils';
+  import {codemirror} from "vue-codemirror";
+  import "codemirror/lib/codemirror.css";
 
+  // language
+  import "codemirror/mode/properties/properties.js";
+  import "codemirror/mode/yaml/yaml.js";
+  // theme
+  import "codemirror/theme/monokai.css";
+  // require active-line.js
+  import "codemirror/addon/selection/active-line.js";
 
   export default {
+    components: {
+      codemirror,
+    },
     mixins: [commonUtils],
     async created() {
       this.bytes = bytes;
@@ -299,6 +368,26 @@
         nodeListFilter: [],
         nodeListByPage: [],
         resourceComputing: true,
+
+        action: {
+          evt: null,
+          name: null,
+          row: null
+        },
+
+        hasTaints: false,
+        configOfTaints: '',
+        saveTaintsLoading: false,
+        editorTaintsOptions: {
+          tabSize: 4,
+          styleActiveLine: true,
+          lineNumbers: true,
+          line: true,
+          mode: "text/x-properties",
+          theme: "monokai",
+          readOnly: false,
+          viewportMargin: 10
+        },
 
         getRowKeys: function (row) {
           return row.id;
@@ -527,6 +616,70 @@
         }
       },
 
+      async handleTRClick(evt, action, index, row) {
+
+        this.action.evt = evt;
+        this.action.name = action;
+        this.action.row = row;
+
+        switch (action) {
+          case 'get_node_taint':
+            await this.$net.requestPaasServer(this.$net.URL_LIST.get_node_taint, {
+              payload: {
+                clusterName: this.currentK8sNode,
+                nodeName: row.nodeName
+              }
+            }).then(resp =>{
+              // console.log(resp);
+              if (resp) {
+                this.configOfTaints = resp['taintConfig'];
+              } else {
+                this.configOfTaints = "";
+              }
+              this.hasTaints = true;
+            }).catch(error => {
+              console.log(error);
+            }).finally(()=> {
+            });
+            break;
+          default:
+            console.log("未知操作");
+            break;
+        }
+      },
+
+      async saveTaintsConfig() {
+
+        await this.$confirm(
+          "您确认要修改节点（" + this.action.row.nodeName+ "）的配置吗?",
+          '提示',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
+        );
+
+        this.saveTaintsLoading = true;
+        await this.$net.requestPaasServer(this.$net.URL_LIST.update_node_taint, {
+        // await this.$net.getResponse(url, {
+          payload: {
+            clusterName: this.currentK8sNode,
+            nodeName: this.action.row.nodeName,
+            taintConfig: this.configOfTaints
+          }
+        }).then(response => {
+          // console.log(response);
+          this.$message.success("节点配置成功！");
+          this.hasTaints = false;
+        }).catch(err => {
+          console.log(err);
+          this.$message.error("保存配置失败，请联系云平台！");
+        }).finally(() => {
+          this.saveTaintsLoading = false;
+        });
+      },
+
       handlePaginationPageChange(page) {
         this.currentPage = page;
         this.computedNodeList();
@@ -556,3 +709,12 @@
     }
   }
 </script>
+<style lang="scss">
+  .__editor {
+    text-align: left;
+    min-height: 400px;
+    .CodeMirror {
+      min-height: 480px;
+    }
+  }
+</style>
