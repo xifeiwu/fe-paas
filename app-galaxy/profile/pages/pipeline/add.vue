@@ -908,6 +908,7 @@
         border-top-right-radius: 10px;
         border: 1px solid #aaccbb;
         background: rgba(245, 249, 239, 0.75);
+        z-index: 100;
       }
     }
   }

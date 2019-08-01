@@ -87,13 +87,13 @@
           minWidth="100"
           align="center">
           <template slot-scope="scope">
-            <el-button v-if="scope.row['status'] === 'IN_PROGRESS'"
+            <el-button v-if="['IN_PROGRESS', 'PAUSED_PENDING_INPUT'].indexOf(scope.row['status']) > -1"
               type="text"
               :class="['flex', 'danger']"
               @click="handleTRClick($event, 'stop', scope.$index, scope.row)">
               <span>停止</span>
             </el-button>
-            <div class="ant-divider" v-if="scope.row['status'] === 'IN_PROGRESS'"></div>
+            <div class="ant-divider" v-if="['IN_PROGRESS', 'PAUSED_PENDING_INPUT'].indexOf(scope.row['status']) > -1"></div>
 
             <el-button v-if="scope.row['status'] !== 'IN_PROGRESS'"
               type="text"
