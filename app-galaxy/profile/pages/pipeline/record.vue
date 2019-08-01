@@ -95,14 +95,14 @@
             </el-button>
             <div class="ant-divider" v-if="['IN_PROGRESS', 'PAUSED_PENDING_INPUT'].indexOf(scope.row['status']) > -1"></div>
 
-            <el-button v-if="scope.row['status'] !== 'IN_PROGRESS'"
+            <el-button v-if="['IN_PROGRESS', 'PAUSED_PENDING_INPUT'].indexOf(scope.row['status']) === -1"
               type="text"
               :class="['flex', publishStatus ? 'disabled' : 'primary']"
               :loading="statusOfWaitingResponse('pipeline_build_restart') && action.row.buildNumber == scope.row.buildNumber"
               @click="handleTRClick($event, 'pipeline_build_restart', scope.$index, scope.row)">
               <span>重启</span>
             </el-button>
-            <div class="ant-divider" v-if="scope.row['status'] !== 'IN_PROGRESS'"></div>
+            <div class="ant-divider" v-if="['IN_PROGRESS', 'PAUSED_PENDING_INPUT'].indexOf(scope.row['status']) === -1"></div>
 
             <el-button v-if="['IN_PROGRESS', 'PAUSED_PENDING_INPUT'].indexOf(scope.row['status']) > -1"
                        type="text"
