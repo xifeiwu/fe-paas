@@ -392,10 +392,10 @@
                     <el-form-item v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'" labelWidth="0px" class="message-show">
                       <div style="color: #eb9e05; font-size: 12px; line-height: 16px; text-align: left; padding: 0px 60px;">
                         <i class="el-icon-warning"></i>
-                        <span>此结点用于同时上传前面"sonar及单元测试"结点生成的单测覆盖率报告以及"自动化测试"结点生成的集成覆盖率报告，上传成功后，可在 Sonar 中查看覆盖率及 Sonar 检查报告</span>
+                        <span>此节点用于同时上传前面"sonar及单元测试"节点生成的单测覆盖率报告以及"自动化测试"节点生成的集成覆盖率报告，上传成功后，可在 Sonar 中查看覆盖率及 Sonar 检查报告</span>
                       </div>
                     </el-form-item>
-                    <el-form-item label="自动化覆盖率报告读取结点：" labelWidth="200px" prop="uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode"
+                    <el-form-item label="自动化覆盖率报告读取节点：" labelWidth="200px" prop="uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode"
                                   v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
                       <el-radio-group v-model="formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode">
                         <!--<el-radio v-for="(item, index) in [{name: 'test', description: '测试环境'}, {name: 'beta', description: '联调环境'}]"-->
@@ -523,13 +523,13 @@
                     </el-form-item>
                   </el-form>
                   <div class="stage-change-selection">
-                    <span>删除结点 "{{Array.isArray(currentStage.description) ? currentStage.description.join('') : currentStage.description}}"?</span>
+                    <span>删除节点 "{{Array.isArray(currentStage.description) ? currentStage.description.join('') : currentStage.description}}"?</span>
                     <el-button size="mini-extral" type="danger" @click="handleStageActiveChange($event, 'stage-remove')">删除</el-button>
                   </div>
                 </div>
                 <div class="stage-change-selection" v-show="!currentStage.selected">
                   <!--:key="stageName"-->
-                  <span>添加结点 "{{Array.isArray(currentStage.description) ? currentStage.description.join('') : currentStage.description}}"?</span>
+                  <span>添加节点 "{{Array.isArray(currentStage.description) ? currentStage.description.join('') : currentStage.description}}"?</span>
                   <el-button size="mini-extral" type="primary" @click="handleStageActiveChange($event, 'stage-add')">添加</el-button>
                 </div>
               <!--</transition>-->
@@ -1073,7 +1073,7 @@
           result = Object.assign({name: key}, commonProp, STAGE_NAME_MAP[key]);
         } else {
           if (pipelineInfoFromNet.hasOwnProperty(key)) {
-            // 如果从服务端返回的该结点数据为null, selected设为false
+            // 如果从服务端返回的该节点数据为null, selected设为false
             if (!pipelineInfoFromNet[key]) {
               pipelineInfoFromNet[key] = {};
               pipelineInfoFromNet[key]['selected'] = false;
@@ -1215,7 +1215,7 @@
             relativePath: '', // Gitlab父级pom.xml相对路径 ,
             script: '', // 脚本名称 ,
             includes: '',
-            selected: '', //结点是否选中
+            selected: '', //节点是否选中
           },
           // 功能测试（人工验证）
           functionValidate: {
@@ -1236,13 +1236,13 @@
             relativePath: '', // 项目根目录 ,
             script: '', // 脚本名称 ,
             includes: '',
-            selected: '', //结点是否选中
+            selected: '', //节点是否选中
           },
           uploadUnitTestReportAndAutoTestReport: {
             script: '', // 脚本名称 ,
             uploadAutoTestReportNode: '',
             inputChecked: '', // 是否需要手工确认 ,
-            selected: '', //结点是否选中
+            selected: '', //节点是否选中
           },
           // sonar数据检查
           sonarCheckAutoTestScript: {
@@ -1465,7 +1465,7 @@
                 required: true,
                 trigger: ['blur', 'change'],
                 requiredOrigin: true,
-                message: '请选择自动化覆盖率报告读取结点'
+                message: '请选择自动化覆盖率报告读取节点'
               }],
               script: [{
                 type: "string",
@@ -1888,7 +1888,7 @@
         }
       },
 
-      // 根据pipeline结点的选择情况，更新formRules
+      // 根据pipeline节点的选择情况，更新formRules
       updateFormDataRules() {
         // fix rules for 'testAndSonarScript', 'mvnPackage', 'autoSciPipelineAutoTestVOcript'
         var pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'ciPipelineAutoTestVO',  'ciPipelineAutoTestVOTest',
@@ -2235,17 +2235,17 @@
       // 处理stage的添加/删除
 
       // 删除逻辑：
-      // "打包"结点删除后，"制作镜像"将会删除结点
-      // "制作镜像"结点删除后，"部署到[test]环境"/"部署到[beta]环境"结点会被删除
-      // "部署到[test]环境"删除后，"自动化测试[test]"结点将会删除
-      // "部署到[beta]环境"删除后，"自动化测试[beta]"结点将会删除
-      // "自动化测试[test]"结点 和 "自动化测试[beta]"结点 都删除后，"上传覆盖率数据"结点将会删除
+      // "打包"节点删除后，"制作镜像"将会删除节点
+      // "制作镜像"节点删除后，"部署到[test]环境"/"部署到[beta]环境"节点会被删除
+      // "部署到[test]环境"删除后，"自动化测试[test]"节点将会删除
+      // "部署到[beta]环境"删除后，"自动化测试[beta]"节点将会删除
+      // "自动化测试[test]"节点 和 "自动化测试[beta]"节点 都删除后，"上传覆盖率数据"节点将会删除
 
       // 添加逻辑：
-      // "自动化测试[test]"或 "自动化测试[beta]"结点添加后，才可以添加"上传覆盖率数据"结点
+      // "自动化测试[test]"或 "自动化测试[beta]"节点添加后，才可以添加"上传覆盖率数据"节点
 
-      // "上传覆盖率数据"结点的属性"自动化覆盖率报告读取结点"的默认值：
-      //   新建pipeline时：如果"自动化测试[test]"结点 或 "自动化测试[beta]"结点只有一个被选中，则为选中结点对应的环境(test/beta)；如果两个结点都选中，默认选择test结点。
+      // "上传覆盖率数据"节点的属性"自动化覆盖率报告读取节点"的默认值：
+      //   新建pipeline时：如果"自动化测试[test]"节点 或 "自动化测试[beta]"节点只有一个被选中，则为选中节点对应的环境(test/beta)；如果两个节点都选中，默认选择test节点。
       //   修改pipeline时：同新建pipeline时
       handleStageActiveChange(evt, action, currentStageName) {
         const profileNameMap = {
@@ -2284,7 +2284,7 @@
                   stageChangeStatus.success = true;
                 } else {
                   stageChangeStatus.success = false;
-                  stageChangeStatus.reason = `当前应用无"${profileNameMap[currentStageName]}"服务，无法添加结点"${this.currentStage.description}"`;
+                  stageChangeStatus.reason = `当前应用无"${profileNameMap[currentStageName]}"服务，无法添加节点"${this.currentStage.description}"`;
                 }
                 break;
               case 'sonarCheck':
@@ -2297,10 +2297,10 @@
                 this.formDataRules.mvnPackage.fields.script[0].required = true;
                 break;
               case 'uploadUnitTestReportAndAutoTestReport':
-                // "自动化测试[test]"或 "自动化测试[beta]"结点添加后，才可以添加"上传覆盖率数据"结点
+                // "自动化测试[test]"或 "自动化测试[beta]"节点添加后，才可以添加"上传覆盖率数据"节点
                 if (!this.formData.ciPipelineAutoTestVO.selected && !this.formData.ciPipelineAutoTestVOTest.selected) {
                   stageChangeStatus.success = false;
-                  stageChangeStatus.reason = `"自动化测试[test]"或 "自动化测试[beta]"结点添加后，才可以添加"上传覆盖率数据"结点`;
+                  stageChangeStatus.reason = `"自动化测试[test]"或 "自动化测试[beta]"节点添加后，才可以添加"上传覆盖率数据"节点`;
                 }
                 break;
               case 'ciPipelineAutoTestVOTest':
@@ -2311,14 +2311,14 @@
               this.currentStage['selected'] = true;
 //              console.log(this.currentStage);
               this.updateStageIndex(this.stages);
-              // this.$message.success(`添加结点 "${this.currentStage['name']}" 成功！`);
+              // this.$message.success(`添加节点 "${this.currentStage['name']}" 成功！`);
               this.formData[this.currentStage['name']]['selected'] = true;
             } else {
               this.$message.error(stageChangeStatus.reason);
             }
             break;
           case 'stage-remove':
-            // 结点删除后，取消"手工确认"
+            // 节点删除后，取消"手工确认"
             if (this.formData[currentStageName] && this.formData[currentStageName].hasOwnProperty('inputChecked')) {
               this.formData[currentStageName]['inputChecked'] = false;
             }
@@ -2333,25 +2333,25 @@
 //                this.formDataRules.sonarCheck.fields.projectKeyWord[0].required = false;
 //                break;
               case 'mvnPackage':
-                // "打包"结点删除后，删除"制作镜像"结点
+                // "打包"节点删除后，删除"制作镜像"节点
                 this.stages.filter(it => ['buildImage'].indexOf(it['name']) > -1).forEach(it => it['selected'] = false);
                 this.formData.buildImage.selected = false;
                 this.handleStageActiveChange(evt, 'stage-remove', 'buildImage');
                 break;
               case 'buildImage':
-                // "制作镜像"结点删除后，"部署到[test]环境"/"部署到[beta]环境"结点会被删除
+                // "制作镜像"节点删除后，"部署到[test]环境"/"部署到[beta]环境"节点会被删除
                 this.stages.filter(it => ['deployTestEnv', 'deployBetaEnv'].indexOf(it['name']) > -1).forEach(it => it['selected'] = false);
                 this.formData.deployBetaEnv.selected = false;
                 this.formData.deployTestEnv.selected = false;
                 break;
               case 'deployTestEnv':
-                // "部署到[test]环境"删除后，"自动化测试[test]"结点将会删除
+                // "部署到[test]环境"删除后，"自动化测试[test]"节点将会删除
                 this.stages.filter(it => ['ciPipelineAutoTestVOTest'].indexOf(it['name']) > -1).forEach(it => it['selected'] = false);
                 this.formData.ciPipelineAutoTestVOTest.selected = false;
                 this.handleStageActiveChange(evt, 'stage-remove', 'ciPipelineAutoTestVOTest');
                 break;
               case 'deployBetatEnv':
-                // "部署到[beta]环境"删除后，"自动化测试[beta]"结点将会删除
+                // "部署到[beta]环境"删除后，"自动化测试[beta]"节点将会删除
                 this.stages.filter(it => ['ciPipelineAutoTestVO'].indexOf(it['name']) > -1).forEach(it => it['selected'] = false);
                 this.formData.ciPipelineAutoTestVO.selected = false;
                 this.handleStageActiveChange(evt, 'stage-remove', 'ciPipelineAutoTestVO');
@@ -2364,7 +2364,7 @@
                 if (currentStageName === 'ciPipelineAutoTestVOTest' && this.formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode === 'test') {
                   this.formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode = '';
                 }
-                // "自动化测试[test]"结点 和 "自动化测试[beta]"结点 都删除后，"上传覆盖率数据"结点将会删除
+                // "自动化测试[test]"节点 和 "自动化测试[beta]"节点 都删除后，"上传覆盖率数据"节点将会删除
                 if (!this.formData.ciPipelineAutoTestVO.selected && !this.formData.ciPipelineAutoTestVOTest.selected) {
                   this.stages.filter(it => ['uploadUnitTestReportAndAutoTestReport'].indexOf(it['name']) > -1).forEach(it => it['selected'] = false);
                   this.formData.uploadUnitTestReportAndAutoTestReport.selected = false;
@@ -2372,7 +2372,7 @@
                 break;
             }
             this.updateStageIndex(this.stages);
-            // this.$message.success(`删除结点 "${this.currentStage['name']}" 成功！`);
+            // this.$message.success(`删除节点 "${this.currentStage['name']}" 成功！`);
             break;
         }
         // updateFormDataRules at active of Stage
