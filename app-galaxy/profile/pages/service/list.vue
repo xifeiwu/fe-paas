@@ -208,7 +208,7 @@
                   size="small"
                   type="text"
                   @click="handleTRClick($event, 'update_affinity', scope.$index, scope.row)"
-                  :class="reason4DisableQuickDeploy(scope.row) || publishStatus? 'disabled' : 'danger'">
+                  :class="$storeHelper.permission['update_affinity'].disabled || publishStatus? 'disabled' : 'danger'">
                 <span>亲和性配置</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
@@ -1887,13 +1887,13 @@ podAntiAffinity:
           return;
         }
 
-        if (action === 'update_affinity' && row.containerStatus.Total == 0) {
-          this.$storeHelper.globalPopover.show({
-            ref: evt.target,
-            msg: `当前运行实例数为0，不能修改亲和性`
-          });
-          return;
-        }
+        // if (action === 'update_affinity' && row.containerStatus.Total == 0) {
+        //   this.$storeHelper.globalPopover.show({
+        //     ref: evt.target,
+        //     msg: `当前运行实例数为0，不能修改亲和性`
+        //   });
+        //   return;
+        // }
 
         if (this.$storeHelper.permission.hasOwnProperty(permission) && this.$storeHelper.permission[permission].disabled) {
           this.$storeHelper.globalPopover.show({
