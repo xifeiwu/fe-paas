@@ -1041,7 +1041,6 @@
                 pipelineName: this.dataPassed.pipelineName
               }
             };
-            await this.$router.helper.renameRouterName('records/plan', `${this.dataPassed.pipelineName}<${row.buildNumber}>`, '/profile/pipeline');
             this.$router.push(this.$net.page['profile/pipeline/records/plan']);
             break;
 	        case 'pipeline_build_execute_with_param':

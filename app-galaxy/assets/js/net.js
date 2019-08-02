@@ -92,6 +92,8 @@ class Net {
       'profile/app/add': '/profile/app/add',
       'profile/app/update': '/profile/app/update',
       'profile/service': '/profile/service',
+      'profile/service/list': '/profile/service/list',
+      '/profile/service/list/:id': '/profile/service/list/:id(\\d+)?',
       'profile/service/add': '/profile/service/add',
       'profile/service/modify': '/profile/service/modify',
       'profile/service/copy': '/profile/service/copy',

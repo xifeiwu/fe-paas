@@ -122,6 +122,10 @@ class Helper {
     }, {
       path: '/profile/service',
       name: '服务管理',
+      redirect: '/profile/service/list',
+    }, {
+      path: '/profile/service/list/:id(\\d+)?',
+      // name: '服务管理',
       component: serviceList,
     }, {
       path: '/profile/service/add',
@@ -397,6 +401,7 @@ class Helper {
       } else {
         item.routePath = item.path;
       }
+      item.routeReg = pathToRegexp(item.routePath);
     }
 
     function traverseComponent(path, component) {
@@ -627,22 +632,6 @@ class Helper {
     return result;
   }
 
-  getPathByRouterPath(routerPath, payload) {
-    return routerPath.split('/').map(it => {
-      if (it.startsWith(':')) {
-        const key = it.substring(1);
-        if (payload.hasOwnProperty(key)) {
-          return payload[key];
-        } else {
-          return it;
-        }
-      } else {
-        return it;
-      }
-    }).join('/');
-
-  }
-
   /**
    * get permitted children in routeConfig by routePath
    * @param routePath, such as '/log', '/oauth'
@@ -665,29 +654,6 @@ class Helper {
       return it.hasOwnProperty('name');
     });
     return JSON.parse(JSON.stringify(result));
-  }
-
-
-  /**
-   * rename router name in richRouterConfig
-   */
-  async renameRouterName(targetPath, rename , parentPath) {
-    let targetRouterPath = null;
-    if (parent) {
-      targetRouterPath = this.richRouterConfig.find(it => {
-        return it.path == parentPath;
-      }).children.find(it => {
-        return it.path == targetPath;
-      });
-    } else {
-      targetRouterPath = this.richRouterConfig.find(it => {
-        return it.path == targetPath;
-      });
-    }
-    await new Promise((resolve, reject) => {
-      targetRouterPath.name = rename;
-      resolve();
-    })
   }
 
   /**

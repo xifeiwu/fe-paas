@@ -8,6 +8,8 @@ export default class StoreHelper {
     this.$globalStore = globalStore;
     this.$store = store;
     this._dataTransfer = null;
+
+    // save status(variable) for each page, not perisistent(persistent status save in localStorage)
     this.globalStatus = {};
     for (let key in net.page) {
       let value = net.page[key];
