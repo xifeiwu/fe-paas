@@ -546,6 +546,7 @@ class Helper {
     return vueRouterConfig;
   }
 
+  // 遍历配置
   traverseComponent(func, component) {
     if (Array.isArray(component)) {
       component.forEach(this.traverseComponent.bind(this, func));
@@ -555,24 +556,6 @@ class Helper {
         this.traverseComponent(func, component['children']);
       }
     }
-  }
-
-  /**
-   * get all routePath in router config tree. it can be used:
-   * 1. check whether current url is validate.
-   * TODO: not used
-   */
-  getAllRouterPath() {
-    let routePath = [];
-
-    function updateItem(item) {
-      if (item.hasOwnProperty('routePath')) {
-        routePath.push(item.routePath);
-      }
-    }
-
-    this.traverseComponent(updateItem, this.richRouterConfig);
-    return routePath;
   }
 
   /**
@@ -604,6 +587,19 @@ class Helper {
     return routePath;
   }
 
+  /**
+   * get routePath to routeConfig, in the following format:
+   * {
+   *   '/login': {
+   *      name:"登录",
+   *      component: login
+   *   },
+   *   '/profile':"详情",
+   *     name: '服务管理',
+   *     component: service
+   *   }
+   *  }
+   */
   getRoutePathToConfig() {
     let result = {};
 
@@ -617,14 +613,14 @@ class Helper {
     return result;
   }
 
-  getConfigByRouterPath(path) {
+  getConfigByRoutePath(path) {
     var result = null;
     if (!path) {
       return result;
     }
     const routerPathToConfig = this.getRoutePathToConfig();
     for (let key in routerPathToConfig) {
-      if (pathToRegexp(key).exec(path)) {
+      if (pathToRegexp(key).test(path)) {
         result = routerPathToConfig[key];
         break;
       }
@@ -663,6 +659,7 @@ class Helper {
     const ROOT_PATH = '/profile';
 
     // get parent path of the path
+    // TODO: not used
     const getParentPath = (path) => {
       var result = '';
       if (!path.startsWith(ROOT_PATH)) {
@@ -677,6 +674,7 @@ class Helper {
     };
 
     // if the path is valid
+    // TODO: not used
     const isPermittedPath = (path) => {
       var permitted = true;
       const config = this.routePathToConfig[path];
@@ -695,6 +693,7 @@ class Helper {
     };
 
     // get nearest path if the path is not valid
+    // TODO: not used
     const getPermittedPath = (path) => {
       var result = '';
       let firstValidChild = null;
@@ -730,14 +729,15 @@ class Helper {
       // remove / at end
       path = path.trim().replace(/\/+$/, '');
 
-      var routeConfig = this.routePathToConfig[path];
+      // var routeConfig = this.routePathToConfig[path];
+      var routeConfig = this.getConfigByRoutePath(path);
       if (routeConfig) {
         // 1. isPermitted check
-        if (!isPermittedPath(path)) {
-          result.jumpTo = getPermittedPath(path);
-        }
+        // if (!isPermittedPath(path)) {
+        //   result.jumpTo = getPermittedPath(path);
+        // }
         // update routeConfig
-        routeConfig = this.routePathToConfig[result.jumpTo];
+        routeConfig = this.getConfigByRoutePath(result.jumpTo);
         // 2. disable check
         const DISABLE_MAP = {
           'NO_APP': '当前团队应用数为零。请先创建应用，才能进行后续操作',

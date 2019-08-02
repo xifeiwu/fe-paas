@@ -524,7 +524,7 @@
 //        console.log(preRoute);
 //        console.log(this.routePathToConfig);
         const path = route['path'];
-        this.routeConfig = this.$router.helper.getConfigByRouterPath(path);
+        this.routeConfig = this.$router.helper.getConfigByRoutePath(path);
         if (this.routeConfig) {
           this.showPageNotFound = false;
           // whether show groupList
@@ -545,7 +545,7 @@
         } else {
           // 延迟2s展示page-not-found页面
           setTimeout(() => {
-            this.showPageNotFound = this.$router.helper.getConfigByRouterPath(this.$route['path']) ? false : true;
+            this.showPageNotFound = this.$router.helper.getConfigByRoutePath(this.$route['path']) ? false : true;
           }, 2000);
         }
       },
