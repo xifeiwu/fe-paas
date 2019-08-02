@@ -66,13 +66,22 @@ import ConfigServerMain from './config-server/main.vue';
 import ConfigServerFileList from './config-server/list.vue';
 
 // cdn
-import CdnMain from './cdn/main.vue';
-import CdnList from './cdn/list.vue';
-import CdnCreate from './cdn/create.vue';
-import CdnEdit from './cdn/edit.vue';
-import CdnPrefetch from './cdn/prefetch.vue';
-import CdnStatistics from './cdn/statistics.vue';
-import CdnDashboard from './cdn/dashboard.vue';
+const [CdnMain, CdnList, CdnCreate, CdnEdit, CdnPrefetch, CdnStatistics, CdnDashboard] =
+      ['CdnMain', 'CdnList', 'CdnCreate', 'CdnEdit', 'CdnPrefetch', 'CdnStatistics', 'CdnDashboard'].map(key => {
+  const file = {
+    CdnMain: './cdn/main.vue',
+    CdnList: './cdn/list.vue',
+    CdnCreate: './cdn/create.vue',
+    CdnEdit: './cdn/edit.vue',
+    CdnPrefetch: './cdn/prefetch.vue',
+    CdnStatistics: './cdn/statistics.vue',
+    CdnDashboard: './cdn/dashboard.vue',
+  }[key];
+  return () => import(
+    /* webpackChunkName: "chunk-[request][index]" */
+    /* webpackMode: "lazy" */
+    `${file}`)
+});
 
 //image
 import ImageList from './image/main.vue';
