@@ -209,7 +209,15 @@
                   type="text"
                   @click="handleTRClick($event, 'update_affinity', scope.$index, scope.row)"
                   :class="reason4DisableQuickDeploy(scope.row) || publishStatus? 'disabled' : 'danger'">
-                <span>亲和性配置</span><i class="paas-icon-level-up"></i>
+                <span>亲和性配置</span>
+              </el-button>
+              <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
+              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
+                         size="small"
+                         type="text"
+                         @click="handleTRClick($event, 'update_toleration', scope.$index, scope.row)"
+                         :class="$storeHelper.permission['get_affinity'].disabled || publishStatus? 'disabled' : 'danger'">
+                <span>容忍配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
               <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
@@ -317,21 +325,21 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="亲和性配置错误信息" :visible.sync="affinityEditError"
+    <el-dialog :title="titleEditError" :visible.sync="hasEditError"
                top="-10vh"
-               v-if="affinityEditError"
+               v-if="hasEditError"
                class="confirm-dialog size-1000"
                :close-on-click-modal="false"
                @close="closeDialog"
     >
       <div class="el-message-box__message">
         <el-scrollbar style="height: 500px; margin: 0px -5px;">
-          <div>{{affinityDescribeError}}}</div>
+          <div>{{describeEditError}}}</div>
         </el-scrollbar>
       </div>
 
       <span slot="footer" class="el-message-box__btns">
-        <el-button type="primary" @click="affinityEditError = false">确&nbsp认</el-button>
+        <el-button type="primary" @click="hasEditError = false">确&nbsp认</el-button>
       </span>
     </el-dialog>
 
@@ -543,6 +551,50 @@ podAntiAffinity:
         <el-button type="success" size="medium" @click="saveAffinityConfig(false)">&emsp;保 存 配 置&emsp;</el-button>
         <el-button type="success" size="medium" @click="saveAffinityConfig(true)">&emsp;保 存 并 生 效&emsp;</el-button>
         <el-button type="danger" size="medium" @click="hasAffinity = false">&emsp;取 消 修 改&emsp;</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog :visible.sync="hasToleration" top="30px" width="80%" :fullscreen="false"
+               v-loading="saveTolerationLoading"
+               element-loading-text="正在保存"
+               element-loading-spinner="el-icon-loading"
+               element-loading-background="rgba(0, 0, 0, 0.8)"
+    >
+      <div class="py-3" style="width: 80%; text-align: left;">
+        <h4 style="display: inline;">
+          <span style="color: red;">
+          Pod容忍配置
+          </span>
+        </h4>
+        <span>
+          <el-tooltip slot="trigger" effect="dark" placement="right">
+            <div slot="content">
+              <pre>
+模板样例如下：
+tolerations:
+- key: "key1"
+  operator: "Equal"
+  value: "value1"
+  effect: "NoSchedule"
+- key: "key1"
+  operator: "Equal"
+  value: "value1"
+  effect: "NoExecute"
+              </pre>
+            </div>
+            <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
+          </el-tooltip>
+        </span>
+      </div>
+
+      <div class="__editor">
+        <codemirror v-model="configOfToleration" :options="editorAffinityOptions"></codemirror>
+      </div>
+
+      <div slot="footer" class="pa-3" style="text-align: center">
+        <el-button type="success" size="medium" @click="saveTolerationConfig(false)">&emsp;保 存 配 置&emsp;</el-button>
+        <el-button type="success" size="medium" @click="saveTolerationConfig(true)">&emsp;保 存 并 生 效&emsp;</el-button>
+        <el-button type="danger" size="medium" @click="hasToleration = false">&emsp;取 消 修 改&emsp;</el-button>
       </div>
     </el-dialog>
 
@@ -1081,9 +1133,10 @@ podAntiAffinity:
           readOnly: true,
           viewportMargin: 10
         },
+        titleEditError: "",
+        hasEditError: false,
+        describeEditError: "",
         hasAffinity: false,
-        affinityEditError: false,
-        affinityDescribeError: "",
         configOfAffinity: "",
         saveAffinityLoading: '',
         editorAffinityOptions: {
@@ -1096,6 +1149,9 @@ podAntiAffinity:
           readOnly: false,
           viewportMargin: 10
         },
+        hasToleration: false,
+        configOfToleration: "",
+        saveTolerationLoading: '',
       }
     },
     methods: {
@@ -1875,8 +1931,9 @@ podAntiAffinity:
           const resData = response.data;
           if (resData.code && "ERR_UPDATE_AFFINITY_FORMAT_FAILED" === resData.code) {
             // this.$message.warning(resData.msg);
-            this.affinityDescribeError = resData.msg;
-            this.affinityEditError = true;
+            this.describeEditError = resData.msg;
+            this.hasEditError = true;
+            this.titleEditError = "亲和性配置错误信息";
           } else {
             this.$message.success("修改亲和性配置成功！");
             this.hasAffinity = false;
@@ -1886,6 +1943,58 @@ podAntiAffinity:
           this.$message.error("保存配置失败，请联系云平台！");
         }).finally(() => {
           this.saveAffinityLoading = false;
+        });
+      },
+
+      async saveTolerationConfig(enforce) {
+        let confirmInfo = "点击“保存配置”时，只保存yaml数据配置，后面当点击部署或重启时才生效！";
+        let url = this.$net.URL_LIST.update_toleration_config;
+        if (enforce) {
+          confirmInfo = "点击“保存并生效”时，保存yaml数据配置的同时，会立即生效该配置，满足容忍条件时将造成实例重启！";
+          url = this.$net.URL_LIST.update_toleration_sync_k8s;
+        }
+
+        await this.$confirm(
+          confirmInfo,
+          '提示',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
+        );
+
+        this.saveTolerationLoading = true;
+        // await this.$net.requestPaasServer(this.$net.URL_LIST.update_affinity_config, {
+        await this.$net.getResponse(url, {
+          payload: {
+            spaceId: this.profileInfo.id,
+            groupId: this.$storeHelper.groupInfo.id,
+            namespace: this.$storeHelper.groupInfo.tag,
+            appConfigId: this.action.row.id,
+            tolerationContent: this.configOfToleration,
+            configServiceName: this.action.row.serviceName
+          }
+        }).then(response => {
+          const resData = response.data;
+          // console.log(resData);
+          if (resData.code && "ERR_UPDATE_TOLERATION_FORMAT_FAILED" === resData.code) {
+            // this.$message.warning(resData.msg);
+            this.describeEditError = resData.msg;
+            this.titleEditError = "容忍配置错误信息";
+            this.hasEditError = true;
+          } else {
+            this.$message.success("修改容忍配置成功！");
+            this.hasToleration = false;
+          }
+
+          // this.$message.success("修改亲和性配置成功！");
+          // this.hasToleration = false;
+        }).catch(err => {
+          console.log(err);
+          this.$message.error("保存配置失败，请联系云平台！");
+        }).finally(() => {
+          this.saveTolerationLoading = false;
         });
       },
 
@@ -2284,6 +2393,27 @@ podAntiAffinity:
                 this.configOfAffinity = "";
               }
               this.hasAffinity = true;
+            }).catch(error => {
+              console.log(error);
+            }).finally(()=> {
+            });
+            break;
+          case 'update_toleration':
+            await this.$net.requestPaasServer(this.$net.URL_LIST.get_toleration_config, {
+              payload: {
+                spaceId: this.profileInfo.id,
+                groupId: this.$storeHelper.groupInfo.id,
+                namespace: this.$storeHelper.groupInfo.tag,
+                appConfigId: this.action.row.id,
+                configServiceName: this.action.row.serviceName
+              }
+            }).then(resp =>{
+              if (resp) {
+                this.configOfToleration = resp;
+              } else {
+                this.configOfToleration = "";
+              }
+              this.hasToleration = true;
             }).catch(error => {
               console.log(error);
             }).finally(()=> {
