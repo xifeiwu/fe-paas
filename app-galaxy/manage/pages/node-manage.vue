@@ -128,7 +128,7 @@
       <div class="py-3" style="width: 80%; text-align: left;">
         <h4 style="display: inline;">
           <span style="color: red;">
-          Node配置（spec配置）
+          Node配置（仅支持修改节点yaml中的spec字段）
           </span>
         </h4>
         <span>
