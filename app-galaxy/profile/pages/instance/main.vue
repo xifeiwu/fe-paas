@@ -171,7 +171,7 @@
                     type="text"
                     :class="['flex', $storeHelper.actionDisabled('instance-status-jvm') || isMesosService ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'instance-status-jvm', scope.$index, scope.row)"
-            ><span class="new-terminal"><span>jvm快照</span><span class="beta"></span></span></el-button>
+            ><span class="new-terminal"><span>JVM快照</span><span class="beta"></span></span></el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
@@ -477,7 +477,7 @@
             label: '实例状态'
           }, {
             key: 'instance-status-jvm',
-            label: 'jvm状态'
+            label: 'JVM快照'
           }]
         },
         statesForDialogInstanceStatus: {
