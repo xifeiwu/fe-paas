@@ -1087,7 +1087,7 @@
         };
         const resContent = await this.$net.requestAssistServer(this.$net.URL_LIST_ASSIST.get_websocket_token, {payload})
         // console.log(resContent);
-        this.xtermHelper.connectToXterm(resContent, target, ['sh arthas_start.sh', 'jvm', 'exit', 'exit', 'exit', ''].join('\n'));
+        this.xtermHelper.connectToXterm(resContent, target, ['sh arthas_start.sh', 'jvm', 'exit', 'exit', 'exit', ''].join('\n'), false);
       },
       terminalClose() {
         if (!this.xtermHelper) {

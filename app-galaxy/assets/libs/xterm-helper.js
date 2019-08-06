@@ -126,7 +126,7 @@ export default class XtermHelper extends EventEmitter{
     });
   }
 
-  async connectToXterm(assistInfo, target, sayHello) {
+  async connectToXterm(assistInfo, target, sayHello, listenXterm = true) {
     const xterm = await this.getTerminal(target);
     const ws = await this.getWebSocket(assistInfo);
     this.xterm = xterm;
@@ -135,9 +135,11 @@ export default class XtermHelper extends EventEmitter{
     // var msg = {type: "input", input: '\r'};
     // ws.send(JSON.stringify(msg));
     xterm.onScreenResize();
-    xterm.on('rich-data', obj => {
-      ws.send(JSON.stringify(obj));
-    });
+    if (listenXterm) {
+      xterm.on('rich-data', obj => {
+        ws.send(JSON.stringify(obj));
+      });
+    }
     if (sayHello) {
       setTimeout(() => {
         var msg = {type: "input", input: sayHello}

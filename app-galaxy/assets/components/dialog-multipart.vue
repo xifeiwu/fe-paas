@@ -192,6 +192,7 @@
           this.show();
         } else {
           this.hide();
+          this.showStatus.currentModule = null;
         }
       },
       'showStatus.currentModule': function (currentModule) {

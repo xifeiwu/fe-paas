@@ -38,7 +38,7 @@
               </div>
               <i class="paas-icon-group"></i>
             </el-tooltip>
-            <el-select  v-model="$storeHelper.currentGroupID" size="mini" filterable :disabled="!showGroupList"
+            <el-select  v-model="$storeHelper.currentGroupID" size="small" filterable :disabled="!showGroupList"
                         :placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'">
               <el-option-group
                       v-for="version in groupListByVersion"
