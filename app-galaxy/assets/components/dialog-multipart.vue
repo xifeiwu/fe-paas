@@ -1,12 +1,12 @@
 <template>
   <el-dialog :visible="showStatus.visible"
              @close="handleIconClick('close')"
-             class="dialog-for-log"
-             customClass="dialog-for-log"
+             class="component-dialog-multipart"
+             customClass="component-dialog-multipart"
              :appendToBody="true"
              :fullscreen="fullScreen"
              :closeOnClickModal="false"
-             ref="dialog-for-log"
+             ref="component-dialog-multipart"
              top="80px"
   >
     <div slot="title" class="dialog-title">
@@ -33,12 +33,12 @@
   </el-dialog>
 </template>
 <style lang="scss">
-  .el-dialog__wrapper.dialog-for-log {
+  .el-dialog__wrapper.component-dialog-multipart {
     /*font-family: "微软雅黑", 'Microsoft Yahei','HelveticaNeue',sans-serif;*/
     /*font-family: Helvetica, Arial, sans-serif;*/
     font-family: Consolas, Menlo, Courier, monospace;
     -webkit-font-smoothing: antialiased;
-    .el-dialog.dialog-for-log {
+    .el-dialog.component-dialog-multipart {
       background-color: rgba(0, 0, 0, 0.9);
       width: 95%;
       max-width: 1500px;
@@ -215,7 +215,7 @@
           const clientHeight = this.$el.clientHeight;
           this.top = `${parseInt(clientHeight * 0.1)}px`;
           // make sure dialog and scrollWrap is find
-          this.dialog = this.$refs['dialog-for-log'].$refs['dialog'];
+          this.dialog = this.$refs['component-dialog-multipart'].$refs['dialog'];
           this.scrollWrap = this.dialog.querySelector('.el-dialog__body .el-scrollbar .el-scrollbar__wrap');
           if (!this.dialog || !this.scrollWrap) {
             console.log('error: dialog or scrollWrap is not found!');
