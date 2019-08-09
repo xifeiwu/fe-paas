@@ -603,7 +603,9 @@
         },
         newProps: {
           cpu: '',
-          memory: ''
+          memory: '',
+          cpuOriginal: '',
+          memoryOriginal: ''
         },
         constants: {
           cpuList: [1, 2],
@@ -898,10 +900,11 @@
                   id: this.action.row.id,
                   clusterId: this.clusterId,
                   middlewareId: this.middlewareId,
-                  middlewareVersionId: 3,
                   namespace: this.$storeHelper.groupInfo.tag,
                   replicas: 1,
                   name: this.action.row.name,
+                  cpuOriginal: this.newProps.cpuOriginal,
+                  memoryOriginal: this.newProps.memoryOriginal,
                   cpu: this.newProps.cpu,
                   memory: this.newProps.memory
                 }
@@ -1134,6 +1137,8 @@
               if (this.constants.memoryList.indexOf(instanceStatus['memory']) > -1) {
                 this.newProps.memory = instanceStatus['memory'];
               }
+              this.newProps.cpuOriginal = instanceStatus['cpu'];
+              this.newProps.memoryOriginal = instanceStatus['memory'];
               this.action.name = action;
               this.hideWaitingResponse(action);
             } catch (err) {
