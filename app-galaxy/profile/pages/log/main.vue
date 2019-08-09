@@ -72,9 +72,6 @@
   export default {
     created() {
     },
-    mounted() {
-      this.currentPath = this.tabs[0]['routePath'];
-    },
     data() {
       return {
         tabs: this.$router.helper.getPermittedSubRouteList(this.$net.page['profile/log'])
