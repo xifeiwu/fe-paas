@@ -189,7 +189,7 @@ class Helper {
       path: '/profile/log',
       // name: '审批管理',
       component: LogMain,
-      // redirect: '/profile/log/run',
+      redirect: '/profile/log/run',
       children: [{
         path: 'run',
         name: '运行日志',
@@ -215,7 +215,7 @@ class Helper {
       path: '/profile/oauth',
       // name: '权限管理',
       component: OAuthMain,
-      // redirect: 'oauth/key',
+      redirect: '/profile/oauth/key',
       children: [{
         path: 'key',
         name: 'ClientId列表',
@@ -235,7 +235,7 @@ class Helper {
       path: '/profile/work-order',
       // name: '审批管理',
       component: WorkOrderMain,
-      // redirect: '/work-order/todo',
+      redirect: '/profile/work-order/todo',
       children: [{
         path: 'todo',
         name: '待办工单',
