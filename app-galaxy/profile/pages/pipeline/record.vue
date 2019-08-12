@@ -170,7 +170,7 @@
         <span>需要如下参数用于执行pipeline:</span>
       </el-tag>
       <el-form size="mini" :rules="rules"
-               labelWidth="150px" style="margin: 10px 0px 5px 0px;" ref="formInDialogAddParamForPipeline">
+               labelWidth="160px" style="margin: 10px 0px 5px 0px;" ref="formInDialogAddParamForPipeline">
         <el-form-item v-for="(item, index) in buildParams"
                       :label="item.name"
                       :key="item.name"

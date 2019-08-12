@@ -40,7 +40,7 @@
                   </div>
                   <div class="item">
                     <label>目标分支</label>
-                    <el-input size="mini" style="width: 160px;" placeholder="支持正则，为空默认匹配'gitlab分支'"
+                    <el-input size="mini" style="width: 250px;" placeholder="支持正则，为空默认匹配'gitlab分支'"
                               v-model="formData.webHooks.hookBranch" :disabled="!formData.webHooks.selected"></el-input>
                   </div>
                   <div class="item">
