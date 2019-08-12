@@ -88,10 +88,25 @@ class Net extends NetBase {
         path: '/queryClusterDetail',
         method: 'post'
       },
-      // 调用次数详情
+      // node列表
       query_node_list: {
         path: '/queryAllNode',
         method: 'get'
+      },
+      query_node_resource: {
+        path: '/queryNodeResouceUsage',
+        partial: true,
+        method: 'post'
+      },
+      update_node_taint: {
+        path: '/updateNodeSpec',
+        partial: true,
+        method: 'post'
+      },
+      get_node_taint: {
+        path: '/getNodeSpec',
+        partial: true,
+        method: 'post'
       },
       // 调用次数详情
       analyze_visit_list_item_detail: {

@@ -170,6 +170,11 @@ class Net extends NetBase {
         path: '/service/getAffinityConfig',
         method: 'post'
       },
+      // 获取容忍配置
+      'get_toleration_config': {
+        path: '/service/getTolerationConfig',
+        method: 'post'
+      },
       // 获取亲和性k8s信息
       'get_resource_information_by_k8s': {
         path: '/service/getResourceInformationByK8S',
@@ -182,6 +187,15 @@ class Net extends NetBase {
       },
       'update_affinity_sync_k8s': {
         path: '/service/updateAffinitySyncK8S',
+        method: 'post'
+      },
+      // 修改容忍配置
+      'update_toleration_config': {
+        path: '/service/updateTolerationConfig',
+        method: 'post'
+      },
+      'update_toleration_sync_k8s': {
+        path: '/service/updateTolerationSyncK8S',
         method: 'post'
       },
       // 检测服务端口映射
