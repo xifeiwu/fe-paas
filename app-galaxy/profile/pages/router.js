@@ -366,57 +366,53 @@ class Helper {
         component: ImageVersion,
       }
     ];
-    this.addRoutePath(null, this.richRouterConfig);
 
-    // this.vueRouter = new VueRouter({
-    //   mode: 'history',
-    //   base: __dirname,
-    //   // routes: routeConfig,
-    //   routes: this.getVueRouterConfig()
-    // });
-    // Vue.use(VueRouter);
-
-    // this.routePathList = this.getAllRouterPath();
-    this.routePathToConfig = this.getRoutePathToConfig();
-
-    // setTimeout(() => {
-      // add permission by config from localStorage
-      // this.addPermission(Vue.prototype.$storeHelper.notPermitted);
-    // });
-    // console.log(this.$storeHelper.notPermitted);
-    // this.startRouteFilter()
-    this.pathList = [];
-    this.preRouter = null;
-  }
-  /**
-   * traverse router config tree to add routerPath to all component:
-   * routerPath = parent.path + path, it is the full path of hash in url
-   * @param path
-   * @param component
-   */
-  addRoutePath() {
-    function updateItem(path, item) {
-      if (null !== path) {
-        item.routePath = path + '/' + item.path;
-      } else {
-        item.routePath = item.path;
+    /**
+     * imediately invoke function
+     * traverse router config tree to add routerPath to all component:
+     * routerPath = parent.path + path, it is the full path of hash in url
+     * @param path
+     * @param component
+     */
+    (() => {
+      function updateItem(path, item) {
+        if (null !== path) {
+          item.routePath = path + '/' + item.path;
+        } else {
+          item.routePath = item.path;
+        }
+        item.pathReg = pathToRegexp(item.routePath);
+        item.pathCompile = pathToRegexp.compile(item.routePath);
       }
-      item.routeReg = pathToRegexp(item.routePath);
-    }
 
-    function traverseComponent(path, component) {
-      if (Array.isArray(component)) {
-        component.forEach(traverseComponent.bind(this, path));
-      } else if ('object' === typeof(component)) {
-        updateItem.call(this, path, component);
-        if (component.hasOwnProperty('children')) {
-          traverseComponent(component.routePath, component['children']);
+      function traverseComponent(path, component) {
+        if (Array.isArray(component)) {
+          component.forEach(traverseComponent.bind(this, path));
+        } else if ('object' === typeof(component)) {
+          updateItem.call(this, path, component);
+          if (component.hasOwnProperty('children')) {
+            traverseComponent(component.routePath, component['children']);
+          }
         }
       }
-    }
+      traverseComponent(null, this.richRouterConfig);
+    })();
+    // console.log(this.routeList);
 
-    traverseComponent(null, this.richRouterConfig);
-    // console.log(this.richRouterConfig);
+    this.routePathToConfig = this.getRoutePathToConfig();
+
+    // this.startRouteFilter();
+    this.preRouter = null;
+  }
+
+  get routeList() {
+    return this.richRouterConfig.reduce((routeList, item) => {
+      routeList = routeList.concat(item);
+      if (item.hasOwnProperty('children')) {
+        routeList = routeList.concat(item.children);
+      }
+      return routeList;
+    }, []);
   }
 
   /**
@@ -507,7 +503,7 @@ class Helper {
   }
 
   // filter out useless config in richRouterConfig
-  getVueRouterConfig() {
+  getConfig4VueRouter() {
     function updateItem(item) {
       let keysMap = {
         path: 'path',
@@ -614,18 +610,7 @@ class Helper {
   }
 
   getConfigByRoutePath(path) {
-    var result = null;
-    if (!path) {
-      return result;
-    }
-    const routerPathToConfig = this.getRoutePathToConfig();
-    for (let key in routerPathToConfig) {
-      if (pathToRegexp(key).test(path)) {
-        result = routerPathToConfig[key];
-        break;
-      }
-    }
-    return result;
+    return this.routeList.find(it => it.pathReg.test(path));
   }
 
   /**
@@ -769,9 +754,6 @@ class Helper {
       // console.log(from);
       // console.log(to);
       // console.log(JSON.stringify(from.path) + ' -> ' + JSON.stringify(to.path));
-      this.pathList.push({
-        from, to
-      });
 
       const userInfo = Vue.prototype.$storeHelper.userInfo;
       // const role = userInfo.role;
@@ -808,7 +790,7 @@ const helper = new Helper();
 const vueRouter = new VueRouter({
   mode: 'history',
   base: __dirname,
-  routes: helper.getVueRouterConfig()
+  routes: helper.getConfig4VueRouter()
 });
 helper.startRouteFilter(vueRouter);
 vueRouter.helper = helper;

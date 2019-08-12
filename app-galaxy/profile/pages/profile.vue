@@ -394,7 +394,7 @@
         this.setDefaultActiveForHeader();
       });
 
-      this.onRoutePath(this.$route);
+      this.onRouteChange(this.$route);
 
       // set value of globalPopover to $storeHelper.globalPopover
       this.$storeHelper.globalPopover = this.$refs['global-popover-close-on-leave'];
@@ -467,7 +467,7 @@
       'collapseMenu': function() {
         this.mainNodeWidth =  this.$el.offsetWidth - this.$storeHelper.navMenuWidth;
       },
-      '$route': 'onRoutePath',
+      '$route': 'onRouteChange',
       '$net.vm.requestingUrlListLength': {
         deep: true,
         handler (urlListLength) {
@@ -519,7 +519,7 @@
           this.$refs['paasHeaderProfile'].setActiveMenu('profile');
         }
       },
-      onRoutePath (route, preRoute) {
+      onRouteChange (route, preRoute) {
 //        console.log(route);
 //        console.log(preRoute);
 //        console.log(this.routePathToConfig);
@@ -541,7 +541,7 @@
             this.showGroupList = true;
           }
           // update content of crumb list
-          this.updateCrumbList(path);
+//          this.updateCrumbList(path);
         } else {
           // 延迟2s展示page-not-found页面
           setTimeout(() => {
@@ -575,14 +575,15 @@
         this.activeSideMenuItem = activeSideMenuItem;
 
         const pathList = path.split('/');
-        let index = 1;
         this.crumbList = [];
-        while (index <= pathList.length) {
-          let portionPath = pathList.slice(0, index).join('/');
-          if (portionPath in this.routerPathToName) {
-            this.crumbList.push(portionPath);
+        while (pathList.length >= 0) {
+          let splittedPath = pathList.join('/');
+//          let portionPath = pathList.slice(0, index).join('/');
+          if (splittedPath in this.routerPathToName) {
+            this.crumbList.unshift(splittedPath);
+//            console.log(this.$router.helper.getConfigByRoutePath(splittedPath));
           }
-          index += 1;
+          pathList.pop();
         }
       },
 

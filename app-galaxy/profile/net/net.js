@@ -116,6 +116,10 @@ class Net extends NetBase {
         path: '/service/queryByAppIdAndSpaceId',
         method: 'post'
       },
+      'service_list_by_id': {
+        path: '/service/{id}',
+        method: 'get'
+      },
       'service_not_exists_in_space': {
         path: '/service/queryNotServiceAppByAppId',
         method: 'get'
