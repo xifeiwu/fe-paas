@@ -112,6 +112,16 @@
               <el-button
                       size="small"
                       type="text"
+                      :loading="statusOfWaitingResponse('service_deploy_gray') && action.row.appId == scope.row.appId"
+                      @click="handleTRClick($event, 'service_deploy_gray', scope.$index, scope.row)"
+                      :class="$storeHelper.actionDisabled('service_deploy_gray') || publishStatus? 'disabled' : 'danger'">
+                {{'灰度发布'}}
+              </el-button>
+              <div
+                   class="ant-divider"></div>
+              <el-button
+                      size="small"
+                      type="text"
                       :loading="statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'quick_deploy', scope.$index, scope.row)"
                       :class="reason4DisableQuickDeploy(scope.row) || publishStatus? 'disabled' : 'danger'">
@@ -224,7 +234,7 @@
                          size="small"
                          type="text"
                          @click="handleTRClick($event, 'show_info_with_k8s', scope.$index, scope.row)"
-                         :class="['primary']">
+                         :class="['primary', 'flex']">
                 <span>K8S实时信息展示</span><i class="paas-icon-level-up"></i>
               </el-button>
             </div>
@@ -2088,6 +2098,10 @@ tolerations:
               this.closeDialog();
               this.hideWaitingResponse(action);
             }
+            break;
+          case 'service_deploy_gray':
+            // console.log(this.$router.helper.pages['/profile/service/:id(\\d+)/gray']);
+            this.$router.push(this.$router.helper.pages['/profile/service/:id(\\d+)/gray'].toPath({id: row.id}))
             break;
           case 'quick_deploy':
             try {

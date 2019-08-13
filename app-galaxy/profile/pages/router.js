@@ -1,3 +1,5 @@
+import RouterHelper from 'assets/js/router-helper';
+
 import AppMain from './app/main-v2.vue';
 import AppAdd from './app/add-v2.vue';
 
@@ -100,8 +102,9 @@ import pathToRegexp from 'path-to-regexp';
  * 3. url path should be correspond with page logic, as it is used for breadcrumb. such as
  *    if add app is sub page of app, its url should be app/add
  */
-class Helper {
+class Helper extends RouterHelper {
   constructor() {
+    super();
     this.richRouterConfig = [{
       path: '/profile',
       redirect: '/profile/app',
@@ -389,7 +392,7 @@ class Helper {
         let keys = [];
         item.pathReg = pathToRegexp(item.routePath, keys);
         item.pathReg.keys = keys;
-        item.pathCompile = pathToRegexp.compile(item.routePath);
+        item.toPath = pathToRegexp.compile(item.routePath);
       }
 
       function traverseComponent(path, component) {
@@ -406,9 +409,18 @@ class Helper {
     })();
     // console.log(this.routeList);
 
-    this.routePathToConfig = this.getRoutePathToConfig();
-
     // this.startRouteFilter();
+
+    const pages = {};
+    this.routeList.forEach(it => {
+      pages[it.routePath] = it;
+    });
+    if (this.pages) {
+      this.pages = Object.assign(this.pages, pages);
+    } else {
+      this.pages = pages;
+    }
+
     this.preRouter = null;
   }
 
@@ -590,32 +602,6 @@ class Helper {
     return routePath;
   }
 
-  /**
-   * get routePath to routeConfig, in the following format:
-   * {
-   *   '/login': {
-   *      name:"登录",
-   *      component: login
-   *   },
-   *   '/profile':"详情",
-   *     name: '服务管理',
-   *     component: service
-   *   }
-   *  }
-   */
-  getRoutePathToConfig() {
-    let result = {};
-
-    function updateItem(item) {
-      if (item.hasOwnProperty('routePath') && item.routePath) {
-        result[item.routePath] = item;
-      }
-    }
-
-    this.traverseComponent(updateItem, this.richRouterConfig);
-    return result;
-  }
-
   getConfigByRoutePath(path) {
     return this.routeList.find(it => it.pathReg.test(path));
   }
@@ -624,24 +610,15 @@ class Helper {
    * get permitted children in routeConfig by routePath
    * @param routePath, such as '/log', '/oauth'
    * @returns {Array}
+   * TODO: change name to getSubRouteList
    */
   getPermittedSubRouteList(routePath) {
-    let result = [];
-    let routePathToConfig = this.getRoutePathToConfig();
-    if (routePathToConfig.hasOwnProperty(routePath) && routePathToConfig[routePath].hasOwnProperty('children')) {
-      result = routePathToConfig[routePath].children.filter(it => {
-        let isPermitted = true;
-        if (it.hasOwnProperty('meta') && it.meta.hasOwnProperty('isPermitted')) {
-          isPermitted = it.meta.isPermitted;
-        }
-        return isPermitted;
-      })
+    const target = this.richRouterConfig.find(it => it.routePath == routePath);
+    if (target && target.hasOwnProperty('children')) {
+      return target['children'];
+    } else {
+      return [];
     }
-    // filter item with property 'name'
-    result = result.filter(it => {
-      return it.hasOwnProperty('name');
-    });
-    return JSON.parse(JSON.stringify(result));
   }
 
   /**

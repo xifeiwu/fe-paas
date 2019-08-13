@@ -420,12 +420,6 @@
       ...mapGetters({
         'collapseMenu': 'collapseMenu'
       }),
-      routerPathToName() {
-        return this.$router.helper.getRoutePathToName();
-      },
-      routePathToConfig() {
-        return this.$router.helper.getRoutePathToConfig();
-      },
       userName() {
         let userName = this.$storeHelper.getUserInfo('realName');
         if (!userName) {
@@ -522,7 +516,6 @@
       onRouteChange (route, preRoute) {
 //        console.log(route);
 //        console.log(preRoute);
-//        console.log(this.routePathToConfig);
         const path = route['path'];
         this.routeConfig = this.$router.helper.getConfigByRoutePath(path);
         if (this.routeConfig) {
@@ -551,11 +544,7 @@
       },
 
       /**
-       * update crumb list by path and routerPathToName which get from router config, such as:
-       * /service/add
-       * /service -> 服务管理
-       * /service/add -> 添加服务
-       * @param path: url path
+       * update crumb list
        */
       updateBreadCrumbList(path) {
         if (!path.startsWith('/')) {
