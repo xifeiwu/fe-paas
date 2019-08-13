@@ -19,6 +19,12 @@
         }
       });
       console.log(resContent);
+      resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_list, {
+        query: {
+          configId: this.serviceId
+        }
+      });
+      console.log(resContent);
     },
     async mounted() {
     },

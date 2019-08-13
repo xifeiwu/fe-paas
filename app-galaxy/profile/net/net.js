@@ -120,6 +120,11 @@ class Net extends NetBase {
         path: '/service/{id}',
         method: 'get'
       },
+      'service_gray_list': {
+        path: '/service/canaryInfo',
+        method: 'get'
+      },
+
       'service_not_exists_in_space': {
         path: '/service/queryNotServiceAppByAppId',
         method: 'get'
