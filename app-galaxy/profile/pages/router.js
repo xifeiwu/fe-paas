@@ -2,9 +2,10 @@ import AppMain from './app/main-v2.vue';
 import AppAdd from './app/add-v2.vue';
 
 // service
-import serviceDetail from './service/detail.vue';
-import ServiceAdd from './service/add-v2.vue';
 import serviceList from './service/list.vue';
+import serviceDetail from './service/detail.vue';
+import serviceAdd from './service/add-v2.vue';
+import serviceGray from './service/gray.vue';
 
 import InstanceMain from './instance/main.vue';
 
@@ -130,15 +131,19 @@ class Helper {
     }, {
       path: '/profile/service/add',
       name: '创建服务',
-      component: ServiceAdd,
+      component: serviceAdd,
     }, {
       path: '/profile/service/modify',
       name: '修改配置',
-      component: ServiceAdd,
+      component: serviceAdd,
     },{
       path: '/profile/service/copy',
       name: '复制服务',
-      component: ServiceAdd,
+      component: serviceAdd,
+    }, {
+      path: '/profile/service/:id(\\d+)/gray',
+      name: '灰度发布',
+      component: serviceGray
     }, {
       path: '/profile/service/detail',
       name: '服务详情',
