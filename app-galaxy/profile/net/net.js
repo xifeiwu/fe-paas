@@ -1641,198 +1641,173 @@ class Net extends NetBase {
   }
 
   /**
-   * format the response content of service list
+   * get service model, as there are many useless prop in net data
    * @param resContent
    * @returns resContent
    */
-  parseServiceList(resContent) {
-    // 从service中摘取有用信息并封装到特定的数据格式中（部分属性进行了重命名）
-    const getServiceModelList = (serviceList) => {
-      let modelList = [];
-      Array.isArray(serviceList) && serviceList.forEach(service => {
-        const item = {
-          /** used for update prop */
-          oneApm: service.oneapm,
-          appMonitor: service.appMonitor,
-          environments: JSON.parse(JSON.stringify(service.environments)),
-          hosts: JSON.parse(JSON.stringify(service.hosts)),
-          prestopCommand: service.prestopCommand,
-          terminationGracePeriodSeconds:service.terminationGracePeriodSeconds,
-          rollingUpdate: service.rollingUpdate,
-          loadBalance: service.loadBalance,
-          gitLabAddress: service.gitLabAddress,
-          gitLabBranch: service.gitLabBranch,
-          mainClass: service.mainClass,
-          relativePath: service.relativePath,
-          mavenProfileId: service.mavenProfileId,
-          // fileLocation: service.fileLocation ? service.fileLocation : [],
-          vmOptions: service.vmOptions,
-          instanceNum: service.instanceNum,
-          serviceVersion: service.serviceVersion,
-          volume: service.volume,
-          subPath: service.subPath,
-          claimName: service.claimName,
-          enableJacoco: !!service.enableJacoco
-        };
-
-        /** copy prop */
-        ['id', 'appId', 'orchId', 'orchIp',
-          'containerStatus', // 运行状态：几个实例；几个运行中实例
-          'defaultSelect', // 是否是默认服务
-          'k8s', // 是否是k8s应用
-        ].forEach(prop => {
-          service.hasOwnProperty(prop) && (item[prop] = service[prop]);
-        });
-        // set value '---' if null
-        ['appName', 'tag',
-          'serviceName'
-        ].forEach(prop => {
-          service.hasOwnProperty(prop) && (item[prop] = service[prop] ? service[prop] : '---');
-        });
-        item.formattedCreateTime = service.createTime ? this.$utils.formatDate(service.createTime, 'yyyy-MM-dd hh:mm:ss').split(' ') : '---';
-        item['remainExpiredDays'] = service['remainExpiredDays']  ? parseInt(service['remainExpiredDays']) : 0;
-
-        // props check for service model
-        if (item['containerStatus']) {
-          item.instanceCount = `${item['containerStatus'].Running}/${item['containerStatus'].Total}`;
-        } else {
-          item.instanceCount = '---';
-        }
-
-        item.image = {
-          customImage: null == service.customImage ? false : service.customImage,
-          typeName: appInfoHelper.getImageNameById(service.customImage),
-          location: service.image,
-        };
-
-        // wrap cpuId and cpu to cpuInfo
-        // cpu and memory from server is value, such as 2.0/4096
-        // so get cpu and memory info by cpuAndMemoryInfo.
-        if (service.cpuId && service.memoryId) {
-          item.cpuInfo = {
-            id: service.cpuId,
-            size: service.cpu
-          };
-          item.memoryInfo = {
-            id: service.memoryId,
-            size: service.memory / 1024
-          };
-        } else {
-          const cpuAndMemoryInfo = this.$storeHelper.getCPUAndMemoryInfoBySize(service.cpu, service.memory);
-          item.cpuInfo = cpuAndMemoryInfo[0];
-          item.memoryInfo = cpuAndMemoryInfo[1];
-        }
-
-        const language = {
-          version: service.languageVersion,
-          type: service.language,
-          get name() {
-            var name = '';
-            switch (this.type) {
-              case 'JAVA':
-                name = 'java';
-                break;
-              case 'NODE_JS':
-                name = 'nodejs';
-                break;
-              case 'PYTHON':
-                name = 'python';
-                break;
-              case 'PHP':
-                name = 'php';
-                break;
-            }
-            return name;
-          }
-        };
-        item.language = language;
-
-        // 更新healthCheck格式
-        const healthCheck = this.getObjHealthCheck();
-        healthCheck.type = this.$storeHelper.getHealthCheckTypeDescByKey(service.healthCheckType);
-        healthCheck.content = service.healthCheck;
-        healthCheck.initialDelay = service.hasOwnProperty('initialDelaySeconds') ? service['initialDelaySeconds'] : 120;
-        healthCheck.periodSeconds = service.hasOwnProperty('periodSeconds') ? service['periodSeconds'] : 5;
-        healthCheck.failureThreshold = service.hasOwnProperty('failureThreshold') ? service['failureThreshold'] : 5;
-        healthCheck.timeoutSeconds = service.hasOwnProperty('timeoutSeconds') ? service['timeoutSeconds'] : 10;
-        item.healthCheck = healthCheck;
-
-        const portMap = {
-          id: null,
-          protocol: 'TCP',
-          outerPort: '',
-          containerPort: '',
-          action: '',
-          get exist() {
-            return this.outerPort && this.containerPort;
-          }
-        };
-        // 更新portMap格式
-        if (service.portsMapping && service.portsMapping.length > 0) {
-          portMap.id = service.portsMapping[0].id;
-          portMap.protocol = service.portsMapping[0].protocol;
-          portMap.outerPort = service.portsMapping[0].outerPort;
-          portMap.containerPort = service.portsMapping[0].containerPort;
-          portMap.action = service.portsMapping[0].action;
-        }
-        item.portMap = portMap;
-
-        const packageInfo = {
-          _type: '',
-          _name: '',
-          set type(value) {
-            if (value !== 'WAR') {
-              this._name = '';
-            }
-            this._type = value;
-          },
-          get type() {
-            return this._type;
-          },
-          set name(value) {
-            this._name = value;
-          },
-          get name() {
-            if (this._type == 'WAR') {
-              return this._name;
-            } else {
-              return '';
-            }
-          },
-          get needSetName() {
-            return this._type == 'WAR';
-          }
-        };
-        packageInfo.type = service.packageType;
-        packageInfo.name = service.buildName;
-        item.packageInfo = packageInfo;
-        modelList.push(item);
-      });
-      return modelList;
+  getServiceModel(service) {
+    const item = {
+      /** used for update prop */
+      oneApm: service.oneapm,
+      appMonitor: service.appMonitor,
+      environments: JSON.parse(JSON.stringify(service.environments)),
+      hosts: JSON.parse(JSON.stringify(service.hosts)),
+      prestopCommand: service.prestopCommand,
+      terminationGracePeriodSeconds:service.terminationGracePeriodSeconds,
+      rollingUpdate: service.rollingUpdate,
+      loadBalance: service.loadBalance,
+      gitLabAddress: service.gitLabAddress,
+      gitLabBranch: service.gitLabBranch,
+      mainClass: service.mainClass,
+      relativePath: service.relativePath,
+      mavenProfileId: service.mavenProfileId,
+      // fileLocation: service.fileLocation ? service.fileLocation : [],
+      vmOptions: service.vmOptions,
+      instanceNum: service.instanceNum,
+      serviceVersion: service.serviceVersion,
+      volume: service.volume,
+      subPath: service.subPath,
+      claimName: service.claimName,
+      enableJacoco: !!service.enableJacoco,
     };
 
-    var serviceList = null;
-    resContent.hasOwnProperty('applicationServerList') && (serviceList = resContent['applicationServerList']);
-    !serviceList && resContent.hasOwnProperty('applicationServiceList') && (serviceList = resContent['applicationServiceList']);
-    if (serviceList) {
-      Array.isArray(serviceList) && serviceList.forEach(it => {
-        // if (!it.volume) {
-        //   it.volume = '';
-        // }
-        // it.volume = it.volume.split(',').filter(it => {return it})
-        // this.$utils.renameProperty(it, 'volume', 'fileLocation');
-        // fix运行实例/总实例数
-        if (it.hasOwnProperty('containerStatus') && it['containerStatus']) {
-          let containerStatus = it['containerStatus'];
-          it.applicationServiceStatus = `${containerStatus.Running}/${containerStatus.Total}`;
-        }
-        if (!it.hasOwnProperty('internetDomainList')) {
-          it['internetDomainList'] = [];
-        }
-      });
-      resContent.serviceModelList = getServiceModelList(serviceList);
+    /** copy prop */
+    ['id', 'appId', 'orchId', 'orchIp', 'intranetDomain', 'internetDomainList',
+      'containerStatus', // 运行状态：几个实例；几个运行中实例
+      'defaultSelect', // 是否是默认服务
+      'k8s', // 是否是k8s应用
+    ].forEach(prop => {
+      service.hasOwnProperty(prop) && (item[prop] = service[prop]);
+    });
+    // set value '---' if null
+    ['appName', 'tag',
+      'serviceName'
+    ].forEach(prop => {
+      service.hasOwnProperty(prop) && (item[prop] = service[prop] ? service[prop] : '---');
+    });
+    item.formattedCreateTime = service.createTime ? this.$utils.formatDate(service.createTime, 'yyyy-MM-dd hh:mm:ss').split(' ') : '---';
+    item['remainExpiredDays'] = service['remainExpiredDays']  ? parseInt(service['remainExpiredDays']) : 0;
+
+    // props check for service model
+    if (item['containerStatus']) {
+      item.instanceCount = `${item['containerStatus'].Running}/${item['containerStatus'].Total}`;
+    } else {
+      item.instanceCount = '---';
     }
-    return resContent;
+
+    item.image = {
+      customImage: null == service.customImage ? false : service.customImage,
+      typeName: appInfoHelper.getImageNameById(service.customImage),
+      location: service.image,
+    };
+
+    // wrap cpuId and cpu to cpuInfo
+    // cpu and memory from server is value, such as 2.0/4096
+    // so get cpu and memory info by cpuAndMemoryInfo.
+    if (service.cpuId && service.memoryId) {
+      item.cpuInfo = {
+        id: service.cpuId,
+        size: service.cpu
+      };
+      item.memoryInfo = {
+        id: service.memoryId,
+        size: service.memory / 1024
+      };
+    } else {
+      const cpuAndMemoryInfo = this.$storeHelper.getCPUAndMemoryInfoBySize(service.cpu, service.memory);
+      item.cpuInfo = cpuAndMemoryInfo[0];
+      item.memoryInfo = cpuAndMemoryInfo[1];
+    }
+
+    const language = {
+      version: service.languageVersion,
+      type: service.language,
+      get name() {
+        var name = '';
+        switch (this.type) {
+          case 'JAVA':
+            name = 'java';
+            break;
+          case 'NODE_JS':
+            name = 'nodejs';
+            break;
+          case 'PYTHON':
+            name = 'python';
+            break;
+          case 'PHP':
+            name = 'php';
+            break;
+        }
+        return name;
+      }
+    };
+    item.language = language;
+
+    // 更新healthCheck格式
+    const healthCheck = this.getObjHealthCheck();
+    healthCheck.type = this.$storeHelper.getHealthCheckTypeDescByKey(service.healthCheckType);
+    healthCheck.content = service.healthCheck;
+    healthCheck.initialDelay = service.hasOwnProperty('initialDelaySeconds') ? service['initialDelaySeconds'] : 120;
+    healthCheck.periodSeconds = service.hasOwnProperty('periodSeconds') ? service['periodSeconds'] : 5;
+    healthCheck.failureThreshold = service.hasOwnProperty('failureThreshold') ? service['failureThreshold'] : 5;
+    healthCheck.timeoutSeconds = service.hasOwnProperty('timeoutSeconds') ? service['timeoutSeconds'] : 10;
+    item.healthCheck = healthCheck;
+
+    const portMap = {
+      id: null,
+      protocol: 'TCP',
+      outerPort: '',
+      containerPort: '',
+      action: '',
+      get exist() {
+        return this.outerPort && this.containerPort;
+      }
+    };
+    // 更新portMap格式
+    if (service.portsMapping && service.portsMapping.length > 0) {
+      portMap.id = service.portsMapping[0].id;
+      portMap.protocol = service.portsMapping[0].protocol;
+      portMap.outerPort = service.portsMapping[0].outerPort;
+      portMap.containerPort = service.portsMapping[0].containerPort;
+      portMap.action = service.portsMapping[0].action;
+    }
+    item.portMap = portMap;
+
+    const packageInfo = {
+      _type: '',
+      _name: '',
+      set type(value) {
+        if (value !== 'WAR') {
+          this._name = '';
+        }
+        this._type = value;
+      },
+      get type() {
+        return this._type;
+      },
+      set name(value) {
+        this._name = value;
+      },
+      get name() {
+        if (this._type == 'WAR') {
+          return this._name;
+        } else {
+          return '';
+        }
+      },
+      get needSetName() {
+        return this._type == 'WAR';
+      }
+    };
+    packageInfo.type = service.packageType;
+    packageInfo.name = service.buildName;
+    item.packageInfo = packageInfo;
+    // modelList.push(item);
+
+    if (item['containerStatus']) {
+      item.applicationServiceStatus = `${item.containerStatus.Running}/${item.containerStatus.Total}`;
+    }
+    return item;
   }
 
   /**

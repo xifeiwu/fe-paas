@@ -991,15 +991,14 @@
           }
         });
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {payload});
-        const basicInfo = this.$net.parseServiceList(resContent);
-        if (basicInfo.hasOwnProperty("applicationServerList")) {
-          this.serviceInfo = basicInfo["applicationServerList"].find(it => {
-            return it["defaultSelect"] === true;
-          });
+        if (!resContent.hasOwnProperty('applicationServerList') && !Array.isArray(resContent['applicationServerList'])) {
+          this.$message.error('数据格式不正确');
+          return;
         }
-       // console.log(this.serviceInfo);
+        const basicInfo = resContent['applicationServerList'][0];//this.$net.getServiceModel(resContent['applicationServerList'][0]);
+        this.serviceInfo = basicInfo;
         this.intranetDomain = basicInfo["intranetDomain"];
-        this.internetDomainList = basicInfo["internetDomain"];
+        this.internetDomainList = basicInfo["internetDomainList"];
 
         this.getRequestStatistic(appId, profileId, this.dateTimeRange, this.intranetDomain, this.internetDomainList);
         this.getMiddlewareInfo();

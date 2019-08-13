@@ -2517,16 +2517,19 @@ tolerations:
             spaceId: this.profileInfo.id
           }
         });
-        const parsedResContent = this.$net.parseServiceList(resContent);
-        this.serviceList = parsedResContent['serviceModelList'];
+        if (!resContent.hasOwnProperty('applicationServiceList') || !Array.isArray(resContent['applicationServiceList'])) {
+          this.$message.error('数据格式不正确');
+          return;
+        }
+        this.serviceList = resContent['applicationServiceList'].map(this.$net.getServiceModel.bind(this.$net));
         this.serviceList.forEach(it => {
           it.intranetDomain = `http://${it.serviceName}.${this.$storeHelper.groupInfo.tag}.${this.profileInfo.name}`;
         });
-        this.totalSize = parsedResContent.total;
+        this.totalSize = resContent.total;
 
         this.appIdWithoutService = [];
-        if (parsedResContent.hasOwnProperty('tobeInsertList')) {
-          this.appIdWithoutService = parsedResContent['tobeInsertList'];
+        if (resContent.hasOwnProperty('tobeInsertList')) {
+          this.appIdWithoutService = resContent['tobeInsertList'];
           this.appWithoutService = this.getAppWithoutService();
         }
 //        console.log(resContent);
@@ -2581,18 +2584,12 @@ tolerations:
             spaceId: this.profileInfo.id
           }
         });
-        const parsedContent = this.$net.parseServiceList(resContent);
-
-        let model = null;
-        if (parsedContent.hasOwnProperty("serviceModelList")) {
-          model = parsedContent["serviceModelList"].find(it => {
-            return it["defaultSelect"] === true;
-          });
+        if (!resContent.hasOwnProperty('applicationServerList') && !Array.isArray(resContent['applicationServerList'])) {
+          this.$message.error('数据格式不正确');
+          return;
         }
-//            console.log(resContent);
-//            console.log(parsedContent);
-//            console.log(model);
-        return model;
+        const parsedContent = this.$net.getServiceModel(resContent['applicationServerList'][0]);
+        return parsedContent;
       }
     }
   }

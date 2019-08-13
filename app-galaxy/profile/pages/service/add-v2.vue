@@ -1237,13 +1237,17 @@
             spaceId: qsObj['profileId']
           }
         });
-        const parsedContent = this.$net.parseServiceList(resContent);
-        if (Array.isArray(parsedContent['serviceModelList']) && parsedContent['serviceModelList'].length > 0 && profileInfo) {
+        if (!resContent.hasOwnProperty('applicationServerList') && !Array.isArray(resContent['applicationServerList'])) {
+          this.$message.error('数据格式不正确');
+          return;
+        }
+        const serviceInfo = this.$net.getServiceModel(resContent['applicationServerList'][0]);
+        if (profileInfo && serviceInfo) {
           results = {
             from: '_blank',
             data: {
               profileInfo,
-              serviceInfo: parsedContent['serviceModelList'][0]
+              serviceInfo
             }
           }
         }
