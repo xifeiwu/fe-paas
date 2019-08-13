@@ -1216,7 +1216,7 @@
         } catch (err) {
           this.rules['mainClass'][0].required = false;
         }
-        console.log(this.rules.mainClass);
+        // console.log(this.rules.mainClass);
       },
       async getDataByQueryString() {
         var results = null;

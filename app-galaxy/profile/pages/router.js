@@ -125,7 +125,7 @@ class Helper {
       redirect: '/profile/service/list',
     }, {
       path: '/profile/service/list/:id(\\d+)?',
-      // name: '服务管理',
+      name: '服务列表',
       component: serviceList,
     }, {
       path: '/profile/service/add',
@@ -381,7 +381,9 @@ class Helper {
         } else {
           item.routePath = item.path;
         }
-        item.pathReg = pathToRegexp(item.routePath);
+        let keys = [];
+        item.pathReg = pathToRegexp(item.routePath, keys);
+        item.pathReg.keys = keys;
         item.pathCompile = pathToRegexp.compile(item.routePath);
       }
 

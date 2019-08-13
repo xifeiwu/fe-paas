@@ -25,9 +25,9 @@
         <div class="header-left">
           <div class="current-step">
             <i class="paas-icon-fa-home" style="margin-right: 2px;"></i>
-            <el-breadcrumb separator-class="el-icon-arrow-right">
-              <el-breadcrumb-item v-for="item in crumbList" :key="item" :to="{path: item}">
-                {{routerPathToName[item]}}
+            <el-breadcrumb separator-class="el-icon-arrow-right" @item-click="handleBreadCrumbClick">
+              <el-breadcrumb-item v-for="item in breadCrumbItemList" :key="item.path" :item="item">
+                {{item['name']}}
               </el-breadcrumb-item>
             </el-breadcrumb>
           </div>
@@ -303,7 +303,7 @@
         // calc by change of screenChange or collapseMenu
         mainNodeWidth: '',
         activeSideMenuItem: this.$net.page['profile'],
-        crumbList: [],
+        breadCrumbItemList: [],
         // 用于配置404页面的属性
         routeConfig: null,
         showPageNotFound: false,
@@ -540,8 +540,8 @@
           } else {
             this.showGroupList = true;
           }
-          // update content of crumb list
-//          this.updateCrumbList(path);
+          // update content of breadcrumb list
+          this.updateBreadCrumbList(path);
         } else {
           // 延迟2s展示page-not-found页面
           setTimeout(() => {
@@ -557,7 +557,7 @@
        * /service/add -> 添加服务
        * @param path: url path
        */
-      updateCrumbList(path) {
+      updateBreadCrumbList(path) {
         if (!path.startsWith('/')) {
           return;
         }
@@ -575,16 +575,23 @@
         this.activeSideMenuItem = activeSideMenuItem;
 
         const pathList = path.split('/');
-        this.crumbList = [];
-        while (pathList.length >= 0) {
-          let splittedPath = pathList.join('/');
-//          let portionPath = pathList.slice(0, index).join('/');
-          if (splittedPath in this.routerPathToName) {
-            this.crumbList.unshift(splittedPath);
-//            console.log(this.$router.helper.getConfigByRoutePath(splittedPath));
+        this.breadCrumbItemList = [];
+        while (pathList.length > 0) {
+          const partialPath = pathList.join('/');
+          const routeConfig = this.$router.helper.getConfigByRoutePath(partialPath);
+          if (routeConfig && routeConfig.hasOwnProperty('name')) {
+            this.breadCrumbItemList.unshift(routeConfig);
           }
           pathList.pop();
         }
+        // console.log(this.breadCrumbItemList)
+      },
+      handleBreadCrumbClick(item) {
+        // console.log(item);
+        if (item.pathReg.test(this.$route.path)) {
+          return;
+        }
+        this.$router.push(item.path);
       },
 
       // 初始化部分权限相关信息（权限的更新在网络请求完成后，不初始化会导致无法访问，报错：undefined）
