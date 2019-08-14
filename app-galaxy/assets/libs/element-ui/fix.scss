@@ -98,24 +98,11 @@
       .el-dialog__header {
         //background-color: #d9ecff;
         background-color: #e7e7e7;
-        padding: 6px 8px;
-        margin-bottom: 5px;
-        .el-dialog__title {
-          font-size: 16px;
-          font-weight: bold;
-        }
-        .el-dialog__headerbtn {
-          top: 10px;
-          right: 10px;
-        }
       }
       .el-dialog__body {
-        padding: 0px 15px;
       }
       .el-dialog__footer {
         border-top: 1px solid #e7e7e7;
-        margin-top: 10px;
-        padding: 6px 8px;
         .dialog-footer.flex {
           display: flex;
           .item {
