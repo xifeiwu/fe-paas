@@ -1,6 +1,5 @@
 <template>
-  <div id="service-add">
-    <el-scrollbar>
+    <el-scrollbar id="service-add">
       <div class="sheet">
         <div class="section-title">{{forModify ?'修改配置' : (forCopy ? '复制服务' : '创建服务')}}</div>
         <el-form :model="formData" ref="formData"
@@ -64,12 +63,6 @@
           <el-form-item label="镜像地址" prop="customImageValue" v-else
                         :class="['custom-image', 'max-width-800', imageSelectState.customImageType.toLowerCase()+'-image']"
           >
-            <!--<el-select v-model="formData.customImageValue" filterable-->
-            <!--:placeholder="imageInfoFromNet.customImageList.length > 0 ? '请选择' : '无数据'">-->
-            <!--<el-option v-for="(item, index) in imageInfoFromNet.customImageList"-->
-            <!--:key="index" :label="item" :value="item">-->
-            <!--</el-option>-->
-            <!--</el-select>-->
             <el-autocomplete
                     class="inline-input"
                     v-model="formData.customImageValue"
@@ -258,173 +251,170 @@
               </el-tooltip>
             </span>
           </el-form-item>
-          <transition name="more-config">
-            <div class="transition-container">
-              <el-form-item label="环境变量设置" prop="environments" class="environments" :error="formItemMsgForEnvironments"
-                            v-if="showMoreConfig">
-                <div class="el-row title">
-                  <div class="el-col el-col-7 key">Key</div>
-                  <div class="el-col el-col-7 value">Value</div>
-                  <div class="el-col el-col-8 remark">备注</div>
-                  <div class="el-col el-col-2" style="text-align: center">
-                    <el-tooltip slot="trigger" effect="dark" placement="bottom">
-                      <div slot="content">
-                        <div>容器运行前设置的环境变量。</div>
-                        <div>如env中的Name：string（环境变量名称），Value：string（环境变量的值）</div>
-                      </div>
-                      <span><i class="paas-icon-fa-question" style="color: #E6A23C"></i></span>
-                    </el-tooltip>
-                  </div>
-                </div>
-                <el-row class="content"
-                        v-for="(item, index) in formData.environments"
-                        :key="item.key"
-                >
-                  <el-col :span="7" class="key">{{item.key}}</el-col>
-                  <el-col :span="7" class="value">{{item.value}}</el-col>
-                  <el-col :span="8" class="remark">{{item.remark}}</el-col>
-                  <el-col :span="2" style="text-align: center" class="delete">
-                    <el-button type="warning" round size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
-                  </el-col>
-                </el-row>
-                <el-row class="add-key-value">
-                  <el-col :span="7" class="key">
-                    <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
-                  </el-col>
-                  <el-col :span="7" class="value">
-                    <el-input v-model="environmentValue" placeholder="512位以内，不能为空" size="mini"></el-input>
-                  </el-col>
-                  <el-col :span="8" class="remark">
-                    <el-input v-model="environmentRemark" size="mini"></el-input>
-                  </el-col>
-                  <el-col :span="2" style="text-align: center">
-                    <el-button type="primary" size="mini-extral" round
-                               @click="handleEnvironment('add', environmentKey, environmentValue, environmentRemark)">添加</el-button>
-                  </el-col>
-                </el-row>
-              </el-form-item>
-              <el-form-item label="Host配置" prop="hosts" class="hosts" :error="formItemMsgForHosts"
-                            v-if="showMoreConfig">
-                <div class="el-row title">
-                  <div class="el-col el-col-11 key">IP</div>
-                  <div class="el-col el-col-11 value">域名</div>
-                  <div class="el-col el-col-2" style="text-align: center">
-                    <el-tooltip slot="trigger" effect="dark" placement="bottom">
-                      <div slot="content">
-                        <div>该Host为/etc/hosts，配置主机名和IP地址。如：192.168.1.10 finup100</div>
-                      </div>
-                      <span><i class="paas-icon-fa-question" style="color: #E6A23C"></i></span>
-                    </el-tooltip>
-                  </div>
-                </div>
-                <el-row class="content"
-                        v-for="(item, index) in formData.hosts"
-                        :key="item.key"
-                >
-                  <el-col :span="11" class="key">{{item.ip}}</el-col>
-                  <el-col :span="11" class="value">{{item.domain}}</el-col>
-                  <el-col :span="2" style="text-align: center">
-                    <el-button  type="warning" round size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
-                  </el-col>
-                </el-row>
-                <el-row class="add-key-value">
-                  <el-col :span="11" class="key">
-                    <el-input v-model="hostKey" placeholder="IP" size="mini"></el-input>
-                  </el-col>
-                  <el-col :span="11" class="value">
-                    <el-input v-model="hostValue" placeholder="域名" size="mini"></el-input>
-                  </el-col>
-                  <el-col :span="2" style="text-align: center">
-                    <el-button type="primary" size="mini-extral" round
-                               @click="handleHost('add', hostKey, hostValue)">添加</el-button>
-                  </el-col>
-                </el-row>
-              </el-form-item>
-              <el-form-item label="jacoco" v-if="showMoreConfig && !formRelated.isProductionProfile">
-                <el-radio-group v-model="formData.enableJacoco">
-                  <el-radio :label="true">需要</el-radio>
-                  <el-radio :label="false">不需要</el-radio>
-                  <div style="display: inline-block; margin-left: 6px;">
-                    <el-tooltip slot="trigger" effect="dark" placement="top">
-                      <div slot="content">
-                        <div>如果开启jacoco，则端口映射的目标端口固定为：8144，Pipeline启动的实例数量强制设为1</div>
-                      </div>
-                      <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
-                    </el-tooltip>
-                  </div>
-                </el-radio-group>
-              </el-form-item>
-              <el-form-item label="端口映射" class="port-map" v-if="showMoreConfig && !formRelated.isProductionProfile" :error="formData.portMap.errMsg">
-                <div class="el-row title">
-                  <div class="el-col el-col-6">
-                    <span>访问端口</span>
-                    <el-tooltip slot="trigger" effect="dark" placement="top">
-                      <div slot="content">
-                        <div v-if="formData.portMap.update">访问端口的范围在40000~59999之间</div>
-                        <div v-if="!formData.portMap.update">访问端口由后端自动生成</div>
-                        <div v-if="!formData.portMap.update">服务创建成功后，可以进行修改</div>
-                      </div>
-                      <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
-                    </el-tooltip>
-                  </div>
-                  <div class="el-col el-col-2" style="min-height:1px"></div>
-                  <div class="el-col el-col-6">目标端口</div>
-                  <div class="el-col el-col-2">协议</div>
-                </div>
-                <el-row class="content">
-                  <el-col :span="6">
-                    <el-input placeholder="如40002" size="mini" :disabled="!this.formData.portMap.update" v-model="formData.portMap.outerPort"></el-input>
-                  </el-col>
-                  <el-col :span="2">--></el-col>
-                  <el-col :span="6">
-                    <el-input placeholder="如8100" size="mini" :disabled="formData.enableJacoco" v-model="formData.portMap.containerPort"></el-input>
-                  </el-col>
-                  <el-col :span="2">TCP</el-col>
-                  <div class="el-col el-col-2">
-                    <el-tooltip slot="trigger" effect="dark" placement="top">
-                      <div slot="content">
-                        <div>端口映射的内网访问域名为：galaxy.autotest.beta</div>
-                      </div>
-                      <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
-                    </el-tooltip>
-                  </div>
-                </el-row>
-              </el-form-item>
-              <el-form-item label="服务停止期限" prop="terminationGracePeriodSeconds"
-                            v-if="showMoreConfig" class="terminationGracePeriodSeconds max-width-700">
-                <el-input v-model="formData.terminationGracePeriodSeconds"  placeholder="10-300之间的整数，单位：秒" style="width: 90%"></el-input>
-                <span>
-                  <el-tooltip slot="trigger" effect="dark" placement="top">
-                      <div slot="content">
-                        <div>从触发容器删除请求到完成删除的宽限时间，这是一种容器钩子，在该钩子对应的 hook handler 完成后不论执行的结果如何， Docker daemon 会发送一个 SIGTERN 信号量给 Docker daemon 来删除该容器，默认30秒</div>
-                      </div>
-                      <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
+          <custom-slide-up-down :active="startShowMoreConfig" :duration="500" class="more-config"
+                                @open-end="hasShowMoreConfig = true; scrollBottom()"
+                                @close-end="hasShowMoreConfig = false; scrollBottom()">
+            <el-form-item label="环境变量设置" prop="environments" class="environments" :error="formItemMsgForEnvironments">
+              <div class="el-row title">
+                <div class="el-col el-col-7 key">Key</div>
+                <div class="el-col el-col-7 value">Value</div>
+                <div class="el-col el-col-8 remark">备注</div>
+                <div class="el-col el-col-2" style="text-align: center">
+                  <el-tooltip slot="trigger" effect="dark" placement="bottom">
+                    <div slot="content">
+                      <div>容器运行前设置的环境变量。</div>
+                      <div>如env中的Name：string（环境变量名称），Value：string（环境变量的值）</div>
+                    </div>
+                    <span><i class="paas-icon-fa-question" style="color: #E6A23C"></i></span>
                   </el-tooltip>
-                 </span>
-              </el-form-item>
-              <el-form-item label="prestop脚本" v-if="showMoreConfig" prop="preStopExec"
-                            class="preStopExec max-wide-700">
-                <el-input v-model="formData.prestopCommand"
-                          placeholder="例如：echo hello world !"></el-input>
-              </el-form-item>
-              <el-form-item label="volume"
-                            prop="volume"
-                            class="volume max-width-700"
-                            v-if="showMoreConfig && $storeHelper.getUserInfo('role') == '平台管理员'">
-                <el-input v-model="formData.volume" ></el-input>
-              </el-form-item>
-              <el-form-item label="subPath"
-                            prop="subPath" class="subPath max-width-700"
-                            v-if="showMoreConfig && $storeHelper.getUserInfo('role') == '平台管理员'">
-                <el-input v-model="formData.subPath" ></el-input>
-              </el-form-item>
-              <el-form-item label="claimName"
-                            prop="claimName" class="claim max-width-700"
-                            v-if="showMoreConfig && $storeHelper.getUserInfo('role') == '平台管理员'">
-                <el-input v-model="formData.claimName" ></el-input>
-              </el-form-item>
-            </div>
-          </transition>
+                </div>
+              </div>
+              <el-row class="content"
+                      v-for="(item, index) in formData.environments"
+                      :key="item.key"
+              >
+                <el-col :span="7" class="key">{{item.key}}</el-col>
+                <el-col :span="7" class="value">{{item.value}}</el-col>
+                <el-col :span="8" class="remark">{{item.remark}}</el-col>
+                <el-col :span="2" style="text-align: center" class="delete">
+                  <el-button type="warning" round size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
+                </el-col>
+              </el-row>
+              <el-row class="add-key-value">
+                <el-col :span="7" class="key">
+                  <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
+                </el-col>
+                <el-col :span="7" class="value">
+                  <el-input v-model="environmentValue" placeholder="512位以内，不能为空" size="mini"></el-input>
+                </el-col>
+                <el-col :span="8" class="remark">
+                  <el-input v-model="environmentRemark" size="mini"></el-input>
+                </el-col>
+                <el-col :span="2" style="text-align: center">
+                  <el-button type="primary" size="mini-extral" round
+                             @click="handleEnvironment('add', environmentKey, environmentValue, environmentRemark)">添加</el-button>
+                </el-col>
+              </el-row>
+            </el-form-item>
+            <el-form-item label="Host配置" prop="hosts" class="hosts" :error="formItemMsgForHosts">
+              <div class="el-row title">
+                <div class="el-col el-col-11 key">IP</div>
+                <div class="el-col el-col-11 value">域名</div>
+                <div class="el-col el-col-2" style="text-align: center">
+                  <el-tooltip slot="trigger" effect="dark" placement="bottom">
+                    <div slot="content">
+                      <div>该Host为/etc/hosts，配置主机名和IP地址。如：192.168.1.10 finup100</div>
+                    </div>
+                    <span><i class="paas-icon-fa-question" style="color: #E6A23C"></i></span>
+                  </el-tooltip>
+                </div>
+              </div>
+              <el-row class="content"
+                      v-for="(item, index) in formData.hosts"
+                      :key="item.key"
+              >
+                <el-col :span="11" class="key">{{item.ip}}</el-col>
+                <el-col :span="11" class="value">{{item.domain}}</el-col>
+                <el-col :span="2" style="text-align: center">
+                  <el-button  type="warning" round size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
+                </el-col>
+              </el-row>
+              <el-row class="add-key-value">
+                <el-col :span="11" class="key">
+                  <el-input v-model="hostKey" placeholder="IP" size="mini"></el-input>
+                </el-col>
+                <el-col :span="11" class="value">
+                  <el-input v-model="hostValue" placeholder="域名" size="mini"></el-input>
+                </el-col>
+                <el-col :span="2" style="text-align: center">
+                  <el-button type="primary" size="mini-extral" round
+                             @click="handleHost('add', hostKey, hostValue)">添加</el-button>
+                </el-col>
+              </el-row>
+            </el-form-item>
+            <el-form-item label="jacoco" v-if="!formRelated.isProductionProfile">
+              <el-radio-group v-model="formData.enableJacoco">
+                <el-radio :label="true">需要</el-radio>
+                <el-radio :label="false">不需要</el-radio>
+                <div style="display: inline-block; margin-left: 6px;">
+                  <el-tooltip slot="trigger" effect="dark" placement="top">
+                    <div slot="content">
+                      <div>如果开启jacoco，则端口映射的目标端口固定为：8144，Pipeline启动的实例数量强制设为1</div>
+                    </div>
+                    <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
+                  </el-tooltip>
+                </div>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="端口映射" class="port-map" v-if="!formRelated.isProductionProfile" :error="formData.portMap.errMsg">
+              <div class="el-row title">
+                <div class="el-col el-col-6">
+                  <span>访问端口</span>
+                  <el-tooltip slot="trigger" effect="dark" placement="top">
+                    <div slot="content">
+                      <div v-if="formData.portMap.update">访问端口的范围在40000~59999之间</div>
+                      <div v-if="!formData.portMap.update">访问端口由后端自动生成</div>
+                      <div v-if="!formData.portMap.update">服务创建成功后，可以进行修改</div>
+                    </div>
+                    <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
+                  </el-tooltip>
+                </div>
+                <div class="el-col el-col-2" style="min-height:1px"></div>
+                <div class="el-col el-col-6">目标端口</div>
+                <div class="el-col el-col-2">协议</div>
+              </div>
+              <el-row class="content">
+                <el-col :span="6">
+                  <el-input placeholder="如40002" size="mini" :disabled="!this.formData.portMap.update" v-model="formData.portMap.outerPort"></el-input>
+                </el-col>
+                <el-col :span="2">--></el-col>
+                <el-col :span="6">
+                  <el-input placeholder="如8100" size="mini" :disabled="formData.enableJacoco" v-model="formData.portMap.containerPort"></el-input>
+                </el-col>
+                <el-col :span="2">TCP</el-col>
+                <div class="el-col el-col-2">
+                  <el-tooltip slot="trigger" effect="dark" placement="top">
+                    <div slot="content">
+                      <div>端口映射的内网访问域名为：galaxy.autotest.beta</div>
+                    </div>
+                    <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
+                  </el-tooltip>
+                </div>
+              </el-row>
+            </el-form-item>
+            <el-form-item label="服务停止期限" prop="terminationGracePeriodSeconds"class="terminationGracePeriodSeconds max-width-700">
+              <el-input v-model="formData.terminationGracePeriodSeconds"  placeholder="10-300之间的整数，单位：秒" style="width: 90%"></el-input>
+              <span>
+                <el-tooltip slot="trigger" effect="dark" placement="top">
+                    <div slot="content">
+                      <div>从触发容器删除请求到完成删除的宽限时间，这是一种容器钩子，在该钩子对应的 hook handler 完成后不论执行的结果如何， Docker daemon 会发送一个 SIGTERN 信号量给 Docker daemon 来删除该容器，默认30秒</div>
+                    </div>
+                    <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
+                </el-tooltip>
+               </span>
+            </el-form-item>
+            <el-form-item label="prestop脚本" prop="preStopExec"
+                          class="preStopExec max-wide-700">
+              <el-input v-model="formData.prestopCommand"
+                        placeholder="例如：echo hello world !"></el-input>
+            </el-form-item>
+            <el-form-item label="volume"
+                          prop="volume"
+                          class="volume max-width-700"
+                          v-if="$storeHelper.getUserInfo('role') == '平台管理员'">
+              <el-input v-model="formData.volume" ></el-input>
+            </el-form-item>
+            <el-form-item label="subPath"
+                          prop="subPath" class="subPath max-width-700"
+                          v-if="$storeHelper.getUserInfo('role') == '平台管理员'">
+              <el-input v-model="formData.subPath" ></el-input>
+            </el-form-item>
+            <el-form-item label="claimName"
+                          prop="claimName" class="claim max-width-700"
+                          v-if="$storeHelper.getUserInfo('role') == '平台管理员'">
+              <el-input v-model="formData.claimName" ></el-input>
+            </el-form-item>
+          </custom-slide-up-down>
           <el-form-item label="用户须知" prop="agree" v-if="profileInfo && formRelated.isProductionProfile">
             <el-checkbox v-model="formData.agree">
               <span style="display: inline-block;">已知晓：</span>
@@ -434,13 +424,12 @@
               <div>非生产环境可自助上线。</div>
             </div>
           </el-form-item>
-          <el-form-item class="expand" v-if="$storeHelper.groupVersion !== 'v1'">
-            <div class="more" @click="handleClick($event, 'more-config')">
-              <span v-if="showMoreConfig">收起更多配置</span><span v-else>更多配置</span>
-              <i :class="showMoreConfig?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
+          <el-form-item class="expand">
+            <div class="more" @click="startShowMoreConfig = !startShowMoreConfig;">
+              <span v-if="hasShowMoreConfig">收起更多配置</span><span v-else>更多配置</span>
+              <i :class="hasShowMoreConfig?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
             </div>
           </el-form-item>
-
         </el-form>
         <div class="section-footer">
           <div class="item">
@@ -455,15 +444,10 @@
         </div>
       </div>
     </el-scrollbar>
-  </div>
 </template>
 
 <style lang="scss">
   #service-add {
-    .el-scrollbar {
-      height: 100%;
-      width: 100%;
-    }
     .el-form {
       .el-form-item {
         .el-form-item__label {
@@ -483,12 +467,19 @@
           margin-bottom: 10px;
           .el-form-item__content {
             margin-left: 0px !important;
-            background-color: #F2F6FC;
-            &:hover {
-              background-color: #EBEEF5;
-            }
+            line-height: 24px;
             text-align: center;
-            &.more {
+            .more {
+              margin: 0px -10px;
+              font-size: 14px;
+              line-height: 24px;
+              /*background-color: #eee;*/
+              background-color: #F2F6FC;
+              &:hover {
+                /*background-color: #ddd;*/
+                background-color: #EBEEF5;
+                cursor: pointer;
+              }
             }
           }
         }
@@ -498,6 +489,8 @@
 </style>
 <style lang="scss" scoped>
   #service-add {
+    height: 100%;
+    width: 100%;
     @keyframes to-show {
       0% {
         opacity: 0;
@@ -523,13 +516,11 @@
     .more-config-leave-active {
       animation: to-hide .5s ease-in-out;
     }
-    height: 100%;
-    overflow: scroll;
     .sheet {
       background-color: white;
       box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
       margin: 10px;
-      padding: 10px 20px 10px 10px;
+      padding: 10px;
       max-width: 900px;
       .section-title {
         margin: 15px 0px;
@@ -686,7 +677,6 @@
 <script>
   import {mapGetters} from 'vuex';
   import profileUtils from '../utils/app-props';
-  const debug = browserDebug('pass-fe:profile/service/add');
   import commonUtils from 'assets/components/mixins/common-utils';
   export default {
     mixins: [commonUtils],
@@ -994,7 +984,8 @@
             }
           },
         },
-        showMoreConfig: false,
+        startShowMoreConfig: false,
+        hasShowMoreConfig: false,
         // error message for form-item environments
         formItemMsgForEnvironments: '',
         formItemMsgForHosts: '',
@@ -1259,6 +1250,7 @@
         }, 500);
       },
       scrollBottom() {
+        console.log('scrollBottom');
         this.$nextTick(() => {
           let containerHeight = this.$scrollWrapper.offsetHeight;
           let sheet = this.$el.querySelector('.sheet');
@@ -1270,7 +1262,7 @@
           if (sheetHeight > containerHeight) {
             setTimeout(() => {
               this.$scrollWrapper.scrollTop = sheetHeight - containerHeight;
-            }, 500);
+            }, 10);
           }
         });
       },
@@ -1543,13 +1535,8 @@
           return;
         }
         switch (action) {
+          // TODO: not used
           case 'more-config':
-            this.showMoreConfig = !this.showMoreConfig;
-//            if (this.showMoreConfig) {
-//              this.scrollBottom();
-//            } else {
-//              this.scrollTop();
-//            }
             break;
           case 'set-default-vmOptions':
             this.formData['vmOptions'] = `-server -Xmx2g -Xms2g -Xmn256m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=256m -Xss256k -XX:+UseConcMarkSweepGC -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -XX:+PrintGCTimeStamps -XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses -XX:+PrintGCDetails -XX:+PrintGCDateStamps`;
