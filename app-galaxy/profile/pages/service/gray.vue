@@ -1,7 +1,7 @@
 <template>
   <div id="service-gray">
     <div class="header">
-      <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'service_gray_create')">
+      <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'open_dialog_service_gray_create')">
         <span>创建灰度版本</span>
       </el-button>
       <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'service_gray_strategy')">
@@ -20,11 +20,31 @@
         </el-table-column>
         <el-table-column>
           <template slot-scope="scope">
-
           </template>
         </el-table-column>
       </el-table>
     </div>
+
+    <el-dialog :title="action.name == 'open_dialog_service_gray_create'? '创建灰度版本':''"
+               :visible="['open_dialog_service_gray_create', 'open_dialog_modify'].indexOf(action.name) > -1"
+               v-if="['open_dialog_service_gray_create'].indexOf(action.name) > -1"
+               @close="closeDialog"
+               class="size-900 dialog-add"
+               :close-on-click-modal="false"
+               top="80px"
+    >
+      <div class="content">
+      </div>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary" size="small"
+                     @click="handleDialogEvent($event, action.name)">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button @click="closeDialog" size="small">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -58,23 +78,18 @@
   }
 </style>
 <script>
+  import commonUtils from 'assets/components/mixins/common-utils';
   export default {
+    mixins: [commonUtils],
     async created() {
       if (this.$route.params && this.$route.params.hasOwnProperty('id')) {
         this.serviceId = this.$route.params['id'];
       }
-
       if (!this.serviceId) {
         this.$message.error('未找到serviceId');
         this.$router.push(this.$router.helper.pages['/profile/service/list']);
         return;
       }
-      var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_id, {
-        params: {
-          id: this.serviceId
-        }
-      });
-      console.log(resContent);
       this.requestServiceList();
     },
     async mounted() {
@@ -121,11 +136,33 @@
           resContent['master']['serviceTypeName'] = '主服务';
           this.serviceList.push(postTreat(resContent['master']));
         }
-        console.log(this.serviceList);
+        // console.log(this.serviceList);
       },
-      handleClick(evt, action, data) {
+      async getData4GrayCreate() {
+        var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_id, {
+          params: {
+            id: this.serviceId
+          }
+        });
+//        console.log(resContent);
+        const serviceInfo = this.$net.getServiceModel(resContent);
+        const profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
+        const theData = {
+          profileInfo,
+          serviceInfo
+        };
+        console.log(theData);
+        return theData;
+      },
+      async handleClick(evt, action, data) {
         switch (action) {
-          case 'service_gray_create':
+          case 'open_dialog_service_gray_create':
+            try {
+              await this.getData4GrayCreate();
+              await this.openDialog(action);
+            } catch (err) {
+              console.log(err);
+            }
             break;
           case 'service_gray_strategy':
             break;
