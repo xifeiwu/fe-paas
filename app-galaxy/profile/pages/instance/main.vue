@@ -10,10 +10,10 @@
       </el-col>
       <el-col :span="4">
         <el-button v-if="true"
-                   size="mini-extral"
+                   size="mini"
                    type="primary"
                    @click="handleButtonClick($event, 'refresh')">刷新</el-button>
-        <el-button size="mini-extral"
+        <el-button size="mini"
                    type="primary"
                    :class="{'disabled': $storeHelper.permission['instance_change_count'].disabled || publishStatus}"
                    @click="handleButtonClick($event, 'instance_change_count')">手动伸缩</el-button>

@@ -109,6 +109,9 @@
           .item {
             flex: 1;
             text-align: center;
+            .el-button {
+              min-width: 100px;
+            }
           }
         }
       }
