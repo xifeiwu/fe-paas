@@ -386,6 +386,7 @@
         dialog4UpdateMemory: {
           memoryNow: '',
           memory: '',
+          memoryOriginal: ''
         },
         resourceQuota: {},
         hasQuota: false,
@@ -585,8 +586,11 @@
           }
         });
         ['memoryUsed', 'memoryTotal', 'storageUsed', 'storageTotal', 'memorySelected'].forEach(it => {
+            if (it === 'memorySelected') {
+              resContent['memoryOriginal'] = resContent[it];
+            }
             if (resContent.hasOwnProperty(it) && '---' !== resContent[it]) {
-                resContent[it] = bytes(parseInt(resContent[it]));
+              resContent[it] = bytes(parseInt(resContent[it]));
             }
         });
         resContent['redisAddress'] = `${resContent['redisAddr']}:${resContent['redisPort']}`;
@@ -610,9 +614,10 @@
             this.addToWaitingResponseQueue(action);
             try {
               const instanceStatus = await this.getInstanceMoreInfo();
-//              console.log(instanceStatus);
+             // console.log(instanceStatus);
               this.dialog4UpdateMemory.memoryNow = instanceStatus['memorySelected'];
               this.dialog4UpdateMemory.memory = parseInt(instanceStatus['memoryTotal']);
+              this.dialog4UpdateMemory.memoryOriginal = instanceStatus['memoryOriginal'];
               this.action.name = action;
               this.hideWaitingResponse(action);
             } catch (err) {
@@ -757,6 +762,7 @@
                   middlewareId: this.middlewareId,
                   name: this.action.row.name,
                   memory: this.dialog4UpdateMemory.memory / this.utils.ONE_MILLION,
+                  memoryOriginal: this.dialog4UpdateMemory.memoryOriginal / this.utils.ONE_MILLION,
                   groupId: this.$storeHelper.groupInfo.id,
                   namespace: this.$storeHelper.groupInfo.tag,
                   isCluster: false,
