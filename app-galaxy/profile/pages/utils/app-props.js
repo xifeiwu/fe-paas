@@ -184,7 +184,7 @@ class AppInfoHelper {
         message: '构建类型为zip包时，必须填写mainClass',
       }],
       // Gitlab父级pom.xml相对路径
-      relativePathOfParentPOM: [{
+      relativePath: [{
         required: false,
       }, {
         validator: notRequriedBasicValidator

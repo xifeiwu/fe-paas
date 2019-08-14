@@ -272,10 +272,6 @@ taints:
               &.el-form-item--mini {
                 margin-bottom: 2px;
               }
-              &.relativePathOfParentPOM {
-                .el-form-item__label {
-                }
-              }
             }
           }
         }

@@ -100,10 +100,10 @@
             </el-form-item>
           </transition>
           <transition name="more-config">
-            <el-form-item label="项目根目录" prop="relativePathOfParentPOM"
+            <el-form-item label="项目根目录" prop="relativePath"
                           v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
                           class="relative-path-of-parent-pom max-width-700">
-              <el-input v-model="formData.relativePathOfParentPOM"
+              <el-input v-model="formData.relativePath"
                         placeholder="原“Gitlab父级pom.xml相对路径”字段，不能超过256个字符，不能以/开头" style="width: 90%" ></el-input>
               <span>
                 <el-tooltip slot="trigger" effect="dark" placement="top">
@@ -741,7 +741,7 @@
           this.formData.gitLabBranch = serviceInfo.gitLabBranch;
           this.formData.appMonitor = serviceInfo.appMonitor;
           this.formData.mainClass = serviceInfo.mainClass;
-          this.formData.relativePathOfParentPOM = serviceInfo.relativePath;
+          this.formData.relativePath = serviceInfo.relativePath;
           this.formData.mavenProfileId = serviceInfo.mavenProfileId;
           this.formData.vmOptions = serviceInfo.vmOptions;
           this.formData.instanceCount = serviceInfo.instanceNum;
@@ -891,7 +891,7 @@
           gitLabBranch: '',
           // 只有zip包需要填mainClass，且必须要填
           mainClass: '',
-          relativePathOfParentPOM: '',
+          relativePath: '',
           appMonitor: profileUtils.defaultAppMonitorId,
           vmOptions: '',
           mavenProfileId: '',
@@ -1585,7 +1585,7 @@
                   gitLabAddress: formData.gitLabAddress,
                   gitLabBranch: formData.gitLabBranch,
                   mainClass: formData.mainClass,
-                  relativePath: formData.relativePathOfParentPOM,
+                  relativePath: formData.relativePath,
                   vmOptions: formData.vmOptions,
                   appMonitor: formData.appMonitor,
                   mavenProfileId: formData.mavenProfileId,
