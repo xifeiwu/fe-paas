@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-node main.js
+NODE_ENV=$env PORT=$PORT0 HOST=0.0.0.0 node main.js
