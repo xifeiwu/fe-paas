@@ -577,10 +577,23 @@
       },
       handleBreadCrumbClick(item) {
         // console.log(item);
-        if (item.pathReg.test(this.$route.path)) {
+        const path = this.$route.path;
+        const pathList = path.split('/');
+        if (item.pathReg.test(path)) {
           return;
         }
-        this.$router.push(item.path);
+        while (pathList.length > 0) {
+          if(item.pathReg.test(pathList.join('/'))) {
+            break;
+          }
+          pathList.pop();
+        }
+        if (pathList.length === 0) {
+          console.log('path match error');
+          this.$router.push(this.$router.helper.pages['profile'])
+        } else {
+          this.$router.push(pathList.join('/'));
+        }
       },
 
       // 初始化部分权限相关信息（权限的更新在网络请求完成后，不初始化会导致无法访问，报错：undefined）
