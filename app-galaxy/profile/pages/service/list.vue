@@ -212,14 +212,14 @@
                 <span>亲和性配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
-              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
+              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled && false"
                          size="small"
                          type="text"
                          @click="handleTRClick($event, 'update_toleration', scope.$index, scope.row)"
                          :class="$storeHelper.permission['get_affinity'].disabled || publishStatus? 'disabled' : 'danger'">
                 <span>容忍配置</span>
               </el-button>
-              <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
+              <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled && false"></div>
               <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
                          size="small"
                          type="text"
