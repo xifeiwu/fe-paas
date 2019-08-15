@@ -5,10 +5,10 @@
           @after-leave="handleAfterLeave">
     <div
       class="el-popover el-popper"
-      :class="[popperClass, content && 'el-popover--plain']"
+      :class="[popperClass]"
       ref="popper"
       v-show="popperStatus.show"
-      :style="{ width: width + 'px' }"
+      :style="customStyle"
       :id="tooltipId"
     >
       <div class="el-popover__title" v-if="title" v-text="title"></div>
@@ -31,6 +31,7 @@
 
   export default {
 //    mixins: [Popper],
+    // name: 'popoverMessage',
 
     props: {
       title: String,
@@ -77,8 +78,17 @@
         type: Boolean,
         default: false
       },
-      popperClass: String,
+      popperClass: {
+        type: String,
+        default: 'el-popover--plain'
+      },
       width: {},
+      customStyle: {
+        type: Object,
+        default() {
+          return {}
+        }
+      },
       transition: {
         type: String,
         default: 'fade-in-linear'
@@ -131,6 +141,13 @@
           this.contentType = type;
         } else {
           this.contentType = 'text';
+        }
+        if (this.contentType === 'text' && Array.isArray(msg)) {
+          msg = msg.map((it, index) => {
+            return `<li>${index+1}. ${it}</li>`;
+          }).join('');
+          msg = `<ol style="font-size: 12px; list-style: none; font-weight: bold">${msg}</ol>`;
+          this.contentType = 'html';
         }
         this.$nextTick(() => {
           this.reference = ref;

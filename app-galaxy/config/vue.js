@@ -9,6 +9,7 @@ import Utils from 'assets/js/utils';
 
 import '$assets/css/fix-style.scss';
 import 'assets/css/common.scss';
+import popOnMouseover from 'assets/components/directives/pop-on-mouse-over';
 
 
 /**
@@ -27,6 +28,7 @@ import 'assets/css/common.scss';
 class VUEConfig {
   constructor({URL_LIST, netHelper, storeHelper}) {
     this.addPrototype({URL_LIST, storeHelper, netHelper});
+    Vue.directive('pop-on-mouse-over', popOnMouseover);
   }
 
   addMixin(Vue){
