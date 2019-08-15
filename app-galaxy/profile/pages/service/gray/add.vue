@@ -596,7 +596,7 @@
 </style>
 <script>
   import {mapGetters} from 'vuex';
-  import profileUtils from '../utils/app-props';
+  import profileUtils from '../../utils/app-props';
   import commonUtils from 'assets/components/mixins/common-utils';
   export default {
     mixins: [commonUtils],
@@ -610,6 +610,11 @@
       var serviceInfo = null;
 
       try {
+        if (this.$router.helper.pages['/profile/service/:id(\\d+)/gray/add'].pathReg.test(path)) {
+          serviceInfo = await this.getServiceById(this.$route.params['id']);
+          profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
+          this.forAdd = true;
+        } else
         if (this.$router.helper.pages['/profile/service/modify'].pathReg.test(path)) {
           // try to get appId and profileId from location.search
           if (!dataTransfer && location.search) {

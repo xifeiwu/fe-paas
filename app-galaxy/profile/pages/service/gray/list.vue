@@ -1,7 +1,7 @@
 <template>
   <div id="service-gray">
     <div class="header">
-      <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'open_dialog_service_gray_create')">
+      <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'service_gray_create')">
         <span>创建灰度版本</span>
       </el-button>
       <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'service_gray_strategy')">
@@ -37,11 +37,11 @@
       </div>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
-          <el-button type="primary" size="small"
+          <el-button type="primary" size="mini"
                      @click="handleDialogEvent($event, action.name)">保&nbsp存</el-button>
         </div>
         <div class="item">
-          <el-button @click="closeDialog" size="small">取&nbsp消</el-button>
+          <el-button @click="closeDialog" size="mini">取&nbsp消</el-button>
         </div>
       </div>
     </el-dialog>
@@ -139,7 +139,7 @@
         // console.log(this.serviceList);
       },
       async getData4GrayCreate() {
-        var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_id, {
+        var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_by_id, {
           params: {
             id: this.serviceId
           }
@@ -156,6 +156,11 @@
       },
       async handleClick(evt, action, data) {
         switch (action) {
+          case 'service_gray_create':
+            this.$router.push(this.$router.helper.pages['/profile/service/:id(\\d+)/gray/add'].toPath({
+              id: this.serviceId
+            }));
+            break;
           case 'open_dialog_service_gray_create':
             try {
               await this.getData4GrayCreate();

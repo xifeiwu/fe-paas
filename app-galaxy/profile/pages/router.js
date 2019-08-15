@@ -7,7 +7,8 @@ import AppAdd from './app/add-v2.vue';
 import serviceList from './service/list.vue';
 import serviceDetail from './service/detail.vue';
 import serviceAdd from './service/add-v2.vue';
-import serviceGray from './service/gray.vue';
+import serviceGray from './service/gray/list.vue';
+import serviceGrayAdd from './service/gray/add.vue';
 
 import InstanceMain from './instance/main.vue';
 
@@ -147,6 +148,14 @@ class Helper extends RouterHelper {
       path: '/profile/service/:id(\\d+)/gray',
       name: '灰度发布',
       component: serviceGray
+    }, {
+      path: '/profile/service/:id(\\d+)/gray/add',
+      name: '创建灰度版本',
+      component: serviceGrayAdd
+    }, {
+      path: '/profile/service/:id(\\d+)/gray/update',
+      name: '修改灰度版本',
+      component: serviceGrayAdd
     }, {
       path: '/profile/service/detail',
       name: '服务详情',
