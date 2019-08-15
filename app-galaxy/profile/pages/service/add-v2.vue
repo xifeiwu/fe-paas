@@ -1,379 +1,379 @@
 <template>
-    <el-scrollbar id="service-add">
-      <div class="sheet">
-        <div class="section-title">{{forModify ?'修改配置' : (forCopy ? '复制服务' : '创建服务')}}</div>
-        <el-form :model="formData" ref="formData"
-                 :rules="rules" :label-width="formRelated.isJavaLanguage ? '180px' : '180px'" size="mini"
-                 :element-loading-text="loadingText">
-          <el-form-item label="目标环境" v-if="forCopy" class="message-show">
-            <el-select v-model="formData.spaceId">
-              <el-option v-for="item in formRelated.profileList" :key="item.id" :label="item.description" :value="item.id">
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="运行环境" class="message-show profile-description" v-else>
-            {{profileInfo? profileInfo.description: ''}}
-          </el-form-item>
-          <el-form-item label="应用名称" class="app-name message-show">
-            {{serviceInfo ? serviceInfo['appName'] : ''}}
-          </el-form-item>
+  <el-scrollbar id="service-add">
+    <div class="sheet">
+      <div class="section-title">{{forModify ?'修改配置' : (forCopy ? '复制服务' : '创建服务')}}</div>
+      <el-form :model="formData" ref="formData"
+               :rules="rules" :label-width="formRelated.isJavaLanguage ? '180px' : '180px'" size="mini"
+               :element-loading-text="loadingText">
+        <el-form-item label="目标环境" v-if="forCopy" class="message-show">
+          <el-select v-model="formData.spaceId">
+            <el-option v-for="item in formRelated.profileList" :key="item.id" :label="item.description" :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="运行环境" class="message-show profile-description" v-else>
+          {{profileInfo? profileInfo.description: ''}}
+        </el-form-item>
+        <el-form-item label="应用名称" class="app-name message-show">
+          {{serviceInfo ? serviceInfo['appName'] : ''}}
+        </el-form-item>
 
-          <el-form-item label="语言/版本" class="app-name message-show">
-            {{serviceInfo ? `${serviceInfo.language.name} / ${serviceInfo.language.version}` : ''}}
-          </el-form-item>
-          <el-form-item label="镜像方式" prop="customImage" class="custom-image">
-            <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="formRelated.isPythonLanguage">
-              <el-radio :label="false">平台构建镜像</el-radio>
-              <el-radio :label="true">自定义镜像</el-radio>
-            </el-radio-group>
-          </el-form-item>
+        <el-form-item label="语言/版本" class="app-name message-show">
+          {{serviceInfo ? `${serviceInfo.language.name} / ${serviceInfo.language.version}` : ''}}
+        </el-form-item>
+        <el-form-item label="镜像方式" prop="customImage" class="custom-image">
+          <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="formRelated.isPythonLanguage">
+            <el-radio :label="false">平台构建镜像</el-radio>
+            <el-radio :label="true">自定义镜像</el-radio>
+          </el-radio-group>
+        </el-form-item>
 
-          <el-form-item class="build-type" label="构建类型" v-if="formRelated.packageTypeList.length > 0 && formRelated.isJavaLanguage && !imageSelectState.customImage" :error="formData.packageInfo.errMsg">
-            <div class="flex-layout">
-              <div class="type-list">
-                <el-radio-group v-model="formData.packageInfo.type">
-                  <el-radio v-for="item in formRelated.packageTypeList" :label="item.type" :key="item.type">
-                    {{item.packageType}}
-                  </el-radio>
-                </el-radio-group>
-              </div>
-              <div :class="['war-name', formData.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']" prop="packageInfo.name">
-                <el-input v-model="formData.packageInfo.name" placeholder="默认与项目名称一致"></el-input>
-              </div>
+        <el-form-item class="build-type" label="构建类型" v-if="formRelated.packageTypeList.length > 0 && formRelated.isJavaLanguage && !imageSelectState.customImage" :error="formData.packageInfo.errMsg">
+          <div class="flex-layout">
+            <div class="type-list">
+              <el-radio-group v-model="formData.packageInfo.type">
+                <el-radio v-for="item in formRelated.packageTypeList" :label="item.type" :key="item.type">
+                  {{item.packageType}}
+                </el-radio>
+              </el-radio-group>
             </div>
-          </el-form-item>
-          <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-if="!imageSelectState.customImage">
-            <el-select v-model="formData.autoImageValue" filterable class="max-width-600"
-                       :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
-              <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
-                         :key="index" :label="item.label" :value="item.value">
-                <div style="margin: 3px 0px">
-                  <div style="font-size: 15px; font-weight: bold; line-height: 20px;">{{ item.label }}</div>
-                  <div style="color: gray; font-size: 12px; line-height: 14px;">{{ item.desc }}</div>
-                </div>
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="镜像地址" prop="customImageValue" v-else
-                        :class="['custom-image', imageSelectState.customImageType.toLowerCase()+'-image']"
-          >
-            <el-autocomplete
-                    class="inline-input max-width-500"
-                    v-model="formData.customImageValue"
-                    :fetch-suggestions="querySearch"
-                    placeholder="请输入内容"
-                    @select="handleSelect"
-            ></el-autocomplete>
-          </el-form-item>
+            <div :class="['war-name', formData.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']" prop="packageInfo.name">
+              <el-input v-model="formData.packageInfo.name" placeholder="默认与项目名称一致"></el-input>
+            </div>
+          </div>
+        </el-form-item>
+        <el-form-item label="基础镜像" class="auto-image" prop="autoImageValue" v-if="!imageSelectState.customImage">
+          <el-select v-model="formData.autoImageValue" filterable class="max-width-600"
+                     :placeholder="imageInfoFromNet.autoImageList.length > 0 ? '请选择' : '无数据'">
+            <el-option v-for="(item, index) in imageInfoFromNet.autoImageList"
+                       :key="index" :label="item.label" :value="item.value">
+              <div style="margin: 3px 0px">
+                <div style="font-size: 15px; font-weight: bold; line-height: 20px;">{{ item.label }}</div>
+                <div style="color: gray; font-size: 12px; line-height: 14px;">{{ item.desc }}</div>
+              </div>
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="镜像地址" prop="customImageValue" v-else
+                      :class="['custom-image', imageSelectState.customImageType.toLowerCase()+'-image']"
+        >
+          <el-autocomplete
+                  class="inline-input max-width-500"
+                  v-model="formData.customImageValue"
+                  :fetch-suggestions="querySearch"
+                  placeholder="请输入内容"
+                  @select="handleSelect"
+          ></el-autocomplete>
+        </el-form-item>
 
-          <transition name="more-config">
-            <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress" class="gitlab-address"
-                          v-if="!imageSelectState.customImage">
-              <el-input v-model="formData.gitLabAddress" class="max-width-500"
-                        placeholder="请输入项目的gitLab地址，不能超过256个字符"></el-input>
-            </el-form-item>
-          </transition>
-          <transition name="more-config">
-            <el-form-item label="Gitlab分支" prop="gitLabBranch" class="gitlab-branch"
-                          v-if="!imageSelectState.customImage">
-              <el-input v-model="formData.gitLabBranch" class="max-width-500"
-                        placeholder="不能超过100个字符"></el-input>
-            </el-form-item>
-          </transition>
-          <transition name="more-config">
-            <el-form-item label="mainClass" prop="mainClass"
-                          v-if="formRelated.isJavaLanguage && !imageSelectState.customImage && formData.packageInfo.type.toUpperCase() === 'ZIP'"
-                          class="main-class max-width-600"
-            >
-              <el-input v-model="formData.mainClass"  class="max-width-500"
-                        placeholder=""></el-input>
-            </el-form-item>
-          </transition>
-          <transition name="more-config">
-            <el-form-item label="项目根目录" prop="relativePath"
-                          v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
-                          class="relative-path-of-parent-pom">
-              <el-input v-model="formData.relativePath" class="max-width-500"
-                        placeholder="原“Gitlab父级pom.xml相对路径”字段，不能超过256个字符，不能以/开头"></el-input>
-              <i class="paas-icon-fa-question"
-                 v-pop-on-mouse-over="'原“Gitlab父级pom.xml相对路径”字段，用于非标准目录结构项目，填写项目根目录的相对路径，以便后续 mvn 打包使用'"></i>
-            </el-form-item>
-          </transition>
-          <transition name="more-config">
-            <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
-                          v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
-            >
-              <el-input v-model="formData.mavenProfileId" class="max-width-500"
-                        :placeholder="`默认值为${profileInfo.nameStr},不能超过100字符`"></el-input>
-            </el-form-item>
-          </transition>
-          <el-form-item label="VM_Options" prop="vmOptions" class="vm-options max-width-800"
+        <transition name="more-config">
+          <el-form-item label="Gitlab_SSH地址" prop="gitLabAddress" class="gitlab-address"
+                        v-if="!imageSelectState.customImage">
+            <el-input v-model="formData.gitLabAddress" class="max-width-500"
+                      placeholder="请输入项目的gitLab地址，不能超过256个字符"></el-input>
+          </el-form-item>
+        </transition>
+        <transition name="more-config">
+          <el-form-item label="Gitlab分支" prop="gitLabBranch" class="gitlab-branch"
+                        v-if="!imageSelectState.customImage">
+            <el-input v-model="formData.gitLabBranch" class="max-width-500"
+                      placeholder="不能超过100个字符"></el-input>
+          </el-form-item>
+        </transition>
+        <transition name="more-config">
+          <el-form-item label="mainClass" prop="mainClass"
+                        v-if="formRelated.isJavaLanguage && !imageSelectState.customImage && formData.packageInfo.type.toUpperCase() === 'ZIP'"
+                        class="main-class max-width-600"
+          >
+            <el-input v-model="formData.mainClass"  class="max-width-500"
+                      placeholder=""></el-input>
+          </el-form-item>
+        </transition>
+        <transition name="more-config">
+          <el-form-item label="项目根目录" prop="relativePath"
+                        v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
+                        class="relative-path-of-parent-pom">
+            <el-input v-model="formData.relativePath" class="max-width-500"
+                      placeholder="原“Gitlab父级pom.xml相对路径”字段，不能超过256个字符，不能以/开头"></el-input>
+            <i class="paas-icon-fa-question"
+               v-pop-on-mouse-over="'原“Gitlab父级pom.xml相对路径”字段，用于非标准目录结构项目，填写项目根目录的相对路径，以便后续 mvn 打包使用'"></i>
+          </el-form-item>
+        </transition>
+        <transition name="more-config">
+          <el-form-item label="maven profile id" prop="mavenProfileId" class="maven-profile-id"
                         v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
           >
-            <div>
-              <el-input v-model="formData.vmOptions"
-                        class="max-width-600"
-                        size="mini"
-                        type="textarea"
-                        :rows="4"
-                        placeholder="不能包含中文，不能超过512个字符"
-              ></el-input>
-              <div style="color:#409EFF; display:flex; align-items: flex-start; cursor:pointer; font-size: 12px; line-height: 16px;">
-                <span style="line-height: 20px;" @click="handleClick($event, 'set-default-vmOptions')">帮我填</span>
-                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'填写默认的VM_options'"></i>
-              </div>
+            <el-input v-model="formData.mavenProfileId" class="max-width-500"
+                      :placeholder="`默认值为${profileInfo.nameStr},不能超过100字符`"></el-input>
+          </el-form-item>
+        </transition>
+        <el-form-item label="VM_Options" prop="vmOptions" class="vm-options max-width-800"
+                      v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
+        >
+          <div>
+            <el-input v-model="formData.vmOptions"
+                      class="max-width-600"
+                      size="mini"
+                      type="textarea"
+                      :rows="4"
+                      placeholder="不能包含中文，不能超过512个字符"
+            ></el-input>
+            <div style="color:#409EFF; display:flex; align-items: flex-start; cursor:pointer; font-size: 12px; line-height: 16px;">
+              <span style="line-height: 20px;" @click="handleClick($event, 'set-default-vmOptions')">帮我填</span>
+              <i class="paas-icon-fa-question" v-pop-on-mouse-over="'填写默认的VM_options'"></i>
             </div>
-          </el-form-item>
-          <el-form-item label="滚动升级" prop="rollingUpdate">
-            <el-radio-group v-model="formData.rollingUpdate">
-              <el-radio :label="true">需要</el-radio>
-              <el-radio :label="false">不需要</el-radio>
-              <i class="paas-icon-fa-question"
-                 v-pop-on-mouse-over="'滚动部署是为了实现业务的平滑上线而不中断，除了定时器外，建议其他应用都可以选用滚动部署'"></i>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="负载均衡" prop="loadBalance">
-            <el-radio-group v-model="formData.loadBalance">
-              <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <div class="el-form-item-group is-required health-check">
-            <div class="label" style="width: 180px;">健康检查</div>
-            <div class="content" style="margin-left: 180px;">
-              <el-form-item :error="isSubmitClicked ? formData.healthCheck.contentCheckErrMsg : ''">
-                <div class="health-check-type">
-                  <el-radio-group v-model="formData.healthCheck.type">
-                    <el-radio v-for="(item, index) in $storeHelper.healthCheckTypeList" :label="item.desc" :key="item.desc">{{item.label}}</el-radio>
-                  </el-radio-group>
-                  <div class="input-area">
-                    <div v-if="formData.healthCheck.type == 'http'">
-                      <el-input v-model="formData.healthCheck.content" class="max-width-500"
-                                placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
-                    </div>
-                    <div v-if="formData.healthCheck.type == 'shell'">
-                      <el-input v-model="formData.healthCheck.content" placeholder="请填写shell指令"></el-input>
-                    </div>
-                    <div v-if="formData.healthCheck.type == 'socket'">
-                      <span>端口号：</span>
-                      <el-input-number v-model="formData.healthCheck.content" :min="0" :max="10000" label="延迟时间"></el-input-number>
-                    </div>
+          </div>
+        </el-form-item>
+        <el-form-item label="滚动升级" prop="rollingUpdate">
+          <el-radio-group v-model="formData.rollingUpdate">
+            <el-radio :label="true">需要</el-radio>
+            <el-radio :label="false">不需要</el-radio>
+            <i class="paas-icon-fa-question"
+               v-pop-on-mouse-over="'滚动部署是为了实现业务的平滑上线而不中断，除了定时器外，建议其他应用都可以选用滚动部署'"></i>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="负载均衡" prop="loadBalance">
+          <el-radio-group v-model="formData.loadBalance">
+            <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <div class="el-form-item-group is-required health-check">
+          <div class="label" style="width: 180px;">健康检查</div>
+          <div class="content" style="margin-left: 180px;">
+            <el-form-item :error="isSubmitClicked ? formData.healthCheck.contentCheckErrMsg : ''">
+              <div class="health-check-type">
+                <el-radio-group v-model="formData.healthCheck.type">
+                  <el-radio v-for="(item, index) in $storeHelper.healthCheckTypeList" :label="item.desc" :key="item.desc">{{item.label}}</el-radio>
+                </el-radio-group>
+                <div class="input-area">
+                  <div v-if="formData.healthCheck.type == 'http'">
+                    <el-input v-model="formData.healthCheck.content" class="max-width-500"
+                              placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
+                  </div>
+                  <div v-if="formData.healthCheck.type == 'shell'">
+                    <el-input v-model="formData.healthCheck.content" placeholder="请填写shell指令"></el-input>
+                  </div>
+                  <div v-if="formData.healthCheck.type == 'socket'">
+                    <span>端口号：</span>
+                    <el-input-number v-model="formData.healthCheck.content" :min="0" :max="10000" label="延迟时间"></el-input-number>
                   </div>
                 </div>
-              </el-form-item>
-              <el-form-item class="health-check-more">
-                <div class="initial-delay item" style="line-height: 28px">
-                  <span>延迟时间：</span>
-                  <el-input-number v-model="formData.healthCheck.initialDelay" :min="30" :max="300" label="延迟时间"></el-input-number>
-                  <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位秒。指实例启动后，多久开始探测。例如，启动延时设置为5，那么健康检查将在实例启动5秒后开始。默认值为120，范围30-300'"></i>
-                </div>
-                <div class="period-seconds item" style="line-height: 28px">
-                  <span>间隔时间：</span>
-                  <el-input-number v-model="formData.healthCheck.periodSeconds" :min="1" :max="10" label="间隔时间"></el-input-number>
-                  <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位秒。指健康检查的频率。例如，间隔时间设置成10，那么集群会每隔10s检查一次。默认值为5，范围1-10'"></i>
-                </div>
-                <div class="failure-threshold item" style="line-height: 28px">
-                  <span>不健康阈值：</span>
-                  <el-input-number v-model="formData.healthCheck.failureThreshold" :min="1" :max="10" label="不健康阈值"></el-input-number>
-                  <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位次。该参数指健康检查连续失败多少次后，才判定实例是不健康的。例如不健康阈值设置成 3，只有满足连续 3 次都探测失败了，才认为容器是不健康的。默认值为5，范围1-10'"></i>
-                </div>
-                <div class="timeout-seconds item" style="line-height: 28px">
-                  <span>响应超时：</span>
-                  <el-input-number v-model="formData.healthCheck.timeoutSeconds" :min="10" :max="120" label="响应超时"></el-input-number>
-                  <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位秒。指健康探测的超时时间。在这里是HTTP 请求响应超时时间。默认值为10，范围10-120'"></i>
-                </div>
-              </el-form-item>
-            </div>
-          </div>
-          <el-form-item label="应用监控" prop="appMonitor" class="app-monitor" v-if="formRelated.isJavaLanguage">
-            <el-radio-group v-model="formData.appMonitor" size="mini" v-if="profileUtils">
-              <el-radio v-for="item in profileUtils.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
-            </el-radio-group>
-            <span style="display: inline; margin-left: 10px; color: #E6A23C; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #E6A23C; border-radius: 4px; word-break: normal"
-                  @mouseenter="handleClick($event, 'warning-app-monitor')" v-if="false"
-            >{{profileUtils['warningList']['warning-app-monitor']['text']}}</span>
-          </el-form-item>
-          <el-form-item label="CPU" prop="cpuId" class="cpu">
-            <el-radio-group v-model="formData.cpuId" size="mini">
-              <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
-                {{item.cpu}}核
-              </el-radio-button>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="内存" prop="memoryId" class="memory">
-            <el-radio-group v-model="formData.memoryId" size="mini">
-              <el-radio-button v-for="item in memorySizeList" :label="item.id" :key="item.id">
-                {{item.memory}}G
-              </el-radio-button>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
-            <el-input-number v-model="formData.instanceCount" :min="1" label="描述文字"></el-input-number>
-          </el-form-item>
-          <el-form-item label="过期时间(天)" prop="expiredDays" class="expired-days" v-if="!formRelated.isProductionProfile">
-            <el-input-number v-model="formData.remainExpiredDays" :min="1" :max="365"></el-input-number>
-            <i class="paas-icon-fa-question" v-pop-on-mouse-over="'服务的实例将在指定时间后被删除，最大值为一年'"></i>
-          </el-form-item>
-          <custom-slide-up-down :active="startShowMoreConfig" :duration="500" class="more-config"
-                                @open-end="hasShowMoreConfig = true; scrollBottom()"
-                                @close-end="hasShowMoreConfig = false; scrollBottom()">
-            <el-form-item label="环境变量设置" prop="environments" class="environments" :error="formItemMsgForEnvironments">
-              <div class="el-row title">
-                <div class="el-col el-col-7 key">Key</div>
-                <div class="el-col el-col-7 value">Value</div>
-                <div class="el-col el-col-8 remark">备注</div>
-                <div class="el-col el-col-2" style="text-align: center">
-                  <i class="paas-icon-fa-question"
-                     v-pop-on-mouse-over="['容器运行前设置的环境变量', '如env中的Name：string（环境变量名称），Value：string（环境变量的值）']"></i>
-                </div>
               </div>
-              <el-row class="content"
-                      v-for="(item, index) in formData.environments"
-                      :key="item.key"
-              >
-                <el-col :span="7" class="key">{{item.key}}</el-col>
-                <el-col :span="7" class="value">{{item.value}}</el-col>
-                <el-col :span="8" class="remark">{{item.remark}}</el-col>
-                <el-col :span="2" style="text-align: center" class="delete">
-                  <el-button type="warning" round size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
-                </el-col>
-              </el-row>
-              <el-row class="add-key-value">
-                <el-col :span="7" class="key">
-                  <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
-                </el-col>
-                <el-col :span="7" class="value">
-                  <el-input v-model="environmentValue" placeholder="512位以内，不能为空" size="mini"></el-input>
-                </el-col>
-                <el-col :span="8" class="remark">
-                  <el-input v-model="environmentRemark" size="mini"></el-input>
-                </el-col>
-                <el-col :span="2" style="text-align: center">
-                  <el-button type="primary" size="mini-extral" round
-                             @click="handleEnvironment('add', environmentKey, environmentValue, environmentRemark)">添加</el-button>
-                </el-col>
-              </el-row>
             </el-form-item>
-            <el-form-item label="Host配置" prop="hosts" class="hosts" :error="formItemMsgForHosts">
-              <div class="el-row title">
-                <div class="el-col el-col-11 key">IP</div>
-                <div class="el-col el-col-11 value">域名</div>
-                <div class="el-col el-col-2" style="text-align: center">
-                  <i class="paas-icon-fa-question" v-pop-on-mouse-over="'该Host为/etc/hosts，配置主机名和IP地址。如：192.168.1.10 finup100'"></i>
-                </div>
+            <el-form-item class="health-check-more">
+              <div class="initial-delay item" style="line-height: 28px">
+                <span>延迟时间：</span>
+                <el-input-number v-model="formData.healthCheck.initialDelay" :min="30" :max="300" label="延迟时间"></el-input-number>
+                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位秒。指实例启动后，多久开始探测。例如，启动延时设置为5，那么健康检查将在实例启动5秒后开始。默认值为120，范围30-300'"></i>
               </div>
-              <el-row class="content"
-                      v-for="(item, index) in formData.hosts"
-                      :key="item.key"
-              >
-                <el-col :span="11" class="key">{{item.ip}}</el-col>
-                <el-col :span="11" class="value">{{item.domain}}</el-col>
-                <el-col :span="2" style="text-align: center">
-                  <el-button  type="warning" round size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
-                </el-col>
-              </el-row>
-              <el-row class="add-key-value">
-                <el-col :span="11" class="key">
-                  <el-input v-model="hostKey" placeholder="IP" size="mini"></el-input>
-                </el-col>
-                <el-col :span="11" class="value">
-                  <el-input v-model="hostValue" placeholder="域名" size="mini"></el-input>
-                </el-col>
-                <el-col :span="2" style="text-align: center">
-                  <el-button type="primary" size="mini-extral" round
-                             @click="handleHost('add', hostKey, hostValue)">添加</el-button>
-                </el-col>
-              </el-row>
-            </el-form-item>
-            <el-form-item label="jacoco" v-if="!formRelated.isProductionProfile">
-              <el-radio-group v-model="formData.enableJacoco">
-                <el-radio :label="true">需要</el-radio>
-                <el-radio :label="false">不需要</el-radio>
-                <div style="display: inline-block; margin-left: 6px;">
-                  <i class="paas-icon-fa-question" v-pop-on-mouse-over="'如果开启jacoco，则端口映射的目标端口固定为：8144，Pipeline启动的实例数量强制设为1'"></i>
-                </div>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="端口映射" class="port-map" v-if="!formRelated.isProductionProfile" :error="formData.portMap.errMsg">
-              <div class="el-row title">
-                <div class="el-col el-col-6">
-                  <span>访问端口</span>
-                  <i class="paas-icon-fa-question" v-if="formData.portMap.update" v-pop-on-mouse-over="['访问端口的范围在40000~59999之间']"></i>
-                  <i class="paas-icon-fa-question" v-else v-pop-on-mouse-over="['访问端口由后端自动生成', '服务创建成功后，可以进行修改']"></i>
-                </div>
-                <div class="el-col el-col-2" style="min-height:1px"></div>
-                <div class="el-col el-col-6">目标端口</div>
-                <div class="el-col el-col-2">协议</div>
+              <div class="period-seconds item" style="line-height: 28px">
+                <span>间隔时间：</span>
+                <el-input-number v-model="formData.healthCheck.periodSeconds" :min="1" :max="10" label="间隔时间"></el-input-number>
+                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位秒。指健康检查的频率。例如，间隔时间设置成10，那么集群会每隔10s检查一次。默认值为5，范围1-10'"></i>
               </div>
-              <el-row class="content">
-                <el-col :span="6">
-                  <el-input placeholder="如40002" size="mini" :disabled="!this.formData.portMap.update" v-model="formData.portMap.outerPort"></el-input>
-                </el-col>
-                <el-col :span="2">--></el-col>
-                <el-col :span="6">
-                  <el-input placeholder="如8100" size="mini" :disabled="formData.enableJacoco" v-model="formData.portMap.containerPort"></el-input>
-                </el-col>
-                <el-col :span="2">TCP</el-col>
-                <div class="el-col el-col-2">
-                  <i class="paas-icon-fa-question" v-pop-on-mouse-over="'端口映射的内网访问域名为：galaxy.autotest.beta'"></i>
-                </div>
-              </el-row>
+              <div class="failure-threshold item" style="line-height: 28px">
+                <span>不健康阈值：</span>
+                <el-input-number v-model="formData.healthCheck.failureThreshold" :min="1" :max="10" label="不健康阈值"></el-input-number>
+                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位次。该参数指健康检查连续失败多少次后，才判定实例是不健康的。例如不健康阈值设置成 3，只有满足连续 3 次都探测失败了，才认为容器是不健康的。默认值为5，范围1-10'"></i>
+              </div>
+              <div class="timeout-seconds item" style="line-height: 28px">
+                <span>响应超时：</span>
+                <el-input-number v-model="formData.healthCheck.timeoutSeconds" :min="10" :max="120" label="响应超时"></el-input-number>
+                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位秒。指健康探测的超时时间。在这里是HTTP 请求响应超时时间。默认值为10，范围10-120'"></i>
+              </div>
             </el-form-item>
-            <el-form-item label="服务停止期限" prop="terminationGracePeriodSeconds"class="terminationGracePeriodSeconds">
-              <el-input v-model="formData.terminationGracePeriodSeconds" class="max-width-500"
-                        placeholder="10-300之间的整数，单位：秒"></el-input>
-              <i class="paas-icon-fa-question" v-pop-on-mouse-over="'从触发容器删除请求到完成删除的宽限时间，这是一种容器钩子，在该钩子对应的hook handler 完成后不论执行的结果如何， Docker daemon会发送一个SIGTERN信号量给Docker daemon来删除该容器，默认30秒'"></i>
-            </el-form-item>
-            <el-form-item label="prestop脚本" prop="preStopExec"
-                          class="preStopExec">
-              <el-input v-model="formData.prestopCommand" class="max-width-500"
-                        placeholder="例如：echo hello world !"></el-input>
-            </el-form-item>
-            <el-form-item label="volume"
-                          prop="volume"
-                          class="volume"
-                          v-if="$storeHelper.getUserInfo('role') == '平台管理员'">
-              <el-input v-model="formData.volume" class="max-width-500"></el-input>
-            </el-form-item>
-            <el-form-item label="subPath"
-                          prop="subPath" class="subPath"
-                          v-if="$storeHelper.getUserInfo('role') == '平台管理员'">
-              <el-input v-model="formData.subPath" class="max-width-500"></el-input>
-            </el-form-item>
-            <el-form-item label="claimName"
-                          prop="claimName" class="claim"
-                          v-if="$storeHelper.getUserInfo('role') == '平台管理员'">
-              <el-input v-model="formData.claimName" class="max-width-500"></el-input>
-            </el-form-item>
-          </custom-slide-up-down>
-          <el-form-item label="用户须知" prop="agree" v-if="profileInfo && formRelated.isProductionProfile">
-            <el-checkbox v-model="formData.agree">
-              <span style="display: inline-block;">已知晓：</span>
-            </el-checkbox>
-            <div style="display: inline-block; font-size: 12px; line-height: 18px; vertical-align: top;">
-              <div>生产环境初次上线前需提交<a href="http://wiki.puhuitech.cn/pages/viewpage.action?pageId=28733856" target="_blank">生产准备就绪评审（PRR）</a>到paas.list@finupgroup.com；</div>
-              <div>非生产环境可自助上线。</div>
-            </div>
-          </el-form-item>
-          <el-form-item class="expand">
-            <div class="more" @click="startShowMoreConfig = !startShowMoreConfig;">
-              <span v-if="hasShowMoreConfig">收起更多配置</span><span v-else>更多配置</span>
-              <i :class="hasShowMoreConfig?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
-            </div>
-          </el-form-item>
-        </el-form>
-        <div class="section-footer">
-          <div class="item">
-            <el-button type="primary" size="mini"
-                       :loading="statusOfWaitingResponse('submit')"
-                       @click="handleClick($event, 'submit')">完&nbsp成</el-button>
-          </div>
-          <div class="item">
-            <el-button type="primary" size="mini"
-                       @click="handleClick($event, 'back')">关&nbsp闭</el-button>
           </div>
         </div>
+        <el-form-item label="应用监控" prop="appMonitor" class="app-monitor" v-if="formRelated.isJavaLanguage">
+          <el-radio-group v-model="formData.appMonitor" size="mini" v-if="profileUtils">
+            <el-radio v-for="item in profileUtils.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
+          </el-radio-group>
+          <span style="display: inline; margin-left: 10px; color: #E6A23C; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #E6A23C; border-radius: 4px; word-break: normal"
+                @mouseenter="handleClick($event, 'warning-app-monitor')" v-if="false"
+          >{{profileUtils['warningList']['warning-app-monitor']['text']}}</span>
+        </el-form-item>
+        <el-form-item label="CPU" prop="cpuId" class="cpu">
+          <el-radio-group v-model="formData.cpuId" size="mini">
+            <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
+              {{item.cpu}}核
+            </el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="内存" prop="memoryId" class="memory">
+          <el-radio-group v-model="formData.memoryId" size="mini">
+            <el-radio-button v-for="item in memorySizeList" :label="item.id" :key="item.id">
+              {{item.memory}}G
+            </el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
+          <el-input-number v-model="formData.instanceCount" :min="1" label="描述文字"></el-input-number>
+        </el-form-item>
+        <el-form-item label="过期时间(天)" prop="expiredDays" class="expired-days" v-if="!formRelated.isProductionProfile">
+          <el-input-number v-model="formData.remainExpiredDays" :min="1" :max="365"></el-input-number>
+          <i class="paas-icon-fa-question" v-pop-on-mouse-over="'服务的实例将在指定时间后被删除，最大值为一年'"></i>
+        </el-form-item>
+        <custom-slide-up-down :active="startShowMoreConfig" :duration="500" class="more-config"
+                              @open-end="hasShowMoreConfig = true; scrollBottom()"
+                              @close-end="hasShowMoreConfig = false; scrollBottom()">
+          <el-form-item label="环境变量设置" prop="environments" class="environments" :error="formItemMsgForEnvironments">
+            <div class="el-row title">
+              <div class="el-col el-col-7 key">Key</div>
+              <div class="el-col el-col-7 value">Value</div>
+              <div class="el-col el-col-8 remark">备注</div>
+              <div class="el-col el-col-2" style="text-align: center">
+                <i class="paas-icon-fa-question"
+                   v-pop-on-mouse-over="['容器运行前设置的环境变量', '如env中的Name：string（环境变量名称），Value：string（环境变量的值）']"></i>
+              </div>
+            </div>
+            <el-row class="content"
+                    v-for="(item, index) in formData.environments"
+                    :key="item.key"
+            >
+              <el-col :span="7" class="key">{{item.key}}</el-col>
+              <el-col :span="7" class="value">{{item.value}}</el-col>
+              <el-col :span="8" class="remark">{{item.remark}}</el-col>
+              <el-col :span="2" style="text-align: center" class="delete">
+                <el-button type="warning" round size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
+              </el-col>
+            </el-row>
+            <el-row class="add-key-value">
+              <el-col :span="7" class="key">
+                <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
+              </el-col>
+              <el-col :span="7" class="value">
+                <el-input v-model="environmentValue" placeholder="512位以内，不能为空" size="mini"></el-input>
+              </el-col>
+              <el-col :span="8" class="remark">
+                <el-input v-model="environmentRemark" size="mini"></el-input>
+              </el-col>
+              <el-col :span="2" style="text-align: center">
+                <el-button type="primary" size="mini-extral" round
+                           @click="handleEnvironment('add', environmentKey, environmentValue, environmentRemark)">添加</el-button>
+              </el-col>
+            </el-row>
+          </el-form-item>
+          <el-form-item label="Host配置" prop="hosts" class="hosts" :error="formItemMsgForHosts">
+            <div class="el-row title">
+              <div class="el-col el-col-11 key">IP</div>
+              <div class="el-col el-col-11 value">域名</div>
+              <div class="el-col el-col-2" style="text-align: center">
+                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'该Host为/etc/hosts，配置主机名和IP地址。如：192.168.1.10 finup100'"></i>
+              </div>
+            </div>
+            <el-row class="content"
+                    v-for="(item, index) in formData.hosts"
+                    :key="item.key"
+            >
+              <el-col :span="11" class="key">{{item.ip}}</el-col>
+              <el-col :span="11" class="value">{{item.domain}}</el-col>
+              <el-col :span="2" style="text-align: center">
+                <el-button  type="warning" round size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
+              </el-col>
+            </el-row>
+            <el-row class="add-key-value">
+              <el-col :span="11" class="key">
+                <el-input v-model="hostKey" placeholder="IP" size="mini"></el-input>
+              </el-col>
+              <el-col :span="11" class="value">
+                <el-input v-model="hostValue" placeholder="域名" size="mini"></el-input>
+              </el-col>
+              <el-col :span="2" style="text-align: center">
+                <el-button type="primary" size="mini-extral" round
+                           @click="handleHost('add', hostKey, hostValue)">添加</el-button>
+              </el-col>
+            </el-row>
+          </el-form-item>
+          <el-form-item label="jacoco" v-if="!formRelated.isProductionProfile">
+            <el-radio-group v-model="formData.enableJacoco">
+              <el-radio :label="true">需要</el-radio>
+              <el-radio :label="false">不需要</el-radio>
+              <div style="display: inline-block; margin-left: 6px;">
+                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'如果开启jacoco，则端口映射的目标端口固定为：8144，Pipeline启动的实例数量强制设为1'"></i>
+              </div>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="端口映射" class="port-map" v-if="!formRelated.isProductionProfile" :error="formData.portMap.errMsg">
+            <div class="el-row title">
+              <div class="el-col el-col-6">
+                <span>访问端口</span>
+                <i class="paas-icon-fa-question" v-if="formData.portMap.update" v-pop-on-mouse-over="['访问端口的范围在40000~59999之间']"></i>
+                <i class="paas-icon-fa-question" v-else v-pop-on-mouse-over="['访问端口由后端自动生成', '服务创建成功后，可以进行修改']"></i>
+              </div>
+              <div class="el-col el-col-2" style="min-height:1px"></div>
+              <div class="el-col el-col-6">目标端口</div>
+              <div class="el-col el-col-2">协议</div>
+            </div>
+            <el-row class="content">
+              <el-col :span="6">
+                <el-input placeholder="如40002" size="mini" :disabled="!this.formData.portMap.update" v-model="formData.portMap.outerPort"></el-input>
+              </el-col>
+              <el-col :span="2">--></el-col>
+              <el-col :span="6">
+                <el-input placeholder="如8100" size="mini" :disabled="formData.enableJacoco" v-model="formData.portMap.containerPort"></el-input>
+              </el-col>
+              <el-col :span="2">TCP</el-col>
+              <div class="el-col el-col-2">
+                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'端口映射的内网访问域名为：galaxy.autotest.beta'"></i>
+              </div>
+            </el-row>
+          </el-form-item>
+          <el-form-item label="服务停止期限" prop="terminationGracePeriodSeconds"class="terminationGracePeriodSeconds">
+            <el-input v-model="formData.terminationGracePeriodSeconds" class="max-width-500"
+                      placeholder="10-300之间的整数，单位：秒"></el-input>
+            <i class="paas-icon-fa-question" v-pop-on-mouse-over="'从触发容器删除请求到完成删除的宽限时间，这是一种容器钩子，在该钩子对应的hook handler 完成后不论执行的结果如何， Docker daemon会发送一个SIGTERN信号量给Docker daemon来删除该容器，默认30秒'"></i>
+          </el-form-item>
+          <el-form-item label="prestop脚本" prop="preStopExec"
+                        class="preStopExec">
+            <el-input v-model="formData.prestopCommand" class="max-width-500"
+                      placeholder="例如：echo hello world !"></el-input>
+          </el-form-item>
+          <el-form-item label="volume"
+                        prop="volume"
+                        class="volume"
+                        v-if="$storeHelper.getUserInfo('role') == '平台管理员'">
+            <el-input v-model="formData.volume" class="max-width-500"></el-input>
+          </el-form-item>
+          <el-form-item label="subPath"
+                        prop="subPath" class="subPath"
+                        v-if="$storeHelper.getUserInfo('role') == '平台管理员'">
+            <el-input v-model="formData.subPath" class="max-width-500"></el-input>
+          </el-form-item>
+          <el-form-item label="claimName"
+                        prop="claimName" class="claim"
+                        v-if="$storeHelper.getUserInfo('role') == '平台管理员'">
+            <el-input v-model="formData.claimName" class="max-width-500"></el-input>
+          </el-form-item>
+        </custom-slide-up-down>
+        <el-form-item label="用户须知" prop="agree" v-if="profileInfo && formRelated.isProductionProfile">
+          <el-checkbox v-model="formData.agree">
+            <span style="display: inline-block;">已知晓：</span>
+          </el-checkbox>
+          <div style="display: inline-block; font-size: 12px; line-height: 18px; vertical-align: top;">
+            <div>生产环境初次上线前需提交<a href="http://wiki.puhuitech.cn/pages/viewpage.action?pageId=28733856" target="_blank">生产准备就绪评审（PRR）</a>到paas.list@finupgroup.com；</div>
+            <div>非生产环境可自助上线。</div>
+          </div>
+        </el-form-item>
+        <el-form-item class="expand">
+          <div class="more" @click="startShowMoreConfig = !startShowMoreConfig;">
+            <span v-if="hasShowMoreConfig">收起更多配置</span><span v-else>更多配置</span>
+            <i :class="hasShowMoreConfig?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
+          </div>
+        </el-form-item>
+      </el-form>
+      <div class="section-footer">
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     :loading="statusOfWaitingResponse('submit')"
+                     @click="handleClick($event, 'submit')">完&nbsp成</el-button>
+        </div>
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     @click="handleClick($event, 'back')">关&nbsp闭</el-button>
+        </div>
       </div>
-    </el-scrollbar>
+    </div>
+  </el-scrollbar>
 </template>
 
 <style lang="scss">
