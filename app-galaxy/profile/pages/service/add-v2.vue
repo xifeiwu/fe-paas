@@ -685,6 +685,7 @@
           goBack = true;
         }
       } else {
+        // forAdd
         this.imageSelectState.customImage = false;
         //Production appMonitor environment is selected by default
         if (this.profileInfo && this.profileInfo.spaceType.toUpperCase() !== 'PRODUCTION') {
@@ -696,17 +697,12 @@
           this.formData.healthCheck.content = '';
         });
 
-        if (this.dataPassed.from.action === 'service_config_add') {
-          if (theData.serviceBasicInfo) {
-            this.dataPassed.serviceBasicInfo = theData.serviceBasicInfo;
-            this.dataPassed.serviceInfo = theData.serviceBasicInfo;
-            this.formData.appId = theData.serviceBasicInfo['appId'];
-          } else {
-            goBack = true;
-          }
+        if (theData.serviceBasicInfo) {
+          this.dataPassed.serviceInfo = theData.serviceBasicInfo;
+          this.formData.appId = theData.serviceBasicInfo['appId'];
         } else {
+          goBack = true;
         }
-
 //        this.formData.packageInfo.type = this.packageTypeList[0].type;
         // set default cpu, default memorySizeList will be set in watch
         if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
@@ -723,9 +719,6 @@
         return;
       }
       this.rules.imageLocation.required = false;
-//      if (this.appLanguage.toUpperCase() !== 'JAVA' && this.$storeHelper.groupVersion !== 'v1') {
-//        this.imageSelectState.customImage = true;
-//      }
     },
     mounted() {
       this.checkPortMap = this.$net.getDebounce4CheckPortMap();
@@ -744,9 +737,10 @@
         hostValue: '',
         errorMsgForVersion: '',
 
-        type: '',
+        type: '', // 页面类型：add/modify/copy
         forModify: false,
         forCopy: false,
+        forAdd: false,
         profileList: [],
         versionList: [],
         // （复制服务传递过来的）属性是否已经使用过
@@ -760,8 +754,6 @@
           from: null,
           // 运行环境信息
           profileInfo: null,
-          // 服务基本信息
-          serviceBasicInfo: null,
           // 服务详情
           serviceInfo: null,
         },

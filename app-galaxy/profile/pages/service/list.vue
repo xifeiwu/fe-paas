@@ -106,8 +106,8 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_deploy_gray') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_deploy_gray', scope.$index, scope.row)"
-                      :class="$storeHelper.actionDisabled('service_deploy_gray') || publishStatus? 'disabled' : 'danger'">
-                {{'灰度发布'}}
+                      :class="['flex', $storeHelper.actionDisabled('service_deploy_gray') || publishStatus? 'disabled' : 'danger']">
+                <span>{{'灰度发布'}}</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div
                    class="ant-divider"></div>
@@ -227,7 +227,7 @@
                          type="text"
                          @click="handleTRClick($event, 'show_info_with_k8s', scope.$index, scope.row)"
                          :class="['primary', 'flex']">
-                <span>K8S实时信息展示</span><i class="paas-icon-level-up"></i>
+                <span>K8S实时信息展示</span>
               </el-button>
             </div>
             <el-button
@@ -1324,15 +1324,7 @@ tolerations:
         }
       },
 
-      // TODO: not used
-      // 需要传递到其它页面的本地页面信息
-      getPageStateToTransfer(action) {
-        return {
-          path: this.$net.page['profile/service'],
-          action,
-        }
-      },
-
+      // 跳转到添加/修改/复制服务页面
       async goToPageServiceAdd(action, row) {
         const basicInfo = {
           profileInfo: this.profileInfo
@@ -1340,7 +1332,7 @@ tolerations:
         switch (action) {
           case 'service_config_add':
             this.$storeHelper.dataTransfer = {
-              from: this.getPageStateToTransfer(action),
+              from: this.$net.page['profile/service/list'],
               data: Object.assign(basicInfo, {
                 // TODO: 使用的是运行时信息，可能需要修改为数据库信息
                 serviceBasicInfo: row
@@ -1352,10 +1344,7 @@ tolerations:
             let model1 = await this.getServiceByAppIdAndSpaceId(row);
             if (model1) {
               this.$storeHelper.dataTransfer = {
-                from: {
-                  path: this.$net.page['profile/service'],
-                  action,
-                },
+                from: this.$net.page['profile/service/list'],
                 data: Object.assign(basicInfo, {
                   serviceInfo: model1
                 })
@@ -1383,12 +1372,7 @@ tolerations:
             let model2 = await this.getServiceByAppIdAndSpaceId(row);
             if (model2) {
               this.$storeHelper.dataTransfer = {
-                from: {
-                  path: this.$net.page['profile/service'],
-                  action,
-                  page: this.currentPage,
-                  profileInfo: this.profileInfo
-                },
+                from: this.$net.page['profile/service/list'],
                 data: Object.assign(basicInfo, {
                   serviceInfo: model2,
                   notServiceSpaceList: notServiceSpaceList,
