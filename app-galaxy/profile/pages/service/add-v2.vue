@@ -7,7 +7,7 @@
                  :element-loading-text="loadingText">
           <el-form-item label="目标环境" v-if="forCopy" class="message-show">
             <el-select v-model="formData.spaceId">
-              <el-option v-for="item in profileList" :key="item.id" :label="item.description" :value="item.id">
+              <el-option v-for="item in formRelated.profileList" :key="item.id" :label="item.description" :value="item.id">
               </el-option>
             </el-select>
           </el-form-item>
@@ -15,11 +15,11 @@
             {{profileInfo? profileInfo.description: ''}}
           </el-form-item>
           <el-form-item label="应用名称" class="app-name message-show">
-            {{formRelated.serviceInfo ? formRelated.serviceInfo['appName'] : ''}}
+            {{serviceInfo ? serviceInfo['appName'] : ''}}
           </el-form-item>
 
           <el-form-item label="语言/版本" class="app-name message-show">
-            {{formRelated.serviceInfo ? `${formRelated.serviceInfo.language.name} / ${formRelated.serviceInfo.language.version}` : ''}}
+            {{serviceInfo ? `${serviceInfo.language.name} / ${serviceInfo.language.version}` : ''}}
           </el-form-item>
           <el-form-item label="镜像方式" prop="customImage" class="custom-image">
             <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="formRelated.isPythonLanguage">
@@ -216,7 +216,7 @@
             <el-input-number v-model="formData.instanceCount" :min="1" label="描述文字"></el-input-number>
           </el-form-item>
           <el-form-item label="过期时间(天)" prop="expiredDays" class="expired-days" v-if="!formRelated.isProductionProfile">
-            <el-input-number v-model="formData.expiredDays" :min="1" :max="365"></el-input-number>
+            <el-input-number v-model="formData.remainExpiredDays" :min="1" :max="365"></el-input-number>
             <i class="paas-icon-fa-question" v-pop-on-mouse-over="'服务的实例将在指定时间后被删除，最大值为一年'"></i>
           </el-form-item>
           <custom-slide-up-down :active="startShowMoreConfig" :duration="500" class="more-config"
@@ -601,33 +601,59 @@
       // profileUtils will be used in template
       this.profileUtils = profileUtils;
       var dataTransfer = this.$storeHelper.dataTransfer;
-      if (!dataTransfer) {
-        dataTransfer = await this.getDataByQueryString();
-      }
-      if (!dataTransfer) {
-        this.$router.go(-1);
-        return;
-      } else {
-        this.$storeHelper.dataTransfer = null;
-      }
-      var goBack = false;
-      this.type = dataTransfer['type'];
-      this.forModify = (this.$route['path'] == this.$net.page['profile/service/modify']);
-      this.forCopy = (this.$route['path'] == this.$net.page['profile/service/copy']);
-      this.dataPassed.from = dataTransfer.from;
-      const theData = dataTransfer.data;
-      // for compatible
-      this.profileInfo = theData.profileInfo;
-//      console.log(this.profileInfo);
-      this.dataPassed.profileInfo = theData.profileInfo;
-      this.formData.spaceId = theData.profileInfo.id;
-//      console.log(this.dataPassed);
-      // NOTICE: 修改/添加服务中的初始化参数都是从服务列表传递过来的
-      if (this.forModify || this.forCopy) {
-        const serviceInfo = theData.serviceInfo;
-        this.dataPassed.serviceInfo = serviceInfo;
-        if (serviceInfo) {
-          // console.log(serviceInfo);
+      console.log(dataTransfer);
+
+      const path = this.$route['path'];
+      var profileInfo = null;
+      var serviceInfo = null;
+
+      try {
+        if (this.$router.helper.pages['/profile/service/modify'].pathReg.test(path)) {
+          // try to get appId and profileId from location.search
+          if (!dataTransfer && location.search) {
+            dataTransfer = {
+              data: this.$utils.parseQueryString(location.search)
+            };
+          }
+          if (!this.$utils.hasProps(dataTransfer.data, 'appId', 'profileId')) {
+            throw new Error('信息不完整');
+          }
+          profileInfo = this.$storeHelper.getProfileInfoByID(dataTransfer.data.profileId);
+          serviceInfo = await this.getServiceByAppIdAndSpaceId(dataTransfer.data.appId, dataTransfer.data.profileId);
+          this.forModify = true;
+        }
+        if (this.$router.helper.pages['/profile/service/add'].pathReg.test(path)) {
+          if (!this.$utils.hasProps(dataTransfer.data, 'serviceBasicInfo', 'profileId')) {
+            throw new Error('信息不完整');
+          }
+          profileInfo = this.$storeHelper.getProfileInfoByID(dataTransfer.data.profileId);
+          serviceInfo = dataTransfer.data.serviceBasicInfo;
+          this.forAdd = true;
+        }
+        if (this.$router.helper.pages['/profile/service/copy'].pathReg.test(path)) {
+          if (!this.$utils.hasProps(dataTransfer.data, 'appId', 'profileId', 'notServiceSpaceList')) {
+            throw new Error('信息不完整');
+          }
+          profileInfo = this.$storeHelper.getProfileInfoByID(dataTransfer.data.profileId);
+          serviceInfo = await this.getServiceByAppIdAndSpaceId(dataTransfer.data.appId, dataTransfer.data.profileId);
+          this.forCopy = true;
+        }
+
+
+        this.from = dataTransfer.from;
+        this.formData.spaceId = profileInfo.id;
+        if (this.forCopy) {
+          this.formData.spaceId = dataTransfer.data.notServiceSpaceList[0];
+          let appInfo = this.$storeHelper.getAppInfoByID(serviceInfo.appId);
+          this.formRelated.profileList = appInfo['app']['profileList'].filter(it => {
+            return dataTransfer.data.notServiceSpaceList.indexOf(it.id) > -1;
+          });
+        }
+        // NOTICE: 修改/添加服务中的初始化参数都是从服务列表传递过来的
+        if (this.forModify || this.forCopy) {
+          if (!serviceInfo) {
+            throw new Error('serviceInfo is null');
+          }
           // NOTICE: the sequence of initialize should not change
           this.formRelated.languageInfo = serviceInfo.language;
           this.formData.appId = serviceInfo.appId;
@@ -662,61 +688,44 @@
           this.formData.subPath = serviceInfo.subPath;
           this.formData.claimName = serviceInfo.claimName;
           this.formData.enableJacoco = serviceInfo.enableJacoco;
+          this.formData.remainExpiredDays = serviceInfo.remainExpiredDays;
           // NOTICE: healthCheck should set after mounted
           this.$nextTick(() => {
             this.formData.healthCheck = serviceInfo.healthCheck;
           });
-          this.formData.expiredDays = serviceInfo.remainExpiredDays;
           if (serviceInfo.portMap.outerPort && serviceInfo.portMap.outerPort !== ""
             && serviceInfo.portMap.action && serviceInfo.portMap.action !== 'del') {
             this.formData.portMap.outerPort = serviceInfo.portMap.outerPort;
             this.formData.portMap.containerPort = serviceInfo.portMap.containerPort;
             this.formData.portMap.update = true;
           }
-          if (this.forCopy) {
-            this.formData.spaceId = theData.notServiceSpaceList[0];
-            let appInfo = this.$storeHelper.getAppInfoByID(serviceInfo.appId);
-            let profileList = appInfo['app']['profileList'];
-            this.profileList = profileList.filter(it => {
-              return theData.notServiceSpaceList.indexOf(it.id) > -1;
-            });
+        } else {
+          // forAdd
+          this.imageSelectState.customImage = false;
+          //Production appMonitor environment is selected by default
+          if (profileInfo && profileInfo.spaceType.toUpperCase() !== 'PRODUCTION') {
+            this.formData.appMonitor = profileUtils.appMonitorList[1].id;
           }
-        } else {
-          goBack = true;
-        }
-      } else {
-        // forAdd
-        this.imageSelectState.customImage = false;
-        //Production appMonitor environment is selected by default
-        if (this.profileInfo && this.profileInfo.spaceType.toUpperCase() !== 'PRODUCTION') {
-          this.formData.appMonitor = profileUtils.appMonitorList[1].id;
-        }
-        // use this.$nextTick for correct performance of this.formData.healthCheck.contentCheckErrMsg used in el-form-item :error
-        this.$nextTick(() => {
-          this.formData.healthCheck.type = this.$storeHelper.defaultHealthCheckTypeDesc;
-          this.formData.healthCheck.content = '';
-        });
+          // use this.$nextTick for correct performance of this.formData.healthCheck.contentCheckErrMsg used in el-form-item :error
+          this.$nextTick(() => {
+            this.formData.healthCheck.type = this.$storeHelper.defaultHealthCheckTypeDesc;
+            this.formData.healthCheck.content = '';
+          });
 
-        if (theData.serviceBasicInfo) {
-          this.dataPassed.serviceInfo = theData.serviceBasicInfo;
-          this.formData.appId = theData.serviceBasicInfo['appId'];
-        } else {
-          goBack = true;
-        }
+          this.formData.appId = serviceInfo['appId'];
 //        this.formData.packageInfo.type = this.packageTypeList[0].type;
-        // set default cpu, default memorySizeList will be set in watch
-        if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
-          const firstItem = this.cpuAndMemoryList[0];
-          this.formData.cpuId = 'cpu' in firstItem ? firstItem.id : '';
+          // set default cpu, default memorySizeList will be set in watch
+          if (Array.isArray(this.cpuAndMemoryList) && this.cpuAndMemoryList.length > 0) {
+            const firstItem = this.cpuAndMemoryList[0];
+            this.formData.cpuId = 'cpu' in firstItem ? firstItem.id : '';
+          }
         }
-//        //set default expiredDays
-//        this.$net.requestPaasServer(this.$net.URL_LIST.query_default_expired_days).then(resContent => {
-//          this.formData.expiredDays = resContent["defaultExpiredDays"];
-//        });
-      }
-      if (goBack) {
+        this.profileInfo = profileInfo;
+        this.serviceInfo = serviceInfo;
+      } catch (err) {
+        console.log(err);
+        this.$message.error(err.message);
         this.$router.go(-1);
-        return;
       }
       this.rules.imageLocation.required = false;
     },
@@ -741,7 +750,6 @@
         forModify: false,
         forCopy: false,
         forAdd: false,
-        profileList: [],
         versionList: [],
         // （复制服务传递过来的）属性是否已经使用过
         propsUsed: {
@@ -749,16 +757,15 @@
           customImageValue: false,
           autoImageValue: false
         },
+        from: null,
+        // 运行环境信息
         profileInfo: null,
-        dataPassed: {
-          from: null,
-          // 运行环境信息
-          profileInfo: null,
-          // 服务详情
-          serviceInfo: null,
-        },
+        // 服务详情
+        serviceInfo: null,
         formRelated: {
           serviceInfo: null,
+          // 复制服务时，可以选择的运行环境列表
+          profileList: [],
           packageTypeList: [],
           /** 语言相关 */
           languageInfo: null,
@@ -772,7 +779,6 @@
 //          showRemainingDays: false,
         },
 
-//        profileListOfCurrentApp: [],
         formData: {
           appId: null,
           spaceId: null,
@@ -945,10 +951,12 @@
       },
     },
     watch: {
+      // TODO: not used
       // 依赖appId的属性：serviceInfo, isJavaLanguage, isPythonLanguage, packageTypeList, this.formData.packageInfo.type
       'formData.appId': function (appId) {
+        return;
         // 不论来自哪个页面，serviceInfo都会被带过来
-        var serviceInfo = this.dataPassed.serviceInfo;
+        var serviceInfo = this.serviceInfo;
 
 //        console.log(serviceInfo);
         if (serviceInfo) {
@@ -967,7 +975,7 @@
           console.log('serviceInfo not found!');
           return;
         }
-        this.formRelated.serviceInfo = serviceInfo;
+        this.serviceInfo = serviceInfo;
 
         if (this.forModify || this.forCopy) {
           const packageInfo = serviceInfo['packageInfo'];
@@ -984,8 +992,6 @@
           this.formRelated.languageInfo = serviceInfo.language;
           this.formData.packageInfo.type = this.formRelated.packageTypeList[0].type;
         }
-//        console.log(this.formRelated.serviceInfo);
-//        console.log(this.formRelated.packageTypeList);
       },
       'imageSelectState.customImage': function(customImage) {
         if (customImage === true) {
@@ -1035,8 +1041,8 @@
             // check if memoryId existed in memorySizeList
             if (this.memorySizeList.map(it => {
               return it.id
-            }).indexOf(this.dataPassed.serviceInfo.memoryInfo.id) > -1) {
-              this.formData.memoryId = this.dataPassed.serviceInfo.memoryInfo.id;
+            }).indexOf(this.serviceInfo.memoryInfo.id) > -1) {
+              this.formData.memoryId = this.serviceInfo.memoryInfo.id;
             } else {
               this.formData.memoryId = this.memorySizeList[0]['id'];
             }
@@ -1055,7 +1061,7 @@
       },
 
       'formData.portMap.outerPort': function (value) {
-        if (this.formData.portMap.syntaxErrMsg || this.formData.portMap.outerPort === this.dataPassed.serviceInfo.portMap.outerPort) {
+        if (this.formData.portMap.syntaxErrMsg || this.formData.portMap.outerPort === this.serviceInfo.portMap.outerPort) {
           return;
         }
         this.checkPortMap({
@@ -1075,25 +1081,6 @@
         // 切换目标环境是清除所有的表单字段校验
         this.$refs['formData'].clearValidate();
       }
-//      'imageInfoFromNet': {
-//        immediate: true,
-//        handler (info) {
-//          this.updateImageSelection();
-//        }
-//      },
-//      'imageSelectState.customImage': {
-//        immediate: true,
-//        handler (value) {
-//          this.updateImageSelection();
-//        }
-//      },
-//      'imageSelectState.customImageType': {
-//        immediate: true,
-//        handler (value) {
-//          this.updateImageSelection();
-//        }
-//      },
-//      'imzageSelectState.currentPrivateApp': 'requestPrivateImageLocation'
     },
     methods: {
       updateMainClassRequiredByPackageType(type) {
@@ -1109,40 +1096,20 @@
         }
         // console.log(this.rules.mainClass);
       },
-      async getDataByQueryString() {
-        var results = null;
-        if (!location.search) {
-          return results;
-        }
-        const qsObj = this.$utils.parseQueryString(location.search);
-        if (!qsObj || !qsObj.hasOwnProperty('appId') || !qsObj.hasOwnProperty('profileId')) {
-          return results;
-        }
-        if (!qsObj['appId'] || !qsObj['profileId']) {
-          return results;
-        }
-        const profileInfo = this.$storeHelper.getProfileInfoByID(qsObj['profileId']);
+
+      // 得到服务所属
+      async getServiceByAppIdAndSpaceId(appId, profileId) {
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
           payload: {
-            appId: qsObj['appId'],
-            spaceId: qsObj['profileId']
+            appId: appId,
+            spaceId: profileId
           }
         });
         if (!resContent.hasOwnProperty('applicationServerList') && !Array.isArray(resContent['applicationServerList'])) {
-          this.$message.error('数据格式不正确');
-          return;
+          throw new Error('数据格式不正确');
         }
         const serviceInfo = this.$net.getServiceModel(resContent['applicationServerList'][0]);
-        if (profileInfo && serviceInfo) {
-          results = {
-            from: '_blank',
-            data: {
-              profileInfo,
-              serviceInfo
-            }
-          }
-        }
-        return results;
+        return serviceInfo;
       },
       scrollTop() {
         setTimeout(() => {
@@ -1239,7 +1206,7 @@
           // override default value by serviceInfo passed
           if (this.forModify || this.forCopy) {
             // set default value by passedData if necessary
-            const serviceInfo = this.dataPassed.serviceInfo;
+            const serviceInfo = this.serviceInfo;
             if (serviceInfo && serviceInfo.image.hasOwnProperty('customImage') && serviceInfo.image.customImage != 'has-used') {
               if (serviceInfo.image.customImage === true) {
                 // 自定义镜像
@@ -1466,8 +1433,8 @@
                 const payload = {
                   appId: formData.appId,
                   spaceId: formData.spaceId,
-                  orchId: this.dataPassed.serviceInfo.orchId,
-                  orchIP: this.dataPassed.serviceInfo.orchIP,
+                  orchId: this.serviceInfo.orchId,
+                  orchIP: this.serviceInfo.orchIP,
                   gitLabAddress: formData.gitLabAddress,
                   gitLabBranch: formData.gitLabBranch,
                   mainClass: formData.mainClass,
@@ -1504,17 +1471,17 @@
                 }];
                 if (this.formRelated.isProductionProfile) {
                 } else {
-                  payload.expiredDays = this.formData.expiredDays;
+                  payload.expiredDays = this.formData.remainExpiredDays;
                 }
 
                 if (this.forModify) {
-                  payload["id"] = this.dataPassed.serviceInfo.id;
-                  payload.portsMapping[0]["id"] = this.dataPassed.serviceInfo.portMap.id;
-                  payload["serviceName"] = this.dataPassed.serviceInfo.serviceName;
+                  payload["id"] = this.serviceInfo.id;
+                  payload.portsMapping[0]["id"] = this.serviceInfo.portMap.id;
+                  payload["serviceName"] = this.serviceInfo.serviceName;
                 }
                 if (this.$storeHelper.groupVersion !== 'v1') {
                   if (this.forModify) {
-                    payload["serviceVersion"] = this.dataPassed.serviceInfo.serviceVersion;
+                    payload["serviceVersion"] = this.serviceInfo.serviceVersion;
                   } else {
                     payload["serviceVersion"] = 'default';
                   }

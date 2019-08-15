@@ -1326,33 +1326,27 @@ tolerations:
 
       // 跳转到添加/修改/复制服务页面
       async goToPageServiceAdd(action, row) {
-        const basicInfo = {
-          profileInfo: this.profileInfo
-        };
         switch (action) {
           case 'service_config_add':
             this.$storeHelper.dataTransfer = {
               from: this.$net.page['profile/service/list'],
-              data: Object.assign(basicInfo, {
+              data: {
+                profileId: this.profileInfo.id,
                 // TODO: 使用的是运行时信息，可能需要修改为数据库信息
                 serviceBasicInfo: row
-              })
+              }
             };
             this.$router.push(this.$net.page['profile/service/add']);
             break;
           case 'service_update':
-            let model1 = await this.getServiceByAppIdAndSpaceId(row);
-            if (model1) {
-              this.$storeHelper.dataTransfer = {
-                from: this.$net.page['profile/service/list'],
-                data: Object.assign(basicInfo, {
-                  serviceInfo: model1
-                })
-              };
-              this.$router.push(this.$net.page['profile/service/modify']);
-            } else {
-              return;
-            }
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page['profile/service/list'],
+              data: {
+                profileId: this.profileInfo.id,
+                appId: row.appId
+              }
+            };
+            this.$router.push(this.$net.page['profile/service/modify']);
             break;
           case 'service_config_copy':
             let resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_not_exists_in_space, {
@@ -1369,19 +1363,15 @@ tolerations:
               });
               return;
             }
-            let model2 = await this.getServiceByAppIdAndSpaceId(row);
-            if (model2) {
               this.$storeHelper.dataTransfer = {
                 from: this.$net.page['profile/service/list'],
-                data: Object.assign(basicInfo, {
-                  serviceInfo: model2,
+                data: {
+                  profileId: this.profileInfo.id,
+                  appId: row.appId,
                   notServiceSpaceList: notServiceSpaceList,
-                })
+                }
               };
               this.$router.push(this.$net.page['profile/service/copy']);
-            } else {
-              return;
-            }
             break;
         }
       },
@@ -2522,7 +2512,7 @@ tolerations:
         });
         if (!resContent.hasOwnProperty('applicationServerList') && !Array.isArray(resContent['applicationServerList'])) {
           this.$message.error('数据格式不正确');
-          return;
+          throw new Error('数据格式不正确');
         }
         const parsedContent = this.$net.getServiceModel(resContent['applicationServerList'][0]);
         return parsedContent;
