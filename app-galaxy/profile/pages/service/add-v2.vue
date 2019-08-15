@@ -17,12 +17,6 @@
           <el-form-item label="应用名称" class="app-name message-show">
             {{formRelated.serviceInfo ? formRelated.serviceInfo['appName'] : ''}}
           </el-form-item>
-          <el-form-item label="应用名称" class="app-name" v-if="false">
-            <el-select v-model="formData.appId" placeholder="请选择" filterable>
-              <el-option v-for="item in dataPassed.appWithoutService" :key="item.appId" :label="item.appName" :value="item.appId">
-              </el-option>
-            </el-select>
-          </el-form-item>
 
           <el-form-item label="语言/版本" class="app-name message-show">
             {{formRelated.serviceInfo ? `${formRelated.serviceInfo.language.name} / ${formRelated.serviceInfo.language.version}` : ''}}
@@ -616,7 +610,6 @@
       } else {
         this.$storeHelper.dataTransfer = null;
       }
-     // console.log(dataTransfer);
       var goBack = false;
       this.type = dataTransfer['type'];
       this.forModify = (this.$route['path'] == this.$net.page['profile/service/modify']);
@@ -712,12 +705,6 @@
             goBack = true;
           }
         } else {
-          this.dataPassed.appWithoutService = theData.appWithoutService;
-          if (this.dataPassed.appWithoutService.length > 0) {
-            this.formData.appId = this.dataPassed.appWithoutService[0]['appId'];
-          } else {
-            goBack = true;
-          }
         }
 
 //        this.formData.packageInfo.type = this.packageTypeList[0].type;
@@ -771,8 +758,6 @@
         profileInfo: null,
         dataPassed: {
           from: null,
-          // 没有服务的应用列表
-          appWithoutService: null,
           // 运行环境信息
           profileInfo: null,
           // 服务基本信息
@@ -1173,7 +1158,6 @@
         }, 500);
       },
       scrollBottom() {
-        console.log('scrollBottom');
         this.$nextTick(() => {
           let containerHeight = this.$scrollWrapper.offsetHeight;
           let sheet = this.$el.querySelector('.sheet');

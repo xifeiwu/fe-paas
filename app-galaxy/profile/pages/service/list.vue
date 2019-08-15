@@ -6,14 +6,6 @@
                      :key="item.id"></el-tab-pane>
       </el-tabs>
       <div class="operation">
-        <el-button
-                v-if="false"
-                size="mini"
-                type="primary"
-                @click="handleButtonClick($event, 'service_create')"
-                :class="['flex', $storeHelper.permission['service_create'].disabled || this.appIdWithoutService.length === 0 ? 'disabled' : '']">
-          <span>创建服务</span><i class="paas-icon-level-up"></i>
-        </el-button>
         <el-button size="mini"
                    type="primary"
                    @click="handleButtonClick($event, 'refresh-list')">
@@ -1019,9 +1011,6 @@ tolerations:
       },
       '$storeHelper.screen.size': 'onScreenSizeChange',
       '$storeHelper.profileListOfGroup': 'onProfileList',
-      '$storeHelper.appInfoListOfGroup': function() {
-        this.getAppWithoutService();
-      },
     },
     data() {
       return {
@@ -1039,10 +1028,8 @@ tolerations:
         isProductionProfile: false,
         serviceList: [],
         serviceListByPage: [],
-        // 没有服务的appId列表
+        // 没有服务的appId列表 TODO: node used
         appIdWithoutService: [],
-        // 没有服务的app详情列表
-        appWithoutService: [],
 
         totalSize: 0,
         pageSize: 10,
@@ -1320,13 +1307,6 @@ tolerations:
       },
 
       handleButtonClick(evt, action) {
-        if (action === 'service_create' && this.appIdWithoutService.length === 0) {
-          this.$storeHelper.globalPopover.show({
-            ref: evt.target,
-            msg: '当前环境下，没有可以创建的服务'
-          });
-          return;
-        }
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
@@ -1335,9 +1315,6 @@ tolerations:
           return;
         }
         switch (action) {
-          case 'service_create':
-            this.goToPageServiceAdd('service_create');
-            break;
           case 'refresh-list':
             this.getServiceListByPage({
               refresh: true,
@@ -1356,34 +1333,11 @@ tolerations:
         }
       },
 
-      // 获取制定运行环境下没有服务的应用列表（只有没有服务的应用才可以创建服务）
-      getAppWithoutService() {
-        var appWithoutService = [];
-        if (!this.$storeHelper.appInfoListOfGroup) {
-          console.log('未获得应用列表信息');
-        } else {
-          appWithoutService = this.$storeHelper.appInfoListOfGroup['appModelList'].filter(it => {
-            return this.appIdWithoutService.indexOf(it['appId']) > -1;
-          });
-        }
-        return appWithoutService;
-      },
-
       async goToPageServiceAdd(action, row) {
         const basicInfo = {
           profileInfo: this.profileInfo
         };
         switch (action) {
-          case 'service_create':
-            this.appWithoutService = this.getAppWithoutService();
-            this.$storeHelper.dataTransfer = {
-              from: this.getPageStateToTransfer(action),
-              data: Object.assign(basicInfo, {
-                appWithoutService: this.appWithoutService,
-              })
-            };
-            this.$router.push(this.$net.page['profile/service/add']);
-            break;
           case 'service_config_add':
             this.$storeHelper.dataTransfer = {
               from: this.getPageStateToTransfer(action),
@@ -2060,7 +2014,6 @@ tolerations:
             }
 
             this.$storeHelper.dataTransfer = {
-//              from: this.getPageStateToTransfer(action),
               from: this.$net.page['profile/service'],
               data
             };
@@ -2530,7 +2483,6 @@ tolerations:
         this.appIdWithoutService = [];
         if (resContent.hasOwnProperty('tobeInsertList')) {
           this.appIdWithoutService = resContent['tobeInsertList'];
-          this.appWithoutService = this.getAppWithoutService();
         }
 //        console.log(resContent);
 //        console.log(parsedResContent);
