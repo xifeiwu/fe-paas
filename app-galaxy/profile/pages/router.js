@@ -153,7 +153,7 @@ class Helper extends RouterHelper {
       name: '创建灰度版本',
       component: serviceGrayAdd
     }, {
-      path: '/profile/service/:id(\\d+)/gray/update',
+      path: '/profile/service/:id(\\d+)/gray/modify',
       name: '修改灰度版本',
       component: serviceGrayAdd
     }, {

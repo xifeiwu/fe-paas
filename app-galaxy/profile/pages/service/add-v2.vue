@@ -750,6 +750,7 @@
         forModify: false,
         forCopy: false,
         forAdd: false,
+        forGray: false,
         versionList: [],
         // （复制服务传递过来的）属性是否已经使用过
         propsUsed: {

@@ -125,7 +125,7 @@
             </div>
           </el-form-item>
           <el-form-item label="滚动升级" prop="rollingUpdate">
-            <el-radio-group v-model="formData.rollingUpdate">
+            <el-radio-group v-model="formData.rollingUpdate" :disabled="forGray">
               <el-radio :label="true">需要</el-radio>
               <el-radio :label="false">不需要</el-radio>
               <i class="paas-icon-fa-question"
@@ -133,7 +133,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="负载均衡" prop="loadBalance">
-            <el-radio-group v-model="formData.loadBalance">
+            <el-radio-group v-model="formData.loadBalance" :disabled="forGray">
               <el-radio v-for="item in loadBalanceType" :label="item" :key="item"></el-radio>
             </el-radio-group>
           </el-form-item>
@@ -142,20 +142,20 @@
             <div class="content" style="margin-left: 180px;">
               <el-form-item :error="isSubmitClicked ? formData.healthCheck.contentCheckErrMsg : ''">
                 <div class="health-check-type">
-                  <el-radio-group v-model="formData.healthCheck.type">
+                  <el-radio-group v-model="formData.healthCheck.type" :disabled="forGray">
                     <el-radio v-for="(item, index) in $storeHelper.healthCheckTypeList" :label="item.desc" :key="item.desc">{{item.label}}</el-radio>
                   </el-radio-group>
                   <div class="input-area">
                     <div v-if="formData.healthCheck.type == 'http'">
                       <el-input v-model="formData.healthCheck.content" class="max-width-500"
-                                placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符"></el-input>
+                                placeholder="以/开头，可以包含字母、数字、下划线、中划线。2-100个字符" :disabled="forGray"></el-input>
                     </div>
                     <div v-if="formData.healthCheck.type == 'shell'">
-                      <el-input v-model="formData.healthCheck.content" placeholder="请填写shell指令"></el-input>
+                      <el-input v-model="formData.healthCheck.content" placeholder="请填写shell指令" :disabled="forGray"></el-input>
                     </div>
                     <div v-if="formData.healthCheck.type == 'socket'">
                       <span>端口号：</span>
-                      <el-input-number v-model="formData.healthCheck.content" :min="0" :max="10000" label="延迟时间"></el-input-number>
+                      <el-input-number v-model="formData.healthCheck.content" :min="0" :max="10000" label="延迟时间" :disabled="forGray"></el-input-number>
                     </div>
                   </div>
                 </div>
@@ -163,29 +163,29 @@
               <el-form-item class="health-check-more">
                 <div class="initial-delay item" style="line-height: 28px">
                   <span>延迟时间：</span>
-                  <el-input-number v-model="formData.healthCheck.initialDelay" :min="30" :max="300" label="延迟时间"></el-input-number>
+                  <el-input-number v-model="formData.healthCheck.initialDelay" :min="30" :max="300" label="延迟时间" :disabled="forGray"></el-input-number>
                   <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位秒。指实例启动后，多久开始探测。例如，启动延时设置为5，那么健康检查将在实例启动5秒后开始。默认值为120，范围30-300'"></i>
                 </div>
                 <div class="period-seconds item" style="line-height: 28px">
                   <span>间隔时间：</span>
-                  <el-input-number v-model="formData.healthCheck.periodSeconds" :min="1" :max="10" label="间隔时间"></el-input-number>
+                  <el-input-number v-model="formData.healthCheck.periodSeconds" :min="1" :max="10" label="间隔时间" :disabled="forGray"></el-input-number>
                   <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位秒。指健康检查的频率。例如，间隔时间设置成10，那么集群会每隔10s检查一次。默认值为5，范围1-10'"></i>
                 </div>
                 <div class="failure-threshold item" style="line-height: 28px">
                   <span>不健康阈值：</span>
-                  <el-input-number v-model="formData.healthCheck.failureThreshold" :min="1" :max="10" label="不健康阈值"></el-input-number>
+                  <el-input-number v-model="formData.healthCheck.failureThreshold" :min="1" :max="10" label="不健康阈值" :disabled="forGray"></el-input-number>
                   <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位次。该参数指健康检查连续失败多少次后，才判定实例是不健康的。例如不健康阈值设置成 3，只有满足连续 3 次都探测失败了，才认为容器是不健康的。默认值为5，范围1-10'"></i>
                 </div>
                 <div class="timeout-seconds item" style="line-height: 28px">
                   <span>响应超时：</span>
-                  <el-input-number v-model="formData.healthCheck.timeoutSeconds" :min="10" :max="120" label="响应超时"></el-input-number>
+                  <el-input-number v-model="formData.healthCheck.timeoutSeconds" :min="10" :max="120" label="响应超时" :disabled="forGray"></el-input-number>
                   <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位秒。指健康探测的超时时间。在这里是HTTP 请求响应超时时间。默认值为10，范围10-120'"></i>
                 </div>
               </el-form-item>
             </div>
           </div>
           <el-form-item label="应用监控" prop="appMonitor" class="app-monitor" v-if="formRelated.isJavaLanguage">
-            <el-radio-group v-model="formData.appMonitor" size="mini" v-if="profileUtils">
+            <el-radio-group v-model="formData.appMonitor" size="mini" v-if="profileUtils" :disabled="forGray">
               <el-radio v-for="item in profileUtils.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
             </el-radio-group>
             <span style="display: inline; margin-left: 10px; color: #E6A23C; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #E6A23C; border-radius: 4px; word-break: normal"
@@ -193,24 +193,24 @@
             >{{profileUtils['warningList']['warning-app-monitor']['text']}}</span>
           </el-form-item>
           <el-form-item label="CPU" prop="cpuId" class="cpu">
-            <el-radio-group v-model="formData.cpuId" size="mini">
+            <el-radio-group v-model="formData.cpuId" size="mini" :disabled="forGray">
               <el-radio-button v-for="item in cpuAndMemoryList" :label="item.id" :key="item.id">
                 {{item.cpu}}核
               </el-radio-button>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="内存" prop="memoryId" class="memory">
-            <el-radio-group v-model="formData.memoryId" size="mini">
+            <el-radio-group v-model="formData.memoryId" size="mini" :disabled="forGray">
               <el-radio-button v-for="item in memorySizeList" :label="item.id" :key="item.id">
                 {{item.memory}}G
               </el-radio-button>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
-            <el-input-number v-model="formData.instanceCount" :min="1" label="描述文字"></el-input-number>
+            <el-input-number v-model="formData.instanceCount" :min="1" label="描述文字" :disabled="forGray"></el-input-number>
           </el-form-item>
           <el-form-item label="过期时间(天)" prop="expiredDays" class="expired-days" v-if="!formRelated.isProductionProfile">
-            <el-input-number v-model="formData.remainExpiredDays" :min="1" :max="365"></el-input-number>
+            <el-input-number v-model="formData.remainExpiredDays" :min="1" :max="365" :disabled="forGray"></el-input-number>
             <i class="paas-icon-fa-question" v-pop-on-mouse-over="'服务的实例将在指定时间后被删除，最大值为一年'"></i>
           </el-form-item>
           <custom-slide-up-down :active="startShowMoreConfig" :duration="500" class="more-config"
@@ -237,7 +237,7 @@
                   <el-button type="warning" round size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
                 </el-col>
               </el-row>
-              <el-row class="add-key-value">
+              <el-row class="add-key-value" v-if="!forGray">
                 <el-col :span="7" class="key">
                   <el-input v-model="environmentKey" placeholder="64位以内的数字、字母、下划线，以字母或下划线开头" size="mini"></el-input>
                 </el-col>
@@ -271,7 +271,7 @@
                   <el-button  type="warning" round size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
                 </el-col>
               </el-row>
-              <el-row class="add-key-value">
+              <el-row class="add-key-value" v-if="!forGray">
                 <el-col :span="11" class="key">
                   <el-input v-model="hostKey" placeholder="IP" size="mini"></el-input>
                 </el-col>
@@ -285,7 +285,7 @@
               </el-row>
             </el-form-item>
             <el-form-item label="jacoco" v-if="!formRelated.isProductionProfile">
-              <el-radio-group v-model="formData.enableJacoco">
+              <el-radio-group v-model="formData.enableJacoco" :disabled="forGray">
                 <el-radio :label="true">需要</el-radio>
                 <el-radio :label="false">不需要</el-radio>
                 <div style="display: inline-block; margin-left: 6px;">
@@ -306,11 +306,11 @@
               </div>
               <el-row class="content">
                 <el-col :span="6">
-                  <el-input placeholder="如40002" size="mini" :disabled="!this.formData.portMap.update" v-model="formData.portMap.outerPort"></el-input>
+                  <el-input placeholder="如40002" size="mini" :disabled="!this.formData.portMap.update || forGray" v-model="formData.portMap.outerPort"></el-input>
                 </el-col>
                 <el-col :span="2">--></el-col>
                 <el-col :span="6">
-                  <el-input placeholder="如8100" size="mini" :disabled="formData.enableJacoco" v-model="formData.portMap.containerPort"></el-input>
+                  <el-input placeholder="如8100" size="mini" :disabled="formData.enableJacoco || forGray" v-model="formData.portMap.containerPort"></el-input>
                 </el-col>
                 <el-col :span="2">TCP</el-col>
                 <div class="el-col el-col-2">
@@ -320,32 +320,32 @@
             </el-form-item>
             <el-form-item label="服务停止期限" prop="terminationGracePeriodSeconds"class="terminationGracePeriodSeconds">
               <el-input v-model="formData.terminationGracePeriodSeconds" class="max-width-500"
-                        placeholder="10-300之间的整数，单位：秒"></el-input>
+                        placeholder="10-300之间的整数，单位：秒" :disabled="forGray"></el-input>
               <i class="paas-icon-fa-question" v-pop-on-mouse-over="'从触发容器删除请求到完成删除的宽限时间，这是一种容器钩子，在该钩子对应的hook handler 完成后不论执行的结果如何， Docker daemon会发送一个SIGTERN信号量给Docker daemon来删除该容器，默认30秒'"></i>
             </el-form-item>
             <el-form-item label="prestop脚本" prop="preStopExec"
                           class="preStopExec">
               <el-input v-model="formData.prestopCommand" class="max-width-500"
-                        placeholder="例如：echo hello world !"></el-input>
+                        placeholder="例如：echo hello world !" :disabled="forGray"></el-input>
             </el-form-item>
             <el-form-item label="volume"
                           prop="volume"
                           class="volume"
                           v-if="$storeHelper.getUserInfo('role') == '平台管理员'">
-              <el-input v-model="formData.volume" class="max-width-500"></el-input>
+              <el-input v-model="formData.volume" class="max-width-500" :disabled="forGray"></el-input>
             </el-form-item>
             <el-form-item label="subPath"
                           prop="subPath" class="subPath"
                           v-if="$storeHelper.getUserInfo('role') == '平台管理员'">
-              <el-input v-model="formData.subPath" class="max-width-500"></el-input>
+              <el-input v-model="formData.subPath" class="max-width-500" :disabled="forGray"></el-input>
             </el-form-item>
             <el-form-item label="claimName"
                           prop="claimName" class="claim"
                           v-if="$storeHelper.getUserInfo('role') == '平台管理员'">
-              <el-input v-model="formData.claimName" class="max-width-500"></el-input>
+              <el-input v-model="formData.claimName" class="max-width-500" :disabled="forGray"></el-input>
             </el-form-item>
           </custom-slide-up-down>
-          <el-form-item label="用户须知" prop="agree" v-if="profileInfo && formRelated.isProductionProfile">
+          <el-form-item label="用户须知" prop="agree" v-if="profileInfo && formRelated.isProductionProfile && !forGray">
             <el-checkbox v-model="formData.agree">
               <span style="display: inline-block;">已知晓：</span>
             </el-checkbox>
@@ -615,6 +615,11 @@
           profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
           this.forAdd = true;
         } else
+        if (this.$router.helper.pages['/profile/service/:id(\\d+)/gray/modify'].pathReg.test(path)) {
+          serviceInfo = await this.getServiceById(this.$route.params['id']);
+          profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
+          this.forModify = true;
+        } else
         if (this.$router.helper.pages['/profile/service/modify'].pathReg.test(path)) {
           // try to get appId and profileId from location.search
           if (!dataTransfer && location.search) {
@@ -755,6 +760,7 @@
         forModify: false,
         forCopy: false,
         forAdd: false,
+        forGray: true,
         versionList: [],
         // （复制服务传递过来的）属性是否已经使用过
         propsUsed: {
