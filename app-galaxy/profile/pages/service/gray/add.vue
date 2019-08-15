@@ -124,6 +124,9 @@
             </div>
           </div>
         </el-form-item>
+        <custom-slide-up-down :active="startShowMoreConfig" :duration="500" class="more-config"
+                              @open-end="hasShowMoreConfig = true; scrollBottom()"
+                              @close-end="hasShowMoreConfig = false; scrollBottom()">
         <el-form-item label="滚动升级" prop="rollingUpdate">
           <el-radio-group v-model="formData.rollingUpdate" :disabled="forGray">
             <el-radio :label="true">需要</el-radio>
@@ -213,9 +216,6 @@
           <el-input-number v-model="formData.remainExpiredDays" :min="1" :max="365" :disabled="forGray"></el-input-number>
           <i class="paas-icon-fa-question" v-pop-on-mouse-over="'服务的实例将在指定时间后被删除，最大值为一年'"></i>
         </el-form-item>
-        <custom-slide-up-down :active="startShowMoreConfig" :duration="500" class="more-config"
-                              @open-end="hasShowMoreConfig = true; scrollBottom()"
-                              @close-end="hasShowMoreConfig = false; scrollBottom()">
           <el-form-item label="环境变量设置" prop="environments" class="environments" :error="formItemMsgForEnvironments">
             <div class="el-row title">
               <div class="el-col el-col-7 key">Key</div>
@@ -1425,7 +1425,8 @@
             this.formData['vmOptions'] = `-server -Xmx2g -Xms2g -Xmn256m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=256m -Xss256k -XX:+UseConcMarkSweepGC -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -XX:+PrintGCTimeStamps -XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses -XX:+PrintGCDetails -XX:+PrintGCDateStamps`;
             break;
           case 'back':
-            this.goToPageService();
+//            this.goToPageService();
+            this.$router.go(-1);
             break;
           case 'submit':
             this.isSubmitClicked = true;
