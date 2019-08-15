@@ -610,6 +610,16 @@
       var serviceInfo = null;
 
       try {
+        if (this.$router.helper.pages['/profile/service/:id(\\d+)/gray/add'].pathReg.test(path)) {
+          serviceInfo = await this.getServiceById(this.$route.params['id']);
+          profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
+          this.forAdd = true;
+        } else
+        if (this.$router.helper.pages['/profile/service/:id(\\d+)/gray/modify'].pathReg.test(path)) {
+          serviceInfo = await this.getServiceById(this.$route.params['id']);
+          profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
+          this.forModify = true;
+        } else
         if (this.$router.helper.pages['/profile/service/modify'].pathReg.test(path)) {
           // try to get appId and profileId from location.search
           if (!dataTransfer && location.search) {
@@ -955,11 +965,9 @@
       // TODO: not used
       // 依赖appId的属性：serviceInfo, isJavaLanguage, isPythonLanguage, packageTypeList, this.formData.packageInfo.type
       'formData.appId': function (appId) {
-        return;
         // 不论来自哪个页面，serviceInfo都会被带过来
-        var serviceInfo = this.serviceInfo;
+        const serviceInfo = this.serviceInfo;
 
-//        console.log(serviceInfo);
         if (serviceInfo) {
           this.formRelated.isJavaLanguage = serviceInfo.language.type === 'JAVA';
           this.formRelated.isPythonLanguage = serviceInfo.language.type === 'PYTHON';
@@ -976,7 +984,6 @@
           console.log('serviceInfo not found!');
           return;
         }
-        this.serviceInfo = serviceInfo;
 
         if (this.forModify || this.forCopy) {
           const packageInfo = serviceInfo['packageInfo'];
