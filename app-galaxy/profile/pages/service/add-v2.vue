@@ -661,7 +661,7 @@
           });
         }
         // NOTICE: 修改/添加服务中的初始化参数都是从服务列表传递过来的
-        if (this.forModify || this.forCopy) {
+        if (this.forModify || this.forCopy || this.forGray) {
           if (!serviceInfo) {
             throw new Error('serviceInfo is null');
           }
@@ -1436,7 +1436,7 @@
               if (this.formData.portMap.errMsg) {
                 valid = false;
               }
-              if (this.formData.healthCheck.contentCheckErrMsg) {
+              if (this.formData.healthCheck.contentCheckErrMsg && !this.forGray) {
                 valid = false;
               }
               if (valid) {
@@ -1481,35 +1481,39 @@
                   claimName: formData.claimName,
                   enableJacoco: formData.enableJacoco
                 };
-                payload.portsMapping = [{
-                  protocol: formData.portMap.protocol,
-                  outerPort: formData.portMap.outerPort,
-                  containerPort: formData.portMap.containerPort,
-                }];
-                if (this.formRelated.isProductionProfile) {
+                if (this.forGray) {
+                  payload["configId"] = this.serviceInfo.id;
                 } else {
-                  payload.expiredDays = this.formData.remainExpiredDays;
-                }
-
-                if (this.forModify) {
-                  payload["id"] = this.serviceInfo.id;
-                  payload.portsMapping[0]["id"] = this.serviceInfo.portMap.id;
-                  payload["serviceName"] = this.serviceInfo.serviceName;
-                }
-                if (this.$storeHelper.groupVersion !== 'v1') {
-                  if (this.forModify) {
-                    payload["serviceVersion"] = this.serviceInfo.serviceVersion;
+                  payload.portsMapping = [{
+                    protocol: formData.portMap.protocol,
+                    outerPort: formData.portMap.outerPort,
+                    containerPort: formData.portMap.containerPort,
+                  }];
+                  if (this.formRelated.isProductionProfile) {
                   } else {
-                    payload["serviceVersion"] = 'default';
+                    payload.expiredDays = this.formData.remainExpiredDays;
                   }
-                } else {
-                  payload["serviceVersion"] = null;
+
+                  if (this.forModify) {
+                    payload["id"] = this.serviceInfo.id;
+                    payload.portsMapping[0]["id"] = this.serviceInfo.portMap.id;
+                    payload["serviceName"] = this.serviceInfo.serviceName;
+                  }
+                  if (this.$storeHelper.groupVersion !== 'v1') {
+                    if (this.forModify) {
+                      payload["serviceVersion"] = this.serviceInfo.serviceVersion;
+                    } else {
+                      payload["serviceVersion"] = 'default';
+                    }
+                  } else {
+                    payload["serviceVersion"] = null;
+                  }
+                  payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(formData.healthCheck.type);
+                  payload.healthCheck = formData.healthCheck.content;
                 }
-                payload.healthCheckType = this.$storeHelper.getHealthCheckTypeKeyByDesc(formData.healthCheck.type);
-                payload.healthCheck = formData.healthCheck.content;
                 this.addToWaitingResponseQueue('submit');
                 this.loadingText = '正在为您创建服务';
-                let url = this.forModify ? this.$net.URL_LIST.service_update : this.$net.URL_LIST.service_create;
+                const url = this.forGray ? (this.forModify ? this.$net.URL_LIST.service_gray_update : this.$net.URL_LIST.service_gray_create) : (this.forModify ? this.$net.URL_LIST.service_update : this.$net.URL_LIST.service_create);
                 this.$net.requestPaasServer(url, {
                   payload
                 }).then(resConent => {

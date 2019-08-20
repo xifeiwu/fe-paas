@@ -120,10 +120,6 @@ class Net extends NetBase {
         path: '/service/{id}',
         method: 'get'
       },
-      'service_gray_list': {
-        path: '/service/canaryInfo',
-        method: 'get'
-      },
 
       'service_not_exists_in_space': {
         path: '/service/queryNotServiceAppByAppId',
@@ -348,6 +344,19 @@ class Net extends NetBase {
         path: '/service/1.x/updateOuterDomain',
         method: 'post'
       },
+      'service_gray_list': {
+        path: '/service/canaryInfo',
+        method: 'get'
+      },
+      'service_gray_create': {
+        path: '/service/canary/create',
+        method: 'post'
+      },
+      'service_gray_update': {
+        path: '/service/canary/update',
+        method: 'put'
+      },
+
       /** 实例相关*/
       // 获取实例列表
       'instance_list': {
