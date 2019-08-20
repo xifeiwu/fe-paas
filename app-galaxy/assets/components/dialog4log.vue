@@ -3,7 +3,7 @@
              @close="handleIconClick('close')"
              class="dialog-for-log"
              customClass="dialog-for-log"
-             :appendToBody="true"
+             :appendToBody="false"
              :fullscreen="fullScreen"
              :closeOnClickModal="false"
              ref="dialog-for-log"
@@ -41,13 +41,14 @@
       text-align: left;
       &.is-fullscreen {
         width: 100%;
+        max-width: none;
         margin-top: 0;
         margin-bottom: 0;
         height: 100%;
         overflow: auto;
       }
       .el-dialog__header {
-        height: 30px;
+        height: 28px;
         box-sizing: content-box;
         padding: 0px;
         margin: 0px;
@@ -111,6 +112,10 @@
             color: lightgray;
             padding: 5px;
           }
+        }
+        .el-loading-mask {
+          top: calc(50% - 80px);
+          bottom: 50%;
         }
         .log-item {
           .info {

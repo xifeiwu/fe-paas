@@ -136,11 +136,12 @@
         <div v-if="buildLogStatus.hasMoreData" style="text-align: center; color: #409EFF; cursor: pointer"
              @click="handleDialogClick($event, 'pipeline_build_history_log_download')">点击下载更多日志</div>
         <div v-for="(item, index) in buildLogStatus.logList" :key="index" class="log-item" v-html="item"></div>
-        <div class="log-item loading-line" v-if="buildLogStatus.loading">
+        <div class="log-item loading-line" v-if="buildLogStatus.isLoading">
           <i class="el-icon-loading item"></i>
-          <span v-if="action.row && action.row.status == 'PAUSED_PENDING_INPUT'" @click="handlePendingInput('open', action.row)" style="color: #409EFF">
+          <span v-if="action.row && action.row.status == 'PAUSED_PENDING_INPUT'" @click="handlePendingInput('open', action.row)" class="pause-pending">
             {{action.row.statusName}}<i class="paas-icon-pointer-left"></i>
           </span>
+          <span class="item">&nbsp</span>
         </div>
         <div class="last-item loading-line" v-else><span class="item">&nbsp</span></div>
       </div>
@@ -325,7 +326,7 @@
     beforeDestroy() {
       this.leavePage = true;
       this.buildLogStatus.visible = false;
-      this.buildLogStatus.loading = false;
+      this.buildLogStatus.isLoading = false;
       this.buildLogStatus.title = '';
     },
     data() {
@@ -382,7 +383,7 @@
         buildLogStatus: {
           title: '日志',
           visible: false,
-          loading: false,
+          isLoading: false,
           logList: [],
           hasMoreData: false
         },
@@ -874,7 +875,7 @@
         // set the build in openedDialog as active row
         this.action.row = lastBuildingRecord;
         this.buildLogStatus.visible = true;
-        this.buildLogStatus.loading = true;
+        this.buildLogStatus.isLoading = true;
         this.buildLogStatus.title = `${this.dataPassed.pipelineName}-第${lastBuildingRecord['buildNumber']}次的构建日志`;
 
         var hasMoreData = true;
@@ -941,7 +942,7 @@
             dialogForDeployLog.scrollToBottom();
           }
         }, 20);
-        this.buildLogStatus.loading = false;
+        this.buildLogStatus.isLoading = false;
       },
 
       async handleClick(evt, action) {
@@ -1023,7 +1024,7 @@
               });
               this.buildLogStatus.hasMoreData = resContent.hasMoreData;
               this.buildLogStatus.visible = true;
-              this.buildLogStatus.loading = false;
+              this.buildLogStatus.isLoading = false;
               setTimeout(() => {
                 this.$refs['dialogForBuildLog'].scrollToBottom();
               },100);
@@ -1106,7 +1107,7 @@
 
       handleDialogClose() {
         this.buildLogStatus.visible = false;
-        this.buildLogStatus.loading = false;
+        this.buildLogStatus.isLoading = false;
         this.buildLogStatus.hasMoreData = false;
         this.buildLogStatus.title = '';
         this.buildLogStatus.logList = [];
