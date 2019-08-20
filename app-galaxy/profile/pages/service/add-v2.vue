@@ -1086,6 +1086,11 @@
       },
       'formData.spaceId': function (spaceId) {
         this.formRelated.isProductionProfile = this.$storeHelper.isProductionProfile(spaceId);
+        // reset some props when isProductionProfile
+        if (this.formRelated.isProductionProfile) {
+          this.formData.enableJacoco = false;
+          this.formData.expiredDays = this.$storeHelper.globalConfig['defaultExpiredDays'];
+        }
         // 切换目标环境是清除所有的表单字段校验
         this.$refs['formData'].clearValidate();
       }
