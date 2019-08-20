@@ -877,6 +877,7 @@
         this.buildLogStatus.visible = true;
         this.buildLogStatus.isLoading = true;
         this.buildLogStatus.title = `${this.dataPassed.pipelineName}-第${lastBuildingRecord['buildNumber']}次的构建日志`;
+        this.buildLogStatus.logList = [];
 
         var hasMoreData = true;
         var logQueue = [];
