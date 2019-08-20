@@ -62,7 +62,7 @@
         </el-table-column>
         <el-table-column label="节点配置" headerAlign="center" align="center" min-width="150px">
           <template slot-scope="scope">
-            <span class="link" @click="handleTRClick($event, 'get_node_taint', scope.$index, scope.row)">节点配置</span>
+            <span class="link" @click="handleTRClick($event, 'get_node_taint', scope.$index, scope.row)">spec配置</span>
           </template>
         </el-table-column>
         <el-table-column label="CPU(Request/总共)" headerAlign="center" align="center" prop="cpuRequest" sortable="custom"

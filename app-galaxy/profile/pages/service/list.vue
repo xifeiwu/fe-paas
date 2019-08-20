@@ -563,7 +563,7 @@ podAntiAffinity:
       <div class="py-3" style="width: 80%; text-align: left;">
         <h4 style="display: inline;">
           <span style="color: red;">
-          Pod容忍配置
+          容忍配置
           </span>
         </h4>
         <span>
