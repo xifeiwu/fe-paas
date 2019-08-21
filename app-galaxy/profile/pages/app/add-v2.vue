@@ -625,7 +625,8 @@ export default {
         if(Array.isArray(result.scrumList) && result.scrumList.length > 0) {
           this.scrumList = result.scrumList;
           if (this.pageType === 'add' || (this.pageType == 'update' && this.createAppForm.lobId != this.dataPassed.lobId)) {
-            this.createAppForm.scrumId = this.scrumList[0].id;
+            // this.createAppForm.scrumId = this.scrumList[0].id;
+            this.createAppForm.scrumId = "";  // liugang - 20190821
           } else {
             this.createAppForm.scrumId = this.dataPassed.scrumId;
           }
