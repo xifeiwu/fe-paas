@@ -81,7 +81,7 @@ class Net extends NetBase {
           router: this.page['profile/log'],
           icon: 'paas-icon-log'
         },
-        // 实例监控
+        // 应用监控
         '/2.x/apm': {
           router: this.page['profile/monitor'],
           icon: 'paas-icon-charts',
@@ -219,14 +219,14 @@ class Net extends NetBase {
 
   parseLoginResponseMore(resContent) {
     let origin = this.parseLoginResponse(resContent);
-    // let contentOfAppEngine = ['应用管理', '服务管理','实例列表', '外网域名', '日志中心', '实例监控', '审批管理'];
+    // let contentOfAppEngine = ['应用管理', '服务管理','实例列表', '外网域名', '日志中心', '应用监控', '审批管理'];
     const pathOfAppEngine = [
       '/2.x/app', // 应用管理
       '/2.x/service', // 服务管理
       '/2.x/instances', // 实例列表
       '/2.x/internet', // 外网域名
       '/2.x/logs', // 日志中心
-      '/2.x/apm', // 实例监控
+      '/2.x/apm', // 应用监控
       '/2.x/orders' // 审批管理
     ];
     const pathOfMiddleware = [

@@ -208,7 +208,7 @@ class Helper {
     },
       {
       path: '/profile/monitor',
-      name: '实例监控',
+      name: '应用监控',
       component: MonitorMain,
     },
       {

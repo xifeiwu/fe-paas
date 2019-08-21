@@ -118,7 +118,7 @@ npm run build
 │   │           │   ├── deploy.vue
 │   │           │   ├── main.vue
 │   │           │   └── run.vue
-│   │           ├── monitor（实例监控）
+│   │           ├── monitor（应用监控）
 │   │           │   └── main.vue
 │   │           ├── oauth（Access Key管理）
 │   │           │   ├── key.vue
