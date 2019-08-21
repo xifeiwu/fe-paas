@@ -3,7 +3,7 @@
     <div class="sheet">
       <div class="section-title">{{forModify ?'修改配置' : (forCopy ? '复制服务' : '创建服务')}}</div>
       <el-form :model="formData" ref="formData"
-               :rules="rules" :label-width="formRelated.isJavaLanguage ? '180px' : '180px'" size="mini"
+               :rules="rules" :label-width="formRelated.isJavaLanguage ? '140px' : '140px'" size="mini"
                :element-loading-text="loadingText">
         <el-form-item label="目标环境" v-if="forCopy" class="message-show">
           <el-select v-model="formData.spaceId">
@@ -233,8 +233,8 @@
               <el-col :span="7" class="key">{{item.key}}</el-col>
               <el-col :span="7" class="value">{{item.value}}</el-col>
               <el-col :span="8" class="remark">{{item.remark}}</el-col>
-              <el-col :span="2" style="text-align: center" class="delete">
-                <el-button type="warning" round size="mini-extral" @click="handleEnvironment('delete', index)">删除</el-button>
+              <el-col :span="2" class="delete" v-if="!forGray">
+                <i class="paas-icon-close" @click="handleEnvironment('delete', index)"></i>
               </el-col>
             </el-row>
             <el-row class="add-key-value" v-if="!forGray">
@@ -267,8 +267,8 @@
             >
               <el-col :span="11" class="key">{{item.ip}}</el-col>
               <el-col :span="11" class="value">{{item.domain}}</el-col>
-              <el-col :span="2" style="text-align: center">
-                <el-button  type="warning" round size="mini-extral" @click="handleHost('delete', index)">删除</el-button>
+              <el-col :span="2" class="delete" v-if="!forGray">
+                <i class="paas-icon-close" @click="handleHost('delete', index)"></i>
               </el-col>
             </el-row>
             <el-row class="add-key-value" v-if="!forGray">
@@ -481,6 +481,13 @@
         }
       }
       .el-form {
+        .paas-icon-close {
+          color: #aaa;
+          font-size: 14px;
+          &:hover {
+            color: gray;
+          }
+        }
         .paas-icon-fa-question {
           font-size: 12px;
           color: #E6A23C;
@@ -560,11 +567,18 @@
               .key, .value, .remark {
                 word-wrap: break-word;
                 word-break: break-all;
-                line-height: 1.2;
+                font-size: 14px;
+                line-height: 18px;
               }
               .delete {
-                flex: none;
                 float: right;
+                display: flex;
+                justify-content: space-around;
+                height: 18px;
+                .paas-icon-close {
+                  font-size: 12px;
+                  line-height: 18px;
+                }
               }
             }
             .el-row.add-key-value {
