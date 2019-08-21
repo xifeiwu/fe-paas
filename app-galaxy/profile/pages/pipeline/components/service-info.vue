@@ -23,7 +23,7 @@
       <el-form-item label="实例数量">
         <span>{{serviceInfo.instanceNum}}</span>
       </el-form-item>
-      <el-form-item label="应用监控" v-if="!serviceInfo.customImage">
+      <el-form-item label="实例监控" v-if="!serviceInfo.customImage">
         <span>{{$storeHelper.getMonitorNameById(serviceInfo.appMonitor)}}</span>
       </el-form-item>
       <el-form-item label="构建名称" class="big" v-if="serviceInfo.packageType == 'WAR'">

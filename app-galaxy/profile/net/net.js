@@ -306,7 +306,7 @@ class Net extends NetBase {
         path: '/service/updateOneApm',
         method: 'post'
       },
-      // 更改应用监控
+      // 更改实例监控
       'service_update_app_monitor': {
         path: '/service/updateAppMonitor',
         method: 'post'
@@ -971,7 +971,7 @@ class Net extends NetBase {
       // 关联白名单
       '/2.x/internet/ipWhiteList': 'domain_bind_white_list',
 
-      // 应用监控
+      // 实例监控
       '/2.x/apm': 'app_monitor',
       // 应用转让
       '/2.x/app/transfer': 'app_transfer',
@@ -1071,7 +1071,7 @@ class Net extends NetBase {
       '/2.x/order/todoList': this.page['profile/work-order/todo'],
       // 页面-审批管理/工单列表
       '/2.x/order/list': this.page['profile/work-order/list'],
-      // 应用监控
+      // 实例监控
       '/2.x/apm': this.page['profile/monitor'],
       // 配置中心
       '/2.x/config/server': this.page['profile/config-server']

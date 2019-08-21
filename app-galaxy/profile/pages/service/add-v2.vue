@@ -222,7 +222,7 @@
               </el-form-item>
             </div>
           </div>
-          <el-form-item label="应用监控" prop="appMonitor" class="app-monitor" v-if="formRelated.isJavaLanguage">
+          <el-form-item label="实例监控" prop="appMonitor" class="app-monitor" v-if="formRelated.isJavaLanguage">
             <el-radio-group v-model="formData.appMonitor" size="mini" v-if="profileUtils">
               <el-radio v-for="item in profileUtils.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
             </el-radio-group>
