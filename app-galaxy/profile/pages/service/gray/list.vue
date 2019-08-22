@@ -4,7 +4,7 @@
       <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'service_gray_create')">
         <span>创建灰度版本</span>
       </el-button>
-      <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'service_gray_strategy')">
+      <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'open_dialog_service_gray_strategy')">
         <span>设置灰度策略</span>
       </el-button>
       <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'refresh')">
@@ -25,15 +25,28 @@
       </el-table>
     </div>
 
-    <el-dialog :title="action.name == 'open_dialog_service_gray_create'? '创建灰度版本':''"
-               :visible="['open_dialog_service_gray_create', 'open_dialog_modify'].indexOf(action.name) > -1"
-               v-if="['open_dialog_service_gray_create'].indexOf(action.name) > -1"
+    <el-dialog :title="action.name == 'open_dialog_service_gray_strategy'? '设置灰度策略':''"
+               :visible="['open_dialog_service_gray_strategy', 'open_dialog_modify'].indexOf(action.name) > -1"
+               v-if="['open_dialog_service_gray_strategy'].indexOf(action.name) > -1"
                @close="closeDialog"
                class="size-900 dialog-add"
                :close-on-click-modal="false"
                top="80px"
     >
       <div class="content">
+        <paas-dismiss-message :toExpand="true"
+                              showSeconds="0"
+                              @status-change="active => {this.showWarning = active; onScreenSizeChange()}"
+                              style="margin: 0px -2px"
+                              :msgList="['目前pipeline只支持Java语言的“平台构建镜像”方式，不支持自定义镜像；Pipeline的基本配置默认取自对应应用的测试环境配置。']"></paas-dismiss-message>
+        <el-form :model="action.row" size="mini" label-width="120px" ref="newDomainForm">
+          <el-form-item label="网络类型" class="">
+          </el-form-item>
+          <el-form-item label="实例数" class="">
+          </el-form-item>
+          <el-form-item label="灰度策略" class="">
+          </el-form-item>
+        </el-form>
       </div>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
@@ -78,8 +91,10 @@
   }
 </style>
 <script>
+  import paasDismissMessage from 'assets/components/dismiss-message.vue';
   import commonUtils from 'assets/components/mixins/common-utils';
   export default {
+    components: {paasDismissMessage},
     mixins: [commonUtils],
     async created() {
       if (this.$route.params && this.$route.params.hasOwnProperty('id')) {
@@ -136,6 +151,11 @@
           resContent['master']['serviceTypeName'] = '主服务';
           this.serviceList.push(postTreat(resContent['master']));
         }
+        if (resContent['canary']) {
+          resContent['canary']['serviceType'] = 'canary';
+          resContent['canary']['serviceTypeName'] = '灰度服务';
+          this.serviceList.push(postTreat(resContent['canary']));
+        }
         // console.log(this.serviceList);
       },
       async getData4GrayCreate() {
@@ -161,9 +181,9 @@
               id: this.serviceId
             }));
             break;
-          case 'open_dialog_service_gray_create':
+          case 'open_dialog_service_gray_strategy':
             try {
-              await this.getData4GrayCreate();
+//              await this.getData4GrayCreate();
               await this.openDialog(action);
             } catch (err) {
               console.log(err);

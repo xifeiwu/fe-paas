@@ -13,7 +13,6 @@
     flex-direction: row;
     & > .content {
       flex: 1;
-      margin-top: 3px;
       padding-left: 8px;
       background-color: #e6a23c;
       background-color: #eee;
@@ -54,7 +53,7 @@
         default: []
       },
       showSeconds: {
-        type: Number,
+        type: [Number, String],
         default: 10
       },
       // 开始展示动画
@@ -95,6 +94,10 @@
       expand() {
         this.expanding = true;
         this.clearInterval();
+        // no auto shrink when showSeconds is zero
+        if (this.showSeconds == 0) {
+          return;
+        }
         this.intervalTag = setInterval(() => {
           this.showTimeCount++;
           if (this.showTimeCount >= this.showSeconds) {
