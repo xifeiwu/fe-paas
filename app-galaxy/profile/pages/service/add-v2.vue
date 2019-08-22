@@ -3,7 +3,7 @@
     <div class="sheet">
       <div class="section-title">{{forModify ?'修改配置' : (forCopy ? '复制服务' : '创建服务')}}</div>
       <el-form :model="formData" ref="formData"
-               :rules="rules" :label-width="formRelated.isJavaLanguage ? '140px' : '140px'" size="mini"
+               :rules="rules" :label-width="formRelated.isJavaLanguage ? '160px' : '160px'" size="mini"
                :element-loading-text="loadingText">
         <el-form-item label="目标环境" v-if="forCopy" class="message-show">
           <el-select v-model="formData.spaceId">
@@ -138,8 +138,8 @@
           </el-radio-group>
         </el-form-item>
         <div class="el-form-item-group is-required health-check">
-          <div class="label" style="width: 180px;">健康检查</div>
-          <div class="content" style="margin-left: 180px;">
+          <div class="label" style="width: 160px;">健康检查</div>
+          <div class="content" style="margin-left: 160px;">
             <el-form-item :error="isSubmitClicked ? formData.healthCheck.contentCheckErrMsg : ''">
               <div class="health-check-type">
                 <el-radio-group v-model="formData.healthCheck.type" :disabled="forGray">
@@ -409,7 +409,7 @@
             line-height: 24px;
             text-align: center;
             .more {
-              margin: 0px -10px;
+              margin: 0px -20px;
               font-size: 14px;
               line-height: 24px;
               /*background-color: #eee;*/
@@ -459,8 +459,9 @@
       background-color: white;
       box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
       margin: 10px;
-      padding: 10px;
+      padding: 10px 20px;
       max-width: 900px;
+      box-sizing: border-box;
       .section-title {
         margin: 15px 0px;
         font-size: 18px;
@@ -1512,7 +1513,6 @@
                   } else {
                     payload.expiredDays = this.formData.remainExpiredDays;
                   }
-
                   if (this.forModify) {
                     payload["id"] = this.serviceInfo.id;
                     payload.portsMapping[0]["id"] = this.serviceInfo.portMap.id;
