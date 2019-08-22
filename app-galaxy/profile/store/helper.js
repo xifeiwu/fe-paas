@@ -684,9 +684,33 @@ class StoreHelper extends BaseHelper{
     };
     return actionMap.hasOwnProperty(action) ? actionMap[action] : action
   }
-  actionDisabled(action) {
+  permissionDisabled(action) {
     const permission = this.actionToPermission(action);
     return permission && this.permission[permission] && this.permission[permission].disabled;
+  }
+  actionDisabled(action) {
+    return this.permissionDisabled(action) || this.serverIsPublishing
+  }
+  reason4ActionDisable(action) {
+    var reason = '';
+    if (this.serverIsPublishing) {
+      reason = '因云平台正在发布，在此期间不能进行此操作，谢谢您的合作'
+    } else if (this.permissionDisabled(action)) {
+      reason = this.permission[permission]['reason'];
+    }
+    return reason;
+  }
+  // action
+
+  set publishStatus(value) {
+    this.$store.dispatch('setPublishStatus', value);
+  }
+  // 后台服务是否正在部署
+  get serverIsPublishing() {
+    return this.$store.getters['publishStatus'];
+  }
+  get publishStatus() {
+    return this.$store.getters['publishStatus'];
   }
 
   logout() {
@@ -699,14 +723,6 @@ class StoreHelper extends BaseHelper{
   }
   get clusterList() {
     return this.$store.getters['app/clusterList'];
-  }
-
-  set publishStatus(value) {
-    this.$store.dispatch('setPublishStatus', value);
-  }
-
-  get publishStatus() {
-    return this.$store.getters['publishStatus'];
   }
 
   setClusterList(clusterList) {

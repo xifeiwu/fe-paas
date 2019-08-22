@@ -20,6 +20,26 @@
         </el-table-column>
         <el-table-column>
           <template slot-scope="scope">
+            <el-button
+                    v-if="scope.row['serviceType'] === 'canary'"
+                    size="small"
+                    type="text"
+                    :loading="statusOfWaitingResponse('service_gray_update') && action.row.index == scope.$index"
+                    :class="$storeHelper.actionDisabled['service_gray_update']? 'disabled' : 'warning'"
+                    @click="handleTRClick($event, 'service_gray_update', scope.$index, scope.row)">
+              {{'修改配置'}}
+              </el-button>
+            <div v-if="scope.row['serviceType'] === 'canary'" class="ant-divider"></div>
+            <el-button
+                    v-if="scope.row['serviceType'] === 'canary'"
+                    size="small"
+                    type="text"
+                    :loading="statusOfWaitingResponse('service_gray_delete') && action.row.index == scope.$index"
+                    :class="$storeHelper.actionDisabled['service_gray_delete']? 'disabled' : 'danger'"
+                    @click="handleTRClick($event, 'service_gray_delete', scope.$index, scope.row)">
+              {{'删除'}}
+              </el-button>
+            <div v-if="scope.row['serviceType'] === 'canary'" class="ant-divider"></div>
           </template>
         </el-table-column>
       </el-table>
@@ -136,7 +156,7 @@
           }
         });
         const postTreat = it => {
-          if (it.hasOwnProperty('containerStatus') && this.$utils.hasProps(it['containerStatus'], 'Running', 'Total')) {
+          if (it.hasOwnProperty('containerStatus') && it['containerStatus'] && this.$utils.hasProps(it['containerStatus'], 'Running', 'Total')) {
             it.instanceStatus = `${it['containerStatus']['Running']}/${it['containerStatus']['Total']}`
           } else {
             it.instanceStatus = '---/---';
@@ -193,6 +213,21 @@
             break;
           case 'refresh':
             this.requestServiceList();
+            break;
+        }
+      },
+      async handleTRClick(evt, action, index, row) {
+        switch (action) {
+          case 'service_gray_update':
+            break;
+          case 'service_gray_delete':
+
+            await this.$confirm(`删除 灰度服务 吗？`, '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning',
+              dangerouslyUseHTMLString: true
+            });
             break;
         }
       }
