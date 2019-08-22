@@ -340,6 +340,141 @@
                     </el-form-item>
                     <!--自动化测试[test]-end-->
 
+                    <!--上传覆盖率数据[test]-->
+                    <el-form-item v-show="stageName === 'uploadUnitTestReportAndAutoTestReportTestEnv'" labelWidth="0px" class="message-show">
+                      <div style="color: #eb9e05; font-size: 12px; line-height: 16px; text-align: left; padding: 0px 60px;">
+                        <i class="el-icon-warning"></i>
+                        <span>此节点用于同时上传前面"sonar及单元测试"节点生成的单测覆盖率报告以及"自动化测试[test]"节点生成的集成覆盖率报告，上传成功后，可在 Sonar 中查看覆盖率及 Sonar 检查报告</span>
+                      </div>
+                    </el-form-item>
+                    <el-form-item label="自动化覆盖率报告读取节点：" labelWidth="200px" prop="uploadUnitTestReportAndAutoTestReportTestEnv.uploadAutoTestReportNode"
+                                  v-show="stageName === 'uploadUnitTestReportAndAutoTestReportTestEnv'">
+                      <el-radio-group v-model="formData.uploadUnitTestReportAndAutoTestReportTestEnv.uploadAutoTestReportNode">
+                        <!--<el-radio v-for="(item, index) in [{name: 'test', description: '测试环境'}, {name: 'beta', description: '联调环境'}]"-->
+                        <!--:label="item.name" :key="index">{{item.description}}</el-radio>-->
+                        <el-radio label="test" >测试环境</el-radio>
+                        <el-radio label="beta" disabled>联调环境</el-radio>
+                      </el-radio-group>
+                    </el-form-item>
+                    <el-form-item label="脚本：" labelWidth="200px" prop="uploadUnitTestReportAndAutoTestReportTestEnv.script"
+                                  v-show="stageName === 'uploadUnitTestReportAndAutoTestReportTestEnv'">
+                      <el-input size="mini-extral" v-model="formData.uploadUnitTestReportAndAutoTestReportTestEnv.script"></el-input>
+                    </el-form-item>
+                    <el-form-item label="手工确认：" labelWidth="200px" v-show="stageName === 'uploadUnitTestReportAndAutoTestReportTestEnv'">
+                      <el-checkbox v-model="formData.uploadUnitTestReportAndAutoTestReportTestEnv.inputChecked"></el-checkbox>
+                    </el-form-item>
+                    <!--上传覆盖率数据[test]-end-->
+
+                    <!--sonar数据检查[test]-->
+                    <el-form-item label="Sonar关键字：" class="sonarCheckTestEnv"
+                                  prop="sonarCheckTestEnv.projectKeyWord"
+                                  v-show="stageName === 'sonarCheckTestEnv'">
+                      <el-input v-model="formData.sonarCheckTestEnv.projectKeyWord" style="max-width: 500px"
+                                type="textarea" :rows="5"></el-input>
+                      <el-popover
+                          placement="left-start"
+                          width="50"
+                          trigger="hover">
+                        <div>
+                          <img src="/assets/imgs/profile/pipeline-sonar-tip.png" width="600px" height="400px"/>
+                        </div>
+                        <span slot="reference"><i class="paas-icon-fa-question" style="color: #E6A23C; font-size:12px;"></i></span>
+                      </el-popover>
+                    </el-form-item>
+                    <div class="el-form-item el-form-item--mini sonarCheckTestEnv" v-show="stageName === 'sonarCheckTestEnv'">
+                      <div class="el-form-item__label" style="width: 120px; float: left; z-index: 11">
+                        <span>检查项：</span>
+                      </div>
+                      <div class="el-form-item__content" style="margin-left: 120px;">
+                        <div class="message-tip">当</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheckTestEnv.unitTestRatio">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheckTestEnv']['unitTestSelected']"></el-checkbox>
+                            <span>单元测试行覆盖率≥</span>
+                            <el-input v-model="formData.sonarCheckTestEnv.unitTestRatio" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>%</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheckTestEnv.branchCoverage">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheckTestEnv']['branchCoverageSelected']"></el-checkbox>
+                            <span>单元测试条件覆盖率≥</span>
+                            <el-input v-model="formData.sonarCheckTestEnv.branchCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>%</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheckTestEnv.itLineCoverage">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheckTestEnv']['itLineCoverageSelected']"></el-checkbox>
+                            <span>集成测试行覆盖率≥</span>
+                            <el-input v-model="formData.sonarCheckTestEnv.itLineCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>%</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheckTestEnv.itBranchCoverage">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheckTestEnv']['itBranchCoverageSelected']"></el-checkbox>
+                            <span>集成测试条件覆盖率≥</span>
+                            <el-input v-model="formData.sonarCheckTestEnv.itBranchCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>%</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheckTestEnv.blockerViolations">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheckTestEnv']['blockerViolationsSelected']"></el-checkbox>
+                            <span>阻断问题数量≤</span>
+                            <el-input v-model="formData.sonarCheckTestEnv.blockerViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>个</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheckTestEnv.criticalViolations">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheckTestEnv']['criticalViolationsSelected']"></el-checkbox>
+                            <span>严重问题数量≤</span>
+                            <el-input v-model="formData.sonarCheckTestEnv.criticalViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>个</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheckTestEnv.majorViolations">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheckTestEnv']['majorViolationsSelected']"></el-checkbox>
+                            <span>主要问题数量≤</span>
+                            <el-input v-model="formData.sonarCheckTestEnv.majorViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>个</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheckTestEnv.minorViolations">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheckTestEnv']['minorViolationsSelected']"></el-checkbox>
+                            <span>次要问题数量≤</span>
+                            <el-input v-model="formData.sonarCheckTestEnv.minorViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>个</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip">，且</div>
+                        <el-form-item label="" labelWidth="0px" prop="sonarCheckTestEnv.codeDebt">
+                          <div>
+                            <el-checkbox v-model="formData['sonarCheckTestEnv']['codeDebtSelected']"></el-checkbox>
+                            <span>技术债时间≤</span>
+                            <el-input v-model="formData.sonarCheckTestEnv.codeDebt" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <span>分钟</span>
+                          </div>
+                        </el-form-item>
+                        <div class="message-tip" style="line-height: 28px;">时通过，反之不通过。</div>
+                      </div>
+                    </div>
+                    <el-form-item label="手工确认：" v-show="stageName === 'sonarCheckTestEnv'">
+                      <el-checkbox v-model="formData.sonarCheckTestEnv.inputChecked"></el-checkbox>
+                    </el-form-item>
+                    <!--sonar数据检查[test]-end-->
+
                     <!--部署到[beta]环境-->
                     <el-form-item label="手工确认：" labelWidth="300px" v-show="stageName === 'deployBetaEnv'">
                       <div style="display: flex; justify-content: space-between">
@@ -388,20 +523,20 @@
                     </el-form-item>
                     <!--自动化测试[beta]-end-->
 
-                    <!--上传覆盖率数据-->
+                    <!--上传覆盖率数据[beta]-->
                     <el-form-item v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'" labelWidth="0px" class="message-show">
                       <div style="color: #eb9e05; font-size: 12px; line-height: 16px; text-align: left; padding: 0px 60px;">
                         <i class="el-icon-warning"></i>
-                        <span>此节点用于同时上传前面"sonar及单元测试"节点生成的单测覆盖率报告以及"自动化测试"节点生成的集成覆盖率报告，上传成功后，可在 Sonar 中查看覆盖率及 Sonar 检查报告</span>
+                        <span>此节点用于同时上传前面"sonar及单元测试"节点生成的单测覆盖率报告以及"自动化测试[beta]"节点生成的集成覆盖率报告，上传成功后，可在 Sonar 中查看覆盖率及 Sonar 检查报告</span>
                       </div>
                     </el-form-item>
                     <el-form-item label="自动化覆盖率报告读取节点：" labelWidth="200px" prop="uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode"
                                   v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
                       <el-radio-group v-model="formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode">
                         <!--<el-radio v-for="(item, index) in [{name: 'test', description: '测试环境'}, {name: 'beta', description: '联调环境'}]"-->
-                                  <!--:label="item.name" :key="index">{{item.description}}</el-radio>-->
-                        <el-radio label="test" :disabled="!formData.ciPipelineAutoTestVOTest.selected">测试环境</el-radio>
-                        <el-radio label="beta" :disabled="!formData.ciPipelineAutoTestVO.selected">联调环境</el-radio>
+                        <!--:label="item.name" :key="index">{{item.description}}</el-radio>-->
+                        <el-radio label="test" disabled>测试环境</el-radio>
+                        <el-radio label="beta" >联调环境</el-radio>
                       </el-radio-group>
                     </el-form-item>
                     <el-form-item label="脚本：" labelWidth="200px" prop="uploadUnitTestReportAndAutoTestReport.script"
@@ -411,6 +546,7 @@
                     <el-form-item label="手工确认：" labelWidth="200px" v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
                       <el-checkbox v-model="formData.uploadUnitTestReportAndAutoTestReport.inputChecked"></el-checkbox>
                     </el-form-item>
+                    <!--上传覆盖率数据[test]-end-->
 
                     <!--sonar数据检查3-->
                     <el-form-item label="Sonar关键字：" class="sonarCheckAutoTestScript"
@@ -829,7 +965,7 @@
                           min-width: 500px;
                         }
                       }
-                      &.sonarCheck, &.sonarCheckAutoTestScript {
+                      &.sonarCheck, &.sonarCheckTestEnv, &.sonarCheckAutoTestScript {
                         .el-form-item {
                           display: inline-block;
                         }
@@ -959,8 +1095,14 @@
     'ciPipelineAutoTestVOTest': {
       description: ['自动化测试[test]']
     },
+    'uploadUnitTestReportAndAutoTestReportTestEnv': {
+      description: '上传覆盖率数据[test]'
+    },
+    'sonarCheckTestEnv': {
+      description: 'Sonar数据检查'
+    },
     'uploadUnitTestReportAndAutoTestReport': {
-      description: '上传覆盖率数据'
+      description: '上传覆盖率数据[beta]'
     },
     'functionValidate': {
       description: '功能测试（人工验证）'
@@ -1048,7 +1190,6 @@
       });
       this.pipelineInfoFromNet = pipelineInfoFromNet;
 //      pipelineInfoFromNet
-
       const commonProp = {
         active: false
       };
@@ -1061,10 +1202,12 @@
         'buildImage',  //制作镜像
         'deployTestEnv', //部署到[test]环境
         'ciPipelineAutoTestVOTest',  //自动化测试[test]
+        'uploadUnitTestReportAndAutoTestReportTestEnv', // 上传覆盖率数据[test]
+        'sonarCheckTestEnv', //Sonar数据检查[test]
         'functionValidate',  //功能测试（人工验证）
         'deployBetaEnv',  //部署到[beta]环境
         'ciPipelineAutoTestVO',  //自动化测试[beta]
-        'uploadUnitTestReportAndAutoTestReport', // 上传覆盖率数据
+        'uploadUnitTestReportAndAutoTestReport', // 上传覆盖率数据[beta]
         'sonarCheckAutoTestScript',  //Sonar数据检查
         'end'
       ].map(key => {
@@ -1088,11 +1231,11 @@
         return result;
       }).filter(it => it);
       this.updateStageIndex(stages);
-//      console.log(stages);
+     // console.log(stages);
       this.stages = stages;
       // sync formData by netData
       this.syncFormDataByServerData(this.formData, this.pipelineInfoFromNet);
-//      console.log(this.formData);
+     // console.log(this.formData);
       // override appId
       this.formData.appId = this.dataPassed.appId;
      // console.log(this.formData.defList);
@@ -1237,6 +1380,46 @@
             script: '', // 脚本名称 ,
             includes: '',
             selected: '', //节点是否选中
+          },
+          // 上传测试报告[test]
+          uploadUnitTestReportAndAutoTestReportTestEnv: {
+            script: '', // 脚本名称 ,
+            uploadAutoTestReportNode: '',
+            inputChecked: '', // 是否需要手工确认 ,
+            selected: '', //节点是否选中
+          },
+          //Sonar数据检查[test]
+          sonarCheckTestEnv: {
+            selected: false,
+            inputChecked: false,
+            projectKeyWord: '',
+            // 单元测试覆盖率
+            unitTestRatio: '',
+            unitTestSelected: false,
+            // 单元测试条件覆盖率
+            branchCoverageSelected: false,
+            branchCoverage: '',
+            // 集成测试行覆盖率
+            itLineCoverage: '',
+            itLineCoverageSelected: false,
+            // 集成测试条件覆盖率
+            itBranchCoverageSelected: false,
+            itBranchCoverage: '',
+            // 阻断问题数量
+            blockerViolations: '',
+            blockerViolationsSelected: false,
+            // 严重问题数量
+            criticalViolations: '',
+            criticalViolationsSelected: false,
+            // 主要问题数量
+            majorViolations: '',
+            majorViolationsSelected: false,
+            // 次要问题数量
+            minorViolations: '',
+            minorViolationsSelected: false,
+            // 技术债时间
+            codeDebt: '',
+            codeDebtSelected: false,
           },
           uploadUnitTestReportAndAutoTestReport: {
             script: '', // 脚本名称 ,
@@ -1457,6 +1640,25 @@
               }]
             }
           },
+          uploadUnitTestReportAndAutoTestReportTestEnv: {
+            type: 'object',
+            fields: {
+              uploadAutoTestReportNode: [{
+                type: "string",
+                required: true,
+                trigger: ['blur', 'change'],
+                requiredOrigin: true,
+                message: '请选择自动化覆盖率报告读取节点'
+              }],
+              script: [{
+                type: "string",
+                required: true,
+                trigger: ['blur', 'change'],
+                requiredOrigin: true,
+                message: '脚本为必输项'
+              }]
+            }
+          },
           uploadUnitTestReportAndAutoTestReport: {
             type: 'object',
             fields: {
@@ -1477,6 +1679,19 @@
             }
           },
           sonarCheck: {
+            type: 'object',
+            fields: {
+              projectKeyWord: [{
+                type: "string",
+                required: true,
+                requiredOrigin: true,
+                message: '请填写sonar关键字'
+              }]
+              // codeDebt
+              // unitTestRatio
+            }
+          },
+          sonarCheckTestEnv: {
             type: 'object',
             fields: {
               projectKeyWord: [{
@@ -1554,6 +1769,12 @@
       sonarCheckSelected() {
         this.updateSonarCheckQuota('updateValueByChecked', 'sonarCheck');
       },
+      sonarCheckAutoTestScriptTestEnvValue() {
+        this.updateSonarCheckQuota('updateCheckedByValue', 'sonarCheckTestEnv');
+      },
+      sonarCheckAutoTestScriptTestEnvSelect() {
+        this.updateSonarCheckQuota('updateValueByChecked', 'sonarCheckTestEnv');
+      },
       sonarCheckAutoTestScriptValue() {
         this.updateSonarCheckQuota('updateCheckedByValue', 'sonarCheckAutoTestScript');
       },
@@ -1604,6 +1825,49 @@
           // 技术债时间
           'codeDebtSelected'
         ].map(key => this.formData.sonarCheck[key]).join('');
+      },
+      sonarCheckAutoTestScriptTestEnvValue() {
+        return [
+          'unitTestRatio',
+          // 单元测试条件覆盖率
+          'branchCoverage',
+          // 集成测试行覆盖率
+          'itLineCoverage',
+          // 集成测试条件覆盖率
+          'itBranchCoverage',
+          // 阻断问题数量
+          'blockerViolations',
+          // 严重问题数量
+          'criticalViolations',
+          // 主要问题数量
+          'majorViolations',
+          // 次要问题数量
+          'minorViolations',
+          // 技术债时间
+          'codeDebt',
+        ].map(key => this.formData.sonarCheckTestEnv[key]).join('');
+      },
+      sonarCheckAutoTestScriptTestEnvSelect() {
+        return [
+          // 单元测试覆盖率
+          'unitTestSelected',
+          // 单元测试条件覆盖率
+          'branchCoverageSelected',
+          // 集成测试行覆盖率
+          'itLineCoverageSelected',
+          // 集成测试条件覆盖率
+          'itBranchCoverageSelected',
+          // 阻断问题数量
+          'blockerViolationsSelected',
+          // 严重问题数量
+          'criticalViolationsSelected',
+          // 主要问题数量
+          'majorViolationsSelected',
+          // 次要问题数量
+          'minorViolationsSelected',
+          // 技术债时间
+          'codeDebtSelected'
+        ].map(key => this.formData.sonarCheckTestEnv[key]).join('');
       },
       sonarCheckAutoTestScriptValue() {
         return [
@@ -1771,6 +2035,7 @@
           }
         }
         this.updateSonarCheckQuota('updateValueByChecked', 'sonarCheck');
+        this.updateSonarCheckQuota('updateValueByChecked', 'sonarCheckTestEnv');
         this.updateSonarCheckQuota('updateValueByChecked', 'sonarCheckAutoTestScript');
       },
 
@@ -1892,7 +2157,7 @@
       updateFormDataRules() {
         // fix rules for 'testAndSonarScript', 'mvnPackage', 'autoSciPipelineAutoTestVOcript'
         var pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'ciPipelineAutoTestVO',  'ciPipelineAutoTestVOTest',
-          'uploadUnitTestReportAndAutoTestReport'];//.concat(['sonarCheck']);
+          'uploadUnitTestReportAndAutoTestReportTestEnv', 'uploadUnitTestReportAndAutoTestReport'];//.concat(['sonarCheck']);
         pipelineStageList.forEach(it => {
           const required = this.formData[it]['selected'];
           this.formDataRules[it]['required'] = required;
@@ -1994,7 +2259,7 @@
             }
           }
         };
-        ['sonarCheck', 'sonarCheckAutoTestScript'].forEach(updateStageSonarCheck);
+        ['sonarCheck', 'sonarCheckTestEnv', 'sonarCheckAutoTestScript'].forEach(updateStageSonarCheck);
 
         // fix rules for noticeConfig
         const validatorForNoticeConfig = function(rule, values, callback) {
@@ -2082,9 +2347,26 @@
                 this.$message.error(`若选择Sonar数据检查，则至少要选择一个检查项`);
                 throw [false, [{field: 'sonarCheck.*'}]];
               }
+              if (this.formData.sonarCheckTestEnv.selected && !this.isSonarCheckSelected('sonarCheckTestEnv')) {
+                this.$message.error(`若选择Sonar数据检查，则至少要选择一个检查项`);
+                throw [false, [{field: 'sonarCheckTestEnv.*'}]];
+              }
               if (this.formData.sonarCheckAutoTestScript.selected && !this.isSonarCheckSelected('sonarCheckAutoTestScript')) {
                 this.$message.error(`若选择Sonar数据检查，则至少要选择一个检查项`);
                 throw [false, [{field: 'sonarCheckAutoTestScript.*'}]];
+              }
+
+              if (this.formData.ciPipelineAutoTestVOTest.selected
+                && this.formData.uploadUnitTestReportAndAutoTestReportTestEnv.selected
+                && this.formData.uploadUnitTestReportAndAutoTestReportTestEnv.uploadAutoTestReportNode !== "test") {
+                this.$message.error(`上传覆盖率数据[test]中，自动化覆盖率报告读取节点，必须为测试环境`);
+                throw [false, [{field: 'uploadUnitTestReportAndAutoTestReportTestEnv.*'}]];
+              }
+              if (this.formData.ciPipelineAutoTestVO.selected
+                && this.formData.uploadUnitTestReportAndAutoTestReport.selected
+                && this.formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode !== "beta") {
+                this.$message.error(`上传覆盖率数据[beta]中，自动化覆盖率报告读取节点，必须为联调环境`);
+                throw [false, [{field: 'uploadUnitTestReportAndAutoTestReport.*'}]];
               }
               // 前端逻辑按照字符串处理，为了兼容以后支持多种webhook，后端使用数组格式
               if (this.$utils.isString(this.formData.webHooks.webHooksSelectedEvent)) {
@@ -2108,8 +2390,9 @@
                 if (firstFields.indexOf('.') > -1) {
                   firstFields = firstFields.split('.')[0];
                 }
-                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'buildImage', 'ciPipelineAutoTestVO', 'ciPipelineAutoTestVOTest',
-                  'uploadUnitTestReportAndAutoTestReport', 'sonarCheck', 'sonarCheckAutoTestScript'];
+                const pipelineStageList = ['testAndSonarScript', 'mvnPackage', 'buildImage', 'ciPipelineAutoTestVO',
+                  'ciPipelineAutoTestVOTest', 'uploadUnitTestReportAndAutoTestReportTestEnv',
+                  'uploadUnitTestReportAndAutoTestReport', 'sonarCheck', 'sonarCheckTestEnv', 'sonarCheckAutoTestScript'];
                 if (pipelineStageList.indexOf(firstFields) > -1) {
                   this.setActiveStageByName(firstFields);
                   // validate again to make sure show error message
@@ -2296,11 +2579,22 @@
               case 'mvnPackage':
                 this.formDataRules.mvnPackage.fields.script[0].required = true;
                 break;
-              case 'uploadUnitTestReportAndAutoTestReport':
-                // "自动化测试[test]"或 "自动化测试[beta]"节点添加后，才可以添加"上传覆盖率数据"节点
-                if (!this.formData.ciPipelineAutoTestVO.selected && !this.formData.ciPipelineAutoTestVOTest.selected) {
+              case 'uploadUnitTestReportAndAutoTestReportTestEnv':
+                // "自动化测试[test]"节点添加后，才可以添加"上传覆盖率数据"节点
+                if (!this.formData.ciPipelineAutoTestVOTest.selected) {
                   stageChangeStatus.success = false;
-                  stageChangeStatus.reason = `"自动化测试[test]"或 "自动化测试[beta]"节点添加后，才可以添加"上传覆盖率数据"节点`;
+                  stageChangeStatus.reason = `"自动化测试[test]"节点添加后，才可以添加"上传覆盖率数据[test]"节点`;
+                } else {
+                  this.formData.uploadUnitTestReportAndAutoTestReportTestEnv.uploadAutoTestReportNode = "test";
+                }
+                break;
+              case 'uploadUnitTestReportAndAutoTestReport':
+                // "自动化测试[beta]"节点添加后，才可以添加"上传覆盖率数据"节点
+                if (!this.formData.ciPipelineAutoTestVO.selected) {
+                  stageChangeStatus.success = false;
+                  stageChangeStatus.reason = `"自动化测试[beta]"节点添加后，才可以添加"上传覆盖率数据[beta]"节点`;
+                } else {
+                  this.formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode = "beta";
                 }
                 break;
               case 'ciPipelineAutoTestVOTest':
@@ -2357,15 +2651,21 @@
                 this.handleStageActiveChange(evt, 'stage-remove', 'ciPipelineAutoTestVO');
                 break;
               case 'ciPipelineAutoTestVOTest':
+                if (currentStageName === 'ciPipelineAutoTestVOTest' && this.formData.uploadUnitTestReportAndAutoTestReportTestEnv.uploadAutoTestReportNode === 'test') {
+                  this.formData.uploadUnitTestReportAndAutoTestReportTestEnv.uploadAutoTestReportNode = '';
+                }
+                // "自动化测试[test]"节点删除后，"上传覆盖率数据[test]"节点将会删除
+                if (!this.formData.ciPipelineAutoTestVOTest.selected) {
+                  this.stages.filter(it => ['uploadUnitTestReportAndAutoTestReportTestEnv'].indexOf(it['name']) > -1).forEach(it => it['selected'] = false);
+                  this.formData.uploadUnitTestReportAndAutoTestReportTestEnv.selected = false;
+                }
+                break;
               case 'ciPipelineAutoTestVO':
                 if (currentStageName === 'ciPipelineAutoTestVO' && this.formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode === 'beta') {
                   this.formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode = '';
                 }
-                if (currentStageName === 'ciPipelineAutoTestVOTest' && this.formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode === 'test') {
-                  this.formData.uploadUnitTestReportAndAutoTestReport.uploadAutoTestReportNode = '';
-                }
-                // "自动化测试[test]"节点 和 "自动化测试[beta]"节点 都删除后，"上传覆盖率数据"节点将会删除
-                if (!this.formData.ciPipelineAutoTestVO.selected && !this.formData.ciPipelineAutoTestVOTest.selected) {
+                // "自动化测试[beta]"节点 都删除后，"上传覆盖率数据"节点将会删除
+                if (!this.formData.ciPipelineAutoTestVO.selected) {
                   this.stages.filter(it => ['uploadUnitTestReportAndAutoTestReport'].indexOf(it['name']) > -1).forEach(it => it['selected'] = false);
                   this.formData.uploadUnitTestReportAndAutoTestReport.selected = false;
                 }
