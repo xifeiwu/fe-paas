@@ -16,8 +16,8 @@
       <el-table :data="serviceList"
                 stripe>
         <el-table-column label="服务版本" prop="serviceTypeName"></el-table-column>
-        <el-table-column label="运行实例数/总实例数" prop="instanceStatus" headerAlign="center" align="center" width="200">
-        </el-table-column>
+        <el-table-column label="运行实例数/总实例数" prop="instanceStatus" headerAlign="center" align="center" width="200"></el-table-column>
+        <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="200"></el-table-column>
         <el-table-column>
           <template slot-scope="scope">
             <el-button
@@ -40,6 +40,13 @@
               {{'删除'}}
               </el-button>
             <div v-if="scope.row['serviceType'] === 'canary'" class="ant-divider"></div>
+            <el-button v-if="!$storeHelper.actionDisabled['open-dialog-k8s-info']"
+                       size="small"
+                       type="text"
+                       @click="handleTRClick($event, 'open-dialog-k8s-info', scope.$index, scope.row)"
+                       :class="['primary', 'flex']">
+              <span>K8S实时信息</span>
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -78,6 +85,17 @@
         </div>
       </div>
     </el-dialog>
+    <el-dialog title="K8S实时信息展示"
+               v-if="action.name === 'open-dialog-k8s-info'"
+               :visible="action.name === 'open-dialog-k8s-info'"
+               class="size-1000 k8s-info"
+               @close="closeDialog"
+               :close-on-click-modal="false"
+    >
+      <div class="__editor">
+        <codemirror v-model="action.data" :options="showK8sResourceOptions"></codemirror>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -87,7 +105,7 @@
     max-width: 1500px;
     display: flex;
     flex-direction: column;
-    & > .header {
+    > .header {
       padding: 3px 5px;
       font-size: 14px;
       min-height: 28px;
@@ -105,16 +123,40 @@
         color: #eb9e05;
       }
     }
-    & > .list {
+    > .list {
       flex: 1;
     }
   }
 </style>
+<style lang="scss">
+  #service-gray {
+    > .el-dialog__wrapper.k8s-info {
+      .__editor {
+        text-align: left;
+        min-height: 600px;
+        margin: -2px;
+        .CodeMirror {
+          min-height: 600px;
+        }
+      }
+    }
+  }
+</style>
 <script>
+  import {codemirror} from "vue-codemirror";
+  import "codemirror/lib/codemirror.css";
+
+  // language
+  import "codemirror/mode/properties/properties.js";
+  import "codemirror/mode/yaml/yaml.js";
+  // theme
+  import "codemirror/theme/monokai.css";
+  // require active-line.js
+  import "codemirror/addon/selection/active-line.js";
   import paasDismissMessage from 'assets/components/dismiss-message.vue';
   import commonUtils from 'assets/components/mixins/common-utils';
   export default {
-    components: {paasDismissMessage},
+    components: {paasDismissMessage, codemirror},
     mixins: [commonUtils],
     async created() {
       if (this.$route.params && this.$route.params.hasOwnProperty('id')) {
@@ -134,6 +176,16 @@
       return {
         serviceId: null,
         serviceList: [],
+        showK8sResourceOptions: {
+          tabSize: 4,
+          styleActiveLine: true,
+          lineNumbers: true,
+          line: true,
+          mode: "text/x-properties",
+          theme: "monokai",
+          readOnly: true,
+          viewportMargin: 10
+        },
       }
     },
     methods: {
@@ -221,13 +273,30 @@
           case 'service_gray_update':
             break;
           case 'service_gray_delete':
-
             await this.$confirm(`删除 灰度服务 吗？`, '提示', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',
               type: 'warning',
               dangerouslyUseHTMLString: true
             });
+            break;
+          case 'open-dialog-k8s-info':
+            try {
+//              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.get_resource_information_by_k8s, {
+//                payload: {
+//                  spaceId: this.profileInfo.id,
+//                  groupId: this.$storeHelper.groupInfo.id,
+//                  namespace: this.$storeHelper.groupInfo.tag,
+//                  appConfigId: this.action.row.id,
+//                  configServiceName: this.action.row.serviceName
+//                }
+//              });
+              await this.openDialog(action, 'resContent');
+            } catch (err) {
+              console.log(err);
+            } finally {
+              this.closeDialog();
+            }
             break;
         }
       }

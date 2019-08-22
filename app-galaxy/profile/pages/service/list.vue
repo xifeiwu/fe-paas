@@ -226,9 +226,9 @@
               <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
                          size="small"
                          type="text"
-                         @click="handleTRClick($event, 'show_info_with_k8s', scope.$index, scope.row)"
+                         @click="handleTRClick($event, 'open-dialog-k8s-info', scope.$index, scope.row)"
                          :class="['primary', 'flex']">
-                <span>K8S实时信息展示</span>
+                <span>K8S实时信息</span>
               </el-button>
             </div>
             <el-button
@@ -601,25 +601,15 @@ tolerations:
       </div>
     </el-dialog>
 
-    <el-dialog :visible.sync="hasK8sResourceInfo" top="30px" width="80%" :fullscreen="false"
-               element-loading-text="正在保存"
-               element-loading-spinner="el-icon-loading"
-               element-loading-background="rgba(0, 0, 0, 0.8)"
+    <el-dialog title="K8S实时信息展示"
+               v-if="actionNew.name === 'open-dialog-k8s-info'"
+               :visible="actionNew.name === 'open-dialog-k8s-info'"
+               class="size-1000 k8s-info"
+               @close="closeDialog"
+               :close-on-click-modal="false"
     >
-      <div class="py-3" style="width: 80%; text-align: left;">
-        <h4 style="display: inline;">
-          <span style="color: red;">
-          K8S实时信息展示
-          </span>
-        </h4>
-      </div>
-
       <div class="__editor">
-        <codemirror v-model="configOfK8sResource" :options="showK8sResourceOptions"></codemirror>
-      </div>
-
-      <div slot="footer" class="pa-3" style="text-align: center">
-        <el-button type="danger" size="medium" @click="hasK8sResourceInfo = false">&emsp;关 闭&emsp;</el-button>
+        <codemirror v-model="actionNew.data" :options="showK8sResourceOptions"></codemirror>
       </div>
     </el-dialog>
   </div>
@@ -784,7 +774,7 @@ tolerations:
       }
 
     }
-    > .confirm-deploy {
+    > .el-dialog__wrapper.confirm-deploy {
       .el-dialog {
         display: inline-block;
         vertical-align: middle;
@@ -827,7 +817,7 @@ tolerations:
       }
       @include log-item;
     }
-    > .confirm-dialog {
+    > .el-dialog__wrapper.confirm-dialog {
       .el-dialog {
         border-radius: 4px;
         border: 1px solid #e6ebf5;
@@ -866,6 +856,16 @@ tolerations:
       .el-dialog__footer {
         border-top: none;
         margin-top: 0;
+      }
+    }
+    > .el-dialog__wrapper.k8s-info {
+      .__editor {
+        text-align: left;
+        min-height: 600px;
+        margin: -2px;
+        .CodeMirror {
+          min-height: 600px;
+        }
       }
     }
   }
@@ -1099,8 +1099,6 @@ tolerations:
           // 校验规则：域名数组（大于一个小于五个，无域名后缀）
           errMsgForDomainList: ''
         },
-        hasK8sResourceInfo: false,
-        configOfK8sResource: "",
         showK8sResourceOptions: {
           tabSize: 4,
           styleActiveLine: true,
@@ -1186,21 +1184,21 @@ tolerations:
 
       openDialog(name, data) {
         if (data) {
-          this.actionNew.dataOrigin = data;
-          this.actionNew.data = this.$utils.cloneDeep(data);
-        }
+            this.actionNew.dataOrigin = data;
+            this.actionNew.data = this.$utils.cloneDeep(data);
+          }
         this.actionNew.name = name;
         // console.log(this.actionNew);
-
-        return new Promise((resolve, reject) => {
-          this.actionNew.promise.resolve = resolve;
-          this.actionNew.promise.reject = reject;
-        });
+            return new Promise((resolve, reject) => {
+            this.actionNew.promise.resolve = resolve;
+            this.actionNew.promise.reject = reject;
+          });
       },
       closeDialog() {
         this.actionNew.name = null;
         this.actionNew.promise.reject('cancel');
       },
+
       async handleDialogEvent(evt, action, data) {
 //        console.log(evt, action);
         try {
@@ -2315,27 +2313,23 @@ tolerations:
             }).finally(()=> {
             });
             break;
-          case 'show_info_with_k8s':
-            // console.log(this.action.row);
-            await this.$net.requestPaasServer(this.$net.URL_LIST.get_resource_information_by_k8s, {
-              payload: {
-                spaceId: this.profileInfo.id,
-                groupId: this.$storeHelper.groupInfo.id,
-                namespace: this.$storeHelper.groupInfo.tag,
-                appConfigId: this.action.row.id,
-                configServiceName: this.action.row.serviceName
-              }
-            }).then(resp =>{
-              if (resp) {
-                this.configOfK8sResource = resp;
-              } else {
-                this.configOfK8sResource = "";
-              }
-              this.hasK8sResourceInfo = true;
-            }).catch(error => {
-              console.log(error);
-            }).finally(()=> {
-            });
+          case 'open-dialog-k8s-info':
+            try {
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.get_resource_information_by_k8s, {
+                payload: {
+                  spaceId: this.profileInfo.id,
+                  groupId: this.$storeHelper.groupInfo.id,
+                  namespace: this.$storeHelper.groupInfo.tag,
+                  appConfigId: this.action.row.id,
+                  configServiceName: this.action.row.serviceName
+                }
+              });
+              await this.openDialog(action, resContent);
+            } catch (err) {
+              console.log(err);
+            } finally {
+              this.closeDialog();
+            }
             break;
         }
       },
@@ -2521,13 +2515,3 @@ tolerations:
     }
   }
 </script>
-
-<style lang="scss">
-  .__editor {
-    text-align: left;
-    min-height: 400px;
-    .CodeMirror {
-      min-height: 480px;
-    }
-  }
-</style>
