@@ -288,7 +288,7 @@ class AppInfoHelper {
         required: true,
         message: '请输入实例数量',
       }],
-      expiredDays: [{
+      remainExpiredDays: [{
         required: true,
         message: '请输入过期时间',
       }],

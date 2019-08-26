@@ -12,7 +12,7 @@
         <span>{{serviceInfo.rollingUpdate? '需要' : '不需要'}}</span>
       </el-form-item>
       <el-form-item label="剩余过期时间">
-        <span>{{serviceInfo.expiredDays}}</span>
+        <span>{{serviceInfo.remainExpiredDays}}</span>
       </el-form-item>
       <el-form-item label="负载均衡">
         {{serviceInfo.loadBalance}}
@@ -119,7 +119,7 @@
   export default {
     mounted() {
       const defaultValue = '---';
-      ['mavenProfileId', 'prestopCommand', 'vmOptions', 'healthCheck', 'expiredDays'].forEach(key => {
+      ['mavenProfileId', 'prestopCommand', 'vmOptions', 'healthCheck', 'remainExpiredDays'].forEach(key => {
         if (!this.serviceInfo[key]) {
           this.serviceInfo[key] = defaultValue;
         }

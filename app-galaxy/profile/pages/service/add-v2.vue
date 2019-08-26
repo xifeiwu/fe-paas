@@ -209,7 +209,7 @@
         <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
           <el-input-number v-model="formData.instanceCount" :min="1" label="描述文字" :disabled="forGray"></el-input-number>
         </el-form-item>
-        <el-form-item label="过期时间(天)" prop="expiredDays" class="expired-days" v-if="!formRelated.isProductionProfile">
+        <el-form-item label="过期时间(天)" prop="remainExpiredDays" class="expired-days" v-if="!formRelated.isProductionProfile">
           <el-input-number v-model="formData.remainExpiredDays" :min="1" :max="365" :disabled="forGray"></el-input-number>
           <i class="paas-icon-fa-question" v-pop-on-mouse-over="'服务的实例将在指定时间后被删除，最大值为一年'"></i>
         </el-form-item>
@@ -1123,7 +1123,7 @@
         // reset some props when isProductionProfile
         if (this.formRelated.isProductionProfile) {
           this.formData.enableJacoco = false;
-          this.formData.expiredDays = this.$storeHelper.globalConfig['defaultExpiredDays'];
+          this.formData.remainExpiredDays = this.$storeHelper.globalConfig['defaultExpiredDays'];
         }
         // 切换目标环境是清除所有的表单字段校验
         this.$refs['formData'].clearValidate();
