@@ -271,6 +271,9 @@
       async handleTRClick(evt, action, index, row) {
         switch (action) {
           case 'service_gray_update':
+            this.$router.push(this.$router.helper.pages['/profile/service/:id(\\d+)/gray/modify'].toPath({
+              id: this.serviceId
+            }));
             break;
           case 'service_gray_delete':
             await this.$confirm(`删除 灰度服务 吗？`, '提示', {
