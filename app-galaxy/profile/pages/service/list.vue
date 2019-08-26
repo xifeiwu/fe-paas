@@ -102,7 +102,7 @@
               <div v-if="!isProductionProfile"
                    class="ant-divider"></div>
               <el-button
-                      v-if="false"
+                      v-if="true"
                       size="small"
                       type="text"
                       :loading="statusOfWaitingResponse('service_deploy_gray') && action.row.appId == scope.row.appId"
@@ -110,7 +110,7 @@
                       :class="['flex', $storeHelper.actionDisabled('service_deploy_gray') || publishStatus? 'disabled' : 'danger']">
                 <span>{{'灰度发布'}}</span><i class="paas-icon-level-up"></i>
               </el-button>
-              <div v-if="false"
+              <div v-if="true"
                    class="ant-divider"></div>
               <el-button
                       size="small"
