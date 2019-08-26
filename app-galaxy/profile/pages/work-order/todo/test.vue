@@ -16,7 +16,7 @@
                       :showTestLog="false" :showAppDeploy="false" @app-deploy="handleButtonClick"></my-show-detail>
       <el-form labelWidth="110px" size="mini" :model="handleInfo" :rules="rules" ref="handle-form">
         <el-form-item label="测试类型" prop="testType" class="test-type">
-          <el-select  v-model="handleInfo.testType">
+          <el-select  v-model="handleInfo.testType" style="width: 360px">
             <el-option v-for="item in testTypeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
@@ -53,7 +53,7 @@
                   :multiple="true"
                   @onUploadFiles="onUploadFiles"
           >
-            <el-button slot="trigger" type="primary" size="mini-extral">选取文件</el-button>
+            <el-button slot="trigger" type="primary" size="mini">选取文件</el-button>
             <!--<el-button style="margin-left: 10px;" type="success" size="mini-extral" @click="handleSubmitUpload">上传到服务器</el-button>-->
           </el-upload>
         </el-form-item>
@@ -67,18 +67,18 @@
       </el-form>
     </div>
     <div class="section-footer">
-      <el-button
-              size="mini"
-              type="primary"
+      <div class="item">
+        <el-button size="mini" type="primary"
               @click="handleButtonClick('close')">关闭</el-button>
-      <el-button
-              size="mini"
-              type="primary"
+      </div>
+      <div class="item">
+        <el-button size="mini" type="primary"
               @click="handleButtonClick('finish-handle')">处理完成</el-button>
-      <el-button
-              size="mini"
-              type="primary"
+      </div>
+      <div class="item">
+        <el-button size="mini" type="primary"
               @click="handleButtonClick('reject-handle')">拒绝处理</el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -87,10 +87,10 @@
   #work-order-test {
     background: white;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-    width: 800px;
-    margin: 20px;
-    margin-left: 30px;
-    padding: 18px;
+    margin: 10px;
+    padding: 10px 20px;
+    max-width: 900px;
+    box-sizing: border-box;
     .el-form {
       .el-form-item {
         .el-textarea {
@@ -106,6 +106,17 @@
     }
     .section-footer {
       text-align: center;
+      margin: 0px -10px;
+      padding-top: 10px;
+      border-top: 1px solid #e7e7e7;
+      display: flex;
+      .item {
+        flex: 1;
+        text-align: center;
+      }
+      .el-button {
+        min-width: 100px;
+      }
     }
     .el-form {
       .el-form-item {

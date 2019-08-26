@@ -123,6 +123,14 @@
       margin-bottom: 2px;
       th, td {
         padding: 0px;
+        .cell {
+          font-size: 14px;
+          line-height: 18px;
+        }
+      }
+      th {
+        line-height: 20px;
+        font-weight: bold;
       }
       th .cell {
         padding: 1px;
@@ -150,22 +158,15 @@
       }
     }
     th, td {
+      padding: 2px 2px;
       border-bottom: 1px solid #e6ebf5;
       //border-bottom: 1px solid lightgray;
       //border-bottom: 1px solid #409EFF;
-    }
-    th {
-      padding: 2px 2px;
-      .cell {
-        padding: 0px;
-      }
-    }
-    td {
-      padding: 2px 2px;
       .cell {
         text-overflow: initial;
         padding: 4px 0px;
-        line-height: 1.4;
+        font-size: 14px;
+        line-height: 18px;
       }
     }
     //hide expand column
