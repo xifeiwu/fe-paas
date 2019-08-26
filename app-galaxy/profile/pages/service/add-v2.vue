@@ -822,7 +822,7 @@
           environments: [],
           hosts: [],
           instanceCount: 1,
-          expiredDays: this.$storeHelper.globalConfig['defaultExpiredDays'],
+          remainExpiredDays: this.$storeHelper.globalConfig['defaultExpiredDays'],
           customImage: false,
           imageLocation: '',
           // value of autoImage
