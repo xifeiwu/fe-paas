@@ -403,6 +403,7 @@ taints:
           return;
         }
         await this.requestNodeList();
+        await this.computedNodeList();
       },
       'keyword': function () {
         this.computedNodeList();
