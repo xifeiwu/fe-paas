@@ -1,7 +1,7 @@
 <template>
   <el-scrollbar id="service-add">
     <div class="sheet">
-      <div class="section-title">{{forModify ?'修改配置' : (forCopy ? '复制服务' : '创建服务')}}</div>
+      <div class="section-title">{{title}}</div>
       <el-form :model="formData" ref="formData"
                :rules="rules" :label-width="formRelated.isJavaLanguage ? '160px' : '160px'" size="mini"
                :element-loading-text="loadingText">
@@ -626,16 +626,17 @@
 
       try {
         if (this.$router.helper.pages['/profile/service/:id(\\d+)/gray/add'].pathReg.test(path)) {
+          this.forAdd = true;
           serviceInfo = await this.getServiceById(this.$route.params['id']);
           profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
-          this.forAdd = true;
         } else
         if (this.$router.helper.pages['/profile/service/:id(\\d+)/gray/modify'].pathReg.test(path)) {
+          this.forModify = true;
           serviceInfo = await this.getServiceById(this.$route.params['id']);
           profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
-          this.forModify = true;
         } else
         if (this.$router.helper.pages['/profile/service/modify'].pathReg.test(path)) {
+          this.forModify = true;
           // try to get appId and profileId from location.search
           if (!dataTransfer && location.search) {
             dataTransfer = {
@@ -647,23 +648,22 @@
           }
           profileInfo = this.$storeHelper.getProfileInfoByID(dataTransfer.data.profileId);
           serviceInfo = await this.getServiceByAppIdAndSpaceId(dataTransfer.data.appId, dataTransfer.data.profileId);
-          this.forModify = true;
         } else
         if (this.$router.helper.pages['/profile/service/add'].pathReg.test(path)) {
+          this.forAdd = true;
           if (!this.$utils.hasProps(dataTransfer.data, 'serviceBasicInfo', 'profileId')) {
             throw new Error('信息不完整');
           }
           profileInfo = this.$storeHelper.getProfileInfoByID(dataTransfer.data.profileId);
           serviceInfo = dataTransfer.data.serviceBasicInfo;
-          this.forAdd = true;
         } else
         if (this.$router.helper.pages['/profile/service/copy'].pathReg.test(path)) {
+          this.forCopy = true;
           if (!this.$utils.hasProps(dataTransfer.data, 'appId', 'profileId', 'notServiceSpaceList')) {
             throw new Error('信息不完整');
           }
           profileInfo = this.$storeHelper.getProfileInfoByID(dataTransfer.data.profileId);
           serviceInfo = await this.getServiceByAppIdAndSpaceId(dataTransfer.data.appId, dataTransfer.data.profileId);
-          this.forCopy = true;
         }
 
         this.from = dataTransfer ? dataTransfer.from : null;
@@ -975,6 +975,25 @@
           return profileUtils.getSupportedLoadBalance();
         }
       },
+      title() {
+        var result = '';
+        if (this.forGray) {
+          if (this.forModify) {
+            result = '修改灰度版本';
+          } else if (this.forAdd) {
+            result = '创建灰度版本';
+          }
+        } else {
+          if (this.forModify) {
+            result = '修改配置';
+          } else if (this.forCopy) {
+            result = '复制服务';
+          } else if (this.forAdd) {
+            result = '创建服务';
+          }
+        }
+        return result;
+      }
     },
     watch: {
       // TODO: not used
@@ -1140,13 +1159,26 @@
         return serviceInfo;
       },
       async getServiceById(serviceId) {
-        var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_by_id, {
+        var mainServiceInfo = await this.$net.requestPaasServer(this.$net.URL_LIST.service_by_id, {
           params: {
             id: serviceId
           }
         });
-        const serviceInfo = this.$net.getServiceModel(resContent);
-        return serviceInfo;
+        if (this.forGray && this.forModify) {
+          var canaryServiceInfo = (await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_list, {
+            query: {
+              configId: serviceId
+            }
+          }))['canary'];
+          ['customImage', 'image', 'gitLabAddress', 'gitLabBranch'].forEach(key => {
+            mainServiceInfo[key] = canaryServiceInfo[key];
+          });
+        }
+        const serviceModel = this.$net.getServiceModel(mainServiceInfo);
+        if (this.forGray && this.forModify) {
+          serviceModel['canaryId'] = canaryServiceInfo['id'];
+        }
+        return serviceModel;
       },
       scrollTop() {
         setTimeout(() => {
