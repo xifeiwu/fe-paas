@@ -356,7 +356,10 @@ class Net extends NetBase {
         path: '/service/canary/update',
         method: 'put'
       },
-
+      'service_gray_create_info': {
+        path: '/service/canaryStrategy/query',
+        method: 'post'
+      },
       /** 实例相关*/
       // 获取实例列表
       'instance_list': {

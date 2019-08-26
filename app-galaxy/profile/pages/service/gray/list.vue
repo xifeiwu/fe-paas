@@ -256,6 +256,11 @@
           case 'open_dialog_service_gray_strategy':
             try {
 //              await this.getData4GrayCreate();
+              await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_create_info, {
+                "configId": 19941,
+                "spaceId": 2,
+                "groupId": 251
+              });
               await this.openDialog(action);
             } catch (err) {
               console.log(err);
