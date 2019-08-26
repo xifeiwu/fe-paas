@@ -1,9 +1,9 @@
 <template>
   <el-dialog :title="title" :visible="showStatus.visible"
              @close="handleIconClick('close')"
-             class="dialog-for-log"
+             class="dialog-for-log-old"
              :closeOnClickModal="false"
-             ref="dialog-for-log"
+             ref="dialog-for-log-old"
              top="80px"
   >
     <el-scrollbar
@@ -29,7 +29,7 @@
   .spa .el-dialog__wrapper {
     /*font-family: "微软雅黑", 'Microsoft Yahei','HelveticaNeue',sans-serif;*/
     font-family: Consolas, Menlo, Courier, monospace;
-    &.dialog-for-log {
+    &.dialog-for-log-old {
       @keyframes rotating {
         0% {
           transform: rotateZ(0deg);
@@ -183,7 +183,7 @@
       if (!this.showStatus.hasOwnProperty('iconExpand')) {
         this.showStatus['iconExpand'] = false;
       }
-      let dialog = this.$refs['dialog-for-log'].$refs['dialog'];
+      let dialog = this.$refs['dialog-for-log-old'].$refs['dialog'];
       if (this.showStatus.full && dialog) {
         dialog.style.width = '100%';
         dialog.style.height = '100%';
@@ -226,7 +226,7 @@
         }
       },
       'showStatus.full': function(value) {
-        let dialog = this.$refs['dialog-for-log'].$refs['dialog'];
+        let dialog = this.$refs['dialog-for-log-old'].$refs['dialog'];
         if (this.showStatus.full) {
           dialog.style.width = '100%';
           dialog.style.height = '100%';
