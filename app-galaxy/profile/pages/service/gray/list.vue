@@ -58,7 +58,6 @@
                @close="closeDialog"
                class="size-900 dialog-add"
                :close-on-click-modal="false"
-               top="80px"
     >
       <div class="content">
         <paas-dismiss-message :toExpand="true"
@@ -68,6 +67,11 @@
                               :msgList="['目前pipeline只支持Java语言的“平台构建镜像”方式，不支持自定义镜像；Pipeline的基本配置默认取自对应应用的测试环境配置。']"></paas-dismiss-message>
         <el-form :model="action.row" size="mini" label-width="120px" ref="newDomainForm">
           <el-form-item label="网络类型" class="">
+            <el-checkbox-group v-model="action.data.listIngress" v-if="grayStrategyRelated.listIngress">
+              <el-checkbox v-for="item in grayStrategyRelated.listIngress" :label="item.host" :key="item.host">
+                {{item.host}}{{item.isIntranet ? '(内网域名)' : ''}}
+            </el-checkbox>
+            </el-checkbox-group>
           </el-form-item>
           <el-form-item label="实例数" class="">
           </el-form-item>
@@ -186,6 +190,7 @@
           readOnly: true,
           viewportMargin: 10
         },
+        grayStrategyRelated: null
       }
     },
     methods: {
@@ -256,12 +261,26 @@
           case 'open_dialog_service_gray_strategy':
             try {
 //              await this.getData4GrayCreate();
-              await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_create_info, {
-                "configId": 19941,
-                "spaceId": 2,
-                "groupId": 251
+              this.grayStrategyRelated = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_create_info, {
+                payload: {
+                  "configId": 19941,
+                  "spaceId": 2,
+                  "groupId": 251
+                }
               });
-              await this.openDialog(action);
+              if (this.serviceList.length === 0) {
+                this.$message.error('未找到服务列表');
+                return;
+              }
+              this.grayStrategyRelated.instanceTotal = this.serviceList['containerStatus']['Total'];
+              this.grayStrategyRelated.instanceMain = this.serviceList['containerStatus']['Running'];
+              var mainInstanceNum = 0;
+              var canaryInstanceNum = this.serviceList['containerStatus']['Total'] - mainInstanceNum;
+              await this.openDialog(action, {
+                listIngress: [],
+                canaryInstanceNum: 0,
+
+              });
             } catch (err) {
               console.log(err);
             }
