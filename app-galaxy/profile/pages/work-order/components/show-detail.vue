@@ -35,7 +35,9 @@
                     style="font-size: 14px;"
                     :class="[$storeHelper.permission['work-order_deploy_service'].disabled || publishStatus? 'disabled' : 'warning']"
                     @click="confirmDeploy($event, 'work-order_deploy_service', scope.$index, scope.row)"
-            >部署</el-button>
+            >{{scope.row.hasCanary ? '灰度部署':'部署'}}</el-button>
+            <i class="el-icon-question" v-if="scope.row.hasCanary" style="color: #E6A23C;"
+               v-pop-on-mouse-over="['当该主服务存在灰度服务时，只能进行灰度部署，如需部署主服务，请先删除灰度服务', '灰度部署完成后，需要到服务管理/灰度发布页面，设置灰度策略后，才能生效']"></i>
             <el-button v-if="false"
                     type="text"
                     style="font-size: 14px;"
