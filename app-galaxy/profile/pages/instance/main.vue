@@ -39,6 +39,9 @@
             <i class="paas-icon-copy"
                v-clipboard:copy="scope.row.id"
                v-clipboard:success="handleSuccessCopy"></i>
+            <span v-if="scope.row.hasCanary" :style="{border: '1px solid #409EFF', color: '#409EFF',
+             'font-size': '12px', padding: '1px','border-radius': '4px'}"
+            >灰度</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -524,7 +527,7 @@
           spaceId: profileId
         };
         this.$net.requestPaasServer(this.$net.URL_LIST.service_info_running, {payload}).then(resContent => {
-          this.serviceRunningInfo = null
+          this.serviceRunningInfo = null;
           if (resContent.hasOwnProperty("applicationConfigDeployment")) {
             this.serviceRunningInfo = resContent["applicationConfigDeployment"];
           }
