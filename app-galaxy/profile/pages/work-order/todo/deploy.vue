@@ -24,23 +24,18 @@
       </el-form>
     </div>
     <div class="section-footer">
-      <el-button
-              size="mini"
-              type="primary"
-              @click="handleButtonClick($event, 'back')">返回</el-button>
-      <el-button
-              size="mini"
-              type="primary"
-              v-if="false"
-              @click="handleButtonClick($event, 'deploy')">部署应用</el-button>
-      <el-button
-              size="mini"
-              type="primary"
-              @click="handleButtonClick($event, 'reject-handle')">拒绝处理</el-button>
-      <el-button
-              size="mini"
-              type="primary"
-              @click="handleButtonClick($event, 'finish-handle')">处理完成</el-button>
+      <div class="item">
+        <el-button size="mini" type="primary"
+                   @click="handleButtonClick($event, 'back')">返回</el-button>
+      </div>
+      <div class="item">
+        <el-button size="mini" type="primary"
+                   @click="handleButtonClick($event, 'reject-handle')">拒绝处理</el-button>
+      </div>
+      <div class="item">
+        <el-button size="mini" type="primary"
+                   @click="handleButtonClick($event, 'finish-handle')">处理完成</el-button>
+      </div>
     </div>
     <paas-dialog-for-log title="部署日志" :showStatus="dialogForLogStatus" ref="dialogForDeployLog">
       <div slot="content">
@@ -96,16 +91,27 @@
   #work-order-handle {
     background: white;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-    width: 800px;
-    margin: 20px;
-    margin-left: 30px;
-    padding: 18px;
+    margin: 10px;
+    padding: 10px 20px;
+    max-width: 800px;
+    box-sizing: border-box;
     .section-title {
       text-align: center;
       margin: 15px 0px;
     }
     .section-footer {
       text-align: center;
+      margin: 0px -10px;
+      padding-top: 10px;
+      border-top: 1px solid #e7e7e7;
+      display: flex;
+      .item {
+        flex: 1;
+        text-align: center;
+      }
+      .el-button {
+        min-width: 100px;
+      }
     }
   }
 </style>
