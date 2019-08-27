@@ -635,6 +635,7 @@ tolerations:
       .el-dialog {
         width: 95%;
         max-width: 1500px;
+        height: 500px;
         .el-dialog__header {
           padding: 3px 8px;
           margin-bottom: 0px;
