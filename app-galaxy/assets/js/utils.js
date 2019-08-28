@@ -7,6 +7,120 @@ export default class Utils extends BaseUtils {
     this.pathToRegexp = pathToRegexp;
   }
 
+
+  isNumber(val) {
+    return typeof val === 'number';
+  }
+  // isNumber(n) {
+  //   return !isNaN(parseFloat(n)) && isFinite(n);
+  // }
+
+  isInteger(n) {
+    return Number.isInteger(n);
+  }
+
+  isString(s) {
+    return typeof(s) === 'string' || s instanceof String;
+  }
+
+  isDate(val) {
+    return toString.call(val) === '[object Date]';
+  }
+  // isDate(n) {
+  //   return n instanceof Date;
+  // }
+
+  isFile(val) {
+    return toString.call(val) === '[object File]';
+  }
+
+  isBlob(val) {
+    return toString.call(val) === '[object Blob]';
+  }
+
+  isBuffer(obj) {
+    return obj != null && obj.constructor != null &&
+      typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
+  }
+
+
+  // isObject(value) {
+  //   var type = typeof value;
+  //   return value != null && (type == 'object' || type == 'function');
+  // }
+  isObject(val) {
+    return val !== null && typeof val === 'object';
+  }
+  isPlainObject(obj) {
+    var hasOwn = Object.prototype.hasOwnProperty;
+    var toStr = Object.prototype.toString;
+    if (!obj || toStr.call(obj) !== '[object Object]') {
+      return false;
+    }
+
+    var hasOwnConstructor = hasOwn.call(obj, 'constructor');
+    var hasIsPrototypeOf = obj.constructor && obj.constructor.prototype && hasOwn.call(obj.constructor.prototype, 'isPrototypeOf');
+    // Not own constructor property must be Object
+    if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
+      return false;
+    }
+
+    // Own properties are enumerated firstly, so to speed up,
+    // if last one is own, then all properties are own.
+    var key;
+    for (key in obj) { /**/ }
+
+    return typeof key === 'undefined' || hasOwn.call(obj, key);
+  }
+
+
+  isRegExp(obj) {
+    return obj instanceof RegExp
+  }
+  isError(obj) {
+    return obj instanceof Error
+  }
+
+  isUndefined(val) {
+    return typeof val === 'undefined';
+  }
+
+  isFunction(val) {
+    return toString.call(val) === '[object Function]';
+  }
+
+  isStream(val) {
+    return this.isObject(val) && this.isFunction(val.pipe);
+  }
+
+  isArray(arr) {
+    if (typeof Array.isArray === 'function') {
+      return Array.isArray(arr);
+    }
+    return toString.call(arr) === '[object Array]';
+  }
+
+  isArrayBuffer(val) {
+    return toString.call(val) === '[object ArrayBuffer]';
+  }
+
+  isFormData(val) {
+    return (typeof FormData !== 'undefined') && (val instanceof FormData);
+  }
+
+  isArrayBufferView(val) {
+    var result;
+    if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
+      result = ArrayBuffer.isView(val);
+    } else {
+      result = (val) && (val.buffer) && (val.buffer instanceof ArrayBuffer);
+    }
+    return result;
+  }
+
+  isURLSearchParams(val) {
+    return typeof URLSearchParams !== 'undefined' && val instanceof URLSearchParams;
+  }
   objectToQueryString (obj) {
     return Object.keys(obj).reduce(function (str, key, i) {
       var delimiter, val;
@@ -285,5 +399,70 @@ export default class Utils extends BaseUtils {
         callback();
       }
     };
+  }
+
+  /**
+   * Iterate over an Array or an Object invoking a function for each item.
+   *
+   * If `obj` is an Array callback will be called passing
+   * the value, index, and complete array for each item.
+   *
+   * If 'obj' is an Object callback will be called passing
+   * the value, key, and complete object for each property.
+   *
+   * @param {Object|Array} obj The object to iterate
+   * @param {Function} fn The callback to invoke for each item
+   */
+  forEach(obj, fn) {
+    // Don't bother if no value provided
+    if (obj === null || typeof obj === 'undefined') {
+      return;
+    }
+
+    // Force an array if not already something iterable
+    if (typeof obj !== 'object') {
+      /*eslint no-param-reassign:0*/
+      obj = [obj];
+    }
+
+    if (this.isArray(obj)) {
+      // Iterate over array values
+      for (var i = 0, l = obj.length; i < l; i++) {
+        fn.call(null, obj[i], i, obj);
+      }
+    } else {
+      // Iterate over object keys
+      for (var key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          fn.call(null, obj[key], key, obj);
+        }
+      }
+    }
+  }
+
+  /**
+   * Function equal to merge with the difference being that no reference
+   * to original objects is kept.
+   *
+   * @see merge
+   * @param {Object} obj1 Object to merge
+   * @returns {Object} Result of all merge properties
+   */
+  deepMerge(/* obj1, obj2, obj3, ... */) {
+    var result = {};
+    const assignValue = (val, key) => {
+      if (typeof result[key] === 'object' && typeof val === 'object') {
+        result[key] = this.deepMerge(result[key], val);
+      } else if (typeof val === 'object') {
+        result[key] = this.deepMerge({}, val);
+      } else {
+        result[key] = val;
+      }
+    }
+
+    for (var i = 0, l = arguments.length; i < l; i++) {
+      this.forEach(arguments[i], assignValue);
+    }
+    return result;
   }
 }
