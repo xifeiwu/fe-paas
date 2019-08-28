@@ -56,7 +56,7 @@
                :visible="['open_dialog_service_gray_strategy', 'open_dialog_modify'].indexOf(action.name) > -1"
                v-if="['open_dialog_service_gray_strategy'].indexOf(action.name) > -1"
                @close="closeDialog"
-               class="size-900 dialog-add"
+               class="size-900 update-strategy"
                :close-on-click-modal="false"
     >
       <div class="content">
@@ -65,24 +65,54 @@
                               @status-change="active => {this.showWarning = active; onScreenSizeChange()}"
                               style="margin: 0px -2px"
                               :msgList="['目前pipeline只支持Java语言的“平台构建镜像”方式，不支持自定义镜像；Pipeline的基本配置默认取自对应应用的测试环境配置。']"></paas-dismiss-message>
-        <el-form :model="action.row" size="mini" label-width="120px" ref="newDomainForm">
+        <el-form :model="action.row" size="mini" label-width="100px" ref="newDomainForm">
           <el-form-item label="网络类型" class="">
-            <el-checkbox-group v-model="action.data.listIngress" v-if="grayStrategyRelated.listIngress">
-              <el-checkbox v-for="item in grayStrategyRelated.listIngress" :label="item.host" :key="item.host">
+            <el-checkbox-group v-model="grayStrategy.listIngress" v-if="grayStrategyFromNet.listIngress">
+              <el-checkbox v-for="item in grayStrategyFromNet.listIngress" :label="item.host" :key="item.host">
                 {{item.host}}{{item.isIntranet ? '(内网域名)' : ''}}
             </el-checkbox>
             </el-checkbox-group>
           </el-form-item>
-          <el-form-item label="实例数" class="">
+          <el-form-item label="实例数" class="instance-number">
+            <span>主服务实例数：{{grayStrategy.masterInstanceNum}}</span>
+            <div style="width: 160px; display: inline-block; margin-left: 5px;">
+              <el-slider v-model="grayStrategy.masterInstanceNum" :show-tooltip="true" :show-stops="true"
+                         :min="1" :max="grayStrategyFromNet.totalInstanceNum" :step="1"></el-slider>
+            </div>
+            <span>灰度服务实例数：{{grayStrategy.canaryInstanceNum}}</span>
           </el-form-item>
-          <el-form-item label="灰度策略" class="">
+          <el-form-item label="灰度策略" class="strategy">
+            <el-row style="font-weight: bold">
+              <el-col :span="4" class="name">流量类型</el-col>
+              <el-col :span="16" class="value">关键字</el-col>
+              <el-col :span="4" class="level">优先级</el-col>
+            </el-row>
+            <el-row class="rule request-header">
+              <el-col :span="4" class="name"><el-checkbox v-model="grayStrategy.headerKeySelected">request header</el-checkbox></el-col>
+              <el-col :span="16" class="value">
+                <el-input v-model="grayStrategy.headerKey" placeholder="属性"></el-input>
+                <span> = </span>
+                <el-input v-model="grayStrategy.headerValue" placeholder="匹配值"></el-input>
+              </el-col>
+              <el-col :span="4" class="level">高</el-col>
+            </el-row>
+            <el-row class="rule">
+              <el-col :span="4" class="name"><el-checkbox v-model="grayStrategy.cookieSelected">cookie</el-checkbox></el-col>
+              <el-col :span="16" class="value"><el-input v-model="grayStrategy.cookie" placeholder="属性"></el-input></el-col>
+              <el-col :span="4" class="level">中</el-col>
+            </el-row>
+            <el-row class="rule">
+              <el-col :span="4" class="name"><el-checkbox v-model="grayStrategy.weightSelected">weight</el-checkbox></el-col>
+              <el-col :span="16" class="value"><el-input v-model="grayStrategy.weight" placeholder="属性"></el-input></el-col>
+              <el-col :span="4" class="level">低</el-col>
+            </el-row>
           </el-form-item>
         </el-form>
       </div>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
           <el-button type="primary" size="mini"
-                     @click="handleDialogEvent($event, action.name)">保&nbsp存</el-button>
+                     @click="handleDialogEvent($event, 'service_gray_strategy_update')">保&nbsp存</el-button>
         </div>
         <div class="item">
           <el-button @click="closeDialog" size="mini">取&nbsp消</el-button>
@@ -134,13 +164,37 @@
 </style>
 <style lang="scss">
   #service-gray {
-    > .el-dialog__wrapper.k8s-info {
-      .__editor {
-        text-align: left;
-        min-height: 600px;
-        margin: -2px;
-        .CodeMirror {
+    > .el-dialog__wrapper {
+      &.k8s-info {
+        .__editor {
+          text-align: left;
           min-height: 600px;
+          margin: -2px;
+          .CodeMirror {
+            min-height: 600px;
+          }
+        }
+      }
+      &.update-strategy {
+        .el-form {
+          margin-top: 10px;
+          .strategy {
+            .rule {
+              .el-input {
+                max-width: 80%;
+              }
+              &.request-header {
+                .value {
+                  .el-input {
+                    max-width: 40%;
+                  }
+                }
+              }
+            }
+            .level {
+              text-align: center;
+            }
+          }
         }
       }
     }
@@ -190,7 +244,24 @@
           readOnly: true,
           viewportMargin: 10
         },
-        grayStrategyRelated: null
+        grayStrategyFromNet: null,
+        grayStrategy: {
+          listIngress: [],
+          canaryInstanceNum: 0,
+          masterInstanceNum: 0,
+          headerKeySelected: false,
+          headerKey: '',
+          headerValue: '',
+          cookieSelected: false,
+          cookie: '',
+          weightSelected: false,
+          weight: 0,
+        }
+      }
+    },
+    watch: {
+      'grayStrategy.masterInstanceNum': function (mainNum) {
+        this.grayStrategy.canaryInstanceNum = this.grayStrategyFromNet.totalInstanceNum - mainNum;
       }
     },
     methods: {
@@ -261,7 +332,7 @@
           case 'open_dialog_service_gray_strategy':
             try {
 //              await this.getData4GrayCreate();
-              this.grayStrategyRelated = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_create_info, {
+              this.grayStrategyFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_strategy_query, {
                 payload: {
                   "configId": 19941,
                   "spaceId": 2,
@@ -272,17 +343,21 @@
                 this.$message.error('未找到服务列表');
                 return;
               }
-              this.grayStrategyRelated.instanceTotal = this.serviceList['containerStatus']['Total'];
-              this.grayStrategyRelated.instanceMain = this.serviceList['containerStatus']['Running'];
-              var mainInstanceNum = 0;
-              var canaryInstanceNum = this.serviceList['containerStatus']['Total'] - mainInstanceNum;
-              await this.openDialog(action, {
-                listIngress: [],
-                canaryInstanceNum: 0,
-
-              });
+              this.grayStrategyFromNet.totalInstanceNum = this.grayStrategyFromNet.masterInstanceNum + this.grayStrategyFromNet.canaryInstanceNum;
+              this.grayStrategy.listIngress = this.grayStrategyFromNet['listIngress'].filter(it => it.hasCanary).map(it => it.host);
+              this.grayStrategy.canaryInstanceNum = this.grayStrategyFromNet.canaryInstanceNum;
+              this.grayStrategy.masterInstanceNum = this.grayStrategyFromNet.masterInstanceNum;
+              this.grayStrategy.headerKeySelected = this.grayStrategyFromNet.headerKeySelected;
+              this.grayStrategy.headerKey = this.grayStrategyFromNet.headerKey;
+              this.grayStrategy.headerValue = this.grayStrategyFromNet.headerValue;
+              this.grayStrategy.cookieSelected = this.grayStrategyFromNet.cookieSelected;
+              this.grayStrategy.cookie = this.grayStrategyFromNet.cookie;
+              this.grayStrategy.weightSelected = this.grayStrategyFromNet.weightSelected;
+              this.grayStrategy.weight = this.grayStrategyFromNet.weight;
+              await this.openDialog(action);
             } catch (err) {
               console.log(err);
+              this.$message.error(err.message);
             }
             break;
           case 'service_gray_strategy':
@@ -319,6 +394,29 @@
 //                }
 //              });
               await this.openDialog(action, 'resContent');
+            } catch (err) {
+              console.log(err);
+            } finally {
+              this.closeDialog();
+            }
+            break;
+        }
+      },
+      async handleDialogEvent(evt, action) {
+        switch (action) {
+          case 'service_gray_strategy_update':
+            try {
+              var payload = this.$utils.deepMerge({}, this.grayStrategy);
+              payload.listIngress = this.grayStrategyFromNet.listIngress.filter(it => {
+                return this.grayStrategy.listIngress.indexOf(it.host) > -1;
+              });
+              // TODO: delete later
+              (payload.canaryInstanceNum < 1) && (payload.canaryInstanceNum = 1);
+              (payload.masterInstanceNum < 1) && (payload.masterInstanceNum = 1);
+              payload.configId = this.serviceId;
+              await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_strategy_update, {
+                payload
+              });
             } catch (err) {
               console.log(err);
             } finally {
