@@ -319,7 +319,7 @@
           profileInfo,
           serviceInfo
         };
-        console.log(theData);
+        // console.log(theData);
         return theData;
       },
       async handleClick(evt, action, data) {
@@ -331,7 +331,6 @@
             break;
           case 'open_dialog_service_gray_strategy':
             try {
-//              await this.getData4GrayCreate();
               this.grayStrategyFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_strategy_query, {
                 payload: {
                   "configId": 19941,
@@ -384,16 +383,17 @@
             break;
           case 'open-dialog-k8s-info':
             try {
-//              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.get_resource_information_by_k8s, {
-//                payload: {
-//                  spaceId: this.profileInfo.id,
-//                  groupId: this.$storeHelper.groupInfo.id,
+              const {serviceInfo, profileInfo} = await this.getData4GrayCreate();
+              var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.get_resource_information_by_k8s, {
+                payload: {
+                  spaceId: profileInfo.id,
+                  groupId: this.$storeHelper.groupInfo.id,
 //                  namespace: this.$storeHelper.groupInfo.tag,
 //                  appConfigId: this.action.row.id,
-//                  configServiceName: this.action.row.serviceName
-//                }
-//              });
-              await this.openDialog(action, 'resContent');
+                  configServiceName: `${serviceInfo.serviceName}-canary`
+                }
+              });
+              await this.openDialog(action, resContent);
             } catch (err) {
               console.log(err);
             } finally {
