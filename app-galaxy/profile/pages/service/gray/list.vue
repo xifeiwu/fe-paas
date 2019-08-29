@@ -344,6 +344,7 @@
               this.grayStrategyFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_strategy_query, {
                 payload: {
                   configId: this.serviceId,
+                  serviceName: this.serviceInfo.serviceName,
                   spaceId: this.profileInfo.id,
                   groupId: this.$storeHelper.groupInfo.id
                 }
