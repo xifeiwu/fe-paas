@@ -226,6 +226,14 @@
         return;
       }
       this.requestServiceList();
+
+      const {serviceInfo, profileInfo} = await this.getData4GrayCreate();
+      if (!serviceInfo || !profileInfo) {
+        this.$message.error('获取服务相关信息失败！');
+        return;
+      }
+      this.serviceInfo = serviceInfo;
+      this.profileInfo = profileInfo;
     },
     async mounted() {
       this.onScreenSizeChange(this.$storeHelper.screen.size);
@@ -233,6 +241,8 @@
     data() {
       return {
         serviceId: null,
+        serviceInfo: null,
+        profileInfo: null,
         serviceList: [],
         showK8sResourceOptions: {
           tabSize: 4,
@@ -333,9 +343,9 @@
             try {
               this.grayStrategyFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_strategy_query, {
                 payload: {
-                  "configId": 19941,
-                  "spaceId": 2,
-                  "groupId": 251
+                  configId: this.serviceId,
+                  spaceId: this.profileInfo.id,
+                  groupId: this.$storeHelper.groupInfo.id
                 }
               });
               if (this.serviceList.length === 0) {
@@ -383,10 +393,9 @@
             break;
           case 'open-dialog-k8s-info':
             try {
-              const {serviceInfo, profileInfo} = await this.getData4GrayCreate();
               var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.get_resource_information_by_k8s, {
                 payload: {
-                  spaceId: profileInfo.id,
+                  spaceId: this.profileInfo.id,
                   groupId: this.$storeHelper.groupInfo.id,
 //                  namespace: this.$storeHelper.groupInfo.tag,
 //                  appConfigId: this.action.row.id,

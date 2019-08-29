@@ -341,7 +341,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
       },
 
       pageJump() {
-//        return;
+        // return;
         // 1. go to profile by default
         var toPath = this.$net.page['profile'];
 
