@@ -425,6 +425,7 @@
               (payload.canaryInstanceNum < 1) && (payload.canaryInstanceNum = 1);
               (payload.masterInstanceNum < 1) && (payload.masterInstanceNum = 1);
               payload.configId = this.serviceId;
+              payload.groupId = this.$storeHelper.groupInfo.id;
               // console.log(this.grayStrategy);
               // console.log(payload);
               await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_strategy_update, {
