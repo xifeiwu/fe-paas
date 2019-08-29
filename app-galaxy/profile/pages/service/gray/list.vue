@@ -416,7 +416,8 @@
         switch (action) {
           case 'service_gray_strategy_update':
             try {
-              var payload = this.$utils.deepMerge({}, this.grayStrategy);
+              // var payload = this.$utils.deepMerge({}, this.grayStrategy);
+              var payload = this.$utils.cloneDeep(this.grayStrategy);
               payload.listIngress = this.grayStrategyFromNet.listIngress.filter(it => {
                 return this.grayStrategy.listIngress.indexOf(it.host) > -1;
               });
@@ -424,6 +425,8 @@
               (payload.canaryInstanceNum < 1) && (payload.canaryInstanceNum = 1);
               (payload.masterInstanceNum < 1) && (payload.masterInstanceNum = 1);
               payload.configId = this.serviceId;
+              // console.log(this.grayStrategy);
+              // console.log(payload);
               await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_strategy_update, {
                 payload
               });
