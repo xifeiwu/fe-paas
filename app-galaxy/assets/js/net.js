@@ -551,7 +551,7 @@ class Net {
       const response = await this.getResponse({path, method}, options, {
         timeout: 15000,
         headers: {
-          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJmZS1wYWFzIiwiaWF0IjoxNTM1ODE0NzU2LCJleHAiOjE1NjczNTA3NTZ9.Kua5fOfg7KJ5xOU08ImvcWdSfJnZpdHATQ_uwCW1nAI'
+          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJmZS1wYWFzIiwiaWF0IjoxNTY3MzkwMDE2LCJleHAiOjE1OTg5MjYwMTZ9.kUW4z4zwM5HlBFJlAuwsvqpnTHLMTgpkq1YboEKtzhg'
         }
       });
       const resData = response.data;
