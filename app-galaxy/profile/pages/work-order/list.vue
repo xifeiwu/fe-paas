@@ -60,22 +60,22 @@
                 :height="heightOfTable"
                 :row-key="getRowKeys"
                 :expand-row-keys="expandRows">
-        <el-table-column label="审批工单名称" prop="name" minWidth="160" headerAlign="center" align="center">
+        <el-table-column label="审批工单名称" prop="name" minWidth="140" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="申请人" prop="creatorName" width="80" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="状态" prop="statusName" width="100" headerAlign="center" align="center">
+        <el-table-column label="状态" prop="statusName" minWidth="100" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="申请时间" prop="formattedCreateTime" width="140" headerAlign="center" align="center">
+        <el-table-column label="申请时间" prop="formattedCreateTime" width="150" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="团队" prop="groupName" minWidth="160" headerAlign="center" align="center">
+        <el-table-column label="团队" prop="groupName" minWidth="120" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="操作" headerAlign="center" align="center" minWidth="100">
           <template slot-scope="scope">
             <el-button
                     type="text"
                     :class="['flex', $storeHelper.permission['go-to-page-log-deploy-from-work-order-list'].disabled?'disabled':'primary']"
-                    :loading="statusOfWaitingResponse('go-to-page-log-deploy-from-work-order-list') && operation.rowID == scope.row.id"
+                    :loading="statusOfWaitingResponse('go-to-page-log-deploy-from-work-order-list') && action.row.id == scope.row.id"
                     @click="handleTRClick($event, 'go-to-page-log-deploy-from-work-order-list', scope.$index, scope.row)">
               <span>部署日志</span><i class="paas-icon-level-up"></i>
             </el-button>
@@ -83,7 +83,7 @@
             <el-button
                     v-if="scope.row.status != 'END'"
                     type="text"
-                    :loading="statusOfWaitingResponse('cancel') && operation.rowID == scope.row.id"
+                    :loading="statusOfWaitingResponse('cancel') && action.row.id == scope.row.id"
                     @click="handleTRClick($event,'cancel', scope.$index, scope.row)"
                     :class="[$storeHelper.permission['work-order_end'].disabled ?  'disabled' : 'danger']">
                     撤销工单</el-button>
@@ -92,7 +92,7 @@
                     type="text" class="primary"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     @click="handleTRClick($event, 'detail', scope.$index, scope.row)"
-                    :loading="statusOfWaitingResponse('detail') && operation.rowID == scope.row.id">
+                    :loading="statusOfWaitingResponse('detail') && action.row.id == scope.row.id">
               <span>详情</span><i class="el-icon-arrow-right"></i>
             </el-button>
           </template>
@@ -337,8 +337,8 @@
         },
         expandRows: [],
 
-        operation: {
-          rowID: null,
+        action: {
+          row: null,
           // not used now
           name: null,
         },
@@ -536,10 +536,7 @@
           });
           return;
         }
-        // operation.rowID is used to indicate which row is active
-        this.operation.rowID = row.id;
-//        console.log(action);
-//        console.log(row);
+        this.action.row = row;
         switch (action) {
           case 'detail':
             // update expandRows
@@ -583,7 +580,7 @@
               console.log(err);
             }).finally(() => {
               this.hideWaitingResponse('detail');
-              this.operation.name = action;
+              this.action.name = action;
             });
             return;
             break;
@@ -625,7 +622,7 @@
             });
             break;
           case 'cancel':
-            console.log(this.$storeHelper.permission)
+            // console.log(this.$storeHelper.permission)
             if (!this.$storeHelper.permission.hasOwnProperty('work-order_end') || this.$storeHelper.permission['work-order_end'].disabled) {
               this.$storeHelper.globalPopover.show({
                 ref: evt.target,
