@@ -7,6 +7,9 @@
       <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'open_dialog_service_gray_strategy')">
         <span>设置灰度策略</span>
       </el-button>
+      <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'service_gray_apply')">
+        <span>完成灰度发布</span>
+      </el-button>
       <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'refresh')">
         <span>刷新</span>
         <i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
@@ -130,6 +133,13 @@
         <codemirror v-model="action.data" :options="showK8sResourceOptions"></codemirror>
       </div>
     </el-dialog>
+    <paas-dialog-for-log :showStatus="dialogStatusGrayApply" ref="dialogGrayApply" @close="dialogStatusGrayApply.visible = false">
+      <div slot="content">
+        <div v-for="(item, index) in dialogStatusGrayApply.logList" :key="index" class="log-item" v-html="item"></div>
+        <div class="log-item" v-if="dialogStatusGrayApply.isLoading"><i class="el-icon-loading item"></i></div>
+        <div class="last-item loading-line" v-else><span class="item">&nbsp</span></div>
+      </div>
+    </paas-dialog-for-log>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -213,8 +223,9 @@
   import "codemirror/addon/selection/active-line.js";
   import paasDismissMessage from 'assets/components/dismiss-message.vue';
   import commonUtils from 'assets/components/mixins/common-utils';
+  import paasDialogForLog from 'assets/components/dialog4log.vue';
   export default {
-    components: {paasDismissMessage, codemirror},
+    components: {paasDismissMessage, paasDialogForLog, codemirror},
     mixins: [commonUtils],
     async created() {
       if (this.$route.params && this.$route.params.hasOwnProperty('id')) {
@@ -227,7 +238,7 @@
       }
       this.requestServiceList();
 
-      const {serviceInfo, profileInfo} = await this.getData4GrayCreate();
+      const {serviceInfo, profileInfo} = await this.syncDataFromNet();
       if (!serviceInfo || !profileInfo) {
         this.$message.error('获取服务相关信息失败！');
         return;
@@ -242,8 +253,10 @@
       return {
         serviceId: null,
         serviceInfo: null,
+        canaryInfo: null,
         profileInfo: null,
         serviceList: [],
+
         showK8sResourceOptions: {
           tabSize: 4,
           styleActiveLine: true,
@@ -266,6 +279,13 @@
           cookie: '',
           weightSelected: false,
           weight: 0,
+        },
+        dialogStatusGrayApply: {
+          title: '',
+          visible: false,
+          loading: false,
+          isLoading: false,
+          logList: []
         }
       }
     },
@@ -314,9 +334,12 @@
           resContent['canary']['serviceTypeName'] = '灰度服务';
           this.serviceList.push(postTreat(resContent['canary']));
         }
-        // console.log(this.serviceList);
+        this.canaryInfo = resContent;
+        return resContent;
       },
-      async getData4GrayCreate() {
+
+      // get all related data used in this page
+      async syncDataFromNet() {
         var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_by_id, {
           params: {
             id: this.serviceId
@@ -327,12 +350,13 @@
         const profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
         const theData = {
           profileInfo,
-          serviceInfo
+          serviceInfo,
         };
         // console.log(theData);
         return theData;
       },
       async handleClick(evt, action, data) {
+        let resContent = null;
         switch (action) {
           case 'service_gray_create':
             this.$router.push(this.$router.helper.pages['/profile/service/:id(\\d+)/gray/add'].toPath({
@@ -370,6 +394,27 @@
               this.$message.error(err.message);
             }
             break;
+          case 'service_gray_apply':
+            await this.$confirm(`完成灰度发布最终将灰度服务替换掉主服务的过程，完成后可在主服务-灰度发布日志中查看日志，你确定需要完成灰度发布吗？`, '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning',
+              dangerouslyUseHTMLString: true
+            });
+            // console.log(this.canaryInfo);
+            // console.log(this.serviceInfo);
+            resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_apply, {
+              payload: {
+                id: this.canaryInfo['canary']['id'],
+                groupId: this.$storeHelper.groupInfo.id,
+                serviceName: this.serviceInfo.serviceName
+              }
+            });
+            this.showGrayApplyLog({
+              logName: resContent.logName,
+              logPath: resContent.logPath,
+            });
+            break;
           case 'service_gray_strategy':
             break;
           case 'refresh':
@@ -391,6 +436,7 @@
               type: 'warning',
               dangerouslyUseHTMLString: true
             });
+
             break;
           case 'open-dialog-k8s-info':
             try {
@@ -437,6 +483,71 @@
               this.closeDialog();
             }
             break;
+        }
+      },
+      async showGrayApplyLog({logPath = null, logName = null, offset = 0}, action) {
+        const dialogStatusGrayApply = this.dialogStatusGrayApply;
+        dialogStatusGrayApply.logList = [];
+        dialogStatusGrayApply.title = '完成灰度发布';
+        dialogStatusGrayApply.loading = false;
+        dialogStatusGrayApply.isLoading = false;
+        dialogStatusGrayApply.visible = true;
+        if (action === 'service_gray_apply') {
+        }
+        // recursive function to fetch log from server with options {logName, logPath, offset}
+        const getLog = async(offset) => {
+          // stop request deploy log when the window is closed
+          if (!dialogStatusGrayApply.visible) {
+            return Promise.reject('弹框关闭');
+          }
+          const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_apply_log, {
+            payload: {
+              logPath,
+              logName,
+              offset
+            }
+          });
+          return resContent;
+        };
+
+        const praseLog = log => {
+          return log.split('\n');
+        };
+
+
+        var deployLogQueue = [];
+        var hasMoreData = true;
+        dialogStatusGrayApply.isLoading = true;
+
+        (function updateLogList(self) {
+          if (!hasMoreData && deployLogQueue.length === 0) {
+            return;
+          }
+          self.$nextTick(() => {
+            console.log(self.$refs['dialogGrayApply']);
+          });
+          setTimeout(() => {
+            dialogStatusGrayApply.logList.push(deployLogQueue.shift());
+            updateLogList(self);
+          })
+        })(this);
+
+        while (hasMoreData) {
+          try {
+            const resContent = await getLog(offset);
+            hasMoreData = resContent['hasMoreData'];
+            deployLogQueue = deployLogQueue.concat(praseLog(resContent['logContext']));
+            offset = resContent['offset'];
+            if (!dialogStatusGrayApply.visible) {
+              hasMoreData = false;
+            }
+            if (!hasMoreData) {
+              dialogStatusGrayApply.isLoading = false;
+            }
+          } catch (err) {
+            console.log(err);
+            hasMoreData = false;
+          }
         }
       }
     }

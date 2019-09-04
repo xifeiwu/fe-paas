@@ -364,6 +364,14 @@ class Net extends NetBase {
         path: '/service/canaryStrategy/createOrUpdate',
         method: 'post'
       },
+      'service_gray_apply': {
+        path: '/service/canaryProgress/finish',
+        method: 'post'
+      },
+      'service_gray_apply_log': {
+        path: '/service/canaryProgress/get',
+        method: 'post'
+      },
       /** 实例相关*/
       // 获取实例列表
       'instance_list': {
