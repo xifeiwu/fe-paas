@@ -76,7 +76,7 @@
           <div class="el-loading-mask" v-if="$net.vm.requestingUrlListLength > 0">
             <div class="el-loading-spinner">
               <i class="el-icon-loading"></i>
-              <p class="el-loading-text">网络请求中...</p>
+              <p class="el-loading-text">{{$net.vm.loadingText ? $net.vm.loadingText : '网络请求中...'}}</p>
             </div>
           </div>
           <router-view></router-view>
