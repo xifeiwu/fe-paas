@@ -24,11 +24,13 @@ https://cas.finupgroup.com/puhui-cas/login
 **本地开发**
 
 ```
+0. 安装nvm 选择node版本为v8.9.4(nvm install 8.9.4)
 1. 初始化submodule（只需运行一次）: git submodule init
 2. 更新submodule: git submodule update
-3. 更新依赖包：yarn
-4. 修改后台服务接口（可选）：修改文件build/config/index.js的proxyTable, '/api/'的target指向
-5. 本地运行：npm run dev
+3. 添加~/.yarnrc配置参考（https://github.com/webclipper/web-clipper-wxapp/blob/master/.yarnrc）
+4. 更新依赖包：yarn
+5. 修改后台服务接口（可选）：修改文件/Users/finup/IdeaProjects/fe-paas/build/webpack.dev.conf.js的/j-api/paas/ 指向
+6. 本地运行：npm run dev
 ```
 
 **生产部署**
