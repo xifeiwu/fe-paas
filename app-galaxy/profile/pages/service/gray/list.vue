@@ -511,7 +511,11 @@
         };
 
         const praseLog = log => {
-          return log.split('\n');
+          if (!log) {
+            return [];
+          } else {
+            return log.split('\n');
+          }
         };
 
 
@@ -524,7 +528,7 @@
             return;
           }
           self.$nextTick(() => {
-            console.log(self.$refs['dialogGrayApply']);
+            self.$refs['dialogGrayApply'] && self.$refs['dialogGrayApply'].scrollToBottom();
           });
           setTimeout(() => {
             dialogStatusGrayApply.logList.push(deployLogQueue.shift());
