@@ -628,9 +628,9 @@
       // action = 'go-to-page-log-deploy-from-work-order-list'
       async goToPageLogDeploy(evt, action, index, row) {
         this.action.app = row;
-        console.log(this.action.row);
-        console.log(this.workOrderDetail);
-        console.log(row);
+        // console.log(this.action.row);
+        // console.log(this.workOrderDetail);
+        // console.log(row);
 
         // 查看用户是否是当前工单所属团队的团队成员，平台管理员不受限制
         if ((!this.workOrderDetail.groupId || !this.$storeHelper.groupList.find(it => it.id = this.workOrderDetail.id))
@@ -638,13 +638,15 @@
           this.$message.error(`您不是"${this.workOrderDetail.groupName}"的团队成员，无法查看该团队下的部署日志`);
           return;
         }
-
-        if (this.$storeHelper.currentGroupID != detail.groupId) {
+        if (this.$storeHelper.currentGroupID != this.workOrderDetail.groupId) {
           try {
             this.addToWaitingResponseQueue(action);
             this.$net.vm.loadingText = `正在切换到团队："${this.workOrderDetail.groupName}"`;
-            this.$storeHelper.currentGroupID = this.workOrderDetail.groupId;
+            // wait until groupId is completely changed(such as, profileList, appList has received from server)
+            await this.$storeHelper.changeGroup(this.workOrderDetail.groupId);
           } catch (err) {
+            console.log(err);
+            return;
           } finally {
             this.$net.vm.loadingText = null;
             this.hideWaitingResponse(action);
@@ -655,7 +657,6 @@
           data: {
             appId: row.appId,
             profileId: row.spaceId,
-            serviceVersion: row.serviceVersion
           }
         };
         this.$router.push(this.$net.page['profile/log/deploy']);
