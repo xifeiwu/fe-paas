@@ -489,9 +489,13 @@
             }))['spaceList'];
             this.$store.dispatch('user/profileList', profileList);
 
-            const appInfoList = await this.$store.dispatch('user/appInfoList', {
-              groupId: this.$storeHelper.currentGroupID,
+            var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.app_list_by_group, {
+              payload: {
+                groupId: groupId
+              }
             });
+            const appInfoListOfGroup = await this.$net.parseAppListV2(resContent, profileList);
+            this.$store.dispatch('user/appInfoList', appInfoListOfGroup);
             // 更新（1.x支持、权限）相关信息
             this.updatePermissionInfo();
           } catch(err) {

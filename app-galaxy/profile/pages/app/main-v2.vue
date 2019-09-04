@@ -443,9 +443,7 @@
     created() {
       // 按需更新应用列表
       if (this.$net.needUpdateAppList) {
-        this.$store.dispatch('user/appInfoList', {
-          groupId: this.$storeHelper.currentGroupID,
-        });
+        this.requestAppList();
         this.$net.needUpdateAppList = false;
       }
       const dataTransfer = this.$storeHelper.dataTransfer;
@@ -607,11 +605,18 @@
             this.$router.push(this.$net.page['profile/app/add']);
             break;
           case 'refreshAppList':
-            this.$store.dispatch('user/appInfoList', {
-              groupId: this.$storeHelper.currentGroupID,
-            });
+            this.requestAppList();
             break;
         }
+      },
+      async requestAppList() {
+        var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.app_list_by_group, {
+          payload: {
+            groupId: this.$storeHelper.currentGroupID
+          }
+        });
+        const appInfoListOfGroup = await this.$net.parseAppListV2(resContent, this.$storeHelper.profileListOfGroup);
+        this.$store.dispatch('user/appInfoList', appInfoListOfGroup);
       },
 
       /**
