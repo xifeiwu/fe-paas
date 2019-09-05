@@ -539,6 +539,9 @@
         while (hasMoreData) {
           try {
             const resContent = await getLog(offset);
+            await new Promise((resolve) => {
+              setTimeout(resolve, 1500);
+            });
             hasMoreData = resContent['hasMoreData'];
             deployLogQueue = deployLogQueue.concat(praseLog(resContent['logContext']));
             offset = resContent['offset'];
