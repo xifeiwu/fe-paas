@@ -446,7 +446,7 @@
                   groupId: this.$storeHelper.groupInfo.id,
 //                  namespace: this.$storeHelper.groupInfo.tag,
 //                  appConfigId: this.action.row.id,
-                  configServiceName: `${serviceInfo.serviceName}-canary`
+                  configServiceName: `${this.serviceInfo.serviceName}-canary`
                 }
               });
               await this.openDialog(action, resContent);
