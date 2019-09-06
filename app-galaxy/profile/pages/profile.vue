@@ -498,9 +498,9 @@
             this.$store.dispatch('user/appInfoList', appInfoListOfGroup);
             // 更新（1.x支持、权限）相关信息
             this.updatePermissionInfo();
-            this.$storeHelper.promiseChangeGroup.resolve();
+            this.$storeHelper.promiseChangeGroup.resolve && this.$storeHelper.promiseChangeGroup.resolve();
           } catch(err) {
-            this.$storeHelper.promiseChangeGroup.reject();
+            this.$storeHelper.promiseChangeGroup.reject && this.$storeHelper.promiseChangeGroup.reject();
             console.log(err);
           }
         }
