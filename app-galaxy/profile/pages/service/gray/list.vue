@@ -437,6 +437,16 @@
               dangerouslyUseHTMLString: true
             });
 
+            if (!this.canaryInfo['canary']) {
+              this.$message.error('灰度服务信息不存在！');
+              break;
+            }
+            var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_delete, {
+              payload: {
+                id: this.canaryInfo['canary'].id,
+              }
+            });
+            console.log(resContent);
             break;
           case 'open-dialog-k8s-info':
             try {

@@ -356,6 +356,10 @@ class Net extends NetBase {
         path: '/service/canary/update',
         method: 'put'
       },
+      'service_gray_delete': {
+        path: '/service/canary/delete',
+        method: 'post'
+      },
       'service_gray_strategy_query': {
         path: '/service/canaryStrategy/query',
         method: 'post'
