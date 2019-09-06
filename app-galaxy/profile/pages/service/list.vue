@@ -207,11 +207,18 @@
                 <span>复制服务</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
-              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
+              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled && false"
                   size="small"
                   type="text"
                   @click="handleTRClick($event, 'update_affinity', scope.$index, scope.row)"
                   :class="$storeHelper.permission['update_affinity'].disabled || publishStatus? 'disabled' : 'danger'">
+                <span>亲和性配置</span>
+              </el-button>
+              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
+                         size="small"
+                         type="text"
+                         @click="handleTRClick($event, 'open-dialog-affinity', scope.$index, scope.row)"
+                         :class="$storeHelper.permission['update_affinity'].disabled || publishStatus? 'disabled' : 'danger'">
                 <span>亲和性配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
@@ -484,6 +491,79 @@
       </div>
     </paas-dialog-for-log>
 
+    <el-dialog title="亲和性配置"
+               v-if="actionNew.name === 'open-dialog-affinity'"
+               :visible="actionNew.name === 'open-dialog-affinity'"
+               class="size-1000 affinity"
+               @close="closeDialog"
+               bodyPadding="0px"
+               :close-on-click-modal="false"
+    >
+      <div class="__editor">
+        <codemirror v-model="actionNew.data" :options="editorAffinityOptions"></codemirror>
+      </div>
+      <div :style="{color: style['color-warning'], fontWeight: 'bold', padding: '6px', textAlign: 'left'}">
+        <el-tooltip slot="trigger" effect="dark" placement="right">
+          <div slot="content">
+            <pre>
+模板样例如下：
+---
+nodeAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+    - matchExpressions:
+      - key: kubernetes.io/e2e-az-name
+        operator: In
+        values:
+        - e2e-az1
+        - e2e-az2
+  preferredDuringSchedulingIgnoredDuringExecution:
+  - weight: 1
+    preference:
+      matchExpressions:
+      - key: another-node-label-key
+        operator: In
+        values:
+        - another-node-label-value
+podAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+  - labelSelector:
+      matchExpressions:
+      - key: security
+        operator: In
+        values:
+        - S1
+    topologyKey: failure-domain.beta.kubernetes.io/zone
+podAntiAffinity:
+  preferredDuringSchedulingIgnoredDuringExecution:
+  - weight: 100
+    podAffinityTerm:
+      labelSelector:
+        matchExpressions:
+        - key: security
+          operator: In
+          values:
+          - S2
+      topologyKey: kubernetes.io/hostname
+            </pre>
+          </div>
+          <span>参考模板?</span>
+        </el-tooltip>
+      </div>
+
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary" size="mini" @click="saveAffinityConfig(false)">保存配置</el-button>
+        </div>
+        <div class="item">
+          <el-button type="danger" size="mini" @click="saveAffinityConfig(true)">保存并生效</el-button>
+        </div>
+        <div class="item">
+          <el-button @click="closeDialog" size="mini">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
     <el-dialog :visible.sync="hasAffinity" top="30px" width="80%" :fullscreen="false"
                v-loading="saveAffinityLoading"
                element-loading-text="正在保存"
@@ -606,6 +686,7 @@ tolerations:
                :visible="actionNew.name === 'open-dialog-k8s-info'"
                class="size-1000 k8s-info"
                @close="closeDialog"
+               bodyPadding="0px"
                :close-on-click-modal="false"
     >
       <div class="__editor">
@@ -859,13 +940,20 @@ tolerations:
         margin-top: 0;
       }
     }
-    > .el-dialog__wrapper.k8s-info {
-      .__editor {
-        text-align: left;
-        min-height: 600px;
-        margin: -2px;
+    > .el-dialog__wrapper {
+      &.k8s-info, &.affinity {
+        .__editor {
+          text-align: left;
+          min-height: 500px;
+          .CodeMirror {
+            min-height: 500px;
+          }
+        }
+      }
+      &.affinity {
+        min-height: 500px;
         .CodeMirror {
-          min-height: 600px;
+          min-height: 480px;
         }
       }
     }
@@ -1197,6 +1285,8 @@ tolerations:
       },
       closeDialog() {
         this.actionNew.name = null;
+        this.actionNew.data = null;
+        this.actionNew.originData = null;
         this.actionNew.promise.reject('cancel');
       },
 
@@ -1805,14 +1895,14 @@ tolerations:
         );
 
         this.saveAffinityLoading = true;
-        // await this.$net.requestPaasServer(this.$net.URL_LIST.update_affinity_config, {
-        await this.$net.getResponse(url, {
+        this.$net.getResponse(url, {
           payload: {
             spaceId: this.profileInfo.id,
             groupId: this.$storeHelper.groupInfo.id,
             namespace: this.$storeHelper.groupInfo.tag,
             appConfigId: this.action.row.id,
-            affinityContent: this.configOfAffinity,
+            // affinityContent: this.configOfAffinity,
+            affinityContent: this.actionNew.data,
             configServiceName: this.action.row.serviceName
           }
         }).then(response => {
@@ -1831,6 +1921,7 @@ tolerations:
           this.$message.error("保存配置失败，请联系云平台！");
         }).finally(() => {
           this.saveAffinityLoading = false;
+          this.closeDialog();
         });
       },
 
@@ -1889,7 +1980,7 @@ tolerations:
       async handleTRClick(evt, action, index, row) {
         var permission = action;
         if (['service_config_add','service_config_copy','service_delete', 'service_deploy', 'image_rollback',
-            'quick_deploy','service_config_modify','service_stop','service_update', 'update_affinity'].indexOf(action) > -1 && this.publishStatus) {
+            'quick_deploy','service_config_modify','service_stop','service_update', 'update_affinity', 'open-dialog-affinity'].indexOf(action) > -1 && this.publishStatus) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
@@ -2292,6 +2383,24 @@ tolerations:
               console.log(error);
             }).finally(()=> {
             });
+            break;
+          case 'open-dialog-affinity':
+            try {
+              resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.get_affinity_config, {
+                payload: {
+                  spaceId: this.profileInfo.id,
+                  groupId: this.$storeHelper.groupInfo.id,
+                  namespace: this.$storeHelper.groupInfo.tag,
+                  appConfigId: this.action.row.id,
+                  configServiceName: this.action.row.serviceName
+                }
+              });
+              await this.openDialog(action, resContent);
+            } catch (err) {
+              console.log(err);
+            } finally {
+              this.closeDialog();
+            }
             break;
           case 'update_toleration':
             await this.$net.requestPaasServer(this.$net.URL_LIST.get_toleration_config, {

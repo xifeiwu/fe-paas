@@ -11,6 +11,19 @@ export default {
         dataOrigin: null,
         data: null
       },
+      style: {
+        '$env-fpdev-color': '#409EFF',
+        '$env-test-color': '#28a745',
+        '$env-performance-color': '#17a2b8',
+        '$env-beta-color': '#ffc107',
+        '$env-production-color': '#F56C6C',
+        '$env-staging-color': '#EF5b9C',
+        'color-primary': '#409EFF',
+        'color-success': '#67c23a',
+        'color-warning': '#eb9e05',
+        'color-danger': '#fa5555',
+        'color-info': '#878d99',
+      }
     }
   },
   methods: {
