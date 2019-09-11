@@ -161,6 +161,7 @@
     <el-dialog :title="props4CreateDomain.showResponse?'创建外网域名结果':'申请外网二级域名'" :visible="selected.action == 'add-domain'"
                :class="{'add-domain': true, 'size-750': true, 'show-response': props4CreateDomain.showResponse}"
                :close-on-click-modal="false"
+               bodyPadding="10px"
                @close="handleClickInDialog('close-domain-in-dialog')"
     >
       <div v-if="props4CreateDomain.showResponse">
@@ -174,7 +175,7 @@
         </div>
       </div>
       <div slot="footer" class="dialog-footer" style="text-align: center" v-if="props4CreateDomain.showResponse">
-        <el-button type="primary"
+        <el-button type="primary" size="mini"
                    @click="handleClickInDialog('close-domain-in-dialog')">确&nbsp定</el-button>
       </div>
 
@@ -223,10 +224,11 @@
         <div class="item">
           <el-button
                   type="primary"
+                  size="mini"
                   @click="handleClickInDialog('add-domain-in-dialog')"
                   :loading="statusOfWaitingResponse('add-domain-in-dialog')">保&nbsp存</el-button></div>
         <div class="item">
-          <el-button @click="handleClickInDialog('close-domain-in-dialog')">取&nbsp消</el-button>
+          <el-button size="mini" @click="handleClickInDialog('close-domain-in-dialog')">取&nbsp消</el-button>
         </div>
       </div>
     </el-dialog>
@@ -791,7 +793,7 @@
       // used to listen domain change in dialog of create-domain
       onProfileChangeInCreateDomainDialog(profileName) {
         // get profile by profileName
-        this.props4CreateDomain.profile = this.$storeHelper.getProfileInfoByName(profileName);
+        this.props4CreateDomain.profileInfo = this.$storeHelper.getProfileInfoByName(profileName);
         this.props4CreateDomain.level1InfoList = [];
         this.props4CreateDomain.level1Name = '';
         if (this.props4CreateDomain.level1InfoListByProfile.hasOwnProperty(profileName)) {
@@ -1033,9 +1035,7 @@
        * @param domainItem: domain item in this.props4CreateDomain.domainListToAdd(for remove)
        */
       handleDomainInDialog(action, domainItem) {
-        console.log(action);
-        console.log(domainItem);
-        console.log(this.props4CreateDomain.profileName);
+        console.log(this.props4CreateDomain.profileInfo);
         let domainListToAdd = this.props4CreateDomain.domainListToAdd;
         switch (action) {
           case 'remove':
@@ -1057,7 +1057,7 @@
               return;
             }
             let domain;
-            if ('production' === this.props4CreateDomain.profileName) {
+            if ('PRODUCTION' === this.props4CreateDomain.profileInfo.spaceType) {
               domain = this.props4CreateDomain.level2Name + '.' + this.props4CreateDomain.level1Name;
             } else {
               domain = this.props4CreateDomain.level2Name + '-' + this.props4CreateDomain.level1Name;
@@ -1072,7 +1072,7 @@
               customSubDomain: this.props4CreateDomain.level2Name,
               customDomain: this.props4CreateDomain.level1Name,
               noWhiteList: this.props4CreateDomain.noWhiteList,
-              profileId: this.props4CreateDomain.profile['id']
+              profileId: this.props4CreateDomain.profileInfo['id']
             });
             this.props4CreateDomain.level2Name = '';
             break;
