@@ -499,9 +499,6 @@
                bodyPadding="0px"
                :close-on-click-modal="false"
     >
-      <div class="__editor">
-        <codemirror v-model="actionNew.data" :options="editorAffinityOptions"></codemirror>
-      </div>
       <div :style="{color: style['color-warning'], fontWeight: 'bold', padding: '6px', textAlign: 'left'}">
         <el-tooltip slot="trigger" effect="dark" placement="right">
           <div slot="content">
@@ -550,7 +547,9 @@ podAntiAffinity:
           <span>参考模板?</span>
         </el-tooltip>
       </div>
-
+      <div class="__editor">
+        <codemirror v-model="actionNew.data" :options="editorAffinityOptions"></codemirror>
+      </div>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
           <el-button type="primary" size="mini" @click="saveAffinityConfig(false)">保存配置</el-button>
