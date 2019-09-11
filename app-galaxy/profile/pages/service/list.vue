@@ -1284,8 +1284,6 @@ tolerations:
       },
       closeDialog() {
         this.actionNew.name = null;
-        this.actionNew.data = null;
-        this.actionNew.originData = null;
         this.actionNew.promise.reject('cancel');
       },
 
