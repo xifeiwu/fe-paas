@@ -35,10 +35,10 @@
         </el-input>
       </div>
       <div class="item">
-        <el-button size="mini-extral" type="primary"
+        <el-button size="mini" type="primary"
                 @click="handleButtonClick('refresh')">刷新</el-button>
         <el-button
-            size="mini-extral" style="margin-left: 3px;"
+            size="mini" style="margin-left: 3px;"
             plain type="primary"
             :class="[$storeHelper.permission['work-order_download'].disabled ? 'disabled' : 'warning']"
             @click="handleButtonClick('work-order_download', '', $event)">
@@ -60,30 +60,22 @@
                 :height="heightOfTable"
                 :row-key="getRowKeys"
                 :expand-row-keys="expandRows">
-        <el-table-column label="审批工单名称" prop="name" minWidth="160" headerAlign="center" align="center">
+        <el-table-column label="审批工单名称" prop="name" minWidth="140" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="申请人" prop="creatorName" width="80" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="状态" prop="statusName" width="100" headerAlign="center" align="center">
+        <el-table-column label="状态" prop="statusName" minWidth="100" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="申请时间" prop="formattedCreateTime" width="140" headerAlign="center" align="center">
+        <el-table-column label="申请时间" prop="formattedCreateTime" width="150" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="团队" prop="groupName" minWidth="160" headerAlign="center" align="center">
+        <el-table-column label="团队" prop="groupName" minWidth="120" headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="操作" headerAlign="center" align="center" minWidth="100">
           <template slot-scope="scope">
             <el-button
-                    type="text"
-                    :class="['flex', $storeHelper.permission['go-to-page-log-deploy-from-work-order-list'].disabled?'disabled':'primary']"
-                    :loading="statusOfWaitingResponse('go-to-page-log-deploy-from-work-order-list') && operation.rowID == scope.row.id"
-                    @click="handleTRClick($event, 'go-to-page-log-deploy-from-work-order-list', scope.$index, scope.row)">
-              <span>部署日志</span><i class="paas-icon-level-up"></i>
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
                     v-if="scope.row.status != 'END'"
                     type="text"
-                    :loading="statusOfWaitingResponse('cancel') && operation.rowID == scope.row.id"
+                    :loading="statusOfWaitingResponse('cancel') && action.row.id == scope.row.id"
                     @click="handleTRClick($event,'cancel', scope.$index, scope.row)"
                     :class="[$storeHelper.permission['work-order_end'].disabled ?  'disabled' : 'danger']">
                     撤销工单</el-button>
@@ -92,7 +84,7 @@
                     type="text" class="primary"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     @click="handleTRClick($event, 'detail', scope.$index, scope.row)"
-                    :loading="statusOfWaitingResponse('detail') && operation.rowID == scope.row.id">
+                    :loading="statusOfWaitingResponse('detail') && action.row.id == scope.row.id">
               <span>详情</span><i class="el-icon-arrow-right"></i>
             </el-button>
           </template>
@@ -123,11 +115,23 @@
                 </el-form-item>
                 <el-form-item label="应用列表">
                   <el-table :data="workOrderDetail.appList" class="compact">
-                    <el-table-column label="应用名称" prop="appName" headerAlign="center" align="center">
+                    <el-table-column label="应用名称" prop="appName" headerAlign="center" align="center" minWidth="200">
                     </el-table-column>
-                    <el-table-column label="运行环境" headerAlign="center" align="center">
+                    <el-table-column label="运行环境" headerAlign="center" align="center" minWidth="100">
                       <template slot-scope="scope">
                         <span>{{scope.row.spaceDescription}}</span>
+                      </template>
+                    </el-table-column>
+                    <el-table-column label="操作" headerAlign="center" align="center" minWidth="100">
+                      <template slot-scope="scope">
+                        <el-button
+                                type="text"
+                                style="font-size: 14px;"
+                                :class="['flex', $storeHelper.permission['go-to-page-log-deploy-from-work-order-list'].disabled?'disabled':'primary']"
+                                :loading="statusOfWaitingResponse('go-to-page-log-deploy-from-work-order-list') && action.app.id == scope.row.id"
+                                @click="goToPageLogDeploy($event, 'go-to-page-log-deploy-from-work-order-list', scope.$index, scope.row)">
+                          <span>查看部署日志</span><i class="paas-icon-level-up"></i>
+                        </el-button>
                       </template>
                     </el-table-column>
                   </el-table>
@@ -337,8 +341,9 @@
         },
         expandRows: [],
 
-        operation: {
-          rowID: null,
+        action: {
+          row: null,
+          app: null,
           // not used now
           name: null,
         },
@@ -536,10 +541,7 @@
           });
           return;
         }
-        // operation.rowID is used to indicate which row is active
-        this.operation.rowID = row.id;
-//        console.log(action);
-//        console.log(row);
+        this.action.row = row;
         switch (action) {
           case 'detail':
             // update expandRows
@@ -583,49 +585,12 @@
               console.log(err);
             }).finally(() => {
               this.hideWaitingResponse('detail');
-              this.operation.name = action;
+              this.action.name = action;
             });
             return;
             break;
-          case 'go-to-page-log-deploy-from-work-order-list':
-            this.addToWaitingResponseQueue(action);
-            WorkerOrderPropUtils.getWorkOrderDetail(this, row.id).then(detail => {
-              // 平台管理员不受限制
-              if (this.$storeHelper.getUserInfo('role') !== '平台管理员') {
-                // NOTICE: set groupID when
-                if (!detail.groupId) {
-                  this.$message.error('您无法查看其它团队的部署日志！');
-                  throw new Error('groupId not found!');
-                  return;
-                }
-              }
-              if (this.$storeHelper.currentGroupID != detail.groupId) {
-                this.$storeHelper.currentGroupID = detail.groupId;
-              }
-              this.hideWaitingResponse(action);
-              var appId = detail.appID;
-              var profileId = this.$storeHelper.getProductionProfile()['id'];
-              try {
-                appId = detail.appList[0]['appId'];
-                profileId = detail.appList[0]['spaceId'];
-              } catch (err) {
-                console.log(err);
-              }
-              this.$storeHelper.dataTransfer = {
-                from: this.$net.page['profile/work-order/list'],
-                data: {
-                  appId,
-                  profileId: profileId,
-                  serviceVersion: detail.serviceVersion
-                }
-              };
-              this.$router.push(this.$net.page['profile/log/deploy']);
-            }).catch(err => {
-              this.hideWaitingResponse(action);
-            });
-            break;
           case 'cancel':
-            console.log(this.$storeHelper.permission)
+            // console.log(this.$storeHelper.permission)
             if (!this.$storeHelper.permission.hasOwnProperty('work-order_end') || this.$storeHelper.permission['work-order_end'].disabled) {
               this.$storeHelper.globalPopover.show({
                 ref: evt.target,
@@ -659,6 +624,42 @@
             }
             break;
         }
+      },
+      // action = 'go-to-page-log-deploy-from-work-order-list'
+      async goToPageLogDeploy(evt, action, index, row) {
+        this.action.app = row;
+        // console.log(this.action.row);
+        // console.log(this.workOrderDetail);
+        // console.log(row);
+
+        // 查看用户是否是当前工单所属团队的团队成员，平台管理员不受限制
+        if ((!this.workOrderDetail.groupId || !this.$storeHelper.groupList.find(it => it.id = this.workOrderDetail.id))
+          && this.$storeHelper.getUserInfo('role') !== '平台管理员') {
+          this.$message.error(`您不是"${this.workOrderDetail.groupName}"的团队成员，无法查看该团队下的部署日志`);
+          return;
+        }
+        if (this.$storeHelper.currentGroupID != this.workOrderDetail.groupId) {
+          try {
+            this.addToWaitingResponseQueue(action);
+            this.$net.vm.loadingText = `正在切换到团队："${this.workOrderDetail.groupName}"`;
+            // wait until groupId is completely changed(such as, profileList, appList has received from server)
+            await this.$storeHelper.changeGroup(this.workOrderDetail.groupId);
+          } catch (err) {
+            console.log(err);
+            return;
+          } finally {
+            this.$net.vm.loadingText = null;
+            this.hideWaitingResponse(action);
+          }
+        }
+        this.$storeHelper.dataTransfer = {
+          from: this.$net.page['profile/work-order/list'],
+          data: {
+            appId: row.appId,
+            profileId: row.spaceId,
+          }
+        };
+        this.$router.push(this.$net.page['profile/log/deploy']);
       },
       handlePaginationPageChange(page) {
         this.currentPage = page;

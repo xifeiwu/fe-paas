@@ -148,7 +148,8 @@ class Net {
 
     this.vm = new Vue({
       data: {
-        requestingUrlListLength: 0
+        requestingUrlListLength: 0,
+        loadingText: null
       },
       template: '<div>{{ message }}</div>'
     });

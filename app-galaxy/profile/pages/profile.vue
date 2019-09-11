@@ -76,7 +76,7 @@
           <div class="el-loading-mask" v-if="$net.vm.requestingUrlListLength > 0">
             <div class="el-loading-spinner">
               <i class="el-icon-loading"></i>
-              <p class="el-loading-text">网络请求中...</p>
+              <p class="el-loading-text">{{$net.vm.loadingText ? $net.vm.loadingText : '网络请求中...'}}</p>
             </div>
           </div>
           <router-view></router-view>
@@ -489,12 +489,18 @@
             }))['spaceList'];
             this.$store.dispatch('user/profileList', profileList);
 
-            const appInfoList = await this.$store.dispatch('user/appInfoList', {
-              groupId: this.$storeHelper.currentGroupID,
+            var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.app_list_by_group, {
+              payload: {
+                groupId: groupId
+              }
             });
+            const appInfoListOfGroup = await this.$net.parseAppListV2(resContent, profileList);
+            this.$store.dispatch('user/appInfoList', appInfoListOfGroup);
             // 更新（1.x支持、权限）相关信息
             this.updatePermissionInfo();
+            this.$storeHelper.promiseChangeGroup.resolve && this.$storeHelper.promiseChangeGroup.resolve();
           } catch(err) {
+            this.$storeHelper.promiseChangeGroup.reject && this.$storeHelper.promiseChangeGroup.reject();
             console.log(err);
           }
         }

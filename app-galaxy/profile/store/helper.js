@@ -24,6 +24,10 @@ class StoreHelper extends BaseHelper{
       middlewareId: null,
     };
     // this.clusterList = null;
+    this.promiseChangeGroup = {
+      resolve: null,
+      reject: null
+    }
   }
 
   set currentGroupID(groupId) {
@@ -40,6 +44,19 @@ class StoreHelper extends BaseHelper{
       groupId = null;
     }
     return groupId;
+  }
+  changeGroup(groupId) {
+    if (this.currentGroupID == groupId) {
+      return Promise.resolve();
+    }
+    this.currentGroupID = groupId;
+    setTimeout(() => {
+      this.promiseChangeGroup.reject(new Error('time out'));
+    }, 15 * 1000);
+    return new Promise((resolve, reject) => {
+      this.promiseChangeGroup.resolve = resolve;
+      this.promiseChangeGroup.reject = reject;
+    });
   }
   get groupInfo() {
     return this.$store.getters['user/groupInfo'];

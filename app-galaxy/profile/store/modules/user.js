@@ -107,26 +107,8 @@ const actions = {
    * @param state
    * @param groupId
    */
-  async appInfoList({commit, state, rootState}, {groupId}) {
-    if (!groupId) {
-      return Promise.reject('groupId not found');
-    }
-    const net = Vue.prototype.$net;
-    try {
-      const resContent = await net.requestPaasServer(net.URL_LIST.app_list_by_group, {
-        payload: {groupId: groupId}
-      });
-      // state.appInfoListOfGroup = await net.parseAppList(resContent);
-      state.appInfoListOfGroup = await net.parseAppListV2(resContent, state.profileListOfGroup);
-    } catch(err) {
-      console.log(err);
-      // 错误提示已经在requestPaasServer中展示，此处不需重复展示
-      // Vue.prototype.$notify.error({
-      //   title: '获取应用列表失败，请联系管理员',
-      //   message: err.message,
-      //   duration: 8000
-      // });
-    }
+  async appInfoList({commit, state, rootState}, appInfoListOfGroup) {
+    state.appInfoListOfGroup = appInfoListOfGroup;
     return state.appInfoListOfGroup;
   },
 };
