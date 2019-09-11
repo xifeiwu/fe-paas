@@ -1271,10 +1271,11 @@ tolerations:
       },
 
       openDialog(name, data) {
-        if (data) {
-            this.actionNew.dataOrigin = data;
-            this.actionNew.data = this.$utils.cloneDeep(data);
-          }
+        if (undefined !== data) {
+          this.actionNew.dataOrigin = data;
+          this.actionNew.data = this.$utils.cloneDeep(data);
+        } else {
+        }
         this.actionNew.name = name;
         // console.log(this.actionNew);
             return new Promise((resolve, reject) => {
