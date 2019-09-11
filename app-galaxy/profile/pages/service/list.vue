@@ -2392,6 +2392,7 @@ tolerations:
                   configServiceName: this.action.row.serviceName
                 }
               });
+              resContent = resContent ? resContent : '';
               await this.openDialog(action, resContent);
             } catch (err) {
               console.log(err);
