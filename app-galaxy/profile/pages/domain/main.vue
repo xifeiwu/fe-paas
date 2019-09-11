@@ -1035,7 +1035,7 @@
        * @param domainItem: domain item in this.props4CreateDomain.domainListToAdd(for remove)
        */
       handleDomainInDialog(action, domainItem) {
-        console.log(this.props4CreateDomain.profileInfo);
+        // console.log(this.props4CreateDomain.profileInfo);
         let domainListToAdd = this.props4CreateDomain.domainListToAdd;
         switch (action) {
           case 'remove':
@@ -1057,7 +1057,7 @@
               return;
             }
             let domain;
-            if ('PRODUCTION' === this.props4CreateDomain.profileInfo.spaceType) {
+            if (this.props4CreateDomain.profileName.startsWith('production')) {
               domain = this.props4CreateDomain.level2Name + '.' + this.props4CreateDomain.level1Name;
             } else {
               domain = this.props4CreateDomain.level2Name + '-' + this.props4CreateDomain.level1Name;
