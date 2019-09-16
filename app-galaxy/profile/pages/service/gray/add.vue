@@ -1448,10 +1448,10 @@
 
       // go to page service with dataPassed
       goToPageService() {
-        this.$storeHelper.dataTransfer = {
-          from: this.$route.path,
-        };
-        this.$router.push(this.$net.page['profile/service']);
+        const targetUrl = this.$router.helper.pages['/profile/service/:id(\\d+)/gray'].toPath({
+          id: this.serviceInfo.id
+        });
+        this.$router.push(targetUrl);
       },
 
       handleClick(evt, action) {
@@ -1472,8 +1472,7 @@
             this.formData['vmOptions'] = `-server -Xmx2g -Xms2g -Xmn256m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=256m -Xss256k -XX:+UseConcMarkSweepGC -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -XX:+PrintGCTimeStamps -XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses -XX:+PrintGCDetails -XX:+PrintGCDateStamps`;
             break;
           case 'back':
-//            this.goToPageService();
-            this.$router.go(-1);
+            this.goToPageService();
             break;
           case 'submit':
             this.isSubmitClicked = true;
