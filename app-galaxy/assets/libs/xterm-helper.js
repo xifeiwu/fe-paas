@@ -92,6 +92,8 @@ export default class XtermHelper extends EventEmitter{
     };
     // 当浏览器窗口变化时, 重新适配终端
     window.addEventListener("resize", term.onScreenResize);
+    // adapt to current screen after xterm is inited
+    setTimeout(term.onScreenResize, 200);
 
     // 当向web终端敲入字符时候的回调
     term.on('data', (input) => {
@@ -134,7 +136,6 @@ export default class XtermHelper extends EventEmitter{
 
     // var msg = {type: "input", input: '\r'};
     // ws.send(JSON.stringify(msg));
-    xterm.onScreenResize();
     if (listenXterm) {
       xterm.on('rich-data', obj => {
         ws.send(JSON.stringify(obj));
