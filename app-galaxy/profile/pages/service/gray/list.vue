@@ -4,6 +4,9 @@
       <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'service_gray_create')">
         <span>创建灰度版本</span>
       </el-button>
+      <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'open_dialog_service_gray_update_instance_number')">
+        <span>调整实例数</span>
+      </el-button>
       <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'open_dialog_service_gray_strategy')">
         <span>设置灰度策略</span>
       </el-button>
@@ -55,9 +58,12 @@
       </el-table>
     </div>
 
-    <el-dialog :title="action.name == 'open_dialog_service_gray_strategy'? '设置灰度策略':''"
-               :visible="['open_dialog_service_gray_strategy', 'open_dialog_modify'].indexOf(action.name) > -1"
-               v-if="['open_dialog_service_gray_strategy'].indexOf(action.name) > -1"
+    <el-dialog :title="{
+                        'open_dialog_service_gray_strategy': '设置灰度策略',
+                        'open_dialog_service_gray_update_instance_number': '调整实例数'
+                      }[action.name]"
+               :visible="['open_dialog_service_gray_strategy', 'open_dialog_service_gray_update_instance_number'].indexOf(action.name) > -1"
+               v-if="['open_dialog_service_gray_strategy', 'open_dialog_service_gray_update_instance_number'].indexOf(action.name) > -1"
                @close="closeDialog"
                class="size-900 update-strategy"
                :close-on-click-modal="false"
@@ -67,16 +73,16 @@
                               showSeconds="0"
                               @status-change="active => {this.showWarning = active; onScreenSizeChange()}"
                               style="margin: 0px -2px"
-                              :msgList="['目前pipeline只支持Java语言的“平台构建镜像”方式，不支持自定义镜像；Pipeline的基本配置默认取自对应应用的测试环境配置。']"></paas-dismiss-message>
+                              :msgList="['灰度发布的作用是从主服务中切换部分流量到灰度服务上，待验证没问题后将主服务换成灰度服务，因此所选服务互为同一个业务的不同版本的服务']"></paas-dismiss-message>
         <el-form :model="action.row" size="mini" label-width="100px" ref="newDomainForm">
-          <el-form-item label="网络类型" class="">
+          <el-form-item label="网络类型" class="" v-if="action.name == 'open_dialog_service_gray_strategy'">
             <el-checkbox-group v-model="grayStrategy.listIngress" v-if="grayStrategyFromNet.listIngress">
               <el-checkbox v-for="item in grayStrategyFromNet.listIngress" :label="item.host" :key="item.host">
                 {{item.host}}{{item.isIntranet ? '(内网域名)' : ''}}
             </el-checkbox>
             </el-checkbox-group>
           </el-form-item>
-          <el-form-item label="实例数" class="instance-number">
+          <el-form-item label="实例数" class="instance-number" v-if="action.name == 'open_dialog_service_gray_update_instance_number'">
             <span>主服务实例数：{{grayStrategy.masterInstanceNum}}</span>
             <div style="width: 160px; display: inline-block; margin-left: 5px;">
               <el-slider v-model="grayStrategy.masterInstanceNum" :show-tooltip="true" :show-stops="true"
@@ -84,7 +90,7 @@
             </div>
             <span>灰度服务实例数：{{grayStrategy.canaryInstanceNum}}</span>
           </el-form-item>
-          <el-form-item label="灰度策略" class="strategy">
+          <el-form-item label="灰度策略" class="strategy" v-if="action.name == 'open_dialog_service_gray_strategy'">
             <el-row style="font-weight: bold">
               <el-col :span="4" class="name">流量类型</el-col>
               <el-col :span="16" class="value">关键字</el-col>
@@ -355,6 +361,18 @@
         // console.log(theData);
         return theData;
       },
+      // 更新灰度策略
+      async requestGrayStrategy() {
+        const grayStrategyFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_strategy_query, {
+          payload: {
+            configId: this.serviceId,
+            serviceName: this.serviceInfo.serviceName,
+            spaceId: this.profileInfo.id,
+            groupId: this.$storeHelper.groupInfo.id
+          }
+        });
+        return grayStrategyFromNet;
+      },
       async handleClick(evt, action, data) {
         let resContent = null;
         switch (action) {
@@ -363,24 +381,17 @@
               id: this.serviceId
             }));
             break;
+          case 'open_dialog_service_gray_update_instance_number':
           case 'open_dialog_service_gray_strategy':
             try {
-              this.grayStrategyFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_strategy_query, {
-                payload: {
-                  configId: this.serviceId,
-                  serviceName: this.serviceInfo.serviceName,
-                  spaceId: this.profileInfo.id,
-                  groupId: this.$storeHelper.groupInfo.id
-                }
-              });
+              this.grayStrategyFromNet = await this.requestGrayStrategy();
               if (this.serviceList.length === 0) {
                 this.$message.error('未找到服务列表');
                 return;
               }
-              this.grayStrategyFromNet.totalInstanceNum = this.grayStrategyFromNet.masterInstanceNum + this.grayStrategyFromNet.canaryInstanceNum;
               this.grayStrategy.listIngress = this.grayStrategyFromNet['listIngress'].filter(it => it.hasCanary).map(it => it.host);
-              this.grayStrategy.canaryInstanceNum = this.grayStrategyFromNet.canaryInstanceNum;
-              this.grayStrategy.masterInstanceNum = this.grayStrategyFromNet.masterInstanceNum;
+              this.grayStrategy.canaryInstanceNum = this.grayStrategyFromNet.canaryInstanceNum >= 0 ? this.grayStrategyFromNet.canaryInstanceNum : 0;
+              this.grayStrategy.masterInstanceNum = this.grayStrategyFromNet.masterInstanceNum >= 0 ? this.grayStrategyFromNet.masterInstanceNum : 0;
               this.grayStrategy.headerKeySelected = this.grayStrategyFromNet.headerKeySelected;
               this.grayStrategy.headerKey = this.grayStrategyFromNet.headerKey;
               this.grayStrategy.headerValue = this.grayStrategyFromNet.headerValue;
@@ -388,6 +399,7 @@
               this.grayStrategy.cookie = this.grayStrategyFromNet.cookie;
               this.grayStrategy.weightSelected = this.grayStrategyFromNet.weightSelected;
               this.grayStrategy.weight = this.grayStrategyFromNet.weight;
+              this.grayStrategyFromNet.totalInstanceNum = this.grayStrategyFromNet.masterInstanceNum + this.grayStrategyFromNet.canaryInstanceNum;
               await this.openDialog(action);
             } catch (err) {
               console.log(err);
@@ -478,8 +490,8 @@
                 return this.grayStrategy.listIngress.indexOf(it.host) > -1;
               });
               // TODO: delete later
-              (payload.canaryInstanceNum < 1) && (payload.canaryInstanceNum = 1);
-              (payload.masterInstanceNum < 1) && (payload.masterInstanceNum = 1);
+              // (payload.canaryInstanceNum < 1) && (payload.canaryInstanceNum = 1);
+              // (payload.masterInstanceNum < 1) && (payload.masterInstanceNum = 1);
               payload.configId = this.serviceId;
               payload.groupId = this.$storeHelper.groupInfo.id;
               // console.log(this.grayStrategy);
