@@ -156,7 +156,7 @@
             </el-button>
             <div class="ant-divider"></div>
             <el-button
-                    type="text"
+                    type="text" v-if="false"
                     :class="['flex', $storeHelper.permission['go-to-page-terminal-from-instance'].disabled || isMesosService ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'go-to-page-terminal-from-instance', scope.$index, scope.row)"
                     >终端</el-button>
@@ -165,7 +165,7 @@
                     type="text"
                     :class="['flex', $storeHelper.permission['go-to-page-terminal-from-instance'].disabled || isMesosService ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'go-to-page-instance-terminal-from-instance', scope.$index, scope.row)"
-            ><span class="new-terminal"><span>新终端</span><span class="beta">(beta)</span></span></el-button>
+            ><span class="new-terminal"><span>新终端</span><span class="beta" v-if="false">(beta)</span></span></el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
@@ -847,6 +847,7 @@
             }
             break;
           case 'go-to-page-terminal-from-instance':
+            // TODO: not used
             if(row.status != '运行中'){
               this.$storeHelper.globalPopover.show({
                 ref: evt.target,
@@ -860,18 +861,18 @@
               return;
             }
             let status = await this.$net.requestPaasServer(this.$net.URL_LIST.instance_info, {
-                  params: {
-                      appId: serviceInfo.selectedAPP.appId,
-                      id:row.id,
-                      spaceId:serviceInfo.selectedProfile.id
-                  }
+                params: {
+                    appId: serviceInfo.selectedAPP.appId,
+                    id:row.id,
+                    spaceId:serviceInfo.selectedProfile.id
+                }
               });
             if('Running'!=status){
-                this.$storeHelper.globalPopover.show({
-                    ref: evt.target,
-                    msg: '非运行中的实例不能打开终端'
-                });
-                return
+              this.$storeHelper.globalPopover.show({
+                  ref: evt.target,
+                  msg: '非运行中的实例不能打开终端'
+              });
+              return
             }
             serviceInfo = this.$refs['version-selector'].getSelectedValue()[
               'selectedService'
@@ -886,9 +887,6 @@
             }
             if (id && ip) {
               let terminalPath = this.$net.page['terminal'] + '?id=' + id + '&ip=' + ip + '&name=' + row['id'];
-              //              this.$net.getTerminalInfo({
-              //                serviceId: id
-              //              });
               window.open(terminalPath, '_blank');
             } else {
               this.$message.error('组ID或内网IP没有找到');
