@@ -360,10 +360,12 @@ class Net extends NetBase {
         path: '/service/canary/delete',
         method: 'post'
       },
+      // 查询灰度策略配置
       'service_gray_strategy_query': {
         path: '/service/canaryStrategy/query',
         method: 'post'
       },
+      // 创建/更新灰度配置：包括策略和实例数
       'service_gray_strategy_update': {
         path: '/service/canaryStrategy/createOrUpdate',
         method: 'post'

@@ -6,7 +6,7 @@
                              @version-selected="onVersionSelected"></paas-version-selector>
       </el-col>
       <el-col :span="6">
-          <span>运行实例数/总实例数：{{serviceRunningInfo === null ? "0 / 0" : serviceRunningInfo["status"] == null ? '0 / 0' : serviceRunningInfo["status"]["Running"] + " / " +serviceRunningInfo["status"]["Total"]}}</span>
+          <span>运行实例数/总实例数：{{`${instanceStatus['runningCnt']} / ${instanceStatus['totalCnt']}`}}</span>
       </el-col>
       <el-col :span="4">
         <el-button v-if="true"
@@ -208,25 +208,23 @@
                @close="action.name = null"
                class="manual-scale size-500"
     >
-      <el-form labelWidth="120px" size="mini">
-        <el-form-item label="当前实例数：">
-          <div>{{instanceStatus.instanceCount}}个</div>
+      <el-form labelWidth="140px" size="mini">
+        <el-form-item label="当前主实例数：">
+          <div>{{instanceStatus.masterCnt}}个</div>
         </el-form-item>
-        <el-form-item label="调整实例数为：" :error="manualScale.error">
+        <el-form-item label="调整主实例数为：" :error="manualScale.error">
           <el-input-number v-model="manualScale.newCount" :min="1" size="mini"></el-input-number>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleDialogButtonClick('manualScale')"
-                       :loading="statusOfWaitingResponse('ok-button-in-dialog-manual-scale')">确&nbsp定</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button @click="action.name = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     @click="handleDialogButtonClick('manualScale')"
+                     :loading="statusOfWaitingResponse('ok-button-in-dialog-manual-scale')">确&nbsp定</el-button>
+        </div>
+        <div class="item">
+          <el-button  size="mini" @click="action.name = null">取&nbsp消</el-button>
+        </div>
       </div>
     </el-dialog>
     <paas-dialog-for-log-new :showStatus="showStatusForDialogInstanceStatus" class="dialog-instance-status" ref="dialog-instance-status"
@@ -443,16 +441,11 @@
         profileInfo: null,
         config4VersionSelector: null,
         queueForWaitingResponse: [],
-        //        instanceStatus.instanceList: [{
-        //          createTime: '2018-01-11 20:39:09',
-        //          health: null,
-        //          id: 'v3-puhui-notification-3270010048-3xp1s',
-        //          intranetIP:null,
-        //          message:null,
-        //          status:'运行中',
-        //          version: 'puhui-notification:2018-01-11-20-38-12'
-        //        }],
+        // 实例状态
         instanceStatus: {
+          runningCnt: '---',
+          totalCnt: '---',
+          masterCnt: null,
           instanceCount: null,
           instanceList: []
         },
@@ -503,7 +496,6 @@
           order: 'descending',
         },
 
-        serviceRunningInfo: null
       };
     },
     watch: {
@@ -515,35 +507,9 @@
           msg: '复制成功'
         });
       },
-      // TODO: 获取实例数有没有必要请求整个服务运行相关的所有信息
-      // 获取服务的当前运行信息（用于展示：当前实例数/总实例数）
-      async requestServiceRunningInfo(appId, profileId) {
-        if (!appId || !profileId) {
-          console.log('appId or profileId can not be empty');
-          return;
-        }
-        let payload = {
-          appId: appId,
-          spaceId: profileId
-        };
-        this.$net.requestPaasServer(this.$net.URL_LIST.service_info_running, {payload}).then(resContent => {
-          this.serviceRunningInfo = null;
-          if (resContent.hasOwnProperty("applicationConfigDeployment")) {
-            this.serviceRunningInfo = resContent["applicationConfigDeployment"];
-          }
-          if (this.serviceRunningInfo) {
-            this.instanceStatus.instanceCount = this.serviceRunningInfo["status"]["Total"];
-          } else {
-            this.instanceStatus.instanceCount = 0;
-          }
-        }).catch(err => {
-          console.log(err)
-        });
-      },
       onVersionSelected(appInfo, profileInfo, serviceInfo) {
 //        console.log(appInfo, profileInfo, serviceInfo);
         // 获取服务运行时信息
-        this.requestServiceRunningInfo(appInfo.appId, profileInfo.id);
         this.hidePop();
         this.instanceStatus.instanceList = [];
         if (!appInfo || !profileInfo || !serviceInfo) {
@@ -570,17 +536,17 @@
       /**
        * 获取实例列表
        */
-      async requestInstanceList(appID, spaceID, version) {
-        if (!appID || !spaceID) {
-          console.log('appID or spaceID can not be empty');
+      async requestInstanceList(appId, spaceId, version) {
+        if (!appId || !spaceId) {
+          console.log('appId or spaceId can not be empty');
           return;
         }
         try {
           this.instanceStatus.instanceList = [];
           const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.instance_list, {
             payload: {
-              appId: appID,
-              spaceId: spaceID,
+              appId: appId,
+              spaceId: spaceId,
               // serviceVersion: version,
             }
           });
@@ -606,7 +572,11 @@
           });
           this.instanceStatus.instanceList = instanceList;
           if (resContent.hasOwnProperty('instanceNum')) {
-            this.instanceStatus.instanceCount = resContent['instanceNum'];
+            this.instanceStatus.masterCnt = resContent['instanceNum'];
+          }
+          if (resContent.hasOwnProperty('status')) {
+            this.instanceStatus.runningCnt = resContent['status']['Running'];
+            this.instanceStatus.totalCnt = resContent['status']['Total'];
           }
           // sort table by this.tableSort after success request
           this.onSortChangeInTable(this.tableSort);
@@ -656,11 +626,10 @@
               serviceInfo.selectedProfile.id,
               serviceInfo.selectedService.serviceVersion
             ];
-            this.requestServiceRunningInfo(serviceInfo.selectedAPP.appId, serviceInfo.selectedProfile.id);
-            this.requestInstanceList.apply(this, params);
+            this.requestInstanceList(serviceInfo.selectedAPP.appId, serviceInfo.selectedProfile.id);
             break;
           case 'instance_change_count':
-            this.manualScale.newCount = this.instanceStatus.instanceCount;
+            this.manualScale.newCount = this.instanceStatus.masterCnt;
             this.action.name = action;
             break;
         }
@@ -673,7 +642,7 @@
         }
         switch (action) {
           case 'manualScale':
-            if (this.manualScale.newCount === this.instanceStatus.instanceCount) {
+            if (this.manualScale.newCount === this.instanceStatus.masterCnt) {
               this.$message.warning('您没有做修改');
               this.action.name = null;
               return;
@@ -688,7 +657,7 @@
             this.$net.requestPaasServer(this.$net.URL_LIST.instance_change_count, {
               payload
             }).then(msg => {
-              this.instanceStatus.instanceCount = this.manualScale.newCount;
+              this.instanceStatus.masterCnt = this.manualScale.newCount;
               this.$message.success('扩容缩容操作成功，请过几十秒后刷新查看实例运行情况');
             })
             .catch(msg => {
