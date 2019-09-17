@@ -102,7 +102,7 @@
               <div v-if="!isProductionProfile"
                    class="ant-divider"></div>
               <el-button
-                      v-if="true"
+                      v-if="isProductionProfile"
                       size="small"
                       type="text"
                       :loading="statusOfWaitingResponse('service_deploy_gray') && action.row.appId == scope.row.appId"
