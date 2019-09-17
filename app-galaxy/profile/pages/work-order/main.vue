@@ -1,7 +1,7 @@
 <template>
   <div id="work-order">
     <el-tabs v-model="currentPath" type="card" @tab-click="handleClick">
-      <el-tab-pane v-for="item in tabs" :label="item.name" :name="item.routePath" :key="item.routePath"></el-tab-pane>
+      <el-tab-pane v-for="item in tabs" :label="item.name" :name="item.fullPath" :key="item.fullPath"></el-tab-pane>
     </el-tabs>
     <router-view></router-view>
   </div>

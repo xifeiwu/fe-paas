@@ -26,7 +26,7 @@
           <div class="current-step">
             <i class="paas-icon-fa-home" style="margin-right: 2px;"></i>
             <el-breadcrumb separator-class="el-icon-arrow-right" @item-click="handleBreadCrumbClick">
-              <el-breadcrumb-item v-for="item in breadCrumbItemList" :key="item.path" :item="item">
+              <el-breadcrumb-item v-for="item in breadCrumbItemList" :key="item.fullPath" :item="item">
                 <span v-if="item.messageShow" :class="['badge', 'primary', 'small', 'message-show']" style="color: #5a5e66; cursor: text">{{item['name']}}</span>
                 <span v-else>{{item['name']}}</span>
               </el-breadcrumb-item>
