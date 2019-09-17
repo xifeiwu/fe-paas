@@ -1,22 +1,40 @@
 <template>
   <div id="service-gray">
     <div class="header">
-      <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'service_gray_create')">
-        <span>创建灰度版本</span>
+      <!--①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳-->
+      <el-button size="mini" type="primary"
+                 :class="[step!=STATE['START']?'disabled':'']"
+                 @click="handleClick($event, 'service_gray_create')">
+        <span class="step-tag">1</span><span>创建灰度版本</span>
       </el-button>
-      <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'open_dialog_service_gray_update_instance_number')">
-        <span>调整实例数</span>
+      <el-button
+              size="mini"
+              type="primary"
+              :class="['flex', step<STATE['CANARY_CREATED'] ? 'disabled':'']"
+              @click="handleClick($event,'go-to-work-order-todo-add-from-service-gray')">
+        <span class="step-tag">2</span><span>申请工单</span><i class="paas-icon-level-up"></i>
       </el-button>
-      <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'open_dialog_service_gray_strategy')">
-        <span>设置灰度策略</span>
+      <el-button size="mini" type="primary"
+                 :class="[step<STATE['WORK_ORDER_DEPLOYED'] ?'disabled':'']"
+                 @click="handleClick($event, 'open_dialog_service_gray_update_instance_number')">
+        <span class="step-tag">3</span><span>调整实例数</span>
       </el-button>
-      <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'service_gray_apply')">
-        <span>完成灰度发布</span>
+      <el-button size="mini" type="primary"
+                 :class="[step<STATE['WORK_ORDER_DEPLOYED'] ?'disabled':'']"
+                 @click="handleClick($event, 'open_dialog_service_gray_strategy')">
+        <span class="step-tag">3</span><span>设置灰度策略</span>
       </el-button>
-      <el-button size="mini" type="primary" style="margin-right: 5px" @click="handleClick($event, 'refresh')">
+      <el-button size="mini" type="primary"
+                 :class="[step<STATE['WORK_ORDER_DEPLOYED'] ?'disabled':'']"
+                 @click="handleClick($event, 'service_gray_apply')">
+        <span class="step-tag">3</span><span>完成灰度发布</span>
+      </el-button>
+      <el-button size="mini" type="primary" @click="handleClick($event, 'refresh')">
         <span>刷新</span>
         <i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
       </el-button>
+      <i class="paas-icon-fa-question"
+         v-pop-on-mouse-over="['灰度服务的部署，需要申请工单，在部署工单页面进行', '灰度服务部署完成后，才能设置/修改灰度策略，才能完成灰度发布']"></i>
     </div>
     <div class="list">
       <el-table :data="serviceList"
@@ -166,11 +184,25 @@
       .el-select {
         width: 180px;
       }
+      .el-button {
+        .step-tag {
+          display: inline-block;
+          height: 14px;
+          width: 14px;
+          border-radius: 7px;
+          border-width: 1px;
+          border-style: solid;
+        }
+      }
       .toggle-warning {
         display: inline-block;
         line-height: 24px;
         margin-left: 12px;
         color: #eb9e05;
+      }
+      .paas-icon-fa-question {
+        margin-left: 10px;
+        color: $--color-warning,
       }
     }
     > .list {
@@ -230,6 +262,14 @@
   import paasDismissMessage from 'assets/components/dismiss-message.vue';
   import commonUtils from 'assets/components/mixins/common-utils';
   import paasDialogForLog from 'assets/components/dialog4log.vue';
+  const STATE = {
+    START: 0,
+    CANARY_CREATED: 1,
+    WORK_ORDER_DEPLOYED: 2,
+    UPDATE_INSTANCE_COUNT: 2,
+    UPDATE_STRATEGY: 2,
+    GRAY_APPLIED: 3
+  };
   export default {
     components: {paasDismissMessage, paasDialogForLog, codemirror},
     mixins: [commonUtils],
@@ -242,7 +282,15 @@
         this.$router.push(this.$router.helper.pages['/profile/service/list']);
         return;
       }
-      this.requestServiceList();
+      await this.requestServiceList();
+
+      // update current step
+      if (this.canaryStatus.hasOwnProperty('canary')) {
+        this.step = this.STATE['CANARY_CREATED'];
+      }
+      if (this.canaryStatus['canaryDeploymentFlag']) {
+        this.step = this.STATE['WORK_ORDER_DEPLOYED'];
+      }
 
       const {serviceInfo, profileInfo} = await this.syncDataFromNet();
       if (!serviceInfo || !profileInfo) {
@@ -257,9 +305,11 @@
     },
     data() {
       return {
+        STATE: STATE,
+        step: STATE['START'],
         serviceId: null,
         serviceInfo: null,
-        canaryInfo: null,
+        canaryStatus: null,
         profileInfo: null,
         serviceList: [],
 
@@ -340,7 +390,7 @@
           resContent['canary']['serviceTypeName'] = '灰度服务';
           this.serviceList.push(postTreat(resContent['canary']));
         }
-        this.canaryInfo = resContent;
+        this.canaryStatus = resContent;
         return resContent;
       },
 
@@ -375,11 +425,58 @@
       },
       async handleClick(evt, action, data) {
         let resContent = null;
+        const target = evt.target;
+        if (action == 'service_gray_create' && this.step!=this.STATE['START']) {
+          this.$storeHelper.globalPopover.show({
+            ref: target,
+            msg: `您已创建灰度服务`
+          });
+          return;
+        }
+        if (action == 'go-to-work-order-todo-add-from-service-gray' && this.step<this.STATE['CANARY_CREATED']) {
+          this.$storeHelper.globalPopover.show({
+            ref: target,
+            msg: `请先创建灰度服务`
+          });
+          return;
+        }
+        if (['open_dialog_service_gray_strategy', 'open_dialog_service_gray_update_instance_number'].includes(action)
+          && this.step<this.STATE['WORK_ORDER_DEPLOYED']) {
+          this.$storeHelper.globalPopover.show({
+            ref: target,
+            msg: `请先完成灰度部署，再调整灰度策略`
+          });
+          return;
+        }
+        if (action == 'service_gray_apply' && this.step<this.STATE['WORK_ORDER_DEPLOYED']) {
+          this.$storeHelper.globalPopover.show({
+            ref: target,
+            msg: `请先完成灰度部署`
+          });
+          return;
+        }
         switch (action) {
           case 'service_gray_create':
             this.$router.push(this.$router.helper.pages['/profile/service/:id(\\d+)/gray/add'].toPath({
               id: this.serviceId
             }));
+            break;
+          case 'go-to-work-order-todo-add-from-service-gray':
+            const data = {
+              appId: this.serviceInfo.appId,
+              profileId: this.profileInfo.id,
+              serviceId: this.serviceInfo.id,
+              serviceInfo: this.serviceInfo,
+              profileInfo: this.profileInfo
+            };
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page['profile/service'],
+              data
+            };
+            const PATH_MAP = {
+              'go-to-work-order-todo-add-from-service-gray': this.$net.page['profile/work-order/todo/add'],
+            };
+            this.$router.push(PATH_MAP[action]);
             break;
           case 'open_dialog_service_gray_update_instance_number':
           case 'open_dialog_service_gray_strategy':
@@ -413,11 +510,9 @@
               type: 'warning',
               dangerouslyUseHTMLString: true
             });
-            // console.log(this.canaryInfo);
-            // console.log(this.serviceInfo);
             resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_apply, {
               payload: {
-                id: this.canaryInfo['canary']['id'],
+                id: this.canaryStatus['canary']['id'],
                 groupId: this.$storeHelper.groupInfo.id,
                 serviceName: this.serviceInfo.serviceName
               }
@@ -449,16 +544,15 @@
               dangerouslyUseHTMLString: true
             });
 
-            if (!this.canaryInfo['canary']) {
+            if (!this.canaryStatus['canary']) {
               this.$message.error('灰度服务信息不存在！');
               break;
             }
             var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_delete, {
               payload: {
-                id: this.canaryInfo['canary'].id,
+                id: this.canaryStatus['canary'].id,
               }
             });
-            console.log(resContent);
             break;
           case 'open-dialog-k8s-info':
             try {
