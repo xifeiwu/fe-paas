@@ -282,7 +282,7 @@
         this.$router.push(this.$router.helper.pages['/profile/service/list']);
         return;
       }
-      await this.requestServiceList();
+      await this.requestCanaryInfo();
 
       // update current step
       if (this.canaryStatus.hasOwnProperty('canary')) {
@@ -362,7 +362,7 @@
         } catch(err) {
         }
       },
-      async requestServiceList() {
+      async requestCanaryInfo() {
         this.serviceList = [];
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_list, {
           query: {
@@ -525,7 +525,7 @@
           case 'service_gray_strategy':
             break;
           case 'refresh':
-            this.requestServiceList();
+            this.requestCanaryInfo();
             break;
         }
       },
@@ -554,7 +554,7 @@
               }
             });
             // update service list and current step after delete service success
-            await this.requestServiceList();
+            await this.requestCanaryInfo();
             this.step = this.STATE['START'];
 
             break;
