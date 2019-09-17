@@ -145,6 +145,13 @@ class Helper extends RouterHelper {
       name: '复制服务',
       component: serviceAdd,
     }, {
+      path: '/profile/service/:id(\\d+)',
+      messageShow: true,
+      name: '---',
+      meta: {
+        isPermitted: false,
+      },
+    }, {
       path: '/profile/service/:id(\\d+)/gray',
       name: '灰度发布',
       component: serviceGray
@@ -394,14 +401,14 @@ class Helper extends RouterHelper {
     (() => {
       function updateItem(path, item) {
         if (null !== path) {
-          item.routePath = path + '/' + item.path;
+          item.fullPath = path + '/' + item.path;
         } else {
-          item.routePath = item.path;
+          item.fullPath = item.path;
         }
         let keys = [];
-        item.pathReg = pathToRegexp(item.routePath, keys);
+        item.pathReg = pathToRegexp(item.fullPath, keys);
         item.pathReg.keys = keys;
-        item.toPath = pathToRegexp.compile(item.routePath);
+        item.toPath = pathToRegexp.compile(item.fullPath);
       }
 
       function traverseComponent(path, component) {
@@ -410,7 +417,7 @@ class Helper extends RouterHelper {
         } else if ('object' === typeof(component)) {
           updateItem.call(this, path, component);
           if (component.hasOwnProperty('children')) {
-            traverseComponent(component.routePath, component['children']);
+            traverseComponent(component.fullPath, component['children']);
           }
         }
       }
@@ -422,7 +429,7 @@ class Helper extends RouterHelper {
 
     const pages = {};
     this.routeList.forEach(it => {
-      pages[it.routePath] = it;
+      pages[it.fullPath] = it;
     });
     if (this.pages) {
       this.pages = Object.assign(this.pages, pages);
@@ -451,11 +458,11 @@ class Helper extends RouterHelper {
    */
   addPermission(notPermittedList) {
     function updateItem(item) {
-      if (item.hasOwnProperty('routePath')) {
+      if (item.hasOwnProperty('fullPath')) {
         if (!item.hasOwnProperty('meta')) {
           item.meta = {};
         }
-        item.meta['isPermitted'] = notPermittedList.indexOf(item.routePath) > -1 ? false : true;
+        item.meta['isPermitted'] = notPermittedList.indexOf(item.fullPath) > -1 ? false : true;
       }
     }
 
@@ -474,7 +481,7 @@ class Helper extends RouterHelper {
    */
   updateDisabledState({pathList, pathType}, {key, value}) {
     function updateItem(item) {
-      if (item.hasOwnProperty('routePath')) {
+      if (item.hasOwnProperty('fullPath')) {
         if (!item.hasOwnProperty('meta')) {
           item.meta = {};
         }
@@ -512,13 +519,13 @@ class Helper extends RouterHelper {
 
         switch (pathType) {
           case 'exclude':
-            if (isPathMatch(item['routePath'])) {
+            if (isPathMatch(item['fullPath'])) {
             } else {
               item.meta['disabled'][key] = value;
             }
             break;
           case 'include':
-            if (isPathMatch(item['routePath'])) {
+            if (isPathMatch(item['fullPath'])) {
               item.meta['disabled'][key] = value;
             } else {
             }
@@ -582,47 +589,22 @@ class Helper extends RouterHelper {
     }
   }
 
-  /**
-   * get routePath to name, in the following format:
-   * {
-   *   '/login': "登录",
-   *   '/profile':"详情",
-   *   '/profile/app':"应用管理",
-   *   '/profile/app/add':"创建应用",
-   *   '/profile/domain_name':"外网域名",
-   *   '/profile/instance':"实例列表",
-   *   '/profile/service':"服务管理"
-   *  }
-   * used in:
-   * 1. profile.vue
-   */
-  getRoutePathToName() {
-    let routePath = {};
-
-    function updateItem(item) {
-      if (item.hasOwnProperty('routePath') && item.hasOwnProperty('name')) {
-        if (item.name && item.routePath) {
-          routePath[item.routePath] = item.name;
-        }
-      }
-    }
-
-    this.traverseComponent(updateItem, this.richRouterConfig);
-    return routePath;
-  }
-
   getConfigByRoutePath(path) {
     return this.routeList.find(it => it.pathReg.test(path));
   }
 
+  getConfigByFullPath(path) {
+    return this.routeList.find(it => it.fullPath == path);
+  }
+
   /**
-   * get permitted children in routeConfig by routePath
-   * @param routePath, such as '/log', '/oauth'
+   * get permitted children in routeConfig by fullPath
+   * @param fullPath, such as '/log', '/oauth'
    * @returns {Array}
    * TODO: change name to getSubRouteList
    */
-  getPermittedSubRouteList(routePath) {
-    const target = this.richRouterConfig.find(it => it.routePath == routePath);
+  getPermittedSubRouteList(fullPath) {
+    const target = this.richRouterConfig.find(it => it.fullPath == fullPath);
     if (target && target.hasOwnProperty('children')) {
       return target['children'];
     } else {
@@ -637,7 +619,6 @@ class Helper extends RouterHelper {
     const ROOT_PATH = '/profile';
 
     // get parent path of the path
-    // TODO: not used
     const getParentPath = (path) => {
       var result = '';
       if (!path.startsWith(ROOT_PATH)) {
@@ -652,68 +633,42 @@ class Helper extends RouterHelper {
     };
 
     // if the path is valid
-    // TODO: not used
-    const isPermittedPath = (path) => {
+    const isPermitted = (config) => {
       var permitted = true;
-      const config = this.routePathToConfig[path];
-      // console.log(path);
-      // console.log(config);
       if (!config) {
-        return false;
-      }
-      if (config.hasOwnProperty('meta') && config.meta.hasOwnProperty('isPermitted')) {
-        permitted = config.meta.isPermitted;
-      }
-      if (config.hasOwnProperty('children')) {
         permitted = false;
+      } else if (config.hasOwnProperty('meta') && config.meta.hasOwnProperty('isPermitted')) {
+        permitted = config.meta.isPermitted;
       }
       return permitted;
     };
 
     // get nearest path if the path is not valid
-    // TODO: not used
-    const getPermittedPath = (path) => {
-      var result = '';
-      let firstValidChild = null;
-      const config = this.routePathToConfig[path];
-      // find downward
-      if (config && config.hasOwnProperty('children')) {
-        config.children.some(it => {
-          if (isPermittedPath(it.routePath)) {
-            firstValidChild = it;
-          }
-          return firstValidChild;
-        });
-        if (firstValidChild) {
-          result = firstValidChild.routePath;
-        }
+    const getPermittedPath = (config) => {
+      var path = config.fullPath;
+      // check parent
+      while (!isPermitted(config) && ROOT_PATH != path) {
+        path = getParentPath(path);
+        config = this.getConfigByRoutePath(path);
       }
-      // find upward
-      if (!firstValidChild) {
-        // check parent
-        while (!isPermittedPath(result) && ROOT_PATH != result) {
-          result = getParentPath(result);
-        }
-      }
-      return result;
+      return path;
     };
 
     const pathCheck = (path) => {
+      // remove / at end
+      path = path.trim().replace(/\/+$/, '');
       const result = {
         jumpTo: path,
         errMsg: '',
         // isOk: true,
       };
-      // remove / at end
-      path = path.trim().replace(/\/+$/, '');
 
-      // var routeConfig = this.routePathToConfig[path];
       var routeConfig = this.getConfigByRoutePath(path);
       if (routeConfig) {
         // 1. isPermitted check
-        // if (!isPermittedPath(path)) {
-        //   result.jumpTo = getPermittedPath(path);
-        // }
+        if (!isPermitted(routeConfig)) {
+          result.jumpTo = getPermittedPath(routeConfig);
+        }
         // update routeConfig
         routeConfig = this.getConfigByRoutePath(result.jumpTo);
         // 2. disable check

@@ -215,6 +215,14 @@ $space in (0, 0),(1, 4),(2, 8),(3, 16),(4, 24),(5, 48) {
   padding: 0 4px;
   text-align: center;
   white-space: nowrap;
+  &.primary {
+    background-color: #ddd;
+  }
+  &.small {
+    font-size: 14px;
+    line-height: 16px;
+    height: 16px;
+  }
   &.danger {
     background-color: #F56C6C;
   }

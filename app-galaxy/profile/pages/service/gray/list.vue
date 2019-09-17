@@ -42,7 +42,7 @@
         <el-table-column label="服务版本" prop="serviceTypeName"></el-table-column>
         <el-table-column label="运行实例数/总实例数" prop="instanceStatus" headerAlign="center" align="center" width="200"></el-table-column>
         <el-table-column label="创建时间" prop="formattedCreateTime" headerAlign="center" align="center" width="200"></el-table-column>
-        <el-table-column>
+        <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
                     v-if="scope.row['serviceType'] === 'canary'"
@@ -292,7 +292,7 @@
         this.step = this.STATE['WORK_ORDER_DEPLOYED'];
       }
 
-      const {serviceInfo, profileInfo} = await this.syncDataFromNet();
+      const {serviceInfo, profileInfo} = await this.syncEnv();
       if (!serviceInfo || !profileInfo) {
         this.$message.error('获取服务相关信息失败！');
         return;
@@ -395,7 +395,7 @@
       },
 
       // get all related data used in this page
-      async syncDataFromNet() {
+      async syncEnv() {
         var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_by_id, {
           params: {
             id: this.serviceId
@@ -408,7 +408,10 @@
           profileInfo,
           serviceInfo,
         };
-        // console.log(theData);
+        const routeConfig = this.$router.helper.getConfigByFullPath('/profile/service/:id(\\d+)');
+        if (routeConfig) {
+          routeConfig.name = `${serviceInfo.appName}/${profileInfo.description}`;
+        }
         return theData;
       },
       // 更新灰度策略
