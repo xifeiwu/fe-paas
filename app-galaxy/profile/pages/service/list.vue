@@ -2275,6 +2275,10 @@ tolerations:
             }
             break;
           case 'service_delete':
+            if (row.isCanaryDeploy) {
+              this.$message.error(`应用 ${row.appName} 存在未删除的灰度服务，请先删除灰度服务，然后再删除主服务`);
+              return;
+            }
             this.addToWaitingResponseQueue(action);
             var desc = this.getVersionDescription();
             try {
