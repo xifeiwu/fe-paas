@@ -365,8 +365,13 @@ class Net extends NetBase {
         path: '/service/canaryStrategy/query',
         method: 'post'
       },
-      // 创建/更新灰度配置：包括策略和实例数
-      'service_gray_strategy_update': {
+      // 创建/更新灰度配置：调整实例数
+      'service_gray_update_instance_count': {
+        path: '/service/canaryStrategy/instanceUpdate',
+        method: 'post'
+      },
+      // 创建/更新灰度配置：调整策略
+      'service_gray_update_strategy': {
         path: '/service/canaryStrategy/createOrUpdate',
         method: 'post'
       },

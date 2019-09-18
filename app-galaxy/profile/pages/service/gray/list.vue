@@ -7,21 +7,22 @@
                  @click="handleClick($event, 'service_gray_create')">
         <span class="step-tag">1</span><span>创建灰度版本</span>
       </el-button>
+      <!--创建了灰度且没有部署-->
       <el-button
               size="mini"
               type="primary"
-              :class="['flex', step<STATE['CANARY_CREATED'] ? 'disabled':'']"
+              :class="['flex', step<STATE['CANARY_CREATED']||step>=STATE['WORK_ORDER_DEPLOYED'] ? 'disabled':'']"
               @click="handleClick($event,'go-to-work-order-todo-add-from-service-gray')">
         <span class="step-tag">2</span><span>申请工单</span><i class="paas-icon-level-up"></i>
       </el-button>
       <el-button size="mini" type="primary"
                  :class="[step<STATE['WORK_ORDER_DEPLOYED'] ?'disabled':'']"
-                 @click="handleClick($event, 'open_dialog_service_gray_update_instance_number')">
+                 @click="handleClick($event, 'open_dialog_service_gray_update_instance_count')">
         <span class="step-tag">3</span><span>调整实例数</span>
       </el-button>
       <el-button size="mini" type="primary"
                  :class="[step<STATE['WORK_ORDER_DEPLOYED'] ?'disabled':'']"
-                 @click="handleClick($event, 'open_dialog_service_gray_strategy')">
+                 @click="handleClick($event, 'open_dialog_service_gray_update_strategy')">
         <span class="step-tag">3</span><span>设置灰度策略</span>
       </el-button>
       <el-button size="mini" type="primary"
@@ -77,11 +78,11 @@
     </div>
 
     <el-dialog :title="{
-                        'open_dialog_service_gray_strategy': '设置灰度策略',
-                        'open_dialog_service_gray_update_instance_number': '调整实例数'
+                        'open_dialog_service_gray_update_strategy': '设置灰度策略',
+                        'open_dialog_service_gray_update_instance_count': '调整实例数'
                       }[action.name]"
-               :visible="['open_dialog_service_gray_strategy', 'open_dialog_service_gray_update_instance_number'].indexOf(action.name) > -1"
-               v-if="['open_dialog_service_gray_strategy', 'open_dialog_service_gray_update_instance_number'].indexOf(action.name) > -1"
+               :visible="['open_dialog_service_gray_update_strategy', 'open_dialog_service_gray_update_instance_count'].indexOf(action.name) > -1"
+               v-if="['open_dialog_service_gray_update_strategy', 'open_dialog_service_gray_update_instance_count'].indexOf(action.name) > -1"
                @close="closeDialog"
                class="size-900 update-strategy"
                :close-on-click-modal="false"
@@ -93,14 +94,14 @@
                               style="margin: 0px -2px"
                               :msgList="['灰度发布的作用是从主服务中切换部分流量到灰度服务上，待验证没问题后将主服务换成灰度服务，因此所选服务互为同一个业务的不同版本的服务']"></paas-dismiss-message>
         <el-form :model="action.row" size="mini" label-width="100px" ref="newDomainForm">
-          <el-form-item label="网络类型" class="" v-if="action.name == 'open_dialog_service_gray_strategy'">
+          <el-form-item label="网络类型" class="" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
             <el-checkbox-group v-model="grayStrategy.listIngress" v-if="grayStrategyFromNet.listIngress">
               <el-checkbox v-for="item in grayStrategyFromNet.listIngress" :label="item.host" :key="item.host">
                 {{item.host}}{{item.isIntranet ? '(内网域名)' : ''}}
             </el-checkbox>
             </el-checkbox-group>
           </el-form-item>
-          <el-form-item label="实例数" class="instance-number" v-if="action.name == 'open_dialog_service_gray_update_instance_number'">
+          <el-form-item label="实例数" class="instance-number" v-if="action.name == 'open_dialog_service_gray_update_instance_count'">
             <span>主服务实例数：{{grayStrategy.masterInstanceNum}}</span>
             <div style="width: 160px; display: inline-block; margin-left: 5px;">
               <el-slider v-model="grayStrategy.masterInstanceNum" :show-tooltip="true" :show-stops="true"
@@ -108,7 +109,7 @@
             </div>
             <span>灰度服务实例数：{{grayStrategy.canaryInstanceNum}}</span>
           </el-form-item>
-          <el-form-item label="灰度策略" class="strategy" v-if="action.name == 'open_dialog_service_gray_strategy'">
+          <el-form-item label="灰度策略" class="strategy" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
             <el-row style="font-weight: bold">
               <el-col :span="4" class="name">流量类型</el-col>
               <el-col :span="16" class="value">关键字</el-col>
@@ -139,7 +140,7 @@
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
           <el-button type="primary" size="mini"
-                     @click="handleDialogEvent($event, 'service_gray_strategy_update')">保&nbsp存</el-button>
+                     @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保&nbsp存</el-button>
         </div>
         <div class="item">
           <el-button @click="closeDialog" size="mini">取&nbsp消</el-button>
@@ -283,14 +284,7 @@
         return;
       }
       await this.requestCanaryInfo();
-
-      // update current step
-      if (this.canaryStatus.hasOwnProperty('canary')) {
-        this.step = this.STATE['CANARY_CREATED'];
-      }
-      if (this.canaryStatus['canaryDeploymentFlag']) {
-        this.step = this.STATE['WORK_ORDER_DEPLOYED'];
-      }
+      this.updateStep();
 
       const {serviceInfo, profileInfo} = await this.syncEnv();
       if (!serviceInfo || !profileInfo) {
@@ -393,6 +387,15 @@
         this.canaryStatus = resContent;
         return resContent;
       },
+      updateStep() {
+        // update current step
+        if (this.canaryStatus.hasOwnProperty('canary')) {
+          this.step = this.STATE['CANARY_CREATED'];
+        }
+        if (this.canaryStatus['canaryDeploymentFlag']) {
+          this.step = this.STATE['WORK_ORDER_DEPLOYED'];
+        }
+      },
 
       // get all related data used in this page
       async syncEnv() {
@@ -436,6 +439,14 @@
           });
           return;
         }
+        if (action == 'go-to-work-order-todo-add-from-service-gray'
+          && (this.step<this.STATE['CANARY_CREATED']||this.step>=this.STATE['WORK_ORDER_DEPLOYED'])) {
+          this.$storeHelper.globalPopover.show({
+            ref: target,
+            msg: `您已通过工单完成灰度部署`
+          });
+          return;
+        }
         if (action == 'go-to-work-order-todo-add-from-service-gray' && this.step<this.STATE['CANARY_CREATED']) {
           this.$storeHelper.globalPopover.show({
             ref: target,
@@ -443,7 +454,7 @@
           });
           return;
         }
-        if (['open_dialog_service_gray_strategy', 'open_dialog_service_gray_update_instance_number'].includes(action)
+        if (['open_dialog_service_gray_update_strategy', 'open_dialog_service_gray_update_instance_count'].includes(action)
           && this.step<this.STATE['WORK_ORDER_DEPLOYED']) {
           this.$storeHelper.globalPopover.show({
             ref: target,
@@ -481,8 +492,8 @@
             };
             this.$router.push(PATH_MAP[action]);
             break;
-          case 'open_dialog_service_gray_update_instance_number':
-          case 'open_dialog_service_gray_strategy':
+          case 'open_dialog_service_gray_update_instance_count':
+          case 'open_dialog_service_gray_update_strategy':
             try {
               this.grayStrategyFromNet = await this.requestGrayStrategy();
               if (this.serviceList.length === 0) {
@@ -500,10 +511,18 @@
               this.grayStrategy.weightSelected = this.grayStrategyFromNet.weightSelected;
               this.grayStrategy.weight = this.grayStrategyFromNet.weight;
               this.grayStrategyFromNet.totalInstanceNum = this.grayStrategyFromNet.masterInstanceNum + this.grayStrategyFromNet.canaryInstanceNum;
-              await this.openDialog(action);
+              const payload = await this.openDialog(action);
+              await this.$net.requestPaasServer({
+                open_dialog_service_gray_update_instance_count: this.$net.URL_LIST.service_gray_update_instance_count,
+                open_dialog_service_gray_update_strategy: this.$net.URL_LIST.service_gray_update_strategy
+              }[action], {
+                payload
+              });
             } catch (err) {
               console.log(err);
               this.$message.error(err.message);
+            } finally {
+              this.closeDialog();
             }
             break;
           case 'service_gray_apply':
@@ -529,6 +548,7 @@
             break;
           case 'refresh':
             this.requestCanaryInfo();
+            this.updateStep();
             break;
         }
       },
@@ -583,7 +603,8 @@
       },
       async handleDialogEvent(evt, action) {
         switch (action) {
-          case 'service_gray_strategy_update':
+          case 'service_gray_update_instance_count':
+          case 'service_gray_update_strategy':
             try {
               // var payload = this.$utils.deepMerge({}, this.grayStrategy);
               var payload = this.$utils.cloneDeep(this.grayStrategy);
@@ -597,13 +618,9 @@
               payload.groupId = this.$storeHelper.groupInfo.id;
               // console.log(this.grayStrategy);
               // console.log(payload);
-              await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_strategy_update, {
-                payload
-              });
+              this.action.promise.resolve(payload);
             } catch (err) {
               console.log(err);
-            } finally {
-              this.closeDialog();
             }
             break;
         }
