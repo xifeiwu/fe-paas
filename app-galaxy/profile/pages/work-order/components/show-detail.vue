@@ -24,6 +24,8 @@
             <span>{{scope.row.spaceDescription}}</span>
           </template>
         </el-table-column>
+        <el-table-column label="部署次数" prop="deployCount" headerAlign="center" align="center">
+        </el-table-column>
         <el-table-column
                 v-if="showAppDeploy"
                 label="操作"
