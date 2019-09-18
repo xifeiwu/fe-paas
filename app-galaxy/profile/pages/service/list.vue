@@ -99,8 +99,7 @@
                       :class="$storeHelper.permission['service_deploy'].disabled || publishStatus? 'disabled' : 'danger'">
                     {{statusOfWaitingResponse('deploy') && action.row.appId == scope.row.appId ? '部署中': '部署'}}
               </el-button>
-              <div v-if="!isProductionProfile"
-                   class="ant-divider"></div>
+              <div v-if="!isProductionProfile" class="ant-divider"></div>
               <el-button
                       v-if="isProductionProfile"
                       size="small"
@@ -110,8 +109,7 @@
                       :class="['flex', $storeHelper.actionDisabled('service_deploy_gray') || publishStatus? 'disabled' : 'danger']">
                 <span>{{'灰度发布'}}</span><i class="paas-icon-level-up"></i>
               </el-button>
-              <div v-if="true"
-                   class="ant-divider"></div>
+              <div v-if="isProductionProfile" class="ant-divider"></div>
               <el-button
                       size="small"
                       type="text"
@@ -130,8 +128,7 @@
                       :class="$storeHelper.permission['image_rollback'].disabled || publishStatus? 'disabled' : 'danger'">
                 {{'回滚'}}
               </el-button>
-              <div class="ant-divider"
-                   v-if="isProductionProfile"></div>
+              <div class="ant-divider" v-if="isProductionProfile"></div>
               <el-button
                       size="small"
                       type="text"
