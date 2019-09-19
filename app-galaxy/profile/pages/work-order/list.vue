@@ -68,9 +68,9 @@
         </el-table-column>
         <el-table-column label="申请时间" prop="formattedCreateTime" width="150" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="团队" prop="groupName" minWidth="120" headerAlign="center" align="center">
+        <el-table-column label="团队" prop="groupName" minWidth="140" headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="操作" headerAlign="center" align="center" minWidth="100">
+        <el-table-column label="操作" headerAlign="center" align="center" minWidth="120">
           <template slot-scope="scope">
             <el-button
                     v-if="scope.row.status != 'END'"

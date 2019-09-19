@@ -36,7 +36,7 @@
                     type="text"
                     style="font-size: 14px;"
                     :class="[$storeHelper.permission['work-order_deploy_service'].disabled || publishStatus? 'disabled' : 'warning']"
-                    @click="confirmDeploy($event, 'work-order_deploy_service', scope.$index, scope.row)"
+                    @click="handleClick($event, 'work-order_deploy_service', scope.$index, scope.row)"
             >{{scope.row.hasCanary ? '灰度部署':'部署'}}</el-button>
             <i class="el-icon-question" v-if="scope.row.hasCanary" style="color: #E6A23C;"
                v-pop-on-mouse-over="['当该主服务存在灰度服务时，只能进行灰度部署，如需部署主服务，请先删除灰度服务', '灰度部署完成后，需要到服务管理/灰度发布页面，设置灰度策略后，才能生效']"></i>
@@ -44,7 +44,7 @@
                     type="text"
                     style="font-size: 14px;"
                     :class="[$storeHelper.permission['work-order_restart_service'].disabled ? 'disabled' : 'warning']"
-                    @click="handleRowButtonClick($event, 'work-order_restart_service', scope.$index, scope.row)"
+                    @click="handleClick($event, 'work-order_restart_service', scope.$index, scope.row)"
             >重启</el-button>
           </template>
         </el-table-column>
@@ -97,22 +97,24 @@
       <span>{{workOrderDetail.statusName}}</span>
     </el-form-item>
 
-    <el-dialog title="提示" :visible="showConfirmDeployDialog"
+    <el-dialog title="提示"
+               :visible="action.name=='work-order_deploy_service'"
+               v-if="action.name=='work-order_deploy_service'"
                width="600px"
                class="confirm-deploy"
                :close-on-click-modal="false"
-               @close="showConfirmDeployDialog = false"
+               @close="closeDialog"
     >
       <div class="el-message-box__status el-icon-warning" style="padding-bottom: 27px;"></div>
       <div class="el-message-box__message">
         <p>您确认要部署吗?</p>
-        <el-checkbox v-model="forceClone">强制清空打包目录（删除所有源代码、包文件等）</el-checkbox>
+        <el-checkbox v-model="action.data.forceClone">强制清空打包目录（删除所有源代码、包文件等）</el-checkbox>
       </div>
       <span slot="footer" class="el-message-box__btns">
       <el-button action="profile-dialog/cancel"
-                 @click="showConfirmDeployDialog = false">取&nbsp消</el-button>
+                 @click="closeDialog">取&nbsp消</el-button>
       <el-button type="primary"
-                 @click="handleDeployClick">确&nbsp认</el-button>
+                 @click="handleDialogClick($event, action.name)">确&nbsp认</el-button>
     </span>
     </el-dialog>
   </el-form>
@@ -200,7 +202,9 @@
 </style>
 
 <script>
+  import commonUtils from 'assets/components/mixins/common-utils';
   export default {
+    mixins: [commonUtils],
     created() {
     },
     mounted() {
@@ -223,38 +227,33 @@
     },
     data() {
       return {
-        forceClone: false,
-        showConfirmDeployDialog: false,
-        action: {
-        evt: null,
-          name: null,
-          row: null
-      },
       }
     },
     methods: {
-      confirmDeploy(evt, action, index, row) {
-        if (this.publishStatus && action == "work-order_deploy_service") {
-          this.$storeHelper.popoverWhenPublish(evt.target);
-          return;
-        }
-        this.showConfirmDeployDialog = true;
-        this.action.evt = evt;
-        this.action.name = action;
-        this.action.row = row;
-        this.forceClone = false;
-      },
-
-      handleDeployClick() {
-        this.handleRowButtonClick(this.action.evt, this.action.name, this.action.row.index, this.action.row);
-        this.showConfirmDeployDialog = false;
-      },
-
-      handleRowButtonClick($event, action, index, row) {
+      handleDialogClick(evt, action) {
         switch (action) {
           case 'work-order_deploy_service':
+            this.action.promise.resolve(this.action.data);
+            break;
+        }
+      },
+      async handleClick($event, action, index, row) {
+        switch (action) {
+          case 'work-order_deploy_service':
+            try {
+              var data = await this.openDialog(action, {
+                forceClone: false
+              });
+              row.forceClone = data.forceClone ? data.forceClone : false;
+              this.$emit('app-deploy', $event, action, index, row);
+            } catch (err) {
+              console.log(err);
+            } finally {
+              this.closeDialog();
+            }
+            break;
           case 'work-order_restart_service':
-            row.forceClone = this.forceClone;
+            row.forceClone = false;
             this.$emit('app-deploy', $event, action, index, row);
             break;
         }
