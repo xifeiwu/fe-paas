@@ -27,7 +27,7 @@
             <i class="paas-icon-fa-home" style="margin-right: 2px;"></i>
             <el-breadcrumb separator-class="el-icon-arrow-right" @item-click="handleBreadCrumbClick">
               <el-breadcrumb-item v-for="item in breadCrumbItemList" :key="item.fullPath" :item="item">
-                <span v-if="item.messageShow" :class="['badge', 'primary', 'small', 'message-show']" style="color: #5a5e66; cursor: text">{{item['name']}}</span>
+                <span v-if="item.messageShow" :class="['badge', 'primary', 'small', 'message-show']" style="color: #5a5e66; cursor: text; height: 16px;">{{item['name']}}</span>
                 <span v-else>{{item['name']}}</span>
               </el-breadcrumb-item>
             </el-breadcrumb>
@@ -534,8 +534,13 @@
           const pageNotShowGroupListRegList = [
             /^\/profile\/(work-order\/(todo|list).*|config-server\/*)$/,
             /^\/profile\/pipeline\/(add|modify).*/
-          ];
-          if (pageNotShowGroupList.indexOf(path) > -1 || pageNotShowGroupListRegList.find(reg => reg.exec(path))) {
+          ].concat([
+            '/profile/service/:id(\\d+)/gray',
+            '/profile/service/:id(\\d+)/gray/add',
+            '/profile/service/:id(\\d+)/gray/modify'
+          ].map(it => this.$router.helper.getConfigByFullPath(it)).map(it => it.pathReg));
+
+          if (pageNotShowGroupList.indexOf(path) > -1 || pageNotShowGroupListRegList.find(reg => reg.test(path))) {
             this.showGroupList = false;
           } else {
             this.showGroupList = true;
