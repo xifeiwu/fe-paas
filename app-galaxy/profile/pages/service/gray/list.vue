@@ -589,7 +589,7 @@
                   groupId: this.$storeHelper.groupInfo.id,
 //                  namespace: this.$storeHelper.groupInfo.tag,
 //                  appConfigId: this.action.row.id,
-                  configServiceName: `${this.serviceInfo.serviceName}-canary`
+                  configServiceName: row.isCanary ? `${this.serviceInfo.serviceName}-canary` : `${this.serviceInfo.serviceName}`
                 }
               });
               await this.openDialog(action, resContent);
