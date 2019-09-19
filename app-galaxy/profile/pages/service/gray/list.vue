@@ -283,14 +283,21 @@
         this.$router.push(this.$router.helper.pages['/profile/service/list']);
         return;
       }
-      await this.requestCanaryInfo();
-      this.updateStep();
 
       const {serviceInfo, profileInfo} = await this.syncEnv();
+      // go back when running instance of master service is zero
+      if (serviceInfo && serviceInfo.containerStatus && serviceInfo.containerStatus.Total === 0) {
+        this.$router.go(-1);
+        return;
+      }
       if (!serviceInfo || !profileInfo) {
         this.$message.error('获取服务相关信息失败！');
         return;
       }
+
+      await this.requestCanaryInfo();
+      this.updateStep();
+
       this.serviceInfo = serviceInfo;
       this.profileInfo = profileInfo;
     },
