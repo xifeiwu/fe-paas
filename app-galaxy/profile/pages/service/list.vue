@@ -104,19 +104,19 @@
                       v-if="isProductionProfile"
                       size="small"
                       type="text"
-                      :loading="statusOfWaitingResponse('service_deploy_gray') && action.row.appId == scope.row.appId"
-                      @click="handleTRClick($event, 'service_deploy_gray', scope.$index, scope.row)"
-                      :class="['flex', $storeHelper.actionDisabled('service_deploy_gray') || publishStatus? 'disabled' : 'danger']">
+                      :loading="statusOfWaitingResponse('service_deploy_canary') && action.row.appId == scope.row.appId"
+                      @click="handleTRClick($event, 'service_deploy_canary', scope.$index, scope.row)"
+                      :class="['flex', reason4ActionDisabled('service_deploy_canary', scope.row)? 'disabled' : 'danger']">
                 <span>{{'灰度发布'}}</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div v-if="isProductionProfile" class="ant-divider"></div>
               <el-button
                       size="small"
                       type="text"
-                      :loading="statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId"
-                      @click="handleTRClick($event, 'quick_deploy', scope.$index, scope.row)"
-                      :class="reason4DisableQuickDeploy(scope.row) || publishStatus? 'disabled' : 'danger'">
-                    {{statusOfWaitingResponse('quick_deploy') && action.row.appId == scope.row.appId ? '重启中': '重启'}}
+                      :loading="statusOfWaitingResponse('service_quick_deploy') && action.row.appId == scope.row.appId"
+                      @click="handleTRClick($event, 'service_quick_deploy', scope.$index, scope.row)"
+                      :class="reason4ActionDisabled('service_quick_deploy', scope.row)? 'disabled' : 'danger'">
+                    {{statusOfWaitingResponse('service_quick_deploy') && action.row.appId == scope.row.appId ? '重启中': '重启'}}
               </el-button>
               <div class="ant-divider"></div>
               <el-button
@@ -134,7 +134,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_stop') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_stop', scope.$index, scope.row)"
-                      :class="$storeHelper.permission['service_stop'].disabled || scope.row.containerStatus.Total == 0 || publishStatus? 'disabled' : 'danger'">
+                      :class="reason4ActionDisabled('service_stop', scope.row)? 'disabled' : 'danger'">
                 停止
               </el-button>
               <div class="ant-divider"></div>
@@ -351,7 +351,7 @@
     </el-dialog>
 
     <!--not used-->
-    <el-dialog :title="actionNew.data.title" :visible="['quick_deploy', 'service_stop', 'service_delete'].indexOf(actionNew.name) > -1"
+    <el-dialog :title="actionNew.data.title" :visible="['service_quick_deploy', 'service_stop', 'service_delete'].indexOf(actionNew.name) > -1"
                v-if="actionNew.name && false"
                class="confirm-dialog size-700"
                :close-on-click-modal="false"
@@ -1461,22 +1461,6 @@ tolerations:
         }
       },
 
-      // 是否支持快速部署（重启）：1. 是k8s应用，2. 有正在运行的实例
-      reason4DisableQuickDeploy(row) {
-        var reason = false;
-        if (row) {
-          if (row['k8s'] !== 1) {
-            reason = '老mesos应用不支持';
-          } else if (row['containerStatus'] && row['containerStatus']['Running'] == 0) {
-            reason = '运行实例数为0，不能进行重启操作！';
-          }
-        }
-        if (this.isProductionProfile && this.$storeHelper.permission['service_restart_production'].disabled) {
-          reason = '您无权使用该功能';
-        }
-        return reason;
-      },
-
       getVersionDescription() {
         if (!this.action.row) {
           return;
@@ -1575,7 +1559,7 @@ tolerations:
             dialogStatus = this.dialogForLogStatus;
             dialogRef = 'dialog-4-deploy-log';
             break;
-          case 'quick_deploy':
+          case 'service_quick_deploy':
             resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_quick_deploy, {
               payload
             });
@@ -1716,7 +1700,7 @@ tolerations:
       },
 
       getInfoForMsgBox(action) {
-        if (!['quick_deploy', 'service_stop', 'service_delete'].includes(action)) {
+        if (!['service_quick_deploy', 'service_stop', 'service_delete'].includes(action)) {
           return null;
         }
         if (!this.actionNew.row) {
@@ -1803,7 +1787,7 @@ tolerations:
               ),
             ]
           },
-          quick_deploy: {
+          service_quick_deploy: {
             serviceName: service,
             title: '重启服务',
             vNodes: [
@@ -1972,10 +1956,53 @@ tolerations:
         });
       },
 
+      // 是否支持快速部署（重启）：1. 是k8s应用，2. 有正在运行的实例
+      // NOTICE: 因重启权限只在生产环境起作用，所以不能走通用逻辑reason4ActionDisabled
+      reason4DisableQuickDeploy(row) {
+        var reason = false;
+        if (this.$storeHelper.serverIsPublishing) {
+          reason = '因云平台正在发布，在此期间不能进行此操作，谢谢您的合作';
+          return reason;
+        }
+        if (row) {
+          if (row['k8s'] !== 1) {
+            reason = '老mesos应用不支持';
+          } else if (row['containerStatus'] && row['containerStatus']['Running'] == 0) {
+            reason = '运行实例数为0，不能进行重启操作！';
+          }
+        }
+        if (this.isProductionProfile && this.$storeHelper.permission['service_restart_production'].disabled) {
+          reason = '您无权使用该功能';
+        }
+        return reason;
+      },
+      reason4ActionDisabled(action, row) {
+        if (action === 'service_quick_deploy') {
+          return this.reason4DisableQuickDeploy(row);
+        }
+        var reason = this.$storeHelper.reason4ActionDisabled(action);
+        if (reason) {
+          return reason;
+        }
+        switch (action) {
+          case 'service_stop':
+            if (row && row.containerStatus && row.containerStatus.Total == 0) {
+              reason = '当前运行实例数为0，不能进行停止操作';
+            }
+            break;
+          case 'service_deploy_canary':
+            if (row && row.containerStatus && row.containerStatus.Total == 0) {
+              reason = '当前主服务实例数为0，不能进行灰度发布';
+            }
+            break;
+        }
+        return reason;
+      },
+
       async handleTRClick(evt, action, index, row) {
         var permission = action;
         if (['service_config_add','service_config_copy','service_delete', 'service_deploy', 'image_rollback',
-            'quick_deploy','service_config_modify','service_stop','service_update', 'update_affinity', 'open-dialog-affinity'].indexOf(action) > -1 && this.publishStatus) {
+            'service_config_modify','service_update', 'update_affinity'].indexOf(action) > -1 && this.publishStatus) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
@@ -1991,13 +2018,15 @@ tolerations:
         if (action == 'update_affinity') {
           permission = 'update_affinity'
         }
-
-        if (action === 'service_stop' && row.containerStatus.Total == 0) {
-          this.$storeHelper.globalPopover.show({
-            ref: evt.target,
-            msg: `当前运行实例数为0，不能进行停止操作`
-          });
-          return;
+        if (['service_quick_deploy', 'service_stop', 'service_deploy_canary'].includes(action)) {
+          const reason = this.reason4ActionDisabled(action, row);
+          if (reason) {
+            this.$storeHelper.globalPopover.show({
+              ref: evt.target,
+              msg: reason
+            });
+            return;
+          }
         }
 
         // if (action === 'update_affinity' && row.containerStatus.Total == 0) {
@@ -2112,11 +2141,11 @@ tolerations:
               this.hideWaitingResponse(action);
             }
             break;
-          case 'service_deploy_gray':
+          case 'service_deploy_canary':
             // console.log(this.$router.helper.pages['/profile/service/:id(\\d+)/gray']);
             this.$router.push(this.$router.helper.pages['/profile/service/:id(\\d+)/gray'].toPath({id: row.id}))
             break;
-          case 'quick_deploy':
+          case 'service_quick_deploy':
             try {
               let reason = this.reason4DisableQuickDeploy(row);
               if (reason) {

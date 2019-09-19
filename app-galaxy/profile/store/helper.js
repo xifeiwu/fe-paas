@@ -708,7 +708,7 @@ class StoreHelper extends BaseHelper{
   actionDisabled(action) {
     return this.permissionDisabled(action) || this.serverIsPublishing
   }
-  reason4ActionDisable(action) {
+  reason4ActionDisabled(action) {
     var reason = '';
     if (this.serverIsPublishing) {
       reason = '因云平台正在发布，在此期间不能进行此操作，谢谢您的合作'
