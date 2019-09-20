@@ -75,6 +75,48 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="strategy-show">
+        <div class="title">灰度策略</div>
+        <el-form size="mini" class="message-show"
+                 label-width="140px" v-if="grayStrategyFromNet && grayStrategy.listIngress && grayStrategy.listIngress.length > 0">
+          <el-form-item label="相关域名" class="">
+            {{grayStrategy.listIngress.join(', ')}}
+          </el-form-item>
+          <el-form-item label="主/灰服务实例数" class="instance-number">
+            <span>{{grayStrategy.masterInstanceNum}} / {{grayStrategy.canaryInstanceNum}}</span>
+            <i class="el-icon-question" style="color: #E6A23C; margin-left: 6px;"
+               v-pop-on-mouse-over="'主服务及灰度服务实例数不能少于一个'">
+            </i>
+          </el-form-item>
+          <el-form-item label="当前灰度策略" class="strategy">
+            <el-row style="font-weight: bold">
+              <el-col :span="8" class="name">流量类型</el-col>
+              <el-col :span="16" class="value">关键字</el-col>
+            </el-row>
+            <el-row class="rule request-header">
+              <el-col :span="8" class="name">
+                <el-checkbox v-model="grayStrategy.headerKeySelected" :disabled="true">request header</el-checkbox>
+              </el-col>
+              <el-col :span="16" class="value">
+                <span>属性/匹配值: </span><span>{{grayStrategy.headerKey ? grayStrategy.headerKey:'---'}}/{{grayStrategy.headerValue ? grayStrategy.headerValue:'---'}}</span>
+              </el-col>
+            </el-row>
+            <el-row class="rule">
+              <el-col :span="8" class="name">
+                <el-checkbox v-model="grayStrategy.cookieSelected":disabled="true">cookie</el-checkbox>
+              </el-col>
+              <el-col :span="16" class="value">{{grayStrategy.cookie}}</el-col>
+            </el-row>
+            <el-row class="rule">
+              <el-col :span="8" class="name">
+                <el-checkbox v-model="grayStrategy.weightSelected":disabled="true">weight</el-checkbox>
+              </el-col>
+              <el-col :span="16" class="value">{{grayStrategy.weight ? grayStrategy.weight:'---'}}</el-col>
+            </el-row>
+          </el-form-item>
+        </el-form>
+        <div v-else style="text-align: center; margin-top: 10pxl">无</div>
+      </div>
     </div>
 
     <el-dialog :title="{
@@ -84,7 +126,7 @@
                :visible="['open_dialog_service_gray_update_strategy', 'open_dialog_service_gray_update_instance_count'].indexOf(action.name) > -1"
                v-if="['open_dialog_service_gray_update_strategy', 'open_dialog_service_gray_update_instance_count'].indexOf(action.name) > -1"
                @close="closeDialog"
-               class="size-900 update-strategy"
+               class="size-800 update-strategy"
                :close-on-click-modal="false"
     >
       <div class="content">
@@ -103,21 +145,26 @@
           </el-form-item>
           <el-form-item label="实例数" class="instance-number" v-if="action.name == 'open_dialog_service_gray_update_instance_count'">
             <span>主服务实例数：{{grayStrategy.masterInstanceNum}}</span>
-            <div style="width: 160px; display: inline-block; margin-left: 5px;">
+            <div style="width: 160px; display: inline-block; margin: 0px 5px;">
               <el-slider v-model="grayStrategy.masterInstanceNum" :show-tooltip="true" :show-stops="true"
-                         :min="1" :max="grayStrategyFromNet.totalInstanceNum" :step="1"></el-slider>
+                         :min="1" :max="grayStrategyFromNet.totalInstanceNum - 1" :step="1"></el-slider>
             </div>
             <span>灰度服务实例数：{{grayStrategy.canaryInstanceNum}}</span>
+            <i class="el-icon-question" style="color: #E6A23C; margin-left: 6px;"
+               v-pop-on-mouse-over="'主服务及灰度服务实例数不能少于一个'">
+            </i>
           </el-form-item>
           <el-form-item label="灰度策略" class="strategy" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
             <el-row style="font-weight: bold">
-              <el-col :span="4" class="name">流量类型</el-col>
-              <el-col :span="16" class="value">关键字</el-col>
+              <el-col :span="5" class="name">流量类型</el-col>
+              <el-col :span="15" class="value">关键字</el-col>
               <el-col :span="4" class="level">优先级</el-col>
             </el-row>
             <el-row class="rule request-header">
-              <el-col :span="4" class="name"><el-checkbox v-model="grayStrategy.headerKeySelected">request header</el-checkbox></el-col>
-              <el-col :span="16" class="value">
+              <el-col :span="5" class="name">
+                <el-checkbox v-model="grayStrategy.headerKeySelected">request header</el-checkbox>
+              </el-col>
+              <el-col :span="15" class="value">
                 <el-input v-model="grayStrategy.headerKey" placeholder="属性"></el-input>
                 <span> = </span>
                 <el-input v-model="grayStrategy.headerValue" placeholder="匹配值"></el-input>
@@ -125,13 +172,13 @@
               <el-col :span="4" class="level">高</el-col>
             </el-row>
             <el-row class="rule">
-              <el-col :span="4" class="name"><el-checkbox v-model="grayStrategy.cookieSelected">cookie</el-checkbox></el-col>
-              <el-col :span="16" class="value"><el-input v-model="grayStrategy.cookie" placeholder="属性"></el-input></el-col>
+              <el-col :span="5" class="name"><el-checkbox v-model="grayStrategy.cookieSelected">cookie</el-checkbox></el-col>
+              <el-col :span="15" class="value"><el-input v-model="grayStrategy.cookie" placeholder="属性"></el-input></el-col>
               <el-col :span="4" class="level">中</el-col>
             </el-row>
             <el-row class="rule">
-              <el-col :span="4" class="name"><el-checkbox v-model="grayStrategy.weightSelected">weight</el-checkbox></el-col>
-              <el-col :span="16" class="value"><el-input v-model="grayStrategy.weight" placeholder="属性"></el-input></el-col>
+              <el-col :span="5" class="name"><el-checkbox v-model="grayStrategy.weightSelected">weight</el-checkbox></el-col>
+              <el-col :span="15" class="value"><el-input v-model="grayStrategy.weight" placeholder="属性"></el-input></el-col>
               <el-col :span="4" class="level">低</el-col>
             </el-row>
           </el-form-item>
@@ -212,7 +259,44 @@
   }
 </style>
 <style lang="scss">
+  @mixin form-strategy {
+    .el-form {
+      margin-top: 10px;
+      .strategy {
+        .rule {
+          margin-bottom: 3px;
+          .el-input {
+            width: 100%;
+          }
+          &.request-header {
+            .value {
+              .el-input {
+                max-width: 40%;
+              }
+            }
+          }
+        }
+        .level {
+          text-align: center;
+        }
+      }
+    }
+  }
   #service-gray {
+    .strategy-show {
+      margin: 10px auto;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      border-radius: 6px;
+      &:hover {
+        border-color: rgba(0, 0, 0, 0.3);
+      }
+      > .title {
+        text-align: center;
+        font-size: 16px;
+      }
+      max-width: 600px;
+      @include form-strategy;
+    }
     > .el-dialog__wrapper {
       &.k8s-info {
         .__editor {
@@ -225,26 +309,7 @@
         }
       }
       &.update-strategy {
-        .el-form {
-          margin-top: 10px;
-          .strategy {
-            .rule {
-              .el-input {
-                max-width: 80%;
-              }
-              &.request-header {
-                .value {
-                  .el-input {
-                    max-width: 40%;
-                  }
-                }
-              }
-            }
-            .level {
-              text-align: center;
-            }
-          }
-        }
+        @include form-strategy;
       }
     }
   }
@@ -292,14 +357,16 @@
       }
       if (!serviceInfo || !profileInfo) {
         this.$message.error('获取服务相关信息失败！');
+        this.$router.go(-1);
         return;
       }
+      this.serviceInfo = serviceInfo;
+      this.profileInfo = profileInfo;
 
       await this.requestCanaryInfo();
       this.updateStep();
+      await this.syncStrategyByServer();
 
-      this.serviceInfo = serviceInfo;
-      this.profileInfo = profileInfo;
     },
     async mounted() {
       this.onScreenSizeChange(this.$storeHelper.screen.size);
@@ -348,6 +415,12 @@
     },
     watch: {
       'grayStrategy.masterInstanceNum': function (mainNum) {
+        if (this.grayStrategyFromNet) {
+          if (mainNum >= this.grayStrategyFromNet.totalInstanceNum) {
+            this.grayStrategy.masterInstanceNum =  this.grayStrategyFromNet.totalInstanceNum - 1;
+            return;
+          }
+        }
         this.grayStrategy.canaryInstanceNum = this.grayStrategyFromNet.totalInstanceNum - mainNum;
       }
     },
@@ -425,7 +498,7 @@
         return theData;
       },
       // 更新灰度策略
-      async requestGrayStrategy() {
+      async syncStrategyByServer() {
         const grayStrategyFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_strategy_query, {
           payload: {
             configId: this.serviceId,
@@ -434,7 +507,20 @@
             groupId: this.$storeHelper.groupInfo.id
           }
         });
-        return grayStrategyFromNet;
+
+        this.grayStrategy.listIngress = grayStrategyFromNet['listIngress'].filter(it => it.hasCanary).map(it => it.host);
+        this.grayStrategy.canaryInstanceNum = grayStrategyFromNet.canaryInstanceNum >= 0 ? grayStrategyFromNet.canaryInstanceNum : 0;
+        this.grayStrategy.masterInstanceNum = grayStrategyFromNet.masterInstanceNum >= 0 ? grayStrategyFromNet.masterInstanceNum : 0;
+        this.grayStrategy.headerKeySelected = grayStrategyFromNet.headerKeySelected;
+        this.grayStrategy.headerKey = grayStrategyFromNet.headerKey;
+        this.grayStrategy.headerValue = grayStrategyFromNet.headerValue;
+        this.grayStrategy.cookieSelected = grayStrategyFromNet.cookieSelected;
+        this.grayStrategy.cookie = grayStrategyFromNet.cookie;
+        this.grayStrategy.weightSelected = grayStrategyFromNet.weightSelected;
+        this.grayStrategy.weight = grayStrategyFromNet.weight;
+        grayStrategyFromNet.totalInstanceNum = grayStrategyFromNet.masterInstanceNum + grayStrategyFromNet.canaryInstanceNum;
+
+        this.grayStrategyFromNet = grayStrategyFromNet;
       },
       async handleClick(evt, action, data) {
         let resContent = null;
@@ -502,22 +588,11 @@
           case 'open_dialog_service_gray_update_instance_count':
           case 'open_dialog_service_gray_update_strategy':
             try {
-              this.grayStrategyFromNet = await this.requestGrayStrategy();
+              await this.syncStrategyByServer();
               if (this.serviceList.length === 0) {
                 this.$message.error('未找到服务列表');
                 return;
               }
-              this.grayStrategy.listIngress = this.grayStrategyFromNet['listIngress'].filter(it => it.hasCanary).map(it => it.host);
-              this.grayStrategy.canaryInstanceNum = this.grayStrategyFromNet.canaryInstanceNum >= 0 ? this.grayStrategyFromNet.canaryInstanceNum : 0;
-              this.grayStrategy.masterInstanceNum = this.grayStrategyFromNet.masterInstanceNum >= 0 ? this.grayStrategyFromNet.masterInstanceNum : 0;
-              this.grayStrategy.headerKeySelected = this.grayStrategyFromNet.headerKeySelected;
-              this.grayStrategy.headerKey = this.grayStrategyFromNet.headerKey;
-              this.grayStrategy.headerValue = this.grayStrategyFromNet.headerValue;
-              this.grayStrategy.cookieSelected = this.grayStrategyFromNet.cookieSelected;
-              this.grayStrategy.cookie = this.grayStrategyFromNet.cookie;
-              this.grayStrategy.weightSelected = this.grayStrategyFromNet.weightSelected;
-              this.grayStrategy.weight = this.grayStrategyFromNet.weight;
-              this.grayStrategyFromNet.totalInstanceNum = this.grayStrategyFromNet.masterInstanceNum + this.grayStrategyFromNet.canaryInstanceNum;
               const payload = await this.openDialog(action);
               await this.$net.requestPaasServer({
                 open_dialog_service_gray_update_instance_count: this.$net.URL_LIST.service_gray_update_instance_count,
@@ -527,7 +602,6 @@
               });
             } catch (err) {
               console.log(err);
-              this.$message.error(err.message);
             } finally {
               this.closeDialog();
             }
