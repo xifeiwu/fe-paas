@@ -28,7 +28,7 @@
       <el-button size="mini" type="primary"
                  :class="[step<STATE['WORK_ORDER_DEPLOYED'] ?'disabled':'']"
                  @click="handleClick($event, 'service_gray_apply')">
-        <span class="step-tag">3</span><span>完成灰度发布</span>
+        <span class="step-tag">4</span><span>完成灰度发布</span>
       </el-button>
       <el-button size="mini" type="primary" @click="handleClick($event, 'refresh')">
         <span>刷新</span>
@@ -334,7 +334,8 @@
     WORK_ORDER_DEPLOYED: 2,
     UPDATE_INSTANCE_COUNT: 2,
     UPDATE_STRATEGY: 2,
-    GRAY_APPLIED: 3
+    CANARY_APPLYING: 3,
+    CANARY_APPLIED: 4
   };
   export default {
     components: {paasDismissMessage, paasDialogForLog, codemirror},
@@ -363,10 +364,7 @@
       this.serviceInfo = serviceInfo;
       this.profileInfo = profileInfo;
 
-      await this.requestCanaryInfo();
-      this.updateStep();
-      await this.syncStrategyByServer();
-
+      this.handleClick('refresh');
     },
     async mounted() {
       this.onScreenSizeChange(this.$storeHelper.screen.size);
@@ -628,8 +626,9 @@
           case 'service_gray_strategy':
             break;
           case 'refresh':
-            this.requestCanaryInfo();
+            await this.requestCanaryInfo();
             this.updateStep();
+            await this.syncStrategyByServer();
             break;
         }
       },
