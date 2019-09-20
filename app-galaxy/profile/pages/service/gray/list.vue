@@ -75,7 +75,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="strategy-show">
+      <div class="strategy-show" v-if="!(step<STATE['WORK_ORDER_DEPLOYED'])">
         <div class="title">灰度策略</div>
         <el-form size="mini" class="message-show"
                  label-width="140px" v-if="grayStrategyFromNet && grayStrategy.listIngress && grayStrategy.listIngress.length > 0">
