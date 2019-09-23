@@ -364,7 +364,7 @@
       this.serviceInfo = serviceInfo;
       this.profileInfo = profileInfo;
 
-      this.handleClick('refresh');
+      this.handleClick(window.event, 'refresh');
     },
     async mounted() {
       this.onScreenSizeChange(this.$storeHelper.screen.size);
