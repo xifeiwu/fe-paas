@@ -160,7 +160,7 @@
                     :class="['flex', $storeHelper.permission['go-to-page-terminal-from-instance'].disabled || isMesosService ? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'go-to-page-terminal-from-instance', scope.$index, scope.row)"
                     >终端</el-button>
-            <div class="ant-divider"></div>
+            <div class="ant-divider" v-if="false"></div>
             <el-button
                     type="text"
                     :class="['flex', $storeHelper.permission['go-to-page-terminal-from-instance'].disabled || isMesosService ? 'disabled' : 'primary']"
