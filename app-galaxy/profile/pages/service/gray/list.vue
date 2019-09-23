@@ -668,7 +668,7 @@
                   spaceId: this.profileInfo.id,
                   groupId: this.$storeHelper.groupInfo.id,
 //                  namespace: this.$storeHelper.groupInfo.tag,
-//                  appConfigId: this.action.row.id,
+                  appConfigId: this.serviceId,
                   configServiceName: row.isCanary ? `${this.serviceInfo.serviceName}-canary` : `${this.serviceInfo.serviceName}`
                 }
               });
