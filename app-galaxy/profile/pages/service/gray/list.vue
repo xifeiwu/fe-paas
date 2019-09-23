@@ -688,8 +688,9 @@
             try {
               // var payload = this.$utils.deepMerge({}, this.grayStrategy);
               var payload = this.$utils.cloneDeep(this.grayStrategy);
-              payload.listIngress = this.grayStrategyFromNet.listIngress.filter(it => {
-                return this.grayStrategy.listIngress.indexOf(it.host) > -1;
+              payload.listIngress = this.grayStrategyFromNet.listIngress.map(it => {
+                it.hasCanary = this.grayStrategy.listIngress.includes(it.host);
+                return it;
               });
               // TODO: delete later
               // (payload.canaryInstanceNum < 1) && (payload.canaryInstanceNum = 1);
