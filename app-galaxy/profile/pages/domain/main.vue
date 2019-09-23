@@ -281,7 +281,8 @@
         <div class="helper-text-expanded" style="margin-top: 3px;" v-if="false">
           <div>
             <div style="font-weight: bold; font-size: 14px;">提示 <i class="el-icon-warning"></i></div>
-            <div style="font-size: 13px; margin-top: 3px;">{{bindServiceProps.bindTipForApp}}</div>
+            <div style="font-size: 13px; margin-top: 3px;">1.{{bindServiceProps.bindTipForApp}}</div>
+            <div style="font-size: 13px; margin-top: 3px;">2.该域名如需使用灰度发布，请到灰度策略中配置</div>
           </div>
         </div>
       </div>
@@ -329,6 +330,8 @@
                 size="small"
         >{{'"' + item['internetDomain'] + '"'}}</span>
         <span>域名将导致绑定在域名上的应用不能通过这个域名进行访问，你确定这么做吗？</span>
+        <br/>
+        <strong style="color: red">注：如果域名的服务在灰度发布中，解绑外网域名会删除该域名下的灰度策略</strong>
       </div>
       <div slot="footer" class="dialog-footer flex" v-if="!unBindServiceProps.showResponse">
         <div class="item">
