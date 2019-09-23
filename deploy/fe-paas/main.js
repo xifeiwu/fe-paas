@@ -1,8 +1,8 @@
-const SpaServer = require('@paas/spa-server');
 const config = require('./config');
+const SpaServer = require('busybox/tools/spa-server');
 
 console.log('NODE_ENV =', process.env.NODE_ENV, ', PORT0 =', process.env.PORT0);
 
-const app = new SpaServer(config);
-app.start();
+const app = new SpaServer();
+app.start(config);
 

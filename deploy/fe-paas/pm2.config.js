@@ -8,9 +8,9 @@ module.exports = {
       name: 'spa-server-paas',
       script: './main.js',
       watch: true,
+      ignore_watch: ['logs\/*'],
       env: {
-        'DEBUG': 'paas-fe:*',
-        'LOG_FILE_NAME': 'paas',
+        'DEBUG': 'spa-server',
         'LOG_DIR': path.resolve(__dirname, 'logs')
       },
       env_dev: {
