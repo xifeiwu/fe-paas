@@ -207,24 +207,9 @@
               <el-button v-if="!$storeHelper.permission['get_affinity'].disabled && false"
                   size="small"
                   type="text"
-                  @click="handleTRClick($event, 'update_affinity', scope.$index, scope.row)"
+                  @click="handleTRClick($event, 'update_pod_spec', scope.$index, scope.row)"
                   :class="$storeHelper.permission['update_affinity'].disabled || publishStatus? 'disabled' : 'danger'">
-                <span>亲和性配置</span>
-              </el-button>
-              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
-                         size="small"
-                         type="text"
-                         @click="handleTRClick($event, 'open-dialog-affinity', scope.$index, scope.row)"
-                         :class="$storeHelper.permission['update_affinity'].disabled || publishStatus? 'disabled' : 'danger'">
-                <span>亲和性配置</span>
-              </el-button>
-              <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
-              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
-                         size="small"
-                         type="text"
-                         @click="handleTRClick($event, 'update_toleration', scope.$index, scope.row)"
-                         :class="$storeHelper.permission['get_affinity'].disabled || publishStatus? 'disabled' : 'danger'">
-                <span>容忍配置</span>
+                <span>podSpec配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
               <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
@@ -561,7 +546,7 @@ podAntiAffinity:
     </el-dialog>
 
     <el-dialog :visible.sync="hasAffinity" top="30px" width="80%" :fullscreen="false"
-               v-loading="saveAffinityLoading"
+               v-loading="savePodSpecLoading"
                element-loading-text="正在保存"
                element-loading-spinner="el-icon-loading"
                element-loading-background="rgba(0, 0, 0, 0.8)"
@@ -569,7 +554,7 @@ podAntiAffinity:
       <div class="py-3" style="width: 80%; text-align: left;">
         <h4 style="display: inline;">
           <span style="color: red;">
-          亲和性配置
+          podSpec配置
           </span>
         </h4>
         <span>
@@ -578,87 +563,51 @@ podAntiAffinity:
               <pre>
 模板样例如下：
 ---
-nodeAffinity:
-  requiredDuringSchedulingIgnoredDuringExecution:
-    nodeSelectorTerms:
-    - matchExpressions:
-      - key: kubernetes.io/e2e-az-name
-        operator: In
-        values:
-        - e2e-az1
-        - e2e-az2
-  preferredDuringSchedulingIgnoredDuringExecution:
-  - weight: 1
-    preference:
-      matchExpressions:
-      - key: another-node-label-key
-        operator: In
-        values:
-        - another-node-label-value
-podAffinity:
-  requiredDuringSchedulingIgnoredDuringExecution:
-  - labelSelector:
-      matchExpressions:
-      - key: security
-        operator: In
-        values:
-        - S1
-    topologyKey: failure-domain.beta.kubernetes.io/zone
-podAntiAffinity:
-  preferredDuringSchedulingIgnoredDuringExecution:
-  - weight: 100
-    podAffinityTerm:
-      labelSelector:
-        matchExpressions:
-        - key: security
-          operator: In
-          values:
-          - S2
-      topologyKey: kubernetes.io/hostname
-              </pre>
-            </div>
-            <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
-          </el-tooltip>
-        </span>
-      </div>
-
-      <div class="__editor">
-        <codemirror v-model="configOfAffinity" :options="editorAffinityOptions"></codemirror>
-      </div>
-
-      <div slot="footer" class="pa-3" style="text-align: center">
-        <el-button type="success" size="medium" @click="saveAffinityConfig(false)">&emsp;保 存 配 置&emsp;</el-button>
-        <el-button type="success" size="medium" @click="saveAffinityConfig(true)">&emsp;保 存 并 生 效&emsp;</el-button>
-        <el-button type="danger" size="medium" @click="hasAffinity = false">&emsp;取 消 修 改&emsp;</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog :visible.sync="hasToleration" top="30px" width="80%" :fullscreen="false"
-               v-loading="saveTolerationLoading"
-               element-loading-text="正在保存"
-               element-loading-spinner="el-icon-loading"
-               element-loading-background="rgba(0, 0, 0, 0.8)"
-    >
-      <div class="py-3" style="width: 80%; text-align: left;">
-        <h4 style="display: inline;">
-          <span style="color: red;">
-          容忍配置
-          </span>
-        </h4>
-        <span>
-          <el-tooltip slot="trigger" effect="dark" placement="right">
-            <div slot="content">
-              <pre>
-模板样例如下：
+nodeSelector:
+  disktype: ssd
 tolerations:
 - key: "key1"
   operator: "Equal"
   value: "value1"
   effect: "NoSchedule"
-- key: "key1"
-  operator: "Equal"
-  value: "value1"
-  effect: "NoExecute"
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/e2e-az-name
+          operator: In
+          values:
+          - e2e-az1
+          - e2e-az2
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 1
+      preference:
+        matchExpressions:
+        - key: another-node-label-key
+          operator: In
+          values:
+          - another-node-label-value
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: security
+          operator: In
+          values:
+          - S1
+      topologyKey: failure-domain.beta.kubernetes.io/zone
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: security
+            operator: In
+            values:
+            - S2
+        topologyKey: kubernetes.io/hostname
               </pre>
             </div>
             <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
@@ -667,13 +616,13 @@ tolerations:
       </div>
 
       <div class="__editor">
-        <codemirror v-model="configOfToleration" :options="editorAffinityOptions"></codemirror>
+        <codemirror v-model="configOfPodSpec" :options="editorPodSpecOptions"></codemirror>
       </div>
 
       <div slot="footer" class="pa-3" style="text-align: center">
-        <el-button type="success" size="medium" @click="saveTolerationConfig(false)">&emsp;保 存 配 置&emsp;</el-button>
-        <el-button type="success" size="medium" @click="saveTolerationConfig(true)">&emsp;保 存 并 生 效&emsp;</el-button>
-        <el-button type="danger" size="medium" @click="hasToleration = false">&emsp;取 消 修 改&emsp;</el-button>
+        <el-button type="success" size="medium" @click="savePodSpecConfig(false)">&emsp;保 存 配 置&emsp;</el-button>
+        <el-button type="success" size="medium" @click="savePodSpecConfig(true)">&emsp;保 存 并 生 效&emsp;</el-button>
+        <el-button type="danger" size="medium" @click="hasAffinity = false">&emsp;取 消 修 改&emsp;</el-button>
       </div>
     </el-dialog>
 
@@ -1198,9 +1147,9 @@ tolerations:
         hasEditError: false,
         describeEditError: "",
         hasAffinity: false,
-        configOfAffinity: "",
-        saveAffinityLoading: '',
-        editorAffinityOptions: {
+        configOfPodSpec: "",
+        savePodSpecLoading: '',
+        editorPodSpecOptions: {
           tabSize: 4,
           styleActiveLine: true,
           lineNumbers: true,
@@ -1855,12 +1804,12 @@ tolerations:
         return Promise.reject('请填写应用信息：维护者、LOB、Scrum');
       },
 
-      async saveAffinityConfig(enforce) {
+      async savePodSpecConfig(enforce) {
         let confirmInfo = "点击“保存配置”时，只保存yaml数据配置，后面当点击部署或重启时才生效！";
-        let url = this.$net.URL_LIST.update_affinity_config;
+        let url = this.$net.URL_LIST.update_pod_spec_config;
         if (enforce) {
-          confirmInfo = "点击“保存并生效”时，保存yaml数据配置的同时，会立即生效该配置，满足亲和性条件时将造成实例重启！";
-          url = this.$net.URL_LIST.update_affinity_sync_k8s;
+          confirmInfo = "点击“保存并生效”时，保存yaml数据配置的同时，会立即生效该配置，满足配置条件时将造成实例重启！";
+          url = this.$net.URL_LIST.update_pod_spec_sync_k8s;
         }
 
         await this.$confirm(
@@ -1873,56 +1822,7 @@ tolerations:
           }
         );
 
-        this.saveAffinityLoading = true;
-        this.$net.getResponse(url, {
-          payload: {
-            spaceId: this.profileInfo.id,
-            groupId: this.$storeHelper.groupInfo.id,
-            namespace: this.$storeHelper.groupInfo.tag,
-            appConfigId: this.action.row.id,
-            // affinityContent: this.configOfAffinity,
-            affinityContent: this.actionNew.data,
-            configServiceName: this.action.row.serviceName
-          }
-        }).then(response => {
-          const resData = response.data;
-          if (resData.code && "ERR_UPDATE_AFFINITY_FORMAT_FAILED" === resData.code) {
-            // this.$message.warning(resData.msg);
-            this.describeEditError = resData.msg;
-            this.hasEditError = true;
-            this.titleEditError = "亲和性配置错误信息";
-          } else {
-            this.$message.success("修改亲和性配置成功！");
-            this.hasAffinity = false;
-          }
-        }).catch(err => {
-          // console.log(err);
-          this.$message.error("保存配置失败，请联系云平台！");
-        }).finally(() => {
-          this.saveAffinityLoading = false;
-          this.closeDialog();
-        });
-      },
-
-      async saveTolerationConfig(enforce) {
-        let confirmInfo = "点击“保存配置”时，只保存yaml数据配置，后面当点击部署或重启时才生效！";
-        let url = this.$net.URL_LIST.update_toleration_config;
-        if (enforce) {
-          confirmInfo = "点击“保存并生效”时，保存yaml数据配置的同时，会立即生效该配置，满足容忍条件时将造成实例重启！";
-          url = this.$net.URL_LIST.update_toleration_sync_k8s;
-        }
-
-        await this.$confirm(
-          confirmInfo,
-          '提示',
-          {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning',
-          }
-        );
-
-        this.saveTolerationLoading = true;
+        this.savePodSpecLoading = true;
         // await this.$net.requestPaasServer(this.$net.URL_LIST.update_affinity_config, {
         await this.$net.getResponse(url, {
           payload: {
@@ -1930,32 +1830,28 @@ tolerations:
             groupId: this.$storeHelper.groupInfo.id,
             namespace: this.$storeHelper.groupInfo.tag,
             appConfigId: this.action.row.id,
-            tolerationContent: this.configOfToleration,
+            podSpecContent: this.configOfPodSpec,
             configServiceName: this.action.row.serviceName
           }
         }).then(response => {
           const resData = response.data;
-          // console.log(resData);
-          if (resData.code && "ERR_UPDATE_TOLERATION_FORMAT_FAILED" === resData.code) {
+          if (resData.code && "ERR_UPDATE_POD_SPEC_FORMAT_FAILED" === resData.code) {
             // this.$message.warning(resData.msg);
             this.describeEditError = resData.msg;
-            this.titleEditError = "容忍配置错误信息";
             this.hasEditError = true;
+            this.titleEditError = "podSpec配置错误信息";
           } else {
-            this.$message.success("修改容忍配置成功！");
-            this.hasToleration = false;
+            this.$message.success("修改podSpec配置成功！");
+            this.hasAffinity = false;
           }
-
-          // this.$message.success("修改亲和性配置成功！");
-          // this.hasToleration = false;
         }).catch(err => {
-          console.log(err);
+          // console.log(err);
           this.$message.error("保存配置失败，请联系云平台！");
         }).finally(() => {
-          this.saveTolerationLoading = false;
+          this.savePodSpecLoading = false;
+          this.closeDialog();
         });
       },
-
       // 是否支持快速部署（重启）：1. 是k8s应用，2. 有正在运行的实例
       // NOTICE: 因重启权限只在生产环境起作用，所以不能走通用逻辑reason4ActionDisabled
       reason4DisableQuickDeploy(row) {
@@ -2002,7 +1898,7 @@ tolerations:
       async handleTRClick(evt, action, index, row) {
         var permission = action;
         if (['service_config_add','service_config_copy','service_delete', 'service_deploy', 'image_rollback',
-            'service_config_modify','service_update', 'update_affinity'].indexOf(action) > -1 && this.publishStatus) {
+            'service_config_modify','service_update', 'update_pod_spec'].indexOf(action) > -1 && this.publishStatus) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
@@ -2015,7 +1911,7 @@ tolerations:
           permission = 'copy-service'
         }
         // 修改Node亲和性
-        if (action == 'update_affinity') {
+        if (action == 'update_pod_spec') {
           permission = 'update_affinity'
         }
         if (['service_quick_deploy', 'service_stop', 'service_deploy_canary'].includes(action)) {
@@ -2390,9 +2286,9 @@ tolerations:
               this.props4CreateDomain.subDomainList = [];
             }
             break;
-          case 'update_affinity':
+          case 'update_pod_spec':
             // console.log(this.action.row);
-            await this.$net.requestPaasServer(this.$net.URL_LIST.get_affinity_config, {
+            await this.$net.requestPaasServer(this.$net.URL_LIST.get_pod_spec_config, {
               payload: {
                 spaceId: this.profileInfo.id,
                 groupId: this.$storeHelper.groupInfo.id,
@@ -2402,9 +2298,9 @@ tolerations:
               }
             }).then(resp =>{
               if (resp) {
-                this.configOfAffinity = resp;
+                this.configOfPodSpec = resp;
               } else {
-                this.configOfAffinity = "";
+                this.configOfPodSpec = "";
               }
               this.hasAffinity = true;
             }).catch(error => {
