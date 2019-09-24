@@ -229,10 +229,11 @@
                @close="handleDialogClose('add-access-config-in-dialog')"
                v-if="selected.row"
     >
-      <div class="el-tag--danger" style="border-radius: 4px; text-align: left; font-size: 12px; line-height: 16px; padding: 3px 6px;">
-        <div>1. 初次添加的“申请访问权限”需对方团队审批，状态变为“已授权”状态，访问权限才能生效！</div>
-        <div>2. 访问权限授权通过后，注意需要重启服务！</div>
-      </div>
+      <paas-dismiss-message :toExpand="true" showSeconds="0"
+                            :msgList="[
+                              '初次添加的“申请访问权限”需对方团队审批，状态变为“已授权”状态，访问权限才能生效！',
+                              '访问权限授权通过后，注意需要重启服务！'
+                            ]"></paas-dismiss-message>
       <el-form labelWidth="140px" size="mini" class="message-show">
         <el-form-item label="我的团队" v-if="groupInfo">
           {{groupInfo.name}}
@@ -249,9 +250,9 @@
                size="mini" ref="modifyAccessKeyInfoForm">
         <el-form-item label="已申请访问的权限" class="target-app-list" >
           <el-row class="title">
-            <el-col :span="3" class="group">团队</el-col>
-            <el-col :span="7" class="app">ClientId</el-col>
-            <el-col :span="8" class="app">权限</el-col>
+            <el-col :span="6" class="group">团队</el-col>
+            <el-col :span="6" class="app">ClientId</el-col>
+            <el-col :span="6" class="app">权限</el-col>
             <el-col :span="3" class="app">状态</el-col>
             <el-col :span="3"></el-col>
           </el-row>
@@ -259,9 +260,9 @@
                   v-for="(item, index) in modifyAccessKeyInfo.targetAuthInfoList"
                   :key="index"
           >
-            <el-col :span="3" class="group">{{item.targetGroupName}}</el-col>
-            <el-col :span="7" class="app">{{item.targetOauth.substr(0,item.targetOauth.indexOf("."))}}</el-col>
-            <el-col :span="8" class="app">{{item.targetOauth}}</el-col>
+            <el-col :span="6" class="group">{{item.targetGroupName}}</el-col>
+            <el-col :span="6" class="app">{{item.targetOauth.substr(0,item.targetOauth.indexOf("."))}}</el-col>
+            <el-col :span="6" class="app">{{item.targetOauth}}</el-col>
             <el-col :span="3" class="app">{{item.status}}</el-col>
             <el-col :span="3" style="text-align: right">
               <el-popover
@@ -288,13 +289,13 @@
                       style="margin-bottom: 20px"
                       :error="errorMsgForAddTargetApp">
           <el-row>
-            <el-col :span="5" style="padding-right:4px;">
+            <el-col :span="7" style="padding-right:4px;">
               <el-select filterable v-model="modifyAccessKeyInfo.targetGroupID" placeholder="请选择" style="display:block; max-width: 280px;">
                 <el-option v-for="(item, index) in dataForSelectApp.groupListAll" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="8" style="padding-right:4px;">
+            <el-col :span="7" style="padding-right:4px;">
               <el-select
                       v-loading="modifyAccessKeyInfo.requestingAppList"
                       element-loading-spinner="el-icon-loading"
@@ -314,7 +315,7 @@
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="2" style="text-align: right">
+            <el-col :span="3" style="text-align: right">
               <el-button
                       size="mini-extral"
                       type="primary"
@@ -326,19 +327,16 @@
           </el-row>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
+      <div slot="footer" class="dialog-footer flex">
+          <div class="item">
+            <el-button type="primary" size="mini"
                        :loading="statusOfWaitingResponse('submit-target-app-list-in-dialog')"
                        @click="handleDialogButton('submit-target-app-list')"
                        >保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button
-                       @click="handleDialogClose('add-access-config-in-dialog')">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+          </div>
+          <div class="item">
+            <el-button size="mini" @click="handleDialogClose('add-access-config-in-dialog')">取&nbsp消</el-button>
+          </div>
       </div>
     </el-dialog>
 
@@ -536,6 +534,7 @@
           }
         }
         .el-form {
+          margin: 5px;
           .el-form-item {
             .group, .app {
               text-align: center;
@@ -647,10 +646,13 @@
 </style>
 
 <script>
+  import paasDismissMessage from 'assets/components/dismiss-message.vue';
+  import commonUtils from 'assets/components/mixins/common-utils';
   import {addResizeListener, removeResizeListener} from 'element-ui/src/utils/resize-event';
   import utils from 'assets/libs/element-ui/utils';
 
-  module.exports = {
+export default {
+  components: {paasDismissMessage},
   created() {
 //    console.log(this.appInfoListOfGroup);
   },
@@ -923,20 +925,21 @@
       this.isTargetAppOK();
     },
     'modifyAccessKeyInfo.targetOauthId':function (oauthId) {
-        let oauthList = this.dataForSelectApp.oauthList;
-        if(oauthList && Array.isArray(oauthList)){
-            let target = null;
-            oauthList.some(o=>{
-               target = (o.id == oauthId)?o:null;
-               return target;
-            });
+      let oauthList = this.dataForSelectApp.oauthList;
+      if (oauthList && Array.isArray(oauthList)) {
+        let target = null;
+        oauthList.some(o=>{
+           target = (o.id == oauthId)?o:null;
+           return target;
+        });
 
-            if(null != target && target.oauth){
-               this.modifyAccessKeyInfo.targetOauth = target.oauth
-            }
-        }else{
-            this.modifyAccessKeyInfo.targetOauth = '';
+        if(null != target && target.oauth){
+           this.modifyAccessKeyInfo.targetOauth = target.oauth
         }
+      } else {
+        this.modifyAccessKeyInfo.targetOauth = '';
+      }
+      this.isTargetAppOK();
     },
     'modifyAccessKeyInfo.appID': function() {
       // if current app is ok?
@@ -1296,13 +1299,19 @@
     ifAppListChanged(origin, current) {
       let theSame = true;
       if (origin.length === current.length) {
-        let index = 0;
-        origin.every((it) => {
-          let it2 = current[index];
-          index += 1;
-          theSame = it.targetGroupId == it2.targetGroupId && it.targetApplicationId == it2.targetApplicationId;
-          return theSame;
-        });
+        theSame = JSON.stringify(origin.map(it => {
+            var res = {};
+            ['targetClientId', 'targetGroupId', 'targetOauth'].forEach(key => {
+              res[key] = it[key];
+            });
+            return res;
+          })) === JSON.stringify(current.map(it => {
+            var res = {};
+            ['targetClientId', 'targetGroupId', 'targetOauth'].forEach(key => {
+              res[key] = it[key];
+            });
+            return res;
+          }));
       } else {
         theSame = false;
       }

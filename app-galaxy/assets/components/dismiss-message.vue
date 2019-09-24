@@ -13,13 +13,13 @@
     flex-direction: row;
     & > .content {
       flex: 1;
-      padding-left: 8px;
+      padding: 3px 6px;
       background-color: #e6a23c;
       background-color: #eee;
       color: #eb9e05;
       font-size: 12px;
       font-weight: bold;
-      line-height: 1.5;
+      line-height: 14px;
       text-align: left;
     }
     & > i {
