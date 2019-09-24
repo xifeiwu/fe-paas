@@ -539,6 +539,7 @@ taints:
       async requestNodeList() {
         this.nodeList = [];
         this.loading = true;
+        this.currentPage = 1;
         await this.$net.getResponse(this.$net.URL_LIST.query_node_list, {
           query: {
             clusterName: this.currentK8sNode
