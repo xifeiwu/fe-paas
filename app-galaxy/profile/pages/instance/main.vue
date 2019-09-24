@@ -1,12 +1,13 @@
 <template>
   <div id="instance-main">
     <el-row class="header" type="flex" justify="center" align="middle">
-      <el-col :span="14">
+      <el-col :span="12">
         <paas-version-selector :customConfig="config4VersionSelector" ref="version-selector"
                              @version-selected="onVersionSelected"></paas-version-selector>
       </el-col>
-      <el-col :span="6">
-          <span>运行实例数/总实例数：{{`${instanceStatus['runningCnt']} / ${instanceStatus['totalCnt']}`}}</span>
+      <el-col :span="8">
+          <span v-if="!instanceStatus.isCanary">运行实例数/总实例数：{{`${instanceStatus['runningCnt']} / ${instanceStatus['totalCnt']}`}}</span>
+          <span v-if="instanceStatus.isCanary">运行实例数/总实例数(主服务)：{{`${instanceStatus['runningCnt']} / ${instanceStatus['totalCnt']}`}}&nbsp;&nbsp;|&nbsp;&nbsp;运行实例数/总实例数(灰度)：{{`${instanceStatus['canaryRunningCnt']} / ${instanceStatus['canaryTotalCnt']}`}}</span>
       </el-col>
       <el-col :span="4">
         <el-button v-if="true"
@@ -208,12 +209,21 @@
                @close="action.name = null"
                class="manual-scale size-500"
     >
-      <el-form labelWidth="140px" size="mini">
+      <el-form labelWidth="150px" size="mini" class="message-show">
+        <el-form-item label="总实例数：">
+          <div>{{instanceStatus.canaryCnt + instanceStatus.masterCnt}}个</div>
+        </el-form-item>
+        <el-form-item label="当前灰度实例数：">
+          <div>{{instanceStatus.canaryCnt}}个</div>
+        </el-form-item>
         <el-form-item label="当前主实例数：">
           <div>{{instanceStatus.masterCnt}}个</div>
         </el-form-item>
         <el-form-item label="调整主实例数为：" :error="manualScale.error">
           <el-input-number v-model="manualScale.newCount" :min="1" size="mini"></el-input-number>
+          <i class="el-icon-question" style="color: #E6A23C; margin-left: 6px;"
+             v-pop-on-mouse-over="'现在仅支持调整主服务实例数，如需调整灰度服务实例数，请到灰度发布页面进行调整。'">
+          </i>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
@@ -263,9 +273,7 @@
   .el-dialog__wrapper {
     &.manual-scale {
       .el-form-item {
-        &:first-child {
-          margin-bottom: 5px;
-        }
+        margin-bottom: 5px;
       }
     }
     &.dialog-for-log {
@@ -443,9 +451,13 @@
         queueForWaitingResponse: [],
         // 实例状态
         instanceStatus: {
+          isCanary: false,
+          canaryRunningCnt: '---',
+          canaryTotalCnt: '---',
+          canaryCnt: 0,
           runningCnt: '---',
           totalCnt: '---',
-          masterCnt: null,
+          masterCnt: 0,
           instanceCount: null,
           instanceList: []
         },
@@ -550,10 +562,21 @@
               // serviceVersion: version,
             }
           });
-//          console.log(resContent);
+          this.instanceStatus.isCanary = false;
+         // console.log(resContent);
           if (!resContent.hasOwnProperty('instanceList')) {
+            this.instanceStatus.isCanary = false;
+            this.instanceStatus.canaryRunningCnt = '---';
+            this.instanceStatus.canaryTotalCnt = '---';
+            this.instanceStatus.canaryCnt = 0;
+            this.instanceStatus.runningCnt = '---';
+            this.instanceStatus.totalCnt = '---';
+            this.instanceStatus.masterCnt = 0;
+            this.instanceStatus.instanceCount = null;
+            this.instanceStatus.instanceList =[];
             return;
           }
+
 
           const instanceList = resContent.instanceList;
           instanceList.forEach(it => {
@@ -568,7 +591,11 @@
             if (it['memoryUsageBytes'] && it['actualMemory']) {
               it.memoryStatus = bytes(parseInt(it['memoryUsageBytes'])) + ' / ' + bytes(parseInt(it['actualMemory']));
             }
-            it.cpuUsageSecondsSum = it.cpuUsageSecondsSum ? `${parseFloat(it['cpuUsageSecondsSum']).toFixed(2)}s` : '---'
+            it.cpuUsageSecondsSum = it.cpuUsageSecondsSum ? `${parseFloat(it['cpuUsageSecondsSum']).toFixed(2)}s` : '---';
+            if (it['hasCanary']) {
+              this.instanceStatus.canaryRunningCnt++;
+              this.instanceStatus.isCanary = true;
+            }
           });
           this.instanceStatus.instanceList = instanceList;
           if (resContent.hasOwnProperty('instanceNum')) {
@@ -578,9 +605,18 @@
             this.instanceStatus.runningCnt = resContent['status']['Running'];
             this.instanceStatus.totalCnt = resContent['status']['Total'];
           }
+          if (resContent.hasOwnProperty('canaryInstanceNum')) {
+            this.instanceStatus.canaryCnt = resContent['canaryInstanceNum'];
+          } else {
+            this.instanceStatus.canaryCnt = 0;
+          }
+          if (resContent.hasOwnProperty('canaryStatus')) {
+            this.instanceStatus.canaryRunningCnt = resContent['canaryStatus']['Running'];
+            this.instanceStatus.canaryTotalCnt = resContent['canaryStatus']['Total'];
+          }
           // sort table by this.tableSort after success request
           this.onSortChangeInTable(this.tableSort);
-//          console.log(this.instanceStatus);
+         // console.log(this.instanceStatus);
         } catch(err) {
           console.log(err);
         }
