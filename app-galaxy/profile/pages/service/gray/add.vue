@@ -728,7 +728,7 @@
           // forAdd
           this.imageSelectState.customImage = false;
           //Production appMonitor environment is selected by default
-          if (profileInfo && profileInfo.spaceType.toUpperCase() !== 'PRODUCTION') {
+          if (serviceInfo.isJavaLanguage && profileInfo && profileInfo.spaceType.toUpperCase() !== 'PRODUCTION') {
             this.formData.appMonitor = profileUtils.appMonitorList[1].id;
           }
           // use this.$nextTick for correct performance of this.formData.healthCheck.contentCheckErrMsg used in el-form-item :error

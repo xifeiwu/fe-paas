@@ -1752,6 +1752,9 @@ class Net extends NetBase {
     };
     item.language = language;
 
+    item.isJavaLanguage = language.type === 'JAVA';
+    item.isPythonLanguage = language.type === 'PYTHON';
+
     // 更新healthCheck格式
     const healthCheck = this.getObjHealthCheck();
     healthCheck.type = this.$storeHelper.getHealthCheckTypeDescByKey(service.healthCheckType);
