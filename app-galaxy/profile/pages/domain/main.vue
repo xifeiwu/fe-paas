@@ -233,32 +233,39 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="绑定服务" :visible="selected.action == 'bind-service'"
-               :class="{'bind-service': true, 'size-800': true, 'show-response': bindServiceProps.showResponse}"
+    <el-dialog title="绑定服务"
+               :visible="selected.action == 'bind-service'"
+               v-if="selected.action == 'bind-service'"
+               :class="{'bind-service': true, 'size-700': true, 'show-response': bindServiceProps.showResponse}"
                :close-on-click-modal="false"
+               bodyPadding="4px"
                @close="selected.action = null"
     >
       <div v-if="bindServiceProps.showResponse">
-        <div class="title">
-          <div class="key">外网域名</div>
-          <div class="value">绑定状态</div>
-        </div>
-        <div class="item" v-for="(value, key) in bindServiceProps.serverResponse">
-          <div class="key">{{key}}</div>
-          <div class="value">{{value}}</div>
-        </div>
+        <el-row class="title">
+          <el-col :span="8" class="key">外网域名</el-col>
+          <el-col :span="16" class="value">绑定状态</el-col>
+        </el-row>
+        <el-row class="item" v-for="(value, key) in bindServiceProps.serverResponse">
+          <el-col :span="8" class="key">{{key}}</el-col>
+          <el-col :span="16" class="value">{{value}}</el-col>
+        </el-row>
       </div>
-      <div slot="footer" class="dialog-footer" style="text-align: center" v-if="bindServiceProps.showResponse">
-        <el-button type="primary"
-                   @click="handleClickInDialog('close-bind-service-in-dialog')">确&nbsp定</el-button>
+      <div slot="footer" class="dialog-footer flex" v-if="bindServiceProps.showResponse">
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     @click="handleClickInDialog('close-bind-service-in-dialog')">确定</el-button>
+        </div>
       </div>
 
       <div v-if="!bindServiceProps.showResponse">
+        <paas-dismiss-message :toExpand="true" showSeconds="0" style="margin: -2px -4px 6px -4px;"
+                              :msgList="[bindServiceProps.bindTipForApp]"></paas-dismiss-message>
         <paas-service-selector ref="service-selector-in-bind-service-dialog"
-                                     :fixedInfo="fixedInfoForVersionCondition"
-                                     :customConfig="dialogCustomConfig"
-                                     @service-selected="handleConditionChangeInDialog"
-                                     v-if="selected.action == 'bind-service'"
+                               :fixedInfo="fixedInfoForVersionCondition"
+                               :customConfig="dialogCustomConfig"
+                               @service-selected="handleConditionChangeInDialog"
+                               v-if="selected.action == 'bind-service'"
         >
         </paas-service-selector>
         <el-form labelWidth="90px" class="selected-domain">
@@ -271,24 +278,22 @@
             >{{item['internetDomain']}}</el-tag>
           </el-form-item>
         </el-form>
-        <div class="helper-text-expanded" style="margin-top: 3px;">
+        <div class="helper-text-expanded" style="margin-top: 3px;" v-if="false">
           <div>
             <div style="font-weight: bold; font-size: 14px;">提示 <i class="el-icon-warning"></i></div>
             <div style="font-size: 13px; margin-top: 3px;">{{bindServiceProps.bindTipForApp}}</div>
           </div>
         </div>
       </div>
-      <div slot="footer" class="dialog-footer" v-if="!bindServiceProps.showResponse">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleClickInDialog('bind-service-in-dialog')"
-                       :loading="statusOfWaitingResponse('bind-service-in-dialog')">保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button @click="selected.action = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+      <div slot="footer" class="dialog-footer flex" v-if="!bindServiceProps.showResponse">
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     @click="handleClickInDialog('bind-service-in-dialog')"
+                     :loading="statusOfWaitingResponse('bind-service-in-dialog')">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button size="mini" @click="selected.action = null">取&nbsp消</el-button>
+        </div>
       </div>
     </el-dialog>
 
@@ -415,9 +420,11 @@
     }
     .el-dialog__wrapper {
       &.add-domain, &.bind-service, &.unbind-service {
-        /*max-width: 900px;*/
         .el-dialog {
           width: 100%;
+          .el-dialog__body {
+            min-height: 100px;
+          }
         }
         margin: 15px auto;
         .el-form {
@@ -466,7 +473,7 @@
           text-align: left;
         }
         .el-form.selected-domain {
-          margin-top: 5px;
+          margin-top: 10px;
           .el-form-item {
             margin-bottom: 5px;
             .el-form-item__label {
@@ -485,13 +492,12 @@
         &.show-response {
           .el-dialog__body {
             .title {
-              display: flex;
+              margin-bottom: 3px;
               .key, .value {
                 font-weight: bold;
               }
             }
             .item {
-              display: flex;
               border-bottom: 1px solid #909399;
               margin-bottom: 3px;
               &:last-child {
@@ -499,7 +505,6 @@
               }
             }
             .key, .value {
-              flex: 1;
               text-align: center;
               text-overflow: ellipsis;
               word-wrap: break-word;
@@ -592,8 +597,10 @@
 
 <script>
   import paasServiceSelector from '../components/service-selector.vue';
+  import paasDismissMessage from 'assets/components/dismiss-message.vue';
+  import commonUtils from 'assets/components/mixins/common-utils';
   export default {
-    components: {paasServiceSelector},
+    components: {paasServiceSelector, paasDismissMessage},
     created() {
       // 1. page service
       try {
@@ -669,7 +676,7 @@
         bindServiceProps: {
           showResponse: false,
           serverResponse: {},
-          bindTipForApp: '',
+          bindTipForApp: '绑定成功后5分钟内可使用外网域名访问应用',
         },
         unBindServiceProps: {
           showResponse: false,
@@ -1297,7 +1304,7 @@
 
       handleConditionChangeInDialog(app, profile, service) {
         if (profile && app) {
-          this.bindServiceProps.bindTipForApp = `所选域名正在绑定"${profile.description}"的"${app.appName}"应用,绑定成功后即可使用外网域名访问应用`;
+          this.bindServiceProps.bindTipForApp = `所选域名正在绑定"${profile.description}"的"${app.appName}"应用，绑定成功后5分钟内可使用外网域名访问应用`;
         }
       },
       handleSuccessCopy(evt) {
