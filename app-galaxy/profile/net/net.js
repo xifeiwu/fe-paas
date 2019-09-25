@@ -415,6 +415,11 @@ class Net extends NetBase {
         path: '/deployLog/getDeployLog',
         method: 'post'
       },
+      // 获取灰度部署日志列表
+      'log_canary_deploy_list': {
+        path: '/service/canary/logs',
+        method: 'post'
+      },
 
       /** 监控相关 */
       // 获取监控数据-CPU

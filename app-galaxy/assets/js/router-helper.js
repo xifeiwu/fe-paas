@@ -29,6 +29,7 @@ export default class RouterHelper {
       'profile/log': '/profile/log',
       'profile/log/deploy': '/profile/log/deploy',
       'profile/log/run': '/profile/log/run',
+      'profile/log/canary': '/profile/log/canary',
       'profile/oauth': '/profile/oauth',
       'profile/oauth/key': '/profile/oauth/key',
       'profile/oauth/url': '/profile/oauth/url',

@@ -32,6 +32,7 @@ import DomainWhiteList from './domain/white-list.vue';
 import LogMain from './log/main.vue';
 import LogRun from './log/run.vue';
 import LogDeploy from './log/deploy.vue';
+import LogCanary from './log/canary.vue';
 
 import MonitorMain from './monitor/main.vue';
 // const MonitorMain = () => {
@@ -225,6 +226,13 @@ class Helper extends RouterHelper {
         path: 'deploy',
         name: '部署日志',
         component: LogDeploy,
+        meta: {
+          keepAlive: true
+        }
+      }, {
+        path: 'canary',
+        name: '完成灰度发布日志',
+        component: LogCanary,
         meta: {
           keepAlive: true
         }
