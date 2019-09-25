@@ -169,7 +169,7 @@
           <div class="key">外网域名</div>
           <div class="value">添加状态</div>
         </div>
-        <div class="item" v-for="(value, key) in props4CreateDomain.serverResponse">
+        <div class="item" v-for="(value, key) in props4CreateDomain.serverResponse" :key="key">
           <div class="key">{{key}}</div>
           <div class="value">{{value}}</div>
         </div>
