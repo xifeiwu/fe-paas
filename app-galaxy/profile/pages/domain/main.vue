@@ -300,6 +300,7 @@
     <el-dialog title="解绑服务" :visible="selected.action == 'unbind-service'"
                :class="{'unbind-service': true, 'size-750': true, 'show-response': unBindServiceProps.showResponse}"
                :close-on-click-modal="false"
+               bodyPadding="6px 4px"
                @close="selected.action = null"
     >
       <div v-if="unBindServiceProps.showResponse">
@@ -312,9 +313,11 @@
           <div class="value">{{value}}</div>
         </div>
       </div>
-      <div slot="footer" class="dialog-footer" style="text-align: center" v-if="unBindServiceProps.showResponse">
-        <el-button type="primary"
+      <div slot="footer" class="dialog-footer flex" v-if="unBindServiceProps.showResponse">
+        <div class="item">
+          <el-button type="primary" size="mini"
                    @click="handleClickInDialog('close-unbind-service-in-dialog')">确&nbsp定</el-button>
+        </div>
       </div>
 
       <div class="selected-domain" v-if="!unBindServiceProps.showResponse">
@@ -327,17 +330,15 @@
         >{{'"' + item['internetDomain'] + '"'}}</span>
         <span>域名将导致绑定在域名上的应用不能通过这个域名进行访问，你确定这么做吗？</span>
       </div>
-      <div slot="footer" class="dialog-footer" v-if="!unBindServiceProps.showResponse">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleClickInDialog('unbind-service-in-dialog')"
-                       :loading="statusOfWaitingResponse('unbind-service-in-dialog')">确&nbsp定</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button @click="selected.action = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+      <div slot="footer" class="dialog-footer flex" v-if="!unBindServiceProps.showResponse">
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     @click="handleClickInDialog('unbind-service-in-dialog')"
+                     :loading="statusOfWaitingResponse('unbind-service-in-dialog')">确&nbsp定</el-button>
+        </div>
+        <div class="item">
+          <el-button size="mini" @click="selected.action = null">取&nbsp消</el-button>
+        </div>
       </div>
     </el-dialog>
 
@@ -423,7 +424,6 @@
         .el-dialog {
           width: 100%;
           .el-dialog__body {
-            min-height: 100px;
           }
         }
         margin: 15px auto;
