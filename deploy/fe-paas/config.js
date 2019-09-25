@@ -8,10 +8,11 @@ function getPort() {
   // process.env.PORT is set in pm2.config.js
   // the following port switch will be used for npm run dev(test)
   switch (env) {
-    case 'production':
     case 'test':
       port = 80;
       break;
+    case 'production':
+    case 'production_gray':
     case 'dev':
     case 'local':
       port = 6001;
@@ -93,13 +94,13 @@ const serverConfig = {
   staticPath: path.resolve(__dirname, 'dist'),
   proxy: {
     '/j-api/paas/': {
-      target: 'http://10.10.202.143:30334',
+      target: getServer('paasServer'),
       changeOrigin: true,
       logLevel: 'debug',
       pathRewrite: path => path.replace('\/j-api\/paas', ''),
     },
     '/n-api/assist': {
-      target: 'http://10.10.80.242:6002',
+      target: getServer('assistServer'),
       changeOrigin: true,
       logLevel: 'debug',
       pathRewrite: path => path.replace('\/n-api\/assist', ''),
