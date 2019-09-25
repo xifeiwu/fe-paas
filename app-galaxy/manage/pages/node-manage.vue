@@ -326,7 +326,7 @@ taints:
         this.currentK8sNode = this.k8sClusterList[0].name;
       }
 
-      await this.computedNodeList(true);
+      await this.requestNodeListByPage(true);
     },
     mounted() {
       // update value in next tick
@@ -361,7 +361,6 @@ taints:
         heightOfTable: '',
         loading: false,
         nodeList: [],
-        nodeListFilter: [],
         nodeListByPage: [],
         resourceComputing: true,
 
@@ -402,108 +401,112 @@ taints:
         if (currentK8sNode == '0') {
           return;
         }
-        await this.requestNodeList();
-        await this.computedNodeList();
+        this.currentPage = 1;
+        await this.requestNodeListByPage(true);
       },
       'keyword': function () {
-        this.computedNodeList();
+        this.requestNodeListByPage();
       },
       'runningStatus': function () {
-        this.computedNodeList();
+        this.requestNodeListByPage();
       },
     },
     methods: {
-
       // check if all necessary data is get
-      async computedNodeList(refresh) {
-        if (refresh || !this.nodeList) {
-          await this.requestNodeList();
+      async requestNodeListByPage(refresh) {
+        if (refresh) {
+          this.nodeList = [];
+          this.nodeList = await this.requestNodeList();
         }
         // update pageSize by screen size
-        this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 5;
+        // this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 5;
         var page = this.currentPage - 1;
         page = page >= 0 ? page : 0;
         const start = page * this.pageSize;
         const length = this.pageSize;
         const end = start + length;
 
-        this.nodeListFilter = this.nodeList;
+        var nodeListByPage = this.nodeList;
         if (this.keyword) {
           const filterReg = new RegExp(this.keyword);
-          this.nodeListFilter = this.nodeList.filter(it => {
+          nodeListByPage = this.nodeList.filter(it => {
             return filterReg.exec(it['nodeName']);
           });
         }
 
         if (this.runningStatus && 'all' !== this.runningStatus) {
-          this.nodeListFilter = this.nodeListFilter.filter(it => {
+          nodeListByPage = nodeListByPage.filter(it => {
             return this.runningStatus === it['status'];
           });
         }
-        this.totalSize = this.nodeListFilter.length;
-        this.nodeListByPage = this.nodeListFilter.slice(start, end);
+        this.totalSize = nodeListByPage.length;
+        this.nodeListByPage = nodeListByPage.slice(start, end);
         // console.log(this.nodeListByPage);
         // 分页后，根据分页的节点列表计算CPU和内存使用情况
-        this.queryNodeResouceUsage();
+        await this.queryNodeResourceUsage();
         this.onSortChange({prop: 'cpuRequest', order: 'descending'});
       },
-      queryNodeResouceUsage() {
+
+      // 基于现有node列表的二次请求
+      async queryNodeResourceUsage() {
         this.resourceComputing = true;
+        if (this.nodeListByPage.length === 0) {
+          return;
+        }
         let nodeListByPage = this.nodeListByPage.map(it => {
           return it.nodeName;
         });
         // console.log(nodeListByPage);
-        this.$net.requestPaasServer(this.$net.URL_LIST.query_node_resource, {
+        const resp = await this.$net.requestPaasServer(this.$net.URL_LIST.query_node_resource, {
           payload: {
             clusterName: this.currentK8sNode,
             nodeNameList: nodeListByPage
           }
-        }).then(resp => {
-          if (resp) {
-            resp.map(it => {
-              it['createTimeYMD'] = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd');
-              it['createTimeHMS'] = this.$utils.formatDate(it.createTime, 'hh:mm:ss');
-              it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-
-              it["os"] = it["osImage"];
-              it["internalIP"] = it["internalIP"];
-              if (it["nodeStatus"]) {
-                it["status"] = 'ready';
-              } else {
-                it["status"] = 'notReady'
-              }
-              it['cpuRequest'] = parseInt(it.cpuRequest) / 1000;
-              it['cpuTotal'] = parseInt(it.cpuTotal) / 1000;
-              it['cpuRequestPercent'] =  parseFloat(it['cpuRequest'] / it['cpuTotal'] * 100).toFixed(1);
-
-              it['memoryRequest'] = parseFloat((it.memoryRequest / 1024).toFixed(2));
-              it['memoryTotal'] = parseFloat(it.memoryTotal / 1024).toFixed(2);
-              it['memoryRequestPercent'] =  parseFloat(it['memoryRequest'] / it['memoryTotal'] * 100).toFixed(1);
-
-              it["cpuLimit"] = parseInt(it.cpuLimit) / 1000;
-              it["cpuLimitPercent"] = parseFloat(it['cpuLimit'] / it["cpuTotal"] * 100).toFixed(1);
-
-              it["memoryLimit"] = parseFloat((it.memoryLimit / 1024).toFixed(2));
-              it["memoryLimitPercent"] = parseFloat(it["memoryLimit"] / it["memoryTotal"] * 100).toFixed(1);
-
-            });
-
-            let nl = [];
-            this.nodeListByPage.map(srcList => {
-              resp.forEach(newList => {
-                if (srcList['nodeName'] === newList['nodeName']) {
-                  nl.push(newList);
-                }
-              });
-            this.nodeListByPage = nl;
-            });
-            this.resourceComputing = false;
-            // console.log(resp);
-          } else {
-            this.resourceComputing = true;
-            // console.log("get failed!");
-          }
         });
+        if (resp) {
+          resp.map(it => {
+            it['createTimeYMD'] = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd');
+            it['createTimeHMS'] = this.$utils.formatDate(it.createTime, 'hh:mm:ss');
+            it.formattedCreateTime = this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+
+            it["os"] = it["osImage"];
+            it["internalIP"] = it["internalIP"];
+            if (it["nodeStatus"]) {
+              it["status"] = 'ready';
+            } else {
+              it["status"] = 'notReady'
+            }
+            it['cpuRequest'] = parseInt(it.cpuRequest) / 1000;
+            it['cpuTotal'] = parseInt(it.cpuTotal) / 1000;
+            it['cpuRequestPercent'] =  parseFloat(it['cpuRequest'] / it['cpuTotal'] * 100).toFixed(1);
+
+            it['memoryRequest'] = parseFloat((it.memoryRequest / 1024).toFixed(2));
+            it['memoryTotal'] = parseFloat(it.memoryTotal / 1024).toFixed(2);
+            it['memoryRequestPercent'] =  parseFloat(it['memoryRequest'] / it['memoryTotal'] * 100).toFixed(1);
+
+            it["cpuLimit"] = parseInt(it.cpuLimit) / 1000;
+            it["cpuLimitPercent"] = parseFloat(it['cpuLimit'] / it["cpuTotal"] * 100).toFixed(1);
+
+            it["memoryLimit"] = parseFloat((it.memoryLimit / 1024).toFixed(2));
+            it["memoryLimitPercent"] = parseFloat(it["memoryLimit"] / it["memoryTotal"] * 100).toFixed(1);
+
+          });
+
+          let nl = [];
+          this.nodeListByPage.map(srcList => {
+            resp.forEach(newList => {
+              if (srcList['nodeName'] === newList['nodeName']) {
+                nl.push(newList);
+              }
+            });
+          this.nodeListByPage = nl;
+          });
+          this.resourceComputing = false;
+          // console.log(resp);
+        } else {
+          this.resourceComputing = true;
+          // console.log("get failed!");
+        }
       },
 
       // request node list
@@ -537,21 +540,21 @@ taints:
 
       // request node list
       async requestNodeList() {
-        this.nodeList = [];
+        var nodeList = [];
         this.loading = true;
-        this.currentPage = 1;
-        await this.$net.getResponse(this.$net.URL_LIST.query_node_list, {
-          query: {
-            clusterName: this.currentK8sNode
-          }
-        }, {
-          headers: {
-            token: this.$storeHelper.getUserInfo('token')
-          },
-          timeout: 600000
-        }).then(res => {
+        try {
+          const res = await this.$net.getResponse(this.$net.URL_LIST.query_node_list, {
+            query: {
+              clusterName: this.currentK8sNode
+            }
+          }, {
+            headers: {
+              token: this.$storeHelper.getUserInfo('token')
+            },
+            timeout: 600000
+          });
           if (!res.data.content) {
-            return;
+            return nodeList;
           }
           const resp = res.data.content;
           resp.map(it => {
@@ -569,11 +572,11 @@ taints:
 
             it['cpuRequest'] = '';
             it['cpuTotal'] = '';
-            it['cpuRequestPercent'] =  '';
+            it['cpuRequestPercent'] = '';
 
             it['memoryRequest'] = '';
             it['memoryTotal'] = '';
-            it['memoryRequestPercent'] =  '';
+            it['memoryRequestPercent'] = '';
 
             it["cpuLimit"] = '';
             it["cpuLimitPercent"] = '';
@@ -581,27 +584,21 @@ taints:
             it["memoryLimit"] = '';
             it["memoryLimitPercent"] = '';
           });
+          nodeList = resp;
+        } catch (err) {
 
-          this.totalSize = parseInt(resp.length);
-          this.nodeList = resp;
-        }).catch(err => {
-          console.log(err);
-        }).finally(() => {
-          this.loading = false;
-        });
-
-        // this.computedNodeList();
-//        console.log(this.nodeList);
+        }
+        this.loading = false;
+        this.nodeList = nodeList;
+        return nodeList;
       },
 
       async handleButtonClick(evt, action) {
-
         switch (action) {
-
           case 'refreshList':
             this.addToWaitingResponseQueue(action);
             try {
-              await this.computedNodeList(true);
+              await this.requestNodeListByPage(true);
               setTimeout(() => {
                 this.hideWaitingResponse(action);
               }, 1000);
@@ -680,7 +677,7 @@ taints:
 
       handlePaginationPageChange(page) {
         this.currentPage = page;
-        this.computedNodeList();
+        this.requestNodeListByPage();
       },
 
       onSortChange(tableSort) {

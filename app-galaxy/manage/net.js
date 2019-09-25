@@ -95,7 +95,6 @@ class Net extends NetBase {
       },
       query_node_resource: {
         path: '/queryNodeResouceUsage',
-        partial: true,
         method: 'post'
       },
       update_node_taint: {
