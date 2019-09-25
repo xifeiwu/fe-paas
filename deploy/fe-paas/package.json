@@ -5,6 +5,7 @@
   "dependencies": {
   },
   "scripts": {
+    "local": "NODE_ENV=local nodemon start.js",
     "start": "node main.js",
     "dev": "NODE_ENV=dev PORT=6001 node main.js",
     "test": "NODE_ENV=test PORT=6001 node main.js",
