@@ -7,13 +7,18 @@
   "scripts": {
     "local": "NODE_ENV=local nodemon start.js",
     "start": "node main.js",
-    "dev": "NODE_ENV=dev PORT=6001 node main.js",
-    "test": "NODE_ENV=test PORT=6001 node main.js",
-    "production": "NODE_ENV=production PORT=6001 node main.js",
-    "production_gray": "NODE_ENV=production_gray PORT=6001 node main.js",
+    "dev": "PLATFORM=finup:dev PORT=6001 node main.js",
+    "test": "PLATFORM=finup:test PORT=6001 node main.js",
+    "production": "PLATFORM=finup:production node main.js",
+    "production_gray": "PLATFORM=finup:production_gray node main.js",
     "pm2:dev": "pm2 startOrRestart pm2.config.js --env dev",
     "pm2:test": "pm2 startOrRestart pm2.config.js --env test",
     "pm2:production": "pm2 startOrRestart pm2.config.js --env production",
-    "pm2:production_gray": "pm2 startOrRestart pm2.config.js --env production_gray"
+    "pm2:production_gray": "pm2 startOrRestart pm2.config.js --env production_gray",
+
+    "renmai:production": "PLATFORM=renmai:production node main.js",
+    "renmai:production_gray": "PLATFORM=renmai:production_gray node main.js",
+    "pm2:renmai:production": "pm2 startOrRestart pm2.config.js --env renmai_production",
+    "pm2:renmai:production_gray": "pm2 startOrRestart pm2.config.js --env renmai_production_gray"
   }
 }

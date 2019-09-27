@@ -13,22 +13,29 @@ module.exports = {
         'DEBUG': 'spa-server',
         'LOG_DIR': path.resolve(__dirname, 'logs')
       },
-      env_dev: {
-        'NODE_ENV': 'dev',
-        'PORT': 6001,
+      env_finup_dev: {
+        name: 'finup:dev',
+        PLATFORM: 'finup:dev',
       },
-      env_test: {
-        'NODE_ENV': 'test',
-        'PORT': 80,
+      env_finup_test: {
+        name: 'finup:test',
+        PLATFORM: 'finup:test',
       },
-      env_production: {
-        'NODE_ENV': 'production',
-        'PORT': 6001,
+      env_finup_production: {
+        name: 'finup:production',
+        PLATFORM: 'finup:production',
       },
-      env_production_gray: {
-        'name': 'spa-server-paas-production-gray',
-        'NODE_ENV': 'production_gray',
-        'PORT': 6001,
+      env_finup_production_gray: {
+        name: 'finup:production-gray',
+        PLATFORM: 'finup:production_gray',
+      },
+      env_renmai_production: {
+        name: 'renmai:production',
+        PLATFORM: 'renmai:production',
+      },
+      env_renmai_production_gray: {
+        name: 'renmai:production_gray',
+        PLATFORM: 'renmai:production_gray',
       },
     },
   ],

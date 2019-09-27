@@ -3,7 +3,19 @@ const path = require('path');
 
 var env = process.env.NODE_ENV;
 
+
+function getPlatform() {
+  var [corp, env] = ['finup', 'dev'];
+  if (process.env.PLATFORM) {
+    [corp, env] = process.env.PLATFORM.split(':');
+  }
+  return {
+    corp, env
+  }
+}
+
 function getPort() {
+  const { corp, env } = getPlatform();
   var port = 6001;
   // process.env.PORT is set in pm2.config.js
   // the following port switch will be used for npm run dev(test)
@@ -26,9 +38,9 @@ function getPort() {
 }
 
 function getServer(server) {
+  const { corp, env } = getPlatform();
   var paasServer = 'http://10.10.202.143:30334';
   var assistServer = 'http://10.10.80.242:6002';
-  var cdnServer = 'http://10.10.80.242:6002';
   switch (env) {
     case 'production':
       paasServer = 'http://galaxy-web-server.galaxy.production';
@@ -46,8 +58,27 @@ function getServer(server) {
       break;
     case 'local':
       paasServer = 'http://10.10.202.143:30334';
-      // assistServer = 'http://127.0.0.1:6002';
+      assistServer = 'http://127.0.0.1:6003';
       break;
+  }
+  if (corp === 'renmai') {
+    switch (env) {
+      case 'production':
+        paasServer = 'http://bs.renmaitech.cn';
+        assistServer = 'http://127.0.0.1:6003';
+        break;
+      case 'production_gray':
+        paasServer = 'http://bs.renmaitech.cn';
+        assistServer = 'http://127.0.0.1:6003';
+        break;
+      case 'test':
+        paasServer = 'http://bs.renmaitech.cn';
+        break;
+      case 'dev':
+        paasServer = 'http://bs.renmaitech.cn';
+        break;
+        break;
+    }
   }
   if (process.env.PAAS_SERVER) {
     paasServer = process.env.PAAS_SERVER;
@@ -104,13 +135,7 @@ const serverConfig = {
       changeOrigin: true,
       logLevel: 'debug',
       pathRewrite: path => path.replace('\/n-api\/assist', ''),
-    },
-    '/n-api/': {
-      target: 'http://127.0.0.1:6003',
-      changeOrigin: true,
-      logLevel: 'debug',
-      pathRewrite: path => path.replace('\/n-api', ''),
-    },
+    }
   },
 };
 
