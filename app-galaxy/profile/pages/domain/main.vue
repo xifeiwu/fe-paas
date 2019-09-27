@@ -246,7 +246,7 @@
           <el-col :span="8" class="key">外网域名</el-col>
           <el-col :span="16" class="value">绑定状态</el-col>
         </el-row>
-        <el-row class="item" v-for="(value, key) in bindServiceProps.serverResponse">
+        <el-row class="item" v-for="(value, key) in bindServiceProps.serverResponse" :key="key">
           <el-col :span="8" class="key">{{key}}</el-col>
           <el-col :span="16" class="value">{{value}}</el-col>
         </el-row>
