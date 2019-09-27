@@ -208,7 +208,7 @@
                          size="small"
                          type="text"
                          @click="handleTRClick($event, 'open_dialog_pod_spec', scope.$index, scope.row)"
-                         :class="reason4ActionDisabled('open_dialog_pod_spec') ? 'disabled' : 'danger'">
+                         :class="reason4ActionDisabled('open_dialog_pod_spec') ? 'disabled' : 'warning'">
                 <span>podSpec配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
