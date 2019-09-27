@@ -170,11 +170,6 @@ class Net extends NetBase {
         path: '/service/quickDeployApplicationService',
         method: 'post'
       },
-      // 获取亲和性配置
-      'get_affinity_config': {
-        path: '/service/getAffinityConfig',
-        method: 'post'
-      },
       // 获取容忍配置
       'get_toleration_config': {
         path: '/service/getTolerationConfig',
@@ -185,13 +180,19 @@ class Net extends NetBase {
         path: '/service/getResourceInformationByK8S',
         method: 'post'
       },
-      // 修改亲和性配置
-      'update_affinity_config': {
-        path: '/service/updateAffinityConfig',
+      // 获取pod spec配置
+      'get_affinity_config': {
+        path: '/service/getPodSpecConfig',
         method: 'post'
       },
+      // 修改pod spec配置
+      'update_affinity_config': {
+        path: '/service/updatePodSpecConfig',
+        method: 'post'
+      },
+      // node spec配置立即生效
       'update_affinity_sync_k8s': {
-        path: '/service/updateAffinitySyncK8S',
+        path: '/service/updatePodSpecSyncK8S',
         method: 'post'
       },
       // 修改容忍配置

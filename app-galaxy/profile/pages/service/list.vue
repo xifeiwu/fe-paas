@@ -214,9 +214,9 @@
               <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
                          size="small"
                          type="text"
-                         @click="handleTRClick($event, 'open-dialog-affinity', scope.$index, scope.row)"
-                         :class="$storeHelper.permission['update_affinity'].disabled || publishStatus? 'disabled' : 'danger'">
-                <span>亲和性配置</span>
+                         @click="handleTRClick($event, 'open_dialog_pod_spec', scope.$index, scope.row)"
+                         :class="reason4ActionDisabled('open_dialog_pod_spec') ? 'disabled' : 'danger'">
+                <span>podSpec配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
               <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
@@ -488,9 +488,9 @@
       </div>
     </paas-dialog-for-log>
 
-    <el-dialog title="亲和性配置"
-               v-if="actionNew.name === 'open-dialog-affinity'"
-               :visible="actionNew.name === 'open-dialog-affinity'"
+    <el-dialog title="nodeSpec配置"
+               v-if="actionNew.name === 'open_dialog_pod_spec'"
+               :visible="actionNew.name === 'open_dialog_pod_spec'"
                class="size-1000 affinity"
                @close="closeDialog"
                bodyPadding="0px"
@@ -502,43 +502,51 @@
             <pre>
 模板样例如下：
 ---
-nodeAffinity:
-  requiredDuringSchedulingIgnoredDuringExecution:
-    nodeSelectorTerms:
-    - matchExpressions:
-      - key: kubernetes.io/e2e-az-name
-        operator: In
-        values:
-        - e2e-az1
-        - e2e-az2
-  preferredDuringSchedulingIgnoredDuringExecution:
-  - weight: 1
-    preference:
-      matchExpressions:
-      - key: another-node-label-key
-        operator: In
-        values:
-        - another-node-label-value
-podAffinity:
-  requiredDuringSchedulingIgnoredDuringExecution:
-  - labelSelector:
-      matchExpressions:
-      - key: security
-        operator: In
-        values:
-        - S1
-    topologyKey: failure-domain.beta.kubernetes.io/zone
-podAntiAffinity:
-  preferredDuringSchedulingIgnoredDuringExecution:
-  - weight: 100
-    podAffinityTerm:
-      labelSelector:
+nodeSelector:
+  disktype: ssd
+tolerations:
+- key: "key1"
+  operator: "Equal"
+  value: "value1"
+  effect: "NoSchedule"
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/e2e-az-name
+          operator: In
+          values:
+          - e2e-az1
+          - e2e-az2
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 1
+      preference:
+        matchExpressions:
+        - key: another-node-label-key
+          operator: In
+          values:
+          - another-node-label-value
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
         matchExpressions:
         - key: security
           operator: In
           values:
-          - S2
-      topologyKey: kubernetes.io/hostname
+          - S1
+      topologyKey: failure-domain.beta.kubernetes.io/zone
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: security
+            operator: In
+            values:
+            - S2
+        topologyKey: kubernetes.io/hostname
             </pre>
           </div>
           <span>参考模板?</span>
@@ -578,43 +586,51 @@ podAntiAffinity:
               <pre>
 模板样例如下：
 ---
-nodeAffinity:
-  requiredDuringSchedulingIgnoredDuringExecution:
-    nodeSelectorTerms:
-    - matchExpressions:
-      - key: kubernetes.io/e2e-az-name
-        operator: In
-        values:
-        - e2e-az1
-        - e2e-az2
-  preferredDuringSchedulingIgnoredDuringExecution:
-  - weight: 1
-    preference:
-      matchExpressions:
-      - key: another-node-label-key
-        operator: In
-        values:
-        - another-node-label-value
-podAffinity:
-  requiredDuringSchedulingIgnoredDuringExecution:
-  - labelSelector:
-      matchExpressions:
-      - key: security
-        operator: In
-        values:
-        - S1
-    topologyKey: failure-domain.beta.kubernetes.io/zone
-podAntiAffinity:
-  preferredDuringSchedulingIgnoredDuringExecution:
-  - weight: 100
-    podAffinityTerm:
-      labelSelector:
+nodeSelector:
+  disktype: ssd
+tolerations:
+- key: "key1"
+  operator: "Equal"
+  value: "value1"
+  effect: "NoSchedule"
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/e2e-az-name
+          operator: In
+          values:
+          - e2e-az1
+          - e2e-az2
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 1
+      preference:
+        matchExpressions:
+        - key: another-node-label-key
+          operator: In
+          values:
+          - another-node-label-value
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
         matchExpressions:
         - key: security
           operator: In
           values:
-          - S2
-      topologyKey: kubernetes.io/hostname
+          - S1
+      topologyKey: failure-domain.beta.kubernetes.io/zone
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: security
+            operator: In
+            values:
+            - S2
+        topologyKey: kubernetes.io/hostname
               </pre>
             </div>
             <span><i class="paas-icon-fa-question" style="color:#E6A23C"></i></span>
@@ -1859,7 +1875,7 @@ tolerations:
         let confirmInfo = "点击“保存配置”时，只保存yaml数据配置，后面当点击部署或重启时才生效！";
         let url = this.$net.URL_LIST.update_affinity_config;
         if (enforce) {
-          confirmInfo = "点击“保存并生效”时，保存yaml数据配置的同时，会立即生效该配置，满足亲和性条件时将造成实例重启！";
+          confirmInfo = "点击“保存并生效”时，保存yaml数据配置的同时，会立即生效该配置，满足配置条件时将造成实例重启！";
           url = this.$net.URL_LIST.update_affinity_sync_k8s;
         }
 
@@ -1881,18 +1897,18 @@ tolerations:
             namespace: this.$storeHelper.groupInfo.tag,
             appConfigId: this.action.row.id,
             // affinityContent: this.configOfAffinity,
-            affinityContent: this.actionNew.data,
+            podSpecContent: this.actionNew.data,
             configServiceName: this.action.row.serviceName
           }
         }).then(response => {
           const resData = response.data;
-          if (resData.code && "ERR_UPDATE_AFFINITY_FORMAT_FAILED" === resData.code) {
+          if (resData.code && "ERR_UPDATE_POD_SPEC_FORMAT_FAILED" === resData.code) {
             // this.$message.warning(resData.msg);
             this.describeEditError = resData.msg;
             this.hasEditError = true;
-            this.titleEditError = "亲和性配置错误信息";
+            this.titleEditError = "podSpec配置信息修改失败！";
           } else {
-            this.$message.success("修改亲和性配置成功！");
+            this.$message.success("修改podSpec配置成功！");
             this.hasAffinity = false;
           }
         }).catch(err => {
@@ -1995,6 +2011,8 @@ tolerations:
               reason = '当前主服务实例数为0，不能进行灰度发布';
             }
             break;
+          case 'open_dialog_pod_spec':
+            break;
         }
         return reason;
       },
@@ -2014,11 +2032,7 @@ tolerations:
         if (action == 'service_config_copy') {
           permission = 'copy-service'
         }
-        // 修改Node亲和性
-        if (action == 'update_affinity') {
-          permission = 'update_affinity'
-        }
-        if (['service_quick_deploy', 'service_stop', 'service_deploy_canary'].includes(action)) {
+        if (['service_quick_deploy', 'service_stop', 'service_deploy_canary', 'open_dialog_pod_spec'].includes(action)) {
           const reason = this.reason4ActionDisabled(action, row);
           if (reason) {
             this.$storeHelper.globalPopover.show({
@@ -2028,14 +2042,6 @@ tolerations:
             return;
           }
         }
-
-        // if (action === 'update_affinity' && row.containerStatus.Total == 0) {
-        //   this.$storeHelper.globalPopover.show({
-        //     ref: evt.target,
-        //     msg: `当前运行实例数为0，不能修改亲和性`
-        //   });
-        //   return;
-        // }
 
         if (this.$storeHelper.permission.hasOwnProperty(permission) && this.$storeHelper.permission[permission].disabled) {
           this.$storeHelper.globalPopover.show({
@@ -2412,7 +2418,7 @@ tolerations:
             }).finally(()=> {
             });
             break;
-          case 'open-dialog-affinity':
+          case 'open_dialog_pod_spec':
             try {
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.get_affinity_config, {
                 payload: {

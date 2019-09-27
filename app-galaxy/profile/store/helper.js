@@ -697,7 +697,8 @@ class StoreHelper extends BaseHelper{
 
   actionToPermission(action) {
     const actionMap = {
-      domain_add_open_dialog: 'domain_add'
+      domain_add_open_dialog: 'domain_add',
+      open_dialog_pod_spec: 'update_affinity'
     };
     return actionMap.hasOwnProperty(action) ? actionMap[action] : action
   }
