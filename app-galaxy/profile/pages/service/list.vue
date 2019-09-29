@@ -206,7 +206,7 @@
                 <span>复制服务</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
-              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled && false"
+              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
                   size="small"
                   type="text"
                   @click="handleTRClick($event, 'update_pod_spec', scope.$index, scope.row)"
