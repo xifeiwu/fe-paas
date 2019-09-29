@@ -549,7 +549,7 @@
           && this.step<this.STATE['WORK_ORDER_DEPLOYED']) {
           this.$storeHelper.globalPopover.show({
             ref: target,
-            msg: `请先完成灰度部署，再调整灰度策略`
+            msg: `请先完成灰度部署，再调整实例数`
           });
           return;
         }
