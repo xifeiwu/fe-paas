@@ -144,12 +144,12 @@
             </el-checkbox-group>
           </el-form-item>
           <el-form-item label="实例数" class="instance-number" v-if="action.name == 'open_dialog_service_gray_update_instance_count'">
-            <span>主服务实例数：{{grayStrategy.masterInstanceNum}}</span>
+            <span>主服务实例数：{{grayApplication.masterInstanceNum}}</span>
             <div style="width: 160px; display: inline-block; margin: 0px 5px;">
-              <el-slider v-model="grayStrategy.masterInstanceNum" :show-tooltip="true" :show-stops="true"
-                         :min="1" :max="grayStrategyFromNet.totalInstanceNum - 1" :step="1"></el-slider>
+              <el-slider v-model="grayApplication.masterInstanceNum" :show-tooltip="true" :show-stops="true"
+                         :min="1" :max="grayApplicationFromNet.totalInstanceNum - 1" :step="1"></el-slider>
             </div>
-            <span>灰度服务实例数：{{grayStrategy.canaryInstanceNum}}</span>
+            <span>灰度服务实例数：{{grayApplication.canaryInstanceNum}}</span>
             <i class="el-icon-question" style="color: #E6A23C; margin-left: 6px;"
                v-pop-on-mouse-over="'主服务及灰度服务实例数不能少于一个'">
             </i>
@@ -390,6 +390,13 @@
           viewportMargin: 10
         },
         grayStrategyFromNet: null,
+        grayApplicationFromNet: null,
+        grayApplication: {
+          id:'',
+          canaryInstanceNum: 0,
+          masterInstanceNum: 0,
+          canaryServiceName: '',
+        },
         grayStrategy: {
           listIngress: [],
           canaryInstanceNum: 0,
@@ -412,14 +419,14 @@
       }
     },
     watch: {
-      'grayStrategy.masterInstanceNum': function (mainNum) {
-        if (this.grayStrategyFromNet) {
-          if (mainNum >= this.grayStrategyFromNet.totalInstanceNum) {
-            this.grayStrategy.masterInstanceNum =  this.grayStrategyFromNet.totalInstanceNum - 1;
+      'grayApplication.masterInstanceNum': function (mainNum) {
+        if (this.grayApplicationFromNet) {
+          if (mainNum >= this.grayApplicationFromNet.totalInstanceNum) {
+            this.grayApplication.masterInstanceNum =  this.grayApplicationFromNet.totalInstanceNum - 1;
             return;
           }
         }
-        this.grayStrategy.canaryInstanceNum = this.grayStrategyFromNet.totalInstanceNum - mainNum;
+        this.grayApplication.canaryInstanceNum = this.grayApplicationFromNet.totalInstanceNum - mainNum;
       }
     },
     methods: {
@@ -494,6 +501,25 @@
           routeConfig.name = `${serviceInfo.appName}/${profileInfo.description}`;
         }
         return theData;
+      },
+      // 查询灰度实例策略
+      async syncCanaryInstanceByServer() {
+        const grayApplicationFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_instance_query, {
+          payload: {
+            configId: this.serviceId,
+            serviceName: this.serviceInfo.serviceName,
+            spaceId: this.profileInfo.id,
+            groupId: this.$storeHelper.groupInfo.id
+          }
+        });
+
+        this.grayApplication.canaryInstanceNum = grayApplicationFromNet.canaryInstanceNum >= 0 ? grayApplicationFromNet.canaryInstanceNum : 0;
+        this.grayApplication.masterInstanceNum = grayApplicationFromNet.masterInstanceNum >= 0 ? grayApplicationFromNet.masterInstanceNum : 0;
+        this.grayApplication.canaryServiceName = grayApplicationFromNet.canaryServiceName;
+        this.grayApplication.id = grayApplicationFromNet.id;
+        grayApplicationFromNet.totalInstanceNum = grayApplicationFromNet.masterInstanceNum + grayApplicationFromNet.canaryInstanceNum;
+
+        this.grayApplicationFromNet = grayApplicationFromNet;
       },
       // 更新灰度策略
       async syncStrategyByServer() {
@@ -584,6 +610,20 @@
             this.$router.push(PATH_MAP[action]);
             break;
           case 'open_dialog_service_gray_update_instance_count':
+            try {
+              await this.syncCanaryInstanceByServer();
+              const payload = await this.openDialog(action);
+              await this.$net.requestPaasServer({
+                open_dialog_service_gray_update_instance_count: this.$net.URL_LIST.service_gray_update_instance_count,
+              }[action], {
+                payload
+              });
+            } catch (err) {
+              console.log(err);
+            } finally {
+              this.closeDialog();
+            }
+            break;
           case 'open_dialog_service_gray_update_strategy':
             try {
               await this.syncStrategyByServer();
@@ -593,7 +633,6 @@
               }
               const payload = await this.openDialog(action);
               await this.$net.requestPaasServer({
-                open_dialog_service_gray_update_instance_count: this.$net.URL_LIST.service_gray_update_instance_count,
                 open_dialog_service_gray_update_strategy: this.$net.URL_LIST.service_gray_update_strategy
               }[action], {
                 payload
@@ -684,6 +723,17 @@
       async handleDialogEvent(evt, action) {
         switch (action) {
           case 'service_gray_update_instance_count':
+            try {
+              var payload = this.$utils.cloneDeep(this.grayApplication);
+              payload.configId = this.serviceId;
+              payload.groupId = this.$storeHelper.groupInfo.id;
+              payload.spaceId = this.profileInfo.id;
+              payload.serviceName = this.serviceInfo.serviceName,
+              this.action.promise.resolve(payload);
+            } catch (err) {
+              console.log(err);
+            }
+            break;
           case 'service_gray_update_strategy':
             try {
               // var payload = this.$utils.deepMerge({}, this.grayStrategy);

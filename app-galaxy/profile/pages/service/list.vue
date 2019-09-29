@@ -125,7 +125,9 @@
                       type="text"
                       :loading="statusOfWaitingResponse('image_rollback') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'image_rollback', scope.$index, scope.row)"
-                      :class="$storeHelper.permission['image_rollback'].disabled || publishStatus? 'disabled' : 'danger'">
+                      :class="reason4ActionDisabled('image_rollback', scope.row) ||
+                      $storeHelper.permission['image_rollback'].disabled ||
+                      publishStatus ? 'disabled' : 'danger'">
                 {{'回滚'}}
               </el-button>
               <div class="ant-divider" v-if="isProductionProfile"></div>
@@ -204,11 +206,12 @@
                 <span>复制服务</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
-              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
-                         size="small"
-                         type="text"
-                         @click="handleTRClick($event, 'open_dialog_pod_spec', scope.$index, scope.row)"
                          :class="reason4ActionDisabled('open_dialog_pod_spec') ? 'disabled' : 'warning'">
+              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
+                  size="small"
+                  type="text"
+                  @click="handleTRClick($event, 'update_pod_spec', scope.$index, scope.row)"
+                  :class="$storeHelper.permission['update_affinity'].disabled || publishStatus? 'disabled' : 'danger'">
                 <span>podSpec配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
@@ -1889,6 +1892,8 @@ tolerations:
             reason = '老mesos应用不支持';
           } else if (row['containerStatus'] && row['containerStatus']['Running'] == 0) {
             reason = '运行实例数为0，不能进行重启操作！';
+          } else if (row['isCanaryDeploy']) {
+            reason = '灰度发布中不支持重启，如需重启请先删除灰度版本！';
           }
         }
         if (this.isProductionProfile && this.$storeHelper.permission['service_restart_production'].disabled) {
@@ -1908,6 +1913,8 @@ tolerations:
           case 'service_stop':
             if (row && row.containerStatus && row.containerStatus.Total == 0) {
               reason = '当前运行实例数为0，不能进行停止操作';
+            } else if (row && row.isCanaryDeploy) {
+              reason = '灰度发布中不支持停止，如需停止请先删除灰度版本！';
             }
             break;
           case 'service_deploy_canary':
@@ -1916,6 +1923,11 @@ tolerations:
             }
             break;
           case 'open_dialog_pod_spec':
+            break;
+          case 'image_rollback':
+            if (row && row.isCanaryDeploy) {
+              reason = '灰度发布中不支持回滚，如需回滚请先删除灰度版本！';
+            }
             break;
         }
         return reason;
@@ -1936,7 +1948,11 @@ tolerations:
         if (action == 'service_config_copy') {
           permission = 'copy-service'
         }
-        if (['service_quick_deploy', 'service_stop', 'service_deploy_canary', 'open_dialog_pod_spec'].includes(action)) {
+        // 修改Node亲和性
+        if (action == 'update_pod_spec') {
+          permission = 'update_affinity'
+        }
+        if (['service_quick_deploy', 'service_stop', 'service_deploy_canary', 'image_rollback'].includes(action)) {
           const reason = this.reason4ActionDisabled(action, row);
           if (reason) {
             this.$storeHelper.globalPopover.show({
