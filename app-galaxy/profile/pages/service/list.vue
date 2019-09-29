@@ -125,7 +125,9 @@
                       type="text"
                       :loading="statusOfWaitingResponse('image_rollback') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'image_rollback', scope.$index, scope.row)"
-                      :class="$storeHelper.permission['image_rollback'].disabled || publishStatus? 'disabled' : 'danger'">
+                      :class="reason4ActionDisabled('image_rollback', scope.row) ||
+                      $storeHelper.permission['image_rollback'].disabled ||
+                      publishStatus ? 'disabled' : 'danger'">
                 {{'回滚'}}
               </el-button>
               <div class="ant-divider" v-if="isProductionProfile"></div>
@@ -1945,7 +1947,11 @@ tolerations:
         if (action == 'service_config_copy') {
           permission = 'copy-service'
         }
-        if (['service_quick_deploy', 'service_stop', 'service_deploy_canary', 'open_dialog_pod_spec'].includes(action)) {
+        // 修改Node亲和性
+        if (action == 'update_pod_spec') {
+          permission = 'update_affinity'
+        }
+        if (['service_quick_deploy', 'service_stop', 'service_deploy_canary', 'image_rollback'].includes(action)) {
           const reason = this.reason4ActionDisabled(action, row);
           if (reason) {
             this.$storeHelper.globalPopover.show({
