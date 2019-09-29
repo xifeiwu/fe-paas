@@ -125,7 +125,9 @@
                       type="text"
                       :loading="statusOfWaitingResponse('image_rollback') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'image_rollback', scope.$index, scope.row)"
-                      :class="$storeHelper.permission['image_rollback'].disabled || publishStatus? 'disabled' : 'danger'">
+                      :class="reason4ActionDisabled('image_rollback', scope.row) ||
+                      $storeHelper.permission['image_rollback'].disabled ||
+                      publishStatus ? 'disabled' : 'danger'">
                 {{'回滚'}}
               </el-button>
               <div class="ant-divider" v-if="isProductionProfile"></div>
@@ -1865,6 +1867,8 @@ affinity:
             reason = '老mesos应用不支持';
           } else if (row['containerStatus'] && row['containerStatus']['Running'] == 0) {
             reason = '运行实例数为0，不能进行重启操作！';
+          } else if (row['isCanaryDeploy']) {
+            reason = '灰度发布中不支持重启，如需重启请先删除灰度版本！';
           }
         }
         if (this.isProductionProfile && this.$storeHelper.permission['service_restart_production'].disabled) {
@@ -1884,11 +1888,20 @@ affinity:
           case 'service_stop':
             if (row && row.containerStatus && row.containerStatus.Total == 0) {
               reason = '当前运行实例数为0，不能进行停止操作';
+            } else if (row && row.isCanaryDeploy) {
+              reason = '灰度发布中不支持停止，如需停止请先删除灰度版本！';
             }
             break;
           case 'service_deploy_canary':
             if (row && row.containerStatus && row.containerStatus.Total == 0) {
               reason = '当前主服务实例数为0，不能进行灰度发布';
+            }
+            break;
+          case 'open_dialog_pod_spec':
+            break;
+          case 'image_rollback':
+            if (row && row.isCanaryDeploy) {
+              reason = '灰度发布中不支持回滚，如需回滚请先删除灰度版本！';
             }
             break;
         }
@@ -1914,7 +1927,7 @@ affinity:
         if (action == 'update_pod_spec') {
           permission = 'update_affinity'
         }
-        if (['service_quick_deploy', 'service_stop', 'service_deploy_canary'].includes(action)) {
+        if (['service_quick_deploy', 'service_stop', 'service_deploy_canary', 'image_rollback'].includes(action)) {
           const reason = this.reason4ActionDisabled(action, row);
           if (reason) {
             this.$storeHelper.globalPopover.show({
