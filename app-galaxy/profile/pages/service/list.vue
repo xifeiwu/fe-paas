@@ -208,7 +208,7 @@
                          size="small"
                          type="text"
                          @click="handleTRClick($event, 'open_dialog_pod_spec', scope.$index, scope.row)"
-                         :class="reason4ActionDisabled('open_dialog_pod_spec') ? 'disabled' : 'warning'">
+                         :class="reason4ActionDisabled('open_dialog_pod_spec', scope.row)? 'disabled' : 'danger'">
                 <span>podSpec配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
@@ -1889,6 +1889,8 @@ tolerations:
             reason = '老mesos应用不支持';
           } else if (row['containerStatus'] && row['containerStatus']['Running'] == 0) {
             reason = '运行实例数为0，不能进行重启操作！';
+          } else if (row['isCanaryDeploy']) {
+            reason = '灰度发布中不支持重启，如需重启请先删除灰度版本！';
           }
         }
         if (this.isProductionProfile && this.$storeHelper.permission['service_restart_production'].disabled) {
@@ -1908,6 +1910,8 @@ tolerations:
           case 'service_stop':
             if (row && row.containerStatus && row.containerStatus.Total == 0) {
               reason = '当前运行实例数为0，不能进行停止操作';
+            } else if (row && row.isCanaryDeploy) {
+              reason = '灰度发布中不支持停止，如需停止请先删除灰度版本！';
             }
             break;
           case 'service_deploy_canary':
@@ -1916,6 +1920,11 @@ tolerations:
             }
             break;
           case 'open_dialog_pod_spec':
+            break;
+          case 'image_rollback':
+            if (row && row.isCanaryDeploy) {
+              reason = '灰度发布中不支持回滚，如需回滚请先删除灰度版本！';
+            }
             break;
         }
         return reason;
