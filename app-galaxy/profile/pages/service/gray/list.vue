@@ -11,7 +11,7 @@
       <el-button
               size="mini"
               type="primary"
-              :class="['flex', step<STATE['CANARY_CREATED']||step>=STATE['WORK_ORDER_DEPLOYED'] ? 'disabled':'']"
+              :class="['flex', step<STATE['CANARY_CREATED'] || canaryStatus['hasWorkOrder']? 'disabled':'']"
               @click="handleClick($event,'go-to-work-order-todo-add-from-service-gray')">
         <span class="step-tag">2</span><span>申请工单</span><i class="paas-icon-level-up"></i>
       </el-button>
@@ -557,7 +557,7 @@
           return;
         }
         if (action == 'go-to-work-order-todo-add-from-service-gray'
-          && (this.step<this.STATE['CANARY_CREATED']||this.step>=this.STATE['WORK_ORDER_DEPLOYED'])) {
+          && (this.step<this.STATE['CANARY_CREATED'])) {
           this.$storeHelper.globalPopover.show({
             ref: target,
             msg: `您已通过工单完成灰度部署`
