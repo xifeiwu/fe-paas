@@ -11,7 +11,7 @@
       <el-button
               size="mini"
               type="primary"
-              :class="['flex', step<STATE['CANARY_CREATED'] || canaryStatus['hasWorkOrder']? 'disabled':'']"
+              :class="['flex', step<STATE['CANARY_CREATED']? 'disabled':'']"
               @click="handleClick($event,'go-to-work-order-todo-add-from-service-gray')">
         <span class="step-tag">2</span><span>申请工单</span><i class="paas-icon-level-up"></i>
       </el-button>
@@ -571,11 +571,17 @@
           });
           return;
         }
-        if (['open_dialog_service_gray_update_strategy', 'open_dialog_service_gray_update_instance_count'].includes(action)
-          && this.step<this.STATE['WORK_ORDER_DEPLOYED']) {
+        if (action == 'open_dialog_service_gray_update_instance_count' && this.step<this.STATE['WORK_ORDER_DEPLOYED']) {
           this.$storeHelper.globalPopover.show({
             ref: target,
             msg: `请先完成灰度部署，再调整实例数`
+          });
+          return;
+        }
+        if (action == 'open_dialog_service_gray_update_strategy' && this.step<this.STATE['WORK_ORDER_DEPLOYED']) {
+          this.$storeHelper.globalPopover.show({
+            ref: target,
+            msg: `请先完成灰度部署，再调灰度策略`
           });
           return;
         }
