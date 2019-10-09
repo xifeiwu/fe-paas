@@ -843,7 +843,7 @@ class StoreHelper extends BaseHelper{
       },
       gray_log_un_production: {
         'finup': 'http://nplog.finupgroup.com:9000',
-        'renmai': 'http://log.finupgroup.com'
+        'renmai': 'http://log.renmaitech.cn/'
       },
     }[key];
 
