@@ -49,7 +49,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     overlay: config.dev.errorOverlay
       ? { warnings: false, errors: true }
       : false,
-    publicPath: config.dev.assetsPublicPath,
+    publicPath: config.dev.publicPath,
     proxy: {
       '/j-api/paas/': {
         target: 'http://0.0.0.0:30334',

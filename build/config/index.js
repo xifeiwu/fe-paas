@@ -11,7 +11,7 @@ module.exports = {
 
     // Paths
     assetsSubDirectory: 'assets',
-    assetsPublicPath: '/',
+    publicPath: '/',
     // Various Dev Server settings
     host: '0.0.0.0', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
@@ -51,7 +51,7 @@ module.exports = {
     distDirectory: path.resolve(curWorkDir, 'deploy/fe-paas/dist'),
     assetsRoot: path.resolve(curWorkDir, 'deploy/fe-paas/dist'),
     assetsSubDirectory: 'assets',
-    assetsPublicPath: '/',
+    publicPath: '/',
 
     /**
      * Source Maps

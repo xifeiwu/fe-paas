@@ -11,23 +11,6 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
-// const env = process.env.NODE_ENV === 'testing'
-//   ? require('./config/test.env')
-//   : require('./config/prod.env')
-var env = null;
-switch (process.env.NODE_ENV) {
-  case 'test':
-    env = require('./config/test.env')
-    break;
-  case 'production':
-    env = require('./config/production.env')
-    break;
-  case 'dev':
-  default:
-    env = require('./config/dev.env')
-    break;
-}
-
 const webpackConfig = merge(baseWebpackConfig, {
   module: {
     rules: utils.styleLoaders({
@@ -41,13 +24,10 @@ const webpackConfig = merge(baseWebpackConfig, {
     path: config.build.assetsRoot,
     filename: utils.assetsPath('js/[name].[chunkhash:12].js'),
     chunkFilename: utils.assetsPath('js/[name].[chunkhash:12].js'),
-    publicPath: utils.assetsPublicPath()
+    publicPath: config.build.publicPath
   },
   plugins: [
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
-    new webpack.DefinePlugin({
-      'process.env': env
-    }),
     new UglifyJsPlugin({
       uglifyOptions: {
         compress: {
