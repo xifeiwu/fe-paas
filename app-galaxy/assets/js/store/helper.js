@@ -17,6 +17,19 @@ export default class StoreHelper {
     }
   }
 
+  getPlatform() {
+    var [corp, env] = ['finup', 'production'];
+    try {
+      if (BUILD_ENV.PLATFORM) {
+        [corp, env] = BUILD_ENV.PLATFORM.split(':');
+      }
+    } catch(err) {
+    }
+    return {
+      corp, env
+    }
+  }
+
   get version() {
     return this.$globalStore.getters['version'];
   }

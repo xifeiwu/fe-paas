@@ -140,9 +140,7 @@ var baseConfig = {
   output: {
     path: config.build.assetsRoot,
     filename: "[name].[hash].js",
-    publicPath: process.env.NODE_ENV === 'production'
-      ? config.build.assetsPublicPath
-      : config.dev.assetsPublicPath
+    publicPath: config.dev.publicPath
   },
   resolve: {
     extensions: ['.js', '.vue', '.json', '.scss', '.sass'],
@@ -216,7 +214,10 @@ var baseConfig = {
       'browserDebug': [path.resolve(utils.contextPath(), 'assets/libs/debug/browser.js')],
     }),
     new webpack.DefinePlugin({
-      'NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+      'BUILD_ENV': {
+        PLATFORM: `'${process.env.PLATFORM}'`,
+        TIMESTAMP: Date.now()
+      }
     })
   ]),
   node: {
