@@ -20,6 +20,7 @@ export default class StoreHelper {
   getPlatform() {
     var [corp, env] = ['finup', 'production'];
     try {
+      // BUILD_ENV is inserted by webpack.DefinePlugin
       if (BUILD_ENV.PLATFORM) {
         [corp, env] = BUILD_ENV.PLATFORM.split(':');
       }

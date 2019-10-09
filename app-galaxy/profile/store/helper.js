@@ -829,6 +829,32 @@ class StoreHelper extends BaseHelper{
       msg: `因云平台正在发布，在此期间不能进行此操作，谢谢您的合作`
     });
   }
+
+  getByPlatform(key) {
+    const {corp} = this.getPlatform();
+    var result = {
+      log_standardized_how_to: {
+        'finup': 'http://wiki.puhuitech.cn/pages/viewpage.action?pageId=25595492',
+        'renmai': 'http://wiki.renmaitech.com/pages/viewpage.action?pageId=4441574'
+      },
+      gray_log_production: {
+        'finup': 'http://log.finupgroup.com',
+        'renmai': 'http://log.renmaitech.cn/'
+      },
+      gray_log_un_production: {
+        'finup': 'http://nplog.finupgroup.com:9000',
+        'renmai': 'http://log.finupgroup.com'
+      },
+    }[key];
+
+    if (result) {
+      result = result[corp];
+    }
+    if (!result) {
+      result = '';
+    }
+    return result;
+  }
 }
 
 export default StoreHelper;
