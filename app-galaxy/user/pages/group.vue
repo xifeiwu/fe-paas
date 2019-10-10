@@ -48,14 +48,14 @@
             <el-button
                     v-if="!$storeHelper.notPermitted['group_member_invite']"
                     type="text" class="primary"
-                    @click="handleTRButton('invite-group-number', scope.$index, scope.row)">
+                    @click="handleTRClick('open_dialog_invite_group_number', scope.$index, scope.row)">
               <span>邀请成员</span>
             </el-button>
             <div class="ant-divider" v-if="!$storeHelper.notPermitted['group_member_invite']"></div>
             <el-button
                     v-if="!$storeHelper.notPermitted['group_member_list']"
                     type="text" class="primary"
-                    @click="handleTRButton('show-group-numbers', scope.$index, scope.row)"
+                    @click="handleTRClick('show-group-numbers', scope.$index, scope.row)"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     :loading="statusOfWaitingResponse('show-group-numbers') && operation.group.id == scope.row.id">
               <span>查看成员</span>
@@ -85,7 +85,7 @@
                             size="mini-extral"
                             type="info"
                             round
-                            @click="handleTRButton('change-roles', scope.$index, scope.row)"
+                            @click="handleTRClick('change-roles', scope.$index, scope.row)"
                             :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                             :loading="statusOfWaitingResponse('change-roles') && operation.menber.id == scope.row.id">
                       <span>修改岗位</span>
@@ -95,7 +95,7 @@
                             size="mini-extral"
                             type="info"
                             round
-                            @click="handleTRButton('remove-group-number', scope.$index, scope.row)">移除成员</el-button>
+                            @click="handleTRClick('remove-group-number', scope.$index, scope.row)">移除成员</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -155,7 +155,7 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleDialogButton('change-roles')"
+                       @click="handleDialogEvent($event, 'change-roles')"
                        >保&nbsp存</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -165,31 +165,29 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="邀请新成员" :visible="operation.name == 'invite-group-number'"
-               @close="operation.name = null;"
-               class="size-650 invite-group-number"
+    <el-dialog title="邀请新成员" :visible="action.name == 'open_dialog_invite_group_number'"
+               v-if="action.name == 'open_dialog_invite_group_number'"
+               @close="closeDialog"
+               bodyPadding="6px 10px 0px 2px"
+               class="size-650 open_dialog_invite_group_number"
     >
-      <el-form :model="inviteGroupNumberInfo" :rules="rules" labelWidth="120px" size="mini" ref="inviteGroupNumberForm">
+      <el-form :model="action.data" :rules="rules" labelWidth="120px" size="mini" ref="inviteGroupNumberForm">
         <el-form-item label="请输入邮箱" prop="email">
-          <el-input v-model="inviteGroupNumberInfo.email"></el-input>
+          <el-input v-model="action.data.email"></el-input>
         </el-form-item>
         <el-form-item label="请输入成员岗位" prop="jobName">
-          <el-select v-model="inviteGroupNumberInfo.jobName" placeholder="请选择">
+          <el-select v-model="action.data.jobName" placeholder="请选择">
             <el-option v-for="item in allJobs" :value="item.name" :label="item.description" :key="item.name" ></el-option>
           </el-select>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleDialogButton('invite-group-number')"
-            >保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button @click="operation.name = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+      <div slot="footer" class="dialog-footer flex">
+          <div class="item">
+            <el-button type="primary" size="mini" @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保&nbsp存</el-button>
+          </div>
+          <div class="item">
+            <el-button size="mini" @click="closeDialog">取&nbsp消</el-button>
+          </div>
       </div>
     </el-dialog>
 
@@ -330,11 +328,6 @@
         expandRows: [],
         memberList: [],
 
-        inviteGroupNumberInfo: {
-          email: '',
-          jobName: 'DEVELOP_ENGINEER'
-        },
-
         allJobs: this.$storeHelper.JOB_LIST,
         jobNames: [],
         emailReg: this.$utils.getReg('mail'),
@@ -400,7 +393,9 @@
         }
       },
 
-      handleTRButton(action, index, row) {
+      async handleTRClick(action, index, row) {
+        let dialogData = null;
+        this.operation.group = row;
         switch (action) {
           case 'show-group-numbers':
             if (!row.hasOwnProperty('id')) {
@@ -464,11 +459,28 @@
             this.operation.menber = row;
             this.operation.name = action;
             break;
-          case 'invite-group-number':
-            this.inviteGroupNumberInfo.email = '';
-            this.inviteGroupNumberInfo.jobName = 'DEVELOP_ENGINEER';
-            this.operation.group = row;
-            this.operation.name = action;
+          case 'open_dialog_invite_group_number':
+            try {
+              dialogData = await this.openDialog(action, {
+                email: '',
+                jobName: this.allJobs[0]['name'],
+              });
+
+              await this.$net.requestPaasServer(this.$net.URL_LIST.group_invite_new, {
+                payload: {
+                  groupId: this.operation.group.id,
+                  emailString: dialogData.email,
+                  job: dialogData.jobName
+                }
+              });
+
+              this.$message.success(`成功邀请成员：${dialogData.email}`);
+
+              this.requestGroupNumbers(this.operation.group);
+            } catch (err) {
+            } finally {
+              this.closeDialog();
+            }
             break;
           case 'remove-group-number':
             this.operation.menber = row;
@@ -491,7 +503,7 @@
             break;
         }
       },
-      handleDialogButton(action) {
+      async handleDialogEvent(evt, action) {
         switch (action) {
           case 'change-roles':
             this.$refs['changeJobsForm'].validate((valid) => {
@@ -509,14 +521,11 @@
               }
             });
             break;
-          case 'invite-group-number':
-            this.$refs['inviteGroupNumberForm'].validate((valid) => {
-              if (!valid) {
-                console.log('格式不正确！');
-                return;
-              }
-              this.requestServerForUpdate(action);
-            });
+          case 'invite_group_number':
+            try {
+              await this.$refs['inviteGroupNumberForm'].validate();
+              this.action.promise.resolve(this.action.data);
+            } catch (err) {}
             break;
         }
       },
@@ -547,21 +556,6 @@
               this.updateModelInfo(action);
             }).catch(errMsg => {
               this.$message.error('修改失败！');
-            });
-            break;
-          case 'invite-group-number':
-            this.$net.inviteGroupNumber({
-              groupId: this.operation.group.id,
-              emailString: this.inviteGroupNumberInfo.email,
-              job: this.inviteGroupNumberInfo.jobName
-            }).then(msg => {
-              // refresh memberList after invite new number
-              this.requestGroupNumbers(this.operation.group);
-              this.$message.success('邀请成员成功！');
-              this.operation.name = null;
-            }).catch(errMsg => {
-              this.$message.error(`邀请成员失败！${errMsg.msg ? errMsg.msg : ''}`);
-              this.operation.name = null;
             });
             break;
         }

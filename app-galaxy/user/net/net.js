@@ -16,6 +16,12 @@ class Net extends NetBase {
         method: 'post'
       },
 
+      /** 团队管理 */
+      'group_invite_new': {
+        path: '/group/addUser',
+        method: 'post'
+      },
+
       // k8s异常事件列表
       'k8s_event_type': {
         path: '/event/type/query',
@@ -279,21 +285,6 @@ class Net extends NetBase {
     return new Promise((resolve, reject) => {
       axios.put(URL_LIST.group_member_change_roles.url, data).then(response => {
         // let content = this.getResponseContent(response);
-        let resMsg = this.getResponseMsg(response);
-        // console.log(resMsg);
-        if (resMsg.success) {
-          resolve(resMsg);
-        } else {
-          reject(resMsg);
-        }
-      })
-    })
-  }
-
-  // 团队添加新成员
-  inviteGroupNumber(data) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.group_invite_new.url, data).then(response => {
         let resMsg = this.getResponseMsg(response);
         // console.log(resMsg);
         if (resMsg.success) {

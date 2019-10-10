@@ -42,10 +42,6 @@ class URL extends BaseURL {
         url: API_PATH + '/group/user/updateJob',
         path: '/group/user/updateJob'
       },
-      'group_invite_new': {
-        url: API_PATH + '/group/addUser',
-        path: '/group/addUser'
-      },
       'group_remove_member': {
         url: API_PATH + '/group/user/delete',
         path: '/group/user/delete'
