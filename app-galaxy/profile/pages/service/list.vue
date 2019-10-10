@@ -211,7 +211,7 @@
                          type="text"
                          @click="handleTRClick($event, 'open_dialog_pod_spec', scope.$index, scope.row)"
                          :class="reason4ActionDisabled('open_dialog_pod_spec', scope.row)? 'disabled' : 'danger'">
-                <span>podSpec配置</span>
+                <span>PodSpec配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
               <el-button v-if="!$storeHelper.permission['get_affinity'].disabled && false"
@@ -483,7 +483,7 @@
       </div>
     </paas-dialog-for-log>
 
-    <el-dialog title="nodeSpec配置"
+    <el-dialog title="PodSpec配置"
                v-if="actionNew.name === 'open_dialog_pod_spec'"
                :visible="actionNew.name === 'open_dialog_pod_spec'"
                class="size-1000 affinity"

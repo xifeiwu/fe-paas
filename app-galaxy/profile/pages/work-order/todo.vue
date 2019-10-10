@@ -127,6 +127,8 @@
                         <span>{{scope.row.spaceDescription}}</span>
                       </template>
                     </el-table-column>
+                    <el-table-column label="部署次数" prop="deployCount" headerAlign="center" align="center">
+                    </el-table-column>
                   </el-table>
                 </el-form-item>
                 <el-form-item label="待办人"><span style="font-weight: bold; color: red">{{workOrderDetail.userToDo}}</span></el-form-item>

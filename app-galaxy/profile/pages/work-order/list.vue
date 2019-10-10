@@ -46,7 +46,7 @@
         </el-button>
         <div class="toggle-warning">
           <i class="paas-icon-double-arrow-right" style="transform: rotate(270deg); " v-if="showWarning" @click="showWarning = false"></i>
-          <i class="paas-icon-fa-question" v-if="!showWarning" @click="showWarning = true"></i>
+          <i class="paas-icon-question" v-if="!showWarning" @click="showWarning = true"></i>
         </div>
       </div>
       <paas-dismiss-message :toExpand="showWarning"
@@ -121,6 +121,8 @@
                       <template slot-scope="scope">
                         <span>{{scope.row.spaceDescription}}</span>
                       </template>
+                    </el-table-column>
+                    <el-table-column label="部署次数" prop="deployCount" headerAlign="center" align="center">
                     </el-table-column>
                     <el-table-column label="操作" headerAlign="center" align="center" minWidth="100">
                       <template slot-scope="scope">
@@ -275,10 +277,12 @@
         }
       }
       .toggle-warning {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
         line-height: 24px;
-        margin-left: 12px;
+        margin-left: 10px;
         color: #eb9e05;
+        cursor: pointer;
       }
     }
     /*not used*/
