@@ -134,7 +134,10 @@
                               showSeconds="0"
                               @status-change="active => {this.showWarning = active; onScreenSizeChange()}"
                               style="margin: 0px -2px"
-                              :msgList="['灰度发布的作用是从主服务中切换部分流量到灰度服务上，待验证没问题后将主服务换成灰度服务，因此所选服务互为同一个业务的不同版本的服务']"></paas-dismiss-message>
+                              :msgList="action.name == 'open_dialog_service_gray_update_instance_count' ?
+                              ['灰度服务版本初始默认实例数为1，请根据需要调整主服务版本和灰度服务版本的实例数比例，保存后将会立即生效']
+                              :['灰度发布的作用是从主服务中切换部分流量到灰度服务上，待验证没问题后将主服务换成灰度服务，因此所选服务互为同一个业务的不同版本的服务']
+                              "></paas-dismiss-message>
         <el-form :model="action.row" size="mini" label-width="100px" ref="newDomainForm">
           <el-form-item label="网络类型" class="" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
             <el-checkbox-group v-model="grayStrategy.listIngress" v-if="grayStrategyFromNet.listIngress">
