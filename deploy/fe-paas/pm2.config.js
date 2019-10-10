@@ -13,9 +13,9 @@ module.exports = {
         'DEBUG': 'spa-server',
         'LOG_DIR': path.resolve(__dirname, 'logs')
       },
-      env_finup_dev: {
-        name: 'finup:dev',
-        PLATFORM: 'finup:dev',
+      env_finup_development: {
+        name: 'finup:development',
+        PLATFORM: 'finup:development',
       },
       env_finup_test: {
         name: 'finup:test',
