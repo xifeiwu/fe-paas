@@ -1,12 +1,15 @@
 // common logic for both net and store
 
 export default class Common {
+
   getPlatform() {
     var [corp, env] = ['finup', 'production'];
     try {
+      const platform = BUILD_ENV.PLATFORM;
       // BUILD_ENV is inserted by webpack.DefinePlugin
-      if (BUILD_ENV.PLATFORM) {
-        [corp, env] = BUILD_ENV.PLATFORM.split(':');
+      if (platform && (typeof(platform) === 'string' || platform instanceof String)
+        && /^(renmai|finup):(local|development|test|production)$/.test(platform)) {
+        [corp, env] = platform.split(':');
       }
     } catch(err) {
     }

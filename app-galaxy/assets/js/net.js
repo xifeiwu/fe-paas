@@ -655,7 +655,7 @@ class Net extends Common {
   getCasServer() {
     const {corp} = this.getPlatform();
     const casServer = {
-      'finup': 'http://cas.finupgroup.com/puhui-ca',
+      'finup': 'http://cas.finupgroup.com/puhui-cas',
       'renmai': 'http://cas.renmaitech.com/puhui-cas'
     }[corp];
     return casServer;
