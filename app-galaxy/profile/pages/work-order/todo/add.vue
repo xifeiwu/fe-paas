@@ -547,7 +547,7 @@
               return this.dataPassed.appIdList.includes(it.id);
             });
             if (ignoredService && ignoredService.workOrder) {
-              this.$message.error(`应用 "${ignoredService.appName}" 存在未完成工单："${ignoredService.workOrder.name}"，不能为改应用创建新的工单！`)
+              this.$message.error(`应用 "${ignoredService.appName}" 存在未完成工单："${ignoredService.workOrder.name}"，不能为该应用创建新的工单！`)
             }
             console.log(`some appId is ignored!`);
             // console.log(ignoredService);

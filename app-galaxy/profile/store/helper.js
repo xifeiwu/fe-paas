@@ -706,17 +706,25 @@ class StoreHelper extends BaseHelper{
     const permission = this.actionToPermission(action);
     return permission && this.permission[permission] && this.permission[permission].disabled;
   }
-  actionDisabled(action) {
-    return this.permissionDisabled(action) || this.serverIsPublishing
+  stillWorkWhenPublishing(action) {
+    return ['get_affinity', 'update_affinity'].includes(this.actionToPermission(action))
   }
   reason4ActionDisabled(action) {
-    var reason = '';
-    if (this.serverIsPublishing) {
+    var reason = false;
+    if (this.serverIsPublishing && !this.stillWorkWhenPublishing(action)) {
       reason = '因云平台正在发布，在此期间不能进行此操作，谢谢您的合作'
     } else if (this.permissionDisabled(action)) {
       reason = this.permission[permission]['reason'];
     }
     return reason;
+  }
+  actionDisabled(action) {
+    const reason = this.reason4ActionDisabled(action);
+    if (reason === false) {
+      return false;
+    } else {
+      return true;
+    }
   }
   // action
 

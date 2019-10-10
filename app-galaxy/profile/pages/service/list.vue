@@ -206,14 +206,14 @@
                 <span>复制服务</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
-              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
+              <el-button v-if="!$storeHelper.actionDisabled('get_affinity')"
                          size="small"
                          type="text"
                          @click="handleTRClick($event, 'open_dialog_pod_spec', scope.$index, scope.row)"
                          :class="reason4ActionDisabled('open_dialog_pod_spec', scope.row)? 'disabled' : 'danger'">
                 <span>PodSpec配置</span>
               </el-button>
-              <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
+              <div class="ant-divider" v-if="!$storeHelper.actionDisabled('get_affinity')"></div>
               <el-button v-if="!$storeHelper.permission['get_affinity'].disabled && false"
                          size="small"
                          type="text"
@@ -222,7 +222,7 @@
                 <span>容忍配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled && false"></div>
-              <el-button v-if="!$storeHelper.permission['get_affinity'].disabled"
+              <el-button v-if="!$storeHelper.actionDisabled('get_affinity')"
                          size="small"
                          type="text"
                          @click="handleTRClick($event, 'open-dialog-k8s-info', scope.$index, scope.row)"

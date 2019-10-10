@@ -34,8 +34,8 @@
         <span>刷新</span>
         <i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
       </el-button>
-      <i class="paas-icon-fa-question"
-         v-pop-on-mouse-over="['灰度服务的部署，需要申请工单，在部署工单页面进行', '灰度服务部署完成后，才能设置/修改灰度策略，才能完成灰度发布']"></i>
+      <i class="paas-icon-question"
+         v-pop-on-mouse-over="['灰度服务的部署，需要申请工单，在部署工单页面进行', '灰度服务部署完成后，才能进行调整实例数、设置灰度策略及完成灰度发布操作']"></i>
     </div>
     <div class="list">
       <el-table :data="serviceList"
@@ -65,7 +65,7 @@
               {{'删除'}}
               </el-button>
             <div v-if="scope.row['serviceType'] === 'canary'" class="ant-divider"></div>
-            <el-button v-if="!$storeHelper.actionDisabled['open-dialog-k8s-info']"
+            <el-button v-if="!$storeHelper.actionDisabled('get_affinity')"
                        size="small"
                        type="text"
                        @click="handleTRClick($event, 'open-dialog-k8s-info', scope.$index, scope.row)"
@@ -248,8 +248,8 @@
         margin-left: 12px;
         color: #eb9e05;
       }
-      .paas-icon-fa-question {
-        margin-left: 10px;
+      .paas-icon-question {
+        margin-left: 12px;
         color: $--color-warning,
       }
     }
