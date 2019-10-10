@@ -2,11 +2,13 @@ import Vue from 'vue';
 import axios from 'axios';
 import querystring from 'query-string';
 import Utils from './utils';
+import Common from './common';
 
 const utils = new Utils();
 
-class Net {
+class Net extends Common {
   constructor() {
+    super();
     // 提示（错误、警告）除抖
     this.debouncedShowError = utils.debounce(this.showError.bind(this), 1000, true);
     this.debouncedShowWarning = utils.debounce(this.showWarning.bind(this), 1000, true);
@@ -651,18 +653,11 @@ class Net {
   }
 
   getCasServer() {
-    var casServer = 'http://cas.finupgroup.com/puhui-cas';
-    if ([location.host, location.hostname].includes('cloud.renmaitech.com')) {
-      casServer = 'http://cas.renmaitech.com/puhui-cas';
-    }
-    const serverMap = {
-      // 校验ticket才用域名cas.info.production
-      // production: 'http://cas.info.production/puhui-cas',
-    };
-
-    if (serverMap.hasOwnProperty(NODE_ENV)) {
-      casServer = serverMap[NODE_ENV];
-    }
+    const {corp} = this.getPlatform();
+    const casServer = {
+      'finup': 'http://cas.finupgroup.com/puhui-ca',
+      'renmai': 'http://cas.renmaitech.com/puhui-cas'
+    }[corp];
     return casServer;
   }
   // 获取(CAS)登录的url

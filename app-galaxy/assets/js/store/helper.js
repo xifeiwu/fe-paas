@@ -1,10 +1,12 @@
 import * as shvl from 'shvl';
 import globalStore from './index';
 import Net from '../net';
+import Common from '../common';
 const net = new Net();
 
-export default class StoreHelper {
+export default class StoreHelper extends Common {
   constructor(store) {
+    super();
     this.$globalStore = globalStore;
     this.$store = store;
     this._dataTransfer = null;
@@ -14,20 +16,6 @@ export default class StoreHelper {
     for (let key in net.page) {
       let value = net.page[key];
       this.globalStatus[value] = {};
-    }
-  }
-
-  getPlatform() {
-    var [corp, env] = ['finup', 'production'];
-    try {
-      // BUILD_ENV is inserted by webpack.DefinePlugin
-      if (BUILD_ENV.PLATFORM) {
-        [corp, env] = BUILD_ENV.PLATFORM.split(':');
-      }
-    } catch(err) {
-    }
-    return {
-      corp, env
     }
   }
 
