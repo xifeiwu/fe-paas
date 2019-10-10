@@ -45,7 +45,7 @@ function getPort() {
 function getServer(server) {
   const { corp, env } = getPlatform();
   var paasServer = 'http://10.10.202.143:30334';
-  var assistServer = 'http://10.10.80.242:6002';
+  var assistServer = 'http://10.10.201.137:6003';
   switch (env) {
     case 'production':
       paasServer = 'http://galaxy-web-server.galaxy.production';
@@ -57,9 +57,11 @@ function getServer(server) {
       break;
     case 'test':
       paasServer = 'http://10.10.202.143:30334';
+      assistServer = 'http://10.10.201.137:6003';
       break;
     case 'dev':
       paasServer = 'http://10.10.58.126:30334';
+      assistServer = 'http://10.10.201.137:6003';
       break;
     case 'local':
       paasServer = 'http://10.10.202.143:30334';
