@@ -11,7 +11,7 @@ const webpack = require('webpack')
 const config = require('./config')
 const webpackConfig = require('./webpack.prod.conf')
 
-var PLATFORM = process.env.PLATFORM ? process.env.PLATFORM : 'finup:production';
+var PLATFORM = process.env.PLATFORM;
 const spinner = ora(`building for ${PLATFORM}...`);
 spinner.start();
 

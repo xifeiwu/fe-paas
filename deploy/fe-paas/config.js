@@ -3,11 +3,16 @@ const path = require('path');
 
 var env = process.env.NODE_ENV;
 
-
 function getPlatform() {
-  var [corp, env] = ['finup', 'dev'];
-  if (process.env.PLATFORM) {
-    [corp, env] = process.env.PLATFORM.split(':');
+  var [corp, env] = ['finup', 'production'];
+  try {
+    const platform = process.env.PLATFORM;
+    // BUILD_ENV is inserted by webpack.DefinePlugin
+    if (platform && (typeof(platform) === 'string' || platform instanceof String)
+      && /^(renmai|finup):(local|development|test|production)$/.test(platform)) {
+      [corp, env] = platform.split(':');
+    }
+  } catch(err) {
   }
   return {
     corp, env
@@ -58,7 +63,7 @@ function getServer(server) {
       break;
     case 'local':
       paasServer = 'http://10.10.202.143:30334';
-      assistServer = 'http://127.0.0.1:6003';
+      assistServer = 'http://10.10.201.137:6003';
       break;
   }
   if (corp === 'renmai') {

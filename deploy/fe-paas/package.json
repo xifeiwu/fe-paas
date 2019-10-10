@@ -5,7 +5,7 @@
   "dependencies": {
   },
   "scripts": {
-    "local": "NODE_ENV=local nodemon start.js",
+    "local": "PLATFORM=finup:local nodemon start.js",
     "start": "node main.js",
     "dev": "PLATFORM=finup:dev PORT=6001 node main.js",
     "test": "PLATFORM=finup:test PORT=6001 node main.js",
