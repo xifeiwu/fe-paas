@@ -369,11 +369,11 @@
         <div class="item">
           <el-button type="primary" size="mini"
                      :loading="statusOfWaitingResponse('submit')"
-                     @click="handleClick($event, 'submit')">完&nbsp成</el-button>
+                     @click="handleClick($event, 'submit')">完成</el-button>
         </div>
         <div class="item">
           <el-button type="primary" size="mini"
-                     @click="handleClick($event, 'back')">关&nbsp闭</el-button>
+                     @click="handleClick($event, 'back')">关闭</el-button>
         </div>
       </div>
     </div>
@@ -630,8 +630,10 @@
 
       try {
         if (this.$router.helper.pages['/profile/service/:id(\\d+)/gray/add'].pathReg.test(path)) {
+          this.forGray = true;
           this.forAdd = true;
           serviceInfo = await this.getServiceById(this.$route.params['id']);
+          serviceInfo.masterServiceId = serviceInfo.id;
           profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
           const routeConfig = this.$router.helper.getConfigByFullPath('/profile/service/:id(\\d+)');
           if (routeConfig) {
@@ -639,8 +641,15 @@
           }
         } else
         if (this.$router.helper.pages['/profile/service/:id(\\d+)/gray/modify'].pathReg.test(path)) {
+          this.forGray = true;
           this.forModify = true;
-          serviceInfo = await this.getServiceById(this.$route.params['id']);
+          if (!dataTransfer || !dataTransfer.data || !this.$utils.hasProps(dataTransfer.data, 'serviceInfo')) {
+            throw new Error('信息不完整！');
+          }
+          serviceInfo = dataTransfer.data.serviceInfo;
+          if (!this.$utils.hasProps(serviceInfo, 'masterServiceId', 'canaryId')) {
+            throw new Error('masterServiceId or canaryId not found in serviceInfo!');
+          }
           profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
           const routeConfig = this.$router.helper.getConfigByFullPath('/profile/service/:id(\\d+)');
           if (routeConfig) {
@@ -648,6 +657,7 @@
           }
         } else
         if (this.$router.helper.pages['/profile/service/modify'].pathReg.test(path)) {
+          this.forGray = false;
           this.forModify = true;
           // try to get appId and profileId from location.search
           if (!dataTransfer && location.search) {
@@ -655,24 +665,26 @@
               data: this.$utils.parseQueryString(location.search)
             };
           }
-          if (!this.$utils.hasProps(dataTransfer.data, 'appId', 'profileId')) {
-            throw new Error('信息不完整');
+          if (!dataTransfer || !dataTransfer.data || !this.$utils.hasProps(dataTransfer.data, 'appId', 'profileId')) {
+            throw new Error('信息不完整！');
           }
           profileInfo = this.$storeHelper.getProfileInfoByID(dataTransfer.data.profileId);
           serviceInfo = await this.getServiceByAppIdAndSpaceId(dataTransfer.data.appId, dataTransfer.data.profileId);
         } else
         if (this.$router.helper.pages['/profile/service/add'].pathReg.test(path)) {
+          this.forGray = false;
           this.forAdd = true;
-          if (!this.$utils.hasProps(dataTransfer.data, 'serviceBasicInfo', 'profileId')) {
-            throw new Error('信息不完整');
+          if (!dataTransfer || !dataTransfer.data || !this.$utils.hasProps(dataTransfer.data, 'serviceBasicInfo', 'profileId')) {
+            throw new Error('信息不完整！');
           }
           profileInfo = this.$storeHelper.getProfileInfoByID(dataTransfer.data.profileId);
           serviceInfo = dataTransfer.data.serviceBasicInfo;
         } else
         if (this.$router.helper.pages['/profile/service/copy'].pathReg.test(path)) {
+          this.forGray = false;
           this.forCopy = true;
-          if (!this.$utils.hasProps(dataTransfer.data, 'appId', 'profileId', 'notServiceSpaceList')) {
-            throw new Error('信息不完整');
+          if (!dataTransfer || !dataTransfer.data || !this.$utils.hasProps(dataTransfer.data, 'appId', 'profileId', 'notServiceSpaceList')) {
+            throw new Error('信息不完整！');
           }
           profileInfo = this.$storeHelper.getProfileInfoByID(dataTransfer.data.profileId);
           serviceInfo = await this.getServiceByAppIdAndSpaceId(dataTransfer.data.appId, dataTransfer.data.profileId);
@@ -762,7 +774,8 @@
       } catch (err) {
         console.log(err);
         this.$message.error(err.message);
-        this.$router.replace(this.$router.helper.pages['profile/service/list']);
+        // this.$router.replace(this.$router.helper.pages['profile/service/list']);
+        this.$router.go(-1);
       }
       this.rules.imageLocation.required = false;
     },
@@ -1008,7 +1021,7 @@
       }
     },
     watch: {
-      // TODO: not used
+      // NOTICE: some props is initialized here
       // 依赖appId的属性：serviceInfo, isJavaLanguage, isPythonLanguage, packageTypeList, this.formData.packageInfo.type
       'formData.appId': function (appId) {
         // 不论来自哪个页面，serviceInfo都会被带过来
@@ -1031,7 +1044,7 @@
           return;
         }
 
-        if (this.forModify || this.forCopy) {
+        if (this.forModify || this.forCopy || (this.forGray && this.forAdd)) {
           const packageInfo = serviceInfo['packageInfo'];
           const item = this.formRelated.packageTypeList.find(it => {
             return packageInfo.type == it.type;
@@ -1182,9 +1195,6 @@
           });
         }
         const serviceModel = this.$net.getServiceModel(mainServiceInfo);
-        if (this.forGray && this.forModify) {
-          serviceModel['canaryId'] = canaryServiceInfo['id'];
-        }
         return serviceModel;
       },
       scrollTop() {
@@ -1461,7 +1471,7 @@
       // go to page service with dataPassed
       goToPageService() {
         const targetUrl = this.$router.helper.pages['/profile/service/:id(\\d+)/gray'].toPath({
-          id: this.serviceInfo.id
+          id: this.serviceInfo.masterServiceId
         });
         this.$router.push(targetUrl);
       },
@@ -1541,10 +1551,9 @@
                   enableJacoco: formData.enableJacoco
                 };
                 if (this.forGray) {
+                  payload["configId"] = this.serviceInfo.masterServiceId;
                   if (this.forAdd) {
-                    payload['configId'] = this.serviceInfo.id;
                   } else if (this.forModify) {
-                    payload['configId'] = this.serviceInfo.id;
                     payload['id'] = this.serviceInfo.canaryId;
                   }
                 } else {

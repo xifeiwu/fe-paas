@@ -353,7 +353,7 @@
         return;
       }
 
-      const {serviceInfo, profileInfo} = await this.syncEnv();
+      const {originServiceInfo, serviceInfo, profileInfo} = await this.syncEnv();
       // go back when running instance of master service is zero
       if (serviceInfo && serviceInfo.containerStatus && serviceInfo.containerStatus.Total === 0) {
         this.$router.go(-1);
@@ -364,6 +364,7 @@
         this.$router.go(-1);
         return;
       }
+      this.originServiceInfo = originServiceInfo;
       this.serviceInfo = serviceInfo;
       this.profileInfo = profileInfo;
 
@@ -377,6 +378,7 @@
         STATE: STATE,
         step: STATE['START'],
         serviceId: null,
+        originServiceInfo: null,
         serviceInfo: null,
         canaryStatus: null,
         profileInfo: null,
@@ -492,10 +494,17 @@
             id: this.serviceId
           }
         });
-//        console.log(resContent);
+        // console.log('resContent');
+        // console.log(resContent);
+        if (!resContent) {
+          this.$message.error(`serviceId为：${this.serviceId} 的服务不存在`);
+          this.$router.push(this.$net.page['profile/service']);
+          return;
+        }
         const serviceInfo = this.$net.getServiceModel(resContent);
         const profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
         const theData = {
+          originServiceInfo: resContent,
           profileInfo,
           serviceInfo,
         };
@@ -689,6 +698,16 @@
       async handleTRClick(evt, action, index, row) {
         switch (action) {
           case 'service_gray_update':
+            const originCanaryInfo = Object.assign({}, this.originServiceInfo, this.canaryStatus['canary']);
+            const canaryInfo = this.$net.getServiceModel(originCanaryInfo);
+            canaryInfo.masterServiceId = this.serviceInfo.id;
+            canaryInfo.canaryId = this.canaryStatus['canary']['id'];
+            this.$storeHelper.dataTransfer = {
+              from: this.$net.page['profile/service/list'],
+              data: {
+                serviceInfo: canaryInfo
+              }
+            };
             this.$router.push(this.$router.helper.pages['/profile/service/:id(\\d+)/gray/modify'].toPath({
               id: this.serviceId
             }));
