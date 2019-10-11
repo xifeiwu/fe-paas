@@ -547,15 +547,17 @@ affinity:
           <span>参考模板?</span>
         </el-tooltip>
       </div>
-      <div class="__editor">
+      <div class="__editor"v-loading="action.requesting"
+           element-loading-text="网络请求中..."
+           element-loading-spinner="el-icon-loading">
         <codemirror v-model="action.data" :options="editorAffinityOptions"></codemirror>
       </div>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
-          <el-button type="primary" size="mini" @click="saveAffinityConfig(false)">保存配置</el-button>
+          <el-button type="primary" size="mini" @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保存配置</el-button>
         </div>
         <div class="item">
-          <el-button type="danger" size="mini" @click="saveAffinityConfig(true)">保存并生效</el-button>
+          <el-button type="danger" size="mini" @click="handleDialogEvent($event, `${action.name.replace('open_dialog_', '')}_and_take_effect`)">保存并生效</el-button>
         </div>
         <div class="item">
           <el-button @click="closeDialog" size="mini">取&nbsp消</el-button>
@@ -1051,13 +1053,9 @@ tolerations:
         pageSize: 10,
         currentPage: 1,
 
-        action: {
-          evt: null,
-          name: null,
-          row: null
-        },
         // action will replace action
         action: {
+          requesting: false,
           row: null,
           name: null,
           promise: {
@@ -1195,14 +1193,40 @@ tolerations:
       },
 
       async handleDialogEvent(evt, action, data) {
-        try {
-          switch (action) {
-            case 'service_deploy':
-                this.action.promise.resolve(this.action.data);
-              break;
-          }
-        } catch(err) {
-          console.log(err);
+        switch (action) {
+          case 'service_deploy':
+              this.action.promise.resolve(this.action.data);
+            break;
+          case 'update_pod_spec':
+          case 'update_pod_spec_and_take_effect':
+            try {
+              if ((this.action.data == this.action.dataOrigin) && action == 'update_pod_spec') {
+                this.$message.warning('podSpec配置没有改动！');
+                return;
+              }
+              let confirmInfo = "点击“保存配置”时，只保存yaml数据配置，后面当点击部署或重启时才生效！";
+              let url = this.$net.URL_LIST.update_affinity_config;
+              if (action == 'update_pod_spec_and_take_effect') {
+                confirmInfo = "点击“保存并生效”时，保存yaml数据配置的同时，会立即生效该配置，满足配置条件时将造成实例重启！";
+                url = this.$net.URL_LIST.update_affinity_sync_k8s;
+              }
+              await this.$confirm(
+                confirmInfo,
+                '提示',
+                {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  type: 'warning',
+                }
+              );
+              this.action.promise.resolve({
+                url,
+                podSpec: this.action.data
+              });
+            } catch(err) {
+              // console.log(err);
+            }
+            break;
         }
       },
 
@@ -1763,50 +1787,6 @@ tolerations:
         return Promise.reject('请填写应用信息：维护者、LOB、Scrum');
       },
 
-      async saveAffinityConfig(enforce) {
-        let confirmInfo = "点击“保存配置”时，只保存yaml数据配置，后面当点击部署或重启时才生效！";
-        let url = this.$net.URL_LIST.update_affinity_config;
-        if (enforce) {
-          confirmInfo = "点击“保存并生效”时，保存yaml数据配置的同时，会立即生效该配置，满足配置条件时将造成实例重启！";
-          url = this.$net.URL_LIST.update_affinity_sync_k8s;
-        }
-        try {
-          await this.$confirm(
-            confirmInfo,
-            '提示',
-            {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning',
-            }
-          );
-
-          const resData = this.$net.requestPaasServer(url, {
-            payload: {
-              spaceId: this.profileInfo.id,
-              groupId: this.$storeHelper.groupInfo.id,
-              namespace: this.$storeHelper.groupInfo.tag,
-              appConfigId: this.action.row.id,
-              podSpecContent: this.action.data,
-              configServiceName: this.action.row.serviceName
-            }
-          });
-
-          if (resData.code && "ERR_UPDATE_POD_SPEC_FORMAT_FAILED" === resData.code) {
-            // this.$message.warning(resData.msg);
-            this.describeEditError = resData.msg;
-            this.hasEditError = true;
-            this.titleEditError = "podSpec配置信息修改失败！";
-          } else {
-            this.$message.success("修改podSpec配置成功！");
-          }
-        } catch (err) {
-          this.$message.error(`保存配置失败，请联系云平台！${err.message}`);
-        } finally {
-          this.closeDialog();
-        }
-      },
-
       async saveTolerationConfig(enforce) {
         let confirmInfo = "点击“保存配置”时，只保存yaml数据配置，后面当点击部署或重启时才生效！";
         let url = this.$net.URL_LIST.update_toleration_config;
@@ -1914,6 +1894,7 @@ tolerations:
       },
 
       async handleTRClick(evt, action, index, row) {
+        let dialogData = null;
         var permission = action;
         if (['service_config_add','service_config_copy','service_delete', 'service_deploy', 'image_rollback',
             'service_config_modify','service_update'].indexOf(action) > -1 && this.publishStatus) {
@@ -2307,10 +2288,23 @@ tolerations:
                 }
               });
               resContent = resContent ? resContent : '';
-              await this.openDialog(action, resContent);
+              dialogData = await this.openDialog(action, resContent);
+              this.action.requesting = true;
+              await this.$net.requestPaasServer(dialogData.url, {
+                payload: {
+                  spaceId: this.profileInfo.id,
+                  groupId: this.$storeHelper.groupInfo.id,
+                  namespace: this.$storeHelper.groupInfo.tag,
+                  appConfigId: this.action.row.id,
+                  podSpecContent: dialogData.podSpec,
+                  configServiceName: this.action.row.serviceName
+                }
+              });
+              this.$message.success("修改podSpec配置成功！");
             } catch (err) {
               console.log(err);
             } finally {
+              this.action.requesting = false;
               this.closeDialog();
             }
             break;
