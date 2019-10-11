@@ -1030,8 +1030,6 @@ class Net extends NetBase {
       '/2.x/apm': 'app_monitor',
       // 应用转让
       '/2.x/app/transfer': 'app_transfer',
-      // 更改服务信息
-      '/2.x/service/update': 'service_update',
       // 查看实例监控
       '/2.x/instances/apm': 'instance_monitor',
 

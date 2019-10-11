@@ -702,18 +702,18 @@ class StoreHelper extends BaseHelper{
     };
     return actionMap.hasOwnProperty(action) ? actionMap[action] : action
   }
-  permissionDisabled(action) {
-    const permission = this.actionToPermission(action);
+  _permissionDisabled(permission) {
     return permission && this.permission[permission] && this.permission[permission].disabled;
   }
-  stillWorkWhenPublishing(action) {
-    return ['get_affinity', 'update_affinity'].includes(this.actionToPermission(action))
-  }
   reason4ActionDisabled(action) {
+    const stillPermitWhenPublishing = (permission) => {
+      return ['get_affinity', 'update_affinity'].includes(permission);
+    };
+    const permission = this.actionToPermission(action);
     var reason = false;
-    if (this.serverIsPublishing && !this.stillWorkWhenPublishing(action)) {
+    if (this.serverIsPublishing && !stillPermitWhenPublishing(permission)) {
       reason = '因云平台正在发布，在此期间不能进行此操作，谢谢您的合作'
-    } else if (this.permissionDisabled(action)) {
+    } else if (this._permissionDisabled(permission)) {
       reason = this.permission[permission]['reason'];
     }
     return reason;

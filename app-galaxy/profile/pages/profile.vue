@@ -616,26 +616,12 @@
       // 初始化部分权限相关信息（权限的更新在网络请求完成后，不初始化会导致无法访问，报错：undefined）
       initPermissionInfo() {
         const permission = {};
-        const pageApp = ['app_create', 'app_change_name', 'app_delete', 'app_show_profile', 'app_change_props'];
-        const pageService = ['service_create', 'service_deploy', 'service_stop', 'service_delete', 'copy-service',
-          'go-to-page-log-deploy-from-service', 'go-page-domain-from-service', 'go-page-domain-from-service-list',
-          'service_update', 'service_change_default'];
-        const pageInstance = ['instance_change_count', 'instance_replace', 'go-to-page-terminal-from-instance',
-          'go-to-log-run-from-instance', 'go-to-page-monitor-from-instance'];
-        const pageDomain = ['domain_add', 'domain_bind_service', 'domain_unbind_service', 'domain_secure_check',
-        'domain_remove', 'domain_bind_white_list'];
-        const pageWorkOrder = ['go-to-page-log-deploy-from-work-order-list', 'work-order_create',
-          'work-order_deploy_service', 'work-order_restart_service', 'work-order_download'];
-        const pageOauth = ['oauth_create_access_key', 'oauth_update_access_config', 'oauth_delete_access_key',
-          'oauth_modify_authorize_url_list',
-          'oauth_authorize_url_toggle_enable'];
-        // TODO: not used
-        const pageMiddleware = ['middleware_mariadb_instance_create', 'middleware_mariadb_instance_delete', 'middleware_mariadb_instance_start',
-          'middleware_mariadb_instance_stop', 'middleware_mariadb_instance_update',
-          'middleware_mariadb_backup_create', 'middleware_mariadb_backup_delete', 'middleware_mariadb_backup_restore'
-        ];
-        const allPermissionList1 = [...pageApp, ...pageService, ...pageInstance, ...pageDomain, ...pageWorkOrder,
-          ...pageOauth];
+        // TODO: can be replaced by reason4ActionDisabled in $storeHelper
+        const pageApp = ['app_change_name', 'app_show_profile', 'app_change_props'];
+        const pageService = ['copy-service',
+          'go-to-page-log-deploy-from-service', 'go-page-domain-from-service', 'go-page-domain-from-service-list'];
+        const pageWorkOrder = ['work-order_restart_service'];
+        const allPermissionList1 = [...pageApp, ...pageService, ...pageWorkOrder];
         const permissionMap = this.$net.getPermissionMap();
         const allPermissionList = [];
         Object.keys(permissionMap).forEach(it => {
