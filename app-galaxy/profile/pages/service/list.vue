@@ -209,8 +209,8 @@
               <el-button v-if="!$storeHelper.actionDisabled('get_affinity')"
                          size="small"
                          type="text"
-                         @click="handleTRClick($event, 'open_dialog_pod_spec', scope.$index, scope.row)"
-                         :class="reason4ActionDisabled('open_dialog_pod_spec', scope.row)? 'disabled' : 'danger'">
+                         @click="handleTRClick($event, 'open_dialog_update_pod_spec', scope.$index, scope.row)"
+                         :class="reason4ActionDisabled('open_dialog_update_pod_spec', scope.row)? 'disabled' : 'danger'">
                 <span>PodSpec配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.actionDisabled('get_affinity')"></div>
@@ -484,9 +484,9 @@
     </paas-dialog-for-log>
 
     <el-dialog title="PodSpec配置"
-               v-if="actionNew.name === 'open_dialog_pod_spec'"
-               :visible="actionNew.name === 'open_dialog_pod_spec'"
-               class="size-1000 affinity"
+               v-if="actionNew.name === 'open_dialog_update_pod_spec'"
+               :visible="actionNew.name === 'open_dialog_update_pod_spec'"
+               class="size-1000 pod_spec"
                @close="closeDialog"
                bodyPadding="0px"
                :close-on-click-modal="false"
@@ -867,7 +867,7 @@ tolerations:
       }
     }
     > .el-dialog__wrapper {
-      &.k8s-info, &.affinity {
+      &.k8s-info, &.pod_spec {
         .__editor {
           text-align: left;
           min-height: 500px;
@@ -876,7 +876,7 @@ tolerations:
           }
         }
       }
-      &.affinity {
+      &.pod_spec {
         min-height: 500px;
         .CodeMirror {
           min-height: 480px;
@@ -1921,7 +1921,7 @@ tolerations:
               reason = '当前主服务实例数为0，不能进行灰度发布';
             }
             break;
-          case 'open_dialog_pod_spec':
+          case 'open_dialog_update_pod_spec':
             break;
           case 'image_rollback':
             if (row && row.isCanaryDeploy) {
@@ -2315,7 +2315,7 @@ tolerations:
               this.props4CreateDomain.subDomainList = [];
             }
             break;
-          case 'open_dialog_pod_spec':
+          case 'open_dialog_update_pod_spec':
             try {
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.get_affinity_config, {
                 payload: {
