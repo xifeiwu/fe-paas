@@ -307,22 +307,22 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="部署服务" :visible="actionNew.name == 'service_deploy'"
-               v-if="actionNew.name && actionNew.name == 'service_deploy'"
+    <el-dialog title="部署服务" :visible="action.name == 'service_deploy'"
+               v-if="action.name && action.name == 'service_deploy'"
                class="confirm-dialog size-600"
                :close-on-click-modal="false"
                @close="closeDialog"
     >
       <div class="el-message-box__status el-icon-warning" style="padding-bottom: 27px;"></div>
       <div class="el-message-box__message">
-        <p>您确认要部署{{actionNew.data.serviceDesc}}吗?</p>
-        <el-checkbox v-model="actionNew.data.forceClone">强制清空打包目录（删除所有源代码、包文件等）</el-checkbox>
+        <p>您确认要部署{{action.data.serviceDesc}}吗?</p>
+        <el-checkbox v-model="action.data.forceClone">强制清空打包目录（删除所有源代码、包文件等）</el-checkbox>
       </div>
 
       <span slot="footer" class="el-message-box__btns">
         <el-button @click="closeDialog">取&nbsp消</el-button>
         <el-button type="primary"
-                   @click="handleDialogEvent($event, actionNew.name)"
+                   @click="handleDialogEvent($event, action.name)"
                    :loading="waitingResponse">确&nbsp认</el-button>
       </span>
     </el-dialog>
@@ -346,8 +346,8 @@
     </el-dialog>
 
     <!--not used-->
-    <el-dialog :title="actionNew.data.title" :visible="['service_quick_deploy', 'service_stop', 'service_delete'].indexOf(actionNew.name) > -1"
-               v-if="actionNew.name && false"
+    <el-dialog :title="action.data.title" :visible="['service_quick_deploy', 'service_stop', 'service_delete'].indexOf(action.name) > -1"
+               v-if="action.name && false"
                class="confirm-dialog size-700"
                :close-on-click-modal="false"
                @close="closeDialog"
@@ -355,21 +355,21 @@
       <div class="content">
         <i class="el-icon-warning left"></i>
         <div class="right">
-          <div v-html="actionNew.data.tip"></div>
-          <el-input v-model="actionNew.data.confirm"></el-input>
+          <div v-html="action.data.tip"></div>
+          <el-input v-model="action.data.confirm"></el-input>
         </div>
       </div>
       <span slot="footer" class="el-message-box__btns">
         <el-button @click="closeDialog">取&nbsp消</el-button>
         <el-button type="primary"
-                   @click="handleDialogEvent($event, actionNew.name)"
+                   @click="handleDialogEvent($event, action.name)"
                    :loading="waitingResponse">确&nbsp认</el-button>
       </span>
     </el-dialog>
 
 
-    <el-dialog title="镜像回滚" :visible="actionNew.name == 'image_rollback'"
-               v-if="actionNew.name"
+    <el-dialog title="镜像回滚" :visible="action.name == 'image_rollback'"
+               v-if="action.name"
                class="image_rollback"
                :close-on-click-modal="false"
                @close="closeDialog"
@@ -388,7 +388,7 @@
           <div class="work-order-list" style="height: 100%;"
                :key="rollingUpStatus.pageList[0]['key']"
                v-if="rollingUpStatus.currentPageKey === rollingUpStatus.pageList[0]['key']">
-            <div class="stage-desc">应用名称：{{actionNew.row.appName}}</div>
+            <div class="stage-desc">应用名称：{{action.row.appName}}</div>
             <custom-table-component
                     :data="rollingUpStatus.workOrderList"
                     :showFilter="false"
@@ -484,8 +484,8 @@
     </paas-dialog-for-log>
 
     <el-dialog title="PodSpec配置"
-               v-if="actionNew.name === 'open_dialog_update_pod_spec'"
-               :visible="actionNew.name === 'open_dialog_update_pod_spec'"
+               v-if="action.name === 'open_dialog_update_pod_spec'"
+               :visible="action.name === 'open_dialog_update_pod_spec'"
                class="size-1000 pod_spec"
                @close="closeDialog"
                bodyPadding="0px"
@@ -548,7 +548,7 @@ affinity:
         </el-tooltip>
       </div>
       <div class="__editor">
-        <codemirror v-model="actionNew.data" :options="editorAffinityOptions"></codemirror>
+        <codemirror v-model="action.data" :options="editorAffinityOptions"></codemirror>
       </div>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
@@ -608,15 +608,15 @@ tolerations:
     </el-dialog>
 
     <el-dialog title="K8S实时信息展示"
-               v-if="actionNew.name === 'open-dialog-k8s-info'"
-               :visible="actionNew.name === 'open-dialog-k8s-info'"
+               v-if="action.name === 'open-dialog-k8s-info'"
+               :visible="action.name === 'open-dialog-k8s-info'"
                class="size-1000 k8s-info"
                @close="closeDialog"
                bodyPadding="0px"
                :close-on-click-modal="false"
     >
       <div class="__editor">
-        <codemirror v-model="actionNew.data" :options="showK8sResourceOptions"></codemirror>
+        <codemirror v-model="action.data" :options="showK8sResourceOptions"></codemirror>
       </div>
     </el-dialog>
   </div>
@@ -1056,8 +1056,8 @@ tolerations:
           name: null,
           row: null
         },
-        // actionNew will replace action
-        actionNew: {
+        // action will replace action
+        action: {
           row: null,
           name: null,
           promise: {
@@ -1194,30 +1194,11 @@ tolerations:
         this.profileName = profileInfo['name'];
       },
 
-      openDialog(name, data) {
-        if (undefined !== data) {
-          this.actionNew.dataOrigin = data;
-          this.actionNew.data = this.$utils.cloneDeep(data);
-        } else {
-        }
-        this.actionNew.name = name;
-        // console.log(this.actionNew);
-            return new Promise((resolve, reject) => {
-            this.actionNew.promise.resolve = resolve;
-            this.actionNew.promise.reject = reject;
-          });
-      },
-      closeDialog() {
-        this.actionNew.name = null;
-        this.actionNew.promise.reject('cancel');
-      },
-
       async handleDialogEvent(evt, action, data) {
-//        console.log(evt, action);
         try {
           switch (action) {
             case 'service_deploy':
-                this.actionNew.promise.resolve(this.actionNew.data);
+                this.action.promise.resolve(this.action.data);
               break;
           }
         } catch(err) {
@@ -1242,7 +1223,7 @@ tolerations:
             this.rollingUpStatus.deployHistoryList = [];
             resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.latest_deploy_log_by_work_order, {
               params: {
-                serviceId: this.actionNew.row.id,
+                serviceId: this.action.row.id,
                 workOrderId: data.workOrderDeployId
               }
             });
@@ -1287,8 +1268,8 @@ tolerations:
               resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.image_rollback, {
                 payload: {
                   image: this.rollingUpStatus.deployHistorySelected.fullImage,
-                  id: this.actionNew.row.id,
-                  appId: this.actionNew.row.appId,
+                  id: this.action.row.id,
+                  appId: this.action.row.appId,
                   spaceId: this.profileInfo.id,
                   groupId: this.$storeHelper.currentGroupID,
                 }
@@ -1630,7 +1611,7 @@ tolerations:
         if (!['service_quick_deploy', 'service_stop', 'service_delete'].includes(action)) {
           return null;
         }
-        if (!this.actionNew.row) {
+        if (!this.action.row) {
           return;
         }
         const h = this.$createElement;
@@ -1806,7 +1787,7 @@ tolerations:
               groupId: this.$storeHelper.groupInfo.id,
               namespace: this.$storeHelper.groupInfo.tag,
               appConfigId: this.action.row.id,
-              podSpecContent: this.actionNew.data,
+              podSpecContent: this.action.data,
               configServiceName: this.action.row.serviceName
             }
           });
@@ -1978,7 +1959,6 @@ tolerations:
         }
         this.action.name = action;
         this.action.row = row;
-        this.actionNew.row = row;
         var resContent = null;
         var obj = null;
         switch (action) {
@@ -2054,7 +2034,7 @@ tolerations:
                 id: row.id,
                 appId: row.appId,
                 spaceId: this.profileInfo.id,
-                forceClone: this.actionNew.data.forceClone,
+                forceClone: this.action.data.forceClone,
                 logType: 'deployLog',
                 expiredDays: 1,
                 remainExpiredDays: row.remainExpiredDays,
@@ -2086,7 +2066,7 @@ tolerations:
 
               obj = this.getInfoForMsgBox(action);
               if (this.profileInfo.spaceType === 'PRODUCTION') {
-                this.actionNew.data = '';
+                this.action.data = '';
                 await this.$msgbox({
                   title: obj.title,
                   message: this.$createElement('div', null, obj.vNodes),
@@ -2173,7 +2153,7 @@ tolerations:
             var desc = this.getVersionDescription();
             try {
               if (this.profileInfo.spaceType === 'PRODUCTION') {
-                this.actionNew.data = '';
+                this.action.data = '';
                 obj = this.getInfoForMsgBox(action);
                 await this.$msgbox({
                   title: obj.title,
@@ -2237,7 +2217,7 @@ tolerations:
             var desc = this.getVersionDescription();
             try {
               if (this.profileInfo.spaceType === 'PRODUCTION') {
-                this.actionNew.data = '';
+                this.action.data = '';
                 obj = this.getInfoForMsgBox(action);
                 await this.$msgbox({
                   title: obj.title,
