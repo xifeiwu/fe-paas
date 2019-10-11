@@ -51,8 +51,8 @@
       </div>
       <paas-dismiss-message :toExpand="showWarning"
                             @status-change="active => {this.showWarning = active; onScreenSizeChange()}"
-                            style="margin-left: -5px; margin-right: -5px;"
-                            :msgList="['默认只查询非结束状态的工单，如需查看已结束的工单，请在审批状态下拉列表中选择“结束”选项']"></paas-dismiss-message>
+                            style="margin-left: -5px; margin-right: -5px; margin-top: 3px;"
+                            :msgList="'默认只查询非结束状态的工单，如需查看已结束的工单，请在审批状态下拉列表中选择“结束”选项'"></paas-dismiss-message>
     </div>
     <div class="work-order-list">
       <el-table :data="workOrderListByPage"

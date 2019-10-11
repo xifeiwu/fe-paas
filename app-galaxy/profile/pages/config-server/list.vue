@@ -119,7 +119,7 @@
                     </el-form-item>
                 </el-form>
             </div>
-            <paas-dismiss-message :msgList="['提示:类似“datasource.*.password”的字段值仅DBA岗位用户可以修改和查看，其他岗位用户只会看到“********”并且无法修改该字段值']"></paas-dismiss-message>
+            <paas-dismiss-message :msgList="'提示:类似“datasource.*.password”的字段值仅DBA岗位用户可以修改和查看，其他岗位用户只会看到“********”并且无法修改该字段值'"></paas-dismiss-message>
             <div slot="footer" class="pa-3" style="text-align: center">
                 <el-button type="success" size="medium" @click="saveFile('editFileForm')">&emsp;保 存 修 改&emsp;
                 </el-button>

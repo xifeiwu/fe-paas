@@ -2,7 +2,10 @@
   <div :class="{'paas-dismiss-message': true, 'expand': toExpand || expanding || expanded}">
     <custom-slide-up-down :active="expanding" :duration="duration" class="content"
                           @open-end="handleClick('open-end')" @close-end="handleClick('close-end')">
-      <div v-for="item in msgList">{{item}}</div>
+      <div v-if="Array.isArray(msgList)">
+        <div v-for="(item, index) in msgList">{{index+1}}. {{item}}</div>
+      </div>
+      <div v-else>{{msgList}}</div>
     </custom-slide-up-down>
     <i v-if="false" lass="paas-icon-double-arrow-right" style="transform: rotate(270deg)" @click="handleClick('shrink')"></i>
     <i v-if="false" class="paas-icon-fa-question" @click="handleClick('expand')"></i>
@@ -49,7 +52,7 @@
     },
     props: {
       msgList: {
-        type: Array,
+        type: [String, Array],
         default: []
       },
       showSeconds: {

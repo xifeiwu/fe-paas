@@ -260,7 +260,7 @@
 
       <div v-if="!bindServiceProps.showResponse">
         <paas-dismiss-message :toExpand="true" showSeconds="0" style="margin: -2px -4px 6px -4px;"
-                              :msgList="[bindServiceProps.bindTipForApp]"></paas-dismiss-message>
+                              :msgList="bindServiceProps.bindTipForApp"></paas-dismiss-message>
         <paas-service-selector ref="service-selector-in-bind-service-dialog"
                                :fixedInfo="fixedInfoForVersionCondition"
                                :customConfig="dialogCustomConfig"

@@ -34,8 +34,25 @@
         <span>刷新</span>
         <i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
       </el-button>
-      <i class="paas-icon-question"
-         v-pop-on-mouse-over="['灰度服务的部署，需要申请工单，在部署工单页面进行', '灰度服务部署完成后，才能进行调整实例数、设置灰度策略及完成灰度发布操作']"></i>
+      <i class="paas-icon-question" v-if="false"
+         v-pop-on-mouse-over="[
+           '灰度服务的部署，需要申请工单，在部署工单页面进行',
+           '灰度服务部署完成后，才能进行调整实例数、设置灰度策略及完成灰度发布操作',
+           '灰度发布的作用是从主服务中切换部分流量到灰度服务上，待验证没问题后将主服务版本换成灰度服务版本，故会在灰度发布过程中会创建一个过渡期的灰度服务版本，待灰度发布完成，灰度服务版本会被删除。'
+         ]"></i>
+      <div class="toggle-warning">
+        <i class="paas-icon-double-arrow-right" style="transform: rotate(270deg); " v-if="showWarning" @click="showWarning = false"></i>
+        <i class="paas-icon-question" v-if="!showWarning" @click="showWarning = true"></i>
+      </div>
+      <paas-dismiss-message
+              :toExpand="showWarning"
+              @status-change="active => {this.showWarning = active; onScreenSizeChange()}"
+              style="margin-left: -5px; margin-right: -5px; margin-top: 3px;"
+              :msgList="[
+           '灰度服务的部署，需要申请工单，在部署工单页面进行',
+           '灰度服务部署完成后，才能进行调整实例数、设置灰度策略及完成灰度发布操作',
+           '灰度发布的作用是从主服务中切换部分流量到灰度服务上，待验证没问题后将主服务版本换成灰度服务版本，故会在灰度发布过程中会创建一个过渡期的灰度服务版本，待灰度发布完成，灰度服务版本会被删除。'
+       ]"></paas-dismiss-message>
     </div>
     <div class="list">
       <el-table :data="serviceList"
@@ -132,11 +149,11 @@
       <div class="content">
         <paas-dismiss-message :toExpand="true"
                               showSeconds="0"
-                              @status-change="active => {this.showWarning = active; onScreenSizeChange()}"
+                              @status-change="active => {}"
                               style="margin: 0px -2px"
                               :msgList="action.name == 'open_dialog_service_gray_update_instance_count' ?
-                              ['灰度服务版本初始默认实例数为1，请根据需要调整主服务版本和灰度服务版本的实例数比例，保存后将会立即生效']
-                              :['灰度发布的作用是从主服务中切换部分流量到灰度服务上，待验证没问题后将主服务换成灰度服务，因此所选服务互为同一个业务的不同版本的服务']
+                              '灰度服务版本初始默认实例数为1，请根据需要调整主服务版本和灰度服务版本的实例数比例，保存后将会立即生效'
+                              :'目前提供3种灰度策略，并有优先级之分，请合理配置，保存后将会立即生效'
                               "></paas-dismiss-message>
         <el-form :model="action.row" size="mini" label-width="100px" ref="newDomainForm">
           <el-form-item label="网络类型" class="" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
@@ -252,7 +269,6 @@
         color: #eb9e05;
       }
       .paas-icon-question {
-        margin-left: 12px;
         color: $--color-warning,
       }
     }
@@ -375,6 +391,9 @@
     },
     data() {
       return {
+        heightOfTable: '',
+        showWarning: true,
+
         STATE: STATE,
         step: STATE['START'],
         serviceId: null,
