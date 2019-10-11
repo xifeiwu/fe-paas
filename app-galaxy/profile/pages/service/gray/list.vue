@@ -48,6 +48,7 @@
               :toExpand="showWarning"
               @status-change="active => {this.showWarning = active; onScreenSizeChange()}"
               style="margin-left: -5px; margin-right: -5px; margin-top: 3px;"
+              showSeconds="180"
               :msgList="[
            '灰度服务的部署，需要申请工单，在部署工单页面进行',
            '灰度服务部署完成后，才能进行调整实例数、设置灰度策略及完成灰度发布操作',
@@ -155,7 +156,7 @@
                               '灰度服务版本初始默认实例数为1，请根据需要调整主服务版本和灰度服务版本的实例数比例，保存后将会立即生效'
                               :'目前提供3种灰度策略，并有优先级之分，请合理配置，保存后将会立即生效'
                               "></paas-dismiss-message>
-        <el-form :model="action.row" size="mini" label-width="100px" ref="newDomainForm">
+        <el-form :model="grayStrategy" :rules="strategyRules" size="mini" label-width="100px" ref="updateStrategyForm">
           <el-form-item label="网络类型" class="" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
             <el-checkbox-group v-model="grayStrategy.listIngress" v-if="grayStrategyFromNet.listIngress">
               <el-checkbox v-for="item in grayStrategyFromNet.listIngress" :label="item.host" :key="item.host">
@@ -174,31 +175,39 @@
                v-pop-on-mouse-over="'主服务及灰度服务实例数不能少于一个'">
             </i>
           </el-form-item>
-          <el-form-item label="灰度策略" class="strategy" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
+          <el-form-item label="灰度策略" class="message-show" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
             <el-row style="font-weight: bold">
               <el-col :span="5" class="name">流量类型</el-col>
               <el-col :span="15" class="value">关键字</el-col>
               <el-col :span="4" class="level">优先级</el-col>
             </el-row>
-            <el-row class="rule request-header">
+          </el-form-item>
+          <el-form-item class="strategy request-header" prop="requestHeader" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
+            <el-row>
               <el-col :span="5" class="name">
                 <el-checkbox v-model="grayStrategy.headerKeySelected">request header</el-checkbox>
               </el-col>
-              <el-col :span="15" class="value">
-                <el-input v-model="grayStrategy.headerKey" placeholder="属性"></el-input>
-                <span> = </span>
-                <el-input v-model="grayStrategy.headerValue" placeholder="匹配值"></el-input>
+              <el-col :span="15" class="value" style="display: inline-flex">
+                <el-input v-model="grayStrategy.headerKey" placeholder="属性，不能超过100个字符" style="flex: 1"></el-input>
+                <span style="width: 24px; text-align: center;"> = </span>
+                <el-input v-model="grayStrategy.headerValue" placeholder="匹配值，不能超过100个字符" style="flex: 1"></el-input>
               </el-col>
               <el-col :span="4" class="level">高</el-col>
             </el-row>
-            <el-row class="rule">
+          </el-form-item>
+          <el-form-item class="strategy cookie" prop="cookie" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
+            <el-row>
               <el-col :span="5" class="name"><el-checkbox v-model="grayStrategy.cookieSelected">cookie</el-checkbox></el-col>
-              <el-col :span="15" class="value"><el-input v-model="grayStrategy.cookie" placeholder="属性"></el-input></el-col>
+              <el-col :span="15" class="value"><el-input v-model="grayStrategy.cookie" placeholder="不能超过100个字符"></el-input></el-col>
               <el-col :span="4" class="level">中</el-col>
             </el-row>
-            <el-row class="rule">
+          </el-form-item>
+          <el-form-item class="strategy weight" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
+            <el-row>
               <el-col :span="5" class="name"><el-checkbox v-model="grayStrategy.weightSelected">weight</el-checkbox></el-col>
-              <el-col :span="15" class="value"><el-input v-model="grayStrategy.weight" placeholder="属性"></el-input></el-col>
+              <el-col :span="15" class="value">
+                <el-input-number v-model="grayStrategy.weight" :min="0" :max="100" label="流向灰度服务端权重"></el-input-number>
+              </el-col>
               <el-col :span="4" class="level">低</el-col>
             </el-row>
           </el-form-item>
@@ -263,13 +272,14 @@
         }
       }
       .toggle-warning {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
         line-height: 24px;
-        margin-left: 12px;
-        color: #eb9e05;
+        margin-left: 10px;
+        color: $--color-warning;
+        cursor: pointer;
       }
       .paas-icon-question {
-        color: $--color-warning,
       }
     }
     > .list {
@@ -328,7 +338,23 @@
         }
       }
       &.update-strategy {
-        @include form-strategy;
+        .el-form {
+          margin-top: 10px;
+          .strategy {
+            .el-input {
+              width: 100%;
+            }
+            &.request-header {
+              .value {
+                .el-input {
+                }
+              }
+            }
+            .level {
+              text-align: center;
+            }
+          }
+        }
       }
     }
   }
@@ -426,12 +452,56 @@
           canaryInstanceNum: 0,
           masterInstanceNum: 0,
           headerKeySelected: false,
+          // used for check headerKey and headerValue, requestHeader=headerKey$$$$$$headerValue
+          requestHeader: '',
           headerKey: '',
           headerValue: '',
           cookieSelected: false,
           cookie: '',
           weightSelected: false,
           weight: 0,
+        },
+        strategyRules: {
+          requestHeader: [{
+            trigger: ['blur', 'change'],
+            validator(rule, values, callback) {
+              var errMessage = '';
+              if (values !== '$$$$$$') {
+                const [headerKey, headerValue] = values.split('$$$$$$');
+                if (headerValue.length == 0) {
+                  errMessage = '匹配值不能为空';
+                }
+                if (headerValue.length >= 100) {
+                  errMessage = '匹配值不能超过100个字符';
+                }
+                if (headerKey.length == 0) {
+                  errMessage = '属性不能为空';
+                }
+                if (headerKey.length >= 100) {
+                  errMessage = '属性不能超过100个字符';
+                }
+              }
+              if (errMessage) {
+                callback(errMessage);
+              } else {
+                callback();
+              }
+            }
+          }],
+          cookie: [{
+            trigger: ['blur', 'change'],
+            validator(rule, values, callback) {
+              var errMessage = '';
+              if (values && values.length && values.length >= 100) {
+                errMessage = '不能超过100个字符';
+              }
+              if (errMessage) {
+                callback(errMessage);
+              } else {
+                callback();
+              }
+            }
+          }],
         },
         dialogStatusGrayApply: {
           title: '',
@@ -451,6 +521,29 @@
           }
         }
         this.grayApplication.canaryInstanceNum = this.grayApplicationFromNet.totalInstanceNum - mainNum;
+      },
+      'grayStrategy.cookie': function(cookie) {
+        if (this.$utils.isString(cookie)) {
+          this.grayStrategy.cookieSelected = cookie.length > 0;
+        }
+      },
+      'grayStrategy.weight': function (weight) {
+        this.grayStrategy.weightSelected = this.$utils.isNumber(weight);
+      },
+      'grayStrategy.headerKey': function (headerKey) {
+        this.grayStrategy.requestHeader = `${this.grayStrategy.headerKey.trim()}$$$$$$${this.grayStrategy.headerValue.trim()}`;
+      },
+      'grayStrategy.headerValue': function (headerValue) {
+        this.grayStrategy.requestHeader = `${this.grayStrategy.headerKey.trim()}$$$$$$${this.grayStrategy.headerValue.trim()}`;
+      },
+      'grayStrategy.requestHeader': function (requestHeader) {
+        this.grayStrategy.headerKeySelected = requestHeader !== '$$$$$$';
+      },
+      'grayStrategy.headerKeySelected': function (headerSelected) {
+        if (!headerSelected) {
+          this.grayStrategy.headerKey = '';
+          this.grayStrategy.headerValue = '';
+        }
       }
     },
     methods: {
@@ -566,9 +659,13 @@
         this.grayStrategy.listIngress = grayStrategyFromNet['listIngress'].filter(it => it.hasCanary).map(it => it.host);
         this.grayStrategy.canaryInstanceNum = grayStrategyFromNet.canaryInstanceNum >= 0 ? grayStrategyFromNet.canaryInstanceNum : 0;
         this.grayStrategy.masterInstanceNum = grayStrategyFromNet.masterInstanceNum >= 0 ? grayStrategyFromNet.masterInstanceNum : 0;
-        this.grayStrategy.headerKeySelected = grayStrategyFromNet.headerKeySelected;
-        this.grayStrategy.headerKey = grayStrategyFromNet.headerKey;
-        this.grayStrategy.headerValue = grayStrategyFromNet.headerValue;
+        this.grayStrategy.headerKey = grayStrategyFromNet.headerKey ? grayStrategyFromNet.headerKey : '';
+        this.grayStrategy.headerValue = grayStrategyFromNet.headerValue ? grayStrategyFromNet.headerValue : '';
+        if (!this.grayStrategy.headerKey && !this.grayStrategy.headerValue) {
+          this.grayStrategy.headerKeySelected = false;
+        } else {
+          this.grayStrategy.headerKeySelected = grayStrategyFromNet.headerKeySelected;
+        }
         this.grayStrategy.cookieSelected = grayStrategyFromNet.cookieSelected;
         this.grayStrategy.cookie = grayStrategyFromNet.cookie;
         this.grayStrategy.weightSelected = grayStrategyFromNet.weightSelected;
@@ -661,6 +758,7 @@
               }[action], {
                 payload
               });
+              this.$message.success('实例数更新成功！');
             } catch (err) {
               console.log(err);
             } finally {
@@ -680,6 +778,7 @@
               }[action], {
                 payload
               });
+              this.$message.success('灰度策略更新成功！');
             } catch (err) {
               console.log(err);
             } finally {
@@ -789,6 +888,7 @@
             break;
           case 'service_gray_update_strategy':
             try {
+              await this.$refs['updateStrategyForm'].validate();
               // var payload = this.$utils.deepMerge({}, this.grayStrategy);
               var payload = this.$utils.cloneDeep(this.grayStrategy);
               payload.listIngress = this.grayStrategyFromNet.listIngress.map(it => {
