@@ -1,7 +1,7 @@
 <template>
   <el-scrollbar id="service-add">
     <div class="sheet">
-      <div class="section-title">{{title}}</div>
+      <div class="section-title"><span>{{title}}</span></div>
       <el-form :model="formData" ref="formData"
                :rules="rules" :label-width="formRelated.isJavaLanguage ? '160px' : '160px'" size="mini"
                :element-loading-text="loadingText">
@@ -95,7 +95,7 @@
                         class="relative-path-of-parent-pom">
             <el-input v-model="formData.relativePath" class="max-width-500"
                       placeholder="原“Gitlab父级pom.xml相对路径”字段，不能超过256个字符，不能以/开头"></el-input>
-            <i class="paas-icon-fa-question"
+            <i class="paas-icon-question"
                v-pop-on-mouse-over="'原“Gitlab父级pom.xml相对路径”字段，用于非标准目录结构项目，填写项目根目录的相对路径，以便后续 mvn 打包使用'"></i>
           </el-form-item>
         </transition>
@@ -118,9 +118,9 @@
                       :rows="4"
                       placeholder="不能包含中文，不能超过512个字符"
             ></el-input>
-            <div style="color:#409EFF; display:flex; align-items: flex-start; cursor:pointer; font-size: 12px; line-height: 16px;">
-              <span style="line-height: 20px;" @click="handleClick($event, 'set-default-vmOptions')">帮我填</span>
-              <i class="paas-icon-fa-question" v-pop-on-mouse-over="'填写默认的VM_options'"></i>
+            <div style="color:#409EFF; display:flex; align-items: flex-start; cursor:pointer; font-size: 12px; line-height: 20px;">
+              <span @click="handleClick($event, 'set-default-vmOptions')">帮我填</span>
+              <i style="font-size:12px; line-height: 20px;" class="paas-icon-question" v-pop-on-mouse-over="'填写默认的VM_options'"></i>
             </div>
           </div>
         </el-form-item>
@@ -128,7 +128,7 @@
           <el-radio-group v-model="formData.rollingUpdate" :disabled="forGray">
             <el-radio :label="true">需要</el-radio>
             <el-radio :label="false">不需要</el-radio>
-            <i class="paas-icon-fa-question"
+            <i class="paas-icon-question"
                v-pop-on-mouse-over="'滚动部署是为了实现业务的平滑上线而不中断，除了定时器外，建议其他应用都可以选用滚动部署'"></i>
           </el-radio-group>
         </el-form-item>
@@ -164,22 +164,22 @@
               <div class="initial-delay item" style="line-height: 28px">
                 <span>延迟时间：</span>
                 <el-input-number v-model="formData.healthCheck.initialDelay" :min="30" :max="300" label="延迟时间" :disabled="forGray"></el-input-number>
-                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位秒。指实例启动后，多久开始探测。例如，启动延时设置为5，那么健康检查将在实例启动5秒后开始。默认值为120，范围30-300'"></i>
+                <i class="paas-icon-question" v-pop-on-mouse-over="'单位秒。指实例启动后，多久开始探测。例如，启动延时设置为5，那么健康检查将在实例启动5秒后开始。默认值为120，范围30-300'"></i>
               </div>
               <div class="period-seconds item" style="line-height: 28px">
                 <span>间隔时间：</span>
                 <el-input-number v-model="formData.healthCheck.periodSeconds" :min="1" :max="10" label="间隔时间" :disabled="forGray"></el-input-number>
-                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位秒。指健康检查的频率。例如，间隔时间设置成10，那么集群会每隔10s检查一次。默认值为5，范围1-10'"></i>
+                <i class="paas-icon-question" v-pop-on-mouse-over="'单位秒。指健康检查的频率。例如，间隔时间设置成10，那么集群会每隔10s检查一次。默认值为5，范围1-10'"></i>
               </div>
               <div class="failure-threshold item" style="line-height: 28px">
                 <span>不健康阈值：</span>
                 <el-input-number v-model="formData.healthCheck.failureThreshold" :min="1" :max="10" label="不健康阈值" :disabled="forGray"></el-input-number>
-                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位次。该参数指健康检查连续失败多少次后，才判定实例是不健康的。例如不健康阈值设置成 3，只有满足连续 3 次都探测失败了，才认为容器是不健康的。默认值为5，范围1-10'"></i>
+                <i class="paas-icon-question" v-pop-on-mouse-over="'单位次。该参数指健康检查连续失败多少次后，才判定实例是不健康的。例如不健康阈值设置成 3，只有满足连续 3 次都探测失败了，才认为容器是不健康的。默认值为5，范围1-10'"></i>
               </div>
               <div class="timeout-seconds item" style="line-height: 28px">
                 <span>响应超时：</span>
                 <el-input-number v-model="formData.healthCheck.timeoutSeconds" :min="10" :max="120" label="响应超时" :disabled="forGray"></el-input-number>
-                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'单位秒。指健康探测的超时时间。在这里是HTTP 请求响应超时时间。默认值为10，范围10-120'"></i>
+                <i class="paas-icon-question" v-pop-on-mouse-over="'单位秒。指健康探测的超时时间。在这里是HTTP 请求响应超时时间。默认值为10，范围10-120'"></i>
               </div>
             </el-form-item>
           </div>
@@ -211,7 +211,7 @@
         </el-form-item>
         <el-form-item label="过期时间(天)" prop="remainExpiredDays" class="expired-days" v-if="!formRelated.isProductionProfile">
           <el-input-number v-model="formData.remainExpiredDays" :min="1" :max="365" :disabled="forGray"></el-input-number>
-          <i class="paas-icon-fa-question" v-pop-on-mouse-over="'服务的实例将在指定时间后被删除，最大值为一年'"></i>
+          <i class="paas-icon-question" v-pop-on-mouse-over="'服务的实例将在指定时间后被删除，最大值为一年'"></i>
         </el-form-item>
         <custom-slide-up-down :active="startShowMoreConfig" :duration="500" class="more-config"
                               @open-end="hasShowMoreConfig = true; scrollBottom()"
@@ -222,7 +222,7 @@
               <div class="el-col el-col-7 value">Value</div>
               <div class="el-col el-col-8 remark">备注</div>
               <div class="el-col el-col-2" style="text-align: center">
-                <i class="paas-icon-fa-question"
+                <i class="paas-icon-question"
                    v-pop-on-mouse-over="['容器运行前设置的环境变量', '如env中的Name：string（环境变量名称），Value：string（环境变量的值）']"></i>
               </div>
             </div>
@@ -258,7 +258,7 @@
               <div class="el-col el-col-11 key">IP</div>
               <div class="el-col el-col-11 value">域名</div>
               <div class="el-col el-col-2" style="text-align: center">
-                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'该Host为/etc/hosts，配置主机名和IP地址。如：192.168.1.10 finup100'"></i>
+                <i class="paas-icon-question" v-pop-on-mouse-over="'该Host为/etc/hosts，配置主机名和IP地址。如：192.168.1.10 finup100'"></i>
               </div>
             </div>
             <el-row class="content"
@@ -289,7 +289,7 @@
               <el-radio :label="true">需要</el-radio>
               <el-radio :label="false">不需要</el-radio>
               <div style="display: inline-block; margin-left: 6px;">
-                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'如果开启jacoco，则端口映射的目标端口固定为：8144，Pipeline启动的实例数量强制设为1'"></i>
+                <i class="paas-icon-question" v-pop-on-mouse-over="'如果开启jacoco，则端口映射的目标端口固定为：8144，Pipeline启动的实例数量强制设为1'"></i>
               </div>
             </el-radio-group>
           </el-form-item>
@@ -297,8 +297,8 @@
             <div class="el-row title">
               <div class="el-col el-col-6">
                 <span>访问端口</span>
-                <i class="paas-icon-fa-question" v-if="formData.portMap.update" v-pop-on-mouse-over="['访问端口的范围在40000~59999之间']"></i>
-                <i class="paas-icon-fa-question" v-else v-pop-on-mouse-over="['访问端口由后端自动生成', '服务创建成功后，可以进行修改']"></i>
+                <i class="paas-icon-question" v-if="formData.portMap.update" v-pop-on-mouse-over="['访问端口的范围在40000~59999之间']"></i>
+                <i class="paas-icon-question" v-else v-pop-on-mouse-over="['访问端口由后端自动生成', '服务创建成功后，可以进行修改']"></i>
               </div>
               <div class="el-col el-col-2" style="min-height:1px"></div>
               <div class="el-col el-col-6">目标端口</div>
@@ -314,14 +314,14 @@
               </el-col>
               <el-col :span="2">TCP</el-col>
               <div class="el-col el-col-2">
-                <i class="paas-icon-fa-question" v-pop-on-mouse-over="'端口映射的内网访问域名为：galaxy.autotest.beta'"></i>
+                <i class="paas-icon-question" v-pop-on-mouse-over="'端口映射的内网访问域名为：galaxy.autotest.beta'"></i>
               </div>
             </el-row>
           </el-form-item>
           <el-form-item label="服务停止期限" prop="terminationGracePeriodSeconds"class="terminationGracePeriodSeconds">
             <el-input v-model="formData.terminationGracePeriodSeconds" class="max-width-500"
                       placeholder="10-300之间的整数，单位：秒" :disabled="forGray"></el-input>
-            <i class="paas-icon-fa-question" v-pop-on-mouse-over="'从触发容器删除请求到完成删除的宽限时间，这是一种容器钩子，在该钩子对应的hook handler 完成后不论执行的结果如何， Docker daemon会发送一个SIGTERN信号量给Docker daemon来删除该容器，默认30秒'"></i>
+            <i class="paas-icon-question" v-pop-on-mouse-over="'从触发容器删除请求到完成删除的宽限时间，这是一种容器钩子，在该钩子对应的hook handler 完成后不论执行的结果如何， Docker daemon会发送一个SIGTERN信号量给Docker daemon来删除该容器，默认30秒'"></i>
           </el-form-item>
           <el-form-item label="prestop脚本" prop="preStopExec"
                         class="preStopExec">
@@ -462,6 +462,10 @@
       padding: 10px 20px;
       max-width: 900px;
       box-sizing: border-box;
+      .paas-icon-question {
+        font-size: 12px;
+        color: #E6A23C;
+      }
       .section-title {
         margin: 15px 0px;
         font-size: 18px;
@@ -488,10 +492,6 @@
           &:hover {
             color: gray;
           }
-        }
-        .paas-icon-fa-question {
-          font-size: 12px;
-          color: #E6A23C;
         }
         .el-form-item-group {
         }
