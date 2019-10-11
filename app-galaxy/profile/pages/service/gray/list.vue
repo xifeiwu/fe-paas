@@ -23,12 +23,12 @@
       <el-button size="mini" type="primary"
                  :class="[step<STATE['WORK_ORDER_DEPLOYED'] ?'disabled':'']"
                  @click="handleClick($event, 'open_dialog_service_gray_update_strategy')">
-        <span class="step-tag">3</span><span>设置灰度策略</span>
+        <span class="step-tag">4</span><span>设置灰度策略</span>
       </el-button>
       <el-button size="mini" type="primary"
                  :class="[step<STATE['WORK_ORDER_DEPLOYED'] ?'disabled':'']"
                  @click="handleClick($event, 'service_gray_apply')">
-        <span class="step-tag">4</span><span>完成灰度发布</span>
+        <span class="step-tag">5</span><span>完成灰度发布</span>
       </el-button>
       <el-button size="mini" type="primary" @click="handleClick($event, 'refresh')">
         <span>刷新</span>
@@ -659,7 +659,7 @@
             }
             break;
           case 'service_gray_apply':
-            await this.$confirm(`完成灰度发布最终将灰度服务替换掉主服务的过程，完成后可在主服务-灰度发布日志中查看日志，你确定需要完成灰度发布吗？`, '提示', {
+            await this.$confirm(`完成灰度发布是将灰度服务替换掉主服务的过程，完成后可在主服务的部署日志/完成灰度发布日志中查看日志，你确定需要完成灰度发布吗？`, '提示', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',
               type: 'warning',

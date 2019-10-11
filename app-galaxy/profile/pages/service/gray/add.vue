@@ -213,7 +213,7 @@
             </el-radio-button>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="实例数量" prop="instanceCount" class="instance-count">
+        <el-form-item label="实例数量" prop="instanceCount" class="instance-count" v-if="!forGray">
           <el-input-number v-model="formData.instanceCount" :min="1" label="描述文字" :disabled="forGray"></el-input-number>
         </el-form-item>
         <el-form-item label="过期时间(天)" prop="remainExpiredDays" class="expired-days" v-if="!formRelated.isProductionProfile">
