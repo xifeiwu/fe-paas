@@ -212,7 +212,7 @@
               <el-col :span="4" class="level">中</el-col>
             </el-row>
           </el-form-item>
-          <el-form-item class="strategy weight" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
+          <el-form-item class="strategy weight" prop="weight" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
             <el-row>
               <el-col :span="5" class="name"><el-checkbox v-model="grayStrategy.weightSelected">weight</el-checkbox></el-col>
               <el-col :span="15" class="value">
@@ -426,6 +426,7 @@
       this.profileInfo = profileInfo;
 
       this.handleClick(window.event, 'refresh');
+      this.setStrategyRules();
     },
     async mounted() {
       this.onScreenSizeChange(this.$storeHelper.screen.size);
@@ -476,48 +477,6 @@
           weightSelected: false,
           weight: 0,
         },
-        strategyRules: {
-          requestHeader: [{
-            trigger: ['blur', 'change'],
-            validator(rule, values, callback) {
-              var errMessage = '';
-              if (values !== '$$$$$$') {
-                const [headerKey, headerValue] = values.split('$$$$$$');
-                if (headerValue.length == 0) {
-                  errMessage = '匹配值不能为空';
-                }
-                if (headerValue.length >= 100) {
-                  errMessage = '匹配值不能超过100个字符';
-                }
-                if (headerKey.length == 0) {
-                  errMessage = '属性不能为空';
-                }
-                if (headerKey.length >= 100) {
-                  errMessage = '属性不能超过100个字符';
-                }
-              }
-              if (errMessage) {
-                callback(errMessage);
-              } else {
-                callback();
-              }
-            }
-          }],
-          cookie: [{
-            trigger: ['blur', 'change'],
-            validator(rule, values, callback) {
-              var errMessage = '';
-              if (values && values.length && values.length >= 100) {
-                errMessage = '不能超过100个字符';
-              }
-              if (errMessage) {
-                callback(errMessage);
-              } else {
-                callback();
-              }
-            }
-          }],
-        },
         dialogStatusGrayApply: {
           title: '',
           visible: false,
@@ -551,15 +510,9 @@
       'grayStrategy.headerValue': function (headerValue) {
         this.grayStrategy.requestHeader = `${this.grayStrategy.headerKey.trim()}$$$$$$${this.grayStrategy.headerValue.trim()}`;
       },
-      'grayStrategy.requestHeader': function (requestHeader) {
-        this.grayStrategy.headerKeySelected = requestHeader !== '$$$$$$';
-      },
-      'grayStrategy.headerKeySelected': function (headerSelected) {
-        if (!headerSelected) {
-          this.grayStrategy.headerKey = '';
-          this.grayStrategy.headerValue = '';
-        }
-      }
+//      'grayStrategy.requestHeader': function (requestHeader) {
+//        this.grayStrategy.headerKeySelected = requestHeader !== '$$$$$$';
+//      },
     },
     methods: {
       onScreenSizeChange(size) {
@@ -570,7 +523,7 @@
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
           this.heightOfTable = this.$el.clientHeight - headerHeight;
-        } catch(err) {
+        } catch (err) {
         }
       },
       async requestCanaryInfo() {
@@ -641,6 +594,64 @@
         }
         return theData;
       },
+
+      setStrategyRules() {
+        const grayStrategy = this.grayStrategy;
+        const isNumber = this.$utils.isNumber;
+        this.strategyRules = {
+          requestHeader: [{
+            trigger: ['blur', 'change'],
+            validator(rule, values, callback) {
+              var errMessage = '';
+              if (grayStrategy.headerKeySelected && values !== '$$$$$$') {
+                const [headerKey, headerValue] = values.split('$$$$$$');
+                if (headerValue.length >= 100) {
+                  errMessage = '匹配值不能超过100个字符';
+                }
+                if (headerKey.length == 0) {
+                  errMessage = '属性不能为空';
+                }
+                if (headerKey.length >= 100) {
+                  errMessage = '属性不能超过100个字符';
+                }
+              }
+              if (errMessage) {
+                callback(errMessage);
+              } else {
+                callback();
+              }
+            }
+          }],
+          cookie: [{
+            trigger: ['blur', 'change'],
+            validator(rule, values, callback) {
+              var errMessage = '';
+              if (grayStrategy.cookieSelected && values && values.length && values.length >= 100) {
+                errMessage = '不能超过100个字符';
+              }
+              if (errMessage) {
+                callback(errMessage);
+              } else {
+                callback();
+              }
+            }
+          }],
+          weight: [{
+            trigger: ['blur', 'change'],
+            validator(rule, values, callback) {
+              var errMessage = '';
+              if (grayStrategy.weightSelected && !isNumber(values)) {
+                errMessage = '请输入0-100之间的数字';
+              }
+              if (errMessage) {
+                callback(errMessage);
+              } else {
+                callback();
+              }
+            }
+          }]
+        }
+      },
       // 查询灰度实例策略
       async syncCanaryInstanceByServer() {
         const grayApplicationFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_instance_query, {
@@ -674,14 +685,10 @@
         this.grayStrategy.listIngress = grayStrategyFromNet['listIngress'].filter(it => it.hasCanary).map(it => it.host);
         this.grayStrategy.canaryInstanceNum = grayStrategyFromNet.canaryInstanceNum >= 0 ? grayStrategyFromNet.canaryInstanceNum : 0;
         this.grayStrategy.masterInstanceNum = grayStrategyFromNet.masterInstanceNum >= 0 ? grayStrategyFromNet.masterInstanceNum : 0;
+        this.grayStrategy.headerKeySelected = grayStrategyFromNet.headerKeySelected;
         this.grayStrategy.headerKey = grayStrategyFromNet.headerKey ? grayStrategyFromNet.headerKey : '';
         this.grayStrategy.headerValue = grayStrategyFromNet.headerValue ? grayStrategyFromNet.headerValue : '';
         this.grayStrategy.requestHeader = `${this.grayStrategy.headerKey.trim()}$$$$$$${this.grayStrategy.headerValue.trim()}`;
-        if (!this.grayStrategy.headerKey && !this.grayStrategy.headerValue) {
-          this.grayStrategy.headerKeySelected = false;
-        } else {
-          this.grayStrategy.headerKeySelected = grayStrategyFromNet.headerKeySelected;
-        }
         this.grayStrategy.cookieSelected = grayStrategyFromNet.cookieSelected;
         this.grayStrategy.cookie = grayStrategyFromNet.cookie;
         this.grayStrategy.weightSelected = grayStrategyFromNet.weightSelected;
