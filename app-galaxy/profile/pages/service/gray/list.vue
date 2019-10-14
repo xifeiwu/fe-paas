@@ -795,11 +795,18 @@
                 this.$message.error('未找到服务列表');
                 return;
               }
-              const payload = await this.openDialog(action);
+              const grayStrategy = await this.openDialog(action);
+              grayStrategy.listIngress = this.grayStrategyFromNet.listIngress.map(it => {
+                it.hasCanary = this.grayStrategy.listIngress.includes(it.host);
+                return it;
+              });
+              grayStrategy.configId = this.serviceId;
+              grayStrategy.groupId = this.$storeHelper.groupInfo.id;
+              grayStrategy.requestHeader && delete grayStrategy.requestHeader;
               await this.$net.requestPaasServer({
                 open_dialog_service_gray_update_strategy: this.$net.URL_LIST.service_gray_update_strategy
               }[action], {
-                payload
+                payload: grayStrategy
               });
               this.$message.success('灰度策略更新成功！');
             } catch (err) {
@@ -912,20 +919,7 @@
           case 'service_gray_update_strategy':
             try {
               await this.$refs['updateStrategyForm'].validate();
-              // var payload = this.$utils.deepMerge({}, this.grayStrategy);
-              var payload = this.$utils.cloneDeep(this.grayStrategy);
-              payload.listIngress = this.grayStrategyFromNet.listIngress.map(it => {
-                it.hasCanary = this.grayStrategy.listIngress.includes(it.host);
-                return it;
-              });
-              // TODO: delete later
-              // (payload.canaryInstanceNum < 1) && (payload.canaryInstanceNum = 1);
-              // (payload.masterInstanceNum < 1) && (payload.masterInstanceNum = 1);
-              payload.configId = this.serviceId;
-              payload.groupId = this.$storeHelper.groupInfo.id;
-              // console.log(this.grayStrategy);
-              // console.log(payload);
-              this.action.promise.resolve(payload);
+              this.action.promise.resolve(this.$utils.cloneDeep(this.grayStrategy));
             } catch (err) {
               console.log(err);
             }
