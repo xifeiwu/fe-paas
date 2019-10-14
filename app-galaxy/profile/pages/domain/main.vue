@@ -165,7 +165,7 @@
                @close="handleClickInDialog('close-domain-in-dialog')"
     >
       <div v-if="props4CreateDomain.showResponse">
-        <div class="title">
+        <div class="title" style="margin-bottom: 5px;">
           <div class="key">外网域名</div>
           <div class="value">添加状态</div>
         </div>
@@ -174,9 +174,11 @@
           <div class="value">{{value}}</div>
         </div>
       </div>
-      <div slot="footer" class="dialog-footer" style="text-align: center" v-if="props4CreateDomain.showResponse">
-        <el-button type="primary" size="mini"
-                   @click="handleClickInDialog('close-domain-in-dialog')">确&nbsp定</el-button>
+      <div slot="footer" class="dialog-footer flex" v-if="props4CreateDomain.showResponse">
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     @click="handleClickInDialog('close-domain-in-dialog')">确&nbsp定</el-button>
+        </div>
       </div>
 
       <el-form :model="props4CreateDomain" :rules="rules" size="mini" v-if="!props4CreateDomain.showResponse"
@@ -261,23 +263,25 @@
       <div v-if="!bindServiceProps.showResponse">
         <paas-dismiss-message :toExpand="true" showSeconds="0" style="margin: -2px -4px 6px -4px;"
                               :msgList="bindServiceProps.bindTipForApp"></paas-dismiss-message>
-        <paas-service-selector ref="service-selector-in-bind-service-dialog"
-                               :fixedInfo="fixedInfoForVersionCondition"
-                               :customConfig="dialogCustomConfig"
-                               @service-selected="handleConditionChangeInDialog"
-                               v-if="selected.action == 'bind-service'"
-        >
-        </paas-service-selector>
-        <el-form labelWidth="90px" class="selected-domain">
-          <el-form-item label="所选外网域名">
-            <el-tag
-                    v-for="(item, index) in rowsSelected"
-                    :key="index"
-                    type="success"
-                    size="small"
-            >{{item['internetDomain']}}</el-tag>
-          </el-form-item>
-        </el-form>
+        <div style="padding-left: 10px;">
+          <paas-service-selector ref="service-selector-in-bind-service-dialog"
+                                 :fixedInfo="fixedInfoForVersionCondition"
+                                 :customConfig="dialogCustomConfig"
+                                 @service-selected="handleConditionChangeInDialog"
+                                 v-if="selected.action == 'bind-service'"
+          >
+          </paas-service-selector>
+          <el-form labelWidth="90px" class="selected-domain">
+            <el-form-item label="所选外网域名">
+              <el-tag
+                      v-for="(item, index) in rowsSelected"
+                      :key="index"
+                      type="success"
+                      size="small"
+              >{{item['internetDomain']}}</el-tag>
+            </el-form-item>
+          </el-form>
+        </div>
         <div class="helper-text-expanded" style="margin-top: 3px;" v-if="false">
           <div>
             <div style="font-weight: bold; font-size: 14px;">提示 <i class="el-icon-warning"></i></div>
