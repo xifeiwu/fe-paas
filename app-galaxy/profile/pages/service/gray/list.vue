@@ -158,11 +158,14 @@
                               "></paas-dismiss-message>
         <el-form :model="grayStrategy" :rules="strategyRules" size="mini" label-width="100px" ref="updateStrategyForm">
           <el-form-item label="网络类型" class="" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
-            <el-checkbox-group v-model="grayStrategy.listIngress" v-if="grayStrategyFromNet.listIngress">
+            <el-checkbox-group v-model="grayStrategy.listIngress" v-if="grayStrategyFromNet.listIngress && false">
               <el-checkbox v-for="item in grayStrategyFromNet.listIngress" :label="item.host" :key="item.host">
                 {{item.host}}{{item.isIntranet ? '(内网域名)' : ''}}
-            </el-checkbox>
+              </el-checkbox>
             </el-checkbox-group>
+            <el-checkbox v-if="grayStrategyFromNet.listIngress" v-model="grayStrategy.ingressSelected">
+              {{grayStrategyFromNet.listIngress.map(it => `${it.host}(${it.isIntranet ? '内网域名' : '外网域名'})`).join(', ')}}
+            </el-checkbox>
             <i class="el-icon-question" style="width: 18px; line-height: 26px; margin-left: 6px;" v-if="false"
                v-pop-on-mouse-over="'域名只能同时生效，或同时不生效'"></i>
           </el-form-item>
@@ -464,6 +467,7 @@
           canaryServiceName: '',
         },
         grayStrategy: {
+          ingressSelected: null,
           listIngress: [],
           canaryInstanceNum: 0,
           masterInstanceNum: 0,
@@ -496,13 +500,15 @@
         }
         this.grayApplication.canaryInstanceNum = this.grayApplicationFromNet.totalInstanceNum - mainNum;
       },
-      'grayStrategy.cookie': function(cookie) {
-        if (this.$utils.isString(cookie)) {
-          this.grayStrategy.cookieSelected = cookie.length > 0;
+      'grayStrategy.ingressSelected': function (selected) {
+        if (selected === null) {
+          return;
         }
-      },
-      'grayStrategy.weight': function (weight) {
-        this.grayStrategy.weightSelected = this.$utils.isNumber(weight);
+        if (selected && this.grayStrategyFromNet.listIngress) {
+          this.grayStrategy.listIngress = this.grayStrategyFromNet.listIngress.map(it => it.host);
+        } else {
+          this.grayStrategy.listIngress = [];
+        }
       },
       'grayStrategy.headerKey': function (headerKey) {
         this.grayStrategy.requestHeader = `${this.grayStrategy.headerKey.trim()}$$$$$$${this.grayStrategy.headerValue.trim()}`;
@@ -510,6 +516,14 @@
       'grayStrategy.headerValue': function (headerValue) {
         this.grayStrategy.requestHeader = `${this.grayStrategy.headerKey.trim()}$$$$$$${this.grayStrategy.headerValue.trim()}`;
       },
+//      'grayStrategy.cookie': function(cookie) {
+//        if (this.$utils.isString(cookie)) {
+//          this.grayStrategy.cookieSelected = cookie.length > 0;
+//        }
+//      },
+//      'grayStrategy.weight': function (weight) {
+//        this.grayStrategy.weightSelected = this.$utils.isNumber(weight);
+//      },
 //      'grayStrategy.requestHeader': function (requestHeader) {
 //        this.grayStrategy.headerKeySelected = requestHeader !== '$$$$$$';
 //      },
@@ -682,7 +696,11 @@
           }
         });
 
-        this.grayStrategy.listIngress = grayStrategyFromNet['listIngress'].filter(it => it.hasCanary).map(it => it.host);
+        this.grayStrategy.ingressSelected = null;
+        setTimeout(() => {
+          // set in setTimeout make sure grayStrategy.ingressSelected is watched
+          this.grayStrategy.ingressSelected = grayStrategyFromNet['listIngress'].some(it => it.hasCanary);
+        });
         this.grayStrategy.canaryInstanceNum = grayStrategyFromNet.canaryInstanceNum >= 0 ? grayStrategyFromNet.canaryInstanceNum : 0;
         this.grayStrategy.masterInstanceNum = grayStrategyFromNet.masterInstanceNum >= 0 ? grayStrategyFromNet.masterInstanceNum : 0;
         this.grayStrategy.headerKeySelected = grayStrategyFromNet.headerKeySelected;
