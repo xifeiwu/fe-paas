@@ -6,6 +6,7 @@ const popper = new (Vue.extend(PopoverMessage))({
 });
 popper.popperClass = 'el-popover--small is-dark';
 popper.customStyle = {
+  color: '#eb9e05',
   fontSize: '12px',
   fontWeight: 'bold',
   maxWidth: '600px'

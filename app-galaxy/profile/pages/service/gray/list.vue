@@ -163,6 +163,8 @@
                 {{item.host}}{{item.isIntranet ? '(内网域名)' : ''}}
             </el-checkbox>
             </el-checkbox-group>
+            <i class="el-icon-question" style="width: 18px; line-height: 26px; margin-left: 6px;" v-if="false"
+               v-pop-on-mouse-over="'域名只能同时生效，或同时不生效'"></i>
           </el-form-item>
           <el-form-item label="实例数" class="instance-number" v-if="action.name == 'open_dialog_service_gray_update_instance_count'">
             <span>主服务实例数：{{grayApplication.masterInstanceNum}}</span>
@@ -175,7 +177,7 @@
                v-pop-on-mouse-over="'主服务及灰度服务实例数不能少于一个'">
             </i>
           </el-form-item>
-          <el-form-item label="灰度策略" class="message-show" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
+          <el-form-item label="灰度策略" class="strategy title message-show" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
             <el-row style="font-weight: bold">
               <el-col :span="5" class="name">流量类型</el-col>
               <el-col :span="15" class="value">关键字</el-col>
@@ -188,9 +190,13 @@
                 <el-checkbox v-model="grayStrategy.headerKeySelected">request header</el-checkbox>
               </el-col>
               <el-col :span="15" class="value" style="display: inline-flex">
-                <el-input v-model="grayStrategy.headerKey" placeholder="属性，不能超过100个字符" style="flex: 1"></el-input>
+                <el-input v-model="grayStrategy.headerKey" placeholder="属性，不能超过100个字符" style="flex: 1" :disabled="!grayStrategy.headerKeySelected"></el-input>
                 <span style="width: 24px; text-align: center;"> = </span>
-                <el-input v-model="grayStrategy.headerValue" placeholder="匹配值，不能超过100个字符" style="flex: 1"></el-input>
+                <el-input v-model="grayStrategy.headerValue" placeholder="匹配值，不能超过100个字符" style="flex: 1" :disabled="!grayStrategy.headerKeySelected"></el-input>
+                <i class="el-icon-question" style="width: 18px; line-height: 26px; margin-left: 6px;"
+                   v-pop-on-mouse-over="[
+                     '当只填写Key值时，使用时通过对请求的Header中添加该Key值，设置其Value值为always或never，来实现流量的分发，对Value值为always的请求将会一直发送到灰度服务版本，对Value值为never的请求将会一直发送到主服务版本，对Value为其他值，将忽略Request Header流量类型策略，并按照优先级与其他流量类型策略进行比较。',
+                      '当同时填写Key值和Value值时，使用时通过对请求的Header中添加该Key值，设置其Value值是否等于在云平台上配置的Value值，来实现流量的分发，相等时请求将会一直发送到灰度服务版本，不相等时，将忽略 Request Header 流量类型策略，并按照优先级与其他流量类型策略进行比较。']"></i>
               </el-col>
               <el-col :span="4" class="level">高</el-col>
             </el-row>
@@ -198,7 +204,11 @@
           <el-form-item class="strategy cookie" prop="cookie" v-if="action.name == 'open_dialog_service_gray_update_strategy'">
             <el-row>
               <el-col :span="5" class="name"><el-checkbox v-model="grayStrategy.cookieSelected">cookie</el-checkbox></el-col>
-              <el-col :span="15" class="value"><el-input v-model="grayStrategy.cookie" placeholder="不能超过100个字符"></el-input></el-col>
+              <el-col :span="15" class="value" style="display: inline-flex">
+                <el-input v-model="grayStrategy.cookie" placeholder="不能超过100个字符" style="flex: 1;" :disabled="!grayStrategy.cookieSelected"></el-input>
+                <i class="el-icon-question" style="width: 18px; line-height: 26px; margin-left: 6px;"
+                   v-pop-on-mouse-over="'Key值必填。设置了Key值后，使用时通过对请求的Cookie中添加该Key值，设置其Value值为always或never，来实现流量的分发，对Value值为always的请求将会一直发送到灰度服务版本，对Value值为never的请求将会一直发送到主服务版本，对Value为其他值，将忽略Cookie流量类型策略，并按照优先级与其他流量类型策略进行比较。'"></i>
+              </el-col>
               <el-col :span="4" class="level">中</el-col>
             </el-row>
           </el-form-item>
@@ -206,7 +216,9 @@
             <el-row>
               <el-col :span="5" class="name"><el-checkbox v-model="grayStrategy.weightSelected">weight</el-checkbox></el-col>
               <el-col :span="15" class="value">
-                <el-input-number v-model="grayStrategy.weight" :min="0" :max="100" label="流向灰度服务端权重"></el-input-number>
+                <el-input-number v-model="grayStrategy.weight" :min="0" :max="100" label="流向灰度服务端权重" :disabled="!grayStrategy.weightSelected"></el-input-number>
+                <i class="el-icon-question" style="width: 18px; line-height: 26px; margin-left: 6px;"
+                   v-pop-on-mouse-over="'设置灰度服务版本分的流量的权重值，范围大于0小于等于100。例如：设置灰度权重值为30，该服务的请求流量将有约30%的流量分配到灰度服务版本。'"></i>
               </el-col>
               <el-col :span="4" class="level">低</el-col>
             </el-row>
@@ -338,6 +350,9 @@
         }
       }
       &.update-strategy {
+        .el-icon-question {
+          color: $--color-warning;
+        }
         .el-form {
           margin-top: 10px;
           .strategy {
