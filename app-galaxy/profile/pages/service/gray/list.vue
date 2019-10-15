@@ -612,6 +612,7 @@
       setStrategyRules() {
         const grayStrategy = this.grayStrategy;
         const isNumber = this.$utils.isNumber;
+        const isString = this.$utils.isString;
         this.strategyRules = {
           requestHeader: [{
             trigger: ['blur', 'change'],
@@ -640,8 +641,17 @@
             trigger: ['blur', 'change'],
             validator(rule, values, callback) {
               var errMessage = '';
-              if (grayStrategy.cookieSelected && values && values.length && values.length >= 100) {
-                errMessage = '不能超过100个字符';
+              if (isString(values)) {
+                if (grayStrategy.cookieSelected) {
+                  if (values.length == 0) {
+                    errMessage = 'cookie关键字不能为空';
+                  }
+                  if (values.length >= 100) {
+                    errMessage = 'cookie关键字不能超过100个字符';
+                  }
+                }
+              } else {
+                errMessage = 'cookie关键字不是字符串';
               }
               if (errMessage) {
                 callback(errMessage);
