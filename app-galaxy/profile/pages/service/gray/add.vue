@@ -26,16 +26,16 @@
           {{serviceInfo ? `${serviceInfo.language.name} / ${serviceInfo.language.version}` : ''}}
         </el-form-item>
         <el-form-item label="镜像方式" prop="customImage" class="custom-image">
-          <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="formRelated.isPythonLanguage">
+          <el-radio-group v-model="imageSelectState.customImage" size="mini" :disabled="formRelated.isPythonLanguage || this.forGray">
             <el-radio :label="false">平台构建镜像</el-radio>
             <el-radio :label="true">自定义镜像</el-radio>
           </el-radio-group>
         </el-form-item>
 
         <el-form-item class="build-type" label="构建类型" v-if="formRelated.packageTypeList.length > 0 && formRelated.isJavaLanguage && !imageSelectState.customImage" :error="formData.packageInfo.errMsg">
-          <div class="flex-layout">
+          <div class="flex-layout max-width-600">
             <div class="type-list">
-              <el-radio-group v-model="formData.packageInfo.type">
+              <el-radio-group v-model="formData.packageInfo.type" :disabled="this.forGray">
                 <el-radio v-for="item in formRelated.packageTypeList" :label="item.type" :key="item.type">
                   {{item.packageType}}
                 </el-radio>

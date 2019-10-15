@@ -29,7 +29,7 @@
         </el-form-item>
 
         <el-form-item class="build-type" label="构建类型" v-if="formRelated.packageTypeList.length > 0 && formRelated.isJavaLanguage && !imageSelectState.customImage" :error="formData.packageInfo.errMsg">
-          <div class="flex-layout">
+          <div class="flex-layout max-width-600">
             <div class="type-list">
               <el-radio-group v-model="formData.packageInfo.type">
                 <el-radio v-for="item in formRelated.packageTypeList" :label="item.type" :key="item.type">

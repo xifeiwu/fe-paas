@@ -85,7 +85,7 @@
                       v-if="isProductionProfile"
                       size="small"
                       type="text"
-                      :class="['danger']"
+                      :class="['primary', 'flex']"
                       @click="handleTRClick($event,'go-to-work-order-todo-add', scope.$index, scope.row)">
                 <span>申请工单</span><i class="paas-icon-level-up"></i>
               </el-button>
@@ -106,7 +106,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_deploy_canary') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_deploy_canary', scope.$index, scope.row)"
-                      :class="['flex', reason4ActionDisabled('service_deploy_canary', scope.row)? 'disabled' : 'danger']">
+                      :class="['flex', reason4ActionDisabled('service_deploy_canary', scope.row)? 'disabled' : 'warning']">
                 <span>{{'灰度发布'}}</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div v-if="isProductionProfile" class="ant-divider"></div>
