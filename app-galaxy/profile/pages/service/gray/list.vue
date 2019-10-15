@@ -844,13 +844,26 @@
                 it.hasCanary = this.grayStrategy.listIngress.includes(it.host);
                 return it;
               });
-              grayStrategy.configId = this.serviceId;
-              grayStrategy.groupId = this.$storeHelper.groupInfo.id;
-              grayStrategy.requestHeader && delete grayStrategy.requestHeader;
+              const payload = {
+                configId: this.serviceId,
+                groupId: this.$storeHelper.groupInfo.id,
+                spaceId: this.profileInfo.id,
+                listIngress: grayStrategy.listIngress,
+                headerKeySelected: grayStrategy.headerKeySelected,
+                headerKey: grayStrategy.headerKey.trim(),
+                headerValue: grayStrategy.headerValue.trim(),
+                cookieSelected: grayStrategy.cookieSelected,
+                cookie: grayStrategy.cookie.trim(),
+                weightSelected: grayStrategy.weightSelected,
+                weight: grayStrategy.weight,
+                // serviceName: this.serviceInfo.serviceName,
+                canaryInstanceNum: grayStrategy.canaryInstanceNum,
+                masterInstanceNum: grayStrategy.masterInstanceNum,
+              };
               await this.$net.requestPaasServer({
                 open_dialog_service_gray_update_strategy: this.$net.URL_LIST.service_gray_update_strategy
               }[action], {
-                payload: grayStrategy
+                payload
               });
               this.$message.success('灰度策略更新成功！');
               this.updateStrategy();
