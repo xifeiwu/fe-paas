@@ -285,6 +285,8 @@
           border-radius: 7px;
           border-width: 1px;
           border-style: solid;
+          font-weight: bold;
+          margin-right: 2px;
         }
       }
       .toggle-warning {
@@ -505,10 +507,14 @@
         }
       },
       'grayStrategy.headerKey': function (headerKey) {
-        this.grayStrategy.requestHeader = `${this.grayStrategy.headerKey.trim()}$$$$$$${this.grayStrategy.headerValue.trim()}`;
+        if (this.$utils.isString(headerKey)) {
+          this.grayStrategy.requestHeader = `${this.grayStrategy.headerKey.trim()}$$$$$$${this.grayStrategy.headerValue.trim()}`;
+        }
       },
       'grayStrategy.headerValue': function (headerValue) {
-        this.grayStrategy.requestHeader = `${this.grayStrategy.headerKey.trim()}$$$$$$${this.grayStrategy.headerValue.trim()}`;
+        if (this.$utils.isString(headerValue)) {
+          this.grayStrategy.requestHeader = `${this.grayStrategy.headerKey.trim()}$$$$$$${this.grayStrategy.headerValue.trim()}`;
+        }
       },
 //      'grayStrategy.cookie': function(cookie) {
 //        if (this.$utils.isString(cookie)) {
@@ -611,7 +617,7 @@
             trigger: ['blur', 'change'],
             validator(rule, values, callback) {
               var errMessage = '';
-              if (grayStrategy.headerKeySelected && values !== '$$$$$$') {
+              if (grayStrategy.headerKeySelected) {
                 const [headerKey, headerValue] = values.split('$$$$$$');
                 if (headerValue.length >= 100) {
                   errMessage = '匹配值不能超过100个字符';
@@ -685,9 +691,14 @@
             this.grayStrategy.canaryInstanceNum = grayStrategyFromNet.canaryInstanceNum >= 0 ? grayStrategyFromNet.canaryInstanceNum : 0;
             this.grayStrategy.masterInstanceNum = grayStrategyFromNet.masterInstanceNum >= 0 ? grayStrategyFromNet.masterInstanceNum : 0;
             this.grayStrategy.headerKeySelected = grayStrategyFromNet.headerKeySelected;
-            this.grayStrategy.headerKey = grayStrategyFromNet.headerKey ? grayStrategyFromNet.headerKey : '';
-            this.grayStrategy.headerValue = grayStrategyFromNet.headerValue ? grayStrategyFromNet.headerValue : '';
-            this.grayStrategy.requestHeader = `${this.grayStrategy.headerKey.trim()}$$$$$$${this.grayStrategy.headerValue.trim()}`;
+            // set in setTimeout make sure grayStrategy.ingressSelected is watched
+            this.grayStrategy.headerKey = null;
+            this.grayStrategy.headerValue = null;
+            setTimeout(() => {
+              this.grayStrategy.headerKey = grayStrategyFromNet.headerKey ? grayStrategyFromNet.headerKey : '';
+              this.grayStrategy.headerValue = grayStrategyFromNet.headerValue ? grayStrategyFromNet.headerValue : '';
+            });
+
             this.grayStrategy.cookieSelected = grayStrategyFromNet.cookieSelected;
             this.grayStrategy.cookie = grayStrategyFromNet.cookie;
             this.grayStrategy.weightSelected = grayStrategyFromNet.weightSelected;
