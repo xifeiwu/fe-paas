@@ -170,12 +170,12 @@
                v-pop-on-mouse-over="'域名只能同时生效，或同时不生效'"></i>
           </el-form-item>
           <el-form-item label="实例数" class="instance-number" v-if="action.name == 'open_dialog_service_gray_update_instance_count'">
-            <span>主服务实例数：{{grayApplication.masterInstanceNum}}</span>
+            <span>主服务实例数：{{grayStrategy.masterInstanceNum}}</span>
             <div style="width: 160px; display: inline-block; margin: 0px 5px;">
-              <el-slider v-model="grayApplication.masterInstanceNum" :show-tooltip="true" :show-stops="true"
-                         :min="1" :max="grayApplicationFromNet.totalInstanceNum - 1" :step="1"></el-slider>
+              <el-slider v-model="grayStrategy.masterInstanceNum" :show-tooltip="true" :show-stops="true"
+                         :min="1" :max="grayStrategyFromNet.totalInstanceNum - 1" :step="1"></el-slider>
             </div>
-            <span>灰度服务实例数：{{grayApplication.canaryInstanceNum}}</span>
+            <span>灰度服务实例数：{{grayStrategy.canaryInstanceNum}}</span>
             <i class="el-icon-question" style="color: #E6A23C; margin-left: 6px;"
                v-pop-on-mouse-over="'主服务及灰度服务实例数不能少于一个'">
             </i>
@@ -195,7 +195,7 @@
               <el-col :span="15" class="value" style="display: inline-flex">
                 <el-input v-model="grayStrategy.headerKey" placeholder="属性，不能超过100个字符" style="flex: 1" :disabled="!grayStrategy.headerKeySelected"></el-input>
                 <span style="width: 24px; text-align: center;"> = </span>
-                <el-input v-model="grayStrategy.headerValue" placeholder="匹配值，不能超过100个字符" style="flex: 1" :disabled="!grayStrategy.headerKeySelected"></el-input>
+                <el-input v-model="grayStrategy.headerValue" placeholder="匹配值" style="flex: 1" :disabled="!grayStrategy.headerKeySelected"></el-input>
                 <i class="el-icon-question" style="width: 18px; line-height: 26px; margin-left: 6px;"
                    v-pop-on-mouse-over="[
                      '当只填写Key值时，使用时通过对请求的Header中添加该Key值，设置其Value值为always或never，来实现流量的分发，对Value值为always的请求将会一直发送到灰度服务版本，对Value值为never的请求将会一直发送到主服务版本，对Value为其他值，将忽略Request Header流量类型策略，并按照优先级与其他流量类型策略进行比较。',
@@ -208,7 +208,7 @@
             <el-row>
               <el-col :span="5" class="name"><el-checkbox v-model="grayStrategy.cookieSelected">cookie</el-checkbox></el-col>
               <el-col :span="15" class="value" style="display: inline-flex">
-                <el-input v-model="grayStrategy.cookie" placeholder="不能超过100个字符" style="flex: 1;" :disabled="!grayStrategy.cookieSelected"></el-input>
+                <el-input v-model="grayStrategy.cookie" placeholder="cookie关键字，不能超过100个字符" style="flex: 1;" :disabled="!grayStrategy.cookieSelected"></el-input>
                 <i class="el-icon-question" style="width: 18px; line-height: 26px; margin-left: 6px;"
                    v-pop-on-mouse-over="'Key值必填。设置了Key值后，使用时通过对请求的Cookie中添加该Key值，设置其Value值为always或never，来实现流量的分发，对Value值为always的请求将会一直发送到灰度服务版本，对Value值为never的请求将会一直发送到主服务版本，对Value为其他值，将忽略Cookie流量类型策略，并按照优先级与其他流量类型策略进行比较。'"></i>
               </el-col>
@@ -220,8 +220,9 @@
               <el-col :span="5" class="name"><el-checkbox v-model="grayStrategy.weightSelected">weight</el-checkbox></el-col>
               <el-col :span="15" class="value">
                 <el-input-number v-model="grayStrategy.weight" :min="0" :max="100" label="流向灰度服务端权重" :disabled="!grayStrategy.weightSelected"></el-input-number>
+                <span style="font-weight: bold; line-height: 16px; margin-left: 4px;">%</span>
                 <i class="el-icon-question" style="width: 18px; line-height: 26px; margin-left: 6px;"
-                   v-pop-on-mouse-over="'设置灰度服务版本分的流量的权重值，范围大于0小于等于100。例如：设置灰度权重值为30，该服务的请求流量将有约30%的流量分配到灰度服务版本。'"></i>
+                   v-pop-on-mouse-over="'设置灰度服务版本分的流量的权重值，范围0-100。例如：设置灰度权重值为30，该服务的请求流量将有约30%的流量分配到灰度服务版本。'"></i>
               </el-col>
               <el-col :span="4" class="level">低</el-col>
             </el-row>
@@ -459,13 +460,6 @@
           viewportMargin: 10
         },
         grayStrategyFromNet: null,
-        grayApplicationFromNet: null,
-        grayApplication: {
-          id:'',
-          canaryInstanceNum: 0,
-          masterInstanceNum: 0,
-          canaryServiceName: '',
-        },
         grayStrategy: {
           ingressSelected: null,
           listIngress: [],
@@ -491,14 +485,14 @@
       }
     },
     watch: {
-      'grayApplication.masterInstanceNum': function (mainNum) {
-        if (this.grayApplicationFromNet) {
-          if (mainNum >= this.grayApplicationFromNet.totalInstanceNum) {
-            this.grayApplication.masterInstanceNum =  this.grayApplicationFromNet.totalInstanceNum - 1;
+      'grayStrategy.masterInstanceNum': function (mainNum) {
+        if (this.grayStrategyFromNet) {
+          if (mainNum >= this.grayStrategyFromNet.totalInstanceNum) {
+            this.grayStrategy.masterInstanceNum =  this.grayStrategyFromNet.totalInstanceNum - 1;
             return;
           }
         }
-        this.grayApplication.canaryInstanceNum = this.grayApplicationFromNet.totalInstanceNum - mainNum;
+        this.grayStrategy.canaryInstanceNum = this.grayStrategyFromNet.totalInstanceNum - mainNum;
       },
       'grayStrategy.ingressSelected': function (selected) {
         if (selected === null) {
@@ -666,55 +660,64 @@
           }]
         }
       },
-      // 查询灰度实例策略
-      async syncCanaryInstanceByServer() {
-        const grayApplicationFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_instance_query, {
-          payload: {
-            configId: this.serviceId,
-            serviceName: this.serviceInfo.serviceName,
-            spaceId: this.profileInfo.id,
-            groupId: this.$storeHelper.groupInfo.id
-          }
+      // 获取灰度策略，type: strategy or instance_count
+      async syncStrategyByServer(type) {
+        const payload = {
+          configId: this.serviceId,
+          serviceName: this.serviceInfo.serviceName,
+          spaceId: this.profileInfo.id,
+          groupId: this.$storeHelper.groupInfo.id
+        };
+        const grayStrategyFromNet = await this.$net.requestPaasServer({
+          'strategy': this.$net.URL_LIST.service_gray_strategy_query,
+          'instance_count': this.$net.URL_LIST.service_gray_instance_query
+        }[type], {
+          payload
         });
 
-        this.grayApplication.canaryInstanceNum = grayApplicationFromNet.canaryInstanceNum >= 0 ? grayApplicationFromNet.canaryInstanceNum : 0;
-        this.grayApplication.masterInstanceNum = grayApplicationFromNet.masterInstanceNum >= 0 ? grayApplicationFromNet.masterInstanceNum : 0;
-        this.grayApplication.canaryServiceName = grayApplicationFromNet.canaryServiceName;
-        this.grayApplication.id = grayApplicationFromNet.id;
-        grayApplicationFromNet.totalInstanceNum = grayApplicationFromNet.masterInstanceNum + grayApplicationFromNet.canaryInstanceNum;
-
-        this.grayApplicationFromNet = grayApplicationFromNet;
-      },
-      // 更新灰度策略
-      async syncStrategyByServer() {
-        const grayStrategyFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.service_gray_strategy_query, {
-          payload: {
-            configId: this.serviceId,
-            serviceName: this.serviceInfo.serviceName,
-            spaceId: this.profileInfo.id,
-            groupId: this.$storeHelper.groupInfo.id
-          }
-        });
-
-        this.grayStrategy.ingressSelected = null;
-        setTimeout(() => {
-          // set in setTimeout make sure grayStrategy.ingressSelected is watched
-          this.grayStrategy.ingressSelected = grayStrategyFromNet['listIngress'].some(it => it.hasCanary);
-        });
-        this.grayStrategy.canaryInstanceNum = grayStrategyFromNet.canaryInstanceNum >= 0 ? grayStrategyFromNet.canaryInstanceNum : 0;
-        this.grayStrategy.masterInstanceNum = grayStrategyFromNet.masterInstanceNum >= 0 ? grayStrategyFromNet.masterInstanceNum : 0;
-        this.grayStrategy.headerKeySelected = grayStrategyFromNet.headerKeySelected;
-        this.grayStrategy.headerKey = grayStrategyFromNet.headerKey ? grayStrategyFromNet.headerKey : '';
-        this.grayStrategy.headerValue = grayStrategyFromNet.headerValue ? grayStrategyFromNet.headerValue : '';
-        this.grayStrategy.requestHeader = `${this.grayStrategy.headerKey.trim()}$$$$$$${this.grayStrategy.headerValue.trim()}`;
-        this.grayStrategy.cookieSelected = grayStrategyFromNet.cookieSelected;
-        this.grayStrategy.cookie = grayStrategyFromNet.cookie;
-        this.grayStrategy.weightSelected = grayStrategyFromNet.weightSelected;
-        this.grayStrategy.weight = grayStrategyFromNet.weight;
-        grayStrategyFromNet.totalInstanceNum = grayStrategyFromNet.masterInstanceNum + grayStrategyFromNet.canaryInstanceNum;
+        switch (type) {
+          case 'strategy':
+            this.grayStrategy.ingressSelected = null;
+            setTimeout(() => {
+              // set in setTimeout make sure grayStrategy.ingressSelected is watched
+              this.grayStrategy.ingressSelected = grayStrategyFromNet['listIngress'].some(it => it.hasCanary);
+            });
+            this.grayStrategy.canaryInstanceNum = grayStrategyFromNet.canaryInstanceNum >= 0 ? grayStrategyFromNet.canaryInstanceNum : 0;
+            this.grayStrategy.masterInstanceNum = grayStrategyFromNet.masterInstanceNum >= 0 ? grayStrategyFromNet.masterInstanceNum : 0;
+            this.grayStrategy.headerKeySelected = grayStrategyFromNet.headerKeySelected;
+            this.grayStrategy.headerKey = grayStrategyFromNet.headerKey ? grayStrategyFromNet.headerKey : '';
+            this.grayStrategy.headerValue = grayStrategyFromNet.headerValue ? grayStrategyFromNet.headerValue : '';
+            this.grayStrategy.requestHeader = `${this.grayStrategy.headerKey.trim()}$$$$$$${this.grayStrategy.headerValue.trim()}`;
+            this.grayStrategy.cookieSelected = grayStrategyFromNet.cookieSelected;
+            this.grayStrategy.cookie = grayStrategyFromNet.cookie;
+            this.grayStrategy.weightSelected = grayStrategyFromNet.weightSelected;
+            this.grayStrategy.weight = grayStrategyFromNet.weight;
+            grayStrategyFromNet.totalInstanceNum = grayStrategyFromNet.masterInstanceNum + grayStrategyFromNet.canaryInstanceNum;
+            break;
+          case 'instance_count':
+            this.grayStrategy.canaryInstanceNum = grayStrategyFromNet.canaryInstanceNum >= 0 ? grayStrategyFromNet.canaryInstanceNum : 0;
+            this.grayStrategy.masterInstanceNum = grayStrategyFromNet.masterInstanceNum >= 0 ? grayStrategyFromNet.masterInstanceNum : 0;
+            grayStrategyFromNet.totalInstanceNum = grayStrategyFromNet.masterInstanceNum + grayStrategyFromNet.canaryInstanceNum;
+            break;
+        }
 
         this.grayStrategyFromNet = grayStrategyFromNet;
       },
+
+      // update local strategy update request success
+      updateStrategy() {
+        if (!this.grayStrategy.headerKeySelected) {
+          this.grayStrategy.headerKey = '';
+          this.grayStrategy.headerValue = '';
+        }
+        if (!this.grayStrategy.cookieSelected) {
+          this.grayStrategy.cookie = '';
+        }
+        if (!this.grayStrategy.weightSelected) {
+          this.grayStrategy.weight = 0;
+        }
+      },
+
       async handleClick(evt, action, data) {
         let resContent = null;
         const target = evt.target;
@@ -792,8 +795,18 @@
             break;
           case 'open_dialog_service_gray_update_instance_count':
             try {
-              await this.syncCanaryInstanceByServer();
-              const payload = await this.openDialog(action);
+              await this.syncStrategyByServer('instance_count');
+              const grayStrategy = await this.openDialog(action);
+              const payload = {
+                configId: this.serviceId,
+                groupId: this.$storeHelper.groupInfo.id,
+                spaceId: this.profileInfo.id,
+                serviceName: this.serviceInfo.serviceName,
+                canaryInstanceNum: grayStrategy.canaryInstanceNum,
+                masterInstanceNum: grayStrategy.masterInstanceNum,
+                canaryServiceName: this.grayStrategyFromNet.canaryServiceName,
+                id: this.grayStrategyFromNet.id
+              };
               await this.$net.requestPaasServer({
                 open_dialog_service_gray_update_instance_count: this.$net.URL_LIST.service_gray_update_instance_count,
               }[action], {
@@ -808,7 +821,7 @@
             break;
           case 'open_dialog_service_gray_update_strategy':
             try {
-              await this.syncStrategyByServer();
+              await this.syncStrategyByServer('strategy');
               if (this.serviceList.length === 0) {
                 this.$message.error('未找到服务列表');
                 return;
@@ -827,6 +840,7 @@
                 payload: grayStrategy
               });
               this.$message.success('灰度策略更新成功！');
+              this.updateStrategy();
             } catch (err) {
               console.log(err);
             } finally {
@@ -857,7 +871,7 @@
           case 'refresh':
             await this.requestCanaryInfo();
             this.updateStep();
-            await this.syncStrategyByServer();
+            await this.syncStrategyByServer('strategy');
             break;
         }
       },
@@ -924,12 +938,7 @@
         switch (action) {
           case 'service_gray_update_instance_count':
             try {
-              var payload = this.$utils.cloneDeep(this.grayApplication);
-              payload.configId = this.serviceId;
-              payload.groupId = this.$storeHelper.groupInfo.id;
-              payload.spaceId = this.profileInfo.id;
-              payload.serviceName = this.serviceInfo.serviceName,
-              this.action.promise.resolve(payload);
+              this.action.promise.resolve(this.grayStrategy);
             } catch (err) {
               console.log(err);
             }
