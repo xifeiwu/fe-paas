@@ -262,7 +262,10 @@
 
       <div v-if="!bindServiceProps.showResponse">
         <paas-dismiss-message :toExpand="true" showSeconds="0" style="margin: -2px -4px 6px -4px;"
-                              :msgList="bindServiceProps.bindTipForApp"></paas-dismiss-message>
+                              :msgList="[
+                                bindServiceProps.bindTipForApp,
+                                '如果绑定域名的服务在灰度发布中，如需调整流量策略请到该服务的灰度发布/设置灰度策略中进行调整'
+                              ]"></paas-dismiss-message>
         <div style="padding-left: 10px;">
           <paas-service-selector ref="service-selector-in-bind-service-dialog"
                                  :fixedInfo="fixedInfoForVersionCondition"
