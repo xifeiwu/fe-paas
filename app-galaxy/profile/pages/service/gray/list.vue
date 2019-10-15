@@ -734,14 +734,6 @@
           });
           return;
         }
-        if (action == 'go-to-work-order-todo-add-from-service-gray'
-          && (this.step<this.STATE['CANARY_CREATED'])) {
-          this.$storeHelper.globalPopover.show({
-            ref: target,
-            msg: `您已通过工单完成灰度部署`
-          });
-          return;
-        }
         if (action == 'go-to-work-order-todo-add-from-service-gray' && this.step<this.STATE['CANARY_CREATED']) {
           this.$storeHelper.globalPopover.show({
             ref: target,
