@@ -98,7 +98,7 @@
         <el-form size="mini" class="message-show"
                  label-width="140px" v-if="grayStrategyFromNet && grayStrategy.listIngress && grayStrategy.listIngress.length > 0">
           <el-form-item label="相关域名" class="">
-            {{grayStrategy.listIngress.join(', ')}}
+            {{grayStrategy.listIngress.join('， ')}}
           </el-form-item>
           <el-form-item label="主/灰服务实例数" class="instance-number">
             <span>{{grayStrategy.masterInstanceNum}} / {{grayStrategy.canaryInstanceNum}}</span>
@@ -677,7 +677,7 @@
         }
       },
       // 获取灰度策略，type: strategy or instance_count
-      async syncStrategyByServer(type) {
+      async syncStrategyFromServer(type) {
         const payload = {
           configId: this.serviceId,
           serviceName: this.serviceInfo.serviceName,
@@ -710,9 +710,9 @@
             });
 
             this.grayStrategy.cookieSelected = grayStrategyFromNet.cookieSelected;
-            this.grayStrategy.cookie = grayStrategyFromNet.cookie;
+            this.grayStrategy.cookie = grayStrategyFromNet.cookie ? grayStrategyFromNet.cookie : '';
             this.grayStrategy.weightSelected = grayStrategyFromNet.weightSelected;
-            this.grayStrategy.weight = grayStrategyFromNet.weight;
+            this.grayStrategy.weight = grayStrategyFromNet.weight ? grayStrategyFromNet.weight : 0;
             grayStrategyFromNet.totalInstanceNum = grayStrategyFromNet.masterInstanceNum + grayStrategyFromNet.canaryInstanceNum;
             break;
           case 'instance_count':
@@ -808,7 +808,7 @@
             break;
           case 'open_dialog_service_gray_update_instance_count':
             try {
-              await this.syncStrategyByServer('instance_count');
+              await this.syncStrategyFromServer('instance_count');
               const grayStrategy = await this.openDialog(action);
               const payload = {
                 configId: this.serviceId,
@@ -834,7 +834,7 @@
             break;
           case 'open_dialog_service_gray_update_strategy':
             try {
-              await this.syncStrategyByServer('strategy');
+              await this.syncStrategyFromServer('strategy');
               if (this.serviceList.length === 0) {
                 this.$message.error('未找到服务列表');
                 return;
@@ -897,7 +897,7 @@
           case 'refresh':
             await this.requestCanaryInfo();
             this.updateStep();
-            await this.syncStrategyByServer('strategy');
+            await this.syncStrategyFromServer('strategy');
             break;
         }
       },
