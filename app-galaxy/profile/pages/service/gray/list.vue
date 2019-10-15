@@ -129,7 +129,7 @@
               <el-col :span="8" class="name">
                 <el-checkbox v-model="grayStrategy.weightSelected":disabled="true">weight</el-checkbox>
               </el-col>
-              <el-col :span="16" class="value">{{grayStrategy.weight ? grayStrategy.weight:'---'}}</el-col>
+              <el-col :span="16" class="value">{{grayStrategy.weightSelected ?  `${grayStrategy.weight}%` : '---'}}</el-col>
             </el-row>
           </el-form-item>
         </el-form>
