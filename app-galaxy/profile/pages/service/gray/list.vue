@@ -96,7 +96,7 @@
       <div class="strategy-show" v-if="!(step<STATE['WORK_ORDER_DEPLOYED'])">
         <div class="title">灰度策略</div>
         <el-form size="mini" class="message-show"
-                 label-width="140px" v-if="grayStrategyFromNet && grayStrategy.listIngress && grayStrategy.listIngress.length > 0">
+                 label-width="130px" v-if="grayStrategyFromNet && grayStrategy.listIngress && grayStrategy.listIngress.length > 0">
           <el-form-item label="相关域名" class="">
             {{grayStrategy.listIngress.join('， ')}}
           </el-form-item>
@@ -331,9 +331,10 @@
   }
   #service-gray {
     .strategy-show {
-      margin: 10px auto;
+      margin: 12px auto;
       border: 1px solid rgba(0, 0, 0, 0.2);
       border-radius: 6px;
+      padding: 4px 6px;
       &:hover {
         border-color: rgba(0, 0, 0, 0.3);
       }
@@ -341,7 +342,7 @@
         text-align: center;
         font-size: 16px;
       }
-      max-width: 600px;
+      max-width: 640px;
       @include form-strategy;
     }
     > .el-dialog__wrapper {
