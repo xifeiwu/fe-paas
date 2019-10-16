@@ -592,7 +592,6 @@
             }
             it.cpuUsageSecondsSum = it.cpuUsageSecondsSum ? `${parseFloat(it['cpuUsageSecondsSum']).toFixed(2)}s` : '---';
             if (it['hasCanary']) {
-              this.instanceStatus.canaryRunningCnt++;
               this.instanceStatus.isCanary = true;
             }
           });
