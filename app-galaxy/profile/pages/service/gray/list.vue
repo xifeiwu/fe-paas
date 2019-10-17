@@ -64,6 +64,15 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
+                    v-if="scope.row['serviceType'] === 'master'"
+                    size="small"
+                    type="text"
+                    class="flex primary"
+                    @click="handleTRClick($event, 'go_to_page_log_canary', scope.$index, scope.row)">
+              <span>查看灰度发布日志</span><i class="paas-icon-level-up"></i>
+            </el-button>
+            <div v-if="scope.row['serviceType'] === 'master'" class="ant-divider"></div>
+            <el-button
                     v-if="scope.row['serviceType'] === 'canary'"
                     size="small"
                     type="text"
@@ -420,6 +429,7 @@
       const {originServiceInfo, serviceInfo, profileInfo} = await this.syncEnv();
       // go back when running instance of master service is zero
       if (serviceInfo && serviceInfo.containerStatus && serviceInfo.containerStatus.Total === 0) {
+        this.$message.error('当前服务没有运行实例，不能进行灰度设置！');
         this.$router.go(-1);
         return;
       }
@@ -607,6 +617,9 @@
         if (routeConfig) {
           routeConfig.name = `${serviceInfo.appName}/${profileInfo.description}`;
         }
+        this.originServiceInfo = theData.originServiceInfo;
+        this.serviceInfo = theData.serviceInfo;
+        this.profileInfo = theData.profileInfo;
         return theData;
       },
 
@@ -904,6 +917,22 @@
       },
       async handleTRClick(evt, action, index, row) {
         switch (action) {
+          case 'go_to_page_log_canary':
+            // console.log(this.serviceInfo);
+            if (!this.serviceInfo) {
+              await this.syncEnv();
+            }
+            const data = {
+              appId: this.serviceInfo.appId,
+              profileId: this.profileInfo.id,
+              serviceId: this.serviceInfo.id,
+            };
+            this.$storeHelper.dataTransfer = {
+              from: this.$router.helper.pages['/profile/service/:id(\\d+)/gray'],
+              data
+            };
+            this.$router.push(this.$router.helper.pages['profile/log/canary']);
+            break;
           case 'service_gray_update':
             const originCanaryInfo = Object.assign({}, this.originServiceInfo, this.canaryStatus['canary']);
             const canaryInfo = this.$net.getServiceModel(originCanaryInfo);

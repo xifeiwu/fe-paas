@@ -148,7 +148,7 @@
         const from = dataTransfer['from'];
         const data = dataTransfer['data'];
         switch (from) {
-          case this.$net.page['profile/service']:
+          case this.$router.helper.pages['/profile/service/:id(\\d+)/gray']:
             this.config4VersionSelector = {
               appId: data['appId'],
               profileId: data['profileId'],
@@ -277,7 +277,6 @@
             // serviceVersion: selectedService.serviceVersion
           }
         }).then(resContent => {
-          console.log(resContent);
           this.totalSize = resContent['total'];
           const canaryDeployLogList = resContent['canaryDeployLogList'];
           canaryDeployLogList.forEach(it => {
