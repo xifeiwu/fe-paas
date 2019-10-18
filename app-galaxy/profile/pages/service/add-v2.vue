@@ -1423,13 +1423,11 @@
             this.formItemMsgForHosts = '';
             let ip = key;
             let domain = value;
-            const ipReg = this.$utils.getReg('ipOnly');
-            if (!ipReg.test(ip)) {
+            if (!this.$utils.getReg('ipOnly').test(ip)) {
               this.$message.error('ip格式不正确');
               return;
             }
-            let domainReg = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/;
-            if (!domain.match(domainReg)) {
+            if (!this.$utils.getReg('domain').test(domain)) {
               this.$message.error('域名格式不正确');
               return;
             }

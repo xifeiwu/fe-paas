@@ -3,6 +3,21 @@ import BaseUtils from '$assets/js/utils';
 export default class Utils extends BaseUtils {
   constructor() {
     super();
+    this.regMap = {
+      mail: /^([\w-_]+(?:\.[\w-_]+)*)@((?:[a-z0-9]+(?:-[a-zA-Z0-9]+)*)+\.[a-z]{2,6})$/,
+      ipOnly: /^([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})$/,
+      ipWithMask: /^([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})\.([0-2]*[0-9]{1,2})(\/[0-9]+)?$/,
+      domain: /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,61}$/,
+      number: /^[0-9]+$/
+    }
+  }
+
+  getReg(type) {
+    let result = null;
+    if (this.regMap.hasOwnProperty(type)) {
+      result = this.regMap[type];
+    }
+    return result;
   }
 
 
