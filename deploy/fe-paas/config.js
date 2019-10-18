@@ -9,8 +9,10 @@ function getPlatform() {
     const platform = process.env.PLATFORM;
     // BUILD_ENV is inserted by webpack.DefinePlugin
     if (platform && (typeof(platform) === 'string' || platform instanceof String)
-      && /^(renmai|finup):(local|development|test|production)$/.test(platform)) {
+      && /^(renmai|finup):(local|development|test|production|production_gray)$/.test(platform)) {
       [corp, env] = platform.split(':');
+    } else if (process.env.NODE_ENV) {
+      env = process.env.NODE_ENV;
     }
   } catch(err) {
   }
@@ -53,7 +55,7 @@ function getServer(server) {
       break;
     case 'production_gray':
       paasServer = 'http://172.31.160.103:30334';
-      assistServer = 'http://172.31.160.106:6002';
+      assistServer = 'http://172.31.160.103:6003';
       break;
     case 'test':
       paasServer = 'http://10.10.202.143:30334';
