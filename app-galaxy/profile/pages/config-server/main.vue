@@ -1,5 +1,5 @@
 <template>
-  <div
+  <div id="config-server-list"
           v-loading="loading"
           element-loading-text="操作进行中"
           element-loading-spinner="el-icon-loading"
@@ -8,11 +8,11 @@
     <div class="pa-3 pt-4" style="background-color: #fff;">
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-button type="primary" icon="el-icon-circle-plus-outline"
-                     @click="dialogCreateFolder = !dialogCreateFolder">
+          <el-button type="primary" size="mini" icon="el-icon-circle-plus-outline"
+                     @click="handleClick($event, 'open_dialog_create_directory')">
             创建目录
           </el-button>
-          <el-button type="primary" icon="el-icon-refresh"
+          <el-button type="primary" size="mini" icon="el-icon-refresh"
                      @click="$store.dispatch('etc/initData')">
             刷新目录
           </el-button>
@@ -33,49 +33,43 @@
         </el-col>
       </el-row>
     </div>
-    <!--创建目录表单-->
-    <div v-if="dialogCreateFolder" class="px-3">
-      <el-form :model="form" :rules="rules" ref="configDirForm" class="mt-3">
-        <el-row>
-          <el-col :span="6">
-            <el-form-item prop="configDirName">
-              <el-input v-model="form.configDirName" auto-complete="off" prefix-icon="el-icon-news"
-                        placeholder="目录名称,例如: foo-bar-some">
-                <!--<template slot="prepend">-->
-                <!--<div>&emsp;目录名称：</div>-->
-                <!--</template>-->
+
+    <el-dialog title="创建目录"
+               :visible="['open_dialog_create_directory'].indexOf(action.name) > -1"
+               v-if="['open_dialog_create_directory'].indexOf(action.name) > -1"
+               @close="closeDialog"
+               class="size-600 create_directory"
+               :close-on-click-modal="false"
+    >
+      <el-form labelWidth="100px" :model="action.data" :rules="rules" size="mini" ref="createDialogForm">
+        <el-form-item prop="groupId" label="团队">
+          <el-select v-model="action.data.groupId" filterable placeholder="请选择团队">
+            <el-option v-for="(item, index) in $storeHelper.groupList" :key="index" :label="item.asLabel":value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item prop="branchName" label="分支">
+          <el-select v-model="action.data.branchName" filterable placeholder="请选择分支">
+            <el-option v-for="(item, index) in branchList" :key="index" :label="item"
+                       :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+            <el-form-item prop="configDirName" label="目录名称">
+              <el-input v-model="action.data.configDirName" auto-complete="off" placeholder="例如: foo-bar-some">
               </el-input>
             </el-form-item>
-          </el-col>
-          <el-col :span="4" class="pl-2">
-            <el-form-item prop="groupId">
-              <el-select v-model="form.groupId" filterable placeholder="请选择团队">
-                <el-option v-for="(item, index) in $storeHelper.groupList" :key="index" :label="item.asLabel"
-                           :value="item.id">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="4">
-            <el-form-item prop="branchName">
-              <el-select v-model="form.branchName" filterable placeholder="请选择分支">
-                <el-option v-for="(item, index) in branchList" :key="index" :label="item"
-                           :value="item">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="4">
-            <el-form-item>
-              <el-button type="success" @click="createFolder('configDirForm')">
-                确 定 创 建
-              </el-button>
-              <el-button type="danger" @click="dialogCreateFolder = false">取 消 创 建</el-button>
-            </el-form-item>
-          </el-col>
-        </el-row>
       </el-form>
-    </div>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保存</el-button>
+        </div>
+        <div class="item">
+          <el-button @click="closeDialog" size="mini">取消</el-button>
+        </div>
+      </div>
+    </el-dialog>
 
     <!--目录列表-->
     <el-table :data="configListSplit">
@@ -126,15 +120,38 @@
     </div>
   </div>
 </template>
+<style lang="scss">
+  #config-server-list {
+    > .el-dialog__wrapper {
+      &.create_directory {
+        .el-form {
+          margin-top: 16px;
+          margin-right: 20px;
+          .el-select {
+            width: 100%;
+          }
+          .el-input {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+</style>
 <script>
   import {mapState} from "vuex";
+  import commonUtils from 'assets/components/mixins/common-utils';
 
   export default {
+    mixins: [commonUtils],
     mounted() {
-      this.$store.dispatch('etc/initData');
+//      this.$store.dispatch('etc/initData');
+      this.requestConfigList();
     },
     data() {
       return {
+        branchList: [],
+        remoteConfigList: [],
         rules: {
           configDirName: [
             {required: true, pattern: /^[a-z][a-z0-9-]{0,100}$/, message: '有效字符包括 a-z,0-9,中横线 例如：foo-bar-name'},
@@ -142,7 +159,6 @@
           groupId: [{required: true, type: 'number', message: '请选择团队', trigger: 'change'},],
           branchName: [{required: true, message: '请选择分支', trigger: 'change'}],
         },
-        dialogCreateFolder: false,
         search: this.$store.state.etc.dirFilter,
         form: {
           configDirName: "",
@@ -153,7 +169,7 @@
       };
     },
     computed: {
-      ...mapState("etc", ["branchList", "remoteConfigList", "loading"]),
+      ...mapState("etc", ["loading"]),
       configList() {
         let data = this.remoteConfigList || [];
         data = data.sort((a, b) => b.updateTime - a.updateTime);
@@ -184,41 +200,60 @@
       resetForm(formName) {
         this.$refs[formName].resetFields();
       },
-      createFolder(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (!valid) return false;
-          // 显示loading
-          this.$store.commit('etc/SET_LOADING', true);
+      async requestConfigList() {
+        try {
+          this.remoteConfigList = [];
+          this.remoteConfigList = (await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_list, {
+            query: {
+              groupId: ''
+            }
+          }))['data'];
+        } catch (err) {
+          consle.log(err);
+        }
+      },
 
-          this.$ajax
-            .post(this.$url.config_server_add.url, {
-              branchName: this.form.branchName,
-              configDirName: this.form.configDirName,
-              groupId: this.form.groupId
-            })
-            .then(res => {
-              if (!res.data.hasOwnProperty('success')) {
-                this.$alert(res.data.msg);
-                return;
+      async handleClick(evt, action, row, index) {
+        switch (action) {
+          case 'open_dialog_create_directory':
+            try {
+              if (!Array.isArray(this.branchList)) {
+                this.branchList = [];
               }
-
-              // 清空表单
-              this.resetForm(formName);
-              // 消息提示
-              this.$message(this.form.configDirName + '创建成功');
-              // 更新列表
-              this.$store.dispatch('etc/getDir');
-              // 隐藏表单
-              this.dialogCreateFolder = false;
+              if (this.branchList.length == 0) {
+                this.branchList = await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_branch);
+              }
+              const dialogData = await this.openDialog(action, {
+                configDirName: '',
+                groupId: '',
+                branchName: '',
+              });
+              await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_add, {
+                payload: dialogData
+              });
+              this.$message.success(`${dialogData.configDirName} 创建成功`);
               // 清空搜索
               this.search = '';
-            })
-            .catch(err => alert(err.message + '\n' + '请联系管理员！'))
-            .finally(() => {
-              // 隐藏loading
-              this.$store.commit('etc/SET_LOADING', false)
-            })
-        })
+              this.closeDialog();
+              this.requestConfigList();
+            } catch(err) {
+
+            } finally {
+              this.closeDialog();
+            }
+            break;
+        }
+      },
+      async handleDialogEvent(evt, action, data) {
+        switch (action) {
+          case 'create_directory':
+            try {
+              await this.$refs['createDialogForm'].validate();
+              this.action.promise.resolve(this.action.data);
+            } catch (err) {
+            }
+            break;
+        }
       },
       syncSearchState() {
         // todo sync search to store/etc

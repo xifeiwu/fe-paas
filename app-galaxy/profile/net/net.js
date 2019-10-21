@@ -422,6 +422,22 @@ class Net extends NetBase {
         method: 'get'
       },
 
+      /** 应用配置 */
+      'config_server_branch': {
+        path: '/remote-config/branches',
+        method: 'post',
+      },
+      // 远程配置中心——目录列表 eg. remote-config/list?groupId=2
+      'config_server_list': {
+        path: '/remote-config/list',
+        method: 'post',
+      },
+      // 远程配置中心——添加目录
+      'config_server_add': {
+        path: '/remote-config/add',
+        method: 'post',
+      },
+
       /** 域名相关 */
       // 外网域名列表
       'domain_list': {

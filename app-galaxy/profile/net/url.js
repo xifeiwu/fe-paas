@@ -335,6 +335,7 @@ class URL extends BaseURL {
         path: '/workOrderDeploy/searchDeployLog'
       },
 
+      // TODO: delete
       // 远程配置中心——分支列表
       'config_server_branch': {
         url: API_PATH + '/remote-config/branches',
@@ -347,6 +348,7 @@ class URL extends BaseURL {
         path: 'remote-config/list',
         method: 'post',
       },
+
       // 远程配置中心——文件列表 eg. remote-config/get?applicationRemoteConfigId=111
       'config_server_get': {
         url: API_PATH + '/remote-config/get',
@@ -354,6 +356,7 @@ class URL extends BaseURL {
         method: 'post',
       },
 
+      // TODO: delete
       // 远程配置中心——添加目录
       'config_server_add': {
         url: API_PATH + '/remote-config/add',
