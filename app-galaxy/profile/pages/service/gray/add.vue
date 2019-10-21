@@ -1391,10 +1391,10 @@
               this.$message.error('环境变量的值：512位以内，不能为空');
               return;
             }
-            if (this.formData.environments.length >= 10) {
-              this.$message.error('最多输入10个');
-              return;
-            }
+//            if (this.formData.environments.length >= 10) {
+//              this.$message.error('最多输入10个');
+//              return;
+//            }
             let itemWithKey = null;
             this.formData.environments.some(it => {
               if (it.key === key) {
@@ -1438,10 +1438,10 @@
               this.$message.error('域名格式不正确');
               return;
             }
-            if (this.formData.hosts.length >= 10) {
-              this.$message.error('最多输入10个');
-              return;
-            }
+//            if (this.formData.hosts.length >= 10) {
+//              this.$message.error('最多输入10个');
+//              return;
+//            }
             let itemWithIpAndDomain = null;
             this.formData.hosts.some(it => {
               if (it.ip === ip && it.domain === domain) {
