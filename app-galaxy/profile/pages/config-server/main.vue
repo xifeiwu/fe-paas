@@ -13,22 +13,18 @@
             创建目录
           </el-button>
           <el-button type="primary" size="mini" icon="el-icon-refresh"
-                     @click="$store.dispatch('etc/initData')">
+                     @click="handleClick($event, 'refresh')">
             刷新目录
           </el-button>
         </el-col>
         <el-col :span="10">
-          <el-input clearable prefix-icon="el-icon-search" placeholder="请输入关键字搜索目录"
-                    @change="syncSearchState"
-                    v-model="search">
-            <template slot="append">
-              <div class="px-3">
-                <el-button @click="resetSearch" type="danger">
-                  <i class="el-icon-close"></i>
-                  重置搜索
-                </el-button>
-              </div>
-            </template>
+          <el-input size="mini-extral" placeholder="按关键字搜索目录" class="search"
+                    style="max-width: 360px;"
+                    v-model="filterKey">
+            <i slot="prefix" class="el-icon-search"></i>
+            <i :class="filterKey && filterKey.length > 0 ? 'paas-icon-close' : ''"
+               slot="suffix"
+               @click="evt => filterKey=''"></i>
           </el-input>
         </el-col>
       </el-row>
@@ -72,7 +68,7 @@
     </el-dialog>
 
     <!--目录列表-->
-    <el-table :data="configListSplit">
+    <el-table :data="configListByPage">
       <el-table-column prop="configDirName" label="目录名称" :width="320"
                        :show-overflow-tooltip="true">
         <template slot-scope="scope">
@@ -115,7 +111,7 @@
               :page-size="pageSize"
               :page-sizes="[10, 15, 20, 30]"
               layout="total, sizes, prev, pager, next"
-              :total="this.configList.length">
+              :total="this.configListFiltered.length">
       </el-pagination>
     </div>
   </div>
@@ -146,12 +142,15 @@
     mixins: [commonUtils],
     mounted() {
 //      this.$store.dispatch('etc/initData');
-      this.requestConfigList();
+      this.updateConfigListByPage(true);
     },
     data() {
       return {
+        configList: [],
+        configListFiltered: [],
+        configListByPage: [],
         branchList: [],
-        remoteConfigList: [],
+        filterKey: '',
         rules: {
           configDirName: [
             {required: true, pattern: /^[a-z][a-z0-9-]{0,100}$/, message: '有效字符包括 a-z,0-9,中横线 例如：foo-bar-name'},
@@ -159,7 +158,6 @@
           groupId: [{required: true, type: 'number', message: '请选择团队', trigger: 'change'},],
           branchName: [{required: true, message: '请选择分支', trigger: 'change'}],
         },
-        search: this.$store.state.etc.dirFilter,
         form: {
           configDirName: "",
           branchName: ""
@@ -170,19 +168,14 @@
     },
     computed: {
       ...mapState("etc", ["loading"]),
-      configList() {
-        let data = this.remoteConfigList || [];
-        data = data.sort((a, b) => b.updateTime - a.updateTime);
-        const search = this.search;
-        return search
-          ? data.filter(item => Object.values(item).join(",").toLowerCase().match(search))
-          : data;
+    },
+    watch: {
+      filterKey() {
+        this.updateConfigListByPage(false);
       },
-      configListSplit() {
-        const start = (this.currentPage - 1) * this.pageSize;
-        const end = start + this.pageSize;
-        return this.configList.slice(start, end);
-      },
+      currentPage() {
+        this.updateConfigListByPage(false);
+      }
     },
     filters: {
       localDate(val) {
@@ -193,24 +186,48 @@
       handleSizeChange(val) {
         this.pageSize = val;
       },
-      resetSearch() {
-        this.search = '';
-        this.syncSearchState();
-      },
       resetForm(formName) {
         this.$refs[formName].resetFields();
       },
       async requestConfigList() {
+        var configList = [];
         try {
-          this.remoteConfigList = [];
-          this.remoteConfigList = (await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_list, {
+          configList = (await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_list, {
             query: {
               groupId: ''
             }
           }))['data'];
+          configList = configList.sort((a, b) => b.updateTime - a.updateTime);
         } catch (err) {
           consle.log(err);
         }
+        return configList;
+      },
+      async updateConfigListByPage(refresh = false) {
+        if (refresh) {
+          this.configList = await this.requestConfigList();
+        }
+        var filterReg = null;
+        if (this.filterKey) {
+          filterReg = new RegExp(this.filterKey);
+        }
+
+        let page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        let start = page * this.pageSize;
+        let length = this.pageSize;
+        let end = start + length;
+
+        const configListFiltered = this.configList.filter(it => {
+          if (filterReg) {
+            return filterReg.test(Object.values(it).join(",").toLowerCase());
+          } else {
+            return true;
+          }
+        });
+        const configListByPage = configListFiltered.slice(start, end);
+        this.configListFiltered = configListFiltered;
+        this.configListByPage = configListByPage;
       },
 
       async handleClick(evt, action, row, index) {
@@ -233,14 +250,16 @@
               });
               this.$message.success(`${dialogData.configDirName} 创建成功`);
               // 清空搜索
-              this.search = '';
               this.closeDialog();
-              this.requestConfigList();
+              this.updateConfigListByPage(true);
             } catch(err) {
 
             } finally {
               this.closeDialog();
             }
+            break;
+          case 'refresh':
+            this.updateConfigListByPage(true);
             break;
         }
       },
@@ -254,10 +273,6 @@
             }
             break;
         }
-      },
-      syncSearchState() {
-        // todo sync search to store/etc
-        this.$store.commit("etc/SET_DIR_FILTER", this.search);
       },
       // 跳转到文件列表
       gotoFileList(val) {

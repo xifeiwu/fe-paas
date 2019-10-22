@@ -943,7 +943,7 @@
             }
           }
           if (isOK && filterReg) {
-            if (!filterReg.exec(item.appName)) {
+            if (!filterReg.test(item.appName)) {
               isOK = false;
             }
           }

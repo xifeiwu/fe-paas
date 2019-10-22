@@ -5,7 +5,6 @@ import {URL_LIST} from "../../net/url";
 const state = {
   loading: true,
   dirSelected: null,
-  dirFilter: '',
   remoteConfigList: null, //require('./mock/remote-config-list.json').data,
   configFiles: null, //require('./mock/file-list.json').applicationRemoteConfigFiles,
   branchList: null, //require('./mock/branch.json')
@@ -43,9 +42,6 @@ const actions = {
 }
 
 const mutations = {
-  SET_DIR_FILTER(state, payload) {
-    state.dirFilter = payload
-  },
   SET_DIR_SELECTED(state, payload) {
     state.dirSelected = payload
   },
