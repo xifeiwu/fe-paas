@@ -94,14 +94,14 @@
                @close="closeDialog"
                bodyPadding="0px"
                top="50px"
-               v-loading="action.requesting"
-               element-loading-text="正在保存"
-               element-loading-spinner="el-icon-loading"
-               element-loading-background="rgba(0, 0, 0, 0.8)"
     >
       <paas-dismiss-message :toExpand="true" showSeconds="0" style="margin: 2px 0px;"
                             :msgList="'提示:类似“datasource.*.password”的字段值仅DBA岗位用户可以修改和查看，其他岗位用户只会看到“********”并且无法修改该字段值'"></paas-dismiss-message>
-      <el-form size="mini" :model="action.data" ref="updateConfigForm">
+      <el-form size="mini" :model="action.data" ref="updateConfigForm"
+               v-loading="action.requesting"
+               element-loading-text="正在保存"
+               element-loading-spinner="el-icon-loading"
+               element-loading-background="rgba(0, 0, 0, 0.8)">
         <el-form-item class="__editor message-show" labelWidth="0px">
           <codemirror v-model="action.data.code" :options="editorOptions"></codemirror>
         </el-form-item>
