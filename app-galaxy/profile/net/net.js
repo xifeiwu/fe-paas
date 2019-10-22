@@ -462,6 +462,11 @@ class Net extends NetBase {
         path: '/applicationRemoteConfigFile/update/edit-status',
         method: 'post',
       },
+      // 远程配置中心——删除配置文件 eg. /applicationRemoteConfigFile/del?applicationRemoteConfigFileId=1123
+      'config_server_file_del': {
+        path: '/applicationRemoteConfigFile/del',
+        method: 'post',
+      },
 
       /** 域名相关 */
       // 外网域名列表

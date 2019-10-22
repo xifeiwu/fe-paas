@@ -8,9 +8,7 @@
             添加配置文件
           </el-button>
           <el-button type="primary" size="mini" icon="el-icon-refresh"
-                     @click="handleClick($event, 'refresh')">
-            刷新目录
-          </el-button>
+                     @click="handleClick($event, 'refresh')">刷新</el-button>
         </el-col>
         <el-col :span="1">
           <span>&nbsp</span>
@@ -112,6 +110,9 @@
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
           <el-button type="danger" size="mini" @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保存修改</el-button>
+        </div>
+        <div class="item">
+          <el-button type="danger" size="mini" @click="handleDialogEvent($event, 'remove_config')">删除配置</el-button>
         </div>
         <div class="item">
           <el-button type="success" size="mini" @click="closeDialog">取消修改</el-button>
@@ -292,6 +293,7 @@
           await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_file_add, {
             payload
           });
+          this.requestConfigFileList();
         } catch (err) {
           console.log(err);
         } finally {
@@ -307,6 +309,29 @@
               this.action.promise.resolve(this.action.data);
             } catch(err) {
               console.log(err);
+            }
+            break;
+          case 'remove_config':
+            try {
+              await this.$confirm(`确定要删除配置${this.action.data.configDirName}/${this.action.data.configFileName}吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              this.action.requesting = true;
+              await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_file_del, {
+                payload: {
+                  id: this.action.data.id
+                }
+              });
+              this.$message.success(`配置${this.action.data.configDirName}/${this.action.data.configFileName}已删除！`);
+              this.closeDialog();
+              this.requestConfigFileList();
+            } catch (err) {
+              console.log(err);
+            } finally {
+              this.action.requesting = false;
             }
             break;
         }
