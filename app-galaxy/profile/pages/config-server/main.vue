@@ -237,7 +237,6 @@
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
           this.heightOfTable = this.$el.clientHeight - headerHeight - 24;
-          console.log(headerHeight, this.heightOfTable);
         } catch(err) {
         }
       },

@@ -1,91 +1,96 @@
 <template>
-  <div id="config-server-file-list"
-  >
-    <div class="pa-3 pt-4" style="background-color: #fff;">
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-button type="success" icon="el-icon-circle-plus-outline"
-                     @click="showCreateFileForm=!showCreateFileForm">
+  <div id="config-server-file-list">
+    <div class="header">
+      <el-row type="flex" justify="center" align="middle">
+        <el-col :span="10">
+          <el-button type="success" size="mini" icon="el-icon-circle-plus-outline"
+                     @click="handleClick($event, 'config-file-add')">
             添加配置文件
           </el-button>
+          <el-button type="primary" size="mini" icon="el-icon-refresh"
+                     @click="handleClick($event, 'refresh')">
+            刷新目录
+          </el-button>
         </el-col>
-        <el-col :span="10">
-          <el-input clearable prefix-icon="el-icon-search" placeholder="请输入关键字搜索文件"
-                    v-model="search">
-            <template slot="append">
-              <div class="px-3">
-                <el-button @click="search=''" type="danger">
-                  <i class="el-icon-close"></i>
-                  重置搜索
-                </el-button>
-              </div>
-            </template>
+        <el-col :span="1">
+          <span>&nbsp</span>
+        </el-col>
+        <el-col :span="13">
+          <el-input size="mini-extral" placeholder="按关键字搜索目录" class="search"
+                    style="max-width: 360px;"
+                    v-model="filterKey">
+            <i slot="prefix" class="el-icon-search"></i>
+            <i :class="filterKey && filterKey.length > 0 ? 'paas-icon-close' : ''"
+               slot="suffix"
+               @click="evt => filterKey=''"></i>
           </el-input>
         </el-col>
       </el-row>
-    </div>
-    <!--添加文件表单-->
-    <div v-if="showCreateFileForm" class="px-3 pt-3">
-      <el-form :model="form" :ref="'createFileForm'">
-        <el-row>
-          <el-col :span="12">
-            <el-form-item prop="configFileName"
-                          :rules="[{required: true, pattern: /^[a-z][a-z0-9.-]{0,100}$/, message: '有效字符包括 a-z,0-9及 . 和 - 例如: app-config' }]">
-              <el-input v-model="form.configFileName" placeholder="请输出文件名称">
-                <template slot="prepend">
-                  <div>&emsp;文件名称：</div>
-                </template>
-                <template slot="append">
-                  <div class="px-3">
-                    <el-dropdown @command="changeExtName">
+      <div v-if="showCreateFileForm" class="px-3 pt-3">
+        <el-form :model="form" :ref="'createFileForm'">
+          <el-row>
+            <el-col :span="12">
+              <el-form-item prop="configFileName"
+                            :rules="[{required: true, pattern: /^[a-z][a-z0-9.-]{0,100}$/, message: '有效字符包括 a-z,0-9及 . 和 - 例如: app-config' }]">
+                <el-input v-model="form.configFileName" placeholder="请输出文件名称">
+                  <template slot="prepend">
+                    <div>&emsp;文件名称：</div>
+                  </template>
+                  <template slot="append">
+                    <div class="px-3">
+                      <el-dropdown @command="changeExtName">
                   <span class="el-dropdown-link">
                     {{form.extName}} <i class="el-icon-arrow-down el-icon--right"></i>
                   </span>
-                      <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item command=".properties"><strong>.properties</strong>
-                        </el-dropdown-item>
-                        <el-dropdown-item command=".yml"><strong>.yml</strong>
-                        </el-dropdown-item>
-                      </el-dropdown-menu>
-                    </el-dropdown>
-                  </div>
-                </template>
-              </el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6" :offset="1">
-            <el-form-item>
-              <el-button type="primary" @click="createFile">确认添加</el-button>
-              <el-button type="warning" @click="showCreateFileForm = false">取消添加</el-button>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
+                        <el-dropdown-menu slot="dropdown">
+                          <el-dropdown-item command=".properties"><strong>.properties</strong>
+                          </el-dropdown-item>
+                          <el-dropdown-item command=".yml"><strong>.yml</strong>
+                          </el-dropdown-item>
+                        </el-dropdown-menu>
+                      </el-dropdown>
+                    </div>
+                  </template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="6" :offset="1">
+              <el-form-item>
+                <el-button type="primary" @click="createFile">确认添加</el-button>
+                <el-button type="warning" @click="showCreateFileForm = false">取消添加</el-button>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+      </div>
     </div>
     <!--文件列表-->
-    <el-table :data="configFilesFilter" max-height="650" stripe>
-      <el-table-column prop="configFileName" label="文件名称">
-        <template slot-scope="scope">
-          <el-button type="text" @click="openEditor(scope.row)">
-            <i class="el-icon-document"></i>
-            <span>
+    <div class="list">
+      <el-table :data="configFilesFilter" stripe
+                :height="heightOfTable">
+        <el-table-column prop="configFileName" label="文件名称">
+          <template slot-scope="scope">
+            <el-button type="text" @click="openEditor(scope.row)">
+              <i class="el-icon-document"></i>
+              <span>
               {{dirSelected.configDirName}} /
             </span>
-            <span style="font-weight: 800; ">
+              <span style="font-weight: 800; ">
                {{ scope.row.configFileName }}
             </span>
-          </el-button>
+            </el-button>
+          </template>
+        </el-table-column>
+        <el-table-column prop="version" label="文件版本" :width="300">
+        </el-table-column>
+        <el-table-column prop="updateTime" label="最后修改时间" :width="300">
+          <template slot-scope="scope">
+            <i class="el-icon-time"></i>
+            {{scope.row.updateTime || scope.row.createTime | localDate}}
         </template>
-      </el-table-column>
-      <el-table-column prop="version" label="文件版本" :width="300">
-      </el-table-column>
-      <el-table-column prop="updateTime" label="最后修改时间" :width="300">
-        <template slot-scope="scope">
-          <i class="el-icon-time"></i>
-          {{scope.row.updateTime || scope.row.createTime | localDate}}
-        </template>
-      </el-table-column>
-    </el-table>
+        </el-table-column>
+      </el-table>
+    </div>
     <!-- 编辑器 -->
     <el-dialog :visible.sync="showEditor" top="30px" width="80%" :fullscreen="false"
                v-loading="saveFileLoading"
@@ -124,6 +129,43 @@
   </div>
 
 </template>
+<style lang="scss" scoped>
+  #config-server-file-list {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    max-width: 1300px;
+    background: white;
+    > .header {
+      padding: 3px 5px;
+      font-size: 14px;
+      .el-row {
+        .el-col {
+          &:nth-child(3) {
+            text-align: right;
+            .el-input {
+              margin-left: 5px;
+            }
+          }
+        }
+      }
+    }
+    > .list {
+      flex: 1;
+      position: relative;
+      .el-table {
+        .to-file-list {
+          font-family: monospace;
+          cursor: pointer;
+          color: $--color-primary;
+          &:hover {
+            font-weight: 800;
+          }
+        }
+      }
+    }
+  }
+</style>
 
 <script>
   import {mapState} from "vuex";
@@ -150,15 +192,17 @@
         this.$router.helper.goUp(this.$route.path);
         return;
       }
+      this.requestConfigFileList();
+    },
+    mounted() {
+      // update value in next tick
       this.$nextTick(() => {
         const routeConfig = this.$router.helper.getConfigByFullPath('/profile/config-server/:id(\\d+)');
         if (routeConfig) {
           routeConfig.name = `${this.dirSelected.configDirName}`;
         }
+        this.onScreenSizeChange(this.$storeHelper.screen.size);
       });
-      this.requestConfigFileList();
-    },
-    mounted() {
     },
     components: {
       codemirror, paasDismissMessage
@@ -168,10 +212,11 @@
         dirId: null,
         dirSelected: null,
         configFiles: [],
+        heightOfTable: '',
         saveFileLoading: false,
         currentEditFile: null,
         showCreateFileForm: false,
-        search: "",
+        filterKey: "",
         showEditor: false,
         form: {
           configFileName: "",
@@ -195,11 +240,14 @@
       configFilesFilter() {
         let data = this.configFiles || [];
         data = data.sort((a, b) => b.updateTime - a.updateTime);
-        const search = this.search;
-        return search
-          ? data.filter(item => Object.values(item).join(",").toLowerCase().match(search))
+        const filterKey = this.filterKey;
+        return filterKey
+          ? data.filter(item => Object.values(item).join(",").toLowerCase().match(filterKey))
           : data;
       }
+    },
+    watch: {
+      '$storeHelper.screen.size': 'onScreenSizeChange',
     },
     filters: {
       localDate(val) {
@@ -207,6 +255,31 @@
       },
     },
     methods: {
+      onScreenSizeChange(size) {
+        if (!size) {
+          return;
+        }
+        try {
+          const headerNode = this.$el.querySelector(':scope > .header');
+          const headerHeight = headerNode.offsetHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 24;
+        } catch(err) {
+        }
+      },
+      async handleClick(evt, action) {
+        switch (action) {
+          case 'config-file-add':
+            this.showCreateFileForm = !this.showCreateFileForm;
+            this.$nextTick(() => {
+              this.onScreenSizeChange(this.$storeHelper.screen.size);
+            });
+            break;
+          case 'refresh':
+            this.requestConfigFileList();
+            break;
+        }
+      },
+
       async requestConfigFileList() {
         const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_file_list, {
           query: {
@@ -215,9 +288,11 @@
         });
         this.configFiles = resData;
       },
+
       changeExtName(val) {
         this.form.extName = val;
       },
+
       async createFile() {
         try {
           await this.$refs['createFileForm'].validate();
@@ -235,6 +310,7 @@
           this.showCreateFileForm = false;
         }
       },
+
       openEditor(val) {
         this.currentEditFile = val;
         // 清空commitMessage
