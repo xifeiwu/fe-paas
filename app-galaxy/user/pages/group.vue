@@ -1,18 +1,28 @@
 <template>
   <div id="group-manage">
     <div class="header">
-      <el-input
-              size="mini"
-              style="max-width: 300px"
-              placeholder="按关键字搜索团队"
-              suffix-icon="el-icon-search"
-              v-model="filterKey">
-      </el-input>
-      <el-button size="mini"
-                 type="primary"
-                 @click="handleButtonClick($event, 'refresh-list')">
-        <span>刷新列表</span><i class="el-icon el-icon-refresh" style="margin-left: 8px;"></i>
-      </el-button>
+      <el-row type="flex" justify="center" align="middle">
+        <el-col :span="10">
+          <el-button size="mini"
+                     type="primary"
+                     @click="handleButtonClick($event, 'refresh-list')">
+            <span>刷新列表</span><i class="el-icon el-icon-refresh" style="margin-left: 8px;"></i>
+          </el-button>
+        </el-col>
+        <el-col :span="1">
+          <span>&nbsp</span>
+        </el-col>
+        <el-col :span="13" class="search">
+          <el-input size="mini-extral" placeholder="按名称搜索团队"
+                    style="max-width: 360px;"
+                    v-model="filterKey">
+            <i slot="prefix" class="el-icon-search"></i>
+            <i :class="filterKey && filterKey.length > 0 ? 'paas-icon-close' : ''"
+               slot="suffix"
+               @click="evt => filterKey=''"></i>
+          </el-input>
+        </el-col>
+      </el-row>
     </div>
     <div class="group-list">
       <el-table :data="groupListByPage"
@@ -82,19 +92,17 @@
                   <template slot-scope="scope">
                     <el-button
                             v-if="!$storeHelper.notPermitted['group_member_update_roles']"
-                            size="mini-extral"
-                            type="info"
-                            round
+                            type="text"
                             @click="handleTRClick('change-roles', scope.$index, scope.row)"
-                            :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
+                            :class="{'expand': expandRows.indexOf(scope.row.id) > -1, 'warning': true}"
                             :loading="statusOfWaitingResponse('change-roles') && operation.menber.id == scope.row.id">
                       <span>修改岗位</span>
                     </el-button>
+                    <div class="ant-divider" v-if="!$storeHelper.notPermitted['group_member_update_roles']"></div>
                     <el-button
                             v-if="!$storeHelper.notPermitted['group_member_remove']"
-                            size="mini-extral"
-                            type="info"
-                            round
+                            type="text"
+                            class="warning"
                             @click="handleTRClick('remove-group-number', scope.$index, scope.row)">移除成员</el-button>
                   </template>
                 </el-table-column>
@@ -120,11 +128,13 @@
       <div class="pagination-container" v-if="totalSize > pageSize">
         <div class="pagination">
           <el-pagination
+                  @size-change="val => this.pageSize = val"
                   :current-page="currentPage"
-                  size="large"
-                  layout="prev, pager, next"
+                  size="small"
                   :page-size = "pageSize"
+                  :page-sizes="[10, 15, 20, 30]"
                   :total="totalSize"
+                  layout="total, sizes, prev, pager, next"
                   @current-change="page => {currentPage = page}"
                   v-if="totalSize > pageSize"
           >
@@ -214,6 +224,16 @@
     .header {
       padding: 3px 5px;
       font-size: 14px;
+      .el-row {
+        .el-col {
+          &.search {
+            text-align: right;
+            .el-input {
+              margin-left: 5px;
+            }
+          }
+        }
+      }
     }
     .group-list {
       flex: 1;
@@ -225,14 +245,15 @@
         }
         tr .row-expand {
           position: relative;
-          padding-bottom: 20px;
+          width: 85%;
+          max-width: 750px;
           background-color: #fff;
           box-sizing: border-box;
-          /*padding: 12px 8px;*/
-          width: 85%;
-          margin: 0px auto;
-          max-width: 750px;
-          box-shadow: 0 0 2px 0 rgba(64, 158, 255, .6);
+          padding: 0px 0px 20px 0px;
+          margin: 3px auto 5px;
+          /*box-shadow: 0 0 2px 0 rgba(64,158,255, .6);*/
+          /*border: 1px solid #dfe1e5;*/
+          box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
           .el-table {
             td {
               padding: 0px 0px;
@@ -361,6 +382,9 @@
           currentPage: page
         });
       },
+      pageSize() {
+        this.getGroupListByPage({});
+      },
       filterKey() {
         this.getGroupListByPage({});
       },
@@ -377,7 +401,7 @@
         try {
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
-          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 24;
         } catch(err) {
         }
       },
@@ -650,7 +674,7 @@
           var result = true;
           if (filterReg) {
             const searchField = `${it.name}${it.tag}${it.lobName}`;
-            result = filterReg.test(searchField);
+            result = filterReg.test(searchField.toLowerCase());
           }
           return result;
         });
