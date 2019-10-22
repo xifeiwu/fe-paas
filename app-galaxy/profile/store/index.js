@@ -8,7 +8,6 @@ import createPersistedState from 'vuex-persistedstate';
 import user from './modules/user';
 import app from './modules/app';
 import tmp from './modules/tmp';
-import etc from './modules/etc';
 import cdn from './modules/cdn';
 
 Vue.use(Vuex);
@@ -105,16 +104,13 @@ export default new Vuex.Store({
   },
 
   modules:{
-    user, app, tmp, etc, cdn
+    user, app, tmp, cdn
   },
   plugins: [createPersistedState({
     key: 'profile',
-    // 暂时只持久化 etc 模块，防止冲突
     paths: ['config',
       'user.groupInfo', 'user.groupList', 'user.profileListOfGroup', 'user.config',
-      'app.globalConfig',
-      // 'app.clusterList',
-      'etc'],
+      'app.globalConfig'],
     // filter: (mutation) => {console.log(mutation)}
   })]
 })

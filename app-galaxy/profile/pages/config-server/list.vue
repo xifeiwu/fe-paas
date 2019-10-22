@@ -1,7 +1,5 @@
 <template>
-  <div v-loading="loading"
-       element-loading-text="操作进行中"
-       element-loading-spinner="el-icon-loading"
+  <div id="config-server-file-list"
   >
     <div class="pa-3 pt-4" style="background-color: #fff;">
       <el-row :gutter="20">
@@ -154,9 +152,9 @@
         this.$router.helper.goUp(this.$route.path);
         return;
       }
+      this.requestConfigFileList();
     },
     mounted() {
-      this.$store.dispatch('etc/getFiles', this.dirSelected.id);
     },
     components: {
       codemirror, paasDismissMessage
@@ -165,6 +163,7 @@
       return {
         dirId: null,
         dirSelected: null,
+        configFiles: [],
         saveFileLoading: false,
         currentEditFile: null,
         showCreateFileForm: false,
@@ -189,7 +188,6 @@
       };
     },
     computed: {
-      ...mapState("etc", ["configFiles", 'loading']),
       configFilesFilter() {
         let data = this.configFiles || [];
         data = data.sort((a, b) => b.updateTime - a.updateTime);
@@ -205,9 +203,13 @@
       },
     },
     methods: {
-      requesConfigFileList() {
-//        axios.post(URL_LIST.config_server_file_list.url + '?applicationRemoteConfigId=' + payload)
-//          .then(res => commit('SET_CONFIG_FILES', res.data))
+      async requestConfigFileList() {
+        const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_file_list, {
+          query: {
+            applicationRemoteConfigId: this.dirId
+          }
+        });
+        this.configFiles = resData;
       },
       changeExtName(val) {
         this.form.extName = val;
@@ -227,7 +229,7 @@
             .post(this.$url.config_server_file_add.url, payload)
             .then(res => {
               if (!res.data.hasOwnProperty('success')) return alert(res.data.msg);
-              this.$store.dispatch('etc/getFiles', this.dirSelected.id);
+              this.requestConfigFileList();
               this.showCreateFileForm = false;
             })
             .catch(err => this.$alert('系统错误：创建配置文件时失败，请联系管理员' + err.message))
@@ -283,7 +285,7 @@
               console.log('save', res);
               if(!res.data.hasOwnProperty('success')) return alert(res.data.msg);
               this.showEditor = false;
-              this.$store.dispatch('etc/getFiles', this.dirSelected.id);
+              this.requestConfigFileList();
             })
             .catch(err => {
               console.log(err);

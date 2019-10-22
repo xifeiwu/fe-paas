@@ -369,6 +369,7 @@ class URL extends BaseURL {
         path: '/applicationRemoteConfigFile/add',
         method: 'post',
       },
+      // TODO: delete
       // 远程配置中心——获取配置文件列表 eg. /applicationRemoteConfigFile/get?applicationRemoteConfigId=123123
       'config_server_file_list': {
         url: API_PATH + '/applicationRemoteConfigFile/get',
