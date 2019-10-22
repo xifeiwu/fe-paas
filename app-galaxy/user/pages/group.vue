@@ -5,7 +5,7 @@
         <el-col :span="10">
           <el-button size="mini" v-if="isAdmin"
                      type="primary"
-                     @click="handleButtonClick($event, 'open_dialog_create_group')">
+                     @click="handleButtonClick($event, 'open_dialog_group_create')">
             <span>创建团队</span><i class="el-icon el-icon-plus" style="margin-left: 8px;"></i>
           </el-button>
           <el-button size="mini"
@@ -60,6 +60,20 @@
         </el-table-column>
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="100">
           <template slot-scope="scope">
+            <el-button
+                    v-if="isAdmin"
+                    type="text" class="warning"
+                    @click="handleTRClick('group_delete', scope.$index, scope.row)">
+              <span>解散团队</span>
+            </el-button>
+            <div class="ant-divider" v-if="isAdmin"></div>
+            <el-button
+                    v-if="isAdmin"
+                    type="text" class="warning"
+                    @click="handleButtonClick($event, 'open_dialog_group_update', scope.row, scope.$index)">
+              <span>修改团队</span>
+            </el-button>
+            <div class="ant-divider" v-if="isAdmin"></div>
             <el-button
                     v-if="!$storeHelper.notPermitted['group_member_invite']"
                     type="text" class="primary"
@@ -206,18 +220,21 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="创建团队" :visible="action.name == 'open_dialog_create_group'"
-               v-if="action.name == 'open_dialog_create_group'"
+    <el-dialog :title="{
+              open_dialog_group_create: '创建团队',
+              open_dialog_group_update: '修改团队'
+            }[action.name]" :visible="['open_dialog_group_create', 'open_dialog_group_update'].includes(action.name)"
+               v-if="['open_dialog_group_create', 'open_dialog_group_update'].includes(action.name)"
                @close="closeDialog"
                bodyPadding="6px 10px 0px 2px"
-               class="size-650 create_group"
+               class="size-600 create_group"
     >
       <el-form :model="action.data" :rules="rulesCreateGroup" labelWidth="100px" size="mini" ref="createGroupForm">
         <el-form-item label="团队名称" prop="groupName">
           <el-input v-model="action.data.groupName"></el-input>
         </el-form-item>
         <el-form-item label="团队标签" prop="groupTag">
-          <el-input v-model="action.data.groupTag" placeholder="字母数字下划线"></el-input>
+          <el-input v-model="action.data.groupTag" placeholder="字母数字下划线" :disabled="action.name == 'open_dialog_group_update'"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
@@ -470,7 +487,8 @@
               this.action.promise.resolve(this.action.data);
             } catch (err) {}
             break;
-          case 'create_group':
+          case 'group_create':
+          case 'group_update':
             try {
               await this.$refs['createGroupForm'].validate();
               this.action.promise.resolve(this.action.data);
@@ -479,22 +497,36 @@
         }
       },
 
-      async handleButtonClick(evt, action) {
+      async handleButtonClick(evt, action, data) {
         switch (action) {
-          case 'open_dialog_create_group':
+          case 'open_dialog_group_create':
+          case 'open_dialog_group_update':
             try {
               const dialogData = await this.openDialog(action, {
-                groupName: '',
-                groupTag: ''
+                groupName: action == 'open_dialog_group_update' ? data.name : '',
+                groupTag: action == 'open_dialog_group_update' ? data.tag : ''
               });
-              await this.$net.requestPaasServer(this.$net.URL_LIST.group_create, {
+              await this.$net.requestPaasServer({
+                open_dialog_group_create: this.$net.URL_LIST.group_create,
+                open_dialog_group_update: this.$net.URL_LIST.group_update
+              }[action], {
                 payload: {
-                  name: dialogData.groupName,
-                  tag: dialogData.groupTag,
-                  description: ''
-                }
+                  open_dialog_group_update: {
+                    id: data ? data.id : null,
+                    name: dialogData.groupName
+                  },
+                  open_dialog_group_create: {
+                    name: dialogData.groupName,
+                    tag: dialogData.groupTag,
+                    description: ''
+                  }
+                }[action]
               });
-              this.$message.success(`添加团队${dialogData.groupName}成功！`);
+
+              this.$message.success({
+                open_dialog_group_create: `添加团队 "${dialogData.groupName}" 成功！`,
+                open_dialog_group_update: `修改团队 "${data ? data.name : ''}" 成功`
+              }[action]);
               this.handleButtonClick(null, 'refresh-list');
             } catch (err) {
               console.log(err);
@@ -618,6 +650,25 @@
                 this.operation.name = null;
               });
             });
+            break;
+          case 'group_delete':
+            try {
+              await this.$confirm(`确定要删除团队${row.name}吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              await this.$net.requestPaasServer(this.$net.URL_LIST.group_delete, {
+                payload: {
+                  id: row.id
+                }
+              });
+              this.$message.success(`团队 "${row.name}" 删除成功`);
+              this.handleButtonClick(null, 'refresh-list');
+            } catch (err) {
+//              this.$message.success(`删除失败：${(err && err.message) ? err.message : ''}`);
+            }
             break;
         }
       },

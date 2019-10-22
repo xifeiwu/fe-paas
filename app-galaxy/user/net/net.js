@@ -21,8 +21,18 @@ class Net extends NetBase {
         path: '/group/addUser',
         method: 'post'
       },
+      // 创建团队
       'group_create': {
         path: '/group/create',
+        method: 'post'
+      },
+      'group_update': {
+        path: '/group/update',
+        method: 'post'
+      },
+      // 删除团队
+      'group_delete': {
+        path: '/group/delete',
         method: 'post'
       },
 
