@@ -447,6 +447,21 @@ class Net extends NetBase {
         path: '/applicationRemoteConfigFile/get',
         method: 'post',
       },
+      // 远程配置中心——获取配置文件内容 eg. /applicationRemoteConfigFile/content?applicationRemoteConfigId=123123
+      'config_server_file_content': {
+        path: '/applicationRemoteConfigFile/content',
+        method: 'get',
+      },
+      // 远程配置中心——保存配置文件 eg. /applicationRemoteConfigFile/update?applicationRemoteConfigFileId=1123
+      'config_server_file_save': {
+        path: '/applicationRemoteConfigFile/update',
+        method: 'post',
+      },
+      // 远程配置中心——编辑配置文件 eg. /applicationRemoteConfigFile/update/edit-status?applicationRemoteConfigFileId=1123
+      'config_server_file_edit': {
+        path: '/applicationRemoteConfigFile/update/edit-status',
+        method: 'post',
+      },
 
       /** 域名相关 */
       // 外网域名列表

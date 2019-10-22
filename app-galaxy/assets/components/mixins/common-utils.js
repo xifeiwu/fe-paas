@@ -3,6 +3,7 @@ export default {
     return {
       queueForWaitingResponse: [],
       action: {
+        requesting: false,
         name: null,
         promise: {
           resolve: () => {},

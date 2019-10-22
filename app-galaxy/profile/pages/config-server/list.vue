@@ -70,15 +70,10 @@
                 :height="heightOfTable">
         <el-table-column prop="configFileName" label="文件名称">
           <template slot-scope="scope">
-            <el-button type="text" @click="openEditor(scope.row)">
+            <div>
               <i class="el-icon-document"></i>
-              <span>
-              {{dirSelected.configDirName}} /
-            </span>
-              <span style="font-weight: 800; ">
-               {{ scope.row.configFileName }}
-            </span>
-            </el-button>
+              <span @click="handleTRClick($event, 'open_dialog_update_config', scope.row)" class="to-file-list">{{dirSelected.configDirName}}/{{ scope.row.configFileName }}</span>
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="version" label="文件版本" :width="300">
@@ -92,38 +87,35 @@
       </el-table>
     </div>
     <!-- 编辑器 -->
-    <el-dialog :visible.sync="showEditor" top="30px" width="80%" :fullscreen="false"
-               v-loading="saveFileLoading"
+    <el-dialog :title="`修改配置${action.data.configDirName}/${action.data.configFileName}`"
+               :visible.sync="action.name == 'open_dialog_update_config'"
+               v-if="action.name == 'open_dialog_update_config'"
+               class="update_config size-1200"
+               @close="closeDialog"
+               bodyPadding="0px"
+               top="50px"
+               v-loading="action.requesting"
                element-loading-text="正在保存"
                element-loading-spinner="el-icon-loading"
                element-loading-background="rgba(0, 0, 0, 0.8)"
     >
-      <div class="py-3" style="width: 80%; text-align: left;">
-        <h4>
-          <span style="color: red;">
-          {{dirSelected.configDirName}}/{{currentEditFile ? currentEditFile.configFileName: ''}}
-          </span>
-        </h4>
-      </div>
-      <div class="__editor">
-        <codemirror v-model="form.code" :options="editorOptions"></codemirror>
-      </div>
-      <div class="pt-3" style="width: 80%; text-align: left;">
-        <el-form :model="form" ref="editFileForm">
-          <el-form-item prop="commitMessage" :rules="[{ required: true, message: '修改说明不能为空'}]">
-            <el-input v-model="form.commitMessage" placeholder="必填： 请输入修改说明,将用于 git 提交">
-              <template slot="prepend">
-                <div>&emsp;修改说明：</div>
-              </template>
-            </el-input>
-          </el-form-item>
-        </el-form>
-      </div>
-      <paas-dismiss-message :msgList="'提示:类似“datasource.*.password”的字段值仅DBA岗位用户可以修改和查看，其他岗位用户只会看到“********”并且无法修改该字段值'"></paas-dismiss-message>
-      <div slot="footer" class="pa-3" style="text-align: center">
-        <el-button type="success" size="medium" @click="saveFile('editFileForm')">&emsp;保 存 修 改&emsp;
-        </el-button>
-        <el-button type="danger" size="medium" @click="showEditor = false">&emsp;取 消 修 改&emsp;</el-button>
+      <paas-dismiss-message :toExpand="true" showSeconds="0" style="margin: 2px 0px;"
+                            :msgList="'提示:类似“datasource.*.password”的字段值仅DBA岗位用户可以修改和查看，其他岗位用户只会看到“********”并且无法修改该字段值'"></paas-dismiss-message>
+      <el-form size="mini" :model="action.data" ref="updateConfigForm">
+        <el-form-item class="__editor message-show" labelWidth="0px">
+          <codemirror v-model="action.data.code" :options="editorOptions"></codemirror>
+        </el-form-item>
+        <el-form-item label="修改说明" labelWidth="100px" prop="commitMessage" :rules="[{ required: true, message: '修改说明不能为空'}]">
+          <el-input v-model="action.data.commitMessage" placeholder="请输入修改说明,将用于 git 提交"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="danger" size="mini" @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保存修改</el-button>
+        </div>
+        <div class="item">
+          <el-button type="success" size="mini" @click="closeDialog">取消修改</el-button>
+        </div>
       </div>
     </el-dialog>
   </div>
@@ -168,7 +160,6 @@
 </style>
 
 <script>
-  import {mapState} from "vuex";
   import {codemirror} from "vue-codemirror";
   import "codemirror/lib/codemirror.css";
 
@@ -180,8 +171,10 @@
   // require active-line.js
   import "codemirror/addon/selection/active-line.js";
   import paasDismissMessage from 'assets/components/dismiss-message';
+  import commonUtils from 'assets/components/mixins/common-utils';
 
   export default {
+    mixins: [commonUtils],
     created() {
       if (this.$route.params && this.$route.params.hasOwnProperty('id')) {
         this.dirId = this.$route.params['id'];
@@ -213,16 +206,11 @@
         dirSelected: null,
         configFiles: [],
         heightOfTable: '',
-        saveFileLoading: false,
-        currentEditFile: null,
         showCreateFileForm: false,
         filterKey: "",
-        showEditor: false,
         form: {
           configFileName: "",
           extName: '.properties',
-          code: "",
-          commitMessage: ""
         },
         editorOptions: {
           tabSize: 4,
@@ -311,61 +299,61 @@
         }
       },
 
-      openEditor(val) {
-        this.currentEditFile = val;
-        // 清空commitMessage
-        this.form.commitMessage = '';
-        // editor mode
-        this.editorOptions.mode = /yml/.test(val.configFileName) ? 'text/yaml' : 'text/x-properties';
-
-        this.$ajax
-          .get(this.$url.config_server_file_content.url + '?applicationRemoteConfigFileId=' + val.id)
-          .then(res => {
-            if (!res.data.success) {
-              this.$alert(`获取配置文件内容失败，错误原因：${res.data.msg}`);
-              return;
-            }
-            this.form.code = res.data.content.fileContent;
-            this.showEditor = true;
-          })
-          .catch(err => console.log(err))
-      },
-      saveFile(formName) {
-        this.$refs[formName].validate(valid => {
-          if (!valid) return false;
-          this.saveFileLoading = true;
-          this.$ajax
-            .request({
-              method: 'post',
-              url: this.$url.config_server_file_edit.url,
-              params: {applicationRemoteConfigFileId: this.currentEditFile.id,}
-            })
-            .then(res => {
-              console.log('lock', res);
-              return this.$ajax.request({
-                method: 'post',
-                url: this.$url.config_server_file_save.url,
-                data: {
-                  applicationRemoteConfigFileId: this.currentEditFile.id,
-                  commitMessage: this.form.commitMessage,
-                  fileContent: this.form.code,
-                  groupId: this.dirSelected.groupId,
-                },
-                // headers: {'Content-Type': 'text/plain'}
-              })
-            })
-            .then(res => {
-              console.log('save', res);
-              if(!res.data.hasOwnProperty('success')) return alert(res.data.msg);
-              this.showEditor = false;
-              this.requestConfigFileList();
-            })
-            .catch(err => {
+      async handleDialogEvent(evt, action) {
+        switch (action) {
+          case 'update_config':
+            try {
+              await this.$refs['updateConfigForm'].validate();
+              this.action.promise.resolve(this.action.data);
+            } catch(err) {
               console.log(err);
-              alert('文件保存失败，请联系paas平台组')
-            })
-            .finally(() => this.saveFileLoading = false);
-        })
+            }
+            break;
+        }
+      },
+
+      async handleTRClick(evt, action, row) {
+        switch (action) {
+          case 'open_dialog_update_config':
+            // editor mode
+            this.editorOptions.mode = /yml/.test(row.configFileName) ? 'text/yaml' : 'text/x-properties';
+
+            try {
+              const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_file_content, {
+                query: {
+                  applicationRemoteConfigFileId: row.id
+                }
+              });
+              const dialogData = await this.openDialog(action, {
+                id: resData.id,
+                groupId: resData.groupId,
+                configDirName: resData.configDirName,
+                configFileName: resData.configFileName,
+                code: resData.fileContent,
+                commitMessage: '',
+              });
+              this.action.requesting = true;
+              await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_file_edit, {
+                query: {
+                  applicationRemoteConfigFileId: dialogData.id
+                }
+              });
+              await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_file_save, {
+                payload: {
+                  applicationRemoteConfigFileId: dialogData.id,
+                  commitMessage: dialogData.commitMessage,
+                  fileContent: dialogData.code,
+                  groupId: dialogData.groupId,
+                }
+              });
+            } catch (err) {
+              console.log(err);
+            } finally {
+              this.action.requesting = false;
+              this.closeDialog();
+            }
+            break;
+        }
       },
     }
   };

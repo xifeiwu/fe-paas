@@ -378,18 +378,21 @@ class URL extends BaseURL {
         path: '/applicationRemoteConfigFile/get',
         method: 'post',
       },
+      // TODO: delete
       // 远程配置中心——获取配置文件内容 eg. /applicationRemoteConfigFile/content?applicationRemoteConfigId=123123
       'config_server_file_content': {
         url: API_PATH + '/applicationRemoteConfigFile/content',
         path: '/applicationRemoteConfigFile/content',
         method: 'post',
       },
+      // TODO: delete
       // 远程配置中心——保存配置文件 eg. /applicationRemoteConfigFile/update?applicationRemoteConfigFileId=1123
       'config_server_file_save': {
         url: API_PATH + '/applicationRemoteConfigFile/update',
         path: '/applicationRemoteConfigFile/update',
         method: 'post',
       },
+      // TODO: delete
       // 远程配置中心——编辑配置文件 eg. /applicationRemoteConfigFile/update/edit-status?applicationRemoteConfigFileId=1123
       'config_server_file_edit': {
         url: API_PATH + '/applicationRemoteConfigFile/update/edit-status',
