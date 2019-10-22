@@ -107,6 +107,7 @@ import pathToRegexp from 'path-to-regexp';
 class Helper extends RouterHelper {
   constructor() {
     super();
+    this.ROOT_PATH = '/profile';
     this.richRouterConfig = [{
       path: '/profile',
       redirect: '/profile/app',
@@ -343,7 +344,7 @@ class Helper extends RouterHelper {
       name: '配置中心',
       component: ConfigServerMain
     }, {
-      path: '/profile/config-server/list',
+      path: '/profile/config-server/:id(\\d+)/list',
       name: '配置文件列表',
       component: ConfigServerFileList,
     }, {
@@ -620,47 +621,56 @@ class Helper extends RouterHelper {
     }
   }
 
+  // get parent path of the path
+  getParentPath (path) {
+    var result = '';
+    if (!path.startsWith(this.ROOT_PATH)) {
+      result = this.ROOT_PATH;
+    } else {
+      result = path.split('/').slice(0, -1).join('/');
+      if (!result) {
+        result = this.ROOT_PATH;
+      }
+    }
+    return result;
+  }
+
+  // if the path is valid
+  isPermitted (config) {
+    var permitted = true;
+    if (!config) {
+      permitted = false;
+    } else if (config.hasOwnProperty('meta') && config.meta.hasOwnProperty('isPermitted')) {
+      permitted = config.meta.isPermitted;
+    }
+    return permitted;
+  };
+
+
+  // get nearest path if the path is not valid
+  getPermittedPath (config) {
+    var path = config.fullPath;
+    // check parent
+    while (!this.isPermitted(config) && this.ROOT_PATH != path) {
+      path = this.getParentPath(path);
+      config = this.getConfigByRoutePath(path);
+    }
+    return path;
+  }
+
+  goUp(path) {
+    var targetPath = this.getParentPath(path);
+    if (targetPath.startsWith(this.ROOT_PATH)) {
+      return this.ROOT_PATH;
+    }
+    var routeConfig = this.getConfigByRoutePath(targetPath);
+    targetPath = this.getPermittedPath(routeConfig);
+    return targetPath;
+  }
   /**
    * do some action before route change
    */
   startRouteFilter(vueRouter) {
-    const ROOT_PATH = '/profile';
-
-    // get parent path of the path
-    const getParentPath = (path) => {
-      var result = '';
-      if (!path.startsWith(ROOT_PATH)) {
-        result = ROOT_PATH;
-      } else {
-        result = path.split('/').slice(0, -1).join('/');
-        if (!result) {
-          result = ROOT_PATH;
-        }
-      }
-      return result;
-    };
-
-    // if the path is valid
-    const isPermitted = (config) => {
-      var permitted = true;
-      if (!config) {
-        permitted = false;
-      } else if (config.hasOwnProperty('meta') && config.meta.hasOwnProperty('isPermitted')) {
-        permitted = config.meta.isPermitted;
-      }
-      return permitted;
-    };
-
-    // get nearest path if the path is not valid
-    const getPermittedPath = (config) => {
-      var path = config.fullPath;
-      // check parent
-      while (!isPermitted(config) && ROOT_PATH != path) {
-        path = getParentPath(path);
-        config = this.getConfigByRoutePath(path);
-      }
-      return path;
-    };
 
     const pathCheck = (path) => {
       // remove / at end
@@ -674,7 +684,7 @@ class Helper extends RouterHelper {
       var routeConfig = this.getConfigByRoutePath(path);
       if (routeConfig) {
         // 1. isPermitted check
-        if (!isPermitted(routeConfig)) {
+        if (!this.isPermitted(routeConfig)) {
           result.jumpTo = getPermittedPath(routeConfig);
         }
         // update routeConfig
