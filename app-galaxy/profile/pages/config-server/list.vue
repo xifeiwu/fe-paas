@@ -145,6 +145,16 @@
   import paasDismissMessage from 'assets/components/dismiss-message';
 
   export default {
+    created() {
+      if (this.$route.params && this.$route.params.hasOwnProperty('id')) {
+        this.dirId = this.$route.params['id'];
+      }
+      this.dirSelected = this.$storeHelper.getUserConfig('config-server.dir');
+      if (!this.dirId || !this.dirSelected || (this.dirId != this.dirSelected.id)) {
+        this.$router.helper.goUp(this.$route.path);
+        return;
+      }
+    },
     mounted() {
       this.$store.dispatch('etc/getFiles', this.dirSelected.id);
     },
@@ -153,6 +163,8 @@
     },
     data() {
       return {
+        dirId: null,
+        dirSelected: null,
         saveFileLoading: false,
         currentEditFile: null,
         showCreateFileForm: false,
@@ -177,7 +189,7 @@
       };
     },
     computed: {
-      ...mapState("etc", ["configFiles", "dirSelected", 'loading']),
+      ...mapState("etc", ["configFiles", 'loading']),
       configFilesFilter() {
         let data = this.configFiles || [];
         data = data.sort((a, b) => b.updateTime - a.updateTime);
@@ -193,6 +205,10 @@
       },
     },
     methods: {
+      requesConfigFileList() {
+//        axios.post(URL_LIST.config_server_file_list.url + '?applicationRemoteConfigId=' + payload)
+//          .then(res => commit('SET_CONFIG_FILES', res.data))
+      },
       changeExtName(val) {
         this.form.extName = val;
       },

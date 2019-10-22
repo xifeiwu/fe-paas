@@ -330,9 +330,14 @@
         }
       },
       // 跳转到文件列表
-      gotoFileList(val) {
-        this.$store.commit("etc/SET_DIR_SELECTED", val);
-        this.$router.push({path: '/profile/config-server/list'})
+      gotoFileList(row) {
+//        console.log(val);
+//        this.$store.commit("etc/SET_DIR_SELECTED", val);
+//        this.$router.push({path: '/profile/config-server/list'})
+        this.$storeHelper.setUserConfig('config-server', {
+          dir: row
+        });
+        this.$router.push(this.$router.helper.pages['/profile/config-server/:id(\\d+)/list'].toPath({id: row.id}))
       }
     }
   };

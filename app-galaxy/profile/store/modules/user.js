@@ -35,7 +35,8 @@ const state = {
     instance: {},
     monitor: {},
     'log/deploy': {},
-    middleware: {}
+    middleware: {},
+    'config-server': {}
   }
 };
 
