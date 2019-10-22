@@ -1,13 +1,8 @@
 <template>
-  <div id="config-server-list"
-          v-loading="loading"
-          element-loading-text="操作进行中"
-          element-loading-spinner="el-icon-loading"
-          style="flex: 1"
-  >
-    <div class="pa-3 pt-4" style="background-color: #fff;">
-      <el-row :gutter="20">
-        <el-col :span="12">
+  <div id="config-server-list">
+    <div class="header">
+      <el-row type="flex" justify="center" align="middle">
+        <el-col :span="10">
           <el-button type="primary" size="mini" icon="el-icon-circle-plus-outline"
                      @click="handleClick($event, 'open_dialog_create_directory')">
             创建目录
@@ -17,7 +12,10 @@
             刷新目录
           </el-button>
         </el-col>
-        <el-col :span="10">
+        <el-col :span="1">
+          <span>&nbsp</span>
+        </el-col>
+        <el-col :span="13">
           <el-input size="mini-extral" placeholder="按关键字搜索目录" class="search"
                     style="max-width: 360px;"
                     v-model="filterKey">
@@ -28,6 +26,58 @@
           </el-input>
         </el-col>
       </el-row>
+    </div>
+    <div class="list">
+      <!--目录列表-->
+      <el-table :data="configListByPage"
+                :height="heightOfTable">
+        <el-table-column prop="configDirName" label="目录名称" :width="320"
+                         :show-overflow-tooltip="true">
+          <template slot-scope="scope">
+            <div>
+              <i class="el-icon-folder"></i>
+              <span class="to-file-list" @click="gotoFileList(scope.row)">
+                {{ scope.row.configDirName }}
+               </span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="groupId" label="团队名称" :width="180">
+          <template slot-scope="scope">
+            {{scope.row.groupName}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="branchName" label="分支" :width="120">
+          <template slot-scope="scope">
+            <el-tag size="small" type="danger">{{scope.row.branchName}}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="lastCommitMessage" label="最后修改">
+          <template slot-scope="scope">
+            <i class="el-icon-time"></i>
+            <span>
+              {{ scope.row.updateTime | localDate }} &emsp;&emsp;
+            </span>
+            <span style="margin-left: 6px; font-weight: 800;">
+              {{ scope.row.lastOperateUserName || scope.row.creatorName }} |
+              {{ scope.row.lastCommitMessage }}
+            </span>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagination-container">
+        <div class="pagination">
+          <el-pagination
+                  @size-change="val => this.pageSize = val"
+                  background
+                  :current-page.sync="currentPage"
+                  :page-size="pageSize"
+                  :page-sizes="[10, 15, 20, 30]"
+                  layout="total, sizes, prev, pager, next"
+                  :total="this.configListFiltered.length">
+          </el-pagination>
+        </div>
+      </div>
     </div>
 
     <el-dialog title="创建目录"
@@ -51,10 +101,10 @@
             </el-option>
           </el-select>
         </el-form-item>
-            <el-form-item prop="configDirName" label="目录名称">
-              <el-input v-model="action.data.configDirName" auto-complete="off" placeholder="例如: foo-bar-some">
-              </el-input>
-            </el-form-item>
+        <el-form-item prop="configDirName" label="目录名称">
+          <el-input v-model="action.data.configDirName" auto-complete="off" placeholder="例如: foo-bar-some">
+          </el-input>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
@@ -66,54 +116,6 @@
         </div>
       </div>
     </el-dialog>
-
-    <!--目录列表-->
-    <el-table :data="configListByPage">
-      <el-table-column prop="configDirName" label="目录名称" :width="320"
-                       :show-overflow-tooltip="true">
-        <template slot-scope="scope">
-          <el-button type="text" @click="gotoFileList(scope.row)">
-            <i class="el-icon-news"></i>
-            <span style="margin-left: 6px; font-weight: 800; ">
-              {{ scope.row.configDirName }}
-              </span>
-          </el-button>
-        </template>
-      </el-table-column>
-      <el-table-column prop="groupId" label="团队名称" :width="180">
-        <template slot-scope="scope">
-          {{scope.row.groupName}}
-        </template>
-      </el-table-column>
-      <el-table-column prop="branchName" label="分支" :width="120">
-        <template slot-scope="scope">
-          <el-tag size="small" type="danger">{{scope.row.branchName}}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="lastCommitMessage" label="最后修改">
-        <template slot-scope="scope">
-          <i class="el-icon-time"></i>
-          <span>
-            {{ scope.row.updateTime | localDate }} &emsp;&emsp;
-          </span>
-          <span style="margin-left: 6px; font-weight: 800;">
-            {{ scope.row.lastOperateUserName || scope.row.creatorName }} |
-            {{ scope.row.lastCommitMessage }}
-          </span>
-        </template>
-      </el-table-column>
-    </el-table>
-    <div class="pa-4" style="text-align: center; background-color: white;">
-      <el-pagination
-              @size-change="handleSizeChange"
-              background
-              :current-page.sync="currentPage"
-              :page-size="pageSize"
-              :page-sizes="[10, 15, 20, 30]"
-              layout="total, sizes, prev, pager, next"
-              :total="this.configListFiltered.length">
-      </el-pagination>
-    </div>
   </div>
 </template>
 <style lang="scss">
@@ -134,6 +136,43 @@
     }
   }
 </style>
+<style lang="scss" scoped>
+  #config-server-list {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    max-width: 1300px;
+    background: white;
+    > .header {
+      padding: 3px 5px;
+      font-size: 14px;
+      .el-row {
+        .el-col {
+          &:nth-child(3) {
+            text-align: right;
+            .el-input {
+              margin-left: 5px;
+            }
+          }
+        }
+      }
+    }
+    > .list {
+      flex: 1;
+      position: relative;
+      .el-table {
+        .to-file-list {
+          font-family: monospace;
+          cursor: pointer;
+          color: $--color-primary;
+          &:hover {
+            font-weight: 800;
+          }
+        }
+      }
+    }
+  }
+</style>
 <script>
   import {mapState} from "vuex";
   import commonUtils from 'assets/components/mixins/common-utils';
@@ -141,8 +180,11 @@
   export default {
     mixins: [commonUtils],
     mounted() {
-//      this.$store.dispatch('etc/initData');
       this.updateConfigListByPage(true);
+      // update value in next tick
+      this.$nextTick(() => {
+        this.onScreenSizeChange(this.$storeHelper.screen.size);
+      });
     },
     data() {
       return {
@@ -163,17 +205,21 @@
           branchName: ""
         },
         currentPage: 1,
-        pageSize: 10
+        pageSize: 10,
+        heightOfTable: '',
       };
     },
     computed: {
-      ...mapState("etc", ["loading"]),
     },
     watch: {
+      '$storeHelper.screen.size': 'onScreenSizeChange',
       filterKey() {
         this.updateConfigListByPage(false);
       },
       currentPage() {
+        this.updateConfigListByPage(false);
+      },
+      pageSize() {
         this.updateConfigListByPage(false);
       }
     },
@@ -183,8 +229,17 @@
       }
     },
     methods: {
-      handleSizeChange(val) {
-        this.pageSize = val;
+      onScreenSizeChange(size) {
+        if (!size) {
+          return;
+        }
+        try {
+          const headerNode = this.$el.querySelector(':scope > .header');
+          const headerHeight = headerNode.offsetHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 24;
+          console.log(headerHeight, this.heightOfTable);
+        } catch(err) {
+        }
       },
       resetForm(formName) {
         this.$refs[formName].resetFields();
