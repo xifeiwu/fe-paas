@@ -4,9 +4,6 @@
     <div class="pa-3 pt-4" style="background-color: #fff;">
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-button type="info" icon="el-icon-back" @click="$router.go(-1)">
-            返回
-          </el-button>
           <el-button type="success" icon="el-icon-circle-plus-outline"
                      @click="showCreateFileForm=!showCreateFileForm">
             添加配置文件
@@ -153,10 +150,12 @@
         this.$router.helper.goUp(this.$route.path);
         return;
       }
-      const routeConfig = this.$router.helper.getConfigByFullPath('/profile/config-server/:id(\\d+)');
-      if (routeConfig) {
-        routeConfig.name = `${this.dirSelected.configDirName}`;
-      }
+      this.$nextTick(() => {
+        const routeConfig = this.$router.helper.getConfigByFullPath('/profile/config-server/:id(\\d+)');
+        if (routeConfig) {
+          routeConfig.name = `${this.dirSelected.configDirName}`;
+        }
+      });
       this.requestConfigFileList();
     },
     mounted() {
@@ -219,25 +218,22 @@
       changeExtName(val) {
         this.form.extName = val;
       },
-      createFile() {
-        // todo validate form
-        this.$refs['createFileForm'].validate((valid) => {
-          if (!valid) return false;
-          // show loading
-          let payload = {
+      async createFile() {
+        try {
+          await this.$refs['createFileForm'].validate();
+          const payload = {
             "applicationRemoteConfigId": this.dirSelected.id,
             "configFileName": this.form.configFileName.trim() + this.form.extName,
             "groupId": this.dirSelected.groupId,
           };
-          this.$ajax
-            .post(this.$url.config_server_file_add.url, payload)
-            .then(res => {
-              if (!res.data.hasOwnProperty('success')) return alert(res.data.msg);
-              this.requestConfigFileList();
-              this.showCreateFileForm = false;
-            })
-            .catch(err => this.$alert('系统错误：创建配置文件时失败，请联系管理员' + err.message))
-        })
+          await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_file_add, {
+            payload
+          });
+        } catch (err) {
+          console.log(err);
+        } finally {
+          this.showCreateFileForm = false;
+        }
       },
       openEditor(val) {
         this.currentEditFile = val;
