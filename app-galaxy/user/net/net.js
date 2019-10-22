@@ -21,6 +21,10 @@ class Net extends NetBase {
         path: '/group/addUser',
         method: 'post'
       },
+      'group_create': {
+        path: '/group/create',
+        method: 'post'
+      },
 
       // k8s异常事件列表
       'k8s_event_type': {

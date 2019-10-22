@@ -3,6 +3,11 @@
     <div class="header">
       <el-row type="flex" justify="center" align="middle">
         <el-col :span="10">
+          <el-button size="mini" v-if="isAdmin"
+                     type="primary"
+                     @click="handleButtonClick($event, 'open_dialog_create_group')">
+            <span>创建团队</span><i class="el-icon el-icon-plus" style="margin-left: 8px;"></i>
+          </el-button>
           <el-button size="mini"
                      type="primary"
                      @click="handleButtonClick($event, 'refresh-list')">
@@ -201,6 +206,30 @@
       </div>
     </el-dialog>
 
+    <el-dialog title="创建团队" :visible="action.name == 'open_dialog_create_group'"
+               v-if="action.name == 'open_dialog_create_group'"
+               @close="closeDialog"
+               bodyPadding="6px 10px 0px 2px"
+               class="size-650 create_group"
+    >
+      <el-form :model="action.data" :rules="rulesCreateGroup" labelWidth="100px" size="mini" ref="createGroupForm">
+        <el-form-item label="团队名称" prop="groupName">
+          <el-input v-model="action.data.groupName"></el-input>
+        </el-form-item>
+        <el-form-item label="团队标签" prop="groupTag">
+          <el-input v-model="action.data.groupTag" placeholder="字母数字下划线"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary" size="mini" @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button size="mini" @click="closeDialog">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -318,6 +347,7 @@
 
     data() {
       return {
+        isAdmin: true,
         filterKey: '',
         tableSort: defaultTableSort,
         groupList: [],
@@ -372,6 +402,16 @@
               }
             }
           }]
+        },
+        rulesCreateGroup: {
+          groupName: [{
+            required: true,
+            message: '团队名称不能为空',
+          }],
+          groupTag: [{
+            required: true,
+            message: '团队标签不能为空',
+          }]
         }
       }
     },
@@ -406,8 +446,62 @@
         }
       },
 
-      handleButtonClick(evt, action) {
+      async handleDialogEvent(evt, action) {
         switch (action) {
+          case 'change-roles':
+            this.$refs['changeJobsForm'].validate((valid) => {
+              if (!valid) {
+                return;
+              }
+              if (this.$utils.theSame(this.operation.newProps['jobNames'], this.operation.menber['jobNames'])) {
+                this.operation.name = null;
+                this.$message({
+                  type: 'warning',
+                  message: '您没有做修改'
+                });
+              } else {
+                this.requestServerForUpdate(action);
+              }
+            });
+            break;
+          case 'invite_group_number':
+            try {
+              await this.$refs['inviteGroupNumberForm'].validate();
+              this.action.promise.resolve(this.action.data);
+            } catch (err) {}
+            break;
+          case 'create_group':
+            try {
+              await this.$refs['createGroupForm'].validate();
+              this.action.promise.resolve(this.action.data);
+            } catch (err) {}
+            break;
+        }
+      },
+
+      async handleButtonClick(evt, action) {
+        switch (action) {
+          case 'open_dialog_create_group':
+            try {
+              const dialogData = await this.openDialog(action, {
+                groupName: '',
+                groupTag: ''
+              });
+              await this.$net.requestPaasServer(this.$net.URL_LIST.group_create, {
+                payload: {
+                  name: dialogData.groupName,
+                  tag: dialogData.groupTag,
+                  description: ''
+                }
+              });
+              this.$message.success(`添加团队${dialogData.groupName}成功！`);
+              this.handleButtonClick(null, 'refresh-list');
+            } catch (err) {
+              console.log(err);
+            } finally {
+              this.closeDialog();
+            }
+            break;
           case 'refresh-list':
             this.getGroupListByPage({
               refresh: true,
@@ -524,32 +618,6 @@
                 this.operation.name = null;
               });
             });
-            break;
-        }
-      },
-      async handleDialogEvent(evt, action) {
-        switch (action) {
-          case 'change-roles':
-            this.$refs['changeJobsForm'].validate((valid) => {
-              if (!valid) {
-                return;
-              }
-              if (this.$utils.theSame(this.operation.newProps['jobNames'], this.operation.menber['jobNames'])) {
-                this.operation.name = null;
-                this.$message({
-                  type: 'warning',
-                  message: '您没有做修改'
-                });
-              } else {
-                this.requestServerForUpdate(action);
-              }
-            });
-            break;
-          case 'invite_group_number':
-            try {
-              await this.$refs['inviteGroupNumberForm'].validate();
-              this.action.promise.resolve(this.action.data);
-            } catch (err) {}
             break;
         }
       },
