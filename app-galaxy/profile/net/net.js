@@ -437,6 +437,11 @@ class Net extends NetBase {
         path: '/remote-config/add',
         method: 'post',
       },
+      // 远程配置中心——添加配置文件
+      'config_server_file_add': {
+        path: '/applicationRemoteConfigFile/add',
+        method: 'post',
+      },
       // 远程配置中心——获取配置文件列表 eg. /applicationRemoteConfigFile/get?applicationRemoteConfigId=123123
       'config_server_file_list': {
         path: '/applicationRemoteConfigFile/get',

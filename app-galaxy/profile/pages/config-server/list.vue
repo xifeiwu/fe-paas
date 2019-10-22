@@ -149,8 +149,13 @@
       }
       this.dirSelected = this.$storeHelper.getUserConfig('config-server.dir');
       if (!this.dirId || !this.dirSelected || (this.dirId != this.dirSelected.id)) {
+        this.$message.error('信息不完整！');
         this.$router.helper.goUp(this.$route.path);
         return;
+      }
+      const routeConfig = this.$router.helper.getConfigByFullPath('/profile/config-server/:id(\\d+)');
+      if (routeConfig) {
+        routeConfig.name = `${this.dirSelected.configDirName}`;
       }
       this.requestConfigFileList();
     },
@@ -219,7 +224,6 @@
         this.$refs['createFileForm'].validate((valid) => {
           if (!valid) return false;
           // show loading
-          this.$store.commit('etc/SET_LOADING', true);
           let payload = {
             "applicationRemoteConfigId": this.dirSelected.id,
             "configFileName": this.form.configFileName.trim() + this.form.extName,
@@ -233,11 +237,9 @@
               this.showCreateFileForm = false;
             })
             .catch(err => this.$alert('系统错误：创建配置文件时失败，请联系管理员' + err.message))
-            .finally(() => this.$store.commit('etc/SET_LOADING', false))
         })
       },
       openEditor(val) {
-        this.$store.commit('etc/SET_LOADING', true);
         this.currentEditFile = val;
         // 清空commitMessage
         this.form.commitMessage = '';
@@ -255,7 +257,6 @@
             this.showEditor = true;
           })
           .catch(err => console.log(err))
-          .finally(() => this.$store.commit('etc/SET_LOADING', false))
       },
       saveFile(formName) {
         this.$refs[formName].validate(valid => {

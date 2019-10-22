@@ -344,6 +344,13 @@ class Helper extends RouterHelper {
       name: '配置中心',
       component: ConfigServerMain
     }, {
+      path: '/profile/config-server/:id(\\d+)',
+      messageShow: true,
+      name: '---',
+      meta: {
+        isPermitted: false,
+      },
+    }, {
       path: '/profile/config-server/:id(\\d+)/list',
       name: '配置文件列表',
       component: ConfigServerFileList,

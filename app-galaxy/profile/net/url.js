@@ -342,6 +342,7 @@ class URL extends BaseURL {
         path: 'remote-config/branches',
         method: 'post',
       },
+      // TODO: delete
       // 远程配置中心——目录列表 eg. remote-config/list?groupId=2
       'config_server_list': {
         url: API_PATH + '/remote-config/list',
@@ -363,6 +364,7 @@ class URL extends BaseURL {
         path: 'remote-config/add',
         method: 'post',
       },
+      // TODO: delete
       // 远程配置中心——添加配置文件
       'config_server_file_add': {
         url: API_PATH + '/applicationRemoteConfigFile/add',
