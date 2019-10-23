@@ -33,11 +33,6 @@ class Net extends NetBase {
         path: '/permissionUrlMappings',
         method: 'post'
       },
-      // 当前用户禁用的权限
-      'user_not_permitted': {
-        path: '/user/roles/permissions?exclude=true',
-        method: 'get'
-      },
       // 获取配置信息：如，cpu和memory的对应关系、开发语言列表
       'config_query': {
         path: '/config/query',
@@ -1004,6 +999,7 @@ class Net extends NetBase {
     debug('%s, %o', func, data);
   }
 
+  // TODO: hoist to parent
   getPermissionMap() {
     // some permissionPath do not related to any url are list bellow
     return {
@@ -1182,6 +1178,7 @@ class Net extends NetBase {
    * @param resContent
    * @returns {Array}
    */
+  // TODO: hoist to parent
   parseNotPermittedCommands(notPermittedList) {
     notPermittedList = notPermittedList.map(it => {
       it.hasOwnProperty('id') && delete it.id;

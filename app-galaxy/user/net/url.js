@@ -14,11 +14,6 @@ class URL extends BaseURL {
     this.URL_LIST = {
       // 用户退出
       'logout': API_PATH + '/userLogout',
-      // 当前用户禁用的权限
-      'user_not_permitted': {
-        url: API_PATH + '/user/roles/permissions?exclude=true',
-        path: '/user/roles/permissions?exclude=true'
-      },
       // 获取团队列表
       'group_list': {
         url: API_PATH + '/group/queryAllGroup',

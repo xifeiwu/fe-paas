@@ -222,23 +222,13 @@
         crumbList: [],
       }
     },
-    created() {
+    async created() {
+      this.commandList = this.$routeHelper.getPermittedSubRouteList('/');
+      const permissionList = await this.$net.requestPermission();
+      this.$storeHelper.notPermitted = permissionList;
+      this.$routeHelper.addPermission(this.$storeHelper.notPermitted);
       this.commandList = this.$routeHelper.getPermittedSubRouteList('/');
       this.updateActiveCommand();
-      this.$net.getNotPermittedCommands().then(permissionList => {
-        this.$storeHelper.notPermitted = permissionList;
-        this.$routeHelper.addPermission(this.$storeHelper.notPermitted);
-        this.commandList = this.$routeHelper.getPermittedSubRouteList('/');
-        this.updateActiveCommand();
-      }).catch(err => {
-        this.$notify.error({
-          title: err.title,
-          message: err.msg,
-          duration: 0,
-          onClose: function () {
-          }
-        });
-      });
     },
     mounted() {
       this.resizeListener = () => {

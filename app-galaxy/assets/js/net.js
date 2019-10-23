@@ -19,6 +19,11 @@ class Net extends Common {
     this.PAAS_PREFIX = '/j-api/paas';
 
     const PAAS_URL_LIST = {
+      // 当前用户禁用的权限
+      'user_not_permitted': {
+        path: '/user/roles/permissions?exclude=true',
+        method: 'get'
+      },
       // 用户退出
       'logout': {
         path: '/userLogout',
@@ -688,6 +693,242 @@ class Net extends Common {
       logoutHref = `${casServer}/logout?service=${loginHref}`;
     }
     return logoutHref;
+  }
+
+
+  get permissionMap() {
+    // some permissionPath do not related to any url are list bellow
+    return {
+      // 创建应用
+      '/2.x/app/create': 'app_create',
+      // 更改运行环境
+      '/2.x/app/update/space': 'app_change_profile',
+      // 应用转让
+      '/2.x/app/transfer': 'app_transfer',
+      // 删除应用
+      '/2.x/app/delete': 'app_delete',
+
+      /** 服务相关 */
+      // 创建服务
+      '/2.x/service/create': 'service_create',
+      // 切换默认服务版本
+      '/2.x/service/update/defaultVersion': 'service_change_default',
+      // 部署服务
+      '/2.x/service/deploy': 'service_deploy',
+      // 停止服务
+      '/2.x/service/stop': 'service_stop',
+      // 重启服务（生产环境）
+      '/2.x/service/restart': 'service_restart_production',
+      // 删除服务
+      '/2.x/service/delete': 'service_delete',
+      // 修改服务信息
+      '/2.x/service/update': 'service_update',
+      // 服务管理（服务列表） -> 外网域名
+      '/2.x/service/update/DefaultInternetDomain': 'go-page-domain-from-service-list',
+      // 服务管理（单个服务） -> 外网域名
+      '/2.x/service/bindingInternetDomain': 'go-page-domain-from-service',
+      // 服务管理 -> 日志/部署日志
+      '/2.x/service/search/deployLog': 'go-to-page-log-deploy-from-service',
+      // 镜像回滚
+      '/2.x/service/rollback': 'image_rollback',
+      // 获取亲和性配置
+      '/2.x/service/getAffinity': 'get_affinity',
+      // 修改亲和性配置
+      '/2.x/service/updateAffinity': 'update_affinity',
+
+      /** 实例相关 */
+      // 手动伸缩
+      '/2.x/instances/autoChangeNum': 'instance_change_count',
+      // 驱逐实例
+      '/2.x/instances/delete': 'instance_replace',
+      // 删除实例
+      // '/2.x/instances/delete': '',
+      // 实例管理 -> 终端
+      '/2.x/instances/openTerminal': 'go-to-page-terminal-from-instance',
+      // 实例管理 -> 监控
+      '/2.x/instances/apm': 'go-to-page-monitor-from-instance',
+      // 实例管理 -> 运行日志
+      '/2.x/instances/searchLogs': 'go-to-log-run-from-instance',
+
+      /** 外网域名 */
+      // 创建外网域名
+      '/2.x/internet/create': 'domain_add',
+      // 绑定服务
+      '/2.x/internet/binging': 'domain_bind_service',
+      // 解绑服务
+      '/2.x/internet/unbind': 'domain_unbind_service',
+      // 外网域名安全审核
+      '/2.x/internet/update': 'domain_secure_check',
+      // 删除域名
+      '/2.x/internet/delete': 'domain_remove',
+      // 关联白名单
+      '/2.x/internet/ipWhiteList': 'domain_bind_white_list',
+
+      // 应用监控
+      '/2.x/apm': 'app_monitor',
+      // 应用转让
+      '/2.x/app/transfer': 'app_transfer',
+      // 查看实例监控
+      '/2.x/instances/apm': 'instance_monitor',
+
+      /** oauth / accessKey相关 */
+      // 创建accessKey
+      '/2.x/keys/AccessKey/create': 'oauth_create_access_key',
+      // 删除accessKey
+      '/2.x/keys/AccessKey/delete': 'oauth_delete_access_key',
+      // 修改访问配置
+      '/2.x/keys/AccessKey/update': 'oauth_update_access_config',
+      // 权限配置
+      '/2.x/keys/AccessKey/oauth/list': 'oauth_set_permission',
+      // 修改密钥
+      '/2.x/keys/AccessKey/updateSecret': 'oauth_update_secret',
+      /** oauth / 授权url相关 */
+      // 授权URL
+      '/2.x/keys/authUrl/auth': 'oauth_modify_authorize_url_list',
+      // 禁用/开启
+      '/2.x/keys/AccessKey/disable': 'oauth_authorize_url_toggle_enable',
+
+      /** 工单相关 */
+      // 工单列表 -> 日志/部署日志
+      '/2.x/order/list/deployLog': 'go-to-page-log-deploy-from-work-order-list',
+      // 工单详情
+      // '/2.x/order/list/info': '',
+      // 申请工单
+      '/2.x/order/todoList/apply': 'work-order_create',
+      // 待办/工单/部署应用
+      '/2.x/order/todoList/deploy': 'work-order_deploy_service',
+      '/2.x/order/list/download': 'work-order_download',
+      '/2.x/order/todoList/end':'work-order_end',
+
+      /** 中间件(mariadb)相关 */
+      // 创建MariaDB
+      '/2.x/openShift/mariaDB/create': 'middleware_mariadb_instance_create',
+      // 删除MariaDB
+      '/2.x/openShift/mariaDB/delete': 'middleware_mariadb_instance_delete',
+      // 启动MariaDB
+      '/2.x/openShift/mariaDB/start': 'middleware_mariadb_instance_start',
+      // 停止MariaDB
+      '/2.x/openShift/mariaDB/stop': 'middleware_mariadb_instance_stop',
+      // 更新MariaDB参数
+      '/2.x/openShift/mariaDB/update': 'middleware_mariadb_instance_update',
+      // 创建MariaDB备份
+      '/2.x/openShift/mariaDB/createBackup': 'middleware_mariadb_backup_create',
+      // 删除MariaDB备份
+      '/2.x/openShift/mariaDB/deleteBackup': 'middleware_mariadb_backup_delete',
+      // 恢复MariaDB备份
+      '/2.x/openShift/mariaDB/createRestore': 'middleware_mariadb_backup_restore',
+      // 修改MariaDB配置
+      '/2.x/openShift/mariaDB/edit': 'middleware_mariadb_instance_update_config',
+
+      /** 中间件(redis)相关 */
+      // 创建redis
+      '/2.x/openShift/redis/create': 'middleware_redis_instance_create',
+      // 删除redis
+      '/2.x/openShift/redis/delete': 'middleware_redis_instance_delete',
+      // 编辑redis(java server端)
+      '/2.x/openShift/redis/edit': 'middleware_redis_instance_edit',
+      // 更新redis(openshift端)
+      '/2.x/openShift/redis/update': 'middleware_redis_instance_update',
+
+      // 创建redis备份
+      '/2.x/openShift/redis/createBackup': 'middleware_redis_backup_create',
+      // 删除redis备份
+      '/2.x/openShift/redis/deleteBackup': 'middleware_redis_backup_delete',
+      // 恢复redis备份
+      '/2.x/openShift/redis/createRestore': 'middleware_redis_backup_restore',
+
+      /** 团队管理 */
+      // 查看成员
+      '/2.x/group/member/list': 'group_member_list',
+      // 邀请成员
+      '/2.x/group/member/add': 'group_member_invite',
+      // 修改岗位
+      '/2.x/group/member/update': 'group_member_update_roles',
+      // 移除成员
+      '/2.x/group/member/delete': 'group_member_remove',
+      // 页面相关
+      // 团队列表
+      '/2.x/group/list': '/group',
+
+      /** 页面相关 */
+      // 服务管理
+      '/2.x/service': this.page['profile/service'],
+      // 实例列表
+      '/2.x/instances': this.page['profile/instance'],
+      // 外网域名
+      '/2.x/internet': this.page['profile/domain'],
+      // 日志中心
+      '/2.x/logs': this.page['profile/log'],
+      // 日志中心/运行日志
+      '/2.x/logs/searchLog': this.page['profile/log/run'],
+      // 日志中心/部署日志
+      '/2.x/logs/searchDeployLog': this.page['profile/log/deploy'],
+      // 页面-Oauth/Access Key
+      '/2.x/keys/AccessKey': this.page['profile/oauth/key'],
+      // 页面-Oauth权限
+      '/2.x/keys': this.page['profile/oauth'],
+      // 页面-Oauth/url
+      '/2.x/keys/authUrl': this.page['profile/oauth/url'],
+      // 页面-审批管理页面
+      '/2.x/orders': this.page['profile/work-order'],
+      // 页面-审批管理/待办工单
+      '/2.x/order/todoList': this.page['profile/work-order/todo'],
+      // 页面-审批管理/工单列表
+      '/2.x/order/list': this.page['profile/work-order/list'],
+      // 应用监控
+      '/2.x/apm': this.page['profile/monitor'],
+      // 配置中心
+      '/2.x/config/server': this.page['profile/config-server']
+    };
+  }
+
+  /**
+   * 解析用户权限
+   * @param resContent
+   * @returns {Array}
+   */
+  parseNotPermittedCommands(notPermittedList) {
+    notPermittedList = notPermittedList.map(it => {
+      it.hasOwnProperty('id') && delete it.id;
+      it.hasOwnProperty('parentId') && delete it.parentId;
+      it.hasOwnProperty('createTime') && delete it.createTime;
+      it.hasOwnProperty('updateTime') && delete it.updateTime;
+      it.hasOwnProperty('permissionType') && delete it.permissionType;
+      return it;
+    });
+
+    // format of item in notPermittedList
+    // {
+    //   id: 110,
+    //   name: "创建外网域名",
+    //   parentId: 84,
+    //   path: "/2.x/internet/create",
+    //   permissionType: "BUTTON",
+    //   url: "/domain/record/create",
+    //   method: "POST",
+    //   key: "domain_bind_white_list"
+    // }
+    const permissionMap = this.permissionMap;
+
+    // add url and method by notPermittedList
+    notPermittedList.forEach(it => {
+      // check if permission in permissionMap first
+      if (permissionMap.hasOwnProperty(it.path)) {
+        it.key = permissionMap[it.path];
+      }
+    });
+
+    let result = notPermittedList.filter(it => {
+      return it.hasOwnProperty('key') && it.key;
+    }).map(it => {
+      return it['key'];
+    });
+    return result;
+  }
+
+  async requestPermission() {
+    const notPermitted = await this.requestPaasServer(this.URL_LIST.user_not_permitted);
+    return this.parseNotPermittedCommands(notPermitted);
   }
 }
 

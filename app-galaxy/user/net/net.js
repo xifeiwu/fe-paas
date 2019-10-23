@@ -112,8 +112,11 @@ class Net extends NetBase {
       let item = PAAS_URL_LIST[key];
       item.path = this.PAAS_PREFIX + item.path;
     });
+    // 如果父类已经存在URL_LIST，则合并父类中的URL_LIST
     if (this.URL_LIST) {
       this.URL_LIST = Object.assign(this.URL_LIST, PAAS_URL_LIST);
+    } else {
+      this.URL_LIST = PAAS_URL_LIST;
     }
   }
 
@@ -149,80 +152,6 @@ class Net extends NetBase {
       });
     })
   }
-
-  // 获取用户不允许操作的功能列表
-  getNotPermittedCommands() {
-    function getNotPermitted() {
-      return axios.get(URL_LIST.user_not_permitted.url);
-    }
-    return new Promise((resolve, reject) => {
-      axios.all([getNotPermitted()]).then(axios.spread((notPermittedRes) => {
-        let notPermittedListOrigin = this.getResponseContent2(notPermittedRes);
-        notPermittedListOrigin = notPermittedListOrigin.map(it => {
-          it.hasOwnProperty('id') && delete it.id;
-          it.hasOwnProperty('parentId') && delete it.parentId;
-          it.hasOwnProperty('createTime') && delete it.createTime;
-          it.hasOwnProperty('updateTime') && delete it.updateTime;
-          it.hasOwnProperty('permissionType') && delete it.permissionType;
-          return it;
-        });
-        // console.log(notPermittedListOrigin);
-
-        let notPermittedList = [];
-
-        // some permissionPath do not related to any url are list bellow
-        let pathToKey = {
-          // 查看成员
-          '/2.x/group/member/list': 'group_member_list',
-          // 邀请成员
-          '/2.x/group/member/add': 'group_member_invite',
-          // 修改岗位
-          '/2.x/group/member/update': 'group_member_update_roles',
-          // 移除成员
-          '/2.x/group/member/delete': 'group_member_remove',
-          // 页面相关
-          // 团队列表
-          '/2.x/group/list': '/group',
-        };
-        // format of item in notPermittedList
-        // {
-        //   id: 110,
-        //   name: "创建外网域名",
-        //   parentId: 84,
-        //   path: "/2.x/internet/create",
-        //   permissionType: "BUTTON",
-        //   url: "/domain/record/create",
-        //   method: "POST",
-        //   key: "domain_bind_white_list"
-        // }
-
-        // add url and method by notPermittedListOrigin
-        notPermittedListOrigin.forEach(it => {
-          // check if permission in pathToKey first
-          if (pathToKey.hasOwnProperty(it.path)) {
-            it.key = pathToKey[it.path];
-            notPermittedList.push(it);
-          }
-        });
-        // console.log(notPermittedList);
-
-        let result = notPermittedList.filter(it => {
-          return it.hasOwnProperty('key') && it.key;
-        }).map(it => {
-          return it['key'];
-        });
-        // console.log(result);
-        resolve(result);
-      })).catch(err => {
-        console.log(err);
-        reject({
-          title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.user_not_permitted.path}；${err.toString()}`
-        });
-      })
-    });
-  }
-
 
   // 获取团队
   getGroupList() {
