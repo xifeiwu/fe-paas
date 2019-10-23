@@ -112,9 +112,9 @@
                     <el-button
                             v-if="!$storeHelper.notPermitted['group_member_update_roles']"
                             type="text"
-                            @click="handleTRClick('change-roles', scope.$index, scope.row)"
+                            @click="handleTRClick('open_dialog_group_member_update_roles', scope.$index, scope.row)"
                             :class="{'expand': expandRows.indexOf(scope.row.id) > -1, 'warning': true}"
-                            :loading="statusOfWaitingResponse('change-roles') && operation.menber.id == scope.row.id">
+                            :loading="statusOfWaitingResponse('open_dialog_group_member_update_roles') && memberSelected.id == scope.row.id">
                       <span>修改岗位</span>
                     </el-button>
                     <div class="ant-divider" v-if="!$storeHelper.notPermitted['group_member_update_roles']"></div>
@@ -162,35 +162,33 @@
       </div>
     </div>
 
-    <el-dialog title="更改岗位" :visible="operation.name == 'change-roles'"
-               @close="operation.name = null;"
-               class="size-750 change-roles"
+    <el-dialog title="更改岗位"
+               v-if="action.name == 'open_dialog_group_member_update_roles'"
+               :visible="action.name == 'open_dialog_group_member_update_roles'"
+               @close="closeDialog"
+               class="size-750 group_member_update_roles"
     >
-      <el-form :model="operation.newProps" :rules="rules" labelWidth="96px" size="mini" ref="changeJobsForm">
+      <el-form :model="action.data" :rules="rules" labelWidth="96px" size="mini" ref="changeJobsForm">
         <el-form-item label="当前岗位为">
-          <el-tag v-for="(item, index) in operation.newProps.jobDescriptions" :key="index"
+          <el-tag v-for="(item, index) in action.data.jobDescriptions" :key="index"
                   size="mini"
           >{{item}}</el-tag>
         </el-form-item>
         <el-form-item label="更改为" prop="jobNames">
-          <el-checkbox-group v-model="operation.newProps.jobNames">
+          <el-checkbox-group v-model="action.data.jobNames">
             <el-checkbox v-for="item in allJobs" :label="item.name" :key="item.name">
               {{item.description}}
             </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleDialogEvent($event, 'change-roles')"
-                       >保&nbsp存</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button @click="operation.name = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+      <div slot="footer" class="dialog-footer flex">
+          <div class="item">
+            <el-button type="primary" size="mini" @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保存</el-button>
+          </div>
+          <div class="item">
+            <el-button size="mini" @click="closeDialog">取消</el-button>
+          </div>
       </div>
     </el-dialog>
 
@@ -211,12 +209,12 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
-          <div class="item">
-            <el-button type="primary" size="mini" @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保&nbsp存</el-button>
-          </div>
-          <div class="item">
-            <el-button size="mini" @click="closeDialog">取&nbsp消</el-button>
-          </div>
+        <div class="item">
+          <el-button type="primary" size="mini" @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button size="mini" @click="closeDialog">取&nbsp消</el-button>
+        </div>
       </div>
     </el-dialog>
 
@@ -332,7 +330,7 @@
     }
 
     .el-dialog__wrapper {
-      &.change-roles {
+      &.group_member_update_roles {
         .el-tag {
           margin-right: 3px;
         }
@@ -393,6 +391,7 @@
           }
         },
         groupSelected: null,
+        memberSelected: null,
         expandRows: [],
         memberList: [],
         memberListByPage: [],
@@ -469,21 +468,17 @@
 
       async handleDialogEvent(evt, action) {
         switch (action) {
-          case 'change-roles':
-            this.$refs['changeJobsForm'].validate((valid) => {
-              if (!valid) {
+          case 'group_member_update_roles':
+            try {
+              await this.$refs['changeJobsForm'].validate();
+              if (this.$utils.theSame(this.action.dataOrigin, this.action.data)) {
+                this.$message.warning('您没有做修改');
                 return;
               }
-              if (this.$utils.theSame(this.operation.newProps['jobNames'], this.operation.menber['jobNames'])) {
-                this.operation.name = null;
-                this.$message({
-                  type: 'warning',
-                  message: '您没有做修改'
-                });
-              } else {
-                this.requestServerForUpdate(action);
-              }
-            });
+              this.action.promise.resolve(this.action.data);
+            } catch (err) {
+              console.log(err);
+            }
             break;
           case 'invite_group_number':
             try {
@@ -594,19 +589,35 @@
             this.updateMemberListByPage(true);
             updateExpandRows();
             break;
-          case 'change-roles':
+          case 'open_dialog_group_member_update_roles':
             if (!row.hasOwnProperty('jobNames') || !row.hasOwnProperty('jobDescriptions')) {
               this.$message.warning('信息不完整');
               return;
             }
-            this.operation.newProps.jobNames = JSON.parse(JSON.stringify(row.jobNames));
-            this.operation.newProps.jobDescriptions = JSON.parse(JSON.stringify(row.jobDescriptions));
-            this.operation.menber = row;
-            this.operation.name = action;
+            this.memberSelected = row;
+            try {
+              const dialogData = await this.openDialog(action, {
+                jobNames: row.jobNames,
+                jobDescriptions: row.jobDescriptions
+              });
+              await this.$net.requestPaasServer(this.$net.URL_LIST.group_member_change_roles, {
+                payload: {
+                  userId: row.userId,
+                  groupId: row.groupId,
+                  jobs: this.action.data['jobNames'].join(',')
+                }
+              });
+              this.updateModelInfo('group_member_update_roles');
+              this.$message.success(`团队成员 ${row.realName} 的岗位修改成功！`);
+            } catch (err) {
+              console.log(err);
+            } finally {
+              this.closeDialog();
+            }
             break;
           case 'open_dialog_invite_group_number':
             try {
-              dialogData = await this.openDialog(action, {
+              const dialogData = await this.openDialog(action, {
                 email: '',
                 jobName: this.allJobs[0]['name'],
               });
@@ -634,8 +645,8 @@
 //            console.log(this.operation.menber);
             this.warningConfirm(`将要删除"${this.operation.group.name}"的成员"${this.operation.menber.realName}"，确定吗？`).then(() => {
               this.$net.removeGroupNumber({
-                groupId: this.operation.menber.groupId,
-                userId: this.operation.menber.userId
+                groupId: this.groupSelected.groupId,
+                userId: this.groupSelected.userId
               }).then(msg => {
                 this.updateMemberListByPage(true);
                 this.$message.success('移除成员成功！');
@@ -732,28 +743,11 @@
         this.memberListByPage =  this.memberList.slice(start, end);
       },
 
-      requestServerForUpdate(action) {
-        switch (action) {
-          case 'change-roles':
-            this.$net.changeGroupNumberRoles({
-              userId: this.operation.menber.userId,
-              groupId: this.operation.menber.groupId,
-              jobs: this.operation.newProps['jobNames'].join(',')
-            }).then(msg => {
-              this.$message.success('修改成功！');
-              this.updateModelInfo(action);
-            }).catch(errMsg => {
-              this.$message.error('修改失败！');
-            });
-            break;
-        }
-      },
-
       updateModelInfo(action) {
         switch (action) {
-          case 'change-roles':
-            let row = this.operation.menber;
-            let newProps = this.operation.newProps;
+          case 'group_member_update_roles':
+            let row = this.memberSelected;
+            let newProps = this.action.data;
 
             let allJobsMap = {};
             this.allJobs.forEach(it => {
@@ -767,8 +761,6 @@
             row['jobNames'] = this.$utils.cloneDeep(newProps['jobNames']);
             row['jobDescriptions'] = this.$utils.cloneDeep(newProps['jobDescriptions']);
             row['jobDescription'] = row['jobDescriptions'].join(',');
-
-            this.operation.name = null;
             break;
         }
       },

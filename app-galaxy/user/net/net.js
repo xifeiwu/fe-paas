@@ -40,6 +40,11 @@ class Net extends NetBase {
         path: '/group/users',
         method: 'post'
       },
+      // 修改团队成员角色
+      'group_member_change_roles': {
+        path: '/group/user/updateJob',
+        method: 'put'
+      },
 
       // k8s异常事件列表
       'k8s_event_type': {
@@ -184,22 +189,6 @@ class Net extends NetBase {
     return new Promise((resolve, reject) => {
       axios.get(URL_LIST.group_get_lob_list.url).then(response => {
         console.log(response);
-      })
-    })
-  }
-
-  // 修改用户角色
-  changeGroupNumberRoles(data) {
-    return new Promise((resolve, reject) => {
-      axios.put(URL_LIST.group_member_change_roles.url, data).then(response => {
-        // let content = this.getResponseContent(response);
-        let resMsg = this.getResponseMsg(response);
-        // console.log(resMsg);
-        if (resMsg.success) {
-          resolve(resMsg);
-        } else {
-          reject(resMsg);
-        }
       })
     })
   }
