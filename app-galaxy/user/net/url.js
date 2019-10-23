@@ -33,11 +33,6 @@ class URL extends BaseURL {
         url: API_PATH + '/group/queryLobList',
         path: '/group/queryLobList'
       },
-      // 获取团队成员
-      'group_members': {
-        url: API_PATH + '/group/users',
-        path: '/group/users'
-      },
       'group_member_change_roles': {
         url: API_PATH + '/group/user/updateJob',
         path: '/group/user/updateJob'

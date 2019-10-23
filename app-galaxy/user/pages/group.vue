@@ -84,9 +84,9 @@
             <el-button
                     v-if="!$storeHelper.notPermitted['group_member_list']"
                     type="text" class="primary"
-                    @click="handleTRClick('show-group-numbers', scope.$index, scope.row)"
+                    @click="handleTRClick('group_member_list', scope.$index, scope.row)"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
-                    :loading="statusOfWaitingResponse('show-group-numbers') && operation.group.id == scope.row.id">
+                    :loading="statusOfWaitingResponse('group_member_list') && operation.group.id == scope.row.id">
               <span>查看成员</span>
               <i class="el-icon-arrow-right"></i>
             </el-button>
@@ -135,7 +135,7 @@
                           layout="pager"
                           :page-size = "memberPagination.pageSize"
                           :total="memberPagination.totalSize"
-                          @current-change="handlePaginationPageChangeForMemberList"
+                          @current-change="page => {memberPagination.currentPage = page}"
                   >
                   </el-pagination>
                 </div>
@@ -384,7 +384,6 @@
           currentPage: 1,
         },
 
-
         operation: {
           group: null,
           member: null,
@@ -393,8 +392,10 @@
             jobNames: [],
           }
         },
+        groupSelected: null,
         expandRows: [],
         memberList: [],
+        memberListByPage: [],
 
         allJobs: this.$storeHelper.JOB_LIST,
         jobNames: [],
@@ -447,7 +448,10 @@
       },
       tableSort() {
         this.getGroupListByPage({});
-      }
+      },
+      'memberPagination.currentPage'() {
+        this.updateMemberListByPage(false);
+      },
     },
 
     methods: {
@@ -545,9 +549,10 @@
 
       async handleTRClick(action, index, row) {
         let dialogData = null;
+        this.groupSelected = row;
         this.operation.group = row;
         switch (action) {
-          case 'show-group-numbers':
+          case 'group_member_list':
             if (!row.hasOwnProperty('id')) {
               return;
             }
@@ -555,7 +560,7 @@
             this.operation.group = row;
 
             // update expandRows
-            let checkIfExpanded = () => {
+            const checkIfExpanded = () => {
               let hasExpanded = false;
               if (!group.hasOwnProperty('id')) {
                 hasExpanded = true;
@@ -569,7 +574,7 @@
               }
               return hasExpanded;
             };
-            let updateExpandRows = () => {
+            const updateExpandRows = () => {
               if (!group.hasOwnProperty('id')) {
                 return;
               }
@@ -586,18 +591,8 @@
               return;
             }
 
-            this.addToWaitingResponseQueue(action);
-            this.memberList = [];
-            this.$net.getGroupMembers({id: group.id}).then(memberList => {
-              this.hideWaitingResponse(action);
-              this.memberList = memberList;
-              this.memberPagination.totalSize = this.memberList.length;
-              this.memberPagination.currentPage = 1;
-              this.updateMemberListByPage();
-              updateExpandRows();
-            }).catch(err => {
-              this.hideWaitingResponse(action);
-            });
+            this.updateMemberListByPage(true);
+            updateExpandRows();
             break;
           case 'change-roles':
             if (!row.hasOwnProperty('jobNames') || !row.hasOwnProperty('jobDescriptions')) {
@@ -626,7 +621,7 @@
 
               this.$message.success(`成功邀请成员：${dialogData.email}`);
 
-              this.requestGroupNumbers(this.operation.group);
+              this.updateMemberListByPage(true);
             } catch (err) {
             } finally {
               this.closeDialog();
@@ -642,7 +637,7 @@
                 groupId: this.operation.menber.groupId,
                 userId: this.operation.menber.userId
               }).then(msg => {
-                this.requestGroupNumbers(this.operation.group);
+                this.updateMemberListByPage(true);
                 this.$message.success('移除成员成功！');
                 this.operation.name = null;
               }).catch(errMsg => {
@@ -674,17 +669,67 @@
       },
 
       // 请求组内成员
-      requestGroupNumbers(group) {
-        this.memberList = [];
-        this.$net.getGroupMembers({id: group.id}).then(memberList => {
-          this.memberList = memberList;
+      async requestGroupNumbers() {
+        const group = this.groupSelected;
+        if (!group) {
+          throw new Error('group selected is null');
+        }
+        var memberList = [];
+        try {
+          const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.group_members, {
+            payload: {
+              id: group.id
+            }
+          });
+          memberList = resData['groupUserList'];
+          // add prop jobs to each user
+          memberList.forEach(user => {
+            if (user.hasOwnProperty('jobName') && user.hasOwnProperty('jobDescription')) {
+              let names = user['jobName'].split(',');
+              let descriptions = user['jobDescription'].split(',');
+              user.jobNames = names;
+              user.jobDescriptions = descriptions;
+              if (names.length === descriptions.length) {
+                user.jobs = [];
+                names.forEach((it, index) => {
+                  user.jobs.push({
+                    name: it,
+                    desc: descriptions[index]
+                  })
+                });
+              } else {
+                console.log('length of name and description is different');
+              }
+            } else {
+              console.log('jobName or jobDescription is not found!');
+            }
+          });
+        } catch (err) {
+          console.log(err);
+          memberList = [];
+        }
+        return memberList;
+      },
+
+      async updateMemberListByPage(refresh) {
+        if (refresh) {
+          this.memberList = await this.requestGroupNumbers();
           this.memberPagination.currentPage = 1;
-          this.updateMemberListByPage();
-          if (group.hasOwnProperty('id')) {
-            this.expandRows = [group.id];
-          }
-        }).catch(err => {
-        });
+        }
+        this.memberPagination.totalSize = this.memberList.length;
+        let page, start, end;
+        page = this.memberPagination.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        start = page * this.memberPagination.pageSize;
+        end = start + this.memberPagination.pageSize;
+        while (start >= this.memberPagination.totalSize && this.memberPagination.currentPage > 1) {
+          this.memberPagination.currentPage -= 1;
+          page = this.memberPagination.currentPage - 1;
+          page = page >= 0 ? page : 0;
+          start = page * this.memberPagination.pageSize;
+          end = start + this.memberPagination.pageSize;
+        }
+        this.memberListByPage =  this.memberList.slice(start, end);
       },
 
       requestServerForUpdate(action) {
@@ -827,21 +872,7 @@
 
         this.totalSize = sortedGroupList.length;
         this.groupListByPage = sortedGroupList.slice(start, end);
-      },
-
-      handlePaginationPageChangeForMemberList(page) {
-        this.memberPagination.currentPage = page;
-        this.updateMemberListByPage();
-      },
-
-      updateMemberListByPage() {
-        let page = this.memberPagination.currentPage - 1;
-        page = page >= 0 ? page : 0;
-        let start = page * this.memberPagination.pageSize;
-        let length = this.memberPagination.pageSize;
-        let end = start + length;
-        this.memberListByPage =  this.memberList.slice(start, end);
-      },
+      }
     }
   }
 </script>

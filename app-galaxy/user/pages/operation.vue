@@ -405,7 +405,11 @@
       },
 
       async requestGroupMember(groupId) {
-        let memberList = await this.$net.getGroupMembers({id: groupId});
+        const memberList = (await this.$net.requestPaasServer(this.$net.URL_LIST.group_members, {
+          payload: {
+            id: groupId
+          }
+        }))['groupUserList'];
         this.memberList = [{id: -1, userId: -1, userName: 'quanbu', realName: '全部'}].concat(memberList);
         this.form.userId = this.memberList[0].userId;
       },

@@ -35,6 +35,11 @@ class Net extends NetBase {
         path: '/group/delete',
         method: 'post'
       },
+      // 获取团队成员
+      'group_members': {
+        path: '/group/users',
+        method: 'post'
+      },
 
       // k8s异常事件列表
       'k8s_event_type': {
@@ -250,46 +255,6 @@ class Net extends NetBase {
     return new Promise((resolve, reject) => {
       axios.get(URL_LIST.group_get_lob_list.url).then(response => {
         console.log(response);
-      })
-    })
-  }
-
-  // 获取组成员
-  getGroupMembers(data) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.group_members.url, data).then(response => {
-        let content = this.getResponseContent(response);
-        if (content && content.hasOwnProperty('groupUserList')) {
-          let userList = content['groupUserList'];
-          // add prop jobs to each user
-          userList.forEach(user => {
-            if (user.hasOwnProperty('jobName') && user.hasOwnProperty('jobDescription')) {
-              let names = user['jobName'].split(',');
-              let descriptions = user['jobDescription'].split(',');
-              user.jobNames = names;
-              user.jobDescriptions = descriptions;
-              if (names.length === descriptions.length) {
-                user.jobs = [];
-                names.forEach((it, index) => {
-                  user.jobs.push({
-                    name: it,
-                    desc: descriptions[index]
-                  })
-                });
-              } else {
-                console.log('length of name and description is different');
-              }
-            } else {
-              console.log('jobName or jobDescription is not found!');
-            }
-          });
-          resolve(userList);
-        } else {
-          reject([]);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject(err);
       })
     })
   }
