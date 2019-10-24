@@ -15,28 +15,11 @@ export default new Vuex.Store({
     userInfo: {},
   },
   actions: {
-    // addMenuList ({ commit, state }, menuList) {
-    //   if (Array.isArray(menuList) && menuList.length > 0) {
-    //     commit('SET_MENUS_LIST', menuList)
-    //   }
-    // },
-    saveNavMenu ({ commit, state }, navMenu) {
-      commit('SET_NAV_MENU', navMenu)
-    },
     updateUserInfo ({ commit, state }, userInfo) {
       commit('SET_USER_INFO', userInfo)
     },
   },
   mutations: {
-    // SET_MENUS_LIST(state, menuList) {
-    //   state.menuList = menuList;
-    // },
-    SET_NAV_MENU(state, navMenu) {
-      state.navMenu = navMenu;
-      globalStore.dispatch('user/updateMenus', {
-        'profile': navMenu
-      });
-    },
     SET_USER_INFO(state, userInfo) {
       if (!userInfo) {
         state.userInfo = {};
