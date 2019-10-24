@@ -223,10 +223,10 @@
       }
     },
     async created() {
-      this.commandList = this.$routeHelper.getPermittedSubRouteList('/');
-      const permissionList = await this.$net.requestPermission();
-      this.$storeHelper.notPermitted = permissionList;
-      this.$routeHelper.addPermission(this.$storeHelper.notPermitted);
+      const permission = await this.$net.requestPermission();
+      this.$storeHelper.permission = permission;
+      // this.$routeHelper.addPermission(permissionList);
+      // TODO: fix
       this.commandList = this.$routeHelper.getPermittedSubRouteList('/');
       this.updateActiveCommand();
     },

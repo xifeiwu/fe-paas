@@ -10,45 +10,8 @@ class Net extends NetBase {
   constructor() {
     super();
     const PAAS_URL_LIST = {
-      // 分页获取团队列表
-      'group_list_by_page': {
-        path: '/group/queryByPage',
-        method: 'post'
-      },
-
       /** 团队管理 */
-      'group_invite_new': {
-        path: '/group/addUser',
-        method: 'post'
-      },
-      'group_member_remove': {
-        path: '/group/user/delete',
-        method: 'delete'
-      },
-      // 创建团队
-      'group_create': {
-        path: '/group/create',
-        method: 'post'
-      },
-      'group_update': {
-        path: '/group/update',
-        method: 'post'
-      },
-      // 删除团队
-      'group_delete': {
-        path: '/group/delete',
-        method: 'post'
-      },
-      // 获取团队成员
-      'group_members': {
-        path: '/group/users',
-        method: 'post'
-      },
-      // 修改团队成员角色
-      'group_member_change_roles': {
-        path: '/group/user/updateJob',
-        method: 'put'
-      },
+      /** 提升到了assets/js/net.js */
 
       // k8s异常事件列表
       'k8s_event_type': {

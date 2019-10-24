@@ -1,13 +1,15 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-
 import UserInfo from './info.vue';
 import UserMessage from './message.vue';
 import UserOperaion from './operation.vue';
 import ManageGroup from './group.vue';
+import UserGroup from '../../common/group.vue';
 import Feedback from './feedback.vue';
 import k8sWarning from './k8s-warning.vue';
+
+import pathToRegexp from 'path-to-regexp';
 
 class Router {
   constructor() {
@@ -34,7 +36,7 @@ class Router {
       {
         path: '/user/group',
         name: '团队管理',
-        component: ManageGroup
+        component: UserGroup
       },
       {
         path: '/user/feedback',
@@ -60,7 +62,58 @@ class Router {
     //   // add permission by config from localStorage
     //   this.addPermission(Vue.prototype.$storeHelper.notPermitted);
     // });
+    /**
+     * imediately invoke function
+     * traverse router config tree to add routerPath to all component:
+     * routerPath = parent.path + path, it is the full path of hash in url
+     * @param path
+     * @param component
+     */
+    (() => {
+      function updateItem(path, item) {
+        if (null !== path) {
+          item.fullPath = path + '/' + item.path;
+        } else {
+          item.fullPath = item.path;
+        }
+        let keys = [];
+        item.pathReg = pathToRegexp(item.fullPath, keys);
+        item.pathReg.keys = keys;
+        item.toPath = pathToRegexp.compile(item.fullPath);
+      }
+
+      function traverseComponent(path, component) {
+        if (Array.isArray(component)) {
+          component.forEach(traverseComponent.bind(this, path));
+        } else if ('object' === typeof(component)) {
+          updateItem.call(this, path, component);
+          if (component.hasOwnProperty('children')) {
+            traverseComponent(component.fullPath, component['children']);
+          }
+        }
+      }
+      traverseComponent(null, this.richRouterConfig);
+    })();
+    const pages = {};
+    this.routeList.forEach(it => {
+      pages[it.fullPath] = it;
+    });
+    if (this.pages) {
+      this.pages = Object.assign(this.pages, pages);
+    } else {
+      this.pages = pages;
+    }
     this.startRouteFilter();
+  }
+
+  get routeList() {
+    return this.richRouterConfig.reduce((routeList, item) => {
+      routeList = routeList.concat(item);
+      if (item.hasOwnProperty('children')) {
+        routeList = routeList.concat(item.children);
+      }
+      return routeList;
+    }, []);
   }
 
   /**
