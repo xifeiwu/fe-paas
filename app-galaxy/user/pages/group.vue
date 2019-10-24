@@ -122,7 +122,7 @@
                             v-if="!$storeHelper.notPermitted['group_member_remove']"
                             type="text"
                             class="warning"
-                            @click="handleTRClick('remove-group-number', scope.$index, scope.row)">移除成员</el-button>
+                            @click="handleTRClick('group_member_remove', scope.$index, scope.row)">移除成员</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -498,8 +498,9 @@
 
       async handleButtonClick(evt, action, data) {
         switch (action) {
-          case 'open_dialog_group_create':
           case 'open_dialog_group_update':
+            this.groupSelected = data;
+          case 'open_dialog_group_create':
             try {
               const dialogData = await this.openDialog(action, {
                 groupName: action == 'open_dialog_group_update' ? data.name : '',
@@ -544,10 +545,33 @@
 
       async handleTRClick(action, index, row) {
         let dialogData = null;
-        this.groupSelected = row;
         this.operation.group = row;
         switch (action) {
+          case 'open_dialog_invite_group_number':
+            this.groupSelected = row;
+            try {
+              const dialogData = await this.openDialog(action, {
+                email: '',
+                jobName: this.allJobs[0]['name'],
+              });
+
+              await this.$net.requestPaasServer(this.$net.URL_LIST.group_invite_new, {
+                payload: {
+                  groupId: row.id,
+                  emailString: dialogData.email,
+                  job: dialogData.jobName
+                }
+              });
+
+              this.$message.success(`成功邀请成员：${dialogData.email}`);
+              this.updateMemberListByPage(true);
+            } catch (err) {
+            } finally {
+              this.closeDialog();
+            }
+            break;
           case 'group_member_list':
+            this.groupSelected = row;
             if (!row.hasOwnProperty('id')) {
               return;
             }
@@ -581,13 +605,31 @@
                 this.expandRows = [key];
               }
             };
-
             if (checkIfExpanded()) {
               return;
             }
-
             this.updateMemberListByPage(true);
             updateExpandRows();
+            break;
+          case 'group_delete':
+            this.groupSelected = row;
+            try {
+              await this.$confirm(`确定要解散团队 "${row.name}" 吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              await this.$net.requestPaasServer(this.$net.URL_LIST.group_delete, {
+                payload: {
+                  id: row.id
+                }
+              });
+              this.$message.success(`团队 "${row.name}" 删除成功`);
+              this.handleButtonClick(null, 'refresh-list');
+            } catch (err) {
+              this.$message.warning(`"${row.name}" 未解散！`);
+            }
             break;
           case 'open_dialog_group_member_update_roles':
             if (!row.hasOwnProperty('jobNames') || !row.hasOwnProperty('jobDescriptions')) {
@@ -615,65 +657,25 @@
               this.closeDialog();
             }
             break;
-          case 'open_dialog_invite_group_number':
+          case 'group_member_remove':
+            this.memberSelected = row;
             try {
-              const dialogData = await this.openDialog(action, {
-                email: '',
-                jobName: this.allJobs[0]['name'],
-              });
-
-              await this.$net.requestPaasServer(this.$net.URL_LIST.group_invite_new, {
-                payload: {
-                  groupId: this.operation.group.id,
-                  emailString: dialogData.email,
-                  job: dialogData.jobName
-                }
-              });
-
-              this.$message.success(`成功邀请成员：${dialogData.email}`);
-
-              this.updateMemberListByPage(true);
-            } catch (err) {
-            } finally {
-              this.closeDialog();
-            }
-            break;
-          case 'remove-group-number':
-            this.operation.menber = row;
-            this.operation.name = action;
-//            console.log(this.operation.group);
-//            console.log(this.operation.menber);
-            this.warningConfirm(`将要删除"${this.operation.group.name}"的成员"${this.operation.menber.realName}"，确定吗？`).then(() => {
-              this.$net.removeGroupNumber({
-                groupId: this.groupSelected.groupId,
-                userId: this.groupSelected.userId
-              }).then(msg => {
-                this.updateMemberListByPage(true);
-                this.$message.success('移除成员成功！');
-                this.operation.name = null;
-              }).catch(errMsg => {
-                this.$message.error('移除成员失败！');
-                this.operation.name = null;
-              });
-            });
-            break;
-          case 'group_delete':
-            try {
-              await this.$confirm(`确定要删除团队${row.name}吗？`, '提示', {
+              await this.$confirm(`确定删除团队 "${this.groupSelected.name}" 的成员" ${row.realName}" 吗？`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning',
                 dangerouslyUseHTMLString: true
               });
-              await this.$net.requestPaasServer(this.$net.URL_LIST.group_delete, {
+              await this.$net.requestPaasServer(this.$net.URL_LIST.group_member_remove, {
                 payload: {
-                  id: row.id
+                  groupId: row.groupId,
+                  userId: row.userId
                 }
               });
-              this.$message.success(`团队 "${row.name}" 删除成功`);
-              this.handleButtonClick(null, 'refresh-list');
+              this.updateMemberListByPage(true);
+              this.$message.success(`"${row.realName}" 成员已移除！`);
             } catch (err) {
-//              this.$message.success(`删除失败：${(err && err.message) ? err.message : ''}`);
+              this.$message.warning(`未移除成员 "${row.realName}"！`);
             }
             break;
         }
@@ -733,6 +735,7 @@
         page = page >= 0 ? page : 0;
         start = page * this.memberPagination.pageSize;
         end = start + this.memberPagination.pageSize;
+        // check and fix currentPage
         while (start >= this.memberPagination.totalSize && this.memberPagination.currentPage > 1) {
           this.memberPagination.currentPage -= 1;
           page = this.memberPagination.currentPage - 1;
@@ -763,20 +766,6 @@
             row['jobDescription'] = row['jobDescriptions'].join(',');
             break;
         }
-      },
-
-      warningConfirm(content) {
-        return new Promise((resolve, reject) => {
-          this.$confirm(content, '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            resolve();
-          }).catch(() => {
-            reject()
-          });
-        });
       },
 
       async requestGroupList() {

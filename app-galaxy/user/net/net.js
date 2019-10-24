@@ -21,6 +21,10 @@ class Net extends NetBase {
         path: '/group/addUser',
         method: 'post'
       },
+      'group_member_remove': {
+        path: '/group/user/delete',
+        method: 'delete'
+      },
       // 创建团队
       'group_create': {
         path: '/group/create',
@@ -189,21 +193,6 @@ class Net extends NetBase {
     return new Promise((resolve, reject) => {
       axios.get(URL_LIST.group_get_lob_list.url).then(response => {
         console.log(response);
-      })
-    })
-  }
-
-  // 删除团队成员
-  removeGroupNumber(data) {
-    return new Promise((resolve, reject) => {
-      axios.delete(URL_LIST.group_remove_member.url, {data}).then(response => {
-        let resMsg = this.getResponseMsg(response);
-        // console.log(resMsg);
-        if (resMsg.success) {
-          resolve(resMsg);
-        } else {
-          reject(resMsg);
-        }
       })
     })
   }
