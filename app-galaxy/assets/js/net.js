@@ -425,6 +425,45 @@ class Net extends Common {
     }
   }
 
+  /**
+   * @param method
+   * @param path
+   * @param params,
+   * @param query,
+   * @param data,
+   * @param headers,
+   * @returns request in the form of Promise
+   */
+  async requestAxiosResponse({method, url, params, query, data, headers, responseType, onUploadProgress, onDownloadProgress, timeout = 0, path, payload}, axiosConfig) {
+    url = url ? url : path;
+    data = data ? data : payload;
+    if (!url) {
+      throw new Error('参数不完整');
+    }
+    var instance = axios;
+    if (axiosConfig) {
+      instance = axios.create(axiosConfig);
+    }
+    if (params) {
+      Object.keys(params).forEach((key) => {
+        // path = path.replace('{' + key + '}', encodeURIComponent(params[key]));
+        url = url.replace('{' + key + '}', params[key]);
+      });
+    }
+    const config = {
+      method,
+      url,
+      timeout,
+      params: query,
+      headers,
+      responseType, onUploadProgress, onDownloadProgress
+    };
+    if (['post', 'put', 'patch', 'delete'].indexOf(method) > -1) {
+      config['data'] = data;
+    }
+    return instance.request(config);
+  }
+
   isResponseSuccess(resData) {
     let success = false;
     if (resData.hasOwnProperty('success')) {
@@ -467,12 +506,13 @@ class Net extends Common {
       if (!partial) {
         this.addToRequestingRrlList(path);
       }
-      const response = await this.getResponse({path, method}, options, {
-        timeout,
+      const response = await this.requestAxiosResponse(utils.deepMerge({
+        path, method, timeout,
+      }, options, {
         headers: {
           token: Vue.prototype.$storeHelper.getUserInfo('token')
         }
-      });
+      }));
       const resData = response.data;
       if (this.isResponseSuccess(resData)) {
         // add more info of response to result
