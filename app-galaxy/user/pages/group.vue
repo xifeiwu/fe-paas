@@ -40,7 +40,7 @@
                 element-loading-text="加载中">
         <el-table-column label="团队名称" prop="name" headerAlign="center" align="center" minWidth="100" sortable="custom">
         </el-table-column>
-        <el-table-column label="团队标签" prop="tag" headerAlign="center" align="center" width="100">
+        <el-table-column label="团队标签" prop="tag" headerAlign="center" align="center" width="130">
         </el-table-column>
         <el-table-column label="所属业务线LOB" prop="lobName" headerAlign="center" align="center" width="120">
           <template slot-scope="scope">
@@ -86,7 +86,7 @@
                     type="text" class="primary"
                     @click="handleTRClick('group_member_list', scope.$index, scope.row)"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
-                    :loading="statusOfWaitingResponse('group_member_list') && operation.group.id == scope.row.id">
+                    :loading="statusOfWaitingResponse('group_member_list') && groupSelected.id == scope.row.id">
               <span>查看成员</span>
               <i class="el-icon-arrow-right"></i>
             </el-button>
@@ -367,10 +367,9 @@
         tableSort: defaultTableSort,
         groupList: [],
         groupListByPage: [],
-        groupListNode: null,
 
         totalSize: 0,
-        pageSize: 14,
+        pageSize: 15,
         currentPage: 1,
         showGroupList: true,
         heightOfTable: '',
@@ -382,14 +381,6 @@
           currentPage: 1,
         },
 
-        operation: {
-          group: null,
-          member: null,
-          name: null,
-          newProps: {
-            jobNames: [],
-          }
-        },
         groupSelected: null,
         memberSelected: null,
         expandRows: [],
@@ -545,7 +536,6 @@
 
       async handleTRClick(action, index, row) {
         let dialogData = null;
-        this.operation.group = row;
         switch (action) {
           case 'open_dialog_invite_group_number':
             this.groupSelected = row;
@@ -572,11 +562,10 @@
             break;
           case 'group_member_list':
             this.groupSelected = row;
+            let group = row;
             if (!row.hasOwnProperty('id')) {
               return;
             }
-            let group = row;
-            this.operation.group = row;
 
             // update expandRows
             const checkIfExpanded = () => {
