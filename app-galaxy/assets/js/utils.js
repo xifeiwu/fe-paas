@@ -454,6 +454,41 @@ export default class Utils extends BaseUtils {
   }
 
   /**
+   * Accepts varargs expecting each argument to be an object, then
+   * immutably merges the properties of each object and returns result.
+   *
+   * When multiple objects contain the same key the later object in
+   * the arguments list will take precedence.
+   *
+   * Example:
+   *
+   * ```js
+   * var result = merge({foo: 123}, {foo: 456});
+   * console.log(result.foo); // outputs 456
+   * ```
+   *
+   * @param {Object} obj1 Object to merge
+   * @returns {Object} Result of all merge properties
+   */
+  merge(/* obj1, obj2, obj3, ... */) {
+    var result = {};
+    function assignValue(val, key) {
+      if (this.isDate(val)) {
+        result[key] = val;
+      } else if (typeof result[key] === 'object' && typeof val === 'object') {
+        result[key] = merge(result[key], val);
+      } else {
+        result[key] = val;
+      }
+    }
+
+    for (var i = 0, l = arguments.length; i < l; i++) {
+      this.forEach(arguments[i], assignValue);
+    }
+    return result;
+  }
+
+  /**
    * Function equal to merge with the difference being that no reference
    * to original objects is kept.
    *
