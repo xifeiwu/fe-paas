@@ -46,6 +46,9 @@ export default class StoreHelper extends Common {
     }
     return value;
   }
+  set menus(valMap) {
+    this.$globalStore.dispatch('user/updateMenus', valMap);
+  }
   get menus() {
     return this.$globalStore.getters['user/menus'];
   }

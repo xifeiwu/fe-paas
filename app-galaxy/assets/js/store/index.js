@@ -46,7 +46,7 @@ export default new Vuex.Store({
   plugins: [createPersistedState({
     key: 'global',
     // 暂时只持久化 etc 模块，防止冲突
-    paths: ['version', 'user.userInfo', 'user.groupInfo', 'user.config'],
+    paths: ['version', 'user.userInfo', 'user.groupInfo', 'user.config', 'user.menus'],
     filter: (mutation) => {
       // console.log(mutation);
       return true;
