@@ -22,6 +22,9 @@ export default {
     }
   },
   actions: {
+    permission({commit, state}, permission) {
+      state.permission = permission;
+    },
     setUserGroupList({state, commit}, groupList) {
       state.userGroupList = groupList;
     },
@@ -51,10 +54,6 @@ export default {
     },
     SET_USER_INFO(state, userInfo) {
       state.userInfo = userInfo;
-    },
-    SET_PERMISSION(state, permission) {
-      // Vue.set(state.permission, key, config[key]);
-      state.permission = Object.assign(state.permission, permission);
     },
     CLEAR(state) {
     }

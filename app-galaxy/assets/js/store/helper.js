@@ -182,4 +182,55 @@ export default class StoreHelper extends Common {
       name: "PRODUCT_OWNER"
     }];
   }
+
+  set permission(value) {
+    this.$globalStore.dispatch('user/permission', value);
+  }
+  get permission() {
+    return this.$globalStore.getters['user/permission'];
+  }
+
+  actionToPermission(action) {
+    const actionMap = {
+      domain_add_open_dialog: 'domain_add',
+      open_dialog_update_pod_spec: 'get_affinity'
+    };
+    return actionMap.hasOwnProperty(action) ? actionMap[action] : action
+  }
+  _permissionDisabled(permission) {
+    return permission && this.permission[permission] && this.permission[permission].disabled;
+  }
+  reason4ActionDisabled(action) {
+    const stillPermitWhenPublishing = (permission) => {
+      return ['get_affinity', 'update_affinity'].includes(permission);
+    };
+    const permission = this.actionToPermission(action);
+    var reason = false;
+    if (this.serverIsPublishing && !stillPermitWhenPublishing(permission)) {
+      reason = '因云平台正在发布，在此期间不能进行此操作，谢谢您的合作'
+    } else if (this._permissionDisabled(permission)) {
+      reason = this.permission[permission]['reason'];
+    }
+    return reason;
+  }
+  actionDisabled(action) {
+    const reason = this.reason4ActionDisabled(action);
+    if (reason === false) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+  // TODO: fix
+  // action
+  set publishStatus(value) {
+    this.$globalStore.dispatch('setPublishStatus', value);
+  }
+  // 后台服务是否正在部署
+  get serverIsPublishing() {
+    return this.$globalStore.getters['publishStatus'];
+  }
+  get publishStatus() {
+    return this.$globalStore.getters['publishStatus'];
+  }
 }

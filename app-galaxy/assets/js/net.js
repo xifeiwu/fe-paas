@@ -69,7 +69,49 @@ class Net extends Common {
       publish_status: {
         path: '/system/deployed',
         method: 'get'
-      }
+      },
+
+      /** 团队管理 */
+      // 分页获取团队列表
+      'group_list_by_page': {
+        path: '/group/queryByPage',
+        method: 'post'
+      },
+      // 团队创建
+      'group_create': {
+        path: '/group/create',
+        method: 'post'
+      },
+      // 团队更新
+      'group_update': {
+        path: '/group/update',
+        method: 'post'
+      },
+      // 团队删除
+      'group_delete': {
+        path: '/group/delete',
+        method: 'post'
+      },
+      // 团队成员添加
+      'group_member_add': {
+        path: '/group/addUser',
+        method: 'post'
+      },
+      // 团队成员删除
+      'group_member_remove': {
+        path: '/group/user/delete',
+        method: 'delete'
+      },
+      // 获取团队成员
+      'group_member_list': {
+        path: '/group/users',
+        method: 'post'
+      },
+      // 修改团队成员角色
+      'group_member_change_roles': {
+        path: '/group/user/updateJob',
+        method: 'put'
+      },
     };
     Object.keys(PAAS_URL_LIST).forEach(key => {
       let item = PAAS_URL_LIST[key];
@@ -937,8 +979,8 @@ class Net extends Common {
       return it;
     });
 
-    // format of item in notPermittedList
-    // {
+    // format of notPermittedList
+    // [{
     //   id: 110,
     //   name: "创建外网域名",
     //   parentId: 84,
@@ -947,28 +989,41 @@ class Net extends Common {
     //   url: "/domain/record/create",
     //   method: "POST",
     //   key: "domain_bind_white_list"
-    // }
+    // }...]
+    // format of converted notPermittedList:
+    // ["app_delete", "service_delete", ...]
     const permissionMap = this.permissionMap;
-
-    // add url and method by notPermittedList
-    notPermittedList.forEach(it => {
-      // check if permission in permissionMap first
+    notPermittedList = notPermittedList.filter(it => {
       if (permissionMap.hasOwnProperty(it.path)) {
-        it.key = permissionMap[it.path];
+        return true;
+      } else {
+        // output permission not converted except listed below
+        if (!{
+            '/2.x/keys/AccessKey/oauth/delete': '删除权限',
+            '/2.x/backstage': '后台管理'
+          }[it.path]) {
+          console.log('not catch in permissionMap:');
+          console.log(it);
+        }
+        return false;
       }
-    });
-
-    let result = notPermittedList.filter(it => {
-      return it.hasOwnProperty('key') && it.key;
     }).map(it => {
-      return it['key'];
+      return permissionMap[it.path];
     });
-    return result;
+    return notPermittedList;
   }
 
   async requestPermission() {
-    const notPermitted = await this.requestPaasServer(this.URL_LIST.user_not_permitted);
-    return this.parseNotPermittedCommands(notPermitted);
+    const notPermittedListFromNet = await this.requestPaasServer(this.URL_LIST.user_not_permitted);
+    const notPermittedList = this.parseNotPermittedCommands(notPermittedListFromNet);
+    const result = {};
+    notPermittedList.forEach(it => {
+      result[it] = {
+        disabled: true,
+        reason: '您无权进行该操作'
+      }
+    });
+    return result;
   }
 }
 
