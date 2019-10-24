@@ -63,28 +63,28 @@
             <el-button
                     v-if="isAdmin"
                     type="text" class="warning"
-                    @click="handleTRClick('group_delete', scope.$index, scope.row)">
+                    @click="handleTRClick($event, 'group_delete', scope.row, scope.$index)">
               <span>解散团队</span>
             </el-button>
             <div class="ant-divider" v-if="isAdmin"></div>
             <el-button
                     v-if="isAdmin"
                     type="text" class="warning"
-                    @click="handleButtonClick($event, 'open_dialog_group_update', scope.row, scope.$index)">
+                    @click="handleTRClick($event, 'open_dialog_group_update', scope.row, scope.$index)">
               <span>修改团队</span>
             </el-button>
             <div class="ant-divider" v-if="isAdmin"></div>
             <el-button
                     v-if="!$storeHelper.notPermitted['group_member_invite']"
                     type="text" class="primary"
-                    @click="handleTRClick('open_dialog_invite_group_number', scope.$index, scope.row)">
+                    @click="handleTRClick($event, 'open_dialog_invite_group_number', scope.row, scope.$index)">
               <span>邀请成员</span>
             </el-button>
             <div class="ant-divider" v-if="!$storeHelper.notPermitted['group_member_invite']"></div>
             <el-button
                     v-if="!$storeHelper.notPermitted['group_member_list']"
                     type="text" class="primary"
-                    @click="handleTRClick('group_member_list', scope.$index, scope.row)"
+                    @click="handleTRClick($event, 'group_member_list', scope.row, scope.$index)"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     :loading="statusOfWaitingResponse('group_member_list') && groupSelected.id == scope.row.id">
               <span>查看成员</span>
@@ -112,7 +112,7 @@
                     <el-button
                             v-if="!$storeHelper.notPermitted['group_member_update_roles']"
                             type="text"
-                            @click="handleTRClick('open_dialog_group_member_update_roles', scope.$index, scope.row)"
+                            @click="handleTRClick($event, 'open_dialog_group_member_update_roles', scope.row, scope.$index)"
                             :class="{'expand': expandRows.indexOf(scope.row.id) > -1, 'warning': true}"
                             :loading="statusOfWaitingResponse('open_dialog_group_member_update_roles') && memberSelected.id == scope.row.id">
                       <span>修改岗位</span>
@@ -122,7 +122,7 @@
                             v-if="!$storeHelper.notPermitted['group_member_remove']"
                             type="text"
                             class="warning"
-                            @click="handleTRClick('group_member_remove', scope.$index, scope.row)">移除成员</el-button>
+                            @click="handleTRClick($event, 'group_member_remove', scope.row, scope.$index)">移除成员</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -487,15 +487,32 @@
         }
       },
 
-      async handleButtonClick(evt, action, data) {
+      async handleButtonClick(evt, action) {
         switch (action) {
-          case 'open_dialog_group_update':
-            this.groupSelected = data;
           case 'open_dialog_group_create':
+            this.handleTRClick(evt, action);
+            break;
+          case 'refresh-list':
+            this.getGroupListByPage({
+              refresh: true,
+              currentPage: 1
+            });
+            break;
+        }
+      },
+
+      async handleTRClick(evt, action, row, index) {
+        let dialogData = null;
+        switch (action) {
+          case 'open_dialog_group_create':
+          case 'open_dialog_group_update':
+            if (row) {
+              this.groupSelected = row;
+            }
             try {
               const dialogData = await this.openDialog(action, {
-                groupName: action == 'open_dialog_group_update' ? data.name : '',
-                groupTag: action == 'open_dialog_group_update' ? data.tag : ''
+                groupName: action == 'open_dialog_group_update' ? row.name : '',
+                groupTag: action == 'open_dialog_group_update' ? row.tag : ''
               });
               await this.$net.requestPaasServer({
                 open_dialog_group_create: this.$net.URL_LIST.group_create,
@@ -503,7 +520,7 @@
               }[action], {
                 payload: {
                   open_dialog_group_update: {
-                    id: data ? data.id : null,
+                    id: row ? row.id : null,
                     name: dialogData.groupName
                   },
                   open_dialog_group_create: {
@@ -516,7 +533,7 @@
 
               this.$message.success({
                 open_dialog_group_create: `添加团队 "${dialogData.groupName}" 成功！`,
-                open_dialog_group_update: `修改团队 "${data ? data.name : ''}" 成功`
+                open_dialog_group_update: `修改团队 "${row ? row.name : ''}" 成功`
               }[action]);
               this.handleButtonClick(null, 'refresh-list');
             } catch (err) {
@@ -525,18 +542,6 @@
               this.closeDialog();
             }
             break;
-          case 'refresh-list':
-            this.getGroupListByPage({
-              refresh: true,
-              currentPage: 1
-            });
-            break;
-        }
-      },
-
-      async handleTRClick(action, index, row) {
-        let dialogData = null;
-        switch (action) {
           case 'open_dialog_invite_group_number':
             this.groupSelected = row;
             try {
