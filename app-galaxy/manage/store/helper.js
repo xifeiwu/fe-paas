@@ -6,9 +6,6 @@ class StoreHelper extends BaseHelper{
     super(store);
   }
 
-  get screen() {
-    return this.$store.getters['screen'];
-  }
   get navMenuWidth() {
     return this.$store.getters['navMenuWidth'];
   }
