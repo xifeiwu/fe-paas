@@ -38,6 +38,17 @@ export default class StoreHelper extends Common {
     return this.userInfo.role === '普通成员';
   }
 
+  /**
+   *
+   * @param size: {width: 100,height: 100}
+   */
+  set screen(size) {
+    this.$globalStore.dispatch('setScreenSize', size);
+  }
+  get screen() {
+    return this.$globalStore.getters['screen'];
+  }
+
   // TODO: will be replaced by userInfo
   getUserInfo(key) {
     let value = null;

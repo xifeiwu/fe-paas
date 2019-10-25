@@ -8,7 +8,13 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    version: ''
+    version: '',
+    screen: {
+      width: 0,
+      height: 0,
+      size: 0,
+      ratioHeight: 0
+    },
   },
   actions: {
     version({dispatch, state, commit}, version) {
@@ -18,7 +24,17 @@ export default new Vuex.Store({
       dispatch('user/clear');
       // commit('user/CLEAR');
       commit('CLEAR');
-    }
+    },
+    setScreenSize({state, commit}, {width, height}) {
+      state.screen.width = width;
+      state.screen.height = height;
+      try {
+        state.screen.ratioHeight = height / window.devicePixelRatio;
+      } catch(err) {
+        state.screen.ratioHeight = 500
+      }
+      state.screen.size = width * height;
+    },
   },
   mutations: {
     SET_VERSION(state, version) {
@@ -38,6 +54,9 @@ export default new Vuex.Store({
   getters: {
     'version': (state, getters) => {
       return state.version;
+    },
+    'screen': (state) => {
+      return state.screen;
     },
   },
   modules:{
