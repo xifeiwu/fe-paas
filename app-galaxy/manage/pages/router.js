@@ -1,4 +1,5 @@
 import appMain from './app.vue';
+import groupPage from '../../common/group';
 import analyzeAppCount from './analyze/app-count.vue';
 import analyzeAppDeploy from './analyze/app-deploy.vue';
 import analyzeResources from './analyze/resources.vue';
@@ -10,6 +11,7 @@ import clusterDashboard from './cluster-dashboard.vue';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import pathToRegexp from 'path-to-regexp';
 
 /**
  * router config:
@@ -18,116 +20,104 @@ import VueRouter from 'vue-router';
  * 3. url path should be correspond with page logic, as it is used for breadcrumb. such as
  *    if add app is sub page of app, its url should be app/add
  */
-var Router = function () {
-  this.richRouterConfig = [{
-    path: '/manage',
-    redirect: '/manage/app',
-  }, {
-    path: '/manage/app',
-    component: appMain
-  }, {
-    path: '/manage/message',
-    component: message
-  }, {
-    path: '/manage/feedback',
-    component: feedback
-  }, {
-    path: '/manage/analyze/app-count',
-    component: analyzeAppCount
-  }, {
-    path: '/manage/analyze/app-deploy',
-    component: analyzeAppDeploy
-  }, {
-    path: '/manage/analyze/resources',
-    component: analyzeResources
-  }, {
-    path: '/manage/node-manage',
-    component: nodeManage
-  }, {
-    path: '/manage/cluster-dashboard',
-    component: clusterDashboard
-  }, {
-    path: '/manage/analyze/visit',
-    component: analyzeVisit
-  }];
+class Helper {
+  constructor() {
+    this.richRouterConfig = [{
+      path: '/manage',
+      redirect: '/manage/app',
+    }, {
+      path: '/manage/app',
+      component: appMain
+    }, {
+      path: '/manage/group',
+      component: groupPage
+    }, {
+      path: '/manage/message',
+      component: message
+    }, {
+      path: '/manage/feedback',
+      component: feedback
+    }, {
+      path: '/manage/analyze/app-count',
+      component: analyzeAppCount
+    }, {
+      path: '/manage/analyze/app-deploy',
+      component: analyzeAppDeploy
+    }, {
+      path: '/manage/analyze/resources',
+      component: analyzeResources
+    }, {
+      path: '/manage/node-manage',
+      component: nodeManage
+    }, {
+      path: '/manage/cluster-dashboard',
+      component: clusterDashboard
+    }, {
+      path: '/manage/analyze/visit',
+      component: analyzeVisit
+    }];
 
-  this.addRoutePath(null, this.richRouterConfig);
-
-  this.vueRouter = new VueRouter({
-    mode: 'history',
-    base: __dirname,
-    // routes: routeConfig,
-    routes: this.getVueRouterConfig()
-  });
-  Vue.use(VueRouter);
-
-  // this.routePathList = this.getAllRouterPath();
-  this.routePathToConfig = this.getRoutePathToConfig();
-
-  setTimeout(() => {
-    // add permission by config from localStorage
-    // this.addPermission(Vue.prototype.$storeHelper.notPermitted);
-  });
-  // this.startRouteFilter()
-};
-
-Router.prototype = {
-  /**
-   * traverse router config tree to add routerPath to all component:
-   * routerPath = parent.path + path, it is the full path of hash in url
-   * @param path
-   * @param component
-   */
-  addRoutePath() {
-    function updateItem(path, item) {
-      if (null !== path) {
-        item.routePath = path + '/' + item.path;
-      } else {
-        item.routePath = item.path;
+    /**
+     * imediately invoke function
+     * traverse router config tree to add routerPath to all component:
+     * routerPath = parent.path + path, it is the full path of hash in url
+     * @param path
+     * @param component
+     */
+    (() => {
+      function updateItem(path, item) {
+        if (null !== path) {
+          item.fullPath = path + '/' + item.path;
+        } else {
+          item.fullPath = item.path;
+        }
+        let keys = [];
+        item.pathReg = pathToRegexp(item.fullPath, keys);
+        item.pathReg.keys = keys;
+        item.toPath = pathToRegexp.compile(item.fullPath);
       }
-    }
 
-    function traverseComponent(path, component) {
-      if (Array.isArray(component)) {
-        component.forEach(traverseComponent.bind(this, path));
-      } else if ('object' === typeof(component)) {
-        updateItem.call(this, path, component);
-        if (component.hasOwnProperty('children')) {
-          traverseComponent(component.routePath, component['children']);
+      function traverseComponent(path, component) {
+        if (Array.isArray(component)) {
+          component.forEach(traverseComponent.bind(this, path));
+        } else if ('object' === typeof(component)) {
+          updateItem.call(this, path, component);
+          if (component.hasOwnProperty('children')) {
+            traverseComponent(component.fullPath, component['children']);
+          }
         }
       }
+
+      traverseComponent(null, this.richRouterConfig);
+    })();
+    const pages = {};
+    this.routeList.forEach(it => {
+      pages[it.fullPath] = it;
+    });
+    if (this.pages) {
+      this.pages = Object.assign(this.pages, pages);
+    } else {
+      this.pages = pages;
     }
+  }
 
-    traverseComponent(null, this.richRouterConfig);
-    // console.log(this.richRouterConfig);
-  },
-
-  /**
-   * add prop isPermitted to all item in richRouteConfig. called by:
-   * 1. constructor of this class
-   * 2. created of profile.vue
-   * @param permissionMap: {'/app': true, '/oauth/key': true}
-   */
-  addPermission(permissionMap) {
-    // console.log(permissionMap);
-    function updateItem(item) {
-      if (item.hasOwnProperty('routePath')) {
-        if (!item.hasOwnProperty('meta')) {
-          item.meta = {};
-        }
-        item.meta['isPermitted'] = !permissionMap[item.routePath];
+  get routeList() {
+    return this.richRouterConfig.reduce((routeList, item) => {
+      routeList = routeList.concat(item);
+      if (item.hasOwnProperty('children')) {
+        routeList = routeList.concat(item.children);
       }
-    }
-
-    this.traverseComponent(updateItem, this.richRouterConfig);
-  },
+      return routeList;
+    }, []);
+  }
 
   // filter out useless config in richRouterConfig
-  getVueRouterConfig() {
+  getConfig4VueRouter() {
     function updateItem(item) {
       let keysMap = {
         path: 'path',
         name: 'name',
+        props: 'props',
         redirect: 'redirect',
         component: 'component',
         meta: 'meta',
@@ -159,7 +149,7 @@ Router.prototype = {
 
     let vueRouterConfig = traverseComponent(this.richRouterConfig);
     return vueRouterConfig;
-  },
+  }
 
   traverseComponent(func, component) {
     if (Array.isArray(component)) {
@@ -170,182 +160,59 @@ Router.prototype = {
         this.traverseComponent(func, component['children']);
       }
     }
-  },
+  }
+
+  getConfigByRoutePath(path) {
+    return this.routeList.find(it => it.pathReg.test(path));
+  }
+
+  getConfigByFullPath(path) {
+    return this.routeList.find(it => it.fullPath == path);
+  }
 
   /**
-   * get all routePath in router config tree. it can be used:
-   * 1. check whether current url is validate.
-   * TODO: not used
+   * add prop isPermitted to all item in richRouteConfig. called by:
+   * 1. constructor of this class
+   * 2. created of profile.vue
+   * @param permissionMap: {'/app': true, '/oauth/key': true}
    */
-  getAllRouterPath() {
-    let routePath = [];
-
-    function updateItem(item) {
-      if (item.hasOwnProperty('routePath')) {
-        routePath.push(item.routePath);
-      }
-    }
-
-    this.traverseComponent(updateItem, this.richRouterConfig);
-    return routePath;
-  },
-
-  /**
-   * get routePath to name, in the following format:
-   * {
-   *   '/login': "登录",
-   *   '/profile':"详情",
-   *   '/profile/app':"应用管理",
-   *   '/profile/app/add':"创建应用",
-   *   '/profile/domain_name':"外网域名",
-   *   '/profile/instance':"实例列表",
-   *   '/profile/service':"服务管理"
-   *  }
-   * used in:
-   * 1. profile.vue
-   */
-  getRoutePathToName() {
-    let routePath = {};
-
-    function updateItem(item) {
-      if (item.hasOwnProperty('routePath') && item.hasOwnProperty('name')) {
-        if (item.name && item.routePath) {
-          routePath[item.routePath] = item.name;
-        }
-      }
-    }
-
-    this.traverseComponent(updateItem, this.richRouterConfig);
-    return routePath;
-  },
-
-
-  getRoutePathToConfig() {
-    let result = {};
-
-    function updateItem(item) {
-      if (item.hasOwnProperty('routePath') && item.routePath) {
-        result[item.routePath] = item;
-      }
-    }
-
-    this.traverseComponent(updateItem, this.richRouterConfig);
-    return result;
-  },
+  // addPermission(permissionMap) {
+  //   // console.log(permissionMap);
+  //   function updateItem(item) {
+  //     if (item.hasOwnProperty('fullPath')) {
+  //       if (!item.hasOwnProperty('meta')) {
+  //         item.meta = {};
+  //       }
+  //       item.meta['isPermitted'] = !permissionMap[item.fullPath];
+  //     }
+  //   }
+  //
+  //   this.traverseComponent(updateItem, this.richRouterConfig);
+  // }
 
   /**
-   * get permitted children in routeConfig by routePath
-   * @param routePath, such as '/log', '/oauth'
+   * get permitted children in routeConfig by fullPath
+   * @param fullPath, such as '/log', '/oauth'
    * @returns {Array}
    */
-  getPermittedSubRouteList(routePath) {
-    let result = [];
-    let routePathToConfig = this.getRoutePathToConfig();
-    if (routePathToConfig.hasOwnProperty(routePath) && routePathToConfig[routePath].hasOwnProperty('children')) {
-      result = routePathToConfig[routePath].children.filter(it => {
-        let isPermitted = true;
-        if (it.hasOwnProperty('meta') && it.meta.hasOwnProperty('isPermitted')) {
-          isPermitted = it.meta.isPermitted;
-        }
-        return isPermitted;
-      })
-    }
-    // filter item with property 'name'
-    result = result.filter(it => {
-      return it.hasOwnProperty('name');
-    });
-    return JSON.parse(JSON.stringify(result));
-  },
+  getPermittedSubRouteList(fullPath) {
+  }
 
   /**
    * do some action before route change
    */
   startRouteFilter() {
-    let self = this;
-
-    // if the path is valid
-    function isValidateURL(path) {
-      // remove / at end
-      path = path.trim().replace(/\/+$/, '');
-      let isOk = true;
-      let config = null;
-      if (self.routePathToConfig.hasOwnProperty(path)) {
-        config = self.routePathToConfig[path];
-      }
-      if (!config) {
-        isOk = false;
-      } else {
-        if (config.hasOwnProperty('meta') && config.meta.hasOwnProperty('isPermitted')) {
-          isOk = config.meta.isPermitted;
-        }
-        if (config.hasOwnProperty('children')) {
-          isOk = false;
-        }
-      }
-      // console.log(config);
-      // console.log(`${path}, ${isOk}`);
-      return isOk;
-    }
-
-    // get parent path of the path
-    function getParentPath(path) {
-      return path.split('/').slice(0, -1).join('/');
-    }
-
-    // get nearest path if the path is not valid
-    function getValidateURL(path) {
-      let result = path;
-
-      let config = null;
-      if (self.routePathToConfig.hasOwnProperty(path)) {
-        config = self.routePathToConfig[path];
-      }
-      // check children first
-      let firstValidChild = null;
-      if (config && config.hasOwnProperty('children')) {
-        config.children.some(it => {
-          if (isValidateURL(it.routePath)) {
-            firstValidChild = it;
-          }
-          return firstValidChild;
-        });
-        if (firstValidChild) {
-          result = firstValidChild.routePath;
-        }
-      }
-      if (!firstValidChild) {
-        // check parent
-        while (!isValidateURL(result) && '' != result) {
-          result = getParentPath(result);
-        }
-      }
-
-      if ('' == result) {
-        result = '/';
-      }
-      return result;
-    }
-
-    this.vueRouter.beforeEach((to, from, next) => {
-      // console.log(from);
-      // console.log(to);
-      // console.log(JSON.stringify(from.path) + ' -> ' + JSON.stringify(to.path));
-
-      let token = Vue.prototype.$storeHelper.getUserInfo('token');
-      if (token) {
-        if (!isValidateURL(to.path)) {
-          next(getValidateURL(to.path));
-        } else {
-          next();
-        }
-      } else {
-        Vue.prototype.$utils.goToPath('/login?to=/profile');
-      }
-    });
   }
-};
+}
 
-var router = new Router({
-  mode: 'history'
+const helper = new Helper();
+const vueRouter = new VueRouter({
+  mode: 'history',
+  base: __dirname,
+  routes: helper.getConfig4VueRouter()
 });
-export default router;
+// helper.startRouteFilter(vueRouter);
+vueRouter.helper = helper;
+Vue.use(VueRouter);
+
+export default vueRouter;

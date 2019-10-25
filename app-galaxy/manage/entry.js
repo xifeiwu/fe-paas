@@ -20,9 +20,7 @@ new VueConfig({
   storeHelper: new StoreHelper(),
 });
 
-import routerConfig from './pages/router';
-
-Vue.prototype.$routeHelper = routerConfig;
+import router from './pages/router';
 
 // paas-icons for icon and svg
 import 'assets/css/fonts/paas-icon.css';
@@ -35,7 +33,7 @@ import(/* webpackChunkName: "components-profile" */ 'assets/static/components/el
   components.default.install(Vue);
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),
-    router: routerConfig.vueRouter,
+    router: router,
     store: store
   }).$mount('#app');
 });

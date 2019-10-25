@@ -137,6 +137,10 @@
             router: '/manage/app',
             icon: 'paas-icon-app'
           }, {
+            name: '团队管理',
+            router: '/manage/group',
+            icon: 'paas-icon-message'
+          }, {
             name: '站内信',
             router: '/manage/message',
             icon: 'paas-icon-message'

@@ -25,7 +25,6 @@
 <style lang="scss" scoped>
   $main-background: #F2F6FC;
   /*$main-background: #E4E7ED;*/
-
   #manage {
     height: 100%;
     display: flex;

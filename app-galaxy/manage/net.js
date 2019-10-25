@@ -154,8 +154,11 @@ class Net extends NetBase {
     });
 
     // extend URL_LIST from super
+    // 如果父类已经存在URL_LIST，则合并父类中的URL_LIST
     if (this.URL_LIST) {
       this.URL_LIST = Object.assign(this.URL_LIST, PAAS_URL_LIST);
+    } else {
+      this.URL_LIST = Object.assign(PAAS_URL_LIST);
     }
 
   }
