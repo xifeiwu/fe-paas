@@ -50,12 +50,6 @@ class Helper {
       // }
     ];
 
-    this.vueRouter = new VueRouter({
-      mode: 'history',
-      routes: this.richRouterConfig
-    });
-    Vue.use(VueRouter);
-
     // setTimeout(() => {
     //   // add permission by config from localStorage
     //   this.addPermission(Vue.prototype.$storeHelper.notPermitted);
@@ -101,7 +95,6 @@ class Helper {
     } else {
       this.pages = pages;
     }
-    this.startRouteFilter();
   }
 
   get routeList() {
