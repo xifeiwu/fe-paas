@@ -4,7 +4,6 @@ import VueRouter from 'vue-router';
 import UserInfo from './info.vue';
 import UserMessage from './message.vue';
 import UserOperaion from './operation.vue';
-import ManageGroup from './group.vue';
 import UserGroup from '../../common/group.vue';
 import Feedback from './feedback.vue';
 import k8sWarning from './k8s-warning.vue';

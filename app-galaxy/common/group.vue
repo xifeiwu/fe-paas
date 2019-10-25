@@ -3,7 +3,7 @@
     <div class="header">
       <el-row type="flex" justify="center" align="middle">
         <el-col :span="10">
-          <el-button size="mini" v-if="isAdmin"
+          <el-button size="mini" v-if="usedInPage === 'manage'"
                      type="primary"
                      @click="handleButtonClick($event, 'open_dialog_group_create')">
             <span>创建团队</span><i class="el-icon el-icon-plus" style="margin-left: 8px;"></i>
@@ -61,29 +61,29 @@
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="100">
           <template slot-scope="scope">
             <el-button
-                    v-if="isAdmin"
+                    v-if="usedInPage === 'manage'"
                     type="text" class="warning"
                     @click="handleTRClick($event, 'group_delete', scope.row, scope.$index)">
               <span>解散团队</span>
             </el-button>
-            <div class="ant-divider" v-if="isAdmin"></div>
+            <div class="ant-divider" v-if="usedInPage === 'manage'"></div>
             <el-button
-                    v-if="isAdmin"
+                    v-if="usedInPage === 'manage'"
                     type="text" class="warning"
                     @click="handleTRClick($event, 'open_dialog_group_update', scope.row, scope.$index)">
               <span>修改团队</span>
             </el-button>
-            <div class="ant-divider" v-if="isAdmin"></div>
+            <div class="ant-divider" v-if="usedInPage === 'manage'"></div>
             <el-button
-                    v-if="!$storeHelper.notPermitted['group_member_invite']"
+                    v-if="!$storeHelper.reason4ActionDisabled('group_member_invite')"
                     type="text" class="primary"
                     @click="handleTRClick($event, 'open_dialog_invite_group_number', scope.row, scope.$index)">
               <span>邀请成员</span>
             </el-button>
-            <div class="ant-divider" v-if="!$storeHelper.notPermitted['group_member_invite']"></div>
+            <div class="ant-divider" v-if="!$storeHelper.reason4ActionDisabled('group_member_invite')"></div>
             <el-button
-                    v-if="!$storeHelper.notPermitted['group_member_list']"
-                    type="text" class="primary"
+                    v-if="!$storeHelper.reason4ActionDisabled('group_member_list')"
+                    type="text" class="primary flex"
                     @click="handleTRClick($event, 'group_member_list', scope.row, scope.$index)"
                     :class="{'expand': expandRows.indexOf(scope.row.id) > -1}"
                     :loading="statusOfWaitingResponse('group_member_list') && groupSelected.id == scope.row.id">
@@ -110,16 +110,16 @@
                 <el-table-column label="操作" prop="operation" headerAlign="center" align="center" width="180">
                   <template slot-scope="scope">
                     <el-button
-                            v-if="!$storeHelper.notPermitted['group_member_update_roles']"
+                            v-if="!$storeHelper.reason4ActionDisabled('group_member_update_roles')"
                             type="text"
                             @click="handleTRClick($event, 'open_dialog_group_member_update_roles', scope.row, scope.$index)"
                             :class="{'expand': expandRows.indexOf(scope.row.id) > -1, 'warning': true}"
                             :loading="statusOfWaitingResponse('open_dialog_group_member_update_roles') && memberSelected.id == scope.row.id">
                       <span>修改岗位</span>
                     </el-button>
-                    <div class="ant-divider" v-if="!$storeHelper.notPermitted['group_member_update_roles']"></div>
+                    <div class="ant-divider" v-if="!$storeHelper.reason4ActionDisabled('group_member_update_roles')"></div>
                     <el-button
-                            v-if="!$storeHelper.notPermitted['group_member_remove']"
+                            v-if="!$storeHelper.reason4ActionDisabled('group_member_remove')"
                             type="text"
                             class="warning"
                             @click="handleTRClick($event, 'group_member_remove', scope.row, scope.$index)">移除成员</el-button>
@@ -265,6 +265,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    background-color: white;
     .header {
       padding: 3px 5px;
       font-size: 14px;
@@ -349,6 +350,9 @@
   module.exports = {
     mixins: [commonUtils],
     created() {
+      if (this.$router.helper.pages.hasOwnProperty('/manage/group')) {
+        this.usedInPage = 'manage';
+      }
     },
 
     async mounted() {
@@ -362,7 +366,8 @@
 
     data() {
       return {
-        isAdmin: true,
+        // group是全局组件，目前用在用户中心，后台管理两个页面中
+        usedInPage: 'unknown',
         filterKey: '',
         tableSort: defaultTableSort,
         groupList: [],
@@ -550,7 +555,7 @@
                 jobName: this.allJobs[0]['name'],
               });
 
-              await this.$net.requestPaasServer(this.$net.URL_LIST.group_invite_new, {
+              await this.$net.requestPaasServer(this.$net.URL_LIST.group_member_add, {
                 payload: {
                   groupId: row.id,
                   emailString: dialogData.email,
@@ -683,7 +688,7 @@
         }
         var memberList = [];
         try {
-          const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.group_members, {
+          const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.group_member_list, {
             payload: {
               id: group.id
             }
