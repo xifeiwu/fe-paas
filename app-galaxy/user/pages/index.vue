@@ -226,19 +226,18 @@
       const permission = await this.$net.requestPermission();
       this.$storeHelper.permission = permission;
       // this.$routeHelper.addPermission(permissionList);
-      // TODO: fix
-      this.commandList = this.$routeHelper.getPermittedSubRouteList('/');
+      this.commandList = this.$router.helper.getPermittedSubRouteList();
       this.updateActiveCommand();
     },
     mounted() {
       this.resizeListener = () => {
-        this.$store.dispatch('setScreenSize', {
+        this.$storeHelper.screen = {
           width: this.$el.offsetWidth,
           height: this.$el.offsetHeight
-        })
+        };
       };
-      addResizeListener(this.$el, this.resizeListener);
       this.$nextTick(() => {
+        addResizeListener(this.$el, this.resizeListener);
       });
     },
     beforeDestroy() {
@@ -278,7 +277,7 @@
       updateActiveCommand() {
         let path = this.$route.path;
         this.commandList.forEach(it => {
-          if (it.routePath === path) {
+          if (it.fullPath === path) {
             it.isActive = true;
           } else {
             it.isActive = false;
@@ -286,7 +285,7 @@
         })
       },
       handleCommands(item) {
-        this.$router.push(item.routePath);
+        this.$router.push(item.fullPath);
         this.updateActiveCommand();
       },
       handleOpen(key, keyPath) {

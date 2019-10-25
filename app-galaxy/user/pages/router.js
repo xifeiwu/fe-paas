@@ -11,7 +11,7 @@ import k8sWarning from './k8s-warning.vue';
 
 import pathToRegexp from 'path-to-regexp';
 
-class Router {
+class Helper {
   constructor() {
     this.richRouterConfig = [
       {
@@ -49,8 +49,6 @@ class Router {
       //   component: k8sWarning
       // }
     ];
-    this.addRoutePath(null, this.richRouterConfig);
-    this.routePathToConfig = this.getRoutePathToConfig();
 
     this.vueRouter = new VueRouter({
       mode: 'history',
@@ -116,85 +114,44 @@ class Router {
     }, []);
   }
 
-  /**
-   * traverse router config tree to add routerPath to all component:
-   * routerPath = parent.path + path, it is the full path of hash in url
-   * @param path
-   * @param component
-   */
-  addRoutePath() {
-    function updateItem(path, item) {
-      if (null !== path) {
-        item.routePath = path + '/' + item.path;
-      } else {
-        item.routePath = item.path;
-      }
-    }
-
-    function traverseComponent(path, component) {
-      if (Array.isArray(component)) {
-        component.forEach(traverseComponent.bind(this, path));
-      } else if ('object' === typeof(component)) {
-        updateItem.call(this, path, component);
-        if (component.hasOwnProperty('children')) {
-          traverseComponent(component.routePath, component['children']);
-        }
-      }
-    }
-
-    traverseComponent(null, this.richRouterConfig);
-    // console.log(this.richRouterConfig);
-  }
-
-  /**
-   * add prop isPermitted to all item in richRouteConfig. called by:
-   * 1. constructor of this class
-   * 2. created of profile.vue
-   * @param permissionMap: {'/app': true, '/oauth/key': true}
-   */
-  addPermission(permissionMap) {
+  // filter out useless config in richRouterConfig
+  getConfig4VueRouter() {
     function updateItem(item) {
-      if (item.hasOwnProperty('routePath')) {
-        if (!item.hasOwnProperty('meta')) {
-          item.meta = {};
+      let keysMap = {
+        path: 'path',
+        name: 'name',
+        props: 'props',
+        redirect: 'redirect',
+        component: 'component',
+        meta: 'meta',
+      };
+      let result = {};
+      for (let key in item) {
+        if (item.hasOwnProperty(key) && keysMap.hasOwnProperty(key)) {
+          if ('componentFile' === key) {
+            // result[keysMap[key]] = this.load(item[key]);
+          } else {
+            result[keysMap[key]] = item[key];
+          }
         }
-        item.meta['isPermitted'] = !permissionMap[item.routePath];
+      }
+      return result;
+    }
+
+    function traverseComponent(component) {
+      if (Array.isArray(component)) {
+        return component.map(traverseComponent.bind(this));
+      } else if ('object' === typeof(component)) {
+        let config = updateItem.call(this, component);
+        if (component.hasOwnProperty('children')) {
+          config['children'] = traverseComponent(component['children']);
+        }
+        return config;
       }
     }
 
-    this.traverseComponent(updateItem, this.richRouterConfig);
-  }
-
-  /**
-   * get permitted children in routeConfig by routePath
-   * @param routePath, such as '/log', '/oauth'
-   * @returns {Array}
-   */
-  getPermittedSubRouteList(routePath) {
-    let result = [];
-    let routePathToConfig = this.getRoutePathToConfig();
-    if (routePath === '/') {
-      result = this.richRouterConfig.filter(it => {
-        let isPermitted = true;
-        if (it.hasOwnProperty('meta') && it.meta.hasOwnProperty('isPermitted')) {
-          isPermitted = it.meta.isPermitted;
-        }
-        return isPermitted;
-      })
-    } else if (routePathToConfig.hasOwnProperty(routePath) && routePathToConfig[routePath].hasOwnProperty('children')) {
-      result = routePathToConfig[routePath].children.filter(it => {
-        let isPermitted = true;
-        if (it.hasOwnProperty('meta') && it.meta.hasOwnProperty('isPermitted')) {
-          isPermitted = it.meta.isPermitted;
-        }
-        return isPermitted;
-      })
-    }
-    // filter item with property 'name'
-    result = result.filter(it => {
-      return it.hasOwnProperty('name');
-    });
-    return JSON.parse(JSON.stringify(result));
+    let vueRouterConfig = traverseComponent(this.richRouterConfig);
+    return vueRouterConfig;
   }
 
   traverseComponent(func, component) {
@@ -208,22 +165,46 @@ class Router {
     }
   }
 
-  getRoutePathToConfig() {
-    let result = {};
+  getConfigByRoutePath(path) {
+    return this.routeList.find(it => it.pathReg.test(path));
+  }
 
-    function updateItem(item) {
-      if (item.hasOwnProperty('routePath') && item.routePath) {
-        result[item.routePath] = item;
-      }
-    }
+  getConfigByFullPath(path) {
+    return this.routeList.find(it => it.fullPath == path);
+  }
 
-    this.traverseComponent(updateItem, this.richRouterConfig);
-    return result;
+  /**
+   * add prop isPermitted to all item in richRouteConfig. called by:
+   * 1. constructor of this class
+   * 2. created of profile.vue
+   * @param permissionMap: {'/app': true, '/oauth/key': true}
+   */
+  // addPermission(permissionMap) {
+  //   function updateItem(item) {
+  //     if (item.hasOwnProperty('routePath')) {
+  //       if (!item.hasOwnProperty('meta')) {
+  //         item.meta = {};
+  //       }
+  //       item.meta['isPermitted'] = !permissionMap[item.routePath];
+  //     }
+  //   }
+  //
+  //   this.traverseComponent(updateItem, this.richRouterConfig);
+  // }
+
+  /**
+   * get permitted children in routeConfig by routePath
+   * @param routePath, such as '/log', '/oauth'
+   * @returns {Array}
+   */
+  getPermittedSubRouteList() {
+    return JSON.parse(JSON.stringify(this.routeList.filter(it => it.hasOwnProperty('name'))));
   }
 
   /**
    * do some action before route change
    */
+  // TODO: not used, need fix
   startRouteFilter() {
     let self = this;
     // if the path is valid
@@ -311,7 +292,14 @@ class Router {
   }
 }
 
-var router = new Router({
-  mode: 'history'
+const helper = new Helper();
+const vueRouter = new VueRouter({
+  mode: 'history',
+  base: __dirname,
+  routes: helper.getConfig4VueRouter()
 });
-export default router;
+// helper.startRouteFilter(vueRouter);
+vueRouter.helper = helper;
+Vue.use(VueRouter);
+
+export default vueRouter;

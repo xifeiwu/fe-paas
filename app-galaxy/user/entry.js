@@ -17,15 +17,14 @@ import 'assets/css/fonts/paas-icon.css';
 import 'assets/css/fonts/paas-icon.js';
 
 import APP from './pages/index.vue';
-import routerConfig from './pages/router';
-Vue.prototype.$routeHelper = routerConfig;
+import router from './pages/router';
 
 import 'assets/libs/element-ui/fix.scss';
 import(/* webpackChunkName: "components-docs" */ 'assets/static/components/ele/profile.js').then(components => {
   components.default.install(Vue);
   window.vm = new Vue({ // eslint-disable-line
     render: h => h(APP),
-    router: routerConfig.vueRouter,
+    router: router,
     store: Store
   }).$mount('#app');
 });

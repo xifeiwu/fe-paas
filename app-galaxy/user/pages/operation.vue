@@ -405,7 +405,7 @@
       },
 
       async requestGroupMember(groupId) {
-        const memberList = (await this.$net.requestPaasServer(this.$net.URL_LIST.group_members, {
+        const memberList = (await this.$net.requestPaasServer(this.$net.URL_LIST.group_member_list, {
           payload: {
             id: groupId
           }
