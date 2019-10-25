@@ -139,7 +139,7 @@
           }, {
             name: '团队管理',
             router: '/manage/group',
-            icon: 'paas-icon-message'
+            icon: 'paas-icon-group'
           }, {
             name: '站内信',
             router: '/manage/message',
