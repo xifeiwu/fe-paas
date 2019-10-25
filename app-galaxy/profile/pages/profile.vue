@@ -378,10 +378,10 @@
     },
     mounted() {
       this.resizeListener = () => {
-        this.$store.dispatch('setScreenSize', {
+        this.$storeHelper.screen = {
           width: this.$el.offsetWidth,
           height: this.$el.offsetHeight
-        });
+        };
         this.mainNodeWidth =  this.$el.offsetWidth - this.$storeHelper.navMenuWidth;
       };
       addResizeListener(this.$el, this.resizeListener);

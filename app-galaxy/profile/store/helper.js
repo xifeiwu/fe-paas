@@ -81,10 +81,6 @@ class StoreHelper extends BaseHelper{
   set lobInfo(value) {
     this.$store.dispatch('user/lobInfo', value);
   }
-
-  get screen() {
-    return this.$store.getters['screen'];
-  }
   get navMenuWidth() {
     return this.$store.getters['navMenuWidth'];
   }
@@ -727,7 +723,6 @@ class StoreHelper extends BaseHelper{
     }
   }
   // action
-
   set publishStatus(value) {
     this.$store.dispatch('setPublishStatus', value);
   }
