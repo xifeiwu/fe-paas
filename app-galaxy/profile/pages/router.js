@@ -466,6 +466,66 @@ class Helper extends RouterHelper {
     }, []);
   }
 
+  // filter out useless config in richRouterConfig
+  getConfig4VueRouter() {
+    function updateItem(item) {
+      let keysMap = {
+        path: 'path',
+        name: 'name',
+        props: 'props',
+        redirect: 'redirect',
+        component: 'component',
+        meta: 'meta',
+      };
+      let result = {};
+      for (let key in item) {
+        if (item.hasOwnProperty(key) && keysMap.hasOwnProperty(key)) {
+          if ('componentFile' === key) {
+            // result[keysMap[key]] = this.load(item[key]);
+          } else {
+            result[keysMap[key]] = item[key];
+          }
+        }
+      }
+      return result;
+    }
+
+    function traverseComponent(component) {
+      if (Array.isArray(component)) {
+        return component.map(traverseComponent.bind(this));
+      } else if ('object' === typeof(component)) {
+        let config = updateItem.call(this, component);
+        if (component.hasOwnProperty('children')) {
+          config['children'] = traverseComponent(component['children']);
+        }
+        return config;
+      }
+    }
+
+    let vueRouterConfig = traverseComponent(this.richRouterConfig);
+    return vueRouterConfig;
+  }
+
+  // 遍历配置
+  traverseComponent(func, component) {
+    if (Array.isArray(component)) {
+      component.forEach(this.traverseComponent.bind(this, func));
+    } else if ('object' === typeof(component)) {
+      func.call(this, component);
+      if (component.hasOwnProperty('children')) {
+        this.traverseComponent(func, component['children']);
+      }
+    }
+  }
+
+  getConfigByRoutePath(path) {
+    return this.routeList.find(it => it.pathReg.test(path));
+  }
+
+  getConfigByFullPath(path) {
+    return this.routeList.find(it => it.fullPath == path);
+  }
+
   /**
    * add prop isPermitted to all item in richRouteConfig. called by:
    * 1. constructor of this class
@@ -551,66 +611,6 @@ class Helper extends RouterHelper {
     }
 
     this.traverseComponent(updateItem, this.richRouterConfig);
-  }
-
-  // filter out useless config in richRouterConfig
-  getConfig4VueRouter() {
-    function updateItem(item) {
-      let keysMap = {
-        path: 'path',
-        name: 'name',
-        props: 'props',
-        redirect: 'redirect',
-        component: 'component',
-        meta: 'meta',
-      };
-      let result = {};
-      for (let key in item) {
-        if (item.hasOwnProperty(key) && keysMap.hasOwnProperty(key)) {
-          if ('componentFile' === key) {
-            // result[keysMap[key]] = this.load(item[key]);
-          } else {
-            result[keysMap[key]] = item[key];
-          }
-        }
-      }
-      return result;
-    }
-
-    function traverseComponent(component) {
-      if (Array.isArray(component)) {
-        return component.map(traverseComponent.bind(this));
-      } else if ('object' === typeof(component)) {
-        let config = updateItem.call(this, component);
-        if (component.hasOwnProperty('children')) {
-          config['children'] = traverseComponent(component['children']);
-        }
-        return config;
-      }
-    }
-
-    let vueRouterConfig = traverseComponent(this.richRouterConfig);
-    return vueRouterConfig;
-  }
-
-  // 遍历配置
-  traverseComponent(func, component) {
-    if (Array.isArray(component)) {
-      component.forEach(this.traverseComponent.bind(this, func));
-    } else if ('object' === typeof(component)) {
-      func.call(this, component);
-      if (component.hasOwnProperty('children')) {
-        this.traverseComponent(func, component['children']);
-      }
-    }
-  }
-
-  getConfigByRoutePath(path) {
-    return this.routeList.find(it => it.pathReg.test(path));
-  }
-
-  getConfigByFullPath(path) {
-    return this.routeList.find(it => it.fullPath == path);
   }
 
   /**
