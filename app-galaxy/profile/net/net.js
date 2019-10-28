@@ -1711,6 +1711,7 @@ class Net extends NetBase {
       serviceVersion: service.serviceVersion,
       volume: service.volume,
       subPath: service.subPath,
+      configServiceName: service.configServiceName,
       claimName: service.claimName,
       enableJacoco: !!service.enableJacoco,
     };

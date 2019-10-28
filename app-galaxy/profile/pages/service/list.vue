@@ -2337,7 +2337,7 @@ tolerations:
                   groupId: this.$storeHelper.groupInfo.id,
                   namespace: this.$storeHelper.groupInfo.tag,
                   appConfigId: this.action.row.id,
-                  configServiceName: this.action.row.serviceName
+                  configServiceName: this.action.row.configServiceName
                 }
               });
               await this.openDialog(action, resContent);
