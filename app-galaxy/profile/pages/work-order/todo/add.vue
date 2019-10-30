@@ -263,6 +263,7 @@
     created() {
       var goBack = false;
       this.pageType = (this.$route['path'] == this.$net.page['profile/work-order/todo/modify']) ? 'modify' : 'add';
+      this.forModify = this.pageType == 'modify';
 
       const dataTransfer = this.$storeHelper.dataTransfer;
       if (dataTransfer && dataTransfer.hasOwnProperty('from')) {
@@ -337,6 +338,7 @@
     data() {
       return {
         pageType: 'add',
+        forModify: false,
         // 生产(预发布)环境服务列表
         productionServiceList: [],
         showLoading: false,
@@ -622,44 +624,31 @@
       async handleButtonClick(action) {
         switch (action) {
           case 'submit':
-//            console.log(this.formData);
-//            console.log(this.$refs['featureForm']);
-//            return;
             if (!WorkOrderPropUtils.checkComment(this.formData.comment)) {
               this.$message.error('评论内容只能包含字母，数字，下划线，中划线等常规字符');
               return;
             }
-            const basicPromise = new Promise((resolve, reject) => {
-              this.$refs['basicForm'].validate((valid) => {
-                resolve(valid);
-              });
-            });
+            if (this.showLoading) {
+              return;
+            }
+            this.showLoading = true;
+            this.loadingText = '正在提交工单"' + this.formData.name + '"';
+            const options = {
+              actionName: this.forModify ? '更新' : '创建',
+              urlObj: this.forModify ? this.$net.URL_LIST.work_order_modify : this.$net.URL_LIST.work_order_create
+            };
+            let [sectionBasicOk, sectionFeatureOK, sectionAppOK, sectionAcceptanceOK] = [false, false, false, false];
+            try {
+              await this.$refs['basicForm'].validate();
+              sectionBasicOk = true;
+              await Promise.all(this.$refs['featureForm'].map(it => it.validate()));
+              sectionFeatureOK = true;
+              await this.$refs['applicationForm'].validate();
+              sectionAppOK = true;
+              await this.$refs['acceptanceForm'].validate();
+              sectionAcceptanceOK = true;
 
-            const featurePromise = new Promise((resolve, reject) => {
-              Promise.all(this.$refs['featureForm'].map(it => it.validate())).then(results => {
-                let valid = results.reduce((sum, it) => {
-                  return sum && it[0];
-                }, true);
-                resolve(valid);
-              }).catch(err => {
-                resolve(false);
-              })
-            });
-            const applicationPromise = new Promise((resolve, reject) => {
-              this.$refs['applicationForm'].validate((valid) => {
-                resolve(valid);
-              });
-            });
-            const acceptancePromise = new Promise((resolve, reject) => {
-              this.$refs['acceptanceForm'].validate((valid) => {
-                resolve(valid);
-              });
-            });
-            const results = await Promise.all([basicPromise, featurePromise, applicationPromise, acceptancePromise]);
-            const valid = results.reduce((sum, valid) => {
-              return sum && valid;
-            });
-            if (valid) {
+
               // check the format of el-form-item
               const toPost = {
                 workOrderDeploy: {
@@ -715,46 +704,34 @@
                   emailGroupName: it
                 }
               });
-//                console.log(toPost);
-              this.showLoading = true;
-              this.loadingText = '正在提交工单"' + this.formData.name + '"';
-
-              try {
-                let urlDesc = this.$net.URL_LIST.work_order_create;
-                let action = '创建';
-                if (this.pageType === 'modify') {
-                  urlDesc = this.$net.URL_LIST.work_order_modify;
-                  toPost.workOrderDeploy.id = this.dataPassed.workOrderId;
-                  action = '更新'
+              if (this.forModify) {
+                toPost.workOrderDeploy.id = this.dataPassed.workOrderId;
+              }
+              await this.$net.requestPaasServer(options.urlObj, {
+                payload: toPost
+              });
+              this.$alert(`工单 "${this.formData.name}" ${options.actionName}成功，即将进入工单列表页`, `${options.actionName}工单成功`, {
+                confirmButtonText: '确定',
+                callback: () => {
+                  this.$router.push(this.$net.page['profile/work-order/list']);
                 }
-                await this.$net.requestPaasServer(urlDesc, {
-                  payload: toPost
-                });
-                this.$alert(`工单 "${this.formData.name}" ${action}成功，即将进入工单列表页`, `${action}工单成功`, {
-                  confirmButtonText: '确定',
-                  callback: () => {
-                    this.$router.push(this.$net.page['profile/work-order/list']);
-                  }
-                });
-                this.showLoading = false;
-                this.loadingText = '';
-              } catch (err) {
-                this.showLoading = false;
-                this.loadingText = '';
+              });
+            } catch (err) {
+              if (!sectionFeatureOK) {
+                this.$message.error('请检查"功能列表"部分是否正确');
+              } else if (!sectionAppOK) {
+                this.$message.error('请检查"程序列表"部分是否正确');
+              } else if (!sectionAcceptanceOK) {
+                this.$message.error('请检查"验收信息"部分是否正确');
+              } else {
                 this.$notify.error({
-                  title: `${action}工单失败`,
+                  title: `${options.actionName}工单失败`,
                   message: msg
                 });
               }
-            } else {
-              let [basicCheck, featureCheck, appCheck, acceptanceCheck] = results;
-              if (!featureCheck) {
-                this.$message.error('请检查"功能列表"部分是否正确');
-              } else if (!appCheck) {
-                this.$message.error('请检查"程序列表"部分是否正确');
-              } else if (!acceptanceCheck) {
-                this.$message.error('请检查"验收信息"部分是否正确');
-              }
+            } finally {
+              this.showLoading = false;
+              this.loadingText = '';
             }
             break;
           case 'remove':
