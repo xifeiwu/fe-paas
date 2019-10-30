@@ -173,7 +173,9 @@
               </el-checkbox>
             </el-checkbox-group>
             <el-checkbox v-if="grayStrategyFromNet.listIngress" v-model="grayStrategy.ingressSelected">
-              {{grayStrategyFromNet.listIngress.map(it => `${it.host}(${it.isIntranet ? '内网域名' : '外网域名'})`).join(', ')}}
+              <div v-for="(it, index) in grayStrategyFromNet.listIngress" :key="index">
+                {{`${it.host}(${it.isIntranet ? '内网域名' : '外网域名'})`}}
+              </div>
             </el-checkbox>
             <i class="el-icon-question" style="width: 18px; line-height: 26px; margin-left: 6px;" v-if="false"
                v-pop-on-mouse-over="'域名只能同时生效，或同时不生效'"></i>
