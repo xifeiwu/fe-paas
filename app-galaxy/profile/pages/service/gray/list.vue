@@ -105,12 +105,12 @@
       <div class="strategy-show" v-if="!(step<STATE['WORK_ORDER_DEPLOYED'])">
         <div class="title">灰度策略</div>
         <el-form size="mini" class="message-show"
-                 label-width="130px" v-if="grayStrategyFromNet && grayStrategy.listIngress && grayStrategy.listIngress.length > 0">
+                 label-width="130px" v-if="grayStrategyFromNet && grayStrategyToShow.listIngress && grayStrategyToShow.listIngress.length > 0">
           <el-form-item label="相关域名" class="">
-            {{grayStrategy.listIngress.join('， ')}}
+            {{grayStrategyToShow.listIngress.join('， ')}}
           </el-form-item>
           <el-form-item label="主/灰服务实例数" class="instance-number">
-            <span>{{grayStrategy.masterInstanceNum}} / {{grayStrategy.canaryInstanceNum}}</span>
+            <span>{{grayStrategyToShow.masterInstanceNum}} / {{grayStrategyToShow.canaryInstanceNum}}</span>
             <i class="el-icon-question" style="color: #E6A23C; margin-left: 6px;"
                v-pop-on-mouse-over="'主服务及灰度服务实例数不能少于一个'">
             </i>
@@ -122,23 +122,23 @@
             </el-row>
             <el-row class="rule request-header">
               <el-col :span="8" class="name">
-                <el-checkbox v-model="grayStrategy.headerKeySelected" :disabled="true">request header</el-checkbox>
+                <el-checkbox v-model="grayStrategyToShow.headerKeySelected" :disabled="true">request header</el-checkbox>
               </el-col>
               <el-col :span="16" class="value">
-                <span>属性/匹配值: </span><span>{{grayStrategy.headerKey ? grayStrategy.headerKey:'---'}}/{{grayStrategy.headerValue ? grayStrategy.headerValue:'---'}}</span>
+                <span>属性/匹配值: </span><span>{{grayStrategyToShow.headerKey ? grayStrategyToShow.headerKey:'---'}}/{{grayStrategyToShow.headerValue ? grayStrategyToShow.headerValue:'---'}}</span>
               </el-col>
             </el-row>
             <el-row class="rule">
               <el-col :span="8" class="name">
-                <el-checkbox v-model="grayStrategy.cookieSelected":disabled="true">cookie</el-checkbox>
+                <el-checkbox v-model="grayStrategyToShow.cookieSelected":disabled="true">cookie</el-checkbox>
               </el-col>
-              <el-col :span="16" class="value">{{grayStrategy.cookie}}</el-col>
+              <el-col :span="16" class="value">{{grayStrategyToShow.cookie}}</el-col>
             </el-row>
             <el-row class="rule">
               <el-col :span="8" class="name">
-                <el-checkbox v-model="grayStrategy.weightSelected":disabled="true">weight</el-checkbox>
+                <el-checkbox v-model="grayStrategyToShow.weightSelected":disabled="true">weight</el-checkbox>
               </el-col>
-              <el-col :span="16" class="value">{{grayStrategy.weightSelected ?  `${grayStrategy.weight}%` : '---'}}</el-col>
+              <el-col :span="16" class="value">{{grayStrategyToShow.weightSelected ?  `${grayStrategyToShow.weight}%` : '---'}}</el-col>
             </el-row>
           </el-form-item>
         </el-form>
@@ -488,6 +488,8 @@
           weightSelected: false,
           weight: 0,
         },
+        // 用于展示灰度策略（grayStrategy用于用户修改灰度策略，两者应该区分开）
+        grayStrategyToShow: {},
         dialogStatusGrayApply: {
           title: '',
           visible: false,
@@ -690,7 +692,8 @@
           }]
         }
       },
-      // 获取灰度策略，type: strategy or instance_count
+      // 获取灰度策略，type: strategy or instance_count.
+      // NOTICE: props of instance_count is include in props of startegy
       async syncStrategyFromServer(type) {
         const payload = {
           configId: this.serviceId,
@@ -705,22 +708,33 @@
           payload
         });
 
+        // grayStrategyToShow用来展示灰度策略使用
+        const setGrayStrategyToShow = () => {
+          this.grayStrategyToShow = this.$utils.deepMerge({}, this.grayStrategy);
+//        this.grayStrategyToShow = this.grayStrategy;
+        }
+
         switch (type) {
           case 'strategy':
-            this.grayStrategy.ingressSelected = null;
-            setTimeout(() => {
-              // set in setTimeout make sure grayStrategy.ingressSelected is watched
-              this.grayStrategy.ingressSelected = grayStrategyFromNet['listIngress'].some(it => it.hasCanary);
-            });
             this.grayStrategy.canaryInstanceNum = grayStrategyFromNet.canaryInstanceNum >= 0 ? grayStrategyFromNet.canaryInstanceNum : 0;
             this.grayStrategy.masterInstanceNum = grayStrategyFromNet.masterInstanceNum >= 0 ? grayStrategyFromNet.masterInstanceNum : 0;
             this.grayStrategy.headerKeySelected = grayStrategyFromNet.headerKeySelected;
             // set in setTimeout make sure grayStrategy.ingressSelected is watched
             this.grayStrategy.headerKey = null;
             this.grayStrategy.headerValue = null;
+            // NOTICE: 后端返回的数据是listIngress数组(Array)，前端转化成是否同时选中(Boolean)。
+            this.grayStrategy.ingressSelected = null;
             setTimeout(() => {
+              // set in setTimeout make sure grayStrategy.ingressSelected is watched
+              this.grayStrategy.ingressSelected = grayStrategyFromNet['listIngress'].some(it => it.hasCanary);
+              if (this.grayStrategy.ingressSelected && grayStrategyFromNet.listIngress) {
+                this.grayStrategy.listIngress = grayStrategyFromNet.listIngress.map(it => it.host);
+              } else {
+                this.grayStrategy.listIngress = [];
+              }
               this.grayStrategy.headerKey = grayStrategyFromNet.headerKey ? grayStrategyFromNet.headerKey : '';
               this.grayStrategy.headerValue = grayStrategyFromNet.headerValue ? grayStrategyFromNet.headerValue : '';
+              setGrayStrategyToShow();
             });
 
             this.grayStrategy.cookieSelected = grayStrategyFromNet.cookieSelected;
@@ -733,6 +747,7 @@
             this.grayStrategy.canaryInstanceNum = grayStrategyFromNet.canaryInstanceNum >= 0 ? grayStrategyFromNet.canaryInstanceNum : 0;
             this.grayStrategy.masterInstanceNum = grayStrategyFromNet.masterInstanceNum >= 0 ? grayStrategyFromNet.masterInstanceNum : 0;
             grayStrategyFromNet.totalInstanceNum = grayStrategyFromNet.masterInstanceNum + grayStrategyFromNet.canaryInstanceNum;
+            setGrayStrategyToShow();
             break;
         }
 
@@ -844,6 +859,7 @@
               console.log(err);
             } finally {
               this.closeDialog();
+              await this.syncStrategyFromServer('strategy');
             }
             break;
           case 'open_dialog_service_gray_update_strategy':
@@ -885,6 +901,7 @@
               console.log(err);
             } finally {
               this.closeDialog();
+              await this.syncStrategyFromServer('strategy');
             }
             break;
           case 'service_gray_apply':
