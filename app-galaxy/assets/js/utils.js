@@ -461,20 +461,32 @@ export default class Utils extends BaseUtils {
    * @param {Object} obj1 Object to merge
    * @returns {Object} Result of all merge properties
    */
-  deepMerge(/* obj1, obj2, obj3, ... */) {
+  deepMerge(...args) {
+    const hasArray = args.some(it => Array.isArray(it));
     var result = {};
+    if (hasArray) {
+      args = args.filter(it => Array.isArray(it));
+      result = [];
+    }
     const assignValue = (val, key) => {
-      if (typeof result[key] === 'object' && typeof val === 'object') {
-        result[key] = this.deepMerge(result[key], val);
+      if (this.isDate(val) || this.isRegExp(val) || null == val) {
+        result[key] = val;
+      } else if (Array.isArray(val)) {
+        // override if origin is Array
+        result[key] = this.deepMerge(val);
       } else if (typeof val === 'object') {
-        result[key] = this.deepMerge({}, val);
+        if (typeof result[key] === 'object') {
+          result[key] = this.deepMerge(result[key], val);
+        } else {
+          result[key] = this.deepMerge({}, val);
+        }
       } else {
         result[key] = val;
       }
-    }
+    };
 
-    for (var i = 0, l = arguments.length; i < l; i++) {
-      this.forEach(arguments[i], assignValue);
+    for (var i = 0, l = args.length; i < l; i++) {
+      this.forEach(args[i], assignValue);
     }
     return result;
   }
