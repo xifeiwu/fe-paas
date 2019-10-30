@@ -92,6 +92,12 @@ class Net extends NetBase {
           router: this.page['profile/oauth'],
           icon: 'paas-icon-key'
         },
+        // api网关
+        '/2.x/gateway': {
+          name: 'API网关',
+          router: this.page['profile/gateway'],
+          icon: 'paas-icon-key'
+        },
         // 审批管理
         '/2.x/orders': {
           router: this.page['profile/work-order'],
@@ -144,7 +150,9 @@ class Net extends NetBase {
         // '/2.x/openShift/redis', // redis中间件
         '/2.x/backstage'// "后台管理"
       ];
-      menuList = content.menuList.map(it => {
+      menuList = content.menuList.concat([{
+        path: '/2.x/gateway'
+      }]).map(it => {
         // append some property to each item
         return updateMenuConfig(it);
       }).filter(it => {
@@ -227,6 +235,7 @@ class Net extends NetBase {
       '/2.x/internet', // 外网域名
       '/2.x/logs', // 日志中心
       '/2.x/apm', // 应用监控
+      '/2.x/gateway', // api网关
       '/2.x/orders' // 审批管理
     ];
     const pathOfMiddleware = [

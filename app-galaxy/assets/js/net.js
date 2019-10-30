@@ -170,6 +170,7 @@ class Net extends Common {
       'profile/oauth': '/profile/oauth',
       'profile/oauth/key': '/profile/oauth/key',
       'profile/oauth/url': '/profile/oauth/url',
+      'profile/gateway': '/profile/gateway',
       'profile/work-order': '/profile/work-order',
       'profile/work-order/list': '/profile/work-order/list',
       'profile/work-order/todo': '/profile/work-order/todo',
