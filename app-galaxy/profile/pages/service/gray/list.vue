@@ -775,7 +775,7 @@
         const target = evt.target;
 
         if (action == 'service_gray_create' && this.canaryStatus && !this.canaryStatus['hasVersionLabel']) {
-          await this.$alert('如需使用灰度发布，请先重启或重新部署该服务', '提示');
+          await this.$alert('首次使用灰度发布，请先重启或重新部署该服务', '提示');
           return;
         }
 
