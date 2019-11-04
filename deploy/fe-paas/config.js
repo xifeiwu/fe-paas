@@ -51,11 +51,11 @@ function getServer(server) {
   switch (env) {
     case 'production':
       paasServer = 'http://galaxy-web-server.galaxy.production';
-      assistServer = 'http://172.31.160.106:6002';
+      assistServer = 'http://192.168.197.6:6003';
       break;
     case 'production_gray':
-      paasServer = 'http://172.31.160.103:30334';
-      assistServer = 'http://172.31.160.103:6003';
+      paasServer = 'http://192.168.197.7:30334';
+      assistServer = 'http://192.168.197.7:6003';
       break;
     case 'test':
       paasServer = 'http://10.10.202.143:30334';
