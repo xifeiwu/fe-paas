@@ -60,12 +60,6 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="生产环境版本" prop="serviceVersion" :error="serviceVersionError.description" v-if="false">
-          <el-select v-model="workOrderForm.serviceVersion"
-                     :placeholder="versionList.length > 0 ? '请选择': '当前应用的生产环境下没有版本'">
-            <el-option v-for="(item, index) in versionList" :key="index" :label="item" :value="item"></el-option>
-          </el-select>
-        </el-form-item>
       </el-form>
     </div>
     <div class="acceptance-section">
@@ -263,7 +257,6 @@
 <script>
   import WorkOrderPropUtils from '../utils/work-order-props';
   import MyFeature from '../components/feature.vue';
-  const debug = browserDebug('pass-fe:work-order/todo/modify');
 
   export default {
     components: {MyFeature},
@@ -283,7 +276,6 @@
             this.workOrderForm.featureList = detail['featureList'];
             this.workOrderForm.appID = detail['appID'];
             this.workOrderForm.appName = detail['appName'];
-            this.workOrderForm.serviceVersion = detail['serviceVersion'];
             this.workOrderForm.acceptedUserIdList = detail['acceptedUserIdList'];
             this.workOrderForm.notifyUserIdList = detail['notifyUserIdList'];
             this.workOrderForm.operationList = detail['operationList'];
@@ -328,24 +320,11 @@
           featureList: [],
           appID: null,
           appName: null,
-          serviceVersion: '',
           acceptedUserIdList: [],
           notifyUserIdList: [],
           operationList: [],
           mailGroupList: [],
           comment: '',
-        },
-        versionList: [],
-
-        serviceVersionError: {
-          isOK: true,
-          reason: 'NO',
-          description: ''
-        },
-        serviceVersionState: {
-          'WORK_ORDER_HAS_EXIST': '该服务有正在处理的工单',
-          'NO_PRODUCTION_VERSION': '该应用无生产环境版本',
-          'GET_VERSION_LIST_FAIL': '获取版本列表失败'
         },
       };
     },
@@ -367,31 +346,7 @@
         if (appInfo && appInfo.hasOwnProperty('app')) {
           this.workOrderForm.appName = appInfo.app.appName;
         }
-        this.requestProductVersionList(value);
-      },
-      'workOrderForm.serviceVersion': function (value) {
-        if (!value) {
-          return;
-        }
-        if (this.workOrderForm.appID && this.workOrderForm.serviceVersion) {
-          this.$net.checkWorkOrderHandling({
-            workOrderId: this.workOrderForm.id,
-            appId: this.workOrderForm.appID,
-            serviceVersion: this.workOrderForm.serviceVersion
-          }).then((msg) => {
-            this.serviceVersionError.isOK = true;
-            this.serviceVersionError.description = '';
-          }).catch((msg) => {
-            this.serviceVersionError.isOK = false;
-            this.serviceVersionError.reason = 'WORK_ORDER_HAS_EXIST';
-            msg = msg.trim();
-            if (this.serviceVersionError.description == msg) {
-              this.serviceVersionError.description = msg + ' ';
-            } else {
-              this.serviceVersionError.description = msg;
-            }
-          });
-        }
+//        this.requestProductVersionList(value);
       },
 //      '$storeHelper.currentGroupID': 'onCurrentGroupID',
     },
@@ -471,54 +426,6 @@
       },
 
       /**
-       * request version list when selectedAppId or selectedProfileId is changed
-       */
-      requestProductVersionList(appID) {
-        let spaceID = null;
-        let profileInfo = this.$storeHelper.getProductionProfile();
-        if (profileInfo && profileInfo.hasOwnProperty('id')) {
-          spaceID = profileInfo.id;
-        }
-        if (!appID || !spaceID) {
-          console.log('appID or spaceID can not be empty');
-          return;
-        }
-        this.versionList = [];
-        this.versionList = [];
-        this.$net.getServiceVersion({
-          appId: appID,
-          spaceId: spaceID
-        }).then(content => {
-          if (content.hasOwnProperty('version')) {
-            const version = content.version;
-            if (version && Array.isArray(version) && version.length > 0) {
-              this.versionList = version;
-              // use version passed from dataTransfer if it exist in versionList
-              const currentVersion = this.workOrderForm.serviceVersion;
-              // make sure this.workOrderForm.serviceVersion is changed
-              this.workOrderForm.serviceVersion = this.$storeHelper.SERVICE_ID_FOR_NULL;
-              setTimeout(() => {
-                this.workOrderForm.serviceVersion = version.indexOf(currentVersion) > -1 ? currentVersion : version[0];
-              });
-            } else {
-              this.workOrderForm.serviceVersion = this.$storeHelper.SERVICE_ID_FOR_NULL;
-              this.serviceVersionError.isOK = false;
-              this.serviceVersionError.reason = 'NO_PRODUCTION_VERSION';
-              this.serviceVersionError.description = '';
-              this.serviceVersionError.description = this.serviceVersionState['NO_PRODUCTION_VERSION'];
-            }
-          }
-        }).catch(err => {
-          console.log(err);
-          this.serviceVersionError.isOK = false;
-          this.serviceVersionError.reason = 'GET_VERSION_LIST_FAIL';
-          this.serviceVersionError.description = '';
-          this.serviceVersionError.description = this.serviceVersionState['GET_VERSION_LIST_FAIL'];
-        });
-      },
-
-
-      /**
        * action for add or remove mailGroup
        * @param action
        * @param domain
@@ -591,22 +498,13 @@
                 });
               resolve(valid);
             });
-            let applicationPromise = new Promise((resolve, reject) => {
-              if (!this.serviceVersionError.isOK) {
-                resolve(false);
-              } else {
-                this.$refs['applicationForm'].validate((valid) => {
-                  resolve(valid);
-                });
-              }
-            });
             let acceptancePromise = new Promise((resolve, reject) => {
               this.$refs['acceptanceForm'].validate((valid) => {
 //            console.log(valid);
                 resolve(valid);
               });
             });
-            Promise.all([basicPromise, featurePromise, applicationPromise, acceptancePromise]).then(results => {
+            Promise.all([basicPromise, featurePromise, acceptancePromise]).then(results => {
               if (!Array.isArray(results)) {
                 return;
               }
@@ -614,12 +512,6 @@
                 return sum && valid;
               });
               if (valid) {
-                // check if a work-order in handling first
-                if (!this.serviceVersionError.isOK ) {
-                  let reason = this.serviceVersionError.reason;
-                  this.$message.error(this.serviceVersionState[reason]);
-                  return;
-                }
                 let toPost = {
                   workOrderDeploy: {
                     // id should be add when modify work-order
@@ -641,7 +533,6 @@
                 toPost.workOrderDeployAppList = [{
                   appId: this.workOrderForm.appID,
                   appName: this.workOrderForm.appName,
-                  serviceVersion: this.workOrderForm.serviceVersion,
                 }];
                 // 验收人
                 let userAcceptedList = this.$storeHelper.getUserInfoByID(this.workOrderForm.acceptedUserIdList);
