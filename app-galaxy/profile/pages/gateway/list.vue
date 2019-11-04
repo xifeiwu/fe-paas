@@ -18,71 +18,36 @@
               style="width: 100%"
               :height="heightOfTable"
       >
-        <!--<el-table-column-->
-                <!--prop="id"-->
-                <!--label="实例名称"-->
-                <!--minWidth="100"-->
-                <!--headerAlign="left" align="left">-->
-          <!--<template slot-scope="scope">-->
-            <!--<span class="link">{{scope.row.id}}</span>-->
-            <!--<i class="paas-icon-copy"-->
-               <!--v-clipboard:copy="scope.row.id"-->
-               <!--v-clipboard:success="handleSuccessCopy"></i>-->
-            <!--<span v-if="scope.row.hasCanary" :style="{border: '1px solid #409EFF', color: '#409EFF',-->
-             <!--'font-size': '12px', padding: '1px','border-radius': '4px'}"-->
-            <!--&gt;灰度</span>-->
-          <!--</template>-->
-        <!--</el-table-column>-->
-        <!--<el-table-column-->
-                <!--prop="nodeName"-->
-                <!--label="运行节点"-->
-                <!--minWidth="70"-->
-                <!--headerAlign="left" align="left">-->
-          <!--<template slot-scope="scope">-->
-            <!--<span-->
-                    <!--:class="['running-node', isProductionProfile ? 'production': 'un-production']"-->
-                    <!--@click="handleRowButtonClick($event, 'show_eagleeye', scope.$index, scope.row)"-->
-            <!--&gt;{{scope.row.nodeName}}</span>-->
-          <!--</template>-->
-        <!--</el-table-column>-->
-        <!--<el-table-column-->
-                <!--prop="status"-->
-                <!--label="健康状态"-->
-                <!--width="110"-->
-                <!--headerAlign="center" align="center"-->
-        <!--&gt;-->
-          <!--<template slot-scope="scope">-->
-            <!--<div>-->
-              <!--<span>{{scope.row.status ? scope.row.status : ''}}</span>-->
-              <!--<span :style="{border: !isMesosService ? '1px solid #409EFF' : '1px solid #b4bccc', color: !isMesosService ? '#409EFF':'#b4bccc',-->
-             <!--'font-size': '12px', cursor: 'pointer', padding: '1px','border-radius': '4px'}"-->
-                    <!--@click="handleRowButtonClick($event, 'instance-status-container',scope.$index,scope.row)"-->
-              <!--&gt;详情</span>-->
-            <!--</div>-->
-          <!--</template>-->
-        <!--</el-table-column>-->
-        <!--<el-table-column-->
-                <!--prop="intranetIP"-->
-                <!--label="内网IP"-->
-                <!--width="90"-->
-                <!--headerAlign="center" align="center">-->
-          <!--<template slot-scope="scope">-->
-            <!--<span-->
-                    <!--:class="['running-node', isProductionProfile ? 'production': 'un-production']"-->
-                    <!--@click="handleRowButtonClick($event, 'show_intranet', scope.$index, scope.row)"-->
-            <!--&gt;{{scope.row.intranetIP}}</span>-->
-            <!--<i class="paas-icon-copy"-->
-               <!--v-clipboard:copy="scope.row.intranetIP"-->
-               <!--v-clipboard:success="handleSuccessCopy"></i>-->
-          <!--</template>-->
-        <!--</el-table-column>-->
-        <!--<el-table-column-->
-                <!--label="使用内存/总内存"-->
-                <!--prop="memoryStatus"-->
-                <!--width="150"-->
-                <!--sortable="custom"-->
-                <!--headerAlign="center" align="center">-->
-        <!--</el-table-column>-->
+        <el-table-column
+                label="网关名称"
+                prop="gatewayName"
+                minWidth="150"
+                headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column
+                label="应用名称"
+                prop="appName"
+                minWidth="150"
+                headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column
+                label="运行环境"
+                prop="profileDescription"
+                width="120"
+                headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column
+                label="域名"
+                prop="domain"
+                minWidth="150"
+                headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column
+                label="请求路径"
+                prop="domain"
+                minWidth="100"
+                headerAlign="center" align="center">
+        </el-table-column>
         <!--<el-table-column-->
                 <!--prop="cpuUsageInPercent"-->
                 <!--label="CPU使用率"-->
@@ -90,46 +55,29 @@
                 <!--sortable="custom"-->
                 <!--headerAlign="center" align="center">-->
         <!--</el-table-column>-->
-        <!--<el-table-column-->
-                <!--label="创建时间"-->
-                <!--prop="formattedCreateTime"-->
-                <!--sortable="custom"-->
-                <!--width="100"-->
-                <!--headerAlign="center" align="center">-->
-          <!--<template slot-scope="scope">-->
-            <!--<div v-if="Array.isArray(scope.row.formattedCreateTime)">-->
-              <!--<div v-for="(item, index) in scope.row.formattedCreateTime" :key="index">-->
-                <!--{{item}}-->
-              <!--</div>-->
-            <!--</div>-->
-            <!--<div v-else>{{scope.row.formattedCreateTime}}</div>-->
-          <!--</template>-->
-        <!--</el-table-column>-->
-        <!--<el-table-column-->
-                <!--label="k8s重启时间"-->
-                <!--prop="formattedStartTime"-->
-                <!--sortable="custom"-->
-                <!--width="110"-->
-                <!--headerAlign="center" align="center"-->
-                <!--v-if="!isMesosService">-->
-          <!--<template slot-scope="scope">-->
-            <!--<div v-if="Array.isArray(scope.row.formattedStartTime)">-->
-              <!--<div v-for="(item, index) in scope.row.formattedStartTime" :key="index">-->
-                <!--{{item}}-->
-              <!--</div>-->
-            <!--</div>-->
-            <!--<div v-else>{{scope.row.formattedStartTime}}</div>-->
-          <!--</template>-->
-        <!--</el-table-column>-->
-        <!--<el-table-column-->
-                <!--prop="restartCount"-->
-                <!--label="K8s重启次数"-->
-                <!--width="100"-->
-                <!--headerAlign="center" align="center"-->
-                <!--v-if="!isMesosService">-->
-        <!--</el-table-column>-->
-        <!--<el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="100">-->
-          <!--<template slot-scope="scope">-->
+        <el-table-column
+                label="配置时间"
+                prop="formattedCreateTime"
+                sortable="custom"
+                width="100"
+                headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <div v-if="Array.isArray(scope.row.formattedCreateTime)">
+              <div v-for="(item, index) in scope.row.formattedCreateTime" :key="index">
+                {{item}}
+              </div>
+            </div>
+            <div v-else>{{scope.row.formattedCreateTime}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column
+                label="创建人"
+                prop="creatorName"
+                width="120"
+                headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="100">
+          <template slot-scope="scope">
             <!--<el-button-->
                     <!--type="text"-->
                     <!--v-if="true"-->
@@ -139,8 +87,8 @@
               <!--<span>驱逐</span>-->
             <!--</el-button>-->
             <!--<div class="ant-divider"></div>-->
-          <!--</template>-->
-        <!--</el-table-column>-->
+          </template>
+        </el-table-column>
       </el-table>
     </div>
 
@@ -229,7 +177,6 @@
     },
     mounted() {
       this.onScreenSizeChange(this.$storeHelper.screen.size);
-
     },
     beforeDestroy() {
     },
@@ -255,7 +202,7 @@
         try {
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
-          this.heightOfTable = this.$el.clientHeight - headerHeight;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - 24;
           // this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
         } catch(err) {
         }
@@ -296,10 +243,21 @@
             "spaceId": 2
           }
         });
-        console.log(resData);
-
-
+        resData.forEach(it => {
+          it.gateway = it.gateway ? it.gateway : '---';
+          it.appName = it.appName ? it.appName : '---';
+          const profileInfo = this.$storeHelper.getProfileInfoByID(it.spaceId);
+          it.profileDescription = profileInfo ? profileInfo.description : '---';
+          it.domain = (Array.isArray(it.domainList) && it.domainList.length > 0) ? it.domainList.join(', ') : '---';
+          if (it['createTimestamp']) {
+            it.formattedCreateTime = this.$utils.formatDate(it.createTimestamp, 'yyyy-MM-dd hh:mm:ss').split(' ');
+          } else {
+            it.formattedCreateTime = '---';
+          }
+        });
+        this.gatewayList = resData;
       },
+
       async handleClick(evt, action) {
         switch (action) {
           case 'refresh':
