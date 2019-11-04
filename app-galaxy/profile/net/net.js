@@ -637,6 +637,11 @@ class Net extends NetBase {
         method: 'post'
       },
 
+      /***/
+      'gateway_list': {
+        path: '/gateway/queryGatewayByAppIdAndSpaceId',
+        method: 'post'
+      },
       /**工单相关*/
       // 工单列表
       'work_order_list': {
