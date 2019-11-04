@@ -647,11 +647,23 @@ class Net extends NetBase {
         method: 'post'
       },
 
-      /***/
+      /** API网关相关 */
+      // 网关列表
       'gateway_list': {
         path: '/gateway/queryGatewayByAppIdAndSpaceId',
         method: 'post'
       },
+      // 创建网关相关参数
+      'gateway_create_related': {
+        path: '/gateway/getCreateApiInfo',
+        method: 'get'
+      },
+      // 创建网关默认配置
+      'gateway_create': {
+        path: '/gateway/addGateway',
+        method: 'post'
+      },
+
       /**工单相关*/
       // 工单列表
       'work_order_list': {

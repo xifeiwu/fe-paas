@@ -9,7 +9,6 @@
 <script>
   export default {
     created() {
-      console.log(this.$route.query);
       if (!this.$utils.hasProps(this.$route.query, 'groupId', 'appId', 'spaceId')) {
         this.$message.error(`信息不完整：'groupId', 'appId', 'spaceId'`);
         this.$router.push(this.$router.helper.pages['/profile/gateway'].fullPath);
@@ -18,11 +17,12 @@
       this.groupId = this.$route.query['groupId'];
       this.appId = this.$route.query['appId'];
       this.profileId = this.$route.query['spaceId'];
-      console.log({
-        groupId: this.groupId,
-        appId: this.appId,
-        profileId: this.profileId,
-      })
+//      console.log({
+//        groupId: this.groupId,
+//        appId: this.appId,
+//        profileId: this.profileId,
+//      });
+      this.requestRelatedInfoFromNet();
     },
     mounted() {
     },
@@ -30,10 +30,28 @@
       return {
         groupId: null,
         appId: null,
-        profileId: null
+        profileId: null,
+        relatedInfo: {
+
+        }
       }
     },
     methods: {
+      async requestRelatedInfoFromNet() {
+        this.$net.requestPaasServer(this.$net.URL_LIST.gateway_create_related, {
+          query: {
+            groupId: this.groupId,
+            appId: this.appId,
+            spaceId: this.profileId,
+          }
+        });
+//        this.$net.requestPaasServer(this.$net.URL_LIST.gateway_create_related, {
+//          query: {
+//
+//          }
+//        });
+        const results = await Promise.all()
+      }
 
     }
   }

@@ -2,8 +2,13 @@
   <div id="gateway-list">
     <div class="header">
       <div class="item">
-        <paas-version-selector :customConfig="config4VersionSelector" ref="version-selector"
-                               @version-selected="updateServiceSelected"></paas-version-selector>
+        <!--<paas-version-selector :customConfig="config4VersionSelector" ref="version-selector"-->
+                               <!--@version-selected="getSelectedService"></paas-version-selector>-->
+        <paas-service-selector
+                ref="service-selector"
+                :addItemAll="{app: false, profile: false}"
+                :customConfig="config4ServiceSelector"
+                @service-selected="onServiceSelected"></paas-service-selector>
       </div>
       <div class="item">
         <el-button v-if="true"
@@ -42,7 +47,7 @@
         </el-table-column>
         <el-table-column
                 label="域名"
-                prop="domain"
+                prop="host"
                 minWidth="150"
                 headerAlign="center" align="center">
         </el-table-column>
@@ -163,24 +168,25 @@
 </style>
 
 <script>
+  import paasServiceSelector from '../components/service-selector.vue';
   import PaasVersionSelector from "../components/version-selector";
   import commonUtils from 'assets/components/mixins/common-utils';
 
   export default {
     mixins: [commonUtils],
-    components: { PaasVersionSelector},
+    components: {paasServiceSelector, PaasVersionSelector},
 
     /**
      * the sequence of create and mount in parent and child element is:
      * create parent -> create children -> mount children -> mount parent
      *
-     * as this.config4VersionSelector is used in child component, as it must be set in created method
      */
     created() {
-      this.requestList();
     },
     mounted() {
-      this.onScreenSizeChange(this.$storeHelper.screen.size);
+      this.$nextTick(() => {
+        this.onScreenSizeChange(this.$storeHelper.screen.size);
+      });
     },
     beforeDestroy() {
     },
@@ -189,6 +195,7 @@
     data() {
       return {
         config4VersionSelector: null,
+        config4ServiceSelector: null,
         appInfo: null,
         profileInfo: null,
         heightOfTable: '',
@@ -220,27 +227,38 @@
 
       /**
        * get current app/profile(service) selected
+       * NOTICE: at start of this page, requestList should be called when onServiceSelected is called
        */
-      updateServiceSelected() {
-        let serviceInfo = this.$refs['version-selector'].getSelectedValue();
-        if (!this.$utils.propExists(serviceInfo, 'selectedAPP.appId')) {
+      onServiceSelected(selectedAPP, selectedProfile) {
+        if (!selectedAPP || !selectedProfile) {
+          return;
+        }
+        console.log(selectedAPP, selectedProfile);
+        this.appInfo = selectedAPP;
+        this.profileInfo = selectedProfile;
+        this.requestList();
+      },
+      getSelectedService() {
+        let selectedInfo = this.$refs['service-selector'].getSelectedInfo();
+        if (!this.$utils.propExists(selectedInfo, 'selectedAPP.appId')) {
           console.log(`selectedApp.appId not exist!`);
           return null;
         }
-        if (!this.$utils.propExists(serviceInfo, 'selectedProfile.id')) {
+        if (!this.$utils.propExists(selectedInfo, 'selectedProfile.id')) {
           console.log(`selectedProfile.id not exist!`);
           return null;
         }
-        this.appInfo = serviceInfo.selectedAPP;
-        this.profileInfo = serviceInfo.selectedProfile;
+        this.appInfo = selectedInfo.selectedAPP;
+        this.profileInfo = selectedInfo.selectedProfile;
       },
 
       async requestList() {
         this.gatewayList = [];
         const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_list, {
           payload: {
-            "groupId": 251,
-            "spaceId": 2
+            groupId: this.$storeHelper.groupInfo.id,
+            appId: this.appInfo.appId,
+            spaceId: this.profileInfo.id,
           }
         });
         resData.forEach(it => {
@@ -261,7 +279,6 @@
       async handleClick(evt, action) {
         switch (action) {
           case 'gateway_create':
-            this.updateServiceSelected();
             this.$router.push({
               path: this.$router.helper.pages['/profile/gateway/add'].fullPath,
               query: {
