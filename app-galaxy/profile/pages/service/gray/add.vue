@@ -1104,7 +1104,7 @@
             return;
           }
           this.memorySizeList = cpuInfo.memoryList;
-          if ((this.forModify || this.forCopy) && !this.propsUsed.memoryId) {
+          if ((this.forModify || this.forCopy || this.forGray) && !this.propsUsed.memoryId) {
             // check if memoryId existed in memorySizeList
             if (this.memorySizeList.map(it => {
               return it.id
