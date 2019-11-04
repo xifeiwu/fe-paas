@@ -44,6 +44,7 @@ import MonitorMain from './monitor/main.vue';
 
 /** api网关 */
 import gatewayList from './gateway/list.vue';
+import gatewayAdd from './gateway/add.vue';
 
 /** AccessKey管理 */
 import OAuthMain from './oauth/main.vue';
@@ -270,11 +271,16 @@ class Helper extends RouterHelper {
       }]
     }, {
       path: '/profile/gateway',
+      name: 'API网关',
       redirect: '/profile/gateway/list',
     }, {
       path: '/profile/gateway/list',
-      name: '网关列表',
+      name: '列表',
       component: gatewayList
+    }, {
+      path: '/profile/gateway/add',
+      name: '添加',
+      component: gatewayAdd
     }, {
       path: '/profile/work-order',
       // label: '审批管理',

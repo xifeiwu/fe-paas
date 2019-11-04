@@ -3,13 +3,17 @@
     <div class="header">
       <div class="item">
         <paas-version-selector :customConfig="config4VersionSelector" ref="version-selector"
-                               @version-selected="onVersionSelected"></paas-version-selector>
+                               @version-selected="updateServiceSelected"></paas-version-selector>
       </div>
       <div class="item">
         <el-button v-if="true"
                    size="mini"
                    type="primary"
                    @click="handleClick($event, 'refresh')">刷新</el-button>
+        <el-button v-if="true"
+                   size="mini"
+                   type="primary"
+                   @click="handleClick($event, 'gateway_create')">创建API</el-button>
       </div>
     </div>
     <div class="list">
@@ -22,13 +26,13 @@
                 label="网关名称"
                 prop="gatewayName"
                 minWidth="150"
-                headerAlign="center" align="center">
+                headerAlign="left" align="left">
         </el-table-column>
         <el-table-column
                 label="应用名称"
                 prop="appName"
                 minWidth="150"
-                headerAlign="center" align="center">
+                headerAlign="left" align="left">
         </el-table-column>
         <el-table-column
                 label="运行环境"
@@ -213,28 +217,24 @@
           msg: '复制成功'
         });
       },
-      onVersionSelected(appInfo, profileInfo, serviceInfo) {
-//        console.log(appInfo, profileInfo, serviceInfo);
-        // 获取服务运行时信息
-        if (!appInfo || !profileInfo || !serviceInfo) {
-          return;
+
+      /**
+       * get current app/profile(service) selected
+       */
+      updateServiceSelected() {
+        let serviceInfo = this.$refs['version-selector'].getSelectedValue();
+        if (!this.$utils.propExists(serviceInfo, 'selectedAPP.appId')) {
+          console.log(`selectedApp.appId not exist!`);
+          return null;
         }
-        this.profileInfo = profileInfo;
-        // save to localStorage after selected change
-        this.$store.dispatch('user/config', {
-          page: 'instance',
-          data: {
-            appId: appInfo.appId,
-            profileId: profileInfo.id,
-            serviceId: serviceInfo.id
-          }
-        });
-        // 是否mesos服务
-//        this.requestInstanceList(
-//          appInfo.appId,
-//          profileInfo.id,
-//        );
+        if (!this.$utils.propExists(serviceInfo, 'selectedProfile.id')) {
+          console.log(`selectedProfile.id not exist!`);
+          return null;
+        }
+        this.appInfo = serviceInfo.selectedAPP;
+        this.profileInfo = serviceInfo.selectedProfile;
       },
+
       async requestList() {
         this.gatewayList = [];
         const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_list, {
@@ -260,6 +260,17 @@
 
       async handleClick(evt, action) {
         switch (action) {
+          case 'gateway_create':
+            this.updateServiceSelected();
+            this.$router.push({
+              path: this.$router.helper.pages['/profile/gateway/add'].fullPath,
+              query: {
+                groupId: this.$storeHelper.groupInfo.id,
+                appId: this.appInfo.appId,
+                spaceId: this.profileInfo.id
+              }
+            });
+            break;
           case 'refresh':
             this.requestList();
             break;
