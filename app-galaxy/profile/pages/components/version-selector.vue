@@ -328,37 +328,6 @@
           selectedService: this.selectedService
         }
       },
-
-      /**
-       * request version list when selectedAppId or selectedProfileId is changed
-       * TODO: not used
-       */
-//       requestVersionList(appId, profileId) {
-//         if (!appId || !profileId) {
-//           console.log(`appId or profileId can not be empty: ${appId}, ${profileId}`);
-//           return;
-//         }
-//         this.selectedVersion = null;
-//         this.$net.getServiceVersion({
-//           appId: appId,
-//           spaceId: profileId
-//         }).then(content => {
-// //          console.log(content);
-//           if (content.hasOwnProperty('version')) {
-//             let version = content.version;
-//             if (version && Array.isArray(version) && version.length > 0) {
-//               this.currentVersionList = version;
-//               this.selectedVersion = version[0];
-//             }
-//           }
-//         }).catch(err => {
-//           console.log(err);
-//           this.$message({
-//             type: 'error',
-//             message: '查找服务版本失败！'
-//           });
-//         });
-//       },
     }
   }
 </script>

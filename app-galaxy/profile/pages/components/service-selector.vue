@@ -187,19 +187,14 @@
         } else {
           selectedProfile = this.$storeHelper.getProfileInfoByID(this.selectedProfileId);
         }
-        var selectedService = {
-          id: 10,
-          serviceVersion: 'default'
-        };
-        return this.$utils.cloneDeep({selectedApp, selectedProfile, selectedService});
+        return this.$utils.cloneDeep({selectedApp, selectedProfile});
       },
 
       serviceSelected() {
         const selectedInfo = this.getSelectedInfo();
         this.$emit('service-selected',
           this.$utils.cloneDeep(selectedInfo.selectedApp),
-          this.$utils.cloneDeep(selectedInfo.selectedProfile),
-          this.$utils.cloneDeep(selectedInfo.selectedService)
+          this.$utils.cloneDeep(selectedInfo.selectedProfile)
         );
       },
     }
